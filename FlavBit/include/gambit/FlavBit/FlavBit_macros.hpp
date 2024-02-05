@@ -95,6 +95,21 @@ namespace Gambit
       }                                                                  \
     }                                                                    \
 
+    #define SI_SINGLE_PREDICTION_FUNCTION_EXP_BINS(name,exp,bins)        \
+    void CAT_4(SuperIso_prediction_,name,_,exp)(flav_binned_prediction&  \
+     result)                                                             \
+    {                                                                    \
+      using namespace CAT_4(Pipes::SuperIso_prediction_,name,_,exp);     \
+      flav_prediction prediction;                                        \
+      static const std::vector<str> FB_obslist = {#name};                \
+      static const std::vector<str> vbins = {MAKE_BIN_BRACE(bins)};      \
+      for(str bin: vbins)                                                \
+      {                                                                  \
+        THE_REST(bin)                                                    \
+        result[bin] = prediction;                                        \
+      }                                                                  \
+    }                                                                    \
+
     #define SI_MULTI_PREDICTION_FUNCTION(name)                           \
     void CAT(SuperIso_prediction_,name)(flav_prediction& result)         \
     {                                                                    \
@@ -107,6 +122,7 @@ namespace Gambit
       THE_REST("")                                                       \
       result = prediction;                                               \
     }                                                                    \
+
 
     #define SI_MULTI_PREDICTION_FUNCTION_BINS(name,exp,bins)             \
     void CAT_4(SuperIso_prediction_,name,_,exp)(flav_binned_prediction&  \

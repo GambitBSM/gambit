@@ -57,7 +57,7 @@ HepLike:
   2.2:         ./Backends/installed/heplike/2.2/libHEPLike.so
 
 HepLikeData:
-  1.6:         ./Backends/installed/heplikedata/1.6
+  1.7:         ./Backends/installed/heplikedata/1.7
 
 DDCalc:
   1.0.0:       ./Backends/installed/ddcalc/1.0.0/lib/libDDCalc.so

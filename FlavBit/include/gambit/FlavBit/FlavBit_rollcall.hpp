@@ -781,9 +781,99 @@ START_MODULE
   #undef CAPABILITY
 
 
-  #define CAPABILITY prediction_B2KmumuBr
+  #define CAPABILITY prediction_B2KmumuBr_LHCb
   START_CAPABILITY
-    #define FUNCTION SuperIso_prediction_B2KmumuBr
+    #define FUNCTION SuperIso_prediction_B2KmumuBr_LHCb
+    START_FUNCTION(flav_binned_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
+  #define CAPABILITY prediction_Bd2KmumuBr_LHCb
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_Bd2KmumuBr_LHCb
+    START_FUNCTION(flav_binned_prediction)
+     DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
+  #define CAPABILITY prediction_B2KmumuBr_CMS
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_B2KmumuBr_CMS
+    START_FUNCTION(flav_binned_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
+  #define CAPABILITY prediction_B2KmumuBr_Belle
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_B2KmumuBr_Belle
+    START_FUNCTION(flav_binned_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
+  #define CAPABILITY prediction_Bd2KmumuBr_Belle
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_Bd2KmumuBr_Belle
+    START_FUNCTION(flav_binned_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
+  #define CAPABILITY prediction_B2KeeBr_Belle
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_B2KeeBr_Belle
+    START_FUNCTION(flav_binned_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
+  #define CAPABILITY prediction_Bd2KeeBr_Belle
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_Bd2KeeBr_Belle
     START_FUNCTION(flav_binned_prediction)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     DEPENDENCY(SuperIso_nuisance, nuisance)
@@ -915,10 +1005,10 @@ START_MODULE
 
 
   // TODO: these should be re-activated once RK and RKstar can be extracted from a future version of SuperIso using the check_nameobs function.
-  /*
-  #define CAPABILITY prediction_RK_LHCb
+
+  #define CAPABILITY prediction_RK
   START_CAPABILITY
-    #define FUNCTION SuperIso_prediction_RK_LHCb
+    #define FUNCTION SuperIso_prediction_RK
     START_FUNCTION(flav_binned_prediction)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     DEPENDENCY(SuperIso_nuisance, nuisance)
@@ -931,9 +1021,9 @@ START_MODULE
   #undef CAPABILITY
 
 
-  #define CAPABILITY prediction_RKstar_LHCb
+  #define CAPABILITY prediction_RKstar
   START_CAPABILITY
-    #define FUNCTION SuperIso_prediction_RKstar_LHCb
+    #define FUNCTION SuperIso_prediction_RKstar
     START_FUNCTION(flav_binned_prediction)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     DEPENDENCY(SuperIso_nuisance, nuisance)
@@ -944,7 +1034,7 @@ START_MODULE
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
   #undef CAPABILITY
-  */
+
 
   #define CAPABILITY prediction_RKRKstar_LHCb
   START_CAPABILITY
@@ -957,6 +1047,40 @@ START_MODULE
     BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
     BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
+  // RK* in q^2 bin from 0.1 GeV^2 to 1.1 GeV^2 in the RHN model
+  #define CAPABILITY RHN_RKstar_01_11
+  START_CAPABILITY
+    #define FUNCTION RHN_RKstar_01_11
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
+    ALLOW_JOINT_MODEL(StandardModel_SLHA2,RightHandedNeutrinos)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // RK* in q^2 bin from 1.1 GeV^2 to 6 GeV^2 in the RHN model
+  #define CAPABILITY RKstar_11_60
+  START_CAPABILITY
+    #define FUNCTION RHN_RKstar_11_60
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
+    ALLOW_JOINT_MODEL(StandardModel_SLHA2,RightHandedNeutrinos)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // RK in the RHN model
+  #define CAPABILITY RK
+  START_CAPABILITY
+    #define FUNCTION RHN_RK
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
+    ALLOW_JOINT_MODEL(StandardModel_SLHA2,RightHandedNeutrinos)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1354,87 +1478,6 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-
-  // TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
-  // Observable: RK* in q^2 bin from 0.1 GeV^2 to 1.1 GeV^2
-  #define CAPABILITY RKstar_01_11
-  START_CAPABILITY
-    #define FUNCTION SuperIso_RKstar_01_11
-    START_FUNCTION(double)
-    DEPENDENCY(SuperIso_modelinfo, parameters)
-    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
-    // BACKEND_REQ(RKstar, (libsuperiso), double, (const parameters*, double, double))
-    BACKEND_REQ(SuperIso_RKstar_computation, (libsuperiso), double, (const parameters*, double, double))
-    #undef FUNCTION
-
-    // Function to calcualte RK* for RHN
-    #define FUNCTION RHN_RKstar_01_11
-    START_FUNCTION(double)
-    DEPENDENCY(SMINPUTS, SMInputs)
-    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
-    ALLOW_JOINT_MODEL(StandardModel_SLHA2,RightHandedNeutrinos)
-    #undef FUNCTION
-
-  #undef CAPABILITY
-
-  // TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
-  // Observable: RK* in q^2 bin from 1.1 GeV^2 to 6 GeV^2
-  #define CAPABILITY RKstar_11_60
-  START_CAPABILITY
-    #define FUNCTION SuperIso_RKstar_11_60
-    START_FUNCTION(double)
-    DEPENDENCY(SuperIso_modelinfo, parameters)
-    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
-    // BACKEND_REQ(RKstar, (libsuperiso), double, (const parameters*, double, double))
-    BACKEND_REQ(SuperIso_RKstar_computation, (libsuperiso), double, (const parameters*, double, double))
-    #undef FUNCTION
-
-    // Function to calculate RK* for RHN
-    #define FUNCTION RHN_RKstar_11_60
-    START_FUNCTION(double)
-    DEPENDENCY(SMINPUTS, SMInputs)
-    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
-    ALLOW_JOINT_MODEL(StandardModel_SLHA2,RightHandedNeutrinos)
-    #undef FUNCTION
-
-  #undef CAPABILITY
-
-  // TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
-  #define CAPABILITY RK
-  START_CAPABILITY
-    //Function to calculate RK for RHN
-    #define FUNCTION RHN_RK
-    START_FUNCTION(double)
-    DEPENDENCY(SMINPUTS, SMInputs)
-    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
-    ALLOW_JOINT_MODEL(StandardModel_SLHA2,RightHandedNeutrinos)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  // Observable: RK in q^2 bin from 0.1 GeV^2 to 1.1 GeV^2
-  #define CAPABILITY RK_01_11
-  START_CAPABILITY
-    #define FUNCTION SuperIso_RK_01_11
-    START_FUNCTION(double)
-    DEPENDENCY(SuperIso_modelinfo, parameters)
-    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
-    // BACKEND_REQ(RK, (libsuperiso), double, (const parameters*, double, double))
-    BACKEND_REQ(SuperIso_RK_computation, (libsuperiso), double, (const parameters*, double, double))
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  // Observable: RK in q^2 bin from 1.1 GeV^2 to 6 GeV^2
-  #define CAPABILITY RK_11_60
-  START_CAPABILITY
-    #define FUNCTION SuperIso_RK_11_60
-    START_FUNCTION(double)
-    DEPENDENCY(SuperIso_modelinfo, parameters)
-    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
-    // BACKEND_REQ(RK, (libsuperiso), double, (const parameters*, double, double))
-    BACKEND_REQ(SuperIso_RK_computation, (libsuperiso), double, (const parameters*, double, double))
-    #undef FUNCTION
-  #undef CAPABILITY
-
   // Observable: BR(B -> K nu nu)
   #define CAPABILITY BKnunu
   START_CAPABILITY
@@ -1588,7 +1631,7 @@ START_MODULE
     DEPENDENCY(THDM_spectrum, Spectrum)
     ALLOW_MODELS(THDM,THDMatQ)
     #undef FUNCTION
-  #undef CAPABILITY	
+  #undef CAPABILITY
 
   //###############################################
   //Lepton Flavour Universality Violation
@@ -1921,11 +1964,11 @@ START_MODULE
   #undef CAPABILITY
 
   ///t->Hpb->bc decay likelihood
-  #define CAPABILITY t2bbc_LogLikelihood 
+  #define CAPABILITY t2bbc_LogLikelihood
   START_CAPABILITY
     #define FUNCTION t2bbc_likelihood
     START_FUNCTION(double)
-    DEPENDENCY(t2bbc, double) 
+    DEPENDENCY(t2bbc, double)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2273,7 +2316,7 @@ START_MODULE
   #undef CAPABILITY
 
 
-  ///HEPLike LogLikelihood B -> K* mu mu BR
+  ///HEPLike LogLikelihood B -> K* mu mu BR (LHCb)
   #define CAPABILITY B2KstarmumuBr_LogLikelihood_LHCb
   START_CAPABILITY
     #define FUNCTION HEPLike_B2KstarmumuBr_LogLikelihood_LHCb
@@ -2284,12 +2327,73 @@ START_MODULE
   #undef CAPABILITY
 
 
-  ///HEPLike LogLikelihood B -> K mu mu BR
+  ///HEPLike LogLikelihood B+ -> K+ mu mu BR (LHCb)
   #define CAPABILITY B2KmumuBr_LogLikelihood_LHCb
   START_CAPABILITY
     #define FUNCTION HEPLike_B2KmumuBr_LogLikelihood_LHCb
     START_FUNCTION(double)
-    DEPENDENCY(prediction_B2KmumuBr, flav_binned_prediction)
+    DEPENDENCY(prediction_B2KmumuBr_LHCb, flav_binned_prediction)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  ///HEPLike LogLikelihood B0 -> K0 mu mu BR (LHCb)
+  #define CAPABILITY Bd2KmumuBr_LogLikelihood_LHCb
+  START_CAPABILITY
+    #define FUNCTION HEPLike_Bd2KmumuBr_LogLikelihood_LHCb
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_Bd2KmumuBr_LHCb, flav_binned_prediction)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  ///HEPLike LogLikelihood B+ -> K+ mu mu BR (CMS)
+  #define CAPABILITY B2KmumuBr_LogLikelihood_CMS
+  START_CAPABILITY
+    #define FUNCTION HEPLike_B2KmumuBr_LogLikelihood_CMS
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_B2KmumuBr_CMS, flav_binned_prediction)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
+  ///HEPLike LogLikelihood B+ -> K+ mu mu BR (Belle)
+  #define CAPABILITY B2KmumuBr_LogLikelihood_Belle
+  START_CAPABILITY
+    #define FUNCTION HEPLike_B2KmumuBr_LogLikelihood_Belle
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_B2KmumuBr_Belle, flav_binned_prediction)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  ///HEPLike LogLikelihood B0 -> K0 mu mu BR (Belle)
+  #define CAPABILITY Bd2KmumuBr_LogLikelihood_Belle
+  START_CAPABILITY
+    #define FUNCTION HEPLike_Bd2KmumuBr_LogLikelihood_Belle
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_Bd2KmumuBr_Belle, flav_binned_prediction)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  ///HEPLike LogLikelihood B+ -> K+ e e BR (Belle)
+  #define CAPABILITY B2KeeBr_LogLikelihood_Belle
+  START_CAPABILITY
+    #define FUNCTION HEPLike_B2KeeBr_LogLikelihood_Belle
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_B2KeeBr_Belle, flav_binned_prediction)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  ///HEPLike LogLikelihood B0 -> K0 e e BR (Belle)
+  #define CAPABILITY Bd2KeeBr_LogLikelihood_Belle
+  START_CAPABILITY
+    #define FUNCTION HEPLike_Bd2KeeBr_LogLikelihood_Belle
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_Bd2KeeBr_Belle, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -2305,30 +2409,39 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  // TODO: these should be re-activated once RK and RKstar can be extracted from a future version of SuperIso using the check_nameobs function.
-  ///HEPLike LogLikelihood for RK
-  #define CAPABILITY RK_LogLikelihood_LHCb
+  ///HEPLike LogLikelihood for RK (CMS)
+  #define CAPABILITY RK_LogLikelihood_CMS
   START_CAPABILITY
-    #define FUNCTION RK_LogLikelihood_LHCb
+    #define FUNCTION HEPLike_RK_LogLikelihood_CMS
     START_FUNCTION(double)
-    DEPENDENCY(RK, double)
+    MODEL_CONDITIONAL_DEPENDENCY(prediction_RK, flav_binned_prediction, THDM, THDMatQ, MSSM63atQ, MSSM63atMGUT, GWC)
+    MODEL_CONDITIONAL_DEPENDENCY(RHN_RK, double, RightHandedNeutrinos)
+    MODEL_CONDITIONAL_DEPENDENCY(RHN_RKstar_01_11, double, RightHandedNeutrinos)
+    MODEL_CONDITIONAL_DEPENDENCY(RHN_RKstar_11_60, double, RightHandedNeutrinos)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
-  ///HEPLike LogLikelihood for RKstar
-  #define CAPABILITY RKstar_LogLikelihood_LHCb
+  ///HEPLike LogLikelihood for RK (Belle)
+  #define CAPABILITY RK_LogLikelihood_Belle
   START_CAPABILITY
-    #define FUNCTION RKstar_LogLikelihood_LHCb
+    #define FUNCTION HEPLike_RK_LogLikelihood_Belle
     START_FUNCTION(double)
-    DEPENDENCY(RKstar_0045_11, double)
-    DEPENDENCY(RKstar_11_60, double)
+    MODEL_CONDITIONAL_DEPENDENCY(prediction_RK, flav_binned_prediction, THDM, THDMatQ, MSSM63atQ, MSSM63atMGUT, GWC)
+    MODEL_CONDITIONAL_DEPENDENCY(RHN_RK, double, RightHandedNeutrinos)
+    MODEL_CONDITIONAL_DEPENDENCY(RHN_RKstar_01_11, double, RightHandedNeutrinos)
+    MODEL_CONDITIONAL_DEPENDENCY(RHN_RKstar_11_60, double, RightHandedNeutrinos)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY RKRKstar_LogLikelihood_LHCb
     #define FUNCTION HEPLike_RKRKstar_LogLikelihood_LHCb
     START_FUNCTION(double)
-    DEPENDENCY(prediction_RKRKstar_LHCb, flav_binned_prediction)
+    MODEL_CONDITIONAL_DEPENDENCY(prediction_RKRKstar_LHCb, flav_binned_prediction, THDM, THDMatQ, MSSM63atQ, MSSM63atMGUT, GWC)
+    MODEL_CONDITIONAL_DEPENDENCY(RHN_RK, double, RightHandedNeutrinos)
+    MODEL_CONDITIONAL_DEPENDENCY(RHN_RKstar_01_11, double, RightHandedNeutrinos)
+    MODEL_CONDITIONAL_DEPENDENCY(RHN_RKstar_11_60, double, RightHandedNeutrinos)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY

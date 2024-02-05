@@ -41,6 +41,51 @@ namespace Gambit
   {
     flav_observable_map central_values;
     flav_covariance_map covariance;
+
+    // Empty constructor
+    flav_prediction()
+    {}
+
+    // Constructor with both central values and covariance
+    flav_prediction(flav_observable_map cv, flav_covariance_map cov) : central_values(cv), covariance(cov)
+    {}
+
+    // Constructor only with central values
+    flav_prediction(flav_observable_map cv) : central_values(cv)
+    {
+      for(auto &val1 : central_values)
+        for(auto &val2 : central_values)
+          covariance[val1.first][val2.first] = 0.0;
+    }
+
+    // Sum two different contribution as flav_predictions
+    flav_prediction &operator+=(flav_prediction fp)
+    {
+      for(auto &cv : fp.central_values)
+      {
+        if(central_values.find(cv.first) != central_values.end())
+        {
+          central_values[cv.first] += cv.second;
+          for(auto &cv2 : fp.central_values)
+            covariance[cv.first][cv2.first] += fp.covariance[cv.first][cv2.first];
+        }
+        else
+        {
+          central_values[cv.first] = cv.second;
+          covariance[cv.first] = {{cv.first, fp.covariance[cv.first][cv.first]}};
+          for(auto &cv2 : central_values)
+          {
+            if(fp.covariance.find(cv2.first) != fp.covariance.end())
+              covariance[cv2.first][cv.first] = fp.covariance[cv2.first][cv.first];
+            else
+              covariance[cv2.first][cv.first] = 0.0;
+            covariance[cv.first][cv2.first] = covariance[cv2.first][cv.first];
+          }
+
+        }
+      }
+      return *this;
+    }
   };
 
   /// Stream overload for flav_prediction
@@ -76,5 +121,5 @@ namespace Gambit
 
     return os;
   }
-  
+
 }
