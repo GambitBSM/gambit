@@ -419,12 +419,12 @@ namespace Gambit
       const double mCmC = Dep::SMINPUTS->mCmC;
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
-      std::complex<double> CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> gp =  (CRcb - CLcb)/CSMcb;
-      std::complex<double> gpmutau =  (CRcbmutau - CLcbmutau)/CSMcb;
+      std::complex<double> CRcb = -(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> gp =  1.5*(CRcb - CLcb)/CSMcb;
+      std::complex<double> gpmutau =  1.5*(CRcbmutau - CLcbmutau)/CSMcb;
 
       result = GammaDstar_Gamma(gp,gpmutau);
       if (flav_debug) printf("Gamma(B->D* tau nu)/Gamma=%.3e\n",result);
@@ -460,12 +460,12 @@ namespace Gambit
       std::complex<double> ximutau = Ymutau/cosb;
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
-      std::complex<double> CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> gs =  (CRcb + CLcb)/CSMcb;
-      std::complex<double> gsmutau =  (CRcbmutau + CLcbmutau)/CSMcb;
+      std::complex<double> CRcb = -(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> gs =  1.5*(CRcb + CLcb)/CSMcb;
+      std::complex<double> gsmutau =  1.5*(CRcbmutau + CLcbmutau)/CSMcb;
 
       double q2 = (q2min + q2max)/2;
 
@@ -503,12 +503,12 @@ namespace Gambit
       std::complex<double> ximutau = Ymutau/cosb;
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
-      std::complex<double> CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> gp = (CRcb - CLcb)/CSMcb;
-      std::complex<double> gpmutau = (CRcbmutau - CLcbmutau)/CSMcb;
+      std::complex<double> CRcb = -(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> gp = 1.5*(CRcb - CLcb)/CSMcb;
+      std::complex<double> gpmutau = 1.5*(CRcbmutau - CLcbmutau)/CSMcb;
       double q2 = (q2min + q2max)/2;
 
       double dGamma_dq2_Gamma = THDM_dGammaBDstarlnu(gp, gpmutau, q2)/Gamma_BDstarlnu(gp, gpmutau, 3, 13);
@@ -1007,18 +1007,18 @@ namespace Gambit
       std::complex<double> CLcb(0,0);
       if (gen==3)
       {
-      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
-      CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
+      CRcb = -(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
+      CLcb = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
       }
       else if (gen==2)
       {
-      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximumu)/pow(mHp,2);
-      CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
+      CRcb = -(Vcb*xibb+Vcs*xisb)*std::conj(ximumu)/pow(mHp,2);
+      CLcb = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
       }
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> gs = (CRcb + CLcb)/CSMcb;
-      std::complex<double> gsmutau = (CRcbmutau + CLcbmutau)/CSMcb;
+      std::complex<double> CRcbmutau = -(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> gs = 1.5*(CRcb + CLcb)/CSMcb;
+      std::complex<double> gsmutau = 1.5*(CRcbmutau + CLcbmutau)/CSMcb;
 
       double Gamma = Gamma_BDlnu(gs, gsmutau, gen, 13);
 
@@ -1126,18 +1126,18 @@ namespace Gambit
       std::complex<double> CLcb(0,0);
       if (gen==3)
       {
-      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
-      CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
+      CRcb = -(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
+      CLcb = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
       }
       else if (gen==2)
       {
-      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximumu)/pow(mHp,2);
-      CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
+      CRcb = -(Vcb*xibb+Vcs*xisb)*std::conj(ximumu)/pow(mHp,2);
+      CLcb = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
       }
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> gp = (CRcb - CLcb)/CSMcb;
-      std::complex<double> gpmutau = (CRcbmutau - CLcbmutau)/CSMcb;
+      std::complex<double> CRcbmutau = -(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> gp = 1.5*(CRcb - CLcb)/CSMcb;
+      std::complex<double> gpmutau = 1.5*(CRcbmutau - CLcbmutau)/CSMcb;
 
       double Gamma = Gamma_BDstarlnu(gp, gpmutau, gen, 15);
 
@@ -1207,20 +1207,20 @@ namespace Gambit
 
     ///  B-> D tau nu / B-> D mu nu decays in THDM
     void THDM_RD(double &result)
-    {
+    { 
       using namespace Pipes::THDM_RD;
       if (flav_debug) std::cout<<"Starting THDM_RD"<< std::endl;
-
+      
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-
+      
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
       const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vcb = A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       double tanb = spectrum.get(Par::dimensionless,"tanb");
-      double beta = atan(tanb);
+      double beta = atan(tanb); 
       double cosb = cos(beta);
       const double v = spectrum.get(Par::mass1, "vev");
       const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
@@ -1228,6 +1228,7 @@ namespace Gambit
       const double mTau = Dep::SMINPUTS->mTau;
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      std::complex<double> Yetau(spectrum.get(Par::dimensionless,"Ye2",1,3), spectrum.get(Par::dimensionless, "ImYe2",1,3));
       std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
       std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
       std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
@@ -1240,21 +1241,25 @@ namespace Gambit
       std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
       std::complex<double> ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
       std::complex<double> ximutau = Ymutau/cosb;
+      std::complex<double> xietau = Yetau/cosb;
       const double mCmC = Dep::SMINPUTS->mCmC;
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
-      std::complex<double> CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
-      std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximumu)/pow(mHp,2);
-      std::complex<double> CLcbmumu = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> gs =  (CRcb + CLcb)/CSMcb;
-      std::complex<double> gsmumu =  (CRcbmumu + CLcbmumu)/CSMcb;
-      std::complex<double> gsmutau =  (CRcbmutau + CLcbmutau)/CSMcb;
-
-      result = (1+1.5*std::real(gs)+1.0*(std::norm(gs)+std::norm(gsmutau)))/(3.34+4.795*(std::norm(gsmumu)+std::norm(gsmutau)));
-
+      std::complex<double> CRcb = -(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmumu = -(Vcb*xibb+Vcs*xisb)*std::conj(ximumu)/pow(mHp,2);
+      std::complex<double> CLcbmumu = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CRcbetau = -(Vcb*xibb+Vcs*xisb)*conj(xietau)/pow(mHp,2);
+      std::complex<double> CLcbetau = (Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xietau)/pow(mHp,2);
+      std::complex<double> gs = 1.5*(CRcb+CLcb)/CSMcb;//The 1.5 factor comes from RG effects
+      std::complex<double> gsmumu =  1.5*(CRcbmumu+CLcbmumu)/CSMcb;
+      std::complex<double> gsmutau =  1.5*(CRcbmutau+CLcbmutau)/CSMcb;
+      std::complex<double> gsetau =  1.5*(CRcbetau+CLcbetau)/CSMcb;
+      //Expression calculated using form factors and definitions from SuperIso
+      result = (1+1.725*std::real(gs+gsmutau)+1.355*(std::norm(gs)+std::norm(gsmutau)))/(3.271+0.57*(std::real(gsmumu+gsmutau))+4.795*(std::norm(gsmumu)+std::norm(gsmutau)));
+      //result = (1+1.725*std::real(gs+gsmutau+gsetau)+1.355*(std::norm(gs)+std::norm(gsmutau)+std::norm(gsetau)))/(3.271+0.57*(std::real(gsmumu+gsmutau))+4.795*(std::norm(gsmumu)+std::norm(gsmutau)));
       if (flav_debug) printf("BR(B->D tau nu)/BR(B->D mu nu)=%.3e\n",result);
       if (flav_debug) std::cout<<"Finished THDM_RD"<< std::endl;
     }
@@ -1295,6 +1300,7 @@ namespace Gambit
       const double mTau = Dep::SMINPUTS->mTau;
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      std::complex<double> Yetau(spectrum.get(Par::dimensionless,"Ye2",1,3), spectrum.get(Par::dimensionless, "ImYe2",1,3));
       std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
       std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
       std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
@@ -1307,24 +1313,27 @@ namespace Gambit
       std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
       std::complex<double> ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
       std::complex<double> ximutau = Ymutau/cosb;
+      std::complex<double> xietau = Yetau/cosb;
       const double mCmC = Dep::SMINPUTS->mCmC;
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
-      std::complex<double> CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
-      std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximumu)/pow(mHp,2);
-      std::complex<double> CLcbmumu = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> gp =  (CRcb - CLcb)/CSMcb;
-      std::complex<double> gpmumu =  (CRcbmumu - CLcbmumu)/CSMcb;
-      std::complex<double> gpmutau =  (CRcbmutau - CLcbmutau)/CSMcb;
-
-      result = (1+0.12*std::real(gp)+0.05*(std::norm(gp)+std::norm(gpmutau)))/(3.89+0.246*(std::norm(gpmumu)+std::norm(gpmutau)));
-      if (flav_debug) printf("BR(B->D tau nu)/BR(B->D mu nu)=%.3e\n",result);
+      std::complex<double> CRcb = -(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmumu = -(Vcb*xibb+Vcs*xisb)*std::conj(ximumu)/pow(mHp,2);
+      std::complex<double> CLcbmumu = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CRcbetau = -(Vcb*xibb+Vcs*xisb)*std::conj(xietau)/pow(mHp,2);
+      std::complex<double> CLcbetau = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xietau)/pow(mHp,2);
+      std::complex<double> gp =  1.5*(CRcb - CLcb)/CSMcb;
+      std::complex<double> gpmumu =  1.5*(CRcbmumu - CLcbmumu)/CSMcb;
+      std::complex<double> gpmutau = 1.5*(CRcbmutau - CLcbmutau)/CSMcb;
+      std::complex<double> gpetau = 1.5*(CRcbetau - CLcbetau)/CSMcb;
+      result = (1+0.11*std::real(gp+gpmutau)+0.04*(std::norm(gp)+std::norm(gpmutau)))/(3.89+0.082*(std::real(gpmumu+gpmutau))+0.25*(std::norm(gpmumu)+std::norm(gpmutau)));
+      //result = (1+0.11*std::real(gp+gpmutau+gpetau)+0.04*(std::norm(gp)+std::norm(gpmutau)+std::norm(gpetau)))/(3.89+0.082*(std::real(gpmumu+gpmutau))+0.25*(std::norm(gpmumu)+std::norm(gpmutau)));
+      if (flav_debug) printf("BR(B->D* tau nu)/BR(B->D* mu nu)=%.3e\n",result);
       if (flav_debug) std::cout<<"Finished THDM_RDstar"<< std::endl;
     }
-
 
     /// B -> D e nu / B -> D mu nu
     void SuperIso_prediction_RDemu(double &result)
@@ -1384,10 +1393,10 @@ namespace Gambit
       const double mCmC = Dep::SMINPUTS->mCmC;
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximumu)/pow(mHp,2);
-      std::complex<double> CLcbmumu = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CRcbmumu = -(Vcb*xibb+Vcs*xisb)*std::conj(ximumu)/pow(mHp,2);
+      std::complex<double> CLcbmumu = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
       std::complex<double> gsmumu =  (CRcbmumu + CLcbmumu)/CSMcb;
       std::complex<double> gsmutau =  (CRcbmutau + CLcbmutau)/CSMcb;
 
@@ -1568,6 +1577,83 @@ namespace Gambit
 
       if (flav_debug) std::cout<<"Finished SL_measurements"<< std::endl;
     }
+
+    /// Auxiliary function for  BR(Bc->taunu) adn Bc lifetime in the THDM
+    void THDM_Bc_obs(SMInputs sminputs, Spectrum spectrum, int i, double &result)
+    {
+      const double lambda = sminputs.CKM.lambda;
+      const double A = sminputs.CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      const double v = spectrum.get(Par::mass1, "vev");
+      const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
+      const double mTau = sminputs.mTau;
+      const double mBmB = sminputs.mBmB;
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      const double hbar = 6.582119514e-25;
+      const double mCmC = sminputs.mCmC;
+      std::complex<double> Yetau(spectrum.get(Par::dimensionless,"Ye2",1,3), spectrum.get(Par::dimensionless, "ImYe2",1,3));
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xitc = Ytc/cosb;
+      std::complex<double> xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      std::complex<double> xisb = Ysb/cosb;
+      std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      std::complex<double> ximutau = Ymutau/cosb;
+      std::complex<double> xietau = Yetau/cosb;
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> CRcb = -(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = (Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = (Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CRcbetau = -(Vcb*xibb+Vcs*xisb)*conj(xietau)/pow(mHp,2);
+      std::complex<double> CLcbetau = (Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xietau)/pow(mHp,2);
+      std::complex<double> gp =  1.5*(CRcb - CLcb)/CSMcb;
+      std::complex<double> gpmutau =  1.5*(CRcbmutau - CLcbmutau)/CSMcb;
+      std::complex<double> gpetau =  1.5*(CRcbetau - CLcbetau)/CSMcb;
+      std::complex<double> factor = {4.35,0};
+      std::complex<double> one = {1,0};
+      const double Gamma_Bc_SM = (hbar/(0.52e-12)); //Theoretical value in GeV^-1 from 1611.06676
+      const double Gamma_Bc_exp = (hbar/(0.510e-12)); //experimental value in GeV^-1
+      const double BR_Bc_SM = 0.022634487;
+      double BR_Bc_THDM = BR_Bc_SM*(norm(one + factor*gp)+norm(factor*gpmutau)+norm(factor*gpetau));
+      double Gamma_Bc_THDM = (BR_Bc_THDM-BR_Bc_SM)*Gamma_Bc_exp;
+      if (i==1)
+      {
+      result = hbar/(Gamma_Bc_SM + Gamma_Bc_THDM);
+      }
+      else if (i==2)
+      {
+      result = BR_Bc_THDM;
+      }
+
+    }
+
+    void THDM_Bc_lifetime(double &result)
+    {
+      using namespace Pipes::THDM_Bc_lifetime;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      THDM_Bc_obs(sminputs,spectrum, 1, result);
+    }
+
+    void THDM_Bc2taunu(double &result)
+    {
+      using namespace Pipes::THDM_Bc2taunu;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      THDM_Bc_obs(sminputs,spectrum, 2, result);
+    }    
 
     ///------------------------///
     ///      Likelihoods       ///
@@ -1750,6 +1836,40 @@ namespace Gambit
     // TODO: This does not work currently in this form as it is not implemented in SuperIso
     /// HEPLike LogLikelihood B -> tau nu
     //HEPLIKE_GAUSSIAN_1D_LIKELIHOOD(B2taunu, "/data/PDG/Semileptonic/B2TauNu.yaml")
+
+    /// Likelihood for the Bc lifetime
+    void Bc_lifetime_likelihood(double &result)
+    { 
+      using namespace Pipes::Bc_lifetime_likelihood;
+      static bool th_err_absolute, first = true;
+      static double exp_meas, exp_taulifetime_err, th_err;
+      
+      if (flav_debug) std::cout << "Bc_lifetime_likelihood"<< std::endl;
+     
+      if (first)
+      {    
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+        if (flav_debug) std::cout<<"Initialised Flav reader in Bc_lifetime_ikelihood"<< std::endl;
+        fread.read_yaml_measurement("flav_data.yaml", "Bc_lifetime");
+        fread.initialise_matrices();
+        exp_meas = fread.get_exp_value()(0,0);
+        exp_taulifetime_err = sqrt(fread.get_exp_cov()(0,0));
+        th_err = fread.get_th_err()(0,0).first;
+        th_err_absolute = fread.get_th_err()(0,0).second;
+        first = false;
+      }
+
+      if (flav_debug) std::cout << "Experiment: " << exp_meas << " " << exp_taulifetime_err << " " << th_err << std::endl;
+      
+      double theory_prediction = *Dep::Bc_lifetime;
+      double theory_taulifetime_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
+      if (flav_debug) std::cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<exp_taulifetime_err<< std::endl;
+    
+      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
+    
+      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_taulifetime_err, exp_taulifetime_err, profile);
+    }    
 
   }
 }
