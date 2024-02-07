@@ -789,65 +789,6 @@ namespace Gambit
       if (flav_debug) std::cout<<"Finished SuperIso_nuisance_fill"<< std::endl;
     }
 
-    ///  Bc lifetime in the THDM
-    void THDM_Bc_lifetime(double &result)
-    {
-      using namespace Pipes::THDM_Bc_lifetime;
-      if (flav_debug) std::cout<<"Starting THDM_Bc_lifetime"<< std::endl;
-
-      SMInputs sminputs = *Dep::SMINPUTS;
-      Spectrum spectrum = *Dep::THDM_spectrum;
-
-      const double lambda = Dep::SMINPUTS->CKM.lambda;
-      const double A = Dep::SMINPUTS->CKM.A;
-      const double Vcs = 1 - (1/2)*lambda*lambda;
-      const double Vcb = A*lambda*lambda;
-      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
-      double tanb = spectrum.get(Par::dimensionless,"tanb");
-      double beta = atan(tanb);
-      double cosb = cos(beta);
-      const double v = spectrum.get(Par::mass1, "vev");
-      const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
-      const double mTau = Dep::SMINPUTS->mTau;
-      const double mBmB = Dep::SMINPUTS->mBmB;
-      double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      const double m_Bc = 6.2749;//Values taken from SuperIso 3.6
-      const double f_Bc = 0.434;
-      const double hbar = 6.582119514e-25;
-      const double mCmC = Dep::SMINPUTS->mCmC;
-      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
-      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
-      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
-      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
-      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
-      std::complex<double> xitc = Ytc/cosb;
-      std::complex<double> xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      std::complex<double> xisb = Ysb/cosb;
-      std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
-      std::complex<double> ximutau = Ymutau/cosb;
-      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
-      std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
-      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
-      std::complex<double> gp =  (CRcb - CLcb)/CSMcb;
-      std::complex<double> gpmutau =  (CRcbmutau - CLcbmutau)/CSMcb;
-
-      std::complex<double> factor = {(m_Bc*m_Bc/(mTau*(mBmB+mCmC))),0};
-      std::complex<double> one = {1,0};
-      const double Gamma_Bc_SM = (hbar/(0.52e-12)); //Theoretical value in GeV^-1 from 1611.06676
-      const double Gamma_Bc_exp = (hbar/(0.510e-12)); //experimental value in GeV^-1
-      double BR_Bc_THDM = (1/Gamma_Bc_exp)*((m_Bc*pow(f_Bc,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Bc,2),2)*pow(Vcb,2))/(8.*pi))*(norm(one + factor*gp)+norm(factor*gpmutau));
-      double BR_Bc_SM = (1/Gamma_Bc_exp)*((m_Bc*pow(f_Bc,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Bc,2),2)*pow(Vcb,2))/(8.*pi));
-      double Gamma_Bc_THDM = (BR_Bc_THDM-BR_Bc_SM)*Gamma_Bc_exp;
-      result = hbar/(Gamma_Bc_SM + Gamma_Bc_THDM);
-
-      if (flav_debug) printf("THDM_Bc_lifetime=%.3e\n",result);
-      if (flav_debug) std::cout<<"Finished THDM_Bc_lifetime"<< std::endl;
-    }
-
-
     /// Measurement for Delta Bd (Bd mass splitting)
     void SuperIso_prediction_Delta_MBd(double &result)
     {
@@ -975,35 +916,59 @@ namespace Gambit
       std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
       std::complex<double> xi_tc = Ytc/cosb;
       const double Gamma = 1.42;//From PDG 2021 in GeV
-      result = real((1/Gamma)*(mT*pow(cba,2)/(32*pi))*(pow(xi_tc,2)+pow(xi_ct,2))*pow(1-pow(mh/mT,2),2));
+      result = real((1/Gamma)*(mT*pow(cba,2)/(64*pi))*(pow(xi_tc,2)+pow(xi_ct,2))*pow(1-pow(mh/mT,2),2));
       if (flav_debug) printf("BR(t->ch)=%.3e\n",result);
       if (flav_debug) std::cout<<"Finished THDM_t2ch"<< std::endl;
     }
 
-    /// BR(h->taumu) at tree level for the general THDM from JHEP, 06:119, 2019 (ArXiv:1903.10440)
-    void THDM_h2taumu(double &result)
+    /// Auxiliary function for BR(h->mu,e tau) at tree level for the general THDM, can be generalized
+    void THDM_h2llp(SMInputs sminputs, Spectrum spectrum, int l,int lp, double &result)
     {
-      using namespace Pipes::THDM_h2taumu;
-      if (flav_debug) std::cout<<"Starting THDM_h2taumu"<< std::endl;
-      Spectrum spectrum = *Dep::THDM_spectrum;
       double alpha = spectrum.get(Par::dimensionless,"alpha");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
       double cba = cos(beta-alpha);
-      const double mTau = Dep::SMINPUTS->mTau;
+      const double mTau = sminputs.mTau;
       double mh = spectrum.get(Par::Pole_Mass,"h0",1);
       std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
       std::complex<double> Ytaumu(spectrum.get(Par::dimensionless,"Ye2",3,2), spectrum.get(Par::dimensionless, "ImYe2",3,2));
+      std::complex<double> Yetau(spectrum.get(Par::dimensionless,"Ye2",1,3), spectrum.get(Par::dimensionless, "ImYe2",1,3));
+      std::complex<double> Ytaue(spectrum.get(Par::dimensionless,"Ye2",3,1), spectrum.get(Par::dimensionless, "ImYe2",3,1));
       std::complex<double> xi_mutau = Ymutau/cosb;
       std::complex<double> xi_taumu = Ytaumu/cosb;
+      std::complex<double> xi_etau = Yetau/cosb;
+      std::complex<double> xi_taue = Ytaue/cosb;
       const double Gamma = 0.0032;//From PDG 2021 in GeV
-      result = real((1/Gamma)*(3*mh*pow(cba,2)/(8*pi))*(pow(xi_mutau,2)+pow(xi_taumu,2))*pow(1-pow(mTau/mh,2),2));
-      if (flav_debug) printf("BR(h->taumu)=%.3e\n",result);
-      if (flav_debug) std::cout<<"Finished THDM_h2taumu"<< std::endl;
+      if (l==1)
+      {
+      result = real((1/Gamma)*(mh*pow(cba,2)/(16*pi))*(pow(xi_etau,2)+pow(xi_taue,2))*pow(1-pow(mTau/mh,2),2));
+      }
+      else if (l==2)
+      {
+      result = real((1/Gamma)*(mh*pow(cba,2)/(16*pi))*(pow(xi_mutau,2)+pow(xi_taumu,2))*pow(1-pow(mTau/mh,2),2));
+      }
     }
 
-    /// BR(t->H+b->bbc) at tree level for the general THDM from ArXiv:2311.03430)
+    void THDM_h2etau(double &result)
+    {
+      using namespace Pipes::THDM_h2etau;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 1, lp = 3;
+      THDM_h2llp(sminputs,spectrum, l,lp, result);
+    }
+
+    void THDM_h2mutau(double &result)
+    {
+      using namespace Pipes::THDM_h2mutau;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 3;
+      THDM_h2llp(sminputs,spectrum, l,lp, result);
+    }
+
+     /// BR(t->H+b->bbc) at tree level for the general THDM from ArXiv:2311.03430)
     void THDM_t2bbc(double &result)
     {
       using namespace Pipes::THDM_t2bbc;
@@ -1027,7 +992,7 @@ namespace Gambit
       std::complex<double> xi_tc = Ytc/cosb;
       std::complex<double> xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       const double Gamma = 1.42;//From PDG 2021 in GeV
-      double BRt2bHp = (1/Gamma)*(mT/(32*pi))*norm(xi_tt)*pow(1-pow(mHp/mT,2),2);//extra factor of 1/2 from difference in notation compared to ours, xi_ij = 1/sqrt(2) rho_ij
+      double BRt2bHp = (1/Gamma)*(mT/(16*pi))*norm(xi_tt)*pow(1-pow(mHp/mT,2),2);
       double BRHp2cb = 3*norm(xi_tc)/(3*norm(xi_tc)+norm(xi_etau)+norm(xi_mutau)+norm(xi_tautau));
       result = BRt2bHp*BRHp2cb;
       if (flav_debug) printf("BR(t->bHp->bbc)=%.3e\n",result);
@@ -1119,9 +1084,9 @@ namespace Gambit
     }
 
     /// Likelihood for h->taumu
-    void h2taumu_likelihood(double &result)
+    void h2mutau_likelihood(double &result)
     {
-      using namespace Pipes::h2taumu_likelihood;
+      using namespace Pipes::h2mutau_likelihood;
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
       static double th_err[1];
@@ -1133,7 +1098,7 @@ namespace Gambit
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
         fread.debug_mode(flav_debug);
 
-        fread.read_yaml_measurement("flav_data.yaml", "BR_h2taumu");
+        fread.read_yaml_measurement("flav_data.yaml", "BR_h2mutau");
 
         fread.initialise_matrices();
         cov_exp=fread.get_exp_cov();
@@ -1146,7 +1111,7 @@ namespace Gambit
         first = false;
       }
 
-     theory[0] = *Dep::h2taumu;
+     theory[0] = *Dep::h2mutau;
      if(flav_debug) std::cout << "BR(h -> tau mu) = " << theory[0] << std::endl;
 
      result = 0;
@@ -1260,40 +1225,6 @@ namespace Gambit
       
       result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_t2bbc_err, exp_t2bbc_err, profile);
     } 
-
-    /// Likelihood for the Bc lifetime
-    void Bc_lifetime_likelihood(double &result)
-    {
-      using namespace Pipes::Bc_lifetime_likelihood;
-      static bool th_err_absolute, first = true;
-      static double exp_meas, exp_taulifetime_err, th_err;
-
-      if (flav_debug) std::cout << "Bc_lifetime_likelihood"<< std::endl;
-
-      if (first)
-      {
-        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
-        fread.debug_mode(flav_debug);
-        if (flav_debug) std::cout<<"Initialised Flav reader in Bc_lifetime_ikelihood"<< std::endl;
-        fread.read_yaml_measurement("flav_data.yaml", "Bc_lifetime");
-        fread.initialise_matrices();
-        exp_meas = fread.get_exp_value()(0,0);
-        exp_taulifetime_err = sqrt(fread.get_exp_cov()(0,0));
-        th_err = fread.get_th_err()(0,0).first;
-        th_err_absolute = fread.get_th_err()(0,0).second;
-        first = false;
-      }
-
-      if (flav_debug) std::cout << "Experiment: " << exp_meas << " " << exp_taulifetime_err << " " << th_err << std::endl;
-
-      double theory_prediction = *Dep::Bc_lifetime;
-      double theory_taulifetime_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
-      if (flav_debug) std::cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<exp_taulifetime_err<< std::endl;
-
-      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
-
-      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_taulifetime_err, exp_taulifetime_err, profile);
-    }
 
   }
 }

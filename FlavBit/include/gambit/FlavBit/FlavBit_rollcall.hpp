@@ -1637,11 +1637,21 @@ START_MODULE
   //Lepton Flavour Universality Violation
   //###############################################
 
-
-  ///Observable: BR(h->tau mu)
-  #define CAPABILITY h2taumu
+  ///Observable: BR(h->e tau)
+  #define CAPABILITY h2etau
   START_CAPABILITY
-    #define FUNCTION THDM_h2taumu
+    #define FUNCTION THDM_h2etau
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  ///Observable: BR(h->mu tau)
+  #define CAPABILITY h2mutau
+  START_CAPABILITY
+    #define FUNCTION THDM_h2mutau
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -1945,11 +1955,11 @@ START_MODULE
 
 
   ///h->tau mu likelihood
-  #define CAPABILITY h2taumu_LogLikelihood
+  #define CAPABILITY h2mutau_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION h2taumu_likelihood
+    #define FUNCTION h2mutau_likelihood
     START_FUNCTION(double)
-    DEPENDENCY(h2taumu, double)
+    DEPENDENCY(h2mutau, double)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2041,6 +2051,16 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  ///Observable: BR(Bc->tanunu)
+  #define CAPABILITY Bc2taunu
+  START_CAPABILITY
+    #define FUNCTION THDM_Bc2taunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   ///Bs2ll likelihood
   #define CAPABILITY Bs2ll_LogLikelihood

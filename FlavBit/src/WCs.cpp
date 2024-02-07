@@ -53,7 +53,7 @@ namespace Gambit
     {
       if(fabs(1.-t)<1.e-5) return CHp(0.9999);
 
-      return -t*(-1 + t + log(1/t))/(8.*pow(t-1,2));
+      return (1.-t-t*log(1/t))/(pow(t-1,2));
     }
 
     ///Zmix  penguin Greens function
@@ -133,12 +133,12 @@ namespace Gambit
       auto xiD = get_xiF(spectrum,'d');
       auto xiE = get_xiF(spectrum,'e');
 
-      const complexd xi_sb     = xiD[s][b];
-      const complexd xi_bs     = xiD[b][s];
-      const complexd xi_mumu   = xiE[mu][mu];
-      const complexd xi_mutau  = xiE[mu][tau];
-      const complexd xi_taumu  = xiE[tau][mu];
-      const complexd xi_tautau = xiE[tau][tau];
+      const complexd xi_sb     = (1/sqrt(2))*xiD[s][b];
+      const complexd xi_bs     = (1/sqrt(2))*xiD[b][s];
+      const complexd xi_mumu   = (1/sqrt(2))*xiE[mu][mu];
+      const complexd xi_mutau  = (1/sqrt(2))*xiE[mu][tau];
+      const complexd xi_taumu  = (1/sqrt(2))*xiE[tau][mu];
+      const complexd xi_tautau = (1/sqrt(2))*xiE[tau][tau];
 
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
@@ -211,18 +211,18 @@ namespace Gambit
       auto xiD = get_xiF(spectrum,'d');
       auto xiE = get_xiF(spectrum,'e');
 
-      const complexd xi_tt     = xiU[t][t];
-      const complexd xi_cc     = xiU[c][c];
-      const complexd xi_tc     = xiU[t][c];
-      const complexd xi_ct     = xiU[c][t];
-      const complexd xi_bb     = xiD[b][b];
-      const complexd xi_ss     = xiD[s][s];
-      const complexd xi_sb     = xiD[s][b];
-      const complexd xi_bs     = xiD[b][s];
-      const complexd xi_mumu   = xiE[mu][mu];
-      const complexd xi_mutau  = xiE[mu][tau];
-      const complexd xi_taumu  = xiE[tau][mu];
-      const complexd xi_tautau = xiE[tau][tau];
+      const complexd xi_tt     = (1/sqrt(2))*xiU[t][t];
+      const complexd xi_cc     = (1/sqrt(2))*xiU[c][c];
+      const complexd xi_tc     = (1/sqrt(2))*xiU[t][c];
+      const complexd xi_ct     = (1/sqrt(2))*xiU[c][t];
+      const complexd xi_bb     = (1/sqrt(2))*xiD[b][b];
+      const complexd xi_ss     = (1/sqrt(2))*xiD[s][s];
+      const complexd xi_sb     = (1/sqrt(2))*xiD[s][b];
+      const complexd xi_bs     = (1/sqrt(2))*xiD[b][s];
+      const complexd xi_mumu   = (1/sqrt(2))*xiE[mu][mu];
+      const complexd xi_mutau  = (1/sqrt(2))*xiE[mu][tau];
+      const complexd xi_taumu  = (1/sqrt(2))*xiE[tau][mu];
+      const complexd xi_tautau = (1/sqrt(2))*xiE[tau][tau];
 
       Eigen::Matrix3cd xi_L;
 
@@ -238,12 +238,12 @@ namespace Gambit
       complexd C9_gamma = (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*(xi_ct*std::conj(Vcs) + xi_tt*std::conj(Vts))*
                                       (Vcb*std::conj(xi_ct) + Vtb*std::conj(xi_tt))*DHp(pow(mT/mHp,2));
       complexd C9_Z = ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*std::real(Vtb*std::conj(Vts))*sminputs.GF))*(xi_ct*std::conj(Vcs) + xi_tt*std::conj(Vts))*
-                                  (Vcb*std::conj(xi_ct) + Vtb*std::conj(xi_tt))*CHp(pow(mT/mHp,2));
+                                  (Vcb*std::conj(xi_ct) + Vtb*std::conj(xi_tt))*(CHp(pow(mT/mHp,2))-1.);
       complexd C9_Zmix = (mBmB*(4*SW*SW-1)*(xi_bb*std::conj(Vtb) + xi_sb*std::conj(Vts))*(Vcs*std::conj(xi_ct) + Vts*std::conj(xi_tt)))*CHpmix(pow(mT/mHp,2))/(16.*sqrt(2)*sminputs.GF*mT*pow(mW,2)*pow(SW,2)*Vtb*std::conj(Vts));
 
-      complexd C9_Box = (1/(2*mW*mW*SW*SW*std::real(Vtb*std::conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(std::conj(Vcs)*(Vcb*xi_cc*std::conj(xi_cc) + Vcb*xi_ct*std::conj(xi_ct) + Vtb*xi_cc*std::conj(xi_tc) + Vtb*xi_ct*std::conj(xi_tt)) + std::conj(Vts)*(Vcb*xi_tc*std::conj(xi_cc) + Vcb*xi_tt*std::conj(xi_ct) + Vtb*xi_tc*std::conj(xi_tc) + Vtb*xi_tt*std::conj(xi_tt)))*BHp(pow(mT/mHp,2));
+      complexd C9_Box = (1/(2.*mW*mW*SW*SW*std::real(Vtb*std::conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(std::conj(Vcs)*(Vcb*xi_cc*std::conj(xi_cc) + Vcb*xi_ct*std::conj(xi_ct) + Vtb*xi_cc*std::conj(xi_tc) + Vtb*xi_ct*std::conj(xi_tt)) + std::conj(Vts)*(Vcb*xi_tc*std::conj(xi_cc) + Vcb*xi_tt*std::conj(xi_ct) + Vtb*xi_tc*std::conj(xi_tc) + Vtb*xi_tt*std::conj(xi_tt)))*BHp(pow(mT/mHp,2));
 
-      complexd C9_mub = (2/(4*sqrt(2)*27*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*(xi_cc*std::conj(Vcs) + xi_tc*std::conj(Vts))*
+      complexd C9_mub = (2/(4.*sqrt(2)*27*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*(xi_cc*std::conj(Vcs) + xi_tc*std::conj(Vts))*
                                       (Vcb*std::conj(xi_cc) + Vtb*std::conj(xi_tc))*(19+12*log(pow(mBmB/mHp,2)));
 
       complexd C10_Ztotal = (1/(4*SW*SW-1))*(C9_Z+C9_Zmix);
@@ -252,11 +252,11 @@ namespace Gambit
 
       complexd C9p_gamma = (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*DHp(pow(mT/mHp,2));
 
-      complexd C9p_Z = ((1-4*SW*SW)/(sqrt(2)*mW*mW*SW*SW*std::real(Vtb*std::conj(Vts))*sminputs.GF))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*CHp(pow(mT/mHp,2));
+      complexd C9p_Z = ((1-4*SW*SW)/(sqrt(2)*mW*mW*SW*SW*std::real(Vtb*std::conj(Vts))*sminputs.GF))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*(CHp(pow(mT/mHp,2))-1.);
 
-      complexd C9p_Box = (1/(2*mW*mW*SW*SW*std::real(Vtb*std::conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(((Vcb*xi_bb + Vcs*xi_sb)*std::conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*std::conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*std::conj(Vub))*std::conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*std::conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*std::conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*std::conj(Vus))*std::conj(xi_ss))*BHpp(pow(mT/mHp,2));
+      complexd C9p_Box = (1/(2.*mW*mW*SW*SW*std::real(Vtb*std::conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(((Vcb*xi_bb + Vcs*xi_sb)*std::conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*std::conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*std::conj(Vub))*std::conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*std::conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*std::conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*std::conj(Vus))*std::conj(xi_ss))*BHpp(pow(mT/mHp,2));
 
-      complexd C9p_mub = (2/(4*sqrt(2)*27*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*((Vcb*xi_bb + Vcs*xi_sb)*(Vcb*xi_bs + Vcs*xi_ss))*(19+12*log(pow(mBmB/mHp,2)));
+      complexd C9p_mub = (2/(4.*sqrt(2)*27*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*((Vcb*xi_bb + Vcs*xi_sb)*(Vcb*xi_bs + Vcs*xi_ss))*(19+12*log(pow(mBmB/mHp,2)));
 
       complexd C10p_Z = -(1/(1-4*SW*SW))*C9p_Z;
 
@@ -315,8 +315,6 @@ namespace Gambit
     }
 
     ///@}
-
-
     /// Module functions
     ///@{
 
@@ -451,10 +449,10 @@ namespace Gambit
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       auto xiU = get_xiF(spectrum,'u');
       auto xiD = get_xiF(spectrum,'d');
-      const complexd xi_tc     = xiU[t][c];
-      const complexd xi_bb     = xiD[b][b];
-      const complexd xi_sb     = xiD[s][b];
-      const complexd xi_cc     = xiU[c][c];
+      const complexd xi_tc     = (1/sqrt(2))*xiU[t][c];
+      const complexd xi_bb     = (1/sqrt(2))*xiD[b][b];
+      const complexd xi_sb     = (1/sqrt(2))*xiD[s][b];
+      const complexd xi_cc     = (1/sqrt(2))*xiU[c][c];
 
       const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vcb = A*lambda*lambda;
@@ -478,26 +476,34 @@ namespace Gambit
       const double A = Dep::SMINPUTS->CKM.A;
       const double mT = Dep::SMINPUTS->mT;
       const double mBmB = Dep::SMINPUTS->mBmB;
+      const double mC = Dep::SMINPUTS->mCmC;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
 
       auto xiU = get_xiF(spectrum,'u');
       auto xiD = get_xiF(spectrum,'d');
-      const complexd xi_tt     = xiU[t][t];
-      const complexd xi_ct     = xiU[c][t];
-      const complexd xi_bb     = xiD[b][b];
-      const complexd xi_sb     = xiD[s][b];
+      const complexd xi_tt     = (1/sqrt(2))*xiU[t][t];
+      const complexd xi_ct     = (1/sqrt(2))*xiU[c][t];
+      const complexd xi_bb     = (1/sqrt(2))*xiD[b][b];
+      const complexd xi_sb     = (1/sqrt(2))*xiD[s][b];
+      const complexd xi_tc     = (1/sqrt(2))*xiU[t][c];
+      const complexd xi_cc     = (1/sqrt(2))*xiU[c][c];
 
       const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vcb = A*lambda*lambda;
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
 
+      //Mixing with four-fermion operators from JHEP06(2019)119
+      complexd C2diag = (-7.*(xi_cc*std::conj(Vcs) + xi_tc*std::conj(Vts))*(Vcb*std::conj(xi_cc) + Vtb*std::conj(xi_tc)))/(72.*sqrt(2)*sminputs.GF*pow(mHp,2)*Vtb*Vts);
+
+      complexd C2mix = -(mC*(xi_bb*std::conj(Vcb) + xi_sb*std::conj(Vcs))*(xi_cc*std::conj(Vcs) + xi_tc*std::conj(Vts))*(3 + 4*log(pow(mBmB,2)/pow(mHp,2))))/(12.*sqrt(2)*sminputs.GF*mBmB*pow(mHp,2)*Vtb*Vts);
+      // C7 from gamma penguins 
       complexd C70 = (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*((xi_ct*std::conj(Vcs) + xi_tt*std::conj(Vts))*
                (Vcb*std::conj(xi_ct) + Vtb*std::conj(xi_tt))*F7_1(pow(mT/mHp,2)))
                + (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
                (std::conj(Vcs)*std::conj(xi_ct) + std::conj(Vts)*std::conj(xi_tt))*F7_2(pow(mT/mHp,2)));
 
-      result = C70;
+      result = C70 + C2diag + C2mix;
     }
 
     /// Delta C8 in the THDM
@@ -510,26 +516,35 @@ namespace Gambit
       const double A = Dep::SMINPUTS->CKM.A;
       const double mT = Dep::SMINPUTS->mT;
       const double mBmB = Dep::SMINPUTS->mBmB;
+      const double mC = Dep::SMINPUTS->mCmC;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
 
       auto xiU = get_xiF(spectrum,'u');
       auto xiD = get_xiF(spectrum,'d');
-      const complexd xi_tt     = xiU[t][t];
-      const complexd xi_ct     = xiU[c][t];
-      const complexd xi_bb     = xiD[b][b];
-      const complexd xi_sb     = xiD[s][b];
+      const complexd xi_tt     = (1/sqrt(2))*xiU[t][t];
+      const complexd xi_ct     = (1/sqrt(2))*xiU[c][t];
+      const complexd xi_bb     = (1/sqrt(2))*xiD[b][b];
+      const complexd xi_sb     = (1/sqrt(2))*xiD[s][b];
+      const complexd xi_tc     = (1/sqrt(2))*xiU[t][c];
+      const complexd xi_cc     = (1/sqrt(2))*xiU[c][c];
 
       const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vcb = A*lambda*lambda;
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
 
+      //Mixing with four-fermion operators from JHEP06(2019)119
+      complexd C2diag = (-1.*(xi_cc*std::conj(Vcs) + xi_tc*std::conj(Vts))*(Vcb*std::conj(xi_cc) + Vtb*std::conj(xi_tc)))/(12.*sqrt(2)*sminputs.GF*pow(mHp,2)*Vtb*Vts);
+
+      complexd C2mix = -(mC*(xi_bb*std::conj(Vcb) + xi_sb*std::conj(Vcs))*(xi_cc*std::conj(Vcs) + xi_tc*std::conj(Vts))*(3 + 2*log(pow(mBmB,2)/pow(mHp,2))))/(4.*sqrt(2)*sminputs.GF*mBmB*pow(mHp,2)*Vtb*Vts);
+      // C8 from gluon penguins
+
       complexd C80 = (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*((xi_ct*std::conj(Vcs) + xi_tt*std::conj(Vts))*
                (Vcb*std::conj(xi_ct) + Vtb*std::conj(xi_tt))*F7_3(pow(mT/mHp,2)))
                + (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
                (std::conj(Vcs)*std::conj(xi_ct) + std::conj(Vts)*std::conj(xi_tt))*F7_4(pow(mT/mHp,2)));
 
-      result = C80;
+      result = C80 + C2diag + C2mix;
     }
 
     /// Delta C7' in the THDM
@@ -546,10 +561,10 @@ namespace Gambit
 
       auto xiU = get_xiF(spectrum,'u');
       auto xiD = get_xiF(spectrum,'d');
-      const complexd xi_tt     = xiU[t][t];
-      const complexd xi_bb     = xiD[b][b];
-      const complexd xi_sb     = xiD[s][b];
-      const complexd xi_ct     = xiU[c][t];
+      const complexd xi_tt     = (1/sqrt(2))*xiU[t][t];
+      const complexd xi_bb     = (1/sqrt(2))*xiD[b][b];
+      const complexd xi_sb     = (1/sqrt(2))*xiD[s][b];
+      const complexd xi_ct     = (1/sqrt(2))*xiU[c][t];
 
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
@@ -575,10 +590,10 @@ namespace Gambit
 
       auto xiU = get_xiF(spectrum,'u');
       auto xiD = get_xiF(spectrum,'d');
-      const complexd xi_tt     = xiU[t][t];
-      const complexd xi_bb     = xiD[b][b];
-      const complexd xi_sb     = xiD[s][b];
-      const complexd xi_ct     = xiU[c][t];
+      const complexd xi_tt     = (1/sqrt(2))*xiU[t][t];
+      const complexd xi_bb     = (1/sqrt(2))*xiD[b][b];
+      const complexd xi_sb     = (1/sqrt(2))*xiD[s][b];
+      const complexd xi_ct     = (1/sqrt(2))*xiU[c][t];
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       const double Vcb = A*lambda*lambda;
@@ -589,6 +604,7 @@ namespace Gambit
 
       result = C8p0;
     }
+    
 
     /// Delta C9 in the THDM
     void THDM_DeltaC9(complexd &result)

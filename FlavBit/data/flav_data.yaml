@@ -2218,7 +2218,7 @@
     value: 0.016
 
 
-- name: BR_h2taumu
+- name: BR_h2mutau
   islimit: true
   one_sided: false
   exp_value: 0
