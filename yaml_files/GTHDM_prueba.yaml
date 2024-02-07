@@ -1,0 +1,364 @@
+#############################################################################
+## GAMBIT configuration for a diver scan of flavour physics in the GTHDM
+##
+## Uses likelihood constraints from flavour physics observables only,
+## without nuisance parameters.
+#############################################################################
+
+
+Parameters:
+
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+  THDM_physical:
+      lambda6: 0.0
+      lambda7: 0.0
+      mh2: 15647.5
+      sba: 0.995
+      yd2_im_11: 0.0
+      mC2: 16900.0
+      tanb: 0.145
+      yu2_re_22: 0.001055
+      yu2_re_32: 0.445343
+      yu2_re_33: 0.202249
+      yd2_re_22: 0.0
+      yd2_re_32: 0.0
+      yd2_re_33: 0.003445
+      yl2_re_22: 0.000087
+      yl2_re_32: 0.0
+      yl2_re_33: -0.00843
+      mH2: 40000.0
+      mA2: 40000.0
+      m12_2: 0.0
+      yd2_im_12: 0.0
+      yd2_im_13: 0.0
+      yd2_im_21: 0.0
+      yd2_im_22: 0.0
+      yd2_im_23: 0.0
+      yd2_im_31: 0.0
+      yd2_im_32: 0.0
+      yd2_im_33: 0.0
+      yd2_re_11: 0.0
+      yd2_re_12: 0.0
+      yd2_re_13: 0.0
+      yd2_re_21: 0.0
+      yd2_re_23: 0.0
+      yd2_re_31: 0.0
+      yl2_im_11: 0.0
+      yl2_im_12: 0.0
+      yl2_im_13: 0.0
+      yl2_im_21: 0.0
+      yl2_im_22: 0.0
+      yl2_im_23: 0.0
+      yl2_im_31: 0.0
+      yl2_im_32: 0.0
+      yl2_im_33: -0.00843
+      yl2_re_11: 0.0
+      yl2_re_12: 0.0
+      yl2_re_13: 0.0059379
+      yl2_re_21: 0.0
+      yl2_re_23: 0.0098965
+      yl2_re_31: 0.0
+      yu2_im_11: 0.0
+      yu2_im_12: 0.0
+      yu2_im_13: 0.0
+      yu2_im_21: 0.0
+      yu2_im_22: 0.0
+      yu2_im_23: 0.0
+      yu2_im_31: 0.0
+      yu2_im_32: 0.0
+      yu2_im_33: 0.0
+      yu2_re_11: 0.0
+      yu2_re_12: 0.0
+      yu2_re_13: 0.0
+      yu2_re_21: 0.0
+      yu2_re_23: 0.0
+      yu2_re_31: 0.0
+
+
+Priors:
+
+  # All priors are simple, so specified in Parameters section
+
+
+Printer:
+
+  printer: cout
+  options:
+    output_file: "GTHDM_tester.hdf5"
+    group: "/GTHDM"
+    delete_file_on_restart: true
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 400
+      tol: 0.1
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 400
+      convthresh: 1e-3
+
+    square_grid:
+      plugin: square_grid
+      like: LogLike
+      grid_pts: 20
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1
+
+ObsLikes:
+
+    # Calculates all quartic Higgs couplings in the physical
+    # basis & applies a 4pi perturbativity constraint on each
+    # Likelihood type: Half-Gaussian
+
+  - purpose:    LogLike
+    capability: perturbativity_yukawas_LogLikelihood_THDM
+    function: perturbativity_yukawas_LogLikelihood_THDM
+
+  - purpose:    LogLike    
+    capability: perturbativity_LogLikelihood_THDM
+    function: perturbativity_LogLikelihood_THDM
+
+    # Applies the THDM stability constraints on the potential
+    # NOTE: This likelihood has two parts, described below
+    # (i) Applies strict stability constraint
+    # Likelihood type: Acceptance/Rejection
+    # (ii) If rejected, applies looser stabililty constraints
+    # Likelihood type: Half-Gaussian
+  - purpose:    LogLike
+    capability: stability_LogLikelihood_THDM
+    function: stability_LogLikelihood_THDM #Does not use the backend THDMC
+
+    # Checks that the NLO scattering-matrix is unitary
+    # Calculates and applies limit on eigenvalues of matrix
+    # NOTE: This is always a subset of LO unitarity so it not needed
+    # Likelihood type: Half-Gaussian
+    # Only supports CP-conserving models
+  - purpose:    LogLike
+    capability: unitarity_LogLikelihood_THDM
+    function: LO_unitarity_LogLikelihood_THDM
+    #function: unitarity_lambdas_LL #Does not use the backend THDMC
+
+    # Calculates the electroweak precision parameters, S, T, U, V, W, X
+    # & fits to meausured values. S, T, U involve a correlation matrix.
+    # Includes low-energy notation described in arxiv::9407203.
+    # Likelihood type: Half-Gaussian
+
+  - purpose:    LogLike
+    capability: oblique_parameters_LogLikelihood
+    module: PrecisionBit
+    function: get_oblique_parameters_LogLikelihood
+
+    #### NOTE
+    #Observables of interest  
+
+  - purpose: Observable
+    capability: DeltaC9
+    module: FlavBit
+    function: THDM_DeltaC9
+
+  - purpose: Observable
+    capability: DeltaC7
+    module: FlavBit
+    function: THDM_DeltaC7
+
+  - capability: RD
+    function: THDM_RD
+    module: FlavBit
+    purpose: Observable
+
+  - capability: RDstar
+    function: THDM_RDstar
+    module: FlavBit
+    purpose: Observable
+
+  - capability: prediction_DeltaMs
+    function: THDM_Delta_MBs
+    purpose: Observable
+
+  - capability: muegamma
+    function: THDM_muegamma
+    module: FlavBit
+    purpose: Observable
+
+  - capability: t2bbc
+    function: THDM_t2bbc
+    purpose: Observable
+
+  - capability: h2etau
+    function: THDM_h2etau
+    purpose: Observable
+
+  - capability: h2mutau
+    function: THDM_h2mutau
+    purpose: Observable
+
+  - capability: t2ch
+    function: THDM_t2ch
+    purpose: Observable
+
+  - capability: Bc2taunu
+    function: THDM_Bc2taunu
+    purpose: Observable
+
+  - capability: muon_gm2
+    function: THDM_mumugamma
+    module: PrecisionBit
+    purpose: Observable
+
+  - capability: taumugamma
+    function: THDM_taumugamma
+    module: FlavBit
+    purpose: Observable
+
+  - purpose: Observable
+    capability: prediction_RKRKstar_LHCb
+    sub_capabilities: [RK, RKstar]
+
+  - capability: muon_gm2
+    function: THDM_mumugamma
+    module: PrecisionBit
+    purpose: Observable
+
+   #### NOTE
+   #Flavour physics likelihoods
+
+   #FCNC likelihoods
+
+      #- purpose:    LogLike
+      #capability: b2sgamma_LogLikelihood
+
+      # - purpose:    LogLike
+      #capability: B2Kstargamma_LogLikelihood
+
+      #- purpose:    LogLike
+      #capability: B2mumu_LogLikelihood_CMS_ATLAS_LHCb
+      #sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+      #- purpose:    LogLike
+      #capability: B2KstarmumuAng_LogLikelihood_Atlas
+      #sub_capabilities: [FL, S3, S4, S5, S7, S8]
+
+      #- purpose:    LogLike
+      #capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+      #sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+      #- purpose:    LogLike
+      #capability: Bu2KstarmumuAng_LogLikelihood_LHCb_2020
+      #sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+      #- purpose:    LogLike
+      #capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
+      #sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
+
+      #- purpose:    LogLike
+      #capability: B2KstarmumuBr_LogLikelihood_LHCb
+
+      #- purpose:    LogLike
+      #capability: Bs2phimumuBr_LogLikelihood
+
+      #- purpose:    LogLike
+      #capability: B2KmumuBr_LogLikelihood_LHCb
+
+      #- purpose: LogLike
+      #capability: RKRKstar_LogLikelihood_LHCb
+      #sub_capabilities: [RK, RKstar]
+
+    #### NOTE
+    # FCCC Likelihoods
+
+    # Semi-Leptonic likelihood collection 7 obs (Ds,D->munu && Bu,Ds->taunu, RD(*) and included Rmu=BR(K->munu)/BR(pi->munu))
+  - capability: SL_LogLikelihood
+    sub_capabilities: [RD,RDstar]
+    function: SL_likelihood
+    purpose: LogLike
+
+    # FLDstar likelihood 
+    #- capability: FLDstar_LogLikelihood
+    #function: FLDstar_likelihood
+    #purpose: LogLike
+
+      #Bc->tanu lifetime likelihood 
+  - capability: Bc_lifetime_LogLikelihood
+    function: Bc_lifetime_likelihood
+    purpose: LogLike
+
+    # # B->Dstar,l,nu likelihood [Normalized differential decay width]
+    #- capability: dBRBDstartaunu_LogLikelihood
+    #function: dBRBDstartaunu_likelihood
+    #purpose: LogLike
+
+    # # B->D,l,nu likelihood [Normalized differential decay width]
+    #- capability: dBRBDtaunu_LogLikelihood
+    #function: dBRBDtaunu_likelihood
+    #purpose: LogLike
+
+    #### NOTE 
+    ##Other Likelihoods
+
+  - capability: deltaMB_LogLikelihood
+    function: deltaMB_likelihood
+    purpose: LogLike
+
+    #- capability: l2lll_LogLikelihood
+    #function: l2lll_likelihood
+    #purpose: LogLike
+
+  - capability: l2lgamma_LogLikelihood
+    function: l2lgamma_likelihood
+    purpose: LogLike
+
+    # muon g-2 likelihood 
+    #- capability: lnL_gm2
+    #function: lnL_gm2
+    #purpose: LogLike
+
+  - purpose: LogLike
+    capability: t2bbc_LogLikelihood
+
+
+Rules:
+
+  - if:
+      capability: perturbativity_LogLikelihood_THDM
+      function: perturbativity_LogLikelihood_THDM
+    then:
+      dependencies:
+        - if:
+            capability: couplingtable_THDM
+          then:
+            module: SpecBit
+            function: get_coupling_table_using_physical_basis  
+
+Logger:
+
+  redirection:
+    #[Debug]   : "debug.log"
+    [Default] : "default.log"
+   # [FlavBit] : "FlavBit.log"
+
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  default_output_path: "runs/GTHDM_tester"
+
+  debug: true
+
