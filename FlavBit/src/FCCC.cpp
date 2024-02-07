@@ -1512,6 +1512,8 @@ namespace Gambit
         first = false;
       }
 
+      pmc.names = {"BDtaunu", "BDmunu", "BDstarmunu", "RD", "RDstar", "Dstaunu", "Dsmunu", "Dmunu", "Dtaunu", "Rmu", "RDemu"};
+
       // R(D) is calculated assuming isospin symmetry
       double theory[11];
       // B-> tau nu SI
@@ -1652,6 +1654,7 @@ namespace Gambit
       if (flav_debug) std::cout<<"Starting SL_likelihood"<< std::endl;
 
       predictions_measurements_covariances pmc = *Dep::SL_M;
+      static std::vector<str> obs_list = Downstream::subcaps->getNames();
 
       boost::numeric::ublas::matrix<double> cov=pmc.cov_exp;
 
@@ -1668,9 +1671,12 @@ namespace Gambit
       double Chi2=0;
       for (int i=0; i < pmc.dim; ++i)
       {
-        for (int j=0; j<pmc.dim; ++j)
+        if(std::find(obs_list.begin(), obs_list.end(), pmc.names[i]) != obs_list.end())
         {
-          Chi2+= diff[i] * cov_inv(i,j)*diff[j];
+          for (int j=0; j<pmc.dim; ++j)
+          {
+              Chi2+= diff[i] * cov_inv(i,j)*diff[j];
+          }
         }
       }
 

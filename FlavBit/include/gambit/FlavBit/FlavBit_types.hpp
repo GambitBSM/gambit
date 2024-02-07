@@ -86,6 +86,7 @@ namespace Gambit
       boost::numeric::ublas::matrix<double> value_th;
       boost::numeric::ublas::matrix<double> cov_th;
       std::vector<double> diff;
+      std::vector<str> names;
       int dim;
     };
 
