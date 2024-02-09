@@ -316,7 +316,7 @@ namespace Gambit {
           else if (met < 450) { FILL_SIGNAL_REGION("SR42"); }
           else if (met < 600) { FILL_SIGNAL_REGION("SR43"); }
           else if (met < 750) { FILL_SIGNAL_REGION("SR44"); }
-          else                { FILL_SIGNAL_REGION("SR55"); }
+          else                { FILL_SIGNAL_REGION("SR45"); }
         }
         else
         {
