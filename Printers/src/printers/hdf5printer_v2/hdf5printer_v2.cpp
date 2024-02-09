@@ -1478,9 +1478,9 @@ namespace Gambit
                 std::string msg_finalfile;
                 if(HDF5::checkFileReadable(file, msg_finalfile))
                 {
+                    // Note: "not resume" means "start or restart"
                     if(not get_resume())
                     {
-                        // Note: "not resume" means "start or restart"
                         if(overwrite_file)
                         {
                             // Delete existing output file
