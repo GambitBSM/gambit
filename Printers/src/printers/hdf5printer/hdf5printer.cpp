@@ -389,7 +389,7 @@ namespace Gambit
 
         // Name of file where combined results from previous (unfinished) runs end up
         std::ostringstream rename;
-        rename << finalfile << "_temp_combined";
+        rename << finalfile << "_combined";
         tmp_comb_file = rename.str();
 
         // HDF5 group (virtual "folder") inside output file in which to store datasets
@@ -1089,7 +1089,7 @@ namespace Gambit
                                   // follow a fixed format and they all exist. We check for this before
                                   // running this function, so this should be fine.
 
-      // If we set the second last flag 'true' then Greg's code will assume that a '_temp_combined' output file
+      // If we set the second last flag 'true' then Greg's code will assume that a '_combined' output file
       // exists, and it will crash if it doesn't. So we need to first check if such a file exists.
       bool combined_file_exists = Utils::file_exists(tmp_comb_file); // We already check this externally; pass in as flag?
       logger() << LogTags::printers << LogTags::info << "combined_file_exists? " << combined_file_exists << EOM;
