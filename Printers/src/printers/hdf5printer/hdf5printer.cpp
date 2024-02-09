@@ -494,7 +494,7 @@ namespace Gambit
               {
                 // There is no combined output either, so disable resume mode
                 std::ostringstream msg;
-                msg<<"No temporary output from a previous scan found (or it is unreadable); this will be treated as a NEW scan";
+                msg<<"No combined output file " << tmp_comb_file << " from a previous scan found (or it is unreadable); this will be treated as a NEW scan";
                 std::cout<<msg.str()<<std::endl;
                 logger() << LogTags::info << msg.str();
                 set_resume(false);
@@ -537,7 +537,7 @@ namespace Gambit
             logger() << LogTags::printers << LogTags::info << "Rank " << myRank << ": tmp_comb_file readable? " << HDF5::checkFileReadable(tmp_comb_file) << "(filename: " << tmp_comb_file << ")" << EOM;
             if( HDF5::checkFileReadable(tmp_comb_file) )
             {
-              logger() << LogTags::info << "Scanning existing temporary combined output file, to prepare for adding new data" << EOM;
+              logger() << LogTags::info << "Scanning existing temporary combined output file " << tmp_comb_file << ", to prepare for adding new data" << EOM;
               // Open HDF5 file
               file_id = HDF5::openFile(tmp_comb_file);
 
@@ -748,7 +748,7 @@ namespace Gambit
       std::string msg;
       if( HDF5::checkFileReadable(tmp_comb_file, msg) )
       {
-        logger() << LogTags::repeat_to_cout << LogTags::info << "...Existing temporary combined output file was found and is readable" << EOM;
+        logger() << LogTags::repeat_to_cout << LogTags::info << "...Existing temporary combined output file " << tmp_comb_file << " was found and is readable" << EOM;
         combined_file_readable=true;
       }
       else
@@ -824,7 +824,10 @@ namespace Gambit
         else
         {
            std::ostringstream errmsg;
-           errmsg << " Process level temporary HDF5 output was detected, however the 'disable_combine_routines' option is set for the HDF5 printer plugin. The combine code is therefore not permitted to run, so this job cannot proceed. Please either manually combine the output files, restart the scan, or set this option to 'false'" << std::endl;
+           errmsg << " Process level temporary HDF5 output was detected, however the 'disable_combine_routines' option is set for the HDF5 printer plugin." 
+                  << " The combine code is therefore not permitted to run, so this run cannot proceed. "
+                  << " To resume the previous run, either manually combine the temp files into a file " << tmp_comb_file << " and delete/move all the temp files,"
+                  << " or set the 'disable_combine_routines' option to 'false'. To instead start a *new* scan, run gambit with the '-r' flag." << std::endl;
            printer_error().raise(LOCAL_INFO, errmsg.str());
         }
       }
@@ -1092,11 +1095,11 @@ namespace Gambit
       // If we set the second last flag 'true' then Greg's code will assume that a '_combined' output file
       // exists, and it will crash if it doesn't. So we need to first check if such a file exists.
       bool combined_file_exists = Utils::file_exists(tmp_comb_file); // We already check this externally; pass in as flag?
-      logger() << LogTags::printers << LogTags::info << "combined_file_exists? " << combined_file_exists << EOM;
+      logger() << LogTags::printers << LogTags::info << "tmp_comb_file (" << tmp_comb_file << ") exists? " << combined_file_exists << EOM;
       if(not combined_file_exists)
-        std::cout << "Combined file NOT found, combining now..." << std::endl;
+        std::cout << "Combined file " << tmp_comb_file << " NOT found, combining now..." << std::endl;
       else
-        std::cout << "Combined file found, skipping combination" << std::endl;
+        std::cout << "Combined file " << tmp_comb_file << " found, skipping combination" << std::endl;
       // Second last bool just tells the routine to delete the temporary files when it is done
       // Last flag, if false, tells routines to throw an error if any expected temporary file cannot be opened for any reason
       HDF5::combine_hdf5_files(tmp_comb_file, finalfile, group, metadata_group, num, combined_file_exists, true, false);
