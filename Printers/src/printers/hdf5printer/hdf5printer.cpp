@@ -420,50 +420,54 @@ namespace Gambit
           #endif
           if(HDF5::checkFileReadable(finalfile, msg_finalfile))
           {
-            if(overwrite_file and not get_resume())
+            // Note: "not resume" means "start or restart"
+            if(not get_resume())
             {
-              // Note: "not resume" means "start or restart"
-              // Delete existing output file
-              std::ostringstream command;
-              command << "rm -f "<<finalfile;
-              logger() << LogTags::printers << LogTags::info << "Running shell command: " << command.str() << EOM;
-              FILE* fp = popen(command.str().c_str(), "r");
-              if(fp==NULL)
+              if(overwrite_file)
               {
-                // Error running popen
-                std::ostringstream errmsg;
-                errmsg << "rank "<<myRank<<": Error deleting existing output file (requested by 'delete_file_on_restart' printer option; target filename is "<<finalfile<<")! popen failed to run the command (command was '"<<command.str()<<"')";
-                printer_error().raise(LOCAL_INFO, errmsg.str());
+                // Delete existing output file
+                std::ostringstream command;
+                command << "rm -f "<<finalfile;
+                logger() << LogTags::printers << LogTags::info << "Running shell command: " << command.str() << EOM;
+                FILE* fp = popen(command.str().c_str(), "r");
+                if(fp==NULL)
+                {
+                  // Error running popen
+                  std::ostringstream errmsg;
+                  errmsg << "rank "<<myRank<<": Error deleting existing output file (requested by 'delete_file_on_restart' printer option; target filename is "<<finalfile<<")! popen failed to run the command (command was '"<<command.str()<<"')";
+                  printer_error().raise(LOCAL_INFO, errmsg.str());
+                }
+                else if(pclose(fp)!=0)
+                {
+                  // Command returned exit code!=0, or pclose failed
+                  std::ostringstream errmsg;
+                  errmsg << "rank "<<myRank<<": Error deleting existing output file (requested by 'delete_file_on_restart' printer option; target filename is "<<finalfile<<")! Shell command failed to executed successfully, see stderr (command was '"<<command.str()<<"').";
+                  printer_error().raise(LOCAL_INFO, errmsg.str());
+                }
               }
-              else if(pclose(fp)!=0)
+              else
               {
-                // Command returned exit code!=0, or pclose failed
-                std::ostringstream errmsg;
-                errmsg << "rank "<<myRank<<": Error deleting existing output file (requested by 'delete_file_on_restart' printer option; target filename is "<<finalfile<<")! Shell command failed to executed successfully, see stderr (command was '"<<command.str()<<"').";
-                printer_error().raise(LOCAL_INFO, errmsg.str());
+                // File exists, so check if 'group' is readable, and throw error if it exists
+                file_id = HDF5::openFile(finalfile);
+                std::string msg_group;
+                std::cout << "Group readable: " << finalfile << " , " << group << " : " << HDF5::checkGroupReadable(file_id, group, msg_group) << std::endl;
+                if(HDF5::checkGroupReadable(file_id, group, msg_group))
+                {
+                  // Group already exists, error!
+                  std::ostringstream errmsg;
+                  errmsg << "Error preparing pre-existing output file '"<<finalfile<<"' for writing via hdf5printer! The requested output group '"<<group<<" already exists in this file! Please take one of the following actions:"<<std::endl;
+                  errmsg << "  1. Choose a new group via the 'group' option in the Printer section of your input YAML file;"<<std::endl;
+                  errmsg << "  2. Delete the existing group from '"<<finalfile<<"';"<<std::endl;
+                  errmsg << "  3. Delete the existing output file, or set 'delete_file_on_restart: true' in your input YAML file to give GAMBIT permission to automatically delete it (applies when -r/--restart flag used);"<<std::endl;
+                  errmsg << std::endl;
+                  errmsg << "*** Note: This error most commonly occurs when you try to resume a scan that has already finished! ***" <<std::endl;
+                  errmsg << std::endl;
+                  printer_error().raise(LOCAL_INFO, errmsg.str());
+                }
+                HDF5::closeFile(file_id);
+                exit(1);
               }
-            }
-            else
-            {
-              // File exists, so check if 'group' is readable, and throw error if it exists
-              file_id = HDF5::openFile(finalfile);
-              std::string msg_group;
-              std::cout << "Group readable: " << finalfile << " , " << group << " : " << HDF5::checkGroupReadable(file_id, group, msg_group) << std::endl;
-              if(HDF5::checkGroupReadable(file_id, group, msg_group))
-              {
-                // Group already exists, error!
-                std::ostringstream errmsg;
-                errmsg << "Error preparing pre-existing output file '"<<finalfile<<"' for writing via hdf5printer! The requested output group '"<<group<<" already exists in this file! Please take one of the following actions:"<<std::endl;
-                errmsg << "  1. Choose a new group via the 'group' option in the Printer section of your input YAML file;"<<std::endl;
-                errmsg << "  2. Delete the existing group from '"<<finalfile<<"';"<<std::endl;
-                errmsg << "  3. Delete the existing output file, or set 'delete_file_on_restart: true' in your input YAML file to give GAMBIT permission to automatically delete it (applies when -r/--restart flag used);"<<std::endl;
-                errmsg << std::endl;
-                errmsg << "*** Note: This error most commonly occurs when you try to resume a scan that has already finished! ***" <<std::endl;
-                errmsg << std::endl;
-                printer_error().raise(LOCAL_INFO, errmsg.str());
-              }
-              HDF5::closeFile(file_id);
-              exit(1);
+
             }
           }
 
