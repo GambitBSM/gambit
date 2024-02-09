@@ -197,8 +197,7 @@ namespace Gambit {
                                      0.0,    0.0,      0.0,      0.0,      0.0,     // eta: (1.4442, 1.566)
                                      0.0,    0.669,    0.687,    0.704,    0.723,   // eta: (1.566, 2.0)
                                      0.0,    0.564,    0.585,    0.592,    0.612,   // eta: (2.0, 2.5)
-                                     0.0,    0.0,      0.0,      0.0,      0.0,     // eta > 2.5
-        };
+                                     0.0,    0.0,      0.0,      0.0,      0.0   }; // eta > 2.5
 
         HEPUtils::BinnedFn2D<double> _eff2dPhoton(aPhoton,bPhoton,cPhoton);
         vector<const HEPUtils::Particle*> Photons;
