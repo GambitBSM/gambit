@@ -329,6 +329,9 @@ ObsLikes:
   - purpose: LogLike
     capability: t2bbc_LogLikelihood
 
+  - purpose: LogLike
+    capability: t2ch_LogLikelihood    
+
 
 Rules:
 

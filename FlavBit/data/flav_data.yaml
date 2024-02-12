@@ -2249,9 +2249,9 @@
 - name: BR_t2ch
   islimit: true
   one_sided: false
-  exp_value: 0
-  exp_95_CL: 0.0004
-  exp_stat_error: 0.
+  exp_value: 0.0
+  exp_95_CL: 0.00058
+  exp_stat_error: 0.0003
   exp_sys_error: 0.
   exp_source: 2309.12817
   th_error: 0.
