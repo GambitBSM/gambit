@@ -74,7 +74,6 @@ Parameters:
       yu2_re_23: 0.0
       yu2_re_31: 0.0
 
-
 Priors:
 
   # All priors are simple, so specified in Parameters section
@@ -148,7 +147,6 @@ ObsLikes:
   - purpose:    LogLike
     capability: unitarity_LogLikelihood_THDM
     function: LO_unitarity_LogLikelihood_THDM
-    #function: unitarity_lambdas_LL #Does not use the backend THDMC
 
     # Calculates the electroweak precision parameters, S, T, U, V, W, X
     # & fits to meausured values. S, T, U involve a correlation matrix.
@@ -319,6 +317,10 @@ ObsLikes:
     function: l2lgamma_likelihood
     purpose: LogLike
 
+  - capability: h2ltau_LogLikelihood
+    function: h2ltau_LogLikelihood
+    purpose: LogLike      
+
     # muon g-2 likelihood 
     #- capability: lnL_gm2
     #function: lnL_gm2
@@ -330,16 +332,23 @@ ObsLikes:
 
 Rules:
 
+  #- if:
+  #   capability: perturbativity_LogLikelihood_THDM
+  #    function: perturbativity_LogLikelihood_THDM
+  #  then:
+  #    dependencies:
+  #      - if:
+  #          capability: couplingtable_THDM
+  #        then:
+  #          module: SpecBit
+  #          function: get_coupling_table_THDMC
+
   - if:
-      capability: perturbativity_LogLikelihood_THDM
-      function: perturbativity_LogLikelihood_THDM
+      capability: couplingtable_THDM
+      type: CouplingTable
     then:
-      dependencies:
-        - if:
-            capability: couplingtable_THDM
-          then:
-            module: SpecBit
-            function: get_coupling_table_using_physical_basis  
+      module: SpecBit
+      function: get_coupling_table_using_physical_basis
 
 Logger:
 

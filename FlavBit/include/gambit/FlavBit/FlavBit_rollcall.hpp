@@ -1953,17 +1953,6 @@ START_MODULE
   // Likelihoods
   //###############################################
 
-
-  ///h->tau mu likelihood
-  #define CAPABILITY h2mutau_LogLikelihood
-  START_CAPABILITY
-    #define FUNCTION h2mutau_likelihood
-    START_FUNCTION(double)
-    DEPENDENCY(h2mutau, double)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
   ///t->ch likelihood
   #define CAPABILITY t2ch_LogLikelihood
   START_CAPABILITY
@@ -2106,6 +2095,15 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  ///h -> l tau  likelihood
+  #define CAPABILITY h2ltau_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION h2ltau_LogLikelihood
+    START_FUNCTION(double)
+    DEPENDENCY(h2etau, double)
+    DEPENDENCY(h2mutau, double)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   ///l -> l gamma  likelihood
   #define CAPABILITY l2lgamma_LogLikelihood

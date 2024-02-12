@@ -1083,39 +1083,44 @@ namespace Gambit
        result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
     }
 
-    /// Likelihood for h->taumu
-    void h2mutau_likelihood(double &result)
+    /// Likelihood for h->ltau
+    void h2ltau_LogLikelihood(double &result)
     {
-      using namespace Pipes::h2mutau_likelihood;
+      using namespace Pipes::h2ltau_LogLikelihood;
+
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
-      static double th_err[1];
-      double theory[1];
+      static double th_err[2];
+      double theory[2];
 
+      // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
       if (first)
       {
-        // Read in experimental measurements
+        // Read in experimental measuremens
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
         fread.debug_mode(flav_debug);
 
+        // h -> e tau
+        fread.read_yaml_measurement("flav_data.yaml", "BR_h2etau");
+        // h -> mu tau
         fread.read_yaml_measurement("flav_data.yaml", "BR_h2mutau");
 
         fread.initialise_matrices();
         cov_exp=fread.get_exp_cov();
         value_exp=fread.get_exp_value();
 
-        for (int i = 0; i < 1; ++i)
+        for (int i = 0; i < 2; ++i)
           th_err[i] = fread.get_th_err()(i,0).first;
 
         // Init over.
         first = false;
       }
 
-     theory[0] = *Dep::h2mutau;
-     if(flav_debug) std::cout << "BR(h -> tau mu) = " << theory[0] << std::endl;
+     theory[0] = *Dep::h2etau;
+     theory[1] = *Dep::h2mutau;
 
      result = 0;
-     for (int i = 0; i < 1; ++i)
+     for (int i = 0; i < 2; ++i)
        result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
     }
 

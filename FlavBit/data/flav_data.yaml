@@ -2222,24 +2222,38 @@
   islimit: true
   one_sided: false
   exp_value: 0
-  exp_95_CL: 0.0143
-  exp_stat_error: 0.
+  exp_95_CL: 0.0018
+  exp_stat_error: 0.0009
   exp_sys_error: 0.
-  exp_source: 1604.07730
+  exp_source: 2302.05225
   th_error: 0.
   th_error_type: M
   th_error_source: NONE
   correlation:
   - name: NONE
 
+- name: BR_h2etau
+  islimit: true
+  one_sided: false
+  exp_value: 0
+  exp_95_CL: 0.0020
+  exp_stat_error: 0.0012
+  exp_sys_error: 0.
+  exp_source: 2302.05225
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE    
+
 - name: BR_t2ch
   islimit: true
   one_sided: false
   exp_value: 0
-  exp_95_CL: 0.0011
+  exp_95_CL: 0.0004
   exp_stat_error: 0.
   exp_sys_error: 0.
-  exp_source: 1812.11568
+  exp_source: 2309.12817
   th_error: 0.
   th_error_type: M
   th_error_source: NONE
@@ -2251,11 +2265,11 @@
 - name: BR_muegamma
   islimit: true
   one_sided: false
-  exp_value: -2.2e-13
-  exp_90_CL: 4.2e-13
+  exp_value: 0.0
+  exp_90_CL: 3.1e-13
   exp_stat_error: 0.
   exp_sys_error: 0.
-  exp_source: 1605.05081
+  exp_source: 2310.12614
   th_error: 0.
   th_error_type: M
   th_error_source: NONE
