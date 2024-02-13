@@ -234,15 +234,15 @@ ObsLikes:
 
    #FCNC likelihoods
 
-      #- purpose:    LogLike
-      #capability: b2sgamma_LogLikelihood
+  - purpose:    LogLike
+    capability: b2sgamma_LogLikelihood
 
-      # - purpose:    LogLike
-      #capability: B2Kstargamma_LogLikelihood
+  - purpose:    LogLike
+    capability: B2Kstargamma_LogLikelihood
 
-      #- purpose:    LogLike
-      #capability: B2mumu_LogLikelihood_CMS_ATLAS_LHCb
-      #sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_CMS_ATLAS_LHCb
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
 
       #- purpose:    LogLike
       #capability: B2KstarmumuAng_LogLikelihood_Atlas
@@ -335,16 +335,9 @@ ObsLikes:
 
 Rules:
 
-  #- if:
-  #   capability: perturbativity_LogLikelihood_THDM
-  #    function: perturbativity_LogLikelihood_THDM
-  #  then:
-  #    dependencies:
-  #      - if:
-  #          capability: couplingtable_THDM
-  #        then:
-  #          module: SpecBit
-  #          function: get_coupling_table_THDMC
+  # Use SuperIso instead of FeynHiggs for b->sgamma
+  - capability: prediction_b2sgamma
+    function: SuperIso_prediction_b2sgamma
 
   - if:
       capability: couplingtable_THDM

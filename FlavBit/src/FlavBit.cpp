@@ -51,6 +51,7 @@
 ///  \date 2020 June-December
 ///  \date 2021 Jan-Sep
 ///  \date 2022 June
+///  \date 2024 Jan-Feb
 ///
 ///  \author Douglas Jacob
 ///          (douglas.jacob@monash.edu)
@@ -815,42 +816,84 @@ namespace Gambit
       if (flav_debug) std::cout<<"Finished SuperIso_prediction_Delta_MBs"<< std::endl;
     }
 
+
+    ///One loop Green function for C1 from charged Higgs-W boson boxes in DeltaMs in the general THDM
+    double I11(double a, double b, double c)
+    {
+      if(fabs(b-1.)<1.e-5&&c!=1.) return I11(a,0.9999,c);
+      else if(fabs(c-1.)<1.e-5&&c!=1.) return I11(a,b,0.9999);
+      else if(fabs(b-1.)<1.e-5&&fabs(c-1.)<1.e-5) return I11(a,0.9999,0.9999);
+      else if(b==c) return (-3*pow(a,2)*log(a))/((a-1)*(a-c)*(a-c))+((c-1)*(4*pow(a,2)-5*a*c+pow(c,2))-(4*pow(a,2)+pow(c,2)-a*c*(2+3*c))*log(c))/((c-1)*(c-1)*(a-c)*(a-c));  
+      return (-3*pow(a,2)*log(a))/((a-1)*(a-b)*(a-c))+(b*(4*a-b)*log(b))/((b-1)*(a-b)*(b-c))+(c*(4*a-c)*log(c))/((c-1)*(a-c)*(c-b));
+    }    
+
     /// DeltaMBs at tree level for the general THDM
     void THDM_Delta_MBs(double &result)
     {
       using namespace Pipes::THDM_Delta_MBs;
       if (flav_debug) std::cout<<"Starting THDM_Delta_MBs"<< std::endl;
-
+      SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      const double mBs = 5.36689;// values from 1602.03560
-      const double fBs = 0.2303;
-      const double Bag2 = 0.806;
-      const double Bag3 = 1.10;
-      const double Bag4 = 1.022;
-      const double DeltaSM = 1.29022e-11; //.in GeV from  [arXiv:1602.03560]
-      const double conv_factor = 1.519267e12;// from GeV to ps^-1
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double mC = Dep::SMINPUTS->mCmC;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      const double mT = Dep::SMINPUTS->mT;
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      const double mW = sminputs.mW;
+
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+
       double alpha = spectrum.get(Par::dimensionless,"alpha");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
       double cba = cos(beta-alpha);
-      const double mBmB = Dep::SMINPUTS->mBmB;
       const double mS = Dep::SMINPUTS->mS;
       double mh = spectrum.get(Par::Pole_Mass,"h0",1);
       double mH = spectrum.get(Par::Pole_Mass,"h0",2);
+      const double v = spectrum.get(Par::mass1, "vev");
       //double mA = spectrum.get(Par::Pole_Mass,"A0");
+      const double mBs = 5.36689;// values from 1602.03560
+      const double fBs = 0.2303;
+      const double Bag2 = 0.806;
+      const double Bag3 = 1.10;
+      const double Bag4 = 1.022;
+      const double DeltaSM = 1.19795e-11; //.in GeV from latest HFLAV
+      const double conv_factor = 1.519267e12;// from GeV to ps^-1
       const double U22 = 1.41304;//From JHEP02(2020)147
       const double U32 = -0.0516513;
       const double U44 = 1.79804;
       const double b2 = -1.6666;
       const double b3 = 0.3333;
       const double b4 = 2.0;
+      const double fBs2Bag = 0.2746*0.2746;//factor from  Nuclear Physics B 925 (2017) 560–606
+					  
       std::complex<double> Ybs(spectrum.get(Par::dimensionless,"Yd2",3,2), spectrum.get(Par::dimensionless, "ImYd2",3,2));
-      std::complex<double> xi_bs = Ybs/cosb;
       std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
-      std::complex<double> xi_sb = Ysb/cosb;
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Yct(spectrum.get(Par::dimensionless,"Yu2",2,3), spectrum.get(Par::dimensionless, "ImYu2",2,3));
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> Ytt(spectrum.get(Par::dimensionless,"Yu2",3,3), spectrum.get(Par::dimensionless, "ImYu2",3,3));
+      std::complex<double> xi_tc = (1/sqrt(2))*(Ytc/cosb);
+      std::complex<double> xi_ct = (1/sqrt(2))*(Yct/cosb);
+      std::complex<double> xi_cc = (1/sqrt(2))*(-((sqrt(2)*mC*tanb)/v) + Ycc/cosb);
+      std::complex<double> xi_tt = (1/sqrt(2))*(-((sqrt(2)*mT*tanb)/v) + Ytt/cosb);
+      std::complex<double> xi_bs = (1/sqrt(2))*(Ybs/cosb);
+      std::complex<double> xi_sb = (1/sqrt(2))*(Ysb/cosb);
+
       std::complex<double> M12_NP = -(0.125)*(pow(fBs,2)*pow(mBs,3)/(pow(mBmB+mS,2)))*((0.25)*pow(cba,2)*(pow(1/mh,2)-pow(1/mH,2))*((U22*Bag2*b2+U32*Bag3*b3)*(xi_bs*xi_bs+xi_sb*xi_sb)+2*U44*Bag4*b4*xi_sb*xi_bs)+(pow(1/mH,2)*U44*Bag4*b4*xi_sb*xi_bs));
-      result = 2*abs(real(0.5*DeltaSM + M12_NP))*conv_factor;
+      //For the following I ignore 1-2 and 1-3 quark family Yukawas, computation in agreement with JHEP06(2019)119
+      //one loop contribution from C1 box diagram involving charged Higgs and W boson with quadratic Yukawas alone (assuming cuartic terms negligible)
+      std::complex<double> Vxi22 = mC*mC*(Vcb*std::conj(Vcs)*(xi_cc*std::conj(Vcs) + xi_tc*std::conj(Vts))*(Vcb*std::conj(xi_cc) + Vtb*std::conj(xi_tc)));
+      std::complex<double> Vxi33 = mT*mT*(Vtb*std::conj(Vts)*(xi_ct*std::conj(Vcs) + xi_tt*std::conj(Vts))*(Vcb*std::conj(xi_ct) + Vtb*std::conj(xi_tt)));
+      std::complex<double> Vxi32 = mT*mC*(Vtb*std::conj(Vcs)*(xi_ct*std::conj(Vcs) + xi_tt*std::conj(Vts))*(Vcb*std::conj(xi_cc) + Vtb*std::conj(xi_tc)));
+      std::complex<double> DeltaMs_HW_box = 2*(mBs*fBs2Bag/3)*(sqrt(2)*sminputs.GF/(16*pi*pi*mHp*mHp))*(Vxi22*I11(pow(mW/mHp,2),pow(mC/mHp,2),pow(mC/mHp,2))+Vxi33*I11(pow(mW/mHp,2),pow(mT/mHp,2),pow(mT/mHp,2))+Vxi32*I11(pow(mW/mHp,2),pow(mT/mHp,2),pow(mC/mHp,2)));
+      //total tree+one loop
+      result = 2*abs(real(0.5*DeltaSM + M12_NP + 0.5*DeltaMs_HW_box))*conv_factor;
       if (flav_debug) printf("Delta_MBs=%.3e\n",result);
       if (flav_debug) std::cout<<"Finished THDM_Delta_MBs"<< std::endl;
     }
