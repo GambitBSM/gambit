@@ -59,6 +59,10 @@ namespace Gambit
     addParameter(Par::Pole_Mass, "W+", scalar, "MASS", 24);
 
     // Yukawas
+    addParameter(Par::dimensionless, "Yd", m3x3, "Yd");
+    addParameter(Par::dimensionless, "Yu", m3x3, "Yu");
+    addParameter(Par::dimensionless, "Ye", m3x3, "Ye");
+
     addParameter(Par::dimensionless, "Yd1", m3x3, "Yd1");
     addParameter(Par::dimensionless, "Yu1", m3x3, "Yu1");
     addParameter(Par::dimensionless, "Ye1", m3x3, "Ye1");
