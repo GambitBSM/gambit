@@ -560,7 +560,7 @@ set(name "heplikedata")
 set(ver "1.7")
 set(dl "https://github.com/tegonzalo/HEPLikeData/archive/V${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(md5 "005e80ab82d7dae8f2f67f0b80f188e3")
+set(md5 "8e660ef95614079095e15cf1fdf98b7c")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
