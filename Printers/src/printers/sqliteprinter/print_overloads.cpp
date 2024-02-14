@@ -59,6 +59,10 @@ namespace Gambit
     #ifndef SCANNER_STANDALONE
       USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, DM_nucleon_couplings)
       USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, BBN_container)
+      USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, flav_prediction)
+      USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, flav_binned_prediction)
+      USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, HiggsCouplingsTable)
+      USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, CouplingTable)
     #endif
 
     /// @}

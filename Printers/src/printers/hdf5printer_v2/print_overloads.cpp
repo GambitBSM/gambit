@@ -80,8 +80,9 @@ namespace Gambit
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, DM_nucleon_couplings)
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, BBN_container)
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, flav_prediction)
-      USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, CouplingTable)
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, flav_binned_prediction)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, HiggsCouplingsTable)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, CouplingTable)
     #endif
 
     /// @}

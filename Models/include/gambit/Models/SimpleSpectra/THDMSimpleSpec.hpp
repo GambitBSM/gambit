@@ -97,6 +97,10 @@ namespace Gambit
             double get_g3()             const;
             double get_sinW2()          const;
 
+            double get_Yd(int i, int j)     const;
+            double get_Yu(int i, int j)     const;
+            double get_Ye(int i, int j)     const;
+
             double get_Yd1(int i, int j)     const;
             double get_Yu1(int i, int j)     const;
             double get_Ye1(int i, int j)     const;

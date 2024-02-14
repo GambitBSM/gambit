@@ -94,16 +94,13 @@
   // table of all couplings in the THDM
   #define CAPABILITY couplingtable_THDM
   START_CAPABILITY
+
     #define FUNCTION get_coupling_table_using_physical_basis
     START_FUNCTION(CouplingTable)
     DEPENDENCY(THDM_spectrum, Spectrum)
     ALLOW_MODEL(THDM, THDMatQ)
     #undef FUNCTION
-  #undef CAPABILITY
 
-  // table of all couplings in the THDM
-  #define CAPABILITY couplingtable_THDM
-  START_CAPABILITY
     #define FUNCTION get_coupling_table_THDMC
     START_FUNCTION(CouplingTable)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -111,11 +108,7 @@
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
     ALLOW_MODEL(THDM, THDMatQ)
     #undef FUNCTION
-  #undef CAPABILITY
 
-  // table of all couplings in the THDM
-  #define CAPABILITY couplingtable_THDM
-  START_CAPABILITY
     #define FUNCTION get_coupling_table_using_Higgs_basis
     START_FUNCTION(CouplingTable)
     DEPENDENCY(THDM_spectrum, Spectrum)

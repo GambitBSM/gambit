@@ -647,6 +647,7 @@ set(lib "libsuperiso")
 set(dl "http://superiso.in2p3.fr/download/${name}_v${ver}_flavbit3.tgz")
 set(md5 "524ac68f60fbe76f9db4b760e88e77c4")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch_dir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/superiso.patch")
 set(SI_C_FLAGS ${BACKEND_C_FLAGS})
 set_compiler_warning("no-format-overflow" SI_C_FLAGS)
@@ -658,6 +659,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
+          COMMAND ${CMAKE_COMMAND} -E copy ${patch_dir}/bknunu.c ${dir}/src/
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} ARFLAGS=rcs CFLAGS=${SI_C_FLAGS}
           COMMAND ar x src/libsuperiso.a

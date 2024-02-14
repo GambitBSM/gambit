@@ -27,6 +27,7 @@
 
 #include "gambit/Printers/printers/asciireader.hpp"
 #include "gambit/Utils/stream_overloads.hpp"
+#include "gambit/Printers/printers/common_retrieve_overloads.hpp"
 
 namespace Gambit
 {
@@ -211,77 +212,45 @@ namespace Gambit
       return is_valid;
     }
 
-    bool asciiReader::_retrieve(bool& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(int& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(unsigned int& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(short& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(unsigned short& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(long& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(unsigned long& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(long long& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(unsigned long long& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(float& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(std::vector<bool>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(std::vector<int>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(std::vector<unsigned int>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(std::vector<short>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(std::vector<unsigned short>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(std::vector<long>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(std::vector<unsigned long>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(std::vector<long long>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(std::vector<unsigned long long>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(std::vector<float>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(std::vector<double>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(std::complex<double>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(map_str_dbl& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(map_str_str& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(triplet<double>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(map_intpair_dbl& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(map_dblpair_dbl& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(map_const_str_dbl& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-    bool asciiReader::_retrieve(map_const_str_map_const_str_dbl& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, bool)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, int)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, unsigned int)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, short)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, unsigned short)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, long)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, unsigned long)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, long long)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, unsigned long long)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, float)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, std::vector<bool>)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, std::vector<int>)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, std::vector<unsigned int>)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, std::vector<short>)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, std::vector<unsigned short>)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, std::vector<long>)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, std::vector<unsigned long>)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, std::vector<long long>)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, std::vector<unsigned long long>)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, std::vector<float>)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, std::vector<double>)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, std::complex<double>)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, map_str_dbl)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, map_str_str)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, triplet<double>)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, map_intpair_dbl)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, map_dblpair_dbl)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, map_const_str_dbl)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, map_str_map_str_dbl)
+    UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, map_const_str_map_const_str_dbl)
 
     #ifndef SCANNER_STANDALONE // All the types inside ASCII_BACKEND_TYPES need to go inside this def guard.
 
-      bool asciiReader::_retrieve(DM_nucleon_couplings& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-      bool asciiReader::_retrieve(BBN_container& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-      bool asciiReader::_retrieve(flav_prediction& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-      bool asciiReader::_retrieve(CouplingTable& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-      bool asciiReader::_retrieve(flav_binned_prediction& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+      UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, DM_nucleon_couplings)
+      UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, BBN_container)
+      UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, flav_prediction)
+      UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, flav_binned_prediction)
+      UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, HiggsCouplingsTable)
+      UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, CouplingTable)
 
     #endif
 

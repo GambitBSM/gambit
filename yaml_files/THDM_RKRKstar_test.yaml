@@ -217,6 +217,10 @@ ObsLikes:
 
   # Source -> who provides the required calculations (GAMBIT, SuperISO, or HepLike)
 
+  - purpose: LogLike
+    capability: SL_LogLikelihood
+    sub_capabilities: [RD, RDstar]
+
   # Does not work - could take from SL_Likelihood?
   #- purpose:    LogLike
   #  capability: B2taunu_LogLikelihood

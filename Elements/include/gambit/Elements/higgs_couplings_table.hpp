@@ -12,6 +12,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2016 Sep
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2024 Feb
+///
 ///  *********************************************
 
 #ifndef __higgs_couplings_table_hpp__
@@ -175,6 +179,9 @@ namespace Gambit
       const DecayTable::Entry& get_t_decays() const;
       /// @}
 
+
+      // Print Higgs coupling table to a map
+      map_str_dbl to_map() const;
   };
 
 }

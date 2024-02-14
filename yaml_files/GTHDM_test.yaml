@@ -113,7 +113,7 @@ Scanner:
     random:
       plugin: random
       like: LogLike
-      point_number: 1
+      point_number: 2
 
 ObsLikes:
 
@@ -125,7 +125,7 @@ ObsLikes:
     capability: perturbativity_yukawas_LogLikelihood_THDM
     function: perturbativity_yukawas_LogLikelihood_THDM
 
-  - purpose:    LogLike    
+  - purpose:    LogLike
     capability: perturbativity_LogLikelihood_THDM
     function: perturbativity_LogLikelihood_THDM
 
@@ -155,30 +155,33 @@ ObsLikes:
 
   - purpose:    LogLike
     capability: oblique_parameters_LogLikelihood
-    module: PrecisionBit
     function: get_oblique_parameters_LogLikelihood
 
     #### NOTE
-    #Observables of interest  
+    #Observables of interest
+
+  - purpose: Observable
+    capability: THDM_spectrum
+    function: get_THDM_spectrum_as_map
+
+  - capability: all_BFs
+    purpose: Observable
+    printme: true
 
   - purpose: Observable
     capability: DeltaC9
-    module: FlavBit
     function: THDM_DeltaC9
 
   - purpose: Observable
     capability: DeltaC7
-    module: FlavBit
     function: THDM_DeltaC7
 
   - capability: RD
     function: THDM_RD
-    module: FlavBit
     purpose: Observable
 
   - capability: RDstar
     function: THDM_RDstar
-    module: FlavBit
     purpose: Observable
 
   - capability: prediction_DeltaMs
@@ -187,7 +190,6 @@ ObsLikes:
 
   - capability: muegamma
     function: THDM_muegamma
-    module: FlavBit
     purpose: Observable
 
   - capability: t2bbc
@@ -212,21 +214,27 @@ ObsLikes:
 
   - capability: muon_gm2
     function: THDM_mumugamma
-    module: PrecisionBit
     purpose: Observable
 
   - capability: taumugamma
     function: THDM_taumugamma
-    module: FlavBit
     purpose: Observable
 
   - purpose: Observable
     capability: prediction_RKRKstar_LHCb
     sub_capabilities: [RK, RKstar]
 
+  - purpose: Observable
+    capability: prediction_B2mumu
+    function: SuperIso_prediction_B2mumu
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
   - capability: muon_gm2
     function: THDM_mumugamma
-    module: PrecisionBit
+    purpose: Observable
+
+  - capability: Higgs_Couplings
+    function: THDM_higgs_couplings_pwid
     purpose: Observable
 
       #- purpose: Observable
@@ -314,6 +322,65 @@ ObsLikes:
   - purpose: LogLike
     capability: RK_LogLikelihood_Belle      
 
+  - purpose: LogLike
+    capability: B2mumu_LogLikelihood_LHCb
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  - purpose: LogLike
+    capability: B2mumu_LogLikelihood_CMS
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  - purpose: LogLike
+    capability: B2mumu_LogLikelihood_Atlas
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_Atlas
+    sub_capabilities: [FL, S3, S4, S5, S7, S8]
+
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+    sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+  - purpose:    LogLike
+    capability: Bu2KstarmumuAng_LogLikelihood_LHCb_2020
+    sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+  - purpose:    LogLike
+    capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
+    sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
+
+  - purpose:    LogLike
+    capability: B2KstarmumuBr_LogLikelihood_LHCb
+
+  - purpose:    LogLike
+    capability: Bs2phimumuBr_LogLikelihood
+
+  - purpose:    LogLike
+    capability: B2KmumuBr_LogLikelihood_LHCb
+
+  - purpose:    LogLike
+    capability: Bd2KmumuBr_LogLikelihood_LHCb
+
+  - purpose:    LogLike
+    capability: B2KmumuBr_LogLikelihood_CMS
+
+  - purpose:    LogLike
+    capability: B2KmumuBr_LogLikelihood_Belle
+
+  - purpose:    LogLike
+    capability: Bd2KmumuBr_LogLikelihood_Belle
+
+  - purpose:    LogLike
+    capability: B2KeeBr_LogLikelihood_Belle
+
+  - purpose:    LogLike
+    capability: Bd2KeeBr_LogLikelihood_Belle
+
+  - purpose: LogLike
+    capability: RKRKstar_LogLikelihood_LHCb
+    sub_capabilities: [RK, RKstar]
+
     #### NOTE
     # FCCC Likelihoods
 
@@ -323,12 +390,12 @@ ObsLikes:
     function: SL_likelihood
     purpose: LogLike
 
-    # FLDstar likelihood 
+    # FLDstar likelihood
     #- capability: FLDstar_LogLikelihood
     #function: FLDstar_likelihood
     #purpose: LogLike
 
-      #Bc->tanu lifetime likelihood 
+      #Bc->tanu lifetime likelihood
   - capability: Bc_lifetime_LogLikelihood
     function: Bc_lifetime_likelihood
     purpose: LogLike
@@ -343,7 +410,7 @@ ObsLikes:
     #function: dBRBDtaunu_likelihood
     #purpose: LogLike
 
-    #### NOTE 
+    #### NOTE
     ##Other Likelihoods
 
   - capability: deltaMB_LogLikelihood
@@ -360,9 +427,9 @@ ObsLikes:
 
   - capability: h2ltau_LogLikelihood
     function: h2ltau_LogLikelihood
-    purpose: LogLike      
+    purpose: LogLike
 
-    # muon g-2 likelihood 
+    # muon g-2 likelihood
     #- capability: lnL_gm2
     #function: lnL_gm2
     #purpose: LogLike
@@ -371,7 +438,7 @@ ObsLikes:
     capability: t2bbc_LogLikelihood
 
   - purpose: LogLike
-    capability: t2ch_LogLikelihood    
+    capability: t2ch_LogLikelihood
 
 
 Rules:
@@ -391,6 +458,13 @@ Rules:
       module: SpecBit
       function: get_coupling_table_using_physical_basis
 
+  - capability: couplingtable_THDM
+    function: get_coupling_table_using_physical_basis
+
+  - capability: decay_rates
+    function: all_decays
+
+
 Logger:
 
   redirection:
@@ -405,10 +479,10 @@ KeyValues:
     prefer_model_specific_functions: true
 
   likelihood:
-    model_invalid_for_lnlike_below: -5e5
-    model_invalid_for_lnlike_below_alt: -1e5
+    model_invalid_for_lnlike_below: -5e6
+    model_invalid_for_lnlike_below_alt: -1e6
 
-  default_output_path: "runs/GTHDM_tester"
+  default_output_path: "runs/GTHDM_test"
 
   debug: true
 

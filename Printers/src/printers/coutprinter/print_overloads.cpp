@@ -66,13 +66,15 @@ namespace Gambit
     USE_COMMON_PRINT_OVERLOAD(coutPrinter, ModelParameters)
     USE_COMMON_PRINT_OVERLOAD(coutPrinter, triplet<double>)
     USE_COMMON_PRINT_OVERLOAD(coutPrinter, map_const_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(coutPrinter, map_str_map_str_dbl)
     USE_COMMON_PRINT_OVERLOAD(coutPrinter, map_const_str_map_const_str_dbl)
     #ifndef SCANNER_STANDALONE
       USE_COMMON_PRINT_OVERLOAD(coutPrinter, DM_nucleon_couplings)
       USE_COMMON_PRINT_OVERLOAD(coutPrinter, BBN_container)
       USE_COMMON_PRINT_OVERLOAD(coutPrinter, flav_prediction)
-      USE_COMMON_PRINT_OVERLOAD(coutPrinter, CouplingTable)
       USE_COMMON_PRINT_OVERLOAD(coutPrinter, flav_binned_prediction)
+      USE_COMMON_PRINT_OVERLOAD(coutPrinter, HiggsCouplingsTable)
+      USE_COMMON_PRINT_OVERLOAD(coutPrinter, CouplingTable)
     #endif
 
     /// @}

@@ -823,9 +823,9 @@ namespace Gambit
       if(fabs(b-1.)<1.e-5&&c!=1.) return I11(a,0.9999,c);
       else if(fabs(c-1.)<1.e-5&&c!=1.) return I11(a,b,0.9999);
       else if(fabs(b-1.)<1.e-5&&fabs(c-1.)<1.e-5) return I11(a,0.9999,0.9999);
-      else if(b==c) return (-3*pow(a,2)*log(a))/((a-1)*(a-c)*(a-c))+((c-1)*(4*pow(a,2)-5*a*c+pow(c,2))-(4*pow(a,2)+pow(c,2)-a*c*(2+3*c))*log(c))/((c-1)*(c-1)*(a-c)*(a-c));  
+      else if(b==c) return (-3*pow(a,2)*log(a))/((a-1)*(a-c)*(a-c))+((c-1)*(4*pow(a,2)-5*a*c+pow(c,2))-(4*pow(a,2)+pow(c,2)-a*c*(2+3*c))*log(c))/((c-1)*(c-1)*(a-c)*(a-c));
       return (-3*pow(a,2)*log(a))/((a-1)*(a-b)*(a-c))+(b*(4*a-b)*log(b))/((b-1)*(a-b)*(b-c))+(c*(4*a-c)*log(c))/((c-1)*(a-c)*(c-b));
-    }    
+    }
 
     /// DeltaMBs at tree level for the general THDM
     void THDM_Delta_MBs(double &result)
@@ -871,7 +871,7 @@ namespace Gambit
       const double b3 = 0.3333;
       const double b4 = 2.0;
       const double fBs2Bag = 0.2746*0.2746;//factor from  Nuclear Physics B 925 (2017) 560–606
-					  
+
       std::complex<double> Ybs(spectrum.get(Par::dimensionless,"Yd2",3,2), spectrum.get(Par::dimensionless, "ImYd2",3,2));
       std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
       std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
@@ -983,13 +983,17 @@ namespace Gambit
       std::complex<double> xi_etau = Yetau/cosb;
       std::complex<double> xi_taue = Ytaue/cosb;
       const double Gamma = 0.0032;//From PDG 2021 in GeV
-      if (l==1)
+      if (lp==3 and l==1)
       {
       result = real((1/Gamma)*(mh*pow(cba,2)/(16*pi))*(pow(xi_etau,2)+pow(xi_taue,2))*pow(1-pow(mTau/mh,2),2));
       }
-      else if (l==2)
+      else if (lp==3 and l==2)
       {
       result = real((1/Gamma)*(mh*pow(cba,2)/(16*pi))*(pow(xi_mutau,2)+pow(xi_taumu,2))*pow(1-pow(mTau/mh,2),2));
+      }
+      else
+      {
+        FlavBit_error().raise(LOCAL_INFO, "The process h2llp is only implemented for h->e tau and h->mu tau");
       }
     }
 
@@ -1240,15 +1244,15 @@ namespace Gambit
     }
 
     //Likelihood for t->Hpb->bc decay
-      
+
     void t2bbc_likelihood(double &result)
-    { 
+    {
       using namespace Pipes::t2bbc_likelihood;
       static bool th_err_absolute, first = true;
       static double exp_meas, exp_t2bbc_err, th_err;
-      
+
       if (flav_debug) std::cout << "Starting t2bbc_likelihood"<< std::endl;
-     
+
       if (first)
       {
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
@@ -1262,17 +1266,17 @@ namespace Gambit
         th_err_absolute = fread.get_th_err()(0,0).second;
         first = false;
       }
-      
+
       if (flav_debug) std::cout << "Experiment: " << exp_meas << " " << exp_t2bbc_err << " " << th_err << std::endl;
 
       double theory_prediction = *Dep::t2bbc;
       double theory_t2bbc_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
       if (flav_debug) std::cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<theory_t2bbc_err<< std::endl;
-           
+
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
-      
+
       result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_t2bbc_err, exp_t2bbc_err, profile);
-    } 
+    }
 
   }
 }

@@ -95,6 +95,9 @@ namespace Gambit
     //double THDMea::get_sinW2() const { return (0.5 - pow( 0.25 - (1.0/getdata("SMINPUTS",1) * M_PI / (getdata("SMINPUTS",2) * pow(2,0.5)))/pow(getdata("SMINPUTS",4),2) , 0.5)); }
     double THDMea::get_sinW2() const { return getdata("HMIX",23); }
 
+    double THDMea::get_Yd(int i, int j) const { return cos(get_beta())*get_Yd1(i,j) + sin(get_beta())*get_Yd2(i,j); }
+    double THDMea::get_Yu(int i, int j) const { return cos(get_beta())*get_Yu1(i,j) + sin(get_beta())*get_Yu2(i,j); }
+    double THDMea::get_Ye(int i, int j) const { return cos(get_beta())*get_Ye1(i,j) + sin(get_beta())*get_Ye2(i,j); }
 
     double THDMea::get_Yd1(int i, int j) const { return getdata("Yd1",i,j); }
     double THDMea::get_Yu1(int i, int j) const { return getdata("Yu1",i,j); }
@@ -196,7 +199,7 @@ namespace Gambit
       double lam1 = get_lambda1(), lam345 = get_lambda3() + get_lambda4() + get_lambda5(), lam6 = get_lambda6(), lam7 = get_lambda7();
       return m12_2*tan(b) - 0.5*pow(vev,2) * (lam1*cb*cb + lam345*sb*sb + 3.0*lam6*sb*cb + lam7*sb*sb*tan(b));
     }
-    
+
     double THDMea::get_m22_2() const
     {
       double m12_2 = get_m12_2(), b = get_beta(), cb = cos(b), sb = sin(b), vev = get_vev();
@@ -461,6 +464,10 @@ namespace Gambit
         // Yukawas block
         {
             MTget::fmap2 tmp_map;
+
+            tmp_map["Yu"]   = FInfo2( &THDMea::get_Yu, i123, i123);
+            tmp_map["Yd"]   = FInfo2( &THDMea::get_Yd, i123, i123);
+            tmp_map["Ye"]   = FInfo2( &THDMea::get_Ye, i123, i123);
 
             tmp_map["Yu1"]   = FInfo2( &THDMea::get_Yu1, i123, i123);
             tmp_map["Yd1"]   = FInfo2( &THDMea::get_Yd1, i123, i123);
