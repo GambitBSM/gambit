@@ -38,7 +38,7 @@
 // Eigen headers
 #include "gambit/Utils/begin_ignore_warnings_eigen.hpp"
 #include <Eigen/Eigenvalues>
-#include <Eigen/Geometry> 
+#include <Eigen/Geometry>
 #include "gambit/Utils/end_ignore_warnings.hpp"
 
 // FlexibleSUSY headers
@@ -72,7 +72,7 @@
 
 
 namespace Gambit
-{ 
+{
   namespace SpecBit
   {
 
@@ -139,7 +139,7 @@ namespace Gambit
 
     std::vector<std::vector<int>> concat(std::vector<std::vector<int>> a, int b)
     {
-      auto tmp = a; 
+      auto tmp = a;
       for (auto& i : tmp) i.push_back(b);
       return tmp;
     }
@@ -158,7 +158,7 @@ namespace Gambit
       if (i.size() == 0) exit(0);
       if (i.size() == 1) return { { i[0] } };
       std::sort(i.begin(), i.end());
-      
+
       std::vector<std::vector<int>> result;
 
       int pix = -32767;
@@ -823,7 +823,7 @@ namespace Gambit
         SpecBit_error().raise(LOCAL_INFO, msg.str());
       }
     }
-    
+
     // get a gambit::Spectrum for loop-level 2HDM
     void get_THDM_spectrum_FS(Spectrum &result)
     {
@@ -939,7 +939,7 @@ namespace Gambit
       THDM_TYPE THDM_type = *Dep::THDM_Type;
       namespace myPipe = Pipes::get_THDM_spectrum_as_map;
       const Spectrum &thdmspec(*myPipe::Dep::THDM_spectrum);
-      
+
       bool print_minimal_yukawas = runOptions->getValueOrDef<bool>(false, "print_minimal_yukawas");
       bool print_Higgs_basis_params = runOptions->getValueOrDef<bool>(true, "print_Higgs_basis_params");
       bool print_running_masses = runOptions->getValueOrDef<bool>(false, "print_running_masses");
@@ -962,7 +962,7 @@ namespace Gambit
 
         // only enable in final combined fit
         // if (name == "sinW2" || name == "m22_2" || name == "m12_2" || name == "m11_2" || name == "g1" || name == "g2" || name == "g3" || name == "W+") continue;
-        
+
         // skip Yukawas that are zero for the model being scanned
         if (print_minimal_yukawas)
         {
@@ -1497,7 +1497,7 @@ namespace Gambit
     // ----- SCALAR-SCALAR COUPLING TABLE -----
 
     // print differences btween two coupling tables
-    void compareCouplingTable(const CouplingTable& A, const CouplingTable& B)
+    bool compareCouplingTable(const CouplingTable& A, const CouplingTable& B)
     {
       bool allMatch = true;
 
@@ -1517,7 +1517,7 @@ namespace Gambit
           else if (abs(abs(valA) - abs(valB)) < 1e-5)
           {
             // std::cerr << " sign  " << name << "  " << valA << "  " << valB << std::endl;
-          } 
+          }
           else
           {
             // std::cerr << " diff  " << name << "  " << valA << "  " << valB << std::endl;
@@ -1530,11 +1530,11 @@ namespace Gambit
         }
       }
 
-      if (allMatch) std::cerr << "allMatch" << std::endl;
-      else std::cerr << "wrong" << std::endl;
+      return allMatch;
     }
 
     // get the 2HDM BSM coupling table (using the physical basis)
+    // TODO: This function seems incomplete many couplings are missing
     void get_coupling_table_using_physical_basis(CouplingTable& result)
     {
       // Reference:
@@ -1589,14 +1589,14 @@ namespace Gambit
         const static std::string h = "h0_1", H = "h0_2", A = "A0", Hp = "H+", Hm = "H-", G = "G0", Gp = "G+", Gm = "G-";
 
         // GET CUBIC COUPLINGS
-        
+
         coup.insert({h,Hp,Hm}, (+C1)*((mh2/s2b)*Bab-mC2*sinD-2*cosE*m122/s2b2));
         coup.insert({H,Hp,Hm}, (+C1)*((mH2/s2b)*Aab+mC2*cosD-2*sinE*m122/s2b2));
         coup.insert({h,A,A},   (+C1)*((mh2/s2b)*Bab-mA2*sinD-2*cosE*m122/s2b2));
         coup.insert({H,A,A},   (+C1)*((mH2/s2b)*Aab+mA2*cosD-2*sinE*m122/s2b2));
 
-        coup.insert({h,h,h},   (+C1*3.)*((mh2/s2b)*Dab-2*cosD2*cosE*m122/s2b2)); 
-        coup.insert({H,H,H},   (+C1*3.)*((mH2/s2b)*Cab-2*sinD2*sinE*m122/s2b2)); 
+        coup.insert({h,h,h},   (+C1*3.)*((mh2/s2b)*Dab-2*cosD2*cosE*m122/s2b2));
+        coup.insert({H,H,H},   (+C1*3.)*((mH2/s2b)*Cab-2*sinD2*sinE*m122/s2b2));
 
         coup.insert({h,H,H},   (+C1/2.)*(+s2a*sinD*(2*mH2+mh2)/s2b-4*Eab*sinD*m122/s2b2));
         coup.insert({h,h,H},   (+C1/2.)*(+s2a*cosD*(2*mh2+mH2)/s2b-4*Fab*cosD*m122/s2b2));
@@ -1626,7 +1626,7 @@ namespace Gambit
         coup.insert({H,H,Hp,Hm},       (+1/2.*C2)*(1./s2b2*(+mh2*Bab*s2a*sinD+2*mH2*Aab*Cab+1*s2b2*mC2*cosD2-2*(c2b2*sinD2+sinE2)/s2b*m122)));
         coup.insert({h,h,A,A},         (+1/2.*C2)*(1./s2b2*(+mH2*Aab*s2a*cosD+2*mh2*Bab*Dab+1*s2b2*mA2*sinD2-1*(s2b2*sinD2+4*Bab2)/s2b*m122)));
         coup.insert({H,H,A,A},         (+1/2.*C2)*(1./s2b2*(+mh2*Bab*s2a*sinD+2*mH2*Aab*Cab+1*s2b2*mA2*cosD2-2*(c2b2*sinD2+sinE2)/s2b*m122)));
-        
+
         coup.insert({h,H,A,A},         (+1/2.*C2)*(1./s2b2*(mH2*Aab*s2a*sinD+mh2*Bab*s2a*cosD)-0.5*mA2*sin2D-1*(2*s2a*c2b-2*s2b2*sinD*cosD)/s2b*m122/s2b2));
         coup.insert({h,H,Hp,Hm},       (+1/2.*C2)*(1./s2b2*(mH2*Aab*s2a*sinD+mh2*Bab*s2a*cosD)-0.5*mC2*sin2D-1*(2*s2a*c2b-2*s2b2*sinD*cosD)/s2b*m122/s2b2));
 
@@ -1639,9 +1639,9 @@ namespace Gambit
         coup.insert({h,h,H,H},         (+1/4.*C2)*(s2a/s2b)*(mH2-mh2+3.*s2a/s2b*(sinD2*mH2+cosD2*mh2)-8./s2a/s2b2*FabX*m122));
 
         // coup.insert({A,A,G,G},         (-1/4.*C2)*(s2a/s2b*(mH2-mh2)+3*(sinD2*mH2+cosD2*mh2))); // wrong
-        
+
         // coup.insert({Hp,Hm,Gp,Gm},     (-1/4.*C2)*(s2a/s2b*(mH2-mh2)+3*(sinD2*mH2+cosD2*mh2)+mA2)); // wrong
-        
+
         coup.insert({Hp,Hp,Gm,Gm},     (+1/2.*C2)*(-mA2+sinD2*mH2+cosD2*mh2));
         coup.insert({Hm,Hm,Gp,Gp},     (+1/2.*C2)*(-mA2+sinD2*mH2+cosD2*mh2));
         // coup.insert({Hp,Hm,A,G},       (-1/2.*C2)*(-mC2+sinD2*mH2+cosD2*mh2)); // wrong
@@ -1655,7 +1655,7 @@ namespace Gambit
         // coup.insert({A,A,A,G},         (-3/2.*C2)*(sinD/s2b*(Aab*mH2+Bab*mh2))); // wrong
         // coup.insert({A,A,Hm,Gp},       (-1/2.*C2)*(sinD/s2b*(Aab*mH2+Bab*mh2))); // wrong
         // coup.insert({A,A,Hp,Gm},       (-1/2.*C2)*(sinD/s2b*(Aab*mH2+Bab*mh2))); // wrong
-        
+
         coup.insert({Gp,Gm,G,A},       (+1/8.*C2)*(sin2D*(mH2-mh2)));
         coup.insert({Gp,Gm,Hm,Gp},     (-1/4.*C2)*(sin2D*(mH2-mh2)));
         coup.insert({Gp,Gm,Hp,Gm},     (-1/4.*C2)*(sin2D*(mH2-mh2)));
@@ -1687,7 +1687,7 @@ namespace Gambit
 
         // coup.insert({Gp,Gm,h,H},       (-1/8.*C2)*(s2a/s2b*(mH2-mh2)+2*sin2D*mC2)); // wrong
         // coup.insert({G,G,h,H},         (-1/8.*C2)*(s2a/s2b*(mH2-mh2)+2*sin2D*mA2)); // wrong
-        
+
         // coup.insert({Gm,Hp,h,H},       (-1/4.*C2)*(s2a/s2b*(sinD2*mH2+cosD2*mh2)-cos2D*mC2)); // wrong
         // coup.insert({Gp,Hm,h,H},       (-1/4.*C2)*(s2a/s2b*(sinD2*mH2+cosD2*mh2)-cos2D*mC2)); // wrong
         // coup.insert({A,G,h,H},         (-1/4.*C2)*(s2a/s2b*(sinD2*mH2+cosD2*mh2)-cos2D*mA2)); // wrong
@@ -1741,9 +1741,10 @@ namespace Gambit
       result.init(spectrum, calculator);
       result.update();
 
-      compareCouplingTable(ctmp,result);
-      std::cerr << "---------" << std::endl;
-      compareCouplingTable(result,ctmp);
+      if(not compareCouplingTable(ctmp,result))
+        SpecBit_error().raise(LOCAL_INFO, "Couplings tables do not match");
+      if(not compareCouplingTable(result,ctmp))
+        SpecBit_error().raise(LOCAL_INFO, "Couplings tables do not match");
     }
 
     // get the 2HDM BSM coupling table (using the THDMC)
@@ -1839,7 +1840,7 @@ namespace Gambit
         double mA2 = sqr(he.get(Par::mass1, "A0"));
 
         // flag if Z2 symmetric
-        bool is_Z2 = (abs(he.get(Par::dimensionless, "lambda6")) < 1e-5 
+        bool is_Z2 = (abs(he.get(Par::dimensionless, "lambda6")) < 1e-5
                   && abs(he.get(Par::dimensionless, "lambda7")) < 1e-5) ? true : false;
 
         // get mass matrix for h,H,A (at scale of spec)
@@ -1870,7 +1871,7 @@ namespace Gambit
           double m122 = (mA2 + 0.5*v2*(2*lam5+lam6*ctb+lam7*tb))*(sb*cb);
           double m112 = m122*tb - 0.5*v2 * (lam1*cb*cb + lam345*sb*sb + 3.0*lam6*sb*cb + lam7*sb*sb*tb);
           double m222 = m122*ctb - 0.5*v2 * (lam2*sb*sb + lam345*cb*cb + lam6*cb*cb*ctb + 3.0*lam7*sb*cb);
-          
+
           // Higgs basis
           double M122 = (m112-m222)*s2b + m122*c2b;
           double M112 = m112*pow(cb,2) + m222*pow(sb,2) - m122*s2b;
@@ -1897,7 +1898,7 @@ namespace Gambit
         auto solve = Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d>(M);
         auto eigenVectors = solve.eigenvectors();
         auto eigenValues = solve.eigenvalues();
-        
+
         // choose the orthogonal matrix to have a positive determinant
         if (eigenVectors.determinant() < +0.0) eigenVectors *= -1;
 

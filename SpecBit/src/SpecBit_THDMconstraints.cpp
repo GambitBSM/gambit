@@ -25,7 +25,7 @@
 // Eigen headers
 #include "gambit/Utils/begin_ignore_warnings_eigen.hpp"
 #include <Eigen/Eigenvalues>
-#include <Eigen/Geometry> 
+#include <Eigen/Geometry>
 #include "gambit/Utils/end_ignore_warnings.hpp"
 
 // GAMBIT headers
@@ -283,11 +283,11 @@ namespace Gambit
     // helper function get list of energy scales, check constraint at each, and get the worst performer
     double get_worst_LL_of_all_scales(const Spectrum& spec, LL_type LL, bool is_FS_model, double other_scale)
     {
-      // we always check the input scale 
+      // we always check the input scale
       vector<double> scales_to_check = { RunScale::INPUT };
 
       // also check the custom scale from the yaml file. Skip if tree level
-      if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && is_FS_model) 
+      if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && is_FS_model)
         scales_to_check.push_back(other_scale);
 
       // // print warning if we ask for likelihood at check_other_scale but not using FlexibleSUSY model
@@ -323,11 +323,11 @@ namespace Gambit
     // helper function get list of energy scales, check constraint at each, and get the worst performer
     double get_worst_LL_of_all_scales(const Spectrum& spec, const CouplingTable& coup, LL_type2 LL, bool is_FS_model, double other_scale)
     {
-      // we always check the input scale 
+      // we always check the input scale
       vector<double> scales_to_check = { RunScale::INPUT };
 
       // also check the custom scale from the yaml file. Skip if tree level
-      if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && is_FS_model) 
+      if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && is_FS_model)
         scales_to_check.push_back(other_scale);
 
       // // print warning if we ask for likelihood at check_other_scale but not using FlexibleSUSY model
@@ -444,7 +444,7 @@ namespace Gambit
       static int pcount = 0, icount = 0;
 
       ++pcount;
-      
+
       double lam1 = *Param.at("lambda1");
       double lam2 = *Param.at("lambda2");
       double lam3 = *Param.at("lambda3");
@@ -601,7 +601,7 @@ namespace Gambit
 
         // get the leading order scattering eigenvalues
         std::vector<complexd> LO_eigenvalues;
-        
+
         if (abs(s.lam6) < eps && abs(s.lam7) < eps)
           LO_eigenvalues = get_LO_scattering_eigenvalues_ordered(s);
         else
@@ -612,7 +612,7 @@ namespace Gambit
         std::vector<double> errors(nEig,0.0);
         for (int i=0; i<nEig; ++i)
           errors[i] = std::max(0.0, std::abs(LO_eigenvalues[i]) - unitarity_upper_limit) / unitarity_upper_limit;
-        
+
         // rescale error components & get final error sum
         double error = rescale_components(errors, {}, 0, "LO-uni");
         return -cutoff_soft_square(error, 1.0, inv_LL_threshold);
@@ -688,7 +688,7 @@ namespace Gambit
         }
 
         // rescale error components & get final error sum
-        return -cutoff_soft_square(error, 100., inv_LL_threshold);        
+        return -cutoff_soft_square(error, 100., inv_LL_threshold);
       };
 
       // get worst performing LogLike at all scales
@@ -778,7 +778,7 @@ namespace Gambit
         // Note: technically there is no abs here, but lam1 & lam2 are already constrained to be positive above
         // we add this to avoid NaN and help guide scanner (we could just throw invalid point, but that isn't very helpful)
         double sqrt_lam12 = std::sqrt(std::abs(s.lam1 * s.lam2)) * sgn(s.lam1 * s.lam2);
-        
+
         // constraint for gamma = 0
         errors[2] = std::max(0.0, -s.lam3 - sqrt_lam12);
 
@@ -797,7 +797,7 @@ namespace Gambit
 
           // a calculation needed for the conditions below
           double calc = (1./2.)*(-s.lam4*s.lam3*s.lam3+s.lam4*s.lam2*s.lam1-s.lam3*s.lam3*s.lam5+s.lam2*s.lam1*s.lam5-2*s.lam7*s.lam7*s.lam1+4*s.lam6*s.lam7*s.lam3-2*s.lam2*s.lam6*s.lam6)/(s.lam4*s.lam1+s.lam4*s.lam2-2*s.lam4*s.lam3+s.lam1*s.lam5-2*s.lam3*s.lam5+s.lam2*s.lam5-2*s.lam6*s.lam6-2*s.lam7*s.lam7+4*s.lam6*s.lam7);
-          
+
           // cos(theta) = +-1 AND abs(rho) <= 1 AND 0<gamma<pi/2 (first gamma solution)
           double rho,gamma,cosg;
           gamma = acos(sqrt((4*s.lam6*s.lam7-2*s.lam4*s.lam3+s.lam4*s.lam2+s.lam4*s.lam1-2*s.lam3*s.lam5+s.lam2*s.lam5+s.lam1*s.lam5-2*s.lam6*s.lam6-2*s.lam7*s.lam7)*(-2*s.lam7*s.lam7+s.lam2*s.lam5+s.lam4*s.lam2-s.lam3*s.lam5-s.lam4*s.lam3+2*s.lam6*s.lam7))/(4*s.lam6*s.lam7-2*s.lam4*s.lam3+s.lam4*s.lam2+s.lam4*s.lam1-2*s.lam3*s.lam5+s.lam2*s.lam5+s.lam1*s.lam5-2*s.lam6*s.lam6-2*s.lam7*s.lam7));
@@ -821,7 +821,7 @@ namespace Gambit
 
           // a calculation needed for the conditions below
           double calc2 = (1./2.)*(s.lam1*s.lam2*s.lam5-s.lam1*s.lam7*s.lam7-s.lam5*s.lam5*s.lam5+2*s.lam5*s.lam5*s.lam4+2*s.lam5*s.lam5*s.lam3-s.lam5*s.lam4*s.lam4-2*s.lam5*s.lam6*s.lam7-s.lam5*s.lam3*s.lam3-2*s.lam5*s.lam4*s.lam3-s.lam6*s.lam6*s.lam2+2*s.lam6*s.lam7*s.lam3+2*s.lam6*s.lam7*s.lam4)/(s.lam1*s.lam5+2*s.lam6*s.lam7-2*s.lam3*s.lam5+s.lam2*s.lam5-2*s.lam5*s.lam4-s.lam6*s.lam6-s.lam7*s.lam7+2*s.lam5*s.lam5);
-          
+
           // rho=1 AND abs(ct) <= 1 AND abs(gamma) <= pi/2
           double ct = (1./2.)*(-s.lam6*s.lam3-s.lam6*s.lam4+s.lam6*s.lam2+s.lam5*s.lam6+s.lam7*s.lam1-s.lam7*s.lam3-s.lam7*s.lam4+s.lam7*s.lam5)/sqrt((-s.lam3*s.lam5-s.lam5*s.lam4+s.lam2*s.lam5+s.lam5*s.lam5+s.lam6*s.lam7-s.lam7*s.lam7)*(s.lam1*s.lam5+s.lam6*s.lam7-s.lam3*s.lam5+s.lam5*s.lam5-s.lam5*s.lam4-s.lam6*s.lam6));
           gamma     = atan(sqrt((-s.lam3*s.lam5-s.lam5*s.lam4+s.lam2*s.lam5+s.lam5*s.lam5+s.lam6*s.lam7-s.lam7*s.lam7)*(s.lam1*s.lam5+s.lam6*s.lam7-s.lam3*s.lam5+s.lam5*s.lam5-s.lam5*s.lam4-s.lam6*s.lam6))/(-s.lam3*s.lam5-s.lam5*s.lam4+s.lam2*s.lam5+s.lam5*s.lam5+s.lam6*s.lam7-s.lam7*s.lam7));
@@ -838,13 +838,13 @@ namespace Gambit
         }
 
         // check meta-stability (only working for Z2-symmetric models for now)
-        if (checkMeta) 
+        if (checkMeta)
         {
           // Reference: https://arxiv.org/abs/1303.5098
 
           check_Z2(s.lam6, s.lam7, "check_minimum_is_global");
 
-          // again, lam1 & lam2 are constrained to be positive by vacuum stability, so it is safe 
+          // again, lam1 & lam2 are constrained to be positive by vacuum stability, so it is safe
           // to take abs. We could just throw invalid point, but this is better for guiding the scanner
           double rl1 = sgn(s.lam1) * std::sqrt(std::abs(s.lam1));
           double rl2 = sgn(s.lam2) * std::sqrt(std::abs(s.lam2));
@@ -884,7 +884,7 @@ namespace Gambit
 
       // get worst performing LogLike at all scales
       result = get_worst_LL_of_all_scales(spec, get_stability_LogLikelihood, is_FS_model, other_scale);
-      
+
       // test_data["stab"] = -result;
     }
 
@@ -911,7 +911,7 @@ namespace Gambit
           double mass_splitting = abs(mass_running - mass_pole);
           errors[i] = std::max(0.0, mass_splitting/mass_running - 0.5);
         }
-        
+
         // rescale error components & get final error sum
         double error = rescale_components(errors, {0.2, 0.2, 0.25, 0.5}, 2, "c");
         double result = -5*cutoff_soft_square(error, 1.0, inv_LL_threshold);
@@ -920,7 +920,7 @@ namespace Gambit
 
       // get worst performing LogLike at all scales
       result = get_worst_LL_of_all_scales(spec, get_scalar_mass_correction_LogLikelihood, is_FS_model, other_scale);
-      
+
       // test_data["corr"] = -result;
     }
 
@@ -937,7 +937,7 @@ namespace Gambit
       double mh_pole = spec.get_HE().get(Par::Pole_Mass, *Dep::SM_like_scalar);
       double mh_exp = 125.15;
       double error = std::max(0.0, std::abs(mh_pole - mh_exp) - higgs_mass_uncertainty) / valid_range;
-      result = -4e-3*cutoff_soft_square(error, 1.0, inv_LL_threshold); 
+      result = -4e-3*cutoff_soft_square(error, 1.0, inv_LL_threshold);
 
       // test_data["higgsMass"] = -result; // delete me
     }
@@ -953,7 +953,7 @@ namespace Gambit
       // get SM-like and non-SM-like CP-even scalars
       double mh_pole = spec.get_HE().get(Par::Pole_Mass, *Dep::SM_like_scalar);
       double mH_pole = spec.get_HE().get(Par::Pole_Mass, *Dep::additional_scalar);
-      
+
       // hidden-Higgs scenario -> SM Higgs heavier than other higgs
       if (mh_pole < mH_pole && hidden_higgs_scenario) result = -L_MAX;
       // regular-Higgs scenario -> SM Higgs lighter than other higgs
@@ -1201,53 +1201,53 @@ namespace Gambit
 
     // ----- helpers to get real/imag self-energy -----
 
-    double Pi_tilde_wpwm_re(double p2, const wavefunction_renorm_vars* p) 
+    double Pi_tilde_wpwm_re(double p2, const wavefunction_renorm_vars* p)
     {
-      return Pi_tilde_wpwm(p2, p->s, p->C3, p->C4).real(); 
+      return Pi_tilde_wpwm(p2, p->s, p->C3, p->C4).real();
     }
-    double Pi_tilde_wpwm_im(double p2, const wavefunction_renorm_vars* p) 
+    double Pi_tilde_wpwm_im(double p2, const wavefunction_renorm_vars* p)
     {
-      return Pi_tilde_wpwm(p2, p->s, p->C3, p->C4).imag(); 
+      return Pi_tilde_wpwm(p2, p->s, p->C3, p->C4).imag();
     }
-    double Pi_tilde_zz_re(double p2, const wavefunction_renorm_vars* p) 
+    double Pi_tilde_zz_re(double p2, const wavefunction_renorm_vars* p)
     {
-      return Pi_tilde_zz(p2, p->s, p->C3, p->C4).real(); 
+      return Pi_tilde_zz(p2, p->s, p->C3, p->C4).real();
     }
-    double Pi_tilde_zz_im(double p2, const wavefunction_renorm_vars* p) 
+    double Pi_tilde_zz_im(double p2, const wavefunction_renorm_vars* p)
     {
-      return Pi_tilde_zz(p2, p->s, p->C3, p->C4).imag(); 
+      return Pi_tilde_zz(p2, p->s, p->C3, p->C4).imag();
     }
-    double Pi_tilde_hh_re(double p2, const wavefunction_renorm_vars* p) 
+    double Pi_tilde_hh_re(double p2, const wavefunction_renorm_vars* p)
     {
-      return Pi_tilde_hh(p2, p->s, p->C3, p->C4).real(); 
+      return Pi_tilde_hh(p2, p->s, p->C3, p->C4).real();
     }
-    double Pi_tilde_hh_im(double p2, const wavefunction_renorm_vars* p) 
+    double Pi_tilde_hh_im(double p2, const wavefunction_renorm_vars* p)
     {
-      return Pi_tilde_hh(p2, p->s, p->C3, p->C4).imag(); 
+      return Pi_tilde_hh(p2, p->s, p->C3, p->C4).imag();
     }
-    double Pi_tilde_HH_re(double p2, const wavefunction_renorm_vars* p) 
+    double Pi_tilde_HH_re(double p2, const wavefunction_renorm_vars* p)
     {
-      return Pi_tilde_HH(p2, p->s, p->C3, p->C4).real(); 
+      return Pi_tilde_HH(p2, p->s, p->C3, p->C4).real();
     }
-    double Pi_tilde_HH_im(double p2, const wavefunction_renorm_vars* p) 
+    double Pi_tilde_HH_im(double p2, const wavefunction_renorm_vars* p)
     {
-      return Pi_tilde_HH(p2, p->s, p->C3, p->C4).imag(); 
+      return Pi_tilde_HH(p2, p->s, p->C3, p->C4).imag();
     }
-    double Pi_tilde_HpHm_re(double p2, const wavefunction_renorm_vars* p) 
+    double Pi_tilde_HpHm_re(double p2, const wavefunction_renorm_vars* p)
     {
-      return Pi_tilde_HpHm(p2, p->s, p->C3, p->C4).real(); 
+      return Pi_tilde_HpHm(p2, p->s, p->C3, p->C4).real();
     }
-    double Pi_tilde_HpHm_im(double p2, const wavefunction_renorm_vars* p) 
+    double Pi_tilde_HpHm_im(double p2, const wavefunction_renorm_vars* p)
     {
-      return Pi_tilde_HpHm(p2, p->s, p->C3, p->C4).imag(); 
+      return Pi_tilde_HpHm(p2, p->s, p->C3, p->C4).imag();
     }
-    double Pi_tilde_AA_re(double p2, const wavefunction_renorm_vars* p) 
+    double Pi_tilde_AA_re(double p2, const wavefunction_renorm_vars* p)
     {
-      return Pi_tilde_AA(p2, p->s, p->C3, p->C4).real(); 
+      return Pi_tilde_AA(p2, p->s, p->C3, p->C4).real();
     }
-    double Pi_tilde_AA_im(double p2, const wavefunction_renorm_vars* p) 
+    double Pi_tilde_AA_im(double p2, const wavefunction_renorm_vars* p)
     {
-      return Pi_tilde_AA(p2, p->s, p->C3, p->C4).imag(); 
+      return Pi_tilde_AA(p2, p->s, p->C3, p->C4).imag();
     }
 
     complexd z_ii(const wavefunction_renorm_type type, const ThdmSpec &s, const vector<complexd>& C3, const vector<complexd>& C4)
@@ -1884,7 +1884,7 @@ namespace Gambit
         // rescale error components & get final error sum
         std::vector<double> NLO_err_rescale = { 0.3, 0.6, 6.0, 0.35, 2.1, 2.4, 2.7, 2.3, 2.0, 2.4, 2.6, 4.1 };
         std::vector<double> rat_err_rescale = { 0.03, 0.11, 0.18, 0.20, 0.07, 0.07, 0.21, 0.18, 0.14, 0.05, 0.04, 1.0 };
-        
+
         double NLO_err_sum = rescale_components(NLO_err, NLO_err_rescale, 0, "e");
         double rat_err_sum = rescale_components(rat_err, rat_err_rescale, 0, "r");
 
@@ -1892,7 +1892,7 @@ namespace Gambit
         return result;
       };
 
-      // get worst performing LogLike at all scales 
+      // get worst performing LogLike at all scales
       result = get_worst_LL_of_all_scales(spec, coupl, get_NLO_unitarity_LogLikelihood, is_FS_model, other_scale);
 
       // test_data["NLO"] = -result;

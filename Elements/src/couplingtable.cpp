@@ -8,7 +8,7 @@ namespace Gambit
         thread_local std::string full_a, full_b;
         full_a.clear(); full_b.clear();
 
-        for (auto& i : a) 
+        for (auto& i : a)
         {
             full_a += i;
             full_a += '~';
@@ -68,8 +68,7 @@ namespace Gambit
         // if not in table the assume coupling is 0.
         if (coup == table.end())
         {
-          std::cerr << "invalid coupling" << std::endl;
-          exit(0);
+          return 0;
         }
         // otherwise return the coupling
         else return (*coup).second;
@@ -102,6 +101,6 @@ namespace Gambit
       os << pair.first << ": " << pair.second << std::endl;
     }
     return os;
-  }  
+  }
 
 }
