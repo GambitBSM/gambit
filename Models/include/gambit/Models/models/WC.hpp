@@ -23,6 +23,11 @@
 ///  \author Tomas Gonzalo
 ///          (gonzalo@physik.rwth-aachen.de)
 ///  \date 2021 June
+///  \date 2024 Feb
+///
+///  \author Martin White
+///          (martin.white@adelaide.edu.au)
+///  \date 2023 March
 ///
 ///  *********************************************
 
@@ -75,5 +80,26 @@
 #undef MODEL
 #undef PARENT
 
+// Wilson coefficients for neutral lepton interactions, inspired by page 4 of https://arxiv.org/pdf/2107.01080.pdf
+// We only have one number per matrix
+// Assume that off diagonal elements are zero
+// All diagonal elements are set to the number below (i.e. gives factor of 3 when summing over flavours)
+// (assume different neutrinos are phenomenologically indistinguishable)
+#define MODEL GWC_nu
+  START_MODEL
+  DEFINEPARS(Re_DeltaCLL_V, Im_DeltaCLL_V, Re_DeltaCRL_V, Im_DeltaCRL_V, Re_DeltaCLR_V, Im_DeltaCLR_V, Re_DeltaCRR_V, Im_DeltaCRR_V,
+       Re_DeltaCLL_S, Im_DeltaCLL_S, Re_DeltaCRL_S, Im_DeltaCRL_S, Re_DeltaCLR_S, Im_DeltaCLR_S, Re_DeltaCRR_S, Im_DeltaCRR_S,
+       Re_DeltaCLL_T, Im_DeltaCLL_T, Re_DeltaCRR_T, Im_DeltaCRR_T)
+#undef MODEL
+
+// Simplified neutral lepton interaction model with just vector-like and no left-right interactions
+#define PARENT GWC_nu
+#define MODEL WC_nu
+  START_MODEL
+  DEFINEPARS(Re_DeltaCL, Im_DeltaCL, Re_DeltaCR, Im_DeltaCR)
+  // Translation functions defined in WC.cpp
+  INTERPRET_AS_PARENT_FUNCTION(WC_nu_to_GWC_nu)
+#undef MODEL
+#undef PARENT
 
 #endif

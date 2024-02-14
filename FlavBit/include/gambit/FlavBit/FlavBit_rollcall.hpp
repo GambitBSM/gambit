@@ -1479,9 +1479,17 @@ START_MODULE
   #undef CAPABILITY
 
   // Observable: BR(B -> K nu nu)
-  #define CAPABILITY BKnunu
+  #define CAPABILITY B2Knunu
   START_CAPABILITY
-    #define FUNCTION BKnunu
+
+    #define FUNCTION SuperIso_prediction_B2Knunu
+    START_FUNCTION(double)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    BACKEND_REQ(B2Knunu, (libsuperiso), double, (const parameters*, int, double, double))
+    BACKEND_OPTION( (SuperISo, 4.1), (libsuperiso) )
+    #undef FUNCTION
+
+    #define FUNCTION B2Knunu
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS, SMInputs)
     ALLOW_MODEL(WC_nunu)
@@ -1489,9 +1497,17 @@ START_MODULE
   #undef CAPABILITY
 
   // Observable: BR(B_u+ -> K+ nu nu)
-  #define CAPABILITY BuKnunu
+  #define CAPABILITY Bu2Knunu
   START_CAPABILITY
-    #define FUNCTION BuKnunu
+
+    #define FUNCTION SuperIso_prediction_Bu2Knunu
+    START_FUNCTION(double)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    BACKEND_REQ(B2Knunu, (libsuperiso), double, (const parameters*, int, double, double))
+    BACKEND_OPTION( (SuperISo, 4.1), (libsuperiso) )
+    #undef FUNCTION
+
+    #define FUNCTION Bu2Knunu
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS, SMInputs)
     ALLOW_MODEL(WC_nunu)
@@ -1499,9 +1515,9 @@ START_MODULE
   #undef CAPABILITY
 
   // Observable: BR(B -> K* nu nu)
-  #define CAPABILITY BKstarnunu
+  #define CAPABILITY B2Kstarnunu
   START_CAPABILITY
-    #define FUNCTION BKstarnunu
+    #define FUNCTION B2Kstarnunu
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS, SMInputs)
     ALLOW_MODEL(WC_nunu)
@@ -1509,9 +1525,9 @@ START_MODULE
   #undef CAPABILITY
 
   // Observable: BR(B_u+ -> Kstar+ nu nu)
-  #define CAPABILITY BuKstarnunu
+  #define CAPABILITY Bu2Kstarnunu
   START_CAPABILITY
-    #define FUNCTION BuKstarnunu
+    #define FUNCTION Bu2Kstarnunu
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS, SMInputs)
     ALLOW_MODEL(WC_nunu)

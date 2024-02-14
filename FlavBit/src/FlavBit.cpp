@@ -98,7 +98,7 @@ namespace Gambit
 
       SLHAstruct spectrum;
       // Obtain SLHAea object from spectrum
-      if (ModelInUse("GWC"))
+      if (ModelInUse("GWC") or ModelInUse("GWC_nu"))
       {
         spectrum = Dep::SM_spectrum->getSLHAea(2);
       }
@@ -512,7 +512,7 @@ namespace Gambit
          if (spectrum["TE"][std::max(ie,je)].is_data_line()) result.TE[ie][je]=SLHAea::to<double>(spectrum["TE"].at(ie,je)[2]);
       }
 
-      else if (ModelInUse("GWC"))
+      else if (ModelInUse("GWC") or ModelInUse("GWC_nu"))
       {
         // The Higgs mass doesn't come through in the SLHAea object, as that's only for SLHA2 SM inputs.
         result.mass_h0 = Dep::SM_spectrum->get(Par::Pole_Mass, "h0_1");
@@ -543,7 +543,7 @@ namespace Gambit
         {
           result.mass_h0 = Dep::MSSM_spectrum->get(Par::Pole_Mass, "h0_1");
         }
-        else if (ModelInUse("GWC"))
+        else if (ModelInUse("GWC") or ModelInUse("GWC_nu"))
         {
           result.mass_h0 = Dep::SM_spectrum->get(Par::Pole_Mass, "h0_1");
         }
@@ -691,6 +691,22 @@ namespace Gambit
         result.deltaCQp[5]=std::complex<double>(result.Re_DeltaCQ1_tau_Prime, result.Im_DeltaCQ1_tau_Prime);
         result.deltaCQp[6]=std::complex<double>(result.Re_DeltaCQ2_tau_Prime, result.Im_DeltaCQ2_tau_Prime);
       }
+
+      if (ModelInUse("GWC_nu"))
+      {
+
+        // Tell SuperIso to do its Wilson coefficient calculations for the SM.
+        // We will adjust them with our BSM deviations in backend convenience
+        // functions before we send them to SuperIso's observable calculation functions.
+        result.SM = 1;
+
+        // FIXME: Currently SuperIso only takes the left and right vector WCs. Expand with more
+        result.Re_DeltaCL = *Param["Re_DeltaCLL_V"];
+        result.Im_DeltaCL = *Param["Im_DeltaCLL_V"];
+        result.Re_DeltaCR = *Param["Re_DeltaCRR_V"];
+        result.Im_DeltaCR = *Param["Im_DeltaCRR_V"];
+      }
+
 
       // @asw ONLY use new WC interface for Type-III
       if (ModelInUse("THDM") or ModelInUse("THDMatQ"))

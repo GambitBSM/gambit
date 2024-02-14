@@ -540,6 +540,30 @@ namespace Gambit
       if (flav_debug) std::cout<<"Finished SuperIso_prediction_AI_BKstarmumu_zero"<< std::endl;
     }
 
+    /// Calculation of B -> K nu nu with SuperIso
+    void SuperIso_prediction_B2Knunu(double &result)
+    {
+      using namespace Pipes::SuperIso_prediction_B2Knunu;
+
+      parameters const &param = *Dep::SuperIso_modelinfo;
+
+      // As far as I can tell, q2 ranges from 0 to 22.90 GeV^2/c^4
+      double smin = 0., smax = 24.;
+      result = BEreq::B2Knunu(&param, byVal(0), byVal(smin), byVal(smax));
+    }
+
+    /// Calculation of Bu+ -> K+ nu nu with SuperIso
+    void SuperIso_prediction_Bu2Knunu(double &result)
+    {
+      using namespace Pipes::SuperIso_prediction_Bu2Knunu;
+
+      parameters const &param = *Dep::SuperIso_modelinfo;
+
+      // As far as I can tell, q2 ranges from 0 to 22.90 GeV^2/c^4
+      double smin = 0., smax = 24.;
+      result = BEreq::B2Knunu(&param, byVal(1), byVal(smin), byVal(smax));
+    }
+
     // Kahler function
     double lambdaK(double q2, double mB, double mK)
     {
@@ -652,9 +676,9 @@ namespace Gambit
     }
 
     /// Calculation of BR(B -> K nu nu)
-    void BKnunu(double &result)
+    void B2Knunu(double &result)
     {
-      using namespace Pipes::BKnunu;
+      using namespace Pipes::B2Knunu;
 
       // Meson masses
       const double mB = Mesons_masses::B_0;
@@ -742,9 +766,9 @@ namespace Gambit
     }
 
     /// Calculation of BR(B_u+ -> K+ nu nu)
-    void BuKnunu(double &result)
+    void Bu2Knunu(double &result)
     {
-      using namespace Pipes::BuKnunu;
+      using namespace Pipes::Bu2Knunu;
 
       // Meson masses
       const double mB = Mesons_masses::B_plus;
@@ -765,9 +789,9 @@ namespace Gambit
     }
 
     /// Calculation of BR(B -> K* nu nu)
-    void BKstarnunu(double &result)
+    void B2Kstarnunu(double &result)
     {
-      using namespace Pipes::BKstarnunu;
+      using namespace Pipes::B2Kstarnunu;
 
       // Meson masses
       const double mB = Mesons_masses::B_0;
@@ -788,9 +812,9 @@ namespace Gambit
     }
 
     /// Calculation of BR(B_u+ -> K*+ nu nu)
-    void BuKstarnunu(double &result)
+    void Bu2Kstarnunu(double &result)
     {
-      using namespace Pipes::BuKstarnunu;
+      using namespace Pipes::Bu2Kstarnunu;
 
       // Meson masses
       const double mB = Mesons_masses::B_plus;
@@ -2096,21 +2120,23 @@ namespace Gambit
     {
       using namespace Pipes::HEPLike_BuKnunu_LogLikelihood_BelleII;
 
-      static const std::string inputfile = heplike_data_file("/data/BelleII/Inclusive/Bu2KNuNu/KEK-2020-45.yaml");
-      static HepLike_default::HL_BifurGaussian BifurGaussian(inputfile);
+      static const std::string inputfile = heplike_data_file("/data/BelleII/Combined/Bu2KNuNu/KEK-2023-35.yaml");
+      static HepLike_default::HL_ProfLikelihood ProfLikelihood(inputfile);
 
       static bool first = true;
       if (first)
       {
-        BifurGaussian.Read();
+        ProfLikelihood.Read();
         first = false;
       }
 
-      const double theory = *Dep::BuKnunu;
+      // The profile likelihood from BelleII fits the signal strength mu = BR/BR_SM
+      const double BR_SM = 4.97e-6; // 2311.14647
+      const double theory = *Dep::BuKnunu/BR_SM;
       // TODO: Deal properly with theory uncertainty
       const double theory_variance = 0.001;
 
-      result = BifurGaussian.GetLogLikelihood(theory, theory_variance);
+      result = ProfLikelihood.GetLogLikelihood(theory, theory_variance);
     }
 
     /// HEPLike LogLikehood for BR(B -> K* nu nu) from Belle with semileptonic tagging

@@ -11,6 +11,7 @@
 ///  WC_LUV  --> GWC
 ///  WC_LR   --> GWC
 ///  WC      --> WC_LUV, WC_LR
+///  WC_nu   --> GWC_nu
 ///
 ///  *********************************************
 ///
@@ -23,6 +24,7 @@
 ///  \author Tomas Gonzalo
 ///          (gonzalo@physik.rwth-aachen.de)
 ///  \date 2021 June
+///  \date 2024 Feb
 ///
 ///  *********************************************
 
@@ -192,3 +194,27 @@ void MODEL_NAMESPACE::WC_to_WC_LR (const ModelParameters& myP, ModelParameters &
   targetP.setValue("Im_DeltaCQ2_Prime", myP.getValue("Im_DeltaCQ2"));
 }
 #undef MODEL
+
+// WC_nu --> GWC_nu
+#define MODEL WC_nu
+#define PARENT GWC_nu
+void MODEL_NAMESPACE::CAT_3(MODEL,_to_,PARENT) (const ModelParameters &myP, ModelParameters &targetP)
+{
+  logger()<<"Running interpret_as_parent calculations for " STRINGIFY(MODEL) " --> " STRINGIFY(PARENT) "."<<LogTags::info<<EOM;
+
+  targetP.setValue("Re_DeltaCLL_V", myP.getValue("Re_DeltaCL"));
+  targetP.setValue("Im_DeltaCLL_V", myP.getValue("Im_DeltaCL"));
+  targetP.setValue("Re_DeltaCRR_V", myP.getValue("Re_DeltaCR"));
+  targetP.setValue("Im_DeltaCRR_V", myP.getValue("Im_DeltaCR"));
+
+  std::vector<std::string> wcs = {"Re_DeltaCRL_V", "Im_DeltaCRL_V", "Re_DeltaCLR_V", "Im_DeltaCLR_V",
+                                  "Re_DeltaCLL_S", "Im_DeltaCLL_S", "Re_DeltaCRL_S", "Im_DeltaCRL_S",
+                                  "Re_DeltaCLR_S", "Im_DeltaCLR_S", "Re_DeltaCRR_S", "Im_DeltaCRR_S",
+                                  "Re_DeltaCLL_T", "Im_DeltaCLL_T", "Re_DeltaCRR_T", "Im_DeltaCRR_T"};
+  for (auto &wc : wcs)
+  {
+    targetP.setValue(wc, 0.0);
+  }
+
+}
+

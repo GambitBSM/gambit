@@ -357,6 +357,11 @@ namespace Gambit
     double Im_DeltaCQ1_tau_Prime = 0.;
     double Re_DeltaCQ2_tau_Prime = 0.;
     double Im_DeltaCQ2_tau_Prime = 0.;
+
+    double Re_DeltaCL = 0.;
+    double Im_DeltaCL = 0.;
+    double Re_DeltaCR = 0.;
+    double Im_DeltaCR = 0.;
   };
 
   struct indnuis
