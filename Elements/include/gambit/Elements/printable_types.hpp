@@ -35,11 +35,13 @@
   (map_intpair_dbl)                   \
   (map_dblpair_dbl)                   \
   (triplet<double>)                   \
-  (flav_prediction)                   \
-  (CouplingTable)                     \
-  (flav_binned_prediction)            \
   (DM_nucleon_couplings)              \
-  (BBN_container)
+  (BBN_container)                     \
+  (flav_prediction)                   \
+  (flav_binned_prediction)            \
+  (HiggsCouplingsTable)               \
+  (CouplingTable)                     \
+
 
 // Types that can be retrieved from Gambit printer output (if printer plugin is properly equipped)
 // Generally needs to be the same as the printable types, i.e. should be able to retrieve everything.

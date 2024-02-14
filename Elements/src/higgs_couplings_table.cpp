@@ -12,6 +12,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2016 Sep
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2024 Feb
+///
 ///  *********************************************
 
 #include "gambit/Elements/higgs_couplings_table.hpp"
@@ -191,6 +195,44 @@ namespace Gambit
   const DecayTable::Entry& HiggsCouplingsTable::get_t_decays() const
   {
     return *t_decays;
+  }
+
+  /// Print Higgs coupling table to a map
+  map_str_dbl HiggsCouplingsTable::to_map() const
+  {
+    map_str_dbl couplings_map;
+
+    for(int i=0; i<n_neutral_higgses; i++)
+    {
+      couplings_map["h"+std::to_string(i)+"WW"] = C_WW[i];
+      couplings_map["h"+std::to_string(i)+"ZZ"] = C_ZZ[i];
+      couplings_map["h"+std::to_string(i)+"tt^2"] = C_tt2[i];
+      couplings_map["h"+std::to_string(i)+"bb^2"] = C_bb2[i];
+      couplings_map["h"+std::to_string(i)+"cc^2"] = C_cc2[i];
+      couplings_map["h"+std::to_string(i)+"tautau^2"] = C_tautau2[i];
+      couplings_map["h"+std::to_string(i)+"gaga^2"] = C_gaga2[i];
+      couplings_map["h"+std::to_string(i)+"gg^2"] = C_gg2[i];
+      couplings_map["h"+std::to_string(i)+"mumu^2"] = C_mumu2[i];
+      couplings_map["h"+std::to_string(i)+"Zga^2"] = C_Zga2[i];
+      couplings_map["h"+std::to_string(i)+"ss^2"] = C_ss2[i];
+      for(int j=0; j<n_neutral_higgses; j++)
+        couplings_map["h"+std::to_string(i)+"h"+std::to_string(j)+"Z"] = C_hiZ[i][j];
+      couplings_map["h"+std::to_string(i)+"tt_s"] = C_tt_s[i];
+      couplings_map["h"+std::to_string(i)+"tt_p"] = C_tt_p[i];
+      couplings_map["h"+std::to_string(i)+"bb_s"] = C_bb_s[i];
+      couplings_map["h"+std::to_string(i)+"bb_p"] = C_bb_p[i];
+      couplings_map["h"+std::to_string(i)+"cc_s"] = C_cc_s[i];
+      couplings_map["h"+std::to_string(i)+"cc_p"] = C_cc_p[i];
+      couplings_map["h"+std::to_string(i)+"ss_s"] = C_ss_s[i];
+      couplings_map["h"+std::to_string(i)+"ss_p"] = C_ss_p[i];
+      couplings_map["h"+std::to_string(i)+"tautau_s"] = C_tautau_s[i];
+      couplings_map["h"+std::to_string(i)+"tautau_p"] = C_tautau_p[i];
+      couplings_map["h"+std::to_string(i)+"mumu_s"] = C_mumu_s[i];
+      couplings_map["h"+std::to_string(i)+"mumu_p"] = C_mumu_p[i];
+
+    }
+
+    return couplings_map;
   }
 
 }

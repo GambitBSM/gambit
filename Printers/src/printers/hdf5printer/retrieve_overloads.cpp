@@ -27,6 +27,7 @@
 
 #include "gambit/Printers/printers/hdf5reader.hpp"
 #include "gambit/Printers/printers/hdf5printer.hpp"
+#include "gambit/Printers/printers/common_retrieve_overloads.hpp"
 
 namespace Gambit
 {
@@ -533,38 +534,24 @@ namespace Gambit
      }
 
 
-     bool HDF5Reader::_retrieve(std::vector<double>& /*out*/,  const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(std::complex<double>& /*out*/,  const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(map_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(map_str_str& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(map_const_str_dbl& /*out*/,    const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(map_str_map_str_dbl& /*out*/,  const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(map_const_str_map_const_str_dbl& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(triplet<double>& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(map_intpair_dbl& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(map_dblpair_dbl& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+     UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, std::vector<double>)
+     UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, std::complex<double>)
+     UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, map_str_dbl)
+     UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, map_str_str)
+     UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, map_const_str_dbl)
+     UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, map_str_map_str_dbl)
+     UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, map_const_str_map_const_str_dbl)
+     UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, triplet<double>)
+     UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, map_intpair_dbl)
+     UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, map_dblpair_dbl)
 
      #ifndef SCANNER_STANDALONE // All the types inside HDF5_BACKEND_TYPES need to go inside this def guard.
-       bool HDF5Reader::_retrieve(DM_nucleon_couplings& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-       { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-       bool HDF5Reader::_retrieve(BBN_container& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-       { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-       bool HDF5Reader::_retrieve(flav_prediction& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-       { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-       bool HDF5Reader::_retrieve(CouplingTable& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-       { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-       bool HDF5Reader::_retrieve(flav_binned_prediction& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-       { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+       UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, DM_nucleon_couplings)
+       UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, BBN_container)
+       UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, flav_prediction)
+       UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, flav_binned_prediction)
+       UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, HiggsCouplingsTable)
+       UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, CouplingTable)
      #endif
 
      /// Helper function to parse a capability name to a dataset name

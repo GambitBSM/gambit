@@ -45,6 +45,10 @@
 #define SQL_BACKEND_TYPES             \
   (DM_nucleon_couplings)              \
   (BBN_container)                     \
+  (flav_prediction)                   \
+  (flav_binned_prediction)            \
+  (HiggsCouplingsTable)               \
+  (CouplingTable)                     \
 
 
 #endif
