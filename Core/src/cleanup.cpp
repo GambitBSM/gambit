@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  allows us to record cleanup functions to be 
+///  allows us to record cleanup functions to be
 ///  called after the scan is done. for cleaning up
 ///  backend memory
 ///
@@ -15,14 +15,15 @@
 ///
 ///  *********************************************
 
-#include "gambit/Core/cleanup.hpp"
-
 #include <iostream>
 #include <vector>
 #include <cassert>
 #include <functional>
 #include <mutex>
 #include <unordered_set>
+
+#include "gambit/Core/error_handlers.hpp"
+#include "gambit/Core/cleanup.hpp"
 
 namespace Gambit
 {
@@ -39,7 +40,7 @@ namespace Gambit
 			if (cleanup_function_names.insert(fcn_name).second)
 				cleanup_functions.push_back(fcn);
 			else
-				std::cerr << "WARNING: register_cleanup_function() has already registered: " << fcn_name << std::endl;
+				core_error().raise(LOCAL_INFO, "WARNING: register_cleanup_function() has already registered: " + fcn_name);
 		}
 
 		void run_cleanup()
@@ -49,11 +50,9 @@ namespace Gambit
 
 			if (cleanDone)
 			{
-				std::cerr << "WARNING: run_cleanup() called multiple times, please call only once" << std::endl;
-				return;
+				core_error().raise(LOCAL_INFO, "WARNING: run_cleanup() called multiple times, please call only once");
 			}
 
-			std::cout << "running cleanup functions..." << std::endl;
 			for (auto it = cleanup_functions.rbegin(); it != cleanup_functions.rend(); ++it)
 				(*it)();
 

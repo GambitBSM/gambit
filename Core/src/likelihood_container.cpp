@@ -171,9 +171,6 @@ namespace Gambit
 
   }
 
-  // keep track on top N highest LLs
-  static std::vector<double> max_LLs(20, -1e20);
-
   /// Evaluate total likelihood function
   double Likelihood_Container::main(std::unordered_map<std::string, double> &in)
   {
@@ -187,9 +184,7 @@ namespace Gambit
 
     double lnlike = 0;
     bool point_invalidated = false;
-    
-    bool theoryIsInvalid = false;
-    bool somethingWasSkipped = false;
+
     static int point_count = 0, invalid_count = 0;
     ++point_count;
 
@@ -251,16 +246,6 @@ namespace Gambit
                              + "::" + dependencyResolver.get_functor(*it)->name();
         if (debug) logger() << LogTags::core << "Calculating l" << likelihood_tag << "." << EOM;
 
-        // @asw skip expensive constraints if already shit LL
-        str origin = dependencyResolver.get_functor(*it)->origin();
-        if ((origin == "PrecisionBit" && lnlike < max_LLs[0]-5000) ||
-            (origin == "ColliderBit" && lnlike < max_LLs[0]-1000) ||
-            (origin == "DarkBit" && lnlike < max_LLs[0]-500) ||
-            (origin == "FlavBit" && lnlike < max_LLs[0]-500))
-        {
-          somethingWasSkipped = true;
-          break;
-        }
 
         try
         {
@@ -326,7 +311,7 @@ namespace Gambit
           ++invalid_count;
           logger() << LogTags::core << "Point invalidated by " << e.thrower()->origin() << "::" << e.thrower()->name() << ": " << e.message() << "Invalidation code " << e.invalidcode << EOM;
           logger().leaving_module();
-          lnlike = active_min_valid_lnlike*(1.0+1e-2*(std::rand()/(double)RAND_MAX));
+          lnlike = active_min_valid_lnlike;
           compute_aux = false;
           point_invalidated = true;
           int rankinv = printer.getRank();
@@ -338,38 +323,10 @@ namespace Gambit
           break;
         }
 
-        if (origin == "SpecBit" && lnlike < -0.5)
-        {
-          theoryIsInvalid = true;
-        }
-
       }
-
-      // fix glitches caused by skipping likelihood components
-      if (somethingWasSkipped)
-      {
-        lnlike += -1500;
-      }
-
-      // dont let invalid points have too high LL (in case this situation is experimentally favoured)
-      if (theoryIsInvalid)
-      {
-        lnlike += -50;
-      }
-
-      // check if point will actually show up in results
-      if (lnlike > max_LLs[0])
-      {
-         max_LLs[0] = lnlike;
-         std::sort(max_LLs.begin(), max_LLs.end());
-      }      
-      bool notGonnaShow = (lnlike < max_LLs[0] - 50.0);
-
-      // dont bother with LL regions that are not visible on plots
-      if (somethingWasSkipped || theoryIsInvalid || notGonnaShow) compute_aux = false;
 
       // If none of the likelihood calculations have invalidated the point, calculate the observables.
-      if (compute_aux && lnlike > disable_print_for_lnlike_below)
+      if (compute_aux)
       {
         if (debug) logger() << LogTags::core <<  "Completed likelihoods.  Calculating additional observables." << EOM;
 
@@ -394,7 +351,7 @@ namespace Gambit
       }
 
       // If the point is invalid and print_invalid_points = false disable the printer, otherwise print vertices
-      if((point_invalidated && !print_invalid_points) || somethingWasSkipped || theoryIsInvalid || notGonnaShow)
+      if((point_invalidated and !print_invalid_points) or (lnlike <= disable_print_for_lnlike_below))
         printer.disable();
       else
       {
