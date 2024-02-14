@@ -552,4 +552,52 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +		+lu*lu/6./(xH-xt)*((4.*xH*xH*xH-12.*xH*xH*xt+9.*xH*xt*xt+3.*xt*xt*xt)/(xH-xt)*log(xH/xt)-(17.*xH*xH-64.*xH*xt+71.*xt*xt)/6.))
  		+(1.-sw2)*lu*lu*xt*xt/4./(xH-xt)/(xH-xt)*(xH*log(xH/xt)+xt-xH);
  }
+ 
+@@ -4512,3 +4551,23 @@ void CQ_calculator(int gen, double compl
+ 			
+ 	return;
+ }
++
++/*-----------------------------------------------------------------------------*/
++
++void CLR_calculator(double complex CLR[], struct parameters* param)
++{
++    double mu_W=param->mass_W;
++    double mu_b=param->mass_b_pole;
++
++    double mtmt = param->mtmt;
++    double xt = pow(mtmt/param->mass_W,2.);
++    double alphas_mut = alphas_running(mtmt,mtmt,param->mass_b_pole,&param);
++
++    double XtSM = X0(xt) + alphas_mut/(4.*pi) * X1(xt,mtmt,param->mass_W);
++    double sw2=pow(sin(atan(param->gp/param->g2)),2.);
++    
++    CLR[0] = -XtSM / sw2;   // CL = CLR[0]
++    CLR[1] = 0;             // CR = CLR[1]
++    
++    return;
++}
+
+--- a/src/include.h	2024-02-14 20:49:52.467221640 +0100
++++ b/src/include.h	2024-02-14 20:50:52.580464870 +0100
+@@ -637,6 +637,7 @@ void C_calculator_base1(double complex C
+ void C_calculator_base2(double complex C0w[], double complex C1w[], double mu_W, double complex C0b[], double complex C1b[], double mu, struct parameters* param); 
+ void Cprime_calculator(int gen, double complex Cpb[], double complex CQpb[], double mu_W, double mu, struct parameters* param);
+ void CQ_calculator(int gen, double complex CQ0b[], double complex CQ1b[], double mu_W, double mu, struct parameters* param);
++void CLR_calculator(double complex CLR[], struct parameters* param); 
+ 
+ /* bsgamma.c */
+ double phi77(double delta);
+@@ -1054,4 +1055,11 @@ double Zwidth_neu1neu1_calculator(char n
+ double Zwidth_invisible_calculator(char name[]);
+ double Zwidth_b1b1_calculator(char name[]);
+ 
++/*bknunu.c */
++double dGamma_BKnunu_dq2_full(int charge, double q2, double complex CL, double complex CR, struct parameters* param, double mu_b);
++double dGamma_BKnunu_dq2_full_calculator(int charge, double q2, char name[]);
++double BRBKnunu_full(int charge, double smin, double smax, double complex CL, double complex CR, struct parameters* param, double mu_b);
++double dGamma_BKnunu_dq2(int charge, double q2, double complex CL, double complex CR, struct parameters* param, double mu_b);
++double BRBKnunu(int charge, double smin, double smax, double complex CL, double complex CR, struct parameters* param, double mu_b);
++
+ #endif
 
