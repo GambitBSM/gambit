@@ -103,7 +103,7 @@ BE_CONV_FUNCTION(modified_delta0, double, (const parameters*), "modified_delta0"
 
 // TODO: attempt to upgrade module function to use the 'observables' backend function instead, and delete this CONV function
 BE_CONV_FUNCTION(BRBKtautau_CONV, double, (const parameters*, double, double), "BRBKtautau_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(B2Knunu, double, (const parameters*, int, double, double), "B2Knunu", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, TDHMatQ))
+BE_CONV_FUNCTION(B2Knunu, double, (const parameters*, int, double, double), "B2Knunu", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"
