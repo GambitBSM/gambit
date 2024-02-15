@@ -10,14 +10,14 @@
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@kit.edu)
-///  \date 2024 Jan
+///  \date 2024 Jan, Feb
 ///
 ///  *********************************************
 
 #define BACKENDNAME HepLikeData
 #define BACKENDLANG Data
-#define VERSION 1.7
-#define SAFE_VERSION 1_7
+#define VERSION 1.8
+#define SAFE_VERSION 1_8
 #define REFERENCE Bhom:2020bfe
 
 // Load it
