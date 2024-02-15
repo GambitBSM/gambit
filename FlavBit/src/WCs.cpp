@@ -497,7 +497,7 @@ namespace Gambit
       complexd C2diag = (-7.*(xi_cc*std::conj(Vcs) + xi_tc*std::conj(Vts))*(Vcb*std::conj(xi_cc) + Vtb*std::conj(xi_tc)))/(72.*sqrt(2)*sminputs.GF*pow(mHp,2)*Vtb*Vts);
 
       complexd C2mix = -(mC*(xi_bb*std::conj(Vcb) + xi_sb*std::conj(Vcs))*(xi_cc*std::conj(Vcs) + xi_tc*std::conj(Vts))*(3 + 4*log(pow(mBmB,2)/pow(mHp,2))))/(12.*sqrt(2)*sminputs.GF*mBmB*pow(mHp,2)*Vtb*Vts);
-      // C7 from gamma penguins 
+      // C7 from gamma penguins
       complexd C70 = (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*((xi_ct*std::conj(Vcs) + xi_tt*std::conj(Vts))*
                (Vcb*std::conj(xi_ct) + Vtb*std::conj(xi_tt))*F7_1(pow(mT/mHp,2)))
                + (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
@@ -604,7 +604,7 @@ namespace Gambit
 
       result = C8p0;
     }
-    
+
 
     /// Delta C9 in the THDM
     void THDM_DeltaC9(complexd &result)
@@ -692,6 +692,32 @@ namespace Gambit
       const int l = 2, lp = 2;
 
       result = THDM_DeltaC_NP(12, l, lp, sminputs, spectrum);
+    }
+
+    /// Delta CL for nunu processes in the THDM
+    void THDM_DeltaCL(complexd &result)
+    {
+      using namespace Pipes::THDM_DeltaCL;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      // TODO: Implement this
+      logger() << "THDM_DeltaCL has not been implemented yet" << EOM;
+      result = 0.;
+    }
+
+    /// Delta CR for nunu processes in the THDM
+    void THDM_DeltaCR(complexd &result)
+    {
+      using namespace Pipes::THDM_DeltaCR;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      // TODO: Implement this
+      logger() << "THDM_DeltaCR has not been implemented yet" << EOM;
+      result = 0.;
     }
 
     ///@}

@@ -784,6 +784,12 @@ namespace Gambit
           result.Im_DeltaCQ1_tau_Prime = Dep::DeltaCQ1_tautau_Prime->imag();
           result.Re_DeltaCQ2_tau_Prime = Dep::DeltaCQ2_tautau_Prime->real();
           result.Im_DeltaCQ2_tau_Prime = Dep::DeltaCQ2_tautau_Prime->imag();
+
+          // nunu WCs
+          result.Re_DeltaCL = Dep::DeltaCL->real();
+          result.Im_DeltaCL = Dep::DeltaCL->imag();
+          result.Re_DeltaCR = Dep::DeltaCR->real();
+          result.Im_DeltaCR = Dep::DeltaCR->imag();
         }
       }
       if (flav_debug) std::cout << "Finished SuperIso_fill" << std::endl;

@@ -380,6 +380,29 @@ START_MODULE
 
   #undef CAPABILITY
 
+  /// CL for nu nu processes
+  #define CAPABILITY DeltaCL
+  START_CAPABILITY
+    /// CL in the THDM
+    #define FUNCTION THDM_DeltaCL
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// CR for nu nu processes
+  #define CAPABILITY DeltaCR
+  START_CAPABILITY
+    /// CR in the THDM
+    #define FUNCTION THDM_DeltaCR
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   ///Initialisation capability (fill the SuperIso structure)
   #define CAPABILITY SuperIso_modelinfo
@@ -387,7 +410,7 @@ START_MODULE
     #define FUNCTION SuperIso_fill
     START_FUNCTION(parameters)
     ALLOW_MODELS(THDM, THDMatQ)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, GWC)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, GWC, GWC_nu)
     BACKEND_REQ(Init_param, (libsuperiso), void, (parameters*))
     BACKEND_REQ(slha_adjust, (libsuperiso), void, (parameters*))
     BACKEND_REQ(mcmc_from_pole, (libsuperiso), double, (double, int, parameters*))
@@ -396,7 +419,7 @@ START_MODULE
     DEPENDENCY(W_plus_decay_rates, DecayTable::Entry)
     DEPENDENCY(Z_decay_rates, DecayTable::Entry)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
-    MODEL_CONDITIONAL_DEPENDENCY(SM_spectrum, Spectrum, GWC)
+    MODEL_CONDITIONAL_DEPENDENCY(SM_spectrum, Spectrum, GWC, GWC_nu)
     MODEL_CONDITIONAL_DEPENDENCY(THDM_spectrum, Spectrum, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaC2, std::complex<double>, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaC7, std::complex<double>, THDM, THDMatQ)
@@ -419,6 +442,8 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2_tautau, std::complex<double>,  THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1_tautau_Prime, std::complex<double>, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2_tautau_Prime, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCL, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCR, std::complex<double>, THDM, THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 

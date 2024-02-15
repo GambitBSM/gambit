@@ -29,7 +29,7 @@
 LOAD_LIBRARY
 
 // Can't do anything non-MSSM/2HDM with SuperIso yet, besides Wilson coefficients.
-BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ)
+BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, GWC, GWC_nu, THDM, THDMatQ)
 
 BE_FUNCTION(Init_param, void, (parameters*), "Init_param", "Init_param")
 BE_FUNCTION(slha_adjust, void, (parameters*), "slha_adjust", "slha_adjust")
@@ -103,7 +103,7 @@ BE_CONV_FUNCTION(modified_delta0, double, (const parameters*), "modified_delta0"
 
 // TODO: attempt to upgrade module function to use the 'observables' backend function instead, and delete this CONV function
 BE_CONV_FUNCTION(BRBKtautau_CONV, double, (const parameters*, double, double), "BRBKtautau_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(B2Knunu, double, (const parameters*, int, double, double), "B2Knunu", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
+BE_CONV_FUNCTION(B2Knunu, double, (const parameters*, int, double, double), "B2Knunu", (MSSM63atQ, MSSM63atMGUT, GWC_nu, THDM, THDMatQ))
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

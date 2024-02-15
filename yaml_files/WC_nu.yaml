@@ -8,71 +8,13 @@
 
 Parameters:
 
-  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
-  THDM_physical:
-      lambda6: 0.0
-      lambda7: 0.0
-      mh2: 15647.5
-      sba: 0.995
-      yd2_im_11: 0.0
-      mC2: 16900.0
-      tanb: 0.145
-      yu2_re_22: 0.001055
-      yu2_re_32: 0.445343
-      yu2_re_33: 0.202249
-      yd2_re_22: 0.0
-      yd2_re_32: 0.0
-      yd2_re_33: 0.003445
-      yl2_re_22: 0.000087
-      yl2_re_32: 0.0
-      yl2_re_33: -0.00843
-      mH2: 40000.0
-      mA2: 40000.0
-      m12_2: 0.0
-      yd2_im_12: 0.0
-      yd2_im_13: 0.0
-      yd2_im_21: 0.0
-      yd2_im_22: 0.0
-      yd2_im_23: 0.0
-      yd2_im_31: 0.0
-      yd2_im_32: 0.0
-      yd2_im_33: 0.0
-      yd2_re_11: 0.0
-      yd2_re_12: 0.0
-      yd2_re_13: 0.0
-      yd2_re_21: 0.0
-      yd2_re_23: 0.0
-      yd2_re_31: 0.0
-      yl2_im_11: 0.0
-      yl2_im_12: 0.0
-      yl2_im_13: 0.0
-      yl2_im_21: 0.0
-      yl2_im_22: 0.0
-      yl2_im_23: 0.0
-      yl2_im_31: 0.0
-      yl2_im_32: 0.0
-      yl2_im_33: -0.00843
-      yl2_re_11: 0.0
-      yl2_re_12: 0.0
-      yl2_re_13: 0.0059379
-      yl2_re_21: 0.0
-      yl2_re_23: 0.0098965
-      yl2_re_31: 0.0
-      yu2_im_11: 0.0
-      yu2_im_12: 0.0
-      yu2_im_13: 0.0
-      yu2_im_21: 0.0
-      yu2_im_22: 0.0
-      yu2_im_23: 0.0
-      yu2_im_31: 0.0
-      yu2_im_32: 0.0
-      yu2_im_33: 0.0
-      yu2_re_11: 0.0
-      yu2_re_12: 0.0
-      yu2_re_13: 0.0
-      yu2_re_21: 0.0
-      yu2_re_23: 0.0
-      yu2_re_31: 0.0
+  WC_nu:
+    CL:
+      prior: flat
+      range: [-1.,1.]
+    CR:
+      prior: flat
+      range: [-1.,1.]
 
 Priors:
 
@@ -83,8 +25,8 @@ Printer:
 
   printer: cout
   options:
-    output_file: "GTHDM_tester.hdf5"
-    group: "/GTHDM"
+    output_file: "WC_nu.hdf5"
+    group: "/WC_nu"
     delete_file_on_restart: true
 
 Scanner:
@@ -116,40 +58,6 @@ Scanner:
       point_number: 2
 
 ObsLikes:
-
-    ######################
-    # Theory likelihoods #
-    ######################
-
-    # Calculates all quartic Higgs couplings in the physical
-    # basis & applies a 4pi perturbativity constraint on each
-    # Likelihood type: Half-Gaussian
-  - purpose:    LogLike
-    capability: perturbativity_yukawas_LogLikelihood_THDM
-    function: perturbativity_yukawas_LogLikelihood_THDM
-
-  - purpose:    LogLike
-    capability: perturbativity_LogLikelihood_THDM
-    function: perturbativity_LogLikelihood_THDM
-
-    # Applies the THDM stability constraints on the potential
-    # NOTE: This likelihood has two parts, described below
-    # (i) Applies strict stability constraint
-    # Likelihood type: Acceptance/Rejection
-    # (ii) If rejected, applies looser stabililty constraints
-    # Likelihood type: Half-Gaussian
-  - purpose:    LogLike
-    capability: stability_LogLikelihood_THDM
-    function: stability_LogLikelihood_THDM #Does not use the backend THDMC
-
-    # Checks that the NLO scattering-matrix is unitary
-    # Calculates and applies limit on eigenvalues of matrix
-    # NOTE: This is always a subset of LO unitarity so it not needed
-    # Likelihood type: Half-Gaussian
-    # Only supports CP-conserving models
-    #- purpose:    LogLike
-    #capability: unitarity_LogLikelihood_THDM
-    #function: LO_unitarity_LogLikelihood_THDM
 
     #########################
     # Precision likelihoods #
@@ -412,87 +320,13 @@ ObsLikes:
     # Observables #
     ###############
 
-    # ------------------------------ #
-    # Spectrum and decay observables #
-    # ------------------------------ #
-
-  - purpose: Observable
-    capability: THDM_spectrum
-    function: get_THDM_spectrum_as_map
-
-  - capability: all_BFs
-    purpose: Observable
-    printme: true
-
-  - capability: Higgs_Couplings
-    function: THDM_higgs_couplings_pwid
-    purpose: Observable
-
-    # ------------------- #
-    # Wilson coefficients #
-    # ------------------- #
-
-  - purpose: Observable
-    capability: DeltaC9
-    function: THDM_DeltaC9
-
-  - purpose: Observable
-    capability: DeltaC7
-    function: THDM_DeltaC7
-
     # ------------------- #
     # Flavour predictions #
     # ------------------- #
 
-  - capability: RD
-    function: THDM_RD
-    purpose: Observable
-
-  - capability: RDstar
-    function: THDM_RDstar
-    purpose: Observable
-
-  - capability: prediction_DeltaMs
-    function: THDM_Delta_MBs
-    purpose: Observable
-
-  - capability: muegamma
-    function: THDM_muegamma
-    purpose: Observable
-
-  - capability: t2bbc
-    function: THDM_t2bbc
-    purpose: Observable
-
-  - capability: h2etau
-    function: THDM_h2etau
-    purpose: Observable
-
-  - capability: h2mutau
-    function: THDM_h2mutau
-    purpose: Observable
-
-  - capability: t2ch
-    function: THDM_t2ch
-    purpose: Observable
-
-  - capability: Bc2taunu
-    function: THDM_Bc2taunu
-    purpose: Observable
-
-  - capability: taumugamma
-    function: THDM_taumugamma
-    purpose: Observable
-
   - purpose: Observable
     capability: prediction_RKRKstar_LHCb
     sub_capabilities: [RK, RKstar]
-
-  - purpose: Observable
-    capability: prediction_RK
-
-  - purpose: Observable
-    capability: prediction_RKstar
 
   - purpose: Observable
     capability: prediction_B2mumu
@@ -547,7 +381,7 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e6
     model_invalid_for_lnlike_below_alt: -1e6
 
-  default_output_path: "runs/GTHDM_test"
+  default_output_path: "runs/WC_nu"
 
   debug: true
 
