@@ -7,15 +7,16 @@ diff -ruN 4.1/src/Makefile 4.1_patched/src/Makefile
  	  libsuperiso.a(fleshouches.o) libsuperiso.a(bsll.o) libsuperiso.a(bsll_extra.o)\
  	  libsuperiso.a(bkll.o) libsuperiso.a(bkstarll.o) libsuperiso.a(bkstargamma.o) libsuperiso.a(bsphill.o)\
 -	  libsuperiso.a(chi2.o) libsuperiso.a(zwidths.o) libsuperiso.a(nmssmtools.o)\
-+	  libsuperiso.a(chi2.o) libsuperiso.a(zwidths.o) libsuperiso.a(nmssmtools.o) libsuperiso.a(mixings.o) \
++	  libsuperiso.a(chi2.o) libsuperiso.a(zwidths.o) libsuperiso.a(nmssmtools.o) libsuperiso.a(mixings.o) libsuperiso.a(bknunu.o)\
  	  $(RANL)
  
  libsuperiso.a(softsusy.o): softsusy.c include.h softsusy.h
-@@ -70,6 +70,7 @@
+@@ -70,6 +70,8 @@
  libsuperiso.a(bsphill.o): bsphill.c include.h
  libsuperiso.a(chi2.o): chi2.c include.h
  libsuperiso.a(zwidths.o): zwidths.c include.h
 +libisospin.a(mixings.o): mixings.c include.h
++libsuperiso.a(bknunu.o): bknunu.c include.h
  
  softsusy.h:
  	@echo \#define SOFTSUSY \"$(SOFTSUSY)\" > softsusy.h;
@@ -567,7 +568,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +
 +    double mtmt = param->mtmt;
 +    double xt = pow(mtmt/param->mass_W,2.);
-+    double alphas_mut = alphas_running(mtmt,mtmt,param->mass_b_pole,&param);
++    double alphas_mut = alphas_running(mtmt,mtmt,param->mass_b_pole,param);
 +
 +    double XtSM = X0(xt) + alphas_mut/(4.*pi) * X1(xt,mtmt,param->mass_W);
 +    double sw2=pow(sin(atan(param->gp/param->g2)),2.);
@@ -580,7 +581,27 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 
 --- a/src/include.h	2024-02-14 20:49:52.467221640 +0100
 +++ b/src/include.h	2024-02-14 20:50:52.580464870 +0100
-@@ -637,6 +637,7 @@ void C_calculator_base1(double complex C
+@@ -95,7 +95,7 @@ typedef struct parameters
+ 	double f_Kstar_par,f_Kstar_perp;
+ 	double f_phi_perp,f_phi_par,a1phi_perp,a2phi_perp,a1phi_par,a2phi_par;
+ 	double m_B,m_Bs,m_Bd,m_pi,m_Ds,m_K0,m_K,m_Kstar0,m_Kstar,m_D0,m_D,m_Dstar0,m_Dstar,m_phi;
+-	double life_pi,life_K,life_B,life_Bs,life_Bd,life_D,life_Ds;
++	double life_pi,life_K,life_B,life_Bs,life_Bd,life_D,life_Ds,life_tau;
+ 	double a1par,a2par,a1perp,a2perp,a1K,a2K;
+ 	double zeta3A,zeta3V,wA10,deltatp,deltatm,deltatp_phi,deltatm_phi;
+ 	double lambda_Bp,lambda_Bsp,rho1,lambda2;
+@@ -133,6 +133,9 @@ typedef struct parameters
+ 	double a00_BK,a10_BK,a20_BK,a30_BK;
+ 	double a0p_BK,a1p_BK,a2p_BK,DmBp_BK;
+ 	double a0T_BK,a1T_BK,a2T_BK,DmBT_BK;
++        double L_HPQCD,a00_HPQCD,a10_HPQCD,a20_HPQCD;
++        double a0p_HPQCD,a1p_HPQCD,a2p_HPQCD;
++        double a0T_HPQCD,a1T_HPQCD,a2T_HPQCD;
+ 	
+ 	/* B -> Kstar hadronic uncertainties */
+ 	double hadrerrBKstar;
+
+@@ -637,6 +637,10 @@ void C_calculator_base1(double complex C
  void C_calculator_base2(double complex C0w[], double complex C1w[], double mu_W, double complex C0b[], double complex C1b[], double mu, struct parameters* param); 
  void Cprime_calculator(int gen, double complex Cpb[], double complex CQpb[], double mu_W, double mu, struct parameters* param);
  void CQ_calculator(int gen, double complex CQ0b[], double complex CQ1b[], double mu_W, double mu, struct parameters* param);
@@ -588,7 +609,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  
  /* bsgamma.c */
  double phi77(double delta);
-@@ -1054,4 +1055,11 @@ double Zwidth_neu1neu1_calculator(char n
+@@ -1054,4 +1055,14 @@ double Zwidth_neu1neu1_calculator(char n
  double Zwidth_invisible_calculator(char name[]);
  double Zwidth_b1b1_calculator(char name[]);
  
@@ -601,3 +622,30 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +
  #endif
 
+--- a/src/leshouches.c	2024-02-15 15:41:11.723018989 +0100
++++ b/src/leshouches.c	2024-02-15 16:46:59.084097657 +0100
+@@ -356,6 +356,7 @@ void Init_param(struct parameters* param
+ 	param->life_Bd=1.519e-12;
+ 	param->life_D=1.040e-12;
+ 	param->life_Ds=5.e-13;
++	param->life_tau=290.3e-15;
+ 	param->a1perp=0.04;
+ 	param->a2perp=0.10;
+ 	param->a1par=0.06;
+@@ -464,6 +465,16 @@ void Init_param(struct parameters* param
+ 	param->a2T_BK=-0.29;
+ 	param->DmBp_BK=0.04578;
+ 	param->DmBT_BK=0.052;
++	param->L_HPQCD=1.304;
++	param->a00_HPQCD=0.2545;
++	param->a10_HPQCD=0.210;
++	param->a20_HPQCD=0.02;
++	param->a0p_HPQCD=0.2545;
++	param->a1p_HPQCD=-0.71;
++	param->a2p_HPQCD=0.32;
++	param->a0T_HPQCD=0.255;
++	param->a1T_HPQCD=-0.66;
++	param->a2T_HPQCD=0.36;
+ 	
+ 	/* hadronic uncertainties */
+ 	param->BtoKstarlow_ALperp_err_noq2=param->BtoKstarlow_ARperp_err_noq2=param->BtoKstarlow_ALpar_err_noq2=param->BtoKstarlow_ARpar_err_noq2=param->BtoKstarlow_AL0_err_noq2=param->BtoKstarlow_AR0_err_noq2=param->BtoKstarlow_At_err_noq2=param->BtoKstarlow_AS_err_noq2=param->BtoKstarlow_ALperp_err_q2=param->BtoKstarlow_ARperp_err_q2=param->BtoKstarlow_ALpar_err_q2=param->BtoKstarlow_ARpar_err_q2=param->BtoKstarlow_AL0_err_q2=param->BtoKstarlow_AR0_err_q2=param->BtoKstarlow_At_err_q2=param->BtoKstarlow_AS_err_q2=param->BtoKstarhigh_ALperp_err=param->BtoKstarhigh_ARperp_err=param->BtoKstarhigh_ALpar_err=param->BtoKstarhigh_ARpar_err=param->BtoKstarhigh_AL0_err=param->BtoKstarhigh_AR0_err=param->BtoKstarhigh_At_err=param->BtoKstarhigh_AS_err=0.;
