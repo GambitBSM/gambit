@@ -1903,7 +1903,7 @@ namespace Gambit
         flav_prediction prediction = val.second;
 
         // CMS loglikelhood expects RK^-1 for some reason
-        result += ProfLikelihood.GetLogLikelihood(1./prediction.central_values["RK"], prediction.covariance["RK"]["RK"]);
+        result += ProfLikelihood.GetLogLikelihood(1./prediction.central_values["RK"], prediction.covariance["RK"]["RK"]/pow(prediction.central_values["RK"],2));
       }
       if (flav_debug) std::cout << "HEPLike_RK_LogLikelihood_CMS result: " << result << std::endl;
 
