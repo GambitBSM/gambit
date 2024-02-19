@@ -9,12 +9,8 @@ Parameters:
   StandardModel_Higgs:
     mH: 125.25
   WC_nu:
-    Re_DeltaCL:
-      prior: flat
-      range: [-10.,10.]
-    Re_DeltaCR:
-      prior: flat
-      range: [-10.,10.]
+    Re_DeltaCL: 0
+    Re_DeltaCR: 0
     Im_DeltaCL: 0
     Im_DeltaCR: 0
 

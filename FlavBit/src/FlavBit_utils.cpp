@@ -136,6 +136,12 @@ namespace Gambit
       return obs_theory;
     };
 
+    /// Extract central value of the given observable from the central value map.
+    double get_obs_theory(const flav_prediction& prediction, const std::string& observable)
+    {
+      return prediction.central_values.at(observable);
+    };
+
     /// Reorder a FlavBit observables list to match ordering expected by HEPLike
     void update_obs_list(std::vector<str>& obs_list, const std::vector<str>& HL_obs_list)
     {
@@ -163,6 +169,12 @@ namespace Gambit
         }
       }
       return obs_covariance;
+    };
+
+    /// Extract uncertainty of the given observable from the covariance map.
+    double get_obs_covariance(const flav_prediction& prediction, const std::string& observable)
+    {
+      return prediction.covariance.at(observable).at(observable);
     };
 
     /// Helper function to avoid code duplication.
@@ -228,7 +240,7 @@ namespace Gambit
 
         // ---------- COVARIANCE ----------
         static bool first = true;
-        static const int nNuisance=161;
+        static const int nNuisance=171;
         static char namenuisance[nNuisance+1][50];
         static double **corr=(double  **) malloc((nNuisance+1)*sizeof(double *));  // Nuisance parameter correlations
 
@@ -281,6 +293,10 @@ namespace Gambit
             result.covariance[FB_obslist[iObservable]][FB_obslist[jObservable]] = result_covariance[iObservable][jObservable];
           }
         }
+
+        // Free memory for result_covariance
+        for(int iObservable = 0; iObservable < nObservables; ++iObservable) free(result_covariance[iObservable]);
+        free(result_covariance);
 
         //Switch the covariances to LHCb convention
         Kstarll_Theory2Experiment_translation(result.covariance, 1);

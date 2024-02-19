@@ -277,7 +277,104 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +}
 --- a/src/chi2.c	2020-10-14 19:40:57.635018399 +0200
 +++ b/src/chi2.c	2020-10-14 19:41:08.083031147 +0200
-@@ -1323,7 +1323,7 @@ int read_nameobs(char name[], obsname* o
+@@ -1,6 +1,6 @@
+ #include "include.h"
+ 
+-#define NNUIS 161
++#define NNUIS 171
+ 
+ //#define DEBUG
+ 
+@@ -157,6 +157,17 @@ void set_nuisance(struct nuisance* nuisp
+ 	nuisparam->a1T_BK=(struct indnuis){-0.53,0.13,1,"a1T_BK"};
+ 	nuisparam->a2T_BK=(struct indnuis){-0.29,1.00,1,"a2T_BK"};
+ 	
++	nuisparam->L_HPQCD=(struct indnuis){1.304,0.010,1,"L_HPQCD"};
++	nuisparam->a00_HPQCD=(struct indnuis){0.2545,0.0090,1,"a00_HPQCD"};
++	nuisparam->a10_HPQCD=(struct indnuis){0.210,0.076,1,"a10_HPQCD"};
++	nuisparam->a20_HPQCD=(struct indnuis){0.02,0.17,1,"a20_HPQCD"};
++	nuisparam->a0p_HPQCD=(struct indnuis){0.2545,0.0090,1,"a0p_HPQCD"};
++	nuisparam->a1p_HPQCD=(struct indnuis){-0.71,0.14,1,"a1p_HPQCD"};
++	nuisparam->a2p_HPQCD=(struct indnuis){0.32,0.59,1,"a2p_HPQCD"};
++	nuisparam->a0T_HPQCD=(struct indnuis){0.255,0.018,1,"a0T_HPQCD"};
++	nuisparam->a1T_HPQCD=(struct indnuis){-0.66,0.23,1,"a1T_HPQCD"};
++	nuisparam->a2T_HPQCD=(struct indnuis){0.36,0.84,1,"a2T_HPQCD"};
++	
+ 	/* low */
+ 	nuisparam->BtoKlow_FV_err_noq2=(struct indnuis){0.,0.1,1,"BtoKlow_FV_err_noq2"};
+ 	nuisparam->BtoKlow_FA_err_noq2=(struct indnuis){0.,0.1,1,"BtoKlow_FA_err_noq2"};
+@@ -394,6 +405,17 @@ void set_nuisance_deviation_to_zero(stru
+ 	nuisparam->a1T_BK.dev=0.;
+ 	nuisparam->a2T_BK.dev=0.;
+ 	
++	nuisparam->L_HPQCD.dev=0.;
++	nuisparam->a00_HPQCD.dev=0.;
++	nuisparam->a10_HPQCD.dev=0.;
++	nuisparam->a20_HPQCD.dev=0.;
++	nuisparam->a0p_HPQCD.dev=0.;
++	nuisparam->a1p_HPQCD.dev=0.;
++	nuisparam->a2p_HPQCD.dev=0.;
++	nuisparam->a0T_HPQCD.dev=0.;
++	nuisparam->a1T_HPQCD.dev=0.;
++	nuisparam->a2T_HPQCD.dev=0.;
++	
+ 	/* low */
+ 	nuisparam->BtoKlow_FV_err_noq2.dev=0.;
+ 	nuisparam->BtoKlow_FA_err_noq2.dev=0.;
+@@ -634,6 +656,17 @@ void set_nuisance_value_from_param(struc
+ 	setparam(a1T_BK);
+ 	setparam(a2T_BK);
+ 	
++	setparam(L_HPQCD);
++	setparam(a00_HPQCD);
++	setparam(a10_HPQCD);
++	setparam(a20_HPQCD);
++	setparam(a0p_HPQCD);
++	setparam(a1p_HPQCD);
++	setparam(a2p_HPQCD);
++	setparam(a0T_HPQCD);
++	setparam(a1T_HPQCD);
++	setparam(a2T_HPQCD);
++	
+ 	/* low */
+ 	setparam(BtoKlow_FV_err_noq2);
+ 	setparam(BtoKlow_FA_err_noq2);
+@@ -881,6 +914,17 @@ void write_nuisance(struct nuisance* nui
+ 	writeparam(a1T_BK);
+ 	writeparam(a2T_BK);
+ 	
++	writeparam(L_HPQCD);
++	writeparam(a00_HPQCD);
++	writeparam(a10_HPQCD);
++	writeparam(a20_HPQCD);
++	writeparam(a0p_HPQCD);
++	writeparam(a1p_HPQCD);
++	writeparam(a2p_HPQCD);
++	writeparam(a0T_HPQCD);
++	writeparam(a1T_HPQCD);
++	writeparam(a2T_HPQCD);
++	
+ 	/* low */
+ 	writeparam(BtoKlow_FV_err_noq2);
+ 	writeparam(BtoKlow_FA_err_noq2);
+@@ -1112,6 +1156,16 @@ void read_nuisance(char name[], struct n
+ 		else readparam(a0T_BK)
+ 		else readparam(a1T_BK)
+ 		else readparam(a2T_BK)
++		else readparam(L_HPQCD)
++		else readparam(a00_HPQCD)
++		else readparam(a10_HPQCD)
++		else readparam(a20_HPQCD)
++		else readparam(a0p_HPQCD)
++		else readparam(a1p_HPQCD)
++		else readparam(a2p_HPQCD)
++		else readparam(a0T_HPQCD)
++		else readparam(a1T_HPQCD)
++		else readparam(a2T_HPQCD)
+ 		else readparam(BtoKlow_FV_err_noq2)
+ 		else readparam(BtoKlow_FA_err_noq2)
+ 		else readparam(BtoKlow_FS_err_noq2)
+@@ -1323,10 +1377,10 @@ int read_nameobs(char name[], obsname* o
  int check_nameobs(obsname* obs)
  /* Checks if the observable name is valid or implemented into SuperIso. Returns 0 if invalid, 1 if valid */
  {
@@ -285,8 +382,107 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +	if(strcmp(obs->type,"BR")&&strcmp(obs->type,"BRuntag")&&strcmp(obs->type,"dGamma/dq2")&&strcmp(obs->type,"R")&&strcmp(obs->type,"R-1")&&strcmp(obs->type,"AI")&&strcmp(obs->type,"ACP")&&strcmp(obs->type,"AFB")&&strcmp(obs->type,"FL")&&strcmp(obs->type,"FT")&&strcmp(obs->type,"ATRe")&&strcmp(obs->type,"AT1")&&strcmp(obs->type,"AT2")&&strcmp(obs->type,"AT3")&&strcmp(obs->type,"AT4")&&strcmp(obs->type,"AAT5")&&strcmp(obs->type,"HT1")&&strcmp(obs->type,"HT2")&&strcmp(obs->type,"HT3")&&strcmp(obs->type,"alpha")&&strcmp(obs->type,"AIm")&&strcmp(obs->type,"P1")&&strcmp(obs->type,"P2")&&strcmp(obs->type,"P3")&&strcmp(obs->type,"P6")&&strcmp(obs->type,"P4prime")&&strcmp(obs->type,"P5prime")&&strcmp(obs->type,"P6prime")&&strcmp(obs->type,"P8")&&strcmp(obs->type,"P8prime")&&strcmp(obs->type,"A7")&&strcmp(obs->type,"A8")&&strcmp(obs->type,"A9")&&strcmp(obs->type,"S3")&&strcmp(obs->type,"S4")&&strcmp(obs->type,"S5")&&strcmp(obs->type,"S7")&&strcmp(obs->type,"S8")&&
  	strcmp(obs->type,"S9")&&strcmp(obs->type,"FH")&&strcmp(obs->type,"ATRe")&&strcmp(obs->type,"ATIm"))
  	{
- 		printf("%s_%s: Unknown observable type: %s\n", obs->name, obs->type);
-@@ -1910,6 +1910,17 @@ double compute_nameobs(obsname* obs, int
+-		printf("%s_%s: Unknown observable type: %s\n", obs->name, obs->type);
++		printf("%s: Unknown observable type: %s\n", obs->name, obs->type);
+ 		
+ 		return 0;
+ 	}
+@@ -1347,9 +1401,10 @@ int check_nameobs(obsname* obs)
+ 	&&strcmp(obs->decay,"Dmunu")&&strcmp(obs->decay,"Denu")
+ 	&&strcmp(obs->decay,"Kmunu/pimunu")
+ 	&&strcmp(obs->decay,"BDmunu")&&strcmp(obs->decay,"BDenu")&&strcmp(obs->decay,"BDtaunu")
+-	&&strcmp(obs->decay,"BDstarmunu")&&strcmp(obs->decay,"BDstarenu")&&strcmp(obs->decay,"BDstartaunu"))
++	&&strcmp(obs->decay,"BDstarmunu")&&strcmp(obs->decay,"BDstarenu")&&strcmp(obs->decay,"BDstartaunu")
++	&&strcmp(obs->decay,"BKnunu")&&strcmp(obs->decay,"B0K0nunu"))
+ 	{
+-		printf("%s_%s: Unknown decay name: %s\n", obs->name, obs->decay);
++		printf("%s: Unknown decay name: %s\n", obs->name, obs->decay);
+ 		
+ 		return 0;
+ 	}
+@@ -1362,8 +1417,9 @@ int check_nameobs(obsname* obs)
+ 	||!strcmp(obs->decay,"Bsphimumu")
+ 	||!strcmp(obs->decay,"Bsphiee")||!strcmp(obs->decay,"Bsphitautau")||!strcmp(obs->decay,"Bsphill")
+ 	||!strcmp(obs->decay,"BDmunu")||!strcmp(obs->decay,"BDenu")||!strcmp(obs->decay,"BDtaunu")
+-	||!strcmp(obs->decay,"BDstarmunu")||!strcmp(obs->decay,"BDstarenu")||!strcmp(obs->decay,"BDstartaunu"))
+-	&&(obs->low<=0.||obs->high<=0.||obs->low>obs->high))
++	||!strcmp(obs->decay,"BDstarmunu")||!strcmp(obs->decay,"BDstarenu")||!strcmp(obs->decay,"BDstartaunu")
++	||!strcmp(obs->decay,"BKnunu")||!strcmp(obs->decay,"B0K0nunu"))
++	&&(obs->low<0.||obs->high<=0.||obs->low>obs->high))
+ 	{
+ 		printf("%s: Wrong binning, please check: low=%g , high=%g\n", obs->name, obs->low, obs->high);
+ 		
+@@ -1447,39 +1503,46 @@ double compute_nameobs(obsname* obs, int
+ 	
+ 	keprev=ke;
+ 	
+-	static int WCmu,WCe,WCtau,WCbase2;
++	static int WCmu,WCe,WCtau,WCbase2,WCnu;
+ 	
+-	if(reset) WCmu=WCe=WCtau=WCbase2=0;
++	if(reset) WCmu=WCe=WCtau=WCbase2=WCnu=0;
+ 
+ 	static double binlowBKmumu,binlowBKee,binlowBKtautau;
+ 	static double binlowBKstarmumu,binlowBKstaree,binlowBKstartautau;
+ 	static double binlowBsphimumu,binlowBsphiee,binlowBsphitautau;
++	static double binlowBKnunu;
+ 
+ 	static double binhighBKmumu,binhighBKee,binhighBKtautau;
+ 	static double binhighBKstarmumu,binhighBKstaree,binhighBKstartautau;
+ 	static double binhighBsphimumu,binhighBsphiee,binhighBsphitautau;
++	static double binhighBKnunu;
+ 	
+-	if(reset) binlowBKmumu=binlowBKee=binlowBKtautau=binlowBKstarmumu=binlowBKstaree=binlowBKstartautau=binlowBsphimumu=binlowBsphiee=binlowBsphitautau=binhighBKmumu=binhighBKee=binhighBKtautau=binhighBKstarmumu=binhighBKstaree=binhighBKstartautau=binhighBsphimumu=binhighBsphiee=binhighBsphitautau=0.;
++	if(reset) binlowBKmumu=binlowBKee=binlowBKtautau=binlowBKstarmumu=binlowBKstaree=binlowBKstartautau=binlowBsphimumu=binlowBsphiee=binlowBsphitautau=binlowBKnunu=binhighBKmumu=binhighBKee=binhighBKtautau=binhighBKstarmumu=binhighBKstaree=binhighBKstartautau=binhighBsphimumu=binhighBsphiee=binhighBsphitautau=binhighBKnunu=0.;
+ 
+ 	static double obsBKstarmumu[Nobs_BKsll+1],obsBKmumu[Nobs_BKll+1],obsBsphimumu[Nobs_Bsphill+1];
+ 	static double obsBKstaree[Nobs_BKsll+1],obsBKee[Nobs_BKll+1],obsBsphiee[Nobs_Bsphill+1];
+ 	static double obsBKstartautau[Nobs_BKsll+1],obsBKtautau[Nobs_BKll+1],obsBsphitautau[Nobs_Bsphill+1];
++	static double obsBKnunu[Nobs_BKnunu+1];
+ 
+ 	static double binlowB0K0mumu,binlowB0K0ee,binlowB0K0tautau;
+ 	static double binlowB0Kstar0mumu,binlowB0Kstar0ee,binlowB0Kstar0tautau;
++	static double binlowB0K0nunu;
+ 
+ 	static double binhighB0K0mumu,binhighB0K0ee,binhighB0K0tautau;
+ 	static double binhighB0Kstar0mumu,binhighB0Kstar0ee,binhighB0Kstar0tautau;
++	static double binhighB0K0nunu;
+ 	
+-	if(reset) binlowB0K0mumu=binlowB0K0ee=binlowB0K0tautau=binlowB0Kstar0mumu=binlowB0Kstar0ee=binlowB0Kstar0tautau=binhighB0K0mumu=binhighB0K0ee=binhighB0K0tautau=binhighB0Kstar0mumu=binhighB0Kstar0ee=binhighB0Kstar0tautau=0.;
++	if(reset) binlowB0K0mumu=binlowB0K0ee=binlowB0K0tautau=binlowB0Kstar0mumu=binlowB0Kstar0ee=binlowB0Kstar0tautau=binlowB0K0nunu=binhighB0K0mumu=binhighB0K0ee=binhighB0K0tautau=binhighB0Kstar0mumu=binhighB0Kstar0ee=binhighB0Kstar0tautau=binhighB0K0nunu=0.;
+ 	
+ 	static double obsB0Kstar0mumu[Nobs_BKsll+1],obsB0K0mumu[Nobs_BKll+1];
+ 	static double obsB0Kstar0ee[Nobs_BKsll+1],obsB0K0ee[Nobs_BKll+1];
+ 	static double obsB0Kstar0tautau[Nobs_BKsll+1],obsB0K0tautau[Nobs_BKll+1];
++	static double obsB0K0nunu[Nobs_BKnunu+1];
+ 
+ 	static double complex C0b[11],C0spec[11],C1b[11],C0w[11],C1w[11],C2w[11],C2b[11],Cpb[11],CQpb[3],CQ0b[3],CQ1b[3];
+ 	static double complex C0eb[11],C1eb[11],C0ew[11],C1ew[11],C2ew[11],C2eb[11],Cpeb[11],CQpeb[3],CQ0eb[3],CQ1eb[3];
+ 	static double complex C0taub[11],C1taub[11],C0tauw[11],C1tauw[11],C2tauw[11],C2taub[11],Cptaub[11],CQptaub[3],CQ0taub[3],CQ1taub[3];
++	static double complex CLR[2];
+ 
+ 	static double complex C0b_base2[11],C0spec_base2[11],C1b_base2[11],C1spec_base2[11];
+ 
+@@ -1586,6 +1649,18 @@ double compute_nameobs(obsname* obs, int
+ 		double lambda_h=0.5;
+ 		return delta0(C0b_base2,C0spec_base2,C1b_base2,C1spec_base2,Cpb,param,mu_b,mu_spec,lambda_h);
+ 	}
++	
++	if(!strcmp(obs->decay,"BKnunu")||!strcmp(obs->decay,"B0K0nunu"))
++	{
++		if(WCnu==0)
++		{
++			CLR_calculator(CLR,param);
++			
++			if(param->deltaCLR!=NULL) for(ie=0;ie<2;ie++) CLR[ie]+=param->deltaC[ie];
++			
++			WCnu++;
++		}
++	}
+ 
+ 	if(!strcmp(obs->type,"BR")&&!strcmp(obs->decay,"BXsgamma")) return bsgamma(C0b,C1b,C2b,Cpb,mu_b,mu_W,param)*(1.+param->bsgamma_rand);
+ 
+@@ -1910,6 +1985,17 @@ double compute_nameobs(obsname* obs, int
  		else if(!strcmp(obs->type,"ATIm")) return obsBKstartautau[32];
  	}
  
@@ -304,7 +500,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  	else if(!strcmp(obs->type,"R-1")&&!strcmp(obs->decay,"B0Kstar0ll"))
  	{
  		binlowB0Kstar0mumu=binlowB0Kstar0ee=obs->low;
-@@ -1921,6 +1932,17 @@ double compute_nameobs(obsname* obs, int
+@@ -1921,6 +2007,17 @@ double compute_nameobs(obsname* obs, int
  		return obsB0Kstar0mumu[0]/obsB0Kstar0ee[0]-1.;
  	}
  
@@ -322,7 +518,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  	else if(!strcmp(obs->type,"R-1")&&!strcmp(obs->decay,"BKstarll"))
  	{
  		binlowBKstarmumu=binlowBKstaree=obs->low;
-@@ -2024,6 +2046,17 @@ double compute_nameobs(obsname* obs, int
+@@ -2024,6 +2121,17 @@ double compute_nameobs(obsname* obs, int
  		else if(!strcmp(obs->type,"FH")) return obsBKtautau[2];
  	}
  
@@ -340,7 +536,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  	else if(!strcmp(obs->type,"R-1")&&!strcmp(obs->decay,"B0K0ll"))
  	{
  		binlowB0K0mumu=binlowB0K0ee=obs->low;
-@@ -2035,6 +2068,17 @@ double compute_nameobs(obsname* obs, int
+@@ -2035,6 +2143,17 @@ double compute_nameobs(obsname* obs, int
  		return obsB0K0mumu[0]/obsB0K0ee[0]-1.;
  	}
  
@@ -358,7 +554,79 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  	else if(!strcmp(obs->type,"R-1")&&!strcmp(obs->decay,"BKll"))
  	{
  		binlowBKmumu=binlowBKee=obs->low;
-@@ -2815,9 +2859,6 @@ void get_th_covariance_nuisance(double *
+@@ -2119,8 +2238,36 @@ double compute_nameobs(obsname* obs, int
+ 		return obsBsphimumu[0]/obsBsphiee[0]-1.;
+ 	}
+ 
+-	return -1.e30;
++	
++/* B -> K nu nu */
+ 
++	else if(!strcmp(obs->decay,"B0K0nunu"))
++	{
++		if(reset||(fabs(binlowB0K0nunu-obs->low)>1.e-5)||(fabs(binhighB0K0nunu-obs->high)>1.e-5))
++		{
++			obsB0K0nunu[0]=BRBKnunu(0,obs->low,obs->high,CLR[0],CLR[1],param,mu_b)/(obs->high-obs->low);
++		
++			binlowB0K0nunu=obs->low;
++			binhighB0K0nunu=obs->high;
++		}
++		
++		if(!strcmp(obs->type,"dGamma/dq2")) return obsB0K0nunu[0];
++	}
++
++	else if(!strcmp(obs->decay,"BKnunu"))
++	{
++		if(reset||(fabs(binlowBKnunu-obs->low)>1.e-5)||(fabs(binhighBKnunu-obs->high)>1.e-5))
++		{
++			obsBKnunu[0]=BRBKnunu(1,obs->low,obs->high,CLR[0],CLR[1],param,mu_b)/(obs->high-obs->low);
++		
++			binlowBKnunu=obs->low;
++			binhighBKnunu=obs->high;
++		}
++		
++		if(!strcmp(obs->type,"dGamma/dq2")) return obsBKnunu[0];
++	}
++
++	return -1.e30;
+ }
+ 
+ /*--------------------------------------------------------------------*/
+@@ -2514,7 +2661,20 @@ void observables(int ke, obsname obs[],
+ 		setstdzero(a0T23_Bsphi);
+ 		setstdzero(a1T23_Bsphi);
+ 		setstdzero(a2T23_Bsphi);
++	
+ 	}
++	setparam(L_HPQCD,162);
++	setparam(a00_HPQCD,163);
++	setparam(a10_HPQCD,164);
++	setparam(a20_HPQCD,165);
++	
++	setparam(a0p_HPQCD,166);
++	setparam(a1p_HPQCD,167);
++	setparam(a2p_HPQCD,168);
++
++	setparam(a0T_HPQCD,169);
++	setparam(a1T_HPQCD,170);
++	setparam(a2T_HPQCD,171);
+ 
+ #undef setparam
+ #undef setstdzero
+@@ -2541,9 +2701,9 @@ void observables(int ke, obsname obs[],
+ 	int test_highBKstar=(test_BKstar||mystrcmp(BtoKstarhigh_ALperp_err)||mystrcmp(BtoKstarhigh_ARperp_err)||mystrcmp(BtoKstarhigh_ALpar_err)||mystrcmp(BtoKstarhigh_ARpar_err)||mystrcmp(BtoKstarhigh_AL0_err)||mystrcmp(BtoKstarhigh_AR0_err)||mystrcmp(BtoKstarhigh_At_err)||mystrcmp(BtoKstarhigh_AS_err));
+ 
+ 	int test_BK=(mystrcmp(f_B)||mystrcmp(lambda_Bp));
+-	int test_lowBK=test_BK||(mystrcmp(f_K)||mystrcmp(a1K)||mystrcmp(a2K)||mystrcmp(a00_BK)||mystrcmp(a10_BK)||mystrcmp(a20_BK)||mystrcmp(a30_BK)||mystrcmp(a0p_BK)||mystrcmp(a1p_BK)||mystrcmp(a2p_BK)||mystrcmp(a0T_BK)||mystrcmp(a1T_BK)||mystrcmp(a2T_BK)||mystrcmp(BtoKlow_FV_err_noq2)||mystrcmp(BtoKlow_FA_err_noq2)||mystrcmp(BtoKlow_FS_err_noq2)||mystrcmp(BtoKlow_FP_err_noq2)||mystrcmp(BtoKlow_FV_err_q2)||mystrcmp(BtoKlow_FA_err_q2)||mystrcmp(BtoKlow_FS_err_q2)||mystrcmp(BtoKlow_FP_err_q2));
+-	int test_intermBK=test_BK||(mystrcmp(f_K)||mystrcmp(a1K)||mystrcmp(a2K)||mystrcmp(a00_BK)||mystrcmp(a10_BK)||mystrcmp(a20_BK)||mystrcmp(a30_BK)||mystrcmp(a0p_BK)||mystrcmp(a1p_BK)||mystrcmp(a2p_BK)||mystrcmp(a0T_BK)||mystrcmp(a1T_BK)||mystrcmp(a2T_BK)||mystrcmp(BtoKlow_FV_err_noq2)||mystrcmp(BtoKlow_FA_err_noq2)||mystrcmp(BtoKlow_FS_err_noq2)||mystrcmp(BtoKlow_FP_err_noq2)||mystrcmp(BtoKlow_FV_err_q2)||mystrcmp(BtoKlow_FA_err_q2)||mystrcmp(BtoKlow_FS_err_q2)||mystrcmp(BtoKlow_FP_err_q2)||mystrcmp(BtoKhigh_FV_err)||mystrcmp(BtoKhigh_FA_err)||mystrcmp(BtoKhigh_FS_err)||mystrcmp(BtoKhigh_FP_err));
+-	int test_highBK=test_BK||(mystrcmp(f_K)||mystrcmp(a1K)||mystrcmp(a2K)||mystrcmp(a00_BK)||mystrcmp(a10_BK)||mystrcmp(a20_BK)||mystrcmp(a30_BK)||mystrcmp(a0p_BK)||mystrcmp(a1p_BK)||mystrcmp(a2p_BK)||mystrcmp(a0T_BK)||mystrcmp(a1T_BK)||mystrcmp(a2T_BK)||mystrcmp(BtoKhigh_FV_err)||mystrcmp(BtoKhigh_FA_err)||mystrcmp(BtoKhigh_FS_err)||mystrcmp(BtoKhigh_FP_err));
++	int test_lowBK=test_BK||(mystrcmp(f_K)||mystrcmp(a1K)||mystrcmp(a2K)||mystrcmp(a00_BK)||mystrcmp(a10_BK)||mystrcmp(a20_BK)||mystrcmp(a30_BK)||mystrcmp(a0p_BK)||mystrcmp(a1p_BK)||mystrcmp(a2p_BK)||mystrcmp(a0T_BK)||mystrcmp(a1T_BK)||mystrcmp(a2T_BK)||mystrcmp(L_HPQCD)||mystrcmp(a00_HPQCD)||mystrcmp(a10_HPQCD)||mystrcmp(a20_HPQCD)||mystrcmp(a0p_HPQCD)||mystrcmp(a1p_HPQCD)||mystrcmp(a2p_HPQCD)||mystrcmp(a0T_HPQCD)||mystrcmp(a1T_HPQCD)||mystrcmp(a2T_HPQCD)||mystrcmp(BtoKlow_FV_err_noq2)||mystrcmp(BtoKlow_FA_err_noq2)||mystrcmp(BtoKlow_FS_err_noq2)||mystrcmp(BtoKlow_FP_err_noq2)||mystrcmp(BtoKlow_FV_err_q2)||mystrcmp(BtoKlow_FA_err_q2)||mystrcmp(BtoKlow_FS_err_q2)||mystrcmp(BtoKlow_FP_err_q2));
++	int test_intermBK=test_BK||(mystrcmp(f_K)||mystrcmp(a1K)||mystrcmp(a2K)||mystrcmp(a00_BK)||mystrcmp(a10_BK)||mystrcmp(a20_BK)||mystrcmp(a30_BK)||mystrcmp(a0p_BK)||mystrcmp(a1p_BK)||mystrcmp(a2p_BK)||mystrcmp(a0T_BK)||mystrcmp(a1T_BK)||mystrcmp(a2T_BK)||mystrcmp(L_HPQCD)||mystrcmp(a00_HPQCD)||mystrcmp(a10_HPQCD)||mystrcmp(a20_HPQCD)||mystrcmp(a0p_HPQCD)||mystrcmp(a1p_HPQCD)||mystrcmp(a2p_HPQCD)||mystrcmp(a0T_HPQCD)||mystrcmp(a1T_HPQCD)||mystrcmp(a2T_HPQCD)||mystrcmp(BtoKlow_FV_err_noq2)||mystrcmp(BtoKlow_FA_err_noq2)||mystrcmp(BtoKlow_FS_err_noq2)||mystrcmp(BtoKlow_FP_err_noq2)||mystrcmp(BtoKlow_FV_err_q2)||mystrcmp(BtoKlow_FA_err_q2)||mystrcmp(BtoKlow_FS_err_q2)||mystrcmp(BtoKlow_FP_err_q2)||mystrcmp(BtoKhigh_FV_err)||mystrcmp(BtoKhigh_FA_err)||mystrcmp(BtoKhigh_FS_err)||mystrcmp(BtoKhigh_FP_err));
++	int test_highBK=test_BK||(mystrcmp(f_K)||mystrcmp(a1K)||mystrcmp(a2K)||mystrcmp(a00_BK)||mystrcmp(a10_BK)||mystrcmp(a20_BK)||mystrcmp(a30_BK)||mystrcmp(a0p_BK)||mystrcmp(a1p_BK)||mystrcmp(a2p_BK)||mystrcmp(a0T_BK)||mystrcmp(a1T_BK)||mystrcmp(a2T_BK)||mystrcmp(L_HPQCD)||mystrcmp(a00_HPQCD)||mystrcmp(a10_HPQCD)||mystrcmp(a20_HPQCD)||mystrcmp(a0p_HPQCD)||mystrcmp(a1p_HPQCD)||mystrcmp(a2p_HPQCD)||mystrcmp(a0T_HPQCD)||mystrcmp(a1T_HPQCD)||mystrcmp(a2T_HPQCD)||mystrcmp(BtoKhigh_FV_err)||mystrcmp(BtoKhigh_FA_err)||mystrcmp(BtoKhigh_FS_err)||mystrcmp(BtoKhigh_FP_err));
+ 
+ 	int test_Bsphi=(mystrcmp(life_Bs)||mystrcmp(f_Bs)||mystrcmp(lambda_Bsp)||mystrcmp(f_phi_par)||mystrcmp(f_phi_perp)||mystrcmp(a1phi_perp)||mystrcmp(a1phi_par)||mystrcmp(a2phi_perp)||mystrcmp(a2phi_par)||mystrcmp(a0A0_Bsphi)||mystrcmp(a1A0_Bsphi)||mystrcmp(a2A0_Bsphi)||mystrcmp(a0A1_Bsphi)||mystrcmp(a1A1_Bsphi)||mystrcmp(a2A1_Bsphi)||mystrcmp(a0A12_Bsphi)||mystrcmp(a1A12_Bsphi)||mystrcmp(a2A12_Bsphi)||mystrcmp(a0V_Bsphi)||mystrcmp(a1V_Bsphi)||mystrcmp(a2V_Bsphi)||mystrcmp(a0T1_Bsphi)||mystrcmp(a1T1_Bsphi)||mystrcmp(a2T1_Bsphi)||mystrcmp(a0T2_Bsphi)||mystrcmp(a1T2_Bsphi)||mystrcmp(a2T2_Bsphi)||mystrcmp(a0T23_Bsphi)||mystrcmp(a1T23_Bsphi)||mystrcmp(a2T23_Bsphi));
+ 	int test_lowBsphi=(test_Bsphi||mystrcmp(Bstophilow_ALperp_err_noq2)||mystrcmp(Bstophilow_ARperp_err_noq2)||mystrcmp(Bstophilow_ALpar_err_noq2)||mystrcmp(Bstophilow_ARpar_err_noq2)||mystrcmp(Bstophilow_AL0_err_noq2)||mystrcmp(Bstophilow_AR0_err_noq2)||mystrcmp(Bstophilow_At_err_noq2)||mystrcmp(Bstophilow_AS_err_noq2)||mystrcmp(Bstophilow_ALperp_err_q2)||mystrcmp(Bstophilow_ARperp_err_q2)||mystrcmp(Bstophilow_ALpar_err_q2)||mystrcmp(Bstophilow_ARpar_err_q2)||mystrcmp(Bstophilow_AL0_err_q2)||mystrcmp(Bstophilow_AR0_err_q2)||mystrcmp(Bstophilow_At_err_q2)||mystrcmp(Bstophilow_AS_err_q2));
+@@ -2815,9 +2975,6 @@ void get_th_covariance_nuisance(double *
  
  	for(ie=0;ie<*nbobs;ie++) values_mod[0][ie]=values_ref[ie];		
  
@@ -554,12 +822,26 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  		+(1.-sw2)*lu*lu*xt*xt/4./(xH-xt)/(xH-xt)*(xH*log(xH/xt)+xt-xH);
  }
  
-@@ -4512,3 +4551,23 @@ void CQ_calculator(int gen, double compl
+@@ -4512,3 +4551,38 @@ void CQ_calculator(int gen, double compl
  			
  	return;
  }
 +
 +/*-----------------------------------------------------------------------------*/
++
++double X0(double xt)
++{
++  if(xt < 1e-10) return 0.;
++  else if(fabs(xt-1) < 1e-10) return 11./16;
++  else return xt/8. * ((xt + 2.)/(xt - 1.) + (3.*xt - 6.)/pow(xt - 1.,2.) * log(xt));
++}
++
++double X1(double xt, double mu, double mass_W)
++{
++  if(xt < 1e-10) return 0.;
++  else if(fabs(xt-1) < 1e-10) return 3./4;
++  else return -(29.*xt - xt*xt - 4.*pow(xt,3.))/(3.*pow(1.-xt,2)) - (xt + 9.*xt*xt - pow(xt,3.) - pow(xt,4.))/(pow(1.-xt,3.)) * log(xt) + (8.*xt + 4.*xt*xt + xt*xt*xt - pow(xt,4.))/(2*pow(1.-xt,3)) * log(xt)*log(xt) - (4.*xt - pow(xt,3))/(pow(1.-xt,2)) * Li2(1.-xt) +  8.*xt*( (8. - 9.*xt + pow(xt,3.) +6.*log(xt))/(8.*pow(-1+xt,3)))*log(mu*mu/(mass_W*mass_W));
++}
 +
 +void CLR_calculator(double complex CLR[], struct parameters* param)
 +{
@@ -572,16 +854,25 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +
 +    double XtSM = X0(xt) + alphas_mut/(4.*pi) * X1(xt,mtmt,param->mass_W);
 +    double sw2=pow(sin(atan(param->gp/param->g2)),2.);
-+    
++
 +    CLR[0] = -XtSM / sw2;   // CL = CLR[0]
 +    CLR[1] = 0;             // CR = CLR[1]
-+    
++
 +    return;
 +}
++
 
 --- a/src/include.h	2024-02-14 20:49:52.467221640 +0100
 +++ b/src/include.h	2024-02-14 20:50:52.580464870 +0100
-@@ -95,7 +95,7 @@ typedef struct parameters
+@@ -38,6 +38,7 @@
+ #define Nobs_Bsphill 6
+ #define Nobs_BDlnu 2
+ #define Nobs_BDstarlnu 3
++#define Nobs_BKnunu 1
+ 
+ #define NBOBSMAX 500
+ 
+@@ -95,7 +96,7 @@ typedef struct parameters
  	double f_Kstar_par,f_Kstar_perp;
  	double f_phi_perp,f_phi_par,a1phi_perp,a2phi_perp,a1phi_par,a2phi_par;
  	double m_B,m_Bs,m_Bd,m_pi,m_Ds,m_K0,m_K,m_Kstar0,m_Kstar,m_D0,m_D,m_Dstar0,m_Dstar,m_phi;
@@ -590,18 +881,38 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  	double a1par,a2par,a1perp,a2perp,a1K,a2K;
  	double zeta3A,zeta3V,wA10,deltatp,deltatm,deltatp_phi,deltatm_phi;
  	double lambda_Bp,lambda_Bsp,rho1,lambda2;
-@@ -133,6 +133,9 @@ typedef struct parameters
+@@ -133,6 +134,10 @@ typedef struct parameters
  	double a00_BK,a10_BK,a20_BK,a30_BK;
  	double a0p_BK,a1p_BK,a2p_BK,DmBp_BK;
  	double a0T_BK,a1T_BK,a2T_BK,DmBT_BK;
-+        double L_HPQCD,a00_HPQCD,a10_HPQCD,a20_HPQCD;
-+        double a0p_HPQCD,a1p_HPQCD,a2p_HPQCD;
-+        double a0T_HPQCD,a1T_HPQCD,a2T_HPQCD;
++	double L_HPQCD;
++	double a00_HPQCD,a10_HPQCD,a20_HPQCD;
++	double a0p_HPQCD,a1p_HPQCD,a2p_HPQCD;
++	double a0T_HPQCD,a1T_HPQCD,a2T_HPQCD;
  	
  	/* B -> Kstar hadronic uncertainties */
  	double hadrerrBKstar;
-
-@@ -637,6 +637,10 @@ void C_calculator_base1(double complex C
+@@ -178,7 +183,7 @@ typedef struct parameters
+ 	double Delta_BDstar,rho_Dstar2_BDstar,R1_1_BDstar,R2_1_BDstar,R3_1_BDstar,V1_1_BDstar,hA1_1_BDstar;
+ 			
+ 	/* NP contributions to Wilson coefficients */
+-	double complex deltaC[31],deltaCp[31],deltaCQ[7],deltaCQp[7];
++	double complex deltaC[31],deltaCp[31],deltaCQ[7],deltaCQp[7],deltaCLR[2];
+ 				
+ 	/* Decay widths */
+ 	int widthcalc; /* 0=none, 1=hdecay, 2=feynhiggs */
+@@ -333,6 +338,10 @@ typedef struct nuisance
+ 		indnuis a00_BK,a10_BK,a20_BK,a30_BK;
+ 		indnuis a0p_BK,a1p_BK,a2p_BK;
+ 		indnuis a0T_BK,a1T_BK,a2T_BK;
++		indnuis L_HPQCD;
++		indnuis a00_HPQCD,a10_HPQCD,a20_HPQCD;
++		indnuis a0p_HPQCD,a1p_HPQCD,a2p_HPQCD;
++		indnuis a0T_HPQCD,a1T_HPQCD,a2T_HPQCD;
+ 		
+ 		/* low */
+ 		indnuis BtoKlow_FV_err_noq2,BtoKlow_FA_err_noq2,BtoKlow_FS_err_noq2,BtoKlow_FP_err_noq2;
+@@ -637,6 +646,7 @@ void C_calculator_base1(double complex C
  void C_calculator_base2(double complex C0w[], double complex C1w[], double mu_W, double complex C0b[], double complex C1b[], double mu, struct parameters* param); 
  void Cprime_calculator(int gen, double complex Cpb[], double complex CQpb[], double mu_W, double mu, struct parameters* param);
  void CQ_calculator(int gen, double complex CQ0b[], double complex CQ1b[], double mu_W, double mu, struct parameters* param);
@@ -609,7 +920,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  
  /* bsgamma.c */
  double phi77(double delta);
-@@ -1054,4 +1055,14 @@ double Zwidth_neu1neu1_calculator(char n
+@@ -1054,4 +1064,11 @@ double Zwidth_neu1neu1_calculator(char n
  double Zwidth_invisible_calculator(char name[]);
  double Zwidth_b1b1_calculator(char name[]);
  
@@ -621,14 +932,13 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +double BRBKnunu(int charge, double smin, double smax, double complex CL, double complex CR, struct parameters* param, double mu_b);
 +
  #endif
-
 --- a/src/leshouches.c	2024-02-15 15:41:11.723018989 +0100
 +++ b/src/leshouches.c	2024-02-15 16:46:59.084097657 +0100
 @@ -356,6 +356,7 @@ void Init_param(struct parameters* param
  	param->life_Bd=1.519e-12;
  	param->life_D=1.040e-12;
  	param->life_Ds=5.e-13;
-+	param->life_tau=290.3e-15;
++	param->life_tau=2.903e-13;
  	param->a1perp=0.04;
  	param->a2perp=0.10;
  	param->a1par=0.06;
@@ -649,3 +959,70 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  	
  	/* hadronic uncertainties */
  	param->BtoKstarlow_ALperp_err_noq2=param->BtoKstarlow_ARperp_err_noq2=param->BtoKstarlow_ALpar_err_noq2=param->BtoKstarlow_ARpar_err_noq2=param->BtoKstarlow_AL0_err_noq2=param->BtoKstarlow_AR0_err_noq2=param->BtoKstarlow_At_err_noq2=param->BtoKstarlow_AS_err_noq2=param->BtoKstarlow_ALperp_err_q2=param->BtoKstarlow_ARperp_err_q2=param->BtoKstarlow_ALpar_err_q2=param->BtoKstarlow_ARpar_err_q2=param->BtoKstarlow_AL0_err_q2=param->BtoKstarlow_AR0_err_q2=param->BtoKstarlow_At_err_q2=param->BtoKstarlow_AS_err_q2=param->BtoKstarhigh_ALperp_err=param->BtoKstarhigh_ARperp_err=param->BtoKstarhigh_ALpar_err=param->BtoKstarhigh_ARpar_err=param->BtoKstarhigh_AL0_err=param->BtoKstarhigh_AR0_err=param->BtoKstarhigh_At_err=param->BtoKstarhigh_AS_err=0.;
+--- a/chi2_input/nuisance_corr.in	2024-02-19 09:35:31.475063428 +0100
++++ b/chi2_input/nuisance_corr.in	2024-02-19 09:40:54.827128641 +0100
+@@ -461,3 +461,48 @@ a2T2_Bsphi                    	a2T23_Bsp
+ a0T23_Bsphi                   	a1T23_Bsphi                   	0.777787
+ a0T23_Bsphi                   	a2T23_Bsphi                   	0.573289
+ a1T23_Bsphi                   	a2T23_Bsphi                   	0.899178
++L_HPQCD                         a00_HPQCD                     	-0.19815
++L_HPQCD                         a10_HPQCD                     	0.02839
++L_HPQCD                         a20_HPQCD                     	0.03245
++L_HPQCD                         a0p_HPQCD                     	-0.19815
++L_HPQCD                         a1p_HPQCD                     	0.09126
++L_HPQCD                         a2p_HPQCD                     	0.00353
++L_HPQCD                         a0T_HPQCD                     	-0.11487
++L_HPQCD                         a1T_HPQCD                     	0.04788
++L_HPQCD                         a2T_HPQCD                     	0.00184
++a2T_HPQCD                       a00_HPQCD                     	0.0624
++a2T_HPQCD                       a10_HPQCD                     	0.05677
++a2T_HPQCD                       a20_HPQCD                     	0.04827
++a2T_HPQCD                       a0p_HPQCD                     	0.0624
++a2T_HPQCD                       a1p_HPQCD                     	0.05829
++a2T_HPQCD                       a2p_HPQCD                     	0.04442
++a2T_HPQCD                       a0T_HPQCD                     	0.32316
++a2T_HPQCD                       a1T_HPQCD                     	0.85349
++a1T_HPQCD                       a00_HPQCD                     	0.19136
++a1T_HPQCD                       a10_HPQCD                     	0.16899
++a1T_HPQCD                       a20_HPQCD                     	0.09938
++a1T_HPQCD                       a0p_HPQCD                     	0.19136
++a1T_HPQCD                       a1p_HPQCD                     	0.09633
++a1T_HPQCD                       a2p_HPQCD                     	0.02366
++a1T_HPQCD                       a0T_HPQCD                     	0.59841
++a0T_HPQCD                       a00_HPQCD                     	0.42939
++a0T_HPQCD                       a10_HPQCD                     	0.31091
++a0T_HPQCD                       a20_HPQCD                     	0.18297
++a0T_HPQCD                       a0p_HPQCD                     	0.42939
++a0T_HPQCD                       a1p_HPQCD                     	0.06813
++a0T_HPQCD                       a2p_HPQCD                     	-0.0247
++a2p_HPQCD                       a00_HPQCD                     	0.04776
++a2p_HPQCD                       a10_HPQCD                     	0.06186
++a2p_HPQCD                       a20_HPQCD                     	0.08655
++a2p_HPQCD                       a0p_HPQCD                     	0.04776
++a2p_HPQCD                       a1p_HPQCD                     	0.84649
++a1p_HPQCD                       a00_HPQCD                     	0.30543
++a1p_HPQCD                       a10_HPQCD                     	0.35356
++a1p_HPQCD                       a20_HPQCD                     	0.28531
++a1p_HPQCD                       a0p_HPQCD                     	0.30543
++a0p_HPQCD                       a00_HPQCD                     	1.
++a0p_HPQCD                       a10_HPQCD                     	0.80619
++a0p_HPQCD                       a20_HPQCD                     	0.56441
++a20_HPQCD                       a00_HPQCD                     	0.56441
++a20_HPQCD                       a10_HPQCD                     	0.91180
++a10_HPQCD                       a00_HPQCD                     	0.80619 
+--- a/chi2_input/nuisance.in	2024-02-19 09:42:09.628996906 +0100
++++ b/chi2_input/nuisance.in	2024-02-19 09:44:10.076006166 +0100
+@@ -181,3 +181,13 @@ a2T2_Bsphi
+ a0T23_Bsphi                              	6.5233e-01		3.5747e-02		1
+ a1T23_Bsphi                              	2.0962e+00		3.3008e-01		1
+ a2T23_Bsphi                              	6.7357e+00		1.7953e+00		1
++L_HPQCD                                  	1.304                   0.010                   1
++a00_HPQCD                                	0.2545                  0.0090                  1
++a10_HPQCD                                	0.210                   0.076                   1
++a20_HPQCD                                	0.02                    0.17                    1
++a0p_HPQCD                                	0.2545                  0.0090                  1
++a1p_HPQCD                                	-0.71                   0.14                    1
++a2p_HPQCD                                	0.32                    0.59                    1
++a0T_HPQCD                                	0.255                   0.018                   1
++a1T_HPQCD                                	-0.66                   0.23                    1
++a2T_HPQCD                                	0.36                    0.84                    1 

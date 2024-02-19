@@ -705,6 +705,9 @@ namespace Gambit
         result.Im_DeltaCL = *Param["Im_DeltaCLL_V"];
         result.Re_DeltaCR = *Param["Re_DeltaCRR_V"];
         result.Im_DeltaCR = *Param["Im_DeltaCRR_V"];
+
+        result.deltaCLR[0] = std::complex<double>(result.Re_DeltaCL, result.Im_DeltaCL);
+        result.deltaCLR[1] = std::complex<double>(result.Re_DeltaCR, result.Im_DeltaCR);
       }
 
 
@@ -785,11 +788,17 @@ namespace Gambit
           result.Re_DeltaCQ2_tau_Prime = Dep::DeltaCQ2_tautau_Prime->real();
           result.Im_DeltaCQ2_tau_Prime = Dep::DeltaCQ2_tautau_Prime->imag();
 
+          //TODO: The tau WCs are not stored in SuperIso, check that
+
           // nunu WCs
           result.Re_DeltaCL = Dep::DeltaCL->real();
           result.Im_DeltaCL = Dep::DeltaCL->imag();
           result.Re_DeltaCR = Dep::DeltaCR->real();
           result.Im_DeltaCR = Dep::DeltaCR->imag();
+
+          result.deltaCLR[0] = std::complex<double>(result.Re_DeltaCL, result.Im_DeltaCL);
+          result.deltaCLR[1] = std::complex<double>(result.Re_DeltaCR, result.Im_DeltaCR);
+
         }
       }
       if (flav_debug) std::cout << "Finished SuperIso_fill" << std::endl;

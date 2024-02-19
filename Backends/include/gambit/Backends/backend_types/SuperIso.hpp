@@ -84,7 +84,7 @@ namespace Gambit
     double f_Kstar_par,f_Kstar_perp;
     double f_phi_perp,f_phi_par,a1phi_perp,a2phi_perp,a1phi_par,a2phi_par;
     double m_B,m_Bs,m_Bd,m_pi,m_Ds,m_K0,m_K,m_Kstar0,m_Kstar,m_D0,m_D,m_Dstar0,m_Dstar,m_phi;
-    double life_pi,life_K,life_B,life_Bs,life_Bd,life_D,life_Ds;
+    double life_pi,life_K,life_B,life_Bs,life_Bd,life_D,life_Ds,life_tau;
     double a1par,a2par,a1perp,a2perp,a1K,a2K;
     double zeta3A,zeta3V,wA10,deltatp,deltatm,deltatp_phi,deltatm_phi;
     double lambda_Bp,lambda_Bsp,rho1,lambda2;
@@ -122,6 +122,10 @@ namespace Gambit
     double a00_BK,a10_BK,a20_BK,a30_BK;
     double a0p_BK,a1p_BK,a2p_BK,DmBp_BK;
     double a0T_BK,a1T_BK,a2T_BK,DmBT_BK;
+    double L_HPQCD;
+    double a00_HPQCD,a10_HPQCD,a20_HPQCD;
+    double a0p_HPQCD,a1p_HPQCD,a2p_HPQCD;
+    double a0T_HPQCD,a1T_HPQCD,a2T_HPQCD;
 
     /* B -> Kstar hadronic uncertainties */
     double hadrerrBKstar;
@@ -167,7 +171,7 @@ namespace Gambit
     double Delta_BDstar,rho_Dstar2_BDstar,R1_1_BDstar,R2_1_BDstar,R3_1_BDstar,V1_1_BDstar,hA1_1_BDstar;
 
     /* NP contributions to Wilson coefficients */
-    std::complex<double> deltaC[31],deltaCp[31],deltaCQ[7],deltaCQp[7];
+    std::complex<double> deltaC[31],deltaCp[31],deltaCQ[7],deltaCQp[7],deltaCLR[2];
 
     /* Decay widths */
     int widthcalc; /* 0=none, 1=hdecay, 2=feynhiggs */
@@ -418,6 +422,10 @@ namespace Gambit
     indnuis a00_BK,a10_BK,a20_BK,a30_BK;
     indnuis a0p_BK,a1p_BK,a2p_BK;
     indnuis a0T_BK,a1T_BK,a2T_BK;
+		indnuis L_HPQCD;
+		indnuis a00_HPQCD,a10_HPQCD,a20_HPQCD;
+		indnuis a0p_HPQCD,a1p_HPQCD,a2p_HPQCD;
+		indnuis a0T_HPQCD,a1T_HPQCD,a2T_HPQCD;
 
     /* low */
     indnuis BtoKlow_FV_err_noq2,BtoKlow_FA_err_noq2,BtoKlow_FS_err_noq2,BtoKlow_FP_err_noq2;

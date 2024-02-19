@@ -610,29 +610,6 @@ START_MODULE
   #undef CAPABILITY
 
 
-  ///Observable: RKnunu
-  #define CAPABILITY RKnunu
-  START_CAPABILITY
-    #define FUNCTION THDM_RKnunu
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  ///Observable: RKstarnunu
-  #define CAPABILITY RKstarnunu
-  START_CAPABILITY
-    #define FUNCTION THDM_RKstarnunu
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
 
   #define CAPABILITY prediction_B2mumu
   START_CAPABILITY
@@ -1504,38 +1481,48 @@ START_MODULE
   #undef CAPABILITY
 
   // Observable: BR(B -> K nu nu)
-  #define CAPABILITY B2Knunu
+  #define CAPABILITY prediction_B2Knunu
   START_CAPABILITY
 
     #define FUNCTION SuperIso_prediction_B2Knunu
-    START_FUNCTION(double)
+    START_FUNCTION(flav_binned_prediction)
     DEPENDENCY(SuperIso_modelinfo, parameters)
-    BACKEND_REQ(B2Knunu, (libsuperiso), double, (const parameters*, int, double, double))
-    BACKEND_OPTION( (SuperISo, 4.1), (libsuperiso) )
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    ALLOW_MODEL(WC_nu)
     #undef FUNCTION
 
     #define FUNCTION B2Knunu
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS, SMInputs)
-    ALLOW_MODEL(WC_nunu)
+    ALLOW_MODEL(WC_nu)
     #undef FUNCTION
   #undef CAPABILITY
 
   // Observable: BR(B_u+ -> K+ nu nu)
-  #define CAPABILITY Bu2Knunu
+  #define CAPABILITY prediction_Bu2Knunu
   START_CAPABILITY
 
     #define FUNCTION SuperIso_prediction_Bu2Knunu
-    START_FUNCTION(double)
+    START_FUNCTION(flav_binned_prediction)
     DEPENDENCY(SuperIso_modelinfo, parameters)
-    BACKEND_REQ(B2Knunu, (libsuperiso), double, (const parameters*, int, double, double))
-    BACKEND_OPTION( (SuperISo, 4.1), (libsuperiso) )
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    ALLOW_MODEL(WC_nu)
     #undef FUNCTION
 
     #define FUNCTION Bu2Knunu
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS, SMInputs)
-    ALLOW_MODEL(WC_nunu)
+    ALLOW_MODEL(WC_nu)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1545,7 +1532,7 @@ START_MODULE
     #define FUNCTION B2Kstarnunu
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS, SMInputs)
-    ALLOW_MODEL(WC_nunu)
+    ALLOW_MODEL(WC_nu)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1555,7 +1542,7 @@ START_MODULE
     #define FUNCTION Bu2Kstarnunu
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS, SMInputs)
-    ALLOW_MODEL(WC_nunu)
+    ALLOW_MODEL(WC_nu)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1565,28 +1552,46 @@ START_MODULE
     #define FUNCTION FL_Knunu
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS, SMInputs)
-    ALLOW_MODEL(WC_nunu)
+    ALLOW_MODEL(WC_nu)
     #undef FUNCTION
   #undef CAPABILITY
 
   // Observable: RKnunu = BR(B+ -> K+ nu nu)/BR(B+ -> K+ nu nu)_SM
   #define CAPABILITY RKnunu
   START_CAPABILITY
+
     #define FUNCTION RKnunu
     START_FUNCTION(double)
-    DEPENDENCY(BuKnunu, double)
-    ALLOW_MODEL(WC_nunu)
+    DEPENDENCY(prediction_Bu2Knunu, double)
+    ALLOW_MODEL(WC_nu)
     #undef FUNCTION
+
+    #define FUNCTION THDM_RKnunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
   // Observable: RKstarnunu = BR(B -> K* nu nu)/BR(B -> K*nu nu)_SM
   #define CAPABILITY RKstarnunu
   START_CAPABILITY
+
     #define FUNCTION RKstarnunu
     START_FUNCTION(double)
-    DEPENDENCY(BKstarnunu, double)
-    ALLOW_MODEL(WC_nunu)
+    DEPENDENCY(prediction_B2Kstarnunu, double)
+    ALLOW_MODEL(WC_nu)
     #undef FUNCTION
+
+    #define FUNCTION THDM_RKstarnunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
 
@@ -2510,7 +2515,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION HEPLike_BKnunu_LogLikelihood_Belle_sl
     START_FUNCTION(double)
-    DEPENDENCY(BKnunu, double)
+    DEPENDENCY(prediction_B2Knunu, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -2520,7 +2525,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION HEPLike_BKnunu_LogLikelihood_Belle_had
     START_FUNCTION(double)
-    DEPENDENCY(BKnunu, double)
+    DEPENDENCY(prediction_B2Knunu, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -2530,7 +2535,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION HEPLike_BuKnunu_LogLikelihood_Belle_sl
     START_FUNCTION(double)
-    DEPENDENCY(BuKnunu, double)
+    DEPENDENCY(prediction_Bu2Knunu, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -2540,7 +2545,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION HEPLike_BuKnunu_LogLikelihood_Belle_had
     START_FUNCTION(double)
-    DEPENDENCY(BuKnunu, double)
+    DEPENDENCY(prediction_Bu2Knunu, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -2550,7 +2555,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION HEPLike_BuKnunu_LogLikelihood_BelleII
     START_FUNCTION(double)
-    DEPENDENCY(BuKnunu, double)
+    DEPENDENCY(prediction_Bu2Knunu, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -2560,7 +2565,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION HEPLike_BKstarnunu_LogLikelihood_Belle_sl
     START_FUNCTION(double)
-    DEPENDENCY(BKstarnunu, double)
+    DEPENDENCY(prediction_B2Kstarnunu, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -2570,7 +2575,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION HEPLike_BKstarnunu_LogLikelihood_Belle_had
     START_FUNCTION(double)
-    DEPENDENCY(BKstarnunu, double)
+    DEPENDENCY(prediction_B2Kstarnunu, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -2580,7 +2585,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION HEPLike_BuKstarnunu_LogLikelihood_Belle_sl
     START_FUNCTION(double)
-    DEPENDENCY(BuKstarnunu, double)
+    DEPENDENCY(prediction_Bu2Kstarnunu, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -2590,7 +2595,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION HEPLike_BuKstarnunu_LogLikelihood_Belle_had
     START_FUNCTION(double)
-    DEPENDENCY(BuKstarnunu, double)
+    DEPENDENCY(prediction_Bu2Kstarnunu, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -2600,7 +2605,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION HEPLike_BKnunu_LogLikelihood_BaBar
     START_FUNCTION(double)
-    DEPENDENCY(BKnunu, double)
+    DEPENDENCY(prediction_B2Knunu, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -2610,7 +2615,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION HEPLike_BuKnunu_LogLikelihood_BaBar
     START_FUNCTION(double)
-    DEPENDENCY(BuKnunu, double)
+    DEPENDENCY(prediction_Bu2Knunu, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -2620,7 +2625,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION HEPLike_BKstarnunu_LogLikelihood_BaBar
     START_FUNCTION(double)
-    DEPENDENCY(BKstarnunu, double)
+    DEPENDENCY(prediction_B2Kstarnunu, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -2630,7 +2635,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION HEPLike_BuKstarnunu_LogLikelihood_BaBar
     START_FUNCTION(double)
-    DEPENDENCY(BuKstarnunu, double)
+    DEPENDENCY(prediction_Bu2Kstarnunu, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY

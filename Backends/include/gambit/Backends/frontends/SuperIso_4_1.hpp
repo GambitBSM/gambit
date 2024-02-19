@@ -40,7 +40,6 @@ BE_FUNCTION(C_calculator_base1, void, (std::complex<double>*, std::complex<doubl
 BE_FUNCTION(C_calculator_base2, void, (std::complex<double>*, std::complex<double>*, double, std::complex<double>*, std::complex<double>*, double, const parameters*), "C_calculator_base2", "C_calculator_base2")
 BE_FUNCTION(Cprime_calculator, void, (int, std::complex<double>*, std::complex<double>*, double, double, const parameters*), "Cprime_calculator", "Cprime_calculator")
 BE_FUNCTION(CQ_calculator, void, (int, std::complex<double>*, std::complex<double>*, double, double, const parameters*), "CQ_calculator", "CQ_calculator")
-BE_FUNCTION(CLR_calculator, void, (std::complex<double>*, const parameters*), "CLR_calculator", "CLR_calculator")
 
 BE_FUNCTION(alphas_running, double, (double, double,  double, const parameters*), "alphas_running", "alphas_running")
 
@@ -79,7 +78,6 @@ BE_FUNCTION(Bll, double, (int, std::complex<double>*, std::complex<double>*, std
 BE_FUNCTION(BRBDlnu, double, (int, int, double,  double, double*, const parameters*), "BRBDlnu", "BRBDlnu")
 BE_FUNCTION(BRBDstarlnu, double, (int, int, double,  double, double*, const parameters*), "BRBDstarlnu", "BRBDstarlnu")
 BE_FUNCTION(mb_1S, double , (const parameters*), "mb_1S", "mb_1S")
-BE_FUNCTION(BRBKnunu, double, (int, double, double, std::complex<double>, std::complex<double>, const parameters*, double), "BRBKnunu", "BRBKnunu")
 
 // SuperIso functions related to theory correlations:
 BE_FUNCTION(set_nuisance, void, (nuisance*), "set_nuisance", "set_nuisance")
@@ -103,7 +101,6 @@ BE_CONV_FUNCTION(modified_delta0, double, (const parameters*), "modified_delta0"
 
 // TODO: attempt to upgrade module function to use the 'observables' backend function instead, and delete this CONV function
 BE_CONV_FUNCTION(BRBKtautau_CONV, double, (const parameters*, double, double), "BRBKtautau_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(B2Knunu, double, (const parameters*, int, double, double), "B2Knunu", (MSSM63atQ, MSSM63atMGUT, GWC_nu, THDM, THDMatQ))
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

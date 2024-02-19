@@ -66,5 +66,7 @@
 [AT_Im,                                      ATIm_B0Kstar0ee,                     AT_Im               ]
 [AT_2,                                       P1_B0Kstar0ee,                       AT_2                ]
 [BKtautauBr,                                 dGamma/dq2_BKtautau,                 None                ]
+[B2Knunu,                                    dGamma/dq2_B0K0nunu,                 None                ]
+[Bu2Knunu,                                   dGamma/dq2_BKnunu,                   None                ]
 #[RD,                                        ?? (not in SuperIso::check_nameobs)  RD                  ]
 #[RDstar,                                    ?? (not in SuperIso::check_nameobs)  RDstar              ]

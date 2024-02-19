@@ -135,11 +135,17 @@ namespace Gambit
     /// Extract central values of the given observables from the central value map.
     std::vector<double> get_obs_theory(const flav_prediction& prediction, const std::vector<std::string>& observables);
 
+    /// Extract central value of the given observable from the central value map.
+    double get_obs_theory(const flav_prediction& prediction, const std::string& observable);
+
     /// Reorder a FlavBit observables list to match ordering expected by HEPLike
     void update_obs_list(std::vector<str>& obs_list, const std::vector<str>& HL_obs_list);
 
     /// Extract covariance matrix of the given observables from the covariance map.
     boost::numeric::ublas::matrix<double> get_obs_covariance(const flav_prediction& prediction, const std::vector<std::string>& observables);
+
+    /// Extract uncertainty of the given observables from the covariance map.
+    double get_obs_covariance(const flav_prediction& prediction, const std::string& observable);
 
     /// Helper function to avoid code duplication.
     void SuperIso_prediction_helper(const std::vector<std::string>& FB_obslist, const std::vector<std::string>& SI_obslist, flav_prediction& result,

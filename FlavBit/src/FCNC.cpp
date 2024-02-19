@@ -171,6 +171,14 @@ namespace Gambit
     /// SuperIso prediction for the angular observables of B_u -> K* mu mu with alternative binning
     SI_MULTI_PREDICTION_FUNCTION_BINS(Bu2KstarmumuAng_alt, LHCb, ((0.1, 0.98), (1.1, 6.0), (6.0, 8.0), (11.0, 12.5), (15.0, 19.0))) // Typical subcaps: FL, AFB, S3, S4, S5, S7, S8, S9 // TODO Why does this bin exist
 
+    /// SuperIso prediction for B -> K nu nu and Bu+ -> K+ nu nu
+    // q2 between 0 and (mB0 - mK0+)^2 ~ 22.86 for B -> nu nu and q2 between 0 and (mB+ - mK+)^2 ~ 22.90 for Bu+ -> K+ nunu
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(B2Knunu, ((0.0, 22.86)))
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(Bu2Knunu, ((0.0, 22.90)))
+
+    /// SuperIso prediction for B -> K* nu nu and Bu+ -> K*+ nu nu
+    // TODO: Currently SI is missng a prediction for these observables
+
     /// epsilon function for b->snunu in the THDM
     double epsilon(int l, int lp, SMInputs &sminputs, Spectrum &spectrum)
     {
@@ -219,7 +227,7 @@ namespace Gambit
       {
         for (int j = 0; j <= 2; ++j)
         {
-          RKstarnunu += (0.33333333)*(1 + kappa*eta(i,j,sminputs,spectrum))*pow(epsilon(i,j,sminputs,spectrum),2);
+          RKstarnunu += (1 + kappa*eta(i,j,sminputs,spectrum))*pow(epsilon(i,j,sminputs,spectrum),2)/3;
         }
       }
 
@@ -540,29 +548,6 @@ namespace Gambit
       if (flav_debug) std::cout<<"Finished SuperIso_prediction_AI_BKstarmumu_zero"<< std::endl;
     }
 
-    /// Calculation of B -> K nu nu with SuperIso
-    void SuperIso_prediction_B2Knunu(double &result)
-    {
-      using namespace Pipes::SuperIso_prediction_B2Knunu;
-
-      parameters const &param = *Dep::SuperIso_modelinfo;
-
-      // As far as I can tell, q2 ranges from 0 to 22.90 GeV^2/c^4
-      double smin = 0., smax = 24.;
-      result = BEreq::B2Knunu(&param, byVal(0), byVal(smin), byVal(smax));
-    }
-
-    /// Calculation of Bu+ -> K+ nu nu with SuperIso
-    void SuperIso_prediction_Bu2Knunu(double &result)
-    {
-      using namespace Pipes::SuperIso_prediction_Bu2Knunu;
-
-      parameters const &param = *Dep::SuperIso_modelinfo;
-
-      // As far as I can tell, q2 ranges from 0 to 22.90 GeV^2/c^4
-      double smin = 0., smax = 24.;
-      result = BEreq::B2Knunu(&param, byVal(1), byVal(smin), byVal(smax));
-    }
 
     // Kahler function
     double lambdaK(double q2, double mB, double mK)
@@ -686,7 +671,7 @@ namespace Gambit
 
       std::function<double(double)> dGammadq2 = [&](double q2)
       {
-        return dGammaBKnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+        return dGammaBKnunudq2(q2, *Dep::WC_nu_parameters, *Dep::SMINPUTS, mB, mK);
       };
 
       // Integration limits and variables
@@ -753,7 +738,7 @@ namespace Gambit
 
       std::function<double(double)> FL_q2 = [&](double q2)
       {
-        return FL_Knunu_q2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+        return FL_Knunu_q2(q2, *Dep::WC_nu_parameters, *Dep::SMINPUTS, mB, mK);
       };
 
       // Integration limits and variables
@@ -776,7 +761,7 @@ namespace Gambit
 
       std::function<double(double)> dGammadq2 = [&](double q2)
       {
-        return dGammaBKnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+        return dGammaBKnunudq2(q2, *Dep::WC_nu_parameters, *Dep::SMINPUTS, mB, mK);
       };
 
       // Integration limits and variables
@@ -799,7 +784,7 @@ namespace Gambit
 
       std::function<double(double)> dGammadq2 = [&](double q2)
       {
-        return dGammaBKstarnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+        return dGammaBKstarnunudq2(q2, *Dep::WC_nu_parameters, *Dep::SMINPUTS, mB, mK);
       };
 
       // Integration limits and variables
@@ -822,7 +807,7 @@ namespace Gambit
 
       std::function<double(double)> dGammadq2 = [&](double q2)
       {
-        return dGammaBKstarnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+        return dGammaBKstarnunudq2(q2, *Dep::WC_nu_parameters, *Dep::SMINPUTS, mB, mK);
       };
 
       // Integration limits and variables
@@ -843,7 +828,7 @@ namespace Gambit
       const double BuKnunuSM = 4.6e-6;
       // const double BuKnunuSM_uncert = 0.5e-6;
 
-      result = *Dep::BuKnunu / BuKnunuSM;
+      result = *Dep::prediction_Bu2Knunu / BuKnunuSM;
     }
 
     /// Observable: RKstarnunu = BR(B -> Kstar nu nu) / BR(B -> Kstar nu nu)_SM
@@ -856,7 +841,7 @@ namespace Gambit
       const double BKstarnunuSM = 8.4e-6;
       // const double BKstarnunuSM_uncert = 1.5e-6;
 
-      result = *Dep::BKstarnunu / BKstarnunuSM;
+      result = *Dep::prediction_B2Kstarnunu / BKstarnunuSM;
     }
 
     ///These functions extract observables from a FeynHiggs flavour result
@@ -2031,6 +2016,11 @@ namespace Gambit
       static const std::string inputfile = heplike_data_file("/data/Belle/Semileptonic/B2KNuNu/KEK-2017-6.yaml");
       static HepLike_default::HL_Limit Limit(inputfile);
 
+      flav_binned_prediction binned_prediction = *Dep::prediction_B2Knunu;
+      // There is only one bin
+      flav_prediction prediction = binned_prediction.begin()->second;
+      str obs = prediction.central_values.begin()->first;
+
       static bool first = true;
       if (first)
       {
@@ -2038,12 +2028,7 @@ namespace Gambit
         first = false;
       }
 
-      const double theory = *Dep::BKnunu;
-      // TODO: Deal properly with theory uncertainty
-      // const double theory_variance = 0.001;
-
-      // TODO: Implement theory uncertainty of HL_Limit
-      result = Limit.GetLogLikelihood(theory);
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
     }
 
     /// HEPLike LogLikehood for BR(B -> K nu nu) from Belle with hadronic tagging
@@ -2054,6 +2039,11 @@ namespace Gambit
       static const std::string inputfile = heplike_data_file("/data/Belle/Hadronic/B2KNuNu/KEK-2012-37.yaml");
       static HepLike_default::HL_Limit Limit(inputfile);
 
+      flav_binned_prediction binned_prediction = *Dep::prediction_B2Knunu;
+      // There is only one bin
+      flav_prediction prediction = binned_prediction.begin()->second;
+      str obs = prediction.central_values.begin()->first;
+
       static bool first = true;
       if (first)
       {
@@ -2061,12 +2051,7 @@ namespace Gambit
         first = false;
       }
 
-      const double theory = *Dep::BKnunu;
-      // TODO: Deal properly with theory uncertainty
-      // const double theory_variance = 0.001;
-
-      // TODO: Implement theory uncertainty of HL_Limit
-      result = Limit.GetLogLikelihood(theory);
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
     }
 
     /// HEPLike LogLikehood for BR(B_u+ -> K+ nu nu) from Belle with semileptonic tagging
@@ -2077,6 +2062,11 @@ namespace Gambit
       static const std::string inputfile = heplike_data_file("/data/Belle/Semileptonic/Bu2KNuNu/KEK-2017-6.yaml");
       static HepLike_default::HL_Limit Limit(inputfile);
 
+      flav_binned_prediction binned_prediction = *Dep::prediction_Bu2Knunu;
+      // There is only one bin
+      flav_prediction prediction = binned_prediction.begin()->second;
+      str obs = prediction.central_values.begin()->first;
+
       static bool first = true;
       if (first)
       {
@@ -2084,12 +2074,7 @@ namespace Gambit
         first = false;
       }
 
-      const double theory = *Dep::BuKnunu;
-      // TODO: Deal properly with theory uncertainty
-      // const double theory_variance = 0.001;
-
-      // TODO: Implement theory uncertainty of HL_Limit
-      result = Limit.GetLogLikelihood(theory);
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
     }
 
     /// HEPLike LogLikehood for BR(B_u+ -> K+ nu nu) from Belle with hadronic tagging
@@ -2100,6 +2085,11 @@ namespace Gambit
       static const std::string inputfile = heplike_data_file("/data/Belle/Hadronic/Bu2KNuNu/KEK-2012-37.yaml");
       static HepLike_default::HL_Limit Limit(inputfile);
 
+      flav_binned_prediction binned_prediction = *Dep::prediction_Bu2Knunu;
+      // There is only one bin
+      flav_prediction prediction = binned_prediction.begin()->second;
+      str obs = prediction.central_values.begin()->first;
+
       static bool first = true;
       if (first)
       {
@@ -2107,12 +2097,7 @@ namespace Gambit
         first = false;
       }
 
-      const double theory = *Dep::BuKnunu;
-      // TODO: Deal properly with theory uncertainty
-      // const double theory_variance = 0.001;
-
-      // TODO: Implement theory uncertainty of HL_Limit
-      result = Limit.GetLogLikelihood(theory);
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
     }
 
     /// HEPLike LogLikehood for BR(B_u+ -> K+ nu nu) from BelleII
@@ -2123,6 +2108,11 @@ namespace Gambit
       static const std::string inputfile = heplike_data_file("/data/BelleII/Combined/Bu2KNuNu/KEK-2023-35.yaml");
       static HepLike_default::HL_ProfLikelihood ProfLikelihood(inputfile);
 
+      flav_binned_prediction binned_prediction = *Dep::prediction_Bu2Knunu;
+      // There is only one bin
+      flav_prediction prediction = binned_prediction.begin()->second;
+      str obs = prediction.central_values.begin()->first;
+
       static bool first = true;
       if (first)
       {
@@ -2132,11 +2122,7 @@ namespace Gambit
 
       // The profile likelihood from BelleII fits the signal strength mu = BR/BR_SM
       const double BR_SM = 4.97e-6; // 2311.14647
-      const double theory = *Dep::BuKnunu/BR_SM;
-      // TODO: Deal properly with theory uncertainty
-      const double theory_variance = 0.001;
-
-      result = ProfLikelihood.GetLogLikelihood(theory, theory_variance);
+      result = ProfLikelihood.GetLogLikelihood(get_obs_theory(prediction, obs)/BR_SM, get_obs_covariance(prediction, obs)/BR_SM);
     }
 
     /// HEPLike LogLikehood for BR(B -> K* nu nu) from Belle with semileptonic tagging
@@ -2147,6 +2133,11 @@ namespace Gambit
       static const std::string inputfile = heplike_data_file("/data/Belle/Semileptonic/B2KstarNuNu/KEK-2017-6.yaml");
       static HepLike_default::HL_Limit Limit(inputfile);
 
+      flav_binned_prediction binned_prediction = *Dep::prediction_B2Kstarnunu;
+      // There is only one bin
+      flav_prediction prediction = binned_prediction.begin()->second;
+      str obs = prediction.central_values.begin()->first;
+
       static bool first = true;
       if (first)
       {
@@ -2154,12 +2145,7 @@ namespace Gambit
         first = false;
       }
 
-      const double theory = *Dep::BKstarnunu;
-      // TODO: Deal properly with theory uncertainty
-      // const double theory_variance = 0.001;
-
-      // TODO: Implement theory uncertainty of HL_Limit
-      result = Limit.GetLogLikelihood(theory);
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
     }
 
     /// HEPLike LogLikehood for BR(B -> K* nu nu) from Belle with hadronic tagging
@@ -2170,6 +2156,11 @@ namespace Gambit
       static const std::string inputfile = heplike_data_file("/data/Belle/Hadronic/B2KstarNuNu/KEK-2012-37.yaml");
       static HepLike_default::HL_Limit Limit(inputfile);
 
+      flav_binned_prediction binned_prediction = *Dep::prediction_B2Kstarnunu;
+      // There is only one bin
+      flav_prediction prediction = binned_prediction.begin()->second;
+      str obs = prediction.central_values.begin()->first;
+
       static bool first = true;
       if (first)
       {
@@ -2177,12 +2168,7 @@ namespace Gambit
         first = false;
       }
 
-      const double theory = *Dep::BKstarnunu;
-      // TODO: Deal properly with theory uncertainty
-      // const double theory_variance = 0.001;
-
-      // TODO: Implement theory uncertainty of HL_Limit
-      result = Limit.GetLogLikelihood(theory);
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
     }
 
     /// HEPLike LogLikehood for BR(B_u+ -> K*+ nu nu) from Belle with semileptonic tagging
@@ -2193,6 +2179,11 @@ namespace Gambit
       static const std::string inputfile = heplike_data_file("/data/Belle/Semileptonic/Bu2KstarNuNu/KEK-2017-6.yaml");
       static HepLike_default::HL_Limit Limit(inputfile);
 
+      flav_binned_prediction binned_prediction = *Dep::prediction_Bu2Kstarnunu;
+      // There is only one bin
+      flav_prediction prediction = binned_prediction.begin()->second;
+      str obs = prediction.central_values.begin()->first;
+
       static bool first = true;
       if (first)
       {
@@ -2200,12 +2191,7 @@ namespace Gambit
         first = false;
       }
 
-      const double theory = *Dep::BuKstarnunu;
-      // TODO: Deal properly with theory uncertainty
-      // const double theory_variance = 0.001;
-
-      // TODO: Implement theory uncertainty of HL_Limit
-      result = Limit.GetLogLikelihood(theory);
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
     }
 
     /// HEPLike LogLikehood for BR(B_u+ -> K*+ nu nu) from Belle with hadronic tagging
@@ -2216,6 +2202,11 @@ namespace Gambit
       static const std::string inputfile = heplike_data_file("/data/Belle/Hadronic/Bu2KstarNuNu/KEK-2012-37.yaml");
       static HepLike_default::HL_Limit Limit(inputfile);
 
+      flav_binned_prediction binned_prediction = *Dep::prediction_Bu2Kstarnunu;
+      // There is only one bin
+      flav_prediction prediction = binned_prediction.begin()->second;
+      str obs = prediction.central_values.begin()->first;
+
       static bool first = true;
       if (first)
       {
@@ -2223,12 +2214,7 @@ namespace Gambit
         first = false;
       }
 
-      const double theory = *Dep::BuKstarnunu;
-      // TODO: Deal properly with theory uncertainty
-      // const double theory_variance = 0.001;
-
-      // TODO: Implement theory uncertainty of HL_Limit
-      result = Limit.GetLogLikelihood(theory);
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
     }
 
     /// HEPLike LogLikelihood for BR(B -> K nu nu) from BaBar
@@ -2239,6 +2225,11 @@ namespace Gambit
       static const std::string inputfile = heplike_data_file("/data/BaBar/Combined/B2KNuNu/BABAR-2013-002.yaml");
       static HepLike_default::HL_Limit Limit(inputfile);
 
+      flav_binned_prediction binned_prediction = *Dep::prediction_B2Knunu;
+      // There is only one bin
+      flav_prediction prediction = binned_prediction.begin()->second;
+      str obs = prediction.central_values.begin()->first;
+
       static bool first = true;
       if (first)
       {
@@ -2246,12 +2237,7 @@ namespace Gambit
         first = false;
       }
 
-      const double theory = *Dep::BKnunu;
-      // TODO: Deal properly with theory uncertainty
-      // const double theory_variance = 0.001;
-
-      // TODO: Implement theory uncertainty of HL_Limit
-      result = Limit.GetLogLikelihood(theory);
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
     }
 
     /// HEPLike LogLikelihood for BR(B_u+ -> K+ nu nu) from BaBar
@@ -2262,6 +2248,11 @@ namespace Gambit
       static const std::string inputfile = heplike_data_file("/data/BaBar/Combined/Bu2KNuNu/BABAR-2013-002.yaml");
       static HepLike_default::HL_Limit Limit(inputfile);
 
+      flav_binned_prediction binned_prediction = *Dep::prediction_Bu2Knunu;
+      // There is only one bin
+      flav_prediction prediction = binned_prediction.begin()->second;
+      str obs = prediction.central_values.begin()->first;
+
       static bool first = true;
       if (first)
       {
@@ -2269,12 +2260,7 @@ namespace Gambit
         first = false;
       }
 
-      const double theory = *Dep::BuKnunu;
-      // TODO: Deal properly with theory uncertainty
-      // const double theory_variance = 0.001;
-
-      // TODO: Implement theory uncertainty of HL_Limit
-      result = Limit.GetLogLikelihood(theory);
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
     }
 
     /// HEPLike LogLikelihood for BR(B -> K* nu nu) from BaBar
@@ -2285,6 +2271,11 @@ namespace Gambit
       static const std::string inputfile = heplike_data_file("/data/BaBar/Combined/B2KstarNuNu/BABAR-2013-002.yaml");
       static HepLike_default::HL_Limit Limit(inputfile);
 
+      flav_binned_prediction binned_prediction = *Dep::prediction_B2Kstarnunu;
+      // There is only one bin
+      flav_prediction prediction = binned_prediction.begin()->second;
+      str obs = prediction.central_values.begin()->first;
+
       static bool first = true;
       if (first)
       {
@@ -2292,12 +2283,7 @@ namespace Gambit
         first = false;
       }
 
-      const double theory = *Dep::BKstarnunu;
-      // TODO: Deal properly with theory uncertainty
-      // const double theory_variance = 0.001;
-
-      // TODO: Implement theory uncertainty of HL_Limit
-      result = Limit.GetLogLikelihood(theory);
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
     }
 
     /// HEPLike LogLikelihood for BR(B_u+ -> K*+ nu nu) from BaBar
@@ -2308,6 +2294,11 @@ namespace Gambit
       static const std::string inputfile = heplike_data_file("/data/BaBar/Combined/Bu2KstarNuNu/BABAR-2013-002.yaml");
       static HepLike_default::HL_Limit Limit(inputfile);
 
+      flav_binned_prediction binned_prediction = *Dep::prediction_Bu2Kstarnunu;
+      // There is only one bin
+      flav_prediction prediction = binned_prediction.begin()->second;
+      str obs = prediction.central_values.begin()->first;
+
       static bool first = true;
       if (first)
       {
@@ -2315,12 +2306,7 @@ namespace Gambit
         first = false;
       }
 
-      const double theory = *Dep::BuKstarnunu;
-      // TODO: Deal properly with theory uncertainty
-      // const double theory_variance = 0.001;
-
-      // TODO: Implement theory uncertainty of HL_Limit
-      result = Limit.GetLogLikelihood(theory);
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
     }
 
   }

@@ -54,7 +54,7 @@ SuperIso:
 
 HepLike:
   2.0:         ./Backends/installed/heplike/2.0/libHEPLike.so
-  2.2:         ./Backends/installed/heplike/2.2/libHEPLike.so
+  2.3:         ./Backends/installed/heplike/2.3/libHEPLike.so
 
 HepLikeData:
   1.8:         ./Backends/installed/heplikedata/1.8

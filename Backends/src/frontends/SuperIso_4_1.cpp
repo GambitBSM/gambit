@@ -115,12 +115,6 @@ BE_NAMESPACE
     CQpb[2]+=std::complex<double>(param->Re_DeltaCQ2_tau_Prime, param->Im_DeltaCQ2_tau_Prime);
   }
 
-  void modify_WCLR(const parameters *param, std::complex<double> CLR[2])
-  {
-    CLR[0] += std::complex<double>(param->Re_DeltaCL, param->Im_DeltaCL);
-    CLR[1] += std::complex<double>(param->Re_DeltaCR, param->Im_DeltaCR);
-  }
-
   /// @}
 
   /// Helper function to double-check that SuperIso can handle the model.
@@ -268,20 +262,6 @@ BE_NAMESPACE
     modify_WC(param, C0b);
 
     return AI_BKstarmumu_zero(byVal(C0b),byVal(C1b),byVal(C2b),param,byVal(mu_b));
-  }
-
-  double B2Knunu(const parameters *param, int charge, double smin, double smax)
-  {
-    check_model(param, LOCAL_INFO);
-
-    double mu_b=param->mass_b_1S/2.;
-    std::complex<double> CLR[2];
-
-    CLR_calculator(byVal(CLR), param);
-
-    modify_WCLR(param, CLR);
-
-    return BRBKnunu(byVal(charge), byVal(smin), byVal(smax), byVal(CLR[0]), byVal(CLR[1]), param, byVal(mu_b));
   }
 
 }
