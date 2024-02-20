@@ -474,7 +474,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +		{
 +			CLR_calculator(CLR,param);
 +			
-+			if(param->deltaCLR!=NULL) for(ie=0;ie<2;ie++) CLR[ie]+=param->deltaC[ie];
++			if(param->deltaCLR!=NULL) for(ie=0;ie<2;ie++) CLR[ie]+=param->deltaCLR[ie];
 +			
 +			WCnu++;
 +		}
