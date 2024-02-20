@@ -912,7 +912,14 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  		
  		/* low */
  		indnuis BtoKlow_FV_err_noq2,BtoKlow_FA_err_noq2,BtoKlow_FS_err_noq2,BtoKlow_FP_err_noq2;
-@@ -637,6 +646,7 @@ void C_calculator_base1(double complex C
+@@ -632,11 +641,14 @@ double epsilon_b(struct parameters* para
+ double epsilon_bp(struct parameters* param);
+ double epsilon_0p(struct parameters* param);
+ double epsilon_1p(struct parameters* param);
++double X0(double xt);
++double X1(double xt, double mu, double mass_W);
+ void CW_calculator(int gen, double complex C0w[], double complex C1w[], double complex C2w[], double mu_W, struct parameters* param); 
+ void C_calculator_base1(double complex C0w[], double complex C1w[], double complex C2w[], double mu_W, double complex C0b[], double complex C1b[], double complex C2b[], double mu, struct parameters* param); 
  void C_calculator_base2(double complex C0w[], double complex C1w[], double mu_W, double complex C0b[], double complex C1b[], double mu, struct parameters* param); 
  void Cprime_calculator(int gen, double complex Cpb[], double complex CQpb[], double mu_W, double mu, struct parameters* param);
  void CQ_calculator(int gen, double complex CQ0b[], double complex CQ1b[], double mu_W, double mu, struct parameters* param);
@@ -920,7 +927,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  
  /* bsgamma.c */
  double phi77(double delta);
-@@ -1054,4 +1064,11 @@ double Zwidth_neu1neu1_calculator(char n
+@@ -1054,4 +1066,11 @@ double Zwidth_neu1neu1_calculator(char n
  double Zwidth_invisible_calculator(char name[]);
  double Zwidth_b1b1_calculator(char name[]);
  

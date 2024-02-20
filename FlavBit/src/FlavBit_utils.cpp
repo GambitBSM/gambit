@@ -26,7 +26,7 @@ namespace Gambit
   {
 
     /// Some constants used in SuperIso likelihoods
-    const int ncorrnuis = 463;
+    const int ncorrnuis = 508;
     const nuiscorr (&nuiscorr_help(nuiscorr (&arr)[ncorrnuis], const std::vector<nuiscorr>& v))[ncorrnuis] { std::copy(v.begin(), v.end(), arr); return arr; }
     nuiscorr arr[ncorrnuis];
     const nuiscorr (&corrnuis)[ncorrnuis] = nuiscorr_help(arr, YAML::LoadFile(GAMBIT_DIR "/FlavBit/data/SM_nuisance_correlations.yaml")["correlation_matrix"].as<std::vector<nuiscorr>>());
