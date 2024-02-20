@@ -25,7 +25,7 @@ Priors:
 
 Printer:
 
-  printer: cout
+  printer: hdf5
   options:
     output_file: "WC_nu.hdf5"
     group: "/WC_nu"
@@ -33,7 +33,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: random
+  use_scanner: de
 
   scanners:
 
