@@ -103,7 +103,7 @@ double dGamma_BKnunu_dq2_full(int charge, double q2, double complex CL, double c
 	
 	double complex lambdat = param->Vtb*conj(param->Vts);
 	
-	double dGamma_BKnunu_dq2=NK*cabs(CL*conj(CL))*cabs(lambdat*conj(lambdat))*fp*fp;
+	double dGamma_BKnunu_dq2=NK*cabs(CL*conj(CL)+CR*conj(CR))*cabs(lambdat*conj(lambdat))*fp*fp;
 	
 	double dGamma_BKnunu_tree_dq2=0;
 	if(charge!=0) // Tree correction for the charged decay with narrow width-approximation for tau 2301.06990  and 0908.1174
