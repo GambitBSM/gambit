@@ -566,7 +566,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +	{
 +		if(reset||(fabs(binlowB0K0nunu-obs->low)>1.e-5)||(fabs(binhighB0K0nunu-obs->high)>1.e-5))
 +		{
-+			obsB0K0nunu[0]=BRBKnunu(0,obs->low,obs->high,CLR[0],CLR[1],param,mu_b)/(obs->high-obs->low);
++			obsB0K0nunu[0]=BRBKnunu(0,obs->low,obs->high,CLR[0],CLR[1],param,mu_b);
 +		
 +			binlowB0K0nunu=obs->low;
 +			binhighB0K0nunu=obs->high;
@@ -579,7 +579,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +	{
 +		if(reset||(fabs(binlowBKnunu-obs->low)>1.e-5)||(fabs(binhighBKnunu-obs->high)>1.e-5))
 +		{
-+			obsBKnunu[0]=BRBKnunu(1,obs->low,obs->high,CLR[0],CLR[1],param,mu_b)/(obs->high-obs->low);
++			obsBKnunu[0]=BRBKnunu(1,obs->low,obs->high,CLR[0],CLR[1],param,mu_b);
 +		
 +			binlowBKnunu=obs->low;
 +			binhighBKnunu=obs->high;
