@@ -13,8 +13,7 @@ Parameters:
   # SM parameters.
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
-  # MSSM parameters
-  MSSM11atQ_mA:
+  MSSM11atQ_mA_mG:
     M1:
       prior_type: flat
       range: [-1000, 1000]
@@ -25,8 +24,9 @@ Parameters:
       prior_type: flat
       range: [-1000, 1000]
     TanBeta:
-      prior_type: log
+      prior_type: flat
       range: [1, 70]
+    mG: 1.0e-9
     Ad_3: 0.0
     Ae_3: 0.0
     Au_3: 0.0
@@ -36,12 +36,14 @@ Parameters:
     ml2: 9.0e6
     mq2: 9.0e6
 
+
   # # Test point
-  # MSSM11atQ_mA:
+  # MSSM11atQ_mA_mG:
   #   M1: -962.512
   #   M2: 113.544
   #   mu: -230.86
   #   TanBeta: 28.5021
+  #   mG: 1.0e-9
   #   Ad_3: 0.0
   #   Ae_3: 0.0
   #   Au_3: 0.0
@@ -108,8 +110,8 @@ ObsLikes:
     #   capability: LHC_measurements_LogLike
 
     # LEP likelihoods
-    # - purpose:    LogLike
-    #   capability: L3_Gravitino_LLike
+    - purpose:    LogLike
+      capability: L3_Gravitino_LLike
 
     - purpose:    LogLike
       capability: L3_Chargino_Leptonic_LLike
@@ -182,45 +184,45 @@ Rules:
     options:
       # printall: true
       BFs: [
-              # ["~chi0_1",  "gamma", "~G"],
-              # ["~chi0_1",  "Z0", "~G"],
-              # ["~chi0_1",  "h0_1", "~G"],
+              ["~chi0_1",  "gamma", "~G"],
+              ["~chi0_1",  "Z0", "~G"],
+              ["~chi0_1",  "h0_1", "~G"],
               ["~chi0_1",  "W+", "~chi-_1"],
-              # ["~chi0_2",  "gamma", "~G"],
-              # ["~chi0_2",  "Z0", "~G"],
+              ["~chi0_2",  "gamma", "~G"],
+              ["~chi0_2",  "Z0", "~G"],
               ["~chi0_2",  "Z0", "~chi0_1"],
-              # ["~chi0_2",  "h0_1", "~G"],
+              ["~chi0_2",  "h0_1", "~G"],
               ["~chi0_2",  "h0_1", "~chi0_1"],
               ["~chi0_2",  "W+", "~chi-_1"],
               ["~chi0_2",  "W+", "~chi-_2"],
-              # ["~chi0_3",  "gamma", "~G"],
-              # ["~chi0_3",  "Z0", "~G"],
+              ["~chi0_3",  "gamma", "~G"],
+              ["~chi0_3",  "Z0", "~G"],
               ["~chi0_3",  "Z0", "~chi0_1"],
               ["~chi0_3",  "Z0", "~chi0_2"],
-              # ["~chi0_3",  "h0_1", "~G"],
+              ["~chi0_3",  "h0_1", "~G"],
               ["~chi0_3",  "h0_1", "~chi0_1"],
               ["~chi0_3",  "h0_1", "~chi0_2"],
               ["~chi0_3",  "W+", "~chi-_1"],
               ["~chi0_3",  "W+", "~chi-_2"],
-              # ["~chi0_4",  "gamma", "~G"],
-              # ["~chi0_4",  "Z0", "~G"],
+              ["~chi0_4",  "gamma", "~G"],
+              ["~chi0_4",  "Z0", "~G"],
               ["~chi0_4",  "Z0", "~chi0_1"],
               ["~chi0_4",  "Z0", "~chi0_2"],
               ["~chi0_4",  "Z0", "~chi0_3"],
-              # ["~chi0_4",  "h0_1", "~G"],
+              ["~chi0_4",  "h0_1", "~G"],
               ["~chi0_4",  "h0_1", "~chi0_1"],
               ["~chi0_4",  "h0_1", "~chi0_2"],
               ["~chi0_4",  "h0_1", "~chi0_3"],
               ["~chi0_4",  "W+", "~chi-_1"],
               ["~chi0_4",  "W+", "~chi-_2"],
-              # ["~chi+_1",  "W+", "~G"],
+              ["~chi+_1",  "W+", "~G"],
               ["~chi+_1",  "W+", "~chi0_1"],
               ["~chi+_1",  "W+", "~chi0_2"],
               ["~chi+_1",  "W+", "~chi0_3"],
               ["~chi+_1",  "W+", "~chi0_4"],
               ["~chi+_2",  "Z0", "~chi+_1"],
               ["~chi+_2",  "h0_1", "~chi+_1"],
-              # ["~chi+_2",  "W+", "~G"],
+              ["~chi+_2",  "W+", "~G"],
               ["~chi+_2",  "W+", "~chi0_1"],
               ["~chi+_2",  "W+", "~chi0_2"],
               ["~chi+_2",  "W+", "~chi0_3"],
@@ -251,8 +253,8 @@ Rules:
       override_FS_pole_masses:
         h0_1: 125.09
       # LSP check
-      only_neutralino_LSP: true
-      # only_gravitino_LSP: true
+      only_neutralino_LSP: false
+      only_gravitino_LSP: true
 
 
   # This simply relables the "unimproved_MSSM_spectrum" to "MSSM_spectrum",
@@ -332,7 +334,7 @@ Rules:
           - ATLAS_13TeV_1Lep2b_139invfb          # New! (Chris)
           # - ATLAS_13TeV_2LEP0JET_EW_139invfb   # New! (Roberto) - Requires ROOT + BDT stuff.
           - ATLAS_13TeV_2LEPJETS_EW_139invfb     # New! (Martin, Chris) 
-          # - ATLAS_13TeV_2LEPJETS_RJR_139invfb  # New! (Martin) This search requires ROOT + RestFrames.
+          - ATLAS_13TeV_2LEPJETS_RJR_139invfb    # New! (Martin) This search requires ROOT + RestFrames.
           # - ATLAS_13TeV_2LEPsoft_139invfb      # New! (Tomas) Not yet validated.
           - ATLAS_13TeV_3LEP_eRJR_139invfb       # New! (Martin)
           - ATLAS_13TeV_2OR3LEP_139invfb         # New! (Ida) -- Only WH SRs are used.
@@ -569,6 +571,6 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e5
     print_invalid_points: false
 
-  default_output_path: "runs/SUSYRun2_MSSMEW/"
+  default_output_path: "runs/SUSYRun2_MSSMEW_gravitino/"
 
   debug: false

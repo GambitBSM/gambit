@@ -46,11 +46,11 @@ namespace Gambit
         analysis_specific_reset();
 
         // Counters for the number of accepted events for each signal region
-        _counters["WREM_cuts_0"] = EventCounter("WREM_cuts_0");
-        _counters["STCREM_cuts_0"] = EventCounter("STCREM_cuts_0");
-        _counters["TRHMEM_cuts_0"] = EventCounter("TRHMEM_cuts_0");
-        _counters["TRMMEM_cuts_0"] = EventCounter("TRMMEM_cuts_0");
-        _counters["TRLMEM_cuts_0"] = EventCounter("TRLMEM_cuts_0");
+        //_counters["WREM_cuts_0"] = EventCounter("WREM_cuts_0");
+        //_counters["STCREM_cuts_0"] = EventCounter("STCREM_cuts_0");
+        //_counters["TRHMEM_cuts_0"] = EventCounter("TRHMEM_cuts_0");
+        //_counters["TRMMEM_cuts_0"] = EventCounter("TRMMEM_cuts_0");
+        //_counters["TRLMEM_cuts_0"] = EventCounter("TRLMEM_cuts_0");
         _counters["SRHMEM_mct2_0"] = EventCounter("SRHMEM_mct2_0");
         _counters["SRHMEM_mct2_1"] = EventCounter("SRHMEM_mct2_1");
         _counters["SRHMEM_mct2_2"] = EventCounter("SRHMEM_mct2_2");
@@ -415,11 +415,11 @@ namespace Gambit
 
       void collect_results() {
         //This data is used if not running ATLAS_FullLikes.
-        add_result(SignalRegionData(_counters.at("WREM_cuts_0"), 144, {144.0,0.0 })); //Hard-setting equal obs and pred
-        add_result(SignalRegionData(_counters.at("STCREM_cuts_0"), 155, {155.0, 0.0})); //Hard-setting equal obs and pred
-        add_result(SignalRegionData(_counters.at("TRHMEM_cuts_0"), 641, {641.0,0.0 })); //Hard-setting equal obs and pred
-        add_result(SignalRegionData(_counters.at("TRMMEM_cuts_0"), 491, {491.0,0.0 })); //Hard-setting equal obs and pred
-        add_result(SignalRegionData(_counters.at("TRLMEM_cuts_0"), 657, {657.0,0.0 })); //Hard-setting equal obs and pred
+        //add_result(SignalRegionData(_counters.at("WREM_cuts_0"), 144, {144.0,0.0 })); //Hard-setting equal obs and pred
+        //add_result(SignalRegionData(_counters.at("STCREM_cuts_0"), 155, {155.0, 0.0})); //Hard-setting equal obs and pred
+        //add_result(SignalRegionData(_counters.at("TRHMEM_cuts_0"), 641, {641.0,0.0 })); //Hard-setting equal obs and pred
+        //add_result(SignalRegionData(_counters.at("TRMMEM_cuts_0"), 491, {491.0,0.0 })); //Hard-setting equal obs and pred
+        //add_result(SignalRegionData(_counters.at("TRLMEM_cuts_0"), 657, {657.0,0.0 })); //Hard-setting equal obs and pred
         add_result(SignalRegionData(_counters.at("SRHMEM_mct2_0"), 6, {4.1, 1.9}));
         add_result(SignalRegionData(_counters.at("SRHMEM_mct2_1"), 5, {2.9, 1.3}));
         add_result(SignalRegionData(_counters.at("SRHMEM_mct2_2"), 3, {1.1, 0.5}));
