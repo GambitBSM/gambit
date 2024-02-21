@@ -412,13 +412,13 @@ namespace Gambit
             for (int W2j1 = 0; W2j1 < (int) nNonBJets; W2j1++)
             {
               if (W2j1 == W1j1) continue;
-              for (int b1 = 0; b1 < (int) nBJets; b1++) 
+              for (int b1 = 0; b1 < (int) nBJets; b1++)
               {
-                for (int b2 = 0; b2 < (int) nBJets; b2++) 
+                for (int b2 = 0; b2 < (int) nBJets; b2++)
                 {
                   if (b2 == b1) continue;
                   double chi21, chi22, mW1, mW2, mt1, mt2;
-                  if (W2j1 > W1j1) 
+                  if (W2j1 > W1j1)
                   {
                     mW1 = nonBJets[W1j1]->mass();
                     mW2 = nonBJets[W2j1]->mass();
@@ -426,10 +426,10 @@ namespace Gambit
                     mt2 = (nonBJets[W2j1]->mom() + signalBJets[b2]->mom()).m();
                     chi21 = (mW1 - realWMass) * (mW1 - realWMass) / realWMass + (mt1 - realTopMass) * (mt1 - realTopMass) / realTopMass;
                     chi22 = (mW2 - realWMass) * (mW2 - realWMass) / realWMass + (mt2 - realTopMass) * (mt2 - realTopMass) / realTopMass;
-                    if (Chi2min > (chi21 + chi22)) 
+                    if (Chi2min > (chi21 + chi22))
                     {
                       Chi2min = chi21 + chi22;
-                      if (chi21 < chi22) 
+                      if (chi21 < chi22)
                       {
                         W1j1_low = W1j1;
                         W1j2_low = -1;
@@ -438,7 +438,7 @@ namespace Gambit
                         b1_low = b1;
                         b2_low = b2;
                       }
-                      else 
+                      else
                       {
                         W2j1_low = W1j1;
                         W2j2_low = -1;
@@ -451,7 +451,7 @@ namespace Gambit
                   }
                   if (nNonBJets < 3)
                   continue;
-                  for (int W1j2 = W1j1 + 1; W1j2 < nNonBJets; W1j2++) 
+                  for (int W1j2 = W1j1 + 1; W1j2 < nNonBJets; W1j2++)
                   {
                     if (W1j2 == W2j1) continue;
                     //try bll,bl top candidates
@@ -461,10 +461,10 @@ namespace Gambit
                     mt2 = (nonBJets[W2j1]->mom() + signalBJets[b2]->mom()).m();
                     chi21 = (mW1 - realWMass) * (mW1 - realWMass) / realWMass + (mt1 - realTopMass) * (mt1 - realTopMass) / realTopMass;
                     chi22 = (mW2 - realWMass) * (mW2 - realWMass) / realWMass + (mt2 - realTopMass) * (mt2 - realTopMass) / realTopMass;
-                    if (Chi2min > (chi21 + chi22)) 
+                    if (Chi2min > (chi21 + chi22))
                     {
                       Chi2min = chi21 + chi22;
-                      if (chi21 < chi22) 
+                      if (chi21 < chi22)
                       {
                         W1j1_low = W1j1;
                         W1j2_low = W1j2;
@@ -473,7 +473,7 @@ namespace Gambit
                         b1_low = b1;
                         b2_low = b2;
                       }
-                      else 
+                      else
                       {
                         W2j1_low = W1j1;
                         W2j2_low = W1j2;
@@ -485,7 +485,7 @@ namespace Gambit
                     }
                     if (nNonBJets < 4) continue;
                     //try bll, bll top candidates
-                    for (int W2j2 = W2j1 + 1; W2j2 < (int) nNonBJets; W2j2++) 
+                    for (int W2j2 = W2j1 + 1; W2j2 < (int) nNonBJets; W2j2++)
                     {
                       if ((W2j2 == W1j1) || (W2j2 == W1j2)) continue;
                       if (W2j1 < W1j1) continue; //runtime reasons, we don't want combinations checked twice <--------------------This line should be added
@@ -495,10 +495,10 @@ namespace Gambit
                       mt2 = (nonBJets[W2j1]->mom() + nonBJets[W2j2]->mom() + signalBJets[b2]->mom()).m();
                       chi21 = (mW1 - realWMass) * (mW1 - realWMass) / realWMass + (mt1 - realTopMass) * (mt1 - realTopMass) / realTopMass;
                       chi22 = (mW2 - realWMass) * (mW2 - realWMass) / realWMass + (mt2 - realTopMass) * (mt2 - realTopMass) / realTopMass;
-                      if (Chi2min > (chi21 + chi22)) 
+                      if (Chi2min > (chi21 + chi22))
                       {
                         Chi2min = chi21 + chi22;
-                        if (chi21 < chi22) 
+                        if (chi21 < chi22)
                         {
                           W1j1_low = W1j1;
                           W1j2_low = W1j2;
@@ -507,7 +507,7 @@ namespace Gambit
                           b1_low = b1;
                           b2_low = b2;
                         }
-                        else 
+                        else
                         {
                           W2j1_low = W1j1;
                           W2j2_low = W1j2;
@@ -663,6 +663,8 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SRD0"), 5., { 6.9, 1.3}));
         add_result(SignalRegionData(_counters.at("SRD1"), 4., { 3.1, 1.0}));
         add_result(SignalRegionData(_counters.at("SRD2"), 10., { 12.2, 1.5}));
+
+        add_cutflows(_cutflows);
 
         return;
       }

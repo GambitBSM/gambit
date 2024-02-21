@@ -880,24 +880,6 @@ namespace Gambit
           // Add cutflow data to the analysis results
           add_cutflows(_cutflows);
 
-          // Cutflow printout
-          #ifdef CHECK_CUTFLOW
-            //const double xsec = 5180.86; // 150 GeV winos
-            //const double xsec = 3832.31; // 150 GeV higgsinos
-            //const double xsec = 1165.09; // 225 GeV winos
-            // const double xsec = 284.855; // 300 GeV higgsinos
-            const double xsec = 121.013; // 400 GeV winos
-            //const double xsec = 46.3533; // 500 GeV winos
-            //const double xsec = 20.1372; // 600 GeV winos
-            //const double xsec = 2.49667; // 900 GeV winos
-            //const double xsec = 0.415851; // 1200 GeV winos
-            const double sf = 137*xsec;
-            _cutflows.normalize(sf);
-            cout << "\nCUTFLOWS:\n" << _cutflows << endl;
-            cout << "\nSRCOUNTS:\n";
-            for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
-            cout << "\n" << endl;
-          #endif
         }
 
       protected:
@@ -947,6 +929,9 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("SS18"), 5.8, {4., 1.6}));
           add_result(SignalRegionData(_counters.at("SS19"), 5.8, {3.7, 1.2}));
           add_result(SignalRegionData(_counters.at("SS20"), 5.8, {3.9, 1.6}));
+
+          // Add cutflow data to the analysis results
+          add_cutflows(_cutflows);
         }
 
     };
@@ -1037,6 +1022,9 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("B01"), 14., {8.2, 1.6}));
           add_result(SignalRegionData(_counters.at("B02"), 110., {110., 25.}));
           add_result(SignalRegionData(_counters.at("B03"), 327, {322., 83.}));
+
+          // Add cutflow data to the analysis results
+          add_cutflows(_cutflows);
         }
 
     };
@@ -1110,6 +1098,9 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("F10"), 19., {17., 6.}));
           add_result(SignalRegionData(_counters.at("F11"), 18., {23., 6.}));
           add_result(SignalRegionData(_counters.at("F12"), 2., {3.5, 1.4}));
+
+          // Add cutflow data to the analysis results
+          add_cutflows(_cutflows);
         }
 
     };
@@ -1141,6 +1132,9 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("H01"), 49., {41.7, 5.}));
           add_result(SignalRegionData(_counters.at("H02"), 4., {3., 1.}));
           add_result(SignalRegionData(_counters.at("H03"), 3., {4.3, 0.9}));
+
+          // Add cutflow data to the analysis results
+          add_cutflows(_cutflows);
         }
 
     };
@@ -1175,6 +1169,9 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("K01"), 8., {16., 6.5}));
           add_result(SignalRegionData(_counters.at("K02"), 5., {5.2, 2.45}));
           add_result(SignalRegionData(_counters.at("K03"), 1., {0.61, 0.61}));
+
+          // Add cutflow data to the analysis results
+          add_cutflows(_cutflows);
         }
 
     };

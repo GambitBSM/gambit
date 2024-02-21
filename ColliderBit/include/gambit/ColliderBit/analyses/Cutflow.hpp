@@ -11,6 +11,9 @@
 ///  \author Andy Buckley
 ///          (andy.buckley@cern.ch)
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///
 ///  *********************************************
 
 #pragma once
@@ -22,7 +25,6 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/Utils.hpp"
-
 
 namespace Gambit
 {
@@ -354,6 +356,8 @@ namespace Gambit
       /// Combine two cutflows
       void combine(const Cutflows& othercfs)
       {
+        if(cfs.size() != othercfs.cfs.size())
+          utils_error().raise(LOCAL_INFO, "Cannot combine cutflows, they are of different sizes. Maybe you forgot to call `add_cutflows(_cutflows)` in the collect step of your analysis.");
         for (Cutflow& cf : cfs) cf.combine(othercfs[cf.name]);
       }
 
