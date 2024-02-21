@@ -207,7 +207,7 @@ namespace Gambit
       {
         for (int j = 0; j <= 2; ++j)
         {
-          RKnunu += (0.33333333)*(1-2*eta(i,j,sminputs,spectrum))*pow(epsilon(i,j,sminputs,spectrum),2);
+          RKnunu += (1-2*eta(i,j,sminputs,spectrum))*pow(epsilon(i,j,sminputs,spectrum),2)/3;
         }
       }
 
@@ -2122,7 +2122,10 @@ namespace Gambit
 
       // The profile likelihood from BelleII fits the signal strength mu = BR/BR_SM
       const double BR_SM = 4.97e-6; // 2311.14647
-      result = ProfLikelihood.GetLogLikelihood(get_obs_theory(prediction, obs)/BR_SM, get_obs_covariance(prediction, obs)/BR_SM);
+      //std::cout << "BR(Bu->Knunu) = " << get_obs_theory(prediction,obs) << " +- " << sqrt(get_obs_covariance(prediction,obs)) << std::endl;
+      //std::cout << "BR/BRSM = " << get_obs_theory(prediction,obs)/BR_SM << " +- " << sqrt(get_obs_covariance(prediction,obs)/BR_SM/BR_SM) << std::endl;
+      //std::cout << "Loglike without error = " << ProfLikelihood.GetLogLikelihood(get_obs_theory(prediction,obs)/BR_SM) << std::endl;
+      result = ProfLikelihood.GetLogLikelihood(get_obs_theory(prediction, obs)/BR_SM, get_obs_covariance(prediction, obs)/BR_SM/BR_SM);
     }
 
     /// HEPLike LogLikehood for BR(B -> K* nu nu) from Belle with semileptonic tagging

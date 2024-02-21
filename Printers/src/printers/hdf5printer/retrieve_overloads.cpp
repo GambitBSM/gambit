@@ -552,6 +552,7 @@ namespace Gambit
        UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, flav_binned_prediction)
        UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, HiggsCouplingsTable)
        UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, CouplingTable)
+       UNDEFINED_RETRIEVE_OVERLOAD(HDF5Reader, WilsonCoefficient)
      #endif
 
      /// Helper function to parse a capability name to a dataset name

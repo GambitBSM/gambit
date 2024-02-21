@@ -22,8 +22,8 @@
 ///  \date 2015 July
 ///
 ///  \author Tomas Gonzalo
-///          (t.e.gonzalo@fys.uio.no)
-///  \date 2017 July
+///          (tomas.gonzalo@kit.edu)
+///  \date 2024 Feb
 ///
 ///  \author Markus Prim
 ///          (markus.prim@kit.edu)
@@ -40,6 +40,7 @@
 #include <map>
 
 #include <boost/numeric/ublas/matrix.hpp>
+#include "gambit/Elements/wilson_coefficients.hpp"
 
 
 namespace Gambit

@@ -46,7 +46,7 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 240
+      NP: 1200
       convthresh: 1e-5
 
     square_grid:

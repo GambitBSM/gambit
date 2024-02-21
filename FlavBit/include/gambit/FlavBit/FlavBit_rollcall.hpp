@@ -65,15 +65,18 @@
 #define REFERENCE GAMBITFlavourWorkgroup:2017dbx,Bhom:2020lmk
 START_MODULE
 
-  // TODO: All these are only muon flavour, should they be triplets?
-
   /// C2
   #define CAPABILITY DeltaC2
   START_CAPABILITY
 
+    #define FUNCTION DeltaC2
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODEL(GWC)
+    #undef FUNCTION
+
     /// C2 in the THDM
     #define FUNCTION THDM_DeltaC2
-    START_FUNCTION(std::complex<double>)
+    START_FUNCTION(WilsonCoefficient)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -86,9 +89,14 @@ START_MODULE
   #define CAPABILITY DeltaC7
   START_CAPABILITY
 
+    #define FUNCTION DeltaC7
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODEL(GWC)
+    #undef FUNCTION
+
     /// C7 in the THDM
     #define FUNCTION THDM_DeltaC7
-    START_FUNCTION(std::complex<double>)
+    START_FUNCTION(WilsonCoefficient)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -101,9 +109,14 @@ START_MODULE
   #define CAPABILITY DeltaC8
   START_CAPABILITY
 
+    #define FUNCTION DeltaC8
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODEL(GWC)
+    #undef FUNCTION
+
     /// C8 in the THDM
     #define FUNCTION THDM_DeltaC8
-    START_FUNCTION(std::complex<double>)
+    START_FUNCTION(WilsonCoefficient)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -116,9 +129,14 @@ START_MODULE
   #define CAPABILITY DeltaC9
   START_CAPABILITY
 
+    #define FUNCTION DeltaC9
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODEL(GWC)
+    #undef FUNCTION
+
     /// C9 in the THDM
     #define FUNCTION THDM_DeltaC9
-    START_FUNCTION(std::complex<double>)
+    START_FUNCTION(WilsonCoefficient)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -131,9 +149,14 @@ START_MODULE
   #define CAPABILITY DeltaC10
   START_CAPABILITY
 
+    #define FUNCTION DeltaC10
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODEL(GWC)
+    #undef FUNCTION
+
     /// C10 in the THDM
     #define FUNCTION THDM_DeltaC10
-    START_FUNCTION(std::complex<double>)
+    START_FUNCTION(WilsonCoefficient)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -142,13 +165,37 @@ START_MODULE
   #undef CAPABILITY
 
 
-  /// C7'
-  #define CAPABILITY DeltaC7_Prime
+  /// C2'
+  #define CAPABILITY DeltaC2p
   START_CAPABILITY
 
+    #define FUNCTION DeltaC2p
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODEL(GWC)
+    #undef FUNCTION
+
+    /// C2' in the THDM
+    #define FUNCTION THDM_DeltaC2p
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  /// C7'
+  #define CAPABILITY DeltaC7p
+  START_CAPABILITY
+
+    #define FUNCTION DeltaC7p
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODEL(GWC)
+    #undef FUNCTION
+
     /// C7' in the THDM
-    #define FUNCTION THDM_DeltaC7_Prime
-    START_FUNCTION(std::complex<double>)
+    #define FUNCTION THDM_DeltaC7p
+    START_FUNCTION(WilsonCoefficient)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -158,12 +205,17 @@ START_MODULE
 
 
   /// C8'
-  #define CAPABILITY DeltaC8_Prime
+  #define CAPABILITY DeltaC8p
   START_CAPABILITY
 
-    /// C8' in the THDM
-    #define FUNCTION THDM_DeltaC8_Prime
-    START_FUNCTION(std::complex<double>)
+    #define FUNCTION DeltaC8p
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODEL(GWC)
+    #undef FUNCTION
+
+   /// C8' in the THDM
+    #define FUNCTION THDM_DeltaC8p
+    START_FUNCTION(WilsonCoefficient)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -173,12 +225,17 @@ START_MODULE
 
 
   /// C9'
-  #define CAPABILITY DeltaC9_Prime
+  #define CAPABILITY DeltaC9p
   START_CAPABILITY
 
+    #define FUNCTION DeltaC9p
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODEL(GWC)
+    #undef FUNCTION
+
     /// C9' in the THDM
-    #define FUNCTION THDM_DeltaC9_Prime
-    START_FUNCTION(std::complex<double>)
+    #define FUNCTION THDM_DeltaC9p
+    START_FUNCTION(WilsonCoefficient)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -187,12 +244,17 @@ START_MODULE
 
 
   /// C10'
-  #define CAPABILITY DeltaC10_Prime
+  #define CAPABILITY DeltaC10p
   START_CAPABILITY
 
+    #define FUNCTION DeltaC10p
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODEL(GWC)
+    #undef FUNCTION
+
     /// C10' in the THDM
-    #define FUNCTION THDM_DeltaC10_Prime
-    START_FUNCTION(std::complex<double>)
+    #define FUNCTION THDM_DeltaC10p
+    START_FUNCTION(WilsonCoefficient)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -205,9 +267,14 @@ START_MODULE
   #define CAPABILITY DeltaCQ1
   START_CAPABILITY
 
+    #define FUNCTION DeltaCQ1
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODEL(GWC)
+    #undef FUNCTION
+
     /// CQ1 in the THDM
     #define FUNCTION THDM_DeltaCQ1
-    START_FUNCTION(std::complex<double>)
+    START_FUNCTION(WilsonCoefficient)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -220,9 +287,14 @@ START_MODULE
   #define CAPABILITY DeltaCQ2
   START_CAPABILITY
 
+    #define FUNCTION DeltaCQ2
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODEL(GWC)
+    #undef FUNCTION
+
     /// CQ2 in the THDM
     #define FUNCTION THDM_DeltaCQ2
-    START_FUNCTION(std::complex<double>)
+    START_FUNCTION(WilsonCoefficient)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -232,12 +304,17 @@ START_MODULE
 
 
   /// CQ1'
-  #define CAPABILITY DeltaCQ1_Prime
+  #define CAPABILITY DeltaCQ1p
   START_CAPABILITY
 
+    #define FUNCTION DeltaCQ1p
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODEL(GWC)
+    #undef FUNCTION
+
     /// CQ1' in the THDM
-    #define FUNCTION THDM_DeltaCQ1_Prime
-    START_FUNCTION(std::complex<double>)
+    #define FUNCTION THDM_DeltaCQ1p
+    START_FUNCTION(WilsonCoefficient)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -247,12 +324,17 @@ START_MODULE
 
 
   /// CQ2'
-  #define CAPABILITY DeltaCQ2_Prime
+  #define CAPABILITY DeltaCQ2p
   START_CAPABILITY
+
+    #define FUNCTION DeltaCQ2p
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODEL(GWC)
+    #undef FUNCTION
 
     ///CQ2' in the THDM
-    #define FUNCTION THDM_DeltaCQ2_Prime
-    START_FUNCTION(std::complex<double>)
+    #define FUNCTION THDM_DeltaCQ2p
+    START_FUNCTION(WilsonCoefficient)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -260,132 +342,19 @@ START_MODULE
 
   #undef CAPABILITY
 
-
-  /// C9 for tau-tau processes
-  #define CAPABILITY DeltaC9_tautau
-  START_CAPABILITY
-
-    /// C9 for tau-tau processes in the THDM
-    #define FUNCTION THDM_DeltaC9_tautau
-    START_FUNCTION(std::complex<double>)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-
-  #undef CAPABILITY
-
-
-  /// C10 for tau-tau processes
-  #define CAPABILITY DeltaC10_tautau
-  START_CAPABILITY
-
-    /// C10 for tau-tau processes in the THDM
-    #define FUNCTION THDM_DeltaC10_tautau
-    START_FUNCTION(std::complex<double>)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-
-  #undef CAPABILITY
-
-
-  /// C9' for tau-tau processes
-  #define CAPABILITY DeltaC9_tautau_Prime
-  START_CAPABILITY
-
-    /// C9' for tau-tau processes in the THDM
-    #define FUNCTION THDM_DeltaC9_tautau_Prime
-    START_FUNCTION(std::complex<double>)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-
-  #undef CAPABILITY
-
-
-  /// C10' for tau-tau processes
-  #define CAPABILITY DeltaC10_tautau_Prime
-  START_CAPABILITY
-
-    /// C10' for tau-tau processes in the THDM
-    #define FUNCTION THDM_DeltaC10_tautau_Prime
-    START_FUNCTION(std::complex<double>)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-
-  #undef CAPABILITY
-
-
-  /// CQ1 for tau-tau processes
-  #define CAPABILITY DeltaCQ1_tautau
-  START_CAPABILITY
-
-    /// CQ1 for tau-tau processes in the THDM
-    #define FUNCTION THDM_DeltaCQ1_tautau
-    START_FUNCTION(std::complex<double>)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-
-  #undef CAPABILITY
-
-
-  /// CQ2 for tau-tau processes
-  #define CAPABILITY DeltaCQ2_tautau
-  START_CAPABILITY
-
-    /// CQ2 for tau-tau processes in the THDM
-    #define FUNCTION THDM_DeltaCQ2_tautau
-    START_FUNCTION(std::complex<double>)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-
-  #undef CAPABILITY
-
-
-  /// CQ1' for tau-tau processes
-  #define CAPABILITY DeltaCQ1_tautau_Prime
-  START_CAPABILITY
-
-    /// CQ1' for tau-tau processes in the THDM
-    #define FUNCTION THDM_DeltaCQ1_tautau_Prime
-    START_FUNCTION(std::complex<double>)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-
-  #undef CAPABILITY
-
-
-  /// CQ2' for tau-tau processes
-  #define CAPABILITY DeltaCQ2_tautau_Prime
-  START_CAPABILITY
-
-    /// CQ2' for tau-tau processes in the THDM
-    #define FUNCTION THDM_DeltaCQ2_tautau_Prime
-    START_FUNCTION(std::complex<double>)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-
-  #undef CAPABILITY
 
   /// CL for nu nu processes
   #define CAPABILITY DeltaCL
   START_CAPABILITY
+
+    #define FUNCTION DeltaCL
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODEL(GWC)
+    #undef FUNCTION
+
     /// CL in the THDM
     #define FUNCTION THDM_DeltaCL
-    START_FUNCTION(std::complex<double>)
+    START_FUNCTION(WilsonCoefficient)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -395,14 +364,47 @@ START_MODULE
   /// CR for nu nu processes
   #define CAPABILITY DeltaCR
   START_CAPABILITY
+
+    #define FUNCTION DeltaCR
+    START_FUNCTION(WilsonCoefficient)
+    ALLOW_MODEL(GWC)
+    #undef FUNCTION
+
     /// CR in the THDM
     #define FUNCTION THDM_DeltaCR
-    START_FUNCTION(std::complex<double>)
+    START_FUNCTION(WilsonCoefficient)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
   #undef CAPABILITY
+
+  /// Umbrella capability for all wilson coefficients
+  #define CAPABILITY DeltaC
+  START_CAPABILITY
+
+    #define FUNCTION DeltaC
+    START_FUNCTION(WilsonCoefficients)
+    DEPENDENCY(DeltaC2, WilsonCoefficient)
+    DEPENDENCY(DeltaC7, WilsonCoefficient)
+    DEPENDENCY(DeltaC8, WilsonCoefficient)
+    DEPENDENCY(DeltaC9, WilsonCoefficient)
+    DEPENDENCY(DeltaC10, WilsonCoefficient)
+    DEPENDENCY(DeltaC2p, WilsonCoefficient)
+    DEPENDENCY(DeltaC7p, WilsonCoefficient)
+    DEPENDENCY(DeltaC8p, WilsonCoefficient)
+    DEPENDENCY(DeltaC9p, WilsonCoefficient)
+    DEPENDENCY(DeltaC10p, WilsonCoefficient)
+    DEPENDENCY(DeltaCQ1, WilsonCoefficient)
+    DEPENDENCY(DeltaCQ2, WilsonCoefficient)
+    DEPENDENCY(DeltaCQ1p, WilsonCoefficient)
+    DEPENDENCY(DeltaCQ2p, WilsonCoefficient)
+    DEPENDENCY(DeltaCL, WilsonCoefficient)
+    DEPENDENCY(DeltaCR, WilsonCoefficient)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
 
   ///Initialisation capability (fill the SuperIso structure)
   #define CAPABILITY SuperIso_modelinfo
@@ -410,7 +412,7 @@ START_MODULE
     #define FUNCTION SuperIso_fill
     START_FUNCTION(parameters)
     ALLOW_MODELS(THDM, THDMatQ)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, GWC, GWC_nu)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, GWC)
     BACKEND_REQ(Init_param, (libsuperiso), void, (parameters*))
     BACKEND_REQ(slha_adjust, (libsuperiso), void, (parameters*))
     BACKEND_REQ(mcmc_from_pole, (libsuperiso), double, (double, int, parameters*))
@@ -419,31 +421,9 @@ START_MODULE
     DEPENDENCY(W_plus_decay_rates, DecayTable::Entry)
     DEPENDENCY(Z_decay_rates, DecayTable::Entry)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
-    MODEL_CONDITIONAL_DEPENDENCY(SM_spectrum, Spectrum, GWC, GWC_nu)
+    MODEL_CONDITIONAL_DEPENDENCY(SM_spectrum, Spectrum, GWC)
     MODEL_CONDITIONAL_DEPENDENCY(THDM_spectrum, Spectrum, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaC2, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaC7, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaC8, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaC9, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaC10, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaC7_Prime, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaC8_Prime, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaC9_Prime, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaC10_Prime, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2, std::complex<double>,  THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1_Prime, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2_Prime, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaC9_tautau, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaC10_tautau, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaC9_tautau_Prime, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaC10_tautau_Prime, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1_tautau, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2_tautau, std::complex<double>,  THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1_tautau_Prime, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2_tautau_Prime, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaCL, std::complex<double>, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(DeltaCR, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC, WilsonCoefficients, THDM, THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1493,7 +1473,6 @@ START_MODULE
     BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
     BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
-    ALLOW_MODEL(WC_nu)
     #undef FUNCTION
 
     #define FUNCTION B2Knunu
@@ -1516,7 +1495,6 @@ START_MODULE
     BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
     BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
-    ALLOW_MODEL(WC_nu)
     #undef FUNCTION
 
     #define FUNCTION Bu2Knunu

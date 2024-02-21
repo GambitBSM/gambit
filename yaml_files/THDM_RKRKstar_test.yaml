@@ -464,25 +464,25 @@ ObsLikes:
   #   capability: DeltaCQ1
 
   # - purpose: Observable
-  #   capability: DeltaCQ1_Prime
+  #   capability: DeltaCQ1p
 
   # - purpose: Observable
   #   capability: DeltaCQ2
 
   # - purpose: Observable
-  #   capability: DeltaCQ2_Prime
+  #   capability: DeltaCQ2p
 
   # - purpose: Observable
   #   capability: DeltaCQ1_tautau
 
   # - purpose: Observable
-  #   capability: DeltaCQ1_tautau_Prime
+  #   capability: DeltaCQ1_tautaup
 
   # - purpose: Observable
   #   capability: DeltaCQ2_tautau
 
   # - purpose: Observable
-  #   capability: DeltaCQ2_tautau_Prime
+  #   capability: DeltaCQ2_tautaup
 
 
 ###################################

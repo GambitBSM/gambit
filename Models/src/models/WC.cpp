@@ -10,8 +10,8 @@
 ///
 ///  WC_LUV  --> GWC
 ///  WC_LR   --> GWC
+///  WC_nu   --> GWC
 ///  WC      --> WC_LUV, WC_LR
-///  WC_nu   --> GWC_nu
 ///
 ///  *********************************************
 ///
@@ -35,104 +35,124 @@
 
 #include "gambit/Models/models/WC.hpp"
 
+// Models inheriting from GWC
+#define PARENT GWC
 
 // WC_LUV --> GWC
 #define MODEL  WC_LUV
-void MODEL_NAMESPACE::WC_LUV_to_GWC (const ModelParameters &myP, ModelParameters &targetP)
+void MODEL_NAMESPACE::CAT_3(MODEL,_to_,PARENT) (const ModelParameters &myP, ModelParameters &targetP)
 {
+  logger()<<"Running interpret_as_parent calculations for " STRINGIFY(MODEL) " --> " STRINGIFY(PARENT) "."<<LogTags::info<<EOM;
 
-   logger()<<"Running interpret_as_parent calculations for WC_LUV --> GWC."<<LogTags::info<<EOM;
+  // Set everything to zero first
+  for(auto par : targetP.getKeys())
+    targetP.setValue(par, 0.0);
 
-   // Set everything to zero first
-   for(auto par : targetP.getKeys())
-     targetP.setValue(par, 0.0);
-
-   // Now send all parameter values upstream to those matching parameters in parent.
-   targetP.setValues(myP,false);
+  // Now send all parameter values upstream to those matching parameters in parent.
+  targetP.setValues(myP,false);
 
 }
 #undef MODEL
 
 // WC_LR --> GWC
 #define MODEL WC_LR
-void MODEL_NAMESPACE::WC_LR_to_GWC (const ModelParameters &myP, ModelParameters &targetP)
+void MODEL_NAMESPACE::CAT_3(MODEL,_to_,PARENT) (const ModelParameters &myP, ModelParameters &targetP)
 {
+  logger()<<"Running interpret_as_parent calculations for " STRINGIFY(MODEL) " --> " STRINGIFY(PARENT) "."<<LogTags::info<<EOM;
 
-   logger()<<"Running interpret_as_parent calculations for WC_LR --> GWC."<<LogTags::info<<EOM;
+  // Set everything to zero first
+  for(auto par : targetP.getKeys())
+    targetP.setValue(par, 0.0);
 
-   // Set everything to zero first
-   for(auto par : targetP.getKeys())
-     targetP.setValue(par, 0.0);
+  // Now send all parameter values upstream to those matching parameters in parent.
+  targetP.setValue("Re_DeltaC7_e",myP.getValue("Re_DeltaC7"));
+  targetP.setValue("Im_DeltaC7_e",myP.getValue("Im_DeltaC7"));
+  targetP.setValue("Re_DeltaC9_e",myP.getValue("Re_DeltaC9"));
+  targetP.setValue("Im_DeltaC9_e",myP.getValue("Im_DeltaC9"));
+  targetP.setValue("Re_DeltaC10_e",myP.getValue("Re_DeltaC10"));
+  targetP.setValue("Im_DeltaC10_e",myP.getValue("Im_DeltaC10"));
+  targetP.setValue("Re_DeltaCQ1_e",myP.getValue("Re_DeltaCQ1"));
+  targetP.setValue("Im_DeltaCQ1_e",myP.getValue("Im_DeltaCQ1"));
+  targetP.setValue("Re_DeltaCQ2_e",myP.getValue("Re_DeltaCQ2"));
+  targetP.setValue("Im_DeltaCQ2_e",myP.getValue("Im_DeltaCQ2"));
 
-   // Now send all parameter values upstream to those matching parameters in parent.
-   targetP.setValue("Re_DeltaC7_e",myP.getValue("Re_DeltaC7"));
-   targetP.setValue("Im_DeltaC7_e",myP.getValue("Im_DeltaC7"));
-   targetP.setValue("Re_DeltaC9_e",myP.getValue("Re_DeltaC9"));
-   targetP.setValue("Im_DeltaC9_e",myP.getValue("Im_DeltaC9"));
-   targetP.setValue("Re_DeltaC10_e",myP.getValue("Re_DeltaC10"));
-   targetP.setValue("Im_DeltaC10_e",myP.getValue("Im_DeltaC10"));
-   targetP.setValue("Re_DeltaCQ1_e",myP.getValue("Re_DeltaCQ1"));
-   targetP.setValue("Im_DeltaCQ1_e",myP.getValue("Im_DeltaCQ1"));
-   targetP.setValue("Re_DeltaCQ2_e",myP.getValue("Re_DeltaCQ2"));
-   targetP.setValue("Im_DeltaCQ2_e",myP.getValue("Im_DeltaCQ2"));
+  targetP.setValue("Re_DeltaC7_mu",myP.getValue("Re_DeltaC7"));
+  targetP.setValue("Im_DeltaC7_mu",myP.getValue("Im_DeltaC7"));
+  targetP.setValue("Re_DeltaC9_mu",myP.getValue("Re_DeltaC9"));
+  targetP.setValue("Im_DeltaC9_mu",myP.getValue("Im_DeltaC9"));
+  targetP.setValue("Re_DeltaC10_mu",myP.getValue("Re_DeltaC10"));
+  targetP.setValue("Im_DeltaC10_mu",myP.getValue("Im_DeltaC10"));
+  targetP.setValue("Re_DeltaCQ1_mu",myP.getValue("Re_DeltaCQ1"));
+  targetP.setValue("Im_DeltaCQ1_mu",myP.getValue("Im_DeltaCQ1"));
+  targetP.setValue("Re_DeltaCQ2_mu",myP.getValue("Re_DeltaCQ2"));
+  targetP.setValue("Im_DeltaCQ2_mu",myP.getValue("Im_DeltaCQ2"));
 
-   targetP.setValue("Re_DeltaC7_mu",myP.getValue("Re_DeltaC7"));
-   targetP.setValue("Im_DeltaC7_mu",myP.getValue("Im_DeltaC7"));
-   targetP.setValue("Re_DeltaC9_mu",myP.getValue("Re_DeltaC9"));
-   targetP.setValue("Im_DeltaC9_mu",myP.getValue("Im_DeltaC9"));
-   targetP.setValue("Re_DeltaC10_mu",myP.getValue("Re_DeltaC10"));
-   targetP.setValue("Im_DeltaC10_mu",myP.getValue("Im_DeltaC10"));
-   targetP.setValue("Re_DeltaCQ1_mu",myP.getValue("Re_DeltaCQ1"));
-   targetP.setValue("Im_DeltaCQ1_mu",myP.getValue("Im_DeltaCQ1"));
-   targetP.setValue("Re_DeltaCQ2_mu",myP.getValue("Re_DeltaCQ2"));
-   targetP.setValue("Im_DeltaCQ2_mu",myP.getValue("Im_DeltaCQ2"));
+  targetP.setValue("Re_DeltaC7_tau",myP.getValue("Re_DeltaC7"));
+  targetP.setValue("Im_DeltaC7_tau",myP.getValue("Im_DeltaC7"));
+  targetP.setValue("Re_DeltaC9_tau",myP.getValue("Re_DeltaC9"));
+  targetP.setValue("Im_DeltaC9_tau",myP.getValue("Im_DeltaC9"));
+  targetP.setValue("Re_DeltaC10_tau",myP.getValue("Re_DeltaC10"));
+  targetP.setValue("Im_DeltaC10_tau",myP.getValue("Im_DeltaC10"));
+  targetP.setValue("Re_DeltaCQ1_tau",myP.getValue("Re_DeltaCQ1"));
+  targetP.setValue("Im_DeltaCQ1_tau",myP.getValue("Im_DeltaCQ1"));
+  targetP.setValue("Re_DeltaCQ2_tau",myP.getValue("Re_DeltaCQ2"));
+  targetP.setValue("Im_DeltaCQ2_tau",myP.getValue("Im_DeltaCQ2"));
 
-   targetP.setValue("Re_DeltaC7_tau",myP.getValue("Re_DeltaC7"));
-   targetP.setValue("Im_DeltaC7_tau",myP.getValue("Im_DeltaC7"));
-   targetP.setValue("Re_DeltaC9_tau",myP.getValue("Re_DeltaC9"));
-   targetP.setValue("Im_DeltaC9_tau",myP.getValue("Im_DeltaC9"));
-   targetP.setValue("Re_DeltaC10_tau",myP.getValue("Re_DeltaC10"));
-   targetP.setValue("Im_DeltaC10_tau",myP.getValue("Im_DeltaC10"));
-   targetP.setValue("Re_DeltaCQ1_tau",myP.getValue("Re_DeltaCQ1"));
-   targetP.setValue("Im_DeltaCQ1_tau",myP.getValue("Im_DeltaCQ1"));
-   targetP.setValue("Re_DeltaCQ2_tau",myP.getValue("Re_DeltaCQ2"));
-   targetP.setValue("Im_DeltaCQ2_tau",myP.getValue("Im_DeltaCQ2"));
+  targetP.setValue("Re_DeltaC7_ep",myP.getValue("Re_DeltaC7p"));
+  targetP.setValue("Im_DeltaC7_ep",myP.getValue("Im_DeltaC7p"));
+  targetP.setValue("Re_DeltaC9_ep",myP.getValue("Re_DeltaC9p"));
+  targetP.setValue("Im_DeltaC9_ep",myP.getValue("Im_DeltaC9p"));
+  targetP.setValue("Re_DeltaC10_ep",myP.getValue("Re_DeltaC10p"));
+  targetP.setValue("Im_DeltaC10_ep",myP.getValue("Im_DeltaC10p"));
+  targetP.setValue("Re_DeltaCQ1_ep",myP.getValue("Re_DeltaCQ1p"));
+  targetP.setValue("Im_DeltaCQ1_ep",myP.getValue("Im_DeltaCQ1p"));
+  targetP.setValue("Re_DeltaCQ2_ep",myP.getValue("Re_DeltaCQ2p"));
+  targetP.setValue("Im_DeltaCQ2_ep",myP.getValue("Im_DeltaCQ2p"));
 
-   targetP.setValue("Re_DeltaC7_e_Prime",myP.getValue("Re_DeltaC7_Prime"));
-   targetP.setValue("Im_DeltaC7_e_Prime",myP.getValue("Im_DeltaC7_Prime"));
-   targetP.setValue("Re_DeltaC9_e_Prime",myP.getValue("Re_DeltaC9_Prime"));
-   targetP.setValue("Im_DeltaC9_e_Prime",myP.getValue("Im_DeltaC9_Prime"));
-   targetP.setValue("Re_DeltaC10_e_Prime",myP.getValue("Re_DeltaC10_Prime"));
-   targetP.setValue("Im_DeltaC10_e_Prime",myP.getValue("Im_DeltaC10_Prime"));
-   targetP.setValue("Re_DeltaCQ1_e_Prime",myP.getValue("Re_DeltaCQ1_Prime"));
-   targetP.setValue("Im_DeltaCQ1_e_Prime",myP.getValue("Im_DeltaCQ1_Prime"));
-   targetP.setValue("Re_DeltaCQ2_e_Prime",myP.getValue("Re_DeltaCQ2_Prime"));
-   targetP.setValue("Im_DeltaCQ2_e_Prime",myP.getValue("Im_DeltaCQ2_Prime"));
+  targetP.setValue("Re_DeltaC7_mup",myP.getValue("Re_DeltaC7p"));
+  targetP.setValue("Im_DeltaC7_mup",myP.getValue("Im_DeltaC7p"));
+  targetP.setValue("Re_DeltaC9_mup",myP.getValue("Re_DeltaC9p"));
+  targetP.setValue("Im_DeltaC9_mup",myP.getValue("Im_DeltaC9p"));
+  targetP.setValue("Re_DeltaC10_mup",myP.getValue("Re_DeltaC10p"));
+  targetP.setValue("Im_DeltaC10_mup",myP.getValue("Im_DeltaC10p"));
+  targetP.setValue("Re_DeltaCQ1_mup",myP.getValue("Re_DeltaCQ1p"));
+  targetP.setValue("Im_DeltaCQ1_mup",myP.getValue("Im_DeltaCQ1p"));
+  targetP.setValue("Re_DeltaCQ2_mup",myP.getValue("Re_DeltaCQ2p"));
+  targetP.setValue("Im_DeltaCQ2_mup",myP.getValue("Im_DeltaCQ2p"));
 
-   targetP.setValue("Re_DeltaC7_mu_Prime",myP.getValue("Re_DeltaC7_Prime"));
-   targetP.setValue("Im_DeltaC7_mu_Prime",myP.getValue("Im_DeltaC7_Prime"));
-   targetP.setValue("Re_DeltaC9_mu_Prime",myP.getValue("Re_DeltaC9_Prime"));
-   targetP.setValue("Im_DeltaC9_mu_Prime",myP.getValue("Im_DeltaC9_Prime"));
-   targetP.setValue("Re_DeltaC10_mu_Prime",myP.getValue("Re_DeltaC10_Prime"));
-   targetP.setValue("Im_DeltaC10_mu_Prime",myP.getValue("Im_DeltaC10_Prime"));
-   targetP.setValue("Re_DeltaCQ1_mu_Prime",myP.getValue("Re_DeltaCQ1_Prime"));
-   targetP.setValue("Im_DeltaCQ1_mu_Prime",myP.getValue("Im_DeltaCQ1_Prime"));
-   targetP.setValue("Re_DeltaCQ2_mu_Prime",myP.getValue("Re_DeltaCQ2_Prime"));
-   targetP.setValue("Im_DeltaCQ2_mu_Prime",myP.getValue("Im_DeltaCQ2_Prime"));
-
-   targetP.setValue("Re_DeltaC7_tau_Prime",myP.getValue("Re_DeltaC7_Prime"));
-   targetP.setValue("Im_DeltaC7_tau_Prime",myP.getValue("Im_DeltaC7_Prime"));
-   targetP.setValue("Re_DeltaC9_tau_Prime",myP.getValue("Re_DeltaC9_Prime"));
-   targetP.setValue("Im_DeltaC9_tau_Prime",myP.getValue("Im_DeltaC9_Prime"));
-   targetP.setValue("Re_DeltaC10_tau_Prime",myP.getValue("Re_DeltaC10_Prime"));
-   targetP.setValue("Im_DeltaC10_tau_Prime",myP.getValue("Im_DeltaC10_Prime"));
-   targetP.setValue("Re_DeltaCQ1_tau_Prime",myP.getValue("Re_DeltaCQ1_Prime"));
-   targetP.setValue("Im_DeltaCQ1_tau_Prime",myP.getValue("Im_DeltaCQ1_Prime"));
-   targetP.setValue("Re_DeltaCQ2_tau_Prime",myP.getValue("Re_DeltaCQ2_Prime"));
-   targetP.setValue("Im_DeltaCQ2_tau_Prime",myP.getValue("Im_DeltaCQ2_Prime"));
+  targetP.setValue("Re_DeltaC7_taup",myP.getValue("Re_DeltaC7p"));
+  targetP.setValue("Im_DeltaC7_taup",myP.getValue("Im_DeltaC7p"));
+  targetP.setValue("Re_DeltaC9_taup",myP.getValue("Re_DeltaC9p"));
+  targetP.setValue("Im_DeltaC9_taup",myP.getValue("Im_DeltaC9p"));
+  targetP.setValue("Re_DeltaC10_taup",myP.getValue("Re_DeltaC10p"));
+  targetP.setValue("Im_DeltaC10_taup",myP.getValue("Im_DeltaC10p"));
+  targetP.setValue("Re_DeltaCQ1_taup",myP.getValue("Re_DeltaCQ1p"));
+  targetP.setValue("Im_DeltaCQ1_taup",myP.getValue("Im_DeltaCQ1p"));
+  targetP.setValue("Re_DeltaCQ2_taup",myP.getValue("Re_DeltaCQ2p"));
+  targetP.setValue("Im_DeltaCQ2_taup",myP.getValue("Im_DeltaCQ2p"));
 
 }
 #undef MODEL
+
+// WC_nu --> GWC
+#define MODEL WC_nu
+void MODEL_NAMESPACE::CAT_3(MODEL,_to_,PARENT) (const ModelParameters &myP, ModelParameters &targetP)
+{
+  logger()<<"Running interpret_as_parent calculations for " STRINGIFY(MODEL) " --> " STRINGIFY(PARENT) "."<<LogTags::info<<EOM;
+
+  // Set everything to zero first
+  for(auto par : targetP.getKeys())
+    targetP.setValue(par, 0.0);
+
+  targetP.setValue("Re_DeltaCLL_V", myP.getValue("Re_DeltaCL"));
+  targetP.setValue("Im_DeltaCLL_V", myP.getValue("Im_DeltaCL"));
+  targetP.setValue("Re_DeltaCRR_V", myP.getValue("Re_DeltaCR"));
+  targetP.setValue("Im_DeltaCRR_V", myP.getValue("Im_DeltaCR"));
+
+}
+#undef MODEL
+
+#undef PARENT
 
 // WC --> WC_LUV
 #define MODEL WC
@@ -182,39 +202,16 @@ void MODEL_NAMESPACE::WC_to_WC_LR (const ModelParameters& myP, ModelParameters &
   // Send all parameter values upstream to matching parameters in friend.
   targetP.setValues(myP);
 
-  targetP.setValue("Re_DeltaC7_Prime", myP.getValue("Re_DeltaC7"));
-  targetP.setValue("Im_DeltaC7_Prime", myP.getValue("Im_DeltaC7"));
-  targetP.setValue("Re_DeltaC9_Prime", myP.getValue("Re_DeltaC9"));
-  targetP.setValue("Im_DeltaC9_Prime", myP.getValue("Im_DeltaC9"));
-  targetP.setValue("Re_DeltaC10_Prime", myP.getValue("Re_DeltaC10"));
-  targetP.setValue("Im_DeltaC10_Prime", myP.getValue("Im_DeltaC10"));
-  targetP.setValue("Re_DeltaCQ1_Prime", myP.getValue("Re_DeltaCQ1"));
-  targetP.setValue("Im_DeltaCQ1_Prime", myP.getValue("Im_DeltaCQ1"));
-  targetP.setValue("Re_DeltaCQ2_Prime", myP.getValue("Re_DeltaCQ2"));
-  targetP.setValue("Im_DeltaCQ2_Prime", myP.getValue("Im_DeltaCQ2"));
+  targetP.setValue("Re_DeltaC7p", myP.getValue("Re_DeltaC7"));
+  targetP.setValue("Im_DeltaC7p", myP.getValue("Im_DeltaC7"));
+  targetP.setValue("Re_DeltaC9p", myP.getValue("Re_DeltaC9"));
+  targetP.setValue("Im_DeltaC9p", myP.getValue("Im_DeltaC9"));
+  targetP.setValue("Re_DeltaC10p", myP.getValue("Re_DeltaC10"));
+  targetP.setValue("Im_DeltaC10p", myP.getValue("Im_DeltaC10"));
+  targetP.setValue("Re_DeltaCQ1p", myP.getValue("Re_DeltaCQ1"));
+  targetP.setValue("Im_DeltaCQ1p", myP.getValue("Im_DeltaCQ1"));
+  targetP.setValue("Re_DeltaCQ2p", myP.getValue("Re_DeltaCQ2"));
+  targetP.setValue("Im_DeltaCQ2p", myP.getValue("Im_DeltaCQ2"));
 }
 #undef MODEL
-
-// WC_nu --> GWC_nu
-#define MODEL WC_nu
-#define PARENT GWC_nu
-void MODEL_NAMESPACE::CAT_3(MODEL,_to_,PARENT) (const ModelParameters &myP, ModelParameters &targetP)
-{
-  logger()<<"Running interpret_as_parent calculations for " STRINGIFY(MODEL) " --> " STRINGIFY(PARENT) "."<<LogTags::info<<EOM;
-
-  targetP.setValue("Re_DeltaCLL_V", myP.getValue("Re_DeltaCL"));
-  targetP.setValue("Im_DeltaCLL_V", myP.getValue("Im_DeltaCL"));
-  targetP.setValue("Re_DeltaCRR_V", myP.getValue("Re_DeltaCR"));
-  targetP.setValue("Im_DeltaCRR_V", myP.getValue("Im_DeltaCR"));
-
-  std::vector<std::string> wcs = {"Re_DeltaCRL_V", "Im_DeltaCRL_V", "Re_DeltaCLR_V", "Im_DeltaCLR_V",
-                                  "Re_DeltaCLL_S", "Im_DeltaCLL_S", "Re_DeltaCRL_S", "Im_DeltaCRL_S",
-                                  "Re_DeltaCLR_S", "Im_DeltaCLR_S", "Re_DeltaCRR_S", "Im_DeltaCRR_S",
-                                  "Re_DeltaCLL_T", "Im_DeltaCLL_T", "Re_DeltaCRR_T", "Im_DeltaCRR_T"};
-  for (auto &wc : wcs)
-  {
-    targetP.setValue(wc, 0.0);
-  }
-
-}
 

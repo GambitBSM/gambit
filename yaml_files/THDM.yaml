@@ -515,25 +515,25 @@ ObsLikes:
   #   capability: DeltaCQ1
 
   # - purpose: Observable
-  #   capability: DeltaCQ1_Prime
+  #   capability: DeltaCQ1p
 
   # - purpose: Observable
   #   capability: DeltaCQ2
 
   # - purpose: Observable
-  #   capability: DeltaCQ2_Prime
+  #   capability: DeltaCQ2p
 
   # - purpose: Observable
   #   capability: DeltaCQ1_tautau
 
   # - purpose: Observable
-  #   capability: DeltaCQ1_tautau_Prime
+  #   capability: DeltaCQ1_tautaup
 
   # - purpose: Observable
   #   capability: DeltaCQ2_tautau
 
   # - purpose: Observable
-  #   capability: DeltaCQ2_tautau_Prime
+  #   capability: DeltaCQ2_tautaup
 
   # - purpose: Observable
   #   capability: DeltaC2
@@ -542,37 +542,37 @@ ObsLikes:
   #   capability: DeltaC7
 
   # - purpose: Observable
-  #   capability: DeltaC7_Prime
+  #   capability: DeltaC7p
 
   # - purpose: Observable
   #   capability: DeltaC8
 
   # - purpose: Observable
-  #   capability: DeltaC8_Prime
+  #   capability: DeltaC8p
 
   # - purpose: Observable
   #   capability: DeltaC9
 
   # - purpose: Observable
-  #   capability: DeltaC9_Prime
+  #   capability: DeltaC9p
 
   # - purpose: Observable
   #   capability: DeltaC10
 
   # - purpose: Observable
-  #   capability: DeltaC10_Prime
+  #   capability: DeltaC10p
 
   # - purpose: Observable
   #   capability: DeltaC9_tautau
 
   # - purpose: Observable
-  #   capability: DeltaC9_tautau_Prime
+  #   capability: DeltaC9_tautaup
 
   # - purpose: Observable
   #   capability: DeltaC10_tautau
 
   # - purpose: Observable
-  #   capability: DeltaC10_tautau_Prime
+  #   capability: DeltaC10_tautaup
 
 
 ###################################

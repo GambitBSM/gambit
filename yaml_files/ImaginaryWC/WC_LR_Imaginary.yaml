@@ -57,22 +57,22 @@ Parameters:
     Re_DeltaCQ2: 0
     Im_DeltaCQ2: 0
 
-    Re_DeltaC7_Prime:
+    Re_DeltaC7p:
        range: [-3, 3] 
-    Im_DeltaC7_Prime:
+    Im_DeltaC7p:
        range: [-3, 3]
-    Re_DeltaC9_Prime:
+    Re_DeltaC9p:
       range: [-6, 6]
-    Im_DeltaC9_Prime:
+    Im_DeltaC9p:
       range: [-6, 6]
-    Re_DeltaC10_Prime:
+    Re_DeltaC10p:
       range: [-6, 6]
-    Im_DeltaC10_Prime:
+    Im_DeltaC10p:
       range: [-6, 6]
-    Re_DeltaCQ1_Prime: 0
-    Im_DeltaCQ1_Prime: 0
-    Re_DeltaCQ2_Prime: 0
-    Im_DeltaCQ2_Prime: 0
+    Re_DeltaCQ1p: 0
+    Im_DeltaCQ1p: 0
+    Re_DeltaCQ2p: 0
+    Im_DeltaCQ2p: 0
           
 
 

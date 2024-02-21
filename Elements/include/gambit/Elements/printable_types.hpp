@@ -41,6 +41,7 @@
   (flav_binned_prediction)            \
   (HiggsCouplingsTable)               \
   (CouplingTable)                     \
+  (WilsonCoefficient)                 \
 
 
 // Types that can be retrieved from Gambit printer output (if printer plugin is properly equipped)

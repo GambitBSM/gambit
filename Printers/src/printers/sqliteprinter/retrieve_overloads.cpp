@@ -154,6 +154,7 @@ namespace Gambit
        UNDEFINED_RETRIEVE_OVERLOAD(SQLiteReader, flav_binned_prediction)
        UNDEFINED_RETRIEVE_OVERLOAD(SQLiteReader, HiggsCouplingsTable)
        UNDEFINED_RETRIEVE_OVERLOAD(SQLiteReader, CouplingTable)
+       UNDEFINED_RETRIEVE_OVERLOAD(SQLiteReader, WilsonCoefficient)
 
      #endif
 

@@ -244,6 +244,15 @@ namespace Gambit
         printer._print(m, label, vID, mpirank, pointID);
       }
 
+      /// Wilson coefficients print overload
+      template<typename P>
+      void _common_print(P& printer, WilsonCoefficient const &value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+      {
+        printer._print(value.e, label + "::e", vID, mpirank, pointID);
+        printer._print(value.mu, label + "::mu", vID, mpirank, pointID);
+        printer._print(value.tau, label + "::tau", vID, mpirank, pointID);
+      }
+
     #endif
 
   }

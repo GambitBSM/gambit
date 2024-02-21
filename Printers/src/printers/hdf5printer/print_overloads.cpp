@@ -304,6 +304,7 @@ namespace Gambit
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer, BBN_container)
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer, HiggsCouplingsTable)
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer, CouplingTable)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer, WilsonCoefficient)
     #endif
 
     /// @}

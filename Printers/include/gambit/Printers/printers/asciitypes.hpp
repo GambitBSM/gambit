@@ -38,6 +38,7 @@
   (flav_binned_prediction)                  \
   (HiggsCouplingsTable)                     \
   (CouplingTable)                           \
+  (WilsonCoefficient)                       \
 
 
 #endif

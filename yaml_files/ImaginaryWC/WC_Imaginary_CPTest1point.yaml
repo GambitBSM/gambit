@@ -52,16 +52,16 @@ Parameters:
     Re_DeltaCQ2: 0
     Im_DeltaCQ2: 0
 
-    Re_DeltaC7_Prime: -0.01
-    Im_DeltaC7_Prime: 0.02
-    Re_DeltaC9_Prime: 0.5
-    Im_DeltaC9_Prime: -1.
-    Re_DeltaC10_Prime: -1.
-    Im_DeltaC10_Prime: -2.
-    Re_DeltaCQ1_Prime: 0
-    Im_DeltaCQ1_Prime: 0
-    Re_DeltaCQ2_Prime: 0
-    Im_DeltaCQ2_Prime: 0
+    Re_DeltaC7p: -0.01
+    Im_DeltaC7p: 0.02
+    Re_DeltaC9p: 0.5
+    Im_DeltaC9p: -1.
+    Re_DeltaC10p: -1.
+    Im_DeltaC10p: -2.
+    Re_DeltaCQ1p: 0
+    Im_DeltaCQ1p: 0
+    Re_DeltaCQ2p: 0
+    Im_DeltaCQ2p: 0
 
                                               
     

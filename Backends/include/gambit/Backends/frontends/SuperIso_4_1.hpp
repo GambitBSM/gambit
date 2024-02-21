@@ -29,7 +29,7 @@
 LOAD_LIBRARY
 
 // Can't do anything non-MSSM/2HDM with SuperIso yet, besides Wilson coefficients.
-BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, GWC, GWC_nu, THDM, THDMatQ)
+BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ)
 
 BE_FUNCTION(Init_param, void, (parameters*), "Init_param", "Init_param")
 BE_FUNCTION(slha_adjust, void, (parameters*), "slha_adjust", "slha_adjust")

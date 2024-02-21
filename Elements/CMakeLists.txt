@@ -76,6 +76,7 @@ set(header_files include/gambit/Elements/decay_table.hpp
                  include/gambit/Elements/type_equivalency.hpp
                  include/gambit/Elements/types_rollcall.hpp
                  include/gambit/Elements/virtual_higgs.hpp
+                 include/gambit/Elements/wilson_coefficients.hpp
                  include/gambit/Elements/wimp_types.hpp
 )
 

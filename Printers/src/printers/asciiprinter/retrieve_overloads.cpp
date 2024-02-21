@@ -251,6 +251,7 @@ namespace Gambit
       UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, flav_binned_prediction)
       UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, HiggsCouplingsTable)
       UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, CouplingTable)
+      UNDEFINED_RETRIEVE_OVERLOAD(asciiReader, WilsonCoefficient)
 
     #endif
 

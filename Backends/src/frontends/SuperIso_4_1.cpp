@@ -70,17 +70,17 @@ BE_NAMESPACE
 
   void modify_WCP(const parameters *param, std::complex<double> Cpb[11])
   {
-    Cpb[7]+=std::complex<double>(param->Re_DeltaC7_Prime, param->Im_DeltaC7_Prime);
-    Cpb[8]+=std::complex<double>(param->Re_DeltaC8_Prime, param->Im_DeltaC8_Prime);
-    Cpb[9]+=std::complex<double>(param->Re_DeltaC9_Prime, param->Im_DeltaC9_Prime);
-    Cpb[10]+=std::complex<double>(param->Re_DeltaC10_Prime, param->Im_DeltaC10_Prime);
+    Cpb[7]+=std::complex<double>(param->Re_DeltaC7p, param->Im_DeltaC7p);
+    Cpb[8]+=std::complex<double>(param->Re_DeltaC8p, param->Im_DeltaC8p);
+    Cpb[9]+=std::complex<double>(param->Re_DeltaC9p, param->Im_DeltaC9p);
+    Cpb[10]+=std::complex<double>(param->Re_DeltaC10p, param->Im_DeltaC10p);
   }
 
   void modify_WCP(const parameters *param, std::complex<double> Cpb[11], std::complex<double> CQpb[3])
   {
     modify_WCP(param, Cpb);
-    CQpb[1]+=std::complex<double>(param->Re_DeltaCQ1_Prime, param->Im_DeltaCQ1_Prime);
-    CQpb[2]+=std::complex<double>(param->Re_DeltaCQ2_Prime, param->Im_DeltaCQ2_Prime);
+    CQpb[1]+=std::complex<double>(param->Re_DeltaCQ1p, param->Im_DeltaCQ1p);
+    CQpb[2]+=std::complex<double>(param->Re_DeltaCQ2p, param->Im_DeltaCQ2p);
   }
 
   ///Helper functions for tau tau Wilson coeffcients
@@ -102,17 +102,17 @@ BE_NAMESPACE
 
    void modify_WCP_tautau(const parameters *param, std::complex<double> Cpb[11])
   {
-    Cpb[8]+=std::complex<double>(param->Re_DeltaC8_Prime, param->Im_DeltaC8_Prime);
-    Cpb[7]+=std::complex<double>(param->Re_DeltaC7_Prime, param->Im_DeltaC7_Prime);
-    Cpb[9]+=std::complex<double>(param->Re_DeltaC9_tau_Prime, param->Im_DeltaC9_tau_Prime);
-    Cpb[10]+=std::complex<double>(param->Re_DeltaC10_tau_Prime, param->Im_DeltaC10_tau_Prime);
+    Cpb[8]+=std::complex<double>(param->Re_DeltaC8p, param->Im_DeltaC8p);
+    Cpb[7]+=std::complex<double>(param->Re_DeltaC7p, param->Im_DeltaC7p);
+    Cpb[9]+=std::complex<double>(param->Re_DeltaC9p_tau, param->Im_DeltaC9p_tau);
+    Cpb[10]+=std::complex<double>(param->Re_DeltaC10p_tau, param->Im_DeltaC10p_tau);
   }
 
   void modify_WCP_tautau(const parameters *param, std::complex<double> Cpb[11], std::complex<double> CQpb[3])
   {
     modify_WCP_tautau(param, Cpb);
-    CQpb[1]+=std::complex<double>(param->Re_DeltaCQ1_tau_Prime, param->Im_DeltaCQ1_tau_Prime);
-    CQpb[2]+=std::complex<double>(param->Re_DeltaCQ2_tau_Prime, param->Im_DeltaCQ2_tau_Prime);
+    CQpb[1]+=std::complex<double>(param->Re_DeltaCQ1p_tau, param->Im_DeltaCQ1p_tau);
+    CQpb[2]+=std::complex<double>(param->Re_DeltaCQ2p_tau, param->Im_DeltaCQ2p_tau);
   }
 
   /// @}

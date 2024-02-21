@@ -12,6 +12,7 @@
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@kit.edu)
 ///  \date 2022 Aug
+///  \date 2024 Feb
 ///
 ///  \author Cristian Sierra
 ///          (cristian.sierra@monash.edu)
@@ -34,6 +35,158 @@ namespace Gambit
     using std::vector;
     using complexd = std::complex<double>;
     enum {u=0, c=1, t=2, d=0, s=1, b=2, e=0, mu=1, tau=2};
+
+    /// Module functions for returning WCs in the GWC model
+    ///@{
+
+    void DeltaC2(WilsonCoefficient &result)
+    {
+      using namespace Pipes::DeltaC2;
+      result = WilsonCoefficient({*Param["Re_DeltaC2_e"],*Param["Im_DeltaC2_e"]},
+                                 {*Param["Re_DeltaC2_mu"],*Param["Im_DeltaC2_mu"]},
+                                 {*Param["Re_DeltaC2_tau"],*Param["Im_DeltaC2_tau"]});
+    }
+
+    void DeltaC7(WilsonCoefficient &result)
+    {
+      using namespace Pipes::DeltaC7;
+      result = WilsonCoefficient({*Param["Re_DeltaC7_e"],*Param["Im_DeltaC7_e"]},
+                                 {*Param["Re_DeltaC7_mu"],*Param["Im_DeltaC7_mu"]},
+                                 {*Param["Re_DeltaC7_tau"],*Param["Im_DeltaC7_tau"]});
+    }
+
+    void DeltaC8(WilsonCoefficient &result)
+    {
+      using namespace Pipes::DeltaC8;
+      result = WilsonCoefficient({*Param["Re_DeltaC8_e"],*Param["Im_DeltaC8_e"]},
+                                 {*Param["Re_DeltaC8_mu"],*Param["Im_DeltaC8_mu"]},
+                                 {*Param["Re_DeltaC8_tau"],*Param["Im_DeltaC8_tau"]});
+    }
+
+    void DeltaC9(WilsonCoefficient &result)
+    {
+      using namespace Pipes::DeltaC9;
+      result = WilsonCoefficient({*Param["Re_DeltaC9_e"],*Param["Im_DeltaC9_e"]},
+                                 {*Param["Re_DeltaC9_mu"],*Param["Im_DeltaC9_mu"]},
+                                 {*Param["Re_DeltaC9_tau"],*Param["Im_DeltaC9_tau"]});
+    }
+
+    void DeltaC10(WilsonCoefficient &result)
+    {
+      using namespace Pipes::DeltaC10;
+      result = WilsonCoefficient({*Param["Re_DeltaC10_e"],*Param["Im_DeltaC10_e"]},
+                                 {*Param["Re_DeltaC10_mu"],*Param["Im_DeltaC10_mu"]},
+                                 {*Param["Re_DeltaC10_tau"],*Param["Im_DeltaC10_tau"]});
+    }
+
+    void DeltaC2p(WilsonCoefficient &result)
+    {
+      using namespace Pipes::DeltaC2p;
+      result = WilsonCoefficient({*Param["Re_DeltaC2p_e"],*Param["Im_DeltaC2p_e"]},
+                                 {*Param["Re_DeltaC2p_mu"],*Param["Im_DeltaC2p_mu"]},
+                                 {*Param["Re_DeltaC2p_tau"],*Param["Im_DeltaC2p_tau"]});
+    }
+
+    void DeltaC7p(WilsonCoefficient &result)
+    {
+      using namespace Pipes::DeltaC7p;
+      result = WilsonCoefficient({*Param["Re_DeltaC7p_e"],*Param["Im_DeltaC7p_e"]},
+                                 {*Param["Re_DeltaC7p_mu"],*Param["Im_DeltaC7p_mu"]},
+                                 {*Param["Re_DeltaC7p_tau"],*Param["Im_DeltaC7p_tau"]});
+    }
+
+    void DeltaC8p(WilsonCoefficient &result)
+    {
+      using namespace Pipes::DeltaC8p;
+      result = WilsonCoefficient({*Param["Re_DeltaC8p_e"],*Param["Im_DeltaC8p_e"]},
+                                 {*Param["Re_DeltaC8p_mu"],*Param["Im_DeltaC8p_mu"]},
+                                 {*Param["Re_DeltaC8p_tau"],*Param["Im_DeltaC8p_tau"]});
+    }
+
+    void DeltaC9p(WilsonCoefficient &result)
+    {
+      using namespace Pipes::DeltaC9p;
+      result = WilsonCoefficient({*Param["Re_DeltaC9p_e"],*Param["Im_DeltaC9p_e"]},
+                                 {*Param["Re_DeltaC9p_mu"],*Param["Im_DeltaC9p_mu"]},
+                                 {*Param["Re_DeltaC9p_tau"],*Param["Im_DeltaC9p_tau"]});
+    }
+
+    void DeltaC10p(WilsonCoefficient &result)
+    {
+      using namespace Pipes::DeltaC10p;
+      result = WilsonCoefficient({*Param["Re_DeltaC10p_e"],*Param["Im_DeltaC10p_e"]},
+                                 {*Param["Re_DeltaC10p_mu"],*Param["Im_DeltaC10p_mu"]},
+                                 {*Param["Re_DeltaC10p_tau"],*Param["Im_DeltaC10p_tau"]});
+    }
+
+    void DeltaCQ1(WilsonCoefficient &result)
+    {
+      using namespace Pipes::DeltaCQ1;
+      result = WilsonCoefficient({*Param["Re_DeltaCQ1_e"],*Param["Im_DeltaCQ1_e"]},
+                                 {*Param["Re_DeltaCQ1_mu"],*Param["Im_DeltaCQ1_mu"]},
+                                 {*Param["Re_DeltaCQ1_tau"],*Param["Im_DeltaCQ1_tau"]});
+    }
+
+    void DeltaCQ2(WilsonCoefficient &result)
+    {
+      using namespace Pipes::DeltaCQ2;
+      result = WilsonCoefficient({*Param["Re_DeltaCQ2_e"],*Param["Im_DeltaCQ2_e"]},
+                                 {*Param["Re_DeltaCQ2_mu"],*Param["Im_DeltaCQ2_mu"]},
+                                 {*Param["Re_DeltaCQ2_tau"],*Param["Im_DeltaCQ2_tau"]});
+    }
+
+    void DeltaCQ1p(WilsonCoefficient &result)
+    {
+      using namespace Pipes::DeltaCQ1p;
+      result = WilsonCoefficient({*Param["Re_DeltaCQ1p_e"],*Param["Im_DeltaCQ1p_e"]},
+                                 {*Param["Re_DeltaCQ1p_mu"],*Param["Im_DeltaCQ1p_mu"]},
+                                 {*Param["Re_DeltaCQ1p_tau"],*Param["Im_DeltaCQ1p_tau"]});
+    }
+
+    void DeltaCQ2p(WilsonCoefficient &result)
+    {
+      using namespace Pipes::DeltaCQ2p;
+      result = WilsonCoefficient({*Param["Re_DeltaCQ2p_e"],*Param["Im_DeltaCQ2p_e"]},
+                                 {*Param["Re_DeltaCQ2p_mu"],*Param["Im_DeltaCQ2p_mu"]},
+                                 {*Param["Re_DeltaCQ2p_tau"],*Param["Im_DeltaCQ2p_tau"]});
+    }
+
+    void DeltaCL(WilsonCoefficient &result)
+    {
+      using namespace Pipes::DeltaCL;
+      result = WilsonCoefficient({*Param["Re_DeltaCLL_V"],*Param["Im_DeltaCLL_V"]});
+    }
+
+    void DeltaCR(WilsonCoefficient &result)
+    {
+      using namespace Pipes::DeltaCR;
+      result = WilsonCoefficient({*Param["Re_DeltaCRR_V"],*Param["Im_DeltaCRR_V"]});
+    }
+
+    ///@}
+
+    /// Umbrella modfule function that contains all wilson coefficients
+    void DeltaC(WilsonCoefficients &result)
+    {
+      using namespace Pipes::DeltaC;
+
+      result["C2"] = *Dep::DeltaC2;
+      result["C7"] = *Dep::DeltaC7;
+      result["C8"] = *Dep::DeltaC8;
+      result["C9"] = *Dep::DeltaC9;
+      result["C10"] = *Dep::DeltaC10;
+      result["C2p"] = *Dep::DeltaC2p;
+      result["C7p"] = *Dep::DeltaC7p;
+      result["C8p"] = *Dep::DeltaC8p;
+      result["C9p"] = *Dep::DeltaC9p;
+      result["C10p"] = *Dep::DeltaC10p;
+      result["CQ1"] = *Dep::DeltaCQ1;
+      result["CQ2"] = *Dep::DeltaCQ2;
+      result["CQ1p"] = *Dep::DeltaCQ1p;
+      result["CQ2p"] = *Dep::DeltaCQ2p;
+      result["CL"] = *Dep::DeltaCL;
+      result["CR"] = *Dep::DeltaCR;
+    }
 
     ///Green functions for Delta C9 and Delta C10 in the THDM
     ///@{
@@ -145,6 +298,7 @@ namespace Gambit
 
       Eigen::Matrix3cd xi_L, deltaij;
 
+      // TODO: This is not valid for l = 0 or lp = 0
       xi_L << 0,       0,       0,
               0,  xi_mumu, xi_mutau,
               0, xi_taumu, xi_tautau;
@@ -226,6 +380,7 @@ namespace Gambit
 
       Eigen::Matrix3cd xi_L;
 
+      // TODO: This is not valid for l = 0 or lp = 0
       xi_L << 0,       0,       0,
               0,  xi_mumu, xi_mutau,
               0, xi_taumu, xi_tautau;
@@ -319,91 +474,51 @@ namespace Gambit
     ///@{
 
     /// Delta CQ1 at tree level in the THDM
-    void THDM_DeltaCQ1(complexd &result)
+    void THDM_DeltaCQ1(WilsonCoefficient &result)
     {
       using namespace Pipes::THDM_DeltaCQ1;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 1, lp = 1;
-      complexd DeltaCQ1=THDM_DeltaCQ_NP(1, l, lp, sminputs, spectrum);
-      result = DeltaCQ1;
+
+      result.e = THDM_DeltaCQ_NP(1, e, e, sminputs, spectrum);
+      result.mu = THDM_DeltaCQ_NP(1, mu, mu, sminputs, spectrum);
+      result.tau = THDM_DeltaCQ_NP(1, tau, tau, sminputs, spectrum);
     }
 
     /// Delta CQ1' at tree level in the THDM
-    void THDM_DeltaCQ1_Prime(complexd &result)
+    void THDM_DeltaCQ1p(WilsonCoefficient &result)
     {
-      using namespace Pipes::THDM_DeltaCQ1_Prime;
+      using namespace Pipes::THDM_DeltaCQ1p;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 1, lp = 1;
 
-      result = THDM_DeltaCQ_NP(3, l, lp, sminputs, spectrum);
+      result.e = THDM_DeltaCQ_NP(3, e, e, sminputs, spectrum);
+      result.mu = THDM_DeltaCQ_NP(3, mu, mu, sminputs, spectrum);
+      result.tau = THDM_DeltaCQ_NP(3, tau, tau, sminputs, spectrum);
     }
 
     /// Delta CQ2 at tree level in the THDM
-    void THDM_DeltaCQ2(complexd &result)
+    void THDM_DeltaCQ2(WilsonCoefficient &result)
     {
       using namespace Pipes::THDM_DeltaCQ2;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 1, lp = 1;
 
-      result = THDM_DeltaCQ_NP(2, l, lp, sminputs, spectrum);
+      result.e = THDM_DeltaCQ_NP(2, e, e, sminputs, spectrum);
+      result.mu = THDM_DeltaCQ_NP(2, mu, mu, sminputs, spectrum);
+      result.tau = THDM_DeltaCQ_NP(2, tau, tau, sminputs, spectrum);
     }
 
     /// Delta CQ2' at tree level in the THDM
-    void THDM_DeltaCQ2_Prime(complexd &result)
+    void THDM_DeltaCQ2p(WilsonCoefficient &result)
     {
-      using namespace Pipes::THDM_DeltaCQ2_Prime;
+      using namespace Pipes::THDM_DeltaCQ2p;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 1, lp = 1;
 
-      result = THDM_DeltaCQ_NP(4, l, lp, sminputs, spectrum);
-    }
-
-    /// Delta CQ1_tautau at tree level in the THDM
-    void THDM_DeltaCQ1_tautau(complexd &result)
-    {
-      using namespace Pipes::THDM_DeltaCQ1_tautau;
-      SMInputs sminputs = *Dep::SMINPUTS;
-      Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 2, lp = 2;
-
-      result = THDM_DeltaCQ_NP(1, l, lp, sminputs, spectrum);
-    }
-
-    /// Delta CQ1'_tautau at tree level in the THDM
-    void THDM_DeltaCQ1_tautau_Prime(complexd &result)
-    {
-      using namespace Pipes::THDM_DeltaCQ1_tautau_Prime;
-      SMInputs sminputs = *Dep::SMINPUTS;
-      Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 2, lp = 2;
-
-      result = THDM_DeltaCQ_NP(3, l, lp, sminputs, spectrum);
-    }
-
-    /// Delta CQ2_tautau at tree level in the THDM
-    void THDM_DeltaCQ2_tautau(complexd &result)
-    {
-      using namespace Pipes::THDM_DeltaCQ2_tautau;
-      SMInputs sminputs = *Dep::SMINPUTS;
-      Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 2, lp = 2;
-
-      result = THDM_DeltaCQ_NP(2, l, lp, sminputs, spectrum);
-    }
-
-    /// Delta CQ2'_tautau at tree level in the THDM
-    void THDM_DeltaCQ2_tautau_Prime(complexd &result)
-    {
-      using namespace Pipes::THDM_DeltaCQ2_tautau_Prime;
-      SMInputs sminputs = *Dep::SMINPUTS;
-      Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 2, lp = 2;
-
-      result = THDM_DeltaCQ_NP(4, l, lp, sminputs, spectrum);
+      result.e = THDM_DeltaCQ_NP(4, e, e, sminputs, spectrum);
+      result.mu = THDM_DeltaCQ_NP(4, mu, mu, sminputs, spectrum);
+      result.tau = THDM_DeltaCQ_NP(4, tau, tau, sminputs, spectrum);
     }
 
     ///Green functions for Delta C7 in THDM
@@ -437,7 +552,7 @@ namespace Gambit
     ///@}
 
     /// Delta C2 in the THDM
-    void THDM_DeltaC2(complexd &result)
+    void THDM_DeltaC2(WilsonCoefficient &result)
     {
       using namespace Pipes::THDM_DeltaC2;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -463,11 +578,12 @@ namespace Gambit
 
       complexd C2mix = -(mC*(xi_bb*std::conj(Vcb) + xi_sb*std::conj(Vcs))*(xi_cc*std::conj(Vcs) + xi_tc*std::conj(Vts))*(3 + 4*log(pow(mBmB,2)/pow(mHp,2))))/(12.*sqrt(2)*sminputs.GF*mBmB*pow(mHp,2)*Vtb*Vts);
 
-      result = C2diag + C2mix;
+      // TODO: Is this only for muon flavour?
+      result.mu = C2diag + C2mix;
     }
 
     /// Delta C7 in the THDM
-    void THDM_DeltaC7(complexd &result)
+    void THDM_DeltaC7(WilsonCoefficient &result)
     {
       using namespace Pipes::THDM_DeltaC7;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -503,11 +619,12 @@ namespace Gambit
                + (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
                (std::conj(Vcs)*std::conj(xi_ct) + std::conj(Vts)*std::conj(xi_tt))*F7_2(pow(mT/mHp,2)));
 
-      result = C70 + C2diag + C2mix;
+      // TODO: Is this only for muon flavour?
+      result.mu = C70 + C2diag + C2mix;
     }
 
     /// Delta C8 in the THDM
-    void THDM_DeltaC8(complexd &result)
+    void THDM_DeltaC8(WilsonCoefficient &result)
     {
       using namespace Pipes::THDM_DeltaC8;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -544,13 +661,23 @@ namespace Gambit
                + (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
                (std::conj(Vcs)*std::conj(xi_ct) + std::conj(Vts)*std::conj(xi_tt))*F7_4(pow(mT/mHp,2)));
 
-      result = C80 + C2diag + C2mix;
+      // TODO: Is this only for muon flavour?
+      result.mu = C80 + C2diag + C2mix;
+    }
+
+    /// Delta C2' in the THDM
+    void THDM_DeltaC2p(WilsonCoefficient &result)
+    {
+      using namespace Pipes::THDM_DeltaC2p;
+
+      // TODO: This one is not yet implemented
+      result.mu = 0.;
     }
 
     /// Delta C7' in the THDM
-    void THDM_DeltaC7_Prime(complexd &result)
+    void THDM_DeltaC7p(WilsonCoefficient &result)
     {
-      using namespace Pipes::THDM_DeltaC7_Prime;
+      using namespace Pipes::THDM_DeltaC7p;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
@@ -573,13 +700,14 @@ namespace Gambit
       complexd C7p0 =  (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*(xi_sb*std::conj(Vtb))*(Vtb*xi_bb + Vts*xi_sb)*F7_1(pow(mT/mHp,2))
                +(1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*std::conj(xi_ct) + Vtb*std::conj(xi_tt))*F7_2(pow(mT/mHp,2));
 
-      result = C7p0;
+      // TODO: Is this only for muon flavour?
+      result.mu = C7p0;
     }
 
     /// Delta C8' in the THDM
-    void THDM_DeltaC8_Prime(complexd &result)
+    void THDM_DeltaC8p(WilsonCoefficient &result)
     {
-      using namespace Pipes::THDM_DeltaC8_Prime;
+      using namespace Pipes::THDM_DeltaC8p;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
@@ -601,123 +729,77 @@ namespace Gambit
       complexd C8p0 =  (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*(xi_sb*std::conj(Vtb))*(Vtb*xi_bb + Vts*xi_sb)*F7_3(pow(mT/mHp,2))
                  +(1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*std::conj(xi_ct) + Vtb*std::conj(xi_tt))*F7_4(pow(mT/mHp,2));
 
-
-      result = C8p0;
+      // TODO: Is this only for muon flavour?
+      result.mu = C8p0;
     }
 
 
     /// Delta C9 in the THDM
-    void THDM_DeltaC9(complexd &result)
+    void THDM_DeltaC9(WilsonCoefficient &result)
     {
       using namespace Pipes::THDM_DeltaC9;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 1, lp = 1;
 
-      result = THDM_DeltaC_NP(9, l, lp, sminputs, spectrum);
+      result.e = THDM_DeltaC_NP(9, e, e, sminputs, spectrum);
+      result.mu = THDM_DeltaC_NP(9, mu, mu, sminputs, spectrum);
+      result.tau = THDM_DeltaC_NP(9, tau, tau, sminputs, spectrum);
     }
 
     /// Delta C10 in the THDM
-    void THDM_DeltaC10(complexd &result)
+    void THDM_DeltaC10(WilsonCoefficient &result)
     {
       using namespace Pipes::THDM_DeltaC10;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 1, lp = 1;
 
-      result = THDM_DeltaC_NP(10, l, lp, sminputs, spectrum);
+      result.e = THDM_DeltaC_NP(10, e, e, sminputs, spectrum);
+      result.mu = THDM_DeltaC_NP(10, mu, mu, sminputs, spectrum);
+      result.tau = THDM_DeltaC_NP(10, tau, tau, sminputs, spectrum);
     }
 
     /// Delta C9' in the THDM
-    void THDM_DeltaC9_Prime(complexd &result)
+    void THDM_DeltaC9p(WilsonCoefficient &result)
     {
-      using namespace Pipes::THDM_DeltaC9_Prime;
+      using namespace Pipes::THDM_DeltaC9p;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 1, lp = 1;
 
-      result = THDM_DeltaC_NP(11, l, lp, sminputs, spectrum);
+      result.e = THDM_DeltaC_NP(11, e, e, sminputs, spectrum);
+      result.mu = THDM_DeltaC_NP(11, mu, mu, sminputs, spectrum);
+      result.tau = THDM_DeltaC_NP(11, tau, tau, sminputs, spectrum);
     }
 
     /// Delta C10' in the THDM
-    void THDM_DeltaC10_Prime(complexd &result)
+    void THDM_DeltaC10p(WilsonCoefficient &result)
     {
-      using namespace Pipes::THDM_DeltaC10_Prime;
+      using namespace Pipes::THDM_DeltaC10p;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 1, lp = 1;
 
-      result = THDM_DeltaC_NP(12, l, lp, sminputs, spectrum);
-    }
-
-    /// Delta C9 tautau in the THDM
-    void THDM_DeltaC9_tautau(complexd &result)
-    {
-      using namespace Pipes::THDM_DeltaC9_tautau;
-      SMInputs sminputs = *Dep::SMINPUTS;
-      Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 2, lp = 2;
-
-      result = THDM_DeltaC_NP(9, l, lp, sminputs, spectrum);
-    }
-
-    /// Delta C10 tautau in the THDM
-    void THDM_DeltaC10_tautau(complexd &result)
-    {
-      using namespace Pipes::THDM_DeltaC10_tautau;
-      SMInputs sminputs = *Dep::SMINPUTS;
-      Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 2, lp = 2;
-
-      result = THDM_DeltaC_NP(10, l, lp, sminputs, spectrum);
-    }
-
-    /// Delta C9' tautau in the THDM
-    void THDM_DeltaC9_tautau_Prime(complexd &result)
-    {
-      using namespace Pipes::THDM_DeltaC9_tautau_Prime;
-      SMInputs sminputs = *Dep::SMINPUTS;
-      Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 2, lp = 2;
-
-      result = THDM_DeltaC_NP(11, l, lp, sminputs, spectrum);
-    }
-
-    /// Delta C10' tautau in the THDM
-    void THDM_DeltaC10_tautau_Prime(complexd &result)
-    {
-      using namespace Pipes::THDM_DeltaC10_tautau_Prime;
-      SMInputs sminputs = *Dep::SMINPUTS;
-      Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 2, lp = 2;
-
-      result = THDM_DeltaC_NP(12, l, lp, sminputs, spectrum);
+      result.e = THDM_DeltaC_NP(12, e, e, sminputs, spectrum);
+      result.mu = THDM_DeltaC_NP(12, mu, mu, sminputs, spectrum);
+      result.tau = THDM_DeltaC_NP(12, tau, tau, sminputs, spectrum);
     }
 
     /// Delta CL for nunu processes in the THDM
-    void THDM_DeltaCL(complexd &result)
+    void THDM_DeltaCL(WilsonCoefficient &result)
     {
       using namespace Pipes::THDM_DeltaCL;
 
-      SMInputs sminputs = *Dep::SMINPUTS;
-      Spectrum spectrum = *Dep::THDM_spectrum;
-
       // TODO: Implement this
       logger() << "THDM_DeltaCL has not been implemented yet" << EOM;
-      result = 0.;
+      result.mu = 0.;
     }
 
     /// Delta CR for nunu processes in the THDM
-    void THDM_DeltaCR(complexd &result)
+    void THDM_DeltaCR(WilsonCoefficient &result)
     {
       using namespace Pipes::THDM_DeltaCR;
 
-      SMInputs sminputs = *Dep::SMINPUTS;
-      Spectrum spectrum = *Dep::THDM_spectrum;
-
       // TODO: Implement this
       logger() << "THDM_DeltaCR has not been implemented yet" << EOM;
-      result = 0.;
+      result.mu = 0.;
     }
 
     ///@}

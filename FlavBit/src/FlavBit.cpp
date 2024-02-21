@@ -98,7 +98,7 @@ namespace Gambit
 
       SLHAstruct spectrum;
       // Obtain SLHAea object from spectrum
-      if (ModelInUse("GWC") or ModelInUse("GWC_nu"))
+      if (ModelInUse("GWC"))
       {
         spectrum = Dep::SM_spectrum->getSLHAea(2);
       }
@@ -512,7 +512,7 @@ namespace Gambit
          if (spectrum["TE"][std::max(ie,je)].is_data_line()) result.TE[ie][je]=SLHAea::to<double>(spectrum["TE"].at(ie,je)[2]);
       }
 
-      else if (ModelInUse("GWC") or ModelInUse("GWC_nu"))
+      else if (ModelInUse("GWC"))
       {
         // The Higgs mass doesn't come through in the SLHAea object, as that's only for SLHA2 SM inputs.
         result.mass_h0 = Dep::SM_spectrum->get(Par::Pole_Mass, "h0_1");
@@ -543,7 +543,7 @@ namespace Gambit
         {
           result.mass_h0 = Dep::MSSM_spectrum->get(Par::Pole_Mass, "h0_1");
         }
-        else if (ModelInUse("GWC") or ModelInUse("GWC_nu"))
+        else if (ModelInUse("GWC"))
         {
           result.mass_h0 = Dep::SM_spectrum->get(Par::Pole_Mass, "h0_1");
         }
@@ -560,8 +560,12 @@ namespace Gambit
         result.SM = 1;
 
         // Fill the flavour-independent WCs too, for backwards compatibility with functions in SuperIso that don't take into account LFUV yet.
+        result.Re_DeltaC2  = *Param["Re_DeltaC2_mu"];
+        result.Im_DeltaC2  = *Param["Im_DeltaC2_mu"];
         result.Re_DeltaC7  = *Param["Re_DeltaC7_mu"];
         result.Im_DeltaC7  = *Param["Im_DeltaC7_mu"];
+        result.Re_DeltaC8  = *Param["Re_DeltaC8_mu"];
+        result.Im_DeltaC8  = *Param["Im_DeltaC8_mu"];
         result.Re_DeltaC9  = *Param["Re_DeltaC9_mu"];
         result.Im_DeltaC9  = *Param["Im_DeltaC9_mu"];
         result.Re_DeltaC10 = *Param["Re_DeltaC10_mu"];
@@ -571,20 +575,28 @@ namespace Gambit
         result.Re_DeltaCQ2 = *Param["Re_DeltaCQ2_mu"];
         result.Im_DeltaCQ2 = *Param["Im_DeltaCQ2_mu"];
 
-        result.Re_DeltaC7_Prime  = *Param["Re_DeltaC7_mu_Prime"];
-        result.Im_DeltaC7_Prime  = *Param["Im_DeltaC7_mu_Prime"];
-        result.Re_DeltaC9_Prime  = *Param["Re_DeltaC9_mu_Prime"];
-        result.Im_DeltaC9_Prime  = *Param["Im_DeltaC9_mu_Prime"];
-        result.Re_DeltaC10_Prime = *Param["Re_DeltaC10_mu_Prime"];
-        result.Im_DeltaC10_Prime = *Param["Im_DeltaC10_mu_Prime"];
-        result.Re_DeltaCQ1_Prime = *Param["Re_DeltaCQ1_mu_Prime"];
-        result.Im_DeltaCQ1_Prime = *Param["Im_DeltaCQ1_mu_Prime"];
-        result.Re_DeltaCQ2_Prime = *Param["Re_DeltaCQ2_mu_Prime"];
-        result.Im_DeltaCQ2_Prime = *Param["Im_DeltaCQ2_mu_Prime"];
+        result.Re_DeltaC2p  = *Param["Re_DeltaC2p_mu"];
+        result.Im_DeltaC2p  = *Param["Im_DeltaC2p_mu"];
+        result.Re_DeltaC7p  = *Param["Re_DeltaC7p_mu"];
+        result.Im_DeltaC7p  = *Param["Im_DeltaC7p_mu"];
+        result.Re_DeltaC8p  = *Param["Re_DeltaC8p_mu"];
+        result.Im_DeltaC8p  = *Param["Im_DeltaC8p_mu"];
+        result.Re_DeltaC9p  = *Param["Re_DeltaC9p_mu"];
+        result.Im_DeltaC9p  = *Param["Im_DeltaC9p_mu"];
+        result.Re_DeltaC10p = *Param["Re_DeltaC10p_mu"];
+        result.Im_DeltaC10p = *Param["Im_DeltaC10p_mu"];
+        result.Re_DeltaCQ1p = *Param["Re_DeltaCQ1p_mu"];
+        result.Im_DeltaCQ1p = *Param["Im_DeltaCQ1p_mu"];
+        result.Re_DeltaCQ2p = *Param["Re_DeltaCQ2p_mu"];
+        result.Im_DeltaCQ2p = *Param["Im_DeltaCQ2p_mu"];
 
         // Flavour dependent WCs
+        result.Re_DeltaC2_mu  = *Param["Re_DeltaC2_mu"];
+        result.Im_DeltaC2_mu  = *Param["Im_DeltaC2_mu"];
         result.Re_DeltaC7_mu  = *Param["Re_DeltaC7_mu"];
         result.Im_DeltaC7_mu  = *Param["Im_DeltaC7_mu"];
+        result.Re_DeltaC8_mu  = *Param["Re_DeltaC8_mu"];
+        result.Im_DeltaC8_mu  = *Param["Im_DeltaC8_mu"];
         result.Re_DeltaC9_mu  = *Param["Re_DeltaC9_mu"];
         result.Im_DeltaC9_mu  = *Param["Im_DeltaC9_mu"];
         result.Re_DeltaC10_mu = *Param["Re_DeltaC10_mu"];
@@ -594,8 +606,12 @@ namespace Gambit
         result.Re_DeltaCQ2_mu = *Param["Re_DeltaCQ2_mu"];
         result.Im_DeltaCQ2_mu = *Param["Im_DeltaCQ2_mu"];
 
+        result.Re_DeltaC2_e  = *Param["Re_DeltaC2_e"];
+        result.Im_DeltaC2_e  = *Param["Im_DeltaC2_e"];
         result.Re_DeltaC7_e  = *Param["Re_DeltaC7_e"];
         result.Im_DeltaC7_e  = *Param["Im_DeltaC7_e"];
+        result.Re_DeltaC8_e  = *Param["Re_DeltaC8_e"];
+        result.Im_DeltaC8_e  = *Param["Im_DeltaC8_e"];
         result.Re_DeltaC9_e  = *Param["Re_DeltaC9_e"];
         result.Im_DeltaC9_e  = *Param["Im_DeltaC9_e"];
         result.Re_DeltaC10_e = *Param["Re_DeltaC10_e"];
@@ -605,8 +621,12 @@ namespace Gambit
         result.Re_DeltaCQ2_e = *Param["Re_DeltaCQ2_e"];
         result.Im_DeltaCQ2_e = *Param["Im_DeltaCQ2_e"];
 
+        result.Re_DeltaC2_tau  = *Param["Re_DeltaC2_tau"];
+        result.Im_DeltaC2_tau  = *Param["Im_DeltaC2_tau"];
         result.Re_DeltaC7_tau  = *Param["Re_DeltaC7_tau"];
         result.Im_DeltaC7_tau  = *Param["Im_DeltaC7_tau"];
+        result.Re_DeltaC8_tau  = *Param["Re_DeltaC8_tau"];
+        result.Im_DeltaC8_tau  = *Param["Im_DeltaC8_tau"];
         result.Re_DeltaC9_tau  = *Param["Re_DeltaC9_tau"];
         result.Im_DeltaC9_tau  = *Param["Im_DeltaC9_tau"];
         result.Re_DeltaC10_tau = *Param["Re_DeltaC10_tau"];
@@ -616,98 +636,57 @@ namespace Gambit
         result.Re_DeltaCQ2_tau = *Param["Re_DeltaCQ2_tau"];
         result.Im_DeltaCQ2_tau = *Param["Im_DeltaCQ2_tau"];
 
-        result.Re_DeltaC7_mu_Prime  = *Param["Re_DeltaC7_mu_Prime"];
-        result.Im_DeltaC7_mu_Prime  = *Param["Im_DeltaC7_mu_Prime"];
-        result.Re_DeltaC9_mu_Prime  = *Param["Re_DeltaC9_mu_Prime"];
-        result.Im_DeltaC9_mu_Prime  = *Param["Im_DeltaC9_mu_Prime"];
-        result.Re_DeltaC10_mu_Prime = *Param["Re_DeltaC10_mu_Prime"];
-        result.Im_DeltaC10_mu_Prime = *Param["Im_DeltaC10_mu_Prime"];
-        result.Re_DeltaCQ1_mu_Prime = *Param["Re_DeltaCQ1_mu_Prime"];
-        result.Im_DeltaCQ1_mu_Prime = *Param["Im_DeltaCQ1_mu_Prime"];
-        result.Re_DeltaCQ2_mu_Prime = *Param["Re_DeltaCQ2_mu_Prime"];
-        result.Im_DeltaCQ2_mu_Prime = *Param["Im_DeltaCQ2_mu_Prime"];
+        result.Re_DeltaC2p_mu  = *Param["Re_DeltaC2p_mu"];
+        result.Im_DeltaC2p_mu  = *Param["Im_DeltaC2p_mu"];
+        result.Re_DeltaC7p_mu  = *Param["Re_DeltaC7p_mu"];
+        result.Im_DeltaC7p_mu  = *Param["Im_DeltaC7p_mu"];
+        result.Re_DeltaC8p_mu  = *Param["Re_DeltaC8p_mu"];
+        result.Im_DeltaC8p_mu  = *Param["Im_DeltaC8p_mu"];
+        result.Re_DeltaC9p_mu  = *Param["Re_DeltaC9p_mu"];
+        result.Im_DeltaC9p_mu  = *Param["Im_DeltaC9p_mu"];
+        result.Re_DeltaC10p_mu = *Param["Re_DeltaC10p_mu"];
+        result.Im_DeltaC10p_mu = *Param["Im_DeltaC10p_mu"];
+        result.Re_DeltaCQ1p_mu = *Param["Re_DeltaCQ1p_mu"];
+        result.Im_DeltaCQ1p_mu = *Param["Im_DeltaCQ1p_mu"];
+        result.Re_DeltaCQ2p_mu = *Param["Re_DeltaCQ2p_mu"];
+        result.Im_DeltaCQ2p_mu = *Param["Im_DeltaCQ2p_mu"];
 
-        result.Re_DeltaC7_e_Prime  = *Param["Re_DeltaC7_e_Prime"];
-        result.Im_DeltaC7_e_Prime  = *Param["Im_DeltaC7_e_Prime"];
-        result.Re_DeltaC9_e_Prime  = *Param["Re_DeltaC9_e_Prime"];
-        result.Im_DeltaC9_e_Prime  = *Param["Im_DeltaC9_e_Prime"];
-        result.Re_DeltaC10_e_Prime = *Param["Re_DeltaC10_e_Prime"];
-        result.Im_DeltaC10_e_Prime = *Param["Im_DeltaC10_e_Prime"];
-        result.Re_DeltaCQ1_e_Prime = *Param["Re_DeltaCQ1_e_Prime"];
-        result.Im_DeltaCQ1_e_Prime = *Param["Im_DeltaCQ1_e_Prime"];
-        result.Re_DeltaCQ2_e_Prime = *Param["Re_DeltaCQ2_e_Prime"];
-        result.Im_DeltaCQ2_e_Prime = *Param["Im_DeltaCQ2_e_Prime"];
+        result.Re_DeltaC2p_e  = *Param["Re_DeltaC2p_e"];
+        result.Im_DeltaC2p_e  = *Param["Im_DeltaC2p_e"];
+        result.Re_DeltaC7p_e  = *Param["Re_DeltaC7p_e"];
+        result.Im_DeltaC7p_e  = *Param["Im_DeltaC7p_e"];
+        result.Re_DeltaC8p_e  = *Param["Re_DeltaC8p_e"];
+        result.Im_DeltaC8p_e  = *Param["Im_DeltaC8p_e"];
+        result.Re_DeltaC9p_e  = *Param["Re_DeltaC9p_e"];
+        result.Im_DeltaC9p_e  = *Param["Im_DeltaC9p_e"];
+        result.Re_DeltaC10p_e = *Param["Re_DeltaC10p_e"];
+        result.Im_DeltaC10p_e = *Param["Im_DeltaC10p_e"];
+        result.Re_DeltaCQ1p_e = *Param["Re_DeltaCQ1p_e"];
+        result.Im_DeltaCQ1p_e = *Param["Im_DeltaCQ1p_e"];
+        result.Re_DeltaCQ2p_e = *Param["Re_DeltaCQ2p_e"];
+        result.Im_DeltaCQ2p_e = *Param["Im_DeltaCQ2p_e"];
 
-        result.Re_DeltaC7_tau_Prime  = *Param["Re_DeltaC7_tau_Prime"];
-        result.Im_DeltaC7_tau_Prime  = *Param["Im_DeltaC7_tau_Prime"];
-        result.Re_DeltaC9_tau_Prime  = *Param["Re_DeltaC9_tau_Prime"];
-        result.Im_DeltaC9_tau_Prime  = *Param["Im_DeltaC9_tau_Prime"];
-        result.Re_DeltaC10_tau_Prime = *Param["Re_DeltaC10_tau_Prime"];
-        result.Im_DeltaC10_tau_Prime = *Param["Im_DeltaC10_tau_Prime"];
-        result.Re_DeltaCQ1_tau_Prime = *Param["Re_DeltaCQ1_tau_Prime"];
-        result.Im_DeltaCQ1_tau_Prime = *Param["Im_DeltaCQ1_tau_Prime"];
-        result.Re_DeltaCQ2_tau_Prime = *Param["Re_DeltaCQ2_tau_Prime"];
-        result.Im_DeltaCQ2_tau_Prime = *Param["Im_DeltaCQ2_tau_Prime"];
+        result.Re_DeltaC2p_tau  = *Param["Re_DeltaC2p_tau"];
+        result.Im_DeltaC2p_tau  = *Param["Im_DeltaC2p_tau"];
+        result.Re_DeltaC7p_tau  = *Param["Re_DeltaC7p_tau"];
+        result.Im_DeltaC7p_tau  = *Param["Im_DeltaC7p_tau"];
+        result.Re_DeltaC8p_tau  = *Param["Re_DeltaC8p_tau"];
+        result.Im_DeltaC8p_tau  = *Param["Im_DeltaC8p_tau"];
+        result.Re_DeltaC9p_tau  = *Param["Re_DeltaC9p_tau"];
+        result.Im_DeltaC9p_tau  = *Param["Im_DeltaC9p_tau"];
+        result.Re_DeltaC10p_tau = *Param["Re_DeltaC10p_tau"];
+        result.Im_DeltaC10p_tau = *Param["Im_DeltaC10p_tau"];
+        result.Re_DeltaCQ1p_tau = *Param["Re_DeltaCQ1p_tau"];
+        result.Im_DeltaCQ1p_tau = *Param["Im_DeltaCQ1p_tau"];
+        result.Re_DeltaCQ2p_tau = *Param["Re_DeltaCQ2p_tau"];
+        result.Im_DeltaCQ2p_tau = *Param["Im_DeltaCQ2p_tau"];
 
-        /* Lines below are valid in the flavour NON-universal case
-           deltaC[1..10] = Cmu[1..10], deltaC[11..20] = Ce[1..10], deltaC[21..30] = Ctau[1..10]
-           deltaCQ[1,2] = CQmu[1,2], deltaCQ[1,2] = CQe[1,2], deltaCQ[1,2] = CQtau[1,2] */
-
-        // left handed:
-        result.deltaC[7]=std::complex<double>(result.Re_DeltaC7_mu, result.Im_DeltaC7_mu);
-        result.deltaC[9]=std::complex<double>(result.Re_DeltaC9_mu, result.Im_DeltaC9_mu);
-        result.deltaC[10]=std::complex<double>(result.Re_DeltaC10_mu, result.Im_DeltaC10_mu);
-        result.deltaCQ[1]=std::complex<double>(result.Re_DeltaCQ1_mu, result.Im_DeltaCQ1_mu);
-        result.deltaCQ[2]=std::complex<double>(result.Re_DeltaCQ2_mu, result.Im_DeltaCQ2_mu);
-
-        result.deltaC[17]=std::complex<double>(result.Re_DeltaC7_e, result.Im_DeltaC7_e);
-        result.deltaC[19]=std::complex<double>(result.Re_DeltaC9_e, result.Im_DeltaC9_e);
-        result.deltaC[20]=std::complex<double>(result.Re_DeltaC10_e, result.Im_DeltaC10_e);
-        result.deltaCQ[3]=std::complex<double>(result.Re_DeltaCQ1_e, result.Im_DeltaCQ1_e);
-        result.deltaCQ[4]=std::complex<double>(result.Re_DeltaCQ2_e, result.Im_DeltaCQ2_e);
-
-        result.deltaC[27]=std::complex<double>(result.Re_DeltaC7_tau, result.Im_DeltaC7_tau);
-        result.deltaC[29]=std::complex<double>(result.Re_DeltaC9_tau, result.Im_DeltaC9_tau);
-        result.deltaC[30]=std::complex<double>(result.Re_DeltaC10_tau, result.Im_DeltaC10_tau);
-        result.deltaCQ[5]=std::complex<double>(result.Re_DeltaCQ1_tau, result.Im_DeltaCQ1_tau);
-        result.deltaCQ[6]=std::complex<double>(result.Re_DeltaCQ2_tau, result.Im_DeltaCQ2_tau);
-
-        // Right-handed:
-        result.deltaCp[7]=std::complex<double>(result.Re_DeltaC7_mu_Prime, result.Im_DeltaC7_mu_Prime);
-        result.deltaCp[9]=std::complex<double>(result.Re_DeltaC9_mu_Prime, result.Im_DeltaC9_mu_Prime);
-        result.deltaCp[10]=std::complex<double>(result.Re_DeltaC10_mu_Prime, result.Im_DeltaC10_mu_Prime);
-        result.deltaCQp[1]=std::complex<double>(result.Re_DeltaCQ1_mu_Prime, result.Im_DeltaCQ1_mu_Prime);
-        result.deltaCQp[2]=std::complex<double>(result.Re_DeltaCQ2_mu_Prime, result.Im_DeltaCQ2_mu_Prime);
-
-        result.deltaCp[17]=std::complex<double>(result.Re_DeltaC7_e_Prime, result.Im_DeltaC7_e_Prime);
-        result.deltaCp[19]=std::complex<double>(result.Re_DeltaC9_e_Prime, result.Im_DeltaC9_e_Prime);
-        result.deltaCp[20]=std::complex<double>(result.Re_DeltaC10_e_Prime, result.Im_DeltaC10_e_Prime);
-        result.deltaCQp[3]=std::complex<double>(result.Re_DeltaCQ1_e_Prime, result.Im_DeltaCQ1_e_Prime);
-        result.deltaCQp[4]=std::complex<double>(result.Re_DeltaCQ2_e_Prime, result.Im_DeltaCQ2_e_Prime);
-
-        result.deltaCp[27]=std::complex<double>(result.Re_DeltaC7_tau_Prime, result.Im_DeltaC7_tau_Prime);
-        result.deltaCp[29]=std::complex<double>(result.Re_DeltaC9_tau_Prime, result.Im_DeltaC9_tau_Prime);
-        result.deltaCp[30]=std::complex<double>(result.Re_DeltaC10_tau_Prime, result.Im_DeltaC10_tau_Prime);
-        result.deltaCQp[5]=std::complex<double>(result.Re_DeltaCQ1_tau_Prime, result.Im_DeltaCQ1_tau_Prime);
-        result.deltaCQp[6]=std::complex<double>(result.Re_DeltaCQ2_tau_Prime, result.Im_DeltaCQ2_tau_Prime);
-      }
-
-      if (ModelInUse("GWC_nu"))
-      {
-
-        // Tell SuperIso to do its Wilson coefficient calculations for the SM.
-        // We will adjust them with our BSM deviations in backend convenience
-        // functions before we send them to SuperIso's observable calculation functions.
-        result.SM = 1;
-
+        // Neutral lepton interactions
         // FIXME: Currently SuperIso only takes the left and right vector WCs. Expand with more
         result.Re_DeltaCL = *Param["Re_DeltaCLL_V"];
         result.Im_DeltaCL = *Param["Im_DeltaCLL_V"];
         result.Re_DeltaCR = *Param["Re_DeltaCRR_V"];
         result.Im_DeltaCR = *Param["Im_DeltaCRR_V"];
-
-        result.deltaCLR[0] = std::complex<double>(result.Re_DeltaCL, result.Im_DeltaCL);
-        result.deltaCLR[1] = std::complex<double>(result.Re_DeltaCR, result.Im_DeltaCR);
       }
 
 
@@ -726,80 +705,193 @@ namespace Gambit
         {
           result.SM = 1;
           result.model = -3; //force SI to read the THDM as an EFT
-          result.Re_DeltaC2  = Dep::DeltaC2->real();
-          result.Im_DeltaC2  = Dep::DeltaC2->imag();
-          result.Re_DeltaC7  = Dep::DeltaC7->real();
-          result.Im_DeltaC7  = Dep::DeltaC7->imag();
-          result.Re_DeltaC8  = Dep::DeltaC8->real();
-          result.Im_DeltaC8  = Dep::DeltaC8->imag();
-          result.Re_DeltaC9  = Dep::DeltaC9->real();
-          result.Im_DeltaC9  = Dep::DeltaC9->imag();
-          result.Re_DeltaC10 = Dep::DeltaC10->real();
-          result.Im_DeltaC10 = Dep::DeltaC10->imag();
-          result.Re_DeltaCQ1 = Dep::DeltaCQ1->real();
-          result.Im_DeltaCQ1 = Dep::DeltaCQ1->imag();
-          result.Re_DeltaCQ2 = Dep::DeltaCQ2->real();
-          result.Im_DeltaCQ2 = Dep::DeltaCQ2->imag();
 
-          result.deltaC[2]=std::complex<double>(result.Re_DeltaC2, result.Im_DeltaC2);
-          result.deltaC[7]=std::complex<double>(result.Re_DeltaC7, result.Im_DeltaC7);
-          result.deltaC[8]=std::complex<double>(result.Re_DeltaC8, result.Im_DeltaC8);
-          result.deltaC[9]=std::complex<double>(result.Re_DeltaC9, result.Im_DeltaC9);
-          result.deltaC[10]=std::complex<double>(result.Re_DeltaC10, result.Im_DeltaC10);
-          result.deltaCQ[1]=std::complex<double>(result.Re_DeltaCQ1, result.Im_DeltaCQ1);
-          result.deltaCQ[2]=std::complex<double>(result.Re_DeltaCQ2, result.Im_DeltaCQ2);
+          result.Re_DeltaC2  = Dep::DeltaC->at("C2").mu.real();
+          result.Im_DeltaC2  = Dep::DeltaC->at("C2").mu.imag();
+          result.Re_DeltaC7  = Dep::DeltaC->at("C7").mu.real();
+          result.Im_DeltaC7  = Dep::DeltaC->at("C7").mu.imag();
+          result.Re_DeltaC8  = Dep::DeltaC->at("C8").mu.real();
+          result.Im_DeltaC8  = Dep::DeltaC->at("C8").mu.imag();
+          result.Re_DeltaC9  = Dep::DeltaC->at("C9").mu.real();
+          result.Im_DeltaC9  = Dep::DeltaC->at("C9").mu.imag();
+          result.Re_DeltaC10 = Dep::DeltaC->at("C10").mu.real();
+          result.Im_DeltaC10 = Dep::DeltaC->at("C10").mu.imag();
+          result.Re_DeltaCQ1 = Dep::DeltaC->at("CQ1").mu.real();
+          result.Im_DeltaCQ1 = Dep::DeltaC->at("CQ1").mu.imag();
+          result.Re_DeltaCQ2 = Dep::DeltaC->at("CQ2").mu.real();
+          result.Im_DeltaCQ2 = Dep::DeltaC->at("CQ2").mu.imag();
 
           // Prime WCs
-          result.Re_DeltaC7_Prime  = Dep::DeltaC7_Prime->real();
-          result.Im_DeltaC7_Prime  = Dep::DeltaC7_Prime->imag();
-          result.Re_DeltaC8_Prime  = Dep::DeltaC8_Prime->real();
-          result.Im_DeltaC8_Prime  = Dep::DeltaC8_Prime->imag();
-          result.Re_DeltaC9_Prime  = Dep::DeltaC9_Prime->real();
-          result.Im_DeltaC9_Prime  = Dep::DeltaC9_Prime->imag();
-          result.Im_DeltaC10_Prime = Dep::DeltaC10_Prime->imag();
-          result.Re_DeltaCQ1_Prime = Dep::DeltaCQ1_Prime->real();
-          result.Im_DeltaCQ1_Prime = Dep::DeltaCQ1_Prime->imag();
-          result.Re_DeltaCQ2_Prime = Dep::DeltaCQ2_Prime->real();
-          result.Im_DeltaCQ2_Prime = Dep::DeltaCQ2_Prime->imag();
+          result.Re_DeltaC2p  = Dep::DeltaC->at("C2p").mu.real();
+          result.Im_DeltaC2p  = Dep::DeltaC->at("C2p").mu.imag();
+          result.Re_DeltaC7p  = Dep::DeltaC->at("C7p").mu.real();
+          result.Im_DeltaC7p  = Dep::DeltaC->at("C7p").mu.imag();
+          result.Re_DeltaC8p  = Dep::DeltaC->at("C8p").mu.real();
+          result.Im_DeltaC8p  = Dep::DeltaC->at("C8p").mu.imag();
+          result.Re_DeltaC9p  = Dep::DeltaC->at("C9p").mu.real();
+          result.Im_DeltaC9p  = Dep::DeltaC->at("C9p").mu.imag();
+          result.Re_DeltaC10p = Dep::DeltaC->at("C10p").mu.real();
+          result.Im_DeltaC10p = Dep::DeltaC->at("C10p").mu.imag();
+          result.Re_DeltaCQ1p = Dep::DeltaC->at("CQ1p").mu.real();
+          result.Im_DeltaCQ1p = Dep::DeltaC->at("CQ1p").mu.imag();
+          result.Re_DeltaCQ2p = Dep::DeltaC->at("CQ2p").mu.real();
+          result.Im_DeltaCQ2p = Dep::DeltaC->at("CQ2p").mu.imag();
 
-          result.deltaCp[7]=std::complex<double>(result.Re_DeltaC7_Prime, result.Im_DeltaC7_Prime);
-          result.deltaCp[8]=std::complex<double>(result.Re_DeltaC8_Prime, result.Im_DeltaC8_Prime);
-          result.deltaCp[9]=std::complex<double>(result.Re_DeltaC9_Prime, result.Im_DeltaC9_Prime);
-          result.deltaCp[10]=std::complex<double>(result.Re_DeltaC10_Prime, result.Im_DeltaC10_Prime);
-          result.deltaCQp[1]=std::complex<double>(result.Re_DeltaCQ1_Prime, result.Im_DeltaCQ1_Prime);
-          result.deltaCQp[2]=std::complex<double>(result.Re_DeltaCQ2_Prime, result.Im_DeltaCQ2_Prime);
+          // Flavour dependent WCs
+          result.Re_DeltaC2_mu  = Dep::DeltaC->at("C2").mu.real();
+          result.Im_DeltaC2_mu  = Dep::DeltaC->at("C2").mu.imag();
+          result.Re_DeltaC7_mu  = Dep::DeltaC->at("C7").mu.real();
+          result.Im_DeltaC7_mu  = Dep::DeltaC->at("C7").mu.imag();
+          result.Re_DeltaC8_mu  = Dep::DeltaC->at("C8").mu.real();
+          result.Im_DeltaC8_mu  = Dep::DeltaC->at("C8").mu.imag();
+          result.Re_DeltaC9_mu  = Dep::DeltaC->at("C9").mu.real();
+          result.Im_DeltaC9_mu  = Dep::DeltaC->at("C9").mu.imag();
+          result.Re_DeltaC10_mu = Dep::DeltaC->at("C10").mu.real();
+          result.Im_DeltaC10_mu = Dep::DeltaC->at("C10").mu.imag();
+          result.Re_DeltaCQ1_mu = Dep::DeltaC->at("CQ1").mu.real();
+          result.Im_DeltaCQ1_mu = Dep::DeltaC->at("CQ1").mu.imag();
+          result.Re_DeltaCQ2_mu = Dep::DeltaC->at("CQ2").mu.real();
+          result.Im_DeltaCQ2_mu = Dep::DeltaC->at("CQ2").mu.imag();
 
-          //tautau WCs
-          result.Re_DeltaC9_tau  = Dep::DeltaC9_tautau->real();
-          result.Im_DeltaC9_tau  = Dep::DeltaC9_tautau->imag();
-          result.Re_DeltaC10_tau = Dep::DeltaC10_tautau->real();
-          result.Im_DeltaC10_tau = Dep::DeltaC10_tautau->imag();
-          result.Re_DeltaCQ1_tau = Dep::DeltaCQ1_tautau->real();
-          result.Im_DeltaCQ1_tau = Dep::DeltaCQ1_tautau->imag();
-          result.Re_DeltaCQ2_tau = Dep::DeltaCQ2_tautau->real();
-          result.Im_DeltaCQ2_tau = Dep::DeltaCQ2_tautau->imag();
-          // tautau Prime WCs
-          result.Re_DeltaC9_tau_Prime  = Dep::DeltaC9_tautau_Prime->real();
-          result.Im_DeltaC9_tau_Prime  = Dep::DeltaC9_tautau_Prime->imag();
-          result.Re_DeltaC10_tau_Prime = Dep::DeltaC10_tautau_Prime->real();
-          result.Im_DeltaC10_tau_Prime = Dep::DeltaC10_tautau_Prime->imag();
-          result.Re_DeltaCQ1_tau_Prime = Dep::DeltaCQ1_tautau_Prime->real();
-          result.Im_DeltaCQ1_tau_Prime = Dep::DeltaCQ1_tautau_Prime->imag();
-          result.Re_DeltaCQ2_tau_Prime = Dep::DeltaCQ2_tautau_Prime->real();
-          result.Im_DeltaCQ2_tau_Prime = Dep::DeltaCQ2_tautau_Prime->imag();
+          result.Re_DeltaC2_e  = Dep::DeltaC->at("C2").e.real();
+          result.Im_DeltaC2_e  = Dep::DeltaC->at("C2").e.imag();
+          result.Re_DeltaC7_e  = Dep::DeltaC->at("C7").e.real();
+          result.Im_DeltaC7_e  = Dep::DeltaC->at("C7").e.imag();
+          result.Re_DeltaC8_e  = Dep::DeltaC->at("C8").e.real();
+          result.Im_DeltaC8_e  = Dep::DeltaC->at("C8").e.imag();
+          result.Re_DeltaC9_e  = Dep::DeltaC->at("C9").e.real();
+          result.Im_DeltaC9_e  = Dep::DeltaC->at("C9").e.imag();
+          result.Re_DeltaC10_e = Dep::DeltaC->at("C10").e.real();
+          result.Im_DeltaC10_e = Dep::DeltaC->at("C10").e.imag();
+          result.Re_DeltaCQ1_e = Dep::DeltaC->at("CQ1").e.real();
+          result.Im_DeltaCQ1_e = Dep::DeltaC->at("CQ1").e.imag();
+          result.Re_DeltaCQ2_e = Dep::DeltaC->at("CQ2").e.real();
+          result.Im_DeltaCQ2_e = Dep::DeltaC->at("CQ2").e.imag();
 
-          //TODO: The tau WCs are not stored in SuperIso, check that
+          result.Re_DeltaC2_tau  = Dep::DeltaC->at("C2").tau.real();
+          result.Im_DeltaC2_tau  = Dep::DeltaC->at("C2").tau.imag();
+          result.Re_DeltaC7_tau  = Dep::DeltaC->at("C7").tau.real();
+          result.Im_DeltaC7_tau  = Dep::DeltaC->at("C7").tau.imag();
+          result.Re_DeltaC8_tau  = Dep::DeltaC->at("C8").tau.real();
+          result.Im_DeltaC8_tau  = Dep::DeltaC->at("C8").tau.imag();
+          result.Re_DeltaC9_tau  = Dep::DeltaC->at("C9").tau.real();
+          result.Im_DeltaC9_tau  = Dep::DeltaC->at("C9").tau.imag();
+          result.Re_DeltaC10_tau = Dep::DeltaC->at("C10").tau.real();
+          result.Im_DeltaC10_tau = Dep::DeltaC->at("C10").tau.imag();
+          result.Re_DeltaCQ1_tau = Dep::DeltaC->at("CQ1").tau.real();
+          result.Im_DeltaCQ1_tau = Dep::DeltaC->at("CQ1").tau.imag();
+          result.Re_DeltaCQ2_tau = Dep::DeltaC->at("CQ2").tau.real();
+          result.Im_DeltaCQ2_tau = Dep::DeltaC->at("CQ2").tau.imag();
 
-          // nunu WCs
-          result.Re_DeltaCL = Dep::DeltaCL->real();
-          result.Im_DeltaCL = Dep::DeltaCL->imag();
-          result.Re_DeltaCR = Dep::DeltaCR->real();
-          result.Im_DeltaCR = Dep::DeltaCR->imag();
+          result.Re_DeltaC2p_mu  = Dep::DeltaC->at("C2p").mu.real();
+          result.Im_DeltaC2p_mu  = Dep::DeltaC->at("C2p").mu.imag();
+          result.Re_DeltaC7p_mu  = Dep::DeltaC->at("C7p").mu.real();
+          result.Im_DeltaC7p_mu  = Dep::DeltaC->at("C7p").mu.imag();
+          result.Re_DeltaC8p_mu  = Dep::DeltaC->at("C8p").mu.real();
+          result.Im_DeltaC8p_mu  = Dep::DeltaC->at("C8p").mu.imag();
+          result.Re_DeltaC9p_mu  = Dep::DeltaC->at("C9p").mu.real();
+          result.Im_DeltaC9p_mu  = Dep::DeltaC->at("C9p").mu.imag();
+          result.Re_DeltaC10p_mu = Dep::DeltaC->at("C10p").mu.real();
+          result.Im_DeltaC10p_mu = Dep::DeltaC->at("C10p").mu.imag();
+          result.Re_DeltaCQ1p_mu = Dep::DeltaC->at("CQ1p").mu.real();
+          result.Im_DeltaCQ1p_mu = Dep::DeltaC->at("CQ1p").mu.imag();
+          result.Re_DeltaCQ2p_mu = Dep::DeltaC->at("CQ2p").mu.real();
+          result.Im_DeltaCQ2p_mu = Dep::DeltaC->at("CQ2p").mu.imag();
 
-          result.deltaCLR[0] = std::complex<double>(result.Re_DeltaCL, result.Im_DeltaCL);
-          result.deltaCLR[1] = std::complex<double>(result.Re_DeltaCR, result.Im_DeltaCR);
+          result.Re_DeltaC2p_e  = Dep::DeltaC->at("C2p").e.real();
+          result.Im_DeltaC2p_e  = Dep::DeltaC->at("C2p").e.imag();
+          result.Re_DeltaC7p_e  = Dep::DeltaC->at("C7p").e.real();
+          result.Im_DeltaC7p_e  = Dep::DeltaC->at("C7p").e.imag();
+          result.Re_DeltaC8p_e  = Dep::DeltaC->at("C8p").e.real();
+          result.Im_DeltaC8p_e  = Dep::DeltaC->at("C8p").e.imag();
+          result.Re_DeltaC9p_e  = Dep::DeltaC->at("C9p").e.real();
+          result.Im_DeltaC9p_e  = Dep::DeltaC->at("C9p").e.imag();
+          result.Re_DeltaC10p_e = Dep::DeltaC->at("C10p").e.real();
+          result.Im_DeltaC10p_e = Dep::DeltaC->at("C10p").e.imag();
+          result.Re_DeltaCQ1p_e = Dep::DeltaC->at("CQ1p").e.real();
+          result.Im_DeltaCQ1p_e = Dep::DeltaC->at("CQ1p").e.imag();
+          result.Re_DeltaCQ2p_e = Dep::DeltaC->at("CQ2p").e.real();
+          result.Im_DeltaCQ2p_e = Dep::DeltaC->at("CQ2p").e.imag();
+
+          result.Re_DeltaC2p_tau  = Dep::DeltaC->at("C2p").tau.real();
+          result.Im_DeltaC2p_tau  = Dep::DeltaC->at("C2p").tau.imag();
+          result.Re_DeltaC7p_tau  = Dep::DeltaC->at("C7p").tau.real();
+          result.Im_DeltaC7p_tau  = Dep::DeltaC->at("C7p").tau.imag();
+          result.Re_DeltaC8p_tau  = Dep::DeltaC->at("C8p").tau.real();
+          result.Im_DeltaC8p_tau  = Dep::DeltaC->at("C8p").tau.imag();
+          result.Re_DeltaC9p_tau  = Dep::DeltaC->at("C9p").tau.real();
+          result.Im_DeltaC9p_tau  = Dep::DeltaC->at("C9p").tau.imag();
+          result.Re_DeltaC10p_tau = Dep::DeltaC->at("C10p").tau.real();
+          result.Im_DeltaC10p_tau = Dep::DeltaC->at("C10p").tau.imag();
+          result.Re_DeltaCQ1p_tau = Dep::DeltaC->at("CQ1p").tau.real();
+          result.Im_DeltaCQ1p_tau = Dep::DeltaC->at("CQ1p").tau.imag();
+          result.Re_DeltaCQ2p_tau = Dep::DeltaC->at("CQ2p").tau.real();
+          result.Im_DeltaCQ2p_tau = Dep::DeltaC->at("CQ2p").tau.imag();
+
+          // nunu WCs, are flavour universal
+          result.Re_DeltaCL = Dep::DeltaC->at("CL").e.real();
+          result.Im_DeltaCL = Dep::DeltaC->at("CL").e.imag();
+          result.Re_DeltaCR = Dep::DeltaC->at("CR").e.real();
+          result.Im_DeltaCR = Dep::DeltaC->at("CR").e.imag();
+
 
         }
+      }
+
+      /* Lines below are valid in the flavour NON-universal case
+         deltaC[1..10] = Cmu[1..10], deltaC[11..20] = Ce[1..10], deltaC[21..30] = Ctau[1..10]
+         deltaCQ[1,2] = CQmu[1,2], deltaCQ[1,2] = CQe[1,2], deltaCQ[1,2] = CQtau[1,2] */
+
+      if(ModelInUse("GWC") or ((ModelInUse("THDM") or ModelInUse("THDMatQ")) and result.model == -3))
+      {
+
+        // left handed:
+        result.deltaC[2]=std::complex<double>(result.Re_DeltaC2_mu, result.Im_DeltaC2_mu);
+        result.deltaC[7]=std::complex<double>(result.Re_DeltaC7_mu, result.Im_DeltaC7_mu);
+        result.deltaC[9]=std::complex<double>(result.Re_DeltaC9_mu, result.Im_DeltaC9_mu);
+        result.deltaC[10]=std::complex<double>(result.Re_DeltaC10_mu, result.Im_DeltaC10_mu);
+        result.deltaCQ[1]=std::complex<double>(result.Re_DeltaCQ1_mu, result.Im_DeltaCQ1_mu);
+        result.deltaCQ[2]=std::complex<double>(result.Re_DeltaCQ2_mu, result.Im_DeltaCQ2_mu);
+
+        result.deltaC[12]=std::complex<double>(result.Re_DeltaC2_e, result.Im_DeltaC2_e);
+        result.deltaC[17]=std::complex<double>(result.Re_DeltaC7_e, result.Im_DeltaC7_e);
+        result.deltaC[19]=std::complex<double>(result.Re_DeltaC9_e, result.Im_DeltaC9_e);
+        result.deltaC[20]=std::complex<double>(result.Re_DeltaC10_e, result.Im_DeltaC10_e);
+        result.deltaCQ[3]=std::complex<double>(result.Re_DeltaCQ1_e, result.Im_DeltaCQ1_e);
+        result.deltaCQ[4]=std::complex<double>(result.Re_DeltaCQ2_e, result.Im_DeltaCQ2_e);
+
+        result.deltaC[22]=std::complex<double>(result.Re_DeltaC2_tau, result.Im_DeltaC2_tau);
+        result.deltaC[27]=std::complex<double>(result.Re_DeltaC7_tau, result.Im_DeltaC7_tau);
+        result.deltaC[29]=std::complex<double>(result.Re_DeltaC9_tau, result.Im_DeltaC9_tau);
+        result.deltaC[30]=std::complex<double>(result.Re_DeltaC10_tau, result.Im_DeltaC10_tau);
+        result.deltaCQ[5]=std::complex<double>(result.Re_DeltaCQ1_tau, result.Im_DeltaCQ1_tau);
+        result.deltaCQ[6]=std::complex<double>(result.Re_DeltaCQ2_tau, result.Im_DeltaCQ2_tau);
+
+        // Right-handed:
+        result.deltaCp[2]=std::complex<double>(result.Re_DeltaC2p_mu, result.Im_DeltaC2p_mu);
+        result.deltaCp[7]=std::complex<double>(result.Re_DeltaC7p_mu, result.Im_DeltaC7p_mu);
+        result.deltaCp[9]=std::complex<double>(result.Re_DeltaC9p_mu, result.Im_DeltaC9p_mu);
+        result.deltaCp[10]=std::complex<double>(result.Re_DeltaC10p_mu, result.Im_DeltaC10p_mu);
+        result.deltaCQp[1]=std::complex<double>(result.Re_DeltaCQ1p_mu, result.Im_DeltaCQ1p_mu);
+        result.deltaCQp[2]=std::complex<double>(result.Re_DeltaCQ2p_mu, result.Im_DeltaCQ2p_mu);
+
+        result.deltaCp[12]=std::complex<double>(result.Re_DeltaC2p_e, result.Im_DeltaC2p_e);
+        result.deltaCp[17]=std::complex<double>(result.Re_DeltaC7p_e, result.Im_DeltaC7p_e);
+        result.deltaCp[19]=std::complex<double>(result.Re_DeltaC9p_e, result.Im_DeltaC9p_e);
+        result.deltaCp[20]=std::complex<double>(result.Re_DeltaC10p_e, result.Im_DeltaC10p_e);
+        result.deltaCQp[3]=std::complex<double>(result.Re_DeltaCQ1p_e, result.Im_DeltaCQ1p_e);
+        result.deltaCQp[4]=std::complex<double>(result.Re_DeltaCQ2p_e, result.Im_DeltaCQ2p_e);
+
+        result.deltaCp[22]=std::complex<double>(result.Re_DeltaC2p_tau, result.Im_DeltaC2p_tau);
+        result.deltaCp[27]=std::complex<double>(result.Re_DeltaC7p_tau, result.Im_DeltaC7p_tau);
+        result.deltaCp[29]=std::complex<double>(result.Re_DeltaC9p_tau, result.Im_DeltaC9p_tau);
+        result.deltaCp[30]=std::complex<double>(result.Re_DeltaC10p_tau, result.Im_DeltaC10p_tau);
+        result.deltaCQp[5]=std::complex<double>(result.Re_DeltaCQ1p_tau, result.Im_DeltaCQ1p_tau);
+        result.deltaCQp[6]=std::complex<double>(result.Re_DeltaCQ2p_tau, result.Im_DeltaCQ2p_tau);
+
+        result.deltaCLR[0] = std::complex<double>(result.Re_DeltaCL, result.Im_DeltaCL);
+        result.deltaCLR[1] = std::complex<double>(result.Re_DeltaCR, result.Im_DeltaCR);
+
       }
       if (flav_debug) std::cout << "Finished SuperIso_fill" << std::endl;
     }

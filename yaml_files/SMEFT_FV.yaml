@@ -39,21 +39,39 @@ Parameters:
   StandardModel_Higgs:
     mH: 125.09
 
-  WC:
-    Re_DeltaC7:
-      range: [-0.2, 0.2]
-    Im_DeltaC7:  0
-    Re_DeltaC9:
-       range: [-2, 1]
-    Im_DeltaC9:  0
-    Re_DeltaC10:
-       range: [-1.5, 1.5]
-    Im_DeltaC10: 0
-    Re_DeltaCQ1: 0
-    Im_DeltaCQ1: 0
-    Re_DeltaCQ2: 0
-    Im_DeltaCQ2: 0
-
+  SMEFT_FV:
+    Re_cql1:
+      prior_type: flat
+      range: [-10,10]
+    Im_cql1: 0.0
+    Re_cql3:
+      prior_type: flat
+      range: [-10,10]
+    Im_cql3: 0.0
+    Re_cdl:
+      prior_type: flat
+      range: [-10,10]
+    Im_cdl: 0.0
+    Re_cqe:
+      prior_type: flat
+      range: [-10,10]
+    Im_cqe: 0.0
+    Re_cde:
+      prior_type: flat
+      range: [-10,10]
+    Im_cde: 0.0
+    Re_cHq1:
+      prior_type: flat
+      range: [-10,10]
+    Im_cHq1: 0.0
+    Re_cHq3:
+      prior_type: flat
+      range: [-10,10]
+    Im_cHq3: 0.0
+    Re_cHd:
+      prior_type: flat
+      range: [-10,10]
+    Im_cHd: 0.0
 
 Priors:
 
@@ -62,11 +80,11 @@ Priors:
 
 Printer:
 
-  printer: hdf5
+  printer: cout
 
   options:
-    output_file: "WC.hdf5"
-    group: "/WC"
+    output_file: "SMEFT_FV.hdf5"
+    group: "/SMEFT_FV"
 
 
 Scanner:
@@ -84,8 +102,8 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 2000
-      convthresh: 1e-3
+      NP: 12800
+      convthresh: 1e-5
 
     square_grid:
       plugin: square_grid
@@ -269,10 +287,11 @@ ObsLikes:
   #  purpose: LogLike
 
 
-    # --------------- #
-    # Mass splittings #
-    # ----------------#
+    # --------------------------------- #
+    # Lifetime and Delta MB likelihoods #
+    # --------------------------------- #
 
+  # NOTE: Not sure if to include this
   - capability: deltaMB_LogLikelihood
     function: deltaMB_likelihood
     purpose: LogLike
@@ -287,46 +306,10 @@ ObsLikes:
     # ------------------- #
 
   - purpose: Observable
-    capability: DeltaC2
-
-  - purpose: Observable
-    capability: DeltaC7
-
-  - purpose: Observable
-    capability: DeltaC8
-
-  - purpose: Observable
     capability: DeltaC9
 
   - purpose: Observable
     capability: DeltaC10
-
-  - purpose: Observable
-    capability: DeltaC2p
-
-  - purpose: Observable
-    capability: DeltaC7p
-
-  - purpose: Observable
-    capability: DeltaC8p
-
-  - purpose: Observable
-    capability: DeltaC9p
-
-  - purpose: Observable
-    capability: DeltaC10p
-
-  - purpose: Observable
-    capability: DeltaCQ1
-
-  - purpose: Observable
-    capability: DeltaCQ2
-
-  - purpose: Observable
-    capability: DeltaCQ1p
-
-  - purpose: Observable
-    capability: DeltaCQ2p
 
   - purpose: Observable
     capability: DeltaCL
@@ -355,11 +338,9 @@ ObsLikes:
 
   - purpose: Observable
     capability: prediction_B2Knunu
-    function: SuperIso_prediction_B2Knunu
 
   - purpose: Observable
     capability: prediction_Bu2Knunu
-    function: SuperIso_prediction_Bu2Knunu
 
 Rules:
 
@@ -383,6 +364,7 @@ Rules:
   - capability: prediction_DeltaMs
     function: SuperIso_prediction_Delta_MBs
 
+
 Logger:
 
   redirection:
@@ -400,6 +382,6 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e5
     model_invalid_for_lnlike_below_alt: -1e5
 
-  default_output_path: "runs/WC"
+  default_output_path: "runs/SMEFT_FV"
 
   debug: true

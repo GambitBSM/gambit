@@ -63,6 +63,7 @@ namespace Gambit
       USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, flav_binned_prediction)
       USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, HiggsCouplingsTable)
       USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, CouplingTable)
+      USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, WilsonCoefficient)
     #endif
 
     /// @}
