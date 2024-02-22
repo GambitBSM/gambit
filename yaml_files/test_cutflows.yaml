@@ -36,13 +36,13 @@ Scanner:
         
 Printer:
 
-  #printer: cout
+  printer: cout
 
-  printer: hdf5
-  options:
-    output_file: "CB_SLHA_file_model.hdf5"
-    group: "/CB_SLHA_file_model"
-    delete_file_on_restart: true
+  #printer: hdf5
+  #options:
+  #  output_file: "CB_SLHA_file_model.hdf5"
+  #  group: "/CB_SLHA_file_model"
+  #  delete_file_on_restart: true
 
 
 ObsLikes:
@@ -79,7 +79,7 @@ Rules:
     function: getNextSLHAFileNameAndContent
     options:
       SLHA_filenames:
-      - C1N2.param.dat
+      - cut_flow_4b_130GeV.slha
          #- point.slha
 
   # List the SLHA file entries that should be stored in the GAMBIT output.
@@ -127,7 +127,7 @@ Rules:
         all_SR_must_converge: false
         maxFailedEvents: 100
         analyses:
-          - ATLAS_13TeV_2LEPJETS_RJR_139invfb
+          - ATLAS_13TeV_4b_126invfb
 
   # Choose Monte Carlo event simulator and options.
   - capability:  HardScatteringSim
