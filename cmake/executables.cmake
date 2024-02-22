@@ -50,6 +50,12 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/Core/")
   if (NOT EXCLUDE_YODA)
     set(gambit_XTRA ${gambit_XTRA} ${YODA_LDFLAGS})
   endif()
+  if (NOT EXCLUDE_FJCONTRIB)
+    set(gambit_XTRA ${gambit_XTRA} ${fjcontrib_LDFLAGS})
+  endif()
+  if (NOT EXCLUDE_FASTJET)
+    set(gambit_XTRA ${gambit_XTRA} ${fastjet_LDFLAGS})
+  endif()
   add_gambit_executable(${PROJECT_NAME} "${gambit_XTRA}"
                         SOURCES ${PROJECT_SOURCE_DIR}/Core/src/gambit.cpp
                                 ${GAMBIT_ALL_COMMON_OBJECTS}

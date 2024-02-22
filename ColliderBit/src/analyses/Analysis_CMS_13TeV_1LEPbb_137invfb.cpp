@@ -19,7 +19,7 @@
 #include "HEPUtils/FastJet.h"
 
 using namespace std;
-#define CHECK_CUTFLOW
+// #define CHECK_CUTFLOW
 
 namespace Gambit
 {
@@ -53,17 +53,17 @@ namespace Gambit
         set_luminosity(137.0);
 
         #ifdef CHECK_CUTFLOW
-          cout << "Starting the Run Analysis \n booking Cutflows" << endl; 
+          cout << "Starting the Run Analysis \n booking Cutflows" << endl;
           // Book Cutflows
           const vector<string> cutnames = {
-                                  "no cut", 
+                                  "no cut",
                                   "Pre-selection",
                                   "No-veto-Lepton",
                                   "No-veto-hadronic taus",
                                   "1 Single Lepton",
                                   "mT(l) >= 150 GeV",
                                   "N_bjet = 2",
-                                  "N_jet = 2", 
+                                  "N_jet = 2",
                                   "N_jet = 3",
                                   "ETmiss >= 125 GeV",
                                   "90 GeV <= mbb <= 150 GeV",
@@ -80,23 +80,23 @@ namespace Gambit
           // _cutflows.addCutflow("SR2J-0H-1", cutnames);
           // _cutflows.addCutflow("SR2J-0H-2", cutnames);
           // _cutflows.addCutflow("SR2J-0H-3", cutnames);
-          // _cutflows.addCutflow("SR2J-0H-4", cutnames); 
+          // _cutflows.addCutflow("SR2J-0H-4", cutnames);
 
           // _cutflows.addCutflow("SR2J-1H-1", cutnames);
           // _cutflows.addCutflow("SR2J-1H-2", cutnames);
-          
+
           // _cutflows.addCutflow("SR3J-0H-1", cutnames);
           // _cutflows.addCutflow("SR3J-0H-2", cutnames);
           // _cutflows.addCutflow("SR3J-0H-3", cutnames);
-          // _cutflows.addCutflow("SR3J-0H-4", cutnames);      
-              
+          // _cutflows.addCutflow("SR3J-0H-4", cutnames);
+
           // _cutflows.addCutflow("SR3J-1H-1", cutnames);
           // _cutflows.addCutflow("SR3J-1H-2", cutnames);
 
           _cutflows.addCutflow("CMS_13TeV_1LEPbb_137invfb", cutnames);
-          
-          // cout << _cutflows << endl; 
-        #endif  
+
+          // cout << _cutflows << endl;
+        #endif
       }
 
       void run(const HEPUtils::Event *event)
@@ -108,13 +108,13 @@ namespace Gambit
         #endif
         ////////////////////////
         // Useful definiitons //
-        // Baseline objects 
+        // Baseline objects
         double met = event->met();
         // double w = event->weight();
-        // cout << "Event weight is -> " << w << endl; 
+        // cout << "Event weight is -> " << w << endl;
 
         // Baseline ELectrons
-        BASELINE_PARTICLES(event->electrons(), baselineElectrons, 30, 0, DBL_MAX, 1.44, CMS::eff2DEl.at("SUS_19_008"))       
+        BASELINE_PARTICLES(event->electrons(), baselineElectrons, 30, 0, DBL_MAX, 1.44, CMS::eff2DEl.at("SUS_19_008"))
         BASELINE_PARTICLES(event->muons(), baselineMuons, 25, 0, DBL_MAX, 2.1, CMS::eff2DMu.at("SUS_19_008"))
         BASELINE_PARTICLE_COMBINATION(baselineLeptons, baselineElectrons, baselineMuons);
         BASELINE_JETS(event->jets("antikt_R04"), baselineJets, 30., 0., DBL_MAX, 2.4)
@@ -244,15 +244,15 @@ namespace Gambit
         #ifdef CHECK_CUTFLOW
           _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(2, w); // no cut
         #endif
-        
-        if (vetoLeptons.size() > 1) return; 
+
+        if (vetoLeptons.size() > 1) return;
 
         #ifdef CHECK_CUTFLOW
           _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(3, w); // no cut
         #endif
 
-        if (baselineTaus.size() > 0) return; 
-        
+        if (baselineTaus.size() > 0) return;
+
         #ifdef CHECK_CUTFLOW
           _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(4, w); // no cut
         #endif
@@ -306,14 +306,14 @@ namespace Gambit
             #ifdef CHECK_CUTFLOW
               _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(7, w); // no cut
               _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(9, w); // no cut
-            #endif            
+            #endif
           }
         }
         if (met > 125.){
           ptmiss_ps = true;
           #ifdef CHECK_CUTFLOW
             _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(10, w); // no cut
-          #endif  
+          #endif
         }
 
         if (nsRjs_ps)
@@ -322,29 +322,29 @@ namespace Gambit
           mct = mCT(signalBJets.at(0)->mom(), signalBJets.at(1)->mom());
           if (mbb > 90. && mbb < 150.)
           {
-            mbb_ps = true;          
+            mbb_ps = true;
             #ifdef CHECK_CUTFLOW
-              _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(11, w); 
-            #endif  
+              _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(11, w);
+            #endif
           }
           if (mct > 200.)
           {
             mct_ps = true;
             #ifdef CHECK_CUTFLOW
-              _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(12, w); 
-            #endif  
+              _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(12, w);
+            #endif
           }
           if (signalJets_AK8.size() == 1)
           {
             #ifdef CHECK_CUTFLOW
-              _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(13, w); 
-            #endif 
+              _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(13, w);
+            #endif
             if ((signalJets_AK8.at(0)->mom().deltaR_eta(signalBJets.at(0)->mom()) < 0.8) && (signalJets_AK8.at(0)->mom().deltaR_eta(signalBJets.at(1)->mom()) < 0.8))
-            {  
+            {
               NHjet = 1;
               #ifdef CHECK_CUTFLOW
-                _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(14, w); 
-              #endif 
+                _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(14, w);
+              #endif
             }
           }
         }
@@ -355,8 +355,8 @@ namespace Gambit
         if (nlepton_ps && nsRjs_ps && ptmiss_ps && mbb_ps && mt_ps && mct_ps)
         {
           #ifdef CHECK_CUTFLOW
-            _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(15, w); 
-          #endif 
+            _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(15, w);
+          #endif
 
           if (NHjet == 0 && Njets == 2)
           {
@@ -366,8 +366,8 @@ namespace Gambit
             if (met >= 400.)               {_counters.at("SR2J-0H-4").add_event(event);}
 
             #ifdef CHECK_CUTFLOW
-              _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(16, w); 
-            #endif     
+              _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(16, w);
+            #endif
 
           }
 
@@ -377,8 +377,8 @@ namespace Gambit
             if (met >= 300.)               {_counters.at("SR2J-1H-2").add_event(event);}
 
             #ifdef CHECK_CUTFLOW
-              _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(17, w); 
-            #endif     
+              _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(17, w);
+            #endif
 
           }
 
@@ -390,8 +390,8 @@ namespace Gambit
             if (met >= 400.)               {_counters.at("SR3J-0H-4").add_event(event);}
 
             #ifdef CHECK_CUTFLOW
-              _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(18, w); 
-            #endif     
+              _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(18, w);
+            #endif
           }
 
           if (NHjet == 1 && Njets == 3)
@@ -400,12 +400,12 @@ namespace Gambit
             if (met >= 300.)               {_counters.at("SR3J-1H-2").add_event(event);}
 
             #ifdef CHECK_CUTFLOW
-              _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(19, w); 
-            #endif     
+              _cutflows["CMS_13TeV_1LEPbb_137invfb"].fill(19, w);
+            #endif
           }
-        }      
-        
-        return; 
+        }
+
+        return;
       }
 
       virtual void collect_results()
@@ -430,11 +430,11 @@ namespace Gambit
         // Add cutflow data to the analysis results
         COMMIT_CUTFLOWS;
           // _cutflows.combine();
-        cout << "\nCUTFLOWS:\n" << _cutflows << endl;
-        cout << "\nSRCOUNTS:\n";
+        //cout << "\nCUTFLOWS:\n" << _cutflows << endl;
+        //cout << "\nSRCOUNTS:\n";
         // Note: The sum() call below gives the raw event count. Use weight_sum() for the sum of event weights.
-        for (auto& pair : _counters) cout << pair.first << " ->\t"<< pair.second.sum() << "\n";
-        cout << "\n" << endl;
+        //for (auto& pair : _counters) cout << pair.first << " ->\t"<< pair.second.sum() << "\n";
+        //cout << "\n" << endl;
       }
 
       double mT(const HEPUtils::P4 &pV, const HEPUtils::P4 &pI)
@@ -445,7 +445,7 @@ namespace Gambit
 
         return mT;
       }
-      
+
       double mCT(const HEPUtils::P4 &pV, const HEPUtils::P4 &pI)
       {
         double deltaPhi = pV.deltaPhi(pI);

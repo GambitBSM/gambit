@@ -107,3 +107,6 @@ Backends/scripts/*
 # Pengxuan's Workshop for testing 
 XuanWS/*
 
+# Vinay's git ignores
+contrib/fastjet-3.4.2/
+contrib/fjcontrib-1.041/

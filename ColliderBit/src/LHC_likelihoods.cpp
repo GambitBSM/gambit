@@ -549,7 +549,7 @@ namespace Gambit
     void fill_analysis_loglikes_full(const AnalysisData& ana_data,
                                 AnalysisLogLikes& ana_loglikes,
                                 bool (*FullLikes_FileExists)(const str&),
-                                int (*FullLikes_ReadIn)(const str&, const str&),
+                                int (*FullLikes_ReadIn)(const str&, const str&, const str&),
                                 double (*FullLikes_Evaluate)(std::map<str,double>&,const str&),
                                 const std::string alt_loglike_key = "")
     {
@@ -568,7 +568,7 @@ namespace Gambit
       bool FullLikes_jsonread = (*FullLikes_FileExists)(ana_name);
       if (!FullLikes_jsonread)
       {
-        if ((*FullLikes_ReadIn)(ana_name,ana_data.bkgjson_path) != 0)
+        if ((*FullLikes_ReadIn)(ana_name, GAMBIT_DIR, ana_data.bkgjson_path) != 0)
         {
           ColliderBit_error().raise(LOCAL_INFO,"Error: ATLAS FullLikes Failed to read in BKG JSON file for analysis: " + ana_name);
         }
@@ -610,7 +610,7 @@ namespace Gambit
                                 bool combine_nocovar_SRs,
                                 bool has_and_use_fulllikes,
                                 bool (*FullLikes_FileExists)(const str&),
-                                int (*FullLikes_ReadIn)(const str&, const str&),
+                                int (*FullLikes_ReadIn)(const str&, const str&, const str&),
                                 double (*FullLikes_Evaluate)(std::map<str,double>&,const str&),
                                 const std::string alt_loglike_key = "")
     {
@@ -948,7 +948,7 @@ namespace Gambit
                                   const Options& runOptions,
                                   bool skip_calc,
                                   bool (*FullLikes_FileExists)(const str&),
-                                  int (*FullLikes_ReadIn)(const str&, const str&),
+                                  int (*FullLikes_ReadIn)(const str&, const str&, const str&),
                                   double (*FullLikes_Evaluate)(std::map<str,double>&,const str&))
     {
       static bool first = true;
@@ -987,6 +987,11 @@ namespace Gambit
         // AnalysisData for this analysis
         const AnalysisData& ana_data = *(ana.at(analysis));
         const std::string ana_name = ana_data.analysis_name;
+        // Shortcut: The special "Baselines" analysis should not be included in loglike computations
+        if (ana_name == "Baselines") 
+        {
+          continue;
+        }
         const size_t nSR = ana_data.size();
         const bool has_covar = ana_data.srcov.rows() > 0;
         const bool has_fulllikes = ana_data.hasFullLikes();
@@ -1148,7 +1153,7 @@ namespace Gambit
 
       // Get a pointer to the FullLikes backend functions.
       bool (*FileExists)(const str&) = BEreq::FullLikes_FileExists.pointer();
-      int (*ReadIn)(const str&, const str&) = BEreq::FullLikes_ReadIn.pointer();
+      int (*ReadIn)(const str&, const str&, const str&) = BEreq::FullLikes_ReadIn.pointer();
       double (*Evaluate)(std::map<str,double>&,const str&) = BEreq::FullLikes_Evaluate.pointer();
 
       // Call the calc_LHC_LogLikes

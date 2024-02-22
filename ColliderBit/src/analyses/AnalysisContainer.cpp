@@ -57,6 +57,7 @@ namespace Gambit
 
     #define MAP_ANALYSES_WITH_ROOT(F)                \
       F(ATLAS_13TeV_1LEPStop_36invfb)                \
+      F(ATLAS_13TeV_2LEP0JET_EW_139invfb)            \
 
     #define MAP_ANALYSES(F)                          \
       F(Minimum)                                     \
@@ -107,6 +108,7 @@ namespace Gambit
       F(ATLAS_13TeV_2OSLEP_Z_139invfb)               \
       F(ATLAS_13TeV_2LEPsoft_139invfb)               \
       F(ATLAS_13TeV_bTaus_StopStau_139invfb)         \
+      F(ATLAS_13TeV_1OR3LEP_StopHZ_139invfb)         \
       F(ATLAS_8TeV_0LEP_20invfb)                     \
       F(ATLAS_8TeV_0LEPStop_20invfb)                 \
       F(ATLAS_8TeV_1LEPStop_20invfb)                 \
@@ -120,6 +122,7 @@ namespace Gambit
       F(CMS_13TeV_0LEP_13invfb)                      \
       F(CMS_13TeV_0LEP_36invfb)                      \
       F(CMS_13TeV_0LEP_137invfb)                     \
+      F(CMS_13TeV_0LEP_chargino_VV_VH_137invfb)      \
       F(CMS_13TeV_1LEPbb_36invfb)                    \
       F(CMS_13TeV_1LEPbb_137invfb)                   \
       F(CMS_13TeV_1LEPStop_36invfb)                  \
@@ -143,6 +146,7 @@ namespace Gambit
       F(CMS_13TeV_2SSLEP_Stop_exclusive_36invfb)     \
       F(CMS_13TeV_2SSLEP_Stop_137invfb)              \
       F(CMS_13TeV_Photon_GMSB_36invfb)               \
+      F(CMS_13TeV_Photon_GMSB_137invfb)		     \
       F(CMS_13TeV_2Photon_GMSB_36invfb)              \
       F(CMS_13TeV_1Photon1Lepton_36invfb)            \
       F(CMS_13TeV_1Photon1Lepton_emu_combined_36invfb) \
@@ -160,13 +164,15 @@ namespace Gambit
       F(CMS_13TeV_MultiLEP_3LEPTau_137invfb)         \
       F(CMS_13TeV_MultiLEP_4LEP_137invfb)            \
       F(CMS_13TeV_MultiLEP_4LEPTau_137invfb)         \
-      F(CMS_13TeV_2Higgs_4b_neutralino_137invfb)         \
+      F(CMS_13TeV_2Higgs_4b_neutralino_137invfb)     \
+      F(CMS_13TeV_0LEPStop_137invfb)                 \
       F(CMS_8TeV_1LEPDMTOP_20invfb)                  \
       F(CMS_8TeV_2LEPDMTOP_20invfb)                  \
       F(CMS_8TeV_MultiLEP_20invfb)                   \
       F(CMS_8TeV_MultiLEP_3Lep_20invfb)              \
       F(CMS_8TeV_MultiLEP_4Lep_20invfb)              \
       F(CMS_8TeV_MONOJET_20invfb)                    \
+      F(ATLAS_13TeV_2OR3LEP_139invfb)                \
 
     /// For analysis factory function declaration
     #define DECLARE_ANALYSIS_FACTORY(ANAME)          \

@@ -203,7 +203,7 @@ namespace Gambit
 
     /// Forward declaration of funtion in LHC_likelihoods
     // @todo Interpolation will not currently work with the FullLikes backend. None of the currently written interpolation analysis require this.
-    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, bool, bool, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), const std::string);
+    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, bool, bool, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), const std::string);
 
     /// Forward declarations of functions in this file
     void DMEFT_fill_analysis_info_map();
