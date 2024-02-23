@@ -181,7 +181,8 @@ namespace Gambit
         void run(const HEPUtils::Event* event)
         {
           // cutFlowVector_1[0]++;
-          cutFlowVector_2[0]++;
+          // cutFlowVector_2[0]++;
+
           // Baseline objects
           double met = event->met();
 
