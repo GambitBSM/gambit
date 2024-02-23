@@ -133,6 +133,7 @@ namespace Gambit
       F(CMS_13TeV_2OSLEP_36invfb)                    \
       F(CMS_13TeV_2OSLEP_137invfb)                   \
       F(CMS_13TeV_2OSLEP_Strong_Production_137invfb) \
+      F(CMS_13TeV_2OSLEP_EW_Production_137invfb)     \
       F(CMS_13TeV_2OSLEP_Slepton_137invfb)           \
       F(CMS_13TeV_2OSLEP_36invfb_nocovar)            \
       F(CMS_13TeV_2OSLEP_confnote_36invfb)           \
