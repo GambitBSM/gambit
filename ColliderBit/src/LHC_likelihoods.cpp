@@ -33,6 +33,7 @@
 ///  \date   2018 May
 ///  \date   2020 May
 ///  \date   2020 Jun
+///  \date   2024 Feb
 ///
 ///  \author Chris Chang
 ///  \date   2022 April
@@ -606,6 +607,7 @@ namespace Gambit
     void fill_analysis_loglikes(const AnalysisData& ana_data,
                                 AnalysisLogLikes& ana_loglikes,
                                 bool use_marg,
+                                bool always_compute_all_SR_loglikes,
                                 bool has_and_use_covar,
                                 bool combine_nocovar_SRs,
                                 bool has_and_use_fulllikes,
@@ -614,6 +616,13 @@ namespace Gambit
                                 double (*FullLikes_Evaluate)(std::map<str,double>&,const str&),
                                 const std::string alt_loglike_key = "")
     {
+      // Should we use the best-expected single SR for the combined analysis loglike?
+      bool use_single_SR_for_combined_loglike = true;
+      if (has_and_use_fulllikes || has_and_use_covar)
+      {
+        use_single_SR_for_combined_loglike = false;
+      }
+
       // Are we filling the standard loglike or an alternative one?
       bool fill_alt_loglike = false;
       if (!alt_loglike_key.empty()) fill_alt_loglike = true;
@@ -715,9 +724,10 @@ namespace Gambit
           ana_loglikes.combination_loglike = dll;
         }
       }
-      else // No SR covariance info (or user chose not to use this)
-      {
 
+      // Computation of individual SR loglikes
+      if (use_single_SR_for_combined_loglike || always_compute_all_SR_loglikes) 
+      {
         // We either take the result from the SR *expected* to be most
         // constraining under the s=0 assumption (default), or naively combine
         // the loglikes for all SRs (if combine_SRs_without_covariances=true).
@@ -858,21 +868,26 @@ namespace Gambit
         }
 
         // Write combined loglike to the ana_loglikes reference
-        if (fill_alt_loglike)
+        if (use_single_SR_for_combined_loglike)
         {
-          ana_loglikes.alt_combination_loglikes.at(alt_loglike_key) = dll;
-        }
-        else
-        {
-          ana_loglikes.combination_loglike = dll;
-          ana_loglikes.combination_sr_label = bestexp_sr_label;
-          ana_loglikes.combination_sr_index = bestexp_sr_index;
-          #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << ana_name << "_" << bestexp_sr_label << "_LogLike : " << dll << endl;
-          #endif
+          if (fill_alt_loglike)
+          {
+            ana_loglikes.alt_combination_loglikes.at(alt_loglike_key) = dll;
+          }
+          else
+          {
+            ana_loglikes.combination_loglike = dll;
+            ana_loglikes.combination_sr_label = bestexp_sr_label;
+            ana_loglikes.combination_sr_index = bestexp_sr_index;
+            #ifdef COLLIDERBIT_DEBUG
+            cout << DEBUG_PREFIX << "calc_LHC_LogLikes: " << ana_name << "_" << bestexp_sr_label << "_LogLike : " << dll << endl;
+            #endif
+          }
         }
 
       } // end large cov/no-cov if-else block
+
+
 
       // Check for problems with the result
       bool check_failed = false;
@@ -957,6 +972,8 @@ namespace Gambit
       static const bool use_covar = runOptions.getValueOrDef<bool>(true, "use_covariances");
       // Use the naive sum of SR loglikes when not using covariances?
       static const bool combine_nocovar_SRs = runOptions.getValueOrDef<bool>(false, "combine_SRs_without_covariances");
+      // Always compute all individual SR loglikes (even if not used for the combined loglike)?
+      static const bool always_compute_all_SR_loglikes = runOptions.getValueOrDef<bool>(true, "always_compute_all_SR_loglikes");
       // Use marginalisation rather than profiling (probably less stable)?
       static const bool use_marg = runOptions.getValueOrDef<bool>(false, "use_marginalising");
       // Calculate various alternative loglikes?
@@ -1026,13 +1043,12 @@ namespace Gambit
         // Shortcut #1
         if (skip_calc)
         {
-          // If this is an analysis with covariance info, only add a single 0-entry in the map
-          if (use_covar && has_covar)
+          // Add a single 0-entry for the combined loglike or 
+          // add 0-entries for all SRs plus the combined loglike?
+          if (use_covar && has_covar && !always_compute_all_SR_loglikes)
           {
             ana_loglikes.set_no_signal_result_combination("none", -1);
           }
-          // If this is an analysis without covariance info, add 0-entries for all SRs plus
-          // one for the combined LogLike
           else
           {
             ana_loglikes.set_no_signal_result_all_SRs("none", -1);
@@ -1061,7 +1077,7 @@ namespace Gambit
         if (all_zero_signal)
         {
           // Store result
-          if (use_covar && has_covar)
+          if (use_covar && has_covar && !always_compute_all_SR_loglikes)
           {
             ana_loglikes.set_no_signal_result_combination("all", -1);
           }
@@ -1081,7 +1097,7 @@ namespace Gambit
         // Now perform the actual loglikes compuations for this analysis
         //
         // First do standard loglike calculation
-        fill_analysis_loglikes(ana_data, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate);
+        fill_analysis_loglikes(ana_data, ana_loglikes, use_marg, always_compute_all_SR_loglikes, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate);
 
         // Then do alternative loglike calculations:
         if (calc_noerr_loglikes)
@@ -1093,7 +1109,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_sig_MC_stat = 0.;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes &&  use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate,"noerr");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, always_compute_all_SR_loglikes, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes &&  use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate,"noerr");
         }
         if (calc_expected_loglikes)
         {
@@ -1104,7 +1120,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_obs = ana_data_mod[SR].n_bkg;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate, "expected");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, always_compute_all_SR_loglikes, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate, "expected");
         }
         if (calc_expected_noerr_loglikes)
         {
@@ -1117,7 +1133,7 @@ namespace Gambit
             ana_data_mod[SR].n_obs = ana_data_mod[SR].n_bkg;
             ana_data_mod[SR].n_sig_MC_stat = 0.;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate, "expected_noerr");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, always_compute_all_SR_loglikes, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate, "expected_noerr");
         }
         if (calc_scaledsignal_loglikes)
         {
@@ -1128,7 +1144,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_sig_scaled *= signal_scalefactor;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate, "scaledsignal");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, always_compute_all_SR_loglikes, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate, "scaledsignal");
         }
 
       } // end analysis loop

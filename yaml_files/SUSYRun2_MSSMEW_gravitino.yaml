@@ -429,6 +429,7 @@ Rules:
       use_covariances: true
       use_marginalising: false
       combine_SRs_without_covariances: false
+      always_compute_all_SR_loglikes: true
       nuisance_prof_initstep: 0.1
       nuisance_prof_convtol: 0.01
       nuisance_prof_maxsteps: 10000
