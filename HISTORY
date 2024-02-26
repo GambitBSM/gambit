@@ -3,8 +3,12 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v2.4.4
+Bugfix release
+- Fix bug on HEPLike url
+
 v2.4.3
-Bufix release
+Bugfix release
 - Remove usage of binary functions
 - Removed plc_data from building by default with backends
 - Used archived backends for broken links
