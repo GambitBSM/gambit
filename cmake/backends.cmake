@@ -569,7 +569,7 @@ endif()
 # HepLike
 set(name "heplike")
 set(ver "2.0")
-set(dl "https://github.com/tegonzalo/HEPLike/archive/v${ver}.zip")
+set(dl "https://github.com/tegonzalo/HEPLike/archive/V${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(md5 "a9b674b8a11037a15bfed69835aac1a6")
 set(HL_CXXFLAGS "${BACKEND_CXX_FLAGS} -I${yaml_INCLUDE_DIR}")
