@@ -216,7 +216,7 @@ run_light_quark_test: |
 ptr_arr_tests: |
    Function that tests array and -> operators on deps and BE vars.
 
-libMathematicaTest_1_0_init: |
+LibMathematicaTest_1_0_init: |
    Initialises the backend for Mathematica tests.
 
 MathematicaTest: |
