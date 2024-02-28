@@ -201,8 +201,21 @@ namespace Gambit
       template<typename P>
       void _common_print(P& printer, flav_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
       {
-        printer._print(value.central_values, label + "::central", vID, mpirank, pointID);
-        printer._print(value.covariance, label + "::covariance", vID, mpirank, pointID);
+        std::map<std::string,double> m;
+
+        for(auto val : value.central_values)
+        {
+          std::stringstream vals;
+          vals << val.first;
+          m[vals.str()] = val.second;
+        }
+        for(auto cov : value.covariance) for(auto cov2 : cov.second)
+        {
+          std::stringstream covs;
+          covs << cov.first << "::" << cov2.first;
+          m[covs.str()] = cov2.second;
+        }
+        printer._print(m, label, vID, mpirank, pointID);
       }
 
       /// Generic binned flavour prediction print overload
@@ -248,9 +261,16 @@ namespace Gambit
       template<typename P>
       void _common_print(P& printer, WilsonCoefficient const &value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
       {
-        printer._print(value.e, label + "::e", vID, mpirank, pointID);
-        printer._print(value.mu, label + "::mu", vID, mpirank, pointID);
-        printer._print(value.tau, label + "::tau", vID, mpirank, pointID);
+        std::map<std::string,double> m;
+
+        m[label+"::e::real"] = value.e.real();
+        m[label+"::e::imag"] = value.e.imag();
+        m[label+"::mu::real"] = value.mu.real();
+        m[label+"::mu::imag"] = value.mu.imag();
+        m[label+"::tau::real"] = value.tau.real();
+        m[label+"::tau::imag"] = value.tau.imag();
+
+        printer._print(m, label, vID, mpirank, pointID);
       }
 
     #endif
