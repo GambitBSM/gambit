@@ -168,7 +168,7 @@ namespace Gambit {
             candJets.push_back(jet);
         }
 
-   	    // Jets
+        // Jets
         vector<const HEPUtils::Jet*> bJets;
         vector<const HEPUtils::Jet*> nonbJets;
 
