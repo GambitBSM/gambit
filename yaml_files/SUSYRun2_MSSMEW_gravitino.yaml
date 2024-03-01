@@ -330,12 +330,12 @@ Rules:
         all_SR_must_converge: false
         maxFailedEvents: 100
         analyses:
-          - ATLAS_13TeV_0LEPStop_139invfb        # New! (Martin)
+          - ATLAS_13TeV_0LEPStop_139invfb        # New! (Martin)  [in skip_analyses]
           - ATLAS_13TeV_1Lep2b_139invfb          # New! (Chris)
-          # - ATLAS_13TeV_2LEP0JET_EW_139invfb   # New! (Roberto) - Requires ROOT + BDT stuff.
+          - ATLAS_13TeV_2LEP0JET_EW_139invfb     # New! (Roberto) - Requires ROOT + BDT stuff.
           - ATLAS_13TeV_2LEPJETS_EW_139invfb     # New! (Martin, Chris) 
           - ATLAS_13TeV_2LEPJETS_RJR_139invfb    # New! (Martin) This search requires ROOT + RestFrames.
-          # - ATLAS_13TeV_2LEPsoft_139invfb      # New! (Tomas) Not yet validated.
+          - ATLAS_13TeV_2LEPsoft_139invfb        # New! (Tomas) Not yet validated.
           - ATLAS_13TeV_3LEP_eRJR_139invfb       # New! (Martin)
           - ATLAS_13TeV_2OR3LEP_139invfb         # New! (Ida) -- Only WH SRs are used.
           - ATLAS_13TeV_bTaus_StopStau_139invfb  # New! (Holly)
@@ -348,26 +348,27 @@ Rules:
           - ATLAS_13TeV_3LEP_139invfb
           - ATLAS_13TeV_4LEP_139invfb
           - ATLAS_13TeV_2bMET_36invfb
-          - ATLAS_13TeV_3b_24invfb
+          - ATLAS_13TeV_3b_24invfb               # To be updated (Are)
           - ATLAS_13TeV_MultiLEP_strong_139invfb
           - ATLAS_13TeV_PhotonGGM_2Photon_36invfb
           - ATLAS_13TeV_PhotonGGM_1Photon_139invfb
           - ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
           # 
-          - CMS_13TeV_1LEPbb_137invfb                # New! (Pengxuan) - Uses antikt_R08.
-          - CMS_13TeV_2Higgs_4b_neutralino_137invfb  # New! (Yang) - Uses antikt_R08.
-          - CMS_13TeV_2LEPsoft_137invfb              # New! (Tomas)
-          - CMS_13TeV_0LEPStop_137invfb              # New! (Holly)
-          - CMS_13TeV_0LEP_chargino_VV_VH_137invfb   # New! (Adil) - Uses antikt_R08.
+          - CMS_13TeV_1LEPbb_137invfb                   # New! (Pengxuan) - Uses antikt_R08.
+          - CMS_13TeV_2Higgs_4b_neutralino_137invfb     # New! (Yang) - Uses antikt_R08.
+          - CMS_13TeV_2LEPsoft_137invfb                 # New! (Tomas)
+          - CMS_13TeV_0LEPStop_137invfb                 # New! (Holly)
+          - CMS_13TeV_0LEP_chargino_VV_VH_137invfb      # New! (Adil) - Uses antikt_R08.
+          - CMS_13TeV_Photon_GMSB_137invfb              # New! (Vinay)
+          - CMS_13TeV_2OSLEP_EW_Production_137invfb     # New! (Anders)
+          - CMS_13TeV_2OSLEP_Strong_Production_137invfb # [in skip_analyses]
+          - CMS_13TeV_2OSLEP_Slepton_137invfb           # [in skip_analyses]
+          - CMS_13TeV_2OSLEP_for_chargino_36invfb
           - CMS_13TeV_0LEP_137invfb
           - CMS_13TeV_1LEPStop_36invfb
           - CMS_13TeV_1Photon1Lepton_emu_combined_36invfb
           - CMS_13TeV_2LEPStop_36invfb
-          - CMS_13TeV_2OSLEP_Strong_Production_137invfb
-          - CMS_13TeV_2OSLEP_Slepton_137invfb
-          - CMS_13TeV_2OSLEP_for_chargino_36invfb
           - CMS_13TeV_2OSLEP_for_stop_36invfb
-          - CMS_13TeV_Photon_GMSB_36invfb
           - CMS_13TeV_2Photon_GMSB_36invfb
           - CMS_13TeV_2SSLEP_Stop_137invfb
           - CMS_13TeV_MultiLEP_2LEP_137invfb
@@ -380,8 +381,8 @@ Rules:
     function: getPythia
     options:
       LHC_13TeV:
-        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
-        xsec_veto: 0.028
+        # 0.007 fb corresponds to ~1 expected event at L = 139 fb^-1.
+        xsec_veto: 0.007
         jet_collections:
           antikt_R04:
             algorithm: antikt
@@ -428,6 +429,7 @@ Rules:
       use_covariances: true
       use_marginalising: false
       combine_SRs_without_covariances: false
+      always_compute_all_SR_loglikes: true
       nuisance_prof_initstep: 0.1
       nuisance_prof_convtol: 0.01
       nuisance_prof_maxsteps: 10000
@@ -448,7 +450,10 @@ Rules:
       write_summary_to_log: false
       cap_loglike: false
       cap_loglike_individual_analyses: false
-      # skip_analyses:
+      skip_analyses:
+        - ATLAS_13TeV_0LEPStop_139invfb
+        - CMS_13TeV_2OSLEP_Strong_Production_137invfb
+        - CMS_13TeV_2OSLEP_Slepton_137invfb
 
   # Set analyses for Rivet measurements
   - capability: Rivet_measurements
