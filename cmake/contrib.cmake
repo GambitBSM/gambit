@@ -316,7 +316,9 @@ endif()
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   message("   ColliderBit included, include fastjet too")
   set(EXCLUDE_FASTJET FALSE)
-
+  # Fix currently needed for MacOS due to this not propegating to contrib flags
+  #set(CONTRIB_CXX_FLAGS "${CONTRIB_CXX_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
+  #set(CONTRIB_C_FLAGS "${CONTRIB_C_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
   set(fastjet_dl "http://fastjet.fr/repo/fastjet-3.4.2.tar.gz")
   set(fastjet_md5 "d8aede1539f478547f8be5412ab6869c")
   set(fastjet_dir "${PROJECT_SOURCE_DIR}/contrib/fastjet-3.4.2")
