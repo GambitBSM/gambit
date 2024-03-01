@@ -830,6 +830,8 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR2L_Low"), 39., {42., 9}));
         add_result(SignalRegionData(_counters.at("SR2L_ISR"), 30., {31., 9}));
 
+        COMMIT_CUTFLOWS
+
         #ifdef CHECK_CUTFLOW
           cout << _cutflows << endl;
           //cout << "n signal leptons before = " << _test2 << endl;

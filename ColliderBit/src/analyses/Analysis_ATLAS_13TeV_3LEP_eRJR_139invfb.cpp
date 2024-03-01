@@ -478,11 +478,13 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR-low"), 51., {46. , 5.}));
         add_result(SignalRegionData(_counters.at("SR-ISR"),  30., { 23.4 ,  2.1}));
 
-  // Cutflow printout
+        COMMIT_CUTFLOWS
+
+        // Cutflow printout
         #ifdef CHECK_CUTFLOW
          _cutflows["SR-ISR"].normalize(1370, 1);
-   _cutflows["SR-low"].normalize(1370, 1);
-   cout << "\nCUTFLOWS:\n" << _cutflows << endl;
+         _cutflows["SR-low"].normalize(1370, 1);
+         cout << "\nCUTFLOWS:\n" << _cutflows << endl;
          cout << "\nSRCOUNTS:\n";
          // for (double x : _srnums) cout << x << "  ";
          for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
