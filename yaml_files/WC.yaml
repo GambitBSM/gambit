@@ -265,7 +265,6 @@ ObsLikes:
 
   # NOTE: This does not seem to work with WCs
   #- capability: SL_LogLikelihood
-  #  function: SL_likelihood
   #  purpose: LogLike
 
 
@@ -273,8 +272,7 @@ ObsLikes:
     # Mass splittings #
     # ----------------#
 
-  - capability: deltaMB_LogLikelihood
-    function: deltaMB_likelihood
+  - capability: Delta_MBs_LogLikelihood
     purpose: LogLike
 
 
@@ -380,7 +378,7 @@ Rules:
     function: SuperIso_prediction_Bu2Knunu
 
   # User SuperIso for Delta_MBs
-  - capability: prediction_DeltaMs
+  - capability: prediction_Delta_MBs
     function: SuperIso_prediction_Delta_MBs
 
 Logger:

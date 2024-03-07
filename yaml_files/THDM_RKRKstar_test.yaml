@@ -290,13 +290,13 @@ ObsLikes:
   # Source: GAMBIT
   # B meson mass aysmmetry
 #  - purpose:    LogLike
-#    capability: deltaMB_LogLikelihood
+#    capability: Delta_MBs_LogLikelihood
 
   # TODO: reported as absent/broken
   # Source: SuperISO
   # B_d meson mass aysmmetry
 #  - purpose:    LogLike
-#    capability: deltaMBd_LogLikelihood
+#    capability: Delta_MBd_LogLikelihood
 
   # Source: GAMBIT or SuperISO
   # Tree-level leptonic and semi-leptonic B & D decay measurements
@@ -460,29 +460,47 @@ ObsLikes:
 
   # #  ---- Wilson Coefficients ----
 
-  # - purpose: Observable
-  #   capability: DeltaCQ1
+  - purpose: Observable
+    capability: DeltaC2
 
-  # - purpose: Observable
-  #   capability: DeltaCQ1p
+  - purpose: Observable
+    capability: DeltaC7
 
-  # - purpose: Observable
-  #   capability: DeltaCQ2
+  - purpose: Observable
+    capability: DeltaC8
 
-  # - purpose: Observable
-  #   capability: DeltaCQ2p
+  - purpose: Observable
+    capability: DeltaC9
 
-  # - purpose: Observable
-  #   capability: DeltaCQ1_tautau
+  - purpose: Observable
+    capability: DeltaC10
 
-  # - purpose: Observable
-  #   capability: DeltaCQ1_tautaup
+  - purpose: Observable
+    capability: DeltaC2p
 
-  # - purpose: Observable
-  #   capability: DeltaCQ2_tautau
+  - purpose: Observable
+    capability: DeltaC7p
 
-  # - purpose: Observable
-  #   capability: DeltaCQ2_tautaup
+  - purpose: Observable
+    capability: DeltaC8p
+
+  - purpose: Observable
+    capability: DeltaC9p
+
+  - purpose: Observable
+    capability: DeltaC10p
+
+  - purpose: Observable
+    capability: DeltaCQ1
+
+  - purpose: Observable
+    capability: DeltaCQ1p
+
+  - purpose: Observable
+    capability: DeltaCQ2
+
+  - purpose: Observable
+    capability: DeltaCQ2p
 
 
 ###################################

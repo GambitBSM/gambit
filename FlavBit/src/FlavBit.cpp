@@ -914,29 +914,31 @@ namespace Gambit
     }
 
     /// Measurement for Delta Bd (Bd mass splitting)
-    void SuperIso_prediction_Delta_MBd(double &result)
+    void SuperIso_prediction_Delta_MBd(flav_prediction &result)
     {
       using namespace Pipes::SuperIso_prediction_Delta_MBd;
-      if (flav_debug) std::cout<<"Starting SuperIso_prediction_Delta_MBd"<< std::endl;
+      if (flav_debug) std::cout << "Starting SuperIso_prediction_Delta_MBd" << std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::Delta_MB(&param);
+      double DeltaMBd = BEreq::Delta_MB(&param);
+      result = flav_prediction("Delta_MBd", DeltaMBd);
 
-      if (flav_debug) printf("Delta_MBd=%.3e\n",result);
-      if (flav_debug) std::cout<<"Finished SuperIso_prediction_Delta_MBd"<< std::endl;
+      if (flav_debug) std::cout << "Delta_MBd=" << DeltaMBd << std::endl;
+      if (flav_debug) std::cout << "Finished SuperIso_prediction_Delta_MBd" << std::endl;
     }
 
     /// Measurement for Delta Bs (Bs mass splitting)
-    void SuperIso_prediction_Delta_MBs(double &result)
+    void SuperIso_prediction_Delta_MBs(flav_prediction &result)
     {
       using namespace Pipes::SuperIso_prediction_Delta_MBs;
-      if (flav_debug) std::cout<<"Starting SuperIso_prediction_Delta_MBs"<< std::endl;
+      if (flav_debug) std::cout << "Starting SuperIso_prediction_Delta_MBs" << std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::Delta_MBs(&param);
+      double DeltaMBs = BEreq::Delta_MBs(&param);
+      result = flav_prediction("Delta_MBs", DeltaMBs);
 
-      if (flav_debug) printf("Delta_MBs=%.3e\n",result);
-      if (flav_debug) std::cout<<"Finished SuperIso_prediction_Delta_MBs"<< std::endl;
+      if (flav_debug) std::cout << "Delta_MBs=" << DeltaMBs << std::endl;
+      if (flav_debug) std::cout << "Finished SuperIso_prediction_Delta_MBs" << std::endl;
     }
 
 
@@ -951,7 +953,7 @@ namespace Gambit
     }
 
     /// DeltaMBs at tree level for the general THDM
-    void THDM_Delta_MBs(double &result)
+    void THDM_Delta_MBs(flav_prediction &result)
     {
       using namespace Pipes::THDM_Delta_MBs;
       if (flav_debug) std::cout<<"Starting THDM_Delta_MBs"<< std::endl;
@@ -986,6 +988,7 @@ namespace Gambit
       const double Bag3 = 1.10;
       const double Bag4 = 1.022;
       const double DeltaSM = 1.19795e-11; //.in GeV from latest HFLAV
+      const double sigmaDeltaSM = 0.8; // 1/ps from 2309.07205
       const double conv_factor = 1.519267e12;// from GeV to ps^-1
       const double U22 = 1.41304;//From JHEP02(2020)147
       const double U32 = -0.0516513;
@@ -1016,9 +1019,12 @@ namespace Gambit
       std::complex<double> Vxi32 = mT*mC*(Vtb*std::conj(Vcs)*(xi_ct*std::conj(Vcs) + xi_tt*std::conj(Vts))*(Vcb*std::conj(xi_cc) + Vtb*std::conj(xi_tc)));
       std::complex<double> DeltaMs_HW_box = 2*(mBs*fBs2Bag/3)*(sqrt(2)*sminputs.GF/(16*pi*pi*mHp*mHp))*(Vxi22*I11(pow(mW/mHp,2),pow(mC/mHp,2),pow(mC/mHp,2))+Vxi33*I11(pow(mW/mHp,2),pow(mT/mHp,2),pow(mT/mHp,2))+Vxi32*I11(pow(mW/mHp,2),pow(mT/mHp,2),pow(mC/mHp,2)));
       //total tree+one loop
-      result = 2*abs(real(0.5*DeltaSM + M12_NP + 0.5*DeltaMs_HW_box))*conv_factor;
-      if (flav_debug) printf("Delta_MBs=%.3e\n",result);
-      if (flav_debug) std::cout<<"Finished THDM_Delta_MBs"<< std::endl;
+      result.central_values["Delta_MBs"] = 2*abs(real(0.5*DeltaSM + M12_NP + 0.5*DeltaMs_HW_box))*conv_factor;
+      // TODO: Add theoretical uncertainty for NP prediction
+      result.covariance["Delta_MBs"]["Delta_MBs"] = sigmaDeltaSM*sigmaDeltaSM;
+
+      if (flav_debug) std::cout << "Delta_MBs=" << result << std::endl;
+      if (flav_debug) std::cout << "Finished THDM_Delta_MBs" << std::endl;
     }
 
     /// BR(h->bs) at tree level for the general THDM from JHEP02(2020)147
@@ -1201,6 +1207,12 @@ namespace Gambit
       if (flav_debug) std::cout<<"Finished FeynHiggs_FlavourObs"<< std::endl;
     }
 
+    void FeynHiggs_prediction_Delta_MBs(flav_prediction &result)
+    {
+      result = flav_prediction("Delta_MBs", Pipes::FeynHiggs_prediction_Delta_MBs::Dep::FlavourObs->deltaMs_MSSM);
+    }
+
+
     ///@}
 
     /// Helper function G
@@ -1218,9 +1230,9 @@ namespace Gambit
 
 
     /// Likelihood for t->ch
-    void t2ch_likelihood(double &result)
+    void t2ch_LogLikelihood(double &result)
     {
-      using namespace Pipes::t2ch_likelihood;
+      using namespace Pipes::t2ch_LogLikelihood;
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
       static double th_err[1];
@@ -1294,93 +1306,73 @@ namespace Gambit
        result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
     }
 
-    /// Likelihood for Delta Ms
-    void deltaMB_likelihood(double &result)
+    /// HepLike likelihood for Delta Ms
+    void HepLike_Delta_MBs_LogLikelihood(double &result)
     {
-      using namespace Pipes::deltaMB_likelihood;
-      static bool th_err_absolute, first = true;
-      static double exp_meas, exp_DeltaMs_err, th_err;
+      using namespace Pipes::HepLike_Delta_MBs_LogLikelihood;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/HFLAV_22/BMixing/Delta_MBs.yaml";
+      static HepLike_default::HL_Gaussian Gaussian(inputfile);
 
-      if (flav_debug) std::cout << "Starting Delta_Ms_likelihood"<< std::endl;
+      static bool first = true;
+
+      if (flav_debug) std::cout << "Starting HepLike_Delta_MBs_LogLikelihood"<< std::endl;
 
       if (first)
       {
-        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
-        fread.debug_mode(flav_debug);
-        if (flav_debug) std::cout<<"Initialised Flav reader in Delta_Ms_likelihood"<< std::endl;
-        fread.read_yaml_measurement("flav_data.yaml", "DeltaMs");
-        fread.initialise_matrices(); // here we have a single measurement ;) so let's be sneaky:
-        exp_meas = fread.get_exp_value()(0,0);
-        exp_DeltaMs_err = sqrt(fread.get_exp_cov()(0,0));
-        th_err = fread.get_th_err()(0,0).first;
-        th_err_absolute = fread.get_th_err()(0,0).second;
+        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << std::endl;
+        Gaussian.Read();
         first = false;
       }
 
-      if (flav_debug) std::cout << "Experiment: " << exp_meas << " " << exp_DeltaMs_err << " " << th_err << std::endl;
+      flav_prediction prediction = *Dep::prediction_Delta_MBs;
+      double theory = prediction.central_values.begin()->second;
+      double theory_variance = prediction.covariance.begin()->second.begin()->second;
+      result += Gaussian.GetLogLikelihood(theory, theory_variance);
 
-      // Now we do the stuff that actually depends on the parameters
-      double theory_prediction = *Dep::prediction_DeltaMs;
-      double theory_DeltaMs_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
-      if (flav_debug) std::cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<theory_DeltaMs_err<< std::endl;
-
-      /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
-      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
-
-      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_DeltaMs_err, exp_DeltaMs_err, profile);
+      if (flav_debug) std::cout << "HEPLike_Delta_MBs_LogLikelihood result: " << result << std::endl;
     }
 
-    /// Likelihood for Delta Md
-    void deltaMBd_likelihood(double &result)
+    /// HepLike likelihood for Delta Md
+    void HepLike_Delta_MBd_LogLikelihood(double &result)
     {
-      using namespace Pipes::deltaMBd_likelihood;
-      static bool th_err_absolute, first = true;
-      static double exp_meas, exp_DeltaMd_err, th_err;
+      using namespace Pipes::HepLike_Delta_MBd_LogLikelihood;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/HFLAV_22/BMixing/Delta_MBs.yaml";
+      static HepLike_default::HL_Gaussian Gaussian(inputfile);
 
-      if (flav_debug) std::cout << "Starting Delta_Md_likelihood"<< std::endl;
+      static bool first = true;
+
+      if (flav_debug) std::cout << "Starting HepLike_Delta_MBs_LogLikelihood"<< std::endl;
 
       if (first)
       {
-        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
-        fread.debug_mode(flav_debug);
-        if (flav_debug) std::cout<<"Initialised Flav reader in Delta_Md_likelihood"<< std::endl;
-        fread.read_yaml_measurement("flav_data.yaml", "DeltaMd");
-        fread.initialise_matrices(); // here we have a single measurement ;) so let's be sneaky:
-        exp_meas = fread.get_exp_value()(0,0);
-        exp_DeltaMd_err = sqrt(fread.get_exp_cov()(0,0));
-        th_err = fread.get_th_err()(0,0).first;
-        th_err_absolute = fread.get_th_err()(0,0).second;
+        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << std::endl;
+        Gaussian.Read();
         first = false;
       }
 
-      if (flav_debug) std::cout << "Experiment: " << exp_meas << " " << exp_DeltaMd_err << " " << th_err << std::endl;
+      flav_prediction prediction = *Dep::prediction_Delta_MBd;
+      double theory = prediction.central_values.begin()->second;
+      double theory_variance = prediction.covariance.begin()->second.begin()->second;
+      result += Gaussian.GetLogLikelihood(theory, theory_variance);
 
-      // Now we do the stuff that actually depends on the parameters
-      double theory_prediction = *Dep::DeltaMd;
-      double theory_DeltaMs_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
-      if (flav_debug) std::cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<exp_DeltaMd_err<< std::endl;
-
-      /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
-      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
-
-      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_DeltaMs_err, exp_DeltaMd_err, profile);
+      if (flav_debug) std::cout << "HEPLike_Delta_MBd_LogLikelihood result: " << result << std::endl;
     }
 
     //Likelihood for t->Hpb->bc decay
 
-    void t2bbc_likelihood(double &result)
+    void t2bbc_LogLikelihood(double &result)
     {
-      using namespace Pipes::t2bbc_likelihood;
+      using namespace Pipes::t2bbc_LogLikelihood;
       static bool th_err_absolute, first = true;
       static double exp_meas, exp_t2bbc_err, th_err;
 
-      if (flav_debug) std::cout << "Starting t2bbc_likelihood"<< std::endl;
+      if (flav_debug) std::cout << "Starting t2bbc_LogLikelihood"<< std::endl;
 
       if (first)
       {
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
         fread.debug_mode(flav_debug);
-        if (flav_debug) std::cout<<"Initialised Flav reader in t2bbc_likelihood"<< std::endl;
+        if (flav_debug) std::cout<<"Initialised Flav reader in t2bbc_LogLikelihood"<< std::endl;
         fread.read_yaml_measurement("flav_data.yaml", "t2bbc");
         fread.initialise_matrices();
         exp_meas = fread.get_exp_value()(0,0);

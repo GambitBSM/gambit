@@ -58,6 +58,15 @@ namespace Gambit
           covariance[val1.first][val2.first] = 0.0;
     }
 
+    // Constructor with a single observable and value pair
+    flav_prediction(str obs, double val)
+    {
+      central_values[obs] = val;
+      for(auto &val1 : central_values)
+        for(auto &val2 : central_values)
+          covariance[val1.first][val2.first] = 0.0;
+    }
+
     // Sum two different contribution as flav_predictions
     flav_prediction &operator+=(flav_prediction fp)
     {

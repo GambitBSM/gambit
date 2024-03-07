@@ -37,9 +37,9 @@ Parameters:
       # hybrid_Higgs basis: mh, mH, cba, tanb, Lambda4, Lambda5, Lambda7, lambda6, lambda7
 
       # for the general model, we must also specify the Yukawas
-      # yu2_re_ij, yu2_im_ij, yd2_re_ij, yd2_im_ij, yl2_re_ij, yl2_im_ij, 
+      # yu2_re_ij, yu2_im_ij, yd2_re_ij, yd2_im_ij, yl2_re_ij, yl2_im_ij,
       # where we have a separate parameter for each i,j (which run from 1 to 3)
-      
+
       # lower limit on lambda1,2 of 0 required for vacuum stability
       # limit on |lambda1,...,7| of 4pi required for perturbativity
       # lambda6,7 set to 0 for Z2-symmetric scalar sector (to avoid large FCNCs at 1-loop level)
@@ -357,13 +357,13 @@ ObsLikes:
   # # # Source: GAMBIT / SuperISO
   # # # B meson mass aysmmetry
   # # - purpose:    LogLike
-  # #   capability: deltaMB_LogLikelihood
+  # #   capability: Delta_MBs_LogLikelihood
 
   # # # NOT WORKING
   # # # Source: SuperISO
   # # # B_d meson mass aysmmetry
   # # - purpose:    LogLike
-  # #   capability: deltaMBd_LogLikelihood
+  # #   capability: Delta_MBd_LogLikelihood
 
   # # Source: GAMBIT or SuperISO
   # # Tree-level leptonic and semi-leptonic B & D decay measurements

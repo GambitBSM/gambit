@@ -184,7 +184,7 @@ ObsLikes:
   # # Perturbativity check of yukawa couplings
   # - purpose:    LogLike
   #   capability: perturbativity_yukawas_LogLikelihood_THDM
-    
+
   #-------------------------------------#
   #      COLLIDER LIKELIHOODS           #
   #-------------------------------------#
@@ -274,7 +274,7 @@ ObsLikes:
   #   capability: h2taumu_LogLikelihood
 
   # # Source: GAMBIT
-  # # BR(t->ch) 
+  # # BR(t->ch)
   # - purpose:    Observable
   #   capability: t2ch_LogLikelihood
 
@@ -282,22 +282,22 @@ ObsLikes:
   # # Source: GAMBIT
   # # B meson mass aysmmetry
   # # - purpose:    Observable
-  # #   capability: deltaMB_LogLikelihood
+  # #   capability: Delta_MBs_LogLikelihood
 
-  # # - capability: prediction_DeltaMs
+  # # - capability: prediction_Delta_MBs
   # #   function: SuperIso_prediction_Delta_MBs
 
   # # TODO: reported as absent/broken
   # # # Source: SuperISO
   # # # B_d meson mass aysmmetry
   # # - purpose:    Observable
-  # #   capability: deltaMBd_LogLikelihood
+  # #   capability: Delta_MBd_LogLikelihood
 
-  # # - capability: DeltaMd
+  # # - capability: prediction_Delta_MBd
   # #   function: SuperIso_prediction_Delta_MBd
 
   # # Source: GAMBIT or SuperISO
-  # # Tree-level leptonic and semi-leptonic B & D decay measurements 
+  # # Tree-level leptonic and semi-leptonic B & D decay measurements
   # # (RD, RDstar, BDmunu, BDstarmunu, Btaunu, Rmu, Dstaunu, Dsmunu, Dmunu, Dtaunu, RDemu)
   # - purpose:    Observable
   #   capability: SL_LogLikelihood
@@ -410,7 +410,7 @@ ObsLikes:
     type: map_str_dbl
     purpose: Observable
 
-  # # 2HDM decay rates and branching ratios 
+  # # 2HDM decay rates and branching ratios
   # - capability: all_BFs
   #   purpose: Observable
 
@@ -430,7 +430,7 @@ Rules:
     options:
       check_other_scale: 1000
 
-    # set check_other_scale to some extra scale to 
+    # set check_other_scale to some extra scale to
     # check constraint at, or -1 to skip this
     # note that input scale is always checked
   - capability: perturbativity_LogLikelihood_THDM
@@ -514,7 +514,7 @@ Rules:
 
   - capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
     options:
-      obs_list: [A3, A4, A5, A6, A7, A8, A9] 
+      obs_list: [A3, A4, A5, A6, A7, A8, A9]
 
 
   - capability: decay_rates

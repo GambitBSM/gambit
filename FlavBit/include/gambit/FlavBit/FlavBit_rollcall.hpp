@@ -1586,23 +1586,23 @@ START_MODULE
 
 
   ///Observable: B_s mass difference
-  #define CAPABILITY prediction_DeltaMs
+  #define CAPABILITY prediction_Delta_MBs
   START_CAPABILITY
 
-    #define FUNCTION FeynHiggs_prediction_DeltaMs
-    START_FUNCTION(double)
+    #define FUNCTION FeynHiggs_prediction_Delta_MBs
+    START_FUNCTION(flav_prediction)
     DEPENDENCY(FlavourObs, fh_FlavourObs_container)
     #undef FUNCTION
 
     #define FUNCTION SuperIso_prediction_Delta_MBs
-    START_FUNCTION(double)
+    START_FUNCTION(flav_prediction)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_REQ(Delta_MBs, (libsuperiso),  double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
 
     #define FUNCTION THDM_Delta_MBs
-    START_FUNCTION(double)
+    START_FUNCTION(flav_prediction)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     ALLOW_MODELS(THDM,THDMatQ)
@@ -1612,10 +1612,10 @@ START_MODULE
 
 
   ///Observable: B_d mass difference
-  #define CAPABILITY DeltaMd
+  #define CAPABILITY prediction_Delta_MBd
   START_CAPABILITY
     #define FUNCTION SuperIso_prediction_Delta_MBd
-    START_FUNCTION(double)
+    START_FUNCTION(flav_prediction)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_REQ(Delta_MB, (libsuperiso),  double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
@@ -1980,7 +1980,7 @@ START_MODULE
   ///t->ch likelihood
   #define CAPABILITY t2ch_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION t2ch_likelihood
+    #define FUNCTION t2ch_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(t2ch, double)
     #undef FUNCTION
@@ -1989,28 +1989,28 @@ START_MODULE
   ///t->Hpb->bc decay likelihood
   #define CAPABILITY t2bbc_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION t2bbc_likelihood
+    #define FUNCTION t2bbc_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(t2bbc, double)
     #undef FUNCTION
   #undef CAPABILITY
 
   ///B meson mass aysmmetry likelihood
-  #define CAPABILITY deltaMB_LogLikelihood
+  #define CAPABILITY Delta_MBs_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION deltaMB_likelihood
+    #define FUNCTION HepLike_Delta_MBs_LogLikelihood
     START_FUNCTION(double)
-    DEPENDENCY(prediction_DeltaMs, double)
+    DEPENDENCY(prediction_Delta_MBs, flav_prediction)
     #undef FUNCTION
   #undef CAPABILITY
 
 
   ///B_d meson mass aysmmetry likelihood
-  #define CAPABILITY deltaMBd_LogLikelihood
+  #define CAPABILITY Delta_MBd_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION deltaMBd_likelihood
+    #define FUNCTION HepLike_Delta_MBd_LogLikelihood
     START_FUNCTION(double)
-    DEPENDENCY(DeltaMd, double)
+    DEPENDENCY(prediction_Delta_MBd, flav_prediction)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2018,7 +2018,7 @@ START_MODULE
   ///B-Dstartaunu distributions likelihood [Normalized differential partial width]
   #define CAPABILITY dBRBDstartaunu_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION dBRBDstartaunu_likelihood
+    #define FUNCTION dBRBDstartaunu_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(dBRBDstartaunu_M, FlavBit::predictions_measurements_covariances)
     #undef FUNCTION
@@ -2028,7 +2028,7 @@ START_MODULE
   ///B-Dtanu distributions likelihood [Normalized differential partial width]
   #define CAPABILITY dBRBDtaunu_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION dBRBDtaunu_likelihood
+    #define FUNCTION dBRBDtaunu_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(dBRBDtaunu_M, FlavBit::predictions_measurements_covariances)
     #undef FUNCTION
@@ -2038,7 +2038,7 @@ START_MODULE
   ///mu-e universality likelihood
   #define CAPABILITY gmu_ge_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION gmu_ge_likelihood
+    #define FUNCTION gmu_ge_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(gmu_ge, double)
     #undef FUNCTION
@@ -2048,7 +2048,7 @@ START_MODULE
   ///FLDstar likelihood
   #define CAPABILITY FLDstar_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION FLDstar_likelihood
+    #define FUNCTION FLDstar_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(FLDstar, double)
     #undef FUNCTION
@@ -2058,7 +2058,7 @@ START_MODULE
   ///Bc lifetime likelihood
   #define CAPABILITY Bc_lifetime_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION Bc_lifetime_likelihood
+    #define FUNCTION Bc_lifetime_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(Bc_lifetime, double)
     #undef FUNCTION
@@ -2078,7 +2078,7 @@ START_MODULE
   ///Bs2ll likelihood
   #define CAPABILITY Bs2ll_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION Bs2ll_likelihood
+    #define FUNCTION Bs2ll_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(Bs2mutau, double)
     DEPENDENCY(Bs2tautau, double)
@@ -2089,7 +2089,7 @@ START_MODULE
   ///B2Kll likelihood
   #define CAPABILITY B2Kll_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION B2Kll_likelihood
+    #define FUNCTION B2Kll_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(B2Kmue, double)
     DEPENDENCY(B2Ktaumu, double)
@@ -2102,7 +2102,7 @@ START_MODULE
   /// B2Xsnunu likelihood
   #define CAPABILITY B2Xsnunu_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION B2Xsnunu_likelihood
+    #define FUNCTION B2Xsnunu_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(RKnunu, double)
     DEPENDENCY(RKstarnunu, double)
@@ -2113,7 +2113,7 @@ START_MODULE
   ///Tree-level leptonic and semi-leptonic B & D decay likelihoods
   #define CAPABILITY SL_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION SL_likelihood
+    #define FUNCTION SL_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(SL_M, FlavBit::predictions_measurements_covariances)
     #undef FUNCTION
@@ -2132,7 +2132,7 @@ START_MODULE
   ///l -> l gamma  likelihood
   #define CAPABILITY l2lgamma_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION l2lgamma_likelihood
+    #define FUNCTION l2lgamma_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(muegamma, double)
     DEPENDENCY(tauegamma, double)
@@ -2144,7 +2144,7 @@ START_MODULE
   ///l -> l l l likelihood
   #define CAPABILITY l2lll_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION l2lll_likelihood
+    #define FUNCTION l2lll_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(mueee, double)
     DEPENDENCY(taueee, double)
@@ -2160,7 +2160,7 @@ START_MODULE
   ///mu - e conversion likelihood
   #define CAPABILITY mu2e_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION mu2e_likelihood
+    #define FUNCTION mu2e_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(mueTi, double)
     DEPENDENCY(mueAu, double)

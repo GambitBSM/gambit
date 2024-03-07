@@ -854,10 +854,6 @@ namespace Gambit
     {
       result = Pipes::FeynHiggs_prediction_Bsmumu::Dep::FlavourObs->Bsmumu_MSSM;
     }
-    void FeynHiggs_prediction_DeltaMs(double &result)
-    {
-      result = Pipes::FeynHiggs_prediction_DeltaMs::Dep::FlavourObs->deltaMs_MSSM;
-    }
     ///@}
 
 
@@ -874,9 +870,9 @@ namespace Gambit
 
 
     /// Likelihood for Bs -> mu tau and Bs -> tau tau
-    void Bs2ll_likelihood(double &result)
+    void Bs2ll_LogLikelihood(double &result)
     {
-      using namespace Pipes::Bs2ll_likelihood;
+      using namespace Pipes::Bs2ll_LogLikelihood;
 
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
@@ -917,9 +913,9 @@ namespace Gambit
     }
 
     /// Likelihood for B+->K+ l- l+
-    void B2Kll_likelihood(double &result)
+    void B2Kll_LogLikelihood(double &result)
     {
-      using namespace Pipes::B2Kll_likelihood;
+      using namespace Pipes::B2Kll_LogLikelihood;
 
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
@@ -966,9 +962,9 @@ namespace Gambit
 
     /// Likelihood for B2Xsnunu
     /// Uses the obseravables RKnunu and RKstarnunu
-    void B2Xsnunu_likelihood(double &result)
+    void B2Xsnunu_LogLikelihood(double &result)
     {
-      using namespace Pipes::B2Xsnunu_likelihood;
+      using namespace Pipes::B2Xsnunu_LogLikelihood;
 
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;

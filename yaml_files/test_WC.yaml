@@ -108,7 +108,6 @@ ObsLikes:
 
     # B->mu,mu likelihood
   - capability: b2ll_LogLikelihood
-    function: b2ll_likelihood
     purpose: LogLike
 
   #- purpose:    LogLike

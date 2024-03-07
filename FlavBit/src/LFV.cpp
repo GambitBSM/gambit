@@ -1068,9 +1068,9 @@ namespace Gambit
     /// {@
 
     /// Likelihood for l -> l gamma processes
-    void l2lgamma_likelihood(double &result)
+    void l2lgamma_LogLikelihood(double &result)
     {
-      using namespace Pipes::l2lgamma_likelihood;
+      using namespace Pipes::l2lgamma_LogLikelihood;
 
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
@@ -1115,9 +1115,9 @@ namespace Gambit
     }
 
     /// Likelihood for l -> l l l processes
-    void l2lll_likelihood(double &result)
+    void l2lll_LogLikelihood(double &result)
     {
-      using namespace Pipes::l2lll_likelihood;
+      using namespace Pipes::l2lll_LogLikelihood;
 
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
@@ -1179,9 +1179,9 @@ namespace Gambit
     }
 
     /// Likelihood for mu - e conversion in nuclei
-    void mu2e_likelihood(double &result)
+    void mu2e_LogLikelihood(double &result)
     {
-      using namespace Pipes::mu2e_likelihood;
+      using namespace Pipes::mu2e_LogLikelihood;
 
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
@@ -1229,13 +1229,13 @@ namespace Gambit
 
 
     /// Likelihood for  mu-e universality
-    void gmu_ge_likelihood(double &result)
+    void gmu_ge_LogLikelihood(double &result)
     {
-      using namespace Pipes::gmu_ge_likelihood;
+      using namespace Pipes::gmu_ge_LogLikelihood;
       static bool th_err_absolute, first = true;
       static double exp_meas, exp_gmu_ge_err, th_err;
 
-      if (flav_debug) cout << "gmu_ge_likelihood"<<endl;
+      if (flav_debug) cout << "gmu_ge_LogLikelihood"<<endl;
 
       if (first)
       {

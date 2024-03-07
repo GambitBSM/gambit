@@ -72,7 +72,7 @@ Scanner:
 
     postprocessor:
       plugin: postprocessor
-      version: "1.0" # If you want to use v1 of the postprocessor, select it here (default is currently v2.0) 
+      version: "1.0" # If you want to use v1 of the postprocessor, select it here (default is currently v2.0)
       # Turn off extra log output to track what the postprocessor is doing (won't be output unless debug: true anyway though)
       verbose_logging: false
       # Name of the new global likelihood contribution.
@@ -187,11 +187,11 @@ ObsLikes:
 
   # # B meson mass aysmmetry
   # - purpose:    LogLike
-  #   capability: deltaMB_LogLikelihood
+  #   capability: Delta_MBs_LogLikelihood
 
   # # B_d meson mass aysmmetry
   # - purpose:    LogLike
-  #   capability: deltaMBd_LogLikelihood
+  #   capability: Delta_MBd_LogLikelihood
 
   # # Tree-level leptonic and semi-leptonic B & D decay measurements
   # # (RD, RDstar, BDmunu, BDstarmunu, Btaunu, Rmu, Dstaunu, Dsmunu, Dmunu, Dtaunu, RDemu)
@@ -299,7 +299,7 @@ Rules:
   - capability: RKstar_11_60
     function: SuperIso_RKstar_11_60
 
-  - capability: prediction_DeltaMs
+  - capability: prediction_Delta_MBs
     function: SuperIso_prediction_Delta_MBs
 
   - capability: Higgs_decay_rates

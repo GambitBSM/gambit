@@ -239,22 +239,18 @@ ObsLikes:
     # NOTE: this likelihood could contain other semileptonic decays, but for now only RD and RD* are enabled
 #  - capability: SL_LogLikelihood
 #    sub_capabilities: [RD,RDstar]
-#    function: SL_likelihood
 #    purpose: LogLike
 
     # FLDstar likelihood
 #  - capability: FLDstar_LogLikelihood
-#    function: FLDstar_likelihood
 #    purpose: LogLike
 
     # B->Dstar,l,nu likelihood [Normalized differential decay width]
 #  - capability: dBRBDstartaunu_LogLikelihood
-#    function: dBRBDstartaunu_likelihood
 #    purpose: LogLike
 
     # B->D,l,nu likelihood [Normalized differential decay width]
 #  - capability: dBRBDtaunu_LogLikelihood
-#    function: dBRBDtaunu_likelihood
 #    purpose: LogLike
 
 

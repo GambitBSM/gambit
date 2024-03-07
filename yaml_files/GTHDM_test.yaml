@@ -83,7 +83,7 @@ Printer:
 
   printer: cout
   options:
-    output_file: "GTHDM_tester.hdf5"
+    output_file: "GTHDM_test.hdf5"
     group: "/GTHDM"
     delete_file_on_restart: true
 
@@ -348,22 +348,18 @@ ObsLikes:
     # NOTE: this likelihood could contain other semileptonic decays, but for now only RD and RD* are enabled
   - capability: SL_LogLikelihood
     sub_capabilities: [RD,RDstar]
-    function: SL_likelihood
     purpose: LogLike
 
     # FLDstar likelihood
 #  - capability: FLDstar_LogLikelihood
-#    function: FLDstar_likelihood
 #    purpose: LogLike
 
     # B->Dstar,l,nu likelihood [Normalized differential decay width]
 #  - capability: dBRBDstartaunu_LogLikelihood
-#    function: dBRBDstartaunu_likelihood
 #    purpose: LogLike
 
     # B->D,l,nu likelihood [Normalized differential decay width]
 #  - capability: dBRBDtaunu_LogLikelihood
-#    function: dBRBDtaunu_likelihood
 #    purpose: LogLike
 
 
@@ -373,11 +369,9 @@ ObsLikes:
 
     #Bc->tanu lifetime likelihood
   - capability: Bc_lifetime_LogLikelihood
-    function: Bc_lifetime_likelihood
     purpose: LogLike
 
-  - capability: deltaMB_LogLikelihood
-    function: deltaMB_likelihood
+  - capability: Delta_MBs_LogLikelihood
     purpose: LogLike
 
 
@@ -386,15 +380,12 @@ ObsLikes:
     # ------------------------------------ #
 
 #  - capability: l2lll_LogLikelihood
-#    function: l2lll_likelihood
 #    purpose: LogLike
 
   - capability: l2lgamma_LogLikelihood
-    function: l2lgamma_likelihood
     purpose: LogLike
 
   - capability: h2ltau_LogLikelihood
-    function: h2ltau_LogLikelihood
     purpose: LogLike
 
     # --------------------------------------- #
@@ -452,7 +443,7 @@ ObsLikes:
     function: THDM_RDstar
     purpose: Observable
 
-  - capability: prediction_DeltaMs
+  - capability: prediction_Delta_MBs
     function: THDM_Delta_MBs
     purpose: Observable
 
@@ -500,10 +491,12 @@ ObsLikes:
     sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
 
   - purpose: Observable
-    capability: B2Knunu
+    capability: prediction_B2Knunu
+    function: SuperIso_prediction_B2Knunu
 
   - purpose: Observable
-    capability: Bu2Knunu
+    capability: prediction_Bu2Knunu
+    function: SuperIso_prediction_Bu2Knunu
 
     # --------------------- #
     # Precision predictions #

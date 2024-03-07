@@ -366,13 +366,13 @@ ObsLikes:
   # Source: GAMBIT
   # B meson mass aysmmetry
   - purpose:    LogLike
-    capability: deltaMB_LogLikelihood
+    capability: Delta_MBs_LogLikelihood
 
   # TODO: reported as absent/broken
   # Source: SuperISO
   # B_d meson mass aysmmetry
   - purpose:    LogLike
-    capability: deltaMBd_LogLikelihood
+    capability: Delta_MBd_LogLikelihood
 
   # # Source: GAMBIT or SuperISO
   # # Tree-level leptonic and semi-leptonic B & D decay measurements

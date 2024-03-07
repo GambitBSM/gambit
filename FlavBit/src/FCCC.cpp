@@ -573,7 +573,7 @@ namespace Gambit
       // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
       if (first)
       {
-        pmc.LL_name="dBRBDtaunu_likelihood";
+        pmc.LL_name="dBRBDtaunu_LogLikelihood";
 
         // Read in experimental measuremens
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
@@ -643,7 +643,7 @@ namespace Gambit
       // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
       if (first)
       {
-        pmc.LL_name="dBRBDstartaunu_likelihood";
+        pmc.LL_name="dBRBDstartaunu_LogLikelihood";
 
         // Read in experimental measuremens
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
@@ -1474,7 +1474,7 @@ namespace Gambit
       // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
       if (first)
       {
-        pmc.LL_name="SL_likelihood";
+        pmc.LL_name="SL_LogLikelihood";
 
         // Read in experimental measuremens
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
@@ -1664,11 +1664,11 @@ namespace Gambit
     ///------------------------///
 
     /// Likelihood for the differential widths of tree-level semileptonic B decays to tau leptons
-    void dBRBDtaunu_likelihood(double &result)
+    void dBRBDtaunu_LogLikelihood(double &result)
     {
-      using namespace Pipes::dBRBDtaunu_likelihood;
+      using namespace Pipes::dBRBDtaunu_LogLikelihood;
 
-      if (flav_debug) std::cout<<"Starting dBRBDtaunu_likelihood"<< std::endl;
+      if (flav_debug) std::cout<<"Starting dBRBDtaunu_LogLikelihood"<< std::endl;
 
       predictions_measurements_covariances pmc = *Dep::dBRBDtaunu_M;
 
@@ -1694,17 +1694,17 @@ namespace Gambit
 
       result=-0.5*Chi2;
 
-      if (flav_debug) std::cout<<"Finished dBRBDtaunu_likelihood"<< std::endl;
+      if (flav_debug) std::cout<<"Finished dBRBDtaunu_LogLikelihood"<< std::endl;
 
-      if (flav_debug_LL) std::cout<<"Likelihood result dBRBDtaunu_likelihood  : "<< result<< std::endl;
+      if (flav_debug_LL) std::cout<<"Likelihood result dBRBDtaunu_LogLikelihood  : "<< result<< std::endl;
     }
 
     /// Likelihood for the differential widths of tree-level semileptonic B decays to tau leptons
-    void dBRBDstartaunu_likelihood(double &result)
+    void dBRBDstartaunu_LogLikelihood(double &result)
     {
-      using namespace Pipes::dBRBDstartaunu_likelihood;
+      using namespace Pipes::dBRBDstartaunu_LogLikelihood;
 
-      if (flav_debug) std::cout<<"Starting dBRBDstartaunu_likelihood"<< std::endl;
+      if (flav_debug) std::cout<<"Starting dBRBDstartaunu_LogLikelihood"<< std::endl;
 
       predictions_measurements_covariances pmc = *Dep::dBRBDstartaunu_M;
 
@@ -1729,17 +1729,17 @@ namespace Gambit
 
       result=-0.5*Chi2;
 
-      if (flav_debug) std::cout<<"Finished dBRBDstartaunu_likelihood"<< std::endl;
+      if (flav_debug) std::cout<<"Finished dBRBDstartaunu_LogLikelihood"<< std::endl;
 
-      if (flav_debug_LL) std::cout<<"Likelihood result dBRBDstartaunu_likelihood  : "<< result<< std::endl;
+      if (flav_debug_LL) std::cout<<"Likelihood result dBRBDstartaunu_LogLikelihood  : "<< result<< std::endl;
     }
 
     /// Likelihood for tree-level leptonic and semileptonic B decays
-    void SL_likelihood(double &result)
+    void SL_LogLikelihood(double &result)
     {
-      using namespace Pipes::SL_likelihood;
+      using namespace Pipes::SL_LogLikelihood;
 
-      if (flav_debug) std::cout<<"Starting SL_likelihood"<< std::endl;
+      if (flav_debug) std::cout<<"Starting SL_LogLikelihood"<< std::endl;
 
       predictions_measurements_covariances pmc = *Dep::SL_M;
       static std::vector<str> obs_list = Downstream::subcaps->getNames();
@@ -1770,25 +1770,25 @@ namespace Gambit
 
       result=-0.5*Chi2;
 
-      if (flav_debug) std::cout<<"Finished SL_likelihood"<< std::endl;
-      if (flav_debug_LL) std::cout<<"Likelihood result SL_likelihood  : "<< result<< std::endl;
+      if (flav_debug) std::cout<<"Finished SL_LogLikelihood"<< std::endl;
+      if (flav_debug_LL) std::cout<<"Likelihood result SL_LogLikelihood  : "<< result<< std::endl;
     }
 
 
     /// LogLikelihood for FLDstar
-    void FLDstar_likelihood(double &result)
+    void FLDstar_LogLikelihood(double &result)
     {
-      using namespace Pipes::FLDstar_likelihood;
+      using namespace Pipes::FLDstar_LogLikelihood;
       static bool th_err_absolute, first = true;
       static double exp_meas, exp_FLDstar_err, th_err;
 
-      if (flav_debug) std::cout << "FLDstar_likelihood"<< std::endl;
+      if (flav_debug) std::cout << "FLDstar_LogLikelihood"<< std::endl;
 
       if (first)
       {
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
         fread.debug_mode(flav_debug);
-        if (flav_debug) std::cout<<"Initialised Flav reader in FLDstar_likelihood"<< std::endl;
+        if (flav_debug) std::cout<<"Initialised Flav reader in FLDstar_LogLikelihood"<< std::endl;
         fread.read_yaml_measurement("flav_data.yaml", "FLDstar");
         fread.initialise_matrices();
         exp_meas = fread.get_exp_value()(0,0);
@@ -1846,13 +1846,13 @@ namespace Gambit
     //HEPLIKE_GAUSSIAN_1D_LIKELIHOOD(B2taunu, "/data/PDG/Semileptonic/B2TauNu.yaml")
 
     /// Likelihood for the Bc lifetime
-    void Bc_lifetime_likelihood(double &result)
+    void Bc_lifetime_LogLikelihood(double &result)
     {
-      using namespace Pipes::Bc_lifetime_likelihood;
+      using namespace Pipes::Bc_lifetime_LogLikelihood;
       static bool th_err_absolute, first = true;
       static double exp_meas, exp_taulifetime_err, th_err;
 
-      if (flav_debug) std::cout << "Bc_lifetime_likelihood"<< std::endl;
+      if (flav_debug) std::cout << "Bc_lifetime_LogLikelihood"<< std::endl;
 
       if (first)
       {
