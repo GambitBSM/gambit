@@ -13,6 +13,8 @@
 ///
 ///  *********************************************
 
+#include "gambit/cmake/cmake_variables.hpp"
+
 #ifndef EXCLUDE_ONNXRUNTIME
 
 #include "gambit/ColliderBit/onnx_rt_wrapper.hpp"

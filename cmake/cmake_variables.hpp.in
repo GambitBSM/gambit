@@ -85,6 +85,9 @@
 /// Suppress specific compiler warnings from external libraries
 #cmakedefine SUPPRESS_LIBRARY_WARNINGS 1
 
+/// Leave out onnx
+#cmakedefine EXCLUDE_ONNXRUNTIME 1
+
 /// Version info
 /// @{
 #define GAMBIT_VERSION_MAJOR    @GAMBIT_VERSION_MAJOR@
