@@ -12,7 +12,7 @@
 ///  \date 2023 August
 ///
 ///  *********************************************
-
+#include "gambit/cmake/cmake_variables.hpp"
 
 #ifndef EXCLUDE_ONNXRUNTIME
 

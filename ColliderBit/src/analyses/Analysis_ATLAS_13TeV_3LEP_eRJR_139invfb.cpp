@@ -348,7 +348,7 @@ namespace Gambit
             }
 
             HEPUtils::P4 vMET;
-            vMET.setPE(metVec.px(), metVec.py(), 0., sqrt(metVec.px()*metVec.px()+metVec.py()*metVec.py()));
+            vMET.setPM(metVec.px(), metVec.py(), 0., 0.);
 
             //double pTjets(-999), dphijetsinv(-999), Rjetsinv(-999), pTsoft(-999);
             if (signalJets.size()>0)
