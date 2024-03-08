@@ -102,6 +102,7 @@ namespace Gambit
       F(ATLAS_13TeV_3b_36invfb)                      \
       F(ATLAS_13TeV_3b_discoverySR_36invfb)          \
       F(ATLAS_13TeV_4b_139invfb)                     \
+      F(ATLAS_13TeV_4b_allyears_139invfb)            \
       F(ATLAS_13TeV_4b_discoverySR_139invfb)         \
       F(ATLAS_13TeV_PhotonGGM_36invfb)               \
       F(ATLAS_13TeV_PhotonGGM_1Photon_36invfb)       \
