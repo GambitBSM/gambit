@@ -36,8 +36,8 @@ namespace Gambit {
 
       // Signal region bin edges
       vector<int> year_bins = {2016, 2017, 2018};
-      vector<int> ETmiss_bins = {0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200};
-      vector<int> meff_bins = {160, 200, 260, 340, 440, 560, 700, 860};
+      vector<int> ETmiss_bins = {0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, INT_MAX};
+      vector<int> meff_bins = {160, 200, 260, 340, 440, 560, 700, 860, INT_MAX};
       
       // b-jet trigger availability
       double trigger_availability = 126.0/139.;
@@ -57,15 +57,14 @@ namespace Gambit {
         // Signal region map
         // Exclusion regions
         for(auto & year : year_bins){
-          for(auto & meff : meff_bins){
-            for(auto & ETmiss : ETmiss_bins){
-              string SR_name = to_string(year)+"_ETmiss"+to_string(ETmiss)+"_meff"+to_string(meff);
-              //cout << SR_name << endl;
+          for(unsigned int i = 0; i < meff_bins.size() - 1; ++i){
+            for(unsigned int j = 0; j < ETmiss_bins.size() - 1; ++j){
+              string SR_name = to_string(year) + "_ETmiss" + to_string(ETmiss_bins[j]) + "_meff" + to_string(meff_bins[i]);
               _counters[SR_name] = EventCounter(SR_name);
             }
           }
         }
- 
+
         // Discovery regions
         _counters["SR_LM_150"] = EventCounter("SR_LM_150");
         _counters["SR_LM_300"] = EventCounter("SR_LM_300");
@@ -237,7 +236,7 @@ namespace Gambit {
           // Central loop over b-tagged jets which may go into W
           for(int j = 0; j < min(4,(int)nbJets) && j != i; j++){
             // Inner loop over non b-jets for W
-            for(int k = 0; k < nnonbJets; k++){
+            for(size_t k = 0; k < nnonbJets; k++){
               double mW = (bJets_survivors.at(j)->mom()+nonbJets_survivors.at(k)->mom()).m();
               double mt = (bJets_survivors.at(i)->mom()+bJets_survivors.at(j)->mom()+nonbJets_survivors.at(k)->mom()).m();
               double XWt_current = sqrt( pow((mW-80.4)/(0.1*mW),2)+pow((mt-172.5)/(0.1*mt),2) );
@@ -245,9 +244,9 @@ namespace Gambit {
             }
           }
           // Central loop over jets non b-tagged jets that may go into W
-          for(int j = 0; j < nnonbJets; j++){
+          for(size_t j = 0; j < nnonbJets; j++){
             // Inner loop over non b-jets for W
-            for(int k = 0; k < nnonbJets && k != j; k++){
+            for(size_t k = 0; k < nnonbJets && k != j; k++){
               double mW = (nonbJets_survivors.at(j)->mom()+nonbJets_survivors.at(k)->mom()).m();
               double mt = (bJets_survivors.at(i)->mom()+nonbJets_survivors.at(j)->mom()+nonbJets_survivors.at(k)->mom()).m();
               double XWt_current = sqrt( pow((mW-80.4)/(0.1*mW),2)+pow((mt-172.5)/(0.1*mt),2) );
@@ -399,7 +398,6 @@ namespace Gambit {
           else year = 2018;
           
           // First exclusion regions
-          // TODO: last bin is inclusive
           for(unsigned int i = 0; i < meff_bins.size()-1; i++){
             if( meff > meff_bins[i] && meff < meff_bins[i+1] ){
               for(unsigned int j = 0; j < ETmiss_bins.size()-1; j++){
