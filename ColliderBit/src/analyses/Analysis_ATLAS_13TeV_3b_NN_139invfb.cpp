@@ -14,7 +14,7 @@
 ///         For now, I've commented out the `add_result` lines to make sure they're not accidentally used.
 ///
 /// *********************************************
-
+#include "gambit/cmake/cmake_variables.hpp"
 #ifndef EXCLUDE_ONNXRUNTIME
 
 #include <vector>
