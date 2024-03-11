@@ -153,7 +153,7 @@ namespace Gambit
           double pTvarcone30 = 0.;
           for(auto &track: preselectedLeptons)
           {
-            if(track != muon and track->pT() > 1 and track->mom().deltaR_eta(muon->mom()) < min(10/muon->pT(), 0.3))
+            if(track != muon and track->pT() > 1. and track->mom().deltaR_eta(muon->mom()) < min(10/muon->pT(), 0.3))
               pTvarcone30 += track->pT();
           }
           // Now build signalMuons from preselectedMuons that satisfy the FCTightTrackOnly isolation criterium
@@ -172,10 +172,10 @@ namespace Gambit
         {
           bool isSignalLepton = false;
           for(auto &lep : signalLeptons)
-            if(lep == track)
-              isSignalLepton = true;
-          if(not isSignalLepton)
-            candidateTracks.push_back(track);
+          {
+            if(lep == track) isSignalLepton = true;
+          }
+          if(not isSignalLepton) candidateTracks.push_back(track);
         }
 
         // The sum pT of preselected tracks within ∆R < 0.3 of signal tracks, excluding the contributions from nearby leptons, is required to be smaller than 0.5 GeV.
@@ -278,14 +278,14 @@ namespace Gambit
 
         // SFOS
         bool SF = nSignalParticles > 1 ? signalParticles.at(0)->abspid() == signalParticles.at(1)->abspid() : false;
-        bool OS = nSignalParticles > 1 ? signalParticles.at(0)->pid() * signalParticles.at(0)->pid() < 0 : false;
+        bool OS = nSignalParticles > 1 ? signalParticles.at(0)->pid() * signalParticles.at(1)->pid() < 0 : false;
         bool SFOS = SF && OS;
 
         // Invariant mass
         double mll = nSignalParticles > 1 ? (signalParticles.at(0)->mom() + signalParticles.at(1)->mom() ).m() : 0.;
 
         // HTlep
-        double HTlep = nSignalParticles > 1 ? signalParticles.at(0)->pT () + signalParticles.at(1)->pT() : 0.;
+        double HTlep = nSignalParticles > 1 ? signalParticles.at(0)->pT() + signalParticles.at(1)->pT() : 0.;
 
         // mtautau
         double mtautau = 0.;
@@ -300,15 +300,37 @@ namespace Gambit
         }
 
         // DeltaPhi
-        double minPhi = 1.;
+        double minPhi = M_PI;
         for(const HEPUtils::Jet *jet : signalJets)
         {
           if(jet != signalJets.at(0))
           {
-            if(minPhi > fabs(jet->phi() - ptot.phi()))
-              minPhi = fabs(jet->phi() - ptot.phi());
+            double deltaphi = jet->mom().deltaPhi(ptot);
+            if (deltaphi < minPhi)
+            {
+              minPhi = deltaphi;
+            }
           }
         }
+
+        // std::cerr << "DEBUG:" 
+        //           << "  met: " << met
+        //           << "  nSignalJets: " << nSignalJets
+        //           << "  nSignalBJets: " << nSignalBJets
+        //           << "  nSignalVBFJets: " << nSignalVBFJets
+        //           << "  nSignalLeptons: " << nSignalLeptons 
+        //           << "  nSignalTracks: " << nSignalTracks 
+        //           << "  OS: " << OS
+        //           << "  SF: " << SF
+        //           << "  SFOS: " << SFOS
+        //           << "  electron_pair: " << electron_pair
+        //           << "  muon_pair: " << muon_pair
+        //           << "  deltaR: " << deltaR
+        //           << "  mtautau: " << mtautau 
+        //           << "  mll: " << mll
+        //           << "  minPhi: " << minPhi
+        //           << "  HTlep: " << HTlep
+        //           << std::endl;
 
         // Initialize cutflow counters
         BEGIN_PRESELECTION
@@ -319,10 +341,10 @@ namespace Gambit
         std::vector<bool> preselection_2l = { mettrigger,
                                              nSignalLeptons == 2,
                                              (mll < 3. || mll > 3.2),
-                                             true, // lepton author 16 veto,
+                                             true, // lepton author 16 veto
                                              (minPhi  > 0.4),
-                                             (nSignalJets > 0 && fabs(signalJets.at(0)->phi() - ptot.phi()) >= 2.),
-                                             true, // lepton truth matching,
+                                             (nSignalJets > 0 && signalJets.at(0)->mom().deltaPhi(ptot) >= 2.),
+                                             true, // lepton truth matching
                                              (mll > (electron_pair ? 3. : 1.) && mll < 60.),
                                              (deltaR > (electron_pair ? 0.3 : (muon_pair ? 0.05 : 0.2) ) ),
                                              (nSignalLeptons > 0 && signalLeptons.at(0)->pT() > 5.),
@@ -332,6 +354,14 @@ namespace Gambit
                                              (mtautau < 0. || mtautau > 160.),
                                              (SFOS)
                                            };
+
+        // std::cerr << "DEBUG: preselection_2l:";
+        // for (size_t i = 0; i < preselection_2l.size() ; ++i)
+        // {
+        //   std::cerr << "  i" << i << ":" << preselection_2l[i];
+        // }
+        // std::cerr << std::endl;
+
 
         LOG_CUTS_N(preselection_2l, "SR-E-low-", 8)
         LOG_CUTS_N(preselection_2l, "SR-E-med-", 6)
@@ -366,7 +396,7 @@ namespace Gambit
                                                 true, // lepton author 16 veto
                                                 (met > 200.),
                                                 (minPhi > 0.4),
-                                                (nSignalJets > 0 && fabs(signalJets.at(0)->phi() - ptot.phi()) >= 2.),
+                                                (nSignalJets > 0 && signalJets.at(0)->mom().deltaPhi(ptot) >= 2.),
                                                 (mll > 0.5 && mll < 5),
                                                 (deltaR > 0.05),
                                                 (nSignalJets >= 1),
@@ -470,7 +500,7 @@ namespace Gambit
 
         // SR-E-1l1T
         std::vector<bool> cuts_1l1T = { nSignalTracks > 0 && signalTracks.at(0)->pT() < 5.,
-                                        nSignalLeptons > 0 && fabs(signalLeptons.at(0)->phi() - ptot.phi()) > 1.0,
+                                        nSignalLeptons > 0 && signalLeptons.at(0)->mom().deltaPhi(ptot) >= 1.0,
                                         SF,
                                         OS
                                       };
