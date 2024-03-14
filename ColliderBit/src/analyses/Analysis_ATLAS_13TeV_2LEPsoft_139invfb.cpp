@@ -24,8 +24,6 @@
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
- #define CHECK_CUTFLOW
-
 using namespace std;
 
 namespace Gambit
@@ -44,7 +42,7 @@ namespace Gambit
       Analysis_ATLAS_13TeV_2LEPsoft_139invfb()
       {
 
-        DEFINE_SIGNAL_REGIONS("SR-E-low-", 8, "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > min(5+mll/4)", "10 < mTl1 < 60 GeV")
+        DEFINE_SIGNAL_REGIONS("SR-E-low-", 8, "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > 5+mll/4", "10 < mTl1 < 60 GeV")
         DEFINE_SIGNAL_REGIONS("SR-E-med-", 6, "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV")
         DEFINE_SIGNAL_REGIONS("SR-E-high-", 8, "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)")
         DEFINE_SIGNAL_REGIONS("SR-E-1l1T-", 6, "MET trigger", "1 lepton and >=1 track", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "MET > 200GeV", "min(DeltaPhi(any jet,MET) > 0.4", "Delta(j1) > 2.0", "0.5 < mltrack < 5GeV", "DeltaRltrack > 0.05", "number of jets >= 1", "leading jet pT > 100 GeV", "MET/HTlep > 30", "Deltaltrack < 1.5", "Lepton pT < 10 GeV", "Track pT < 5 GeV", "DeltaPhi(l,MET) < 1.0", "SF lepton-track pair", "OS lepton-track pair")
@@ -64,6 +62,26 @@ namespace Gambit
         double met = event->met();
         HEPUtils::P4 ptot = event->missingmom();
 
+        //static int zerolepton = 0;
+        //if(event->electrons().size() + event->muons().size() == 0) zerolepton++;
+        //static int onelepton = 0;
+        //if(event->electrons().size() + event->muons().size() == 1) onelepton++;
+        //static int twoleptons = 0;
+        //if(event->electrons().size() + event->muons().size() == 2) twoleptons++;
+        //static int threeleptons = 0;
+        //if(event->electrons().size() + event->muons().size() == 3) threeleptons++;
+
+        static int count = 0;
+        count ++;
+        if(!(count%10000))
+        {
+//          std::cout << "0 lepton events = " << zerolepton << std::endl;
+//          std::cout << "1 lepton events = " << onelepton << std::endl;
+//          std::cout << "2 lepton events = " << twoleptons << std::endl;
+//          std::cout << "3 lepton events = " << threeleptons << std::endl;
+//          std::cout << ">=2 lepton events = " << twoleptons + threeleptons << std::endl;
+        }
+
         // TODO: Candidate events are required to have at least one reconstructed pp interaction vertex with a minimum of two associated tracks with pT > 500 MeV
         // TODO: In events with multiple vertices, the primary vertex is defined as the one with the highest sum pT^2 of associated tracks.
         // Missing: We cannot reject events with detector noise or non-collision backgrounds.
@@ -82,8 +100,17 @@ namespace Gambit
         // Preselected muons are identified using the LowPt criterion, a re-optimised selection similar to those defined in (arXiv:1603.05598) but with improved signal efficiency and background rejection for pT < 10 GeV muon candidates.
         // Preselected muons must also satisfy |z0 sin θ| < 0.5 mm
         // Missing: No impact parameter info
+
         BASELINE_PARTICLES(event->muons(), preselectedMuons, 3.0, 0, DBL_MAX, 2.5)
         applyEfficiency(preselectedMuons, ATLAS::eff1DMu.at("ATLAS_PHYS_PUB_2020_002_LowPT"), false);
+
+        static int npresleptons = 0;
+        if(preselectedElectrons.size() + preselectedMuons.size() >= 2) npresleptons++;
+        if(!(count%10000))
+        {
+//          std::cout << "npresleptons = " << npresleptons << std::endl;
+//          std::cout << "blehleptons = " << highpTLep << std::endl;
+        }
 
         // Preselected leptons
         BASELINE_PARTICLE_COMBINATION(preselectedLeptons, preselectedElectrons, preselectedMuons)
@@ -278,7 +305,7 @@ namespace Gambit
 
         // SFOS
         bool SF = nSignalParticles > 1 ? signalParticles.at(0)->abspid() == signalParticles.at(1)->abspid() : false;
-        bool OS = nSignalParticles > 1 ? signalParticles.at(0)->pid() * signalParticles.at(0)->pid() < 0 : false;
+        bool OS = nSignalParticles > 1 ? signalParticles.at(0)->pid() * signalParticles.at(1)->pid() < 0 : false;
         bool SFOS = SF && OS;
 
         // Invariant mass
@@ -316,7 +343,7 @@ namespace Gambit
         END_PRESELECTION
 
         // Preselection cuts for 2l regions
-        std::vector<bool> preselection_2l = { mettrigger,
+        std::vector<bool> preselection_2l = {mettrigger,
                                              nSignalLeptons == 2,
                                              (mll < 3. || mll > 3.2),
                                              true, // lepton author 16 veto,
@@ -329,7 +356,7 @@ namespace Gambit
                                              (nSignalJets >= 1),
                                              (nSignalJets > 0 && signalJets.at(0)->pT() >= 100.),
                                              (nSignalBJets == 0),
-                                             (mtautau < 0. || mtautau > 160.),
+                                             (mtautau <= 0. || mtautau > 160.),
                                              (SFOS)
                                            };
 
@@ -398,19 +425,19 @@ namespace Gambit
         // MTS variable
         // TODO: This should be a RJ variable. It's done like this for simplicity but it needs to be looked into
         double MTS = 0.0;
-        if (nSignalLeptons > 1)
-        {
-          P4 PS = ptot + signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom();
-          MTS = sqrt(PS.m2() + PS.px2() + PS.py2());
-        }
+        //if (nSignalLeptons > 1)
+        //{
+        //  P4 PS = ptot + signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom();
+        //  MTS = sqrt(PS.m2() + PS.px2() + PS.py2());
+        //}
 
         // RISR variable
         // TODO: This should be a RJ variable. It's done like this for simplicity but it needs to be looked into
-        double RISR = 0.0;
-        if (nSignalJets > 0)
-        {
-          RISR = met / signalJets.at(0)->pT();
-        }
+        double RISR = 1.0;
+        //if (nSignalJets > 0)
+        //{
+        //  RISR = met / signalJets.at(0)->pT();
+        //}
 
 
         // SR-E-low
