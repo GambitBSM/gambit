@@ -126,6 +126,7 @@ namespace Gambit
       F(CMS_13TeV_0LEP_13invfb)                      \
       F(CMS_13TeV_0LEP_36invfb)                      \
       F(CMS_13TeV_0LEP_137invfb)                     \
+      F(CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD)  \
       F(CMS_13TeV_0LEP_chargino_VV_VH_137invfb)      \
       F(CMS_13TeV_1LEPbb_36invfb)                    \
       F(CMS_13TeV_1LEPbb_137invfb)                   \
