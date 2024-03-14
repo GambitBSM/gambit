@@ -125,9 +125,9 @@ namespace Gambit {
         if(nTrueBJets<2)return results;
 
 
-	HEPUtils::P4 jet1B, jet2B;
-	jet1B.setXYZE(trueBjet1->mom().px(), trueBjet1->mom().py(), trueBjet1->mom().pz(), trueBjet1->E());
-	jet2B.setXYZE(trueBjet2->mom().px(), trueBjet2->mom().py(), trueBjet2->mom().pz(), trueBjet2->E());
+        HEPUtils::P4 jet1B, jet2B;
+        jet1B.setXYZE(trueBjet1->mom().px(), trueBjet1->mom().py(), trueBjet1->mom().pz(), trueBjet1->E());
+        jet2B.setXYZE(trueBjet2->mom().px(), trueBjet2->mom().py(), trueBjet2->mom().pz(), trueBjet2->E());
 
 
         HEPUtils::P4 leptontmp;
@@ -142,12 +142,12 @@ namespace Gambit {
         }
 
 
-	HEPUtils::P4 lepton;
-	lepton.setXYZE(leptontmp.px(),leptontmp.py(),leptontmp.pz(),leptontmp.E());
+        HEPUtils::P4 lepton;
+        lepton.setXYZE(leptontmp.px(),leptontmp.py(),leptontmp.pz(),leptontmp.E());
 
 
-	HEPUtils::P4 lepton_plus_jet1B;
-	HEPUtils::P4 lepton_plus_jet2B;
+        HEPUtils::P4 lepton_plus_jet1B;
+        HEPUtils::P4 lepton_plus_jet2B;
 
         lepton_plus_jet1B = lepton+jet1B;
         lepton_plus_jet2B = lepton+jet2B;
@@ -188,8 +188,8 @@ namespace Gambit {
           }
 
 
-	  HEPUtils::P4 jet3B;
-	  jet3B.setXYZE(jet3->mom().px(), jet3->mom().py(), jet3->mom().pz(), jet3->mom().E());
+          HEPUtils::P4 jet3B;
+          jet3B.setXYZE(jet3->mom().px(), jet3->mom().py(), jet3->mom().pz(), jet3->mom().E());
 
           double pa_tau[3] = { 0, jet3B.px(), jet3B.py() };
           double pb_tau[3] = { 0, lepton.px(), lepton.py() };
@@ -409,12 +409,12 @@ namespace Gambit {
           for(int jJet=0;jJet<nJets;jJet++){
             if(iJet != jJet){
 
-	      HEPUtils::P4 iJetVec;
-	      iJetVec.setXYZE(signalJets[iJet]->mom().px(),signalJets[iJet]->mom().py(),signalJets[iJet]->mom().pz(),signalJets[iJet]->E());
+              HEPUtils::P4 iJetVec;
+              iJetVec.setXYZE(signalJets[iJet]->mom().px(),signalJets[iJet]->mom().py(),signalJets[iJet]->mom().pz(),signalJets[iJet]->E());
 
 
-	      HEPUtils::P4 jJetVec;
-	      jJetVec.setXYZE(signalJets[jJet]->mom().px(),signalJets[jJet]->mom().py(),signalJets[jJet]->mom().pz(),signalJets[jJet]->E());
+              HEPUtils::P4 jJetVec;
+              jJetVec.setXYZE(signalJets[jJet]->mom().px(),signalJets[jJet]->mom().py(),signalJets[jJet]->mom().pz(),signalJets[jJet]->E());
 
               if(iJetVec.deltaR_eta(jJetVec) < mindR1 && (iJetVec+jJetVec).m() > 60.){
                 mindR1 =iJetVec.deltaR_eta(jJetVec);
@@ -430,16 +430,16 @@ namespace Gambit {
             if(kJet !=index1 && kJet !=index2){
 
 
-	      HEPUtils::P4 kJetVec;
-	      kJetVec.setXYZE(signalJets[kJet]->mom().px(),signalJets[kJet]->mom().py(),signalJets[kJet]->mom().pz(),signalJets[kJet]->E());
+              HEPUtils::P4 kJetVec;
+              kJetVec.setXYZE(signalJets[kJet]->mom().px(),signalJets[kJet]->mom().py(),signalJets[kJet]->mom().pz(),signalJets[kJet]->E());
 
 
-	      HEPUtils::P4 JetVec1;
-	      JetVec1.setXYZE(signalJets[index1]->mom().px(),signalJets[index1]->mom().py(),signalJets[index1]->mom().pz(),signalJets[index1]->E());
+              HEPUtils::P4 JetVec1;
+              JetVec1.setXYZE(signalJets[index1]->mom().px(),signalJets[index1]->mom().py(),signalJets[index1]->mom().pz(),signalJets[index1]->E());
 
 
-	      HEPUtils::P4 JetVec2;
-	      JetVec2.setXYZE(signalJets[index2]->mom().px(),signalJets[index2]->mom().py(),signalJets[index2]->mom().pz(),signalJets[index2]->E());
+              HEPUtils::P4 JetVec2;
+              JetVec2.setXYZE(signalJets[index2]->mom().px(),signalJets[index2]->mom().py(),signalJets[index2]->mom().pz(),signalJets[index2]->E());
 
 
               if(kJetVec.deltaR_eta(JetVec1+JetVec2)<mindR2 && (JetVec1+JetVec2+kJetVec).m() > 130.){
@@ -452,14 +452,14 @@ namespace Gambit {
         }
         if(Thad){
 
-	  HEPUtils::P4 JetVec1;
-	  JetVec1.setXYZE(signalJets[index1]->mom().px(),signalJets[index1]->mom().py(),signalJets[index1]->mom().pz(),signalJets[index1]->E());
+          HEPUtils::P4 JetVec1;
+          JetVec1.setXYZE(signalJets[index1]->mom().px(),signalJets[index1]->mom().py(),signalJets[index1]->mom().pz(),signalJets[index1]->E());
 
-	  HEPUtils::P4 JetVec2;
-	  JetVec2.setXYZE(signalJets[index2]->mom().px(),signalJets[index2]->mom().py(),signalJets[index2]->mom().pz(),signalJets[index2]->E());
+          HEPUtils::P4 JetVec2;
+          JetVec2.setXYZE(signalJets[index2]->mom().px(),signalJets[index2]->mom().py(),signalJets[index2]->mom().pz(),signalJets[index2]->E());
 
-	  HEPUtils::P4 JetVec3;
-	  JetVec3.setXYZE(signalJets[index3]->mom().px(),signalJets[index3]->mom().py(),signalJets[index3]->mom().pz(),signalJets[index3]->E());
+          HEPUtils::P4 JetVec3;
+          JetVec3.setXYZE(signalJets[index3]->mom().px(),signalJets[index3]->mom().py(),signalJets[index3]->mom().pz(),signalJets[index3]->E());
 
 
           mHadTop = (JetVec1+JetVec2+JetVec3).m();

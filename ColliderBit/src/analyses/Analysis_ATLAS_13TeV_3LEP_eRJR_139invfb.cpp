@@ -15,6 +15,8 @@
 
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/Cutflow.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 
 using namespace std;
@@ -346,7 +348,7 @@ namespace Gambit
             }
 
             HEPUtils::P4 vMET;
-            vMET.setPE(metVec.px(), metVec.py(), 0., sqrt(metVec.px()*metVec.px()+metVec.py()*metVec.py()));
+            vMET.setPM(metVec.px(), metVec.py(), 0., 0.);
 
             //double pTjets(-999), dphijetsinv(-999), Rjetsinv(-999), pTsoft(-999);
             if (signalJets.size()>0)
@@ -478,11 +480,13 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR-low"), 51., {46. , 5.}));
         add_result(SignalRegionData(_counters.at("SR-ISR"),  30., { 23.4 ,  2.1}));
 
-  // Cutflow printout
+        COMMIT_CUTFLOWS
+
+        // Cutflow printout
         #ifdef CHECK_CUTFLOW
          _cutflows["SR-ISR"].normalize(1370, 1);
-   _cutflows["SR-low"].normalize(1370, 1);
-   cout << "\nCUTFLOWS:\n" << _cutflows << endl;
+         _cutflows["SR-low"].normalize(1370, 1);
+         cout << "\nCUTFLOWS:\n" << _cutflows << endl;
          cout << "\nSRCOUNTS:\n";
          // for (double x : _srnums) cout << x << "  ";
          for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";

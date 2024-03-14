@@ -208,7 +208,7 @@ namespace Gambit {
         JetLeptonOverlapRemoval(candJets,muons,0.2);
         LeptonJetOverlapRemoval(muons,candJets);
 
-   	    // Jets
+        // Jets
         vector<const HEPUtils::Jet*> bJets;
         vector<const HEPUtils::Jet*> nonbJets;
 

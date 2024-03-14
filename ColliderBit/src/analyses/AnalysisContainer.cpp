@@ -59,6 +59,9 @@ namespace Gambit
       F(ATLAS_13TeV_1LEPStop_36invfb)                \
       F(ATLAS_13TeV_2LEP0JET_EW_139invfb)            \
 
+    #define MAP_ANALYSES_WITH_ONNX(F)                \
+      F(ATLAS_13TeV_3b_NN_139invfb)                  \
+
     #define MAP_ANALYSES(F)                          \
       F(Minimum)                                     \
       F(Covariance)                                  \
@@ -98,6 +101,9 @@ namespace Gambit
       F(ATLAS_13TeV_3b_discoverySR_24invfb)          \
       F(ATLAS_13TeV_3b_36invfb)                      \
       F(ATLAS_13TeV_3b_discoverySR_36invfb)          \
+      F(ATLAS_13TeV_4b_139invfb)                     \
+      F(ATLAS_13TeV_4b_allyears_139invfb)            \
+      F(ATLAS_13TeV_4b_discoverySR_139invfb)         \
       F(ATLAS_13TeV_PhotonGGM_36invfb)               \
       F(ATLAS_13TeV_PhotonGGM_1Photon_36invfb)       \
       F(ATLAS_13TeV_PhotonGGM_2Photon_36invfb)       \
@@ -133,6 +139,7 @@ namespace Gambit
       F(CMS_13TeV_2OSLEP_36invfb)                    \
       F(CMS_13TeV_2OSLEP_137invfb)                   \
       F(CMS_13TeV_2OSLEP_Strong_Production_137invfb) \
+      F(CMS_13TeV_2OSLEP_EW_Production_137invfb)     \
       F(CMS_13TeV_2OSLEP_Slepton_137invfb)           \
       F(CMS_13TeV_2OSLEP_36invfb_nocovar)            \
       F(CMS_13TeV_2OSLEP_confnote_36invfb)           \
@@ -144,7 +151,7 @@ namespace Gambit
       F(CMS_13TeV_2SSLEP_Stop_exclusive_36invfb)     \
       F(CMS_13TeV_2SSLEP_Stop_137invfb)              \
       F(CMS_13TeV_Photon_GMSB_36invfb)               \
-      F(CMS_13TeV_Photon_GMSB_137invfb)		     \
+      F(CMS_13TeV_Photon_GMSB_137invfb)              \
       F(CMS_13TeV_2Photon_GMSB_36invfb)              \
       F(CMS_13TeV_1Photon1Lepton_36invfb)            \
       F(CMS_13TeV_1Photon1Lepton_emu_combined_36invfb) \
@@ -184,6 +191,9 @@ namespace Gambit
       #endif
       MAP_ANALYSES_WITH_ROOT(DECLARE_ANALYSIS_FACTORY)
     #endif
+    #ifndef EXCLUDE_ONNXRUNTIME
+      MAP_ANALYSES_WITH_ONNX(DECLARE_ANALYSIS_FACTORY)
+    #endif
     MAP_ANALYSES(DECLARE_ANALYSIS_FACTORY)
 
     /// For the string-based factory function mkAnalysis()
@@ -198,6 +208,9 @@ namespace Gambit
           MAP_ANALYSES_WITH_ROOT_RESTFRAMES(IF_X_RTN_CREATE_ANA_X)
         #endif
         MAP_ANALYSES_WITH_ROOT(IF_X_RTN_CREATE_ANA_X)
+      #endif
+      #ifndef EXCLUDE_ONNXRUNTIME
+        MAP_ANALYSES_WITH_ONNX(IF_X_RTN_CREATE_ANA_X)
       #endif
       MAP_ANALYSES(IF_X_RTN_CREATE_ANA_X)
 
@@ -218,6 +231,9 @@ namespace Gambit
           MAP_ANALYSES_WITH_ROOT_RESTFRAMES(IF_X_RTN_DETECTOR)
         #endif
         MAP_ANALYSES_WITH_ROOT(IF_X_RTN_DETECTOR)
+      #endif
+      #ifndef EXCLUDE_ONNXRUNTIME
+        MAP_ANALYSES_WITH_ONNX(IF_X_RTN_DETECTOR)
       #endif
       MAP_ANALYSES(IF_X_RTN_DETECTOR)
 

@@ -12,6 +12,7 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
 //#define CHECK_CUTFLOW
@@ -63,23 +64,23 @@ namespace Gambit
         set_analysis_name("ATLAS_13TeV_PhotonGGM_1Photon_139invfb");
         set_luminosity(139.);
 
-	_cutflows.addCutflow("SRL", {"Trigger (one photon pT > 140 GeV)",
-                                           "At least one photon", "Lepton veto",
-                                           "Leading photon pT > 145 GeV", "MET > 250 GeV",
-                                           "njets >= 5", "dPhi(jet,MET) > 0.4",
-				     "dPhi(gamma,MET)>0.4", "HT > 2000 GeV", "RT4<0.9",});
+        _cutflows.addCutflow("SRL", {"Trigger (one photon pT > 140 GeV)",
+                                     "At least one photon", "Lepton veto",
+                                     "Leading photon pT > 145 GeV", "MET > 250 GeV",
+                                     "njets >= 5", "dPhi(jet,MET) > 0.4",
+                                     "dPhi(gamma,MET)>0.4", "HT > 2000 GeV", "RT4<0.9",});
 
-	_cutflows.addCutflow("SRM", {"Trigger (one photon pT > 140 GeV)",
-                                           "At least one photon", "Lepton veto",
-                                           "Leading photon pT > 300 GeV", "MET > 300 GeV",
-                                           "njets >= 5", "dPhi(jet,MET) > 0.4",
-				     "dPhi(gamma,MET)>0.4", "HT > 1600 GeV", "RT4<0.9",});
+        _cutflows.addCutflow("SRM", {"Trigger (one photon pT > 140 GeV)",
+                                     "At least one photon", "Lepton veto",
+                                     "Leading photon pT > 300 GeV", "MET > 300 GeV",
+                                     "njets >= 5", "dPhi(jet,MET) > 0.4",
+                                     "dPhi(gamma,MET)>0.4", "HT > 1600 GeV", "RT4<0.9",});
 
-	_cutflows.addCutflow("SRH", {"Trigger (one photon pT > 140 GeV)",
-                                           "At least one photon", "Lepton veto",
-                                           "Leading photon pT > 400 GeV", "MET > 600 GeV",
-                                           "njets >= 3", "dPhi(jet,MET) > 0.4",
-				     "dPhi(gamma,MET)>0.4", "HT > 1600 GeV",});
+        _cutflows.addCutflow("SRH", {"Trigger (one photon pT > 140 GeV)",
+                                     "At least one photon", "Lepton veto",
+                                     "Leading photon pT > 400 GeV", "MET > 600 GeV",
+                                     "njets >= 3", "dPhi(jet,MET) > 0.4",
+                                     "dPhi(gamma,MET)>0.4", "HT > 1600 GeV",});
 
 
       }
@@ -96,7 +97,7 @@ namespace Gambit
         vector<const HEPUtils::Particle*> baselinePhotons;
         for (const HEPUtils::Particle* photon : event->photons())
         {
-	  if (photon->pT() > 25. && photon->abseta() < 2.37) baselinePhotons.push_back(photon);
+          if (photon->pT() > 25. && photon->abseta() < 2.37) baselinePhotons.push_back(photon);
         }
         // Apply photon efficiency
         applyEfficiency(baselinePhotons, ATLAS::eff2DPhoton.at("R2"));
@@ -118,7 +119,7 @@ namespace Gambit
 
 
         // Baseline Muons
-	vector<const HEPUtils::Particle*> baselineMuons;
+        vector<const HEPUtils::Particle*> baselineMuons;
         for (const HEPUtils::Particle* muon : event->muons())
         {
           if (muon->pT() > 10. && muon->abseta() < 2.7) baselineMuons.push_back(muon);
@@ -141,44 +142,44 @@ namespace Gambit
 
 
         // Overlap removal
-	// Inspire by ATLAS code snippet on HEPData
-	// Doesn't exactly match the earlier paper decsription
+        // Inspire by ATLAS code snippet on HEPData
+        // Doesn't exactly match the earlier paper decsription
 
-	removeOverlap(baselineElectrons, baselineMuons, 0.01);
-	removeOverlap(baselinePhotons, baselineElectrons, 0.4);
-	removeOverlap(baselinePhotons, baselineMuons, 0.4);
-	removeOverlap(baselineJets, baselineElectrons, 0.2);
-	removeOverlap(baselineElectrons, baselineJets, 0.4);
-	removeOverlap(baselineJets, baselinePhotons, 0.4);
+        removeOverlap(baselineElectrons, baselineMuons, 0.01);
+        removeOverlap(baselinePhotons, baselineElectrons, 0.4);
+        removeOverlap(baselinePhotons, baselineMuons, 0.4);
+        removeOverlap(baselineJets, baselineElectrons, 0.2);
+        removeOverlap(baselineElectrons, baselineJets, 0.4);
+        removeOverlap(baselineJets, baselinePhotons, 0.4);
 
-	// Define signal objects
-	vector<const HEPUtils::Particle*> signalElectrons;
-	vector<const HEPUtils::Particle*> signalMuons;
-	vector<const HEPUtils::Particle*> signalPhotons;
-	vector<const HEPUtils::Jet*> signalJets;
+        // Define signal objects
+        vector<const HEPUtils::Particle*> signalElectrons;
+        vector<const HEPUtils::Particle*> signalMuons;
+        vector<const HEPUtils::Particle*> signalPhotons;
+        vector<const HEPUtils::Jet*> signalJets;
 
 
-	for (size_t i=0;i<baselinePhotons.size();i++)
-          {
-	    bool crack = (baselinePhotons.at(i)->abseta() > 1.37) && (baselinePhotons.at(i)->abseta() < 1.52);
-            if (baselinePhotons.at(i)->pT()>50. && !crack) signalPhotons.push_back(baselinePhotons.at(i));
-          }
+        for (size_t i=0;i<baselinePhotons.size();i++)
+        {
+          bool crack = (baselinePhotons.at(i)->abseta() > 1.37) && (baselinePhotons.at(i)->abseta() < 1.52);
+          if (baselinePhotons.at(i)->pT()>50. && !crack) signalPhotons.push_back(baselinePhotons.at(i));
+        }
 
-	for (size_t i=0;i<baselineMuons.size();i++)
-          {
-            if (baselineMuons.at(i)->pT()>25.) signalMuons.push_back(baselineMuons.at(i));
-          }
+        for (size_t i=0;i<baselineMuons.size();i++)
+        {
+          if (baselineMuons.at(i)->pT()>25.) signalMuons.push_back(baselineMuons.at(i));
+        }
 
-	for (size_t i=0;i<baselineElectrons.size();i++)
-          {
-	    bool crack = (baselineElectrons.at(i)->abseta() > 1.37) && (baselineElectrons.at(i)->abseta() < 1.52);
-            if (baselineElectrons.at(i)->pT()>25. && !crack) signalElectrons.push_back(baselineElectrons.at(i));
-          }
+        for (size_t i=0;i<baselineElectrons.size();i++)
+        {
+          bool crack = (baselineElectrons.at(i)->abseta() > 1.37) && (baselineElectrons.at(i)->abseta() < 1.52);
+          if (baselineElectrons.at(i)->pT()>25. && !crack) signalElectrons.push_back(baselineElectrons.at(i));
+        }
 
-	for (size_t i=0;i<baselineJets.size();i++)
-          {
-            if (baselineJets.at(i)->pT()>30.) signalJets.push_back(baselineJets.at(i));
-          }
+        for (size_t i=0;i<baselineJets.size();i++)
+        {
+          if (baselineJets.at(i)->pT()>30.) signalJets.push_back(baselineJets.at(i));
+        }
 
 
         // Put objects in pT order
@@ -249,7 +250,7 @@ namespace Gambit
         if (nPhotons >= 1 && pTLeadingPhoton > 300. && nLep == 0 && nJets >= 5 && deltaPhiJetPmiss > 0.4 && deltaPhiPhotonPmiss > 0.4 && met > 300. && HT > 1600. && RT4 < 0.9) _counters.at("SRM").add_event(event);
         if (nPhotons >= 1 && pTLeadingPhoton > 400. && nLep == 0 && nJets >= 3 && deltaPhiJetPmiss > 0.4 && deltaPhiPhotonPmiss > 0.4 && met > 600. && HT > 1600.) _counters.at("SRH").add_event(event);
 
-	      // Increment cutflows for debugging
+        // Increment cutflows for debugging
 
         const double w = event->weight();
         _cutflows.fillinit(w);
@@ -283,17 +284,19 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SRM"), 0., { 2.55, 0.64}));
         add_result(SignalRegionData(_counters.at("SRH"), 5., { 2.55, 0.44}));
 
-	// Cutflow printout
+        COMMIT_CUTFLOWS
+
+        // Cutflow printout
         #ifdef CHECK_CUTFLOW
-	  _cutflows["SRL"].normalize(47.26, 1);
-	  _cutflows["SRM"].normalize(79.60, 1);
-	  _cutflows["SRH"].normalize(92.73, 1);
-	  cout << "\nCUTFLOWS:\n" << _cutflows << endl;
-	  cout << "\nSRCOUNTS:\n";
-	  // for (double x : _srnums) cout << x << "  ";
+          _cutflows["SRL"].normalize(47.26, 1);
+          _cutflows["SRM"].normalize(79.60, 1);
+          _cutflows["SRH"].normalize(92.73, 1);
+          cout << "\nCUTFLOWS:\n" << _cutflows << endl;
+          cout << "\nSRCOUNTS:\n";
+          // for (double x : _srnums) cout << x << "  ";
           for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
           cout << "\n" << endl;
-	#endif
+        #endif
 
 
         return;

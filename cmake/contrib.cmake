@@ -233,6 +233,45 @@ if(NOT EXCLUDE_HEPMC)
   set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
 endif()
 
+# contrib/onnxruntime
+if (WITH_ONNXRUNTIME)
+  message("   Using ONNX Runtime - Onnx dependent colliderbit analyses will be included")
+  set (EXCLUDE_ONNXRUNTIME FALSE)
+else ()
+  message("   Not using ONNX Runtime - ONNX dependent colliderbit analyses will be excluded")
+  set(EXCLUDE_ONNXRUNTIME TRUE)
+endif()
+
+set(name onnxruntime)
+set(ver 1.14.1)
+set(dir ${PROJECT_SOURCE_DIR}/contrib/${name}-${ver})
+if (NOT EXCLUDE_ONNXRUNTIME)
+  set(lib onnxruntime)
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  #TODO: Mac stuff untested
+    set(dl "https://github.com/microsoft/onnxruntime/releases/download/v1.14.1/onnxruntime-osx-universal2-${ver}.tgz")
+    set(md5 9725836c49deb09fc352a57dc8a1b806)
+  else ()
+    set(dl "https://github.com/microsoft/onnxruntime/releases/download/v1.14.1/onnxruntime-linux-x64-${ver}.tgz")
+    set(md5 9a3b855e2b22ace4ab110cec10b38b74)
+  endif()
+  include_directories(${dir}/include)
+  set(ONNXRUNTIME_PATH "${dir}")
+  set(ONNXRUNTIME_LIB "${dir}/lib")
+  set(ONNXRUNTIME_LDFLAGS "-L${ONNXRUNTIME_LIB} -l${lib}")
+  
+  ExternalProject_Add(${name}
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+  )
+  add_contrib_clean_and_nuke(${name} ${dir} clean)
+  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${ONNXRUNTIME_LIB}")
+endif()
+
 #contrib/YODA; include if ColliderBit is in, don't otherwise
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   message("   ColliderBit included, so YODA is included too")
@@ -316,7 +355,9 @@ endif()
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   message("   ColliderBit included, include fastjet too")
   set(EXCLUDE_FASTJET FALSE)
-
+  # Fix currently needed for MacOS due to this not propegating to contrib flags
+  #set(CONTRIB_CXX_FLAGS "${CONTRIB_CXX_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
+  #set(CONTRIB_C_FLAGS "${CONTRIB_C_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
   set(fastjet_dl "http://fastjet.fr/repo/fastjet-3.4.2.tar.gz")
   set(fastjet_md5 "d8aede1539f478547f8be5412ab6869c")
   set(fastjet_dir "${PROJECT_SOURCE_DIR}/contrib/fastjet-3.4.2")
