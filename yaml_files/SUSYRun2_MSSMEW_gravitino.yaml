@@ -335,20 +335,23 @@ Rules:
           - ATLAS_13TeV_2LEP0JET_EW_139invfb     # New! (Roberto) - Requires ROOT + BDT stuff.
           - ATLAS_13TeV_2LEPJETS_EW_139invfb     # New! (Martin, Chris) 
           - ATLAS_13TeV_2LEPJETS_RJR_139invfb    # New! (Martin) This search requires ROOT + RestFrames.
-          - ATLAS_13TeV_2LEPsoft_139invfb        # New! (Tomas) Not yet validated.
           - ATLAS_13TeV_3LEP_eRJR_139invfb       # New! (Martin)
           - ATLAS_13TeV_2OR3LEP_139invfb         # New! (Ida) -- Only WH SRs are used.
           - ATLAS_13TeV_bTaus_StopStau_139invfb  # New! (Holly)
           - ATLAS_13TeV_1OR3LEP_StopHZ_139invfb  # New! (Holly)
+          - ATLAS_13TeV_4b_139invfb              # New! (Are)
+          - ATLAS_13TeV_4b_discoverySR_139invfb  # [in skip_analyses]
+          - ATLAS_13TeV_4b_allyears_139invfb     # [in skip_analyses]
+          - ATLAS_13TeV_2LEPsoft_139invfb        # [in skip_analyses, since not yet validated] New! (Tomas)
           - ATLAS_13TeV_0LEP_139invfb
           - ATLAS_13TeV_2BoostedBosons_139invfb  # Uses antikt_R1.
           - ATLAS_13TeV_2LEPStop_inclusive_139invfb
           - ATLAS_13TeV_2OSLEP_Z_139invfb
           - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb
+          - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb  # [in skip_analyses]
           - ATLAS_13TeV_3LEP_139invfb
           - ATLAS_13TeV_4LEP_139invfb
           - ATLAS_13TeV_2bMET_36invfb
-          - ATLAS_13TeV_3b_24invfb               # To be updated (Are)
           - ATLAS_13TeV_MultiLEP_strong_139invfb
           - ATLAS_13TeV_PhotonGGM_2Photon_36invfb
           - ATLAS_13TeV_PhotonGGM_1Photon_139invfb
@@ -359,6 +362,7 @@ Rules:
           - CMS_13TeV_2LEPsoft_137invfb                 # New! (Tomas)
           - CMS_13TeV_0LEPStop_137invfb                 # New! (Holly)
           - CMS_13TeV_0LEP_chargino_VV_VH_137invfb      # New! (Adil) - Uses antikt_R08.
+          - CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD  # [in skip_analyses]
           - CMS_13TeV_Photon_GMSB_137invfb              # New! (Vinay)
           - CMS_13TeV_2OSLEP_EW_Production_137invfb     # New! (Anders)
           - CMS_13TeV_2OSLEP_Strong_Production_137invfb # [in skip_analyses]
@@ -452,8 +456,13 @@ Rules:
       cap_loglike_individual_analyses: false
       skip_analyses:
         - ATLAS_13TeV_0LEPStop_139invfb
+        - ATLAS_13TeV_4b_discoverySR_139invfb
+        - ATLAS_13TeV_4b_allyears_139invfb
+        - ATLAS_13TeV_2LEPsoft_139invfb
+        - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb
         - CMS_13TeV_2OSLEP_Strong_Production_137invfb
         - CMS_13TeV_2OSLEP_Slepton_137invfb
+        - CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD
 
   # Set analyses for Rivet measurements
   - capability: Rivet_measurements
