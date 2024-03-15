@@ -16,9 +16,10 @@
 // Search for electroweak production of charginos and sleptons decaying in final states with two leptons and missing transverse momentum in √s = 13 TeV p p collisions using the ATLAS detector
 
 // Note:
-// 1. Not validated!!!!
-//    The excluding abilities in low mass region are much weaker than experimental report.
-// 2. Use event-based MET significance instead of object-based significance
+// 1. Seem to slightly overpredict event counts for the (mC1,mN1) = (300,50) benchmark point.
+// 2. Single-SR exclusion generally weak compared to published result, which presumably combines SRs
+//    (JSON file for FullLikelihood is available.)
+// 3. Use event-based MET significance instead of object-based significance
 
 #include <vector>
 #include <cmath>
@@ -121,7 +122,7 @@ namespace Gambit
 
         set_analysis_name("ATLAS_13TeV_2OSLEP_chargino_139invfb");
         set_luminosity(139);
-
+        set_bkgjson("ColliderBit/data/analyses_json_files/ATLAS_13TeV_2OSLEP_chargino_139invfb_bkgonly.json");
       }
 
       // The following section copied from Analysis_ATLAS_1LEPStop_20invfb.cpp
@@ -263,7 +264,6 @@ namespace Gambit
         signalLeptons=signalElectrons;
         signalLeptons.insert(signalLeptons.end(),signalMuons.begin(),signalMuons.end());
         sort(signalLeptons.begin(),signalLeptons.end(),comparePt);
-
 
         // Tow exactly opposite-sign lepton
         if (signalLeptons.size() != 2) return;
