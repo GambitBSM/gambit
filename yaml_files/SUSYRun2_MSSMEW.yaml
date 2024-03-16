@@ -340,9 +340,10 @@ Rules:
           - ATLAS_13TeV_bTaus_StopStau_139invfb  # New! (Holly)
           - ATLAS_13TeV_1OR3LEP_StopHZ_139invfb  # New! (Holly)
           - ATLAS_13TeV_4b_139invfb              # New! (Are)
-          - ATLAS_13TeV_4b_discoverySR_139invfb  # [in skip analyses]
-          - ATLAS_13TeV_4b_allyears_139invfb     # [in skip analyses]
-          - ATLAS_13TeV_2LEPsoft_139invfb        # [in skip analyses, since not yet validated] New! (Tomas)
+          - ATLAS_13TeV_4b_discoverySR_139invfb  # [in skip_analyses]
+          - ATLAS_13TeV_4b_allyears_139invfb     # [in skip_analyses]
+          - ATLAS_13TeV_2LEPsoft_139invfb        # [in skip_analyses, since not yet validated] New! (Tomas)
+          - ATLAS_13TeV_3b_NN_139invfb           # [in skip_analyses, due to probable overlap with ATLAS_13TeV_4b_139invfb] New! (Tomek)
           - ATLAS_13TeV_0LEP_139invfb
           - ATLAS_13TeV_2BoostedBosons_139invfb  # Uses antikt_R1.
           - ATLAS_13TeV_2LEPStop_inclusive_139invfb
@@ -460,6 +461,7 @@ Rules:
         - ATLAS_13TeV_4b_allyears_139invfb
         - ATLAS_13TeV_2LEPsoft_139invfb
         - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb
+        - ATLAS_13TeV_3b_NN_139invfb
         - CMS_13TeV_2OSLEP_Strong_Production_137invfb
         - CMS_13TeV_2OSLEP_Slepton_137invfb
         - CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD
