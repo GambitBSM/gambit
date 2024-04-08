@@ -442,6 +442,18 @@ namespace Gambit
         Analysis* other_analysis = other_container->analyses_map.at(collider_name).at(analysis_name);
         analyses_map.at(collider_name).at(analysis_name)->add(other_analysis);
       }
+
+      // _Anders
+      AnalysisData* ana_data = analyses_map.at(collider_name).at(analysis_name)->get_results_ptr();
+      for (SignalRegionData& srd : ana_data->srdata)
+      {
+        if (srd.n_sig_MC <= 0.0)
+        {
+          srd.n_sig_MC = 0.5;
+          srd.n_sig_MC_stat = sqrt(srd.n_sig_MC);
+        }
+      }
+      // _Anders end
     }
 
     /// Collect signal predictions from other threads and add to this one,

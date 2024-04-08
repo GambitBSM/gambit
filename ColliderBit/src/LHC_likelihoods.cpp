@@ -70,6 +70,8 @@ namespace Gambit
   namespace ColliderBit
   {
 
+    // _Anders
+    const double DEBUG_UNCERT_SCALER = 2;
 
     /// Loop over all analyses and fill a map of predicted counts
     void calc_LHC_signals(map_str_dbl& result)
@@ -735,7 +737,14 @@ namespace Gambit
 
         for (size_t SR = 0; SR < nSR; ++SR)
         {
+          // _Anders
           const SignalRegionData& srData = ana_data[SR];
+          // SignalRegionData srData = ana_data[SR];
+          // if (srData.n_sig_MC <= 0.0)
+          // {
+          //   srData.n_sig_MC = 0.5;
+          // }
+          // _Anders end
 
           // Shortcut: If n_sig_MC == 0, we know the delta log-likelihood is 0.
           if(srData.n_sig_MC == 0)
@@ -879,17 +888,29 @@ namespace Gambit
           // Vector to collect votes
           std::vector<int> SR_votes(nSR, 0);
 
+          // Vector to collect average dll_obs values
+          std::vector<double> SR_dll_obs_avgs(nSR, 0);
+
           // Loop over n_toys
-          int n_toys = std::max(100, (int) nSR * 10);
+          int n_toys = std::max(1000, (int) nSR * 100);
+          double toy_dll_obs_sum = 0.0;
           for (int toy_i = 0; toy_i < n_toys; ++toy_i)
           {
 
             int chosen_SR = -1;
             double bestexp_dll_exp = 0.0;  // or DBL_MAX?
+            double bestexp_dll_obs = 0.0;  // or DBL_MAX?
 
             for (size_t SR = 0; SR < nSR; ++SR)
             {
+              // _Anders
               const SignalRegionData& srData = ana_data[SR];
+              // SignalRegionData srData = ana_data[SR];
+              // if (srData.n_sig_MC <= 0.0)
+              // {
+              //   srData.n_sig_MC = 0.5;
+              // }
+              // _Anders end
 
               double dll_exp = 0.0;
 
@@ -904,29 +925,42 @@ namespace Gambit
 
               // _Anders
               // Sample a new lambda
-              std::normal_distribution<double> normal_dist_for_lambda(n_sig_MC, std::max(1.0, std::sqrt(n_sig_MC)));
-              double toy_lambda = normal_dist_for_lambda(Random::rng());
-              toy_lambda = std::max(0.0, toy_lambda);
+              // std::normal_distribution<double> normal_dist_for_lambda(n_sig_MC, std::max(1.0, std::sqrt(n_sig_MC)));
+              // double toy_lambda = normal_dist_for_lambda(Random::rng());
+              // toy_lambda = std::max(0.0, toy_lambda);
+              // std::normal_distribution<double> normal_dist_for_lambda(n_sig_MC, std::sqrt(n_sig_MC));
+              // double toy_lambda = normal_dist_for_lambda(Random::rng());
+              // toy_lambda = std::max(0.1, toy_lambda);
 
               // Sample MC signal count from Poisson (toy_s_MC)
-              // std::poisson_distribution<int> poisson_dist(n_sig_MC);
-              std::poisson_distribution<int> poisson_dist(toy_lambda);
+              // _Anders
+              std::poisson_distribution<int> poisson_dist(n_sig_MC);
+              // std::poisson_distribution<int> poisson_dist(toy_lambda);
+
               int toy_s_MC = poisson_dist(Random::rng());
               double toy_s_scaled = toy_s_MC * srData.scalefactor();
-              cerr << DEBUG_PREFIX << ana_name << ": toy " << toy_i << ": SR " << SR << ":  n_sig_MC: " << n_sig_MC << "   toy_s_MC: " << toy_s_MC << "   toy_s_scaled: " << toy_s_scaled << endl;
+              // cerr << DEBUG_PREFIX << ana_name << ": toy " << toy_i << ": SR " << SR << ":  n_sig_MC: " << n_sig_MC << "   toy_s_MC: " << toy_s_MC << "   toy_s_scaled: " << toy_s_scaled << endl;
+              // cerr << DEBUG_PREFIX << "toy " << toy_i << "  SR " << SR << "  n_sig_MC: " << n_sig_MC  << "  toy_lambda: " << toy_lambda << "  toy_s_MC: " << toy_s_MC << "  toy_s_scaled: " << toy_s_scaled << endl;
+              // cerr << DEBUG_PREFIX << "toy " << toy_i << "  SR " << SR << "  n_sig_MC: " << n_sig_MC  << "  toy_s_MC: " << toy_s_MC << "  toy_s_scaled: " << toy_s_scaled << endl;
 
               // Compute *expected* delta loglike using (n=b, toy_s_scaled, b)
               const double n_pred_b = std::max(srData.n_bkg, 0.001);
               const double n_pred_sb = n_pred_b + toy_s_scaled;
 
+              // Actual observed number of events and predicted background, as integers cf. Poisson stats
+              const double n_obs = round(srData.n_obs);
               const double n_pred_b_int = round(n_pred_b);
 
               // Absolute errors for n_predicted_uncertain_*
               const double abs_uncertainty_b = std::max(srData.n_bkg_err, 0.001); // <-- Avoid trouble with b_err==0
-              const double n_sig_scaled_err = srData.calc_n_sig_scaled_err();
+              // _Anders
+              // const double n_sig_scaled_err = srData.calc_n_sig_scaled_err();
+              const double n_sig_scaled_err = std::sqrt(toy_s_MC) * srData.scalefactor() * DEBUG_UNCERT_SCALER;
+              // _Anders
               const double abs_uncertainty_sb = std::sqrt(srData.n_bkg_err * srData.n_bkg_err + n_sig_scaled_err * n_sig_scaled_err);
 
               // Construct dummy 1-element Eigen objects for passing to the general likelihood calculator
+              Eigen::ArrayXd n_obss(1);        n_obss(0) = n_obs;
               Eigen::ArrayXd n_preds_b_int(1); n_preds_b_int(0) = n_pred_b_int;
               Eigen::ArrayXd n_preds_b(1);     n_preds_b(0) = n_pred_b;
               Eigen::ArrayXd n_preds_sb(1);    n_preds_sb(0) = n_pred_sb;
@@ -941,22 +975,51 @@ namespace Gambit
               const double ll_sb_exp = marg_loglike_nulike1sr(n_preds_sb, n_preds_b_int, sqrtevals_sb);
               dll_exp = ll_sb_exp - ll_b_exp;
 
+              const double ll_b_obs = marg_loglike_nulike1sr(n_preds_b, n_obss, sqrtevals_b);
+              const double ll_sb_obs = marg_loglike_nulike1sr(n_preds_sb, n_obss, sqrtevals_sb);
+              const double dll_obs = ll_sb_obs - ll_b_obs;
               // }
 
+              SR_dll_obs_avgs[SR] += dll_obs;
 
               // Update the SR choice?
               if (dll_exp < bestexp_dll_exp || SR == 0)
               {
                 chosen_SR = SR;
                 bestexp_dll_exp = dll_exp;
+
+                // const double ll_b_obs = marg_loglike_nulike1sr(n_preds_b, n_obss, sqrtevals_b);
+                // const double ll_sb_obs = marg_loglike_nulike1sr(n_preds_sb, n_obss, sqrtevals_sb);
+                // const double dll_obs = ll_sb_obs - ll_b_obs;
+                bestexp_dll_obs = dll_obs;
               }
+
+              cerr << DEBUG_PREFIX 
+                   << "toy " << toy_i 
+                   << "  SR " << SR 
+                   << "  n_sig_MC: " << n_sig_MC  
+                   << "  toy_s_MC: " << toy_s_MC 
+                   << "  toy_s_scaled: " << toy_s_scaled 
+                   << "  dll_exp: " << dll_exp 
+                   << "  dll_obs: " << dll_obs
+                   << endl;
 
             } // End loop over SRs
 
             // Register a vote for the current best SR
             SR_votes[chosen_SR] += 1; 
 
+            // Add the bestexp_dll_obs to our sum
+            toy_dll_obs_sum += bestexp_dll_obs;
+
           } // End loop over toys
+
+
+          // Normalise the averages 
+          for (size_t SR = 0; SR < nSR; ++SR)
+          {
+            SR_dll_obs_avgs[SR] = SR_dll_obs_avgs[SR] / n_toys;
+          }
 
           // _Anders
           for (size_t i=0; i < SR_votes.size(); ++i)
@@ -966,6 +1029,7 @@ namespace Gambit
 
           // Compute the combined dll as a weighted sum (of the actual observed loglikes)
           dll = 0.0;
+          double dll_alt2 = 0.0;
           for (size_t SR = 0; SR < nSR; ++SR)
           {
             int n_votes = SR_votes[SR];
@@ -1004,7 +1068,15 @@ namespace Gambit
             // Add contribution to the combined loglike for this analysis
             // dll += weight * dll_obs;
             dll += weight * ana_loglikes.sr_loglikes.at(SR);
+
+            dll_alt2 += weight * SR_dll_obs_avgs.at(SR);
           }
+
+          // _Anders
+          // Compute the combined dll as an average over the toy dll_obs
+          double dll_alt = toy_dll_obs_sum / n_toys;
+
+          cerr << DEBUG_PREFIX << ana_name << ":  dll = " << dll << "  dll_alt = " << dll_alt << "  dll_alt2 = " << dll_alt2 << endl;
 
         } // End if-block on how to compute the analysis loglike
 
