@@ -1327,7 +1327,7 @@ namespace Gambit
       flav_prediction prediction = *Dep::prediction_Delta_MBs;
       double theory = prediction.central_values.begin()->second;
       double theory_variance = prediction.covariance.begin()->second.begin()->second;
-      result += Gaussian.GetLogLikelihood(theory, theory_variance);
+      result = Gaussian.GetLogLikelihood(theory, theory_variance);
 
       if (flav_debug) std::cout << "HEPLike_Delta_MBs_LogLikelihood result: " << result << std::endl;
     }
@@ -1353,7 +1353,7 @@ namespace Gambit
       flav_prediction prediction = *Dep::prediction_Delta_MBd;
       double theory = prediction.central_values.begin()->second;
       double theory_variance = prediction.covariance.begin()->second.begin()->second;
-      result += Gaussian.GetLogLikelihood(theory, theory_variance);
+      result = Gaussian.GetLogLikelihood(theory, theory_variance);
 
       if (flav_debug) std::cout << "HEPLike_Delta_MBd_LogLikelihood result: " << result << std::endl;
     }
