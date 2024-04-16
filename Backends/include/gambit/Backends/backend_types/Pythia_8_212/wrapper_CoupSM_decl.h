@@ -23,7 +23,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_CoupSM* (*__factory0)();
+                static Abstract_CoupSM* (*__factory0)();
         
                 // -- Other member variables: 
         
@@ -93,7 +93,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 CoupSM();
         
                 // Special pointer-based constructor: 
-                CoupSM(Pythia8::Abstract_CoupSM* in);
+                CoupSM(Abstract_CoupSM* in);
         
                 // Copy constructor: 
                 CoupSM(const CoupSM& in);
@@ -105,7 +105,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~CoupSM();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_CoupSM* get_BEptr() const;
+                Abstract_CoupSM* get_BEptr() const;
         
         };
     }

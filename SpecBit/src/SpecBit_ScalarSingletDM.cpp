@@ -110,6 +110,9 @@ namespace Gambit
       // We don't supply a LE subspectrum here; an SMSimpleSpec will therefore be automatically created from 'sminputs'
       result = Spectrum(singletspec,sminputs,&myPipe::Param,mass_cut,mass_ratio_cut);
 
+      result.get_HE().set_override(Par::Pole_Mass_1srd_high,0.0, "h0_1", true);
+      result.get_HE().set_override(Par::Pole_Mass_1srd_low,0.0,"h0_1", true);
+
     }
 
     /// Get a (simple) Spectrum object wrapper for the ScalarSingletDM_Z3 model
@@ -171,6 +174,9 @@ namespace Gambit
 
       // We don't supply a LE subspectrum here; an SMSimpleSpec will therefore be automatically created from 'sminputs'
       result = Spectrum(singletspec,sminputs,&myPipe::Param,mass_cut,mass_ratio_cut);
+
+      result.get_HE().set_override(Par::Pole_Mass_1srd_high,0.0, "h0_1", true);
+      result.get_HE().set_override(Par::Pole_Mass_1srd_low,0.0,"h0_1", true);
 
     }
 
@@ -580,6 +586,9 @@ namespace Gambit
       else SpecBit_error().raise(LOCAL_INFO, "No valid model for ScalarSingletDM_higgs_couplings_pwid.");
       const SubSpectrum& spec = (*spectrum_dependency)->get_HE();
 
+      // Set the number of Higgses
+      result.set_n_neutral_higgs(1);
+      result.set_n_charged_higgs(0);
       // Set the CP of the Higgs.
       result.CP[0] = 1;
       // Set the decays
@@ -588,7 +597,7 @@ namespace Gambit
 
       // Identify the singlet as the only possible invisible particle
       if (spec.get(Par::Pole_Mass, "S") * 2.0 < spec.get(Par::Pole_Mass, "h0_1"))
-        result.invisibles = initVector<str>("S");
+        result.invisibles = initVector<std::pair<str,str>>(std::make_pair("S","S"));
       else
         result.invisibles.clear();
       // Leave all the effective couplings for all neutral higgses set to unity (done at construction).

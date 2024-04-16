@@ -23,12 +23,22 @@
 #  \date 2016 Jan
 #
 #  \author Tomas Gonzalo
-#          (t.e.gonzalo@fys.uio.no)
+#          (gonzalo@physik.rwth-aachen.de)
 #  \date 2016 Sep
+#  \date 2019 Oct
+#  \date 2021 Mar
 #
 #  \author Will Handley
 #          (wh260@cam.ac.uk)
 #  \date 2018 Dec
+#
+#  \author Christopher Chang
+#          (christopher.chang@uqconnect.edu.au)
+#  \date 2021 Feb
+#
+#  \author Anders Kvellestad
+#          (anders.kvellestad@fys.uio.no)
+#  \date 2023 Mar
 #
 #************************************************
 
@@ -68,6 +78,13 @@ function(check_result result command)
   endif()
 endfunction()
 
+# Execute script to prevent printing problems with standalones
+function(add_elements_extras target)
+  set(ELEMENTS_EXTRAS_SCRIPT ${PROJECT_SOURCE_DIR}/Elements/scripts/elements_extras.py)
+  add_custom_target(${target} COMMAND ${PYTHON_EXECUTABLE} ${ELEMENTS_EXTRAS_SCRIPT} ${target}
+                            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+endfunction()
+
 #Check if a string starts with a give substring
 function(starts_with str search)
   string(FIND "${str}" "${search}" out)
@@ -99,7 +116,7 @@ macro(retrieve_bits bits root excludes quiet)
       # Make the string comparison case insensitive
       string( TOLOWER "${child}" child_lower )
       string( TOLOWER "${excludes}" excludes_lower )
-      
+
       if(NOT ${child_lower} STREQUAL "scannerbit")
         foreach(x ${excludes_lower})
           string( TOLOWER "${x}" x_lower )
@@ -128,9 +145,13 @@ endmacro()
 if(CMAKE_MAKE_PROGRAM MATCHES "make$")
   set(MAKE_SERIAL   $(MAKE) -j1)
   set(MAKE_PARALLEL $(MAKE))
+  set(MAKE_INSTALL_SERIAL    $(MAKE) install -j1)
+  set(MAKE_INSTALL_PARALLEL  $(MAKE) install)
 else()
   set(MAKE_SERIAL   "${CMAKE_MAKE_PROGRAM}")
   set(MAKE_PARALLEL "${CMAKE_MAKE_PROGRAM}")
+  set(MAKE_INSTALL_SERIAL   "${CMAKE_MAKE_PROGRAM}")
+  set(MAKE_INSTALL_PARALLEL "${CMAKE_MAKE_PROGRAM}")
 endif()
 
 # Arrange clean commands
@@ -201,6 +222,7 @@ function(add_gambit_library libraryname)
   add_dependencies(${libraryname} printer_harvest)
   add_dependencies(${libraryname} module_harvest)
   add_dependencies(${libraryname} yaml-cpp)
+  add_dependencies(${libraryname} elements_extras)
 
   if(${CMAKE_VERSION} VERSION_GREATER 2.8.10)
     foreach (dir ${GAMBIT_INCDIRS})
@@ -262,7 +284,7 @@ macro(add_gambit_custom target filename HARVESTER DEPS)
                      DEPENDS ${${HARVESTER}}
                              ${HARVEST_TOOLS}
                              ${${DEPS}}
-                             ${CMAKE_CACHEFILE_DIR}/CMakeCache.txt)
+                             ${CMAKE_BINARY_DIR}/CMakeCache.txt) #CMAKE_CACHEFILE_DIR is the same as CMAKE_BINARY_DIR
   add_custom_target(${target} DEPENDS ${CMAKE_BINARY_DIR}/${filename})
 endmacro()
 
@@ -322,6 +344,9 @@ function(add_gambit_executable executablename LIBRARIES)
         set_target_properties(${executablename} PROPERTIES LINK_FLAGS ${MPI_Fortran_LINK_FLAGS})
     endif()
   endif()
+  if (OpenMP_omp_LIBRARY)
+    set(LIBRARIES ${LIBRARIES} ${OpenMP_omp_LIBRARY})
+  endif()
   if (LIBDL_FOUND)
     set(LIBRARIES ${LIBRARIES} ${LIBDL_LIBRARY})
   endif()
@@ -370,10 +395,27 @@ set(STANDALONE_FACILITATOR ${PROJECT_SOURCE_DIR}/Elements/scripts/standalone_fac
 
 # Function to add a standalone executable
 function(add_standalone executablename)
-  cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;LIBRARIES;MODULES" ${ARGN})
+  cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;LIBRARIES;MODULES;DEPENDENCIES;" ${ARGN})
+
+  # Assume that the standalone is to be included, unless we discover otherwise.
+  set(standalone_permitted 1)
+
+  # Exclude standalones that need HepMC or YODA if they have been excluded.
+  if ( (EXCLUDE_HEPMC AND (";${ARG_DEPENDENCIES};" MATCHES ";hepmc;")) OR (EXCLUDE_YODA AND (";${ARG_DEPENDENCIES};" MATCHES ";yoda;")) )
+    message("${BoldCyan} X Excluding ${executablename} from GAMBIT configuration due to absence of HepMC/Yoda.${ColourReset}")
+    set(standalone_permitted 0)
+  endif()
+
+  # Exclude standalones that need pybind11 if it has been excluded.
+  if (";${ARG_DEPENDENCIES};" MATCHES ";pybind11;")
+    string(REPLACE "pybind11" "" ARG_DEPENDENCIES ${ARG_DEPENDENCIES})
+    if (NOT HAVE_PYBIND11)
+      message("${BoldCyan} X Excluding ${executablename} from GAMBIT configuration due to absence of pybind11.${ColourReset}")
+      set(standalone_permitted 0)
+    endif()
+  endif()
 
   # Iterate over modules, checking if the neccessary ones are present, and adding them to the target objects if so.
-  set(standalone_permitted 1)
   foreach(module ${ARG_MODULES})
     if(standalone_permitted AND EXISTS "${PROJECT_SOURCE_DIR}/${module}/" AND (";${GAMBIT_BITS};" MATCHES ";${module};"))
       if(COMMA_SEPARATED_MODULES)
@@ -386,6 +428,9 @@ function(add_standalone executablename)
       endif()
       if(module STREQUAL "SpecBit")
         set(USES_SPECBIT TRUE)
+        # Temporarily add the printers module whenever SpecBit is present to avoid linking problems
+        set(COMMA_SEPARATED_MODULES "${COMMA_SEPARATED_MODULES},Printers")
+        set(STANDALONE_OBJECTS ${STANDALONE_OBJECTS} $<TARGET_OBJECTS:Printers>)
       endif()
       if(module STREQUAL "ColliderBit")
         set(USES_COLLIDERBIT TRUE)
@@ -413,9 +458,15 @@ function(add_standalone executablename)
                        DEPENDS modules_harvested
                                ${STANDALONE_FACILITATOR}
                                ${HARVEST_TOOLS}
-                               ${CMAKE_CACHEFILE_DIR}/CMakeCache.txt)
+                               ${CMAKE_BINARY_DIR}/CMakeCache.txt) #CMAKE_CACHEFILE_DIR is the same as CMAKE_BINARY_DIR
 
-    # Add linking flags for ROOT, RestFrames and/or HepMC if required.
+    # All the standalones need linking to HepMC, if HepMC is not excluced.
+    # TODO: Avoid this if possible.
+    if (NOT EXCLUDE_HEPMC)
+      set(ARG_LIBRARIES ${ARG_LIBRARIES} ${HEPMC_LDFLAGS})
+    endif()
+
+    # Add linking flags for ROOT, RestFrames, HepMC and/or YODA if required.
     if (USES_COLLIDERBIT)
       if (NOT EXCLUDE_ROOT)
         set(ARG_LIBRARIES ${ARG_LIBRARIES} ${ROOT_LIBRARIES})
@@ -425,6 +476,9 @@ function(add_standalone executablename)
       endif()
       if (NOT EXCLUDE_HEPMC)
         set(ARG_LIBRARIES ${ARG_LIBRARIES} ${HEPMC_LDFLAGS})
+      endif()
+      if (NOT EXCLUDE_YODA)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${YODA_LDFLAGS})
       endif()
     endif()
 
@@ -438,6 +492,11 @@ function(add_standalone executablename)
                                   ${STANDALONE_OBJECTS}
                                   ${GAMBIT_ALL_COMMON_OBJECTS}
                           HEADERS ${ARG_HEADERS})
+
+    # Add the elements_extras target
+    add_elements_extras(${executablename}_elements_extras)
+    add_dependencies(${executablename}_elements_extras elements_extras)
+    add_dependencies(${executablename} ${executablename}_elements_extras)
 
     # Add each of the declared dependencies
     foreach(dep ${ARG_DEPENDENCIES})
@@ -585,6 +644,16 @@ macro(gambit_find_python_module module)
   if (NOT return_value)
     message(STATUS "Found Python module ${module}.")
     set(PY_${module}_FOUND TRUE)
+    # If module is h5py and hdf5 is present, make sure they are built with the same version
+    if(HDF5_FOUND AND module STREQUAL "h5py")
+      execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import h5py; import re; print(re.search(\"HDF5[ ]+(.*)\",h5py.version.info).group(1))" OUTPUT_VARIABLE hdf5_ver RESULT_VARIABLE hdf5_res ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+      if(${hdf5_res})
+        message(FATAL_ERROR "-- Module h5py is corrupted")
+      elseif(NOT ${hdf5_ver} AND NOT ${hdf5_ver} STREQUAL ${HDF5_VERSION})
+        message("${BoldRed}   The versions of h5py (${hdf5_ver}) and hdf5 (${HDF5_VERSION}) do not match. Backends depending on h5py will be disabled${ColourReset}")
+        set(PY_${module}_FOUND FALSE)
+      endif()
+    endif()
   else()
     if(${ARGC} GREATER 1)
       if (${ARGV1} STREQUAL "REQUIRED")
@@ -602,7 +671,7 @@ set(BOSS_dir "${PROJECT_SOURCE_DIR}/Backends/scripts/BOSS")
 set(needs_BOSSing "")
 set(needs_BOSSing_failed "")
 
-macro(BOSS_backend name backend_version)
+macro(BOSS_backend_full name backend_version ${ARGN})
 
   # Replace "." by "_" in the backend version number
   string(REPLACE "." "_" backend_version_safe ${backend_version})
@@ -626,8 +695,11 @@ macro(BOSS_backend name backend_version)
         set(BOSS_includes_Boost "-I${Boost_INCLUDE_DIR}")
     endif()
     set(BOSS_includes_GSL "")
-    if (NOT ${GSL_INCLUDE_DIRS} STREQUAL "")
-      set(BOSS_includes_GSL "-I${GSL_INCLUDE_DIRS}")
+    if (NOT "${GSL_INCLUDE_DIRS}" STREQUAL "")
+        set(BOSS_includes_GSL "")
+        foreach(dir ${GSL_INCLUDE_DIRS})
+          set(BOSS_includes_GSL "-I${dir} ${BOSS_includes_GSL}")
+        endforeach()
     endif()
     set(BOSS_includes_Eigen3 "")
     if (NOT ${EIGEN3_INCLUDE_DIR} STREQUAL "")
@@ -639,23 +711,27 @@ macro(BOSS_backend name backend_version)
     elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
       set(BOSS_castxml_cc "")
     endif()
-    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-      set(castxml_dl "https://data.kitware.com/api/v1/file/57b5de9f8d777f10f2696378/download")
-      set(castxml_dl_filename "castxml-macosx.tar.gz")
-    else()
-      set(castxml_dl "https://data.kitware.com/api/v1/file/57b5dea08d777f10f2696379/download")
-      set(castxml_dl_filename "castxml-linux.tar.gz")
-    endif()
+
+    # Parse command line options from optional arguments
+    set(BOSS_command_line_options "")
+    foreach(arg ${ARGN})
+      set(BOSS_command_line_options ${BOSS_command_line_options} ${arg})
+    endforeach()
+
+    add_dependencies(${name}_${ver} castxml)
     ExternalProject_Add_Step(${name}_${ver} BOSS
-      # Check for castxml binaries and download if they do not exist
-      COMMAND ${PROJECT_SOURCE_DIR}/cmake/scripts/download_castxml_binaries.sh ${BOSS_dir} ${CMAKE_COMMAND} ${CMAKE_DOWNLOAD_FLAGS} ${castxml_dl} ${castxml_dl_filename}
       # Run BOSS
-      COMMAND ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py ${BOSS_castxml_cc} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${name}_${backend_version_safe}
+      COMMAND ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py --no-instructions ${BOSS_castxml_cc} ${BOSS_command_line_options} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${name}_${backend_version_safe}
       # Copy BOSS-generated files to correct folders within Backends/include
+      COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/${name_in_frontend}_${backend_version_safe} || true
       COMMAND cp -r BOSS_output/${name_in_frontend}_${backend_version_safe}/for_gambit/backend_types/${name_in_frontend}_${backend_version_safe} ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/
       COMMAND cp BOSS_output/${name_in_frontend}_${backend_version_safe}/frontends/${name_in_frontend}_${backend_version_safe}.hpp ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/frontends/${name_in_frontend}_${backend_version_safe}.hpp
       DEPENDEES patch
       DEPENDERS configure
     )
   endif()
+endmacro()
+
+macro(BOSS_backend name backend_version ${ARGN})
+  BOSS_backend_full(${name} ${backend_version} ${ARGN})
 endmacro()

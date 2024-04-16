@@ -13,10 +13,11 @@
 ///
 ///  *********************************************
 
-#define BACKENDNAME libMathematicaTest
+#define BACKENDNAME LibMathematicaTest
 #define BACKENDLANG MATHEMATICA
 #define VERSION 1.0
 #define SAFE_VERSION 1_0
+#define REFERENCE GAMBIT:2017yxo
 
 LOAD_LIBRARY
 

@@ -216,6 +216,12 @@ namespace Gambit
          nanosleep(&sleeptime,NULL);
       }
 
+      // Example use of suspicious point exception with a 1% chance, specifying message, integer code and whether to print to cout
+      if (Random::draw() < 0.01)
+      {
+        Suspicious_point_exception().raise("This is a demo for using suspicious points.",66,true);
+      }
+
       result = loglTotal;
     }
 
@@ -499,53 +505,6 @@ namespace Gambit
     }
 
 
-    /// Example of using a BOSSed version of Pythia
-    void bossed_pythia_test_function(bool &result)
-    {
-      using namespace Pipes::bossed_pythia_test_function;
-
-      cout << "Testing Pythia backend" << endl;
-      cout << "======================" << endl;
-
-      static str default_doc_path = GAMBIT_DIR "/Backends/installed/Pythia/" +
-                                    Backends::backendInfo().default_version("Pythia") +
-                                    "/share/Pythia8/xmldoc/";
-
-      Pythia_default::Pythia8::Pythia pythia(default_doc_path, false);
-
-      pythia.readString("Beams:eCM = 8000.");
-      pythia.readString("HardQCD:all = on");
-      pythia.readString("PhaseSpace:pTHatMin = 20.");
-
-      pythia.readString("Next:numberShowInfo = 0");
-      pythia.readString("Next:numberShowProcess = 0");
-      pythia.readString("Next:numberShowEvent = 0");
-
-      pythia.init();
-
-      Pythia_default::Pythia8::Hist mult("charged multiplicity", 2, -0.5, 799.5);
-      // Begin event loop. Generate event. Skip if error. List first one.
-      for (int iEvent = 0; iEvent < 2; ++iEvent) {
-        if (!pythia.next()) continue;
-        // Find number of all final charged particles and fill histogram.
-        int nCharged = 0;
-        for (int i = 0; i < pythia.event.size(); ++i)
-          if (pythia.event[i].isFinal() && pythia.event[i].isCharged())
-            ++nCharged;
-        mult.fill( nCharged );
-        cout << "Event: " << iEvent << "   nCharged: " << nCharged << endl;
-      // End of event loop. Statistics. Histogram. Done.
-      }
-
-      pythia.stat();
-
-      cout << "Done testing Pythia backend" << endl;
-      cout << "===========================" << endl;
-
-      result = true;
-    }
-
-
     /// Tester for C/C++ backend array interfaces
     void Backend_array_test(double &result)
     {
@@ -570,6 +529,21 @@ namespace Gambit
 
     /// Flat test likelihood for checking prior distributions
     void flat_likelihood(double &result){ result = 1; }
+
+    /// A function that just returns 1
+    void const_one(int& result){ result = 1; }
+
+    /// Chained addition function that adds 1
+    void recursive_add_1(int& result){ result = 1 + *Pipes::recursive_add_1::Dep::starting_value; }
+
+    /// Chained addition function that adds 2
+    void recursive_add_2(int& result){ result = 2 + *Pipes::recursive_add_2::Dep::recursive_sum; }
+
+    /// Chained addition function that adds 3
+    void recursive_add_3(int& result){ result = 3 + *Pipes::recursive_add_3::Dep::recursive_sum; }
+
+    /// Chained addition function that adds 4
+    void recursive_add_4(int& result){ result = 4 + *Pipes::recursive_add_4::Dep::recursive_sum; }
 
     /// @}
   }

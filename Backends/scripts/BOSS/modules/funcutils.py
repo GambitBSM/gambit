@@ -31,7 +31,7 @@ def getArgs(func_el):
 
     args = []
     argc = 1
-    for sub_el in func_el.getchildren():
+    for sub_el in list(func_el):
         if sub_el.tag == 'Argument':
 
             arg_dict = OrderedDict()
@@ -147,11 +147,7 @@ def constrArgsBracket(args, include_arg_name=True, include_arg_type=True, includ
 
                 else:
                     if include_namespace:
-                        # If known class, add '::' for absolute namespace
-                        if arg_dict['known_class']:
-                            args_seq += '::' + arg_dict['type']                       
-                        else:
-                            args_seq += arg_dict['type']
+                        args_seq += arg_dict['type']
                     else:
                         args_seq += utils.removeNamespace(arg_dict['type'])
 
@@ -331,6 +327,9 @@ def ignoreFunction(func_el, limit_pointerness=False, remove_n_args=0, print_warn
 
     # Should this function be ditched?
     if func_name['long_templ_args'] in cfg.ditch:
+        if print_warning:
+            reason = "This function is listed as ditched."
+            infomsg.IgnoredFunction(is_operator*'operator'+func_name['long_templ_args'], reason).printMessage()
         return True
 
     # Ignore templated functions (BOSS cannot deal with that yet...)
@@ -402,6 +401,9 @@ def ignoreFunction(func_el, limit_pointerness=False, remove_n_args=0, print_warn
                     arg_types_accepted = False
                     break
     if (not arg_types_accepted):
+        if print_warning:
+            reason = "The function argument types are not accpted."
+            infomsg.IgnoredFunction(is_operator*'operator'+func_name['long_templ_args'], reason).printMessage()
         return True
 
     # Function accepted (i.e. should *not* be ignored)
@@ -548,6 +550,7 @@ def getFunctionNameDict(func_el):
     # Construct argument bracket
     args_bracket = constrArgsBracket(args, include_arg_name=False, include_arg_type=True, include_namespace=True)
     func_name['long_templ_args'] = func_name['long_templ'] + args_bracket
+    func_name['short_templ_args'] = func_name['short_templ'] + args_bracket
 
     # Add return type
     func_name['long_templ_return_args'] = return_type + ' ' + func_name['long_templ_args']

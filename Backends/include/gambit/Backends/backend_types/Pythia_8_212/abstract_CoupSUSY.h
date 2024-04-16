@@ -1,6 +1,9 @@
 #ifndef __abstract_CoupSUSY_Pythia_8_212_h__
 #define __abstract_CoupSUSY_Pythia_8_212_h__
 
+#include <cstddef>
+#include <iostream>
+#include <complex>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
@@ -8,10 +11,7 @@
 #include "wrapper_Info_decl.h"
 #include "wrapper_ParticleData_decl.h"
 #include "wrapper_Settings_decl.h"
-#include <complex>
 #include "wrapper_Couplings_decl.h"
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 

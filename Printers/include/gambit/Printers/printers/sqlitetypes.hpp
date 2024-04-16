@@ -30,6 +30,7 @@
   (std::vector<double>)     \
   (bool)                    \
   (map_str_dbl)             \
+  (map_str_str)             \
   (ModelParameters)         \
   (triplet<double>)         \
   (map_intpair_dbl)         \
@@ -37,8 +38,6 @@
 
 #define SQL_BACKEND_TYPES             \
   (DM_nucleon_couplings)              \
-  (DM_nucleon_couplings_fermionic_HP) \
-  (Flav_KstarMuMu_obs)                \
   (BBN_container)                     \
 
 

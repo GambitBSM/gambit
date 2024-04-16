@@ -19,7 +19,9 @@
 ///  *********************************************
 
 #ifdef WITH_MPI
+#include "gambit/Utils/begin_ignore_warnings_mpi.hpp"
 #include "mpi.h"
+#include "gambit/Utils/end_ignore_warnings.hpp"
 #endif
 
 #include "plugin_interface.hpp"
@@ -133,7 +135,7 @@ namespace Gambit
 
             set_resume_params(chisq, a0, mult, totN, count, total, ttotal, covT, avgT, W, avgTot, ids, ranks, resumed);
 
-            Gambit::Scanner::assign_aux_numbers("mult", "chain");
+            Gambit::Scanner::assign_aux_numbers("Posterior", "chain");
 
             int rank = set_resume_params.Rank();
             int numtasks = set_resume_params.NumTasks();
@@ -310,7 +312,7 @@ namespace Gambit
                     next_id = LogLike->getPtID();
                     if ((ans <= 0.0)||(gDev[0]->ExpDev() >= ans))
                     {
-                        //out_stream->print(mult[t], "mult", ranks[t], ids[t]);
+                        //out_stream->print(mult[t], "Posterior", ranks[t], ids[t]);
                         //out_stream->print(t, "chain", ranks[t], ids[t]);
                         point_info info = {mult[t], t, ranks[t], ids[t]};
                         temp_file_out.write((char *)&info, sizeof(point_info));
@@ -324,7 +326,7 @@ namespace Gambit
                     }
                     else
                     {
-                        //out_stream->print(0, "mult", rank, next_id);
+                        //out_stream->print(0, "Posterior", rank, next_id);
                         //out_stream->print(-1, "chain", rank, next_id);
                         point_info info = {0, -1, rank, next_id};
                         temp_file_out.write((char *)&info, sizeof(point_info));
@@ -487,7 +489,7 @@ namespace Gambit
 
             while (temp_file_in.read((char *)&info, sizeof(point_info)))
             {
-                out_stream->print(info.mult, "mult", info.rank, info.id);
+                out_stream->print(info.mult, "Posterior", info.rank, info.id);
                 out_stream->print(info.chain, "chain", info.rank, info.id);
             }
             out_stream->flush();

@@ -20,6 +20,10 @@
 ///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2020 May
 ///
+///  \author Anders Kvellestad
+///          (anders.kvellestad@fys.uio.no
+///  \date 2021 Feb
+///
 ///  *********************************************
 
 #ifndef __FACTORY_DEFS_HPP__
@@ -27,12 +31,7 @@
 
 #include <string>
 #include <typeinfo>
-//#ifdef __NO_PLUGIN_BOOST__
-  #include <memory>
-//#else
-//  #include <boost/shared_ptr.hpp>
-//  #include <boost/enable_shared_from_this.hpp>
-//#endif
+#include <memory>
 
 #ifdef WITH_MPI
   #include <chrono>
@@ -48,13 +47,6 @@ namespace Gambit
 {
     namespace Scanner
     {
-//#ifdef __NO_PLUGIN_BOOST__
-        using std::shared_ptr;
-        using std::enable_shared_from_this;
-//#else
-//        using boost::shared_ptr;
-//        using boost::enable_shared_from_this;
-//#endif
 
         /// Generic function base used by the scanner.  Can be Likelihood, observables, etc.
         template<typename T>
@@ -70,7 +62,7 @@ namespace Gambit
 
         /// Base function for the object that is upputed by "set_purpose".
         template<typename ret, typename... args>
-        class Function_Base <ret (args...)> : public enable_shared_from_this<Function_Base <ret (args...)>>
+        class Function_Base <ret (args...)> : public std::enable_shared_from_this<Function_Base <ret (args...)>>
         {
         private:
             friend class Function_Deleter<ret (args...)>;
@@ -78,6 +70,7 @@ namespace Gambit
 
             printer *main_printer;
             Priors::BasePrior *prior;
+            std::unordered_map<std::string, double> map;
             std::string purpose;
             int myRealRank; // the actual MPI rank of the process, use for process dependent setup etc. getRank() is for printing only.
 
@@ -140,6 +133,7 @@ namespace Gambit
                 }
             }
 
+            virtual double purposeModifier(double ret_val) {return ret_val;}
             virtual ret main(const args&...) = 0;
             virtual ~Function_Base(){}
 
@@ -156,6 +150,7 @@ namespace Gambit
                 return ret_val;
             }
 
+            std::unordered_map<std::string, double> &getMap(){return map;}
             void setPurpose(const std::string p) {purpose = p;}
             void setPrinter(printer* p) {main_printer = p;}
             void setPrior(Priors::BasePrior *p) {prior = p;}
@@ -172,6 +167,22 @@ namespace Gambit
             unsigned long long int getPtID() const {return Gambit::Printers::get_point_id();}
             void setPtID(unsigned long long int pID) {Gambit::Printers::get_point_id() = pID;} // Needed by postprocessor; should not use otherwise.
             unsigned long long int getNextPtID() const {return getPtID()+1;} // Needed if PtID required by plugin *before* operator() is called. See e.g. GreAT plugin.
+            
+            std::unordered_map<std::string, double> transform(const std::vector<double> &vec)
+            {
+                prior->transform(vec, map);
+                return map;
+            }
+
+            std::vector<std::string> get_names() const
+            {
+              return prior->getShownParameters();
+            }
+
+            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical)
+            {
+                return prior->inverse_transform(physical);
+            }
 
             /// Tell ScannerBit that we are aborting the scan and it should tell the scanner plugin to stop, and return control to the calling code.
             void tell_scanner_early_shutdown_in_progress()
@@ -259,12 +270,13 @@ namespace Gambit
 
         /// Container class that hold the output of the "get_purpose" function.
         template<typename ret, typename... args>
-        class scan_ptr<ret (args...)> : public shared_ptr< Function_Base< ret (args...)> >
+        class scan_ptr<ret (args...)> : public std::shared_ptr< Function_Base< ret (args...)> >
         {
         private:
-            typedef shared_ptr< Function_Base< ret (args...) > > s_ptr;
+            typedef std::shared_ptr< Function_Base< ret (args...) > > s_ptr;
 
         public:
+            using s_ptr::s_ptr;
             scan_ptr(){}
             scan_ptr(const scan_ptr &in) : s_ptr (in){}
             scan_ptr(scan_ptr &&in) : s_ptr (std::move(in)) {}
@@ -328,65 +340,65 @@ namespace Gambit
         // happen. So we need to change something here so that they only get printed once
         // per point, no matter how many like_ptr's may be "active" at once.
         
-        /// likelihood container for scanner plugins.
+        /// likelihood pointer holder for scanner plugins.
         class like_ptr : public scan_ptr<double (std::unordered_map<std::string, double> &)>
         {
         private:
             typedef scan_ptr<double (std::unordered_map<std::string, double> &)> s_ptr;
-            std::unordered_map<std::string, double> map;
 
         public:
+            using s_ptr::s_ptr;
             like_ptr(){}
-            like_ptr(const like_ptr &in) : s_ptr (in){}
-            //like_ptr(like_ptr &&in) : s_ptr (std::move(in)) {}
             like_ptr(void *in) : s_ptr(in) {}
-
-            std::unordered_map<std::string, double> transform(const std::vector<double> &vec)
-            {
-                (*this)->getPrior().transform(vec, map);
-                return map;
-            }
-
-            std::vector<std::string> get_names() const
-            {
-              return (*this)->getPrior().getShownParameters();
-            }
-
-            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical)
-            {
-                return (*this)->getPrior().inverse_transform(physical);
-            }
 
             double operator()(const std::vector<double> &vec)
             {
+                return (*this)(map_vector<double>(const_cast<double *>(&vec[0]), vec.size()));
+            }
+            
+            double operator()(hyper_cube_ref<double> vec)
+            {
+                std::unordered_map<std::string, double> &map = (*this)->getMap();
                 int rank = (*this)->getRank();
                 (*this)->getPrior().transform(vec, map);
                 double ret_val = (*this)->operator()(map);
+                double modified_ret_val = (*this)->purposeModifier(ret_val);
                 unsigned long long int id = Gambit::Printers::get_point_id();
                 (*this)->getPrinter().print(ret_val, (*this)->getPurpose(), rank, id);
+                (*this)->getPrinter().print(modified_ret_val, "Modified" + (*this)->getPurpose(), rank, id);
                 if (vec.size() > 0 && (*this)->getPrinter().get_printUnitcube())
-                  (*this)->getPrinter().print(vec, "unitCubeParameters", rank, id);
+                {
+                    std::vector<double> temp(vec.size());
+                    for (int i = 0, end = vec.size(); i < end; ++i)
+                        temp[i] =vec[i];
+                    (*this)->getPrinter().print(temp, "unitCubeParameters", rank, id);
+                }
                 (*this)->getPrinter().print(id,   "pointID", rank, id);
                 (*this)->getPrinter().print(rank, "MPIrank", rank, id);
                 (*this)->getPrinter().enable(); // Make sure printer is re-enabled (might have been disabled by invalid point error)
 
-                return ret_val + (*this)->getPurposeOffset();
+                // Return the value of the function, offset by any offset set
+                return modified_ret_val + (*this)->getPurposeOffset();
             }
 
-            double operator()(std::unordered_map<std::string, double> &map, const std::vector<double> &vec = std::vector<double>())
+            double operator()(std::unordered_map<std::string, double> &map, bool use_prior = false)
             {
                 int rank = (*this)->getRank();
-                (*this)->getPrior().transform(vec, map);
-                double ret_val = (*this)->operator()(map);
+                double ret_val;
+                if (use_prior)
+                    ret_val = (*this)->operator()(map) + (*this)->getPrior().log_prior_density(map);
+                else
+                    ret_val = (*this)->operator()(map);
+                double modified_ret_val = (*this)->purposeModifier(ret_val);
                 unsigned long long int id = Gambit::Printers::get_point_id();
                 (*this)->getPrinter().print(ret_val, (*this)->getPurpose(), rank, id);
-                if (vec.size() > 0 && (*this)->getPrinter().get_printUnitcube())
-                  (*this)->getPrinter().print(vec, "unitCubeParameters", rank, id);
+                (*this)->getPrinter().print(modified_ret_val, "Modified" + (*this)->getPurpose(), rank, id);
                 (*this)->getPrinter().print(id,   "pointID", rank, id);
                 (*this)->getPrinter().print(rank, "MPIrank", rank, id);
                 (*this)->getPrinter().enable(); // Make sure printer is re-enabled (might have been disabled by invalid point error)
+
                 // Return the value of the function, offset by any offset set
-                return ret_val + (*this)->getPurposeOffset();
+                return modified_ret_val + (*this)->getPurposeOffset();
             }
         };
 

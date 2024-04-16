@@ -1,0 +1,287 @@
+diff -rupN Rivet-3.1.5/Makefile.in ../installed/rivet/3.1.5/Makefile.in
+--- Rivet-3.1.5/Makefile.in	2021-11-05 18:37:59.000000000 +0100
++++ ../installed/rivet/3.1.5/Makefile.in	2023-02-22 16:18:38.813232777 +0100
+@@ -455,6 +455,20 @@ pkgconfigdir = $(libdir)/pkgconfig
+ dist_pkgconfig_DATA = rivet.pc
+ DEST = login.hepforge.org:rivet/downloads/
+ all: all-recursive
++# Added by GAMBIT
++libRivet.so:
++	cd ${top_builddir}/src/Core/yamlcpp && ${MAKE} $(AM_MAKEFLAGS) librivet-yaml-cpp.la
++	cd ${top_builddir}/src/Core && ${MAKE} $(AM_MAKEFLAGS) libRivetCore.la
++	cd ${top_builddir}/src/Projections && ${MAKE} $(AM_MAKEFLAGS) libRivetProjections.la
++	cd ${top_builddir}/src/Tools && ${MAKE} $(AM_MAKEFLAGS) libRivetTools.la
++	cd ${top_builddir}/src/AnalysisTools && ${MAKE} $(AM_MAKEFLAGS) libRivetAnalysisTools.la
++	cd ${top_builddir}/src && ${MAKE} $(AM_MAKEFLAGS) libRivet.la
++	cd ${top_builddir}/analyses && ${MAKE} $(AM_MAKEFLAGS) install
++	cd ${top_builddir}/pyext && ${MAKE} $(AM_MAKEFLAGS) install
++	mkdir -p ${libdir}
++	if test -e ${top_builddir}/src/.libs/libRivet.so ; then cp ${top_builddir}/src/.libs/libRivet.so ${libdir}/libRivet.so ; fi
++	if test -e ${top_builddir}/src/.libs/libRivet.dylib ; then cp ${top_builddir}/src/.libs/libRivet.dylib ${libdir}/libRivet.so ; fi
++
+
+ .SUFFIXES:
+ am--refresh: Makefile
+@@ -527,6 +541,7 @@ mostlyclean-libtool:
+
+ clean-libtool:
+ 	-rm -rf .libs _libs
++	-rm -rf ${libdir}
+
+ distclean-libtool:
+ 	-rm -f libtool config.lt
+diff -rupN Rivet-3.1.5/include/Rivet/Makefile.in ../installed/rivet/3.1.5/include/Rivet/Makefile.in
+--- Rivet-3.1.5/include/Rivet/Makefile.in	2021-11-05 18:38:00.000000000 +0100
++++ ../installed/rivet/3.1.5/include/Rivet/Makefile.in	2023-02-22 16:05:03.433033018 +0100
+@@ -381,6 +381,7 @@ nobase_dist_noinst_HEADERS = Tools/osdir
+ 	Math/eigen3/README.md
+
+ # TODO: Move to Rivet/AnalysisTools header dir?
++# Modified by GAMBIT
+ nobase_pkginclude_HEADERS = Rivet.hh Run.hh Event.hh ParticleBase.hh \
+ 	Particle.fhh Particle.hh Jet.fhh Jet.hh Projection.fhh \
+ 	Projection.hh ProjectionApplier.hh ProjectionHandler.hh \
+@@ -623,7 +624,23 @@ nobase_pkginclude_HEADERS = Rivet.hh Run
+ 	Math/eigen3/src/QR/HouseholderQR.h \
+ 	Math/eigen3/src/SVD/BDCSVD.h Math/eigen3/src/SVD/JacobiSVD.h \
+ 	Math/eigen3/src/SVD/SVDBase.h \
+-	Math/eigen3/src/SVD/UpperBidiagonalization.h Math/eigen3/SVD
++	Math/eigen3/src/SVD/UpperBidiagonalization.h Math/eigen3/SVD \
++        ../gambit/Backends/abstractbase.hpp \
++        ../gambit/Backends/backend_undefs.hpp \
++        ../gambit/Backends/wrapperbase.hpp \
++        ../gambit/Backends/abstracttypedefs.hh \
++        ../gambit/Backends/BOSS_wrapperutils.hh \
++        ../gambit/Backends/wrappertypedefs.hh \
++        ../gambit/Backends/function_return_utils.hpp \
++        ../gambit/Utils/cats.hpp \
++        ../backend_types/Rivet_3_1_5/identification.hpp \
++        ../backend_types/Rivet_3_1_5/forward_decls_abstract_classes.hh \
++        ../backend_types/Rivet_3_1_5/forward_decls_wrapper_classes.hh \
++        ../backend_types/Rivet_3_1_5/abstract_AnalysisHandler.hh \
++        ../backend_types/Rivet_3_1_5/wrapper_AnalysisHandler.hh \
++        ../backend_types/Rivet_3_1_5/wrapper_AnalysisHandler_decl.hh \
++        ../backend_types/Rivet_3_1_5/wrapper_AnalysisHandler_def.hh
++
+ all: all-am
+
+ .SUFFIXES:
+diff -rupN Rivet-3.1.5/src/Core/Makefile.in ../installed/rivet/3.1.5/src/Core/Makefile.in
+--- Rivet-3.1.5/src/Core/Makefile.in	2021-11-05 18:38:00.000000000 +0100
++++ ../installed/rivet/3.1.5/src/Core/Makefile.in	2023-02-22 16:05:03.433033018 +0100
+@@ -110,6 +110,7 @@ CONFIG_CLEAN_VPATH_FILES =
+ LTLIBRARIES = $(noinst_LTLIBRARIES)
+ libRivetCore_la_DEPENDENCIES =  \
+ 	$(builddir)/yamlcpp/librivet-yaml-cpp.la
++# Modified by GAMBIT
+ am_libRivetCore_la_OBJECTS = libRivetCore_la-Run.lo \
+ 	libRivetCore_la-Event.lo libRivetCore_la-Jet.lo \
+ 	libRivetCore_la-Particle.lo \
+@@ -118,7 +119,12 @@ am_libRivetCore_la_OBJECTS = libRivetCor
+ 	libRivetCore_la-AnalysisLoader.lo \
+ 	libRivetCore_la-AnalysisInfo.lo \
+ 	libRivetCore_la-AnalysisHandler.lo \
+-	libRivetCore_la-ProjectionHandler.lo
++	libRivetCore_la-ProjectionHandler.lo \
++	libRivetCore_la-BOSS_wrapperutils.lo \
++	libRivetCore_la-BOSS_AnalysisHandler.lo \
++	libRivetCore_la-BOSS_factory_AnalysisHandler.lo \
++	libRivetCore_la-BOSS_func_addAnalysisLibPath.lo \
++	libRivetCore_la-BOSS_function_return_utils.lo
+ libRivetCore_la_OBJECTS = $(am_libRivetCore_la_OBJECTS)
+ AM_V_lt = $(am__v_lt_@AM_V@)
+ am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+@@ -431,11 +437,17 @@ top_srcdir = @top_srcdir@
+ SUBDIRS = yamlcpp
+ EXTRA_DIST = zstr
+ noinst_LTLIBRARIES = libRivetCore.la
++# Modified by GAMBIT
+ libRivetCore_la_SOURCES = \
+   Run.cc Event.cc Jet.cc Particle.cc \
+   ProjectionApplier.cc Projection.cc \
+   Analysis.cc AnalysisLoader.cc AnalysisInfo.cc \
+-  AnalysisHandler.cc ProjectionHandler.cc
++  AnalysisHandler.cc ProjectionHandler.cc \
++  BOSS_wrapperutils.cc \
++  BOSS_AnalysisHandler.cc \
++  BOSS_factory_AnalysisHandler.cc \
++  BOSS_func_addAnalysisLibPath.cc \
++  BOSS_function_return_utils.cc
+
+ libRivetCore_la_CPPFLAGS = -I$(srcdir)/yamlcpp -DYAML_NAMESPACE=RIVET_YAML $(AM_CPPFLAGS)
+ libRivetCore_la_LIBADD = $(builddir)/yamlcpp/librivet-yaml-cpp.la
+@@ -504,6 +516,12 @@ distclean-compile:
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-ProjectionApplier.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-ProjectionHandler.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-Run.Plo@am__quote@
++# Added by GAMBIT
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_AnalysisHandler.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_factory_AnalysisHandler.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_func_addAnalysisLibPath.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_function_return_utils.Plo@am__quote@
+
+ .cc.o:
+ @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@@ -603,6 +621,42 @@ libRivetCore_la-ProjectionHandler.lo: Pr
+ @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+ @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libRivetCore_la-ProjectionHandler.lo `test -f 'ProjectionHandler.cc' || echo '$(srcdir)/'`ProjectionHandler.cc
+
++# Added by GAMBIT
++libRivetCore_la-BOSS_wrapperutils.lo: BOSS_wrapperutils.cc
++@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libRivetCore_la-BOSS_wrapperutils.lo -MD -MP -MF $(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Tpo -c -o libRivetCore_la-BOSS_wrapperutils.lo `test -f 'BOSS_wrapperutils.cc' || echo '$(srcdir)/'`BOSS_wrapperutils.cc
++@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Tpo $(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Plo
++@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='BOSS_wrapperutils.cc' object='libRivetCore_la-BOSS_wrapperutils.lo' libtool=yes @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libRivetCore_la-BOSS_wrapperutils.lo `test -f 'BOSS_wrapperutils.cc' || echo '$(srcdir)/'`BOSS_wrapperutils.cc
++
++libRivetCore_la-BOSS_AnalysisHandler.lo: BOSS_AnalysisHandler.cc
++@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libRivetCore_la-BOSS_AnalysisHandler.lo -MD -MP -MF $(DEPDIR)/libRivetCore_la-BOSS_AnalysisHandler.Tpo -c -o libRivetCore_la-BOSS_AnalysisHandler.lo `test -f 'BOSS_AnalysisHandler.cc' || echo '$(srcdir)/'`BOSS_AnalysisHandler.cc
++@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libRivetCore_la-BOSS_AnalysisHandler.Tpo $(DEPDIR)/libRivetCore_la-BOSS_AnalysisHandler.Plo
++@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='BOSS_AnalysisHandler.cc' object='libRivetCore_la-BOSS_AnalysisHandler.lo' libtool=yes @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libRivetCore_la-BOSS_AnalysisHandler.lo `test -f 'BOSS_AnalysisHandler.cc' || echo '$(srcdir)/'`BOSS_AnalysisHandler.cc
++
++libRivetCore_la-BOSS_factory_AnalysisHandler.lo: BOSS_factory_AnalysisHandler.cc
++@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libRivetCore_la-BOSS_factory_AnalysisHandler.lo -MD -MP -MF $(DEPDIR)/libRivetCore_la-BOSS_factory_AnalysisHandler.Tpo -c -o libRivetCore_la-BOSS_factory_AnalysisHandler.lo `test -f 'BOSS_factory_AnalysisHandler.cc' || echo '$(srcdir)/'`BOSS_factory_AnalysisHandler.cc
++@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libRivetCore_la-BOSS_factory_AnalysisHandler.Tpo $(DEPDIR)/libRivetCore_la-BOSS_factory_AnalysisHandler.Plo
++@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='BOSS_factory_AnalysisHandler.cc' object='libRivetCore_la-BOSS_factory_AnalysisHandler.lo' libtool=yes @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libRivetCore_la-BOSS_factory_AnalysisHandler.lo `test -f 'BOSS_factory_AnalysisHandler.cc' || echo '$(srcdir)/'`BOSS_factory_AnalysisHandler.cc
++
++libRivetCore_la-BOSS_func_addAnalysisLibPath.lo: BOSS_func_addAnalysisLibPath.cc
++@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libRivetCore_la-BOSS_func_addAnalysisLibPath.lo -MD -MP -MF $(DEPDIR)/libRivetCore_la-BOSS_func_addAnalysisLibPath.Tpo -c -o libRivetCore_la-BOSS_func_addAnalysisLibPath.lo `test -f 'BOSS_func_addAnalysisLibPath.cc' || echo '$(srcdir)/'`BOSS_func_addAnalysisLibPath.cc
++@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libRivetCore_la-BOSS_func_addAnalysisLibPath.Tpo $(DEPDIR)/libRivetCore_la-BOSS_func_addAnalysisLibPath.Plo
++@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='BOSS_func_addAnalysisLibPath.cc' object='libRivetCore_la-BOSS_func_addAnalysisLibPath.lo' libtool=yes @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libRivetCore_la-BOSS_func_addAnalysisLibPath.lo `test -f 'BOSS_func_addAnalysisLibPath.cc' || echo '$(srcdir)/'`BOSS_func_addAnalysisLibPath.cc
++
++libRivetCore_la-BOSS_function_return_utils.lo: BOSS_function_return_utils.cc
++@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libRivetCore_la-BOSS_function_return_utils.lo -MD -MP -MF $(DEPDIR)/libRivetCore_la-BOSS_function_return_utils.Tpo -c -o libRivetCore_la-BOSS_function_return_utils.lo `test -f 'BOSS_function_return_utils.cc' || echo '$(srcdir)/'`BOSS_function_return_utils.cc
++@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libRivetCore_la-BOSS_function_return_utils.Tpo $(DEPDIR)/libRivetCore_la-BOSS_function_return_utils.Plo
++@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='BOSS_function_return_utils.cc' object='libRivetCore_la-BOSS_function_return_utils.lo' libtool=yes @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libRivetCore_la-BOSS_function_return_utils.lo `test -f 'BOSS_function_return_utils.cc' || echo '$(srcdir)/'`BOSS_function_return_utils.cc
++
+ mostlyclean-libtool:
+ 	-rm -f *.lo
+
+diff -rupN Rivet-3.1.5/include/Rivet/AnalysisHandler.hh ../installed/rivet/3.1.5/include/Rivet/AnalysisHandler.hh
+--- Rivet-3.1.5/include/Rivet/AnalysisHandler.hh	2021-04-27 21:21:47.000000000 +0200
++++ ../installed/rivet/3.1.5/include/Rivet/AnalysisHandler.hh	2023-02-22 16:05:03.433033018 +0100
+@@ -27,10 +27,10 @@ namespace Rivet {
+     AnalysisHandler(const string& runname="");
+
+     /// The copy constructor is deleted, so it can never be called.
+-    AnalysisHandler(const AnalysisHandler&) = delete;
++    //AnalysisHandler(const AnalysisHandler&) = delete; // Commented by GAMBIT
+
+     /// The assignment operator is deleted, so it can never be called.
+-    AnalysisHandler& operator=(const AnalysisHandler&) = delete;
++    //AnalysisHandler& operator=(const AnalysisHandler&) = delete; // Commented by GAMBIT
+
+     /// The destructor is not virtual, as this class should not be inherited from.
+     ~AnalysisHandler();
+@@ -267,6 +267,9 @@ namespace Rivet {
+     /// Write all analyses' plots (via getData) to the named file.
+     void writeData(const string& filename) const;
+
++    // Added by GAMBIT, Dummy function to force BOSS to add the headers for the YODA::AnalysisObject type
++    void dummy(YODA::AnalysisObject*) const;
++
+     /// @brief Configure the AnalysisObject dump rate and destination.
+     ///
+     /// Tell Rivet to dump intermediate result to a file named @a
+diff -rupN Rivet-3.1.5/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.1.5/include/Rivet/Tools/RivetHepMC.hh
+--- Rivet-3.1.5/include/Rivet/Tools/RivetHepMC.hh	2020-04-07 16:43:14.000000000 +0200
++++ ../installed/rivet/3.1.5/include/Rivet/Tools/RivetHepMC.hh	2023-02-22 16:05:03.433033018 +0100
+@@ -8,7 +8,7 @@
+ #include <valarray>
+
+
+-#ifdef RIVET_ENABLE_HEPMC_3
++//#ifdef RIVET_ENABLE_HEPMC_3 // Commented by GAMBIT
+
+ #include "HepMC3/HepMC3.h"
+ #include "HepMC3/Relatives.h"
+@@ -34,7 +34,8 @@ namespace Rivet {
+   using PdfInfo = RivetHepMC::GenPdfInfo;
+ }
+
+-#else // HEPMC_2
++// Commented by GAMBIT
++/*#else // HEPMC_2
+
+ #include "HepMC/GenEvent.h"
+ #include "HepMC/GenParticle.h"
+@@ -75,7 +76,7 @@ namespace Rivet {
+   using PdfInfo = RivetHepMC::PdfInfo;
+ }
+
+-#endif
++#endif*/
+
+
+ namespace Rivet {
+diff -rupN Rivet-3.1.5/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.5/src/Core/AnalysisHandler.c
+--- Rivet-3.1.5/src/Core/AnalysisHandler.cc	2021-07-11 23:34:05.000000000 +0200
++++ ../installed/rivet/3.1.5/src/Core/AnalysisHandler.cc	2023-02-22 16:05:03.433033018 +0100
+@@ -121,7 +121,8 @@ namespace Rivet {
+     if (num_anas_requested > 0 && analysisNames().empty()) {
+       MSG_ERROR("All analyses were incompatible with the first event's beams\n"
+                 << "Exiting, since this probably wasn't intentional!");
+-      exit(1);
++      //exit(1); // Commented by GAMBIT
++      throw std::runtime_error("All analyses were incompatible with the first event's beams\n"); // Added by GAMBIT
+     }
+
+     // Warn if any analysis' status is not unblemished
+@@ -916,6 +917,12 @@ namespace Rivet {
+
+   }
+
++  // Added by GAMBIT, dummy function to force BOSS to add the headers for the YODA::AnalysisObject type
++  void AnalysisHandler::dummy(YODA::AnalysisObject* object) const {
++
++    // Nothing to do here
++
++  }
+
+   string AnalysisHandler::runName() const {
+     return _runname;
+diff -rupN Rivet-3.1.5/analyses/Makefile.in ../installed/rivet/3.1.5/analyses/Makefile.in
+--- Rivet-3.1.5/analyses/Makefile.in	2021-11-05 18:37:59.000000000 +0100
++++ ../installed/rivet/3.1.5/analyses/Makefile.in	2023-02-22 16:05:03.437033017 +0100
+@@ -329,12 +329,16 @@ top_build_prefix = @top_build_prefix@
+ top_builddir = @top_builddir@
+ top_srcdir = @top_srcdir@
+ AUTOMAKE_OPTIONS = -Wno-portability
+-@ENABLE_ANALYSES_TRUE@PLUGIN_DIRS = $(shell ls -d $(srcdir)/plugin*)
++#@ENABLE_ANALYSES_TRUE@PLUGIN_DIRS = $(shell ls -d $(srcdir)/plugin*) # Commented by GAMBIT
++@ENABLE_ANALYSES_TRUE@PLUGIN_DIRS = $(shell ls -d $(srcdir)/pluginATLAS $(srcdir)/pluginCMS) # Added by GAMBIT
+ @ENABLE_ANALYSES_TRUE@PLUGIN_NAMES = $(notdir $(subst plugin,,$(PLUGIN_DIRS)))
+ @ENABLE_ANALYSES_TRUE@PLUGIN_LIBS = $(patsubst %,Rivet%Analyses.so,$(PLUGIN_NAMES))
+-@ENABLE_ANALYSES_TRUE@PLUGIN_INFOFILES = $(shell ls $(abs_srcdir)/plugin*/*.info)
+-@ENABLE_ANALYSES_TRUE@PLUGIN_PLOTFILES = $(shell ls $(abs_srcdir)/plugin*/*.plot)
+-@ENABLE_ANALYSES_TRUE@PLUGIN_YODAFILES = $(shell ls $(abs_srcdir)/plugin*/*.yoda*)
++#@ENABLE_ANALYSES_TRUE@PLUGIN_INFOFILES = $(shell ls $(abs_srcdir)/plugin*/*.info) # Commented by GAMBIT
++@ENABLE_ANALYSES_TRUE@PLUGIN_INFOFILES = $(shell ls $(abs_srcdir)/pluginATLAS/*.info $(abs_srcdir)/pluginCMS/*.info) # Added by GAMBIT
++#@ENABLE_ANALYSES_TRUE@PLUGIN_PLOTFILES = $(shell ls $(abs_srcdir)/plugin*/*.plot) # Commented by GAMBIT
++@ENABLE_ANALYSES_TRUE@PLUGIN_PLOTFILES = $(shell ls $(abs_srcdir)/pluginATLAS/*.plot $(abs_srcdir)/pluginCMS/*.plot) # Added by GAMBIT
++#@ENABLE_ANALYSES_TRUE@PLUGIN_YODAFILES = $(shell ls $(abs_srcdir)/plugin*/*.yoda*) # Commented by GAMBIT
++@ENABLE_ANALYSES_TRUE@PLUGIN_YODAFILES = $(shell ls $(abs_srcdir)/pluginATLAS/*.yoda* $(abs_srcdir)/pluginCMS/*.yoda*) # Added by GAMBIT
+ @ENABLE_ANALYSES_TRUE@PLUGIN_DATAFILES = $(PLUGIN_INFOFILES) $(PLUGIN_PLOTFILES) $(PLUGIN_YODAFILES)
+ @ENABLE_ANALYSES_TRUE@CLEANFILES = $(PLUGIN_LIBS)
+ @ENABLE_ANALYSES_TRUE@EXTRA_DIST = $(PLUGIN_DIRS)
+diff -rupN Rivet-3.1.5/analyses/pluginCMS/CMS_2018_I1663958.cc ../installed/rivet/3.1.5/analyses/pluginCMS/CMS_2018_I1663958.cc
+--- Rivet-3.1.5/analyses/pluginCMS/CMS_2018_I1663958.cc	2021-11-08 21:05:48.000000000 +0100
++++ ../installed/rivet/3.1.5/analyses/pluginCMS/CMS_2018_I1663958.cc	2023-02-22 16:05:03.437033017 +0100
+@@ -120,7 +120,7 @@ namespace Rivet {
+
+       const Particles& photons = apply<VetoedFinalState>(event, "MyPhotons").particles(Cuts::abseta < 2.4 && Cuts::pT > 15*GeV);
+       for (const Particle& ph : photons) {
+-        double isolation = sum(filter_select(isopars, deltaRLess(ph, 0.4)), pT, 0.);
++        double isolation = sum(filter_select(isopars, deltaRLess(ph, 0.4)), Kin::pT, 0.);
+         isolation = isolation/ph.pt() - 1.;
+         if (isolation > 0.25) continue;
+         additionalobjects += ph;

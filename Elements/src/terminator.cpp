@@ -17,6 +17,7 @@
 ///  *********************************************
 
 #include "gambit/Elements/terminator.hpp"
+#include "gambit/Utils/file_lock.hpp"
 
 void Gambit::terminator()
 {
@@ -37,6 +38,9 @@ void Gambit::terminator()
   {
     std::cout << "Exception not derived from std::exception." << std::endl;
   }
+
+  Utils::ProcessLock::clean_locks();
+
   exit(1);
 }
 

@@ -13,7 +13,7 @@
 ///
 ///  \author Torsten Bringmann
 ///          (torsten.bringmann@fys.uio.no)
-///  \date 2020 February
+///  \date 2020 February, 2023
 ///
 ///  \author Pat Scott
 ///          (pat.scott@uq.edu.au)
@@ -25,12 +25,17 @@
 #define BACKENDLANG FORTRAN
 #define VERSION 6.1.1
 #define SAFE_VERSION 6_1_1
+#define REFERENCE Gondolo:2004sc,Bringmann:2018lay
 
 // Load the library
 LOAD_LIBRARY
 
 // Include common DarkSUSY frontend declarations shared across all model-specific versions of the backend
 #include "gambit/Backends/frontends/shared_includes/DarkSUSY_6.hpp"
+
+// Common blocks in the DarkSUSY core library that are not identical for all DS6 versions
+BE_VARIABLE(rdpars, DS_RDPARS_OLD,     "rdpars_",    "rdpars")    // gRD Parameters
+
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

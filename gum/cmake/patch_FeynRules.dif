@@ -1,0 +1,427 @@
+diff -rupN FeynRules_pristine/Core/ClassDeclarations.m ../contrib/FeynRules/Core/ClassDeclarations.m
+--- FeynRules_pristine/Core/ClassDeclarations.m	2021-03-10 18:59:29.260728353 +0100
++++ ../contrib/FeynRules/Core/ClassDeclarations.m	2021-03-10 19:11:03.896077913 +0100
+@@ -14,19 +14,19 @@
+ 
+ MRIndexRange[ind_] := If[Head[IndexRange[ind]] === NoUnfold, Identity @@ IndexRange[ind], IndexRange[ind]];
+ 
+-$FAToMRRules = If[Not[ValueQ[$FAToMRRules]], {}, $FAToMRRules];
+-$FlavorExpandRules = If[Not[ValueQ[$FlavorExpandRules]], {}, $FlavorExpandRules];
+-MR$GaugeGroupList = If[Not[ValueQ[MR$GaugeGroupList]], {}, MR$GaugeGroupList];
+-MR$FlavorList = If[Not[ValueQ[MR$FlavorList]], {}, MR$FlavorList];
+-MR$ParameterList = If[Not[ValueQ[MR$ParameterList]], {}, MR$ParameterList];
+-MR$Definitions = If[Not[ValueQ[MR$Definitions]], {}, MR$Definitions];
+-M$MixingsDescription = If[Not[ValueQ[M$MixingsDescription]], {}, M$MixingsDescription];
+-M$vevs = If[Not[ValueQ[M$vevs]], {}, M$vevs];
+-FR$ReprMap = If[Not[ValueQ[FR$ReprMap]],{},FR$ReprMap];
+-
+-MR$IndexList = If[Not[ValueQ[MR$IndexList]], {}, MR$IndexList];
+-MR$ClassNameList = If[Not[ValueQ[MR$ClassNameList]], {}, MR$ClassNameList];
+-FR$CheckFlavExp = If[Not[ValueQ[FR$CheckFlavExp]], {}, FR$CheckFlavExp];
++$FAToMRRules = If[Not[ValueQ[$FAToMRRules,Method->"Legacy"]], {}, $FAToMRRules];
++$FlavorExpandRules = If[Not[ValueQ[$FlavorExpandRules,Method->"Legacy"]], {}, $FlavorExpandRules];
++MR$GaugeGroupList = If[Not[ValueQ[MR$GaugeGroupList,Method->"Legacy"]], {}, MR$GaugeGroupList];
++MR$FlavorList = If[Not[ValueQ[MR$FlavorList,Method->"Legacy"]], {}, MR$FlavorList];
++MR$ParameterList = If[Not[ValueQ[MR$ParameterList,Method->"Legacy"]], {}, MR$ParameterList];
++MR$Definitions = If[Not[ValueQ[MR$Definitions,Method->"Legacy"]], {}, MR$Definitions];
++M$MixingsDescription = If[Not[ValueQ[M$MixingsDescription,Method->"Legacy"]], {}, M$MixingsDescription];
++M$vevs = If[Not[ValueQ[M$vevs,Method->"Legacy"]], {}, M$vevs];
++FR$ReprMap = If[Not[ValueQ[FR$ReprMap,Method->"Legacy"]],{},FR$ReprMap];
++
++MR$IndexList = If[Not[ValueQ[MR$IndexList,Method->"Legacy"]], {}, MR$IndexList];
++MR$ClassNameList = If[Not[ValueQ[MR$ClassNameList,Method->"Legacy"]], {}, MR$ClassNameList];
++FR$CheckFlavExp = If[Not[ValueQ[FR$CheckFlavExp,Method->"Legacy"]], {}, FR$CheckFlavExp];
+ 
+ Options[AddParticlesToClass] = {ClassName -> Hold[$defaultClassName], FlavorIndex -> MR$NoFlavorIndex, Indices -> {}, SymmetricIndices -> {}, 
+                                 AntiSymmetricIndices -> {}, Symmetric -> False, AntiSymmetric -> False};
+@@ -91,7 +91,7 @@ DeclareNewDefinition[rule_, outputlist_]
+ 
+    (* Check if outputlist already exists and if it is a list. If not, print a warning and exit, returning Null *)
+ 
+-   If[Not[ValueQ[outputlist]] | (Head[outputlist] =!=List),
++   If[Not[ValueQ[outputlist,Method->"Legacy"]] | (Head[outputlist] =!=List),
+       Message[DeclareDef::usage];Return[]];
+ 
+    (* Add the new definition to outputlist *)
+@@ -211,12 +211,12 @@ ReadAuthors[authorlist_] := Block[{temp,
+ ModelInformation[] := Block[{tmp},
+       Print["Model name: ", M$ModelName];
+       Print["Model version: ", ToString @@ MR$Version];
+-      If[(MR$Date =!= {MR$Null}) && ValueQ[MR$Date], Print["Date: ", Sequence @@ MR$Date]];
+-      If[(MR$Authors =!= {MR$Null}) && ValueQ[MR$Authors], Print["Authors: "]; PrintList[StringJoin["   ", #]& /@ MR$Authors]];
+-      If[(MR$Institutions =!= {MR$Null}) && ValueQ[MR$Institutions], Print["Institutions: "]; PrintList[StringJoin["   ", #]& /@ MR$Institutions]];
+-      If[(MR$Emails =!= {MR$Null}) && ValueQ[MR$Emails], Print["Emails: "]; PrintList[StringJoin["   ", #]& /@ MR$Emails]];
+-      If[(MR$References =!= {MR$Null}) && ValueQ[MR$References], Print["References: "]; PrintList[StringJoin["   ", #]& /@ MR$References]];
+-      If[(MR$URLs =!= {MR$Null}) && ValueQ[MR$URLs], Print["URL's: "]; PrintList[StringJoin["   ", #]& /@ MR$URLs]]];
++      If[(MR$Date =!= {MR$Null}) && ValueQ[MR$Date,Method->"Legacy"], Print["Date: ", Sequence @@ MR$Date]];
++      If[(MR$Authors =!= {MR$Null}) && ValueQ[MR$Authors,Method->"Legacy"], Print["Authors: "]; PrintList[StringJoin["   ", #]& /@ MR$Authors]];
++      If[(MR$Institutions =!= {MR$Null}) && ValueQ[MR$Institutions,Method->"Legacy"], Print["Institutions: "]; PrintList[StringJoin["   ", #]& /@ MR$Institutions]];
++      If[(MR$Emails =!= {MR$Null}) && ValueQ[MR$Emails,Method->"Legacy"], Print["Emails: "]; PrintList[StringJoin["   ", #]& /@ MR$Emails]];
++      If[(MR$References =!= {MR$Null}) && ValueQ[MR$References,Method->"Legacy"], Print["References: "]; PrintList[StringJoin["   ", #]& /@ MR$References]];
++      If[(MR$URLs =!= {MR$Null}) && ValueQ[MR$URLs,Method->"Legacy"], Print["URL's: "]; PrintList[StringJoin["   ", #]& /@ MR$URLs]]];
+ 
+       
+          
+@@ -290,14 +290,14 @@ LoadModel[modfile_String, rule_Rule] :=
+     (* Initialisation *)
+     $report = Report /. {rule} /. Report -> False;
+     MR$currentmodel = modfile;
+-    If[Not[ValueQ[M$ModelName]], M$ModelName = StringReplace[MR$currentmodel, {"/"->"","\\"->""}];
++    If[Not[ValueQ[M$ModelName,Method->"Legacy"]], M$ModelName = StringReplace[MR$currentmodel, {"/"->"","\\"->""}];
+                                  If[StringTake[M$ModelName, -3] === ".fr",  M$ModelName = StringDrop[M$ModelName, -3]]];
+     If[MR$ModelLoaded === True, Message[LoadModel::Loaded], MR$ModelLoaded = True];
+-    If[ValueQ[M$Information], ReadAuthors[M$Information]];
++    If[ValueQ[M$Information,Method->"Legacy"], ReadAuthors[M$Information]];
+     MR$FieldList = {};
+ 
+     (* Loading in the particles classes *)
+-    If[Not[ValueQ[M$ClassesDescription]], Message[LoadModel::NoClasses]; Abort[],
++    If[Not[ValueQ[M$ClassesDescription,Method->"Legacy"]], Message[LoadModel::NoClasses]; Abort[],
+       MR$ClassesDescription = M$ClassesDescription /. {(xx_ == yy_) -> (xx -> yy)};
+       MR$ClassesList = M$ClassesDescription /. {(x_ == y_) -> x};
+       templist = M$ClassesDescription /. {(x_ == y_) -> y};
+@@ -305,14 +305,14 @@ LoadModel[modfile_String, rule_Rule] :=
+         {kk, Length[M$ClassesDescription]}];
+ 
+     (* Loading in the gauge groups *)
+-      If[ValueQ[M$GaugeGroups] && (Length[M$GaugeGroups] != 0), 
++      If[ValueQ[M$GaugeGroups,Method->"Legacy"] && (Length[M$GaugeGroups] != 0), 
+          MR$GaugeGroups = M$GaugeGroups /. {(x_ == y_) -> (x -> y)};
+          MR$GaugeGroupList = M$GaugeGroups /. {(x_ == y_) -> x};
+          templist = M$GaugeGroups /. {(x_ == y_) -> y};
+          Do[MR$GaugeGroupRules[MR$GaugeGroupList[[kk]]] = templist[[kk]], {kk, Length[M$GaugeGroups]}]];
+ 
+     (* Loading in the parameters *)
+-      If[ValueQ[M$Parameters] && (Length[M$Parameters] != 0), 
++      If[ValueQ[M$Parameters,Method->"Legacy"] && (Length[M$Parameters] != 0), 
+          M$Parameters = CheckParameters /@ M$Parameters;
+          MR$Parameters = M$Parameters /. {(x_ == y_) -> (x -> y)};
+          MR$ParameterList = M$Parameters /. {(x_ == y_) -> x};
+@@ -435,14 +435,14 @@ LoadModel[modfile1_String, modelfiles__,
+ 
+       Get[frfiles[[kk]]];
+ 
+-      loadparts[kk]       = If[ValueQ[M$ClassesDescription],M$ClassesDescription,{}];
+-      loadparams[kk]      = If[ValueQ[M$Parameters],M$Parameters,{}];
+-      loadgroups[kk]      = If[ValueQ[M$GaugeGroups],M$GaugeGroups,{}];
+-      loadmixings[kk]     = If[ValueQ[M$MixingsDescription], M$MixingsDescription, {}];
+-      loadhier[kk]        = If[ValueQ[M$InteractionOrderHierarchy], M$InteractionOrderHierarchy, {}];
+-      loadexplimit[kk]    = If[ValueQ[M$InteractionOrderLimit], M$InteractionOrderLimit, {}];
+-      loadsuperfields[kk] = If[ValueQ[M$Superfields], M$Superfields, {}];
+-      loadformfactors[kk] = If[ValueQ[M$FormFactors], M$FormFactors, {}],
++      loadparts[kk]       = If[ValueQ[M$ClassesDescription,Method->"Legacy"],M$ClassesDescription,{}];
++      loadparams[kk]      = If[ValueQ[M$Parameters,Method->"Legacy"],M$Parameters,{}];
++      loadgroups[kk]      = If[ValueQ[M$GaugeGroups,Method->"Legacy"],M$GaugeGroups,{}];
++      loadmixings[kk]     = If[ValueQ[M$MixingsDescription,Method->"Legacy"], M$MixingsDescription, {}];
++      loadhier[kk]        = If[ValueQ[M$InteractionOrderHierarchy,Method->"Legacy"], M$InteractionOrderHierarchy, {}];
++      loadexplimit[kk]    = If[ValueQ[M$InteractionOrderLimit,Method->"Legacy"], M$InteractionOrderLimit, {}];
++      loadsuperfields[kk] = If[ValueQ[M$Superfields,Method->"Legacy"], M$Superfields, {}];
++      loadformfactors[kk] = If[ValueQ[M$FormFactors,Method->"Legacy"], M$FormFactors, {}],
+       {kk,Length[frfiles]}];
+ 
+    M$Parameters                 = Join @@ Table[loadparams[kk],{kk,Length[frfiles]}];
+@@ -1247,7 +1247,7 @@ If[repo,  Print["(* * * * * * * * * * *
+     (*                                                                           *)
+     (*                              Gauge Group declaration                      *)
+     (*                                                                           *)
+-    If[ValueQ[M$GaugeGroups] && (Length[M$GaugeGroups] != 0),
++    If[ValueQ[M$GaugeGroups,Method->"Legacy"] && (Length[M$GaugeGroups] != 0),
+        
+       If[Not[repo], Print["   - Loading gauge group classes."]];
+ 
+@@ -1300,7 +1300,7 @@ If[repo,  Print["(* * * * * * * * * * *
+     (*                                                                           *)
+     (*                              Parameter declaration                        *)
+     (*                                                                           *)     
+-      If[ValueQ[M$Parameters] && (Length[M$Parameters] != 0),
++      If[ValueQ[M$Parameters,Method->"Legacy"] && (Length[M$Parameters] != 0),
+          If[Not[repo], Print["   - Loading parameter classes."]];
+          Do[currentclass = MR$ParameterList[[kk]];
+             If[repo, Print["Loading parameter ", currentclass]];
+@@ -1678,10 +1678,10 @@ Particle[name_, type_, STO_, pdg_, optio
+     If[Length[tw] == 2, WidthToPart[tw[[1]]] = name; Width[name] = tw[[1]]];
+     If[(Length[tw] == 1) && (tw =!= ZERO), WidthToPart[tw] = name; Width[name] = tw];
+     If[(tw === ZERO), Width[name] = 0];
+-    FR$StringToSymbol = If[ValueQ[FR$StringToSymbol], Append[FR$StringToSymbol, Rule[temp[[3]], name]], {Rule[temp[[3]], name]}];
++    FR$StringToSymbol = If[ValueQ[FR$StringToSymbol,Method->"Legacy"], Append[FR$StringToSymbol, Rule[temp[[3]], name]], {Rule[temp[[3]], name]}];
+     antname = anti[name];
+     If[antname =!= name, antname = anti[name]; FR$StringToSymbol = Append[FR$StringToSymbol, Rule[temp[[4]], antname]]];
+-    $ParticleListtemp = If[ValueQ[$ParticleListtemp], Append[$ParticleListtemp, temp], {temp}];
++    $ParticleListtemp = If[ValueQ[$ParticleListtemp,Method->"Legacy"], Append[$ParticleListtemp, temp], {temp}];
+     output = temp];
+                   
+ DeclareParticlesMG := Module[{nlist},
+@@ -1870,11 +1870,11 @@ SortOrderBlock[OB_,elemfunc_,WriteRules_
+     Do[tempfunc[tempOB[[kk, 2]]] = tempOB[[kk, 1]], {kk, nOB}];
+     output = Table[{elem2list[[kk]],elemfunc[tempfunc[elem2list[[kk]]]]}, {kk, 1, nOB}]];
+    
+-AddOrderBlock[{BN_, xx_},elemfunc_,WriteRules_] := {BN, Reverse /@ MapIndexed[List,xx]} /; Not[ValueQ[OrderBlock[BN]]];
+-AddOrderBlock[{BN_, xx_},elemfunc_,WriteRules_] := {BN, SortOrderBlock[OrderBlock[BN],elemfunc,WriteRules]} /; ValueQ[OrderBlock[BN]]; 
++AddOrderBlock[{BN_, xx_},elemfunc_,WriteRules_] := {BN, Reverse /@ MapIndexed[List,xx]} /; Not[ValueQ[OrderBlock[BN],Method->"Legacy"]];
++AddOrderBlock[{BN_, xx_},elemfunc_,WriteRules_] := {BN, SortOrderBlock[OrderBlock[BN],elemfunc,WriteRules]} /; ValueQ[OrderBlock[BN],Method->"Legacy"]; 
+      
+-MGOrder[x_] := NoOrder /; Not[ValueQ[MGOrdertemp[x]]];
+-MGOrder[x_] := MGOrdertemp[x][[1]]^MGOrdertemp[x][[2]] /; ValueQ[MGOrdertemp[x]];
++MGOrder[x_] := NoOrder /; Not[ValueQ[MGOrdertemp[x],Method->"Legacy"]];
++MGOrder[x_] := MGOrdertemp[x][[1]]^MGOrdertemp[x][[2]] /; ValueQ[MGOrdertemp[x],Method->"Legacy"];
+ 
+ MGOrderQ[NoOrder] = True;
+ 
+@@ -1939,8 +1939,8 @@ ExtParameter[gMath_, block_, options___]
+               For[kk=6,kk<Length[temp]-2,kk=kk+2,MGOrderQ[temp[[kk]]] = True;];
+               elemfunc[temp[[2]]] = {temp[[2]],Sequence@@temp[[6;;Length[temp]-2]],temp[[4]],temp[[-2]], temp[[-1]]}
+     ];
+-    If[Not[gMath === temp[[2]]], ParamRules = If[ValueQ[ParamRules], Append[ParamRules, gMath -> temp[[2]]], {gMath -> temp[[2]]}]];
+-    $ParamListtemp = If[ValueQ[$ParamListtemp], Append[$ParamListtemp, temp], {temp}];
++    If[Not[gMath === temp[[2]]], ParamRules = If[ValueQ[ParamRules,Method->"Legacy"], Append[ParamRules, gMath -> temp[[2]]], {gMath -> temp[[2]]}]];
++    $ParamListtemp = If[ValueQ[$ParamListtemp,Method->"Legacy"], Append[$ParamListtemp, temp], {temp}];
+     output = temp];
+ 
+ 
+@@ -1968,8 +1968,8 @@ IntParameter[gMath_, def_, options___] :
+               elemfunc[temp[[2]]] = {temp[[2]],temp[[5]],temp[[6]],temp[[7]], temp[[8]]},
+           Length[temp] == 6,
+               elemfunc[temp[[2]]] = {temp[[2]], temp[[5]], temp[[6]]}];
+-    If[Not[gMath === temp[[2]]], ParamRules = If[ValueQ[ParamRules], Append[ParamRules, gMath -> temp[[2]]], {gMath -> temp[[2]]}]];
+-    $ParamListtemp = If[ValueQ[$ParamListtemp], Append[$ParamListtemp, temp], {temp}];
++    If[Not[gMath === temp[[2]]], ParamRules = If[ValueQ[ParamRules,Method->"Legacy"], Append[ParamRules, gMath -> temp[[2]]], {gMath -> temp[[2]]}]];
++    $ParamListtemp = If[ValueQ[$ParamListtemp,Method->"Legacy"], Append[$ParamListtemp, temp], {temp}];
+     output = temp];
+ 
+ 
+@@ -2026,7 +2026,7 @@ Options[DeclareTensor] = {TensorClass ->
+ 
+ $TensClassList = {MR$GammaMatrices, MR$LeviCivita};
+ 
+-$TensIndRules = If[Not[ValueQ[$TensIndRules]], {}, $TensIndRules];
++$TensIndRules = If[Not[ValueQ[$TensIndRules,Method->"Legacy"]], {}, $TensIndRules];
+ 
+ DeclareTensor[t_, ind_List, options___] := Block[{tc, tcom, tex},
+       tc = TensorClass /. {options} /. Options[DeclareTensor] /. $defaulttensclass -> t;
+@@ -2296,7 +2296,7 @@ DeclareU1Charges[name_, chargelist_List]
+ (*AddGaugeRepresentation[rules, list] adds rules to list, if list exists. If not list is first created. *)
+ 
+ 
+-AddGaugeRepresentation[rules_List, list_:FR$NewGaugeRepresentations] := If[ValueQ[list], list = Join[list, rules], list = rules];
++AddGaugeRepresentation[rules_List, list_:FR$NewGaugeRepresentations] := If[ValueQ[list,Method->"Legacy"], list = Join[list, rules], list = rules];
+ 
+ AddGaugeRepresentation[rule_Rule, list___] := AddGaugeRepresentation[{rule}, list];
+ AddGaugeRepresentation[rule_RuleDelayed, list___] := AddGaugeRepresentation[{rule}, list];          
+diff -rupN FeynRules_pristine/Core/ExtractVertexTools.m ../contrib/FeynRules/Core/ExtractVertexTools.m
+--- FeynRules_pristine/Core/ExtractVertexTools.m	2021-03-10 18:59:29.260728353 +0100
++++ ../contrib/FeynRules/Core/ExtractVertexTools.m	2021-03-10 19:12:30.776585604 +0100
+@@ -68,7 +68,7 @@ ToMomentumSpace[expr_] :=
+ 
+ NameIndices[expr_] := Block[{temp},
+     temp = expr //. $TensIndRules ;
+-   temp = temp//. {ff_?((FieldQ[#] || TensQ[#]) && ValueQ[$IndList[#]] && ($IndList[#] =!= {}) &)[ind1___, ii_?(FreeQ[#,Index]&), ind2___] :> ff[ind1, Index[Identity @@ $IndList[ff][[Length[{ind1}]+1]], ii], ind2]}];     
++   temp = temp//. {ff_?((FieldQ[#] || TensQ[#]) && ValueQ[$IndList[#],Method->"Legacy"] && ($IndList[#] =!= {}) &)[ind1___, ii_?(FreeQ[#,Index]&), ind2___] :> ff[ind1, Index[Identity @@ $IndList[ff][[Length[{ind1}]+1]], ii], ind2]}];     
+ 
+ ApplyDefinitions[expr_] := Block[{temp},
+    temp = expr /. Dot -> FR$Dot /. FR$Dot -> Dot;
+diff -rupN FeynRules_pristine/Core/FRFormat.m ../contrib/FeynRules/Core/FRFormat.m
+--- FeynRules_pristine/Core/FRFormat.m	2021-03-10 18:59:29.260728353 +0100
++++ ../contrib/FeynRules/Core/FRFormat.m	2021-03-10 19:12:46.512684644 +0100
+@@ -87,7 +87,7 @@ IndexStyle[Spin2, \[Beta]];
+ 
+ (************ Renaming internal indices **********)
+ 
+-IntLor[i_, ki_] := If[ValueQ[StoreIntLor[i, ki]], StoreIntLor[i, ki],
++IntLor[i_, ki_] := If[ValueQ[StoreIntLor[i, ki],Method->"Legacy"], StoreIntLor[i, ki],
+    IntLor[i] = Block[{output, temp, counter},
+       counter = ++MR$IntLorCount;
+       temp = Which[0 < counter < 25,
+@@ -103,7 +103,7 @@ IntLor[i_, ki_] := If[ValueQ[StoreIntLor
+        StoreIntLor[i, ki] = temp;
+        output = temp]];
+ 
+-Int[i_, ki_] := If[ValueQ[StoreInt[i, ki]], StoreInt[i, ki],
++Int[i_, ki_] := If[ValueQ[StoreInt[i, ki],Method->"Legacy"], StoreInt[i, ki],
+    Int[i] = Block[{output, temp, counter},
+       counter = ++MR$IntCount;
+       temp = Which[0 < counter < 27,
+diff -rupN FeynRules_pristine/Core/OptimizedFlavExp.m ../contrib/FeynRules/Core/OptimizedFlavExp.m
+--- FeynRules_pristine/Core/OptimizedFlavExp.m	2021-03-10 18:59:29.260728353 +0100
++++ ../contrib/FeynRules/Core/OptimizedFlavExp.m	2021-03-10 19:12:11.376466363 +0100
+@@ -75,7 +75,7 @@ PRIVATE`FlavoredQ[CC[field_]] := PRIVATE
+ (*This variable is initialized to an empty List*)
+ 
+ 
+-If[Not[ValueQ[FR$FlavorExpLookUp]],
++If[Not[ValueQ[FR$FlavorExpLookUp,Method->"Legacy"]],
+    FR$FlavorExpLookUp = {}
+ ];
+ 
+@@ -844,7 +844,7 @@ CreateISUMAbbr[abbrlist_, OptionsPattern
+     ];
+     FR$AbbIndexSumExpanded = FR$AbbIndexSumExpanded //. ParamRules //. FR$AbbIndexSumParamRules;
+ 
+-    If[ValueQ[Abbreviations[]],
++    If[ValueQ[Abbreviations[],Method->"Legacy"],
+        Abbreviations[] = Union[Join[Abbreviations[], Rule[#1,#2]& @@@ (Take[#, 2]& /@ FR$AbbIndexSumExpanded)]],
+        Abbreviations[] = Rule[#1,#2]& @@@ (Take[#, 2]& /@ FR$AbbIndexSumExpanded);
+       ];
+diff -rupN FeynRules_pristine/Core/OutputRoutines.m ../contrib/FeynRules/Core/OutputRoutines.m
+--- FeynRules_pristine/Core/OutputRoutines.m	2021-03-10 18:59:29.260728353 +0100
++++ ../contrib/FeynRules/Core/OutputRoutines.m	2021-03-10 19:11:53.460359147 +0100
+@@ -134,16 +134,16 @@ FRMakeTeXOut[outfile_, vl_] := Block[{te
+       WriteString[outfile, "\\subsection{Model information}\n"];
+       WriteString[outfile, "\n"];
+       WriteString[outfile, "Author(s) of the model file: \\\\\n"];
+-      If[(MR$Authors === {MR$Null}) || Not[ValueQ[MR$Authors]], WriteString[outfile, "\\indent N / A\\\\\n"],
++      If[(MR$Authors === {MR$Null}) || Not[ValueQ[MR$Authors,Method->"Legacy"]], WriteString[outfile, "\\indent N / A\\\\\n"],
+          Do[ WriteString[outfile, "\\indent ", MR$Authors[[kk]], "\\\\\n"], {kk,Length[MR$Authors]}]];
+-      If[(MR$Institutions =!= {MR$Null}) && ValueQ[MR$Institutions], 
++      If[(MR$Institutions =!= {MR$Null}) && ValueQ[MR$Institutions,Method->"Legacy"], 
+          WriteString[outfile, "Institution(s):\\\\\n"];
+          Do[ WriteString[outfile, "\\indent ", MR$Institutions[[kk]], "\\\\\n"], {kk,Length[MR$Institutions]}]];
+-      If[(MR$Emails =!= {MR$Null}) && ValueQ[MR$Emails],
++      If[(MR$Emails =!= {MR$Null}) && ValueQ[MR$Emails,Method->"Legacy"],
+          WriteString[outfile, "Emails:\\\\\n"];
+          Do[ WriteString[outfile, "\\indent ", MR$Emails[[kk]], "\\\\\n"], {kk,Length[MR$Emails]}]];
+-      If[(MR$Date =!= {MR$Null}) && ValueQ[MR$Date],WriteString[outfile, "Date: ", MR$Date, "\\\\\n"]];
+-      If[(MR$References =!= {MR$Null}) && ValueQ[MR$References],
++      If[(MR$Date =!= {MR$Null}) && ValueQ[MR$Date,Method->"Legacy"],WriteString[outfile, "Date: ", MR$Date, "\\\\\n"]];
++      If[(MR$References =!= {MR$Null}) && ValueQ[MR$References,Method->"Legacy"],
+          WriteString[outfile, "References used to build the model file:\\\\\n"];
+          Do[ WriteString[outfile, "\\indent ", MR$References[[kk]], "\\\\\n"], {kk,Length[MR$References]}]];
+       WriteString[outfile, "\n"];
+@@ -258,16 +258,16 @@ WriteTeXOutputList[lagpieces_List, optio
+       WriteString[outfile, "\\subsection{Model information}\n"];
+       WriteString[outfile, "\n"];
+       WriteString[outfile, "Author(s) of the model file: \\\\\n"];
+-      If[(MR$Authors === {MR$Null}) || Not[ValueQ[MR$Authors]], WriteString[outfile, "\\indent N / A\\\\\n"],
++      If[(MR$Authors === {MR$Null}) || Not[ValueQ[MR$Authors,Method->"Legacy"]], WriteString[outfile, "\\indent N / A\\\\\n"],
+          Do[ WriteString[outfile, "\\indent ", MR$Authors[[kk]], "\\\\\n"], {kk,Length[MR$Authors]}]];
+-      If[(MR$Institutions =!= {MR$Null}) && ValueQ[MR$Institutions], 
++      If[(MR$Institutions =!= {MR$Null}) && ValueQ[MR$Institutions,Method->"Legacy"], 
+          WriteString[outfile, "Institution(s):\\\\\n"];
+          Do[ WriteString[outfile, "\\indent ", MR$Institutions[[kk]], "\\\\\n"], {kk,Length[MR$Institutions]}]];
+-      If[(MR$Emails =!= {MR$Null}) && ValueQ[MR$Emails],
++      If[(MR$Emails =!= {MR$Null}) && ValueQ[MR$Emails,Method->"Legacy"],
+          WriteString[outfile, "Emails:\\\\\n"];
+          Do[ WriteString[outfile, "\\indent ", MR$Emails[[kk]], "\\\\\n"], {kk,Length[MR$Emails]}]];
+-      If[(MR$Date =!= {MR$Null}) && ValueQ[MR$Date],WriteString[outfile, "Date: ", MR$Date, "\\\\\n"]];
+-      If[(MR$References =!= {MR$Null}) && ValueQ[MR$References],
++      If[(MR$Date =!= {MR$Null}) && ValueQ[MR$Date,Method->"Legacy"],WriteString[outfile, "Date: ", MR$Date, "\\\\\n"]];
++      If[(MR$References =!= {MR$Null}) && ValueQ[MR$References,Method->"Legacy"],
+          WriteString[outfile, "References used to build the model file:\\\\\n"];
+          Do[ WriteString[outfile, "\\indent ", MR$References[[kk]], "\\\\\n"], {kk,Length[MR$References]}]];
+       WriteString[outfile, "\n"];
+@@ -324,7 +324,7 @@ WriteTeXOutputList[lagpieces_List, optio
+       laglists = Flatten[{laglists}];
+       If[laglists =!= {False},
+          (* Check if all lagrnagians have a value *)
+-         Do[If[Not[ValueQ[laglists[[kk]]]], Print["Lagrangian at position ", ToString[kk], " has no value and will be ignored."], 
++         Do[If[Not[ValueQ[laglists[[kk]],Method->"Legacy"]], Print["Lagrangian at position ", ToString[kk], " has no value and will be ignored."], 
+                templaglists = Append[templaglists, laglists[[kk]]]], 
+             {kk, Length[laglists]}];
+          laglists = templaglists;
+diff -rupN FeynRules_pristine/Core/VertexRoutine.m ../contrib/FeynRules/Core/VertexRoutine.m
+--- FeynRules_pristine/Core/VertexRoutine.m	2021-03-10 18:59:29.260728353 +0100
++++ ../contrib/FeynRules/Core/VertexRoutine.m	2021-03-10 19:12:21.632529001 +0100
+@@ -53,7 +53,7 @@ FeynmanRules[{lags__}, OptionsPattern[]]
+   If[FRname=!=MR$Null,
+     If[Not[StringQ[FRname]], FRname=ToString[FRname]];
+     FR$Lagrangian[FRname] = lag;
+-    $lagrangianListtemp = If[ValueQ[$lagrangianListtemp], Append[$lagrangianListtemp, FRname], {FRname}]
++    $lagrangianListtemp = If[ValueQ[$lagrangianListtemp,Method->"Legacy"], Append[$lagrangianListtemp, FRname], {FRname}]
+   ];
+   If[FRname=!=MR$Null, Print[Style["Starting Feynman rules calculation for "  <> FRname <> ".",Orange,Bold]], Print[Style["Starting Feynman rule calculation.",Orange,Bold]]];
+ 
+diff -rupN FeynRules_pristine/FeynRules.m ../contrib/FeynRules/FeynRules.m
+--- FeynRules_pristine/FeynRules.m	2021-03-10 18:59:29.252728230 +0100
++++ ../contrib/FeynRules/FeynRules.m	2021-03-10 19:15:01.797612963 +0100
+@@ -24,7 +24,7 @@ If[FR$Loaded =!= True,
+ 	(*Parallelize - NC*)
+ 	If[FR$Parallel===False,FR$Parallelize=False,FR$Parallelize=True];
+ 	If[FR$Parallelize,
+-        If[ValueQ[FR$KernelNumber],
++        If[ValueQ[FR$KernelNumber,Method->"Legacy"],
+            LaunchKernels[FR$KernelNumber],
+            LaunchKernels[];
+            FR$KernelNumber = $KernelCount
+diff -rupN FeynRules_pristine/FeynRulesPackage.m ../contrib/FeynRules/FeynRulesPackage.m
+--- FeynRules_pristine/FeynRulesPackage.m	2021-03-10 18:59:29.252728230 +0100
++++ ../contrib/FeynRules/FeynRulesPackage.m	2021-03-10 19:14:55.837569425 +0100
+@@ -1650,7 +1650,7 @@ $ConservedQN = True;
+ 
+ FR$MaxSimplify = 30;
+ 
+-If[Not[ValueQ[MR$ModelLoaded]], MR$ModelLoaded = False];
++If[Not[ValueQ[MR$ModelLoaded,Method->"Legacy"]], MR$ModelLoaded = False];
+ 
+ $Path = Append[$Path, Global`$FeynRulesPath <> "/Models"];
+ 
+diff -rupN FeynRules_pristine/Interfaces/FeynArtsInterface.m ../contrib/FeynRules/Interfaces/FeynArtsInterface.m
+--- FeynRules_pristine/Interfaces/FeynArtsInterface.m	2021-03-10 18:59:29.252728230 +0100
++++ ../contrib/FeynRules/Interfaces/FeynArtsInterface.m	2021-03-10 19:14:24.165341898 +0100
+@@ -23,11 +23,11 @@ FA$FAOptions = {SelfConjugate, Indices,
+ 
+ Name2Field[xx_]:=If[FreeQ[MR$ClassesDescription,ClassName->xx],xx/.FA$MemberToClass,Cases[MR$ClassesDescription,_?(Not[FreeQ[#,ClassName->xx]]&)][[1,1]]];
+ 
+-If[Not[ValueQ[FA$ClassesList]], FA$ClassesList = {}, FA$ClassesList];
++If[Not[ValueQ[FA$ClassesList,Method->"Legacy"]], FA$ClassesList = {}, FA$ClassesList];
+ 
+-If[Not[ValueQ[FA$ClassToName]], FA$ClassToName = {}, FA$ClassToName];
++If[Not[ValueQ[FA$ClassToName,Method->"Legacy"]], FA$ClassToName = {}, FA$ClassToName];
+ 
+-If[Not[ValueQ[FA$MemberToClass]], FA$MemberToClass = {}, FA$MemberToClass];
++If[Not[ValueQ[FA$MemberToClass,Method->"Legacy"]], FA$MemberToClass = {}, FA$MemberToClass];
+ 
+ MergeFAClassToBlank[class_, bl_] := ToExpression[StringJoin[StringDrop[ToString[class, InputForm], -1], ", ", ToString[bl, InputForm], " ]"]];
+ 
+diff -rupN FeynRules_pristine/Interfaces/UFO/PYIntMain.m ../contrib/FeynRules/Interfaces/UFO/PYIntMain.m
+--- FeynRules_pristine/Interfaces/UFO/PYIntMain.m	2021-03-10 18:59:29.256728291 +0100
++++ ../contrib/FeynRules/Interfaces/UFO/PYIntMain.m	2021-03-10 19:13:47.149084536 +0100
+@@ -380,7 +380,7 @@ WriteUFO[lagrangians___, OptionsPattern[
+ 
+    (* Add the manually input vertices *)
+    If[OptionValue[Input] =!= {},
+-      If[Not[ValueQ[vertices]], vertices = {}];
++      If[Not[ValueQ[vertices,Method->"Legacy"]], vertices = {}];
+       AppendTo[GenInt$LogFile, "   * Appending manually appended vertices."];
+       vertices = Join[vertices, OptionValue[Input]];
+      ];
+@@ -600,7 +600,7 @@ If[$Debug,
+    Print["    - Writing files."];
+ 
+  (*   (* Create restrictions.py *)
+-   If[ValueQ[NLOCT$assumptions] && (NLOCT$assumptions =!= {}),
++   If[ValueQ[NLOCT$assumptions,Method->"Legacy"] && (NLOCT$assumptions =!= {}),
+       WritePYAssumptions[NLOCT$assumptions]
+       ];
+ 
+diff -rupN FeynRules_pristine/Interfaces/UFO/PYIntVertices.m ../contrib/FeynRules/Interfaces/UFO/PYIntVertices.m
+--- FeynRules_pristine/Interfaces/UFO/PYIntVertices.m	2021-03-10 18:59:29.256728291 +0100
++++ ../contrib/FeynRules/Interfaces/UFO/PYIntVertices.m	2021-03-10 19:14:05.029207660 +0100
+@@ -727,7 +727,7 @@ WritePYVertices[vertexlist_] := Block[{o
+ (*IntOrder[ x ] returns the interaction order of a parameter,  in the form QED^2. If no Interaction order was defined, then it returns 1.*)
+ 
+ 
+-IntOrder[x_] := If[(ParamIntOrder[x] =!= {}) && ValueQ[ParamIntOrder[x]],
++IntOrder[x_] := If[(ParamIntOrder[x] =!= {}) && ValueQ[ParamIntOrder[x],Method->"Legacy"],
+      Times @@ (Power @@@ ParamIntOrder[x]),
+      1
+      ];
+@@ -896,7 +896,7 @@ ConvertSpinToString[5] = "T";
+ CreateLorentzObjectName[list_List] := Block[{counter, name},
+ 
+      (* Increase the counter, if exists. If not, create it *)
+-     counter = ToString[If[ValueQ[PYLorentzStrucCounter[list]],
++     counter = ToString[If[ValueQ[PYLorentzStrucCounter[list],Method->"Legacy"],
+                   ++PYLorentzStrucCounter[list],
+                   PYLorentzStrucCounter[list] = 1
+                   ]];
+diff -rupN FeynRules_pristine/Interfaces/UFO/PYRestrictions.m ../contrib/FeynRules/Interfaces/UFO/PYRestrictions.m
+--- FeynRules_pristine/Interfaces/UFO/PYRestrictions.m	2021-03-10 18:59:29.256728291 +0100
++++ ../contrib/FeynRules/Interfaces/UFO/PYRestrictions.m	2021-03-10 19:13:32.216983477 +0100
+@@ -7,7 +7,7 @@
+ PYLoadRestrictionFile[file_String] := Block[{M$Restrictions},
+ 
+     Get[file];
+-    If[Not[ValueQ[M$Restrictions]] || M$Restrictions === {},
++    If[Not[ValueQ[M$Restrictions,Method->"Legacy"]] || M$Restrictions === {},
+        Message[PYRest::NoRestric]; 
+        Return[{file,{}}];
+       ];

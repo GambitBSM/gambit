@@ -58,7 +58,7 @@ namespace Gambit
        void ISendToAll(); // Send this code to all processes (non-blocking)
        void Wait(); // Ensure all processes have received this message (completes the send; must follow ISendToAll at some point)
        void setComm(GMPI::Comm* const); // Set MPI communicator to use
-     private:      
+     private:
        int mpisize;
        int myrank;
        int mycode;
@@ -219,8 +219,8 @@ namespace Gambit
 
          /// Variables needed to compute sensible shutdown timeout length
          std::vector<double> looptimes;
-         unsigned int next; // next slot to be overwritten
-         bool listfull; // looptime vector is full
+         // unsigned int next; // next slot to be overwritten. (Currently not used.)
+         // bool listfull; // looptime vector is full. (Currently not used.)
          double timeout; // Computed timeout value for shutdowns
 
          /// Variables for keeping track of shutdown message buffers and whether

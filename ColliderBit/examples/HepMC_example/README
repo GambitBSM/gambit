@@ -1,0 +1,19 @@
+Example for creating HepMC files from Pythia
+-------------------------------------------
+
+by Tomas Gonzalo (tomas.gonzalo@monash.edu)
+
+SLHA file corresponds to the best fit point of EWMSSM (arXiv:1809.02097)
+
+INSTRUCTIONS
+------------
+
+- This requires a built version of HepMC
+- To compile this example copy the files to the examples dir on your Pythia installation
+- Add "mainEWinos_bino_winos_higgsinos" to the Makefile targets requiring HepMC2
+- Compile it
+    make mainEWinos_bino_winos_higgsinos
+- Before running the binary make sure to add the path to the HepMC shared library
+- Run the binary
+    ./mainEwinos_bino_winos_higgsinos
+- The generated HepMC file is (by default) called hepmcEWinos_bino_winos_higgsinos.dat

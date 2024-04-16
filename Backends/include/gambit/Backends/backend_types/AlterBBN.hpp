@@ -17,6 +17,10 @@
 ///          (pat.scott@uq.edu.au)
 ///  \date 2020 Apr
 ///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2022 Jan
+///
 ///  *********************************************
 
 #ifndef __AlterBBN_types_hpp__
@@ -62,7 +66,8 @@ namespace Gambit
       void set_abund_map(map_str_int map_in) {abund_map = map_in;}
 
       /// Setter functions for abundance vector
-      void set_BBN_abund(int pos, double val) {BBN_abund[pos] = val;}
+      void set_BBN_abund(int pos, double val) {BBN_abund[pos].central = val;}
+      void set_BBN_abund(int pos, triplet<double> val) {BBN_abund[pos] = val;}
 
       /// Setter function for covariance matrix
       void set_BBN_covmat(int row, int col, double val) {BBN_covmat[row][col] = val;}
@@ -74,10 +79,14 @@ namespace Gambit
       const std::map<std::string,int>& get_abund_map() const {return abund_map;};
 
       /// Getter for abundance
-      double get_BBN_abund(int pos) const {return BBN_abund[pos];}
+      double get_BBN_abund(int pos) const {return BBN_abund[pos].central;}
+      double get_BBN_abund_upper(int pos) const {return BBN_abund[pos].upper;}
+      double get_BBN_abund_lower(int pos) const {return BBN_abund[pos].lower;}
 
       /// Getter for abundance
-      double get_BBN_abund(str iso) const {return BBN_abund[abund_map.at(iso)];}
+      double get_BBN_abund(str iso) const {return BBN_abund[abund_map.at(iso)].central;}
+      double get_BBN_abund_upper(str iso) const {return BBN_abund[abund_map.at(iso)].upper;}
+      double get_BBN_abund_lower(str iso) const {return BBN_abund[abund_map.at(iso)].lower;}
 
       /// Getter for covariance matrix
       double get_BBN_covmat(int row, int col) const {return BBN_covmat[row][col];}
@@ -103,14 +112,28 @@ namespace Gambit
       /// Getter for indices of active isotopes in BBN_abundance vector
       const std::set<int>& get_active_isotope_indices() const {return active_isotope_indices;}
 
+      /// Check whether there is any non-zero upper or lower abundance
+      bool has_BBN_abund_upper() const {return std::any_of(BBN_abund.begin(), BBN_abund.end(), [](triplet<double> i){return i.upper > 0;});}
+      bool has_BBN_abund_lower() const {return std::any_of(BBN_abund.begin(), BBN_abund.end(), [](triplet<double> i){return i.lower > 0;});}
+
     private:
       size_t NNUC;
-      std::vector<double> BBN_abund;
+      std::vector<triplet<double>> BBN_abund;
       std::vector<std::vector<double>> BBN_covmat;
       std::map<str,int> abund_map;
       std::set<str> active_isotopes;
       std::set<int> active_isotope_indices;
   };
+
+  inline std::ostream& operator << (std::ostream& os, const BBN_container& bbn)
+  {
+    std::set<str> isotopes = bbn.get_active_isotopes();
+    for(auto it=isotopes.begin(); it!=isotopes.end(); it++)
+    {
+      os << *it << ": " << bbn.get_BBN_abund(*it) << "   ";
+    }
+    return os;
+  }
 
   // Version dependent declarations of 'relicparam' and 'errorparam' start here
   namespace AlterBBN_2_2

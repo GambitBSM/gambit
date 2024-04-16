@@ -28,6 +28,12 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/lexical_cast.hpp>
 
+// Added in GAMBIT to suppress warning from clang
+#if defined(__clang__) && !defined(__ICC)
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 namespace SLHAea {
 
 // auxiliary functions
@@ -1519,7 +1525,7 @@ public:
   { std::for_each(begin(), end(), std::mem_fn(&value_type::uncomment)); }
 
   /** Unary predicate that checks if a provided key matches a Line. */
-  struct key_matches : public std::unary_function<value_type, bool>
+  struct key_matches
   {
     explicit
     key_matches(const key_type& key) : key_(key) {}
@@ -2345,7 +2351,7 @@ public:
    * Unary predicate that checks if a provided name matches the name
    * of a Block.
    */
-  struct key_matches : public std::unary_function<value_type, bool>
+  struct key_matches
   {
     explicit
     key_matches(const key_type& blockName) : name_(blockName) {}
@@ -2366,7 +2372,7 @@ public:
    * Unary predicate that checks if a provided key matches the block
    * definition of a Block.
    */
-  struct key_matches_block_def : public std::unary_function<value_type, bool>
+  struct key_matches_block_def
   {
     explicit
     key_matches_block_def(const value_type::key_type& key)
@@ -2658,5 +2664,9 @@ operator>=(const Coll& a, const Coll& b)
 { return !(a < b); }
 
 } // namespace SLHAea
+
+#if defined(__clang__) && !defined(__ICC)
+  #pragma clang diagnostic pop
+#endif
 
 #endif // SLHAEA_H

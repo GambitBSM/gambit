@@ -15,10 +15,15 @@
 ///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2017 Jun
+///  \date 2021 Sep
 ///
 ///  \author Markus Prim
 ///          (markus.prim@kit.edu)
 ///  \date 2020 Jun, Dec
+///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2023 May
 ///
 ///  *********************************************
 
@@ -65,7 +70,7 @@ namespace Gambit
         outprec(8)
         /* command line flags */
         ,
-        processed_options(false), show_runorder(false), resume(true), verbose_flag(false), found_inifile(false)
+        processed_options(false), show_runorder(false), show_backends(false), resume(true), verbose_flag(false), found_inifile(false)
   {
   }
 
@@ -91,10 +96,13 @@ namespace Gambit
               "\n   capabilities          List all registered function capabilities         "
               "\n   scanners              List registered scanners                          "
               "\n   test-functions        List registered scanner test objective functions  "
-              "\n   <name>                Give info on a specific module, backend, model,   "
-              "\n                           capability or scanner                           "
+              "\n   <name>                Give info on a specific module, module function,  "
+              "\n                           backend, backend function, model, capability,   "
+              "\n                           scanner or scanner test objective function      "
               "\n                           e.g.: gambit DarkBit                            "
+              "\n                                 gambit GA_SimYieldTable_DarkSUSY          "
               "\n                                 gambit Pythia                             "
+              "\n                                 gambit get_abund_map_AlterBBN             "
               "\n                                 gambit MSSM                               "
               "\n                                 gambit IC79WL_loglike                     "
               "\n                                 gambit MultiNest                          "
@@ -106,6 +114,8 @@ namespace Gambit
               "\n   -v/--verbose          Turn on verbose mode                              "
               "\n   -d/--dryrun           List the function evaluation order computed based "
               "\n                           on inifile                                      "
+              "\n   -b/--backends         List the backends required to fulfil dependencies "
+              "\n                           based on inifile                                "
               "\n   -r/--restart          Restart the scan defined by <inifile>. Existing   "
               "\n                         output files for the run will be overwritten.     "
               "\n                         Default behaviour in the absence of this option is"
@@ -134,7 +144,8 @@ namespace Gambit
     const struct option primary_options[] = {
         {"version", no_argument, 0, 1}, /*1 is just a unique integer key to identify this argument*/
         {"verbose", no_argument, 0, 'v'}, {"help", no_argument, 0, 'h'},
-        {"dryrun", no_argument, 0, 'd'},  {"restart", no_argument, 0, 'r'}, {0, 0, 0, 0},
+        {"dryrun", no_argument, 0, 'd'},  {"backends", no_argument, 0, 'b'},
+        {"restart", no_argument, 0, 'r'}, {0, 0, 0, 0},
     };
 
     // Must at least have one argument.
@@ -142,7 +153,7 @@ namespace Gambit
 
     while (iarg != -1)
     {
-      iarg = getopt_long(argc, argv, "vhdrf:", primary_options, &index);
+      iarg = getopt_long(argc, argv, "vhdbrf:", primary_options, &index);
       switch (iarg)
       {
       case 1:
@@ -172,6 +183,10 @@ namespace Gambit
           throw SilentShutdownException();
         }
         break;
+      case 'b':
+        // Show the list of backends that need to be built and then quit
+        show_backends = true;
+        break;
       case 'r':
         // Restart scan (turn off "resume" mode, activate output overwrite)
         resume = false;
@@ -193,7 +208,14 @@ namespace Gambit
   }
 
   /// Add a new module to modules list
-  void gambit_core::registerModule(str module) { modules.insert(module); }
+  void gambit_core::registerModule(str module, str ref)
+  {
+    modules.insert(module);
+    if(ref == "REFERENCE")
+      module_citation_keys[module] = "";
+    else
+      module_citation_keys[module] = ref;
+  }
 
   /// Add a new module functor to functorList
   void gambit_core::registerModuleFunctor(functor &f)
@@ -213,7 +235,14 @@ namespace Gambit
   }
 
   /// Register a new backend
-  void gambit_core::registerBackend(str be, str version) { backend_versions[be].insert(version); }
+  void gambit_core::registerBackend(str be, str version, str ref)
+  {
+     backend_versions[be].insert(version);
+     if(ref == "REFERENCE")
+       backend_citation_keys[sspair(be,version)] = "";
+     else
+       backend_citation_keys[sspair(be,version)] = ref;
+  }
 
   /// Add a new primary model functor to primaryModelFunctorList
   void gambit_core::registerPrimaryModelFunctor(primary_model_functor &f)
@@ -242,6 +271,12 @@ namespace Gambit
 
   /// Get a reference to the map of all user-activated primary model functors
   const gambit_core::pmfMap &gambit_core::getActiveModelFunctors() const { return activeModelFunctorList; }
+
+  /// Get a reference to the map of module citaton keys
+  const std::map<str,str> &gambit_core::getModuleCitationKeys() const {  return module_citation_keys; }
+
+  /// Get a reference to the map of backend citation keys
+  const std::map<sspair, str> &gambit_core::getBackendCitationKeys() const { return backend_citation_keys; }
 
   /// Tell the module functors which backends are actually present,
   /// so that they can deactivate themselves if they require a class
@@ -445,13 +480,17 @@ namespace Gambit
 
     if (missing_flag)
     {
+      int mpirank = GET_RANK;
       // Warn user of missing descriptions
-      cout << "Descriptions are missing for the following models:" << endl;
-      for (const auto &model : model_dbase)
+      if(mpirank == 0)
       {
-        if (not model.has_description) { cout << "   " << model.name << endl; }
+        cout << "Descriptions are missing for the following models:" << endl;
+        for (const auto &model : model_dbase)
+        {
+          if (not model.has_description) { cout << "   " << model.name << endl; }
+        }
+        cout << "Please add descriptions of these to " << input_model_descriptions << endl;
       }
-      cout << "Please add descriptions of these to " << input_model_descriptions << endl;
     }
 
     // Write out the centralised database file containing all this information
@@ -533,6 +572,7 @@ namespace Gambit
     const str bad = "absent/broken";
     const str badclass = "bad types";
     const str missingMath = "Mathematica absent";
+    const str missingPybind = "PyBind11 absent";
     str status;
     if (backendData->works.at(be + version))
     {
@@ -550,11 +590,17 @@ namespace Gambit
       status = missingMath;
 #endif
     }
+#ifdef HAVE_PYBIND11
     else if (backendData->missingPythonVersion.at(be + version) > 0)
     {
       std::ostringstream status_stream;
       status_stream << "needs Python " << backendData->missingPythonVersion.at(be + version);
       status = status_stream.str();
+#else
+    else if (backendData->needsPython.at(be + version))
+    {
+      status = missingPybind;
+#endif
     }
     else
     {
@@ -601,8 +647,10 @@ namespace Gambit
 
       // Add other valid diagnostic commands
       valid_commands.insert(valid_commands.end(), modules.begin(), modules.end());
+      for (const auto &moduleFunctor : functorList) valid_commands.push_back(moduleFunctor->name());
       valid_commands.insert(valid_commands.end(), capabilities.begin(), capabilities.end());
       for (const auto &backend_version : backend_versions) valid_commands.push_back(backend_version.first);
+      for (const auto &backendFunctor : backendFunctorList) valid_commands.push_back(backendFunctor->name());
       for (const auto &primaryModelFunctor : primaryModelFunctorList) valid_commands.push_back(primaryModelFunctor->origin());
       const std::vector<std::string> scanner_names = Scanner::Plugins::plugin_info().print_plugin_names("scanner");
       const std::vector<std::string> objective_names = Scanner::Plugins::plugin_info().print_plugin_names("objective");
@@ -611,13 +659,18 @@ namespace Gambit
       valid_commands.insert(valid_commands.end(), objective_names.begin(), objective_names.end());
       valid_commands.insert(valid_commands.end(), prior_groups.begin(), prior_groups.end());
 
+      // Remove duplicates
+      std::sort( valid_commands.begin(), valid_commands.end() );
+      valid_commands.erase( std::unique( valid_commands.begin(), valid_commands.end() ), valid_commands.end() );
+
       // If the user hasn't asked for a diagnostic at all, process the command line options for the standard run mode and get out.
       if (std::find(valid_commands.begin(), valid_commands.end(), command) == valid_commands.end())
       {
         if (not processed_options)
         {
           filename = process_primary_options(argc, argv);
-          check_capability_descriptions();
+          int mpirank = GET_RANK;
+          if(mpirank == 0) check_capability_descriptions();
           // Check if we indeed received a valid filename (needs the -f option)
           if (found_inifile) return filename;
           // Ok then, report an unrecognised command and bail
@@ -666,19 +719,14 @@ namespace Gambit
     if (mpirank == 0)
     {
       if (command == "modules") module_diagnostic();
-      if (command == "backends") backend_diagnostic();
-      if (command == "models") model_diagnostic();
-      if (command == "capabilities") capability_diagnostic();
-      if (command == "scanners") scanner_diagnostic();
-      if (command == "test-functions") test_function_diagnostic();
-      if (command == "priors") prior_diagnostic();
-      ff_module_diagnostic(command);
-      ff_backend_diagnostic(command);
-      ff_model_diagnostic(command);
-      ff_capability_diagnostic(command);
-      ff_scanner_diagnostic(command);
-      ff_test_function_diagnostic(command);
-      ff_prior_diagnostic(command);
+      else if (command == "backends") backend_diagnostic();
+      else if (command == "models") model_diagnostic();
+      else if (command == "capabilities") capability_diagnostic();
+      else if (command == "scanners") scanner_diagnostic();
+      else if (command == "test-functions") test_function_diagnostic();
+      else if (command == "priors") prior_diagnostic();
+      else free_form_diagnostic(command);
+
       cout << endl;
     }
 

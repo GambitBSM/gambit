@@ -1,6 +1,6 @@
 
 # Arguments:
-#   1. BOSS directory
+#   1. castxml directory
 #   2. cmake command
 #   3. cmake download flags (e.g. WITH_AXEL)
 #   4. primary URL
@@ -12,9 +12,9 @@
 
 
 
-if ! [ -d $1/castxml ] ; then
+if ! [ -d $1 ] ; then
 
-  echo "Did not find the castxml directory in ${1}/castxml. Will try to download castxml now."
+  echo "Did not find the castxml directory in ${1}. Will try to download castxml now."
 
   # Download
   axel_worked=0
@@ -45,6 +45,8 @@ if ! [ -d $1/castxml ] ; then
   $2 -E echo "Extracting $1/$5"
   cd $1
   $2 -E tar -xf $1/$5
+  $2 -E copy_directory $1/castxml/ $1/
+  $2 -E remove_directory $1/castxml
 
 fi
 

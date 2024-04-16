@@ -1,12 +1,12 @@
 #ifndef __abstract_Parm_Pythia_8_212_h__
 #define __abstract_Parm_Pythia_8_212_h__
 
+#include <cstddef>
+#include <iostream>
+#include <string>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
-#include <string>
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 
@@ -20,7 +20,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         {
             public:
     
-                virtual std::basic_string<char, std::char_traits<char>, std::allocator<char> >& name_ref__BOSS() =0;
+                virtual std::string& name_ref__BOSS() =0;
     
                 virtual double& valNow_ref__BOSS() =0;
     

@@ -23,9 +23,10 @@
 namespace Gambit 
 { 
    /// Add a parameter to the Contents object
-   void SubSpectrumContents::addParameter(const Par::Tags tag, const std::string& name, const std::vector<int>& shape)
+   void SubSpectrumContents::addParameter(const Par::Tags tag, const std::string& name, const std::vector<int>& shape,
+                                          const std::string& blockname, const int blockindex)
    {
-     parameters.emplace_back(tag,name,shape);
+     parameters.emplace_back(tag,name,shape,blockname,blockindex);
    }
 
    /// Set the name of this Contents object (i.e. the name of the model to which this spectrum data applies) 
@@ -60,6 +61,20 @@ namespace Gambit
        if(it->tag() == tag and it->shape() == shape) search_result.push_back(*it);        
      }
      return search_result; 
+   }
+
+   /// Function to retrieve all parameters whose blockname is not SMINPUTS, YUKAWA, CKMBLOCK, or empty.
+   std::vector<SpectrumParameter> SubSpectrumContents::all_BSM_parameters() const
+   {
+    std::vector<SpectrumParameter> search_result;
+    for ( std::vector<SpectrumParameter>::const_iterator it=parameters.begin(); it!=parameters.end(); ++it)
+    {
+      if(it->blockname() != "SMINPUTS" || it->blockname() != "YUKAWA" || it->blockname() != "CKMBLOCK" || it->blockname() != "")
+      {
+        search_result.push_back(*it);
+      }
+    }
+    return search_result;
    }
 
 

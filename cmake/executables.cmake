@@ -18,6 +18,15 @@
 #          (p.scott@imperial.ac.uk)
 #  \date 2014 Nov, Dec
 #
+#  \author Tomas Gonzalo
+#          (gonzalo@physik.rwth-aachen.de)
+#  \date 2019 Oct
+#  \date 2021 Mar
+#
+#  \author Christopher Chang
+#          (christopher.chang@uqconnect.edu.au)
+#  \date 2021 Feb
+#
 #************************************************
 
 # Add the module standalones
@@ -38,6 +47,9 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/Core/")
   if (NOT EXCLUDE_HEPMC)
     set(gambit_XTRA ${gambit_XTRA} ${HEPMC_LDFLAGS})
   endif()
+  if (NOT EXCLUDE_YODA)
+    set(gambit_XTRA ${gambit_XTRA} ${YODA_LDFLAGS})
+  endif()
   add_gambit_executable(${PROJECT_NAME} "${gambit_XTRA}"
                         SOURCES ${PROJECT_SOURCE_DIR}/Core/src/gambit.cpp
                                 ${GAMBIT_ALL_COMMON_OBJECTS}
@@ -46,6 +58,7 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/Core/")
                                 $<TARGET_OBJECTS:Printers>
   )
   set_target_properties(gambit PROPERTIES EXCLUDE_FROM_ALL 0)
+
   # EXPERIMENTAL: Linking against Electric Fence for heap corruption debugging
   #target_link_libraries(gambit PUBLIC efence) # just segfaults. Be good if it could be made to work though.
   # If Mathematica is present and the system is OS X, absolutize paths to avoid dylib errors

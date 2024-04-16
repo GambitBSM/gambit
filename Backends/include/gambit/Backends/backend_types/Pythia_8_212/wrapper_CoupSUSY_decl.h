@@ -2,6 +2,7 @@
 #define __wrapper_CoupSUSY_decl_Pythia_8_212_h__
 
 #include <cstddef>
+#include <complex>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_CoupSUSY.h"
@@ -9,7 +10,6 @@
 #include "wrapper_SusyLesHouches_decl.h"
 #include "wrapper_Info_decl.h"
 #include "wrapper_Settings_decl.h"
-#include <complex>
 
 #include "identification.hpp"
 
@@ -24,7 +24,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_CoupSUSY* (*__factory0)();
+                static Abstract_CoupSUSY* (*__factory0)();
         
                 // -- Other member variables: 
             public:
@@ -138,7 +138,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 CoupSUSY();
         
                 // Special pointer-based constructor: 
-                CoupSUSY(Pythia8::Abstract_CoupSUSY* in);
+                CoupSUSY(Abstract_CoupSUSY* in);
         
                 // Copy constructor: 
                 CoupSUSY(const CoupSUSY& in);
@@ -150,7 +150,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~CoupSUSY();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_CoupSUSY* get_BEptr() const;
+                Abstract_CoupSUSY* get_BEptr() const;
         
         };
     }

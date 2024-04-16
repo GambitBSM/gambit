@@ -17,6 +17,7 @@
 
 #include "gambit/Core/gambit.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
+#include "gambit/Utils/file_lock.hpp"
 
 
 using namespace Gambit;
@@ -136,7 +137,7 @@ int main(int argc, char* argv[])
       logger() << "Running in MPI-parallel mode with "<<size<<" processes" << endl;
       #else
       logger() << "WARNING! Running in SERIAL (no MPI) mode!" << endl;
-      #endif 
+      #endif
       logger() << "Running with "<< n_omp_threads << " OpenMP threads per MPI process (set by the environment variable OMP_NUM_THREADS)." << EOM;
       if( Core().resume ) logger() << core << "Attempting to resume scan..." << EOM;
       logger() << core << "Registered module functors [Core().getModuleFunctors().size()]: ";
@@ -171,6 +172,9 @@ int main(int argc, char* argv[])
       // Set up the printer manager for redirection of scan output.
       Printers::PrinterManager printerManager(iniFile.getPrinterNode(),Core().resume);
 
+      // Assign printer manager to a global variable from which it can be retrieved in module functions that need it
+      set_global_printer_manager(&printerManager);
+
       // Set up dependency resolver
       DRes::DependencyResolver dependencyResolver(Core(), Models::ModelDB(), iniFile, Utils::typeEquivalencies(), *(printerManager.printerptr));
 
@@ -182,14 +186,20 @@ int main(int argc, char* argv[])
       dependencyResolver.doResolution();
       if (rank == 0) cout << "...done!" << endl;
 
+      // Print the citation keys required for the used backends
+      if (rank == 0) dependencyResolver.printCitationKeys();
+
       // Check that all requested models are used for at least one computation
       Models::ModelDB().checkPrimaryModelFunctorUsage(Core().getActiveModelFunctors());
+
+      // Check for unused rules and options on the ini file, and print them to screen
+      dependencyResolver.checkForUnusedRules();
 
       // Report the proposed (output) functor evaluation order
       dependencyResolver.printFunctorEvalOrder(Core().show_runorder);
 
-      // If true, bail out (just wanted the run order, not a scan); otherwise, keep going.
-      if (not Core().show_runorder)
+      // If true, bail out (just wanted the run order or backend list, not a scan); otherwise, keep going.
+      if (not Core().show_runorder and not Core().show_backends)
       {
         //Define the likelihood container object for the scanner
         Likelihood_Container_Factory factory(Core(), dependencyResolver, iniFile, *(printerManager.printerptr));
@@ -199,6 +209,10 @@ int main(int argc, char* argv[])
         scanner_node["Scanner"] = iniFile.getScannerNode();
         scanner_node["Parameters"] = iniFile.getParametersNode();
         scanner_node["Priors"] = iniFile.getPriorsNode();
+
+        // Print scan metadata from rank 0
+        if (iniFile.getValueOrDef<bool>(true, "print_metadata_info"))
+          printerManager.printerptr->print_metadata(dependencyResolver.getMetadata());
 
         //Create the master scan manager
         Scanner::Scan_Manager scan(scanner_node, &printerManager, &factory);
@@ -359,6 +373,8 @@ int main(int argc, char* argv[])
       logger()<<"MPI_Finalize has been disabled (e.g. due to an error) and will not be called."<<EOM;
   }
   #endif
+
+  Utils::ProcessLock::clean_locks();
 
   return return_value;
 

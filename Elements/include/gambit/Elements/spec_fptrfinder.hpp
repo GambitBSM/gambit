@@ -685,11 +685,11 @@ namespace Gambit {
             if(not found and not no_overrides_)
             {
                if(not found) found = find_override_1index(name,i);
-               if(not found) found = find_override_0index(PDB.long_name(name,i));
+               if(not found and PDB.has_particle(name,i)) found = find_override_0index(PDB.long_name(name,i));
                if(check_antiparticle) // Check antiparticles
                {
                   if(not found) found = find_override_1index(antiname,ai);
-                  if(not found) found = find_override_0index(PDB.long_name(antiname,ai));
+                  if(not found and PDB.has_particle(antiname,i)) found = find_override_0index(PDB.long_name(antiname,ai));
                }
                if(not found) error_code = 1;
             }
@@ -697,11 +697,11 @@ namespace Gambit {
             if(not found and not override_only_)
             {
                if(not found) found = find_1index(name,i);
-               if(not found) found = find_0index(PDB.long_name(name,i));
+               if(not found and PDB.has_particle(name,i)) found = find_0index(PDB.long_name(name,i));
                if(check_antiparticle) // Check antiparticles
                {
                   if(not found) found = find_1index(antiname,ai);
-                  if(not found) found = find_0index(PDB.long_name(antiname,ai));
+                  if(not found and PDB.has_particle(antiname,i)) found = find_0index(PDB.long_name(antiname,ai));
                }
                if(not found) error_code = 1;
             }

@@ -39,7 +39,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->flag_no_convergence_me2(arg_1, arg_2);
       }
       
-      inline void MSSMNoFV_onshell_problems::flag_tachyon(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& arg_1)
+      inline void MSSMNoFV_onshell_problems::flag_tachyon(const std::string& arg_1)
       {
          get_BEptr()->flag_tachyon(arg_1);
       }
@@ -69,34 +69,34 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          return get_BEptr()->have_warning();
       }
       
-      inline ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > MSSMNoFV_onshell_problems::get_warnings() const
+      inline ::std::string MSSMNoFV_onshell_problems::get_warnings() const
       {
          return get_BEptr()->get_warnings();
       }
       
-      inline ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > MSSMNoFV_onshell_problems::get_problems() const
+      inline ::std::string MSSMNoFV_onshell_problems::get_problems() const
       {
          return get_BEptr()->get_problems();
       }
       
-      inline void MSSMNoFV_onshell_problems::print(::std::basic_ostream<char, std::char_traits<char> >& arg_1) const
+      inline void MSSMNoFV_onshell_problems::print(std::ostream& arg_1) const
       {
          get_BEptr()->print(arg_1);
       }
       
-      inline void MSSMNoFV_onshell_problems::print_problems(::std::basic_ostream<char, std::char_traits<char> >& arg_1) const
+      inline void MSSMNoFV_onshell_problems::print_problems(std::ostream& arg_1) const
       {
          get_BEptr()->print_problems(arg_1);
       }
       
-      inline void MSSMNoFV_onshell_problems::print_warnings(::std::basic_ostream<char, std::char_traits<char> >& arg_1) const
+      inline void MSSMNoFV_onshell_problems::print_warnings(std::ostream& arg_1) const
       {
          get_BEptr()->print_warnings(arg_1);
       }
       
       
       // Wrappers for original constructors: 
-      inline gm2calc::MSSMNoFV_onshell_problems::MSSMNoFV_onshell_problems() :
+      inline MSSMNoFV_onshell_problems::MSSMNoFV_onshell_problems() :
          WrapperBase(__factory0())
       {
          get_BEptr()->set_wptr(this);
@@ -104,7 +104,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Special pointer-based constructor: 
-      inline gm2calc::MSSMNoFV_onshell_problems::MSSMNoFV_onshell_problems(gm2calc::Abstract_MSSMNoFV_onshell_problems* in) :
+      inline MSSMNoFV_onshell_problems::MSSMNoFV_onshell_problems(Abstract_MSSMNoFV_onshell_problems* in) :
          WrapperBase(in)
       {
          get_BEptr()->set_wptr(this);
@@ -112,7 +112,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Copy constructor: 
-      inline gm2calc::MSSMNoFV_onshell_problems::MSSMNoFV_onshell_problems(const MSSMNoFV_onshell_problems& in) :
+      inline MSSMNoFV_onshell_problems::MSSMNoFV_onshell_problems(const MSSMNoFV_onshell_problems& in) :
          WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
       {
          get_BEptr()->set_wptr(this);
@@ -120,7 +120,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Assignment operator: 
-      inline gm2calc::MSSMNoFV_onshell_problems& MSSMNoFV_onshell_problems::operator=(const MSSMNoFV_onshell_problems& in)
+      inline MSSMNoFV_onshell_problems& MSSMNoFV_onshell_problems::operator=(const MSSMNoFV_onshell_problems& in)
       {
          if (this != &in)
          {
@@ -131,7 +131,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
       
       // Destructor: 
-      inline gm2calc::MSSMNoFV_onshell_problems::~MSSMNoFV_onshell_problems()
+      inline MSSMNoFV_onshell_problems::~MSSMNoFV_onshell_problems()
       {
          if (get_BEptr() != 0)
          {
@@ -146,9 +146,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Returns correctly casted pointer to Abstract class: 
-      inline gm2calc::Abstract_MSSMNoFV_onshell_problems* gm2calc::MSSMNoFV_onshell_problems::get_BEptr() const
+      inline Abstract_MSSMNoFV_onshell_problems* gm2calc::MSSMNoFV_onshell_problems::get_BEptr() const
       {
-         return dynamic_cast<gm2calc::Abstract_MSSMNoFV_onshell_problems*>(BEptr);
+         return dynamic_cast<Abstract_MSSMNoFV_onshell_problems*>(BEptr);
       }
    }
    

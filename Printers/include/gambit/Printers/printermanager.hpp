@@ -34,8 +34,17 @@ namespace Gambit
     class BaseBasePrinter; 
     class BaseBaseReader; 
     class BasePrinter; 
-    class BaseReader; 
+    class BaseReader;
+    class PrinterManager;
+  }
 
+  // Global manager setter/retriever
+  Printers::BaseReader& get_pp_reader();
+  void set_global_printer_manager(Printers::PrinterManager* pm);
+  Printers::PrinterManager* get_global_printer_manager();
+
+  namespace Printers
+  {
     /// Manager class for creating printer objects  
     class PrinterManager: public BasePrinterManager
     {
@@ -77,6 +86,12 @@ namespace Gambit
         /// Getter for reader objects
         BaseBaseReader* get_reader(const std::string&);
 
+        /// Retrieve non-basebase version of reader object (for use in module functions rather than ScannerBit)
+        BaseReader* get_full_reader(const std::string& readername);
+ 
+        /// Checker for existence of reader object
+        bool reader_exists(const std::string&);
+         
         /// Destruct printer/reader objects
         void delete_stream(const std::string& = "");
         void delete_reader(const std::string&);

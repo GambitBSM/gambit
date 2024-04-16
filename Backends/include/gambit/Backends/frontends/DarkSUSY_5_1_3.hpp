@@ -42,6 +42,7 @@
 #define BACKENDLANG FORTRAN
 #define VERSION 5.1.3
 #define SAFE_VERSION 5_1_3
+#define REFERENCE Gondolo:2004sc
 
 // Load the library
 LOAD_LIBRARY
@@ -114,7 +115,7 @@ BE_VARIABLE(rdmgev, DS5_RDMGEV,     "rdmgev_",    "rdmgev")    // Contains infor
 BE_VARIABLE(rdpth, DS_RDPTH,       "rdpth_",     "rdpth")     // gRD thresholds
 BE_VARIABLE(rddof, DS_RDDOF,       "rddof_",     "rddof")     // gRD dofs
 BE_VARIABLE(rderrors, DS_RDERRORS, "rderrors_", "rderrors")   // gRD errors
-BE_VARIABLE(rdpars, DS_RDPARS,     "rdpars_",    "rdpars")    // gRD Parameters
+BE_VARIABLE(rdpars, DS_RDPARS_OLD,     "rdpars_",    "rdpars")    // gRD Parameters
 BE_VARIABLE(rdswitch, DS_RDSWITCH, "rdswitch_",  "rdswitch")  // gRD Switches
 BE_VARIABLE(rdlun, DS_RDLUN,       "rdlun_",     "rdlun")     // gRD I/O
 BE_VARIABLE(rdpadd, DS_RDPADD,     "rdpadd_",    "rdpadd")    // gRD I/O

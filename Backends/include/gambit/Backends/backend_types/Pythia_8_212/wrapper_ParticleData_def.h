@@ -1,13 +1,14 @@
 #ifndef __wrapper_ParticleData_def_Pythia_8_212_h__
 #define __wrapper_ParticleData_def_Pythia_8_212_h__
 
+#include <string>
+#include <ostream>
+#include <vector>
 #include "wrapper_Info_decl.h"
 #include "wrapper_Settings_decl.h"
 #include "wrapper_Rndm_decl.h"
 #include "wrapper_Couplings_decl.h"
-#include <string>
-#include <ostream>
-#include <vector>
+#include "wrapper_ResonanceWidths_decl.h"
 #include "wrapper_ParticleDataEntry_decl.h"
 
 #include "identification.hpp"
@@ -24,7 +25,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->initPtr__BOSS((*infoPtrIn).get_BEptr(), (*settingsPtrIn).get_BEptr(), (*rndmPtrIn).get_BEptr(), (*couplingsPtrIn).get_BEptr());
         }
         
-        inline bool ParticleData::init(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > startFile)
+        inline bool ParticleData::init(std::string startFile)
         {
             return get_BEptr()->init(startFile);
         }
@@ -39,27 +40,27 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->init__BOSS(*particleDataIn.get_BEptr());
         }
         
-        inline bool ParticleData::reInit(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > startFile, bool xmlFormat)
+        inline bool ParticleData::reInit(std::string startFile, bool xmlFormat)
         {
             return get_BEptr()->reInit(startFile, xmlFormat);
         }
         
-        inline bool ParticleData::reInit(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > startFile)
+        inline bool ParticleData::reInit(std::string startFile)
         {
             return get_BEptr()->reInit__BOSS(startFile);
         }
         
-        inline bool ParticleData::readXML(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > inFile, bool reset)
+        inline bool ParticleData::readXML(std::string inFile, bool reset)
         {
             return get_BEptr()->readXML(inFile, reset);
         }
         
-        inline bool ParticleData::readXML(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > inFile)
+        inline bool ParticleData::readXML(std::string inFile)
         {
             return get_BEptr()->readXML__BOSS(inFile);
         }
         
-        inline void ParticleData::listXML(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > outFile)
+        inline void ParticleData::listXML(std::string outFile)
         {
             get_BEptr()->listXML(outFile);
         }
@@ -69,12 +70,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->copyXML__BOSS(*particleDataIn.get_BEptr());
         }
         
-        inline bool ParticleData::loadXML(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > inFile, bool reset)
+        inline bool ParticleData::loadXML(std::string inFile, bool reset)
         {
             return get_BEptr()->loadXML(inFile, reset);
         }
         
-        inline bool ParticleData::loadXML(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > inFile)
+        inline bool ParticleData::loadXML(std::string inFile)
         {
             return get_BEptr()->loadXML__BOSS(inFile);
         }
@@ -89,32 +90,32 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->processXML__BOSS();
         }
         
-        inline bool ParticleData::readFF(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > inFile, bool reset)
+        inline bool ParticleData::readFF(std::string inFile, bool reset)
         {
             return get_BEptr()->readFF(inFile, reset);
         }
         
-        inline bool ParticleData::readFF(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > inFile)
+        inline bool ParticleData::readFF(std::string inFile)
         {
             return get_BEptr()->readFF__BOSS(inFile);
         }
         
-        inline void ParticleData::listFF(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > outFile)
+        inline void ParticleData::listFF(std::string outFile)
         {
             get_BEptr()->listFF(outFile);
         }
         
-        inline bool ParticleData::readString(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > lineIn, bool warn, ::std::basic_ostream<char, std::char_traits<char> >& os)
+        inline bool ParticleData::readString(std::string lineIn, bool warn, std::ostream& os)
         {
             return get_BEptr()->readString(lineIn, warn, os);
         }
         
-        inline bool ParticleData::readString(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > lineIn, bool warn)
+        inline bool ParticleData::readString(std::string lineIn, bool warn)
         {
             return get_BEptr()->readString__BOSS(lineIn, warn);
         }
         
-        inline bool ParticleData::readString(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > lineIn)
+        inline bool ParticleData::readString(std::string lineIn)
         {
             return get_BEptr()->readString__BOSS(lineIn);
         }
@@ -124,7 +125,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->readingFailed();
         }
         
-        inline void ParticleData::listAll(::std::basic_ostream<char, std::char_traits<char> >& os)
+        inline void ParticleData::listAll(std::ostream& os)
         {
             get_BEptr()->listAll(os);
         }
@@ -134,7 +135,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->listAll__BOSS();
         }
         
-        inline void ParticleData::listChanged(::std::basic_ostream<char, std::char_traits<char> >& os)
+        inline void ParticleData::listChanged(std::ostream& os)
         {
             get_BEptr()->listChanged(os);
         }
@@ -144,7 +145,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->listChanged__BOSS();
         }
         
-        inline void ParticleData::listChanged(bool changedRes, ::std::basic_ostream<char, std::char_traits<char> >& os)
+        inline void ParticleData::listChanged(bool changedRes, std::ostream& os)
         {
             get_BEptr()->listChanged(changedRes, os);
         }
@@ -154,7 +155,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->listChanged__BOSS(changedRes);
         }
         
-        inline void ParticleData::list(bool changedOnly, bool changedRes, ::std::basic_ostream<char, std::char_traits<char> >& os)
+        inline void ParticleData::list(bool changedOnly, bool changedRes, std::ostream& os)
         {
             get_BEptr()->list(changedOnly, changedRes, os);
         }
@@ -174,7 +175,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->list__BOSS();
         }
         
-        inline void ParticleData::list(int idList, ::std::basic_ostream<char, std::char_traits<char> >& os)
+        inline void ParticleData::list(int idList, std::ostream& os)
         {
             get_BEptr()->list(idList, os);
         }
@@ -184,17 +185,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->list__BOSS(idList);
         }
         
-        inline void ParticleData::list(::std::vector<int, std::allocator<int> > idList, ::std::basic_ostream<char, std::char_traits<char> >& os)
+        inline void ParticleData::list(std::vector<int> idList, std::ostream& os)
         {
             get_BEptr()->list(idList, os);
         }
         
-        inline void ParticleData::list(::std::vector<int, std::allocator<int> > idList)
+        inline void ParticleData::list(std::vector<int> idList)
         {
             get_BEptr()->list__BOSS(idList);
         }
         
-        inline void ParticleData::checkTable(::std::basic_ostream<char, std::char_traits<char> >& os)
+        inline void ParticleData::checkTable(std::ostream& os)
         {
             get_BEptr()->checkTable(os);
         }
@@ -204,7 +205,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->checkTable__BOSS();
         }
         
-        inline void ParticleData::checkTable(int verbosity, ::std::basic_ostream<char, std::char_traits<char> >& os)
+        inline void ParticleData::checkTable(int verbosity, std::ostream& os)
         {
             get_BEptr()->checkTable(verbosity, os);
         }
@@ -214,47 +215,47 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->checkTable__BOSS(verbosity);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn, double tau0In)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn, double tau0In)
         {
             get_BEptr()->addParticle(idIn, nameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn, tau0In);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn)
         {
             get_BEptr()->addParticle__BOSS(idIn, nameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn)
         {
             get_BEptr()->addParticle__BOSS(idIn, nameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn)
         {
             get_BEptr()->addParticle__BOSS(idIn, nameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In)
         {
             get_BEptr()->addParticle__BOSS(idIn, nameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn)
         {
             get_BEptr()->addParticle__BOSS(idIn, nameIn, spinTypeIn, chargeTypeIn, colTypeIn);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, int spinTypeIn, int chargeTypeIn)
         {
             get_BEptr()->addParticle__BOSS(idIn, nameIn, spinTypeIn, chargeTypeIn);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, int spinTypeIn)
         {
             get_BEptr()->addParticle__BOSS(idIn, nameIn, spinTypeIn);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn)
         {
             get_BEptr()->addParticle__BOSS(idIn, nameIn);
         }
@@ -264,92 +265,92 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->addParticle__BOSS(idIn);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn, double tau0In)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn, double tau0In)
         {
             get_BEptr()->addParticle(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn, tau0In);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn)
         {
             get_BEptr()->addParticle__BOSS(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn)
         {
             get_BEptr()->addParticle__BOSS(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn)
         {
             get_BEptr()->addParticle__BOSS(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In)
         {
             get_BEptr()->addParticle__BOSS(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn)
         {
             get_BEptr()->addParticle__BOSS(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn)
         {
             get_BEptr()->addParticle__BOSS(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn)
         {
             get_BEptr()->addParticle__BOSS(idIn, nameIn, antiNameIn, spinTypeIn);
         }
         
-        inline void ParticleData::addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn)
+        inline void ParticleData::addParticle(int idIn, std::string nameIn, std::string antiNameIn)
         {
             get_BEptr()->addParticle__BOSS(idIn, nameIn, antiNameIn);
         }
         
-        inline void ParticleData::setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn, double tau0In)
+        inline void ParticleData::setAll(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn, double tau0In)
         {
             get_BEptr()->setAll(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn, tau0In);
         }
         
-        inline void ParticleData::setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn)
+        inline void ParticleData::setAll(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn)
         {
             get_BEptr()->setAll__BOSS(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn);
         }
         
-        inline void ParticleData::setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn)
+        inline void ParticleData::setAll(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn)
         {
             get_BEptr()->setAll__BOSS(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn);
         }
         
-        inline void ParticleData::setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn)
+        inline void ParticleData::setAll(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn)
         {
             get_BEptr()->setAll__BOSS(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn);
         }
         
-        inline void ParticleData::setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In)
+        inline void ParticleData::setAll(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In)
         {
             get_BEptr()->setAll__BOSS(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In);
         }
         
-        inline void ParticleData::setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn)
+        inline void ParticleData::setAll(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn)
         {
             get_BEptr()->setAll__BOSS(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn);
         }
         
-        inline void ParticleData::setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn)
+        inline void ParticleData::setAll(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn)
         {
             get_BEptr()->setAll__BOSS(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn);
         }
         
-        inline void ParticleData::setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn)
+        inline void ParticleData::setAll(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn)
         {
             get_BEptr()->setAll__BOSS(idIn, nameIn, antiNameIn, spinTypeIn);
         }
         
-        inline void ParticleData::setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn)
+        inline void ParticleData::setAll(int idIn, std::string nameIn, std::string antiNameIn)
         {
             get_BEptr()->setAll__BOSS(idIn, nameIn, antiNameIn);
         }
@@ -364,17 +365,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->nextId(idIn);
         }
         
-        inline void ParticleData::name(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn)
+        inline void ParticleData::name(int idIn, std::string nameIn)
         {
             get_BEptr()->name(idIn, nameIn);
         }
         
-        inline void ParticleData::antiName(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn)
+        inline void ParticleData::antiName(int idIn, std::string antiNameIn)
         {
             get_BEptr()->antiName(idIn, antiNameIn);
         }
         
-        inline void ParticleData::names(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn)
+        inline void ParticleData::names(int idIn, std::string nameIn, std::string antiNameIn)
         {
             get_BEptr()->names(idIn, nameIn, antiNameIn);
         }
@@ -454,7 +455,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->hasAnti(idIn);
         }
         
-        inline ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > ParticleData::name(int idIn)
+        inline ::std::string ParticleData::name(int idIn)
         {
             return get_BEptr()->name(idIn);
         }
@@ -634,6 +635,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->rescaleBR__BOSS(idIn);
         }
         
+        inline void ParticleData::setResonancePtr(int idIn, Pythia8::ResonanceWidths* resonancePtrIn)
+        {
+            get_BEptr()->setResonancePtr__BOSS(idIn, (*resonancePtrIn).get_BEptr());
+        }
+        
         inline void ParticleData::resInit(int idIn)
         {
             get_BEptr()->resInit(idIn);
@@ -726,7 +732,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::ParticleData::ParticleData() :
+        inline ParticleData::ParticleData() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
@@ -734,7 +740,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::ParticleData::ParticleData(Pythia8::Abstract_ParticleData* in) :
+        inline ParticleData::ParticleData(Abstract_ParticleData* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -742,7 +748,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::ParticleData::ParticleData(const ParticleData& in) :
+        inline ParticleData::ParticleData(const ParticleData& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -750,7 +756,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::ParticleData& ParticleData::operator=(const ParticleData& in)
+        inline ParticleData& ParticleData::operator=(const ParticleData& in)
         {
             if (this != &in)
             {
@@ -761,7 +767,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::ParticleData::~ParticleData()
+        inline ParticleData::~ParticleData()
         {
             if (get_BEptr() != 0)
             {
@@ -776,9 +782,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_ParticleData* Pythia8::ParticleData::get_BEptr() const
+        inline Abstract_ParticleData* Pythia8::ParticleData::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_ParticleData*>(BEptr);
+            return dynamic_cast<Abstract_ParticleData*>(BEptr);
         }
     }
     

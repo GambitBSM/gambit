@@ -17,7 +17,9 @@
 ///  *********************************************
 
 #ifdef WITH_MPI
+#include "gambit/Utils/begin_ignore_warnings_mpi.hpp"
 #include "mpi.h"
+#include "gambit/Utils/end_ignore_warnings.hpp"
 #endif
 
 #include <iostream>
@@ -83,18 +85,18 @@ scanner_plugin(minuit2, version(6, 23, 01))
 
     // retrieve the model - contains loglike etc
     Gambit::Scanner::like_ptr model = get_purpose(get_inifile_value<std::string>("like"));
-    const auto offset = get_inifile_value<double>("likelihood: lnlike_offset", 0.);
+    const double offset = get_inifile_value<double>("likelihood: lnlike_offset", 0.);
     model->setPurposeOffset(offset);
-    const auto names = model.get_names();
+    const auto names = model->get_names();
 
     // minuit2 algorithm options
-    const auto algorithm{get_inifile_value<std::string>("algorithm", "combined")};
-    const auto max_loglike_calls{get_inifile_value<int>("max_loglike_calls", 100000)};
-    const auto max_iterations{get_inifile_value<int>("max_iterations", 100000)};
-    const auto tolerance{get_inifile_value<double>("tolerace", 0.0001)};
-    const auto precision{get_inifile_value<double>("precision", 0.0001)};
-    const auto print_level{get_inifile_value<int>("print_level", 1)};
-    const auto strategy{get_inifile_value<int>("strategy", 2)};
+    const std::string algorithm{get_inifile_value<std::string>("algorithm", "combined")};
+    const int max_loglike_calls{get_inifile_value<int>("max_loglike_calls", 100000)};
+    const int max_iterations{get_inifile_value<int>("max_iterations", 100000)};
+    const double tolerance{get_inifile_value<double>("tolerace", 0.0001)};
+    const double precision{get_inifile_value<double>("precision", 0.0001)};
+    const int print_level{get_inifile_value<int>("print_level", 1)};
+    const int strategy{get_inifile_value<int>("strategy", 2)};
 
     // get starting point (optional). It can be written in hypercube or physical
     // parameters. Default is center of hypercube for each parameter
@@ -116,12 +118,12 @@ scanner_plugin(minuit2, version(6, 23, 01))
 
     if (physical_start_node)
     {
-      physical_start_map = model.transform(hypercube_start);
+      physical_start_map = model->transform(hypercube_start);
       for (auto &s : physical_start_map)
       {
         s.second = get_node_value(physical_start_node, s.first, s.second);
       }
-      hypercube_start = model.inverse_transform(physical_start_map);
+      hypercube_start = model->inverse_transform(physical_start_map);
     }
     else
     {
@@ -129,7 +131,7 @@ scanner_plugin(minuit2, version(6, 23, 01))
       {
         hypercube_start[i] = get_node_value(hypercube_start_node, names[i], hypercube_start[i]);
       }
-      physical_start_map = model.transform(hypercube_start);
+      physical_start_map = model->transform(hypercube_start);
     }
 
     // get hypercube step (optional). It can be written in hypercube or physical
@@ -151,7 +153,7 @@ scanner_plugin(minuit2, version(6, 23, 01))
 
     if (physical_step_node)
     {
-      const auto center = model.transform(hypercube_start);
+      const auto center = model->transform(hypercube_start);
 
       for (int i = 0; i < dim; i++)
       {
@@ -167,8 +169,8 @@ scanner_plugin(minuit2, version(6, 23, 01))
           auto backward = center;
           backward.at(names[i]) -= physical_step;
 
-          const auto hypercube_forward = model.inverse_transform(forward);
-          const auto hypercube_backward = model.inverse_transform(backward);
+          const auto hypercube_forward = model->inverse_transform(forward);
+          const auto hypercube_backward = model->inverse_transform(backward);
           const double mean_step = 0.5 * (hypercube_forward[i] - hypercube_backward[i]);
           hypercube_step.push_back(mean_step);
         }
@@ -184,7 +186,7 @@ scanner_plugin(minuit2, version(6, 23, 01))
 
     // select algorithm
 
-    ROOT::Minuit2::EMinimizerType kalgorithm;
+    ROOT::Minuit2::EMinimizerType kalgorithm{ROOT::Minuit2::kCombined};
     if (algorithm == "simplex")
     {
       kalgorithm = ROOT::Minuit2::kSimplex;
@@ -271,8 +273,11 @@ scanner_plugin(minuit2, version(6, 23, 01))
     {
       v.push_back(best_fit_hypercube[i]);
     }
-    auto best_fit_physical = model.transform(v);
-    std::cout << "best-fit physical = " << best_fit_physical << std::endl;
+
+    for (auto &&par : model->transform(v))
+    {
+      std::cout << "best-fit physical " << par.first << " = " << par.second << std::endl;
+    }
 
     // whether successful
     const int status = min->Status();

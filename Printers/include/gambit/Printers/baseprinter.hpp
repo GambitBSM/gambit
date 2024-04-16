@@ -46,9 +46,6 @@
 #else
    // Otherwise, we are in the ScannerBit standalone executable and need only a limited set.
    #include "gambit/ScannerBit/printable_types.hpp"
-
-   // Already dealt with in basebaseprinter? Can possibly do this to deal with
-   // lack of new types, rest will be inherited anyway.
    #define PRINTABLE_TYPES SCANNER_PRINTABLE_TYPES
    #define RETRIEVABLE_TYPES SCANNER_RETRIEVABLE_TYPES
 #endif
@@ -67,6 +64,9 @@ namespace Gambit
 
     // Helper function for parsing ModelParameters label strings.
     bool parse_label_for_ModelParameters(const std::string& fulllabel, const std::string& modelname, std::string& out, std::string& rest, bool case_sensitive=true);
+
+    /// Helper function for parsing Spectrum label strings
+    bool parse_label_for_spectrum_entry(const std::string& fulllabel, const std::string& req_capability, const std::string& req_module, const std::string& req_function, std::string& outname, std::string& outtag, std::string& labelroot, bool case_sensitive=true);
 
     /// For debugging; print to stdout all the typeIDs for all types.
     void printAllTypeIDs(void);
@@ -110,7 +110,7 @@ namespace Gambit
         /// Signal printer to flush data in buffers to disk
         /// Printers should do this automatically as needed, but this is useful if a scanner is printing
         /// a bunch of data as a batch, to make sure it is all on disk after the batch is done.
-        virtual void flush() = 0;        
+        virtual void flush() = 0;
 
         // Get options required to construct a reader object that can read
         // the previous output of this printer.
@@ -157,7 +157,7 @@ namespace Gambit
                    const int vertexID, const uint rank,
                    const ulong pointID)
         {
-          if(printer_enabled) _print(in, label, vertexID, rank, pointID);
+          if (printer_enabled) _print(in, label, vertexID, rank, pointID);
         }
 
         // Overload which automatically determines a unique ID code
@@ -167,11 +167,12 @@ namespace Gambit
                    const uint rank,
                    const ulong pointID)
         {
-          if(printer_enabled) _print(in, label, rank, pointID);
+          print(in, label, get_param_id(label), rank, pointID);
         }
 
       protected:
-        using BaseBasePrinter::_print; //unhide the default function in the base class
+        // Unhide the default function in the base class
+        using BaseBasePrinter::_print;
 
         // We need to have a virtual print method for every type that we want to
         // be able to print. The list of these types is maintained in
@@ -189,6 +190,16 @@ namespace Gambit
 
         /// Destructor
         virtual ~BaseReader() {}
+
+        /// Reimplement overload for 'retrieve' that uses the current point as the input for rank/pointID
+        // Need to do this because otherwise we end up using the scanner-only templates for the retrieves,
+        // rather than the full set available here.
+        template<typename T>
+        bool retrieve(T& out, const std::string& label)
+        {
+          PPIDpair pt = get_current_point();
+          return retrieve(out, label, pt.rank, pt.pointID);
+        }
 
         // retrieve function dispatch
         template<typename T>

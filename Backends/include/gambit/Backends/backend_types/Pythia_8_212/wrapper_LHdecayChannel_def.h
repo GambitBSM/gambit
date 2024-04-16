@@ -13,12 +13,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     {
         
         // Member functions: 
-        inline void LHdecayChannel::setChannel(double bratIn, int nDaIn, ::std::vector<int, std::allocator<int> > idDaIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > cIn)
+        inline void LHdecayChannel::setChannel(double bratIn, int nDaIn, std::vector<int> idDaIn, std::string cIn)
         {
             get_BEptr()->setChannel(bratIn, nDaIn, idDaIn, cIn);
         }
         
-        inline void LHdecayChannel::setChannel(double bratIn, int nDaIn, ::std::vector<int, std::allocator<int> > idDaIn)
+        inline void LHdecayChannel::setChannel(double bratIn, int nDaIn, std::vector<int> idDaIn)
         {
             get_BEptr()->setChannel__BOSS(bratIn, nDaIn, idDaIn);
         }
@@ -28,7 +28,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->setBrat(bratIn);
         }
         
-        inline void LHdecayChannel::setIdDa(::std::vector<int, std::allocator<int> > idDaIn)
+        inline void LHdecayChannel::setIdDa(std::vector<int> idDaIn)
         {
             get_BEptr()->setIdDa(idDaIn);
         }
@@ -43,33 +43,33 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->getNDa();
         }
         
-        inline ::std::vector<int, std::allocator<int> > LHdecayChannel::getIdDa()
+        inline ::std::vector<int> LHdecayChannel::getIdDa()
         {
             return get_BEptr()->getIdDa();
         }
         
-        inline ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > LHdecayChannel::getComment()
+        inline ::std::string LHdecayChannel::getComment()
         {
             return get_BEptr()->getComment();
         }
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::LHdecayChannel::LHdecayChannel() :
+        inline LHdecayChannel::LHdecayChannel() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::LHdecayChannel::LHdecayChannel(double bratIn, int nDaIn, ::std::vector<int, std::allocator<int> > idDaIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > cIn) :
+        inline LHdecayChannel::LHdecayChannel(double bratIn, int nDaIn, std::vector<int> idDaIn, std::string cIn) :
             WrapperBase(__factory1(bratIn, nDaIn, idDaIn, cIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::LHdecayChannel::LHdecayChannel(double bratIn, int nDaIn, ::std::vector<int, std::allocator<int> > idDaIn) :
+        inline LHdecayChannel::LHdecayChannel(double bratIn, int nDaIn, std::vector<int> idDaIn) :
             WrapperBase(__factory2(bratIn, nDaIn, idDaIn))
         {
             get_BEptr()->set_wptr(this);
@@ -77,7 +77,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::LHdecayChannel::LHdecayChannel(Pythia8::Abstract_LHdecayChannel* in) :
+        inline LHdecayChannel::LHdecayChannel(Abstract_LHdecayChannel* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -85,7 +85,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::LHdecayChannel::LHdecayChannel(const LHdecayChannel& in) :
+        inline LHdecayChannel::LHdecayChannel(const LHdecayChannel& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -93,7 +93,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::LHdecayChannel& LHdecayChannel::operator=(const LHdecayChannel& in)
+        inline LHdecayChannel& LHdecayChannel::operator=(const LHdecayChannel& in)
         {
             if (this != &in)
             {
@@ -104,7 +104,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::LHdecayChannel::~LHdecayChannel()
+        inline LHdecayChannel::~LHdecayChannel()
         {
             if (get_BEptr() != 0)
             {
@@ -119,9 +119,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_LHdecayChannel* Pythia8::LHdecayChannel::get_BEptr() const
+        inline Abstract_LHdecayChannel* Pythia8::LHdecayChannel::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_LHdecayChannel*>(BEptr);
+            return dynamic_cast<Abstract_LHdecayChannel*>(BEptr);
         }
     }
     

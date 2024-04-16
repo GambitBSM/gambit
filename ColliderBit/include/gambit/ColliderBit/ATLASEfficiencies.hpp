@@ -14,6 +14,8 @@
 ///  \author Anders Kvellestad
 ///  \author Matthias Danninger
 ///  \author Rose Kudzman-Blais
+///  \author Pat Scott
+///  \author Tomas Gonzalo
 ///
 ///  *********************************************
 
@@ -45,7 +47,7 @@ namespace Gambit
 
         // /// Randomly filter the supplied particle list by parameterised electron tracking efficiency
         // /// @todo Remove? This is not the electron efficiency
-        // inline void applyElectronTrackingEff(std::vector<HEPUtils::Particle*>& electrons) {
+        // inline void applyElectronTrackingEff(std::vector<const HEPUtils::Particle*>& electrons) {
         //   static HEPUtils::BinnedFn2D<double> _elTrackEff2d({{0, 1.5, 2.5, DBL_MAX}}, //< |eta|
         //                                                     {{0, 0.1, 1.0, 100, DBL_MAX}}, //< pT
         //                                                     {{0., 0.73, 0.95, 0.99,
@@ -57,7 +59,7 @@ namespace Gambit
 
         /// Randomly filter the supplied particle list by parameterised electron efficiency
         /// @note Should be applied after the electron energy smearing
-        inline void applyElectronEff(std::vector<HEPUtils::Particle*>& electrons) {
+        inline void applyElectronEff(std::vector<const HEPUtils::Particle*>& electrons) {
           static HEPUtils::BinnedFn2D<double> _elEff2d({{0,1.5,2.5,DBL_MAX}}, //< |eta|
                                                        {{0,10.,DBL_MAX}}, //< pT
                                                        {{0., 0.95,
@@ -69,7 +71,7 @@ namespace Gambit
 
         // /// Randomly filter the supplied particle list by parameterised muon tracking efficiency
         // /// @todo Remove? This is not the muon efficiency
-        // inline void applyMuonTrackEff(std::vector<HEPUtils::Particle*>& muons) {
+        // inline void applyMuonTrackEff(std::vector<const HEPUtils::Particle*>& muons) {
         //   static HEPUtils::BinnedFn2D<double> _muTrackEff2d({{0,1.5,2.5,DBL_MAX}}, //< |eta|
         //                                                     {{0,0.1,1.0,DBL_MAX}}, //< pT
         //                                                     {{0., 0.75, 0.99,
@@ -80,7 +82,7 @@ namespace Gambit
 
 
         /// Randomly filter the supplied particle list by parameterised muon efficiency
-        inline void applyMuonEff(std::vector<HEPUtils::Particle*>& muons) {
+        inline void applyMuonEff(std::vector<const HEPUtils::Particle*>& muons) {
           static HEPUtils::BinnedFn2D<double> _muEff2d({{0,1.5,2.7,DBL_MAX}}, //< |eta|
                                                        {{0,10.0,DBL_MAX}}, //< pT
                                                        {{0., 0.95,
@@ -91,7 +93,7 @@ namespace Gambit
 
 
         /// Randomly filter the supplied particle list by parameterised muon efficiency
-        inline void applyMuonEffR2(std::vector<HEPUtils::Particle*>& muons) {
+        inline void applyMuonEffR2(std::vector<const HEPUtils::Particle*>& muons) {
           static HEPUtils::BinnedFn2D<double> _muEff2d({0, 2.7, DBL_MAX}, //< |eta|
                                                        {0., 3.5, 4., 5., 6., 7., 8., 10., DBL_MAX}, //< pT
                                                        {0.00, 0.76, 0.94, 0.97, 0.98, 0.98, 0.98, 0.99,//
@@ -103,7 +105,7 @@ namespace Gambit
         /// Randomly filter the supplied particle list by parameterised Run 1 tau efficiency
         /// @note From Delphes 3.1.2
         /// @todo Use https://cds.cern.ch/record/1233743/files/ATL-PHYS-PUB-2010-001.pdf -- it is more accurate and has pT-dependence
-        inline void applyTauEfficiencyR1(std::vector<HEPUtils::Particle*>& taus) {
+        inline void applyTauEfficiencyR1(std::vector<const HEPUtils::Particle*>& taus) {
           filtereff(taus, 0.40);
         }
 
@@ -111,7 +113,7 @@ namespace Gambit
         /// Randomly filter the supplied particle list by parameterised Run 2 tau efficiency
         /// @note From Delphes 3.3.2 & ATL-PHYS-PUB-2015-045, 60% for 1-prong, 70% for multi-prong: this is *wrong*!!
         /// @note No delete, because this should only ever be applied to copies of the Event Particle* vectors in Analysis routines
-        inline void applyTauEfficiencyR2(std::vector<HEPUtils::Particle*>& taus) {
+        inline void applyTauEfficiencyR2(std::vector<const HEPUtils::Particle*>& taus) {
 
           // Delphes 3.3.2 config:
           //   set DeltaR 0.2
@@ -147,7 +149,7 @@ namespace Gambit
 
 
 
-        inline void applyPhotonEfficiencyR2(std::vector<HEPUtils::Particle*>& photons) {
+        inline void applyPhotonEfficiencyR2(std::vector<const HEPUtils::Particle*>& photons) {
 
           const static std::vector<double> binedges_eta   = { 0., 0.6, 1.37, 1.52, 1.81, 2.37, DBL_MAX };
           const static std::vector<double> binedges_pt    = { 0., 10., 15., 20., 25., 30., 35., 40., 45., 50., 60., 80., 100., 125., 150., 175., 250., DBL_MAX };
@@ -198,11 +200,9 @@ namespace Gambit
             // Smear by a Gaussian centered on the current energy, with width given by the resolution
             std::normal_distribution<> d(e->E(), resolution);
             double smeared_E = d(Random::rng());
-            if (smeared_E < 0) smeared_E = 0;
+            if (smeared_E < e->mass()) smeared_E = 1.01*e->mass();
             // double smeared_pt = smeared_E/cosh(e->eta()); ///< @todo Should be cosh(|eta|)?
-            // std::cout << "BEFORE eta " << electron->eta() << std::endl;
             e->set_mom(HEPUtils::P4::mkEtaPhiME(e->eta(), e->phi(), e->mass(), smeared_E));
-            // std::cout << "AFTER eta " << electron->eta() << std::endl;
           }
         }
 
@@ -518,6 +518,193 @@ namespace Gambit
           applyTightIDElectronSelection(reinterpret_cast<std::vector<const HEPUtils::Particle*>&>(electrons));
         }
 
+
+        /// Electron 2019 ID efficiency functions from https://arxiv.org/pdf/1902.04655.pdf
+        /// @note These efficiencies are 1D efficiencies so only pT is used
+        inline void applyElectronIDEfficiency2019(std::vector<const HEPUtils::Particle*>& electrons, str operating_point)
+        {
+
+          // digitised from Fig 8
+          const static std::vector<double> binedges_pt  = { 0.0, 6.668795911849248, 9.673354432217419, 14.643593391597225, 19.57318312476409, 24.71356813100665, 29.655352632037403, 34.594233616910074, 39.73636073284749, 44.68221015649952, 49.6292209866148, 59.52440405330856, 79.51859702099242, DBL_MAX};
+          const static std::vector<double> bineffs_pt_loose  = { 0.9054376657824932, 0.9267904509283819, 0.8757294429708221, 0.8450928381962863, 0.8775862068965516, 0.889655172413793, 0.9035809018567638, 0.9193633952254641, 0.929575596816976, 0.9370026525198938, 0.942572944297082, 0.9509283819628646, 0.9592838196286471};
+          const static std::vector<double> bineffs_pt_medium  = { 0.7355437665782492, 0.7912466843501325, 0.7986737400530503, 0.7717506631299733, 0.8135278514588858, 0.8348806366047744, 0.8525198938992041, 0.8692307692307691, 0.8822281167108752, 0.889655172413793, 0.902652519893899, 0.9230769230769229, 0.9407161803713526 };
+          const static std::vector<double> bineffs_pt_tight  = { 0.5572944297082227, 0.6213527851458884, 0.6547745358090185, 0.6714854111405835, 0.699336870026525, 0.7299734748010609, 0.7559681697612731, 0.7754641909814322, 0.7921750663129972, 0.8079575596816975, 0.8311671087533155, 0.8710875331564986, 0.8989389920424402 };
+
+          // select operating point
+          std::vector<double> bineffs_pt;
+          if (operating_point == "Loose" or operating_point == "VeryLoose")
+            bineffs_pt = bineffs_pt_loose;
+          else if (operating_point == "Medium")
+            bineffs_pt = bineffs_pt_medium;
+          else if (operating_point == "Tight")
+            bineffs_pt = bineffs_pt_tight;
+          else
+            utils_error().raise(LOCAL_INFO, "Unknown operating point");
+          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+
+          // filter electrons
+          filtereff_pt(electrons, _eff_pt);
+
+        }
+
+        /// Electron 2019 Isolation efficiency functions from https://arxiv.org/pdf/1902.04655.pdf
+        /// @note These efficiencies are 1D efficiencies so only pT is used
+        inline void applyElectronIsolationEfficiency2019(std::vector<const HEPUtils::Particle*>& electrons, str operating_point)
+        {
+
+          // digitised from Fig 12
+          const static std::vector<double> binedges_pt = {0.0, 6.548307897301772, 9.706735099256047, 14.643593391597225, 19.611982283197417, 24.561829913760132, 29.71154676569653, 34.461525174885566, 39.61370954807349, 44.56047277707178, 49.5109372879474, 59.60803424919497, 79.4086585320716, DBL_MAX};
+          const static std::vector<double> bineffs_pt_loose_trackonly = {0.9694027334287603, 0.9841898810834618, 0.9915715839022242, 0.9890807366218896, 0.9875756991852016, 0.9875509249064084, 0.9875261506276152, 0.9879947974014535, 0.9884634441752919, 0.9884386698964986, 0.9888959617925568, 0.9907953231667035, 0.9930404921823388};
+          const static std::vector<double> bineffs_pt_loose = {0.9595332801145123, 0.9812303870292888, 0.9891055109006828, 0.9875994412023784, 0.9856020149746753, 0.9826167143800926, 0.9820985190486677, 0.9820737447698745, 0.9820489704910813, 0.9825186495265361, 0.9829749091609778, 0.9903008698524555, 0.9930394599207224};
+          const static std::vector<double> bineffs_pt_gradient_loose = {0.8973632597445498, 0.9471843343977098, 0.9693676365338032, 0.9466465260955738, 0.947115172869412, 0.9485706617485136, 0.9539735190486678, 0.9593784408720547, 0.9642868448579609, 0.9706755120017618, 0.9780417308962784, 0.9843808494824929, 0.9851457553402335};
+          const static std::vector<double> bineffs_pt_gradient = {0.8425935229024444, 0.9082030389781987, 0.944204195111209, 0.9007573359392205, 0.9081359419731337, 0.9145235768553183, 0.924368255890773, 0.9351987447698745, 0.9460292336489761, 0.9573531435807092, 0.9716251926888351, 0.9838874284298613, 0.9851457553402335};
+
+          // select operating point
+          std::vector<double> bineffs_pt;
+          if (operating_point == "LooseTrackOnly")
+            bineffs_pt = bineffs_pt_loose_trackonly;
+          else if (operating_point == "Loose")
+            bineffs_pt = bineffs_pt_loose;
+          else if (operating_point == "GradientLoose")
+            bineffs_pt = bineffs_pt_gradient_loose;
+          else if (operating_point == "Gradient")
+            bineffs_pt = bineffs_pt_gradient;
+          else
+           utils_error().raise(LOCAL_INFO, "Unknown operating point");
+          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+
+          // filter electrons
+          filtereff_pt(electrons, _eff_pt);
+        }
+ 
+
+        /// Electron 2020 reconstruction efficiency functions in 1908.00005 using 81 fb^-1 of Run 2 data
+        /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
+        inline void applyElectronReconstructionEfficiency2020(std::vector<const HEPUtils::Particle*>& electrons, str operating_point){
+
+          // Digitised from Fig 5
+          const static std::vector<double> binedges_pt = {0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 13.5, 14.0, 14.5, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5, 24.0, 24.5, DBL_MAX};
+          const static std::vector<double> bineffs_pt_candidate = {0.0, 0.0, 0.0, 0.0, 0.003218, 0.049709, 0.203532, 0.388353, 0.546803, 0.662459, 0.749662, 0.807719, 0.850278, 0.875487, 0.893757, 0.907169, 0.919424, 0.926128, 0.932831, 0.936759, 0.940224, 0.944846, 0.947386, 0.949695, 0.951078, 0.953849, 0.955695, 0.956847, 0.958924, 0.959845, 0.962154, 0.96238, 0.96492, 0.966766, 0.966762, 0.967914, 0.967678, 0.970912, 0.970676, 0.97229, 0.972286, 0.97205, 0.973664, 0.97366, 0.973655, 0.973419, 0.975496, 0.976417, 0.977106, 0.976639};
+          
+          // Select operating point
+          std::vector<double> bineffs_pt;
+          if (operating_point == "Candidate")
+            bineffs_pt = bineffs_pt_candidate;
+          else
+           utils_error().raise(LOCAL_INFO, "Unknown operating point");
+          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+
+          // Filter muons
+          filtereff_pt(electrons, _eff_pt);
+        }
+
+
+        
+        /// Electron 2020 ID efficiency functions in 1908.00005 using 81 fb^-1 of Run 2 data
+        /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
+        inline void applyElectronIDEfficiency2020(std::vector<const HEPUtils::Particle*>& electrons, str operating_point){
+
+          // Digitised from Fig 23a
+          const static std::vector<double> binedges_pt = {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, DBL_MAX};
+          const static std::vector<double> bineffs_pt_loose = {0.976333, 0.928653, 0.882698, 0.830078, 0.86466, 0.884306, 0.901769, 0.920381, 0.930032, 0.936581, 0.938994, 0.943589, 0.949449};
+          const static std::vector<double> bineffs_pt_medium = {0.790671, 0.797679, 0.816062, 0.752183, 0.794807, 0.82801, 0.847541, 0.868796, 0.882008, 0.887868, 0.897518, 0.916475, 0.93233};
+          const static std::vector<double> bineffs_pt_tight = {0.582835, 0.608686, 0.670726, 0.651999, 0.684283, 0.716567, 0.747358, 0.768038, 0.782399, 0.795381, 0.815832, 0.853631, 0.884536};
+          
+          // Select operating point
+          std::vector<double> bineffs_pt;
+          if (operating_point == "Loose")
+            bineffs_pt = bineffs_pt_loose;
+          else if (operating_point == "Medium")
+            bineffs_pt = bineffs_pt_medium;
+          else if (operating_point == "Tight")
+            bineffs_pt = bineffs_pt_tight;
+          else
+           utils_error().raise(LOCAL_INFO, "Unknown operating point");
+          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+
+          // Filter muons
+          filtereff_pt(electrons, _eff_pt);
+        }
+
+
+        /// Electron 2020 isolation efficiency functions in 1908.00005 using 81 fb^-1 of Run 2 data
+        /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
+        inline void applyElectronIsolationEfficiency2020(std::vector<const HEPUtils::Particle*>& electrons, str operating_point){
+
+          // Digitised from Fig 23a
+          const static std::vector<double> binedges_pt = {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, 150.0, 200.0, 250.0, 300.0, 350.0, DBL_MAX};
+          const static std::vector<double> bineffs_pt_gradient = {0.800008, 0.880847, 0.927209, 0.879823, 0.888724, 0.895806, 0.908012, 0.9198, 0.929307, 0.941235, 0.960432, 0.979162, 0.982515, 0.993515, 0.994261, 0.995376, 0.993139, 0.992581};
+          const static std::vector<double> bineffs_pt_loose = {0.740555, 0.826427, 0.905545, 0.951997, 0.972965, 0.983728, 0.990392, 0.994352, 0.996819, 0.997565, 0.997844, 0.998311, 0.99859, 0.99859, 0.999057, 0.999105, 0.996589, 0.997614};
+          const static std::vector<double> bineffs_pt_tight = {0.458893, 0.541276, 0.617828, 0.698061, 0.769957, 0.822, 0.862863, 0.895528, 0.924554, 0.940538, 0.95321, 0.970449, 0.985547, 0.992351, 0.993187, 0.993606, 0.991326, 0.991326};
+          const static std::vector<double> bineffs_pt_highptcaloonly = {0.982097, 0.975105, 0.969703, 0.967933, 0.966908, 0.965137, 0.965416, 0.966859, 0.970449, 0.970358, 0.967138, 0.962014, 0.950973, 0.926185, 0.904053, 0.908291, 0.925906, 0.929168};
+
+          // Select operating point
+          std::vector<double> bineffs_pt;
+          if (operating_point == "Gradient")
+            bineffs_pt = bineffs_pt_gradient;
+          else if (operating_point == "Loose")
+            bineffs_pt = bineffs_pt_loose;
+          else if (operating_point == "Tight")
+            bineffs_pt = bineffs_pt_tight;
+          else if (operating_point == "HighPtCaloOnly")
+            bineffs_pt = bineffs_pt_highptcaloonly;
+          else
+           utils_error().raise(LOCAL_INFO, "Unknown operating point");
+          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+
+          // Filter muons
+          filtereff_pt(electrons, _eff_pt);
+        }
+
+
+        /// Muon 2020 identification efficiency functions from full Run2 dataset released in 2012.00578
+        /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
+        inline void applyMuonIDEfficiency2020(std::vector<const HEPUtils::Particle*>& muons, str operating_point){
+
+          // Digitised from Fig 11a
+          const static std::vector<double> binedges_pt = {3.0, 3.5, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, DBL_MAX};
+          const static std::vector<double> bineffs_pt_tight = {0.0, 0.0, 0.66948, 0.8143, 0.85466, 0.87816, 0.89246, 0.90421, 0.91418, 0.91877, 0.92031, 0.92669, 0.93972};
+          const static std::vector<double> bineffs_pt_medium = {0.45262, 0.61328, 0.80766, 0.9387, 0.96245, 0.97063, 0.97165, 0.97216, 0.97292, 0.97292, 0.97216, 0.97114, 0.97522};
+          const static std::vector<double> bineffs_pt_loose = {0.87075, 0.93129, 0.97241, 0.98851, 0.99157, 0.98851, 0.98799, 0.98799, 0.98799, 0.98748, 0.98672, 0.98748, 0.98927};
+          
+          // Select operating point
+          std::vector<double> bineffs_pt;
+          if (operating_point == "Tight")
+            bineffs_pt = bineffs_pt_tight;
+          else if (operating_point == "Medium")
+            bineffs_pt = bineffs_pt_medium;
+          else if (operating_point == "Loose")
+            bineffs_pt = bineffs_pt_loose;
+          else
+           utils_error().raise(LOCAL_INFO, "Unknown operating point");
+          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+
+          // Filter muons
+          filtereff_pt(muons, _eff_pt);
+        }
+
+        /// Muon 2020 isolation efficiency functions from full Run2 dataset released in 2012.00578
+        /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
+        inline void applyMuonIsolationEfficiency2020(std::vector<const HEPUtils::Particle*>& muons, str operating_point){
+
+          // Digitised from Fig 19a
+          const static std::vector<double> binedges_pt = {3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 30.0, 40.0, 55.0, 70.0, 90.0, 150.0, DBL_MAX};
+          const static std::vector<double> bineffs_pt_tight = {0.56788, 0.63355, 0.66702, 0.68974, 0.70173, 0.71814, 0.7314, 0.75917, 0.79262, 0.84313, 0.9189, 0.96941, 0.9915, 0.99653, 0.99649, 0.99517};
+          const static std::vector<double> bineffs_pt_loose = {0.655349, 0.725581, 0.765116, 0.788605, 0.82093, 0.851395, 0.877907, 0.92, 0.956279, 0.981163, 0.992558, 0.996744, 0.997442, 0.997442, 0.997674, 0.995116};
+
+          // Select operating point
+          std::vector<double> bineffs_pt;
+          if (operating_point == "Tight")
+            bineffs_pt = bineffs_pt_tight;
+          else if (operating_point == "Loose")
+            bineffs_pt = bineffs_pt_loose;
+          else
+           utils_error().raise(LOCAL_INFO, "Unknown operating point");
+          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+
+          // Filter muons
+          filtereff_pt(muons, _eff_pt);
+        }
 
         ///@}
 

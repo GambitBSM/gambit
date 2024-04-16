@@ -74,27 +74,27 @@ namespace Gambit
    Spectrum::Spectrum() : input_Param(NULL), mass_cuts(NULL), mass_ratio_cuts(NULL), initialised(false) {}
 
    /// Construct new object, cloning the SubSpectrum objects supplied and taking possession of them.
-   Spectrum::Spectrum(const SubSpectrum& le, const SubSpectrum& he, const SMInputs& smi, const std::map<str, safe_ptr<const double> >* params,
+   Spectrum::Spectrum(const SubSpectrum& le, const SubSpectrum& he, const SMInputs& smi, const std::map<str, safe_ptr<const double> >* pars,
     const mc_info& mci, const mr_info& mri)
      : LE_new(le.clone())
      , HE_new(he.clone())
      , LE(LE_new.get())
      , HE(HE_new.get())
      , SMINPUTS(smi)
-     , input_Param(params)
+     , input_Param(pars)
      , mass_cuts(&mci)
      , mass_ratio_cuts(&mri)
      , initialised(true)
    { check_mass_cuts(); }
 
    /// Construct new object, automatically creating an SMSimpleSpec as the LE subspectrum, and cloning the HE SubSpectrum object supplied and taking possession of it.
-   Spectrum::Spectrum(const SubSpectrum& he, const SMInputs& smi, const std::map<str, safe_ptr<const double> >* params, const mc_info& mci, const mr_info& mri)
+   Spectrum::Spectrum(const SubSpectrum& he, const SMInputs& smi, const std::map<str, safe_ptr<const double> >* pars, const mc_info& mci, const mr_info& mri)
      : LE_new(SMSimpleSpec(smi).clone())
      , HE_new(he.clone())
      , LE(LE_new.get())
      , HE(HE_new.get())
      , SMINPUTS(smi)
-     , input_Param(params)
+     , input_Param(pars)
      , mass_cuts(&mci)
      , mass_ratio_cuts(&mri)
      , initialised(true)
@@ -102,12 +102,12 @@ namespace Gambit
 
    /// Construct new object, wrapping existing SubSpectrum objects
    ///  Make sure the original objects don't get deleted before this wrapper does!
-   Spectrum::Spectrum(SubSpectrum* const le, SubSpectrum* const he, const SMInputs& smi, const std::map<str, safe_ptr<const double> >* params,
+   Spectrum::Spectrum(SubSpectrum* const le, SubSpectrum* const he, const SMInputs& smi, const std::map<str, safe_ptr<const double> >* pars,
     const mc_info& mci, const mr_info& mri)
      : LE(le)
      , HE(he)
      , SMINPUTS(smi)
-     , input_Param(params)
+     , input_Param(pars)
      , mass_cuts(&mci)
      , mass_ratio_cuts(&mri)
      , initialised(true)
@@ -285,6 +285,29 @@ namespace Gambit
         errmsg << "Error retrieving particle spectrum data!" << std::endl;
         errmsg << "No pole mass with string reference '"<<mass<<"' and index '"<<index<<"' could be found in either LE or HE SubSpectrum!" <<std::endl;
         utils_error().raise(LOCAL_INFO,errmsg.str());
+     }
+     // [[noreturn]]
+     return result;
+   }
+
+   bool Spectrum::has(const Par::Tags partype, const std::string& mass, const int index1, const int index2) const
+   {
+     return (HE->has(partype,mass,index1,index2) or LE->has(partype,mass,index1,index2));
+   }
+
+   double Spectrum::get(const Par::Tags partype, const std::string& mass, const int index1, const int index2) const
+   {
+     double result(-1);
+     if( HE->has(partype,mass,index1,index2) )
+     { result = HE->get(partype,mass,index1,index2); }
+     else if( LE->has(partype,mass,index1,index2) )
+     { result = LE->get(partype,mass,index1,index2); }
+     else
+     {
+       std::ostringstream errmsg;
+       errmsg << "Error retrieving particle spectrum data!" << std::endl;
+       errmsg << "No pole mixing with string reference '"<<mass<<"' and indices '"<<index1<<"','"<<index2<<"' could be found in either LE or HE SubSepctrum!" << std::endl;
+       utils_error().raise(LOCAL_INFO,errmsg.str());
      }
      // [[noreturn]]
      return result;

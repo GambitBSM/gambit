@@ -40,7 +40,9 @@
 
 #ifdef HAVE_PYBIND11
 
+  #include "gambit/Utils/begin_ignore_warnings_pybind11.hpp"
   #include <pybind11/stl.h>
+  #include "gambit/Utils/end_ignore_warnings.hpp"
 
   namespace Gambit
   {

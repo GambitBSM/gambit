@@ -2,6 +2,9 @@
 #define __wrapper_ParticleData_decl_Pythia_8_212_h__
 
 #include <cstddef>
+#include <string>
+#include <ostream>
+#include <vector>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_ParticleData.h"
@@ -9,9 +12,6 @@
 #include "wrapper_Settings_decl.h"
 #include "wrapper_Rndm_decl.h"
 #include "wrapper_Couplings_decl.h"
-#include <string>
-#include <ostream>
-#include <vector>
 #include "wrapper_ParticleDataEntry_decl.h"
 
 #include "identification.hpp"
@@ -27,7 +27,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_ParticleData* (*__factory0)();
+                static Abstract_ParticleData* (*__factory0)();
         
                 // -- Other member variables: 
         
@@ -35,59 +35,59 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             public:
                 void initPtr(Pythia8::Info* infoPtrIn, Pythia8::Settings* settingsPtrIn, Pythia8::Rndm* rndmPtrIn, Pythia8::Couplings* couplingsPtrIn);
         
-                bool init(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > startFile);
+                bool init(std::string startFile);
         
                 bool init();
         
                 bool init(const Pythia8::ParticleData& particleDataIn);
         
-                bool reInit(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > startFile, bool xmlFormat);
+                bool reInit(std::string startFile, bool xmlFormat);
         
-                bool reInit(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > startFile);
+                bool reInit(std::string startFile);
         
-                bool readXML(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > inFile, bool reset);
+                bool readXML(std::string inFile, bool reset);
         
-                bool readXML(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > inFile);
+                bool readXML(std::string inFile);
         
-                void listXML(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > outFile);
+                void listXML(std::string outFile);
         
                 bool copyXML(const Pythia8::ParticleData& particleDataIn);
         
-                bool loadXML(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > inFile, bool reset);
+                bool loadXML(std::string inFile, bool reset);
         
-                bool loadXML(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > inFile);
+                bool loadXML(std::string inFile);
         
                 bool processXML(bool reset);
         
                 bool processXML();
         
-                bool readFF(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > inFile, bool reset);
+                bool readFF(std::string inFile, bool reset);
         
-                bool readFF(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > inFile);
+                bool readFF(std::string inFile);
         
-                void listFF(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > outFile);
+                void listFF(std::string outFile);
         
-                bool readString(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > lineIn, bool warn, ::std::basic_ostream<char, std::char_traits<char> >& os);
+                bool readString(std::string lineIn, bool warn, std::ostream& os);
         
-                bool readString(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > lineIn, bool warn);
+                bool readString(std::string lineIn, bool warn);
         
-                bool readString(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > lineIn);
+                bool readString(std::string lineIn);
         
                 bool readingFailed();
         
-                void listAll(::std::basic_ostream<char, std::char_traits<char> >& os);
+                void listAll(std::ostream& os);
         
                 void listAll();
         
-                void listChanged(::std::basic_ostream<char, std::char_traits<char> >& os);
+                void listChanged(std::ostream& os);
         
                 void listChanged();
         
-                void listChanged(bool changedRes, ::std::basic_ostream<char, std::char_traits<char> >& os);
+                void listChanged(bool changedRes, std::ostream& os);
         
                 void listChanged(bool changedRes);
         
-                void list(bool changedOnly, bool changedRes, ::std::basic_ostream<char, std::char_traits<char> >& os);
+                void list(bool changedOnly, bool changedRes, std::ostream& os);
         
                 void list(bool changedOnly, bool changedRes);
         
@@ -95,87 +95,87 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void list();
         
-                void list(int idList, ::std::basic_ostream<char, std::char_traits<char> >& os);
+                void list(int idList, std::ostream& os);
         
                 void list(int idList);
         
-                void list(::std::vector<int, std::allocator<int> > idList, ::std::basic_ostream<char, std::char_traits<char> >& os);
+                void list(std::vector<int> idList, std::ostream& os);
         
-                void list(::std::vector<int, std::allocator<int> > idList);
+                void list(std::vector<int> idList);
         
-                void checkTable(::std::basic_ostream<char, std::char_traits<char> >& os);
+                void checkTable(std::ostream& os);
         
                 void checkTable();
         
-                void checkTable(int verbosity, ::std::basic_ostream<char, std::char_traits<char> >& os);
+                void checkTable(int verbosity, std::ostream& os);
         
                 void checkTable(int verbosity);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn, double tau0In);
+                void addParticle(int idIn, std::string nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn, double tau0In);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn);
+                void addParticle(int idIn, std::string nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn);
+                void addParticle(int idIn, std::string nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn);
+                void addParticle(int idIn, std::string nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In);
+                void addParticle(int idIn, std::string nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn);
+                void addParticle(int idIn, std::string nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn);
+                void addParticle(int idIn, std::string nameIn, int spinTypeIn, int chargeTypeIn);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn);
+                void addParticle(int idIn, std::string nameIn, int spinTypeIn);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn);
+                void addParticle(int idIn, std::string nameIn);
         
                 void addParticle(int idIn);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn, double tau0In);
+                void addParticle(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn, double tau0In);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn);
+                void addParticle(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn);
+                void addParticle(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn);
+                void addParticle(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In);
+                void addParticle(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn);
+                void addParticle(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn);
+                void addParticle(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn);
+                void addParticle(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn);
         
-                void addParticle(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn);
+                void addParticle(int idIn, std::string nameIn, std::string antiNameIn);
         
-                void setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn, double tau0In);
+                void setAll(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn, double tau0In);
         
-                void setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn);
+                void setAll(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn);
         
-                void setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn);
+                void setAll(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn);
         
-                void setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn);
+                void setAll(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn);
         
-                void setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In);
+                void setAll(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In);
         
-                void setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn);
+                void setAll(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn);
         
-                void setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn);
+                void setAll(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn, int chargeTypeIn);
         
-                void setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn);
+                void setAll(int idIn, std::string nameIn, std::string antiNameIn, int spinTypeIn);
         
-                void setAll(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn);
+                void setAll(int idIn, std::string nameIn, std::string antiNameIn);
         
                 bool isParticle(int idIn);
         
                 int nextId(int idIn);
         
-                void name(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn);
+                void name(int idIn, std::string nameIn);
         
-                void antiName(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn);
+                void antiName(int idIn, std::string antiNameIn);
         
-                void names(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn);
+                void names(int idIn, std::string nameIn, std::string antiNameIn);
         
                 void spinType(int idIn, int spinTypeIn);
         
@@ -207,7 +207,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 bool hasAnti(int idIn);
         
-                ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > name(int idIn);
+                ::std::string name(int idIn);
         
                 int spinType(int idIn);
         
@@ -279,6 +279,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void rescaleBR(int idIn);
         
+                void setResonancePtr(int idIn, Pythia8::ResonanceWidths* resonancePtrIn);
+        
                 void resInit(int idIn);
         
                 double resWidth(int idIn, double mHat, int idInFlav, bool openOnly, bool setBR);
@@ -321,7 +323,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ParticleData();
         
                 // Special pointer-based constructor: 
-                ParticleData(Pythia8::Abstract_ParticleData* in);
+                ParticleData(Abstract_ParticleData* in);
         
                 // Copy constructor: 
                 ParticleData(const ParticleData& in);
@@ -333,7 +335,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~ParticleData();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_ParticleData* get_BEptr() const;
+                Abstract_ParticleData* get_BEptr() const;
         
         };
     }

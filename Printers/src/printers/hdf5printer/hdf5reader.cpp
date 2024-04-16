@@ -199,12 +199,6 @@ namespace Gambit
         // Currently we only store data in basic types, so those are all that this
         // function needs to retrieve.
 
-        // DEBUG
-        // std::cout << "Retrieved H5 type for '"<<label<<"': "<<datatype_id<<std::endl;
-        // printAllTypeIDs();
-        // printAllH5Types();
-        // END DEBUG
-
         // Matching of HDF5 datatypes to Printer type IDs
         // Need to use H5Tequal to check if the HDF5 type IDs are equal
         std::size_t typeID=0;

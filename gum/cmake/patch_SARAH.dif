@@ -1,0 +1,24 @@
+diff -rupN SARAH_pristine/Package/SPheno/SPheno2LPole.m ../contrib/SARAH/Package/SPheno/SPheno2LPole.m
+--- SARAH_pristine/Package/SPheno/SPheno2LPole.m	2021-03-10 19:20:29.240283644 +0100
++++ ../contrib/SARAH/Package/SPheno/SPheno2LPole.m	2021-03-10 19:21:39.196909020 +0100
+@@ -1141,7 +1141,7 @@ WriteString[spheno2LP,"Pi2P(gE2,gE1)=Pi2
+ WriteString[spheno2LP,"End do\nEnd do\n"];
+ WriteString[spheno2LP,"Pi2P=Pi2P+delta2lmassesah\n"];
+ (**---now to "undiagonalise"----*)
+-If[ValueQ[PseudoScalarMixingMatrix],
++If[ValueQ[PseudoScalarMixingMatrix,Method->"Legacy"],
+ WriteString[spheno2LP,"Pi2P = Matmul(Pi2P,"<>SPhenoForm[PseudoScalarMixingMatrix]<>")\n"];
+ WriteString[spheno2LP,"Pi2P = Matmul(Transpose("<>SPhenoForm[PseudoScalarMixingMatrix]<>"),Pi2P)\n"];
+ ,
+diff -rupN SARAH_pristine/SARAH.m ../contrib/SARAH/SARAH.m
+--- SARAH_pristine/SARAH.m	2021-03-10 19:20:29.192283220 +0100
++++ ../contrib/SARAH/SARAH.m	2021-03-10 19:20:58.084539670 +0100
+@@ -180,7 +180,7 @@ If[StringFreeQ[model,"/"]==False,
+ splitted=StringSplit[model,"/"];
+ modelDir=splitted[[1]]; submodeldir=splitted[[2]];,
+ modelDir = model;
+-If[ValueQ[sub]=!=ValueQ[],
++If[ValueQ[sub,Method->"Legacy"]=!=ValueQ[Method->"Legacy"],
+ submodeldir=sub;,
+ submodeldir=False;
+ ];

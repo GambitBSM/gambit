@@ -21,6 +21,8 @@
 #include <string>
 #include <vector>
 
+#include "gambit/ColliderBit/Utils.hpp"
+
 namespace Gambit
 {
   namespace ColliderBit
@@ -33,7 +35,7 @@ namespace Gambit
       public:
 
         /// Constructor
-        BaseCollider() {}
+        BaseCollider() : partonOnly(false), all_jet_collection_settings({}), jetcollection_taus("") {}
         /// Destructor
         virtual ~BaseCollider() {}
         /// Reset this instance for reuse, avoiding the need for "new" or "delete".
@@ -41,10 +43,20 @@ namespace Gambit
 
         /// @name Event generation and cross section functions:
         ///@{
-        /// Report the cross section (in pb) at the end of the subprocess.
+        /// Report the total or process-specific cross section (in fb or pb).
+        virtual double xsec_fb() const = 0;
+        virtual double xsec_fb(int) const = 0;
         virtual double xsec_pb() const = 0;
-        /// Report the cross section uncertainty (in pb) at the end of the subprocess.
+        virtual double xsec_pb(int) const = 0;
+        /// Report the uncertainty in the total or process-specific cross section (in fb or pb).
+        virtual double xsecErr_fb() const = 0;
+        virtual double xsecErr_fb(int) const = 0;
         virtual double xsecErr_pb() const = 0;
+        virtual double xsecErr_pb(int) const = 0;
+        /// Report an integer process code for the last generated event
+        virtual int process_code() const = 0;
+        /// Report the list of all active process codes
+        virtual std::vector<int> all_active_process_codes() const = 0;
         ///@}
 
         /// @name (Re-)Initialization functions:
@@ -54,6 +66,15 @@ namespace Gambit
         /// General init for any collider of this type - no settings version.
         virtual void init() {}
         ///@}
+
+        /// Flag indicating if events from this collider should be processed as parton-only or full events
+        bool partonOnly;
+
+        /// Vector of different jet collection settings
+        std::vector<jet_collection_settings> all_jet_collection_settings;
+
+        /// Key for jet collection used in adding taus
+        std::string jetcollection_taus;
 
     };
 

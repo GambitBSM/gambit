@@ -38,8 +38,8 @@ namespace Gambit
       // Functions
 
       // Convert between mass and flavour eigenstate identifiers
-      std::string str_flav_to_mass(std::string flav);
-      std::string str_mass_to_flav(std::string mass);
+      std::string str_flav_to_mass(const std::string& flav);
+      std::string str_mass_to_flav(const std::string& mass);
 
       // Helper function for recursively importing decays and decays of resulting final states into a process catalog
       void ImportDecays(std::string pID, TH_ProcessCatalog &catalog,

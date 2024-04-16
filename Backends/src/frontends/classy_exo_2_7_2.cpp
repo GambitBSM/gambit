@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Frontend source for the exoclassy backend.
+///  Frontend source for the classy_exo backend.
 ///
 ///  *********************************************
 ///
@@ -20,6 +20,7 @@
 ///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2019 July
 ///  \date 2020 January
+///  \date 2021 January, March
 ///
 ///  *********************************************
 
@@ -28,12 +29,16 @@
 
 #ifdef HAVE_PYBIND11
 
+  #include "gambit/Utils/begin_ignore_warnings_pybind11.hpp"
   #include <pybind11/stl.h>
   #include <pybind11/stl_bind.h>
   #include <pybind11/functional.h>
+  #include "gambit/Utils/end_ignore_warnings.hpp"
 
   BE_NAMESPACE
   {
+    // use convenience function to cast a numpy array into a std::vector
+    using Backends::cast_np_to_std;
 
     pybind11::object static cosmo;
     // save input dictionary from CLASS run from
@@ -130,8 +135,34 @@
         new_old_names["chi_file"]                      = "energy repartition coefficient file";
       }
 
-      // In the first batch, we will fix the names of the inputs.
-      // We will fix the entries itself, if needed, later.
+      // If the 'on-the-spot approximation' is used (i.e scosmo_input_dictult["f_eff_type"] == "on_the_spot")
+      // then replace this CLASS 3-compatible input to the respective inputs that can be understood by
+      // this version of ExoCLASS.
+      //
+      // Check whether there is actually any entry with key "f_eff_type"
+      if (cosmo_input_dict.attr("__contains__")("f_eff_type").cast<bool>())
+      {
+        // Only modify the dictionary if the value of "f_eff_type" is "on_the_spot"
+        std::string f_eff_type = cosmo_input_dict["f_eff_type"].cast<std::string>();
+        if (f_eff_type.compare("on_the_spot") == 0)
+        {
+          // Delete the "f_eff_type" entry.
+          cosmo_input_dict.attr("pop")("f_eff_type");
+
+          // Set the new entries
+          cosmo_input_dict["on the spot"] = "yes";
+          cosmo_input_dict["f_eff"] = "1.0"; // f_eff is already included in "sigmav" (or "fraction")
+
+          // Also set "chi_type" (if not already set by the user)
+          if ( !(cosmo_input_dict.attr("__contains__")("chi_type").cast<bool>()) )
+          {
+            cosmo_input_dict["chi_type"] = "CK_2004";
+          }
+        }
+      }
+
+      // Next we will fix the names of the keys.
+      // We will fix their values, if needed, later.
       for (const auto& item: new_old_names)
       {
         pybind11::str newkey = pybind11::str(item.first);
@@ -167,7 +198,7 @@
         else
         {
           std::ostringstream errMssg;
-          errMssg << "The chosen version of classy [classy_" << STRINGIFY(VERSION) << "] ";
+          errMssg << "The chosen version of classy [classy_exo_" << STRINGIFY(VERSION) << "] ";
           errMssg << "cannot handle the argument \'" << entry << "\' ";
           errMssg << "of the iput 'chi_type' (aka. 'energy_repartition_coefficient').\n";
           errMssg << "Please adjust your input or use a suitable version.";
@@ -184,16 +215,14 @@
     std::vector<double> class_get_lensed_cl(std::string spectype)
     {
       // Get dictionary containing all (lensed) Cl spectra
-      pybind11::dict cl_dict = cosmo.attr("lensed_cl")();
+      map_str_pyobj cl_dict = cosmo.attr("lensed_cl")().cast<map_str_pyobj>();
 
       // Get only the relevant Cl as np array and steal the pointer to its data.
-      pybind11::object cl_array_obj = cl_dict[pybind11::cast(spectype)];
+      pybind11::object cl_array_obj = cl_dict[spectype];
       pybind11::array_t<double> cl_array = pybind11::cast<pybind11::array_t<double>>(cl_array_obj);
-      auto cl_ptr = cl_array.data();
-      size_t len = cl_array.size();
 
       // Create the vector to return
-      std::vector<double> result(cl_ptr, (cl_ptr+len));
+      std::vector<double> result = cast_np_to_std(cl_array);
 
       // cl = 0 for l = 0,1
       result.at(0) = 0.;
@@ -206,16 +235,14 @@
     std::vector<double> class_get_unlensed_cl(std::string spectype)
     {
       // Get dictionary containing the raw (unlensed) Cl spectra
-      pybind11::dict cl_dict = cosmo.attr("raw_cl")();
+      map_str_pyobj cl_dict = cosmo.attr("raw_cl")().cast<map_str_pyobj>();
 
       // Get only the relevant Cl as np array and steal the pointer to its data.
-      pybind11::object cl_array_obj = cl_dict[pybind11::cast(spectype)];
+      pybind11::object cl_array_obj = cl_dict[spectype];
       pybind11::array_t<double> cl_array = pybind11::cast<pybind11::array_t<double>>(cl_array_obj);
-      auto cl_ptr = cl_array.data();
-      size_t len = cl_array.size();
 
       // Create the vector to return
-      std::vector<double> result(cl_ptr, (cl_ptr+len));
+      std::vector<double> result = cast_np_to_std(cl_array);
 
       // cl = 0 for l = 0,1
       result.at(0) = 0.;
@@ -304,6 +331,20 @@
       return rs_d;
     }
 
+    // returns optical depth at reionisation
+    double class_get_tau_reio()
+    {
+      double rs_d = cosmo.attr("tau_reio")().cast<double>();
+      return rs_d;
+    }
+
+    // returns redshift of reionisation
+    double class_get_z_reio()
+    {
+      double rs_d = cosmo.attr("z_reio")().cast<double>();
+      return rs_d;
+    }
+
     // returns sigma8 at z = 0
     // (root mean square fluctuations density fluctuations within
     // spheres of radius 8/h Mpc)
@@ -366,7 +407,7 @@ BE_INI_FUNCTION
     if(first_run)
     {
       max_errors = runOptions->getValueOrDef<int>(100,"max_errors");
-      cosmo = classy.attr("Class")();
+      cosmo = classy_exo.attr("Class")();
       // check input for consistency
       class_input_consistency_checks(cosmo_input_dict);
 
@@ -395,19 +436,19 @@ BE_INI_FUNCTION
       //int recomputed = cosmo.attr("recomputed").cast<int>();
 
       // set cosmological parameters
-      logger() << LogTags::debug << "[classy_"<< STRINGIFY(VERSION) <<"] These are the inputs:"<<endl;
+      logger() << LogTags::debug << "[classy_exo_"<< STRINGIFY(VERSION) <<"] These are the inputs:"<<endl;
       logger() << pybind11::repr(cosmo_input_dict) << EOM;
       cosmo.attr("set")(cosmo_input_dict);
 
       // Try to run class and catch potential errors
-      logger() << LogTags::info << "[classy_"<< STRINGIFY(VERSION) <<"] Start to run \"cosmo.compute\"" << EOM;
+      logger() << LogTags::info << "[classy_exo_"<< STRINGIFY(VERSION) <<"] Start to run \"cosmo.compute\"" << EOM;
       try
       {
         // Try to run classy
         cosmo.attr("compute")();
         // reset counter when no exception is thrown.
         error_counter = 0;
-        logger() << LogTags::info << "[classy_"<< STRINGIFY(VERSION) <<"] \"cosmo.compute\" was successful" << EOM;
+        logger() << LogTags::info << "[classy_exo_"<< STRINGIFY(VERSION) <<"] \"cosmo.compute\" was successful" << EOM;
       }
       catch (std::exception &e)
       {
@@ -460,7 +501,7 @@ BE_INI_FUNCTION
     // identical CLASS input -- skip compute step & save time!
     else
     {
-      logger() << LogTags::info << "[classy_"<< STRINGIFY(VERSION) <<"] \"cosmo.compute\" was skipped, input was identical to previously computed point" << EOM;
+      logger() << LogTags::info << "[classy_exo_"<< STRINGIFY(VERSION) <<"] \"cosmo.compute\" was skipped, input was identical to previously computed point" << EOM;
       // CLASS did not recompute -> save this information in cosmo container, so MontePython
       // (and potentially other backends) has access to this information and can skip
       // their computations as well

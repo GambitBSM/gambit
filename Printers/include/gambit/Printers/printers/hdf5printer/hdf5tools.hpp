@@ -21,6 +21,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Jul
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 June
+///
 ///  *********************************************
 
 #ifndef __hdf5tools_hpp__
@@ -43,6 +47,9 @@
 // Boost
 #include <boost/utility/enable_if.hpp>
 
+// Maximum length of HDF5 strings
+#define HDF5_STRING_MAX_LEN 100
+
 /// Provide template specialisation of get_hdf5_data_type only if the requested type hasn't been used to define one already.
 #define SPECIALISE_HDF5_DATA_TYPE_IF_NEEDED(TYPEDEFD_TYPE, RETURN_HDF5_TYPE)                                  \
       template<typename T>                                                                                                   \
@@ -60,7 +67,8 @@
                                                                !std::is_same<float, TYPEDEFD_TYPE>::value                 && \
                                                                !std::is_same<double, TYPEDEFD_TYPE>::value                && \
                                                                !std::is_same<long double, TYPEDEFD_TYPE>::value           && \
-                                                               !std::is_same<bool, TYPEDEFD_TYPE>::value>::type >            \
+                                                               !std::is_same<bool, TYPEDEFD_TYPE>::value                  && \
+                                                               !std::is_same<std::string, TYPEDEFD_TYPE>::value>::type >            \
       {                                                                                                                      \
          static hid_t type() { return RETURN_HDF5_TYPE; }                                                            \
       };                                                                                                                     \
@@ -235,10 +243,14 @@ namespace Gambit
       template<> struct get_hdf5_data_type<float>             { static hid_t type() { return H5T_NATIVE_FLOAT  ; } };
       template<> struct get_hdf5_data_type<double>            { static hid_t type() { return H5T_NATIVE_DOUBLE ; } };
       template<> struct get_hdf5_data_type<long double>       { static hid_t type() { return H5T_NATIVE_LDOUBLE; } };
-      template<> struct get_hdf5_data_type<bool>              { static hid_t type() { return H5T_NATIVE_UINT8  ; } };
       // Bools are a bit trickier because C has no built-in boolean type (until recently; anyway
       // the HDF5 libraries were written in C before this existed). We also want something that
       // will be recognised as a bool by h5py. For now we just use an unsigned int.
+      template<> struct get_hdf5_data_type<bool>              { static hid_t type() { return H5T_NATIVE_UINT8  ; } };
+      // The hdf5 native type H5T_C_S1 is a string of a single character.
+      // To use longer strings we copy the type and extend it.
+      template<> struct get_hdf5_data_type<std::string>       { static hid_t type() { hid_t strtype = H5Tcopy(H5T_C_S1); H5Tset_size (strtype, H5T_VARIABLE); return strtype; } };
+
 
       // Macro sequence for iterating over all allowed output types
       #define H5_OUTPUT_TYPES \
@@ -255,7 +267,8 @@ namespace Gambit
         (float) \
         (double) \
         (long double) \
-        (bool)
+        (bool) \
+        (std::string)
 
       /// DEBUG: print to stdout all HDF5 type IDs
       void printAllH5Types(void);

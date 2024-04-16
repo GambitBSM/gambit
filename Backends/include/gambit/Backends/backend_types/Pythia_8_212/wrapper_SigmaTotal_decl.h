@@ -22,7 +22,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_SigmaTotal* (*__factory0)();
+                static Abstract_SigmaTotal* (*__factory0)();
         
                 // -- Other member variables: 
         
@@ -90,7 +90,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 SigmaTotal();
         
                 // Special pointer-based constructor: 
-                SigmaTotal(Pythia8::Abstract_SigmaTotal* in);
+                SigmaTotal(Abstract_SigmaTotal* in);
         
                 // Copy constructor: 
                 SigmaTotal(const SigmaTotal& in);
@@ -102,7 +102,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~SigmaTotal();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_SigmaTotal* get_BEptr() const;
+                Abstract_SigmaTotal* get_BEptr() const;
         
         };
     }

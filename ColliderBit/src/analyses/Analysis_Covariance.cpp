@@ -31,11 +31,11 @@ namespace Gambit {
              for (auto srd = begin(); srd != end(); ++srd,++i)
              {
                 SR_names << "\"" << srd->sr_label << "__i"<<i << "\", ";
-                SR_n     << srd->n_observed     << ", ";
-                SR_b     << srd->n_background   << ", ";
-                SR_b_sys << srd->background_sys << ", ";
-                //SR_s_sys << srd->signal_sys     << ", ";
-                //SR_s     << srd->n_signal       << ", ";
+                SR_n     << srd->n_obs     << ", ";
+                SR_b     << srd->n_bkg   << ", ";
+                SR_b_sys << srd->n_bkg_err << ", ";
+                //SR_s_sys << srd->n_sig_MC_sys     << ", ";
+                //SR_s     << srd->n_sig_MC       << ", ";
              }
              SR_names << "]";
              SR_n     << "]";
@@ -75,7 +75,7 @@ namespace Gambit {
 
       // Variables that holds the number of events passing
       // signal region cuts
-      int _numSR;
+      double _numSR;
 
     public:
 
@@ -97,23 +97,12 @@ namespace Gambit {
       void collect_results()
       {
         // Now fill a results object with the result for two signal regions
-        SignalRegionData results_SR1;
-        results_SR1.sr_label = "SR1"; // label must be unique for each signal region
-        results_SR1.n_observed = 100; // set number of observed events (in LHC paper)
-        results_SR1.n_background = 95; // set number of predicted background events (in LHC paper)
-        results_SR1.background_sys = 9.5; // set background uncertainty (in LHC paper)
-        results_SR1.signal_sys = 0; // set signal uncertainty
-        results_SR1.n_signal = 120; // dummy number of signal events (usually incremented in the analysis code)
-        add_result(results_SR1);
 
-        SignalRegionData results_SR2;
-        results_SR2.sr_label = "SR2"; // label must be unique for each signal region
-        results_SR2.n_observed = 10; // set number of observed events (in LHC paper)
-        results_SR2.n_background = 9; // set number of predicted background events (in LHC paper)
-        results_SR2.background_sys = 4; // set background uncertainty (in LHC paper)
-        results_SR2.signal_sys = 0; // set signal uncertainty
-        results_SR2.n_signal = 15; // dummy number of signal events (usually incremented in the analysis code)
-        add_result(results_SR2);
+        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
+        // Note: n_sig_MC is usually incremented in the analysis code -- here we just hardcoded a value
+
+        add_result(SignalRegionData("SR1", 100., {120, 0.}, {95., 9.5}));
+        add_result(SignalRegionData("SR2", 10., {15, 0.}, {9., 4.}));
 
         // Hard-code a covariance matrix  between these (representing the bkg sys values above, rotated by 30 deg)
         Eigen::MatrixXd cov(2,2);

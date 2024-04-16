@@ -709,7 +709,20 @@ def findType(el_input):
     name_and_namespaces = getNamespaces(el, include_self=True)
     typename = '::'.join(name_and_namespaces)
 
+    # Replace any type names? This is to tackle system-dependent typedef expansions 
+    # like "std::basic_string<char, std::char_traits<char>, std::allocator<char> >"
+    # for the typdef std::string.
+    # 
+    # TODO: Find a nicer way to do this than just replacing the full typename
+    if isStdType(el):
+        typename_nospace = typename.replace(' ','')
+        for long_typename, typedefname in gb.std_typedef_names_dict.items():
+            long_typename_nospace = long_typename.replace(' ','')
+            if (typename_nospace == long_typename_nospace):
+                typename = typedefname
+                break
 
+    # Construct the returned dict with the type info
     type_dict = OrderedDict([])
     type_dict['name']                = typename
     type_dict['cv_qualifiers']       = cv_qualifiers
@@ -1602,6 +1615,10 @@ def identifyIncludedHeaders(content, only_native=True):
 
         if line[0:8] == '#include':
 
+            # Make sure there's a whitespace after '#include' 
+            if line[8] != ' ':
+                line = line[0:8] + ' ' + line[8:]
+
             header_file_name = line.split()[1]
 
             # Skip standard headers (of the form: #include <FILENAME>)
@@ -1845,8 +1862,9 @@ def getIncludeStatements(input_el, convert_loaded_to='none', exclude_types=[],
         else:
             infomsg.NoIncludeStatementGenerated( type_name['long_templ'] ).printMessage()
 
-    # Remove duplicates and return list
+    # Remove duplicates and return list (ordered)
     include_statements = list( OrderedDict.fromkeys(include_statements) )
+    include_statements = orderIncludeStatements(include_statements)
 
     return include_statements
 
@@ -1968,6 +1986,7 @@ def replaceCodeTags(input, file_input=False, write_file=False):
     new_content = new_content.replace('__BACKEND_NAME__'         ,  cfg.gambit_backend_name)
     new_content = new_content.replace('__BACKEND_VERSION__'      ,  cfg.gambit_backend_version)
     new_content = new_content.replace('__BACKEND_SAFE_VERSION__' ,  gb.gambit_backend_safeversion)
+    new_content = new_content.replace('__BACKEND_REFERENCE__'    ,  cfg.gambit_backend_reference)
     new_content = new_content.replace('__CODE_SUFFIX__'          ,  gb.code_suffix)
 
     new_content = new_content.replace('__PATH_TO_FRWD_DECLS_ABS_CLASSES_HEADER__', os.path.join(gb.backend_types_basedir, gb.gambit_backend_name_full, gb.frwd_decls_abs_fname + cfg.header_extension))
@@ -2040,7 +2059,7 @@ def constrLoadedTypesHeaderContent():
             class_line += '    /*constructors*/'
 
             for info_dict in gb.factory_info[ class_name['long'] ]:
-                class_line += '(("' + info_dict['name'] + '",' + info_dict['args_bracket'] + ')) '
+                class_line += '(("' + info_dict['name'] + '",' + info_dict['args_bracket'].replace(' ::', ' ').replace('(::', '(') + ')) '
 
             class_line += ')) \\'
             class_lines.append(class_line)
@@ -2084,6 +2103,10 @@ def constrLoadedTypesHeaderContent():
     code  = ''
     code += incl_guard_start
 
+    # - Any user-specified code to add?
+    if cfg.surround_code_begin.strip() != '':
+        code += cfg.surround_code_begin
+
     code += '\n'
     code += incl_statements_code
 
@@ -2100,6 +2123,10 @@ def constrLoadedTypesHeaderContent():
     code += '\n'
     code += '// Undefine macros to avoid conflict with other backends.\n'
     code += '#include "' + os.path.join(gb.gambit_backend_incl_dir, "backend_undefs.hpp") + '"\n'
+
+    # - Any user-specified code to add?
+    if cfg.surround_code_end.strip() != '':
+        code += cfg.surround_code_end
 
     code += '\n'
     code += incl_guard_end
@@ -2138,7 +2165,7 @@ def constrEnumDeclHeader(enum_el_list, file_output_path):
 
         # Get enum names and values
         enum_members_list = []
-        for sub_el in enum_el.getchildren():
+        for sub_el in list(enum_el):
             if sub_el.tag == 'EnumValue':
                 member_string = sub_el.get('name') + '=' + sub_el.get('init')
                 enum_members_list.append(member_string)
@@ -2589,12 +2616,12 @@ def fillParentsOfLoadedClassesList():
 
 # ====== xmlFilesToDicts ========
 
-    #
-    # Read all xml elements of all files and store in two dict of dicts:
-    #
-    # 1. all_id_dict:    file name --> xml id --> xml element
-    # 2. all_name_dict:  file name --> name   --> xml element
-    #
+#
+# Read all xml elements of all files and store in two dict of dicts:
+#
+# 1. all_id_dict:    file name --> xml id --> xml element
+# 2. all_name_dict:  file name --> name   --> xml element
+#
 
 def xmlFilesToDicts(xml_files):
 
@@ -2606,12 +2633,12 @@ def xmlFilesToDicts(xml_files):
         tree = ET.parse(xml_file)
         root = tree.getroot()
 
-        for el in root.getchildren():
+        for el in list(root):
 
             # Fill id-based dict
             gb.all_id_dict[xml_file][el.get('id')] = el
 
-        for el in root.getchildren():
+        for el in list(root):
 
             # Determine name
             if 'name' in el.keys():
@@ -2638,11 +2665,61 @@ def clearGlobalXMLdicts():
 
     gb.file_dict.clear()
     gb.std_types_dict.clear()
-    gb.typedef_dict.clear()
+    # gb.typedef_dict.clear()
     gb.loaded_classes_in_xml.clear()
     gb.func_dict.clear()
 
 # ====== END: clearGlobalXMLdicts ========
+
+
+
+# ====== initGlobalTypedefDicts ========
+
+def initGlobalTypedefDicts(xml_paths):
+
+    import modules.classutils as classutils
+
+    for xml_path in xml_paths:
+
+        # Clear dicts
+        clearGlobalXMLdicts()
+
+        # Set some global dicts directly using the current xml file
+        gb.id_dict   = copy.deepcopy( gb.all_id_dict[xml_path] )
+        gb.name_dict = copy.deepcopy( gb.all_name_dict[xml_path] )
+
+        # Collect all typedef elems from the current xml file
+        all_typedef_elems = []
+        for xml_id, el in gb.id_dict.items():
+            if (el.tag == 'Typedef') and ('access' not in el.keys()):
+                all_typedef_elems.append(el)
+
+        # Now fill the global dict gb.std_typedef_names_dict
+        for xml_id, el in gb.id_dict.items():
+
+            if isStdType(el):
+
+                class_name_long_templ = classutils.getClassNameDict(el)['long_templ']
+
+                for typedef_el in all_typedef_elems:
+
+                    # Skip special std typedefs starting with __
+                    if typedef_el.get('name')[0:2] == '__':
+                        continue
+
+                    if typedef_el.get('type') == el.get('id'):
+
+                        name_and_namespaces = getNamespaces(typedef_el, include_self=True)
+
+                        if name_and_namespaces[0] == 'std':
+
+                            long_typedef_name = '::'.join(name_and_namespaces)
+
+                            gb.std_typedef_names_dict[class_name_long_templ] = long_typedef_name
+                            # print("DEBUG: Got typedef: ", [class_name_long_templ], " --> ", [long_typedef_name])
+                            break
+
+# ====== END: initGlobalTypedefDicts ========
 
 
 
@@ -2672,16 +2749,9 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
     for xml_id, el in gb.id_dict.items():
 
-
         # Update global dict: file name --> file xml element
         if el.tag == 'File':
             gb.file_dict[el.get('name')] = el
-
-
-        # Update global dict: std type --> type xml element
-        if isStdType(el):
-            class_name = classutils.getClassNameDict(el)
-            gb.std_types_dict[class_name['long_templ']] = el
 
 
         # Update global dict of loaded classes in this xml file: class name --> class xml element
@@ -2707,32 +2777,38 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
                     gb.loaded_classes_in_xml[class_name['long_templ']] = el
 
 
-        # Update global dict: typedef name --> typedef xml element
-        if el.tag == 'Typedef':
+        # # Update global dict: typedef name --> typedef xml element
+        # # Collect list of xml elements for all (global) typedefs
+        # if el.tag == 'Typedef':
 
-            # Only accept native typedefs:
-            if isNative(el):
+        #     # Collect list of xml elements for all (global) typedefs
+        #     if 'access' not in el.keys():
+        #         all_typedef_elems.append(el)
 
-                typedef_name = el.get('name')
+        #     # Commented out the block below, as we're currently not using gb.typedef_dict for anything
+        #     # # Only accept native typedefs:
+        #     # if isNative(el):
 
-                type_dict = findType(el)
-                type_el = type_dict['el']
+        #     #     typedef_name = el.get('name')
 
-                # If underlying type is a fundamental or standard type, accept it right away
-                if isFundamental(type_el) or isStdType(type_el):
-                    gb.typedef_dict[typedef_name] = el
+        #     #     type_dict = findType(el)
+        #     #     type_el = type_dict['el']
 
-                # If underlying type is a class/struct, check if it's acceptable
-                elif type_el.tag in ['Class', 'Struct']:
+        #     #     # If underlying type is a fundamental or standard type, accept it right away
+        #     #     if isFundamental(type_el) or isStdType(type_el):
+        #     #         gb.typedef_dict[typedef_name] = el
 
-                    type_name = classutils.getClassNameDict(type_el)
+        #     #     # If underlying type is a class/struct, check if it's acceptable
+        #     #     elif type_el.tag in ['Class', 'Struct']:
 
-                    if type_name['long_templ'] in cfg.load_classes:
-                        gb.typedef_dict[typedef_name] = el
+        #     #         type_name = classutils.getClassNameDict(type_el)
 
-                # If neither fundamental or class/struct, ignore it.
-                else:
-                    pass
+        #     #         if type_name['long_templ'] in cfg.load_classes:
+        #     #             gb.typedef_dict[typedef_name] = el
+
+        #     #     # If neither fundamental or class/struct, ignore it.
+        #     #     else:
+        #     #         pass
 
 
         # Update global dict: function name --> function xml element
@@ -2748,7 +2824,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
                 infomsg.FunctionAlreadyDone( func_name['long_templ_args'] ).printMessage()
                 continue
 
-            if func_name['long_templ_args'] in cfg.load_functions:
+            if func_name['long_templ_args'].replace(' ','') in cfg.load_functions:
                 gb.func_dict[func_name['long_templ_args']] = el
 
 
@@ -2786,6 +2862,27 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
     # END: Loop over all elements in this xml file
     #
 
+    # # Update global dict: std type xml element --> std typdef xml element
+    # # Update global dict: std type name --> std typdef xml element
+    # for class_name_long_templ, class_el in gb.std_types_dict.items():
+
+    #     for typedef_el in all_typedef_elems:
+
+    #         # Skip special std typedefs starting with __
+    #         if typedef_el.get('name')[0:2] == '__':
+    #             continue
+
+    #         if typedef_el.get('type') == class_el.get('id'):
+
+    #             name_and_namespaces = getNamespaces(typedef_el, include_self=True)
+
+    #             if name_and_namespaces[0] == 'std':
+
+    #                 long_typedef_name = '::'.join(name_and_namespaces)
+
+    #                 gb.std_typedef_names_dict[class_name_long_templ] = long_typedef_name
+
+    #                 break
 
 # ====== END: initGlobalXMLdicts ========
 
@@ -2938,3 +3035,36 @@ def modifyText(msg, mod):
 
 # ====== END: modifyText ========
 
+
+# ====== orderIncludeStatements ========
+
+def orderIncludeStatements(include_statements):
+
+    ordered_include_statements = []
+
+    # This is not the fastest solution, but an easy way to 
+    # to keep the existing order within each group of headers
+
+    # Add standard headers (not Boost headers)
+    for s in include_statements:
+        if "<" in s:
+            if "<boost/" not in s:
+                ordered_include_statements.append(s)
+
+    # Add BOSS-generated and/or backend-specific headers
+    for s in include_statements:
+        if "<" not in s:
+            ordered_include_statements.append(s)
+
+    # Add Boost headers
+    for s in include_statements:
+        if "<boost/" in s:
+            ordered_include_statements.append(s)
+
+    # Check that we haven't missed any include statements
+    assert len(ordered_include_statements) == len(include_statements)
+
+    # Return ordered list of include statements
+    return ordered_include_statements
+
+# ====== END: orderIncludeStatements ========

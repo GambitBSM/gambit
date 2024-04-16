@@ -15,7 +15,9 @@
 ///  *********************************************
 
 #ifdef WITH_MPI
+#include "gambit/Utils/begin_ignore_warnings_mpi.hpp"
 #include "mpi.h"
+#include "gambit/Utils/end_ignore_warnings.hpp"
 #endif
 
 #include <vector>
@@ -68,7 +70,6 @@ scanner_plugin(raster, version(1, 0, 0))
     {
         like_ptr LogLike    = get_purpose(get_inifile_value<std::string>("like"));
         int ma              = get_dimension();
-        std::vector<double> a(ma);
 
         std::cout << "Starting Raster Scanner over " << N << " points." << ma << std::endl;
 
@@ -80,12 +81,7 @@ scanner_plugin(raster, version(1, 0, 0))
                 map[it->first] = it->second[i%it->second.size()];
             }
             
-            for (int j = 0; j < ma; j++)
-            {
-                a[j] = Gambit::Random::draw();
-            }
-
-            LogLike(map, a);
+            LogLike(map);
             std::cout << "Point " << i << " done." << std::endl;
         }
         

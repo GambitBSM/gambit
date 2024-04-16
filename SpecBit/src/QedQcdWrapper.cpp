@@ -22,7 +22,7 @@
 
 #include "gambit/Elements/sminputs.hpp"
 #include "gambit/Elements/spectrum.hpp"
-#include "gambit/Elements/slhaea_helpers.hpp"
+#include "gambit/Elements/slhaea_spec_helpers.hpp"
 #include "gambit/SpecBit/QedQcdWrapper.hpp"
 #include "gambit/Utils/util_functions.hpp"
 

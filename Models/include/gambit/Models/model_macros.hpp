@@ -76,7 +76,7 @@
   #define CLASSLOAD_NEEDED(BACKEND, VERSION)               CORE_CLASSLOAD_NEEDED(BACKEND, VERSION, IS_MODEL)
 #else
   #include "gambit/Elements/module_macros_inmodule_defs.hpp"
-  #define START_MODEL                                       MODULE_START_MODEL
+  #define START_MODEL                                       /* Do nothing */
   #define DEFINEPARS(...)                                   /* Do nothing */
   #define MAP_TO_CAPABILITY(PARAMETER,CAPABILITY)           /* Do nothing */
   #define INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)             MODULE_INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)
@@ -128,26 +128,6 @@
 /// "Rollcall" macros. These are lifted straight from module_macros_incore.hpp
 /// but are modified here and there to suit the role of models.
 
-/// "In module" version of the START_MODEL macro
-#define MODULE_START_MODEL                                                     \
-  IF_TOKEN_UNDEFINED(MODEL,FAIL("You must define MODEL before calling "        \
-   "START_MODEL."))                                                            \
-  /*_Pragma("message declaring model...") \
-  _Pragma( STRINGIFY(CAT("message Forward declaring model: ",MODEL)) )      */ \
-  namespace Gambit                                                             \
-  {                                                                            \
-   namespace Models                                                            \
-   {                                                                           \
-    namespace MODEL                                                            \
-    {                                                                          \
-      /* Module errors */                                                      \
-      error& CAT(MODEL,_error)();                                              \
-      /* Module warnings */                                                    \
-      warning& CAT(MODEL,_warning)();                                          \
-    }                                                                          \
-   }                                                                           \
-  }                                                                            \
-
 /// "In module" version of the INTERPRET_AS_X_FUNCTION macro
 #define MODULE_INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)                           \
   namespace Gambit                                                             \
@@ -168,7 +148,7 @@
           namespace CAT(MODEL_X,_parameters)                                   \
           {                                                                    \
             /* Declare the parameters safe-pointer map as external. */         \
-            extern std::map<str, safe_ptr<double> > Param;                     \
+            extern std::map<str, const safe_ptr<const double> > Param;                     \
             /* Declare the safe-pointer to the models vector as external. */   \
             extern safe_ptr< std::vector<str> > Models;                        \
             /* Declare the safe pointer to the run options as external. */     \
@@ -266,13 +246,13 @@
       /* Make the functor exclusive to this model and its descendants */       \
       CORE_ALLOW_MODEL(MODEL,PARAMETER,MODEL)                                  \
                                                                                \
+      /* Create dependency on the parameters of MODEL */                       \
+      /* TODO: Check whether there is a more elegant solution */               \
+      CORE_ALLOWED_MODEL_ARRANGE_DEP(MODEL,PARAMETER,MODEL)                    \
+                                                                               \
     }                                                                          \
                                                                                \
   }                                                                            \
-                                                                               \
-  /* Create dependency of PARAMETER functor on host model parameters object */ \
-  CORE_DEPENDENCY(CAT(MODEL,_parameters),ModelParameters,MODEL,PARAMETER,      \
-   IS_MODEL)                                                                   \
                                                                                \
   /* Define the actual parameter setting function, now that we have the
      functor and its dependency */                                             \
@@ -291,9 +271,7 @@
            core */                                                             \
         void PARAMETER (double &result)                                        \
         {                                                                      \
-          safe_ptr<ModelParameters> model_safe_ptr =                           \
-           Pipes::PARAMETER::Dep::CAT(MODEL,_parameters).safe_pointer();       \
-          result = model_safe_ptr->getValue(STRINGIFY(PARAMETER));             \
+          result = *Pipes::PARAMETER::Param.at(STRINGIFY(PARAMETER));          \
         }                                                                      \
                                                                                \
       }                                                                        \
@@ -301,7 +279,6 @@
     }                                                                          \
                                                                                \
   }                                                                            \
-
 
 /// Macro to define parameter.  Does not create a corresponding CAPABILITY;
 /// use MAP_TO_CAPABILITY to do this after calling DEFINEPAR(S).

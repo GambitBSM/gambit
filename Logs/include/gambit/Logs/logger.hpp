@@ -32,6 +32,7 @@
 #include <set>
 #include "gambit/Logs/log_tags.hpp"
 #include "gambit/Utils/stream_overloads.hpp"
+#include "gambit/Utils/export_symbols.hpp"
 
 namespace Gambit
 {
@@ -59,13 +60,13 @@ namespace Gambit
      typedef std::ios_base& (*manip3)( std::ios_base& );
 
      /// @{ Stream functions for use with LogMaster
-     LogMaster& operator<<(LogMaster&, const std::string&);
-     LogMaster& operator<<(LogMaster&, const LogTag&);
-     LogMaster& operator<<(LogMaster&, const endofmessage&);
+     EXPORT_SYMBOLS LogMaster& operator<<(LogMaster&, const std::string&);
+     EXPORT_SYMBOLS LogMaster& operator<<(LogMaster&, const LogTag&);
+     EXPORT_SYMBOLS LogMaster& operator<<(LogMaster&, const endofmessage&);
      // Overloads for stream manipulators (typedefs above)
-     LogMaster& operator<<(LogMaster&, const manip1);
-     LogMaster& operator<<(LogMaster&, const manip2);
-     LogMaster& operator<<(LogMaster&, const manip3);
+     EXPORT_SYMBOLS LogMaster& operator<<(LogMaster&, const manip1);
+     EXPORT_SYMBOLS LogMaster& operator<<(LogMaster&, const manip2);
+     EXPORT_SYMBOLS LogMaster& operator<<(LogMaster&, const manip3);
 
      // Stream function to convert everything else to strings before
      // feeding into LogMaster (this way no-one needs to have the full
@@ -99,7 +100,7 @@ namespace Gambit
   const Logging::endofmessage EOM = Logging::endofmessage();
 
   /// Function to retrieve a reference to the Gambit global log object.
-  Logging::LogMaster& logger();
+  EXPORT_SYMBOLS Logging::LogMaster& logger();
 
 }
 

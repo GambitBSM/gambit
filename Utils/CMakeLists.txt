@@ -20,21 +20,30 @@
 #
 #  \author Tomas Gonzalo
 #          (tomas.gonzalo@monash.edu)
-#  \date 2020 Feb
+#  \date 2020 Feb, Dec
+#
+#  \author Anders Kvellestad
+#          (anders.kvellestad@fys.uio.no
+#  \date 2021 Feb, Sep
 #
 #************************************************
 
 set(source_files src/ascii_table_reader.cpp
                  src/ascii_dict_reader.cpp
+                 src/bibtex_functions.cpp
                  src/exceptions.cpp
                  src/file_lock.cpp
                  src/integration.cpp
+                 src/interp_collection.cpp
+                 src/lnlike_modifiers.cpp
                  src/mpiwrapper.cpp
                  src/new_mpi_datatypes.cpp
                  src/model_parameters.cpp
+                 src/python_interpreter.cpp
                  src/screen_print_utils.cpp
                  src/signal_handling.cpp
                  src/signal_helpers.cpp
+                 src/slhaea_helpers.cpp
                  src/standalone_error_handlers.cpp
                  src/standalone_utils.cpp
                  src/statistics.cpp
@@ -49,21 +58,27 @@ set(source_files src/ascii_table_reader.cpp
 
 set(header_files include/gambit/Utils/ascii_table_reader.hpp
                  include/gambit/Utils/ascii_dict_reader.hpp
+                 include/gambit/Utils/bibtex_functions.hpp
                  include/gambit/Utils/boost_fallbacks.hpp
                  include/gambit/Utils/cats.hpp
+                 include/gambit/Utils/citation_keys.hpp
                  include/gambit/Utils/exceptions.hpp
+                 include/gambit/Utils/factory_registry.hpp
                  include/gambit/Utils/file_lock.hpp
                  include/gambit/Utils/integration.hpp
+                 include/gambit/Utils/interp_collection.hpp
+                 include/gambit/Utils/local_info.hpp
+                 include/gambit/Utils/lnlike_modifiers.hpp
                  include/gambit/Utils/mpiwrapper.hpp
                  include/gambit/Utils/new_mpi_datatypes.hpp
-                 include/gambit/Utils/factory_registry.hpp
-                 include/gambit/Utils/local_info.hpp
                  include/gambit/Utils/model_parameters.hpp
                  include/gambit/Utils/numerical_constants.hpp
+                 include/gambit/Utils/python_interpreter.hpp
                  include/gambit/Utils/safebool.hpp
                  include/gambit/Utils/screen_print_utils.hpp
                  include/gambit/Utils/signal_handling.hpp
                  include/gambit/Utils/signal_helpers.hpp
+                 include/gambit/Utils/slhaea_helpers.hpp
                  include/gambit/Utils/standalone_error_handlers.hpp
                  include/gambit/Utils/standalone_utils.hpp
                  include/gambit/Utils/static_members.hpp

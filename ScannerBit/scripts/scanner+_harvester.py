@@ -67,9 +67,9 @@ def main(argv):
         elif opt in ('-x','--exclude-plugins','--exclude-plugin'):
             exclude_plugins.update(neatsplit(",",arg))
     # info for the different plugin types
-    src_paths = sorted(["./ScannerBit/src/scanners", "./ScannerBit/src/objectives"])
-    inc_paths = sorted(["./ScannerBit/include/gambit/ScannerBit/scanners", "./ScannerBit/include/gambit/ScannerBit/objectives"])
-    plug_type = sorted(["scanner", "objective"])
+    src_paths = sorted(["./ScannerBit/src/scanners", "./ScannerBit/src/objectives"])#, "./ScannerBit/src/interps"])
+    inc_paths = sorted(["./ScannerBit/include/gambit/ScannerBit/scanners", "./ScannerBit/include/gambit/ScannerBit/objectives"])#, "./ScannerBit/include/gambit/ScannerBit/interps"])
+    plug_type = sorted(["scanner", "objective"]) #, "interp"])
     config_files = []
     for ptype in plug_type:
         config_files += ["./config/" + ptype + "_locations.yaml"]
@@ -120,11 +120,13 @@ set( scannerbit_headers"""
     for header in sorted(prior_hdrs):
         cmakelist_txt_out += """
                 include/gambit/ScannerBit/{0}""".format(header.split('/ScannerBit/include/gambit/ScannerBit/')[1])
-
     cmakelist_txt_out += """
 )
 
 add_gambit_library( ScannerBit OPTION OBJECT SOURCES ${scannerbit_sources} HEADERS ${scannerbit_headers} )
+if(${CMAKE_VERSION} VERSION_GREATER 2.8.10)
+    target_include_directories( ScannerBit PUBLIC ${EIGEN3_INCLUDE_DIR})
+endif()
 """
     ## end adding scannerbit files to CMakeLists.txt ##
 
@@ -200,6 +202,8 @@ set( scanner_scanlibs_headers"""
                     text = comment_remover(f.read())
                     it = re.finditer(r'\breqd_inifile_entries\s*?\(.*?\)|\bREQD_INIFILE_ENTRIES\s*?\(.*?\)', text, re.DOTALL)
                     ini_finds = [[m.span()[0], -1, re.sub(r'\s', '', m.group())] for m in it]
+                    #it = re.finditer(r'\binterp_plugin\s*?\(.*?\)\s*?\{|\bINTERP_PLUGIN\s*?\(.*?\)\s*?\{', text, re.DOTALL)
+                    #interp_finds = [[m.span()[0], 0, m.group()] for m in it]
                     it = re.finditer(r'\bobjective_plugin\s*?\(.*?\)\s*?\{|\bOBJECTIVE_PLUGIN\s*?\(.*?\)\s*?\{', text, re.DOTALL)
                     obj_finds = [[m.span()[0], 0, m.group()] for m in it]
                     it = re.finditer(r'\bscanner_plugin\s*?\(.*?\)\s*?\{|\bSCANNER_PLUGIN\s*?\(.*?\)\s*?\{', text, re.DOTALL)
@@ -212,7 +216,7 @@ set( scanner_scanlibs_headers"""
                     flag_finds = [[m.span()[0], -4, re.sub(r'\s', '', m.group())] for m in it]
                     it = re.finditer(r'\bcxx_flags\s*?\(.*?\)|\bCXX_FLAGS\s*?\(.*?\)', text, re.DOTALL)
                     cxx_finds = [[m.span()[0], -5, re.sub(r'\s|"', '', m.group())] for m in it]
-                    all_finds  = sorted(scan_finds + obj_finds + ini_finds + lib_finds + inc_finds + flag_finds + cxx_finds)
+                    all_finds  = sorted(scan_finds + obj_finds + ini_finds + lib_finds + inc_finds + flag_finds + cxx_finds) # + interp_finds 
                     for find in all_finds:
                         if find[1] >= 0:
                             processed = False
@@ -317,24 +321,24 @@ set( scanner_scanlibs_headers"""
 
             # Add entries for this plugin only if there are non-excluded sources found.
             if (cmakelist_txt_out_tmp != ""):
-                # First do the sources
-                cmakelist_txt_out += """
+              # First do the sources
+              cmakelist_txt_out += """
 set( {0}_plugin_sources_{1}{2}
 )
 """.format(plug_type[i], directory, cmakelist_txt_out_tmp)
-                # Now do the headers
-                cmakelist_txt_out += """
+              # Now do the headers
+              cmakelist_txt_out += """
 set( {0}_plugin_headers_{1}""".format(plug_type[i], directory)
-                for header in sorted(headers):
-                    cmakelist_txt_out += """
+              for header in sorted(headers):
+                  cmakelist_txt_out += """
                 include/gambit/ScannerBit/{0}""".format(header.split('/ScannerBit/include/gambit/ScannerBit/')[1])
-                cmakelist_txt_out += """
+              cmakelist_txt_out += """
 )
 """
             # Otherwise notify that the plugin is ditched.
             else:
-                for x in exclude_list:
-                    cmakelist_txt_out += """
+              for x in exclude_list:
+                cmakelist_txt_out += """
 message(\"${{BoldCyan}} X Excluding {0} from ScannerBit configuration.${{ColourReset}}\")
 """.format(x)
 
@@ -455,7 +459,7 @@ message(\"${{BoldCyan}} X Excluding {0} from ScannerBit configuration.${{ColourR
                                                     inc_commands += [incdir]
                                                     scanbit_reqs[plugin[7]][plugin_name][version][5] += [incdir]
                                                     inc_files += [[inc, incdir]]
-                                                elif inc == "ROOT" or inc == "GSL":
+                                                elif inc == "ROOT" or inc == "GSL" or inc == "pybind11" or inc == "Python" or inc == "PYTHONLIBS":
                                                     auto_incs += [inc]
                                                     #scanbit_reqs[plugin[7]][plugin_name][version][5] += [inc]
                                                     if scanbit_reqs[plugin[7]][plugin_name][version][2] == "":
@@ -549,6 +553,7 @@ message(\"${{BoldCyan}} X Excluding {0} from ScannerBit configuration.${{ColourR
 
 #endif
 """
+
     towrite += prior_txt_out
 
     header = "./ScannerBit/include/gambit/ScannerBit/priors_rollcall.hpp"
@@ -606,6 +611,8 @@ set( PLUGIN_INCLUDE_DIRECTORIES
                 ${GSL_INCLUDE_DIRS}
                 ${ROOT_INCLUDE_DIR}
                 ${ROOT_INCLUDE_DIRS}
+                ${EIGEN3_INCLUDE_DIR}
+                ${BREW_LIBOMP_PREFIX}/include
                 ${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/ScannerBit
 )
 
@@ -669,7 +676,7 @@ set ({0}_compile_flags_{1} \"${{PLUGIN_COMPILE_FLAGS}}""".format(plug_type[i], d
                     towrite += """
 set ({0}_ok_flag_{1} \"\\n    - user excluded plugin: \\\"{2}\\\"\")
 """.format(plug_type[i], directory, plug[4].split("__t__")[0])
-                    print("excluding ", plug[4])
+                    if verbose: print("excluding ", plug[4])
                 
             towrite += """
 set ({0}_plugin_libraries_{1}""".format(plug_type[i], directory)
@@ -753,7 +760,6 @@ set ({0}_plugin_linked_libs_{1} \"\")
                         towrite += """
 set ({0}_plugin_linked_libs_{1} \"${{{0}_plugin_linked_libs_{1}}}    {2}: {3}\\n\")
 """.format(plug_type[i], directory, lib[0], lib[1])
-            
             towrite += """
 set ({0}_plugin_lib_full_paths_{1}""".format(plug_type[i], directory)
             if plug_type[i] in scanbit_link_libs:
@@ -836,16 +842,46 @@ endif()
 
                     temp = set(inc for inc in scanbit_auto_incs[plug_type[i]][directory])
                     for inc in temp:
-                        if inc == "ROOT":
+                        if inc == "ROOT" or inc == "Python":
                             towrite += """
 if ({2}_FOUND)
     set ({0}_plugin_includes_{1}
         ${{{0}_plugin_includes_{1}}}
-        ${{ROOT_INCLUDE_DIRS}}
+        ${{{2}_INCLUDE_DIRS}}
     )
-    set ({0}_plugin_found_incs_{1} \"${{{0}_plugin_found_incs_{1}}}    \\\"{2}\\\": ${{ROOT_INCLUDE_DIRS}}\\n\")
+    set ({0}_plugin_found_incs_{1} \"${{{0}_plugin_found_incs_{1}}}    \\\"{2}\\\": ${{{2}_INCLUDE_DIRS}}\\n\")
+else()
+    message(\"-- Did not find {0} header {2}. Disabling scanners that depend on this.\")
+    set ({0}_ok_flag_{1} \"${{{0}_ok_flag_{1}}} \\n    - file missing: \\\"{2}\\\"\")
 endif()
 """.format(plug_type[i], directory, inc)
+                        elif inc == "pybind11":
+                            towrite += """
+if ({2}_FOUND)
+    set ({2}_REAL_INCLUDE_DIR ${{{2}_INCLUDE_DIR}} ${{{3}_INCLUDE_DIR}})
+    set ({0}_plugin_includes_{1}
+        ${{{0}_plugin_includes_{1}}}
+        ${{{2}_REAL_INCLUDE_DIR}}
+    )
+    set ({0}_plugin_found_incs_{1} \"${{{0}_plugin_found_incs_{1}}}    \\\"{2}\\\": ${{{2}_REAL_INCLUDE_DIR}}\\n\")
+else()
+    message(\"-- Did not find {0} header {2}. Disabling scanners that depend on this.\")
+    set ({0}_ok_flag_{1} \"${{{0}_ok_flag_{1}}} \\n    - file missing: \\\"{2}\\\"\")
+endif()
+""".format(plug_type[i], directory, inc, "PYBIND11")
+                        elif inc == "PYTHONLIBS":
+                            towrite += """
+if ({2}_FOUND)
+    set ({0}_plugin_includes_{1}
+        ${{{0}_plugin_includes_{1}}}
+        ${{{3}_INCLUDE_DIRS}}
+    )
+    set ({0}_plugin_found_incs_{1} \"${{{0}_plugin_found_incs_{1}}}    \\\"{2}\\\": ${{{3}_INCLUDE_DIRS}}\\n\")
+else()
+    message(\"-- Did not find {0} header {2}. Disabling scanners that depend on this.\")
+    set ({0}_ok_flag_{1} \"${{{0}_ok_flag_{1}}} \\n    - file missing: \\\"{2}\\\"\")
+endif()
+""".format(plug_type[i], directory, inc, "PYTHON")
                         else:
                             towrite += """
 unset({0}_{1}_{3}_INCLUDE_PATH CACHE)
@@ -864,12 +900,12 @@ endif()
 """.format(plug_type[i], directory, inc, re.sub(r";|/|\.", "_", inc))
 
             towrite += """
-if( NOT ${{{0}_plugin_linked_libs_{1}}} STREQUAL \"\" OR NOT ${{{0}_plugin_found_incs_{1}}} STREQUAL \"\")
+if( NOT {0}_plugin_linked_libs_{1} STREQUAL \"\" OR NOT {0}_plugin_found_incs_{1} STREQUAL \"\")
     set ( reqd_lib_output \"${{reqd_lib_output}}lib{0}_{1}.so:\\n\" )
-    if( NOT ${{{0}_plugin_linked_libs_{1}}} STREQUAL \"\" )
+    if( NOT {0}_plugin_linked_libs_{1} STREQUAL \"\" )
         set ( reqd_lib_output \"${{reqd_lib_output}}  linked_libs: \\n${{{0}_plugin_linked_libs_{1}}}\")
     endif()
-    if( NOT ${{{0}_plugin_found_incs_{1}}} STREQUAL \"\" )
+    if( NOT {0}_plugin_found_incs_{1} STREQUAL \"\" )
         set ( reqd_lib_output \"${{reqd_lib_output}}  found_incs: \\n${{{0}_plugin_found_incs_{1}}}\")
     endif()
 endif()
@@ -901,7 +937,7 @@ foreach (plugin ${{SCANNERBIT_PLUGINS}})
     add_dependencies(ScannerBit ${{plugin}})
 endforeach()
 
-add_subdirectory(python)
+add_subdirectory(python) # For scannerbit's python interface.
 """.format() # To include scan_python and scan_boost_python targets, for pyScannerBit interface. 
 
     cmake = "./ScannerBit/CMakeLists.txt"

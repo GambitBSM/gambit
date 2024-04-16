@@ -48,6 +48,10 @@
 ///          (b.farmer@imperial.ac.uk)
 ///  \date 2019 Jul
 ///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Sep
+///
 ///  *********************************************
 
 #ifndef __module_macros_incore_defs_hpp__
@@ -63,9 +67,11 @@
 #include "gambit/Elements/module_macros_common.hpp"
 #include "gambit/Elements/safety_bucket.hpp"
 #include "gambit/Elements/ini_functions.hpp"
+#include "gambit/Elements/elements_extras.hpp"
 #include "gambit/Elements/terminator.hpp"
 #include "gambit/Utils/static_members.hpp"
 #include "gambit/Utils/exceptions.hpp"
+#include "gambit/Utils/python_interpreter.hpp"
 #include "gambit/Backends/backend_singleton.hpp"
 #include "gambit/Models/claw_singleton.hpp"
 #include "gambit/Models/safe_param_map.hpp"
@@ -103,7 +109,8 @@
 #else
   #define CORE_START_MODULE_COMMON(MODULE)                                     \
           CORE_START_MODULE_COMMON_MAIN(MODULE)                                \
-          const int module_registered = register_module(STRINGIFY(MODULE));
+          const int module_registered =                                        \
+            register_module(STRINGIFY(MODULE), SAFE_STRINGIFY(REFERENCE));
 #endif
 
 /// Redirection of \link START_MODULE() START_MODULE\endlink when invoked from
@@ -143,7 +150,6 @@
       /* Register the module with the log system.  Not done for models. */     \
       const int log_registered = register_module_with_log(STRINGIFY(MODULE));  \
                                                                                \
-                                                                               \
       CORE_START_MODULE_COMMON(MODULE)                                         \
                                                                                \
     }                                                                          \
@@ -153,6 +159,9 @@
 
 /// Central module definition macro, used by modules and models.
 #define CORE_START_MODULE_COMMON_MAIN(MODULE)                                  \
+                                                                               \
+      /* Ensure python interpreter is started so that pybind11 types work*/    \
+      Utils::python_interpreter_guard g;                                       \
                                                                                \
       /* Resolve dependency DEP_TAG in function TAG */                         \
       template <typename DEP_TAG, typename TAG>                                \
@@ -424,6 +433,12 @@
             /* Create a loop-breaking function that can be called to tell the  \
             functor's loop manager that it is time to break. */                \
             void wrapup() { Functown::FUNCTION.breakLoopFromManagedFunctor(); }\
+            /* Create a function that can be called to break a loop            \
+            immediately,, without finishing the current iteration. */          \
+            void halt() { throw halt_loop_exception(); }                       \
+            /* Create an iteration-skipping function that can be called to skip\
+            on to the next iteration. */                                       \
+            void cycle() { throw invalid_loop_iteration_exception(); }         \
           }                                                                    \
           /* Register the fact that this FUNCTION must be run by a manager with\
           capability LOOPMAN. */                                               \

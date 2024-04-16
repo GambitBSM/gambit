@@ -27,9 +27,10 @@ castxml_cc_opt = ''         # Additional option string passed to the compiler in
 
 # ~~~~~ GAMBIT-specific options ~~~~~
 
-gambit_backend_name    = 'Example'
-gambit_backend_version = '1.234'
-gambit_base_namespace  = ''
+gambit_backend_name      = 'Example'
+gambit_backend_version   = '1.234'
+gambit_backend_reference = ''
+gambit_base_namespace    = ''
 
 
 # ~~~~~ Information about the external code ~~~~~
@@ -80,6 +81,12 @@ indent = 4
 
 known_classes = {}
 
+# ~~~~~ Declarations to be added to the frontend header file ~~~~~
+
+convenience_functions = []
+
+ini_function_in_header = True
+
 
 # ~~~~~ Pragma directives for the inclusion of BOSSed classes in GAMBIT ~~~~~
 
@@ -99,3 +106,14 @@ known_classes = {}
 pragmas_begin = []
 pragmas_end = []
 
+
+# ~~~~~ Extra code to surround BOSS-generated code included in GAMBIT ~~~~~
+
+# The listed code will be added at the top/bottom in the frontend header file 
+# and in the loaded_types.hpp header.
+
+surround_code_begin = '''
+'''
+
+surround_code_end = ''' 
+'''

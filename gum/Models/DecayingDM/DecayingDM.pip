@@ -1,0 +1,89 @@
+-------------------------------
+---Common fields---------------             ;EFN = empty for none
+
+main_chain = '../../../runs/DecayingDM/samples/DecayingDM.hdf5:/DDM'          ;Filename of chain to operate on.  For a group in an hdf5 file, something like 'myfile.hdf5:/group'
+comparison_chain =                          ;Filename of secondary chain to operate on, for comparison (EFN)
+
+do_posterior_pdf = F                        ;Parse, script or plot posterior pdfs
+do_profile_like = T                         ;Parse, script or plot chain into profile likelihoods
+oneD_contour_levels = 68.3 95.4             ;Contour levels to plot in 1D plots (EFN; script operation ignores actual values)
+twoD_contour_levels = 68.3 95.4             ;Contour levels to plot in 2D plots (EFN; script operation ignores actual values)
+oneD_plot_quantities =          ;Parameters/observables to construct 1D plots of (EFN)
+twoD_plot_quantities = {2,1}     ;Parameters/observable combinations to make 2D plots of (EFN)
+plot_observables =                          ;Observables to plot (EFN)
+
+-------------------------------
+---Parsing---------------------
+
+parse_dir = 'results/DecayingDM/parse'                         ;Directory to save parsing output in (EFN; default is to place parsed data in same folder as chains)
+
+cut_on_invalid_observables = F              ;Cut on any invalid entries in an hdf5 file, not just the likelihood (defaults to false, meaning cut on likelihood only)
+
+default_bins = 35                           ;Default number of bins to sort samples into in each direction.
+number_of_bins =                            ;Bins to use for specific observables (overrides default)
+interpolated_resolution = 300               ;Resolution of binwise interpolation for plotting (~300+ for publication)
+interpolation_method = 'bilinear'           ;Either bilinear (default) or spline (watch out for ringing in the latter case)
+
+chain_type =  other                         ;Algorithm used to generate chain (valid: MCMC, MultiNest, other)
+compute_evidence = F                        ;Compute and print evidence (only if chain_type = MCMC)
+bf_lnlike_for_profile_like =                ;Denominator of profile likelihood ratio (if empty, set to best fit determined from chain)
+
+use_log_scale = 1 2             ;Parameters/observables that need to be converted to a log scale for display (EFN)
+quantity_rescalings =                       ;Scaling factors to apply to any pippi datastream indices (EFN)
+data_ranges =                             ;Discard any points outside these ranges of parameters/observables
+
+labels_from_file =                          ;Either a filename or blank (quantity_labels is ignored if a filename is given)
+preamble =                                  ;A one-line python preamble to run before processing functional datastreams.
+assign_to_pippi_datastream = 'LogLike':0 \
+                             '#DecayingDM_parameters @DecayingDM::primary_parameters::lamS':1 \
+                             '#DecayingDM_parameters @DecayingDM::primary_parameters::mS0':2 \
+                             
+                                            ;Assign a python function or named hdf5 data stream to a particular pippi datastream index (use pippi probe to test; EFN)
+quantity_labels = 0:'lnlike'      \
+                  1:'$\log_{10}\lambda_\mathrm{S}$' \
+                  2:'$\log_{10}(m_{\mathrm{S}_0} / \mathrm{GeV})$' \
+
+                                                                          ;labels to apply to different pippi datastream indices (LaTeX for all but multiplicity, prior and likelihood)
+-------------------------------
+---Scripting-------------------
+
+script_dir = 'results/DecayingDM/scripts'                      ;Directory to save scripts in (EFN; default is to place scripts in same folder as parse output)
+
+legend_on_1D =                              ;1D plots that should include legends
+legend_locations_1D =                       ;Locations of legends for 1D plots (subset of twoD_plot_quantities)
+plot_as_histograms_1D =                    ;Plot 1D distributions as histograms with no interpolation
+key_on_1D =                                 ;2D plots that should include keys for best fit, posterior mean and/or reference pt
+key_locations_1D =                          ;Locations of keys for 2D plots
+
+legend_on_2D =                      ;2D plots that should include legends
+legend_locations_2D =           ;Locations of legends for 2D plots (single location or partial list that will be filled in with 'bl')
+key_on_2D =                          ;2D plots that should include keys for best fit, posterior mean and/or reference pt
+key_locations_2D =              ;Locations of keys for 2D plots
+plot_colourbar_2D =  {2,1}                   ;2D plots that should include colourbars
+
+plot_comparison = F                         ;Overplot distributions from comparisonFilename in 1D plots and contours in 2D plots
+extra_legend_lines =                        ;Additional text lines to be included in any legends (EFN)
+blame = 'pippi v2.1, \textsf{GUM}+\textsf{GAMBIT} 2.0.0, \textsf{diver}'         ;Credit line to be placed in top corner of all plots
+yaxis_number_angle = -90                    ;Angle relative to vertical for y-axis numerical labels
+
+plot_posterior_mean_on_posterior_pdf = T    ;Indicate the posterior mean in all posterior pdf plots
+plot_posterior_mean_on_profile_like = F     ;Indicate the posterior mean in all profile likelihood plots
+plot_best_fit_on_posterior_pdf = T          ;Indicate the best fit in all posterior pdf plots
+plot_best_fit_on_profile_like = T           ;Indicate the best fit in all profile likelihood plots
+
+axis_ranges =                               ;Axis ranges over which to plot parameters/observables (defaults to data_ranges if absent)
+
+reference_point =                           ;Coordinates of reference point (only plotted where one of the listed axes is present)
+reference_text =                            ;Key string to be printed for reference point
+
+logo_file =                                 ;Logo pdf file to overplot (EFN)
+logo_loc = {0.08,0.89}                      ;Normalised plot x,y co-ordinates of logo centre
+logo_width = 0.09                           ;Width to display logo with (as a fraction of default plot width)
+colour_scheme = nightOfTheAllanachs2        ;A recognised pippi colourScheme object (Basic, BlueGold, IceCube, SBClassic,
+                                            ; NightOfTheAllanachs, etc - add your own to pippi_colours.py)
+-------------------------------
+---Plotting--------------------
+
+plot_dir = 'results/DecayingDM/plots'                          ;Directory to save plots in (EFN; default is to place plots in the current directory)
+file_prefix = 'plot_'                       ;Prepend prefix to plot filenames (EFN)
+file_suffix = '_diver'                    ;Append suffix to filenames of output plots (EFN)

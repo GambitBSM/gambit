@@ -20,6 +20,7 @@
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2019 July
+///  \date 2021 January
 ///
 ///  *********************************************
 
@@ -27,6 +28,7 @@
 #define BACKENDLANG Python
 #define VERSION 2.6.3
 #define SAFE_VERSION 2_6_3
+#define REFERENCE Blas:2011rf
 
 LOAD_LIBRARY
 
@@ -36,6 +38,8 @@ LOAD_LIBRARY
   BE_CONV_FUNCTION(get_classy_backendDir, std::string, (), "get_classy_backendDir")
 
   BE_CONV_FUNCTION(class_get_rs,        double, (), "class_get_rs")
+  BE_CONV_FUNCTION(class_get_tau_reio,  double, (), "class_get_tau_reio")
+  BE_CONV_FUNCTION(class_get_z_reio,    double, (), "class_get_z_reio")
   BE_CONV_FUNCTION(class_get_Neff,      double, (), "class_get_Neff")
   BE_CONV_FUNCTION(class_get_sigma8,      double, (), "class_get_sigma8")
   BE_CONV_FUNCTION(class_get_Omega0_r,    double, (), "class_get_Omega0_r")

@@ -137,6 +137,8 @@ namespace Gambit
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool SQLiteReader::_retrieve(map_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+     bool SQLiteReader::_retrieve(map_str_str& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool SQLiteReader::_retrieve(triplet<double>& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool SQLiteReader::_retrieve(map_intpair_dbl& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
@@ -145,10 +147,6 @@ namespace Gambit
      #ifndef SCANNER_STANDALONE // All the types inside SQL_BACKEND_TYPES need to go inside this def guard.
 
        bool SQLiteReader::_retrieve(DM_nucleon_couplings& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-       { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-       bool SQLiteReader::_retrieve(DM_nucleon_couplings_fermionic_HP& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-       { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-       bool SQLiteReader::_retrieve(Flav_KstarMuMu_obs& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
        bool SQLiteReader::_retrieve(BBN_container& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }

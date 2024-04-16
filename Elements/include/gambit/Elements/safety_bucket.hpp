@@ -15,6 +15,7 @@
 ///  \author Pat Scott
 ///          (patscott@physics.mcgill.ca)
 ///   \date 2014 Mar, Sep
+///   \date 2022 May
 ///
 ///  *********************************************
 
@@ -40,6 +41,13 @@ namespace Gambit
 
       /// Master constructor
       safety_bucket_base(str myinfo) : whoami(myinfo) {}
+
+      /// Ask whether the bucket has been initialised with a valid pointer or not,
+      /// i.e. has the dependency resolver activated this dependency / backend req?
+      bool active()
+      {
+        return _initialized;
+      }
 
       /// Get capability name.
       str name()
@@ -140,7 +148,6 @@ namespace Gambit
         int index = use_thread_index(_functor_ptr, _dependent_functor_ptr) ? omp_get_thread_num() : 0;
         return _sptr[index];
       }
-
 
       /// Access is allowed to const member functions only
       const TYPE* operator->() const

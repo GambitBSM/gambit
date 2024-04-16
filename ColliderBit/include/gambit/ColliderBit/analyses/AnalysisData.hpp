@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  AnalysisData and SignalRegion structures.
+///  AnalysisData struct.
 ///
 ///  *********************************************
 ///
@@ -12,7 +12,7 @@
 ///          (a.m.b.krislock@fys.uio.no)
 ///
 ///  \author Andy Buckley
-///          (mostlikelytobefound@facebook.com)
+///          (andy.buckley@cern.ch)
 ///
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
@@ -26,7 +26,9 @@
 
 #pragma once
 
+#include "gambit/Utils/begin_ignore_warnings_eigen.hpp"
 #include "Eigen/Core"
+#include "gambit/Utils/end_ignore_warnings.hpp"
 
 #include <string>
 #include <map>
@@ -39,65 +41,12 @@
 #include <memory>
 #include <iomanip>
 #include <algorithm>
+#include "gambit/ColliderBit/analyses/SignalRegionData.hpp"
 
-// #define ANALYSISDATA_DEBUG
-
-#ifdef ANALYSISDATA_DEBUG
-#include <iostream>
-#endif
-
-namespace Gambit {
-  namespace ColliderBit {
-
-
-    /// A simple container for the result of one signal region from one analysis.
-    struct SignalRegionData
-    {
-
-      /// Constructor with {n,nsys} pair args
-      SignalRegionData(const std::string& sr,
-                       double nobs, const std::pair<double,double>& nsig, const std::pair<double,double>& nbkg,
-                       double nsigatlumi=0)
-       : SignalRegionData(sr, nobs, nsig.first, nbkg.first, nsig.second, nbkg.second, nsigatlumi)
-      {}
-
-      /// Constructor with separate n & nsys args
-      SignalRegionData(const std::string& sr,
-                       double nobs, double nsig, double nbkg,
-                       double syssig, double sysbkg, double nsigatlumi=0)
-       : sr_label(sr),
-         n_observed(nobs), n_signal(nsig), n_signal_at_lumi(nsigatlumi), n_background(nbkg),
-         signal_sys(syssig), background_sys(sysbkg)
-      {}
-
-      /// Default constructor
-      SignalRegionData() {}
-
-      /// Consistency check
-      bool check() const {
-        bool consistent = true;
-        /// @todo Add SR consistency checks
-        return consistent;
-      }
-
-
-      /// @name Signal region specification
-      //@{
-      std::string sr_label; ///< A label for the particular signal region of the analysis
-      //@}
-
-      /// @name Signal region data
-      //@{
-      double n_observed = 0; ///< The number of events passing selection for this signal region as reported by the experiment
-      double n_signal = 0; ///< The number of simulated model events passing selection for this signal region
-      double n_signal_at_lumi = 0; ///< n_signal, scaled to the experimental luminosity
-      double n_background = 0; ///< The number of standard model events expected to pass the selection for this signal region, as reported by the experiment.
-      double signal_sys = 0; ///< The absolute systematic error of n_signal
-      double background_sys = 0; ///< The absolute systematic error of n_background
-      //@}
-
-    };
-
+namespace Gambit
+{
+  namespace ColliderBit
+  {
 
     /// A container for the result of an analysis, potentially with many signal regions and correlations
     ///
@@ -110,9 +59,6 @@ namespace Gambit {
       /// Default constructor
       AnalysisData()
       {
-        #ifdef ANALYSISDATA_DEBUG
-          std::cerr << "DEBUG: AnalysisData: " << this << " - Constructed (default ctor)" << std::endl;
-        #endif
         clear();
       }
 
@@ -120,42 +66,16 @@ namespace Gambit {
       AnalysisData(const std::string& name) :
         analysis_name(name)
       {
-        #ifdef ANALYSISDATA_DEBUG
-          std::cerr << "DEBUG: AnalysisData: " << this << " - Constructed (ctor with analysis name)" << std::endl;
-        #endif
         clear();
       }
-
-      // A copy constructor only used for debugging
-      #ifdef ANALYSISDATA_DEBUG
-      AnalysisData(const AnalysisData& copy) :
-        analysis_name(copy.analysis_name),
-        srdata(copy.srdata),
-        srdata_identifiers(copy.srdata_identifiers),
-        srcov(copy.srcov)
-      {
-          std::cerr << "DEBUG: AnalysisData: " << this << " - Copy-constructed from " << &copy << std::endl;
-      }
-      #endif
-
-      // A destructor only used for debugging
-      #ifdef ANALYSISDATA_DEBUG
-      ~AnalysisData()
-      {
-        std::cerr << "DEBUG: AnalysisData: " << this << " - Destructed" << std::endl;
-      }
-      #endif
 
       /// @brief Constructor from a list of SignalRegionData and an optional correlation (or covariance?) matrix
       ///
       /// If corrs is a null matrix (the default), this AnalysisData is to be interpreted as having no correlation
       /// information, and hence the likelihood calculation should use the single best-expected-limit SR.
-      AnalysisData(const std::vector<SignalRegionData>& srds, const Eigen::MatrixXd& cov=Eigen::MatrixXd())
-        : srdata(srds), srcov(cov)
+      AnalysisData(const std::vector<SignalRegionData>& srds, const Eigen::MatrixXd& cov=Eigen::MatrixXd(),const std::string path="")
+        : srdata(srds), srcov(cov), bkgjson_path(path)
       {
-        #ifdef ANALYSISDATA_DEBUG
-          std::cerr << "DEBUG: AnalysisData: " << this << " - Constructed (special ctor)" << std::endl;
-        #endif
         check();
       }
 
@@ -165,14 +85,12 @@ namespace Gambit {
       {
         for (auto& sr : srdata)
         {
-          sr.n_signal = 0;
-          sr.n_signal_at_lumi = 0;
-          sr.signal_sys = 0;
+          sr.n_sig_MC = 0;
+          sr.n_sig_scaled = 0;
+          sr.n_sig_MC_sys = 0;
         }
         srcov = Eigen::MatrixXd();
-        #ifdef ANALYSISDATA_DEBUG
-          std::cerr << "DEBUG: AnalysisData: " << this << " - Cleared" << std::endl;
-        #endif
+        bkgjson_path = "";
       }
 
       /// Number of analyses
@@ -191,23 +109,28 @@ namespace Gambit {
         // check(); // bjf> This was wrong! Needs to be !=, not ==
         return srcov.rows() != 0;
       }
+      
+      /// Is there non-null correlation data?
+      bool hasFullLikes() const
+      {
+        return (!bkgjson_path.empty());
+      }
 
       /// @brief Add a SignalRegionData
       /// @todo Allow naming the SRs?
       void add(const SignalRegionData& srd)
       {
-        std::string key = analysis_name + srd.sr_label;
-        auto loc = srdata_identifiers.find(key);
+        auto loc = srdata_identifiers.find(srd.sr_label);
         if (loc == srdata_identifiers.end())
         {
           // If the signal region doesn't exist in this object yet, add it
           srdata.push_back(srd);
-          srdata_identifiers[key] = srdata.size() - 1;
+          srdata_identifiers[srd.sr_label] = srdata.size() - 1;
         }
         else
         {
           // If it does, just update the signal count in the existing SignalRegionData object
-          srdata[loc->second].n_signal = srd.n_signal;
+          srdata[loc->second].n_sig_MC = srd.n_sig_MC;
         }
         check();
       }
@@ -217,15 +140,11 @@ namespace Gambit {
       {
         for (const SignalRegionData& srd : srdata) srd.check();
         assert(srcov.rows() == 0 || srcov.rows() == (int) srdata.size());
-        // for (int isr = 0; isr < srcov.rows(); ++isr) {
-        //   const double& srbg = srdata[isr].background_sys;
-        //   #ifdef ANALYSISDATA_DEBUG
-        //     std::cerr << "DEBUG: AnalysisData: isr:" << isr << ", srbg:" << srbg << ", srcov(isr,isr):" << srcov(isr,isr) << std::endl;
-        //   #endif
-        //   assert(fabs(srcov(isr,isr) - srbg*srbg) < 1e-2);
-        // }
         return true;
       }
+
+      bool event_gen_BYPASS = false;
+
 
       /// bjf> Experimental! But already useful for helping me convert the key
       /// numbers from these analyses to Python for the p-value calculuations.
@@ -233,7 +152,7 @@ namespace Gambit {
 
       /// Analysis name
       std::string analysis_name;
-
+      
       /// Access the i'th signal region's data
       SignalRegionData& operator[] (size_t i) { return srdata[i]; }
       /// Access the i'th signal region's data (const)
@@ -253,6 +172,9 @@ namespace Gambit {
 
       /// Optional covariance matrix between SRs (0x0 null matrix = no correlation info)
       Eigen::MatrixXd srcov;
+      
+      /// FullLikes bkg json file path realtive to the GAMBIT directory
+      std::string bkgjson_path;
 
     };
 

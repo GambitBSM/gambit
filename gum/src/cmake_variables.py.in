@@ -1,0 +1,40 @@
+#  GUM: GAMBIT Universal Model Machine
+#  ***********************************
+#  \file
+#
+#  Global variables for GUM, passed down from cmake.
+#
+#  *************************************
+#
+#  \author Sanjay Bloor
+#          (sanjay.bloor12@imperial.ac.uk)
+#  \date 2018, 2019, 2020
+#
+#  \author Tomas Gonzalo
+#          (tomas.gonzalo@monash.edu)
+#  \date 2020
+#
+#  **************************************
+
+# GUM directory
+GUM_DIR = "@GUM_DIR@"
+
+# Python executable
+PYTHON_EXECUTABLE = "@PYTHON_EXECUTABLE@"
+
+# Pythia version
+base_pythia_version = "@BASE_PYTHIA_VERSION@"
+
+# Pythia md5 sum
+pythia_md5 = "@PYTHIA_MD5@"
+
+# SPheno path and version
+SPHENO_DIR = "@SPHENO_DIR@"
+SPHENO_VERSION = "@SPHENO_VERSION@"
+
+# SARAH path and version
+SARAH_VERSION = "@SARAH_VERSION@"
+SARAH_PATH = "@SARAH_PATH@"
+
+# FeynRules path
+FEYNRULES_PATH = "@FEYNRULES_PATH@"

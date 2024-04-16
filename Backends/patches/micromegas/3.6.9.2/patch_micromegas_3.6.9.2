@@ -466,3 +466,17 @@ diff -rupN micromegas_3.6.9.2/sources/spectra.c ../installed/micromegas/3.6.9.2/
  {  
  //  float mi[NEn]={10,25,50,80.3,91.2,100,150,176,200,250,350,500,750,1000,1500,2000,3000,5000};
     double mi[NEn]={2,5,10,25,50,80.3,85,91.2,92,95,100,110,120,125,130,140,150,176,200,250,350,500,750,1000,1500,2000,3000,5000};
+
+
+
+diff -rupN micromegas_3.6.9.2/CalcHEP_src/c_source/chep_crt/include/syst.h ../installed/micromegas/3.6.9.2/CalcHEP_src/c_source/chep_crt/include/syst.h
+--- micromegas_3.6.9.2/CalcHEP_src/c_source/chep_crt/include/syst.h  2014-10-24 11:01:02.000000000 +0100
++++ ../installed/micromegas/3.6.9.2/CalcHEP_src/c_source/chep_crt/include/syst.h  2020-01-14 20:33:01.880797556 +0000
+@@ -2,7 +2,7 @@
+ #define __SYST_
+ 
+ #ifndef STRSIZ
+-#define STRSIZ 4096
++#define STRSIZ 16384
+ #endif
+ 

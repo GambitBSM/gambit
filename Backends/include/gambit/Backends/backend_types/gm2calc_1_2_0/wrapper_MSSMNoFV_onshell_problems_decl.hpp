@@ -2,12 +2,12 @@
 #define __wrapper_MSSMNoFV_onshell_problems_decl_gm2calc_1_2_0_hpp__
 
 #include <cstddef>
-#include "forward_decls_wrapper_classes.hpp"
-#include "gambit/Backends/wrapperbase.hpp"
-#include "abstract_MSSMNoFV_onshell_problems.hpp"
 #include <string>
 #include <ostream>
 #include <vector>
+#include "forward_decls_wrapper_classes.hpp"
+#include "gambit/Backends/wrapperbase.hpp"
+#include "abstract_MSSMNoFV_onshell_problems.hpp"
 
 #include "identification.hpp"
 
@@ -22,7 +22,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             // Member variables: 
          public:
             // -- Static factory pointers: 
-            static gm2calc::Abstract_MSSMNoFV_onshell_problems* (*__factory0)();
+            static Abstract_MSSMNoFV_onshell_problems* (*__factory0)();
       
             // -- Other member variables: 
       
@@ -38,7 +38,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             void flag_no_convergence_me2(double arg_1, unsigned int arg_2);
       
-            void flag_tachyon(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& arg_1);
+            void flag_tachyon(const std::string& arg_1);
       
             void unflag_no_convergence_Mu_MassB_MassWB();
       
@@ -50,15 +50,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             bool have_warning() const;
       
-            ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > get_warnings() const;
+            ::std::string get_warnings() const;
       
-            ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > get_problems() const;
+            ::std::string get_problems() const;
       
-            void print(::std::basic_ostream<char, std::char_traits<char> >& arg_1) const;
+            void print(std::ostream& arg_1) const;
       
-            void print_problems(::std::basic_ostream<char, std::char_traits<char> >& arg_1) const;
+            void print_problems(std::ostream& arg_1) const;
       
-            void print_warnings(::std::basic_ostream<char, std::char_traits<char> >& arg_1) const;
+            void print_warnings(std::ostream& arg_1) const;
       
       
             // Wrappers for original constructors: 
@@ -66,7 +66,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             MSSMNoFV_onshell_problems();
       
             // Special pointer-based constructor: 
-            MSSMNoFV_onshell_problems(gm2calc::Abstract_MSSMNoFV_onshell_problems* in);
+            MSSMNoFV_onshell_problems(Abstract_MSSMNoFV_onshell_problems* in);
       
             // Copy constructor: 
             MSSMNoFV_onshell_problems(const MSSMNoFV_onshell_problems& in);
@@ -78,7 +78,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             ~MSSMNoFV_onshell_problems();
       
             // Returns correctly casted pointer to Abstract class: 
-            gm2calc::Abstract_MSSMNoFV_onshell_problems* get_BEptr() const;
+            Abstract_MSSMNoFV_onshell_problems* get_BEptr() const;
       
       };
    }

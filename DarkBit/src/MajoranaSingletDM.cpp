@@ -17,10 +17,15 @@
 ///  \author Sanjay Bloor
 ///          (sanjay.bloor12@imperial.ac.uk)
 ///  \date Nov 2017, Aug 2018
+///        May 2020
 ///
 ///  \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
 ///  \date Sep 2018
+///
+///  \author Felix Kahlhofer
+///          (kahlhoefer@physik.rwth-aachen.de)
+///  \date 2020 May
 ///
 ///  *********************************************
 
@@ -203,14 +208,16 @@ namespace Gambit
     };
 
     void DarkMatter_ID_MajoranaSingletDM(std::string & result) { result = "X"; }
+    void DarkMatterConj_ID_MajoranaSingletDM(std::string & result) { result = "X"; }
 
     /// Direct detection couplings for the MajoranaSingletDM_Z2 model.
-    void DD_couplings_MajoranaSingletDM_Z2(DM_nucleon_couplings_fermionic_HP &result)
+    /// Non-relativistic Wilson Coefficients for direct detection
+    void DD_nonrel_WCs_MajoranaSingletDM_Z2(NREO_DM_nucleon_couplings &result)
     {
-      using namespace Pipes::DD_couplings_MajoranaSingletDM_Z2;
+      using namespace Pipes::DD_nonrel_WCs_MajoranaSingletDM_Z2;
       const Spectrum& spec = *Dep::MajoranaSingletDM_Z2_spectrum;
       const SubSpectrum& he = spec.get_HE();
-      //double mass = spec.get(Par::Pole_Mass,"X");
+      double mass = spec.get(Par::Pole_Mass,"X");
       double lambda = he.get(Par::dimensionless,"lX");
       double cosXI = std::cos(he.get(Par::dimensionless,"xi"));
       double sinXI = std::sin(he.get(Par::dimensionless,"xi"));
@@ -219,21 +226,56 @@ namespace Gambit
       // Expressions taken from Cline et al. (2013, PRD 88:055025, arXiv:1306.4710)
       double fp = 2./9. + 7./9.*(*Param["fpu"] + *Param["fpd"] + *Param["fps"]);
       double fn = 2./9. + 7./9.*(*Param["fnu"] + *Param["fnd"] + *Param["fns"]);
+      
+      // Coefficients
+      double fsp = lambda*fp*m_proton*cosXI/pow(mh,2);
+      double fsn = lambda*fn*m_neutron*cosXI/pow(mh,2);
+      double app = lambda*fp*m_proton*sinXI/pow(mh,2);
+      double apn = lambda*fn*m_neutron*sinXI/pow(mh,2);
+     
+      result.c0[1] = fsp + fsn;
+      result.c1[1] = fsp - fsn;
+      result.c0[11] = (app + apn)*m_proton/mass;
+      result.c1[11] = (app - apn)*m_proton/mass;
+      result.CPTbasis = 0;
 
-      // SI scalar and pseudoscalar couplings
-      result.gps = lambda*fp*m_proton*cosXI/pow(mh,2);
-      result.gns = lambda*fn*m_neutron*cosXI/pow(mh,2);
-      result.gp_q2 = lambda*fp*m_proton*sinXI/pow(mh,2);
-      result.gn_q2 = lambda*fn*m_neutron*sinXI/pow(mh,2);
+    }
 
-      logger() << LogTags::debug << "Majorana DM DD couplings:" << std::endl;
-      logger() << " gps = " << result.gps << std::endl;
-      logger() << " gns = " << result.gns << std::endl;
-      logger() << " gp_q2 = " << result.gp_q2 << std::endl;
-      logger() << " gn_q2 = " << result.gn_q2 << EOM;
+    /// Relativistic Wilson Coefficients for direct detection, 
+    /// defined in the flavour scheme
+    void DD_rel_WCs_flavscheme_MajoranaSingletDM_Z2(map_str_dbl &result)
+    {
+      using namespace Pipes::DD_rel_WCs_flavscheme_MajoranaSingletDM_Z2;
 
-    } // function DD_couplings_MajoranaSingletDM_Z2
+      // Get values of non-relativistic operators from Spectrum
+      Spectrum spec = *Dep::MajoranaSingletDM_Z2_spectrum;
 
+      double lambda = spec.get(Par::dimensionless, "lX");
+      double xi = spec.get(Par::dimensionless, "xi");
+      double mh = spec.get(Par::Pole_Mass, "h0_1");
+
+      // Contribution from integrating out top quark comes from
+      // Eqs. (92--94) of arXiv:1809.03506
+      double prefactor = lambda / pow(mh, 2);
+
+      // Gluon operators
+      result["C71"] = prefactor*std::cos(xi);
+      result["C72"] = prefactor*std::sin(xi);
+
+      // Quark operators (scalar mediator)
+      result["C75d"]  = -prefactor*std::cos(xi);
+      result["C75u"]  = -prefactor*std::cos(xi);
+      result["C75s"]  = -prefactor*std::cos(xi);
+      result["C75c"]  = -prefactor*std::cos(xi);
+      result["C75b"]  = -prefactor*std::cos(xi);
+
+      result["C76d"]  = -prefactor*std::sin(xi);
+      result["C76u"]  = -prefactor*std::sin(xi);
+      result["C76s"]  = -prefactor*std::sin(xi);
+      result["C76c"]  = -prefactor*std::sin(xi);
+      result["C76b"]  = -prefactor*std::sin(xi);
+    }
+      
     /// Set up process catalog for the MajoranaSingletDM_Z2 model.
     void TH_ProcessCatalog_MajoranaSingletDM_Z2(DarkBit::TH_ProcessCatalog &result)
     {
@@ -313,6 +355,8 @@ namespace Gambit
       double mH = spec.get(Par::Pole_Mass,"h0_1");
       addParticle("X",        mX, 1)  // Majorana DM
       addParticle("h0_1",     mH, 0)  // SM-like Higgs
+
+      // Meson, baryon and nuclear masses
       addParticle("pi0",   meson_masses.pi0,       0)
       addParticle("pi+",   meson_masses.pi_plus,   0)
       addParticle("pi-",   meson_masses.pi_minus,  0)
@@ -321,6 +365,12 @@ namespace Gambit
       addParticle("rho+",  meson_masses.rho_plus,  1)
       addParticle("rho-",  meson_masses.rho_minus, 1)
       addParticle("omega", meson_masses.omega,     1)
+      addParticle("p",     m_proton,               1)
+      addParticle("pbar",  m_proton,               1)
+      addParticle("n",     m_neutron,              1)
+      addParticle("nbar",  m_neutron,              1)
+      addParticle("D",     m_deuteron,             2)
+      addParticle("Dbar",  m_deuteron,             2)
 
       // Get rid of convenience macros
       #undef getSMmass

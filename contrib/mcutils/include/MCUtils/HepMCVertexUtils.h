@@ -15,7 +15,7 @@
 /// @file Functions for filtering and classifying HepMC GenVertex objects
 /// @author Andy Buckley <andy.buckley@cern.ch>
 
-#include "HepMC/GenEvent.h"
+#include "HepMC3/GenEvent.h"
 #include <vector>
 
 #include "HEPUtils/Vectors.h"
@@ -27,8 +27,8 @@ namespace MCUtils {
 
   /// @name Friendlier HepMC type typedefs
   //@{
-  typedef std::vector<HepMC::GenVertex*> GenVertices;
-  typedef std::vector<const HepMC::GenVertex*> GenVerticesC;
+  typedef std::vector<HepMC3::GenVertex*> GenVertices;
+  typedef std::vector<const HepMC3::GenVertex*> GenVerticesC;
   //@}
 
 
@@ -36,8 +36,8 @@ namespace MCUtils {
   ///
   /// @note These are just syntactic sugar: this is already not so inconvenient!
   //@{
-  inline const HepMC::GenVertex* mk_const(HepMC::GenVertex* gv) { return const_cast<const HepMC::GenVertex*>(gv); }
-  inline HepMC::GenVertex* mk_unconst(const HepMC::GenVertex* const_gv) { return const_cast<HepMC::GenVertex*>(const_gv); }
+  inline const HepMC3::GenVertex* mk_const(HepMC3::GenVertex* gv) { return const_cast<const HepMC3::GenVertex*>(gv); }
+  inline HepMC3::GenVertex* mk_unconst(const HepMC3::GenVertex* const_gv) { return const_cast<HepMC3::GenVertex*>(const_gv); }
   //@}
 
 
@@ -53,7 +53,7 @@ namespace MCUtils {
   inline GenVerticesC mk_const(const GenVertices& gvs) {
     GenVerticesC rtn;
     rtn.reserve(gvs.size());
-    for (const HepMC::GenVertex* gv : gvs) {
+    for (const HepMC3::GenVertex* gv : gvs) {
       rtn.push_back(gv);
     }
     return rtn;
@@ -62,8 +62,8 @@ namespace MCUtils {
   inline GenVertices mk_unconst(const GenVerticesC& const_gps) {
     GenVertices rtn;
     rtn.reserve(const_gps.size());
-    for (const HepMC::GenVertex* const_gp : const_gps) {
-      rtn.push_back(const_cast<HepMC::GenVertex*>(const_gp));
+    for (const HepMC3::GenVertex* const_gp : const_gps) {
+      rtn.push_back(const_cast<HepMC3::GenVertex*>(const_gp));
     }
     return rtn;
   }

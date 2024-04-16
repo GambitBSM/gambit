@@ -57,7 +57,9 @@ Scanner:
     postprocessor:
       plugin: postprocessor
       #version: "1.0" # If you want to use v1 of the postprocessor, select it here (default is currently v2.0)
-       # Name of the new global likelihood contribution.
+      # Turn off extra log output to track what the postprocessor is doing (won't be output unless debug: true anyway though)
+      #verbose_logging: false
+      # Name of the new global likelihood contribution.
       like: New_LogLike
       # Name of the combined new+old likelihood
       reweighted_like: Comb_LogLike
@@ -106,26 +108,7 @@ Rules:
     function: lnL_gaussian
     options:
        # Set sleep time between evaluations (in seconds)
-       #eval_time: 0.01
-
-  # Rules for satisfying dependencies related to Example_lnL_B
-  # (Just lifted from spartan_NUHM1.yaml)
-  - capability:   LibFirst_1_1_init
-    dependencies:
-    - {capability: nevents, module: ExampleBit_A}
-
-  - capability:    nevents_postcuts
-    type: int
-    dependencies:
-    - {capability: particle_id, module: ExampleBit_B}
-    backends:
-    - {capability: awesomeness, backend: LibFirst, version: 1.1}
-    - {capability: someFunction, backend: LibFirst, version: 1.1}
-
-  - capability:    function_pointer
-    backends:
-    - {function: externalFunction2}
-
+       eval_time: 0.01
 
 Logger:
 
@@ -133,7 +116,8 @@ Logger:
     [Default]      : "default.log"
     [ExampleBit_A] : "ExampleBit_A.log"
     [Scanner]      : "Scanner.log"
-
+    [Debug]        : "debug.log"
+    [Scanner,Debug]: "Scanner_debug.log"
 
 KeyValues:
 
@@ -144,6 +128,8 @@ KeyValues:
     seed: -1
 
   print_timing_data: false
+
+  debug: true
 
   likelihood:
     model_invalid_for_lnlike_below: -1e6

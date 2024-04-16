@@ -33,6 +33,7 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2016 May, Dec
 ///  \date 2018 Oct
+///  \date 2019 Oct
 ///  \date 2020 May
 ///
 /// \author Aaron Vincent
@@ -49,6 +50,7 @@
 #include <omp.h>
 #include <cstring>
 #include <complex>
+#include <memory>
 
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Utils/variadic_functions.hpp"
@@ -64,18 +66,38 @@ namespace Gambit
   typedef std::pair<str, str> sspair;
   /// Shorthand for a pair of doubles
   typedef std::pair<double, double> ddpair;
+  /// Shorthand for a pair of integers
+  typedef std::pair<int, int> iipair;
+  /// Shorthand for a pair of string and double
+  typedef std::pair<str, double> sdpair;
+  /// Shorthand for a vector of doubles
+  typedef std::vector<double> vec_dbl;
+  /// Shorthand for a matrix of doubles
+  typedef std::vector<std::vector<double>> mat_dbl;
   /// Shorthand for a string-to-double map
   typedef std::map<std::string,double> map_str_dbl;
   /// Shorthand for a string-to-int map
   typedef std::map<std::string,int> map_str_int;
   /// Shorthand for a string-to-string-to-double map
   typedef std::map<std::string,std::map<std::string,double> > map_str_map_str_dbl;
+  /// Shorthand for a const-string-to-double map
+  typedef std::map<const std::string,double> map_const_str_dbl;
+  /// Shorthand for a const-string-to-const-string-to-double map
+  typedef std::map<const std::string,std::map<const std::string,double> > map_const_str_map_const_str_dbl;
   /// Shorthand for a string-to-string map
   typedef std::map<std::string,std::string> map_str_str;
+  /// Shorthand for a string-to-bool map
+  typedef std::map<std::string,bool> map_str_bool;
+  /// Shorthand for an int to double map
+  typedef std::map<int,double> map_int_dbl;
   /// Shorthand for a string-to-string-to-string map
   typedef std::map<std::string,std::map<std::string,std::string> > map_str_map_str_str;
   /// Shorthand for an int-int pair to double map
   typedef std::map< std::pair < int, int >, double> map_intpair_dbl;
+
+  // Shorthand for vector of shared pointers
+  template <typename T>
+  using vector_shared_ptr = std::vector<std::shared_ptr<T>>;
 
   /// Shorthand for a pointer to a void function with no arguments
   typedef void (*fptr_void)();
@@ -196,6 +218,9 @@ namespace Gambit
         return ptr;
       }
 
+      // Is the pointer null
+      virtual bool isNull() const { return ptr == NULL; }
+
     protected:
 
       /// The actual underlying pointer, interpreted as a pointer to constant value
@@ -296,6 +321,10 @@ namespace Gambit
       }
 
   };
+
+  /// Shorthand for the type of the 'Param' map (string-to-double-safe_ptr map)
+  typedef std::map<std::string, safe_ptr<const double> > param_map_type;
+
 
 
   /// Array class that matches the memory structure and functionality of arrays in Fortran codes
@@ -649,7 +678,6 @@ namespace Gambit
   typedef char         MChar;
   typedef std::string  MString;
   template <typename T> using MList = std::vector<T>;
-
 
 }
 #endif //defined __util_types_hpp__

@@ -37,21 +37,122 @@ namespace Gambit
     /// Special events for event loop
     enum cascadeMC_SpecialEvents {MC_INIT=-1, MC_NEXT_STATE=-2, MC_FINALIZE=-3};
 
-    /// Function for retrieving list of final states for cascade decays
-    void cascadeMC_FinalStates(std::vector<std::string> &list)
+    /*! \brief Identification of hard-process final states for which yield tables do not exist.
+     *
+     * Structure
+     * ---------
+     *
+     * 1) Go through process catalog and find all hard-process final states that require
+     * yields to be calculated with the cascade code.  These will constitute initial states
+     * for the cascade code.  To this end, check whether yield tables exist for two-body channels,
+     * and whether one-particle decay yield tables exist for single particles.
+     *
+     * 2) Calculate via the cascade code the missing energy spectra.
+     *
+     * 3) Put together the full spectrum.
+     *
+     */
+
+    void cascadeMC_InitialStates(std::set<std::string> &result)
     {
-      list.clear();
-      list.push_back("gamma");
-      using namespace Pipes::cascadeMC_FinalStates;
-      /// Option cMC_finalStates<std::vector<std::string>>: List of final states to simulate (default is ["gamma"])
-      list = runOptions->getValueOrDef<std::vector<std::string>>(list, "cMC_finalStates");
-      #ifdef DARKBIT_DEBUG
-        std::cout << "Final states to generate: " << list.size() << std::endl;
-        for(size_t i=0; i < list.size(); i++)
+      using namespace Pipes::cascadeMC_InitialStates;
+      std::string DMid= *Dep::DarkMatter_ID;
+      std::string DMbarid = *Dep::DarkMatterConj_ID;
+
+      result.clear();
+
+      /// Option ignore_all<bool>: Ignore all missing hard process final states (default false)
+      if ( runOptions->getValueOrDef(false, "ignore_all") ) return;
+
+      // What type of process are we dealing with?
+      TH_Process process = (*Dep::DM_process == "annihilation") ?
+        (*Dep::TH_ProcessCatalog).getProcess(DMid, DMbarid) : (*Dep::TH_ProcessCatalog).getProcess(DMid);
+
+      // Loop over all cascade MC final states
+      for (const auto& cMCFinalState : *Dep::cascadeMC_FinalStates)
+      {
+        // Loop over all hard process final states (cascade MC initial states)
+        for (const auto& channel : process.channelList)
         {
-          std::cout << "  " << list[i] << std::endl;
+          if (channel.nFinalStates == 2)
+          {
+            /// Option ignore_two_body<bool>: Ignore two-body missing final states (default false)
+            if ( not runOptions->getValueOrDef(false, "ignore_two_body") )
+            {
+              #ifdef DARKBIT_DEBUG
+                std::cout << "Checking for missing two-body final states: "
+                          << channel.finalStateIDs[0] << " " << channel.finalStateIDs[1]  << std::endl;
+              #endif
+              if (not Dep::FullSimYieldTable->hasChannel(channel.finalStateIDs[0], channel.finalStateIDs[1], cMCFinalState))
+              {
+                for (const auto& particle : channel.finalStateIDs)
+                  if (not Dep::FullSimYieldTable->hasChannel(particle, cMCFinalState))
+                    result.insert(particle);
+              }
+            }
+          }
+          else if (channel.nFinalStates == 3)
+          {
+            /// Option ignore_three_body<bool>: Ignore three-body missing final states (default false)
+            if (not runOptions->getValueOrDef(false, "ignore_three_body"))
+            {
+              #ifdef DARKBIT_DEBUG
+                std::cout << "Checking for missing three-body final states: "
+                          << channel.finalStateIDs[0] << " " << channel.finalStateIDs[1]
+                          << " " << channel.finalStateIDs[2] << std::endl;
+              #endif
+              for (const auto& particle : channel.finalStateIDs)
+                if (not Dep::FullSimYieldTable->hasChannel(particle, cMCFinalState))
+                  result.insert(particle);
+            }
+          }
         }
+      }
+
+      // Remove particles we don't have decays for.
+      for (auto it = result.begin(); it != result.end();)
+      {
+          if ((*Dep::TH_ProcessCatalog).find(*it, "") == NULL)
+          {
+            #ifdef DARKBIT_DEBUG
+              std::cout << "Erasing (because no decays known): " << *it << std::endl;
+            #endif
+            result.erase(it++);
+          }
+          else
+          {
+            #ifdef DARKBIT_DEBUG
+              std::cout << "Keeping (because decay known): " << *it << std::endl;
+            #endif
+            ++it;
+          }
+      }
+
+      #ifdef DARKBIT_DEBUG
+        std::cout << "Number of missing final states: " << result.size() << std::endl;
+        for (auto state : result) std::cout << state << std::endl;
       #endif
+    }
+
+    /// Function for retrieving list of final states for cascade decays
+    void cascadeMC_FinalStates(std::set<std::string> &states)
+    {
+      using namespace Pipes::cascadeMC_FinalStates;
+      static bool first = true;
+      if (first)
+      {
+        states.clear();
+        if (Downstream::neededFor("cascadeMC_gammaSpectra")) states.insert("gamma");
+        if (Downstream::neededFor("cascadeMC_electronSpectra")) states.insert("e-_1");
+        if (Downstream::neededFor("cascadeMC_positronSpectra")) states.insert("e+_1");
+        if (Downstream::neededFor("cascadeMC_antiprotonSpectra")) states.insert("pbar");
+        if (Downstream::neededFor("cascadeMC_antideuteronSpectra")) states.insert("Dbar");
+        first = false;
+        #ifdef DARKBIT_DEBUG
+          std::cout << "Final states to generate: " << states.size() << std::endl;
+          for (const auto& state : states) std::cout << "  " << state << std::endl;
+        #endif
+      }
     }
 
     /// Function setting up the decay table used in decay chains
@@ -60,32 +161,31 @@ namespace Gambit
       using namespace DecayChain;
       using namespace Pipes::cascadeMC_DecayTable;
       std::set<std::string> disabled;
-      // Note: One could add to "disabled" particles decays in that are in the
+      // Note: One could add to "disabled" particles decays that are in the
       // process catalog but should for some reason not propagate to the FCMC
       // DecayTable.
       try
       {
-        table = DecayTable(*Dep::TH_ProcessCatalog, *Dep::SimYieldTable, disabled);
+        table = DecayTable(*Dep::TH_ProcessCatalog, *Dep::FullSimYieldTable, disabled);
       }
       catch(Piped_exceptions::description err)
       {
-          DarkBit_error().raise(err.first,err.second);
+        DarkBit_error().raise(err.first,err.second);
       }
-#ifdef DARKBIT_DEBUG
-      table.printTable();
-#endif
+      #ifdef DARKBIT_DEBUG
+        table.printTable();
+      #endif
     }
 
     /// Loop manager for cascade decays
-    void cascadeMC_LoopManager()
+    void cascadeMC_LoopManager(std::string& result)
     {
       using namespace Pipes::cascadeMC_LoopManager;
-      std::vector<std::string> chainList = *Dep::GA_missingFinalStates;
+      const std::set<std::string>& chainList = *Dep::cascadeMC_InitialStates;
       int cMC_minEvents = 2;  // runOptions->getValueOrDef<int>(2, "cMC_minEvents");
       // Get YAML options
       /// Option cMC_maxEvents<int>: Maximum number of cascade MC runs (default 20000)
       int cMC_maxEvents = runOptions->getValueOrDef<int>(20000, "cMC_maxEvents");
-
 
       // Initialization run
       Loop::executeIteration(MC_INIT);
@@ -97,9 +197,9 @@ namespace Gambit
       }
 
       // Iterate over initial state particles
-      for(std::vector<std::string>::const_iterator
-          cit =chainList.begin(); cit != chainList.end(); cit++)
+      for (const auto& particle : chainList)
       {
+        result = particle;
         int it;
         int counter = 0;
         bool finished = false;
@@ -136,41 +236,6 @@ namespace Gambit
       Loop::executeIteration(MC_FINALIZE);
     }
 
-    /// Function selecting initial state for decay chain
-    void cascadeMC_InitialState(std::string &pID)
-    {
-      using namespace DecayChain;
-      using namespace Pipes::cascadeMC_InitialState;
-      std::vector<std::string> chainList = *Dep::GA_missingFinalStates;
-      static int iteration;
-      switch(*Loop::iteration)
-      {
-        case MC_INIT:
-          iteration = -1;
-          return;
-        case MC_NEXT_STATE:
-          iteration++;
-          break;
-        case MC_FINALIZE:
-          return;
-      }
-      if(int(chainList.size()) <= iteration)
-      {
-        Loop::wrapup();
-        piped_errors.request(LOCAL_INFO,
-            "Desync between cascadeMC_LoopManager and cascadeMC_InitialState");
-      }
-      else
-        pID = chainList[iteration];
-#ifdef DARKBIT_DEBUG
-         std::cout << "cascadeMC_InitialState" << std::endl;
-         std::cout << "  Iteration: " << *Loop::iteration << std::endl;
-         std::cout << "  Number of states to simulate: "
-           << chainList.size() << std::endl;
-         std::cout << "  Current state: " << pID << std::endl;
-#endif
-    }
-
     /// Event counter for cascade decays
     void cascadeMC_EventCount(std::map<std::string, int> &counts)
     {
@@ -182,15 +247,15 @@ namespace Gambit
           counters.clear();
           break;
         case MC_NEXT_STATE:
-          counters[*Dep::cascadeMC_InitialState] = 0;
+          counters[*Dep::cascadeMC_LoopManagement] = 0;
           break;
         case MC_FINALIZE:
           // For performance, only return the actual result once finished
           counts=counters;
           break;
         default:
-#pragma omp atomic
-          counters[*Dep::cascadeMC_InitialState]++;
+        #pragma omp atomic
+          counters[*Dep::cascadeMC_LoopManagement]++;
       }
     }
 
@@ -217,8 +282,7 @@ namespace Gambit
       shared_ptr<ChainParticle> chn;
       try
       {
-        chn.reset(new ChainParticle( vec3(0), &(*Dep::cascadeMC_DecayTable),
-                                     *Dep::cascadeMC_InitialState) );
+        chn.reset(new ChainParticle( vec3(0), &(*Dep::cascadeMC_DecayTable), *Dep::cascadeMC_LoopManagement) );
         chn->generateDecayChainMC(cMC_maxChainLength,cMC_Emin);
       }
       catch(Piped_exceptions::description err)
@@ -241,9 +305,9 @@ namespace Gambit
         double weight, int cMC_numSpecSamples
         )
     {
-#ifdef DARKBIT_DEBUG
-      std::cout << "SampleSimYield" << std::endl;
-#endif
+      #ifdef DARKBIT_DEBUG
+        std::cout << "SampleSimYield" << std::endl;
+      #endif
       std::string p1,p2;
       double gamma,beta;
       double M;
@@ -309,7 +373,7 @@ namespace Gambit
       const double logmax = log(Ecmax);
       const double dlogE=logmax-logmin;
 
-#ifdef DARKBIT_DEBUG
+      #ifdef DARKBIT_DEBUG
         std::cout << "M = " << M << std::endl;
         std::cout << "E_lab = " << endpoint->E_Lab() << std::endl;
         std::cout << "p_lab = " << endpoint->p_Lab() << std::endl;
@@ -325,9 +389,9 @@ namespace Gambit
           << std::endl;
         std::cout << "Ecmin/max: " << Ecmin << " " << Ecmax << std::endl;
         std::cout << "Final state mass^2: " << msq << std::endl;
-#endif
+      #endif
 
-      double specSum=0;
+      //double specSum=0; (Unused)
       int Nsampl=0;
       SimpleHist spectrum(histList[initialState][finalState].binLower);
       while(Nsampl<cMC_numSpecSamples)
@@ -338,7 +402,7 @@ namespace Gambit
         double dN_dE = chn.dNdE_bound->eval(E_CoM, M);
 
         double weight2 = E_CoM*dlogE*dN_dE;
-        specSum += weight2;
+        //specSum += weight2; (Unused)
         weight2 *= weight;
         double tmp1 = gamma*E_CoM;
         double tmp2 = gammaBeta*sqrt(E_CoM*E_CoM-msq);
@@ -346,9 +410,9 @@ namespace Gambit
         spectrum.addBox(tmp1-tmp2,tmp1+tmp2,weight2);
         Nsampl++;
       }
-#ifdef DARKBIT_DEBUG
-      std::cout << "Number of samples = " << Nsampl << std::endl;
-#endif
+      #ifdef DARKBIT_DEBUG
+        std::cout << "Number of samples = " << Nsampl << std::endl;
+      #endif
       if(Nsampl>0)
       {
         spectrum.multiply(1.0/Nsampl);
@@ -408,17 +472,14 @@ namespace Gambit
           return;
         case MC_NEXT_STATE:
           // Initialize histograms
-          for(std::vector<std::string>::const_iterator it =
-              Dep::cascadeMC_FinalStates->begin();
-              it!=Dep::cascadeMC_FinalStates->end(); ++it)
+          for (const auto& state : *Dep::cascadeMC_FinalStates)
           {
-#ifdef DARKBIT_DEBUG
-            std::cout << "Defining new histList entry!!!" << std::endl;
-            std::cout << "for: " << *Dep::cascadeMC_InitialState
-              << " " << *it << std::endl;
-#endif
-            histList[*Dep::cascadeMC_InitialState][*it]=
-              SimpleHist(cMC_NhistBins,cMC_binLow,cMC_binHigh,true);
+            #ifdef DARKBIT_DEBUG
+              std::cout << "Defining new histList entry!!!" << std::endl;
+              std::cout << "for: " << *Dep::cascadeMC_LoopManagement << " " << state << std::endl;
+            #endif
+            double FinalStateMass = Dep::TH_ProcessCatalog->getParticleProperty(state).mass;
+            histList[*Dep::cascadeMC_LoopManagement][state] = SimpleHist(cMC_NhistBins,cMC_binLow+FinalStateMass,cMC_binHigh+FinalStateMass,true);
           }
           return;
         case MC_FINALIZE:
@@ -429,49 +490,45 @@ namespace Gambit
 
       // Get list of endpoint states for this chain
       vector<const ChainParticle*> endpoints;
-      (*Dep::cascadeMC_ChainEvent).chain->
-        collectEndpointStates(endpoints, false);
+      Dep::cascadeMC_ChainEvent->chain->collectEndpointStates(endpoints, false);
       // Iterate over final states of interest
-      for(std::vector<std::string>::const_iterator pit =
-          Dep::cascadeMC_FinalStates->begin();
-          pit!=Dep::cascadeMC_FinalStates->end(); ++pit)
+      for (const auto& state : *Dep::cascadeMC_FinalStates)
       {
         // Iterate over all endpoint states of the decay chain. These can
         // either be final state particles themselves or parents of final state
         // particles.  The reason for not using only final state particles is
         // that certain endpoints (e.g. quark-antiquark pairs) cannot be
         // handled as separate particles.
-        for(vector<const ChainParticle*>::const_iterator it =endpoints.begin();
-            it != endpoints.end(); it++)
+        for (const auto& endpoint : endpoints)
         {
-#ifdef DARKBIT_DEBUG
-          std::cout << "  working on endpoint: " << (*it)->getpID() << std::endl;
-          (*it)->printChain();
-#endif
+          #ifdef DARKBIT_DEBUG
+            std::cout << "  working on endpoint: " << endpoint->getpID() << std::endl;
+            endpoint->printChain();
+          #endif
 
           // Weighting factor (correction for mismatch between decay width
           // of available decay channels and total decay width)
           double weight;
           // Analyze single particle endpoints
           bool ignored = true;
-          if((*it)->getnChildren() ==0)
+          if(endpoint->getnChildren() ==0)
           {
-            weight = (*it)->getWeight();
+            weight = endpoint->getWeight();
             // Check if the final state itself is the particle we are looking
             // for.
-            if((*it)->getpID()==*pit)
+            if(endpoint->getpID() == state)
             {
-              double E = (*it)->E_Lab();
-#pragma omp critical (cascadeMC_histList)
-              histList[*Dep::cascadeMC_InitialState][*pit].addEvent(E,weight);
+              double E = endpoint->E_Lab();
+              #pragma omp critical (cascadeMC_histList)
+                histList[*Dep::cascadeMC_LoopManagement][state].addEvent(E,weight);
               ignored = false;
             }
             // Check if tabulated spectra exist for this final state
-            else if((*Dep::SimYieldTable).hasChannel( (*it)->getpID(), *pit ))
+            else if((*Dep::FullSimYieldTable).hasChannel( endpoint->getpID(), state ))
             {
               cascadeMC_sampleSimYield(
-                  *Dep::SimYieldTable, *it, *pit, *Dep::TH_ProcessCatalog,
-                  histList, *Dep::cascadeMC_InitialState, weight,
+                  *Dep::FullSimYieldTable, endpoint, state, *Dep::TH_ProcessCatalog,
+                  histList, *Dep::cascadeMC_LoopManagement, weight,
                   cMC_numSpecSamples
                   );
               // Check if an error was raised
@@ -487,23 +544,23 @@ namespace Gambit
           // parent of final state particles).
           else
           {
-            weight = (*(*it))[0]->getWeight();
+            weight = (*endpoint)[0]->getWeight();
             bool hasTabulated = false;
-            if((*it)->getnChildren() == 2)
+            if(endpoint->getnChildren() == 2)
             {
-#ifdef DARKBIT_DEBUG
-              std::cout << "  check whether two-body final state is tabulated: "
-                << (*(*it))[0]->getpID() << " " << (*(*it))[1]->getpID() <<
-                std::endl;
-#endif
+              #ifdef DARKBIT_DEBUG
+                std::cout << "  check whether two-body final state is tabulated: "
+                  << (*endpoint)[0]->getpID() << " " << (*endpoint)[1]->getpID() <<
+                  std::endl;
+              #endif
               // Check if tabulated spectra exist for this final state
-              if((*Dep::SimYieldTable).hasChannel(
-                    (*(*it))[0]->getpID() , (*(*it))[1]->getpID(), *pit ))
+              if((*Dep::FullSimYieldTable).hasChannel(
+                    (*endpoint)[0]->getpID() , (*endpoint)[1]->getpID(), state ))
               {
                 hasTabulated = true;
-                cascadeMC_sampleSimYield(*Dep::SimYieldTable, *it, *pit,
+                cascadeMC_sampleSimYield(*Dep::FullSimYieldTable, endpoint, state,
                     *Dep::TH_ProcessCatalog, histList,
-                    *Dep::cascadeMC_InitialState, weight,
+                    *Dep::cascadeMC_LoopManagement, weight,
                     cMC_numSpecSamples
                     );
                 // Check if an error was raised
@@ -517,26 +574,24 @@ namespace Gambit
             }
             if(!hasTabulated)
             {
-              for(int i=0; i<((*it)->getnChildren()); i++)
+              for (int i=0; i<(endpoint->getnChildren()); i++)
               {
-                const ChainParticle* child = (*(*it))[i];
+                const ChainParticle* child = (*endpoint)[i];
                 // Check if the child particle is the particle we are looking
                 // for.
-                if(child->getpID()==*pit)
+                if(child->getpID() == state)
                 {
                   double E = child->E_Lab();
-#pragma omp critical (cascadeMC_histList)
-                  histList[
-                    *Dep::cascadeMC_InitialState][*pit].addEvent(E,weight);
+                  #pragma omp critical (cascadeMC_histList)
+                    histList[*Dep::cascadeMC_LoopManagement][state].addEvent(E,weight);
                   ignored = false;
                 }
                 // Check if tabulated spectra exist for this final state
-                else if((*Dep::SimYieldTable).hasChannel( child->getpID(),
-                      *pit))
+                else if((*Dep::FullSimYieldTable).hasChannel( child->getpID(), state))
                 {
-                  cascadeMC_sampleSimYield(*Dep::SimYieldTable, child, *pit,
+                  cascadeMC_sampleSimYield(*Dep::FullSimYieldTable, child, state,
                       *Dep::TH_ProcessCatalog, histList,
-                      *Dep::cascadeMC_InitialState, weight,
+                      *Dep::cascadeMC_LoopManagement, weight,
                       cMC_numSpecSamples
                       );
                   // Check if an error was raised
@@ -552,35 +607,34 @@ namespace Gambit
           }
           if (ignored)
           {
-            DarkBit_warning().raise(LOCAL_INFO,
-                "WARNING FCMC: Missing complete decay information for "
-                + (*it)->getpID() + ". This state is ignored.");
+            DarkBit_warning().raise(LOCAL_INFO, "WARNING FCMC: Missing complete decay "
+             "information for " + endpoint->getpID() + ". This state is ignored.");
           }
         }
       }
+
       // Check if finished every cMC_endCheckFrequency events
       if((*Loop::iteration % cMC_endCheckFrequency) == 0)
       {
         enum status{untouched,unfinished,finished};
         status cond = untouched;
-        for(std::vector<std::string>::const_iterator it =
-            Dep::cascadeMC_FinalStates->begin();
-            it != Dep::cascadeMC_FinalStates->end(); ++it)
+        for (const auto& state : *Dep::cascadeMC_FinalStates)
         {
           // End conditions currently only implemented for gamma final state
-          if(*it=="gamma")
+          /// @TODO: consider implementing specific convergence criteria for other final states
+          if (state == "gamma")
           {
             SimpleHist hist;
-#pragma omp critical (cascadeMC_histList)
-            hist = histList[*Dep::cascadeMC_InitialState][*it];
-#ifdef DARKBIT_DEBUG
-            std::cout << "Checking whether convergence is reached" << std::endl;
-            for ( int i = 0; i < hist.nBins; i++ )
-              std::cout << "Estimated error at " << hist.binCenter(i) << " GeV : " << hist.getRelError(i) << std::endl;
-#endif
+            #pragma omp critical (cascadeMC_histList)
+              hist = histList[*Dep::cascadeMC_LoopManagement][state];
+            #ifdef DARKBIT_DEBUG
+              std::cout << "Checking whether convergence is reached" << std::endl;
+              for ( int i = 0; i < hist.nBins; i++ )
+                std::cout << "Estimated error at " << hist.binCenter(i) << " GeV : " << hist.getRelError(i) << std::endl;
+            #endif
             double sbRatioMax=-1.0;
             int maxBin=0;
-            for(int i=0; i<hist.nBins; i++)
+            for (int i=0; i<hist.nBins; i++)
             {
               double E = hist.binCenter(i);
               double background = pow(E,cMC_gammaBGPower);
@@ -591,12 +645,13 @@ namespace Gambit
                 maxBin=i;
               }
             }
-#ifdef DARKBIT_DEBUG
-            std::cout << "Estimated maxBin: " << maxBin << std::endl;
-            std::cout << "Energy at maxBin: " << hist.binCenter(maxBin) << std::endl;
-            std::cout << "Estimated error at maxBin: " << hist.getRelError(maxBin) << std::endl;
-            std::cout << "Value at maxBin: " << hist.getBinValues()[maxBin];
-#endif
+            #ifdef DARKBIT_DEBUG
+              std::cout << "Estimated maxBin: " << maxBin << std::endl;
+              std::cout << "Energy at maxBin: " << hist.binCenter(maxBin) << std::endl;
+              std::cout << "Estimated error at maxBin: " << hist.getRelError(maxBin) << std::endl;
+              std::cout << "Value at maxBin: " << hist.getBinValues()[maxBin];
+            #endif
+
             // Check if end condition is fulfilled. If not, set cond to
             // unfinished.
             if(hist.getRelError(maxBin) > cMC_gammaRelError) cond = unfinished;
@@ -609,10 +664,10 @@ namespace Gambit
         // Break Monte Carlo loop if all end conditions are fulfilled.
         if(cond==finished)
         {
-#ifdef DARKBIT_DEBUG
-          std::cout << "!! wrapping up !!" << std::endl;
-          std::cout << "Performed iterations: " << *Loop::iteration << std::endl;
-#endif
+          #ifdef DARKBIT_DEBUG
+            std::cout << "!! wrapping up !!" << std::endl;
+            std::cout << "Performed iterations: " << *Loop::iteration << std::endl;
+          #endif
           Loop::wrapup();
         }
       }
@@ -624,74 +679,60 @@ namespace Gambit
         should call this function.*/
     void cascadeMC_fetchSpectra(std::map<std::string, daFunk::Funk> &spectra,
         std::string finalState,
-        const std::vector<std::string> &ini,
-        const std::vector<std::string> &fin,
+        const std::set<std::string> &ini,
+        const std::set<std::string> &fin,
         const std::map<std::string, std::map<std::string,SimpleHist> > &h,
         const std::map<std::string,int> &eventCounts)
     {
       spectra.clear();
-      // Check if final state has been calculated
-      bool calculated = (
-          std::find(fin.begin(), fin.end(), finalState) != fin.end());
-      for(std::vector<std::string>::const_iterator it = ini.begin();
-          it != ini.end(); ++it )
-      {
-#ifdef DARKBIT_DEBUG
-        std::cout << "Trying to get cascade spectra for initial state: " << *it << std::endl;
-#endif
-        if(calculated)
-        {
-#ifdef DARKBIT_DEBUG
-          std::cout << finalState << "...was calculated!" << std::endl;
-          std::cout << eventCounts.at(*it) << " events generated" << std::endl;
-#endif
-          SimpleHist hist = h.at(*it).at(finalState);
-          hist.divideByBinSize();
-          std::vector<double> E = hist.getBinCenters();
-          std::vector<double> dN_dE = hist.getBinValues();
-          // Normalize to per-event spectrum
-          int i = 0;
-          for (std::vector<double>::iterator it2=dN_dE.begin();
-              it2!=dN_dE.end();++it2)
-          {
-            *it2 /= eventCounts.at(*it);
-#ifdef DARKBIT_DEBUG
-            std::cout << E[i] << " " << *it2 << std::endl;
-#endif
-            i++;
-          }
-          // Default values provide 1-2% accuracy for singular integrals
-          // Make this optional.
-          spectra[*it] = daFunk::Funk(new daFunk::FunkInterp("E", E, dN_dE, "lin"));
 
-          for (size_t i = 1; i<E.size()-1; i++)
-          {
-            if (dN_dE[i]/(dN_dE[i-1]+dN_dE[i+1]+dN_dE[i]*1e-4) > 1e2)
-            {
-#ifdef DARKBIT_DEBUG
-              std::cout << "Set singularity at " << E[i] << " with width "
-                << E[i+1]-E[i] << endl;
-#endif
-              spectra[*it]->set_singularity("E", E[i], (E[i+1]-E[i]));
-            }
-          }
-        }
-        else
+      // Make sure final state has actually been calculated
+      bool calculated = (std::find(fin.begin(), fin.end(), finalState) != fin.end());
+      if (not calculated) DarkBit_error().raise(LOCAL_INFO, finalState + " not calculated!");
+
+      // Iterate over initial states
+      for (const auto& initial_state : ini)
+      {
+        #ifdef DARKBIT_DEBUG
+          std::cout << "Trying to get cascade spectra for initial state: " << initial_state << std::endl;
+          std::cout << eventCounts.at(initial_state) << " events generated" << std::endl;
+          int i = 0;
+        #endif
+
+        SimpleHist hist = h.at(initial_state).at(finalState);
+        hist.divideByBinSize();
+        std::vector<double> E = hist.getBinCenters();
+        std::vector<double> dN_dE = hist.getBinValues();
+        // Normalize to per-event spectrum
+        for (std::vector<double>::iterator it2 = dN_dE.begin(); it2 != dN_dE.end(); ++it2)
         {
-          spectra[*it] = daFunk::zero("E");
+          *it2 /= eventCounts.at(initial_state);
+          #ifdef DARKBIT_DEBUG
+            std::cout << E[i] << " " << *it2 << std::endl;
+            i++;
+          #endif
+        }
+        // Default values provide 1-2% accuracy for singular integrals
+        // Make this optional.
+        spectra[initial_state] = daFunk::Funk(new daFunk::FunkInterp("E", E, dN_dE, "lin"));
+
+        for (size_t i = 1; i<E.size()-1; i++)
+        {
+          if (dN_dE[i]/(dN_dE[i-1]+dN_dE[i+1]+dN_dE[i]*1e-4) > 1e2)
+          {
+            #ifdef DARKBIT_DEBUG
+              std::cout << "Set singularity at " << E[i] << " with width " << E[i+1]-E[i] << endl;
+            #endif
+            spectra[initial_state]->set_singularity("E", E[i], (E[i+1]-E[i]));
+          }
         }
       }
     }
 
-    /// Function requesting and returning gamma ray spectra from cascade decays.
-    void cascadeMC_gammaSpectra(std::map<std::string, daFunk::Funk> &spectra)
+    /// Debug print function for cascase spectra
+    void print_spectrum_debug_info(const str& fs, const std::map<std::string, daFunk::Funk> & spectra)
     {
-      using namespace Pipes::cascadeMC_gammaSpectra;
-      cascadeMC_fetchSpectra(spectra, "gamma", *Dep::GA_missingFinalStates,
-          *Dep::cascadeMC_FinalStates, *Dep::cascadeMC_Histograms,
-          *Dep::cascadeMC_EventCount);
-#ifdef DARKBIT_DEBUG
-      std::cout << "Retrieving cascade spectra for gamma final states" << std::endl;
+      std::cout << "Retrieving cascade spectra for " << fs << " final states" << std::endl;
       std::cout << "Number of simulated final states: " << spectra.size() << std::endl;
       for ( auto it = spectra.begin(); it != spectra.end(); it ++ )
       {
@@ -703,7 +744,66 @@ namespace Gambit
         }
         std::cout << "  Integrated spectrum: " << f->gsl_integration("E", 0, 1000)->bind()->eval() << std::endl;
       }
-#endif
+    }
+
+    /// Function requesting and returning gamma ray spectra from cascade decays.
+    void cascadeMC_gammaSpectra(std::map<std::string, daFunk::Funk> &spectra)
+    {
+      using namespace Pipes::cascadeMC_gammaSpectra;
+      cascadeMC_fetchSpectra(spectra, "gamma", *Dep::cascadeMC_InitialStates,
+          *Dep::cascadeMC_FinalStates, *Dep::cascadeMC_Histograms,
+          *Dep::cascadeMC_EventCount);
+      #ifdef DARKBIT_DEBUG
+        print_spectrum_debug_info("gamma", spectra);
+      #endif
+    }
+
+    /// Function requesting and returning electron spectra from cascade decays.
+    void cascadeMC_electronSpectra(std::map<std::string, daFunk::Funk> &spectra)
+    {
+      using namespace Pipes::cascadeMC_electronSpectra;
+      cascadeMC_fetchSpectra(spectra, "e-_1", *Dep::cascadeMC_InitialStates,
+          *Dep::cascadeMC_FinalStates, *Dep::cascadeMC_Histograms,
+          *Dep::cascadeMC_EventCount);
+      #ifdef DARKBIT_DEBUG
+        print_spectrum_debug_info("electron", spectra);
+      #endif
+    }
+
+    /// Function requesting and returning positron spectra from cascade decays.
+    void cascadeMC_positronSpectra(std::map<std::string, daFunk::Funk> &spectra)
+    {
+      using namespace Pipes::cascadeMC_positronSpectra;
+      cascadeMC_fetchSpectra(spectra, "e+_1", *Dep::cascadeMC_InitialStates,
+          *Dep::cascadeMC_FinalStates, *Dep::cascadeMC_Histograms,
+          *Dep::cascadeMC_EventCount);
+      #ifdef DARKBIT_DEBUG
+        print_spectrum_debug_info("positron", spectra);
+      #endif
+    }
+
+    /// Function requesting and returning pbar spectra from cascade decays.
+    void cascadeMC_antiprotonSpectra(std::map<std::string, daFunk::Funk> &spectra)
+    {
+      using namespace Pipes::cascadeMC_antiprotonSpectra;
+      cascadeMC_fetchSpectra(spectra, "pbar", *Dep::cascadeMC_InitialStates,
+          *Dep::cascadeMC_FinalStates, *Dep::cascadeMC_Histograms,
+          *Dep::cascadeMC_EventCount);
+      #ifdef DARKBIT_DEBUG
+        print_spectrum_debug_info("antiproton", spectra);
+      #endif
+    }
+
+    /// Function requesting and returning Dbar spectra from cascade decays.
+    void cascadeMC_antideuteronSpectra(std::map<std::string, daFunk::Funk> &spectra)
+    {
+      using namespace Pipes::cascadeMC_antideuteronSpectra;
+      cascadeMC_fetchSpectra(spectra, "Dbar", *Dep::cascadeMC_InitialStates,
+          *Dep::cascadeMC_FinalStates, *Dep::cascadeMC_Histograms,
+          *Dep::cascadeMC_EventCount);
+      #ifdef DARKBIT_DEBUG
+        print_spectrum_debug_info("antideuteron", spectra);
+      #endif
     }
 
     /*
@@ -717,20 +817,20 @@ namespace Gambit
       std::map<std::string, std::map<std::string,SimpleHist> >
         cascadeMC_HistList = *Dep::cascadeMC_Histograms;
 
-      for(std::map<std::string, std::map<std::string,SimpleHist> >::iterator
+      for (std::map<std::string, std::map<std::string,SimpleHist> >::iterator
           it = cascadeMC_HistList.begin();
           it != cascadeMC_HistList.end(); ++it )
       {
         logger() << "Initial state: " << (it->first) << ":" << EOM;
         int nEvents = (*Dep::cascadeMC_EventCount).at(it->first);
         logger() << "Number of events: " << nEvents << EOM;
-        for(std::map<std::string,SimpleHist>::iterator
+        for (std::map<std::string,SimpleHist>::iterator
             it2 = (it->second).begin(); it2 != (it->second).end(); ++it2 )
         {
           logger() << (it2->first) << ": ";
           //(it2->second).divideByBinSize();
           (it2->second).multiply(1.0/nEvents);
-          for(int i=0;i<50;i++)
+          for (int i=0;i<50;i++)
           {
             logger() << (it2->second).binVals[i] << "  ";
           }

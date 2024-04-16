@@ -48,6 +48,7 @@
 #*********************************************
 
 import pickle
+import io
 
 toolsfile="./Utils/scripts/harvesting_tools.py"
 exec(compile(open(toolsfile, "rb").read(), toolsfile, 'exec')) # Python 2/3 compatible version of 'execfile'
@@ -79,6 +80,7 @@ def main(argv):
     full_rollcall_headers=[]
     full_type_headers=[]
     modules=set([])
+    modules_excluded=set([])
 
     # List of headers to search
     rollcall_headers = set(["gambit/Backends/backend_rollcall.hpp", "Models/include/gambit/Models/model_rollcall.hpp"])
@@ -97,7 +99,7 @@ def main(argv):
     exclude_types=set(["void"])
 
     # List of directory names to ignore when searching for headers
-    exclude_dirs=set([".git","build","doc","cmake","extras","config","contrib","runs","Logs","Printers","scratch","installed","scripts"])
+    exclude_dirs=set([".git","build","doc","cmake","extras","config","contrib","runs","Logs","Printers","scratch","installed","scripts","gum"])
 
     # If any variation of pybind11 is in the excluded_modules list, ditch all pybind11 dependent types
     if "pybind" in exclude_header or "pybind11" in exclude_header or "Pybind" in exclude_header or "Pybind11" in exclude_header :
@@ -120,6 +122,9 @@ def main(argv):
         if verbose: print(' ',h)
         h_parts = neatsplit('\/',h)
         modules.add(h_parts[1])
+    for h in retrieve_rollcall_headers(verbose,".",exclude_header, retrieve_excluded=True):
+        h_parts = neatsplit('\/',h)
+        modules_excluded.add(h_parts[1])
     if verbose:
         print("Module type headers identified:")
         for h in module_type_headers:
@@ -183,7 +188,7 @@ def main(argv):
     non_module_types=set(["ModelParameters", "double", "float", "std::vector<double>", "std::vector<float>"])
     returned_types = { "all" : types, "non_module" : non_module_types }
     for header in full_rollcall_headers:
-        with open(header) as f:
+        with io.open(header, encoding='utf-8') as f:
             if verbose: print("  Scanning header {0} for types used to instantiate module functor class templates".format(header))
             module = "__NotAModule__"
             continued_line = ""
@@ -219,7 +224,7 @@ def main(argv):
     be_types=set()
     type_packs=set()
     for header in full_rollcall_headers:
-        with open(header) as f:
+        with io.open(header, encoding='utf-8') as f:
             if verbose: print("  Scanning header {0} for types used to instantiate backend functor class templates".format(header))
             continued_line = ""
             ignore_lines = False
@@ -348,6 +353,13 @@ namespace Gambit                                  \n\
     # Pickle the types for later usage by standalone_facilitator.py
     with open('./scratch/build_time/harvested_types.pickle', 'wb') as handle:
         pickle.dump(returned_types, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    import yaml
+    with open("./config/gambit_bits.yaml", "w+") as f:
+      yaml.dump({
+        "enabled": list(sorted(modules)),
+        "disabled": list(sorted(modules_excluded)),
+      }, f)
 
 # Handle command line arguments (verbosity)
 if __name__ == "__main__":

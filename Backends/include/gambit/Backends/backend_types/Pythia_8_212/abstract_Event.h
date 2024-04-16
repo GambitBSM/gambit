@@ -1,17 +1,17 @@
 #ifndef __abstract_Event_Pythia_8_212_h__
 #define __abstract_Event_Pythia_8_212_h__
 
+#include <cstddef>
+#include <iostream>
+#include <string>
+#include <ostream>
+#include <vector>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
-#include <string>
 #include "wrapper_ParticleData_decl.h"
 #include "wrapper_Particle_decl.h"
 #include "wrapper_Vec4_decl.h"
-#include <ostream>
-#include <vector>
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 
@@ -27,11 +27,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual Pythia8::Abstract_Event& operator_equal__BOSS(const Pythia8::Abstract_Event&) =0;
     
-                virtual void init__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, Pythia8::Abstract_ParticleData*, int) =0;
+                virtual void init__BOSS(std::string, Pythia8::Abstract_ParticleData*, int) =0;
     
-                virtual void init__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, Pythia8::Abstract_ParticleData*) =0;
+                virtual void init__BOSS(std::string, Pythia8::Abstract_ParticleData*) =0;
     
-                virtual void init__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual void init__BOSS(std::string) =0;
     
                 virtual void init__BOSS() =0;
     
@@ -97,9 +97,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void list__BOSS() const =0;
     
-                virtual void list(::std::basic_ostream<char, std::char_traits<char> >&, int) const =0;
+                virtual void list(std::ostream&, int) const =0;
     
-                virtual void list__BOSS(::std::basic_ostream<char, std::char_traits<char> >&) const =0;
+                virtual void list__BOSS(std::ostream&) const =0;
     
                 virtual void list(bool, bool, int) const =0;
     
@@ -107,9 +107,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void list__BOSS(bool) const =0;
     
-                virtual void list(bool, bool, ::std::basic_ostream<char, std::char_traits<char> >&, int) const =0;
+                virtual void list(bool, bool, std::ostream&, int) const =0;
     
-                virtual void list__BOSS(bool, bool, ::std::basic_ostream<char, std::char_traits<char> >&) const =0;
+                virtual void list__BOSS(bool, bool, std::ostream&) const =0;
     
                 virtual void popBack(int) =0;
     
@@ -141,7 +141,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual double scaleSecond() const =0;
     
-                virtual ::std::vector<int, std::allocator<int> > daughterList(int) const =0;
+                virtual ::std::vector<int> daughterList(int) const =0;
     
                 virtual void rot(double, double) =0;
     
@@ -181,7 +181,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void restoreJunctionSize() =0;
     
-                virtual void listJunctions(::std::basic_ostream<char, std::char_traits<char> >&) const =0;
+                virtual void listJunctions(std::ostream&) const =0;
     
                 virtual void listJunctions__BOSS() const =0;
     

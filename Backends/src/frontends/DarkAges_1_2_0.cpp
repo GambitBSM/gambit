@@ -252,6 +252,25 @@ BE_INI_FUNCTION
       // What is the execution mode today?
       f_eff_mode = runOptions->getValueOrDef<bool>(false,"f_eff_mode");
 
+      // If the capability 'f_eff' depends on the functionality of this
+      // backend, "f_eff_mode" must be set to true.
+      // If this is not the case, throw an error and tell the user how to fix it.
+      if (Downstream::neededFor("f_eff") && !f_eff_mode)
+      {
+        std::ostringstream errMssg;
+        errMssg << "An error occured in DarkAges_" << STRINGIFY(SAFE_VERSION) << "_init:\n\n";
+        errMssg << "The capability \'f_eff\' will depend on the energy injection efficiency table ";
+        errMssg << "provided by this backend and assumes that the option \'f_eff_mode\' is set to \'true\' ";
+        errMssg << "but this option is currently set to \'false\' (which is the default value of this option) ";
+        errMssg << "such that \'f_eff\' cannot work properly.\n\n";
+        errMssg << "In order to proceed, please consider to set this option to \'true\' via the ";
+        errMssg << "following rule in the yaml file of the scan:\n\n";
+        errMssg << "  - capability: DarkAges_" << STRINGIFY(SAFE_VERSION) << "_init\n";
+        errMssg << "    options:\n";
+        errMssg << "      f_eff_mode: true\n";
+        backend_error().raise(LOCAL_INFO, errMssg.str());
+      }
+
       // Depending on the execution mode, collect the relevant transfer functions.
       if (f_eff_mode)
       {

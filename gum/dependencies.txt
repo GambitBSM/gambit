@@ -1,0 +1,13 @@
+Dependencies that differ from GAMBIT itself
+
+Python (2.7 or above)
+
+Boost.Filesystem
+Boost.System
+
+CalcHEP:
+  - libX11-devel (Fedora, Scientific Linux, Darwin/OSX) / libX11-dev (Debian/Ubuntu) / xorg-x11-devel (OpenSUSE)
+
+FeynRules/SARAH:
+  - Boost.Python
+

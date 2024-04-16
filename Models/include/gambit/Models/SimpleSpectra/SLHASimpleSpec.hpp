@@ -57,6 +57,7 @@ namespace Gambit
            /// Helper functions to do error checking for SLHAea object contents
            double getdata(const std::string& block, int index) const;
            double getdata(const std::string& block, int i, int j) const;
+           bool checkdata(const std::string& block, int index) const;
       };
 
       template<class Derived>

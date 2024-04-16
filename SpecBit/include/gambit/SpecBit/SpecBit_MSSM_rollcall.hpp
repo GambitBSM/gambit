@@ -36,14 +36,14 @@
 ///  This stuff should be removed when FlexibleSUSY becomes a "real"
 ///  backend. The preprocessor variables are created automatically in
 ///  cmake/contrib.cmake as part of the FlexibleSUSY configuration process.
-///  Note that these #if checks are in both this header AND these 
+///  Note that these #if checks are in both this header AND these
 ///  source files which define the corresponding module functions.
 ///
 #ifndef __SpecBit_MSSM_hpp__
 #define __SpecBit_MSSM_hpp__
 
 // Include this here so that typedef for SLHAstruct gets passed on to standalone codes which use these module functions
-#include "gambit/Elements/slhaea_helpers.hpp"
+#include "gambit/Utils/slhaea_helpers.hpp"
 
   /// @{ Functions to supply particle spectra in various forms
 
@@ -60,7 +60,7 @@
     /// SPheno spectrum function
     #define FUNCTION get_MSSM_spectrum_SPheno
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(CMSSM, MSSM63atMGUT, MSSM63atQ)
+    ALLOW_MODELS(CMSSM, MSSM63atMGUT, MSSM63atQ, MSSM63atMGUT_mG, MSSM63atQ_mG)
     DEPENDENCY(SMINPUTS, SMInputs)
     BACKEND_REQ(SPheno_MSSMspectrum, (libSPheno), int, (Spectrum&, const Finputs&) )
     BACKEND_OPTION((SPheno, 3.3.8, 4.0.3), (libSPheno))
@@ -83,7 +83,7 @@
     #if(FS_MODEL_MSSMatMGUT_IS_BUILT)
     #define FUNCTION get_MSSMatMGUT_spectrum_FS
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atMGUT, MSSM63atMGUT_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -93,7 +93,7 @@
     #if(FS_MODEL_MSSM_IS_BUILT)
     #define FUNCTION get_MSSMatQ_spectrum_FS
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atQ)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -103,7 +103,7 @@
     #if(FS_MODEL_MSSM_mAmu_IS_BUILT)
     #define FUNCTION get_MSSMatQ_mA_spectrum_FS
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atQ_mA)
+    ALLOW_MODELS(MSSM63atQ_mA, MSSM63atQ_mA_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -113,7 +113,7 @@
     #if(FS_MODEL_MSSMatMGUT_mAmu_IS_BUILT)
     #define FUNCTION get_MSSMatMGUT_mA_spectrum_FS
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atMGUT_mA)
+    ALLOW_MODELS(MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -123,7 +123,7 @@
     #if(FS_MODEL_MSSMatMGUTEFTHiggs_IS_BUILT)
     #define FUNCTION get_MSSMatMGUT_spectrum_FlexibleEFTHiggs
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atMGUT, MSSM63atMGUT_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -134,18 +134,18 @@
     #if(FS_MODEL_MSSMatMGUTEFTHiggs_mAmu_IS_BUILT)
     #define FUNCTION get_MSSMatMGUT_mA_spectrum_FlexibleEFTHiggs
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atMGUT_mA)
+    ALLOW_MODELS(MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
-     
+
 
     // ==============================
     // MSSM parameterised by mA and mu (instead of mHu2 and mHd2) at SUSY scale
     #if(FS_MODEL_MSSMatMSUSY_mAmu_IS_BUILT)
     #define FUNCTION get_MSSMatMSUSY_mA_spectrum_FS
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atMSUSY_mA)
+    ALLOW_MODELS(MSSM63atMSUSY_mA, MSSM63atMSUSY_mA_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -156,7 +156,7 @@
     #if(FS_MODEL_MSSMatMSUSYEFTHiggs_mAmu_IS_BUILT)
     #define FUNCTION get_MSSMatMSUSY_mA_spectrum_FlexibleEFTHiggs
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atMSUSY_mA)
+    ALLOW_MODELS(MSSM63atMSUSY_mA, MSSM63atMSUSY_mA_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -168,7 +168,7 @@
     #if(FS_MODEL_MSSMEFTHiggs_IS_BUILT)
     #define FUNCTION get_MSSMatQ_spectrum_FlexibleEFTHiggs
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atQ)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -180,7 +180,7 @@
     #if(FS_MODEL_MSSMEFTHiggs_mAmu_IS_BUILT)
     #define FUNCTION get_MSSMatQ_mA_spectrum_FlexibleEFTHiggs
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atQ_mA)
+    ALLOW_MODELS(MSSM63atQ_mA, MSSM63atQ_mA_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -216,6 +216,13 @@
     #define FUNCTION get_MSSM_spectrum_as_SLHAea_SLHA2
     START_FUNCTION(SLHAstruct)
     DEPENDENCY(unimproved_MSSM_spectrum, Spectrum) // Takes a Spectrum object and returns an SLHAstruct
+    #undef FUNCTION
+
+    // Get MSSM spectrum from previous GAMBIT output via the postprocessor scanner
+    #define FUNCTION get_MSSM_spectrum_from_postprocessor
+    START_FUNCTION(Spectrum)
+    ALLOW_MODELS(MSSM63atMGUT,MSSM63atMGUT_mA,MSSM63atQ,MSSM63atQ_mA) // Needed for tanbeta(mZ)_DRbar only
+    DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to create full Spectrum object
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -260,10 +267,10 @@
 
 
   // FeynHiggs SUSY masses and mixings
-  #define CAPABILITY FH_MSSMMasses
+  #define CAPABILITY MSSMMasses
   START_CAPABILITY
-    #define FUNCTION FH_MSSMMasses
-    START_FUNCTION(fh_MSSMMassObs)
+    #define FUNCTION FeynHiggs_MSSMMasses
+    START_FUNCTION(fh_MSSMMassObs_container)
     BACKEND_REQ(FHGetPara, (libfeynhiggs), void, (int&,int&,
                 Farray<fh_real, 1,2, 1,5, 1,3>&, Farray<fh_complex, 1,2, 1,2, 1,5, 1,3>&,
                 Farray<fh_real, 1,6, 1,5>&, Farray<fh_complex, 1,36, 1,5>&,
@@ -272,15 +279,15 @@
                 Farray< fh_complex,1,16>&, fh_complex&, fh_real&,
                 Farray< fh_real,1,4>&, fh_real&))
     BACKEND_OPTION( (FeynHiggs), (libfeynhiggs) )
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
   #undef CAPABILITY
 
   // Higgs masses and mixings with theoretical uncertainties
-  #define CAPABILITY FH_HiggsMasses
+  #define CAPABILITY HiggsMasses
   START_CAPABILITY
-    #define FUNCTION FH_AllHiggsMasses
-    START_FUNCTION(fh_HiggsMassObs)
+    #define FUNCTION FeynHiggs_AllHiggsMasses
+    START_FUNCTION(fh_HiggsMassObs_container)
     BACKEND_REQ(FHHiggsCorr, (libfeynhiggs), void, (int&, Farray< fh_real,1,4>&, fh_complex&,
                 Farray<fh_complex, 1,3, 1,3>&,
                 Farray<fh_complex, 1,3, 1,3>&))
@@ -288,7 +295,7 @@
                 Farray<fh_complex, 1,3, 1,3>&,
                 Farray<fh_complex, 1,3, 1,3>&))
     BACKEND_OPTION( (FeynHiggs), (libfeynhiggs) )
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -296,19 +303,19 @@
   #define CAPABILITY prec_mh
   START_CAPABILITY
 
-    #define FUNCTION FH_HiggsMass
+    #define FUNCTION FeynHiggs_HiggsMass
     START_FUNCTION(triplet<double>)
     DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
-    DEPENDENCY(FH_HiggsMasses, fh_HiggsMassObs)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    DEPENDENCY(HiggsMasses, fh_HiggsMassObs_container)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
-    #define FUNCTION SHD_HiggsMass
+    #define FUNCTION SUSYHD_HiggsMass
     START_FUNCTION(triplet<double>)
     DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
     BACKEND_REQ(SUSYHD_MHiggs, (), MReal, (const MList<MReal>&))
     BACKEND_REQ(SUSYHD_DeltaMHiggs, (), MReal, (const MList<MReal>&))
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -316,25 +323,25 @@
   // Non-SM-like, charged and CP-odd Higgs masses with theoretical uncertainties
   #define CAPABILITY prec_HeavyHiggsMasses
   START_CAPABILITY
-    #define FUNCTION FH_HeavyHiggsMasses
+    #define FUNCTION FeynHiggs_HeavyHiggsMasses
     START_FUNCTION(map_int_triplet_dbl)
     DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
-    DEPENDENCY(FH_HiggsMasses, fh_HiggsMassObs)
+    DEPENDENCY(HiggsMasses, fh_HiggsMassObs_container)
     #undef FUNCTION
   #undef CAPABILITY
 
   // Higgs couplings information directly computed by FeynHiggs
   #define CAPABILITY FH_Couplings_output
   START_CAPABILITY
-    #define FUNCTION FH_Couplings
-    START_FUNCTION(fh_Couplings)
+    #define FUNCTION FeynHiggs_Couplings
+    START_FUNCTION(fh_Couplings_container)
     BACKEND_REQ(FHSelectUZ, (libfeynhiggs), void, (int&,int&,int&,int&))
     BACKEND_REQ(FHCouplings, (libfeynhiggs), void, (int&, Farray< fh_complex,1,681>&,
                                                     Farray< fh_complex,1,231>&,
                                                     Farray< fh_real,1,978>&,
                                                     Farray< fh_real,1,250>&, int&))
     BACKEND_OPTION( (FeynHiggs), (libfeynhiggs) )
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -352,10 +359,10 @@
     DEPENDENCY(A0_decay_rates, DecayTable::Entry)
     DEPENDENCY(H_plus_decay_rates, DecayTable::Entry)
     DEPENDENCY(t_decay_rates, DecayTable::Entry)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
-    #define FUNCTION MSSM_higgs_couplings_FH
+    #define FUNCTION MSSM_higgs_couplings_FeynHiggs
     START_FUNCTION(HiggsCouplingsTable)
     DEPENDENCY(MSSM_spectrum, Spectrum)
     DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
@@ -366,8 +373,8 @@
     DEPENDENCY(A0_decay_rates, DecayTable::Entry)
     DEPENDENCY(H_plus_decay_rates, DecayTable::Entry)
     DEPENDENCY(t_decay_rates, DecayTable::Entry)
-    DEPENDENCY(FH_Couplings_output, fh_Couplings)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
   #undef CAPABILITY

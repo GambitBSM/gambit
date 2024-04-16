@@ -23,6 +23,7 @@
 #define BACKENDLANG Fortran
 #define VERSION 1.0.9
 #define SAFE_VERSION 1_0_9
+#define REFERENCE IceCube:2012fvn,IceCube:2016yoy
 
 // Load it
 LOAD_LIBRARY

@@ -25,6 +25,7 @@
 #define BACKENDLANG FORTRAN
 #define VERSION 2.0.0
 #define SAFE_VERSION 2_0_0
+#define REFERENCE Mortonson:2010er,Price:2014xpa
 
 // Load it
 LOAD_LIBRARY

@@ -59,9 +59,9 @@ namespace Gambit
         void analyze(const HEPUtils::Event*);
         /// @}
 
-        /// Return the integrated luminosity (in inverse pb).
+        /// Return the integrated luminosity.
         double luminosity() const;
-        /// Set the integrated luminosity (in inverse pb).
+        /// Set the integrated luminosity.
         void set_luminosity(double);
         /// Set the analysis name
         void set_analysis_name(str);
@@ -72,10 +72,10 @@ namespace Gambit
         const AnalysisData& get_results();
         /// An overload of get_results() with some additional consistency checks.
         const AnalysisData& get_results(str&);
-        /// Get a pointer to _results.
-        const AnalysisData* get_results_ptr();
-        /// Get a pointer to _results.
-        const AnalysisData* get_results_ptr(str&);
+        /// Get a (non-const!) pointer to _results.
+        AnalysisData* get_results_ptr();
+        /// An overload of get_results_ptr() with some additional consistency checks.
+        AnalysisData* get_results_ptr(str&);
         ///@}
 
         /// Scale by xsec per event.
@@ -104,6 +104,8 @@ namespace Gambit
         void set_covariance(const Eigen::MatrixXd& srcov);
         /// A convenience function for setting the SR covariance from a nested vector/initialiser list
         void set_covariance(const std::vector<std::vector<double>>&);
+        /// A convenience function for setting the path to the ATLAS FullLikes BKG Json file
+        void set_bkgjson(const std::string& bkgpath);
         /// Gather together the info for likelihood calculation.
         virtual void collect_results() = 0;
         ///@}

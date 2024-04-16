@@ -10,7 +10,7 @@
 ///
 ///  \author Torsten Bringmann
 ///          (torsten.bringmann@desy.de)
-///  \date 2013 Jun -- 2016 May, 2019
+///  \date 2013 Jun -- 2016 May, 2019, 2022
 ///
 ///  \author Christoph Weniger
 ///          (c.weniger@uva.nl)
@@ -21,6 +21,7 @@
 #include <chrono>
 
 #include "gambit/Elements/gambit_module_headers.hpp"
+#include "gambit/Elements/elements_extras.hpp"
 #include "gambit/DarkBit/DarkBit_rollcall.hpp"
 #include "gambit/DarkBit/DarkBit_utils.hpp"
 #include "gambit/Utils/util_functions.hpp"
@@ -268,16 +269,16 @@ namespace Gambit
 
 
       // determine resonances for LSP annihilation
-      int reslist[] = {BEreq::DS5particle_code("Z0"),
-                       BEreq::DS5particle_code("h0_2"),
-                       BEreq::DS5particle_code("h0_1"),
-                       BEreq::DS5particle_code("A0"),
-                       BEreq::DS5particle_code("W+"),
-                       BEreq::DS5particle_code("H+")};
-      int resmax=sizeof(reslist) / sizeof(reslist[0]);
+      //int reslist[] = {BEreq::DS5particle_code("Z0"),
+      //                 BEreq::DS5particle_code("h0_2"),
+      //                 BEreq::DS5particle_code("h0_1"),
+      //                 BEreq::DS5particle_code("A0"),
+      //                 BEreq::DS5particle_code("W+"),
+      //                 BEreq::DS5particle_code("H+")}; (Unused)
+      //int resmax=sizeof(reslist) / sizeof(reslist[0]); (Unused)
       // the last 2 resonances in the list can only appear for coannihilations
-      if (result.coannihilatingParticles.size() == 1)
-        resmax -= 2;
+      //if (result.coannihilatingParticles.size() == 1) (Unused)
+      //  resmax -= 2; (Unused)
       // (Turns out resonances are never returned with DS5)
 
       // determine thresholds; lowest threshold = 2*WIMP rest mass  (unlike DS
@@ -305,8 +306,9 @@ namespace Gambit
 
       // retrieve annihilation processes and DM properties
       std::string DMid= *Dep::DarkMatter_ID;
+      std::string DMbarid = *Dep::DarkMatterConj_ID;
       TH_Process annihilation =
-              (*Dep::TH_ProcessCatalog).getProcess(DMid, DMid);
+              (*Dep::TH_ProcessCatalog).getProcess(DMid, DMbarid);
       TH_ParticleProperty DMproperty =
               (*Dep::TH_ProcessCatalog).getParticleProperty(DMid);
 
@@ -437,7 +439,7 @@ namespace Gambit
       }
 
       double tmp; int itmp;
-      for (int i=1; i<=myrdmgev.nco-1; i++) 
+      for (int i=1; i<=myrdmgev.nco-1; i++)
       {
         for (int j=i+1; j<=myrdmgev.nco; j++)
         {
@@ -556,7 +558,8 @@ namespace Gambit
         using namespace Pipes::RD_eff_annrate_from_ProcessCatalog;
 
         std::string DMid= *Dep::DarkMatter_ID;
-        TH_Process annProc = (*Dep::TH_ProcessCatalog).getProcess(DMid, DMid);
+        std::string DMbarid = *Dep::DarkMatterConj_ID;
+        TH_Process annProc = (*Dep::TH_ProcessCatalog).getProcess(DMid, DMbarid);
         double mDM = (*Dep::TH_ProcessCatalog).getParticleProperty(DMid).mass;
 
         auto Weff = daFunk::zero("peff");
@@ -584,6 +587,88 @@ namespace Gambit
       } // function RD_eff_annrate_from_ProcessCatalog
 
 
+    /*! \brief Some helper function to prepare evaluation of RD_oh2_DS_general from
+     *         DarkSUSY 6., up to version 6.2.5
+     */
+    void RD_oh2_DS6pre4_ini_func(int &result)
+    {
+      using namespace Pipes::RD_oh2_DS6pre4_ini_func;
+
+      //We start by setting some general common block settings
+      BEreq::dsrdcom();
+
+      /// Option timeout<double>: Maximum core time to allow for relic density
+      /// calculation, in seconds (default: 600s)
+      BEreq::rdtime->rdt_max = runOptions->getValueOrDef<double>(600, "timeout");
+
+      /// Option fast<int>: Numerical performance of Boltzmann solver in DS
+      /// (default: 1) [NB: accurate is fast = 0 !]
+      DS_RDPARS_OLD *myrdpars = BEreq::rdpars.pointer();
+      int fast = runOptions->getValueOrDef<int>(1, "fast");
+
+      switch (fast)
+      {
+        case 0:
+          myrdpars->cosmin=0.996195;myrdpars->waccd=0.005;myrdpars->dpminr=1.0e-4;
+          myrdpars->dpthr=5.0e-4;myrdpars->wdiffr=0.05;myrdpars->wdifft=0.02;
+          break;
+        case 1:
+          myrdpars->cosmin=0.996195;myrdpars->waccd=0.05;myrdpars->dpminr=5.0e-4;
+          myrdpars->dpthr=2.5e-3;myrdpars->wdiffr=0.5;myrdpars->wdifft=0.1;
+          break;
+        default:
+          DarkBit_error().raise(LOCAL_INFO, "Invalid fast flag (should be 0 or 1). Fast > 1 not yet "
+           "supported in DarkBit::RD_oh2_DS_general.  Please add relevant settings to this routine.");
+      }
+
+      result=fast;
+
+    } // function RD_oh2_DS6pre4_ini_func
+
+
+    /*! \brief Some helper function to prepare evaluation of RD_oh2_DS_general from
+     *         DarkSUSY 6., starting from version 6.4.0
+     */
+    void RD_oh2_DS6_ini_func(int &result)
+    {
+      using namespace Pipes::RD_oh2_DS6_ini_func;
+
+      /// Option timeout<double>: Maximum core time to allow for relic density
+      /// calculation, in seconds (default: 600s)
+      BEreq::rdtime->rdt_max = runOptions->getValueOrDef<double>(600, "timeout");
+
+      /// Option fast<int>: Numerical performance of Boltzmann solver in DS
+      /// (default: 1) [NB: accurate is fast = 0 !]
+      DS_RDPARS *myrdpars = BEreq::rdpars.pointer();
+      int fast = runOptions->getValueOrDef<int>(1, "fast");
+      RD_spectrum_type myRDspec = *Dep::RD_spectrum_ordered;
+      double mwimp=myRDspec.coannihilatingParticles[0].mass;
+      
+      switch (fast)
+      {
+        case 0:
+          myrdpars->cosmin=0.9999;myrdpars->waccd=0.005;myrdpars->dpminr=1.0e-4;
+          myrdpars->dpthr=5.0e-4;myrdpars->wdiffr=0.05;myrdpars->wdifft=0.02;
+          if (mwimp < 1.0)
+          {
+            myrdpars->xinit=0.01;myrdpars->xfinal=5.0e4;
+          }
+          break;
+        case 1:
+          myrdpars->waccd=0.05;myrdpars->dpminr=5.0e-4;
+          myrdpars->dpthr=2.5e-3;myrdpars->wdiffr=0.5;myrdpars->wdifft=0.1;
+          break;
+        default:
+          DarkBit_error().raise(LOCAL_INFO, "Invalid fast flag (should be 0 or 1). Fast > 1 not yet "
+           "supported in DarkBit::RD_oh2_DS_general.  Please add relevant settings to this routine.");
+      }
+
+      result=fast;
+
+    } // function RD_oh2_DS6_ini_func
+
+
+
     /*! \brief General routine for calculation of relic density, using DarkSUSY 6+
      *         Boltzmann solver
      *
@@ -605,34 +690,7 @@ namespace Gambit
       double mwimp=myRDspec.coannihilatingParticles[0].mass;
 
       // What follows below implements dsrdomega from DarkSUSY 6+
-      //We start by setting some general common block settings
-      BEreq::dsrdcom();
-      DS_RDPARS *myrdpars = BEreq::rdpars.pointer();
-
-      /// Option fast<int>: Numerical performance of Boltzmann solver in DS
-      /// (default: 1) [NB: accurate is fast = 0 !]
-      int fast = runOptions->getValueOrDef<int>(1, "fast");
-
-      /// Option timeout<double>: Maximum core time to allow for relic density
-      /// calculation, in seconds (default: 600s)
-      BEreq::rdtime->rdt_max = runOptions->getValueOrDef<double>(600, "timeout");
-
-      switch (fast)
-      {
-        case 0:
-          myrdpars->cosmin=0.996195;myrdpars->waccd=0.005;myrdpars->dpminr=1.0e-4;
-          myrdpars->dpthr=5.0e-4;myrdpars->wdiffr=0.05;myrdpars->wdifft=0.02;
-          break;
-        case 1:
-          myrdpars->cosmin=0.996195;myrdpars->waccd=0.05;myrdpars->dpminr=5.0e-4;
-          myrdpars->dpthr=2.5e-3;myrdpars->wdiffr=0.5;myrdpars->wdifft=0.1;
-          break;
-        default:
-          DarkBit_error().raise(LOCAL_INFO, "Invalid fast flag (should be 0 or 1). Fast > 1 not yet "
-           "supported in DarkBit::RD_oh2_DS_general.  Please add relevant settings to this routine.");
-      }
-
-      // now transfer information from myRDspec to DS common blocks
+      // first transfer information from myRDspec to DS common blocks
       int tnco=myRDspec.coannihilatingParticles.size();
       int tnrs=myRDspec.resonances.size();
       int tnthr=myRDspec.threshold_energy.size();
@@ -679,7 +737,16 @@ namespace Gambit
 
       // Finally use DS Boltzmann solver with invariant rate
       double oh2, xf;
-      int ierr=0; int iwar=0;
+      int ierr=0; int iwar=0; int fast=0;
+      if (Dep::RD_oh2_DS6_ini.active())
+      {
+        fast=*Dep::RD_oh2_DS6_ini;
+      }
+      if (Dep::RD_oh2_DS6pre4_ini.active())
+      {
+        fast=*Dep::RD_oh2_DS6pre4_ini;
+      }
+      
       BEreq::dsrdens(byVal(*Dep::RD_eff_annrate),oh2,xf,fast,ierr,iwar);
 
       //Check for NAN result.
@@ -761,7 +828,7 @@ namespace Gambit
       //                expected accuracy: can be orders of magnitude wrong
       //                for models with strong resonances or thresholds
 
-      DS_RDPARS myrdpars;
+      DS_RDPARS_OLD myrdpars;
       /// Option fast<int>: Numerical performance of Boltzmann solver in DS
       /// (default: 1) [NB: accurate is fast = 0 !]
       int fast = runOptions->getValueOrDef<int>(1, "fast");
@@ -810,7 +877,7 @@ namespace Gambit
         myrdmgev->mdof(i)=myRDspec.coannihilatingParticles[i-1].degreesOfFreedom;
         myrdmgev->kcoann(i)=myRDspec.coannihilatingParticles[i-1].index;
         #ifdef DARKBIT_RD_DEBUG
-          std::cout << "kcoann, mco, mdof: " << myrdmgev->kcoann(i) << "  " << myrdmgev->mco(i) 
+          std::cout << "kcoann, mco, mdof: " << myrdmgev->kcoann(i) << "  " << myrdmgev->mco(i)
                     << "  " << myrdmgev->mdof(i) << std::endl;
         #endif
       }
@@ -1050,6 +1117,19 @@ namespace Gambit
       result = oh2_Xf.second;
     }
 
+    // Get the RD from the postprocessor
+    // This works only with the postprocessor scanner
+    void RD_from_postprocessor(double &result)
+    {
+      using namespace Pipes::RD_from_postprocessor;
+
+      // Retrieve the value of the RD from the pp reader
+      bool RD_isvalid = pp_reader_retrieve(result,"RD_oh2");
+
+      // If the RD was invalid, invalidate
+      if(not RD_isvalid)
+          invalid_point().raise("Postprocessor: the relic density read was invalid");
+    }
 
     void print_channel_contributions_MicrOmegas(double &result)
     {
@@ -1084,6 +1164,24 @@ namespace Gambit
 
     }
 
+    /// Return the thermally averaged cross-section at T_freezeout
+    void vSigma_freezeout_MicrOmegas(double &result)
+    {
+      using namespace Pipes::vSigma_freezeout_MicrOmegas;
+
+      // Beps=1e-5 recommended, Beps=1 switches coannihilation off
+      double Beps = runOptions->getValueOrDef<double>(1e-5, "Beps");
+
+      // Xf = m_WIMP/T_freezeout
+      double Xf = *Dep::Xf;
+      double mwimp = *Dep::mwimp;
+
+      // Get sigma*v at T_freezeout [pb]
+      double sigmav = BEreq::vSigma(byVal(Xf/mwimp), byVal(Beps), byVal(1));
+
+      result = sigmav*1e-36*s2cm;
+    }
+
 
 
     //////////////////////////////////////////////////////////////////////////
@@ -1114,6 +1212,17 @@ namespace Gambit
       /// Option oh2_obs<double>: Set reference dark matter density (Oh2) for this module function (default 0.1188)
       double oh2_obs = runOptions->getValueOrDef<double>(0.1188, "oh2_obs");
       double oh2_theory = *Dep::RD_oh2;
+      result = oh2_theory/oh2_obs;
+      logger() << LogTags::debug << "Fraction of dark matter that the scanned model accounts for: " << result << EOM;
+    }
+
+    void RD_fraction_rescaled_LCDM(double &result)
+    {
+      using namespace Pipes::RD_fraction_rescaled_LCDM;
+
+      double oh2_obs = *Param["omega_b"];
+      double oh2_theory = *Dep::RD_oh2;
+
       result = oh2_theory/oh2_obs;
       logger() << LogTags::debug << "Fraction of dark matter that the scanned model accounts for: " << result << EOM;
     }

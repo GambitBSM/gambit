@@ -172,6 +172,7 @@ namespace Gambit
       addParticle("nu_tau",   0.0,     1);
       addParticle("nubar_tau",0.0,     1);
 
+      // Meson, baryon and nuclear masses
       addParticle("pi0",   meson_masses.pi0,       0);
       addParticle("pi+",   meson_masses.pi_plus,   0);
       addParticle("pi-",   meson_masses.pi_minus,  0);
@@ -180,6 +181,12 @@ namespace Gambit
       addParticle("rho+",  meson_masses.rho_plus,  1);
       addParticle("rho-",  meson_masses.rho_minus, 1);
       addParticle("omega", meson_masses.omega,     1);
+      addParticle("p",     m_proton,               1);
+      addParticle("pbar",  m_proton,               1);
+      addParticle("n",     m_neutron,              1);
+      addParticle("nbar",  m_neutron,              1);
+      addParticle("D",     m_deuteron,             2);
+      addParticle("Dbar",  m_deuteron,             2);
 
 
       // Get MSSM masses
@@ -739,12 +746,58 @@ namespace Gambit
     } //TH_ProcessCatalog_DS_MSSM
 
 
-
     void DarkMatter_ID_MSSM(std::string & result)
     {
       using namespace Pipes::DarkMatter_ID_MSSM;
-      // TODO: need ask Dep::MSSM_spectrum in future; might have sneutralinos and gravitinos later.
-      result = "~chi0_1";
+
+      Spectrum spec = *Dep::MSSM_spectrum;
+
+      // Usual candidates are the lightest neutralino, chargino, up-type squark, down-type-squark, slepton, sneutrino or gluino
+      sdpair msqd  = {"~d_1", spec.get(Par::Pole_Mass, "~d_1")};
+      sdpair msqu  = {"~u_1", spec.get(Par::Pole_Mass, "~u_1")};
+      sdpair msl   = {"~e-_1", spec.get(Par::Pole_Mass, "~e-_1")};
+      sdpair msneu = {"~nu_1", spec.get(Par::Pole_Mass, "~nu_1")};
+      sdpair mglui = {"~g", spec.get(Par::Pole_Mass, "~g")};
+      sdpair mchi0 = {"~chi0_1", std::abs(spec.get(Par::Pole_Mass, "~chi0_1"))};
+      sdpair mchip = {"~chi+_1", std::abs(spec.get(Par::Pole_Mass, "~chi+_1"))};
+
+      auto min = [&](sdpair a, sdpair b) { return a.second < b.second ? a : b; };
+
+      sdpair lsp = min(min(min(min(msqd, msqu), min(msl, msneu)), min(mchi0, mchip)),mglui);
+
+      if (lsp == msqd or lsp == msqu or lsp == msl or lsp == mglui or lsp == mchip)
+      {
+        invalid_point().raise("Point invalidated for having charged LSP.");
+      }
+
+      result = lsp.first;
+    }
+
+    void DarkMatterConj_ID_MSSM(std::string & result)
+    {
+      using namespace Pipes::DarkMatterConj_ID_MSSM;
+
+      Spectrum spec = *Dep::MSSM_spectrum;
+
+      // Usual candidates are the lightest neutralino, chargino, up-type squark, down-type-squark, slepton, sneutrino or gluino
+      sdpair msqd  = {"~d_1", spec.get(Par::Pole_Mass, "~d_1")};
+      sdpair msqu  = {"~u_1", spec.get(Par::Pole_Mass, "~u_1")};
+      sdpair msl   = {"~e+_1", spec.get(Par::Pole_Mass, "~e-_1")};
+      sdpair msneu = {"~nu_1", spec.get(Par::Pole_Mass, "~nu_1")};
+      sdpair mglui = {"~g", spec.get(Par::Pole_Mass, "~g")};
+      sdpair mchi0 = {"~chi0_1", std::abs(spec.get(Par::Pole_Mass, "~chi0_1"))};
+      sdpair mchip = {"~chi-_1", std::abs(spec.get(Par::Pole_Mass, "~chi-_1"))};
+
+      auto min = [&](sdpair a, sdpair b) { return a.second < b.second ? a : b; };
+
+      sdpair lsp = min(min(min(min(msqd, msqu), min(msl, msneu)), min(mchi0, mchip)),mglui);
+
+      if (lsp == msqd or lsp == msqu or lsp == msl or lsp == mglui or lsp == mchip)
+      {
+        invalid_point().raise("Point invalidated for having charged LSP.");
+      }
+
+      result = lsp.first;
     }
   }
 }

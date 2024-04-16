@@ -50,7 +50,12 @@
 #include <iostream>
 #include <type_traits>
 #include <chrono>
+
+#include "gambit/Utils/begin_ignore_warnings_mpi.hpp"
 #include <mpi.h>
+#include "gambit/Utils/end_ignore_warnings.hpp"
+
+
 #include <boost/utility/enable_if.hpp>
 
 #include "gambit/Utils/standalone_error_handlers.hpp"
@@ -578,7 +583,7 @@ namespace Gambit
                // data should just be stacked in the order of the process ranks
                std::vector<int> displs(Get_size());
                displs.push_back(0);
-               for(int i=0; i<(recvcounts.size()-1); i++)
+               for(size_t i=0; i<(recvcounts.size()-1); i++)
                {
                    displs.push_back(i);
                }
