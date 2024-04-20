@@ -81,12 +81,14 @@ namespace Gambit
                     obj(py::cast(unit), py::cast(&physical));
                 }
                 
-                void inverse_transform(const std::unordered_map<std::string, double> &physical, hyper_cube_ref<double> unit) const 
+                void inverse_transform(const std::unordered_map<std::string, double> &, hyper_cube_ref<double>) const 
                 {
+                    scan_err << "'inverse_transfrom' method is not defined" << scan_end;
                 }
                 
                 double log_prior_density(const std::unordered_map<std::string, double> &) const
                 {
+                    scan_err << "'log_prior_density' method is not defined" << scan_end;
                     return 0.0;
                 }
             };
