@@ -15,6 +15,10 @@
 ///          (b.farmer@imperial.ac.uk)
 ///  \date 2018 Dec
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 
@@ -45,14 +49,21 @@ namespace Gambit
 
     // Piggyback off existing print functions to build standard overloads
     USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, std::vector<double>)
+    USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, std::complex<double>)
     USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, map_str_dbl)
     USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, map_str_str)
     USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, map_intpair_dbl)
+    USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, map_dblpair_dbl)
     USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, ModelParameters)
     USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, triplet<double>)
     #ifndef SCANNER_STANDALONE
       USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, DM_nucleon_couplings)
       USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, BBN_container)
+      USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, flav_prediction)
+      USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, flav_binned_prediction)
+      USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, HiggsCouplingsTable)
+      USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, CouplingTable)
+      USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, WilsonCoefficient)
     #endif
 
     /// @}

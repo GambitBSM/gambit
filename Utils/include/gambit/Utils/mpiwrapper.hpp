@@ -105,7 +105,6 @@
 
 namespace Gambit
 {
-
    namespace GMPI
    {
 

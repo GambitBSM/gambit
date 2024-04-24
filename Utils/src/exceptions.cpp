@@ -623,6 +623,5 @@ namespace Gambit
 
     /// Global instance of Piped_exceptions class for warnings.
     Piped_exceptions piped_warnings(1000);
+
 }
-
-

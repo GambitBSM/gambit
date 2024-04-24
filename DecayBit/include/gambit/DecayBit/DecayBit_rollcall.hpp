@@ -29,9 +29,10 @@
 ///          (ankit.beniwal@adelaide.edu.au)
 ///  \date 2016 Aug
 ///
-///   \author Tomas Gonzalo
+///  \author Tomas Gonzalo
 ///           (tomas.gonzalo@kit.edu)
 ///  \date 2018 Feb
+///  \date 2022 June
 ///  \date 2022 Sep
 ///
 ///  \author Andrew Fowlie
@@ -40,9 +41,13 @@
 ///  \author Peter Athron
 ///  \date 2018 May
 ///
-/// \author Jeriek Van den Abeele
-/// \date 2018 Sep
-/// \date 2019 Jul
+///  \author Jeriek Van den Abeele
+///  \date 2018 Sep
+///  \date 2019 Jul
+///
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
 ///
 ///  *********************************************
 
@@ -68,6 +73,16 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
+    #define FUNCTION t_decays_THDM
+    START_FUNCTION(DecayTable::Entry)
+    NEEDS_CLASSES_FROM(THDMC,default)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
+    ALLOW_MODEL(THDM, THDMatQ)
+    BACKEND_REQ(setup_thdmc_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&))
+    BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+    #undef FUNCTION
+
   #undef CAPABILITY
 
 
@@ -85,6 +100,16 @@ START_MODULE
     DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
+    #undef FUNCTION
+
+    #define FUNCTION Ref_SM_Higgs_decays_THDM
+    START_FUNCTION(DecayTable::Entry)
+    NEEDS_CLASSES_FROM(THDMC,default)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
+    ALLOW_MODEL(THDM, THDMatQ)
+    BACKEND_REQ(setup_thdmc_sm_like_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&, double))
+    BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -107,6 +132,16 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
+    #define FUNCTION Ref_SM_other_Higgs_decays_THDM
+    START_FUNCTION(DecayTable::Entry)
+    NEEDS_CLASSES_FROM(THDMC,default)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
+    ALLOW_MODEL(THDM, THDMatQ)
+    BACKEND_REQ(setup_thdmc_sm_like_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&, double))
+    BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+    #undef FUNCTION
+
   #undef CAPABILITY
 
 
@@ -124,6 +159,16 @@ START_MODULE
     DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
+    #undef FUNCTION
+
+    #define FUNCTION Ref_SM_A0_decays_THDM
+    START_FUNCTION(DecayTable::Entry)
+    NEEDS_CLASSES_FROM(THDMC,default)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
+    ALLOW_MODEL(THDM, THDMatQ)
+    BACKEND_REQ(setup_thdmc_sm_like_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&, double))
+    BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -183,6 +228,18 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
+    #define FUNCTION h0_1_decays_THDM
+    START_FUNCTION(DecayTable::Entry)
+    NEEDS_CLASSES_FROM(THDMC,default)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
+    ALLOW_MODEL(THDM, THDMatQ)
+    BACKEND_REQ(setup_thdmc_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&))
+    BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatter_ID, std::string, Inert2)
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatterConj_ID, std::string, Inert2)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
   #define CAPABILITY h0_2_decay_rates
@@ -203,6 +260,18 @@ START_MODULE
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
     DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
+    #undef FUNCTION
+
+    #define FUNCTION h0_2_decays_THDM
+    START_FUNCTION(DecayTable::Entry)
+    NEEDS_CLASSES_FROM(THDMC,default)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
+    ALLOW_MODEL(THDM, THDMatQ)
+    BACKEND_REQ(setup_thdmc_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&))
+    BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatter_ID, std::string, Inert2)
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatterConj_ID, std::string, Inert2)
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -226,6 +295,19 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
+    #define FUNCTION A0_decays_THDM
+    START_FUNCTION(DecayTable::Entry)
+    NEEDS_CLASSES_FROM(THDMC,default)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
+    ALLOW_MODEL(THDM, THDMatQ)
+    BACKEND_REQ(setup_thdmc_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&))
+    BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatter_ID, std::string, Inert2)
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatterConj_ID, std::string, Inert2)
+    #undef FUNCTION
+
+
   #undef CAPABILITY
 
   #define CAPABILITY H_plus_decay_rates
@@ -246,6 +328,18 @@ START_MODULE
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
     DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
+    #undef FUNCTION
+
+    #define FUNCTION Hpm_decays_THDM
+    START_FUNCTION(DecayTable::Entry)
+    NEEDS_CLASSES_FROM(THDMC,default)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
+    ALLOW_MODEL(THDM, THDMatQ)
+    BACKEND_REQ(setup_thdmc_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&))
+    BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatter_ID, std::string, Inert2)
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatterConj_ID, std::string, Inert2)
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -950,10 +1044,10 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(Y1_decay_rates, DecayTable::Entry, DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM, DMsimpVectorMedVectorDM)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     MODEL_CONDITIONAL_DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
-    MODEL_CONDITIONAL_DEPENDENCY(h0_2_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
-    MODEL_CONDITIONAL_DEPENDENCY(A0_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
-    MODEL_CONDITIONAL_DEPENDENCY(H_plus_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
-    MODEL_CONDITIONAL_DEPENDENCY(H_minus_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
+    MODEL_CONDITIONAL_DEPENDENCY(h0_2_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(A0_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(H_plus_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(H_minus_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(gluino_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     MODEL_CONDITIONAL_DEPENDENCY(stop_1_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     MODEL_CONDITIONAL_DEPENDENCY(stop_2_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
@@ -1043,6 +1137,7 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(SeesawI_Vnu, Eigen::Matrix3cd, RightHandedNeutrinos)
     ALLOW_MODELS(StandardModel_SLHA2,RightHandedNeutrinos)
     #undef FUNCTION
+
   #undef CAPABILITY
 
   #define CAPABILITY Z_gamma_chi_0
@@ -1150,7 +1245,8 @@ QUICK_FUNCTION(DecayBit, rho1450_decay_rates,   NEW_CAPABILITY, rho1450_decays, 
 
 // CP-conserving MSSM antiparticle decay rate functions
 #define MSSM_VARIANTS (MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
-QUICK_FUNCTION(DecayBit, H_minus_decay_rates,          NEW_CAPABILITY, H_minus_decays,          DecayTable::Entry, MSSM_VARIANTS, (H_plus_decay_rates,         DecayTable::Entry))
+#define MSSM_THDM_VARIANTS (MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG, THDM, THDMatQ)
+QUICK_FUNCTION(DecayBit, H_minus_decay_rates,          NEW_CAPABILITY, H_minus_decays,          DecayTable::Entry, MSSM_THDM_VARIANTS, (H_plus_decay_rates,         DecayTable::Entry))
 QUICK_FUNCTION(DecayBit, stopbar_1_decay_rates,        NEW_CAPABILITY, stopbar_1_decays,        DecayTable::Entry, MSSM_VARIANTS, (stop_1_decay_rates,         DecayTable::Entry))
 QUICK_FUNCTION(DecayBit, stopbar_2_decay_rates,        NEW_CAPABILITY, stopbar_2_decays,        DecayTable::Entry, MSSM_VARIANTS, (stop_2_decay_rates,         DecayTable::Entry))
 QUICK_FUNCTION(DecayBit, sbottombar_1_decay_rates,     NEW_CAPABILITY, sbottombar_1_decays,     DecayTable::Entry, MSSM_VARIANTS, (sbottom_1_decay_rates,      DecayTable::Entry))

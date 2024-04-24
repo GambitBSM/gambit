@@ -19,6 +19,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2017 March
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 #include "gambit/Printers/printers/hdf5printer_v2.hpp"
@@ -61,6 +65,7 @@ namespace Gambit
     }
 
     // Piggyback off existing print functions to build standard overloads
+    USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, std::complex<double>)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, std::vector<double>)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, map_str_dbl)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, map_str_str)
@@ -68,12 +73,17 @@ namespace Gambit
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, map_str_map_str_dbl)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, map_const_str_map_const_str_dbl)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, map_intpair_dbl)
+    USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, map_dblpair_dbl)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, ModelParameters)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, triplet<double>)
-    USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, flav_prediction)
     #ifndef SCANNER_STANDALONE
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, DM_nucleon_couplings)
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, BBN_container)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, flav_prediction)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, flav_binned_prediction)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, HiggsCouplingsTable)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, CouplingTable)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, WilsonCoefficient)
     #endif
 
     /// @}

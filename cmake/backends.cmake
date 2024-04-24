@@ -65,10 +65,12 @@
 #  \date 2018 Sep
 #
 #  \author Ankit Beniwal
-#      (ankit.beniwal@adelaide.edu.au)
+#      (ankit.beniwal@uclouvain.be)
 #  \date 2016 Aug
 #  \date 2017 Jun
 #  \date 2018 Aug
+#  \date 2019 Jun
+#  \date 2020 Jul
 #
 #  \author Torsten Bringmann
 #      (torsten.bringmann@uio.no)
@@ -78,6 +80,10 @@
 #          (aaron.vincent@cparc.ca)
 #  \date 2017 Sep, Nov
 #
+#  \author Jonathan Cornell
+#          (jonathancornell@weber.edu)
+#  \date 2019 Mar
+#
 #  \author Marcin Chrzaszcz
 #          (mchrzasz@cern.ch)
 #  \date 2019 July
@@ -85,7 +91,8 @@
 #  \author Jihyun Bhom
 #          (jihyun.bhom@ifj.edu.pl)
 #  \date 2019 July
-
+#  \date 2020 Feb, Mar
+#
 #  \author Janina Renk
 #          (janina.renk@fysik.su.se)
 #  \data 2018 Jun
@@ -132,6 +139,7 @@ add_custom_target(nuke-castxml COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}
                                COMMAND ${CMAKE_COMMAND} -E remove_directory ${dir} || true)
 add_dependencies(nuke-all nuke-castxml)
 set_target_properties(castxml PROPERTIES EXCLUDE_FROM_ALL 1)
+
 
 # Acropolis
 set(name "acropolis")
@@ -549,10 +557,10 @@ endif()
 
 # HepLikedata
 set(name "heplikedata")
-set(ver "1.4")
-set(dl "https://github.com/KrakowHEPSoft/HEPLikeData/archive/V${ver}.zip")
+set(ver "1.9")
+set(dl "https://github.com/tegonzalo/HEPLikeData/archive/V${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(md5 "b11c715ee3af25727b85297b6681c9b5")
+set(md5 "1669e21b67e7267c083134453603abb3")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -596,8 +604,40 @@ if(NOT ditched_${name}_${ver})
   # ROOT flags not needed right now. Left as comment in case they are needed in the future
   # BOSS_backend(${name} ${ver} "--castxml-cc-opt=${ROOT_CXX_FLAG}" "-I${ROOT_INCLUDE_DIRS}")
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+set(name "heplike")
+set(ver "2.3")
+set(dl "https://github.com/tegonzalo/HEPLike/archive/V${ver}.zip")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(md5 "9ef6c20849da01154265d69f5096978c")
+set(HL_CXXFLAGS "${BACKEND_CXX_FLAGS} -I${yaml_INCLUDE_DIR}")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(HL_CXXFLAGS "${HL_CXXFLAGS} -undefined dynamic_lookup -flat_namespace")
+endif()
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  set(HL_CXXFLAGS "${HL_CXXFLAGS} ${NO_FIXUP_CHAINS}")
+endif()
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DEPENDS heplikedata
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    UPDATE_COMMAND ${CMAKE_COMMAND} -E echo "set_target_properties(HEPLike_shared PROPERTIES OUTPUT_NAME HEPLike SUFFIX \".so\")" >> ${dir}/CMakeLists.txt
+    CMAKE_COMMAND ${CMAKE_COMMAND} ..
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HL_CXXFLAGS} -DCMAKE_MODULE_PATH=${PROJECT_SOURCE_DIR}/cmake -DUSE_ROOT=false
+    BUILD_COMMAND ${MAKE_PARALLEL} HEPLike_shared
+    INSTALL_COMMAND ""
+    )
+  BOSS_backend(${name} ${ver})
+  # ROOT flags not needed right now. Left as comment in case they are needed in the future
+  # BOSS_backend(${name} ${ver} "--castxml-cc-opt=${ROOT_CXX_FLAG}" "-I${ROOT_INCLUDE_DIRS}")
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
+
 
 
 # SuperIso
@@ -607,7 +647,8 @@ set(lib "libsuperiso")
 set(dl "http://superiso.in2p3.fr/download/${name}_v${ver}_flavbit3.tgz")
 set(md5 "524ac68f60fbe76f9db4b760e88e77c4")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/remove_omp.patch")
+set(patch_dir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/superiso.patch")
 set(SI_C_FLAGS ${BACKEND_C_FLAGS})
 set_compiler_warning("no-format-overflow" SI_C_FLAGS)
 set_compiler_warning("no-format" SI_C_FLAGS)
@@ -618,6 +659,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
+          COMMAND ${CMAKE_COMMAND} -E copy ${patch_dir}/bknunu.c ${dir}/src/
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} ARFLAGS=rcs CFLAGS=${SI_C_FLAGS}
           COMMAND ar x src/libsuperiso.a
@@ -1419,6 +1461,78 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
+# HiggsBounds 5.8.0
+set(name "higgsbounds")
+set(ver "5.8.0")
+set(lib "libhiggsbounds")
+set(dl "https://gitlab.com/higgsbounds/higgsbounds/-/archive/${ver}/higgsbounds-${ver}.tar.gz")
+set(md5 "a81c46e26b0449e931e301a30e7421b6")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    PATCH_COMMAND patch -p1 < ${patch}
+    BUILD_IN_SOURCE 0
+    BINARY_DIR "${dir}/build"
+    CMAKE_COMMAND ${CMAKE_COMMAND} ..
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS} -DCMAKE_Fortran_FLAGS=${BACKEND_Fortran_FLAGS} -DLEP_CHISQ=ON
+    BUILD_COMMAND ${MAKE_PARALLEL}
+          COMMAND ${CMAKE_COMMAND} -E copy lib/libHB.a lib/objects/libHB.a
+          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects ar -x libHB.a
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so lib/objects/*.o" > make_so.sh
+          COMMAND chmod u+x make_so.sh
+          COMMAND ./make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E remove_directory lib/objects
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
+
+# HiggsBounds 5.3.2 beta
+set(name "higgsbounds")
+set(ver "5.3.2beta")
+set(lib "libhiggsbounds")
+set(dl "https://${name}.hepforge.org/downloads/HiggsBounds-${ver}.tar.gz")
+set(md5 "4f145c9e27ce025128d87c67269e1db2")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+set(hb_tab_name "higgsbounds_tables")
+set(hb_tab_ver "0.0")
+set(hb_tab_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${hb_tab_name}/${hb_tab_ver}/")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DEPENDS ${hb_tab_name}_${hb_tab_ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    PATCH_COMMAND patch -p1 < ${patch}
+
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy configure my_configure
+              COMMAND sed ${dashi} -e "s|F90C =.*|F90C = ${CMAKE_Fortran_COMPILER}|" my_configure
+              COMMAND sed ${dashi} -e "s|F77C =.*|F77C = ${CMAKE_Fortran_COMPILER}|" my_configure
+              COMMAND sed ${dashi} -e "s|F90FLAGS =.*|F90FLAGS = ${BACKEND_Fortran_FLAGS}|" my_configure
+              COMMAND sed ${dashi} -e "s|\\.SUFFIXES|.NOTPARALLEL:${nl}${nl}.SUFFIXES|" makefile.in
+              COMMAND ${CMAKE_COMMAND} -E copy makefile.in makefile.in.tmp
+              COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" makefile.in.tmp > makefile.in
+              COMMAND ${CMAKE_COMMAND} -E remove makefile.in.tmp
+              COMMAND ./my_configure --enable-chisq --clsbtablespath=${hb_tab_dir}
+              COMMAND sed -i "s/'csboutput_trans/'\\/csboutput_trans/g" ${dir}/S95tables_type3.F90
+    BUILD_COMMAND ${MAKE_PARALLEL}
+          COMMAND ${CMAKE_COMMAND} -E make_directory lib
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so *.o" > make_so.sh
+          COMMAND chmod u+x make_so.sh
+          COMMAND ./make_so.sh
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+
 # HiggsBounds
 set(name "higgsbounds")
 set(ver "4.2.1")
@@ -1492,8 +1606,81 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+# HiggsSignals 2.5.0
+set(name "higgssignals")
+set(ver "2.5.0")
+set(lib "libhiggssignals")
+set(dl "https://gitlab.com/higgsbounds/higgssignals/-/archive/${ver}/higgssignals-${ver}.tar.gz")
+set(md5 "1e9c9c4977829acfee754672ae39abdd")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(hb_name "higgsbounds")
+set(hb_ver "5.8.0")
+set(hb_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${hb_name}/${hb_ver}")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DEPENDS higgsbounds_${hb_ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 0
+    BINARY_DIR "${dir}/build"
+    CMAKE_COMMAND ${CMAKE_COMMAND} ..
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS} -DCMAKE_Fortran_FLAGS=${BACKEND_Fortran_FLAGS} -DHiggsBounds_DIR=${PROJECT_SOURCE_DIR}/Backends/installed/${hb_name}/${hb_ver}/build
+    BUILD_COMMAND ${MAKE_PARALLEL}
+          COMMAND ${CMAKE_COMMAND} -E copy lib/libHS.a lib/objects/libHS.a
+          COMMAND ${CMAKE_COMMAND} -E copy "${hb_dir}/build/lib/libHB.a" lib/objects/libHB.a
+          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects ar -x libHS.a
+          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects ar -x libHB.a
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so lib/objects/*.o" > make_so.sh
+          COMMAND chmod u+x make_so.sh
+          COMMAND ./make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E remove_directory lib/objects
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
+
+# HiggsSignals 2.2.3 Beta
+set(name "higgssignals")
+set(ver "2.2.3beta")
+set(lib "libhiggssignals")
+set(dl "https://higgsbounds.hepforge.org/downloads/HiggsSignals-${ver}.tar.gz")
+set(md5 "80ea8f4ac59d0b2dfe727bd8d5e98f42")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+set(hb_name "higgsbounds")
+set(hb_ver "5.3.2beta")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DEPENDS higgsbounds_${hb_ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    PATCH_COMMAND patch -p1 < ${patch}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy configure my_configure
+              COMMAND sed ${dashi} -e "s|F90C =.*|F90C = ${CMAKE_Fortran_COMPILER}|" my_configure
+              COMMAND sed ${dashi} -e "s|F77C =.*|F77C = ${CMAKE_Fortran_COMPILER}|" my_configure
+              COMMAND sed ${dashi} -e "s|F90FLAGS =.*|F90FLAGS = ${BACKEND_Fortran_FLAGS}|" my_configure
+              COMMAND sed ${dashi} -e "s|\\.SUFFIXES|.NOTPARALLEL:${nl}${nl}.SUFFIXES|" makefile.in
+              COMMAND ${CMAKE_COMMAND} -E copy makefile.in makefile.in.tmp
+              COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" makefile.in.tmp > makefile.in
+              COMMAND ${CMAKE_COMMAND} -E remove makefile.in.tmp
+              COMMAND ./my_configure --hbpath=../../${hb_name}/${hb_ver}
+    BUILD_COMMAND ${MAKE_PARALLEL}
+          COMMAND ${CMAKE_COMMAND} -E make_directory lib
+          COMMAND ${CMAKE_COMMAND} -E remove HiggsSignals.o
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so ./*.o ../../${hb_name}/${hb_ver}/*.o" > make_so.sh
+          COMMAND chmod u+x make_so.sh
+          COMMAND ./make_so.sh
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
 
 # HiggsSignals
 set(name "higgssignals")
@@ -1533,7 +1720,6 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
 endif()
 
 
@@ -1761,7 +1947,7 @@ set(dl "http://users.ictp.it/~${name}/v${ver}/SUSYHD.tgz")
 set(md5 "e831c3fa977552ff944e0db44db38e87")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(ditch_if_absent "Mathematica")
-check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
+check_ditch_status(${name} ${ver} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -1891,6 +2077,37 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
+
+# THDMC
+set(name "thdmc")
+set(ver "1.8.0")
+set(ver_underlined "1_8_0")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+set(dl "https://2hdmc.hepforge.org/downloads/2HDMC-${ver}.tar.gz")
+set(md5 "97a60d3d10637faf3fe26f704a666d26")
+set(THDM_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+set(GSL_LIB_FLAGS "${GSL_LIBRARIES}")
+string(REPLACE ";" " " GSL_LIB_FLAGS "${GSL_LIB_FLAGS}")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+#    PATCH_COMMAND patch < ${patch}/Makefile.patch
+#         COMMAND patch -s -p0 < ${patch}/src.patch
+    PATCH_COMMAND patch -p0 < ${patch}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE_DIR=${GSL_INCLUDE_DIRS} boss
+          COMMAND ${MAKE_PARALLEL} GSLLIBS=${GSL_LIB_FLAGS} sharedlib
+    INSTALL_COMMAND ""
+  )
+  BOSS_backend(${name} ${ver})
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
+
 
 # plc data
 set(name "plc_data")

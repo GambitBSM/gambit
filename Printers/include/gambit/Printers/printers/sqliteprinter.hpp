@@ -29,7 +29,6 @@
 #include "gambit/Printers/printers/sqlitetypes.hpp"
 #include "gambit/Utils/util_functions.hpp" // Need Utils::ci_less to make map find() functions case-insensitive, since SQLite is case insensitive
 
-
 namespace Gambit
 {
   namespace Printers

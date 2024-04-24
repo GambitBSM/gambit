@@ -47,6 +47,7 @@ input_files = [
     install_path+'/include/HL_nDimGaussian.h',
     install_path+'/include/HL_nDimLikelihood.h',
     install_path+'/include/HL_ProfLikelihood.h',
+    install_path+'/include/HL_Limit.h'
 ]
 include_paths = [install_path+'/include/', install_path+'/yaml-cpp/include/']
 base_paths = [install_path]
@@ -61,6 +62,7 @@ load_classes = [
     'HL_nDimGaussian',
     'HL_ProfLikelihood',
     'HL_nDimLikelihood',
+    'HL_Limit'
 ]
 
 load_functions = []
@@ -98,6 +100,11 @@ known_classes = {
     "boost::numeric::ublas::matrix" : "<boost/numeric/ublas/matrix.hpp>",
 }
 
+# ~~~~~ Declarations to be added to the frontend header file ~~~~~
+
+convenience_functions = []
+
+ini_function_in_header = True
 
 # ~~~~~ Pragma directives for the inclusion of BOSSed classes in GAMBIT ~~~~~
 
@@ -116,11 +123,12 @@ pragmas_end = [
 
 # ~~~~~ Extra code to surround BOSS-generated code included in GAMBIT ~~~~~
 
-# The listed code will be added at the top/bottom in the frontend header file 
+# The listed code will be added at the top/bottom in the frontend header file
 # and in the loaded_types.hpp header.
 
 surround_code_begin = '''
 '''
 
-surround_code_end = ''' 
+surround_code_end = '''
 '''
+

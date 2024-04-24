@@ -20,6 +20,10 @@
 ///  \date 2014 Jan
 ///  \date 2017 Mar
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 #include "gambit/Printers/printers/asciiprinter.hpp"
@@ -117,6 +121,23 @@ namespace Gambit
       addtobuffer(vdvalue,names,IDcode,thread,pointID);
     }
 
+
+    void asciiPrinter::_print(map_dblpair_dbl const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
+    {
+      std::vector<std::string> channels;
+      std::vector<double> vdvalue;
+      channels.reserve(value.size());
+      vdvalue.reserve(value.size());
+      for (map_dblpair_dbl::const_iterator it = value.begin(); it != value.end(); it++)
+      {
+        std::stringstream ss;
+        ss<<label<<"::"<<it->first.first<<it->first.second;
+        channels.push_back( ss.str() );
+        vdvalue.push_back( it->second );
+      }
+      addtobuffer(vdvalue,channels,IDcode,thread,pointID);
+    }
+
     void asciiPrinter::_print(map_intpair_dbl const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
     {
       std::vector<std::string> channels;
@@ -133,15 +154,27 @@ namespace Gambit
       addtobuffer(vdvalue,channels,IDcode,thread,pointID);
     }
 
+    void asciiPrinter::_print(std::complex<double> const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
+    {
+      std::vector<str> labels = {label + "::real", label + "::imag"};
+      std::vector<double> values = {value.real(), value.imag()};
+      addtobuffer(values, labels, IDcode, thread, pointID);
+    }
+
     // Piggyback off existing print functions to build standard overloads
     USE_COMMON_PRINT_OVERLOAD(asciiPrinter, ModelParameters)
     USE_COMMON_PRINT_OVERLOAD(asciiPrinter, triplet<double>)
     USE_COMMON_PRINT_OVERLOAD(asciiPrinter, map_const_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(asciiPrinter, map_str_map_str_dbl)
     USE_COMMON_PRINT_OVERLOAD(asciiPrinter, map_const_str_map_const_str_dbl)
-    USE_COMMON_PRINT_OVERLOAD(asciiPrinter, flav_prediction)
     #ifndef SCANNER_STANDALONE
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, DM_nucleon_couplings)
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, BBN_container)
+      USE_COMMON_PRINT_OVERLOAD(asciiPrinter, flav_prediction)
+      USE_COMMON_PRINT_OVERLOAD(asciiPrinter, flav_binned_prediction)
+      USE_COMMON_PRINT_OVERLOAD(asciiPrinter, HiggsCouplingsTable)
+      USE_COMMON_PRINT_OVERLOAD(asciiPrinter, CouplingTable)
+      USE_COMMON_PRINT_OVERLOAD(asciiPrinter, WilsonCoefficient)
     #endif
 
     /// @}

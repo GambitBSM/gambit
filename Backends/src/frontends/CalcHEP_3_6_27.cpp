@@ -114,8 +114,8 @@ BE_INI_FUNCTION
     else
     {
       int error = setModel(modeltoset, 1);
-      if (error != 0) backend_error().raise(LOCAL_INFO, "Unable to set model" + std::string(modeltoset) +
-            " in CalcHEP. CalcHEP error code: " + std::to_string(error) + ". Please check your model files.\n");
+      if (error != 0) backend_error().raise(LOCAL_INFO, "Unable to set model in CalcHEP. CalcHEP error code: " 
+                                              + std::to_string(error) + ". Please check your model files.\n");
     }
 
     // Create a process lock to allow only one process in

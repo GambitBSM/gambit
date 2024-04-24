@@ -170,5 +170,5 @@ BE_INI_FUNCTION{} END_BE_INI_FUNCTION
 
 // End
 #include "gambit/Backends/backend_undefs.hpp"
- 
+
 #endif

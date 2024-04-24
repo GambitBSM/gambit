@@ -150,4 +150,5 @@ namespace Gambit {
   };
 
 }
+
 #endif //ifdef __model_parameters_hpp__

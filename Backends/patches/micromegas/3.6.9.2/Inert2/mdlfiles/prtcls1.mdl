@@ -1,0 +1,24 @@
+i2HDM
+ Particles 
+Full   Name     | P | aP|  number  |spin2|mass|width|color|aux| LaTeX(A)       |  LateX(A+)         |
+photon          |A  |A  |22        |2    |0   |0    |1    |G  |A               |A
+Z boson         |Z  |Z  |23        |2    |MZ  |wZ   |1    |G  |Z               |Z
+gluon           |G  |G  |21        |2    |0   |0    |8    |G  |G               |G
+W boson         |W+ |W- |24        |2    |MW  |wW   |1    |G  |W^+             |W^-
+neutrino        |n1 |N1 |12        |1    |0   |0    |1    |L  |\nu^e           |\bar{\nu}^e
+electron        |e1 |E1 |11        |1    |0   |0    |1    |   |e               |\bar{e}
+mu-neutrino     |n2 |N2 |14        |1    |0   |0    |1    |L  |\nu^\mu         |\bar{\nu}^\mu
+muon            |e2 |E2 |13        |1    |Mm  |0    |1    |   |\mu             |\bar{\mu}
+tau-neutrino    |n3 |N3 |16        |1    |0   |0    |1    |L  |\nu^\tau        |\bar{\nu}^\tau
+tau-lepton      |e3 |E3 |15        |1    |Mtau|0    |1    |   |\tau            |\bar{\tau}
+u-quark         |u  |U  |2         |1    |Mu  |0    |3    |   |u               |\bar{u}
+d-quark         |d  |D  |1         |1    |Md  |0    |3    |   |d               |\bar{d}
+c-quark         |c  |C  |4         |1    |Mcp |0    |3    |   |c               |\bar{c}
+s-quark         |s  |S  |3         |1    |Ms  |0    |3    |   |s               |\bar{s}
+t-quark         |t  |T  |6         |1    |Mtop|wtop |3    |   |t               |\bar{t}
+b-quark         |b  |B  |5         |1    |Mbp |0    |3    |   |b               |\bar{b}
+Higgs           |H  |H  |25        |0    |MH  |!wH  |1    |   |H               |H
+Dark Matter     |~h1|~h1|3000022   |0    |Mh1 |wh1  |1    |   |\widetilde{h}_1 |\widetilde{h}_1
+Neut Odd Higgs  |~h2|~h2|3000027   |0    |Mh2 |!wh2 |1    |   |\widetilde{h}_2 |\widetilde{h}_2
+Charged higgs   |~h+|~h-|3000025   |0    |Mhc |!wHC |1    |   |\widetilde{h}^+ |\widetilde{h}^-
+=====================================================================================================

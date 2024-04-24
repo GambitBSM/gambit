@@ -19,6 +19,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2017 March
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 
@@ -99,6 +103,33 @@ namespace Gambit
       }
     }
 
+    void HDF5Printer::_print(std::complex<double> const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+    {
+      auto& buffer_manager = get_mybuffermanager<double>(pointID,mpirank);
+
+      str real = label + "::real";
+      str imag = label + "::imag";
+
+      // Write to each buffer
+      PPIDpair ppid(pointID,mpirank);
+      if(synchronised)
+      {
+        // Write the data to the selected buffer ("just works" for simple numeric types)
+        buffer_manager.get_buffer(vID, 0, real).append(value.real(),ppid);
+        buffer_manager.get_buffer(vID, 1, imag).append(value.imag(),ppid);
+      }
+      else
+      {
+        // Queue up a desynchronised ("random access") dataset write to previous scan iteration
+        if(not seen_PPID_before(ppid))
+        {
+          add_PPID_to_list(ppid);
+        }
+        buffer_manager.get_buffer(vID, 0, real).RA_write(value.real(),ppid,primary_printer->global_index_lookup);
+        buffer_manager.get_buffer(vID, 1, imag).RA_write(value.imag(),ppid,primary_printer->global_index_lookup);
+      }
+    }
+
     void HDF5Printer::_print(const map_str_dbl& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
     {
       // Retrieve the buffer manager for buffers with this type
@@ -160,39 +191,6 @@ namespace Gambit
       }
     }
 
-    void HDF5Printer::_print(map_str_map_str_dbl const& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-    {
-      // Retrieve the buffer manager for buffers with this type
-      auto& buffer_manager = get_mybuffermanager<double>(pointID,mpirank);
-
-      unsigned int i=0; // index for each buffer
-      for (map_str_map_str_dbl::const_iterator it = map.begin(); it != map.end(); it++)
-      {
-        std::stringstream ss;
-        ss<<label<<"::"<<it->first;
-        PPIDpair ppid(pointID,mpirank);
-        for (map_str_dbl::const_iterator jt = it->second.begin(); jt != it->second.end(); jt++)
-        {
-          str s2 = ss.str() + "::" + jt->first;
-          if(synchronised)
-          {
-            // Write the data to the selected buffer ("just works" for simple numeric types)
-            buffer_manager.get_buffer(vID, i, s2).append(jt->second,ppid);
-          }
-          else
-          {
-            // Queue up a desynchronised ("random access") dataset write to previous scan iteration
-            if(not seen_PPID_before(ppid))
-            {
-              add_PPID_to_list(ppid);
-            }
-            buffer_manager.get_buffer(vID, i, s2).RA_write(jt->second,ppid,primary_printer->global_index_lookup);
-          }
-          i++;
-        }
-      }
-    }
-
     void HDF5Printer::_print(map_intpair_dbl const& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
     {
       // Retrieve the buffer manager for buffers with this type
@@ -222,15 +220,49 @@ namespace Gambit
       }
     }
 
+    void HDF5Printer::_print(map_dblpair_dbl const& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+    {
+      // Retrieve the buffer manager for buffers with this type
+      auto& buffer_manager = get_mybuffermanager<double>(pointID,mpirank);
+
+      unsigned int i=0; // index for each buffer
+      for (std::map<std::pair<double,double>, double>::const_iterator it = map.begin(); it != map.end(); it++)
+      {
+        std::stringstream ss;
+        ss<<label<<"::"<<it->first;
+        PPIDpair ppid(pointID,mpirank);
+        if(synchronised)
+        {
+          // Write the data to the selected buffer ("just works" for simple numeric types)
+          buffer_manager.get_buffer(vID, i, ss.str()).append(it->second,ppid);
+        }
+        else
+        {
+          // Queue up a desynchronised ("random access") dataset write to previous scan iteration
+          if(not seen_PPID_before(ppid))
+          {
+            add_PPID_to_list(ppid);
+          }
+          buffer_manager.get_buffer(vID, i, ss.str()).RA_write(it->second,ppid,primary_printer->global_index_lookup);
+        }
+        i++;
+      }
+    }
+
     // Piggyback off existing print functions to build standard overloads
+    USE_COMMON_PRINT_OVERLOAD(HDF5Printer, map_const_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(HDF5Printer, map_str_map_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(HDF5Printer, map_const_str_map_const_str_dbl)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer, ModelParameters)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer, triplet<double>)
-    USE_COMMON_PRINT_OVERLOAD(HDF5Printer, map_const_str_dbl)
-    USE_COMMON_PRINT_OVERLOAD(HDF5Printer, map_const_str_map_const_str_dbl)
-    USE_COMMON_PRINT_OVERLOAD(HDF5Printer, flav_prediction)
     #ifndef SCANNER_STANDALONE
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer, DM_nucleon_couplings)
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer, BBN_container)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer, flav_prediction)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer, flav_binned_prediction)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer, HiggsCouplingsTable)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer, CouplingTable)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer, WilsonCoefficient)
     #endif
 
     /// @}

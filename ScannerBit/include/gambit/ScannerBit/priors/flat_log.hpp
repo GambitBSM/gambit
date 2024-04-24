@@ -102,9 +102,16 @@ namespace Gambit
 
         struct logprior
         {
-            static double limits(double x) {return std::log(x);}
-            static double inv(double x) {return std::exp(x);}
-            static double prior(double x){return -std::log(x);}
+            static double limits(double x) {return std::log(x);} // int ( PDF(x) )
+            static double inv(double x) {return std::exp(x);} // inv ( int ( PDF(x) ) )
+            static double prior(double x){return -std::log(x);} // log (PDF (x)) = log (1/x)
+        };
+
+        struct expprior
+        {
+            static double limits(double x) {return 0.5*std::pow(x,2);}
+            static double inv(double x) {return std::sqrt(2.0*x);}
+            static double prior(double x){return std::log(x);}
         };
 
         struct sinprior
@@ -136,7 +143,7 @@ namespace Gambit
             static double inv(double x) {return std::asin(1.0/std::sqrt(x));}
             static double prior(double x){return -std::log(std::tan(x));}
         };
-        
+
         struct arccosprior
         {
             inline static double SQR(double x){return x*x;}
@@ -214,33 +221,146 @@ namespace Gambit
 
             // Transformation from unit interval to specified range
             // (need to use vectors to be compatible with BasePrior virtual function)
+            // unitparam -> param
             void transform(hyper_cube_ref<double> unitpars, std::unordered_map<std::string,double> &output) const override
             {
                 output[myparameter] = (T::inv(unitpars[0]*(upper-lower) + lower)-shift_out)/scale_out;
             }
 
+            // param -> unitparam
             void inverse_transform(const std::unordered_map<std::string, double> &physical, hyper_cube_ref<double> unit) const override
             {
                 const double p = physical.at(myparameter);
                 const double x = T::limits(scale_out * p + shift_out);
                 const double u = (x - lower) / (upper - lower);
-                
+
                 unit[0] = u;
             }
 
-            double log_prior_density(const std::unordered_map<std::string, double> &physical) const override 
+            // log ( PDF (unitparam) )
+            double log_prior_density(const std::unordered_map<std::string, double> &physical) const override
             {
                 return T::prior(physical.at(param_names[0])*scale+shift)*scale;
             }
         };
 
+        class PowPrior1D : public BasePrior
+        {
+        private:
+            // Name of the parameter that this prior is supposed to transform
+            std::string &myparameter;
+            // Ranges for parameters
+            double lower;
+            double upper;
+            double scale;
+            double shift;
+            double scale_out;
+            double shift_out;
+            double power = 1.0;
+            double start = 0.0;
+
+
+        public:
+
+            double startx(double x) const { return x-start; }
+            double startxinv(double x) const { return x+start; }
+            double limits(double x) const { return (std::pow(startx(x),power+1)-1) / (power+1); }
+            double inv(double x) const { return startxinv(std::pow((x*(power+1)+1),1/(power+1))); }
+            double prior(double x) const { return std::log(std::pow(startx(x),power)); }
+
+        public:
+
+            // Constructor
+            PowPrior1D(const std::vector<std::string>& param, const Options& options) : BasePrior(param, 1), myparameter(param_names[0]), scale(1.0), shift(0.0), scale_out(1.0), shift_out(0.0)
+            {
+                // Read the entries we need from the options
+                if ( not options.hasKey("range") )
+                {
+                    scan_err << "Error! No 'range' keyword found in options supplied for building RangePrior1D prior (i.e. some instance of this, probably 'flat' or 'log')" << scan_end;
+                }
+                std::pair<double, double> range = options.getValue< std::pair<double, double> >("range");
+                if (range.first > range.second)
+                {
+                    double temp = range.first;
+                    range.first = range.second;
+                    range.second = temp;
+                }
+
+                if (param.size()!=1)
+                {
+                    scan_err << "Invalid input to some prior derived from RangePrior1D (in constructor): 'myparameters' must be a vector of size 1! (has size=" << param.size() << ")" << scan_end;
+                }
+
+                if (options.hasKey("scale"))
+                {
+                    if (options.getValue<std::string>("scale") == "degrees")
+                    {
+                        scale = 0.0174532925199;
+                    }
+                    else
+                    {
+                        scale = options.getValue<double>("scale");
+                    }
+                }
+
+                if (options.hasKey("shift"))
+                {
+                    shift = options.getValue<double>("shift");
+                }
+
+                // If the user has specifically set output_scaled_values = false, then remove any scale and shift before outputting.
+                if (options.hasKey("output_scaled_values") and not options.getValue<bool>("output_scaled_values"))
+                {
+                    scale_out = scale;
+                    shift_out = shift;
+                }
+
+                power = options.getValue<double>("power");
+
+                // done last ???
+                // start = range.first;
+                lower = limits(range.first*scale + shift);
+                upper = limits(range.second*scale + shift);
+
+
+            }
+
+            // Transformation from unit interval to specified range
+            // (need to use vectors to be compatible with BasePrior virtual function)
+            // // unitparam -> param
+            void transform(hyper_cube_ref<double> unitpars, std::unordered_map<std::string,double> &output) const override
+            {
+                output[myparameter] = (inv(unitpars[0]*(upper-lower) + lower)-shift_out)/scale_out;
+            }
+
+            // // param -> unitparam
+            void inverse_transform(const std::unordered_map<std::string, double> &physical, hyper_cube_ref<double> unit) const override
+            {
+                const double p = physical.at(myparameter);
+                const double x = limits(scale_out * p + shift_out);
+                const double u = (x - lower) / (upper - lower);
+
+                unit[0] = u;
+            }
+
+            // log ( PDF (unitparam) )
+            double log_prior_density(const std::unordered_map<std::string, double> &physical) const override
+            {
+                return prior(physical.at(myparameter)*scale+shift)*scale;
+            }
+
+        };
+
+
         LOAD_PRIOR(log, RangePrior1D<logprior>)
+        LOAD_PRIOR(exp, RangePrior1D<expprior>)
+        LOAD_PRIOR(pow, PowPrior1D)
         LOAD_PRIOR(flat, RangePrior1D<flatprior>)
         LOAD_PRIOR(cos, RangePrior1D<cosprior>)
         LOAD_PRIOR(sin, RangePrior1D<sinprior>)
         LOAD_PRIOR(tan, RangePrior1D<tanprior>)
         LOAD_PRIOR(cot, RangePrior1D<cotprior>)
-        LOAD_PRIOR(arccos, RangePrior1D<arccosprior>) 
+        LOAD_PRIOR(arccos, RangePrior1D<arccosprior>)
    }
 }
 

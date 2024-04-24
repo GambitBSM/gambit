@@ -256,7 +256,7 @@ namespace Gambit
             int get_vec_size() { return vec_size; }
 
         private:
-            double N_pivot;
+            double N_pivot = 0.0;
             std::vector<double> k;
             std::vector<double> P_s;
             std::vector<double> P_s_iso;

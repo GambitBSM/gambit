@@ -34,7 +34,11 @@
 #ifndef __SpecBit_VS_rollcall_hpp__
 #define __SpecBit_VS_rollcall_hpp__
 
-#include "gambit/SpecBit/SpecBit_types.hpp"
+  #include "gambit/SpecBit/SpecBit_types.hpp"
+
+  #ifndef MODULE
+    #define MODULE SpecBit
+  #endif
 
   #define CAPABILITY lnL_EW_vacuum
   START_CAPABILITY

@@ -19,6 +19,10 @@
 ///          (benjamin.farmer@fysik.su.se)
 ///  \date 2016 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 #pragma once
@@ -66,17 +70,19 @@ namespace Gambit
     (std::vector<float>)              \
     (std::vector<double>)
 
-  #define SCANNER_PRINTABLE_TYPES \
-    SCANNER_SIMPLE_TYPES          \
-    SCANNER_VECTOR_TYPES          \
-    (map_str_dbl)                 \
-    (map_str_str)                 \
-    (Gambit::ModelParameters)     \
+  #define SCANNER_PRINTABLE_TYPES     \
+    SCANNER_SIMPLE_TYPES              \
+    SCANNER_VECTOR_TYPES              \
+    (std::complex<double>)            \
+    (map_str_dbl)                     \
+    (map_str_str)                     \
+    (Gambit::ModelParameters)
 
   #define SCANNER_RETRIEVABLE_TYPES   \
     SCANNER_SIMPLE_TYPES              \
     (std::string)                     \
     (std::vector<double>)             \
+    (std::complex<double>)            \
     (map_str_dbl)                     \
     (Gambit::ModelParameters)
 }

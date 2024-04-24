@@ -21,6 +21,10 @@
 #ifndef __SpecBit_tests_hpp__
 #define __SpecBit_tests_hpp__
 
+  #ifndef MODULE
+    #define MODULE SpecBit
+  #endif
+
    /// @{ Functions to test Spectrum objects
 
    #define CAPABILITY MathematicaTest

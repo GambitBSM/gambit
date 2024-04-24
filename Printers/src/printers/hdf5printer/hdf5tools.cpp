@@ -216,7 +216,7 @@ namespace Gambit {
               logger()<<LogTags::utils<<LogTags::info<<"Deleted pre-existing file "<<fname<<" (because overwrite=true)"<<EOM;
             }
           }
-
+          // H5F_ACC_RDWR or H5F_ACC_RDONLY, H5P_DEFAULT
           errorsOff();
           file_id = H5Fopen(fname.c_str(), atype, H5P_GAMBIT);
           errorsOn();

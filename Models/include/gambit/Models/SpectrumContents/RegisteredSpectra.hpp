@@ -34,7 +34,6 @@ namespace Gambit
 {
   namespace SpectrumContents
   {
-
     struct SM                       : SubSpectrumContents { SM(); };
     struct SM_slha                  : SubSpectrumContents { SM_slha(); }; // Missing some running masses that aren't part of SMINPUTS in slha
     struct SMHiggs                  : SubSpectrumContents { SMHiggs(); };
@@ -49,7 +48,8 @@ namespace Gambit
     struct DMsimpVectorMedDiracDM   : SubSpectrumContents { DMsimpVectorMedDiracDM(); };
     struct DMsimpVectorMedMajoranaDM: SubSpectrumContents { DMsimpVectorMedMajoranaDM(); };
     struct DMsimpVectorMedScalarDM  : SubSpectrumContents { DMsimpVectorMedScalarDM(); };
-    struct DMsimpVectorMedVectorDM: SubSpectrumContents { DMsimpVectorMedVectorDM(); };
+    struct DMsimpVectorMedVectorDM  : SubSpectrumContents { DMsimpVectorMedVectorDM(); };
+    struct THDM                     : SubSpectrumContents { THDM(); };
 
     // TODO: Temporarily disabled until project is ready
     // struct SuperRenormHP        : SubSpectrumContents { SuperRenormHP(); };

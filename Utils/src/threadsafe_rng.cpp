@@ -84,10 +84,3 @@ namespace Gambit
   }
 
 }
-
-
-
-
-
-
-

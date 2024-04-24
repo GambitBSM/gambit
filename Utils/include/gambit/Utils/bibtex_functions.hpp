@@ -59,7 +59,9 @@ namespace Gambit
 
        // Static function to add a citation key to a list of keys
        static void addCitationKey(std::vector<str>&, str);
+
   };
+
 }
 
 #endif //defined __bibtex_functions_hpp__

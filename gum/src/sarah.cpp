@@ -25,14 +25,16 @@
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
 #include <boost/python/raw_function.hpp>
 
+// defines needed to fix a bug with older boost versions
+#define BOOST_NO_CXX11_SCOPED_ENUMS
 #include <boost/filesystem.hpp>
+#undef BOOST_NO_CXX11_SCOPED_ENUMS
 
 #include "sarah.hpp"
 
 namespace GUM
 {
-
-  // SARAH constructor, loads SARAH and the model
+  // SARAH constructor, loads SARAH and the model (used in all_sarah)
   SARAH::SARAH(std::string model) : Math_Package(model)
   {
     // Math_Package constructor already creates the WSTP link
@@ -46,9 +48,31 @@ namespace GUM
       load_model(model);
     }
     catch(...) { throw; }
-    
+
   }
-   
+
+  // UNUSED: Computes the vertices at EWSB
+  void SARAH::calculate_vertices()
+  {
+    std::cout << "Calculating vertices..." << std::endl;
+
+    std::string command = "";
+
+    try
+    {
+      command = "MakeVertexList[EWSB];";
+      send_to_math(command);
+    }
+    catch (std::runtime_error &e)
+    {
+      std::stringstream ss;
+      ss << e.what() << ": Last command: " << command;
+      throw std::runtime_error(ss.str());
+    }
+  }
+
+  // --- helpers for SARAH::SARAH ---
+
   // Load SARAH
   void SARAH::load_sarah()
   {
@@ -63,9 +87,9 @@ namespace GUM
     const char* out;
     if (!WSGetString(link, &out))
     {
-        throw std::runtime_error("SARAH Error: Error loading SARAH. Please check that Mathematica\n" 
+        throw std::runtime_error("SARAH Error: Error loading SARAH. Please check that Mathematica\n"
                                  "is working and that SARAH actually lives where CMake put it, in:\n"
-                                 "  " + std::string(SARAH_PATH) + "\n" 
+                                 "  " + std::string(SARAH_PATH) + "\n"
                                  "Please try rebuilding.");
     }
     else
@@ -78,6 +102,7 @@ namespace GUM
 
   }
 
+  // check that model exists and load into SARAH
   void SARAH::load_model(std::string model)
   {
     try
@@ -106,6 +131,97 @@ namespace GUM
     } catch(...) { throw; }
   }
 
+  // get the internal model name from SARAH
+  std::string SARAH::get_modelname()
+  {
+    // the model may have a different "internal" name than what's on the package.
+    // Need this info for output files, etc.
+
+    std::string command = "ModelName";
+    send_to_math(command);
+
+    const char* out;
+    if (!WSGetString(link, &out))
+        throw std::runtime_error("SARAH Error: Error getting Model name.");
+
+    return std::string(out);
+  }
+
+  // check if model is SARAH's database or in GUM's
+  bool SARAH::model_exists(std::string modelname)
+  {
+    try
+    {
+      // Check if the model is in the SARAH database
+      std::string command = "MemberQ[ShowModels[[1]],\"" + modelname + "\"]";
+      send_to_math(command);
+
+      // Get the boolean result
+      bool is_SARAH_model = false;
+
+      // DISABLED: we always need to update with the most recent model
+      // get_from_math(is_SARAH_model);
+      // if(is_SARAH_model)
+      // {
+      //   return true;
+      // }
+
+      // If not check if it's in the GUM model database
+      std::string modelpath = std::string(GUM_DIR) + "/Models/" + modelname + "/" + modelname + ".m";
+
+      // If it exists, then copy the folder to the SARAH model dir
+      if (!boost::filesystem::exists(modelpath))
+      {
+        std::cout << "Copying SARAH files from GUM directory to SARAH directory..." << std::endl;
+        std::string dest = std::string(SARAH_PATH) + "/Models/" + modelname;
+        std::string src = std::string(GUM_DIR) + "/Models/" + modelname;
+
+        // get rid of old version first
+        boost::filesystem::remove_all(dest);
+
+        // Create the folder in SARAH...
+        if (!boost::filesystem::create_directory(dest))
+        {
+            throw std::runtime_error("Unable to create new model folder in SARAH: " + dest + ".");
+        }
+        // Copy all files from the GUM dir to the SARAH dir
+        for (boost::filesystem::directory_iterator file(src); file != boost::filesystem::directory_iterator();
+             ++ file)
+        {
+            try
+            {
+                boost::filesystem::path current(file->path());
+                // Leave folders behind
+                if(boost::filesystem::is_directory(current)) {  continue; }
+                else
+                {
+                    boost::filesystem::copy_file(current, dest / current.filename());
+                }
+            }
+            catch(boost::filesystem::filesystem_error const & e)
+            {
+                throw std::runtime_error( e.what() );
+            }
+        }
+      }
+
+      // Let's try that again.
+      get_from_math(is_SARAH_model);
+      if(is_SARAH_model)
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+    catch(...) { throw; }
+  }
+
+  // --- helpers for all_sarah ---
+
+  // runs SARAH's sanity checks on the model
   void SARAH::check_model(std::string model, std::vector<std::string> &backends)
   {
     try
@@ -117,10 +233,10 @@ namespace GUM
       if (std::find(backends.begin(), backends.end(), "calchep") != backends.end()   ||
           std::find(backends.begin(), backends.end(), "micromegas") != backends.end() )
         need_ch = true;
-      
+
       // Redirect output to catch them after checking model
       send_to_math("streams = AppendTo[$Output, OpenWrite[]];");
-   
+
       send_to_math("CheckModel[]; messages = $MessageList;");
 
       // Close the output stream and restore to stdout
@@ -199,7 +315,7 @@ namespace GUM
 
         //CheckMissingMixing
         else if(error == "Lagrangian::PossibleMixing")
-          std::cout << "Warning! Possible mixing between fields has been found." << std::endl;    
+          std::cout << "Warning! Possible mixing between fields has been found." << std::endl;
 
 
         //CheckDiracSpinors
@@ -261,6 +377,17 @@ namespace GUM
           // Do nothing
         }
 
+        // If it's a sintax problem, maybe it's because there's a tilde one of the particle names, which should be allowed.
+        else if(error == "ToExpression::sntx")
+        {
+          std::string message = "Or @@ Table[Head[getOutputName[allParticleNames[[i]]]] === String && StringTake[getOutputName[allParticleNames[[i]]], 1] == \"~\", {i,Length[allParticleNames]}]";
+          send_to_math(message);
+          bool has_tilde;
+          get_from_math(has_tilde);
+          if(not has_tilde)
+            throw std::runtime_error("SARAH Error: " + error + " : " + message);
+        }
+
         // Ignore messages about suppression of messages
         else if(error == "General::stop")
         {
@@ -275,110 +402,6 @@ namespace GUM
       // All good.
       std::cout << "Model " + model + " successfully passed SARAH's checks. Please address any warnings issued." << std::endl;
     } catch(...) { throw; }
-  }
-
-
-
-  // The model may have a different "internal" name than what's on the package.
-  // Need this info for output files, etc.
-  std::string SARAH::get_modelname()
-  {
-
-    std::string command = "ModelName";
-    send_to_math(command);
-
-    const char* out;
-    if (!WSGetString(link, &out))
-        throw std::runtime_error("SARAH Error: Error getting Model name.");
-
-    return std::string(out);
-  }
-
-  // Check if model is SARAH's database or in GUM's
-  bool SARAH::model_exists(std::string modelname)
-  {
-    try
-    {
-      // Check if the model is in the SARAH database
-      std::string command = "MemberQ[ShowModels[[1]],\"" + modelname + "\"]";
-      send_to_math(command);
-      
-      // Get the boolean result
-      bool is_SARAH_model;
-      get_from_math(is_SARAH_model);
-      if(is_SARAH_model)
-      {
-        return true;
-      }
-
-      // If not check if it's in the GUM model database
-      std::string modelpath = std::string(GUM_DIR) + "/Models/" + modelname + "/" + modelname + ".m";
-
-      // If it exists, then copy the folder to the SARAH model dir
-      if (!boost::filesystem::exists(modelpath))
-      {
-        std::cout << "Copying SARAH files from GUM directory to SARAH directory..." << std::endl;
-        std::string dest = std::string(SARAH_PATH) + "/Models/" + modelname;
-        std::string src = std::string(GUM_DIR) + "/Models/" + modelname;
-
-        // Create the folder in SARAH...
-        if (!boost::filesystem::create_directory(dest))
-        {
-            throw std::runtime_error("Unable to create new model folder in SARAH: " + dest + ".");
-        }
-        // Copy all files from the GUM dir to the SARAH dir
-        for (boost::filesystem::directory_iterator file(src); file != boost::filesystem::directory_iterator();
-             ++ file)
-        {
-            try
-            {
-                boost::filesystem::path current(file->path());
-                // Leave folders behind
-                if(boost::filesystem::is_directory(current)) {  continue; }
-                else
-                {
-                    boost::filesystem::copy_file(current, dest / current.filename());
-                }
-            }
-            catch(boost::filesystem::filesystem_error const & e)
-            {
-                throw std::runtime_error( e.what() );
-            }
-        }
-      }
-
-      // Let's try that again.
-      get_from_math(is_SARAH_model);
-      if(is_SARAH_model)
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      }
-    }
-    catch(...) { throw; }
-  }
-
-  // Computes the vertices at EWSB
-  void SARAH::calculate_vertices()
-  {
-    std::cout << "Calculating vertices..." << std::endl;
-
-    std::string command = "";
-
-    try
-    {
-      command = "MakeVertexList[EWSB];";
-      send_to_math(command);
-    }
-    catch (std::runtime_error &e)
-    {
-      std::stringstream ss;
-      ss << e.what() << ": Last command: " << command;
-      throw std::runtime_error(ss.str());
-    }
   }
 
   // Get particles list
@@ -417,19 +440,19 @@ namespace GUM
       command = "PART[S][[All,1]]";
       send_to_math(command);
       get_from_math(scs);
-      
+
       // Vector
       std::vector<std::string> vecs;
       command = "PART[V][[All,1]]";
       send_to_math(command);
       get_from_math(scs);
-      
+
       std::cout << "Found " << lenpl << " particle sets." << std::endl;
 
       // Get to parsing this monster.
       for (int i=0; i<lenpl; i++)
       {
-      
+
         // First things first, check to see if we are dealing with multiplets.
         // e.g., l = (e, mu, tau).
         int numelements;
@@ -515,7 +538,7 @@ namespace GUM
             {
                 std::stringstream err;
                 err << "More than 2 particles here; "
-                    << "what weird symmetries have you got???" 
+                    << "what weird symmetries have you got???"
                     << std::endl;
                 throw std::runtime_error(err.str());
             }
@@ -573,7 +596,7 @@ namespace GUM
             else if(spinentry == "V") spinX2 = 2;
             // Get Spinformation for EWSB particles that come from mixings in either
             // matter/gauge sectors or are from VEVs
-            else if(spinentry == "NoField") 
+            else if(spinentry == "NoField")
             {
               // Strip any trailing digits first
               size_t last_index = alt_name.find_last_not_of("0123456789");
@@ -627,7 +650,7 @@ namespace GUM
             }
 
             // Add the particle to the list.
-            Particle particle(pdg, outputname, spinX2, chargeX3, color, 
+            Particle particle(pdg, outputname, spinX2, chargeX3, color,
                               SM, mass, antioutputname, alt_name, "", treelevelmass);  // Blank space is for SPheno mass (alt_mass)
             partlist.push_back(particle);
 
@@ -701,7 +724,7 @@ namespace GUM
         send_to_math(command);
 
         // Each entry will be some sort of descriptor for
-        // a particle. Discard things like LaTeX entries, 
+        // a particle. Discard things like LaTeX entries,
         // descriptions in prose, etc.
         std::string entry;
 
@@ -722,20 +745,20 @@ namespace GUM
         command = "DependenceSPheno /. pdgum[[" + std::to_string(i+1) + ",2]] // ToString";
         send_to_math(command);
         get_from_math(entry);
-        if (entry != "DependenceSPheno" and entry != "None") 
+        if (entry != "DependenceSPheno" and entry != "None")
         {
           sphenodeps = true;
         }
 
-        // Otherwise -- if we don't want to save it: 
+        // Otherwise -- if we don't want to save it:
         // If it has a dependence -- not interested. Bin it.
 
         // Numerical dependence?
         // Parameters with DependenceNum are acutally needed, so keep these
-        
+
         // Same with just Dependence
         command = "Dependence /. pdgum[[" + std::to_string(i+1) + ",2]] // ToString";
-        send_to_math(command); 
+        send_to_math(command);
         get_from_math(entry);
         if (entry != "Dependence" and entry != "None" and sphenodeps != true) continue;
 
@@ -745,8 +768,8 @@ namespace GUM
         get_from_math(entry);
 
         // If we have a list, then there's a blockname and an index.
-        if (entry == "List") 
-        { 
+        if (entry == "List")
+        {
             command = "LesHouches /. pdgum[[" + std::to_string(i+1) + ",2]]";
             send_to_math(command);
             std::vector<std::string> leshouches;
@@ -763,7 +786,7 @@ namespace GUM
               ismixing = true;
         }
         // If not a list, but a symbol, then we've got a mixing block
-        else if(entry == "Symbol") 
+        else if(entry == "Symbol")
         {
             // Get the blockname
             command = "LesHouches /. pdgum[[" + std::to_string(i+1) + ",2]]";
@@ -789,23 +812,23 @@ namespace GUM
         send_to_math(command);
         get_from_math(entry);
 
-        // If it has a different output name to 
+        // If it has a different output name to
         // internal, we'd better use it, seeing as GAMBIT
         // is... output, I guess.
-        if (entry != "OutputName") 
-        { 
+        if (entry != "OutputName")
+        {
             alt_paramname = paramname;
             paramname = entry;
         }
 
-        // If it's a fundamental parameter of our theory, 
+        // If it's a fundamental parameter of our theory,
         // add it to the list (if it has an LH block!)
         if (LHblock && !ismixing && !sphenodeps)
         {
             Parameter parameter(paramname, block, index, alt_paramname, real);
             paramlist.push_back(parameter);
         }
-        // If it's a mixing block then save it as as such 
+        // If it's a mixing block then save it as as such
         else if (LHblock && ismixing && !sphenodeps)
         {
 
@@ -828,12 +851,12 @@ namespace GUM
               shape = "v" + shapesize[0];
             else
               shape = "scalar";
-            
-            // Add to the paramlist -- but only as an *output* parameter, 
+
+            // Add to the paramlist -- but only as an *output* parameter,
             // and with the shape of the matrix
             bool is_output = true;
 
-            Parameter parameter(paramname, block, index, alt_paramname, 
+            Parameter parameter(paramname, block, index, alt_paramname,
                                 real, shape, is_output);
             paramlist.push_back(parameter);
         }
@@ -874,7 +897,7 @@ namespace GUM
 
     try
     {
-      
+
 
       // Check if MINPAR is a list
       bool is_list;
@@ -894,9 +917,9 @@ namespace GUM
       send_to_math(command);
       get_from_math(default_is_list);
 
-      // If there's no 'DefaultInputValues' list, try 
+      // If there's no 'DefaultInputValues' list, try
       // DefaultInputValues[1] -- sometimes models have
-      // different benchmark points. 
+      // different benchmark points.
       if(default_is_list)
       {
         defaultlist = "DefaultInputValues";
@@ -946,9 +969,9 @@ namespace GUM
               if(entry == "True") real = true;
             }
           }
-          
+
           Parameter param(par[1], "MINPAR", std::stoi(par[0]), par[1], real);
- 
+
           // Get default values (if there are any)
           if (defaultlist != "NONE")
           {
@@ -1130,7 +1153,7 @@ namespace GUM
   }
 
   // Get the boundary conditions for all parameters in the parameter list
-  void SARAH::get_boundary_conditions(std::map<std::string, std::string> &bcs, 
+  void SARAH::get_boundary_conditions(std::map<std::string, std::string> &bcs,
                                       std::vector<Parameter> parameters)
   {
     std::cout << "Getting boundary conditions" << std::endl;
@@ -1139,7 +1162,7 @@ namespace GUM
 
     try
     {
-      // TODO: Expand this for other types of boundary conditions 
+      // TODO: Expand this for other types of boundary conditions
       int bc_len;
       command = "Length[BoundaryLowScaleInput]";
       send_to_math(command);
@@ -1182,7 +1205,7 @@ namespace GUM
 
     try
     {
-      bool is_list; 
+      bool is_list;
       command = "Head[ParametersToSolveTadpoles]===List";
       send_to_math(command);
       get_from_math(is_list);
@@ -1282,7 +1305,7 @@ namespace GUM
       // Check if any of the parameters have a matching condition
       command = "mcgum = DEFINITION[MatchingConditions]";
       send_to_math(command);
- 
+
       int size = 0;
       command = "Length[mcgum]";
       send_to_math(command);
@@ -1350,7 +1373,7 @@ namespace GUM
     }
   }
 
-  // Returns the eigenstate & mixing matrix after EWSB 
+  // Returns the eigenstate & mixing matrix after EWSB
   void SARAH::get_mixing_matrices(std::map<std::string, std::string> &mixings)
   {
     std::cout << "Getting mixing matrices from SARAH..." << std::endl;
@@ -1367,7 +1390,7 @@ namespace GUM
       command = "Length[dgum]";
       send_to_math(command);
       get_from_math(len);
-  
+
       for(int i=1; i<=len; i++)
       {
         std::vector<std::string> eigenpairs;
@@ -1387,7 +1410,7 @@ namespace GUM
         {
           std::string eigenstate = eigenpairs[i];
           std::string mixingmat = eigenpairs[i+1];
- 
+
           int len2;
 
           // Check to see if the particle name is a Weyl fermion
@@ -1408,7 +1431,7 @@ namespace GUM
           command = "Length[pdgum]";
           send_to_math(command);
           get_from_math(len2);
-          
+
           for(int j=0; j<len2; j++)
           {
             std::string pname;
@@ -1454,7 +1477,7 @@ namespace GUM
 
     // Options for the CH output.
     std::string options;
-    // This is currently hard-coded, because GAMBIT needs to interface with CalcHEP 
+    // This is currently hard-coded, because GAMBIT needs to interface with CalcHEP
     // in a specific way.
     /* do not read from SLHA file |  let alphaS run  |  all masses computed externally */
     options = "SLHAinput -> False, UseRunningCoupling -> True, CalculateMasses -> False";
@@ -1483,20 +1506,27 @@ namespace GUM
   {
       std::cout << "Writing SPheno output." << std::endl;
       std::cout << "Strap in tight -- this might take a while..." << std::endl;
-      
+
       // Options for SPheno output.
       std::string SPhenoOptions = "";
       // - InputFile (default $MODEL/SPheno.m)
       // - StandardCompiler -> <COMPILER> (default gfortran) // TG: This should be handled by GM cmake system, so no need
       // - IncludeLoopDecays (default True)
-      // - ReadLists (default False) 
+      // - ReadLists (default False)
       // - IncludeFlavourKit (default True but we set it to False cause FlavourKit will be a different backend)
       //options = "IncludeLoopDecays->False, IncludeFlavorKit->False, ReadLists->True";
+
+      bool started = false;
       for(auto it = options.begin(); it != options.end(); it++)
       {
-        SPhenoOptions += it->first + "->" + it->second + ", ";
+        if (it->first == "GetWilsonCoefficients") continue;
+        if (it->first == "GetFlavorObservables") continue;
+        if (it->first == "GetElectroweakObservables") continue;
+
+        if (started) SPhenoOptions += ", ";
+        started = true;
+        SPhenoOptions += it->first + "->" + it->second;
       }
-      SPhenoOptions += "IncludeFlavorKit->False";
 
       std::cout << "Options for SPheno given as: " << SPhenoOptions << std::endl;
 
@@ -1510,7 +1540,7 @@ namespace GUM
   // Write Vevacious output.
   void SARAH::write_vevacious_output()
   {
-      std::cout << "Writing Vevacious output." << std::endl;  
+      std::cout << "Writing Vevacious output." << std::endl;
 
       // Options for Vevacious output.
       std::string options;
@@ -1518,10 +1548,12 @@ namespace GUM
 
       // Write output.
       std::string command = "MakeVevacious[" + options + "];";
-      send_to_math(command);  
+      send_to_math(command);
 
       std::cout << "Vevacious files written." << std::endl;
   }
+
+  // --- the function that does it all ---
 
   // Do all operations with SARAH
   void all_sarah(Options opts, std::vector<Particle> &partlist, std::vector<Parameter> &paramlist,
@@ -1568,7 +1600,7 @@ namespace GUM
         std::replace(chdir.begin(), chdir.end(), ' ', '-');
         outputs.set_ch(chdir);
       }
- 
+
       /// Write MadGraph output
       if (std::find(backends.begin(), backends.end(), "pythia") != backends.end() ||
           std::find(backends.begin(), backends.end(), "ufo") != backends.end() )
@@ -1584,11 +1616,11 @@ namespace GUM
       /// Write SPheno output
       if (std::find(backends.begin(), backends.end(), "spheno") != backends.end() )
       {
-       
+
         std::map<std::string, std::string> sphenoopts;
 
         // If there's SPheno options in the map, pass them over...
-        if ( BEoptions.find("spheno") != BEoptions.end() ) 
+        if ( BEoptions.find("spheno") != BEoptions.end() )
         {
           sphenoopts = BEoptions.at("spheno");
         }
@@ -1597,13 +1629,13 @@ namespace GUM
 
         // Leave only the parameters that SPheno uses
         model.SPheno_parameters(paramlist);
- 
+
         // Get minpar and extpar parameters
         model.get_minpar_extpar(paramlist);
 
         // Get useful SPheno flags, default to False
         flags = {
-          {"SupersymmetricModel",false}, 
+          {"SupersymmetricModel",false},
           {"OnlyLowEnergySPheno", false},
           {"UseHiggs2LoopMSSM", false},
           {"SA`AddOneLoopDecay", false},
@@ -1634,7 +1666,7 @@ namespace GUM
       /// Write Vevacious output
       if (std::find(backends.begin(), backends.end(), "vevacious") != backends.end() )
       {
-        model.write_vevacious_output();        
+        model.write_vevacious_output();
 
         // Location of Vevacious (.vin + .xml) files
         // Note these do not live in the same place the other output files do.
@@ -1650,7 +1682,7 @@ namespace GUM
     }
   }
 
-   
+
 } // namespace GUM
 
 // Now all the grizzly stuff, so Python can call C++ (which can call Mathematica...)
@@ -1722,7 +1754,7 @@ BOOST_PYTHON_MODULE(libsarah)
     .def("get_ch",   &Outputs::get_ch)
     .def("get_mg",   &Outputs::get_mg)
     .def("get_sph",  &Outputs::get_sph)
-    .def("get_vev",  &Outputs::get_vev)    
+    .def("get_vev",  &Outputs::get_vev)
     .def("set_ch",   &Outputs::set_ch)
     .def("set_mg",   &Outputs::set_mg)
     .def("set_sph",  &Outputs::set_sph)

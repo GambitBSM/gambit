@@ -86,7 +86,7 @@ def get_spectrum_parameters(parameters, params_by_block, bsm_partlist,
     addedpdgs = []
 
     for par in parameters:
-                
+
         # TODO: TG: Should we add parameters without block?
         # Parameters without block break at runtime cause there's no way to 
         # access the spectrum info as internally it's a SLHA structure
@@ -131,15 +131,20 @@ def get_spectrum_parameters(parameters, params_by_block, bsm_partlist,
             # If not using SPheno, don't have mixing matrices as output.
             if not with_spheno:
                 continue
-            for v in list(params_by_block.values()):
-                if not 'mixingmatrix' in v: continue
-                if par.name == "sinW2": name = par.name
-                elif v['outputname'] == par.name:
-                    for p in partlist:
-                        if p.alt_name().strip('0123456789') == v['particles']:
-                            name = pdg_to_particle(p.pdg(),
-                                                   gambit_pdgs).split('_')[0]
-        else:
+            
+            # just use the output for now otherwise we may end up with duplicates
+            name = par.name
+
+            # for v in list(params_by_block.values()):
+            #     if not 'mixingmatrix' in v: continue
+            #     if par.name == "sinW2": name = par.name
+            #     elif v['outputname'] == par.name:
+            #         for p in partlist:
+            #             if p.alt_name().strip('0123456789') == v['particles']:
+            #                 name = pdg_to_particle(p.pdg(), gambit_pdgs).split('_')[0]
+            #                 break
+            
+        if name == '':
             name = par.name
 
         # Replace all plusses and minuses with 'pm'
@@ -415,6 +420,9 @@ def write_spectrumcontents(gambit_model_name, spectrum_parameters):
                 "addParameter(Par::{0}, \"{1}\", {2}{3});\n"
                 ).format(sp.tag.replace("\"",""), sp.name,
                          shape, extra)
+
+        if sp.name == '':
+            raise GumError("the parameter name is empty")
 
 
     towrite += (

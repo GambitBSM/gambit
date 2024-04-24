@@ -749,7 +749,7 @@ def createFrontendHeader(function_xml_files_dict):
             symbol = wr_func_el.get('name')
             symbol_list = '("' + symbol + '","' + '_' + symbol + '")'
 
-            # If there are overloaded versions of this function, write a comment 
+            # If there are overloaded versions of this function, write a comment
             # and add commented-out BE_FUNCTION lines for the overloads
             if j==1:
                 be_function_macro_code += '// Other versions of this function. Only use one at a time, or set unique function names.\n'
@@ -761,6 +761,22 @@ def createFrontendHeader(function_xml_files_dict):
             be_function_macro_code += args_bracket + ', '
             be_function_macro_code += symbol_list + ', '
             be_function_macro_code += '"' + func_name['short'] + '"' + ')\n'
+
+    #
+    # Generate code for all the convenience functions
+    #
+
+    be_conv_function_macro_code = ''
+    for conv_func in cfg.convenience_functions:
+        be_conv_function_macro_code += 'BE_CONV_FUNCTION(' + conv_func['name'] + ', '
+        be_conv_function_macro_code += conv_func['returntype'] + ', '
+        be_conv_function_macro_code += '('
+        for i, argtype in enumerate(conv_func['argtypes']) :
+            be_conv_function_macro_code += argtype
+            if i < len(conv_func['argtypes']) - 1 :
+                be_conv_function_macro_code += ', '
+        be_conv_function_macro_code += '), '
+        be_conv_function_macro_code += '"' + conv_func['capname'] + '")\n'
 
     #
     # Generate code for all the convenience functions

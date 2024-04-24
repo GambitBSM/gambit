@@ -80,4 +80,5 @@ namespace Gambit
   {
     return __scanner_factories__["GAMBIT_Scanner_Target_Function"](functorMap, dependencyResolver, iniFile, purpose, printer);
   }
+
 }

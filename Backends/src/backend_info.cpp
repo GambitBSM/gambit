@@ -401,6 +401,7 @@ namespace Gambit
   void Backends::backend_info::loadLibrary_C_CXX_Fortran(const str& be, const str& ver, const str& sv, bool with_BOSS)
   {
     const str path = corrected_path(be,ver);
+
     link_versions(be, ver, sv);
     classloader[be+ver] = with_BOSS;
     needsMathematica[be+ver] = false;

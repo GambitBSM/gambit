@@ -113,6 +113,3 @@ namespace Gambit
 }
 
 #endif
-
-
-

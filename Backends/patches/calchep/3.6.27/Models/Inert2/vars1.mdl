@@ -1,0 +1,33 @@
+i2HDM
+ Variables 
+ Name   | Value       |>  Comment                                   <|
+alphaSMZ|0.1184       |Srtong alpha(MZ) for running mass calculation
+EE      |0.31343      |elecromagnetic constant
+Q       |100          |QCD scale
+Mm      |0.1057       |muon mass
+Mtau    |1.777        |tau-lepton mass
+Ms      |0.2          |
+McMc    |1.23         |Mc(Mc)  MS-BAR
+MbMb    |4.25         |Mb(Mb)  MS-BAR
+Mtop    |172.5        |t-quark pole mass
+MH      |125          |higgs mass
+MZ      |91.188       |Z-boson mass
+MW      |80.385       |W-boson mass
+wtop    |1.59         |t-quark width (tree level 1->2x)
+wZ      |2.49444      |Z-boson width        (tree level 1->2x)
+wW      |2.08895      |W-boson width        (tree level 1->2x)
+s12     |0.221        |Parameter of C-K-M matrix (PDG-94)
+s23     |0.04         |Parameter of C-K-M matrix (PDG-94)
+s13     |0.0035       |Parameter of C-K-M matrix (PDG-94)
+Maux    |1            |
+Mh1     |100          |Mass of Dark Matter
+Mh2     |120          |Mass od odd neutral particle
+Mhc     |130          |Mass of charged odd scalar particle
+ld345   |-0.2         |Combination of cuartic coupling constant ld3+l
+ld      |1            |Quartic coupling Dark Matter
+Mu      |0.003        |mass of u-quark
+Md      |0.005        |mass of d-quark
+wh1     |0            |width of Dark Matter
+CGGH    |0            |
+CAAH    |0            |
+======================================================================

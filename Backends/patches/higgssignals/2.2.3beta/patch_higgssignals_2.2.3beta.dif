@@ -1,0 +1,27 @@
+diff -rupN HiggsSignals-2.2.3beta/configure HiggsSignals-2.2.3beta_patched/configure
+--- HiggsSignals-2.2.3beta/configure	2018-12-20 14:20:52.000000000 +0000
++++ HiggsSignals-2.2.3beta_patched/configure	2019-08-28 12:58:55.591649656 +0100
+@@ -47,14 +47,16 @@ for arg in "$@" ; do
+  esac
+ done 		
+ 
+-# Remove slash in entered paths
+-if [ "${CONF_HBPATH: -1}" = "/" ]; then
+-	CONF_HBPATH="${CONF_HBPATH%?}"
+-fi	
++# GAMBIT patch: commented out to avoid shell type dependence
++#
++# # Remove slash in entered paths
++# if [ "${CONF_HBPATH: -1}" = "/" ]; then
++# 	CONF_HBPATH="${CONF_HBPATH%?}"
++# fi	
+ 
+-if [ "${CONF_FHPATH: -1}" = "/" ]; then
+-	CONF_FHPATH="${CONF_FHPATH%?}"
+-fi	
++# if [ "${CONF_FHPATH: -1}" = "/" ]; then
++# 	CONF_FHPATH="${CONF_FHPATH%?}"
++# fi	
+ 
+ echo " hbpath=${CONF_HBPATH}"
+ echo " fhpath=${CONF_FHPATH}"

@@ -180,4 +180,20 @@
 #include "gambit/SpecBit/flexiblesusy_include_automater.hpp" // Automatically includes necessary MDM model headers etc.
 #undef MODELNAME
 
+#define MODELNAME THDM_I
+#include "gambit/SpecBit/flexiblesusy_include_automater.hpp" // Automatically includes necessary SingletDM model headers etc.
+#undef MODELNAME
+
+#define MODELNAME THDM_II
+#include "gambit/SpecBit/flexiblesusy_include_automater.hpp" // Automatically includes necessary SingletDM model headers etc.
+#undef MODELNAME
+
+#define MODELNAME THDM_LS
+#include "gambit/SpecBit/flexiblesusy_include_automater.hpp" // Automatically includes necessary SingletDM model headers etc.
+#undef MODELNAME
+
+#define MODELNAME THDM_flipped
+#include "gambit/SpecBit/flexiblesusy_include_automater.hpp" // Automatically includes necessary SingletDM model headers etc.
+#undef MODELNAME
+
 #endif

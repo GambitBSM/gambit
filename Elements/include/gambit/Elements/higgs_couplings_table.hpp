@@ -12,6 +12,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2016 Sep
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2024 Feb
+///
 ///  *********************************************
 
 #ifndef __higgs_couplings_table_hpp__
@@ -70,8 +74,8 @@ namespace Gambit
 
       /// Effective couplings for neutral higgses
       /// @{
-      std::vector<double> C_WW2;
-      std::vector<double> C_ZZ2;
+      std::vector<double> C_WW;
+      std::vector<double> C_ZZ;
       std::vector<double> C_tt2;
       std::vector<double> C_bb2;
       std::vector<double> C_cc2;
@@ -81,7 +85,21 @@ namespace Gambit
       std::vector<double> C_mumu2;
       std::vector<double> C_Zga2;
       std::vector<double> C_ss2;
-      std::vector<std::vector<double>> C_hiZ2;
+      std::vector<std::vector<double>> C_hiZ;
+      /// Pseudoscalar and scalar effective couplings (not squared)
+      std::vector<double> C_tt_s;
+      std::vector<double> C_tt_p;
+      std::vector<double> C_bb_s;
+      std::vector<double> C_bb_p;
+      std::vector<double> C_cc_s;
+      std::vector<double> C_cc_p;
+      std::vector<double> C_ss_s;
+      std::vector<double> C_ss_p;
+      std::vector<double> C_tautau_s;
+      std::vector<double> C_tautau_p;
+      std::vector<double> C_mumu_s;
+      std::vector<double> C_mumu_p;
+
       /// @}
 
       /// Constructor
@@ -105,14 +123,18 @@ namespace Gambit
       /// Compute a neutral higgs effective coupling from the current two-body neutral higgs decays
       /// @{
       template <typename T>
-      double compute_effective_coupling(int index, const T& p1, const T& p2)
+      double compute_effective_coupling(int index, const T& p1, const T& p2) const
       {
         if (index > n_neutral_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond n_neutral_higgses.");
         // If channel is missing from either SM or BSM decays, return unity.
-        if (!neutral_decays_SM_array[index]->has_channel(p1, p2) or !neutral_decays_array[index]->has_channel(p1, p2)) return 1.;
+        if (!neutral_decays_SM_array[index]->has_channel(p1, p2) or !neutral_decays_array[index]->has_channel(p1, p2)) {
+          return 1.;
+        }
         double smwidth = neutral_decays_SM_array[index]->width_in_GeV;
         double smbf = neutral_decays_SM_array[index]->BF(p1, p2);
-        if (smwidth <= 0. or smbf <= 0.) return 1.;
+        if (smwidth <= 0. or smbf <= 0.) {
+          return 1.;
+        }
         double total_width_ratio = neutral_decays_array[index]->width_in_GeV / smwidth;
         double BF_ratio = neutral_decays_array[index]->BF(p1, p2) / smbf;
         return total_width_ratio * BF_ratio;
@@ -157,6 +179,9 @@ namespace Gambit
       const DecayTable::Entry& get_t_decays() const;
       /// @}
 
+
+      // Print Higgs coupling table to a map
+      map_str_dbl to_map() const;
   };
 
 }

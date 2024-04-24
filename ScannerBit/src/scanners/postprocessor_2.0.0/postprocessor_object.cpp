@@ -89,8 +89,8 @@ namespace Gambit
 
          std::size_t previous_index = 0;
          bool building_chunk = false;
-         std::size_t chunk_start;
-         std::size_t chunk_end;
+         std::size_t chunk_start = 0;
+         std::size_t chunk_end = 0;
          while(not resume_reader.eoi()) // while not end of input
          {
             std::size_t input_index;

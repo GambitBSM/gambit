@@ -216,6 +216,10 @@ namespace Gambit
       {
         result = Dep::SLHAFileNameAndContent->second;
       }
+      else if (ModelInUse("THDM") || ModelInUse("THDMatQ"))
+      {
+        result = Dep::THDM_spectrum->getSLHAea(1);
+      }
       else
       {
         // This can only happen if the ALLOW_MODELS list in SUSY.hpp has been changed
@@ -254,6 +258,10 @@ namespace Gambit
                ModelInUse("ColliderBit_SLHA_scan_model"))
       {
         result = Dep::SLHAFileNameAndContent->second;
+      }
+      else if (ModelInUse("THDM") || ModelInUse("THDMatQ"))
+      {
+        result = Dep::THDM_spectrum->getSLHAea(1);
       }
       else
       {

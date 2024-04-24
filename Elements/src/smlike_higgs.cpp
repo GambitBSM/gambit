@@ -43,7 +43,7 @@ namespace Gambit
     if (spec.has(Par::Pole_Mass,"h0", 3)) { numhiggses = 3; }
 
     // Check which spelling of tanbeta is in the spectrum
-    double tb;
+    double tb = 0.0;
     if (spec.has(Par::dimensionless, "tanbeta"))
       tb = spec.get(Par::dimensionless, "tanbeta");
     else if (spec.has(Par::dimensionless, "TanBeta"))

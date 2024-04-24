@@ -22,6 +22,7 @@
 
 namespace Gambit
 {
+  
   namespace Utils
   {
 
@@ -35,6 +36,7 @@ namespace Gambit
     double lnlike_modifier_gaussian_plateau(double lnlike, const Options& lnlike_modifier_options);
 
   }
+
 }
 
 #endif //defined __lnlike_modifiers_hpp__

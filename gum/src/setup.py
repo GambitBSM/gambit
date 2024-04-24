@@ -51,7 +51,6 @@ def banner() :
          " ***********************************\n"\
          "\n"
 
-
 class Particle:
     """
     Particle class for internal use in GUM.
@@ -100,6 +99,8 @@ def pdg_to_particle(pdg_code, pdg_dict):
     for name, pdg_val in iteritems(pdg_dict) :
         if pdg_code == pdg_val:
             return name
+
+    # raise GumError('failed to find the gambit particle for pdg number {0}, needed for calchep'.format(pdg_code))
 
     # If not found -> return None & deal with this on case-by-case
     return None
@@ -184,7 +185,6 @@ class BackendReq:
         elif not variable:
             self.var = False
             self.args = args
-
 
 class Dependency:
     """

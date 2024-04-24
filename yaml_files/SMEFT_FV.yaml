@@ -1,0 +1,385 @@
+#############################################################################
+## GAMBIT configuration for a MultiNest scan of flavour physics Wilson coeffs
+##
+## Uses likelihood constraints from flavour physics observables only,
+## without nuisance parameters.
+#############################################################################
+
+
+Parameters:
+
+  StandardModel_SLHA2:
+    alphaS    :  1.18500000E-01 # alpha_s(mZ)^MSbar ^
+    mBmB      :  4.18000000E+00 # mb(mb)^MSbar &
+    alphainv  :  1.27940010E+02 # alpha^{-1}(mZ)^MSbar
+    mT        :  1.73340000E+02 # mtop(pole)
+    GF        :  1.16637870E-05 # G_Fermi
+    mZ        :  9.11876000E+01 # mZ(pole)
+    mTau      :  1.77682000E+00 # mtau(pole)
+    mNu3      :               0 # mnu3(pole)
+    mD        :  4.80000000E-03 # md(2 GeV)^MSbar
+    mU        :  2.30000000E-03 # mu(2 GeV)^MSbar
+    mS        :  9.50000000E-02 # ms(2 GeV)^MSbar
+    mCmC      :  1.27500000E+00 # mc(mc)^MSbar
+    mE        :  5.10998928E-04 # melectron(pole)
+    mMu       :  1.05658372E-01 # mmuon(pole)
+    mNu1      :               0 # mnu1(pole)
+    mNu2      :               0 # mnu2(pole)
+    CKM_lambda:  0.22537        # Wolfenstein \lambda
+    CKM_A     :  0.814          # Wolfenstein A
+    CKM_rhobar:  0.117          # Wolfenstein \bar\rho
+    CKM_etabar:  0.353          # Wolfenstein \bar\eta
+    theta12   :  0.58376        # solar angle
+    theta23   :  0.76958        # atmospheric mixing angle
+    theta13   :  0.15495        # reactor angle
+    delta13   :  0              # Dirac CP-violating phase
+    alpha1    :  0              # first Majorana CP-violating phase
+    alpha2    :  0              # second CP-violating Majorana phase
+
+  StandardModel_Higgs:
+    mH: 125.09
+
+  SMEFT_FV:
+    Re_cql1:
+      prior_type: flat
+      range: [-10,10]
+    Im_cql1: 0.0
+    Re_cql3:
+      prior_type: flat
+      range: [-10,10]
+    Im_cql3: 0.0
+    Re_cdl:
+      prior_type: flat
+      range: [-10,10]
+    Im_cdl: 0.0
+    Re_cqe:
+      prior_type: flat
+      range: [-10,10]
+    Im_cqe: 0.0
+    Re_cde:
+      prior_type: flat
+      range: [-10,10]
+    Im_cde: 0.0
+    Re_cHq1:
+      prior_type: flat
+      range: [-10,10]
+    Im_cHq1: 0.0
+    Re_cHq3:
+      prior_type: flat
+      range: [-10,10]
+    Im_cHq3: 0.0
+    Re_cHd:
+      prior_type: flat
+      range: [-10,10]
+    Im_cHd: 0.0
+
+Priors:
+
+  # All priors are simple, so specified in Parameters section
+
+
+Printer:
+
+  printer: cout
+
+  options:
+    output_file: "SMEFT_FV.hdf5"
+    group: "/SMEFT_FV"
+
+
+Scanner:
+
+  use_scanner: de
+
+  scanners:
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 400
+      tol: 0.1
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 12800
+      convthresh: 1e-5
+
+    square_grid:
+      plugin: square_grid
+      like: LogLike
+      grid_pts: 20
+
+
+ObsLikes:
+
+    # ------------------------- #
+    # B -> Xs gamma likelihoods #
+    # ------------------------- #
+
+  - purpose:    LogLike
+    capability: b2sgamma_LogLikelihood
+
+  - purpose:    LogLike
+    capability: B2Kstargamma_LogLikelihood
+
+
+    # ---------------------- #
+    # B -> mu mu likelihoods #
+    # ---------------------- #
+
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_Atlas
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_CMS
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_LHCb
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+
+    # ------------------------ #
+    # B -> K mu mu likelihoods #
+    # ------------------------ #
+
+  - purpose:    LogLike
+    capability: Bd2KmumuBr_LogLikelihood_LHCb
+
+  - purpose:    LogLike
+    capability: Bd2KmumuBr_LogLikelihood_Belle
+
+  - purpose:    LogLike
+    capability: B2KmumuBr_LogLikelihood_LHCb
+
+  - purpose: LogLike
+    capability: B2KmumuBr_LogLikelihood_CMS
+
+  - purpose: LogLike
+    capability: B2KmumuBr_LogLikelihood_Belle
+
+
+    # ---------------------- #
+    # B -> K e e likelihoods #
+    # ---------------------- #
+
+  - purpose:    LogLike
+    capability: B2KeeBr_LogLikelihood_Belle
+
+  - purpose:    LogLike
+    capability: Bd2KeeBr_LogLikelihood_Belle
+
+
+    # ------------------------- #
+    # B -> K* mu mu likelihoods #
+    # ------------------------- #
+
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_Atlas
+    sub_capabilities: [FL, S3, S4, S5, S7, S8]
+
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_CMS
+    sub_capabilities: [P1, P5prime]
+
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_Belle
+    sub_capabilities: [P4prime, P5prime]
+
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+    sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+  - purpose:    LogLike
+    capability: Bu2KstarmumuAng_LogLikelihood_LHCb_2020
+    sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+  - purpose:    LogLike
+    capability: B2KstarmumuBr_LogLikelihood_LHCb
+
+  - purpose:    LogLike
+    capability: Bs2phimumuBr_LogLikelihood
+
+
+    # ----------------------- #
+    # B -> K* e e likelihoods #
+    # ----------------------- #
+
+  - purpose:    LogLike
+    capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
+    sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
+
+
+    # ---------------------- #
+    # RK and RK* likelihoods #
+    # ---------------------- #
+
+  - purpose: LogLike
+    capability: RKRKstar_LogLikelihood_LHCb
+    sub_capabilities: [RK, RKstar]
+
+  - purpose: LogLike
+    capability: RK_LogLikelihood_CMS
+
+  - purpose: LogLike
+    capability: RK_LogLikelihood_Belle
+
+
+    # ------------------------ #
+    # B -> K nu nu likelihoods #
+    # ------------------------ #
+
+  - purpose: LogLike
+    capability: BKnunu_LogLikelihood_Belle_sl
+
+  - purpose: LogLike
+    capability: BKnunu_LogLikelihood_Belle_had
+
+  - purpose: LogLike
+    capability: BuKnunu_LogLikelihood_Belle_sl
+
+  - purpose: LogLike
+    capability: BuKnunu_LogLikelihood_Belle_had
+
+  - purpose: LogLike
+    capability: BuKnunu_LogLikelihood_BelleII
+
+  - purpose: LogLike
+    capability: BKnunu_LogLikelihood_BaBar
+
+  - purpose: LogLike
+    capability: BuKnunu_LogLikelihood_BaBar
+
+#    NOTE: There is no prediction for this one yet
+#  - purpose: LogLike
+#    capability: BKstarnunu_LogLikelihood_Belle_sl
+
+#    NOTE: There is no prediction for this one yet
+#  - purpose: LogLike
+#    capability: BKstarnunu_LogLikelihood_Belle_had
+
+#    NOTE: There is no prediction for this one yet
+#  - purpose: LogLike
+#    capability: BuKstarnunu_LogLikelihood_Belle_sl
+
+#    NOTE: There is no prediction for this one yet
+#  - purpose: LogLike
+#    capability: BuKstarnunu_LogLikelihood_Belle_had
+
+#    NOTE: There is no prediction for this one yet
+#  - purpose: LogLike
+#    capability: BKstarnunu_LogLikelihood_BaBar
+
+#    NOTE: There is no prediction for this one yet
+#  - purpose: LogLike
+#    capability: BuKstarnunu_LogLikelihood_BaBar
+
+
+    # ----------------------------- #
+    # Semileptonic FCCC likelihoods #
+    # ----------------------------- #
+
+  # NOTE: This does not seem to work with WCs
+  #- capability: SL_LogLikelihood
+  #  purpose: LogLike
+
+
+    # --------------------------------- #
+    # Lifetime and Delta MB likelihoods #
+    # --------------------------------- #
+
+  # NOTE: Not sure if to include this
+  - capability: Delta_MBs_LogLikelihood
+    purpose: LogLike
+
+
+    ###############
+    # Observables #
+    ###############
+
+    # ------------------- #
+    # Wilson coefficients #
+    # ------------------- #
+
+  - purpose: Observable
+    capability: DeltaC9
+
+  - purpose: Observable
+    capability: DeltaC10
+
+  - purpose: Observable
+    capability: DeltaCL
+
+  - purpose: Observable
+    capability: DeltaCR
+
+    # ------------------- #
+    # Flavour predictions #
+    # ------------------- #
+
+  - purpose: Observable
+    capability: prediction_RKRKstar_LHCb
+    sub_capabilities: [RK, RKstar]
+
+  - purpose: Observable
+    capability: prediction_RK
+
+  - purpose: Observable
+    capability: prediction_RKstar
+
+  - purpose: Observable
+    capability: prediction_B2mumu
+    function: SuperIso_prediction_B2mumu
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  - purpose: Observable
+    capability: prediction_B2Knunu
+
+  - purpose: Observable
+    capability: prediction_Bu2Knunu
+
+Rules:
+
+  # Use SuperIso instead of FeynHiggs for b->sgamma
+  - capability: prediction_b2sgamma
+    function: SuperIso_prediction_b2sgamma
+
+  # Use SuperIso instead of FeynHiggs for B_s->mumu
+  - capability: prediction_B2mumu
+    function: SuperIso_prediction_B2mumu
+
+  # Use SuperIso for B->Knunu
+  - capability: prediction_B2Knunu
+    function: SuperIso_prediction_B2Knunu
+
+  # Use SuperIso for Bu->Knunu
+  - capability: prediction_Bu2Knunu
+    function: SuperIso_prediction_Bu2Knunu
+
+  # User SuperIso for Delta_MBs
+  - capability: prediction_Delta_MBs
+    function: SuperIso_prediction_Delta_MBs
+
+
+Logger:
+
+  redirection:
+    [Debug]   : "debug.log"
+    [Default] : "default.log"
+    [FlavBit] : "FlavBit.log"
+
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  default_output_path: "runs/SMEFT_FV"
+
+  debug: true

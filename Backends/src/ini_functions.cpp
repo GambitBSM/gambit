@@ -379,6 +379,17 @@ namespace Gambit
     {
       // Split up the passed version string into individual versions
       std::vector<str> versions = Utils::delimiterSplit(verstr, ",");
+      for (auto it = versions.begin() ; it != versions.end(); ++it)
+      {
+         // Retrieve the version corresponding to the default if needed
+        if (*it == "default") *it = Backends::backendInfo().version_from_safe_version(be, default_ver);
+        
+        // Retrieve the safe version corresponding to this version
+        str sv = Backends::backendInfo().safe_version_from_version(be, *it);
+
+        // Set the requirement in the functor
+        //f.setRequiredClassloader(be,*it,sv);
+      }
       // Add each version individually as required for classloading
       for (auto it = versions.begin() ; it != versions.end(); ++it)
       {

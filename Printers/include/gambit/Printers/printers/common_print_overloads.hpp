@@ -15,8 +15,9 @@
 ///  \date 2020
 ///
 ///  \author Tomas Gonzalo
-///          (tomas.gonzalo@monash.edu)
+///          (tomas.gonzalo@kit.edu)
 ///  \date 2020 Sept
+///  \date 2024 Feb
 ///
 ///  *********************************************
 
@@ -49,6 +50,17 @@ namespace Gambit
         ss<<label<<"["<<i<<"]";
         printer._print(value[i],ss.str(),vID,mpirank,pointID);
       }
+    }
+
+    /// Complex print overload
+    template<typename P>
+    void _common_print(P& printer, std::complex<double> const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+    {
+      str real = label + "::real";
+      str imag = label + "::imag";
+
+      printer._print(value.real(), real, vID, mpirank, pointID);
+      printer._print(value.imag(), imag, vID, mpirank, pointID);
     }
 
     /// String-to-double map print overload
@@ -87,6 +99,8 @@ namespace Gambit
         printer._print(it->second,ss.str(),vID,mpirank,pointID);
       }
     }
+
+    /// String-to-(string-to-double-map) print overload
     template<typename P>
     void _common_print(P& printer, const map_str_map_str_dbl& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
     {
@@ -117,6 +131,18 @@ namespace Gambit
     void _common_print(P& printer, map_intpair_dbl const& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
     {
       for (map_intpair_dbl::const_iterator it = map.begin(); it != map.end(); it++)
+      {
+        std::stringstream ss;
+        ss<<label<<"::"<<it->first;
+        printer._print(it->second,ss.str(),vID,mpirank,pointID);
+      }
+    }
+
+    /// Integer double-to-double map print overload
+    template<typename P>
+    void _common_print(P& printer, map_dblpair_dbl const& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+    {
+      for (map_dblpair_dbl::const_iterator it = map.begin(); it != map.end(); it++)
       {
         std::stringstream ss;
         ss<<label<<"::"<<it->first;
@@ -157,12 +183,64 @@ namespace Gambit
         printer._print(m, label, vID, mpirank, pointID);
       }
 
+      /// Generic Higgs couplings table print overload
+      template<typename P>
+      void _common_print(P& printer, HiggsCouplingsTable const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+      {
+        printer._print(value.to_map(), label, vID, mpirank, pointID);
+      }
+
+      /// Generic coupling table print overload
+      template<typename P>
+      void _common_print(P& printer, CouplingTable const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+      {
+        printer._print(to_map(value), label, vID, mpirank, pointID);
+      }
+
       /// Generic flavour prediction print overload
       template<typename P>
       void _common_print(P& printer, flav_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
       {
-        printer._print(value.central_values, label + "::central", vID, mpirank, pointID);
-        printer._print(value.covariance, label + "::covariance", vID, mpirank, pointID);
+        std::map<std::string,double> m;
+
+        for(auto val : value.central_values)
+        {
+          std::stringstream vals;
+          vals << val.first;
+          m[vals.str()] = val.second;
+        }
+        for(auto cov : value.covariance) for(auto cov2 : cov.second)
+        {
+          std::stringstream covs;
+          covs << cov.first << "::" << cov2.first;
+          m[covs.str()] = cov2.second;
+        }
+        printer._print(m, label, vID, mpirank, pointID);
+      }
+
+      /// Generic binned flavour prediction print overload
+      template<typename P>
+      void _common_print(P& printer, flav_binned_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+      {
+        std::map<std::string,double> m;
+
+        for(auto bin : value)
+        {
+          for(auto val : bin.second.central_values)
+          {
+            std::stringstream vals;
+            vals << bin.first << "::";
+            vals << val.first;
+            m[vals.str()] = val.second;
+          }
+          for(auto cov : bin.second.covariance) for(auto cov2 : cov.second)
+          {
+            std::stringstream covs;
+            covs << bin.first << "::" << cov.first << "::" << cov2.first;
+            m[covs.str()] = cov2.second;
+          }
+        }
+        printer._print(m, label, vID, mpirank, pointID);
       }
 
       /// BBN observables print overload
@@ -176,6 +254,22 @@ namespace Gambit
           m[i] = value.get_BBN_abund(index);
           m[i+"::1sigma_err"] = sqrt(value.get_BBN_covmat(index, index));
         }
+        printer._print(m, label, vID, mpirank, pointID);
+      }
+
+      /// Wilson coefficients print overload
+      template<typename P>
+      void _common_print(P& printer, WilsonCoefficient const &value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+      {
+        std::map<std::string,double> m;
+
+        m[label+"::e::real"] = value.e.real();
+        m[label+"::e::imag"] = value.e.imag();
+        m[label+"::mu::real"] = value.mu.real();
+        m[label+"::mu::imag"] = value.mu.imag();
+        m[label+"::tau::real"] = value.tau.real();
+        m[label+"::tau::imag"] = value.tau.imag();
+
         printer._print(m, label, vID, mpirank, pointID);
       }
 

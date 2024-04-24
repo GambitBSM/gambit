@@ -381,7 +381,8 @@ _110, _111, _112, _113, _114, _115, _116, _117, _118, _119, _120, _121, _122, _1
   fflush(stderr);                                   \
   fgetpos(stderr, &pos);                            \
   fd = dup(fileno(stderr));                         \
-  freopen("/dev/null", "w", stderr);                \
+  FILE* tmp = freopen("/dev/null", "w", stderr);    \
+  (void)tmp;                                        \
                                                     \
   (FUNCTION_CALL);                                  \
                                                     \

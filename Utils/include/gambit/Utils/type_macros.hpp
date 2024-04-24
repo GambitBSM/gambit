@@ -150,5 +150,3 @@ BOOST_PP_SEQ_FOR_EACH(PRE_TYPEDEFAULT, (CAT_3(BE,_,VER))(CAT_3(BE,_,DEFAULT))(BE
 #define ALREADY_LOADED(BE) CAT_3(__loaded_types_,BE,_hpp__)
 
 #endif //__type_macros_hpp__
-
-

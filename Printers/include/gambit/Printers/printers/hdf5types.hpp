@@ -17,6 +17,10 @@
 ///          (b.farmer@imperial.ac.uk)
 ///  \date 2019 Nov
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 #ifndef __HDF5TYPES__
@@ -34,6 +38,7 @@
   (float)                              \
   (double)                             \
   (std::vector<double>)                \
+  (std::complex<double>)               \
   (bool)                               \
   (map_str_dbl)                        \
   (map_str_str)                        \
@@ -43,15 +48,20 @@
   (ModelParameters)                    \
   (triplet<double>)                    \
   (map_intpair_dbl)                    \
-  (flav_prediction)                    \
+  (map_dblpair_dbl)                    \
 
-#define HDF5_RETRIEVABLE_TYPES \
-  HDF5_TYPES \
-  (MSSM_SLHAstruct) \
+#define HDF5_RETRIEVABLE_TYPES         \
+  HDF5_TYPES                           \
+  (MSSM_SLHAstruct)                    \
   (SMslha_SLHAstruct)
 
 #define HDF5_BACKEND_TYPES             \
   (DM_nucleon_couplings)               \
   (BBN_container)                      \
+  (flav_prediction)                    \
+  (flav_binned_prediction)             \
+  (HiggsCouplingsTable)                \
+  (CouplingTable)                      \
+  (WilsonCoefficient)                  \
 
 #endif

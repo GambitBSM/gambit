@@ -123,7 +123,5 @@ namespace Gambit
     }
 
   }
-
-    
+ 
 }
-

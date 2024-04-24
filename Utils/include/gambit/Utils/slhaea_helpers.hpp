@@ -20,7 +20,7 @@
 ///  \date 2015
 ///
 ///  \author Tomas Gonzalo
-///         (tomas.gonzalo@monash.edu)
+///          (tomas.gonzalo@monash.edu)
 ///  \date 2020
 ///
 ///  *********************************************
@@ -30,6 +30,8 @@
 
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Utils/util_types.hpp"
+#include "gambit/Elements/spectrum_helpers.hpp"
+#include "gambit/Models/SpectrumContents/subspectrum_contents.hpp"
 
 #include "SLHAea/slhaea.h"
 

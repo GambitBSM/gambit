@@ -621,7 +621,7 @@ namespace Gambit {
         double amT2=0.;
         double dRbl=9999.;
         double mT2Tau=0.;
-        double dPhiMetLep;
+        double dPhiMetLep=0.;
         double pTLepOverMet=999.;
 
         if(cut_minSelection)

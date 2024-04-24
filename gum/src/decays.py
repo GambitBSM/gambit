@@ -2,7 +2,7 @@
 #  ***********************************
 #  \file
 #
-#  Master module for all DecayBit-related 
+#  Master module for all DecayBit-related
 #  routines.
 #
 #  *************************************
@@ -89,14 +89,14 @@ def decay_grouper(decays, antiparticle_dict):
     for i in range(0, len(decays)):
         if decays[i][1] == "ABBar":
             annihilations.append(decays[i][0])
-    
+
         elif decays[i][1] == "ABB":
             # Outgoing particles
             p1 = antiparticle_dict.get(decays[i][0][1])
             p2 = antiparticle_dict.get(decays[i][0][2])
-            
+
             annihilations.append([decays[i][0][0], p1, p2])
-        
+
         elif decays[i][1] == "ABC":
             # Take all three possible decays from this vertex
             for j in decays[i][0]:
@@ -130,7 +130,7 @@ def decay_grouper(decays, antiparticle_dict):
         for i in range(0, len(others)):
             if j == others[i][0]:
                 products.append([others[i][1], others[i][2]])
-        channels.append([j, products]) 
+        channels.append([j, products])
 
     # Return list of all channels per particle.
     return channels
@@ -220,7 +220,7 @@ def write_decaytable_entry_calchep(grouped_decays, gambit_model_name,
 
     function_name = "CH_{0}_{1}_decays".format(gambit_model_name, decayparticle).replace('~','bar')
 
-    # Definitely a nicer way to do this, but, this will do for now. 
+    # Definitely a nicer way to do this, but, this will do for now.
     # Should make it a bit easier to add 3 body final states.
     # (Overloaded as a backend function?)
     products = np.array(grouped_decays[1])
@@ -296,26 +296,26 @@ def write_decaytable_entry_calchep(grouped_decays, gambit_model_name,
             "}}"
             "\n"
             "\n"
-    ).format(gambit_model_name, chep_name, ", ".join(c_strings), 
+    ).format(gambit_model_name, chep_name, ", ".join(c_strings),
              ", ".join(g_strings))
-    
+
     return indent(towrite, 4)
 
-def write_decaybit_rollcall_entry_calchep(model_name, spectrum, newdecays, 
+def write_decaybit_rollcall_entry_calchep(model_name, spectrum, newdecays,
                                           decaybit_dict, gambit_dict,
                                           cap_def = {}):
     """
-    Returns amendments for the  new rollcall entries for DecayBit as a 
+    Returns amendments for the  new rollcall entries for DecayBit as a
     numpy array. The format of the array is:
-    
+
     [ [ capability_name_1, towrite_1 ],
       [ capability_name_2, towrite_2 ], ... ]
 
     """
-    
+
     rollcall_entries = []
     new_decays = []
-     
+
     for i in range(len(newdecays)):
         decayparticle = newdecays[i][0]
         # TODO: support for BSM contribution to Z/W decays
@@ -329,13 +329,13 @@ def write_decaybit_rollcall_entry_calchep(model_name, spectrum, newdecays,
         else:
             continue
         cap = "{0}_decay_rates".format(gb_name).replace('~','bar')
-        func = "CH_{0}_{1}_decays".format(model_name, 
-                                          pdg_to_particle(decayparticle, 
+        func = "CH_{0}_{1}_decays".format(model_name,
+                                          pdg_to_particle(decayparticle,
                                                           decaybit_dict).replace('~','bar')
                                           )
-        # If the capability already exists, see if the function already exists, 
+        # If the capability already exists, see if the function already exists,
         # only need to write the function
-        if (find_capability(cap, "DecayBit")[0]  
+        if (find_capability(cap, "DecayBit")[0]
         and not find_function(func, cap, "DecayBit")[0]):
             if decayparticle == 25:
                 extra = (
@@ -353,7 +353,29 @@ def write_decaybit_rollcall_entry_calchep(model_name, spectrum, newdecays,
                     "    #undef FUNCTION\n"
             ).format(func, extra, model_name)
             rollcall_entries.append([cap, towrite])
-        # If the capability doesn't exist => must write a new entry for it as 
+        # If the capability exists as a quick function, add the block underneath
+        elif (find_quick_function(cap, "DecayBit")[0]
+        and not find_function(func, cap, "DecayBit")[0]):
+            if decayparticle == 25:
+                extra = (
+                      "    DEPENDENCY(Reference_SM_Higgs_decay_rates, "
+                      "DecayTable::Entry)\n"
+                )
+            else:
+                extra = ""
+            towrite = (
+                    "  #define CAPABILITY {0}\n"
+                    "    #define FUNCTION {1}\n"
+                    "    START_FUNCTION(DecayTable::Entry)\n"
+                    "    DEPENDENCY({2}, Spectrum)\n{3}"
+                    "    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, "
+                    "std::vector<str>&))\n"
+                    "    ALLOW_MODELS({4})\n"
+                    "    #undef FUNCTION\n"
+                    "  #undef CAPABILITY\n"
+            ).format(cap, func, spectrum, extra, model_name)
+            rollcall_entries.append([cap, towrite])
+        # If the capability doesn't exist => must write a new entry for it as
         # well as the function
         elif not find_capability(cap, "DecayBit")[0]:
             towrite = (
@@ -383,16 +405,16 @@ def amend_all_decays_calchep(model_name, spectrum, new_decays):
     Amends all_decays in DecayBit, both in source and in the rollcall
     header.
     """
-    
+
     src = ""
     header = ""
     src_extra = ""
-    
+
     for i in range(len(new_decays)):
         src_extra += (
                   "decays(\"{0}\") = *Dep::{1};\n"
         ).format(new_decays[i][1], new_decays[i][0])
-    
+
     if len(new_decays) > 0:
         src += indent((
             "\n"
@@ -402,17 +424,17 @@ def amend_all_decays_calchep(model_name, spectrum, new_decays):
             "{1}"
             "}}\n"
         ).format(model_name, src_extra), 6)
-    
+
     for i in range(len(new_decays)):
         header += (
                "\n    MODEL_CONDITIONAL_DEPENDENCY({0}, DecayTable::Entry, {1})"
         ).format(new_decays[i][0], model_name)
 
-        
+
     header += "\n"
-                
+
     return src, header
-    
+
 
 """
 SPHENO

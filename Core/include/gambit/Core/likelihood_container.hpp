@@ -81,6 +81,9 @@ namespace Gambit
       /// Switch to print or not print invalid points to the output file
       bool print_invalid_points;
 
+      /// Option to print the ratio of valid points to logs
+      bool log_valid_point_ratio;
+
       /// Disable printing for points with log likelihood below some value
       double disable_print_for_lnlike_below;
 

@@ -25,13 +25,20 @@
   (std::string)                             \
   (triplet<double>)                         \
   (map_intpair_dbl)                         \
+  (map_dblpair_dbl)                         \
   (map_const_str_dbl)                       \
+  (map_str_map_str_dbl)                     \
   (map_const_str_map_const_str_dbl)         \
-  (flav_prediction)                         \
 
 
 #define ASCII_BACKEND_TYPES                 \
   (DM_nucleon_couplings)                    \
   (BBN_container)                           \
+  (flav_prediction)                         \
+  (flav_binned_prediction)                  \
+  (HiggsCouplingsTable)                     \
+  (CouplingTable)                           \
+  (WilsonCoefficient)                       \
+
 
 #endif

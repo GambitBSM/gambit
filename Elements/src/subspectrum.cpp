@@ -591,18 +591,10 @@ namespace Gambit
       RunToScaleOverride(scale);
    }
 
-
-   /// @}
-
-
    /// @}
 
    /// @}
 
-
-
+   /// @}
 
 }
-
-
-

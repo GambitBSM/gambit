@@ -597,7 +597,8 @@ namespace Gambit
                     if(Utils::file_exists(file))
                     {
                        std::string filebak = file + ".temp.bak";
-                       std::system(("mv " + file + " " + filebak).c_str());
+                       int ret = std::system(("mv " + file + " " + filebak).c_str());
+                       (void) ret;
                        //old_file = H5Fopen((file + ".temp.bak").c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
                        old_file = HDF5::openFile(file + ".temp.bak", false, 'r');
                        if(old_file<0)
@@ -1340,14 +1341,16 @@ namespace Gambit
                 {
                     if (resume)
                     {
-                        std::system(("rm -f " + file + ".temp.bak").c_str());
+                        int ret = std::system(("rm -f " + file + ".temp.bak").c_str());
+                        (void)ret;
                     }
 
                     for (int i = 0, end = files.size(); i < end; i++)
                     {
                         std::stringstream ss;
                         ss << i;
-                        std::system(("rm -f " + root_file_name + "_temp_" + ss.str()).c_str());
+                        int ret = std::system(("rm -f " + root_file_name + "_temp_" + ss.str()).c_str());
+                        (void)ret;
                     }
                 }
             }

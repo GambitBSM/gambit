@@ -96,11 +96,20 @@ Scanner:
 
 ObsLikes:
 
+    # ------------------------- #
+    # B -> Xs gamma likelihoods #
+    # ------------------------- #
+
   - purpose:    LogLike
     capability: b2sgamma_LogLikelihood
 
   - purpose:    LogLike
     capability: B2Kstargamma_LogLikelihood
+
+
+    # ---------------------- #
+    # B -> mu mu likelihoods #
+    # ---------------------- #
 
   - purpose:    LogLike
     capability: B2mumu_LogLikelihood_Atlas
@@ -114,6 +123,42 @@ ObsLikes:
     capability: B2mumu_LogLikelihood_LHCb
     sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
 
+
+    # ------------------------ #
+    # B -> K mu mu likelihoods #
+    # ------------------------ #
+
+  - purpose:    LogLike
+    capability: Bd2KmumuBr_LogLikelihood_LHCb
+
+  - purpose:    LogLike
+    capability: Bd2KmumuBr_LogLikelihood_Belle
+
+  - purpose:    LogLike
+    capability: B2KmumuBr_LogLikelihood_LHCb
+
+  - purpose: LogLike
+    capability: B2KmumuBr_LogLikelihood_CMS
+
+  - purpose: LogLike
+    capability: B2KmumuBr_LogLikelihood_Belle
+
+
+    # ---------------------- #
+    # B -> K e e likelihoods #
+    # ---------------------- #
+
+  - purpose:    LogLike
+    capability: B2KeeBr_LogLikelihood_Belle
+
+  - purpose:    LogLike
+    capability: Bd2KeeBr_LogLikelihood_Belle
+
+
+    # ------------------------- #
+    # B -> K* mu mu likelihoods #
+    # ------------------------- #
+
   - purpose:    LogLike
     capability: B2KstarmumuAng_LogLikelihood_Atlas
     sub_capabilities: [FL, S3, S4, S5, S7, S8]
@@ -123,7 +168,7 @@ ObsLikes:
     sub_capabilities: [P1, P5prime]
 
   - purpose:    LogLike
-    capability: B2KstarellellAng_LogLikelihood_Belle
+    capability: B2KstarmumuAng_LogLikelihood_Belle
     sub_capabilities: [P4prime, P5prime]
 
   - purpose:    LogLike
@@ -135,17 +180,185 @@ ObsLikes:
     sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
 
   - purpose:    LogLike
-    capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
-    sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
-
-  - purpose:    LogLike
     capability: B2KstarmumuBr_LogLikelihood_LHCb
 
   - purpose:    LogLike
     capability: Bs2phimumuBr_LogLikelihood
 
+
+    # ----------------------- #
+    # B -> K* e e likelihoods #
+    # ----------------------- #
+
   - purpose:    LogLike
-    capability: B2KmumuBr_LogLikelihood_LHCb
+    capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
+    sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
+
+
+    # ---------------------- #
+    # RK and RK* likelihoods #
+    # ---------------------- #
+
+  - purpose: LogLike
+    capability: RKRKstar_LogLikelihood_LHCb
+    sub_capabilities: [RK, RKstar]
+
+  - purpose: LogLike
+    capability: RK_LogLikelihood_CMS
+
+  - purpose: LogLike
+    capability: RK_LogLikelihood_Belle
+
+
+    # ------------------------ #
+    # B -> K nu nu likelihoods #
+    # ------------------------ #
+
+  - purpose: LogLike
+    capability: BKnunu_LogLikelihood_Belle_sl
+
+  - purpose: LogLike
+    capability: BKnunu_LogLikelihood_Belle_had
+
+  - purpose: LogLike
+    capability: BuKnunu_LogLikelihood_Belle_sl
+
+  - purpose: LogLike
+    capability: BuKnunu_LogLikelihood_Belle_had
+
+  - purpose: LogLike
+    capability: BuKnunu_LogLikelihood_BelleII
+
+  - purpose: LogLike
+    capability: BKnunu_LogLikelihood_BaBar
+
+  - purpose: LogLike
+    capability: BuKnunu_LogLikelihood_BaBar
+
+#    NOTE: There is no prediction for this one yet
+#  - purpose: LogLike
+#    capability: BKstarnunu_LogLikelihood_Belle_sl
+
+#    NOTE: There is no prediction for this one yet
+#  - purpose: LogLike
+#    capability: BKstarnunu_LogLikelihood_Belle_had
+
+#    NOTE: There is no prediction for this one yet
+#  - purpose: LogLike
+#    capability: BuKstarnunu_LogLikelihood_Belle_sl
+
+#    NOTE: There is no prediction for this one yet
+#  - purpose: LogLike
+#    capability: BuKstarnunu_LogLikelihood_Belle_had
+
+#    NOTE: There is no prediction for this one yet
+#  - purpose: LogLike
+#    capability: BKstarnunu_LogLikelihood_BaBar
+
+#    NOTE: There is no prediction for this one yet
+#  - purpose: LogLike
+#    capability: BuKstarnunu_LogLikelihood_BaBar
+
+
+    # ----------------------------- #
+    # Semileptonic FCCC likelihoods #
+    # ----------------------------- #
+
+  # NOTE: This does not seem to work with WCs
+  #- capability: SL_LogLikelihood
+  #  purpose: LogLike
+
+
+    # --------------- #
+    # Mass splittings #
+    # ----------------#
+
+  - capability: Delta_MBs_LogLikelihood
+    purpose: LogLike
+
+
+    ###############
+    # Observables #
+    ###############
+
+    # ------------------- #
+    # Wilson coefficients #
+    # ------------------- #
+
+  - purpose: Observable
+    capability: DeltaC2
+
+  - purpose: Observable
+    capability: DeltaC7
+
+  - purpose: Observable
+    capability: DeltaC8
+
+  - purpose: Observable
+    capability: DeltaC9
+
+  - purpose: Observable
+    capability: DeltaC10
+
+  - purpose: Observable
+    capability: DeltaC2p
+
+  - purpose: Observable
+    capability: DeltaC7p
+
+  - purpose: Observable
+    capability: DeltaC8p
+
+  - purpose: Observable
+    capability: DeltaC9p
+
+  - purpose: Observable
+    capability: DeltaC10p
+
+  - purpose: Observable
+    capability: DeltaCQ1
+
+  - purpose: Observable
+    capability: DeltaCQ2
+
+  - purpose: Observable
+    capability: DeltaCQ1p
+
+  - purpose: Observable
+    capability: DeltaCQ2p
+
+  - purpose: Observable
+    capability: DeltaCL
+
+  - purpose: Observable
+    capability: DeltaCR
+
+    # ------------------- #
+    # Flavour predictions #
+    # ------------------- #
+
+  - purpose: Observable
+    capability: prediction_RKRKstar_LHCb
+    sub_capabilities: [RK, RKstar]
+
+  - purpose: Observable
+    capability: prediction_RK
+
+  - purpose: Observable
+    capability: prediction_RKstar
+
+  - purpose: Observable
+    capability: prediction_B2mumu
+    function: SuperIso_prediction_B2mumu
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  - purpose: Observable
+    capability: prediction_B2Knunu
+    function: SuperIso_prediction_B2Knunu
+
+  - purpose: Observable
+    capability: prediction_Bu2Knunu
+    function: SuperIso_prediction_Bu2Knunu
 
 Rules:
 
@@ -157,6 +370,17 @@ Rules:
   - capability: prediction_B2mumu
     function: SuperIso_prediction_B2mumu
 
+  # Use SuperIso for B->Knunu
+  - capability: prediction_B2Knunu
+    function: SuperIso_prediction_B2Knunu
+
+  # Use SuperIso for Bu->Knunu
+  - capability: prediction_Bu2Knunu
+    function: SuperIso_prediction_Bu2Knunu
+
+  # User SuperIso for Delta_MBs
+  - capability: prediction_Delta_MBs
+    function: SuperIso_prediction_Delta_MBs
 
 Logger:
 

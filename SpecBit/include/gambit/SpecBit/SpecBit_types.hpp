@@ -21,8 +21,11 @@
 ///          (janina.renk@fysik.su.se)
 ///  \date 2019 July, Dec
 ///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Mar
+///
 ///  *********************************************
-
 
 #ifndef __SpecBit_types_hpp__
 #define __SpecBit_types_hpp__
@@ -30,6 +33,7 @@
 #include <string>
 #include <vector>
 #include "gambit/Utils/util_types.hpp"
+#include "gambit/Elements/spectrum_types.hpp"
 
 namespace Gambit
 {

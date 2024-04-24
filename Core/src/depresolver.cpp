@@ -2203,7 +2203,7 @@ namespace Gambit
         ss << scanID;
         metadata["Scan_ID"] = ss.str();
       }
-
+      
       // Parameters
       YAML::Node parametersNode = boundIniFile->getParametersNode();
       Options(parametersNode).toMap(metadata, "Parameters");

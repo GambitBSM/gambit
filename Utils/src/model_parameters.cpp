@@ -57,7 +57,6 @@ namespace Gambit
       return (_values.count(inkey)!=0);
    }
 
-
    /// Default constructor
    ModelParameters::ModelParameters(): _values(), modelname("None"), outputname("None") {}
 
@@ -120,7 +119,6 @@ namespace Gambit
      assert_contains(inkey);
      return _values.at(inkey);
    }
-
 
    /// Set single parameter value
    void ModelParameters::setValue(std::string const &inkey,double const&value)

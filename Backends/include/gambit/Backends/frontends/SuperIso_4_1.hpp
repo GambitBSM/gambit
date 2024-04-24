@@ -29,9 +29,7 @@
 LOAD_LIBRARY
 
 // Can't do anything non-MSSM/2HDM with SuperIso yet, besides Wilson coefficients.
-// If you want to expand this to work in the 2HDM, it should all just work out of the box if you set the
-// parameters object up correctly in FlavBit and specify the model(s) as allowed here.
-BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, WC, WC_LUV, WC_LR)
+BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ)
 
 BE_FUNCTION(Init_param, void, (parameters*), "Init_param", "Init_param")
 BE_FUNCTION(slha_adjust, void, (parameters*), "slha_adjust", "slha_adjust")
@@ -63,6 +61,7 @@ BE_FUNCTION(Rmu23, double, (const parameters*), "Rmu23", "Rmu23")
 BE_FUNCTION(Dstaunu, double, (const parameters*), "Dstaunu", "Dstaunu")
 BE_FUNCTION(Dsmunu, double, (const parameters*), "Dsmunu", "Dsmunu")
 BE_FUNCTION(Dmunu, double, (const parameters*), "Dmunu", "Dmunu")
+BE_FUNCTION(Dlnu, double, (int, const parameters*), "Dlnu", "Dlnu")
 BE_FUNCTION(muon_gm2, double, (const parameters*), "muon_gm2", "muon_gm2")
 BE_FUNCTION(delta0, double, (std::complex<double>*, std::complex<double>*, std::complex<double>*, std::complex<double>*, std::complex<double>*, const parameters*, double, double, double), "delta0", "delta0")
 BE_FUNCTION(BRBXsll_lowq2, double, (int, std::complex<double>*, std::complex<double>*, std::complex<double>*, std::complex<double>*, std::complex<double>*, std::complex<double>*, std::complex<double>*, const parameters*, double), "BRBXsll_lowq2", "BRBXsll_lowq2")
@@ -89,6 +88,9 @@ BE_FUNCTION(observables, void, (int, obsname*, int, double*, double*, const nuis
 BE_FUNCTION(convert_correlation, void, (nuiscorr*, int, double**, char**, int), "convert_correlation", "convert_correlation")
 BE_FUNCTION(get_th_covariance_nuisance, void, (double***, char**, int*, const parameters*, const nuisance*, double**), "get_th_covariance_nuisance", "get_th_covariance_nuisance")
 
+BE_FUNCTION(Delta_MB, double , (const parameters*), "Delta_MB", "Delta_MB")
+BE_FUNCTION(Delta_MBs, double , (const parameters*), "Delta_MBs", "Delta_MBs")
+
 // Convenience functions:
 BE_CONV_FUNCTION(A_BXsmumu_zero, double, (const parameters*), "A_BXsmumu_zero",(MSSM63atQ, MSSM63atMGUT, WC))
 BE_CONV_FUNCTION(BRBXstautau_highq2, double, (const parameters*), "BRBXstautau_highq2", (MSSM63atQ, MSSM63atMGUT, WC))
@@ -97,9 +99,8 @@ BE_CONV_FUNCTION(modified_AI_BKstarmumu, double, (const parameters*), "modified_
 BE_CONV_FUNCTION(modified_AI_BKstarmumu_zero, double, (const parameters*), "modified_AI_BKstarmumu_zero", (MSSM63atQ, MSSM63atMGUT, WC))
 BE_CONV_FUNCTION(modified_delta0, double, (const parameters*), "modified_delta0", (MSSM63atQ, MSSM63atMGUT, WC))
 
-// TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
-BE_CONV_FUNCTION(SuperIso_RKstar_computation, double, (const parameters*, double, double), "SuperIso_RKstar_computation", (MSSM63atQ, MSSM63atMGUT, WC))
-BE_CONV_FUNCTION(SuperIso_RK_computation, double, (const parameters*, double, double), "SuperIso_RK_computation", (MSSM63atQ, MSSM63atMGUT, WC))
+// TODO: attempt to upgrade module function to use the 'observables' backend function instead, and delete this CONV function
+BE_CONV_FUNCTION(BRBKtautau_CONV, double, (const parameters*, double, double), "BRBKtautau_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

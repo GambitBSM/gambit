@@ -44,6 +44,10 @@
 ///  \date 2018 Sep
 ///  \date 2019 Jul
 ///
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
+///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -60,6 +64,7 @@
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
 #include "gambit/Utils/integration.hpp"
+// #include "gambit/Backends/backend_types/THDMC.hpp"
 
 #include <string>
 #include <map>
@@ -71,10 +76,127 @@
 #define pow4(a) (pow2(a)*pow2(a))
 #define pow5(a) (pow4(a)*(a))
 
-//#define DECAYBIT_DEBUG
+// #define DECAYBIT_DEBUG
 
 namespace Gambit
 {
+
+  namespace thdm
+  {
+    // name for each particle in the THDM
+    inline const std::vector<std::string> particle_name = {"u_1","u_2","u_3","d_1","d_2","d_3","e-_1","e-_2","e-_3","nu_1","nu_2","nu_3", 
+      "ubar_1","ubar_2","ubar_3","dbar_1","dbar_2","dbar_3","e+_1","e+_2","e+_3","nubar_1","nubar_2","nubar_3", 
+      "gamma","Z0","W+","W-","g", "h0_1","h0_2","A0","H+","H-"};
+  }
+
+  // converts a thdm::Particle to the appropriate THDMC number
+  int to_thdmc(const thdm::Particle part)
+  {
+    using namespace thdm;
+    if (part >= u1 && part <= u3) return part-u1+1;
+    if (part >= d1 && part <= d3) return part-d1+1;
+    if (part >= e1 && part <= e3) return part-e1+1;
+    if (part >= v1 && part <= v3) return part-v1+1;
+    if (part >= u1c && part <= u3c) return part-u1c+1;
+    if (part >= d1c && part <= d3c) return part-d1c+1;
+    if (part >= e1c && part <= e3c) return part-e1c+1;
+    if (part >= v1c && part <= v3c) return part-v1c+1;
+    if (part >= a && part <= wm) return std::min((int)part,(int)wp)-a+1;
+    if (part >= h1 && part <= hm) return std::min((int)part,(int)hp)-h1+1;
+    if (part == g) return 1;
+    str err = "invalid particle "+std::to_string(part);
+    backend_error().raise(LOCAL_INFO, err);
+    return -1;
+  }
+
+  // adapter to get decay rates using generic inputs
+  double get_gamma_THDMC(THDMC_1_8_0::DecayTableTHDM& decay_table_2hdmc, const thdm::Particle particle, const std::vector<thdm::Particle> products_)
+  {
+    using namespace thdm;
+    using namespace Utils;
+
+    if (products_.size() != 2)
+    {
+      str err = "2HDMC only supports 2-particle decays\n";
+      backend_error().raise(LOCAL_INFO, err);
+    }
+
+    // products must be listed in ascending order
+    std::vector<thdm::Particle> products = products_;
+    if (products[1] < products[0]) std::swap(products[0],products[1]);
+
+    const std::vector<double> electric_charge = 
+        {+2/3.,+2/3.,+2/3.,-1/3.,-1/3.,-1/3.,-1,-1,-1,0,0,0,-2/3.,-2/3.,-2/3.,+1/3.,+1/3.,+1/3.,+1,+1,+1,0,0,0, 0,0,+1,-1,0, 0,0,0,+1,-1};
+
+    // 2HDMC doesn't differentiate between particle/antiparticle -- so need to check U(1)-charge conservation
+    if(!equal(electric_charge[particle],electric_charge[products[0]]+electric_charge[products[1]]))
+    {
+      return 0.0;
+    }
+
+    // get the THDMC particle numbers
+    const int part = to_thdmc(particle), prod0 = to_thdmc(products[0]), prod1 = to_thdmc(products[1]);
+
+    // deal with the top decays first
+    if (particle == u3c && in(products[0],d1,d3) && in(products[1],h1,hm))
+      return decay_table_2hdmc.get_gamma_uhd(part,prod1,prod0);
+    if (particle == u3 && in(products[0],d1c,d3c) && in(products[1],h1,hm))
+      return decay_table_2hdmc.get_gamma_uhd(part,prod1,prod0);
+    if (particle == u3c && in(products[0],u1,u3) && in(products[1],h1,hm))
+      return decay_table_2hdmc.get_gamma_uhu(part,prod1,prod0);
+    if (particle == u3 && in(products[0],u1c,u3c) && in(products[1],h1,hm))
+      return decay_table_2hdmc.get_gamma_uhu(part,prod1,prod0);
+
+    // worry about it later
+    // decay_table_2hdmc.get_gamma_uhd_flipped
+    // decay_table_2hdmc.get_gamma_uhu_flipped
+
+    // don't use thdmc for sm decays
+    if (!in(particle,h1,hm))
+    {
+      str err = "2HDMC only supports 2HDM decays (with the exception of top decays)\n";
+      backend_error().raise(LOCAL_INFO, err);
+    }
+
+    // get the higgs decay
+    if (products[0] == g && products[1] == g)
+      return decay_table_2hdmc.get_gamma_hgg(part);
+    if (products[0] == a && products[1] == a)
+      return decay_table_2hdmc.get_gamma_hgaga(part);
+    if (products[0] == a && products[1] == z)
+      return decay_table_2hdmc.get_gamma_hZga(part);
+    if (in(products[0],u1,u3) && in(products[1],u1c,u3c))
+      return decay_table_2hdmc.get_gamma_huu(part,prod0,prod1); // h u uc
+    if (in(products[0],d1,d3) && in(products[1],d1c,d3c))
+      return decay_table_2hdmc.get_gamma_hdd(part,prod0,prod1); // h d dc
+    if (in(products[0],d1,d3) && in(products[1],u1c,u3c))
+      return decay_table_2hdmc.get_gamma_hdu(part,prod0,prod1); // h d uc
+    if (in(products[0],u1,u3) && in(products[1],d1c,d3c))
+      return decay_table_2hdmc.get_gamma_hdu(part,prod1,prod0); // h u dc
+    if (in(products[0],e1,e3) && in(products[1],e1c,e3c))
+      return decay_table_2hdmc.get_gamma_hll(part,prod0,prod1); // h e ec
+    if (in(products[0],e1,e3) && in(products[1],v1c,v3c))
+      return decay_table_2hdmc.get_gamma_hln(part,prod0,prod1); // h v ec
+    if (in(products[0],v1,v3) && in(products[1],e1c,e3c))
+      return decay_table_2hdmc.get_gamma_hln(part,prod1,prod0); // h v ec
+    if (in(products[0],h1,hm) && in(products[1],h1,hm))
+      return decay_table_2hdmc.get_gamma_hhh(part,prod0,prod1); // h h h
+    if ((products[0] == z && products[1] == z) || (products[0] == wp && products[1] == wm)) // hzz hww
+      return decay_table_2hdmc.get_gamma_hvv(part,prod0);
+    if (in(products[0],z,wm) && in(products[1],h1,hm))
+    {
+      // fix the double-counting
+      if ((products[0] == wm && products[1] == hp) || (products[0] == wp && products[1] == hm)) // h wm hp,  h wp hm
+        return 0.5*decay_table_2hdmc.get_gamma_hvh(part,prod0,prod1);
+      else // h z H,  h z A, 
+        return decay_table_2hdmc.get_gamma_hvh(part,prod0,prod1);
+    }
+
+    // if we got here then no thdmc doesn't have a function for this decay
+    // std::cout << "WARNING: decay width not avaliable: " << names[particle] << "->" << names[products[0]] << "," << names[products[1]] << "\n";
+    return 0.0;
+  }
+
 
   namespace DecayBit
   {
@@ -94,11 +216,15 @@ namespace Gambit
       return m2 / (m2 - q2 -i*imag_term);
     }
 
-
     /// Check if a width is negative or suspiciously large and raise an error.
     void check_width(const str& info, double& w, bool raise_invalid_pt_negative_width = false, bool raise_invalid_pt_large_width = false)
     {
-      if (Utils::isnan(w)) DecayBit_error().raise(info, "Decay width is NaN!");
+      if (Utils::isnan(w))
+      {
+        DecayBit_error().raise(info, "Decay width is NaN!");
+        // str error = "Decay width is NaN!";
+        // invalid_point().raise(err);
+      }
       if (w < 0)
       {
         str nwiderr("Negative width returned!");
@@ -356,6 +482,8 @@ namespace Gambit
       result.set_BF(0.20000/3.0, 0.00055/3.0, "nu_e", "nubar_e");
       result.set_BF(0.20000/3.0, 0.00055/3.0, "nu_mu", "nubar_mu");
       result.set_BF(0.20000/3.0, 0.00055/3.0, "nu_tau", "nubar_tau");
+
+      // sums to 0.8. the remaining 0.2 is for neutrinos
 
       // Neutrinos
       // FIXME: It doesn't work because SMINPUTS it's not satisfied yet
@@ -2460,7 +2588,6 @@ namespace Gambit
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
-
     /// MSSM decays: chargino decays for small chargino--neutralino mass splitting.
     /// Using results from hep-ph/9607421.
     void chargino_plus_1_decays_smallsplit(DecayTable::Entry& result)
@@ -2778,7 +2905,6 @@ namespace Gambit
 
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
-
 
     /// MSSM decays: stau decays for small stau--neutralino mass splitting.
     /// Using results from T. Jittoh, J. Sato, T. Shimomura, M. Yamanaka, Phys. Rev. D73 (2006), hep-ph/0512197
@@ -3864,7 +3990,6 @@ namespace Gambit
       using namespace Pipes::CH_DMsimpVectorMedDiracDM_Y1_decays;
       // Clear previous decays
       result = DecayTable::Entry();
-
       str model = "DMsimpVectorMedDiracDM";
       str in = "Y1"; // In state: CalcHEP particle name
       std::vector<std::vector<str>> out_calchep = {{"b~", "b"}, {"c~", "c"}, {"d~", "d"}, {"s~", "s"}, {"t~", "t"}, {"u~", "u"}, {"Xd~", "Xd"}}; // Out states: CalcHEP particle names
@@ -3900,7 +4025,6 @@ namespace Gambit
       using namespace Pipes::CH_DMsimpVectorMedMajoranaDM_Y1_decays;
       // Clear previous decays
       result = DecayTable::Entry();
-
       str model = "DMsimpVectorMedMajoranaDM";
       str in = "Y1"; // In state: CalcHEP particle name
       std::vector<std::vector<str>> out_calchep = {{"b~", "b"}, {"c~", "c"}, {"d~", "d"}, {"s~", "s"}, {"t~", "t"}, {"u~", "u"}, {"Xm", "Xm"}}; // Out states: CalcHEP particle names
@@ -3937,7 +4061,6 @@ namespace Gambit
       using namespace Pipes::CH_DMsimpVectorMedScalarDM_Y1_decays;
       // Clear previous decays
       result = DecayTable::Entry();
-
       str model = "DMsimpVectorMedScalarDM";
       str in = "Y1"; // In state: CalcHEP particle name
       std::vector<std::vector<str>> out_calchep = {{"Xc", "Xc~"}, {"b~", "b"}, {"c~", "c"}, {"d~", "d"}, {"s~", "s"}, {"t~", "t"}, {"u~", "u"}}; // Out states: CalcHEP particle names
@@ -4183,6 +4306,15 @@ namespace Gambit
 
       }
 
+      // THDM-specific
+      else if(ModelInUse("THDMatQ") or ModelInUse("THDM"))
+      {
+        decays("h0_2") = *Dep::h0_2_decay_rates;                 // Add the h0_2 decays.
+        decays("A0") = *Dep::A0_decay_rates;                     // Add the A0 decays.
+        decays("H+") = *Dep::H_plus_decay_rates;                 // Add the H+ decays.
+        decays("H-") = *Dep::H_minus_decay_rates;                // Add the H- decays.
+      }
+
       else
 
       {
@@ -4219,89 +4351,96 @@ namespace Gambit
       decays = DecayTable(slha);
     }
 
+    // make sure all BFs sum to 1 (ignoring SM)
+    void check_BR_sum(const DecayTable& tbl)
+    {
+      // loop over all particles we have decays for
+      for (auto& part_entry_pair : tbl.particles)
+      {
+        str part_name = Models::ParticleDB().partmap::long_name(part_entry_pair.first);
+        auto& decay_entry = part_entry_pair.second;
+
+        if (part_name == "omega" || part_name == "eta" || part_name == "rho+" || part_name == "rho0" || part_name == "rho-" || part_name == "H-" ||
+            part_name == "W+" || part_name == "Z0" || part_name == "W-" || part_name == "e+_3" || part_name == "tau+" || part_name == "e-_3" || part_name == "tau-")
+          continue;
+
+        double BR_sum = 0;
+
+        // loop over each decay mode
+        for (auto& prod_br_pair : decay_entry.channels)
+          BR_sum += prod_br_pair.second.first;
+
+        if (abs(BR_sum-1.0) > 1e-4 && abs(decay_entry.width_in_GeV) > 1e-35)
+          std::cout << "ERROR: BR sum for " + part_name + " is " << BR_sum << std::endl;
+      }
+    }
+
     /// Convert the DecayTable to a format where we can print each individual channel's BF
     void get_decaytable_as_map(map_str_dbl& map)
     {
       using namespace Pipes::get_decaytable_as_map;
 
+      // skip all BFs for these particles
+      const std::vector<str> skip_particles = runOptions->getValueOrDef<std::vector<str>>({}, "skip_particles");
+      // skip the following specific decay channels (0 -> 1,2,...). WARNING: order needs to match
+      const std::vector<std::vector<str>> skip_channels = runOptions->getValueOrDef<std::vector<std::vector<str>>>({}, "BFs");
+      // should we also print BF errors?
+      const bool print_BF_error = runOptions->getValueOrDef<bool>(false, "print_BF_error");
+      // should we print widths instead of BFs
+      const bool print_as_widths = runOptions->getValueOrDef<bool>(false, "print_as_widths");
+      // get the decay table
       const DecayTable* tbl = &(*Dep::decay_rates);
 
-      std::vector<std::vector<str> > bfs;
-      std::string channel;
-      double BF = 0.0;
+      check_BR_sum(*tbl);
 
-      // If the user specifies "printall" -- then print everything.
-      bool printall = runOptions->getValueOrDef(false, "printall");
-      if (printall)
+      // loop over all particles in decay table
+      for (auto& part : tbl->particles)
       {
-        // Iterate through DecayTable.
-        for (auto it = tbl->particles.begin(); it != tbl->particles.end(); ++it)
+        // get full name of current particle
+        const str name = Models::ParticleDB().partmap::long_name(part.first);
+
+        // if in skip_particles list then dont bother
+        bool skip = false;
+        for (auto& p : skip_particles) if (name == p) skip = true;
+        if (skip) continue;
+
+        // get entry for current particle
+        const DecayTable::Entry& entry = part.second;
+
+        // loop over all decay channels
+        for (auto& channel : entry.channels)
         {
-          std::pair<int, int> pdg = it->first;
-          std::vector<str> bf = {Models::ParticleDB().partmap::long_name(pdg)};
-          bfs.push_back(bf);
-        }
-      }
-
-      /// Otherwise just print the specific, named channels
-      else
-      {
-        std::vector<std::vector<str> > BFs; // Empty set of braching fractions.
-        bfs = runOptions->getValueOrDef<std::vector<std::vector<str> > >(BFs, "BFs");
-      }
-
-      // Iterate through branching ratios
-      for ( const auto &row : bfs )
-      {
-
-        std::string decaypart = row.front();
-        const DecayTable::Entry entry = tbl->at(decaypart);
-
-        // If the entry is a single particle, then add every BF for this channel
-        if ( row.size() == 1 )
-        {
-          for (auto it = entry.channels.begin(); it != entry.channels.end(); ++it)
+          // construct full particle names vector (0 -> 1,2,...)
+          std::vector<str> names(1+channel.first.size());
+          names[0] = name;
+          size_t i = 1;
+          for (auto& ch : channel.first)
           {
-            BF = it->second.first;
-
-            std::multiset< std::pair<int,int> > ch = it->first;
-            std::vector<str> chan;
-
-            // Create a vector of final states by particle name.
-            for (auto it2 = ch.begin(); it2 != ch.end(); ++it2) chan.push_back(Models::ParticleDB().partmap::long_name(*it2));
-
-            // Write the name of the output channel.
-            channel = row[0] + "->" + chan[0] + "+" + chan[1];
-
-            // + 3-body decay case: add the third final state particle if needed.
-            if (chan.size() == 3) channel += "+" + chan[2];
-
-            map[channel] = BF;
+            names[i] = Models::ParticleDB().partmap::long_name(ch);
+            i += 1;
           }
 
-        }
+          // if in skip_channels list then dont bother
+          skip = false;
+          for (auto& p : skip_channels) if (names == p) skip = true;
+          if (skip) continue;
 
-        // No 1-body decays..
+          // extract BF for current channel
+          double BF = channel.second.first; 
+          double BF_error = channel.second.second;
+          if (print_as_widths)
+          {
+            BF *= entry.width_in_GeV;
+            BF_error *= entry.width_in_GeV;
+          }
 
-        // 2-body decays channel-by-channel
-        else if ( row.size() == 3 )
-        {
-          BF = entry.BF( row[1], row[2] );
-          channel = row[0] + "->" + row[1] + "+" + row[2];
-          map[channel] = BF;
-        }
-
-        // 3-body decays channel-by-channel
-        // (SB: I don't think we have these yet. But if/when we do, they will be supported)
-        else if (row.size() == 4 )
-        {
-          BF = entry.BF( row[1], row[2], row[3] );
-          channel = row[0] + "->" + row[1] + "+" + row[2] + "+" + row[3];
-          map[channel] = BF;
+          // add the BF and BF error to map
+          str channel_name = Utils::replace(Utils::join(names,","),",","->",1);
+          map[channel_name] = BF;
+          if (print_BF_error) map[channel_name+" error"] = BF_error;
         }
       }
     }
-
 
     /// Get MSSM mass eigenstate pseudonyms for the gauge eigenstates
     void get_mass_es_pseudonyms(mass_es_pseudonyms& result)
@@ -4353,8 +4492,6 @@ namespace Gambit
       if((max_mixing*max_mixing) <= 1-tol) result = 6;
     }
 
-    /// @}
-
     // Read and interpolate chi2 table
     daFunk::Funk get_Higgs_invWidth_chi2(std::string filename)
     {
@@ -4363,7 +4500,6 @@ namespace Gambit
       table.setcolnames(colnames);
       return daFunk::interp("BR", table["BR"], table["Delta_chi2"]);
     }
-
 
     void MSSM_inv_Higgs_BF(double &BF)
     {
@@ -4574,6 +4710,325 @@ namespace Gambit
 
     }
 
+    // helper function for grabbing all higgs decays (via THDMC)
+    void h_decays_THDM(DecayTable::Entry& result, THDMC_1_8_0::DecayTableTHDM& decay_table_2hdmc, const Spectrum& spec, const thdm::Particle particle, const bool isDM = false)
+    {
+      using namespace thdm;
+      using namespace Utils;
+
+      (void)isDM; // suppress warning
+
+      const SubSpectrum& he = spec.get_HE();
+      const SubSpectrum& le = spec.get_LE();
+      const SMInputs& sm = spec.get_SMInputs();
+
+      // exclude flavour changing neutral currents
+      const bool exclude_FCNCs = true;
+      // exclude h -> vv decays
+      const bool exclude_neutrino_decays = true;
+      // exclude kinematically forbidden decays
+      const bool check_mass_sum = false;
+
+      // create GAMBIT decay table
+      result.calculator = "2HDMC";
+      result.calculator_version = "1.8.0";
+      result.positive_error = 0; //narrow width
+      result.negative_error = 0;
+      result.width_in_GeV = decay_table_2hdmc.get_gammatot_h(to_thdmc((thdm::Particle)particle));
+
+      // Make sure the width is sensible.
+      check_width(LOCAL_INFO, result.width_in_GeV, true , true);
+
+      // conserved & approximately conserved charges
+      const std::vector<double> electric_charge = 
+      {+2/3.,+2/3.,+2/3.,-1/3.,-1/3.,-1/3.,-1,-1,-1,0,0,0,-2/3.,-2/3.,-2/3.,+1/3.,+1/3.,+1/3.,+1,+1,+1,0,0,0, 0,0,+1,-1,0, 0,0,0,+1,-1};
+      const std::vector<double> e1_number = 
+      {0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1,0,0, 0,0,0,0,0, 0,0,0,0,0};
+      const std::vector<double> e2_number = 
+      {0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1,0, 0,0,0,0,0, 0,0,0,0,0};
+      const std::vector<double> e3_number = 
+      {0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1, 0,0,0,0,0, 0,0,0,0,0};
+      const std::vector<double> u1_number = 
+      {1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1,0,0,0,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0};
+      const std::vector<double> u2_number = 
+      {0,1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1,0,0,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0};
+      const std::vector<double> u3_number = 
+      {0,0,1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1,0,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0};
+      std::vector<double> Z2_number = // IDM only
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0, 0,1,1,1,1};
+
+      // figure out if the higgs convention differs from the IDM standard
+      bool swapped_mass_hierarchy = (he.get(Par::dimensionless, "cosba") == 1);
+      if (swapped_mass_hierarchy) std::swap(Z2_number[h1],Z2_number[h2]);
+
+      // fill in mass table for later use
+      std::vector<double> masses(electric_charge.size(),0);
+      masses[u1] = sm.mU;
+      masses[u2] = sm.mCmC;
+      masses[u3] = sm.mT;
+      masses[d1] = sm.mD;
+      masses[d2] = sm.mS;
+      masses[d3] = sm.mBmB;
+      masses[e1] = sm.mE;
+      masses[e2] = sm.mMu;
+      masses[e3] = sm.mTau;
+      masses[v1] = 0;
+      masses[v2] = 0;
+      masses[v3] = 0;
+      masses[u1c] = sm.mU;
+      masses[u2c] = sm.mCmC;
+      masses[u3c] = sm.mT;
+      masses[d1c] = sm.mD;
+      masses[d2c] = sm.mS;
+      masses[d3c] = sm.mBmB;
+      masses[e1c] = sm.mE;
+      masses[e2c] = sm.mMu;
+      masses[e3c] = sm.mTau;
+      masses[v1c] = 0;
+      masses[v2c] = 0;
+      masses[v3c] = 0;
+      masses[a] = 0;
+      masses[z] = sm.mZ;
+      masses[wp] = le.get(Par::Pole_Mass, "W-");
+      masses[wm] = le.get(Par::Pole_Mass, "W-");
+      masses[g] = 0;
+      masses[h1] = he.get(Par::Pole_Mass, "h0_1");
+      masses[h2] = he.get(Par::Pole_Mass, "h0_2");
+      masses[ha] = he.get(Par::Pole_Mass, "A0");
+      masses[hp] = he.get(Par::Pole_Mass, "H-");
+      masses[hm] = he.get(Par::Pole_Mass, "H-");
+
+      // loop over all possible decays
+      int i=particle;
+      for (int j=u1; j<=hm; ++j)
+      {
+        for (int k=j; k<=hm; ++k)
+        {
+          // dont include particles decaying into themselves
+          if (i == k || i == j) continue; 
+
+          // calculate charge sum of vertex
+          double electric_charge_sum = -electric_charge[i] + electric_charge[j] + electric_charge[k];
+          double e1_number_sum = -e1_number[i] + e1_number[j] + e1_number[k];
+          double e2_number_sum = -e2_number[i] + e2_number[j] + e2_number[k];
+          double e3_number_sum = -e3_number[i] + e3_number[j] + e3_number[k];
+          double u1_number_sum = -u1_number[i] + u1_number[j] + u1_number[k];
+          double u2_number_sum = -u2_number[i] + u2_number[j] + u2_number[k];
+          double u3_number_sum = -u3_number[i] + u3_number[j] + u3_number[k];
+          double Z2_number_sum = -Z2_number[i] + Z2_number[j] + Z2_number[k];
+      
+          // skip decays that violate conservation laws
+          if (he.get(Par::dimensionless, "isIDM") == 1 && int(abs(Z2_number_sum)) % 2 != 0) 
+          {
+            if (i != thdm::Particle::h1 && j != thdm::Particle::h1 && k != thdm::Particle::h1 &&
+                i != thdm::Particle::h2 && j != thdm::Particle::h2 && k != thdm::Particle::h2 )
+                  continue;
+          }
+          
+          if (!equal(electric_charge_sum, 0)) continue; // (U(1) electric charge)
+          if (!equal(e1_number_sum + e2_number_sum + e3_number_sum, 0)) continue; // (lepton number)
+          if (!equal(u1_number_sum + u2_number_sum + u3_number_sum, 0)) continue; // (quark number)
+          if ((j == g) + (k == g) == 1) continue; // (either 2 or zero gluons)
+          if (in(j,u1,d3) + in(k,u1c,d3c) == 1) continue; // (either 2 or zero quarks)
+
+          // skip FCNCs (should be enabled for non-Z2 2HDM)
+          if (exclude_FCNCs)
+          {
+            if (((equal(electric_charge[i],0) && i >= a) || (equal(electric_charge[j],0) && j >= a) || (equal(electric_charge[k],0) && k >= a)) && 
+                (!equal(e1_number_sum,0) || !equal(e2_number_sum,0) || !equal(e3_number_sum,0) || !equal(u1_number_sum,0) || !equal(u2_number_sum,0) || !equal(u3_number_sum,0)))
+              continue;
+
+              // NO FC neutrino decays
+              if ( ( in(i,v1,v3) || in(i,v1c,v3c) || in(j,v1,v3) || in(j,v1c,v3c) || in(k,v1,v3) || in(k,v1c,v3c) ) && 
+                  (!equal(e1_number_sum,0) || !equal(e2_number_sum,0) || !equal(e3_number_sum,0) || !equal(u1_number_sum,0) || !equal(u2_number_sum,0) || !equal(u3_number_sum,0)) )
+                continue;
+          }
+
+          // skip h0_1 -> h0_2 for 2HDM
+          if (he.get(Par::dimensionless, "isIDM") == false && i == h1 && (j == h2 || k == h2))
+            continue;
+
+          // skip decays into neutrinos
+          if (exclude_neutrino_decays && in(j,v1,v3) && in(k,v1c,v3c))
+            continue;
+         
+          // ensure that it is kinematically avaliable (sometimes THDMC wont do this)
+          if (check_mass_sum)
+          {
+            double mass_sum = -masses[i] + masses[j] + masses[k];
+
+            if (mass_sum > 0 && abs(get_gamma_THDMC(decay_table_2hdmc,(thdm::Particle)i,{(thdm::Particle)j,(thdm::Particle)k})) > 1e-10)
+            {
+              std::cout << "WRONG 2hdmc decay: " << particle_name[i] << "->" << particle_name[j] << "," << particle_name[k] << std::endl;
+              std::cout << "                   " << masses[i] << " -> " << masses[j] << " + " << masses[k] << std::endl;
+            }
+
+            // if (mass_sum > 0)
+            // {
+            //   result.set_BF(0.0,0.0,{particle_name[j],particle_name[k]});
+            //   continue;
+            // }  
+          }
+
+          // finally, get the width from THDMC
+          double BF = 0.0; 
+          if (he.get(Par::dimensionless, "isIDM") == 1 && int(Z2_number_sum) % 2 != 0)
+            BF = 0.0;
+          else if (result.width_in_GeV > 1e-50)
+            BF = get_gamma_THDMC(decay_table_2hdmc,(thdm::Particle)i,{(thdm::Particle)j,(thdm::Particle)k})/result.width_in_GeV;
+          
+          result.set_BF(BF,0.0,{particle_name[j],particle_name[k]});
+        }
+      }
+    }
+
+    // get all decays for h0_1 (via THDMC)
+    void h0_1_decays_THDM(DecayTable::Entry& result)
+    {
+      using namespace Pipes::h0_1_decays_THDM;
+      THDMsafe container;
+      BEreq::setup_thdmc_spectrum(container, *Dep::THDM_spectrum);
+      THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(&container.obj);
+      bool isDM = false;
+      if (ModelInUse("Inert2"))
+      {
+        if (*Dep::DarkMatter_ID == "h0_1" || *Dep::DarkMatterConj_ID == "h0_1") isDM = true;
+      }
+      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::h1, isDM);
+   }
+
+    // get all decays for h0_2 (via THDMC)
+    void h0_2_decays_THDM(DecayTable::Entry& result)
+    {
+      using namespace Pipes::h0_2_decays_THDM;
+      THDMsafe container;
+      BEreq::setup_thdmc_spectrum(container, *Dep::THDM_spectrum);
+      THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(&container.obj);
+      bool isDM = false;
+      if (ModelInUse("Inert2"))
+      {
+        if (*Dep::DarkMatter_ID == "h0_2" || *Dep::DarkMatterConj_ID == "h0_2") isDM = true;
+      }
+      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::h2, isDM);
+   }
+
+    // get all decays for A0 (via THDMC)
+    void A0_decays_THDM(DecayTable::Entry& result)
+    {
+      using namespace Pipes::A0_decays_THDM;
+      THDMsafe container;
+      BEreq::setup_thdmc_spectrum(container, *Dep::THDM_spectrum);
+      THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(&container.obj);
+      bool isDM = false;
+      if (ModelInUse("Inert2"))
+      {
+        if (*Dep::DarkMatter_ID == "A0" || *Dep::DarkMatterConj_ID == "A0") isDM = true;
+      }
+      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::ha, isDM);
+   }
+
+    // get all decays for H+- (via THDMC)
+    void Hpm_decays_THDM(DecayTable::Entry& result)
+    {
+      using namespace Pipes::Hpm_decays_THDM;
+      THDMsafe container;
+      BEreq::setup_thdmc_spectrum(container, *Dep::THDM_spectrum);
+      THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(&container.obj);
+      bool isDM = false;
+      if (ModelInUse("Inert2"))
+      {
+        if (*Dep::DarkMatter_ID == "H+" || *Dep::DarkMatterConj_ID == "H+") isDM = true;
+      }
+      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::hp, isDM);
+   }
+
+    // Reference SM Higgs decays: h0_1 (via THDMC)
+    void Ref_SM_Higgs_decays_THDM(DecayTable::Entry& result)
+    {
+      using namespace Pipes::Ref_SM_Higgs_decays_THDM;
+      THDMsafe container;
+      const double mh = Dep::THDM_spectrum->get_HE().get(Par::Pole_Mass, "h0_1");
+      BEreq::setup_thdmc_sm_like_spectrum(container, *Dep::THDM_spectrum, byVal(mh));
+      THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(&container.obj);
+      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::h1);
+    }
+
+    /// Reference SM Higgs decays: h0_2 (via THDMC)
+    void Ref_SM_other_Higgs_decays_THDM(DecayTable::Entry& result)
+    {
+      using namespace Pipes::Ref_SM_other_Higgs_decays_THDM;
+      THDMsafe container;
+      const double mh = Dep::THDM_spectrum->get_HE().get(Par::Pole_Mass, "h0_2");
+      BEreq::setup_thdmc_sm_like_spectrum(container, *Dep::THDM_spectrum, byVal(mh));
+      THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(&container.obj);
+      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::h1);
+    }
+
+    /// Reference SM Higgs decays: A0 (via THDMC)
+    void Ref_SM_A0_decays_THDM(DecayTable::Entry& result)
+    {
+      using namespace Pipes::Ref_SM_A0_decays_THDM;
+      THDMsafe container;
+      const double mh = Dep::THDM_spectrum->get_HE().get(Par::Pole_Mass, "A0");
+      BEreq::setup_thdmc_sm_like_spectrum(container, *Dep::THDM_spectrum, byVal(mh));
+      THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(&container.obj);
+      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::h1);
+    }
+
+    // get all decays for top quark (via THDMC)
+    void t_decays_THDM (DecayTable::Entry& result)
+    {
+      using namespace Pipes::t_decays_THDM;
+      const Spectrum spec = *Dep::THDM_spectrum;
+
+      THDMsafe container;
+      BEreq::setup_thdmc_spectrum(container, *Dep::THDM_spectrum);
+      THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(&container.obj);
+      THDMC_1_8_0::SM* SM_object = container.obj.get_SM_pointer();
+
+      // get total top widths
+      const double gamma_total_top = decay_table_2hdmc.get_gammatot_top();
+      const double gamma_total_top_SM = SM_object->get_gamma_top();
+
+      // particle keys to simplify loops
+      enum p_family {up, down, electron, neutrino, vector, higgs};
+      const std::vector<std::vector<std::string>> particle_keys =
+      {
+       {"u","c","t"}, {"d","s","b"}, {"e+","mu+","tau+"}, {"nu_e","nu_mu","nu_tau"}, 
+       {"gamma","Z0","W+"}, {"h0_1","h0_2","A0","H+"}
+      };
+
+      // create GAMBIT decay table
+      result.calculator = "2HDMC";
+      result.calculator_version = "1.8.0";
+      result.width_in_GeV = gamma_total_top;
+      // we don't include an error here. Is this OK?
+      result.positive_error = 0.0;
+      result.negative_error = 0.0;
+
+      // fill the GAMBIT decay table
+      for(int f=1; f<4; f++)
+      {
+        double BF = std::max(0.0,decay_table_2hdmc.get_gamma_uhd(3,4,f)/result.width_in_GeV);
+        result.set_BF(BF, 0.0, "H+", particle_keys[(int)down][f-1]);
+
+        for(int h=1; h<4; h++)
+        {
+          if (f == 3) continue; // no t->t
+          double BF = std::max(0.0,decay_table_2hdmc.get_gamma_uhu(3,h,f)/result.width_in_GeV);
+          result.set_BF(BF, 0.0, particle_keys[(int)higgs][h-1], particle_keys[(int)up][f-1]);
+        }
+      }
+
+      result.set_BF(gamma_total_top_SM/gamma_total_top, 0.0, "W+", "b");
+      check_width(LOCAL_INFO, result.width_in_GeV, true, true);
+    }
+    
+
+    /// @}
+
+
+    // Calculate width of Z decays to neutrinos (with RHN correction if present),
     void Z_gamma_nu_2l(triplet<double>& gamma)
     {
       /**
@@ -4636,6 +5091,7 @@ namespace Gambit
 
     }
 
+    // Calculate width of Z decays to the lightest neutralinos,
     void Z_gamma_chi_0_MSSM_tree(triplet<double>& gamma)
     {
       /**
@@ -4724,7 +5180,6 @@ namespace Gambit
       result += Stats::gaussian_loglikelihood(Wtoldecays[1], Wwidth[1], 0.0, Wwidth_error[1], false);
       result += Stats::gaussian_loglikelihood(Wtoldecays[2], Wwidth[2], 0.0, Wwidth_error[2], false);
     }
-
 
   }  // namespace DecayBit
 

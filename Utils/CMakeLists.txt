@@ -50,6 +50,7 @@ set(source_files src/ascii_table_reader.cpp
                  src/stream_overloads.cpp
                  src/table_formatter.cpp
                  src/threadsafe_rng.cpp
+                 src/translator.cpp
                  src/util_functions.cpp
                  src/version.cpp
                  src/yaml_parser_base.cpp
@@ -73,6 +74,7 @@ set(header_files include/gambit/Utils/ascii_table_reader.hpp
                  include/gambit/Utils/new_mpi_datatypes.hpp
                  include/gambit/Utils/model_parameters.hpp
                  include/gambit/Utils/numerical_constants.hpp
+                 include/gambit/Utils/point_counter.hpp
                  include/gambit/Utils/python_interpreter.hpp
                  include/gambit/Utils/safebool.hpp
                  include/gambit/Utils/screen_print_utils.hpp
@@ -86,6 +88,7 @@ set(header_files include/gambit/Utils/ascii_table_reader.hpp
                  include/gambit/Utils/stream_overloads.hpp
                  include/gambit/Utils/threadsafe_rng.hpp
                  include/gambit/Utils/table_formatter.hpp
+                 include/gambit/Utils/translator.hpp
                  include/gambit/Utils/type_index.hpp
                  include/gambit/Utils/type_macros.hpp
                  include/gambit/Utils/util_functions.hpp

@@ -13,6 +13,10 @@
 ///          (b.farmer@imperial.ac.uk)
 ///  \date 2018 Dec
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 #ifndef __SQLITETYPES__
@@ -28,17 +32,24 @@
   (float)                   \
   (double)                  \
   (std::vector<double>)     \
+  (std::complex<double>)    \
   (bool)                    \
   (map_str_dbl)             \
   (map_str_str)             \
   (ModelParameters)         \
   (triplet<double>)         \
   (map_intpair_dbl)         \
+  (map_dblpair_dbl)         \
 
 
 #define SQL_BACKEND_TYPES             \
   (DM_nucleon_couplings)              \
   (BBN_container)                     \
+  (flav_prediction)                   \
+  (flav_binned_prediction)            \
+  (HiggsCouplingsTable)               \
+  (CouplingTable)                     \
+  (WilsonCoefficient)                 \
 
 
 #endif

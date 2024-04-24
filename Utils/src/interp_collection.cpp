@@ -1197,4 +1197,5 @@ namespace Gambit
     }
 
   }
+
 }

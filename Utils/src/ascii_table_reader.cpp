@@ -19,7 +19,6 @@
 namespace Gambit
 {
 
-
   int ASCIItableReader::read(std::string filename)
   {
     std::ifstream in(filename.c_str(), std::ios::binary);
@@ -48,7 +47,6 @@ namespace Gambit
     return 0;
   }
 
-
   void ASCIItableReader::setcolnames(std::vector<std::string> names)
   {
     if ( (int) names.size() == ncol )
@@ -65,6 +63,5 @@ namespace Gambit
       std::cout << "Warning in ASCIItableReader: Column number incompatible." << std::endl;
     }
   }
-
 
 }

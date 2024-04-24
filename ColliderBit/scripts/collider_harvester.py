@@ -30,7 +30,7 @@ exec(compile(open(toolsfile, "rb").read(), toolsfile, 'exec')) # Python 2/3 comp
 def main(argv):
 
     model_headers=set([])
-    ignore_model_headers=["SUSY.hpp", "SUSY_extras.hpp"]
+    ignore_model_headers=["SUSY.hpp", "SUSY_extras.hpp", "THDM.hpp"]
 
     # Handle command line options
     verbose = False

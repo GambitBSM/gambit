@@ -63,4 +63,5 @@ namespace Gambit
     {
        b[channel] = val;
     }
+    
 }

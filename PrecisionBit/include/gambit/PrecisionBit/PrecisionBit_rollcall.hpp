@@ -38,6 +38,14 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2018 Jan
 ///
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
+///
+///  \author Douglas Jacob
+///          (douglas.jacob@monash.edu)
+///  \date 2020 Nov
+///
 ///  *********************************************
 
 
@@ -49,6 +57,52 @@
 #define REFERENCE GAMBITModelsWorkgroup:2017ilg
 START_MODULE
 
+
+  #define CAPABILITY prediction_STUVWX
+  START_CAPABILITY
+    #define FUNCTION THDMC_prediction_STUVWX
+    START_FUNCTION(map_str_dbl)
+    NEEDS_CLASSES_FROM(THDMC,default)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
+    ALLOW_MODEL(THDM, THDMatQ)
+    BACKEND_REQ(setup_thdmc_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&))
+    BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY prediction_Tpar
+  START_CAPABILITY
+
+    #define FUNCTION STUVWX_to_prediction_Tpar
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_STUVWX, map_str_dbl)
+    DEPENDENCY(THDM_spectrum, Spectrum) // any spectrum with sinW2 is fine
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY prediction_Spar
+  START_CAPABILITY
+
+    #define FUNCTION STUVWX_to_prediction_Spar
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_STUVWX, map_str_dbl)
+    DEPENDENCY(THDM_spectrum, Spectrum) // any spectrum with sinW2 is fine
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY prediction_Upar
+  START_CAPABILITY
+
+    #define FUNCTION STUVWX_to_prediction_Upar
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_STUVWX, map_str_dbl)
+    DEPENDENCY(THDM_spectrum, Spectrum) // any spectrum with sinW2 is fine
+    #undef FUNCTION
+
+  #undef CAPABILITY
 
   // FeynHiggs EWK precision observables
   #define CAPABILITY Precision
@@ -180,6 +234,7 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(muon_gm2, triplet<double>)
     DEPENDENCY(muon_gm2_SM, triplet<double>)
+    DEPENDENCY(muon_gm2_Exp, triplet<double>)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -208,6 +263,15 @@ START_MODULE
 
   // Observable: BSM contribution to (g-2)_mu
   #define CAPABILITY muon_gm2
+
+    // Muon g-2 -- Using PrecisionBit
+    // Function for gTHDM
+    #define FUNCTION THDM_mumugamma
+    START_FUNCTION(triplet<double>)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
 
     // Muon g-2 -- Using SuperIso
     #define FUNCTION SuperIso_muon_gm2
@@ -242,6 +306,48 @@ START_MODULE
     // SM muon g-2, based on tau+tau- data
     #define FUNCTION gm2_SM_tautau
     START_FUNCTION(triplet<double>)
+    #undef FUNCTION
+
+    // SM muon g-2, using White Paper data-driven HVP,LO
+    #define FUNCTION gm2_SM_WhitePaper
+    START_FUNCTION(triplet<double>)
+    #undef FUNCTION
+
+    // SM muon g-2, using BMW lattice HVP,LO
+    #define FUNCTION gm2_SM_BMW
+    START_FUNCTION(triplet<double>)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  // Observable: Exp measurement of (g-2)_mu
+  #define CAPABILITY muon_gm2_Exp
+
+    // Measurement of muon g-2 from BNL E821 Experiment
+    #define FUNCTION gm2_Exp_BNL
+    START_FUNCTION(triplet<double>)
+    #undef FUNCTION
+
+    // Measurment of muon g-2 from Fermilab
+    #define FUNCTION gm2_Exp_FNAL
+    START_FUNCTION(triplet<double>)
+    #undef FUNCTION
+
+    // World average of muon g-2 experimental measurements
+    #define FUNCTION gm2_Exp_WorldAverage
+    START_FUNCTION(triplet<double>)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY oblique_parameters_LogLikelihood
+    START_CAPABILITY
+
+    #define FUNCTION get_oblique_parameters_LogLikelihood
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_Spar,double)
+    DEPENDENCY(prediction_Tpar,double)
+    DEPENDENCY(prediction_Upar,double)
     #undef FUNCTION
 
   #undef CAPABILITY

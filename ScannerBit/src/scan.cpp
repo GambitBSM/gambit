@@ -130,7 +130,7 @@ namespace Gambit
             }
             
         }
-        
+
         int Scan_Manager::Run()
         {
             std::vector<std::string> pluginNames;
