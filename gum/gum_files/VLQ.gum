@@ -1,0 +1,17 @@
+# Input GUM file for the VLQ model
+
+math:
+    package: feynrules
+    model: VLQ
+    lagrangian: LSM + LVLQ
+
+output:
+  pythia: true
+
+output_options:
+  pythia:
+    collider_processes:
+      - p p > x x
+      - p p > tp tp
+      - p p > bp bp
+      - p p > y y
