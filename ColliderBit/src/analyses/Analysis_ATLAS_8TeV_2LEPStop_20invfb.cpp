@@ -37,9 +37,6 @@ namespace Gambit {
     class Analysis_ATLAS_8TeV_2LEPStop_20invfb : public Analysis {
     private:
 
-      // Numbers passing cuts
-      double _numSRM90SF, _numSRM100SF, _numSRM110SF, _numSRM120SF,
-          _numSRM90DF, _numSRM100DF, _numSRM110DF, _numSRM120DF;
 
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
@@ -53,10 +50,19 @@ namespace Gambit {
       static constexpr const char* detector = "ATLAS";
 
       Analysis_ATLAS_8TeV_2LEPStop_20invfb()
-        : _numSRM90SF(0), _numSRM100SF(0), _numSRM110SF(0), _numSRM120SF(0),
-          _numSRM90DF(0), _numSRM100DF(0), _numSRM110DF(0), _numSRM120DF(0),
-          NCUTS(24)
+        : NCUTS(24)
       {
+
+        // Numbers passing cuts
+        _counters["SRM90SF"] = EventCounter("SRM90SF");
+        _counters["SRM100SF"] = EventCounter("SRM100SF");
+        _counters["SRM110SF"] = EventCounter("SRM110SF");
+        _counters["SRM120SF"] = EventCounter("SRM120SF");
+        _counters["SRM90DF "] = EventCounter("SRM90DF");
+        _counters["SRM100DF"] = EventCounter("SRM100DF");
+        _counters["SRM110DF"] = EventCounter("SRM110DF");
+        _counters["SRM120DF"] = EventCounter("SRM120DF");
+
 
         set_analysis_name("ATLAS_8TeV_2LEPStop_20invfb");
         set_luminosity(20.3);
@@ -80,7 +86,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(baselineElectrons);
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // Now define vector of baseline muons
         vector<const HEPUtils::Particle*> baselineMuons;
@@ -89,13 +95,13 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         vector<const HEPUtils::Particle*> baselineTaus;
         for (const HEPUtils::Particle* tau : event->taus()) {
           if (tau->pT() > 10. && tau->abseta() < 2.47) baselineTaus.push_back(tau);
         }
-        ATLAS::applyTauEfficiencyR1(baselineTaus);
+        applyEfficiency(baselineTaus, ATLAS::effTau.at("R1"));
 
         vector<const HEPUtils::Jet*> baselineJets;
         vector<const HEPUtils::Jet*> bJets;
@@ -167,7 +173,7 @@ namespace Gambit {
         // We now have the signal electrons, muons, jets and b jets- move on to the analysis
 
         // Calculate common variables and cuts first
-        ATLAS::applyTightIDElectronSelection(signalElectrons);
+        applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
 
         //int nElectrons = signalElectrons.size();
         //int nMuons = signalMuons.size();
@@ -345,60 +351,37 @@ namespace Gambit {
         }
 
         //We're now ready to apply the cuts for each signal region
-        //_numSR1, _numSR2, _numSR3;
 
-        if(cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT290) _numSRM90SF += event->weight();
-        if(cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2100 && cut_2jets) _numSRM100SF += event->weight();
-        if(cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2110 && nJets>=2) _numSRM110SF += event->weight();
-        if(cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2120) _numSRM120SF += event->weight();
+        if(cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT290) _counters["SRM90SF"].add_event(event);
+        if(cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2100 && cut_2jets) _counters["SRM100SF"].add_event(event);
+        if(cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2110 && nJets>=2) _counters["SRM110SF"].add_event(event);
+        if(cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2120) _counters["SRM120SF"].add_event(event);
 
-        if(cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT290) _numSRM90DF += event->weight();
-        if(cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2100 && cut_2jets) _numSRM100DF += event->weight();
-        if(cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2110 && nJets>=2) _numSRM110DF += event->weight();
-        if(cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2120) _numSRM120DF += event->weight();
+        if(cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT290) _counters["SRM90DF"].add_event(event);
+        if(cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2100 && cut_2jets) _counters["SRM100DF"].add_event(event);
+        if(cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2110 && nJets>=2) _counters["SRM110DF"].add_event(event);
+        if(cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2120) _counters["SRM120DF"].add_event(event);
 
         return;
-      }
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_8TeV_2LEPStop_20invfb* specificOther
-                = dynamic_cast<const Analysis_ATLAS_8TeV_2LEPStop_20invfb*>(other);
-
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (int j=0; j<NCUTS; j++) {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
-         _numSRM90SF +=  specificOther->_numSRM90SF;
-        _numSRM100SF += specificOther->_numSRM100SF;
-        _numSRM110SF += specificOther->_numSRM110SF;
-        _numSRM120SF += specificOther->_numSRM120SF;
-         _numSRM90DF +=  specificOther->_numSRM90DF;
-        _numSRM100DF += specificOther->_numSRM100DF;
-        _numSRM110DF += specificOther->_numSRM110DF;
-        _numSRM120DF += specificOther->_numSRM120DF;
       }
 
 
       void collect_results() {
 
-        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
-
-        add_result(SignalRegionData("SRM90", 274., {_numSRM90SF + _numSRM90DF, 0.}, {300., 50.}));
-        add_result(SignalRegionData("SRM100", 3., {_numSRM100SF + _numSRM100DF, 0.}, {5.2, 2.2}));
-        add_result(SignalRegionData("SRM110", 8., {_numSRM110SF + _numSRM110DF, 0.}, {9.3, 3.5}));
-        add_result(SignalRegionData("SRM120", 18., {_numSRM120SF + _numSRM120DF, 0.}, {19., 9.}));
+        add_result(SignalRegionData(_counters["SRM90SF"].combine(_counters["SRM90DF"]), 274., {300., 50.}));
+        add_result(SignalRegionData(_counters["SRM100SF"].combine(_counters["SRM100DF"]), 3., {5.2, 2.2}));
+        add_result(SignalRegionData(_counters["SRM110SF"].combine(_counters["SRM110DF"]), 8., {9.3, 3.5}));
+        add_result(SignalRegionData(_counters["SRM120SF"].combine(_counters["SRM120DF"]), 18., {19., 9.}));
 
         return;
       }
 
 
     protected:
-      void analysis_specific_reset() {
-        _numSRM90SF=0; _numSRM100SF=0; _numSRM110SF=0; _numSRM120SF=0;
-        _numSRM90DF=0; _numSRM100DF=0; _numSRM110DF=0; _numSRM120DF=0;
+      void analysis_specific_reset()
+      {
+
+        for (auto& pair : _counters) { pair.second.reset(); }
 
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }

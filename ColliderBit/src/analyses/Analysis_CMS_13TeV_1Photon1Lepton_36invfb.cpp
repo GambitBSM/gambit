@@ -14,10 +14,10 @@
 
     - No published cutflows, so we'll validate by reproducing exclusion contours
 
-    - No table with event count numbers -- had to digitze from a log-scale histogram. 
+    - No table with event count numbers -- had to digitze from a log-scale histogram.
       (But I think I got it reasonable accurate.)
 
-  
+
   Event selection summary:
 
     - Both e+gamma and mu+gamma signal regions
@@ -32,7 +32,7 @@
 
     - Trigger for mu+gamma SRs:
       - CMS use a combination of two triggers for muon+photon events
-      - 1) Photon isolation + pT_gamma > 30, pT_muon > 17   
+      - 1) Photon isolation + pT_gamma > 30, pT_muon > 17
       - 2) No photon isolation, pT_gamma > 38, pT_muon > 38
       - Avg. trigger eff: 94%
 
@@ -49,7 +49,7 @@
       mT = sqrt(2 * pT_lepton * pTmiss * (1 - cos DeltaPhi(lepton,pTmiss_vector)))
 
     - Selection variable: HT
-      HT = scalar sum of pT for all jets that have DeltaR(jet, leading photon) > 0.4 
+      HT = scalar sum of pT for all jets that have DeltaR(jet, leading photon) > 0.4
            and DeltaR(jet, leading lepon) > 0.4
 
     - Signal regions defined in terms of pTmss, pTgamma and HT:
@@ -58,45 +58,45 @@
 
       - SR1:   35 < pTgamma < 200, 120 < pTmiss < 200,   0 < HT < 100
       - SR2:   35 < pTgamma < 200, 120 < pTmiss < 200, 100 < HT < 400
-      - SR3:   35 < pTgamma < 200, 120 < pTmiss < 200, 400 < HT < 
+      - SR3:   35 < pTgamma < 200, 120 < pTmiss < 200, 400 < HT <
       - SR4:   35 < pTgamma < 200, 200 < pTmiss < 400,   0 < HT < 100
       - SR5:   35 < pTgamma < 200, 200 < pTmiss < 400, 100 < HT < 400
-      - SR6:   35 < pTgamma < 200, 200 < pTmiss < 400, 400 < HT < 
+      - SR6:   35 < pTgamma < 200, 200 < pTmiss < 400, 400 < HT <
       - SR7:   35 < pTgamma < 200, 400 < pTmiss      ,   0 < HT < 100
       - SR8:   35 < pTgamma < 200, 400 < pTmiss      , 100 < HT < 400
-      - SR9:   35 < pTgamma < 200, 400 < pTmiss      , 400 < HT < 
+      - SR9:   35 < pTgamma < 200, 400 < pTmiss      , 400 < HT <
 
       - SR10: 200 < pTgamma     , 120 < pTmiss < 200,   0 < HT < 100
       - SR11: 200 < pTgamma     , 120 < pTmiss < 200, 100 < HT < 400
-      - SR12: 200 < pTgamma     , 120 < pTmiss < 200, 400 < HT < 
+      - SR12: 200 < pTgamma     , 120 < pTmiss < 200, 400 < HT <
       - SR13: 200 < pTgamma     , 200 < pTmiss < 400,   0 < HT < 100
       - SR14: 200 < pTgamma     , 200 < pTmiss < 400, 100 < HT < 400
-      - SR15: 200 < pTgamma     , 200 < pTmiss < 400, 400 < HT < 
+      - SR15: 200 < pTgamma     , 200 < pTmiss < 400, 400 < HT <
       - SR16: 200 < pTgamma     , 400 < pTmiss      ,   0 < HT < 100
       - SR17: 200 < pTgamma     , 400 < pTmiss      , 100 < HT < 400
-      - SR18: 200 < pTgamma     , 400 < pTmiss      , 400 < HT < 
+      - SR18: 200 < pTgamma     , 400 < pTmiss      , 400 < HT <
 
     - mu+gamma SRs:
 
       - SR19:   35 < pTgamma < 200, 120 < pTmiss < 200,   0 < HT < 100
       - SR20:   35 < pTgamma < 200, 120 < pTmiss < 200, 100 < HT < 400
-      - SR21:   35 < pTgamma < 200, 120 < pTmiss < 200, 400 < HT < 
+      - SR21:   35 < pTgamma < 200, 120 < pTmiss < 200, 400 < HT <
       - SR22:   35 < pTgamma < 200, 200 < pTmiss < 400,   0 < HT < 100
       - SR23:   35 < pTgamma < 200, 200 < pTmiss < 400, 100 < HT < 400
-      - SR24:   35 < pTgamma < 200, 200 < pTmiss < 400, 400 < HT < 
+      - SR24:   35 < pTgamma < 200, 200 < pTmiss < 400, 400 < HT <
       - SR25:   35 < pTgamma < 200, 400 < pTmiss      ,   0 < HT < 100
       - SR26:   35 < pTgamma < 200, 400 < pTmiss      , 100 < HT < 400
-      - SR27:   35 < pTgamma < 200, 400 < pTmiss      , 400 < HT < 
+      - SR27:   35 < pTgamma < 200, 400 < pTmiss      , 400 < HT <
 
       - SR28: 200 < pTgamma     , 120 < pTmiss < 200,   0 < HT < 100
       - SR29: 200 < pTgamma     , 120 < pTmiss < 200, 100 < HT < 400
-      - SR30: 200 < pTgamma     , 120 < pTmiss < 200, 400 < HT < 
+      - SR30: 200 < pTgamma     , 120 < pTmiss < 200, 400 < HT <
       - SR31: 200 < pTgamma     , 200 < pTmiss < 400,   0 < HT < 100
       - SR32: 200 < pTgamma     , 200 < pTmiss < 400, 100 < HT < 400
-      - SR33: 200 < pTgamma     , 200 < pTmiss < 400, 400 < HT < 
+      - SR33: 200 < pTgamma     , 200 < pTmiss < 400, 400 < HT <
       - SR34: 200 < pTgamma     , 400 < pTmiss      ,   0 < HT < 100
       - SR35: 200 < pTgamma     , 400 < pTmiss      , 100 < HT < 400
-      - SR36: 200 < pTgamma     , 400 < pTmiss      , 400 < HT < 
+      - SR36: 200 < pTgamma     , 400 < pTmiss      , 400 < HT <
 
 */
 
@@ -118,57 +118,56 @@ using namespace std;
 namespace Gambit {
   namespace ColliderBit {
 
-    // This analysis class is also a base class for the analysis 
-    // class Analysis_CMS_13TeV_1Photon1Lepton_emu_combined_36invfb 
+    // This analysis class is also a base class for the analysis
+    // class Analysis_CMS_13TeV_1Photon1Lepton_emu_combined_36invfb
     // defined further down
     class Analysis_CMS_13TeV_1Photon1Lepton_36invfb : public Analysis {
     public:
 
       static constexpr const char* detector = "CMS";
 
-      // Counters for the number of accepted events for each signal region
-      std::map<string, EventCounter> _counters = {
-        {"SR1", EventCounter("SR1")},
-        {"SR2", EventCounter("SR2")},
-        {"SR3", EventCounter("SR3")},
-        {"SR4", EventCounter("SR4")},
-        {"SR5", EventCounter("SR5")},
-        {"SR6", EventCounter("SR6")},
-        {"SR7", EventCounter("SR7")},
-        {"SR8", EventCounter("SR8")},
-        {"SR9", EventCounter("SR9")},
-        {"SR10", EventCounter("SR10")},
-        {"SR11", EventCounter("SR11")},
-        {"SR12", EventCounter("SR12")},
-        {"SR13", EventCounter("SR13")},
-        {"SR14", EventCounter("SR14")},
-        {"SR15", EventCounter("SR15")},
-        {"SR16", EventCounter("SR16")},
-        {"SR17", EventCounter("SR17")},
-        {"SR18", EventCounter("SR18")},
-        {"SR19", EventCounter("SR19")},
-        {"SR20", EventCounter("SR20")},
-        {"SR21", EventCounter("SR21")},
-        {"SR22", EventCounter("SR22")},
-        {"SR23", EventCounter("SR23")},
-        {"SR24", EventCounter("SR24")},
-        {"SR25", EventCounter("SR25")},
-        {"SR26", EventCounter("SR26")},
-        {"SR27", EventCounter("SR27")},
-        {"SR28", EventCounter("SR28")},
-        {"SR29", EventCounter("SR29")},
-        {"SR30", EventCounter("SR30")},
-        {"SR31", EventCounter("SR31")},
-        {"SR32", EventCounter("SR32")},
-        {"SR33", EventCounter("SR33")},
-        {"SR34", EventCounter("SR34")},
-        {"SR35", EventCounter("SR35")},
-        {"SR36", EventCounter("SR36")},
-      };
-
       // Analysis_CMS_13TeV_1Photon1Lepton_36invfb():
       Analysis_CMS_13TeV_1Photon1Lepton_36invfb()
       {
+        // Counters for the number of accepted events for each signal region
+        _counters["SR1"] = EventCounter("SR1");
+        _counters["SR2"] = EventCounter("SR2");
+        _counters["SR3"] = EventCounter("SR3");
+        _counters["SR4"] = EventCounter("SR4");
+        _counters["SR5"] = EventCounter("SR5");
+        _counters["SR6"] = EventCounter("SR6");
+        _counters["SR7"] = EventCounter("SR7");
+        _counters["SR8"] = EventCounter("SR8");
+        _counters["SR9"] = EventCounter("SR9");
+        _counters["SR10"] = EventCounter("SR10");
+        _counters["SR11"] = EventCounter("SR11");
+        _counters["SR12"] = EventCounter("SR12");
+        _counters["SR13"] = EventCounter("SR13");
+        _counters["SR14"] = EventCounter("SR14");
+        _counters["SR15"] = EventCounter("SR15");
+        _counters["SR16"] = EventCounter("SR16");
+        _counters["SR17"] = EventCounter("SR17");
+        _counters["SR18"] = EventCounter("SR18");
+        _counters["SR19"] = EventCounter("SR19");
+        _counters["SR20"] = EventCounter("SR20");
+        _counters["SR21"] = EventCounter("SR21");
+        _counters["SR22"] = EventCounter("SR22");
+        _counters["SR23"] = EventCounter("SR23");
+        _counters["SR24"] = EventCounter("SR24");
+        _counters["SR25"] = EventCounter("SR25");
+        _counters["SR26"] = EventCounter("SR26");
+        _counters["SR27"] = EventCounter("SR27");
+        _counters["SR28"] = EventCounter("SR28");
+        _counters["SR29"] = EventCounter("SR29");
+        _counters["SR30"] = EventCounter("SR30");
+        _counters["SR31"] = EventCounter("SR31");
+        _counters["SR32"] = EventCounter("SR32");
+        _counters["SR33"] = EventCounter("SR33");
+        _counters["SR34"] = EventCounter("SR34");
+        _counters["SR35"] = EventCounter("SR35");
+        _counters["SR36"] = EventCounter("SR36");
+
+
         set_analysis_name("CMS_13TeV_1Photon1Lepton_36invfb");
         set_luminosity(35.9);
       }
@@ -224,7 +223,7 @@ namespace Gambit {
                                   };
         HEPUtils::BinnedFn2D<double> _eff2dEl(aEl,bEl,cEl);
         vector<const HEPUtils::Particle*> electrons;
-        for (const HEPUtils::Particle* electron : event->electrons()) 
+        for (const HEPUtils::Particle* electron : event->electrons())
         {
           bool isEl=has_tag(_eff2dEl, electron->abseta(), electron->pT());
           if (isEl && electron->pT() > 25. && electron->abseta() < 2.5)
@@ -305,7 +304,7 @@ namespace Gambit {
         bool is_egamma = true;
         if (lepton1->abspid() == 13) is_egamma = false;
 
-        // If e+gamma event, require m(e,gamma) > 101.2 
+        // If e+gamma event, require m(e,gamma) > 101.2
         if (is_egamma)
         {
           double m_egamma = (lepton1->mom() + photon1->mom()).m();
@@ -337,9 +336,9 @@ namespace Gambit {
         // SR selection variable: pTgamma
         double pTgamma = photon1->pT();
 
-        // 
+        //
         // Fill signal regions
-        // 
+        //
 
         // e+gamma SRs
         if (is_egamma)
@@ -399,15 +398,6 @@ namespace Gambit {
       } // END: run function
 
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_CMS_13TeV_1Photon1Lepton_36invfb* specificOther
-                = dynamic_cast<const Analysis_CMS_13TeV_1Photon1Lepton_36invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-      }
-
 
       virtual void collect_results()
       {
@@ -463,7 +453,7 @@ namespace Gambit {
 
 
     //
-    // Derived analysis class, where we combine the e+gamma and 
+    // Derived analysis class, where we combine the e+gamma and
     // mu+gamma SRs, to reduce the SR flip-flopping issue
     //
     class Analysis_CMS_13TeV_1Photon1Lepton_emu_combined_36invfb : public Analysis_CMS_13TeV_1Photon1Lepton_36invfb {
@@ -475,7 +465,7 @@ namespace Gambit {
 
       virtual void collect_results() {
 
-        // We could of course combine the e+gamma and mu+gamma data once and just 
+        // We could of course combine the e+gamma and mu+gamma data once and just
         // hardcode those numbers here, but doing it explicitly here in the code
         // makes it clear what is going on.
         add_result(SignalRegionData( _counters.at("SR1").combine(_counters.at("SR19")),  153 + 308, { 175.0 + 333.9   , sqrt(pow(14.9,2) + pow(37.20,2)) } ));

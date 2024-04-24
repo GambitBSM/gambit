@@ -3535,69 +3535,63 @@ namespace Gambit
       partial_widths["~G_e+_nu_e"] = 0.0;
       partial_widths["~G_mu+_nu_mu"] = 0.0;
       partial_widths["~G_tau+_nu_tau"] = 0.0;
-      // Include this when we're close to or below the W threshold
-      if (delta_m <= m_W + width_W)
+
+      // Construct list of W decay products to iterate over (pairs of near-mass less W decay products)
+      std::list<std::tuple<std::string, std::string, const double, const double, const double>> fermion_pairs_list;
+
+      fermion_pairs_list.push_back(std::make_tuple("u", "dbar", m_u, m_d, BF_W_to_udbar));
+      fermion_pairs_list.push_back(std::make_tuple("u", "sbar", m_u, m_s, BF_W_to_usbar));
+      fermion_pairs_list.push_back(std::make_tuple("u", "bbar", m_u, m_b, BF_W_to_ubbar));
+      fermion_pairs_list.push_back(std::make_tuple("c", "dbar", m_c, m_d, BF_W_to_cdbar));
+      fermion_pairs_list.push_back(std::make_tuple("c", "sbar", m_c, m_s, BF_W_to_csbar));
+      fermion_pairs_list.push_back(std::make_tuple("c", "bbar", m_c, m_b, BF_W_to_cbbar));
+      fermion_pairs_list.push_back(std::make_tuple("e+", "nu_e", m_e, 0.0, BF_W_to_enue));
+      fermion_pairs_list.push_back(std::make_tuple("mu+", "nu_mu", m_mu, 0.0, BF_W_to_munumu));
+      fermion_pairs_list.push_back(std::make_tuple("tau+", "nu_tau", m_tau, 0.0, BF_W_to_taunutau));
+
+      // Compute *total* 3-body rate from ~chi+_i --> ~G + W(*) --> ~G + f + fbar', in the limit of massless SM fermions (from hep-ph/9605398)
+      double eps = width_W * m_W / pow2(m_Cha);
+      double R = pow2(m_W) / pow2(m_Cha);
+
+      std::function<double(double)> I0_integrand = [&R, &eps](double x)
       {
-        // Construct list of W decay products to iterate over (pairs of near-mass less W decay products)
-        std::list<std::tuple<std::string, std::string, const double, const double, const double>> fermion_pairs_list;
+        return pow4(1.0 - x) / (pow2(x - R) + pow2(eps));
+      };
+      double I0 = (eps / pi) * Utils::integrate_cquad(I0_integrand, 0.0, 1.0, 0, 1e-2);
 
-        fermion_pairs_list.push_back(std::make_tuple("u", "dbar", m_u, m_d, BF_W_to_udbar));
-        fermion_pairs_list.push_back(std::make_tuple("u", "sbar", m_u, m_s, BF_W_to_usbar));
-        fermion_pairs_list.push_back(std::make_tuple("u", "bbar", m_u, m_b, BF_W_to_ubbar));
-        fermion_pairs_list.push_back(std::make_tuple("c", "dbar", m_c, m_d, BF_W_to_cdbar));
-        fermion_pairs_list.push_back(std::make_tuple("c", "sbar", m_c, m_s, BF_W_to_csbar));
-        fermion_pairs_list.push_back(std::make_tuple("c", "bbar", m_c, m_b, BF_W_to_cbbar));
-        fermion_pairs_list.push_back(std::make_tuple("e+", "nu_e", m_e, 0.0, BF_W_to_enue));
-        fermion_pairs_list.push_back(std::make_tuple("mu+", "nu_mu", m_mu, 0.0, BF_W_to_munumu));
-        fermion_pairs_list.push_back(std::make_tuple("tau+", "nu_tau", m_tau, 0.0, BF_W_to_taunutau));
+      std::function<double(double)> I1_integrand = [&R, &eps](double x)
+      {
+        return pow4(1.0 - x) * (x / R) / (pow2(x - R) + pow2(eps));
+      };
+      double I1 = (eps / pi) * Utils::integrate_cquad(I1_integrand, 0.0, 1.0, 0, 1e-2);
 
-        // Compute *total* 3-body rate from ~chi+_i --> ~G + W(*) --> ~G + f + fbar', in the limit of massless SM fermions (from hep-ph/9605398)
-        double eps = width_W * m_W / pow2(m_Cha);
-        double R = pow2(m_W) / pow2(m_Cha);
+      double total_chargino_3_body_rate = 1.0 / (96. * pi * m_planck_red_2) * (m_Cha_5 / m_G_2) * (2. * kappa_i_W_T * I1 + kappa_i_W_L * I0);
 
-        std::function<double(double)> I0_integrand = [&R, &eps](double x)
+      // For each fermion pair, decide whether to include the 3-body decay rate to that final state
+      for (auto fermion_pair_info : fermion_pairs_list)
+      {
+        // Retrieve relevant variables
+        std::string fermion1 = std::get<0>(fermion_pair_info);
+        std::string fermion2 = std::get<1>(fermion_pair_info);
+        double m_f1 = std::get<2>(fermion_pair_info);
+        double m_f2 = std::get<3>(fermion_pair_info);
+        double BF_W_to_ff = std::get<4>(fermion_pair_info);
+
+        // Is this final state open?
+        if (delta_m > m_f1 + m_f2)  // and (delta_m <= m_W + width_W) already
         {
-          return pow4(1.0 - x) / (pow2(x - R) + pow2(eps));
-        };
-        double I0 = (eps / pi) * Utils::integrate_cquad(I0_integrand, 0.0, 1.0, 0, 1e-2);
+          // Compute the 2 and 3-body contributions
+          double width_3_body_ff = BF_W_to_ff * total_chargino_3_body_rate;
+          double width_2_body_ff = BF_W_to_ff * partial_widths["~G_W+"];
 
-        std::function<double(double)> I1_integrand = [&R, &eps](double x)
-        {
-          return pow4(1.0 - x) * (x / R) / (pow2(x - R) + pow2(eps));
-        };
-        double I1 = (eps / pi) * Utils::integrate_cquad(I1_integrand, 0.0, 1.0, 0, 1e-2);
-
-        double total_chargino_3_body_rate = 1.0 / (96. * pi * m_planck_red_2) * (m_Cha_5 / m_G_2) * (2. * kappa_i_W_T * I1 + kappa_i_W_L * I0);
-
-        // For each fermion pair, decide whether to include the 3-body decay rate to that final state
-        for (auto fermion_pair_info : fermion_pairs_list)
-        {
-          // Retrieve relevant variables
-          std::string fermion1 = std::get<0>(fermion_pair_info);
-          std::string fermion2 = std::get<1>(fermion_pair_info);
-          double m_f1 = std::get<2>(fermion_pair_info);
-          double m_f2 = std::get<3>(fermion_pair_info);
-          double BF_W_to_ff = std::get<4>(fermion_pair_info);
-
-          // Is this final state open?
-          if (delta_m > m_f1 + m_f2)  // and (delta_m <= m_W + width_W) already
+          // Ensure smooth transition between 3-body and 2-body,
+          if (width_3_body_ff > width_2_body_ff)
           {
-            // Compute the 3-body contribution
-            double width_3_body_ff = BF_W_to_ff * total_chargino_3_body_rate;
-
-            // Ensure smooth transition between 3-body and 2-body,
-            if (m_W < delta_m)  // and (delta_m < m_W + width_W) already
-            {
-              double x = (delta_m - m_W) / width_W;
-              double width_2_body_ff = partial_widths["~G_W"] * BF_W_to_ff;
-              partial_widths["~G_" + fermion1 + "_" + fermion2] = (1.-x) * width_3_body_ff + x * width_2_body_ff;
-              // Avoid double-counting
-              partial_widths["~G_W"] = 0.0;
-            }
-            else  // 2.*m_f <= delta_m <= m_W: only 3-body with virtual W possible
-            {
-              partial_widths["~G_" + fermion1 + "_" + fermion2] = width_3_body_ff;
-            }
+            partial_widths["~G_" + fermion1 + "_" + fermion2] = width_3_body_ff - width_2_body_ff;
+          }
+          else
+          {
+            partial_widths["~G_" + fermion1 + "_" + fermion2] = 0.0;
           }
         }
       }

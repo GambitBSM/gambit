@@ -55,24 +55,6 @@ namespace Gambit
 
       protected:
 
-        // Signal region map
-        std::map<string, EventCounter> _counters = {
-          // Exclusion regions
-          {"SR-4Q-WW", EventCounter("SR-4Q-WW")},
-          {"SR-4Q-WZ", EventCounter("SR-4Q-WZ")},
-          {"SR-4Q-ZZ", EventCounter("SR-4Q-ZZ")},
-          {"SR-4Q-VV", EventCounter("SR-4Q-VV")},
-  //        {"SR-2B2Q-WZ", EventCounter("SR-2B2Q-WZ")},
-  //        {"SR-2B2Q-ZZ", EventCounter("SR-2B2Q-ZZ")},
-  //        {"SR-2B2Q-Wh", EventCounter("SR-2B2Q-Wh")},
-  //        {"SR-2B2Q-Zh", EventCounter("SR-2B2Q-Zh")},
-  //        {"SR-2B2Q-VZ", EventCounter("SR-2B2Q-VZ")},
-  //        {"SR-2B2Q-Vh", EventCounter("SR-2B2Q-Vh")},
-  //        // Discovery regions
-  //        {"Disc-SR-2B2Q", EventCounter("Disc-SR-2B2Q")},  // Union of SR-2B2Q-VZ and SR-2B2Q-Vh
-  //        {"Disc-SR-Incl", EventCounter("Disc-SR-Incl")},  // Union of SR-4Q-VV and Disc-SR-2B2Q
-        };
-
       public:
 
         #ifdef CHECK_CUTFLOW
@@ -95,6 +77,23 @@ namespace Gambit
 
         Analysis_ATLAS_13TeV_2BoostedBosons_139invfb()
         {
+
+          // Signal region map
+          // Exclusion regions
+          _counters["SR-4Q-WW"] = EventCounter("SR-4Q-WW");
+          _counters["SR-4Q-WZ"] = EventCounter("SR-4Q-WZ");
+          _counters["SR-4Q-ZZ"] = EventCounter("SR-4Q-ZZ");
+          _counters["SR-4Q-VV"] = EventCounter("SR-4Q-VV");
+    //      _counters["SR-2B2Q-WZ"] = EventCounter("SR-2B2Q-WZ");
+    //      _counters["SR-2B2Q-ZZ"] = EventCounter("SR-2B2Q-ZZ");
+    //      _counters["SR-2B2Q-Wh"] = EventCounter("SR-2B2Q-Wh");
+    //      _counters["SR-2B2Q-Zh"] = EventCounter("SR-2B2Q-Zh");
+    //      _counters["SR-2B2Q-VZ"] = EventCounter("SR-2B2Q-VZ");
+    //      _counters["SR-2B2Q-Vh"] = EventCounter("SR-2B2Q-Vh");
+    //      // Discovery regions
+    //      _counters["Disc-SR-2B2Q"] = EventCounter("Disc-SR-2B2Q");  // Union of SR-2B2Q-VZ and SR-2B2Q-Vh
+    //      _counters["Disc-SR-Incl"] = EventCounter("Disc-SR-Incl");  // Union of SR-4Q-VV and Disc-SR-2B2Q
+
 
           set_analysis_name("ATLAS_13TeV_2BoostedBosons_139invfb");
           set_luminosity(139.);
@@ -148,7 +147,7 @@ namespace Gambit
               electrons.push_back(electron);
           }
           // Apply electron efficiency from "Loose" criteria in 1902.04655
-          ATLAS::applyElectronIDEfficiency2019(electrons, "Loose");
+          applyEfficiency(electrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
           // Baseline muons
           vector<const HEPUtils::Particle*> muons;
           for (const HEPUtils::Particle* muon : event->muons())
@@ -158,7 +157,7 @@ namespace Gambit
               muons.push_back(muon);
           }
           // Apply muon efficiency
-          ATLAS::applyMuonEffR2(muons);
+          applyEfficiency(muons, ATLAS::eff2DMu.at("R2"));
 
           // Number of leptons
           size_t nMuons = muons.size();
@@ -167,7 +166,7 @@ namespace Gambit
 
           // Look at jets to see if they fulfil criteria for fat jets
           vector<const HEPUtils::Jet*> fatJets;
-          for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
+          for (const HEPUtils::Jet* jet : event->jets("antikt_R1"))
           {
             //  cout  << jet->pT() << " " << jet->mass() << " Z-tag " <<  jet->tagged(23) << " W-tag " << jet->tagged(24) << " " << endl;
             if (jet->pT() > 200. && fabs(jet->eta()) < 2.0 && jet->mass() > 40.)
@@ -223,7 +222,7 @@ namespace Gambit
           // double btag = 0.83;
           double cmisstag = 1/3.; double misstag = 1./33.;
           int nb = 0;
-          for ( const HEPUtils::Jet* jet : event->jets("antikt_R04") )
+          for ( const HEPUtils::Jet* jet : event->jets("antikt_R1") )
           {
             // Tag b-jet
             if( jet->btag() ) nb++;
@@ -297,14 +296,6 @@ namespace Gambit
 
 
         } // End of analyze
-
-
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_ATLAS_13TeV_2BoostedBosons_139invfb* specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_2BoostedBosons_139invfb*>(other);
-          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-        }
 
 
         void collect_results()

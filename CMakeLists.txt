@@ -691,6 +691,8 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
     message(FATAL_ERROR "\nColliderBit needs YODA. Either use -DWITH_YODA=ON or ditch ColliderBit with -Ditch=\"ColliderBit\".")
   endif()
   add_dependencies(ColliderBit yoda)
+  # ColliderBit depends on METSignificance
+  add_dependencies(ColliderBit METSignificance)
 endif()
 
 # If SpecBit is in use, make flexiblesusy a dependency of SpecBit

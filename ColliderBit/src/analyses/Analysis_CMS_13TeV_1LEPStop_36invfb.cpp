@@ -27,49 +27,6 @@ namespace Gambit {
     class Analysis_CMS_13TeV_1LEPStop_36invfb : public Analysis {
     private:
 
-        // Numbers passing cuts
-        std::map<string, EventCounter> _counters = {
-            // Aggregate SRs
-            {"aggregateSR0", EventCounter("aggregateSR0")},
-            {"aggregateSR1", EventCounter("aggregateSR1")},
-            {"aggregateSR2", EventCounter("aggregateSR2")},
-            {"aggregateSR3", EventCounter("aggregateSR3")},
-            {"aggregateSR4", EventCounter("aggregateSR4")},
-            {"aggregateSR5", EventCounter("aggregateSR5")},
-            // Fine-binned SRs
-            // {"SR0", EventCounter("SR0")},
-            // {"SR1", EventCounter("SR1")},
-            // {"SR2", EventCounter("SR2")},
-            // {"SR3", EventCounter("SR3")},
-            // {"SR4", EventCounter("SR4")},
-            // {"SR5", EventCounter("SR5")},
-            // {"SR6", EventCounter("SR6")},
-            // {"SR7", EventCounter("SR7")},
-            // {"SR8", EventCounter("SR8")},
-            // {"SR9", EventCounter("SR9")},
-            // {"SR10", EventCounter("SR10")},
-            // {"SR11", EventCounter("SR11")},
-            // {"SR12", EventCounter("SR12")},
-            // {"SR13", EventCounter("SR13")},
-            // {"SR14", EventCounter("SR14")},
-            // {"SR15", EventCounter("SR15")},
-            // {"SR16", EventCounter("SR16")},
-            // {"SR17", EventCounter("SR17")},
-            // {"SR18", EventCounter("SR18")},
-            // {"SR19", EventCounter("SR19")},
-            // {"SR20", EventCounter("SR20")},
-            // {"SR21", EventCounter("SR21")},
-            // {"SR22", EventCounter("SR22")},
-            // {"SR23", EventCounter("SR23")},
-            // {"SR24", EventCounter("SR24")},
-            // {"SR25", EventCounter("SR25")},
-            // {"SR26", EventCounter("SR26")},
-            // {"SR27", EventCounter("SR27")},
-            // {"SR28", EventCounter("SR28")},
-            // {"SR29", EventCounter("SR29")},
-            // {"SR30", EventCounter("SR30")},
-        };
-
         static const size_t NUM_aggregateSR = 6;
 
         // Cut Flow
@@ -118,7 +75,50 @@ namespace Gambit {
             "**t_mod>0",
             "**t_mod>10",
             "**Mlb<175",
-            "**Mlb>175"}) {
+            "**Mlb>175"})
+        {
+
+          // Numbers passing cuts
+          // Aggregate SRs
+          _counters["aggregateSR0"] = EventCounter("aggregateSR0");
+          _counters["aggregateSR1"] = EventCounter("aggregateSR1");
+          _counters["aggregateSR2"] = EventCounter("aggregateSR2");
+          _counters["aggregateSR3"] = EventCounter("aggregateSR3");
+          _counters["aggregateSR4"] = EventCounter("aggregateSR4");
+          _counters["aggregateSR5"] = EventCounter("aggregateSR5");
+              // Fine-binned SRs
+            // _counters["SR0"] = EventCounter("SR0");
+            // _counters["SR1"] = EventCounter("SR1");
+            // _counters["SR2"] = EventCounter("SR2");
+            // _counters["SR3"] = EventCounter("SR3");
+            // _counters["SR4"] = EventCounter("SR4");
+            // _counters["SR5"] = EventCounter("SR5");
+            // _counters["SR6"] = EventCounter("SR6");
+            // _counters["SR7"] = EventCounter("SR7");
+            // _counters["SR8"] = EventCounter("SR8");
+            // _counters["SR9"] = EventCounter("SR9");
+            // _counters["SR10"] = EventCounter("SR10");
+            // _counters["SR11"] = EventCounter("SR11");
+            // _counters["SR12"] = EventCounter("SR12");
+            // _counters["SR13"] = EventCounter("SR13");
+            // _counters["SR14"] = EventCounter("SR14");
+            // _counters["SR15"] = EventCounter("SR15");
+            // _counters["SR16"] = EventCounter("SR16");
+            // _counters["SR17"] = EventCounter("SR17");
+            // _counters["SR18"] = EventCounter("SR18");
+            // _counters["SR19"] = EventCounter("SR19");
+            // _counters["SR20"] = EventCounter("SR20");
+            // _counters["SR21"] = EventCounter("SR21");
+            // _counters["SR22"] = EventCounter("SR22");
+            // _counters["SR23"] = EventCounter("SR23");
+            // _counters["SR24"] = EventCounter("SR24");
+            // _counters["SR25"] = EventCounter("SR25");
+            // _counters["SR26"] = EventCounter("SR26");
+            // _counters["SR27"] = EventCounter("SR27");
+            // _counters["SR28"] = EventCounter("SR28");
+            // _counters["SR29"] = EventCounter("SR29");
+            // _counters["SR30"] = EventCounter("SR30");
+
 
             set_analysis_name("CMS_13TeV_1LEPStop_36invfb");
             set_luminosity(35.9);
@@ -141,7 +141,7 @@ namespace Gambit {
                 if (electron->pT() > 5. && electron->abseta() < 2.4 ) baselineElectrons.push_back(electron);
 
             // Apply electron efficiency
-            CMS::applyElectronEff(baselineElectrons);
+            applyEfficiency(baselineElectrons, CMS::eff2DEl.at("Generic"));
 
             // Muon objects
             vector<const HEPUtils::Particle*> baselineMuons;
@@ -149,7 +149,7 @@ namespace Gambit {
                 if (muon->pT() > 5. && muon->abseta() < 2.4 ) baselineMuons.push_back(muon);
 
             // Apply muon efficiency
-            CMS::applyMuonEff(baselineMuons);
+            applyEfficiency(baselineMuons, CMS::eff2DMu.at("Generic"));
 
             // Jets
             vector<const HEPUtils::Jet*> baselineJets;
@@ -400,15 +400,6 @@ namespace Gambit {
             }
         return;
 
-        }
-
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-            const Analysis_CMS_13TeV_1LEPStop_36invfb* specificOther
-                = dynamic_cast<const Analysis_CMS_13TeV_1LEPStop_36invfb*>(other);
-
-            for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
         }
 
 

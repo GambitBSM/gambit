@@ -30,11 +30,6 @@ namespace Gambit
     {
     private:
 
-      std::map<string, EventCounter> _counters = {
-        {"SRA", EventCounter("SRA")},
-        {"SRB", EventCounter("SRB")},
-      };
-
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
       // vector<double> cutFlowVectorCMS_225_75;
@@ -58,6 +53,8 @@ namespace Gambit
 
       Analysis_CMS_13TeV_1LEPbb_36invfb()
       {
+        _counters["SRA"] = EventCounter("SRA");
+        _counters["SRB"] = EventCounter("SRB");
 
         set_analysis_name("CMS_13TeV_1LEPbb_36invfb");
         set_luminosity(35.9);
@@ -150,10 +147,10 @@ namespace Gambit
           }
         }
         vector<const HEPUtils::Jet*> signalBJets_temp=signalBJets;
-        CMS::applyCSVv2MediumBtagEff(signalBJets_temp);
+        applyEfficiency(signalBJets_temp, CMS::eff2DBJet.at("CSVv2Medium"));
         if (signalBJets_temp.size()>0)
         {
-          CMS::applyCSVv2LooseBtagEff(signalBJets_temp);
+          applyEfficiency(signalBJets_temp, CMS::eff2DBJet.at("CSVv2Loose"));
           for (size_t iJet=0;iJet<signalBJets_temp.size();iJet++)
           {
             if (find(signalBJets.begin(),signalBJets.end(),signalBJets_temp.at(iJet))==signalBJets.end())signalBJets.push_back(signalBJets_temp.at(iJet));
@@ -200,7 +197,7 @@ namespace Gambit
           }
         }
 
-        if (nSignalBJets>1) 
+        if (nSignalBJets>1)
         {
           mCT=sqrt(2*signalBJets.at(0)->pT()*signalBJets.at(1)->pT()*(1+cos(signalBJets.at(0)->mom().deltaPhi(signalBJets.at(1)->mom()))));
           mbb=(signalBJets.at(0)->mom()+signalBJets.at(1)->mom()).m();
@@ -208,7 +205,7 @@ namespace Gambit
         if (signalLeptons.size()>0)mT=sqrt(2*signalLeptons.at(0)->pT()*met*(1-cos(signalLeptons.at(0)->mom().deltaPhi(event->missingmom()))));
 
         //Signal Regions
-        if (preselection && mbb>90 && mbb<150 && mCT>170. && met>125. && mT>150.) 
+        if (preselection && mbb>90 && mbb<150 && mCT>170. && met>125. && mT>150.)
         {
           //SRA
           if (met>125. && met<200.) _counters.at("SRA").add_event(event);
@@ -310,24 +307,8 @@ namespace Gambit
 
       }
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_CMS_13TeV_1LEPbb_36invfb* specificOther
-                = dynamic_cast<const Analysis_CMS_13TeV_1LEPbb_36invfb*>(other);
 
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (size_t j = 0; j < NCUTS; j++)
-        {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
-      }
-
-
-      void collect_results() 
+      void collect_results()
       {
         add_result(SignalRegionData(_counters.at("SRA"), 11., {7.5, 2.5}));
         add_result(SignalRegionData(_counters.at("SRB"), 7., {8.7, 2.2}));
@@ -344,7 +325,7 @@ namespace Gambit
 
 
     protected:
-      void analysis_specific_reset() 
+      void analysis_specific_reset()
       {
         for (auto& pair : _counters) { pair.second.reset(); }
 

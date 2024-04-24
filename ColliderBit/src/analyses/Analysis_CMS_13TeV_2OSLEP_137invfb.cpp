@@ -2,6 +2,9 @@
 ///  \author Yang Zhang
 ///  \date 2021 June
 ///
+///  \author Anders Kvellestad
+///  \date 2024 Feb
+/// 
 ///  *********************************************
 
 // Based on http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-20-001/index.html
@@ -14,6 +17,7 @@
 #include <memory>
 #include <iomanip>
 #include <fstream>
+#include "SoftDrop.hh"
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
@@ -26,73 +30,33 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    // This analysis class is also a base class for the class
-    // This is the same analysis, but it does not make use of the
-    // SR covariance information.
+    // This analysis class is also a base class for the classes
+    // 
+    //   - CMS_13TeV_2OSLEP_Strong_Production_137invfb
+    //   - CMS_13TeV_2OSLEP_EW_Production_137invfb
+    //   - CMS_13TeV_2OSLEP_Slepton_137invfb
+    // 
+    // all defined below. The subclasses make use of the background
+    // covariance matrices for their respective subset of signal regions.
+    // This base class contains all SRs and does not make use of the
+    // background covariance information.
+
     class Analysis_CMS_13TeV_2OSLEP_137invfb : public Analysis
     {
 
       protected:
 
-        // Counters for the number of accepted events for each signal region
-        std::map<string, EventCounter> _counters = {
-          {"SRA_50_100", EventCounter("SRA bveto [50, 100]")},
-          {"SRA_100_150", EventCounter("SRA bveto [100, 150]")},
-          {"SRA_150_230", EventCounter("SRA bveto [150, 230]")},
-          {"SRA_230_300", EventCounter("SRA bveto [230, 300]")},
-          {"SRA_300", EventCounter("SRA bveto [300, ~]")},
-          {"SRB_50_100", EventCounter("SRB bveto [50, 100]")},
-          {"SRB_100_150", EventCounter("SRB bveto [100, 150]")},
-          {"SRB_150_230", EventCounter("SRB bveto [150, 230]")},
-          {"SRB_230_300", EventCounter("SRB bveto [230, 300]")},
-          {"SRB_300", EventCounter("SRB bveto [300, ~]")},
-          {"SRC_50_100", EventCounter("SRC bveto [50, 100]")},
-          {"SRC_100_150", EventCounter("SRC bveto [100, 150]")},
-          {"SRC_150_250", EventCounter("SRC bveto [150, 250]")},
-          {"SRC_250", EventCounter("SRC bveto [250, ~]")},
-          {"SRAb_50_100", EventCounter("SRA btag [50, 100]")},
-          {"SRAb_100_150", EventCounter("SRA btag [100, 150]")},
-          {"SRAb_150_230", EventCounter("SRA btag [150, 230]")},
-          {"SRAb_230_300", EventCounter("SRA btag [230, 300]")},
-          {"SRAb_300", EventCounter("SRA btag [300, ~]")},
-          {"SRBb_50_100", EventCounter("SRB btag [50, 100]")},
-          {"SRBb_100_150", EventCounter("SRB btag [100, 150]")},
-          {"SRBb_150_230", EventCounter("SRB btag [150, 230]")},
-          {"SRBb_230_300", EventCounter("SRB btag [230, 300]")},
-          {"SRBb_300", EventCounter("SRB btag [300, ~]")},
-          {"SRCb_50_100", EventCounter("SRC btag [50, 100]")},
-          {"SRCb_100_150", EventCounter("SRC btag [100, 150]")},
-          {"SRCb_150_250", EventCounter("SRC btag [150, 250]")},
-          {"SRCb_250", EventCounter("SRC btag [250, ~]")},
-          {"SRoffZ0j_100_150", EventCounter("SR Off-Z nj=0 [100, 150]")},
-          {"SRoffZ0j_150_225", EventCounter("SR Off-Z nj=0 [150, 225]")},
-          {"SRoffZ0j_225_300", EventCounter("SR Off-Z nj=0 [225, 300]")},
-          {"SRoffZ0j_300", EventCounter("SR Off-Z nj=0 [300, ~]")},
-          {"SRoffZj_100_150", EventCounter("SR Off-Z nj>0 [100, 150]")},
-          {"SRoffZj_150_225", EventCounter("SR Off-Z nj>0 [150, 225]")},
-          {"SRoffZj_225_300", EventCounter("SR Off-Z nj>0 [225, 300]")},
-          {"SRoffZj_300", EventCounter("SR Off-Z nj>0 [300, ~]")},
-  //        {"SRonZ0j_100_150", EventCounter("SR on-Z nj=0 [100, 150]")},
-  //        {"SRonZ0j_150_225", EventCounter("SR on-Z nj=0 [150, 225]")},
-  //        {"SRonZ0j_225_300", EventCounter("SR on-Z nj=0 [225, 300]")},
-  //        {"SRonZ0j_300", EventCounter("SR on-Z nj=0 [300, ~]")},
-  //        {"SRonZj_100_150", EventCounter("SR on-Z nj>0 [100, 150]")},
-  //        {"SRonZj_150_225", EventCounter("SR on-Z nj>0 [150, 225]")},
-  //        {"SRonZj_225_300", EventCounter("SR on-Z nj>0 [225, 300]")},
-  //        {"SRonZj_300", EventCounter("SR on-Z nj>0 [300, ~]")},
-        };
-
       private:
 
-        vector<int> cutFlowVector_1;
-        vector<string> cutFlowVector_1_str;
-        size_t NCUTS_1;
+        // vector<int> cutFlowVector_1;
+        // vector<string> cutFlowVector_1_str;
+        // size_t NCUTS_1;
 
-        vector<int> cutFlowVector_2;
-        vector<string> cutFlowVector_2_str;
-        size_t NCUTS_2;
+        // vector<int> cutFlowVector_2;
+        // vector<string> cutFlowVector_2_str;
+        // size_t NCUTS_2;
 
-        ofstream cutflowFile;
+        // ofstream cutflowFile;
 
       public:
 
@@ -111,48 +75,114 @@ namespace Gambit
 
         Analysis_CMS_13TeV_2OSLEP_137invfb()
         {
+
           set_analysis_name("CMS_13TeV_2OSLEP_137invfb");
           set_luminosity(137.);
 
-          NCUTS_1=11;
+          // Counters for the number of accepted events for each signal region
+          _counters["SRA_50_100"] = EventCounter("SRA bveto [50, 100]");
+          _counters["SRA_100_150"] = EventCounter("SRA bveto [100, 150]");
+          _counters["SRA_150_230"] = EventCounter("SRA bveto [150, 230]");
+          _counters["SRA_230_300"] = EventCounter("SRA bveto [230, 300]");
+          _counters["SRA_300"] = EventCounter("SRA bveto [300, ~]");
+          _counters["SRB_50_100"] = EventCounter("SRB bveto [50, 100]");
+          _counters["SRB_100_150"] = EventCounter("SRB bveto [100, 150]");
+          _counters["SRB_150_230"] = EventCounter("SRB bveto [150, 230]");
+          _counters["SRB_230_300"] = EventCounter("SRB bveto [230, 300]");
+          _counters["SRB_300"] = EventCounter("SRB bveto [300, ~]");
+          _counters["SRC_50_100"] = EventCounter("SRC bveto [50, 100]");
+          _counters["SRC_100_150"] = EventCounter("SRC bveto [100, 150]");
+          _counters["SRC_150_250"] = EventCounter("SRC bveto [150, 250]");
+          _counters["SRC_250"] = EventCounter("SRC bveto [250, ~]");
+          _counters["SRAb_50_100"] = EventCounter("SRA btag [50, 100]");
+          _counters["SRAb_100_150"] = EventCounter("SRA btag [100, 150]");
+          _counters["SRAb_150_230"] = EventCounter("SRA btag [150, 230]");
+          _counters["SRAb_230_300"] = EventCounter("SRA btag [230, 300]");
+          _counters["SRAb_300"] = EventCounter("SRA btag [300, ~]");
+          _counters["SRBb_50_100"] = EventCounter("SRB btag [50, 100]");
+          _counters["SRBb_100_150"] = EventCounter("SRB btag [100, 150]");
+          _counters["SRBb_150_230"] = EventCounter("SRB btag [150, 230]");
+          _counters["SRBb_230_300"] = EventCounter("SRB btag [230, 300]");
+          _counters["SRBb_300"] = EventCounter("SRB btag [300, ~]");
+          _counters["SRCb_50_100"] = EventCounter("SRC btag [50, 100]");
+          _counters["SRCb_100_150"] = EventCounter("SRC btag [100, 150]");
+          _counters["SRCb_150_250"] = EventCounter("SRC btag [150, 250]");
+          _counters["SRCb_250"] = EventCounter("SRC btag [250, ~]");
 
-          for (size_t i=0;i<NCUTS_1;i++)
-          {
-            cutFlowVector_1.push_back(0);
-            cutFlowVector_1_str.push_back("");
-          }
+          _counters["SRBoostedVZ_50_100"] = EventCounter("SR EW on-Z BoostedVZ [50, 100]");
+          _counters["SRBoostedVZ_100_200"] = EventCounter("SR EW on-Z BoostedVZ [100, 200]");
+          _counters["SRBoostedVZ_200_300"] = EventCounter("SR EW on-Z BoostedVZ [200, 300]");
+          _counters["SRBoostedVZ_300_400"] = EventCounter("SR EW on-Z BoostedVZ [300, 400]");
+          _counters["SRBoostedVZ_400_500"] = EventCounter("SR EW on-Z BoostedVZ [400, 500]");
+          _counters["SRBoostedVZ_500"] = EventCounter("SR EW on-Z BoostedVZ [500, ~]");
+          _counters["SRResolvedVZ_50_100"] = EventCounter("SR EW on-Z ResolvedVZ [50, 100]");
+          _counters["SRResolvedVZ_100_150"] = EventCounter("SR EW on-Z ResolvedVZ [100, 150]");
+          _counters["SRResolvedVZ_150_250"] = EventCounter("SR EW on-Z ResolvedVZ [150, 250]");
+          _counters["SRResolvedVZ_250_350"] = EventCounter("SR EW on-Z ResolvedVZ [250, 350]");
+          _counters["SRResolvedVZ_350"] = EventCounter("SR EW on-Z ResolvedVZ [350, ~]");
+          _counters["SRHZ_50_100"] = EventCounter("SR EW on-Z HZ [50, 100]");
+          _counters["SRHZ_100_150"] = EventCounter("SR EW on-Z HZ [100, 150]");
+          _counters["SRHZ_150_250"] = EventCounter("SR EW on-Z HZ [150, 250]");
+          _counters["SRHZ_250"] = EventCounter("SR EW on-Z HZ [250, ~]");
 
-          cutFlowVector_1_str[0] = "All events";
-          cutFlowVector_1_str[1] = "2 OSSF leptons with $p_{T} > 25(20)$ GeV";
-          cutFlowVector_1_str[2] = "$P_T^{\ell\ell}$>50 GeV";
-          cutFlowVector_1_str[3] = R"($\Delta R(\ell\ell)$>0.1)"; // string literal R"(...)" to avoid compiler warning about the '\D'
-          cutFlowVector_1_str[4] = "$m_{\ell}<$65 or >120 GeV";
-          cutFlowVector_1_str[5] = "Leading lepton $p_{T} > 50$ GeV";
-          cutFlowVector_1_str[6] = "Thied lepton veto";
-          cutFlowVector_1_str[7] = "$M_{T2}(ll) > 100 GeV$";
-          cutFlowVector_1_str[8] = "$E^{miss}_{T} > 100 GeV$";
-          cutFlowVector_1_str[9] = "$n_j>0$,etc.";
-          cutFlowVector_1_str[10] = "$n_j=0$";
+          _counters["SRoffZ0j_100_150"] = EventCounter("SR Off-Z nj=0 [100, 150]");
+          _counters["SRoffZ0j_150_225"] = EventCounter("SR Off-Z nj=0 [150, 225]");
+          _counters["SRoffZ0j_225_300"] = EventCounter("SR Off-Z nj=0 [225, 300]");
+          _counters["SRoffZ0j_300"] = EventCounter("SR Off-Z nj=0 [300, ~]");
+          _counters["SRoffZj_100_150"] = EventCounter("SR Off-Z nj>0 [100, 150]");
+          _counters["SRoffZj_150_225"] = EventCounter("SR Off-Z nj>0 [150, 225]");
+          _counters["SRoffZj_225_300"] = EventCounter("SR Off-Z nj>0 [225, 300]");
+          _counters["SRoffZj_300"] = EventCounter("SR Off-Z nj>0 [300, ~]");
 
-          NCUTS_2=4;
-          for (size_t i=0;i<NCUTS_2;i++)
-          {
-            cutFlowVector_2.push_back(0);
-            cutFlowVector_2_str.push_back("");
-          }
-          cutFlowVector_2_str[0] = "All events";
-          cutFlowVector_2_str[1] = "Baseline preliminary selections";
-          cutFlowVector_2_str[2] = "Baseline lepton selections";
-          cutFlowVector_2_str[3] = "Signal regions selections";
+          // Control regions
+          // _counters["SRonZ0j_100_150"] = EventCounter("SR on-Z nj=0 [100, 150]");
+          // _counters["SRonZ0j_150_225"] = EventCounter("SR on-Z nj=0 [150, 225]");
+          // _counters["SRonZ0j_225_300"] = EventCounter("SR on-Z nj=0 [225, 300]");
+          // _counters["SRonZ0j_300"] = EventCounter("SR on-Z nj=0 [300, ~]");
+          // _counters["SRonZj_100_150"] = EventCounter("SR on-Z nj>0 [100, 150]");
+          // _counters["SRonZj_150_225"] = EventCounter("SR on-Z nj>0 [150, 225]");
+          // _counters["SRonZj_225_300"] = EventCounter("SR on-Z nj>0 [225, 300]");
+          // _counters["SRonZj_300"] = EventCounter("SR on-Z nj>0 [300, ~]");
 
+
+          // NCUTS_1=11;
+          // for (size_t i=0;i<NCUTS_1;i++)
+          // {
+          //   cutFlowVector_1.push_back(0);
+          //   cutFlowVector_1_str.push_back("");
+          // }
+
+          // cutFlowVector_1_str[0] = "All events";
+          // cutFlowVector_1_str[1] = "2 OSSF leptons with $p_{T} > 25(20)$ GeV";
+          // cutFlowVector_1_str[2] = "$P_T^{\ell\ell}$>50 GeV";
+          // cutFlowVector_1_str[3] = R"($\Delta R(\ell\ell)$>0.1)"; // string literal R"(...)" to avoid compiler warning about the '\D'
+          // cutFlowVector_1_str[4] = "$m_{\ell}<$65 or >120 GeV";
+          // cutFlowVector_1_str[5] = "Leading lepton $p_{T} > 50$ GeV";
+          // cutFlowVector_1_str[6] = "Thied lepton veto";
+          // cutFlowVector_1_str[7] = "$M_{T2}(ll) > 100 GeV$";
+          // cutFlowVector_1_str[8] = "$E^{miss}_{T} > 100 GeV$";
+          // cutFlowVector_1_str[9] = "$n_j>0$,etc.";
+          // cutFlowVector_1_str[10] = "$n_j=0$";
+
+          // NCUTS_2=4;
+          // for (size_t i=0;i<NCUTS_2;i++)
+          // {
+          //   cutFlowVector_2.push_back(0);
+          //   cutFlowVector_2_str.push_back("");
+          // }
+          // cutFlowVector_2_str[0] = "All events";
+          // cutFlowVector_2_str[1] = "Baseline preliminary selections";
+          // cutFlowVector_2_str[2] = "Baseline lepton selections";
+          // cutFlowVector_2_str[3] = "Signal regions selections";
 
         }
 
 
         void run(const HEPUtils::Event* event)
         {
-          cutFlowVector_1[0]++;
-          cutFlowVector_2[0]++;
+          // cutFlowVector_1[0]++;
+          // cutFlowVector_2[0]++;
+
           // Baseline objects
           double met = event->met();
 
@@ -205,6 +235,29 @@ namespace Gambit
             if (jet->pT()>25. && fabs(jet->eta())<2.4) baselineJets.push_back(jet);
           }
 
+          // Baseline Vjets
+          vector<const HEPUtils::Jet*> baselineVJets;
+          const double beta = 0.0;
+          const double z_cut = 0.1;
+          const double RSD = 0.8;
+          FJNS::contrib::SoftDrop sd(beta, z_cut, RSD);
+          // Get jets with anti-kT R=0.8
+          for (const HEPUtils::Jet* jet : event->jets("antikt_R08"))
+          {
+            // High pT requirement
+            if (jet->pT() > 200. && fabs(jet->eta())<2.4)
+            {
+              // Check softdrop mass
+              FJNS::PseudoJet groomed_jet = sd(jet->pseudojet());
+              double m = groomed_jet.m();              
+              if (m > 65. && m < 105.)
+              {
+                // Accept jet
+                baselineVJets.push_back(jet);
+              }
+            }
+          }
+
           // Signal objects
           vector<const HEPUtils::Particle*> signalLeptons;
           vector<const HEPUtils::Particle*> signalElectrons;
@@ -212,48 +265,65 @@ namespace Gambit
           vector<const HEPUtils::Jet*> signalJets25; // used in regions in which the presence of jets is vetoed
           vector<const HEPUtils::Jet*> signalJets; // used to construct regions aiming for topologies with jets.
           vector<const HEPUtils::Jet*> signalBJets;
+          vector<const HEPUtils::Jet*> signalVJets;
 
           // Signal electrons
-          for (size_t iEl=0;iEl<baselineElectrons.size();iEl++)
+          for (size_t iEl=0; iEl<baselineElectrons.size(); iEl++)
           {
             if (baselineElectrons.at(iEl)->pT()>20.) signalElectrons.push_back(baselineElectrons.at(iEl));
           }
 
           // Signal muons
-          for (size_t iMu=0;iMu<baselineMuons.size();iMu++)
+          for (size_t iMu=0; iMu<baselineMuons.size(); iMu++)
           {
             if (baselineMuons.at(iMu)->pT()>20.) signalMuons.push_back(baselineMuons.at(iMu));
           }
 
-          // Signal jets and b-jets
+          // Signal jets
           sort(baselinePhotons.begin(),baselinePhotons.end(),comparePt);
-          for (size_t iJet=0;iJet<baselineJets.size();iJet++)
+          for (size_t iJet=0; iJet<baselineJets.size(); iJet++)
           {
             bool overlap=false;
-            for (size_t iLe=0;iLe<signalElectrons.size();iLe++)
+            for (size_t iLe=0; iLe<signalElectrons.size(); iLe++)
             {
-              if (signalElectrons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.4)overlap=true;
+              if (signalElectrons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.4) overlap=true;
             }
-            for (size_t iLe=0;iLe<signalMuons.size();iLe++)
+            for (size_t iLe=0; iLe<signalMuons.size(); iLe++)
             {
-              if (signalMuons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.4)overlap=true;
+              if (signalMuons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.4) overlap=true;
             }
             if (baselinePhotons.size()!=0)
             {
-              if (baselinePhotons.at(0)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.4)overlap=true;
+              if (baselinePhotons.at(0)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.4) overlap=true;
             }
             if (!overlap)
             {
               signalJets25.push_back(baselineJets.at(iJet));
+
               if (baselineJets.at(iJet)->pT() >= 35.)
               {
                 signalJets.push_back(baselineJets.at(iJet));
               }
-              // For the b-jets, jets down to pT > 25 should be considered
-              if (baselineJets.at(iJet)->btag())signalBJets.push_back(baselineJets.at(iJet));
             }
           }
-  //        CMS::applyCSVv2MediumBtagEffAndMisId(signalJets25,signalBJets);
+
+          // Get subset of signal jets that get b-tags.
+          // For b-jets, jets down to pT > 25 should be considered, so we'll use signalJets25 below.
+          const double btag_eff = 0.70;
+          const double misstag_eff = 0.01;
+          const double cmisstag_eff = 0.12;
+          for (const HEPUtils::Jet* jet : signalJets25)
+          {
+            bool btag = false;
+            if      (jet->btag() && random_bool(btag_eff))     btag = true;
+            else if (jet->ctag() && random_bool(cmisstag_eff)) btag = true;
+            else if (random_bool(misstag_eff))                 btag = true;
+
+            if (btag) signalBJets.push_back(jet);
+          }
+
+          // Signal V-jets
+          signalVJets = baselineVJets;
 
           // Signal leptons = electrons + muons
           signalLeptons=signalElectrons;
@@ -263,51 +333,114 @@ namespace Gambit
           sort(signalJets25.begin(),signalJets25.end(),compareJetPt);
           sort(signalJets.begin(),signalJets.end(),compareJetPt);
           sort(signalBJets.begin(),signalBJets.end(),compareJetPt);
+          sort(signalVJets.begin(),signalVJets.end(),compareJetPt);
 
           size_t nSignalLeptons = signalLeptons.size();
           size_t nSignalJets25 = signalJets25.size();
           size_t nSignalJets = signalJets.size();
           size_t nSignalBJets = signalBJets.size();
+          size_t nSignalVJets = signalVJets.size();
 
 
           // ###### Baseline selection ########
           // the presence of two OS leptons with > 25 (20) GeV for the highest (next-to-highest) pT lepton
 
           // the two highest pT OS leptons are required to have the same flavor
-          if (nSignalLeptons<2) return;
+          if (nSignalLeptons < 2) return;
           if (signalLeptons[0]->pid() + signalLeptons[1]->pid() !=0) return;
-          if (signalLeptons[0]->pT()<25) return;
-          cutFlowVector_1[1]++;
+          if (signalLeptons[0]->pT() < 25. || signalLeptons[1]->pT() < 20.) return;
+          // cutFlowVector_1[1]++;
 
           double pTll = (signalLeptons[0]->mom()+signalLeptons[1]->mom()).pT();
           if (pTll < 50) return;
-          cutFlowVector_1[2]++;
+          // cutFlowVector_1[2]++;
 
           // the two highest pT leptons are required to be separated by a distance dR>0.1
           if (signalLeptons[0]->mom().deltaR_eta(signalLeptons[1]->mom())<0.1) return;
-          cutFlowVector_1[3]++;
+          // cutFlowVector_1[3]++;
 
           double mll = (signalLeptons[0]->mom()+signalLeptons[1]->mom()).m();
-          if (mll < 20) return;
+          if (mll < 20.) return;
 
-          double mT2=get_mT2(signalLeptons,event->missingmom());
-          double HT=0;
+          if (met < 50.) return;
+
+          double mT2 = get_mT2(signalLeptons, event->missingmom());
+          double HT = 0.;
           for (size_t iJet=0; iJet<nSignalJets; iJet++){
             HT += signalJets[iJet]->pT();
           }
 
-          cutFlowVector_2[1]++;
-          // ###### on-Z regions ########
-          if (mll>86 and mll<96 and nSignalLeptons==2 and met > 50 and nSignalJets >1 and event->missingmom().deltaR_eta(signalJets.at(0)->mom())>0.4 )
+          // cutFlowVector_2[1]++;
+
+          // The two highest-pT jets must be separated from pTmiss vector by delta phi > 0.4
+          bool deltaPhiJet1PTmissSeparation = true;
+          bool deltaPhiJet2PTmissSeparation = true;
+          if (nSignalJets == 1)
           {
-            cutFlowVector_2[2]++;
+            deltaPhiJet1PTmissSeparation = ( event->missingmom().deltaR_eta(signalJets[0]->mom()) > 0.4 );
+          }
+          else if (nSignalJets >= 2) 
+          {
+            deltaPhiJet1PTmissSeparation = ( event->missingmom().deltaR_eta(signalJets[0]->mom()) > 0.4 );
+            deltaPhiJet2PTmissSeparation = ( event->missingmom().deltaR_eta(signalJets[1]->mom()) > 0.4 );
+          }
+          bool deltaPhiJet12PTmissSeparation = (deltaPhiJet1PTmissSeparation && deltaPhiJet2PTmissSeparation); 
+
+          // For SRs with V jets, a baseline requirement is separation from pTmiss by 
+          // delta phi > 0.4 *or* > 0.8, depending on the type of jet
+          bool deltaPhiJet1TmissSeparation_VJetSR = true;
+          if (nSignalJets >= 1 && nSignalVJets == 0)
+          {
+            deltaPhiJet1TmissSeparation_VJetSR = ( event->missingmom().deltaR_eta(signalJets[0]->mom()) > 0.4 );
+          }
+          else if (nSignalJets == 0 && nSignalVJets >= 1)
+          {
+            deltaPhiJet1TmissSeparation_VJetSR = ( event->missingmom().deltaR_eta(signalVJets[0]->mom()) > 0.8 );
+          }
+          else if (nSignalJets >= 1 && nSignalVJets >= 1)
+          {
+            if (signalJets[0]->pT() > signalVJets[0]->pT())
+            {
+              deltaPhiJet1TmissSeparation_VJetSR = ( event->missingmom().deltaR_eta(signalJets[0]->mom()) > 0.4 );
+            }
+            else 
+            {
+              deltaPhiJet1TmissSeparation_VJetSR = ( event->missingmom().deltaR_eta(signalVJets[0]->mom()) > 0.8 );
+            }
+          }
+
+
+          // Compute some SR selection variables
+          double mjj = 0.;
+          if (nSignalJets >= 2)
+          {
+            mjj = (signalJets[0]->mom()+signalJets[1]->mom()).m();
+          }
+
+          double mbb = 0.;
+          if (nSignalBJets >= 2)
+          {
+            mbb = (signalBJets[0]->mom()+signalBJets[1]->mom()).m();
+          }
+
+          double mT2_lblb = 0.;
+          if (nSignalBJets >= 2 && nSignalLeptons >= 2)
+          {
+            mT2_lblb = get_mT2_lblb(signalLeptons, signalBJets, event->missingmom());
+          }
+
+
+          // ###### on-Z regions, strong production ########
+          if (mll>86 and mll<96 and nSignalLeptons==2 and met > 50 and nSignalJets >1 and deltaPhiJet12PTmissSeparation)
+          {
+            // cutFlowVector_2[2]++;
             if (nSignalBJets==0)
             {
               if (mT2>80)
               {
                 if (HT>500)
                 {
-                  cutFlowVector_2[3]++;
+                  // cutFlowVector_2[3]++;
                   if ( nSignalJets < 4 )
                   {
                     if (met<100) _counters.at("SRA_50_100").add_event(event);
@@ -368,27 +501,63 @@ namespace Gambit
             }
           }
 
+          // ###### on-Z regions, EW production ########
+          if (mll>86 and mll<96 and nSignalLeptons==2)
+          {
+            // Boosted VZ
+            if (deltaPhiJet1TmissSeparation_VJetSR)
+            {
+              if      (nSignalJets25 == 0 and nSignalVJets == 1 and nSignalBJets == 0 and met > 50.  and met < 100.) _counters.at("SRBoostedVZ_50_100").add_event(event);
+              else if (nSignalJets25 == 0 and nSignalVJets == 1 and nSignalBJets == 0 and met > 100. and met < 200.) _counters.at("SRBoostedVZ_100_200").add_event(event);
+              else if (nSignalJets25 == 0 and nSignalVJets == 1 and nSignalBJets == 0 and met > 200. and met < 300.) _counters.at("SRBoostedVZ_200_300").add_event(event);
+              else if (nSignalJets25 == 0 and nSignalVJets == 1 and nSignalBJets == 0 and met > 300. and met < 400.) _counters.at("SRBoostedVZ_300_400").add_event(event);
+              else if (nSignalJets25 == 0 and nSignalVJets == 1 and nSignalBJets == 0 and met > 400. and met < 500.) _counters.at("SRBoostedVZ_400_500").add_event(event);
+              else if (nSignalJets25 == 0 and nSignalVJets == 1 and nSignalBJets == 0 and met > 500.)                _counters.at("SRBoostedVZ_500").add_event(event);
+            }
+
+            // Resolved VZ
+            if (deltaPhiJet12PTmissSeparation)
+            {
+              if      (nSignalJets > 1 and nSignalBJets == 0 and mjj < 110. and mT2 > 80. and met > 50.  and met < 100.) _counters.at("SRResolvedVZ_50_100").add_event(event);
+              else if (nSignalJets > 1 and nSignalBJets == 0 and mjj < 110. and mT2 > 80. and met > 100. and met < 150.) _counters.at("SRResolvedVZ_100_150").add_event(event);
+              else if (nSignalJets > 1 and nSignalBJets == 0 and mjj < 110. and mT2 > 80. and met > 150. and met < 250.) _counters.at("SRResolvedVZ_150_250").add_event(event);
+              else if (nSignalJets > 1 and nSignalBJets == 0 and mjj < 110. and mT2 > 80. and met > 250. and met < 350.) _counters.at("SRResolvedVZ_250_350").add_event(event);
+              else if (nSignalJets > 1 and nSignalBJets == 0 and mjj < 110. and mT2 > 80. and met > 350.)                _counters.at("SRResolvedVZ_350").add_event(event);
+            }
+
+            // HZ
+            if (deltaPhiJet12PTmissSeparation)
+            {
+              if      (nSignalJets > 1 and nSignalBJets == 2 and mbb < 150. and mT2_lblb > 200. and met > 50.  and met < 100.) _counters.at("SRHZ_50_100").add_event(event);
+              else if (nSignalJets > 1 and nSignalBJets == 2 and mbb < 150. and mT2_lblb > 200. and met > 100. and met < 150.) _counters.at("SRHZ_100_150").add_event(event);
+              else if (nSignalJets > 1 and nSignalBJets == 2 and mbb < 150. and mT2_lblb > 200. and met > 150. and met < 250.) _counters.at("SRHZ_150_250").add_event(event);
+              else if (nSignalJets > 1 and nSignalBJets == 2 and mbb < 150. and mT2_lblb > 200. and met > 250.)                _counters.at("SRHZ_250").add_event(event);
+            }
+
+          }
+
+
           // ###### slepton region #######
           if (mll<65 or mll>120)
           {
-            cutFlowVector_1[4]++;
+            // cutFlowVector_1[4]++;
             if (signalLeptons[0]->pT()>50)
             {
-              cutFlowVector_1[5]++;
+              // cutFlowVector_1[5]++;
               if (nSignalLeptons==2)
               {
-                cutFlowVector_1[6]++;
+                // cutFlowVector_1[6]++;
                 if (mT2>100)
                 {
-                  cutFlowVector_1[7]++;
+                  // cutFlowVector_1[7]++;
                   if (met>50)
                   {
-                    cutFlowVector_1[8]++;
+                    // cutFlowVector_1[8]++;
                     if (nSignalBJets==0){
                       if (nSignalJets25>0 and event->missingmom().deltaR_eta(signalJets25.at(0)->mom())>0.4
                         and (signalLeptons[1]->pT()/signalJets25[0]->pT())>1.2 )
                       {
-                        cutFlowVector_1[9]++;
+                        // cutFlowVector_1[9]++;
                         if (mT2<150) _counters.at("SRoffZj_100_150").add_event(event);
                         else if (mT2<225) _counters.at("SRoffZj_150_225").add_event(event);
                         else if (mT2<300) _counters.at("SRoffZj_225_300").add_event(event);
@@ -396,7 +565,7 @@ namespace Gambit
                       }
                       if (nSignalJets25==0)
                       {
-                        cutFlowVector_1[10]++;
+                        // cutFlowVector_1[10]++;
                         if (mT2<150) _counters.at("SRoffZ0j_100_150").add_event(event);
                         else if (mT2<225) _counters.at("SRoffZ0j_150_225").add_event(event);
                         else if (mT2<300) _counters.at("SRoffZ0j_225_300").add_event(event);
@@ -408,79 +577,56 @@ namespace Gambit
               }
             }
           }
-//          // Contral regions
-//          if (mll>65 and mll<120)
-//          {
-//            if (signalLeptons[0]->pT()>50)
-//            {
-//              if (nSignalLeptons==2)
-//              {
-//                if (mT2>100)
-//                {
-//                  if (met>50)
-//                  {
-//                  if (nSignalBJets==0)
-//                  {
-//                    if (nSignalJets>0 and event->missingmom().deltaR_eta(signalJets.at(0)->mom())>0.4
-//                      and signalLeptons[1]->pT()/signalJets[0]->pT()>1.2 )
-//                    {
-//                      if (mT2<150) _counters.at("SRonZj_100_150").add_event(event);
-//                      else if (mT2<225) _counters.at("SRonZj_150_225").add_event(event);
-//                      else if (mT2<300) _counters.at("SRonZj_225_300").add_event(event);
-//                      else _counters.at("SRonZj_300").add_event(event);
-//                    }
-//                    if (nSignalJets25==0)
-//                    {
-//                      if (mT2<150) _counters.at("SRonZ0j_100_150").add_event(event);
-//                      else if (mT2<225) _counters.at("SRonZ0j_150_225").add_event(event);
-//                      else if (mT2<300) _counters.at("SRonZ0j_225_300").add_event(event);
-//                      else _counters.at("SRonZ0j_300").add_event(event);
-//                    }
-//                  }
-//                }
-//              }
-//            }
-//          }
-//        }
 
-        }
-
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_CMS_13TeV_2OSLEP_137invfb* specificOther
-                  = dynamic_cast<const Analysis_CMS_13TeV_2OSLEP_137invfb*>(other);
-
-          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-          if (NCUTS_1 != specificOther->NCUTS_1) NCUTS_1 = specificOther->NCUTS_1;
-          for (size_t j = 0; j < NCUTS_1; j++)
-          {
-            cutFlowVector_1[j] += specificOther->cutFlowVector_1[j];
-            cutFlowVector_1_str[j] = specificOther->cutFlowVector_1_str[j];
-          }
-
-          if (NCUTS_2 != specificOther->NCUTS_2) NCUTS_2 = specificOther->NCUTS_2;
-          for (size_t j = 0; j < NCUTS_2; j++)
-          {
-            cutFlowVector_2[j] += specificOther->cutFlowVector_2[j];
-            cutFlowVector_2_str[j] = specificOther->cutFlowVector_2_str[j];
-          }
+          // // Contral regions
+          // if (mll>65 and mll<120)
+          // {
+          //   if (signalLeptons[0]->pT()>50)
+          //   {
+          //     if (nSignalLeptons==2)
+          //     {
+          //       if (mT2>100)
+          //       {
+          //         if (met>50)
+          //         {
+          //           if (nSignalBJets==0)
+          //           {
+          //             if (nSignalJets>0 and deltaPhiJet12PTmissSeparation
+          //               and signalLeptons[1]->pT()/signalJets[0]->pT()>1.2 )
+          //             {
+          //               if (mT2<150) _counters.at("SRonZj_100_150").add_event(event);
+          //               else if (mT2<225) _counters.at("SRonZj_150_225").add_event(event);
+          //               else if (mT2<300) _counters.at("SRonZj_225_300").add_event(event);
+          //               else _counters.at("SRonZj_300").add_event(event);
+          //             }
+          //             if (nSignalJets25==0)
+          //             {
+          //               if (mT2<150) _counters.at("SRonZ0j_100_150").add_event(event);
+          //               else if (mT2<225) _counters.at("SRonZ0j_150_225").add_event(event);
+          //               else if (mT2<300) _counters.at("SRonZ0j_225_300").add_event(event);
+          //               else _counters.at("SRonZ0j_300").add_event(event);
+          //             }
+          //           }
+          //         }
+          //       }
+          //     }
+          //   }
+          // }
 
         }
 
 
         virtual void collect_results()
         {
-          for (size_t i=0;i<NCUTS_1;i++)
-          {
-            cout << i << "\t" << cutFlowVector_1_str[i] << "\t" << cutFlowVector_1[i] << endl;
-          }
-          cout << "=========================" << endl;
-          for (size_t i=0;i<NCUTS_2;i++)
-          {
-            cout << i << "\t" << cutFlowVector_2_str[i] << "\t" << cutFlowVector_2[i] << endl;
-          }
+          //for (size_t i=0;i<NCUTS_1;i++)
+          //{
+          //  cout << i << "\t" << cutFlowVector_1_str[i] << "\t" << cutFlowVector_1[i] << endl;
+          //}
+          //cout << "=========================" << endl;
+          //for (size_t i=0;i<NCUTS_2;i++)
+          //{
+          //  cout << i << "\t" << cutFlowVector_2_str[i] << "\t" << cutFlowVector_2[i] << endl;
+          //}
 
           add_result(SignalRegionData(_counters.at("SRA_50_100"),   1261., {1261., 41.}));
           add_result(SignalRegionData(_counters.at("SRA_100_150"),  186.,  {160.,  16.}));
@@ -511,32 +657,50 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("SRCb_150_250"), 5.,    {3.8, 0.9}));
           add_result(SignalRegionData(_counters.at("SRCb_250"),     1.,    {0.7, 0.2}));
 
-          add_result(SignalRegionData(_counters.at("SRoffZ0j_100_150"),228.,  {198., 37.}));
-          add_result(SignalRegionData(_counters.at("SRoffZ0j_150_225"),99.,   {120., 16.}));
-          add_result(SignalRegionData(_counters.at("SRoffZ0j_225_300"),29.,   {20.8, 4.1}));
-          add_result(SignalRegionData(_counters.at("SRoffZ0j_300"),    17.,   {9.3, 2.3}));
-          add_result(SignalRegionData(_counters.at("SRoffZj_100_150"), 283.,  {245., 33.}));
-          add_result(SignalRegionData(_counters.at("SRoffZj_150_225"), 97.,   {112., 12.}));
-          add_result(SignalRegionData(_counters.at("SRoffZj_225_300"), 19.,   {14.7, 3.3}));
-          add_result(SignalRegionData(_counters.at("SRoffZj_300"),     8.,    {8.7, 2.3}));
-//          add_result(SignalRegionData(_counters.at("SRonZ0j_100_150"), 1059., {1059., 34.}));
-//          add_result(SignalRegionData(_counters.at("SRonZ0j_150_225"), 573.,  {573., 26.}));
-//          add_result(SignalRegionData(_counters.at("SRonZ0j_225_300"), 116.,  {116., 11.}));
-//          add_result(SignalRegionData(_counters.at("SRonZ0j_300"),     47.,   {47.5, 5.3}));
-//          add_result(SignalRegionData(_counters.at("SRonZj_100_150"),  674.,  {674., 29.}));
-//          add_result(SignalRegionData(_counters.at("SRonZj_150_225"),  241.,  {241., 16.}));
-//          add_result(SignalRegionData(_counters.at("SRonZj_225_300"),  72.,   {72., 8.2}));
-//          add_result(SignalRegionData(_counters.at("SRonZj_300"),      30.,   {34.9, 3.8}));
+          add_result(SignalRegionData(_counters.at("SRHZ_50_100"),  168., {168., 15.}));
+          add_result(SignalRegionData(_counters.at("SRHZ_100_150"), 14.,  {15.6, 4.3}));
+          add_result(SignalRegionData(_counters.at("SRHZ_150_250"), 5.,   {5.6, 2.8}));
+          add_result(SignalRegionData(_counters.at("SRHZ_250"),     0.,   {1.2, 0.4}));
+          add_result(SignalRegionData(_counters.at("SRBoostedVZ_50_100"),  43., {43.0, 9.9}));
+          add_result(SignalRegionData(_counters.at("SRBoostedVZ_100_200"), 5.,  {2.3, 0.8}));
+          add_result(SignalRegionData(_counters.at("SRBoostedVZ_200_300"), 1.,  {0.5, 0.5}));
+          add_result(SignalRegionData(_counters.at("SRBoostedVZ_300_400"), 0.,  {0.2, 0.2}));
+          add_result(SignalRegionData(_counters.at("SRBoostedVZ_400_500"), 0.,  {0.0, 0.1}));
+          add_result(SignalRegionData(_counters.at("SRBoostedVZ_500"),     0.,  {0.2, 0.1}));
+          add_result(SignalRegionData(_counters.at("SRResolvedVZ_50_100"),  3648., {3648., 80.}));
+          add_result(SignalRegionData(_counters.at("SRResolvedVZ_100_150"), 461.,  {439., 47.}));
+          add_result(SignalRegionData(_counters.at("SRResolvedVZ_150_250"), 69.,   {58., 19.}));
+          add_result(SignalRegionData(_counters.at("SRResolvedVZ_250_350"), 7.,    {11.9, 3.2}));
+          add_result(SignalRegionData(_counters.at("SRResolvedVZ_350"),     2.,    {6.3, 2.2}));
+
+          add_result(SignalRegionData(_counters.at("SRoffZ0j_100_150"), 228.,  {198., 37.}));
+          add_result(SignalRegionData(_counters.at("SRoffZ0j_150_225"), 99.,   {120., 16.}));
+          add_result(SignalRegionData(_counters.at("SRoffZ0j_225_300"), 29.,   {20.8, 4.1}));
+          add_result(SignalRegionData(_counters.at("SRoffZ0j_300"),     17.,   {9.3, 2.3}));
+          add_result(SignalRegionData(_counters.at("SRoffZj_100_150"),  283.,  {245., 33.}));
+          add_result(SignalRegionData(_counters.at("SRoffZj_150_225"),  97.,   {112., 12.}));
+          add_result(SignalRegionData(_counters.at("SRoffZj_225_300"),  19.,   {14.7, 3.3}));
+          add_result(SignalRegionData(_counters.at("SRoffZj_300"),      8.,    {8.7, 2.3}));
+
+          // Control regions
+          // add_result(SignalRegionData(_counters.at("SRonZ0j_100_150"), 1059., {1059., 34.}));
+          // add_result(SignalRegionData(_counters.at("SRonZ0j_150_225"), 573.,  {573., 26.}));
+          // add_result(SignalRegionData(_counters.at("SRonZ0j_225_300"), 116.,  {116., 11.}));
+          // add_result(SignalRegionData(_counters.at("SRonZ0j_300"),     47.,   {47.5, 5.3}));
+          // add_result(SignalRegionData(_counters.at("SRonZj_100_150"),  674.,  {674., 29.}));
+          // add_result(SignalRegionData(_counters.at("SRonZj_150_225"),  241.,  {241., 16.}));
+          // add_result(SignalRegionData(_counters.at("SRonZj_225_300"),  72.,   {72., 8.2}));
+          // add_result(SignalRegionData(_counters.at("SRonZj_300"),      30.,   {34.9, 3.8}));
 
         }
 
 
-        double get_mT2(vector<const HEPUtils::Particle*> leptons, HEPUtils::P4 met)
+        double get_mT2(vector<const HEPUtils::Particle*> leptons, HEPUtils::P4 pTmiss)
         {
-          double mT2=0;
+          double mT2 = 0.;
           double pLep0[3] = {leptons.at(0)->mass(), leptons.at(0)->mom().px(), leptons.at(0)->mom().py()};
           double pLep1[3] = {leptons.at(1)->mass(), leptons.at(1)->mom().px(), leptons.at(1)->mom().py()};
-          double pMiss[3] = {0., met.px(), met.py() };
+          double pMiss[3] = {0., pTmiss.px(), pTmiss.py() };
           double mn = 0.;
 
           mt2_bisect::mt2 mt2_calc;
@@ -547,20 +711,68 @@ namespace Gambit
         }
 
 
+        double get_mT2_lblb(vector<const HEPUtils::Particle*> leptons, vector<const HEPUtils::Jet*> bjets, HEPUtils::P4 pTmiss)
+        {
+          double mT2 = DBL_MAX;
+
+          HEPUtils::P4 p4L0 = leptons.at(0)->mom();
+          HEPUtils::P4 p4L1 = leptons.at(1)->mom();
+          HEPUtils::P4 p4B0 = bjets.at(0)->mom();
+          HEPUtils::P4 p4B1 = bjets.at(1)->mom();
+
+          double pL0[3] = {p4L0.m(), p4L0.px(), p4L0.py()};
+          double pL1[3] = {p4L1.m(), p4L1.px(), p4L1.py()};
+          double pB0[3] = {p4B0.m(), p4B0.px(), p4B0.py()};
+          double pB1[3] = {p4B1.m(), p4B1.px(), p4B1.py()};
+
+          double pMiss[3] = {0., pTmiss.px(), pTmiss.py() };
+          double mn = 0.;
+
+          mt2_bisect::mt2 mt2_calc;
+
+          // L0B0
+          mt2_calc.set_momenta(pL0, pB0, pMiss);
+          mt2_calc.set_mn(mn);
+          double mT2_L0B0 = mt2_calc.get_mt2();
+          if (mT2_L0B0 < mT2) mT2 = mT2_L0B0;
+
+          // L0B1
+          mt2_calc.set_momenta(pL0, pB1, pMiss);
+          mt2_calc.set_mn(mn);
+          double mT2_L0B1 = mt2_calc.get_mt2();
+          if (mT2_L0B1 < mT2) mT2 = mT2_L0B1;
+
+          // L1B0
+          mt2_calc.set_momenta(pL1, pB0, pMiss);
+          mt2_calc.set_mn(mn);
+          double mT2_L1B0 = mt2_calc.get_mt2();
+          if (mT2_L1B0 < mT2) mT2 = mT2_L1B0;
+
+          // L1B1
+          mt2_calc.set_momenta(pL1, pB1, pMiss);
+          mt2_calc.set_mn(mn);
+          double mT2_L1B1 = mt2_calc.get_mt2();
+          if (mT2_L1B1 < mT2) mT2 = mT2_L1B1;
+
+          return mT2;
+        }
+
+
       protected:
         void analysis_specific_reset()
         {
 
           for (auto& pair : _counters) { pair.second.reset(); }
-
-          std::fill(cutFlowVector_1.begin(), cutFlowVector_1.end(), 0);
-          std::fill(cutFlowVector_2.begin(), cutFlowVector_2.end(), 0);
+          // std::fill(cutFlowVector_1.begin(), cutFlowVector_1.end(), 0);
+          // std::fill(cutFlowVector_2.begin(), cutFlowVector_2.end(), 0);
         }
 
     };
 
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2OSLEP_137invfb)
+
+
 
     //
     // Derived analysis class for the Strong-production on-Z search regions
@@ -608,34 +820,34 @@ namespace Gambit
 
           // Covariance matrix
           static const vector< vector<double> > BKGCOV = {
-            {1.4521e+03, 5.5203e+01, 6.0650e+00, 2.1085e-01, 1.1549e+01, -1.2563e+01, 1.4640e+01, 9.2761e+00, -3.3911e+00, -2.7049e-01, 5.4988e+01, 1.2710e+01, 5.0895e+00, 1.8274e+00, 1.3101e+00, -1.8685e+01, 9.3332e+00, 3.0903e+00, 1.9607e-01, 3.1051e-01, -2.5945e+01, -6.0308e-01, -1.3191e+00, -1.7823e-01, -9.3416e+00, 6.5442e-01, 5.3011e-01, 2.9185e-01},
-            {5.5203e+01, 8.9511e+01, 1.1500e+00, 1.2805e-01, 1.3616e+00, -6.7154e+00, -5.0154e+00, 1.5398e+00, 1.6068e-01, -1.2968e+00, -1.8061e+01, 8.2175e-01, -2.6257e-01, 3.4625e-01, 1.0484e+00, -1.8691e+00, -2.6804e+00, 1.6552e+00, -9.2475e-01, 2.9139e-01, 1.1311e+01, 4.6062e+00, 1.6555e-01, -6.0225e-02, 5.7873e+00, 7.0825e-01, -7.4564e-01, -9.4884e-02},
-            {6.0650e+00, 1.1500e+00, 1.2920e+01, 5.0631e-01, 6.7628e-01, 2.0637e+00, 7.6292e-01, 1.2700e+00, 3.4177e-01, -2.1569e-01, -4.3552e+00, -1.8029e+00, 2.3807e-01, 1.9466e-01, 5.7548e-02, -2.8882e-01, 1.8522e+00, -1.3725e-01, -6.1019e-02, -4.8209e-02, 3.0286e+00, -4.7960e-01, -4.6834e-03, 7.4520e-02, 1.0201e-01, -1.3870e-01, -1.2913e-02, 6.4226e-02},
-            {2.1085e-01, 1.2805e-01, 5.0631e-01, 1.2694e+00, 5.1945e-01, -2.9795e+00, 6.3830e-01, 1.3851e-01, -1.2063e-01, 1.3857e-01, -7.0635e-01, 1.9933e-01, -3.7357e-02, 1.2077e-01, 4.1778e-01, 7.6811e-01, 4.3755e-01, 1.8244e-01, -4.1748e-02, 5.8184e-02, 7.0573e-01, 2.2611e-01, 3.2559e-02, 5.8350e-03, 3.2783e-01, 2.0513e-01, 9.6306e-02, -1.6076e-02},
-            {1.1549e+01, 1.3616e+00, 6.7628e-01, 5.1945e-01, 5.7572e+00, 5.3280e-01, 1.4637e+00, 4.3437e-01, 4.5808e-01, -6.6341e-02, 5.9487e-01, -1.8286e-01, -6.9414e-02, 2.9026e-01, 2.7794e-01, 2.4874e+00, 7.5698e-01, 1.1291e+00, 1.0347e-01, 2.0091e-01, 7.6066e-01, -4.2736e-01, 1.8125e-01, 5.6105e-02, 2.3908e-01, 3.0974e-01, 1.2836e-01, 1.1331e-02},
-            {-1.2563e+01, -6.7154e+00, 2.0637e+00, -2.9795e+00, 5.3280e-01, 5.3853e+02, 3.9787e+01, 5.8103e+00, -1.7162e+00, 4.6307e-01, -3.2551e+00, 1.5229e+00, 2.4401e+00, -4.3367e-01, -2.8654e+00, 2.9285e+01, -1.9252e+00, -1.5521e+00, 7.2142e-01, -2.6510e-01, -3.5144e+01, 3.4202e+00, 5.0759e-01, 1.2089e-01, -1.1291e+01, 1.1117e+00, 8.8448e-01, -2.3650e-01},
-            {1.4640e+01, -5.0154e+00, 7.6292e-01, 6.3830e-01, 1.4637e+00, 3.9787e+01, 5.8997e+01, 2.4435e+00, -4.6743e-01, 9.8687e-01, 1.7262e+01, -3.7466e+00, -1.2577e-01, 9.0076e-01, 8.1680e-01, -8.6186e+00, -5.9311e-01, 1.8444e+00, -6.8109e-01, -8.3176e-02, -1.3621e+01, -1.4951e+00, -2.4687e-01, -3.8413e-02, 2.8754e+00, 1.7971e+00, 4.8273e-01, 5.8252e-02},
-            {9.2761e+00, 1.5398e+00, 1.2700e+00, 1.3851e-01, 4.3437e-01, 5.8103e+00, 2.4435e+00, 8.5267e+00, 4.0394e-01, 1.0102e-01, 5.1706e+00, -9.6494e-02, 1.0258e-01, -3.7319e-02, -1.5961e-01, -1.2869e+00, 1.8887e-01, 1.5304e+00, 1.5826e-01, -1.5827e-01, 2.2073e+00, 4.4216e-01, 2.9077e-01, 1.1504e-01, -1.9350e+00, -4.1133e-01, 1.7511e-01, 3.0503e-02},
-            {-3.3911e+00, 1.6068e-01, 3.4177e-01, -1.2063e-01, 4.5808e-01, -1.7162e+00, -4.6743e-01, 4.0394e-01, 2.0618e+00, -1.3859e-01, 4.3295e+00, 8.8253e-01, -1.1370e-01, 7.2044e-02, -1.1193e-01, 1.5744e+00, 9.3435e-01, 5.9132e-02, 5.0289e-02, 2.5199e-02, 5.4717e-01, -3.3770e-01, 2.0771e-02, -2.0063e-02, -4.1563e-01, -5.1919e-02, 7.8065e-02, 5.6252e-03},
-            {-2.7049e-01, -1.2968e+00, -2.1569e-01, 1.3857e-01, -6.6341e-02, 4.6307e-01, 9.8687e-01, 1.0102e-01, -1.3859e-01, 1.2260e+00, -4.2174e-01, 1.5263e-01, -2.7637e-01, 9.7971e-03, 1.1605e-01, -1.6137e+00, -9.7427e-02, 1.6562e-01, 1.6255e-01, -2.9108e-02, -3.1936e-01, 6.2055e-01, 3.9837e-02, 4.8745e-03, 1.0483e-01, 3.9951e-01, 5.1592e-02, 7.7439e-03},
-            {5.4988e+01, -1.8061e+01, -4.3552e+00, -7.0635e-01, 5.9487e-01, -3.2551e+00, 1.7262e+01, 5.1706e+00, 4.3295e+00, -4.2174e-01, 4.9938e+02, 5.5006e+01, 5.6719e+00, 1.6080e+00, 2.1410e+00, 3.5895e+00, -1.6232e+01, -1.3038e+00, -9.3336e-02, -7.6029e-01, 1.5524e+01, -1.4310e+00, 1.2741e-01, 3.8043e-01, -1.0665e+01, 1.2716e+00, -4.1845e-01, 1.8484e-01},
-            {1.2710e+01, 8.2175e-01, -1.8029e+00, 1.9933e-01, -1.8286e-01, 1.5229e+00, -3.7466e+00, -9.6494e-02, 8.8253e-01, 1.5263e-01, 5.5006e+01, 3.3230e+01, -1.0250e-01, 4.4840e-01, 9.8534e-01, 1.5739e+00, -4.7827e+00, 8.2120e-01, 8.6277e-01, 2.0358e-02, -2.9515e-01, 1.0928e+00, 6.8551e-02, 1.8299e-02, -3.3840e+00, -2.8414e-01, 1.6747e-02, 1.8402e-02},
-            {5.0895e+00, -2.6257e-01, 2.3807e-01, -3.7357e-02, -6.9414e-02, 2.4401e+00, -1.2577e-01, 1.0258e-01, -1.1370e-01, -2.7637e-01, 5.6719e+00, -1.0250e-01, 2.7663e+00, 4.0676e-02, 6.8720e-02, -4.8544e-01, 5.1153e-02, 6.0445e-01, -7.7956e-02, 4.9290e-03, 9.6107e-01, -4.1676e-01, 1.6022e-02, 3.6403e-02, -2.0987e-01, -1.2231e-01, -1.1477e-01, 1.2197e-02},
-            {1.8274e+00, 3.4625e-01, 1.9466e-01, 1.2077e-01, 2.9026e-01, -4.3367e-01, 9.0076e-01, -3.7319e-02, 7.2044e-02, 9.7971e-03, 1.6080e+00, 4.4840e-01, 4.0676e-02, 5.4834e-01, 2.6468e-01, -1.4157e-01, 2.2605e-01, 4.7266e-01, 5.9822e-02, 4.0220e-02, 1.4850e-01, -9.2780e-02, -7.8103e-03, 5.5901e-03, 5.2711e-01, 3.1416e-02, 6.8599e-02, 6.9622e-03},
-            {1.3101e+00, 1.0484e+00, 5.7548e-02, 4.1778e-01, 2.7794e-01, -2.8654e+00, 8.1680e-01, -1.5961e-01, -1.1193e-01, 1.1605e-01, 2.1410e+00, 9.8534e-01, 6.8720e-02, 2.6468e-01, 1.6921e+00, -5.1457e-01, 1.6452e-01, 2.0942e-01, 1.9817e-01, 9.8534e-02, -7.5988e-01, 3.1519e-01, 2.0297e-02, 3.3985e-02, -4.6371e-01, -1.6694e-01, 9.2917e-02, 3.1600e-03},
-            {-1.8685e+01, -1.8691e+00, -2.8882e-01, 7.6811e-01, 2.4874e+00, 2.9285e+01, -8.6186e+00, -1.2869e+00, 1.5744e+00, -1.6137e+00, 3.5895e+00, 1.5739e+00, -4.8544e-01, -1.4157e-01, -5.1457e-01, 2.0592e+02, 1.6212e+01, 2.9808e+00, 4.1373e+00, 7.3180e-01, -8.6525e+00, 6.6253e+00, 3.9786e-01, 1.4130e-01, -4.6411e+00, 7.0626e-01, 1.0477e+00, -1.7875e-01},
-            {9.3332e+00, -2.6804e+00, 1.8522e+00, 4.3755e-01, 7.5698e-01, -1.9252e+00, -5.9311e-01, 1.8887e-01, 9.3435e-01, -9.7427e-02, -1.6232e+01, -4.7827e+00, 5.1153e-02, 2.2605e-01, 1.6452e-01, 1.6212e+01, 4.5487e+01, 1.8569e+00, 1.0878e+00, -1.1379e-02, 1.9010e+00, -2.7519e-01, 3.6326e-01, -1.6192e-01, 2.8821e+00, 1.0704e+00, 7.1178e-01, -2.6429e-02},
-            {3.0903e+00, 1.6552e+00, -1.3725e-01, 1.8244e-01, 1.1291e+00, -1.5521e+00, 1.8444e+00, 1.5304e+00, 5.9132e-02, 1.6562e-01, -1.3038e+00, 8.2120e-01, 6.0445e-01, 4.7266e-01, 2.0942e-01, 2.9808e+00, 1.8569e+00, 9.1661e+00, 4.0639e-01, 4.7322e-02, -2.2287e+00, 2.7419e-02, -3.1738e-02, 7.3655e-02, -3.7532e-01, -3.6019e-01, 2.8927e-01, 2.6187e-02},
-            {1.9607e-01, -9.2475e-01, -6.1019e-02, -4.1748e-02, 1.0347e-01, 7.2142e-01, -6.8109e-01, 1.5826e-01, 5.0289e-02, 1.6255e-01, -9.3336e-02, 8.6277e-01, -7.7956e-02, 5.9822e-02, 1.9817e-01, 4.1373e+00, 1.0878e+00, 4.0639e-01, 1.4865e+00, 3.0158e-02, 3.2119e-02, 6.5265e-01, 1.0746e-01, -3.6876e-03, -9.3238e-01, 2.6358e-02, 2.9238e-02, 5.7457e-03},
-            {3.1051e-01, 2.9139e-01, -4.8209e-02, 5.8184e-02, 2.0091e-01, -2.6510e-01, -8.3176e-02, -1.5827e-01, 2.5199e-02, -2.9108e-02, -7.6029e-01, 2.0358e-02, 4.9290e-03, 4.0220e-02, 9.8534e-02, 7.3180e-01, -1.1379e-02, 4.7322e-02, 3.0158e-02, 3.3153e-01, 1.3960e-01, 7.6362e-02, -1.3776e-02, 5.0654e-03, 4.8365e-01, 4.1544e-02, 3.5684e-02, 4.0270e-04},
-            {-2.5945e+01, 1.1311e+01, 3.0286e+00, 7.0573e-01, 7.6066e-01, -3.5144e+01, -1.3621e+01, 2.2073e+00, 5.4717e-01, -3.1936e-01, 1.5524e+01, -2.9515e-01, 9.6107e-01, 1.4850e-01, -7.5988e-01, -8.6525e+00, 1.9010e+00, -2.2287e+00, 3.2119e-02, 1.3960e-01, 1.1350e+02, 1.3072e+01, 8.3534e-01, 3.1025e-01, -1.4518e+00, -3.2020e-01, 1.1889e-01, -7.0540e-03},
-            {-6.0308e-01, 4.6062e+00, -4.7960e-01, 2.2611e-01, -4.2736e-01, 3.4202e+00, -1.4951e+00, 4.4216e-01, -3.3770e-01, 6.2055e-01, -1.4310e+00, 1.0928e+00, -4.1676e-01, -9.2780e-02, 3.1519e-01, 6.6253e+00, -2.7519e-01, 2.7419e-02, 6.5265e-01, 7.6362e-02, 1.3072e+01, 1.3178e+01, 1.1952e-01, 9.2730e-02, -1.7878e+00, -1.1135e-01, 9.8442e-02, -1.2978e-02},
-            {-1.3191e+00, 1.6555e-01, -4.6834e-03, 3.2559e-02, 1.8125e-01, 5.0759e-01, -2.4687e-01, 2.9077e-01, 2.0771e-02, 3.9837e-02, 1.2741e-01, 6.8551e-02, 1.6022e-02, -7.8103e-03, 2.0297e-02, 3.9786e-01, 3.6326e-01, -3.1738e-02, 1.0746e-01, -1.3776e-02, 8.3534e-01, 1.1952e-01, 3.1161e-01, 3.1731e-03, 1.3477e-01, 2.7847e-02, -2.1812e-03, 1.0801e-03},
-            {-1.7823e-01, -6.0225e-02, 7.4520e-02, 5.8350e-03, 5.6105e-02, 1.2089e-01, -3.8413e-02, 1.1504e-01, -2.0063e-02, 4.8745e-03, 3.8043e-01, 1.8299e-02, 3.6403e-02, 5.5901e-03, 3.3985e-02, 1.4130e-01, -1.6192e-01, 7.3655e-02, -3.6876e-03, 5.0654e-03, 3.1025e-01, 9.2730e-02, 3.1731e-03, 5.2476e-02, -2.1216e-01, -3.9722e-02, 2.8203e-03, 2.2613e-03},
-            {-9.3416e+00, 5.7873e+00, 1.0201e-01, 3.2783e-01, 2.3908e-01, -1.1291e+01, 2.8754e+00, -1.9350e+00, -4.1563e-01, 1.0483e-01, -1.0665e+01, -3.3840e+00, -2.0987e-01, 5.2711e-01, -4.6371e-01, -4.6411e+00, 2.8821e+00, -3.7532e-01, -9.3238e-01, 4.8365e-01, -1.4518e+00, -1.7878e+00, 1.3477e-01, -2.1216e-01, 3.4245e+01, 7.2843e+00, 1.5902e+00, -2.4965e-02},
-            {6.5442e-01, 7.0825e-01, -1.3870e-01, 2.0513e-01, 3.0974e-01, 1.1117e+00, 1.7971e+00, -4.1133e-01, -5.1919e-02, 3.9951e-01, 1.2716e+00, -2.8414e-01, -1.2231e-01, 3.1416e-02, -1.6694e-01, 7.0626e-01, 1.0704e+00, -3.6019e-01, 2.6358e-02, 4.1544e-02, -3.2020e-01, -1.1135e-01, 2.7847e-02, -3.9722e-02, 7.2843e+00, 3.7389e+00, 6.3033e-01, -6.8704e-03},
-            {5.3011e-01, -7.4564e-01, -1.2913e-02, 9.6306e-02, 1.2836e-01, 8.8448e-01, 4.8273e-01, 1.7511e-01, 7.8065e-02, 5.1592e-02, -4.1845e-01, 1.6747e-02, -1.1477e-01, 6.8599e-02, 9.2917e-02, 1.0477e+00, 7.1178e-01, 2.8927e-01, 2.9238e-02, 3.5684e-02, 1.1889e-01, 9.8442e-02, -2.1812e-03, 2.8203e-03, 1.5902e+00, 6.3033e-01, 5.5992e-01, 1.8936e-03},
-            {2.9185e-01, -9.4884e-02, 6.4226e-02, -1.6076e-02, 1.1331e-02, -2.3650e-01, 5.8252e-02, 3.0503e-02, 5.6252e-03, 7.7439e-03, 1.8484e-01, 1.8402e-02, 1.2197e-02, 6.9622e-03, 3.1600e-03, -1.7875e-01, -2.6429e-02, 2.6187e-02, 5.7457e-03, 4.0270e-04, -7.0540e-03, -1.2978e-02, 1.0801e-03, 2.2613e-03, -2.4965e-02, -6.8704e-03, 1.8936e-03, 1.5020e-02}
+            {  1.452e+03,  5.520e+01,  6.065e+00,  2.108e-01,  1.155e+01, -1.256e+01,  1.464e+01,  9.276e+00, -3.391e+00, -2.705e-01,  5.499e+01,  1.271e+01,  5.089e+00,  1.827e+00,  1.310e+00, -1.869e+01,  9.333e+00,  3.090e+00,  1.961e-01,  3.105e-01, -2.595e+01, -6.031e-01, -1.319e+00, -1.782e-01, -9.342e+00,  6.544e-01,  5.301e-01,  2.918e-01},
+            {  5.520e+01,  8.951e+01,  1.150e+00,  1.281e-01,  1.362e+00, -6.715e+00, -5.015e+00,  1.540e+00,  1.607e-01, -1.297e+00, -1.806e+01,  8.218e-01, -2.626e-01,  3.463e-01,  1.048e+00, -1.869e+00, -2.680e+00,  1.655e+00, -9.247e-01,  2.914e-01,  1.131e+01,  4.606e+00,  1.656e-01, -6.022e-02,  5.787e+00,  7.082e-01, -7.456e-01, -9.488e-02},
+            {  6.065e+00,  1.150e+00,  1.292e+01,  5.063e-01,  6.763e-01,  2.064e+00,  7.629e-01,  1.270e+00,  3.418e-01, -2.157e-01, -4.355e+00, -1.803e+00,  2.381e-01,  1.947e-01,  5.755e-02, -2.888e-01,  1.852e+00, -1.372e-01, -6.102e-02, -4.821e-02,  3.029e+00, -4.796e-01, -4.683e-03,  7.452e-02,  1.020e-01, -1.387e-01, -1.291e-02,  6.423e-02},
+            {  2.108e-01,  1.281e-01,  5.063e-01,  1.269e+00,  5.195e-01, -2.980e+00,  6.383e-01,  1.385e-01, -1.206e-01,  1.386e-01, -7.064e-01,  1.993e-01, -3.736e-02,  1.208e-01,  4.178e-01,  7.681e-01,  4.376e-01,  1.824e-01, -4.175e-02,  5.818e-02,  7.057e-01,  2.261e-01,  3.256e-02,  5.835e-03,  3.278e-01,  2.051e-01,  9.631e-02, -1.608e-02},
+            {  1.155e+01,  1.362e+00,  6.763e-01,  5.195e-01,  5.757e+00,  5.328e-01,  1.464e+00,  4.344e-01,  4.581e-01, -6.634e-02,  5.949e-01, -1.829e-01, -6.941e-02,  2.903e-01,  2.779e-01,  2.487e+00,  7.570e-01,  1.129e+00,  1.035e-01,  2.009e-01,  7.607e-01, -4.274e-01,  1.812e-01,  5.611e-02,  2.391e-01,  3.097e-01,  1.284e-01,  1.133e-02},
+            { -1.256e+01, -6.715e+00,  2.064e+00, -2.980e+00,  5.328e-01,  5.385e+02,  3.979e+01,  5.810e+00, -1.716e+00,  4.631e-01, -3.255e+00,  1.523e+00,  2.440e+00, -4.337e-01, -2.865e+00,  2.929e+01, -1.925e+00, -1.552e+00,  7.214e-01, -2.651e-01, -3.514e+01,  3.420e+00,  5.076e-01,  1.209e-01, -1.129e+01,  1.112e+00,  8.845e-01, -2.365e-01},
+            {  1.464e+01, -5.015e+00,  7.629e-01,  6.383e-01,  1.464e+00,  3.979e+01,  5.900e+01,  2.444e+00, -4.674e-01,  9.869e-01,  1.726e+01, -3.747e+00, -1.258e-01,  9.008e-01,  8.168e-01, -8.619e+00, -5.931e-01,  1.844e+00, -6.811e-01, -8.318e-02, -1.362e+01, -1.495e+00, -2.469e-01, -3.841e-02,  2.875e+00,  1.797e+00,  4.827e-01,  5.825e-02},
+            {  9.276e+00,  1.540e+00,  1.270e+00,  1.385e-01,  4.344e-01,  5.810e+00,  2.444e+00,  8.527e+00,  4.039e-01,  1.010e-01,  5.171e+00, -9.649e-02,  1.026e-01, -3.732e-02, -1.596e-01, -1.287e+00,  1.889e-01,  1.530e+00,  1.583e-01, -1.583e-01,  2.207e+00,  4.422e-01,  2.908e-01,  1.150e-01, -1.935e+00, -4.113e-01,  1.751e-01,  3.050e-02},
+            { -3.391e+00,  1.607e-01,  3.418e-01, -1.206e-01,  4.581e-01, -1.716e+00, -4.674e-01,  4.039e-01,  2.062e+00, -1.386e-01,  4.329e+00,  8.825e-01, -1.137e-01,  7.204e-02, -1.119e-01,  1.574e+00,  9.343e-01,  5.913e-02,  5.029e-02,  2.520e-02,  5.472e-01, -3.377e-01,  2.077e-02, -2.006e-02, -4.156e-01, -5.192e-02,  7.807e-02,  5.625e-03},
+            { -2.705e-01, -1.297e+00, -2.157e-01,  1.386e-01, -6.634e-02,  4.631e-01,  9.869e-01,  1.010e-01, -1.386e-01,  1.226e+00, -4.217e-01,  1.526e-01, -2.764e-01,  9.797e-03,  1.160e-01, -1.614e+00, -9.743e-02,  1.656e-01,  1.626e-01, -2.911e-02, -3.194e-01,  6.205e-01,  3.984e-02,  4.874e-03,  1.048e-01,  3.995e-01,  5.159e-02,  7.744e-03},
+            {  5.499e+01, -1.806e+01, -4.355e+00, -7.064e-01,  5.949e-01, -3.255e+00,  1.726e+01,  5.171e+00,  4.329e+00, -4.217e-01,  4.994e+02,  5.501e+01,  5.672e+00,  1.608e+00,  2.141e+00,  3.590e+00, -1.623e+01, -1.304e+00, -9.334e-02, -7.603e-01,  1.552e+01, -1.431e+00,  1.274e-01,  3.804e-01, -1.066e+01,  1.272e+00, -4.184e-01,  1.848e-01},
+            {  1.271e+01,  8.218e-01, -1.803e+00,  1.993e-01, -1.829e-01,  1.523e+00, -3.747e+00, -9.649e-02,  8.825e-01,  1.526e-01,  5.501e+01,  3.323e+01, -1.025e-01,  4.484e-01,  9.853e-01,  1.574e+00, -4.783e+00,  8.212e-01,  8.628e-01,  2.036e-02, -2.952e-01,  1.093e+00,  6.855e-02,  1.830e-02, -3.384e+00, -2.841e-01,  1.675e-02,  1.840e-02},
+            {  5.089e+00, -2.626e-01,  2.381e-01, -3.736e-02, -6.941e-02,  2.440e+00, -1.258e-01,  1.026e-01, -1.137e-01, -2.764e-01,  5.672e+00, -1.025e-01,  2.766e+00,  4.068e-02,  6.872e-02, -4.854e-01,  5.115e-02,  6.044e-01, -7.796e-02,  4.929e-03,  9.611e-01, -4.168e-01,  1.602e-02,  3.640e-02, -2.099e-01, -1.223e-01, -1.148e-01,  1.220e-02},
+            {  1.827e+00,  3.463e-01,  1.947e-01,  1.208e-01,  2.903e-01, -4.337e-01,  9.008e-01, -3.732e-02,  7.204e-02,  9.797e-03,  1.608e+00,  4.484e-01,  4.068e-02,  5.483e-01,  2.647e-01, -1.416e-01,  2.261e-01,  4.727e-01,  5.982e-02,  4.022e-02,  1.485e-01, -9.278e-02, -7.810e-03,  5.590e-03,  5.271e-01,  3.142e-02,  6.860e-02,  6.962e-03},
+            {  1.310e+00,  1.048e+00,  5.755e-02,  4.178e-01,  2.779e-01, -2.865e+00,  8.168e-01, -1.596e-01, -1.119e-01,  1.160e-01,  2.141e+00,  9.853e-01,  6.872e-02,  2.647e-01,  1.692e+00, -5.146e-01,  1.645e-01,  2.094e-01,  1.982e-01,  9.853e-02, -7.599e-01,  3.152e-01,  2.030e-02,  3.398e-02, -4.637e-01, -1.669e-01,  9.292e-02,  3.160e-03},
+            { -1.869e+01, -1.869e+00, -2.888e-01,  7.681e-01,  2.487e+00,  2.929e+01, -8.619e+00, -1.287e+00,  1.574e+00, -1.614e+00,  3.590e+00,  1.574e+00, -4.854e-01, -1.416e-01, -5.146e-01,  2.059e+02,  1.621e+01,  2.981e+00,  4.137e+00,  7.318e-01, -8.653e+00,  6.625e+00,  3.979e-01,  1.413e-01, -4.641e+00,  7.063e-01,  1.048e+00, -1.788e-01},
+            {  9.333e+00, -2.680e+00,  1.852e+00,  4.376e-01,  7.570e-01, -1.925e+00, -5.931e-01,  1.889e-01,  9.343e-01, -9.743e-02, -1.623e+01, -4.783e+00,  5.115e-02,  2.261e-01,  1.645e-01,  1.621e+01,  4.549e+01,  1.857e+00,  1.088e+00, -1.138e-02,  1.901e+00, -2.752e-01,  3.633e-01, -1.619e-01,  2.882e+00,  1.070e+00,  7.118e-01, -2.643e-02},
+            {  3.090e+00,  1.655e+00, -1.372e-01,  1.824e-01,  1.129e+00, -1.552e+00,  1.844e+00,  1.530e+00,  5.913e-02,  1.656e-01, -1.304e+00,  8.212e-01,  6.044e-01,  4.727e-01,  2.094e-01,  2.981e+00,  1.857e+00,  9.166e+00,  4.064e-01,  4.732e-02, -2.229e+00,  2.742e-02, -3.174e-02,  7.366e-02, -3.753e-01, -3.602e-01,  2.893e-01,  2.619e-02},
+            {  1.961e-01, -9.247e-01, -6.102e-02, -4.175e-02,  1.035e-01,  7.214e-01, -6.811e-01,  1.583e-01,  5.029e-02,  1.626e-01, -9.334e-02,  8.628e-01, -7.796e-02,  5.982e-02,  1.982e-01,  4.137e+00,  1.088e+00,  4.064e-01,  1.486e+00,  3.016e-02,  3.212e-02,  6.526e-01,  1.075e-01, -3.688e-03, -9.324e-01,  2.636e-02,  2.924e-02,  5.746e-03},
+            {  3.105e-01,  2.914e-01, -4.821e-02,  5.818e-02,  2.009e-01, -2.651e-01, -8.318e-02, -1.583e-01,  2.520e-02, -2.911e-02, -7.603e-01,  2.036e-02,  4.929e-03,  4.022e-02,  9.853e-02,  7.318e-01, -1.138e-02,  4.732e-02,  3.016e-02,  3.315e-01,  1.396e-01,  7.636e-02, -1.378e-02,  5.065e-03,  4.837e-01,  4.154e-02,  3.568e-02,  4.027e-04},
+            { -2.595e+01,  1.131e+01,  3.029e+00,  7.057e-01,  7.607e-01, -3.514e+01, -1.362e+01,  2.207e+00,  5.472e-01, -3.194e-01,  1.552e+01, -2.952e-01,  9.611e-01,  1.485e-01, -7.599e-01, -8.653e+00,  1.901e+00, -2.229e+00,  3.212e-02,  1.396e-01,  1.135e+02,  1.307e+01,  8.353e-01,  3.103e-01, -1.452e+00, -3.202e-01,  1.189e-01, -7.054e-03},
+            { -6.031e-01,  4.606e+00, -4.796e-01,  2.261e-01, -4.274e-01,  3.420e+00, -1.495e+00,  4.422e-01, -3.377e-01,  6.205e-01, -1.431e+00,  1.093e+00, -4.168e-01, -9.278e-02,  3.152e-01,  6.625e+00, -2.752e-01,  2.742e-02,  6.526e-01,  7.636e-02,  1.307e+01,  1.318e+01,  1.195e-01,  9.273e-02, -1.788e+00, -1.113e-01,  9.844e-02, -1.298e-02},
+            { -1.319e+00,  1.656e-01, -4.683e-03,  3.256e-02,  1.812e-01,  5.076e-01, -2.469e-01,  2.908e-01,  2.077e-02,  3.984e-02,  1.274e-01,  6.855e-02,  1.602e-02, -7.810e-03,  2.030e-02,  3.979e-01,  3.633e-01, -3.174e-02,  1.075e-01, -1.378e-02,  8.353e-01,  1.195e-01,  3.116e-01,  3.173e-03,  1.348e-01,  2.785e-02, -2.181e-03,  1.080e-03},
+            { -1.782e-01, -6.022e-02,  7.452e-02,  5.835e-03,  5.611e-02,  1.209e-01, -3.841e-02,  1.150e-01, -2.006e-02,  4.874e-03,  3.804e-01,  1.830e-02,  3.640e-02,  5.590e-03,  3.398e-02,  1.413e-01, -1.619e-01,  7.366e-02, -3.688e-03,  5.065e-03,  3.103e-01,  9.273e-02,  3.173e-03,  5.248e-02, -2.122e-01, -3.972e-02,  2.820e-03,  2.261e-03},
+            { -9.342e+00,  5.787e+00,  1.020e-01,  3.278e-01,  2.391e-01, -1.129e+01,  2.875e+00, -1.935e+00, -4.156e-01,  1.048e-01, -1.066e+01, -3.384e+00, -2.099e-01,  5.271e-01, -4.637e-01, -4.641e+00,  2.882e+00, -3.753e-01, -9.324e-01,  4.837e-01, -1.452e+00, -1.788e+00,  1.348e-01, -2.122e-01,  3.424e+01,  7.284e+00,  1.590e+00, -2.497e-02},
+            {  6.544e-01,  7.082e-01, -1.387e-01,  2.051e-01,  3.097e-01,  1.112e+00,  1.797e+00, -4.113e-01, -5.192e-02,  3.995e-01,  1.272e+00, -2.841e-01, -1.223e-01,  3.142e-02, -1.669e-01,  7.063e-01,  1.070e+00, -3.602e-01,  2.636e-02,  4.154e-02, -3.202e-01, -1.113e-01,  2.785e-02, -3.972e-02,  7.284e+00,  3.739e+00,  6.303e-01, -6.870e-03},
+            {  5.301e-01, -7.456e-01, -1.291e-02,  9.631e-02,  1.284e-01,  8.845e-01,  4.827e-01,  1.751e-01,  7.807e-02,  5.159e-02, -4.184e-01,  1.675e-02, -1.148e-01,  6.860e-02,  9.292e-02,  1.048e+00,  7.118e-01,  2.893e-01,  2.924e-02,  3.568e-02,  1.189e-01,  9.844e-02, -2.181e-03,  2.820e-03,  1.590e+00,  6.303e-01,  5.599e-01,  1.894e-03},
+            {  2.918e-01, -9.488e-02,  6.423e-02, -1.608e-02,  1.133e-02, -2.365e-01,  5.825e-02,  3.050e-02,  5.625e-03,  7.744e-03,  1.848e-01,  1.840e-02,  1.220e-02,  6.962e-03,  3.160e-03, -1.788e-01, -2.643e-02,  2.619e-02,  5.746e-03,  4.027e-04, -7.054e-03, -1.298e-02,  1.080e-03,  2.261e-03, -2.497e-02, -6.870e-03,  1.894e-03,  1.502e-02},
           };
 
           set_covariance(BKGCOV);
@@ -646,6 +858,74 @@ namespace Gambit
 
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2OSLEP_Strong_Production_137invfb)
+
+
+
+    //
+    // Derived analysis class for the EW-production on-Z search regions
+    //
+    class Analysis_CMS_13TeV_2OSLEP_EW_Production_137invfb : public Analysis_CMS_13TeV_2OSLEP_137invfb
+    {
+
+      public:
+        Analysis_CMS_13TeV_2OSLEP_EW_Production_137invfb()
+        {
+          set_analysis_name("CMS_13TeV_2OSLEP_EW_Production_137invfb");
+        }
+
+        virtual void collect_results()
+        {
+          add_result(SignalRegionData(_counters.at("SRHZ_50_100"),  168., {168., 15.}));
+          add_result(SignalRegionData(_counters.at("SRHZ_100_150"), 14.,  {15.6, 4.3}));
+          add_result(SignalRegionData(_counters.at("SRHZ_150_250"), 5.,   {5.6, 2.8}));
+          add_result(SignalRegionData(_counters.at("SRHZ_250"),     0.,   {1.2, 0.4}));
+
+          add_result(SignalRegionData(_counters.at("SRBoostedVZ_50_100"),  43., {43.0, 9.9}));
+          add_result(SignalRegionData(_counters.at("SRBoostedVZ_100_200"), 5.,  {2.3, 0.8}));
+          add_result(SignalRegionData(_counters.at("SRBoostedVZ_200_300"), 1.,  {0.5, 0.5}));
+          add_result(SignalRegionData(_counters.at("SRBoostedVZ_300_400"), 0.,  {0.2, 0.2}));
+          add_result(SignalRegionData(_counters.at("SRBoostedVZ_400_500"), 0.,  {0.0, 0.1}));
+          add_result(SignalRegionData(_counters.at("SRBoostedVZ_500"),     0.,  {0.2, 0.1}));
+
+          add_result(SignalRegionData(_counters.at("SRResolvedVZ_50_100"),  3648., {3648., 80.}));
+          add_result(SignalRegionData(_counters.at("SRResolvedVZ_100_150"), 461.,  {439., 47.}));
+          add_result(SignalRegionData(_counters.at("SRResolvedVZ_150_250"), 69.,   {58., 19.}));
+          add_result(SignalRegionData(_counters.at("SRResolvedVZ_250_350"), 7.,    {11.9, 3.2}));
+          add_result(SignalRegionData(_counters.at("SRResolvedVZ_350"),     2.,    {6.3, 2.2}));
+
+          // Covariance matrix
+          // NOTE: The ordering of the bin labels is wrong in the pdf/png figures of the covariance matrix 
+          // provided at https://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-20-001/index.html
+          // The ROOT file has the correct bin labels, so the covariance matrix below is extracted from the ROOT file 
+          // and the order in which the SRs are registered above is matched to this.
+          static const vector< vector<double> > BKGCOV = {
+            {  1.617e+02,  1.135e+01,  4.261e+00,  8.042e-01,  3.021e+00,  4.050e-01, -6.691e-02,  2.447e-01, -1.306e-02,  3.087e-02, -8.126e+01, -1.601e+01,  1.789e+01,  5.536e+00,  3.430e+00},
+            {  1.135e+01,  9.444e+00,  1.657e+00,  4.450e-01,  2.818e+00,  3.480e-01, -1.021e-02,  7.137e-02, -6.388e-04,  2.926e-02, -1.639e+00,  8.133e+00,  6.670e+00,  5.999e-01,  5.488e-01},
+            {  4.261e+00,  1.657e+00,  1.070e+01,  3.303e-01,  2.220e+00,  4.126e-01,  7.900e-02,  3.939e-02,  7.144e-03,  2.884e-03,  1.233e+01,  3.676e+00,  5.360e+00,  1.160e+00,  2.478e-01},
+            {  8.042e-01,  4.450e-01,  3.303e-01,  4.496e-01,  1.250e+00,  1.687e-01,  6.884e-03,  9.276e-03,  6.434e-04,  4.373e-03,  4.501e+00, -2.516e-01,  4.067e-01,  8.973e-02,  2.017e-01},
+            {  3.021e+00,  2.818e+00,  2.220e+00,  1.250e+00,  5.713e+01,  2.615e+00,  2.296e-02,  2.641e-02,  1.040e-02,  1.746e-02,  4.645e+01,  1.384e+01,  7.127e+00,  2.057e+00, -9.674e-02},
+            {  4.050e-01,  3.480e-01,  4.126e-01,  1.687e-01,  2.615e+00,  7.216e-01,  1.581e-02,  1.177e-02,  1.585e-03,  8.841e-03,  2.161e+00,  3.361e-01,  2.421e+00,  4.444e-01,  7.708e-02},
+            { -6.691e-02, -1.021e-02,  7.900e-02,  6.884e-03,  2.296e-02,  1.581e-02,  1.799e-02,  1.075e-03,  8.228e-05, -5.897e-04, -1.143e-01,  1.465e-01,  9.678e-03,  5.187e-02,  1.273e-03},
+            {  2.447e-01,  7.137e-02,  3.939e-02,  9.276e-03,  2.641e-02,  1.177e-02,  1.075e-03,  8.658e-03,  4.431e-05,  7.488e-04, -3.198e-01, -1.815e-01,  1.731e-01,  6.114e-02,  2.023e-02},
+            { -1.306e-02, -6.388e-04,  7.144e-03,  6.434e-04,  1.040e-02,  1.585e-03,  8.228e-05,  4.431e-05,  1.200e-04, -6.649e-05,  2.397e-02,  5.324e-03,  8.599e-03,  9.841e-04,  1.045e-03},
+            {  3.087e-02,  2.926e-02,  2.884e-03,  4.373e-03,  1.746e-02,  8.841e-03, -5.897e-04,  7.488e-04, -6.649e-05,  6.347e-03, -1.133e-01,  2.368e-03,  2.057e-01,  2.448e-02,  2.246e-02},
+            { -8.126e+01, -1.639e+00,  1.233e+01,  4.501e+00,  4.645e+01,  2.161e+00, -1.143e-01, -3.198e-01,  2.397e-02, -1.133e-01,  3.182e+03, -1.200e+02,  3.101e-01, -1.399e+01,  1.763e+01},
+            { -1.601e+01,  8.133e+00,  3.676e+00, -2.516e-01,  1.384e+01,  3.361e-01,  1.465e-01, -1.815e-01,  5.324e-03,  2.368e-03, -1.200e+02,  3.946e+02,  3.451e+01,  1.497e+00,  2.006e+00},
+            {  1.789e+01,  6.670e+00,  5.360e+00,  4.067e-01,  7.127e+00,  2.421e+00,  9.678e-03,  1.731e-01,  8.599e-03,  2.057e-01,  3.101e-01,  3.451e+01,  1.372e+02,  1.012e+01,  1.963e+00},
+            {  5.536e+00,  5.999e-01,  1.160e+00,  8.973e-02,  2.057e+00,  4.444e-01,  5.187e-02,  6.114e-02,  9.841e-04,  2.448e-02, -1.399e+01,  1.497e+00,  1.012e+01,  9.865e+00,  6.006e-01},
+            {  3.430e+00,  5.488e-01,  2.478e-01,  2.017e-01, -9.674e-02,  7.708e-02,  1.273e-03,  2.023e-02,  1.045e-03,  2.246e-02,  1.763e+01,  2.006e+00,  1.963e+00,  6.006e-01,  3.896e+00},
+          };
+
+          set_covariance(BKGCOV);
+
+        }
+
+    };
+
+    // Factory fn
+    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2OSLEP_EW_Production_137invfb)
+
+
 
     //
     // Derived analysis class for the Slepton search regions
@@ -673,14 +953,14 @@ namespace Gambit
 
           // Covariance matrix
           static const vector< vector<double> > BKGCOV = {
-            {1.7786e+03, 5.2615e+02, 8.0495e+01, 5.8355e-01, 1.5138e+03, 2.6629e+02, 6.5045e+01, 1.7791e+01},
-            {5.2615e+02, 3.0245e+02, 2.8575e+01, 2.1602e+00, 5.0962e+02, 9.8039e+01, 2.5751e+01, 7.0010e+00},
-            {8.0495e+01, 2.8575e+01, 1.9189e+01, 1.3511e+00, 8.3331e+01, 2.0008e+01, 3.4306e+00, 2.0171e+00},
-            {5.8355e-01, 2.1602e+00, 1.3511e+00, 4.2977e+00, -1.1595e+00, -4.9924e-01, -2.3743e-01, -3.3360e-01},
-            {1.5138e+03, 5.0962e+02, 8.3331e+01, -1.1595e+00, 1.6701e+03, 2.6076e+02, 6.7503e+01, 1.3919e+01},
-            {2.6629e+02, 9.8039e+01, 2.0008e+01, -4.9924e-01, 2.6076e+02, 1.8247e+02, 1.5454e+01, 1.0831e+00},
-            {6.5045e+01, 2.5751e+01, 3.4306e+00, -2.3743e-01, 6.7503e+01, 1.5454e+01, 1.2282e+01, 9.8613e-01},
-            {1.7791e+01, 7.0010e+00, 2.0171e+00, -3.3360e-01, 1.3919e+01, 1.0831e+00, 9.8613e-01, 6.6077e+00}
+            {  1.779e+03,  5.261e+02,  8.049e+01,  5.835e-01,  1.514e+03,  2.663e+02,  6.504e+01,  1.779e+01},
+            {  5.261e+02,  3.024e+02,  2.857e+01,  2.160e+00,  5.096e+02,  9.804e+01,  2.575e+01,  7.001e+00},
+            {  8.049e+01,  2.857e+01,  1.919e+01,  1.351e+00,  8.333e+01,  2.001e+01,  3.431e+00,  2.017e+00},
+            {  5.835e-01,  2.160e+00,  1.351e+00,  4.298e+00, -1.159e+00, -4.992e-01, -2.374e-01, -3.336e-01},
+            {  1.514e+03,  5.096e+02,  8.333e+01, -1.159e+00,  1.670e+03,  2.608e+02,  6.750e+01,  1.392e+01},
+            {  2.663e+02,  9.804e+01,  2.001e+01, -4.992e-01,  2.608e+02,  1.825e+02,  1.545e+01,  1.083e+00},
+            {  6.504e+01,  2.575e+01,  3.431e+00, -2.374e-01,  6.750e+01,  1.545e+01,  1.228e+01,  9.861e-01},
+            {  1.779e+01,  7.001e+00,  2.017e+00, -3.336e-01,  1.392e+01,  1.083e+00,  9.861e-01,  6.608e+00},
           };
 
           set_covariance(BKGCOV);

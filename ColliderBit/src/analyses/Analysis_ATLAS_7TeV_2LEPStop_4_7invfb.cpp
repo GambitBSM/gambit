@@ -25,13 +25,15 @@ namespace Gambit
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
-      double numEE=0;
-      double numUU=0;
-      double numEU=0;
-
 
       Analysis_ATLAS_7TeV_2LEPStop_4_7invfb()
       {
+
+        _counters["EE"] = EventCounter("EE");
+        _counters["UU"] = EventCounter("UU");
+        _counters["EU"] = EventCounter("EU");
+
+
         set_analysis_name("ATLAS_7TeV_2LEPStop_4_7invfb");
         set_luminosity(4.7);
         //clear();
@@ -65,7 +67,7 @@ namespace Gambit
         muons = AnalysisUtil::leptonJetOverlapRemoval(muons, jets, 0.4);
 
         // This uses 8TeV tight electron selection, but it is close enough to the 7TeV implementation so we still use it
-        ATLAS::applyTightIDElectronSelection(electrons);
+        applyEfficiency(electrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
 
         // fill a vector with all of the leptons
         std::vector<const Particle*> leptons;
@@ -111,69 +113,35 @@ namespace Gambit
                 // ee channel
                 if (electrons.size() == 2 && electrons[0]->pT() > 17)
                   {
-                    numEE += event->weight();
+                    _counters["EE"].add_event(event);
                   }
                 // mu-mu channel
                 if (muons.size() == 2 && muons[0]->pT() > 12 && AnalysisUtil::muonFilter7TeV(muons))
                   {
-                    numUU += event->weight();
+                    _counters["UU"].add_event(event);
                   }
               }
             // e-mu channel
             if (muons.size() == 1 && electrons.size() == 1 && electrons[0]->pT() > 17 && muons[0]->pT() > 12)
               {
-                numEU += event->weight();
+                _counters["EU"].add_event(event);
               }
           }
-        // cout << numEE << ", " << numEU << ", " << numUU << endl;
-      }
-
-      /*void Analysis_ATLAS_7TeV_2LEPStop_4_7invfb::scale(double factor)
-      {
-        HEPUtilsAnalysis::scale(factor);
-        cout << "SAVE_XSEC:" << xsec() << endl;
-        auto save = [](double value, std::string name)
-          {
-            cout << "SAVE_START:" << name << endl;
-            cout << value << endl;
-            cout << "SAVE_END" << endl;
-          };
-        save(numEE, "numEE");
-        save(numUU, "numUU");
-        save(numEU, "numEU");
-        }*/
-
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_7TeV_2LEPStop_4_7invfb* specificOther = dynamic_cast<const Analysis_ATLAS_7TeV_2LEPStop_4_7invfb*>(other);
-
-
-        // Here we will add the subclass member variables:
-        numEE += specificOther->numEE;
-        numEU += specificOther->numEU;
-        numUU += specificOther->numUU;
-
       }
 
 
       void collect_results()
       {
-        add_result(SignalRegionData("ee", 48, {numEE,  0.}, {61., 6.}));
-        add_result(SignalRegionData("eu", 188, {numEU,  0.}, {189., 21.}));
-        add_result(SignalRegionData("uu", 195, {numUU,  0.}, {190., 31.}));
-
-        // std::cout << "Results ee " << numEE << std::endl;
-        // std::cout << "Results emu " << numEU << std::endl;
-        // std::cout << "Results mumu " << numUU << std::endl;
+        add_result(SignalRegionData(_counters["EE"], 48, {61., 6.}));
+        add_result(SignalRegionData(_counters["EU"], 188, {189., 21.}));
+        add_result(SignalRegionData(_counters["UU"], 195, {190., 31.}));
 
       }
 
     protected:
       void analysis_specific_reset()
       {
-        numEE = 0;
-        numUU = 0;
-        numEU = 0;
+        for (auto& pair : _counters) { pair.second.reset(); }
       }
     };
 

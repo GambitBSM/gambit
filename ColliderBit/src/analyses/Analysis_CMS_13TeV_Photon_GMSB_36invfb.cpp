@@ -36,20 +36,20 @@ namespace Gambit {
 
       static constexpr const char* detector = "CMS";
 
-      // Counters for the number of accepted events for each signal region
-      std::map<string, EventCounter> _counters = {
-        {"SR-600-800", EventCounter("SR-600-800")},
-        {"SR-800-1000", EventCounter("SR-800-1000")},
-        {"SR-1000-1300", EventCounter("SR-1000-1300")},
-        {"SR-1300", EventCounter("SR-1300")},
-      };
-
 
       Cutflow _cutflow;
 
       Analysis_CMS_13TeV_Photon_GMSB_36invfb():
       _cutflow("CMS 1-photon GMSB 13 TeV", {"preselection", "MET>300GeV", "MT(g,MET)>300GeV", "S_T^g>600GeV"})
       {
+
+        // Counters for the number of accepted events for each signal region
+        _counters["SR-600-800"] = EventCounter("SR-600-800");
+        _counters["SR-800-1000"] = EventCounter("SR-800-1000");
+        _counters["SR-1000-1300"] = EventCounter("SR-1000-1300");
+        _counters["SR-1300"] = EventCounter("SR-1300");
+
+
         set_analysis_name("CMS_13TeV_Photon_GMSB_36invfb");
         set_luminosity(35.9);
       }
@@ -98,14 +98,14 @@ namespace Gambit {
         bool high_pT_photon = false;  // At least one high-pT photon;
         bool delta_R_g_j = false;     // Photons are required to have delta_R>0.5 to the nearest jet;
         bool delta_phi_j_MET = false; // Jets with pT>100 GeV must fulfill delta_phi(MET,jet)>0.3;
-	    for (const HEPUtils::Particle* photon  : Photons){
-	        if (photon->pT()>180. && fabs(photon->eta()) < 1.44) {
-	            high_pT_photon = true;
-	            for (const HEPUtils::Jet* jet : Jets){
-	                if ( jet->mom().deltaR_eta(photon->mom()) < 0.5 ) delta_R_g_j=true;
-	            }
-	        }
-	    }
+        for (const HEPUtils::Particle* photon  : Photons){
+            if (photon->pT()>180. && fabs(photon->eta()) < 1.44) {
+                high_pT_photon = true;
+                for (const HEPUtils::Jet* jet : Jets){
+                    if ( jet->mom().deltaR_eta(photon->mom()) < 0.5 ) delta_R_g_j=true;
+                }
+            }
+        }
         if (not high_pT_photon) return;
         if (delta_R_g_j) return;
         for (const HEPUtils::Jet* jet : Jets){
@@ -126,9 +126,9 @@ namespace Gambit {
 
         // S_T^gamma > 600 GeV
         double STgamma = met;
-	    for (const HEPUtils::Particle* photon  : Photons){
-	        STgamma += photon->pT();
-	    }
+        for (const HEPUtils::Particle* photon  : Photons){
+            STgamma += photon->pT();
+        }
         if (STgamma<600) return;
         _cutflow.fill(4);
 
@@ -138,14 +138,6 @@ namespace Gambit {
         else if (STgamma<1300) _counters.at("SR-1000-1300").add_event(event);
         else                   _counters.at("SR-1300").add_event(event);
 
-      }
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_CMS_13TeV_Photon_GMSB_36invfb* specificOther
-                = dynamic_cast<const Analysis_CMS_13TeV_Photon_GMSB_36invfb*>(other);
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
       }
 
 

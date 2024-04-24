@@ -34,23 +34,6 @@ namespace Gambit
         // Required detector sim
         static constexpr const char* detector = "ATLAS";
 
-        // Numbers passing cuts
-        std::map<string, EventCounter> _counters = {
-          {"2j-1600", EventCounter("2j-1600")},
-          {"2j-2200", EventCounter("2j-2200")},
-          {"2j-2800", EventCounter("2j-2800")},
-          {"4j-1000", EventCounter("4j-1000")},
-          {"4j-2200", EventCounter("4j-2200")},
-          {"4j-3400", EventCounter("4j-3400")},
-          {"5j-1600", EventCounter("5j-1600")},
-          {"6j-1000", EventCounter("6j-1000")},
-          {"6j-2200", EventCounter("6j-2200")},
-          {"6j-3400", EventCounter("6j-3400")},
-        };
-
-        Cutflows _cutflows;
-
-
         // static const size_t NUMSR = 10;
         // double _srnums[NUMSR] = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
         // enum SRNames { SR2J_1600=0, "2j_2200", "2j_2800",
@@ -60,6 +43,20 @@ namespace Gambit
 
         Analysis_ATLAS_13TeV_0LEP_139invfb()
         {
+
+          // Numbers passing cuts
+          _counters["2j-1600"] = EventCounter("2j-1600");
+          _counters["2j-2200"] = EventCounter("2j-2200");
+          _counters["2j-2800"] = EventCounter("2j-2800");
+          _counters["4j-1000"] = EventCounter("4j-1000");
+          _counters["4j-2200"] = EventCounter("4j-2200");
+          _counters["4j-3400"] = EventCounter("4j-3400");
+          _counters["5j-1600"] = EventCounter("5j-1600");
+          _counters["6j-1000"] = EventCounter("6j-1000");
+          _counters["6j-2200"] = EventCounter("6j-2200");
+          _counters["6j-3400"] = EventCounter("6j-3400");
+
+
 
           set_analysis_name("ATLAS_13TeV_0LEP_139invfb");
           set_luminosity(139.0);
@@ -119,7 +116,7 @@ namespace Gambit
             if (electron->pT() > 7. && electron->abseta() < 2.47)
               baselineElectrons.push_back(electron);
           }
-          ATLAS::applyElectronEff(baselineElectrons);
+          applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
           // Get baseline muons and apply efficiency
           vector<const Particle*> baselineMuons;
@@ -128,7 +125,7 @@ namespace Gambit
             if (muon->pT() > 6. && muon->abseta() < 2.7)
               baselineMuons.push_back(muon);
           }
-          ATLAS::applyMuonEff(baselineMuons);
+          applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
           // Remove any |eta| < 2.8 jet within dR = 0.2 of an electron
           vector<const Jet*> signalJets;
@@ -142,7 +139,7 @@ namespace Gambit
             if (all_of(signalJets, [&](const Jet* j){ return deltaR_rap(*e, *j) > min(0.4, 0.04+10/e->pT()); }))
               signalElectrons.push_back(e);
           // Apply electron ID selection
-          ATLAS::applyLooseIDElectronSelectionR2(signalElectrons);
+          applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
           /// @todo And tight ID for high purity... used where?
 
           // Remove muons with dR = 0.4 of surviving |eta| < 2.8 jets
@@ -330,13 +327,6 @@ namespace Gambit
         }
 
 
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_ATLAS_13TeV_0LEP_139invfb* specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_0LEP_139invfb*>(other);
-          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-        }
-
 
         /// Register results objects with the results for each SR; obs & bkg numbers from the CONF note
         void collect_results()
@@ -352,41 +342,35 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("6j-2200"),    5, {  4.6,  1.0}));
           add_result(SignalRegionData(_counters.at("6j-3400"),    0, {  0.8,  0.4}));
 
-          // Cutflow printout
-          #ifdef CHECK_CUTFLOW
-            // const double sf = 139*crossSection()/femtobarn/sumOfWeights();
 
-            // // Confnote cutflows:
-            // _cutflows["2j-1600"].normalize(1763, 1);
-            // _cutflows["2j-2200"].normalize(1763, 1);
-            // _cutflows["2j-2800"].normalize(1763, 1);
-            // _cutflows["4j-1000"].normalize(2562, 1);
-            // _cutflows["4j-2200"].normalize(2562, 1);
-            // _cutflows["4j-3400"].normalize(2562, 1);
-            // _cutflows["5j-1600"].normalize(6101, 1);
-            // _cutflows["6j-1000"].normalize(6101, 1);
-            // _cutflows["6j-2200"].normalize(6101, 1);
-            // _cutflows["6j-3400"].normalize(6101, 1);
+          // const double sf = 139*crossSection()/femtobarn/sumOfWeights();
 
-            // Paper cutflows:
-            _cutflows["2j-1600"].normalize(1423, 1);  // m_sq = 1200, m_N1 = 600, direct decay
-            _cutflows["2j-2200"].normalize(1423, 1);  // m_sq = 1200, m_N1 = 600, direct decay
-            _cutflows["2j-2800"].normalize(1423, 1);  // m_sq = 1200, m_N1 = 600, direct decay
-            _cutflows["4j-1000"].normalize(1787, 1);  // m_g = 1400, m_N1 = 1000, direct decay
-            _cutflows["4j-2200"].normalize(1787, 1);  // m_g = 1400, m_N1 = 1000, direct decay
-            _cutflows["4j-3400"].normalize(1787, 1);  // m_g = 1400, m_N1 = 1000, direct decay
-            _cutflows["5j-1600"].normalize(1787, 1);  // m_g = 1400, m_N1 = 1000, direct decay
-            _cutflows["6j-1000"].normalize(2651, 1);  // m_q = 800, m_C1 = 600, m_N1 = 400, one-step decay
-            _cutflows["6j-2200"].normalize(2651, 1);  // m_q = 800, m_C1 = 600, m_N1 = 400, one-step decay
-            _cutflows["6j-3400"].normalize(2651, 1);  // m_q = 800, m_C1 = 600, m_N1 = 400, one-step decay
+          // // Confnote cutflows:
+          // _cutflows["2j-1600"].normalize(1763, 1);
+          // _cutflows["2j-2200"].normalize(1763, 1);
+          // _cutflows["2j-2800"].normalize(1763, 1);
+          // _cutflows["4j-1000"].normalize(2562, 1);
+          // _cutflows["4j-2200"].normalize(2562, 1);
+          // _cutflows["4j-3400"].normalize(2562, 1);
+          // _cutflows["5j-1600"].normalize(6101, 1);
+          // _cutflows["6j-1000"].normalize(6101, 1);
+          // _cutflows["6j-2200"].normalize(6101, 1);
+          // _cutflows["6j-3400"].normalize(6101, 1);
+
+          // Paper cutflows:
+          _cutflows["2j-1600"].normalize(1423, 1);  // m_sq = 1200, m_N1 = 600, direct decay
+          _cutflows["2j-2200"].normalize(1423, 1);  // m_sq = 1200, m_N1 = 600, direct decay
+          _cutflows["2j-2800"].normalize(1423, 1);  // m_sq = 1200, m_N1 = 600, direct decay
+          _cutflows["4j-1000"].normalize(1787, 1);  // m_g = 1400, m_N1 = 1000, direct decay
+          _cutflows["4j-2200"].normalize(1787, 1);  // m_g = 1400, m_N1 = 1000, direct decay
+          _cutflows["4j-3400"].normalize(1787, 1);  // m_g = 1400, m_N1 = 1000, direct decay
+          _cutflows["5j-1600"].normalize(1787, 1);  // m_g = 1400, m_N1 = 1000, direct decay
+          _cutflows["6j-1000"].normalize(2651, 1);  // m_q = 800, m_C1 = 600, m_N1 = 400, one-step decay
+          _cutflows["6j-2200"].normalize(2651, 1);  // m_q = 800, m_C1 = 600, m_N1 = 400, one-step decay
+          _cutflows["6j-3400"].normalize(2651, 1);  // m_q = 800, m_C1 = 600, m_N1 = 400, one-step decay
 
 
-            cout << "\nCUTFLOWS:\n" << _cutflows << endl;
-            cout << "\nSRCOUNTS:\n";
-            // for (double x : _srnums) cout << x << "  ";
-            for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
-            cout << "\n" << endl;
-          #endif
+          add_cutflows(_cutflows);
         }
 
 

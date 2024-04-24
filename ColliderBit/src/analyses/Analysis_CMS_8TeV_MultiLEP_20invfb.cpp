@@ -35,160 +35,160 @@
 // SR group 1
 //
 #define ADD_RESULTS_SRGROUP_1 \
-  add_result(SignalRegionData("SR3l_OSSF_mT<120_ETmiss50-100_mll<75", 138., {_numSR["SR3l_OSSF_mT<120_ETmiss50-100_mll<75"], 0}, {132., 19.}));          \
-  add_result(SignalRegionData("SR3l_OSSF_mT<120_ETmiss50-100_mll75-105", 821., {_numSR["SR3l_OSSF_mT<120_ETmiss50-100_mll75-105"], 0}, {776., 125.}));   \
-  add_result(SignalRegionData("SR3l_OSSF_mT<120_ETmiss50-100_mll>105", 49., {_numSR["SR3l_OSSF_mT<120_ETmiss50-100_mll>105"], 0}, {45., 7.}));           \
-  add_result(SignalRegionData("SR3l_OSSF_mT<120_ETmiss100-150_mll<75", 16., {_numSR["SR3l_OSSF_mT<120_ETmiss100-150_mll<75"], 0}, {20., 4.}));           \
-  add_result(SignalRegionData("SR3l_OSSF_mT<120_ETmiss100-150_mll75-105", 123., {_numSR["SR3l_OSSF_mT<120_ETmiss100-150_mll75-105"], 0}, {131., 30.}));  \
-  add_result(SignalRegionData("SR3l_OSSF_mT<120_ETmiss100-150_mll>105", 10., {_numSR["SR3l_OSSF_mT<120_ETmiss100-150_mll>105"], 0}, {10.0, 1.9}));       \
-  add_result(SignalRegionData("SR3l_OSSF_mT<120_ETmiss150-200_mll<75", 5., {_numSR["SR3l_OSSF_mT<120_ETmiss150-200_mll<75"], 0}, {4.0, 0.8}));           \
-  add_result(SignalRegionData("SR3l_OSSF_mT<120_ETmiss150-200_mll75-105", 34., {_numSR["SR3l_OSSF_mT<120_ETmiss150-200_mll75-105"], 0}, {34., 8.}));     \
-  add_result(SignalRegionData("SR3l_OSSF_mT<120_ETmiss150-200_mll>105", 4., {_numSR["SR3l_OSSF_mT<120_ETmiss150-200_mll>105"], 0}, {2.5, 0.5}));         \
-  add_result(SignalRegionData("SR3l_OSSF_mT<120_ETmiss200-250_mll<75", 2., {_numSR["SR3l_OSSF_mT<120_ETmiss200-250_mll<75"], 0}, {1.9, 0.4}));           \
-  add_result(SignalRegionData("SR3l_OSSF_mT<120_ETmiss200-250_mll75-105", 14., {_numSR["SR3l_OSSF_mT<120_ETmiss200-250_mll75-105"], 0}, {21., 7.}));     \
-  add_result(SignalRegionData("SR3l_OSSF_mT<120_ETmiss200-250_mll>105", 4., {_numSR["SR3l_OSSF_mT<120_ETmiss200-250_mll>105"], 0}, {1.2, 0.3}));         \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT<120_ETmiss50-100_mll<75"), 138., {132., 19.}));          \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT<120_ETmiss50-100_mll75-105"), 821., {776., 125.}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT<120_ETmiss50-100_mll>105"), 49., {45., 7.}));           \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT<120_ETmiss100-150_mll<75"), 16., {20., 4.}));           \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT<120_ETmiss100-150_mll75-105"), 123., {131., 30.}));  \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT<120_ETmiss100-150_mll>105"), 10., {10.0, 1.9}));       \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT<120_ETmiss150-200_mll<75"), 5., {4.0, 0.8}));           \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT<120_ETmiss150-200_mll75-105"), 34., {34., 8.}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT<120_ETmiss150-200_mll>105"), 4., {2.5, 0.5}));         \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT<120_ETmiss200-250_mll<75"), 2., {1.9, 0.4}));           \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT<120_ETmiss200-250_mll75-105"), 14., {21., 7.}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT<120_ETmiss200-250_mll>105"), 4., {1.2, 0.3}));         \
   \
-  add_result(SignalRegionData("SR3l_OSSF_mT120-160_ETmiss50-100_mll<75", 8., {_numSR["SR3l_OSSF_mT120-160_ETmiss50-100_mll<75"], 0}, {9.6, 1.7}));           \
-  add_result(SignalRegionData("SR3l_OSSF_mT120-160_ETmiss50-100_mll75-105", 29., {_numSR["SR3l_OSSF_mT120-160_ETmiss50-100_mll75-105"], 0}, {23., 5.}));     \
-  add_result(SignalRegionData("SR3l_OSSF_mT120-160_ETmiss50-100_mll>105", 4., {_numSR["SR3l_OSSF_mT120-160_ETmiss50-100_mll>105"], 0}, {2.7, 0.5}));         \
-  add_result(SignalRegionData("SR3l_OSSF_mT120-160_ETmiss100-150_mll<75", 2., {_numSR["SR3l_OSSF_mT120-160_ETmiss100-150_mll<75"], 0}, {3.3, 0.8}));         \
-  add_result(SignalRegionData("SR3l_OSSF_mT120-160_ETmiss100-150_mll75-105", 4., {_numSR["SR3l_OSSF_mT120-160_ETmiss100-150_mll75-105"], 0}, {3.4, 0.7}));   \
-  add_result(SignalRegionData("SR3l_OSSF_mT120-160_ETmiss100-150_mll>105", 2., {_numSR["SR3l_OSSF_mT120-160_ETmiss100-150_mll>105"], 0}, {0.71, 0.22}));     \
-  add_result(SignalRegionData("SR3l_OSSF_mT120-160_ETmiss150-200_mll<75", 0., {_numSR["SR3l_OSSF_mT120-160_ETmiss150-200_mll<75"], 0}, {0.26, 0.10}));       \
-  add_result(SignalRegionData("SR3l_OSSF_mT120-160_ETmiss150-200_mll75-105", 1., {_numSR["SR3l_OSSF_mT120-160_ETmiss150-200_mll75-105"], 0}, {0.72, 0.19})); \
-  add_result(SignalRegionData("SR3l_OSSF_mT120-160_ETmiss150-200_mll>105", 0., {_numSR["SR3l_OSSF_mT120-160_ETmiss150-200_mll>105"], 0}, {0.38, 0.14}));     \
-  add_result(SignalRegionData("SR3l_OSSF_mT120-160_ETmiss200-250_mll<75", 0., {_numSR["SR3l_OSSF_mT120-160_ETmiss200-250_mll<75"], 0}, {0.29, 0.11}));       \
-  add_result(SignalRegionData("SR3l_OSSF_mT120-160_ETmiss200-250_mll75-105", 1., {_numSR["SR3l_OSSF_mT120-160_ETmiss200-250_mll75-105"], 0}, {0.36, 0.12})); \
-  add_result(SignalRegionData("SR3l_OSSF_mT120-160_ETmiss200-250_mll>105", 0., {_numSR["SR3l_OSSF_mT120-160_ETmiss200-250_mll>105"], 0}, {0.24, 0.20}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT120-160_ETmiss50-100_mll<75"), 8., {9.6, 1.7}));           \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT120-160_ETmiss50-100_mll75-105"), 29., {23., 5.}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT120-160_ETmiss50-100_mll>105"), 4., {2.7, 0.5}));         \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT120-160_ETmiss100-150_mll<75"), 2., {3.3, 0.8}));         \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT120-160_ETmiss100-150_mll75-105"), 4., {3.4, 0.7}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT120-160_ETmiss100-150_mll>105"), 2., {0.71, 0.22}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT120-160_ETmiss150-200_mll<75"), 0., {0.26, 0.10}));       \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT120-160_ETmiss150-200_mll75-105"), 1., {0.72, 0.19})); \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT120-160_ETmiss150-200_mll>105"), 0., {0.38, 0.14}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT120-160_ETmiss200-250_mll<75"), 0., {0.29, 0.11}));       \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT120-160_ETmiss200-250_mll75-105"), 1., {0.36, 0.12})); \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT120-160_ETmiss200-250_mll>105"), 0., {0.24, 0.20}));     \
   \
-  add_result(SignalRegionData("SR3l_OSSF_mT>160_ETmiss50-100_mll<75", 12., {_numSR["SR3l_OSSF_mT>160_ETmiss50-100_mll<75"], 0}, {5.8, 1.1}));         \
-  add_result(SignalRegionData("SR3l_OSSF_mT>160_ETmiss50-100_mll75-105", 13., {_numSR["SR3l_OSSF_mT>160_ETmiss50-100_mll75-105"], 0}, {7.5, 1.4}));   \
-  add_result(SignalRegionData("SR3l_OSSF_mT>160_ETmiss50-100_mll>105", 1., {_numSR["SR3l_OSSF_mT>160_ETmiss50-100_mll>105"], 0}, {2.6, 1.2}));        \
-  add_result(SignalRegionData("SR3l_OSSF_mT>160_ETmiss100-150_mll<75", 3., {_numSR["SR3l_OSSF_mT>160_ETmiss100-150_mll<75"], 0}, {4.5, 1.1}));        \
-  add_result(SignalRegionData("SR3l_OSSF_mT>160_ETmiss100-150_mll75-105", 8., {_numSR["SR3l_OSSF_mT>160_ETmiss100-150_mll75-105"], 0}, {4.0, 1.0}));  \
-  add_result(SignalRegionData("SR3l_OSSF_mT>160_ETmiss100-150_mll>105", 3., {_numSR["SR3l_OSSF_mT>160_ETmiss100-150_mll>105"], 0}, {1.8, 0.9}));      \
-  add_result(SignalRegionData("SR3l_OSSF_mT>160_ETmiss150-200_mll<75", 2., {_numSR["SR3l_OSSF_mT>160_ETmiss150-200_mll<75"], 0}, {1.5, 0.4}));        \
-  add_result(SignalRegionData("SR3l_OSSF_mT>160_ETmiss150-200_mll75-105", 3., {_numSR["SR3l_OSSF_mT>160_ETmiss150-200_mll75-105"], 0}, {1.5, 0.5}));  \
-  add_result(SignalRegionData("SR3l_OSSF_mT>160_ETmiss150-200_mll>105", 0., {_numSR["SR3l_OSSF_mT>160_ETmiss150-200_mll>105"], 0}, {0.7, 0.4}));      \
-  add_result(SignalRegionData("SR3l_OSSF_mT>160_ETmiss200-250_mll<75", 0., {_numSR["SR3l_OSSF_mT>160_ETmiss200-250_mll<75"], 0}, {0.81, 0.21}));      \
-  add_result(SignalRegionData("SR3l_OSSF_mT>160_ETmiss200-250_mll75-105", 2., {_numSR["SR3l_OSSF_mT>160_ETmiss200-250_mll75-105"], 0}, {1.1, 0.4}));  \
-  add_result(SignalRegionData("SR3l_OSSF_mT>160_ETmiss200-250_mll>105", 0., {_numSR["SR3l_OSSF_mT>160_ETmiss200-250_mll>105"], 0}, {0.40, 0.24}));    \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT>160_ETmiss50-100_mll<75"), 12., {5.8, 1.1}));         \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT>160_ETmiss50-100_mll75-105"), 13., {7.5, 1.4}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT>160_ETmiss50-100_mll>105"), 1., {2.6, 1.2}));        \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT>160_ETmiss100-150_mll<75"), 3., {4.5, 1.1}));        \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT>160_ETmiss100-150_mll75-105"), 8., {4.0, 1.0}));  \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT>160_ETmiss100-150_mll>105"), 3., {1.8, 0.9}));      \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT>160_ETmiss150-200_mll<75"), 2., {1.5, 0.4}));        \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT>160_ETmiss150-200_mll75-105"), 3., {1.5, 0.5}));  \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT>160_ETmiss150-200_mll>105"), 0., {0.7, 0.4}));      \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT>160_ETmiss200-250_mll<75"), 0., {0.81, 0.21}));      \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT>160_ETmiss200-250_mll75-105"), 2., {1.1, 0.4}));  \
+  add_result(SignalRegionData(_counters.at("SR3l_OSSF_mT>160_ETmiss200-250_mll>105"), 0., {0.40, 0.24}));    \
 
 
 //
 // SR group 2
 //
 #define ADD_RESULTS_SRGROUP_2 \
-  add_result(SignalRegionData("SR3l_noOSSF_mT<120_ETmiss50-100_mll<100", 29., {_numSR["SR3l_noOSSF_mT<120_ETmiss50-100_mll<100"], 0}, { 32., 7.}));      \
-  add_result(SignalRegionData("SR3l_noOSSF_mT<120_ETmiss50-100_mll>100", 1., {_numSR["SR3l_noOSSF_mT<120_ETmiss50-100_mll>100"], 0}, {1.7, 0.4}));       \
-  add_result(SignalRegionData("SR3l_noOSSF_mT<120_ETmiss100-150_mll<100", 5., {_numSR["SR3l_noOSSF_mT<120_ETmiss100-150_mll<100"], 0}, {7.3, 1.7}));     \
-  add_result(SignalRegionData("SR3l_noOSSF_mT<120_ETmiss100-150_mll>100", 0., {_numSR["SR3l_noOSSF_mT<120_ETmiss100-150_mll>100"], 0}, {0.30, 0.11}));   \
-  add_result(SignalRegionData("SR3l_noOSSF_mT<120_ETmiss150-200_mll<100", 1., {_numSR["SR3l_noOSSF_mT<120_ETmiss150-200_mll<100"], 0}, {1.0, 0.3}));     \
-  add_result(SignalRegionData("SR3l_noOSSF_mT<120_ETmiss150-200_mll>100", 0., {_numSR["SR3l_noOSSF_mT<120_ETmiss150-200_mll>100"], 0}, {0.14, 0.09}));   \
-  add_result(SignalRegionData("SR3l_noOSSF_mT<120_ETmiss200-250_mll<100", 0., {_numSR["SR3l_noOSSF_mT<120_ETmiss200-250_mll<100"], 0}, {0.53, 0.24}));   \
-  add_result(SignalRegionData("SR3l_noOSSF_mT<120_ETmiss200-250_mll>100", 0., {_numSR["SR3l_noOSSF_mT<120_ETmiss200-250_mll>100"], 0}, {0.03, 0.03}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT<120_ETmiss50-100_mll<100"), 29., { 32., 7.}));      \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT<120_ETmiss50-100_mll>100"), 1., {1.7, 0.4}));       \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT<120_ETmiss100-150_mll<100"), 5., {7.3, 1.7}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT<120_ETmiss100-150_mll>100"), 0., {0.30, 0.11}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT<120_ETmiss150-200_mll<100"), 1., {1.0, 0.3}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT<120_ETmiss150-200_mll>100"), 0., {0.14, 0.09}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT<120_ETmiss200-250_mll<100"), 0., {0.53, 0.24}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT<120_ETmiss200-250_mll>100"), 0., {0.03, 0.03}));   \
   \
-  add_result(SignalRegionData("SR3l_noOSSF_mT120-160_ETmiss50-100_mll<100", 3., {_numSR["SR3l_noOSSF_mT120-160_ETmiss50-100_mll<100"], 0}, {5.5, 1.2}));       \
-  add_result(SignalRegionData("SR3l_noOSSF_mT120-160_ETmiss50-100_mll>100", 1., {_numSR["SR3l_noOSSF_mT120-160_ETmiss50-100_mll>100"], 0}, {0.25, 0.07}));     \
-  add_result(SignalRegionData("SR3l_noOSSF_mT120-160_ETmiss100-150_mll<100", 1., {_numSR["SR3l_noOSSF_mT120-160_ETmiss100-150_mll<100"], 0}, {1.9, 0.5}));     \
-  add_result(SignalRegionData("SR3l_noOSSF_mT120-160_ETmiss100-150_mll>100", 0., {_numSR["SR3l_noOSSF_mT120-160_ETmiss100-150_mll>100"], 0}, {0.19, 0.10}));   \
-  add_result(SignalRegionData("SR3l_noOSSF_mT120-160_ETmiss150-200_mll<100", 1., {_numSR["SR3l_noOSSF_mT120-160_ETmiss150-200_mll<100"], 0}, {0.46, 0.18}));   \
-  add_result(SignalRegionData("SR3l_noOSSF_mT120-160_ETmiss150-200_mll>100", 0., {_numSR["SR3l_noOSSF_mT120-160_ETmiss150-200_mll>100"], 0}, {0.03, 0.03}));   \
-  add_result(SignalRegionData("SR3l_noOSSF_mT120-160_ETmiss200-250_mll<100", 0., {_numSR["SR3l_noOSSF_mT120-160_ETmiss200-250_mll<100"], 0}, {0.10, 0.05}));   \
-  add_result(SignalRegionData("SR3l_noOSSF_mT120-160_ETmiss200-250_mll>100", 0., {_numSR["SR3l_noOSSF_mT120-160_ETmiss200-250_mll>100"], 0}, {0.008, 0.010})); \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT120-160_ETmiss50-100_mll<100"), 3., {5.5, 1.2}));       \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT120-160_ETmiss50-100_mll>100"), 1., {0.25, 0.07}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT120-160_ETmiss100-150_mll<100"), 1., {1.9, 0.5}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT120-160_ETmiss100-150_mll>100"), 0., {0.19, 0.10}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT120-160_ETmiss150-200_mll<100"), 1., {0.46, 0.18}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT120-160_ETmiss150-200_mll>100"), 0., {0.03, 0.03}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT120-160_ETmiss200-250_mll<100"), 0., {0.10, 0.05}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT120-160_ETmiss200-250_mll>100"), 0., {0.008, 0.010})); \
   \
-  add_result(SignalRegionData("SR3l_noOSSF_mT>160_ETmiss50-100_mll<100", 2., {_numSR["SR3l_noOSSF_mT>160_ETmiss50-100_mll<100"], 0}, {3.2, 0.8}));       \
-  add_result(SignalRegionData("SR3l_noOSSF_mT>160_ETmiss50-100_mll>100", 0., {_numSR["SR3l_noOSSF_mT>160_ETmiss50-100_mll>100"], 0}, {0.44, 0.33}));     \
-  add_result(SignalRegionData("SR3l_noOSSF_mT>160_ETmiss100-150_mll<100", 3., {_numSR["SR3l_noOSSF_mT>160_ETmiss100-150_mll<100"], 0}, {2.1, 0.7}));     \
-  add_result(SignalRegionData("SR3l_noOSSF_mT>160_ETmiss100-150_mll>100", 0., {_numSR["SR3l_noOSSF_mT>160_ETmiss100-150_mll>100"], 0}, {0.42, 0.19}));   \
-  add_result(SignalRegionData("SR3l_noOSSF_mT>160_ETmiss150-200_mll<100", 0., {_numSR["SR3l_noOSSF_mT>160_ETmiss150-200_mll<100"], 0}, {0.59, 0.18}));   \
-  add_result(SignalRegionData("SR3l_noOSSF_mT>160_ETmiss150-200_mll>100", 0., {_numSR["SR3l_noOSSF_mT>160_ETmiss150-200_mll>100"], 0}, {0.10, 0.06}));   \
-  add_result(SignalRegionData("SR3l_noOSSF_mT>160_ETmiss200-250_mll<100", 1., {_numSR["SR3l_noOSSF_mT>160_ETmiss200-250_mll<100"], 0}, {0.37, 0.13}));   \
-  add_result(SignalRegionData("SR3l_noOSSF_mT>160_ETmiss200-250_mll>100", 0., {_numSR["SR3l_noOSSF_mT>160_ETmiss200-250_mll>100"], 0}, {0.16, 0.14}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT>160_ETmiss50-100_mll<100"), 2., {3.2, 0.8}));       \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT>160_ETmiss50-100_mll>100"), 0., {0.44, 0.33}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT>160_ETmiss100-150_mll<100"), 3., {2.1, 0.7}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT>160_ETmiss100-150_mll>100"), 0., {0.42, 0.19}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT>160_ETmiss150-200_mll<100"), 0., {0.59, 0.18}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT>160_ETmiss150-200_mll>100"), 0., {0.10, 0.06}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT>160_ETmiss200-250_mll<100"), 1., {0.37, 0.13}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_noOSSF_mT>160_ETmiss200-250_mll>100"), 0., {0.16, 0.14}));   \
 
 
 //
 // SR group 3
 //
 #define ADD_RESULTS_SRGROUP_3 \
-  add_result(SignalRegionData("SR3l_SS1tau_mT<120_ETmiss50-100_mll<100", 46., {_numSR["SR3l_SS1tau_mT<120_ETmiss50-100_mll<100"], 0}, {51., 8.}));       \
-  add_result(SignalRegionData("SR3l_SS1tau_mT<120_ETmiss50-100_mll>100", 3., {_numSR["SR3l_SS1tau_mT<120_ETmiss50-100_mll>100"], 0}, {2.8, 0.6}));       \
-  add_result(SignalRegionData("SR3l_SS1tau_mT<120_ETmiss100-150_mll<100", 1., {_numSR["SR3l_SS1tau_mT<120_ETmiss100-150_mll<100"], 0}, {6.0, 1.3}));     \
-  add_result(SignalRegionData("SR3l_SS1tau_mT<120_ETmiss100-150_mll>100", 0., {_numSR["SR3l_SS1tau_mT<120_ETmiss100-150_mll>100"], 0}, {0.50, 0.14}));   \
-  add_result(SignalRegionData("SR3l_SS1tau_mT<120_ETmiss150-200_mll<100", 0., {_numSR["SR3l_SS1tau_mT<120_ETmiss150-200_mll<100"], 0}, {2.0, 0.4}));     \
-  add_result(SignalRegionData("SR3l_SS1tau_mT<120_ETmiss150-200_mll>100", 0., {_numSR["SR3l_SS1tau_mT<120_ETmiss150-200_mll>100"], 0}, {0.11, 0.07}));   \
-  add_result(SignalRegionData("SR3l_SS1tau_mT<120_ETmiss200-250_mll<100", 0., {_numSR["SR3l_SS1tau_mT<120_ETmiss200-250_mll<100"], 0}, {0.90, 0.24}));   \
-  add_result(SignalRegionData("SR3l_SS1tau_mT<120_ETmiss200-250_mll>100", 0., {_numSR["SR3l_SS1tau_mT<120_ETmiss200-250_mll>100"], 0}, {0.042, 0.021})); \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT<120_ETmiss50-100_mll<100"), 46., {51., 8.}));       \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT<120_ETmiss50-100_mll>100"), 3., {2.8, 0.6}));       \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT<120_ETmiss100-150_mll<100"), 1., {6.0, 1.3}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT<120_ETmiss100-150_mll>100"), 0., {0.50, 0.14}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT<120_ETmiss150-200_mll<100"), 0., {2.0, 0.4}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT<120_ETmiss150-200_mll>100"), 0., {0.11, 0.07}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT<120_ETmiss200-250_mll<100"), 0., {0.90, 0.24}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT<120_ETmiss200-250_mll>100"), 0., {0.042, 0.021})); \
   \
-  add_result(SignalRegionData("SR3l_SS1tau_mT120-160_ETmiss50-100_mll<100", 6., {_numSR["SR3l_SS1tau_mT120-160_ETmiss50-100_mll<100"], 0}, {5.5, 1.0}));       \
-  add_result(SignalRegionData("SR3l_SS1tau_mT120-160_ETmiss50-100_mll>100", 1., {_numSR["SR3l_SS1tau_mT120-160_ETmiss50-100_mll>100"], 0}, {0.35, 0.13}));     \
-  add_result(SignalRegionData("SR3l_SS1tau_mT120-160_ETmiss100-150_mll<100", 2., {_numSR["SR3l_SS1tau_mT120-160_ETmiss100-150_mll<100"], 0}, {0.91, 0.26}));   \
-  add_result(SignalRegionData("SR3l_SS1tau_mT120-160_ETmiss100-150_mll>100", 0., {_numSR["SR3l_SS1tau_mT120-160_ETmiss100-150_mll>100"], 0}, {0.06, 0.05}));   \
-  add_result(SignalRegionData("SR3l_SS1tau_mT120-160_ETmiss150-200_mll<100", 0., {_numSR["SR3l_SS1tau_mT120-160_ETmiss150-200_mll<100"], 0}, {0.15, 0.10}));   \
-  add_result(SignalRegionData("SR3l_SS1tau_mT120-160_ETmiss150-200_mll>100", 0., {_numSR["SR3l_SS1tau_mT120-160_ETmiss150-200_mll>100"], 0}, {0., 0.008}));    \
-  add_result(SignalRegionData("SR3l_SS1tau_mT120-160_ETmiss200-250_mll<100", 0., {_numSR["SR3l_SS1tau_mT120-160_ETmiss200-250_mll<100"], 0}, {0.06, 0.08}));   \
-  add_result(SignalRegionData("SR3l_SS1tau_mT120-160_ETmiss200-250_mll>100", 0., {_numSR["SR3l_SS1tau_mT120-160_ETmiss200-250_mll>100"], 0}, {0.011, 0.012})); \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT120-160_ETmiss50-100_mll<100"), 6., {5.5, 1.0}));       \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT120-160_ETmiss50-100_mll>100"), 1., {0.35, 0.13}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT120-160_ETmiss100-150_mll<100"), 2., {0.91, 0.26}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT120-160_ETmiss100-150_mll>100"), 0., {0.06, 0.05}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT120-160_ETmiss150-200_mll<100"), 0., {0.15, 0.10}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT120-160_ETmiss150-200_mll>100"), 0., {0., 0.008}));    \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT120-160_ETmiss200-250_mll<100"), 0., {0.06, 0.08}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT120-160_ETmiss200-250_mll>100"), 0., {0.011, 0.012})); \
   \
-  add_result(SignalRegionData("SR3l_SS1tau_mT>160_ETmiss50-100_mll<100", 2., {_numSR["SR3l_SS1tau_mT>160_ETmiss50-100_mll<100"], 0}, {3.1, 0.6}));       \
-  add_result(SignalRegionData("SR3l_SS1tau_mT>160_ETmiss50-100_mll>100", 1., {_numSR["SR3l_SS1tau_mT>160_ETmiss50-100_mll>100"], 0}, {0.50, 0.21}));     \
-  add_result(SignalRegionData("SR3l_SS1tau_mT>160_ETmiss100-150_mll<100", 1., {_numSR["SR3l_SS1tau_mT>160_ETmiss100-150_mll<100"], 0}, {2.3, 0.5}));     \
-  add_result(SignalRegionData("SR3l_SS1tau_mT>160_ETmiss100-150_mll>100", 1., {_numSR["SR3l_SS1tau_mT>160_ETmiss100-150_mll>100"], 0}, {0.40, 0.17}));   \
-  add_result(SignalRegionData("SR3l_SS1tau_mT>160_ETmiss150-200_mll<100", 0., {_numSR["SR3l_SS1tau_mT>160_ETmiss150-200_mll<100"], 0}, {0.52, 0.16}));   \
-  add_result(SignalRegionData("SR3l_SS1tau_mT>160_ETmiss150-200_mll>100", 0., {_numSR["SR3l_SS1tau_mT>160_ETmiss150-200_mll>100"], 0}, {0.21, 0.11}));   \
-  add_result(SignalRegionData("SR3l_SS1tau_mT>160_ETmiss200-250_mll<100", 2., {_numSR["SR3l_SS1tau_mT>160_ETmiss200-250_mll<100"], 0}, {0.41, 0.12}));   \
-  add_result(SignalRegionData("SR3l_SS1tau_mT>160_ETmiss200-250_mll>100", 0., {_numSR["SR3l_SS1tau_mT>160_ETmiss200-250_mll>100"], 0}, {0.06, 0.05}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT>160_ETmiss50-100_mll<100"), 2., {3.1, 0.6}));       \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT>160_ETmiss50-100_mll>100"), 1., {0.50, 0.21}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT>160_ETmiss100-150_mll<100"), 1., {2.3, 0.5}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT>160_ETmiss100-150_mll>100"), 1., {0.40, 0.17}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT>160_ETmiss150-200_mll<100"), 0., {0.52, 0.16}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT>160_ETmiss150-200_mll>100"), 0., {0.21, 0.11}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT>160_ETmiss200-250_mll<100"), 2., {0.41, 0.12}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_SS1tau_mT>160_ETmiss200-250_mll>100"), 0., {0.06, 0.05}));   \
 
 
 //
 // SR group 4
 //
 #define ADD_RESULTS_SRGROUP_4 \
-  add_result(SignalRegionData("SR3l_OS1tau_mT<120_ETmiss50-100_mll<100", 290., {_numSR["SR3l_OS1tau_mT<120_ETmiss50-100_mll<100"], 0}, {259., 93.}));  \
-  add_result(SignalRegionData("SR3l_OS1tau_mT<120_ETmiss50-100_mll>100", 27., {_numSR["SR3l_OS1tau_mT<120_ETmiss50-100_mll>100"], 0}, {30., 13.}));    \
-  add_result(SignalRegionData("SR3l_OS1tau_mT<120_ETmiss100-150_mll<100", 62., {_numSR["SR3l_OS1tau_mT<120_ETmiss100-150_mll<100"], 0}, {60., 25.}));  \
-  add_result(SignalRegionData("SR3l_OS1tau_mT<120_ETmiss100-150_mll>100", 8., {_numSR["SR3l_OS1tau_mT<120_ETmiss100-150_mll>100"], 0}, {5.9, 2.6}));   \
-  add_result(SignalRegionData("SR3l_OS1tau_mT<120_ETmiss150-200_mll<100", 10., {_numSR["SR3l_OS1tau_mT<120_ETmiss150-200_mll<100"], 0}, {11., 5.}));   \
-  add_result(SignalRegionData("SR3l_OS1tau_mT<120_ETmiss150-200_mll>100", 0., {_numSR["SR3l_OS1tau_mT<120_ETmiss150-200_mll>100"], 0}, {2.3, 1.4}));   \
-  add_result(SignalRegionData("SR3l_OS1tau_mT<120_ETmiss200-250_mll<100", 2., {_numSR["SR3l_OS1tau_mT<120_ETmiss200-250_mll<100"], 0}, {2.9, 1.4}));   \
-  add_result(SignalRegionData("SR3l_OS1tau_mT<120_ETmiss200-250_mll>100", 0., {_numSR["SR3l_OS1tau_mT<120_ETmiss200-250_mll>100"], 0}, {1.1, 0.6}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT<120_ETmiss50-100_mll<100"), 290., {259., 93.}));  \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT<120_ETmiss50-100_mll>100"), 27., {30., 13.}));    \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT<120_ETmiss100-150_mll<100"), 62., {60., 25.}));  \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT<120_ETmiss100-150_mll>100"), 8., {5.9, 2.6}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT<120_ETmiss150-200_mll<100"), 10., {11., 5.}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT<120_ETmiss150-200_mll>100"), 0., {2.3, 1.4}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT<120_ETmiss200-250_mll<100"), 2., {2.9, 1.4}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT<120_ETmiss200-250_mll>100"), 0., {1.1, 0.6}));   \
   \
-  add_result(SignalRegionData("SR3l_OS1tau_mT120-160_ETmiss50-100_mll<100", 41., {_numSR["SR3l_OS1tau_mT120-160_ETmiss50-100_mll<100"], 0}, {42., 16.}));    \
-  add_result(SignalRegionData("SR3l_OS1tau_mT120-160_ETmiss50-100_mll>100", 7., {_numSR["SR3l_OS1tau_mT120-160_ETmiss50-100_mll>100"], 0}, {8.3, 2.9}));     \
-  add_result(SignalRegionData("SR3l_OS1tau_mT120-160_ETmiss100-150_mll<100", 18., {_numSR["SR3l_OS1tau_mT120-160_ETmiss100-150_mll<100"], 0}, {17., 9.}));   \
-  add_result(SignalRegionData("SR3l_OS1tau_mT120-160_ETmiss100-150_mll>100", 4., {_numSR["SR3l_OS1tau_mT120-160_ETmiss100-150_mll>100"], 0}, {2.3, 1.3}));   \
-  add_result(SignalRegionData("SR3l_OS1tau_mT120-160_ETmiss150-200_mll<100", 2., {_numSR["SR3l_OS1tau_mT120-160_ETmiss150-200_mll<100"], 0}, {2.0, 1.2}));   \
-  add_result(SignalRegionData("SR3l_OS1tau_mT120-160_ETmiss150-200_mll>100", 0., {_numSR["SR3l_OS1tau_mT120-160_ETmiss150-200_mll>100"], 0}, {0.27, 0.32})); \
-  add_result(SignalRegionData("SR3l_OS1tau_mT120-160_ETmiss200-250_mll<100", 1., {_numSR["SR3l_OS1tau_mT120-160_ETmiss200-250_mll<100"], 0}, {0.8, 0.5}));   \
-  add_result(SignalRegionData("SR3l_OS1tau_mT120-160_ETmiss200-250_mll>100", 0., {_numSR["SR3l_OS1tau_mT120-160_ETmiss200-250_mll>100"], 0}, {0.5, 0.4}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT120-160_ETmiss50-100_mll<100"), 41., {42., 16.}));    \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT120-160_ETmiss50-100_mll>100"), 7., {8.3, 2.9}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT120-160_ETmiss100-150_mll<100"), 18., {17., 9.}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT120-160_ETmiss100-150_mll>100"), 4., {2.3, 1.3}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT120-160_ETmiss150-200_mll<100"), 2., {2.0, 1.2}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT120-160_ETmiss150-200_mll>100"), 0., {0.27, 0.32})); \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT120-160_ETmiss200-250_mll<100"), 1., {0.8, 0.5}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT120-160_ETmiss200-250_mll>100"), 0., {0.5, 0.4}));   \
   \
-  add_result(SignalRegionData("SR3l_OS1tau_mT>160_ETmiss50-100_mll<100", 19., {_numSR["SR3l_OS1tau_mT>160_ETmiss50-100_mll<100"], 0}, {15., 8.}));     \
-  add_result(SignalRegionData("SR3l_OS1tau_mT>160_ETmiss50-100_mll>100", 2., {_numSR["SR3l_OS1tau_mT>160_ETmiss50-100_mll>100"], 0}, {5.7, 2.3}));     \
-  add_result(SignalRegionData("SR3l_OS1tau_mT>160_ETmiss100-150_mll<100", 14., {_numSR["SR3l_OS1tau_mT>160_ETmiss100-150_mll<100"], 0}, {14., 9.}));   \
-  add_result(SignalRegionData("SR3l_OS1tau_mT>160_ETmiss100-150_mll>100", 3., {_numSR["SR3l_OS1tau_mT>160_ETmiss100-150_mll>100"], 0}, {4.0, 2.2}));   \
-  add_result(SignalRegionData("SR3l_OS1tau_mT>160_ETmiss150-200_mll<100", 1., {_numSR["SR3l_OS1tau_mT>160_ETmiss150-200_mll<100"], 0}, {3.7, 2.1}));   \
-  add_result(SignalRegionData("SR3l_OS1tau_mT>160_ETmiss150-200_mll>100", 3., {_numSR["SR3l_OS1tau_mT>160_ETmiss150-200_mll>100"], 0}, {1.3, 1.0}));   \
-  add_result(SignalRegionData("SR3l_OS1tau_mT>160_ETmiss200-250_mll<100", 2., {_numSR["SR3l_OS1tau_mT>160_ETmiss200-250_mll<100"], 0}, {1.5, 1.0}));   \
-  add_result(SignalRegionData("SR3l_OS1tau_mT>160_ETmiss200-250_mll>100", 1., {_numSR["SR3l_OS1tau_mT>160_ETmiss200-250_mll>100"], 0}, {0.7, 0.4}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT>160_ETmiss50-100_mll<100"), 19., {15., 8.}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT>160_ETmiss50-100_mll>100"), 2., {5.7, 2.3}));     \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT>160_ETmiss100-150_mll<100"), 14., {14., 9.}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT>160_ETmiss100-150_mll>100"), 3., {4.0, 2.2}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT>160_ETmiss150-200_mll<100"), 1., {3.7, 2.1}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT>160_ETmiss150-200_mll>100"), 3., {1.3, 1.0}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT>160_ETmiss200-250_mll<100"), 2., {1.5, 1.0}));   \
+  add_result(SignalRegionData(_counters.at("SR3l_OS1tau_mT>160_ETmiss200-250_mll>100"), 1., {0.7, 0.4}));   \
 
 
 //
 // SR group 5
 //
 #define ADD_RESULTS_SRGROUP_5 \
-  add_result(SignalRegionData("SR4l_1OSSF0tau_ETmiss<30", 1., {_numSR["SR4l_1OSSF0tau_ETmiss<30"], 0}, {2.3, 0.6}));       \
-  add_result(SignalRegionData("SR4l_1OSSF0tau_ETmiss30-50", 3., {_numSR["SR4l_1OSSF0tau_ETmiss30-50"], 0}, {1.2, 0.3}));   \
-  add_result(SignalRegionData("SR4l_1OSSF0tau_ETmiss50-100", 2., {_numSR["SR4l_1OSSF0tau_ETmiss50-100"], 0}, {1.5, 0.4})); \
-  add_result(SignalRegionData("SR4l_1OSSF0tau_ETmiss>100", 2., {_numSR["SR4l_1OSSF0tau_ETmiss>100"], 0}, {0.8, 0.3}));     \
+  add_result(SignalRegionData(_counters.at("SR4l_1OSSF0tau_ETmiss<30"), 1., {2.3, 0.6}));       \
+  add_result(SignalRegionData(_counters.at("SR4l_1OSSF0tau_ETmiss30-50"), 3., {1.2, 0.3}));   \
+  add_result(SignalRegionData(_counters.at("SR4l_1OSSF0tau_ETmiss50-100"), 2., {1.5, 0.4})); \
+  add_result(SignalRegionData(_counters.at("SR4l_1OSSF0tau_ETmiss>100"), 2., {0.8, 0.3}));     \
   \
-  add_result(SignalRegionData("SR4l_1OSSF1tau_ETmiss<30", 33., {_numSR["SR4l_1OSSF1tau_ETmiss<30"], 0}, {25., 12.}));      \
-  add_result(SignalRegionData("SR4l_1OSSF1tau_ETmiss30-50", 11., {_numSR["SR4l_1OSSF1tau_ETmiss30-50"], 0}, {11., 3.1}));  \
-  add_result(SignalRegionData("SR4l_1OSSF1tau_ETmiss50-100", 9., {_numSR["SR4l_1OSSF1tau_ETmiss50-100"], 0}, {9.3, 1.9})); \
-  add_result(SignalRegionData("SR4l_1OSSF1tau_ETmiss>100", 2., {_numSR["SR4l_1OSSF1tau_ETmiss>100"], 0}, {2.9, 0.6}));     \
+  add_result(SignalRegionData(_counters.at("SR4l_1OSSF1tau_ETmiss<30"), 33., {25., 12.}));      \
+  add_result(SignalRegionData(_counters.at("SR4l_1OSSF1tau_ETmiss30-50"), 11., {11., 3.1}));  \
+  add_result(SignalRegionData(_counters.at("SR4l_1OSSF1tau_ETmiss50-100"), 9., {9.3, 1.9})); \
+  add_result(SignalRegionData(_counters.at("SR4l_1OSSF1tau_ETmiss>100"), 2., {2.9, 0.6}));     \
   \
-  add_result(SignalRegionData("SR4l_2OSSF0tau_ETmiss<30", 142., {_numSR["SR4l_2OSSF0tau_ETmiss<30"], 0}, {149., 46.}));    \
-  add_result(SignalRegionData("SR4l_2OSSF0tau_ETmiss30-50", 25., {_numSR["SR4l_2OSSF0tau_ETmiss30-50"], 0}, {28., 11.}));  \
-  add_result(SignalRegionData("SR4l_2OSSF0tau_ETmiss50-100", 4., {_numSR["SR4l_2OSSF0tau_ETmiss50-100"], 0}, {4.5, 2.7})); \
-  add_result(SignalRegionData("SR4l_2OSSF0tau_ETmiss>100", 1., {_numSR["SR4l_2OSSF0tau_ETmiss>100"], 0}, {0.8, 0.3}));     \
+  add_result(SignalRegionData(_counters.at("SR4l_2OSSF0tau_ETmiss<30"), 142., {149., 46.}));    \
+  add_result(SignalRegionData(_counters.at("SR4l_2OSSF0tau_ETmiss30-50"), 25., {28., 11.}));  \
+  add_result(SignalRegionData(_counters.at("SR4l_2OSSF0tau_ETmiss50-100"), 4., {4.5, 2.7})); \
+  add_result(SignalRegionData(_counters.at("SR4l_2OSSF0tau_ETmiss>100"), 1., {0.8, 0.3}));     \
 
 
 
@@ -205,147 +205,6 @@ namespace Gambit {
     class Analysis_CMS_8TeV_MultiLEP_20invfb : public Analysis {
 
     protected:
-
-      // Counters for the number of accepted events for each signal region
-      std::map<string,double> _numSR = {
-        // SRs in Table 1
-        {"SR3l_OSSF_mT<120_ETmiss50-100_mll<75", 0},
-        {"SR3l_OSSF_mT<120_ETmiss50-100_mll75-105", 0},
-        {"SR3l_OSSF_mT<120_ETmiss50-100_mll>105", 0},
-        {"SR3l_OSSF_mT<120_ETmiss100-150_mll<75", 0},
-        {"SR3l_OSSF_mT<120_ETmiss100-150_mll75-105", 0},
-        {"SR3l_OSSF_mT<120_ETmiss100-150_mll>105", 0},
-        {"SR3l_OSSF_mT<120_ETmiss150-200_mll<75", 0},
-        {"SR3l_OSSF_mT<120_ETmiss150-200_mll75-105", 0},
-        {"SR3l_OSSF_mT<120_ETmiss150-200_mll>105", 0},
-        {"SR3l_OSSF_mT<120_ETmiss200-250_mll<75", 0},
-        {"SR3l_OSSF_mT<120_ETmiss200-250_mll75-105", 0},
-        {"SR3l_OSSF_mT<120_ETmiss200-250_mll>105", 0},
-
-        {"SR3l_OSSF_mT120-160_ETmiss50-100_mll<75", 0},
-        {"SR3l_OSSF_mT120-160_ETmiss50-100_mll75-105", 0},
-        {"SR3l_OSSF_mT120-160_ETmiss50-100_mll>105", 0},
-        {"SR3l_OSSF_mT120-160_ETmiss100-150_mll<75", 0},
-        {"SR3l_OSSF_mT120-160_ETmiss100-150_mll75-105", 0},
-        {"SR3l_OSSF_mT120-160_ETmiss100-150_mll>105", 0},
-        {"SR3l_OSSF_mT120-160_ETmiss150-200_mll<75", 0},
-        {"SR3l_OSSF_mT120-160_ETmiss150-200_mll75-105", 0},
-        {"SR3l_OSSF_mT120-160_ETmiss150-200_mll>105", 0},
-        {"SR3l_OSSF_mT120-160_ETmiss200-250_mll<75", 0},
-        {"SR3l_OSSF_mT120-160_ETmiss200-250_mll75-105", 0},
-        {"SR3l_OSSF_mT120-160_ETmiss200-250_mll>105", 0},
-
-        {"SR3l_OSSF_mT>160_ETmiss50-100_mll<75", 0},
-        {"SR3l_OSSF_mT>160_ETmiss50-100_mll75-105", 0},
-        {"SR3l_OSSF_mT>160_ETmiss50-100_mll>105", 0},
-        {"SR3l_OSSF_mT>160_ETmiss100-150_mll<75", 0},
-        {"SR3l_OSSF_mT>160_ETmiss100-150_mll75-105", 0},
-        {"SR3l_OSSF_mT>160_ETmiss100-150_mll>105", 0},
-        {"SR3l_OSSF_mT>160_ETmiss150-200_mll<75", 0},
-        {"SR3l_OSSF_mT>160_ETmiss150-200_mll75-105", 0},
-        {"SR3l_OSSF_mT>160_ETmiss150-200_mll>105", 0},
-        {"SR3l_OSSF_mT>160_ETmiss200-250_mll<75", 0},
-        {"SR3l_OSSF_mT>160_ETmiss200-250_mll75-105", 0},
-        {"SR3l_OSSF_mT>160_ETmiss200-250_mll>105", 0},
-
-        // SRs in Table 2
-        {"SR3l_noOSSF_mT<120_ETmiss50-100_mll<100", 0},
-        {"SR3l_noOSSF_mT<120_ETmiss50-100_mll>100", 0},
-        {"SR3l_noOSSF_mT<120_ETmiss100-150_mll<100", 0},
-        {"SR3l_noOSSF_mT<120_ETmiss100-150_mll>100", 0},
-        {"SR3l_noOSSF_mT<120_ETmiss150-200_mll<100", 0},
-        {"SR3l_noOSSF_mT<120_ETmiss150-200_mll>100", 0},
-        {"SR3l_noOSSF_mT<120_ETmiss200-250_mll<100", 0},
-        {"SR3l_noOSSF_mT<120_ETmiss200-250_mll>100", 0},
-
-        {"SR3l_noOSSF_mT120-160_ETmiss50-100_mll<100", 0},
-        {"SR3l_noOSSF_mT120-160_ETmiss50-100_mll>100", 0},
-        {"SR3l_noOSSF_mT120-160_ETmiss100-150_mll<100", 0},
-        {"SR3l_noOSSF_mT120-160_ETmiss100-150_mll>100", 0},
-        {"SR3l_noOSSF_mT120-160_ETmiss150-200_mll<100", 0},
-        {"SR3l_noOSSF_mT120-160_ETmiss150-200_mll>100", 0},
-        {"SR3l_noOSSF_mT120-160_ETmiss200-250_mll<100", 0},
-        {"SR3l_noOSSF_mT120-160_ETmiss200-250_mll>100", 0},
-
-        {"SR3l_noOSSF_mT>160_ETmiss50-100_mll<100", 0},
-        {"SR3l_noOSSF_mT>160_ETmiss50-100_mll>100", 0},
-        {"SR3l_noOSSF_mT>160_ETmiss100-150_mll<100", 0},
-        {"SR3l_noOSSF_mT>160_ETmiss100-150_mll>100", 0},
-        {"SR3l_noOSSF_mT>160_ETmiss150-200_mll<100", 0},
-        {"SR3l_noOSSF_mT>160_ETmiss150-200_mll>100", 0},
-        {"SR3l_noOSSF_mT>160_ETmiss200-250_mll<100", 0},
-        {"SR3l_noOSSF_mT>160_ETmiss200-250_mll>100", 0},
-
-        // SRs in Table 3
-        {"SR3l_SS1tau_mT<120_ETmiss50-100_mll<100", 0},
-        {"SR3l_SS1tau_mT<120_ETmiss50-100_mll>100", 0},
-        {"SR3l_SS1tau_mT<120_ETmiss100-150_mll<100", 0},
-        {"SR3l_SS1tau_mT<120_ETmiss100-150_mll>100", 0},
-        {"SR3l_SS1tau_mT<120_ETmiss150-200_mll<100", 0},
-        {"SR3l_SS1tau_mT<120_ETmiss150-200_mll>100", 0},
-        {"SR3l_SS1tau_mT<120_ETmiss200-250_mll<100", 0},
-        {"SR3l_SS1tau_mT<120_ETmiss200-250_mll>100", 0},
-
-        {"SR3l_SS1tau_mT120-160_ETmiss50-100_mll<100", 0},
-        {"SR3l_SS1tau_mT120-160_ETmiss50-100_mll>100", 0},
-        {"SR3l_SS1tau_mT120-160_ETmiss100-150_mll<100", 0},
-        {"SR3l_SS1tau_mT120-160_ETmiss100-150_mll>100", 0},
-        {"SR3l_SS1tau_mT120-160_ETmiss150-200_mll<100", 0},
-        {"SR3l_SS1tau_mT120-160_ETmiss150-200_mll>100", 0},
-        {"SR3l_SS1tau_mT120-160_ETmiss200-250_mll<100", 0},
-        {"SR3l_SS1tau_mT120-160_ETmiss200-250_mll>100", 0},
-
-        {"SR3l_SS1tau_mT>160_ETmiss50-100_mll<100", 0},
-        {"SR3l_SS1tau_mT>160_ETmiss50-100_mll>100", 0},
-        {"SR3l_SS1tau_mT>160_ETmiss100-150_mll<100", 0},
-        {"SR3l_SS1tau_mT>160_ETmiss100-150_mll>100", 0},
-        {"SR3l_SS1tau_mT>160_ETmiss150-200_mll<100", 0},
-        {"SR3l_SS1tau_mT>160_ETmiss150-200_mll>100", 0},
-        {"SR3l_SS1tau_mT>160_ETmiss200-250_mll<100", 0},
-        {"SR3l_SS1tau_mT>160_ETmiss200-250_mll>100", 0},
-
-        // SRs in Table 4
-        {"SR3l_OS1tau_mT<120_ETmiss50-100_mll<100", 0},
-        {"SR3l_OS1tau_mT<120_ETmiss50-100_mll>100", 0},
-        {"SR3l_OS1tau_mT<120_ETmiss100-150_mll<100", 0},
-        {"SR3l_OS1tau_mT<120_ETmiss100-150_mll>100", 0},
-        {"SR3l_OS1tau_mT<120_ETmiss150-200_mll<100", 0},
-        {"SR3l_OS1tau_mT<120_ETmiss150-200_mll>100", 0},
-        {"SR3l_OS1tau_mT<120_ETmiss200-250_mll<100", 0},
-        {"SR3l_OS1tau_mT<120_ETmiss200-250_mll>100", 0},
-
-        {"SR3l_OS1tau_mT120-160_ETmiss50-100_mll<100", 0},
-        {"SR3l_OS1tau_mT120-160_ETmiss50-100_mll>100", 0},
-        {"SR3l_OS1tau_mT120-160_ETmiss100-150_mll<100", 0},
-        {"SR3l_OS1tau_mT120-160_ETmiss100-150_mll>100", 0},
-        {"SR3l_OS1tau_mT120-160_ETmiss150-200_mll<100", 0},
-        {"SR3l_OS1tau_mT120-160_ETmiss150-200_mll>100", 0},
-        {"SR3l_OS1tau_mT120-160_ETmiss200-250_mll<100", 0},
-        {"SR3l_OS1tau_mT120-160_ETmiss200-250_mll>100", 0},
-
-        {"SR3l_OS1tau_mT>160_ETmiss50-100_mll<100", 0},
-        {"SR3l_OS1tau_mT>160_ETmiss50-100_mll>100", 0},
-        {"SR3l_OS1tau_mT>160_ETmiss100-150_mll<100", 0},
-        {"SR3l_OS1tau_mT>160_ETmiss100-150_mll>100", 0},
-        {"SR3l_OS1tau_mT>160_ETmiss150-200_mll<100", 0},
-        {"SR3l_OS1tau_mT>160_ETmiss150-200_mll>100", 0},
-        {"SR3l_OS1tau_mT>160_ETmiss200-250_mll<100", 0},
-        {"SR3l_OS1tau_mT>160_ETmiss200-250_mll>100", 0},
-
-        // SRs in Table 5
-        {"SR4l_1OSSF0tau_ETmiss<30", 0},
-        {"SR4l_1OSSF0tau_ETmiss30-50", 0},
-        {"SR4l_1OSSF0tau_ETmiss50-100", 0},
-        {"SR4l_1OSSF0tau_ETmiss>100", 0},
-        {"SR4l_1OSSF1tau_ETmiss<30", 0},
-        {"SR4l_1OSSF1tau_ETmiss30-50", 0},
-        {"SR4l_1OSSF1tau_ETmiss50-100", 0},
-        {"SR4l_1OSSF1tau_ETmiss>100", 0},
-        {"SR4l_2OSSF0tau_ETmiss<30", 0},
-        {"SR4l_2OSSF0tau_ETmiss30-50", 0},
-        {"SR4l_2OSSF0tau_ETmiss50-100", 0},
-        {"SR4l_2OSSF0tau_ETmiss>100", 0},
-      };
 
 
     private:
@@ -407,7 +266,8 @@ namespace Gambit {
       const HEPUtils::Particle* getLeptonNotInPair(vector<const HEPUtils::Particle*> leptons, vector<const HEPUtils::Particle*> pair) {
 
         // Check that there is only one more element in 'leptons' than in 'pair'
-        assert(leptons.size() == pair.size()+1);
+        // FIXME: This does not work if the pair is made with a tau and one of the light leptons
+        //assert(leptons.size() == pair.size()+1);
 
         const HEPUtils::Particle* lepton = NULL;
 
@@ -435,7 +295,149 @@ namespace Gambit {
       // Required detector sim
       static constexpr const char* detector = "CMS";
 
-      Analysis_CMS_8TeV_MultiLEP_20invfb() {
+      Analysis_CMS_8TeV_MultiLEP_20invfb()
+      {
+
+        // Counters for the number of accepted events for each signal region
+        // SRs in Table 1
+        _counters["SR3l_OSSF_mT<120_ETmiss50-100_mll<75"] = EventCounter("SR3l_OSSF_mT<120_ETmiss50-100_mll<75");
+        _counters["SR3l_OSSF_mT<120_ETmiss50-100_mll75-105"] = EventCounter("SR3l_OSSF_mT<120_ETmiss50-100_mll75-105");
+        _counters["SR3l_OSSF_mT<120_ETmiss50-100_mll>105"] = EventCounter("SR3l_OSSF_mT<120_ETmiss50-100_mll>105");
+        _counters["SR3l_OSSF_mT<120_ETmiss100-150_mll<75"] = EventCounter("SR3l_OSSF_mT<120_ETmiss100-150_mll<75");
+        _counters["SR3l_OSSF_mT<120_ETmiss100-150_mll75-105"] = EventCounter("SR3l_OSSF_mT<120_ETmiss100-150_mll75-105");
+        _counters["SR3l_OSSF_mT<120_ETmiss100-150_mll>105"] = EventCounter("SR3l_OSSF_mT<120_ETmiss100-150_mll>105");
+        _counters["SR3l_OSSF_mT<120_ETmiss150-200_mll<75"] = EventCounter("SR3l_OSSF_mT<120_ETmiss150-200_mll<75");
+        _counters["SR3l_OSSF_mT<120_ETmiss150-200_mll75-105"] = EventCounter("SR3l_OSSF_mT<120_ETmiss150-200_mll75-105");
+        _counters["SR3l_OSSF_mT<120_ETmiss150-200_mll>105"] = EventCounter("SR3l_OSSF_mT<120_ETmiss150-200_mll>105");
+        _counters["SR3l_OSSF_mT<120_ETmiss200-250_mll<75"] = EventCounter("SR3l_OSSF_mT<120_ETmiss200-250_mll<75");
+        _counters["SR3l_OSSF_mT<120_ETmiss200-250_mll75-105"] = EventCounter("SR3l_OSSF_mT<120_ETmiss200-250_mll75-105");
+        _counters["SR3l_OSSF_mT<120_ETmiss200-250_mll>105"] = EventCounter("SR3l_OSSF_mT<120_ETmiss200-250_mll>105");
+
+        _counters["SR3l_OSSF_mT120-160_ETmiss50-100_mll<75"] = EventCounter("SR3l_OSSF_mT120-160_ETmiss50-100_mll<75");
+        _counters["SR3l_OSSF_mT120-160_ETmiss50-100_mll75-105"] = EventCounter("SR3l_OSSF_mT120-160_ETmiss50-100_mll75-105");
+        _counters["SR3l_OSSF_mT120-160_ETmiss50-100_mll>105"] = EventCounter("SR3l_OSSF_mT120-160_ETmiss50-100_mll>105");
+        _counters["SR3l_OSSF_mT120-160_ETmiss100-150_mll<75"] = EventCounter("SR3l_OSSF_mT120-160_ETmiss100-150_mll<75");
+        _counters["SR3l_OSSF_mT120-160_ETmiss100-150_mll75-105"] = EventCounter("SR3l_OSSF_mT120-160_ETmiss100-150_mll75-105");
+        _counters["SR3l_OSSF_mT120-160_ETmiss100-150_mll>105"] = EventCounter("SR3l_OSSF_mT120-160_ETmiss100-150_mll>105");
+        _counters["SR3l_OSSF_mT120-160_ETmiss150-200_mll<75"] = EventCounter("SR3l_OSSF_mT120-160_ETmiss150-200_mll<75");
+        _counters["SR3l_OSSF_mT120-160_ETmiss150-200_mll75-105"] = EventCounter("SR3l_OSSF_mT120-160_ETmiss150-200_mll75-105");
+        _counters["SR3l_OSSF_mT120-160_ETmiss150-200_mll>105"] = EventCounter("SR3l_OSSF_mT120-160_ETmiss150-200_mll>105");
+        _counters["SR3l_OSSF_mT120-160_ETmiss200-250_mll<75"] = EventCounter("SR3l_OSSF_mT120-160_ETmiss200-250_mll<75");
+        _counters["SR3l_OSSF_mT120-160_ETmiss200-250_mll75-105"] = EventCounter("SR3l_OSSF_mT120-160_ETmiss200-250_mll75-105");
+        _counters["SR3l_OSSF_mT120-160_ETmiss200-250_mll>105"] = EventCounter("SR3l_OSSF_mT120-160_ETmiss200-250_mll>105");
+
+        _counters["SR3l_OSSF_mT>160_ETmiss50-100_mll<75"] = EventCounter("SR3l_OSSF_mT>160_ETmiss50-100_mll<75");
+        _counters["SR3l_OSSF_mT>160_ETmiss50-100_mll75-105"] = EventCounter("SR3l_OSSF_mT>160_ETmiss50-100_mll75-105");
+        _counters["SR3l_OSSF_mT>160_ETmiss50-100_mll>105"] = EventCounter("SR3l_OSSF_mT>160_ETmiss50-100_mll>105");
+        _counters["SR3l_OSSF_mT>160_ETmiss100-150_mll<75"] = EventCounter("SR3l_OSSF_mT>160_ETmiss100-150_mll<75");
+        _counters["SR3l_OSSF_mT>160_ETmiss100-150_mll75-105"] = EventCounter("SR3l_OSSF_mT>160_ETmiss100-150_mll75-105");
+        _counters["SR3l_OSSF_mT>160_ETmiss100-150_mll>105"] = EventCounter("SR3l_OSSF_mT>160_ETmiss100-150_mll>105");
+        _counters["SR3l_OSSF_mT>160_ETmiss150-200_mll<75"] = EventCounter("SR3l_OSSF_mT>160_ETmiss150-200_mll<75");
+        _counters["SR3l_OSSF_mT>160_ETmiss150-200_mll75-105"] = EventCounter("SR3l_OSSF_mT>160_ETmiss150-200_mll75-105");
+        _counters["SR3l_OSSF_mT>160_ETmiss150-200_mll>105"] = EventCounter("SR3l_OSSF_mT>160_ETmiss150-200_mll>105");
+        _counters["SR3l_OSSF_mT>160_ETmiss200-250_mll<75"] = EventCounter("SR3l_OSSF_mT>160_ETmiss200-250_mll<75");
+        _counters["SR3l_OSSF_mT>160_ETmiss200-250_mll75-105"] = EventCounter("SR3l_OSSF_mT>160_ETmiss200-250_mll75-105");
+        _counters["SR3l_OSSF_mT>160_ETmiss200-250_mll>105"] = EventCounter("SR3l_OSSF_mT>160_ETmiss200-250_mll>105");
+
+        // SRs in Table 2
+        _counters["SR3l_noOSSF_mT<120_ETmiss50-100_mll<100"] = EventCounter("SR3l_noOSSF_mT<120_ETmiss50-100_mll<100");
+        _counters["SR3l_noOSSF_mT<120_ETmiss50-100_mll>100"] = EventCounter("SR3l_noOSSF_mT<120_ETmiss50-100_mll>100");
+        _counters["SR3l_noOSSF_mT<120_ETmiss100-150_mll<100"] = EventCounter("SR3l_noOSSF_mT<120_ETmiss100-150_mll<100");
+        _counters["SR3l_noOSSF_mT<120_ETmiss100-150_mll>100"] = EventCounter("SR3l_noOSSF_mT<120_ETmiss100-150_mll>100");
+        _counters["SR3l_noOSSF_mT<120_ETmiss150-200_mll<100"] = EventCounter("SR3l_noOSSF_mT<120_ETmiss150-200_mll<100");
+        _counters["SR3l_noOSSF_mT<120_ETmiss150-200_mll>100"] = EventCounter("SR3l_noOSSF_mT<120_ETmiss150-200_mll>100");
+        _counters["SR3l_noOSSF_mT<120_ETmiss200-250_mll<100"] = EventCounter("SR3l_noOSSF_mT<120_ETmiss200-250_mll<100");
+        _counters["SR3l_noOSSF_mT<120_ETmiss200-250_mll>100"] = EventCounter("SR3l_noOSSF_mT<120_ETmiss200-250_mll>100");
+
+        _counters["SR3l_noOSSF_mT120-160_ETmiss50-100_mll<100"] = EventCounter("SR3l_noOSSF_mT120-160_ETmiss50-100_mll<100");
+        _counters["SR3l_noOSSF_mT120-160_ETmiss50-100_mll>100"] = EventCounter("SR3l_noOSSF_mT120-160_ETmiss50-100_mll>100");
+        _counters["SR3l_noOSSF_mT120-160_ETmiss100-150_mll<100"] = EventCounter("SR3l_noOSSF_mT120-160_ETmiss100-150_mll<100");
+        _counters["SR3l_noOSSF_mT120-160_ETmiss100-150_mll>100"] = EventCounter("SR3l_noOSSF_mT120-160_ETmiss100-150_mll>100");
+        _counters["SR3l_noOSSF_mT120-160_ETmiss150-200_mll<100"] = EventCounter("SR3l_noOSSF_mT120-160_ETmiss150-200_mll<100");
+        _counters["SR3l_noOSSF_mT120-160_ETmiss150-200_mll>100"] = EventCounter("SR3l_noOSSF_mT120-160_ETmiss150-200_mll>100");
+        _counters["SR3l_noOSSF_mT120-160_ETmiss200-250_mll<100"] = EventCounter("SR3l_noOSSF_mT120-160_ETmiss200-250_mll<100");
+        _counters["SR3l_noOSSF_mT120-160_ETmiss200-250_mll>100"] = EventCounter("SR3l_noOSSF_mT120-160_ETmiss200-250_mll>100");
+
+        _counters["SR3l_noOSSF_mT>160_ETmiss50-100_mll<100"] = EventCounter("SR3l_noOSSF_mT>160_ETmiss50-100_mll<100");
+        _counters["SR3l_noOSSF_mT>160_ETmiss50-100_mll>100"] = EventCounter("SR3l_noOSSF_mT>160_ETmiss50-100_mll>100");
+        _counters["SR3l_noOSSF_mT>160_ETmiss100-150_mll<100"] = EventCounter("SR3l_noOSSF_mT>160_ETmiss100-150_mll<100");
+        _counters["SR3l_noOSSF_mT>160_ETmiss100-150_mll>100"] = EventCounter("SR3l_noOSSF_mT>160_ETmiss100-150_mll>100");
+        _counters["SR3l_noOSSF_mT>160_ETmiss150-200_mll<100"] = EventCounter("SR3l_noOSSF_mT>160_ETmiss150-200_mll<100");
+        _counters["SR3l_noOSSF_mT>160_ETmiss150-200_mll>100"] = EventCounter("SR3l_noOSSF_mT>160_ETmiss150-200_mll>100");
+        _counters["SR3l_noOSSF_mT>160_ETmiss200-250_mll<100"] = EventCounter("SR3l_noOSSF_mT>160_ETmiss200-250_mll<100");
+        _counters["SR3l_noOSSF_mT>160_ETmiss200-250_mll>100"] = EventCounter("SR3l_noOSSF_mT>160_ETmiss200-250_mll>100");
+
+        // SRs in Table 3
+        _counters["SR3l_SS1tau_mT<120_ETmiss50-100_mll<100"] = EventCounter("SR3l_SS1tau_mT<120_ETmiss50-100_mll<100");
+        _counters["SR3l_SS1tau_mT<120_ETmiss50-100_mll>100"] = EventCounter("SR3l_SS1tau_mT<120_ETmiss50-100_mll>100");
+        _counters["SR3l_SS1tau_mT<120_ETmiss100-150_mll<100"] = EventCounter("SR3l_SS1tau_mT<120_ETmiss100-150_mll<100");
+        _counters["SR3l_SS1tau_mT<120_ETmiss100-150_mll>100"] = EventCounter("SR3l_SS1tau_mT<120_ETmiss100-150_mll>100");
+        _counters["SR3l_SS1tau_mT<120_ETmiss150-200_mll<100"] = EventCounter("SR3l_SS1tau_mT<120_ETmiss150-200_mll<100");
+        _counters["SR3l_SS1tau_mT<120_ETmiss150-200_mll>100"] = EventCounter("SR3l_SS1tau_mT<120_ETmiss150-200_mll>100");
+        _counters["SR3l_SS1tau_mT<120_ETmiss200-250_mll<100"] = EventCounter("SR3l_SS1tau_mT<120_ETmiss200-250_mll<100");
+        _counters["SR3l_SS1tau_mT<120_ETmiss200-250_mll>100"] = EventCounter("SR3l_SS1tau_mT<120_ETmiss200-250_mll>100");
+
+        _counters["SR3l_SS1tau_mT120-160_ETmiss50-100_mll<100"] = EventCounter("SR3l_SS1tau_mT120-160_ETmiss50-100_mll<100");
+        _counters["SR3l_SS1tau_mT120-160_ETmiss50-100_mll>100"] = EventCounter("SR3l_SS1tau_mT120-160_ETmiss50-100_mll>100");
+        _counters["SR3l_SS1tau_mT120-160_ETmiss100-150_mll<100"] = EventCounter("SR3l_SS1tau_mT120-160_ETmiss100-150_mll<100");
+        _counters["SR3l_SS1tau_mT120-160_ETmiss100-150_mll>100"] = EventCounter("SR3l_SS1tau_mT120-160_ETmiss100-150_mll>100");
+        _counters["SR3l_SS1tau_mT120-160_ETmiss150-200_mll<100"] = EventCounter("SR3l_SS1tau_mT120-160_ETmiss150-200_mll<100");
+        _counters["SR3l_SS1tau_mT120-160_ETmiss150-200_mll>100"] = EventCounter("SR3l_SS1tau_mT120-160_ETmiss150-200_mll>100");
+        _counters["SR3l_SS1tau_mT120-160_ETmiss200-250_mll<100"] = EventCounter("SR3l_SS1tau_mT120-160_ETmiss200-250_mll<100");
+        _counters["SR3l_SS1tau_mT120-160_ETmiss200-250_mll>100"] = EventCounter("SR3l_SS1tau_mT120-160_ETmiss200-250_mll>100");
+
+        _counters["SR3l_SS1tau_mT>160_ETmiss50-100_mll<100"] = EventCounter("SR3l_SS1tau_mT>160_ETmiss50-100_mll<100");
+        _counters["SR3l_SS1tau_mT>160_ETmiss50-100_mll>100"] = EventCounter("SR3l_SS1tau_mT>160_ETmiss50-100_mll>100");
+        _counters["SR3l_SS1tau_mT>160_ETmiss100-150_mll<100"] = EventCounter("SR3l_SS1tau_mT>160_ETmiss100-150_mll<100");
+        _counters["SR3l_SS1tau_mT>160_ETmiss100-150_mll>100"] = EventCounter("SR3l_SS1tau_mT>160_ETmiss100-150_mll>100");
+        _counters["SR3l_SS1tau_mT>160_ETmiss150-200_mll<100"] = EventCounter("SR3l_SS1tau_mT>160_ETmiss150-200_mll<100");
+        _counters["SR3l_SS1tau_mT>160_ETmiss150-200_mll>100"] = EventCounter("SR3l_SS1tau_mT>160_ETmiss150-200_mll>100");
+        _counters["SR3l_SS1tau_mT>160_ETmiss200-250_mll<100"] = EventCounter("SR3l_SS1tau_mT>160_ETmiss200-250_mll<100");
+        _counters["SR3l_SS1tau_mT>160_ETmiss200-250_mll>100"] = EventCounter("SR3l_SS1tau_mT>160_ETmiss200-250_mll>100");
+
+        // SRs in Table 4
+        _counters["SR3l_OS1tau_mT<120_ETmiss50-100_mll<100"] = EventCounter("SR3l_OS1tau_mT<120_ETmiss50-100_mll<100");
+        _counters["SR3l_OS1tau_mT<120_ETmiss50-100_mll>100"] = EventCounter("SR3l_OS1tau_mT<120_ETmiss50-100_mll>100");
+        _counters["SR3l_OS1tau_mT<120_ETmiss100-150_mll<100"] = EventCounter("SR3l_OS1tau_mT<120_ETmiss100-150_mll<100");
+        _counters["SR3l_OS1tau_mT<120_ETmiss100-150_mll>100"] = EventCounter("SR3l_OS1tau_mT<120_ETmiss100-150_mll>100");
+        _counters["SR3l_OS1tau_mT<120_ETmiss150-200_mll<100"] = EventCounter("SR3l_OS1tau_mT<120_ETmiss150-200_mll<100");
+        _counters["SR3l_OS1tau_mT<120_ETmiss150-200_mll>100"] = EventCounter("SR3l_OS1tau_mT<120_ETmiss150-200_mll>100");
+        _counters["SR3l_OS1tau_mT<120_ETmiss200-250_mll<100"] = EventCounter("SR3l_OS1tau_mT<120_ETmiss200-250_mll<100");
+        _counters["SR3l_OS1tau_mT<120_ETmiss200-250_mll>100"] = EventCounter("SR3l_OS1tau_mT<120_ETmiss200-250_mll>100");
+
+        _counters["SR3l_OS1tau_mT120-160_ETmiss50-100_mll<100"] = EventCounter("SR3l_OS1tau_mT120-160_ETmiss50-100_mll<100");
+        _counters["SR3l_OS1tau_mT120-160_ETmiss50-100_mll>100"] = EventCounter("SR3l_OS1tau_mT120-160_ETmiss50-100_mll>100");
+        _counters["SR3l_OS1tau_mT120-160_ETmiss100-150_mll<100"] = EventCounter("SR3l_OS1tau_mT120-160_ETmiss100-150_mll<100");
+        _counters["SR3l_OS1tau_mT120-160_ETmiss100-150_mll>100"] = EventCounter("SR3l_OS1tau_mT120-160_ETmiss100-150_mll>100");
+        _counters["SR3l_OS1tau_mT120-160_ETmiss150-200_mll<100"] = EventCounter("SR3l_OS1tau_mT120-160_ETmiss150-200_mll<100");
+        _counters["SR3l_OS1tau_mT120-160_ETmiss150-200_mll>100"] = EventCounter("SR3l_OS1tau_mT120-160_ETmiss150-200_mll>100");
+        _counters["SR3l_OS1tau_mT120-160_ETmiss200-250_mll<100"] = EventCounter("SR3l_OS1tau_mT120-160_ETmiss200-250_mll<100");
+        _counters["SR3l_OS1tau_mT120-160_ETmiss200-250_mll>100"] = EventCounter("SR3l_OS1tau_mT120-160_ETmiss200-250_mll>100");
+
+        _counters["SR3l_OS1tau_mT>160_ETmiss50-100_mll<100"] = EventCounter("SR3l_OS1tau_mT>160_ETmiss50-100_mll<100");
+        _counters["SR3l_OS1tau_mT>160_ETmiss50-100_mll>100"] = EventCounter("SR3l_OS1tau_mT>160_ETmiss50-100_mll>100");
+        _counters["SR3l_OS1tau_mT>160_ETmiss100-150_mll<100"] = EventCounter("SR3l_OS1tau_mT>160_ETmiss100-150_mll<100");
+        _counters["SR3l_OS1tau_mT>160_ETmiss100-150_mll>100"] = EventCounter("SR3l_OS1tau_mT>160_ETmiss100-150_mll>100");
+        _counters["SR3l_OS1tau_mT>160_ETmiss150-200_mll<100"] = EventCounter("SR3l_OS1tau_mT>160_ETmiss150-200_mll<100");
+        _counters["SR3l_OS1tau_mT>160_ETmiss150-200_mll>100"] = EventCounter("SR3l_OS1tau_mT>160_ETmiss150-200_mll>100");
+        _counters["SR3l_OS1tau_mT>160_ETmiss200-250_mll<100"] = EventCounter("SR3l_OS1tau_mT>160_ETmiss200-250_mll<100");
+        _counters["SR3l_OS1tau_mT>160_ETmiss200-250_mll>100"] = EventCounter("SR3l_OS1tau_mT>160_ETmiss200-250_mll>100");
+
+        // SRs in Table 5
+        _counters["SR4l_1OSSF0tau_ETmiss<30"] = EventCounter("SR4l_1OSSF0tau_ETmiss<30");
+        _counters["SR4l_1OSSF0tau_ETmiss30-50"] = EventCounter("SR4l_1OSSF0tau_ETmiss30-50");
+        _counters["SR4l_1OSSF0tau_ETmiss50-100"] = EventCounter("SR4l_1OSSF0tau_ETmiss50-100");
+        _counters["SR4l_1OSSF0tau_ETmiss>100"] = EventCounter("SR4l_1OSSF0tau_ETmiss>100");
+        _counters["SR4l_1OSSF1tau_ETmiss<30"] = EventCounter("SR4l_1OSSF1tau_ETmiss<30");
+        _counters["SR4l_1OSSF1tau_ETmiss30-50"] = EventCounter("SR4l_1OSSF1tau_ETmiss30-50");
+        _counters["SR4l_1OSSF1tau_ETmiss50-100"] = EventCounter("SR4l_1OSSF1tau_ETmiss50-100");
+        _counters["SR4l_1OSSF1tau_ETmiss>100"] = EventCounter("SR4l_1OSSF1tau_ETmiss>100");
+        _counters["SR4l_2OSSF0tau_ETmiss<30"] = EventCounter("SR4l_2OSSF0tau_ETmiss<30");
+        _counters["SR4l_2OSSF0tau_ETmiss30-50"] = EventCounter("SR4l_2OSSF0tau_ETmiss30-50");
+        _counters["SR4l_2OSSF0tau_ETmiss50-100"] = EventCounter("SR4l_2OSSF0tau_ETmiss50-100");
+        _counters["SR4l_2OSSF0tau_ETmiss>100"] = EventCounter("SR4l_2OSSF0tau_ETmiss>100");
+
+
         set_analysis_name("CMS_8TeV_MultiLEP_20invfb");
         set_luminosity(19.5);
       }
@@ -456,7 +458,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        CMS::applyElectronEff(signalElectrons);
+        applyEfficiency(signalElectrons, CMS::eff2DEl.at("Generic"));
 
         // - muons
         vector<const HEPUtils::Particle*> signalMuons;
@@ -465,14 +467,14 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        CMS::applyMuonEff(signalMuons);
+        applyEfficiency(signalMuons, CMS::eff2DMu.at("Generic"));
 
         // - taus
         vector<const HEPUtils::Particle*> signalTaus;
         for (const HEPUtils::Particle* tau : event->taus()) {
           if (tau->pT() > 20. && fabs(tau->eta()) < 2.4) signalTaus.push_back(tau);
         }
-        CMS::applyTauEfficiency(signalTaus);
+        applyEfficiency(signalTaus, CMS::effTau.at("Generic"));
 
         // - jets
         vector<const HEPUtils::Jet*> signalJets;
@@ -674,188 +676,166 @@ namespace Gambit {
           // SR group 1
           //
           if (SRgroup==1) {
-            if (mT<120 && met>50 && met<100 && mll<75)             _numSR["SR3l_OSSF_mT<120_ETmiss50-100_mll<75"] += event->weight();
-            if (mT<120 && met>50 && met<100 && mll>75 && mll<105)  _numSR["SR3l_OSSF_mT<120_ETmiss50-100_mll75-105"] += event->weight();
-            if (mT<120 && met>50 && met<100 && mll>105)            _numSR["SR3l_OSSF_mT<120_ETmiss50-100_mll>105"] += event->weight();
-            if (mT<120 && met>100 && met<150 && mll<75)            _numSR["SR3l_OSSF_mT<120_ETmiss100-150_mll<75"] += event->weight();
-            if (mT<120 && met>100 && met<150 && mll>75 && mll<105) _numSR["SR3l_OSSF_mT<120_ETmiss100-150_mll75-105"] += event->weight();
-            if (mT<120 && met>100 && met<150 && mll>105)           _numSR["SR3l_OSSF_mT<120_ETmiss100-150_mll>105"] += event->weight();
-            if (mT<120 && met>150 && met<200 && mll<75)            _numSR["SR3l_OSSF_mT<120_ETmiss150-200_mll<75"] += event->weight();
-            if (mT<120 && met>150 && met<200 && mll>75 && mll<105) _numSR["SR3l_OSSF_mT<120_ETmiss150-200_mll75-105"] += event->weight();
-            if (mT<120 && met>150 && met<200 && mll>105)           _numSR["SR3l_OSSF_mT<120_ETmiss150-200_mll>105"] += event->weight();
-            if (mT<120 && met>200 && met<250 && mll<75)            _numSR["SR3l_OSSF_mT<120_ETmiss200-250_mll<75"] += event->weight();
-            if (mT<120 && met>200 && met<250 && mll>75 && mll<105) _numSR["SR3l_OSSF_mT<120_ETmiss200-250_mll75-105"] += event->weight();
-            if (mT<120 && met>200 && met<250 && mll>105)           _numSR["SR3l_OSSF_mT<120_ETmiss200-250_mll>105"] += event->weight();
+            if (mT<120 && met>50 && met<100 && mll<75)             _counters.at("SR3l_OSSF_mT<120_ETmiss50-100_mll<75").add_event(event);
+            if (mT<120 && met>50 && met<100 && mll>75 && mll<105)  _counters.at("SR3l_OSSF_mT<120_ETmiss50-100_mll75-105").add_event(event);
+            if (mT<120 && met>50 && met<100 && mll>105)            _counters.at("SR3l_OSSF_mT<120_ETmiss50-100_mll>105").add_event(event);
+            if (mT<120 && met>100 && met<150 && mll<75)            _counters.at("SR3l_OSSF_mT<120_ETmiss100-150_mll<75").add_event(event);
+            if (mT<120 && met>100 && met<150 && mll>75 && mll<105) _counters.at("SR3l_OSSF_mT<120_ETmiss100-150_mll75-105").add_event(event);
+            if (mT<120 && met>100 && met<150 && mll>105)           _counters.at("SR3l_OSSF_mT<120_ETmiss100-150_mll>105").add_event(event);
+            if (mT<120 && met>150 && met<200 && mll<75)            _counters.at("SR3l_OSSF_mT<120_ETmiss150-200_mll<75").add_event(event);
+            if (mT<120 && met>150 && met<200 && mll>75 && mll<105) _counters.at("SR3l_OSSF_mT<120_ETmiss150-200_mll75-105").add_event(event);
+            if (mT<120 && met>150 && met<200 && mll>105)           _counters.at("SR3l_OSSF_mT<120_ETmiss150-200_mll>105").add_event(event);
+            if (mT<120 && met>200 && met<250 && mll<75)            _counters.at("SR3l_OSSF_mT<120_ETmiss200-250_mll<75").add_event(event);
+            if (mT<120 && met>200 && met<250 && mll>75 && mll<105) _counters.at("SR3l_OSSF_mT<120_ETmiss200-250_mll75-105").add_event(event);
+            if (mT<120 && met>200 && met<250 && mll>105)           _counters.at("SR3l_OSSF_mT<120_ETmiss200-250_mll>105").add_event(event);
 
-            if (mT>120 && mT<160 && met>50 && met<100 && mll<75)             _numSR["SR3l_OSSF_mT120-160_ETmiss50-100_mll<75"] += event->weight();
-            if (mT>120 && mT<160 && met>50 && met<100 && mll>75 && mll<105)  _numSR["SR3l_OSSF_mT120-160_ETmiss50-100_mll75-105"] += event->weight();
-            if (mT>120 && mT<160 && met>50 && met<100 && mll>105)            _numSR["SR3l_OSSF_mT120-160_ETmiss50-100_mll>105"] += event->weight();
-            if (mT>120 && mT<160 && met>100 && met<150 && mll<75)            _numSR["SR3l_OSSF_mT120-160_ETmiss100-150_mll<75"] += event->weight();
-            if (mT>120 && mT<160 && met>100 && met<150 && mll>75 && mll<105) _numSR["SR3l_OSSF_mT120-160_ETmiss100-150_mll75-105"] += event->weight();
-            if (mT>120 && mT<160 && met>100 && met<150 && mll>105)           _numSR["SR3l_OSSF_mT120-160_ETmiss100-150_mll>105"] += event->weight();
-            if (mT>120 && mT<160 && met>150 && met<200 && mll<75)            _numSR["SR3l_OSSF_mT120-160_ETmiss150-200_mll<75"] += event->weight();
-            if (mT>120 && mT<160 && met>150 && met<200 && mll>75 && mll<105) _numSR["SR3l_OSSF_mT120-160_ETmiss150-200_mll75-105"] += event->weight();
-            if (mT>120 && mT<160 && met>150 && met<200 && mll>105)           _numSR["SR3l_OSSF_mT120-160_ETmiss150-200_mll>105"] += event->weight();
-            if (mT>120 && mT<160 && met>200 && met<250 && mll<75)            _numSR["SR3l_OSSF_mT120-160_ETmiss200-250_mll<75"] += event->weight();
-            if (mT>120 && mT<160 && met>200 && met<250 && mll>75 && mll<105) _numSR["SR3l_OSSF_mT120-160_ETmiss200-250_mll75-105"] += event->weight();
-            if (mT>120 && mT<160 && met>200 && met<250 && mll>105)           _numSR["SR3l_OSSF_mT120-160_ETmiss200-250_mll>105"] += event->weight();
+            if (mT>120 && mT<160 && met>50 && met<100 && mll<75)             _counters.at("SR3l_OSSF_mT120-160_ETmiss50-100_mll<75").add_event(event);
+            if (mT>120 && mT<160 && met>50 && met<100 && mll>75 && mll<105)  _counters.at("SR3l_OSSF_mT120-160_ETmiss50-100_mll75-105").add_event(event);
+            if (mT>120 && mT<160 && met>50 && met<100 && mll>105)            _counters.at("SR3l_OSSF_mT120-160_ETmiss50-100_mll>105").add_event(event);
+            if (mT>120 && mT<160 && met>100 && met<150 && mll<75)            _counters.at("SR3l_OSSF_mT120-160_ETmiss100-150_mll<75").add_event(event);
+            if (mT>120 && mT<160 && met>100 && met<150 && mll>75 && mll<105) _counters.at("SR3l_OSSF_mT120-160_ETmiss100-150_mll75-105").add_event(event);
+            if (mT>120 && mT<160 && met>100 && met<150 && mll>105)           _counters.at("SR3l_OSSF_mT120-160_ETmiss100-150_mll>105").add_event(event);
+            if (mT>120 && mT<160 && met>150 && met<200 && mll<75)            _counters.at("SR3l_OSSF_mT120-160_ETmiss150-200_mll<75").add_event(event);
+            if (mT>120 && mT<160 && met>150 && met<200 && mll>75 && mll<105) _counters.at("SR3l_OSSF_mT120-160_ETmiss150-200_mll75-105").add_event(event);
+            if (mT>120 && mT<160 && met>150 && met<200 && mll>105)           _counters.at("SR3l_OSSF_mT120-160_ETmiss150-200_mll>105").add_event(event);
+            if (mT>120 && mT<160 && met>200 && met<250 && mll<75)            _counters.at("SR3l_OSSF_mT120-160_ETmiss200-250_mll<75").add_event(event);
+            if (mT>120 && mT<160 && met>200 && met<250 && mll>75 && mll<105) _counters.at("SR3l_OSSF_mT120-160_ETmiss200-250_mll75-105").add_event(event);
+            if (mT>120 && mT<160 && met>200 && met<250 && mll>105)           _counters.at("SR3l_OSSF_mT120-160_ETmiss200-250_mll>105").add_event(event);
 
-            if (mT>160 && met>50 && met<100 && mll<75)             _numSR["SR3l_OSSF_mT>160_ETmiss50-100_mll<75"] += event->weight();
-            if (mT>160 && met>50 && met<100 && mll>75 && mll<105)  _numSR["SR3l_OSSF_mT>160_ETmiss50-100_mll75-105"] += event->weight();
-            if (mT>160 && met>50 && met<100 && mll>105)            _numSR["SR3l_OSSF_mT>160_ETmiss50-100_mll>105"] += event->weight();
-            if (mT>160 && met>100 && met<150 && mll<75)            _numSR["SR3l_OSSF_mT>160_ETmiss100-150_mll<75"] += event->weight();
-            if (mT>160 && met>100 && met<150 && mll>75 && mll<105) _numSR["SR3l_OSSF_mT>160_ETmiss100-150_mll75-105"] += event->weight();
-            if (mT>160 && met>100 && met<150 && mll>105)           _numSR["SR3l_OSSF_mT>160_ETmiss100-150_mll>105"] += event->weight();
-            if (mT>160 && met>150 && met<200 && mll<75)            _numSR["SR3l_OSSF_mT>160_ETmiss150-200_mll<75"] += event->weight();
-            if (mT>160 && met>150 && met<200 && mll>75 && mll<105) _numSR["SR3l_OSSF_mT>160_ETmiss150-200_mll75-105"] += event->weight();
-            if (mT>160 && met>150 && met<200 && mll>105)           _numSR["SR3l_OSSF_mT>160_ETmiss150-200_mll>105"] += event->weight();
-            if (mT>160 && met>200 && met<250 && mll<75)            _numSR["SR3l_OSSF_mT>160_ETmiss200-250_mll<75"] += event->weight();
-            if (mT>160 && met>200 && met<250 && mll>75 && mll<105) _numSR["SR3l_OSSF_mT>160_ETmiss200-250_mll75-105"] += event->weight();
-            if (mT>160 && met>200 && met<250 && mll>105)           _numSR["SR3l_OSSF_mT>160_ETmiss200-250_mll>105"] += event->weight();
+            if (mT>160 && met>50 && met<100 && mll<75)             _counters.at("SR3l_OSSF_mT>160_ETmiss50-100_mll<75").add_event(event);
+            if (mT>160 && met>50 && met<100 && mll>75 && mll<105)  _counters.at("SR3l_OSSF_mT>160_ETmiss50-100_mll75-105").add_event(event);
+            if (mT>160 && met>50 && met<100 && mll>105)            _counters.at("SR3l_OSSF_mT>160_ETmiss50-100_mll>105").add_event(event);
+            if (mT>160 && met>100 && met<150 && mll<75)            _counters.at("SR3l_OSSF_mT>160_ETmiss100-150_mll<75").add_event(event);
+            if (mT>160 && met>100 && met<150 && mll>75 && mll<105) _counters.at("SR3l_OSSF_mT>160_ETmiss100-150_mll75-105").add_event(event);
+            if (mT>160 && met>100 && met<150 && mll>105)           _counters.at("SR3l_OSSF_mT>160_ETmiss100-150_mll>105").add_event(event);
+            if (mT>160 && met>150 && met<200 && mll<75)            _counters.at("SR3l_OSSF_mT>160_ETmiss150-200_mll<75").add_event(event);
+            if (mT>160 && met>150 && met<200 && mll>75 && mll<105) _counters.at("SR3l_OSSF_mT>160_ETmiss150-200_mll75-105").add_event(event);
+            if (mT>160 && met>150 && met<200 && mll>105)           _counters.at("SR3l_OSSF_mT>160_ETmiss150-200_mll>105").add_event(event);
+            if (mT>160 && met>200 && met<250 && mll<75)            _counters.at("SR3l_OSSF_mT>160_ETmiss200-250_mll<75").add_event(event);
+            if (mT>160 && met>200 && met<250 && mll>75 && mll<105) _counters.at("SR3l_OSSF_mT>160_ETmiss200-250_mll75-105").add_event(event);
+            if (mT>160 && met>200 && met<250 && mll>105)           _counters.at("SR3l_OSSF_mT>160_ETmiss200-250_mll>105").add_event(event);
           }
           //
           // SR group 2
           //
           else if (SRgroup==2) {
-            if (mT<120 && met>50 && met<100 && mll<100)  _numSR["SR3l_noOSSF_mT<120_ETmiss50-100_mll<100"] += event->weight();
-            if (mT<120 && met>50 && met<100 && mll>100)  _numSR["SR3l_noOSSF_mT<120_ETmiss50-100_mll>100"] += event->weight();
-            if (mT<120 && met>100 && met<150 && mll<100) _numSR["SR3l_noOSSF_mT<120_ETmiss100-150_mll<100"] += event->weight();
-            if (mT<120 && met>100 && met<150 && mll>100) _numSR["SR3l_noOSSF_mT<120_ETmiss100-150_mll>100"] += event->weight();
-            if (mT<120 && met>150 && met<200 && mll<100) _numSR["SR3l_noOSSF_mT<120_ETmiss150-200_mll<100"] += event->weight();
-            if (mT<120 && met>150 && met<200 && mll>100) _numSR["SR3l_noOSSF_mT<120_ETmiss150-200_mll>100"] += event->weight();
-            if (mT<120 && met>200 && met<250 && mll<100) _numSR["SR3l_noOSSF_mT<120_ETmiss200-250_mll<100"] += event->weight();
-            if (mT<120 && met>200 && met<250 && mll>100) _numSR["SR3l_noOSSF_mT<120_ETmiss200-250_mll>100"] += event->weight();
+            if (mT<120 && met>50 && met<100 && mll<100)  _counters.at("SR3l_noOSSF_mT<120_ETmiss50-100_mll<100").add_event(event);
+            if (mT<120 && met>50 && met<100 && mll>100)  _counters.at("SR3l_noOSSF_mT<120_ETmiss50-100_mll>100").add_event(event);
+            if (mT<120 && met>100 && met<150 && mll<100) _counters.at("SR3l_noOSSF_mT<120_ETmiss100-150_mll<100").add_event(event);
+            if (mT<120 && met>100 && met<150 && mll>100) _counters.at("SR3l_noOSSF_mT<120_ETmiss100-150_mll>100").add_event(event);
+            if (mT<120 && met>150 && met<200 && mll<100) _counters.at("SR3l_noOSSF_mT<120_ETmiss150-200_mll<100").add_event(event);
+            if (mT<120 && met>150 && met<200 && mll>100) _counters.at("SR3l_noOSSF_mT<120_ETmiss150-200_mll>100").add_event(event);
+            if (mT<120 && met>200 && met<250 && mll<100) _counters.at("SR3l_noOSSF_mT<120_ETmiss200-250_mll<100").add_event(event);
+            if (mT<120 && met>200 && met<250 && mll>100) _counters.at("SR3l_noOSSF_mT<120_ETmiss200-250_mll>100").add_event(event);
 
-            if (mT>120 && mT<160 && met>50 && met<100 && mll<100)  _numSR["SR3l_noOSSF_mT120-160_ETmiss50-100_mll<100"] += event->weight();
-            if (mT>120 && mT<160 && met>50 && met<100 && mll>100)  _numSR["SR3l_noOSSF_mT120-160_ETmiss50-100_mll>100"] += event->weight();
-            if (mT>120 && mT<160 && met>100 && met<150 && mll<100) _numSR["SR3l_noOSSF_mT120-160_ETmiss100-150_mll<100"] += event->weight();
-            if (mT>120 && mT<160 && met>100 && met<150 && mll>100) _numSR["SR3l_noOSSF_mT120-160_ETmiss100-150_mll>100"] += event->weight();
-            if (mT>120 && mT<160 && met>150 && met<200 && mll<100) _numSR["SR3l_noOSSF_mT120-160_ETmiss150-200_mll<100"] += event->weight();
-            if (mT>120 && mT<160 && met>150 && met<200 && mll>100) _numSR["SR3l_noOSSF_mT120-160_ETmiss150-200_mll>100"] += event->weight();
-            if (mT>120 && mT<160 && met>200 && met<250 && mll<100) _numSR["SR3l_noOSSF_mT120-160_ETmiss200-250_mll<100"] += event->weight();
-            if (mT>120 && mT<160 && met>200 && met<250 && mll>100) _numSR["SR3l_noOSSF_mT120-160_ETmiss200-250_mll>100"] += event->weight();
+            if (mT>120 && mT<160 && met>50 && met<100 && mll<100)  _counters.at("SR3l_noOSSF_mT120-160_ETmiss50-100_mll<100").add_event(event);
+            if (mT>120 && mT<160 && met>50 && met<100 && mll>100)  _counters.at("SR3l_noOSSF_mT120-160_ETmiss50-100_mll>100").add_event(event);
+            if (mT>120 && mT<160 && met>100 && met<150 && mll<100) _counters.at("SR3l_noOSSF_mT120-160_ETmiss100-150_mll<100").add_event(event);
+            if (mT>120 && mT<160 && met>100 && met<150 && mll>100) _counters.at("SR3l_noOSSF_mT120-160_ETmiss100-150_mll>100").add_event(event);
+            if (mT>120 && mT<160 && met>150 && met<200 && mll<100) _counters.at("SR3l_noOSSF_mT120-160_ETmiss150-200_mll<100").add_event(event);
+            if (mT>120 && mT<160 && met>150 && met<200 && mll>100) _counters.at("SR3l_noOSSF_mT120-160_ETmiss150-200_mll>100").add_event(event);
+            if (mT>120 && mT<160 && met>200 && met<250 && mll<100) _counters.at("SR3l_noOSSF_mT120-160_ETmiss200-250_mll<100").add_event(event);
+            if (mT>120 && mT<160 && met>200 && met<250 && mll>100) _counters.at("SR3l_noOSSF_mT120-160_ETmiss200-250_mll>100").add_event(event);
 
-            if (mT>160 && met>50 && met<100 && mll<100)  _numSR["SR3l_noOSSF_mT>160_ETmiss50-100_mll<100"] += event->weight();
-            if (mT>160 && met>50 && met<100 && mll>100)  _numSR["SR3l_noOSSF_mT>160_ETmiss50-100_mll>100"] += event->weight();
-            if (mT>160 && met>100 && met<150 && mll<100) _numSR["SR3l_noOSSF_mT>160_ETmiss100-150_mll<100"] += event->weight();
-            if (mT>160 && met>100 && met<150 && mll>100) _numSR["SR3l_noOSSF_mT>160_ETmiss100-150_mll>100"] += event->weight();
-            if (mT>160 && met>150 && met<200 && mll<100) _numSR["SR3l_noOSSF_mT>160_ETmiss150-200_mll<100"] += event->weight();
-            if (mT>160 && met>150 && met<200 && mll>100) _numSR["SR3l_noOSSF_mT>160_ETmiss150-200_mll>100"] += event->weight();
-            if (mT>160 && met>200 && met<250 && mll<100) _numSR["SR3l_noOSSF_mT>160_ETmiss200-250_mll<100"] += event->weight();
-            if (mT>160 && met>200 && met<250 && mll>100) _numSR["SR3l_noOSSF_mT>160_ETmiss200-250_mll>100"] += event->weight();
+            if (mT>160 && met>50 && met<100 && mll<100)  _counters.at("SR3l_noOSSF_mT>160_ETmiss50-100_mll<100").add_event(event);
+            if (mT>160 && met>50 && met<100 && mll>100)  _counters.at("SR3l_noOSSF_mT>160_ETmiss50-100_mll>100").add_event(event);
+            if (mT>160 && met>100 && met<150 && mll<100) _counters.at("SR3l_noOSSF_mT>160_ETmiss100-150_mll<100").add_event(event);
+            if (mT>160 && met>100 && met<150 && mll>100) _counters.at("SR3l_noOSSF_mT>160_ETmiss100-150_mll>100").add_event(event);
+            if (mT>160 && met>150 && met<200 && mll<100) _counters.at("SR3l_noOSSF_mT>160_ETmiss150-200_mll<100").add_event(event);
+            if (mT>160 && met>150 && met<200 && mll>100) _counters.at("SR3l_noOSSF_mT>160_ETmiss150-200_mll>100").add_event(event);
+            if (mT>160 && met>200 && met<250 && mll<100) _counters.at("SR3l_noOSSF_mT>160_ETmiss200-250_mll<100").add_event(event);
+            if (mT>160 && met>200 && met<250 && mll>100) _counters.at("SR3l_noOSSF_mT>160_ETmiss200-250_mll>100").add_event(event);
           }
           //
           // SR group 3
           //
           else if (SRgroup==3) {
-            if (mT<120 && met>50 && met<100 && mll<100)  _numSR["SR3l_SS1tau_mT<120_ETmiss50-100_mll<100"] += event->weight();
-            if (mT<120 && met>50 && met<100 && mll>100)  _numSR["SR3l_SS1tau_mT<120_ETmiss50-100_mll>100"] += event->weight();
-            if (mT<120 && met>100 && met<150 && mll<100) _numSR["SR3l_SS1tau_mT<120_ETmiss100-150_mll<100"] += event->weight();
-            if (mT<120 && met>100 && met<150 && mll>100) _numSR["SR3l_SS1tau_mT<120_ETmiss100-150_mll>100"] += event->weight();
-            if (mT<120 && met>150 && met<200 && mll<100) _numSR["SR3l_SS1tau_mT<120_ETmiss150-200_mll<100"] += event->weight();
-            if (mT<120 && met>150 && met<200 && mll>100) _numSR["SR3l_SS1tau_mT<120_ETmiss150-200_mll>100"] += event->weight();
-            if (mT<120 && met>200 && met<250 && mll<100) _numSR["SR3l_SS1tau_mT<120_ETmiss200-250_mll<100"] += event->weight();
-            if (mT<120 && met>200 && met<250 && mll>100) _numSR["SR3l_SS1tau_mT<120_ETmiss200-250_mll>100"] += event->weight();
+            if (mT<120 && met>50 && met<100 && mll<100)  _counters.at("SR3l_SS1tau_mT<120_ETmiss50-100_mll<100").add_event(event);
+            if (mT<120 && met>50 && met<100 && mll>100)  _counters.at("SR3l_SS1tau_mT<120_ETmiss50-100_mll>100").add_event(event);
+            if (mT<120 && met>100 && met<150 && mll<100) _counters.at("SR3l_SS1tau_mT<120_ETmiss100-150_mll<100").add_event(event);
+            if (mT<120 && met>100 && met<150 && mll>100) _counters.at("SR3l_SS1tau_mT<120_ETmiss100-150_mll>100").add_event(event);
+            if (mT<120 && met>150 && met<200 && mll<100) _counters.at("SR3l_SS1tau_mT<120_ETmiss150-200_mll<100").add_event(event);
+            if (mT<120 && met>150 && met<200 && mll>100) _counters.at("SR3l_SS1tau_mT<120_ETmiss150-200_mll>100").add_event(event);
+            if (mT<120 && met>200 && met<250 && mll<100) _counters.at("SR3l_SS1tau_mT<120_ETmiss200-250_mll<100").add_event(event);
+            if (mT<120 && met>200 && met<250 && mll>100) _counters.at("SR3l_SS1tau_mT<120_ETmiss200-250_mll>100").add_event(event);
 
-            if (mT>120 && mT<160 && met>50 && met<100 && mll<100)  _numSR["SR3l_SS1tau_mT120-160_ETmiss50-100_mll<100"] += event->weight();
-            if (mT>120 && mT<160 && met>50 && met<100 && mll>100)  _numSR["SR3l_SS1tau_mT120-160_ETmiss50-100_mll>100"] += event->weight();
-            if (mT>120 && mT<160 && met>100 && met<150 && mll<100) _numSR["SR3l_SS1tau_mT120-160_ETmiss100-150_mll<100"] += event->weight();
-            if (mT>120 && mT<160 && met>100 && met<150 && mll>100) _numSR["SR3l_SS1tau_mT120-160_ETmiss100-150_mll>100"] += event->weight();
-            if (mT>120 && mT<160 && met>150 && met<200 && mll<100) _numSR["SR3l_SS1tau_mT120-160_ETmiss150-200_mll<100"] += event->weight();
-            if (mT>120 && mT<160 && met>150 && met<200 && mll>100) _numSR["SR3l_SS1tau_mT120-160_ETmiss150-200_mll>100"] += event->weight();
-            if (mT>120 && mT<160 && met>200 && met<250 && mll<100) _numSR["SR3l_SS1tau_mT120-160_ETmiss200-250_mll<100"] += event->weight();
-            if (mT>120 && mT<160 && met>200 && met<250 && mll>100) _numSR["SR3l_SS1tau_mT120-160_ETmiss200-250_mll>100"] += event->weight();
+            if (mT>120 && mT<160 && met>50 && met<100 && mll<100)  _counters.at("SR3l_SS1tau_mT120-160_ETmiss50-100_mll<100").add_event(event);
+            if (mT>120 && mT<160 && met>50 && met<100 && mll>100)  _counters.at("SR3l_SS1tau_mT120-160_ETmiss50-100_mll>100").add_event(event);
+            if (mT>120 && mT<160 && met>100 && met<150 && mll<100) _counters.at("SR3l_SS1tau_mT120-160_ETmiss100-150_mll<100").add_event(event);
+            if (mT>120 && mT<160 && met>100 && met<150 && mll>100) _counters.at("SR3l_SS1tau_mT120-160_ETmiss100-150_mll>100").add_event(event);
+            if (mT>120 && mT<160 && met>150 && met<200 && mll<100) _counters.at("SR3l_SS1tau_mT120-160_ETmiss150-200_mll<100").add_event(event);
+            if (mT>120 && mT<160 && met>150 && met<200 && mll>100) _counters.at("SR3l_SS1tau_mT120-160_ETmiss150-200_mll>100").add_event(event);
+            if (mT>120 && mT<160 && met>200 && met<250 && mll<100) _counters.at("SR3l_SS1tau_mT120-160_ETmiss200-250_mll<100").add_event(event);
+            if (mT>120 && mT<160 && met>200 && met<250 && mll>100) _counters.at("SR3l_SS1tau_mT120-160_ETmiss200-250_mll>100").add_event(event);
 
-            if (mT>160 && met>50 && met<100 && mll<100)  _numSR["SR3l_SS1tau_mT>160_ETmiss50-100_mll<100"] += event->weight();
-            if (mT>160 && met>50 && met<100 && mll>100)  _numSR["SR3l_SS1tau_mT>160_ETmiss50-100_mll>100"] += event->weight();
-            if (mT>160 && met>100 && met<150 && mll<100) _numSR["SR3l_SS1tau_mT>160_ETmiss100-150_mll<100"] += event->weight();
-            if (mT>160 && met>100 && met<150 && mll>100) _numSR["SR3l_SS1tau_mT>160_ETmiss100-150_mll>100"] += event->weight();
-            if (mT>160 && met>150 && met<200 && mll<100) _numSR["SR3l_SS1tau_mT>160_ETmiss150-200_mll<100"] += event->weight();
-            if (mT>160 && met>150 && met<200 && mll>100) _numSR["SR3l_SS1tau_mT>160_ETmiss150-200_mll>100"] += event->weight();
-            if (mT>160 && met>200 && met<250 && mll<100) _numSR["SR3l_SS1tau_mT>160_ETmiss200-250_mll<100"] += event->weight();
-            if (mT>160 && met>200 && met<250 && mll>100) _numSR["SR3l_SS1tau_mT>160_ETmiss200-250_mll>100"] += event->weight();
+            if (mT>160 && met>50 && met<100 && mll<100)  _counters.at("SR3l_SS1tau_mT>160_ETmiss50-100_mll<100").add_event(event);
+            if (mT>160 && met>50 && met<100 && mll>100)  _counters.at("SR3l_SS1tau_mT>160_ETmiss50-100_mll>100").add_event(event);
+            if (mT>160 && met>100 && met<150 && mll<100) _counters.at("SR3l_SS1tau_mT>160_ETmiss100-150_mll<100").add_event(event);
+            if (mT>160 && met>100 && met<150 && mll>100) _counters.at("SR3l_SS1tau_mT>160_ETmiss100-150_mll>100").add_event(event);
+            if (mT>160 && met>150 && met<200 && mll<100) _counters.at("SR3l_SS1tau_mT>160_ETmiss150-200_mll<100").add_event(event);
+            if (mT>160 && met>150 && met<200 && mll>100) _counters.at("SR3l_SS1tau_mT>160_ETmiss150-200_mll>100").add_event(event);
+            if (mT>160 && met>200 && met<250 && mll<100) _counters.at("SR3l_SS1tau_mT>160_ETmiss200-250_mll<100").add_event(event);
+            if (mT>160 && met>200 && met<250 && mll>100) _counters.at("SR3l_SS1tau_mT>160_ETmiss200-250_mll>100").add_event(event);
           }
           //
           // SR group 4
           //
           else if (SRgroup==4) {
-            if (mT<120 && met>50 && met<100 && mll<100)  _numSR["SR3l_OS1tau_mT<120_ETmiss50-100_mll<100"] += event->weight();
-            if (mT<120 && met>50 && met<100 && mll>100)  _numSR["SR3l_OS1tau_mT<120_ETmiss50-100_mll>100"] += event->weight();
-            if (mT<120 && met>100 && met<150 && mll<100) _numSR["SR3l_OS1tau_mT<120_ETmiss100-150_mll<100"] += event->weight();
-            if (mT<120 && met>100 && met<150 && mll>100) _numSR["SR3l_OS1tau_mT<120_ETmiss100-150_mll>100"] += event->weight();
-            if (mT<120 && met>150 && met<200 && mll<100) _numSR["SR3l_OS1tau_mT<120_ETmiss150-200_mll<100"] += event->weight();
-            if (mT<120 && met>150 && met<200 && mll>100) _numSR["SR3l_OS1tau_mT<120_ETmiss150-200_mll>100"] += event->weight();
-            if (mT<120 && met>200 && met<250 && mll<100) _numSR["SR3l_OS1tau_mT<120_ETmiss200-250_mll<100"] += event->weight();
-            if (mT<120 && met>200 && met<250 && mll>100) _numSR["SR3l_OS1tau_mT<120_ETmiss200-250_mll>100"] += event->weight();
+            if (mT<120 && met>50 && met<100 && mll<100)  _counters.at("SR3l_OS1tau_mT<120_ETmiss50-100_mll<100").add_event(event);
+            if (mT<120 && met>50 && met<100 && mll>100)  _counters.at("SR3l_OS1tau_mT<120_ETmiss50-100_mll>100").add_event(event);
+            if (mT<120 && met>100 && met<150 && mll<100) _counters.at("SR3l_OS1tau_mT<120_ETmiss100-150_mll<100").add_event(event);
+            if (mT<120 && met>100 && met<150 && mll>100) _counters.at("SR3l_OS1tau_mT<120_ETmiss100-150_mll>100").add_event(event);
+            if (mT<120 && met>150 && met<200 && mll<100) _counters.at("SR3l_OS1tau_mT<120_ETmiss150-200_mll<100").add_event(event);
+            if (mT<120 && met>150 && met<200 && mll>100) _counters.at("SR3l_OS1tau_mT<120_ETmiss150-200_mll>100").add_event(event);
+            if (mT<120 && met>200 && met<250 && mll<100) _counters.at("SR3l_OS1tau_mT<120_ETmiss200-250_mll<100").add_event(event);
+            if (mT<120 && met>200 && met<250 && mll>100) _counters.at("SR3l_OS1tau_mT<120_ETmiss200-250_mll>100").add_event(event);
 
-            if (mT>120 && mT<160 && met>50 && met<100 && mll<100)  _numSR["SR3l_OS1tau_mT120-160_ETmiss50-100_mll<100"] += event->weight();
-            if (mT>120 && mT<160 && met>50 && met<100 && mll>100)  _numSR["SR3l_OS1tau_mT120-160_ETmiss50-100_mll>100"] += event->weight();
-            if (mT>120 && mT<160 && met>100 && met<150 && mll<100) _numSR["SR3l_OS1tau_mT120-160_ETmiss100-150_mll<100"] += event->weight();
-            if (mT>120 && mT<160 && met>100 && met<150 && mll>100) _numSR["SR3l_OS1tau_mT120-160_ETmiss100-150_mll>100"] += event->weight();
-            if (mT>120 && mT<160 && met>150 && met<200 && mll<100) _numSR["SR3l_OS1tau_mT120-160_ETmiss150-200_mll<100"] += event->weight();
-            if (mT>120 && mT<160 && met>150 && met<200 && mll>100) _numSR["SR3l_OS1tau_mT120-160_ETmiss150-200_mll>100"] += event->weight();
-            if (mT>120 && mT<160 && met>200 && met<250 && mll<100) _numSR["SR3l_OS1tau_mT120-160_ETmiss200-250_mll<100"] += event->weight();
-            if (mT>120 && mT<160 && met>200 && met<250 && mll>100) _numSR["SR3l_OS1tau_mT120-160_ETmiss200-250_mll>100"] += event->weight();
+            if (mT>120 && mT<160 && met>50 && met<100 && mll<100)  _counters.at("SR3l_OS1tau_mT120-160_ETmiss50-100_mll<100").add_event(event);
+            if (mT>120 && mT<160 && met>50 && met<100 && mll>100)  _counters.at("SR3l_OS1tau_mT120-160_ETmiss50-100_mll>100").add_event(event);
+            if (mT>120 && mT<160 && met>100 && met<150 && mll<100) _counters.at("SR3l_OS1tau_mT120-160_ETmiss100-150_mll<100").add_event(event);
+            if (mT>120 && mT<160 && met>100 && met<150 && mll>100) _counters.at("SR3l_OS1tau_mT120-160_ETmiss100-150_mll>100").add_event(event);
+            if (mT>120 && mT<160 && met>150 && met<200 && mll<100) _counters.at("SR3l_OS1tau_mT120-160_ETmiss150-200_mll<100").add_event(event);
+            if (mT>120 && mT<160 && met>150 && met<200 && mll>100) _counters.at("SR3l_OS1tau_mT120-160_ETmiss150-200_mll>100").add_event(event);
+            if (mT>120 && mT<160 && met>200 && met<250 && mll<100) _counters.at("SR3l_OS1tau_mT120-160_ETmiss200-250_mll<100").add_event(event);
+            if (mT>120 && mT<160 && met>200 && met<250 && mll>100) _counters.at("SR3l_OS1tau_mT120-160_ETmiss200-250_mll>100").add_event(event);
 
-            if (mT>160 && met>50 && met<100 && mll<100)  _numSR["SR3l_OS1tau_mT>160_ETmiss50-100_mll<100"] += event->weight();
-            if (mT>160 && met>50 && met<100 && mll>100)  _numSR["SR3l_OS1tau_mT>160_ETmiss50-100_mll>100"] += event->weight();
-            if (mT>160 && met>100 && met<150 && mll<100) _numSR["SR3l_OS1tau_mT>160_ETmiss100-150_mll<100"] += event->weight();
-            if (mT>160 && met>100 && met<150 && mll>100) _numSR["SR3l_OS1tau_mT>160_ETmiss100-150_mll>100"] += event->weight();
-            if (mT>160 && met>150 && met<200 && mll<100) _numSR["SR3l_OS1tau_mT>160_ETmiss150-200_mll<100"] += event->weight();
-            if (mT>160 && met>150 && met<200 && mll>100) _numSR["SR3l_OS1tau_mT>160_ETmiss150-200_mll>100"] += event->weight();
-            if (mT>160 && met>200 && met<250 && mll<100) _numSR["SR3l_OS1tau_mT>160_ETmiss200-250_mll<100"] += event->weight();
-            if (mT>160 && met>200 && met<250 && mll>100) _numSR["SR3l_OS1tau_mT>160_ETmiss200-250_mll>100"] += event->weight();
+            if (mT>160 && met>50 && met<100 && mll<100)  _counters.at("SR3l_OS1tau_mT>160_ETmiss50-100_mll<100").add_event(event);
+            if (mT>160 && met>50 && met<100 && mll>100)  _counters.at("SR3l_OS1tau_mT>160_ETmiss50-100_mll>100").add_event(event);
+            if (mT>160 && met>100 && met<150 && mll<100) _counters.at("SR3l_OS1tau_mT>160_ETmiss100-150_mll<100").add_event(event);
+            if (mT>160 && met>100 && met<150 && mll>100) _counters.at("SR3l_OS1tau_mT>160_ETmiss100-150_mll>100").add_event(event);
+            if (mT>160 && met>150 && met<200 && mll<100) _counters.at("SR3l_OS1tau_mT>160_ETmiss150-200_mll<100").add_event(event);
+            if (mT>160 && met>150 && met<200 && mll>100) _counters.at("SR3l_OS1tau_mT>160_ETmiss150-200_mll>100").add_event(event);
+            if (mT>160 && met>200 && met<250 && mll<100) _counters.at("SR3l_OS1tau_mT>160_ETmiss200-250_mll<100").add_event(event);
+            if (mT>160 && met>200 && met<250 && mll>100) _counters.at("SR3l_OS1tau_mT>160_ETmiss200-250_mll>100").add_event(event);
           }
           //
           // SR group 5
           //
           else if (SRgroup==5) {
-            if (nOSSFpairs==1 && nSignalTaus==0 && mll>75 && mll<105 && met<30)            _numSR["SR4l_1OSSF0tau_ETmiss<30"] += event->weight();
-            if (nOSSFpairs==1 && nSignalTaus==0 && mll>75 && mll<105 && met>30 && met<50)  _numSR["SR4l_1OSSF0tau_ETmiss30-50"] += event->weight();
-            if (nOSSFpairs==1 && nSignalTaus==0 && mll>75 && mll<105 && met>50 && met<100) _numSR["SR4l_1OSSF0tau_ETmiss50-100"] += event->weight();
-            if (nOSSFpairs==1 && nSignalTaus==0 && mll>75 && mll<105 && met>100)           _numSR["SR4l_1OSSF0tau_ETmiss>100"] += event->weight();
+            if (nOSSFpairs==1 && nSignalTaus==0 && mll>75 && mll<105 && met<30)            _counters.at("SR4l_1OSSF0tau_ETmiss<30").add_event(event);
+            if (nOSSFpairs==1 && nSignalTaus==0 && mll>75 && mll<105 && met>30 && met<50)  _counters.at("SR4l_1OSSF0tau_ETmiss30-50").add_event(event);
+            if (nOSSFpairs==1 && nSignalTaus==0 && mll>75 && mll<105 && met>50 && met<100) _counters.at("SR4l_1OSSF0tau_ETmiss50-100").add_event(event);
+            if (nOSSFpairs==1 && nSignalTaus==0 && mll>75 && mll<105 && met>100)           _counters.at("SR4l_1OSSF0tau_ETmiss>100").add_event(event);
 
-            if (nOSSFpairs==1 && nSignalTaus==1 && mll>75 && mll<105 && met<30)            _numSR["SR4l_1OSSF1tau_ETmiss<30"] += event->weight();
-            if (nOSSFpairs==1 && nSignalTaus==1 && mll>75 && mll<105 && met>30 && met<50)  _numSR["SR4l_1OSSF1tau_ETmiss30-50"] += event->weight();
-            if (nOSSFpairs==1 && nSignalTaus==1 && mll>75 && mll<105 && met>50 && met<100) _numSR["SR4l_1OSSF1tau_ETmiss50-100"] += event->weight();
-            if (nOSSFpairs==1 && nSignalTaus==1 && mll>75 && mll<105 && met>100)           _numSR["SR4l_1OSSF1tau_ETmiss>100"] += event->weight();
+            if (nOSSFpairs==1 && nSignalTaus==1 && mll>75 && mll<105 && met<30)            _counters.at("SR4l_1OSSF1tau_ETmiss<30").add_event(event);
+            if (nOSSFpairs==1 && nSignalTaus==1 && mll>75 && mll<105 && met>30 && met<50)  _counters.at("SR4l_1OSSF1tau_ETmiss30-50").add_event(event);
+            if (nOSSFpairs==1 && nSignalTaus==1 && mll>75 && mll<105 && met>50 && met<100) _counters.at("SR4l_1OSSF1tau_ETmiss50-100").add_event(event);
+            if (nOSSFpairs==1 && nSignalTaus==1 && mll>75 && mll<105 && met>100)           _counters.at("SR4l_1OSSF1tau_ETmiss>100").add_event(event);
 
-            if (nOSSFpairs==2 && nSignalTaus==0 && mll>75 && mll<105 && met<30)            _numSR["SR4l_2OSSF0tau_ETmiss<30"] += event->weight();
-            if (nOSSFpairs==2 && nSignalTaus==0 && mll>75 && mll<105 && met>30 && met<50)  _numSR["SR4l_2OSSF0tau_ETmiss30-50"] += event->weight();
-            if (nOSSFpairs==2 && nSignalTaus==0 && mll>75 && mll<105 && met>50 && met<100) _numSR["SR4l_2OSSF0tau_ETmiss50-100"] += event->weight();
-            if (nOSSFpairs==2 && nSignalTaus==0 && mll>75 && mll<105 && met>100)           _numSR["SR4l_2OSSF0tau_ETmiss>100"] += event->weight();
+            if (nOSSFpairs==2 && nSignalTaus==0 && mll>75 && mll<105 && met<30)            _counters.at("SR4l_2OSSF0tau_ETmiss<30").add_event(event);
+            if (nOSSFpairs==2 && nSignalTaus==0 && mll>75 && mll<105 && met>30 && met<50)  _counters.at("SR4l_2OSSF0tau_ETmiss30-50").add_event(event);
+            if (nOSSFpairs==2 && nSignalTaus==0 && mll>75 && mll<105 && met>50 && met<100) _counters.at("SR4l_2OSSF0tau_ETmiss50-100").add_event(event);
+            if (nOSSFpairs==2 && nSignalTaus==0 && mll>75 && mll<105 && met>100)           _counters.at("SR4l_2OSSF0tau_ETmiss>100").add_event(event);
           }
         }
 
-      }
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        // TODO: Need to combine the signal region results here
-
-        const Analysis_CMS_8TeV_MultiLEP_20invfb* specificOther
-          = dynamic_cast<const Analysis_CMS_8TeV_MultiLEP_20invfb*>(other);
-
-        #ifdef CHECK_CUTFLOW
-          // if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-          for (size_t j = 0; j < NCUTS; j++) {
-            cutFlowVector[j] += specificOther->cutFlowVector.at(j);
-            cutFlowVector_str[j] = specificOther->cutFlowVector_str.at(j);
-          }
-        #endif
-
-        for (auto& el : _numSR)
-        {
-          el.second += specificOther->_numSR.at(el.first);
-        }
       }
 
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results() {
 
         // Format:
-        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
+        // add_result(SignalRegionData(_counters.at("SR label"), n_obs, {b, b_sys}));
 
         // Using the macros defined at the top of the file
         ADD_RESULTS_SRGROUP_1
@@ -867,8 +847,9 @@ namespace Gambit {
 
 
     protected:
-      void analysis_specific_reset() {
-        for (auto& el : _numSR) { el.second = 0.;}
+      void analysis_specific_reset()
+      {
+        for (auto& pair : _counters) { pair.second.reset(); }
         #ifdef CHECK_CUTFLOW
           std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
         #endif

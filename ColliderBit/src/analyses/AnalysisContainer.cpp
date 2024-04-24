@@ -22,6 +22,11 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2019 June
+///  \date 2023 Aug
+///
 ///  *********************************************
 
 #include <stdexcept>
@@ -48,20 +53,29 @@ namespace Gambit
       F(ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb)          \
       F(ATLAS_13TeV_RJ3L_3Lep_36invfb)               \
       F(ATLAS_13TeV_RJ3L_lowmass_36invfb)            \
+      F(ATLAS_13TeV_2LEPJETS_RJR_139invfb)           \
 
     #define MAP_ANALYSES_WITH_ROOT(F)                \
       F(ATLAS_13TeV_1LEPStop_36invfb)                \
+      F(ATLAS_13TeV_2LEP0JET_EW_139invfb)            \
+
+    #define MAP_ANALYSES_WITH_ONNX(F)                \
+      F(ATLAS_13TeV_3b_NN_139invfb)                  \
 
     #define MAP_ANALYSES(F)                          \
       F(Minimum)                                     \
       F(Covariance)                                  \
+      F(Dummy)                                       \
+      F(Baselines)                                   \
       F(ATLAS_13TeV_2BoostedBosons_139invfb)         \
       F(ATLAS_13TeV_0LEP_13invfb)                    \
       F(ATLAS_13TeV_0LEP_36invfb)                    \
       F(ATLAS_13TeV_0LEP_139invfb)                   \
       F(ATLAS_13TeV_0LEPStop_36invfb)                \
+      F(ATLAS_13TeV_0LEPStop_139invfb)               \
       F(ATLAS_13TeV_1Lep2b_139invfb)                 \
       F(ATLAS_13TeV_2LEPStop_36invfb)                \
+      F(ATLAS_13TeV_2LEPJETS_EW_139invfb)            \
       F(ATLAS_13TeV_2LEPStop_139invfb)               \
       F(ATLAS_13TeV_2LEPStop_inclusive_139invfb)     \
       F(ATLAS_13TeV_2LEPStop_exclusive_139invfb)     \
@@ -79,6 +93,7 @@ namespace Gambit
       F(ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb) \
       F(ATLAS_13TeV_2OSLEP_chargino_binned_139invfb) \
       F(ATLAS_13TeV_3LEP_139invfb)                   \
+      F(ATLAS_13TeV_3LEP_eRJR_139invfb)              \
       F(ATLAS_13TeV_4LEP_36invfb)                    \
       F(ATLAS_13TeV_4LEP_139invfb)                   \
       F(ATLAS_13TeV_2bMET_36invfb)                   \
@@ -86,12 +101,18 @@ namespace Gambit
       F(ATLAS_13TeV_3b_discoverySR_24invfb)          \
       F(ATLAS_13TeV_3b_36invfb)                      \
       F(ATLAS_13TeV_3b_discoverySR_36invfb)          \
+      F(ATLAS_13TeV_4b_139invfb)                     \
+      F(ATLAS_13TeV_4b_allyears_139invfb)            \
+      F(ATLAS_13TeV_4b_discoverySR_139invfb)         \
       F(ATLAS_13TeV_PhotonGGM_36invfb)               \
       F(ATLAS_13TeV_PhotonGGM_1Photon_36invfb)       \
       F(ATLAS_13TeV_PhotonGGM_2Photon_36invfb)       \
       F(ATLAS_13TeV_PhotonGGM_1Photon_139invfb)      \
       F(ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb)     \
       F(ATLAS_13TeV_2OSLEP_Z_139invfb)               \
+      F(ATLAS_13TeV_2LEPsoft_139invfb)               \
+      F(ATLAS_13TeV_bTaus_StopStau_139invfb)         \
+      F(ATLAS_13TeV_1OR3LEP_StopHZ_139invfb)         \
       F(ATLAS_8TeV_0LEP_20invfb)                     \
       F(ATLAS_8TeV_0LEPStop_20invfb)                 \
       F(ATLAS_8TeV_1LEPStop_20invfb)                 \
@@ -105,17 +126,22 @@ namespace Gambit
       F(CMS_13TeV_0LEP_13invfb)                      \
       F(CMS_13TeV_0LEP_36invfb)                      \
       F(CMS_13TeV_0LEP_137invfb)                     \
+      F(CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD)  \
+      F(CMS_13TeV_0LEP_chargino_VV_VH_137invfb)      \
       F(CMS_13TeV_1LEPbb_36invfb)                    \
+      F(CMS_13TeV_1LEPbb_137invfb)                   \
       F(CMS_13TeV_1LEPStop_36invfb)                  \
       F(CMS_13TeV_2LEPStop_36invfb)                  \
       F(CMS_13TeV_2LEPsoft_36invfb)                  \
       F(CMS_13TeV_2LEPsoft_36invfb_nocovar)          \
       F(CMS_13TeV_2LEPsoft_stop_36invfb)             \
       F(CMS_13TeV_2LEPsoft_stop_36invfb_nocovar)     \
+      F(CMS_13TeV_2LEPsoft_137invfb)                 \
       F(CMS_13TeV_2OSLEP_36invfb)                    \
       F(CMS_13TeV_2OSLEP_137invfb)                   \
       F(CMS_13TeV_2OSLEP_Strong_Production_137invfb) \
-      F(CMS_13TeV_2OSLEP_Slepton_137invfb) \
+      F(CMS_13TeV_2OSLEP_EW_Production_137invfb)     \
+      F(CMS_13TeV_2OSLEP_Slepton_137invfb)           \
       F(CMS_13TeV_2OSLEP_36invfb_nocovar)            \
       F(CMS_13TeV_2OSLEP_confnote_36invfb)           \
       F(CMS_13TeV_2OSLEP_chargino_stop_36invfb)      \
@@ -126,6 +152,7 @@ namespace Gambit
       F(CMS_13TeV_2SSLEP_Stop_exclusive_36invfb)     \
       F(CMS_13TeV_2SSLEP_Stop_137invfb)              \
       F(CMS_13TeV_Photon_GMSB_36invfb)               \
+      F(CMS_13TeV_Photon_GMSB_137invfb)              \
       F(CMS_13TeV_2Photon_GMSB_36invfb)              \
       F(CMS_13TeV_1Photon1Lepton_36invfb)            \
       F(CMS_13TeV_1Photon1Lepton_emu_combined_36invfb) \
@@ -143,12 +170,15 @@ namespace Gambit
       F(CMS_13TeV_MultiLEP_3LEPTau_137invfb)         \
       F(CMS_13TeV_MultiLEP_4LEP_137invfb)            \
       F(CMS_13TeV_MultiLEP_4LEPTau_137invfb)         \
+      F(CMS_13TeV_2Higgs_4b_neutralino_137invfb)     \
+      F(CMS_13TeV_0LEPStop_137invfb)                 \
       F(CMS_8TeV_1LEPDMTOP_20invfb)                  \
       F(CMS_8TeV_2LEPDMTOP_20invfb)                  \
       F(CMS_8TeV_MultiLEP_20invfb)                   \
       F(CMS_8TeV_MultiLEP_3Lep_20invfb)              \
       F(CMS_8TeV_MultiLEP_4Lep_20invfb)              \
       F(CMS_8TeV_MONOJET_20invfb)                    \
+      F(ATLAS_13TeV_2OR3LEP_139invfb)                \
 
     /// For analysis factory function declaration
     #define DECLARE_ANALYSIS_FACTORY(ANAME)          \
@@ -161,6 +191,9 @@ namespace Gambit
         MAP_ANALYSES_WITH_ROOT_RESTFRAMES(DECLARE_ANALYSIS_FACTORY)
       #endif
       MAP_ANALYSES_WITH_ROOT(DECLARE_ANALYSIS_FACTORY)
+    #endif
+    #ifndef EXCLUDE_ONNXRUNTIME
+      MAP_ANALYSES_WITH_ONNX(DECLARE_ANALYSIS_FACTORY)
     #endif
     MAP_ANALYSES(DECLARE_ANALYSIS_FACTORY)
 
@@ -176,6 +209,9 @@ namespace Gambit
           MAP_ANALYSES_WITH_ROOT_RESTFRAMES(IF_X_RTN_CREATE_ANA_X)
         #endif
         MAP_ANALYSES_WITH_ROOT(IF_X_RTN_CREATE_ANA_X)
+      #endif
+      #ifndef EXCLUDE_ONNXRUNTIME
+        MAP_ANALYSES_WITH_ONNX(IF_X_RTN_CREATE_ANA_X)
       #endif
       MAP_ANALYSES(IF_X_RTN_CREATE_ANA_X)
 
@@ -196,6 +232,9 @@ namespace Gambit
           MAP_ANALYSES_WITH_ROOT_RESTFRAMES(IF_X_RTN_DETECTOR)
         #endif
         MAP_ANALYSES_WITH_ROOT(IF_X_RTN_DETECTOR)
+      #endif
+      #ifndef EXCLUDE_ONNXRUNTIME
+        MAP_ANALYSES_WITH_ONNX(IF_X_RTN_DETECTOR)
       #endif
       MAP_ANALYSES(IF_X_RTN_DETECTOR)
 
@@ -329,6 +368,7 @@ namespace Gambit
       for (auto& aname : analysis_names)
       {
         analyses_map[collider_name][aname] = mkAnalysis(aname);
+        analyses_map[collider_name][aname]->set_collider_name(collider_name);
       }
     }
 

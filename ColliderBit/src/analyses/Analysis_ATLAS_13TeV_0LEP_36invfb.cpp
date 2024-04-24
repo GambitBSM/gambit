@@ -29,37 +29,12 @@ namespace Gambit {
     /// https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2016-07/tabaux_006.png
     /// for cut-flows.
 
-    class Analysis_ATLAS_13TeV_0LEP_36invfb : public Analysis {
+    class Analysis_ATLAS_13TeV_0LEP_36invfb : public Analysis
+    {
     public:
 
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
-
-      // Counters for the number of accepted events for each signal region
-      std::map<string, EventCounter> _counters = {
-        {"2j-1200", EventCounter("2j-1200")},
-        {"2j-1600", EventCounter("2j-1600")},
-        {"2j-2000", EventCounter("2j-2000")},
-        {"2j-2400", EventCounter("2j-2400")},
-        {"2j-2800", EventCounter("2j-2800")},
-        {"2j-3600", EventCounter("2j-3600")},
-        {"2j-2100", EventCounter("2j-2100")},
-        {"3j-1300", EventCounter("3j-1300")},
-        {"4j-1000", EventCounter("4j-1000")},
-        {"4j-1400", EventCounter("4j-1400")},
-        {"4j-1800", EventCounter("4j-1800")},
-        {"4j-2200", EventCounter("4j-2200")},
-        {"4j-2600", EventCounter("4j-2600")},
-        {"4j-3000", EventCounter("4j-3000")},
-        {"5j-1700", EventCounter("5j-1700")},
-        {"5j-1600", EventCounter("5j-1600")},
-        {"5j-2000", EventCounter("5j-2000")},
-        {"5j-2600", EventCounter("5j-2600")},
-        {"6j-1200", EventCounter("6j-1200")},
-        {"6j-1800", EventCounter("6j-1800")},
-        {"6j-2200", EventCounter("6j-2200")},
-        {"6j-2600", EventCounter("6j-2600")},
-      };
 
       Cutflows _flows;
 
@@ -67,7 +42,33 @@ namespace Gambit {
       // Perf_Plot* plots_firstcut;
       string analysisRunName;
 
-      Analysis_ATLAS_13TeV_0LEP_36invfb() {
+      Analysis_ATLAS_13TeV_0LEP_36invfb()
+      {
+
+        // Counters for the number of accepted events for each signal region
+        _counters["2j-1200"] = EventCounter("2j-1200");
+        _counters["2j-1600"] = EventCounter("2j-1600");
+        _counters["2j-2000"] = EventCounter("2j-2000");
+        _counters["2j-2400"] = EventCounter("2j-2400");
+        _counters["2j-2800"] = EventCounter("2j-2800");
+        _counters["2j-3600"] = EventCounter("2j-3600");
+        _counters["2j-2100"] = EventCounter("2j-2100");
+        _counters["3j-1300"] = EventCounter("3j-1300");
+        _counters["4j-1000"] = EventCounter("4j-1000");
+        _counters["4j-1400"] = EventCounter("4j-1400");
+        _counters["4j-1800"] = EventCounter("4j-1800");
+        _counters["4j-2200"] = EventCounter("4j-2200");
+        _counters["4j-2600"] = EventCounter("4j-2600");
+        _counters["4j-3000"] = EventCounter("4j-3000");
+        _counters["5j-1700"] = EventCounter("5j-1700");
+        _counters["5j-1600"] = EventCounter("5j-1600");
+        _counters["5j-2000"] = EventCounter("5j-2000");
+        _counters["5j-2600"] = EventCounter("5j-2600");
+        _counters["6j-1200"] = EventCounter("6j-1200");
+        _counters["6j-1800"] = EventCounter("6j-1800");
+        _counters["6j-2200"] = EventCounter("6j-2200");
+        _counters["6j-2600"] = EventCounter("6j-2600");
+
 
         set_analysis_name("ATLAS_13TeV_0LEP_36invfb");
         analysisRunName = Analysis::analysis_name();
@@ -127,7 +128,7 @@ namespace Gambit {
             baselineElectrons.push_back(electron);
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(baselineElectrons);
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // Get baseline muons
         vector<const Particle*> baselineMuons;
@@ -136,7 +137,7 @@ namespace Gambit {
             baselineMuons.push_back(muon);
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         // Full isolation details:
         //  - Remove electrons within dR = 0.2 of a b-tagged jet
@@ -161,7 +162,8 @@ namespace Gambit {
           if (all_of(signalJets, [&](const Jet* j){ return deltaR_rap(*e, *j) > 0.4; }))
             signalElectrons.push_back(e);
         // Apply electron ID selection
-        ATLAS::applyLooseIDElectronSelectionR2(signalElectrons);
+        applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
+
 
         // Remove muons with dR = 0.4 of surviving |eta| < 2.8 jets
         /// @todo Actually only within 0.2--0.4...
@@ -404,14 +406,6 @@ namespace Gambit {
 
         }
       }
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_0LEP_36invfb* specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_0LEP_36invfb*>(other);
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-      }
-
 
       /// Register results objects with the results for each SR; obs & bkg numbers from the CONF note
       void collect_results() {

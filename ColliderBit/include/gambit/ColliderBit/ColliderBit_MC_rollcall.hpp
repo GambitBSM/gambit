@@ -31,9 +31,13 @@
 ///          (a.kvellestad@imperial.ac.uk)
 ///  \date 2019 Sep
 ///
-/// \author Tomasz Procter
+///  \author Tomasz Procter
 ///          (t.procter.1@research.gla.ac.uk)
-/// \date 2021 November
+///  \date 2021 November
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 Aug
 ///
 ///  *********************************************
 
@@ -44,7 +48,7 @@
 #define MODULE ColliderBit
 
   /// Execute the main Monte Carlo event loop.
-  /// Note: 
+  /// Note:
   ///   "Non-loop" capabilities that some in-loop capabilities depend on
   ///   can be added as dependencies here to ensure that they are calculated
   ///   before the loop starts.
@@ -77,7 +81,7 @@
 
   #define CAPABILITY TotalCrossSection
   START_CAPABILITY
-    /// Convert the TotalEvGenCrossSection (type MC_xsec_container) into 
+    /// Convert the TotalEvGenCrossSection (type MC_xsec_container) into
     /// a regular TotalCrossSection (type xsec_container)
     #define FUNCTION getEvGenCrossSection_as_base
     START_FUNCTION(xsec_container)
@@ -116,12 +120,24 @@
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// Output info on TotalCrossSection as 
+  /// Output info on TotalCrossSection as
   /// a str-double map, for easy printing
   #define CAPABILITY TotalCrossSectionAsMap
   START_CAPABILITY
     #define FUNCTION getTotalCrossSectionAsMap
     START_FUNCTION(map_str_dbl)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    DEPENDENCY(TotalCrossSection, xsec_container)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// A log-likelihood function based on the total collider cross-section.
+  /// Can e.g. be used as a dummy likelihood to guide the scanner towards 
+  /// interesting parameter regions, avoid going to the decoupling limit, etc.
+  #define CAPABILITY TotalCrossSection_LogLike
+  START_CAPABILITY
+    #define FUNCTION calc_TotalCrossSection_LogLike
+    START_FUNCTION(double)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(TotalCrossSection, xsec_container)
     #undef FUNCTION
@@ -139,7 +155,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(HardScatteringSim, const BaseCollider*)
     #undef FUNCTION
-  #undef CAPABILITY 
+  #undef CAPABILITY
 
   /// Get a list of all the PID pairs related to active process codes
   #define CAPABILITY ActivePIDPairs
@@ -149,7 +165,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(ActiveProcessCodeToPIDPairsMap, multimap_int_PID_pair)
     #undef FUNCTION
-  #undef CAPABILITY 
+  #undef CAPABILITY
 
   /// Translate a list of Pythia process codes to list of (PID,PID) pairs
   /// for the two final state particles of the hard process.
@@ -160,7 +176,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(ActiveProcessCodes, std::vector<int>)
     #undef FUNCTION
-  #undef CAPABILITY 
+  #undef CAPABILITY
   /// @}
 
 
@@ -175,7 +191,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(ActiveProcessCodes, std::vector<int>)
     DEPENDENCY(ActiveProcessCodeToPIDPairsMap, multimap_int_PID_pair)
-    DEPENDENCY(PIDPairCrossSectionsMap, map_PID_pair_PID_pair_xsec) 
+    DEPENDENCY(PIDPairCrossSectionsMap, map_PID_pair_PID_pair_xsec)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -189,7 +205,7 @@
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// Output PID pair cross-sections as a 
+  /// Output PID pair cross-sections as a
   /// str-dbl map, for easy printing
   #define CAPABILITY PIDPairCrossSectionsInfo
   START_CAPABILITY
@@ -284,6 +300,7 @@
     #define FUNCTION CollectAnalyses
     START_FUNCTION(AnalysisDataPointers)
     DEPENDENCY(CrossSectionConsistencyCheck, bool)
+    DEPENDENCY(TotalCrossSection, xsec_container)
     DEPENDENCY(ATLASAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(CMSAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(IdentityAnalysisNumbers, AnalysisDataPointers)
@@ -355,10 +372,30 @@
     #undef FUNCTION
   #undef CAPABILITY
 
+  /// Extract the efficiencies x acceptance predictions and uncertainties per signal region
+  #define CAPABILITY LHC_efficiencies_per_SR
+  START_CAPABILITY
+    #define FUNCTION calc_LHC_efficiencies_per_SR
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(LHCEventLoopInfo, map_str_dbl)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// Extract the efficiencies x acceptance predictions and uncertainties per analysis
+  #define CAPABILITY LHC_efficiencies_per_analysis
+  START_CAPABILITY
+    #define FUNCTION calc_LHC_efficiencies_per_analysis
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(LHCEventLoopInfo, map_str_dbl)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   /// Calculate the log likelihood for each SR in each analysis using the analysis numbers
   #define CAPABILITY LHC_LogLikes
   START_CAPABILITY
-  
+
     #define FUNCTION calc_LHC_LogLikes_full
     START_FUNCTION(map_str_AnalysisLogLikes)
     DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
@@ -367,10 +404,10 @@
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_gaussian_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_GROUP(lnlike_marg_poisson)
     BACKEND_REQ(FullLikes_Evaluate, (ATLAS_FullLikes), double, (std::map<str,double>&,const str&))
-    BACKEND_REQ(FullLikes_ReadIn, (ATLAS_FullLikes), int, (const str&,const str&))
+    BACKEND_REQ(FullLikes_ReadIn, (ATLAS_FullLikes), int, (const str&,const str&,const str&))
     BACKEND_REQ(FullLikes_FileExists, (ATLAS_FullLikes), bool, (const str&))
     #undef FUNCTION
-  
+
     #define FUNCTION calc_LHC_LogLikes
     START_FUNCTION(map_str_AnalysisLogLikes)
     DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
@@ -380,7 +417,7 @@
     BACKEND_GROUP(lnlike_marg_poisson)
     #undef FUNCTION
   #undef CAPABILITY
-  
+
   /// Extract the log likelihood for each SR to a simple map_str_dbl
   #define CAPABILITY LHC_LogLike_per_SR
   START_CAPABILITY
@@ -525,13 +562,13 @@
   #define CAPABILITY EventWeighterFunction
   START_CAPABILITY
 
-    /// This function is intended as a fallback option 
+    /// This function is intended as a fallback option
     /// that simply assigns a unit weight to all events
     #define FUNCTION setEventWeight_unity
     START_FUNCTION(EventWeighterFunctionType)
     #undef FUNCTION
 
-    /// Weight events according to process cross-section 
+    /// Weight events according to process cross-section
     #define FUNCTION setEventWeight_fromCrossSection
     START_FUNCTION(EventWeighterFunctionType)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
