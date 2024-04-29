@@ -313,6 +313,28 @@
   _cutflows[NAME].fillnext(event->weight());                                      \
   _counters.at(NAME).add_event(event);
 
+/// TODO: Chris Chang (My test)
+/// Add the signal region to the list of signal regions filled TODO: Could be called inside of the Fill_Signal_Region() macro
+/// Also fill a map relating SR name to an integer
+#define Add_SR_INT_MAP_ENTRY(NAME) \
+  { \
+    int SR_int_map_size = SR_int_map.size(); \
+    SR_int_map[NAME] = SR_int_map_size; \
+    int_SR_map[SR_int_map_size] = NAME; \
+  }
+
+// Push back an empty vector to indicate that a new event is about to be run
+#define ADD_NEW_EVENT \
+  passed_any_cuts = false; \
+  n_MC += 1;
+
+// TODO: This will only work if the signal regions were created at the start of the run function with an empty vector TODO: Put this in the FILL_SIGNAL_REGION(NAME) Macro
+#define LOG_FILLED_SIGNAL_REGION(NAME) \
+  int SRint = SR_int_map.at(NAME); \
+  if (!passed_any_cuts) _filled_SR.push_back(std::vector<int>()); \
+  _filled_SR.back().push_back(SRint); \
+  passed_any_cuts = true; \
+
 /// Commit values for the signal region: predictions, observed and backgrounds
 #define COMMIT_SIGNAL_REGION(NAME, OBS, BKG_CENTRAL, BKG_ERR)                     \
   add_result(SignalRegionData(_counters.at(NAME), OBS, {BKG_CENTRAL, BKG_ERR}));

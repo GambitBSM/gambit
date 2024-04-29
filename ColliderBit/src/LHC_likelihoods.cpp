@@ -36,6 +36,7 @@
 ///
 ///  \author Chris Chang
 ///  \date   2022 April
+///  \date   2024 April
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@kit.edu)
@@ -734,151 +735,284 @@ namespace Gambit
         str bestexp_sr_label;
         int bestexp_sr_index;
         double nocovar_srsum_dll_obs = 0;
-
+        
+        // TODO: Chris Chang: Below this I have made large changes
+        // Reverse Map for int to SR name TODO: This is all very unneccessarily bulky
+        // TODO: Move this into the actual analysis, so it is filled at the same time as the original map (won't then require a reversing)
+        //std::map<int, std::string> int_SR_map;
+        std::map<std::string, int> SRname_SRindex_map;// TODO: Another map to convert SRname to actual SR index
         for (size_t SR = 0; SR < nSR; ++SR)
         {
-          // _Anders
-          const SignalRegionData& srData = ana_data[SR];
-          // SignalRegionData srData = ana_data[SR];
-          // if (srData.n_sig_MC <= 0.0)
-          // {
-          //   srData.n_sig_MC = 0.5;
-          // }
-          // _Anders end
+          std::string SRname = ana_data[SR].sr_label;
+          //int index = ana_data.SR_int_map.at(SRname);
+          //int_SR_map[index] = SRname;
+          SRname_SRindex_map[SRname] = SR;
+        }
+        
 
-          // Shortcut: If n_sig_MC == 0, we know the delta log-likelihood is 0.
-          if(srData.n_sig_MC == 0)
+        // TODO: Chris Chang: Put this in another loop over bootstraps
+        bool resample_events = true;
+        marginalise_over_SR_selection = false; // TODO: Chris Chang: I am overwriting this, but perhaps we would be removing it entirely (swapping the option with the resample_events flag)
+        size_t Nbootstraps = resample_events ? 1 : 1; // TODO: Pull as an option (set to 1 in case of not resampling) TODO: 1000 seems like a reasonable default
+        double prob_fillSR = ana_data._filled_SR.size()/((double) ana_data.n_MC); // Probability of a given even filling a signal region
+        std::bernoulli_distribution bool_distrib(prob_fillSR);
+        std::uniform_int_distribution<> int_distrib(0, ana_data._filled_SR.size() - 1);
+        double dll_sum = 0.0;
+        // Vector to collect average dll_exp / dll_obs values
+        std::vector<double> SR_dll_obs_avgs(nSR, 0.);
+        std::vector<double> SR_dll_exp_avgs(nSR, 0.);
+        
+        for (size_t nboots = 0; nboots < Nbootstraps; nboots++)
+        {
+
+          // Get signal counts to use
+          // TODO: This is the actual MC sim for the frst set, and the resampled counts otherwise
+          std::vector<double> resampled_n_sig_MC(nSR,0.0);
+
+          // Resample events
+          // TODO: Parallelise this?
+          // TODO: I reckon that this is not making use of the alterred n_sig_MC to 0.5??
+          if (nboots == 0)// Use the actual data for the first set TODO: Can I avoid an unneccessary loop with some checks below?
           {
-            // Store (obs) dll for this SR
-            if (fill_alt_loglike)
+            for (size_t SR = 0; SR < nSR; ++SR)
             {
-              ana_loglikes.alt_sr_loglikes.at(alt_loglike_key).at(SR) = 0.0;
+              resampled_n_sig_MC[SR] = ana_data[SR].n_sig_MC;
             }
-            else
-            {
-              ana_loglikes.sr_loglikes.at(SR) = 0.0;
-            }
-
-            // Update the running best-expected-exclusion detail
-            if (0.0 < bestexp_dll_exp || SR == 0)
-            {
-              bestexp_dll_exp = 0.0;
-              bestexp_dll_obs = 0.0;
-              bestexp_sr_label = srData.sr_label;
-              bestexp_sr_index = SR;
-            }
-
-            // Skip to next SR
-            continue;
-          }
-
-          // A contribution to the predicted number of events that is not known exactly
-          const double n_pred_b = std::max(srData.n_bkg, 0.001); // <-- Avoid trouble with b==0
-          const double n_pred_sb = n_pred_b + srData.n_sig_scaled;
-
-          // Actual observed number of events and predicted background, as integers cf. Poisson stats
-          const double n_obs = round(srData.n_obs);
-          const double n_pred_b_int = round(n_pred_b);
-
-          // Absolute errors for n_predicted_uncertain_*
-          const double abs_uncertainty_b = std::max(srData.n_bkg_err, 0.001); // <-- Avoid trouble with b_err==0
-          const double abs_uncertainty_sb = std::max(srData.calc_n_sigbkg_err(), 0.001); // <-- Avoid trouble with sb_err==0
-
-          // Construct dummy 1-element Eigen objects for passing to the general likelihood calculator
-          /// @todo Use newer (?) one-step Eigen constructors for (const) single-element arrays
-          Eigen::ArrayXd n_obss(1);        n_obss(0) = n_obs;
-          Eigen::ArrayXd n_preds_b_int(1); n_preds_b_int(0) = n_pred_b_int;
-          Eigen::ArrayXd n_preds_b(1);     n_preds_b(0) = n_pred_b;
-          Eigen::ArrayXd n_preds_sb(1);    n_preds_sb(0) = n_pred_sb;
-          Eigen::ArrayXd sqrtevals_b(1);   sqrtevals_b(0) = abs_uncertainty_b;
-          Eigen::ArrayXd sqrtevals_sb(1);  sqrtevals_sb(0) = abs_uncertainty_sb;
-          Eigen::MatrixXd dummy(1,1); dummy(0,0) = 1.0;
-
-          // Compute this SR's DLLs as the differences of s+b and b (partial) LLs
-
-          // _Anders
-          // /// @todo Only compute this once per run
-          // const double ll_b_exp = marg_prof_fn(n_preds_b, n_preds_b_int, sqrtevals_b, dummy);
-          // /// @todo Only compute this once per run
-          // const double ll_b_obs = marg_prof_fn(n_preds_b, n_obss, sqrtevals_b, dummy);
-          // const double ll_sb_exp = marg_prof_fn(n_preds_sb, n_preds_b_int, sqrtevals_sb, dummy);
-          // const double ll_sb_obs = marg_prof_fn(n_preds_sb, n_obss, sqrtevals_sb, dummy);
-          /// @todo Only compute this once per run
-          const double ll_b_exp = marg_loglike_nulike1sr(n_preds_b, n_preds_b_int, sqrtevals_b);
-          /// @todo Only compute this once per run
-          const double ll_b_obs = marg_loglike_nulike1sr(n_preds_b, n_obss, sqrtevals_b);
-          const double ll_sb_exp = marg_loglike_nulike1sr(n_preds_sb, n_preds_b_int, sqrtevals_sb);
-          const double ll_sb_obs = marg_loglike_nulike1sr(n_preds_sb, n_obss, sqrtevals_sb);
-          const double dll_exp = ll_sb_exp - ll_b_exp;
-          const double dll_obs = ll_sb_obs - ll_b_obs;
-
-          // Check for problems
-          if (Utils::isnan(ll_b_exp))
-          {
-            std::stringstream msg;
-            msg << "Computation of ll_b_exp for signal region " << srData.sr_label << " in analysis " << ana_name << " returned NaN" << endl;
-            invalid_point().raise(msg.str());
-          }
-          if (Utils::isnan(ll_b_obs))
-          {
-            std::stringstream msg;
-            msg << "Computation of ll_b_obs for signal region " << srData.sr_label << " in analysis " << ana_name << " returned NaN" << endl;
-            invalid_point().raise(msg.str());
-          }
-          if (Utils::isnan(ll_sb_exp))
-          {
-            std::stringstream msg;
-            msg << "Computation of ll_sb_exp for signal region " << srData.sr_label << " in analysis " << ana_name << " returned NaN" << endl;
-            invalid_point().raise(msg.str());
-          }
-          if (Utils::isnan(ll_sb_obs))
-          {
-            std::stringstream msg;
-            msg << "Computation of ll_sb_obs for signal region " << srData.sr_label << " in analysis " << ana_name << " returned NaN" << endl;
-            invalid_point().raise(msg.str());
-          }
-
-          // Update the running best-expected-exclusion detail
-          if (dll_exp < bestexp_dll_exp || SR == 0)
-          {
-            bestexp_dll_exp = dll_exp;
-            bestexp_dll_obs = dll_obs;
-            bestexp_sr_label = srData.sr_label;
-            bestexp_sr_index = SR;
-            #ifdef COLLIDERBIT_DEBUG
-            cout << DEBUG_PREFIX << "Setting bestexp_sr_label to: " << bestexp_sr_label << ", bestexp_dll_exp = " << bestexp_dll_exp << ", bestexp_dll_obs = " << bestexp_dll_obs << endl;
-            #endif
-          }
-
-          // Store (obs) dll for this SR
-          if (fill_alt_loglike)
-          {
-            ana_loglikes.alt_sr_loglikes.at(alt_loglike_key).at(SR) = dll_obs;
           }
           else
           {
-            ana_loglikes.sr_loglikes.at(SR) = dll_obs;
+            for (size_t i = 0; i < ana_data.n_MC; i++)
+            //for (size_t i = 0; i < ana_data._filled_SR.size(); i++) // TODO: Make this only loop over filled SRs (change all the way back so we never log events that didn't fill)
+            {
+              // Draw a random number to determine whether it is a filled event
+              // TODO: There is probably a way to rather draw an integer for the number of filled events to save time
+              bool fill_event = bool_distrib(Random::rng());
+              if (!fill_event) continue;
+            
+              // Draw random number for entry to call
+              size_t entry = int_distrib(Random::rng());
+
+              // Only run on events that filled some SRs TODO: When I only fill for events with SRs filled, this will remove this check
+              //if (ana_data._filled_SR[entry].size() > 0)
+              //{
+              // Loop over each filled SR for a given event
+              for (size_t n_filled_SRs = 0; n_filled_SRs < ana_data._filled_SR.at(entry).size(); n_filled_SRs++)
+              {
+                // Pull the SR index as stored by the analysis
+                int index = ana_data._filled_SR.at(entry).at(n_filled_SRs);
+                std::string SRname = ana_data.int_SR_map.at(index);
+                // Only add the event if it exists in the SR subset used in this analysis (useful for split analyses)
+                if(SRname_SRindex_map.count(SRname) > 0) // TODO: Does this cause a problem with the boolean random? TODO: Does this cause any biases?
+                {
+                  size_t SR_index = SRname_SRindex_map.at(SRname); // Pull the SR index as stored in LHC_Likelihoods.cpp
+                  resampled_n_sig_MC[SR_index] += 1.0; // Add to the total number of MC events for a given SR
+                }
+              }
+              //}
+            }
+            
+            // TODO: Chris Chang: Setting the MC signal to 0.5 if it is zero (to match a change Anders made elsewhere)
+            for (size_t SR = 0; SR < nSR; ++SR)
+            {
+              if(resampled_n_sig_MC[SR] < 1.0)
+              {
+                resampled_n_sig_MC[SR] = 0.5;
+              }
+            }
+            
           }
+          
+          // Loop over SRs and find the best expected loglike
+          for (size_t SR = 0; SR < nSR; ++SR)
+          {
+            const SignalRegionData& srData = ana_data[SR];
+          
+            // Shortcut: If n_sig_MC == 0, we know the delta log-likelihood is 0.
+            if(resampled_n_sig_MC[SR] == 0)
+            {
+              // Store (obs) dll for this SR
+              if (nboots==0) // TODO: Chris Chang: Only doing this on the first set
+              {
+                if (fill_alt_loglike)
+                {
+                  ana_loglikes.alt_sr_loglikes.at(alt_loglike_key).at(SR) = 0.0;
+                }
+                else
+                {
+                  ana_loglikes.sr_loglikes.at(SR) = 0.0;
+                }
+              }
 
-          // Also add the obs loglike to the no-correlations sum over SRs
-          nocovar_srsum_dll_obs += dll_obs;
+              // Update the running best-expected-exclusion detail
+              if (0.0 < bestexp_dll_exp || SR == 0)
+              {
+                bestexp_dll_exp = 0.0;
+                bestexp_dll_obs = 0.0;
+                bestexp_sr_label = srData.sr_label;
+                bestexp_sr_index = SR;
+              }
 
-          #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << ana_name << ", " << srData.sr_label << ",  llsb_exp-llb_exp = " << dll_exp << ",  llsb_obs-llb_obs= " << dll_obs << endl;
-          #endif
+              // Skip to next SR
+              continue;
+            }
 
-        } // End loop over SRs
+            const double n_sig_scaled = resampled_n_sig_MC[SR] * srData.scalefactor();
+            const double n_sig_scaled_err = std::sqrt(resampled_n_sig_MC[SR]) * srData.scalefactor();
 
+            // A contribution to the predicted number of events that is not known exactly
+            const double n_pred_b = std::max(srData.n_bkg, 0.001); // <-- Avoid trouble with b==0
+            const double n_pred_sb = n_pred_b + n_sig_scaled;
+
+            // Actual observed number of events and predicted background, as integers cf. Poisson stats
+            const double n_obs = round(srData.n_obs);
+            const double n_pred_b_int = round(n_pred_b);
+
+            // Absolute errors for n_predicted_uncertain_*
+            const double abs_uncertainty_b = std::max(srData.n_bkg_err, 0.001); // <-- Avoid trouble with b_err==0
+            const double abs_uncertainty_sb = std::max(std::sqrt(srData.n_bkg_err * srData.n_bkg_err + n_sig_scaled_err * n_sig_scaled_err), 0.001); // <-- Avoid trouble with sb_err==0
+
+            // Construct dummy 1-element Eigen objects for passing to the general likelihood calculator
+            /// @todo Use newer (?) one-step Eigen constructors for (const) single-element arrays
+            Eigen::ArrayXd n_obss(1);        n_obss(0) = n_obs;
+            Eigen::ArrayXd n_preds_b_int(1); n_preds_b_int(0) = n_pred_b_int;
+            Eigen::ArrayXd n_preds_b(1);     n_preds_b(0) = n_pred_b;
+            Eigen::ArrayXd n_preds_sb(1);    n_preds_sb(0) = n_pred_sb;
+            Eigen::ArrayXd sqrtevals_b(1);   sqrtevals_b(0) = abs_uncertainty_b;
+            Eigen::ArrayXd sqrtevals_sb(1);  sqrtevals_sb(0) = abs_uncertainty_sb;
+            Eigen::MatrixXd dummy(1,1); dummy(0,0) = 1.0;
+
+            // Compute this SR's DLLs as the differences of s+b and b (partial) LLs
+
+            // _Anders
+            // /// @todo Only compute this once per run
+            // const double ll_b_exp = marg_prof_fn(n_preds_b, n_preds_b_int, sqrtevals_b, dummy);
+            // /// @todo Only compute this once per run
+            // const double ll_b_obs = marg_prof_fn(n_preds_b, n_obss, sqrtevals_b, dummy);
+            // const double ll_sb_exp = marg_prof_fn(n_preds_sb, n_preds_b_int, sqrtevals_sb, dummy);
+            // const double ll_sb_obs = marg_prof_fn(n_preds_sb, n_obss, sqrtevals_sb, dummy);
+            /// @todo Only compute this once per run
+            const double ll_b_exp = marg_loglike_nulike1sr(n_preds_b, n_preds_b_int, sqrtevals_b);
+            /// @todo Only compute this once per run
+            const double ll_b_obs = marg_loglike_nulike1sr(n_preds_b, n_obss, sqrtevals_b);
+            const double ll_sb_exp = marg_loglike_nulike1sr(n_preds_sb, n_preds_b_int, sqrtevals_sb);
+            const double ll_sb_obs = marg_loglike_nulike1sr(n_preds_sb, n_obss, sqrtevals_sb);
+            const double dll_exp = ll_sb_exp - ll_b_exp;
+            const double dll_obs = ll_sb_obs - ll_b_obs;
+            
+            // Add non-zero contriutions to the average likelihoods
+            SR_dll_exp_avgs[SR] += dll_exp;
+            SR_dll_obs_avgs[SR] += dll_obs;
+            
+            
+
+            // Check for problems
+            if (Utils::isnan(ll_b_exp))
+            {
+              std::stringstream msg;
+              msg << "Computation of ll_b_exp for signal region " << srData.sr_label << " in analysis " << ana_name << " returned NaN" << endl;
+              invalid_point().raise(msg.str());
+            }
+            if (Utils::isnan(ll_b_obs))
+            {
+              std::stringstream msg;
+              msg << "Computation of ll_b_obs for signal region " << srData.sr_label << " in analysis " << ana_name << " returned NaN" << endl;
+              invalid_point().raise(msg.str());
+            }
+            if (Utils::isnan(ll_sb_exp))
+            {
+              std::stringstream msg;
+              msg << "Computation of ll_sb_exp for signal region " << srData.sr_label << " in analysis " << ana_name << " returned NaN" << endl;
+              invalid_point().raise(msg.str());
+            }
+            if (Utils::isnan(ll_sb_obs))
+            {
+              std::stringstream msg;
+              msg << "Computation of ll_sb_obs for signal region " << srData.sr_label << " in analysis " << ana_name << " returned NaN" << endl;
+              invalid_point().raise(msg.str());
+            }
+
+            // Update the running best-expected-exclusion detail TODO: Not using this currently as I do it afterwards
+            if (dll_exp < bestexp_dll_exp || SR == 0)
+            {
+              bestexp_dll_exp = dll_exp;
+              bestexp_dll_obs = dll_obs;
+              bestexp_sr_label = srData.sr_label; // TODO: Chris Chang: Do I want to set these only on the first run? (used to lo in output file, not calculate likelihood)
+              bestexp_sr_index = SR;
+              #ifdef COLLIDERBIT_DEBUG
+              cout << DEBUG_PREFIX << "Setting bestexp_sr_label to: " << bestexp_sr_label << ", bestexp_dll_exp = " << bestexp_dll_exp << ", bestexp_dll_obs = " << bestexp_dll_obs << endl;
+              #endif
+            }
+
+            // Store (obs) dll for this SR
+            if (nboots==0) // TODO: Chris Chang: Only doing this on the first set
+            {
+              if (fill_alt_loglike) // TODO: I think that this is currently incorrect. Shouldn't it still do the optimisation in the alternative loglike?
+              {
+                ana_loglikes.alt_sr_loglikes.at(alt_loglike_key).at(SR) = dll_obs;
+              }
+              else
+              {
+                ana_loglikes.sr_loglikes.at(SR) = dll_obs;
+              }
+            }
+
+            // Also add the obs loglike to the no-correlations sum over SRs
+            nocovar_srsum_dll_obs += dll_obs;
+
+            #ifdef COLLIDERBIT_DEBUG
+            cout << DEBUG_PREFIX << ana_name << ", " << srData.sr_label << ",  llsb_exp-llb_exp = " << dll_exp << ",  llsb_obs-llb_obs= " << dll_obs << endl;
+            #endif
+
+          } // End loop over SRs
+
+          dll_sum += bestexp_dll_obs;
+          //std::cout << "FinishedBootstrap, bestexp_dll_obs: " << bestexp_dll_obs << std::endl; // TODO: Debugging
+        } // End loop over bootstraps
+        
         // Set this analysis' total obs DLL to that from the best-expected SR
+        //dll = bestexp_dll_obs;
+        //dll = dll_sum / Nbootstraps; // TODO: Chris CHang: I added this instead of the line above TODO: Chris Chang: Do I need to convert Nbootstraps to a double to avoid rounding??
+
+        // Choose the most constraining signal region expected likelihood
+        for (size_t SR = 0; SR < nSR; ++SR)
+        {
+          // Normalise by the number of events
+          SR_dll_exp_avgs[SR] /= Nbootstraps;
+          SR_dll_obs_avgs[SR] /= Nbootstraps;
+
+          const SignalRegionData& srData = ana_data[SR];
+          if (SR == 0)
+          {
+            bestexp_dll_exp = SR_dll_exp_avgs[SR];
+            bestexp_dll_obs = SR_dll_obs_avgs[SR];
+            bestexp_sr_index = SR;
+            bestexp_sr_label = srData.sr_label;
+          }
+          else if (SR_dll_exp_avgs[SR] < bestexp_dll_exp)
+          {
+            bestexp_dll_exp = SR_dll_exp_avgs[SR];
+            bestexp_dll_obs = SR_dll_obs_avgs[SR];
+            bestexp_sr_index = SR;
+            bestexp_sr_label = srData.sr_label;
+          }
+        }
+        
+        // TODO: Debugging
+        //std::cout << "HEY CHRIS: Best SR: " << bestexp_sr_index << std::endl;
+        //std::cout << "HEY CHRIS: dll_exp: " << bestexp_dll_exp << std::endl;
+        //std::cout << "HEY CHRIS: dll: " << bestexp_dll_obs << std::endl;
+        //std::cout << "HEY CHRIS: bestexp_sr_label: " << bestexp_sr_label << std::endl;
+
         dll = bestexp_dll_obs;
 
         // Or should we use the naive sum of SR loglikes (without correlations) instead,
         // or marginalise over the SR choice?
-        if (combine_nocovar_SRs and !marginalise_over_SR_selection)
+        // TODO: Chris CHang: In my test, I don't want to do either of these (will be able to remove the else if entirely)
+        if (combine_nocovar_SRs and !marginalise_over_SR_selection and !resample_events)
         {
           dll = nocovar_srsum_dll_obs;
         }
-        else if (!combine_nocovar_SRs and marginalise_over_SR_selection)
+        else if (!combine_nocovar_SRs and marginalise_over_SR_selection and !resample_events)
         {
           // _Anders
 
@@ -894,7 +1028,7 @@ namespace Gambit
           // Loop over n_toys
           int n_toys = std::max(1000, (int) nSR * 100);
           double toy_dll_obs_sum = 0.0;
-          for (int toy_i = 0; toy_i < n_toys; ++toy_i)
+          for (int toy_i = 0; toy_i < n_toys; ++toy_i) // TODO: Chris Chang: This is what I want to remove/edit
           {
 
             int chosen_SR = -1;
@@ -994,15 +1128,15 @@ namespace Gambit
                 bestexp_dll_obs = dll_obs;
               }
 
-              cerr << DEBUG_PREFIX 
-                   << "toy " << toy_i 
-                   << "  SR " << SR 
-                   << "  n_sig_MC: " << n_sig_MC  
-                   << "  toy_s_MC: " << toy_s_MC 
-                   << "  toy_s_scaled: " << toy_s_scaled 
-                   << "  dll_exp: " << dll_exp 
-                   << "  dll_obs: " << dll_obs
-                   << endl;
+              //cerr << DEBUG_PREFIX //TODO: I commented out
+              //     << "toy " << toy_i 
+              //     << "  SR " << SR 
+              //     << "  n_sig_MC: " << n_sig_MC  
+              //     << "  toy_s_MC: " << toy_s_MC 
+              //     << "  toy_s_scaled: " << toy_s_scaled 
+              //     << "  dll_exp: " << dll_exp 
+              //     << "  dll_obs: " << dll_obs
+              //     << endl;
 
             } // End loop over SRs
 

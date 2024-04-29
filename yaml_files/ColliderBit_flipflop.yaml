@@ -16,11 +16,11 @@ Printer:
 
   printer: cout
 
-  # printer: hdf5
-  # options:
-  #   output_file: "MSSMEW.hdf5"
-  #   group: "/MSSMEW"
-  #   delete_file_on_restart: true
+  #printer: hdf5
+  #options:
+  #  output_file: "MSSMEW.hdf5"
+  #  group: "/MSSMEW"
+  #  delete_file_on_restart: true
 
 
 Scanner:
@@ -31,7 +31,7 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 1  # give the total number of SLHA files here
+      point_number: 1 #200  # give the total number of SLHA files here
       output_file:  output
       like:  LogLike
       files:
@@ -70,7 +70,6 @@ Rules:
       SLHA_filenames:
         - ColliderBit/data/example_flipflop.slha
         # list more SLHA files here
-
 
   # List the SLHA file entries that should be stored in the GAMBIT output.
   # Use SLHAea syntax for the SLHA_keys: <block/pdg> ; <line identifier> ; <line index of requested element>
@@ -123,26 +122,19 @@ Rules:
   - capability: RunMC
     function: operateLHCLoop
     options:
-      silenceLoop: false
+      silenceLoop: true #false
       LHC_13TeV:
-        min_nEvents: 2000
-        max_nEvents: 2000
+        min_nEvents: 100000 #2000
+        max_nEvents: 100000 #2000
         events_between_convergence_checks: 10000000
         target_fractional_uncert: 0.3
         halt_when_systematic_dominated: true
         all_analyses_must_converge: false
         all_SR_must_converge: false
-        maxFailedEvents: 10
+        maxFailedEvents: 1000
         analyses:
-          - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb
+          #- ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb
           - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb
-          # - ATLAS_13TeV_2OSLEP_chargino_139invfb
-          # - ATLAS_13TeV_2OSLEP_Z_139invfb
-          # - ATLAS_13TeV_3LEP_139invfb
-          # - ATLAS_13TeV_4LEP_139invfb
-          # - CMS_13TeV_2OSLEP_137invfb
-          # - CMS_13TeV_MultiLEP_137invfb
-          # - Baselines
 
   # Choose Monte Carlo event simulator and options.
   - capability:  HardScatteringSim
@@ -239,6 +231,8 @@ KeyValues:
 
   # Set the default output path
   default_output_path: "runs/ColliderBit_flipflop/"
+
+  #print_metadata_info: false
 
   # Exceptions fatal or non-fatal?
   exceptions:

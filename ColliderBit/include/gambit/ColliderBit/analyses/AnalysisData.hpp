@@ -147,6 +147,28 @@ namespace Gambit
         cutflows = cf;
       }
 
+      /// Add information on which signal region was filled for each event TODO: Chris Chang: I added this
+      void add_event_SRs(std::vector<std::vector<int>>& fSR, std::map<std::string, int> SRmap, std::map<int, std::string> intmap, int nMC)
+      {
+        //std::cout << "HEY!! I am in add_event_SRs() (AnalysisData)\n";
+        //std::cout << "fSR.size(): " << fSR.size() << std::endl;
+        _filled_SR = fSR;
+        SR_int_map = SRmap;
+        int_SR_map = intmap;
+        n_MC = nMC;
+      }
+
+      /// Add information on which signal region was filled for each event TODO: Chris Chang: I added this
+      void combine_event_SRs(const std::vector<std::vector<int>>& fSR, int nMC)
+      {
+        //std::cout << "HEY!! I am in combine_event_SRs() (AnalysisData)\n";
+        _filled_SR.insert(_filled_SR.end(), fSR.begin(), fSR.end());
+        n_MC = n_MC + nMC;
+        //std::cout << "_filled_SR.size(): " << _filled_SR.size() << std::endl;
+        //SR_int_map = SRmap;
+        //int_SR_map = intmap;
+      }
+
       /// Check that the SRData list and the covariance matrix are consistent
       bool check() const
       {
@@ -196,6 +218,17 @@ namespace Gambit
 
       /// Collection of cutflows
       Cutflows cutflows;
+
+      /// Choice of which SRs were filled for each event  TODO: Chris Chang: I added this
+      std::vector<std::vector<int>> _filled_SR;
+
+      /// Maps between SR name and an integer and vice versa (won't necessarily correspond to same integer used elsewhere in CB)
+      std::map<std::string, int> SR_int_map;
+      std::map<int, std::string> int_SR_map;
+
+      /// Number events passed to this analysis
+      int n_MC;
+
 
     };
 

@@ -120,6 +120,9 @@ namespace Gambit
         void set_covariance(const std::vector<std::vector<double>>&);
         /// A convenience function for setting the path to the ATLAS FullLikes BKG Json file
         void set_bkgjson(const std::string& bkgpath);
+        /// Add information on which signal region was filled for each event TODO: Chris Chang: I added this
+        void add_event_SRs(std::vector<std::vector<int>>& fSR, std::map<std::string, int> SRmap, std::map<int, std::string> intmap, int nMC);
+        //void combine_event_SRs(std::vector<std::vector<int>>& fSR); // TODO: I don't think I need this
         /// Gather together the info for likelihood calculation.
         virtual void collect_results() = 0;
         ///@}
@@ -129,6 +132,19 @@ namespace Gambit
 
         // Every analysis should store its cutflows
         Cutflows _cutflows;
+        
+        /// Choice of which SRs were filled for each event  TODO: Chris Chang: I added this
+        std::vector<std::vector<int>> _filled_SR;
+
+        /// Has a given event filled any SRs yet TODO: Chris Chang: I added this
+        bool passed_any_cuts;
+
+        /// Maps between SR name and an integer and vice versa (won't necessarily correspond to same integer used elsewhere in CB)
+        std::map<std::string, int> SR_int_map;
+        std::map<int, std::string> int_SR_map;
+
+        /// Number events passed to this analysis
+        int n_MC;
 
       private:
 

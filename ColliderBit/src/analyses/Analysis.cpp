@@ -157,6 +157,25 @@ namespace Gambit
       _results.bkgjson_path = bkgpath;
     }
 
+    /// Add information on which signal region was filled for each event TODO: Chris Chang: I added this TODO: Is this still needed? (I think so)
+    void Analysis::add_event_SRs(std::vector<std::vector<int>>& fSR, std::map<std::string, int> SRmap, std::map<int, std::string> intmap, int nMC)
+    {
+      //std::cout << "HEY!! I am in Analysis::add_event_SRs()\n";
+      //std::cout << "fSR.size(): " << fSR.size() << std::endl;
+      _results.add_event_SRs(fSR, SRmap, intmap, nMC);
+      //_results.combine_event_SRs(fSR, SRmap, intmap);
+      SR_int_map = SRmap;
+      int_SR_map = intmap;
+    }
+
+    /// Combine the event SR list TODO: Chris Chang: I added this
+    //void Analysis::combine_event_SRs(std::vector<std::vector<int>>& fSR)
+    //{
+    //  std::cout << "HEY!! I am in Analysis::combine_event_SRs()\n";
+    //  _results.combine_event_SRs(fSR);
+    //  std::cout << "fSR.size(): " << fSR.size() << std::endl;
+    //}
+
     /// Set the covariance matrix, expressing SR correlations
     void Analysis::set_covariance(const Eigen::MatrixXd& srcov) { _results.srcov = srcov; }
 
@@ -201,6 +220,10 @@ namespace Gambit
       for (auto& pair : _counters) { pair.second += other->_counters.at(pair.first); }
       _cutflows.combine(other->get_cutflows());
       _results.add_cutflows(_cutflows);
+
+      // TODO: Chris Chang: Is this correct?
+      _results.combine_event_SRs(otherResults._filled_SR, n_MC);
+      //_results.combine_event_SRs(_filled_SR);
 
     }
 
