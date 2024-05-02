@@ -1242,7 +1242,7 @@ namespace Gambit
       std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
       std::complex<double> ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
       std::complex<double> ximutau = Ymutau/cosb;
-      //std::complex<double> xietau = Yetau/cosb;
+      std::complex<double> xietau = Yetau/cosb;
       const double mCmC = Dep::SMINPUTS->mCmC;
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
@@ -1252,14 +1252,14 @@ namespace Gambit
       std::complex<double> CLcbmumu = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
       std::complex<double> CRcbmutau = -(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
       std::complex<double> CLcbmutau = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
-      //std::complex<double> CRcbetau = -(Vcb*xibb+Vcs*xisb)*conj(xietau)/pow(mHp,2);
-      //std::complex<double> CLcbetau = (Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xietau)/pow(mHp,2);
+      std::complex<double> CRcbetau = -(Vcb*xibb+Vcs*xisb)*conj(xietau)/pow(mHp,2);
+      std::complex<double> CLcbetau = (Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xietau)/pow(mHp,2);
       std::complex<double> gs = 1.5*(CRcb+CLcb)/CSMcb;//The 1.5 factor comes from RG effects
       std::complex<double> gsmumu =  1.5*(CRcbmumu+CLcbmumu)/CSMcb;
       std::complex<double> gsmutau =  1.5*(CRcbmutau+CLcbmutau)/CSMcb;
-      //std::complex<double> gsetau =  1.5*(CRcbetau+CLcbetau)/CSMcb;
+      std::complex<double> gsetau =  1.5*(CRcbetau+CLcbetau)/CSMcb;
       //Expression calculated using form factors and definitions from SuperIso
-      result = (1+1.725*std::real(gs+gsmutau)+1.355*(std::norm(gs)+std::norm(gsmutau)))/(3.271+0.57*(std::real(gsmumu+gsmutau))+4.795*(std::norm(gsmumu)+std::norm(gsmutau)));
+      result = (1+1.725*std::real(gs+gsmutau+gsetau)+1.355*(std::norm(gs)+std::norm(gsmutau)+std::norm(gsetau)))/(3.271+0.57*(std::real(gsmumu))+4.795*(std::norm(gsmumu)));
       //result = (1+1.725*std::real(gs+gsmutau+gsetau)+1.355*(std::norm(gs)+std::norm(gsmutau)+std::norm(gsetau)))/(3.271+0.57*(std::real(gsmumu+gsmutau))+4.795*(std::norm(gsmumu)+std::norm(gsmutau)));
       if (flav_debug) printf("BR(B->D tau nu)/BR(B->D mu nu)=%.3e\n",result);
       if (flav_debug) std::cout<<"Finished THDM_RD"<< std::endl;
@@ -1315,7 +1315,7 @@ namespace Gambit
       std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
       std::complex<double> ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
       std::complex<double> ximutau = Ymutau/cosb;
-      //std::complex<double> xietau = Yetau/cosb;
+      std::complex<double> xietau = Yetau/cosb;
       const double mCmC = Dep::SMINPUTS->mCmC;
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
@@ -1325,13 +1325,13 @@ namespace Gambit
       std::complex<double> CLcbmumu = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
       std::complex<double> CRcbmutau = -(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
       std::complex<double> CLcbmutau = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
-      //std::complex<double> CRcbetau = -(Vcb*xibb+Vcs*xisb)*std::conj(xietau)/pow(mHp,2);
-      //std::complex<double> CLcbetau = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xietau)/pow(mHp,2);
+      std::complex<double> CRcbetau = -(Vcb*xibb+Vcs*xisb)*std::conj(xietau)/pow(mHp,2);
+      std::complex<double> CLcbetau = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xietau)/pow(mHp,2);
       std::complex<double> gp =  1.5*(CRcb - CLcb)/CSMcb;
       std::complex<double> gpmumu =  1.5*(CRcbmumu - CLcbmumu)/CSMcb;
       std::complex<double> gpmutau = 1.5*(CRcbmutau - CLcbmutau)/CSMcb;
-      //std::complex<double> gpetau = 1.5*(CRcbetau - CLcbetau)/CSMcb;
-      result = (1+0.11*std::real(gp+gpmutau)+0.04*(std::norm(gp)+std::norm(gpmutau)))/(3.89+0.082*(std::real(gpmumu+gpmutau))+0.25*(std::norm(gpmumu)+std::norm(gpmutau)));
+      std::complex<double> gpetau = 1.5*(CRcbetau - CLcbetau)/CSMcb;
+      result = (1+0.11*std::real(gp+gpmutau+gpetau)+0.04*(std::norm(gp)+std::norm(gpmutau)+std::norm(gpetau)))/(3.89+0.082*(std::real(gpmumu))+0.25*(std::norm(gpmumu)));
       //result = (1+0.11*std::real(gp+gpmutau+gpetau)+0.04*(std::norm(gp)+std::norm(gpmutau)+std::norm(gpetau)))/(3.89+0.082*(std::real(gpmumu+gpmutau))+0.25*(std::norm(gpmumu)+std::norm(gpmutau)));
       if (flav_debug) printf("BR(B->D* tau nu)/BR(B->D* mu nu)=%.3e\n",result);
       if (flav_debug) std::cout<<"Finished THDM_RDstar"<< std::endl;
