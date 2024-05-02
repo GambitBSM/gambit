@@ -1182,19 +1182,20 @@ namespace Gambit
       if (flav_debug) std::cout<<"Starting THDM_t2mutauc"<< std::endl;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const double v = spectrum.get(Par::mass1, "vev");
+      double alpha = spectrum.get(Par::dimensionless,"alpha");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      const double mTau = Dep::SMINPUTS->mTau;
+      double sba = sin(beta-alpha);
       const double mT = 172.5;//From 2403.06742
       double mH = spectrum.get(Par::Pole_Mass,"h0",2);
       double mA = spectrum.get(Par::Pole_Mass,"A0");
-      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
       std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
-      std::complex<double> xi_tautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      std::complex<double> xi_mutau = Ymutau/cosb;
       std::complex<double> xi_tc = Ytc/cosb;
       const double Gamma = 1.51;//From 2403.06742 
-      double BRt2mutauc = (1/Gamma)*(pow(mT,5)/(2*6144*pow(pi,3)))*(norm(xi_tc*conj(xi_tautau))*((1/pow(mH,4))+(1/pow(mA,4))));//extra factor of 1/2 from difference in notation compared to ours, rho_ij = 1/sqrt(2) xi_ij
+      double BRt2mutauc = (1/Gamma)*(pow(mT,5)/(2*6144*pow(pi,3)))*(norm(xi_tc*conj(xi_mutau))*((pow(sba,2)/pow(mH,4))+(1/pow(mA,4))));//extra factor of 1/2 from difference in notation compared to ours, rho_ij = 1/sqrt(2) xi_ij
       result = BRt2mutauc;
       if (flav_debug) printf("BR(t->mutauc)=%.3e\n",result);
       if (flav_debug) std::cout<<"Finished THDM_t2mutauc"<< std::endl;
