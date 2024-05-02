@@ -1175,6 +1175,30 @@ namespace Gambit
       if (flav_debug) std::cout<<"Finished THDM_t2bbc"<< std::endl;
     }
 
+    /// BR(t->mutauc) at tree level for the general THDM from ArXiv:2403.06742)
+    void THDM_t2mutauc(double &result)
+    {     
+      using namespace Pipes::THDM_t2mutauc;
+      if (flav_debug) std::cout<<"Starting THDM_t2mutauc"<< std::endl;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const double v = spectrum.get(Par::mass1, "vev");
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mT = 172.5;//From 2403.06742
+      double mH = spectrum.get(Par::Pole_Mass,"h0",2);
+      double mA = spectrum.get(Par::Pole_Mass,"A0");
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> xi_tautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      std::complex<double> xi_tc = Ytc/cosb;
+      const double Gamma = 1.51;//From 2403.06742 
+      double BRt2mutauc = (1/Gamma)*(pow(mT,5)/(2*6144*pow(pi,3)))*(norm(xi_tc*conj(xi_tautau))*((1/pow(mH,4))+(1/pow(mA,4))));//extra factor of 1/2 from difference in notation compared to ours, rho_ij = 1/sqrt(2) xi_ij
+      result = BRt2mutauc;
+      if (flav_debug) printf("BR(t->mutauc)=%.3e\n",result);
+      if (flav_debug) std::cout<<"Finished THDM_t2mutauc"<< std::endl;
+    }    
 
     /// Flavour observables from FeynHiggs: B_s mass asymmetry, Br B_s -> mu mu, Br B -> X_s gamma
     void FeynHiggs_FlavourObs(fh_FlavourObs_container &result)
@@ -1227,6 +1251,42 @@ namespace Gambit
     ///------------------------///
     ///      Likelihoods       ///
     ///------------------------///
+
+    /// Likelihood for t->mutauc
+    void t2mutauc_likelihood(double &result)
+    {
+      using namespace Pipes::t2mutauc_likelihood;
+      static bool first = true;
+      static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
+      static double th_err[1];
+      double theory[1];
+      
+      if (first)
+      {
+        // Read in experimental measurements
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+      
+        fread.read_yaml_measurement("flav_data.yaml", "t2mutauc");
+
+        fread.initialise_matrices();
+        cov_exp=fread.get_exp_cov();
+        value_exp=fread.get_exp_value();
+    
+        for (int i = 0; i < 1; ++i)
+          th_err[i] = fread.get_th_err()(i,0).first;
+
+        // Init over.
+        first = false;
+      }
+
+     theory[0] = *Dep::t2mutauc;
+     if(flav_debug) std::cout << "BR(t -> mu tau c ) = " << theory[0] << std::endl;
+
+     result = 0;
+     for (int i = 0; i < 1; ++i)
+       result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
+    }
 
 
     /// Likelihood for t->ch

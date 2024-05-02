@@ -1,3 +1,16 @@
+- name: t2mutauc
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_95_CL: 8.2e-7
+  exp_stat_error: 0.
+  exp_sys_error: 0.5e-7
+  exp_source: 2403.06742
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
 
 - name: t2bbc
   islimit: false
