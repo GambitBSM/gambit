@@ -1195,7 +1195,7 @@ namespace Gambit
       std::complex<double> xi_mutau = Ymutau/cosb;
       std::complex<double> xi_tc = Ytc/cosb;
       const double Gamma = 1.51;//From 2403.06742 
-      double BRt2mutauc = (1/Gamma)*(pow(mT,5)/(2*6144*pow(pi,3)))*(norm(xi_tc*conj(xi_mutau))*((pow(sba,2)/pow(mH,4))+(1/pow(mA,4))));//extra factor of 1/2 from difference in notation compared to ours, rho_ij = 1/sqrt(2) xi_ij
+      double BRt2mutauc = (1/Gamma)*(pow(mT,5)/(4*6144*pow(pi,3)))*(norm(xi_tc*conj(xi_mutau))*((pow(sba,4)/pow(mH,4))+(1/pow(mA,4))));//extra factor of 1/2 from difference in notation compared to ours, rho_ij = 1/sqrt(2) xi_ij
       result = BRt2mutauc;
       if (flav_debug) printf("BR(t->mutauc)=%.3e\n",result);
       if (flav_debug) std::cout<<"Finished THDM_t2mutauc"<< std::endl;
