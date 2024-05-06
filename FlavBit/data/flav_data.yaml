@@ -520,29 +520,29 @@
 
 - name: RDstar
   islimit: false
-  exp_value: 0.284
+  exp_value: 0.285
   exp_stat_error: 0.012
   exp_sys_error: 0.00
-  exp_source: HFLAV2021
+  exp_source: HFLAV2024
   th_error: 0.005
   th_error_type: M
   th_error_source: HFLAV
   correlation:
   - name: RD
-    value: -0.40
+    value: -0.39
 
 - name: RD
   islimit: false
-  exp_value: 0.357
-  exp_stat_error: 0.029
+  exp_value: 0.344
+  exp_stat_error: 0.026
   exp_sys_error: 0.00
-  exp_source: HFLAV
-  th_error: 0.003
+  exp_source: HFLAV2024
+  th_error: 0.004
   th_error_type: M
   th_error_source: HFLAV
   correlation:
   - name: RDstar
-    value: -0.40
+    value: -0.39
 
 - name: gmu_ge
   islimit: false
