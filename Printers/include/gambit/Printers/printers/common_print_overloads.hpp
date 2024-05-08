@@ -263,12 +263,12 @@ namespace Gambit
       {
         std::map<std::string,double> m;
 
-        m[label+"::e::real"] = value.e.real();
-        m[label+"::e::imag"] = value.e.imag();
-        m[label+"::mu::real"] = value.mu.real();
-        m[label+"::mu::imag"] = value.mu.imag();
-        m[label+"::tau::real"] = value.tau.real();
-        m[label+"::tau::imag"] = value.tau.imag();
+        m["e::real"] = value.e.real();
+        m["e::imag"] = value.e.imag();
+        m["mu::real"] = value.mu.real();
+        m["mu::imag"] = value.mu.imag();
+        m["tau::real"] = value.tau.real();
+        m["tau::imag"] = value.tau.imag();
 
         printer._print(m, label, vID, mpirank, pointID);
       }

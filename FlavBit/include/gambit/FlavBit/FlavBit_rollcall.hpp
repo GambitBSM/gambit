@@ -2007,13 +2007,13 @@ START_MODULE
   #undef CAPABILITY
 
   ///t->mutauc decay likelihood
-  #define CAPABILITY t2mutauc_LogLikelihood 
+  #define CAPABILITY t2mutauc_LogLikelihood
   START_CAPABILITY
     #define FUNCTION t2mutauc_likelihood
     START_FUNCTION(double)
     DEPENDENCY(t2mutauc, double)
     #undef FUNCTION
-  #undef CAPABILITY	
+  #undef CAPABILITY
 
   ///B meson mass aysmmetry likelihood
   #define CAPABILITY Delta_MBs_LogLikelihood
@@ -2102,7 +2102,7 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(Bc2taunu, double)
     #undef FUNCTION
-  #undef CAPABILITY	
+  #undef CAPABILITY
 
   ///Bs2ll likelihood
   #define CAPABILITY Bs2ll_LogLikelihood
@@ -2647,6 +2647,16 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+
+  // TODO: Remove this
+  /// Temporariy hacky likelihood for DeltaC9_mu
+  #define CAPABILITY DeltaC9_mu_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION DeltaC9_mu_LogLikelihood
+    START_FUNCTION(double)
+    DEPENDENCY(DeltaC9, WilsonCoefficient)
+    #undef FUNCTION
+  #undef CAPABILITY
 
 #undef REFERENCE
 #undef MODULE

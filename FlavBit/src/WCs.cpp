@@ -25,6 +25,7 @@
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/FlavBit/FlavBit_rollcall.hpp"
 #include "gambit/FlavBit/FlavBit_utils.hpp"
+#include "gambit/Utils/statistics.hpp"
 
 namespace Gambit
 {
@@ -800,6 +801,15 @@ namespace Gambit
       // TODO: Implement this
       logger() << "THDM_DeltaCR has not been implemented yet" << EOM;
       result.mu = 0.;
+    }
+
+    // TODO: Remove this
+    /// Temporariy hacky likelihood for DeltaC9_mu
+    void DeltaC9_mu_LogLikelihood(double &result)
+    {
+      using namespace Pipes::DeltaC9_mu_LogLikelihood;
+
+      result = Stats::gaussian_loglikelihood(Dep::DeltaC9->mu.real(), -0.8, 0., 0.3, false);
     }
 
     ///@}
