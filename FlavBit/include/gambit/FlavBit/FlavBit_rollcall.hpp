@@ -2096,6 +2096,15 @@ START_MODULE
   #undef CAPABILITY
 
   ///Bs2ll likelihood
+  #define CAPABILITY Bc2taunu_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION Bc2taunu_LogLikelihood
+    START_FUNCTION(double)
+    DEPENDENCY(Bc2taunu, double)
+    #undef FUNCTION
+  #undef CAPABILITY	
+
+  ///Bs2ll likelihood
   #define CAPABILITY Bs2ll_LogLikelihood
   START_CAPABILITY
     #define FUNCTION Bs2ll_LogLikelihood

@@ -1,3 +1,17 @@
+- name: Bc2taunu
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_95_CL: 0.7
+  exp_stat_error: 0.
+  exp_sys_error: 0.1
+  exp_source: NONE
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
 - name: t2mutauc
   islimit: true
   one_sided: false
@@ -472,11 +486,11 @@
 
 - name: BR_Dstaunu
   islimit: false
-  exp_value: 5.48e-2
-  exp_stat_error: 0.23e-2
+  exp_value: 5.32e-2
+  exp_stat_error: 0.11e-2
   exp_sys_error: 0.0
-  exp_source: PDG21
-  th_error: 0.02
+  exp_source: PDG23
+  th_error: 0.14e-2
   th_error_type: M
   th_error_source: 0902.2393
   correlation:
@@ -484,11 +498,11 @@
 
 - name: BR_Dsmunu
   islimit: false
-  exp_value: 5.49e-3
-  exp_stat_error: 0.16e-3
+  exp_value: 5.43e-3
+  exp_stat_error: 0.15e-3
   exp_sys_error: 0.0
-  exp_source: PDG21
-  th_error: 0.02
+  exp_source: PDG23
+  th_error: 0.15e-3
   th_error_type: M
   th_error_source: 0902.2393
   correlation:

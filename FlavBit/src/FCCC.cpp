@@ -789,13 +789,13 @@ namespace Gambit
       std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> Yss(spectrum.get(Par::dimensionless,"Yd2",2,2), spectrum.get(Par::dimensionless, "ImYd2",2,2));
-      std::complex<double> Y22 = -((v*(Vcs*(-((sqrt(2)*mCmC*tanb)/v) + sqrt(1 + pow(tanb,2))*Ycc) + sqrt(1 + pow(tanb,2))*Vts*Ytc))/(sqrt(2)*mCmC));
+      std::complex<double> Y22 = ((v*(Vcs*(-((sqrt(2)*mCmC*tanb)/v) + sqrt(1 + pow(tanb,2))*Ycc) + sqrt(1 + pow(tanb,2))*Vts*Ytc))/(sqrt(2)*mCmC));
       std::complex<double> X22 = (v*(sqrt(1 + pow(tanb,2))*Vcb*Ysb + Vcs*(-((sqrt(2)*mS*tanb)/v) + sqrt(1 + pow(tanb,2))*Yss)))/(sqrt(2)*mS);
       std::complex<double> Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
       std::complex<double> Z32 = -((sqrt(1 + pow(tanb,2))*v*Ytaumu)/(sqrt(2)*mTau));
 
-      std::complex<double> Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z33))/(pow(mHp,2)*(mS + mCmC)*Vcs);
-      std::complex<double> Deltataumu = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z32))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+      std::complex<double> Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*std::conj(Z33))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+      std::complex<double> Deltataumu = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*std::conj(Z32))/(pow(mHp,2)*(mS + mCmC)*Vcs);
       std::complex<double> one = {1,0};
       result = std::real((pow(one - Deltaij,2)+pow(Deltataumu,2))*(pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi));
 
@@ -843,12 +843,12 @@ namespace Gambit
       std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> Yss(spectrum.get(Par::dimensionless,"Yd2",2,2), spectrum.get(Par::dimensionless, "ImYd2",2,2));
-      std::complex<double> Y22 = -((v*(Vcs*(-((sqrt(2)*mCmC*tanb)/v) + sqrt(1 + pow(tanb,2))*Ycc) + sqrt(1 + pow(tanb,2))*Vts*Ytc))/(sqrt(2)*mCmC));
+      std::complex<double> Y22 = ((v*(Vcs*(-((sqrt(2)*mCmC*tanb)/v) + sqrt(1 + pow(tanb,2))*Ycc) + sqrt(1 + pow(tanb,2))*Vts*Ytc))/(sqrt(2)*mCmC));
       std::complex<double> X22 = (v*(sqrt(1 + pow(tanb,2))*Vcb*Ysb + Vcs*(-((sqrt(2)*mS*tanb)/v) + sqrt(1 + pow(tanb,2))*Yss)))/(sqrt(2)*mS);
       std::complex<double> Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
       std::complex<double> Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mMu);
-      std::complex<double> Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z22))/(pow(mHp,2)*(mS + mCmC)*Vcs);
-      std::complex<double> Deltamutau = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z23))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+      std::complex<double> Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*std::conj(Z22))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+      std::complex<double> Deltamutau = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*std::conj(Z23))/(pow(mHp,2)*(mS + mCmC)*Vcs);
       std::complex<double> one = {1,0};
       result = std::real(((pow(one - Deltaij,2)+pow(Deltamutau,2))*pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi));
 
@@ -1383,7 +1383,6 @@ namespace Gambit
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
-      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
       std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
       std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
       std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
@@ -1391,18 +1390,15 @@ namespace Gambit
       std::complex<double> xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       std::complex<double> xisb = Ysb/cosb;
       std::complex<double> ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      std::complex<double> ximutau = Ymutau/cosb;
       const double mCmC = Dep::SMINPUTS->mCmC;
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
       std::complex<double> CRcbmumu = -(Vcb*xibb+Vcs*xisb)*std::conj(ximumu)/pow(mHp,2);
       std::complex<double> CLcbmumu = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
-      std::complex<double> CRcbmutau = -(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = (Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
-      std::complex<double> gsmumu =  (CRcbmumu + CLcbmumu)/CSMcb;
-      std::complex<double> gsmutau =  (CRcbmutau + CLcbmutau)/CSMcb;
+      std::complex<double> gsmumu = 1.5*(CRcbmumu + CLcbmumu)/CSMcb;
 
-      result = 1/(0.9964+0.175*std::real(gsmumu)+1.46*(std::norm(gsmumu)+std::norm(gsmutau)));
+      result = 1/(0.9964+0.175*std::real(gsmumu)+1.46*(std::norm(gsmumu)));
+     // result = 1/(0.9964+0.175*std::real(gsemu+gsmumu+gstaumu)+1.46*(std::norm(gsemu)+std::norm(gsmumu)+std::norm(gstaumu)));
 
       if (flav_debug) printf("BR(B->D e nu)/BR(B->D mu nu)=%.3e\n",result);
       if (flav_debug) std::cout<<"Finished THDM_RDemu"<< std::endl;
@@ -1879,5 +1875,42 @@ namespace Gambit
       result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_taulifetime_err, exp_taulifetime_err, profile);
     }
 
+    /// Likelihood for Bc->tau nu
+    void Bc2taunu_LogLikelihood(double &result)
+    {
+      using namespace Pipes::Bc2taunu_LogLikelihood;
+      static bool first = true;
+      static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
+      static double th_err[1];
+      double theory[1];
+
+      if (first)
+      {
+        // Read in experimental measurements
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+
+        fread.read_yaml_measurement("flav_data.yaml", "Bc2taunu");
+
+        fread.initialise_matrices();
+        cov_exp=fread.get_exp_cov();
+        value_exp=fread.get_exp_value();
+
+        for (int i = 0; i < 1; ++i)
+          th_err[i] = fread.get_th_err()(i,0).first;
+
+        // Init over.
+        first = false;
+      }
+
+     theory[0] = *Dep::Bc2taunu;
+     if(flav_debug) std::cout << "BR(Bc ->tau nu ) = " << theory[0] << std::endl;
+
+     result = 0;
+     for (int i = 0; i < 1; ++i)
+       result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
+    }    
+
   }
 }
+
