@@ -560,10 +560,10 @@
 
 - name: gmu_ge
   islimit: false
-  exp_value: 1.0018
+  exp_value: 1.0019
   exp_stat_error: 0.0014
   exp_sys_error: 0.000
-  exp_source: BABAR_arXiv:0912.0242
+  exp_source: HFLAV2022
   th_error: 0
   th_error_type: M
   th_error_source: NONE
