@@ -57,6 +57,94 @@ namespace Gambit
                 }
             };
             
+            class __attribute__ ((visibility("default"))) python_prior_class : public Gambit::Priors::BasePrior
+            {
+            private:
+                bool has_transform;
+                bool has_inverse_transform;
+                bool has_log_prior_density;
+                py::object obj;
+                py::object transform_obj;
+                py::object inverse_transform_obj;
+                py::object log_prior_density_obj;
+                
+            public:
+                python_prior_class(py::object obj) : has_transform(false), 
+                                                     has_inverse_transform(false),
+                                                     has_log_prior_density(false),
+                                                     obj(obj)
+                {
+                    if (py::hasattr(obj, "transform"))
+                    {
+                        has_transform = true;
+                        transform_obj = obj.attr("transform");
+                    }
+                    
+                    if (py::hasattr(obj, "inverse_transform"))
+                    {
+                        has_inverse_transform = true;
+                        inverse_transform_obj = obj.attr("inverse_transform");
+                    }
+                    
+                    if (py::hasattr(obj, "log_prior_density"))
+                    {
+                        has_log_prior_density = true;
+                        log_prior_density_obj = obj.attr("log_prior_density");
+                    }
+                    
+                    std::unordered_map<std::string, double> map;
+                    
+                    if (py::hasattr(obj, "__hyper_cube_size__"))
+                    {
+                        int dim = obj.attr("__hyper_cube_size__").cast<int>();
+                        vector<double> vec(dim);
+                        for (int i = 0; i < dim; ++i) vec[i] = 0.5;
+                        this->setSize(dim);
+                        transform_obj(py::cast(&vec), py::cast(&map));
+                    }
+                    else
+                    {
+                        fake_vector vec;
+                        transform_obj(py::cast(&vec), py::cast(&map));
+                        this->setSize(vec.size());
+                    }
+                    
+                    for (auto it = map.begin(), end = map.end(); it != end; ++it)
+                    {
+                        this->param_names.push_back(it->first);
+                    }
+                }
+                
+                void transform(hyper_cube_ref<double> unit, std::unordered_map<std::string, double> &physical) const
+                {
+                    if (has_transform)
+                        transform_obj(py::cast(unit), py::cast(&physical));
+                    else
+                        scan_err << "'transform' method is not defined" << scan_end;
+                }
+                
+                void inverse_transform(const std::unordered_map<std::string, double> &physical, hyper_cube_ref<double> unit) const 
+                {
+                    if (has_inverse_transform)
+                        inverse_transform_obj(py::cast(&physical), py::cast(unit));
+                    else
+                        scan_err << "'inverse_transform' method is not defined" << scan_end;
+                }
+                
+                double log_prior_density(const std::unordered_map<std::string, double> &physical) const
+                {
+                    if (has_log_prior_density)
+                        return log_prior_density_obj(py::cast(&physical)).cast<double>();
+                    else
+                    {
+                        scan_err << "'log_prior_density' method is not defined" << scan_end;
+                        return 0.0;
+                    }
+                }
+                
+                ~python_prior_class(){}
+            };
+            
             class __attribute__ ((visibility("default"))) python_prior : public Gambit::Priors::BasePrior
             {
             private:
@@ -83,7 +171,7 @@ namespace Gambit
                 
                 void inverse_transform(const std::unordered_map<std::string, double> &, hyper_cube_ref<double>) const 
                 {
-                    scan_err << "'inverse_transfrom' method is not defined" << scan_end;
+                    scan_err << "'inverse_transform' method is not defined" << scan_end;
                 }
                 
                 double log_prior_density(const std::unordered_map<std::string, double> &) const
@@ -91,6 +179,8 @@ namespace Gambit
                     scan_err << "'log_prior_density' method is not defined" << scan_end;
                     return 0.0;
                 }
+                
+                ~python_prior(){}
             };
 
             //int run_scan(IniParser::Parser &iniFile, const Gambit::Scanner::Factory_Base *, Gambit::Priors::BasePrior *, bool resume);

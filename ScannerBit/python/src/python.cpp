@@ -70,7 +70,7 @@ namespace Gambit
                 {
                     try
                     {
-                        scanpy::python_prior *prior = 0;
+                        Gambit::Priors::BasePrior *prior = 0;
                         scanpy::python_factory *factory = 0;
                         
                         if (PyCallable_Check(func_obj.ptr()))
@@ -95,10 +95,18 @@ namespace Gambit
                             factory = new scanpy::python_factory(func_obj, printer);
                         }
                         
-                        if (!py::isinstance<py::none>(prior_obj) && PyCallable_Check(prior_obj.ptr()))
+                        if (!py::isinstance<py::none>(prior_obj))
                         {
-                            prior = new scanpy::python_prior(prior_obj);
+                            if (pytype(prior_obj) != "type" && PyCallable_Check(prior_obj.ptr()))
+                            {
+                                prior = new scanpy::python_prior(prior_obj);
+                            }
+                            else
+                            {
+                                prior = new scanpy::python_prior_class(prior_obj);
+                            }
                         }
+                        
                         
                         if (py::isinstance<py::str>(file_obj))
                         {

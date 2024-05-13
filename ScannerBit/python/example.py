@@ -20,12 +20,28 @@ def like(m):
     
     return -a*a/2.0
 
-# define prior, optional
-def prior(vec, map):
-    # tell ScannerBit that the hypergrid dimension is 1
-    scan.ensure_size(vec, 1) # this needs to be the first line!
+# define prior, optional.  Note, there is no need to use static methods.
+class prior:
+    __hyper_cube_size__ = 1
     
-    map["model1::x"] = 5.0 - 10.0*vec[0]
+    @staticmethod
+    def transform(vec, map):
+      map["model1::x"] = 5.0 - 10.0*vec[0]
+      
+    @staticmethod
+    def inverse_transform(map, vec):
+      vec[0] = (5.0 - map["model1::x"])/10.0
+      
+    @staticmethod
+    def log_prior_density(map):
+      return 0.0
+
+# Or, can define prior with a callable function.
+# def prior(vec, map):
+#     # tell ScannerBit that the hypergrid dimension is 1
+#     scan.ensure_size(vec, 1) # this needs to be the first line!
+#     
+#     map["model1::x"] = 5.0 - 10.0*vec[0]
 
 # declare scan object
 myscan = scan.scan(True)
