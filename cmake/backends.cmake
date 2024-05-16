@@ -619,7 +619,7 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} ARFLAGS=rcs CFLAGS=${SI_C_FLAGS}
+    BUILD_COMMAND ${MAKE_SERIAL} CC=${CMAKE_C_COMPILER} ARFLAGS=rcs CFLAGS=${SI_C_FLAGS}
           COMMAND ar x src/libsuperiso.a
           COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o ${lib}.so *.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
@@ -782,7 +782,16 @@ set(ver "1.0.0")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "16b763a2e8b9d6c174d8b7ca2f4cb575")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(GAMLIKE_GSL_LIBS "${GSL_LIBRARIES}")
+if(GSL_FOUND)
+  execute_process(
+    COMMAND gsl-config --libs
+    OUTPUT_VARIABLE GAMLIKE_GSL_LIBS
+    RESULT_VARIABLE RET
+  )
+  if( RET EQUAL 0 )
+    string( STRIP "${GAMLIKE_GSL_LIBS}" GAMLIKE_GSL_LIBS )
+  endif()
+endif()
 set(gamlike_CXXFLAGS "${BACKEND_CXX_FLAGS}")
 if (NOT GSL_INCLUDE_DIRS STREQUAL "")
   set(gamlike_CXXFLAGS "${gamlike_CXXFLAGS} -I${GSL_INCLUDE_DIRS}")
@@ -805,7 +814,16 @@ set(ver "1.0.1")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "80b50ab2345e8b7d43b9eace5436e515")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(GAMLIKE_GSL_LIBS "${GSL_LIBRARIES}")
+if(GSL_FOUND)
+  execute_process(
+    COMMAND gsl-config --libs
+    OUTPUT_VARIABLE GAMLIKE_GSL_LIBS
+    RESULT_VARIABLE RET
+  )
+  if( RET EQUAL 0 )
+    string( STRIP "${GAMLIKE_GSL_LIBS}" GAMLIKE_GSL_LIBS )
+  endif()
+endif()
 set(gamlike_CXXFLAGS "${BACKEND_CXX_FLAGS}")
 if (NOT GSL_INCLUDE_DIRS STREQUAL "")
   set(gamlike_CXXFLAGS "${gamlike_CXXFLAGS} -I${GSL_INCLUDE_DIRS}")
@@ -1975,7 +1993,7 @@ endif()
 # Fastjet
 set(name "fastjet")
 set(ver "3.3.2")
-set(dl "http://fastjet.fr/repo/fastjet-3.3.2.tar.gz")
+set(dl "https://fastjet.fr/repo/fastjet-3.3.2.tar.gz")
 set(md5 "ca3708785c9194513717a54c1087bfb0")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 # OpenMP flags don't play nicely with clang and FastJet's antiquated libtoolized build system.

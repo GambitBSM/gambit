@@ -312,41 +312,41 @@ class Cholesky
                         return true;
         }
 
-                bool EnterMat(const std::vector<std::vector<double>> &a)
+        bool EnterMat(const std::vector<std::vector<double>> &a)
+        {
+                double sum = 0;
+                int i, j, k;
+
+                for (i = 0; i < num; i++)
                 {
-                        double sum = 0;
-                        int i, j, k;
-
-                        for (i = 0; i < num; i++)
+                        for (j = 0; j < num; j++)
                         {
-                                for (j = 0; j < num; j++)
-                                {
-                                        el[i][j] = a[i][j];
-                                }
+                                el[i][j] = a[i][j];
                         }
-
-                        for (i = 0; i < num; i++)
-                        {
-                                for (j = i; j < num; j++)
-                                {
-                                        for(sum = el[i][j], k = i - 1; k >= 0; k--)
-                                                sum -= el[i][k]*el[j][k];
-                                        if(i ==j)
-                                        {
-                                                if(sum <= 0.0)
-                                                        return false;
-                                                el[i][i] = sqrt(sum);
-                                        }
-                                        else
-                                                el[j][i] = sum/el[i][i];
-                                }
-                        }
-                        for (i = 0; i < num; i++)
-                                for (j = 0; j < i; j++)
-                                        el[j][i] = 0.0;
-
-                        return true;
                 }
+
+                for (i = 0; i < num; i++)
+                {
+                        for (j = i; j < num; j++)
+                        {
+                                for(sum = el[i][j], k = i - 1; k >= 0; k--)
+                                        sum -= el[i][k]*el[j][k];
+                                if(i ==j)
+                                {
+                                        if(sum <= 0.0)
+                                                return false;
+                                        el[i][i] = sqrt(sum);
+                                }
+                                else
+                                        el[j][i] = sum/el[i][i];
+                        }
+                }
+                for (i = 0; i < num; i++)
+                        for (j = 0; j < i; j++)
+                                el[j][i] = 0.0;
+
+                return true;
+        }
 
         void EnterMat(double **a, int nin)
         {

@@ -141,8 +141,6 @@ scanner_plugin(diver, version(1, 0, 4))
     // Scale factors
     std::vector<double> Fvec = get_inifile_value<std::vector<double> >("F", initVector<double>(0.7));
     int nF = Fvec.size();                                                                 // Size of the array indicating scale factors
-    //double F[nF];                                                                         // Scale factor(s).
-    //std::copy(Fvec.begin(), Fvec.end(), F);
 
     // Discrete parameters
     std::vector<int> discrete(nDiscrete, 0);                                                              // Indices of discrete parameters, Fortran style, i.e. starting at 1!!
@@ -150,7 +148,7 @@ scanner_plugin(diver, version(1, 0, 4))
 
     // Run Diver
     if (data.likelihood_function->getRank() == 0) cout << "Starting Diver run..." << std::endl;
-    cdiver(&objective, nPar, &lowerbounds[0], &upperbounds[0], &root[0], nDerived, nDiscrete,
+    cdiver(&objective, nPar, &lowerbounds[0], &upperbounds[0], &path[0], nDerived, nDiscrete,
            &discrete[0], partitionDiscrete, maxciv, maxgen, NP, nF, &Fvec[0], Cr, lambda, current,
            expon, bndry, jDE, lambdajDE, convthresh, convsteps, removeDuplicates, doBayesian,
            prior, maxNodePop, Ztolerance, savecount, resume, native_output, init_pop_strategy,

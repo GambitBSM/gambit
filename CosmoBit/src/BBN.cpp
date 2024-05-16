@@ -700,8 +700,8 @@ namespace Gambit
       }
 
       // Init vectors with observations, predictions and covariance matrix
-      double prediction[nobs],observed[nobs],sigmaobs[nobs],translate[nobs];
-      bool upperlimit[nobs];
+      std::vector<double> prediction(nobs),observed(nobs),sigmaobs(nobs),translate(nobs);
+      std::vector<bool> upperlimit(nobs);
       gsl_matrix *cov = gsl_matrix_alloc(nobs, nobs);
       gsl_matrix *invcov = gsl_matrix_alloc(nobs, nobs);
       gsl_permutation *p = gsl_permutation_alloc(nobs);

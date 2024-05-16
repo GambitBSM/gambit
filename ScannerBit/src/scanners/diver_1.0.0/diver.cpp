@@ -140,11 +140,9 @@ scanner_plugin(diver, version(1, 0, 0))
     // Scale factors
     std::vector<double> Fvec = get_inifile_value<std::vector<double> >("F", initVector<double>(0.7));
     int nF = Fvec.size();                                                                 // Size of the array indicating scale factors
-    //std::vector<double> F(nF);                                                          // Scale factor(s).
-    //std::copy(Fvec.begin(), Fvec.end(), &F[0]);
 
     // Discrete parameters
-    std::vector<int> discrete(nDiscrete, 0);                                              //Indices of discrete parameters, Fortran style, i.e. starting at 1!!
+    std::vector<int> discrete(nDiscrete, 0);                                                              // Indices of discrete parameters, Fortran style, i.e. starting at 1!!
     //TODO Needs to be set automatically somehow?  Not yet sure how to deal with discrete parameters in GAMBIT.
 
     // Run Diver

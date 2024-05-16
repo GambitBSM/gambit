@@ -539,6 +539,12 @@ if(${FOUND_RDYNAMIC_FORTRAN} EQUAL -1 AND ${FOUND_EXPORT_DYNAMIC_FORTRAN} EQUAL 
   endif()
 endif()
 
+# Forbid the use of variable-length array and other non-standard C++ syntax
+if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang" OR "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic-errors -Wno-misleading-indentation -Wno-deprecated-copy")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic-errors -Wno-misleading-indentation -Wno-deprecated-copy")
+endif()
+
 # Check for optional packages and disable sections of GAMBIT accordingly
 include(cmake/optional.cmake)
 
@@ -720,10 +726,4 @@ include(cmake/executables.cmake)
 # Finish setting the link commands and rpath variables for ScannerBit
 if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   include(${PROJECT_BINARY_DIR}/linkedout.cmake)
-endif()
-
-# Forbid the use of variable-length array and other non-standard C++ syntax
-if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang" OR "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic-errors")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic-errors")
 endif()

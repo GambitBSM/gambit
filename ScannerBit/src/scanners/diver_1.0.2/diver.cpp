@@ -136,17 +136,10 @@ scanner_plugin(diver, version(1, 0, 2))
     // Unit cube boundaries
     std::vector<double> lowerbounds(nPar, 0.0);                                                             // Lower boundaries of parameter space to scan
     std::vector<double> upperbounds(nPar, 1.0);                                                             // Upper boundaries of parameter space to scan
-    //for (int i = 0; i < nPar; i++)
-    //{
-    //  lowerbounds[i] = 0.0;
-    //  upperbounds[i] = 1.0;
-    //}
 
     // Scale factors
     std::vector<double> Fvec = get_inifile_value<std::vector<double> >("F", initVector<double>(0.7));
     int nF = Fvec.size();                                                                 // Size of the array indicating scale factors
-    //double F[nF];                                                                         // Scale factor(s).
-    //std::copy(Fvec.begin(), Fvec.end(), F);
 
     // Discrete parameters
     std::vector<int> discrete(nDiscrete, 0);                                                              // Indices of discrete parameters, Fortran style, i.e. starting at 1!!

@@ -110,8 +110,6 @@ scanner_plugin(multinest, version(3, 12))
       void *context = 0;                                        // any additional information user wants to pass (not required by MN)
       // Which parameters to have periodic boundary conditions?
       std::vector<int> pWrap(ndims, 0);
-      //for(int i = 0; i < ndims; i++) pWrap[i] = 0; // (need to do more work if we actually want to allow periodic BCs)
-
       // TODO: check what happens if resume mode is active but multinest native output is not written. I guess it will resume writing to the printer output, but actually start a new scan?
 
       // Root for output files
