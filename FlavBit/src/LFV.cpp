@@ -1056,10 +1056,9 @@ namespace Gambit
       std::complex<double> xi_mutau = Ymutau/cosb;
       std::complex<double> xi_taumu = Ytaumu/cosb;
       std::complex<double> xi_tautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
-      std::complex<double> R = ((v*v)/(2*mHp*mHp))*(xi_mumu*xi_tautau);
-      std::complex<double> Roff = 2*((v*v)/(2*mHp*mHp))*(xi_mutau*xi_taumu);//The 2 factor accounts for tau mu and mu tau neutrinos
-      std::complex<double> one = {1,0};
-      result =real(sqrt(one + 0.25*(R*R+Roff*Roff) - D*(R)));
+      std::complex<double> R = ((v*v)/(2*mHp*mHp))*(xi_tautau*conj(xi_mumu));
+      std::complex<double> Roff = ((v*v)/(2*mHp*mHp))*(xi_taumu*conj(xi_mutau));
+      result = sqrt(1 + 0.25*(norm(R)+norm(Roff)) - D*real(R+Roff));
     }
 
 

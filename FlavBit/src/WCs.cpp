@@ -809,7 +809,7 @@ namespace Gambit
     {
       using namespace Pipes::DeltaC9_mu_LogLikelihood;
 
-      result = Stats::gaussian_loglikelihood(Dep::DeltaC9->mu.real(), -0.8, 0., 0.3, false);
+      result = Stats::gaussian_loglikelihood(Dep::DeltaC9->mu.real(), -0.65, 0., 0.2, false);
     }
 
     ///@}
