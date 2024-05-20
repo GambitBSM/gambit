@@ -416,7 +416,7 @@ ObsLikes:
     printme: true
 
   - capability: Higgs_Couplings
-    function: THDM_higgs_couplings_pwid
+    function: THDM_higgs_couplings_2HDMC
     purpose: Observable
 
     # ------------------- #

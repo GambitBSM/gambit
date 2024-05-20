@@ -1161,5 +1161,37 @@ namespace Gambit
       result = HiggsProd;
 
     }
+
+    /// Higgs cross section x BR limit from CMS (CMS-PAS-SUS-23-007)
+    /// Limit digitised from Fig 3
+    void CMS_Higgs_xsec_BR_LogLike(double &result)
+    {
+      using namespace Pipes::CMS_Higgs_xsec_BR_LogLike;
+
+      // Get the interpolated limits
+      static Utils::interp2d_gsl_collection xsec_BR_limit("CMS-PAS-SUS-23-007", GAMBIT_DIR "/ColliderBit/data/CMS-PAS-SUS-23-007.dat", {"mA", "mH"});
+
+      // Get masses from the spectrum
+      Spectrum spec;
+      if(ModelInUse("THDM"))
+        spec = *Dep::THDM_Spectrum;
+      else if(ModelInUse("MSSM63atQ"))
+        spec = *Dep::MSSM_spectrum;
+      double mA = spec.get(Par::Pole_Mass, "A0");
+      double mH = spec.get(Par:Pole_Mass, "h0_2");
+
+      // Get the production xsection and the BRs for both Higgses
+      double xsec;// = *Dep::production_xsec;
+      DecayTable decays = *Dep::all_decays;
+      double BRA = decays("A0").BF("tau+","tau-");
+      double BFH = decays("h0_2").BF("tau+", "tau-");
+
+      // Get the 95% CL from the interpolated data
+      double CL95limit = xsec_BR_limit.eval(mA, mH);
+
+      // Construct an upper limit gaussian likelihood
+      // For half gaussians, the 95% CL is at 1.64 sigmas
+      result = Stats::gaussian_upper_limit(xsec*BRA*BRH, 0.0, 0.0, CL95limit/1.64, false);
+    }
   }
 }

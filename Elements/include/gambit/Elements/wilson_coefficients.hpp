@@ -10,7 +10,7 @@
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@kit.edu)
-///  \date 2024 Feb
+///  \date 2024 Feb, Apr
 ///
 ///  *********************************************
 
@@ -19,7 +19,8 @@
 namespace Gambit
 {
 
-  // Wilson coefficient struct contains complex WC values for each generation
+  // Wilson coefficients struct for four fermion interactions
+  // Contains complex WC values for each flavour of lepton and quark
   struct WilsonCoefficient
   {
     std::complex<double> e=0.;

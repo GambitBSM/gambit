@@ -84,8 +84,8 @@ namespace Gambit
   namespace thdm
   {
     // name for each particle in the THDM
-    inline const std::vector<std::string> particle_name = {"u_1","u_2","u_3","d_1","d_2","d_3","e-_1","e-_2","e-_3","nu_1","nu_2","nu_3", 
-      "ubar_1","ubar_2","ubar_3","dbar_1","dbar_2","dbar_3","e+_1","e+_2","e+_3","nubar_1","nubar_2","nubar_3", 
+    inline const std::vector<std::string> particle_name = {"u_1","u_2","u_3","d_1","d_2","d_3","e-_1","e-_2","e-_3","nu_1","nu_2","nu_3",
+      "ubar_1","ubar_2","ubar_3","dbar_1","dbar_2","dbar_3","e+_1","e+_2","e+_3","nubar_1","nubar_2","nubar_3",
       "gamma","Z0","W+","W-","g", "h0_1","h0_2","A0","H+","H-"};
   }
 
@@ -125,7 +125,8 @@ namespace Gambit
     std::vector<thdm::Particle> products = products_;
     if (products[1] < products[0]) std::swap(products[0],products[1]);
 
-    const std::vector<double> electric_charge = 
+    // TODO: should use the particle database, this is dirty and unsustainable
+    const std::vector<double> electric_charge =
         {+2/3.,+2/3.,+2/3.,-1/3.,-1/3.,-1/3.,-1,-1,-1,0,0,0,-2/3.,-2/3.,-2/3.,+1/3.,+1/3.,+1/3.,+1,+1,+1,0,0,0, 0,0,+1,-1,0, 0,0,0,+1,-1};
 
     // 2HDMC doesn't differentiate between particle/antiparticle -- so need to check U(1)-charge conservation
@@ -188,7 +189,7 @@ namespace Gambit
       // fix the double-counting
       if ((products[0] == wm && products[1] == hp) || (products[0] == wp && products[1] == hm)) // h wm hp,  h wp hm
         return 0.5*decay_table_2hdmc.get_gamma_hvh(part,prod0,prod1);
-      else // h z H,  h z A, 
+      else // h z H,  h z A,
         return decay_table_2hdmc.get_gamma_hvh(part,prod0,prod1);
     }
 
@@ -4432,7 +4433,7 @@ namespace Gambit
           if (skip) continue;
 
           // extract BF for current channel
-          double BF = channel.second.first; 
+          double BF = channel.second.first;
           double BF_error = channel.second.second;
           if (print_as_widths)
           {
@@ -4717,7 +4718,7 @@ namespace Gambit
     }
 
     // helper function for grabbing all higgs decays (via THDMC)
-    void h_decays_THDM(DecayTable::Entry& result, THDMC_1_8_0::DecayTableTHDM& decay_table_2hdmc, const Spectrum& spec, const thdm::Particle particle, const bool isDM = false)
+    void h_decays_THDM(DecayTable::Entry& result, THDMC_1_8_0::DecayTableTHDM& decay_table_2hdmc, const Spectrum& spec, const thdm::Particle particle, const THDM_TYPE thdm_type, const bool isDM = false)
     {
       using namespace thdm;
       using namespace Utils;
@@ -4729,7 +4730,7 @@ namespace Gambit
       const SMInputs& sm = spec.get_SMInputs();
 
       // exclude flavour changing neutral currents
-      const bool exclude_FCNCs = true;
+      const bool exclude_FCNCs = thdm_type == TYPE_III ? false : true;
       // exclude h -> vv decays
       const bool exclude_neutrino_decays = true;
       // exclude kinematically forbidden decays
@@ -4746,19 +4747,19 @@ namespace Gambit
       check_width(LOCAL_INFO, result.width_in_GeV, true , true);
 
       // conserved & approximately conserved charges
-      const std::vector<double> electric_charge = 
+      const std::vector<double> electric_charge =
       {+2/3.,+2/3.,+2/3.,-1/3.,-1/3.,-1/3.,-1,-1,-1,0,0,0,-2/3.,-2/3.,-2/3.,+1/3.,+1/3.,+1/3.,+1,+1,+1,0,0,0, 0,0,+1,-1,0, 0,0,0,+1,-1};
-      const std::vector<double> e1_number = 
+      const std::vector<double> e1_number =
       {0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1,0,0, 0,0,0,0,0, 0,0,0,0,0};
-      const std::vector<double> e2_number = 
+      const std::vector<double> e2_number =
       {0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1,0, 0,0,0,0,0, 0,0,0,0,0};
-      const std::vector<double> e3_number = 
+      const std::vector<double> e3_number =
       {0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1, 0,0,0,0,0, 0,0,0,0,0};
-      const std::vector<double> u1_number = 
+      const std::vector<double> u1_number =
       {1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1,0,0,0,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0};
-      const std::vector<double> u2_number = 
+      const std::vector<double> u2_number =
       {0,1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1,0,0,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0};
-      const std::vector<double> u3_number = 
+      const std::vector<double> u3_number =
       {0,0,1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1,0,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0};
       std::vector<double> Z2_number = // IDM only
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0, 0,1,1,1,1};
@@ -4811,7 +4812,7 @@ namespace Gambit
         for (int k=j; k<=hm; ++k)
         {
           // dont include particles decaying into themselves
-          if (i == k || i == j) continue; 
+          if (i == k || i == j) continue;
 
           // calculate charge sum of vertex
           double electric_charge_sum = -electric_charge[i] + electric_charge[j] + electric_charge[k];
@@ -4822,15 +4823,15 @@ namespace Gambit
           double u2_number_sum = -u2_number[i] + u2_number[j] + u2_number[k];
           double u3_number_sum = -u3_number[i] + u3_number[j] + u3_number[k];
           double Z2_number_sum = -Z2_number[i] + Z2_number[j] + Z2_number[k];
-      
+
           // skip decays that violate conservation laws
-          if (he.get(Par::dimensionless, "isIDM") == 1 && int(abs(Z2_number_sum)) % 2 != 0) 
+          if (he.get(Par::dimensionless, "isIDM") == 1 && int(abs(Z2_number_sum)) % 2 != 0)
           {
             if (i != thdm::Particle::h1 && j != thdm::Particle::h1 && k != thdm::Particle::h1 &&
                 i != thdm::Particle::h2 && j != thdm::Particle::h2 && k != thdm::Particle::h2 )
                   continue;
           }
-          
+
           if (!equal(electric_charge_sum, 0)) continue; // (U(1) electric charge)
           if (!equal(e1_number_sum + e2_number_sum + e3_number_sum, 0)) continue; // (lepton number)
           if (!equal(u1_number_sum + u2_number_sum + u3_number_sum, 0)) continue; // (quark number)
@@ -4840,12 +4841,12 @@ namespace Gambit
           // skip FCNCs (should be enabled for non-Z2 2HDM)
           if (exclude_FCNCs)
           {
-            if (((equal(electric_charge[i],0) && i >= a) || (equal(electric_charge[j],0) && j >= a) || (equal(electric_charge[k],0) && k >= a)) && 
+            if (((equal(electric_charge[i],0) && i >= a) || (equal(electric_charge[j],0) && j >= a) || (equal(electric_charge[k],0) && k >= a)) &&
                 (!equal(e1_number_sum,0) || !equal(e2_number_sum,0) || !equal(e3_number_sum,0) || !equal(u1_number_sum,0) || !equal(u2_number_sum,0) || !equal(u3_number_sum,0)))
               continue;
 
               // NO FC neutrino decays
-              if ( ( in(i,v1,v3) || in(i,v1c,v3c) || in(j,v1,v3) || in(j,v1c,v3c) || in(k,v1,v3) || in(k,v1c,v3c) ) && 
+              if ( ( in(i,v1,v3) || in(i,v1c,v3c) || in(j,v1,v3) || in(j,v1c,v3c) || in(k,v1,v3) || in(k,v1c,v3c) ) &&
                   (!equal(e1_number_sum,0) || !equal(e2_number_sum,0) || !equal(e3_number_sum,0) || !equal(u1_number_sum,0) || !equal(u2_number_sum,0) || !equal(u3_number_sum,0)) )
                 continue;
           }
@@ -4857,7 +4858,7 @@ namespace Gambit
           // skip decays into neutrinos
           if (exclude_neutrino_decays && in(j,v1,v3) && in(k,v1c,v3c))
             continue;
-         
+
           // ensure that it is kinematically avaliable (sometimes THDMC wont do this)
           if (check_mass_sum)
           {
@@ -4873,16 +4874,16 @@ namespace Gambit
             // {
             //   result.set_BF(0.0,0.0,{particle_name[j],particle_name[k]});
             //   continue;
-            // }  
+            // }
           }
 
           // finally, get the width from THDMC
-          double BF = 0.0; 
+          double BF = 0.0;
           if (he.get(Par::dimensionless, "isIDM") == 1 && int(Z2_number_sum) % 2 != 0)
             BF = 0.0;
           else if (result.width_in_GeV > 1e-50)
             BF = get_gamma_THDMC(decay_table_2hdmc,(thdm::Particle)i,{(thdm::Particle)j,(thdm::Particle)k})/result.width_in_GeV;
-          
+
           result.set_BF(BF,0.0,{particle_name[j],particle_name[k]});
         }
       }
@@ -4900,7 +4901,7 @@ namespace Gambit
       {
         if (*Dep::DarkMatter_ID == "h0_1" || *Dep::DarkMatterConj_ID == "h0_1") isDM = true;
       }
-      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::h1, isDM);
+      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::h1, *Dep::THDM_Type, isDM);
    }
 
     // get all decays for h0_2 (via THDMC)
@@ -4915,7 +4916,7 @@ namespace Gambit
       {
         if (*Dep::DarkMatter_ID == "h0_2" || *Dep::DarkMatterConj_ID == "h0_2") isDM = true;
       }
-      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::h2, isDM);
+      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::h2, *Dep::THDM_Type, isDM);
    }
 
     // get all decays for A0 (via THDMC)
@@ -4930,7 +4931,7 @@ namespace Gambit
       {
         if (*Dep::DarkMatter_ID == "A0" || *Dep::DarkMatterConj_ID == "A0") isDM = true;
       }
-      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::ha, isDM);
+      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::ha, *Dep::THDM_Type, isDM);
    }
 
     // get all decays for H+- (via THDMC)
@@ -4945,10 +4946,11 @@ namespace Gambit
       {
         if (*Dep::DarkMatter_ID == "H+" || *Dep::DarkMatterConj_ID == "H+") isDM = true;
       }
-      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::hp, isDM);
+      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::hp, *Dep::THDM_Type, isDM);
    }
 
     // Reference SM Higgs decays: h0_1 (via THDMC)
+    // TODO: These reference SM Higgs decays should not be provided by the THDM
     void Ref_SM_Higgs_decays_THDM(DecayTable::Entry& result)
     {
       using namespace Pipes::Ref_SM_Higgs_decays_THDM;
@@ -4956,7 +4958,7 @@ namespace Gambit
       const double mh = Dep::THDM_spectrum->get_HE().get(Par::Pole_Mass, "h0_1");
       BEreq::setup_thdmc_sm_like_spectrum(container, *Dep::THDM_spectrum, byVal(mh));
       THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(&container.obj);
-      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::h1);
+      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::h1, *Dep::THDM_Type);
     }
 
     /// Reference SM Higgs decays: h0_2 (via THDMC)
@@ -4967,7 +4969,7 @@ namespace Gambit
       const double mh = Dep::THDM_spectrum->get_HE().get(Par::Pole_Mass, "h0_2");
       BEreq::setup_thdmc_sm_like_spectrum(container, *Dep::THDM_spectrum, byVal(mh));
       THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(&container.obj);
-      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::h1);
+      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::h1, *Dep::THDM_Type);
     }
 
     /// Reference SM Higgs decays: A0 (via THDMC)
@@ -4978,7 +4980,7 @@ namespace Gambit
       const double mh = Dep::THDM_spectrum->get_HE().get(Par::Pole_Mass, "A0");
       BEreq::setup_thdmc_sm_like_spectrum(container, *Dep::THDM_spectrum, byVal(mh));
       THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(&container.obj);
-      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::h1);
+      h_decays_THDM(result, decay_table_2hdmc, *Dep::THDM_spectrum, thdm::Particle::h1, *Dep::THDM_Type);
     }
 
     // get all decays for top quark (via THDMC)
@@ -5000,7 +5002,7 @@ namespace Gambit
       enum p_family {up, down, electron, neutrino, vector, higgs};
       const std::vector<std::vector<std::string>> particle_keys =
       {
-       {"u","c","t"}, {"d","s","b"}, {"e+","mu+","tau+"}, {"nu_e","nu_mu","nu_tau"}, 
+       {"u","c","t"}, {"d","s","b"}, {"e+","mu+","tau+"}, {"nu_e","nu_mu","nu_tau"},
        {"gamma","Z0","W+"}, {"h0_1","h0_2","A0","H+"}
       };
 
@@ -5029,7 +5031,7 @@ namespace Gambit
       result.set_BF(gamma_total_top_SM/gamma_total_top, 0.0, "W+", "b");
       check_width(LOCAL_INFO, result.width_in_GeV, true, true);
     }
-    
+
 
     /// @}
 

@@ -213,4 +213,18 @@
   #undef CAPABILITY
 
 
+  /// Higgs cross section x BR limit from CMS (CMS-PAS-SUS-23-007)
+  #define CAPABILITY CMS_Higgs_xsec_BR_LogLike
+  START_CAPABILITY
+    #define FUNCTION CMS_Higgs_xsec_BR_LogLike
+    START_FUNCTION(double)
+    ALLOW_MODELS(MSSM63atQ, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(THDM_Spectrum, Spectrum, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(MSSM_Spectrum, Spectrum, MSSM63atQ)
+    DEPENDENCY(Higgs_Production_Xsecs, fh_HiggsProd_container)
+    DEPENDENCY(decay_rates, DecayTable)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
 #undef MODULE
