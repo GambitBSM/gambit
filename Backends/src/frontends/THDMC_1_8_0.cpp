@@ -12,8 +12,8 @@
 ///  \date 2020 Jan
 ///
 ///  \author Tomas Gonzalo
-///          (gonzalo@physik.rwth-aachen.de)
-///  \date 2021 Apr
+///          (tomas.gonzalo@kit.edu)
+///  \date 2021 Apr, 2024 May
 ///
 ///  *********************************************
 
@@ -69,7 +69,7 @@ BE_NAMESPACE
     double lam6 = he.get(Par::dimensionless, "lambda6");
     double lam7 = he.get(Par::dimensionless, "lambda7");
     double m122 = he.get(Par::mass1, "m12_2");
-    
+
     // TODO: should these be mass1??
     double mh = he.get(Par::Pole_Mass, "h0_1");
     double mH = he.get(Par::Pole_Mass, "h0_2");
@@ -93,18 +93,43 @@ BE_NAMESPACE
       if(abs(he.get(Par::dimensionless,"Yu1",3,3)) > 1e-10)
       {
         container.obj.set_yukawas_type(0);
-        // std::cout << "USING INERT YUKAWAS" << std::endl;
       }
       else
       {
         container.obj.set_yukawas_type(1);
-        // std::cout << "USING TYPE I YUKAWAS" << std::endl;
       }
     }
     else
     {
-      container.obj.set_yukawas_type(yukawa_type);
-      // std::cout << "USING 2HDM YUKAWAS" << std::endl;
+      // 2HDMC does not work with type III, set Yukawas manually in that case
+      if(yukawa_type == TYPE_III)
+      {
+        const double cosb = cos(beta), sinb = sin(beta);
+        complexd rhod[3][3], rhou[3][3], rhoe[3][3];
+
+        for (int i=0; i<3; ++i)
+        {
+          for (int j=0; j<3; ++j)
+          {
+            complexd Yd1_ij ( he.get(Par::dimensionless,"Yd1",i+1,j+1), he.get(Par::dimensionless,"ImYd1",i+1,j+1) );
+            complexd Yd2_ij ( he.get(Par::dimensionless,"Yd2",i+1,j+1), he.get(Par::dimensionless,"ImYd2",i+1,j+1) );
+            complexd Yu1_ij ( he.get(Par::dimensionless,"Yu1",i+1,j+1), he.get(Par::dimensionless,"ImYu1",i+1,j+1) );
+            complexd Yu2_ij ( he.get(Par::dimensionless,"Yu2",i+1,j+1), he.get(Par::dimensionless,"ImYu2",i+1,j+1) );
+            complexd Ye1_ij ( he.get(Par::dimensionless,"Ye1",i+1,j+1), he.get(Par::dimensionless,"ImYe1",i+1,j+1) );
+            complexd Ye2_ij ( he.get(Par::dimensionless,"Ye2",i+1,j+1), he.get(Par::dimensionless,"ImYe2",i+1,j+1) );
+
+            rhod[i][j] = Yd2_ij*cosb - Yd1_ij*sinb;
+            rhou[i][j] = Yu2_ij*cosb - Yu1_ij*sinb;
+            rhoe[i][j] = Ye2_ij*cosb - Ye1_ij*sinb;
+          }
+        }
+
+        container.obj.set_yukawas_down(rhod[0][0], rhod[1][1], rhod[2][2], rhod[0][1], rhod[0][2], rhod[1][2], rhod[1][0], rhod[2][0], rhod[2][1]);
+        container.obj.set_yukawas_up(rhou[0][0], rhou[1][1], rhou[2][2], rhou[0][1], rhou[0][2], rhou[1][2], rhou[1][0], rhou[2][0], rhou[2][1]);
+        container.obj.set_yukawas_lepton(rhoe[0][0], rhoe[1][1], rhoe[2][2], rhoe[0][1], rhoe[0][2], rhoe[1][2], rhoe[1][0], rhoe[2][0], rhoe[2][1]);
+      }
+      else
+        container.obj.set_yukawas_type(yukawa_type);
     }
 
     // set thdmc's sm spectrum

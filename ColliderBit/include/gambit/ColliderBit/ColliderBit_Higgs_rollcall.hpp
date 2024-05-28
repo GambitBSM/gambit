@@ -219,9 +219,9 @@
     #define FUNCTION CMS_Higgs_xsec_BR_LogLike
     START_FUNCTION(double)
     ALLOW_MODELS(MSSM63atQ, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(THDM_Spectrum, Spectrum, THDM, THDMatQ)
-    MODEL_CONDITIONAL_DEPENDENCY(MSSM_Spectrum, Spectrum, MSSM63atQ)
-    DEPENDENCY(Higgs_Production_Xsecs, fh_HiggsProd_container)
+    MODEL_CONDITIONAL_DEPENDENCY(THDM_spectrum, Spectrum, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ)
+    DEPENDENCY(TotalEvGenCrossSection, MC_xsec_container)
     DEPENDENCY(decay_rates, DecayTable)
     #undef FUNCTION
   #undef CAPABILITY

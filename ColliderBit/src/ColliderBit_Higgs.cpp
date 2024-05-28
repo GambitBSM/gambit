@@ -54,11 +54,11 @@
 #include <sstream>
 #include <vector>
 
-#include "gambit/Elements/gambit_module_headers.hpp"
-#include "gambit/Utils/util_types.hpp"
-#include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/statistics.hpp"
-
+#include "gambit/Utils/util_types.hpp"
+#include "gambit/Utils/interp_collection.hpp"
+#include "gambit/Elements/gambit_module_headers.hpp"
+#include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 
 // #define COLLIDERBIT_DEBUG
 
@@ -1169,29 +1169,36 @@ namespace Gambit
       using namespace Pipes::CMS_Higgs_xsec_BR_LogLike;
 
       // Get the interpolated limits
-      static Utils::interp2d_gsl_collection xsec_BR_limit("CMS-PAS-SUS-23-007", GAMBIT_DIR "/ColliderBit/data/CMS-PAS-SUS-23-007.dat", {"mA", "mH"});
+      static Utils::interp2d_gsl_collection xsec_BR_limit("CMS-PAS-SUS-23-007", GAMBIT_DIR "/ColliderBit/data/CMS-PAS-SUS-23-007.dat", {"mA", "mH", "xsecxBR"});
 
       // Get masses from the spectrum
       Spectrum spec;
       if(ModelInUse("THDM"))
-        spec = *Dep::THDM_Spectrum;
+        spec = *Dep::THDM_spectrum;
       else if(ModelInUse("MSSM63atQ"))
         spec = *Dep::MSSM_spectrum;
       double mA = spec.get(Par::Pole_Mass, "A0");
-      double mH = spec.get(Par:Pole_Mass, "h0_2");
+      double mH = spec.get(Par::Pole_Mass, "h0_2");
 
-      // Get the production xsection and the BRs for both Higgses
-      double xsec;// = *Dep::production_xsec;
-      DecayTable decays = *Dep::all_decays;
-      double BRA = decays("A0").BF("tau+","tau-");
-      double BFH = decays("h0_2").BF("tau+", "tau-");
+      // Get the LO production xsection for p p - > H A
+      double xsec = Dep::TotalEvGenCrossSection->xsec(); // in fb
+      // Rescale the LO xsection by 25% to account for NLO corrections (2301.03640)
+      xsec *= 1.25;
+
+      // Get the BRs of H and A from the decay table
+      DecayTable decays = *Dep::decay_rates;
+      double BRA = decays("A0").has_channel("e-_3","e+_3") ? decays("A0").BF("e-_3","e+_3") : 0;
+      double BRH = decays("h0_2").has_channel("e-_3","e+_3") ? decays("h0_2").BF("e-_3","e+_3") : 0;
 
       // Get the 95% CL from the interpolated data
-      double CL95limit = xsec_BR_limit.eval(mA, mH);
+      double CL95limit = xsec_BR_limit.is_inside_range(mA,mH) ? xsec_BR_limit.eval(mA, mH) : DBL_MAX;
 
-      // Construct an upper limit gaussian likelihood
+      // Construct an upper limit gaussian likelihood with 0 mean
       // For half gaussians, the 95% CL is at 1.64 sigmas
-      result = Stats::gaussian_upper_limit(xsec*BRA*BRH, 0.0, 0.0, CL95limit/1.64, false);
+      // Since the position of the upper limit (and thus the normalisation of the half gaussian) depend on mA and mH,
+      // using a cannonically normalised half gaussian would give unrealistic preference to low masses
+      // So we use a half gaussian with max at 0
+      result = xsec*BRA*BRH > 0. ? -0.5*pow(xsec*BRA*BRH,2) / pow(CL95limit/1.64,2) : 0.;
     }
   }
 }

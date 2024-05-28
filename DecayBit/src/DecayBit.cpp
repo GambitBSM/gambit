@@ -64,7 +64,6 @@
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
 #include "gambit/Utils/integration.hpp"
-// #include "gambit/Backends/backend_types/THDMC.hpp"
 
 #include <string>
 #include <map>
@@ -4779,6 +4778,7 @@ namespace Gambit
       masses[e1] = sm.mE;
       masses[e2] = sm.mMu;
       masses[e3] = sm.mTau;
+      // TODO: Add neutrino masses from spectrum
       masses[v1] = 0;
       masses[v2] = 0;
       masses[v3] = 0;
@@ -4866,6 +4866,7 @@ namespace Gambit
 
             if (mass_sum > 0 && abs(get_gamma_THDMC(decay_table_2hdmc,(thdm::Particle)i,{(thdm::Particle)j,(thdm::Particle)k})) > 1e-10)
             {
+              //TODO: Throw error here
               std::cout << "WRONG 2hdmc decay: " << particle_name[i] << "->" << particle_name[j] << "," << particle_name[k] << std::endl;
               std::cout << "                   " << masses[i] << " -> " << masses[j] << " + " << masses[k] << std::endl;
             }
@@ -4884,6 +4885,7 @@ namespace Gambit
           else if (result.width_in_GeV > 1e-50)
             BF = get_gamma_THDMC(decay_table_2hdmc,(thdm::Particle)i,{(thdm::Particle)j,(thdm::Particle)k})/result.width_in_GeV;
 
+          // TODO: I believe this is a problem. The particle names here do not correspond to those attached to PDG numbers so it will fail to search for BFs using either PDGs or other names (e.g. tau)
           result.set_BF(BF,0.0,{particle_name[j],particle_name[k]});
         }
       }
