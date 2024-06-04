@@ -1,0 +1,125 @@
+####################################################################
+## GAMBIT configuration for a random scan of the VLQ model
+##
+## Simply prints the spectrum of the new model.
+####################################################################
+
+
+Parameters:
+
+  # SM parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  StandardModel_Higgs:
+    mH: 125.09
+
+  VLQ:
+    KBLh1: 0.1
+    KBLh2: 0.1
+    KBLh3: 0.1
+    KBLw1: 0.1
+    KBLw2: 0.1
+    KBLw3: 0.1
+    KBLz1: 0.1
+    KBLz2: 0.1
+    KBLz3: 0.1
+    KBRh1: 0.1
+    KBRh2: 0.1
+    KBRh3: 0.1
+    KBRw1: 0.1
+    KBRw2: 0.1
+    KBRw3: 0.1
+    KBRz1: 0.1
+    KBRz2: 0.1
+    KBRz3: 0.1
+    KTLh1: 0.1
+    KTLh2: 0.1
+    KTLh3: 0.1
+    KTLw1: 0.1
+    KTLw2: 0.1
+    KTLw3: 0.1
+    KTLz1: 0.1
+    KTLz2: 0.1
+    KTLz3: 0.1
+    KTRh1: 0.1
+    KTRh2: 0.1
+    KTRh3: 0.1
+    KTRw1: 0.1
+    KTRw2: 0.1
+    KTRw3: 0.1
+    KTRz1: 0.1
+    KTRz2: 0.1
+    KTRz3: 0.1
+    KXL1: 0.1
+    KXL2: 0.1
+    KXL3: 0.1
+    KXR1: 0.1
+    KXR2: 0.1
+    KXR3: 0.1
+    KYL1: 0.1
+    KYL2: 0.1
+    KYL3: 0.1
+    KYR1: 0.1
+    KYR2: 0.1
+    KYR3: 0.1
+    MBP: 0.1
+    MTP: 0.1
+    MX: 0.1
+    MY: 0.1
+
+Priors:
+
+  # All the priors are simple for this scan, so they are specified directly in the Parameters section.
+
+
+Printer:
+
+  printer: cout
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      point_number: 1
+      like:  LogLike
+
+ObsLikes:
+
+  - purpose:      Observable
+    capability:   VLQ_spectrum
+    type:         map_str_dbl
+
+Rules:
+  # None needed
+
+Logger:
+
+  redirection:
+    [Backends] : "backends.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
+    [Scanner] : "ScannerBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+    [Error] : "errors.log"
+    [Warning] : "warnings.log"
+    [Utilities] : "utils.log"
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  default_output_path: "runs/VLQ/"
+
+  debug: false
+

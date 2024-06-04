@@ -208,7 +208,7 @@ if args.file:
                 # Hit it
                 sarah.all_sarah(options, partlist, paramlist, outputs, backends, flags,
                         mixings, bcs, sphenodeps, err)
-                
+
                 if err.is_error():
                     raise GumError( err.what() )
 
@@ -241,7 +241,7 @@ if args.file:
             print(' '.join([m.center(8) for m in members]))
             for p in partlist:
                 print(' '.join([str(getattr(p,'_'+m)).center(8) for m in members]))
-            
+
             print('\n\n~~~ SARAH PARAMETERS ~~~')
             members = ['name','block','index','alt_name','bcs','shape','is_output','is_real','defvalue']
             print(' '.join([m.center(10) for m in members]))
@@ -250,7 +250,7 @@ if args.file:
 
             # Make all SM and BSM particles work with GUM's native Particle class.
             sm_particle_list, bsm_particle_list, add_higgs = sarah_part_to_gum_part(partlist)
-        
+
 
         print("Finished extracting parameters from " + gum.math + ".")
 
@@ -506,7 +506,7 @@ if args.file:
             fullpath = "Backends/patches/sarah-spheno/{0}/{1}".format(SPHENO_VERSION,
                                                                gum.name)
             fullfile = "patch_sarah-spheno_"+SPHENO_VERSION+"_"+gum.name
-            
+
             # Create a diff vs. the out of the [SARAH]box
             write_backend_patch(output_dir, pristine_spheno_dir,
                                 patched_spheno_dir,
@@ -560,9 +560,9 @@ if args.file:
         def parse_calchep_model_file(file_path):
             with open(file_path, 'r') as f:
                 # grab everything
-                contents = f.read() 
+                contents = f.read()
                 # delete whitespace
-                contents = re.sub(r'[ \t]', '', contents) 
+                contents = re.sub(r'[ \t]', '', contents)
                 # split file into lines
                 lines = contents.splitlines()
                 # if less <= 3 lines then throw error
@@ -579,7 +579,9 @@ if args.file:
         class Calchep_particle:
             def __init__(self, elements):
                 if len(elements) != 11:
-                    raise GumError('wrong number of elements for calchep_particle')
+                    # Don't throw errors if there are extra empty elements
+                    if len(elements) > 11 and elements[11] != "":
+                        raise GumError('wrong number of elements for calchep_particle')
                 self.name_full = elements[0] # more descriptive name
                 self.name_short = elements[1] # short name limited to 7 characters (calhep uses this one)
                 self.name_anti = elements[2] # name of corresponding antiparticle (also short)
@@ -599,7 +601,9 @@ if args.file:
                 if len(elements) == 2:
                     elements.append('')
                 if len(elements) != 3:
-                    raise GumError('wrong number of elements for calchep_independent_param')
+                    # Don't throw errors if there are extra empty elements
+                    if len(elements) > 3 and elements[3] != "":
+                        raise GumError('wrong number of elements for calchep_independent_param')
                 self.name_short = elements[0] # parameter name (limited to 7 characters)
                 self.value = elements[1] # parameter value
                 self.comment = elements[2] # a comment
@@ -607,14 +611,18 @@ if args.file:
         class Calchep_dependent_param:
             def __init__(self, elements):
                 if len(elements) != 2:
-                    raise GumError('wrong number of elements for calchep_dependent_param')
+                    # Don't throw errors if there are extra empty elements
+                    if len(elements) > 2 and elements[2] != "":
+                        raise GumError('wrong number of elements for calchep_dependent_param')
                 self.name_short = elements[0] # parameter name (limited to 7 characters)
                 self.expression = elements[1] # mathematical expression to calculate it
 
         class Calchep_vertex:
             def __init__(self, elements):
                 if len(elements) != 6:
-                    raise GumError('wrong number of elements for calchep_vertex')
+                    # Don't throw errors if there are extra empty elements
+                    if len(elements) > 6 and elements[6] != "":
+                        raise GumError('wrong number of elements for calchep_vertex')
                 # names of vertex particles
                 self.part_names = [x for x in elements[0:3] if x != '']
                 self.factor = elements[4] # vertex factor
@@ -955,7 +963,7 @@ if args.file:
             # Add to the wimp properties
             num = find_string("DarkBit_rollcall.hpp", m,"MODEL_CONDITIONAL_DEPENDENCY(DMEFT_spectrum, Spectrum, DMEFT)")[1]
             amend_file("DarkBit_rollcall.hpp", m, wimp_prop_h,num, reset_contents)
-            
+
             num = find_string("DarkBit.cpp", m,"else if(ModelInUse(\"DMEFT\"))")[1]
             amend_file("DarkBit.cpp", m, wimp_prop_c,num-1, reset_contents)
 
@@ -1053,7 +1061,7 @@ if args.file:
             num = find_string(f, m, "BE_FUNCTION")[1]
             amend_file(f, m, "BE_ALLOW_MODELS({0})\n".format(gum.name), num-2,
                        reset_contents)
-        
+
         # micrOMEGAs
         if output_opts.mo:
             print("Patching micrOMEGAs...")
@@ -1139,7 +1147,7 @@ if args.file:
                 # TODO: some of these have corresponding capabilities
                 # already in gambit while others are new. We should
                 # probabily make a map for converting them to the
-                # gambit name when possible and adding them to the 
+                # gambit name when possible and adding them to the
                 # capability that already exists.
 
                 # for now just dump them in FlavBit as is

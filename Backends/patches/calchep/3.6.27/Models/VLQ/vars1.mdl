@@ -1,0 +1,90 @@
+VLQ
+ Parameters
+  Name         | Value       |> Comment                                                                <|
+aEWM1          |127.9        |Inverse of the EW coupling constant at the Z pole                         |
+Gf             |0.0000116637 |Fermi constant                                                            |
+aS             |0.1184       |Strong coupling constant at the Z pole                                    |
+ymdo           |0.00504      |Down Yukawa mass                                                          |
+ymup           |0.00255      |Up Yukawa mass                                                            |
+yms            |0.101        |Strange Yukawa mass                                                       |
+ymc            |1.27         |Charm Yukawa mass                                                         |
+ymb            |4.7          |Bottom Yukawa mass                                                        |
+ymt            |172          |Top Yukawa mass                                                           |
+yme            |0.000511     |Electron Yukawa mass                                                      |
+ymm            |0.10566      |Muon Yukawa mass                                                          |
+ymtau          |1.777        |Tau Yukawa mass                                                           |
+cabi           |0.227736     |Cabibbo angle                                                             |
+KTLw1          |0            |TuW coupling (left-handed) ( KTLw1 )                                      |
+KTLw2          |0            |TuW coupling (left-handed) ( KTLw2 )                                      |
+KTLw3          |0            |TuW coupling (left-handed) ( KTLw3 )                                      |
+KTRw1          |0            |TuW coupling (right-handed) ( KTRw1 )                                     |
+KTRw2          |0            |TuW coupling (right-handed) ( KTRw2 )                                     |
+KTRw3          |0            |TuW coupling (right-handed) ( KTRw3 )                                     |
+KTLz1          |0            |TuZ coupling (left-handed) ( KTLz1 )                                      |
+KTLz2          |0            |TuZ coupling (left-handed) ( KTLz2 )                                      |
+KTLz3          |0            |TuZ coupling (left-handed) ( KTLz3 )                                      |
+KTRz1          |0            |TuZ coupling (right-handed) ( KTRz1 )                                     |
+KTRz2          |0            |TuZ coupling (right-handed) ( KTRz2 )                                     |
+KTRz3          |0            |TuZ coupling (right-handed) ( KTRz3 )                                     |
+KTLh1          |0            |TuH coupling (left-handed) ( KTLh1 )                                      |
+KTLh2          |0            |TuH coupling (left-handed) ( KTLh2 )                                      |
+KTLh3          |0            |TuH coupling (left-handed) ( KTLh3 )                                      |
+KTRh1          |0            |TuH coupling (right-handed) ( KTRh1 )                                     |
+KTRh2          |0            |TuH coupling (right-handed) ( KTRh2 )                                     |
+KTRh3          |0            |TuH coupling (right-handed) ( KTRh3 )                                     |
+KBLw1          |0            |BuW coupling (left-handed) ( KBLw1 )                                      |
+KBLw2          |0            |BuW coupling (left-handed) ( KBLw2 )                                      |
+KBLw3          |0            |BuW coupling (left-handed) ( KBLw3 )                                      |
+KBRw1          |0            |BuW coupling (right-handed) ( KBRw1 )                                     |
+KBRw2          |0            |BuW coupling (right-handed) ( KBRw2 )                                     |
+KBRw3          |0            |BuW coupling (right-handed) ( KBRw3 )                                     |
+KBLz1          |0            |BuZ coupling (left-handed) ( KBLz1 )                                      |
+KBLz2          |0            |BuZ coupling (left-handed) ( KBLz2 )                                      |
+KBLz3          |0            |BuZ coupling (left-handed) ( KBLz3 )                                      |
+KBRz1          |0            |BuZ coupling (right-handed) ( KBRz1 )                                     |
+KBRz2          |0            |BuZ coupling (right-handed) ( KBRz2 )                                     |
+KBRz3          |0            |BuZ coupling (right-handed) ( KBRz3 )                                     |
+KBLh1          |0            |BuH coupling (left-handed) ( KBLh1 )                                      |
+KBLh2          |0            |BuH coupling (left-handed) ( KBLh2 )                                      |
+KBLh3          |0            |BuH coupling (left-handed) ( KBLh3 )                                      |
+KBRh1          |0            |BuH coupling (right-handed) ( KBRh1 )                                     |
+KBRh2          |0            |BuH coupling (right-handed) ( KBRh2 )                                     |
+KBRh3          |0            |BuH coupling (right-handed) ( KBRh3 )                                     |
+KXL1           |0            |XuW coupling (left-handed) ( KXL1 )                                       |
+KXL2           |0            |XuW coupling (left-handed) ( KXL2 )                                       |
+KXL3           |0            |XuW coupling (left-handed) ( KXL3 )                                       |
+KXR1           |0            |XuW coupling (right-handed) ( KXR1 )                                      |
+KXR2           |0            |XuW coupling (right-handed) ( KXR2 )                                      |
+KXR3           |0            |XuW coupling (right-handed) ( KXR3 )                                      |
+KYL1           |0            |YdW coupling (left-handed) ( KYL1 )                                       |
+KYL2           |0            |YdW coupling (left-handed) ( KYL2 )                                       |
+KYL3           |0            |YdW coupling (left-handed) ( KYL3 )                                       |
+KYR1           |0            |YdW coupling (right-handed) ( KYR1 )                                      |
+KYR2           |0            |YdW coupling (right-handed) ( KYR2 )                                      |
+KYR3           |0            |YdW coupling (right-handed) ( KYR3 )                                      |
+GG             |1.21977796370|Strong coupling constant at the Z pole   This value will be ignored and ca|
+MZ             |91.1876      |Mass of G0.                                                               |
+Me             |0.000511     |Mass of e.                                                                |
+MMU            |0.10566      |Mass of mu.                                                               |
+MTA            |1.777        |Mass of ta.                                                               |
+MU             |0.00255      |Mass of u.                                                                |
+MC             |1.27         |Mass of c.                                                                |
+MT             |172          |Mass of t.                                                                |
+MD             |0.00504      |Mass of d.                                                                |
+MS             |0.101        |Mass of s.                                                                |
+MB             |4.7          |Mass of b.                                                                |
+MH             |125          |Mass of H.                                                                |
+MX             |1000         |Mass of x.                                                                |
+MTP            |1100         |Mass of tp.                                                               |
+MBP            |1200         |Mass of bp.                                                               |
+MY             |1300         |Mass of y.                                                                |
+WZ             |2.4952       |Width of G0.                                                              |
+WW             |2.085        |Width of GP.                                                              |
+WT             |1.50833649   |Width of t.                                                               |
+WH             |0.00407      |Width of H.                                                               |
+WX             |10.          |Width of x.                                                               |
+WTP            |11.          |Width of tp.                                                              |
+WBP            |12.          |Width of bp.                                                              |
+WY             |13.          |Width of y.                                                               |
+E              |2.71828182845|The base of the natural logarithm.                                        |
+Pi             |3.14159265358|The circumference of a circle divided by the diameter.                    |

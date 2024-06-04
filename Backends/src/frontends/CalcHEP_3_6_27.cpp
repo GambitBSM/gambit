@@ -112,6 +112,24 @@ BE_INI_FUNCTION
     }
 
     else
+    if (ModelInUse("VLQ"))
+    {
+      BEpath = backendDir + "/../models/VLQ";
+      path = BEpath.c_str();
+      modeltoset = (char*)malloc(strlen(path)+11);
+      sprintf(modeltoset, "%s", path);
+      decays["tp"] = std::vector< std::vector<str> >{ {"u","H"}, {"c","H"}, {"t","H"}, {"d","W+"}, {"s","W+"}, {"b","W+"}, {"u","Z"}, {"c","Z"}, {"t","Z"} };
+      decays["bp"] = std::vector< std::vector<str> >{ {"d","H"}, {"s","H"}, {"b","H"}, {"u","W-"}, {"c","W-"}, {"t","W-"}, {"d","Z"}, {"s","Z"}, {"b","Z"} };
+      decays["x"] = std::vector< std::vector<str> >{ {"u","W+"}, {"c","W+"}, {"t","W+"} };
+      decays["y"] = std::vector< std::vector<str> >{ {"d","W-"}, {"s","W-"}, {"b","W-"} };
+      decays["H"] = std::vector< std::vector<str> >{ {"bp~","d"}, {"bp~","s"}, {"bp~","b"}, {"tp~","u"}, {"tp~","c"}, {"tp~","t"}, {"d~","bp"}, {"s~","bp"}, {"b~","bp"}, {"u~","tp"}, {"c~","tp"}, {"t~","tp"} };
+      decays["tp~"] = std::vector< std::vector<str> >{ {"H","u~"}, {"H","c~"}, {"H","t~"}, {"W-","d~"}, {"W-","s~"}, {"W-","b~"}, {"Z","u~"}, {"Z","c~"}, {"Z","t~"} };
+      decays["y~"] = std::vector< std::vector<str> >{ {"W+","d~"}, {"W+","s~"}, {"W+","b~"} };
+      decays["bp~"] = std::vector< std::vector<str> >{ {"H","d~"}, {"H","s~"}, {"H","b~"}, {"W+","u~"}, {"W+","c~"}, {"W+","t~"}, {"Z","d~"}, {"Z","s~"}, {"Z","b~"} };
+      decays["x~"] = std::vector< std::vector<str> >{ {"W-","u~"}, {"W-","c~"}, {"W-","t~"} };
+      model = "VLQ";
+    }
+    
     {
       int error = setModel(modeltoset, 1);
       if (error != 0) backend_error().raise(LOCAL_INFO, "Unable to set model in CalcHEP. CalcHEP error code: " 
@@ -231,6 +249,102 @@ BE_INI_FUNCTION
     Assign_All_Values(spec, DMsimpVectorMedVectorDM_params);
   }
 
+  if (ModelInUse("VLQ"))
+  {
+    // Obtain spectrum information to pass to CalcHEP
+    const Spectrum& spec = *Dep::VLQ_spectrum;
+    
+    Assign_Value("KBLh1", spec.get(Par::dimensionless, "KBLh1"));
+    Assign_Value("KBLh2", spec.get(Par::dimensionless, "KBLh2"));
+    Assign_Value("KBLh3", spec.get(Par::dimensionless, "KBLh3"));
+    Assign_Value("KBLw1", spec.get(Par::dimensionless, "KBLw1"));
+    Assign_Value("KBLw2", spec.get(Par::dimensionless, "KBLw2"));
+    Assign_Value("KBLw3", spec.get(Par::dimensionless, "KBLw3"));
+    Assign_Value("KBLz1", spec.get(Par::dimensionless, "KBLz1"));
+    Assign_Value("KBLz2", spec.get(Par::dimensionless, "KBLz2"));
+    Assign_Value("KBLz3", spec.get(Par::dimensionless, "KBLz3"));
+    Assign_Value("KBRh1", spec.get(Par::dimensionless, "KBRh1"));
+    Assign_Value("KBRh2", spec.get(Par::dimensionless, "KBRh2"));
+    Assign_Value("KBRh3", spec.get(Par::dimensionless, "KBRh3"));
+    Assign_Value("KBRw1", spec.get(Par::dimensionless, "KBRw1"));
+    Assign_Value("KBRw2", spec.get(Par::dimensionless, "KBRw2"));
+    Assign_Value("KBRw3", spec.get(Par::dimensionless, "KBRw3"));
+    Assign_Value("KBRz1", spec.get(Par::dimensionless, "KBRz1"));
+    Assign_Value("KBRz2", spec.get(Par::dimensionless, "KBRz2"));
+    Assign_Value("KBRz3", spec.get(Par::dimensionless, "KBRz3"));
+    Assign_Value("KTLh1", spec.get(Par::dimensionless, "KTLh1"));
+    Assign_Value("KTLh2", spec.get(Par::dimensionless, "KTLh2"));
+    Assign_Value("KTLh3", spec.get(Par::dimensionless, "KTLh3"));
+    Assign_Value("KTLw1", spec.get(Par::dimensionless, "KTLw1"));
+    Assign_Value("KTLw2", spec.get(Par::dimensionless, "KTLw2"));
+    Assign_Value("KTLw3", spec.get(Par::dimensionless, "KTLw3"));
+    Assign_Value("KTLz1", spec.get(Par::dimensionless, "KTLz1"));
+    Assign_Value("KTLz2", spec.get(Par::dimensionless, "KTLz2"));
+    Assign_Value("KTLz3", spec.get(Par::dimensionless, "KTLz3"));
+    Assign_Value("KTRh1", spec.get(Par::dimensionless, "KTRh1"));
+    Assign_Value("KTRh2", spec.get(Par::dimensionless, "KTRh2"));
+    Assign_Value("KTRh3", spec.get(Par::dimensionless, "KTRh3"));
+    Assign_Value("KTRw1", spec.get(Par::dimensionless, "KTRw1"));
+    Assign_Value("KTRw2", spec.get(Par::dimensionless, "KTRw2"));
+    Assign_Value("KTRw3", spec.get(Par::dimensionless, "KTRw3"));
+    Assign_Value("KTRz1", spec.get(Par::dimensionless, "KTRz1"));
+    Assign_Value("KTRz2", spec.get(Par::dimensionless, "KTRz2"));
+    Assign_Value("KTRz3", spec.get(Par::dimensionless, "KTRz3"));
+    Assign_Value("KXL1", spec.get(Par::dimensionless, "KXL1"));
+    Assign_Value("KXL2", spec.get(Par::dimensionless, "KXL2"));
+    Assign_Value("KXL3", spec.get(Par::dimensionless, "KXL3"));
+    Assign_Value("KXR1", spec.get(Par::dimensionless, "KXR1"));
+    Assign_Value("KXR2", spec.get(Par::dimensionless, "KXR2"));
+    Assign_Value("KXR3", spec.get(Par::dimensionless, "KXR3"));
+    Assign_Value("KYL1", spec.get(Par::dimensionless, "KYL1"));
+    Assign_Value("KYL2", spec.get(Par::dimensionless, "KYL2"));
+    Assign_Value("KYL3", spec.get(Par::dimensionless, "KYL3"));
+    Assign_Value("KYR1", spec.get(Par::dimensionless, "KYR1"));
+    Assign_Value("KYR2", spec.get(Par::dimensionless, "KYR2"));
+    Assign_Value("KYR3", spec.get(Par::dimensionless, "KYR3"));
+    // Masses
+    Assign_Value("MH", spec.get(Par::Pole_Mass, "h0_1"));
+    Assign_Value("MX", spec.get(Par::Pole_Mass, "x"));
+    Assign_Value("MTP", spec.get(Par::Pole_Mass, "tp"));
+    Assign_Value("MBP", spec.get(Par::Pole_Mass, "bp"));
+    Assign_Value("MY", spec.get(Par::Pole_Mass, "y"));
+    double sinW2 = 1 - pow(spec.get(Par::Pole_Mass, "W+") / spec.get(Par::Pole_Mass, "Z0"),2);
+    double TW = asin(sqrt(sinW2));
+    Assign_Value("TW", TW);
+    
+    // SMInputs
+    Assign_Value("MZ", sminputs.mZ);
+    Assign_Value("Me", sminputs.mE);
+    Assign_Value("MMU", sminputs.mMu);
+    Assign_Value("MTA", sminputs.mTau);
+    Assign_Value("MU", sminputs.mU);
+    Assign_Value("MC", sminputs.mCmC);
+    Assign_Value("MT", sminputs.mT);
+    Assign_Value("MD", sminputs.mD);
+    Assign_Value("MS", sminputs.mS);
+    Assign_Value("MB", sminputs.mBmB);
+    
+    // SMInputs constantsAssign_Value("Gf", sminputs.GF); // Fermi constant
+    Assign_Value("aS", sminputs.alphaS); // alphaS 
+    Assign_Value("aEWM1", sminputs.alphainv); // Fine structure constant
+    
+    
+    // Set particle widths in micrOmegas
+    const DecayTable* tbl = &(*Dep::decay_rates);
+    double width = 0.0;
+    bool present = true;
+    
+    Assign_Value("WZ", width);
+    Assign_Value("WW", width);
+    Assign_Value("WT", width);
+    Assign_Value("WH", width);
+    Assign_Value("WX", width);
+    Assign_Value("WTP", width);
+    Assign_Value("WBP", width);
+    Assign_Value("WY", width);
+    
+  }
+  
 }
 END_BE_INI_FUNCTION
 

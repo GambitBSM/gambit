@@ -67,6 +67,10 @@ START_MODULE
 
   /// Module function declarations for SpecBit_tests.cpp (new tests)
   #include "gambit/SpecBit/SpecBit_tests_rollcall.hpp"
+  
+  /// Module function declarations for SpecBit_VLQ.cpp
+  #include "gambit/SpecBit/SpecBit_VLQ_rollcall.hpp"
+  
 
   /// Module function declarations for SpecBit_DMsimpVectorMedVectorDM.cpp
   #include "gambit/SpecBit/SpecBit_DMsimpVectorMedVectorDM_rollcall.hpp"

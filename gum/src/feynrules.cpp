@@ -33,7 +33,7 @@ namespace GUM
   FeynRules::FeynRules(std::string model, std::string base_model) : Math_Package(model)
   {
     // Math_Package constructor already creates the WSTP link
-    
+
     try
     {
       // Load Feynrules
@@ -88,7 +88,7 @@ namespace GUM
     std::cout << "... " << std::endl;
 
     std::string modelpath;
-    
+
     // Check to see if the model is in the FeynRules directory
     modelpath = std::string(FEYNRULES_PATH) + "/Models/" + model + "/" + model + ".fr";
     std::ifstream modelpath1(modelpath.c_str());
@@ -133,7 +133,7 @@ namespace GUM
     }
 
     // Check the model has been loaded by querying the model name. If it has changed from the default then we're set.
-    // TODO: need to check for duplicate definitions of gauge groups, field contents etc - this makes gum freeze 
+    // TODO: need to check for duplicate definitions of gauge groups, field contents etc - this makes gum freeze
     std::string modelname = get_modelname();
 
     std::string tomatch = "Models" + model + model;
@@ -166,7 +166,7 @@ namespace GUM
   /// then the base_model directory.
   void FeynRules::load_restriction(std::string model, std::string base_model, std::string rst)
   {
-   
+
     std::cout << "Attempting to load restriction " + rst + "... " << std::endl;
 
     std::string respath;
@@ -181,11 +181,11 @@ namespace GUM
 
         // If it's not in the model directory, try the base_model...
         if (!path2.good())
-        {  
+        {
             if (!base_model.empty())
             {
                 respath = std::string(FEYNRULES_PATH) + "/Models/" + base_model + "/" + rst + ".rst";
-        
+
                 std::ifstream path3(respath.c_str());
                 if (!path3.good())
                 {
@@ -231,7 +231,7 @@ namespace GUM
   void FeynRules::check_lagrangian(std::string LTot)
   {
     std::cout << "Checking the Lagrangian... you have specified the following: ";
-    std::cout << LTot << std::endl; 
+    std::cout << LTot << std::endl;
 
     std::string command = "Head@("+LTot+") // ToString";
     send_to_math(command);
@@ -265,6 +265,7 @@ namespace GUM
 
     std::string command = "ch = CheckHermiticity[" + LTot + "]";
     send_to_math(command);
+
 
     command = "Length[ch]";
     send_to_math(command);
@@ -320,7 +321,7 @@ namespace GUM
     std::cout << "Mass terms are diagonal... ";
     std::cout.flush();
 
-    // Kinetic term normalisation. 
+    // Kinetic term normalisation.
     // We ignore the SM neutrinos because they don't have a kinetic term under the SM.
     command = "CheckKineticTermNormalisation[" + LTot + ", Free -> {ve,vm,vt}] == Null // ToString";
     send_to_math(command);
@@ -382,7 +383,7 @@ namespace GUM
             // Needs to initialise these to suppress compiler warnings.
             int color = 1;
             int chargeX3 = 0;
-            int spinX2 = 0;   
+            int spinX2 = 0;
             int pdg;
             bool SM;
 
@@ -474,7 +475,7 @@ namespace GUM
             command = "pl[[" + std::to_string(i+1) + ",1,2]]";
             send_to_math(command);
             get_from_math(classname);
-            
+
             // Now see if there is a charge entry
             float charge = 0.;
 
@@ -649,7 +650,7 @@ namespace GUM
   }
 
   // Performs all FeynRules output.
-  void all_feynrules(Options opts, std::vector<Particle> &partlist, std::vector<Parameter> &paramlist, 
+  void all_feynrules(Options opts, std::vector<Particle> &partlist, std::vector<Parameter> &paramlist,
                      Outputs &outputs, std::vector<std::string> &backends, Error &error)
   {
     try

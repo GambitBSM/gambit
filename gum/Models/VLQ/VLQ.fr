@@ -9,7 +9,7 @@
 M$ModelName = "VLQ";
 
 M$Information = {
-  Authors -> {"B. Fuks, L. Panizzi"}, 
+  Authors -> {"B. Fuks, L. Panizzi"},
   Version -> "5.0",
   Date -> "12.07.2022"
 };

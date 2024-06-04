@@ -1710,3 +1710,7 @@ DMsimpVectorMedScalarDM: |
 DMsimpVectorMedVectorDM: |
     DMsimpVectorMedVectorDM model, created by GUM, with parameters: gVXv, gVq, mXv, MY1
 
+
+VLQ: |
+    VLQ model, created by GUM, with parameters: KBLh1, KBLh2, KBLh3, KBLw1, KBLw2, KBLw3, KBLz1, KBLz2, KBLz3, KBRh1, KBRh2, KBRh3, KBRw1, KBRw2, KBRw3, KBRz1, KBRz2, KBRz3, KTLh1, KTLh2, KTLh3, KTLw1, KTLw2, KTLw3, KTLz1, KTLz2, KTLz3, KTRh1, KTRh2, KTRh3, KTRw1, KTRw2, KTRw3, KTRz1, KTRz2, KTRz3, KXL1, KXL2, KXL3, KXR1, KXR2, KXR3, KYL1, KYL2, KYL3, KYR1, KYR2, KYR3, MX, MTP, MBP, MY
+

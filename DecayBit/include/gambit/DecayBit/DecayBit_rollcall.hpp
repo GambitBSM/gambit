@@ -240,6 +240,12 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(DarkMatterConj_ID, std::string, Inert2)
     #undef FUNCTION
 
+    #define FUNCTION CH_VLQ_Higgs_decays
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(VLQ)
+    #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY h0_2_decay_rates
@@ -1012,6 +1018,86 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  #define CAPABILITY tp_decay_rates
+  START_CAPABILITY
+
+    #define FUNCTION CH_VLQ_tp_decays
+    START_FUNCTION(DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(VLQ)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+  #define CAPABILITY bp_decay_rates
+  START_CAPABILITY
+
+    #define FUNCTION CH_VLQ_bp_decays
+    START_FUNCTION(DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(VLQ)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+  #define CAPABILITY x_decay_rates
+  START_CAPABILITY
+
+    #define FUNCTION CH_VLQ_x_decays
+    START_FUNCTION(DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(VLQ)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+  #define CAPABILITY y_decay_rates
+  START_CAPABILITY
+
+    #define FUNCTION CH_VLQ_y_decays
+    START_FUNCTION(DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(VLQ)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+  #define CAPABILITY tpbar_decay_rates
+  START_CAPABILITY
+
+    #define FUNCTION CH_VLQ_tpbar_decays
+    START_FUNCTION(DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(VLQ)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+  #define CAPABILITY ybar_decay_rates
+  START_CAPABILITY
+
+    #define FUNCTION CH_VLQ_ybar_decays
+    START_FUNCTION(DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(VLQ)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+  #define CAPABILITY bpbar_decay_rates
+  START_CAPABILITY
+
+    #define FUNCTION CH_VLQ_bpbar_decays
+    START_FUNCTION(DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(VLQ)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+  #define CAPABILITY xbar_decay_rates
+  START_CAPABILITY
+
+    #define FUNCTION CH_VLQ_xbar_decays
+    START_FUNCTION(DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(VLQ)
+    #undef FUNCTION
+
+  #undef CAPABILITY
 
   #define CAPABILITY decay_rates
   START_CAPABILITY
@@ -1042,6 +1128,15 @@ START_MODULE
     DEPENDENCY(omega_decay_rates, DecayTable::Entry)
     DEPENDENCY(rho1450_decay_rates, DecayTable::Entry)
     MODEL_CONDITIONAL_DEPENDENCY(Y1_decay_rates, DecayTable::Entry, DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM, DMsimpVectorMedVectorDM)
+
+    MODEL_CONDITIONAL_DEPENDENCY(tp_decay_rates, DecayTable::Entry, VLQ)
+    MODEL_CONDITIONAL_DEPENDENCY(bp_decay_rates, DecayTable::Entry, VLQ)
+    MODEL_CONDITIONAL_DEPENDENCY(x_decay_rates, DecayTable::Entry, VLQ)
+    MODEL_CONDITIONAL_DEPENDENCY(y_decay_rates, DecayTable::Entry, VLQ)
+    MODEL_CONDITIONAL_DEPENDENCY(tpbar_decay_rates, DecayTable::Entry, VLQ)
+    MODEL_CONDITIONAL_DEPENDENCY(ybar_decay_rates, DecayTable::Entry, VLQ)
+    MODEL_CONDITIONAL_DEPENDENCY(bpbar_decay_rates, DecayTable::Entry, VLQ)
+    MODEL_CONDITIONAL_DEPENDENCY(xbar_decay_rates, DecayTable::Entry, VLQ)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     MODEL_CONDITIONAL_DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     MODEL_CONDITIONAL_DEPENDENCY(h0_2_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG, THDM, THDMatQ)

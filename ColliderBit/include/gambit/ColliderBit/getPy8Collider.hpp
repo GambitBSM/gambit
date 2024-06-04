@@ -210,6 +210,12 @@ namespace Gambit
           }
         }
 
+        //Setting the User Hook.
+        if (model_suffix == "_VLQ")
+        {
+          result.SetupMatchingUserHook();
+        }
+
         // Should we apply the xsec veto and skip event generation?
 
         // - Get the upper limt xsec as estimated by Pythia

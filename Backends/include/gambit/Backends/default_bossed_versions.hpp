@@ -34,3 +34,4 @@
 #define  Default_THDMC 1_8_0
 
 // Defaults added by GUM (do not remove this comment).
+#define  Default_Pythia_VLQ 8_212

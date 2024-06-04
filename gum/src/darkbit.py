@@ -468,7 +468,7 @@ def proc_cat(dm, sv, products, propagators, gambit_pdg_dict,
                                          gambit_pdg_dict),
                          str(model_specific_particles[i].spinX2)
                          )
- 
+
     towrite += (
             "\n"
             "// Get rid of convenience macros\n"
@@ -803,7 +803,7 @@ def write_calchep_param_assignments(mathpackage, params,
         tmp[name[0]] = name[1]
     expected_names = tmp
 
-    
+
     # look up each calchep name and add it to Parameter
 
     for param in params:
@@ -816,31 +816,32 @@ def write_calchep_param_assignments(mathpackage, params,
             continue
 
         # don't worry about masses (deal with them later)
-        if ch_param.name_short in calchep_masses.values(): 
+        if ch_param.name_short in calchep_masses.values():
             continue
 
         # we also deal with widths later
-        if ch_param.name_short in calchep_widths.values(): 
+        if ch_param.name_short in calchep_widths.values():
             continue
 
         # more stuff we will add later (TODO: add FeynRules version)
-        if ch_param.name_short in ['Gf', 'aS', 'alfSMZ', 'aEWinv', 'TW']: 
+        par_ignore_list = ['Gf', 'aS', 'alfSMZ', 'aEWinv', 'aEWM1', 'TW', 'ymdo', 'ymup', 'yms', 'ymc', 'ymb', 'ymt', 'yme', 'ymm', 'ymtau', 'cabi', 'GG', 'E', 'Pi']
+        if ch_param.name_short in par_ignore_list:
             continue
 
         # some params that sarah adds to calchep but not in spectrum
         # I add the expressions to calculate them later
         if ch_param.name_short in ['betaH']:
-            continue 
+            continue
 
-        # TODO: wtf are these? 
-        if ch_param.name_short in ['Maux', 'Q']: 
+        # TODO: wtf are these?
+        if ch_param.name_short in ['Maux', 'Q']:
             continue
 
         # I *think* these are effective vertex factors (added because the tree-level ones are absent)
         # For now I just leave them at their default of 0.
-        if ch_param.name_short in ['HPP1', 'HGG1', 'HPP2', 'HGG2', 'APP2', 'AGG2']: 
+        if ch_param.name_short in ['HPP1', 'HGG1', 'HPP2', 'HGG2', 'APP2', 'AGG2']:
             continue
-        
+
         try:
             param = expected_names[ch_param.name_short]
             param.name_calchep = param.name
@@ -864,7 +865,7 @@ def write_calchep_param_assignments(mathpackage, params,
 
         # only assign those with a calchep name
 
-        if param.name_calchep is None: 
+        if param.name_calchep is None:
             continue
 
         # # Internally computed
@@ -986,10 +987,10 @@ def write_calchep_param_assignments(mathpackage, params,
         if chwidth == "0": continue
 
         gbname = pdg_to_particle(pdg, gambit_pdg_codes)
-        
+
         if gbname is None:
             raise GumError('failed to find gambit name for {0}'.format(chname))
-        
+
         result += (
                "Assign_Value(\"{1}\", width);\n"
         ).format(gbname, chwidth)
@@ -1096,7 +1097,7 @@ def write_micromegas_src(gambit_model_name, spectrum, mathpackage, params,
     ).format(gambit_model_name, mo_safe_version, spectrum)
 
 
-    mo_src += write_calchep_param_assignments(mathpackage, params, particles, gambit_pdg_codes, calchep_masses, 
+    mo_src += write_calchep_param_assignments(mathpackage, params, particles, gambit_pdg_codes, calchep_masses,
                           calchep_widths, ch_particles, ch_independent_params, ch_dependent_params, ch_vertices)
 
     # Get MicrOmegas to do it's thing.

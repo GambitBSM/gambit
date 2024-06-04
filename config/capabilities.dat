@@ -6805,3 +6805,39 @@ simplexs_init: |
 
 simplexs_get_xsection: |
   simple_xs backend function that returns the cross-section for a given process.
+
+#####  VLQ model #####
+
+VLQ_parameters: |
+    Parameters for the model VLQ (see ./gambit VLQ).
+
+tp_decay_rates: |
+    All decay rates for particle tp.
+
+bp_decay_rates: |
+    All decay rates for particle bp.
+
+x_decay_rates: |
+    All decay rates for particle x.
+
+y_decay_rates: |
+    All decay rates for particle y.
+
+tpbar_decay_rates: |
+    All decay rates for particle tp~.
+
+ybar_decay_rates: |
+    All decay rates for particle y~.
+
+bpbar_decay_rates: |
+    All decay rates for particle bp~.
+
+xbar_decay_rates: |
+    All decay rates for particle x~.
+
+VLQ_spectrum: |
+    Create spectrum object for VLQ model.
+
+Pythia_VLQ_8_212_init: |
+    Initialise the Pythia 8.212 VLQ backend.
+

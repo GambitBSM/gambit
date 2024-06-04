@@ -200,56 +200,112 @@ OtherModels:
     name: A0
     spinx2: 0
 
-  - name: Xd
-    PDG_context:
+  - PDG_context:
     - 5000521
     - 0
-    spinx2: 1
     chargex3: 0
     color: 1
-    description: Xd (DMsimpVectorMedDiracDM)
     conjugate: Xd~
+    description: Xd (DMsimpVectorMedDiracDM)
+    name: Xd
+    spinx2: 1
 
-  - name: Y1
+  - DecayBit:
+      Decays: true
+      name: Y1
     PDG_context:
     - 5000001
     - 0
-    spinx2: 2
     chargex3: 0
     color: 1
     description: Y1 (DMsimpVectorMedDiracDM)
-    DecayBit:
-      Decays: true
-      name: Y1
+    name: Y1
+    spinx2: 2
 
-  - name: Xm
-    PDG_context:
+  - PDG_context:
     - 5000522
     - 0
-    spinx2: 1
     chargex3: 0
     color: 1
     description: Xm (DMsimpVectorMedMajoranaDM)
+    name: Xm
+    spinx2: 1
 
-  - name: Xc
-    PDG_context:
+  - PDG_context:
     - 5000520
     - 0
-    spinx2: 0
     chargex3: 0
     color: 1
-    description: Xc (DMsimpVectorMedScalarDM)
     conjugate: Xc~
+    description: Xc (DMsimpVectorMedScalarDM)
+    name: Xc
+    spinx2: 0
 
-  - name: ~Xv
-    PDG_context:
+  - PDG_context:
     - 5000523
     - 0
-    spinx2: 2
     chargex3: 0
     color: 1
-    description: ~Xv (DMsimpVectorMedVectorDM)
     conjugate: ~Xva
+    description: ~Xv (DMsimpVectorMedVectorDM)
+    name: ~Xv
+    spinx2: 2
+
+  - name: x
+    PDG_context:
+    - 6000005
+    - 0
+    spinx2: 1
+    chargex3: 5
+    color: 3
+    description: x (VLQ)
+    conjugate: x~
+    DecayBit:
+      Decays: true
+      name: x
+      conjugate: xbar
+
+  - name: tp
+    PDG_context:
+    - 6000006
+    - 0
+    spinx2: 1
+    chargex3: 2
+    color: 3
+    description: tp (VLQ)
+    conjugate: tp~
+    DecayBit:
+      Decays: true
+      name: tp
+      conjugate: tpbar
+
+  - name: bp
+    PDG_context:
+    - 6000007
+    - 0
+    spinx2: 1
+    chargex3: -1
+    color: 3
+    description: bp (VLQ)
+    conjugate: bp~
+    DecayBit:
+      Decays: true
+      name: bp
+      conjugate: bpbar
+
+  - name: y
+    PDG_context:
+    - 6000008
+    - 0
+    spinx2: 1
+    chargex3: -4
+    color: 3
+    description: y (VLQ)
+    conjugate: y~
+    DecayBit:
+      Decays: true
+      name: y
+      conjugate: ybar
   Sets:
 
   - DecayBit:

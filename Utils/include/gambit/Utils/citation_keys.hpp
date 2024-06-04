@@ -36,6 +36,19 @@ namespace Gambit
     "Degrande:2011ua", // Universal FeynRules Output
     "Pukhov:2004ca", // Calchep 2.3
     "Belyaev:2012qa", // Calchep 3.4
+    "Stelzer:1994ta", // MadGraph: Generation of Helicity Amplitudes
+    "Maltoni:2002qb", // Event generation with MadEvent
+    "Alwall:2007st", // MadGraph: Web Generation
+    "Alwall:2011uj", // MadGraph 5: Going Beyond
+    "Sjostrand:2014zea", // Pythia
+    "Bloor:2021gtp", // GUM 1.0 Paper
+    "Alloul:2013bka", // FeynRules 2.0 Manual
+    "Christensen:2008py", // FeynRules made easy
+    "Christensen:2010wz", // FeynRules: Whizard Interface
+    "Christensen:2009jx", // FeynRules: CalcHEP, FeynArts, Sherpa interfaces
+    "Degrande:2011ua", // Universal FeynRules Output
+    "Pukhov:2004ca", // Calchep 2.3
+    "Belyaev:2012qa", // Calchep 3.4
     "Belanger:2014vza", // Micromegas 4.1
     "Belanger:2013oya", // Micromegas 3.0
     "Belanger:2010gh", // Micromegas 2.4

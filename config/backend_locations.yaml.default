@@ -178,6 +178,10 @@ THDMC:
 vevacious:
   1.0:         ./Backends/installed/vevacious/1.0/lib/libVevaciousPlusPlus.so
 
+# Added by GUM
+Pythia_VLQ:
+  8.212:       ./Backends/installed/pythia_vlq/8.212/lib/libpythia8.so
+
 # Example/debug backends
 
 LibFirst:

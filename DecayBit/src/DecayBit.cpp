@@ -4128,6 +4128,323 @@ namespace Gambit
     }
 
     //////////// Everything ///////////////////
+    void CH_VLQ_tp_decays(DecayTable::Entry& result)
+    {
+      using namespace Pipes::CH_VLQ_tp_decays;
+      // Clear previous decays
+      result = DecayTable::Entry();
+      
+      str model = "VLQ";
+      str in = "tp"; // In state: CalcHEP particle name
+      std::vector<std::vector<str>> out_calchep = {{"u", "H"}, {"c", "H"}, {"t", "H"}, {"d", "W+"}, {"s", "W+"}, {"b", "W+"}, {"u", "Z"}, {"c", "Z"}, {"t", "Z"}}; // Out states: CalcHEP particle names
+      std::vector<std::vector<str>> out_gambit = {{"u_1", "h0_1"}, {"u_2", "h0_1"}, {"u_3", "h0_1"}, {"d_1", "W+"}, {"d_2", "W+"}, {"d_3", "W+"}, {"u_1", "Z0"}, {"u_2", "Z0"}, {"u_3", "Z0"}}; // Out states: GAMBIT particle names
+      
+      for (unsigned int i=0; i<out_calchep.size(); i++)
+      {
+        
+        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        double newwidth = result.width_in_GeV + gamma;  // Adjust total width
+        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
+        result.width_in_GeV = newwidth;
+        
+        for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+        {
+          it->second.first  *= wscaling; // rescale BF 
+          it->second.second *= wscaling; // rescale error on BF 
+        }
+        
+        // Avoid NaNs!
+        double BF = ( gamma == 0. ) ? 0. : gamma/result.width_in_GeV;
+        
+        result.set_BF(BF, 0.0, out_gambit[i][0], out_gambit[i][1]);
+        
+      }
+      
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+    
+    void CH_VLQ_bp_decays(DecayTable::Entry& result)
+    {
+      using namespace Pipes::CH_VLQ_bp_decays;
+      // Clear previous decays
+      result = DecayTable::Entry();
+      
+      str model = "VLQ";
+      str in = "bp"; // In state: CalcHEP particle name
+      std::vector<std::vector<str>> out_calchep = {{"d", "H"}, {"s", "H"}, {"b", "H"}, {"u", "W-"}, {"c", "W-"}, {"t", "W-"}, {"d", "Z"}, {"s", "Z"}, {"b", "Z"}}; // Out states: CalcHEP particle names
+      std::vector<std::vector<str>> out_gambit = {{"d_1", "h0_1"}, {"d_2", "h0_1"}, {"d_3", "h0_1"}, {"u_1", "W-"}, {"u_2", "W-"}, {"u_3", "W-"}, {"d_1", "Z0"}, {"d_2", "Z0"}, {"d_3", "Z0"}}; // Out states: GAMBIT particle names
+      
+      for (unsigned int i=0; i<out_calchep.size(); i++)
+      {
+        
+        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        double newwidth = result.width_in_GeV + gamma;  // Adjust total width
+        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
+        result.width_in_GeV = newwidth;
+        
+        for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+        {
+          it->second.first  *= wscaling; // rescale BF 
+          it->second.second *= wscaling; // rescale error on BF 
+        }
+        
+        // Avoid NaNs!
+        double BF = ( gamma == 0. ) ? 0. : gamma/result.width_in_GeV;
+        
+        result.set_BF(BF, 0.0, out_gambit[i][0], out_gambit[i][1]);
+        
+      }
+      
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+    
+    void CH_VLQ_x_decays(DecayTable::Entry& result)
+    {
+      using namespace Pipes::CH_VLQ_x_decays;
+      // Clear previous decays
+      result = DecayTable::Entry();
+      
+      str model = "VLQ";
+      str in = "x"; // In state: CalcHEP particle name
+      std::vector<std::vector<str>> out_calchep = {{"u", "W+"}, {"c", "W+"}, {"t", "W+"}}; // Out states: CalcHEP particle names
+      std::vector<std::vector<str>> out_gambit = {{"u_1", "W+"}, {"u_2", "W+"}, {"u_3", "W+"}}; // Out states: GAMBIT particle names
+      
+      for (unsigned int i=0; i<out_calchep.size(); i++)
+      {
+        
+        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        double newwidth = result.width_in_GeV + gamma;  // Adjust total width
+        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
+        result.width_in_GeV = newwidth;
+        
+        for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+        {
+          it->second.first  *= wscaling; // rescale BF 
+          it->second.second *= wscaling; // rescale error on BF 
+        }
+        
+        // Avoid NaNs!
+        double BF = ( gamma == 0. ) ? 0. : gamma/result.width_in_GeV;
+        
+        result.set_BF(BF, 0.0, out_gambit[i][0], out_gambit[i][1]);
+        
+      }
+      
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+    
+    void CH_VLQ_y_decays(DecayTable::Entry& result)
+    {
+      using namespace Pipes::CH_VLQ_y_decays;
+      // Clear previous decays
+      result = DecayTable::Entry();
+      
+      str model = "VLQ";
+      str in = "y"; // In state: CalcHEP particle name
+      std::vector<std::vector<str>> out_calchep = {{"d", "W-"}, {"s", "W-"}, {"b", "W-"}}; // Out states: CalcHEP particle names
+      std::vector<std::vector<str>> out_gambit = {{"d_1", "W-"}, {"d_2", "W-"}, {"d_3", "W-"}}; // Out states: GAMBIT particle names
+      
+      for (unsigned int i=0; i<out_calchep.size(); i++)
+      {
+        
+        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        double newwidth = result.width_in_GeV + gamma;  // Adjust total width
+        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
+        result.width_in_GeV = newwidth;
+        
+        for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+        {
+          it->second.first  *= wscaling; // rescale BF 
+          it->second.second *= wscaling; // rescale error on BF 
+        }
+        
+        // Avoid NaNs!
+        double BF = ( gamma == 0. ) ? 0. : gamma/result.width_in_GeV;
+        
+        result.set_BF(BF, 0.0, out_gambit[i][0], out_gambit[i][1]);
+        
+      }
+      
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+    
+    void CH_VLQ_Higgs_decays(DecayTable::Entry& result)
+    {
+      using namespace Pipes::CH_VLQ_Higgs_decays;
+      // Clear previous decays
+      result = DecayTable::Entry();
+      
+      result = *Dep::Reference_SM_Higgs_decay_rates;
+      
+      str model = "VLQ";
+      str in = "H"; // In state: CalcHEP particle name
+      std::vector<std::vector<str>> out_calchep = {{"bp~", "d"}, {"bp~", "s"}, {"bp~", "b"}, {"tp~", "u"}, {"tp~", "c"}, {"tp~", "t"}, {"d~", "bp"}, {"s~", "bp"}, {"b~", "bp"}, {"u~", "tp"}, {"c~", "tp"}, {"t~", "tp"}}; // Out states: CalcHEP particle names
+      std::vector<std::vector<str>> out_gambit = {{"bp~", "d_1"}, {"bp~", "d_2"}, {"bp~", "d_3"}, {"tp~", "u_1"}, {"tp~", "u_2"}, {"tp~", "u_3"}, {"dbar_1", "bp"}, {"dbar_2", "bp"}, {"dbar_3", "bp"}, {"ubar_1", "tp"}, {"ubar_2", "tp"}, {"ubar_3", "tp"}}; // Out states: GAMBIT particle names
+      
+      for (unsigned int i=0; i<out_calchep.size(); i++)
+      {
+        
+        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        double newwidth = result.width_in_GeV + gamma;  // Adjust total width
+        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
+        result.width_in_GeV = newwidth;
+        
+        for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+        {
+          it->second.first  *= wscaling; // rescale BF 
+          it->second.second *= wscaling; // rescale error on BF 
+        }
+        
+        // Avoid NaNs!
+        double BF = ( gamma == 0. ) ? 0. : gamma/result.width_in_GeV;
+        
+        result.set_BF(BF, 0.0, out_gambit[i][0], out_gambit[i][1]);
+        
+      }
+      
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+    
+    void CH_VLQ_tpbar_decays(DecayTable::Entry& result)
+    {
+      using namespace Pipes::CH_VLQ_tpbar_decays;
+      // Clear previous decays
+      result = DecayTable::Entry();
+      
+      str model = "VLQ";
+      str in = "tp~"; // In state: CalcHEP particle name
+      std::vector<std::vector<str>> out_calchep = {{"H", "u~"}, {"H", "c~"}, {"H", "t~"}, {"W-", "d~"}, {"W-", "s~"}, {"W-", "b~"}, {"Z", "u~"}, {"Z", "c~"}, {"Z", "t~"}}; // Out states: CalcHEP particle names
+      std::vector<std::vector<str>> out_gambit = {{"h0_1", "ubar_1"}, {"h0_1", "ubar_2"}, {"h0_1", "ubar_3"}, {"W-", "dbar_1"}, {"W-", "dbar_2"}, {"W-", "dbar_3"}, {"Z0", "ubar_1"}, {"Z0", "ubar_2"}, {"Z0", "ubar_3"}}; // Out states: GAMBIT particle names
+      
+      for (unsigned int i=0; i<out_calchep.size(); i++)
+      {
+        
+        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        double newwidth = result.width_in_GeV + gamma;  // Adjust total width
+        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
+        result.width_in_GeV = newwidth;
+        
+        for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+        {
+          it->second.first  *= wscaling; // rescale BF 
+          it->second.second *= wscaling; // rescale error on BF 
+        }
+        
+        // Avoid NaNs!
+        double BF = ( gamma == 0. ) ? 0. : gamma/result.width_in_GeV;
+        
+        result.set_BF(BF, 0.0, out_gambit[i][0], out_gambit[i][1]);
+        
+      }
+      
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+    
+    void CH_VLQ_ybar_decays(DecayTable::Entry& result)
+    {
+      using namespace Pipes::CH_VLQ_ybar_decays;
+      // Clear previous decays
+      result = DecayTable::Entry();
+      
+      str model = "VLQ";
+      str in = "y~"; // In state: CalcHEP particle name
+      std::vector<std::vector<str>> out_calchep = {{"W+", "d~"}, {"W+", "s~"}, {"W+", "b~"}}; // Out states: CalcHEP particle names
+      std::vector<std::vector<str>> out_gambit = {{"W+", "dbar_1"}, {"W+", "dbar_2"}, {"W+", "dbar_3"}}; // Out states: GAMBIT particle names
+      
+      for (unsigned int i=0; i<out_calchep.size(); i++)
+      {
+        
+        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        double newwidth = result.width_in_GeV + gamma;  // Adjust total width
+        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
+        result.width_in_GeV = newwidth;
+        
+        for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+        {
+          it->second.first  *= wscaling; // rescale BF 
+          it->second.second *= wscaling; // rescale error on BF 
+        }
+        
+        // Avoid NaNs!
+        double BF = ( gamma == 0. ) ? 0. : gamma/result.width_in_GeV;
+        
+        result.set_BF(BF, 0.0, out_gambit[i][0], out_gambit[i][1]);
+        
+      }
+      
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+    
+    void CH_VLQ_bpbar_decays(DecayTable::Entry& result)
+    {
+      using namespace Pipes::CH_VLQ_bpbar_decays;
+      // Clear previous decays
+      result = DecayTable::Entry();
+      
+      str model = "VLQ";
+      str in = "bp~"; // In state: CalcHEP particle name
+      std::vector<std::vector<str>> out_calchep = {{"H", "d~"}, {"H", "s~"}, {"H", "b~"}, {"W+", "u~"}, {"W+", "c~"}, {"W+", "t~"}, {"Z", "d~"}, {"Z", "s~"}, {"Z", "b~"}}; // Out states: CalcHEP particle names
+      std::vector<std::vector<str>> out_gambit = {{"h0_1", "dbar_1"}, {"h0_1", "dbar_2"}, {"h0_1", "dbar_3"}, {"W+", "ubar_1"}, {"W+", "ubar_2"}, {"W+", "ubar_3"}, {"Z0", "dbar_1"}, {"Z0", "dbar_2"}, {"Z0", "dbar_3"}}; // Out states: GAMBIT particle names
+      
+      for (unsigned int i=0; i<out_calchep.size(); i++)
+      {
+        
+        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        double newwidth = result.width_in_GeV + gamma;  // Adjust total width
+        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
+        result.width_in_GeV = newwidth;
+        
+        for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+        {
+          it->second.first  *= wscaling; // rescale BF 
+          it->second.second *= wscaling; // rescale error on BF 
+        }
+        
+        // Avoid NaNs!
+        double BF = ( gamma == 0. ) ? 0. : gamma/result.width_in_GeV;
+        
+        result.set_BF(BF, 0.0, out_gambit[i][0], out_gambit[i][1]);
+        
+      }
+      
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+    
+    void CH_VLQ_xbar_decays(DecayTable::Entry& result)
+    {
+      using namespace Pipes::CH_VLQ_xbar_decays;
+      // Clear previous decays
+      result = DecayTable::Entry();
+      
+      str model = "VLQ";
+      str in = "x~"; // In state: CalcHEP particle name
+      std::vector<std::vector<str>> out_calchep = {{"W-", "u~"}, {"W-", "c~"}, {"W-", "t~"}}; // Out states: CalcHEP particle names
+      std::vector<std::vector<str>> out_gambit = {{"W-", "ubar_1"}, {"W-", "ubar_2"}, {"W-", "ubar_3"}}; // Out states: GAMBIT particle names
+      
+      for (unsigned int i=0; i<out_calchep.size(); i++)
+      {
+        
+        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        double newwidth = result.width_in_GeV + gamma;  // Adjust total width
+        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
+        result.width_in_GeV = newwidth;
+        
+        for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+        {
+          it->second.first  *= wscaling; // rescale BF 
+          it->second.second *= wscaling; // rescale error on BF 
+        }
+        
+        // Avoid NaNs!
+        double BF = ( gamma == 0. ) ? 0. : gamma/result.width_in_GeV;
+        
+        result.set_BF(BF, 0.0, out_gambit[i][0], out_gambit[i][1]);
+        
+      }
+      
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+    
 
     /// Collect all the DecayTable entries into an actual DecayTable
     void all_decays (DecayTable &decays)
@@ -4162,6 +4479,19 @@ namespace Gambit
       decays("rho+") = *Dep::rho_plus_decay_rates;  // Add the rho+ decays.
       decays("rho-") = *Dep::rho_minus_decay_rates; // Add the rho- decays.
       decays("omega") = *Dep::omega_decay_rates;    // Add the omega meson decays.
+      
+      // VLQ-specific
+      if (ModelInUse("VLQ"))
+      {
+        decays("tp") = *Dep::tp_decay_rates;
+        decays("bp") = *Dep::bp_decay_rates;
+        decays("x") = *Dep::x_decay_rates;
+        decays("y") = *Dep::y_decay_rates;
+        decays("tp~") = *Dep::tpbar_decay_rates;
+        decays("y~") = *Dep::ybar_decay_rates;
+        decays("bp~") = *Dep::bpbar_decay_rates;
+        decays("x~") = *Dep::xbar_decay_rates;
+      }
 
       // DMsimp-specific
       if (ModelInUse("DMsimpVectorMedDiracDM") or ModelInUse("DMsimpVectorMedMajoranaDM") or ModelInUse("DMsimpVectorMedScalarDM"))

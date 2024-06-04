@@ -53,6 +53,7 @@ namespace Gambit
 
     // TODO: Temporarily disabled until project is ready
     // struct SuperRenormHP        : SubSpectrumContents { SuperRenormHP(); };
+    struct VLQ                  : SubSpectrumContents { VLQ(); };
 
   }
 }
