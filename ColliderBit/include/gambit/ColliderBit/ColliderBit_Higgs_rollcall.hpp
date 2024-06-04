@@ -226,5 +226,15 @@
     #undef FUNCTION
   #undef CAPABILITY
 
+  /// Limit on MA from ATLAS same-sign top search (ATLAS_HDBS_2020_03)
+  #define CAPABILITY ATLAS_MA_SSTop_LogLike
+  START_CAPABILITY
+    #define FUNCTION ATLAS_MA_SSTop_LogLike
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM, THDMatQ)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 
 #undef MODULE

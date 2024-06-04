@@ -1200,5 +1200,43 @@ namespace Gambit
       // So we use a half gaussian with max at 0
       result = xsec*BRA*BRH > 0. ? -0.5*pow(xsec*BRA*BRH,2) / pow(CL95limit/1.64,2) : 0.;
     }
+
+    /// Limit on MA from ATLAS same-sign top search (ATLAS_HDBS_2020_03)
+    void ATLAS_MA_SSTop_LogLike(double &result)
+    {
+      using namespace Pipes::ATLAS_MA_SSTop_LogLike;
+
+      // Get A0 mass from spectrum
+      Spectrum spec = *Dep::THDM_spectrum;
+      double mA = spec.get(Par::Pole_Mass, "A0");
+
+      // Get rhos
+      // The limit only cares about the real parts of the rhos, apparently
+      // And I believe also only about absolute values? TODO: Check this
+      const double beta = atan(spec.get(Par::dimensionless,"tanb"));
+      const double cosb = cos(beta), sinb = sin(beta);
+      double rhotu = abs(spec.get(Par::dimensionless,"Yu2",3,1)*cosb - spec.get(Par::dimensionless,"Yu1",3,1)*sinb);
+      double rhotc = abs(spec.get(Par::dimensionless,"Yu2",3,2)*cosb - spec.get(Par::dimensionless,"Yu1",3,2)*sinb);
+      double rhott = abs(spec.get(Par::dimensionless,"Yu2",3,3)*cosb - spec.get(Par::dimensionless,"Yu1",3,3)*sinb);
+
+      // This limit is only valid for rho_tu = 0, otherwise ignore
+      if(abs(rhotu) > 1e-10)
+      {
+        result = 0.;
+      }
+      else
+      {
+        // Get the lowe limit on mA from the data
+        static Utils::interp2d_gsl_collection SSTop_limit("ATLAS_HDBS_2020_03", GAMBIT_DIR "/ColliderBit/data/ATLAS_HDBS_2020_03.dat", {"rho_tt", "rho_tc", "mA"});
+        double mA_limit = SSTop_limit.is_inside_range(rhott, rhotc) ? SSTop_limit.eval(rhott, rhotc) : 0;
+
+        // Assume limits are presented at 95% CL, as that is quoted in other plots
+        // For half gaussians, the 95% CL is at 1.64 sigmas
+        // In principle the value of sigma does not matter, but since we do not have a normalised gaussian, let's pick sigma ~ 0.4 as it gives the integrated 95% CL
+        result = mA < mA_limit ? -0.5*pow(mA - mA_limit,2) / pow(0.4/1.64,2) : 0.;
+
+      }
+
+    }
   }
 }

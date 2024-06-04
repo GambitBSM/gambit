@@ -1804,7 +1804,6 @@ namespace Gambit
       result.update();
 
       compareCouplingTable(ctmp,result);
-      std::cerr << "---------" << std::endl;
       compareCouplingTable(result,ctmp);
     }
 
