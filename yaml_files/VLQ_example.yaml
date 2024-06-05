@@ -62,10 +62,10 @@ Parameters:
     KYR1: 0.1
     KYR2: 0.1
     KYR3: 0.1
-    MBP: 0.1
-    MTP: 0.1
-    MX: 0.1
-    MY: 0.1
+    MBP: 100.0
+    MTP: 100.0
+    MX: 100.0
+    MY: 200.0
 
 Priors:
 
@@ -92,9 +92,120 @@ ObsLikes:
   - purpose:      Observable
     capability:   VLQ_spectrum
     type:         map_str_dbl
-
+  
+  # Other observables
+  - purpose:    Observable
+    capability: TotalCrossSectionAsMap
+  
+  # Calculate the LHC likelihood
+  - purpose:    LogLike
+    capability: LHC_Combined_LogLike
+  
 Rules:
-  # None needed
+  
+  # Choose to get decays from DecayBit proper, not from an SLHA file.
+  - capability: decay_rates
+    function: all_decays
+  
+  # Choose to where to get cross-sections from
+  - capability: TotalCrossSection
+    function: getEvGenCrossSection_as_base
+
+  - capability: TotalEvGenCrossSection
+    function: getEvGenCrossSection
+
+  # Just use unweighted cross-sections
+  - capability: EventWeighterFunction
+    function: setEventWeight_unity
+  
+  # Choose where to get scattering events from
+  - capability: HardScatteringEvent
+    type: Pythia_VLQ_default::Pythia8::Event
+    function: generateEventPythia_VLQ
+
+  - capability: HardScatteringEvent
+    type: HEPUtils::Event
+    function: generateEventPythia_VLQ_HEPUtils
+  
+  # Pass an SLHA2 spectrum to Pythia
+  - capability: SpectrumAndDecaysForPythia
+    function: getSpectrumAndDecaysForPythia_VLQ
+    options:
+      slha_version: 2
+      write_summary_to_log: false
+  
+  # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
+  - capability: RunMC
+    function: operateLHCLoop
+    options:
+      silenceLoop: false
+      LHC_13TeV:
+        min_nEvents: 1000
+        max_nEvents: 1000
+        events_between_convergence_checks: 5000
+        target_fractional_uncert: 0.3
+        halt_when_systematic_dominated: true
+        all_analyses_must_converge: false
+        all_SR_must_converge: false
+        maxFailedEvents: 10
+        analyses:
+          - CMS_13TeV_0LEP_36invfb
+
+  # Choose Monte Carlo event simulator and options.
+  - capability:  HardScatteringSim
+    type: Py8Collider_VLQ_defaultversion
+    function: getPythia_VLQ
+    options:
+      LHC_13TeV:
+        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        xsec_veto: 0.028
+        partonOnly: false
+        jet_collections:
+          antikt_R04:
+            algorithm: antikt  # antikt, cambridge, kt, genkt, cambridge_for_passive
+            R: 0.4
+            recombination_scheme: E_scheme   # E_scheme, pt_scheme, pt2_scheme 
+            strategy: Best     # Best, NlnN
+        jet_collection_taus: antikt_R04
+        pythia_settings:
+          - Beams:eCM = 13000
+          - Next:numberShowProcess = 1
+          - Print:quiet = off
+          - Random:setSeed = on
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - VLQ:all = on
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
+          #- 23:mMin = 0.1
+          #- 24:mMin = 0.1
+
+  # Choose LHC likelihood form and options.
+  - capability: LHC_LogLikes
+    function: calc_LHC_LogLikes
+    backends:
+    - {group: lnlike_marg_poisson, capability: lnlike_marg_poisson_lognormal_error}
+    options:
+      use_covariances: true
+      use_marginalising: false
+      combine_SRs_without_covariances: false
+      always_compute_all_SR_loglikes: true
+      nuisance_prof_initstep: 0.1
+      nuisance_prof_convtol: 0.01
+      nuisance_prof_maxsteps: 10000
+      nuisance_prof_convacc: 0.01
+      nuisance_prof_simplexsize: 1e-5
+      nuisance_prof_method: 6
+      nuisance_prof_verbosity: 0
+
+  # Options for how the combined LHC loglike should be calculated
+  - capability: LHC_Combined_LogLike
+    options:
+      write_summary_to_log: false
+      cap_loglike: false
+      cap_loglike_individual_analyses: false
 
 Logger:
 
@@ -121,5 +232,5 @@ KeyValues:
 
   default_output_path: "runs/VLQ/"
 
-  debug: false
+  debug: true
 

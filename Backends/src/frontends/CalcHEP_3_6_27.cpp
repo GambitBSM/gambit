@@ -254,6 +254,15 @@ BE_INI_FUNCTION
     // Obtain spectrum information to pass to CalcHEP
     const Spectrum& spec = *Dep::VLQ_spectrum;
     
+    // Obtain model contents
+    static const SpectrumContents::VLQ VLQ_contents;
+    
+    // Obtain list of all parameters within model
+    static const std::vector<SpectrumParameter> VLQ_params = VLQ_contents.all_parameters();
+    
+    Assign_All_Values(spec, VLQ_params);
+    
+    /*
     Assign_Value("KBLh1", spec.get(Par::dimensionless, "KBLh1"));
     Assign_Value("KBLh2", spec.get(Par::dimensionless, "KBLh2"));
     Assign_Value("KBLh3", spec.get(Par::dimensionless, "KBLh3"));
@@ -342,6 +351,7 @@ BE_INI_FUNCTION
     Assign_Value("WTP", width);
     Assign_Value("WBP", width);
     Assign_Value("WY", width);
+    */
     
   }
   
