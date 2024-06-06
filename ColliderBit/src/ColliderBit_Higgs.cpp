@@ -1222,6 +1222,8 @@ namespace Gambit
       // This limit is only valid for rho_tu = 0, otherwise ignore
       if(abs(rhotu) > 1e-10)
       {
+        // You should not be using the loglike for rhotu != 0
+        ColliderBit_error().raise(LOCAL_INFO, "The ATLAS_MA_SSTop_LogLike likelihood is not useable for rhotu != 0");
         result = 0.;
       }
       else
