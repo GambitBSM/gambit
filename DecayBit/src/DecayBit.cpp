@@ -4219,10 +4219,30 @@ namespace Gambit
       decays = DecayTable(slha);
     }
 
-    /// Convert the DecayTable to a format where we can print each individual channel's BF
-    void get_decaytable_as_map(map_str_dbl& map)
+
+    /// Get particle widths from the DecayTable and output to a string-to-double map
+    void get_particle_widths_as_map(map_str_dbl& map)
     {
-      using namespace Pipes::get_decaytable_as_map;
+      using namespace Pipes::get_particle_widths_as_map;
+
+      const DecayTable* tbl = &(*Dep::decay_rates);
+
+      // Iterate through DecayTable to get each particle width
+      for (auto it = tbl->particles.begin(); it != tbl->particles.end(); ++it)
+      {
+        std::pair<int, int> pdg = it->first;
+
+        std::string width_key = Models::ParticleDB().partmap::long_name(pdg);
+        width_key += " Width";
+
+        map[width_key] = it->second.width_in_GeV;
+      }
+    }
+
+    /// Get branching fractions from the DecayTable and output to a string-to-double map
+    void get_branching_fractions_as_map(map_str_dbl& map)
+    {
+      using namespace Pipes::get_branching_fractions_as_map;
 
       const DecayTable* tbl = &(*Dep::decay_rates);
 
@@ -4250,7 +4270,7 @@ namespace Gambit
         bfs = runOptions->getValueOrDef<std::vector<std::vector<str> > >(BFs, "BFs");
       }
 
-      // Iterate through branching ratios
+      // Iterate through branching fractions
       for ( const auto &row : bfs )
       {
 
