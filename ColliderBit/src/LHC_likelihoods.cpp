@@ -982,15 +982,82 @@ namespace Gambit
       static const bool calc_expected_noerr_loglikes = runOptions.getValueOrDef<bool>(false, "calc_expected_noerr_loglikes");
       static const bool calc_scaledsignal_loglikes = runOptions.getValueOrDef<bool>(false, "calc_scaledsignal_loglikes");
       static const double signal_scalefactor = runOptions.getValueOrDef<double>(1.0, "signal_scalefactor");
+      static const bool dump_analysis_info_file = runOptions.getValueOrDef<bool>(false, "dump_analysis_info_file");
 
-      // Create a list of keys for the alternative loglikes that are activated
+
+      // Things that should only be done once:
       static std::vector<std::string> alt_loglike_keys;
       if (first)
       {
+        // Create a list of keys for the alternative loglikes that are activated
         if (calc_noerr_loglikes) alt_loglike_keys.push_back("noerr");
         if (calc_expected_loglikes) alt_loglike_keys.push_back("expected");
         if (calc_expected_noerr_loglikes) alt_loglike_keys.push_back("expected_noerr");
         if (calc_scaledsignal_loglikes) alt_loglike_keys.push_back("scaledsignal");
+
+        // Dump Python file with analysis info?
+        if (dump_analysis_info_file)
+        {
+          std::ofstream ofile;
+          ofile.open("analysis_info.py");
+
+          for (size_t analysis = 0; analysis < ana.size(); ++analysis)
+          {
+            const AnalysisData& ana_data = *(ana.at(analysis));
+            const std::string ana_name = ana_data.analysis_name;
+            if (ana_name == "Baselines") 
+            {
+              continue;
+            }
+            const double luminosity = ana_data.luminosity;
+            const size_t nSR = ana_data.size();
+            const bool has_covar = ana_data.srcov.rows() > 0;
+            const bool has_fulllikes = ana_data.hasFullLikes();
+
+            // Write comment with analysis name
+            ofile << "# Analysis: " << ana_name << endl;
+            ofile << endl; 
+
+            // Write list of SR names
+            ofile << "analysis_SR_names[\"" << ana_name << "\"] = [" << endl;
+            for (size_t SR = 0; SR < ana_data.size(); ++SR)
+            {
+              const SignalRegionData& srData = ana_data[SR];
+              ofile << "  \"" << srData.sr_label << "__i" << SR <<  "\"," << endl;
+            }
+            ofile << "]" << endl;
+
+            ofile << endl;
+
+            // Write list with experiment data for each SR
+            ofile << "analysis_exp_data[\"" << ana_name << "\"] = {" << endl;
+            for (size_t SR = 0; SR < ana_data.size(); ++SR)
+            {
+              const SignalRegionData& srData = ana_data[SR];              
+              ofile << "  \"" << srData.sr_label << "__i" << SR <<  "\": " 
+                   << "{\"n\": " << srData.n_obs << ",  "
+                   <<  "\"b\": " << srData.n_bkg << ",  "
+                   <<  "\"b_uncert\": " << srData.n_bkg_err << "}," 
+                   << endl;
+            }
+            ofile << "}" << endl;
+
+            ofile << endl;
+
+            // Write luminosity info
+            ofile << "analysis_lumi[\"" << ana_name << "\"] = " << luminosity << endl;
+
+            ofile << endl;
+            ofile << endl;
+            ofile << endl;
+          }            
+
+          // Stop writing to analysis_info.py
+          ofile.close();
+
+        }
+
+
         first = false;
       }
 
