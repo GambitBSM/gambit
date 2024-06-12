@@ -32,6 +32,7 @@ namespace Gambit {
       int _sum;
       double _weight_sum;
       double _weight_sum_err;
+      std::vector<unsigned int> _event_acceptance_record;
 
     public:
 
@@ -89,17 +90,18 @@ namespace Gambit {
       double weight_sum_err() const { return _weight_sum_err; }
 
       // Increment event count directly, with optional weights arguments
-      void add_event(double w = 1.0, double werr = 0.0)
+      void add_event(unsigned int event_id, double w = 1.0, double werr = 0.0)
       {
         _sum++;
         _weight_sum += w;
         _weight_sum_err = sqrt((_weight_sum_err * _weight_sum_err) + (werr * werr));
+        _event_acceptance_record.push_back(event_id);
       }
 
       // Increment event count with weigths from an HEPUtils::Event
       void add_event(const HEPUtils::Event& event)
       {
-        add_event(event.weight(), event.weight_err());
+        add_event(event.id(), event.weight(), event.weight_err());
       }
 
       void add_event(const HEPUtils::Event* event_ptr) 
