@@ -27,6 +27,7 @@ namespace Gambit
     {
 
       public:
+        bool debug = false;
 
       // Required detector sim
       static constexpr const char* detector = "CMS";
@@ -261,7 +262,7 @@ namespace Gambit
           if(mllOSSF > 20. and mllOSSF <= 30.) { FILL_SIGNAL_REGION("2lEWlow3"); }
           if(mllOSSF > 30. and mllOSSF <  50.) { FILL_SIGNAL_REGION("2lEWlow4"); }
         }
-        //std::cout << "2l low done" << std::endl;
+        if(debug) std::cout << "2l low done" << std::endl;
 
         // 2lEW, med MET, signal regions
         cuts = true;
@@ -311,7 +312,7 @@ namespace Gambit
           if(mllOSSF > 20. and mllOSSF <= 30.) { FILL_SIGNAL_REGION("2lEWmed4"); }
           if(mllOSSF > 30. and mllOSSF <  50.) { FILL_SIGNAL_REGION("2lEWmed5"); }
         }
-        //std::cout << "2l med done" << std::endl;
+        if(debug) std::cout << "2l med done" << std::endl;
 
         // 2lEW, high MET, signal regions
         cuts = true;
@@ -361,7 +362,7 @@ namespace Gambit
           if(mllOSSF > 20. and mllOSSF <= 30.) { FILL_SIGNAL_REGION("2lEWhigh4"); }
           if(mllOSSF > 30. and mllOSSF <  50.) { FILL_SIGNAL_REGION("2lEWhigh5"); }
         }
-        //std::cout << "2l high done" << std::endl;
+        if(debug) std::cout << "2l high done" << std::endl;
 
         // 2lEW, ultra high MET, signal regions
         cuts = true;
@@ -411,7 +412,7 @@ namespace Gambit
           if(mllOSSF > 20. and mllOSSF <= 30.) { FILL_SIGNAL_REGION("2lEWultra4"); }
           if(mllOSSF > 30. and mllOSSF <  50.) { FILL_SIGNAL_REGION("2lEWultra5"); }
         }
-        //std::cout << "2l ultra done" << std::endl;
+        if(debug) std::cout << "2l ultra done" << std::endl;
 
         // 2lST, low MET, signal regions
         cuts = true;
@@ -458,7 +459,7 @@ namespace Gambit
           if(signalLeptons.at(0)->pT() > 20.  and signalLeptons.at(0)->pT() <= 25.) { FILL_SIGNAL_REGION("2lSTlow5"); }
           if(signalLeptons.at(0)->pT() > 25.  and signalLeptons.at(0)->pT() <  30.) { FILL_SIGNAL_REGION("2lSTlow6"); }
         }
-        //std::cout << "2st low done" << std::endl;
+        if(debug) std::cout << "2st low done" << std::endl;
 
         // 2lST, med MET, signal regions
         cuts = true;
@@ -505,7 +506,7 @@ namespace Gambit
           if(signalLeptons.at(0)->pT() > 20.  and signalLeptons.at(0)->pT() <= 25.) { FILL_SIGNAL_REGION("2lSTmed5"); }
           if(signalLeptons.at(0)->pT() > 25.  and signalLeptons.at(0)->pT() <  30.) { FILL_SIGNAL_REGION("2lSTmed6"); }
         }
-        //std::cout << "2st med done" << std::endl;
+        if(debug) std::cout << "2st med done" << std::endl;
 
         // 2lST, high MET, signal regions
         cuts = true;
@@ -545,14 +546,14 @@ namespace Gambit
         LOG_CUTS_N(cuts, "2lSThigh", 6)
         if(cuts)
         {
-          if(signalLeptons.at(0)->pT() >  3.5 and signalLeptons.at(0)->pT() <=  8.) { FILL_SIGNAL_REGION("2lST13"); }
-          if(signalLeptons.at(0)->pT() >  8.  and signalLeptons.at(0)->pT() <= 12.) { FILL_SIGNAL_REGION("2lST14"); }
-          if(signalLeptons.at(0)->pT() > 12.  and signalLeptons.at(0)->pT() <= 16.) { FILL_SIGNAL_REGION("2lST15"); }
-          if(signalLeptons.at(0)->pT() > 16.  and signalLeptons.at(0)->pT() <= 20.) { FILL_SIGNAL_REGION("2lST16"); }
-          if(signalLeptons.at(0)->pT() > 20.  and signalLeptons.at(0)->pT() <= 25.) { FILL_SIGNAL_REGION("2lST17"); }
-          if(signalLeptons.at(0)->pT() > 25.  and signalLeptons.at(0)->pT() <  30.) { FILL_SIGNAL_REGION("2lST18"); }
+          if(signalLeptons.at(0)->pT() >  3.5 and signalLeptons.at(0)->pT() <=  8.) { FILL_SIGNAL_REGION("2lSThigh1"); }
+          if(signalLeptons.at(0)->pT() >  8.  and signalLeptons.at(0)->pT() <= 12.) { FILL_SIGNAL_REGION("2lSThigh2"); }
+          if(signalLeptons.at(0)->pT() > 12.  and signalLeptons.at(0)->pT() <= 16.) { FILL_SIGNAL_REGION("2lSThigh3"); }
+          if(signalLeptons.at(0)->pT() > 16.  and signalLeptons.at(0)->pT() <= 20.) { FILL_SIGNAL_REGION("2lSThigh4"); }
+          if(signalLeptons.at(0)->pT() > 20.  and signalLeptons.at(0)->pT() <= 25.) { FILL_SIGNAL_REGION("2lSThigh5"); }
+          if(signalLeptons.at(0)->pT() > 25.  and signalLeptons.at(0)->pT() <  30.) { FILL_SIGNAL_REGION("2lSThigh6"); }
         }
-        //std::cout << "2st high done" << std::endl;
+        if(debug) std::cout << "2st high done" << std::endl;
 
         // 2lST, ultra-high MET, signal regions
         cuts = true;
@@ -592,14 +593,14 @@ namespace Gambit
         LOG_CUTS_N(cuts, "2lSTultra", 6)
         if(cuts)
         {
-          if(signalLeptons.at(0)->pT() >  3.5 and signalLeptons.at(0)->pT() <=  8.) { FILL_SIGNAL_REGION("2lST19"); }
-          if(signalLeptons.at(0)->pT() >  8.  and signalLeptons.at(0)->pT() <= 12.) { FILL_SIGNAL_REGION("2lST20"); }
-          if(signalLeptons.at(0)->pT() > 12.  and signalLeptons.at(0)->pT() <= 16.) { FILL_SIGNAL_REGION("2lST21"); }
-          if(signalLeptons.at(0)->pT() > 16.  and signalLeptons.at(0)->pT() <= 20.) { FILL_SIGNAL_REGION("2lST22"); }
-          if(signalLeptons.at(0)->pT() > 20.  and signalLeptons.at(0)->pT() <= 25.) { FILL_SIGNAL_REGION("2lST23"); }
-          if(signalLeptons.at(0)->pT() > 25.  and signalLeptons.at(0)->pT() <  30.) { FILL_SIGNAL_REGION("2lST24"); }
+          if(signalLeptons.at(0)->pT() >  3.5 and signalLeptons.at(0)->pT() <=  8.) { FILL_SIGNAL_REGION("2lSTultra1"); }
+          if(signalLeptons.at(0)->pT() >  8.  and signalLeptons.at(0)->pT() <= 12.) { FILL_SIGNAL_REGION("2lSTultra2"); }
+          if(signalLeptons.at(0)->pT() > 12.  and signalLeptons.at(0)->pT() <= 16.) { FILL_SIGNAL_REGION("2lSTultra3"); }
+          if(signalLeptons.at(0)->pT() > 16.  and signalLeptons.at(0)->pT() <= 20.) { FILL_SIGNAL_REGION("2lSTultra4"); }
+          if(signalLeptons.at(0)->pT() > 20.  and signalLeptons.at(0)->pT() <= 25.) { FILL_SIGNAL_REGION("2lSTultra5"); }
+          if(signalLeptons.at(0)->pT() > 25.  and signalLeptons.at(0)->pT() <  30.) { FILL_SIGNAL_REGION("2lSTultra6"); }
         }
-        //std::cout << "2st ultra done" << std::endl;
+        if(debug) std::cout << "2st ultra done" << std::endl;
 
         // 3lEW, low MET, signal regions
         cuts = true;
@@ -640,7 +641,7 @@ namespace Gambit
           if(mllOSSF > 20. and mllOSSF <= 30.) { FILL_SIGNAL_REGION("3lEWlow3"); }
           if(mllOSSF > 30. and mllOSSF <  50.) { FILL_SIGNAL_REGION("3lEWlow4"); }
         }
-        //std::cout << "3l low done" << std::endl;
+        if(debug) std::cout << "3l low done" << std::endl;
 
         // 3lEW, med MET, signal regions
         cuts = true;
@@ -680,7 +681,7 @@ namespace Gambit
           if(mllOSSF > 20. and mllOSSF <= 30.) { FILL_SIGNAL_REGION("3lEWmed4"); }
           if(mllOSSF > 30. and mllOSSF <  50.) { FILL_SIGNAL_REGION("3lEWmed5"); }
         }
-        //std::cout << "3l med done" << std::endl;
+        if(debug) std::cout << "3l med done" << std::endl;
 
       }
 
