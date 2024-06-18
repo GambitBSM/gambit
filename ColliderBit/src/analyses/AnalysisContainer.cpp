@@ -137,6 +137,8 @@ namespace Gambit
       F(CMS_13TeV_2LEPsoft_stop_36invfb)             \
       F(CMS_13TeV_2LEPsoft_stop_36invfb_nocovar)     \
       F(CMS_13TeV_2LEPsoft_137invfb)                 \
+      F(CMS_13TeV_2LEPsoft_ewinos_137invfb)          \
+      F(CMS_13TeV_2LEPsoft_stop_137invfb)            \
       F(CMS_13TeV_2OSLEP_36invfb)                    \
       F(CMS_13TeV_2OSLEP_137invfb)                   \
       F(CMS_13TeV_2OSLEP_Strong_Production_137invfb) \

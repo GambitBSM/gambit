@@ -368,6 +368,16 @@
 #define LOG_CUT_10(A,B,C,D,E,F,G,H,I,J)   LOG_CUT_1(A) LOG_CUT_9(B,C,D,E,F,G,H,I,J)
 #define LOG_CUT(...)                      VARARG(LOG_CUT, __VA_ARGS__)
 
+// Log specific cuts for a sequential list of signal regions
+#define LOG_CUT_N(SR, N)                                                          \
+  for(size_t i=1; i<=N; ++i)                                                      \
+  {                                                                               \
+    str basename(SR);                                                             \
+    str name = basename + std::to_string(i);                                      \
+    _cutflows[name].fillnext(event->weight());                                    \
+  }
+
+
 // Log specific cuts for one or more signal region
 #define LOG_CUTS_2(CUTS,A)                     _cutflows[A].fillnext(CUTS,event->weight());
 #define LOG_CUTS_3(CUTS,A,B)                   LOG_CUTS_2(CUTS,A) LOG_CUTS_2(CUTS,B)
