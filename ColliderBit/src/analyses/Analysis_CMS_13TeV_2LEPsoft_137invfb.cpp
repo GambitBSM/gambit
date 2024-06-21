@@ -64,6 +64,7 @@ namespace Gambit
         BASELINE_BJETS(event->jets("antikt_R04"), baselineBJets, 25., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("DeepCSVMedium"), CMS::misIDBJet.at("DeepCSVMedium"))
 
         size_t nBaselineMuons = baselineMuons.size();
+        size_t nBaselineLeptons = baselineLeptons.size();
 
         ////////////////////
         // Signal objects //
@@ -126,9 +127,15 @@ namespace Gambit
         size_t nSFpairs = SFpairs.size();
 
         // Muon corrected ETmiss
-        double metcorr = met;
+        double metcorr = 0;
+        double metcorrx = mmom.px();
+        double metcorry = mmom.py();
         for(auto& muon : signalMuons)
-          metcorr += sqrt(muon->mom().px() * muon->mom().px() + muon->mom().py() * muon->mom().py());
+        {
+          metcorrx += muon->mom().px();
+          metcorry += muon->mom().py();
+        }
+        metcorr = sqrt(metcorrx*metcorrx + metcorry*metcorry);
 
         // Invariant mass of the lowest-mass OS dilepton pair
         double mllOS = 0.;
@@ -203,10 +210,18 @@ namespace Gambit
         //bool trigger_path_3 = metcorr > 60. and met > 50. and  nSignalMuons > 2 and signalMuons.at(0)->pT() > 17 and signalMuons.at(1)->pT() > 8;
         //if(not trigger_path_1 and not trigger_path_2/* and not trigger_path_3*/) return;
 
+        static int count = 0;
+        static int twosl, threesl = 0;
+        count++;
+        if(nSignalLeptons == 2) twosl++;
+        if(nSignalLeptons == 3) threesl++;
+        //if(!(count%1000)) std::cout << "events with 2 signal leptons = " << twosl << std::endl;
+        //if(!(count%1000)) std::cout << "events with 3 signal leptons = " << threesl << std::endl;
 
         ///////////////////
         // Preselection //
         BEGIN_PRESELECTION
+        if(nBaselineLeptons < 2 or (not trigger_path_1 and not trigger_path_2)) return;
         END_PRESELECTION
 
         //if(nSignalLeptons < 2 or nSignalLeptons > 3) return;
