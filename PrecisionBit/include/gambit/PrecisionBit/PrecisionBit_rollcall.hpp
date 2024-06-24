@@ -336,7 +336,7 @@ START_MODULE
     // Measurment of muon g-2 from Fermilab data up to 2023 release (latest)
     #define FUNCTION gm2_Exp_FNAL
     START_FUNCTION(triplet<double>)
-    #undef FUNCTION`
+    #undef FUNCTION
 
     // World average of muon g-2 experimental measurements in 2021
     #define FUNCTION gm2_Exp_WorldAverage2021
