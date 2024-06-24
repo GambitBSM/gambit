@@ -961,18 +961,33 @@ namespace Gambit
     }
 
     /// g-2 according to the FNAL experiment from hep-ex/2104.03281
-    void gm2_Exp_FNAL(triplet<double> &result)
+    void gm2_Exp_FNAL_2021(triplet<double> &result)
     {
       result.central = 2.0 * 116592040e-11;
       result.upper = 2.0 * 54e-11;
       result.lower = result.upper;
     }
+    // g-2 from 2023 combining all FNAL data. Taken from   hep-ex/2308.06230 
+     void gm2_Exp_FNAL(triplet<double> &result)
+    {
+      result.central = 2.0 * 116592055e-11;
+      result.upper = 2.0 * 24e-11;
+      result.lower = result.upper;
+    }
 
     /// g-2 according to the FNAL+BNL experiment from hep-ex/2104.03281
-    void gm2_Exp_WorldAverage(triplet<double> &result)
+    void gm2_Exp_WorldAverage2021(triplet<double> &result)
     {
       result.central = 2.0 * 116592061e-11;
       result.upper = 2.0 * 41e-11;
+      result.lower = result.upper;
+    }
+
+    /// new 2023 g-2 worldaverage from hep-ex/2308.06230
+    void gm2_Exp_WorldAverage(triplet<double> &result)
+    {
+      result.central = 2.0 * 116592059e-11;
+      result.upper = 2.0 * 22e-11;
       result.lower = result.upper;
     }
 
