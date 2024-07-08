@@ -1009,9 +1009,17 @@ START_MODULE
 
   #undef CAPABILITY
 
-  #define CAPABILITY all_BFs
+  #define CAPABILITY particle_widths_as_map
   START_CAPABILITY
-    #define FUNCTION get_decaytable_as_map
+    #define FUNCTION get_particle_widths_as_map
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(decay_rates, DecayTable)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY branching_fractions_as_map
+  START_CAPABILITY
+    #define FUNCTION get_branching_fractions_as_map
     START_FUNCTION(map_str_dbl)
     DEPENDENCY(decay_rates, DecayTable)
     #undef FUNCTION

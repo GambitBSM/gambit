@@ -134,7 +134,10 @@ ObsLikes:
 
     # Observables
     - purpose:    Observable
-      capability: all_BFs
+      capability: particle_widths_as_map
+
+    - purpose:    Observable
+      capability: branching_fractions_as_map
 
     - purpose:    Observable
       capability: TotalCrossSectionAsMap
@@ -179,8 +182,8 @@ Rules:
       m_safety: 0.0011
 
   # Choose which branching fractions to save
-  - capability: all_BFs
-    function: get_decaytable_as_map
+  - capability: branching_fractions_as_map
+    function: get_branching_fractions_as_map
     options:
       # printall: true
       BFs: [
