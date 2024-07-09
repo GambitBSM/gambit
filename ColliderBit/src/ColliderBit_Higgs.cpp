@@ -1201,14 +1201,14 @@ namespace Gambit
       result = xsec*BRA*BRH > 0. ? -0.5*pow(xsec*BRA*BRH,2) / pow(CL95limit/1.64,2) : 0.;
     }
 
-    /// Limit on MA from ATLAS same-sign top search (ATLAS_HDBS_2020_03)
+    /// Limit on MH from ATLAS same-sign top search (ATLAS_HDBS_2020_03)
     void ATLAS_MA_SSTop_LogLike(double &result)
     {
       using namespace Pipes::ATLAS_MA_SSTop_LogLike;
 
       // Get A0 mass from spectrum
       Spectrum spec = *Dep::THDM_spectrum;
-      double mA = spec.get(Par::Pole_Mass, "A0");
+      double mH = spec.get(Par::Pole_Mass, "h0_2");
 
       // Get rhos
       // The limit only cares about the real parts of the rhos, apparently
@@ -1228,14 +1228,14 @@ namespace Gambit
       }
       else
       {
-        // Get the lowe limit on mA from the data
-        static Utils::interp2d_gsl_collection SSTop_limit("ATLAS_HDBS_2020_03", GAMBIT_DIR "/ColliderBit/data/ATLAS_HDBS_2020_03.dat", {"rho_tt", "rho_tc", "mA"});
-        double mA_limit = SSTop_limit.is_inside_range(rhott, rhotc) ? SSTop_limit.eval(rhott, rhotc) : 0;
+        // Get the lowe limit on mH from the data
+        static Utils::interp2d_gsl_collection SSTop_limit("ATLAS_HDBS_2020_03", GAMBIT_DIR "/ColliderBit/data/ATLAS_HDBS_2020_03.dat", {"rho_tt", "rho_tc", "mH"});
+        double mH_limit = SSTop_limit.is_inside_range(rhott, rhotc) ? SSTop_limit.eval(rhott, rhotc) : 0;
 
         // Assume limits are presented at 95% CL, as that is quoted in other plots
         // For half gaussians, the 95% CL is at 1.64 sigmas
         // In principle the value of sigma does not matter, but since we do not have a normalised gaussian, let's pick sigma ~ 0.4 as it gives the integrated 95% CL
-        result = mA < mA_limit ? -0.5*pow(mA - mA_limit,2) / pow(0.4/1.64,2) : 0.;
+        result = mH < mH_limit ? -0.5*pow(mH - mH_limit,2) / pow(0.4/1.64,2) : 0.;
 
       }
 
