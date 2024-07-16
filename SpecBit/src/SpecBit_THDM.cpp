@@ -52,6 +52,7 @@
 // GAMBIT headers
 #include "gambit/Elements/spectrum_types.hpp"
 #include "gambit/Elements/gambit_module_headers.hpp"
+#include "gambit/Elements/smlike_higgs.hpp"
 #include "gambit/Elements/spectrum.hpp"
 #include "gambit/Elements/couplingtable.hpp"
 #include "gambit/Utils/stream_overloads.hpp"
@@ -60,11 +61,11 @@
 #include "gambit/Utils/slhaea_helpers.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
+#include "gambit/Utils/point_counter.hpp"
 #include "gambit/SpecBit/SpecBit_rollcall.hpp"
 #include "gambit/SpecBit/SpecBit_helpers.hpp"
 #include "gambit/SpecBit/QedQcdWrapper.hpp"
 #include "gambit/SpecBit/THDMSpec.hpp"
-#include "gambit/SpecBit/THDMSpec_helpers.hpp"
 #include "gambit/SpecBit/model_files_and_boxes.hpp"
 #include "gambit/Models/SimpleSpectra/THDMSimpleSpec.hpp"
 
@@ -75,9 +76,6 @@ namespace Gambit
 {
   namespace SpecBit
   {
-
-    CouplingTable ctmp;
-
     // ----- HELPERS -----
 
     // type aliases
@@ -119,7 +117,8 @@ namespace Gambit
 
       return symm_factor;
     }
-
+    
+    // efficiently sort 3 integers
     void sort(int& j, int& k, int& l)
     {
       if (j>k) std::swap(j,k);
@@ -127,6 +126,7 @@ namespace Gambit
       if (k>l) std::swap(l,k);
     }
 
+    // efficiently sort 4 integers
     void sort(int& j, int& k, int& l, int& m)
     {
       if (k<j) std::swap(k,j);
@@ -137,285 +137,7 @@ namespace Gambit
       if (k<j) std::swap(k,j);
     }
 
-    std::vector<std::vector<int>> concat(std::vector<std::vector<int>> a, int b)
-    {
-      auto tmp = a;
-      for (auto& i : tmp) i.push_back(b);
-      return tmp;
-    }
-
-    std::vector<int> remove(std::vector<int> a, int index)
-    {
-      if (index < 0 || index >= (int)a.size()) return a;
-      auto tmp = a;
-      tmp.erase(tmp.begin()+index);
-      return tmp;
-    }
-
-    // TODO: replace this with a more efficient function
-    std::vector<std::vector<int>> get_permutations(std::vector<int> i, bool unique)
-    {
-      if (i.size() == 0) exit(0);
-      if (i.size() == 1) return { { i[0] } };
-      std::sort(i.begin(), i.end());
-
-      std::vector<std::vector<int>> result;
-
-      int pix = -32767;
-      for (int x=0; x<(int)i.size(); ++x)
-      {
-        if (i[x] == pix && unique) continue;
-        auto subper = concat(get_permutations(remove(i,x),unique), i[x]);
-        for (auto& s : subper) result.push_back(s);
-        pix = i[x];
-      }
-
-      return result;
-    }
-
     // ----- tree-level spectrum generation -----
-
-    // check if all requiesed keys are avaliable
-    bool check_basis_filled(const std::vector<std::string>& basis_keys, const std::map<str, double>& basis)
-    {
-      for(const auto& key : basis_keys)
-      {
-        if (basis.find(key) == basis.cend()) return false;
-        if (std::isnan(basis.at(key))) return false;
-      }
-      return true;
-    }
-
-    // add generic basis to the map
-    void helper_fill_generic_THDM_basis(std::map<str, double>& input_basis, const SMInputs& sminputs)
-    {
-      static const std::vector<std::string> higgs_basis_keys{"Lambda1","Lambda2","Lambda3","Lambda4","Lambda5","Lambda6","Lambda7","M12_2","tanb"};
-      static const std::vector<std::string> physical_basis_keys{"m_h","m_H","m_A","m_Hp","tanb","m12_2","sba"};
-      // necessary definitions
-      double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
-      double tanb  = input_basis["tanb"];
-      double beta = atan(tanb);
-      double sb = sin(beta), cb = cos(beta), tb = tan(beta);
-      double sb2 = sb*sb, cb2 = cb*cb, ctb = 1./tb;
-      double s2b = sin(2.*beta), c2b = cos(2.*beta);
-      //initially try to fill from Higgs basis
-      if (check_basis_filled(higgs_basis_keys, input_basis))
-      {
-        // get values from higgs basis
-        double Lambda1 = input_basis["Lambda1"], Lambda2 = input_basis["Lambda2"], Lambda3 = input_basis["Lambda3"], Lambda4 = input_basis["Lambda4"], Lambda5 = input_basis["Lambda5"];
-        double Lambda6 = input_basis["Lambda6"], Lambda7 = input_basis["Lambda7"], M12_2 = input_basis["M12_2"];
-        // set values of coupling basis
-        double Lam345 = Lambda3 + Lambda4 + Lambda5;
-        double M11_2 = M12_2*tb - 0.5*v2 * (Lambda1*cb*cb + Lam345*sb*sb + 3.0*Lambda6*sb*cb + Lambda7*sb*sb*tb);
-        double M22_2 = M12_2*ctb - 0.5*v2 * (Lambda2*sb*sb + Lam345*cb*cb + Lambda6*cb*cb*ctb + 3.0*Lambda7*sb*cb);
-        input_basis["m12_2"] = (M11_2-M22_2)*s2b + M12_2*c2b;
-        // do the basis conversion here
-        input_basis["lambda1"] = Lambda1*pow(cb,4) + Lambda2*pow(sb,4) + 0.5*Lam345*pow(s2b,2) + 2.*s2b*(pow(cb,2)*Lambda6+pow(sb,2)*Lambda7);
-        input_basis["lambda2"] = Lambda1*pow(sb,4) + Lambda2*pow(cb,4) + 0.5*Lam345*pow(s2b,2) - 2.*s2b*(pow(sb,2)*Lambda6+pow(cb,2)*Lambda7);
-        input_basis["lambda3"] = 0.25*pow(s2b,2)*(Lambda1+Lambda2-2.*Lam345) + Lambda3 - s2b*c2b*(Lambda6-Lambda7);
-        input_basis["lambda4"] = 0.25*pow(s2b,2)*(Lambda1+Lambda2-2.*Lam345) + Lambda4 - s2b*c2b*(Lambda6-Lambda7);
-        input_basis["lambda5"] = 0.25*pow(s2b,2)*(Lambda1+Lambda2-2.*Lam345) + Lambda5 - s2b*c2b*(Lambda6-Lambda7);
-        input_basis["lambda6"] = -0.5*s2b*(Lambda1*pow(cb,2)-Lambda2*pow(sb,2)-Lam345*c2b) + cb*cos(3.*beta)*Lambda6 + sb*sin(3.*beta)*Lambda7;
-        input_basis["lambda7"] = -0.5*s2b*(Lambda1*pow(sb,2)-Lambda2*pow(cb,2)+Lam345*c2b) + sb*sin(3.*beta)*Lambda6 + cb*cos(3.*beta)*Lambda7;
-        // fill extra inputs
-        input_basis["m11_2"] = M11_2*pow(cb,2) + M22_2*pow(sb,2) - M12_2*s2b;
-        input_basis["m22_2"] = M11_2*pow(sb,2) + M22_2*pow(cb,2) + M12_2*s2b;
-      }
-      //otherwise try to fill from physical basis
-      else if(check_basis_filled(physical_basis_keys, input_basis))
-      {
-        // get values from physical basis
-        double m_h = input_basis["m_h"], m_H = input_basis["m_H"], m_A = input_basis["m_A"], m_Hp = input_basis["m_Hp"];
-        double lambda6 = input_basis["lambda6"], lambda7 = input_basis["lambda7"], m12_2 = input_basis["m12_2"];
-        // TODO : check that sba follows through here
-        // set values of coupling basis
-        double alpha = beta - asin(input_basis["sba"]);
-        double ca = cos(alpha), sa = sin(alpha);
-        double ca2 = ca*ca, sa2 = sa*sa;
-        input_basis["lambda1"] = (m_H*m_H*ca2+m_h*m_h*sa2-m12_2*tb)/v2/cb2-1.5*lambda6*tb+0.5*lambda7*tb*tb*tb;
-        input_basis["lambda2"] = (m_H*m_H*sa2+m_h*m_h*ca2-m12_2*ctb)/v2/sb2+0.5*lambda6*ctb*ctb*ctb-1.5*lambda7*ctb;
-        input_basis["lambda3"] = ((m_H*m_H-m_h*m_h)*ca*sa+2.*m_Hp*m_Hp*sb*cb-m12_2)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-        input_basis["lambda4"] = ((m_A*m_A-2.*m_Hp*m_Hp)*cb*sb+m12_2)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-        input_basis["lambda5"] = (m12_2-m_A*m_A*sb*cb)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-        // fill extra inputs
-        double lam345 = input_basis["lambda3"] + input_basis["lambda4"] + input_basis["lambda5"];
-        input_basis["m11_2"] = m12_2*tb - 0.5*v2 * (input_basis["lambda1"]*cb*cb + lam345*sb*sb + 3.0*input_basis["lambda6"]*sb*cb + input_basis["lambda7"]*sb*sb*tb);
-        input_basis["m22_2"] = m12_2*ctb - 0.5*v2 * (input_basis["lambda2"]*sb*sb + lam345*cb*cb + input_basis["lambda6"]*cb*cb*ctb + 3.0*input_basis["lambda7"]*sb*cb);
-      }
-      else
-      {
-        SpecBit_error().raise(LOCAL_INFO, "Cannot fill generic THDM basis");
-      }
-    }
-
-    // add Higgs basis to the map
-    void helper_fill_higgs_THDM_basis(std::map<str, double>& input_basis, const SMInputs& sminputs)
-    {
-      static const std::vector<std::string> physical_basis_keys{"m_h","m_H","m_A","m_Hp","tanb","m12_2","sba"};
-      static const std::vector<std::string> generic_basis_keys{"lambda1","lambda2","lambda3","lambda4","lambda5","m12_2","tanb"};
-      // necessary definitions
-      double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
-      double tanb  = input_basis["tanb"];
-      double beta = atan(tanb);
-      double sb = sin(beta), cb = cos(beta), tb = tan(beta);
-      double ctb = 1./tb;
-      double s2b = sin(2.*beta), c2b = cos(2.*beta);
-      //initially try to fill from generic basis
-      if (check_basis_filled(generic_basis_keys, input_basis))
-      {
-        // get values from coupling basis
-        double lam1 = input_basis["lambda1"], lam2 = input_basis["lambda2"], lam3 = input_basis["lambda3"], lam4 = input_basis["lambda4"], lam5 = input_basis["lambda5"];
-        double lam6 = input_basis["lambda6"], lam7 = input_basis["lambda7"], m12_2 = input_basis["m12_2"];
-        double lam345 = lam3 + lam4 + lam5;
-        // (also fill these in case they haven't been calculated)
-        double m11_2 = m12_2*tb - 0.5*v2 * (lam1*cb*cb + lam345*sb*sb + 3.0*lam6*sb*cb + lam7*sb*sb*tb); input_basis["m11_2"] = m11_2;
-        double m22_2 = m12_2*ctb - 0.5*v2 * (lam2*sb*sb + lam345*cb*cb + lam6*cb*cb*ctb + 3.0*lam7*sb*cb); input_basis["m22_2"] = m22_2;
-        input_basis["M12_2"] = (m11_2-m22_2)*s2b + m12_2*c2b;
-        input_basis["M11_2"] = m11_2*pow(cb,2) + m22_2*pow(sb,2) - m12_2*s2b;
-        input_basis["M22_2"] = m11_2*pow(sb,2) + m22_2*pow(cb,2) + m12_2*s2b;
-        // do the basis conversion here
-        input_basis["Lambda1"] = lam1*pow(cb,4) + lam2*pow(sb,4) + 0.5*lam345*pow(s2b,2) + 2.*s2b*(pow(cb,2)*lam6+pow(sb,2)*lam7);
-        input_basis["Lambda2"] = lam1*pow(sb,4) + lam2*pow(cb,4) + 0.5*lam345*pow(s2b,2) - 2.*s2b*(pow(sb,2)*lam6+pow(cb,2)*lam7);
-        input_basis["Lambda3"] = 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam3 - s2b*c2b*(lam6-lam7);
-        input_basis["Lambda4"] = 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam4 - s2b*c2b*(lam6-lam7);
-        input_basis["Lambda5"] = 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam5 - s2b*c2b*(lam6-lam7);
-        input_basis["Lambda6"] = -0.5*s2b*(lam1*pow(cb,2)-lam2*pow(sb,2)-lam345*c2b) + cb*cos(3.*beta)*lam6 + sb*sin(3.*beta)*lam7;
-        input_basis["Lambda7"] = -0.5*s2b*(lam1*pow(sb,2)-lam2*pow(cb,2)+lam345*c2b) + sb*sin(3.*beta)*lam6 + cb*cos(3.*beta)*lam7;
-      }
-      //otherwise try to fill from physical basis
-      else if(check_basis_filled(physical_basis_keys, input_basis))
-      {
-        helper_fill_generic_THDM_basis(input_basis, sminputs);
-        helper_fill_higgs_THDM_basis(input_basis, sminputs);
-      }
-      else
-      {
-        SpecBit_error().raise(LOCAL_INFO, "Cannot fill higgs THDM basis");
-      }
-    }
-
-    // add physical basis to the map
-    void helper_fill_physical_THDM_basis(std::map<str, double>& input_basis, const SMInputs& sminputs)
-    {
-      static const std::vector<std::string> higgs_basis_keys{"Lambda1","Lambda2","Lambda3","Lambda4","Lambda5","M12_2","tanb"};
-      static const std::vector<std::string> generic_basis_keys{"lambda1","lambda2","lambda3","lambda4","lambda5","m12_2","tanb"};
-      // necessary definitions
-      double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
-      double tanb  = input_basis["tanb"];
-      double beta = atan(tanb);
-      double sb = sin(beta), cb = cos(beta), tb = tan(beta);
-      double sb2 = sb*sb, cb2 = cb*cb, ctb = 1./tb;
-      //initially try to fill from generic basis
-      if(check_basis_filled(generic_basis_keys, input_basis))
-      {
-        // get values from coupling basis
-        double lam1 = input_basis["lambda1"], lam2 = input_basis["lambda2"], lam3 = input_basis["lambda3"], lam4 = input_basis["lambda4"], lam5 = input_basis["lambda5"];
-        double lam6 = input_basis["lambda6"], lam7 = input_basis["lambda7"], m12_2 = input_basis["m12_2"];
-        double lam345 = lam3 + lam4 + lam5;
-        // do the basis conversion
-        double m11_2 = m12_2*tb - 0.5*v2 * (lam1*cb*cb + lam345*sb*sb + 3.0*lam6*sb*cb + lam7*sb*sb*tb); input_basis["m11_2"] = m11_2;
-        double m22_2 = m12_2*ctb - 0.5*v2 * (lam2*sb*sb + lam345*cb*cb + lam6*cb*cb*ctb + 3.0*lam7*sb*cb); input_basis["m22_2"] = m22_2;
-        double m_A2;
-        if (tb>0) m_A2 = m12_2/sb/cb-0.5*v2*(2*lam5+lam6*ctb+lam7*tb);
-        else m_A2 = m22_2+0.5*v2*(lam3+lam4-lam5);
-        double m_Hp2 = m_A2+0.5*v2*(lam5-lam4);
-        double M112 = m_A2*sb2+v2*(lam1*cb2+2.*lam6*sb*cb+lam5*sb2);
-        double M122 = -m_A2*sb*cb+v2*((lam3+lam4)*sb*cb+lam6*cb2+lam7*sb2);
-        double M222 = m_A2*cb2+v2*(lam2*sb2+2.*lam7*sb*cb+lam5*cb2);
-        double m_h2 = 0.5*(M112+M222-sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
-        double m_H2 = 0.5*(M112+M222+sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
-        // set the masses
-        // invalidate point at this stage?
-        if (m_h2 < 0.0) input_basis["m_h"] = -sqrt(-m_h2);
-        else input_basis["m_h"] = sqrt(m_h2);
-        if (m_H2 < 0.0) input_basis["m_H"] = -sqrt(-m_H2);
-        else input_basis["m_H"] = sqrt(m_H2);
-        if (m_A2 < 0.0) input_basis["m_A"] = -sqrt(-m_A2);
-        else input_basis["m_A"] = sqrt(m_A2);
-        if (m_Hp2 < 0.0) input_basis["m_Hp"] = -sqrt(-m_Hp2);
-        else input_basis["m_Hp"] = sqrt(m_Hp2);
-      }
-      //otherwise try to fill from higgs basis
-      else if (check_basis_filled(higgs_basis_keys, input_basis))
-      {
-        helper_fill_generic_THDM_basis(input_basis, sminputs);
-        helper_fill_physical_THDM_basis(input_basis, sminputs);
-      }
-      else
-      {
-        SpecBit_error().raise(LOCAL_INFO, "Cannot fill physical THDM basis");
-      }
-    }
-
-    // get a map of the tree-level spectrum
-    void generate_THDM_spectrum_tree_level(std::map<str, double>& basis, const SMInputs& sminputs)
-    {
-
-      // initially fill in missing parameters with NAN
-      static const std::vector<std::string> basis_keys{"lambda1", "lambda2", "lambda3", "lambda4", "lambda5", "lambda6", "lambda7", "m12_2", "m11_2", "m22_2", \
-                                          "Lambda1", "Lambda2", "Lambda3", "Lambda4", "Lambda5", "Lambda6", "Lambda7", "M12_2", "M11_2", "M22_2", \
-                                          "m_h", "m_H", "m_A", "m_Hp", "tanb", "sba","alpha"};
-      for(const auto& key : basis_keys)
-      {
-        if (basis.find(key) == basis.end())
-        {
-          basis[key] = std::numeric_limits<double>::quiet_NaN();
-        }
-      }
-
-      // list of keys for each basis
-      static const std::vector<std::string> higgs_basis_keys{"Lambda1","Lambda2","Lambda3","Lambda4","Lambda5","M12_2","tanb"};
-      static const std::vector<std::string> generic_basis_keys{"lambda1","lambda2","lambda3","lambda4","lambda5","m12_2","tanb"};
-      static const std::vector<std::string> physical_basis_keys{"m_h","m_H","m_A","m_Hp","tanb","m12_2","sba"};
-
-      // are the minimum requirements for a filled coupling basis satsified?
-      bool coupling_filled = check_basis_filled(generic_basis_keys, basis);
-      // are the minimum requirements for a filled higgs basis satsified?
-      bool higgs_filled = check_basis_filled(higgs_basis_keys, basis);
-      // are the minimum requirements for a filled physical basis satsified?
-      bool physical_filled = check_basis_filled(physical_basis_keys, basis);
-
-      if (!coupling_filled && !higgs_filled && !physical_filled)
-      {
-        std::ostringstream errmsg;
-        errmsg << "A problem was encountered during spectrum generation." << std::endl;
-        errmsg << "Incomplete basis was sent to tree-level generator." << std::endl;
-        SpecBit_error().raise(LOCAL_INFO, errmsg.str());
-      }
-
-      if (!coupling_filled) helper_fill_generic_THDM_basis(basis, sminputs);
-      if (!higgs_filled) helper_fill_higgs_THDM_basis(basis, sminputs);
-      if (!physical_filled) helper_fill_physical_THDM_basis(basis, sminputs);
-
-      // calculate alpha
-      double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
-      double tanb  = basis["tanb"];
-      double beta = atan(tanb);
-      double Lambda1 = basis["Lambda1"], Lambda3 = basis["Lambda3"], Lambda4 = basis["Lambda4"], Lambda5 = basis["Lambda5"];
-      double Lambda6 = basis["Lambda6"], M22_2 = basis["M22_2"];
-      double mC_2 = M22_2 + 0.5*v2*Lambda3;
-      double mA_2 = mC_2 - 0.5*v2*(Lambda5 - Lambda4);
-      double s2ba = -2.*Lambda6*v2, c2ba = -(mA_2+(Lambda5-Lambda1)*v2);
-      double ba = 0.5*atan2(s2ba,c2ba);
-      double alpha = beta - ba;
-
-      // fix conventions to match FS and THDMC
-
-      if (beta-alpha >= pi) alpha += 2*pi;
-      if (beta-alpha <= -pi) alpha -= 2*pi;
-
-      // CONVENTION-A: ba in (0,pi), sba in (0,+1), cba in (-1,+1)
-      // if (beta-alpha >= pi) alpha += pi;
-      // if (beta-alpha < 0) alpha -= pi;
-
-      // CONVENTION-B: ba in (-pi/2,+pi/2), sba in (-1,+1), cba in (0,+1)
-      if (beta-alpha >= pi/2) alpha += pi;
-      if (beta-alpha < -pi/2) alpha -= pi;
-
-      basis["sba"] = sin(ba);
-      basis["beta"] = beta;
-      basis["alpha"] = alpha;
-    }
 
     // get a gambit::Spectrum for tree-level 2HDM
     void get_THDM_spectrum_tree(Spectrum &result)
@@ -438,66 +160,116 @@ namespace Gambit
       // extracted from the QedQcd object, so use the values that we put into it.)
       QedQcdWrapper qedqcdspec(oneset, sminputs);
 
-      // fill coupling basis
-      std::map<str, double> basis;
-      basis["lambda1"] = *Param.at("lambda1");
-      basis["lambda2"] = *Param.at("lambda2");
-      basis["lambda3"] = *Param.at("lambda3");
-      basis["lambda4"] = *Param.at("lambda4");
-      basis["lambda5"] = *Param.at("lambda5");
-      basis["lambda6"] = *Param.at("lambda6");
-      basis["lambda7"] = *Param.at("lambda7");
-      basis["tanb"]    = *Param.at("tanb");
-      basis["m12_2"]   = *Param.at("m12_2");
+      // fill generic basis
+      double lam1 = *Param.at("lambda1");
+      double lam2 = *Param.at("lambda2");
+      double lam3 = *Param.at("lambda3");
+      double lam4 = *Param.at("lambda4");
+      double lam5 = *Param.at("lambda5");
+      double lam6 = *Param.at("lambda6");
+      double lam7 = *Param.at("lambda7");
+      double tanb = *Param.at("tanb");
+      double m122 = *Param.at("m12_2");
+      double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
+      double beta = atan(tanb);
+      double sb = sin(beta), cb = cos(beta), tb = tanb;
+      double sb2 = sb*sb, cb2 = cb*cb, ctb = 1./tb, s2b = sin(2*beta), c2b = cos(2*beta);
+      double lam345 = lam3 + lam4 + lam5;
+      // https://arxiv.org/pdf/hep-ph/0207010 page 6
+      double m112 = m122*tb  - 0.5*v2 * (lam1*cb*cb + lam345*sb*sb + 3.0*lam6*sb*cb + lam7*sb*sb*tb);
+      double m222 = m122*ctb - 0.5*v2 * (lam2*sb*sb + lam345*cb*cb + lam6*cb*cb*ctb + 3.0*lam7*sb*cb);
 
-      // run tree-level spectrum generator
-      generate_THDM_spectrum_tree_level(basis, sminputs);
+      // fill Higgs basis
+      // https://arxiv.org/pdf/1507.04281 page 5-6
+      // double M122 = (m112-m222)*s2b + m122*c2b;
+      // double M112 = m112*cb2 + m222*sb2 - m122*s2b;
+      double M222 = m112*sb2 + m222*cb2 + m122*s2b;
+      double Lam1 = lam1*pow(cb,4) + lam2*pow(sb,4) + 0.5*lam345*pow(s2b,2) + 2.*s2b*(cb2*lam6+sb2*lam7);
+      // double Lam2 = lam1*pow(sb,4) + lam2*pow(cb,4) + 0.5*lam345*pow(s2b,2) - 2.*s2b*(sb2*lam6+cb2*lam7);
+      double Lam3 = 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam3 - s2b*c2b*(lam6-lam7);
+      double Lam4 = 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam4 - s2b*c2b*(lam6-lam7);
+      double Lam5 = 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam5 - s2b*c2b*(lam6-lam7);
+      double Lam6 = -0.5*s2b*(lam1*cb2-lam2*sb2-lam345*c2b) + cb*cos(3.*beta)*lam6 + sb*sin(3.*beta)*lam7;
+      // double Lam7 = -0.5*s2b*(lam1*sb2-lam2*cb2+lam345*c2b) + sb*sin(3.*beta)*lam6 + cb*cos(3.*beta)*lam7;
 
-      // check for negative mass
-      if (basis["m_h"] < 0.0 || basis["m_H"] < 0.0 || basis["m_A"] < 0.0 || basis["m_Hp"] < 0.0)
+      // fill physical basis
+      // https://arxiv.org/pdf/1507.04281 page 7
+      double mA2  = M222 + 0.5*v2*(Lam3+Lam4-Lam5);
+      double mHp2 = M222 + 0.5*v2*Lam3;
+
+      // https://arxiv.org/pdf/hep-ph/0207010 page 7
+      double sM112 = mA2*sb2+v2*(lam1*cb2+2.*lam6*sb*cb+lam5*sb2);
+      double sM122 = -mA2*sb*cb+v2*((lam3+lam4)*sb*cb+lam6*cb2+lam7*sb2);
+      double sM222 = mA2*cb2+v2*(lam2*sb2+2.*lam7*sb*cb+lam5*cb2);
+      double mh2 = 0.5*(sM112+sM222-sqrt(sqr(sM112-sM222)+sqr(2.*sM122)));
+      double mH2 = 0.5*(sM112+sM222+sqrt(sqr(sM112-sM222)+sqr(2.*sM122)));
+
+      if (mA2 < -0. || mHp2 < -0. || mh2 < -0. || mH2 < -0.)
       {
-        std::ostringstream msg;
-        msg << "Negative mass encountered. Point invalidated." << std::endl;
-        invalid_point().raise(msg.str());
+        invalid_point().raise("Negative mass-squared encountered. Point invalidated");
       }
+
+      double mA = sqrt(abs(mA2));
+      double mHp = sqrt(abs(mHp2));
+      double mh = sqrt(abs(mh2));
+      double mH = sqrt(abs(mH2));
+
+      // calculate alpha
+
+      // see https://arxiv.org/pdf/1507.04281 page 8
+      double cba = -sgn(Lam6)*sqrt(abs((Lam1*v2-mh2)/(mH2-mh2)));
+      double ba = acos(cba);
+      double alpha = beta - ba;
+
+      // conventions for alpha
+
+      if (beta-alpha >= pi) alpha += 2*pi;
+      if (beta-alpha <= -pi) alpha -= 2*pi;
+
+      // CONVENTION-A: ba in (0,pi), sba in (0,+1), cba in (-1,+1)B
+      // if (beta-alpha >= pi) alpha += pi;
+      // if (beta-alpha < 0) alpha -= pi;
+
+      // CONVENTION-B: ba in (-pi/2,+pi/2), sba in (-1,+1), cba in (0,+1)
+      if (beta-alpha >= pi/2) alpha += pi;
+      if (beta-alpha < -pi/2) alpha -= pi;
 
       // Initialise an object to carry the THDM sector information
       Models::THDMModel thdm_model;
       thdm_model.model_type = *Dep::THDM_Type;
-      thdm_model.tanb       = basis["tanb"];
-      thdm_model.alpha      = basis["alpha"];
-      thdm_model.lambda1    = basis["lambda1"];
-      thdm_model.lambda2    = basis["lambda2"];
-      thdm_model.lambda3    = basis["lambda3"];
-      thdm_model.lambda4    = basis["lambda4"];
-      thdm_model.lambda5    = basis["lambda5"];
-      thdm_model.lambda6    = basis["lambda6"];
-      thdm_model.lambda7    = basis["lambda7"];
-      thdm_model.m11_2      = basis["m11_2"];
-      thdm_model.m22_2      = basis["m22_2"];
-      thdm_model.m12_2      = basis["m12_2"];
-      thdm_model.mh0        = basis["m_h"];
-      thdm_model.mH0        = basis["m_H"];
-      thdm_model.mA0        = basis["m_A"];
-      thdm_model.mC         = basis["m_Hp"];
+      thdm_model.tanb       = tanb;
+      thdm_model.alpha      = alpha;
+      thdm_model.lambda1    = lam1;
+      thdm_model.lambda2    = lam2;
+      thdm_model.lambda3    = lam3;
+      thdm_model.lambda4    = lam4;
+      thdm_model.lambda5    = lam5;
+      thdm_model.lambda6    = lam6;
+      thdm_model.lambda7    = lam7;
+      thdm_model.m11_2      = m112;
+      thdm_model.m22_2      = m222;
+      thdm_model.m12_2      = m122;
+      thdm_model.mh0        = mh;
+      thdm_model.mH0        = mH;
+      thdm_model.mA0        = mA;
+      thdm_model.mC         = mHp;
       thdm_model.mG0        = 0.0;
       thdm_model.mGC        = 0.0;
 
       // quantities needed to fill spectrum, intermediate calculations
-      const double v2       = 1.0 / (sqrt(2.0) * sminputs.GF);
       const double vev      = sqrt(v2);
       const double alpha_em = 1.0 / sminputs.alphainv;
       const double e        = sqrt(4*pi*alpha_em);
       const double cosW     = sminputs.mW/sminputs.mZ;
       const double sinW     = sqrt(1 - sqr(cosW)); // Warning: always positive
-      const double tanb     = thdm_model.tanb;
 
       // Standard model
       thdm_model.sinW2 = sqr(sinW);
       thdm_model.vev = vev;
       // TODO: figure out why g1,g2 are different elsewhere
-      thdm_model.g1 = e / sinW;
-      thdm_model.g2 = e / cosW;
+      // NOTE: g1,g2 have now been swapped
+      thdm_model.g2 = e / sinW;
+      thdm_model.g1 = e / cosW;
       thdm_model.g3 = pow(4 * pi * (sminputs.alphaS), 0.5);
       thdm_model.mW = sminputs.mW;
 
@@ -525,7 +297,6 @@ namespace Gambit
       }
 
       const double sqrt2v = sqrt(2.0)/vev;
-      const double cb = sqrt(1.0/(1+tanb*tanb)); // Warning: always positive
 
       thdm_model.Yu1[0][0] += sqrt2v * sminputs.mU / cb;
       thdm_model.Yu1[1][1] += sqrt2v * sminputs.mCmC / cb;
@@ -541,13 +312,46 @@ namespace Gambit
       THDMSimpleSpec thdm_spec(thdm_model,sminputs);
 
       thdm_spec.set_override(Par::dimensionless, 0, "isIDM", true);
-      thdm_spec.set_override(Par::dimensionless, cos(basis["beta"]-basis["alpha"]), "cosba", true);
+      thdm_spec.set_override(Par::dimensionless, cos(beta-alpha), "cosba", true);
 
       // add Goldstones to tree-level spectrum
       thdm_spec.set_override(Par::mass1, 0, "G0", true);
       thdm_spec.set_override(Par::mass1, 0, "G+", true);
       thdm_spec.set_override(Par::Pole_Mass, 0, "G0", true);
       thdm_spec.set_override(Par::Pole_Mass, 0, "G+", true);
+
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+
+      for (int j=1; j<=3; ++j)
+      {
+        for (int i=1; i<=3; ++i)
+        {
+          if (THDM_type == THDM_TYPE::TYPE_I)
+          {
+            thdm_spec.set_override(Par::dimensionless, thdm_spec.get(Par::dimensionless, "Yd2", i, j), "Yd", i, j, true);
+            thdm_spec.set_override(Par::dimensionless, thdm_spec.get(Par::dimensionless, "Yu2", i, j), "Yu", i, j, true);
+            thdm_spec.set_override(Par::dimensionless, thdm_spec.get(Par::dimensionless, "Ye2", i, j), "Ye", i, j, true);
+          }
+          if (THDM_type == THDM_TYPE::TYPE_II)
+          {
+            thdm_spec.set_override(Par::dimensionless, thdm_spec.get(Par::dimensionless, "Yd1", i, j), "Yd", i, j, true);
+            thdm_spec.set_override(Par::dimensionless, thdm_spec.get(Par::dimensionless, "Yu2", i, j), "Yu", i, j, true);
+            thdm_spec.set_override(Par::dimensionless, thdm_spec.get(Par::dimensionless, "Ye1", i, j), "Ye", i, j, true);
+          }
+          if (THDM_type == THDM_TYPE::TYPE_LS)
+          {
+            thdm_spec.set_override(Par::dimensionless, thdm_spec.get(Par::dimensionless, "Yd2", i, j), "Yd", i, j, true);
+            thdm_spec.set_override(Par::dimensionless, thdm_spec.get(Par::dimensionless, "Yu2", i, j), "Yu", i, j, true);
+            thdm_spec.set_override(Par::dimensionless, thdm_spec.get(Par::dimensionless, "Ye1", i, j), "Ye", i, j, true);
+          }
+          if (THDM_type == THDM_TYPE::TYPE_flipped)
+          {
+            thdm_spec.set_override(Par::dimensionless, thdm_spec.get(Par::dimensionless, "Yd1", i, j), "Yd", i, j, true);
+            thdm_spec.set_override(Par::dimensionless, thdm_spec.get(Par::dimensionless, "Yu2", i, j), "Yu", i, j, true);
+            thdm_spec.set_override(Par::dimensionless, thdm_spec.get(Par::dimensionless, "Ye2", i, j), "Ye", i, j, true);
+          }
+        }
+      }
 
       // Create full Spectrum object from components above
       // Note: SubSpectrum objects cannot be copied, but Spectrum
@@ -628,19 +432,43 @@ namespace Gambit
       settings.set(Spectrum_generator_settings::precision, runOptions.getValueOrDef<double>(1.0e-4, "precision_goal"));
       settings.set(Spectrum_generator_settings::max_iterations, runOptions.getValueOrDef<double>(0, "max_iterations"));
       settings.set(Spectrum_generator_settings::calculate_sm_masses, runOptions.getValueOrDef<bool>(true, "calculate_sm_masses"));
+
       settings.set(Spectrum_generator_settings::pole_mass_loop_order, runOptions.getValueOrDef<int>(2, "pole_mass_loop_order"));
       settings.set(Spectrum_generator_settings::pole_mass_loop_order, runOptions.getValueOrDef<int>(2, "ewsb_loop_order"));
       settings.set(Spectrum_generator_settings::beta_loop_order, runOptions.getValueOrDef<int>(2, "beta_loop_order"));
       settings.set(Spectrum_generator_settings::threshold_corrections_loop_order, runOptions.getValueOrDef<int>(2, "threshold_corrections_loop_order"));
+      
       settings.set(Spectrum_generator_settings::higgs_2loop_correction_at_as, runOptions.getValueOrDef<int>(1, "higgs_2loop_correction_at_as"));
       settings.set(Spectrum_generator_settings::higgs_2loop_correction_ab_as, runOptions.getValueOrDef<int>(1, "higgs_2loop_correction_ab_as"));
       settings.set(Spectrum_generator_settings::higgs_2loop_correction_at_at, runOptions.getValueOrDef<int>(1, "higgs_2loop_correction_at_at"));
       settings.set(Spectrum_generator_settings::higgs_2loop_correction_atau_atau, runOptions.getValueOrDef<int>(1, "higgs_2loop_correction_atau_atau"));
+      
       settings.set(Spectrum_generator_settings::top_pole_qcd_corrections, runOptions.getValueOrDef<int>(1, "top_pole_qcd_corrections"));
       settings.set(Spectrum_generator_settings::beta_zero_threshold, runOptions.getValueOrDef<double>(1.000000000e-14, "beta_zero_threshold"));
       settings.set(Spectrum_generator_settings::eft_matching_loop_order_up, runOptions.getValueOrDef<int>(1, "eft_matching_loop_order_up"));
       settings.set(Spectrum_generator_settings::eft_matching_loop_order_down, runOptions.getValueOrDef<int>(1, "eft_matching_loop_order_down"));
       settings.set(Spectrum_generator_settings::threshold_corrections, runOptions.getValueOrDef<int>(123111321, "threshold_corrections"));
+      
+      // Spectrum_generator_settings settings;
+      // settings.set(Spectrum_generator_settings::precision, runOptions.getValueOrDef<double>(1.0e-4, "precision_goal"));
+      // settings.set(Spectrum_generator_settings::max_iterations, runOptions.getValueOrDef<double>(0, "max_iterations"));
+      // settings.set(Spectrum_generator_settings::calculate_sm_masses, runOptions.getValueOrDef<bool>(true, "calculate_sm_masses"));
+
+      // settings.set(Spectrum_generator_settings::pole_mass_loop_order, runOptions.getValueOrDef<int>(0, "pole_mass_loop_order"));
+      // settings.set(Spectrum_generator_settings::ewsb_loop_order, runOptions.getValueOrDef<int>(0, "ewsb_loop_order"));
+      // settings.set(Spectrum_generator_settings::beta_loop_order, runOptions.getValueOrDef<int>(1, "beta_loop_order"));
+      // settings.set(Spectrum_generator_settings::threshold_corrections_loop_order, runOptions.getValueOrDef<int>(0, "threshold_corrections_loop_order"));
+
+      // settings.set(Spectrum_generator_settings::higgs_2loop_correction_at_as, runOptions.getValueOrDef<int>(0, "higgs_2loop_correction_at_as"));
+      // settings.set(Spectrum_generator_settings::higgs_2loop_correction_ab_as, runOptions.getValueOrDef<int>(0, "higgs_2loop_correction_ab_as"));
+      // settings.set(Spectrum_generator_settings::higgs_2loop_correction_at_at, runOptions.getValueOrDef<int>(0, "higgs_2loop_correction_at_at"));
+      // settings.set(Spectrum_generator_settings::higgs_2loop_correction_atau_atau, runOptions.getValueOrDef<int>(0, "higgs_2loop_correction_atau_atau"));
+
+      // settings.set(Spectrum_generator_settings::top_pole_qcd_corrections, runOptions.getValueOrDef<int>(0, "top_pole_qcd_corrections"));
+      // settings.set(Spectrum_generator_settings::beta_zero_threshold, runOptions.getValueOrDef<double>(1.0e-14, "beta_zero_threshold"));
+      // settings.set(Spectrum_generator_settings::eft_matching_loop_order_up, runOptions.getValueOrDef<int>(0, "eft_matching_loop_order_up"));
+      // settings.set(Spectrum_generator_settings::eft_matching_loop_order_down, runOptions.getValueOrDef<int>(0, "eft_matching_loop_order_down"));
+      // settings.set(Spectrum_generator_settings::threshold_corrections, runOptions.getValueOrDef<int>(123111321, "threshold_corrections"));
 
       spectrum_generator.set_settings(settings);
 
@@ -930,6 +758,135 @@ namespace Gambit
       }
     }
 
+    // ----- spectrum generation using SPheno -----
+
+    // get spectrum from spheno and do basic theory constraints
+    void get_THDMII_spectrum_SPheno(Spectrum& spectrum)
+    {
+      namespace myPipe = Pipes::get_THDMII_spectrum_SPheno;
+
+
+      auto myPipe_Param = myPipe::Param;
+
+      const double lam1 = *myPipe_Param.at("lambda1");
+      const double lam2 = *myPipe_Param.at("lambda2");
+      const double lam3 = *myPipe_Param.at("lambda3");
+      const double lam4 = *myPipe_Param.at("lambda4");
+      const double lam5 = *myPipe_Param.at("lambda5");
+      const double lam6 = 0, lam7 = 0, lam345 = lam3 + lam4 + lam5;
+
+      // Set up the input structure
+      const SMInputs &sminputs = *myPipe::Dep::SMINPUTS;
+      Finputs inputs;
+      inputs.sminputs = sminputs;
+      inputs.param = myPipe_Param;
+      inputs.options = myPipe::runOptions;
+      
+      // Retrieve any mass cuts
+      static const Spectrum::mc_info mass_cuts = myPipe::runOptions->getValueOrDef<Spectrum::mc_info>(Spectrum::mc_info(), "mass_cut");
+      
+      // Get the spectrum from the Backend
+      myPipe::BEreq::SARAHSPheno_gumTHDMII_spectrum(spectrum, inputs);
+      
+      // Drop SLHA files if requested
+      spectrum.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
+
+      // add missing parameters for compatibility with Filip THDM
+      auto& he = spectrum.get_HE();
+
+      he.set_override(Par::dimensionless, TYPE_II, "model_type", true);
+      he.set_override(Par::mass1, 0, "G0", true);
+      he.set_override(Par::mass1, 0, "G+", true);
+      he.set_override(Par::dimensionless, 0, "isIDM", true);
+
+      for (int i=1; i<=3; ++i)
+      {
+        for (int j=1; j<=3; ++j)
+        {
+          he.set_override(Par::dimensionless, 0.0, "ImYd1", i, j, true);
+          he.set_override(Par::dimensionless, 0.0, "ImYu1", i, j, true);
+          he.set_override(Par::dimensionless, 0.0, "ImYe1", i, j, true);
+          he.set_override(Par::dimensionless, 0.0, "ImYd2", i, j, true);
+          he.set_override(Par::dimensionless, 0.0, "ImYu2", i, j, true);
+          he.set_override(Par::dimensionless, 0.0, "ImYe2", i, j, true);
+          he.set_override(Par::dimensionless, 0.0, "Yd1", i, j, true);
+          he.set_override(Par::dimensionless, 0.0, "Yu1", i, j, true);
+          he.set_override(Par::dimensionless, 0.0, "Ye1", i, j, true);
+          he.set_override(Par::dimensionless, 0.0, "Yd2", i, j, true);
+          he.set_override(Par::dimensionless, 0.0, "Yu2", i, j, true);
+          he.set_override(Par::dimensionless, 0.0, "Ye2", i, j, true);
+        }
+      }
+
+      for (int i=1; i<=3; ++i)
+      {
+        he.set_override(Par::dimensionless, he.get(Par::dimensionless, "Yd", i, i), "Yd1", i, i, true);
+        he.set_override(Par::dimensionless, he.get(Par::dimensionless, "Yu", i, i), "Yu2", i, i, true);
+        he.set_override(Par::dimensionless, he.get(Par::dimensionless, "Ye", i, i), "Ye1", i, i, true);
+      }
+
+      double vev = sqrt(sqr(he.get(Par::dimensionless,"v1")) + sqr(he.get(Par::dimensionless,"v2")));
+
+      he.set_override(Par::dimensionless, spectrum.get(Par::Pole_Mixing, "sinW2"), "sinW2", true);
+      he.set_override(Par::mass1, vev, "v", true);
+      he.set_override(Par::mass1, he.get(Par::mass1, "v"), "vev", true);
+      he.set_override(Par::dimensionless, atan(he.get(Par::dimensionless, "tanb")), "beta", true);
+
+      {
+        const double m11_2 = he.get(Par::mass1, "m11_2");
+        const double m22_2 = he.get(Par::mass1, "m22_2");
+        const double m12_2 = he.get(Par::mass1, "m12_2");
+        const double beta = he.get(Par::dimensionless, "beta");
+        const double vsq = sqr(he.get(Par::mass1, "v"));
+        const double sb = sin(beta), cb = cos(beta), s2b = sin(2.*beta), c2b = cos(2.*beta);
+        
+        const double M12_2 = (m11_2-m22_2)*s2b + m12_2*c2b;
+        const double M11_2 = m11_2*pow(cb,2) + m22_2*pow(sb,2) - m12_2*s2b;
+        const double M22_2 = m11_2*pow(sb,2) + m22_2*pow(cb,2) + m12_2*s2b;
+        const double Lambda1 = lam1*pow(cb,4) + lam2*pow(sb,4) + 0.5*lam345*pow(s2b,2) + 2.*s2b*(pow(cb,2)*lam6+pow(sb,2)*lam7);
+        const double Lambda2 = lam1*pow(sb,4) + lam2*pow(cb,4) + 0.5*lam345*pow(s2b,2) - 2.*s2b*(pow(sb,2)*lam6+pow(cb,2)*lam7);
+        const double Lambda3 = 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam3 - s2b*c2b*(lam6-lam7);
+        const double Lambda4 = 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam4 - s2b*c2b*(lam6-lam7);
+        const double Lambda5 = 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam5 - s2b*c2b*(lam6-lam7);
+        const double Lambda6 = -0.5*s2b*(lam1*pow(cb,2)-lam2*pow(sb,2)-lam345*c2b) + cb*cos(3.*beta)*lam6 + sb*sin(3.*beta)*lam7;
+        const double Lambda7 = -0.5*s2b*(lam1*pow(sb,2)-lam2*pow(cb,2)+lam345*c2b) + sb*sin(3.*beta)*lam6 + cb*cos(3.*beta)*lam7;
+
+        double ba = 0.5*atan2(-2.*Lambda6*vsq,-(sqr(he.get(Par::Pole_Mass,"A0"))+(Lambda5-Lambda1)*vsq));
+        double alpha = beta - ba;
+
+        // fix conventions to match FS and THDMC
+
+        // CONVENTION-A: ba in (0,pi), sba in (0,+1), cba in (-1,+1)
+        // if (beta-alpha >= M_PI) alpha += M_PI;
+        // if (beta-alpha < 0) alpha -= M_PI;
+
+        // CONVENTION-B: ba in (-pi/2,+pi/2), sba in (-1,+1), cba in (0,+1)
+        if (beta-alpha >= M_PI/2) alpha += M_PI;
+        if (beta-alpha < -M_PI/2) alpha -= M_PI;
+
+        he.set_override(Par::mass1, M11_2, "M11_2", true);
+        he.set_override(Par::mass1, M22_2, "M22_2", true);
+        he.set_override(Par::mass1, M12_2, "M12_2", true);
+        he.set_override(Par::dimensionless, Lambda1, "Lambda1", true);
+        he.set_override(Par::dimensionless, Lambda2, "Lambda2", true);
+        he.set_override(Par::dimensionless, Lambda3, "Lambda3", true);
+        he.set_override(Par::dimensionless, Lambda4, "Lambda4", true);
+        he.set_override(Par::dimensionless, Lambda5, "Lambda5", true);
+        he.set_override(Par::dimensionless, Lambda6, "Lambda6", true);
+        he.set_override(Par::dimensionless, Lambda7, "Lambda7", true);
+        he.set_override(Par::dimensionless, alpha, "alpha", true);
+        he.set_override(Par::dimensionless, cos(beta-alpha), "cosba", true);
+
+      }
+    }
+
+    // // Convert to standard Spectrum_THDM capability
+    // void convert_THDM_spectrum_SPheno(Spectrum& spectrum)
+    // {
+    //   namespace myPipe = Pipes::convert_THDM_spectrum_SPheno;
+    //   spectrum = *myPipe::Dep::THDM_spectrum_SPheno;
+    // }
+
     // ----- spectrum info -----
 
     // Get Spectrum as std::map so that it can be printed
@@ -959,6 +916,10 @@ namespace Gambit
 
         // useless stuff
         if (name == "vev" || name == "model_type" || name == "lambda6" || name == "lambda7") continue;
+
+        // // TODO: some stuff not in SPheno??
+        // if (name == "W-") continue;
+        // if (name == "W+") continue;
 
         // only enable in final combined fit
         // if (name == "sinW2" || name == "m22_2" || name == "m12_2" || name == "m11_2" || name == "g1" || name == "g2" || name == "g3" || name == "W+") continue;
@@ -1047,6 +1008,7 @@ namespace Gambit
 
       specmap["sba dimensionless"] = sin(beta - alpha);
       specmap["cba dimensionless"] = cos(beta - alpha);
+      specmap["m12_2tree mass1"] = *Param.at("m12_2");
 
       if (print_Higgs_basis_params)
       {
@@ -1369,7 +1331,7 @@ namespace Gambit
       // changed mass1 -> Pole_Mass
       const double vev = spec.get(Par::mass1, "vev");
       const double mW = fullspectrum.get(Par::Pole_Mass, "W+");
-      const double g = 2.*mW/vev;
+      const double g = 2.*mW/vev; // TODO: check this
       const double costw = sqrt(1. - spec.get(Par::dimensionless, "sinW2"));
 
       // Set up neutral Higgses
@@ -1405,7 +1367,7 @@ namespace Gambit
       {
         result.C_gg2[i] = result.compute_effective_coupling(i, std::pair<int, int>(21, 0), std::pair<int, int>(21, 0));
         result.C_gaga2[i] = result.compute_effective_coupling(i, std::pair<int, int>(22, 0), std::pair<int, int>(22, 0));
-        result.C_Zga2[i] = result.compute_effective_coupling(i, std::pair<int, int>(23, 0), std::pair<int, int>(22, 0));
+        result.C_Zga2[i] = result.compute_effective_coupling(i, std::pair<int, int>(23, 0), std::pair<int, int>(22, 0)); // WARNING: will break if scalar mass falls below Z mass
       }
 
       // Initiate 2HDM container
@@ -1418,7 +1380,9 @@ namespace Gambit
 
       // SM-like couplings
       vector<THDM_couplings> couplings_SM_like;
-      THDM_couplings SM_couplings;
+      THDM_couplings SM_couplings; // WARNING: sould be using coupling table
+
+      // so we are getting the sm-like couplings for each scalar; h,H,A
 
       // loop over each neutral higgs
       for (int h = 1; h <= NUMBER_OF_NEUTRAL_HIGGS; h++)
@@ -1491,6 +1455,12 @@ namespace Gambit
         if (spec.get(Par::Pole_Mass,DarkMatter_ID)*2 < spec.get(Par::Pole_Mass, "h0_2"))
           result.invisibles = std::vector<sspair>({{DarkMatter_ID, DarkMatterConj_ID}});
       }
+
+      // HiggsCouplingsTable tmp;
+      // THDM_higgs_couplings_pwid(tmp);
+
+      // std::cerr << "---- THDMC ----" << std::endl;
+      // result.print();
 
     }
 
@@ -1741,10 +1711,9 @@ namespace Gambit
       result.init(spectrum, calculator);
       result.update();
 
-      if(not compareCouplingTable(ctmp,result))
-        SpecBit_error().raise(LOCAL_INFO, "Couplings tables do not match");
-      if(not compareCouplingTable(result,ctmp))
-        SpecBit_error().raise(LOCAL_INFO, "Couplings tables do not match");
+      // compareCouplingTable(ctmp,result);
+      // std::cerr << "---------" << std::endl;
+      // compareCouplingTable(result,ctmp);
     }
 
     // get the 2HDM BSM coupling table (using the THDMC)
@@ -1803,8 +1772,9 @@ namespace Gambit
       result.init(*Dep::THDM_spectrum, calculator);
       result.update();
 
-      compareCouplingTable(ctmp,result);
-      compareCouplingTable(result,ctmp);
+      // compareCouplingTable(ctmp,result);
+      // std::cerr << "---------" << std::endl;
+      // compareCouplingTable(result,ctmp);
     }
 
     // get the 2HDM BSM coupling table (using the Higgs basis)
@@ -1816,7 +1786,8 @@ namespace Gambit
       // https://arxiv.org/pdf/1011.6188.pdf
 
       using namespace Pipes::get_coupling_table_using_Higgs_basis;
-      bool is_FS_model = ModelInUse("THDMatQ") ? true : false;
+      // bool is_FS_model = ModelInUse("THDMatQ") ? true : false;
+      bool is_FS_model = false;
 
       // define the calculator function
       CouplingTable::CalcFunc calculator = [&](const Spectrum& spec, CouplingTable& coup)
@@ -1877,10 +1848,10 @@ namespace Gambit
           double M222 = m112*pow(sb,2) + m222*pow(cb,2) + m122*s2b; // same as Y2 above
 
           // compare them
-          std::cerr << "generic basis" << std::endl;
-          std::cerr << "m112 (expected) " << m112 << " | (FS) " << he.get(Par::mass1, "m11_2") << std::endl;
-          std::cerr << "m122 (expected) " << m122 << " | (FS) " << he.get(Par::mass1, "m12_2") << std::endl;
-          std::cerr << "m222 (expected) " << m222 << " | (FS) " << he.get(Par::mass1, "m22_2") << std::endl;
+          // std::cerr << "generic basis" << std::endl;
+          // std::cerr << "m112 (expected) " << m112 << " | (FS) " << he.get(Par::mass1, "m11_2") << std::endl;
+          // std::cerr << "m122 (expected) " << m122 << " | (FS) " << he.get(Par::mass1, "m12_2") << std::endl;
+          // std::cerr << "m222 (expected) " << m222 << " | (FS) " << he.get(Par::mass1, "m22_2") << std::endl;
           // std::cerr << "Higgs basis" << std::endl;
           // std::cerr << "M112 (expected) " << M112 << " | (FS) " << he.get(Par::mass1, "M11_2") << std::endl;
           // std::cerr << "M122 (expected) " << M122 << " | (FS) " << he.get(Par::mass1, "M12_2") << std::endl;
@@ -1924,9 +1895,9 @@ namespace Gambit
           eigenVectors.col(1).swap(eigenVectors.col(2));
         }
 
-        std::cerr << "mh2 " << mh2 << " | " << eigenValues(0) << std::endl;
-        std::cerr << "mH2 " << mH2 << " | " << eigenValues(1) << std::endl;
-        std::cerr << "mA2 " << mA2 << " | " << eigenValues(2) << std::endl;
+        // std::cerr << "mh2 " << mh2 << " | " << eigenValues(0) << std::endl;
+        // std::cerr << "mH2 " << mH2 << " | " << eigenValues(1) << std::endl;
+        // std::cerr << "mA2 " << mA2 << " | " << eigenValues(2) << std::endl;
 
         // finally, get the mixing angles
         auto ea = eigenVectors.eulerAngles(2,1,0);
@@ -1939,8 +1910,8 @@ namespace Gambit
         double u12_expect = pi/2.-(beta-alpha);
         // double u13_expect = 0.;
         // double u23_expect = 0.;
-        if (abs(u12-u12_expect) < 1e-5) std::cerr << "match" << std::endl;
-        else std::cerr << "diff" << std::endl;
+        // if (abs(u12-u12_expect) < 1e-5) std::cerr << "match" << std::endl;
+        // else std::cerr << "diff" << std::endl;
 
         // // hax
         // u12 = pi/2.-(beta-alpha);
@@ -2137,7 +2108,7 @@ namespace Gambit
       result.init(spectrum, calculator);
       result.update();
 
-      ctmp = result;
+      // ctmp = result;
     }
 
     // ----- SCALAR-GAUGE COUPLING TABLE -----
@@ -2147,6 +2118,92 @@ namespace Gambit
 
 
     // ----- SM COUPLING TABLE -----
+
+
+    // Helper function to work out if the LSP is invisible, and if so, which particle it is.
+    std::vector<std::pair<str,str>> get_invisibles_gumTHDMII(const SubSpectrum& spec)
+    {
+        /// GUM has computed that there are no invisible decays for
+        /// the Higgs sector of this model.
+        (void)spec; // Silence compiler warnings.
+        return std::vector<std::pair<str,str>>();
+    }
+
+    // Put together the Higgs couplings for the THDMII, from SPheno
+    void gumTHDMII_higgs_couplings_SPheno(HiggsCouplingsTable &result)
+    {
+      namespace myPipe = Pipes::gumTHDMII_higgs_couplings_SPheno;
+      
+      // Retrieve spectrum contents
+      const Spectrum& spec = *myPipe::Dep::THDM_spectrum_SPheno;
+      const SubSpectrum& he = spec.get_HE();
+      const SMInputs &sminputs = spec.get_SMInputs();
+      
+      const DecayTable* tbl = &(*myPipe::Dep::decay_rates);
+      
+      // Set up the input structure for SPheno
+      Finputs inputs;
+      inputs.sminputs = sminputs;
+      inputs.param = myPipe::Param;
+      inputs.options = myPipe::runOptions;
+      
+      // Set up neutral Higgses
+      static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+      result.set_n_neutral_higgs(3);
+      
+      // Set the CP of the Higgs states. Note that this would
+      // need to be more sophisticated to deal with complex models.
+      result.CP[0] = 1.;  // "h0_1"
+      result.CP[1] = 1.;  // "h0_2"
+      result.CP[2] = -1.; // "A0"
+      
+      // Set up charged Higgses
+      static const std::vector<str> sHchar = initVector<str>("H+");
+      result.set_n_charged_higgs(1);
+      
+      // Work out which SM values correspond to which Higgs
+      int higgs = (SMlike_higgs_PDG_code(he) == 25 ? 0 : 1);
+      int other_higgs = (higgs == 0 ? 1 : 0);
+      
+      
+      // Set the Higgs sector decays from the DecayTable
+      result.set_neutral_decays(higgs, sHneut[higgs], tbl->at("h0_1"));
+      result.set_neutral_decays(other_higgs, sHneut[other_higgs], tbl->at("h0_2"));
+      result.set_neutral_decays(2, sHneut[2], tbl->at("A0"));
+      
+      //Charged Higgses
+      result.set_charged_decays(0, "H+", tbl->at("H+"));
+      
+      // Add t decays since t can decay to light Higgses
+      result.set_t_decays(tbl->at("t"));
+      
+      // Fill HiggsCouplingsTable object from SPheno backend
+      // This fills the effective couplings (C_XX2)
+      myPipe::BEreq::SARAHSPheno_gumTHDMII_HiggsCouplingsTable(spec, result, inputs);
+      
+      // The SPheno frontend provides the invisible width for each Higgs, however this requires
+      // loads of additional function calls. Just use the helper function instead.
+      result.invisibles = get_invisibles_gumTHDMII(he);
+    }
+    
+    void effective_couplings_THDM(map_str_dbl& result)
+    {
+      namespace myPipe = Pipes::effective_couplings_THDM;
+      const Spectrum& spec = *myPipe::Dep::THDM_spectrum_SPheno;
+      
+      DecayTable decays;
+      Finputs inputs;
+      inputs.param = myPipe::Param;
+      inputs.options = myPipe::runOptions;
+      
+      // Use SPheno to fill the decay table
+      myPipe::BEreq::SARAHSPheno_gumTHDMII_decays(spec, decays, inputs);
+      
+
+      myPipe::BEreq::SARAHSPheno_gumTHDMII_conv_get_effective_couplings(spec, result);
+    }
+
+
 
   }
 }
