@@ -91,6 +91,14 @@ namespace Gambit
       template<class TYPE>
       TYPE getNode(const YAML::Node node) { return node.as<TYPE>(); }
 
+      template<>
+      inline std::vector<double> getNode<std::vector<double>>(const YAML::Node node) 
+      {
+        std::vector<double> result;
+        for (auto& x : node) result.push_back(x.as<double>());
+        return result;
+      }
+
       /// Allows to read scientific notation integer numbers. If the number does not
       /// fit into the given type (here int) or is not an integer, this function will raise.
       /// This exception is then caught by getValue and handled.
