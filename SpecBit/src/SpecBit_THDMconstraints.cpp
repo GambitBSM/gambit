@@ -34,25 +34,26 @@
 #include "gambit/Elements/couplingtable.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
+#include "gambit/Utils/point_counter.hpp"
 #include "gambit/SpecBit/SpecBit_rollcall.hpp"
 #include "gambit/SpecBit/SpecBit_helpers.hpp"
-#include "gambit/SpecBit/THDMSpec_helpers.hpp"
 
 namespace Gambit
 {
+  
   namespace SpecBit
   {
 
     // ----- HELPERS -----
 
     constexpr double inv_LL_threshold = 1e5;
-
     // ...
     constexpr double eps = 1e-10;
     // ...
     constexpr double minInvalidLL = 10.;
     // used to invalidate likelihood
     constexpr double L_MAX = 1e50;
+    constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 
     // type aliases
     using namespace Utils;
@@ -61,19 +62,16 @@ namespace Gambit
     using std::real;
     using std::imag;
     using std::conj;
+    struct ThdmSpec;
 
     typedef std::function<double(const SubSpectrum&)> LL_type;
     typedef std::function<double(const SubSpectrum&, const CouplingTable&)> LL_type2;
     typedef double(*gsl_funn)(double, void*);
 
-
-    // !!!
-    bool canRun = true;
-
     namespace RunScale
     {
-      constexpr double NONE = -1.0;
-      constexpr double INPUT = -2.0;
+      // constexpr double NONE = -2.0;
+      constexpr double INPUT = -1.0;
     }
 
     // forward declarations
@@ -96,10 +94,32 @@ namespace Gambit
       }
     }
 
-    // implementation of ThdmSpec
-    ThdmSpec::ThdmSpec(const SubSpectrum& he, const int fill_type)
+    // simple structure for passing around 2HDM parameters at a fixed scale
+    // with short variable names so that you don't need to unwrap them
+    struct ThdmSpec
     {
-      if ((fill_type & FILL_GENERIC) != 0)
+      // Generic basis params
+      double lam1=nan, lam2=nan, lam3=nan, lam4=nan, lam5=nan, lam6=nan, lam7=nan;
+      
+      // Higgs basis params
+      double Lam1=nan, Lam2=nan, Lam3=nan, Lam4=nan, Lam5=nan, Lam6=nan, Lam7=nan;
+      
+      // Physical params
+      double mh=nan, mH=nan, mA=nan, mHp=nan, mG=nan, mGp=nan, v=nan, v2=nan, m122=nan, m112=nan, m222=nan;
+      
+      // angles
+      double beta=nan, alpha=nan, tanb=nan, cosba=nan, sinba=nan;
+      
+      // other
+      double g1=nan, g2=nan, g3=nan;
+
+      // model type
+      int model_type;
+      
+      // Yukawas
+      std::vector<double> Ye, Yu, Yd;
+
+      void fill_generic(const SubSpectrum& he)
       {
           lam1 = he.get(Par::dimensionless,"lambda1");
           lam2 = he.get(Par::dimensionless,"lambda2");
@@ -110,7 +130,7 @@ namespace Gambit
           lam7 = he.get(Par::dimensionless,"lambda7");
       }
 
-      if ((fill_type & FILL_HIGGS) != 0)
+      void fill_higgs(const SubSpectrum& he)
       {
           Lam1 = he.get(Par::dimensionless,"Lambda1");
           Lam2 = he.get(Par::dimensionless,"Lambda2");
@@ -121,7 +141,7 @@ namespace Gambit
           Lam7 = he.get(Par::dimensionless,"Lambda7");
       }
 
-      if ((fill_type & FILL_PHYSICAL) != 0)
+      void fill_physical(const SubSpectrum& he)
       {
         // needs to be mass1 to match scale of couplings
           mh = he.get(Par::mass1,"h0_1");
@@ -137,7 +157,7 @@ namespace Gambit
           m222 = he.get(Par::mass1,"m22_2");
       }
 
-      if ((fill_type & FILL_ANGLES) != 0)
+      void fill_angles(const SubSpectrum& he)
       {
           beta = he.get(Par::dimensionless,"beta");
           alpha = he.get(Par::dimensionless,"alpha");
@@ -146,9 +166,7 @@ namespace Gambit
           sinba = sin(beta-alpha);
       }
 
-      // if ((fill_type & FILL_TYPE) != 0) ;
-
-      if ((fill_type & FILL_YUKAWAS) != 0)
+      void fill_yukawas(const SubSpectrum& he)
       {
           Ye = std::vector<double>({he.get(Par::dimensionless,"Ye",1,1),he.get(Par::dimensionless,"Ye",2,2),he.get(Par::dimensionless,"Ye",3,3)});
           Yu = std::vector<double>({he.get(Par::dimensionless,"Yu",1,1),he.get(Par::dimensionless,"Yu",2,2),he.get(Par::dimensionless,"Yu",3,3)});
@@ -158,7 +176,7 @@ namespace Gambit
           g2 = he.get(Par::dimensionless,"g2");
           g3 = he.get(Par::dimensionless,"g3");
       }
-    }
+    };
 
     // get leading-order scattering eigenvalues (with fixed ordering) (requires Z2-symmetric THDM)
     vector<complex<double>> get_LO_scattering_eigenvalues_ordered(const ThdmSpec &s)
@@ -172,15 +190,15 @@ namespace Gambit
       complex<double> a00_odd_plus = s.lam3 + 2.0 * s.lam4 + 3.0 * s.lam5;
       complex<double> a00_odd_minus = s.lam3 + 2.0 * s.lam4 - 3.0 * s.lam5;
       // a01
-      complex<double> a01_even_plus = 1.0 / 2.0 * (s.lam1 + s.lam2 + sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam4, 2)));
-      complex<double> a01_even_minus = 1.0 / 2.0 * (s.lam1 + s.lam2 - sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam4, 2)));
+      complex<double> a01_even_plus = 1.0 / 2.0 * (s.lam1 + s.lam2 + sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * sqr(s.lam4)));
+      complex<double> a01_even_minus = 1.0 / 2.0 * (s.lam1 + s.lam2 - sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * sqr(s.lam4)));
       complex<double> a01_odd_plus = s.lam3 + s.lam5;
       complex<double> a01_odd_minus = s.lam3 - s.lam5;
       // a20
       complex<double> a20_odd = s.lam3 - s.lam4;
       // a21
-      complex<double> a21_even_plus = 1.0 / 2.0 * (s.lam1 + s.lam2 + sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam5, 2)));
-      complex<double> a21_even_minus = 1.0 / 2.0 * (s.lam1 + s.lam2 - sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam5, 2)));
+      complex<double> a21_even_plus = 1.0 / 2.0 * (s.lam1 + s.lam2 + sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * sqr(s.lam5)));
+      complex<double> a21_even_minus = 1.0 / 2.0 * (s.lam1 + s.lam2 - sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * sqr(s.lam5)));
       complex<double> a21_odd = s.lam3 + s.lam4;
 
       vector<complexd> lo_eigenvalues = {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus,
@@ -281,14 +299,36 @@ namespace Gambit
     }
 
     // helper function get list of energy scales, check constraint at each, and get the worst performer
-    double get_worst_LL_of_all_scales(const Spectrum& spec, LL_type LL, bool is_FS_model, double other_scale)
+    double get_worst_LL_of_all_scales(const Spectrum& spec, LL_type LL, bool is_FS_model, vector<double> scales_to_check, bool canRun)
     {
-      // we always check the input scale
-      vector<double> scales_to_check = { RunScale::INPUT };
+      if (!is_FS_model)
+      {
+        bool has_input = false;
+        for (auto& x : scales_to_check)
+        {
+          if (x == -1.0)
+          {
+            has_input = true;
+            break;
+          }
+        }
+        scales_to_check.clear();
+        if (has_input) scales_to_check.push_back(-1.0);
+      }
 
-      // also check the custom scale from the yaml file. Skip if tree level
-      if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && is_FS_model)
-        scales_to_check.push_back(other_scale);
+      // // we always check the input scale
+      // vector<double> scales_to_check = { RunScale::INPUT };
+
+      // // also check the custom scale from the yaml file. Skip if tree level
+      // if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && is_FS_model)
+      //   scales_to_check.push_back(other_scale);
+
+      // // hax !!!
+      // if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && is_FS_model) 
+      // {
+      //   scales_to_check.clear();
+      //   if (canRun) scales_to_check.push_back(other_scale);
+      // }
 
       // // print warning if we ask for likelihood at check_other_scale but not using FlexibleSUSY model
       // if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && !is_FS_model)
@@ -321,14 +361,29 @@ namespace Gambit
     }
 
     // helper function get list of energy scales, check constraint at each, and get the worst performer
-    double get_worst_LL_of_all_scales(const Spectrum& spec, const CouplingTable& coup, LL_type2 LL, bool is_FS_model, double other_scale)
+    double get_worst_LL_of_all_scales(const Spectrum& spec, const CouplingTable& coup, LL_type2 LL, bool is_FS_model, vector<double> scales_to_check, bool canRun)
     {
-      // we always check the input scale
-      vector<double> scales_to_check = { RunScale::INPUT };
+      if (!is_FS_model)
+      {
+        bool has_input = false;
+        for (auto& x : scales_to_check)
+        {
+          if (x == -1.0)
+          {
+            has_input = true;
+            break;
+          }
+        }
+        scales_to_check.clear();
+        if (has_input) scales_to_check.push_back(-1.0);
+      }
 
-      // also check the custom scale from the yaml file. Skip if tree level
-      if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && is_FS_model)
-        scales_to_check.push_back(other_scale);
+      // // we always check the input scale
+      // vector<double> scales_to_check = { RunScale::INPUT };
+
+      // // also check the custom scale from the yaml file. Skip if tree level
+      // if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && is_FS_model)
+      //   scales_to_check.push_back(other_scale);
 
       // // print warning if we ask for likelihood at check_other_scale but not using FlexibleSUSY model
       // if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && !is_FS_model)
@@ -363,20 +418,6 @@ namespace Gambit
       return result;
     }
 
-    // convert gsl complex to std complex
-    complexd gsl_complex_to_complex_double(const gsl_complex c)
-    {
-      return complexd(GSL_REAL(c), GSL_IMAG(c));
-    }
-
-    // get trace of gsl matrix
-    complexd gsl_matrix_complex_trace_complex(const gsl_matrix_complex *m1)
-    {
-      return gsl_complex_to_complex_double(gsl_matrix_complex_get(m1, 0, 0)) +
-              gsl_complex_to_complex_double(gsl_matrix_complex_get(m1, 1, 1)) +
-              gsl_complex_to_complex_double(gsl_matrix_complex_get(m1, 2, 2));
-    }
-
     // hard cutoff function
     double cutoff_hard(const double error, const double error_invalid_val, const double invalid_threshold)
     {
@@ -406,6 +447,7 @@ namespace Gambit
         return result + minInvalidLL;
     }
 
+    // rescale a vector of doubles using a vector of scales
     double rescale_components(std::vector<double>& comp, const std::vector<double>& scales, const int roots, const std::string&)
     {
       double error_sum = 0.0;
@@ -420,11 +462,13 @@ namespace Gambit
       return error_sum / comp.size();
     }
 
+    // linear shift + rescale x such that the input range transforms to the output range
     double range(double x, double x_min, double x_max, double y_min, double y_max)
     {
       return (x-x_min)*((y_max-y_min)/(x_max-x_min)) + y_min;
     }
 
+    // clamp x within the give range
     double clamp(double x, double min, double max)
     {
       return std::max(std::min(x,max),min);
@@ -438,7 +482,7 @@ namespace Gambit
       // get options from yaml file
       using namespace Pipes::basic_theory_LogLikelihood_THDM;
       bool only_perturbativity = runOptions->getValueOrDef<bool>(false, "only_perturbativity");
-      double target_failure_rate = runOptions->getValueOrDef<double>(0.98, "target_failure_rate");
+      double target_failure_rate = runOptions->getValueOrDef<double>(0.995, "target_failure_rate");
       result = 0.0;
 
       static int pcount = 0, icount = 0;
@@ -462,7 +506,7 @@ namespace Gambit
       auto currTime = std::chrono::high_resolution_clock::now();
       double totalDur = std::chrono::duration<double>(currTime - startTime).count();
 
-      if (totalDur > 1.00 && pcount > 1000)
+      if (totalDur > 1.00 && pcount > 100)
       {
         startTime = std::chrono::high_resolution_clock::now();
 
@@ -506,6 +550,9 @@ namespace Gambit
 
       if (!only_perturbativity)
       {
+        // https://arxiv.org/pdf/hep-ph/0508020 page 4
+        // https://arxiv.org/pdf/hep-ph/0312374 page 5
+
         // double mbar = 2*(*Param.at("m12_2")) / sin(2*atan(*Param.at("tanb")));
         // double v2 = 246*246;
 
@@ -515,20 +562,20 @@ namespace Gambit
         // --- check LO unitarity
 
         // a00
-        double a00_even_plus = 1.0 / 2.0 * (3.0 * (lam1 + lam2) + sqrt(9.0 * pow((lam1 - lam2), 2) + 4.0 * pow((2.0 * lam3 + lam4), 2)));
+        double a00_even_plus  = 1.0 / 2.0 * (3.0 * (lam1 + lam2) + sqrt(9.0 * pow((lam1 - lam2), 2) + 4.0 * pow((2.0 * lam3 + lam4), 2)));
         double a00_even_minus = 1.0 / 2.0 * (3.0 * (lam1 + lam2) - sqrt(9.0 * pow((lam1 - lam2), 2) + 4.0 * pow((2.0 * lam3 + lam4), 2)));
-        double a00_odd_plus = lam3 + 2.0 * lam4 + 3.0 * lam5;
-        double a00_odd_minus = lam3 + 2.0 * lam4 - 3.0 * lam5;
+        double a00_odd_plus  = lam3 + 2.0 * lam4 + 3.0 * abs(lam5);
+        double a00_odd_minus = lam3 + 2.0 * lam4 - 3.0 * abs(lam5);
         // a01
-        double a01_even_plus = 1.0 / 2.0 * (lam1 + lam2 + sqrt(pow((lam1 - lam2), 2) + 4.0 * pow(lam4, 2)));
-        double a01_even_minus = 1.0 / 2.0 * (lam1 + lam2 - sqrt(pow((lam1 - lam2), 2) + 4.0 * pow(lam4, 2)));
-        double a01_odd_plus = lam3 + lam5;
-        double a01_odd_minus = lam3 - lam5;
+        double a01_even_plus  = 1.0 / 2.0 * (lam1 + lam2 + sqrt(pow((lam1 - lam2), 2) + 4.0 * sqr(lam4)));
+        double a01_even_minus = 1.0 / 2.0 * (lam1 + lam2 - sqrt(pow((lam1 - lam2), 2) + 4.0 * sqr(lam4)));
+        double a01_odd_plus  = lam3 + abs(lam5);
+        double a01_odd_minus = lam3 - abs(lam5);
         // a20
         double a20_odd = lam3 - lam4;
         // a21
-        double a21_even_plus = 1.0 / 2.0 * (lam1 + lam2 + sqrt(pow((lam1 - lam2), 2) + 4.0 * pow(lam5, 2)));
-        double a21_even_minus = 1.0 / 2.0 * (lam1 + lam2 - sqrt(pow((lam1 - lam2), 2) + 4.0 * pow(lam5, 2)));
+        double a21_even_plus  = 1.0 / 2.0 * (lam1 + lam2 + sqrt(pow((lam1 - lam2), 2) + 4.0 * sqr(lam5)));
+        double a21_even_minus = 1.0 / 2.0 * (lam1 + lam2 - sqrt(pow((lam1 - lam2), 2) + 4.0 * sqr(lam5)));
         double a21_odd = lam3 + lam4;
 
         vector<double> lo_eigenvalues = {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus,
@@ -564,10 +611,11 @@ namespace Gambit
       using namespace Pipes::runToScaleTest_LogLikelihood_THDM;
       bool is_FS_model = ModelInUse("THDMatQ") ? true : false;
       double other_scale = runOptions->getValueOrDef<double>(1000., "check_other_scale");
+      double hard_cutoff = runOptions->getValueOrDef<bool>(false, "hard_cutoff");
       const Spectrum& spec = *Dep::THDM_spectrum;
       result = 0.0;
-      canRun = true;
       if (!is_FS_model) return;
+      if (other_scale <= 0) return;
 
       try
       {
@@ -576,7 +624,7 @@ namespace Gambit
       catch(...)
       {
         result = -5e4;
-        canRun = false;
+        if (hard_cutoff) result = -L_MAX;
       }
 
     }
@@ -587,8 +635,11 @@ namespace Gambit
       // get options from yaml file
       using namespace Pipes::LO_unitarity_LogLikelihood_THDM;
       bool is_FS_model = ModelInUse("THDMatQ") ? true : false;
-      double other_scale = runOptions->getValueOrDef<double>(RunScale::NONE, "check_other_scale");
+      double hard_cutoff = runOptions->getValueOrDef<bool>(false, "hard_cutoff");
+
+      vector<double> other_scale = runOptions->getValueOrDef<vector<double>>(std::vector<double>({RunScale::INPUT}), "check_other_scale");
       const Spectrum& spec = *Dep::THDM_spectrum;
+      bool canRun = (*Dep::runToScaleTest_LogLikelihood_THDM == 0.0);
 
       // all values < 8*PI for unitarity conditions (see ivanov paper)
       constexpr double unitarity_upper_limit = 8 * pi;
@@ -597,7 +648,8 @@ namespace Gambit
       auto get_LO_unitarity_LogLikelihood = [&](const SubSpectrum& he)
       {
         // get required spectrum info
-        ThdmSpec s(he,ThdmSpecFill::FILL_GENERIC);
+        ThdmSpec s;
+        s.fill_generic(he);
 
         // get the leading order scattering eigenvalues
         std::vector<complexd> LO_eigenvalues;
@@ -619,7 +671,8 @@ namespace Gambit
       };
 
       // get worst performing LogLike at all scales
-      result = get_worst_LL_of_all_scales(spec, get_LO_unitarity_LogLikelihood, is_FS_model, other_scale);
+      result = get_worst_LL_of_all_scales(spec, get_LO_unitarity_LogLikelihood, is_FS_model, other_scale, canRun);
+      if (hard_cutoff && result < -0.0) result = -L_MAX;
 
       // test_data["LO"] = -result;
     }
@@ -627,17 +680,23 @@ namespace Gambit
     // simple lambdas perturbativity constraint (soft-cutoff)
     void perturbativity_lambdas_LogLikelihood_THDM(double& result)
     {
+      // Reference
+      // https://arxiv.org/pdf/1609.01290 page 4
+
       // get options from yaml file
-      using namespace Pipes::perturbativity_LogLikelihood_THDM;
+      using namespace Pipes::perturbativity_lambdas_LogLikelihood_THDM;
       bool is_FS_model = ModelInUse("THDMatQ") ? true : false;
-      double other_scale = runOptions->getValueOrDef<double>(RunScale::NONE, "check_other_scale");
+      double hard_cutoff = runOptions->getValueOrDef<bool>(false, "hard_cutoff");
+      vector<double> other_scale = runOptions->getValueOrDef<vector<double>>(std::vector<double>({RunScale::INPUT}), "check_other_scale");
       const Spectrum& spec = *Dep::THDM_spectrum;
+      bool canRun = (*Dep::runToScaleTest_LogLikelihood_THDM == 0.0);
 
       // helper to get constraint at a single scale
       auto get_simple_perturbativity_LogLikelihood = [&](const SubSpectrum& he)
       {
         // get required spectrum info
-        ThdmSpec s(he,ThdmSpecFill::FILL_GENERIC);
+        ThdmSpec s;
+        s.fill_generic(he);
 
         // check lambdai (generic couplings)
         // all values < 4*PI for perturbativity conditions
@@ -655,7 +714,8 @@ namespace Gambit
       };
 
       // get worst performing LogLike at all scales
-      result = get_worst_LL_of_all_scales(spec, get_simple_perturbativity_LogLikelihood, is_FS_model, other_scale);
+      result = get_worst_LL_of_all_scales(spec, get_simple_perturbativity_LogLikelihood, is_FS_model, other_scale, canRun);
+      if (hard_cutoff && result < -0.0) result = -L_MAX;
     }
 
     // full perturbativity constraint (soft-cutoff)
@@ -664,11 +724,13 @@ namespace Gambit
       // get options from yaml file
       using namespace Pipes::perturbativity_LogLikelihood_THDM;
       bool is_FS_model = ModelInUse("THDMatQ") ? true : false;
-      double other_scale = runOptions->getValueOrDef<double>(RunScale::NONE, "check_other_scale");
+      double hard_cutoff = runOptions->getValueOrDef<bool>(false, "hard_cutoff");
+      vector<double> other_scale = runOptions->getValueOrDef<vector<double>>(std::vector<double>({RunScale::INPUT}), "check_other_scale");
       bool skipCubicCouplings = runOptions->getValueOrDef<bool>(true, "skipCubicCouplings");
       bool skipGoldstoneCouplings = runOptions->getValueOrDef<bool>(false, "skipGoldstoneCouplings");
       const Spectrum& spec = *Dep::THDM_spectrum;
       const CouplingTable& coupl = *Dep::couplingtable_THDM;
+      bool canRun = (*Dep::runToScaleTest_LogLikelihood_THDM == 0.0);
 
       // helper to get constraint at a single scale
       auto get_perturbativity_LogLikelihood = [&](const SubSpectrum&, const CouplingTable& coup)
@@ -692,8 +754,8 @@ namespace Gambit
       };
 
       // get worst performing LogLike at all scales
-      result = get_worst_LL_of_all_scales(spec, coupl, get_perturbativity_LogLikelihood, is_FS_model, other_scale);
-      result = 0.0; // !!!!
+      result = get_worst_LL_of_all_scales(spec, coupl, get_perturbativity_LogLikelihood, is_FS_model, other_scale, canRun);
+      if (hard_cutoff && result < -0.0) result = -L_MAX;
 
       // test_data["pert"] = -result;
     }
@@ -701,48 +763,61 @@ namespace Gambit
     // simple yukawa perturbativity constraint (soft-cutoff)
     void perturbativity_yukawas_LogLikelihood_THDM(double& result)
     {
+      // Reference
+      // https://arxiv.org/pdf/1609.01290 page 4
+
       // get options from yaml file
       using namespace Pipes::perturbativity_yukawas_LogLikelihood_THDM;
       SMInputs sminputs = *Dep::SMINPUTS;
-      const Spectrum spec = *Dep::THDM_spectrum;
-      std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
-      const double mT = Dep::SMINPUTS->mT;
-      double tanb = he->get(Par::dimensionless,"tanb");
-      double error = 0.0;
-      vector<double> Yukawas;
+      const Spectrum& spec = *Dep::THDM_spectrum;
+      bool canRun = (*Dep::runToScaleTest_LogLikelihood_THDM == 0.0);
+      bool is_FS_model = ModelInUse("THDMatQ") ? true : false;
+      double hard_cutoff = runOptions->getValueOrDef<bool>(false, "hard_cutoff");
+      vector<double> other_scale = runOptions->getValueOrDef<vector<double>>(std::vector<double>({RunScale::INPUT}), "check_other_scale");
 
-      for (int i = 1; i <= 3; i++)
+      auto get_perturbativity_LogLikelihood = [&](const SubSpectrum& he)
+      {
+        // get list of all Yukawas
+        std::vector<double> Yukawas; Yukawas.reserve(3*3*3);
+        for (int i=1; i<=3; ++i)
         {
-          for (int j = 1; j <= 3; j++)
+          for (int j=1; j<=3; ++j)
           {
-          Yukawas.push_back(he->get(Par::dimensionless, "Yd2", i, j));
-          Yukawas.push_back(he->get(Par::dimensionless, "Ye2", i, j));
+            // if (!(i==3 && j==3))
+            Yukawas.push_back(he.get(Par::dimensionless, "Yu", i, j));
+            Yukawas.push_back(he.get(Par::dimensionless, "Yd", i, j));
+            Yukawas.push_back(he.get(Par::dimensionless, "Ye", i, j));
           }
         }
-      //The Yu2 matrix is called outside in order to get the Yu2tt element
-      //which has a softer perturbativity bound
-      //For the moment we do not use neither Yukawas for 1-3 nor 1-2 family interactions
-      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 1, 1));
-      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 1, 2));
-      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 1, 3));
-      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 2, 1));
-      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 2, 2));
-      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 2, 3));
-      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 3, 1));
-      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 3, 2));
-      double Yu2tt = he->get(Par::dimensionless, "Yu2", 3, 3);
-      // loop over all yukawas
+
+        // constraint for each Yukawa
+
+        // double Ylim = sqrt(4*pi)/sqrt(1+tanb*tanb);
+        double Ylim = sqrt(4*pi);
+        double error = 0.0;
+
       for (auto & each_yukawa : Yukawas)
       {
-        if (abs(each_yukawa) > sqrt(4*pi)/(sqrt(1+tanb*tanb)))
-          error += abs(each_yukawa) - (sqrt(4*pi)/(sqrt(1+tanb*tanb)));
-      }
-      //Apply softer bound for Yu2tt
-      error += abs(Yu2tt) - ((sqrt(4*pi)+((sqrt(2)*tanb*mT)/v))/(sqrt(1+tanb*tanb)));
-      result = -cutoff_soft_square(sqrt(std::max(0.0,error)), 141, inv_LL_threshold);
+          error += std::max(0.0, abs(each_yukawa) - Ylim);
+        }
 
-      // test_data["pertYuk"] = -result; // delete me
+        // // Apply softer bound for top Yukawa coupling
+
+        // double Yu2tt = he->get(Par::dimensionless, "Yu", 3, 3);
+        // const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+        // const double mT = Dep::SMINPUTS->mT;
+        // double tanb = he->get(Par::dimensionless,"tanb");
+        // error += max(0.0, abs(Yu2tt) - ((sqrt(4*pi)+((sqrt(2)*tanb*mT)/v))/(sqrt(1+tanb*tanb))));
+
+        // get result
+
+        return -cutoff_soft_square(sqrt(std::max(0.0,error)), 141, inv_LL_threshold);
+
+      };
+
+      // get worst performing LogLike at all scales
+      result = get_worst_LL_of_all_scales(spec, get_perturbativity_LogLikelihood, is_FS_model, other_scale, canRun);
+      if (hard_cutoff && result < -0.0) result = -L_MAX;
     }
 
     // vacuum stability + meta-stability constraint (soft-cutoff)
@@ -751,9 +826,10 @@ namespace Gambit
       // get options from yaml file
       using namespace Pipes::stability_LogLikelihood_THDM;
       bool is_FS_model = ModelInUse("THDMatQ") ? true : false;
-      double other_scale = runOptions->getValueOrDef<double>(RunScale::NONE, "check_other_scale");
+      vector<double> other_scale = runOptions->getValueOrDef<vector<double>>(std::vector<double>({RunScale::INPUT}), "check_other_scale");
       bool checkMeta = runOptions->getValueOrDef<bool>(false, "check_metastability");
       const Spectrum& spec = *Dep::THDM_spectrum;
+      bool canRun = (*Dep::runToScaleTest_LogLikelihood_THDM == 0.0);
 
       // helper to get constraint at a single scale
       auto get_stability_LogLikelihood = [&](const SubSpectrum& he)
@@ -761,9 +837,15 @@ namespace Gambit
         // Reference: https://arxiv.org/abs/hep-ph/0605142 (A.2)
         //            https://arxiv.org/abs/0902.0851 (also see THDMC code)
 
+        // see also (original reference)
+        // https://journals.aps.org/prd/pdf/10.1103/PhysRevD.18.2574
+
         // WARNING: the conditions for the GCP-2HDM with lam6,7 != 0 are incomplete
 
-        ThdmSpec s(he, ThdmSpecFill::FILL_GENERIC | ThdmSpecFill::FILL_ANGLES | ThdmSpecFill::FILL_HIGGS | ThdmSpecFill::FILL_PHYSICAL);
+        ThdmSpec s;
+        s.fill_generic(he);
+        s.fill_angles(he);
+        s.fill_physical(he);
 
         // store each vacuum stability error here
         int nStab = 10;
@@ -838,7 +920,7 @@ namespace Gambit
         }
 
         // check meta-stability (only working for Z2-symmetric models for now)
-        if (checkMeta)
+        if (checkMeta && (abs(he.GetScale() - 91.1876) < 1. || !is_FS_model)) // hax !!!
         {
           // Reference: https://arxiv.org/abs/1303.5098
 
@@ -883,7 +965,7 @@ namespace Gambit
       };
 
       // get worst performing LogLike at all scales
-      result = get_worst_LL_of_all_scales(spec, get_stability_LogLikelihood, is_FS_model, other_scale);
+      result = get_worst_LL_of_all_scales(spec, get_stability_LogLikelihood, is_FS_model, other_scale, canRun);
 
       // test_data["stab"] = -result;
     }
@@ -894,8 +976,10 @@ namespace Gambit
       // get options from yaml file
       using namespace Pipes::scalar_mass_corrections_LogLikelihood_THDM;
       bool is_FS_model = ModelInUse("THDMatQ") ? true : false;
-      double other_scale = runOptions->getValueOrDef<double>(RunScale::NONE, "check_other_scale");
+      double hard_cutoff = runOptions->getValueOrDef<bool>(false, "hard_cutoff");
+      vector<double> other_scale = runOptions->getValueOrDef<vector<double>>(std::vector<double>({RunScale::INPUT}), "check_other_scale");
       const Spectrum& spec = *Dep::THDM_spectrum;
+      bool canRun = (*Dep::runToScaleTest_LogLikelihood_THDM == 0.0);
 
       // helper to get constraint at a single scale
       auto get_scalar_mass_correction_LogLikelihood = [&](const SubSpectrum& he)
@@ -919,7 +1003,8 @@ namespace Gambit
       };
 
       // get worst performing LogLike at all scales
-      result = get_worst_LL_of_all_scales(spec, get_scalar_mass_correction_LogLikelihood, is_FS_model, other_scale);
+      result = get_worst_LL_of_all_scales(spec, get_scalar_mass_correction_LogLikelihood, is_FS_model, other_scale, canRun);
+      if (hard_cutoff && result < -0.0) result = -L_MAX;
 
       // test_data["corr"] = -result;
     }
@@ -929,6 +1014,7 @@ namespace Gambit
     {
       // get options from yaml file
       using namespace Pipes::higgs_exp_mass_LogLikelihood_THDM;
+      double hard_cutoff = runOptions->getValueOrDef<bool>(false, "hard_cutoff");
       double higgs_mass_uncertainty = runOptions->getValueOrDef<double>(2.5, "higgs_mass_uncertainty");
       double valid_range = runOptions->getValueOrDef<double>(60, "valid_range");
       const Spectrum &spec = *Dep::THDM_spectrum;
@@ -938,7 +1024,7 @@ namespace Gambit
       double mh_exp = 125.15;
       double error = std::max(0.0, std::abs(mh_pole - mh_exp) - higgs_mass_uncertainty) / valid_range;
       result = -4e-3*cutoff_soft_square(error, 1.0, inv_LL_threshold);
-
+      if (hard_cutoff && result < -0.0) result = -L_MAX;
       // test_data["higgsMass"] = -result; // delete me
     }
 
@@ -1363,265 +1449,66 @@ namespace Gambit
 
     // ----- LO beta functions for lambdas -----
 
-    // UNUSED
-    // gets Yukawa traces required for LO corrections to lambdai beta functions
-    //- easily extendable to Yukawas with off-diagonals
-    std::map<str, complexd> get_traces_of_y(const ThdmSpec &s)
+    std::array<complexd,6> betas(const ThdmSpec &s, const bool gauge_correction, const bool yukawa_correction)
     {
-      complexd tr_u2, tr_d2, tr_l2, tr_u4, tr_d4, tr_l4, tr_du;
-      gsl_matrix_complex *y_u, *y_d, *y_l, *y_u_dagger, *y_d_dagger, *y_l_dagger;
-      const int size = 3;
+      // LO beta functions for lam1 to lam5
 
-      y_u = gsl_matrix_complex_alloc(size, size);
-      y_d = gsl_matrix_complex_alloc(size, size);
-      y_l = gsl_matrix_complex_alloc(size, size);
-      y_u_dagger = gsl_matrix_complex_alloc(size, size);
-      y_d_dagger = gsl_matrix_complex_alloc(size, size);
-      y_l_dagger = gsl_matrix_complex_alloc(size, size);
+      std::array<complexd,6> result;
+      result[1] = 12.0*sqr(s.lam1) + 4.0*sqr(s.lam3) + 4.0*s.lam3*s.lam4 + 2.0*sqr(s.lam4) + 2.0*sqr(s.lam5);
+      result[2] = 12.0*sqr(s.lam2) + 4.0*sqr(s.lam3) + 4.0*s.lam3*s.lam4 + 2.0*sqr(s.lam4) + 2.0*sqr(s.lam5);
+      result[3] = 4.0*sqr(s.lam3) + 2.0*sqr(s.lam4) + (s.lam1 + s.lam2)*(6.0*s.lam3 + 2.0*s.lam4) + 2.0*sqr(s.lam5);
+      result[4] = (2.0*s.lam1 + 2.0*s.lam2 + 8.0*s.lam3)*s.lam4 + 4.0*sqr(s.lam4) + 8.0*sqr(s.lam5);
+      result[5] = (2.0*s.lam1 + 2.0*s.lam2 + 8.0*s.lam3 + 12.0*s.lam4)*s.lam5;
 
-      // set yukawa - up
-      gsl_complex y_u_11;
-      GSL_SET_REAL(&y_u_11, s.Yu[0]);
-      GSL_SET_IMAG(&y_u_11, 0.0);
+      // corrections due to gauge boson couplings
+      if (gauge_correction)
+      {
+        result[1] += 3.0/4.0*pow(s.g1, 4) + 3.0/2.0*sqr(s.g1*s.g2) + 9.0/4.0*pow(s.g2, 4) - 3.0*sqr(s.g1)*s.lam1 - 9.0*sqr(s.g2)*s.lam1;
+        result[2] += 3.0/4.0*pow(s.g1, 4) + 3.0/2.0*sqr(s.g1*s.g2) + 9.0/4.0*pow(s.g2, 4) - 3.0*sqr(s.g1)*s.lam2 - 9.0*sqr(s.g2)*s.lam2;
+        result[3] += -3.0*s.lam3*(3.0*sqr(s.g2) + sqr(s.g1)) + 9.0/4.0*pow(s.g2, 4) + 3.0/4.0*pow(s.g1, 4) - 3.0/2.0*sqr(s.g1*s.g2);
+        result[4] += -3.0*s.lam4*(3.0*sqr(s.g2) + sqr(s.g1)) + 3.0*sqr(s.g1*s.g2);
+        result[5] += -3.0*s.lam5*(3.0*sqr(s.g2) + sqr(s.g1));
+      }
 
-      gsl_complex y_u_22;
-      GSL_SET_REAL(&y_u_22, s.Yu[1]);
-      GSL_SET_IMAG(&y_u_22, 0.0);
-
-      gsl_complex y_u_33;
-      GSL_SET_REAL(&y_u_33, s.Yu[2]);
-      GSL_SET_IMAG(&y_u_33, 0.0);
-
-      gsl_matrix_complex_set_zero(y_u);
-
-      gsl_matrix_complex_set(y_u, 0, 0, y_u_11);
-      gsl_matrix_complex_set(y_u, 1, 1, y_u_22);
-      gsl_matrix_complex_set(y_u, 2, 2, y_u_33);
-
-      // take dagger -> all components currently real so no need to conjugate
-      gsl_matrix_complex_transpose_memcpy(y_u_dagger, y_u);
-
-      // set yukawa - down
-      gsl_complex y_d_11;
-      GSL_SET_REAL(&y_d_11, s.Yd[0]);
-      GSL_SET_IMAG(&y_d_11, 0.0);
-
-      gsl_complex y_d_22;
-      GSL_SET_REAL(&y_d_22, s.Yd[1]);
-      GSL_SET_IMAG(&y_d_22, 0.0);
-
-      gsl_complex y_d_33;
-      GSL_SET_REAL(&y_d_33, s.Yd[2]);
-      GSL_SET_IMAG(&y_d_33, 0.0);
-
-      gsl_matrix_complex_set_zero(y_d);
-
-      gsl_matrix_complex_set(y_d, 0, 0, y_d_11);
-      gsl_matrix_complex_set(y_d, 1, 1, y_d_22);
-      gsl_matrix_complex_set(y_d, 2, 2, y_d_33);
-
-      // take dagger -> all components currently real so no need to conjugate
-      gsl_matrix_complex_transpose_memcpy(y_d_dagger, y_d);
-
-      // set yukawa - lepton
-      gsl_complex y_l_11;
-      GSL_SET_REAL(&y_l_11, s.Ye[0]);
-      GSL_SET_IMAG(&y_l_11, 0.0);
-
-      gsl_complex y_l_22;
-      GSL_SET_REAL(&y_l_22, s.Ye[1]);
-      GSL_SET_IMAG(&y_l_22, 0.0);
-
-      gsl_complex y_l_33;
-      GSL_SET_REAL(&y_l_33, s.Ye[2]);
-      GSL_SET_IMAG(&y_l_33, 0.0);
-
-      gsl_matrix_complex_set_zero(y_l);
-
-      gsl_matrix_complex_set(y_l, 0, 0, y_l_11);
-      gsl_matrix_complex_set(y_l, 1, 1, y_l_22);
-      gsl_matrix_complex_set(y_l, 2, 2, y_l_33);
-
-      // take dagger -> all components currently real so no need to conjugate
-      gsl_matrix_complex_transpose_memcpy(y_l_dagger, y_l);
-
-      //calculate traces - up
-      gsl_matrix_complex *y_u2;
-      gsl_matrix_complex *y_u4;
-      y_u2 = gsl_matrix_complex_alloc(size, size);
-      y_u4 = gsl_matrix_complex_alloc(size, size);
-
-      gsl_matrix_complex_memcpy(y_u2, y_u);
-      gsl_matrix_complex_mul_elements(y_u2, y_u_dagger);
-      tr_u2 = gsl_matrix_complex_trace_complex(y_u2);
-
-      gsl_matrix_complex_memcpy(y_u4, y_u2);
-      gsl_matrix_complex_mul_elements(y_u4, y_u2);
-      tr_d4 = gsl_matrix_complex_trace_complex(y_u4);
-
-      //calculate traces - down
-      gsl_matrix_complex *y_d2;
-      gsl_matrix_complex *y_d4;
-      y_d2 = gsl_matrix_complex_alloc(size, size);
-      y_d4 = gsl_matrix_complex_alloc(size, size);
-
-      gsl_matrix_complex_memcpy(y_d2, y_d);
-      gsl_matrix_complex_mul_elements(y_d2, y_d_dagger);
-      tr_d2 = gsl_matrix_complex_trace_complex(y_d2);
-
-      gsl_matrix_complex_memcpy(y_d4, y_d2);
-      gsl_matrix_complex_mul_elements(y_d4, y_d2);
-      tr_d4 = gsl_matrix_complex_trace_complex(y_d4);
-
-      // calculate trace for down*up
-      gsl_matrix_complex_mul_elements(y_d2, y_u2);
-      tr_du = gsl_matrix_complex_trace_complex(y_d2);
-
-      gsl_matrix_complex_free(y_d2);
-      gsl_matrix_complex_free(y_u2);
-      gsl_matrix_complex_free(y_d4);
-      gsl_matrix_complex_free(y_u4);
-
-      //calculate traces - lepton
-      gsl_matrix_complex *y_l2;
-      y_l2 = gsl_matrix_complex_alloc(size, size);
-      gsl_matrix_complex_memcpy(y_l2, y_l);
-
-      gsl_matrix_complex_mul_elements(y_l2, y_l_dagger);
-      tr_l2 = gsl_matrix_complex_trace_complex(y_l2);
-
-      gsl_matrix_complex_mul_elements(y_l2, y_l2); // y_l^2 is now y_l^4
-      tr_l4 = gsl_matrix_complex_trace_complex(y_l2);
-
-      gsl_matrix_complex_free(y_l2);
-
-      gsl_matrix_complex_free(y_u);
-      gsl_matrix_complex_free(y_d);
-      gsl_matrix_complex_free(y_l);
-      gsl_matrix_complex_free(y_u_dagger);
-      gsl_matrix_complex_free(y_d_dagger);
-      gsl_matrix_complex_free(y_l_dagger);
-
-      return {{"tr_u2", tr_u2},
-              {"tr_d2", tr_d2},
-              {"tr_l2", tr_l2},
-              {"tr_u4", tr_u4},
-              {"tr_d4", tr_d4},
-              {"tr_l4", tr_l4},
-              {"tr_du", tr_du}};
-    }
-
+      // corrections due to Yukawa couplings
+      if (yukawa_correction)
+      {
     // returns model specific coeffiecients (a_i) to Yukawa terms
-    // appearing in the LO corrections to lambdai beta functions
     // see Nucl.Phys.B 262 (1985) 517-537
-    vector<double> get_alphas_for_type(const int type)
-    {
-      switch (type)
+
+        // a1,  a2,  a3,  a4,  a5,  a6,  a7,  a8,  a9, a10, a11, a12, 
+        // Ye1, Yd1, Yu1, Ye1, Yd1, Yu1, Ye2, Yd2, Yu2, Ye2, Yd2, Yu2, 
+
+        //     a13,     a14,     a15,             a16,     a17,     a18,     a19,             a20,     a21,     a22,     a23
+        // Ye1+Ye2, Yd1+Yd2, Yu1+Yu2, Yu1.Yd2+Yu2.Yd1, Ye1+Ye2, Yd1+Yd2, Yu1+Yu2, Yu1.Yd2+Yu2.Yd1, Ye1+Ye2, Yd1+Yd2, Yu1+Yu2
+
+        std::array<int,24> a;
+        switch (s.model_type)
       {
-      case 1:
-        return {0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1};
-      case 2:
-        return {0,1,1,0,1,1,0,0,0,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1};
-      case 3:
-        return {0,1,0,0,1,0,0,0,1,1,0,1,1,1,1,1,0,1,1,1,0,1,1,1};
-      case 4:
-        return {0,0,1,0,0,1,0,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1};
-      case -1:
-        return {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-      default:
-        return {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+          case 1:  a = std::array<int,24>({{0, 0,0,0,0,0,0, 1,1,1,1,1,1, 1,1,1,0, 1,1,1,0, 1,1,1}}); break;
+          case 2:  a = std::array<int,24>({{0, 1,1,0,1,1,0, 0,0,1,0,0,1, 1,1,1,1, 1,1,1,1, 1,1,1}}); break;
+          case 3:  a = std::array<int,24>({{0, 1,0,0,1,0,0, 0,1,1,0,1,1, 1,1,1,0, 1,1,1,0, 1,1,1}}); break;
+          case 4:  a = std::array<int,24>({{0, 0,1,0,0,1,0, 1,0,1,1,0,1, 1,1,1,1, 1,1,1,1, 1,1,1}}); break;
+          default: a = std::array<int,24>({{0, 1,1,1,1,1,1, 1,1,1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1}});
+        }
+
+        // get tr(|Y|^2) = tr(sqr(Yii))
+        double tr_u2 = 0.0, tr_d2 = 0.0, tr_l2 = 0.0, tr_du = 0.0;
+        for (int i = 0; i<3; i++) tr_u2 += sqr(s.Yu[i]);
+        for (int i = 0; i<3; i++) tr_d2 += sqr(s.Yd[i]);
+        for (int i = 0; i<3; i++) tr_l2 += sqr(s.Ye[i]);
+        for (int i = 0; i<3; i++) tr_du += sqr(s.Yd[i]*s.Yu[i]);
+        double tr_u4 = sqr(tr_u2), tr_d4 = sqr(tr_d2), tr_l4 = sqr(tr_l2);
+        
+        result[1] += 4.0*s.lam1*(a[1]*tr_l2  + 3.0*a[2]*tr_d2  + 3.0*a[3]*tr_u2)  -  4.0*(a[4]*tr_l4  + 3.0*a[5]*tr_d4  + 3.0*a[6]*tr_u4);
+        result[2] += 4.0*s.lam2*(a[7]*tr_l2  + 3.0*a[8]*tr_d2  + 3.0*a[9]*tr_u2)  -  4.0*(a[10]*tr_l4 + 3.0*a[11]*tr_d4 + 3.0*a[12]*tr_u4);
+        result[3] += 2.0*s.lam3*(a[13]*tr_l2 + 3.0*a[14]*tr_d2 + 3.0*a[15]*tr_u2) - 12.0*a[16]*tr_du;
+        result[4] += 2.0*s.lam4*(a[17]*tr_l2 + 3.0*a[18]*tr_d2 + 3.0*a[19]*tr_u2) + 12.0*a[20]*tr_du;
+        result[5] += 2.0*s.lam5*(a[21]*tr_l2 + 3.0*a[22]*tr_d2 + 3.0*a[23]*tr_u2);
       }
-    }
 
-    // gets Yukawa traces required for LO corrections to lambdai beta functions
-    double get_tr_pow(const vector<double>& Yuk, const int pow_N)
-    {
-      double tr = 0.0;
-      for (int i = 0; i < 3; i++)
-      {
-        tr += pow(Yuk[i], pow_N);
-      }
-      return tr;
-    }
-
-    // gets Yukawa traces required for LO corrections to lambdai beta functions
-    double get_tr_dduu(const ThdmSpec &s)
-    {
-      double tr = 0.0;
-      for (int i = 0; i < 3; i++)
-      {
-        tr += sqr(s.Yd[i]*s.Yu[i]);
-      }
-      return tr;
-    }
-
-    // LO beta function for lambda1
-    complexd beta_one(const ThdmSpec &s, const bool gauge_correction, const bool yukawa_correction)
-    {
-      vector<double> a = get_alphas_for_type(s.model_type);
-      const complexd tr_u2 = get_tr_pow(s.Yu, 2), tr_d2 = get_tr_pow(s.Yd, 2), tr_l2 = get_tr_pow(s.Ye, 2);
-      const complexd tr_u4 = get_tr_pow(s.Yu, 4), tr_d4 = get_tr_pow(s.Yd, 4), tr_l4 = get_tr_pow(s.Ye, 4);
-      complexd beta = 12.0 * pow(s.lam1, 2) + 4.0 * pow(s.lam3, 2) + 4.0 * s.lam3 * s.lam4 + 2.0 * pow(s.lam4, 2) + 2.0 * pow(s.lam5, 2);
-      if (gauge_correction)
-        beta += 3.0 / 4.0 * pow(s.g1, 4) + 3.0 / 2.0 * sqr(s.g1*s.g2) + 9.0 / 4.0 * pow(s.g2, 4) - 3.0 * sqr(s.g1) * s.lam1 - 9.0 * sqr(s.g2) * s.lam1;
-      if (yukawa_correction)
-        beta += 4.0 * s.lam1 * (a[1] * tr_l2 + 3.0 * a[2] * tr_d2 + 3.0 * a[3] * tr_u2) - 4.0 * (a[4] * tr_l4 + 3.0 * a[5] * tr_d4 + 3.0 * a[6] * tr_u4);
-      return 1.0 / (16.0 * sqr(pi)) * (beta);
-    }
-
-    // LO beta function for lambda2
-    complexd beta_two(const ThdmSpec &s, const bool gauge_correction, const bool yukawa_correction)
-    {
-      const vector<double> a = get_alphas_for_type(s.model_type);
-      const complexd tr_u2 = get_tr_pow(s.Yu, 2), tr_d2 = get_tr_pow(s.Yd, 2), tr_l2 = get_tr_pow(s.Ye, 2);
-      const complexd tr_u4 = get_tr_pow(s.Yu, 4), tr_d4 = get_tr_pow(s.Yd, 4), tr_l4 = get_tr_pow(s.Ye, 4);
-      complexd beta = 12.0 * pow(s.lam2, 2) + 4.0 * pow(s.lam3, 2) + 4.0 * s.lam3 * s.lam4 + 2.0 * pow(s.lam4, 2) + 2.0 * pow(s.lam5, 2);
-      if (gauge_correction)
-        beta += 3.0 / 4.0 * pow(s.g1, 4) + 3.0 / 2.0 * sqr(s.g1*s.g2) + 9.0 / 4.0 * pow(s.g2, 4) - 3.0 * sqr(s.g1) * s.lam2 - 9.0 * sqr(s.g2) * s.lam2;
-      if (yukawa_correction)
-        beta += 4.0 * s.lam2 * (a[7] * tr_l2 + 3.0 * a[8] * tr_d2 + 3.0 * a[9] * tr_u2) - 4.0 * (a[10] * tr_l4 + 3.0 * a[11] * tr_d4 + 3.0 * a[12] * tr_u4);
-      return 1.0 / (16.0 * sqr(pi)) * beta;
-    }
-
-    // LO beta function for lambda3
-    complexd beta_three(const ThdmSpec &s, const bool gauge_correction, const bool yukawa_correction)
-    {
-      const vector<double> a = get_alphas_for_type(s.model_type);
-      const complexd tr_u2 = get_tr_pow(s.Yu, 2), tr_d2 = get_tr_pow(s.Yd, 2), tr_l2 = get_tr_pow(s.Ye, 2);
-      const complexd tr_du = get_tr_dduu(s);
-      complexd beta = 4.0 * pow(s.lam3, 2) + 2.0 * pow(s.lam4, 2) + (s.lam1 + s.lam2) * (6.0 * s.lam3 + 2.0 * s.lam4) + 2.0 * pow(s.lam5, 2);
-      if (gauge_correction)
-        beta += -3.0 * s.lam3 * (3.0 * sqr(s.g2) + sqr(s.g1)) + 9.0 / 4.0 * pow(s.g2, 4) + 3.0 / 4.0 * pow(s.g1, 4) - 3.0 / 2.0 * sqr(s.g1*s.g2);
-      if (yukawa_correction)
-        beta += 2 * s.lam3 * (a[13] * tr_l2 + 3.0 * a[14] * tr_d2 + 3.0 * a[15] * tr_u2) - 12.0 * a[16] * tr_du;
-      return 1.0 / (16.0 * sqr(pi)) * beta;
-    }
-
-    // LO beta function for lambda4
-    complexd beta_four(const ThdmSpec &s, const bool gauge_correction, const bool yukawa_correction)
-    {
-      const vector<double> a = get_alphas_for_type(s.model_type);
-      const complexd tr_u2 = get_tr_pow(s.Yu, 2), tr_d2 = get_tr_pow(s.Yd, 2), tr_l2 = get_tr_pow(s.Ye, 2);
-      const complexd tr_du = get_tr_dduu(s);
-      complexd beta = (2.0 * s.lam1 + 2.0 * s.lam2 + 8.0 * s.lam3) * s.lam4 + 4.0 * pow(s.lam4, 2) + 8.0 * pow(s.lam5, 2);
-      if (gauge_correction)
-        beta += -3.0 * s.lam4 * (3.0 * sqr(s.g2) + sqr(s.g1)) + 3.0 * sqr(s.g1*s.g2);
-      if (yukawa_correction)
-        beta += 2.0 * s.lam4 * (a[17] * tr_l2 + 3.0 * a[18] * tr_d2 + 3.0 * a[19] * tr_u2) + 12.0 * a[20] * tr_du;
-      return 1.0 / (16.0 * sqr(pi)) * beta;
-    }
-
-    // LO beta function for lambda5
-    complexd beta_five(const ThdmSpec &s, const bool gauge_correction, const bool yukawa_correction)
-    {
-      const vector<double> a = get_alphas_for_type(s.model_type);
-      const complexd tr_u2 = get_tr_pow(s.Yu, 2), tr_d2 = get_tr_pow(s.Yd, 2), tr_l2 = get_tr_pow(s.Ye, 2);
-      complexd beta = (2.0 * s.lam1 + 2.0 * s.lam2 + 8.0 * s.lam3 + 12.0 * s.lam4) * s.lam5;
-      if (gauge_correction)
-        beta += -3.0 * s.lam5 * (3.0 * sqr(s.g2) + sqr(s.g1));
-      if (yukawa_correction)
-        beta += 2.0 * s.lam5 * (a[21] * tr_l2 + 3.0 * a[22] * tr_d2 + 3.0 * a[23] * tr_u2);
-      return 1.0 / (16.0 * sqr(pi)) * beta;
+      for (auto& x : result) x /= 16.0*sqr(pi);
+      return result;
     }
 
     // put everything together to get the NLO unitarity scattering eigenvalues
@@ -1632,12 +1519,8 @@ namespace Gambit
 
       double c2a = cos(2.0 * s.alpha), c2b = cos(2.0 * s.beta), s2a = sin(2.0 * s.alpha), s2b = sin(2.0 * s.beta);
 
-      // calculate LO beta functions
-      const complexd b_one = beta_one(s, gauge_corrections, yukawa_corrections);
-      const complexd b_two = beta_two(s, gauge_corrections, yukawa_corrections);
-      const complexd b_three = beta_three(s, gauge_corrections, yukawa_corrections);
-      const complexd b_four = beta_four(s, gauge_corrections, yukawa_corrections);
-      const complexd b_five = beta_five(s, gauge_corrections, yukawa_corrections);
+      auto bi = betas(s, gauge_corrections, yukawa_corrections);
+      complexd b1 = bi[1], b2 = bi[2], b3 = bi[3], b4 = bi[4], b5 = bi[5];
 
       // wavefunction functions
       complexd zij_wpwm, zij_zz, zij_Hpwm, zij_Az, zij_hh, zij_HH, zij_hH, zij_Hh, zij_HpHm, zij_AA;
@@ -1656,117 +1539,125 @@ namespace Gambit
         zij_AA = z_ij(AA, s, C3, C4);
       }
 
-      complexd B1 = -3.0 * s.lam1 + (9.0 / 2.0) * b_one + 1.0 / (16.0 * sqr(pi)) * (ii * pi - 1.) * (9.0 * pow(s.lam1, 2) + pow((2.0 * s.lam3 + s.lam4), 2));
+      double lam1 = s.lam1, lam2 = s.lam2, lam3 = s.lam3, lam4 = s.lam4, lam5 = s.lam5;
+
+      complexd B1 = -3.0*lam1 + (9.0/2.0)*b1 + 1.0/(16.0*sqr(pi))*(ii*pi - 1.0)*(9.0*sqr(lam1) + sqr(2.0*lam3 + lam4));
       if (wave_function_corrections)
       {
-        B1_z = 1.0 / (16.0 * sqr(pi)) * (zij_AA + zij_hh + 2.0 * zij_HpHm + zij_HH + 2.0 * zij_wpwm + zij_zz - (zij_HH - zij_hh) * c2a);
-        B1_z += 1.0 / (16.0 * sqr(pi)) * ((2.0 * zij_wpwm - 2.0 * zij_HpHm + zij_zz - zij_AA) * c2b - (zij_Hh + zij_hH) * s2a - (2.0 * zij_Hpwm + zij_Az) * s2b);
-        B1 += -3.0 / 2.0 * s.lam1 * B1_z;
+        B1_z = 1.0/(16.0*sqr(pi))*(zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz - (zij_HH - zij_hh)*c2a);
+        B1_z += 1.0/(16.0*sqr(pi))*((2.0*zij_wpwm - 2.0*zij_HpHm + zij_zz - zij_AA)*c2b - (zij_Hh + zij_hH)*s2a - (2.0*zij_Hpwm + zij_Az)*s2b);
+        B1 += -3.0/2.0*lam1*B1_z;
       }
 
-      complexd B2 = -3.0 * s.lam2 + (9.0 / 2.0) * b_two + 1.0 / (16.0 * sqr(pi)) * (ii * pi - 1.) * (9.0 * pow(s.lam2, 2) + pow((2.0 * s.lam3 + s.lam4), 2));
+      complexd B2 = -3.0*lam2 + (9.0/2.0)*b2 + 1.0/(16.0*sqr(pi))*(ii*pi - 1.0)*(9.0*sqr(lam2) + sqr(2.0*lam3 + lam4));
       if (wave_function_corrections)
       {
-        B2_z = 1.0 / (16.0 * sqr(pi)) * (zij_AA + zij_hh + 2.0 * zij_HpHm + zij_HH + 2.0 * zij_wpwm + zij_zz - (zij_HH - zij_hh) * c2a);
-        B2_z += 1.0 / (16.0 * sqr(pi)) * (-(2.0 * zij_wpwm - 2.0 * zij_HpHm + zij_zz - zij_AA) * c2b + (zij_Hh + zij_hH) * s2a + (2.0 * zij_Hpwm + zij_Az) * s2b);
-        B2 += -3.0 / 2.0 * s.lam2 * B2_z;
+        B2_z = 1.0/(16.0*sqr(pi))*(zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz - (zij_HH - zij_hh)*c2a);
+        B2_z += 1.0/(16.0*sqr(pi))*(-(2.0*zij_wpwm - 2.0*zij_HpHm + zij_zz - zij_AA)*c2b + (zij_Hh + zij_hH)*s2a + (2.0*zij_Hpwm + zij_Az)*s2b);
+        B2 += -3.0/2.0*lam2*B2_z;
       }
 
-      complexd B3 = -(2.0 * s.lam3 + s.lam4) + (3.0 / 2.0) * (2.0 * b_three + b_four) + 3.0 / (16.0 * sqr(pi)) * (ii * pi - 1.) * (s.lam1 + s.lam2) * (2.0 * s.lam3 + s.lam4);
+      complexd B3 = -(2.0*lam3 + lam4) + (3.0/2.0)*(2.0*b3 + b4) + 3.0/(16.0*sqr(pi))*(ii*pi - 1.0)*(lam1 + lam2)*(2.0*lam3 + lam4);
       if (wave_function_corrections)
       {
-        complexd B3_z = 1.0 / (16.0 * sqr(pi)) * (zij_AA + zij_hh + 2.0 * zij_HpHm + zij_HH + 2.0 * zij_wpwm + zij_zz);
-        B3 += -1.0 / 2.0 * (2.0 * s.lam3 + s.lam4) * B3_z;
+        complexd B3_z = 1.0/(16.0*sqr(pi))*(zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz);
+        B3 += -1.0/2.0*(2.0*lam3 + lam4)*B3_z;
       }
 
-      complexd B4 = -(s.lam3 + 2.0 * s.lam4) + (3.0 / 2.0) * (b_three + 2.0 * b_four) + (1.0 / (16.0 * sqr(pi))) * (ii * pi - 1.) * (pow(s.lam3, 2) + 4.0 * s.lam3 * s.lam4 + 4.0 * pow(s.lam4, 2) + 9.0 * pow(s.lam5, 2));
+      complexd B4 = -(lam3 + 2.0*lam4) + (3.0/2.0)*(b3 + 2.0*b4) + 1.0/(16.0*sqr(pi))*(ii*pi - 1.0)*(sqr(lam3) + 4.0*lam3*lam4 + 4.0*sqr(lam4) + 9.0*sqr(lam5));
       if (wave_function_corrections)
       {
-        B4 += -1.0 / 2.0 * (s.lam3 + s.lam4 + s.lam5) * B3_z;
+        B4 += -1.0/2.0*(lam3 + lam4 + lam5)*B3_z;
       }
 
-      complexd B6 = -3.0 * s.lam5 + (9.0 / 2.0) * b_five + (6.0 / (16.0 * sqr(pi))) * (ii * pi - 1.) * (s.lam3 + 2.0 * s.lam4) * s.lam5;
+      complexd B6 = -3.0*lam5 + (9.0/2.0)*b5 + 6.0/(16.0*sqr(pi))*(ii*pi - 1.0)*(lam3 + 2.0*lam4)*lam5;
       if (wave_function_corrections)
       {
-        B6 += -1.0 / 2.0 * (s.lam4 + 2.0 * s.lam5) * B3_z;
+        B6 += -1.0/2.0*(lam4 + 2.0*lam5)*B3_z;
       }
 
-      complexd B7 = -s.lam1 + (3.0 / 2.0) * b_one + 1.0 / (16.0 * sqr(pi)) * (ii * pi - 1.) * (pow(s.lam1, 2) + pow(s.lam4, 2));
+      complexd B7 = -lam1 + (3.0/2.0)*b1 + 1.0/(16.0*sqr(pi))*(ii*pi - 1.0)*(sqr(lam1) + sqr(lam4));
       if (wave_function_corrections)
       {
-        B7 += -1.0 / 2.0 * s.lam1 * B1_z;
+        B7 += -1.0/2.0*lam1*B1_z;
       }
 
-      complexd B8 = -s.lam2 + (3.0 / 2.0) * b_two + 1.0 / (16.0 * sqr(pi)) * (ii * pi - 1.) * (pow(s.lam2, 2) + pow(s.lam4, 2));
+      complexd B8 = -lam2 + (3.0/2.0)*b2 + 1.0/(16.0*sqr(pi))*(ii*pi - 1.0)*(sqr(lam2) + sqr(lam4));
       if (wave_function_corrections)
       {
-        B8 += -1.0 / 2.0 * s.lam2 * B2_z;
+        B8 += -1.0/2.0*lam2*B2_z;
       }
 
-      complexd B9 = -s.lam4 + (3.0 / 2.0) * b_four + 1.0 / (16.0 * sqr(pi)) * (ii * pi - 1.) * (s.lam1 + s.lam2) * s.lam4;
+      complexd B9 = -lam4 + (3.0/2.0)*b4 + 1.0/(16.0*sqr(pi))*(ii*pi - 1.0)*(lam1 + lam2)*lam4;
       if (wave_function_corrections)
       {
-        B9 += -1.0 / 2.0 * s.lam4 * B3_z;
+        B9 += -1.0/2.0*lam4*B3_z;
       }
 
-      complexd B13 = -s.lam3 + (3.0 / 2.0) * b_three + (1.0 / (16.0 * sqr(pi))) * (ii * pi - 1.) * (pow(s.lam3, 2) + pow(s.lam5, 2));
+      complexd B13 = -lam3 + (3.0/2.0)*b3 + 1.0/(16.0*sqr(pi))*(ii*pi - 1.0)*(sqr(lam3) + sqr(lam5));
       if (wave_function_corrections)
       {
-        B13 += -1.0 / 2.0 * (s.lam3 + s.lam4 + s.lam5) * B3_z;
+        B13 += -1.0/2.0*(lam3 + lam4 + lam5)*B3_z;
       }
 
-      complexd B15 = -s.lam5 + (3.0 / 2.0) * b_five + (2.0 / (16.0 * sqr(pi))) * (ii * pi - 1.) * s.lam3 * s.lam5;
+      complexd B15 = -lam5 + (3.0/2.0)*b5 + 2.0/(16.0*sqr(pi))*(ii*pi - 1.0)*lam3*lam5;
       if (wave_function_corrections)
       {
-        B15 += -1.0 / 2.0 * (s.lam4 - 2.0 * s.lam5) * B3_z;
+        B15 += -1.0/2.0*(lam4 - 2.0*lam5)*B3_z;
       }
 
-      complexd B19 = -(s.lam3 - s.lam4) + (3.0 / 2.0) * (b_three - b_four) + (1.0 / (16.0 * sqr(pi))) * (ii * pi - 1.) * pow((s.lam3 - s.lam4), 2);
+      complexd B19 = -(lam3 - lam4) + (3.0/2.0)*(b3 - b4) + 1.0/(16.0*sqr(pi))*(ii*pi - 1.0)*sqr(lam3 - lam4);
       if (wave_function_corrections)
       {
-        B19 += -1.0 / 2.0 * (s.lam3 - s.lam5) * B3_z;
+        B19 += -1.0/2.0*(lam3 - lam5)*B3_z;
       }
 
-      complexd B20 = -s.lam1 + (3.0 / 2.0) * b_one + 1.0 / (16.0 * sqr(pi)) * (ii * pi - 1.) * (pow(s.lam1, 2) + pow(s.lam5, 2));
+      complexd B20 = -lam1 + (3.0/2.0)*b1 + 1.0/(16.0*sqr(pi))*(ii*pi - 1.0)*(sqr(lam1) + sqr(lam5));
       if (wave_function_corrections)
       {
-        B20_z = 1.0 / (16.0 * sqr(pi)) * (zij_AA + zij_hh + zij_HH + zij_zz + (zij_HH - zij_hh) * c2a + (zij_zz - zij_AA) * c2b - (zij_Hh - zij_hH) * s2a - zij_Az * s2b);
-        B20 += -1.0 * s.lam1 * B20_z;
+        B20_z = 1.0/(16.0*sqr(pi))*(zij_AA + zij_hh + zij_HH + zij_zz + (zij_HH - zij_hh)*c2a + (zij_zz - zij_AA)*c2b - (zij_Hh - zij_hH)*s2a - zij_Az*s2b);
+        B20 += -1.0*lam1*B20_z;
       }
 
-      complexd B21 = -s.lam2 + (3.0 / 2.0) * b_two + 1.0 / (16.0 * sqr(pi)) * (ii * pi - 1.) * (pow(s.lam2, 2) + pow(s.lam5, 2));
+      complexd B21 = -lam2 + (3.0/2.0)*b2 + 1.0/(16.0*sqr(pi))*(ii*pi - 1.0)*(sqr(lam2) + sqr(lam5));
       if (wave_function_corrections)
       {
-        B21_z = 1.0 / (16.0 * sqr(pi)) * (zij_AA + zij_hh + zij_HH + zij_zz + (zij_HH - zij_hh) * c2a - (zij_zz - zij_AA) * c2b + (zij_Hh - zij_hH) * s2a + zij_Az * s2b);
-        B21 += -1.0 * s.lam2 * B21_z;
+        B21_z = 1.0/(16.0*sqr(pi))*(zij_AA + zij_hh + zij_HH + zij_zz + (zij_HH - zij_hh)*c2a - (zij_zz - zij_AA)*c2b + (zij_Hh - zij_hH)*s2a + zij_Az*s2b);
+        B21 += -1.0*lam2*B21_z;
       }
 
-      complexd B22 = -s.lam5 + (3.0 / 2.0) * b_five + (1.0 / (16.0 * sqr(pi))) * (ii * pi - 1.) * (s.lam1 + s.lam2) * s.lam5;
+      complexd B22 = -lam5 + (3.0/2.0)*b5 + 1.0/(16.0*sqr(pi))*(ii*pi - 1.0)*(lam1 + lam2)*lam5;
       if (wave_function_corrections)
       {
-        B22_z = 1.0 / (16.0 * sqr(pi)) * (zij_AA + zij_hh + zij_HH + zij_zz);
-        B22 += -1.0 * s.lam5 * B22_z;
+        B22_z = 1.0/(16.0*sqr(pi))*(zij_AA + zij_hh + zij_HH + zij_zz);
+        B22 += -1.0*lam5*B22_z;
       }
 
-      complexd B30 = -(s.lam3 + s.lam4) + (3.0 / 2.0) * (b_three + b_four) + (1.0 / (16.0 * sqr(pi))) * (ii * pi - 1.) * pow((s.lam3 + s.lam4), 2);
+      complexd B30 = -(lam3 + lam4) + (3.0/2.0)*(b3 + b4) + 1.0/(16.0*sqr(pi))*(ii*pi - 1.0)*sqr(lam3 + lam4);
       if (wave_function_corrections)
       {
-        B30 += -1.0 * (s.lam3 + s.lam4) * B22_z;
+        B30 += -1.0*(lam3 + lam4)*B22_z;
       }
 
       // eigenvalues
-      complexd a00_even_plus = 1.0 / (32.0 * pi) * ((B1 + B2) + sqrt(pow((B1 - B2), 2) + 4. * pow(B3, 2)));
-      complexd a00_even_minus = 1.0 / (32.0 * pi) * ((B1 + B2) - sqrt(pow((B1 - B2), 2) + 4. * pow(B3, 2)));
-      complexd a00_odd_plus = 1.0 / (32.0 * pi) * (2. * B4 + 2. * B6);
-      complexd a00_odd_minus = 1.0 / (32.0 * pi) * (2. * B4 - 2. * B6);
-      complexd a01_even_plus = 1.0 / (32.0 * pi) * (B7 + B8 + sqrt(pow((B7 - B8), 2) + 4. * pow(B9, 2)));
-      complexd a01_even_minus = 1.0 / (32.0 * pi) * (B7 + B8 - sqrt(pow((B7 - B8), 2) + 4. * pow(B9, 2)));
-      complexd a01_odd_plus = 1.0 / (32.0 * pi) * (2. * B13 + 2. * B15);
-      complexd a01_odd_minus = 1.0 / (32.0 * pi) * (2. * B13 - 2. * B15);
-      complexd a10_odd = 1.0 / (32.0 * pi) * (2. * B19);
-      complexd a11_even_plus = 1.0 / (32.0 * pi) * (B20 + B21 + sqrt(pow((B20 - B21), 2) + 4. * pow(B22, 2)));
-      complexd a11_even_minus = 1.0 / (32.0 * pi) * (B20 + B21 - sqrt(pow((B20 - B21), 2) + 4. * pow(B22, 2)));
-      complexd a11_odd = 1.0 / (32.0 * pi) * (2. * B30);
+      complexd a00_even_plus  = 1.0/(32.0*pi)*(B1 + B2 + sqrt(sqr(B1 - B2) + 4.0*sqr(B3)));
+      complexd a00_even_minus = 1.0/(32.0*pi)*(B1 + B2 - sqrt(sqr(B1 - B2) + 4.0*sqr(B3)));
+
+      complexd a00_odd_plus  = 1.0/(32.0*pi)*(2.0*B4 + 2.0*B6);
+      complexd a00_odd_minus = 1.0/(32.0*pi)*(2.0*B4 - 2.0*B6);
+      
+      complexd a01_even_plus  = 1.0/(32.0*pi)*(B7 + B8 + sqrt(sqr(B7 - B8) + 4.0*sqr(B9)));
+      complexd a01_even_minus = 1.0/(32.0*pi)*(B7 + B8 - sqrt(sqr(B7 - B8) + 4.0*sqr(B9)));
+      
+      complexd a01_odd_plus  = 1.0/(32.0*pi)*(2.0*B13 + 2.0*B15);
+      complexd a01_odd_minus = 1.0/(32.0*pi)*(2.0*B13 - 2.0*B15);
+      
+      complexd a10_odd = 1.0/(32.0*pi)*(2.0*B19);
+      
+      complexd a11_even_plus  = 1.0/(32.0*pi)*(B20 + B21 + sqrt(sqr(B20 - B21) + 4.0*sqr(B22)));
+      complexd a11_even_minus = 1.0/(32.0*pi)*(B20 + B21 - sqrt(sqr(B20 - B21) + 4.0*sqr(B22)));
+      
+      complexd a11_odd = 1.0/(32.0*pi)*(2.0*B30);
 
       return {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus,
               a01_even_minus, a01_odd_plus, a01_odd_minus, a10_odd, a11_even_plus, a11_even_minus, a11_odd};
@@ -1777,22 +1668,41 @@ namespace Gambit
     // Next-to-Leading-Order S-matrix unitarity constraint (soft-cutoff)
     void NLO_unitarity_LogLikelihood_THDM(double& result)
     {
+      // References
+      
+      // (expressions for the Eigenvalues, Bs, and betas without any corrections)
+      // https://arxiv.org/pdf/1609.01290
+
+      // (Bs with wavefunction corrections, off-diagonal eigenvalues)
+      // https://arxiv.org/pdf/1512.04567
+
+      // (Corrections to betas from the gauge couplings g1,g2,g3 and Yukawa couplings)
+      // https://arxiv.org/pdf/1503.08216
+      // https://doi.org/10.1016/0550-3213(85)90328-1
+
       // get options from yaml file
       using namespace Pipes::NLO_unitarity_LogLikelihood_THDM;
       bool is_FS_model = ModelInUse("THDMatQ") ? true : false;
-      double other_scale = runOptions->getValueOrDef<double>(RunScale::NONE, "check_other_scale");
+      double hard_cutoff = runOptions->getValueOrDef<bool>(false, "hard_cutoff");
+      vector<double> other_scale = runOptions->getValueOrDef<vector<double>>(std::vector<double>({RunScale::INPUT}), "check_other_scale");
       bool check_corrections_ratio = runOptions->getValueOrDef<bool>(false, "check_correction_ratio");
       bool wave_function_corrections = runOptions->getValueOrDef<bool>(false, "wave_function_corrections");
       bool gauge_corrections = runOptions->getValueOrDef<bool>(false, "gauge_corrections");
       bool yukawa_corrections = runOptions->getValueOrDef<bool>(false, "yukawa_corrections");
       const Spectrum& spec = *Dep::THDM_spectrum;
       const CouplingTable& coupl = *Dep::couplingtable_THDM;
+      bool canRun = (*Dep::runToScaleTest_LogLikelihood_THDM == 0.0);
 
       // helper to get constraint at a single scale
       auto get_NLO_unitarity_LogLikelihood = [&](const SubSpectrum& he, const CouplingTable coup)
       {
         // get required spectrum info
-        const ThdmSpec s(he);
+        ThdmSpec s;
+        s.fill_angles(he);
+        s.fill_generic(he);
+        s.fill_higgs(he);
+        s.fill_physical(he);
+        s.fill_yukawas(he);
 
         // get the cubic and quartic couplings
         std::vector<complexd> C3; // = get_cubic_coupling_higgs(s);
@@ -1877,7 +1787,9 @@ namespace Gambit
 
             // dont apply perturbativity constraint if LO eigenvalues might be 'accidentally' small
             if (abs(LO_eigenvalue) > 1 / (16.0*pi)) // i.e. orig > 2*pi -> todo: check this!!!
+            {
               rat_err[i] = std::max(0.0, abs(NLO_eigenvalues[i]) / abs(LO_eigenvalue) - pert_ratio_limit);
+            }
           }
         }
 
@@ -1893,7 +1805,8 @@ namespace Gambit
       };
 
       // get worst performing LogLike at all scales
-      result = get_worst_LL_of_all_scales(spec, coupl, get_NLO_unitarity_LogLikelihood, is_FS_model, other_scale);
+      result = get_worst_LL_of_all_scales(spec, coupl, get_NLO_unitarity_LogLikelihood, is_FS_model, other_scale, canRun);
+      if (hard_cutoff && result < -0.0) result = -L_MAX;
 
       // test_data["NLO"] = -result;
     }

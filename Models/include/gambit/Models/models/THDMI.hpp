@@ -11,10 +11,6 @@
 ///    THDMI_higgsatQ
 ///    THDMI_physical
 ///    THDMI_physicalatQ
-///    THDMI_hybrid_lambda1
-///    THDMI_hybrid_lambda1atQ
-///    THDMI_hybrid_lambda2
-///    THDMI_hybrid_lambda2atQ
 ///
 ///  Translation functions defined in THDMI.cpp
 ///
@@ -184,66 +180,6 @@ namespace Gambit
   DEFINEPARS(Qin)
 
   INTERPRET_AS_PARENT_FUNCTION(THDMI_hybrid_Higgs2atQ_to_THDMIatQ)
-  INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
-#undef PARENT
-#undef MODEL
-
-#define MODEL THDMI_hybrid_lambda1
-#define PARENT THDMI
-  START_MODEL
-
-  DEFINEPARS(mh, sba)
-  DEFINEPARS(lambda2,lambda3,lambda4,lambda5)
-  DEFINEPARS(lambda6,lambda7,m12_2)
-  DEFINEPARS(tanb)
-
-  INTERPRET_AS_PARENT_FUNCTION(THDMI_hybrid_lambda1_to_THDMI)
-  INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
-#undef PARENT
-#undef MODEL
-
-#define MODEL THDMI_hybrid_lambda1atQ
-#define PARENT THDMIatQ
-  START_MODEL
-
-  DEFINEPARS(mh, sba)
-  DEFINEPARS(lambda2,lambda3,lambda4,lambda5)
-  DEFINEPARS(lambda6,lambda7,m12_2)
-  DEFINEPARS(tanb)
-
-  DEFINEPARS(Qin)
-
-  INTERPRET_AS_PARENT_FUNCTION(THDMI_hybrid_lambda1atQ_to_THDMIatQ)
-  INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
-#undef PARENT
-#undef MODEL
-
-#define MODEL THDMI_hybrid_lambda2
-#define PARENT THDMI
-  START_MODEL
-
-  DEFINEPARS(mh, sba)
-  DEFINEPARS(lambda1,lambda3,lambda4,lambda5)
-  DEFINEPARS(lambda6,lambda7,m12_2)
-  DEFINEPARS(tanb)
-
-  INTERPRET_AS_PARENT_FUNCTION(THDMI_hybrid_lambda2_to_THDMI)
-  INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
-#undef PARENT
-#undef MODEL
-
-#define MODEL THDMI_hybrid_lambda2atQ
-#define PARENT THDMIatQ
-  START_MODEL
-
-  DEFINEPARS(mh, sba)
-  DEFINEPARS(lambda1,lambda3,lambda4,lambda5)
-  DEFINEPARS(lambda6,lambda7,m12_2)
-  DEFINEPARS(tanb)
-
-  DEFINEPARS(Qin)
-
-  INTERPRET_AS_PARENT_FUNCTION(THDMI_hybrid_lambda2atQ_to_THDMIatQ)
   INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
 #undef PARENT
 #undef MODEL

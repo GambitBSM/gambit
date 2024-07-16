@@ -28,7 +28,7 @@ Parameters:
     # which use a FlexibleSUSY spectrum generator, e.g. 'THDMI_higgsatQ'
 
     # THDMI:
-    THDMI_hybrid_HiggsatQ:
+    THDMI_hybrid_Higgs2:
 
       # model parameters are specified here
       # generic basis:      lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, m12_2, tanb
@@ -47,18 +47,23 @@ Parameters:
       # range of m12_2 hard to justify so we use a logarithmic prior over a large region
       #      but m12_2 too low tends to cause negative masses
 
-      mh:
-          range: [123, 127]
-          prior_Type: flat
-      mH:
-          range: [140, 2500]
-          prior_Type: flat
+
+      mh: 125
+      mHp: 333
+      cba: 0.02
+
+      # mh:
+      #     range: [123, 127]
+      #     prior_Type: flat
+      # mH:
+      #     range: [140, 2500]
+      #     prior_Type: flat
       # mHp:
       #     range: [140, 2500]
       #     prior_Type: flat
-      cba:
-          range: [-0.55, +0.55]
-          prior_Type: flat
+      # cba:
+      #     range: [-0.55, +0.55]
+      #     prior_Type: flat
       tanb:
           range: [0.03, 100]
           prior_Type: flat
@@ -75,8 +80,8 @@ Parameters:
           fixed_value: 0.0
       lambda7:
           fixed_value: 0.0
-      Qin:
-        fixed_value: 91.1876 # = mZ
+      # Qin:
+      #   fixed_value: 91.1876 # = mZ
 
 #################################
 ##     PRINTER SELECTION       ##
@@ -120,7 +125,7 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 10
+      point_number: 200
       like:  LogLike
 
     differentialEvolution:
@@ -141,7 +146,7 @@ Scanner:
       jDE: true
 
       # population size (increase this to get more robust scan, or decrease to make it run faster)
-      NP: 40000
+      NP: 4000
 
       # when the average generation improvement falls below this, we stop the scan
       convthresh: 1e-6
@@ -168,6 +173,11 @@ ObsLikes:
   #-------------------------------------#
   #      THEORETICAL LIKELIHOODS        #
   #-------------------------------------#
+
+  # simple theory constraints applied BEFORE spectrum generation
+  - purpose: LogLike
+    capability: basic_theory_LogLikelihood_THDM
+
 
   # Checks that the LO or NLO scattering-matrix is unitary
   # Calculates and applies limit on eigenvalues of matrix
@@ -218,13 +228,13 @@ ObsLikes:
   # - purpose:    LogLike
   #   capability: scalar_mass_range_LogLikelihood_THDM
 
-  # Perturbativity check on lambdas and scalar couplings
-  # Calculates all quartic Higgs couplings in the physical
-  # basis & applies a 4pi perturbativity constraint on each
-  # Likelihood type: Half-Gaussian
-  - purpose:    LogLike
-    capability: perturbativity_LogLikelihood_THDM
-    function: perturbativity_LogLikelihood_THDM
+  # # Perturbativity check on lambdas and scalar couplings
+  # # Calculates all quartic Higgs couplings in the physical
+  # # basis & applies a 4pi perturbativity constraint on each
+  # # Likelihood type: Half-Gaussian
+  # - purpose:    LogLike
+  #   capability: perturbativity_LogLikelihood_THDM
+  #   function: perturbativity_LogLikelihood_THDM
 
 
   #   alternative simple perturbativity constraint which only checks lambdas
@@ -239,10 +249,10 @@ ObsLikes:
   #      COLLIDER LIKELIHOODS           #
   #-------------------------------------#
 
-  # ### NOTE
-  # # LHC & LEP likelihoods
-  # # Coupling Squared input structs are filled by colliderBit,
-  # # then chi^2 are extracted directly from HS & HB
+  # # ### NOTE
+  # # # LHC & LEP likelihoods
+  # # # Coupling Squared input structs are filled by colliderBit,
+  # # # then chi^2 are extracted directly from HS & HB
 
   # # HiggsSignals 2.5.0 likelihood
   # - purpose: LogLike
@@ -468,11 +478,11 @@ ObsLikes:
   # - purpose:      Observable
   #   capability:   prediction_Upar
 
-  - capability: couplingtable_THDM
-    purpose: Observable
-    # function: get_coupling_table_THDMC
-    function: get_coupling_table_using_physical_basis
-    # function: get_coupling_table_using_Higgs_basis
+  # - capability: couplingtable_THDM
+  #   purpose: Observable
+  #   # function: get_coupling_table_THDMC
+  #   # function: get_coupling_table_using_physical_basis
+  #   function: get_coupling_table_using_Higgs_basis
 
   # entire 2HDM spectrum
   - capability: THDM_spectrum
@@ -620,8 +630,8 @@ Rules:
     dependencies:
       - capability: couplingtable_THDM
         # function: get_coupling_table_THDMC
-        function: get_coupling_table_using_Higgs_basis
-        # function: get_coupling_table_using_physical_basis
+        # function: get_coupling_table_using_Higgs_basis
+        function: get_coupling_table_using_physical_basis
         module: SpecBit
 
   - capability: Higgs_decay_rates
@@ -795,6 +805,7 @@ KeyValues:
   dependency_resolution:
     prefer_model_specific_functions: true
     use_old_routines: false
+    unused_rule_is_an_error: false
 
   exceptions:
     dependency_resolver_error: fatal
