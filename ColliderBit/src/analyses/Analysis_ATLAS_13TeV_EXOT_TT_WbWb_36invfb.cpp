@@ -90,22 +90,22 @@ namespace Gambit
                 {
                     if (electron->pT() > 30 && electron->abseta() < 2.47 && (electron->abseta() < 1.37 || electron->abseta() > 1.52))
                     {
-                        bool passIsolation = LeptonIsolation(electron, event);
-                        if (passIsolation)
-                        {
+                        // bool passIsolation = LeptonIsolation(electron, event);
+                        // if (passIsolation)
+                        // {
                             baselineElectrons.push_back(electron);
-                        }
+                        // }
                     }
                 }
                 for (const HEPUtils::Particle *muon : event->muons())
                 {
                     if (muon->pT() > 30 && muon->abseta() < 2.5 && (muon->abseta() < 1.37 || muon->abseta() > 1.52))
                     {
-                        bool passIsolation = LeptonIsolation(muon, event);
-                        if (passIsolation)
-                        {
+                        // bool passIsolation = LeptonIsolation(muon, event);
+                        // if (passIsolation)
+                        // {
                             baselineMuons.push_back(muon);
-                        }
+                        // }
                     }
                 }
 
@@ -113,12 +113,12 @@ namespace Gambit
 
                 // Apply electron efficiency
                 // Electron efficiency is defined in ATLAS-CONF-2016-024, susperseded by arXiv:1902.04655.
-                // applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_VeryLoose"));
-                ATLAS::applyElectronEff(baselineElectrons);
+                applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_VeryLoose"));
+                // ATLAS::applyElectronEff(baselineElectrons);
                 // Muon efficiency is defined in CERN-EP-2016-033, arXiv:1603.05598. PREF-2015-10
                 // Due to the muon pT in this work is required to be larger than 30 GeV, choosing the full Run-II effcicency instead.
-                // applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("eff1DMu_MUON_2018_03_ID_Loose"));
-                ATLAS::applyMuonEff(baselineMuons); 
+                applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("eff1DMu_MUON_2018_03_ID_Loose"));
+                // ATLAS::applyMuonEff(baselineMuons); 
                 // Jets
                 vector<const HEPUtils::Jet *> baselineSmallRJets;
                 vector<const HEPUtils::Jet *> baselineLargeRJets;
@@ -284,7 +284,7 @@ namespace Gambit
                 {
                     double mTcand11 = (signalBjets.at(0)->mom() + signal_Whad->mom()).m();
                     double mTcand12 = (signalBjets.at(0)->mom() + Wlep->mom()).m();
-                    double mTcand21 = (signalBjets.at(1)->mom() + signal_Whad->mom()) m();
+                    double mTcand21 = (signalBjets.at(1)->mom() + signal_Whad->mom()).m();
                     double mTcand22 = (signalBjets.at(1)->mom() + Wlep->mom()).m();
 
                     if (abs(mTcand11 - mTcand22) < abs(mTcand12 - mTcand21))
@@ -331,11 +331,13 @@ namespace Gambit
                 const double mTlep = (p4bJetlep + Wlep->mom()).m();
                 const double mThad = (p4bJethad + signal_Whad->mom()).m();
                 double ST = met + signalLeptons.at(0)->pT();
-                for (vector<const HEPUtils::Jet *> jet : signalBjets)
+                // for (vector<const HEPUtils::Jet *> jet : signalBjets)
+                for (const HEPUtils::Jet *jet : signalBjets)
                 {
                     ST += jet->pT();
                 }
-                for (vector<const HEPUtils::Jet *> jet : signalJets)
+                // for (vector<const HEPUtils::Jet *> jet : signalJets)
+                for (const HEPUtils::Jet *jet : signalJets)
                 {
                     ST += jet->pT();
                 }
@@ -351,7 +353,7 @@ namespace Gambit
 
             void combine(const Analysis *other)
             {
-                const ATLAS_13TeV_EXOT_TT_WbWb_36invfb *specificOther = dynamic_cast<const ATLAS_13TeV_EXOT_TT_WbWb_36invfb *>(other);
+                const Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb *specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb *>(other);
 
                 for (auto &pair : _counters)
                 {
@@ -379,20 +381,20 @@ namespace Gambit
             const double mW = 80.4;
 
             // electron isolation requirement
-            bool LeptonIsolation(const HEPUtils::Particle &lepton, const HEPUtils::Event *event)
-            {
-                double IR = 0.0;
-                double Rcut = std::min(10.0 / lepton.pT(), 0.2);
-                for (const auto &track : event->tracks())
-                {
-                    double dR = lepton.mom().deltaR_eta(track->mom());
-                    if (dR < Rcut)
-                    {
-                        IR += track->pT();
-                    }
-                }
-                return IR < 0.06 * lepton.pT();
-            }
+            // bool LeptonIsolation(const HEPUtils::Particle &lepton, const HEPUtils::Event *event)
+            // {
+            //     double IR = 0.0;
+            //     double Rcut = std::min(10.0 / lepton.pT(), 0.2);
+            //     for (const auto &track : event->tracks())
+            //     {
+            //         double dR = lepton.mom().deltaR_eta(track->mom());
+            //         if (dR < Rcut)
+            //         {
+            //             IR += track->pT();
+            //         }
+            //     }
+            //     return IR < 0.06 * lepton.pT();
+            // }
 
             std::vector<double> calculate_pvz(const HEPUtils::P4 &lep, double met_px, double met_py)
             {
