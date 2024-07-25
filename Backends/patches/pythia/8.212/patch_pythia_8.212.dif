@@ -6656,3 +6656,99 @@ diff -rupN pythia_8.212_original/src/SigmaProcess.cc pythia_8.212_patched/src/Si
      p2ME3 *= compFac;
      p2ME4 *= compFac;
      p2ME5 *= compFac;
+diff -rupN pythia_8.212_original/src/PhaseSpace.cc pythia_8.212_patched/src/PhaseSpace.cc 
+--- pythia_8.212_original/src/PhaseSpace.cc	2019-05-15 11:17:51.000000000 +0200
++++ pythia_8.212_patched/src/PhaseSpace.cc	2024-07-17 15:58:56.531151223 +0200
+@@ -220,6 +220,14 @@ void PhaseSpace::decayKinematics( Event&
+       if ( !process[iRes].isFinal() ) hasRes = true;
+     if ( !hasRes ) continue;
+ 
++    // ARE: Start changes
++    // Or is a SUSY three-body decay treated as a special case
++    bool has3bdy = false;
++    if( settingsPtr->flag("SUSYResonance:3BodyMatrixElement")
++       && iResEnd-iResBeg == 2 ) has3bdy = true;
++    if ( !hasRes && !has3bdy ) continue;
++    //cout << "PhaseSpace::decayKinematics: iResBeg " << iResBeg << " iResEnd " << iResEnd << endl;
++    
+     // Evaluate matrix element and decide whether to keep kinematics.
+     double decWt = sigmaProcessPtr->weightDecay( process, iResBeg, iResEnd);
+     if (decWt < 0.) infoPtr->errorMsg("Warning in PhaseSpace::decay"
+@@ -228,19 +236,32 @@ void PhaseSpace::decayKinematics( Event&
+       "Kinematics: angular weight above unity");
+     while (decWt < rndmPtr->flat() ) {
+ 
+-      // Find resonances for which to redo decay angles.
+-      for (int iRes = iResBeg; iRes < process.size(); ++iRes) {
+-        if ( process[iRes].isFinal() ) continue;
+-        int iResMother = iRes;
+-        while (iResMother > iResEnd)
+-          iResMother = process[iResMother].mother1();
+-        if (iResMother < iResBeg) continue;
+-
++      if(!has3bdy){
++        
++        // Find resonances for which to redo decay angles.
++        for (int iRes = iResBeg; iRes < process.size(); ++iRes) {
++          if ( process[iRes].isFinal() ) continue;
++          int iResMother = iRes;
++          while (iResMother > iResEnd)
++            iResMother = process[iResMother].mother1();
++          if (iResMother < iResBeg) continue;
++          
++          // Do decay of this mother isotropically in phase space.
++          decayKinematicsStep( process, iRes);
++          
++          // End loop over resonance decay chains.
++        }
++        
++      }
++      else{
++        // Find three-body decay for which to redo decay
++        int iResMother = process[iResBeg].mother1();
+         // Do decay of this mother isotropically in phase space.
+-        decayKinematicsStep( process, iRes);
+-
+-      // End loop over resonance decay chains.
++        decayKinematicsStep( process, iResMother);
++        
++        //cout << "PhaseSpace::decayKinematics: re-doing 3-bdy decay of " << iResMother << endl;
+       }
++      // ARE: End changes
+ 
+       // Ready to allow new test of matrix element.
+       decWt = sigmaProcessPtr->weightDecay( process, iResBeg, iResEnd);
+diff -rupN pythia_8.212_original/src/SigmaSUSY.cc pythia_8.212_patched/src/SigmaSUSY.cc 
+--- pythia_8.212_original/src/SigmaSUSY.cc	2019-05-15 11:17:51.000000000 +0200
++++ pythia_8.212_patched/src/SigmaSUSY.cc	2024-07-17 15:58:56.635153380 +0200
+@@ -84,7 +84,18 @@ double Sigma2SUSY::weightDecay( Event& p
+       localDecay.tH = (process[iF].p()-process[iT].p()).m2Calc();
+       localDecay.uH = localDecay.s3+localDecay.s4-localDecay.tH-localDecay.sH;
+       localDecay.sigmaKin();
+-      double wt = -localDecay.sigmaHat();
++      
++      // ARE: Start changes here
++      // Modify the cross section so that it becomes the amplitude and use it as a weight for the decay
++      //double wt = -localDecay.sigmaHat();
++      double wt = -localDecay.sigmaHat()*localDecay.sH2;
++      
++      // Keep track of maximum weight through event generation and increase it if a larger weight is found
++      static double wtmax = 0;
++      //if(wt > 0.5) cout << "wt: " << wt << " wtmax: " << wtmax << endl;
++      wtmax = max(wtmax, wt);
++
++      /*
+       // Estimate maximum weight by sampling kinematic extremes
+       // Case I:  neutralino(i) at rest
+       localDecay.sH = pow2(xm4-xm3);
+@@ -103,6 +114,10 @@ double Sigma2SUSY::weightDecay( Event& p
+       localDecay.tH = localDecay.s3+localDecay.s4-localDecay.tH-localDecay.sH;
+       localDecay.sigmaKin();
+       wtmax += -localDecay.sigmaHat();
++      */
++      
++      // ARE: End changes here
++      
+       return(wt/wtmax);
+     }
+   }

@@ -5,6 +5,7 @@
 ///  *********************************************
 
 // Based on https://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-18-004/index.html
+// June 2024: Updated to match published paper, cutflows and other public data
 
 #include <vector>
 #include <cmath>
@@ -34,7 +35,6 @@ namespace Gambit
 
       Analysis_CMS_13TeV_2LEPsoft_137invfb()
       {
-        //std::cout << "constructor" << std::endl;
         DEFINE_SIGNAL_REGIONS("2lEWlow", 4, "2 leptons",  "pT(l2) > 3.5 (5) GeV for muon (electron)", "4 GeV < mll < 50 GeV", "Y veto", "pT(ll) > 3 GeV", "1 jet", "2/3 < met/HT < 1.4", "HT > 100 GeV", "met > 125 GeV && 125 GeV < metcorr < 200 GeV", "trigger path combination (low)", "OS leptons", "5 GeV < pT(l1) < 30 GeV", "Tight lepton ID", "No b-jets", "m(tautau) < 0. or m(tautau) > 160.", "MT(l1, met) < 70. GeV && MT(l2, met) < 70.0 GeV", "SF leptons", "2 muons", "pT(l2) > 5 GeV")
         DEFINE_SIGNAL_REGIONS("2lEWmed", 5, "2 leptons", "pT(l2) > 3.5 (5) GeV for muon (electron)", "Y veto", "pT(ll) > 3 GeV", "1 jet", "2/3 < met/HT < 1.4", "HT > 100 GeV", "200 GeV < metcorr < 240 GeV", "trigger path combination (med)", "OS leptons", "Tight lepton ID", "No b-jets", "m(tautau) < 0. or m(tautau) > 160.", "MT(l1, met) < 70. GeV && MT(l2, met) < 70.0 GeV", "SF leptons", "1 GeV < mll < 50 GeV", "J/Psi veto", "3.5 (5) GeV < pT(l1) < 30.0 GeV", "deltaR < 0.3")
         DEFINE_SIGNAL_REGIONS("2lEWhigh",5, "2 leptons", "pT(l2) > 3.5 (5) GeV for muon (electron)", "Y veto", "pT(ll) > 3 GeV", "1 jet", "2/3 < met/HT < 1.4", "HT > 100 GeV", "240 GeV < metcorr < 290 GeV", "trigger path combination (high)", "OS leptons", "Tight lepton ID", "No b-jets", "m(tautau) < 0. or m(tautau) > 160.", "MT(l1, met) < 70. GeV && MT(l2, met) < 70.0 GeV", "SF leptons", "1 GeV < mll < 50 GeV", "J/Psi veto", "3.5 (5) GeV < pT(l1) < 30.0 GeV", "deltaR < 0.3")
@@ -52,13 +52,17 @@ namespace Gambit
 
       void run(const HEPUtils::Event* event)
       {
-        //std::cout << "run" << std::endl;
-
         //////////////////////
         // Baseline objects //
 
-        BASELINE_PARTICLES(event->electrons(), baselineElectrons, 5., 0., 30., 2.5, CMS::eff2DEl.at("SUS-18-004"))
-        BASELINE_PARTICLES(event->muons(), baselineMuons, 3.5, 0., 30., 2.4, CMS::eff2DMu.at("SUS-18-004"))
+        //BASELINE_PARTICLES(event->electrons(), baselineElectrons, 5., 0., 30., 2.5, CMS::eff2DEl.at("SUS-18-004"))
+        //BASELINE_PARTICLES(event->muons(), baselineMuons, 3.5, 0., 30., 2.4, CMS::eff2DMu.at("SUS-18-004"))
+        // TODO: Test with looser constraints on lepton pTs at baseline selection
+        //BASELINE_PARTICLES(event->electrons(), baselineElectrons, 1., 0., 50., 2.5, CMS::eff2DEl.at("SUS-18-004"))
+        //BASELINE_PARTICLES(event->muons(), baselineMuons, 1., 0., 50., 2.4, CMS::eff2DMu.at("SUS-18-004"))
+        // TODO: Test with no cut on baseline selection
+        BASELINE_PARTICLES(event->electrons(), baselineElectrons)
+        BASELINE_PARTICLES(event->muons(), baselineMuons)
         BASELINE_PARTICLE_COMBINATION(baselineLeptons, baselineElectrons, baselineMuons)
         BASELINE_JETS(event->jets("antikt_R04"), baselineJets, 25., 0., DBL_MAX, 2.4)
         BASELINE_BJETS(event->jets("antikt_R04"), baselineBJets, 25., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("DeepCSVMedium"), CMS::misIDBJet.at("DeepCSVMedium"))
@@ -68,8 +72,13 @@ namespace Gambit
 
         ////////////////////
         // Signal objects //
-        SIGNAL_PARTICLES(baselineElectrons, signalElectrons)
-        SIGNAL_PARTICLES(baselineMuons, signalMuons)
+        // TODO: Move the lepton cuts here
+        //SIGNAL_PARTICLES(baselineElectrons, signalElectrons)
+        //SIGNAL_PARTICLES(baselineMuons, signalMuons)
+        SIGNAL_PARTICLES(baselineElectrons, signalElectrons, true, 5., 0., 30., 2.5)
+        applyEfficiency(signalElectrons, CMS::eff2DEl.at("SUS-18-004"));
+        SIGNAL_PARTICLES(baselineMuons, signalMuons, true, 3.5, 0., 30., 2.4)
+        applyEfficiency(signalMuons, CMS::eff2DMu.at("SUS-18-004"));
         SIGNAL_JETS(baselineJets, signalJets)
         SIGNAL_JETS(baselineBJets, signalBJets)
 
@@ -127,10 +136,12 @@ namespace Gambit
         size_t nSFpairs = SFpairs.size();
 
         // Muon corrected ETmiss
+        // TODO: Tried corrected met with baseline muons
         double metcorr = 0;
         double metcorrx = mmom.px();
         double metcorry = mmom.py();
-        for(auto& muon : signalMuons)
+        //for(auto& muon : signalMuons)
+        for(auto& muon: baselineMuons)
         {
           metcorrx += muon->mom().px();
           metcorry += muon->mom().py();
@@ -207,7 +218,7 @@ namespace Gambit
         bool trigger_path_2 = metcorr > 60. and met > 50. and  nBaselineMuons >= 2 and baselineMuons.at(0)->pT() > 3 and baselineMuons.at(1)->pT() > 3 and
              (baselineMuons.at(0)->mom() + baselineMuons.at(1)->mom()).m() > 3.8 and  (baselineMuons.at(0)->mom() + baselineMuons.at(1)->mom()).m() < 56;
         // TODO: Trigger path only important for WZ regions, check if it matters
-        //bool trigger_path_3 = metcorr > 60. and met > 50. and  nSignalMuons > 2 and signalMuons.at(0)->pT() > 17 and signalMuons.at(1)->pT() > 8;
+        bool trigger_path_3 = nBaselineMuons >= 2 and baselineMuons.at(0)->pT() > 17 and baselineMuons.at(1)->pT() > 8;
         //if(not trigger_path_1 and not trigger_path_2/* and not trigger_path_3*/) return;
 
         static int count = 0;
@@ -221,7 +232,7 @@ namespace Gambit
         ///////////////////
         // Preselection //
         BEGIN_PRESELECTION
-        if(nBaselineLeptons < 2 or (not trigger_path_1 and not trigger_path_2)) return;
+        if(nBaselineLeptons < 2 or (not trigger_path_1 and not trigger_path_2 and not trigger_path_3)) return;
         END_PRESELECTION
 
         //if(nSignalLeptons < 2 or nSignalLeptons > 3) return;
@@ -250,7 +261,7 @@ namespace Gambit
         LOG_CUTS_N(cuts, "2lEWlow", 4)
         cuts = cuts and (met > 125. and metcorr > 125. and metcorr < 200.);
         LOG_CUTS_N(cuts, "2lEWlow", 4)
-        cuts = cuts and (trigger_path_2);
+        cuts = cuts and (trigger_path_1 or trigger_path_2 or trigger_path_3);
         LOG_CUTS_N(cuts, "2lEWlow", 4)
         cuts = cuts and (nOSpairs > 0);
         LOG_CUTS_N(cuts, "2lEWlow", 4)
@@ -297,7 +308,7 @@ namespace Gambit
         LOG_CUTS_N(cuts, "2lEWmed", 5)
         cuts = cuts and (metcorr > 200. and metcorr < 240.);
         LOG_CUTS_N(cuts, "2lEWmed", 5)
-        cuts = cuts and (trigger_path_1);
+        cuts = cuts and (trigger_path_1 or trigger_path_2 or trigger_path_3);
         LOG_CUTS_N(cuts, "2lEWmed", 5)
         cuts = cuts and (nOSpairs > 0);
         LOG_CUTS_N(cuts, "2lEWmed", 5)
@@ -347,7 +358,7 @@ namespace Gambit
         LOG_CUTS_N(cuts, "2lEWhigh", 5)
         cuts = cuts and (metcorr > 240. and metcorr <= 290.);
         LOG_CUTS_N(cuts, "2lEWhigh", 5)
-        cuts = cuts and (trigger_path_1);
+        cuts = cuts and (trigger_path_1 or trigger_path_2 or trigger_path_3);
         LOG_CUTS_N(cuts, "2lEWhigh", 5)
         cuts = cuts and (nOSpairs > 0);
         LOG_CUTS_N(cuts, "2lEWhigh", 5)
@@ -397,7 +408,7 @@ namespace Gambit
         LOG_CUTS_N(cuts, "2lEWultra", 5)
         cuts = cuts and (metcorr > 290.);
         LOG_CUTS_N(cuts, "2lEWultra", 5)
-        cuts = cuts and (trigger_path_1);
+        cuts = cuts and (trigger_path_1 or trigger_path_2 or trigger_path_3);
         LOG_CUTS_N(cuts, "2lEWultra", 5)
         cuts = cuts and (nOSpairs > 0);
         LOG_CUTS_N(cuts, "2lEWultra", 5)
@@ -449,7 +460,7 @@ namespace Gambit
         LOG_CUTS_N(cuts, "2lSTlow", 6)
         cuts = cuts and (met > 125. and metcorr > 125. and metcorr <= 200.);
         LOG_CUTS_N(cuts, "2lSTlow", 6)
-        cuts = cuts and (trigger_path_2);
+        cuts = cuts and (trigger_path_1 or trigger_path_2 or trigger_path_3);
         LOG_CUTS_N(cuts, "2lSTlow", 6)
         cuts = cuts and (nOSpairs > 0);
         LOG_CUTS_N(cuts, "2lSTlow", 6)
@@ -494,7 +505,7 @@ namespace Gambit
         LOG_CUTS_N(cuts, "2lSTmed", 6)
         cuts = cuts and (metcorr > 200. and metcorr < 290.);
         LOG_CUTS_N(cuts, "2lSTmed", 6)
-        cuts = cuts and (trigger_path_1);
+        cuts = cuts and (trigger_path_1 or trigger_path_2 or trigger_path_3);
         LOG_CUTS_N(cuts, "2lSTmed", 6)
         cuts = cuts and (nOSpairs > 0);
         LOG_CUTS_N(cuts, "2lSTmed", 6)
@@ -541,7 +552,7 @@ namespace Gambit
         LOG_CUTS_N(cuts, "2lSThigh", 6)
         cuts = cuts and (metcorr > 290. and metcorr < 340.);
         LOG_CUTS_N(cuts, "2lSThigh", 6)
-        cuts = cuts and (trigger_path_1);
+        cuts = cuts and (trigger_path_1 or trigger_path_2 or trigger_path_3);
         LOG_CUTS_N(cuts, "2lSThigh", 6)
         cuts = cuts and (nOSpairs > 0);
         LOG_CUTS_N(cuts, "2lSThigh", 6)
@@ -588,7 +599,7 @@ namespace Gambit
         LOG_CUTS_N(cuts, "2lSTultra", 6)
         cuts = cuts and (metcorr > 340.);
         LOG_CUTS_N(cuts, "2lSTultra", 6)
-        cuts = cuts and (trigger_path_1);
+        cuts = cuts and (trigger_path_1 or trigger_path_2 or trigger_path_3);
         LOG_CUTS_N(cuts, "2lSTultra", 6)
         cuts = cuts and (nOSpairs > 0);
         LOG_CUTS_N(cuts, "2lSTultra", 6)
@@ -631,7 +642,7 @@ namespace Gambit
         LOG_CUTS_N(cuts, "3lEWlow", 4)
         cuts = cuts and (met > 125. and metcorr > 125. and metcorr <= 200.);
         LOG_CUTS_N(cuts, "3lEWlow", 4)
-        cuts = cuts and (trigger_path_2);
+        cuts = cuts and (trigger_path_1 or trigger_path_2 or trigger_path_3);
         LOG_CUTS_N(cuts, "3lEWlow", 4)
         cuts = cuts and (nOSpairs > 0 and nOSSFpairs > 0);
         LOG_CUTS_N(cuts, "3lEWlow", 4)
@@ -672,9 +683,9 @@ namespace Gambit
         LOG_CUTS_N(cuts, "3lEWmed", 5)
         cuts = cuts and (metcorr > 200.);
         LOG_CUTS_N(cuts, "3lEWmed", 5)
-        cuts = cuts and (trigger_path_1);
+        cuts = cuts and (trigger_path_1 or trigger_path_2 or trigger_path_3);
         LOG_CUTS_N(cuts, "3lEWmed", 5)
-        cuts = cuts and (nOSpairs > 0 and nOSSFpairs);
+        cuts = cuts and (nOSpairs > 0 and nOSSFpairs > 0);
         LOG_CUTS_N(cuts, "3lEWmed", 5)
         cuts = cuts and (tight_lepton_id);
         LOG_CUTS_N(cuts, "3lEWmed", 5)
