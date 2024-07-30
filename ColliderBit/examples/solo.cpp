@@ -127,6 +127,10 @@ int main(int argc, char* argv[])
     if (not event_file_is_HepMC)
       throw std::runtime_error("Unrecognised event file format in "+event_filename+"; must be .hepmc.");
 
+    // Extract the jet collections yaml node
+    YAML::Node jet_collections = settings.getValue<YAML::Node>("jet_collections");
+    std::string jet_collection_taus = settings.getValueOrDef<std::string>("antikt_R04", "jet_collection_taus");
+
     // Check if Rivet & Contur requested and/or enabled then extract options from yaml
     bool withRivet;
     bool withContur;
@@ -204,6 +208,12 @@ int main(int argc, char* argv[])
     // Pass the filename and the jet pt cutoff to the HepMC reader/HEPUtils converter function
     getEvent.setOption<str>("hepmc_filename", event_filename);
     convertEvent.setOption<double>("jet_pt_min", jet_pt_min);
+
+    // Pass the jet collections yaml node to the hepMC reader/HEPUtils converter function
+    getEvent.setOption<std::string>("jet_collection_taus", jet_collection_taus);
+    getEvent.setOption<YAML::Node>("jet_collections", jet_collections);
+    convertEvent.setOption<std::string>("jet_collection_taus", jet_collection_taus);
+    convertEvent.setOption<YAML::Node>("jet_collections", jet_collections);
 
     // Pass options to the cross-section function
     if (settings.hasKey("cross_section_pb"))
