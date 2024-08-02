@@ -19,9 +19,9 @@
 */
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "HEPUtils/FastJet.h"
-// #include "HEPUtils/Cutflow.h"
 #include "HEPUtils/Event.h"
 #include "HEPUtils/Jet.h"
 // #include "fastjet/Filter.hh"
@@ -44,7 +44,7 @@
 #endif
 
 using namespace std;
-# define CHECK_CUTFLOW
+#define CHECK_CUTFLOW
 
 namespace Gambit
 {
@@ -53,50 +53,57 @@ namespace Gambit
 
         class Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb : public Analysis
         {
-        protected:
-            // Counters for the number of accepted events for each signal region
-            std::map<string, EventCounter> _counters = {
-                {"SR", EventCounter("SR")},
-            };
-            //   Cutflow _cutflow;
+        // protected:
+        //     // Counters for the number of accepted events for each signal region
+        //     std::map<string, EventCounter> _counters = {
+        //         {"SR", EventCounter("SR")},
+        //     };
 
         public:
-            // Require detector sim
+
             #ifdef CHECK_CUTFLOW
-                Cutflows _cfs; 
-            #endif 
+                Cutflows _cutflows;
+            #endif
 
             static constexpr const char *detector = "ATLAS";
 
             Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb()
             {
+                DEFINE_SIGNAL_REGION("SR"); 
+
                 set_analysis_name("ATLAS_13TeV_EXOT_TT_WbWb_36invfb");
                 set_luminosity(36.1);
 
                 #ifdef CHECK_CUTFLOW
-                    cout << "Starting run Analysis \n booking Cutflows" << endl; 
-                    // Booking Cutflows 
-                    const vector<string> cutnames = {
-                        "No Cut", 
-                        "Base Selection", 
-                        ">= 1 Whad cand.",
-                        "ETmiss >= 60 GeV",
-                        ">= 1 b-tagged jet",
-                        "S_T >= 1800 GeV",
-                        "DeltaR(lep, v) <= 0.7",
-                        "DeltaM < 300 GeV"                    
-                    }
-                    _cfs.addCutflow("ATLAS_13TeV_EXOT_TT_WbWb_36invfb-SR", cutnames); 
+                cout << "Starting run Analysis \n booking Cutflows" << endl;
+                // Booking Cutflows
+                const vector<string> cutnames = {
+                    "No Cut",
+                    "Base Selection",
+                    ">= 1 Whad cand.",
+                    "ETmiss >= 60 GeV",
+                    ">= 1 b-tagged jet",
+                    "S_T >= 1800 GeV",
+                    "DeltaR(lep, v) <= 0.7",
+                    "DeltaM < 300 GeV"};
+
+                _cutflows.addCutflow("ATLAS_13TeV_EXOTTTWbWb_36invfb", cutnames);
+                
+                cout << _cutflows << endl; 
                 #endif
             }
 
             void run(const HEPUtils::Event *event)
             {
+                cout << "\n ============= \n Start Run new events " << endl; 
                 #ifdef CHECK_CUTFLOW
-                    _cfs['ATLAS_13TeV_EXOT_TT_WbWb_36invfb-SR'].fillinit(event->weight()); 
-                    _cfs['ATLAS_13TeV_EXOT_TT_WbWb_36invfb-SR'].fillnext(event->weight()); 
+                    const double w = event->weight(); 
+                    cout << "Event weight ->" << w << endl; 
+                    _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fillinit(w);
+                    _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fillnext(w);
                 #endif
 
+                cout << "0. pass cutflow init" << endl; 
                 // Define the missing momentum & MET
                 HEPUtils::P4 pmiss = event->missingmom();
                 const double met = event->met();
@@ -110,7 +117,7 @@ namespace Gambit
                         // bool passIsolation = LeptonIsolation(electron, event);
                         // if (passIsolation)
                         // {
-                            baselineElectrons.push_back(electron);
+                        baselineElectrons.push_back(electron);
                         // }
                     }
                 }
@@ -121,7 +128,7 @@ namespace Gambit
                         // bool passIsolation = LeptonIsolation(muon, event);
                         // if (passIsolation)
                         // {
-                            baselineMuons.push_back(muon);
+                        baselineMuons.push_back(muon);
                         // }
                     }
                 }
@@ -135,8 +142,10 @@ namespace Gambit
                 // Muon efficiency is defined in CERN-EP-2016-033, arXiv:1603.05598. PREF-2015-10
                 // Due to the muon pT in this work is required to be larger than 30 GeV, choosing the full Run-II effcicency instead.
                 applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Loose"));
-                // ATLAS::applyMuonEff(baselineMuons); 
+                // ATLAS::applyMuonEff(baselineMuons);
                 // Jets
+
+                cout << "1. Define Lepton candidates" << endl; 
                 vector<const HEPUtils::Jet *> baselineSmallRJets;
                 vector<const HEPUtils::Jet *> baselineLargeRJets;
                 vector<const HEPUtils::Jet *> trimmedLargeRJets;
@@ -170,7 +179,7 @@ namespace Gambit
                     }
                 }
                 // Define largeR-jets
-
+                cout << "2. Define Jet candidates" << endl; 
                 for (const HEPUtils::Jet *jet : event->jets("antikt_R1"))
                 {
                     baselineLargeRJets.push_back(jet);
@@ -205,6 +214,7 @@ namespace Gambit
                 // ============================================================== //
 
                 // Method 2:
+                cout << "Before Trimming Jet " << endl; 
                 const double Rsub = 0.2;
                 const double ptfrac = 0.05;
                 fastjet::Filter trimmer(fastjet::JetDefinition(fastjet::kt_algorithm, Rsub), fastjet::SelectorPtFractionMin(ptfrac));
@@ -221,6 +231,7 @@ namespace Gambit
                     }
                 }
 
+                cout << "trimming large RJets " << endl; 
                 // Removing Overlaping
                 // 1) Remove trimmed-LargeR jets with b-tagged small-R jets within DeltaR < 1.0.
                 removeOverlap(trimmedLargeRJets, bJets, 1.0);
@@ -259,13 +270,32 @@ namespace Gambit
                 int n_bjets = signalBjets.size();
                 int n_Whad = signalWhad.size();
 
-                if (n_leptons == 1 && n_jets >= 3 && n_bjets >= 1 && n_Whad >= 1 && met >= 60)
+                if ( n_leptons == 1 && n_jets >= 3 )
                 {
-                    presel = true;
                     #ifdef CHECK_CUTFLOW
-                        _cfs['ATLAS_13TeV_EXOT_TT_WbWb_36invfb-SR'].fillnext(event->weight());
+                        _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(2, true, event->weight());
                     #endif
+                    if ( n_Whad >= 1 )
+                    {
+                        #ifdef CHECK_CUTFLOW
+                            _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(3, true, event->weight());
+                        #endif
+                        if ( met >= 60 ) 
+                        {
+                            #ifdef CHECK_CUTFLOW
+                                _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(4, true, event->weight()); 
+                            #endif
+                            if ( n_bjets >= 1 )
+                            {
+                                #ifdef CHECK_CUTFLOW
+                                    _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(5, true, event->weight()); 
+                                #endif
+                                presel = true;
+                            }
+                        }
+                    }
                 }
+
                 if (!presel)
                     return;
 
@@ -369,22 +399,35 @@ namespace Gambit
                     _counters.at("SR").add_event(event);
                 }
 
+                #ifdef CHECK_CUTFLOW
+                    if (ST > 1800)
+                    {
+                        _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(6, true, event->weight()); 
+                        if (dRvlep < 0.7)
+                        {
+                            _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(7, true, event->weight()); 
+                            if (abs(mTlep - mThad) < 300) 
+                            {
+                                _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(8, true, event->weight());
+                            }
+                        }
+                    }
+                #endif
+
             } // End run function
 
-            // void combine(const Analysis *other)
-            // {
-            //     const Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb *specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb *>(other);
-
-            //     for (auto &pair : _counters)
-            //     {
-            //         pair.second += specificOther->_counters.at(pair.first);
-            //     }
-            // }
-
-            void collect_results()
+            virtual void collect_results()
             {
                 // This data is used if not running ATLAS_FullLikes.
                 add_result(SignalRegionData(_counters.at("SR"), 58, {64.0, 9.0}));
+                
+                // Add cutflow data to the analysis results
+
+                COMMIT_CUTFLOWS;
+                #ifdef CHECK_CUTFLOW
+                    // _cutflows.combine(); 
+                    cout << "\n ===== CUTFLOWS ====== \n" << _cutflows << endl; 
+                #endif
                 return;
             }
 
