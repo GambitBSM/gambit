@@ -1622,6 +1622,49 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+ ///Observable: kappa_tilde
+  #define CAPABILITY kappa_tilde
+  START_CAPABILITY
+    #define FUNCTION THDM_kappa_tilde
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+ ///Observable: kappa_tau
+  #define CAPABILITY kappa_tau
+  START_CAPABILITY
+    #define FUNCTION THDM_kappa_tau
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+ ///Observable: kappa_c
+  #define CAPABILITY kappa_c
+  START_CAPABILITY
+    #define FUNCTION THDM_kappa_c
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+ ///Observable: kappa_b
+  #define CAPABILITY kappa_b
+  START_CAPABILITY
+    #define FUNCTION THDM_kappa_b
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
+  #undef CAPABILITY	
 
   ///Observable: BR(h->bs)
   #define CAPABILITY h2bs
@@ -1987,6 +2030,15 @@ START_MODULE
   //###############################################
   // Likelihoods
   //###############################################
+
+  ///kappa_tilde likelihood
+  #define CAPABILITY kappa_tilde_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION kappa_tilde_LogLikelihood
+    START_FUNCTION(double)
+    DEPENDENCY(kappa_tilde, double)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   ///t->ch likelihood
   #define CAPABILITY t2ch_LogLikelihood

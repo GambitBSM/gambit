@@ -362,6 +362,30 @@ START_MODULE
 
   #undef CAPABILITY
 
+  #define CAPABILITY oblique_parameters_ST_LogLikelihood
+    START_CAPABILITY
+  
+    #define FUNCTION get_oblique_parameters_ST_LogLikelihood
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_Spar,double)
+    DEPENDENCY(prediction_Tpar,double)
+    DEPENDENCY(prediction_Upar,double)
+    #undef FUNCTION
+    
+  #undef CAPABILITY
+
+  #define CAPABILITY oblique_parameters_ST_CDF_LogLikelihood
+    START_CAPABILITY
+
+    #define FUNCTION get_oblique_parameters_ST_CDF_LogLikelihood
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_Spar,double)
+    DEPENDENCY(prediction_Tpar,double)
+    DEPENDENCY(prediction_Upar,double)
+    #undef FUNCTION
+
+  #undef CAPABILITY	
+
   // EWPO corrections from heavy neutrinos
   #define CAPABILITY prec_sinW2_eff
     #define FUNCTION RHN_sinW2_eff

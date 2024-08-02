@@ -1017,7 +1017,9 @@ namespace Gambit
       std::complex<double> Vxi22 = mC*mC*(Vcb*std::conj(Vcs)*(xi_cc*std::conj(Vcs) + xi_tc*std::conj(Vts))*(Vcb*std::conj(xi_cc) + Vtb*std::conj(xi_tc)));
       std::complex<double> Vxi33 = mT*mT*(Vtb*std::conj(Vts)*(xi_ct*std::conj(Vcs) + xi_tt*std::conj(Vts))*(Vcb*std::conj(xi_ct) + Vtb*std::conj(xi_tt)));
       std::complex<double> Vxi32 = mT*mC*(Vtb*std::conj(Vcs)*(xi_ct*std::conj(Vcs) + xi_tt*std::conj(Vts))*(Vcb*std::conj(xi_cc) + Vtb*std::conj(xi_tc)));
-      std::complex<double> DeltaMs_HW_box = 2*(mBs*fBs2Bag/3)*(sqrt(2)*sminputs.GF/(16*pi*pi*mHp*mHp))*(Vxi22*I11(pow(mW/mHp,2),pow(mC/mHp,2),pow(mC/mHp,2))+Vxi33*I11(pow(mW/mHp,2),pow(mT/mHp,2),pow(mT/mHp,2))+Vxi32*I11(pow(mW/mHp,2),pow(mT/mHp,2),pow(mC/mHp,2)));
+     //TODO: quartic term defined only for real Yukawas for the moment at mH = 130 GeV
+      std::complex<double> Quartic_term =  DeltaSM*(1.8*pow(xi_cc,4) + 1046.083*pow(xi_cc,2)*pow(xi_tc,2) + 1.8*pow(xi_tc,4) - 1.461*pow(xi_cc,2)*pow(xi_tt,2) + 1.461*pow(xi_tc,2)*pow(xi_tt,2) + 0.43976*pow(xi_tt,4) - 86.945*pow(xi_tc,3)*xi_cc +  86.945*pow(xi_cc,3)*xi_tc - 35.275*pow(xi_tt,2)*xi_cc*xi_tc);      
+      std::complex<double> DeltaMs_HW_box = 2*(mBs*fBs2Bag/3)*(sqrt(2)*sminputs.GF/(16*pi*pi*mHp*mHp))*(Vxi22*I11(pow(mW/mHp,2),pow(mC/mHp,2),pow(mC/mHp,2))+Vxi33*I11(pow(mW/mHp,2),pow(mT/mHp,2),pow(mT/mHp,2))+Vxi32*I11(pow(mW/mHp,2),pow(mT/mHp,2),pow(mC/mHp,2)))+Quartic_term;
       //total tree+one loop
       result.central_values["Delta_MBs"] = 2*abs(real(0.5*DeltaSM + M12_NP + 0.5*DeltaMs_HW_box))*conv_factor;
       // TODO: Add theoretical uncertainty for NP prediction
@@ -1181,7 +1183,6 @@ namespace Gambit
       using namespace Pipes::THDM_t2mutauc;
       if (flav_debug) std::cout<<"Starting THDM_t2mutauc"<< std::endl;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      const double v = spectrum.get(Par::mass1, "vev");
       double alpha = spectrum.get(Par::dimensionless,"alpha");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
@@ -1201,7 +1202,74 @@ namespace Gambit
       result = BRt2mutauc;
       if (flav_debug) printf("BR(t->mutauc)=%.3e\n",result);
       if (flav_debug) std::cout<<"Finished THDM_t2mutauc"<< std::endl;
-    }    
+    }   
+
+    /// kappa tilde associated to eEDM constrained at two loop level
+    void THDM_kappa_tilde(double &result)
+    {      
+      using namespace Pipes::THDM_kappa_tilde;
+      if (flav_debug) std::cout<<"Starting THDM_kappa_tilde"<< std::endl;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const double v = spectrum.get(Par::mass1, "vev");
+      double alpha = spectrum.get(Par::dimensionless,"alpha");
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cba = cos(beta-alpha);
+      const double mTau = Dep::SMINPUTS->mTau;
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      double kappa_tilde = abs((v/(sqrt(2)*mTau))*cba*sqrt(1+pow(tanb,2))*imag(Ytautau));
+      result = kappa_tilde;
+      if (flav_debug) printf("kappa_tilde=%.3e\n",result);
+      if (flav_debug) std::cout<<"Finished THDM_kappa_tilde"<< std::endl;
+    }     
+
+    /// kappa tau from Higgs signal strengths 
+    void THDM_kappa_tau(double &result)
+    {
+      using namespace Pipes::THDM_kappa_tau;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const double v = spectrum.get(Par::mass1, "vev");
+      double alpha = spectrum.get(Par::dimensionless,"alpha");
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cba = cos(beta-alpha);
+      const double mTau = Dep::SMINPUTS->mTau;
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      double kappa_tau = abs(-(sin(alpha)/cos(beta))+(v/(sqrt(2)*mTau))*(cba/cos(beta))*real(Ytautau));
+      result = kappa_tau;
+    }
+
+    /// kappa c from Higgs signal strengths 
+    void THDM_kappa_c(double &result)
+    {
+      using namespace Pipes::THDM_kappa_c;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const double v = spectrum.get(Par::mass1, "vev");
+      double alpha = spectrum.get(Par::dimensionless,"alpha");
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cba = cos(beta-alpha);
+      const double mC = Dep::SMINPUTS->mCmC;
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      double kappa_c = abs(-(sin(alpha)/cos(beta))+(v/(sqrt(2)*mC))*(cba/cos(beta))*real(Ycc));
+      result = kappa_c;
+    }
+
+    /// kappa b from Higgs signal strengths 
+    void THDM_kappa_b(double &result)
+    {
+      using namespace Pipes::THDM_kappa_b;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const double v = spectrum.get(Par::mass1, "vev");
+      double alpha = spectrum.get(Par::dimensionless,"alpha");
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cba = cos(beta-alpha);
+      const double mB = Dep::SMINPUTS->mBmB;
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      double kappa_b = abs(-(sin(alpha)/cos(beta))+(v/(sqrt(2)*mB))*(cba/cos(beta))*real(Ybb));
+      result = kappa_b;
+    }
 
     /// Flavour observables from FeynHiggs: B_s mass asymmetry, Br B_s -> mu mu, Br B -> X_s gamma
     void FeynHiggs_FlavourObs(fh_FlavourObs_container &result)
@@ -1239,6 +1307,7 @@ namespace Gambit
       result = flav_prediction("Delta_MBs", Pipes::FeynHiggs_prediction_Delta_MBs::Dep::FlavourObs->deltaMs_MSSM);
     }
 
+         
 
     ///@}
 
@@ -1254,6 +1323,42 @@ namespace Gambit
     ///------------------------///
     ///      Likelihoods       ///
     ///------------------------///
+
+    void kappa_tilde_LogLikelihood(double &result)
+    {
+      using namespace Pipes::kappa_tilde_LogLikelihood;
+      static bool first = true;
+      static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
+      static double th_err[1];
+      double theory[1];
+
+      if (first)
+      {
+        // Read in experimental measurements
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+
+        fread.read_yaml_measurement("flav_data.yaml", "kappa_tilde");
+
+        fread.initialise_matrices();
+        cov_exp=fread.get_exp_cov();
+        value_exp=fread.get_exp_value();
+
+        for (int i = 0; i < 1; ++i)
+          th_err[i] = fread.get_th_err()(i,0).first;
+
+        // Init over.
+        first = false;
+      }
+
+     theory[0] = *Dep::kappa_tilde;
+     if(flav_debug) std::cout << "kappa_tilde = " << theory[0] << std::endl;
+
+     result = 0;
+     for (int i = 0; i < 1; ++i)
+       result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
+    }
+
 
     /// Likelihood for t->mutauc
     void t2mutauc_likelihood(double &result)

@@ -1419,7 +1419,7 @@ namespace Gambit
 
     }
 
-    ///
+    ///STU parameters from PDG 2024
     void get_oblique_parameters_LogLikelihood(double& result)
     {
       using namespace Pipes::get_oblique_parameters_LogLikelihood;
@@ -1430,7 +1430,7 @@ namespace Gambit
 
       //calculating a diff
       std::vector<double> value_th = {S,T,U};
-      std::vector<double> value_exp = {0.04, 0.09, -0.02};
+      std::vector<double> value_exp = {-0.04, 0.01, -0.01};
       std::vector<double> error;
       const size_t dim = value_exp.size();
 
@@ -1441,11 +1441,95 @@ namespace Gambit
 
       // calculating the covariance matrix
       Eigen::Matrix3d cov,corr;
-      std::vector<double> sigma = {0.11, 0.14, 0.11};
+      std::vector<double> sigma = {0.10, 0.12, 0.09};
 
-      corr <<  1.0,   0.92, -0.68,
-               0.92,  1.0,  -0.87,
-              -0.68, -0.87,  1.0;
+      corr <<  1.0,   0.93, -0.70,
+               0.93,  1.0,  -0.87,
+              -0.70, -0.87,  1.0;
+
+      for (size_t i=0; i<dim; ++i)
+        for (size_t j=0; j<dim; ++j)
+          cov(i,j) = sigma[i] * sigma[j] * corr(i,j);
+
+      // calculating the chi2
+      double chi2=0;
+      Eigen::Matrix3d cov_inv = cov.inverse();
+      for (size_t i=0; i<dim; ++i)
+        for (size_t j=0; j<dim; ++j)
+          chi2 += error[i] * cov_inv(i,j)* error[j];
+
+      result = -0.5*chi2;
+    }
+
+    ///ST parameters for U=0 from CDF II from 2204.03796
+    void get_oblique_parameters_ST_CDF_LogLikelihood(double& result)
+    {
+      using namespace Pipes::get_oblique_parameters_ST_CDF_LogLikelihood;
+
+      double S = *Dep::prediction_Spar;
+      double T = *Dep::prediction_Tpar;
+      double U = *Dep::prediction_Upar;
+
+      //calculating a diff
+      std::vector<double> value_th = {S,T,U};
+      std::vector<double> value_exp = {0.15, 0.27,0};
+      std::vector<double> error;
+      const size_t dim = value_exp.size();
+
+      for (size_t i=0; i<dim; ++i)
+      {
+        error.push_back(abs(value_exp[i] - value_th[i]));
+      }
+
+      // calculating the covariance matrix using fake uncertainty for U=0
+      Eigen::Matrix3d cov,corr;
+      std::vector<double> sigma = {0.08, 0.06,0.001};
+
+      corr <<  1.0,   0.93, 0.0,
+               0.93,  1.0,  0.0,
+               0.00,  0.0,  1.0;
+
+      for (size_t i=0; i<dim; ++i)
+        for (size_t j=0; j<dim; ++j)
+          cov(i,j) = sigma[i] * sigma[j] * corr(i,j);
+
+      // calculating the chi2
+      double chi2=0;
+      Eigen::Matrix3d cov_inv = cov.inverse();
+      for (size_t i=0; i<dim; ++i)
+        for (size_t j=0; j<dim; ++j)
+          chi2 += error[i] * cov_inv(i,j)* error[j];
+
+      result = -0.5*chi2;
+    }
+
+    ///ST parameters for U=0 from PDG2024
+    void get_oblique_parameters_ST_LogLikelihood(double& result)
+    {
+      using namespace Pipes::get_oblique_parameters_ST_LogLikelihood;
+
+      double S = *Dep::prediction_Spar;
+      double T = *Dep::prediction_Tpar;
+      double U = *Dep::prediction_Upar;
+
+      //calculating a diff
+      std::vector<double> value_th = {S,T,U};
+      std::vector<double> value_exp = {-0.05, 0.0,0.0};
+      std::vector<double> error;
+      const size_t dim = value_exp.size();
+
+      for (size_t i=0; i<dim; ++i)
+      {
+        error.push_back(abs(value_exp[i] - value_th[i]));
+      }
+
+      // calculating the covariance matrix
+      Eigen::Matrix3d cov,corr;
+      std::vector<double> sigma = {0.07, 0.06,0.001};
+
+      corr <<  1.0,   0.93, 0.0,
+               0.93,  1.0,  0.0,
+               0.00,  0.0,  1.0;
 
       for (size_t i=0; i<dim; ++i)
         for (size_t j=0; j<dim; ++j)
