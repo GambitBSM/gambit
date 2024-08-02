@@ -46,7 +46,7 @@
 #include "gambit/Utils/mpiwrapper.hpp"
 #include "gambit/Utils/lnlike_modifiers.hpp"
 
-//#define CORE_DEBUG
+bool enable_likelihood_skipping = true;
 
 namespace Gambit
 {
@@ -84,6 +84,9 @@ namespace Gambit
       debug            (iniFile.getValueOrDef<bool>(false, "debug") or iniFile.getValueOrDef<bool>(false, "likelihood", "debug"))
     #endif
   {
+
+    enable_likelihood_skipping = iniFile.getValueOrDef<bool>(true, "likelihood", "enable_likelihood_skipping");
+
     // Get the parameter node for the chosen lnlike_modifier (if any)
     if (lnlike_modifier_name != "identity")
     {
@@ -171,6 +174,9 @@ namespace Gambit
 
   }
 
+  // keep track on top N highest LLs
+  static std::vector<double> max_LLs(20, -1e20);
+
   /// Evaluate total likelihood function
   double Likelihood_Container::main(std::unordered_map<std::string, double> &in)
   {
@@ -185,6 +191,9 @@ namespace Gambit
     double lnlike = 0;
     bool point_invalidated = false;
 
+    // @asw
+    bool theoryIsInvalid = false;
+    bool somethingWasSkipped = false;
     static int point_count = 0, invalid_count = 0;
     ++point_count;
 
@@ -238,6 +247,10 @@ namespace Gambit
       // only used for printing (if user sets print_timing_data to true)
       std::chrono::duration<double> interloop_time = startL - previous_endL;
 
+      bool didVS = false;
+      bool doneTheory = false;
+      bool startedSlow = false;
+
       // First work through the target functors, i.e. the ones contributing to the likelihood.
       for (auto it = target_vertices.begin(), end = target_vertices.end(); it != end; ++it)
       {
@@ -246,6 +259,75 @@ namespace Gambit
                              + "::" + dependencyResolver.get_functor(*it)->name();
         if (debug) logger() << LogTags::core << "Calculating l" << likelihood_tag << "." << EOM;
 
+        // @asw skip expensive constraints if already shit LL
+        str origin = dependencyResolver.get_functor(*it)->origin();
+        if (enable_likelihood_skipping)
+        {
+          str LLname = dependencyResolver.get_functor(*it)->capability();
+          // if (LLname != "basic_theory_LogLikelihood_THDM") std::cout << LLname << std::endl;
+          double Dlnlike = lnlike - std::max(-5000.,max_LLs[0]);
+
+          // std::cout << lnlike << " " << max_LLs[0] << " " << Dlnlike << std::endl;
+          
+          if (LLname == "VS_likelihood")
+          {
+            didVS = true;
+          }
+
+          if (origin == "PrecisionBit" && (Dlnlike < -5000 || lnlike < -0.1 && !doneTheory))
+          {
+            lnlike += -300;
+            somethingWasSkipped = true;
+            break;
+          }
+
+          if (origin == "ColliderBit" && (Dlnlike < -5000 || lnlike < -0.1 && !doneTheory))
+          {
+            lnlike += -300;
+            somethingWasSkipped = true;
+            break;
+          }
+
+          if (origin == "DarkBit" && (Dlnlike < -50 && !startedSlow || lnlike < -0.1 && !doneTheory || Dlnlike < -1200))
+          {
+            lnlike += -1000;
+            if (doneTheory) lnlike += 200;
+            if (startedSlow) lnlike += 200;
+            somethingWasSkipped = true;
+            break;
+          }
+
+          if (origin == "FlavBit" && (Dlnlike < -50 && !startedSlow || lnlike < -0.1 && !doneTheory || Dlnlike < -1200))
+          {
+            lnlike += -2400;
+            if (doneTheory) lnlike += 100;
+            if (startedSlow) lnlike += 1000;
+            somethingWasSkipped = true;
+            break;
+          }
+          else if (origin == "FlavBit")
+          {
+          }
+
+          if (LLname == "VS_likelihood" && (Dlnlike < -50 && !startedSlow || lnlike < -0.1 && !doneTheory || Dlnlike < -1200))
+          {
+            lnlike += -500;
+            if (doneTheory) lnlike += 100;
+            if (startedSlow) lnlike += 100;
+            somethingWasSkipped = true;
+            break;
+          }
+
+          if (origin == "PrecisionBit" || origin == "ColliderBit")
+          {
+            doneTheory = true;
+          }
+          if (origin == "DarkBit" || origin == "FlavBit" || LLname == "VS_likelihood")
+          {
+            doneTheory = true;
+            startedSlow = true;
+          }
+        }
 
         try
         {
@@ -323,10 +405,41 @@ namespace Gambit
           break;
         }
 
+        if (origin == "SpecBit" && lnlike < -0.5)
+        {
+          theoryIsInvalid = true;
+        }
+
       }
 
+      // fix glitches caused by skipping likelihood components
+      if (somethingWasSkipped)
+      {
+        lnlike += -1500;
+      }
+
+      // dont let invalid points have too high LL (in case this situation is experimentally favoured)
+      if (theoryIsInvalid)
+      {
+        lnlike += -50;
+      }
+
+      // theoryIsInvalid = false; // !!!!!!!
+
+      // check if point will actually show up in results
+      if (lnlike > max_LLs[0])
+      {
+         max_LLs[0] = lnlike;
+         std::sort(max_LLs.begin(), max_LLs.end());
+      }
+      
+      bool notGonnaShow = (lnlike < max_LLs[0] - 50.0);
+
+      // dont bother with LL regions that are not visible on plots
+      if (somethingWasSkipped || theoryIsInvalid || notGonnaShow) compute_aux = false;
+
       // If none of the likelihood calculations have invalidated the point, calculate the observables.
-      if (compute_aux)
+      if (compute_aux && lnlike > disable_print_for_lnlike_below)
       {
         if (debug) logger() << LogTags::core <<  "Completed likelihoods.  Calculating additional observables." << EOM;
 
@@ -351,7 +464,7 @@ namespace Gambit
       }
 
       // If the point is invalid and print_invalid_points = false disable the printer, otherwise print vertices
-      if((point_invalidated and !print_invalid_points) or (lnlike <= disable_print_for_lnlike_below))
+      if((point_invalidated && !print_invalid_points) || somethingWasSkipped || theoryIsInvalid || notGonnaShow)
         printer.disable();
       else
       {

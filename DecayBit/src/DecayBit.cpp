@@ -4764,8 +4764,11 @@ namespace Gambit
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0, 0,1,1,1,1};
 
       // figure out if the higgs convention differs from the IDM standard
+      if(he.get(Par::dimensionless, "isIDM") == 1)
+      {
       bool swapped_mass_hierarchy = (he.get(Par::dimensionless, "cosba") == 1);
       if (swapped_mass_hierarchy) std::swap(Z2_number[h1],Z2_number[h2]);
+      }
 
       // fill in mass table for later use
       std::vector<double> masses(electric_charge.size(),0);

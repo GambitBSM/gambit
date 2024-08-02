@@ -65,7 +65,7 @@ namespace Gambit
         std::sort(tmp.begin(), tmp.end());
         auto coup = table.find(tmp);
 
-        // if not in table the assume coupling is 0.
+        // if not in table then assume coupling is 0.
         if (coup == table.end())
         {
           return 0;

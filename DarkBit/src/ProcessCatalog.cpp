@@ -267,7 +267,7 @@ namespace Gambit {
               if ( abs(crossSection) > 1e-100 )
                 DarkBit_error().raise(LOCAL_INFO,
                   "Invalid TH_ProcessCatalog annihilation entry for " + it->particle1ID + " " + it->particle2ID + "\n"
-                  "  genRate must be zero for values of v that are below kinematic threshold for annihilation into " + outstring + ". CS " + std::to_string(CS));
+                  "  genRate must be zero for values of v that are below kinematic threshold for annihilation into " + outstring + ". crossSection " + std::to_string(crossSection));
             }
 #ifdef DARKBIT_DEBUG
             if (it2->finalStateIDs.size() == 2)

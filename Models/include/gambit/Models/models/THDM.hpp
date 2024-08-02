@@ -174,29 +174,4 @@ namespace Gambit
 #undef PARENT
 #undef MODEL
 
-#define MODEL THDM_hybrid_HiggsatQ
-#define PARENT THDMatQ
-  START_MODEL
-
-  DEFINEPARS(mh, mH, cba, tanb, Lambda4, Lambda5, Lambda7, lambda6, lambda7)
-
-  DEFINEPARS(yu2_re_11, yu2_im_11, yu2_re_12, yu2_im_12, yu2_re_13, yu2_im_13,
-             yu2_re_21, yu2_im_21, yu2_re_22, yu2_im_22, yu2_re_23, yu2_im_23,
-             yu2_re_31, yu2_im_31, yu2_re_32, yu2_im_32, yu2_re_33, yu2_im_33)
-
-  DEFINEPARS(yd2_re_11, yd2_im_11, yd2_re_12, yd2_im_12, yd2_re_13, yd2_im_13,
-             yd2_re_21, yd2_im_21, yd2_re_22, yd2_im_22, yd2_re_23, yd2_im_23,
-             yd2_re_31, yd2_im_31, yd2_re_32, yd2_im_32, yd2_re_33, yd2_im_33)
-
-  DEFINEPARS(yl2_re_11, yl2_im_11, yl2_re_12, yl2_im_12, yl2_re_13, yl2_im_13,
-             yl2_re_21, yl2_im_21, yl2_re_22, yl2_im_22, yl2_re_23, yl2_im_23,
-             yl2_re_31, yl2_im_31, yl2_re_32, yl2_im_32, yl2_re_33, yl2_im_33)
-
-  DEFINEPARS(Qin)
-
-  INTERPRET_AS_PARENT_FUNCTION(THDM_hybrid_HiggsatQ_to_THDMatQ)
-  INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
-#undef PARENT
-#undef MODEL
-
 #endif

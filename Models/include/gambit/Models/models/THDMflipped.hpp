@@ -11,10 +11,6 @@
 ///    THDMflipped_higgsatQ
 ///    THDMflipped_physical
 ///    THDMflipped_physicalatQ
-///    THDMflipped_hybrid_lambda1
-///    THDMflipped_hybrid_lambda1atQ
-///    THDMflipped_hybrid_lambda2
-///    THDMflipped_hybrid_lambda2atQ
 ///
 ///  Translation functions defined in THDMflipped.cpp
 ///
@@ -188,66 +184,5 @@ namespace Gambit
   INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
 #undef PARENT
 #undef MODEL
-
-#define MODEL THDMflipped_hybrid_lambda1
-#define PARENT THDMflipped
-  START_MODEL
-
-  DEFINEPARS(mh, sba)
-  DEFINEPARS(lambda2,lambda3,lambda4,lambda5)
-  DEFINEPARS(lambda6,lambda7,m12_2)
-  DEFINEPARS(tanb)
-
-  INTERPRET_AS_PARENT_FUNCTION(THDMflipped_hybrid_lambda1_to_THDMflipped)
-  INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
-#undef PARENT
-#undef MODEL
-
-#define MODEL THDMflipped_hybrid_lambda1atQ
-#define PARENT THDMflippedatQ
-  START_MODEL
-
-  DEFINEPARS(mh, sba)
-  DEFINEPARS(lambda2,lambda3,lambda4,lambda5)
-  DEFINEPARS(lambda6,lambda7,m12_2)
-  DEFINEPARS(tanb)
-
-  DEFINEPARS(Qin)
-
-  INTERPRET_AS_PARENT_FUNCTION(THDMflipped_hybrid_lambda1atQ_to_THDMflippedatQ)
-  INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
-#undef PARENT
-#undef MODEL
-
-#define MODEL THDMflipped_hybrid_lambda2
-#define PARENT THDMflipped
-  START_MODEL
-
-  DEFINEPARS(mh, sba)
-  DEFINEPARS(lambda1,lambda3,lambda4,lambda5)
-  DEFINEPARS(lambda6,lambda7,m12_2)
-  DEFINEPARS(tanb)
-
-  INTERPRET_AS_PARENT_FUNCTION(THDMflipped_hybrid_lambda2_to_THDMflipped)
-  INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
-#undef PARENT
-#undef MODEL
-
-#define MODEL THDMflipped_hybrid_lambda2atQ
-#define PARENT THDMflippedatQ
-  START_MODEL
-
-  DEFINEPARS(mh, sba)
-  DEFINEPARS(lambda1,lambda3,lambda4,lambda5)
-  DEFINEPARS(lambda6,lambda7,m12_2)
-  DEFINEPARS(tanb)
-
-  DEFINEPARS(Qin)
-
-  INTERPRET_AS_PARENT_FUNCTION(THDMflipped_hybrid_lambda2atQ_to_THDMflippedatQ)
-  INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
-#undef PARENT
-#undef MODEL
-
 
 #endif
