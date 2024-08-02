@@ -44,6 +44,7 @@
 #endif
 
 using namespace std;
+# define CHECK_CUTFLOW
 
 namespace Gambit
 {
@@ -61,24 +62,40 @@ namespace Gambit
 
         public:
             // Require detector sim
+            #ifdef CHECK_CUTFLOW
+                Cutflows _cfs; 
+            #endif 
+
             static constexpr const char *detector = "ATLAS";
 
             Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb()
-            //   : _cutflow("ATLAS_13TeV_EXOT_TT_WbWb_36invfb", {"Base_Selection",
-            //                                                                                               ">= 1 Whad cand.",
-            //                                                                                               "ETmiss >= 60 GeV",
-            //                                                                                               ">= 1 b-tagged jet",
-            //                                                                                               "S_T >= 1800 GeV",
-            //                                                                                               "DeltaR(lep, v) <= 0.7",
-            //                                                                                               "DeltaM < 300 GeV"})
             {
                 set_analysis_name("ATLAS_13TeV_EXOT_TT_WbWb_36invfb");
                 set_luminosity(36.1);
+
+                #ifdef CHECK_CUTFLOW
+                    cout << "Starting run Analysis \n booking Cutflows" << endl; 
+                    // Booking Cutflows 
+                    const vector<string> cutnames = {
+                        "No Cut", 
+                        "Base Selection", 
+                        ">= 1 Whad cand.",
+                        "ETmiss >= 60 GeV",
+                        ">= 1 b-tagged jet",
+                        "S_T >= 1800 GeV",
+                        "DeltaR(lep, v) <= 0.7",
+                        "DeltaM < 300 GeV"                    
+                    }
+                    _cfs.addCutflow("ATLAS_13TeV_EXOT_TT_WbWb_36invfb-SR", cutnames); 
+                #endif
             }
 
             void run(const HEPUtils::Event *event)
             {
-                // _cutflow.fillinit();
+                #ifdef CHECK_CUTFLOW
+                    _cfs['ATLAS_13TeV_EXOT_TT_WbWb_36invfb-SR'].fillinit(event->weight()); 
+                    _cfs['ATLAS_13TeV_EXOT_TT_WbWb_36invfb-SR'].fillnext(event->weight()); 
+                #endif
 
                 // Define the missing momentum & MET
                 HEPUtils::P4 pmiss = event->missingmom();
@@ -117,7 +134,7 @@ namespace Gambit
                 // ATLAS::applyElectronEff(baselineElectrons);
                 // Muon efficiency is defined in CERN-EP-2016-033, arXiv:1603.05598. PREF-2015-10
                 // Due to the muon pT in this work is required to be larger than 30 GeV, choosing the full Run-II effcicency instead.
-                applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("eff1DMu_MUON_2018_03_ID_Loose"));
+                applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Loose"));
                 // ATLAS::applyMuonEff(baselineMuons); 
                 // Jets
                 vector<const HEPUtils::Jet *> baselineSmallRJets;
@@ -245,6 +262,9 @@ namespace Gambit
                 if (n_leptons == 1 && n_jets >= 3 && n_bjets >= 1 && n_Whad >= 1 && met >= 60)
                 {
                     presel = true;
+                    #ifdef CHECK_CUTFLOW
+                        _cfs['ATLAS_13TeV_EXOT_TT_WbWb_36invfb-SR'].fillnext(event->weight());
+                    #endif
                 }
                 if (!presel)
                     return;
@@ -351,15 +371,15 @@ namespace Gambit
 
             } // End run function
 
-            void combine(const Analysis *other)
-            {
-                const Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb *specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb *>(other);
+            // void combine(const Analysis *other)
+            // {
+            //     const Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb *specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb *>(other);
 
-                for (auto &pair : _counters)
-                {
-                    pair.second += specificOther->_counters.at(pair.first);
-                }
-            }
+            //     for (auto &pair : _counters)
+            //     {
+            //         pair.second += specificOther->_counters.at(pair.first);
+            //     }
+            // }
 
             void collect_results()
             {
