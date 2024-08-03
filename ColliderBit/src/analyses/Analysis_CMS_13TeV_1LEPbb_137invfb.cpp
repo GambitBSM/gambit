@@ -19,7 +19,7 @@
 #include "HEPUtils/FastJet.h"
 
 using namespace std;
-// #define CHECK_CUTFLOW
+#define CHECK_CUTFLOW
 
 namespace Gambit
 {
@@ -95,7 +95,7 @@ namespace Gambit
 
           _cutflows.addCutflow("CMS_13TeV_1LEPbb_137invfb", cutnames);
 
-          // cout << _cutflows << endl;
+          cout << _cutflows << endl;
         #endif
       }
 
