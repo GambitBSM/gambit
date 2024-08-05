@@ -53,28 +53,27 @@ namespace Gambit
 
         class Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb : public Analysis
         {
-        // protected:
-        //     // Counters for the number of accepted events for each signal region
-        //     std::map<string, EventCounter> _counters = {
-        //         {"SR", EventCounter("SR")},
-        //     };
+            // protected:
+            //     // Counters for the number of accepted events for each signal region
+            //     std::map<string, EventCounter> _counters = {
+            //         {"SR", EventCounter("SR")},
+            //     };
 
         public:
-
-            #ifdef CHECK_CUTFLOW
-                Cutflows _cutflows;
-            #endif
+#ifdef CHECK_CUTFLOW
+            Cutflows _cutflows;
+#endif
 
             static constexpr const char *detector = "ATLAS";
 
             Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb()
             {
-                DEFINE_SIGNAL_REGION("SR"); 
+                DEFINE_SIGNAL_REGION("SR");
 
                 set_analysis_name("ATLAS_13TeV_EXOT_TT_WbWb_36invfb");
                 set_luminosity(36.1);
 
-                #ifdef CHECK_CUTFLOW
+#ifdef CHECK_CUTFLOW
                 cout << "Starting run Analysis \n booking Cutflows" << endl;
                 // Booking Cutflows
                 const vector<string> cutnames = {
@@ -88,22 +87,22 @@ namespace Gambit
                     "DeltaM < 300 GeV"};
 
                 _cutflows.addCutflow("ATLAS_13TeV_EXOTTTWbWb_36invfb", cutnames);
-                
-                cout << _cutflows << endl; 
-                #endif
+
+                cout << _cutflows << endl;
+#endif
             }
 
             void run(const HEPUtils::Event *event)
             {
-                cout << "\n ============= \n Start Run new events " << endl; 
-                #ifdef CHECK_CUTFLOW
-                    const double w = event->weight(); 
-                    cout << "Event weight ->" << w << endl; 
-                    _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fillinit(w);
-                    _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fillnext(w);
-                #endif
+                // cout << "\n ============= \n Start Run new events " << endl;
+#ifdef CHECK_CUTFLOW
+                const double w = event->weight();
+                // cout << "Event weight ->" << w << endl;
+                _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fillinit(w);
+                _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fillnext(w);
+#endif
 
-                cout << "0. pass cutflow init" << endl; 
+                // cout << "0. pass cutflow init" << endl;
                 // Define the missing momentum & MET
                 HEPUtils::P4 pmiss = event->missingmom();
                 const double met = event->met();
@@ -145,7 +144,7 @@ namespace Gambit
                 // ATLAS::applyMuonEff(baselineMuons);
                 // Jets
 
-                cout << "1. Define Lepton candidates" << endl; 
+                // cout << "1. Define Lepton candidates" << endl;
                 vector<const HEPUtils::Jet *> baselineSmallRJets;
                 vector<const HEPUtils::Jet *> baselineLargeRJets;
                 vector<const HEPUtils::Jet *> trimmedLargeRJets;
@@ -179,59 +178,49 @@ namespace Gambit
                     }
                 }
                 // Define largeR-jets
-                cout << "2. Define Jet candidates" << endl; 
-                for (const HEPUtils::Jet *jet : event->jets("antikt_R1"))
+                // cout << "2. Define Jet candidates" << endl;
+                for (const HEPUtils::Jet *jet : event->jets("antikt_R10"))
                 {
                     baselineLargeRJets.push_back(jet);
                 }
-                // Define trimming parameter, needs the checks
-
-                // Two different way to trimming Large R-Jets
-                // Method 1:
-                // ============================================================== //
-                // const double Rsub = 0.2;
-                // const double ptfrac = 0.05;
-
-                // for (const auto &jet : baselineLargeRJets)
-                // {
-                //   FJNS::PseudoJet fj_jet(jet->px(), jet->py(), jet->pz(), jet->E());
-                //   FJNS::JetDefinition jet_def(FJNS::kt_algorithm, Rsub);
-                //   FJNS::ClusterSequence cs(fj_jet.constituents(), jet_def);
-                //   std::vector<FJNS::PseudoJet> trimmed_subjets;
-
-                //   for (const auto &subjet : cs.inclusive_jets())
-                //   {
-                //     if (subjet.pt() > ptfrac * fj_jet.pt())
-                //     {
-                //       trimmed_subjets.push_back(subjet);
-                //     }
-                //   }
-                //   FJNS::PseudoJet trimmed_jet = fastjet::join(trimmed_subjets);
-                //   HEPUtils::P4 trimmed_p4(trimmed_jet.px(), trimmed_jet.py(), trimmed_jet.pz(), trimmed_jet.E());
-                //   HEPUtils::Jet *hep_trimmed_jet = new HEPUtils::Jet(trimmed_p4);
-                //   trimmedLargeRJets.push_back(hep_trimmed_jet);
-                // }
-                // ============================================================== //
-
-                // Method 2:
-                cout << "Before Trimming Jet " << endl; 
+                // cout << "SmallR jet Number ->" << event->jets("antikt_R04").size() << endl; 
+                // cout << "LargeR jet Number ->" << baselineLargeRJets.size() << endl;
+                // cout << "Before Trimming Jet " << endl;
                 const double Rsub = 0.2;
                 const double ptfrac = 0.05;
                 fastjet::Filter trimmer(fastjet::JetDefinition(fastjet::kt_algorithm, Rsub), fastjet::SelectorPtFractionMin(ptfrac));
 
-                for (const auto &jet : baselineLargeRJets)
+                for (size_t i = 0; i < baselineLargeRJets.size(); ++i)
                 {
-                    FJNS::PseudoJet fj_jet(jet->mom().px(), jet->mom().py(), jet->mom().pz(), jet->mom().E());
-                    FJNS::PseudoJet trimmed_jet = trimmer(fj_jet);
-                    HEPUtils::P4 trimmed_p4(trimmed_jet.px(), trimmed_jet.py(), trimmed_jet.pz(), trimmed_jet.E());
+                    const HEPUtils::Jet* jjet = baselineLargeRJets[i];
+                    if (jjet == nullptr) continue;
+                    // Obtain the FastJet PseudoJet objects;
+                    const fastjet::PseudoJet &pseudojet = baselineLargeRJets.at(i)->pseudojet();
+                    // Make sure there is constituents inside the jets
+                    if (pseudojet.constituents().empty()) continue;
+
+                    fastjet::PseudoJet trimmed_pj = trimmer(pseudojet);
+
+                    // Convert trimmed PseudoJet back to HEPUtils::P4 and HEPUtils::Jet
+                    HEPUtils::P4 trimmed_p4(trimmed_pj.px(), trimmed_pj.py(), trimmed_pj.pz(), trimmed_pj.E());
                     HEPUtils::Jet *trimmed_largeRjet = new HEPUtils::Jet(trimmed_p4);
+
+                    // For debugging: cout the Trimmed jet information
+                    // std::cout << "Trimmed Jet pt: " << trimmed_largeRjet->pT() << ", eta: " << trimmed_largeRjet->eta() << std::endl;
+
+                    // Apply selection criteria
                     if (trimmed_largeRjet->pT() > 200 && trimmed_largeRjet->abseta() < 2.5)
                     {
                         trimmedLargeRJets.push_back(trimmed_largeRjet);
                     }
+                    else
+                    {
+                        delete trimmed_largeRjet; // Avoid memory leak
+                    }
                 }
 
-                cout << "trimming large RJets " << endl; 
+                // cout << "3. There are " << trimmedLargeRJets.size() << " trimmed Large-R Jets" << endl; 
+
                 // Removing Overlaping
                 // 1) Remove trimmed-LargeR jets with b-tagged small-R jets within DeltaR < 1.0.
                 removeOverlap(trimmedLargeRJets, bJets, 1.0);
@@ -251,6 +240,8 @@ namespace Gambit
                 removeOverlap(trimmedLargeRJets, baselineElectrons, 1.0);
                 removeOverlap(trimmedLargeRJets, baselineMuons, 1.0);
 
+
+                // cout << "4. After Overlep Remove ... " << endl; 
                 // Define Signal objects;
                 vector<const HEPUtils::Jet *> signalJets = nonbJets;
                 vector<const HEPUtils::Jet *> signalBjets = bJets;
@@ -270,26 +261,26 @@ namespace Gambit
                 int n_bjets = signalBjets.size();
                 int n_Whad = signalWhad.size();
 
-                if ( n_leptons == 1 && n_jets >= 3 )
+                if (n_leptons == 1 && n_jets >= 3)
                 {
-                    #ifdef CHECK_CUTFLOW
-                        _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(2, true, event->weight());
-                    #endif
-                    if ( n_Whad >= 1 )
+#ifdef CHECK_CUTFLOW
+                    _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(2, true, event->weight());
+#endif
+                    if (n_Whad >= 1)
                     {
-                        #ifdef CHECK_CUTFLOW
-                            _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(3, true, event->weight());
-                        #endif
-                        if ( met >= 60 ) 
+#ifdef CHECK_CUTFLOW
+                        _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(3, true, event->weight());
+#endif
+                        if (met >= 60)
                         {
-                            #ifdef CHECK_CUTFLOW
-                                _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(4, true, event->weight()); 
-                            #endif
-                            if ( n_bjets >= 1 )
+#ifdef CHECK_CUTFLOW
+                            _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(4, true, event->weight());
+#endif
+                            if (n_bjets >= 1)
                             {
-                                #ifdef CHECK_CUTFLOW
-                                    _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(5, true, event->weight()); 
-                                #endif
+#ifdef CHECK_CUTFLOW
+                                _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(5, true, event->weight());
+#endif
                                 presel = true;
                             }
                         }
@@ -298,7 +289,7 @@ namespace Gambit
 
                 if (!presel)
                     return;
-
+                // cout << "5. Pass preselection " << endl; 
                 // TT reconstraction
                 // Define Whad
                 HEPUtils::Jet *signal_Whad = nullptr;
@@ -310,11 +301,16 @@ namespace Gambit
                         double massdiff = wcand->mom().m() - mW;
                         if (massdiff < dm)
                         {
-                            signal_Whad = const_cast<HEPUtils::Jet *>(wcand); // 使用const_cast将const指针转换为非const指针
+                            signal_Whad = const_cast<HEPUtils::Jet *>(wcand);
                             dm = massdiff;
                         }
                     }
                 }
+                else {
+                    signal_Whad = const_cast<HEPUtils::Jet *>(signalWhad[0]);
+                }
+
+                // cout << "6. Whad candidate construct!" << endl; 
 
                 // Deine Wlep
                 // Solving the four-momentum of the neutrino analytically.
@@ -376,7 +372,7 @@ namespace Gambit
                         }
                     }
                 }
-
+                // cout << "7. After pairing WbWb" << endl; 
                 // Define statistical variables
                 const double mTlep = (p4bJetlep + Wlep->mom()).m();
                 const double mThad = (p4bJethad + signal_Whad->mom()).m();
@@ -399,35 +395,39 @@ namespace Gambit
                     _counters.at("SR").add_event(event);
                 }
 
-                #ifdef CHECK_CUTFLOW
-                    if (ST > 1800)
+#ifdef CHECK_CUTFLOW
+                if (ST > 1800)
+                {
+                    _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(6, true, event->weight());
+                    if (dRvlep < 0.7)
                     {
-                        _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(6, true, event->weight()); 
-                        if (dRvlep < 0.7)
+                        _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(7, true, event->weight());
+                        if (abs(mTlep - mThad) < 300)
                         {
-                            _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(7, true, event->weight()); 
-                            if (abs(mTlep - mThad) < 300) 
-                            {
-                                _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(8, true, event->weight());
-                            }
+                            _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(8, true, event->weight());
                         }
                     }
-                #endif
+                }
+#endif
+                // cout << "8. Fill the signal region" << endl; 
+                return; 
 
             } // End run function
 
-            virtual void collect_results()
+            virtual void
+            collect_results()
             {
                 // This data is used if not running ATLAS_FullLikes.
                 add_result(SignalRegionData(_counters.at("SR"), 58, {64.0, 9.0}));
-                
+
                 // Add cutflow data to the analysis results
 
                 COMMIT_CUTFLOWS;
-                #ifdef CHECK_CUTFLOW
-                    // _cutflows.combine(); 
-                    cout << "\n ===== CUTFLOWS ====== \n" << _cutflows << endl; 
-                #endif
+#ifdef CHECK_CUTFLOW
+                // _cutflows.combine();
+                cout << "\n ===== CUTFLOWS ====== \n"
+                     << _cutflows << endl;
+#endif
                 return;
             }
 
