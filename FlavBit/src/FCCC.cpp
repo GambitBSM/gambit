@@ -1259,7 +1259,7 @@ namespace Gambit
       std::complex<double> gsmutau =  1.5*(CRcbmutau+CLcbmutau)/CSMcb;
       std::complex<double> gsetau =  1.5*(CRcbetau+CLcbetau)/CSMcb;
       //Expression calculated using form factors and definitions from SuperIso
-      result = (1+1.725*std::real(gs+gsmutau+gsetau)+1.355*(std::norm(gs)+std::norm(gsmutau)+std::norm(gsetau)))/(3.271+0.57*(std::real(gsmumu))+4.795*(std::norm(gsmumu)));
+      result = (1+1.725*std::real(gs)+1.355*(std::norm(gs)+std::norm(gsmutau)+std::norm(gsetau)))/(3.271+0.57*(std::real(gsmumu))+4.795*(std::norm(gsmumu)));
       //result = (1+1.725*std::real(gs+gsmutau+gsetau)+1.355*(std::norm(gs)+std::norm(gsmutau)+std::norm(gsetau)))/(3.271+0.57*(std::real(gsmumu+gsmutau))+4.795*(std::norm(gsmumu)+std::norm(gsmutau)));
       if (flav_debug) printf("BR(B->D tau nu)/BR(B->D mu nu)=%.3e\n",result);
       if (flav_debug) std::cout<<"Finished THDM_RD"<< std::endl;
@@ -1331,7 +1331,7 @@ namespace Gambit
       std::complex<double> gpmumu =  1.5*(CRcbmumu - CLcbmumu)/CSMcb;
       std::complex<double> gpmutau = 1.5*(CRcbmutau - CLcbmutau)/CSMcb;
       std::complex<double> gpetau = 1.5*(CRcbetau - CLcbetau)/CSMcb;
-      result = (1+0.11*std::real(gp+gpmutau+gpetau)+0.04*(std::norm(gp)+std::norm(gpmutau)+std::norm(gpetau)))/(3.89+0.082*(std::real(gpmumu))+0.25*(std::norm(gpmumu)));
+      result = (1+0.11*std::real(gp)+0.04*(std::norm(gp)+std::norm(gpmutau)+std::norm(gpetau)))/(3.89+0.082*(std::real(gpmumu))+0.25*(std::norm(gpmumu)));
       //result = (1+0.11*std::real(gp+gpmutau+gpetau)+0.04*(std::norm(gp)+std::norm(gpmutau)+std::norm(gpetau)))/(3.89+0.082*(std::real(gpmumu+gpmutau))+0.25*(std::norm(gpmumu)+std::norm(gpmutau)));
       if (flav_debug) printf("BR(B->D* tau nu)/BR(B->D* mu nu)=%.3e\n",result);
       if (flav_debug) std::cout<<"Finished THDM_RDstar"<< std::endl;
