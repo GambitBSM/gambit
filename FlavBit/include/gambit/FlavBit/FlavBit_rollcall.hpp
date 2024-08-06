@@ -565,6 +565,17 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  ///Observable: B2Kstartaumu
+  #define CAPABILITY B2Kstartaumu
+  START_CAPABILITY
+    #define FUNCTION THDM_B2Kstartaumu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY	
+
 
   // TODO: attempt to upgrade to use the 'observables' backend function
   ///Observable: BR(B+ ->K+ tau tau)
@@ -2147,7 +2158,7 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  ///Bs2ll likelihood
+  ///Bc2taunu likelihood
   #define CAPABILITY Bc2taunu_LogLikelihood
   START_CAPABILITY
     #define FUNCTION Bc2taunu_LogLikelihood
@@ -2156,10 +2167,10 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  ///Bs2ll likelihood
-  #define CAPABILITY Bs2ll_LogLikelihood
+  ///Bs2llp likelihood
+  #define CAPABILITY Bs2llp_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION Bs2ll_LogLikelihood
+    #define FUNCTION Bs2llp_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(Bs2mutau, double)
     DEPENDENCY(Bs2tautau, double)
@@ -2167,14 +2178,14 @@ START_MODULE
   #undef CAPABILITY
 
 
-  ///B2Kll likelihood
-  #define CAPABILITY B2Kll_LogLikelihood
+  ///B2Kllp likelihood
+  #define CAPABILITY B2Kllp_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION B2Kll_LogLikelihood
+    #define FUNCTION B2Kllp_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(B2Kmue, double)
     DEPENDENCY(B2Ktaumu, double)
-    DEPENDENCY(B2Ktautau, double)
+    DEPENDENCY(B2Kstartaumu, double)
     //DEPENDENCY(B2Ktautau, flav_prediction)
     #undef FUNCTION
   #undef CAPABILITY

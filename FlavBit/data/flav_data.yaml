@@ -808,10 +808,10 @@
   islimit: true
   one_sided: false
   exp_value: 0.
-  exp_95_CL: 9.1e-8
+  exp_90_CL: 7.0e-9
   exp_stat_error: 0.
   exp_sys_error: 0.
-  exp_source: PDG2020
+  exp_source: PDG2024
   th_error: 0.
   th_error_type: M
   th_error_source: NONE
@@ -822,24 +822,38 @@
   islimit: true
   one_sided: false
   exp_value: 0.
-  exp_95_CL: 4.8e-5
+  exp_90_CL: 2.45e-5
   exp_stat_error: 0.
   exp_sys_error: 0.
-  exp_source: PDG2020
+  exp_source: PDG2024
   th_error: 0.
   th_error_type: M
   th_error_source: NONE
   correlation:
   - name: NONE
 
+- name: BR_BKstartaumu
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 8.2e-6
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: PDG2024
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE   
+
 - name: BR_BKtautau
   islimit: true
   one_sided: false
   exp_value: 0.
-  exp_95_CL: 2.25e-3
+  exp_90_CL: 2.25e-3
   exp_stat_error: 0.
   exp_sys_error: 0.
-  exp_source: PDG2020
+  exp_source: PDG2024
   th_error: 0.
   th_error_type: M
   th_error_source: NONE
@@ -853,7 +867,7 @@
   exp_95_CL: 4.2e-5
   exp_stat_error: 0.
   exp_sys_error: 0.
-  exp_source: PDG2020
+  exp_source: PDG2024
   th_error: 0.
   th_error_type: M
   th_error_source: NONE
@@ -867,7 +881,7 @@
   exp_95_CL: 6.8e-3
   exp_stat_error: 0.
   exp_sys_error: 0.
-  exp_source: PDG2020
+  exp_source: PDG2024
   th_error: 0.
   th_error_type: M
   th_error_source: NONE

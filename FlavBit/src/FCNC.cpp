@@ -234,7 +234,7 @@ namespace Gambit
       result = RKstarnunu;
     }
 
-    double THDM_Bs2ll(int l, int lp, SMInputs sminputs, Spectrum spectrum)
+    double THDM_Bs2llp(int l, int lp, SMInputs sminputs, Spectrum spectrum)
     {
       const double mMu = sminputs.mMu;
       const double mTau = sminputs.mTau;
@@ -277,7 +277,7 @@ namespace Gambit
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 1, lp = 2;
 
-      result = THDM_Bs2ll(l, lp, sminputs, spectrum);
+      result = THDM_Bs2llp(l, lp, sminputs, spectrum)+THDM_Bs2llp(lp, l, sminputs, spectrum);
     }
 
     void THDM_Bs2tautau(double &result)
@@ -287,16 +287,20 @@ namespace Gambit
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 2, lp = 2;
 
-      result = THDM_Bs2ll(l, lp, sminputs, spectrum);
+      result = THDM_Bs2llp(l, lp, sminputs, spectrum);
     }
 
-    double THDM_B2Kll(int l, int lp, SMInputs sminputs, Spectrum spectrum)
+    double THDM_B2Kllp(int s, int l, int lp, SMInputs sminputs, Spectrum spectrum)
     {
       //constants from 1903.10440
       const double a_ktaumu = 9.6;
       const double b_ktaumu = 10.0;
       const double a_kmue = 15.4;
       const double b_kmue = 15.7;
+      const double a_kstartaumu = 3.0;
+      const double b_kstartaumu = 2.7;
+      const double c_kstartaumu = 16.4;
+      const double d_kstartaumu = 15.4;
       const std::vector<double> akll = {a_kmue, a_ktaumu};
       const std::vector<double> bkll = {b_kmue, b_ktaumu};
 
@@ -304,22 +308,44 @@ namespace Gambit
       std::complex<double> C9p = THDM_DeltaC_NP(11, l, lp, sminputs, spectrum);
       std::complex<double> C10 = THDM_DeltaC_NP(10, l, lp, sminputs, spectrum);
       std::complex<double> C10p = THDM_DeltaC_NP(12, l, lp, sminputs, spectrum);
-      std::complex<double> C9lp = THDM_DeltaC_NP(9, lp, l, sminputs, spectrum);
-      std::complex<double> C9plp = THDM_DeltaC_NP(11, lp, l, sminputs, spectrum);
-      std::complex<double> C10lp = THDM_DeltaC_NP(10, lp, l, sminputs, spectrum);
-      std::complex<double> C10plp = THDM_DeltaC_NP(12, lp, l, sminputs, spectrum);
 
-      return 10e-9*(akll[lp]*norm(C9+C9p)+bkll[lp]*norm(C10+C10p)+(akll[lp]*norm(C9lp+C9plp)+bkll[lp]*norm(C10lp+C10plp)));
+      const double tau_B0 = 1.517;//in units of 10^-12 s
+      const double tau_Bp = 1.638;//in units of 10^-12 s
+      const double factor = tau_Bp/tau_B0; 
+
+      switch(s) 
+      {
+        case 0:
+           return 10e-9*(a_kstartaumu*norm(C9+C9p)+b_kstartaumu*norm(C10+C10p)+c_kstartaumu*norm(C9-C9p)+d_kstartaumu*norm(C10-C10p));;
+           break;
+      
+        case 1:
+           return 10e-9*factor*(akll[1]*norm(C9+C9p)+bkll[1]*norm(C10+C10p));
+           break;
+      }
+
+      return 0.0;
+
     }
+
+    void THDM_B2Kstartaumu(double &result)
+    {
+      using namespace Pipes::THDM_B2Kstartaumu;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 1, lp = 2;
+
+      result = THDM_B2Kllp(0,l, lp, sminputs, spectrum);
+    }    
 
     void THDM_B2Ktaumu(double &result)
     {
       using namespace Pipes::THDM_B2Ktaumu;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 2, lp = 1;
+      const int l = 1, lp = 2;
 
-      result = THDM_B2Kll(l, lp, sminputs, spectrum);
+      result = THDM_B2Kllp(1,l, lp, sminputs, spectrum);
     }
 
     void THDM_B2Kmue(double &result)
@@ -327,9 +353,9 @@ namespace Gambit
       using namespace Pipes::THDM_B2Kmue;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 1, lp = 0;
+      const int l = 0, lp = 1;
 
-      result = THDM_B2Kll(l, lp, sminputs, spectrum);
+      result = THDM_B2Kllp(1,l, lp, sminputs, spectrum);
     }
 
     /// Branching ratio B+ ->K+ tau tau
@@ -870,9 +896,9 @@ namespace Gambit
 
 
     /// Likelihood for Bs -> mu tau and Bs -> tau tau
-    void Bs2ll_LogLikelihood(double &result)
+    void Bs2llp_LogLikelihood(double &result)
     {
-      using namespace Pipes::Bs2ll_LogLikelihood;
+      using namespace Pipes::Bs2llp_LogLikelihood;
 
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
@@ -913,9 +939,9 @@ namespace Gambit
     }
 
     /// Likelihood for B+->K+ l- l+
-    void B2Kll_LogLikelihood(double &result)
+    void B2Kllp_LogLikelihood(double &result)
     {
-      using namespace Pipes::B2Kll_LogLikelihood;
+      using namespace Pipes::B2Kllp_LogLikelihood;
 
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
@@ -933,8 +959,8 @@ namespace Gambit
         fread.read_yaml_measurement("flav_data.yaml", "BR_BKtaumu");
         // B+-> K+ mu+- e-+
         fread.read_yaml_measurement("flav_data.yaml", "BR_BKmue");
-        // B+-> K+ tau+ tau-
-        fread.read_yaml_measurement("flav_data.yaml", "BR_BKtautau");
+        // B0-> Kstar tau+ mu-
+        fread.read_yaml_measurement("flav_data.yaml", "BR_BKstartaumu");
 
         fread.initialise_matrices();
         cov_exp=fread.get_exp_cov();
@@ -951,9 +977,9 @@ namespace Gambit
      if(flav_debug) std::cout << "B ->K tau mu = " << theory[0] << std::endl;
      theory[1] = *Dep::B2Kmue;
      if(flav_debug) std::cout << "B ->K mu e = " << theory[1] << std::endl;
-     theory[2] = *Dep::B2Ktautau;
+     theory[2] = *Dep::B2Kstartaumu;
      // theory[2] = Dep::B2Ktautau->central_values.at("BKtautauBr");
-     if(flav_debug) std::cout << "B ->K tau tau = " << theory[2] << std::endl;
+     if(flav_debug) std::cout << "B ->Kstar tau mu = " << theory[2] << std::endl;
 
      result = 0;
      for (int i = 0; i < 3; ++i)
