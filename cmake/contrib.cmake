@@ -207,7 +207,7 @@ endif()
 if(NOT EXCLUDE_HEPMC)
   set(lib "HepMC3")
   set(md5 "d3079a7ffcc926b34c5ad2868ed6d8f0")
-  set(dl "https://hepmc.web.cern.ch/hepmc/releases/HepMC3-${ver}.tar.gz")
+  set(dl "https://gitlab.cern.ch/hepmc/HepMC3/-/archive/${ver}/HepMC3-${ver}.tar.gz")
   include_directories("${HEPMC_PATH}/local/include")
 
   set(HEPMC_LDFLAGS "-L${HEPMC_PATH}/local/lib -l${lib}")

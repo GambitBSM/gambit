@@ -799,7 +799,7 @@ namespace Gambit
         obs_theory.push_back(prediction.central_values.at(observables[i]));
       }
       return obs_theory;
-    };
+    }
 
     /// Extract covariance matrix of the given observables from the covariance map.
     boost::numeric::ublas::matrix<double> get_obs_covariance(const flav_prediction& prediction, const std::vector<std::string>& observables)
@@ -813,7 +813,7 @@ namespace Gambit
         }
       }
       return obs_covariance;
-    };
+    }
 
     /// Helper function to avoid code duplication.
     void SuperIso_prediction_helper(const std::vector<std::string>& FB_obslist, const std::vector<std::string>& SI_obslist, flav_prediction& result,

@@ -225,6 +225,11 @@ namespace Gambit
       bool use_marg;
       bool combine_nocovar_SRs;
       bool use_fulllikes;
+      Options runOptions;
+      bool (*FullLikes_FileExists)(const str&);
+      int (*FullLikes_ReadIn)(const str&, const str&);
+      double (*FullLikes_Evaluate)(std::map<str,double>&,const str&);
+      double (*marginaliser)(const int&, const double&, const double&, const double&);
     };
 
 
@@ -236,14 +241,13 @@ namespace Gambit
 
     // =========== Forward declarations ===========
 
-    /// Forward declaration of funtion in LHC_likelihoods
-    // @todo Interpolation will not currently work with the FullLikes backend. None of the currently written interpolation analysis require this.
-    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, bool, bool, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), const std::string);
+    /// Forward declaration of function in LHC_likelihoods
+    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, double (*)(const int&, const double&, const double&, const double&), bool, bool, const Options&, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), const std::string);
 
     /// Forward declarations of functions in this file
     void DMEFT_fill_analysis_info_map();
-    void DMsimp_fill_analysis_info_map(std::map<str,str>, std::map<str,std::vector<str>>, int);
-    void SubGeVDM_fill_analysis_info_map(std::map<str,str>, std::map<str,std::vector<str>>);
+    void DMsimp_fill_analysis_info_map(std::map<str,str>, std::map<str,std::vector<str>>, int, std::vector<str>);
+    void SubGeVDM_fill_analysis_info_map(std::map<str,str>, std::map<str,std::vector<str>>, std::vector<str>);
 
     void DMEFT_results(AnalysisDataPointers&);
     void DMEFT_results_profiled(AnalysisDataPointers&);
@@ -747,7 +751,7 @@ namespace Gambit
 
       } // End loop over analyses
 
-    };
+    }
 
 
     /// Fill the input vector with the total DMEFT signal prediction for each SR in the given LHC analysis
@@ -1146,7 +1150,6 @@ namespace Gambit
       {
         // Grab some info about the current analysis
         const bool has_covar = adata.srcov.rows() > 0;
-        const bool has_fulllikes = adata.hasFullLikes();
 
         // Modify the signal predictions for this analysis
         signal_modifier_function(adata, fpars->lambda, *a);
@@ -1154,7 +1157,7 @@ namespace Gambit
         // Compute the combined analysis loglike and add it to total_loglike
         AnalysisLogLikes analoglikes;
         analoglikes.initialize(adata);
-        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->use_covar && has_covar, fpars->combine_nocovar_SRs, fpars->use_fulllikes && has_fulllikes, nullptr, nullptr, nullptr, "");
+        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->marginaliser, fpars->use_covar && has_covar, fpars->combine_nocovar_SRs, fpars->runOptions, fpars->use_fulllikes, fpars->FullLikes_FileExists, fpars->FullLikes_ReadIn, fpars->FullLikes_Evaluate, "");
         total_loglike += analoglikes.combination_loglike;
       }
 
@@ -1190,18 +1193,43 @@ namespace Gambit
         return;
       }
 
-      // Steal the list of skipped analyses from the options from the "calc_combined_LHC_LogLike" function
-      std::vector<str> default_skip_analyses;  // The default is empty lists of analyses to skip
-      static const std::vector<str> skip_analyses = Pipes::calc_combined_LHC_LogLike::runOptions->getValueOrDef<std::vector<str> >(default_skip_analyses, "skip_analyses");
+      // If using the calc_LHC_LogLikes_full capability, turn on full likes
+      bool use_fulllikes = (ColliderBit::Functown::calc_LHC_LogLikes_full.status() == FunctorStatus::Active);
 
-      // Steal some settings from the "calc_LHC_LogLikes" function
-      static const bool use_covar = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(true, "use_covariances");
+      // Access the list of skipped analyses from the sub-capability
+      std::vector<str> default_skip_analyses;  // The default is empty lists of analyses to skip
+      static const std::vector<str> skip_analyses = Downstream::subcaps->getValueOrDef<std::vector<str> >(default_skip_analyses, "skip_analyses");
+
+      // Steal settings from either the "calc_LHC_LogLikes" or "calc_LHC_LogLikes_full" function
+      // depending on which is active
+      // This also pulls the function pointers for the fulllikes backend from the stolen pipe
+      Options calc_LHC_LogLikes_runOptions;
+      bool (*FullLikes_FileExists)(const str&);
+      int (*FullLikes_ReadIn)(const str&, const str&);
+      double (*FullLikes_Evaluate)(std::map<str,double>&,const str&);
+      double (*marginaliser)(const int&, const double&, const double&, const double&);
+      if (use_fulllikes)
+      {
+        calc_LHC_LogLikes_runOptions = *Pipes::calc_LHC_LogLikes_full::runOptions;
+        FullLikes_FileExists = Pipes::calc_LHC_LogLikes_full::BEreq::FullLikes_FileExists.pointer();
+        FullLikes_ReadIn = Pipes::calc_LHC_LogLikes_full::BEreq::FullLikes_ReadIn.pointer();
+        FullLikes_Evaluate = Pipes::calc_LHC_LogLikes_full::BEreq::FullLikes_Evaluate.pointer();
+        marginaliser = (*Pipes::calc_LHC_LogLikes_full::BEgroup::lnlike_marg_poisson == "lnlike_marg_poisson_lognormal_error") ? Pipes::calc_LHC_LogLikes_full::BEreq::lnlike_marg_poisson_lognormal_error.pointer() : Pipes::calc_LHC_LogLikes_full::BEreq::lnlike_marg_poisson_gaussian_error.pointer();
+      }
+      else
+      {
+        calc_LHC_LogLikes_runOptions = *Pipes::calc_LHC_LogLikes::runOptions;
+        FullLikes_FileExists = nullptr;
+        FullLikes_ReadIn = nullptr;
+        FullLikes_Evaluate = nullptr;
+        marginaliser = (*Pipes::calc_LHC_LogLikes::BEgroup::lnlike_marg_poisson == "lnlike_marg_poisson_lognormal_error") ? Pipes::calc_LHC_LogLikes::BEreq::lnlike_marg_poisson_lognormal_error.pointer() : Pipes::calc_LHC_LogLikes::BEreq::lnlike_marg_poisson_gaussian_error.pointer();
+      }
+
+      static const bool use_covar = calc_LHC_LogLikes_runOptions.getValueOrDef<bool>(true, "use_covariances");
       // Use marginalisation rather than profiling (probably less stable)?
-      static const bool use_marg = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(false, "use_marginalising");
+      static const bool use_marg = calc_LHC_LogLikes_runOptions.getValueOrDef<bool>(false, "use_marginalising");
       // Use the naive sum of SR loglikes for analyses without known correlations?
-      static const bool combine_nocovar_SRs = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
-      // These LHC likelihoods don't use the ATLAS full likelihood system
-      static const bool use_fulllikes = false;
+      static const bool combine_nocovar_SRs = calc_LHC_LogLikes_runOptions.getValueOrDef<bool>(false, "combine_SRs_without_covariances");
 
       // Clear previous result map
       result.clear();
@@ -1237,6 +1265,11 @@ namespace Gambit
       fpars.use_marg = use_marg;
       fpars.combine_nocovar_SRs = combine_nocovar_SRs;
       fpars.use_fulllikes = use_fulllikes;
+      fpars.runOptions = calc_LHC_LogLikes_runOptions;
+      fpars.FullLikes_FileExists = FullLikes_FileExists;
+      fpars.FullLikes_ReadIn = FullLikes_ReadIn;
+      fpars.FullLikes_Evaluate = FullLikes_Evaluate;
+      fpars.marginaliser = marginaliser;
 
       // Create a variable to store the best-fit loglike
       double minus_loglike_bestfit = 50000.;
@@ -1406,11 +1439,8 @@ namespace Gambit
     };
 
     /// A function for filling the analysis_info_map for the DMsimp models.
-    void DMsimp_fill_analysis_info_map(std::map<str,str> Analysis_data_path, std::map<str,std::vector<str>> Interpolation_columns, int Ndim)
+    void DMsimp_fill_analysis_info_map(std::map<str,str> Analysis_data_path, std::map<str,std::vector<str>> Interpolation_columns, int Ndim, std::vector<str> skip_analyses)
     {
-
-      std::vector<str> default_skip_analyses;  // The default is empty lists of analyses to skip
-      static const std::vector<str> skip_analyses = Pipes::calc_combined_LHC_LogLike::runOptions->getValueOrDef<std::vector<str> >(default_skip_analyses, "skip_analyses");
 
       // Helper variables
       str current_analysis_name;
@@ -1666,7 +1696,10 @@ namespace Gambit
       // and the thread_local analysis_data_map
       if (first)
       {
-        DMsimp_fill_analysis_info_map(Analysis_data_path,Interpolation_columns, Ndim);
+        std::vector<str> default_skip_analyses;  // The default is empty lists of analyses to skip
+        static const std::vector<str> skip_analyses = Downstream::subcaps->getValueOrDef<std::vector<str> >(default_skip_analyses, "skip_analyses");
+
+        DMsimp_fill_analysis_info_map(Analysis_data_path,Interpolation_columns, Ndim, skip_analyses);
 
         for (const std::pair<const str, Model_analysis_info>& aname_ainfo_pair : analysis_info_map)
         {
@@ -1704,7 +1737,7 @@ namespace Gambit
         get_all_signal_yields(get_all_DMsimp_signal_yields, spec, analysis_data_map, result, modelname);
       }
 
-    };
+    }
 
 
     /// Fill the input vector with the total DMsimp signal prediction for each SR in the given LHC analysis
@@ -2090,11 +2123,8 @@ namespace Gambit
     //// NEW BEAM-DUMP Functions ////
 
     /// A function for filling the analysis_info_map for the SubGeVDM_fermion and SubGeVDM_scalar models.
-    void SubGeVDM_fill_analysis_info_map(std::map<str,str> Analysis_data_path, std::map<str,std::vector<str>> Interpolation_columns)
+    void SubGeVDM_fill_analysis_info_map(std::map<str,str> Analysis_data_path, std::map<str,std::vector<str>> Interpolation_columns, std::vector<str> skip_analyses)
     {
-
-      std::vector<str> default_skip_analyses;  // The default is empty lists of analyses to skip
-      static const std::vector<str> skip_analyses = Pipes::calc_combined_LHC_LogLike::runOptions->getValueOrDef<std::vector<str> >(default_skip_analyses, "skip_analyses");
 
       // Helper variables
       str current_analysis_name;
@@ -2231,7 +2261,10 @@ namespace Gambit
       // and the thread_local analysis_data_map
       if (first)
       {
-        SubGeVDM_fill_analysis_info_map(Analysis_data_path,Interpolation_columns);
+        std::vector<str> default_skip_analyses;  // The default is empty lists of analyses to skip
+        static const std::vector<str> skip_analyses = Downstream::subcaps->getValueOrDef<std::vector<str> >(default_skip_analyses, "skip_analyses");
+      
+        SubGeVDM_fill_analysis_info_map(Analysis_data_path,Interpolation_columns, skip_analyses);
 
         for (const std::pair<const str, Model_analysis_info>& aname_ainfo_pair : analysis_info_map)
         {

@@ -71,7 +71,7 @@ namespace Gambit
       }
     }
 
-    Record::Record() : readyToPrint(false) {};
+    Record::Record() : readyToPrint(false) {}
 
     void Record::reset()
     {
