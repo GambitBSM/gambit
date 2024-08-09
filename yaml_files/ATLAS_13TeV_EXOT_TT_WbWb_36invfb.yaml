@@ -9,16 +9,16 @@
 
 analyses:
   - ATLAS_13TeV_EXOT_TT_WbWb_36invfb
-  # - ATLAS_13TeV_2LEPStop_36invfb
+  # - CMS_13TeV_1LEPbb_137invfb
 
 settings:
   debug: true
   seed: 1337
-  event_file: /home/a1234301/Workshop/VLQ_TT/Events/run_03/tag_1_pythia8_events.hepmc
+  event_file: /remote/nas00-0/users/pzhu/Workshop/vlq_1000GeV_10k.hepmc
   cross_section_fb: 45.0
   cross_section_fractional_uncert: 0.2
   use_lognormal_distribution_for_1d_systematic: true
-  events_between_convergence_checks: 5000
+  events_between_convergence_checks: 10000
   target_fractional_uncert: 0.3
   halt_when_systematic_dominated: true
   all_analyses_must_converge: false

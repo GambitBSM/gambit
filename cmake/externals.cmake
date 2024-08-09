@@ -169,6 +169,9 @@ macro(add_extra_targets type package ver dir dl target)
 
 endmacro()
 
+message(STATUS "${Yellow}-- Using C++ standard: C++${CMAKE_CXX_STANDARD}")
+
+
 # Function to check whether or not a given scanner or backend has been ditched
 function(check_ditch_status name version dir)
   # Check first for optional argument
@@ -189,6 +192,7 @@ function(check_ditch_status name version dir)
     elseif ((arg STREQUAL "x11") AND NOT X11_FOUND)
       set (itch "${itch}" "${name}_${version}")
     elseif ((arg STREQUAL "c++14") AND NOT GAMBIT_SUPPORTS_CXX14 AND NOT GAMBIT_SUPPORTS_CXX17)
+      message(STATUS "${Yellow}-- Buding-Tag: Using C++ standard: C++-14 -> ${GAMBIT_SUPPORTS_CXX14} and C++-17 -> ${GAMBIT_SUPPORTS_CXX17}")
       message("${BoldRed}   ${name} (${version}) needs to be compiled with c++14/17 but GAMBIT is compiled with a lower version. ${name} will be ditched.${ColourReset}")
       set (itch "${itch}" "${name}_${version}")
     elseif ((arg STREQUAL "rivet") AND ditched_rivet_${Rivet_ver})

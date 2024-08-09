@@ -36,6 +36,8 @@
 #include "fastjet/tools/Filter.hh"
 #include "fastjet/tools/Pruner.hh"
 #include "fastjet/Selector.hh"
+#include "fastjet/contrib/EnergyCorrelator.hh"
+// #include "fjcontrib-1.041/EnergyCorrelator/EnergyCorrelator.hh"
 #else
 #include "fjcore.hh"
 #ifndef FJNS
@@ -136,19 +138,19 @@ namespace Gambit
 
                 // Apply electron efficiency
                 // Electron efficiency is defined in ATLAS-CONF-2016-024, susperseded by arXiv:1902.04655.
-                applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_VeryLoose"));
+                applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Tight"));
                 // ATLAS::applyElectronEff(baselineElectrons);
                 // Muon efficiency is defined in CERN-EP-2016-033, arXiv:1603.05598. PREF-2015-10
                 // Due to the muon pT in this work is required to be larger than 30 GeV, choosing the full Run-II effcicency instead.
-                applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Loose"));
+                applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Medium"));
                 // ATLAS::applyMuonEff(baselineMuons);
                 // Jets
 
                 // cout << "1. Define Lepton candidates" << endl;
                 vector<const HEPUtils::Jet *> baselineSmallRJets;
                 vector<const HEPUtils::Jet *> baselineLargeRJets;
-                vector<const HEPUtils::Jet *> trimmedLargeRJets;
-
+                // vector<const HEPUtils::Jet *> trimmedLargeRJets;
+                vector<fastjet::PseudoJet> trimmedJets;
                 vector<const HEPUtils::Jet *> bJets;
                 vector<const HEPUtils::Jet *> nonbJets;
 
@@ -188,36 +190,43 @@ namespace Gambit
                 // cout << "Before Trimming Jet " << endl;
                 const double Rsub = 0.2;
                 const double ptfrac = 0.05;
-                fastjet::Filter trimmer(fastjet::JetDefinition(fastjet::kt_algorithm, Rsub), fastjet::SelectorPtFractionMin(ptfrac));
-
+                FJNS::Filter trimmer(fastjet::JetDefinition(fastjet::kt_algorithm, Rsub), fastjet::SelectorPtFractionMin(ptfrac));
+                // FJNS::contrib::EnergyCorrelator C2(2, beta, fastjet::contrib::EnergyCorrelator::pt_R);
+                // FJNS::contrib::EnergyCorrelator C3(3, beta, fastjet::contrib::EnergyCorrelator::pt_R);   
                 for (size_t i = 0; i < baselineLargeRJets.size(); ++i)
                 {
-                    const HEPUtils::Jet* jjet = baselineLargeRJets[i];
-                    if (jjet == nullptr) continue;
                     // Obtain the FastJet PseudoJet objects;
                     const fastjet::PseudoJet &pseudojet = baselineLargeRJets.at(i)->pseudojet();
                     // Make sure there is constituents inside the jets
                     if (pseudojet.constituents().empty()) continue;
+                    fastjet::PseudoJet trimmedJet = trimmer(pseudojet);
+                    if (trimmedJet.pt() > 200 &&  abs(trimmedJet.eta() < 2.0)) { // 设定 pT 下限
+                        // trimmedJets.push_back(trimmedJet);
+                        // Applying The W-jet Grooming
 
-                    fastjet::PseudoJet trimmed_pj = trimmer(pseudojet);
+                        // Define Jet mass 
+                        double jet_mass = trimmedJet.m();
+                        if (jet_mass < 0) continue; // 过滤掉负质量（异常情况）
 
-                    // Convert trimmed PseudoJet back to HEPUtils::P4 and HEPUtils::Jet
-                    HEPUtils::P4 trimmed_p4(trimmed_pj.px(), trimmed_pj.py(), trimmed_pj.pz(), trimmed_pj.E());
-                    HEPUtils::Jet *trimmed_largeRjet = new HEPUtils::Jet(trimmed_p4);
+                        // 计算能量相关函数
+                        // double C2_value = C2(trimmedJet);
+                        // double C3_value = C3(trimmedJet);
 
-                    // For debugging: cout the Trimmed jet information
-                    // std::cout << "Trimmed Jet pt: " << trimmed_largeRjet->pT() << ", eta: " << trimmed_largeRjet->eta() << std::endl;
+                        // // 计算 D2
+                        // double D2_value = (C2_value > 0) ? C3_value / std::pow(C2_value, 3) : 0.0;
 
-                    // Apply selection criteria
-                    if (trimmed_largeRjet->pT() > 200 && trimmed_largeRjet->abseta() < 2.5)
-                    {
-                        trimmedLargeRJets.push_back(trimmed_largeRjet);
-                    }
-                    else
-                    {
-                        delete trimmed_largeRjet; // Avoid memory leak
+                        // // 判别 W 玻色子
+                        // if (std::abs(jet_mass - 80.4) < 15 && D2_value < 1.5) {
+                        //     std::cout << "W boson candidate detected:" << std::endl;
+                        //     std::cout << " - Mass: " << jet_mass << " GeV" << std::endl;
+                        //     std::cout << " - D2: " << D2_value << std::endl;
+                        // }
                     }
                 }
+
+                // Define the Energy Correlation Function of W-tagging 
+                const double beta = 1.0; 
+
 
                 // cout << "3. There are " << trimmedLargeRJets.size() << " trimmed Large-R Jets" << endl; 
 
@@ -292,8 +301,8 @@ namespace Gambit
                 // cout << "5. Pass preselection " << endl; 
                 // TT reconstraction
                 // Define Whad
-                HEPUtils::Jet *signal_Whad = nullptr;
-                double dm = 99999.0;
+                HEPUtils::Jet *signal_Whad = const_cast<HEPUtils::Jet *>(signalWhad[0]);
+                double dm = signal_Whad->mom().m() - mW;
                 if (n_Whad > 1)
                 {
                     for (const HEPUtils::Jet *wcand : signalWhad)
@@ -305,9 +314,6 @@ namespace Gambit
                             dm = massdiff;
                         }
                     }
-                }
-                else {
-                    signal_Whad = const_cast<HEPUtils::Jet *>(signalWhad[0]);
                 }
 
                 // cout << "6. Whad candidate construct!" << endl; 

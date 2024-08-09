@@ -1973,8 +1973,9 @@ endif()
 
 
 # Fastjet
+# 06 Aug 2024, Modified by Pengxuan
 set(name "fastjet")
-set(ver "3.3.2")
+set(ver "3.3.4")
 set(dl "http://fastjet.fr/repo/fastjet-3.3.2.tar.gz")
 set(md5 "ca3708785c9194513717a54c1087bfb0")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
@@ -2004,10 +2005,11 @@ endif()
 
 
 # Fjcontrib
+# 07 Aug 2024, Modified by Pengxuan: set version from 1.041 to 1.045 for supporting Enenrycorrelator function 
 set(name "fjcontrib")
-set(ver "1.041")
+set(ver "1.045")
 set(dl "http://fastjet.hepforge.org/contrib/downloads/${name}-${ver}.tar.gz")
-set(md5 "b37674a8701af52b58ebced94a270877")
+set(md5 "99b347b9eedc5a91e7bd7f7725427367")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(fastjet_name "fastjet")
 set(fastjet_ver "3.3.2")
@@ -2053,7 +2055,7 @@ set(fastjet_name "fastjet")
 set(fastjet_ver "3.3.2")
 set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}/local")
 set(fjcontrib_name "fjcontrib")
-set(fjcontrib_ver "1.041")
+set(fjcontrib_ver "1.045")
 #set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet -faligned-new -O3")
 set(Rivet_CXX_FLAGS "${FJ_CXX_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR} -O3")
 set_compiler_warning("no-deprecated-declarations" Rivet_CXX_FLAGS)
