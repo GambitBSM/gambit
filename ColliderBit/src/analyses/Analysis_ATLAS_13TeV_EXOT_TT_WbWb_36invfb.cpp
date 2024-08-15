@@ -37,7 +37,7 @@
 #include "fastjet/tools/Pruner.hh"
 #include "fastjet/Selector.hh"
 #include "fastjet/contrib/EnergyCorrelator.hh"
-// #include "fjcontrib-1.041/EnergyCorrelator/EnergyCorrelator.hh"
+// #include "gambit/contrib/fjcontrib-1.045/EnergyCorrelator/EnergyCorrelator.hh"
 #else
 #include "fjcore.hh"
 #ifndef FJNS
@@ -149,7 +149,7 @@ namespace Gambit
                 // cout << "1. Define Lepton candidates" << endl;
                 vector<const HEPUtils::Jet *> baselineSmallRJets;
                 vector<const HEPUtils::Jet *> baselineLargeRJets;
-                // vector<const HEPUtils::Jet *> trimmedLargeRJets;
+                vector<const HEPUtils::Jet *> trimmedLargeRJets;
                 vector<fastjet::PseudoJet> trimmedJets;
                 vector<const HEPUtils::Jet *> bJets;
                 vector<const HEPUtils::Jet *> nonbJets;
@@ -190,9 +190,10 @@ namespace Gambit
                 // cout << "Before Trimming Jet " << endl;
                 const double Rsub = 0.2;
                 const double ptfrac = 0.05;
+                const double beta = 1.0; 
                 FJNS::Filter trimmer(fastjet::JetDefinition(fastjet::kt_algorithm, Rsub), fastjet::SelectorPtFractionMin(ptfrac));
-                // FJNS::contrib::EnergyCorrelator C2(2, beta, fastjet::contrib::EnergyCorrelator::pt_R);
-                // FJNS::contrib::EnergyCorrelator C3(3, beta, fastjet::contrib::EnergyCorrelator::pt_R);   
+                FJNS::contrib::EnergyCorrelator C2(2, beta, fastjet::contrib::EnergyCorrelator::pt_R);
+                FJNS::contrib::EnergyCorrelator C3(3, beta, fastjet::contrib::EnergyCorrelator::pt_R);   
                 for (size_t i = 0; i < baselineLargeRJets.size(); ++i)
                 {
                     // Obtain the FastJet PseudoJet objects;
@@ -200,33 +201,28 @@ namespace Gambit
                     // Make sure there is constituents inside the jets
                     if (pseudojet.constituents().empty()) continue;
                     fastjet::PseudoJet trimmedJet = trimmer(pseudojet);
+                    HEPUtils::Jet* hepUtilsJet = new HEPUtils::Jet(trimmedJet);
+
                     if (trimmedJet.pt() > 200 &&  abs(trimmedJet.eta() < 2.0)) { // 设定 pT 下限
-                        // trimmedJets.push_back(trimmedJet);
                         // Applying The W-jet Grooming
 
                         // Define Jet mass 
                         double jet_mass = trimmedJet.m();
-                        if (jet_mass < 0) continue; // 过滤掉负质量（异常情况）
+                        if (jet_mass < 0) continue; // filter the negative mass situation 
 
-                        // 计算能量相关函数
-                        // double C2_value = C2(trimmedJet);
-                        // double C3_value = C3(trimmedJet);
+                        // Calculate the Energy correlator function 
+                        double C2_value = C2(trimmedJet);
+                        double C3_value = C3(trimmedJet);
+                        double D2_value = (C2_value > 0) ? C3_value / std::pow(C2_value, 3) : 0.0;
 
-                        // // 计算 D2
-                        // double D2_value = (C2_value > 0) ? C3_value / std::pow(C2_value, 3) : 0.0;
-
-                        // // 判别 W 玻色子
-                        // if (std::abs(jet_mass - 80.4) < 15 && D2_value < 1.5) {
-                        //     std::cout << "W boson candidate detected:" << std::endl;
-                        //     std::cout << " - Mass: " << jet_mass << " GeV" << std::endl;
-                        //     std::cout << " - D2: " << D2_value << std::endl;
-                        // }
+                        // W tagging 
+                        if (std::abs(jet_mass - 80.4) < 15 && D2_value < 1.5) {
+                            trimmedLargeRJets.push_back(hepUtilsJet);
+                        }
                     }
                 }
 
                 // Define the Energy Correlation Function of W-tagging 
-                const double beta = 1.0; 
-
 
                 // cout << "3. There are " << trimmedLargeRJets.size() << " trimmed Large-R Jets" << endl; 
 
