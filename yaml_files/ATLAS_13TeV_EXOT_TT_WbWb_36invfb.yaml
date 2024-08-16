@@ -14,7 +14,7 @@ analyses:
 settings:
   debug: true
   seed: 1337
-  event_file: /home/a1234301/Workshop/VLQ_TT/Events/run_03/tag_1_pythia8_events.hepmc
+  event_file: /home/a1234301/Workshop/VLQ_TT/Events/run_03/vlq_1000GeV_10k.hepmc
   cross_section_fb: 45.0
   cross_section_fractional_uncert: 0.2
   use_lognormal_distribution_for_1d_systematic: true
