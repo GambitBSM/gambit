@@ -14,44 +14,21 @@ Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
   # MSSM parameters
-  # MSSM19atQ_mA:
-  #   M1:
-  #     prior_type: flat
-  #     range: [5, 400]
-  #   mu:
-  #     prior_type: flat
-  #     range: [100, 400]
-  #   TanBeta:  1.0e1
-  #   Qin:      1.6e3
-  #   Ad_3:     0.0
-  #   Ae_3:     0.0
-  #   Au_3:     0.0
-  #   M2:       1.0e3
-  #   M3:       3.5e3
-  #   mA:       1.5e3
-  #   md2_12:   1.2e7
-  #   me2_12:   1.2e7
-  #   ml2_12:   1.2e7
-  #   mq2_12:   1.2e7
-  #   mu2_12:   1.2e7
-  #   md2_3:    1.2e7
-  #   me2_3:    1.2e7
-  #   ml2_3:    1.2e7
-  #   mq2_3:    1.2e7
-  #   mu2_3:    1.7e5
-
-  # # Test point
   MSSM19atQ_mA:
-    Qin:      1.6e3
-    M1:       1.15e2
-    mu:       1.85e2
+    M1:
+      prior_type: flat
+      range: [5, 400]
+    mu:
+      prior_type: flat
+      range: [100, 400]
     TanBeta:  1.0e1
+    Qin:      1.6e3
     Ad_3:     0.0
     Ae_3:     0.0
-    Au_3:     2.9e3
+    Au_3:     0.0
     M2:       1.0e3
     M3:       3.5e3
-    mA:       1.50e3
+    mA:       1.5e3
     md2_12:   1.2e7
     me2_12:   1.2e7
     ml2_12:   1.2e7
@@ -62,6 +39,29 @@ Parameters:
     ml2_3:    1.2e7
     mq2_3:    1.2e7
     mu2_3:    1.7e5
+
+  # # Test point
+  # MSSM19atQ_mA:
+  #   Qin:      1.6e3
+  #   M1:       1.15e2
+  #   mu:       1.85e2
+  #   TanBeta:  1.0e1
+  #   Ad_3:     0.0
+  #   Ae_3:     0.0
+  #   Au_3:     2.9e3
+  #   M2:       1.0e3
+  #   M3:       3.5e3
+  #   mA:       1.50e3
+  #   md2_12:   1.2e7
+  #   me2_12:   1.2e7
+  #   ml2_12:   1.2e7
+  #   mq2_12:   1.2e7
+  #   mu2_12:   1.2e7
+  #   md2_3:    1.2e7
+  #   me2_3:    1.2e7
+  #   ml2_3:    1.2e7
+  #   mq2_3:    1.2e7
+  #   mu2_3:    1.7e5
 
 
 
@@ -365,7 +365,7 @@ Rules:
           - ATLAS_13TeV_1Lep2b_139invfb          # New! (Chris)
           - ATLAS_13TeV_2LEP0JET_EW_139invfb     # New! (Roberto) - Requires ROOT + BDT stuff.
           - ATLAS_13TeV_2LEPJETS_EW_139invfb     # New! (Martin, Chris) 
-          # - ATLAS_13TeV_2LEPJETS_RJR_139invfb    # New! (Martin) This search requires ROOT + RestFrames.
+          - ATLAS_13TeV_2LEPJETS_RJR_139invfb    # New! (Martin) This search requires ROOT + RestFrames.
           - ATLAS_13TeV_3LEP_eRJR_139invfb       # New! (Martin)
           - ATLAS_13TeV_2OR3LEP_139invfb         # New! (Ida) -- Only WH SRs are used.
           - ATLAS_13TeV_bTaus_StopStau_139invfb  # New! (Holly)
@@ -374,7 +374,7 @@ Rules:
           - ATLAS_13TeV_4b_discoverySR_139invfb  # [in skip_analyses]
           - ATLAS_13TeV_4b_allyears_139invfb     # [in skip_analyses]
           - ATLAS_13TeV_2LEPsoft_139invfb        # [in skip_analyses, since not yet validated] New! (Tomas)
-          # - ATLAS_13TeV_3b_NN_139invfb           # [in skip_analyses, due to probable overlap with ATLAS_13TeV_4b_139invfb] New! (Tomek)
+          - ATLAS_13TeV_3b_NN_139invfb           # [in skip_analyses, due to probable overlap with ATLAS_13TeV_4b_139invfb] New! (Tomek)
           - ATLAS_13TeV_0LEP_139invfb
           - ATLAS_13TeV_2BoostedBosons_139invfb  # Uses antikt_R1.
           - ATLAS_13TeV_2LEPStop_inclusive_139invfb
