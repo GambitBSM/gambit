@@ -62,9 +62,9 @@ namespace Gambit
             //     };
 
         public:
-#ifdef CHECK_CUTFLOW
-            Cutflows _cutflows;
-#endif
+            #ifdef CHECK_CUTFLOW
+                Cutflows _cutflows;
+            #endif
 
             static constexpr const char *detector = "ATLAS";
 
@@ -75,34 +75,34 @@ namespace Gambit
                 set_analysis_name("ATLAS_13TeV_EXOT_TT_WbWb_36invfb");
                 set_luminosity(36.1);
 
-#ifdef CHECK_CUTFLOW
-                cout << "Starting run Analysis \n booking Cutflows" << endl;
-                // Booking Cutflows
-                const vector<string> cutnames = {
-                    "No Cut",
-                    "Base Selection",
-                    ">= 1 Whad cand.",
-                    "ETmiss >= 60 GeV",
-                    ">= 1 b-tagged jet",
-                    "S_T >= 1800 GeV",
-                    "DeltaR(lep, v) <= 0.7",
-                    "DeltaM < 300 GeV"};
+                #ifdef CHECK_CUTFLOW
+                    cout << "Starting run Analysis \n booking Cutflows" << endl;
+                    // Booking Cutflows
+                    const vector<string> cutnames = {
+                        "No Cut",
+                        "Base Selection",
+                        ">= 1 Whad cand.",
+                        "ETmiss >= 60 GeV",
+                        ">= 1 b-tagged jet",
+                        "S_T >= 1800 GeV",
+                        "DeltaR(lep, v) <= 0.7",
+                        "DeltaM < 300 GeV"};
 
-                _cutflows.addCutflow("ATLAS_13TeV_EXOTTTWbWb_36invfb", cutnames);
+                    _cutflows.addCutflow("ATLAS_13TeV_EXOTTTWbWb_36invfb", cutnames);
 
-                cout << _cutflows << endl;
-#endif
+                    cout << _cutflows << endl;
+                #endif
             }
 
             void run(const HEPUtils::Event *event)
             {
                 // cout << "\n ============= \n Start Run new events " << endl;
-#ifdef CHECK_CUTFLOW
-                const double w = event->weight();
-                // cout << "Event weight ->" << w << endl;
-                _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fillinit(w);
-                _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fillnext(w);
-#endif
+                #ifdef CHECK_CUTFLOW
+                    const double w = event->weight();
+                    // cout << "Event weight ->" << w << endl;
+                    _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fillinit(w);
+                    _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fillnext(w);
+                #endif
 
                 // cout << "0. pass cutflow init" << endl;
                 // Define the missing momentum & MET
@@ -203,7 +203,7 @@ namespace Gambit
                     fastjet::PseudoJet trimmedJet = trimmer(pseudojet);
                     HEPUtils::Jet* hepUtilsJet = new HEPUtils::Jet(trimmedJet);
 
-                    if (trimmedJet.pt() > 200 &&  abs(trimmedJet.eta() < 2.0)) { // 设定 pT 下限
+                    if (trimmedJet.pt() > 200 &&  abs(trimmedJet.eta() < 2.0)) { // Setting The pT lower limit
                         // Applying The W-jet Grooming
 
                         // Define Jet mass 

@@ -417,8 +417,9 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_dir} fjcontrib 1.045
     SOURCE_DIR ${fjcontrib_dir}
     BUILD_IN_SOURCE 1
-    # CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local --only=RecursiveTools,EnergyCorrelator
-    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS="${CMAKE_SHARED_LINKER_FLAGS} -L${fastjet_dir}/local/lib -lfastjet -lfastjettools" --prefix=${fastjet_dir}/local --enable-silent-rules --enable-shared
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local --only=RecursiveTools,EnergyCorrelator
+    # CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS="${CMAKE_SHARED_LINKER_FLAGS} -L${fastjet_dir}/local/lib -lfastjet -lfastjettools" --prefix=${fastjet_dir}/local --enable-silent-rules --enable-shared
+    # CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS="${CMAKE_SHARED_LINKER_FLAGS} -L${fastjet_dir}/local/lib -lfastjet -lfastjettools" --prefix=${fastjet_dir}/local --enable-silent-rules --enable-shared
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
