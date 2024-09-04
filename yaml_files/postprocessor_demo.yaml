@@ -55,26 +55,42 @@ Scanner:
   scanners:
 
     postprocessor:
+      
       plugin: postprocessor
-      #version: "1.0" # If you want to use v1 of the postprocessor, select it here (default is currently v2.0)
-      # Turn off extra log output to track what the postprocessor is doing (won't be output unless debug: true anyway though)
-      #verbose_logging: false
-      # Name of the new global likelihood contribution.
+      
+      # Usev1 of the postprocessor? The default version is v2.0.
+      # version: "1.0" 
+
+      # Turn off extra log output? (Won't be output unless using "debug: true" anyway, though.)
+      # verbose_logging: false
+
+      # Name of the new global likelihood contribution
       like: New_LogLike
+
       # Name of the combined new+old likelihood
       reweighted_like: Comb_LogLike
-      # Add LogLike in the old output to New_LogLike in the new output.
+
+      # Add LogLike in the old output to New_LogLike in the new output
       add_to_like: [LogLike]
+
       # Allow overwriting of the old output with the new output (e.g. if you would rather name New_LogLike as LogLike)
       permit_discard_old_likes: false
-      update_interval: 1000 # Frequency to print status update message
-      batch_size: 100 # Number of points to distribute to worker processes each time they request more work
-      # The below don't seem to work?
-      # Restrict postprocessing to values greater than this
-      cut_greater_than: {"LogLike": -1e99} # Will not process invalid points
-      cut_less_than: {"#NormalDist_parameters @NormalDist::primary_parameters::mu": 22} # Keep only points with mu<25
-       # Throw away all points outside the cuts
+
+      # Frequency to print status update message
+      update_interval: 1000 
+
+      # Number of points to distribute to worker processes each time they request more work      
+      batch_size: 100 
+      
+      # Restrict postprocessing to points with LogLike > -1e99
+      cut_greater_than: {"LogLike": -1e99} 
+
+      # Restrict postprocessing to points with mu < 22
+      cut_less_than: {"#NormalDist_parameters @NormalDist::primary_parameters::mu": 22} 
+
+      # Throw away all points outside the above cuts
       discard_points_outside_cuts: true
+
       # Information about input dataset to be postprocessed
       reader:
         type: hdf5
@@ -84,6 +100,7 @@ Scanner:
         #  type: sqlite
         #  file: "runs/spartan/samples/results.sql"
         #  table: "spartan"
+
 
 ObsLikes:
 
