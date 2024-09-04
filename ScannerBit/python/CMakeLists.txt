@@ -97,4 +97,4 @@ else()
     message("${BoldRed}-- The ScannerBit python interface requires Python. ${ColourReset}")
     message("${Red}-- PYTHONINTERP_FOUND=${PYTHONINTERP_FOUND} ${ColourReset}")
 
-endif() # PYTHONINTERP_FOUND) AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
+endif()
