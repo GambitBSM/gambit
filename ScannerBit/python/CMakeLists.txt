@@ -4,9 +4,7 @@ include(cmake/scan_python_utils.cmake)
 include(cmake/boost_python.cmake)
 #include(cmake/yaml.cmake)
 
-#find_package(NumPy)
-
-if(PYTHONINTERP_FOUND)# AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
+if(PYTHONINTERP_FOUND)
 
     if(VERBOSE_SCAN_PYTHON)
         message("${BoldYellow}Python extensive module Python deps:${ColourReset}")
@@ -94,11 +92,9 @@ if(PYTHONINTERP_FOUND)# AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
     
     #################################################
 
-else(PYTHONINTERP_FOUND)# AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
+else()
 
-    message("${BoldRed}-- The ScannerBit python interface requires python, the python libraries, and numpy ${ColourReset}")
+    message("${BoldRed}-- The ScannerBit python interface requires Python. ${ColourReset}")
     message("${Red}-- PYTHONINTERP_FOUND=${PYTHONINTERP_FOUND} ${ColourReset}")
-    message("${Red}-- PYTHONLIBS_FOUND=${PYTHONLIBS_FOUND} ${ColourReset}")
-    message("${Red}-- NUMPY_FOUND=${NUMPY_FOUND} ${ColourReset}")
 
-endif(PYTHONINTERP_FOUND)# AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
+endif() # PYTHONINTERP_FOUND) AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
