@@ -10,22 +10,35 @@
 Parameters:
   # In this example we will simply be fitting the mean and standard deviation of a normal distribution.
   NormalDist:
+    # Example of using simple priors:
     mu:
+      prior_type: flat
       range: [15, 30]
     sigma:
+      prior_type: flat
       range: [0, 5]
+
+    # If using a more complicated prior specified in the 'Priors' section below, 
+    # use the 'in_priors' keyword in this section:
+    # mu: in_priors
+    # sigma: in_priors
 
 
 Priors:
 
-  # None needed: flat priors are automatically generated for NormalDist::mu and NormalDist::sigma
-  # If you wanted to use a Gaussian prior on these parameters instead, you would comment
-  # out their ranges above, and do e.g.
-  #prior1:
-  #  parameters: ["NormalDist::mu", "NormalDist::sigma"]
-  #  prior_type: gaussian
-  # mu: [18, 5]
-  #  sigma: [3.0, 1]
+  # None needed: simple priors are already specified in the 'Parameters' section above.
+
+  # If defining a more complicated prior, make sure to tag the relevant parameters with the
+  # keyword 'in_priors' in the 'Parameters' section above. Below is an example of a 
+  # 2D gaussian prior for the two parameters 'mu' and 'sigma': 
+  # 
+  # my_prior:
+  #   parameters: ["NormalDist::mu", "NormalDist::sigma"]
+  #   prior_type: gaussian
+  #   mu: [18, 5]
+  #   cov_matrix: [[9.0, 0.0], [0.0, 1.0]]
+  #   # sigma: [3.0, 1]
+
 
 Printer:
 
