@@ -135,10 +135,10 @@ Rules:
     options:
       silenceLoop: false
       LHC_13TeV:
-        min_nEvents: 10
+        min_nEvents: 10 # in case of UMVUE, this only gets used to prolong doing convergence checks
         max_nEvents: 1000
-        poisson_estimator: UMVUE # MLE
-        mean_nEvents: 1000 # Only used for UMVUE, which disregards max_nEvents (but not min_nEvents)
+        poisson_estimator: MLE #UMVUE # MLE
+        mean_nEvents: 1000 # Only used for UMVUE, which disregards max_nEvents
         events_between_convergence_checks: 5000
         target_fractional_uncert: 0.3
         halt_when_systematic_dominated: true
