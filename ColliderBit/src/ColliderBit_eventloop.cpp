@@ -36,6 +36,7 @@
 
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
+#include "gambit/ColliderBit/PoissonCalculators.hpp"
 
 // #define COLLIDERBIT_DEBUG
 #define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  " << __FILE__ << ":" << __LINE__ << ":  "
@@ -45,6 +46,23 @@ namespace Gambit
 
   namespace ColliderBit
   {
+
+    /// Calculate the required number of MC events
+    /// Currently can pick between fixed, or provide the mean and pull from a Poisson
+    int calc_N_MC(std::string method, double n_mc_mean)
+    {
+      if (method == "UMVUE")
+      {
+        return Gambit::ColliderBit::ideal::umvue_draw_n_mc(n_mc_mean);
+      }
+      else
+      {
+        // default to fixed
+        return n_mc_mean;
+      }
+    
+    }
+
 
     /// LHC Loop Manager
     void operateLHCLoop(MCLoopInfo& result)
@@ -63,6 +81,7 @@ namespace Gambit
       static std::map<str,int> min_nEvents;
       static std::map<str,int> max_nEvents;
       static std::map<str,int> stoppingres;
+      static bool fixed_nEvents = true;
       if (first)
       {
         // Should we silence stdout during the loop?
@@ -83,6 +102,9 @@ namespace Gambit
           Options colOptions(runOptions->getValue<YAML::Node>(collider));
           min_nEvents[collider]                                           = colOptions.getValue<int>("min_nEvents");
           max_nEvents[collider]                                           = colOptions.getValue<int>("max_nEvents");
+          double mean_nEvents                                             = colOptions.getValueOrDef<double>(max_nEvents[collider], "mean_nEvents");
+          std::string poisson_estimator                                   = colOptions.getValueOrDef<std::string>("MLE", "poisson_estimator"); 
+          result.desired_nEvents[collider]                                = calc_N_MC(poisson_estimator, mean_nEvents);
           result.convergence_options[collider].target_stat                = colOptions.getValue<double>("target_fractional_uncert");
           result.convergence_options[collider].stop_at_sys                = colOptions.getValueOrDef<bool>(true, "halt_when_systematic_dominated");
           result.convergence_options[collider].all_analyses_must_converge = colOptions.getValueOrDef<bool>(false, "all_analyses_must_converge");
@@ -92,6 +114,7 @@ namespace Gambit
           stoppingres[collider]                                           = colOptions.getValueOrDef<int>(200, "events_between_convergence_checks");
           result.analyses[collider]                                       = colOptions.getValueOrDef<std::vector<str>>(std::vector<str>(), "analyses");
           result.event_count[collider]                                    = 0;
+          fixed_nEvents = (poisson_estimator != "UMVUE");
           // Check that the nEvents options given make sense.
           if (min_nEvents.at(collider) > max_nEvents.at(collider))
           {
@@ -196,7 +219,7 @@ namespace Gambit
           #pragma omp parallel
           {
             while(eventCountBetweenConvergenceChecks < stoppingres.at(collider) and
-                  result.current_event_count() < max_nEvents.at(collider) and
+                  ((fixed_nEvents && result.current_event_count() < max_nEvents.at(collider)) or (!fixed_nEvents && result.current_event_count() < result.desired_nEvents[collider])) and
                   not *Loop::done and
                   not result.end_of_event_file and
                   not result.exceeded_maxFailedEvents and
@@ -210,7 +233,7 @@ namespace Gambit
               // to stop other threads from starting any event iterations beyond max_nEvents.
               #pragma omp critical
               {
-                if(result.current_event_count() < max_nEvents.at(collider))
+                if((fixed_nEvents && result.current_event_count() < max_nEvents.at(collider)) or (!fixed_nEvents && result.current_event_count() < result.desired_nEvents[collider]))
                 {
                   result.current_event_count()++;
                   thread_my_iteration = result.current_event_count();

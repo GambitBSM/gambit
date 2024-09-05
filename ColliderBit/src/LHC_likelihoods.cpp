@@ -36,6 +36,7 @@
 ///
 ///  \author Chris Chang
 ///  \date   2022 April
+///  \date   2024 Sep
 ///
 ///  *********************************************
 
@@ -44,6 +45,7 @@
 
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
+#include "gambit/ColliderBit/PoissonCalculators.hpp"
 #include "gambit/Utils/statistics.hpp" 
 #include "gambit/Utils/util_macros.hpp"
 #include "gambit/ColliderBit/Utils.hpp"
@@ -102,6 +104,23 @@ namespace Gambit
     }
 
 
+
+    // Calculate a Poisson likelihood
+    double calc_poisson_like(std::string estimator, double sb, double s, double b, int o, int n_mc, double n_exp)
+    {
+      if (estimator == "MVUE")
+      {
+        return Gambit::ColliderBit::ideal::umvue_poisson_like(s, b, o, n_mc, n_exp);
+      }
+      else if (estimator == "MLE")
+      {
+        return Gambit::ColliderBit::ideal::mle_poisson_like(sb, o);
+      }
+      
+      // If hit this point, throw an error
+      ColliderBit_error().raise(LOCAL_INFO,"Error: unknown poisson estimator.");
+      return 0.0; // Squashing a warning (will never hit this)
+    }
 
 
     /// Loglike objective-function wrapper to provide the signature for GSL multimin
@@ -219,10 +238,13 @@ namespace Gambit
     /// @note: marginaliser not used, but added to match function signature with marg_loglike_cov
     double profile_loglike_cov(const Options& runOptions,
                                const Eigen::ArrayXd& n_preds,
+                               const Eigen::ArrayXd&/* n_bkg*/,
                                const Eigen::ArrayXd& n_obss,
                                const Eigen::ArrayXd& sqrtevals,
                                const Eigen::MatrixXd& evecs,
-                               double (*/*marginaliser*/)(const int&, const double&, const double&, const double&))
+                               double (*/*marginaliser*/)(const int&, const double&, const double&, const double&),
+                               int /*n_mc*/,
+                               double /*n_mc_expected*/)
     {
       // Number of signal regions
       const size_t nSR = n_obss.size();
@@ -277,6 +299,14 @@ namespace Gambit
       static const unsigned VERBOSITY = runOptions.getValueOrDef<unsigned>(0, "nuisance_prof_verbosity");
       static const struct multimin::multimin_params oparams = {INITIAL_STEP, CONV_TOL, MAXSTEPS, CONV_ACC, SIMPLEX_SIZE, METHOD, VERBOSITY};
 
+      // For now, throw an error if trying to use profiler with the umbue poisson like, as it does not have a gradient function for the optimiser
+      static const std::string poisson_estimator = runOptions.getValueOrDef<std::string>("MLE", "poisson_estimator");
+      if (poisson_estimator == "MVUE")
+      {
+        ColliderBit_error().raise(LOCAL_INFO,"Error: umvue poisson estimator cannot currently be run with collider likelihood profiling.");
+      }
+
+
       // Convert the linearised array of doubles into "Eigen views" of the fixed params
       std::vector<double> fixeds = _gsl_mkpackedarray(n_preds, n_obss, sqrtevals, evecs);
 
@@ -330,10 +360,13 @@ namespace Gambit
 
     double marg_loglike_cov(const Options& runOptions,
                             const Eigen::ArrayXd& n_preds,
+                            const Eigen::ArrayXd& n_bkg,
                             const Eigen::ArrayXd& n_obss,
                             const Eigen::ArrayXd& sqrtevals,
                             const Eigen::MatrixXd& evecs,
-                            double (*marginaliser)(const int&, const double&, const double&, const double&))
+                            double (*marginaliser)(const int&, const double&, const double&, const double&),
+                            int n_mc,
+                            double n_mc_expected)
     {
       // Number of signal regions
       const size_t nSR = n_obss.size();
@@ -343,6 +376,8 @@ namespace Gambit
       static const double CONVERGENCE_TOLERANCE_REL = runOptions.getValueOrDef<double>(0.05, "nuisance_marg_convthres_rel");
       static const size_t NSAMPLE_INPUT = runOptions.getValueOrDef<size_t>(100000, "nuisance_marg_nsamples_start");
       static const bool   NULIKE1SR = runOptions.getValueOrDef<bool>(true, "nuisance_marg_nulike1sr");
+      static const std::string poisson_estimator = runOptions.getValueOrDef<std::string>("MLE", "poisson_estimator");
+      
 
       // Optionally use nulike's more careful 1D marginalisation for one-SR cases
       if (NULIKE1SR && nSR == 1) return marg_loglike_nulike1sr(n_preds, n_obss, sqrtevals, marginaliser);
@@ -366,7 +401,7 @@ namespace Gambit
       // We may want to switch to using Stirling's approximation: ln(n!) ~ n*ln(n) - n
       Eigen::ArrayXd logfact_n_obss(nSR);
       for (size_t j = 0; j < nSR; ++j)
-        logfact_n_obss(j) = gsl_sf_lngamma(n_obss(j) + 1);
+        logfact_n_obss(j) = gsl_sf_lngamma(n_obss(j) + 1); // TODO: Chris Chang: If using the new code, this won't be needed
 
       // Check absolute difference between independent has_and_estimates
       /// @todo Should also implement a check of relative difference
@@ -400,7 +435,8 @@ namespace Gambit
             for (size_t j = 0; j < nSR; ++j)
             {
               const double lambda_j = std::max(n_pred_samples(j), 1e-3); //< manually avoid <= 0 rates
-              const double loglike_j  = n_obss(j)*log(lambda_j) - lambda_j - logfact_n_obss(j);
+              //const double loglike_j = n_obss(j)*log(lambda_j) - lambda_j - logfact_n_obss(j);
+              const double loglike_j = calc_poisson_like(poisson_estimator, lambda_j, lambda_j - n_bkg(j), n_bkg(j), n_obss(j), n_mc, n_mc_expected); // TODO: Chris Chang Replace the other terms...
               combined_loglike += loglike_j;
             }
             // Add combined likelihood to running sums (to later calculate averages)
@@ -524,6 +560,8 @@ namespace Gambit
                                 bool (*FullLikes_FileExists)(const str&),
                                 int (*FullLikes_ReadIn)(const str&, const str&),
                                 double (*FullLikes_Evaluate)(std::map<str,double>&,const str&),
+                                double xsec,
+                                int n_mc,
                                 const std::string alt_loglike_key = "")
     {
       // Are we filling the standard loglike or an alternative one?
@@ -557,10 +595,14 @@ namespace Gambit
         // Check that we are indeed using the right function to compute the loglikes
         assert (ana_data.srcov.rows() > 0);
 
+        // Calculate the expected number of MC events based on xsec and luminosity
+        int n_mc_expected = ana_data.luminosity * xsec;
+
         // Construct vectors of SR numbers
         /// @todo Unify this for both cov and no-cov, feeding in one-element Eigen blocks as Ref<>s for the latter?
         Eigen::ArrayXd n_obs(nSR); // logfact_n_obs(nSR);
         Eigen::ArrayXd n_pred_b(nSR);
+        Eigen::ArrayXd n_pred_s(nSR);
         Eigen::ArrayXd n_pred_sb(nSR);
         Eigen::ArrayXd abs_unc_s(nSR);
         for (size_t SR = 0; SR < nSR; ++SR)
@@ -577,6 +619,7 @@ namespace Gambit
 
           // A contribution to the predicted number of events that is not known exactly
           n_pred_b(SR) = std::max(srData.n_bkg, 0.001); // <-- Avoid trouble with b==0
+          n_pred_s(SR) = std::max(srData.n_sig_scaled, 0.001); // <-- Avoid trouble with s==0
           n_pred_sb(SR) = srData.n_sig_scaled + srData.n_bkg;
 
           // Absolute errors for n_predicted_uncertain_*
@@ -615,8 +658,8 @@ namespace Gambit
 
         // Compute the single, correlated analysis-level DLL as the difference of s+b and b (partial) LLs
         /// @todo Only compute this once per run
-        const double ll_b = marg_prof_fn(runOptions, n_pred_b, n_obs, sqrtEb, Vb, marginaliser);
-        const double ll_sb = marg_prof_fn(runOptions, n_pred_sb, n_obs, sqrtEsb, Vsb, marginaliser);
+        const double ll_b = marg_prof_fn(runOptions, n_pred_b, n_pred_b, n_obs, sqrtEb, Vb, marginaliser, n_mc, n_mc_expected);
+        const double ll_sb = marg_prof_fn(runOptions, n_pred_sb, n_pred_b, n_obs, sqrtEsb, Vsb, marginaliser, n_mc, n_mc_expected);
         dll = ll_sb - ll_b;
 
         // Write result to the ana_loglikes reference
@@ -645,6 +688,9 @@ namespace Gambit
         str bestexp_sr_label;
         int bestexp_sr_index;
         double nocovar_srsum_dll_obs = 0;
+
+        // Calculate the expected number of MC events based on xsec and luminosity
+        int n_mc_expected = ana_data.luminosity * xsec;
 
         for (size_t SR = 0; SR < nSR; ++SR)
         {
@@ -700,11 +746,11 @@ namespace Gambit
 
           // Compute this SR's DLLs as the differences of s+b and b (partial) LLs
           /// @todo Only compute this once per run
-          const double ll_b_exp = marg_prof_fn(runOptions, n_preds_b, n_preds_b_int, sqrtevals_b, dummy, marginaliser);
+          const double ll_b_exp = marg_prof_fn(runOptions, n_preds_b, n_preds_b, n_preds_b_int, sqrtevals_b, dummy, marginaliser, n_mc, n_mc_expected);
           /// @todo Only compute this once per run
-          const double ll_b_obs = marg_prof_fn(runOptions, n_preds_b, n_obss, sqrtevals_b, dummy, marginaliser);
-          const double ll_sb_exp = marg_prof_fn(runOptions, n_preds_sb, n_preds_b_int, sqrtevals_sb, dummy, marginaliser);
-          const double ll_sb_obs = marg_prof_fn(runOptions, n_preds_sb, n_obss, sqrtevals_sb, dummy, marginaliser);
+          const double ll_b_obs = marg_prof_fn(runOptions, n_preds_b, n_preds_b, n_obss, sqrtevals_b, dummy, marginaliser, n_mc, n_mc_expected);
+          const double ll_sb_exp = marg_prof_fn(runOptions, n_preds_sb, n_preds_b, n_preds_b_int, sqrtevals_sb, dummy, marginaliser, n_mc, n_mc_expected);
+          const double ll_sb_obs = marg_prof_fn(runOptions, n_preds_sb, n_preds_b, n_obss, sqrtevals_sb, dummy, marginaliser, n_mc, n_mc_expected);
           const double dll_exp = ll_sb_exp - ll_b_exp;
           const double dll_obs = ll_sb_obs - ll_b_obs;
 
@@ -866,7 +912,9 @@ namespace Gambit
                                   bool skip_calc,
                                   bool (*FullLikes_FileExists)(const str&),
                                   int (*FullLikes_ReadIn)(const str&, const str&),
-                                  double (*FullLikes_Evaluate)(std::map<str,double>&,const str&))
+                                  double (*FullLikes_Evaluate)(std::map<str,double>&,const str&),
+                                  double xsec,
+                                  int n_mc)
     {
       static bool first = true;
 
@@ -992,7 +1040,7 @@ namespace Gambit
         // Now perform the actual loglikes compuations for this analysis
         // 
         // First do standard loglike calculation
-        fill_analysis_loglikes(ana_data, ana_loglikes, use_marg, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate);
+        fill_analysis_loglikes(ana_data, ana_loglikes, use_marg, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, xsec, n_mc);
 
         // Then do alternative loglike calculations:
         if (calc_noerr_loglikes)
@@ -1004,7 +1052,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_sig_MC_stat = 0.;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate,"noerr");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, xsec, n_mc,"noerr");
         }
         if (calc_expected_loglikes)
         {
@@ -1015,7 +1063,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_obs = ana_data_mod[SR].n_bkg;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, "expected");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, xsec, n_mc, "expected");
         }
         if (calc_expected_noerr_loglikes)
         {
@@ -1028,7 +1076,7 @@ namespace Gambit
             ana_data_mod[SR].n_obs = ana_data_mod[SR].n_bkg;
             ana_data_mod[SR].n_sig_MC_stat = 0.;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, "expected_noerr");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, xsec, n_mc, "expected_noerr");
         }
         if (calc_scaledsignal_loglikes)
         {
@@ -1039,7 +1087,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_sig_scaled *= signal_scalefactor;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, "scaledsignal");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, xsec, n_mc, "scaledsignal");
         }
 
       } // end analysis loop
@@ -1068,8 +1116,12 @@ namespace Gambit
 
       double (*marginaliser)(const int&, const double&, const double&, const double&) = (*Pipes::calc_LHC_LogLikes_full::BEgroup::lnlike_marg_poisson == "lnlike_marg_poisson_lognormal_error") ? Pipes::calc_LHC_LogLikes_full::BEreq::lnlike_marg_poisson_lognormal_error.pointer() : Pipes::calc_LHC_LogLikes_full::BEreq::lnlike_marg_poisson_gaussian_error.pointer();
 
+      // Get the cross-section and number of mc events (passed downstream for likelihood calculation)
+      double xsec = Dep::TotalCrossSection->xsec();
+      int n_mc = Dep::RunMC->current_event_count();
+
       // Call the calc_LHC_LogLikes
-      calc_LHC_LogLikes_common(result, use_fulllikes, ana, *runOptions, marginaliser, skip_calc, FileExists, ReadIn, Evaluate);
+      calc_LHC_LogLikes_common(result, use_fulllikes, ana, *runOptions, marginaliser, skip_calc, FileExists, ReadIn, Evaluate, xsec, n_mc);
 
     }
 
@@ -1090,8 +1142,12 @@ namespace Gambit
 
       double (*marginaliser)(const int&, const double&, const double&, const double&) = (*Pipes::calc_LHC_LogLikes::BEgroup::lnlike_marg_poisson == "lnlike_marg_poisson_lognormal_error") ? Pipes::calc_LHC_LogLikes::BEreq::lnlike_marg_poisson_lognormal_error.pointer() : Pipes::calc_LHC_LogLikes::BEreq::lnlike_marg_poisson_gaussian_error.pointer();
 
+      // Get the cross-section and number of mc events (passed downstream for likelihood calculation)
+      double xsec = Dep::TotalCrossSection->xsec();
+      int n_mc = Dep::RunMC->current_event_count();
+
       // Call the calc_LHC_LogLikes
-      calc_LHC_LogLikes_common(result, use_fulllikes, ana, *runOptions, marginaliser, skip_calc, nullptr, nullptr, nullptr);
+      calc_LHC_LogLikes_common(result, use_fulllikes, ana, *runOptions, marginaliser, skip_calc, nullptr, nullptr, nullptr, xsec, n_mc);
 
     }
 

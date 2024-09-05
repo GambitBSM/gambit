@@ -58,6 +58,9 @@ namespace Gambit
       /// Convergence options for each collider
       std::map<str,convergence_settings> convergence_options;
 
+      /// Number of MC events to simulate for a given parameter point for each collider
+      std::map<str, int> desired_nEvents;
+
       /// Analysis list for each collider
       std::map<str,std::vector<str>> analyses;
 
