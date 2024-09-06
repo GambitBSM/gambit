@@ -401,7 +401,7 @@ namespace Gambit
       // We may want to switch to using Stirling's approximation: ln(n!) ~ n*ln(n) - n
       Eigen::ArrayXd logfact_n_obss(nSR);
       for (size_t j = 0; j < nSR; ++j)
-        logfact_n_obss(j) = gsl_sf_lngamma(n_obss(j) + 1); // TODO: Chris Chang: If using the new code, this won't be needed
+        logfact_n_obss(j) = gsl_sf_lngamma(n_obss(j) + 1);
 
       // Check absolute difference between independent has_and_estimates
       /// @todo Should also implement a check of relative difference
@@ -436,7 +436,7 @@ namespace Gambit
             {
               const double lambda_j = std::max(n_pred_samples(j), 1e-3); //< manually avoid <= 0 rates
               //const double loglike_j = n_obss(j)*log(lambda_j) - lambda_j - logfact_n_obss(j);
-              const double loglike_j = calc_poisson_like(poisson_estimator, lambda_j, lambda_j - n_bkg(j), n_bkg(j), n_obss(j), n_mc, n_mc_expected); // TODO: Chris Chang Replace the other terms...
+              const double loglike_j = calc_poisson_like(poisson_estimator, lambda_j, lambda_j - n_bkg(j), n_bkg(j), n_obss(j), n_mc, n_mc_expected);
               combined_loglike += loglike_j;
             }
             // Add combined likelihood to running sums (to later calculate averages)
