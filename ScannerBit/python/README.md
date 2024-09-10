@@ -25,7 +25,6 @@ cmake ..
 make -jN ScannerBit_python_interface  # N is number of cores for parallel build
 
 cd ..
-
 ```
 
 If the build was successfull you should now have a shared library `ScannerBit.so` (or `ScannerBit.dylib`) in `ScannerBit/python/`.
@@ -37,7 +36,6 @@ The file `example.py` shows a first example of how to use the ScannerBit python 
 
 ```
 mpiexec -np N python example.py
-
 ```
 
 where `N` is the number of MPI processes. 
