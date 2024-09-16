@@ -35,6 +35,10 @@
 ///          (t.procter.1@research.gla.ac.uk)
 /// \date 2021 November
 ///
+///  \author Taylor R. Gray
+///          (gray@chalmers.se)
+///  \date 2023 Oct
+///
 ///  *********************************************
 
 #pragma once
@@ -44,7 +48,7 @@
 #define MODULE ColliderBit
 
   /// Execute the main Monte Carlo event loop.
-  /// Note: 
+  /// Note:
   ///   "Non-loop" capabilities that some in-loop capabilities depend on
   ///   can be added as dependencies here to ensure that they are calculated
   ///   before the loop starts.
@@ -77,7 +81,7 @@
 
   #define CAPABILITY TotalCrossSection
   START_CAPABILITY
-    /// Convert the TotalEvGenCrossSection (type MC_xsec_container) into 
+    /// Convert the TotalEvGenCrossSection (type MC_xsec_container) into
     /// a regular TotalCrossSection (type xsec_container)
     #define FUNCTION getEvGenCrossSection_as_base
     START_FUNCTION(xsec_container)
@@ -116,7 +120,7 @@
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// Output info on TotalCrossSection as 
+  /// Output info on TotalCrossSection as
   /// a str-double map, for easy printing
   #define CAPABILITY TotalCrossSectionAsMap
   START_CAPABILITY
@@ -139,7 +143,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(HardScatteringSim, const BaseCollider*)
     #undef FUNCTION
-  #undef CAPABILITY 
+  #undef CAPABILITY
 
   /// Get a list of all the PID pairs related to active process codes
   #define CAPABILITY ActivePIDPairs
@@ -149,7 +153,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(ActiveProcessCodeToPIDPairsMap, multimap_int_PID_pair)
     #undef FUNCTION
-  #undef CAPABILITY 
+  #undef CAPABILITY
 
   /// Translate a list of Pythia process codes to list of (PID,PID) pairs
   /// for the two final state particles of the hard process.
@@ -160,7 +164,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(ActiveProcessCodes, std::vector<int>)
     #undef FUNCTION
-  #undef CAPABILITY 
+  #undef CAPABILITY
   /// @}
 
 
@@ -175,7 +179,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(ActiveProcessCodes, std::vector<int>)
     DEPENDENCY(ActiveProcessCodeToPIDPairsMap, multimap_int_PID_pair)
-    DEPENDENCY(PIDPairCrossSectionsMap, map_PID_pair_PID_pair_xsec) 
+    DEPENDENCY(PIDPairCrossSectionsMap, map_PID_pair_PID_pair_xsec)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -189,7 +193,7 @@
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// Output PID pair cross-sections as a 
+  /// Output PID pair cross-sections as a
   /// str-dbl map, for easy printing
   #define CAPABILITY PIDPairCrossSectionsInfo
   START_CAPABILITY
@@ -314,6 +318,13 @@
     MODEL_CONDITIONAL_DEPENDENCY(Unitarity_Bound_DMsimpVectorMedDiracDM, double, DMsimpVectorMedDiracDM)
     ALLOW_MODELS(DMsimpVectorMedScalarDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedDiracDM, DMsimpVectorMedVectorDM)
     #undef FUNCTION
+
+    #define FUNCTION SubGeVDM_results
+    START_FUNCTION(AnalysisDataPointers)
+    DEPENDENCY(SubGeVDM_spectrum, Spectrum)
+    ALLOW_MODELS(SubGeVDM_fermion, SubGeVDM_scalar)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
   #define CAPABILITY AllAnalysisNumbersUnmodified
@@ -358,7 +369,7 @@
   /// Calculate the log likelihood for each SR in each analysis using the analysis numbers
   #define CAPABILITY LHC_LogLikes
   START_CAPABILITY
-  
+
     #define FUNCTION calc_LHC_LogLikes_full
     START_FUNCTION(map_str_AnalysisLogLikes)
     DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
@@ -370,7 +381,7 @@
     BACKEND_REQ(FullLikes_ReadIn, (ATLAS_FullLikes), int, (const str&,const str&))
     BACKEND_REQ(FullLikes_FileExists, (ATLAS_FullLikes), bool, (const str&))
     #undef FUNCTION
-  
+
     #define FUNCTION calc_LHC_LogLikes
     START_FUNCTION(map_str_AnalysisLogLikes)
     DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
@@ -380,7 +391,7 @@
     BACKEND_GROUP(lnlike_marg_poisson)
     #undef FUNCTION
   #undef CAPABILITY
-  
+
   /// Extract the log likelihood for each SR to a simple map_str_dbl
   #define CAPABILITY LHC_LogLike_per_SR
   START_CAPABILITY
@@ -525,13 +536,13 @@
   #define CAPABILITY EventWeighterFunction
   START_CAPABILITY
 
-    /// This function is intended as a fallback option 
+    /// This function is intended as a fallback option
     /// that simply assigns a unit weight to all events
     #define FUNCTION setEventWeight_unity
     START_FUNCTION(EventWeighterFunctionType)
     #undef FUNCTION
 
-    /// Weight events according to process cross-section 
+    /// Weight events according to process cross-section
     #define FUNCTION setEventWeight_fromCrossSection
     START_FUNCTION(EventWeighterFunctionType)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
@@ -593,5 +604,16 @@
     #endif
 
   #undef CAPABILITY
+
+  /// BaBar single photon likelihood
+  #define CAPABILITY BaBar_single_photon_LogLike
+    #define FUNCTION BaBar_single_photon_LogLike_SubGeVDM
+    START_FUNCTION(double)
+    DEPENDENCY(dark_photon_decay_rates,DecayTable::Entry)
+    ALLOW_MODELS(SubGeVDM_fermion)
+    ALLOW_MODELS(SubGeVDM_scalar)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 
 #undef MODULE

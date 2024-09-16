@@ -1571,6 +1571,9 @@ namespace Gambit
 
         /// Last PPID pair printed
         PPIDpair lastPointID;
+        
+        /// True if metadata is being printed
+        bool use_metadata;
 
 #ifdef WITH_MPI
         /// Gambit MPI communicator context for use within the hdf5 printer system

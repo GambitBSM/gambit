@@ -35,6 +35,9 @@ Contur:
 DarkAges:
   1.2.0:       ./Backends/installed/darkages/1.2.0/DarkAges_1_2_0
 
+DarkCast:
+  1.1:         ./Backends/installed/darkcast/model.py
+
 DarkSUSY:
   5.1.3:       ./Backends/installed/darksusy/5.1.3/lib/libdarksusy.so
 
@@ -123,6 +126,9 @@ nulike:
   1.0.7:       ./Backends/installed/nulike/1.0.7/lib/libnulike.so
   1.0.8:       ./Backends/installed/nulike/1.0.8/lib/libnulike.so
   1.0.9:       ./Backends/installed/nulike/1.0.9/lib/libnulike.so
+
+obscura:
+  1.1.0:       ./Backends/installed/obscura/1.1.0/src/libobscura.so
 
 pbarlike:
   1.0:         ./Backends/installed/pbarlike/1.0/pbarlike-gambit-interface.py

@@ -24,7 +24,7 @@
 #  \date 2021 Mar
 #
 #  \author Christopher Chang
-#          (christopher.chang@uqconnect.edu.au)
+#          (c.j.chang@fys.uio.no)
 #  \date 2021 Feb
 #
 #************************************************
@@ -87,6 +87,8 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   else()
     # Make sure the printers compile OK if the rest of GAMBIT is missing
     target_compile_definitions(Printers PRIVATE SCANNER_STANDALONE)
+    target_compile_definitions(Logs PRIVATE SCANNER_STANDALONE)
+    target_compile_definitions(Utils PRIVATE SCANNER_STANDALONE)
   endif()
   add_dependencies(standalones ScannerBit_standalone)
 endif()

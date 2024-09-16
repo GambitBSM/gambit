@@ -103,6 +103,14 @@
 #          (ahye@fys.uio.no)
 #  \date 2022 Feb
 #
+#  \author Timon Emken
+#          (timon.emken@fysik.su.se)
+#  \date 2022 Mar
+#
+#  \author Quan Huynh
+#          (qhuy0003@student.monash.edu)
+#  \date 2022 Apr
+#
 #************************************************
 
 
@@ -111,14 +119,14 @@ set(name "castxml")
 set(dir "${CMAKE_SOURCE_DIR}/Backends/scripts/BOSS/castxml")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")
-    set(castxml_dl "https://data.kitware.com/api/v1/file/606cff072fa25629b9688ac6/download")
+    set(castxml_dl "https://data.kitware.com/api/v1/item/63c469666d3fc641a02d80ca/download")
     set(castxml_dl_filename "castxml-macos-arm64.tar.gz")
   else()
-    set(castxml_dl "https://data.kitware.com/api/v1/file/622961284acac99f42134a6a/download")
+    set(castxml_dl "https://data.kitware.com/api/v1/item/63bed7726d3fc641a02d7e9e/download")
     set(castxml_dl_filename "castxml-macosx.tar.gz")
   endif()
 else()
-  set(castxml_dl "https://data.kitware.com/api/v1/file/622961384acac99f42134a8a/download")
+  set(castxml_dl "https://data.kitware.com/api/v1/item/63bed74d6d3fc641a02d7e98/download")
   set(castxml_dl_filename "castxml-linux.tar.gz")
 endif()
 ExternalProject_Add(${name}
@@ -261,6 +269,28 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
+# DarkCast
+set(name "darkcast")
+set(ver "1.1")
+set(lib "darkcastlib")
+set(dl "https://gitlab.com/philten/darkcast/-/archive/v1.1/darkcast-v1.1.tar.gz")
+set(md5 "b9a4cd71e6959230480478ed5262835d")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${name}_patch.diff")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
 
 # DarkSUSY
 set(name "darksusy")
@@ -486,6 +516,8 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
+    # Apart from the standard patch we want to replace some yield tables with higher resolution versions
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${patchdir}updated_tables/ ${dir}/data/yields_hazma/
     CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${BACKEND_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS}
     BUILD_COMMAND ${MAKE_PARALLEL} ds_core ds_empty install_tables
     INSTALL_COMMAND ""
@@ -569,9 +601,10 @@ endif()
 # HepLike
 set(name "heplike")
 set(ver "2.0")
-set(dl "https://github.com/tegonzalo/HEPLike/archive/v${ver}.zip")
+set(dl "https://github.com/tegonzalo/HEPLike/archive/V${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(md5 "a9b674b8a11037a15bfed69835aac1a6")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 set(HL_CXXFLAGS "${BACKEND_CXX_FLAGS} -I${yaml_INCLUDE_DIR}")
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(HL_CXXFLAGS "${HL_CXXFLAGS} -undefined dynamic_lookup -flat_namespace")
@@ -586,9 +619,10 @@ if(NOT ditched_${name}_${ver})
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
     UPDATE_COMMAND ${CMAKE_COMMAND} -E echo "set_target_properties(HEPLike_shared PROPERTIES OUTPUT_NAME HEPLike SUFFIX \".so\")" >> ${dir}/CMakeLists.txt
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HL_CXXFLAGS} -DCMAKE_MODULE_PATH=${PROJECT_SOURCE_DIR}/cmake -DUSE_ROOT=false
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HL_CXXFLAGS} -DCMAKE_MODULE_PATH=${PROJECT_SOURCE_DIR}/cmake -DUSE_ROOT=false -DBoost_INCLUDE_DIRS=${Boost_INCLUDE_DIR} -DBoost_LIBRARIES=${Boost_LIBRARIES} -DGSL_INCLUDE_DIR=${GSL_INCLUDE_DIR} -DGSL_LIBRARIES=${GSL_LIBRARIES}
     BUILD_COMMAND ${MAKE_PARALLEL} HEPLike_shared
     INSTALL_COMMAND ""
     )
@@ -619,7 +653,7 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} ARFLAGS=rcs CFLAGS=${SI_C_FLAGS}
+    BUILD_COMMAND ${MAKE_SERIAL} CC=${CMAKE_C_COMPILER} ARFLAGS=rcs CFLAGS=${SI_C_FLAGS}
           COMMAND ar x src/libsuperiso.a
           COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o ${lib}.so *.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
@@ -782,7 +816,16 @@ set(ver "1.0.0")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "16b763a2e8b9d6c174d8b7ca2f4cb575")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(GAMLIKE_GSL_LIBS "${GSL_LIBRARIES}")
+if(GSL_FOUND)
+  execute_process(
+    COMMAND gsl-config --libs
+    OUTPUT_VARIABLE GAMLIKE_GSL_LIBS
+    RESULT_VARIABLE RET
+  )
+  if( RET EQUAL 0 )
+    string( STRIP "${GAMLIKE_GSL_LIBS}" GAMLIKE_GSL_LIBS )
+  endif()
+endif()
 set(gamlike_CXXFLAGS "${BACKEND_CXX_FLAGS}")
 if (NOT GSL_INCLUDE_DIRS STREQUAL "")
   set(gamlike_CXXFLAGS "${gamlike_CXXFLAGS} -I${GSL_INCLUDE_DIRS}")
@@ -805,7 +848,16 @@ set(ver "1.0.1")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "80b50ab2345e8b7d43b9eace5436e515")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(GAMLIKE_GSL_LIBS "${GSL_LIBRARIES}")
+if(GSL_FOUND)
+  execute_process(
+    COMMAND gsl-config --libs
+    OUTPUT_VARIABLE GAMLIKE_GSL_LIBS
+    RESULT_VARIABLE RET
+  )
+  if( RET EQUAL 0 )
+    string( STRIP "${GAMLIKE_GSL_LIBS}" GAMLIKE_GSL_LIBS )
+  endif()
+endif()
 set(gamlike_CXXFLAGS "${BACKEND_CXX_FLAGS}")
 if (NOT GSL_INCLUDE_DIRS STREQUAL "")
   set(gamlike_CXXFLAGS "${gamlike_CXXFLAGS} -I${GSL_INCLUDE_DIRS}")
@@ -1088,6 +1140,68 @@ if(NOT ditched_${name}_${ver})
   endif()
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
+endif()
+
+
+# Libphysica
+set(name "libphysica")
+set(ver "0.1.5")
+set(dl "https://github.com/temken/${name}/archive/refs/tags/v${ver}.zip")
+set(md5 "none")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(libphysica_dir "${dir}")
+set(libphysica_ver "${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${libphysica_dir} ${name} ${ver}
+    SOURCE_DIR ${libphysica_dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CMAKE_ARGS -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_C_FLAGS=${BACKEND_C_FLAGS} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCODE_COVERAGE=OFF -DCMAKE_BUILD_TYPE=Release
+    BUILD_COMMAND ${MAKE_PARALLEL} ${dir}
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${libphysica_dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
+
+# Obscura
+set(name "obscura")
+set(ver "1.1.0")
+set(dl "https://github.com/temken/obscura/archive/refs/tags/v${ver}.tar.gz")
+set(md5 "0a39d7a4da0757d89d041ada592a758f")
+set(lib "libobscura")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  set(obscura_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  set(obscura_C_FLAGS "${BACKEND_C_FLAGS}")
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(obscura_CXX_FLAGS "${obscura_CXX_FLAGS} -Wl,-undefined,dynamic_lookup,-flat_namespace")
+    set(obscura_C_FLAGS "${obscura_C_FLAGS} -Wl,-undefined,dynamic_lookup,-flat_namespace")
+  endif()
+  set_compiler_warning("no-unused-parameter" obscura_CXX_FLAGS)
+  set_compiler_warning("no-type-limits" obscura_CXX_FLAGS)
+  set_compiler_warning("no-maybe-uninitialized" obscura_CXX_FLAGS)
+  set_compiler_warning("no-unused-but-set-variable" obscura_CXX_FLAGS)
+  ExternalProject_Add(${name}_${ver}
+    DEPENDS "castxml;libphysica"
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+          COMMAND  ${CMAKE_COMMAND} -E make_directory "${dir}/generated/"
+          COMMAND ${CMAKE_COMMAND} -E echo "" > "${dir}/generated/version.hpp"
+    CMAKE_ARGS -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${obscura_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_C_FLAGS=${obscura_C_FLAGS} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCODE_COVERAGE=OFF -DCMAKE_BUILD_TYPE=Release ${dir} -Dlibphysica_SOURCE_DIR=${libphysica_dir}
+    BUILD_COMMAND ${MAKE_PARALLEL} libobscura
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+  BOSS_backend(${name} ${ver})
 endif()
 
 
@@ -1975,7 +2089,7 @@ endif()
 # Fastjet
 set(name "fastjet")
 set(ver "3.3.2")
-set(dl "http://fastjet.fr/repo/fastjet-3.3.2.tar.gz")
+set(dl "https://fastjet.fr/repo/fastjet-3.3.2.tar.gz")
 set(md5 "ca3708785c9194513717a54c1087bfb0")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 # OpenMP flags don't play nicely with clang and FastJet's antiquated libtoolized build system.

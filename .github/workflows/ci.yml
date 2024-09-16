@@ -59,10 +59,6 @@ jobs:
     - name: Build Gambit
       run: |
         cd BUILD && . buildenv.sh
-        # Build YODA and HepMC first, to avoid race condition during parallel build: https://github.com/GambitBSM/gambit/issues/467
-        # Can remove this once issue #467 is fixed.
-        make -j$(( ($(nproc)+1)/2 )) yoda
-        make -j$(( ($(nproc)+1)/2 )) hepmc
         # Now build Gambit
         make -j$(( ($(nproc)+1)/2 )) gambit
     - name: CLI test
@@ -196,10 +192,6 @@ jobs:
     - name: Build Gambit
       run: |
         cd BUILD && . buildenv.sh
-        # Build YODA and HepMC first, to avoid race condition during parallel build: https://github.com/GambitBSM/gambit/issues/467
-        # Can remove this once issue #467 is fixed.
-        make -j$(( ($(nproc)+1)/2 )) yoda
-        make -j$(( ($(nproc)+1)/2 )) hepmc
         # Now build Gambit
         make -j$(( ($(nproc)+1)/2 )) gambit
     - name: Run ColliderBit_CMSSM.yaml

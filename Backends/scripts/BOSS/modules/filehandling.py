@@ -749,7 +749,7 @@ def createFrontendHeader(function_xml_files_dict):
             symbol = wr_func_el.get('name')
             symbol_list = '("' + symbol + '","' + '_' + symbol + '")'
 
-            # If there are overloaded versions of this function, write a comment 
+            # If there are overloaded versions of this function, write a comment
             # and add commented-out BE_FUNCTION lines for the overloads
             if j==1:
                 be_function_macro_code += '// Other versions of this function. Only use one at a time, or set unique function names.\n'

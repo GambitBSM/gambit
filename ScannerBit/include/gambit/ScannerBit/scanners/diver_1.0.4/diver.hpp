@@ -2,7 +2,7 @@
 //  *********************************************
 ///  \file
 ///
-///  ScannerBit interface to Diver 1.0.2
+///  ScannerBit interface to Diver 1.0.4
 ///
 ///  Header file
 ///

@@ -20,6 +20,8 @@
 
 #include "gambit/ScannerBit/printable_types.hpp"
 
+#ifndef SCANNER_STANDALONE
+
 #define ASCII_TYPES                         \
   SCANNER_PRINTABLE_TYPES                   \
   (std::string)                             \
@@ -32,9 +34,21 @@
 #ifdef GAMBIT_LIGHT
   #define ASCII_BACKEND_TYPES
 #else
-  #define ASCII_BACKEND_TYPES           \
-    (DM_nucleon_couplings)              \
+  #define ASCII_BACKEND_TYPES             \
+    (DM_nucleon_couplings)                \
     (BBN_container)
+#endif
+
+#else  // ifdef SCANNER_STANDALONE
+
+#define ASCII_TYPES                         \
+  SCANNER_PRINTABLE_TYPES                   \
+  (std::string)                             \
+  (triplet<double>)                         \
+  (map_intpair_dbl)                         \
+  (map_const_str_dbl)                       \
+  (map_const_str_map_const_str_dbl)         \
+  
 #endif
 
 #endif

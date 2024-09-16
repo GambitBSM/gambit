@@ -141,6 +141,10 @@ ObsLikes:
     capability: LHC_Combined_LogLike
     module:     ColliderBit
     type: double
+    sub_capabilities:
+      # Choose to use the CMS 137 invfb search rather than CMS36invfb
+      skip_analyses:
+        - CMS_13TeV_MONOJET_36invfb_interpolated
 
   - purpose:    Observable
     capability: LHC_signals
@@ -223,9 +227,6 @@ Rules:
     options:
       # Do not use capped LHC loglike, change to true if desired
       cap_loglike: false
-      # Choose to use the CMS 137 invfb search rather than CMS36invfb
-      skip_analyses:
-        - CMS_13TeV_MONOJET_36invfb_interpolated
 
   - capability: LHC_LogLikes
     # Choose not to use the FullLikes backend.

@@ -52,7 +52,6 @@ set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Ba
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Core/include/gambit/Core/module_rollcall.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/module_types_rollcall.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/module_functor_types.hpp")
-set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/elements_extras.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Printers/include/gambit/Printers/printer_rollcall.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/cmake/include/gambit/cmake/cmake_variables.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/ScannerBit/priors_rollcall.hpp")

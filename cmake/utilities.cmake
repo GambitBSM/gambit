@@ -33,8 +33,9 @@
 #  \date 2018 Dec
 #
 #  \author Christopher Chang
-#          (christopher.chang@uqconnect.edu.au)
+#          (c.j.chang@fys.uio.no)
 #  \date 2021 Feb
+#        2023 Dec
 #
 #  \author Anders Kvellestad
 #          (anders.kvellestad@fys.uio.no)
@@ -76,13 +77,6 @@ function(check_result result command)
   if(NOT ${result} STREQUAL "0")
     message(FATAL_ERROR "${BoldRed}Cmake failed because a GAMBIT python script failed.  Culprit: ${command}${ColourReset}")
   endif()
-endfunction()
-
-# Execute script to prevent printing problems with standalones
-function(add_elements_extras target)
-  set(ELEMENTS_EXTRAS_SCRIPT ${PROJECT_SOURCE_DIR}/Elements/scripts/elements_extras.py)
-  add_custom_target(${target} COMMAND ${PYTHON_EXECUTABLE} ${ELEMENTS_EXTRAS_SCRIPT} ${target}
-                            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 endfunction()
 
 #Check if a string starts with a give substring
@@ -187,6 +181,7 @@ endmacro()
 function(add_subdirectory_if_present dir)
   if(EXISTS "${PROJECT_SOURCE_DIR}/${dir}")
     add_subdirectory(${dir})
+    add_dependencies(${dir} contrib)
   endif()
 endfunction()
 
@@ -222,7 +217,6 @@ function(add_gambit_library libraryname)
   add_dependencies(${libraryname} printer_harvest)
   add_dependencies(${libraryname} module_harvest)
   add_dependencies(${libraryname} yaml-cpp)
-  add_dependencies(${libraryname} elements_extras)
 
   if(${CMAKE_VERSION} VERSION_GREATER 2.8.10)
     foreach (dir ${GAMBIT_INCDIRS})
@@ -283,8 +277,8 @@ macro(add_gambit_custom target filename HARVESTER DEPS)
                      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                      DEPENDS ${${HARVESTER}}
                              ${HARVEST_TOOLS}
-                             ${PROJECT_BINARY_DIR}/CMakeCache.txt
-                             ${${DEPS}})
+                             ${${DEPS}}
+                             ${CMAKE_BINARY_DIR}/CMakeCache.txt) #CMAKE_CACHEFILE_DIR is the same as CMAKE_BINARY_DIR
   add_custom_target(${target} DEPENDS ${CMAKE_BINARY_DIR}/${filename})
 endmacro()
 
@@ -381,7 +375,7 @@ function(add_gambit_executable executablename LIBRARIES)
     target_link_libraries(${executablename} PRIVATE ${LIBRARIES} yaml-cpp ${gambit_preload_LDFLAGS})
   endif()
 
-  add_dependencies(${executablename} mkpath gambit_preload)
+  add_dependencies(${executablename} gambit_preload contrib)
 
   #For checking if all the needed libs are present.  Never add them manually with -lsomelib!!
   if(VERBOSE)
@@ -428,9 +422,6 @@ function(add_standalone executablename)
       endif()
       if(module STREQUAL "SpecBit")
         set(USES_SPECBIT TRUE)
-        # Temporarily add the printers module whenever SpecBit is present to avoid linking problems
-        set(COMMA_SEPARATED_MODULES "${COMMA_SEPARATED_MODULES},Printers")
-        set(STANDALONE_OBJECTS ${STANDALONE_OBJECTS} $<TARGET_OBJECTS:Printers>)
       endif()
       if(module STREQUAL "ColliderBit")
         set(USES_COLLIDERBIT TRUE)
@@ -458,7 +449,7 @@ function(add_standalone executablename)
                        DEPENDS modules_harvested
                                ${STANDALONE_FACILITATOR}
                                ${HARVEST_TOOLS}
-                               ${PROJECT_BINARY_DIR}/CMakeCache.txt)
+                               ${CMAKE_BINARY_DIR}/CMakeCache.txt) #CMAKE_CACHEFILE_DIR is the same as CMAKE_BINARY_DIR
 
     # All the standalones need linking to HepMC, if HepMC is not excluced.
     # TODO: Avoid this if possible.
@@ -492,11 +483,6 @@ function(add_standalone executablename)
                                   ${STANDALONE_OBJECTS}
                                   ${GAMBIT_ALL_COMMON_OBJECTS}
                           HEADERS ${ARG_HEADERS})
-
-    # Add the elements_extras target
-    add_elements_extras(${executablename}_elements_extras)
-    add_dependencies(${executablename}_elements_extras elements_extras)
-    add_dependencies(${executablename} ${executablename}_elements_extras)
 
     # Add each of the declared dependencies
     foreach(dep ${ARG_DEPENDENCIES})
@@ -584,6 +570,10 @@ function(add_standalone_tarballs modules version)
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/${module} ${dirname}/${module}
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Logs ${dirname}/Logs
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Utils ${dirname}/Utils
+                                      COMMAND ${CMAKE_COMMAND} -E remove ${dirname}/Utils/src/slhaea_helpers.cpp
+                                      COMMAND ${CMAKE_COMMAND} -E touch ${dirname}/Utils/src/slhaea_helpers.cpp
+                                      COMMAND ${CMAKE_COMMAND} -E remove ${dirname}/Utils/include/gambit/Utils/slhaea_helpers.hpp
+                                      COMMAND ${CMAKE_COMMAND} -E touch ${dirname}/Utils/include/gambit/Utils/slhaea_helpers.hpp
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Printers ${dirname}/Printers
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/cmake ${dirname}/cmake
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/config ${dirname}/config
@@ -599,6 +589,7 @@ function(add_standalone_tarballs modules version)
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/${module} ${dirname}/${module}
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Logs ${dirname}/Logs
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Utils ${dirname}/Utils
+                                      COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Printers ${dirname}/Printers
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Models ${dirname}/Models
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Elements ${dirname}/Elements
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Backends ${dirname}/Backends
@@ -624,6 +615,7 @@ function(add_standalone_tarballs modules version)
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/PrecisionBit ${dirname}/PrecisionBit
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Logs ${dirname}/Logs
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Utils ${dirname}/Utils
+                             COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Printers ${dirname}/Printers
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Models ${dirname}/Models
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Elements ${dirname}/Elements
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Backends ${dirname}/Backends

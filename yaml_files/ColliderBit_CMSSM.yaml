@@ -97,6 +97,8 @@ ObsLikes:
     # Calculate the LHC likelihood
     - purpose:    LogLike
       capability: LHC_Combined_LogLike
+      # sub_capabilities:
+      #   skip_analyses:
 
     - purpose:    LogLike
       capability: LHC_Higgs_LogLike
@@ -391,7 +393,6 @@ Rules:
       write_summary_to_log: false
       cap_loglike: false
       cap_loglike_individual_analyses: false
-      # skip_analyses:
 
   # Set analyses for Rivet measurements
   - capability: Rivet_measurements

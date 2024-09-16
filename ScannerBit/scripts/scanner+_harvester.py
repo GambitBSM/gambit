@@ -582,17 +582,19 @@ message(\"${{BoldCyan}} X Excluding {0} from ScannerBit configuration.${{ColourR
 #  Authors:
 #
 #  \\author The GAMBIT Collaboration
-#  \\date """+datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")+"""
+#  \\date {0}
 #
-#************************************************\n"""
+#************************************************
+""".format(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"))
+
     towrite += cmakelist_txt_out
-    towrite += """\
+    towrite += """
 # Add the ScannerBit linking flag utility
 add_executable(scanlibs ${scanner_scanlibs_sources} ${scanner_scanlibs_headers})
 if(${CMAKE_VERSION} VERSION_GREATER 2.8.10)
-  target_include_directories(scanlibs PUBLIC ${PROJECT_SOURCE_DIR}/cmake/include)
+    target_include_directories(scanlibs PUBLIC ${PROJECT_SOURCE_DIR}/cmake/include)
 else()
-  include_directories(${PROJECT_SOURCE_DIR}/cmake/include)
+    include_directories(${PROJECT_SOURCE_DIR}/cmake/include)
 endif()
 add_dependencies(scanlibs yaml-cpp)
 target_link_libraries(scanlibs yaml-cpp)
@@ -612,7 +614,8 @@ set( PLUGIN_INCLUDE_DIRECTORIES
                 ${EIGEN3_INCLUDE_DIR}
                 ${BREW_LIBOMP_PREFIX}/include
                 ${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/ScannerBit
-)\n
+)
+
 if( ${PLUG_VERBOSE} )
     message(\"*** begin PLUG_INCLUDE_DIRECTORIES ***\")
     foreach(dir ${PLUGIN_INCLUDE_DIRECTORIES})
@@ -623,7 +626,8 @@ endif()
 
 set( reqd_lib_output )
 set( exclude_lib_output )
-set( PLUGIN_COMPILE_FLAGS \"${BACKEND_CXX_FLAGS}\")\n
+set( PLUGIN_COMPILE_FLAGS \"${BACKEND_CXX_FLAGS} ${OpenMP_CXX_FLAGS}\")
+
 if(MPI_C_FOUND)
     set( PLUGIN_COMPILE_FLAGS \"${PLUGIN_COMPILE_FLAGS} ${MPI_C_COMPILE_FLAGS}\" )
     set( PLUGIN_COMPILE_DIRECTORIES
@@ -634,7 +638,8 @@ if(MPI_C_FOUND)
                 ${PLUGIN_INCLUDE_DIRECTORIES}
                 ${MPI_C_INCLUDE_PATH}
     )
-endif()\n
+endif()
+
 if(MPI_CXX_FOUND)
     set( PLUGIN_COMPILE_FLAGS \"${PLUGIN_COMPILE_FLAGS} ${MPI_CXX_COMPILE_FLAGS}\" )
     set( PLUGIN_COMPILE_DIRECTORIES
@@ -647,7 +652,6 @@ if(MPI_CXX_FOUND)
     )
 endif()
 """
-
 
     # now link the shared libraries to their respective plugin libraries
     for i in range(len(plug_type)):
@@ -696,17 +700,43 @@ set ({0}_plugin_lib_paths_{1}""".format(plug_type[i], directory)
 """
 
             towrite += """
-set ({0}_plugin_rpath_{1}""".format(plug_type[i], directory)
+if (${{CMAKE_SYSTEM_NAME}} MATCHES \"Darwin\")""".format()
+            if plug_type[i] in scanbit_link_libs:
+                if directory in scanbit_link_libs[plug_type[i]]:
+                    unique_libdirs = set(p[1] for p in scanbit_link_libs[plug_type[i]][directory])
+                    if unique_libdirs:
+                        for libdir in unique_libdirs:
+                            towrite += """
+    execute_process(RESULT_VARIABLE result 
+                    COMMAND ${{CMAKE_INSTALL_NAME_TOOL}} -id \"{0}\" {1} 
+                    WORKING_DIRECTORY ${{PROJECT_SOURCE_DIR}}
+    )
+    """.format("@rpath/" + libdir.split("/")[-1], libdir)
+            towrite += """
+    set ({0}_plugin_rpath_{1}""".format(plug_type[i], directory)
             if plug_type[i] in scanbit_libs:
                 if directory in scanbit_libs[plug_type[i]]:
                     unique_libdirs = set(p for p in scanbit_libs[plug_type[i]][directory])
                     if unique_libdirs:
                         for libdir in unique_libdirs:
                             towrite += """
-                {0}""".format(libdir)
+                @loader_path/../../ScannerBit/{0}""".format(libdir.split("ScannerBit/")[-1])
             towrite += """
-)
+    )
+else()
+    set ({0}_plugin_rpath_{1}""".format(plug_type[i], directory)
+            if plug_type[i] in scanbit_libs:
+                if directory in scanbit_libs[plug_type[i]]:
+                    unique_libdirs = set(p for p in scanbit_libs[plug_type[i]][directory])
+                    if unique_libdirs:
+                        for libdir in unique_libdirs:
+                            towrite += """
+                $ORIGIN/../../ScannerBit/{0}""".format(libdir.split("ScannerBit/")[-1])
+            towrite += """
+    )
+endif()
 """
+# NOTE: may need to add the flag -Wl,-z,origin for linux for ORIGIN to work.
 
             towrite += """
 set ({0}_plugin_includes_{1}
@@ -730,7 +760,6 @@ set ({0}_plugin_linked_libs_{1} \"\")
                         towrite += """
 set ({0}_plugin_linked_libs_{1} \"${{{0}_plugin_linked_libs_{1}}}    {2}: {3}\\n\")
 """.format(plug_type[i], directory, lib[0], lib[1])
-
             towrite += """
 set ({0}_plugin_lib_full_paths_{1}""".format(plug_type[i], directory)
             if plug_type[i] in scanbit_link_libs:
@@ -908,7 +937,13 @@ foreach (plugin ${{SCANNERBIT_PLUGINS}})
     add_dependencies(ScannerBit ${{plugin}})
 endforeach()
 
-#add_subdirectory(python) # For scannerbit's python interface.
+option(WITH_PYTHON_SCANNERBIT \"Build ScannerBit's Python interface when building ScannerBit\" OFF)
+if(WITH_PYTHON_SCANNERBIT)
+    message(\"${{BoldYellow}}-- Enabling the ScannerBit_python_interface build target.${{ColourReset}}")
+    add_subdirectory(python) 
+else()
+    message(\"${{BoldCyan}} X The ScannerBit_python_interface build target is not activated. Use -DWITH_PYTHON_SCANNERBIT=ON to enable it.${{ColourReset}}")
+endif()
 """.format() # To include scan_python and scan_boost_python targets, for pyScannerBit interface. 
 
     cmake = "./ScannerBit/CMakeLists.txt"
