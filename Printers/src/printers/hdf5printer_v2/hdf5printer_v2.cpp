@@ -1940,12 +1940,13 @@ namespace Gambit
 
                 if (get_output_metadata())
                 {
-                  // Add last point ID to metadata
-                  std::stringstream ssPPID;
-                  ssPPID << lastPointID;
-                  map_str_str lastpoint;
-                  lastpoint["lastPointID"] = ssPPID.str();
-                  buffermaster.print_metadata(lastpoint, true);
+                    // Add last point ID to metadata
+                    std::stringstream ssPPID;
+                    ssPPID << lastPointID;
+                    map_str_str lastpoint;
+                    lastpoint["lastPointID"] = ssPPID.str();
+                    if (use_metadata)
+                        buffermaster.print_metadata(lastpoint, true);
                 }
 
             }
