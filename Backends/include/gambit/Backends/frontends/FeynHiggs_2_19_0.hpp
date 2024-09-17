@@ -84,7 +84,7 @@ BE_FUNCTION(FHCouplings, void, (int&, Farray< fh_complex,1,681>&, Farray< fh_com
 
 BE_FUNCTION(FHHiggsProd, void, (int&, fh_real&, Farray< fh_real,1,52>&), "fhhiggsprod_", "FHHiggsProd")
 
-//BE_FUNCTION(DeltaAlfaTopAlfa, Fdouble, (const fh_creal&, fh_creal&), "deltaalfatopalfa_", "DeltaAlfaTopAlfa")
+//BE_FUNCTION(DeltaAlfaTopAlfa, Fh_real, (const fh_creal&, fh_creal&), "deltaalfatopalfa_", "DeltaAlfaTopAlfa")
 
 BE_FUNCTION(DeltaAlfaTopAlfa, Fdouble, (const Fdouble&, const Fdouble&), "deltaalfatopalfa_", "DeltaAlfaTopAlfa")
 	    

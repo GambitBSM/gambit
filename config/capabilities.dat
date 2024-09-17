@@ -4824,6 +4824,9 @@ FlavourObs: |
 FHEWPO: |
    FeynHiggs EW observables, which is the set MW and sinthetaW in the MSSM and SM and also outputs the loop corrections that enter these, DeltaRho and DeltaR.
 
+DeltaAlfaTopAlfa: |
+   FeynHiggs implementation for the conversion from alfa_MSbar to alfa_OS based on Eq (10.8) of http://pdg.lbl.gov/2018/reviews/rpp2018-rev-standard-model.pdf 
+
 #----------------------------
 #  gamLike capabilities
 #----------------------------

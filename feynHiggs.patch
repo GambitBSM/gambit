@@ -1,0 +1,86 @@
+diff -crB FeynHiggs-2.19.0/src/Main/DeltaAlfaTop.h FeynHiggs-2.19.0_DeltaAlfaTopMod/src/Main/DeltaAlfaTop.h
+*** FeynHiggs-2.19.0/src/Main/DeltaAlfaTop.h	2018-08-29 20:57:47.000000000 +0800
+--- FeynHiggs-2.19.0_DeltaAlfaTopMod/src/Main/DeltaAlfaTop.h	2024-02-01 13:37:47.058735711 +0800
+***************
+*** 4,11 ****
+  * last modified 26 Oct 17 th
+  
+  
+! 	RealType DeltaAlfaTopAlfa, mt2_, mz2_
+! 	DeltaAlfaTopAlfa(mt2_, mz2_) = 4/(9*pi)*(
+!      &    1/3D0 - (2*mt2_/mz2_ + 1)*
+!      &    (Re(B0(mz2_, mt2_, mt2_)) - Re(A0(mt2_))/mt2_ + 1) )
+  
+--- 4,18 ----
+  * last modified 26 Oct 17 th
+  
+  
+!        RealType FUNCTION DeltaAlfaTopAlfa(mt2_, mz2_)
+! #include "FH.h"
+! #include "SLHA.h"
+! #include "PDG.h"
+! #include "looptools.h"
+!        RealType :: mt2_, mz2_
+!        DeltaAlfaTopAlfa = 4/(9*pi)*(1/3D0 - (2*mt2_/mz2_ + 1)*
+!      &	           (Re(B0(mz2_, mt2_, mt2_)) - Re(A0(mt2_))/mt2_ + 1) )
+!   
+!        END FUNCTION DeltaAlfaTopAlfa
+! 
+  
+diff -crB FeynHiggs-2.19.0/src/Main/OutputSLHA.F FeynHiggs-2.19.0_DeltaAlfaTopMod/src/Main/OutputSLHA.F
+*** FeynHiggs-2.19.0/src/Main/OutputSLHA.F	2022-09-27 02:16:54.000000000 +0800
+--- FeynHiggs-2.19.0_DeltaAlfaTopMod/src/Main/OutputSLHA.F	2024-02-01 14:01:23.996447839 +0800
+***************
+*** 33,40 ****
+  
+  	integer higgs(4), v_v(2,5), ferm(4,3), sferm(2,4,3)
+  	integer cha(2), neu(4)
+! 
+! #include "DeltaAlfaTop.h"
+  
+  * Important: unlike the charged (s)fermions, PDG_Hp, PDG_W, and
+  * PDG_chargino{1,2} refer to *positive* particles.  This differs
+--- 33,41 ----
+  
+  	integer higgs(4), v_v(2,5), ferm(4,3), sferm(2,4,3)
+  	integer cha(2), neu(4)
+! ! GAMBIT add line below	
+!         RealType DeltaAlfaTopAlfa
+! ! GAMBIT COMMENT OUT #include "DeltaAlfaTop.h"
+  
+  * Important: unlike the charged (s)fermions, PDG_Hp, PDG_W, and
+  * PDG_chargino{1,2} refer to *positive* particles.  This differs
+***************
+*** 553,555 ****
+--- 550,556 ----
+  	endif
+  
+  	end
++ 	
++ ! GAMBIT COMMENT add  
++ #include "DeltaAlfaTop.h"
++ 
+Only in FeynHiggs-2.19.0_DeltaAlfaTopMod/src/Main: OutputSLHA.F~
+diff -crB FeynHiggs-2.19.0/src/Record/SLHARecord.F FeynHiggs-2.19.0_DeltaAlfaTopMod/src/Record/SLHARecord.F
+*** FeynHiggs-2.19.0/src/Record/SLHARecord.F	2021-06-21 19:16:07.000000000 +0800
+--- FeynHiggs-2.19.0_DeltaAlfaTopMod/src/Record/SLHARecord.F	2024-02-01 14:04:23.776127674 +0800
+***************
+*** 33,39 ****
+  	RealType Para, def
+  	ComplexType val
+  
+! #include "DeltaAlfaTop.h"
+  
+  	Para(val, def) = merge(Re(val), def, Re(val) .gt. 0)
+  
+--- 32,40 ----
+  	RealType Para, def
+  	ComplexType val
+  
+! ! GAMBIT add line below	
+!         RealType DeltaAlfaTopAlfa
+! ! GAMBIT COMMENT OUT #include "DeltaAlfaTop.h"
+  
+  	Para(val, def) = merge(Re(val), def, Re(val) .gt. 0)
+  
+Only in FeynHiggs-2.19.0_DeltaAlfaTopMod/src/Record: SLHARecord.F~

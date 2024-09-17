@@ -140,14 +140,16 @@ BE_INI_FUNCTION
   // in src/LT/.
   // mt and mz passed to  DeltaAlfaTopAlfa should be SMInputs_Mt and SMInputs_MZ
   //fh_real DeltaAlphaTop = DeltaAlfaTopAlfa(Re(SMInputs_Mt)**2, Re(SMInputs_MZ)**2)
-  // PA: can just hard code this, shouldn't chnage anyway but in principal is something
-  // that should be updated with interface if FeynHiggs ever chnages it
-
+  // PA: ugly solution- modify FH code and call this here,
+  // shouldn't chnage anyway but in principal is something
+  // that should be updated with interface if FeynHiggs ever changes it
+  std::cout <<"before calling DealtaAlfaTop"  <<std::endl;
   fh_real DeltaAlphaTop = DeltaAlfaTopAlfa(MT*MT, MZ*MZ);
+  
   std::cout <<"after calling DealtaAlfaTop"  <<std::endl;
   fh_real local_invAlfa0_default = 137.035999084;
   invAlfaMZ = invAlfaMZ + DeltaAlphaTop + local_invAlfa0_default*.007127;
-
+  
   #ifdef FEYNHIGGS_DEBUG
     cout << "****** calling FHSetSMPara ******" << endl;
   #endif
