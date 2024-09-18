@@ -59,6 +59,9 @@ class MHDiffusion(splug.scanner):
     def run(self):
         print('Diffusion MCMC Chain Started')
         
+        stream = self.printer.get_stream("txt")
+        stream.reset()
+        
         training_samples = self.initial_samples
         initial_sample_size = len(training_samples)
         desired_sample_size = initial_sample_size
@@ -142,7 +145,12 @@ class MHDiffusion(splug.scanner):
                         while theta_prime[j] < self.low_bound[j] or theta_prime[j] > self.high_bound[j]:
                             theta_prime[j] = theta[j] + stats.norm(0, self.sigma).rvs()
               
-                    L_ratio = self.log_likelihood(theta_prime)/self.log_likelihood(theta)
+                    like_prime = self.log_likelihood(theta_prime)
+                    like_id_prime = self.point_id
+                    like = self.log_likelihood(theta)
+                    like_id = self.point_id
+                    L_ratio = np.exp(like_prime-like)
+                    #L_ratio = self.log_likelihood(theta_prime)/self.log_likelihood(theta)
               
                     prob_accept = L_ratio*Q_ratio
                     a = min(1, prob_accept)
@@ -151,6 +159,11 @@ class MHDiffusion(splug.scanner):
                         naccepted_diffusion +=1
                         theta = theta_prime
                         accepted_diffusion.append(theta_prime)
+                        stream.print(1.0, "Posterior", 0, like_prime)
+                        stream.print(0.0, "Posterior", 0, like)
+                    else:
+                        stream.print(0.0, "Posterior", 0, like_prime)
+                        stream.print(1.0, "Posterior", 0, like)
                 # M-H the rest of the time
                 else:
                     nattempted +=1
@@ -160,12 +173,23 @@ class MHDiffusion(splug.scanner):
                         while theta_prime[j] < self.low_bound[j] or theta_prime[j] > self.high_bound[j]:
                             theta_prime[j] = theta[j] + stats.norm(0, self.sigma).rvs()
                     theta_prime = np.array(theta_prime)
-                    a = min(1, self.log_likelihood(theta_prime)/self.log_likelihood(theta))
+                    
+                    like_prime = self.log_likelihood(theta_prime)
+                    like_id_prime = self.point_id
+                    like = self.log_likelihood(theta)
+                    like_id = self.point_id
+                    a = min(1, np.exp(like_prime-like))
+                    #a = min(1, self.log_likelihood(theta_prime)/self.log_likelihood(theta))
                     u = np.random.uniform()
                     if u < a:
                         naccepted +=1
                         theta = theta_prime
                         accepted_MH.append(theta_prime)
+                        stream.print(1.0, "Posterior", 0, like_prime)
+                        stream.print(0.0, "Posterior", 0, like)
+                    else:
+                        stream.print(0.0, "Posterior", 0, like_prime)
+                        stream.print(1.0, "Posterior", 0, like)
                 samples_final = np.vstack((samples_final,theta))
 
                 
@@ -197,6 +221,8 @@ class MHDiffusion(splug.scanner):
                     print(UP, end=CLEAR)
 
             diffusion_rate.append(naccepted_diffusion/nattempted_diffusion)
+            
+        stream.flush()
         return samples_final,accepted_diffusion,accepted_MH,diffusion_rate
 
 
