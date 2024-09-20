@@ -159,11 +159,11 @@ class MHDiffusion(splug.scanner):
                         naccepted_diffusion +=1
                         theta = theta_prime
                         accepted_diffusion.append(theta_prime)
-                        stream.print(1.0, "Posterior", 0, like_prime)
-                        stream.print(0.0, "Posterior", 0, like)
+                        stream.print(1.0, "Posterior", 0, like_id_prime)
+                        stream.print(0.0, "Posterior", 0, like_id)
                     else:
-                        stream.print(0.0, "Posterior", 0, like_prime)
-                        stream.print(1.0, "Posterior", 0, like)
+                        stream.print(0.0, "Posterior", 0, like_id_prime)
+                        stream.print(1.0, "Posterior", 0, like_id)
                 # M-H the rest of the time
                 else:
                     nattempted +=1
@@ -185,11 +185,11 @@ class MHDiffusion(splug.scanner):
                         naccepted +=1
                         theta = theta_prime
                         accepted_MH.append(theta_prime)
-                        stream.print(1.0, "Posterior", 0, like_prime)
-                        stream.print(0.0, "Posterior", 0, like)
+                        stream.print(1.0, "Posterior", 0, like_id_prime)
+                        stream.print(0.0, "Posterior", 0, like_id)
                     else:
-                        stream.print(0.0, "Posterior", 0, like_prime)
-                        stream.print(1.0, "Posterior", 0, like)
+                        stream.print(0.0, "Posterior", 0, like_id_prime)
+                        stream.print(1.0, "Posterior", 0, like_id)
                 samples_final = np.vstack((samples_final,theta))
 
                 
