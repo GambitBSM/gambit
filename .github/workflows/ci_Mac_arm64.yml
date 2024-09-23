@@ -2,7 +2,7 @@ name: Gambit Mac Arm64 CI
 
 on: #workflow_dispatch
   push:
-    branches: [ master, ci-* ]
+    branches: [ master, ci-*, turn_Mac_CI_on ]
   pull_request:
     branches: [ master ]
   schedule:
