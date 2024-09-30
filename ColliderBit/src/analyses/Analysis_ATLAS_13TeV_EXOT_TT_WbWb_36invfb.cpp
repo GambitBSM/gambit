@@ -25,6 +25,7 @@
 #include "HEPUtils/Event.h"
 #include "HEPUtils/Jet.h"
 // #include "fastjet/Filter.hh"
+#include <random>
 
 // Similar to ATLAS_13_TeV_3b_NN_139invfb (define structure copied from heputils/FastJet.h)
 #ifndef FJCORE
@@ -48,10 +49,42 @@
 using namespace std;
 #define CHECK_CUTFLOW
 
+class JetD2Threshold {
+    private:
+        std::vector<std::pair<double, double>> thresholds; // 存储 (p_T 上限, D2 阈值) 对
+
+    public:
+        JetD2Threshold() {
+                    thresholds.emplace_back(300, 1.03);   // pT   < 300
+                    thresholds.emplace_back(400, 1.10);   // 300  < pT <= 400
+                    thresholds.emplace_back(500, 1.15);   // 400  < pT <= 500 
+                    thresholds.emplace_back(600, 1.23);   // 500  < pT <= 600 
+                    thresholds.emplace_back(700, 1.30);   // 600  < pT <= 700
+                    thresholds.emplace_back(800, 1.38);   // 700  < pT <= 800
+                    thresholds.emplace_back(900, 1.45);   // 800  < pT <= 900
+                    thresholds.emplace_back(1000, 1.50);  // 900  < pT <= 1000
+                    thresholds.emplace_back(1100, 1.58);  // 1000 < pT <= 1100
+                    thresholds.emplace_back(1250, 1.70);  // 1100 < pT <= 1250
+                    thresholds.emplace_back(1500, 1.80);  // 1250 < pT <= 1500
+                    thresholds.emplace_back(1750, 2.00);  // 1500 < pT <= 1750
+                    thresholds.emplace_back(2000, 2.57);  // 1750 < pT <= 2000
+            }
+
+    double getThreshold(double jet_pt) {
+        for (const auto& threshold : thresholds) {
+            if (jet_pt < threshold.first) {
+                return threshold.second;
+            }
+        }
+        return thresholds.back().second; 
+    }
+};
+
 namespace Gambit
 {
     namespace ColliderBit
     {
+        
 
         class Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb : public Analysis
         {
@@ -67,6 +100,17 @@ namespace Gambit
             #endif
 
             static constexpr const char *detector = "ATLAS";
+
+
+            
+            double getThreshold(double jet_pt) {
+                for (const auto& threshold : thresholds) {
+                    if (jet_pt < threshold.first) {
+                        return threshold.second;
+                    }
+                }
+                return thresholds.back().second; // 如果 p_T 超过最高限制，使用最高阈值
+            }
 
             Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb()
             {
@@ -88,7 +132,7 @@ namespace Gambit
                         "DeltaR(lep, v) <= 0.7",
                         "DeltaM < 300 GeV"};
 
-                    _cutflows.addCutflow("ATLAS_13TeV_EXOTTTWbWb_36invfb", cutnames);
+                    _cutflows.addCutflow("ATLAS_13TeV_EXOT_TT_WbWb_36invfb", cutnames);
 
                     cout << _cutflows << endl;
                 #endif
@@ -100,8 +144,8 @@ namespace Gambit
                 #ifdef CHECK_CUTFLOW
                     const double w = event->weight();
                     // cout << "Event weight ->" << w << endl;
-                    _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fillinit(w);
-                    _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fillnext(w);
+                    _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fillinit(w);
+                    _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fillnext(w);
                 #endif
 
                 // cout << "0. pass cutflow init" << endl;
@@ -193,7 +237,12 @@ namespace Gambit
                 const double beta = 1.0; 
                 FJNS::Filter trimmer(fastjet::JetDefinition(fastjet::kt_algorithm, Rsub), fastjet::SelectorPtFractionMin(ptfrac));
                 FJNS::contrib::EnergyCorrelator C2(2, beta, fastjet::contrib::EnergyCorrelator::pt_R);
-                FJNS::contrib::EnergyCorrelator C3(3, beta, fastjet::contrib::EnergyCorrelator::pt_R);   
+                FJNS::contrib::EnergyCorrelator C3(3, beta, fastjet::contrib::EnergyCorrelator::pt_R);  
+
+                std::random_device rd;
+                std::mt19937 gen(rd()); 
+                std::uniform_real_distribution<> dis(0.0, 1.0);
+
                 for (size_t i = 0; i < baselineLargeRJets.size(); ++i)
                 {
                     // Obtain the FastJet PseudoJet objects;
@@ -206,6 +255,7 @@ namespace Gambit
                     if (trimmedJet.pt() > 200 &&  abs(trimmedJet.eta() < 2.0)) { // Setting The pT lower limit
                         // Applying The W-jet Grooming
 
+
                         // Define Jet mass 
                         double jet_mass = trimmedJet.m();
                         if (jet_mass < 0) continue; // filter the negative mass situation 
@@ -214,10 +264,17 @@ namespace Gambit
                         double C2_value = C2(trimmedJet);
                         double C3_value = C3(trimmedJet);
                         double D2_value = (C2_value > 0) ? C3_value / std::pow(C2_value, 3) : 0.0;
+                        
+                        JetD2Threshold d2Threshold;
+                        double D2_upper = d2Threshold.getThreshold(trimmedJet.pt()); 
 
                         // W tagging 
-                        if (std::abs(jet_mass - 80.4) < 15 && D2_value < 1.5) {
-                            trimmedLargeRJets.push_back(hepUtilsJet);
+                        if (std::abs(jet_mass - 80.4) < 15 && D2_value < D2_upper) {
+                            
+                            double randomNumber = dis(gen);
+                            if (randomNumber < 0.5) {
+                                trimmedLargeRJets.push_back(hepUtilsJet);
+                            }
                         }
                     }
                 }
@@ -269,22 +326,22 @@ namespace Gambit
                 if (n_leptons == 1 && n_jets >= 3)
                 {
 #ifdef CHECK_CUTFLOW
-                    _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(2, true, event->weight());
+                    _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fill(2, true, event->weight());
 #endif
                     if (n_Whad >= 1)
                     {
 #ifdef CHECK_CUTFLOW
-                        _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(3, true, event->weight());
+                        _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fill(3, true, event->weight());
 #endif
                         if (met >= 60)
                         {
 #ifdef CHECK_CUTFLOW
-                            _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(4, true, event->weight());
+                            _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fill(4, true, event->weight());
 #endif
                             if (n_bjets >= 1)
                             {
 #ifdef CHECK_CUTFLOW
-                                _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(5, true, event->weight());
+                                _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fill(5, true, event->weight());
 #endif
                                 presel = true;
                             }
@@ -400,13 +457,13 @@ namespace Gambit
 #ifdef CHECK_CUTFLOW
                 if (ST > 1800)
                 {
-                    _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(6, true, event->weight());
+                    _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fill(6, true, event->weight());
                     if (dRvlep < 0.7)
                     {
-                        _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(7, true, event->weight());
+                        _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fill(7, true, event->weight());
                         if (abs(mTlep - mThad) < 300)
                         {
-                            _cutflows["ATLAS_13TeV_EXOTTTWbWb_36invfb"].fill(8, true, event->weight());
+                            _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fill(8, true, event->weight());
                         }
                     }
                 }
@@ -445,6 +502,10 @@ namespace Gambit
         private:
             const double mW = 80.4;
 
+            std::vector<std::pair<double, double>> thresholds; // Save D2 thresHolds; Using the LookUP table method to get D2 upper limit; 
+
+
+
             // electron isolation requirement
             // bool LeptonIsolation(const HEPUtils::Particle &lepton, const HEPUtils::Event *event)
             // {
@@ -467,24 +528,24 @@ namespace Gambit
                 double py_l = lep.py();
                 double pz_l = lep.pz();
                 double E_l = lep.E();
-                double E_T_miss = std::sqrt(met_px * met_px + met_py * met_py);
+                double ETM2 = met_px * met_px + met_py * met_py; 
 
-                double mu2 = 0.5 * mW * mW + met_px * px_l + met_py * py_l;
+                double m_l = lep.m(); 
 
-                double A = mu2 * pz_l;
-                double B = mu2 * mu2 * pz_l * pz_l;
-                double C = E_l * E_l - pz_l * pz_l;
-                double D = E_l * E_l * E_T_miss * E_T_miss - mu2;
+                double A = mW * mW - m_l * m_l + 2.0 * px_l * met_px + 2.0 * met_py * py_l; 
+                double B = 2.0 * pz_l; 
+                double C = -2.0 * E_l; 
 
-                double discriminant = (B / (C * C)) - (D / C);
+                double discriminant = (A * A) * (C * C) + (B * B) * (C * C) * ETM2 - (C * C * C * C) * ETM2; 
+                double denominator = (C * C) - (B * B); 
 
                 std::vector<double> solutions;
 
                 if (discriminant >= 0)
                 {
                     double sqrt_discriminant = std::sqrt(discriminant);
-                    solutions.push_back(A / C + sqrt_discriminant);
-                    solutions.push_back(A / C - sqrt_discriminant);
+                    solutions.push_back((A * B + sqrt_discriminant)/denominator);
+                    solutions.push_back((A * B - sqrt_discriminant)/denominator);
                 }
 
                 return solutions;
