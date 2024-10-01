@@ -72,7 +72,11 @@ namespace Gambit
         {
           // If yes, flag this functor as available for activation.
           (*it)->setStatus(FunctorStatus::Available);
-          (*it)->setPrintRequirement(true);  // Tell printer to output this functor
+          #ifdef GAMBIT_LIGHT
+            (*it)->setPrintRequirement(false);  // Tell printer not to output this functor (will be printed elsewhere)
+          #else
+            (*it)->setPrintRequirement(true);  // Tell printer to output this functor
+          #endif
           // Initialise ModelParameters object it contains
           (*it)->calculate();
           // Add it to the vector of primary model functors to make active (to be returned)
