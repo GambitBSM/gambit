@@ -8,12 +8,11 @@ on:
 
 jobs:
   sync:
-    # runs-on: [self-hosted, macOS, Arm64]
-    runs-on: [self-hosted, X64]
+    runs-on: [self-hosted, macOS, Arm64]
     strategy:
       fail-fast: false
       matrix:
-        arch: [X64]
+        arch: [Arm64]
     defaults:
       run:
         shell: bash -eo pipefail {0}
@@ -26,5 +25,6 @@ jobs:
         # uses: maikenp/repo-file-sync-action@v0.0
         uses: BetaHuhn/repo-file-sync-action@v1
         with:
+          # The value of the secret has to be a valid GitHub access token
           GH_PAT: ${{ secrets.GAMBIT_LIGHT_SYNC_SECRET }}
           PR_BODY: "***This PR is auto-created to ensure that files are synced with GambitBSM/gambit:gambit_light_sync***"
