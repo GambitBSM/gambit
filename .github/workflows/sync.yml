@@ -24,6 +24,6 @@ jobs:
       - name: Run GitHub File Sync
         uses: maikenp/repo-file-sync-action@v0.0
         # uses: BetaHuhn/repo-file-sync-action@v1
-        with:
-          GH_PAT: ${{ secrets.GAMBIT_LIGHT_SYNC_SECRET }}
-          PR_BODY: "***This PR is auto-created to ensure that files are synced with GambitBSM/gambit:gambit_light_sync***"
+        # with:
+        #   GH_PAT: ${{ secrets.GAMBIT_LIGHT_SYNC_SECRET }}
+        #   PR_BODY: "***This PR is auto-created to ensure that files are synced with GambitBSM/gambit:gambit_light_sync***"
