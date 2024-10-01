@@ -8,17 +8,19 @@ on:
 
 jobs:
   sync:
-    runs-on: [self-hosted, macOS, x64]
+    runs-on: [self-hosted, macOS, Arm64]
     strategy:
       fail-fast: false
       matrix:
-        arch: [x64]
+        arch: [Arm64]
     defaults:
       run:
         shell: bash -eo pipefail {0}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@master
+      # This action expects a file .github/sync.yml containing the 
+      # the list of files to be included in the sync process. 
       - name: Run GitHub File Sync
         uses: maikenp/repo-file-sync-action@v0.0
         # uses: BetaHuhn/repo-file-sync-action@v1
