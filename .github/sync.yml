@@ -124,6 +124,7 @@ GambitBSM/gambit_light@gambit_light_sync:
   - source: config/
     dest: config/
     exclude: |
+      capabilities.dat
       backend_locations.yaml.default
       models.dat
       priors.dat
