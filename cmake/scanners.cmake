@@ -31,6 +31,7 @@
 #************************************************
 
 # Diver
+if(NOT GAMBIT_LIGHT) # Do not include this version in GAMBIT-light
 set(name "diver")
 set(ver "1.0.0")
 set(lib "libdiver")
@@ -58,7 +59,9 @@ if(NOT ditched_${name}_${ver})
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
 endif()
+endif() # End if(NOT GAMBIT_LIGHT)
 
+if(NOT GAMBIT_LIGHT) # Do not include this version in GAMBIT-light
 set(name "diver")
 set(ver "1.0.2")
 set(lib "libdiver")
@@ -84,7 +87,9 @@ if(NOT ditched_${name}_${ver})
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
 endif()
+endif() # End if(NOT GAMBIT_LIGHT)
 
+if(NOT GAMBIT_LIGHT) # Do not include this version in GAMBIT-light
 set(name "diver")
 set(ver "1.0.4")
 set(lib "libdiver")
@@ -110,6 +115,7 @@ if(NOT ditched_${name}_${ver})
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
 endif()
+endif() # End if(NOT GAMBIT_LIGHT)
 
 set(name "diver")
 set(ver "1.0.5")
@@ -139,6 +145,7 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 # PolyChord
+if(NOT GAMBIT_LIGHT) # Do not include this version in GAMBIT-light
 set(name "polychord")
 set(ver "1.17.1")
 set(lib "libchord")
@@ -187,8 +194,10 @@ if(NOT ditched_${name}_${ver})
     )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
 endif()
+endif() # End if(NOT GAMBIT_LIGHT)
 
 # PolyChord
+if(NOT GAMBIT_LIGHT) # Do not include this version in GAMBIT-light
 set(name "polychord")
 set(ver "1.18.2")
 set(lib "libchord")
@@ -237,6 +246,7 @@ if(NOT ditched_${name}_${ver})
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
 endif()
+endif() # End if(NOT GAMBIT_LIGHT)
 
 # PolyChord
 set(name "polychord")
@@ -290,6 +300,7 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 # MultiNest
+if(NOT GAMBIT_LIGHT) # Do not include this version in GAMBIT-light
 set(name "multinest")
 set(ver "3.10")
 set(lib "libnest3")
@@ -328,8 +339,10 @@ if(NOT ditched_${name}_${ver})
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
 endif()
+endif() # End if(NOT GAMBIT_LIGHT)
 
 # MultiNest
+if(NOT GAMBIT_LIGHT) # Do not include this version in GAMBIT-light
 set(name "multinest")
 set(ver "3.11")
 set(lib "libnest3")
@@ -367,7 +380,7 @@ if(NOT ditched_${name}_${ver})
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
 endif()
-
+endif() # End if(NOT GAMBIT_LIGHT)
 
 # MultiNest
 set(name "multinest")
@@ -410,6 +423,7 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 # GreAT
+if(NOT GAMBIT_LIGHT) # Do not include this version in GAMBIT-light
 set(name "great")
 set(ver "1.0.0")
 set(lib "libgreat")
@@ -433,6 +447,7 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("scanner" ${name} ${ver})
 endif()
+endif() # End if(NOT GAMBIT_LIGHT)
 
 # minuit2
 # omp possible in principle but disabled in gambit, as only likelihood uses omp
