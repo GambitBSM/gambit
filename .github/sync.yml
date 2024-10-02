@@ -120,7 +120,6 @@ GambitBSM/gambit_light@gambit_light_sync:
       src/wimp_types.cpp
 
 
-
   - source: config/
     dest: config/
     exclude: |
@@ -138,17 +137,14 @@ GambitBSM/gambit_light@gambit_light_sync:
   - Printers/
 
 
+  # Below there is a workaround for multinest_3.11/multinest.hpp, as this is originally 
+  # just a symlink to multinest_3.10/multinest.hpp, and that symlink crashes the file copying
   - source: ScannerBit/
     dest: ScannerBit/
     exclude: |
       include/gambit/ScannerBit/scanners/great/
       src/scanners/great/
-      include/gambit/ScannerBit/scanners/multinest_3.10/multinest.hpp
-      include/gambit/ScannerBit/scanners/multinest_3.11/multinest.hpp
-
-  - source: ScannerBit/include/gambit/ScannerBit/scanners/multinest_3.10/multinest.hpp
-    dest: ScannerBit/include/gambit/ScannerBit/scanners/multinest_3.10/multinest.hpp
-
+      include/gambit/ScannerBit/scanners/multinest_3.11/multinest.hpp 
   - source: ScannerBit/include/gambit/ScannerBit/scanners/multinest_3.10/multinest.hpp
     dest: ScannerBit/include/gambit/ScannerBit/scanners/multinest_3.11/multinest.hpp
 
