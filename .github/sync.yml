@@ -146,10 +146,10 @@ GambitBSM/gambit_light@gambit_light_sync:
       include/gambit/ScannerBit/scanners/great/
       src/scanners/great/
       include/gambit/ScannerBit/scanners/multinest_3.10/multinest.hpp
-      include/gambit/ScannerBit/scanners/multinest_3.11/multinest.hpp 
+      include/gambit/ScannerBit/scanners/multinest_3.11/multinest.hpp
+
   - source: ScannerBit/include/gambit/ScannerBit/scanners/multinest_3.10/multinest.hpp
     dest: ScannerBit/include/gambit/ScannerBit/scanners/multinest_3.10/multinest.hpp
+
   - source: ScannerBit/include/gambit/ScannerBit/scanners/multinest_3.10/multinest.hpp
     dest: ScannerBit/include/gambit/ScannerBit/scanners/multinest_3.11/multinest.hpp
-
-
