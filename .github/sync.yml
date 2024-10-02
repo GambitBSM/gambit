@@ -120,7 +120,6 @@ GambitBSM/gambit_light@gambit_light_sync:
       src/wimp_types.cpp
 
 
-
   - source: config/
     dest: config/
     exclude: |
@@ -143,4 +142,7 @@ GambitBSM/gambit_light@gambit_light_sync:
     exclude: |
       include/gambit/ScannerBit/scanners/great/
       src/scanners/great/
-
+      include/gambit/ScannerBit/scanners/multinest_3.10/
+      src/multinest_3.10/
+      include/gambit/ScannerBit/scanners/multinest_3.11/
+      src/multinest_3.11/
