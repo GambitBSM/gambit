@@ -143,4 +143,4 @@ GambitBSM/gambit_light@gambit_light_sync:
     exclude: |
       include/gambit/ScannerBit/scanners/great/
       src/scanners/great/
-    
+
