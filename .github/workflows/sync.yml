@@ -22,8 +22,8 @@ jobs:
       # This action expects a file .github/sync.yml containing the 
       # the list of files to be included in the sync process. 
       - name: Run GitHub File Sync
-        uses: maikenp/repo-file-sync-action@v0.0
-        # uses: BetaHuhn/repo-file-sync-action@v1
+        # uses: maikenp/repo-file-sync-action@v0.0
+        uses: BetaHuhn/repo-file-sync-action@v1
         with:
           # The value of the secret has to be a valid GitHub access token
           GH_PAT: ${{ secrets.GAMBIT_LIGHT_SYNC_SECRET }}
