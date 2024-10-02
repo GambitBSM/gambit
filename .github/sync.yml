@@ -152,8 +152,8 @@ GambitBSM/gambit_light@gambit_light_sync:
       src/diver_1.0.2/
       include/gambit/ScannerBit/scanners/diver_1.0.4/
       src/diver_1.0.4/
-      include/gambit/ScannerBit/scanners/polychord_1.17.1/
+      include/gambit/ScannerBit/scanners/polychord/1.17.1/
       src/polychord_1.17.1/
-      include/gambit/ScannerBit/scanners/polychord_1.18.2/
+      include/gambit/ScannerBit/scanners/polychord/1.18.2/
       src/polychord_1.18.2/
 
