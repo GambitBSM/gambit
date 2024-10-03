@@ -181,7 +181,9 @@ endmacro()
 function(add_subdirectory_if_present dir)
   if(EXISTS "${PROJECT_SOURCE_DIR}/${dir}")
     add_subdirectory(${dir})
-    add_dependencies(${dir} contrib)
+    if(NOT GAMBIT_LIGHT)
+      add_dependencies(${dir} contrib)
+    endif()
   endif()
 endfunction()
 
@@ -375,7 +377,11 @@ function(add_gambit_executable executablename LIBRARIES)
     target_link_libraries(${executablename} PRIVATE ${LIBRARIES} yaml-cpp ${gambit_preload_LDFLAGS})
   endif()
 
-  add_dependencies(${executablename} gambit_preload contrib)
+  if(NOT GAMBIT_LIGHT)
+    add_dependencies(${executablename} gambit_preload contrib)
+  else()
+    add_dependencies(${executablename} gambit_preload)
+  endif()
 
   #For checking if all the needed libs are present.  Never add them manually with -lsomelib!!
   if(VERBOSE)
