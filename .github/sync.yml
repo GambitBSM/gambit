@@ -143,17 +143,17 @@ GambitBSM/gambit_light@gambit_light_sync:
       include/gambit/ScannerBit/scanners/great/
       src/scanners/great/
       include/gambit/ScannerBit/scanners/multinest_3.10/
-      src/multinest_3.10/
+      src/scanners/multinest_3.10/
       include/gambit/ScannerBit/scanners/multinest_3.11/
-      src/multinest_3.11/
+      src/scanners/multinest_3.11/
       include/gambit/ScannerBit/scanners/diver_1.0.0/
-      src/diver_1.0.0/
+      src/scanners/diver_1.0.0/
       include/gambit/ScannerBit/scanners/diver_1.0.2/
-      src/diver_1.0.2/
+      src/scanners/diver_1.0.2/
       include/gambit/ScannerBit/scanners/diver_1.0.4/
-      src/diver_1.0.4/
+      src/scanners/diver_1.0.4/
       include/gambit/ScannerBit/scanners/polychord/1.17.1/
-      src/polychord_1.17.1/
+      src/scanners/polychord_1.17.1/
       include/gambit/ScannerBit/scanners/polychord/1.18.2/
-      src/polychord_1.18.2/
+      src/scanners/polychord_1.18.2/
 
