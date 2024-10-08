@@ -5,6 +5,7 @@ GambitBSM/gambit_light@gambit_light_sync:
   - source: contrib/
     dest: contrib/
     exclude: |
+      preload/
       heputils/
       mcutils/
       MassSpectra/
