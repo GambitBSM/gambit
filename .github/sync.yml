@@ -16,6 +16,7 @@ GambitBSM/gambit_light@gambit_light_sync:
   - source: cmake/
     dest: cmake/
     exclude: |
+      tarball_info.cmake
       cmake_variables.hpp.in
       scripts/download_castxml_binaries.sh
       contrib.cmake
