@@ -120,10 +120,10 @@ def main(argv):
     if verbose: print("Module rollcall headers identified:")
     for h in module_rollcall_headers:
         if verbose: print(' ',h)
-        h_parts = neatsplit('\/',h)
+        h_parts = neatsplit(r'\/',h)
         modules.add(h_parts[1])
     for h in retrieve_rollcall_headers(verbose,".",exclude_header, retrieve_excluded=True):
-        h_parts = neatsplit('\/',h)
+        h_parts = neatsplit(r'\/',h)
         modules_excluded.add(h_parts[1])
     if verbose:
         print("Module type headers identified:")
@@ -132,7 +132,7 @@ def main(argv):
 
 
     # Generate a c++ header containing all the module type headers we have just harvested.
-    towrite = "\
+    towrite = r"\
 //   GAMBIT: Global and Modular BSM Inference Tool\n\
 //   *********************************************\n\
 ///  \\file                                       \n\
@@ -254,7 +254,7 @@ def main(argv):
             if t != "": print(' ',t)
 
     # Generate a c++ header containing the backend functor template specialisations, using all the backend types we have harvested.
-    towrite = "\
+    towrite = r"\
 //   GAMBIT: Global and Modular BSM Inference Tool\n\
 //   *********************************************\n\
 ///  \\file                                       \n\
@@ -301,7 +301,7 @@ namespace Gambit                                  \n\
 
 
     # Generate a c++ source file containing the module functor template specialisations, using all the module types we have harvested.
-    towrite = "\
+    towrite = r"\
 //   GAMBIT: Global and Modular BSM Inference Tool\n\
 //   *********************************************\n\
 ///  \\file                                       \n\

@@ -62,7 +62,7 @@ def main(argv):
             print('  gambit/Models/model_types/'+h)
 
     # Generate a c++ header containing all the model headers we have just harvested.
-    towrite = "\
+    towrite = r"\
 //   GAMBIT: Global and Modular BSM Inference Tool\n\
 //   *********************************************\n\
 ///  \\file                                       \n\
@@ -103,7 +103,7 @@ def main(argv):
         f.write(towrite)
 
     # Generate a c++ header containing all the model type headers we have just harvested.
-    towrite = "\
+    towrite = r"\
 //   GAMBIT: Global and Modular BSM Inference Tool\n\
 //   *********************************************\n\
 ///  \\file                                       \n\

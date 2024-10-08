@@ -167,8 +167,8 @@ if(NOT PYTHONLIBS_FOUND AND NOT NO_PYTHON_LIBS)
   endif()
 
 else()
-  set(MIN_pybind11_VERSION "2.10.1")
-  set(PREFERRED_pybind11_VERSION "2.10.1")
+  set(MIN_pybind11_VERSION "2.13.6")
+  set(PREFERRED_pybind11_VERSION "2.13.6")
   set(pybind11_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/pybind11")
   include_directories("${PYTHON_INCLUDE_DIRS}")
   unset(PYBIND11_CPP_STANDARD CACHE)
@@ -314,7 +314,7 @@ endif()
 # Set output/runtime paths
 # We need to guard some of these with if statements so they can be overridden
 # by a master cmake project, or the user. E.g. the pyscannerbit
-# project needs to control where libraries end up and are expected to run from 
+# project needs to control where libraries end up and are expected to run from
 set(mylibdir ${PROJECT_SOURCE_DIR}/lib)
 set(mybindir ${PROJECT_SOURCE_DIR})
 # First for the generic no-config case (e.g. with mingw)
@@ -419,7 +419,7 @@ if (OPENMP_FOUND OR FOUND_BREW_OPENMP)
     set(OpenMP_Fortran_FLAGS "-fopenmp")
   endif()
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
-  # If the OpenMP headers live in a special location due to 
+  # If the OpenMP headers live in a special location due to
   # being installed with brew, we need to tell Eigen3 about it.
   if (FOUND_BREW_OPENMP)
     set(EIGEN3_INCLUDE_DIR "${EIGEN3_INCLUDE_DIR} -I${BREW_LIBOMP_PREFIX}/include")
@@ -695,7 +695,7 @@ set(GAMBIT_ALL_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:
 foreach(bit ${GAMBIT_BITS})
   add_subdirectory(${bit})
   set(GAMBIT_BIT_OBJECTS ${GAMBIT_BIT_OBJECTS} "$<TARGET_OBJECTS:${bit}>")
-  
+
   # Add the dependency on the contrib target
   add_dependencies(${bit} contrib)
 endforeach()

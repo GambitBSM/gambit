@@ -409,7 +409,7 @@ message(\"${{BoldCyan}} X Excluding {0} from ScannerBit configuration.${{ColourR
                                 if type(f) is dict:
                                     for key, value in f.items():
                                         if key in ("lib", "libs", "library", "libraries", "library_path", "library_paths", "-lib", "-libs", "-library", "-libraries", "-library_path", "-library_paths"):
-                                            libs = neatsplit(',|\s|;', value)
+                                            libs = neatsplit(r',|\s|;', value)
                                             for lib in libs:
                                                 if os.path.isfile(lib):
                                                     lib_full = os.path.abspath(lib)
@@ -445,7 +445,7 @@ message(\"${{BoldCyan}} X Excluding {0} from ScannerBit configuration.${{ColourR
                                                     scanbit_reqs[plugin[7]][plugin_name][version][4] += [lib]
 
                                         elif key in ("inc", "incs", "include", "includes", "include_path", "include_paths", "-inc", "-incs", "-include", "-includes", "-include_path", "-include_paths", "hdr", "hdrs", "header", "headers", "-hdr", "-hdrs", "-header", "-headers"):
-                                            incs = neatsplit(',|\s|;', value)
+                                            incs = neatsplit(r',|\s|;', value)
                                             for inc in incs:
                                                 if os.path.isdir(inc):
                                                     inc = os.path.abspath(inc)
