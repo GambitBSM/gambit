@@ -55,7 +55,7 @@ def main(argv):
             print('  gambit/ColliderBit/models/'+h)
 
     # Generate a C++ header containing all the model headers we have just harvested.
-    towrite = "\
+    towrite = r"\
 //   GAMBIT: Global and Modular BSM Inference Tool\n\
 //   *********************************************\n\
 ///  \\file                                       \n\
@@ -82,7 +82,7 @@ def main(argv):
         f.write(towrite)
 
     # Generate a C++ header containing Py8Collider typedefs for all the model headers we have just harvested.
-    towrite = "\
+    towrite = r"\
 //   GAMBIT: Global and Modular BSM Inference Tool\n\
 //   *********************************************\n\
 ///  \\file                                       \n\
