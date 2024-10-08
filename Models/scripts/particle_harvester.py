@@ -116,7 +116,7 @@ def main(argv):
     BSM_sets = data['OtherModels']['Sets']              # add_particle_set
     Generic = data['OtherModels']['Generic']            # add_generic_particle
     
-  towrite = "\
+  towrite = r"\
 //   GAMBIT: Global and Modular BSM Inference Tool\n\
 //   *********************************************\n\
 ///  \\file                                       \n\
