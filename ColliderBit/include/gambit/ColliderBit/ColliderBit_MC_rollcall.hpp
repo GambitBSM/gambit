@@ -259,7 +259,8 @@
     #define FUNCTION getATLASAnalysisContainer
     START_FUNCTION(AnalysisContainer)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    DEPENDENCY(TotalCrossSection, xsec_container)
+    DEPENDENCY(InitialTotalCrossSection, map_str_xsec_container) // TODO: Chris Chang: I added this
+    //DEPENDENCY(TotalCrossSection, xsec_container) // TODO: Chris Chang: I changed to the initial cross-section
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -268,7 +269,8 @@
     #define FUNCTION getCMSAnalysisContainer
     START_FUNCTION(AnalysisContainer)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    DEPENDENCY(TotalCrossSection, xsec_container)
+    DEPENDENCY(InitialTotalCrossSection, map_str_xsec_container) // TODO: Chris Chang: I added this
+    //DEPENDENCY(TotalCrossSection, xsec_container) // TODO: Chris Chang: I changed to the initial cross-section
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -277,7 +279,8 @@
     #define FUNCTION getIdentityAnalysisContainer
     START_FUNCTION(AnalysisContainer)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    DEPENDENCY(TotalCrossSection, xsec_container)
+    DEPENDENCY(InitialTotalCrossSection, map_str_xsec_container) // TODO: Chris Chang: I added this
+    //DEPENDENCY(TotalCrossSection, xsec_container) // TODO: Chris Chang: I changed to the initial cross-section
     #undef FUNCTION
   #undef CAPABILITY
   /// @}
