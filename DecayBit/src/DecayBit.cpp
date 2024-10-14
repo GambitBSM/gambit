@@ -4138,11 +4138,53 @@ namespace Gambit
       str in = "tp"; // In state: CalcHEP particle name
       std::vector<std::vector<str>> out_calchep = {{"u", "H"}, {"c", "H"}, {"t", "H"}, {"d", "W+"}, {"s", "W+"}, {"b", "W+"}, {"u", "Z"}, {"c", "Z"}, {"t", "Z"}}; // Out states: CalcHEP particle names
       std::vector<std::vector<str>> out_gambit = {{"u_1", "h0_1"}, {"u_2", "h0_1"}, {"u_3", "h0_1"}, {"d_1", "W+"}, {"d_2", "W+"}, {"d_3", "W+"}, {"u_1", "Z0"}, {"u_2", "Z0"}, {"u_3", "Z0"}}; // Out states: GAMBIT particle names
-      
+
+      // Some constants (copied from SM.fr):
+      constexpr double aEW = 1.0/127.9; constexpr double ee = sqrt(4*3.14159265*aEW); constexpr double Gf=1.16637e-5;
+      const double ee2 = ee*ee;
+      constexpr double MH=125; constexpr double MZ=91.1876; constexpr double MW=sqrt(MZ*MZ/2+sqrt(MZ*MZ*MZ*MZ/4-3.14159265/sqrt(2)*aEW/Gf*MZ*MZ));
+      constexpr double MW2 = MW*MW; constexpr double MZ2 = MZ*MZ; constexpr double MH2 = MH*MH;
+      constexpr double MW4 = MW2*MW2; constexpr double MZ4 = MZ2*MZ2; constexpr double MH4 = MH2*MH2;
+      constexpr double MT=172; constexpr double MB=4.7; constexpr double MT2=MT*MT; constexpr double MB2=MB*MB;
+      constexpr double MT4=MT2*MT2; constexpr double MB4=MB2*MB2;
+      constexpr double sw2=1-(MW/MZ)*(MW/MZ); constexpr double cw2=1-sw2;
+      constexpr double sw=sqrt(sw2); constexpr double cw=sqrt(cw2);
+      constexpr double vev = 2*MW*sw/ee;
+
+      // Get Parameters
+      const double Mtp = *Param["MTP"]; const double Mtp2 = Mtp*Mtp; const double Mtp4=Mtp2*Mtp2;
+      const double KTLw3 = *Param["KTLw3"];
+      const double KTLw32 = KTLw3*KTLw3;
+      const double KTLh3 = *Param["KTLh3"];
+      const double KTLh32 = KTLh3*KTLh3;
+      const double KTLz3 = *Param["KTLz3"];
+      const double KTLz32 = KTLz3*KTLz3;
+      const double KTRw3 = *Param["KTRw3"];
+      const double KTRw32 = KTRw3*KTRw3;
+      const double KTRh3 = *Param["KTRh3"];
+      const double KTRh32 = KTRh3*KTRh3;
+      const double KTRz3 = *Param["KTRz3"];
+      const double KTRz32 = KTRz3*KTRz3;
+
       for (unsigned int i=0; i<out_calchep.size(); i++)
       {
         
-        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        // Hack in Gamma from MG5
+        // Assume only 3rd gen couplings (not a conceptual problem to add the others, I'm just lazy)
+        double gamma = 0;
+        // T->Ht decay
+        if (out_calchep[i][0]=="t" && out_calchep[i][1]=="H"){
+          gamma = ((-3*KTLh32*MH2 - 3*KTRh32*MH2 + 3*KTLh32*MT2 + 3*KTRh32*MT2 + 12*KTLh3*KTRh3*MT*Mtp + 3*KTLh32*Mtp2 + 3*KTRh32*Mtp2)*sqrt(MH4 - 2*MH2*MT2 + MT4 - 2*MH2*Mtp2 - 2*MT2*Mtp2 + Mtp4))/(96.*3.1415926535*abs(Mtp2)*abs(Mtp));
+        }
+        // T->Zt
+        else if (out_calchep[i][0]=="t" && out_calchep[i][1]=="Z"){
+          gamma = (((3*ee2*KTLz32*MT2)/(4.*cw2*sw2) + (3*ee2*KTRz32*MT2)/(4.*cw2*sw2) - (9*ee2*KTLz3*KTRz3*MT*Mtp)/(cw2*sw2) + (3*ee2*KTLz32*Mtp2)/(4.*cw2*sw2) + (3*ee2*KTRz32*Mtp2)/(4.*cw2*sw2) + (3*ee2*KTLz32*MT4)/(4.*cw2*MZ2*sw2) + (3*ee2*KTRz32*MT4)/(4.*cw2*MZ2*sw2) - (3*ee2*KTLz32*MT2*Mtp2)/(2.*cw2*MZ2*sw2) - (3*ee2*KTRz32*MT2*Mtp2)/(2.*cw2*MZ2*sw2) + (3*ee2*KTLz32*Mtp4)/(4.*cw2*MZ2*sw2) + (3*ee2*KTRz32*Mtp4)/(4.*cw2*MZ2*sw2) - (3*ee2*KTLz32*MZ2)/(2.*cw2*sw2) - (3*ee2*KTRz32*MZ2)/(2.*cw2*sw2))*sqrt(MT4 - 2*MT2*Mtp2 + Mtp4 - 2*MT2*MZ2 - 2*Mtp2*MZ2 + MZ4))/(96.*3.1415926535897932*abs(Mtp2)*abs(Mtp));
+        }
+        // T->Wb
+        else if (out_calchep[i][0]=="b" && out_calchep[i][1]=="W+"){
+          gamma = (((3*ee2*KTLw32*MB2)/(2.*sw2) + (3*ee2*KTRw32*MB2)/(2.*sw2) - (18*ee2*KTLw3*KTRw3*MB*Mtp)/sw2 + (3*ee2*KTLw32*Mtp2)/(2.*sw2) + (3*ee2*KTRw32*Mtp2)/(2.*sw2) + (3*ee2*KTLw32*MB4)/(2.*MW2*sw2) + (3*ee2*KTRw32*MB4)/(2.*MW2*sw2) - (3*ee2*KTLw32*MB2*Mtp2)/(MW2*sw2) - (3*ee2*KTRw32*MB2*Mtp2)/(MW2*sw2) + (3*ee2*KTLw32*Mtp4)/(2.*MW2*sw2) + (3*ee2*KTRw32*Mtp4)/(2.*MW2*sw2) - (3*ee2*KTLw32*MW2)/sw2 - (3*ee2*KTRw32*MW2)/sw2)*sqrt(MB4 - 2*MB2*Mtp2 + Mtp4 - 2*MB2*MW2 - 2*Mtp2*MW2 + MW4))/(96.*3.141592653589793*abs(Mtp2)*abs(Mtp));
+        }
+      
         double newwidth = result.width_in_GeV + gamma;  // Adjust total width
         double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
         result.width_in_GeV = newwidth;
@@ -4173,11 +4215,53 @@ namespace Gambit
       str in = "bp"; // In state: CalcHEP particle name
       std::vector<std::vector<str>> out_calchep = {{"d", "H"}, {"s", "H"}, {"b", "H"}, {"u", "W-"}, {"c", "W-"}, {"t", "W-"}, {"d", "Z"}, {"s", "Z"}, {"b", "Z"}}; // Out states: CalcHEP particle names
       std::vector<std::vector<str>> out_gambit = {{"d_1", "h0_1"}, {"d_2", "h0_1"}, {"d_3", "h0_1"}, {"u_1", "W-"}, {"u_2", "W-"}, {"u_3", "W-"}, {"d_1", "Z0"}, {"d_2", "Z0"}, {"d_3", "Z0"}}; // Out states: GAMBIT particle names
+
+      // Some constants (copied from SM.fr):
+      constexpr double aEW = 1.0/127.9; constexpr double ee = sqrt(4*3.14159265*aEW); constexpr double Gf=1.16637e-5;
+      const double ee2 = ee*ee;
+      constexpr double MH=125; constexpr double MZ=91.1876; constexpr double MW=sqrt(MZ*MZ/2+sqrt(MZ*MZ*MZ*MZ/4-3.14159265/sqrt(2)*aEW/Gf*MZ*MZ));
+      constexpr double MW2 = MW*MW; constexpr double MZ2 = MZ*MZ; constexpr double MH2 = MH*MH;
+      constexpr double MW4 = MW2*MW2; constexpr double MZ4 = MZ2*MZ2; constexpr double MH4 = MH2*MH2;
+      constexpr double MT=172; constexpr double MB=4.7; constexpr double MT2=MT*MT; constexpr double MB2=MB*MB;
+      constexpr double MT4=MT2*MT2; constexpr double MB4=MB2*MB2;
+      constexpr double sw2=1-(MW/MZ)*(MW/MZ); constexpr double cw2=1-sw2;
+      constexpr double sw=sqrt(sw2); constexpr double cw=sqrt(cw2);
+      constexpr double vev = 2*MW*sw/ee;
+
+      // Get Parameters
+      const double Mbp = *Param["MBP"]; const double Mbp2 = Mbp*Mbp; const double Mbp4=Mbp2*Mbp2;
+      const double KBLw3 = *Param["KBLw3"];
+      const double KBLw32 = KBLw3*KBLw3;
+      const double KBLh3 = *Param["KBLh3"];
+      const double KBLh32 = KBLh3*KBLh3;
+      const double KBLz3 = *Param["KBLz3"];
+      const double KBLz32 = KBLz3*KBLz3;
+      const double KBRw3 = *Param["KBRw3"];
+      const double KBRw32 = KBRw3*KBRw3;
+      const double KBRh3 = *Param["KBRh3"];
+      const double KBRh32 = KBRh3*KBRh3;
+      const double KBRz3 = *Param["KBRz3"];
+      const double KBRz32 = KBRz3*KBRz3;
       
       for (unsigned int i=0; i<out_calchep.size(); i++)
       {
         
-        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        // Assume only 3rd gen couplings (not a conceptual problem to add the others, I'm just lazy)
+        double gamma = 0;
+        // B -> Hb 
+        if (out_calchep[i][0]=="b" && out_calchep[i][1]=="H"){
+          gamma = ((3*KBLh32*MB2 + 3*KBRh32*MB2 + 12*KBLh3*KBRh3*MB*Mbp + 3*KBLh32*Mbp2 + 3*KBRh32*Mbp2 - 3*KBLh32*MH2 - 3*KBRh32*MH2)*sqrt(MB4 - 2*MB2*Mbp2 + Mbp4 - 2*MB2*MH2 - 2*Mbp2*MH2 + MH4))/(96.*3.14159265*abs(Mbp2)*abs(Mbp));
+        }
+        // B->Zb
+        else if (out_calchep[i][0]=="b" && out_calchep[i][1]=="Z"){
+          gamma = (((3*ee2*KBLz32*MB2)/(4.*cw2*sw2) + (3*ee2*KBRz32*MB2)/(4.*cw2*sw2) - (9*ee2*KBLz3*KBRz3*MB*Mbp)/(cw2*sw2) + (3*ee2*KBLz32*Mbp2)/(4.*cw2*sw2) + (3*ee2*KBRz32*Mbp2)/(4.*cw2*sw2) + (3*ee2*KBLz32*MB4)/(4.*cw2*MZ2*sw2) + (3*ee2*KBRz32*MB4)/(4.*cw2*MZ2*sw2) - (3*ee2*KBLz32*MB2*Mbp2)/(2.*cw2*MZ2*sw2) - (3*ee2*KBRz32*MB2*Mbp2)/(2.*cw2*MZ2*sw2) + (3*ee2*KBLz32*Mbp4)/(4.*cw2*MZ2*sw2) + (3*ee2*KBRz32*Mbp4)/(4.*cw2*MZ2*sw2) - (3*ee2*KBLz32*MZ2)/(2.*cw2*sw2) - (3*ee2*KBRz32*MZ2)/(2.*cw2*sw2))*sqrt(MB4 - 2*MB2*Mbp2 + Mbp4 - 2*MB2*MZ2 - 2*Mbp2*MZ2 + MZ4))/(96.*3.14159265358989*abs(Mbp)*abs(Mbp2)); 
+        }
+        // B->Wt
+        else if (out_calchep[i][0]=="t" && out_calchep[i][1]=="W-"){
+          gamma = (((3*ee2*KBLw32*Mbp2)/(2.*sw2) + (3*ee2*KBRw32*Mbp2)/(2.*sw2) - (18*ee2*KBLw3*KBRw3*Mbp*MT)/sw2 + (3*ee2*KBLw32*MT2)/(2.*sw2) + (3*ee2*KBRw32*MT2)/(2.*sw2) + (3*ee2*KBLw32*Mbp4)/(2.*MW2*sw2) + (3*ee2*KBRw32*Mbp4)/(2.*MW2*sw2) - (3*ee2*KBLw32*Mbp2*MT2)/(MW2*sw2) - (3*ee2*KBRw32*Mbp2*MT2)/(MW2*sw2) + (3*ee2*KBLw32*MT4)/(2.*MW2*sw2) + (3*ee2*KBRw32*MT4)/(2.*MW2*sw2) - (3*ee2*KBLw32*MW2)/sw2 - (3*ee2*KBRw32*MW2)/sw2)*sqrt(Mbp4 - 2*Mbp2*MT2 + MT4 - 2*Mbp2*MW2 - 2*MT2*MW2 + MW4))/(96.*3.14159*abs(Mbp2)*abs(Mbp));
+        }
+
+
         double newwidth = result.width_in_GeV + gamma;  // Adjust total width
         double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
         result.width_in_GeV = newwidth;
@@ -4315,11 +4399,54 @@ namespace Gambit
       str in = "tp~"; // In state: CalcHEP particle name
       std::vector<std::vector<str>> out_calchep = {{"H", "u~"}, {"H", "c~"}, {"H", "t~"}, {"W-", "d~"}, {"W-", "s~"}, {"W-", "b~"}, {"Z", "u~"}, {"Z", "c~"}, {"Z", "t~"}}; // Out states: CalcHEP particle names
       std::vector<std::vector<str>> out_gambit = {{"h0_1", "ubar_1"}, {"h0_1", "ubar_2"}, {"h0_1", "ubar_3"}, {"W-", "dbar_1"}, {"W-", "dbar_2"}, {"W-", "dbar_3"}, {"Z0", "ubar_1"}, {"Z0", "ubar_2"}, {"Z0", "ubar_3"}}; // Out states: GAMBIT particle names
+
+      // Some constants (copied from SM.fr):
+      constexpr double aEW = 1.0/127.9; constexpr double ee = sqrt(4*3.14159265*aEW); constexpr double Gf=1.16637e-5;
+      const double ee2 = ee*ee;
+      constexpr double MH=125; constexpr double MZ=91.1876; constexpr double MW=sqrt(MZ*MZ/2+sqrt(MZ*MZ*MZ*MZ/4-3.14159265/sqrt(2)*aEW/Gf*MZ*MZ));
+      constexpr double MW2 = MW*MW; constexpr double MZ2 = MZ*MZ; constexpr double MH2 = MH*MH;
+      constexpr double MW4 = MW2*MW2; constexpr double MZ4 = MZ2*MZ2; constexpr double MH4 = MH2*MH2;
+      constexpr double MT=172; constexpr double MB=4.7; constexpr double MT2=MT*MT; constexpr double MB2=MB*MB;
+      constexpr double MT4=MT2*MT2; constexpr double MB4=MB2*MB2;
+      constexpr double sw2=1-(MW/MZ)*(MW/MZ); constexpr double cw2=1-sw2;
+      constexpr double sw=sqrt(sw2); constexpr double cw=sqrt(cw2);
+      constexpr double vev = 2*MW*sw/ee;
+
+      // Get Parameters
+      const double Mtp = *Param["MTP"]; const double Mtp2 = Mtp*Mtp; const double Mtp4=Mtp2*Mtp2;
+      // Get MG5 factors
+      const double KTLw3 = *Param["KTLw3"];
+      const double KTLw32 = KTLw3*KTLw3;
+      const double KTLh3 = *Param["KTLh3"];
+      const double KTLh32 = KTLh3*KTLh3;
+      const double KTLz3 = *Param["KTLz3"];
+      const double KTLz32 = KTLz3*KTLz3;
+      const double KTRw3 = *Param["KTRw3"];
+      const double KTRw32 = KTRw3*KTRw3;
+      const double KTRh3 = *Param["KTRh3"];
+      const double KTRh32 = KTRh3*KTRh3;
+      const double KTRz3 = *Param["KTRz3"];
+      const double KTRz32 = KTRz3*KTRz3;
       
       for (unsigned int i=0; i<out_calchep.size(); i++)
       {
         
-        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        //double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        // Assume only 3rd gen couplings (not a conceptual problem to add the others, I'm just lazy)
+        double gamma = 0;
+        // T->Ht decay
+        if (out_calchep[i][0]=="H" && out_calchep[i][1]=="t~"){
+          gamma = ((-3*KTLh32*MH2 - 3*KTRh32*MH2 + 3*KTLh32*MT2 + 3*KTRh32*MT2 + 12*KTLh3*KTRh3*MT*Mtp + 3*KTLh32*Mtp2 + 3*KTRh32*Mtp2)*sqrt(MH4 - 2*MH2*MT2 + MT4 - 2*MH2*Mtp2 - 2*MT2*Mtp2 + Mtp4))/(96.*3.1415926535*abs(Mtp2)*abs(Mtp));
+        }
+        // T-> Zt
+        else if (out_calchep[i][0]=="Z" && out_calchep[i][1]=="t~"){
+          gamma = (((3*ee2*KTLz32*MT2)/(4.*cw2*sw2) + (3*ee2*KTRz32*MT2)/(4.*cw2*sw2) - (9*ee2*KTLz3*KTRz3*MT*Mtp)/(cw2*sw2) + (3*ee2*KTLz32*Mtp2)/(4.*cw2*sw2) + (3*ee2*KTRz32*Mtp2)/(4.*cw2*sw2) + (3*ee2*KTLz32*MT4)/(4.*cw2*MZ2*sw2) + (3*ee2*KTRz32*MT4)/(4.*cw2*MZ2*sw2) - (3*ee2*KTLz32*MT2*Mtp2)/(2.*cw2*MZ2*sw2) - (3*ee2*KTRz32*MT2*Mtp2)/(2.*cw2*MZ2*sw2) + (3*ee2*KTLz32*Mtp4)/(4.*cw2*MZ2*sw2) + (3*ee2*KTRz32*Mtp4)/(4.*cw2*MZ2*sw2) - (3*ee2*KTLz32*MZ2)/(2.*cw2*sw2) - (3*ee2*KTRz32*MZ2)/(2.*cw2*sw2))*sqrt(MT4 - 2*MT2*Mtp2 + Mtp4 - 2*MT2*MZ2 - 2*Mtp2*MZ2 + MZ4))/(96.*3.1415926535897932*abs(Mtp2)*abs(Mtp));
+        }
+        // T -> Wb
+        else if (out_calchep[i][0]=="W-" && out_calchep[i][1]=="b~"){
+          gamma = (((3*ee2*KTLw32*MB2)/(2.*sw2) + (3*ee2*KTRw32*MB2)/(2.*sw2) - (18*ee2*KTLw3*KTRw3*MB*Mtp)/sw2 + (3*ee2*KTLw32*Mtp2)/(2.*sw2) + (3*ee2*KTRw32*Mtp2)/(2.*sw2) + (3*ee2*KTLw32*MB4)/(2.*MW2*sw2) + (3*ee2*KTRw32*MB4)/(2.*MW2*sw2) - (3*ee2*KTLw32*MB2*Mtp2)/(MW2*sw2) - (3*ee2*KTRw32*MB2*Mtp2)/(MW2*sw2) + (3*ee2*KTLw32*Mtp4)/(2.*MW2*sw2) + (3*ee2*KTRw32*Mtp4)/(2.*MW2*sw2) - (3*ee2*KTLw32*MW2)/sw2 - (3*ee2*KTRw32*MW2)/sw2)*sqrt(MB4 - 2*MB2*Mtp2 + Mtp4 - 2*MB2*MW2 - 2*Mtp2*MW2 + MW4))/(96.*3.141592653589793*abs(Mtp2)*abs(Mtp));
+        }
+
         double newwidth = result.width_in_GeV + gamma;  // Adjust total width
         double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
         result.width_in_GeV = newwidth;
@@ -4385,11 +4512,54 @@ namespace Gambit
       str in = "bp~"; // In state: CalcHEP particle name
       std::vector<std::vector<str>> out_calchep = {{"H", "d~"}, {"H", "s~"}, {"H", "b~"}, {"W+", "u~"}, {"W+", "c~"}, {"W+", "t~"}, {"Z", "d~"}, {"Z", "s~"}, {"Z", "b~"}}; // Out states: CalcHEP particle names
       std::vector<std::vector<str>> out_gambit = {{"h0_1", "dbar_1"}, {"h0_1", "dbar_2"}, {"h0_1", "dbar_3"}, {"W+", "ubar_1"}, {"W+", "ubar_2"}, {"W+", "ubar_3"}, {"Z0", "dbar_1"}, {"Z0", "dbar_2"}, {"Z0", "dbar_3"}}; // Out states: GAMBIT particle names
+
+      // Some constants (copied from SM.fr):
+      constexpr double aEW = 1.0/127.9; constexpr double ee = sqrt(4*3.14159265*aEW); constexpr double Gf=1.16637e-5;
+      const double ee2 = ee*ee;
+      constexpr double MH=125; constexpr double MZ=91.1876; constexpr double MW=sqrt(MZ*MZ/2+sqrt(MZ*MZ*MZ*MZ/4-3.14159265/sqrt(2)*aEW/Gf*MZ*MZ));
+      constexpr double MW2 = MW*MW; constexpr double MZ2 = MZ*MZ; constexpr double MH2 = MH*MH;
+      constexpr double MW4 = MW2*MW2; constexpr double MZ4 = MZ2*MZ2; constexpr double MH4 = MH2*MH2;
+      constexpr double MT=172; constexpr double MB=4.7; constexpr double MT2=MT*MT; constexpr double MB2=MB*MB;
+      constexpr double MT4=MT2*MT2; constexpr double MB4=MB2*MB2;
+      constexpr double sw2=1-(MW/MZ)*(MW/MZ); constexpr double cw2=1-sw2;
+      constexpr double sw=sqrt(sw2); constexpr double cw=sqrt(cw2);
+      constexpr double vev = 2*MW*sw/ee;
+
+      // Get Parameters
+      const double Mbp = *Param["MBP"]; const double Mbp2 = Mbp*Mbp; const double Mbp4=Mbp2*Mbp2;
+      const double KBLw3 = *Param["KBLw3"];
+      const double KBLw32 = KBLw3*KBLw3;
+      const double KBLh3 = *Param["KBLh3"];
+      const double KBLh32 = KBLh3*KBLh3;
+      const double KBLz3 = *Param["KBLz3"];
+      const double KBLz32 = KBLz3*KBLz3;
+      const double KBRw3 = *Param["KBRw3"];
+      const double KBRw32 = KBRw3*KBRw3;
+      const double KBRh3 = *Param["KBRh3"];
+      const double KBRh32 = KBRh3*KBRh3;
+      const double KBRz3 = *Param["KBRz3"];
+      const double KBRz32 = KBRz3*KBRz3;
+      
       
       for (unsigned int i=0; i<out_calchep.size(); i++)
       {
         
-        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        // Assume only 3rd gen couplings (not a conceptual problem to add the others, I'm just lazy)
+        double gamma = 0;
+        // B -> Hb 
+        if (out_calchep[i][0]=="H" && out_calchep[i][1]=="b~"){
+          gamma = ((3*KBLh32*MB2 + 3*KBRh32*MB2 + 12*KBLh3*KBRh3*MB*Mbp + 3*KBLh32*Mbp2 + 3*KBRh32*Mbp2 - 3*KBLh32*MH2 - 3*KBRh32*MH2)*sqrt(MB4 - 2*MB2*Mbp2 + Mbp4 - 2*MB2*MH2 - 2*Mbp2*MH2 + MH4))/(96.*3.14159265*abs(Mbp2)*abs(Mbp));
+        }
+        // B->Zb
+        else if (out_calchep[i][0]=="Z" && out_calchep[i][1]=="b~"){
+          gamma = (((3*ee2*KBLz32*MB2)/(4.*cw2*sw2) + (3*ee2*KBRz32*MB2)/(4.*cw2*sw2) - (9*ee2*KBLz3*KBRz3*MB*Mbp)/(cw2*sw2) + (3*ee2*KBLz32*Mbp2)/(4.*cw2*sw2) + (3*ee2*KBRz32*Mbp2)/(4.*cw2*sw2) + (3*ee2*KBLz32*MB4)/(4.*cw2*MZ2*sw2) + (3*ee2*KBRz32*MB4)/(4.*cw2*MZ2*sw2) - (3*ee2*KBLz32*MB2*Mbp2)/(2.*cw2*MZ2*sw2) - (3*ee2*KBRz32*MB2*Mbp2)/(2.*cw2*MZ2*sw2) + (3*ee2*KBLz32*Mbp4)/(4.*cw2*MZ2*sw2) + (3*ee2*KBRz32*Mbp4)/(4.*cw2*MZ2*sw2) - (3*ee2*KBLz32*MZ2)/(2.*cw2*sw2) - (3*ee2*KBRz32*MZ2)/(2.*cw2*sw2))*sqrt(MB4 - 2*MB2*Mbp2 + Mbp4 - 2*MB2*MZ2 - 2*Mbp2*MZ2 + MZ4))/(96.*3.14159265358989*abs(Mbp)*abs(Mbp2)); 
+        }
+        // B->Wt
+        else if (out_calchep[i][0]=="W+" && out_calchep[i][1]=="t~"){
+          gamma = (((3*ee2*KBLw32*Mbp2)/(2.*sw2) + (3*ee2*KBRw32*Mbp2)/(2.*sw2) - (18*ee2*KBLw3*KBRw3*Mbp*MT)/sw2 + (3*ee2*KBLw32*MT2)/(2.*sw2) + (3*ee2*KBRw32*MT2)/(2.*sw2) + (3*ee2*KBLw32*Mbp4)/(2.*MW2*sw2) + (3*ee2*KBRw32*Mbp4)/(2.*MW2*sw2) - (3*ee2*KBLw32*Mbp2*MT2)/(MW2*sw2) - (3*ee2*KBRw32*Mbp2*MT2)/(MW2*sw2) + (3*ee2*KBLw32*MT4)/(2.*MW2*sw2) + (3*ee2*KBRw32*MT4)/(2.*MW2*sw2) - (3*ee2*KBLw32*MW2)/sw2 - (3*ee2*KBRw32*MW2)/sw2)*sqrt(Mbp4 - 2*Mbp2*MT2 + MT4 - 2*Mbp2*MW2 - 2*MT2*MW2 + MW4))/(96.*3.14159*abs(Mbp2)*abs(Mbp));
+        }
+
+
         double newwidth = result.width_in_GeV + gamma;  // Adjust total width
         double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
         result.width_in_GeV = newwidth;
