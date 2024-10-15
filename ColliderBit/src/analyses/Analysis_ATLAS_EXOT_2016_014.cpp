@@ -86,7 +86,7 @@ namespace Gambit
     {
         
 
-        class Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb : public Analysis
+        class Analysis_ATLAS_EXOT_2016_014 : public Analysis
         {
             // protected:
             //     // Counters for the number of accepted events for each signal region
@@ -112,11 +112,11 @@ namespace Gambit
                 return thresholds.back().second; // 如果 p_T 超过最高限制，使用最高阈值
             }
 
-            Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb()
+            Analysis_ATLAS_EXOT_2016_014()
             {
                 DEFINE_SIGNAL_REGION("SR");
 
-                set_analysis_name("ATLAS_13TeV_EXOT_TT_WbWb_36invfb");
+                set_analysis_name("ATLAS_EXOT_2016_014");
                 set_luminosity(36.1);
 
                 #ifdef CHECK_CUTFLOW
@@ -132,7 +132,7 @@ namespace Gambit
                         "DeltaR(lep, v) <= 0.7",
                         "DeltaM < 300 GeV"};
 
-                    _cutflows.addCutflow("ATLAS_13TeV_EXOT_TT_WbWb_36invfb", cutnames);
+                    _cutflows.addCutflow("ATLAS_EXOT_2016_014", cutnames);
 
                     cout << _cutflows << endl;
                 #endif
@@ -144,8 +144,8 @@ namespace Gambit
                 #ifdef CHECK_CUTFLOW
                     const double w = event->weight();
                     // cout << "Event weight ->" << w << endl;
-                    _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fillinit(w);
-                    _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fillnext(w);
+                    _cutflows["ATLAS_EXOT_2016_014"].fillinit(w);
+                    _cutflows["ATLAS_EXOT_2016_014"].fillnext(w);
                 #endif
 
                 // cout << "0. pass cutflow init" << endl;
@@ -326,22 +326,22 @@ namespace Gambit
                 if (n_leptons == 1 && n_jets >= 3)
                 {
 #ifdef CHECK_CUTFLOW
-                    _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fill(2, true, event->weight());
+                    _cutflows["ATLAS_EXOT_2016_014"].fill(2, true, event->weight());
 #endif
                     if (n_Whad >= 1)
                     {
 #ifdef CHECK_CUTFLOW
-                        _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fill(3, true, event->weight());
+                        _cutflows["ATLAS_EXOT_2016_014"].fill(3, true, event->weight());
 #endif
                         if (met >= 60)
                         {
 #ifdef CHECK_CUTFLOW
-                            _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fill(4, true, event->weight());
+                            _cutflows["ATLAS_EXOT_2016_014"].fill(4, true, event->weight());
 #endif
                             if (n_bjets >= 1)
                             {
 #ifdef CHECK_CUTFLOW
-                                _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fill(5, true, event->weight());
+                                _cutflows["ATLAS_EXOT_2016_014"].fill(5, true, event->weight());
 #endif
                                 presel = true;
                             }
@@ -457,13 +457,13 @@ namespace Gambit
 #ifdef CHECK_CUTFLOW
                 if (ST > 1800)
                 {
-                    _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fill(6, true, event->weight());
+                    _cutflows["ATLAS_EXOT_2016_014"].fill(6, true, event->weight());
                     if (dRvlep < 0.7)
                     {
-                        _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fill(7, true, event->weight());
+                        _cutflows["ATLAS_EXOT_2016_014"].fill(7, true, event->weight());
                         if (abs(mTlep - mThad) < 300)
                         {
-                            _cutflows["ATLAS_13TeV_EXOT_TT_WbWb_36invfb"].fill(8, true, event->weight());
+                            _cutflows["ATLAS_EXOT_2016_014"].fill(8, true, event->weight());
                         }
                     }
                 }
@@ -558,6 +558,6 @@ namespace Gambit
                 return (std::abs(solutions[0]) < std::abs(solutions[1])) ? solutions[0] : solutions[1];
             }
         };
-        DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_EXOT_TT_WbWb_36invfb)
+        DEFINE_ANALYSIS_FACTORY(ATLAS_EXOT_2016_014)
     } // namespace ColliderBit
 } // namespace Gambit {

@@ -79,7 +79,7 @@ namespace Gambit
       F(ATLAS_13TeV_2LEPStop_139invfb)               \
       F(ATLAS_13TeV_2LEPStop_inclusive_139invfb)     \
       F(ATLAS_13TeV_2LEPStop_exclusive_139invfb)     \
-      F(ATLAS_13TeV_EXOT_TT_WbWb_36invfb)            \
+      F(ATLAS_EXOT_2016_014)                         \
       F(ATLAS_13TeV_MultiLEP_confnote_36invfb)       \
       F(ATLAS_13TeV_MultiLEP_36invfb)                \
       F(ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb)      \
