@@ -485,6 +485,7 @@ function(add_standalone executablename)
       endif()
       if (NOT EXCLUDE_FASTJET)
         set(ARG_LIBRARIES ${ARG_LIBRARIES} ${fastjet_LDFLAGS})
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${fjcontrib_LDFLAGS})
       endif()
     endif()
 

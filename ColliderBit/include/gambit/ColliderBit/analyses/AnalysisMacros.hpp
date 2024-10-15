@@ -44,6 +44,14 @@
     DEFINE_SIGNAL_REGION(name, ## __VA_ARGS__)                                    \
   }
 
+/// Define baseline objects without cuts
+#define BASELINE_OBJECTS_3(TYPE, OBJECTS, NAME)                                   \
+  std::vector<const HEPUtils::TYPE*> NAME;                                        \
+  for (const HEPUtils::TYPE* object : OBJECTS)                                    \
+  {                                                                               \
+    NAME.push_back(object);                                                       \
+  }
+
 /// Define baseline objects with min pT and min eta
 #define BASELINE_OBJECTS_5(TYPE, OBJECTS, NAME, MINPT, MINETA)                    \
   std::vector<const HEPUtils::TYPE*> NAME;                                        \
@@ -98,6 +106,10 @@
     }                                                                             \
   }
 
+/// Define baseline particles without cuts
+#define BASELINE_PARTICLES_2(OBJECTS, NAME)                                       \
+  BASELINE_OBJECTS_3(Particle, OBJECTS, NAME)
+
 /// Define baseline particles with min pT and min et
 #define BASELINE_PARTICLES_4(OBJECTS, NAME, MINPT, MINETA)                         \
   BASELINE_OBJECTS_5(Particle, OBJECTS, NAME, MINPT, MINETA)
@@ -113,6 +125,10 @@
 /// Define baseline particles with min pT, min eta, max pT, max eta and selection efficiency
 #define BASELINE_PARTICLES_7(OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)     \
   BASELINE_OBJECTS_8(Particle, OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)
+
+/// Define baseline jets without cuts
+#define BASELINE_JETS_2(OBJECTS, NAME)                                             \
+  BASELINE_OBJECTS_3(Jet, OBJECTS, NAME)
 
 /// Define baseline jets with a min pT and a min eta
 #define BASELINE_JETS_4(OBJECTS, NAME, MINPT, MINETA)                              \

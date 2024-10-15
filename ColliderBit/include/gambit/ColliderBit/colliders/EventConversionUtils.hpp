@@ -99,7 +99,8 @@ namespace Gambit
         inline HEPUtils::P4 get_unified_momentum(const HepMC3::GenParticlePtr &gp)
         {
           const HepMC3::FourVector& hp4 = gp->momentum();
-          return HEPUtils::P4::mkXYZM(hp4.px(), hp4.py(), hp4.pz(), hp4.m());
+          // Using generated mass rather than hp4.m(), as this may be incorrect for zero mass particles
+          return HEPUtils::P4::mkXYZM(hp4.px(), hp4.py(), hp4.pz(), gp->generated_mass());
         }
 
         inline FJNS::PseudoJet get_unified_pseudojet(const HepMC3::GenParticlePtr &gp)
