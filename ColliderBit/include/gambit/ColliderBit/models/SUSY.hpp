@@ -46,11 +46,12 @@
 
   // Perform Initial Pythia simulation to get a cross-section
   #define CAPABILITY PerformInitialCrossSection
-    START_CAPABILITY
+
     #define FUNCTION PerformInitialCrossSection_Pythia
     START_FUNCTION(initialxsec_container)
     DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct)
     #undef FUNCTION
+
   #undef CAPABILITY
 
   // Construct an SLHAea object with spectrum and decays for Pythia
