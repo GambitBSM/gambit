@@ -36,7 +36,7 @@ classy_exo:
   2.7.2:       ./Backends/installed/classy/exo_2.7.2/lib/classy_exo_2_7_2.py
 
 Contur:
-  2.4.4:       ./Backends/installed/contur/2.4.4/contur/init_by_GAMBIT.py
+  3.0.0:       ./Backends/installed/contur/3.0.0/contur/init_by_GAMBIT.py
 
 DarkAges:
   1.2.0:       ./Backends/installed/darkages/1.2.0/DarkAges_1_2_0

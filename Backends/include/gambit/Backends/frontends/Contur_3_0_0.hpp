@@ -20,13 +20,14 @@
 ///          (t.procter.1@research.gla.ac.uk)
 /// \date 2021 June
 /// \date 2023 May, June
+/// \date 2024 Oct
 ///
 ///  *********************************************
 
 #define BACKENDNAME Contur
 #define BACKENDLANG Python3
-#define VERSION 2.4.4
-#define SAFE_VERSION 2_4_4
+#define VERSION 3.0.0
+#define SAFE_VERSION 3_0_0
 #define REFERENCE Butterworth:2016sqg
 
 LOAD_LIBRARY

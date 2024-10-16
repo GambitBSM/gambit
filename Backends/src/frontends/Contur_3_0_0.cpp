@@ -16,6 +16,7 @@
 ///          (t.procter.1@research.gla.ac.uk)
 /// \date 2021 June
 /// \date 2023 May
+/// \date  2024 Oct
 ///
 /// \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
@@ -24,7 +25,7 @@
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
-#include "gambit/Backends/frontends/Contur_2_4_4.hpp"
+#include "gambit/Backends/frontends/Contur_3_0_0.hpp"
 
 #ifdef HAVE_PYBIND11
 
