@@ -2040,10 +2040,10 @@ endif()
 
 # Rivet
 set(name "rivet")
-set(ver "3.1.8")
+set(ver "4.0.1")
 set(Rivet_ver "${ver}")
 set(dl "https://rivet.hepforge.org/downloads/?f=Rivet-${ver}.tar.gz")
-set(md5 "e60c75562572905ed9984c67ada1241b")
+set(md5 "d8ee19aac591051b706cb40659829210")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(yoda_name "yoda")
 set(yoda_dir "${YODA_PATH}/local")
@@ -2055,7 +2055,8 @@ set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fast
 set(fjcontrib_name "fjcontrib")
 set(fjcontrib_ver "1.041")
 #set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet -faligned-new -O3")
-set(Rivet_CXX_FLAGS "${FJ_CXX_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR} -O3")
+# TODO TP Oct 24: Atm this means CXX flags contains both -std=c++14 and -std=c++17, would be good to simplify
+set(Rivet_CXX_FLAGS "${FJ_CXX_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR} -O3 -std=c++17")
 set_compiler_warning("no-deprecated-declarations" Rivet_CXX_FLAGS)
 set_compiler_warning("no-deprecated-copy" Rivet_CXX_FLAGS)
 set_compiler_warning("no-type-limits" Rivet_CXX_FLAGS)
@@ -2077,8 +2078,8 @@ endif()
 
 set(patch_dir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 set(patch "${patch_dir}/patch_${name}_${ver}.dif")
-## Rivet needs to be compiled with c++14 or c++17, otherwise it will fail to compile
-set(ditch_if_absent "HepMC;YODA;c++14")
+## Rivet needs to be compiled c++17, otherwise it will fail to compile
+set(ditch_if_absent "HepMC;YODA;c++17")
 ## If cython is not installed disable the python extension
 gambit_find_python_module(cython)
 if(PY_cython_FOUND)

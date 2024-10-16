@@ -1,10 +1,10 @@
-diff -rupN Rivet-3.1.8/Makefile.in ../installed/rivet/3.1.8/Makefile.in
---- Rivet-3.1.8/Makefile.in	2022-09-28 14:32:46.000000000 +0100
-+++ ../installed/rivet/3.1.8/Makefile.in	2023-04-14 14:55:04.096679845 +0100
-@@ -457,6 +457,21 @@ pkgconfigdir = $(libdir)/pkgconfig
- dist_pkgconfig_DATA = rivet.pc
+diff -rupN Rivet-4.0.1/Makefile.in ../installed/rivet/4.0.1/Makefile.in
+--- Rivet-4.0.1/Makefile.in	2024-07-07 23:10:54.000000000 +0900
++++ ../installed/rivet/4.0.1/Makefile.in	2024-10-15 14:22:43.930488154 +0900
+@@ -478,6 +478,24 @@ dist_pkgconfig_DATA = rivet.pc
  DEST = login.hepforge.org:rivet/downloads/
  all: all-recursive
+ 
 +# Added by GAMBIT
 +libRivet.so:
 +	cd ${top_builddir}/src/Core/yamlcpp && ${MAKE} $(AM_MAKEFLAGS) librivet-yaml-cpp.la
@@ -13,17 +13,20 @@ diff -rupN Rivet-3.1.8/Makefile.in ../installed/rivet/3.1.8/Makefile.in
 +	cd ${top_builddir}/src/Tools && ${MAKE} $(AM_MAKEFLAGS) libRivetTools.la
 +	cd ${top_builddir}/src/AnalysisTools && ${MAKE} $(AM_MAKEFLAGS) libRivetAnalysisTools.la
 +	cd ${top_builddir}/src && ${MAKE} $(AM_MAKEFLAGS) libRivet.la
++	mkdir -p ${libdir}
++	mkdir -p ${datadir}
++	ls ${libdir}
 +	cd ${top_builddir}/analyses && ${MAKE} $(AM_MAKEFLAGS) install
 +	cd ${top_builddir}/pyext && ${MAKE} $(AM_MAKEFLAGS) install
 +	cd ${top_builddir}/analyses && ${MAKE} $(AM_MAKEFLAGS) RivetATLASAnalyses.so RivetCMSAnalyses.so RivetLHCbAnalyses.so
-+	mkdir -p ${libdir}
 +	if test -e ${top_builddir}/src/.libs/libRivet.so ; then cp ${top_builddir}/src/.libs/libRivet.so ${libdir}/libRivet.so ; fi
 +	if test -e ${top_builddir}/src/.libs/libRivet.dylib ; then cp ${top_builddir}/src/.libs/libRivet.dylib ${libdir}/libRivet.so ; fi
 +
- 
++
  .SUFFIXES:
  am--refresh: Makefile
-@@ -529,6 +544,7 @@ mostlyclean-libtool:
+ 	@:
+@@ -549,6 +567,7 @@ mostlyclean-libtool:
  
  clean-libtool:
  	-rm -rf .libs _libs
@@ -31,18 +34,10 @@ diff -rupN Rivet-3.1.8/Makefile.in ../installed/rivet/3.1.8/Makefile.in
  
  distclean-libtool:
  	-rm -f libtool config.lt
-diff -rupN Rivet-3.1.8/include/Rivet/Makefile.in ../installed/rivet/3.1.8/include/Rivet/Makefile.in
---- Rivet-3.1.8/include/Rivet/Makefile.in	2022-09-28 14:33:10.000000000 +0100
-+++ ../installed/rivet/3.1.8/include/Rivet/Makefile.in	2023-04-14 15:30:58.413175143 +0100
-@@ -381,6 +381,7 @@ nobase_dist_noinst_HEADERS = Tools/osdir
- 	Math/eigen3/README.md
- 
- # TODO: Move to Rivet/AnalysisTools header dir?
-+# Modified by GAMBIT
- nobase_pkginclude_HEADERS = Rivet.hh Run.hh Event.hh ParticleBase.hh \
- 	Particle.fhh Particle.hh Jet.fhh Jet.hh Projection.fhh \
- 	Projection.hh ProjectionApplier.hh ProjectionHandler.hh \
-@@ -763,7 +764,21 @@ nobase_pkginclude_HEADERS = Rivet.hh RunF5
+diff -rupN Rivet-4.0.1/include/Rivet/Makefile.in ../installed/rivet/4.0.1/include/Rivet/Makefile.in
+--- Rivet-4.0.1/include/Rivet/Makefile.in	2024-07-07 23:10:54.000000000 +0900
++++ ../installed/rivet/4.0.1/include/Rivet/Makefile.in	2024-10-15 14:42:58.436319591 +0900
+@@ -1175,7 +1175,22 @@ nobase_pkginclude_HEADERS = Rivet.hh Run
  	Math/eigen3/src/SparseCore/SparseDiagonalProduct.h \
  	Math/eigen3/src/SparseCore/SparseMatrixBase.h \
  	Math/eigen3/src/SparseCore/SparseRef.h Math/eigen3/Geometry \
@@ -55,20 +50,21 @@ diff -rupN Rivet-3.1.8/include/Rivet/Makefile.in ../installed/rivet/3.1.8/includ
 +    ../gambit/Backends/wrappertypedefs.hh \
 +    ../gambit/Backends/function_return_utils.hpp \
 +    ../gambit/Utils/cats.hpp \
-+    ../backend_types/Rivet_3_1_8/identification.hpp \
-+    ../backend_types/Rivet_3_1_8/forward_decls_abstract_classes.hh \
-+    ../backend_types/Rivet_3_1_8/forward_decls_wrapper_classes.hh \
-+    ../backend_types/Rivet_3_1_8/abstract_AnalysisHandler.hh \
-+    ../backend_types/Rivet_3_1_8/wrapper_AnalysisHandler.hh \
-+    ../backend_types/Rivet_3_1_8/wrapper_AnalysisHandler_decl.hh \
-+    ../backend_types/Rivet_3_1_8/wrapper_AnalysisHandler_def.hh
++    ../backend_types/Rivet_4_0_1/identification.hpp \
++    ../backend_types/Rivet_4_0_1/forward_decls_abstract_classes.hh \
++    ../backend_types/Rivet_4_0_1/forward_decls_wrapper_classes.hh \
++    ../backend_types/Rivet_4_0_1/abstract_AnalysisHandler.hh \
++    ../backend_types/Rivet_4_0_1/wrapper_AnalysisHandler.hh \
++    ../backend_types/Rivet_4_0_1/wrapper_AnalysisHandler_decl.hh \
++    ../backend_types/Rivet_4_0_1/wrapper_AnalysisHandler_def.hh
++
  all: all-am
  
  .SUFFIXES:
-diff -rupN Rivet-3.1.8/src/Core/Makefile.in ../installed/rivet/3.1.8/src/Core/Makefile.in
---- Rivet-3.1.8/src/Core/Makefile.in	2022-09-28 14:33:10.000000000 +0100
-+++ ../installed/rivet/3.1.8/src/Core/Makefile.in	2023-04-18 15:47:59.480540099 +0100
-@@ -118,7 +118,12 @@ am_libRivetCore_la_OBJECTS = libRivetCor
+diff -rupN Rivet-4.0.1/src/Core/Makefile.in ../installed/rivet/4.0.1/src/Core/Makefile.in
+--- Rivet-4.0.1/src/Core/Makefile.in	2024-07-07 23:10:54.000000000 +0900
++++ ../installed/rivet/4.0.1/src/Core/Makefile.in	2024-10-15 15:36:51.203169607 +0900
+@@ -120,7 +120,12 @@ am_libRivetCore_la_OBJECTS = libRivetCor
  	libRivetCore_la-AnalysisLoader.lo \
  	libRivetCore_la-AnalysisInfo.lo \
  	libRivetCore_la-AnalysisHandler.lo \
@@ -82,7 +78,7 @@ diff -rupN Rivet-3.1.8/src/Core/Makefile.in ../installed/rivet/3.1.8/src/Core/Ma
  libRivetCore_la_OBJECTS = $(am_libRivetCore_la_OBJECTS)
  AM_V_lt = $(am__v_lt_@AM_V@)
  am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
-@@ -143,6 +148,11 @@ am__depfiles_remade = ./$(DEPDIR)/libRiv
+@@ -145,6 +150,11 @@ am__depfiles_remade = ./$(DEPDIR)/libRiv
  	./$(DEPDIR)/libRivetCore_la-AnalysisHandler.Plo \
  	./$(DEPDIR)/libRivetCore_la-AnalysisInfo.Plo \
  	./$(DEPDIR)/libRivetCore_la-AnalysisLoader.Plo \
@@ -91,11 +87,11 @@ diff -rupN Rivet-3.1.8/src/Core/Makefile.in ../installed/rivet/3.1.8/src/Core/Ma
 +	./$(DEPDIR)/libRivetCore_la-BOSS_func_addAnalysisLibPath.Plo \
 +	./$(DEPDIR)/libRivetCore_la-BOSS_function_return_utils.Plo \
 +	./$(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Plo \
+ 	./$(DEPDIR)/libRivetCore_la-DressedLepton.Plo \
  	./$(DEPDIR)/libRivetCore_la-Event.Plo \
  	./$(DEPDIR)/libRivetCore_la-Jet.Plo \
- 	./$(DEPDIR)/libRivetCore_la-Particle.Plo \
-@@ -446,7 +456,12 @@ libRivetCore_la_SOURCES = \
-   Run.cc Event.cc Jet.cc Particle.cc \
+@@ -468,7 +478,12 @@ libRivetCore_la_SOURCES = \
+   Jet.cc Particle.cc DressedLepton.cc \
    ProjectionApplier.cc Projection.cc \
    Analysis.cc AnalysisLoader.cc AnalysisInfo.cc \
 -  AnalysisHandler.cc ProjectionHandler.cc
@@ -108,7 +104,7 @@ diff -rupN Rivet-3.1.8/src/Core/Makefile.in ../installed/rivet/3.1.8/src/Core/Ma
  
  libRivetCore_la_CPPFLAGS = -I$(srcdir)/yamlcpp -DYAML_NAMESPACE=RIVET_YAML $(AM_CPPFLAGS)
  libRivetCore_la_LIBADD = $(builddir)/yamlcpp/librivet-yaml-cpp.la
-@@ -508,6 +523,11 @@ distclean-compile:
+@@ -530,6 +545,11 @@ distclean-compile:
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-AnalysisHandler.Plo@am__quote@ # am--include-marker
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-AnalysisInfo.Plo@am__quote@ # am--include-marker
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-AnalysisLoader.Plo@am__quote@ # am--include-marker
@@ -117,10 +113,10 @@ diff -rupN Rivet-3.1.8/src/Core/Makefile.in ../installed/rivet/3.1.8/src/Core/Ma
 +@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_func_addAnalysisLibPath.Plo@am__quote@ # am--include-marker
 +@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_function_return_utils.Plo@am__quote@ # am--include-marker
 +@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Plo@am__quote@ # am--include-marker
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-DressedLepton.Plo@am__quote@ # am--include-marker
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-Event.Plo@am__quote@ # am--include-marker
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-Jet.Plo@am__quote@ # am--include-marker
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-Particle.Plo@am__quote@ # am--include-marker
-@@ -620,6 +640,41 @@ libRivetCore_la-ProjectionHandler.lo: Pr
+@@ -650,6 +670,42 @@ libRivetCore_la-ProjectionHandler.lo: Pr
  @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
  @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libRivetCore_la-ProjectionHandler.lo `test -f 'ProjectionHandler.cc' || echo '$(srcdir)/'`ProjectionHandler.cc
  
@@ -159,10 +155,11 @@ diff -rupN Rivet-3.1.8/src/Core/Makefile.in ../installed/rivet/3.1.8/src/Core/Ma
 +@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 +@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libRivetCore_la-BOSS_function_return_utils.lo `test -f 'BOSS_function_return_utils.cc' || echo '$(srcdir)/'`BOSS_function_return_utils.cc
 +
++
  mostlyclean-libtool:
  	-rm -f *.lo
  
-@@ -828,6 +883,11 @@ distclean: distclean-recursive
+@@ -858,6 +914,11 @@ distclean: distclean-recursive
  	-rm -f ./$(DEPDIR)/libRivetCore_la-AnalysisHandler.Plo
  	-rm -f ./$(DEPDIR)/libRivetCore_la-AnalysisInfo.Plo
  	-rm -f ./$(DEPDIR)/libRivetCore_la-AnalysisLoader.Plo
@@ -171,10 +168,10 @@ diff -rupN Rivet-3.1.8/src/Core/Makefile.in ../installed/rivet/3.1.8/src/Core/Ma
 +	-rm -f ./$(DEPDIR)/libRivetCore_la-BOSS_func_addAnalysisLibPath.Plo
 +	-rm -f ./$(DEPDIR)/libRivetCore_la-BOSS_function_return_utils.Plo
 +	-rm -f ./$(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Plo
+ 	-rm -f ./$(DEPDIR)/libRivetCore_la-DressedLepton.Plo
  	-rm -f ./$(DEPDIR)/libRivetCore_la-Event.Plo
  	-rm -f ./$(DEPDIR)/libRivetCore_la-Jet.Plo
- 	-rm -f ./$(DEPDIR)/libRivetCore_la-Particle.Plo
-@@ -884,6 +944,11 @@ maintainer-clean: maintainer-clean-recur
+@@ -915,6 +976,11 @@ maintainer-clean: maintainer-clean-recur
  	-rm -f ./$(DEPDIR)/libRivetCore_la-AnalysisHandler.Plo
  	-rm -f ./$(DEPDIR)/libRivetCore_la-AnalysisInfo.Plo
  	-rm -f ./$(DEPDIR)/libRivetCore_la-AnalysisLoader.Plo
@@ -183,140 +180,126 @@ diff -rupN Rivet-3.1.8/src/Core/Makefile.in ../installed/rivet/3.1.8/src/Core/Ma
 +	-rm -f ./$(DEPDIR)/libRivetCore_la-BOSS_func_addAnalysisLibPath.Plo
 +	-rm -f ./$(DEPDIR)/libRivetCore_la-BOSS_function_return_utils.Plo
 +	-rm -f ./$(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Plo
+ 	-rm -f ./$(DEPDIR)/libRivetCore_la-DressedLepton.Plo
  	-rm -f ./$(DEPDIR)/libRivetCore_la-Event.Plo
  	-rm -f ./$(DEPDIR)/libRivetCore_la-Jet.Plo
- 	-rm -f ./$(DEPDIR)/libRivetCore_la-Particle.Plo 
-diff -rupN Rivet-3.1.8/include/Rivet/AnalysisHandler.hh ../installed/rivet/3.1.8/include/Rivet/AnalysisHandler.hh
---- Rivet-3.1.8/include/Rivet/AnalysisHandler.hh	2022-05-05 15:06:25.000000000 +0100
-+++ ../installed/rivet/3.1.8/include/Rivet/AnalysisHandler.hh	2023-04-14 14:55:04.096679845 +0100
-@@ -27,10 +27,10 @@ namespace Rivet {
+diff -rupN Rivet-4.0.1/include/Rivet/AnalysisHandler.hh ../installed/rivet/4.0.1/include/Rivet/AnalysisHandler.hh
+--- Rivet-4.0.1/include/Rivet/AnalysisHandler.hh	2024-07-07 06:16:35.000000000 +0900
++++ ../installed/rivet/4.0.1/include/Rivet/AnalysisHandler.hh	2024-10-15 14:46:32.214039304 +0900
+@@ -40,10 +49,10 @@ namespace Rivet {
      AnalysisHandler(const string& runname="");
  
      /// The copy constructor is deleted, so it can never be called.
 -    AnalysisHandler(const AnalysisHandler&) = delete;
-+    //AnalysisHandler(const AnalysisHandler&) = delete; // Commented by GAMBIT
++    // AnalysisHandler(const AnalysisHandler&) = delete;
  
      /// The assignment operator is deleted, so it can never be called.
 -    AnalysisHandler& operator=(const AnalysisHandler&) = delete;
-+    //AnalysisHandler& operator=(const AnalysisHandler&) = delete; // Commented by GAMBIT
++    // AnalysisHandler& operator=(const AnalysisHandler&) = delete;
  
      /// The destructor is not virtual, as this class should not be inherited from.
      ~AnalysisHandler();
-@@ -281,6 +281,9 @@ namespace Rivet {
+@@ -425,6 +434,10 @@ namespace Rivet {
      /// Write all analyses' plots (via getData) to the named file.
      void writeData(const string& filename) const;
  
 +    // Added by GAMBIT, Dummy function to force BOSS to add the headers for the YODA::AnalysisObject type
 +    void dummy(YODA::AnalysisObject*) const;
 +
++
      /// @brief Configure the AnalysisObject dump rate and destination.
      ///
      /// Tell Rivet to dump intermediate result to a file named @a
-diff -rupN Rivet-3.1.8/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.1.8/include/Rivet/Tools/RivetHepMC.hh
---- Rivet-3.1.8/include/Rivet/Tools/RivetHepMC.hh	2022-05-05 12:26:28.000000000 +0100
-+++ ../installed/rivet/3.1.8/include/Rivet/Tools/RivetHepMC.hh	2023-04-14 14:55:04.096679845 +0100
-@@ -8,7 +8,7 @@
- #include <valarray>
- 
- 
--#ifdef RIVET_ENABLE_HEPMC_3
-+//#ifdef RIVET_ENABLE_HEPMC_3 // Commented by GAMBIT
- 
- #include "HepMC3/HepMC3.h"
- #include "HepMC3/Relatives.h"
-@@ -34,7 +34,8 @@ namespace Rivet {
-   using PdfInfo = RivetHepMC::GenPdfInfo;
- }
- 
--#else // HEPMC_2
-+// Commented by GAMBIT
-+/*#else // HEPMC_2
- 
- #include "HepMC/GenEvent.h"
- #include "HepMC/GenParticle.h"
-@@ -75,7 +76,7 @@ namespace Rivet {
-   using PdfInfo = RivetHepMC::PdfInfo;
- }
- 
--#endif
-+#endif*/
- 
- 
- namespace Rivet {
-diff -rupN Rivet-3.1.8/analyses/Makefile.in ../installed/rivet/3.1.8/analyses/Makefile.in
---- Rivet-3.1.8/analyses/Makefile.in	2022-09-28 14:33:10.000000000 +0100
-+++ ../installed/rivet/3.1.8/analyses/Makefile.in	2023-04-19 21:07:06.580845603 +0100
-@@ -329,10 +329,10 @@ top_build_prefix = @top_build_prefix@
- top_builddir = @top_builddir@
+diff -rupN Rivet-4.0.1/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/4.0.1/include/Rivet/Tools/RivetHepMC.hh
+diff -rupN Rivet-4.0.1/analyses/Makefile.in ../installed/rivet/4.0.1/analyses/Makefile.in
+--- Rivet-4.0.1/analyses/Makefile.in	2024-07-07 23:10:54.000000000 +0900
++++ ../installed/rivet/4.0.1/analyses/Makefile.in	2024-10-15 14:22:43.931488097 +0900
+@@ -350,7 +350,7 @@ top_builddir = @top_builddir@
  top_srcdir = @top_srcdir@
+ with_highfive = @with_highfive@
  AUTOMAKE_OPTIONS = -Wno-portability
 -PLUGIN_DIRS = $(shell ls -d $(srcdir)/plugin*)
 +PLUGIN_DIRS = $(shell ls -d $(srcdir)/pluginCMS $(srcdir)/pluginATLAS $(srcdir)/pluginLHCb)
- PLUGIN_NAMES = $(notdir $(subst plugin,,$(PLUGIN_DIRS)))
+ PLUGIN_NAMES_ALL = $(notdir $(subst plugin,,$(PLUGIN_DIRS)))
+ FILTER_DISABLED = $(am__append_1)
+ #if !ENABLE_HIGHFIVE
+@@ -358,7 +358,7 @@ FILTER_DISABLED = $(am__append_1)
+ #endif
+ PLUGIN_NAMES = $(filter-out $(FILTER_DISABLED),$(PLUGIN_NAMES_ALL))
  PLUGIN_LIBS = $(patsubst %,Rivet%Analyses.so,$(PLUGIN_NAMES))
 -PLUGIN_DATAFILES = $(shell ls $(abs_srcdir)/plugin*/*.*)
 +PLUGIN_DATAFILES = $(shell ls $(abs_srcdir)/pluginCMS/*.* $(abs_srcdir)/pluginATLAS/*.* $(abs_srcdir)/pluginLHCb/*.*)
- CLEANFILES = $(PLUGIN_LIBS)
+ CLEANFILES = $(PLUGIN_LIBS) data
  EXTRA_DIST = $(PLUGIN_DIRS) examples
  all: all-am
-@@ -449,8 +449,8 @@ distclean-generic:
- maintainer-clean-generic:
- 	@echo "This command is intended for maintainers to use"
- 	@echo "it deletes files that may require special tools to rebuild."
--@ENABLE_ANALYSES_FALSE@install-data-local:
- @ENABLE_ANALYSES_FALSE@install-exec-local:
-+@ENABLE_ANALYSES_FALSE@install-data-local:
- @ENABLE_ANALYSES_FALSE@uninstall-local:
- clean: clean-am
- 
-@@ -567,7 +567,7 @@ RivetTristanAnalyses.so: $(filter-out $(
+@@ -602,7 +602,7 @@ RivetTristanAnalyses.so: $(filter-out $(
  
  @ENABLE_ANALYSES_TRUE@all-local: $(PLUGIN_LIBS) $(PLUGIN_DATAFILES)
  @ENABLE_ANALYSES_TRUE@	mkdir -p $(builddir)/data
 -@ENABLE_ANALYSES_TRUE@	for pdir in $(abs_srcdir)/plugin*; do $(LN_S) -f $${pdir}/*.* $(builddir)/data; done
-+@ENABLE_ANALYSES_TRUE@	for pdir in $(abs_srcdir)/pluginCMS $(abs_srcdir)/pluginATLAS $(abs_srcdir)/pluginLHCb; do $(LN_S) -f $${pdir}/*.* $(builddir)/data; done
- 
- @ENABLE_ANALYSES_TRUE@install-exec-local: $(PLUGIN_LIBS)
- @ENABLE_ANALYSES_TRUE@	$(MKDIR_P) $(DESTDIR)$(libdir)/Rivet
-@@ -576,7 +576,7 @@ RivetTristanAnalyses.so: $(filter-out $(
- @ENABLE_ANALYSES_TRUE@install-data-local: $(PLUGIN_DATAFILES)
- @ENABLE_ANALYSES_TRUE@	@echo "Installing analysis data files..."
- @ENABLE_ANALYSES_TRUE@	$(mkdir_p) $(DESTDIR)$(pkgdatadir)
--@ENABLE_ANALYSES_TRUE@	for pdir in $(srcdir)/plugin* $(srcdir)/examples; do $(FCP) $${pdir}/*.* $(DESTDIR)$(pkgdatadir)/; done
 +@ENABLE_ANALYSES_TRUE@	for pdir in $(srcdir)/pluginCMS $(srcdir)/pluginLHCb $(srcdir)/pluginATLAS $(srcdir)/examples; do $(FCP) $${pdir}/*.* $(DESTDIR)$(pkgdatadir)/; done
  
- @ENABLE_ANALYSES_TRUE@uninstall-local:
- @ENABLE_ANALYSES_TRUE@	cd $(DESTDIR)$(libdir) && rm -f $(PLUGIN_LIBS)
-diff -rupN Rivet-3.1.8/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.8/src/Core/AnalysisHandler.cc
---- Rivet-3.1.8/src/Core/AnalysisHandler.cc	2022-07-26 09:34:20.000000000 +0100
-+++ ../installed/rivet/3.1.8/src/Core/AnalysisHandler.cc	2023-04-14 14:55:04.100679799 +0100
-@@ -123,7 +123,8 @@ namespace Rivet {
-     if (num_anas_requested > 0 && analysisNames().empty()) {
-       MSG_ERROR("All analyses were incompatible with the first event's beams\n"
-                 << "Exiting, since this probably wasn't intentional!");
+ # clean-local:
+ # 	rm -rf $(builddir)/data
+diff -rupN Rivet-4.0.1/src/Core/AnalysisHandler.cc ../installed/rivet/4.0.1/src/Core/AnalysisHandler.cc
+--- Rivet-4.0.1/src/Core/AnalysisHandler.cc	2024-07-07 06:16:35.000000000 +0900
++++ ../installed/rivet/4.0.1/src/Core/AnalysisHandler.cc	2024-10-15 14:22:43.931488097 +0900
+@@ -897,7 +897,8 @@ namespace Rivet {
+ 
+     if (allaos.empty()) {
+       cerr << "Insufficient pre-finalize AOs to do a reentrant run!" << endl;
 -      exit(1);
-+      //exit(1); // Commented by GAMBIT
-+      throw std::runtime_error("All analyses were incompatible with the first event's beams\n"); // Added by GAMBIT
++      // exit(1);
++      throw std::runtime_error("Insufficient pre-finalize AOs to do a reentrant run!\n"); // Added by GAMBIT
      }
  
-     // Warn if any analysis' status is not unblemished
-@@ -1087,6 +1088,12 @@ namespace Rivet {
- 
+     MSG_DEBUG("Finalize cross-section scaling ...");
+@@ -1159,7 +1160,8 @@ namespace Rivet {
+         a->syncDeclQueue();
+       } catch (const Error& err) {
+         cerr << "Error in " << a->name() << "::init method: " << err.what() << endl;
+-        exit(1);
++        // exit(1);
++        throw std::runtime_error("Error in " + a->name() + "::init method:\n"); // Added by GAMBIT
+       }
+       MSG_TRACE("Done initialising analysis: " << a->name());
+     } // analyses
+@@ -1278,7 +1280,8 @@ namespace Rivet {
+         a->syncDeclQueue();
+       } catch (const Error& err) {
+         cerr << "Error in " << a->name() << "::init method: " << err.what() << endl;
+-        exit(1);
++        // exit(1);
++        throw std::runtime_error("Error in " + a->name() + "::init method:\n"); // Added by GAMBIT
+       }
+       MSG_TRACE("Done initialising analysis: " << a->name());
+     } // analyses
+@@ -1300,7 +1303,8 @@ namespace Rivet {
+       deserializeContent(aoData);
+     } catch (const Error& err) {
+       cerr << "Error when trying to deserialize AO data: " << err.what() << endl;
+-      exit(1);
++      // exit(1);
++      throw std::runtime_error("Error when trying to deserialize AO data"); // Added by GAMBIT
+     }
+     *_fileCounter = *_eventCounter;
+     MSG_TRACE("Successfully deserialized AO data.");
+@@ -1574,6 +1578,11 @@ namespace Rivet {
+     }
    }
  
 +  // Added by GAMBIT, dummy function to force BOSS to add the headers for the YODA::AnalysisObject type
 +  void AnalysisHandler::dummy(YODA::AnalysisObject* object) const {
-+
 +    // Nothing to do here
-+
 +  }
++
  
    string AnalysisHandler::runName() const {
      return _runname;
-diff -rupN Rivet-3.1.8/configure ../installed/rivet/3.1.8/configure
---- Rivet-3.1.8/configure	2023-04-27 14:14:13.000000000 +0200
-+++ ../installed/rivet/3.1.8/configure	2023-05-11 12:18:52.365835672 +0200
-@@ -21243,7 +21243,7 @@ printf "%s\n" "$fjversion" >&6; }
+diff -rupN Rivet-4.0.1/configure ../installed/rivet/4.0.1/configure
+--- Rivet-4.0.1/configure	2024-07-07 23:10:54.000000000 +0900
++++ ../installed/rivet/4.0.1/configure	2024-10-15 14:22:43.934487924 +0900
+@@ -20522,7 +20522,7 @@ printf "%s\n" "$fjversion" >&6; }
    if test "$fjmajor" -lt 3 -o "$fjminor" -lt 2 ; then  #< only works for v3.x
      as_fn_error $? "FastJet version 3.2.0 or later is required" "$LINENO" 5
    fi

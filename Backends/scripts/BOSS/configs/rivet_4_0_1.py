@@ -22,13 +22,13 @@
 
 castxml_cc_id  = 'gnu'         # Reference compiler: 'gnu', 'gnu-c', 'msvc', 'msvc-c'
 castxml_cc     = 'g++'         # Name a specific compiler: 'g++', 'cl', ...
-castxml_cc_opt = '-std=c++14'  # Additional option string passed to the compiler in castxml_cc (e.g. '-m32')
+castxml_cc_opt = '-std=c++17'  # Additional option string passed to the compiler in castxml_cc (e.g. '-m32')
 
 
 # ~~~~~ GAMBIT-specific options ~~~~~
 
 gambit_backend_name    = 'Rivet'
-gambit_backend_version = '3.1.8'
+gambit_backend_version = '4.0.1'
 gambit_backend_reference = 'Bierlich:2019rhm'
 gambit_base_namespace  = ''
 
@@ -44,7 +44,7 @@ input_files = [
 include_paths = [
     '../../../Backends/installed/rivet/'+gambit_backend_version+'/include',
     '../../../contrib/HepMC3-3.2.5/local/include',
-    '../../../contrib/YODA-1.9.9/local/include',
+    '../../../contrib/YODA-2.0.1/local/include',
     '../../../Backends/installed/fastjet/3.4.0/local/include'
 ]
 base_paths = ['../../../Backends/installed/rivet/'+gambit_backend_version]
