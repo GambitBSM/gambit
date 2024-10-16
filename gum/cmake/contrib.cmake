@@ -115,7 +115,7 @@ add_extra_targets(${name} ${dir})
 set(name "MadGraph")
 set(dir "${CMAKE_SOURCE_DIR}/contrib/${name}")
 set(ver "2.8.3.2")
-set(dl "https://launchpad.net/mg5amcnlo/2.0/2.8.x/+download/MG5_aMC_v${ver}.tar.gz")
+set(dl "https://launchpad.net/mg5amcnlo/lts/2.8.x/+download/MG5_aMC_v${ver}.tar.gz")
 set(md5 "e409328828d45d159c8b6b83d02067ba")
 set(patch "${CMAKE_SOURCE_DIR}/cmake/patch_${name}.dif")
 EXTERNALPROJECT_ADD(
