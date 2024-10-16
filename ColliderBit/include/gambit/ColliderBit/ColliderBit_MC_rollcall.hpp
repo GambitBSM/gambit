@@ -48,14 +48,10 @@
 #define MODULE ColliderBit
 
   /// Calculate an initial cross-section for each collider (stored as a map)
-  /// This should happen before the main event loop
   /// Could happen by calling Pythia with minimal generation, or with an external tool
+  /// Copies of this function are created for each Pythia collider (e.g. model extensions)
   #define CAPABILITY PerformInitialCrossSection
     START_CAPABILITY
-    #define FUNCTION PerformInitialCrossSection_Pythia
-    START_FUNCTION(initialxsec_container)
-    DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct)
-    #undef FUNCTION
   #undef CAPABILITY
   
   #define CAPABILITY InitialTotalCrossSection
