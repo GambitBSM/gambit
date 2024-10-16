@@ -61,7 +61,6 @@ namespace Gambit
         // default to fixed
         return n_mc_mean;
       }
-    
     }
 
 
@@ -69,7 +68,7 @@ namespace Gambit
     double GetMaxLumi(std::vector<str>& analyses)
     {
       AnalysisContainer Container;
-      
+
       try
       {
         Container.init(analyses);
@@ -78,7 +77,7 @@ namespace Gambit
       {
         ColliderBit_error().raise(LOCAL_INFO,"Failed to initialise Analysis Containers in GetMaxLumi.");
       }
-      
+
       // Loop overall analyses and get the maximum Luminosity
       double max_lumi = 0.0;
       if (Container.has_analyses())
@@ -89,12 +88,9 @@ namespace Gambit
           if (lumi > max_lumi) {max_lumi = lumi;}
         }
       }
-      
+
       return max_lumi;
-      
     }
-
-
 
 
     /// LHC Loop Manager
@@ -133,17 +129,17 @@ namespace Gambit
         for (auto& collider : result.collider_names)
         {
           Options colOptions(runOptions->getValue<YAML::Node>(collider));
-          
+
           result.analyses[collider]                                       = colOptions.getValueOrDef<std::vector<str>>(std::vector<str>(), "analyses");
           // Check that the analyses all correspond to actual ColliderBit analyses, and sort them into separate maps for each detector.
           for (str& analysis : result.analyses.at(collider))
           {
             result.detector_analyses[collider][getDetector(analysis)].push_back(analysis);
           }
-          
+
           // Specify whether the number of MC events should be the same for each param point
           fixed_nEvents = colOptions.hasKey("max_nEvents");
-          
+
           // Check that the nEvents options given make sense.
           if (  (colOptions.hasKey("mean_nEvents") and colOptions.hasKey("mean_relative_nEvents"))
              or (colOptions.hasKey("mean_nEvents") and colOptions.hasKey("max_nEvents"))
@@ -153,13 +149,13 @@ namespace Gambit
             ColliderBit_error().raise(LOCAL_INFO,"Options mean_nEvents, mean_relative_nEvents and max_nEvents must not be used together for collider"
                                                  +collider+". Please correct your YAML file.");
           }
-          
+
           min_nEvents[collider]                                           = colOptions.getValueOrDef<int>(10000, "min_nEvents");
           max_nEvents[collider]                                           = colOptions.getValueOrDef<int>(10000, "max_nEvents");
           double mean_nEvents                                             = colOptions.getValueOrDef<double>(10000, "mean_nEvents");
           result.ratio_MC_expected[collider]                              = colOptions.getValueOrDef<double>(1.0, "mean_relative_nEvents");
           result.estimator                                                = colOptions.getValueOrDef<std::string>("MLE", "poisson_estimator"); 
-          
+
           // Check that the nEvents options given make sense.
           if (fixed_nEvents and (min_nEvents.at(collider) > max_nEvents.at(collider)) )
           {
@@ -167,7 +163,7 @@ namespace Gambit
             ColliderBit_error().raise(LOCAL_INFO,"Option min_nEvents is greater than corresponding max_nEvents for collider "
                                                  +collider+". Please correct your YAML file.");
           }
-          
+
           // In the case of a relative number of events, set mean_nEvents based on expected nEvents
           if (colOptions.hasKey("mean_relative_nEvents"))
           {
@@ -175,7 +171,7 @@ namespace Gambit
             std::map<std::string, xsec_container> xsec_map = *Dep::InitialTotalCrossSection;
             double xsec = xsec_map[collider].xsec();
             mean_nEvents = max_lumi * xsec * result.ratio_MC_expected[collider];
-            
+
             // Check for zero events
             if (mean_nEvents == 0)
             {
@@ -183,7 +179,7 @@ namespace Gambit
               ColliderBit_error().raise(LOCAL_INFO,"Zero events predicted for collider " + collider + ". Perhaps consider a cross-section veto.");
             }
           }
-          
+
           result.desired_nEvents[collider]                                = calc_N_MC(result.estimator, mean_nEvents);
           result.convergence_options[collider].target_stat                = colOptions.getValue<double>("target_fractional_uncert");
           result.convergence_options[collider].stop_at_sys                = colOptions.getValueOrDef<bool>(true, "halt_when_systematic_dominated");
@@ -203,7 +199,7 @@ namespace Gambit
         }
         first = false;
       }
-      
+
       // Do the base-level initialisation
       Loop::executeIteration(BASE_INIT);
 
@@ -318,7 +314,7 @@ namespace Gambit
                   thread_do_iteration = false;
                 }
               }
-              
+
               if(thread_do_iteration)
               {
                 try
