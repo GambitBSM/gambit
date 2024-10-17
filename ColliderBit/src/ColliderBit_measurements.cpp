@@ -117,10 +117,9 @@ namespace Gambit
 
 
           if (*Loop::iteration == COLLIDER_INIT_OMP){
-            // TODO: Not 100% sure this pragma is needed
+            
             #pragma omp critical
             {
-
               anahandlers.emplace_back(std::make_unique<AnalysisHandler>());
               
               for (const std::string& ananame :  analyses){
@@ -177,13 +176,11 @@ namespace Gambit
           // TODO: think about this whole event number check is still needed.
           if (*Loop::iteration == END_SUBPROCESS){
             //Save which threads have run enough events.
-            #pragma omp critical
-            {
-              events_analysed_perthread[omp_get_thread_num()] = events_analysed;
-              #ifdef COLLIDERBIT_DEBUG
+            events_analysed_perthread[omp_get_thread_num()] = events_analysed;
+          
+            #ifdef COLLIDERBIT_DEBUG
               std::cout << "Rivet: thread " << omp_get_thread_num() << " analysed " << events_analysed << " events" << std::endl;
-              #endif
-            }
+            #endif
           }
 
           // TODO: consider cleaning up.
@@ -275,10 +272,12 @@ namespace Gambit
           ge.set_event_number(++events_analysed);
           //std::cout << "About to analyze event " << events_analysed-1 << " on thread " << omp_get_thread_num() << std::endl;
           try {
+            // The first event only must be analysed single-threaded
+            // (note we have already incremented so <2 is the correct check)
             if (events_analysed < 2){
               #pragma omp critical
               {
-              anahandlers[omp_get_thread_num()]->analyze(ge); 
+                anahandlers[omp_get_thread_num()]->analyze(ge); 
               }
             }
             else {
