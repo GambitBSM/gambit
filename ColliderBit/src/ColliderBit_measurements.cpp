@@ -65,8 +65,9 @@ namespace Gambit
           using namespace Rivet_default::Rivet;
 
           static std::vector<std::unique_ptr<AnalysisHandler>> anahandlers;
-          thread_local int events_analysed = 0;
-          static std::map<int, int> events_analysed_perthread;
+          // TODO: Does event count ever go over int_max? Playing safe
+          thread_local long int events_analysed = 0;
+          static std::map<int, long int> events_analysed_perthread;
 
           static std::vector<string>  analyses;
           static std::vector<string> excluded_analyses;
@@ -121,6 +122,7 @@ namespace Gambit
             #pragma omp critical
             {
               anahandlers.emplace_back(std::make_unique<AnalysisHandler>());
+              events_analysed_perthread[omp_get_thread_num()] = 0L;
               
               for (const std::string& ananame :  analyses){
                 // Rememeber analysis list already formed.
@@ -177,7 +179,6 @@ namespace Gambit
           if (*Loop::iteration == END_SUBPROCESS){
             //Save which threads have run enough events.
             events_analysed_perthread[omp_get_thread_num()] = events_analysed;
-          
             #ifdef COLLIDERBIT_DEBUG
               std::cout << "Rivet: thread " << omp_get_thread_num() << " analysed " << events_analysed << " events" << std::endl;
             #endif
@@ -264,17 +265,9 @@ namespace Gambit
 
           // Get the HepMC event
           HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
-          // Save the old event number in case other bits of Gambit need it.
-          int old_events_analysed = ge.event_number();
-          // Set the Event number to a stream independent total so Rivet can
-          // make sense of things.
-
-          ge.set_event_number(++events_analysed);
-          //std::cout << "About to analyze event " << events_analysed-1 << " on thread " << omp_get_thread_num() << std::endl;
           try {
             // The first event only must be analysed single-threaded
-            // (note we have already incremented so <2 is the correct check)
-            if (events_analysed < 2){
+            if (events_analysed < 1){
               #pragma omp critical
               {
                 anahandlers[omp_get_thread_num()]->analyze(ge); 
@@ -283,13 +276,12 @@ namespace Gambit
             else {
               anahandlers[omp_get_thread_num()]->analyze(ge); 
             }
+            events_analysed++;
           }
           catch(std::runtime_error &e)
           {
             ColliderBit_error().raise(LOCAL_INFO, e.what());
           }
-          // Reset the old event number in case GAMBIT needs it elsewhere.
-          ge.set_event_number(old_events_analysed);
         }
 
       #endif //EXCLUDE_YODA
