@@ -5859,6 +5859,62 @@ diff -rupN pythia8312_original/src/JetMatching.cc pythia8312_patched/src/JetMatc
 +//==========================================================================
 +
 +} // end namespace Pythia8
+diff -rupN pythia8312_original/src/PhaseSpace.cc pythia8312_patched/src/PhaseSpace.cc
+--- pythia8312_original/src/PhaseSpace.cc	2024-05-24 04:06:00
++++ pythia8312_patched/src/PhaseSpace.cc	2024-10-22 18:35:38
+@@ -250,8 +250,13 @@ void PhaseSpace::decayKinematics( Event& process) {
+     bool hasRes = false;
+     for (int iRes = iResBeg; iRes <= iResEnd; ++iRes)
+       if ( !process[iRes].isFinal() ) hasRes = true;
+-    if ( !hasRes ) continue;
+ 
++    // Or is a SUSY three-body decay treated as a special case
++    bool has3bdy = false;
++    if( flag("SUSYResonance:3BodyMatrixElement")
++       && iResEnd-iResBeg == 2 ) has3bdy = true;
++    if ( !hasRes && !has3bdy ) continue;
++    
+     // Evaluate matrix element and decide whether to keep kinematics.
+     double decWt = sigmaProcessPtr->weightDecay( process, iResBeg, iResEnd);
+     if (decWt < 0.)
+@@ -260,18 +265,26 @@ void PhaseSpace::decayKinematics( Event& process) {
+       loggerPtr->WARNING_MSG("angular weight above unity");
+     while (decWt < rndmPtr->flat() ) {
+ 
+-      // Find resonances for which to redo decay angles.
+-      for (int iRes = iResBeg; iRes < process.size(); ++iRes) {
+-        if ( process[iRes].isFinal() ) continue;
+-        int iResMother = iRes;
+-        while (iResMother > iResEnd)
+-          iResMother = process[iResMother].mother1();
+-        if (iResMother < iResBeg) continue;
+-
++      if(!has3bdy){
++        // Find resonances for which to redo decay angles.
++        for (int iRes = iResBeg; iRes < process.size(); ++iRes) {
++          if ( process[iRes].isFinal() ) continue;
++          int iResMother = iRes;
++          while (iResMother > iResEnd)
++            iResMother = process[iResMother].mother1();
++          if (iResMother < iResBeg) continue;
++          
++          // Do decay of this mother isotropically in phase space.
++          decayKinematicsStep( process, iRes);
++          
++          // End loop over resonance decay chains.
++        }
++      }
++      else{
++        // Find three-body decay for which to redo decay
++        int iResMother = process[iResBeg].mother1();
+         // Do decay of this mother isotropically in phase space.
+-        decayKinematicsStep( process, iRes);
+-
+-      // End loop over resonance decay chains.
++        decayKinematicsStep( process, iResMother);
+       }
+ 
+       // Ready to allow new test of matrix element.
 diff -rupN pythia8312_original/src/ProcessLevel.cc pythia8312_patched/src/ProcessLevel.cc
 --- pythia8312_original/src/ProcessLevel.cc	2024-05-24 04:06:00
 +++ pythia8312_patched/src/ProcessLevel.cc	2024-10-22 16:27:08
@@ -6035,6 +6091,198 @@ diff -rupN pythia8312_original/src/ResonanceDecays.cc pythia8312_patched/src/Res
  
    // Else if below then retry Breit-Wigners, with simple treshold.
    if (mSum + MSAFETY < mMother) {
+diff -rupN pythia8312_original/src/SigmaSUSY.cc pythia8312_patched/src/SigmaSUSY.cc
+--- pythia8312_original/src/SigmaSUSY.cc	2024-05-24 04:06:00
++++ pythia8312_patched/src/SigmaSUSY.cc	2024-10-22 18:43:07
+@@ -24,12 +24,8 @@ double Sigma2SUSY::weightDecay( Event& process, int iR
+ 
+   // Identity of mother of decaying resonance(s).
+   int idMother = process[process[iResBeg].mother1()].idAbs();
+-
+-  // Do nothing for squarks/sleptons.
+-  if ( (idMother > 1000000 && idMother < 1000020)
+-    || (idMother > 2000000 && idMother < 2000020)
+-    || idMother == 1000021) return 1.0;
+-
++  int idMotherAbs = abs(idMother);
++  
+   // For Higgs decay hand over to standard routine.
+   if (idMother == 25 || idMother == 35 || idMother == 36)
+     return weightHiggsDecay( process, iResBeg, iResEnd);
+@@ -38,76 +34,121 @@ double Sigma2SUSY::weightDecay( Event& process, int iR
+   if (idMother == 6)
+     return weightTopDecay( process, iResBeg, iResEnd);
+ 
+-  // For Neutralino(i) decay hand over to standard routine.
+-  if ( flag("SUSYResonance:3BodyMatrixElement")
+-    && (idMother == 1000023 || idMother == 1000025 || idMother == 1000035) ) {
++  // Return if SUSY 3-body decays are not turned on
++  if ( !flag("SUSYResonance:3BodyMatrixElement") ) return(1.0);
++      
++  // Do nothing for squarks/sleptons and gluino.
++  if ( (idMotherAbs > 1000000 && idMotherAbs < 1000020)
++    || (idMotherAbs > 2000000 && idMotherAbs < 2000020)
++    || idMother == 1000021) return 1.0;
+ 
++  // Neutralino and chargino decays
++  if ( idMotherAbs == 1000022 || idMotherAbs == 1000023 || idMotherAbs == 1000025
++                              || idMotherAbs == 1000035 || idMotherAbs == 1000045
++                              || idMotherAbs == 1000024 || idMotherAbs == 1000037 ) {
++
+     // Nj -> Ni f fbar
+     if (iResEnd - iResBeg != 2) return(1.0);
+     int iW1  = iResBeg;
+     int iF   = iResBeg + 1;
+     int iFbar= iResBeg + 2;
+     int iT   = process[iW1].mother1();
+-    if( iT <= 0 ) return(1.0);
+-    int idDau= process[iW1].idAbs();
++    if( iT  <= 0 ) return(1.0);
++    int idDau= process[iW1].id();
+ 
+-    // Neutralino decays to charginos not yet implemented
+-    if (idDau == 1000024 || idDau == 1000037 ) return(1.0);
+-    if (idDau != 1000022 && idDau != 1000023 && idDau != 1000025
+-      && idDau != 1000035 ) {
+-      return(1.0);
+-    } else {
+-      if( process[iF].idAbs() != process[iFbar].idAbs() ) return(1.0);
+-      int idmo = -1; int iddau = -1;
++    if( process[iF].idAbs() > 19 || process[iFbar].idAbs() > 19 ) return(1.0);
++    if ( idDau == 1000022 || idDau ==  1000023 || idDau ==  1000025
++                          || idDau ==  1000035 || idDau ==  1000045
++                          || idDau ==  1000024 || idDau ==  1000037
++                          || idDau == -1000024 || idDau == -1000037 ) {
++      
++      // Find which process we have
++      int idmo = 0; int iddau = 0;
++      bool mocha = false; bool moneu = false; bool daucha = false; bool dauneu = false;
+       switch (idMother) {
+-        case 1000023: idmo = 2; break;
+-        case 1000025: idmo = 3; break;
+-        case 1000035: idmo = 4; break;
++        case  1000022: idmo =  1; moneu = true; break;
++        case  1000023: idmo =  2; moneu = true; break;
++        case  1000025: idmo =  3; moneu = true; break;
++        case  1000035: idmo =  4; moneu = true; break;
++        case  1000045: idmo =  5; moneu = true; break;
++        case  1000024: idmo =  1; mocha = true; break;
++        case  1000037: idmo =  2; mocha = true; break;
++        case -1000024: idmo = -1; mocha = true; break;
++        case -1000037: idmo = -2; mocha = true; break;
+       }
+       switch (idDau) {
+-        case 1000022: iddau = 1; break;
+-        case 1000023: iddau = 2; break;
+-        case 1000025: iddau = 3; break;
++        case  1000022: iddau =  1; dauneu = true; break;
++        case  1000023: iddau =  2; dauneu = true; break;
++        case  1000025: iddau =  3; dauneu = true; break;
++        case  1000035: iddau =  4; dauneu = true; break;
++        case  1000045: iddau =  5; dauneu = true; break;
++        case  1000024: iddau =  1; daucha = true; break;
++        case  1000037: iddau =  2; daucha = true; break;
++        case -1000024: iddau = -1; daucha = true; break;
++        case -1000037: iddau = -2; daucha = true; break;
+       }
+-      if( idmo<0 || iddau<0 ) return(1.0);
++      if( idmo == 0 || iddau == 0 ) return(1.0);
+ 
+-      Sigma2qqbar2chi0chi0 localDecay(idmo,iddau,0);
+-      localDecay.initInfoPtr(*infoPtr);
+-      localDecay.init(nullptr, nullptr);
+-      localDecay.initProc();
+-      localDecay.alpEM = 1;
+-      localDecay.id1 = process[iF].id();
+-      localDecay.id2 = process[iFbar].id();
++      // Construct cross section object for decay
++      Sigma2SUSY* localDecay = nullptr;
++      // Neutralino idmo to neutralino iddau decay
++      if( moneu && dauneu ) localDecay = new Sigma2qqbar2chi0chi0(idmo,iddau,0);
++      // Chargino idmo to neutralino iddau decay
++      else if( mocha && dauneu ) localDecay = new Sigma2qqbar2charchi0(idmo,iddau,0);
++      // Chargino idmo to chargino iddau decay
++      else if( mocha && daucha ) localDecay = new Sigma2qqbar2charchar(idmo,iddau,0);
++      // Neutralino idmo to chargino iddau decay
++      else if( moneu && daucha ) localDecay = new Sigma2qqbar2charchi0(iddau,idmo,0);
++
++      // Set kinematic for amplitude calculation
++      localDecay->initInfoPtr(*infoPtr);
++      localDecay->init(nullptr, nullptr);
++      localDecay->initProc();
++      localDecay->alpEM = 1;
++      localDecay->id1 = process[iF].id();
++      localDecay->id2 = process[iFbar].id();
+       double xm3 = process[iT].m();
+       double xm4 = process[iW1].m();
+-      localDecay.m3 = xm3;
+-      localDecay.m4 = xm4;
+-      localDecay.s3 = xm3*xm3;
+-      localDecay.s4 = xm4*xm4;
+-      localDecay.sH = (process[iF].p()+process[iFbar].p()).m2Calc();
+-      localDecay.sH2 = pow2(localDecay.sH);
+-      localDecay.tH = (process[iF].p()-process[iT].p()).m2Calc();
+-      localDecay.uH = localDecay.s3+localDecay.s4-localDecay.tH-localDecay.sH;
+-      localDecay.sigmaKin();
+-      double wt = -localDecay.sigmaHat();
++      localDecay->m3 = xm3;
++      localDecay->m4 = xm4;
++      localDecay->s3 = xm3*xm3;
++      localDecay->s4 = xm4*xm4;
++      localDecay->sH = (process[iF].p()+process[iFbar].p()).m2Calc();
++      localDecay->sH2 = pow2(localDecay->sH);
++      localDecay->tH = (process[iF].p()-process[iT].p()).m2Calc();
++      localDecay->uH = localDecay->s3+localDecay->s4-localDecay->tH-localDecay->sH;
++      localDecay->sigmaKin();
++
++      // Modify cross section so that it becomes amplitude and use it as a weight for the decay
++      double wt = -localDecay->sigmaHat()*localDecay->sH2;
++      
+       // Estimate maximum weight by sampling kinematic extremes
+-      // Case I:  neutralino(i) at rest
+-      localDecay.sH = pow2(xm4-xm3);
+-      localDecay.tH = 0.5*(localDecay.s3+localDecay.s4-localDecay.sH);
+-      localDecay.uH = localDecay.tH;
+-      localDecay.sigmaKin();
+-      double wtmax = -localDecay.sigmaHat();
++      // Case I:  neutralino or chargino at rest
++      localDecay->sH = pow2(xm4-xm3);
++      localDecay->tH = 0.5*(localDecay->s3+localDecay->s4-localDecay->sH);
++      localDecay->uH = localDecay->tH;
++      localDecay->sigmaKin();
++      double wtmax = -localDecay->sigmaHat()*localDecay->sH2;
+       // Case II:  fermion at rest
+-      localDecay.sH = 0;
+-      localDecay.tH = localDecay.s3;
+-      localDecay.uH = localDecay.s3+localDecay.s4-localDecay.tH-localDecay.sH;
+-      localDecay.sigmaKin();
+-      wtmax += -localDecay.sigmaHat();
++      localDecay->sH = 0;
++      localDecay->tH = localDecay->s3;
++      localDecay->uH = localDecay->s3+localDecay->s4-localDecay->tH-localDecay->sH;
++      localDecay->sigmaKin();
++      wtmax = max(wtmax,-localDecay->sigmaHat()*localDecay->sH2);
+       // Case III: antifermion at rest
+-      localDecay.uH = localDecay.s3;
+-      localDecay.tH = localDecay.s3+localDecay.s4-localDecay.tH-localDecay.sH;
+-      localDecay.sigmaKin();
+-      wtmax += -localDecay.sigmaHat();
++      localDecay->uH = localDecay->s3;
++      localDecay->tH = localDecay->s3+localDecay->s4-localDecay->tH-localDecay->sH;
++      localDecay->sigmaKin();
++      wtmax = max(wtmax,-localDecay->sigmaHat()*localDecay->sH2);
++      // Case IV: fermions colinear
++      localDecay->sH = 0;
++      localDecay->uH = 0.5*(localDecay->s3+localDecay->s4);
++      localDecay->tH = 0.5*(localDecay->s3+localDecay->s4);
++      localDecay->sigmaKin();
++      wtmax = max(wtmax,-localDecay->sigmaHat()*localDecay->sH2);
++      
++      delete localDecay;
++      
+       return(wt/wtmax);
+     }
+   }
 diff -rupN pythia8312_original/src/SusyLesHouches.cc pythia8312_patched/src/SusyLesHouches.cc
 --- pythia8312_original/src/SusyLesHouches.cc	2024-05-24 04:06:00
 +++ pythia8312_patched/src/SusyLesHouches.cc	2024-10-22 13:49:07
