@@ -119,6 +119,18 @@ diff -rupN pythia8312_original/include/Pythia8/GAMBIT_hepmc_writer.h pythia8312_
 +}
 +
 +#endif // Pythia8_GAMBIT_hepmc_writer_H
+diff -rupN pythia8312_original/include/Pythia8/Info.h pythia8312_patched/include/Pythia8/Info.h
+--- pythia8312_original/include/Pythia8/Info.h	2024-05-24 04:06:00
++++ pythia8312_patched/include/Pythia8/Info.h	2024-10-22 17:29:58
+@@ -268,7 +268,7 @@ class Info { (public)
+   int    iBMPI(int i)         const {return iBMPISave[i];}
+ 
+   // Cross section estimate, optionally process by process.
+-  vector<int> codesHard();
++  vector<int> codesHard() const;
+ 
+   // Name of the specified process.
+   string nameProc(int i = 0)  const {
 diff -rupN pythia8312_original/include/Pythia8/PartonDistributions.h pythia8312_patched/include/Pythia8/PartonDistributions.h
 --- pythia8312_original/include/Pythia8/PartonDistributions.h	2024-05-24 04:06:00
 +++ pythia8312_patched/include/Pythia8/PartonDistributions.h	2024-10-22 13:22:40
@@ -4166,6 +4178,21 @@ diff -rupN pythia8312_original/src/GeneratorInput.cc pythia8312_patched/src/Gene
 +//==========================================================================
 +
 +} // end namespace Pythia8
+diff -rupN pythia8312_original/src/Info.cc pythia8312_patched/src/Info.cc
+--- pythia8312_original/src/Info.cc	2024-05-24 04:06:00
++++ pythia8312_patched/src/Info.cc	2024-10-22 17:35:19
+@@ -209,9 +209,9 @@ double Info::getGroupWeight(int iGW) const {
+ 
+ // List of all hard processes switched on.
+ 
+-vector<int> Info::codesHard() {
++vector<int> Info::codesHard() const {
+   vector<int> codesNow;
+-  for (map<int, long>::iterator nTryEntry = nTryM.begin();
++  for (map<int, long>::const_iterator nTryEntry = nTryM.begin();
+     nTryEntry != nTryM.end(); ++nTryEntry)
+       codesNow.push_back( nTryEntry->first );
+   return codesNow;
 diff -rupN pythia8312_original/src/JetMatching.cc pythia8312_patched/src/JetMatching.cc
 --- pythia8312_original/src/JetMatching.cc	1970-01-01 01:00:00
 +++ pythia8312_patched/src/JetMatching.cc	2024-10-22 12:35:55
@@ -5957,7 +5984,7 @@ diff -rupN pythia8312_original/src/ProcessLevel.cc pythia8312_patched/src/Proces
      // Update sum of maxima if current maximum violated.
 diff -rupN pythia8312_original/src/Pythia.cc pythia8312_patched/src/Pythia.cc
 --- pythia8312_original/src/Pythia.cc	2024-05-24 04:06:00
-+++ pythia8312_patched/src/Pythia.cc	2024-10-22 12:41:53
++++ pythia8312_patched/src/Pythia.cc	2024-10-22 17:25:54
 @@ -488,7 +488,7 @@ bool Pythia::readFile(istream& is, bool warn, int subr
  
  // Routine to initialize with the variable values of the Beams kind.
@@ -5967,7 +5994,17 @@ diff -rupN pythia8312_original/src/Pythia.cc pythia8312_patched/src/Pythia.cc
  
    // Check that constructor worked.
    if (!isConstructed) {
-@@ -866,7 +866,7 @@ bool Pythia::init() {
+@@ -725,7 +725,8 @@ bool Pythia::init() {
+ 
+   // Initialize SLHA interface (including SLHA/BSM couplings).
+   bool useSLHAcouplings = false;
+-  slhaInterface = SLHAinterface();
++  // GAMBIT patch
++  // slhaInterface = SLHAinterface();
+   slhaInterface.setPtr( &infoPrivate);
+   slhaInterface.init( useSLHAcouplings, particleDataBuffer );
+ 
+@@ -866,7 +867,7 @@ bool Pythia::init() {
    // Send info/pointers to process level for initialization.
    if ( doProcessLevel ) {
      sigmaTot.init();
