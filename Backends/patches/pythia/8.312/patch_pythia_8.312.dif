@@ -2984,13 +2984,9 @@ diff -rupN pythia8312_original/include/Pythia8Plugins/JetMatching.h pythia8312_p
  
 diff -rupN pythia8312_original/src/Event.cc pythia8312_patched/src/Event.cc
 --- pythia8312_original/src/Event.cc	2024-05-24 04:06:00
-+++ pythia8312_patched/src/Event.cc	2024-10-22 13:29:30
-@@ -753,15 +753,15 @@ void Event::list(bool showScaleAndVertex, bool showMot
- // Print an event.
- 
- void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
--  int precision) const {
-+  int precision, ostream& os = cout) const {
++++ pythia8312_patched/src/Event.cc	2024-10-22 16:22:33
+@@ -756,12 +756,12 @@ void Event::list(bool showScaleAndVertex, bool showMot
+   int precision) const {
  
    // Header.
 -  cout << "\n --------  PYTHIA Event Listing  " << headerList << "----------"
