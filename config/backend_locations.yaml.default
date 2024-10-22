@@ -84,8 +84,7 @@ FeynHiggs:
   2.12.0:      ./Backends/installed/feynhiggs/2.12.0/lib/libFH.so
 
 Pythia:
-  8.212:       ./Backends/installed/pythia/8.212/lib/libpythia8.so
-  8.306:       ./Backends/installed/pythia/8.306/lib/libpythia8.so
+  8.312:       ./Backends/installed/pythia/8.312/lib/libpythia8.so
 
 gamLike:
   1.0.0:       ./Backends/installed/gamlike/1.0.0/lib/gamLike.so
