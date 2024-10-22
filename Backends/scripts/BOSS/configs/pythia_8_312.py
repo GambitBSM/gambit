@@ -65,6 +65,7 @@ load_classes = [
     'Pythia8::Info',
     'Pythia8::LHdecayChannel',
     'Pythia8::LHdecayTable',
+    'Pythia8::Logger',
     'Pythia8::Parm',
     'Pythia8::ParticleDataEntry',
     'Pythia8::ParticleData',

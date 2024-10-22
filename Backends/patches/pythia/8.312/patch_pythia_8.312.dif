@@ -209,6 +209,19 @@ diff -rupN pythia8312_original/include/Pythia8/Pythia.h pythia8312_patched/inclu
  
    // Generate the next event.
    bool next() { return next(0); }
+diff -rupN pythia8312_original/include/Pythia8/SusyCouplings.h pythia8312_patched/include/Pythia8/SusyCouplings.h
+--- pythia8312_original/include/Pythia8/SusyCouplings.h	2024-05-24 04:06:00
++++ pythia8312_patched/include/Pythia8/SusyCouplings.h	2024-10-22 16:18:43
+@@ -10,6 +10,9 @@
+ #ifndef Pythia8_SusyCouplings_H
+ #define Pythia8_SusyCouplings_H
+ 
++// GAMBIT: patch because BOSS does not finc and include this class
++#include "Pythia8/Info.h"
++
+ #include "Pythia8/PythiaComplex.h"
+ #include "Pythia8/Settings.h"
+ #include "Pythia8/StandardModel.h"
 diff -rupN pythia8312_original/include/Pythia8/SusyLesHouches.h pythia8312_patched/include/Pythia8/SusyLesHouches.h
 --- pythia8312_original/include/Pythia8/SusyLesHouches.h	2024-05-24 04:06:00
 +++ pythia8312_patched/include/Pythia8/SusyLesHouches.h	2024-10-22 12:14:00
