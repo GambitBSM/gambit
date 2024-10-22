@@ -144,7 +144,7 @@ namespace Gambit
 
           // Create new _pythiaInstance from _pythiaBase
           if (_pythiaInstance) delete _pythiaInstance;
-          _pythiaInstance = new PythiaT(_pythiaBase->particleData, _pythiaBase->settings);
+          _pythiaInstance = new PythiaT(_pythiaBase->settings, _pythiaBase->particleData);
 
           // Send along the SLHAea::Coll pointer, if it exists          
           if (slhaea) _pythiaInstance->slhaInterface.slha.setSLHAea(slhaea);
@@ -178,7 +178,7 @@ namespace Gambit
 
           // Create new _pythiaInstance from _pythiaBase
           if (_pythiaInstance) delete _pythiaInstance;
-          _pythiaInstance = new PythiaT(_pythiaBase->particleData, _pythiaBase->settings);
+          _pythiaInstance = new PythiaT(_pythiaBase->settings, _pythiaBase->particleData);
 
           // Send along the SLHAea::Coll pointer, if it exists
           if (slhaea) _pythiaInstance->slhaInterface.slha.setSLHAea(slhaea);

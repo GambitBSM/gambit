@@ -255,7 +255,7 @@ namespace Gambit
               #pragma omp critical (pythia_event_failure)
               {
                 std::stringstream ss;
-                dummy_pythia_event.list(ss, 1);
+                dummy_pythia_event.list(false, false, 1, ss);
                 logger() << LogTags::debug << "Failed to generate dummy test event during COLLIDER_INIT_OMP iteration in getPy8Collider. Pythia record for the event that failed:\n" << ss.str() << EOM;
               }
             }
