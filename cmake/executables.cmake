@@ -87,6 +87,8 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   else()
     # Make sure the printers compile OK if the rest of GAMBIT is missing
     target_compile_definitions(Printers PRIVATE SCANNER_STANDALONE)
+    target_compile_definitions(Logs PRIVATE SCANNER_STANDALONE)
+    target_compile_definitions(Utils PRIVATE SCANNER_STANDALONE)
   endif()
   add_dependencies(standalones ScannerBit_standalone)
 endif()

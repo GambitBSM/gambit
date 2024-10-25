@@ -27,7 +27,7 @@
 // Choose default versions here, using underscores instead of periods
 
 #define  Default_gm2calc 1_3_0
-#define  Default_Pythia 8_212
+#define  Default_Pythia 8_312
 #define  Default_HepLike 2_0
 #define  Default_vevacious 1_0
 #define  Default_Rivet 3_1_5
