@@ -67,9 +67,9 @@ def main(argv):
         elif opt in ('-x','--exclude-plugins','--exclude-plugin'):
             exclude_plugins.update(neatsplit(",",arg))
     # info for the different plugin types
-    src_paths = sorted(["./ScannerBit/src/scanners", "./ScannerBit/src/objectives"])#, "./ScannerBit/src/interps"])
-    inc_paths = sorted(["./ScannerBit/include/gambit/ScannerBit/scanners", "./ScannerBit/include/gambit/ScannerBit/objectives"])#, "./ScannerBit/include/gambit/ScannerBit/interps"])
-    plug_type = sorted(["scanner", "objective"]) #, "interp"])
+    src_paths = sorted(["./ScannerBit/src/scanners", "./ScannerBit/src/objectives", "./ScannerBit/src/emulators"])
+    inc_paths = sorted(["./ScannerBit/include/gambit/ScannerBit/scanners", "./ScannerBit/include/gambit/ScannerBit/objectives" "./ScannerBit/include/gambit/ScannerBit/emulators"])
+    plug_type = sorted(["scanner", "objective", "emulator"])
     config_files = []
     for ptype in plug_type:
         config_files += ["./config/" + ptype + "_locations.yaml"]
@@ -202,8 +202,8 @@ set( scanner_scanlibs_headers"""
                     text = comment_remover(f.read())
                     it = re.finditer(r'\breqd_inifile_entries\s*?\(.*?\)|\bREQD_INIFILE_ENTRIES\s*?\(.*?\)', text, re.DOTALL)
                     ini_finds = [[m.span()[0], -1, re.sub(r'\s', '', m.group())] for m in it]
-                    #it = re.finditer(r'\binterp_plugin\s*?\(.*?\)\s*?\{|\bINTERP_PLUGIN\s*?\(.*?\)\s*?\{', text, re.DOTALL)
-                    #interp_finds = [[m.span()[0], 0, m.group()] for m in it]
+                    it = re.finditer(r'\bemulator_plugin\s*?\(.*?\)\s*?\{|\bEMULATOR_PLUGIN\s*?\(.*?\)\s*?\{', text, re.DOTALL)
+                    emu_finds = [[m.span()[0], 0, m.group()] for m in it]
                     it = re.finditer(r'\bobjective_plugin\s*?\(.*?\)\s*?\{|\bOBJECTIVE_PLUGIN\s*?\(.*?\)\s*?\{', text, re.DOTALL)
                     obj_finds = [[m.span()[0], 0, m.group()] for m in it]
                     it = re.finditer(r'\bscanner_plugin\s*?\(.*?\)\s*?\{|\bSCANNER_PLUGIN\s*?\(.*?\)\s*?\{', text, re.DOTALL)
@@ -216,7 +216,7 @@ set( scanner_scanlibs_headers"""
                     flag_finds = [[m.span()[0], -4, re.sub(r'\s', '', m.group())] for m in it]
                     it = re.finditer(r'\bcxx_flags\s*?\(.*?\)|\bCXX_FLAGS\s*?\(.*?\)', text, re.DOTALL)
                     cxx_finds = [[m.span()[0], -5, re.sub(r'\s|"', '', m.group())] for m in it]
-                    all_finds  = sorted(scan_finds + obj_finds + ini_finds + lib_finds + inc_finds + flag_finds + cxx_finds) # + interp_finds 
+                    all_finds  = sorted(scan_finds + obj_finds + ini_finds + lib_finds + inc_finds + flag_finds + cxx_finds + emu_finds)
                     for find in all_finds:
                         if find[1] >= 0:
                             processed = False
