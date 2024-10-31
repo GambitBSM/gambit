@@ -47,7 +47,7 @@ Scanner:
 
   # This tag specifies which plugin to use as the scanner.
   # You can choose any scanner defined in the scanners section below.
-  use_scanner: de
+  use_scanner: mh_diffusion
 
   scanners:
 
@@ -127,6 +127,10 @@ Scanner:
       #    nparticles: 1000
 
     # Python scanners - nested sampling
+    mh_diffusion:
+      like: LogLike
+      plugin: mh_diffusion
+      pkg: gambit_mcmcdiffusion
 
     ultranest:
       like: LogLike
