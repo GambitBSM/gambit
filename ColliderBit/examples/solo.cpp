@@ -187,6 +187,8 @@ int main(int argc, char* argv[])
     if (debug) cout << "Reading HepMC" << " file: " << event_filename << endl;
     auto& getEvent = getHepMCEvent;
     auto& convertEvent = convertHepMCEvent_HEPUtils;
+    auto& AnalysisNumbers = CollectAnalyses;
+    AnalysisNumbers.setOption<bool>("print_cutflows", true);
 
     // Initialise logs
     logger().set_log_debug_messages(debug);

@@ -42,14 +42,14 @@ namespace Gambit
       Analysis_ATLAS_13TeV_2LEPsoft_139invfb()
       {
 
-        DEFINE_SIGNAL_REGIONS("SR-E-low-", 8, "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > 5+mll/4", "10 < mTl1 < 60 GeV")
-        DEFINE_SIGNAL_REGIONS("SR-E-med-", 6, "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV")
-        DEFINE_SIGNAL_REGIONS("SR-E-high-", 8, "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)")
-        DEFINE_SIGNAL_REGIONS("SR-E-1l1T-", 6, "MET trigger", "1 lepton and >=1 track", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "MET > 200GeV", "min(DeltaPhi(any jet,MET) > 0.4", "Delta(j1) > 2.0", "0.5 < mltrack < 5GeV", "DeltaRltrack > 0.05", "number of jets >= 1", "leading jet pT > 100 GeV", "MET/HTlep > 30", "Deltaltrack < 1.5", "Lepton pT < 10 GeV", "Track pT < 5 GeV", "DeltaPhi(l,MET) < 1.0", "SF lepton-track pair", "OS lepton-track pair")
+        DEFINE_SIGNAL_REGIONS("SR-E-low-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > 5+mll/4", "10 < mTl1 < 60 GeV")
+        DEFINE_SIGNAL_REGIONS("SR-E-med-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV")
+        DEFINE_SIGNAL_REGIONS("SR-E-high-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)")
+        DEFINE_SIGNAL_REGIONS("SR-E-1l1T-", 6, "njets > 0", "MET trigger", "1 lepton and >=1 track", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "MET > 200GeV", "min(DeltaPhi(any jet,MET) > 0.4", "Delta(j1) > 2.0", "0.5 < mltrack < 5GeV", "DeltaRltrack > 0.05", "number of jets >= 1", "leading jet pT > 100 GeV", "MET/HTlep > 30", "Deltaltrack < 1.5", "Lepton pT < 10 GeV", "Track pT < 5 GeV", "DeltaPhi(l,MET) < 1.0", "SF lepton-track pair", "OS lepton-track pair")
         DEFINE_SIGNAL_REGIONS("SR-VBF-low-", 7, "pTl1 > 5", "2 baseline leptons", "2 signal leptons", "MET trigger", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "SF", "OS", "1 < mll < 60 GeV", "veto 3 GeV < mll < 3.2 GeV", "mtautau < 0 or > 160 GeV", "number of b-tagged jets = 0", "leading jet pT > 100 GeV", "pT(j2) > 40 GeV", "met > 200 GeV", "met/HTlep > 2.0", "subleading lepton pT > min(10,2+mll/3)", "mTl1 < 60 GeV", "RVBF < 1.0", "RVBF > max(0.6,0.92-mll/2 GeV)", "etaj1*etaj2 < 0", "mjj > 400 GeV", "Deltaetajj > 2")
         DEFINE_SIGNAL_REGIONS("SR-VBF-high-", 7, "pTl1 > 5", "2 baseline leptons", "2 signal leptons", "MET trigger", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "SF", "OS", "1 < mll < 60 GeV", "veto 3 GeV < mll < 3.2 GeV", "mtautau < 0 or > 160 GeV", "number of b-tagged jets = 0", "leading jet pT > 100 GeV", "pT(j2) > 40 GeV", "met > 200 GeV", "met/HTlep > 2.0", "subleading lepton pT > min(10,2+mll/3)", "mTl1 < 60 GeV", "RVBF < 1.0", "RVBF > max(0.6,0.92-mll/2 GeV)", "etaj1*etaj2 < 0", "mjj > 400 GeV", "Deltaetajj > 2")
-        DEFINE_SIGNAL_REGIONS("SR-S-low-", 8, "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "150 < met < 200 GeV", "0.8 < RISR < 1.0", "subleading lepton pT > min(15,7.5+0.75*(mT2100-100))")
-        DEFINE_SIGNAL_REGIONS("SR-S-high-", 8, "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))")
+        DEFINE_SIGNAL_REGIONS("SR-S-low-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "150 < met < 200 GeV", "0.8 < RISR < 1.0", "subleading lepton pT > min(15,7.5+0.75*(mT2100-100))")
+        DEFINE_SIGNAL_REGIONS("SR-S-high-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))")
 
         set_analysis_name("ATLAS_13TeV_2LEPsoft_139invfb");
         set_luminosity(139);
@@ -365,7 +365,8 @@ namespace Gambit
         END_PRESELECTION
 
         // Preselection cuts for 2l regions
-        std::vector<bool> preselection_2l = {mettrigger,
+        std::vector<bool> preselection_2l = {(nSignalJets > 0 ),
+                                             mettrigger,
                                              nSignalLeptons == 2,
                                              (mll < 3. || mll > 3.2),
                                              true, // lepton author 16 veto
@@ -417,7 +418,8 @@ namespace Gambit
 
         // Preselecton cuts for 1l1T region
         // It's not clear what's preselection and signal region cuts based on paper and cutflows, so just use cutflow order
-        std::vector<bool> preselection_1l1T = { (mettrigger),
+        std::vector<bool> preselection_1l1T = { (nSignalJets > 0 ),
+                                                (mettrigger),
                                                 (nSignalLeptons == 1 && nSignalTracks >= 1),
                                                 (mll < 3. || mll > 3.2),
                                                 true, // lepton author 16 veto
@@ -527,7 +529,7 @@ namespace Gambit
 
         // SR-E-1l1T
         std::vector<bool> cuts_1l1T = { nSignalTracks > 0 && signalTracks.at(0)->pT() < 5.,
-                                        nSignalLeptons > 0 && signalLeptons.at(0)->mom().deltaPhi(ptot) >= 1.0,
+                                        nSignalLeptons > 0 && signalLeptons.at(0)->mom().deltaPhi(ptot) < 1.0,
                                         SF,
                                         OS
                                       };
