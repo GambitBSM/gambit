@@ -421,9 +421,9 @@ if (OPENMP_FOUND OR FOUND_BREW_OPENMP)
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
   # If the OpenMP headers live in a special location due to
   # being installed with brew, we need to tell Eigen3 about it.
-  if (FOUND_BREW_OPENMP)
-    set(EIGEN3_INCLUDE_DIR "${EIGEN3_INCLUDE_DIR} -I${BREW_LIBOMP_PREFIX}/include")
-  endif()
+  #if (FOUND_BREW_OPENMP)
+  #  set(EIGEN3_INCLUDE_DIR "${EIGEN3_INCLUDE_DIR} -I${BREW_LIBOMP_PREFIX}/include")
+  #endif()
 else()
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     if(NOT FOUND_BREW_OPENMP)
