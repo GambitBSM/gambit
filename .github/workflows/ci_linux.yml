@@ -75,9 +75,8 @@ jobs:
 
 
   backends_build:
-    if: ${{ always() }}
     needs: [pre_job, gambit_build] # Sets run order
-    if: needs.pre_job.outputs.should_skip != 'true'
+    if: ${{ always() && needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: [self-hosted, Linux, X64]
     strategy:
       fail-fast: false
@@ -111,9 +110,8 @@ jobs:
 
 
   test_runs:
-    if: ${{ always() }}
     needs: [pre_job, gambit_build, backends_build] # Sets run order
-    if: needs.pre_job.outputs.should_skip != 'true'
+    if: ${{ always() && needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: [self-hosted, Linux, X64]
     strategy:
       fail-fast: false
@@ -176,9 +174,8 @@ jobs:
 
 
   standalones_build:
-    if: ${{ always() }}
     needs: [pre_job, gambit_build, backends_build, test_runs] # Sets run order
-    if: needs.pre_job.outputs.should_skip != 'true'
+    if: ${{ always() && needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: [self-hosted, Linux, X64]
     strategy:
       fail-fast: false
