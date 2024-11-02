@@ -27,17 +27,20 @@ jobs:
         mkdir -p BUILD
         cd BUILD
         # Testing...
+        shopt -s expand_aliases
         alias patch=/scratch2/shared/patch/patch
         patch --help
     - name: Configure with cmake
       run: |
         echo "Configure with cmake"
+        shopt -s expand_aliases
         alias patch=/scratch2/shared/patch/patch
         cd BUILD
         cmake -DPYTHON_LIBRARY=/usr/lib64/libpython3.9.so -DPYTHON_INCLUDE_DIR=/usr/include/python3.9 -DWITH_MPI=ON -DWITH_HEPMC=ON -Ditch="great" -DEIGEN3_INCLUDE_DIR=/mn/fys-server1/a1/chrichan/Packages/Eigen/eigen3 ..
     - name: Build scanners
       run: |
         echo "Build scanners"
+        shopt -s expand_aliases
         alias patch=/scratch2/shared/patch/patch
         cd BUILD
         make -j28 scanners
@@ -45,6 +48,7 @@ jobs:
     - name: Build Gambit
       run: |
         echo "Build GAMBIT."
+        shopt -s expand_aliases
         alias patch=/scratch2/shared/patch/patch
         cd BUILD
         # Now build Gambit
@@ -82,12 +86,14 @@ jobs:
     - name: Configure with cmake
       run: |
         echo "Configure with cmake"
+        shopt -s expand_aliases
         alias patch=/scratch2/shared/patch/patch
         cd BUILD
         cmake -DPYTHON_LIBRARY=/usr/lib64/libpython3.9.so -DPYTHON_INCLUDE_DIR=/usr/include/python3.9 -DWITH_MPI=ON -DWITH_HEPMC=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="great" -DEIGEN3_INCLUDE_DIR=/mn/fys-server1/a1/chrichan/Packages/Eigen/eigen3 ..
     - name: Build Backends
       run: |
         echo "Building all Backends"
+        shopt -s expand_aliases
         alias patch=/scratch2/shared/patch/patch
         cd BUILD
         # Build backends, except those that are tested via other jobs.
@@ -117,12 +123,14 @@ jobs:
     - name: Configure with cmake
       run: |
         echo "Configure with cmake"
+        shopt -s expand_aliases
         alias patch=/scratch2/shared/patch/patch
         cd BUILD
         cmake -DPYTHON_LIBRARY=/usr/lib64/libpython3.9.so -DPYTHON_INCLUDE_DIR=/usr/include/python3.9 -DWITH_MPI=ON -DWITH_HEPMC=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="Cosmo;Neutrino;great" -DEIGEN3_INCLUDE_DIR=/mn/fys-server1/a1/chrichan/Packages/Eigen/eigen3 ..
     - name: Build required scanners
       run: |
         echo "Build scanners required for test runs"
+        shopt -s expand_aliases
         alias patch=/scratch2/shared/patch/patch
         cd BUILD
         make -j28 diver
@@ -130,6 +138,7 @@ jobs:
     - name: Build required backends
       run: |
         echo "Building backends required for test runs"
+        shopt -s expand_aliases
         alias patch=/scratch2/shared/patch/patch
         cd BUILD
         make pythia
@@ -146,6 +155,7 @@ jobs:
     - name: Build Gambit
       run: |
         echo "Build GAMBIT."
+        shopt -s expand_aliases
         alias patch=/scratch2/shared/patch/patch
         cd BUILD
         # Now build Gambit
@@ -183,12 +193,14 @@ jobs:
     - name: Configure with cmake
       run: |
         echo "Configure with cmake"
+        shopt -s expand_aliases
         alias patch=/scratch2/shared/patch/patch
         cd BUILD
         cmake -DPYTHON_LIBRARY=/usr/lib64/libpython3.9.so -DPYTHON_INCLUDE_DIR=/usr/include/python3.9 -DWITH_MPI=ON -DWITH_HEPMC=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="great" -DEIGEN3_INCLUDE_DIR=/mn/fys-server1/a1/chrichan/Packages/Eigen/eigen3 ..
     - name: Build standalones
       run: |
         echo "Test the building of the standalones"
+        shopt -s expand_aliases
         alias patch=/scratch2/shared/patch/patch
         cd BUILD
         make standalones
