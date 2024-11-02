@@ -26,10 +26,6 @@ jobs:
         echo "Set up the build environment"
         mkdir -p BUILD
         cd BUILD
-        # Testing...
-        shopt -s expand_aliases
-        alias patch=/scratch2/shared/patch/patch
-        patch --help
     - name: Configure with cmake
       run: |
         echo "Configure with cmake"
