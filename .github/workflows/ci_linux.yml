@@ -9,7 +9,25 @@ on:
     - cron:  '0 5 * * *'
 
 jobs:
+  pre_job:
+    # continue-on-error: true # Uncomment once integration is finished
+    runs-on: [self-hosted, Linux, X64]
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          concurrent_skipping: 'never'
+          skip_after_successful_duplicate: 'true'
+          paths_ignore: '["**/*.md"]'
+          do_not_skip: '["workflow_dispatch", "schedule"]'
+
+
   gambit_build:
+    needs: pre_job
+    if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: [self-hosted, Linux, X64]
     strategy:
       fail-fast: false
@@ -58,7 +76,8 @@ jobs:
 
   backends_build:
     if: ${{ always() }}
-    needs: [gambit_build] # Sets run order
+    needs: [pre_job, gambit_build] # Sets run order
+    if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: [self-hosted, Linux, X64]
     strategy:
       fail-fast: false
@@ -93,7 +112,8 @@ jobs:
 
   test_runs:
     if: ${{ always() }}
-    needs: [gambit_build, backends_build] # Sets run order
+    needs: [pre_job, gambit_build, backends_build] # Sets run order
+    if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: [self-hosted, Linux, X64]
     strategy:
       fail-fast: false
@@ -157,7 +177,8 @@ jobs:
 
   standalones_build:
     if: ${{ always() }}
-    needs: [gambit_build, backends_build, test_runs] # Sets run order
+    needs: [pre_job, gambit_build, backends_build, test_runs] # Sets run order
+    if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: [self-hosted, Linux, X64]
     strategy:
       fail-fast: false
