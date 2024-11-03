@@ -31,7 +31,7 @@ jobs:
         echo "Configure with cmake"
         export PATH=$PATH:/scratch2/shared/patch
         cd BUILD
-        cmake -DPYTHON_LIBRARY=/usr/lib64/libpython3.9.so -DPYTHON_INCLUDE_DIR=/usr/include/python3.9 -DWITH_MPI=ON -DWITH_HEPMC=ON -Ditch="great" -DEIGEN3_INCLUDE_DIR=/mn/fys-server1/a1/chrichan/Packages/Eigen/eigen3 ..
+        cmake -DPYTHON_LIBRARY=/usr/lib64/libpython3.9.so -DPYTHON_INCLUDE_DIR=/usr/include/python3.9 -DSQLite3_INCLUDE_DIR=/scratch2/shared/sqlite/include -DSQLite3_LIBRARY=/scratch2/shared/sqlite/lib/libsqlite3.so -DWITH_MPI=ON -DWITH_HEPMC=ON -Ditch="great" -DEIGEN3_INCLUDE_DIR=/mn/fys-server1/a1/chrichan/Packages/Eigen/eigen3 ..
     - name: Build scanners
       run: |
         echo "Build scanners"
@@ -81,7 +81,7 @@ jobs:
         echo "Configure with cmake"
         export PATH=$PATH:/scratch2/shared/patch
         cd BUILD
-        cmake -DPYTHON_LIBRARY=/usr/lib64/libpython3.9.so -DPYTHON_INCLUDE_DIR=/usr/include/python3.9 -DWITH_MPI=ON -DWITH_HEPMC=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="great" -DEIGEN3_INCLUDE_DIR=/mn/fys-server1/a1/chrichan/Packages/Eigen/eigen3 ..
+        cmake -DPYTHON_LIBRARY=/usr/lib64/libpython3.9.so -DPYTHON_INCLUDE_DIR=/usr/include/python3.9 -DSQLite3_INCLUDE_DIR=/scratch2/shared/sqlite/include -DSQLite3_LIBRARY=/scratch2/shared/sqlite/lib/libsqlite3.so -DWITH_MPI=ON -DWITH_HEPMC=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="great" -DEIGEN3_INCLUDE_DIR=/mn/fys-server1/a1/chrichan/Packages/Eigen/eigen3 ..
     - name: Build Backends
       run: |
         echo "Building all Backends"
@@ -116,7 +116,7 @@ jobs:
         echo "Configure with cmake"
         export PATH=$PATH:/scratch2/shared/patch
         cd BUILD
-        cmake -DPYTHON_LIBRARY=/usr/lib64/libpython3.9.so -DPYTHON_INCLUDE_DIR=/usr/include/python3.9 -DWITH_MPI=ON -DWITH_HEPMC=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="Cosmo;Neutrino;great" -DEIGEN3_INCLUDE_DIR=/mn/fys-server1/a1/chrichan/Packages/Eigen/eigen3 ..
+        cmake -DPYTHON_LIBRARY=/usr/lib64/libpython3.9.so -DPYTHON_INCLUDE_DIR=/usr/include/python3.9 -DSQLite3_INCLUDE_DIR=/scratch2/shared/sqlite/include -DSQLite3_LIBRARY=/scratch2/shared/sqlite/lib/libsqlite3.so -DWITH_MPI=ON -DWITH_HEPMC=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="Cosmo;Neutrino;great" -DEIGEN3_INCLUDE_DIR=/mn/fys-server1/a1/chrichan/Packages/Eigen/eigen3 ..
     - name: Build required scanners
       run: |
         echo "Build scanners required for test runs"
@@ -182,7 +182,7 @@ jobs:
         echo "Configure with cmake"
         export PATH=$PATH:/scratch2/shared/patch
         cd BUILD
-        cmake -DPYTHON_LIBRARY=/usr/lib64/libpython3.9.so -DPYTHON_INCLUDE_DIR=/usr/include/python3.9 -DWITH_MPI=ON -DWITH_HEPMC=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="great" -DEIGEN3_INCLUDE_DIR=/mn/fys-server1/a1/chrichan/Packages/Eigen/eigen3 ..
+        cmake -DPYTHON_LIBRARY=/usr/lib64/libpython3.9.so -DPYTHON_INCLUDE_DIR=/usr/include/python3.9 -DSQLite3_INCLUDE_DIR=/scratch2/shared/sqlite/include -DSQLite3_LIBRARY=/scratch2/shared/sqlite/lib/libsqlite3.so -DWITH_MPI=ON -DWITH_HEPMC=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="great" -DEIGEN3_INCLUDE_DIR=/mn/fys-server1/a1/chrichan/Packages/Eigen/eigen3 ..
     - name: Build standalones
       run: |
         echo "Test the building of the standalones"
