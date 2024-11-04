@@ -43,7 +43,7 @@ Scanner:
   # Here the EggBox likelihood is chosen, but you could choose the
   # EggBox and a gaussian ([EggBox, gaussian]) as defined under
   # the objectives section
-  use_objectives:  EggBox #[EggBox, gaussian]
+  use_objectives:  gaussian #[EggBox, gaussian]
 
   # This tag specifies which plugin to use as the scanner.
   # You can choose any scanner defined in the scanners section below.
@@ -131,6 +131,17 @@ Scanner:
       like: LogLike
       plugin: mh_diffusion
       pkg: gambit_mcmcdiffusion
+      init:
+        nsteps: 40
+        retrains: 15
+        samples_per_retrain: 1250
+        sigma: 1
+        diffusion_prob: 0.6
+        bins: 25
+        noise_width: 0.1
+        beta_1: 0.15
+        beta_2: 0.35
+
 
     ultranest:
       like: LogLike
@@ -354,7 +365,7 @@ Scanner:
       #cov: [[0.01, 0.0], [0.0, 0.01]]
       #mu: [0.5, 0.5]
       parameters:
-        param...20:
+        param...2:
           range: [-5, 5]
 
 

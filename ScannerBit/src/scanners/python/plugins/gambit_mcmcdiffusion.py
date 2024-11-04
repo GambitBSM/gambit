@@ -29,7 +29,7 @@ class MHDiffusion(splug.scanner):
     __plugin_name__ = "mh_diffusion"
 
     def __init__(self,retrains=10,samples_per_retrain=1000,nsteps = 20,sigma = 0.3,
-                 diffusion_prob = 0.5,bins = 20,noise_width = 0.05,beta_1 = 0.1,beta_2 = 0.3, **kwargs):
+                     diffusion_prob = 0.5,bins = 20,noise_width = 0.05,beta_1 = 0.1,beta_2 = 0.3, **kwargs):
 
         super().__init__(use_mpi=False, use_resume=False)
 
@@ -46,15 +46,51 @@ class MHDiffusion(splug.scanner):
             initial_samples.append(np.random.uniform(low = self.low_bound[dim_iter],
                                                      high = self.high_bound[dim_iter],size = initial_sample_size))
         self.initial_samples = np.array(initial_samples).T
+        
         self.retrains = retrains
+        if 'retrains' in self.init_args:
+            self.retrains = self.init_args['retrains']
+            del self.init_args['retrains']
+
         self.samples_per_retrain = samples_per_retrain
+        if 'samples_per_retrain' in self.init_args:
+            self.samples_per_retrain = self.init_args['samples_per_retrain']
+            del self.init_args['samples_per_retrain']
+        
         self.nsteps = nsteps
+        if 'nsteps' in self.init_args:
+            self.nsteps = self.init_args['nsteps']
+            del self.init_args['nsteps']
+        
         self.sigma = sigma
+        if 'sigma' in self.init_args:
+            self.sigma = self.init_args['sigma']
+            del self.init_args['sigma']
+        
         self.diffusion_prob = diffusion_prob
+        if 'diffusion_prob' in self.init_args:
+            self.diffusion_prob = self.init_args['diffusion_prob']
+            del self.init_args['diffusion_prob']
+        
         self.bins = bins
+        if 'bins' in self.init_args:
+            self.bins = self.init_args['bins']
+            del self.init_args['bins']
+        
         self.noise_width = noise_width
+        if 'noise_width' in self.init_args:
+            self.noise_width = self.init_args['noise_width']
+            del self.init_args['noise_width']
+        
         self.beta_1 = beta_1
+        if 'beta_1' in self.init_args:
+            self.beta_1 = self.init_args['beta_1']
+            del self.init_args['beta_1']
+        
         self.beta_2 = beta_2
+        if 'beta_2' in self.init_args:
+            self.beta_2 = self.init_args['beta_2']
+            del self.init_args['beta_2']
 
     def run(self):
         print('Diffusion MCMC Chain Started')
@@ -329,7 +365,6 @@ class DiffusionModel:
         diffusion_samples = np.array(final_samples)
 
         return diffusion_samples,vars
-
 
 __plugins__ = {MHDiffusion.__plugin_name__: MHDiffusion}
 
