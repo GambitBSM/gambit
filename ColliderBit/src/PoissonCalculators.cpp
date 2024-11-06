@@ -1,3 +1,22 @@
+//   GAMBIT: Global and Modular BSM Inference Tool
+//   *********************************************
+///  \file
+///
+///  Functions for working with an unbiased 
+///  Poisson likelihood estimator.
+///
+///  *********************************************
+///
+///  Authors (add name and date if you modify):
+///
+///  \author Chris Chang
+///  \date   2024 Oct
+///
+///  \author Andrew Fowlie
+///  \date   2024 Oct
+///
+///  *********************************************
+
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/ColliderBit/PoissonCalculators.hpp"

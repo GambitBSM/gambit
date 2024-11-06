@@ -1,5 +1,23 @@
-#ifndef LHC_LIKELIHOODS_HPP_
-#define LHC_LIKELIHOODS_HPP_
+//   GAMBIT: Global and Modular BSM Inference Tool
+//   *********************************************
+///  \file
+///
+///  Functions for working with an unbiased 
+///  Poisson likelihood estimator.
+///
+///  *********************************************
+///
+///  Authors (add name and date if you modify):
+///
+///  \author Chris Chang
+///  \date   2024 Oct
+///
+///  \author Andrew Fowlie
+///  \date   2024 Oct
+///
+///  *********************************************
+
+#pragma once
 
 /**
 Unbiased likelihood estimator
@@ -37,5 +55,3 @@ namespace Gambit
     }  // end namespace ideal
   }  // end namespace ColliderBit
 }  // end namespace Gambit
-
-#endif  // LHC_LIKELIHOODS_HPP_

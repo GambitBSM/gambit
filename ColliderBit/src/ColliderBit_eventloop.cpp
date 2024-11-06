@@ -65,7 +65,7 @@ namespace Gambit
 
 
     /// Get the maximum luminosity required for each any analysis in a given collider
-    double GetMaxLumi(std::vector<str>& analyses)
+    double GetMaxLumi(const std::vector<str>& analyses)
     {
       AnalysisContainer Container;
 
