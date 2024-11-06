@@ -83,6 +83,13 @@ namespace Gambit
     /// Virtual calculate(); needs to be redefined in daughters.
     void functor::calculate() {}
 
+    // void functor::base_calculate()
+    // {
+    //   // _Anders
+    //   cout << "DEBUG: base_calculate:" << endl;
+    //   functor::calculate();
+    // }
+
     /// Interfaces for runtime optimization
     /// Need to be implemented by daughters
     /// @{

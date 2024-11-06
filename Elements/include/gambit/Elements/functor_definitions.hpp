@@ -109,6 +109,17 @@ namespace Gambit
       boost::io::ios_flags_saver ifs(cout);        // Don't allow module functions to change the output precision of cout
       int thread_num = omp_get_thread_num();
       init_memory();                               // Init memory if this is the first run through.
+
+      // _Anders
+      std::cerr << "DEBUG: module_functor::calculate: " << origin() << "::" << name() << ": needs_recalculating[0] = " << needs_recalculating[0] << std::endl;
+      // Add Emu logic here:
+      // - How to get access to the model parameter point?
+      //   - Can we directly access the Param map here?
+      // - Check YAML options "use_emulator_predict" and "use_emulator_train"
+      // - If use_emulator_predict = True
+      //   - Send MPI message
+
+
       if (needs_recalculating[thread_num])         // Do the actual calculation if required.
       {
         logger().entering_module(myLogTag);

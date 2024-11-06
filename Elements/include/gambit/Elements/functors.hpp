@@ -141,6 +141,9 @@ namespace Gambit
       /// Virtual calculate(); needs to be redefined in daughters.
       virtual void calculate();
 
+      // // _Anders
+      // void base_calculate();
+
 
       // It may be safer to have some of the following things accessible
       // only to the likelihood wrapper class and/or dependency resolver, i.e. so they cannot be used
