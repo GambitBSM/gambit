@@ -24,8 +24,11 @@ option(WERROR "WERROR" OFF)
 include(CheckCXXCompilerFlag)
 
 macro(set_compiler_warning warning current_flags)
-  CHECK_CXX_COMPILER_FLAG("-W${warning}" CXX_SUPPORTS_${warning})
-  if (CXX_SUPPORTS_${warning})
+  # CHECK_CXX_COMPILER_FLAG seems to have trouble setting the output variable if it has dashes in it
+  # so we replace dash with underscore
+  string(REPLACE "-" "_" warning_nodashes ${warning})
+  CHECK_CXX_COMPILER_FLAG("-W${warning}" CXX_SUPPORTS_${warning_nodashes})
+  if (CXX_SUPPORTS_${warning_nodashes})
     set(${current_flags} "${${current_flags}} -W${warning}")
   endif()
 endmacro()
