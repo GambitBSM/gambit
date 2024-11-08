@@ -8,11 +8,13 @@ on:
 
 jobs:
   sync:
-    runs-on: [self-hosted, macOS, Arm64]
+    # runs-on: [self-hosted, macOS, Arm64]
+    runs-on: [self-hosted, Linux, X64]
     strategy:
       fail-fast: false
       matrix:
-        arch: [Arm64]
+        # arch: [Arm64]
+        arch: [X64]
     defaults:
       run:
         shell: bash -eo pipefail {0}
