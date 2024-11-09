@@ -92,7 +92,12 @@ namespace Gambit
     };
 
     /// Main dependency resolver
+    #ifdef GAMBIT_LIGHT
+    // To avoid compilation warning:
+    class __attribute__ ((visibility("hidden"))) DependencyResolver
+    #else
     class DependencyResolver
+    #endif
     {
       public:
         /// Constructor, provide module and backend functor lists

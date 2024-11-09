@@ -40,7 +40,12 @@ namespace Gambit
 {
 
   /// Master driver class for a GAMBIT scan.
+  #ifdef GAMBIT_LIGHT
+  // To avoid compilation warning:
+  class __attribute__ ((visibility("hidden"))) gambit_core  
+  #else
   class gambit_core
+  #endif
   {
 
   private:

@@ -46,7 +46,12 @@ namespace Gambit
 {
 
   /// Class for collecting pointers to all the likelihood components, then running and combining them.
+  #ifdef GAMBIT_LIGHT
+  // To avoid compilation warning:
+  class __attribute__ ((visibility("hidden"))) Likelihood_Container : public Scanner::Function_Base<double (std::unordered_map<std::string, double> &)>
+  #else
   class Likelihood_Container : public Scanner::Function_Base<double (std::unordered_map<std::string, double> &)>
+  #endif
   {
 
     private:

@@ -61,7 +61,12 @@ namespace Gambit
   {
 
     /// Structure providing some basic info on backend libraries
+    #ifdef GAMBIT_LIGHT
+    // To avoid compilation warning:
+    struct __attribute__ ((visibility("hidden"))) backend_info
+    #else
     struct backend_info
+    #endif
     {
 
       public:
