@@ -53,7 +53,12 @@ namespace Gambit
     reg_elem <factory_type> __scanner_factories__;
   }
 
+  #ifdef GAMBIT_LIGHT
+  // To avoid compilation warning:
+  class __attribute__ ((visibility("hidden"))) Likelihood_Container_Factory : public Scanner::Factory_Base
+  #else
   class Likelihood_Container_Factory : public Scanner::Factory_Base
+  #endif
   {
     private:
       DRes::DependencyResolver &dependencyResolver;
