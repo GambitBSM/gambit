@@ -8,7 +8,7 @@
 #EDIT TP Jul 22nd - using input from GAMBIT to esnure consistency.generate
 
 analyses:
-  - ATLAS_13TeV_EXOT_TT_WbWb_36invfb
+  - ATLAS_EXOT_2016_014
   # - CMS_13TeV_1LEPbb_137invfb
 
 settings:
