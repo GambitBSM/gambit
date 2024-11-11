@@ -154,12 +154,12 @@ namespace Gambit
         /// @note We've dropped the log(n_obs!) terms, since they're expensive and cancel in computing DLL
         const double lambda_j = std::max(n_preds(j), 1e-3); //< manually avoid <= 0 rates
 
-        // Also include the constant log(n_obs!) computation (via Stirling's approx), 
-        // to avoid taking the difference of two very large numbers in the DLL.
-        // @todo Just compute the logfact_n_obs term for each SR once per scan
-        const double logfact_n_obs = (n_obss(j) > 0) ? n_obss(j) * log(n_obss(j)) - n_obss(j) : 0;  
-
-        const double loglike_j = n_obss(j)*log(lambda_j) - lambda_j - logfact_n_obs;
+        // Call the poisson calculator
+        // lambda_j includes both signal + background (hance setting background to zero)
+        // At present can only call the profiling with the MLE estimator. Knowing the separate signal
+        // and background would be necessary if using other estimators
+        // n_mc and n_mc_expected are set to zero as they are not used for the MLE estimator
+        const double loglike_j = calc_poisson_like("MLE", lambda_j, 0.0, n_obss(j), 0, 0);
 
         loglike_tot += loglike_j;
       }
@@ -395,13 +395,6 @@ namespace Gambit
 
       // Sampler for unit-normal nuisances
       std::normal_distribution<double> unitnormdbn(0,1);
-
-      // Log factorial of observed number of events.
-      // Currently use the ln(Gamma(x)) function gsl_sf_lngamma from GSL. (Need continuous function.)
-      // We may want to switch to using Stirling's approximation: ln(n!) ~ n*ln(n) - n
-      Eigen::ArrayXd logfact_n_obss(nSR);
-      for (size_t j = 0; j < nSR; ++j)
-        logfact_n_obss(j) = gsl_sf_lngamma(n_obss(j) + 1);
 
       // Check absolute difference between independent has_and_estimates
       /// @todo Should also implement a check of relative difference

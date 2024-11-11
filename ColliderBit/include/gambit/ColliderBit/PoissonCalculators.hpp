@@ -50,7 +50,7 @@ namespace Gambit
 
       double umvue_poisson_like(int k, double b, int o, int n_mc, double n_exp);
 
-      double mle_poisson_like(int s, int b, int o);
+      double mle_poisson_like(double s, double b, int o);
 
     }  // end namespace ideal
   }  // end namespace ColliderBit

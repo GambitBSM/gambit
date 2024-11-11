@@ -117,9 +117,9 @@ namespace Gambit
       /**
       Regular likelihood estimator
       */
-      double mle_poisson_like(int s, int b, int o)
+      double mle_poisson_like(double s, double b, int o)
       {
-        int sb = s + b;
+        double sb = s + b;
         return o*log(sb) - sb - log_factorial(o);
       }
 

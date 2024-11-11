@@ -116,14 +116,14 @@ namespace Gambit
         // Should we silence stdout during the loop?
         silenceLoop = runOptions->getValueOrDef<bool>(true, "silenceLoop");
 
-        // Retrieve all the names of all entries in the yaml options node.
-        std::vector<str> vec = runOptions->getNames();
-        // Step though the names, and accept only those with a "maxFailedEvents" sub-entry as colliders.
-        for (str& name : vec)
+        // Retrieve all collider names form the YAML options
+        result.collider_names = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), "use_colliders");
+        if ((result.collider_names).size() == 0)
         {
-          YAML::Node node = runOptions->getNode(name);
-          if (not node.IsScalar() and node["maxFailedEvents"]) result.collider_names.push_back(name);
+          ColliderBit_error().set_fatal(true); // This one must regarded fatal since there is something wrong in the user input
+          ColliderBit_error().raise(LOCAL_INFO,"Cannot find any collider names in use_colliders option for operateLHCLoop.". Please correct your YAML file.");
         }
+        
 
         // Retrieve the options for each collider.
         for (auto& collider : result.collider_names)
@@ -154,7 +154,7 @@ namespace Gambit
           max_nEvents[collider]                                           = colOptions.getValueOrDef<int>(10000, "max_nEvents");
           double mean_nEvents                                             = colOptions.getValueOrDef<double>(10000, "mean_nEvents");
           result.ratio_MC_expected[collider]                              = colOptions.getValueOrDef<double>(1.0, "mean_relative_nEvents");
-          result.estimator                                                = colOptions.getValueOrDef<std::string>("MLE", "poisson_estimator"); 
+          result.estimator                                                = colOptions.getValueOrDef<std::string>("MLE", "poisson_like_estimator"); 
 
           // Check that the nEvents options given make sense.
           if (fixed_nEvents and (min_nEvents.at(collider) > max_nEvents.at(collider)) )
@@ -172,12 +172,13 @@ namespace Gambit
             double xsec = xsec_map[collider].xsec();
             mean_nEvents = max_lumi * xsec * result.ratio_MC_expected[collider];
 
-            // Check for zero events
-            if (mean_nEvents == 0)
-            {
-              ColliderBit_error().set_fatal(true);
-              ColliderBit_error().raise(LOCAL_INFO,"Zero events predicted for collider " + collider + ". Perhaps consider a cross-section veto.");
-            }
+            #ifdef COLLIDERBIT_DEBUG
+              // Check for zero events
+              if (mean_nEvents == 0)
+              {
+                cout << DEBUG_PREFIX << "Zero events predicted for collider " + collider + ". Perhaps consider a cross-section veto." << endl;
+              }
+            #endif
           }
 
           result.desired_nEvents[collider]                                = calc_N_MC(result.estimator, mean_nEvents);
