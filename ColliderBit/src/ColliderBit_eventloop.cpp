@@ -121,7 +121,7 @@ namespace Gambit
         if ((result.collider_names).size() == 0)
         {
           ColliderBit_error().set_fatal(true); // This one must regarded fatal since there is something wrong in the user input
-          ColliderBit_error().raise(LOCAL_INFO,"Cannot find any collider names in use_colliders option for operateLHCLoop.". Please correct your YAML file.");
+          ColliderBit_error().raise(LOCAL_INFO,"Cannot find any collider names in use_colliders option for operateLHCLoop. Please correct your YAML file.");
         }
         
 
