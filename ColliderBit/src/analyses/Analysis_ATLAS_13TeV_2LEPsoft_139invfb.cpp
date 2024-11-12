@@ -3,12 +3,19 @@
 ///  \date 2019 June
 ///  \date 2023 Sep
 ///
+///  \author Chris Chang
+///  \date 2024 Nov
+///
 ///  *********************************************
 
 // Based on https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2019-014/
 // Updated by the published paper SUSY-2018-16, https://arxiv.org/abs/1911.12606
 
 // - 139 fb^-1 data
+
+#include "gambit/cmake/cmake_variables.hpp"
+#ifndef EXCLUDE_ROOT
+#ifndef EXCLUDE_RESTFRAMES
 
 #include <vector>
 #include <cmath>
@@ -24,6 +31,9 @@
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
+#include "RestFrames/RestFrames.hh"
+#include "TLorentzVector.h"
+
 using namespace std;
 
 namespace Gambit
@@ -34,6 +44,26 @@ namespace Gambit
     class Analysis_ATLAS_13TeV_2LEPsoft_139invfb : public Analysis
     {
 
+    private:
+
+      unique_ptr<RestFrames::LabRecoFrame>       LAB;
+      unique_ptr<RestFrames::DecayRecoFrame>     CM;
+      unique_ptr<RestFrames::DecayRecoFrame>     S;
+      
+      unique_ptr<RestFrames::VisibleRecoFrame>   ISR;
+      unique_ptr<RestFrames::VisibleRecoFrame>   V;
+      unique_ptr<RestFrames::VisibleRecoFrame>   L;
+
+      unique_ptr<RestFrames::InvisibleRecoFrame> I;
+      unique_ptr<RestFrames::InvisibleGroup>    INV;
+
+      unique_ptr<RestFrames::SetMassInvJigsaw>     INV_Mass;
+      
+      unique_ptr<RestFrames::CombinatoricGroup>   VIS;
+      
+      unique_ptr<RestFrames::MinMassesCombJigsaw> SplitVis;
+      
+      
     public:
 
       // Required detector sim
@@ -43,26 +73,106 @@ namespace Gambit
       Analysis_ATLAS_13TeV_2LEPsoft_139invfb()
       {
 
-        DEFINE_SIGNAL_REGIONS("SR-E-low-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > 5+mll/4", "10 < mTl1 < 60 GeV")
-        DEFINE_SIGNAL_REGIONS("SR-E-med-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV")
-        DEFINE_SIGNAL_REGIONS("SR-E-high-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)")
+        DEFINE_SIGNAL_REGIONS("SR-E-low-ee-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > 5+mll/4", "10 < mTl1 < 60 GeV")
+        DEFINE_SIGNAL_REGIONS("SR-E-low-mumu-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > 5+mll/4", "10 < mTl1 < 60 GeV")
+        DEFINE_SIGNAL_REGIONS("SR-E-low-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > 5+mll/4", "10 < mTl1 < 60 GeV")
+        
+        
+        DEFINE_SIGNAL_REGIONS("SR-E-med-ee-", 4, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV")
+        DEFINE_SIGNAL_REGIONS("SR-E-med-mumu-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV")
+        DEFINE_SIGNAL_REGIONS("SR-E-med-combined-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV")
+        
+        DEFINE_SIGNAL_REGIONS("SR-E-high-ee-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)")
+        DEFINE_SIGNAL_REGIONS("SR-E-high-mumu-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)")
+        DEFINE_SIGNAL_REGIONS("SR-E-high-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)")
+        
         DEFINE_SIGNAL_REGIONS("SR-E-1l1T-", 6, "njets > 0", "MET trigger", "1 lepton and >=1 track", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "MET > 200GeV", "min(DeltaPhi(any jet,MET) > 0.4", "Delta(j1) > 2.0", "0.5 < mltrack < 5GeV", "DeltaRltrack > 0.05", "number of jets >= 1", "leading jet pT > 100 GeV", "MET/HTlep > 30", "Deltaltrack < 1.5", "Lepton pT < 10 GeV", "Track pT < 5 GeV", "DeltaPhi(l,MET) < 1.0", "SF lepton-track pair", "OS lepton-track pair")
+        
         DEFINE_SIGNAL_REGIONS("SR-VBF-low-", 7, "pTl1 > 5", "2 baseline leptons", "2 signal leptons", "MET trigger", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "SF", "OS", "1 < mll < 60 GeV", "veto 3 GeV < mll < 3.2 GeV", "mtautau < 0 or > 160 GeV", "number of b-tagged jets = 0", "leading jet pT > 100 GeV", "pT(j2) > 40 GeV", "met > 200 GeV", "met/HTlep > 2.0", "subleading lepton pT > min(10,2+mll/3)", "mTl1 < 60 GeV", "RVBF < 1.0", "RVBF > max(0.6,0.92-mll/2 GeV)", "etaj1*etaj2 < 0", "mjj > 400 GeV", "Deltaetajj > 2")
         DEFINE_SIGNAL_REGIONS("SR-VBF-high-", 7, "pTl1 > 5", "2 baseline leptons", "2 signal leptons", "MET trigger", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "SF", "OS", "1 < mll < 60 GeV", "veto 3 GeV < mll < 3.2 GeV", "mtautau < 0 or > 160 GeV", "number of b-tagged jets = 0", "leading jet pT > 100 GeV", "pT(j2) > 40 GeV", "met > 200 GeV", "met/HTlep > 2.0", "subleading lepton pT > min(10,2+mll/3)", "mTl1 < 60 GeV", "RVBF < 1.0", "RVBF > max(0.6,0.92-mll/2 GeV)", "etaj1*etaj2 < 0", "mjj > 400 GeV", "Deltaetajj > 2")
-        DEFINE_SIGNAL_REGIONS("SR-S-low-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "150 < met < 200 GeV", "0.8 < RISR < 1.0", "subleading lepton pT > min(15,7.5+0.75*(mT2100-100))")
-        DEFINE_SIGNAL_REGIONS("SR-S-high-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))")
+        
+        DEFINE_SIGNAL_REGIONS("SR-S-low-ee-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "150 < met < 200 GeV", "0.8 < RISR < 1.0", "subleading lepton pT > min(15,7.5+0.75*(mT2100-100))")
+        DEFINE_SIGNAL_REGIONS("SR-S-low-mumu-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "150 < met < 200 GeV", "0.8 < RISR < 1.0", "subleading lepton pT > min(15,7.5+0.75*(mT2100-100))")
+        DEFINE_SIGNAL_REGIONS("SR-S-low-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "150 < met < 200 GeV", "0.8 < RISR < 1.0", "subleading lepton pT > min(15,7.5+0.75*(mT2100-100))")
+        
+        DEFINE_SIGNAL_REGIONS("SR-S-high-ee-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))")
+        DEFINE_SIGNAL_REGIONS("SR-S-high-mumu-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))")
+        DEFINE_SIGNAL_REGIONS("SR-S-high-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))")
 
         set_analysis_name("ATLAS_13TeV_2LEPsoft_139invfb");
         set_luminosity(139);
+        
+        
+        // Recursive jigsaw stuff
+        #pragma omp critical (init_ATLAS_13TeV_2LEPsoft_139invfb)
+        {
+          LAB.reset(new RestFrames::LabRecoFrame("LAB","LAB"));
+          CM.reset(new RestFrames::DecayRecoFrame("CM","CM"));
+          S.reset(new RestFrames::DecayRecoFrame("S","S"));
+          ISR.reset(new RestFrames::VisibleRecoFrame("ISR","ISR"));
+          V.reset(new RestFrames::VisibleRecoFrame("V","V"));
+          L.reset(new RestFrames::VisibleRecoFrame("L","L"));
+          I.reset(new RestFrames::InvisibleRecoFrame("I","I"));
+          
+          INV.reset(new RestFrames::InvisibleGroup("INV","INV"));
+          INV_Mass.reset(new RestFrames::SetMassInvJigsaw("INV_Mass", "INV_Mass"));
+          
+          VIS.reset(new RestFrames::CombinatoricGroup("VIS","VIS"));
+          SplitVis.reset(new RestFrames::MinMassesCombJigsaw("SplitVis", "SplitVis"));
+          
+          LAB->SetChildFrame(*CM);
+          CM->AddChildFrame(*ISR);
+          CM->AddChildFrame(*S);
+          S->AddChildFrame(*V);
+          S->AddChildFrame(*I);
+          S->AddChildFrame(*L);
+          
+          
+
+
+          if(!LAB->InitializeTree())
+          {
+            str errmsg;
+            errmsg  = "Some problem occurred when calling LAB->InitializeTree() from the Analysis_ATLAS_13TeV_2LEPsoft_139invfb analysis class.\n";
+            piped_errors.request(LOCAL_INFO, errmsg);
+          }
+          
+          
+
+
+          //////////////////////////////
+          //Setting the invisible
+          //////////////////////////////
+          INV->AddFrame(*I);
+          
+          VIS->AddFrame(*ISR);
+          VIS->SetNElementsForFrame(*ISR, 1, false);
+          VIS->AddFrame(*V);
+          VIS->SetNElementsForFrame(*V, 0, false);
+          
+          INV->AddJigsaw(*INV_Mass);
+          
+          VIS->AddJigsaw(*SplitVis);
+          
+          SplitVis->AddFrame(*ISR,0);
+          
+          SplitVis->AddFrame(*V,1);
+          SplitVis->AddFrame(*I,1);
+          SplitVis->AddFrame(*L,1);
+          
+          if(!LAB->InitializeAnalysis())
+          {
+            str errmsg;
+            errmsg  = "Some problem occurred when calling LAB->InitializeAnalysis() from the Analysis_ATLAS_13TeV_2LEPsoft_139invfb analysis class.\n";
+            piped_errors.request(LOCAL_INFO, errmsg);
+          }
+        }
+        
         
       }
 
       void run(const HEPUtils::Event* event)
       {
-
-        // TODO: Chris Chang: Debugging
-        static int event_number = 0.0;
-        event_number++;
 
         // Missing momentum and energy
         double met = event->met();
@@ -80,7 +190,7 @@ namespace Gambit
         // Electrons are required to have pT > 4.5 GeV and |η| < 2.47.
         // There is no VeryLoose criterium in 1908.00005, so using Loose
         BASELINE_PARTICLES(event->electrons(), preselectedElectrons, 4.5, 0, DBL_MAX, 2.47)
-        applyEfficiency(preselectedElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Loose"));
+        applyEfficiency(preselectedElectrons, ATLAS::eff1DEl.at("ATLAS_SUSY_2018_16"), /* bin_pT*/ true);
         
         // Preselected electrons are further required to pass the calorimeter-
         // and tracking-based VeryLoose likelihood identification (arXiv:1902.04655),
@@ -96,17 +206,8 @@ namespace Gambit
         // Missing: No impact parameter info
 
         BASELINE_PARTICLES(event->muons(), preselectedMuons, 3.0, 0, DBL_MAX, 2.5)
-        applyEfficiency(preselectedMuons, ATLAS::eff1DMu.at("ATLAS_PHYS_PUB_2020_002_LowPT"), false);
+        applyEfficiency(preselectedMuons, ATLAS::eff1DMu.at("ATLAS_SUSY_2018_16"), /* bin_pT*/ true);
         
-
-        // TODO: Chris CHang: Note sure why this was here, It was not being used
-        //static int npresleptons = 0;
-        //if(preselectedElectrons.size() + preselectedMuons.size() >= 2) npresleptons++;
-
-        // Preselected leptons
-        //BASELINE_PARTICLE_COMBINATION(preselectedLeptons, preselectedElectrons, preselectedMuons)
-        //size_t nBaselineLeptons = preselectedLeptons.size();
-
         // Preselected tracks with pT > 500 MeV and η < 2.5
         // Signal tracks are required to be within ∆R = 0.01 of a reconstructed electron or muon candidate.
         // Electron (muon) candidates can be reconstructed with transverse momenta as low as 1 (2) GeV, 
@@ -114,11 +215,23 @@ namespace Gambit
         // We do not really have tracks, so for our purposes, signal tracks are just leptons
         // down to 500 MeV that are not signal leptons.
         // First select the preselected tracks and we'll compare to signal leptons later
-        //BASELINE_PARTICLE_COMBINATION(preselectedTracks, event->electrons(), event->muons(), 0.5, 0, DBL_MAX, 2.5)
-        BASELINE_PARTICLE_COMBINATION(preselectedElectronTracks_without_pt_upperlimit, event->electrons(), event->muons(), 0.5, 0, 4.5, 2.5)
-        BASELINE_PARTICLE_COMBINATION(preselectedMuonTracks_without_pt_upperlimit, event->electrons(), event->muons(), 0.5, 0, 3.0, 2.5)
-        BASELINE_PARTICLE_COMBINATION(preselectedTracks, preselectedElectrons, preselectedMuons) // TODO: Chris Chang: Adding in a pT upper limit based on failing the requirement of being a signal electron/muon to see if this is the cause of the difference with CB and HA. TODO: Not strictly correct since you can have a higher pT, but an abseta between 2.47 and 2.5
-        applyEfficiency(preselectedTracks, ATLAS::eff2DTrack.at("ATL_PHYS_PUB_2015_051_Tight_Primary"));
+        std::vector<const HEPUtils::Particle*> preselectedTracks;
+        for (const HEPUtils::Particle* e : event->electrons())
+        {
+          if (e->pT() > 0.5 && e->pT() < 4.5 && e->abseta() < 2.5) preselectedTracks.push_back(e);
+        }
+        
+        for (const HEPUtils::Particle* mu : event->electrons())
+        {
+          if (mu->pT() > 0.5 && mu->pT() < 3.0 && mu->abseta() < 2.5) preselectedTracks.push_back(mu);
+        }
+        
+        // Apply Track Efficiency (Figure 3 of 1911.12606)
+        applyEfficiency(preselectedTracks, ATLAS::eff1DTrack.at("ATLAS_SUSY_2018_16_isolated_track"), /* use pT bins*/ true);
+        
+        
+
+
 
         // Preselected jets are reconstructed from calorimeter topological energy clusters [105]
         // in the region |η| < 4.5 using the anti-kt algorithm [106, 107]
@@ -198,49 +311,11 @@ namespace Gambit
         // Signal electrons are further refined using the Gradient isolation working point (arXiv:1902.04655),
         // which uses both tracking and calorimeter information.
         // Missing: No impact parameter info
+        // All Electron Efficiency is covered in the preselected Electrons
         SIGNAL_PARTICLES(preselectedElectrons, signalElectrons)
-        applyEfficiency(signalElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Medium"));
-        applyEfficiency(signalElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Iso_Gradient"));
 
-        // Signal muons are required to pass the FCTightTrackOnly isolation working point,
-        // which uses only tracking information.
-        // Missing: No tracking information
-        std::vector<const HEPUtils::Particle*> signalMuons;
-
-        // There is no tabulated FCTightTrackOnly efficiency, so try implementing a substitute isolation criterium
-        for(auto &muon: preselectedMuons)
-        {
-          // Compute the pTvarcone30 variable, defined as the scalar sum of the transverse momenta
-          // of the tracks with pT >1 GeV in a cone of size ∆R = min(10 GeV/pTmu, 0.3) around the muon of transverse 
-          // momentum pTmu, excluding the muon track itself
-          /*
-          double pTvarcone30 = 0.;
-          for(auto &track: preselectedLeptons)
-          {
-            if(track != muon and track->pT() > 1. and track->mom().deltaR_eta(muon->mom()) < min(10/muon->pT(), 0.3))
-              pTvarcone30 += track->pT();
-          }
-          // Now build signalMuons from preselectedMuons that satisfy the FCTightTrackOnly isolation criterium
-          if(pTvarcone30/muon->pT() > 0.06)
-            signalMuons.push_back(muon);
-            
-          if (event_number == 26) // TODO: Chris Chang Debugging
-          {
-            std::cout << "pTvarcone30: " << pTvarcone30 << std::endl;
-            std::cout << " muon->pT(): " << muon->pT() << std::endl;
-          }
-          */
-          
-          // TODO: Chris Chang: Testing instead to use the HA muon efficiencies
-          double x,x2,x3,x4,muon_eff;
-          x=muon->pT();
-          x2=x*x;
-          x3=x*x2;
-          x4=x*x3;
-          muon_eff = 0.98 - 55.2473/x4 - 19.5118/x3 + 18.6462/x2 - 3.8107/x;
-          if (random_bool(muon_eff)) signalMuons.push_back(muon);
-          
-        }
+        // All Muon Efficiency is covered in the preselected muons
+        SIGNAL_PARTICLES(preselectedMuons, signalMuons)
 
         // Signal leptons
         SIGNAL_PARTICLE_COMBINATION(signalLeptons, signalElectrons, signalMuons)
@@ -370,24 +445,6 @@ namespace Gambit
         // Invariant mass
         double mll = nSignalParticles > 1 ? (signalParticles.at(0)->mom() + signalParticles.at(1)->mom() ).m() : 0.;
 
-        /*
-        if (event_number == 26) // TODO: Chris Chang Debugging
-        {
-          std::cout << "preselectedElectrons.size(): " << preselectedElectrons.size() << std::endl;
-          std::cout << "preselectedMuons.size(): " << preselectedMuons.size() << std::endl;
-          std::cout << "nSignalLeptons: " << nSignalLeptons << std::endl;
-          std::cout << "met: " << met << std::endl;
-          std::cout << "mll: " << mll << std::endl;
-          exit(0);
-        }
-        else if (event_number > 26)
-        {
-          std::cout << "did not hit this check\n";
-          exit(0);
-        }
-        */
-
-
         // HTlep
         double metOverHTlep = nSignalParticles > 1 ? met/(signalParticles.at(0)->pT() + signalParticles.at(1)->pT()) : 0.;
 
@@ -468,11 +525,21 @@ namespace Gambit
         // std::cerr << std::endl;
 
 
-        LOG_CUTS_N(preselection_2l, "SR-E-low-", 8)
-        LOG_CUTS_N(preselection_2l, "SR-E-med-", 6)
-        LOG_CUTS_N(preselection_2l, "SR-E-high-", 8)
-        LOG_CUTS_N(preselection_2l, "SR-S-low-", 8)
-        LOG_CUTS_N(preselection_2l, "SR-S-high-", 8)
+        LOG_CUTS_N(preselection_2l, "SR-E-low-ee-", 6)
+        LOG_CUTS_N(preselection_2l, "SR-E-low-mumu-", 8)
+        LOG_CUTS_N(preselection_2l, "SR-E-low-combined-", 8)
+        LOG_CUTS_N(preselection_2l, "SR-E-med-ee-", 4)
+        LOG_CUTS_N(preselection_2l, "SR-E-med-mumu-", 6)
+        LOG_CUTS_N(preselection_2l, "SR-E-med-combined-", 6)
+        LOG_CUTS_N(preselection_2l, "SR-E-high-ee-", 6)
+        LOG_CUTS_N(preselection_2l, "SR-E-high-mumu-", 8)
+        LOG_CUTS_N(preselection_2l, "SR-E-high-combined-", 8)
+        LOG_CUTS_N(preselection_2l, "SR-S-low-ee-", 6)
+        LOG_CUTS_N(preselection_2l, "SR-S-low-mumu-", 8)
+        LOG_CUTS_N(preselection_2l, "SR-S-low-combined-", 8)
+        LOG_CUTS_N(preselection_2l, "SR-S-high-ee-", 6)
+        LOG_CUTS_N(preselection_2l, "SR-S-high-mumu-", 8)
+        LOG_CUTS_N(preselection_2l, "SR-S-high-combined-", 8)
 
         // Preselection cuts for 2l VBF regions
         std::vector<bool> preselection_2l_VBF = { (nSignalLeptons > 0 && signalLeptons.at(0)->pT() > 5.),
@@ -533,23 +600,57 @@ namespace Gambit
          mTl1 = sqrt(signalLeptons.at(0)->mom().m2() + 2.0*v1_mt*ptot.pT() - 2.0*signalLeptons.at(0)->mom().pT()*ptot.pT()*cos(signalLeptons.at(0)->mom().deltaPhi(ptot)));
         }
 
-        // MTS variable
-        // TODO: This should be a RJ variable. It's done like this for simplicity but it needs to be looked into
-        // TODO: Chris Chang. This section was commented out, I am testing the cutflow with it on
-        double MTS = 0.0;
-        if (nSignalLeptons > 1)
-        {
-          P4 PS = ptot + signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom();
-          MTS = sqrt(PS.m2() + PS.px2() + PS.py2());
-        }
 
-        // RISR variable
-        // TODO: This should be a RJ variable. It's done like this for simplicity but it needs to be looked into
-        // TODO: Chris Chang. This section was commented out, I am testing the cutflow with it on
-        double RISR = 1.0;
+        //---------------------
+        // RJR Variables
+        // -------------------
+        double Pt_ISR = 0.0; 
+        double RISR = 0.0;
+        double MTS = 0.0;
+        
+        // Only calculate RJR variables in the case that there is at least 1 signal jet, this will also cover the VBF case
         if (nSignalJets > 0)
         {
-          RISR = met / signalJets.at(0)->pT();
+          LAB->ClearEvent();
+
+          vector<RestFrames::RFKey> jetID;
+          for (const auto jet : signalJets)
+          {
+            TLorentzVector jetmom;
+            jetmom.SetPtEtaPhiM((jet->mom()).pT(),0.0,(jet->mom()).phi(),(jet->mom()).m());
+            jetID.push_back(VIS->AddLabFrameFourVector(jetmom));
+          }
+          //HEPUtils::P4 lepSys(0.,0.,0.,0.);
+          TLorentzVector lepSys(0.,0.,0.,0.);
+          for(const auto lep1 : signalLeptons)
+          {
+            TLorentzVector tmom;
+            //HEPUtils::P4 lepmom=lep1->mom();
+            //tmom.setEtaPhiMPt(0.0,tmom.phi(),tmom.m(),tmom.pT());
+            tmom.SetPtEtaPhiM((lep1->mom()).pT(),0.0,(lep1->mom()).phi(),(lep1->mom()).m());
+            lepSys = lepSys + tmom;
+          }
+          L->SetLabFrameFourVector(lepSys);
+          TLorentzVector metVec;
+          metVec.SetPtEtaPhiM(ptot.pT(),ptot.eta(),ptot.phi(),ptot.m());
+          TVector3 met3Vec = metVec.Vect();
+          met3Vec.SetZ(0.0);
+          INV->SetLabFrameThreeVector(met3Vec);
+
+
+           if (!LAB->AnalyzeEvent())
+           {
+             str errmsg;
+             errmsg  = "Some problem occurred when calling LAB->AnalyzeEvent() from the Analysis_ATLAS_13TeV_2LEPsoft_139invfb analysis class.\n";
+             piped_warnings.request(LOCAL_INFO, errmsg);
+             return;
+           }
+
+          TVector3 v_P_ISR = ISR->GetFourVector(*CM).Vect();
+          TVector3 v_P_I   = I->GetFourVector(*CM).Vect();
+          Pt_ISR = v_P_ISR.Mag();
+          RISR = fabs(v_P_I.Dot(v_P_ISR.Unit())) / Pt_ISR;
+          MTS = S->GetMass();
         }
 
 
@@ -560,17 +661,43 @@ namespace Gambit
                                             nSignalLeptons > 1 && signalLeptons.at(1)->pT() > 5. + mll/4.,
                                             mTl1 >= 10. && mTl1 <= 60
                                           };
-        if (Utils::all_of(preselection_2l)) { LOG_CUTS_N(cuts_2l_e_low, "SR-E-low-", 8) }
+        if (Utils::all_of(preselection_2l))
+        {
+          LOG_CUTS_N(cuts_2l_e_low, "SR-E-low-ee-", 6)
+          LOG_CUTS_N(cuts_2l_e_low, "SR-E-low-mumu-", 8)
+          LOG_CUTS_N(cuts_2l_e_low, "SR-E-low-combined-", 8)
+        }
         if (Utils::all_of(preselection_2l) && Utils::all_of(cuts_2l_e_low))
         {
-           if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-low-1") }
-           else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-low-2") }
-           else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-low-3") }
-           else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-low-4") }
-           else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-low-5") }
-           else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-low-6") }
-           else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-low-7") }
-           else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-low-8") }
+          if (electron_pair)
+          {
+            if (mll > 3.2 && mll <= 5)      { FILL_SIGNAL_REGION("SR-E-low-ee-1") }
+            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-low-ee-2") }
+            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-low-ee-3") }
+            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-low-ee-4") }
+            else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-low-ee-5") }
+            else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-low-ee-6") }
+          }
+          else if (muon_pair)
+          {
+            if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-low-mumu-1") }
+            else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-low-mumu-2") }
+            else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-low-mumu-3") }
+            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-low-mumu-4") }
+            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-low-mumu-5") }
+            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-low-mumu-6") }
+            else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-low-mumu-7") }
+            else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-low-mumu-8") }
+          }
+          
+          if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-low-combined-1") }
+          else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-low-combined-2") }
+          else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-low-combined-3") }
+          else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-low-combined-4") }
+          else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-low-combined-5") }
+          else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-low-combined-6") }
+          else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-low-combined-7") }
+          else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-low-combined-8") }
         }
 
         // SR-E-med
@@ -578,15 +705,36 @@ namespace Gambit
                                             metOverHTlep > 10.,
                                             MTS < 50.
                                           };
-        if (Utils::all_of(preselection_2l)) { LOG_CUTS_N(cuts_2l_e_med, "SR-E-med-", 6) }
+        if (Utils::all_of(preselection_2l))
+        {
+          LOG_CUTS_N(cuts_2l_e_med, "SR-E-med-ee-", 4)
+          LOG_CUTS_N(cuts_2l_e_med, "SR-E-med-mumu-", 6)
+          LOG_CUTS_N(cuts_2l_e_med, "SR-E-med-combined-", 6)
+        }
         if (Utils::all_of(preselection_2l) && Utils::all_of(cuts_2l_e_med))
         {
-           if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-med-1") }
-           else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-med-2") }
-           else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-med-3") }
-           else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-med-4") }
-           else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-med-5") }
-           else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-med-6") }
+          if (electron_pair)
+          {
+            if (mll > 3.2 && mll <= 5)      { FILL_SIGNAL_REGION("SR-E-med-ee-1") }
+            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-med-ee-2") }
+            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-med-ee-3") }
+            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-med-ee-4") }
+          }
+          else if (muon_pair)
+          {
+            if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-med-mumu-1") }
+            else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-med-mumu-2") }
+            else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-med-mumu-3") }
+            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-med-mumu-4") }
+            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-med-mumu-5") }
+            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-med-mumu-6") }
+          }
+          if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-med-combined-1") }
+          else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-med-combined-2") }
+          else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-med-combined-3") }
+          else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-med-combined-4") }
+          else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-med-combined-5") }
+          else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-med-combined-6") }
         }
 
         // SR-E-high
@@ -595,17 +743,42 @@ namespace Gambit
                                              RISR >= max(0.85, 0.98 - 0.02*mll) && RISR <= 1.0,
                                              nSignalLeptons > 1 && signalLeptons.at(1)->pT() > min(10., 2.+mll/3)
                                            };
-        if (Utils::all_of(preselection_2l)) { LOG_CUTS_N(cuts_2l_e_high, "SR-E-high-", 8) }
+        if (Utils::all_of(preselection_2l))
+        {
+          LOG_CUTS_N(cuts_2l_e_high, "SR-E-high-ee-", 6)
+          LOG_CUTS_N(cuts_2l_e_high, "SR-E-high-mumu-", 8)
+          LOG_CUTS_N(cuts_2l_e_high, "SR-E-high-combined-", 8)
+        }
         if (Utils::all_of(preselection_2l) && Utils::all_of(cuts_2l_e_high))
         {
-           if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-high-1") }
-           else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-high-2") }
-           else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-high-3") }
-           else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-high-4") }
-           else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-high-5") }
-           else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-high-6") }
-           else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-high-7") }
-           else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-high-8") }
+          if (electron_pair)
+          {
+            if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-high-ee-1") }
+            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-high-ee-2") }
+            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-high-ee-3") }
+            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-high-ee-4") }
+            else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-high-ee-5") }
+            else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-high-ee-6") }
+          }
+          else if (muon_pair)
+          {
+            if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-high-mumu-1") }
+            else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-high-mumu-2") }
+            else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-high-mumu-3") }
+            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-high-mumu-4") }
+            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-high-mumu-5") }
+            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-high-mumu-6") }
+            else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-high-mumu-7") }
+            else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-high-mumu-8") }
+          }
+          if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-high-combined-1") }
+          else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-high-combined-2") }
+          else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-high-combined-3") }
+          else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-high-combined-4") }
+          else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-high-combined-5") }
+          else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-high-combined-6") }
+          else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-high-combined-7") }
+          else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-high-combined-8") }
         }
 
         // SR-E-1l1T
@@ -642,7 +815,7 @@ namespace Gambit
 
 
         // RVBF variable
-        // TODO: This should be a RJ variable. It's done like this for simplicity but it needs to be looked into
+        // TODO: This RJ variable has not been coded up in RestFrames format yet
         double RVBF = RISR;
 
         // mjj variable
@@ -657,7 +830,6 @@ namespace Gambit
 
 
         // SR-VBF-low
-        // TODO: MET cut differs from paper (150) and cutflow (200), going with cutflow for now
         // TODO: Lower limit on RVBF differs from paper (max(0.6, 0.92-mll/60))
         //       and cutflow (max(0.6, 0.92-mll/2)), going with cutflow for now
         std::vector<bool> cuts_2l_VBF = { (nSignalVBFJets > 1 && signalVBFJets.at(1)->pT() > 40.),
@@ -726,17 +898,45 @@ namespace Gambit
                                             RISR >= 0.8 && RISR <= 1.0,
                                             nSignalLeptons > 1 &&signalLeptons.at(1)->pT() > min(15., 7.5 + 0.75*(mT2100-100.))
                                           };
-        if (Utils::all_of(preselection_2l)) { LOG_CUTS_N(cuts_2l_s_low, "SR-S-low-", 8) }
+        if (Utils::all_of(preselection_2l))
+        {
+          LOG_CUTS_N(cuts_2l_s_low, "SR-S-low-ee-", 8)
+          LOG_CUTS_N(cuts_2l_s_low, "SR-S-low-mumu-", 8)
+          LOG_CUTS_N(cuts_2l_s_low, "SR-S-low-combined-", 8)
+        }
         if (Utils::all_of(preselection_2l) && Utils::all_of(cuts_2l_s_low))
         {
-          if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-low-1") }
-          else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-low-2") }
-          else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-low-3") }
-          else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-low-4") }
-          else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-low-5") }
-          else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-low-6") }
-          else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-low-7") }
-          else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-low-8") }
+          if (electron_pair)
+          {
+            if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-low-ee-1") }
+            else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-low-ee-2") }
+            else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-low-ee-3") }
+            else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-low-ee-4") }
+            else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-low-ee-5") }
+            else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-low-ee-6") }
+            else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-low-ee-7") }
+            else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-low-ee-8") }
+          }
+          else if (muon_pair)
+          {
+            if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-low-mumu-1") }
+            else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-low-mumu-2") }
+            else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-low-mumu-3") }
+            else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-low-mumu-4") }
+            else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-low-mumu-5") }
+            else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-low-mumu-6") }
+            else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-low-mumu-7") }
+            else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-low-mumu-8") }
+          }
+          
+          if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-low-combined-1") }
+          else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-low-combined-2") }
+          else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-low-combined-3") }
+          else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-low-combined-4") }
+          else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-low-combined-5") }
+          else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-low-combined-6") }
+          else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-low-combined-7") }
+          else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-low-combined-8") }
         }
 
         // SR-S-high
@@ -744,17 +944,44 @@ namespace Gambit
                                              RISR >= max(0.85, 0.98 - 0.02*(mT2100 - 100.)) && RISR <= 1.0,
                                              nSignalLeptons > 1 && signalLeptons.at(1)->pT() > min(20., 2.5+2.5*(mT2100-100.))
                                            };
-        if (Utils::all_of(preselection_2l)) { LOG_CUTS_N(cuts_2l_s_high, "SR-S-high-", 8) }
+        if (Utils::all_of(preselection_2l))
+        {
+          LOG_CUTS_N(cuts_2l_s_high, "SR-S-high-ee-", 8)
+          LOG_CUTS_N(cuts_2l_s_high, "SR-S-high-mumu-", 8)
+          LOG_CUTS_N(cuts_2l_s_high, "SR-S-high-combined-", 8)
+        }
         if (Utils::all_of(preselection_2l) && Utils::all_of(cuts_2l_s_high))
         {
-          if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-high-1") }
-          else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-high-2") }
-          else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-high-3") }
-          else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-high-4") }
-          else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-high-5") }
-          else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-high-6") }
-          else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-high-7") }
-          else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-high-8") }
+          if (electron_pair)
+          {
+            if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-high-ee-1") }
+            else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-high-ee-2") }
+            else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-high-ee-3") }
+            else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-high-ee-4") }
+            else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-high-ee-5") }
+            else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-high-ee-6") }
+            else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-high-ee-7") }
+            else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-high-ee-8") }
+          }
+          else if (muon_pair)
+          {
+            if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-high-mumu-1") }
+            else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-high-mumu-2") }
+            else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-high-mumu-3") }
+            else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-high-mumu-4") }
+            else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-high-mumu-5") }
+            else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-high-mumu-6") }
+            else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-high-mumu-7") }
+            else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-high-mumu-8") }
+          }
+          if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-high-combined-1") }
+          else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-high-combined-2") }
+          else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-high-combined-3") }
+          else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-high-combined-4") }
+          else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-high-combined-5") }
+          else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-high-combined-6") }
+          else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-high-combined-7") }
+          else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-high-combined-8") }
         }
       }
 
@@ -762,35 +989,76 @@ namespace Gambit
       virtual void collect_results()
       {
         // SR-E-low observed and background events, from Table 11 of 1911.12606
-        // Combined ee and mumu SR data
-        COMMIT_SIGNAL_REGION("SR-E-low-1", 9., 15.4, 2.4)
-        COMMIT_SIGNAL_REGION("SR-E-low-2", 7., 8.0, 1.7)
-        COMMIT_SIGNAL_REGION("SR-E-low-3", 7.+7., 5.3+6.5, 1.5+1.6)
-        COMMIT_SIGNAL_REGION("SR-E-low-4", 11.+12., 8.6+11.3, 1.8+1.9)
-        COMMIT_SIGNAL_REGION("SR-E-low-5", 16.+17., 16.7+15.6, 2.5+2.3)
-        COMMIT_SIGNAL_REGION("SR-E-low-6", 16.+18., 15.5+16.7, 2.6+2.3)
-        COMMIT_SIGNAL_REGION("SR-E-low-7", 10.+16., 12.9+15.3, 2.1+2.0)
-        COMMIT_SIGNAL_REGION("SR-E-low-8", 9.+44., 18.8+35.9, 2.2+3.3)
+        COMMIT_SIGNAL_REGION("SR-E-low-ee-1", 7., 5.3, 1.5)
+        COMMIT_SIGNAL_REGION("SR-E-low-ee-2", 11., 8.6, 1.8)
+        COMMIT_SIGNAL_REGION("SR-E-low-ee-3", 16., 16.7, 2.5)
+        COMMIT_SIGNAL_REGION("SR-E-low-ee-4", 16., 15.5, 2.6)
+        COMMIT_SIGNAL_REGION("SR-E-low-ee-5", 10., 12.9, 2.1)
+        COMMIT_SIGNAL_REGION("SR-E-low-ee-6", 9., 18.8, 2.2)
+        
+        COMMIT_SIGNAL_REGION("SR-E-low-mumu-1", 9., 15.4, 2.4)
+        COMMIT_SIGNAL_REGION("SR-E-low-mumu-2", 7., 8.0, 1.7)
+        COMMIT_SIGNAL_REGION("SR-E-low-mumu-3", 7., 6.5, 1.6)
+        COMMIT_SIGNAL_REGION("SR-E-low-mumu-4", 12., 11.3, 1.9)
+        COMMIT_SIGNAL_REGION("SR-E-low-mumu-5", 17., 15.6, 2.3)
+        COMMIT_SIGNAL_REGION("SR-E-low-mumu-6", 18., 16.7, 2.3)
+        COMMIT_SIGNAL_REGION("SR-E-low-mumu-7", 16., 15.3, 2.0)
+        COMMIT_SIGNAL_REGION("SR-E-low-mumu-8", 44., 35.9, 3.3)
+        
+        COMMIT_SIGNAL_REGION("SR-E-low-combined-1", 9., 15.4, 2.4)
+        COMMIT_SIGNAL_REGION("SR-E-low-combined-2", 7., 8.0, 1.7)
+        COMMIT_SIGNAL_REGION("SR-E-low-combined-3", 7.+7., 5.3+6.5, sqrt(1.5*1.5 + 1.6*1.6))
+        COMMIT_SIGNAL_REGION("SR-E-low-combined-4", 11.+12., 8.6+11.3, sqrt(1.8*1.8 + 1.9*1.9))
+        COMMIT_SIGNAL_REGION("SR-E-low-combined-5", 16.+17., 16.7+15.6, sqrt(2.5*2.5 + 2.3*2.3))
+        COMMIT_SIGNAL_REGION("SR-E-low-combined-6", 16.+18., 15.5+16.7, sqrt(2.6*2.6 + 2.3*2.3))
+        COMMIT_SIGNAL_REGION("SR-E-low-combined-7", 10.+16., 12.9+15.3, sqrt(2.1*2.1 + 2.0*2.0))
+        COMMIT_SIGNAL_REGION("SR-E-low-combined-8", 9.+44., 18.8+35.9, sqrt(2.2*2.2 + 3.3*3.3))
 
         // SR-E-med observed and background events, from Table 11 of 1911.12606
-        // Combined ee and mumu SR data
-        COMMIT_SIGNAL_REGION("SR-E-med-1", 16., 14.6, 2.9)
-        COMMIT_SIGNAL_REGION("SR-E-med-2", 8., 6.9, 2.1)
-        COMMIT_SIGNAL_REGION("SR-E-med-3", 6.+0., 6.2+0.11, 1.9+0.08)
-        COMMIT_SIGNAL_REGION("SR-E-med-4", 41.+4., 34.+5.1, 4.+1.6)
-        COMMIT_SIGNAL_REGION("SR-E-med-5", 59.+11., 52.+7.3, 6.+1.9)
-        COMMIT_SIGNAL_REGION("SR-E-med-6", 21.+4., 18.5+2.2, 3.2+0.9)
+        COMMIT_SIGNAL_REGION("SR-E-med-ee-1", 6., 6.2, 1.9)
+        COMMIT_SIGNAL_REGION("SR-E-med-ee-2", 41., 34., 4.)
+        COMMIT_SIGNAL_REGION("SR-E-med-ee-3", 59., 52., 6.)
+        COMMIT_SIGNAL_REGION("SR-E-med-ee-4", 21., 18.5, 3.2)
+        
+        COMMIT_SIGNAL_REGION("SR-E-med-mumu-1", 16., 14.6, 2.9)
+        COMMIT_SIGNAL_REGION("SR-E-med-mumu-2", 8., 6.9, 2.1)
+        COMMIT_SIGNAL_REGION("SR-E-med-mumu-3", 0., 0.11, 0.08)
+        COMMIT_SIGNAL_REGION("SR-E-med-mumu-4", 4., 5.1, 1.6)
+        COMMIT_SIGNAL_REGION("SR-E-med-mumu-5", 11., 7.3, 1.9)
+        COMMIT_SIGNAL_REGION("SR-E-med-mumu-6", 4., 2.2, 0.9)
+        
+        COMMIT_SIGNAL_REGION("SR-E-med-combined-1", 16., 14.6, 2.9)
+        COMMIT_SIGNAL_REGION("SR-E-med-combined-2", 8., 6.9, 2.1)
+        COMMIT_SIGNAL_REGION("SR-E-med-combined-3", 6.+0., 6.2+0.11, sqrt(1.9*1.9 + 0.08*0.08))
+        COMMIT_SIGNAL_REGION("SR-E-med-combined-4", 41.+4., 34.+5.1, sqrt(4.*4. + 1.6*1.6))
+        COMMIT_SIGNAL_REGION("SR-E-med-combined-5", 59.+11., 52.+7.3, sqrt(6.*6. + 1.9*1.9))
+        COMMIT_SIGNAL_REGION("SR-E-med-combined-6", 21.+4., 18.5+2.2, sqrt(3.2*3.2 + 0.9*0.9))
 
         // SR-E-high observed and background events, from Table 11 of 1911.12606
-        // Combined ee and mumu SR data
-        COMMIT_SIGNAL_REGION("SR-E-high-1", 5., 3.4, 1.2)
-        COMMIT_SIGNAL_REGION("SR-E-high-2", 5., 3.5, 1.3)
-        COMMIT_SIGNAL_REGION("SR-E-high-3", 0.+1., 3.9+0.7, 1.3+0.4)
-        COMMIT_SIGNAL_REGION("SR-E-high-4", 9.+16., 11.0+10.3, 2.0+2.5)
-        COMMIT_SIGNAL_REGION("SR-E-high-5", 23.+13., 17.8+12.1, 2.7+2.2)
-        COMMIT_SIGNAL_REGION("SR-E-high-6", 3.+8., 8.3+10.1, 1.4+1.7)
-        COMMIT_SIGNAL_REGION("SR-E-high-7", 5.+8., 10.1+10.4, 1.5+1.7)
-        COMMIT_SIGNAL_REGION("SR-E-high-8", 20.+18, 19.6+19.3, 2.3+2.5)
+        COMMIT_SIGNAL_REGION("SR-E-high-ee-1", 0., 3.9, 1.3 )
+        COMMIT_SIGNAL_REGION("SR-E-high-ee-2", 9., 11.0, 2.0)
+        COMMIT_SIGNAL_REGION("SR-E-high-ee-3", 23., 17.8, 2.7)
+        COMMIT_SIGNAL_REGION("SR-E-high-ee-4", 3., 8.3, 1.4)
+        COMMIT_SIGNAL_REGION("SR-E-high-ee-5", 5., 10.1, 1.5)
+        COMMIT_SIGNAL_REGION("SR-E-high-ee-6", 20., 19.6, 2.3)
+        
+        COMMIT_SIGNAL_REGION("SR-E-high-mumu-1", 5., 3.4, 1.2)
+        COMMIT_SIGNAL_REGION("SR-E-high-mumu-2", 5., 3.5, 1.3)
+        COMMIT_SIGNAL_REGION("SR-E-high-mumu-3", 1., 0.7, 0.4)
+        COMMIT_SIGNAL_REGION("SR-E-high-mumu-4", 16., 10.3, 2.5)
+        COMMIT_SIGNAL_REGION("SR-E-high-mumu-5", 13., 12.1, 2.2)
+        COMMIT_SIGNAL_REGION("SR-E-high-mumu-6", 8., 10.1, 1.7)
+        COMMIT_SIGNAL_REGION("SR-E-high-mumu-7", 8., 10.4, 1.7)
+        COMMIT_SIGNAL_REGION("SR-E-high-mumu-8", 18, 19.3, 2.5)
+        
+        COMMIT_SIGNAL_REGION("SR-E-high-combined-1", 5., 3.4, 1.2)
+        COMMIT_SIGNAL_REGION("SR-E-high-combined-2", 5., 3.5, 1.3)
+        COMMIT_SIGNAL_REGION("SR-E-high-combined-3", 0.+1., 3.9+0.7, sqrt(1.3*1.3 + 0.4*0.4))
+        COMMIT_SIGNAL_REGION("SR-E-high-combined-4", 9.+16., 11.0+10.3, sqrt(2.0*2.0 + 2.5*2.5))
+        COMMIT_SIGNAL_REGION("SR-E-high-combined-5", 23.+13., 17.8+12.1, sqrt(2.7*2.7 + 2.2*2.2))
+        COMMIT_SIGNAL_REGION("SR-E-high-combined-6", 3.+8., 8.3+10.1, sqrt(1.4*1.4 + 1.7*1.7))
+        COMMIT_SIGNAL_REGION("SR-E-high-combined-7", 5.+8., 10.1+10.4, sqrt(1.5*1.5 + 1.7*1.7))
+        COMMIT_SIGNAL_REGION("SR-E-high-combined-8", 20.+18, 19.6+19.3, sqrt(2.3*2.3 + 2.5*2.5))
 
         // SR-E-1l1T observed and background events, from Table 12 of 1911.12606
         COMMIT_SIGNAL_REGION("SR-E-1l1T-1", 0., 0.5, 0.5)
@@ -820,25 +1088,61 @@ namespace Gambit
 
         // SR-S-low observed and background events, from Table 14 of 1911.12606
         // Combined ee and mumu SR data
-        COMMIT_SIGNAL_REGION("SR-S-low-1", 8.+3., 6.0+5.2, 1.4+1.1)
-        COMMIT_SIGNAL_REGION("SR-S-low-2", 5.+6., 5.3+4.3, 2.1+1.0)
-        COMMIT_SIGNAL_REGION("SR-S-low-3", 15.+15., 11.6+12.8, 2.5+1.8)
-        COMMIT_SIGNAL_REGION("SR-S-low-4", 19.+23., 22.9+24.8, 3.3+2.6)
-        COMMIT_SIGNAL_REGION("SR-S-low-5", 30.+37., 31.+38., 4.+5.)
-        COMMIT_SIGNAL_REGION("SR-S-low-6", 24.+44., 23.3+37.8, 3.0+3.3)
-        COMMIT_SIGNAL_REGION("SR-S-low-7", 32.+41., 27.1+36.0, 3.1+3.4)
-        COMMIT_SIGNAL_REGION("SR-S-low-8", 11.+28., 16.8+28.0, 2.1+2.7)
+        COMMIT_SIGNAL_REGION("SR-S-low-ee-1", 8., 6.0, 1.4 )
+        COMMIT_SIGNAL_REGION("SR-S-low-ee-2", 5., 5.3, 2.1)
+        COMMIT_SIGNAL_REGION("SR-S-low-ee-3", 15., 11.6, 2.5 )
+        COMMIT_SIGNAL_REGION("SR-S-low-ee-4", 19., 22.9, 3.3 )
+        COMMIT_SIGNAL_REGION("SR-S-low-ee-5", 30., 31., 4. )
+        COMMIT_SIGNAL_REGION("SR-S-low-ee-6", 24., 23.3, 3.0 )
+        COMMIT_SIGNAL_REGION("SR-S-low-ee-7", 32., 27.1, 3.1 )
+        COMMIT_SIGNAL_REGION("SR-S-low-ee-8", 11., 16.8, 2.1 )
+        
+        COMMIT_SIGNAL_REGION("SR-S-low-mumu-1", 3., 5.2, 1.1)
+        COMMIT_SIGNAL_REGION("SR-S-low-mumu-2", 6., 4.3, 1.0)
+        COMMIT_SIGNAL_REGION("SR-S-low-mumu-3", 15., 12.8, 1.8)
+        COMMIT_SIGNAL_REGION("SR-S-low-mumu-4", 23., 24.8, 2.6)
+        COMMIT_SIGNAL_REGION("SR-S-low-mumu-5", 37., 38., 5.)
+        COMMIT_SIGNAL_REGION("SR-S-low-mumu-6", 44., 37.8, 3.3)
+        COMMIT_SIGNAL_REGION("SR-S-low-mumu-7", 41., 36.0, 3.4)
+        COMMIT_SIGNAL_REGION("SR-S-low-mumu-8", 28., 28.0, 2.7)
+        
+        COMMIT_SIGNAL_REGION("SR-S-low-combined-1", 8.+3., 6.0+5.2, sqrt(1.4*1.4 + 1.1*1.1))
+        COMMIT_SIGNAL_REGION("SR-S-low-combined-2", 5.+6., 5.3+4.3, sqrt(2.1*2.1 + 1.0*1.0))
+        COMMIT_SIGNAL_REGION("SR-S-low-combined-3", 15.+15., 11.6+12.8, sqrt(2.5*2.5 + 1.8*1.8))
+        COMMIT_SIGNAL_REGION("SR-S-low-combined-4", 19.+23., 22.9+24.8, sqrt(3.3*3.3 + 2.6*2.6))
+        COMMIT_SIGNAL_REGION("SR-S-low-combined-5", 30.+37., 31.+38., sqrt(4.*4. + 5.*5.))
+        COMMIT_SIGNAL_REGION("SR-S-low-combined-6", 24.+44., 23.3+37.8, sqrt(3.0*3.0 + 3.3*3.3))
+        COMMIT_SIGNAL_REGION("SR-S-low-combined-7", 32.+41., 27.1+36.0, sqrt(3.1*3.1 + 3.4*3.4))
+        COMMIT_SIGNAL_REGION("SR-S-low-combined-8", 11.+28., 16.8+28.0, sqrt(2.1*2.1 + 2.7*2.7))
 
         // SR-S-high observed and background events, from Table 14 of 1911.12606
         // Combined ee and mumu SR data
-        COMMIT_SIGNAL_REGION("SR-S-high-1", 3.+10., 4.0+11.0, 1.1+2.2)
-        COMMIT_SIGNAL_REGION("SR-S-high-2", 3.+3., 3.6+5.8, 1.0+1.3)
-        COMMIT_SIGNAL_REGION("SR-S-high-3", 9.+11., 7.9+8.6, 1.9+1.6)
-        COMMIT_SIGNAL_REGION("SR-S-high-4", 13.+12., 13.2+14.2, 2.1+1.9)
-        COMMIT_SIGNAL_REGION("SR-S-high-5", 9.+9., 8.6+10.0, 1.4+1.5)
-        COMMIT_SIGNAL_REGION("SR-S-high-6", 6.+11., 5.7+11.2, 1.0+1.6)
-        COMMIT_SIGNAL_REGION("SR-S-high-7", 8.+10., 7.0+11.5, .2+1.5)
-        COMMIT_SIGNAL_REGION("SR-S-high-8", 6.+8., 6.8+7.8, 1.1+1.4)
+        COMMIT_SIGNAL_REGION("SR-S-high-ee-1", 3., 4.0, 1.1 )
+        COMMIT_SIGNAL_REGION("SR-S-high-ee-2", 3., 3.6, 1.0 )
+        COMMIT_SIGNAL_REGION("SR-S-high-ee-3", 9., 7.9, 1.9 )
+        COMMIT_SIGNAL_REGION("SR-S-high-ee-4", 13., 13.2, 2.1 )
+        COMMIT_SIGNAL_REGION("SR-S-high-ee-5", 9., 8.6, 1.4 )
+        COMMIT_SIGNAL_REGION("SR-S-high-ee-6", 6., 5.7, 1.0 )
+        COMMIT_SIGNAL_REGION("SR-S-high-ee-7", 8., 7.0, .2 )
+        COMMIT_SIGNAL_REGION("SR-S-high-ee-8", 6., 6.8, 1.1 )
+        
+        COMMIT_SIGNAL_REGION("SR-S-high-mumu-1", 10., 11.0, 2.2)
+        COMMIT_SIGNAL_REGION("SR-S-high-mumu-2", 3., 5.8, 1.3)
+        COMMIT_SIGNAL_REGION("SR-S-high-mumu-3", 11., 8.6, 1.6)
+        COMMIT_SIGNAL_REGION("SR-S-high-mumu-4", 12., 14.2, 1.9)
+        COMMIT_SIGNAL_REGION("SR-S-high-mumu-5", 9., 10.0, 1.5)
+        COMMIT_SIGNAL_REGION("SR-S-high-mumu-6", 11., 11.2, 1.6)
+        COMMIT_SIGNAL_REGION("SR-S-high-mumu-7", 10., 11.5, 1.5)
+        COMMIT_SIGNAL_REGION("SR-S-high-mumu-8", 8., 7.8, 1.4)
+        
+        COMMIT_SIGNAL_REGION("SR-S-high-combined-1", 3.+10., 4.0+11.0, sqrt(1.1*1.1 + 2.2*2.2))
+        COMMIT_SIGNAL_REGION("SR-S-high-combined-2", 3.+3., 3.6+5.8, sqrt(1.0*1.0 + 1.3*1.3))
+        COMMIT_SIGNAL_REGION("SR-S-high-combined-3", 9.+11., 7.9+8.6, sqrt(1.9*1.9 + 1.6*1.6))
+        COMMIT_SIGNAL_REGION("SR-S-high-combined-4", 13.+12., 13.2+14.2, sqrt(2.1*2.1 + 1.9*1.9))
+        COMMIT_SIGNAL_REGION("SR-S-high-combined-5", 9.+9., 8.6+10.0, sqrt(1.4*1.4 + 1.5*1.5))
+        COMMIT_SIGNAL_REGION("SR-S-high-combined-6", 6.+11., 5.7+11.2, sqrt(1.0*1.0 + 1.6*1.6))
+        COMMIT_SIGNAL_REGION("SR-S-high-combined-7", 8.+10., 7.0+11.5, sqrt(.2*.2 + 1.5*1.5))
+        COMMIT_SIGNAL_REGION("SR-S-high-combined-8", 6.+8., 6.8+7.8, sqrt(1.1*1.1 + 1.4*1.4))
 
         COMMIT_CUTFLOWS
 
@@ -858,5 +1162,242 @@ namespace Gambit
     DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_2LEPsoft_139invfb)
 
 
+    // Derived analysis that does not combine ee and mu mu signal regions
+    class Analysis_ATLAS_13TeV_2LEPsoft_exclusive_139invfb : public Analysis_ATLAS_13TeV_2LEPsoft_139invfb
+    {
+
+      public:
+
+        Analysis_ATLAS_13TeV_2LEPsoft_exclusive_139invfb()
+        {
+          set_analysis_name("ATLAS_13TeV_2LEPsoft_exclusive_139invfb");
+        }
+
+        virtual void collect_results()
+        {
+          // SR-E-low observed and background events, from Table 11 of 1911.12606
+          COMMIT_SIGNAL_REGION("SR-E-low-ee-1", 7., 5.3, 1.5)
+          COMMIT_SIGNAL_REGION("SR-E-low-ee-2", 11., 8.6, 1.8)
+          COMMIT_SIGNAL_REGION("SR-E-low-ee-3", 16., 16.7, 2.5)
+          COMMIT_SIGNAL_REGION("SR-E-low-ee-4", 16., 15.5, 2.6)
+          COMMIT_SIGNAL_REGION("SR-E-low-ee-5", 10., 12.9, 2.1)
+          COMMIT_SIGNAL_REGION("SR-E-low-ee-6", 9., 18.8, 2.2)
+        
+          COMMIT_SIGNAL_REGION("SR-E-low-mumu-1", 9., 15.4, 2.4)
+          COMMIT_SIGNAL_REGION("SR-E-low-mumu-2", 7., 8.0, 1.7)
+          COMMIT_SIGNAL_REGION("SR-E-low-mumu-3", 7., 6.5, 1.6)
+          COMMIT_SIGNAL_REGION("SR-E-low-mumu-4", 12., 11.3, 1.9)
+          COMMIT_SIGNAL_REGION("SR-E-low-mumu-5", 17., 15.6, 2.3)
+          COMMIT_SIGNAL_REGION("SR-E-low-mumu-6", 18., 16.7, 2.3)
+          COMMIT_SIGNAL_REGION("SR-E-low-mumu-7", 16., 15.3, 2.0)
+          COMMIT_SIGNAL_REGION("SR-E-low-mumu-8", 44., 35.9, 3.3)
+
+          // SR-E-med observed and background events, from Table 11 of 1911.12606
+          COMMIT_SIGNAL_REGION("SR-E-med-ee-1", 6., 6.2, 1.9)
+          COMMIT_SIGNAL_REGION("SR-E-med-ee-2", 41., 34., 4.)
+          COMMIT_SIGNAL_REGION("SR-E-med-ee-3", 59., 52., 6.)
+          COMMIT_SIGNAL_REGION("SR-E-med-ee-4", 21., 18.5, 3.2)
+        
+          COMMIT_SIGNAL_REGION("SR-E-med-mumu-1", 16., 14.6, 2.9)
+          COMMIT_SIGNAL_REGION("SR-E-med-mumu-2", 8., 6.9, 2.1)
+          COMMIT_SIGNAL_REGION("SR-E-med-mumu-3", 0., 0.11, 0.08)
+          COMMIT_SIGNAL_REGION("SR-E-med-mumu-4", 4., 5.1, 1.6)
+          COMMIT_SIGNAL_REGION("SR-E-med-mumu-5", 11., 7.3, 1.9)
+          COMMIT_SIGNAL_REGION("SR-E-med-mumu-6", 4., 2.2, 0.9)
+
+          // SR-E-high observed and background events, from Table 11 of 1911.12606
+          COMMIT_SIGNAL_REGION("SR-E-high-ee-1", 0., 3.9, 1.3 )
+          COMMIT_SIGNAL_REGION("SR-E-high-ee-2", 9., 11.0, 2.0)
+          COMMIT_SIGNAL_REGION("SR-E-high-ee-3", 23., 17.8, 2.7)
+          COMMIT_SIGNAL_REGION("SR-E-high-ee-4", 3., 8.3, 1.4)
+          COMMIT_SIGNAL_REGION("SR-E-high-ee-5", 5., 10.1, 1.5)
+          COMMIT_SIGNAL_REGION("SR-E-high-ee-6", 20., 19.6, 2.3)
+        
+          COMMIT_SIGNAL_REGION("SR-E-high-mumu-1", 5., 3.4, 1.2)
+          COMMIT_SIGNAL_REGION("SR-E-high-mumu-2", 5., 3.5, 1.3)
+          COMMIT_SIGNAL_REGION("SR-E-high-mumu-3", 1., 0.7, 0.4)
+          COMMIT_SIGNAL_REGION("SR-E-high-mumu-4", 16., 10.3, 2.5)
+          COMMIT_SIGNAL_REGION("SR-E-high-mumu-5", 13., 12.1, 2.2)
+          COMMIT_SIGNAL_REGION("SR-E-high-mumu-6", 8., 10.1, 1.7)
+          COMMIT_SIGNAL_REGION("SR-E-high-mumu-7", 8., 10.4, 1.7)
+          COMMIT_SIGNAL_REGION("SR-E-high-mumu-8", 18, 19.3, 2.5)
+
+          // SR-E-1l1T observed and background events, from Table 12 of 1911.12606
+          COMMIT_SIGNAL_REGION("SR-E-1l1T-1", 0., 0.5, 0.5)
+          COMMIT_SIGNAL_REGION("SR-E-1l1T-2", 8., 6.0, 1.9)
+          COMMIT_SIGNAL_REGION("SR-E-1l1T-3", 8., 7.6, 2.1)
+          COMMIT_SIGNAL_REGION("SR-E-1l1T-4", 24., 20.7, 3.4)
+          COMMIT_SIGNAL_REGION("SR-E-1l1T-5", 24., 14, 4)
+          COMMIT_SIGNAL_REGION("SR-E-1l1T-6", 16., 18.1, 3.1)
+
+          // SR-VBF-low observed and background events, from Table 13 of 1911.12606
+          COMMIT_SIGNAL_REGION("SR-VBF-low-1", 0., 0.7, 0.4)
+          COMMIT_SIGNAL_REGION("SR-VBF-low-2", 0., 0.47, 0.25)
+          COMMIT_SIGNAL_REGION("SR-VBF-low-3", 0., 0.64, 0.32)
+          COMMIT_SIGNAL_REGION("SR-VBF-low-4", 6., 4.9, 1.2)
+          COMMIT_SIGNAL_REGION("SR-VBF-low-5", 21., 17.3, 2.6)
+          COMMIT_SIGNAL_REGION("SR-VBF-low-6", 14., 12.5, 1.8)
+          COMMIT_SIGNAL_REGION("SR-VBF-low-7", 15., 15.2, 2.7)
+
+          // SR-VBF-high observed and background events, from Table 13 of 1911.12606
+          COMMIT_SIGNAL_REGION("SR-VBF-high-1", 0., 1.6, 0.7)
+          COMMIT_SIGNAL_REGION("SR-VBF-high-2", 1., 0.8, 0.6)
+          COMMIT_SIGNAL_REGION("SR-VBF-high-3", 1., 0.25, 0.13)
+          COMMIT_SIGNAL_REGION("SR-VBF-high-4", 1., 0.9, 0.5)
+          COMMIT_SIGNAL_REGION("SR-VBF-high-5", 6., 7.1, 1.5)
+          COMMIT_SIGNAL_REGION("SR-VBF-high-6", 8., 8.5, 2.2)
+          COMMIT_SIGNAL_REGION("SR-VBF-high-7", 9., 7.7, 1.5)
+
+          // SR-S-low observed and background events, from Table 14 of 1911.12606
+          // Combined ee and mumu SR data
+          COMMIT_SIGNAL_REGION("SR-S-low-ee-1", 8., 6.0, 1.4 )
+          COMMIT_SIGNAL_REGION("SR-S-low-ee-2", 5., 5.3, 2.1)
+          COMMIT_SIGNAL_REGION("SR-S-low-ee-3", 15., 11.6, 2.5 )
+          COMMIT_SIGNAL_REGION("SR-S-low-ee-4", 19., 22.9, 3.3 )
+          COMMIT_SIGNAL_REGION("SR-S-low-ee-5", 30., 31., 4. )
+          COMMIT_SIGNAL_REGION("SR-S-low-ee-6", 24., 23.3, 3.0 )
+          COMMIT_SIGNAL_REGION("SR-S-low-ee-7", 32., 27.1, 3.1 )
+          COMMIT_SIGNAL_REGION("SR-S-low-ee-8", 11., 16.8, 2.1 )
+        
+          COMMIT_SIGNAL_REGION("SR-S-low-mumu-1", 3., 5.2, 1.1)
+          COMMIT_SIGNAL_REGION("SR-S-low-mumu-2", 6., 4.3, 1.0)
+          COMMIT_SIGNAL_REGION("SR-S-low-mumu-3", 15., 12.8, 1.8)
+          COMMIT_SIGNAL_REGION("SR-S-low-mumu-4", 23., 24.8, 2.6)
+          COMMIT_SIGNAL_REGION("SR-S-low-mumu-5", 37., 38., 5.)
+          COMMIT_SIGNAL_REGION("SR-S-low-mumu-6", 44., 37.8, 3.3)
+          COMMIT_SIGNAL_REGION("SR-S-low-mumu-7", 41., 36.0, 3.4)
+          COMMIT_SIGNAL_REGION("SR-S-low-mumu-8", 28., 28.0, 2.7)
+
+          // SR-S-high observed and background events, from Table 14 of 1911.12606
+          // Combined ee and mumu SR data
+          COMMIT_SIGNAL_REGION("SR-S-high-ee-1", 3., 4.0, 1.1 )
+          COMMIT_SIGNAL_REGION("SR-S-high-ee-2", 3., 3.6, 1.0 )
+          COMMIT_SIGNAL_REGION("SR-S-high-ee-3", 9., 7.9, 1.9 )
+          COMMIT_SIGNAL_REGION("SR-S-high-ee-4", 13., 13.2, 2.1 )
+          COMMIT_SIGNAL_REGION("SR-S-high-ee-5", 9., 8.6, 1.4 )
+          COMMIT_SIGNAL_REGION("SR-S-high-ee-6", 6., 5.7, 1.0 )
+          COMMIT_SIGNAL_REGION("SR-S-high-ee-7", 8., 7.0, .2 )
+          COMMIT_SIGNAL_REGION("SR-S-high-ee-8", 6., 6.8, 1.1 )
+        
+          COMMIT_SIGNAL_REGION("SR-S-high-mumu-1", 10., 11.0, 2.2)
+          COMMIT_SIGNAL_REGION("SR-S-high-mumu-2", 3., 5.8, 1.3)
+          COMMIT_SIGNAL_REGION("SR-S-high-mumu-3", 11., 8.6, 1.6)
+          COMMIT_SIGNAL_REGION("SR-S-high-mumu-4", 12., 14.2, 1.9)
+          COMMIT_SIGNAL_REGION("SR-S-high-mumu-5", 9., 10.0, 1.5)
+          COMMIT_SIGNAL_REGION("SR-S-high-mumu-6", 11., 11.2, 1.6)
+          COMMIT_SIGNAL_REGION("SR-S-high-mumu-7", 10., 11.5, 1.5)
+          COMMIT_SIGNAL_REGION("SR-S-high-mumu-8", 8., 7.8, 1.4)
+
+          COMMIT_CUTFLOWS
+        }
+
+    };
+
+    // Factory fn
+    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_2LEPsoft_exclusive_139invfb)
+    
+    
+    // Derived analysis that combines ee and mu mu signal regions
+    class Analysis_ATLAS_13TeV_2LEPsoft_combined_139invfb : public Analysis_ATLAS_13TeV_2LEPsoft_139invfb
+    {
+
+      public:
+
+        Analysis_ATLAS_13TeV_2LEPsoft_combined_139invfb()
+        {
+          set_analysis_name("ATLAS_13TeV_2LEPsoft_combined_139invfb");
+        }
+
+        virtual void collect_results()
+        {
+          // SR-E-low observed and background events, from Table 11 of 1911.12606
+          COMMIT_SIGNAL_REGION("SR-E-low-combined-1", 9., 15.4, 2.4)
+          COMMIT_SIGNAL_REGION("SR-E-low-combined-2", 7., 8.0, 1.7)
+          COMMIT_SIGNAL_REGION("SR-E-low-combined-3", 7.+7., 5.3+6.5, sqrt(1.5*1.5 + 1.6*1.6))
+          COMMIT_SIGNAL_REGION("SR-E-low-combined-4", 11.+12., 8.6+11.3, sqrt(1.8*1.8 + 1.9*1.9))
+          COMMIT_SIGNAL_REGION("SR-E-low-combined-5", 16.+17., 16.7+15.6, sqrt(2.5*2.5 + 2.3*2.3))
+          COMMIT_SIGNAL_REGION("SR-E-low-combined-6", 16.+18., 15.5+16.7, sqrt(2.6*2.6 + 2.3*2.3))
+          COMMIT_SIGNAL_REGION("SR-E-low-combined-7", 10.+16., 12.9+15.3, sqrt(2.1*2.1 + 2.0*2.0))
+          COMMIT_SIGNAL_REGION("SR-E-low-combined-8", 9.+44., 18.8+35.9, sqrt(2.2*2.2 + 3.3*3.3))
+
+          // SR-E-med observed and background events, from Table 11 of 1911.12606
+          COMMIT_SIGNAL_REGION("SR-E-med-combined-1", 16., 14.6, 2.9)
+          COMMIT_SIGNAL_REGION("SR-E-med-combined-2", 8., 6.9, 2.1)
+          COMMIT_SIGNAL_REGION("SR-E-med-combined-3", 6.+0., 6.2+0.11, sqrt(1.9*1.9 + 0.08*0.08))
+          COMMIT_SIGNAL_REGION("SR-E-med-combined-4", 41.+4., 34.+5.1, sqrt(4.*4. + 1.6*1.6))
+          COMMIT_SIGNAL_REGION("SR-E-med-combined-5", 59.+11., 52.+7.3, sqrt(6.*6. + 1.9*1.9))
+          COMMIT_SIGNAL_REGION("SR-E-med-combined-6", 21.+4., 18.5+2.2, sqrt(3.2*3.2 + 0.9*0.9))
+
+          // SR-E-high observed and background events, from Table 11 of 1911.12606
+          COMMIT_SIGNAL_REGION("SR-E-high-combined-1", 5., 3.4, 1.2)
+          COMMIT_SIGNAL_REGION("SR-E-high-combined-2", 5., 3.5, 1.3)
+          COMMIT_SIGNAL_REGION("SR-E-high-combined-3", 0.+1., 3.9+0.7, sqrt(1.3*1.3 + 0.4*0.4))
+          COMMIT_SIGNAL_REGION("SR-E-high-combined-4", 9.+16., 11.0+10.3, sqrt(2.0*2.0 + 2.5*2.5))
+          COMMIT_SIGNAL_REGION("SR-E-high-combined-5", 23.+13., 17.8+12.1, sqrt(2.7*2.7 + 2.2*2.2))
+          COMMIT_SIGNAL_REGION("SR-E-high-combined-6", 3.+8., 8.3+10.1, sqrt(1.4*1.4 + 1.7*1.7))
+          COMMIT_SIGNAL_REGION("SR-E-high-combined-7", 5.+8., 10.1+10.4, sqrt(1.5*1.5 + 1.7*1.7))
+          COMMIT_SIGNAL_REGION("SR-E-high-combined-8", 20.+18, 19.6+19.3, sqrt(2.3*2.3 + 2.5*2.5))
+
+          // SR-E-1l1T observed and background events, from Table 12 of 1911.12606
+          COMMIT_SIGNAL_REGION("SR-E-1l1T-1", 0., 0.5, 0.5)
+          COMMIT_SIGNAL_REGION("SR-E-1l1T-2", 8., 6.0, 1.9)
+          COMMIT_SIGNAL_REGION("SR-E-1l1T-3", 8., 7.6, 2.1)
+          COMMIT_SIGNAL_REGION("SR-E-1l1T-4", 24., 20.7, 3.4)
+          COMMIT_SIGNAL_REGION("SR-E-1l1T-5", 24., 14, 4)
+          COMMIT_SIGNAL_REGION("SR-E-1l1T-6", 16., 18.1, 3.1)
+
+          // SR-VBF-low observed and background events, from Table 13 of 1911.12606
+          COMMIT_SIGNAL_REGION("SR-VBF-low-1", 0., 0.7, 0.4)
+          COMMIT_SIGNAL_REGION("SR-VBF-low-2", 0., 0.47, 0.25)
+          COMMIT_SIGNAL_REGION("SR-VBF-low-3", 0., 0.64, 0.32)
+          COMMIT_SIGNAL_REGION("SR-VBF-low-4", 6., 4.9, 1.2)
+          COMMIT_SIGNAL_REGION("SR-VBF-low-5", 21., 17.3, 2.6)
+          COMMIT_SIGNAL_REGION("SR-VBF-low-6", 14., 12.5, 1.8)
+          COMMIT_SIGNAL_REGION("SR-VBF-low-7", 15., 15.2, 2.7)
+
+          // SR-VBF-high observed and background events, from Table 13 of 1911.12606
+          COMMIT_SIGNAL_REGION("SR-VBF-high-1", 0., 1.6, 0.7)
+          COMMIT_SIGNAL_REGION("SR-VBF-high-2", 1., 0.8, 0.6)
+          COMMIT_SIGNAL_REGION("SR-VBF-high-3", 1., 0.25, 0.13)
+          COMMIT_SIGNAL_REGION("SR-VBF-high-4", 1., 0.9, 0.5)
+          COMMIT_SIGNAL_REGION("SR-VBF-high-5", 6., 7.1, 1.5)
+          COMMIT_SIGNAL_REGION("SR-VBF-high-6", 8., 8.5, 2.2)
+          COMMIT_SIGNAL_REGION("SR-VBF-high-7", 9., 7.7, 1.5)
+
+          // SR-S-low observed and background events, from Table 14 of 1911.12606
+          // Combined ee and mumu SR data
+          COMMIT_SIGNAL_REGION("SR-S-low-combined-1", 8.+3., 6.0+5.2, sqrt(1.4*1.4 + 1.1*1.1))
+          COMMIT_SIGNAL_REGION("SR-S-low-combined-2", 5.+6., 5.3+4.3, sqrt(2.1*2.1 + 1.0*1.0))
+          COMMIT_SIGNAL_REGION("SR-S-low-combined-3", 15.+15., 11.6+12.8, sqrt(2.5*2.5 + 1.8*1.8))
+          COMMIT_SIGNAL_REGION("SR-S-low-combined-4", 19.+23., 22.9+24.8, sqrt(3.3*3.3 + 2.6*2.6))
+          COMMIT_SIGNAL_REGION("SR-S-low-combined-5", 30.+37., 31.+38., sqrt(4.*4. + 5.*5.))
+          COMMIT_SIGNAL_REGION("SR-S-low-combined-6", 24.+44., 23.3+37.8, sqrt(3.0*3.0 + 3.3*3.3))
+          COMMIT_SIGNAL_REGION("SR-S-low-combined-7", 32.+41., 27.1+36.0, sqrt(3.1*3.1 + 3.4*3.4))
+          COMMIT_SIGNAL_REGION("SR-S-low-combined-8", 11.+28., 16.8+28.0, sqrt(2.1*2.1 + 2.7*2.7))
+
+          // SR-S-high observed and background events, from Table 14 of 1911.12606
+          // Combined ee and mumu SR data
+          COMMIT_SIGNAL_REGION("SR-S-high-combined-1", 3.+10., 4.0+11.0, sqrt(1.1*1.1 + 2.2*2.2))
+          COMMIT_SIGNAL_REGION("SR-S-high-combined-2", 3.+3., 3.6+5.8, sqrt(1.0*1.0 + 1.3*1.3))
+          COMMIT_SIGNAL_REGION("SR-S-high-combined-3", 9.+11., 7.9+8.6, sqrt(1.9*1.9 + 1.6*1.6))
+          COMMIT_SIGNAL_REGION("SR-S-high-combined-4", 13.+12., 13.2+14.2, sqrt(2.1*2.1 + 1.9*1.9))
+          COMMIT_SIGNAL_REGION("SR-S-high-combined-5", 9.+9., 8.6+10.0, sqrt(1.4*1.4 + 1.5*1.5))
+          COMMIT_SIGNAL_REGION("SR-S-high-combined-6", 6.+11., 5.7+11.2, sqrt(1.0*1.0 + 1.6*1.6))
+          COMMIT_SIGNAL_REGION("SR-S-high-combined-7", 8.+10., 7.0+11.5, sqrt(.2*.2 + 1.5*1.5))
+          COMMIT_SIGNAL_REGION("SR-S-high-combined-8", 6.+8., 6.8+7.8, sqrt(1.1*1.1 + 1.4*1.4))
+
+          COMMIT_CUTFLOWS
+        }
+
+    };
+
+    // Factory fn
+    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_2LEPsoft_combined_139invfb)
+
+
+
+
   }
 }
+#endif
+#endif
