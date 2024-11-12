@@ -112,6 +112,25 @@ namespace Gambit
 
       // _Anders
       std::cerr << "DEBUG: module_functor::calculate: " << origin() << "::" << name() << ": needs_recalculating[0] = " << needs_recalculating[0] << std::endl;
+      std::cerr << "DEBUG: " << dependencies() << std::endl;
+      if (!dependencies().empty()){
+        for (const auto& [key, value] : dependency_functor_map) {
+            const auto& [key_part1, key_part2] = key;  // Destructure the pair key if needed
+            module_functor<ModelParameters>* myname = dynamic_cast<module_functor<ModelParameters>*>(value);
+            std::cerr << key_part1 << ", " << key_part2 << " # " << value->name() << std::endl;
+            Gambit::safe_ptr<ModelParameters> v = myname->valuePtr();
+           
+            const ModelParameters vv = *v;
+            vv.print();
+            std::cerr << v->getValue("mu")<< " # " << value->type() << " # " << value->origin() << std::endl;
+        
+        }
+
+        // std::cerr << "DEBUG: " << dependency_functor_map << std::endl;
+        }
+      
+    
+
       // Add Emu logic here:
       // - How to get access to the model parameter point?
       //   - Can we directly access the Param map here?

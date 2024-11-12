@@ -353,12 +353,12 @@ ObsLikes:
     capability:   normaldist_loglike
     module:       ExampleBit_A
     type:         double
-    emulator:
-      # If no parameters block, by default pass all parameters
-      parameters:
-        - NormalDist::mu
-      use_prediction: true
-      use_train: true
+    # emulator:
+    #   # If no parameters block, by default pass all parameters
+    #   parameters:
+    #     - NormalDist::mu
+    #   use_prediction: true
+    #   use_train: true
 
 
 
