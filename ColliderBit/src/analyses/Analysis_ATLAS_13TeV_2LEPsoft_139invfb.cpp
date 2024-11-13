@@ -46,29 +46,28 @@ namespace Gambit
 
     private:
 
-      unique_ptr<RestFrames::LabRecoFrame>       LAB;
-      unique_ptr<RestFrames::DecayRecoFrame>     CM;
-      unique_ptr<RestFrames::DecayRecoFrame>     S;
-      
-      unique_ptr<RestFrames::VisibleRecoFrame>   ISR;
-      unique_ptr<RestFrames::VisibleRecoFrame>   V;
-      unique_ptr<RestFrames::VisibleRecoFrame>   L;
+      unique_ptr<RestFrames::LabRecoFrame>        LAB;
+      unique_ptr<RestFrames::DecayRecoFrame>      CM;
+      unique_ptr<RestFrames::DecayRecoFrame>      S;
 
-      unique_ptr<RestFrames::InvisibleRecoFrame> I;
-      unique_ptr<RestFrames::InvisibleGroup>    INV;
+      unique_ptr<RestFrames::VisibleRecoFrame>    ISR;
+      unique_ptr<RestFrames::VisibleRecoFrame>    V;
+      unique_ptr<RestFrames::VisibleRecoFrame>    L;
 
-      unique_ptr<RestFrames::SetMassInvJigsaw>     INV_Mass;
-      
+      unique_ptr<RestFrames::InvisibleRecoFrame>  I;
+      unique_ptr<RestFrames::InvisibleGroup>      INV;
+
+      unique_ptr<RestFrames::SetMassInvJigsaw>    INV_Mass;
+
       unique_ptr<RestFrames::CombinatoricGroup>   VIS;
-      
+
       unique_ptr<RestFrames::MinMassesCombJigsaw> SplitVis;
-      
-      
+
+
     public:
 
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
-      
 
       Analysis_ATLAS_13TeV_2LEPsoft_139invfb()
       {
@@ -76,33 +75,33 @@ namespace Gambit
         DEFINE_SIGNAL_REGIONS("SR-E-low-ee-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > 5+mll/4", "10 < mTl1 < 60 GeV")
         DEFINE_SIGNAL_REGIONS("SR-E-low-mumu-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > 5+mll/4", "10 < mTl1 < 60 GeV")
         DEFINE_SIGNAL_REGIONS("SR-E-low-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > 5+mll/4", "10 < mTl1 < 60 GeV")
-        
-        
+
+
         DEFINE_SIGNAL_REGIONS("SR-E-med-ee-", 4, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV")
         DEFINE_SIGNAL_REGIONS("SR-E-med-mumu-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV")
         DEFINE_SIGNAL_REGIONS("SR-E-med-combined-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV")
-        
+
         DEFINE_SIGNAL_REGIONS("SR-E-high-ee-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)")
         DEFINE_SIGNAL_REGIONS("SR-E-high-mumu-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)")
         DEFINE_SIGNAL_REGIONS("SR-E-high-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)")
-        
+
         DEFINE_SIGNAL_REGIONS("SR-E-1l1T-", 6, "njets > 0", "MET trigger", "1 lepton and >=1 track", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "MET > 200GeV", "min(DeltaPhi(any jet,MET) > 0.4", "Delta(j1) > 2.0", "0.5 < mltrack < 5GeV", "DeltaRltrack > 0.05", "number of jets >= 1", "leading jet pT > 100 GeV", "MET/HTlep > 30", "Deltaltrack < 1.5", "Lepton pT < 10 GeV", "Track pT < 5 GeV", "DeltaPhi(l,MET) < 1.0", "SF lepton-track pair", "OS lepton-track pair")
-        
+
         DEFINE_SIGNAL_REGIONS("SR-VBF-low-", 7, "pTl1 > 5", "2 baseline leptons", "2 signal leptons", "MET trigger", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "SF", "OS", "1 < mll < 60 GeV", "veto 3 GeV < mll < 3.2 GeV", "mtautau < 0 or > 160 GeV", "number of b-tagged jets = 0", "leading jet pT > 100 GeV", "pT(j2) > 40 GeV", "met > 200 GeV", "met/HTlep > 2.0", "subleading lepton pT > min(10,2+mll/3)", "mTl1 < 60 GeV", "RVBF < 1.0", "RVBF > max(0.6,0.92-mll/2 GeV)", "etaj1*etaj2 < 0", "mjj > 400 GeV", "Deltaetajj > 2")
         DEFINE_SIGNAL_REGIONS("SR-VBF-high-", 7, "pTl1 > 5", "2 baseline leptons", "2 signal leptons", "MET trigger", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "SF", "OS", "1 < mll < 60 GeV", "veto 3 GeV < mll < 3.2 GeV", "mtautau < 0 or > 160 GeV", "number of b-tagged jets = 0", "leading jet pT > 100 GeV", "pT(j2) > 40 GeV", "met > 200 GeV", "met/HTlep > 2.0", "subleading lepton pT > min(10,2+mll/3)", "mTl1 < 60 GeV", "RVBF < 1.0", "RVBF > max(0.6,0.92-mll/2 GeV)", "etaj1*etaj2 < 0", "mjj > 400 GeV", "Deltaetajj > 2")
-        
+
         DEFINE_SIGNAL_REGIONS("SR-S-low-ee-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "150 < met < 200 GeV", "0.8 < RISR < 1.0", "subleading lepton pT > min(15,7.5+0.75*(mT2100-100))")
         DEFINE_SIGNAL_REGIONS("SR-S-low-mumu-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "150 < met < 200 GeV", "0.8 < RISR < 1.0", "subleading lepton pT > min(15,7.5+0.75*(mT2100-100))")
         DEFINE_SIGNAL_REGIONS("SR-S-low-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "150 < met < 200 GeV", "0.8 < RISR < 1.0", "subleading lepton pT > min(15,7.5+0.75*(mT2100-100))")
-        
+
         DEFINE_SIGNAL_REGIONS("SR-S-high-ee-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))")
         DEFINE_SIGNAL_REGIONS("SR-S-high-mumu-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))")
         DEFINE_SIGNAL_REGIONS("SR-S-high-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))")
 
         set_analysis_name("ATLAS_13TeV_2LEPsoft_139invfb");
         set_luminosity(139);
-        
-        
+
+
         // Recursive jigsaw stuff
         #pragma omp critical (init_ATLAS_13TeV_2LEPsoft_139invfb)
         {
@@ -113,22 +112,19 @@ namespace Gambit
           V.reset(new RestFrames::VisibleRecoFrame("V","V"));
           L.reset(new RestFrames::VisibleRecoFrame("L","L"));
           I.reset(new RestFrames::InvisibleRecoFrame("I","I"));
-          
+
           INV.reset(new RestFrames::InvisibleGroup("INV","INV"));
           INV_Mass.reset(new RestFrames::SetMassInvJigsaw("INV_Mass", "INV_Mass"));
-          
+
           VIS.reset(new RestFrames::CombinatoricGroup("VIS","VIS"));
           SplitVis.reset(new RestFrames::MinMassesCombJigsaw("SplitVis", "SplitVis"));
-          
+
           LAB->SetChildFrame(*CM);
           CM->AddChildFrame(*ISR);
           CM->AddChildFrame(*S);
           S->AddChildFrame(*V);
           S->AddChildFrame(*I);
           S->AddChildFrame(*L);
-          
-          
-
 
           if(!LAB->InitializeTree())
           {
@@ -136,30 +132,25 @@ namespace Gambit
             errmsg  = "Some problem occurred when calling LAB->InitializeTree() from the Analysis_ATLAS_13TeV_2LEPsoft_139invfb analysis class.\n";
             piped_errors.request(LOCAL_INFO, errmsg);
           }
-          
-          
-
 
           //////////////////////////////
           //Setting the invisible
           //////////////////////////////
           INV->AddFrame(*I);
-          
+
           VIS->AddFrame(*ISR);
           VIS->SetNElementsForFrame(*ISR, 1, false);
           VIS->AddFrame(*V);
           VIS->SetNElementsForFrame(*V, 0, false);
-          
+
           INV->AddJigsaw(*INV_Mass);
-          
           VIS->AddJigsaw(*SplitVis);
-          
+
           SplitVis->AddFrame(*ISR,0);
-          
           SplitVis->AddFrame(*V,1);
           SplitVis->AddFrame(*I,1);
           SplitVis->AddFrame(*L,1);
-          
+
           if(!LAB->InitializeAnalysis())
           {
             str errmsg;
@@ -167,8 +158,6 @@ namespace Gambit
             piped_errors.request(LOCAL_INFO, errmsg);
           }
         }
-        
-        
       }
 
       void run(const HEPUtils::Event* event)
@@ -191,7 +180,7 @@ namespace Gambit
         // There is no VeryLoose criterium in 1908.00005, so using Loose
         BASELINE_PARTICLES(event->electrons(), preselectedElectrons, 4.5, 0, DBL_MAX, 2.47)
         applyEfficiency(preselectedElectrons, ATLAS::eff1DEl.at("ATLAS_SUSY_2018_16"), /* bin_pT*/ true);
-        
+
         // Preselected electrons are further required to pass the calorimeter-
         // and tracking-based VeryLoose likelihood identification (arXiv:1902.04655),
         // and to have a longitudinal impact parameter z0 relative to the primary vertex
@@ -207,7 +196,7 @@ namespace Gambit
 
         BASELINE_PARTICLES(event->muons(), preselectedMuons, 3.0, 0, DBL_MAX, 2.5)
         applyEfficiency(preselectedMuons, ATLAS::eff1DMu.at("ATLAS_SUSY_2018_16"), /* bin_pT*/ true);
-        
+
         // Preselected tracks with pT > 500 MeV and η < 2.5
         // Signal tracks are required to be within ∆R = 0.01 of a reconstructed electron or muon candidate.
         // Electron (muon) candidates can be reconstructed with transverse momenta as low as 1 (2) GeV, 
@@ -220,17 +209,14 @@ namespace Gambit
         {
           if (e->pT() > 0.5 && e->pT() < 4.5 && e->abseta() < 2.5) preselectedTracks.push_back(e);
         }
-        
+
         for (const HEPUtils::Particle* mu : event->electrons())
         {
           if (mu->pT() > 0.5 && mu->pT() < 3.0 && mu->abseta() < 2.5) preselectedTracks.push_back(mu);
         }
-        
+
         // Apply Track Efficiency (Figure 3 of 1911.12606)
         applyEfficiency(preselectedTracks, ATLAS::eff1DTrack.at("ATLAS_SUSY_2018_16_isolated_track"), /* use pT bins*/ true);
-        
-        
-
 
 
         // Preselected jets are reconstructed from calorimeter topological energy clusters [105]
@@ -276,7 +262,7 @@ namespace Gambit
         // Non-b-tagged jets that are separated from the remaining electrons by ∆Ry < 0.2 are removed
         // Using rapidity instead of pseudorapidity
         removeOverlap(preselectedNonBJets, preselectedElectrons, 0.2, true);
-        
+
         // Jets containing a muon candidate within ∆Ry < 0.4 and with fewer than three tracks
         // with pT > 500 MeV are removed to suppress muon bremsstrahlung.
         // Using rapidity instead of pseudorapidity
@@ -296,8 +282,6 @@ namespace Gambit
         // Preselected leptons
         BASELINE_PARTICLE_COMBINATION(preselectedLeptons, preselectedElectrons, preselectedMuons)
         size_t nBaselineLeptons = preselectedLeptons.size();
-
-
 
         int Filter_N_jets = preselectedBJets.size() + preselectedNonBJets.size();
 
@@ -346,11 +330,9 @@ namespace Gambit
           double pTSum = 0;
           for (const HEPUtils::Particle* track2 : candidateTracks)
           {
-            if (track2 != track1 && track1->mom().deltaR_eta(track2->mom()) < 0.3)
-              pTSum += track2->pT();
+            if (track2 != track1 && track1->mom().deltaR_eta(track2->mom()) < 0.3) pTSum += track2->pT();
           }
-          if (pTSum < 0.5 && track1->pT() > 1.)
-            signalTracks.push_back(track1);
+          if (pTSum < 0.5 && track1->pT() > 1.) signalTracks.push_back(track1);
         }
 
         // Signal tracks must also satisfy dedicated isolation criteria – they are required
@@ -474,24 +456,6 @@ namespace Gambit
           }
         }
 
-        // std::cerr << "DEBUG:" 
-        //           << "  met: " << met
-        //           << "  nSignalJets: " << nSignalJets
-        //           << "  nSignalBJets: " << nSignalBJets
-        //           << "  nSignalVBFJets: " << nSignalVBFJets
-        //           << "  nSignalLeptons: " << nSignalLeptons 
-        //           << "  nSignalTracks: " << nSignalTracks 
-        //           << "  OS: " << OS
-        //           << "  SF: " << SF
-        //           << "  SFOS: " << SFOS
-        //           << "  electron_pair: " << electron_pair
-        //           << "  muon_pair: " << muon_pair
-        //           << "  deltaR: " << deltaR
-        //           << "  mtautau: " << mtautau 
-        //           << "  mll: " << mll
-        //           << "  minPhi: " << minPhi
-        //           << "  metOverHTlep: " << metOverHTlep
-        //           << std::endl;
 
         // Initialize cutflow counters
         BEGIN_PRESELECTION
@@ -516,13 +480,6 @@ namespace Gambit
                                              (mtautau <= 0. || mtautau > 160.),
                                              (SFOS)
                                            };
-
-        // std::cerr << "DEBUG: preselection_2l:";
-        // for (size_t i = 0; i < preselection_2l.size() ; ++i)
-        // {
-        //   std::cerr << "  i" << i << ":" << preselection_2l[i];
-        // }
-        // std::cerr << std::endl;
 
 
         LOG_CUTS_N(preselection_2l, "SR-E-low-ee-", 6)
@@ -561,8 +518,6 @@ namespace Gambit
         LOG_CUTS_N(preselection_2l_VBF, "SR-VBF-high-", 7)
 
         // Preselecton cuts for 1l1T region
-        // It's not clear what's preselection and signal region cuts based on paper and cutflows,
-        // so just use cutflow order
         std::vector<bool> preselection_1l1T = { (Filter_N_jets > 0 ),
                                                 (mettrigger),
                                                 (nSignalLeptons == 1 && nSignalTracks >= 1),
@@ -607,7 +562,7 @@ namespace Gambit
         double Pt_ISR = 0.0; 
         double RISR = 0.0;
         double MTS = 0.0;
-        
+
         // Only calculate RJR variables in the case that there is at least 1 signal jet, this will also cover the VBF case
         if (nSignalJets > 0)
         {
@@ -620,16 +575,15 @@ namespace Gambit
             jetmom.SetPtEtaPhiM((jet->mom()).pT(),0.0,(jet->mom()).phi(),(jet->mom()).m());
             jetID.push_back(VIS->AddLabFrameFourVector(jetmom));
           }
-          //HEPUtils::P4 lepSys(0.,0.,0.,0.);
+
           TLorentzVector lepSys(0.,0.,0.,0.);
           for(const auto lep1 : signalLeptons)
           {
             TLorentzVector tmom;
-            //HEPUtils::P4 lepmom=lep1->mom();
-            //tmom.setEtaPhiMPt(0.0,tmom.phi(),tmom.m(),tmom.pT());
             tmom.SetPtEtaPhiM((lep1->mom()).pT(),0.0,(lep1->mom()).phi(),(lep1->mom()).m());
             lepSys = lepSys + tmom;
           }
+
           L->SetLabFrameFourVector(lepSys);
           TLorentzVector metVec;
           metVec.SetPtEtaPhiM(ptot.pT(),ptot.eta(),ptot.phi(),ptot.m());
@@ -638,13 +592,13 @@ namespace Gambit
           INV->SetLabFrameThreeVector(met3Vec);
 
 
-           if (!LAB->AnalyzeEvent())
-           {
-             str errmsg;
-             errmsg  = "Some problem occurred when calling LAB->AnalyzeEvent() from the Analysis_ATLAS_13TeV_2LEPsoft_139invfb analysis class.\n";
-             piped_warnings.request(LOCAL_INFO, errmsg);
-             return;
-           }
+          if (!LAB->AnalyzeEvent())
+          {
+            str errmsg;
+            errmsg  = "Some problem occurred when calling LAB->AnalyzeEvent() from the Analysis_ATLAS_13TeV_2LEPsoft_139invfb analysis class.\n";
+            piped_warnings.request(LOCAL_INFO, errmsg);
+            return;
+          }
 
           TVector3 v_P_ISR = ISR->GetFourVector(*CM).Vect();
           TVector3 v_P_I   = I->GetFourVector(*CM).Vect();
@@ -820,13 +774,11 @@ namespace Gambit
 
         // mjj variable
         double mjj = 0.;
-        if(nSignalVBFJets >= 2)
-          mjj = (signalVBFJets.at(0)->mom() + signalVBFJets.at(1)->mom()).m();
+        if(nSignalVBFJets >= 2) { mjj = (signalVBFJets.at(0)->mom() + signalVBFJets.at(1)->mom()).m(); }
 
         // Deletaetajj variable
         double Deltaetajj = 0.;
-        if(nSignalVBFJets == 2)
-          Deltaetajj = fabs(signalVBFJets.at(0)->eta() - signalVBFJets.at(1)->eta());
+        if(nSignalVBFJets == 2) { Deltaetajj = fabs(signalVBFJets.at(0)->eta() - signalVBFJets.at(1)->eta()); }
 
 
         // SR-VBF-low
@@ -995,7 +947,7 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SR-E-low-ee-4", 16., 15.5, 2.6)
         COMMIT_SIGNAL_REGION("SR-E-low-ee-5", 10., 12.9, 2.1)
         COMMIT_SIGNAL_REGION("SR-E-low-ee-6", 9., 18.8, 2.2)
-        
+
         COMMIT_SIGNAL_REGION("SR-E-low-mumu-1", 9., 15.4, 2.4)
         COMMIT_SIGNAL_REGION("SR-E-low-mumu-2", 7., 8.0, 1.7)
         COMMIT_SIGNAL_REGION("SR-E-low-mumu-3", 7., 6.5, 1.6)
@@ -1004,7 +956,7 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SR-E-low-mumu-6", 18., 16.7, 2.3)
         COMMIT_SIGNAL_REGION("SR-E-low-mumu-7", 16., 15.3, 2.0)
         COMMIT_SIGNAL_REGION("SR-E-low-mumu-8", 44., 35.9, 3.3)
-        
+
         COMMIT_SIGNAL_REGION("SR-E-low-combined-1", 9., 15.4, 2.4)
         COMMIT_SIGNAL_REGION("SR-E-low-combined-2", 7., 8.0, 1.7)
         COMMIT_SIGNAL_REGION("SR-E-low-combined-3", 7.+7., 5.3+6.5, sqrt(1.5*1.5 + 1.6*1.6))
@@ -1019,14 +971,14 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SR-E-med-ee-2", 41., 34., 4.)
         COMMIT_SIGNAL_REGION("SR-E-med-ee-3", 59., 52., 6.)
         COMMIT_SIGNAL_REGION("SR-E-med-ee-4", 21., 18.5, 3.2)
-        
+
         COMMIT_SIGNAL_REGION("SR-E-med-mumu-1", 16., 14.6, 2.9)
         COMMIT_SIGNAL_REGION("SR-E-med-mumu-2", 8., 6.9, 2.1)
         COMMIT_SIGNAL_REGION("SR-E-med-mumu-3", 0., 0.11, 0.08)
         COMMIT_SIGNAL_REGION("SR-E-med-mumu-4", 4., 5.1, 1.6)
         COMMIT_SIGNAL_REGION("SR-E-med-mumu-5", 11., 7.3, 1.9)
         COMMIT_SIGNAL_REGION("SR-E-med-mumu-6", 4., 2.2, 0.9)
-        
+
         COMMIT_SIGNAL_REGION("SR-E-med-combined-1", 16., 14.6, 2.9)
         COMMIT_SIGNAL_REGION("SR-E-med-combined-2", 8., 6.9, 2.1)
         COMMIT_SIGNAL_REGION("SR-E-med-combined-3", 6.+0., 6.2+0.11, sqrt(1.9*1.9 + 0.08*0.08))
@@ -1041,7 +993,7 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SR-E-high-ee-4", 3., 8.3, 1.4)
         COMMIT_SIGNAL_REGION("SR-E-high-ee-5", 5., 10.1, 1.5)
         COMMIT_SIGNAL_REGION("SR-E-high-ee-6", 20., 19.6, 2.3)
-        
+
         COMMIT_SIGNAL_REGION("SR-E-high-mumu-1", 5., 3.4, 1.2)
         COMMIT_SIGNAL_REGION("SR-E-high-mumu-2", 5., 3.5, 1.3)
         COMMIT_SIGNAL_REGION("SR-E-high-mumu-3", 1., 0.7, 0.4)
@@ -1050,7 +1002,7 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SR-E-high-mumu-6", 8., 10.1, 1.7)
         COMMIT_SIGNAL_REGION("SR-E-high-mumu-7", 8., 10.4, 1.7)
         COMMIT_SIGNAL_REGION("SR-E-high-mumu-8", 18, 19.3, 2.5)
-        
+
         COMMIT_SIGNAL_REGION("SR-E-high-combined-1", 5., 3.4, 1.2)
         COMMIT_SIGNAL_REGION("SR-E-high-combined-2", 5., 3.5, 1.3)
         COMMIT_SIGNAL_REGION("SR-E-high-combined-3", 0.+1., 3.9+0.7, sqrt(1.3*1.3 + 0.4*0.4))
@@ -1096,7 +1048,7 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SR-S-low-ee-6", 24., 23.3, 3.0 )
         COMMIT_SIGNAL_REGION("SR-S-low-ee-7", 32., 27.1, 3.1 )
         COMMIT_SIGNAL_REGION("SR-S-low-ee-8", 11., 16.8, 2.1 )
-        
+
         COMMIT_SIGNAL_REGION("SR-S-low-mumu-1", 3., 5.2, 1.1)
         COMMIT_SIGNAL_REGION("SR-S-low-mumu-2", 6., 4.3, 1.0)
         COMMIT_SIGNAL_REGION("SR-S-low-mumu-3", 15., 12.8, 1.8)
@@ -1105,7 +1057,7 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SR-S-low-mumu-6", 44., 37.8, 3.3)
         COMMIT_SIGNAL_REGION("SR-S-low-mumu-7", 41., 36.0, 3.4)
         COMMIT_SIGNAL_REGION("SR-S-low-mumu-8", 28., 28.0, 2.7)
-        
+
         COMMIT_SIGNAL_REGION("SR-S-low-combined-1", 8.+3., 6.0+5.2, sqrt(1.4*1.4 + 1.1*1.1))
         COMMIT_SIGNAL_REGION("SR-S-low-combined-2", 5.+6., 5.3+4.3, sqrt(2.1*2.1 + 1.0*1.0))
         COMMIT_SIGNAL_REGION("SR-S-low-combined-3", 15.+15., 11.6+12.8, sqrt(2.5*2.5 + 1.8*1.8))
@@ -1125,7 +1077,7 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SR-S-high-ee-6", 6., 5.7, 1.0 )
         COMMIT_SIGNAL_REGION("SR-S-high-ee-7", 8., 7.0, .2 )
         COMMIT_SIGNAL_REGION("SR-S-high-ee-8", 6., 6.8, 1.1 )
-        
+
         COMMIT_SIGNAL_REGION("SR-S-high-mumu-1", 10., 11.0, 2.2)
         COMMIT_SIGNAL_REGION("SR-S-high-mumu-2", 3., 5.8, 1.3)
         COMMIT_SIGNAL_REGION("SR-S-high-mumu-3", 11., 8.6, 1.6)
@@ -1134,7 +1086,7 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SR-S-high-mumu-6", 11., 11.2, 1.6)
         COMMIT_SIGNAL_REGION("SR-S-high-mumu-7", 10., 11.5, 1.5)
         COMMIT_SIGNAL_REGION("SR-S-high-mumu-8", 8., 7.8, 1.4)
-        
+
         COMMIT_SIGNAL_REGION("SR-S-high-combined-1", 3.+10., 4.0+11.0, sqrt(1.1*1.1 + 2.2*2.2))
         COMMIT_SIGNAL_REGION("SR-S-high-combined-2", 3.+3., 3.6+5.8, sqrt(1.0*1.0 + 1.3*1.3))
         COMMIT_SIGNAL_REGION("SR-S-high-combined-3", 9.+11., 7.9+8.6, sqrt(1.9*1.9 + 1.6*1.6))
@@ -1145,8 +1097,6 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SR-S-high-combined-8", 6.+8., 6.8+7.8, sqrt(1.1*1.1 + 1.4*1.4))
 
         COMMIT_CUTFLOWS
-
-
       }
 
 
@@ -1182,7 +1132,7 @@ namespace Gambit
           COMMIT_SIGNAL_REGION("SR-E-low-ee-4", 16., 15.5, 2.6)
           COMMIT_SIGNAL_REGION("SR-E-low-ee-5", 10., 12.9, 2.1)
           COMMIT_SIGNAL_REGION("SR-E-low-ee-6", 9., 18.8, 2.2)
-        
+
           COMMIT_SIGNAL_REGION("SR-E-low-mumu-1", 9., 15.4, 2.4)
           COMMIT_SIGNAL_REGION("SR-E-low-mumu-2", 7., 8.0, 1.7)
           COMMIT_SIGNAL_REGION("SR-E-low-mumu-3", 7., 6.5, 1.6)
@@ -1197,7 +1147,7 @@ namespace Gambit
           COMMIT_SIGNAL_REGION("SR-E-med-ee-2", 41., 34., 4.)
           COMMIT_SIGNAL_REGION("SR-E-med-ee-3", 59., 52., 6.)
           COMMIT_SIGNAL_REGION("SR-E-med-ee-4", 21., 18.5, 3.2)
-        
+
           COMMIT_SIGNAL_REGION("SR-E-med-mumu-1", 16., 14.6, 2.9)
           COMMIT_SIGNAL_REGION("SR-E-med-mumu-2", 8., 6.9, 2.1)
           COMMIT_SIGNAL_REGION("SR-E-med-mumu-3", 0., 0.11, 0.08)
@@ -1212,7 +1162,7 @@ namespace Gambit
           COMMIT_SIGNAL_REGION("SR-E-high-ee-4", 3., 8.3, 1.4)
           COMMIT_SIGNAL_REGION("SR-E-high-ee-5", 5., 10.1, 1.5)
           COMMIT_SIGNAL_REGION("SR-E-high-ee-6", 20., 19.6, 2.3)
-        
+
           COMMIT_SIGNAL_REGION("SR-E-high-mumu-1", 5., 3.4, 1.2)
           COMMIT_SIGNAL_REGION("SR-E-high-mumu-2", 5., 3.5, 1.3)
           COMMIT_SIGNAL_REGION("SR-E-high-mumu-3", 1., 0.7, 0.4)
@@ -1258,7 +1208,7 @@ namespace Gambit
           COMMIT_SIGNAL_REGION("SR-S-low-ee-6", 24., 23.3, 3.0 )
           COMMIT_SIGNAL_REGION("SR-S-low-ee-7", 32., 27.1, 3.1 )
           COMMIT_SIGNAL_REGION("SR-S-low-ee-8", 11., 16.8, 2.1 )
-        
+
           COMMIT_SIGNAL_REGION("SR-S-low-mumu-1", 3., 5.2, 1.1)
           COMMIT_SIGNAL_REGION("SR-S-low-mumu-2", 6., 4.3, 1.0)
           COMMIT_SIGNAL_REGION("SR-S-low-mumu-3", 15., 12.8, 1.8)
@@ -1278,7 +1228,7 @@ namespace Gambit
           COMMIT_SIGNAL_REGION("SR-S-high-ee-6", 6., 5.7, 1.0 )
           COMMIT_SIGNAL_REGION("SR-S-high-ee-7", 8., 7.0, .2 )
           COMMIT_SIGNAL_REGION("SR-S-high-ee-8", 6., 6.8, 1.1 )
-        
+
           COMMIT_SIGNAL_REGION("SR-S-high-mumu-1", 10., 11.0, 2.2)
           COMMIT_SIGNAL_REGION("SR-S-high-mumu-2", 3., 5.8, 1.3)
           COMMIT_SIGNAL_REGION("SR-S-high-mumu-3", 11., 8.6, 1.6)
@@ -1295,8 +1245,8 @@ namespace Gambit
 
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_2LEPsoft_exclusive_139invfb)
-    
-    
+
+
     // Derived analysis that combines ee and mu mu signal regions
     class Analysis_ATLAS_13TeV_2LEPsoft_combined_139invfb : public Analysis_ATLAS_13TeV_2LEPsoft_139invfb
     {
@@ -1393,9 +1343,6 @@ namespace Gambit
 
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_2LEPsoft_combined_139invfb)
-
-
-
 
   }
 }
