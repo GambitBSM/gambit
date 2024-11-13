@@ -103,6 +103,7 @@ namespace Gambit
 
 
   }
+
 }
 
 #endif //__printermanager_hpp__

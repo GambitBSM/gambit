@@ -156,16 +156,16 @@
       pyArray_dbl transfer_matrix = py::cast<pyArray_dbl>(result["transfer_matrix"]);
 
       // Pure abundances post acropolis
-      double Y0_post[niso];
+      std::vector<double> Y0_post(niso);
       for (int i=0; i != niso; ++i)
       {
         Y0_post[i] = 0.0;
         for (int j=0; j < niso; ++j)
-          *(Y0_post+i) += *(transfer_matrix.data()+i*niso+j) * *(Y0_pre.data()+j);
+          Y0_post[i] += *(transfer_matrix.data()+i*niso+j) * *(Y0_pre.data()+j);
       }
 
       // Transalte the results from pure abundances to ratioH
-      Y0_to_ratioH(ratioH_post, Y0_post, niso);
+      Y0_to_ratioH(ratioH_post, &Y0_post[0], niso);
 
       // Transform transfer matrix for computation of covariance
       std::vector<double> corrected_transfer_matrix(niso*niso,0.0);
