@@ -228,7 +228,7 @@ namespace Gambit
       bool use_fulllikes;
       Options runOptions;
       bool (*FullLikes_FileExists)(const str&);
-      int (*FullLikes_ReadIn)(const str&, const str&);
+      int (*FullLikes_ReadIn)(const str&, const str&, const str&);
       double (*FullLikes_Evaluate)(std::map<str,double>&,const str&);
       double (*marginaliser)(const int&, const double&, const double&, const double&);
     };
@@ -243,7 +243,7 @@ namespace Gambit
     // =========== Forward declarations ===========
 
     /// Forward declaration of function in LHC_likelihoods
-    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, bool, double (*)(const int&, const double&, const double&, const double&), bool, bool, const Options&, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), const std::string);
+    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, bool, double (*)(const int&, const double&, const double&, const double&), bool, bool, const Options&, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), const std::string);
 
     /// Forward declarations of functions in this file
     void DMEFT_fill_analysis_info_map();
@@ -1206,7 +1206,7 @@ namespace Gambit
       // This also pulls the function pointers for the fulllikes backend from the stolen pipe
       Options calc_LHC_LogLikes_runOptions;
       bool (*FullLikes_FileExists)(const str&);
-      int (*FullLikes_ReadIn)(const str&, const str&);
+      int (*FullLikes_ReadIn)(const str&, const str&, const str&);
       double (*FullLikes_Evaluate)(std::map<str,double>&,const str&);
       double (*marginaliser)(const int&, const double&, const double&, const double&);
       if (use_fulllikes)
@@ -1232,8 +1232,6 @@ namespace Gambit
       // Use the naive sum of SR loglikes for analyses without known correlations?
       // Always compute all individual SR loglikes (even if not used for the combined loglike)?
       static const bool always_compute_all_SR_loglikes = calc_LHC_LogLikes_runOptions.getValueOrDef<bool>(true, "always_compute_all_SR_loglikes");
-      // These LHC likelihoods don't use the ATLAS full likelihood system
-      static const bool use_fulllikes = false;
       static const bool combine_nocovar_SRs = calc_LHC_LogLikes_runOptions.getValueOrDef<bool>(false, "combine_SRs_without_covariances");
 
       // Clear previous result map

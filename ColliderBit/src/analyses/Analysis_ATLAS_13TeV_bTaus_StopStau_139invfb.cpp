@@ -376,7 +376,7 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_bTaus_StopStau_139invfb);
+    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_bTaus_StopStau_139invfb)
 
   }
 }
