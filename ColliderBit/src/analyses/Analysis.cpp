@@ -199,7 +199,7 @@ namespace Gambit
         _results[i].combine_SR_MC_signal(otherResults[i]);
       }
       for (auto& pair : _counters) { pair.second += other->_counters.at(pair.first); }
-      _cutflows.combine(other->get_cutflows());
+      //_cutflows.combine(other->get_cutflows()); // TODO: This is currently failing when including the _cutflow object in the analysis.
       _results.add_cutflows(_cutflows);
 
     }

@@ -21,6 +21,8 @@
 #include "HEPUtils/FastJet.h"
 #include "TRandom3.h"
 
+// #define CHECK_CUTFLOW
+
 using namespace std;
 
 // Based on EW regions of https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/NA-SUSY-2019-02-PAPER.pdf
@@ -565,10 +567,12 @@ namespace Gambit
     {
       private:
 
+      #ifdef CHECK_CUTFLOW
         // Cut Flow
         vector<int> cutFlowVector;
         vector<string> cutFlowVector_str;
         int NCUTS;
+      #endif
       
         std::map<std::string, MVA *> m_MVAs;
       
@@ -645,6 +649,7 @@ namespace Gambit
           _counters["SR_SF_79_inc"] = EventCounter("SR_SF_79_inc");
           _counters["SR_SF_80_inc"] = EventCounter("SR_SF_80_inc");
 
+          #ifdef CHECK_CUTFLOW
           // Cut flows
           NCUTS = 54;
 
@@ -653,6 +658,7 @@ namespace Gambit
             cutFlowVector.push_back(0);
             cutFlowVector_str.push_back("");
           }
+          #endif
 
           // Instances for BDT
           #pragma omp critical (init_ATLAS_13TeV_2LEP0JET_EW_139invfb)

@@ -19,7 +19,7 @@
 #include "HEPUtils/FastJet.h"
 
 using namespace std;
-#define CHECK_CUTFLOW
+//#define CHECK_CUTFLOW
 
 namespace Gambit
 {
