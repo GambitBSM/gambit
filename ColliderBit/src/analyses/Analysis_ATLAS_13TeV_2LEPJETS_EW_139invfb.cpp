@@ -35,10 +35,6 @@ namespace Gambit
     class Analysis_ATLAS_13TeV_2LEPJETS_EW_139invfb : public Analysis
     {
 
-    protected:
-
-      Cutflows _cutflows;
-
     private:
 
       struct ptComparison

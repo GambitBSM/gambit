@@ -79,8 +79,7 @@ namespace Gambit
       }
       
       // Consstructor for degenerate ellipse (i.e. a "dot" at (x0,y0) ).
-      EllipseParams(const double x0, const double y0)
-                  : c_xx(1), c_yy(1), c_xy(0), c_x(-x0), c_y(-y0), c(x0 * x0 + y0 * y0), det(0) {}
+      EllipseParams(const double x0, const double y0) : c_xx(1), c_yy(1), c_xy(0), c_x(-x0), c_y(-y0), c(x0 * x0 + y0 * y0), det(0) {}
                   
       double lesterFactor(const EllipseParams &e2) const
       {
@@ -116,10 +115,7 @@ namespace Gambit
     bool ellipsesAreDisjoint(const EllipseParams &e1, const EllipseParams &e2);
 
     // This is an implementation thing: users should not call it:
-    bool __private_ellipsesAreDisjoint(const double coeffLamPow3,
-                                   const double coeffLamPow2,
-                                   const double coeffLamPow1,
-                                   const double coeffLamPow0);
+    bool __private_ellipsesAreDisjoint(const double coeffLamPow3, const double coeffLamPow2, const double coeffLamPow1, const double coeffLamPow0);
 
     bool ellipsesAreDisjoint(const EllipseParams &e1, const EllipseParams &e2)
     {
@@ -158,9 +154,9 @@ namespace Gambit
     }
 
     bool __private_ellipsesAreDisjoint(const double coeffLamPow3,
-                                   const double coeffLamPow2,
-                                   const double coeffLamPow1,
-                                   const double coeffLamPow0)
+                                       const double coeffLamPow2,
+                                       const double coeffLamPow1,
+                                       const double coeffLamPow0)
     {
 
       // precondition of being called:

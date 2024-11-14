@@ -55,8 +55,6 @@ namespace Gambit
 
     protected:
 
-      Cutflows _cutflows;
-
       //vector<int> _test;
       //int _test2;
 

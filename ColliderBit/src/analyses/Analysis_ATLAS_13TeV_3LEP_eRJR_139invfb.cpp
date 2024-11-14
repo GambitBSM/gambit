@@ -83,8 +83,6 @@ namespace Gambit
         } compareJetPt;
 
 
-        Cutflows _cutflows;
-
         Analysis_ATLAS_13TeV_3LEP_eRJR_139invfb()
         {
           // Signal region map

@@ -31,10 +31,6 @@ namespace Gambit
     class Analysis_CMS_13TeV_0LEPStop_137invfb : public Analysis
     {
 
-    protected:
-
-      Cutflows _cutflows;
-
     private:
 
       struct ptComparison
