@@ -106,11 +106,11 @@ namespace Gambit
 
 
     // Calculate a Poisson likelihood
-    double calc_poisson_like(std::string estimator, double s, double b, int o, int n_mc, double n_exp)
+    double calc_poisson_like(std::string estimator, double s, double b, int s_unscaled, int o, int n_mc, double n_exp)
     {
-      if (estimator == "MVUE")
+      if (estimator == "UMVUE")
       {
-        return Gambit::ColliderBit::ideal::umvue_poisson_like(s, b, o, n_mc, n_exp);
+        return Gambit::ColliderBit::ideal::umvue_poisson_like(s_unscaled, b, o, n_mc, n_exp);
       }
       else if (estimator == "MLE")
       {
@@ -159,7 +159,8 @@ namespace Gambit
         // At present can only call the profiling with the MLE estimator. Knowing the separate signal
         // and background would be necessary if using other estimators
         // n_mc and n_mc_expected are set to zero as they are not used for the MLE estimator
-        const double loglike_j = calc_poisson_like("MLE", lambda_j, 0.0, n_obss(j), 0, 0);
+        // sig_unscaled is set to 0 as it is not used in MLE estimator
+        const double loglike_j = calc_poisson_like("MLE", lambda_j, 0, 0.0, n_obss(j), 0, 0);
 
         loglike_tot += loglike_j;
       }
@@ -238,10 +239,13 @@ namespace Gambit
     /// @note: marginaliser not used, but added to match function signature with marg_loglike_cov
     double profile_loglike_cov(const Options& runOptions,
                                const Eigen::ArrayXd& n_preds,
-                               const Eigen::ArrayXd&/* n_bkg*/,
+                               const Eigen::ArrayXd& /* n_bkg*/,
+                               const Eigen::ArrayXd& /*n_preds_unscaled*/,
                                const Eigen::ArrayXd& n_obss,
                                const Eigen::ArrayXd& sqrtevals,
+                               const Eigen::ArrayXd& /*sqrtevals_bkg*/,
                                const Eigen::MatrixXd& evecs,
+                               const Eigen::MatrixXd& /*evecs*/,
                                double (*/*marginaliser*/)(const int&, const double&, const double&, const double&),
                                int /*n_mc*/,
                                double /*n_mc_expected*/)
@@ -300,8 +304,8 @@ namespace Gambit
       static const struct multimin::multimin_params oparams = {INITIAL_STEP, CONV_TOL, MAXSTEPS, CONV_ACC, SIMPLEX_SIZE, METHOD, VERBOSITY};
 
       // For now, throw an error if trying to use profiler with the umbue poisson like, as it does not have a gradient function for the optimiser
-      static const std::string poisson_estimator = runOptions.getValueOrDef<std::string>("MLE", "poisson_estimator");
-      if (poisson_estimator == "MVUE")
+      static const std::string poisson_estimator = runOptions.getValueOrDef<std::string>("MLE", "poisson_like_estimator");
+      if (poisson_estimator == "UMVUE")
       {
         ColliderBit_error().raise(LOCAL_INFO,"Error: umvue poisson estimator cannot currently be run with collider likelihood profiling.");
       }
@@ -361,9 +365,12 @@ namespace Gambit
     double marg_loglike_cov(const Options& runOptions,
                             const Eigen::ArrayXd& n_preds,
                             const Eigen::ArrayXd& n_bkg,
+                            const Eigen::ArrayXd& n_preds_unscaled,
                             const Eigen::ArrayXd& n_obss,
                             const Eigen::ArrayXd& sqrtevals,
+                            const Eigen::ArrayXd& sqrtevals_bkg,
                             const Eigen::MatrixXd& evecs,
+                            const Eigen::MatrixXd& evecs_bkg,
                             double (*marginaliser)(const int&, const double&, const double&, const double&),
                             int n_mc,
                             double n_mc_expected)
@@ -376,11 +383,10 @@ namespace Gambit
       static const double CONVERGENCE_TOLERANCE_REL = runOptions.getValueOrDef<double>(0.05, "nuisance_marg_convthres_rel");
       static const size_t NSAMPLE_INPUT = runOptions.getValueOrDef<size_t>(100000, "nuisance_marg_nsamples_start");
       static const bool   NULIKE1SR = runOptions.getValueOrDef<bool>(true, "nuisance_marg_nulike1sr");
-      static const std::string poisson_estimator = runOptions.getValueOrDef<std::string>("MLE", "poisson_estimator");
+      static const std::string poisson_estimator = runOptions.getValueOrDef<std::string>("MLE", "poisson_like_estimator");
       
-
       // Optionally use nulike's more careful 1D marginalisation for one-SR cases
-      if (NULIKE1SR && nSR == 1) return marg_loglike_nulike1sr(n_preds, n_obss, sqrtevals, marginaliser);
+      if (NULIKE1SR && nSR == 1 && poisson_estimator != "UMVUE") return marg_loglike_nulike1sr(n_preds, n_obss, sqrtevals, marginaliser);
 
       // Dynamic convergence control & test has_and_variables
       size_t nsample = NSAMPLE_INPUT;
@@ -409,38 +415,98 @@ namespace Gambit
         /// Ben: I would vote for 'discard'. It can't be that inefficient, surely?
         /// Andy: For a lot of signal regions, the probability of none having a negative sample is Prod_SR p(non-negative)_SR... which *can* get bad.
 
-        #pragma omp parallel
+        // For the UMVUE estimator, sample background counts rather than signal counts
+        if (poisson_estimator == "UMVUE")
         {
-          // Sample correlated SR rates from a rotated Gaussian defined by the covariance matrix and offset by the mean rates
-          double lsum_private  = 0;
-          #pragma omp for nowait
-          for (size_t i = 0; i < nsample; ++i)
+          #pragma omp parallel
           {
-            Eigen::VectorXd norm_samples(nSR);
-            for (size_t j = 0; j < nSR; ++j)
-              norm_samples(j) = sqrtevals(j) * unitnormdbn(Random::rng());
-
-            // Rotate rate deltas into the SR basis and shift by SR mean rates
-            const Eigen::VectorXd n_pred_samples  = n_preds + (evecs*norm_samples).array();
-
-            // Calculate Poisson likelihood and add to composite likelihood calculation
-            double combined_loglike = 0;
-            for (size_t j = 0; j < nSR; ++j)
+            // Sample correlated SR rates from a rotated Gaussian defined by the covariance matrix and offset by the mean rates
+            double lsum_private  = 0;
+            #pragma omp for nowait
+            for (size_t i = 0; i < nsample; ++i)
             {
-              const double lambda_j = std::max(n_pred_samples(j), 1e-3); //< manually avoid <= 0 rates
-              const double signal_j = lambda_j - n_bkg(j);
-              const double loglike_j = calc_poisson_like(poisson_estimator, signal_j, n_bkg(j), n_obss(j), n_mc, n_mc_expected);
-              combined_loglike += loglike_j;
-            }
-            // Add combined likelihood to running sums (to later calculate averages)
-            lsum_private += exp(combined_loglike);
-          }
+              Eigen::VectorXd norm_samples_bkg(nSR);
+              for (size_t j = 0; j < nSR; ++j)
+              {
+                norm_samples_bkg(j) = sqrtevals_bkg(j) * unitnormdbn(Random::rng());
+              }
+              
+              // Rotate rate deltas into the SR basis and shift by SR mean rates
+              const Eigen::VectorXd n_bkg_samples  = n_bkg + (evecs_bkg*norm_samples_bkg).array();
 
-          #pragma omp critical
+              // Calculate Poisson likelihood and add to composite likelihood calculation
+              double combined_loglike = 0;
+              for (size_t j = 0; j < nSR; ++j)
+              {
+                // @todo This assumes that the weights are all 1. If there are non-zero weights, then the UMVUE estimator should not be used
+                const int signal_unscaled_j = n_preds_unscaled(j);
+
+                // TODO: Chris Chang: Debugging
+                std::cout << "n_bkg_samples(j): " << n_bkg_samples(j) << std::endl;
+                std::cout << "signal_unscaled_j: " << signal_unscaled_j << std::endl;
+                std::cout << "n_obss(j): " << n_obss(j) << std::endl;
+                std::cout << "n_mc: " << n_mc << std::endl;
+                std::cout << "n_mc_expected: " << n_mc_expected << std::endl;
+                 
+
+                // Since signal is unused for UMVUE estimator, setting to 0.0
+                const double loglike_j = calc_poisson_like(poisson_estimator, 0.0, n_bkg_samples(j), signal_unscaled_j, n_obss(j), n_mc, n_mc_expected);
+                combined_loglike += loglike_j;
+                
+                std::cout << "loglike_j: " << loglike_j << std::endl;// TODO: Chris Chang: Debugging
+                exit(0);// TODO: Chris Chang: Debugging
+                
+              }
+              // Add combined likelihood to running sums (to later calculate averages)
+              lsum_private += exp(combined_loglike);
+            }
+
+            #pragma omp critical
+            {
+              lsum  += lsum_private;
+            }
+          } // End omp parallel
+        }
+        else
+        {
+          #pragma omp parallel
           {
-            lsum  += lsum_private;
-          }
-        } // End omp parallel
+            // Sample correlated SR rates from a rotated Gaussian defined by the covariance matrix and offset by the mean rates
+            double lsum_private  = 0;
+            #pragma omp for nowait
+            for (size_t i = 0; i < nsample; ++i)
+            {
+              Eigen::VectorXd norm_samples(nSR);
+              for (size_t j = 0; j < nSR; ++j)
+              {
+                norm_samples(j) = sqrtevals(j) * unitnormdbn(Random::rng());
+              }
+
+              // Rotate rate deltas into the SR basis and shift by SR mean rates
+              const Eigen::VectorXd n_pred_samples  = n_preds + (evecs*norm_samples).array();
+
+              // Calculate Poisson likelihood and add to composite likelihood calculation
+              double combined_loglike = 0;
+              for (size_t j = 0; j < nSR; ++j)
+              {
+                const double lambda_j = std::max(n_pred_samples(j), 1e-3); //< manually avoid <= 0 rates
+                const double signal_j = lambda_j - n_bkg(j);
+              
+                // Since unscaled signal is not currently used for in this case, setting to 0
+                const double loglike_j = calc_poisson_like(poisson_estimator, signal_j, 0, n_bkg(j), n_obss(j), n_mc, n_mc_expected);
+                combined_loglike += loglike_j;
+              }
+              // Add combined likelihood to running sums (to later calculate averages)
+              lsum_private += exp(combined_loglike);
+            }
+
+            #pragma omp critical
+            {
+              lsum  += lsum_private;
+            }
+          } // End omp parallel
+        } // End if (poisson_estimator == "UMVUE") block
+
 
         // Compare convergence to previous independent batch
         if (first_iteration)  // The first round must be generated twice
@@ -593,9 +659,11 @@ namespace Gambit
 
         // Construct vectors of SR numbers
         /// @todo Unify this for both cov and no-cov, feeding in one-element Eigen blocks as Ref<>s for the latter?
+        Eigen::ArrayXd zero_array(nSR); zero_array = Eigen::ArrayXd::Zero(nSR);
         Eigen::ArrayXd n_obs(nSR); // logfact_n_obs(nSR);
         Eigen::ArrayXd n_pred_b(nSR);
         Eigen::ArrayXd n_pred_s(nSR);
+        Eigen::ArrayXd n_pred_s_unscaled(nSR);
         Eigen::ArrayXd n_pred_sb(nSR);
         Eigen::ArrayXd abs_unc_s(nSR);
         for (size_t SR = 0; SR < nSR; ++SR)
@@ -614,6 +682,7 @@ namespace Gambit
           n_pred_b(SR) = std::max(srData.n_bkg, 0.001); // <-- Avoid trouble with b==0
           n_pred_s(SR) = std::max(srData.n_sig_scaled, 0.001); // <-- Avoid trouble with s==0
           n_pred_sb(SR) = srData.n_sig_scaled + srData.n_bkg;
+          n_pred_s_unscaled(SR) = srData.n_sig_MC;
 
           // Absolute errors for n_predicted_uncertain_*
           abs_unc_s(SR) = srData.calc_n_sig_scaled_err();
@@ -651,9 +720,10 @@ namespace Gambit
 
         // Compute the single, correlated analysis-level DLL as the difference of s+b and b (partial) LLs
         /// @todo Only compute this once per run
-        const double ll_b = marg_prof_fn(runOptions, n_pred_b, n_pred_b, n_obs, sqrtEb, Vb, marginaliser, n_mc, n_mc_expected);
-        const double ll_sb = marg_prof_fn(runOptions, n_pred_sb, n_pred_b, n_obs, sqrtEsb, Vsb, marginaliser, n_mc, n_mc_expected);
+        const double ll_b = marg_prof_fn(runOptions, n_pred_b, n_pred_b, zero_array, n_obs, sqrtEb, sqrtEb, Vb, Vb, marginaliser, n_mc, n_mc_expected);
+        const double ll_sb = marg_prof_fn(runOptions, n_pred_sb, n_pred_b, n_pred_s_unscaled, n_obs, sqrtEsb, sqrtEb, Vsb, Vb, marginaliser, n_mc, n_mc_expected);
         dll = ll_sb - ll_b;
+        std::cout << "HEY CHRIS. dll: " << dll << std::endl;// TODO: Chris Chang: Debugging
 
         // Write result to the ana_loglikes reference
         ana_loglikes.combination_sr_label = "all";
@@ -718,6 +788,7 @@ namespace Gambit
           // A contribution to the predicted number of events that is not known exactly
           const double n_pred_b = std::max(srData.n_bkg, 0.001); // <-- Avoid trouble with b==0
           const double n_pred_sb = n_pred_b + srData.n_sig_scaled;
+          const double n_pred_s_unscaled = srData.n_sig_MC;
 
           // Actual observed number of events and predicted background, as integers cf. Poisson stats
           const double n_obs = round(srData.n_obs);
@@ -729,23 +800,36 @@ namespace Gambit
 
           // Construct dummy 1-element Eigen objects for passing to the general likelihood calculator
           /// @todo Use newer (?) one-step Eigen constructors for (const) single-element arrays
-          Eigen::ArrayXd n_obss(1);        n_obss(0) = n_obs;
-          Eigen::ArrayXd n_preds_b_int(1); n_preds_b_int(0) = n_pred_b_int;
-          Eigen::ArrayXd n_preds_b(1);     n_preds_b(0) = n_pred_b;
-          Eigen::ArrayXd n_preds_sb(1);    n_preds_sb(0) = n_pred_sb;
-          Eigen::ArrayXd sqrtevals_b(1);   sqrtevals_b(0) = abs_uncertainty_b;
-          Eigen::ArrayXd sqrtevals_sb(1);  sqrtevals_sb(0) = abs_uncertainty_sb;
-          Eigen::MatrixXd dummy(1,1); dummy(0,0) = 1.0;
+          Eigen::ArrayXd zero_array(1);            zero_array = Eigen::ArrayXd::Zero(1);
+          Eigen::ArrayXd n_obss(1);                n_obss(0) = n_obs;
+          Eigen::ArrayXd n_preds_b_int(1);         n_preds_b_int(0) = n_pred_b_int;
+          Eigen::ArrayXd n_preds_b(1);             n_preds_b(0) = n_pred_b;
+          Eigen::ArrayXd n_preds_sb(1);            n_preds_sb(0) = n_pred_sb;
+          Eigen::ArrayXd n_preds_s_unscaled(1);    n_preds_s_unscaled(0) = n_pred_s_unscaled;
+          Eigen::ArrayXd sqrtevals_b(1);           sqrtevals_b(0) = abs_uncertainty_b;
+          Eigen::ArrayXd sqrtevals_sb(1);          sqrtevals_sb(0) = abs_uncertainty_sb;
+          Eigen::MatrixXd dummy(1,1);              dummy(0,0) = 1.0;
 
           // Compute this SR's DLLs as the differences of s+b and b (partial) LLs
           /// @todo Only compute this once per run
-          const double ll_b_exp = marg_prof_fn(runOptions, n_preds_b, n_preds_b, n_preds_b_int, sqrtevals_b, dummy, marginaliser, n_mc, n_mc_expected);
+          const double ll_b_exp = marg_prof_fn(runOptions, n_preds_b, n_preds_b, zero_array, n_preds_b_int, sqrtevals_b, sqrtevals_b, dummy, dummy, marginaliser, n_mc, n_mc_expected);
           /// @todo Only compute this once per run
-          const double ll_b_obs = marg_prof_fn(runOptions, n_preds_b, n_preds_b, n_obss, sqrtevals_b, dummy, marginaliser, n_mc, n_mc_expected);
-          const double ll_sb_exp = marg_prof_fn(runOptions, n_preds_sb, n_preds_b, n_preds_b_int, sqrtevals_sb, dummy, marginaliser, n_mc, n_mc_expected);
-          const double ll_sb_obs = marg_prof_fn(runOptions, n_preds_sb, n_preds_b, n_obss, sqrtevals_sb, dummy, marginaliser, n_mc, n_mc_expected);
+          const double ll_b_obs = marg_prof_fn(runOptions, n_preds_b, n_preds_b, zero_array, n_obss, sqrtevals_b, sqrtevals_b, dummy, dummy, marginaliser, n_mc, n_mc_expected);
+          const double ll_sb_exp = marg_prof_fn(runOptions, n_preds_sb, n_preds_b, n_preds_s_unscaled, n_preds_b_int, sqrtevals_sb, sqrtevals_b, dummy, dummy, marginaliser, n_mc, n_mc_expected);
+          const double ll_sb_obs = marg_prof_fn(runOptions, n_preds_sb, n_preds_b, n_preds_s_unscaled, n_obss, sqrtevals_sb, sqrtevals_b, dummy, dummy, marginaliser, n_mc, n_mc_expected);
           const double dll_exp = ll_sb_exp - ll_b_exp;
           const double dll_obs = ll_sb_obs - ll_b_obs;
+          
+          std::cout << "dll_obs: " << dll_obs << std::endl; // TODO: Debugging Chris Chang
+          std::cout << "ll_b_obs: " << ll_b_obs << std::endl; // TODO: Debugging Chris Chang
+          std::cout << "ll_sb_obs: " << ll_sb_obs << std::endl; // TODO: Debugging Chris Chang
+          std::cout << "n_preds_s_unscaled(0): " << n_preds_s_unscaled(0) << std::endl; // TODO: Debugging Chris Chang
+          std::cout << "n_preds_sb(0): " << n_preds_sb(0) << std::endl; // TODO: Debugging Chris Chang
+          std::cout << "n_preds_b(0): " << n_preds_b(0) << std::endl; // TODO: Debugging Chris Chang
+          std::cout << "zero_array(0): " << zero_array(0) << std::endl; // TODO: Debugging Chris Chang
+          std::cout << "n_obss(0): " << n_obss(0) << std::endl; // TODO: Debugging Chris Chang
+          std::cout << "sqrtevals_b(0): " << sqrtevals_b(0) << std::endl; // TODO: Debugging Chris Chang
+          std::cout << "sqrtevals_sb(0): " << sqrtevals_sb(0) << std::endl; // TODO: Debugging Chris Chang
 
           // Check for problems
           if (Utils::isnan(ll_b_exp))
@@ -1116,8 +1200,13 @@ namespace Gambit
       double xsec = xsec_map[collider].xsec();
       int n_mc = Dep::RunMC->mean_nEvents;
 
+      // Set the estimator setting in the options and pass it down the chain
+      std::string estimator = Dep::RunMC->estimator;
+      Options runOptions_calc_LHC_LogLikes = *runOptions;
+      runOptions_calc_LHC_LogLikes.setValue("poisson_like_estimator", estimator);
+
       // Call the calc_LHC_LogLikes
-      calc_LHC_LogLikes_common(result, use_fulllikes, ana, *runOptions, marginaliser, skip_calc, FileExists, ReadIn, Evaluate, xsec, n_mc);
+      calc_LHC_LogLikes_common(result, use_fulllikes, ana, runOptions_calc_LHC_LogLikes, marginaliser, skip_calc, FileExists, ReadIn, Evaluate, xsec, n_mc);
 
     }
 
@@ -1145,8 +1234,13 @@ namespace Gambit
       double xsec = xsec_map[collider].xsec();
       int n_mc = Dep::RunMC->mean_nEvents;
 
+      // Set the estimator setting in the options and pass it down the chain
+      std::string estimator = Dep::RunMC->estimator;
+      Options runOptions_calc_LHC_LogLikes = *runOptions;
+      runOptions_calc_LHC_LogLikes.setValue("poisson_like_estimator", estimator);
+      
       // Call the calc_LHC_LogLikes
-      calc_LHC_LogLikes_common(result, use_fulllikes, ana, *runOptions, marginaliser, skip_calc, nullptr, nullptr, nullptr, xsec, n_mc);
+      calc_LHC_LogLikes_common(result, use_fulllikes, ana, runOptions_calc_LHC_LogLikes, marginaliser, skip_calc, nullptr, nullptr, nullptr, xsec, n_mc);
 
     }
 

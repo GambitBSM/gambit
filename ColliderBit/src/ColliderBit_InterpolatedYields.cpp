@@ -1162,7 +1162,7 @@ namespace Gambit
         // This would require careful checking of what total cross-section to pass on a case-by-case basis.
         // Setting xsec/n_mc to zero as they are not used
         static const std::string poisson_estimator = fpars->runOptions.getValueOrDef<std::string>("MLE", "poisson_estimator");
-        if (poisson_estimator == "MVUE")
+        if (poisson_estimator == "UMVUE")
         {
           ColliderBit_error().raise(LOCAL_INFO,"Error: umvue poisson estimator cannot currently be run with collider interpolated likelihoods.");
         }

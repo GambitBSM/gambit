@@ -83,7 +83,7 @@ namespace Gambit
         {
           if (f == 1.)
           {
-            return 1. ? k == o : 0.;
+            return k == o ? 1. : 0.;
           }
           return binom(k, o) * std::pow(f, k) * std::pow(1. - f, k - o);
         }

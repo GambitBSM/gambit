@@ -128,6 +128,13 @@ namespace Gambit
       using namespace Pipes::setEventWeight_fromCrossSection;
 
       const static int use_trust_level = runOptions->getValueOrDef<int>(1, "use_cross_section_trust_level");
+      const std::string estimator = Dep::RunMC->estimator;
+      if (estimator == "UMVUE")
+      {
+        std::stringstream errmsg_ss;
+        errmsg_ss << "Cannot currently use non-unity event weights with the UMVUE estimator. Please either choose another estimator, or swap to using setEventWeight_unity function.";
+        ColliderBit_error().raise(LOCAL_INFO, errmsg_ss.str());
+      }
       
       if(*Loop::iteration < 0) return;
 
