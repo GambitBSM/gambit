@@ -106,15 +106,16 @@ namespace Gambit
 
 
     // Calculate a Poisson likelihood
-    double calc_poisson_like(std::string estimator, double s, double b, int s_unscaled, int o, int n_mc, double n_exp)
+    double calc_poisson_loglike(std::string estimator, double s, double b, int s_unscaled, int o, int n_mc, double n_exp)
     {
       if (estimator == "UMVUE")
       {
-        return Gambit::ColliderBit::ideal::umvue_poisson_like(s_unscaled, b, o, n_mc, n_exp);
+        double umvue_likelihood = Gambit::ColliderBit::ideal::umvue_poisson_like(s_unscaled, b, o, n_mc, n_exp);
+        return log(umvue_likelihood);
       }
       else if (estimator == "MLE")
       {
-        return Gambit::ColliderBit::ideal::mle_poisson_like(s, b, o);
+        return Gambit::ColliderBit::ideal::mle_poisson_loglike(s, b, o);
       }
       
       // If hit this point, throw an error
@@ -160,7 +161,7 @@ namespace Gambit
         // and background would be necessary if using other estimators
         // n_mc and n_mc_expected are set to zero as they are not used for the MLE estimator
         // sig_unscaled is set to 0 as it is not used in MLE estimator
-        const double loglike_j = calc_poisson_like("MLE", lambda_j, 0.0, 0, n_obss(j), 0, 0);
+        const double loglike_j = calc_poisson_loglike("MLE", lambda_j, 0.0, 0, n_obss(j), 0, 0);
 
         loglike_tot += loglike_j;
       }
@@ -398,6 +399,7 @@ namespace Gambit
       long double ana_like_prev = 1;
       long double ana_like = 1;
       long double lsum_prev = 0;
+      
 
       // Sampler for unit-normal nuisances
       std::normal_distribution<double> unitnormdbn(0,1);
@@ -444,7 +446,7 @@ namespace Gambit
                 double bkg = std::max(n_bkg_samples(j), 1e-3); //< manually avoid <= 0 rates
 
                 // Since signal is unused for UMVUE estimator, setting to 0.0
-                const double loglike_j = calc_poisson_like(poisson_estimator, 0.0, bkg, signal_unscaled_j, n_obss(j), n_mc, n_mc_expected);
+                const double loglike_j = calc_poisson_loglike(poisson_estimator, 0.0, bkg, signal_unscaled_j, n_obss(j), n_mc, n_mc_expected);
                 combined_loglike += loglike_j;
               }
               // Add combined likelihood to running sums (to later calculate averages)
@@ -483,7 +485,7 @@ namespace Gambit
                 const double signal_j = lambda_j - n_bkg(j);
               
                 // Since unscaled signal is not currently used for in this case, setting to 0
-                const double loglike_j = calc_poisson_like(poisson_estimator, signal_j, n_bkg(j), 0, n_obss(j), n_mc, n_mc_expected);
+                const double loglike_j = calc_poisson_loglike(poisson_estimator, signal_j, n_bkg(j), 0, n_obss(j), n_mc, n_mc_expected);
                 combined_loglike += loglike_j;
               }
               // Add combined likelihood to running sums (to later calculate averages)
@@ -508,9 +510,19 @@ namespace Gambit
         {
           ana_like_prev = lsum_prev / (double)nsample;
           ana_like = lsum / (double)nsample;
+
+          // If ana_like is at or below zero, this is because combined likelihood is numerically indistinguishable from zero.
+          // Invalidate this point to avoid dividing by zero below
+          if (ana_like <= 0)
+          {
+            std::stringstream msg;
+            msg << "Zero likelihood in marg_loglike_cov. Catching early to avoid log(0)." << endl;
+            invalid_point().raise(msg.str());
+          }
+
           diff_abs = fabs(ana_like_prev - ana_like);
           diff_rel = diff_abs/ana_like;
-
+          
           // Update variables
           lsum_prev += lsum;  // Aggregate result. This doubles the effective batch size for lsum_prev.
           nsample *=2;  // This ensures that the next batch for lsum is as big as the current batch size for lsum_prev, so they can be compared directly.

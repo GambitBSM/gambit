@@ -71,6 +71,7 @@ namespace Gambit
       
       double umvue_poisson_like(int k, double b, int o, int n_mc, double n_exp)
       {
+
         if ((n_mc <= 0) || (n_exp <= 0))
         {
           ColliderBit_error().raise(LOCAL_INFO, "umvue_poisson_like: n_mc <= 0 || n_exp <= 0");
@@ -117,7 +118,7 @@ namespace Gambit
       /**
       Regular likelihood estimator
       */
-      double mle_poisson_like(double s, double b, int o)
+      double mle_poisson_loglike(double s, double b, int o)
       {
         double sb = s + b;
         return o*log(sb) - sb - log_factorial(o);
