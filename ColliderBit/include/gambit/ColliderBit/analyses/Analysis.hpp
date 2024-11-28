@@ -101,6 +101,12 @@ namespace Gambit
         void add(Analysis* other);
         ///@}
 
+        // Add progress tracking
+        // Enable progress tracking
+        void enable_progress_tracking(size_t interval = 100); 
+        // Log progress details
+        void log_progress();                                  
+
       protected:
 
         /// Reset the analysis-specific variables.
