@@ -103,9 +103,9 @@ namespace Gambit
 
         // Add progress tracking
         // Enable progress tracking
-        void enable_progress_tracking(size_t interval = 100); 
+        // void enable_progress_tracking(size_t interval = 100); 
         // Log progress details
-        void log_progress();                                  
+        // void log_progress();                                  
 
       protected:
 
