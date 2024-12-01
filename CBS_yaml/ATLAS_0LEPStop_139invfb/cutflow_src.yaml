@@ -1,0 +1,98 @@
+dependent_variables:
+- header:
+    name: Weighted yield
+  qualifiers:
+  - name: region
+    value: SRC
+  values:
+  - value: '32544.9'
+  - value: '28342.8'
+  - value: '6668.1'
+  - value: '6319.7'
+  - value: '5622.8'
+  - value: '3183.0'
+  - value: '2855.0'
+  - value: '2638.7'
+  - value: '2334.5'
+  - value: '2334.1'
+  - value: '2306.6'
+  - value: '1290.9'
+  - value: '454.7'
+  - value: '181.2'
+  - value: '179.4'
+  - value: '99.7'
+  - value: '99.7'
+  - value: '55.6'
+  - value: '55.6'
+  - value: '55.2'
+  - value: '51.2'
+  - value: '0.3'
+  - value: '2.3'
+  - value: '15.0'
+  - value: '28.6'
+  - value: '5.0'
+- header:
+    name: Unweighted yield
+  qualifiers:
+  - name: region
+    value: SRC
+  values:
+  - value: '150000'
+  - value: '130412'
+  - value: '30726'
+  - value: '29192'
+  - value: '26136'
+  - value: '14873'
+  - value: '13289'
+  - value: '12251'
+  - value: '10801'
+  - value: '10799'
+  - value: '10677'
+  - value: '6141'
+  - value: '2223'
+  - value: '883'
+  - value: '874'
+  - value: '488'
+  - value: '488'
+  - value: '270'
+  - value: '270'
+  - value: '268'
+  - value: '249'
+  - value: '1'
+  - value: '11'
+  - value: '70'
+  - value: '143'
+  - value: '24'
+independent_variables:
+- header:
+    name: Cut
+  values:
+  - value: Total
+  - value: Derivation skim
+  - value: $E_{\mathrm{T}}^{\mathrm{miss}} >$ 250
+  - value: $\mathrm{N}_{\mathrm{j}} \ge$ 4
+  - value: $\mathrm{N}_{b} \ge$ 1
+  - value: Lepton veto
+  - value: $p_{\mathrm{T}}^{j_4} >$ 40 GeV
+  - value: $p_{\mathrm{T}}^{j_2} >$ 80 GeV
+  - value: $\left|\Delta\phi_{\min}\left(\mathbf{p}_{\mathrm{T},1-4},\mathbf{p}_\mathrm{T}^\mathrm{miss}\right)\right|
+      >$ 0.2
+  - value: Pass $E_{\mathrm{T}}^{\mathrm{miss}}$ trigger
+  - value: $\mathcal{S} >$ 5
+  - value: $\mathrm{N}_{\mathrm{j}}^{\mathrm{S}} \ge$ 4
+  - value: $\mathrm{N}_{b}^{\mathrm{S}} \ge$ 2
+  - value: $m_{\mathrm{S}} >$ 400 GeV
+  - value: $p_{\mathrm{T},1}^{\mathrm{S},b} >$ 40 GeV
+  - value: $\left|\Delta\phi\left(\mathbf{p}_{\mathrm{T}}^{\mathrm{ISR}},\mathbf{p}_\mathrm{T}^\mathrm{miss}\right)\right|
+      >$ 3.00
+  - value: $p_{\mathrm{T}}^{\mathrm{ISR}} >$ 400 GeV
+  - value: $p_{\mathrm{T},4}^{\mathrm{S}} >$ 50 GeV
+  - value: $\mathcal{S} \ge$ 5.
+  - value: $E_{\mathrm{T}}^{\mathrm{miss, track}} >$ 30 GeV
+  - value: $\left|\Delta\phi\left(\mathbf{p}_\mathrm{T}^\mathrm{miss},\mathbf{p}_{\mathrm{T}}^{\mathrm{miss,
+      track}}\right)\right| <$ $\pi$/3
+  - value: $0.3\le R_{\mathrm{ISR}}<0.4$ (SRC-1)
+  - value: $0.4\le R_{\mathrm{ISR}}<0.5$ (SRC-2)
+  - value: $0.5\le R_{\mathrm{ISR}}<0.6$ (SRC-3)
+  - value: $0.6\le R_{\mathrm{ISR}}<0.7$ (SRC-4)
+  - value: $ R_{\mathrm{ISR}}\le 0.7$ (SRC-5)

@@ -1,0 +1,84 @@
+dependent_variables:
+- header:
+    name: Weighted yield
+  qualifiers:
+  - name: region
+    value: SRA-TT
+  values:
+  - value: '123.3'
+  - value: '122.2'
+  - value: '109.2'
+  - value: '95.8'
+  - value: '47.1'
+  - value: '30.7'
+  - value: '27.9'
+  - value: '27.8'
+  - value: '24.1'
+  - value: '24.1'
+  - value: '24.1'
+  - value: '23.6'
+  - value: '21.6'
+  - value: '19.1'
+  - value: '17.7'
+  - value: '8.9'
+  - value: '7.2'
+  - value: '7.0'
+  - value: '4.7'
+  - value: '4.4'
+  - value: '4.0'
+  - value: '3.8'
+- header:
+    name: Unweighted yield
+  qualifiers:
+  - name: region
+    value: SRA-TT
+  values:
+  - value: '30000'
+  - value: '29755'
+  - value: '26606'
+  - value: '23395'
+  - value: '11651'
+  - value: '7627'
+  - value: '6924'
+  - value: '6898'
+  - value: '6000'
+  - value: '6000'
+  - value: '5994'
+  - value: '5879'
+  - value: '5376'
+  - value: '4721'
+  - value: '4380'
+  - value: '2204'
+  - value: '1786'
+  - value: '1754'
+  - value: '1162'
+  - value: '1087'
+  - value: '1008'
+  - value: '939'
+independent_variables:
+- header:
+    name: Cut
+  values:
+  - value: Total
+  - value: Derivation skim
+  - value: $E_{\mathrm{T}}^{\mathrm{miss}} >$ 250 GeV
+  - value: $\mathrm{N}_{\mathrm{j}} \ge$ 4
+  - value: $\mathrm{N}_{b} \ge$ 2
+  - value: Lepton veto
+  - value: $p_{\mathrm{T}}^{j_4} >$ 40 GeV
+  - value: $p_{\mathrm{T}}^{j_2} >$ 80 GeV
+  - value: $\left|\Delta\phi_{\min}\left(\mathbf{p}_{\mathrm{T},1-4},\mathbf{p}_\mathrm{T}^\mathrm{miss}\right)\right|
+      >$ 0.4
+  - value: Pass $E_{\mathrm{T}}^{\mathrm{miss}}$ trigger
+  - value: $\mathcal{S} >$ 5
+  - value: $m_{\mathrm{T}}^{b,\mathrm{min}} >$ 50 GeV
+  - value: $\tau$ veto
+  - value: $m_{\mathrm{T}}^{b,\mathrm{min}} >$ 200 GeV
+  - value: $m_{1}^{R=1.2} >$ 120 GeV
+  - value: $m_{2}^{R=1.2} >$ 120 GeV
+  - value: $m_{\mathrm{T2,\chi^2}} >$ 450 GeV
+  - value: $m_{1}^{R=0.8} >$ 60 GeV
+  - value: $\mathcal{S} >$ 25
+  - value: $j^{R=1.2}_1(b)$
+  - value: $j^{R=1.2}_2(b)$
+  - value: $\Delta R\left(b_1,b_2\right) >$ 1
