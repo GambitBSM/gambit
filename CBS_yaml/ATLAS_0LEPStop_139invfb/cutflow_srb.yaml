@@ -1,0 +1,84 @@
+dependent_variables:
+- header:
+    name: Weighted yield
+  qualifiers:
+  - name: region
+    value: SRB
+  values:
+  - value: '10883.7'
+  - value: '10039.2'
+  - value: '4201.3'
+  - value: '3890.0'
+  - value: '2022.9'
+  - value: '1357.3'
+  - value: '1206.8'
+  - value: '1130.3'
+  - value: '960.4'
+  - value: '960.2'
+  - value: '951.9'
+  - value: '883.7'
+  - value: '773.9'
+  - value: '444.8'
+  - value: '420.1'
+  - value: '274.9'
+  - value: '184.5'
+  - value: '166.0'
+  - value: '124.9'
+  - value: '29.7'
+  - value: '33.9'
+  - value: '61.3'
+- header:
+    name: Unweighted yield
+  qualifiers:
+  - name: region
+    value: SRB
+  values:
+  - value: '60000'
+  - value: '55494'
+  - value: '22957'
+  - value: '21324'
+  - value: '11260'
+  - value: '7546'
+  - value: '6682'
+  - value: '6241'
+  - value: '5323'
+  - value: '5321'
+  - value: '5278'
+  - value: '4902'
+  - value: '4308'
+  - value: '2464'
+  - value: '2321'
+  - value: '1505'
+  - value: '1020'
+  - value: '925'
+  - value: '688'
+  - value: '160'
+  - value: '199'
+  - value: '329'
+independent_variables:
+- header:
+    name: Cut
+  values:
+  - value: Total
+  - value: Derivation skim
+  - value: $E_{\mathrm{T}}^{\mathrm{miss}} >$ 250 GeV
+  - value: $\mathrm{N}_{\mathrm{j}} \ge$ 4
+  - value: $\mathrm{N}_{b} \ge$ 2
+  - value: Lepton veto
+  - value: $p_{\mathrm{T}}^{j_4} >$ 40 GeV
+  - value: $p_{\mathrm{T}}^{j_2} >$ 80 GeV
+  - value: $\left|\Delta\phi_{\min}\left(\mathbf{p}_{\mathrm{T},1-4},\mathbf{p}_\mathrm{T}^\mathrm{miss}\right)\right|
+      >$ 0.4
+  - value: Pass $E_{\mathrm{T}}^{\mathrm{miss}}$ trigger
+  - value: $\mathcal{S} >$ 5
+  - value: $m_{\mathrm{T}}^{b,\mathrm{min}} >$ 50 GeV
+  - value: $\tau$ veto
+  - value: $m_{\mathrm{T}}^{b,\mathrm{min}} >$ 200 GeV
+  - value: $m_{\mathrm{T}}^{b,\mathrm{max}} >$ 200 GeV
+  - value: $\Delta R\left(b_1,b_2\right) >$ 1.4
+  - value: $m_{1}^{R=1.2} >$ 120 GeV
+  - value: $m_{\mathrm{T2,\chi^2}} <$ 450 GeV
+  - value: $\mathcal{S} >$ 14
+  - value: $m_{2}^{R=1.2}>120$ (SRB-TT)
+  - value: $60\le m_{2}^{R=1.2} \le 120$ (SRB-TW)
+  - value: $m_{2}^{R=1.2}<60$ (SRB-T0)

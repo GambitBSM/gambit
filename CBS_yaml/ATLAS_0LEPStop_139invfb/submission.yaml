@@ -1,0 +1,1856 @@
+---
+additional_resources:
+- description: SLHA file for a 2-body benchmark signal $(\it{m}_{\tilde{t}}, \it{m}_{\tilde{\chi^{0}_{1}}})=
+    (1300,1)\ \mathrm{GeV}.$
+  location: param_card_stop_tN_1300_1.dat
+- description: SLHA file for a 2-body benchmark signal $(\it{m}_{\tilde{t}}, \it{m}_{\tilde{\chi^{0}_{1}}})=
+    (700,400)\ \mathrm{GeV}.$
+  location: param_card_stop_tN_700_400.dat
+- description: SLHA file for a 2-body benchmark signal $(\it{m}_{\tilde{t}}, \it{m}_{\tilde{\chi^{0}_{1}}})=
+    (500,327)\ \mathrm{GeV}.$
+  location: param_card_stop_tN_500_327.dat
+- description: SLHA file for a 3-body benchmark signal $(\it{m}_{\tilde{t}}, \it{m}_{\tilde{\chi^{0}_{1}}})=
+    (550,430)\ \mathrm{GeV}.$
+  location: param_card_stop_bWN_550_430.dat
+- description: SLHA file for a 4-body benchmark signal $(\it{m}_{\tilde{t}}, \it{m}_{\tilde{\chi^{0}_{1}}})=
+    (500,450)\ \mathrm{GeV}.$
+  location: param_card_stop_bffN_500_450.dat
+- description: SLHA file for a 4-body benchmark signal $(\it{m}_{\tilde{t}}, \it{m}_{\tilde{\chi^{0}_{1}}})=
+    (500,493)\ \mathrm{GeV}.$
+  location: param_card_stop_bffN_500_493.dat
+- description: SimpleAnalysis implementation of the analysis selection at the
+    truth-level.
+  location: ANA-SUSY-2018-12.cxx
+- description: Webpage with all figures and tables
+  location: https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-12
+comment: ''
+data_license:
+  description: The content can be shared and adapted but you must             give
+    appropriate credit and cannot restrict access to others.
+  name: cc-by-4.0
+  url: https://creativecommons.org/licenses/by/4.0/
+---
+data_file: overview.yaml
+description: '<b>- - - - - - - - Overview of HEPData Record - - - - - - - -</b> <br><br>
+
+  <b>Exclusion contours:</b>
+
+  <ul>
+
+  <li><a href="?table=stop_obs">Stop exclusion contour (Obs.)</a>
+
+  <li><a href="?table=stop_obs_down">Stop exclusion contour (Obs. Down)</a>
+
+  <li><a href="?table=stop_obs_up">Stop exclusion contour (Obs. Up)</a>
+
+  <li><a href="?table=stop_exp">Stop exclusion contour (Exp.)</a>
+
+  <li><a href="?table=stop_exp_down">Stop exclusion contour (Exp. Down)</a>
+
+  <li><a href="?table=stop_exp_up">Stop exclusion contour (Exp. Up)</a>
+
+  <li><a href="?table=LQ3u_obs">LQ3u exclusion contour (Obs.)</a>
+
+  <li><a href="?table=LQ3u_obs_down">LQ3u exclusion contour (Obs. Down)</a>
+
+  <li><a href="?table=LQ3u_obs_up">LQ3u exclusion contour (Obs. Up)</a>
+
+  <li><a href="?table=LQ3u_exp">LQ3u exclusion contour (Exp.)</a>
+
+  <li><a href="?table=LQ3u_exp_down">LQ3u exclusion contour (Exp. Down)</a>
+
+  <li><a href="?table=LQ3u_exp_up">LQ3u exclusion contour (Exp. Up)</a>
+
+  </ul>
+
+  <b>Upper limits:</b>
+
+  <ul>
+
+  <li><a href="?table=stop_xSecUpperLimit_obs">stop_xSecUpperLimit_obs</a>
+
+  <li><a href="?table=stop_xSecUpperLimit_exp">stop_xSecUpperLimit_exp</a>
+
+  <li><a href="?table=LQ3u_xSecUpperLimit_obs">LQ3u_xSecUpperLimit_obs</a>
+
+  <li><a href="?table=LQ3u_xSecUpperLimit_exp">LQ3u_xSecUpperLimit_exp</a>
+
+  </ul>
+
+  <b>Kinematic distributions:</b>
+
+  <ul>
+
+  <li><a href="?table=SRATW_metsigST">SRATW_metsigST</a>
+
+  <li><a href="?table=SRBTT_m_1fatjet_kt12">SRBTT_m_1fatjet_kt12</a>
+
+  <li><a href="?table=SRC_RISR">SRC_RISR</a>
+
+  <li><a href="?table=SRD0_htSig">SRD0_htSig</a>
+
+  <li><a href="?table=SRD1_htSig">SRD1_htSig</a>
+
+  <li><a href="?table=SRD2_htSig">SRD2_htSig</a>
+
+  </ul>
+
+  <b>Cut flows:</b>
+
+  <ul>
+
+  <li><a href="?table=cutflow_SRATT">cutflow_SRATT</a>
+
+  <li><a href="?table=cutflow_SRATW">cutflow_SRATW</a>
+
+  <li><a href="?table=cutflow_SRAT0">cutflow_SRAT0</a>
+
+  <li><a href="?table=cutflow_SRB">cutflow_SRB</a>
+
+  <li><a href="?table=cutflow_SRC">cutflow_SRC</a>
+
+  <li><a href="?table=cutflow_SRD0">cutflow_SRD0</a>
+
+  <li><a href="?table=cutflow_SRD1">cutflow_SRD1</a>
+
+  <li><a href="?table=cutflow_SRD2">cutflow_SRD2</a>
+
+  </ul>
+
+  <b>Acceptance and efficiencies:</b>
+
+  As explained in <a href="https://twiki.cern.ch/twiki/bin/view/AtlasPublic/SupersymmetryPublicResults#summary_of_auxiliary_material">the
+  twiki</a>.
+
+  <ul>
+
+  <li> <b>SRATT:</b> <a href="?table=Acc_SRATT">Acc_SRATT</a>   <a href="?table=Eff_SRATT">Eff_SRATT</a>
+
+  <li> <b>SRATW:</b> <a href="?table=Acc_SRATW">Acc_SRATW</a>   <a href="?table=Eff_SRATW">Eff_SRATW</a>
+
+  <li> <b>SRAT0:</b> <a href="?table=Acc_SRAT0">Acc_SRAT0</a>   <a href="?table=Eff_SRAT0">Eff_SRAT0</a>
+
+  <li> <b>SRBTT:</b> <a href="?table=Acc_SRBTT">Acc_SRBTT</a>   <a href="?table=Eff_SRBTT">Eff_SRBTT</a>
+
+  <li> <b>SRBTW:</b> <a href="?table=Acc_SRBTW">Acc_SRBTW</a>   <a href="?table=Eff_SRBTW">Eff_SRBTW</a>
+
+  <li> <b>SRBT0:</b> <a href="?table=Acc_SRBT0">Acc_SRBT0</a>   <a href="?table=Eff_SRBT0">Eff_SRBT0</a>
+
+  <li> <b>SRC1:</b> <a href="?table=Acc_SRC1">Acc_SRC1</a>   <a href="?table=Eff_SRC1">Eff_SRC1</a>
+
+  <li> <b>SRC2:</b> <a href="?table=Acc_SRC2">Acc_SRC2</a>   <a href="?table=Eff_SRC2">Eff_SRC2</a>
+
+  <li> <b>SRC3:</b> <a href="?table=Acc_SRC3">Acc_SRC3</a>   <a href="?table=Eff_SRC3">Eff_SRC3</a>
+
+  <li> <b>SRC4:</b> <a href="?table=Acc_SRC4">Acc_SRC4</a>   <a href="?table=Eff_SRC4">Eff_SRC4</a>
+
+  <li> <b>SRC5:</b> <a href="?table=Acc_SRC5">Acc_SRC5</a>   <a href="?table=Eff_SRC5">Eff_SRC5</a>
+
+  <li> <b>SRD0:</b> <a href="?table=Acc_SRD0">Acc_SRD0</a>   <a href="?table=Eff_SRD0">Eff_SRD0</a>
+
+  <li> <b>SRD1:</b> <a href="?table=Acc_SRD1">Acc_SRD1</a>   <a href="?table=Eff_SRD1">Eff_SRD1</a>
+
+  <li> <b>SRD2:</b> <a href="?table=Acc_SRD2">Acc_SRD2</a>   <a href="?table=Eff_SRD2">Eff_SRD2</a>
+
+  </ul>
+
+  <b>Truth Code snippets</b> and <b>SLHA</a> files are available under "Resources"
+  (purple button on the left)'
+keywords: []
+location: ''
+name: Overview
+---
+additional_resources:
+- description: Image file
+  location: fig_13a.png
+- description: Thumbnail image file
+  location: thumb_fig_13a.png
+data_file: stop_obs.yaml
+description: The observed exclusion contour at 95% CL as a function of the $\it{m}_{\tilde{\chi}^{0}_{1}}$  vs.
+  $\it{m}_{\tilde{t}}$. Masses that are within the contours are excluded.
+keywords:
+- name: observables
+  values:
+  - CLS
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from fig. 13a.
+name: stop_obs
+---
+additional_resources:
+- description: Image file
+  location: fig_13a.png
+- description: Thumbnail image file
+  location: thumb_fig_13a.png
+data_file: stop_exp.yaml
+description: The expected exclusion contour at 95% CL as a function of the $\it{m}_{\tilde{\chi}^{0}_{1}}$  vs.
+  $\it{m}_{\tilde{t}}$. Masses that are within the contour are excluded.
+keywords:
+- name: observables
+  values:
+  - CLS
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from fig. 13a.
+name: stop_exp
+---
+additional_resources:
+- description: Image file
+  location: fig_13a.png
+- description: Thumbnail image file
+  location: thumb_fig_13a.png
+data_file: stop_obs_down.yaml
+description: The minus $1\sigma$ variation of observed exclusion contour obtained
+  by varying the signal cross section within its uncertainty. The contour is given
+  as a function of the $\it{m}_{\tilde{\chi}^{0}_{1}}$  vs. $\it{m}_{\tilde{t}}$.
+keywords:
+- name: observables
+  values:
+  - CLS
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from fig. 13a.
+name: stop_obs_down
+---
+additional_resources:
+- description: Image file
+  location: fig_13a.png
+- description: Thumbnail image file
+  location: thumb_fig_13a.png
+data_file: stop_obs_up.yaml
+description: The plus $1\sigma$ variation of observed exclusion contour obtained by
+  varying the signal cross section within its uncertainty. The contour is given as
+  a function of the $\it{m}_{\tilde{\chi}^{0}_{1}}$  vs. $\it{m}_{\tilde{t}}$.
+keywords:
+- name: observables
+  values:
+  - CLS
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from fig. 13a.
+name: stop_obs_up
+---
+additional_resources:
+- description: Image file
+  location: fig_13a.png
+- description: Thumbnail image file
+  location: thumb_fig_13a.png
+data_file: stop_exp_down.yaml
+description: The minus $1\sigma$ variation of expected exclusion contour obtained
+  by varying MC statistical uncertainties, detector-related systematic uncertainties,
+  and theoretical uncertainties (excluding signal cross section uncertainties). The
+  contour is given as a function of the $\it{m}_{\tilde{\chi}^{0}_{1}}$  vs. $\it{m}_{\tilde{t}}$.
+keywords:
+- name: observables
+  values:
+  - CLS
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from fig. 13a.
+name: stop_exp_down
+---
+additional_resources:
+- description: Image file
+  location: fig_13a.png
+- description: Thumbnail image file
+  location: thumb_fig_13a.png
+data_file: stop_exp_up.yaml
+description: The plus $1\sigma$ variation of expected exclusion contour obtained by
+  varying MC statistical uncertainties, detector-related systematic uncertainties,
+  and theoretical uncertainties (excluding signal cross section uncertainties). The
+  contour is given as a function of the $\it{m}_{\tilde{\chi}^{0}_{1}}$  vs. $\it{m}_{\tilde{t}}$.
+keywords:
+- name: observables
+  values:
+  - CLS
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from fig. 13a.
+name: stop_exp_up
+---
+additional_resources:
+- description: Image file
+  location: fig_14a.png
+- description: Thumbnail image file
+  location: thumb_fig_14a.png
+data_file: lq3u_obs.yaml
+description: The observed exclusion contour at 95% CL as a function of the $\it{m}_{LQ_{3}^{u}}$  vs.
+  $\mathrm{BR}(\it{m}_{LQ_{3}^{u}}\rightarrow b \tau)$. Points that are within the
+  contours are excluded.
+keywords:
+- name: observables
+  values:
+  - CLS
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> LQ LQ X
+location: Data from fig. 14a.
+name: LQ3u_obs
+---
+additional_resources:
+- description: Image file
+  location: fig_14a.png
+- description: Thumbnail image file
+  location: thumb_fig_14a.png
+data_file: lq3u_exp.yaml
+description: The expected exclusion contour at 95% CL as a function of the $\it{m}_{LQ_{3}^{u}}$  vs.
+  $\mathrm{BR}(\it{m}_{LQ_{3}^{u}}\rightarrow b \tau)$. Points that are within the
+  contours are excluded.
+keywords:
+- name: observables
+  values:
+  - CLS
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> LQ LQ X
+location: Data from fig. 14a.
+name: LQ3u_exp
+---
+additional_resources:
+- description: Image file
+  location: fig_14a.png
+- description: Thumbnail image file
+  location: thumb_fig_14a.png
+data_file: lq3u_obs_down.yaml
+description: The minus $1\sigma$ variation of observed exclusion contour obtained
+  by varying the signal cross section within its uncertainty. The contour is given
+  as a function of the $\it{m}_{LQ_{3}^{u}}$  vs. $\mathrm{BR}(\it{m}_{LQ_{3}^{u}}\rightarrow
+  b \tau)$
+keywords:
+- name: observables
+  values:
+  - CLS
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> LQ LQ X
+location: Data from fig. 14a.
+name: LQ3u_obs_down
+---
+additional_resources:
+- description: Image file
+  location: fig_14a.png
+- description: Thumbnail image file
+  location: thumb_fig_14a.png
+data_file: lq3u_obs_up.yaml
+description: The plus $1\sigma$ variation of observed exclusion contour obtained by
+  varying the signal cross section within its uncertainty. The contour is given as
+  a function of the $\it{m}_{LQ_{3}^{u}}$  vs. $\mathrm{BR}(\it{m}_{LQ_{3}^{u}}\rightarrow
+  b \tau)$
+keywords:
+- name: observables
+  values:
+  - CLS
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> LQ LQ X
+location: Data from fig. 14a.
+name: LQ3u_obs_up
+---
+additional_resources:
+- description: Image file
+  location: fig_14a.png
+- description: Thumbnail image file
+  location: thumb_fig_14a.png
+data_file: lq3u_exp_up.yaml
+description: The plus $1\sigma$ variation of expected exclusion contour obtained by
+  varying MC statistical uncertainties, detector-related systematic uncertainties,
+  and theoretical uncertainties (excluding signal cross section uncertainties). The
+  contour is given as a function of the $\it{m}_{LQ_{3}^{u}}$  vs. $\mathrm{BR}(\it{m}_{LQ_{3}^{u}}\rightarrow
+  b \tau)$
+keywords:
+- name: observables
+  values:
+  - CLS
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> LQ LQ X
+location: Data from fig. 14a.
+name: LQ3u_exp_up
+---
+additional_resources:
+- description: Image file
+  location: fig_14a.png
+- description: Thumbnail image file
+  location: thumb_fig_14a.png
+data_file: lq3u_exp_down.yaml
+description: The minus $1\sigma$ variation of expected exclusion contour obtained
+  by varying MC statistical uncertainties, detector-related systematic uncertainties,
+  and theoretical uncertainties (excluding signal cross section uncertainties). The
+  contour is given as a function of the $\it{m}_{LQ_{3}^{u}}$  vs. $\mathrm{BR}(\it{m}_{LQ_{3}^{u}}\rightarrow
+  b \tau)$
+keywords:
+- name: observables
+  values:
+  - CLS
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> LQ LQ X
+location: Data from fig. 14a.
+name: LQ3u_exp_down
+---
+additional_resources:
+- description: Image file
+  location: figaux_01b.png
+- description: Thumbnail image file
+  location: thumb_figaux_01b.png
+- description: Image file
+  location: figaux_01a.png
+- description: Thumbnail image file
+  location: thumb_figaux_01a.png
+data_file: stop_xsecupperlimit_obs.yaml
+description: Model dependent upper limit on the cross section for the $(\tilde{t},\tilde{\chi}^{0}_{1})$
+  signal grid. The column titled 'Leading Region' stores information on which of the
+  fit regions (SRA-B, SRC or SRD) is the dominant based on the expected CLs values.
+keywords:
+- name: observables
+  values:
+  - CLS
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux. 01a and 01b.
+name: stop_xSecUpperLimit_obs
+---
+additional_resources:
+- description: Image file
+  location: figaux_02a.png
+- description: Thumbnail image file
+  location: thumb_figaux_02a.png
+- description: Image file
+  location: figaux_02b.png
+- description: Thumbnail image file
+  location: thumb_figaux_02b.png
+data_file: stop_xsecupperlimit_exp.yaml
+description: Expected model dependent upper limit on the cross section for the $(\tilde{t},\tilde{\chi}^{0}_{1})$
+  signal grid. The column titled 'Leading Region' stores information on which of the
+  fit regions (SRA-B, SRC or SRD) is the dominant based on the expected CLs values.
+keywords:
+- name: observables
+  values:
+  - CLS
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux. 02a and 02b.
+name: stop_xSecUpperLimit_exp
+---
+additional_resources:
+- description: Image file
+  location: fig_14b.png
+- description: Thumbnail image file
+  location: thumb_fig_14b.png
+data_file: lq3u_xsecupperlimit_obs.yaml
+description: Model dependent upper limit on the cross section for the $LQ_{3}^{u}$
+  signal grid with $\mathrm{BR}(\it{m}_{LQ_{3}^{u}}\rightarrow b \tau))=0$ %. Only
+  the SRA-B fit region is considered in this interpretation.
+keywords:
+- name: observables
+  values:
+  - CLS
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> LQ LQ X
+location: Data from fig. 14b.
+name: LQ3u_xSecUpperLimit_obs
+---
+additional_resources:
+- description: Image file
+  location: fig_14b.png
+- description: Thumbnail image file
+  location: thumb_fig_14b.png
+data_file: lq3u_xsecupperlimit_exp.yaml
+description: Expected model dependent upper limit on the cross section for the $LQ_{3}^{u}$
+  signal grid with $\mathrm{BR}(\it{m}_{LQ_{3}^{u}}\rightarrow b \tau))=0$ %. Only
+  the SRA-B fit region is considered in this interpretation.
+keywords:
+- name: observables
+  values:
+  - CLS
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> LQ LQ X
+location: Data from fig. 14b.
+name: LQ3u_xSecUpperLimit_exp
+---
+additional_resources:
+- description: Image file
+  location: fig_12a.png
+- description: Thumbnail image file
+  location: thumb_fig_12a.png
+data_file: sratw_metsigst.yaml
+description: The distributions of $S$ in SRA-TW. For each bin yields for the data,
+  total SM prediction and a representative signal point are provided. The SM prediction
+  is provided with the MC statistical uncertainties, labeled 'stat', and the remaining
+  uncertainties, labeled 'syst' that include detector-related systematic uncertainties
+  and theoretical uncertainties. The signal predictions is provided with the MC statistical
+  uncertainties only. The rightmost bin includes overflow events.
+keywords:
+- name: observables
+  values:
+  - N
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from fig. 12a.
+name: SRATW_metsigST
+---
+additional_resources:
+- description: Image file
+  location: fig_12b.png
+- description: Thumbnail image file
+  location: thumb_fig_12b.png
+data_file: srbtt_m_1fatjet_kt12.yaml
+description: The distributions of $\it{m}^{\mathrm{R=1.2}}_{1}$ in SRB-TT. For each
+  bin yields for the data, total SM prediction and a representative signal point are
+  provided. The SM prediction is provided with the MC statistical uncertainties, labeled
+  'stat', and the remaining uncertainties, labeled 'syst' that include detector-related
+  systematic uncertainties and theoretical uncertainties. The signal predictions is
+  provided with the MC statistical uncertainties only. The rightmost bin includes
+  overflow events.
+keywords:
+- name: observables
+  values:
+  - N
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from fig. 12b.
+name: SRBTT_m_1fatjet_kt12
+---
+additional_resources:
+- description: Image file
+  location: fig_12c.png
+- description: Thumbnail image file
+  location: thumb_fig_12c.png
+data_file: src_risr.yaml
+description: The distributions of R$_{ISR}$ in SRC signal regions before R$_{ISR}$
+  cuts are applied. For each bin yields for the data, total SM prediction and a representative
+  signal point are provided. The SM prediction is provided with the MC statistical
+  uncertainties, labeled 'stat', and the remaining uncertainties, labeled 'syst' that
+  include detector-related systematic uncertainties and theoretical uncertainties.
+  The signal predictions is provided with the MC statistical uncertainties only. The
+  rightmost bin includes overflow events.
+keywords:
+- name: observables
+  values:
+  - N
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from fig. 12c.
+name: SRC_RISR
+---
+additional_resources:
+- description: Image file
+  location: fig_12d.png
+- description: Thumbnail image file
+  location: thumb_fig_12d.png
+data_file: srd0_htsig.yaml
+description: The distributions of $E^{miss}_{T}/\sqrt{H_{T}}$ in SRD0. For each bin
+  yields for the data, total SM prediction and a representative signal point are provided.
+  The SM prediction is provided with the MC statistical uncertainties, labeled 'stat',
+  and the remaining uncertainties, labeled 'syst' that include detector-related systematic
+  uncertainties and theoretical uncertainties. The signal predictions is provided
+  with the MC statistical uncertainties only. The rightmost bin includes overflow
+  events.
+keywords:
+- name: observables
+  values:
+  - N
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from fig. 12d.
+name: SRD0_htSig
+---
+additional_resources:
+- description: Image file
+  location: fig_12e.png
+- description: Thumbnail image file
+  location: thumb_fig_12e.png
+data_file: srd1_htsig.yaml
+description: The distributions of $E^{miss}_{T}/\sqrt{H_{T}}$ in SRD1. For each bin
+  yields for the data, total SM prediction and a representative signal point are provided.
+  The SM prediction is provided with the MC statistical uncertainties, labeled 'stat',
+  and the remaining uncertainties, labeled 'syst' that include detector-related systematic
+  uncertainties and theoretical uncertainties. The signal predictions is provided
+  with the MC statistical uncertainties only. The rightmost bin includes overflow
+  events.
+keywords:
+- name: observables
+  values:
+  - N
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from fig. 12e.
+name: SRD1_htSig
+---
+additional_resources:
+- description: Image file
+  location: fig_12f.png
+- description: Thumbnail image file
+  location: thumb_fig_12f.png
+data_file: srd2_htsig.yaml
+description: The distributions of $E^{miss}_{T}/\sqrt{H_{T}}$ in SRD2. For each bin
+  yields for the data, total SM prediction and a representative signal point are provided.
+  The SM prediction is provided with the MC statistical uncertainties, labeled 'stat',
+  and the remaining uncertainties, labeled 'syst' that include detector-related systematic
+  uncertainties and theoretical uncertainties. The signal predictions is provided
+  with the MC statistical uncertainties only. The rightmost bin includes overflow
+  events.
+keywords:
+- name: observables
+  values:
+  - N
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from fig. 12f.
+name: SRD2_htSig
+---
+additional_resources:
+- description: Image file
+  location: tabaux_01.png
+- description: Thumbnail image file
+  location: thumb_tabaux_01.png
+data_file: cutflow_sratt.yaml
+description: Cutflow for the reference point $(\it{m}_{\tilde{t}}, \it{m}_{\tilde{\chi}^{0}_{1}})=
+  (1300,1)\ \mathrm{GeV} $ in SRA-TT. The column labelled ''Weighted yield'' shows
+  the results including all correction factors applied to simulation, and is normalised
+  to 139 fb$^{-1}$. A notable exception concerns results in the first row, labelled
+  ''Total'', that corresponds to plain $\sigma \cdot \mathcal{L}$ expected.  The ''Derivation
+  skim'' includes the requirements that $H_{T}$, the scalar sum of $p_{T}$ of jets
+  and leptons, $H_{T}>150\ \mathrm{GeV}$ or that a ''baseline'' electron or muon has
+  $p_{T}>20\ \mathrm{GeV}$. The definition of ''baseline'' electron/muons, lepton
+  and $\tau$ vetos are described in the main body of the paper. In total 30000 raw
+  MC events were generated prior to the specified cuts, with the column ''Unweighted
+  yield'' collecting the numbers after each cut.
+keywords:
+- name: observables
+  values:
+  - N
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from tabaux. 01.
+name: cutflow_SRATT
+---
+additional_resources:
+- description: Image file
+  location: tabaux_02.png
+- description: Thumbnail image file
+  location: thumb_tabaux_02.png
+data_file: cutflow_sratw.yaml
+description: Cutflow for the reference point $(\it{m}_{\tilde{t}}, \it{m}_{\tilde{\chi}^{0}_{1}})=
+  (1300,1)\ \mathrm{GeV} $ in SRA-TW. The column labelled ''Weighted yield'' shows
+  the results including all correction factors applied to simulation, and is normalised
+  to 139 fb$^{-1}$. A notable exception concerns results in the first row, labelled
+  ''Total'', that corresponds to plain $\sigma \cdot \mathcal{L}$ expected. The ''Derivation
+  skim'' includes the requirements that $H_{T}$, the scalar sum of $p_{T}$ of jets
+  and leptons, $H_{T}>150\ \mathrm{GeV}$ or that a ''baseline'' electron or muon has
+  $p_{T}>20\ \mathrm{GeV}$. The definition of ''baseline'' electron/muons, lepton
+  and $\tau$ vetos are described in the main body of the paper. In total 30000 raw
+  MC events were generated prior to the specified cuts, with the column ''Unweighted
+  yield'' collecting the numbers after each cut.
+keywords:
+- name: observables
+  values:
+  - N
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from tabaux. 02.
+name: cutflow_SRATW
+---
+additional_resources:
+- description: Image file
+  location: tabaux_03.png
+- description: Thumbnail image file
+  location: thumb_tabaux_03.png
+data_file: cutflow_srat0.yaml
+description: Cutflow for the reference point $(\it{m}_{\tilde{t}}, \it{m}_{\tilde{\chi}^{0}_{1}})=
+  (1300,1)\ \mathrm{GeV} $ in SRA-T0. The column labelled ''Weighted yield'' shows
+  the results including all correction factors applied to simulation, and is normalised
+  to 139 fb$^{-1}$. A notable exception concerns results in the first row, labelled
+  ''Total'', that corresponds to plain $\sigma \cdot \mathcal{L}$ expected. The ''Derivation
+  skim'' includes the requirements that $H_{T}$, the scalar sum of $p_{T}$ of jets
+  and leptons, $H_{T}>150\ \mathrm{GeV}$ or that a ''baseline'' electron or muon has
+  $p_{T}>20\ \mathrm{GeV}$. The definition of ''baseline'' electron/muons, lepton
+  and $\tau$ vetos are described in the main body of the paper. In total 30000 raw
+  MC events were generated prior to the specified cuts, with the column ''Unweighted
+  yield'' collecting the numbers after each cut.
+keywords:
+- name: observables
+  values:
+  - N
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from tabaux. 03.
+name: cutflow_SRAT0
+---
+additional_resources:
+- description: Image file
+  location: tabaux_04.png
+- description: Thumbnail image file
+  location: thumb_tabaux_04.png
+data_file: cutflow_srb.yaml
+description: Cutflow for the reference point $(\it{m}_{\tilde{t}}, \it{m}_{\tilde{\chi}^{0}_{1}})=
+  (700,400)\ \mathrm{GeV} $ in signal regions SRB-TT, SRB-TW and SRB-T0. The regions
+  differ by the last cut applied. The column labelled ''Weighted yield'' shows the
+  results including all correction factors applied to simulation, and is normalised
+  to 139 fb$^{-1}$. A notable exception concerns results in the first row, labelled
+  ''Total'', that corresponds to plain $\sigma \cdot \mathcal{L}$ expected. The ''Derivation
+  skim'' includes the requirements that $H_{T}$, the scalar sum of $p_{T}$ of jets
+  and leptons, $H_{T}>150\ \mathrm{GeV}$ or that a ''baseline'' electron or muon has
+  $p_{T}>20\ \mathrm{GeV}$. The definition of ''baseline'' electron/muons, lepton
+  and $\tau$ vetos are described in the main body of the paper. In total 60000 raw
+  MC events were generated prior to the specified cuts, with the column ''Unweighted
+  yield'' collecting the numbers after each cut.
+keywords:
+- name: observables
+  values:
+  - N
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from tabaux. 04.
+name: cutflow_SRB
+---
+additional_resources:
+- description: Image file
+  location: tabaux_05.png
+- description: Thumbnail image file
+  location: thumb_tabaux_05.png
+data_file: cutflow_src.yaml
+description: Cutflow for the reference point $(\it{m}_{\tilde{t}}, \it{m}_{\tilde{\chi}^{0}_{1}})=
+  (500,327)\ \mathrm{GeV} $ in regions SRC-1, SRC-2, SRC-3, SRC-4 and SRC-5. The regions
+  differ by the last cut applied. The column labelled ''Weighted yield'' shows the
+  results including all correction factors applied to simulation, and is normalised
+  to 139 fb$^{-1}$. A notable exception concerns results in the first row, labelled
+  ''Total'', that corresponds to plain $\sigma \cdot \mathcal{L}$ expected. The ''Derivation
+  skim'' includes the requirements that $H_{T}$, the scalar sum of $p_{T}$ of jets
+  and leptons, $H_{T}>150\ \mathrm{GeV}$ or that a ''baseline'' electron or muon has
+  $p_{T}>20\ \mathrm{GeV}$. The definition of ''baseline'' electron/muons, lepton
+  and $\tau$ vetos are described in the main body of the paper. In total 150000 raw
+  MC events with filter efficiency of 0.384 were generated prior to the specified
+  cuts, with the column ''Unweighted yield'' collecting the numbers after each cut.
+keywords:
+- name: observables
+  values:
+  - N
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from tabaux. 05.
+name: cutflow_SRC
+---
+additional_resources:
+- description: Image file
+  location: tabaux_06.png
+- description: Thumbnail image file
+  location: thumb_tabaux_06.png
+data_file: cutflow_srd0.yaml
+description: Cutflow for the reference point $(\it{m}_{\tilde{t}}, \it{m}_{\tilde{\chi}^{0}_{1}})=
+  (550,500)\ \mathrm{GeV} $ in SRD0. The column labelled ''Weighted yield'' shows
+  the results including all correction factors applied to simulation, and is normalised
+  to 139 fb$^{-1}$. A notable exception concerns results in the first row, labelled
+  ''Total'', that corresponds to plain $\sigma \cdot \mathcal{L}$ expected. The ''Derivation
+  skim'' includes the requirements that $H_{T}$, the scalar sum of $p_{T}$ of jets
+  and leptons, $H_{T}>150\ \mathrm{GeV}$ or that a ''baseline'' electron or muon has
+  $p_{T}>20\ \mathrm{GeV}$. The definition of ''baseline'' electron/muons, lepton
+  and $\tau$ vetos are described in the main body of the paper. In total 90000 raw
+  MC events with filter efficiency of 0.428 were generated prior to the specified
+  cuts, with the column ''Unweighted yield'' collecting the numbers after each cut.
+keywords:
+- name: observables
+  values:
+  - N
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from tabaux. 06.
+name: cutflow_SRD0
+---
+additional_resources:
+- description: Image file
+  location: tabaux_07.png
+- description: Thumbnail image file
+  location: thumb_tabaux_07.png
+data_file: cutflow_srd1.yaml
+description: Cutflow for the reference point $(\it{m}_{\tilde{t}}, \it{m}_{\tilde{\chi}^{0}_{1}})=
+  (550,500)\ \mathrm{GeV} $ in SRD1. The column labelled ''Weighted yield'' shows
+  the results including all correction factors applied to simulation, and is normalised
+  to 139 fb$^{-1}$. A notable exception concerns results in the first row, labelled
+  ''Total'', that corresponds to plain $\sigma \cdot \mathcal{L}$ expected. The ''Derivation
+  skim'' includes the requirements that $H_{T}$, the scalar sum of $p_{T}$ of jets
+  and leptons, $H_{T}>150\ \mathrm{GeV}$ or that a ''baseline'' electron or muon has
+  $p_{T}>20\ \mathrm{GeV}$. The definition of ''baseline'' electron/muons, lepton
+  and $\tau$ vetos are described in the main body of the paper. In total 90000 raw
+  MC events with filter efficiency of 0.428 were generated prior to the specified
+  cuts, with the column ''Unweighted yield'' collecting the numbers after each cut.
+keywords:
+- name: observables
+  values:
+  - N
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from tabaux. 07.
+name: cutflow_SRD1
+---
+additional_resources:
+- description: Image file
+  location: tabaux_08.png
+- description: Thumbnail image file
+  location: thumb_tabaux_08.png
+data_file: cutflow_srd2.yaml
+description: Cutflow for the reference point $(\it{m}_{\tilde{t}}, \it{m}_{\tilde{\chi}^{0}_{1}})=
+  (550,500)\ \mathrm{GeV} $ in SRD2. The column labelled ''Weighted yield'' shows
+  the results including all correction factors applied to simulation, and is normalised
+  to 139 fb$^{-1}$. A notable exception concerns results in the first row, labelled
+  ''Total'', that corresponds to plain $\sigma \cdot \mathcal{L}$ expected. The ''Derivation
+  skim'' includes the requirements that $H_{T}$, the scalar sum of $p_{T}$ of jets
+  and leptons, $H_{T}>150\ \mathrm{GeV}$ or that a ''baseline'' electron or muon has
+  $p_{T}>20\ \mathrm{GeV}$. The definition of ''baseline'' electron/muons, lepton
+  and $\tau$ vetos are described in the main body of the paper. In total 90000 raw
+  MC events with filter efficiency of 0.428 were generated prior to the specified
+  cuts, with the column ''Unweighted yield'' collecting the numbers after each cut.
+keywords:
+- name: observables
+  values:
+  - N
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from tabaux. 08.
+name: cutflow_SRD2
+---
+additional_resources:
+- description: Image file
+  location: figaux_03a.png
+- description: Thumbnail image file
+  location: thumb_figaux_03a.png
+data_file: acc_sratt.yaml
+description: Signal acceptance in SRA-TT for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the acceptance given in the table is multiplied by factor
+  of $10^{3}$
+keywords:
+- name: observables
+  values:
+  - ACC
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 03a.
+name: Acc_SRATT
+---
+additional_resources:
+- description: Image file
+  location: figaux_03b.png
+- description: Thumbnail image file
+  location: thumb_figaux_03b.png
+data_file: eff_sratt.yaml
+description: Signal efficiency in SRA-TT for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the efficiency in the table is reported in %.
+keywords:
+- name: observables
+  values:
+  - EFF
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 03b.
+name: Eff_SRATT
+---
+additional_resources:
+- description: Image file
+  location: figaux_04a.png
+- description: Thumbnail image file
+  location: thumb_figaux_04a.png
+data_file: acc_sratw.yaml
+description: Signal acceptance in SRA-TW for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the acceptance given in the table is multiplied by factor
+  of $10^{3}$
+keywords:
+- name: observables
+  values:
+  - ACC
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 04a.
+name: Acc_SRATW
+---
+additional_resources:
+- description: Image file
+  location: figaux_04b.png
+- description: Thumbnail image file
+  location: thumb_figaux_04b.png
+data_file: eff_sratw.yaml
+description: Signal efficiency in SRA-TW for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the efficiency in the table is reported in %.
+keywords:
+- name: observables
+  values:
+  - EFF
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 04b.
+name: Eff_SRATW
+---
+additional_resources:
+- description: Image file
+  location: figaux_05a.png
+- description: Thumbnail image file
+  location: thumb_figaux_05a.png
+data_file: acc_srat0.yaml
+description: Signal acceptance in SRA-T0 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the acceptance given in the table is multiplied by factor
+  of $10^{3}$
+keywords:
+- name: observables
+  values:
+  - ACC
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 05a.
+name: Acc_SRAT0
+---
+additional_resources:
+- description: Image file
+  location: figaux_05b.png
+- description: Thumbnail image file
+  location: thumb_figaux_05b.png
+data_file: eff_srat0.yaml
+description: Signal efficiency in SRA-T0 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the efficiency in the table is reported in %.
+keywords:
+- name: observables
+  values:
+  - EFF
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 05b.
+name: Eff_SRAT0
+---
+additional_resources:
+- description: Image file
+  location: figaux_06a.png
+- description: Thumbnail image file
+  location: thumb_figaux_06a.png
+data_file: acc_srbtt.yaml
+description: Signal acceptance in SRB-TT for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the acceptance given in the table is multiplied by factor
+  of $10^{3}$
+keywords:
+- name: observables
+  values:
+  - ACC
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 06a.
+name: Acc_SRBTT
+---
+additional_resources:
+- description: Image file
+  location: figaux_06b.png
+- description: Thumbnail image file
+  location: thumb_figaux_06b.png
+data_file: eff_srbtt.yaml
+description: Signal efficiency in SRB-TT for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the efficiency in the table is reported in %.
+keywords:
+- name: observables
+  values:
+  - EFF
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 06b.
+name: Eff_SRBTT
+---
+additional_resources:
+- description: Image file
+  location: figaux_07a.png
+- description: Thumbnail image file
+  location: thumb_figaux_07a.png
+data_file: acc_srbtw.yaml
+description: Signal acceptance in SRB-TW for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the acceptance given in the table is multiplied by factor
+  of $10^{3}$
+keywords:
+- name: observables
+  values:
+  - ACC
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 07a.
+name: Acc_SRBTW
+---
+additional_resources:
+- description: Image file
+  location: figaux_07b.png
+- description: Thumbnail image file
+  location: thumb_figaux_07b.png
+data_file: eff_srbtw.yaml
+description: Signal efficiency in SRB-TW for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the efficiency in the table is reported in %.
+keywords:
+- name: observables
+  values:
+  - EFF
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 07b.
+name: Eff_SRBTW
+---
+additional_resources:
+- description: Image file
+  location: figaux_08a.png
+- description: Thumbnail image file
+  location: thumb_figaux_08a.png
+data_file: acc_srbt0.yaml
+description: Signal acceptance in SRB-T0 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the acceptance given in the table is multiplied by factor
+  of $10^{3}$
+keywords:
+- name: observables
+  values:
+  - ACC
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 08a.
+name: Acc_SRBT0
+---
+additional_resources:
+- description: Image file
+  location: figaux_08b.png
+- description: Thumbnail image file
+  location: thumb_figaux_08b.png
+data_file: eff_srbt0.yaml
+description: Signal efficiency in SRB-T0 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the efficiency in the table is reported in %.
+keywords:
+- name: observables
+  values:
+  - EFF
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 08b.
+name: Eff_SRBT0
+---
+additional_resources:
+- description: Image file
+  location: figaux_09a.png
+- description: Thumbnail image file
+  location: thumb_figaux_09a.png
+data_file: acc_src1.yaml
+description: Signal acceptance in SRC1 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the acceptance given in the table is multiplied by factor
+  of $10^{5}$ and the results are given here in the $\it{m}_{\tilde{t}}-\it{m}_{\tilde{\chi}^{0}_{1}}$
+  plane as opposed to the $\it{m}_{\tilde{t}}-\Delta(\it{m}_{\tilde{\chi}^{0}_{1}},\it{m}_{\tilde{t}})$
+  one showed in the paper plot.
+keywords:
+- name: observables
+  values:
+  - ACC
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 09a.
+name: Acc_SRC1
+---
+additional_resources:
+- description: Image file
+  location: figaux_09b.png
+- description: Thumbnail image file
+  location: thumb_figaux_09b.png
+data_file: eff_src1.yaml
+description: Signal efficiency in SRC1 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the efficiency in the table is reported in % and the results
+  are given here in the $\it{m}_{\tilde{t}}-\it{m}_{\tilde{\chi}^{0}_{1}}$ plane as
+  opposed to the $\it{m}_{\tilde{t}}-\Delta(\it{m}_{\tilde{\chi}^{0}_{1}},\it{m}_{\tilde{t}})$
+  one showed in the paper plot.
+keywords:
+- name: observables
+  values:
+  - EFF
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 09b.
+name: Eff_SRC1
+---
+additional_resources:
+- description: Image file
+  location: figaux_10a.png
+- description: Thumbnail image file
+  location: thumb_figaux_10a.png
+data_file: acc_src2.yaml
+description: Signal acceptance in SRC2 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the acceptance given in the table is multiplied by factor
+  of $10^{5}$ and the results are given here in the $\it{m}_{\tilde{t}}-\it{m}_{\tilde{\chi}^{0}_{1}}$
+  plane as opposed to the $\it{m}_{\tilde{t}}-\Delta(\it{m}_{\tilde{\chi}^{0}_{1}},\it{m}_{\tilde{t}})$
+  one showed in the paper plot.
+keywords:
+- name: observables
+  values:
+  - ACC
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 10a.
+name: Acc_SRC2
+---
+additional_resources:
+- description: Image file
+  location: figaux_10b.png
+- description: Thumbnail image file
+  location: thumb_figaux_10b.png
+data_file: eff_src2.yaml
+description: Signal efficiency in SRC2 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the efficiency in the table is reported in % and the results
+  are given here in the $\it{m}_{\tilde{t}}-\it{m}_{\tilde{\chi}^{0}_{1}}$ plane as
+  opposed to the $\it{m}_{\tilde{t}}-\Delta(\it{m}_{\tilde{\chi}^{0}_{1}},\it{m}_{\tilde{t}})$
+  one showed in the paper plot.
+keywords:
+- name: observables
+  values:
+  - EFF
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 10b.
+name: Eff_SRC2
+---
+additional_resources:
+- description: Image file
+  location: figaux_11a.png
+- description: Thumbnail image file
+  location: thumb_figaux_11a.png
+data_file: acc_src3.yaml
+description: Signal acceptance in SRC3 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the acceptance given in the table is multiplied by factor
+  of $10^{5}$ and the results are given here in the $\it{m}_{\tilde{t}}-\it{m}_{\tilde{\chi}^{0}_{1}}$
+  plane as opposed to the $\it{m}_{\tilde{t}}-\Delta(\it{m}_{\tilde{\chi}^{0}_{1}},\it{m}_{\tilde{t}})$
+  one showed in the paper plot.
+keywords:
+- name: observables
+  values:
+  - ACC
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 11a.
+name: Acc_SRC3
+---
+additional_resources:
+- description: Image file
+  location: figaux_11b.png
+- description: Thumbnail image file
+  location: thumb_figaux_11b.png
+data_file: eff_src3.yaml
+description: Signal efficiency in SRC3 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the efficiency in the table is reported in % and the results
+  are given here in the $\it{m}_{\tilde{t}}-\it{m}_{\tilde{\chi}^{0}_{1}}$ plane as
+  opposed to the $\it{m}_{\tilde{t}}-\Delta(\it{m}_{\tilde{\chi}^{0}_{1}},\it{m}_{\tilde{t}})$
+  one showed in the paper plot.
+keywords:
+- name: observables
+  values:
+  - EFF
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 11b.
+name: Eff_SRC3
+---
+additional_resources:
+- description: Image file
+  location: figaux_12a.png
+- description: Thumbnail image file
+  location: thumb_figaux_12a.png
+data_file: acc_src4.yaml
+description: Signal acceptance in SRC4 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the acceptance given in the table is multiplied by factor
+  of $10^{5}$ and the results are given here in the $\it{m}_{\tilde{t}}-\it{m}_{\tilde{\chi}^{0}_{1}}$
+  plane as opposed to the $\it{m}_{\tilde{t}}-\Delta(\it{m}_{\tilde{\chi}^{0}_{1}},\it{m}_{\tilde{t}})$
+  one showed in the paper plot.
+keywords:
+- name: observables
+  values:
+  - ACC
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 12a.
+name: Acc_SRC4
+---
+additional_resources:
+- description: Image file
+  location: figaux_12b.png
+- description: Thumbnail image file
+  location: thumb_figaux_12b.png
+data_file: eff_src4.yaml
+description: Signal efficiency in SRC4 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the efficiency in the table is reported in % and the results
+  are given here in the $\it{m}_{\tilde{t}}-\it{m}_{\tilde{\chi}^{0}_{1}}$ plane as
+  opposed to the $\it{m}_{\tilde{t}}-\Delta(\it{m}_{\tilde{\chi}^{0}_{1}},\it{m}_{\tilde{t}})$
+  plane showed in the paper plot.
+keywords:
+- name: observables
+  values:
+  - EFF
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 12b.
+name: Eff_SRC4
+---
+additional_resources:
+- description: Image file
+  location: figaux_13a.png
+- description: Thumbnail image file
+  location: thumb_figaux_13a.png
+data_file: acc_src5.yaml
+description: Signal acceptance in SRC5 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the acceptance given in the table is multiplied by factor
+  of $10^{5}$ and the results are given here in the $\it{m}_{\tilde{t}}-\it{m}_{\tilde{\chi}^{0}_{1}}$
+  plane as opposed to the $\it{m}_{\tilde{t}}-\Delta(\it{m}_{\tilde{\chi}^{0}_{1}},\it{m}_{\tilde{t}})$
+  plane showed in the paper plot.
+keywords:
+- name: observables
+  values:
+  - ACC
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 13a.
+name: Acc_SRC5
+---
+additional_resources:
+- description: Image file
+  location: figaux_13b.png
+- description: Thumbnail image file
+  location: thumb_figaux_13b.png
+data_file: eff_src5.yaml
+description: Signal efficiency in SRC5 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the efficiency in the table is reported in % and the results
+  are given here in the $\it{m}_{\tilde{t}}-\it{m}_{\tilde{\chi}^{0}_{1}}$ plane as
+  opposed to the $\it{m}_{\tilde{t}}-\Delta(\it{m}_{\tilde{\chi}^{0}_{1}},\it{m}_{\tilde{t}})$
+  one showed in the paper plot.
+keywords:
+- name: observables
+  values:
+  - EFF
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 13b.
+name: Eff_SRC5
+---
+additional_resources:
+- description: Image file
+  location: figaux_14a.png
+- description: Thumbnail image file
+  location: thumb_figaux_14a.png
+data_file: acc_srd0.yaml
+description: Signal acceptance in SRD0 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the acceptance given in the table is multiplied by factor
+  of $10^{5}$ and the results are given here in the $\it{m}_{\tilde{t}}-\it{m}_{\tilde{\chi}^{0}_{1}}$
+  plane as opposed to the $\it{m}_{\tilde{t}}-\Delta(\it{m}_{\tilde{\chi}^{0}_{1}},\it{m}_{\tilde{t}})$
+  one showed in the paper plot.
+keywords:
+- name: observables
+  values:
+  - ACC
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 14a.
+name: Acc_SRD0
+---
+additional_resources:
+- description: Image file
+  location: figaux_14b.png
+- description: Thumbnail image file
+  location: thumb_figaux_14b.png
+data_file: eff_srd0.yaml
+description: Signal efficiency in SRD0 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the efficiency in the table is reported in % and the results
+  are given here in the $\it{m}_{\tilde{t}}-\it{m}_{\tilde{\chi}^{0}_{1}}$ plane as
+  opposed to the $\it{m}_{\tilde{t}}-\Delta(\it{m}_{\tilde{\chi}^{0}_{1}},\it{m}_{\tilde{t}})$
+  one showed in the paper plot.
+keywords:
+- name: observables
+  values:
+  - EFF
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 14b.
+name: Eff_SRD0
+---
+additional_resources:
+- description: Image file
+  location: figaux_15a.png
+- description: Thumbnail image file
+  location: thumb_figaux_15a.png
+data_file: acc_srd1.yaml
+description: Signal acceptance in SRD1 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the acceptance given in the table is multiplied by factor
+  of $10^{5}$ and the results are given here in the $\it{m}_{\tilde{t}}-\it{m}_{\tilde{\chi}^{0}_{1}}$
+  plane as opposed to the $\it{m}_{\tilde{t}}-\Delta(\it{m}_{\tilde{\chi}^{0}_{1}},\it{m}_{\tilde{t}})$
+  one showed in the paper plot.
+keywords:
+- name: observables
+  values:
+  - ACC
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 15a.
+name: Acc_SRD1
+---
+additional_resources:
+- description: Image file
+  location: figaux_15b.png
+- description: Thumbnail image file
+  location: thumb_figaux_15b.png
+data_file: eff_srd1.yaml
+description: Signal efficiency in SRD1 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the efficiency in the table is reported in % and the results
+  are given here in the $\it{m}_{\tilde{t}}-\it{m}_{\tilde{\chi}^{0}_{1}}$ plane as
+  opposed to the $\it{m}_{\tilde{t}}-\Delta(\it{m}_{\tilde{\chi}^{0}_{1}},\it{m}_{\tilde{t}})$
+  one showed in the paper plot.
+keywords:
+- name: observables
+  values:
+  - EFF
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 15b.
+name: Eff_SRD1
+---
+additional_resources:
+- description: Image file
+  location: figaux_16a.png
+- description: Thumbnail image file
+  location: thumb_figaux_16a.png
+data_file: acc_srd2.yaml
+description: Signal acceptance in SRD2 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the acceptance given in the table is multiplied by factor
+  of $10^{5}$ and the results are given here in the $\it{m}_{\tilde{t}}-\it{m}_{\tilde{\chi}^{0}_{1}}$
+  plane as opposed to the $\it{m}_{\tilde{t}}-\Delta(\it{m}_{\tilde{\chi}^{0}_{1}},\it{m}_{\tilde{t}})$
+  one showed in the paper plot.
+keywords:
+- name: observables
+  values:
+  - ACC
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 16a.
+name: Acc_SRD2
+---
+additional_resources:
+- description: Image file
+  location: figaux_16b.png
+- description: Thumbnail image file
+  location: thumb_figaux_16b.png
+data_file: eff_srd2.yaml
+description: Signal efficiency in SRD2 for simplified $(\tilde{t},\tilde{\chi^{0}_1})$
+  model. Please mind that the efficiency in the table is reported in % and the results
+  are given here in the $\it{m}_{\tilde{t}}-\it{m}_{\tilde{\chi}^{0}_{1}}$ plane as
+  opposed to the $\it{m}_{\tilde{t}}-\Delta(\it{m}_{\tilde{\chi}^{0}_{1}},\it{m}_{\tilde{t}})$
+  one showed in the paper plot.
+keywords:
+- name: observables
+  values:
+  - EFF
+- name: cmenergies
+  values:
+  - '13000'
+- name: phrases
+  values:
+  - SUSY
+  - Supersymmetry
+  - Proton-Proton Scattering
+- name: reactions
+  values:
+  - P P --> STOP STOP X
+location: Data from figaux 16b.
+name: Eff_SRD2

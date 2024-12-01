@@ -1,0 +1,56 @@
+dependent_variables:
+- header:
+    name: $\sigma^{95\% CL}_{upper}\ \mathrm{[pb]}$
+  values:
+  - value: 0.276
+  - value: 0.0605
+  - value: 0.0399
+  - value: 0.0221
+  - value: 0.00974
+  - value: 0.00531
+  - value: 0.00381
+  - value: 0.00314
+  - value: 0.00225
+  - value: 0.0021
+  - value: 0.00174
+  - value: 0.00147
+  - value: 0.00141
+  - value: 0.00132
+  - value: 0.00125
+  - value: 0.00117
+  - value: 0.00115
+  - value: 0.00133
+  - value: 0.00105
+  - value: 0.000979
+  - value: 0.00104
+  - value: 0.00101
+  - value: 0.000982
+  - value: 0.000925
+independent_variables:
+- header:
+    name: $\it{m}_{LQ_{3}^{u}}\ \mathrm{[GeV]}$
+  values:
+  - value: 400.0
+  - value: 500.0
+  - value: 600.0
+  - value: 700.0
+  - value: 800.0
+  - value: 850.0
+  - value: 900.0
+  - value: 950.0
+  - value: 1000.0
+  - value: 1050.0
+  - value: 1100.0
+  - value: 1150.0
+  - value: 1200.0
+  - value: 1250.0
+  - value: 1300.0
+  - value: 1350.0
+  - value: 1400.0
+  - value: 1450.0
+  - value: 1500.0
+  - value: 1550.0
+  - value: 1700.0
+  - value: 1800.0
+  - value: 1900.0
+  - value: 2000.0

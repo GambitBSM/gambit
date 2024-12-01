@@ -1,0 +1,56 @@
+dependent_variables:
+- header:
+    name: $\sigma^{95\% CL}_{EXP,\,upper}\ \mathrm{[pb]}$
+  values:
+  - value: 0.209
+  - value: 0.0387
+  - value: 0.0237
+  - value: 0.0142
+  - value: 0.00749
+  - value: 0.00477
+  - value: 0.00352
+  - value: 0.00305
+  - value: 0.0022
+  - value: 0.00209
+  - value: 0.00175
+  - value: 0.00151
+  - value: 0.00141
+  - value: 0.00135
+  - value: 0.00124
+  - value: 0.00124
+  - value: 0.00116
+  - value: 0.0014
+  - value: 0.00106
+  - value: 0.000991
+  - value: 0.00105
+  - value: 0.000999
+  - value: 0.00102
+  - value: 0.000946
+independent_variables:
+- header:
+    name: $\it{m}_{LQ_{3}^{u}}\ \mathrm{[GeV]}$
+  values:
+  - value: 400.0
+  - value: 500.0
+  - value: 600.0
+  - value: 700.0
+  - value: 800.0
+  - value: 850.0
+  - value: 900.0
+  - value: 950.0
+  - value: 1000.0
+  - value: 1050.0
+  - value: 1100.0
+  - value: 1150.0
+  - value: 1200.0
+  - value: 1250.0
+  - value: 1300.0
+  - value: 1350.0
+  - value: 1400.0
+  - value: 1450.0
+  - value: 1500.0
+  - value: 1550.0
+  - value: 1700.0
+  - value: 1800.0
+  - value: 1900.0
+  - value: 2000.0
