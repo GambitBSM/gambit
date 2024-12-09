@@ -27,8 +27,6 @@
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "METSignificance/METSignificance.hpp"
 
-
-
 #include "RestFrames/RestFrames.hh"
 #include "TLorentzVector.h"
 
@@ -44,28 +42,68 @@ namespace Gambit
         class Analysis_ATLAS_13TeV_0LEPStop_RJR_139invfb : public Analysis
         {
         protected:
-            #ifdef CHECK_CUTFLOW
-                Cutflows _cutflows;
-            #endif
+#ifdef CHECK_CUTFLOW
+            Cutflows _cutflows;
+#endif
 
         private:
             // Recursive Jigsaw Objects (using RestFrames)
-            unique_ptr<RestFrames::LabRecoFrame>        LAB;
-            unique_ptr<RestFrames::DecayRecoFrame>      CM; 
-            unique_ptr<RestFrames::DecayRecoFrame>      S; 
-            unique_ptr<RestFrames::VisibleRecoFrame>    ISR; 
-            unique_ptr<RestFrames::VisibleRecoFrame>    V; 
-            unique_ptr<RestFrames::InvisibleRecoFrame>  I; 
+            unique_ptr<RestFrames::LabRecoFrame> LAB;
+            unique_ptr<RestFrames::DecayRecoFrame> CM;
+            unique_ptr<RestFrames::DecayRecoFrame> S;
+            unique_ptr<RestFrames::VisibleRecoFrame> ISR;
+            unique_ptr<RestFrames::VisibleRecoFrame> V;
+            unique_ptr<RestFrames::InvisibleRecoFrame> I;
 
-            unique_ptr<RestFrames::InvisibleGroup>      INV; 
-            unique_ptr<RestFrames::CombinatoricGroup>   VIS; 
-            unique_ptr<RestFrames::SetMassInvJigsaw>    InvMass;
+            unique_ptr<RestFrames::InvisibleGroup> INV;
+            unique_ptr<RestFrames::CombinatoricGroup> VIS;
+            unique_ptr<RestFrames::SetMassInvJigsaw> InvMass;
             unique_ptr<RestFrames::MinMassesCombJigsaw> SplitVis;
-
 
         public:
             // Requrired detector sim
             static constexpr const char *detector = "ATLAS";
+
+            void muJetSpecialOverlapRemoval(vector<const HEPUtils::Jet *> &jetvec, vector<const HEPUtils::Particle *> &lepvec)
+            {
+
+                vector<const HEPUtils::Jet *> Survivors;
+
+                for (unsigned int itjet = 0; itjet < jetvec.size(); itjet++)
+                {
+                    bool overlap = false;
+                    HEPUtils::P4 jetmom = jetvec.at(itjet)->mom();
+                    for (unsigned int itlep = 0; itlep < lepvec.size(); itlep++)
+                    {
+                        HEPUtils::P4 lepmom = lepvec.at(itlep)->mom();
+                        double dR;
+
+                        dR = jetmom.deltaR_eta(lepmom);
+
+                        double DeltaRMax = 0.;
+                        if (lepmom.pT() / jetmom.pT() > 0.5)
+                            DeltaRMax = 0.2;
+                        if (fabs(dR) <= DeltaRMax)
+                            overlap = true;
+                    }
+                    if (overlap)
+                        continue;
+                    Survivors.push_back(jetvec.at(itjet));
+                }
+                jetvec = Survivors;
+
+                return;
+            }
+
+            struct ptComparison
+            {
+                bool operator()(const HEPUtils::Particle *i, const HEPUtils::Particle *j) { return (i->pT() > j->pT()); }
+            } comparePt;
+
+            struct ptJetComparison
+            {
+                bool operator()(const HEPUtils::Jet *i, const HEPUtils::Jet *j) { return (i->pT() > j->pT()); }
+            } compareJetPt;
 
             Analysis_ATLAS_13TeV_0LEPStop_RJR_139invfb()
             {
@@ -76,111 +114,111 @@ namespace Gambit
                 DEFINE_SIGNAL_REGION("SRC5");
 
                 set_analysis_name("ATLAS_13TeV_0LEPStop_RJR_139invfb");
-                set_lumiosity(139);
+                set_luminosity(139);
 
                 enable_progress_tracking(1000);
 
-                #ifdef CHECK_CUTFLOW
-                    cout << "Starting run Analysis \n booking Cutflows" << endl; 
+#ifdef CHECK_CUTFLOW
+                cout << "Starting run Analysis \n booking Cutflows" << endl;
 
-                    _cutflows.addCutflow("SRC", 
-                    {
-                        "MET > 250", 
-                        "njets >= 4", 
-                        "nbjets >= 1",
-                        "Lepton veto",
-                        "pT j4 > 40 GeV",
-                        "pT j2 > 80 GeV", 
-                        "dPhimin(pT1-4, MET) > 0.2",
-                        "Pass MET trigger", 
-                        "S > 5", 
-                        "njS >= 4",
-                        "nbS >= 2",
-                        "mS > 400 GeV",
-                        "pT1 Sb > 40 GeV",
-                        "dPhi(pTISR, MET) > 3.00",
-                        "pTISR > 400 GeV", 
-                        "pT4S > 50 GeV", 
-                        "S >= 5.", 
-                        "METtrack > 30 GeV",
-                        "dPhi(MET, METtrack) < pi/3",
-                        "0.3 <= RISR < 0.4 (SRC-1)",
-                        "0.4 <= RISR < 0.5 (SRC-2)", 
-                        "0.5 <= RISR < 0.6 (SRC-3)", 
-                        "0.6 <= RISR < 0.7 (SRC-4)",
-                        "RISR >= 0.7 (SRC-5)", 
-                    }
-                    );
-                #endif 
+                _cutflows.addCutflow("SRC",
+                                     {
+                                         "MET > 250",
+                                         "njets >= 4",
+                                         "nbjets >= 1",
+                                         "Lepton veto",
+                                         "pT j4 > 40 GeV",
+                                         "pT j2 > 80 GeV",
+                                         "dPhimin(pT1-4, MET) > 0.2",
+                                         "Pass MET trigger",
+                                         "S > 5",
+                                         "njS >= 4",
+                                         "nbS >= 2",
+                                         "mS > 400 GeV",
+                                         "pT1 Sb > 40 GeV",
+                                         "dPhi(pTISR, MET) > 3.00",
+                                         "pTISR > 400 GeV",
+                                         "pT4S > 50 GeV",
+                                         "S >= 5.",
+                                         "METtrack > 30 GeV",
+                                         "dPhi(MET, METtrack) < pi/3",
+                                         "0.3 <= RISR < 0.4 (SRC-1)",
+                                         "0.4 <= RISR < 0.5 (SRC-2)",
+                                         "0.5 <= RISR < 0.6 (SRC-3)",
+                                         "0.6 <= RISR < 0.7 (SRC-4)",
+                                         "RISR >= 0.7 (SRC-5)",
+                                     });
+#endif
 
-                #pragma omp critical (init_ATLAS_13TeV_0LEPStop_RJR_139invfb) 
+#pragma omp critical(init_ATLAS_13TeV_0LEPStop_RJR_139invfb)
                 {
-                    LAB.reset(new RestFrames::LabRecoFrame("LAB", "LAB")); 
+                    LAB.reset(new RestFrames::LabRecoFrame("LAB", "LAB"));
                     CM.reset(new RestFrames::DecayRecoFrame("CM", "CM"));
-                    S.reset(new RestFrames::DecayRecoFrame("S", "S")); 
-                    ISR.reset(new RestFrames::VisibleRecoFrame("ISR", "ISR")); 
-                    V.reset(new RestFrames::VisibleRecoFrame("V", "V")); 
-                    I.reset(new RestFrames::InvisibleRecoFrame("I", "I")); 
+                    S.reset(new RestFrames::DecayRecoFrame("S", "S"));
+                    ISR.reset(new RestFrames::VisibleRecoFrame("ISR", "ISR"));
+                    V.reset(new RestFrames::VisibleRecoFrame("V", "V"));
+                    I.reset(new RestFrames::InvisibleRecoFrame("I", "I"));
 
-                    LAB->SetChildFrame(*CM); 
-                    CM->AddChildFrame(*ISR); 
-                    CM->AddChildFrame(*S); 
-                    S->AddChildFrame(*V); 
-                    S->AddChildFrame(*I); 
+                    LAB->SetChildFrame(*CM);
+                    CM->AddChildFrame(*ISR);
+                    CM->AddChildFrame(*S);
+                    S->AddChildFrame(*V);
+                    S->AddChildFrame(*I);
 
                     if (!LAB->InitializeTree())
                     {
-                        str errmsg; 
-                        errmsg = "Some problem occurred when calling LAB->InitializeTree() from the Analysis_ATLAS_13TeV_0LEPStop_RJR_139invfb analysis class.\n"; 
-                        piped_errors.request(LOCAL_INFO, errmsg); 
+                        str errmsg;
+                        errmsg = "Some problem occurred when calling LAB->InitializeTree() from the Analysis_ATLAS_13TeV_0LEPStop_RJR_139invfb analysis class.\n";
+                        piped_errors.request(LOCAL_INFO, errmsg);
                     }
 
                     /// Jigsaw Rules Set-up ///
                     /// Define Groups ///
-                    INV.reset(new RestFrames::InvisibleGroup("INV", "Invisible System")); 
-                    INV->AddFrame(*I); 
+                    INV.reset(new RestFrames::InvisibleGroup("INV", "Invisible System"));
+                    INV->AddFrame(*I);
 
-                    VIS.reset(new RestFrames::CombinatoricGroup("VIS", "Visible System")); 
-                    VIS->AddFrame(*ISR); 
-                    VIS->SetNElementsForFrame(*ISR, 1, false); 
-                    VIS->AddFrame(*V); 
-                    VIS->SetNElementsForFrame(*V, 0, false); 
+                    VIS.reset(new RestFrames::CombinatoricGroup("VIS", "Visible System"));
+                    VIS->AddFrame(*ISR);
+                    VIS->SetNElementsForFrame(*ISR, 1, false);
+                    VIS->AddFrame(*V);
+                    VIS->SetNElementsForFrame(*V, 0, false);
 
-                    // Set the invisible system mass to zero 
-                    InvMass.reset(new RestFrames::SetMassInvJigsaw("InvMass", "kSetMass")); 
-                    INV->AddJigsaw(*InvMass); 
+                    // Set the invisible system mass to zero
+                    InvMass.reset(new RestFrames::SetMassInvJigsaw("InvMass", "kSetMass"));
+                    INV->AddJigsaw(*InvMass);
 
                     // Define the rule for partitioning objects between "ISR" and "V"
-                    SplitVis.reset(new RestFrames::MinMassesCombJigsaw("CombPPJigsaw", "kMinMasses")); 
-                    VIS->AddJigsaw(*SplitVis); 
+                    SplitVis.reset(new RestFrames::MinMassesCombJigsaw("CombPPJigsaw", "kMinMasses"));
+                    VIS->AddJigsaw(*SplitVis);
 
                     // "0" group (ISR)
-                    SplitVis->AddFrame(*ISR, 0); 
+                    SplitVis->AddFrame(*ISR, 0);
                     // "1" group (V + I)
-                    SplitVis->AddFrame(*V, 1); 
-                    SplitVis->AddFrame(*I, 1); 
-                    
+                    SplitVis->AddFrame(*V, 1);
+                    SplitVis->AddFrame(*I, 1);
+
                     if (!LAB->InitializeAnalysis())
                     {
-                        str errmsg; 
-                        errmsg = "Some problem occured when calling LAB->InitializeAnalysis() from the Analysis_ATLAS_13TeV_0LEPStop_RJR_139invfb analysis class.\n"; 
-                        piped_errors.request(LOCAL_INFO, errmsg); 
+                        str errmsg;
+                        errmsg = "Some problem occured when calling LAB->InitializeAnalysis() from the Analysis_ATLAS_13TeV_0LEPStop_RJR_139invfb analysis class.\n";
+                        piped_errors.request(LOCAL_INFO, errmsg);
                     }
                 }
             }
 
             void run(const HEPUtils::Event *event)
             {
-                LAB->ClearEvent(); 
-                // Missing Energy 
-                HEPUtils::P4 metVec = event->missingmom(); 
-                double Met = event->met(); 
+                LAB->ClearEvent();
+                // Missing Energy
+                HEPUtils::P4 metVec = event->missingmom();
+                double Met = event->met();
 
-                // Baseline electrons 
-                vector<const HEPUtils::Particle*> baselineElectrons; 
-                for (const HEPUtils::Particle* electron : event->electrons())
+                // Baseline electrons
+                vector<const HEPUtils::Particle *> baselineElectrons;
+                for (const HEPUtils::Particle *electron : event->electrons())
                 {
-                    if (electron->pT() > 4.5 && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
+                    if (electron->pT() > 4.5 && electron->abseta() < 2.47)
+                        baselineElectrons.push_back(electron);
                 }
                 // Loose electron ID selection
                 applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Recon"));
@@ -196,16 +234,14 @@ namespace Gambit
                 // Apply muon efficiency
                 applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("R2"));
 
-                vector<const HEPUtils::Particle*> baselinePhotons;
-                for (const HEPUtils::Particle* photon : event->photons())
+                vector<const HEPUtils::Particle *> baselinePhotons;
+                for (const HEPUtils::Particle *photon : event->photons())
                 {
-                  if (photon->pT() > 25. && photon->abseta() < 2.37) baselinePhotons.push_back(photon);
+                    if (photon->pT() > 25. && photon->abseta() < 2.37)
+                        baselinePhotons.push_back(photon);
                 }
                 // Apply photon efficiency
                 applyEfficiency(baselinePhotons, ATLAS::eff2DPhoton.at("R2"));
-
-
-
 
                 // Baseline jets
                 vector<const HEPUtils::Jet *> baselineJets;
@@ -298,8 +334,6 @@ namespace Gambit
                 vector<const HEPUtils::Particle *> baselineLeptons = baselineElectrons;
                 baselineLeptons.insert(baselineLeptons.end(), baselineMuons.begin(), baselineMuons.end());
 
-
-
                 // Signal object containers
                 vector<const HEPUtils::Particle *> signalElectrons;
                 vector<const HEPUtils::Particle *> signalMuons;
@@ -345,49 +379,51 @@ namespace Gambit
 
                 double MetSig = calcMETSignificance(baselineElectrons, baselinePhotons, baselineMuons, signalJets, tauCands, metVec);
 
-                // RestFrames Stuff 
-                double CA_PTISR=0;
-                double CA_MS=0;
-                double CA_NbV=0;
-                double CA_NjV=0;
-                double CA_RISR=0;
-                double CA_dphiISRI=0;
-                double CA_pTjV4=0;
-                double CA_pTbV1=0;
+                // RestFrames Stuff
+                double CA_PTISR = 0;
+                double CA_MS = 0;
+                double CA_NbV = 0;
+                double CA_NjV = 0;
+                double CA_RISR = 0;
+                double CA_dphiISRI = 0;
+                double CA_pTjV4 = 0;
+                double CA_pTbV1 = 0;
 
-                vector<RestFrame::RFKey> jetID; 
-                for (const HEPUtils::Jet *jet : signalJets){
+                vector<RestFrame::RFKey> jetID;
+                for (const HEPUtils::Jet *jet : signalJets)
+                {
 
-                    TLorentzVector jetT4; 
+                    TLorentzVector jetT4;
                     jetT4.SetPtEtaPhiM(jet.Pt(), 0.0, jet.Phi(), jet.M());
-                    jetID.push_back(VIS->AddLabFrameFourVector(jetT4)); 
+                    jetID.push_back(VIS->AddLabFrameFourVector(jetT4));
                 }
 
-                TVector3 ETMiss; 
-                TEMiss.SetXYZ(metVec.px(), metVec.py(), 0.); 
+                TVector3 ETMiss;
+                TEMiss.SetXYZ(metVec.px(), metVec.py(), 0.);
                 INV->SetLabFrameThreeVector(ETMiss);
-
 
                 int nBJets = signalBJets.size();
                 int nNonBJets = signalNonBJets.size();
                 int nSignalJets = signalJets.size();
 
-                int     m_NjV(0);
-                int     m_NbV(0);
-                int     m_NbISR(0);
-                double  m_pTjV4(0.);
-                double  m_pTbV1(0);
-                double  m_PTISR(0.);
-                double  m_MS(0.);
-                double  m_RISR(0.);
-                double  m_dphiISRI(0.);
+                int m_NjV(0);
+                int m_NbV(0);
+                int m_NbISR(0);
+                double m_pTjV4(0.);
+                double m_pTbV1(0);
+                double m_PTISR(0.);
+                double m_MS(0.);
+                double m_RISR(0.);
+                double m_dphiISRI(0.);
 
-                if (nSignalJets > 0) {
-                    if (!LAB->AnalyzeEvent()) {
-                        str errmsg; 
-                        errmsg = "Some problem occured when calling LAB_comb->AnalyzeEvent() from the Analysis_ATLAS_13TeV_0LEPStop_RJR_139invfb analysis class.\n"; 
-                        piped_warnings.request(LOCAL_INFO, errmsg); 
-                        return; 
+                if (nSignalJets > 0)
+                {
+                    if (!LAB->AnalyzeEvent())
+                    {
+                        str errmsg;
+                        errmsg = "Some problem occured when calling LAB_comb->AnalyzeEvent() from the Analysis_ATLAS_13TeV_0LEPStop_RJR_139invfb analysis class.\n";
+                        piped_warnings.request(LOCAL_INFO, errmsg);
+                        return;
                     }
 
                     for (int i = 0, i < nSignalJets; i++)
@@ -413,59 +449,64 @@ namespace Gambit
 
                     if (m_NjV >= 1)
                     {
-                        TVector3 vP_ISR = ISR->GetFourVector(*CM).Vect(); 
-                        TVector3 vP_I   = I->GetFourVector(*CM).Vect(); 
+                        TVector3 vP_ISR = ISR->GetFourVector(*CM).Vect();
+                        TVector3 vP_I = I->GetFourVector(*CM).Vect();
 
-                        m_PTISR         = vP_ISR.Mag(); 
-                        m_RISR          = fabs(vP_I.Dot(vP_ISR.Unit())) / m_PTISR; 
+                        m_PTISR = vP_ISR.Mag();
+                        m_RISR = fabs(vP_I.Dot(vP_ISR.Unit())) / m_PTISR;
 
-                        m_MS            = S->GetMass(); 
-                        m_dphiISRI      = fabs(vP_ISR.DeltaPhi(vP_I)); 
+                        m_MS = S->GetMass();
+                        m_dphiISRI = fabs(vP_ISR.DeltaPhi(vP_I));
 
-                        CA_PTISR        = m_PTISR; 
-                        CA_MS           = m_MS; 
-                        CA_NbV          = m_NbV; 
-                        CA_NjV          = m_NjV; 
-                        CA_RISR         = m_RISR; 
-                        CA_dphiISRI     = m_dphiISRI; 
-                        CA_pTjV4        = m_pTjV4; 
-                        CA_pTbV1        = m_pTbV1; 
+                        CA_PTISR = m_PTISR;
+                        CA_MS = m_MS;
+                        CA_NbV = m_NbV;
+                        CA_NjV = m_NjV;
+                        CA_RISR = m_RISR;
+                        CA_dphiISRI = m_dphiISRI;
+                        CA_pTjV4 = m_pTjV4;
+                        CA_pTbV1 = m_pTbV1;
                     }
                 }
 
-                double Ht = 0.; 
-                for (size_t jet=0; jet<signalJets.size(); jet++)
+                double Ht = 0.;
+                for (size_t jet = 0; jet < signalJets.size(); jet++)
                 {
-                    Ht += signalJets[jet]->pT(); 
+                    Ht += signalJets[jet]->pT();
                 }
-                double HtSig = Met / sqrt(Ht); 
-                
-                bool pre1B4J0L = Met > 250 && nLep == 0 && nSignalJets >= 4 && nBJets >= 1 && signalJets[1].Pt() > 80 && signalJets[3].Pt() > 40 && dPhiJetMetMin2>0.4;
+                double HtSig = Met / sqrt(Ht);
+
+                bool pre1B4J0L = Met > 250 && nLep == 0 && nSignalJets >= 4 && nBJets >= 1 && signalJets[1].Pt() > 80 && signalJets[3].Pt() > 40 && dPhiJetMetMin2 > 0.4;
                 bool SRC = pre1B4J0L && CA_NbV >= 2 && MetSig > 5 && CA_NjV >= 4 && CA_pTbV1 > 40 && CA_MS > 400 && CA_dphiISRI > 3.00 && CA_PTISR > 400 && CA_pTjV4 > 50;
 
-                if ( SRC && CA_RISR >= 0.3 && CA_RISR < 0.4)    _counters.at("SRC1").add_event(event); 
-                if ( SRC && CA_RISR >= 0.4 && CA_RISR < 0.5)    _counters.at("SRC2").add_event(event); 
-                if ( SRC && CA_RISR >= 0.5 && CA_RISR < 0.6)    _counters.at("SRC3").add_event(event); 
-                if ( SRC && CA_RISR >= 0.6 && CA_RISR < 0.7)    _counters.at("SRC4").add_event(event); 
-                if ( SRC && CA_RISR >= 0.7 )                    _counters.at("SRC5").add_event(event); 
+                if (SRC && CA_RISR >= 0.3 && CA_RISR < 0.4)
+                    _counters.at("SRC1").add_event(event);
+                if (SRC && CA_RISR >= 0.4 && CA_RISR < 0.5)
+                    _counters.at("SRC2").add_event(event);
+                if (SRC && CA_RISR >= 0.5 && CA_RISR < 0.6)
+                    _counters.at("SRC3").add_event(event);
+                if (SRC && CA_RISR >= 0.6 && CA_RISR < 0.7)
+                    _counters.at("SRC4").add_event(event);
+                if (SRC && CA_RISR >= 0.7)
+                    _counters.at("SRC5").add_event(event);
 
-                return; 
+                return;
             }
 
             void collect_results()
             {
-                add_result(SignalRegionData(_counters.at("SRC1"), 53., {46.,  12.})); 
-                add_result(SignalRegionData(_counters.at("SRC2"), 57., {52.,  9.})); 
-                add_result(SignalRegionData(_counters.at("SRC3"), 38., {38.,  7.})); 
-                add_result(SignalRegionData(_counters.at("SRC4"), 9.,  {11.8, 3.1})); 
-                add_result(SignalRegionData(_counters.at("SRC5"), 4.,  {2.5,  0.7})); 
-                
+                add_result(SignalRegionData(_counters.at("SRC1"), 53., {46., 12.}));
+                add_result(SignalRegionData(_counters.at("SRC2"), 57., {52., 9.}));
+                add_result(SignalRegionData(_counters.at("SRC3"), 38., {38., 7.}));
+                add_result(SignalRegionData(_counters.at("SRC4"), 9., {11.8, 3.1}));
+                add_result(SignalRegionData(_counters.at("SRC5"), 4., {2.5, 0.7}));
+
                 COMMIT_CUTFLOWS;
-                #ifdef CHECK_CUTFLOW
-                    // _cutflows.combine();
-                    cout << "\n ===== CUTFLOWS ====== \n"
-                         << _cutflows << endl;
-                #endif
+#ifdef CHECK_CUTFLOW
+                // _cutflows.combine();
+                cout << "\n ===== CUTFLOWS ====== \n"
+                     << _cutflows << endl;
+#endif
                 return;
             }
 
