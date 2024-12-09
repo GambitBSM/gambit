@@ -78,7 +78,7 @@ namespace Gambit
                 set_analysis_name("ATLAS_13TeV_0LEPStop_RJR_139invfb");
                 set_lumiosity(139);
 
-                // enable_progress_tracking(1000);
+                enable_progress_tracking(1000);
 
                 #ifdef CHECK_CUTFLOW
                     cout << "Starting run Analysis \n booking Cutflows" << endl; 
