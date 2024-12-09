@@ -389,12 +389,12 @@ namespace Gambit
                 double CA_pTjV4 = 0;
                 double CA_pTbV1 = 0;
 
-                vector<RestFrame::RFKey> jetID;
+                vector<RestFrames::RFKey> jetID;
                 for (const HEPUtils::Jet *jet : signalJets)
                 {
 
                     TLorentzVector jetT4;
-                    jetT4.SetPtEtaPhiM(jet.Pt(), 0.0, jet.Phi(), jet.M());
+                    jetT4.SetPtEtaPhiM(jet->Pt(), 0.0, jet->Phi(), jet->M());
                     jetID.push_back(VIS->AddLabFrameFourVector(jetT4));
                 }
 
@@ -426,7 +426,7 @@ namespace Gambit
                         return;
                     }
 
-                    for (int i = 0, i < nSignalJets; i++)
+                    for (int i = 0; i < nSignalJets; i++)
                     {
                         if (VIS->GetFrame(jetID[i]) == *V)
                         {
