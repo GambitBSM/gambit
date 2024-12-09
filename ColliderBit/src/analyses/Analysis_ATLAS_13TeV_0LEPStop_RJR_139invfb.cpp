@@ -394,12 +394,12 @@ namespace Gambit
                 {
 
                     TLorentzVector jetT4;
-                    jetT4.SetPtEtaPhiM(jet->Pt(), 0.0, jet->Phi(), jet->M());
+                    jetT4.SetPtEtaPhiM(jet->pT(), 0.0, jet->phi(), jet->M());
                     jetID.push_back(VIS->AddLabFrameFourVector(jetT4));
                 }
 
                 TVector3 ETMiss;
-                TEMiss.SetXYZ(metVec.px(), metVec.py(), 0.);
+                ETMiss.SetXYZ(metVec.px(), metVec.py(), 0.);
                 INV->SetLabFrameThreeVector(ETMiss);
 
                 int nBJets = signalBJets.size();
@@ -432,17 +432,17 @@ namespace Gambit
                         {
                             m_NjV++;
                             if (m_NjV == 4)
-                                m_pTjV4 = signalJets[i].Pt();
-                            if (analysisBtags.at(signalJets[i]) && fabs(signalJets[i].Eta()) < 2.5)
+                                m_pTjV4 = signalJets[i].->pT();
+                            if (analysisBtags.at(signalJets[i]) && fabs(signalJets[i]->eta())) < 2.5)
                             {
                                 m_NbV++;
                                 if (m_NbV == 1)
-                                    m_pTbV1 = signalJets[i].Pt();
+                                    m_pTbV1 = signalJets[i]->pT();
                             }
                         }
                         else
                         {
-                            if (analysisBtags.at(signalJets[i]) && fabs(signalJets[i].Eta()) < 2.5)
+                            if (analysisBtags.at(signalJets[i]) && fabs(signalJets[i]->eta()) < 2.5)
                                 m_NbISR++;
                         }
                     }
