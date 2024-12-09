@@ -379,21 +379,7 @@ namespace Gambit
 
                 double MetSig = calcMETSignificance(baselineElectrons, baselinePhotons, baselineMuons, signalJets, tauCands, metVec);
 
-                double dPhiJetMetMin2 = 0;
-                double dPhiJetMetMin3 = 0;
-                double dPhiJetMetMin4 = 0;
-                if (nSignalJets >= 2)
-                {
-                    dPhiJetMetMin2 = std::min(fabs(metVec.deltaPhi(signalJets[0]->mom())), fabs(metVec.deltaPhi(signalJets[1]->mom())));
-                    if (nSignalJets >= 3)
-                    {
-                        dPhiJetMetMin3 = std::min(dPhiJetMetMin2, fabs(metVec.deltaPhi(signalJets[2]->mom())));
-                        if (nSignalJets >= 4)
-                        {
-                            dPhiJetMetMin4 = std::min(dPhiJetMetMin3, fabs(metVec.deltaPhi(signalJets[3]->mom())));
-                        }
-                    }
-                }
+
 
                 // RestFrames Stuff
                 double CA_PTISR = 0;
@@ -431,6 +417,23 @@ namespace Gambit
                 double m_MS(0.);
                 double m_RISR(0.);
                 double m_dphiISRI(0.);
+
+                double dPhiJetMetMin2 = 0;
+                double dPhiJetMetMin3 = 0;
+                double dPhiJetMetMin4 = 0;
+                if (nSignalJets >= 2)
+                {
+                    dPhiJetMetMin2 = std::min(fabs(metVec.deltaPhi(signalJets[0]->mom())), fabs(metVec.deltaPhi(signalJets[1]->mom())));
+                    if (nSignalJets >= 3)
+                    {
+                        dPhiJetMetMin3 = std::min(dPhiJetMetMin2, fabs(metVec.deltaPhi(signalJets[2]->mom())));
+                        if (nSignalJets >= 4)
+                        {
+                            dPhiJetMetMin4 = std::min(dPhiJetMetMin3, fabs(metVec.deltaPhi(signalJets[3]->mom())));
+                        }
+                    }
+                }
+
 
                 if (nSignalJets > 0)
                 {
