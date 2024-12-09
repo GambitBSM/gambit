@@ -379,6 +379,22 @@ namespace Gambit
 
                 double MetSig = calcMETSignificance(baselineElectrons, baselinePhotons, baselineMuons, signalJets, tauCands, metVec);
 
+                double dPhiJetMetMin2 = 0;
+                double dPhiJetMetMin3 = 0;
+                double dPhiJetMetMin4 = 0;
+                if (nSignalJets >= 2)
+                {
+                    dPhiJetMetMin2 = std::min(fabs(metVec.deltaPhi(signalJets[0]->mom())), fabs(metVec.deltaPhi(signalJets[1]->mom())));
+                    if (nSignalJets >= 3)
+                    {
+                        dPhiJetMetMin3 = std::min(dPhiJetMetMin2, fabs(metVec.deltaPhi(signalJets[2]->mom())));
+                        if (nSignalJets >= 4)
+                        {
+                            dPhiJetMetMin4 = std::min(dPhiJetMetMin3, fabs(metVec.deltaPhi(signalJets[3]->mom())));
+                        }
+                    }
+                }
+
                 // RestFrames Stuff
                 double CA_PTISR = 0;
                 double CA_MS = 0;
@@ -394,7 +410,7 @@ namespace Gambit
                 {
 
                     TLorentzVector jetT4;
-                    jetT4.SetPtEtaPhiM(jet->pT(), 0.0, jet->phi(), jet->M());
+                    jetT4.SetPtEtaPhiM(jet->pT(), 0.0, jet->phi(), jet->mass());
                     jetID.push_back(VIS->AddLabFrameFourVector(jetT4));
                 }
 
@@ -433,7 +449,7 @@ namespace Gambit
                             m_NjV++;
                             if (m_NjV == 4)
                                 m_pTjV4 = signalJets[i].->pT();
-                            if (analysisBtags.at(signalJets[i]) && fabs(signalJets[i]->eta())) < 2.5)
+                            if (analysisBtags.at(signalJets[i]) && fabs(signalJets[i]->eta()) < 2.5)
                             {
                                 m_NbV++;
                                 if (m_NbV == 1)
@@ -476,7 +492,7 @@ namespace Gambit
                 }
                 double HtSig = Met / sqrt(Ht);
 
-                bool pre1B4J0L = Met > 250 && nLep == 0 && nSignalJets >= 4 && nBJets >= 1 && signalJets[1].Pt() > 80 && signalJets[3].Pt() > 40 && dPhiJetMetMin2 > 0.4;
+                bool pre1B4J0L = Met > 250 && nLep == 0 && nSignalJets >= 4 && nBJets >= 1 && signalJets[1]->pT() > 80 && signalJets[3]->pT() > 40 && dPhiJetMetMin2 > 0.4;
                 bool SRC = pre1B4J0L && CA_NbV >= 2 && MetSig > 5 && CA_NjV >= 4 && CA_pTbV1 > 40 && CA_MS > 400 && CA_dphiISRI > 3.00 && CA_PTISR > 400 && CA_pTjV4 > 50;
 
                 if (SRC && CA_RISR >= 0.3 && CA_RISR < 0.4)
