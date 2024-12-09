@@ -448,7 +448,7 @@ namespace Gambit
                         {
                             m_NjV++;
                             if (m_NjV == 4)
-                                m_pTjV4 = signalJets[i].->pT();
+                                m_pTjV4 = signalJets[i]->pT();
                             if (analysisBtags.at(signalJets[i]) && fabs(signalJets[i]->eta()) < 2.5)
                             {
                                 m_NbV++;
