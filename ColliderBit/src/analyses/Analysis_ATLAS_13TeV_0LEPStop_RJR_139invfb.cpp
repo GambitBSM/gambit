@@ -36,8 +36,8 @@ namespace Gambit
 {
     namespace ColliderBit
     {
-        bool sortByPT0l(const HEPUtils::Jet *jet1, const HEPUtils::Jet *jet2) { return (jet1->pT() > jet2->pT()); }
-        bool sortByPT0l_sharedptr(std::shared_ptr<HEPUtils::Jet> jet1, std::shared_ptr<HEPUtils::Jet> jet2) { return sortByPT0l(jet1.get(), jet2.get()); }
+        static bool sortByPT0l(const HEPUtils::Jet *jet1, const HEPUtils::Jet *jet2) { return (jet1->pT() > jet2->pT()); }
+        static bool sortByPT0l_sharedptr(std::shared_ptr<HEPUtils::Jet> jet1, std::shared_ptr<HEPUtils::Jet> jet2) { return sortByPT0l(jet1.get(), jet2.get()); }
 
         class Analysis_ATLAS_13TeV_0LEPStop_RJR_139invfb : public Analysis
         {
