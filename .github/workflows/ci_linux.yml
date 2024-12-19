@@ -1,20 +1,20 @@
-name: Gambit Mac X64 CI
+name: Gambit Linux X64 CI on Wino
 
-on: workflow_dispatch
-#  push:
-#    branches: [ master, ci-* ]
-#  pull_request:
-#    branches: [ master ]
-#  schedule:
-#    - cron:  '0 5 * * *'
+on:
+  push:
+    branches: [ master, ci-* ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron:  '0 5 * * *'
 
 jobs:
   gambit_build:
-    runs-on: [self-hosted, macOS,x64]
+    runs-on: [self-hosted, Linux, X64]
     strategy:
       fail-fast: false
       matrix:
-        arch: [x64]
+        arch: [X64]
     defaults:
       run:
         shell: bash -eo pipefail {0}
@@ -29,21 +29,23 @@ jobs:
     - name: Configure with cmake
       run: |
         echo "Configure with cmake"
+        export PATH=$PATH:/scratch2/shared/patch
         cd BUILD
-        # Ditching a few backends that don't currently work on Mac
-        cmake -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DPYTHON_EXECUTABLE=/usr/local/Frameworks/Python.framework/Versions/3.11/bin/python3.11 -DPYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/3.11/lib/libpython3.11.dylib -DPYTHON_INCLUDE_DIR=/usr/local/Frameworks/Python.framework/Versions/3.11/include/python3.11 -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
+        cmake -DPYTHON_LIBRARY=/usr/lib64/libpython3.9.so -DPYTHON_INCLUDE_DIR=/usr/include/python3.9 -DWITH_MPI=ON -DWITH_HEPMC=ON -Ditch="great" -DEIGEN3_INCLUDE_DIR=/mn/fys-server1/a1/chrichan/Packages/Eigen/eigen3 ..
     - name: Build scanners
       run: |
         echo "Build scanners"
+        export PATH=$PATH:/scratch2/shared/patch
         cd BUILD
-        make -j $(( $(sysctl -n hw.ncpu)/2 )) scanners
+        make -j28 scanners
         cmake ..
     - name: Build Gambit
       run: |
         echo "Build GAMBIT."
+        export PATH=$PATH:/scratch2/shared/patch
         cd BUILD
         # Now build Gambit
-        make -j $(( $(sysctl -n hw.ncpu)/2 )) gambit
+        make -j28 gambit
     - name: CLI test
       run: |
         echo "Run the test of gambit help"
@@ -51,18 +53,18 @@ jobs:
     - name: Run spartan.yaml
       run: |
         echo "Testing spartan.yaml (with cout printer)"
-        sed -i "" 's/ hdf5/ cout/g' yaml_files/spartan.yaml
+        sed -i 's/ hdf5/ cout/g' yaml_files/spartan.yaml
         ./gambit -rf yaml_files/spartan.yaml 
 
 
   backends_build:
-    if: ${{ !cancelled() }}
     needs: [gambit_build] # Sets run order
-    runs-on: [self-hosted, macOS,x64]
+    if: ${{ !cancelled() }}
+    runs-on: [self-hosted, Linux, X64]
     strategy:
       fail-fast: false
       matrix:
-        arch: [x64]
+        arch: [X64]
     defaults:
       run:
         shell: bash -eo pipefail {0}
@@ -77,12 +79,13 @@ jobs:
     - name: Configure with cmake
       run: |
         echo "Configure with cmake"
+        export PATH=$PATH:/scratch2/shared/patch
         cd BUILD
-        # Ditching a few backends that don't currently work on Mac
-        cmake -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DPYTHON_EXECUTABLE=/usr/local/Frameworks/Python.framework/Versions/3.11/bin/python3.11 -DPYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/3.11/lib/libpython3.11.dylib -DPYTHON_INCLUDE_DIR=/usr/local/Frameworks/Python.framework/Versions/3.11/include/python3.11 -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
+        cmake -DPYTHON_LIBRARY=/usr/lib64/libpython3.9.so -DPYTHON_INCLUDE_DIR=/usr/include/python3.9 -DWITH_MPI=ON -DWITH_HEPMC=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="great" -DEIGEN3_INCLUDE_DIR=/mn/fys-server1/a1/chrichan/Packages/Eigen/eigen3 ..
     - name: Build Backends
       run: |
         echo "Building all Backends"
+        export PATH=$PATH:/scratch2/shared/patch
         cd BUILD
         # Build backends, except those that are tested via other jobs.
         # This replaces the "make backends" command.
@@ -90,13 +93,13 @@ jobs:
 
 
   test_runs:
-    if: ${{ !cancelled() }}
     needs: [gambit_build, backends_build] # Sets run order
-    runs-on: [self-hosted, macOS,x64]
+    if: ${{ !cancelled() }}
+    runs-on: [self-hosted, Linux, X64]
     strategy:
       fail-fast: false
       matrix:
-        arch: [x64]
+        arch: [X64]
     defaults:
       run:
         shell: bash -eo pipefail {0}
@@ -111,18 +114,20 @@ jobs:
     - name: Configure with cmake
       run: |
         echo "Configure with cmake"
+        export PATH=$PATH:/scratch2/shared/patch
         cd BUILD
-        # Ditching a few backends that don't currently work on Mac
-        cmake -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DPYTHON_EXECUTABLE=/usr/local/Frameworks/Python.framework/Versions/3.11/bin/python3.11 -DPYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/3.11/lib/libpython3.11.dylib -DPYTHON_INCLUDE_DIR=/usr/local/Frameworks/Python.framework/Versions/3.11/include/python3.11 -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="DarkBit;CosmoBit;NeutrinoBit;ObjectivesBit;micromegas_DMsimpVectorMedVectorDM" ..
+        cmake -DPYTHON_LIBRARY=/usr/lib64/libpython3.9.so -DPYTHON_INCLUDE_DIR=/usr/include/python3.9 -DWITH_MPI=ON -DWITH_HEPMC=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="Cosmo;Neutrino;great" -DEIGEN3_INCLUDE_DIR=/mn/fys-server1/a1/chrichan/Packages/Eigen/eigen3 ..
     - name: Build required scanners
       run: |
         echo "Build scanners required for test runs"
+        export PATH=$PATH:/scratch2/shared/patch
         cd BUILD
-        make -j $(( $(sysctl -n hw.ncpu)/2 )) diver
+        make -j28 diver
         cmake ..
     - name: Build required backends
       run: |
         echo "Building backends required for test runs"
+        export PATH=$PATH:/scratch2/shared/patch
         cd BUILD
         make pythia
         make higgssignals
@@ -138,9 +143,10 @@ jobs:
     - name: Build Gambit
       run: |
         echo "Build GAMBIT."
+        export PATH=$PATH:/scratch2/shared/patch
         cd BUILD
         # Now build Gambit
-        make -j $(( $(sysctl -n hw.ncpu)/2 )) gambit
+        make -j28 gambit
     - name: Run ColliderBit_CMSSM.yaml
       run: |
         echo "Test run with ColliderBit_CMSSM.yaml"
@@ -153,13 +159,13 @@ jobs:
 
 
   standalones_build:
-    if: ${{ !cancelled() }}
     needs: [gambit_build, backends_build, test_runs] # Sets run order
-    runs-on: [self-hosted, macOS,x64]
+    if: ${{ !cancelled() }}
+    runs-on: [self-hosted, Linux, X64]
     strategy:
       fail-fast: false
       matrix:
-        arch: [x64]
+        arch: [X64]
     defaults:
       run:
         shell: bash -eo pipefail {0}
@@ -174,11 +180,12 @@ jobs:
     - name: Configure with cmake
       run: |
         echo "Configure with cmake"
+        export PATH=$PATH:/scratch2/shared/patch
         cd BUILD
-        # Ditching a few backends that don't currently work on Mac
-        cmake -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DPYTHON_EXECUTABLE=/usr/local/Frameworks/Python.framework/Versions/3.11/bin/python3.11 -DPYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/3.11/lib/libpython3.11.dylib -DPYTHON_INCLUDE_DIR=/usr/local/Frameworks/Python.framework/Versions/3.11/include/python3.11 -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
+        cmake -DPYTHON_LIBRARY=/usr/lib64/libpython3.9.so -DPYTHON_INCLUDE_DIR=/usr/include/python3.9 -DWITH_MPI=ON -DWITH_HEPMC=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="great" -DEIGEN3_INCLUDE_DIR=/mn/fys-server1/a1/chrichan/Packages/Eigen/eigen3 ..
     - name: Build standalones
       run: |
         echo "Test the building of the standalones"
+        export PATH=$PATH:/scratch2/shared/patch
         cd BUILD
         make standalones

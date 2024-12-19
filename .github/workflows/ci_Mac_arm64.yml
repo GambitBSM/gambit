@@ -1,6 +1,6 @@
 name: Gambit Mac Arm64 CI
 
-on: #workflow_dispatch
+on:
   push:
     branches: [ master, ci-* ]
   pull_request:
@@ -57,7 +57,7 @@ jobs:
 
 
   backends_build:
-    if: ${{ always() }}
+    if: ${{ !cancelled() }}
     needs: [gambit_build] # Sets run order
     runs-on: [self-hosted, macOS, Arm64]
     strategy:
@@ -92,7 +92,7 @@ jobs:
 
 
   test_runs:
-    if: ${{ always() }}
+    if: ${{ !cancelled() }}
     needs: [gambit_build, backends_build] # Sets run order
     runs-on: [self-hosted, macOS, Arm64]
     strategy:
@@ -156,7 +156,7 @@ jobs:
 
 
   standalones_build:
-    if: ${{ always() }}
+    if: ${{ !cancelled() }}
     needs: [gambit_build, backends_build, test_runs] # Sets run order
     runs-on: [self-hosted, macOS, Arm64]
     strategy:
