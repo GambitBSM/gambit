@@ -254,7 +254,6 @@ namespace Gambit
                 // Jets
                 vector<const HEPUtils::Jet *> bJets;
                 vector<const HEPUtils::Jet *> nonBJets;
-                vector<const HEPUtils::Jet *> trueBJets; // for debugging
 
                 // Taus
                 // float MtTauCand = -1;
@@ -347,9 +346,10 @@ namespace Gambit
                 {
                     if (jet->pT() > 20. && fabs(jet->eta()) < 2.5)
                     {
-                        signalJets.push_back(jet);
                         signalBJets.push_back(jet);
                     }
+                    if (jet->pT() > 20. && fabs(jet->eta()) < 2.8)
+                        signalJets.push_back(jet);
                 }
 
                 for (const HEPUtils::Jet *jet : nonBJets)
