@@ -11,7 +11,7 @@
 #include "gambit/cmake/cmake_variables.hpp"
 #ifndef EXCLUDE_ROOT
 #ifndef EXCLUDE_RESTFRAMES
-// #define CHECK_CUTFLOW
+#define CHECK_CUTFLOW
 
 #include <vector>
 #include <cmath>
@@ -257,7 +257,7 @@ namespace Gambit
                 vector<const HEPUtils::Jet *> trueBJets; // for debugging
 
                 // Taus
-                float MtTauCand = -1;
+                // float MtTauCand = -1;
                 vector<const HEPUtils::Particle *> tauCands;
                 for (const HEPUtils::Particle *tau : event->taus())
                 {
@@ -273,12 +273,12 @@ namespace Gambit
                 // B-tag efficiencies
                 std::map<const Jet *, bool> analysisBtags = generateBTagsMap(baselineJets, 0.77, 0.10, 0.005);
 
-                const double accbtag = pow(0.7 / 0.77, 2);
-                std::random_device rd;
-                std::mt19937 gen(rd());
-                std::uniform_real_distribution<> dis(0.0, 1.0);
-                double randomNumber = dis(gen);
-                bool accbtag_SRA = randomNumber < accbtag;
+                // const double accbtag = pow(0.7 / 0.77, 2);
+                // std::random_device rd;
+                // std::mt19937 gen(rd());
+                // std::uniform_real_distribution<> dis(0.0, 1.0);
+                // double randomNumber = dis(gen);
+                // bool accbtag_SRA = randomNumber < accbtag;
 
                 for (const HEPUtils::Jet *jet : baselineJets)
                 {
@@ -379,8 +379,6 @@ namespace Gambit
 
                 double MetSig = calcMETSignificance(baselineElectrons, baselinePhotons, baselineMuons, signalJets, tauCands, metVec);
 
-
-
                 // RestFrames Stuff
                 double CA_PTISR = 0;
                 double CA_MS = 0;
@@ -405,7 +403,7 @@ namespace Gambit
                 INV->SetLabFrameThreeVector(ETMiss);
 
                 int nBJets = signalBJets.size();
-                int nNonBJets = signalNonBJets.size();
+                // int nNonBJets = signalNonBJets.size();
                 int nSignalJets = signalJets.size();
 
                 int m_NjV(0);
@@ -433,7 +431,6 @@ namespace Gambit
                         }
                     }
                 }
-
 
                 if (nSignalJets > 0)
                 {
@@ -493,7 +490,7 @@ namespace Gambit
                 {
                     Ht += signalJets[jet]->pT();
                 }
-                double HtSig = Met / sqrt(Ht);
+                // double HtSig = Met / sqrt(Ht);
 
                 bool pre1B4J0L = Met > 250 && nLep == 0 && nSignalJets >= 4 && nBJets >= 1 && signalJets[1]->pT() > 80 && signalJets[3]->pT() > 40 && dPhiJetMetMin2 > 0.4;
                 bool SRC = pre1B4J0L && CA_NbV >= 2 && MetSig > 5 && CA_NjV >= 4 && CA_pTbV1 > 40 && CA_MS > 400 && CA_dphiISRI > 3.00 && CA_PTISR > 400 && CA_pTjV4 > 50;
@@ -509,6 +506,46 @@ namespace Gambit
                 if (SRC && CA_RISR >= 0.7)
                     _counters.at("SRC5").add_event(event);
 
+#ifdef CHECK_CUTFLOW
+                const double w = event->weight();
+                _cutflows.fillinit(w);
+
+                _cutflows["SRC"].fillnext({Met > 250.,
+                                           nSignalJets >= 4,
+                                           nBJets >= 1,
+                                           nLep == 0,
+                                           nSignalJets >= 4 && signalJets[3]->pT() > 40,
+                                           nSignalJets >= 2 && signalJets[1]->pT() > 80,
+                                           dPhiJetMetMin4 > 0.2,
+                                           true,
+                                           MetSig > 5,
+                                           CA_NjV >= 4,
+                                           CA_NbV >= 2,
+                                           CA_MS > 400.,
+                                           CA_pTbV1 > 40.,
+                                           CA_dphiISRI > 3.0,
+                                           CA_PTISR > 400.,
+                                           CA_pTjV4 > 50.,
+                                           true,
+                                           true,
+                                           true},
+                                          w);
+
+                if (SRC)
+                {
+                    if (CA_RISR >= 0.3 && CA_RISR < 0.4)
+                        _cutflows["SRC"].fill(20, true, w);
+                    if (CA_RISR >= 0.4 && CA_RISR < 0.5)
+                        _cutflows["SRC"].fill(21, true, w);
+                    if (CA_RISR >= 0.5 && CA_RISR < 0.6)
+                        _cutflows["SRC"].fill(22, true, w);
+                    if (CA_RISR >= 0.6 && CA_RISR < 0.7)
+                        _cutflows["SRC"].fill(23, true, w);
+                    if (CA_RISR >= 0.7)
+                        _cutflows["SRC"].fill(24, true, w);
+                }
+#endif
+
                 return;
             }
 
@@ -520,11 +557,12 @@ namespace Gambit
                 add_result(SignalRegionData(_counters.at("SRC4"), 9., {11.8, 3.1}));
                 add_result(SignalRegionData(_counters.at("SRC5"), 4., {2.5, 0.7}));
 
-                COMMIT_CUTFLOWS;
+                // COMMIT_CUTFLOWS;
 #ifdef CHECK_CUTFLOW
                 // _cutflows.combine();
                 cout << "\n ===== CUTFLOWS ====== \n"
                      << _cutflows << endl;
+                add_cutflows(_cutflows);
 #endif
                 return;
             }
