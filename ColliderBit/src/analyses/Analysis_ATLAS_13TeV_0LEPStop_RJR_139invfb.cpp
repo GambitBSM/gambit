@@ -11,7 +11,7 @@
 #include "gambit/cmake/cmake_variables.hpp"
 #ifndef EXCLUDE_ROOT
 #ifndef EXCLUDE_RESTFRAMES
-#define CHECK_CUTFLOW
+// #define CHECK_CUTFLOW
 
 #include <vector>
 #include <cmath>
@@ -516,7 +516,7 @@ namespace Gambit
                                            nLep == 0,
                                            nSignalJets >= 4 && signalJets[3]->pT() > 40,
                                            nSignalJets >= 2 && signalJets[1]->pT() > 80,
-                                           dPhiJetMetMin4 > 0.2,
+                                           dPhiJetMetMin2 > 0.4,
                                            true,
                                            MetSig > 5,
                                            CA_NjV >= 4,
@@ -528,7 +528,7 @@ namespace Gambit
                                            CA_pTjV4 > 50.,
                                            true,
                                            true,
-                                           true},
+                                           SRC},
                                           w);
 
                 if (SRC)
