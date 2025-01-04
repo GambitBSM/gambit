@@ -1023,7 +1023,11 @@ namespace Gambit
         ensure_file_is_open();
 
         // If the GAMBIT dataset is present, get size from it
-        HDF5DataSet<str> gambit("GAMBIT");
+        #ifdef GAMBIT_LIGHT
+            HDF5DataSet<str> gambit("GAMBIT-light");
+        #else
+            HDF5DataSet<str> gambit("GAMBIT");
+        #endif
         if(gambit.dataset_exists(metadata_id))
         {
           gambit.open_dataset(metadata_id);
