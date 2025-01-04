@@ -2191,7 +2191,11 @@ namespace Gambit
       map_str_str metadata;
 
       // Gambit version
-      metadata["GAMBIT"] = gambit_version();
+      #ifdef GAMBIT_LIGHT
+        metadata["GAMBIT-light"] = gambit_version();
+      #else
+        metadata["GAMBIT"] = gambit_version();
+      #endif
 
       // Date
       auto now = std::chrono::system_clock::now();
