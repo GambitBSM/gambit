@@ -8,6 +8,7 @@
 
 #include <memory> // Required for std::shared_ptr
 #include <YODA/Histo1D.h>
+#include <YODA/WriterYODA.h>
 #include <vector>
 #include <cmath>
 #include <memory>
@@ -47,8 +48,7 @@ namespace Gambit
 
       Analysis_ATLAS_13TeV_1LEPStop_139invfb()
       {
-        _hist_Topness = std::make_shared<YODA::Histo1D>("Topness", 10, 0, 100);
-
+        _hist_Topness = std::make_shared<YODA::Histo1D>(10, 0.0, 100.0, "Topness", "My Topness");
         // Signal region counter
         DEFINE_SIGNAL_REGION("SR-tN_med");
         DEFINE_SIGNAL_REGION("SR-tN_high");
@@ -170,17 +170,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters["SR-bffN_softb"], 10., {8.7, 2.3}));
         add_result(SignalRegionData(_counters["SR-DM"], 56., {56.0, 8.0}));
 
-        std::ofstream yoda_file("ATLAS-SUSY-2018-007.yoda");
-        if (yoda_file.is_open())
-        {
-          _hist_Topness->toYODA(yoda_file);
-          yoda_file.close();
-          std::cout << "Histogram saved to output_histogram.yoda" << std::endl;
-        }
-        else
-        {
-          std::cerr << "Failed to open file for writing YODA histogram!" << std::endl;
-        }
+        YODA::WriterYODA::write(*_hist_Topness, "ATLAS-SUSY-2018-007.yoda");
       }
 
     protected:
