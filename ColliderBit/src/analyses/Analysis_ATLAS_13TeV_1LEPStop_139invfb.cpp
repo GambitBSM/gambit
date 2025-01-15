@@ -6,6 +6,7 @@
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "METSignificance/METSignificance.hpp"
 
+#include <memory> // Required for std::shared_ptr
 #include <YODA/Histo1D.h>
 #include <vector>
 #include <cmath>
@@ -37,8 +38,8 @@ namespace Gambit
     class Analysis_ATLAS_13TeV_1LEPStop_139invfb : public Analysis
     {
     private:
-      YODA::Histo1DPtr _hist_Topness;
-
+      // YODA::Histo1DPtr _hist_Topness;
+      std::shared_ptr<YODA::Histo1D> _hist_Topness;
     public:
       // Required detector sim
       static constexpr const char *detector = "ATLAS";
