@@ -170,7 +170,8 @@ namespace Gambit
         add_result(SignalRegionData(_counters["SR-bffN_softb"], 10., {8.7, 2.3}));
         add_result(SignalRegionData(_counters["SR-DM"], 56., {56.0, 8.0}));
 
-        YODA::WriterYODA::write(*_hist_Topness, "ATLAS-SUSY-2018-007.yoda");
+        YODA::WriterYODA::write(static_cast<YODA::AnalysisObject &>(*_hist_Topness),
+                                "ATLAS-SUSY-2018-007.yoda");
       }
 
     protected:
