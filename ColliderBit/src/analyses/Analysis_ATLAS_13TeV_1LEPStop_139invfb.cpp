@@ -6,6 +6,7 @@
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "METSignificance/METSignificance.hpp"
 
+#include <YODA/Histo1D.h>
 #include <vector>
 #include <cmath>
 #include <memory>
