@@ -40,12 +40,15 @@ namespace Gambit
     private:
       // YODA::Histo1DPtr _hist_Topness;
       std::shared_ptr<YODA::Histo1D> _hist_Topness;
+
     public:
       // Required detector sim
       static constexpr const char *detector = "ATLAS";
 
       Analysis_ATLAS_13TeV_1LEPStop_139invfb()
       {
+        _hist_Topness = std::make_shared<YODA::Histo1D>("Topness", 10, 0, 100);
+
         // Signal region counter
         DEFINE_SIGNAL_REGION("SR-tN_med");
         DEFINE_SIGNAL_REGION("SR-tN_high");
@@ -55,7 +58,7 @@ namespace Gambit
         DEFINE_SIGNAL_REGION("SR-bffN_btag");
         DEFINE_SIGNAL_REGION("SR-bffN_softb");
         DEFINE_SIGNAL_REGION("SR-DM");
-        
+
         // _counters["SR-tN_med"] = EventCounter("SR-tN_med");
         // _counters["SR-tN_high"] = EventCounter("SR-tN_high");
         // _counters["SR-tN_diag_low"] = EventCounter("SR-tN_diag_low");
@@ -166,6 +169,18 @@ namespace Gambit
         add_result(SignalRegionData(_counters["SR-bffN_btag"], 14., {11.3, 1.4}));
         add_result(SignalRegionData(_counters["SR-bffN_softb"], 10., {8.7, 2.3}));
         add_result(SignalRegionData(_counters["SR-DM"], 56., {56.0, 8.0}));
+
+        std::ofstream yoda_file("ATLAS-SUSY-2018-007.yoda");
+        if (yoda_file.is_open())
+        {
+          _hist_Topness->toYODA(yoda_file);
+          yoda_file.close();
+          std::cout << "Histogram saved to output_histogram.yoda" << std::endl;
+        }
+        else
+        {
+          std::cerr << "Failed to open file for writing YODA histogram!" << std::endl;
+        }
       }
 
     protected:
