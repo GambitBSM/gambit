@@ -1,8 +1,18 @@
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
-#include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
+#include "gambit/ColliderBit/ATLASEfficiencies.hpp"
+#include "gambit/ColliderBit/analyses/Cutflow.hpp"
+#include "gambit/ColliderBit/mt2_bisect.h"
+#include "METSignificance/METSignificance.hpp"
 
+
+#include <vector>
+#include <cmath>
+#include <memory>
+#include <iomanip>
+#include <algorithm>
+#include <fstream>
 // #define CHECK_CUTFLOW 
 
 /*  The ATLAS 1 Lepton direct stop analysis 
@@ -116,16 +126,16 @@ namespace Gambit
         // Could add ATLAS or CMS efficiencies here
         // See Analysis_ATLAS_2LEPEW_20invfb.cpp for an example
 
-        int nElectrons = baselineElectrons.size();
-        int nMuons = baselineMuons.size();
-        int nJets = baselineJets.size();
+        // int nElectrons = baselineElectrons.size();
+        // int nMuons = baselineMuons.size();
+        // int nJets = baselineJets.size();
 
-        std::cerr << "nElectrons " << nElectrons << " nMuons " << nMuons << " nJets " << nJets << " met " << met << std::endl;
+        // std::cerr << "nElectrons " << nElectrons << " nMuons " << nMuons << " nJets " << nJets << " met " << met << std::endl;
 
         // Increment number of events passing signal region cuts
         // Dummy signal region: need 2 jets, met > 150 and no leptons
 
-        if((nElectrons+nMuons)==0 && nJets==2 && met>150.) _counters["SR"].add_event(event);
+        // if((nElectrons+nMuons)==0 && nJets==2 && met>150.) _counters["SR"].add_event(event);
 
         return; 
 
