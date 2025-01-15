@@ -1,3 +1,4 @@
+
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 
@@ -27,6 +28,8 @@ namespace Gambit
     class Analysis_ATLAS_13TeV_1LEPStop_139invfb : public Analysis
     {
     private:
+
+      YODA::Histo1DPtr _hist_Topness;
 
     public:
 
