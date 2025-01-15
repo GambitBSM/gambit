@@ -160,7 +160,7 @@ namespace Gambit
 
     };
 
-    DEFINE_ANALYSIS_FACTORY(Analysis_ATLAS_13TeV_1LEPStop_139invfb)
+    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_1LEPStop_139invfb)
 
   }
 }
