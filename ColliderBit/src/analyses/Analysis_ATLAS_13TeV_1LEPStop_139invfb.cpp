@@ -1,6 +1,7 @@
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 
 // #define CHECK_CUTFLOW 
 
