@@ -101,8 +101,8 @@ namespace Gambit
             baselineElectrons4Hard.push_back(electron);
           baselineElectrons4Soft.push_back(electron);
         }
-        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("PERF_2017_01_ID_Loose"));
-        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("PERF_2017_01_ID_Tight"));
+        applyEfficiency(baselineElectrons4Hard, ATLAS::eff2DEl.at("PERF_2017_01_ID_Loose"));
+        applyEfficiency(baselineElectrons4Soft, ATLAS::eff2DEl.at("PERF_2017_01_ID_Tight"));
 
         // Baseline muons
         vector<const HEPUtils::Particle *> baselineMuons4Hard;
@@ -115,6 +115,7 @@ namespace Gambit
         }
         applyEfficiency(baselineMuons4Hard, ATLAS::eff1DMu.at("MUON_2018_03_ID_Loose"));
         applyEfficiency(baselineMuons4Soft, ATLAS::eff1DMu.at("MUON_2018_03_ID_Tight"));
+        
         // Baseline jets
         vector<const HEPUtils::Jet *> baselineJets;
         for (const HEPUtils::Jet *jet : event->jets("antikt_R04"))
