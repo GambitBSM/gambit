@@ -175,18 +175,20 @@ namespace Gambit
         sort(VR_jets.begin(), VR_jets.end(), [](const HEPUtils::Jet *a, const HEPUtils::Jet *b)
              { return a->pT() > b->pT(); });
 
+        vector<const HEPUtils::Jet *> trackJets(VR_jets.begin(), VR_jets.end()); 
+
         // Define the lowPT b-jet
         std::vector<HEPUtils::Jet *> bVRJets;
         std::vector<HEPUtils::Jet *> nonbVRJets;
 
         // B-tag Efficiencies: Figure 3 of ATLAS-CONF-2019-027
-        std::map<const Jet *, bool> softB01 = generateBTagsMap(VR_jets, 0.35144, 0.17459, 0.01457); // 5-7
-        std::map<const Jet *, bool> softB02 = generateBTagsMap(VR_jets, 0.52632, 0.19230, 0.01796); // 7-10
-        std::map<const Jet *, bool> softB03 = generateBTagsMap(VR_jets, 0.61460, 0.15541, 0.01233); // 10-15
-        std::map<const Jet *, bool> softB04 = generateBTagsMap(VR_jets, 0.69100, 0.17410, 0.01259); // 15-20
-        std::map<const Jet *, bool> softB05 = generateBTagsMap(VR_jets, 0.75722, 0.17262, 0.01125); // 20-30
+        std::map<const Jet *, bool> softB01 = generateBTagsMap(trackJets, 0.35144, 0.17459, 0.01457); // 5-7
+        std::map<const Jet *, bool> softB02 = generateBTagsMap(trackJets, 0.52632, 0.19230, 0.01796); // 7-10
+        std::map<const Jet *, bool> softB03 = generateBTagsMap(trackJets, 0.61460, 0.15541, 0.01233); // 10-15
+        std::map<const Jet *, bool> softB04 = generateBTagsMap(trackJets, 0.69100, 0.17410, 0.01259); // 15-20
+        std::map<const Jet *, bool> softB05 = generateBTagsMap(trackJets, 0.75722, 0.17262, 0.01125); // 20-30
 
-        for (const HEPUtils::Jet *jet : VR_jets)
+        for (const HEPUtils::Jet *jet : trackJets)
         {
           if (jet->pT() > 5. && jet->pT() < 7.)
             softB01.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
