@@ -39,6 +39,8 @@ namespace Gambit
 {
   namespace ColliderBit
   {
+    bool sortByPT_jet(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
+    bool sortByPT_lep(const HEPUtils::Particle* lep1, const HEPUtils::Particle* lep2) { return (lep1->pT() > lep2->pT()); }
 
     /// Basic analysis code for copying
     class Analysis_ATLAS_13TeV_1LEPStop_139invfb : public Analysis
@@ -179,8 +181,7 @@ namespace Gambit
           HEPUtils::Jet *hj = new HEPUtils::Jet(pj);
           VR_jets.push_back(hj);
         }
-        sort(VR_jets.begin(), VR_jets.end(), [](const HEPUtils::Jet *a, const HEPUtils::Jet *b)
-             { return a->pT() > b->pT(); });
+        sort(VR_jets.begin(), VR_jets.end(), sortByPT_jet);
 
         vector<const HEPUtils::Jet *> trackJets(VR_jets.begin(), VR_jets.end());
 
@@ -242,12 +243,12 @@ namespace Gambit
           signalLeptons4Soft.push_back(muon);
         }
 
-        std::sort(signalElectron4Hard.begin(), signalElectron4Hard.end(), sortByPt); 
-        std::sort(signalElectron4Soft.begin(), signalElectron4Soft.end(), sortByPt); 
-        std::sort(signalMuon4Hard.begin(), signalMuon4Hard.end(), sortByPt); 
-        std::sort(signalMuon4Soft.begin(), signalMuon4Soft.end(), sortByPt); 
-        std::sort(signalLeptons4Hard.begin(), signalLeptons4Hard.end(), sortByPt); 
-        std::sort(signalLeptons4Soft.begin(), signalLeptons4Soft.end(), sortByPt); 
+        std::sort(signalElectron4Hard.begin(), signalElectron4Hard.end(), sortByPT_lep); 
+        std::sort(signalElectron4Soft.begin(), signalElectron4Soft.end(), sortByPT_lep); 
+        std::sort(signalMuon4Hard.begin(), signalMuon4Hard.end(), sortByPT_lep); 
+        std::sort(signalMuon4Soft.begin(), signalMuon4Soft.end(), sortByPT_lep); 
+        std::sort(signalLeptons4Hard.begin(), signalLeptons4Hard.end(), sortByPT_lep); 
+        std::sort(signalLeptons4Soft.begin(), signalLeptons4Soft.end(), sortByPT_lep); 
 
         // Preselection Criteria
         bool pre_hardlep = false;
