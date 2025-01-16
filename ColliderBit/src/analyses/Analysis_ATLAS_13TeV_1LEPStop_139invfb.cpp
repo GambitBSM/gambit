@@ -39,8 +39,17 @@ namespace Gambit
 {
   namespace ColliderBit
   {
-    static bool sortByPT_jet(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
-    static bool sortByPT_lep(const HEPUtils::Particle* lep1, const HEPUtils::Particle* lep2) { return (lep1->pT() > lep2->pT()); }
+    static bool sortByPT_jet(const HEPUtils::Jet *jet1, const HEPUtils::Jet *jet2) { return (jet1->pT() > jet2->pT()); }
+    static bool sortByPT_lep(const HEPUtils::Particle *lep1, const HEPUtils::Particle *lep2) { return (lep1->pT() > lep2->pT()); }
+
+    static double calcMT(HEPUtils::P4 lepmom, HEPUtils::P4 metMom)
+    {
+      // std::cout << "metMom.px() " << metMom.px() << " jetMom PT " << jetMom.pT() << std::endl;
+      double met = sqrt(metMom.px() * metMom.px() + metMom.py() * metMom.py());
+      double dphi = metMom.deltaPhi(lepmom);
+      double mt = sqrt(2 * lepmom.pT() * met * (1 - std::cos(dphi)));
+      return mt;
+    }
 
     /// Basic analysis code for copying
     class Analysis_ATLAS_13TeV_1LEPStop_139invfb : public Analysis
@@ -66,15 +75,6 @@ namespace Gambit
         DEFINE_SIGNAL_REGION("SR-bffN_softb");
         DEFINE_SIGNAL_REGION("SR-DM");
 
-        // _counters["SR-tN_med"] = EventCounter("SR-tN_med");
-        // _counters["SR-tN_high"] = EventCounter("SR-tN_high");
-        // _counters["SR-tN_diag_low"] = EventCounter("SR-tN_diag_low");
-        // _counters["SR-tN_diag_high"] = EventCounter("SR-tN_diag_high");
-        // _counters["SR-bWN"] = EventCounter("SR-bWN");
-        // _counters["SR-bffN_btag"] = EventCounter("SR-bffN_btag");
-        // _counters["SR-bffN_softb"] = EventCounter("SR-bffN_softb");
-        // _counters["SR-DM"] = EventCounter("SR-DM");
-
         // Set the analysis name
         set_analysis_name("ATLAS_13TeV_1LEPStop_139invfb");
 
@@ -84,8 +84,8 @@ namespace Gambit
 
       void run(const HEPUtils::Event *event)
       {
-
         // Get the missing energy in the event
+        HEPUtils::P4 metVec = event->missingmom();
         double met = event->met();
 
         // Now define vectors of baseline objects,  including:
@@ -115,27 +115,13 @@ namespace Gambit
         }
         applyEfficiency(baselineMuons4Hard, ATLAS::eff1DMu.at("MUON_2018_03_ID_Loose"));
         applyEfficiency(baselineMuons4Soft, ATLAS::eff1DMu.at("MUON_2018_03_ID_Tight"));
-        
+
         // Baseline jets
         vector<const HEPUtils::Jet *> baselineJets;
         for (const HEPUtils::Jet *jet : event->jets("antikt_R04"))
         {
           if (jet->pT() > 20. && fabs(jet->eta()) < 4.5)
             baselineJets.push_back(jet);
-        }
-
-        vector<const HEPUtils::Jet *> bJets;
-        vector<const HEPUtils::Jet *> nonbJets;
-
-        // B-tag Efficiencies
-        std::map<const Jet *, bool> analysisBtags = generateBTagsMap(baselineJets, 0.77, 1.0 / 6.0, 1.0 / 130.);
-        for (const HEPUtils::Jet *jet : baselineJets)
-        {
-          bool isBTag = analysisBtags.at(jet);
-          if (isBTag && jet->pT() > 20.)
-            bJets.push_back(jet);
-          else
-            nonbJets.push_back(jet);
         }
 
         vector<const HEPUtils::Particle *> signalTaus;
@@ -185,7 +171,6 @@ namespace Gambit
         sort(VR_jets.begin(), VR_jets.end(), sortByPT_jet);
 
         vector<const HEPUtils::Jet *> trackJets(VR_jets.begin(), VR_jets.end());
-
         // Define the lowPT b-jet
         vector<const HEPUtils::Jet *> bVRJets;
         vector<const HEPUtils::Jet *> nonbVRJets;
@@ -220,6 +205,22 @@ namespace Gambit
         removeOverlap(baselineMuons4Hard, baselineJets, 0.4, true);
         removeOverlap(baselineMuons4Soft, baselineJets, 0.4, true);
 
+        vector<const HEPUtils::Jet *> signalJets;
+        vector<const HEPUtils::Jet *> bJets;
+        vector<const HEPUtils::Jet *> nonbJets;
+        // B-tag Efficiencies
+        std::map<const Jet *, bool> analysisBtags = generateBTagsMap(baselineJets, 0.77, 1.0 / 6.0, 1.0 / 130.);
+        for (const HEPUtils::Jet *jet : baselineJets)
+        {
+          if (jet->pT() > 25. && jet->abseta() < 2.5)
+            signalJets.push_back(jet);
+          bool isBTag = analysisBtags.at(jet);
+          if (isBTag && jet->pT() > 20.)
+            bJets.push_back(jet);
+          else
+            nonbJets.push_back(jet);
+        }
+
         vector<const HEPUtils::Particle *> signalElectron4Hard, signalElectron4Soft;
         vector<const HEPUtils::Particle *> signalMuon4Hard, signalMuon4Soft;
         vector<const HEPUtils::Particle *> signalLeptons4Hard, signalLeptons4Soft;
@@ -244,17 +245,29 @@ namespace Gambit
           signalLeptons4Soft.push_back(muon);
         }
 
-        std::sort(signalElectron4Hard.begin(), signalElectron4Hard.end(), sortByPT_lep); 
-        std::sort(signalElectron4Soft.begin(), signalElectron4Soft.end(), sortByPT_lep); 
-        std::sort(signalMuon4Hard.begin(), signalMuon4Hard.end(), sortByPT_lep); 
-        std::sort(signalMuon4Soft.begin(), signalMuon4Soft.end(), sortByPT_lep); 
-        std::sort(signalLeptons4Hard.begin(), signalLeptons4Hard.end(), sortByPT_lep); 
-        std::sort(signalLeptons4Soft.begin(), signalLeptons4Soft.end(), sortByPT_lep); 
+        std::sort(signalElectron4Hard.begin(), signalElectron4Hard.end(), sortByPT_lep);
+        std::sort(signalElectron4Soft.begin(), signalElectron4Soft.end(), sortByPT_lep);
+        std::sort(signalMuon4Hard.begin(), signalMuon4Hard.end(), sortByPT_lep);
+        std::sort(signalMuon4Soft.begin(), signalMuon4Soft.end(), sortByPT_lep);
+        std::sort(signalLeptons4Hard.begin(), signalLeptons4Hard.end(), sortByPT_lep);
+        std::sort(signalLeptons4Soft.begin(), signalLeptons4Soft.end(), sortByPT_lep);
 
+        std::sort(signalJets.begin(), signalJets.end(), sortByPT_jet);
         // Preselection Criteria
         bool pre_hardlep = false;
         bool pre_softlep = false;
+
         // hard-lepton preselection
+        const int nlephard = signalLeptons4Hard.size();
+        const int njet = signalJets.size();
+        const int nbjet = bJets.size();
+        const double l1PT = nlephard > 0 ? signalLeptons4Hard[0]->pT() : 0.; 
+        const double dPhijet1ET = njet > 0 ? signalJets[0]->mom().deltaPhi(metVec) : 0.;
+        const double dPhijet2ET = njet > 1 ? signalJets[1]->mom().deltaPhi(metVec) : 0.;
+        const double mT = nlephard > 0 ? get_mT(signalElectron4Hard[0], metVec) : 0.;
+        const double mT2tau = (signalTaus.size() > 0 && nlephard > 0) ? get_mT2(signalTaus[0]->mom(), signalLeptons4Hard[0]->mom(), metVec, 0.) : 100.;
+
+        bool pre_hard = nlephard == 1 && njet >= 4 && l1PT > 25. && met > 230. && dPhijet1ET > 0.4 && dPhijet2ET > 0.4 && nbjet >= 1 && mT > 30. && mT2tau > 80. ; 
 
         return;
       }
