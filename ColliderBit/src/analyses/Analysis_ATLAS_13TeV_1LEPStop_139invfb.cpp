@@ -5,6 +5,8 @@
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "METSignificance/METSignificance.hpp"
+#include "fastjet/ClusterSequence.hh"
+#include "fastjet/contrib/VariableR.hh"
 
 #include <memory> // Required for std::shared_ptr
 #include <YODA/Histo1D.h>
@@ -131,6 +133,67 @@ namespace Gambit
         }
         applyEfficiency(signalTaus, ATLAS::effTau.at("R2_RNN_Loose"));
 
+        // Defining the soft-b jet for Stop -> b f f' LSP Signal Region
+        // According to the CERN report: ATLAS-CONF-2019-027
+        //        URL: https://cds.cern.ch/record/2682131/files/ATLAS-CONF-2019-027.pdf
+        // 1. Define the Fastjet track object
+        std::vector<fastjet::PseudoJet> fj_tracks;
+
+        // Suppose you consider all stable charged particles with pT>0.5 GeV, |eta|<2.5, etc.
+        for (auto *p : event->all_particles())
+        {
+          if (p->charge3() != 0 && p->pT() > 0.5 && std::fabs(p->eta()) < 2.5)
+          {
+            fastjet::PseudoJet pj(p->px(), p->py(), p->pz(), p->E());
+            fj_tracks.push_back(pj);
+          }
+        }
+
+        // 2. Define the anti-kt Variable‐R jet
+        double rho = 30.0;
+        double Rmin = 0.02;
+        double Rmax = 0.4;
+
+        fastjet::contrib::VariableRPlugin vr_plugin(rho, Rmin, Rmax, fastjet::contrib::VariableRPlugin::ONE_SCALE);
+        fastjet::JetDefinition jet_def(&vr_plugin);
+        // 3. Clustering the VR-Jet
+        fastjet::ClusterSequence cseq(fj_tracks, jet_def);
+        std::vector<fastjet::PseudoJet> vr_pseudojets = fastjet::sorted_by_pt(cseq.inclusive_jets(5.0));
+        // 4. Converting into the HEPUtils Pseudo-Jet
+        std::vector<HEPUtils::Jet *> VR_jets;
+        for (auto &pj : vr_pseudojets)
+        {
+          HEPUtils::Jet *hj = new HEPUtils::Jet(pj);
+          VR_jets.push_back(hj);
+        }
+
+        // Define the lowPT b-jet
+        std::vector<HEPUtils::Jet *> bVRJets;
+        std::vector<HEPUtils::Jet *> nonbVRJets;
+
+        // B-tag Efficiencies: Figure 3 of ATLAS-CONF-2019-027
+        std::map<const Jet *, bool> softB01 = generateBTagsMap(VR_jets, 0.35144, 0.17459, 0.01457); // 5-7
+        std::map<const Jet *, bool> softB02 = generateBTagsMap(VR_jets, 0.52632, 0.19230, 0.01796); // 7-10
+        std::map<const Jet *, bool> softB03 = generateBTagsMap(VR_jets, 0.61460, 0.15541, 0.01233); // 10-15
+        std::map<const Jet *, bool> softB04 = generateBTagsMap(VR_jets, 0.69100, 0.17410, 0.01259); // 15-20
+        std::map<const Jet *, bool> softB05 = generateBTagsMap(VR_jets, 0.75722, 0.17262, 0.01125); // 20-30
+
+        for (const HEPUtils::Jet *jet : VR_jets)
+        {
+          if (jet->pT() > 5. && jet->pT() < 7.)         softB01.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
+          else if (jet->pT() > 7. && jet->pT() < 10.)   softB02.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
+          else if (jet->pT() > 10. && jet->pT() < 15.)  softB03.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
+          else if (jet->pT() > 15. && jet->pT() < 20.)  softB04.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
+        }
+
+        for (auto *j : vr_jets)
+        {
+          // Probability-based tagging, or look up flavor truth from the event record
+          bool isBtag = random_bool(my_soft_b_eff) && j->btag();
+          if (isBtag)
+            bVRJets.push_back(j);
+        }
+
         removeOverlap(baselineJets, baselineElectrons, 0.2, true);
 
         // Could add ATLAS style overlap removal here
@@ -155,11 +218,6 @@ namespace Gambit
 
       void collect_results()
       {
-
-        // Now fill a results object with the result for our signal region
-        // We have made up a number of observed events
-        // We have also made up a number of predicted background events (with a made up uncertainty)
-
         // add_result(SignalRegionData(_counters["SR label"], n_obs, {n_bkg, n_bkg_err}));
         add_result(SignalRegionData(_counters["SR-tN_med"], 21., {21., 4.0}));
         add_result(SignalRegionData(_counters["SR-tN_high"], 17., {9.5, 1.6}));
