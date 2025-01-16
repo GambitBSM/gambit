@@ -91,21 +91,28 @@ namespace Gambit
         // - application of basic pT and eta cuts
 
         // Baseline electrons
-        vector<const HEPUtils::Particle *> baselineElectrons;
+        vector<const HEPUtils::Particle *> baselineElectrons4Hard;
+        vector<const HEPUtils::Particle *> baselineElectrons4Soft;
         for (const HEPUtils::Particle *electron : event->electrons())
         {
           if (electron->pT() > 4.5 && fabs(electron->eta()) < 2.47)
-            baselineElectrons.push_back(electron);
+            baselineElectrons4Hard.push_back(electron);
+          baselineElectrons4Soft.push_back(electron);
         }
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("PERF_2017_01_ID_Loose"));
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("PERF_2017_01_ID_Tight"));
 
         // Baseline muons
-        vector<const HEPUtils::Particle *> baselineMuons;
+        vector<const HEPUtils::Particle *> baselineMuons4Hard;
+        vector<const HEPUtils::Particle *> baselineMuons4Soft;
         for (const HEPUtils::Particle *muon : event->muons())
         {
           if (muon->pT() > 4.0 && fabs(muon->eta()) < 2.7)
-            baselineMuons.push_back(muon);
+            baselineMuons4Hard.push_back(muon);
+          baselineMuons4Soft.push_back(muon);
         }
-
+        applyEfficiency(baselineMuons4Hard, ATLAS::eff1DMu.at("MUON_2018_03_ID_Loose"));
+        applyEfficiency(baselineMuons4Soft, ATLAS::eff1DMu.at("MUON_2018_03_ID_Tight"));
         // Baseline jets
         vector<const HEPUtils::Jet *> baselineJets;
         for (const HEPUtils::Jet *jet : event->jets("antikt_R04"))
@@ -145,7 +152,7 @@ namespace Gambit
         // Suppose you consider all stable charged particles with pT>0.5 GeV, |eta|<2.5, etc.
         for (auto *p : event->visible_particles())
         {
-          if (p->abspid() != 11 && p->abspid() != 13 && p->abspid() != 15 && p->abspid() != 22 && p->pT() > 0.5 && std::fabs(p->eta()) < 2.5)
+          if (p->abspid() != 11 && p->abspid() != 13 && p->abspid() != 15 && p->abspid() != 22 && p->pT() > 0.5 && p->abseta() < 2.5)
           {
             // Create a PseudoJet from the particle's momentum
             fastjet::PseudoJet pj(p->mom().px(), p->mom().py(), p->mom().pz(), p->mom().E());
@@ -175,7 +182,7 @@ namespace Gambit
         sort(VR_jets.begin(), VR_jets.end(), [](const HEPUtils::Jet *a, const HEPUtils::Jet *b)
              { return a->pT() > b->pT(); });
 
-        vector<const HEPUtils::Jet *> trackJets(VR_jets.begin(), VR_jets.end()); 
+        vector<const HEPUtils::Jet *> trackJets(VR_jets.begin(), VR_jets.end());
 
         // Define the lowPT b-jet
         vector<const HEPUtils::Jet *> bVRJets;
@@ -200,24 +207,52 @@ namespace Gambit
             softB04.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
         }
 
-        removeOverlap(baselineJets, baselineElectrons, 0.2, true);
+        // Continue to Analysis Coding: remove overlaping objects
+        removeOverlap(baselineJets, baselineElectrons4Hard, 0.2, true);
+        removeOverlap(baselineJets, baselineElectrons4Soft, 0.2, true);
+        removeOverlap(baselineJets, baselineMuons4Hard, 0.2, true);
+        removeOverlap(baselineJets, baselineMuons4Soft, 0.2, true);
 
-        // Could add ATLAS style overlap removal here
-        // See Analysis_ATLAS_0LEP_20invfb for example
+        removeOverlap(baselineElectrons4Hard, baselineJets, 0.4, true);
+        removeOverlap(baselineElectrons4Soft, baselineJets, 0.4, true);
+        removeOverlap(baselineMuons4Hard, baselineJets, 0.4, true);
+        removeOverlap(baselineMuons4Soft, baselineJets, 0.4, true);
 
-        // Could add ATLAS or CMS efficiencies here
-        // See Analysis_ATLAS_2LEPEW_20invfb.cpp for an example
+        vector<const HEPUtils::Particle *> signalElectron4Hard, signalElectron4Soft;
+        vector<const HEPUtils::Particle *> signalMuon4Hard, signalMuon4Soft;
+        vector<const HEPUtils::Particle *> signalLeptons4Hard, signalLeptons4Soft;
+        for (const HEPUtils::Particle *electron : baselineElectrons4Hard)
+        {
+          signalElectron4Hard.push_back(electron);
+          signalLeptons4Hard.push_back(electron);
+        }
+        for (const HEPUtils::Particle *electron : baselineElectrons4Soft)
+        {
+          signalElectron4Soft.push_back(electron);
+          signalLeptons4Soft.push_back(electron);
+        }
+        for (const HEPUtils::Particle *muon : baselineMuons4Hard)
+        {
+          signalMuon4Hard.push_back(muon);
+          signalLeptons4Hard.push_back(muon);
+        }
+        for (const HEPUtils::Particle *muon : baselineMuons4Soft)
+        {
+          signalMuon4Soft.push_back(muon);
+          signalLeptons4Soft.push_back(muon);
+        }
 
-        // int nElectrons = baselineElectrons.size();
-        // int nMuons = baselineMuons.size();
-        // int nJets = baselineJets.size();
+        std::sort(signalElectron4Hard.begin(), signalElectron4Hard.end(), sortByPt); 
+        std::sort(signalElectron4Soft.begin(), signalElectron4Soft.end(), sortByPt); 
+        std::sort(signalMuon4Hard.begin(), signalMuon4Hard.end(), sortByPt); 
+        std::sort(signalMuon4Soft.begin(), signalMuon4Soft.end(), sortByPt); 
+        std::sort(signalLeptons4Hard.begin(), signalLeptons4Hard.end(), sortByPt); 
+        std::sort(signalLeptons4Soft.begin(), signalLeptons4Soft.end(), sortByPt); 
 
-        // std::cerr << "nElectrons " << nElectrons << " nMuons " << nMuons << " nJets " << nJets << " met " << met << std::endl;
-
-        // Increment number of events passing signal region cuts
-        // Dummy signal region: need 2 jets, met > 150 and no leptons
-
-        // if((nElectrons+nMuons)==0 && nJets==2 && met>150.) _counters["SR"].add_event(event);
+        // Preselection Criteria
+        bool pre_hardlep = false;
+        bool pre_softlep = false;
+        // hard-lepton preselection
 
         return;
       }
