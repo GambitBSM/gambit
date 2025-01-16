@@ -164,14 +164,16 @@ namespace Gambit
         fastjet::JetDefinition jet_def(&vr_plugin);
         // 3. Clustering the VR-Jet
         fastjet::ClusterSequence cseq(fj_tracks, jet_def);
-        std::vector<fastjet::PseudoJet> vr_pseudojets = fastjet::sorted_by_pt(cseq.inclusive_jets(5.0));
+        vector<fastjet::PseudoJet> vr_pseudojets = fastjet::sorted_by_pt(cseq.inclusive_jets(5.0));
         // 4. Converting into the HEPUtils Pseudo-Jet
-        std::vector<HEPUtils::Jet *> VR_jets;
+        vector<HEPUtils::Jet *> VR_jets;
         for (auto &pj : vr_pseudojets)
         {
           HEPUtils::Jet *hj = new HEPUtils::Jet(pj);
           VR_jets.push_back(hj);
         }
+        sort(VR_jets.begin(), VR_jets.end(), [](const HEPUtils::Jet *a, const HEPUtils::Jet *b)
+             { return a->pT() > b->pT(); });
 
         // Define the lowPT b-jet
         std::vector<HEPUtils::Jet *> bVRJets;
