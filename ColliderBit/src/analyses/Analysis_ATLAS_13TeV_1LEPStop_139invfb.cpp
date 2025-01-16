@@ -143,7 +143,7 @@ namespace Gambit
         std::vector<fastjet::PseudoJet> fj_tracks;
 
         // Suppose you consider all stable charged particles with pT>0.5 GeV, |eta|<2.5, etc.
-        for (auto *p : event->all_particles())
+        for (auto *p : event->particles())
         {
           if (p->charge3() != 0 && p->pT() > 0.5 && std::fabs(p->eta()) < 2.5)
           {
@@ -157,7 +157,8 @@ namespace Gambit
         double Rmin = 0.02;
         double Rmax = 0.4;
 
-        fastjet::contrib::VariableRPlugin vr_plugin(rho, Rmin, Rmax, fastjet::contrib::VariableRPlugin::ONE_SCALE);
+        fastjet::contrib::VariableRPlugin vr_plugin(rho, Rmin, Rmax);
+        // fastjet::contrib::VariableRPlugin vr_plugin(rho, Rmin, Rmax, fastjet::contrib::VariableRPlugin::ONE_SCALE);
         fastjet::JetDefinition jet_def(&vr_plugin);
         // 3. Clustering the VR-Jet
         fastjet::ClusterSequence cseq(fj_tracks, jet_def);
@@ -183,10 +184,14 @@ namespace Gambit
 
         for (const HEPUtils::Jet *jet : VR_jets)
         {
-          if (jet->pT() > 5. && jet->pT() < 7.)         softB01.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
-          else if (jet->pT() > 7. && jet->pT() < 10.)   softB02.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
-          else if (jet->pT() > 10. && jet->pT() < 15.)  softB03.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
-          else if (jet->pT() > 15. && jet->pT() < 20.)  softB04.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
+          if (jet->pT() > 5. && jet->pT() < 7.)
+            softB01.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
+          else if (jet->pT() > 7. && jet->pT() < 10.)
+            softB02.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
+          else if (jet->pT() > 10. && jet->pT() < 15.)
+            softB03.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
+          else if (jet->pT() > 15. && jet->pT() < 20.)
+            softB04.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
         }
 
         for (auto *j : vr_jets)
