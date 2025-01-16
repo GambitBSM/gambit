@@ -79,10 +79,12 @@ namespace Gambit
 
         const double f = n_exp / n_mc;
 
+        const double eps = 1.0e-9;
+
         // special case b = 0 and maybe f = 1
-        if (b == 0)
+        if (std::fabs(b - 0.) < eps)
         {
-          if (f == 1.)
+          if (std::fabs(f - 1.) < eps)
           {
             return k == o ? 1. : 0.;
           }
@@ -90,7 +92,7 @@ namespace Gambit
         }
 
         // special case b !=0 but f = 1
-        if (f == 1.)
+        if (std::fabs(f - 1.) < eps)
         {
           if (k > o) {return 0.;}
 
