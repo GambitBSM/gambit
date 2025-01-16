@@ -5,6 +5,9 @@
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "METSignificance/METSignificance.hpp"
+#include "HEPUtils/FastJet.h"
+#include "HEPUtils/Event.h"
+#include "HEPUtils/Jet.h"
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/contrib/VariableR.hh"
 
