@@ -151,11 +151,7 @@ namespace Gambit
             fastjet::PseudoJet pj(p->mom().px(), p->mom().py(), p->mom().pz(), p->mom().E());
             // Further processing
           }
-          // if (p->charge3() != 0 && p->pT() > 0.5 && std::fabs(p->eta()) < 2.5)
-          // {
-          //   fastjet::PseudoJet pj(p->px(), p->py(), p->pz(), p->E());
-          //   fj_tracks.push_back(pj);
-          // }
+            fj_tracks.push_back(pj);
         }
 
         // 2. Define the anti-kt Variable‐R jet
