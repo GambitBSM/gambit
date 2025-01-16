@@ -143,15 +143,15 @@ namespace Gambit
         std::vector<fastjet::PseudoJet> fj_tracks;
 
         // Suppose you consider all stable charged particles with pT>0.5 GeV, |eta|<2.5, etc.
-        for (auto *p : event->particles())
+        for (auto *p : event->visible_particles())
         {
           if (p->charge() != 0 && p->pT() > 0.5 && std::fabs(p->eta()) < 2.5)
           {
             // Create a PseudoJet from the particle's momentum
             fastjet::PseudoJet pj(p->mom().px(), p->mom().py(), p->mom().pz(), p->mom().E());
             // Further processing
-          }
             fj_tracks.push_back(pj);
+          }
         }
 
         // 2. Define the anti-kt Variable‐R jet
