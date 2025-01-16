@@ -178,8 +178,8 @@ namespace Gambit
         vector<const HEPUtils::Jet *> trackJets(VR_jets.begin(), VR_jets.end()); 
 
         // Define the lowPT b-jet
-        std::vector<HEPUtils::Jet *> bVRJets;
-        std::vector<HEPUtils::Jet *> nonbVRJets;
+        vector<const HEPUtils::Jet *> bVRJets;
+        vector<const HEPUtils::Jet *> nonbVRJets;
 
         // B-tag Efficiencies: Figure 3 of ATLAS-CONF-2019-027
         std::map<const Jet *, bool> softB01 = generateBTagsMap(trackJets, 0.35144, 0.17459, 0.01457); // 5-7
