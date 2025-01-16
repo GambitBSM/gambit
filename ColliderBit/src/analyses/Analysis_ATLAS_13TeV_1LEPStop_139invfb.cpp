@@ -145,7 +145,7 @@ namespace Gambit
         // Suppose you consider all stable charged particles with pT>0.5 GeV, |eta|<2.5, etc.
         for (auto *p : event->visible_particles())
         {
-          if (p->charge() != 0 && p->pT() > 0.5 && std::fabs(p->eta()) < 2.5)
+          if (p->abspid() != 11 && p->abspid() != 13 && p->abspid() != 15 && p->abspid() != 22 && p->pT() > 0.5 && std::fabs(p->eta()) < 2.5)
           {
             // Create a PseudoJet from the particle's momentum
             fastjet::PseudoJet pj(p->mom().px(), p->mom().py(), p->mom().pz(), p->mom().E());
