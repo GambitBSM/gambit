@@ -145,11 +145,17 @@ namespace Gambit
         // Suppose you consider all stable charged particles with pT>0.5 GeV, |eta|<2.5, etc.
         for (auto *p : event->particles())
         {
-          if (p->charge3() != 0 && p->pT() > 0.5 && std::fabs(p->eta()) < 2.5)
+          if (p->charge() != 0 && p->pT() > 0.5 && std::fabs(p->eta()) < 2.5)
           {
-            fastjet::PseudoJet pj(p->px(), p->py(), p->pz(), p->E());
-            fj_tracks.push_back(pj);
+            // Create a PseudoJet from the particle's momentum
+            fastjet::PseudoJet pj(p->mom().px(), p->mom().py(), p->mom().pz(), p->mom().E());
+            // Further processing
           }
+          // if (p->charge3() != 0 && p->pT() > 0.5 && std::fabs(p->eta()) < 2.5)
+          // {
+          //   fastjet::PseudoJet pj(p->px(), p->py(), p->pz(), p->E());
+          //   fj_tracks.push_back(pj);
+          // }
         }
 
         // 2. Define the anti-kt Variable‐R jet
@@ -192,14 +198,6 @@ namespace Gambit
             softB03.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
           else if (jet->pT() > 15. && jet->pT() < 20.)
             softB04.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
-        }
-
-        for (auto *j : vr_jets)
-        {
-          // Probability-based tagging, or look up flavor truth from the event record
-          bool isBtag = random_bool(my_soft_b_eff) && j->btag();
-          if (isBtag)
-            bVRJets.push_back(j);
         }
 
         removeOverlap(baselineJets, baselineElectrons, 0.2, true);
