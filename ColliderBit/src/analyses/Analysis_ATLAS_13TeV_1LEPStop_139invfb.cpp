@@ -160,7 +160,7 @@ namespace Gambit
         double Rmax = 0.4;
 
         // fastjet::contrib::VariableRPlugin vr_plugin(rho, Rmin, Rmax);
-        fastjet::contrib::VariableRPlugin vr_plugin(rho, Rmin, Rmax, fastjet::contrib::VariableRPlugin::ONE_SCALE);
+        fastjet::contrib::VariableRPlugin vr_plugin(rho, Rmin, Rmax, fastjet::contrib::VariableRPlugin::AKTLIKE);
         fastjet::JetDefinition jet_def(&vr_plugin);
         // 3. Clustering the VR-Jet
         fastjet::ClusterSequence cseq(fj_tracks, jet_def);
