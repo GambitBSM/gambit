@@ -125,8 +125,6 @@ namespace Gambit
 
 
     /// Loglike objective-function wrapper to provide the signature for GSL multimin
-    ///
-    /// @note Doesn't return a full log-like: the factorial term is missing since it's expensive, fixed and cancels in DLLs
     void _gsl_calc_Analysis_MinusLogLike(const size_t n, const double* unit_nuisances_dbl,
                                          void* fixedparamspack, double* fval)
     {
@@ -152,7 +150,6 @@ namespace Gambit
         loglike_tot += pnorm_j;
 
         // Then the Poisson bit (j = SR)
-        /// @note We've dropped the log(n_obs!) terms, since they're expensive and cancel in computing DLL
         const double lambda_j = std::max(n_preds(j), 1e-3); //< manually avoid <= 0 rates
 
         // Call the poisson calculator
@@ -235,7 +232,6 @@ namespace Gambit
 
 
     /// Return the best log likelihood
-    /// @note Return value is missing the log(n_obs!) terms (n_SR of them) which cancel in LLR calculation
     /// @todo Pass in the cov, and compute the fixed evals, evecs, and corr matrix as fixed params in here? Via a helper function to reduce duplication
     /// @note: marginaliser not used, but added to match function signature with marg_loglike_cov
     double profile_loglike_cov(const Options& runOptions,
@@ -459,7 +455,7 @@ namespace Gambit
             }
           } // End omp parallel
         }
-        else
+        else  // if poisson_estimator == "MLE"
         {
           #pragma omp parallel
           {
@@ -662,7 +658,7 @@ namespace Gambit
         // Construct vectors of SR numbers
         /// @todo Unify this for both cov and no-cov, feeding in one-element Eigen blocks as Ref<>s for the latter?
         Eigen::ArrayXd zero_array(nSR); zero_array = Eigen::ArrayXd::Zero(nSR);
-        Eigen::ArrayXd n_obs(nSR); // logfact_n_obs(nSR);
+        Eigen::ArrayXd n_obs(nSR);
         Eigen::ArrayXd n_pred_b(nSR);
         Eigen::ArrayXd n_pred_s(nSR);
         Eigen::ArrayXd n_pred_s_unscaled(nSR);
@@ -674,11 +670,6 @@ namespace Gambit
 
           // Actual observed number of events
           n_obs(SR) = srData.n_obs;
-
-          // Log factorial of observed number of events.
-          // Currently use the ln(Gamma(x)) function gsl_sf_lngamma from GSL. (Need continuous function.)
-          // We may want to switch to using Stirling's approximation: ln(n!) ~ n*ln(n) - n
-          //logfact_n_obs(SR) = gsl_sf_lngamma(n_obs(SR) + 1.);
 
           // A contribution to the predicted number of events that is not known exactly
           n_pred_b(SR) = std::max(srData.n_bkg, 0.001); // <-- Avoid trouble with b==0
