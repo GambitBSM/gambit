@@ -64,7 +64,7 @@ namespace Gambit
     }
 
 
-    /// Get the maximum luminosity required for each any analysis in a given collider
+    /// Get the maximum luminosity required for any analysis in a given collider
     double GetMaxLumi(const std::vector<str>& analyses)
     {
       AnalysisContainer Container;
@@ -78,7 +78,7 @@ namespace Gambit
         ColliderBit_error().raise(LOCAL_INFO,"Failed to initialise Analysis Containers in GetMaxLumi.");
       }
 
-      // Loop overall analyses and get the maximum Luminosity
+      // Loop over all analyses and get the maximum luminosity
       double max_lumi = 0.0;
       if (Container.has_analyses())
       {
@@ -359,8 +359,8 @@ namespace Gambit
           // Break convergence loop if too many events fail
           if(result.exceeded_maxFailedEvents) break;
 
-          // Don't bother with convergence stuff if we haven't passed the minimum number of events yet
-          // Don't do this if we are not using a fixed number of events
+          // Don't bother with convergence stuff if we haven't passed the minimum number of events yet.
+          // Only do this if we are using a fixed number of events.
           if (fixed_nEvents and result.current_event_count() >= min_nEvents.at(collider))
           {
             #pragma omp parallel
