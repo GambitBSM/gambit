@@ -54,7 +54,7 @@ namespace Gambit
     {
       if (method == "UMVUE")
       {
-        return Gambit::ColliderBit::ideal::umvue_draw_n_mc_threadsafe(n_mc_mean);
+        return Gambit::ColliderBit::PoissonCalculators::umvue_draw_n_mc_threadsafe(n_mc_mean);
       }
       else
       {

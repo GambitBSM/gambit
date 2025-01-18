@@ -110,12 +110,12 @@ namespace Gambit
     {
       if (estimator == "UMVUE")
       {
-        double umvue_likelihood = Gambit::ColliderBit::ideal::umvue_poisson_like(s_unscaled, b, o, n_mc, n_exp);
+        double umvue_likelihood = Gambit::ColliderBit::PoissonCalculators::umvue_poisson_like(s_unscaled, b, o, n_mc, n_exp);
         return log(umvue_likelihood);
       }
       else if (estimator == "MLE")
       {
-        return Gambit::ColliderBit::ideal::mle_poisson_loglike(s, b, o);
+        return Gambit::ColliderBit::PoissonCalculators::mle_poisson_loglike(s, b, o);
       }
       
       // If hit this point, throw an error

@@ -25,7 +25,7 @@ namespace Gambit
 {
   namespace ColliderBit
   {
-    namespace ideal
+    namespace PoissonCalculators
     {
 
 
@@ -126,7 +126,7 @@ namespace Gambit
         return o*log(sb) - sb - log_factorial(o);
       }
 
-    }  // end namespace ideal
+    }  // end namespace PoissonCalculators
   }  // end namespace ColliderBit
 }  // end namespace Gambit
 

@@ -34,7 +34,7 @@ namespace Gambit
 {
   namespace ColliderBit
   {
-    namespace ideal
+    namespace PoissonCalculators
     {
 
       double log_factorial(double k);
@@ -52,6 +52,6 @@ namespace Gambit
 
       double mle_poisson_loglike(double s, double b, int o);
 
-    }  // end namespace ideal
+    }  // end namespace PoissonCalculators
   }  // end namespace ColliderBit
 }  // end namespace Gambit
