@@ -397,7 +397,7 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(fjcontrib_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.041")
   include_directories("${fjcontrib_dir}/RecursiveTools")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fjcontrib_dir}/local/lib")
-  set(fjcontrib_LDFLAGS "-L${fastjet_dir}/local/lib -lRecursiveTools")
+  set(fjcontrib_LDFLAGS "-L${fastjet_dir}/local/lib -lRecursiveTools -lVariableR")
 
   string(REGEX REPLACE "-Xclang -fopenmp" "" FJCONTRIB_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
   set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
@@ -411,7 +411,7 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_dir} fjcontrib 1.041
     SOURCE_DIR ${fjcontrib_dir}
     BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local --only=RecursiveTools
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local --only=RecursiveTools,VariableR
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
@@ -428,7 +428,8 @@ endif()
 
 #contrib/multimin
 set(multimin_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/multimin/include")
-include_directories("${multimin_INCLUDE_DIR}")
+include_directories("${multimin_INCLUDE_DIR}"
+                    "${GSL_INCLUDE_DIR}")
 add_gambit_library(multimin OPTION OBJECT
                           SOURCES ${PROJECT_SOURCE_DIR}/contrib/multimin/src/multimin.cpp
                           HEADERS ${PROJECT_SOURCE_DIR}/contrib/multimin/include/multimin/multimin.hpp)
