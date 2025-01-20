@@ -41,6 +41,8 @@ namespace Gambit
   {
     static bool sortByPT_jet(const HEPUtils::Jet *jet1, const HEPUtils::Jet *jet2) { return (jet1->pT() > jet2->pT()); }
     static bool sortByPT_lep(const HEPUtils::Particle *lep1, const HEPUtils::Particle *lep2) { return (lep1->pT() > lep2->pT()); }
+    bool sortByPT_1l_sharedptr(std::shared_ptr<HEPUtils::Jet> jet1, std::shared_ptr<HEPUtils::Jet> jet2) { return sortByPT_1l(jet1.get(), jet2.get()); }
+
 
     /// Basic analysis code for copying
     class Analysis_ATLAS_13TeV_1LEPStop_139invfb : public Analysis
