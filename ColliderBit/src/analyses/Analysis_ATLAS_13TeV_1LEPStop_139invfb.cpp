@@ -73,6 +73,37 @@ namespace Gambit
         set_luminosity(139.0);
       }
 
+      struct ClusteringHistory : public FJNS::PseudoJet::UserInfoBase
+      {
+        enum Status
+        {
+          GOOD,
+          JET_TOO_SMALL,
+          JET_TOO_LARGE,
+          TOO_MANY_ITERATIONS,
+          NONE,
+        };
+
+        struct Step
+        {
+          double pt;
+          double r;
+          size_t constit;
+          Status status;
+        };
+
+        size_t id;  // a per-event unique jet id that is needed for the event dump
+        std::vector<Step> steps;
+
+        static ClusteringHistory* AddStep(ClusteringHistory& history, const Step& step)
+        {
+          auto newHistory = new ClusteringHistory(history);
+          newHistory->steps.push_back(step);
+          return newHistory;
+        }
+      };
+
+
       ClusteringHistory &GetHistory(const FJNS::PseudoJet &jet)
       {
         auto shared_ptr = jet.user_info_shared_ptr();
