@@ -73,8 +73,29 @@ namespace Gambit
         set_luminosity(139.0);
       }
 
-      std::pair<bool, FJNS::PseudoJet> RecursiveRecluster(const FJNS::PseudoJet& candidate, double candRadius,
-                   const double mass, size_t step)
+      ClusteringHistory &GetHistory(const FJNS::PseudoJet &jet)
+      {
+        auto shared_ptr = jet.user_info_shared_ptr();
+        return *dynamic_cast<ClusteringHistory *>(shared_ptr.get());
+      }
+
+      static std::vector<FJNS::PseudoJet> SortedByNConstit(std::vector<FJNS::PseudoJet> jets)
+      {
+        std::sort(jets.begin(), jets.end(), [](const FJNS::PseudoJet &a, const FJNS::PseudoJet &b)
+                  {
+                        if (a.constituents().size() != b.constituents().size())
+                        return a.constituents().size() > b.constituents().size();
+                        return a.pt() > b.pt(); });
+
+        return jets;
+      }
+
+      inline double optimalRadius(const double pT, const double m) { return 2 * m / pT; }
+      inline double minRadius(const double pT, const double m) { return optimalRadius(pT, m) - 0.3; }
+      inline double maxRadius(const double pT, const double m) { return optimalRadius(pT, m) + 0.5; }
+
+      std::pair<bool, FJNS::PseudoJet> RecursiveRecluster(const FJNS::PseudoJet &candidate, double candRadius,
+                                                          const double mass, size_t step)
       {
         if (minRadius(candidate.pt(), mass) > candRadius)
         {
@@ -108,8 +129,8 @@ namespace Gambit
           auto newCandidate = reclusteredJets[0];
 
           auto newHistory = ClusteringHistory::AddStep(
-                   GetHistory(candidate),
-                   {newCandidate.pt(), newR, newCandidate.constituents().size(), ClusteringHistory::NONE});
+              GetHistory(candidate),
+              {newCandidate.pt(), newR, newCandidate.constituents().size(), ClusteringHistory::NONE});
           newCandidate.set_user_info(newHistory);
 
           return RecursiveRecluster(newCandidate, newR, mass, step + 1);
@@ -121,24 +142,23 @@ namespace Gambit
         }
       }
 
-
-      HEPUtils::P4 reclusteredParticle(vector<const HEPUtils::Jet*> jets, vector<const HEPUtils::Jet*> bjets,
+      HEPUtils::P4 reclusteredParticle(vector<const HEPUtils::Jet *> jets, vector<const HEPUtils::Jet *> bjets,
                                        const double mass, const bool useBJets)
       {
 
-        //AnalysisObject p = AnalysisObject(0., 0., 0., 0., 0, 0, AnalysisObjectType::JET, 0, 0);
+        // AnalysisObject p = AnalysisObject(0., 0., 0., 0., 0, 0, AnalysisObjectType::JET, 0, 0);
         HEPUtils::P4 p;
         double r0 = 3.0;
 
-        vector<const HEPUtils::Jet*> usejets;
-        for(const HEPUtils::Jet* jet : jets)
+        vector<const HEPUtils::Jet *> usejets;
+        for (const HEPUtils::Jet *jet : jets)
         {
           usejets.push_back(jet);
         }
 
         if (useBJets && bjets.size())
         {
-          for(const HEPUtils::Jet* bjet : bjets)
+          for (const HEPUtils::Jet *bjet : bjets)
           {
             usejets.push_back(bjet);
           }
@@ -146,7 +166,7 @@ namespace Gambit
 
         std::vector<FJNS::PseudoJet> initialJets;
 
-        for (const HEPUtils::Jet* jet : usejets)
+        for (const HEPUtils::Jet *jet : usejets)
         {
           FJNS::PseudoJet Pjet(jet->mom().px(), jet->mom().py(), jet->mom().pz(), jet->mom().E());
           initialJets.push_back(Pjet);
@@ -163,7 +183,7 @@ namespace Gambit
         badJets.reserve(candidates.size());
 
         size_t i = 0;
-        for (auto& cand : candidates)
+        for (auto &cand : candidates)
         {
           auto history = new ClusteringHistory();
           history->id = i;
@@ -172,7 +192,7 @@ namespace Gambit
           ++i;
         }
 
-        for (const auto& cand : candidates)
+        for (const auto &cand : candidates)
         {
           bool selected = false;
           FJNS::PseudoJet jet;
@@ -191,19 +211,18 @@ namespace Gambit
         }
 
         vector<std::shared_ptr<HEPUtils::Jet>> aoSelectedJets;
-        for (const FJNS::PseudoJet& j : selectedJets) aoSelectedJets.push_back(std::make_shared<HEPUtils::Jet>(HEPUtils::mk_p4(j)));
+        for (const FJNS::PseudoJet &j : selectedJets)
+          aoSelectedJets.push_back(std::make_shared<HEPUtils::Jet>(HEPUtils::mk_p4(j)));
 
-        //for (const auto jet : selectedJets)
-        //  aoSelectedJets.push_back(
-        //     AnalysisObject(jet.px(), jet.py(), jet.pz(), jet.E(), 0, 0, AnalysisObjectType::COMBINED, 0, 0));
+        // for (const auto jet : selectedJets)
+        //   aoSelectedJets.push_back(
+        //      AnalysisObject(jet.px(), jet.py(), jet.pz(), jet.E(), 0, 0, AnalysisObjectType::COMBINED, 0, 0));
 
         std::sort(aoSelectedJets.begin(), aoSelectedJets.end(), sortByPT_1l_sharedptr);
         p = aoSelectedJets[0]->mom();
 
         return p;
       }
-
-
 
       void run(const HEPUtils::Event *event)
       {
@@ -400,15 +419,11 @@ namespace Gambit
         // All soft lepton pass the pT requirement
         bool pre_soft = nlepsoft == 1 && (softJet1 || softJet2) && met > 230. && dPhijet1ET > 0.4 && dPhijet2ET_soft > 0.4;
 
-
-
-
         // Define signal region for stop -> t N1
-        if (pre_hard){
-          HEPUtils::P4 topRecl = reclusteredParticle(nonbJets, bJets, 175., true); 
-
+        if (pre_hard)
+        {
+          HEPUtils::P4 topRecl = reclusteredParticle(nonbJets, bJets, 175., true);
         }
-
 
         return;
       }
