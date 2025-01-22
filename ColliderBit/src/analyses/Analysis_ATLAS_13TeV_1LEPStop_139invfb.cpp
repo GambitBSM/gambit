@@ -4,6 +4,8 @@
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
+#include "gambit/ColliderBit/topness.h"
+
 #include "METSignificance/METSignificance.hpp"
 #include "HEPUtils/FastJet.h"
 #include "HEPUtils/Event.h"
@@ -41,10 +43,9 @@ namespace Gambit
   {
     static bool sortByPT_jet(const HEPUtils::Jet *jet1, const HEPUtils::Jet *jet2) { return (jet1->pT() > jet2->pT()); }
     static bool sortByPT_lep(const HEPUtils::Particle *lep1, const HEPUtils::Particle *lep2) { return (lep1->pT() > lep2->pT()); }
-    
-    bool sortByPT_1l(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
-    bool sortByPT_1l_sharedptr(std::shared_ptr<HEPUtils::Jet> jet1, std::shared_ptr<HEPUtils::Jet> jet2) { return sortByPT_1l(jet1.get(), jet2.get()); }
 
+    bool sortByPT_1l(const HEPUtils::Jet *jet1, const HEPUtils::Jet *jet2) { return (jet1->pT() > jet2->pT()); }
+    bool sortByPT_1l_sharedptr(std::shared_ptr<HEPUtils::Jet> jet1, std::shared_ptr<HEPUtils::Jet> jet2) { return sortByPT_1l(jet1.get(), jet2.get()); }
 
     /// Basic analysis code for copying
     class Analysis_ATLAS_13TeV_1LEPStop_139invfb : public Analysis
@@ -96,17 +97,16 @@ namespace Gambit
           Status status;
         };
 
-        size_t id;  // a per-event unique jet id that is needed for the event dump
+        size_t id; // a per-event unique jet id that is needed for the event dump
         std::vector<Step> steps;
 
-        static ClusteringHistory* AddStep(ClusteringHistory& history, const Step& step)
+        static ClusteringHistory *AddStep(ClusteringHistory &history, const Step &step)
         {
           auto newHistory = new ClusteringHistory(history);
           newHistory->steps.push_back(step);
           return newHistory;
         }
       };
-
 
       ClusteringHistory &GetHistory(const FJNS::PseudoJet &jet)
       {
@@ -257,6 +257,37 @@ namespace Gambit
         p = aoSelectedJets[0]->mom();
 
         return p;
+      }
+
+      // Function to calculate S (Topness function)
+      double calculateTopness(
+          const HEPUtils::P4 &bjet1,
+          const HEPUtils::P4 &bjet2,
+          const HEPUtils::P4 &lepton,
+          const HEPUtils::P4 &met,
+          const HEPUtils::P4 &pW)
+      {
+
+              // Constants for resolution parameters
+        const double aW = 1.0;  // W boson resolution parameter (tune as needed)
+        const double at = 1.0;  // Top quark resolution parameter (tune as needed)
+        const double aCM = 1.0; // Center-of-mass resolution parameter (tune as needed)
+
+        // Neutrino 4-momentum (pν)
+        HEPUtils::P4 pnu = met - pW; // pν = MET - pW
+
+        // Compute terms in S
+        double term1 = std::pow((pW.m() - 80.4) / aW, 2);                        // W mass = 80.4 GeV
+        double term2 = std::pow((lepton + pnu + pW).m() - 172.5, 2) / (at * at); // Top mass = 172.5 GeV
+        double term3 = std::pow((bjet1 + lepton + pnu).m() - 172.5, 2) / (at * at);
+        double term4 = std::pow((bjet2 + pW).m() - 172.5, 2) / (at * at);
+
+        // Center-of-mass constraint
+        HEPUtils::P4 total = bjet1 + bjet2 + lepton + pnu + pW;
+        double term5 = std::pow(total.m() - 4 * 172.5, 2) / (aCM * aCM);
+
+        // Return the total S
+        return term1 + term2 + term3 + term4 + term5;
       }
 
       void run(const HEPUtils::Event *event)
