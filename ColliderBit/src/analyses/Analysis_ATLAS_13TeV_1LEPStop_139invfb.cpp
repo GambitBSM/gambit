@@ -129,7 +129,7 @@ namespace Gambit
       inline double minRadius(const double pT, const double m) { return optimalRadius(pT, m) - 0.3; }
       inline double maxRadius(const double pT, const double m) { return optimalRadius(pT, m) + 0.5; }
 
-      static ::pair<bool, FJNS::PseudoJet> RecursiveRecluster(const FJNS::PseudoJet &candidate, double candRadius,
+      static std::pair<bool, FJNS::PseudoJet> RecursiveRecluster(const FJNS::PseudoJet &candidate, double candRadius,
                                                           const double mass, size_t step)
       {
         if (minRadius(candidate.pt(), mass) > candRadius)
@@ -245,7 +245,7 @@ namespace Gambit
           return p;
         }
 
-        static <std::shared_ptr<HEPUtils::Jet>> aoSelectedJets;
+        static vector<std::shared_ptr<HEPUtils::Jet>> aoSelectedJets;
         for (const FJNS::PseudoJet &j : selectedJets)
           aoSelectedJets.push_back(std::make_shared<HEPUtils::Jet>(HEPUtils::mk_p4(j)));
 
