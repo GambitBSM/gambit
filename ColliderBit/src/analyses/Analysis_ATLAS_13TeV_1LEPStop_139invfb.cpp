@@ -108,7 +108,7 @@ namespace Gambit
         }
       };
 
-      ClusteringHistory &GetHistory(const FJNS::PseudoJet &jet)
+      static ClusteringHistory &GetHistory(const FJNS::PseudoJet &jet)
       {
         auto shared_ptr = jet.user_info_shared_ptr();
         return *dynamic_cast<ClusteringHistory *>(shared_ptr.get());
@@ -129,7 +129,7 @@ namespace Gambit
       inline double minRadius(const double pT, const double m) { return optimalRadius(pT, m) - 0.3; }
       inline double maxRadius(const double pT, const double m) { return optimalRadius(pT, m) + 0.5; }
 
-      std::pair<bool, FJNS::PseudoJet> RecursiveRecluster(const FJNS::PseudoJet &candidate, double candRadius,
+      static ::pair<bool, FJNS::PseudoJet> RecursiveRecluster(const FJNS::PseudoJet &candidate, double candRadius,
                                                           const double mass, size_t step)
       {
         if (minRadius(candidate.pt(), mass) > candRadius)
@@ -177,7 +177,7 @@ namespace Gambit
         }
       }
 
-      HEPUtils::P4 reclusteredParticle(vector<const HEPUtils::Jet *> jets, vector<const HEPUtils::Jet *> bjets,
+      static HEPUtils::P4 reclusteredParticle(vector<const HEPUtils::Jet *> jets, vector<const HEPUtils::Jet *> bjets,
                                        const double mass, const bool useBJets)
       {
 
@@ -245,7 +245,7 @@ namespace Gambit
           return p;
         }
 
-        vector<std::shared_ptr<HEPUtils::Jet>> aoSelectedJets;
+        static <std::shared_ptr<HEPUtils::Jet>> aoSelectedJets;
         for (const FJNS::PseudoJet &j : selectedJets)
           aoSelectedJets.push_back(std::make_shared<HEPUtils::Jet>(HEPUtils::mk_p4(j)));
 
@@ -260,7 +260,7 @@ namespace Gambit
       }
 
       // Function to calculate S (Topness function)
-      double calculateTopness(
+      static double calculateTopness(
           const HEPUtils::P4 &bjet1,
           const HEPUtils::P4 &bjet2,
           const HEPUtils::P4 &lepton,
