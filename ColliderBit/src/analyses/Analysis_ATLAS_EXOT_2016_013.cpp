@@ -185,7 +185,7 @@ namespace Gambit
                     bool higgstag2 = (Nsub == 1 || Nsub == 2) && (trimmedJet.pt() >= 500.) && (trimmedJet.m() >= 105.) && (trimmedJet.m() <= 140.);
 
                     HEPUtils::Jet *hepUtilsJet = new HEPUtils::Jet(trimmedJet);
-                    if toptag
+                    if (toptag)
                         topJets.push_back(hepUtilsJet);
                     if (higgstag1 || higgstag2)
                         higgsJets.push_back(hepUtilsJet);
@@ -243,7 +243,6 @@ namespace Gambit
                 {
                     int Ntop = topJets.size();
                     int NHiggs = higgsJets.size();
-                    int NtH = Ntop + NHiggs;
 
                     double meff = signalLeptons[0]->pT() + met;
                     for (const HEPUtils::Jet *jet : signalJets)
