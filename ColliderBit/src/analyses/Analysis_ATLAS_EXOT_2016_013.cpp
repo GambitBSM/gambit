@@ -159,7 +159,6 @@ namespace Gambit
                 // cout << "Before Trimming Jet " << endl;
                 const double Rsub = 0.2;
                 const double ptfrac = 0.05;
-                const double beta = 1.0;
                 FJNS::Filter trimmer(fastjet::JetDefinition(fastjet::kt_algorithm, Rsub), fastjet::SelectorPtFractionMin(ptfrac));
                 // FJNS::contrib::EnergyCorrelator C2(2, beta, fastjet::contrib::EnergyCorrelator::pt_R);
                 // FJNS::contrib::EnergyCorrelator C3(3, beta, fastjet::contrib::EnergyCorrelator::pt_R);
@@ -279,7 +278,7 @@ namespace Gambit
                     }
 
                     double mTb12 = min(get_mT(signalBjets[0]->mom(), pmiss), get_mT(signalBjets[0]->mom(), pmiss)); 
-                    double mTBmin = (njets >= 3) ? min(get_mT(signalBjets[2]->mom()), mTb12) : mTb12; 
+                    double mTBmin = (njets >= 3) ? min(get_mT(signalBjets[2]->mom(), pmiss), mTb12) : mTb12; 
 
                     bool sr0l01 = (NtH >= 2)    && (nbjets == 2) && (mTBmin > 160.) && (meff > 1000.);
                     bool sr0l02 = (Ntop == 1)   && (NHiggs == 1) && (nbjets == 3) && (mTBmin > 160.) && (meff > 1000.);
