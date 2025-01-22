@@ -47,7 +47,6 @@
 #endif
 
 using namespace std;
-#define CHECK_CUTFLOW
 
 namespace Gambit
 {
@@ -57,17 +56,8 @@ namespace Gambit
 
         class Analysis_ATLAS_EXOT_2016_013 : public Analysis
         {
-            // protected:
-            //     // Counters for the number of accepted events for each signal region
-            //     std::map<string, EventCounter> _counters = {
-            //         {"SR", EventCounter("SR")},
-            //     };
 
         public:
-#ifdef CHECK_CUTFLOW
-            Cutflows _cutflows;
-#endif
-
             static constexpr const char *detector = "ATLAS";
 
             Analysis_ATLAS_EXOT_2016_013()
