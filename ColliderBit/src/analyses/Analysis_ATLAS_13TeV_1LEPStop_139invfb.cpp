@@ -129,7 +129,7 @@ namespace Gambit
       inline double minRadius(const double pT, const double m) { return optimalRadius(pT, m) - 0.3; }
       inline double maxRadius(const double pT, const double m) { return optimalRadius(pT, m) + 0.5; }
 
-      static std::pair<bool, FJNS::PseudoJet> RecursiveRecluster(const FJNS::PseudoJet &candidate, double candRadius,
+      std::pair<bool, FJNS::PseudoJet> RecursiveRecluster(const FJNS::PseudoJet &candidate, double candRadius,
                                                           const double mass, size_t step)
       {
         if (minRadius(candidate.pt(), mass) > candRadius)
