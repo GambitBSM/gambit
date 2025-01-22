@@ -47,7 +47,7 @@
 #endif
 
 using namespace std;
-#define CHECK_CUTFLOW
+// #define CHECK_CUTFLOW
 
 class JetD2Threshold {
     private:
