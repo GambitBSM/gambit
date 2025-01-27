@@ -58,6 +58,183 @@ namespace Gambit
       // Required detector sim
       static constexpr const char *detector = "ATLAS";
 
+      struct ClusteringHistory : public FJNS::PseudoJet::UserInfoBase
+      {
+        enum Status
+        {
+          GOOD,
+          JET_TOO_SMALL,
+          JET_TOO_LARGE,
+          TOO_MANY_ITERATIONS,
+          NONE,
+        };
+
+        struct Step
+        {
+          double pt;
+          double r;
+          size_t constit;
+          Status status;
+        };
+
+        size_t id; // a per-event unique jet id that is needed for the event dump
+        std::vector<Step> steps;
+
+        static ClusteringHistory *AddStep(ClusteringHistory &history, const Step &step)
+        {
+          auto newHistory = new ClusteringHistory(history);
+          newHistory->steps.push_back(step);
+          return newHistory;
+        }
+      };
+
+      ClusteringHistory &GetHistory(const FJNS::PseudoJet &jet)
+      {
+        auto shared_ptr = jet.user_info_shared_ptr();
+        return *dynamic_cast<ClusteringHistory *>(shared_ptr.get());
+      }
+
+      static std::vector<FJNS::PseudoJet> SortedByNConstit(std::vector<FJNS::PseudoJet> jets)
+      {
+        std::sort(jets.begin(), jets.end(), [](const FJNS::PseudoJet &a, const FJNS::PseudoJet &b)
+                  {
+                        if (a.constituents().size() != b.constituents().size())
+                        return a.constituents().size() > b.constituents().size();
+                        return a.pt() > b.pt(); });
+
+        return jets;
+      }
+
+      inline double optimalRadius(const double pT, const double m) { return 2 * m / pT; }
+      inline double minRadius(const double pT, const double m) { return optimalRadius(pT, m) - 0.3; }
+      inline double maxRadius(const double pT, const double m) { return optimalRadius(pT, m) + 0.5; }
+
+      std::pair<bool, FJNS::PseudoJet> RecursiveRecluster(const FJNS::PseudoJet &candidate, double candRadius,
+                                                          const double mass, size_t step)
+      {
+        if (minRadius(candidate.pt(), mass) > candRadius)
+        {
+          GetHistory(candidate).steps.back().status = ClusteringHistory::JET_TOO_SMALL;
+          return std::make_pair(false, candidate);
+        }
+        else if (maxRadius(candidate.pt(), mass) < candRadius)
+        {
+          const double newR = std::max(maxRadius(candidate.pt(), mass), candRadius / 2.);
+          GetHistory(candidate).steps.back().status = ClusteringHistory::JET_TOO_LARGE;
+
+          if (step > 10)
+          {
+            GetHistory(candidate).steps.back().status = ClusteringHistory::TOO_MANY_ITERATIONS;
+            return std::make_pair(false, candidate);
+          }
+
+          FJNS::JetDefinition jetDef(FJNS::antikt_algorithm, newR);
+          auto cs = new FJNS::ClusterSequence(candidate.constituents(), jetDef);
+
+          std::vector<FJNS::PseudoJet> reclusteredJets;
+          reclusteredJets = SortedByNConstit(cs->inclusive_jets());
+
+          if (reclusteredJets.size() == 0)
+          {
+            delete cs;
+            return std::make_pair(false, FJNS::PseudoJet());
+          }
+
+          cs->delete_self_when_unused();
+          auto newCandidate = reclusteredJets[0];
+
+          auto newHistory = ClusteringHistory::AddStep(
+              GetHistory(candidate),
+              {newCandidate.pt(), newR, newCandidate.constituents().size(), ClusteringHistory::NONE});
+          newCandidate.set_user_info(newHistory);
+
+          return RecursiveRecluster(newCandidate, newR, mass, step + 1);
+        }
+        else
+        {
+          GetHistory(candidate).steps.back().status = ClusteringHistory::GOOD;
+          return std::make_pair(true, candidate);
+        }
+      }
+
+      HEPUtils::P4 reclusteredParticle(vector<const HEPUtils::Jet *> jets, vector<const HEPUtils::Jet *> bjets,
+                                       const double mass, const bool useBJets)
+      {
+
+        // AnalysisObject p = AnalysisObject(0., 0., 0., 0., 0, 0, AnalysisObjectType::JET, 0, 0);
+        HEPUtils::P4 p;
+        double r0 = 3.0;
+
+        vector<const HEPUtils::Jet *> usejets;
+        for (const HEPUtils::Jet *jet : jets)
+        {
+          usejets.push_back(jet);
+        }
+
+        if (useBJets && bjets.size())
+        {
+          for (const HEPUtils::Jet *bjet : bjets)
+          {
+            usejets.push_back(bjet);
+          }
+        }
+
+        std::vector<FJNS::PseudoJet> initialJets;
+
+        for (const HEPUtils::Jet *jet : usejets)
+        {
+          FJNS::PseudoJet Pjet(jet->mom().px(), jet->mom().py(), jet->mom().pz(), jet->mom().E());
+          initialJets.push_back(Pjet);
+        }
+
+        FJNS::JetDefinition jetDef(FJNS::antikt_algorithm, r0);
+        FJNS::ClusterSequence cs(initialJets, jetDef);
+
+        auto candidates = FJNS::sorted_by_pt(cs.inclusive_jets());
+
+        std::vector<FJNS::PseudoJet> selectedJets;
+        selectedJets.reserve(candidates.size());
+        std::vector<FJNS::PseudoJet> badJets;
+        badJets.reserve(candidates.size());
+
+        size_t i = 0;
+        for (auto &cand : candidates)
+        {
+          auto history = new ClusteringHistory();
+          history->id = i;
+          history->steps.push_back({cand.pt(), r0, cand.constituents().size(), ClusteringHistory::NONE});
+          cand.set_user_info(history);
+          ++i;
+        }
+
+        for (const auto &cand : candidates)
+        {
+          bool selected = false;
+          FJNS::PseudoJet jet;
+
+          std::tie(selected, jet) = RecursiveRecluster(cand, r0, mass, 0);
+
+          if (selected)
+            selectedJets.push_back(jet);
+          else
+            badJets.push_back(jet);
+        }
+
+        if (selectedJets.size() < 1)
+        {
+          return p;
+        }
+
+        vector<std::shared_ptr<HEPUtils::Jet>> aoSelectedJets;
+        for (const FJNS::PseudoJet &j : selectedJets)
+          aoSelectedJets.push_back(std::make_shared<HEPUtils::Jet>(HEPUtils::mk_p4(j)));
+
+        std::sort(aoSelectedJets.begin(), aoSelectedJets.end(), sortByPT_1l_sharedptr);
+        p = aoSelectedJets[0]->mom();
+
+        return p;
+      }
+
       Analysis_ATLAS_13TeV_1LEPStop_139invfb()
       {
         _hist_Topness = std::make_shared<YODA::Histo1D>(10, 0.0, 100.0, "Topness", "My Topness");
@@ -274,10 +451,10 @@ namespace Gambit
         bool pre_soft = nlepsoft == 1 && (softJet1 || softJet2) && met > 230. && dPhijet1ET > 0.4 && dPhijet2ET_soft > 0.4;
 
         // Define signal region for stop -> t N1
-        // if (pre_hard)
-        // {
-        //   HEPUtils::P4 topRecl = reclusteredParticle(nonbJets, bJets, 175., true);
-        // }
+        if (pre_hard)
+        {
+          HEPUtils::P4 topRecl = reclusteredParticle(nonbJets, bJets, 175., true);
+        }
 
         return;
       }
