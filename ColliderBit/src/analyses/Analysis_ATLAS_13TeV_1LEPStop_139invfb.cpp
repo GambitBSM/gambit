@@ -4,7 +4,7 @@
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
-#include "gambit/ColliderBit/topness.h"
+#include "gambit/ColliderBit/warppertopness.h"
 
 // #include "gambit/ColliderBit/topness.h"
 
@@ -455,31 +455,43 @@ namespace Gambit
         // Define signal region for stop -> t N1
         if (pre_hard)
         {
-          // Topness 
+          // Topness
           const double aW = 5.0;
-          const double at = 15.; 
+          const double at = 15.;
+          const double as = 1000.; 
+
+          // xbest is the initial guess for unknown kinematic variables pvx, pvy, pyz (neutrino momentum) and pWz (missing W's pz) that minimizes the topness function 
+          // xbest=[pvx, pvy, pvz, pWz]
+          double xbest[]={1000.,1000.,1000.,1000.};
           double pl[] = {
-            signalLeptons4Hard.at(0)->mom().px(),
-            signalLeptons4Hard.at(0)->mom().py(), 
-            signalLeptons4Hard.at(0)->mom().pz(), 
-            signalLeptons4Hard.at(0)->mom().E()
-          };
+              signalLeptons4Hard.at(0)->mom().px(),
+              signalLeptons4Hard.at(0)->mom().py(),
+              signalLeptons4Hard.at(0)->mom().pz(),
+              signalLeptons4Hard.at(0)->mom().E()};
           double pTmiss[] = {
-            metVec.px(),
-            metVec.py(),
-            0., 0.
-          }; 
-          double topness = exp(9999.); 
-          if (nbjet == 1) {
+              metVec.px(),
+              metVec.py(),
+              0., 0.};
+          double topness = exp(9999.);
+          if (nbjet == 1)
+          {
             double pb1[] = {
-              bJets.at(0)->mom().px(), 
-              bJets.at(0)->mom().py(),
-              bJets.at(0)->mom().pz(),
-              bJets.at(0)->mom().E()
-            };
-            for (const HEPUtils::Jet* nb : nonbJets)
-            double tmod_temp = log(topnesscompute2(pb1, pl, pTmiss, at, aW)); 
-            if (topness > tmod_temp) topness = tmod_temp; 
+                bJets.at(0)->mom().px(),
+                bJets.at(0)->mom().py(),
+                bJets.at(0)->mom().pz(),
+                bJets.at(0)->mom().E()};
+            for (unsigned int i = 0; i < 2; i++)
+            {
+              double pb2[] = {
+                  nonbJets.at(i)->mom().px(),
+                  nonbJets.at(i)->mom().py(),
+                  nonbJets.at(i)->mom().pz(),
+                  nonbJets.at(i)->mom().E()};
+
+              double tmod_temp = log(topnesscompute2(pb1, pb2, pl, pTmiss, at, aW, as, xbest));
+              if (topness > tmod_temp)
+                topness = tmod_temp;
+            }
           }
           HEPUtils::P4 topRecl = reclusteredParticle(nonbJets, bJets, 175., true);
         }

@@ -7,6 +7,7 @@
 
 // ****** Copy from https://github.com/michaelgraesser/topness *****
 // ****** arXiv:1212.4495 ******************************************
+// Adding by Pengxuan Zhu (pengxuan.zhu@adelaide.edu.au, zhupx99@icloud.com)
 
 /* Written by Michael L. Graesser, 06/2015   
 
@@ -19,7 +20,6 @@
    arXiv:1212.4495  
 
    top and W masses used in the topness algorithm set in the header file 
-
    please cite this article if using this code 
 
 */
@@ -752,7 +752,7 @@ minimum  */
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // >>>>>> Wrappertopness.cpp & Wrappertopness.h in "topness" <<<<<<<
-double topnesscompute2(double pb1[4], double pb2[4], double pl[4], double MET[4], double sigmat, double sigmaW, double sigmas, double xbest[4]) 
+double topnesscompute(double pb1[4], double pb2[4], double pl[4], double MET[4], double sigmat, double sigmaW, double sigmas, double xbest[4]) 
 {
 
   double alpha=1.0; // parameter for reflection 
