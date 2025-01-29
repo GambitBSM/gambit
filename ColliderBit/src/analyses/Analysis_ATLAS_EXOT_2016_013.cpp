@@ -97,6 +97,11 @@ namespace Gambit
 
             void run(const HEPUtils::Event *event)
             {
+                cout << "Start New Event loops" << endl; 
+                if (!event) {
+                    cerr << "Error: event is Null" << endl; 
+                    return; 
+                }
                 // Define the missing momentum & MET
                 HEPUtils::P4 pmiss = event->missingmom();
                 const double met = event->met();
@@ -130,7 +135,7 @@ namespace Gambit
                 // ATLAS::applyMuonEff(baselineMuons);
                 // Jets
 
-                // cout << "1. Define Lepton candidates" << endl;
+                cout << "1. Define Lepton candidates" << endl;
                 vector<const HEPUtils::Jet *> baselineSmallRJets;
                 vector<const HEPUtils::Jet *> baselineLargeRJets;
                 vector<fastjet::PseudoJet> trimmedJets;
@@ -165,14 +170,14 @@ namespace Gambit
                     }
                 }
                 // Define largeR-jets
-                // cout << "2. Define Jet candidates" << endl;
+                cout << "2. Define Jet candidates" << endl;
                 for (const HEPUtils::Jet *jet : event->jets("antikt_R10"))
                 {
                     baselineLargeRJets.push_back(jet);
                 }
                 // cout << "SmallR jet Number ->" << event->jets("antikt_R04").size() << endl;
                 // cout << "LargeR jet Number ->" << baselineLargeRJets.size() << endl;
-                // cout << "Before Trimming Jet " << endl;
+                cout << "Before Trimming Jet " << endl;
                 const double Rsub = 0.2;
                 const double ptfrac = 0.05;
                 FJNS::Filter trimmer(fastjet::JetDefinition(fastjet::kt_algorithm, Rsub), fastjet::SelectorPtFractionMin(ptfrac));
@@ -205,9 +210,9 @@ namespace Gambit
                     if (higgstag1 || higgstag2)
                         higgsJets.push_back(hepUtilsJet);
                 }
-
+                
                 // Define the Energy Correlation Function of W-tagging
-
+                cout << "Start remove overlaping" << endl; 
                 // Removing Overlaping
                 // 1) Remove electron with muon within DeltaR < 0.01.
                 removeOverlap(baselineElectrons, baselineMuons, 0.01);
@@ -221,7 +226,7 @@ namespace Gambit
                 removeOverlap(baselineMuons, bJets, 0.4);
                 removeOverlap(baselineMuons, nonbJets, 0.4);
 
-                // cout << "4. After Overlep Remove ... " << endl;
+                cout << "4. After Overlep Remove ... " << endl;
                 // Define Signal objects;
                 vector<const HEPUtils::Jet *> signalJets = nonbJets;
                 vector<const HEPUtils::Jet *> signalBjets = bJets;
@@ -253,6 +258,8 @@ namespace Gambit
 
                 bool presel1L = (n_leptons == 1) && (njets >= 5) && (nbjets >= 2) && (met > 20.) && (met + mTW > 60.);
                 bool presel0L = (n_leptons == 0) && (njets >= 6) && (nbjets >= 2) && (met > 200.) && (mindPhijetMet > 0.4);
+
+                cout << "After preselection" << endl; 
 
                 if (presel1L && njets >= 6)
                 {
@@ -334,6 +341,7 @@ namespace Gambit
                 add_result(SignalRegionData(_counters.at("SR0L-04"), 18., {21.6, 1.4}));
                 add_result(SignalRegionData(_counters.at("SR0L-05"), 29., {28.8, 3.1}));
 
+                COMMIT_CUTFLOWS; 
                 // Add cutflow data to the analysis results
                 return;
             }
