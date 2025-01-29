@@ -438,7 +438,7 @@ namespace Gambit
         const std::vector<double> JetsJER = {0.145,0.115,0.095,0.075,0.07,0.05,0.04};
         static HEPUtils::BinnedFn2D<double> _resJets2D(binedges_eta,binedges_pt,JetsJER);
         vector<double> nonbJER;
-        for (unsigned int i = 0; i < nonbJets.size(); ++i) nonbJets.push_back(_resJets2D.get_at(nonbJets[i]->abseta(), nonbJets[i]->pT()));
+        for (unsigned int i = 0; i < nonbJets.size(); ++i) nonbJER.push_back(_resJets2D.get_at(nonbJets[i]->abseta(), nonbJets[i]->pT()));
         vector<double> bJER; 
         for (unsigned int i = 0; i < bJets.size(); i++) bJER.push_back(_resJets2D.get_at(bJets[i]->abseta(), bJets[i]->pT())); 
 
