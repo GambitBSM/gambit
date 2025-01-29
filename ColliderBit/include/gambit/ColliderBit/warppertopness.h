@@ -26,7 +26,7 @@
 
 const double mt=172.;  // top quark mass
 const double mW=80.4;  // W mass
-
+const int DMAX=4; 
 double my_lp(double u[4], double v[4]) 
 {    // Lorentz product . assume x, y Lorentz vectors ordered as (px,py,pz,E) etc. Initialize with 
   // metric g==(-1,-1,-1,1)  
