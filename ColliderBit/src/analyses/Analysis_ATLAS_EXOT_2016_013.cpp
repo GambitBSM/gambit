@@ -263,6 +263,7 @@ namespace Gambit
 
                 if (presel1L && njets >= 6)
                 {
+                    cout << "15. 1 lepton signal region" << endl; 
                     int Ntop = topJets.size();
                     int NHiggs = higgsJets.size();
 
@@ -271,7 +272,7 @@ namespace Gambit
                     {
                         meff += jet->pT();
                     }
-
+                    cout << "16. Calculated Meff " << endl; 
                     bool sr1l01 = (Ntop >= 2) && (NHiggs == 0 || NHiggs == 1) && (nbjets == 3);
                     bool sr1l02 = (Ntop == 1) && (NHiggs == 0) && (nbjets >= 4) && (meff > 1000.);
                     bool sr1l03 = (Ntop == 1) && (NHiggs == 1) && (nbjets >= 4);
@@ -287,9 +288,11 @@ namespace Gambit
                         _counters.at("SR1L-04").add_event(event);
                     if (sr1l05)
                         _counters.at("SR1L-05").add_event(event);
+                    cout << "17. After SR1L event counting" << endl; 
                 }
                 if (presel0L && njets >= 7)
                 {
+                    cout << "25. Start o lepton signal region" << endl; 
                     int Ntop = topJets.size();
                     int NHiggs = higgsJets.size();
                     int NtH = Ntop + NHiggs;
@@ -299,9 +302,11 @@ namespace Gambit
                     {
                         meff += jet->pT();
                     }
+                    cout << "26. Calcuated meff" << endl; 
+                    double mTb12 = min(get_mT(signalBjets[0]->mom(), pmiss), get_mT(signalBjets[1]->mom(), pmiss)); 
+                    double mTBmin = (nbjets >= 3) ? min(get_mT(signalBjets[2]->mom(), pmiss), mTb12) : mTb12; 
 
-                    double mTb12 = min(get_mT(signalBjets[0]->mom(), pmiss), get_mT(signalBjets[0]->mom(), pmiss)); 
-                    double mTBmin = (njets >= 3) ? min(get_mT(signalBjets[2]->mom(), pmiss), mTb12) : mTb12; 
+                    cout << "27. Calculated mTb12 and mTBmin" << endl; 
 
                     bool sr0l01 = (NtH >= 2)    && (nbjets == 2) && (mTBmin > 160.) && (meff > 1000.);
                     bool sr0l02 = (Ntop == 1)   && (NHiggs == 1) && (nbjets == 3) && (mTBmin > 160.) && (meff > 1000.);
@@ -319,6 +324,7 @@ namespace Gambit
                     if (sr0l05)
                         _counters.at("SR0L-05").add_event(event);
                     
+                    cout << "28. After the o lepton Signal Counting " << endl; 
                 }
 
                 return;
