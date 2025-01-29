@@ -428,6 +428,22 @@ namespace Gambit
         std::sort(signalLeptons4Soft.begin(), signalLeptons4Soft.end(), sortByPT_lep);
 
         std::sort(signalJets.begin(), signalJets.end(), sortByPT_jet);
+
+        // Now make a collection to hold the JER for each jet
+        // Have obtained the values from Matthias' BuckFast code
+        // https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2015-017/
+        // Parameterisation can be still improved, but eta dependence is minimal
+        const std::vector<double>  binedges_eta = {0,10.};
+        const std::vector<double>  binedges_pt = {0,50.,70.,100.,150.,200.,1000.,10000.};
+        const std::vector<double> JetsJER = {0.145,0.115,0.095,0.075,0.07,0.05,0.04};
+        static HEPUtils::BinnedFn2D<double> _resJets2D(binedges_eta,binedges_pt,JetsJER);
+        vector<double> nonbJER;
+        for (unsigned int i = 0; i < nonbJets.size(); ++i) nonbJets.push_back(_resJets2D.get_at(nonbJets[i]->abseta(), nonbJets[i]->pT()));
+        vector<double> bJER; 
+        for (unsigned int i = 0; i < bJets.size(); i++) bJER.push_back(_resJets2D.get_at(bJets[i]->abseta(), bJets[i]->pT())); 
+
+
+
         // Preselection Criteria
         bool pre_hardlep = false;
         bool pre_softlep = false;
@@ -455,14 +471,16 @@ namespace Gambit
         // Define signal region for stop -> t N1
         if (pre_hard)
         {
+          const double mW   = 80.4; 
+          const double mTop = 172.0; 
           // Topness
-          const double aW = 5.0;
-          const double at = 15.;
-          const double as = 1000.; 
+          const double sigmaW = 5.0;
+          const double sigmat = 15.;
+          const double sigmas = 1000.;
 
-          // xbest is the initial guess for unknown kinematic variables pvx, pvy, pyz (neutrino momentum) and pWz (missing W's pz) that minimizes the topness function 
-          // xbest=[pvx, pvy, pvz, pWz]
-          double xbest[]={1000.,1000.,1000.,1000.};
+          // xbest is the initial guess for unknown kinematic variables pvx, pvy, pyz (neutrino momentum)
+          // and pWz (missing W's pz) that minimizes the topness function
+          double xbest[] = {1000., 1000., 1000., 1000.};
           double pl[] = {
               signalLeptons4Hard.at(0)->mom().px(),
               signalLeptons4Hard.at(0)->mom().py(),
@@ -473,8 +491,13 @@ namespace Gambit
               metVec.py(),
               0., 0.};
           double topness = exp(9999.);
+          double dRbl = 0.;
+
+          int b2idx = -1;
+
           if (nbjet == 1)
           {
+            dRbl = bJets.at(0)->mom().deltaR_eta(signalLeptons4Hard.at(0)->mom());
             double pb1[] = {
                 bJets.at(0)->mom().px(),
                 bJets.at(0)->mom().py(),
@@ -488,12 +511,79 @@ namespace Gambit
                   nonbJets.at(i)->mom().pz(),
                   nonbJets.at(i)->mom().E()};
 
-              double tmod_temp = log(topnesscompute2(pb1, pb2, pl, pTmiss, at, aW, as, xbest));
+              double tmod_temp = log(topnesscompute(pb1, pb2, pl, pTmiss, sigmat, sigmaW, sigmas, xbest));
               if (topness > tmod_temp)
                 topness = tmod_temp;
+              b2idx = i;
             }
           }
-          HEPUtils::P4 topRecl = reclusteredParticle(nonbJets, bJets, 175., true);
+          else if (nbjet == 2)
+          {
+            dRbl = max(bJets.at(0)->mom().deltaR_eta(signalLeptons4Hard.at(0)->mom()), bJets.at(1)->mom().deltaR_eta(signalLeptons4Hard.at(0)->mom()));
+            double pb1[] = {
+                bJets.at(0)->mom().px(),
+                bJets.at(0)->mom().py(),
+                bJets.at(0)->mom().pz(),
+                bJets.at(0)->mom().E()};
+            double pb2[] = {
+                bJets.at(1)->mom().px(),
+                bJets.at(1)->mom().py(),
+                bJets.at(1)->mom().pz(),
+                bJets.at(1)->mom().E()};
+            topness = log(topnesscompute(pb1, pb2, pl, pTmiss, sigmat, sigmaW, sigmas, xbest));
+          }
+
+          // Reconstruct Hadronic Top by Chi2 Method; 
+
+          double chi2min = 999999.; 
+          HEPUtils::P4 Top_Had; 
+          HEPUtils::P4 Top_Lep; 
+          HEPUtils::P4 bjet_Had; 
+          HEPUtils::P4 bjet_Lep; 
+
+          int JetComb[2] = {0, 0};
+          if (nbjet == 1)
+          {
+            for (int i = 0; i < nonbJets.size(); i++)
+            {
+              if (i != b2idx)
+              {
+                for (int j = i + 1; j < nonbJets.size(); j++)
+                {
+                  if (j != b2idx) {
+                    double chi2temp1 = pow((bJets.at(0)->mom() + nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m() - mTop, 2) / 
+                                        pow((bJets.at(0)->mom() + nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m(), 2) * 
+                                        (pow(bJER[0], 2) + pow(nonbJER[i], 2) + pow(nonbJER[j], 2)) 
+                                      + pow((nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m() - mW, 2) / 
+                                        pow((nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m(), 2) * 
+                                        (pow(nonbJER[i], 2) + pow(nonbJER[j], 2)); 
+                    double chi2temp2 = pow((nonbJets.at(b2idx)->mom() + nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m() - mTop, 2) / 
+                                        pow((nonbJets.at(b2idx)->mom() + nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m(), 2) * 
+                                        (pow(nonbJets[b2idx], 2) + pow(nonbJER[i], 2) + pow(nonbJER[j], 2)) 
+                                      + pow((nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m() - mW, 2) / 
+                                        pow((nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m(), 2) * 
+                                        (pow(nonbJER[i], 2) + pow(nonbJER[j], 2)); 
+                    if ((chi2temp1 < chi2temp2) && (chi2temp1 < chi2min)) {
+                      JetComb[0] = i; 
+                      JetComb[1] = j; 
+                      bjet_Had = bJets[0]->mom(); 
+                      bjet_Lep = nonbJets[b2idx]->mom(); 
+                    }
+                    else if ((chi2temp2 < chi2temp1) && (chi2temp2 < chi2min)) {
+                      JetComb[0] = i; 
+                      JetComb[1] = j; 
+                      bjet_Had = nonbJets[b2idx]->mom(); 
+                      bjet_Lep = bJets[0]->mom(); 
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          HEPUtils::P4 topRecl = reclusteredParticle(nonbJets, bJets, mTop, true);
+
+          bool SR_tN_med = (njet >= 4) && (nbjet >= 1) && (signalJets[0]->pT() > 100.) && (signalJets[1]->pT() > 90.) && (signalJets[2]->pT() > 70.) && (signalJets[3]->pT() > 50.)
         }
 
         return;
