@@ -292,12 +292,12 @@ namespace Gambit
                 }
                 if (presel0L && njets >= 7)
                 {
-                    cout << "25. Start o lepton signal region" << endl; 
+                    cout << "25. Start 0 lepton signal region" << endl; 
                     int Ntop = topJets.size();
                     int NHiggs = higgsJets.size();
                     int NtH = Ntop + NHiggs;
 
-                    double meff = signalLeptons[0]->pT() + met;
+                    double meff = met;
                     for (const HEPUtils::Jet *jet : signalJets)
                     {
                         meff += jet->pT();
