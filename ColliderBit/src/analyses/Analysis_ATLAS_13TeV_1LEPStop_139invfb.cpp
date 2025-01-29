@@ -559,7 +559,7 @@ namespace Gambit
                                         (pow(nonbJER[i], 2) + pow(nonbJER[j], 2)); 
                     double chi2temp2 = pow((nonbJets.at(b2idx)->mom() + nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m() - mTop, 2) / 
                                         pow((nonbJets.at(b2idx)->mom() + nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m(), 2) * 
-                                        (pow(nonbJets[b2idx], 2) + pow(nonbJER[i], 2) + pow(nonbJER[j], 2)) 
+                                        (pow(nonbJER[b2idx], 2) + pow(nonbJER[i], 2) + pow(nonbJER[j], 2)) 
                                       + pow((nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m() - mW, 2) / 
                                         pow((nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m(), 2) * 
                                         (pow(nonbJER[i], 2) + pow(nonbJER[j], 2)); 

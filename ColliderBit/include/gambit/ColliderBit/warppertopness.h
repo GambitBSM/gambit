@@ -184,16 +184,16 @@ class my_simplex{
   void replace_all();
   double get_yavg();
   double get_sigma();
-  void print_Centroid();
-  void print_Reflect();
-  void print_Expand();
-  void print_Contract();
-  void print_max();
-  void print_min();
-  void print_all();
-  void print_xy();
-  void print_xyl();
-  void print_xyh();
+  // void print_Centroid();
+  // void print_Reflect();
+  // void print_Expand();
+  // void print_Contract();
+  // void print_max();
+  // void print_min();
+  // void print_all();
+  // void print_xy();
+  // void print_xyl();
+  // void print_xyh();
 };
 
 class my_Nelder_Mead {
@@ -382,232 +382,232 @@ double my_simplex::get_sigma()
   return sigma; 
 }
 
-void my_simplex::print_Centroid() 
-{
+// void my_simplex::print_Centroid() 
+// {
 
-  cout << "Current xCentroid is : " << endl;
-  for (int k=0;k<d; k++)
-    {
-      cout << xCentroid[k];
-      if (k==d-1)
-	cout << endl;
-      else cout<< ", ";
+//   // cout << "Current xCentroid is : " << endl;
+//   for (int k=0;k<d; k++)
+//     {
+//       cout << xCentroid[k];
+//       if (k==d-1)
+// 	cout << endl;
+//       else cout<< ", ";
 
-    }
-}
+//     }
+// }
 
-void my_simplex::print_Reflect() 
-{
-  cout << "Current xReflect and y value are : " << endl;
-  for (int k=0;k<d; k++)
-    {
-      cout << xReflect[k];
-      if (k==d-1)
-	cout <<", " << yReflect << endl;
-      else cout<< ", ";
+// void my_simplex::print_Reflect() 
+// {
+//   cout << "Current xReflect and y value are : " << endl;
+//   for (int k=0;k<d; k++)
+//     {
+//       cout << xReflect[k];
+//       if (k==d-1)
+// 	cout <<", " << yReflect << endl;
+//       else cout<< ", ";
 
-    }
-}
+//     }
+// }
 
-void my_simplex::print_Expand() 
-{
+// void my_simplex::print_Expand() 
+// {
 
-  cout << "Current xExpand and y value are : " << endl;
-  for (int k=0;k<d; k++)
-    {
-      cout << xExpand[k];
-      if (k==d-1)
-	cout << ", " << yExpand << endl;
-      else cout<< ", ";
+//   cout << "Current xExpand and y value are : " << endl;
+//   for (int k=0;k<d; k++)
+//     {
+//       cout << xExpand[k];
+//       if (k==d-1)
+// 	cout << ", " << yExpand << endl;
+//       else cout<< ", ";
 
-    }
-} 
+//     }
+// } 
 
-void my_simplex::print_Contract() 
-{
-  cout << "Current xContract and y value are : " << endl; 
-  for (int k=0; k<d; k++) 
-    {
-      cout << xContract[k]; 
-      if (k==d-1) 
-	cout << ", " << yContract << endl; 
-      else cout << ", "; 
+// void my_simplex::print_Contract() 
+// {
+//   cout << "Current xContract and y value are : " << endl; 
+//   for (int k=0; k<d; k++) 
+//     {
+//       cout << xContract[k]; 
+//       if (k==d-1) 
+// 	cout << ", " << yContract << endl; 
+//       else cout << ", "; 
 
-    }
+//     }
 
-}
+// }
 
-void my_simplex::print_max()
-{
-  cout << "Printing imax and inmax and their values " << endl; 
-  cout << "imax = " << imax << ", y[imax] = " << yh << endl; 
-  cout << "inmax = " << inmax << ", y[inmax] = " << ynh << endl;
-}
+// void my_simplex::print_max()
+// {
+//   cout << "Printing imax and inmax and their values " << endl; 
+//   cout << "imax = " << imax << ", y[imax] = " << yh << endl; 
+//   cout << "inmax = " << inmax << ", y[inmax] = " << ynh << endl;
+// }
 
-void my_simplex::print_min() 
-{
-  cout << "Printing imin and its value " << endl;
-  cout << "imin = " << imin << ", y[imin] = " << yl << endl;
-}
+// void my_simplex::print_min() 
+// {
+//   cout << "Printing imin and its value " << endl;
+//   cout << "imin = " << imin << ", y[imin] = " << yl << endl;
+// }
 
-void my_simplex::print_xyh() 
-{
-  cout << "The highest value is " << endl;
-  for (int i=0; i<d; i++)
-    {
-      cout << xh[i];
-      if ((i+1)% d !=0)
-        {
-          cout << ", " ;
-        }
-      else
-        {
-          cout << ", " << yh << endl;
-        }
-    }
-}
+// void my_simplex::print_xyh() 
+// {
+//   cout << "The highest value is " << endl;
+//   for (int i=0; i<d; i++)
+//     {
+//       cout << xh[i];
+//       if ((i+1)% d !=0)
+//         {
+//           cout << ", " ;
+//         }
+//       else
+//         {
+//           cout << ", " << yh << endl;
+//         }
+//     }
+// }
 
-void my_simplex::print_xyl()
-{
-  cout << "The lowest value is " << endl;
-  for (int i=0; i<d; i++)
-    {
-      cout << xl[i];
-      if ((i+1)% d !=0)
-        {
-          cout << ", " ;
-        }
-      else
-        {
-          cout << ", " << yl << endl;
-        }
-    }
+// void my_simplex::print_xyl()
+// {
+//   cout << "The lowest value is " << endl;
+//   for (int i=0; i<d; i++)
+//     {
+//       cout << xl[i];
+//       if ((i+1)% d !=0)
+//         {
+//           cout << ", " ;
+//         }
+//       else
+//         {
+//           cout << ", " << yl << endl;
+//         }
+//     }
 
-}	     
+// }	     
 
-void my_simplex::print_xy()
-{
-  // print current x and y                                                                                                                           
-  cout << "Current x and y values are: " << endl;
-  for (int i=0; i< d*(d+1); i++)
-    {
-      cout << x[i];
-      if ((i+1) % d !=0)
-        {
-          cout << ", ";
-        }
-      else
-        {
-          div_t ratio;
-          ratio=div(i,d);
-	  cout << ", " << y[ratio.quot] << endl;
-        }
-    }
+// void my_simplex::print_xy()
+// {
+//   // print current x and y                                                                                                                           
+//   cout << "Current x and y values are: " << endl;
+//   for (int i=0; i< d*(d+1); i++)
+//     {
+//       cout << x[i];
+//       if ((i+1) % d !=0)
+//         {
+//           cout << ", ";
+//         }
+//       else
+//         {
+//           div_t ratio;
+//           ratio=div(i,d);
+// 	  cout << ", " << y[ratio.quot] << endl;
+//         }
+//     }
 
-}
+// }
 
-void my_simplex::print_all() 
-{ 
-// print current x 
-  cout << "Current x values are: " << endl; 
-  for (int i=0; i< d*(d+1); i++) 
-    { 
-      cout << x[i]; 
-      if ((i+1) % d !=0)
-	{ 
-	  cout << ", "; 
-	} 
-      else 
-	{ 
-	  div_t ratio; 
-	  ratio=div(i,d);
-	  cout << ", " << y[ratio.quot]<<endl; 
-	}
-    }
-  cout << "Current centroid: " << endl; 
-  for (int i=0; i< d; i++)
-      {
-	cout << xCentroid[i];
-          if ((i+1) % d !=0)
-          {
-	      cout << ", ";
-           }
-          else
-          {
-	    cout << endl;
-          }
-     }
-  cout << "Current Reflection: " << endl;
-  for (int i=0; i< d; i++)
-     {
-         cout << xReflect[i];
-	 if ((i+1) % d !=0)
-	 {
-	     cout << ", ";
-	 }
-	 else
-	 {
-	   cout << ", " << yReflect << endl;
-	 }
-    }
-  cout << "Current Expansion: " << endl;
-  for (int i=0; i< d; i++)
-      {
-	cout << xExpand[i];
-	  if ((i+1) % d !=0)
-	  {
-	      cout << ", ";
-	  }
-	  else
-	  {
-	    cout << ", " << yExpand << endl;
-	  }
-      }
-  cout << "Current Contraction: " << endl;
-  for (int i=0; i< d; i++)
-      {
-	cout << xContract[i];
-	  if ((i+1) % d !=0)
-	  {
-	      cout << ", ";
-	  }
-	  else
-	  {
-	    cout << ", " << yContract << endl;
-	  }
-     }
-  cout << "The highest value is " << endl; 
-  for (int i=0; i<d; i++) 
-    { 
-      cout << xh[i]; 
-      if ((i+1)% d !=0) 
-	{ 
-	  cout << ", " ; 
-	} 
-      else 
-	{ 
-	  cout << ", " << yh << endl; 
-	}
-    }
-  cout << "The lowest value is " << endl;
-  for (int i=0; i<d; i++)
-    {
-      cout << xl[i];
-      if ((i+1)% d !=0)
-        {
-          cout << ", " ;
-        }
-      else
-        {
-          cout << ", " << yl << endl;
-        }
-    }
-    cout << "The lowest point is imin=" << imin << endl;
+// void my_simplex::print_all() 
+// { 
+// // print current x 
+//   cout << "Current x values are: " << endl; 
+//   for (int i=0; i< d*(d+1); i++) 
+//     { 
+//       cout << x[i]; 
+//       if ((i+1) % d !=0)
+// 	{ 
+// 	  cout << ", "; 
+// 	} 
+//       else 
+// 	{ 
+// 	  div_t ratio; 
+// 	  ratio=div(i,d);
+// 	  cout << ", " << y[ratio.quot]<<endl; 
+// 	}
+//     }
+//   cout << "Current centroid: " << endl; 
+//   for (int i=0; i< d; i++)
+//       {
+// 	cout << xCentroid[i];
+//           if ((i+1) % d !=0)
+//           {
+// 	      cout << ", ";
+//            }
+//           else
+//           {
+// 	    cout << endl;
+//           }
+//      }
+//   cout << "Current Reflection: " << endl;
+//   for (int i=0; i< d; i++)
+//      {
+//          cout << xReflect[i];
+// 	 if ((i+1) % d !=0)
+// 	 {
+// 	     cout << ", ";
+// 	 }
+// 	 else
+// 	 {
+// 	   cout << ", " << yReflect << endl;
+// 	 }
+//     }
+//   cout << "Current Expansion: " << endl;
+//   for (int i=0; i< d; i++)
+//       {
+// 	cout << xExpand[i];
+// 	  if ((i+1) % d !=0)
+// 	  {
+// 	      cout << ", ";
+// 	  }
+// 	  else
+// 	  {
+// 	    cout << ", " << yExpand << endl;
+// 	  }
+//       }
+//   cout << "Current Contraction: " << endl;
+//   for (int i=0; i< d; i++)
+//       {
+// 	cout << xContract[i];
+// 	  if ((i+1) % d !=0)
+// 	  {
+// 	      cout << ", ";
+// 	  }
+// 	  else
+// 	  {
+// 	    cout << ", " << yContract << endl;
+// 	  }
+//      }
+//   cout << "The highest value is " << endl; 
+//   for (int i=0; i<d; i++) 
+//     { 
+//       cout << xh[i]; 
+//       if ((i+1)% d !=0) 
+// 	{ 
+// 	  cout << ", " ; 
+// 	} 
+//       else 
+// 	{ 
+// 	  cout << ", " << yh << endl; 
+// 	}
+//     }
+//   cout << "The lowest value is " << endl;
+//   for (int i=0; i<d; i++)
+//     {
+//       cout << xl[i];
+//       if ((i+1)% d !=0)
+//         {
+//           cout << ", " ;
+//         }
+//       else
+//         {
+//           cout << ", " << yl << endl;
+//         }
+//     }
+//     cout << "The lowest point is imin=" << imin << endl;
 
-    cout << "The highest point is imax=" << imax << endl;
+//     cout << "The highest point is imax=" << imax << endl;
 
-    cout << "The next highest point is inmax=" << inmax << endl;
-}
+//     cout << "The next highest point is inmax=" << inmax << endl;
+// }
  
 my_Nelder_Mead::my_Nelder_Mead(int dd, double alpha, double beta, double gamma, int NNtry, double eeps, double DDeltastep, int nn, my_func *ff): d(dd), Ntry(NNtry), eps(eeps), Deltastep(DDeltastep), n(nn), f(ff), simplex(dd, alpha, beta, gamma, f){} 
 
@@ -831,10 +831,10 @@ double topnesscompute(double pb1[4], double pb2[4], double pl[4], double MET[4],
               copy(my_check1.xfinal,my_check1.xfinal+d,xbest1);
             }
         }
-      else
-        {
-          cout << " Minimum not found...exiting " << endl;
-        }
+      // else
+      //   {
+      //     cout << " Minimum not found...exiting " << endl;
+      //   }
       // now do second combination                                                      
       converge2=my_check2.find_global_min(xstart);
       if (converge2==true)
@@ -846,10 +846,10 @@ double topnesscompute(double pb1[4], double pb2[4], double pl[4], double MET[4],
               copy(my_check2.xfinal,my_check2.xfinal+d,xbest2);
             }
         }
-      else
-	{
-          cout << " Minimum not found...exiting " << endl;
-        }
+  //     else
+	// {
+  //         cout << " Minimum not found...exiting " << endl;
+  //       }
 
     }
 
