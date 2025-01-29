@@ -220,7 +220,7 @@ my_simplex::my_simplex(int dd, double aalpha, double bbeta, double ggamma,  my_f
 void my_simplex::my_SetUp(double xin[DMAX*(DMAX+1)]) 
 {
   int D=d*(d+1);
-  copy(xin,xin+D,xstart);
+  std::copy(xin,xin+D,xstart);
   for (int i=0; i<D; i++)
     {
       x[i]=xstart[i];
@@ -229,7 +229,7 @@ void my_simplex::my_SetUp(double xin[DMAX*(DMAX+1)])
   for (int i=0; i<d+1; i++)
     {
       double xi[d];
-      copy(x+d*i,x+d*i+d,xi);  // get coordinates of i'th point and copy into xi 
+      std::copy(x+d*i,x+d*i+d,xi);  // get coordinates of i'th point and copy into xi 
            y[i]=(*f)(xi,d);
     }
 }
@@ -239,7 +239,7 @@ void my_simplex::set_y()
   for (int i=0; i<d+1; i++)
     {
       double xi[d];
-      copy(x+d*i,x+d*i+d,xi);  // get coordinates of i'th point and copy into xi                            
+      std::copy(x+d*i,x+d*i+d,xi);  // get coordinates of i'th point and std::copy into xi                            
       y[i]=(*f)(xi,d); 
     }
 }
@@ -626,14 +626,14 @@ bool my_Nelder_Mead::one_cycle(my_simplex *s)
       if ((*s).yExpand < (*s).yl) 
 	{
 	  // replace P_h with P_** 
-	  copy((*s).xExpand,(*s).xExpand+d, (*s).x+d*((*s).imax));
+	  std::copy((*s).xExpand,(*s).xExpand+d, (*s).x+d*((*s).imax));
 	  (*s).set_y();
 	  return false; 
 	}
       else 
 	{
 	  // replace P_h with P_*                                                                               
-	  copy((*s).xReflect,(*s).xReflect+d, (*s).x+d*((*s).imax));
+	  std::copy((*s).xReflect,(*s).xReflect+d, (*s).x+d*((*s).imax));
 	  (*s).set_y();
 	  return true; 
 	}
@@ -642,7 +642,7 @@ bool my_Nelder_Mead::one_cycle(my_simplex *s)
     {     
       if (((*s).yReflect) < (*s).yh) 
 	{
-	  copy((*s).xReflect,(*s).xReflect+d, (*s).x+d*((*s).imax));
+	  std::copy((*s).xReflect,(*s).xReflect+d, (*s).x+d*((*s).imax));
 	  (*s).set_y();
 	  (*s).find_max();
 	}
@@ -650,7 +650,7 @@ bool my_Nelder_Mead::one_cycle(my_simplex *s)
       //    (*s).print_Contract(); 
       if ((*s).yContract < (*s).yh) 
 	{ 
-	  copy((*s).xContract,(*s).xContract+d, (*s).x+d*((*s).imax));
+	  std::copy((*s).xContract,(*s).xContract+d, (*s).x+d*((*s).imax));
 	  (*s).set_y();
 	  return false;
       
@@ -664,7 +664,7 @@ bool my_Nelder_Mead::one_cycle(my_simplex *s)
      }
   else {
     // replace P_h with P_*                                                                                            
-    copy((*s).xReflect,(*s).xReflect+d, (*s).x+d*((*s).imax));
+    std::copy((*s).xReflect,(*s).xReflect+d, (*s).x+d*((*s).imax));
     (*s).set_y();
     return true;
   }
@@ -717,7 +717,7 @@ minimum  */
 	    // save old xi, generate new xstarti = xbest/rndm + rndm*step                             
 	    if (ynewmin< yfinal)
 	      {
-		copy(simplex.x,simplex.x+d*(d+1),xfinal);
+		std::copy(simplex.x,simplex.x+d*(d+1),xfinal);
 		yfinal=ynewmin;
 		//		cout << "final i=" << i << ", ymin = " << ynewmin << ", ymax = " << ynewmax << endl; 
 		break;
@@ -817,7 +817,7 @@ double topnesscompute(double pb1[4], double pb2[4], double pl[4], double MET[4],
                   xin[i][j]=xin[0][j]+Deltastep*edir[d*(i-1)+j];
                 }
             }
-          copy(xin[i],xin[i]+d, xstart+d*i);  // copy initial data into xstart          
+          std::copy(xin[i],xin[i]+d, xstart+d*i);  // copy initial data into xstart          
         }
       // now first combination 
       converge1=my_check1.find_global_min(xstart);
@@ -828,7 +828,7 @@ double topnesscompute(double pb1[4], double pb2[4], double pl[4], double MET[4],
           if (yl < ybest1)
             {
               ybest1=yl;
-              copy(my_check1.xfinal,my_check1.xfinal+d,xbest1);
+              std::copy(my_check1.xfinal,my_check1.xfinal+d,xbest1);
             }
         }
       // else
@@ -843,7 +843,7 @@ double topnesscompute(double pb1[4], double pb2[4], double pl[4], double MET[4],
           if (yl < ybest2)
             {
               ybest2=yl;
-              copy(my_check2.xfinal,my_check2.xfinal+d,xbest2);
+              std::copy(my_check2.xfinal,my_check2.xfinal+d,xbest2);
             }
         }
   //     else
@@ -856,12 +856,12 @@ double topnesscompute(double pb1[4], double pb2[4], double pl[4], double MET[4],
   if (ybest1 < ybest2)
     {
     ybest=ybest1;
-    copy(xbest1,xbest1+d,xbest);
+    std::copy(xbest1,xbest1+d,xbest);
     }
    else
    {
      ybest=ybest2;
-     copy(xbest2,xbest2+d,xbest);
+     std::copy(xbest2,xbest2+d,xbest);
    }
 
   return ybest; 
