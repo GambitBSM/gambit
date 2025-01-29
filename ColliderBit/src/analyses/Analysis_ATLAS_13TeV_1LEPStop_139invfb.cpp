@@ -583,7 +583,7 @@ namespace Gambit
 
           HEPUtils::P4 topRecl = reclusteredParticle(nonbJets, bJets, mTop, true);
 
-          bool SR_tN_med = (njet >= 4) && (nbjet >= 1) && (signalJets[0]->pT() > 100.) && (signalJets[1]->pT() > 90.) && (signalJets[2]->pT() > 70.) && (signalJets[3]->pT() > 50.)
+          bool SR_tN_med = (njet >= 4) && (nbjet >= 1) && (signalJets[0]->pT() > 100.) && (signalJets[1]->pT() > 90.) && (signalJets[2]->pT() > 70.) && (signalJets[3]->pT() > 50.);
         }
 
         return;
