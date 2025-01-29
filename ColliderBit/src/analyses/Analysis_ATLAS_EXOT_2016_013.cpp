@@ -1,22 +1,16 @@
 ///
 ///  \author Pengxuan Zhu (zhupx99@icloud.com)
-///  \date 2024 Jun
+///  \date 2025 Jan
 ///
 ///  *********************************************
 
 // Based on
-//  - https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/EXOT-2016-14/
-//  - https://cds.cern.ch/record/2274216
-//  - http://arxiv.org/abs/1707.03347
+//  - https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/EXOT-2016-13/
+//  - https://cds.cern.ch/record/2310460
+//  - http://arxiv.org/abs/1803.09678
 //
 // Search for the pair production of heavy vector-like T and B quarks in pp collisions at s√= 13 TeV
-//   primarily targeting the events of T quark decays to a W boson + b-quark
-
-/*
-  Note:
-  1. No Identification selection level provide for electron and muon, so I just using the Loose selection criteria;
-  2. Missing the electron track cut |d0|/|sigma(d0)| < 5 && |z0 sin(theta)| < 0.5 mm
-*/
+//   primarily targeting the events of T quark decays to a Higgs boson / Z + t-quark
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
@@ -37,8 +31,6 @@
 #include "fastjet/tools/Filter.hh"
 #include "fastjet/tools/Pruner.hh"
 #include "fastjet/Selector.hh"
-// #include "fastjet/contrib/EnergyCorrelator.hh"
-// #include "gambit/contrib/fjcontrib-1.045/EnergyCorrelator/EnergyCorrelator.hh"
 #else
 #include "fjcore.hh"
 #ifndef FJNS
@@ -47,6 +39,7 @@
 #endif
 
 using namespace std;
+// #define CHECK_CUTFLOW
 
 namespace Gambit
 {
@@ -59,6 +52,10 @@ namespace Gambit
 
         public:
             static constexpr const char *detector = "ATLAS";
+
+            #ifdef CHECK_CUTFLOW
+                Cutflows _cutflows;
+            #endif
 
             Analysis_ATLAS_EXOT_2016_013()
             {
@@ -76,6 +73,25 @@ namespace Gambit
 
                 set_analysis_name("ATLAS_EXOT_2016_013");
                 set_luminosity(36.1);
+
+                #ifdef CHECK_CUTFLOW
+                    cout << "Starting run Analysis \n booking Cutflows" << endl;
+                    // Booking Cutflows
+                    const vector<string> cutnames = {
+                        "No Cut",
+                        "Base Selection",
+                        ">= 1 Whad cand.",
+                        "ETmiss >= 60 GeV",
+                        ">= 1 b-tagged jet",
+                        "S_T >= 1800 GeV",
+                        "DeltaR(lep, v) <= 0.7",
+                        "DeltaM < 300 GeV"};
+
+                    _cutflows.addCutflow("ATLAS_EXOT_2016_013", cutnames);
+
+                    cout << _cutflows << endl;
+                #endif
+
 
             }
 

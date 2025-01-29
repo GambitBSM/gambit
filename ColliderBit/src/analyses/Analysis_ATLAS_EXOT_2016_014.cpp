@@ -8,7 +8,6 @@
 //  - https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/EXOT-2016-14/
 //  - https://cds.cern.ch/record/2274216
 //  - http://arxiv.org/abs/1707.03347
-//
 // Search for the pair production of heavy vector-like T and B quarks in pp collisions at s√= 13 TeV
 //   primarily targeting the events of T quark decays to a W boson + b-quark
 
