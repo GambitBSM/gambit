@@ -399,42 +399,6 @@ namespace Gambit
             }
             else {break;}
           }
-        
-        
-        
-          if (threeLep_presel)
-          {
-            if (doCutflow){ FILL_SIGNAL_REGION("SR1AZ_3L_presel")};
-            if (pTl3 > 20.)
-            {
-              if (doCutflow){ FILL_SIGNAL_REGION("SR1AZ_3L_presel_pTl3")};
-              if (abs(mSFOS_Z - 91.2) < 15.)
-              {
-                if (doCutflow){ FILL_SIGNAL_REGION("SR1AZ_3L_presel_pTl3_mZ")};
-                if (n_bjets >= 1)
-                {
-                  if (doCutflow){ FILL_SIGNAL_REGION("SR1AZ_3L_presel_pTl3_mZ_nbjets")};
-                  if (n_jets >= 4)
-                  {
-                    if (doCutflow){ FILL_SIGNAL_REGION("SR1AZ_3L_presel_pTl3_mZ_nbjets_njets")};
-                    if (met > 250.)
-                    {
-                      if (doCutflow){ FILL_SIGNAL_REGION("SR1AZ_3L_presel_pTl3_mZ_nbjets_njets_MET")};
-                      if (mT2_3l > 100.)
-                      {
-                        FILL_SIGNAL_REGION("SR1AZ_3L");
-                      }
-                    }
-                    else {break;}
-                  }
-                  else {break;}
-                }
-                else {break;}
-              }
-              else {break;}
-            }
-            else {break;}
-          }
           else {break;}
           // Applied all cuts
           break;
