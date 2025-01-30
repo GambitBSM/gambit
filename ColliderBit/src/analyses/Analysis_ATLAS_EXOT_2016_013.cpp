@@ -53,10 +53,6 @@ namespace Gambit
         public:
             static constexpr const char *detector = "ATLAS";
 
-            // #ifdef CHECK_CUTFLOW
-            //     Cutflows _cutflows;
-            // #endif
-
             Analysis_ATLAS_EXOT_2016_013()
             {
                 DEFINE_SIGNAL_REGION("SR1L-01"); // >=2t, 0-1H, >=6j, 3b
@@ -73,26 +69,6 @@ namespace Gambit
 
                 set_analysis_name("ATLAS_EXOT_2016_013");
                 set_luminosity(36.1);
-
-                // #ifdef CHECK_CUTFLOW
-                //     cout << "Starting run Analysis \n booking Cutflows" << endl;
-                //     // Booking Cutflows
-                //     const vector<string> cutnames = {
-                //         "No Cut",
-                //         "Base Selection",
-                //         ">= 1 Whad cand.",
-                //         "ETmiss >= 60 GeV",
-                //         ">= 1 b-tagged jet",
-                //         "S_T >= 1800 GeV",
-                //         "DeltaR(lep, v) <= 0.7",
-                //         "DeltaM < 300 GeV"};
-
-                //     _cutflows.addCutflow("ATLAS_EXOT_2016_013", cutnames);
-
-                //     cout << _cutflows << endl;
-                // #endif
-
-
             }
 
             void run(const HEPUtils::Event *event)
