@@ -39,7 +39,7 @@
 #endif
 
 using namespace std;
-#define CHECK_CUTFLOW
+// #define CHECK_CUTFLOW
 
 namespace Gambit
 {
@@ -53,9 +53,9 @@ namespace Gambit
         public:
             static constexpr const char *detector = "ATLAS";
 
-            #ifdef CHECK_CUTFLOW
-                Cutflows _cutflows;
-            #endif
+            // #ifdef CHECK_CUTFLOW
+            //     Cutflows _cutflows;
+            // #endif
 
             Analysis_ATLAS_EXOT_2016_013()
             {
@@ -74,33 +74,36 @@ namespace Gambit
                 set_analysis_name("ATLAS_EXOT_2016_013");
                 set_luminosity(36.1);
 
-                #ifdef CHECK_CUTFLOW
-                    cout << "Starting run Analysis \n booking Cutflows" << endl;
-                    // Booking Cutflows
-                    const vector<string> cutnames = {
-                        "No Cut",
-                        "Base Selection",
-                        ">= 1 Whad cand.",
-                        "ETmiss >= 60 GeV",
-                        ">= 1 b-tagged jet",
-                        "S_T >= 1800 GeV",
-                        "DeltaR(lep, v) <= 0.7",
-                        "DeltaM < 300 GeV"};
+                // #ifdef CHECK_CUTFLOW
+                //     cout << "Starting run Analysis \n booking Cutflows" << endl;
+                //     // Booking Cutflows
+                //     const vector<string> cutnames = {
+                //         "No Cut",
+                //         "Base Selection",
+                //         ">= 1 Whad cand.",
+                //         "ETmiss >= 60 GeV",
+                //         ">= 1 b-tagged jet",
+                //         "S_T >= 1800 GeV",
+                //         "DeltaR(lep, v) <= 0.7",
+                //         "DeltaM < 300 GeV"};
 
-                    _cutflows.addCutflow("ATLAS_EXOT_2016_013", cutnames);
+                //     _cutflows.addCutflow("ATLAS_EXOT_2016_013", cutnames);
 
-                    cout << _cutflows << endl;
-                #endif
+                //     cout << _cutflows << endl;
+                // #endif
 
 
             }
 
             void run(const HEPUtils::Event *event)
             {
-                cout << "Start New Event loops" << endl; 
+                // cout << "Start New Event loops" << endl; 
                 if (!event) {
                     cerr << "Error: event is Null" << endl; 
                     return; 
+                }
+                else{
+                    cout << "Sussefully load new event" << endl; 
                 }
                 // Define the missing momentum & MET
                 HEPUtils::P4 pmiss = event->missingmom();
@@ -135,7 +138,7 @@ namespace Gambit
                 // ATLAS::applyMuonEff(baselineMuons);
                 // Jets
 
-                cout << "1. Define Lepton candidates" << endl;
+                // cout << "1. Define Lepton candidates" << endl;
                 vector<const HEPUtils::Jet *> baselineSmallRJets;
                 vector<const HEPUtils::Jet *> baselineLargeRJets;
                 vector<fastjet::PseudoJet> trimmedJets;
@@ -170,14 +173,14 @@ namespace Gambit
                     }
                 }
                 // Define largeR-jets
-                cout << "2. Define Jet candidates" << endl;
+                // cout << "2. Define Jet candidates" << endl;
                 for (const HEPUtils::Jet *jet : event->jets("antikt_R10"))
                 {
                     baselineLargeRJets.push_back(jet);
                 }
                 // cout << "SmallR jet Number ->" << event->jets("antikt_R04").size() << endl;
                 // cout << "LargeR jet Number ->" << baselineLargeRJets.size() << endl;
-                cout << "Before Trimming Jet " << endl;
+                // cout << "Before Trimming Jet " << endl;
                 const double Rsub = 0.2;
                 const double ptfrac = 0.05;
                 FJNS::Filter trimmer(fastjet::JetDefinition(fastjet::kt_algorithm, Rsub), fastjet::SelectorPtFractionMin(ptfrac));
@@ -212,7 +215,7 @@ namespace Gambit
                 }
                 
                 // Define the Energy Correlation Function of W-tagging
-                cout << "Start remove overlaping" << endl; 
+                // cout << "Start remove overlaping" << endl; 
                 // Removing Overlaping
                 // 1) Remove electron with muon within DeltaR < 0.01.
                 removeOverlap(baselineElectrons, baselineMuons, 0.01);
@@ -226,7 +229,7 @@ namespace Gambit
                 removeOverlap(baselineMuons, bJets, 0.4);
                 removeOverlap(baselineMuons, nonbJets, 0.4);
 
-                cout << "4. After Overlep Remove ... " << endl;
+                // cout << "4. After Overlep Remove ... " << endl;
                 // Define Signal objects;
                 vector<const HEPUtils::Jet *> signalJets = nonbJets;
                 vector<const HEPUtils::Jet *> signalBjets = bJets;
@@ -259,11 +262,11 @@ namespace Gambit
                 bool presel1L = (n_leptons == 1) && (njets >= 5) && (nbjets >= 2) && (met > 20.) && (met + mTW > 60.);
                 bool presel0L = (n_leptons == 0) && (njets >= 6) && (nbjets >= 2) && (met > 200.) && (mindPhijetMet > 0.4);
 
-                cout << "After preselection" << endl; 
+                // cout << "After preselection" << endl; 
 
                 if (presel1L && njets >= 6)
                 {
-                    cout << "15. 1 lepton signal region" << endl; 
+                    // cout << "15. 1 lepton signal region" << endl; 
                     int Ntop = topJets.size();
                     int NHiggs = higgsJets.size();
 
@@ -272,7 +275,7 @@ namespace Gambit
                     {
                         meff += jet->pT();
                     }
-                    cout << "16. Calculated Meff " << endl; 
+                    // cout << "16. Calculated Meff " << endl; 
                     bool sr1l01 = (Ntop >= 2) && (NHiggs == 0 || NHiggs == 1) && (nbjets == 3);
                     bool sr1l02 = (Ntop == 1) && (NHiggs == 0) && (nbjets >= 4) && (meff > 1000.);
                     bool sr1l03 = (Ntop == 1) && (NHiggs == 1) && (nbjets >= 4);
@@ -288,11 +291,11 @@ namespace Gambit
                         _counters.at("SR1L-04").add_event(event);
                     if (sr1l05)
                         _counters.at("SR1L-05").add_event(event);
-                    cout << "17. After SR1L event counting" << endl; 
+                    // cout << "17. After SR1L event counting" << endl; 
                 }
                 if (presel0L && njets >= 7)
                 {
-                    cout << "25. Start 0 lepton signal region" << endl; 
+                    // cout << "25. Start 0 lepton signal region" << endl; 
                     int Ntop = topJets.size();
                     int NHiggs = higgsJets.size();
                     int NtH = Ntop + NHiggs;
@@ -302,11 +305,11 @@ namespace Gambit
                     {
                         meff += jet->pT();
                     }
-                    cout << "26. Calcuated meff" << endl; 
+                    // cout << "26. Calcuated meff" << endl; 
                     double mTb12 = min(get_mT(signalBjets[0]->mom(), pmiss), get_mT(signalBjets[1]->mom(), pmiss)); 
                     double mTBmin = (nbjets >= 3) ? min(get_mT(signalBjets[2]->mom(), pmiss), mTb12) : mTb12; 
 
-                    cout << "27. Calculated mTb12 and mTBmin" << endl; 
+                    // cout << "27. Calculated mTb12 and mTBmin" << endl; 
 
                     bool sr0l01 = (NtH >= 2)    && (nbjets == 2) && (mTBmin > 160.) && (meff > 1000.);
                     bool sr0l02 = (Ntop == 1)   && (NHiggs == 1) && (nbjets == 3) && (mTBmin > 160.) && (meff > 1000.);
@@ -324,7 +327,7 @@ namespace Gambit
                     if (sr0l05)
                         _counters.at("SR0L-05").add_event(event);
                     
-                    cout << "28. After the o lepton Signal Counting " << endl; 
+                    // cout << "28. After the o lepton Signal Counting " << endl; 
                 }
 
                 return;
