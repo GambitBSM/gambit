@@ -56,8 +56,8 @@ namespace Gambit
 
         private:
 
-            YODA::Histo1D _histo_NHiggs;
-            YODA::Histo1D _histo_Ntop; 
+            YODA::Histo1D* _histo_NHiggs;
+            YODA::Histo1D* _histo_Ntop; 
 
         public:
             static constexpr const char *detector = "ATLAS";
@@ -81,8 +81,8 @@ namespace Gambit
                 set_analysis_name("ATLAS_EXOT_2016_013");
                 set_luminosity(36.1);
 
-                _histo_NHiggs   = new YODA::Histo1D(5, 0., 6., "/ATLAS_EXOT_2016_013/Higgs-tagged jet multiplicity");
-                _histo_Ntop     = new YODA::Histo1D(5, 0., 5., "/ATLAS_EXOT_2016_013/Top-tagged jet multiplicity"); 
+                _histo_NHiggs   = new YODA::Histo1D(5, 0., 6., "/ATLAS_EXOT_2016_013/Higgs-tagged_jet_multiplicity");
+                _histo_Ntop     = new YODA::Histo1D(5, 0., 5., "/ATLAS_EXOT_2016_013/Top-tagged_jet_multiplicity"); 
             }
 
             void run(const HEPUtils::Event *event)
