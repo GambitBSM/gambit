@@ -81,8 +81,8 @@ namespace Gambit
                 set_analysis_name("ATLAS_EXOT_2016_013");
                 set_luminosity(36.1);
 
-                _histo_NHiggs   = new YODA::Histo1D("/ATLAS_EXOT_2016_013/Higgs-tagged jet multiplicity", 5, 0., 6.);
-                _histo_Ntop     = new YODA::Histo1D("/ATLAS_EXOT_2016_013/Top-tagged jet multiplicity", 5, 0., 5.); 
+                _histo_NHiggs   = new YODA::Histo1D(5, 0., 6., "/ATLAS_EXOT_2016_013/Higgs-tagged jet multiplicity");
+                _histo_Ntop     = new YODA::Histo1D(5, 0., 5., "/ATLAS_EXOT_2016_013/Top-tagged jet multiplicity"); 
             }
 
             void run(const HEPUtils::Event *event)
@@ -346,7 +346,7 @@ namespace Gambit
                 histos.push_back(&_histo_NHiggs);
                 histos.push_back(&_histo_Ntop);
 
-                YODA::WriterYODA::write(histos, "ATLAS_EXOT_2016_013.yoda");
+                YODA::WriterYODA::write("ATLAS_EXOT_2016_013.yoda",  histos.begin(), histos.end());
 
                 return;
             }
