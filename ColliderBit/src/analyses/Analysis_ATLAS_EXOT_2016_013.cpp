@@ -74,15 +74,6 @@ namespace Gambit
 
             void run(const HEPUtils::Event *event)
             {
-                // cout << "Start New Event loops" << endl; 
-                // if (!event) {
-                //     cerr << "Error: event is Null" << endl; 
-                //     return; 
-                // }
-                // else{
-                //     cout << "Sussefully load new event" << endl; 
-                // }
-                // Define the missing momentum & MET
                 HEPUtils::P4 pmiss = event->missingmom();
                 const double met = event->met();
 
@@ -187,7 +178,7 @@ namespace Gambit
                     HEPUtils::Jet *hepUtilsJet = new HEPUtils::Jet(trimmedJet);
                     if (toptag)
                         topJets.push_back(hepUtilsJet);
-                    if (higgstag1 || higgstag2)
+                    else if (higgstag1 || higgstag2)
                         higgsJets.push_back(hepUtilsJet);
                 }
                 
