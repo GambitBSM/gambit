@@ -1,8 +1,9 @@
+///  =============================================
 ///
-///  \author Pengxuan Zhu (zhupx99@icloud.com)
-///  \date 2025 Jan
+///  \author Pengxuan Zhu (zhupx99@icloud.com, pengxuan.zhu@adelaide.edu.cn)
+///  \date Jan 2025
 ///
-///  *********************************************
+///  =============================================
 
 // Based on
 //  - https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/EXOT-2016-13/
@@ -74,13 +75,13 @@ namespace Gambit
             void run(const HEPUtils::Event *event)
             {
                 // cout << "Start New Event loops" << endl; 
-                if (!event) {
-                    cerr << "Error: event is Null" << endl; 
-                    return; 
-                }
-                else{
-                    cout << "Sussefully load new event" << endl; 
-                }
+                // if (!event) {
+                //     cerr << "Error: event is Null" << endl; 
+                //     return; 
+                // }
+                // else{
+                //     cout << "Sussefully load new event" << endl; 
+                // }
                 // Define the missing momentum & MET
                 HEPUtils::P4 pmiss = event->missingmom();
                 const double met = event->met();
@@ -316,15 +317,15 @@ namespace Gambit
                 // This data is used if not running ATLAS_FullLikes.
                 add_result(SignalRegionData(_counters.at("SR1L-01"), 353., {349., 20.}));
                 add_result(SignalRegionData(_counters.at("SR1L-02"), 428., {416., 18.}));
-                add_result(SignalRegionData(_counters.at("SR1L-03"), 60., {64.9, 4.7}));
-                add_result(SignalRegionData(_counters.at("SR1L-04"), 78., {78.2, 8.0}));
-                add_result(SignalRegionData(_counters.at("SR1L-05"), 18., {14.4, 1.2}));
+                add_result(SignalRegionData(_counters.at("SR1L-03"), 60.,  {64.9, 4.7}));
+                add_result(SignalRegionData(_counters.at("SR1L-04"), 78.,  {78.2, 8.0}));
+                add_result(SignalRegionData(_counters.at("SR1L-05"), 18.,  {14.4, 1.2}));
 
-                add_result(SignalRegionData(_counters.at("SR0L-01"), 87., {85.5, 6.8}));
-                add_result(SignalRegionData(_counters.at("SR0L-02"), 8., {6.7, 0.75}));
-                add_result(SignalRegionData(_counters.at("SR0L-03"), 7., {7.8, 1.7}));
-                add_result(SignalRegionData(_counters.at("SR0L-04"), 18., {21.6, 1.4}));
-                add_result(SignalRegionData(_counters.at("SR0L-05"), 29., {28.8, 3.1}));
+                add_result(SignalRegionData(_counters.at("SR0L-01"), 87.,  {85.5, 6.8}));
+                add_result(SignalRegionData(_counters.at("SR0L-02"), 8.,   {6.7,  0.75}));
+                add_result(SignalRegionData(_counters.at("SR0L-03"), 7.,   {7.8,  1.7}));
+                add_result(SignalRegionData(_counters.at("SR0L-04"), 18.,  {21.6, 1.4}));
+                add_result(SignalRegionData(_counters.at("SR0L-05"), 29.,  {28.8, 3.1}));
 
                 COMMIT_CUTFLOWS; 
                 // Add cutflow data to the analysis results
