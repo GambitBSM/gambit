@@ -289,7 +289,7 @@ namespace Gambit
                     bool sr0l02 = (Ntop == 1)   && (NHiggs == 1) && (nbjets == 3) && (mTBmin > 160.) && (meff > 1000.);
                     bool sr0l03 = (Ntop >= 2)   && (NHiggs == 0 || NHiggs == 1) && (nbjets == 3) && (mTBmin > 160.) && (meff > 1000.);
                     bool sr0l04 = (Ntop == 1)   && (NHiggs == 0) && (nbjets >= 4) && (mTBmin > 160.) && (meff > 1000.);
-                    bool sr0l05 = (NtH >= 0)    && (nbjets >= 4) && (meff > 1000.);
+                    bool sr0l05 = (NtH >= 2)    && (nbjets >= 4) && (meff > 1000.);
                     if (sr0l01)
                         _counters.at("SR0L-01").add_event(event);
                     if (sr0l02)
