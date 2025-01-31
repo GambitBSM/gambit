@@ -287,7 +287,7 @@ namespace Gambit
                     int NHiggs = higgsJets.size();
                     int NtH = Ntop + NHiggs;
 
-                    _histo_Ntop->(Ntop + 0.5, 1.); 
+                    _histo_Ntop->fill(Ntop + 0.5, 1.); 
 
                     double meff = met;
                     for (const HEPUtils::Jet *jet : signalJets)
