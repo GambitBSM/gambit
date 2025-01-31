@@ -343,8 +343,8 @@ namespace Gambit
                 // Add cutflow data to the analysis results
 
                 std::vector<YODA::AnalysisObject*> histos;
-                histos.push_back(&_histo_NHiggs);
-                histos.push_back(&_histo_Ntop);
+                histos.push_back(_histo_NHiggs);
+                histos.push_back(_histo_Ntop);
 
                 YODA::WriterYODA::write("ATLAS_EXOT_2016_013.yoda",  histos.begin(), histos.end());
 
