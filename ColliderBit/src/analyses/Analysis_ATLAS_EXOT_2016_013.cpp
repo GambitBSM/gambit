@@ -303,7 +303,7 @@ namespace Gambit
                     
                     // cout << "28. After the o lepton Signal Counting " << endl; 
                 }
-
+                Nevent += 1; 
                 return;
 
             } // End run function
