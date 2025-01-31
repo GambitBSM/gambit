@@ -21,6 +21,9 @@
 #include "HEPUtils/Jet.h"
 // #include "fastjet/Filter.hh"
 #include <random>
+#include "YODA/Histo1D.h"
+#include "YODA/WriterYODA.h"
+
 
 // Similar to ATLAS_13_TeV_3b_NN_139invfb (define structure copied from heputils/FastJet.h)
 #ifndef FJCORE
@@ -51,6 +54,11 @@ namespace Gambit
         class Analysis_ATLAS_EXOT_2016_013 : public Analysis
         {
 
+        private:
+
+            YODA::Histo1D _histo_NHiggs;
+            YODA::Histo1D _histo_Ntop; 
+
         public:
             static constexpr const char *detector = "ATLAS";
 
@@ -72,6 +80,9 @@ namespace Gambit
 
                 set_analysis_name("ATLAS_EXOT_2016_013");
                 set_luminosity(36.1);
+
+                _histo_NHiggs   = new YODA::Histo1D("/ATLAS_EXOT_2016_013/Higgs-tagged jet multiplicity", 5, 0., 6.);
+                _histo_Ntop     = new YODA::Histo1D("/ATLAS_EXOT_2016_013/Top-tagged jet multiplicity", 5, 0., 5.); 
             }
 
             void run(const HEPUtils::Event *event)
@@ -244,6 +255,8 @@ namespace Gambit
                     int Ntop = topJets.size();
                     int NHiggs = higgsJets.size();
 
+                    _histo_NHiggs->fill(NHiggs + 0.5, 1.); 
+
                     double meff = signalLeptons[0]->pT() + met;
                     for (const HEPUtils::Jet *jet : signalJets)
                     {
@@ -273,6 +286,8 @@ namespace Gambit
                     int Ntop = topJets.size();
                     int NHiggs = higgsJets.size();
                     int NtH = Ntop + NHiggs;
+
+                    _histo_Ntop->(Ntop + 0.5, 1.); 
 
                     double meff = met;
                     for (const HEPUtils::Jet *jet : signalJets)
@@ -326,6 +341,13 @@ namespace Gambit
 
                 COMMIT_CUTFLOWS; 
                 // Add cutflow data to the analysis results
+
+                std::vector<YODA::AnalysisObject*> histos;
+                histos.push_back(&_histo_NHiggs);
+                histos.push_back(&_histo_Ntop);
+
+                YODA::WriterYODA::write(histos, "ATLAS_EXOT_2016_013.yoda");
+
                 return;
             }
 
