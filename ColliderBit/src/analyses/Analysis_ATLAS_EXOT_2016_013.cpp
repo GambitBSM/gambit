@@ -54,6 +54,8 @@ namespace Gambit
         public:
             static constexpr const char *detector = "ATLAS";
 
+            int Nevent = 0; 
+
             Analysis_ATLAS_EXOT_2016_013()
             {
                 DEFINE_SIGNAL_REGION("SR1L-01"); // >=2t, 0-1H, >=6j, 3b
@@ -74,6 +76,10 @@ namespace Gambit
 
             void run(const HEPUtils::Event *event)
             {
+                if (Nevent % 1000 == 0)
+                {
+                    cout << "Complete " << Nevent << " Events" << endl; 
+                }
                 HEPUtils::P4 pmiss = event->missingmom();
                 const double met = event->met();
 
