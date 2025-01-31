@@ -76,7 +76,7 @@ namespace Gambit
 
             void run(const HEPUtils::Event *event)
             {
-                if (Nevent % 1000 == 0)
+                if (Nevent % 200 == 0)
                 {
                     cout << "Complete " << Nevent << " Events" << endl; 
                 }
