@@ -24,7 +24,6 @@
 #include "YODA/Histo1D.h"
 #include "YODA/WriterYODA.h"
 
-
 // Similar to ATLAS_13_TeV_3b_NN_139invfb (define structure copied from heputils/FastJet.h)
 #ifndef FJCORE
 #ifndef FJNS
@@ -55,14 +54,18 @@ namespace Gambit
         {
 
         private:
-
-            YODA::Histo1D* _histo_NHiggs;
-            YODA::Histo1D* _histo_Ntop; 
+            YODA::Histo1D *_histo_NHiggs;
+            YODA::Histo1D *_histo_Ntop;
+            YODA::Histo1D *_histo_Njet;
+            YODA::Histo1D *_histo_Nbjet;
+            YODA::Histo1D *_histo_meff_SR1L_03;
+            YODA::Histo1D *_histo_meff_SR0L_01; 
+            YODA::Histo1D *_histo_mTBmin; 
 
         public:
             static constexpr const char *detector = "ATLAS";
 
-            int Nevent = 0; 
+            int Nevent = 0;
 
             Analysis_ATLAS_EXOT_2016_013()
             {
@@ -81,15 +84,20 @@ namespace Gambit
                 set_analysis_name("ATLAS_EXOT_2016_013");
                 set_luminosity(36.1);
 
-                _histo_NHiggs   = new YODA::Histo1D(5, 0., 6., "/ATLAS_EXOT_2016_013/Higgs-tagged_jet_multiplicity");
-                _histo_Ntop     = new YODA::Histo1D(5, 0., 5., "/ATLAS_EXOT_2016_013/Top-tagged_jet_multiplicity"); 
+                _histo_NHiggs           = new YODA::Histo1D(5, 0., 5., "/ATLAS_EXOT_2016_013/Higgs-tagged_jet_multiplicity");
+                _histo_Ntop             = new YODA::Histo1D(5, 0., 5., "/ATLAS_EXOT_2016_013/Top-tagged_jet_multiplicity");
+                _histo_Njet             = new YODA::Histo1D(11, 4., 15., "/ATLAS_EXOT_2016_013/Jet multiplicity");
+                _histo_Nbjet            = new YODA::Histo1D(7, 1., 8., "/ATLAS_EXOT_2016_013/B-tagged jet multiplicity");
+                _histo_meff_SR1L_03     = new YODA::Histo1D(12, 500., 3500., "/ATLAS_EXOT_2016_013/meff SR1L-03");
+                _histo_meff_SR0L_01     = new YODA::Histo1D(12, 500., 3500., "/ATLAS_EXOT_2016_013/meff SR0L-01");
+                _histo_mTBmin           = new YODA::Histo1D(20, 0., 500., "ATLAS_EXOT_2016_013/mTBmin SR0L-01"); 
             }
 
             void run(const HEPUtils::Event *event)
             {
                 if (Nevent % 200 == 0)
                 {
-                    cout << "Complete " << Nevent << " Events" << endl; 
+                    cout << "Complete " << Nevent << " Events" << endl;
                 }
                 HEPUtils::P4 pmiss = event->missingmom();
                 const double met = event->met();
@@ -198,9 +206,9 @@ namespace Gambit
                     else if (higgstag1 || higgstag2)
                         higgsJets.push_back(hepUtilsJet);
                 }
-                
+
                 // Define the Energy Correlation Function of W-tagging
-                // cout << "Start remove overlaping" << endl; 
+                // cout << "Start remove overlaping" << endl;
                 // Removing Overlaping
                 // 1) Remove electron with muon within DeltaR < 0.01.
                 removeOverlap(baselineElectrons, baselineMuons, 0.01);
@@ -247,22 +255,23 @@ namespace Gambit
                 bool presel1L = (n_leptons == 1) && (njets >= 5) && (nbjets >= 2) && (met > 20.) && (met + mTW > 60.);
                 bool presel0L = (n_leptons == 0) && (njets >= 6) && (nbjets >= 2) && (met > 200.) && (mindPhijetMet > 0.4);
 
-                // cout << "After preselection" << endl; 
+                // cout << "After preselection" << endl;
 
                 if (presel1L && njets >= 6)
                 {
-                    // cout << "15. 1 lepton signal region" << endl; 
+                    // cout << "15. 1 lepton signal region" << endl;
                     int Ntop = topJets.size();
                     int NHiggs = higgsJets.size();
 
-                    _histo_NHiggs->fill(NHiggs + 0.5, 1.); 
+                    _histo_NHiggs->fill(NHiggs + 0.5, 1.);
+                    _histo_Njet->fill(njets + 0.5, 1.);
 
                     double meff = signalLeptons[0]->pT() + met;
                     for (const HEPUtils::Jet *jet : signalJets)
                     {
                         meff += jet->pT();
                     }
-                    // cout << "16. Calculated Meff " << endl; 
+                    // cout << "16. Calculated Meff " << endl;
                     bool sr1l01 = (Ntop >= 2) && (NHiggs == 0 || NHiggs == 1) && (nbjets == 3);
                     bool sr1l02 = (Ntop == 1) && (NHiggs == 0) && (nbjets >= 4) && (meff > 1000.);
                     bool sr1l03 = (Ntop == 1) && (NHiggs == 1) && (nbjets >= 4);
@@ -278,33 +287,39 @@ namespace Gambit
                         _counters.at("SR1L-04").add_event(event);
                     if (sr1l05)
                         _counters.at("SR1L-05").add_event(event);
-                    // cout << "17. After SR1L event counting" << endl; 
+
+                    if (sr1l03) _histo_meff_SR1L_03->fill(meff, 1.); 
+
+                    // cout << "17. After SR1L event counting" << endl;
                 }
                 if (presel0L && njets >= 7)
                 {
-                    // cout << "25. Start 0 lepton signal region" << endl; 
+                    // cout << "25. Start 0 lepton signal region" << endl;
                     int Ntop = topJets.size();
                     int NHiggs = higgsJets.size();
                     int NtH = Ntop + NHiggs;
 
-                    _histo_Ntop->fill(Ntop + 0.5, 1.); 
+                    _histo_Ntop->fill(Ntop + 0.5, 1.);
+                    _histo_Nbjet->fill(nbjets + 0.5, 1.);
 
                     double meff = met;
                     for (const HEPUtils::Jet *jet : signalJets)
                     {
                         meff += jet->pT();
                     }
-                    // cout << "26. Calcuated meff" << endl; 
-                    double mTb12 = min(get_mT(signalBjets[0]->mom(), pmiss), get_mT(signalBjets[1]->mom(), pmiss)); 
-                    double mTBmin = (nbjets >= 3) ? min(get_mT(signalBjets[2]->mom(), pmiss), mTb12) : mTb12; 
+                    // cout << "26. Calcuated meff" << endl;
+                    double mTb12 = min(get_mT(signalBjets[0]->mom(), pmiss), get_mT(signalBjets[1]->mom(), pmiss));
+                    double mTBmin = (nbjets >= 3) ? min(get_mT(signalBjets[2]->mom(), pmiss), mTb12) : mTb12;
 
-                    // cout << "27. Calculated mTb12 and mTBmin" << endl; 
+                    // cout << "27. Calculated mTb12 and mTBmin" << endl;
+                    if ((NtH >= 2) && (nbjets == 2) && (mTBmin > 160.)) _histo_meff_SR0L_01->fill(meff, 1.); 
+                    if ((NtH >= 2) && (nbjets == 2)) _histo_mTBmin->fill(mTBmin, 1.); 
 
-                    bool sr0l01 = (NtH >= 2)    && (nbjets == 2) && (mTBmin > 160.) && (meff > 1000.);
-                    bool sr0l02 = (Ntop == 1)   && (NHiggs == 1) && (nbjets == 3) && (mTBmin > 160.) && (meff > 1000.);
-                    bool sr0l03 = (Ntop >= 2)   && (NHiggs == 0 || NHiggs == 1) && (nbjets == 3) && (mTBmin > 160.) && (meff > 1000.);
-                    bool sr0l04 = (Ntop == 1)   && (NHiggs == 0) && (nbjets >= 4) && (mTBmin > 160.) && (meff > 1000.);
-                    bool sr0l05 = (NtH >= 2)    && (nbjets >= 4) && (meff > 1000.);
+                    bool sr0l01 = (NtH >= 2) && (nbjets == 2) && (mTBmin > 160.) && (meff > 1000.);
+                    bool sr0l02 = (Ntop == 1) && (NHiggs == 1) && (nbjets == 3) && (mTBmin > 160.) && (meff > 1000.);
+                    bool sr0l03 = (Ntop >= 2) && (NHiggs == 0 || NHiggs == 1) && (nbjets == 3) && (mTBmin > 160.) && (meff > 1000.);
+                    bool sr0l04 = (Ntop == 1) && (NHiggs == 0) && (nbjets >= 4) && (mTBmin > 160.) && (meff > 1000.);
+                    bool sr0l05 = (NtH >= 2) && (nbjets >= 4) && (meff > 1000.);
                     if (sr0l01)
                         _counters.at("SR0L-01").add_event(event);
                     if (sr0l02)
@@ -315,10 +330,10 @@ namespace Gambit
                         _counters.at("SR0L-04").add_event(event);
                     if (sr0l05)
                         _counters.at("SR0L-05").add_event(event);
-                    
-                    // cout << "28. After the o lepton Signal Counting " << endl; 
+
+                    // cout << "28. After the o lepton Signal Counting " << endl;
                 }
-                Nevent += 1; 
+                Nevent += 1;
                 return;
 
             } // End run function
@@ -329,24 +344,44 @@ namespace Gambit
                 // This data is used if not running ATLAS_FullLikes.
                 add_result(SignalRegionData(_counters.at("SR1L-01"), 353., {349., 20.}));
                 add_result(SignalRegionData(_counters.at("SR1L-02"), 428., {416., 18.}));
-                add_result(SignalRegionData(_counters.at("SR1L-03"), 60.,  {64.9, 4.7}));
-                add_result(SignalRegionData(_counters.at("SR1L-04"), 78.,  {78.2, 8.0}));
-                add_result(SignalRegionData(_counters.at("SR1L-05"), 18.,  {14.4, 1.2}));
+                add_result(SignalRegionData(_counters.at("SR1L-03"), 60., {64.9, 4.7}));
+                add_result(SignalRegionData(_counters.at("SR1L-04"), 78., {78.2, 8.0}));
+                add_result(SignalRegionData(_counters.at("SR1L-05"), 18., {14.4, 1.2}));
 
-                add_result(SignalRegionData(_counters.at("SR0L-01"), 87.,  {85.5, 6.8}));
-                add_result(SignalRegionData(_counters.at("SR0L-02"), 8.,   {6.7,  0.75}));
-                add_result(SignalRegionData(_counters.at("SR0L-03"), 7.,   {7.8,  1.7}));
-                add_result(SignalRegionData(_counters.at("SR0L-04"), 18.,  {21.6, 1.4}));
-                add_result(SignalRegionData(_counters.at("SR0L-05"), 29.,  {28.8, 3.1}));
+                add_result(SignalRegionData(_counters.at("SR0L-01"), 87., {85.5, 6.8}));
+                add_result(SignalRegionData(_counters.at("SR0L-02"), 8., {6.7, 0.75}));
+                add_result(SignalRegionData(_counters.at("SR0L-03"), 7., {7.8, 1.7}));
+                add_result(SignalRegionData(_counters.at("SR0L-04"), 18., {21.6, 1.4}));
+                add_result(SignalRegionData(_counters.at("SR0L-05"), 29., {28.8, 3.1}));
 
-                COMMIT_CUTFLOWS; 
+                COMMIT_CUTFLOWS;
                 // Add cutflow data to the analysis results
+                double intgnt = _histo_Ntop->integral(); 
+                if (intgnt > 0) _histo_Ntop->scaleW(1.0 / intgnt); 
+                double intgnb = _histo_Nbjet->integral();
+                if (intgnb > 0) _histo_Nbjet->scaleW(1.0 / intgnb); 
+                double intgnh = _histo_NHiggs->integral(); 
+                if (intgnh > 0) _histo_NHiggs->scaleW(1.0 / intgnh); 
+                double intgnj = _histo_Njet->integral();
+                if (intgnj > 0) _histo_Njet->scaleW(1.0 / intgnj); 
+                double intmtb = _histo_mTBmin->integral();
+                if (intmtb > 0) _histo_mTBmin->scaleW(1.0 / intmtb);
+                double intme0 = _histo_meff_SR0L_01->integral();
+                if (intme0 > 0) _histo_meff_SR0L_01->scaleW(1.0 / intme0); 
+                double intme1 = _histo_meff_SR1L_03->integral();
+                if (intme1 > 0) _histo_meff_SR1L_03->scaleW(1.0 / intme1); 
 
-                std::vector<YODA::AnalysisObject*> histos;
+
+                std::vector<YODA::AnalysisObject *> histos;
                 histos.push_back(_histo_NHiggs);
                 histos.push_back(_histo_Ntop);
+                histos.push_back(_histo_Nbjet);
+                histos.push_back(_histo_Njet);
+                histos.push_back(_histo_meff_SR0L_01);
+                histos.push_back(_histo_meff_SR1L_03);
+                histos.push_back(_histo_mTBmin);
 
-                YODA::WriterYODA::write("ATLAS_EXOT_2016_013.yoda",  histos.begin(), histos.end());
+                YODA::WriterYODA::write("ATLAS_EXOT_2016_013.yoda", histos.begin(), histos.end());
 
                 return;
             }
