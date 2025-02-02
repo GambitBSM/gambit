@@ -84,13 +84,13 @@ namespace Gambit
                 set_analysis_name("ATLAS_EXOT_2016_013");
                 set_luminosity(36.1);
 
-                _histo_NHiggs           = new YODA::Histo1D(5, 0., 5., "/ATLAS_EXOT_2016_013/Higgs-tagged_jet_multiplicity");
-                _histo_Ntop             = new YODA::Histo1D(5, 0., 5., "/ATLAS_EXOT_2016_013/Top-tagged_jet_multiplicity");
-                _histo_Njet             = new YODA::Histo1D(11, 4., 15., "/ATLAS_EXOT_2016_013/Jet multiplicity");
-                _histo_Nbjet            = new YODA::Histo1D(7, 1., 8., "/ATLAS_EXOT_2016_013/B-tagged jet multiplicity");
-                _histo_meff_SR1L_03     = new YODA::Histo1D(12, 500., 3500., "/ATLAS_EXOT_2016_013/meff SR1L-03");
-                _histo_meff_SR0L_01     = new YODA::Histo1D(12, 500., 3500., "/ATLAS_EXOT_2016_013/meff SR0L-01");
-                _histo_mTBmin           = new YODA::Histo1D(20, 0., 500., "ATLAS_EXOT_2016_013/mTBmin SR0L-01"); 
+                _histo_NHiggs           = new YODA::Histo1D(5, 0., 5., "/ATLAS_EXOT_2016_013-1L/Higgs-tagged_jet_multiplicity");
+                _histo_Ntop             = new YODA::Histo1D(5, 0., 5., "/ATLAS_EXOT_2016_013-0L/Top-tagged_jet_multiplicity");
+                _histo_Njet             = new YODA::Histo1D(11, 4., 15., "/ATLAS_EXOT_2016_013-1L/Jet multiplicity");
+                _histo_Nbjet            = new YODA::Histo1D(7, 1., 8., "/ATLAS_EXOT_2016_013-0L/B-tagged jet multiplicity");
+                _histo_meff_SR1L_03     = new YODA::Histo1D(12, 500., 3500., "/ATLAS_EXOT_2016_013-1L/meff SR1L-03");
+                _histo_meff_SR0L_01     = new YODA::Histo1D(12, 500., 3500., "/ATLAS_EXOT_2016_013-0L/meff SR0L-01");
+                _histo_mTBmin           = new YODA::Histo1D(20, 0., 500., "ATLAS_EXOT_2016_013-0L/mTBmin SR0L-01"); 
             }
 
             void run(const HEPUtils::Event *event)
@@ -372,16 +372,18 @@ namespace Gambit
                 if (intme1 > 0) _histo_meff_SR1L_03->scaleW(1.0 / intme1); 
 
 
-                std::vector<YODA::AnalysisObject *> histos;
-                histos.push_back(_histo_NHiggs);
-                histos.push_back(_histo_Ntop);
-                histos.push_back(_histo_Nbjet);
-                histos.push_back(_histo_Njet);
-                histos.push_back(_histo_meff_SR0L_01);
-                histos.push_back(_histo_meff_SR1L_03);
-                histos.push_back(_histo_mTBmin);
+                std::vector<YODA::AnalysisObject *> histos1L;
+                std::vector<YODA::AnalysisObject *> histos0L;
+                histos1L.push_back(_histo_NHiggs);
+                histos1L.push_back(_histo_Njet);
+                histos1L.push_back(_histo_meff_SR1L_03);
+                histos0L.push_back(_histo_Nbjet);
+                histos0L.push_back(_histo_Ntop);
+                histos0L.push_back(_histo_meff_SR0L_01);
+                histos0L.push_back(_histo_mTBmin);
 
-                YODA::WriterYODA::write("ATLAS_EXOT_2016_013.yoda", histos.begin(), histos.end());
+                YODA::WriterYODA::write("ATLAS_EXOT_2016_013-1L.yoda", histos1L.begin(), histos1L.end());
+                YODA::WriterYODA::write("ATLAS_EXOT_2016_013-0L.yoda", histos0L.begin(), histos0L.end());
 
                 return;
             }
