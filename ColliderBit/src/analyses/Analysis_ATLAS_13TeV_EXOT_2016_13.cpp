@@ -43,7 +43,7 @@
 
 using namespace std;
 // #define CHECK_CUTFLOW
-#define CHECK_PLOT
+// #define CHECK_PLOT
 
 namespace Gambit
 {
@@ -69,7 +69,7 @@ namespace Gambit
         public:
             static constexpr const char *detector = "ATLAS";
 
-            int Nevent = 0;
+            // int Nevent = 0;
 
             Analysis_ATLAS_13TeV_EXOT_2016_13()
             {
@@ -102,10 +102,10 @@ namespace Gambit
 
             void run(const HEPUtils::Event *event)
             {
-                if (Nevent % 200 == 0)
-                {
-                    cout << "Complete " << Nevent << " Events" << endl;
-                }
+                // if (Nevent % 200 == 0)
+                // {
+                //     cout << "Complete " << Nevent << " Events" << endl;
+                // }
                 HEPUtils::P4 pmiss = event->missingmom();
                 const double met = event->met();
 
