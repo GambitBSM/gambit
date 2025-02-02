@@ -86,11 +86,11 @@ namespace Gambit
 
                 _histo_NHiggs           = new YODA::Histo1D(5, 0., 5., "/ATLAS_EXOT_2016_013-1L/Higgs-tagged_jet_multiplicity");
                 _histo_Ntop             = new YODA::Histo1D(5, 0., 5., "/ATLAS_EXOT_2016_013-0L/Top-tagged_jet_multiplicity");
-                _histo_Njet             = new YODA::Histo1D(11, 4., 15., "/ATLAS_EXOT_2016_013-1L/Jet multiplicity");
-                _histo_Nbjet            = new YODA::Histo1D(7, 1., 8., "/ATLAS_EXOT_2016_013-0L/B-tagged jet multiplicity");
-                _histo_meff_SR1L_03     = new YODA::Histo1D(12, 500., 3500., "/ATLAS_EXOT_2016_013-1L/meff SR1L-03");
-                _histo_meff_SR0L_01     = new YODA::Histo1D(12, 500., 3500., "/ATLAS_EXOT_2016_013-0L/meff SR0L-01");
-                _histo_mTBmin           = new YODA::Histo1D(20, 0., 500., "ATLAS_EXOT_2016_013-0L/mTBmin SR0L-01"); 
+                _histo_Njet             = new YODA::Histo1D(11, 4., 15., "/ATLAS_EXOT_2016_013-1L/Jet_multiplicity");
+                _histo_Nbjet            = new YODA::Histo1D(7, 1., 8., "/ATLAS_EXOT_2016_013-0L/B-tagged_jet_multiplicity");
+                _histo_meff_SR1L_03     = new YODA::Histo1D(12, 500., 3500., "/ATLAS_EXOT_2016_013-1L/meff_SR1L_03");
+                _histo_meff_SR0L_01     = new YODA::Histo1D(12, 500., 3500., "/ATLAS_EXOT_2016_013-0L/meff_SR0L_01");
+                _histo_mTBmin           = new YODA::Histo1D(20, 0., 500., "ATLAS_EXOT_2016_013-0L/mTBmin_SR0L_01"); 
             }
 
             void run(const HEPUtils::Event *event)
@@ -382,8 +382,8 @@ namespace Gambit
                 histos0L.push_back(_histo_meff_SR0L_01);
                 histos0L.push_back(_histo_mTBmin);
 
-                YODA::WriterYODA::write("ATLAS_EXOT_2016_013-1L.yoda", histos1L.begin(), histos1L.end());
-                YODA::WriterYODA::write("ATLAS_EXOT_2016_013-0L.yoda", histos0L.begin(), histos0L.end());
+                YODA::WriterYODA::write("ATLAS_EXOT_2016_013_1L.yoda", histos1L.begin(), histos1L.end());
+                YODA::WriterYODA::write("ATLAS_EXOT_2016_013_0L.yoda", histos0L.begin(), histos0L.end());
 
                 return;
             }
