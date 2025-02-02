@@ -69,8 +69,6 @@ namespace Gambit
         public:
             static constexpr const char *detector = "ATLAS";
 
-            // int Nevent = 0;
-
             Analysis_ATLAS_13TeV_EXOT_2016_13()
             {
                 DEFINE_SIGNAL_REGION("SR1L-01"); // >=2t, 0-1H, >=6j, 3b
@@ -102,10 +100,6 @@ namespace Gambit
 
             void run(const HEPUtils::Event *event)
             {
-                // if (Nevent % 200 == 0)
-                // {
-                //     cout << "Complete " << Nevent << " Events" << endl;
-                // }
                 HEPUtils::P4 pmiss = event->missingmom();
                 const double met = event->met();
 
@@ -351,7 +345,6 @@ namespace Gambit
 
                     // cout << "28. After the o lepton Signal Counting " << endl;
                 }
-                Nevent += 1;
                 return;
 
             } // End run function
