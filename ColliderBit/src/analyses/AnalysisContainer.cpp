@@ -114,6 +114,8 @@ namespace Gambit
       F(ATLAS_13TeV_2LEPsoft_139invfb)               \
       F(ATLAS_13TeV_bTaus_StopStau_139invfb)         \
       F(ATLAS_13TeV_1OR3LEP_StopHZ_139invfb)         \
+      F(ATLAS_13TeV_EXOT_2016_13)                   \
+      F(ATLAS_13TeV_EXOT_2016_14)                   \
       F(ATLAS_13TeV_EXOT_2020_01)                    \
       F(ATLAS_8TeV_0LEP_20invfb)                     \
       F(ATLAS_8TeV_0LEPStop_20invfb)                 \
