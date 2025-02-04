@@ -436,6 +436,7 @@ endif()
 
 # minuit2
 # omp possible in principle but disabled in gambit, as only likelihood uses omp
+option(ENABLE_MINUIT2_MPI "Enable MPI support for Minuit2" ON)
 set(name "minuit2")
 set(ver "6.23.01")
 set(lib "libminuit2")
@@ -444,7 +445,7 @@ set(dl "https://github.com/GooFit/Minuit2/archive/v6-23-01.tar.gz")
 set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
 # We need to disable MPI for Minuit2 on MacOS as the build system fails to find the proper headers
 set(minuit2_MPI "${MPI_CXX_FOUND}")
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR NOT ENABLE_MINUIT2_MPI)
   set(minuit2_MPI "OFF")
 endif()
 check_ditch_status(${name} ${ver} ${dir})
@@ -455,7 +456,12 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     UPDATE_COMMAND ${CMAKE_COMMAND} -E echo "set_target_properties(Minuit2 PROPERTIES OUTPUT_NAME Minuit2 SUFFIX \".so\")" >> ${dir}/CMakeLists.txt
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DBUILD_SHARED_LIBS=1 -Dminuit2_mpi=${minuit2_MPI} -Dminuit2_openmp=0 -Dminuit2_omp=0
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+               -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+               -DBUILD_SHARED_LIBS=1
+               -Dminuit2_mpi=${minuit2_MPI}
+               -Dminuit2_openmp=0
+               -Dminuit2_omp=0
     BUILD_COMMAND ${MAKE_PARALLEL}
     INSTALL_COMMAND ""
   )
