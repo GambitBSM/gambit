@@ -44,9 +44,10 @@ Tooling
 
 We maintain
 
-- [gambit-test](https://github.com/GambitBSM/gambit-test) for testing GAMBIT
-- [gambit-style](https://github.com/GambitBSM/gambit-style) for formatting the GAMBIT codebase
-- [gambit-plot](https://github.com/GambitBSM/gambit-plot) for analyzing and plotting GAMBIT results
+- [gambit-test](https://github.com/GambitBSM/gambit-test) for testing GAMBIT using [BATS](https://bats-core.readthedocs.io/)
+- [gambit-style](https://github.com/GambitBSM/gambit-style) for formatting the GAMBIT codebase using e.g., `clang-format` and `clang-tidy`
+- [gambit-plot](https://github.com/GambitBSM/gambit-plot) for analyzing and plotting GAMBIT results in `matplotlib`
+- [TWalkReader](https://github.com/GambitBSM/TWalkReader/) for reading TWalk MCMC results into [ArViZ](https://python.arviz.org/en/stable/)
 
 Supported compilers and dependencies
 --
