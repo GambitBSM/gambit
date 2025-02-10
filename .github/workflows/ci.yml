@@ -252,52 +252,12 @@ jobs:
         cd BUILD && . buildenv.sh
         make standalones
 
+    - name: Build test dependencies
+      run: |
+        git clone --recursive https://github.com/GambitBSM/gambit-test
+        sudo apt install numdiff
+        pip install git+https://github.com/GambitBSM/gambit-yaml
 
-    # - name: Validation dependencies
-    #   run: |
-    #     . BUILD/buildenv.sh
-    #     pip install cowsay
-    #     # Fetch my tests
-    #     git clone https://github.com/andrewfowlie/gambit_bats
-    #     cd gambit_bats
-    #     cowsay "$(git log -n 5)"
-    #     # Install BATS
-    #     git clone https://github.com/bats-core/bats-core.git
-    #     echo 'export PATH=$PATH:$GITHUB_WORKSPACE/gambit_bats/bats-core/bin' >> ../BUILD/buildenv.sh
-    #     # Install numdiff
-    #     git clone https://github.com/tjhei/numdiff
-    #     (cd numdiff && ./configure && make)
-    #     echo 'export PATH=$PATH:$GITHUB_WORKSPACE/gambit_bats/numdiff' >> ../BUILD/buildenv.sh
-    # - name: Validate with BATS
-    #   run: |
-    #     #cat BUILD/buildenv.sh
-    #     . BUILD/buildenv.sh
-    #     cowsay "Testing GAMBIT on $(date)"
-    #     cowsay "$(git log -n 5)"
-    #     cd gambit_bats
-    #     ls
-    #     #echo "Testing BATS"
-    #     #bats -h
-    #     #echo "Testing numdiff"
-    #     #numdiff || true
-    #     echo "Running BATS"
-    #     export GAMBIT="$GITHUB_WORKSPACE"
-    #     #(python2 `which bats` *.bats | tee $GAMBIT/bats.txt) || true
-    #     (bats *.bats | tee $GAMBIT/bats.txt) || true
-    #     cd ..
-    #     # Note email addresses for failed tests
-    #     source gambit_bats/email.bash
-    #     export BATS_FAIL_EMAIL=$(bats_fail_email ./bats.tap)
-    #     export GIT_FAIL_EMAIL="$(git_fail_email ./gambit_bats) $(git_fail_email ./)"
-    #     cowsay "For BATS yaml failures, contact $BATS_FAIL_EMAIL"
-    #     cowsay "For GAMBIT and test changes, contact $GIT_FAIL_EMAIL"
-    #     echo
-    #     # Run again, now with TAP output (may fail, causing the job to report correctly)
-    #     echo "Running BATS with TAP output (to bats.tap)"
-    #     cd gambit_bats
-    #     bats --tap *.bats > $GAMBIT/bats.tap
-    # - name: Upload BATS output
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: bats_tests
-    #     path: bats.t*
+    - name: Run tests
+      run: |
+        ./gambit-test/test/bats/bin/bats ./gambit-test/test/*.bats
