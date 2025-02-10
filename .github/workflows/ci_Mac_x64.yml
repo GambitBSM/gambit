@@ -182,3 +182,13 @@ jobs:
         echo "Test the building of the standalones"
         cd BUILD
         make standalones
+
+    - name: Build test dependencies
+      run: |
+        git clone --recursive https://github.com/GambitBSM/gambit-test
+        sudo apt install numdiff
+        pip install git+https://github.com/GambitBSM/gambit-yaml
+
+    - name: Run tests
+      run: |
+        ./gambit-test/test/bats/bin/bats ./gambit-test/test/*.bats
