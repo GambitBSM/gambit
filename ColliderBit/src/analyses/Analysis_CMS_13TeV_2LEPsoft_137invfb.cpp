@@ -76,9 +76,9 @@ namespace Gambit
         //SIGNAL_PARTICLES(baselineElectrons, signalElectrons)
         //SIGNAL_PARTICLES(baselineMuons, signalMuons)
         SIGNAL_PARTICLES(baselineElectrons, signalElectrons, true, 5., 0., 30., 2.5)
-        applyEfficiency(signalElectrons, CMS::eff2DEl.at("SUS-18-004"));
+        //applyEfficiency(signalElectrons, CMS::eff2DEl.at("SUS-18-004"));
         SIGNAL_PARTICLES(baselineMuons, signalMuons, true, 3.5, 0., 30., 2.4)
-        applyEfficiency(signalMuons, CMS::eff2DMu.at("SUS-18-004"));
+        //applyEfficiency(signalMuons, CMS::eff2DMu.at("SUS-18-004"));
         SIGNAL_JETS(baselineJets, signalJets)
         SIGNAL_JETS(baselineBJets, signalBJets)
 
@@ -118,7 +118,8 @@ namespace Gambit
         // - SF pairs, unique and ordered from highest invariant mass
         std::vector<std::vector<const HEPUtils::Particle*> > SFpairs = getSFpairs(signalLeptons);
         uniquePairs(SFpairs);
-        sortByParentMass(SFpairs, DBL_MAX);
+        //sortByParentMass(SFpairs, DBL_MAX);
+        sortByInvariantMass(SFpairs);
 
 
         ///////////////////////////////
@@ -658,7 +659,7 @@ namespace Gambit
         LOG_CUTS_N(cuts, "3lEWlow", 4)
         cuts = cuts and (nSignalMuons == 2);
         LOG_CUTS_N(cuts, "3lEWlow", 4)
-        cuts = cuts and (mllOSSF < 60.); //TODO: Should the last cut be for any sign, i.e. mllSF?
+        cuts = cuts and (mllSF < 60.);
         LOG_CUTS_N(cuts, "3lEWlow", 4)
         if(cuts)
         {
