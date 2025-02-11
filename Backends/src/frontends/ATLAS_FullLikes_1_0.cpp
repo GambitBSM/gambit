@@ -38,17 +38,18 @@ BE_NAMESPACE
     }
 
     // Pull the delta LogLike from the backend
-    double dll = 0.0;
     try
     {
-      dll = FullLikes_Evaluate_pydict(n_sig_scaled,ana_name);
+      return FullLikes_Evaluate_pydict(n_sig_scaled,ana_name);
+    }
+    catch (const std::exception& e)
+    {
+        invalid_point().raise(e.what());
     }
     catch (...)
     {
-      invalid_point().raise("ATLAS FullLikes has failed on this point (perhaps in the scipy optimise).");
+      invalid_point().raise(LOCAL_INFO, "ATLAS FullLikes has failed on this point (perhaps in the scipy optimise).");
     }
-
-    return dll;
   }
 #else
   double FullLikes_Evaluate(std::map<str,double>& SRsignal, const str& ana_name)
