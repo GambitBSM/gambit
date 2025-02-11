@@ -178,6 +178,28 @@ ObsLikes:
 
 Rules:
 
+  - capability: PerformInitialCrossSection
+    function: PerformInitialCrossSection_Pythia
+    options:
+      silenceLoop: false
+      LHC_13TeV:
+        nEvents: 10000
+        maxFailedEvents: 10
+        pythia_settings:
+          - Beams:eCM = 13000
+          - Next:numberShowProcess = 1
+          - Print:quiet = off # on
+          - Random:setSeed = on
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - SUSY:all = on
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
+          - 23:mMin = 0.1
+          - 24:mMin = 0.1
+
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates
     function: all_decays
@@ -264,9 +286,15 @@ Rules:
     function: operateLHCLoop
     options:
       silenceLoop: false
+      use_colliders:
+        - LHC_8TeV
+        - LHC_13TeV
       LHC_8TeV:
+        poisson_estimator: "MLE" # "MLE" (default), "UMVUE"
         min_nEvents: 1000
         max_nEvents: 1000
+        #mean_relative_nEvents: 0.01
+        #mean_nEvents: 1000
         events_between_convergence_checks: 5000
         target_fractional_uncert: 0.3
         halt_when_systematic_dominated: true
@@ -277,8 +305,11 @@ Rules:
           - ATLAS_8TeV_2LEPEW_20invfb
           - ATLAS_8TeV_3LEPEW_20invfb
       LHC_13TeV:
-        min_nEvents: 1000 # 5000
-        max_nEvents: 1000 # 50000
+        poisson_estimator: "MLE" # "MLE" (default), "UMVUE"
+        min_nEvents: 1000
+        max_nEvents: 1000
+        #mean_relative_nEvents: 0.01
+        #mean_nEvents: 1000
         events_between_convergence_checks: 5000
         target_fractional_uncert: 0.3
         halt_when_systematic_dominated: true

@@ -40,5 +40,8 @@ namespace Gambit
     // Run event generator
     GET_PYTHIA_EVENT(generateEventPythia, Pythia_default::Pythia8::Event)
 
+    // Run initial Pythia cross-section estimation
+    GET_INITIAL_XSEC_PYTHIA(PerformInitialCrossSection_Pythia, Py8Collider_defaultversion, Pythia_default)
+
   }
 }
