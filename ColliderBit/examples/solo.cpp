@@ -320,6 +320,7 @@ int main(int argc, char* argv[])
     std::string json_filename;
     if (settings.hasKey("output"))
     {
+      json_output = true; 
       json_filename = settings.getValueOrDef<std::string>("CBS_output.json", "output");
     }
     // Pass options to the likelihood function
