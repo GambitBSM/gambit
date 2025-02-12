@@ -320,7 +320,7 @@ int main(int argc, char* argv[])
     std::string json_filename;
     if (settings.hasKey("output"))
     {
-      json_filename = settings.getValueOrDef<std::string>("CBS_output.json", "output")
+      json_filename = settings.getValueOrDef<std::string>("CBS_output.json", "output");
     }
     // Pass options to the likelihood function
     // TODO: I'm not specifying the defaults here. I'll add the argument only if the user supplies it.
@@ -516,7 +516,7 @@ int main(int argc, char* argv[])
          << "log-likelihood: " << loglike << endl;
     cout << endl;
 
-    if json_output
+    if (json_output)
     {
       json j;
       j["n_events"] = n_events;
