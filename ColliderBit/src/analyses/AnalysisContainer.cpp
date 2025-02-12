@@ -114,7 +114,6 @@ namespace Gambit
       F(ATLAS_SUSY_2016_27_2Photon)                  \
       F(ATLAS_SUSY_2018_11)                          \
       F(ATLAS_CONF_2018_019)                         \
-      // / Need check the following two analysis is same or different, Keep one or both ?
       F(ATLAS_SUSY_2018_21_StopZH)                   \
       F(ATLAS_SUSY_2018_21)                          \
       F(ATLAS_SUSY_2018_16)                          \
