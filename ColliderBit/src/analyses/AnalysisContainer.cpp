@@ -68,7 +68,7 @@ namespace Gambit
       F(Covariance)                                  \
       F(Dummy)                                       \
       F(Baselines)                                   \
-      F(ATLAS_13TeV_2BoostedBosons_139invfb)         \
+      F(ATLAS_SUSY_2018_41)         \
       F(ATLAS_13TeV_0LEP_13invfb)                    \
       F(ATLAS_13TeV_0LEP_36invfb)                    \
       F(ATLAS_13TeV_0LEP_139invfb)                   \

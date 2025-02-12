@@ -50,7 +50,7 @@ namespace Gambit
   {
 
 
-    class Analysis_ATLAS_13TeV_2BoostedBosons_139invfb : public Analysis
+    class Analysis_ATLAS_SUSY_2018_41 : public Analysis
     {
 
       protected:
@@ -75,7 +75,7 @@ namespace Gambit
         // Required detector sim
         static constexpr const char* detector = "ATLAS";
 
-        Analysis_ATLAS_13TeV_2BoostedBosons_139invfb()
+        Analysis_ATLAS_SUSY_2018_41()
         {
 
           // Signal region map
@@ -95,7 +95,7 @@ namespace Gambit
     //      _counters["Disc-SR-Incl"] = EventCounter("Disc-SR-Incl");  // Union of SR-4Q-VV and Disc-SR-2B2Q
 
 
-          set_analysis_name("ATLAS_13TeV_2BoostedBosons_139invfb");
+          set_analysis_name("ATLAS_SUSY_2018_41");
           set_luminosity(139.);
 
         }
@@ -388,7 +388,7 @@ namespace Gambit
 
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_2BoostedBosons_139invfb)
+    DEFINE_ANALYSIS_FACTORY(ATLAS_SUSY_2018_41)
 
   }
 }

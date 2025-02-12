@@ -316,7 +316,7 @@ Rules:
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   # NOTE: The second collider configuration below ("LHC_13TeV_antiktR_1") is only needed to simulate the
-  #       search ATLAS_13TeV_2BoostedBosons_139invfb. 
+  #       search ATLAS_SUSY_2018_41. 
   - capability: RunMC
     function: operateLHCLoop
     options:
@@ -348,7 +348,7 @@ Rules:
           - ATLAS_13TeV_2LEPsoft_139invfb        # [in skip_analyses, since not yet validated] New! (Tomas)
           - ATLAS_13TeV_3b_NN_139invfb           # [in skip_analyses, due to probable overlap with ATLAS_13TeV_4b_139invfb] New! (Tomek)
           - ATLAS_13TeV_0LEP_139invfb
-          - ATLAS_13TeV_2BoostedBosons_139invfb  # Uses antikt_R1.
+          - ATLAS_SUSY_2018_41  # Uses antikt_R1.
           - ATLAS_13TeV_2LEPStop_inclusive_139invfb
           - ATLAS_13TeV_2OSLEP_Z_139invfb
           - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb
@@ -402,7 +402,7 @@ Rules:
             R: 0.8
             recombination_scheme: E_scheme
             strategy: Best
-          antikt_R1: # Needed for the ATLAS_13TeV_2BoostedBosons_139invfb search
+          antikt_R1: # Needed for the ATLAS_SUSY_2018_41 search
             algorithm: antikt
             R: 1.0
             recombination_scheme: E_scheme
