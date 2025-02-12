@@ -30,4 +30,5 @@ settings:
   all_SR_must_converge: false
   covariance_marg_convthres_abs: 0.05
   covariance_marg_convthres_rel: 0.05
-  covariance_nsamples_start: 100000
+  covariance_nsamples_start: 100000 
+  output: runs/CBS_result.json

@@ -16,6 +16,9 @@
 ///  (t.procter.1@research.gla.ac.uk)
 ///  \date November 2021
 ///
+///  \author Pengxuan Zhu
+///  (pengxuan.zhu@adelaide.edu.au)
+///  \date Feburary 2025
 ///  *********************************************
 
 #include "gambit/Elements/standalone_module.hpp"
@@ -35,6 +38,19 @@
 #define FULLLIKES_VERSION "1.0"
 #define FULLLIKES_SAFE_VERSION 1_0
 
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+#include <sys/stat.h>  // For mkdir() in C++11/C++14
+#ifdef __cpp_lib_filesystem // If C++17 is available, use std::filesystem
+  #include <filesystem>
+  namespace fs = std::filesystem;
+#else // Otherwise, use Boost.Filesystem (C++11/14)
+#include <boost/filesystem.hpp>
+  namespace fs = boost::filesystem;
+#endif
+
+
+
 using namespace ColliderBit::Functown;
 using namespace BackendIniBit::Functown;
 using namespace CAT(Backends::nulike_,NULIKE_SAFE_VERSION)::Functown;
@@ -53,6 +69,77 @@ bool apply_setting_if_present(const std::string &setting, Options& settings, Gam
     return true;
   }
   return false;
+}
+
+bool ensure_directory_exists(const std::string& directory)
+{
+    if (directory.empty()) return true; // No directory to create
+
+#ifdef __cpp_lib_filesystem  // C++17+
+    try
+    {
+        if (!fs::exists(directory))
+        {
+            return fs::create_directories(directory);
+        }
+        return true;
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "Error creating directory: " << e.what() << std::endl;
+        return false;
+    }
+#else  // C++11 / C++14 (Boost.Filesystem or POSIX mkdir)
+    try
+    {
+        if (!fs::exists(directory))
+        {
+            return fs::create_directories(directory);
+        }
+        return true;
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "Boost.Filesystem Error creating directory: " << e.what() << std::endl;
+        return false;
+    }
+#endif
+}
+
+// Function to save JSON file after ensuring directory exists
+void save_json_to_file(const json& j, const std::string& json_filename)
+{
+    try
+    {
+        // Extract directory path from json_filename
+        size_t last_slash = json_filename.find_last_of("/\\");
+        std::string directory = (last_slash != std::string::npos) ? json_filename.substr(0, last_slash) : "";
+
+        // Ensure directory exists before writing
+        if (!ensure_directory_exists(directory))
+        {
+            std::cerr << "Error: Failed to create directory: " << directory << std::endl;
+            return;
+        }
+
+        // Open the file for writing
+        std::ofstream ofs(json_filename);
+        if (!ofs)
+        {
+            std::cerr << "Error: Unable to open " << json_filename << " for writing." << std::endl;
+            return;
+        }
+
+        // Write the JSON data to the file
+        ofs << j.dump(4); // Pretty-print with 4-space indentation
+        ofs.close();
+
+        std::cout << "Results successfully written to JSON file: " << json_filename << std::endl;
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "Exception while saving JSON file: " << e.what() << std::endl;
+    }
 }
 
 /// ColliderBit Solo main program
@@ -229,6 +316,12 @@ int main(int argc, char* argv[])
       else { getYAMLCrossSection.setOption<double>("cross_section_uncert_fb", settings.getValue<double>("cross_section_uncert_fb")); }
     }
 
+    bool json_output;
+    std::string json_filename;
+    if (settings.hasKey("output"))
+    {
+      json_filename = settings.getValueOrDef<std::string>("CBS_output.json", "output")
+    }
     // Pass options to the likelihood function
     // TODO: I'm not specifying the defaults here. I'll add the argument only if the user supplies it.
     // ColliderBit can then fall back to its defaults if nothing is supplied.
@@ -422,6 +515,77 @@ int main(int argc, char* argv[])
     cout << std::scientific << "Total combined ATLAS+CMS" << (withContur?" analysis and searches ":" ") 
          << "log-likelihood: " << loglike << endl;
     cout << endl;
+
+    if json_output
+    {
+      json j;
+      j["n_events"] = n_events;
+      j["combined_loglike"] = loglike;
+      json analyses_json = json::array();
+
+      for (size_t analysis = 0; analysis < CollectAnalyses(0).size(); ++analysis)
+      {
+        const Gambit::ColliderBit::AnalysisData &adata = *(CollectAnalyses(0).at(analysis));
+        const std::string &analysis_name = adata.analysis_name;
+        const Gambit::ColliderBit::AnalysisLogLikes &analysis_loglikes = calc_LHC_LogLikes_full(0).at(analysis_name);
+
+        json analysis_obj;
+        analysis_obj["analysis_name"] = analysis_name;
+        analysis_obj["combination_sr_label"] = analysis_loglikes.combination_sr_label;
+        analysis_obj["combination_loglike"] = analysis_loglikes.combination_loglike;
+
+        // Array for the signal regions.
+        json sr_array = json::array();
+        for (size_t sr_index = 0; sr_index < adata.size(); ++sr_index)
+        {
+          const Gambit::ColliderBit::SignalRegionData srData = adata[sr_index];
+          json sr;
+          sr["sr_label"] = srData.sr_label;
+          sr["n_obs"] = srData.n_obs;
+          sr["n_bkg"] = srData.n_bkg;
+          sr["n_bkg_err"] = srData.n_bkg_err;
+          sr["n_sig_scaled"] = srData.n_sig_scaled;
+          sr["n_sig_scaled_err"] = srData.calc_n_sig_scaled_err();
+          sr["loglike"] = analysis_loglikes.sr_loglikes.at(sr_index);
+
+          // Optionally include alternative log-like values if enabled.
+          if (calc_noerr_loglikes)
+            sr["noerr_loglike"] = analysis_loglikes.alt_sr_loglikes.at("noerr").at(sr_index);
+          if (calc_expected_loglikes)
+            sr["expected_loglike"] = analysis_loglikes.alt_sr_loglikes.at("expected").at(sr_index);
+          if (calc_expected_noerr_loglikes)
+            sr["expected_noerr_loglike"] = analysis_loglikes.alt_sr_loglikes.at("expected_noerr").at(sr_index);
+          if (calc_scaledsignal_loglikes)
+            sr["scaledsignal_loglike"] = analysis_loglikes.alt_sr_loglikes.at("scaledsignal").at(sr_index);
+
+          sr_array.push_back(sr);
+        }
+        analysis_obj["signal_regions"] = sr_array;
+        analyses_json.push_back(analysis_obj);
+      }
+      j["analyses"] = analyses_json;
+
+      if (withContur)
+      {
+        json contur_obj;
+        contur_obj["total_loglike"] = Contur_LHC_measurements_LogLike(0);
+        // Assuming pool_LLRs and pool_info are defined as in your code.
+        json pools = json::object();
+        map_str_dbl pool_LLRs = Contur_LHC_measurements_LogLike_perPool(0);
+        map_str_str pool_info = Contur_LHC_measurements_histotags_perPool(0);
+        for (const auto &pool : pool_LLRs)
+        {
+          json pool_obj;
+          pool_obj["loglike"] = pool.second;
+          pool_obj["dominant_measurement"] = pool_info[pool.first];
+          pools[pool.first] = pool_obj;
+        }
+        contur_obj["pools"] = pools;
+        j["contur"] = contur_obj;
+      }
+      // Write the JSON object to the specified file.
+      save_json_to_file(j, json_filename);
+    }
 
     // No more to see here folks, go home.
     return 0;
