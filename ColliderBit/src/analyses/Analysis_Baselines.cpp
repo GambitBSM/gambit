@@ -2291,7 +2291,7 @@ namespace Gambit
           }
 
           // // 0, 1 or 2+ Z candidates?
-          // // Inspired by ATLAS_13TeV_4LEP_139invfb
+          // // Inspired by ATLAS_SUSY_2018_02
           // std::vector<double> OSSFpair_masses;
           // for (const std::vector<const HEPUtils::Particle*>& pair : OSSFpairs)
           // {

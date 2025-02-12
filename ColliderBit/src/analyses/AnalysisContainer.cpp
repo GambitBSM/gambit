@@ -50,83 +50,85 @@ namespace Gambit
     // - If the analysis only depends on ROOT, add it to MAP_ANALYSES_WITH_ROOT
     // - Else, add the analysis to MAP_ANALYSES
     #define MAP_ANALYSES_WITH_ROOT_RESTFRAMES(F)     \
-      F(ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb)          \
-      F(ATLAS_13TeV_RJ3L_3Lep_36invfb)               \
-      F(ATLAS_13TeV_RJ3L_lowmass_36invfb)            \
-      F(ATLAS_13TeV_2LEPJETS_RJR_139invfb)           \
-      F(ATLAS_13TeV_0LEPStop_RJR_139invfb)           \
+      F(ATLAS_SUSY_2017_03_RJR_2L2J)          \
+      F(ATLAS_SUSY_2017_03_RJR_3L)               \
+      F(ATLAS_SUSY_2017_03_RJR_Lowmass)            \
+      F(ATLAS_SUSY_2018_05_RJR)           \
+      F(ATLAS_SUSY_2018_12_RJR)           \
       
     #define MAP_ANALYSES_WITH_ROOT(F)                \
-      F(ATLAS_13TeV_1LEPStop_36invfb)                \
-      F(ATLAS_13TeV_2LEP0JET_EW_139invfb)            \
+      F(ATLAS_SUSY_2016_06)                \
+      F(ATLAS_SUSY_2019_02)            \
 
     #define MAP_ANALYSES_WITH_ONNX(F)                \
-      F(ATLAS_13TeV_3b_NN_139invfb)                  \
+      F(ATLAS_SUSY_2018_30)                  \
 
     #define MAP_ANALYSES(F)                          \
       F(Minimum)                                     \
       F(Covariance)                                  \
       F(Dummy)                                       \
       F(Baselines)                                   \
-      F(ATLAS_SUSY_2018_41)         \
-      F(ATLAS_13TeV_0LEP_13invfb)                    \
-      F(ATLAS_13TeV_0LEP_36invfb)                    \
-      F(ATLAS_13TeV_0LEP_139invfb)                   \
-      F(ATLAS_13TeV_0LEPStop_36invfb)                \
-      F(ATLAS_13TeV_0LEPStop_139invfb)               \
-      F(ATLAS_13TeV_1Lep2b_139invfb)                 \
-      F(ATLAS_13TeV_1LEPStop_139invfb)               \
-      F(ATLAS_13TeV_2LEPStop_36invfb)                \
-      F(ATLAS_13TeV_2LEPJETS_EW_139invfb)            \
-      F(ATLAS_13TeV_2LEPStop_139invfb)               \
-      F(ATLAS_13TeV_2LEPStop_inclusive_139invfb)     \
-      F(ATLAS_13TeV_2LEPStop_exclusive_139invfb)     \
+      F(ATLAS_8TeV_1LEPbb_20invfb)                   \
+      F(ATLAS_SUSY_2018_41)                          \
+      F(ATLAS_CONF_2016_078)                         \
+      F(ATLAS_SUSY_2016_07)                          \
+      F(ATLAS_SUSY_2018_22)                          \
+      F(ATLAS_SUSY_2016_15)                          \
+      F(ATLAS_SUSY_2018_12)                          \
+      F(ATLAS_SUSY_2019_08)                          \
+      F(ATLAS_SUSY_2018_07)                          \
+      F(ATLAS_SUSY_2017_01)                          \
+      F(ATLAS_SUSY_2018_05)                          \
+      F(ATLAS_SUSY_2018_08)                          \
+      F(ATLAS_SUSY_2018_08_inclusive)                \
+      F(ATLAS_SUSY_2018_08_exclusive)                \
       F(ATLAS_EXOT_2016_013)                         \
       F(ATLAS_EXOT_2016_014)                         \
-      F(ATLAS_13TeV_MultiLEP_confnote_36invfb)       \
-      F(ATLAS_13TeV_MultiLEP_36invfb)                \
-      F(ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb)      \
-      F(ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb)   \
-      F(ATLAS_13TeV_MultiLEP_3Lep_36invfb)           \
-      F(ATLAS_13TeV_MultiLEP_strong_139invfb)        \
-      F(ATLAS_13TeV_MONOJET_139infb)                 \
-      F(ATLAS_13TeV_2OSLEP_chargino_80invfb)         \
-      F(ATLAS_13TeV_2OSLEP_chargino_binned_80invfb)  \
-      F(ATLAS_13TeV_2OSLEP_chargino_inclusive_80invfb)  \
-      F(ATLAS_13TeV_2OSLEP_chargino_139invfb)        \
-      F(ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb) \
-      F(ATLAS_13TeV_2OSLEP_chargino_binned_139invfb) \
-      F(ATLAS_13TeV_3LEP_139invfb)                   \
-      F(ATLAS_13TeV_3LEP_eRJR_139invfb)              \
-      F(ATLAS_13TeV_4LEP_36invfb)                    \
-      F(ATLAS_13TeV_4LEP_139invfb)                   \
-      F(ATLAS_13TeV_2bMET_36invfb)                   \
-      F(ATLAS_13TeV_3b_24invfb)                      \
-      F(ATLAS_13TeV_3b_discoverySR_24invfb)          \
-      F(ATLAS_13TeV_3b_36invfb)                      \
-      F(ATLAS_13TeV_3b_discoverySR_36invfb)          \
-      F(ATLAS_13TeV_4b_139invfb)                     \
-      F(ATLAS_13TeV_4b_allyears_139invfb)            \
-      F(ATLAS_13TeV_4b_discoverySR_139invfb)         \
-      F(ATLAS_13TeV_PhotonGGM_36invfb)               \
-      F(ATLAS_13TeV_PhotonGGM_1Photon_36invfb)       \
-      F(ATLAS_13TeV_PhotonGGM_2Photon_36invfb)       \
-      F(ATLAS_13TeV_PhotonGGM_1Photon_139invfb)      \
-      F(ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb)     \
-      F(ATLAS_13TeV_2OSLEP_Z_139invfb)               \
-      F(ATLAS_13TeV_2LEPsoft_139invfb)               \
-      F(ATLAS_13TeV_bTaus_StopStau_139invfb)         \
-      F(ATLAS_13TeV_1OR3LEP_StopHZ_139invfb)         \
-      F(ATLAS_8TeV_0LEP_20invfb)                     \
-      F(ATLAS_8TeV_0LEPStop_20invfb)                 \
-      F(ATLAS_8TeV_1LEPStop_20invfb)                 \
-      F(ATLAS_8TeV_2bStop_20invfb)                   \
-      F(ATLAS_8TeV_2LEPEW_20invfb)                   \
-      F(ATLAS_8TeV_2LEPStop_20invfb)                 \
-      F(ATLAS_8TeV_3LEPEW_20invfb)                   \
-      F(ATLAS_8TeV_1LEPbb_20invfb)                   \
-      F(ATLAS_7TeV_1OR2LEPStop_4_7invfb)             \
-      F(ATLAS_7TeV_2LEPStop_4_7invfb)                \
+      F(ATLAS_CONF_2017_039)                         \
+      F(ATLAS_SUSY_2016_24)                          \
+      F(ATLAS_SUSY_2016_24_2Lep0Jets)                \
+      F(ATLAS_SUSY_2016_24_2LepPlusJets)             \
+      F(ATLAS_SUSY_2016_24_3Lep)                     \
+      F(ATLAS_SUSY_2018_09)                          \
+      F(ATLAS_EXOT_2018_06)                          \
+      F(ATLAS_CONF_2018_042)                         \
+      F(ATLAS_CONF_2018_042_chargino_binned)         \
+      F(ATLAS_CONF_2018_042_chargino_inclusive)      \
+      F(ATLAS_CONF_2019_008)                         \
+      F(ATLAS_CONF_2019_008_chargino_inclusive)      \
+      F(ATLAS_CONF_2019_008_chargino_binned)         \
+      F(ATLAS_SUSY_2019_09)                          \
+      F(ATLAS_SUSY_2018_06)                          \
+      F(ATLAS_SUSY_2016_21)                          \
+      F(ATLAS_SUSY_2018_02)                          \
+      F(ATLAS_SUSY_2016_28)                          \
+      F(ATLAS_SUSY_2017_02)                          \
+      F(ATLAS_SUSY_2017_02_discoverySR)              \
+      F(ATLAS_SUSY_2017_02_36invfb)                  \
+      F(ATLAS_SUSY_2017_02_discoverySR_36invfb)      \
+      F(ATLAS_SUSY_2020_16)                          \
+      F(ATLAS_SUSY_2020_16_allyears)                 \
+      F(ATLAS_SUSY_2020_16_discoverySR)              \
+      F(ATLAS_SUSY_2016_27)                          \
+      F(ATLAS_SUSY_2016_27_1Photon)                  \
+      F(ATLAS_SUSY_2016_27_2Photon)                  \
+      F(ATLAS_SUSY_2018_11)                          \
+      F(ATLAS_CONF_2018_019)                         \
+      // / Need check the following two analysis is same or different, Keep one or both ?
+      F(ATLAS_SUSY_2018_21_StopZH)                   \
+      F(ATLAS_SUSY_2018_21)                          \
+      F(ATLAS_SUSY_2018_16)                          \
+      F(ATLAS_SUSY_2019_18)                          \
+      F(ATLAS_SUSY_2019_22)                \
+      F(ATLAS_SUSY_2013_02)                     \
+      F(ATLAS_SUSY_2013_16)                 \
+      F(ATLAS_CONF_2013_037)                 \
+      F(ATLAS_SUSY_2013_05)                   \
+      F(ATLAS_SUSY_2013_11)                   \
+      F(ATLAS_SUSY_2013_19)                 \
+      F(ATLAS_SUSY_2013_12)                   \
+      F(ATLAS_SUSY_2012_10)             \
+      F(ATLAS_SUSY_2012_04)                \
       F(CMS_13TeV_0LEP_13invfb)                      \
       F(CMS_13TeV_0LEP_36invfb)                      \
       F(CMS_13TeV_0LEP_137invfb)                     \
@@ -184,7 +186,6 @@ namespace Gambit
       F(CMS_8TeV_MultiLEP_3Lep_20invfb)              \
       F(CMS_8TeV_MultiLEP_4Lep_20invfb)              \
       F(CMS_8TeV_MONOJET_20invfb)                    \
-      F(ATLAS_13TeV_2OR3LEP_139invfb)                \
 
     /// For analysis factory function declaration
     #define DECLARE_ANALYSIS_FACTORY(ANAME)          \

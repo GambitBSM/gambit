@@ -311,7 +311,7 @@ namespace Gambit {
 
 
             // Find b-jets
-            // Copied from ATLAS_13TeV_3b_24invfb
+            // Copied from ATLAS_SUSY_2017_02
             double btag = 0.85; double cmisstag = 1/12.; double misstag = 1./381.;
             for (const HEPUtils::Jet* jet : candJets) {
                 // Tag

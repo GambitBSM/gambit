@@ -215,7 +215,7 @@ Rules:
       cap_loglike: false
       cap_loglike_individual_analyses: false
       # skip_analyses:
-      #   - ATLAS_13TeV_2OSLEP_chargino_inclusive_80invfb
+      #   - ATLAS_CONF_2018_042_chargino_inclusive
 
 
 # Set the names of key log files

@@ -333,33 +333,33 @@ Rules:
         analyses:
           - Baselines
           # 
-          - ATLAS_13TeV_0LEPStop_139invfb        # [in skip_analyses] New! (Martin)  
-          - ATLAS_13TeV_1Lep2b_139invfb          # New! (Chris)
-          - ATLAS_13TeV_2LEP0JET_EW_139invfb     # New! (Roberto) - Requires ROOT + BDT stuff.
-          - ATLAS_13TeV_2LEPJETS_EW_139invfb     # New! (Martin, Chris) 
-          - ATLAS_13TeV_2LEPJETS_RJR_139invfb    # New! (Martin) This search requires ROOT + RestFrames.
-          - ATLAS_13TeV_3LEP_eRJR_139invfb       # New! (Martin)
-          - ATLAS_13TeV_2OR3LEP_139invfb         # New! (Ida) -- Only WH SRs are used.
-          - ATLAS_13TeV_bTaus_StopStau_139invfb  # New! (Holly)
-          - ATLAS_13TeV_1OR3LEP_StopHZ_139invfb  # New! (Holly)
-          - ATLAS_13TeV_4b_139invfb              # New! (Are)
-          - ATLAS_13TeV_4b_discoverySR_139invfb  # [in skip_analyses]
-          - ATLAS_13TeV_4b_allyears_139invfb     # [in skip_analyses]
-          - ATLAS_13TeV_2LEPsoft_139invfb        # [in skip_analyses, since not yet validated] New! (Tomas)
-          - ATLAS_13TeV_3b_NN_139invfb           # [in skip_analyses, due to probable overlap with ATLAS_13TeV_4b_139invfb] New! (Tomek)
-          - ATLAS_13TeV_0LEP_139invfb
+          - ATLAS_SUSY_2018_12        # [in skip_analyses] New! (Martin)  
+          - ATLAS_SUSY_2019_08          # New! (Chris)
+          - ATLAS_SUSY_2019_02     # New! (Roberto) - Requires ROOT + BDT stuff.
+          - ATLAS_SUSY_2018_05     # New! (Martin, Chris) 
+          - ATLAS_SUSY_2018_05    # New! (Martin) This search requires ROOT + RestFrames.
+          - ATLAS_SUSY_2018_06       # New! (Martin)
+          - ATLAS_SUSY_2019_22         # New! (Ida) -- Only WH SRs are used.
+          - ATLAS_SUSY_2019_18  # New! (Holly)
+          - ATLAS_SUSY_2018_21_StopZH  # New! (Holly)
+          - ATLAS_SUSY_2020_16              # New! (Are)
+          - ATLAS_SUSY_2020_16_discoverySR  # [in skip_analyses]
+          - ATLAS_SUSY_2020_16_allyears     # [in skip_analyses]
+          - ATLAS_SUSY_2018_16        # [in skip_analyses, since not yet validated] New! (Tomas)
+          - ATLAS_SUSY_2018_30           # [in skip_analyses, due to probable overlap with ATLAS_SUSY_2020_16] New! (Tomek)
+          - ATLAS_SUSY_2018_22
           - ATLAS_SUSY_2018_41  # Uses antikt_R1.
-          - ATLAS_13TeV_2LEPStop_inclusive_139invfb
-          - ATLAS_13TeV_2OSLEP_Z_139invfb
-          - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb
-          - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb  # [in skip_analyses]
-          - ATLAS_13TeV_3LEP_139invfb
-          - ATLAS_13TeV_4LEP_139invfb
-          - ATLAS_13TeV_2bMET_36invfb
-          - ATLAS_13TeV_MultiLEP_strong_139invfb
-          - ATLAS_13TeV_PhotonGGM_2Photon_36invfb
-          - ATLAS_13TeV_PhotonGGM_1Photon_139invfb
-          - ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
+          - ATLAS_SUSY_2018_08_inclusive
+          - ATLAS_SUSY_2018_21
+          - ATLAS_CONF_2019_008_chargino_inclusive
+          - ATLAS_CONF_2019_008_chargino_binned  # [in skip_analyses]
+          - ATLAS_SUSY_2019_09
+          - ATLAS_SUSY_2018_02
+          - ATLAS_SUSY_2016_28
+          - ATLAS_SUSY_2018_09
+          - ATLAS_SUSY_2016_27_2Photon
+          - ATLAS_SUSY_2018_11
+          - ATLAS_CONF_2018_019
           # 
           - CMS_13TeV_1LEPbb_137invfb                   # New! (Pengxuan) - Uses antikt_R08.
           - CMS_13TeV_2Higgs_4b_neutralino_137invfb     # New! (Yang) - Uses antikt_R08.
@@ -459,12 +459,12 @@ Rules:
       cap_loglike: false
       cap_loglike_individual_analyses: false
       skip_analyses:
-        - ATLAS_13TeV_0LEPStop_139invfb
-        - ATLAS_13TeV_4b_discoverySR_139invfb
-        - ATLAS_13TeV_4b_allyears_139invfb
-        - ATLAS_13TeV_2LEPsoft_139invfb
-        - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb
-        - ATLAS_13TeV_3b_NN_139invfb
+        - ATLAS_SUSY_2018_12
+        - ATLAS_SUSY_2020_16_discoverySR
+        - ATLAS_SUSY_2020_16_allyears
+        - ATLAS_SUSY_2018_16
+        - ATLAS_CONF_2019_008_chargino_binned
+        - ATLAS_SUSY_2018_30
         - CMS_13TeV_2OSLEP_Strong_Production_137invfb
         - CMS_13TeV_2OSLEP_Slepton_137invfb
         - CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD

@@ -10,11 +10,11 @@ analyses:
   - CMS_13TeV_2LEPStop_36invfb
   - CMS_13TeV_MultiLEP_36invfb
   - CMS_13TeV_MONOJET_36invfb
-  - ATLAS_13TeV_0LEP_36invfb
-  - ATLAS_13TeV_MultiLEP_36invfb
-  - ATLAS_13TeV_0LEPStop_36invfb
-  - ATLAS_13TeV_2LEPStop_36invfb
-  - ATLAS_13TeV_2bMET_36invfb
+  - ATLAS_SUSY_2016_07
+  - ATLAS_SUSY_2016_24
+  - ATLAS_SUSY_2016_15
+  - ATLAS_SUSY_2017_01
+  - ATLAS_SUSY_2016_28
 
 settings:
   debug: true
