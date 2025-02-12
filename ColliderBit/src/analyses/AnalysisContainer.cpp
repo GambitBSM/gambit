@@ -118,16 +118,16 @@ namespace Gambit
       F(ATLAS_SUSY_2018_21)                          \
       F(ATLAS_SUSY_2018_16)                          \
       F(ATLAS_SUSY_2019_18)                          \
-      F(ATLAS_SUSY_2019_22)                \
-      F(ATLAS_SUSY_2013_02)                     \
-      F(ATLAS_SUSY_2013_16)                 \
-      F(ATLAS_CONF_2013_037)                 \
-      F(ATLAS_SUSY_2013_05)                   \
-      F(ATLAS_SUSY_2013_11)                   \
-      F(ATLAS_SUSY_2013_19)                 \
-      F(ATLAS_SUSY_2013_12)                   \
-      F(ATLAS_SUSY_2012_10)             \
-      F(ATLAS_SUSY_2012_04)                \
+      F(ATLAS_SUSY_2019_22)                          \
+      F(ATLAS_SUSY_2013_02)                          \
+      F(ATLAS_SUSY_2013_16)                          \
+      F(ATLAS_CONF_2013_037)                         \
+      F(ATLAS_SUSY_2013_05)                          \
+      F(ATLAS_SUSY_2013_11)                          \
+      F(ATLAS_SUSY_2013_19)                          \
+      F(ATLAS_SUSY_2013_12)                          \
+      F(ATLAS_SUSY_2012_10)                          \
+      F(ATLAS_SUSY_2012_04)                          \
       F(CMS_13TeV_0LEP_13invfb)                      \
       F(CMS_13TeV_0LEP_36invfb)                      \
       F(CMS_13TeV_0LEP_137invfb)                     \

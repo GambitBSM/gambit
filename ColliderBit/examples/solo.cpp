@@ -522,7 +522,7 @@ int main(int argc, char* argv[])
       json j;
       j["n_events"] = n_events;
       j["combined_loglike"] = loglike;
-      json analyses_json = json::array();
+      json analyses_json = json::object();
 
       for (size_t analysis = 0; analysis < CollectAnalyses(0).size(); ++analysis)
       {
@@ -531,7 +531,7 @@ int main(int argc, char* argv[])
         const Gambit::ColliderBit::AnalysisLogLikes &analysis_loglikes = calc_LHC_LogLikes_full(0).at(analysis_name);
 
         json analysis_obj;
-        analysis_obj["analysis_name"] = analysis_name;
+        // analysis_obj["analysis_name"] = analysis_name;
         analysis_obj["combination_sr_label"] = analysis_loglikes.combination_sr_label;
         analysis_obj["combination_loglike"] = analysis_loglikes.combination_loglike;
 
@@ -562,7 +562,7 @@ int main(int argc, char* argv[])
           sr_dict[srData.sr_label] = sr;
         }
         analysis_obj["signal_regions"] = sr_dict;
-        analyses_json.push_back(analysis_obj);
+        analyses_json[analysis_name] = analysis_obj;
       }
       j["analyses"] = analyses_json;
 
