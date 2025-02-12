@@ -536,7 +536,7 @@ int main(int argc, char* argv[])
         analysis_obj["combination_loglike"] = analysis_loglikes.combination_loglike;
 
         // Array for the signal regions.
-        json sr_array = json::array();
+        json sr_dict = json::object();  // 这是一个字典（dict）
         for (size_t sr_index = 0; sr_index < adata.size(); ++sr_index)
         {
           const Gambit::ColliderBit::SignalRegionData srData = adata[sr_index];
@@ -559,9 +559,9 @@ int main(int argc, char* argv[])
           if (calc_scaledsignal_loglikes)
             sr["scaledsignal_loglike"] = analysis_loglikes.alt_sr_loglikes.at("scaledsignal").at(sr_index);
 
-          sr_array.push_back(sr);
+          sr_dict[srData.sr_label] = sr;
         }
-        analysis_obj["signal_regions"] = sr_array;
+        analysis_obj["signal_regions"] = sr_dict;
         analyses_json.push_back(analysis_obj);
       }
       j["analyses"] = analyses_json;
