@@ -200,4 +200,5 @@ jobs:
     - name: Run tests
       run: |
         source /Users/gambitci/Packages/GBTest_Venv/bin/activate
+        export GAMBIT=.
         ./gambit-test/test/bats/bin/bats ./gambit-test/test/*.bats
