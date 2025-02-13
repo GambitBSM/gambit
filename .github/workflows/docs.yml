@@ -7,7 +7,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
+  test_docs:
 
     runs-on: ubuntu-latest
 
@@ -21,4 +21,5 @@ jobs:
 
     - name: Run tests
       run: |
+        export GAMBIT=.
         ./gambit-test/test/bats/bin/bats ./gambit-test/test/docs.bats
