@@ -196,8 +196,6 @@ jobs:
         source /Users/gambitci/Packages/GBTest_Venv/bin/activate
         git clone --recursive https://github.com/GambitBSM/gambit-test
         python3 -m pip install git+https://github.com/GambitBSM/gambit-yaml
-        #sudo apt install numdiff
-        #pip install git+https://github.com/GambitBSM/gambit-yaml
 
     - name: Run tests
       run: |
