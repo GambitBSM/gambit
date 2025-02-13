@@ -1,0 +1,27 @@
+name: Documentation CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: configure
+      run: ./configure
+
+    - name: Build test dependencies
+      run: |
+        git clone --recursive https://github.com/GambitBSM/gambit-test
+        python3 -m pip install git+https://github.com/GambitBSM/gambit-yaml
+
+    - name: Run tests
+      run: |
+        ./gambit-test/test/bats/bin/bats ./gambit-test/test/docs.bats
