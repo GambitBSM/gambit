@@ -201,4 +201,11 @@ jobs:
       run: |
         source /Users/gambitci/Packages/GBTest_Venv/bin/activate
         export GAMBIT=.
-        ./gambit-test/test/bats/bin/bats ./gambit-test/test/*.bats
+        ./gambit-test/test/bats/bin/bats ./gambit-test/test/*.bats | tee results.tap
+        exit ${PIPESTATUS[0]}
+
+    - name: Summarize tests
+      if: always()
+      uses: pcolby/tap-summary@v1.2.0
+      with:
+          path: results.tap
