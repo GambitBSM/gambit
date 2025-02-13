@@ -13,10 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: configure
-      run: ./configure
-
+    
     - name: Build test dependencies
       run: |
         git clone --recursive https://github.com/GambitBSM/gambit-test
