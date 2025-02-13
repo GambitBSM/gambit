@@ -13,13 +13,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - uses: jitterbit/get-changed-files@v1
 
     - name: Install gambit-style
       run: pip install git+https://github.com/GambitBSM/gambit-style
       
     - name: Run compliance check
       run: gambit-style ci .
-      
+
     - name: Run compliance check only on changed files
-      uses: jitterbit/get-changed-files@v1
       run: gambit-style ci ${{ steps.files.outputs.all }}
