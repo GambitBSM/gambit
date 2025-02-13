@@ -22,4 +22,9 @@ jobs:
     - name: Run tests
       run: |
         export GAMBIT=.
-        ./gambit-test/test/bats/bin/bats --tap ./gambit-test/test/docs.bats
+        ./gambit-test/test/bats/bin/bats --tap ./gambit-test/test/docs.bats > docs.tap
+
+    - name: Summarize Test Results
+      uses: pcolby/tap-summary@v1.2.0
+      with:
+          path: docs.tap
