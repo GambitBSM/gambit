@@ -23,4 +23,6 @@ jobs:
 
     - name: Run compliance check only on changed files
       if: always()
-      run: gambit-style ci ${{ steps.files.outputs.all }}
+      run: |
+        cat ${{ steps.files.outputs.all }}
+        gambit-style ci ${{ steps.files.outputs.all }}
