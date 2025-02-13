@@ -29,5 +29,4 @@ jobs:
       env:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
       run: |
-        cat ${ALL_CHANGED_FILES}
         gambit-style ci ${ALL_CHANGED_FILES}
