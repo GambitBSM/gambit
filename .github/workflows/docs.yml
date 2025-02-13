@@ -22,10 +22,11 @@ jobs:
     - name: Run tests
       run: |
         export GAMBIT=.
-        ./gambit-test/test/bats/bin/bats --tap ./gambit-test/test/docs.bats | tee docs.tap
+        ./gambit-test/test/bats/bin/bats --tap ./gambit-test/test/docs.bats > docs.tap
 
     - name: Summarize tests
       if: always()
       uses: pcolby/tap-summary@v1.2.0
       with:
           path: docs.tap
+      run: cat docs.tap
