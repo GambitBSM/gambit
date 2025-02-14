@@ -22,7 +22,7 @@ Quickstart
 
 You can build and run a minimal program by e.g.,
 ```bash
-sudo apt install build-essential gfortran cmake git python-yaml libboost-all-dev libgsl-dev libeigen3-dev liblapack-dev pkg-config
+sudo apt install build-essential gfortran cmake git python3-yaml libboost-all-dev libgsl-dev libeigen3-dev liblapack-dev pkg-config
 git clone https://github.com/GambitBSM/gambit
 cd gambit
 mkdir build
@@ -73,7 +73,7 @@ GAMBIT is built using the [CMake](https://cmake.org/) system. GAMBIT depends on 
 
 On Debian-based systems, they can be installed by
 
-    sudo apt install build-essential gfortran cmake git python-yaml libboost-all-dev libgsl-dev libeigen3-dev liblapack-dev pkg-config
+    sudo apt install build-essential gfortran cmake git python3-yaml libboost-all-dev libgsl-dev libeigen3-dev liblapack-dev pkg-config
 
 ### Optional
 
