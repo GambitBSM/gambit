@@ -1,0 +1,31 @@
+name: CMake CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  compulsory:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: build-essential gfortran cmake git python-yaml libboost-all-dev libgsl-dev libeigen3-dev liblapack-dev pkg-config
+        version: default
+      
+    - name: Run cmake
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+
+    - name: Run cmake with warnings as errors
+      run: |
+        mkdir build_cmake_errors
+        cd build_cmake_errors
+        cmake -Werror=dev ..
