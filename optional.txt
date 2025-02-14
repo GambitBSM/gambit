@@ -2,7 +2,7 @@ cython
 dynesty
 numpy
 emcee
-h5py
+h5py --no-binary=h5py 
 nautilus
 nessai
 pocomc
