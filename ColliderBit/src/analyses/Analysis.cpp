@@ -205,6 +205,7 @@ namespace Gambit
       }
       _cutflows.combine(other->get_cutflows());
       _results.add_cutflows(_cutflows);
+      std::cout << "Cutflow combined after this cout" << std::endl; 
     }
 
     // For printing progress
