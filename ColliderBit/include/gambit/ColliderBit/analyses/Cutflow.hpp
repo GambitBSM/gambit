@@ -356,25 +356,6 @@ namespace Gambit
       /// Combine two cutflows
       void combine(const Cutflows &othercfs)
       {
-        // Debug output: print the number and names of cutflows in each container
-        std::cout << "DEBUG: Combining cutflows:" << std::endl;
-        std::cout << "This object's cutflow count: " << cfs.size() << std::endl;
-        std::cout << "Other object's cutflow count: " << othercfs.cfs.size() << std::endl;
-
-        std::cout << "This object's cutflow names: ";
-        for (const auto &cf : cfs)
-        {
-          std::cout << cf.name << " ";
-        }
-        std::cout << std::endl;
-
-        std::cout << "Other object's cutflow names: ";
-        for (const auto &cf : othercfs.cfs)
-        {
-          std::cout << cf.name << " ";
-        }
-        std::cout << std::endl;
-
         // If this object's cutflow container is empty, initialize it from the other object's structure.
         if (cfs.empty())
         {
@@ -395,15 +376,6 @@ namespace Gambit
           cf.combine(othercfs[cf.name]);
         }
       }
-
-// Combine two cutflows 
-      // void combine(const Cutflows& othercfs)
-      // {
-      //   std::cout << 
-      //   if(cfs.size() != othercfs.cfs.size())
-      //     utils_error().raise(LOCAL_INFO, "Cannot combine cutflows, they are of different sizes. Maybe you forgot to call `add_cutflows(_cutflows)` in the collect step of your analysis.");
-      //   for (Cutflow& cf : cfs) cf.combine(othercfs[cf.name]);
-      // }
 
       /// Create a string representation
       string str() const

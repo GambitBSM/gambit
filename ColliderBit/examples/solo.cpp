@@ -316,7 +316,7 @@ int main(int argc, char* argv[])
       else { getYAMLCrossSection.setOption<double>("cross_section_uncert_fb", settings.getValue<double>("cross_section_uncert_fb")); }
     }
 
-    bool json_output;
+    bool json_output = false; 
     std::string json_filename;
     if (settings.hasKey("output"))
     {
