@@ -480,6 +480,13 @@ int main(int argc, char* argv[])
       const str& analysis_name = adata.analysis_name;
       const Gambit::ColliderBit::AnalysisLogLikes& analysis_loglikes = calc_LHC_LogLikes_full(0).at(analysis_name);
       summary_line << "  " << analysis_name << ": " << endl;
+      
+      
+      std::cout << "Combined Cutflows for analysis " << analysis << " (" 
+      << adata.analysis_name << "):" << std::endl;
+      // Assuming 'cutflows' is a public member of adata or available via a getter
+      std::cout << adata.cutflows << std::endl;
+
       for (size_t sr_index = 0; sr_index < adata.size(); ++sr_index)
       {
         const Gambit::ColliderBit::SignalRegionData srData = adata[sr_index];
