@@ -225,7 +225,7 @@ Rules:
       cap_loglike: false
       # Choose to use the CMS 137 invfb search rather than CMS36invfb
       skip_analyses:
-        - CMS_13TeV_MONOJET_36invfb_interpolated
+        - CMS_SUS_16_048_interpolated
 
   - capability: LHC_LogLikes
     # Choose not to use the FullLikes backend.

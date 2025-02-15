@@ -363,27 +363,27 @@ Rules:
           - ATLAS_SUSY_2018_11
           - ATLAS_CONF_2018_019
           # 
-          - CMS_13TeV_1LEPbb_137invfb                   # New! (Pengxuan) - Uses antikt_R08.
-          - CMS_13TeV_2Higgs_4b_neutralino_137invfb     # New! (Yang) - Uses antikt_R08.
-          - CMS_13TeV_2LEPsoft_137invfb                 # New! (Tomas)
-          - CMS_13TeV_0LEPStop_137invfb                 # New! (Holly)
-          - CMS_13TeV_0LEP_chargino_VV_VH_137invfb      # New! (Adil) - Uses antikt_R08.
-          - CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD  # [in skip_analyses]
-          - CMS_13TeV_Photon_GMSB_137invfb              # New! (Vinay)
-          - CMS_13TeV_2OSLEP_EW_Production_137invfb     # New! (Anders)
-          - CMS_13TeV_2OSLEP_Strong_Production_137invfb # [in skip_analyses]
-          - CMS_13TeV_2OSLEP_Slepton_137invfb           # [in skip_analyses]
-          - CMS_13TeV_2OSLEP_for_chargino_36invfb
-          - CMS_13TeV_0LEP_137invfb
-          - CMS_13TeV_1LEPStop_36invfb
-          - CMS_13TeV_1Photon1Lepton_emu_combined_36invfb
-          - CMS_13TeV_2LEPStop_36invfb
-          - CMS_13TeV_2OSLEP_for_stop_36invfb
-          - CMS_13TeV_2Photon_GMSB_36invfb
-          - CMS_13TeV_2SSLEP_Stop_137invfb
-          - CMS_13TeV_MultiLEP_2LEP_137invfb
-          - CMS_13TeV_MultiLEP_3LEP_137invfb
-          - CMS_13TeV_MultiLEP_4LEP_137invfb
+          - CMS_SUS_20_003                   # New! (Pengxuan) - Uses antikt_R08.
+          - CMS_SUS_20_004     # New! (Yang) - Uses antikt_R08.
+          - CMS_SUS_18_004                 # New! (Tomas)
+          - CMS_SUS_19_010                 # New! (Holly)
+          - CMS_SUS_21_002      # New! (Adil) - Uses antikt_R08.
+          - CMS_SUS_21_002_OLD  # [in skip_analyses]
+          - CMS_SUS_21_009              # New! (Vinay)
+          - CMS_SUS_20_001_EW_production     # New! (Anders)
+          - CMS_SUS_20_001_strong_production # [in skip_analyses]
+          - CMS_SUS_20_001_Slepton           # [in skip_analyses]
+          - CMS_SUS_17_010_chargino
+          - CMS_SUS_19_006
+          - CMS_SUS_16_051
+          - CMS_SUS_17_012_emu_combined
+          - CMS_SUS_17_001
+          - CMS_SUS_17_010_stop
+          - CMS_SUS_17_011
+          - CMS_SUS_19_008
+          - CMS_SUS_19_012_2Lep
+          - CMS_SUS_19_012_3Lep
+          - CMS_SUS_19_012_4LEP
 
   # Choose Monte Carlo event simulator and options.
   - capability:  HardScatteringSim
@@ -467,9 +467,9 @@ Rules:
         - ATLAS_SUSY_2018_16
         - ATLAS_CONF_2019_008_chargino_binned
         - ATLAS_SUSY_2018_30
-        - CMS_13TeV_2OSLEP_Strong_Production_137invfb
-        - CMS_13TeV_2OSLEP_Slepton_137invfb
-        - CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD
+        - CMS_SUS_20_001_strong_production
+        - CMS_SUS_20_001_Slepton
+        - CMS_SUS_21_002_OLD
 
   # Set analyses for Rivet measurements
   - capability: Rivet_measurements

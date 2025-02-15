@@ -661,14 +661,14 @@ Rules:
         all_SR_must_converge: false
         maxFailedEvents: 10
         analyses:
-          - CMS_13TeV_0LEP_36invfb
-          - CMS_13TeV_1LEPbb_36invfb
-          - CMS_13TeV_2OSLEP_36invfb
-          - CMS_13TeV_2LEPsoft_36invfb
-          - CMS_13TeV_1LEPStop_36invfb
-          - CMS_13TeV_2LEPStop_36invfb
-          - CMS_13TeV_MultiLEP_36invfb
-          - CMS_13TeV_MONOJET_36invfb
+          - CMS_SUS_16_033
+          - CMS_SUS_16_043
+          - CMS_SUS_16_034_EW
+          - CMS_SUS_16_048
+          - CMS_SUS_16_051
+          - CMS_SUS_17_001
+          - CMS_SUS_16_039
+          - CMS_SUS_16_048
           - ATLAS_SUSY_2016_07
           - ATLAS_SUSY_2016_24
           - ATLAS_SUSY_2016_15
