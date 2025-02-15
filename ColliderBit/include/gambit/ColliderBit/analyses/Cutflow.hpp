@@ -375,13 +375,28 @@ namespace Gambit
         }
         std::cout << std::endl;
 
-        if (cfs.size() != othercfs.cfs.size())
+        // If this object's cutflow container is empty, initialize it from the other object's structure.
+        if (cfs.empty())
+        {
+          std::cout << "DEBUG: Local cutflow container empty. Booking cutflows from other object." << std::endl;
+          for (const auto &other_cf : othercfs.cfs)
+          {
+            addCutflow(other_cf.name, other_cf.cuts);
+          }
+        }
+        else if (cfs.size() != othercfs.cfs.size())
+        {
           utils_error().raise(LOCAL_INFO, "Cannot combine cutflows, they are of different sizes. Maybe you forgot to call `add_cutflows(_cutflows)` in the collect step of your analysis.");
+        }
 
+        // Now combine the cutflows with matching names.
         for (Cutflow &cf : cfs)
+        {
           cf.combine(othercfs[cf.name]);
+        }
       }
-      // Combine two cutflows 
+
+// Combine two cutflows 
       // void combine(const Cutflows& othercfs)
       // {
       //   std::cout << 
