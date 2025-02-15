@@ -24,7 +24,7 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    class Analysis_CMS_13TeV_2LEPsoft_137invfb : public Analysis
+    class Analysis_CMS_SUS_18_004 : public Analysis
     {
 
       public:
@@ -33,7 +33,7 @@ namespace Gambit
       // Required detector sim
       static constexpr const char* detector = "CMS";
 
-      Analysis_CMS_13TeV_2LEPsoft_137invfb()
+      Analysis_CMS_SUS_18_004()
       {
         DEFINE_SIGNAL_REGIONS("2lEWlow", 4, "2 leptons",  "pT(l2) > 3.5 (5) GeV for muon (electron)", "4 GeV < mll < 50 GeV", "Y veto", "pT(ll) > 3 GeV", "1 jet", "2/3 < met/HT < 1.4", "HT > 100 GeV", "met > 125 GeV && 125 GeV < metcorr < 200 GeV", "trigger path combination (low)", "OS leptons", "5 GeV < pT(l1) < 30 GeV", "Tight lepton ID", "No b-jets", "m(tautau) < 0. or m(tautau) > 160.", "MT(l1, met) < 70. GeV && MT(l2, met) < 70.0 GeV", "SF leptons", "2 muons", "pT(l2) > 5 GeV")
         DEFINE_SIGNAL_REGIONS("2lEWmed", 5, "2 leptons", "pT(l2) > 3.5 (5) GeV for muon (electron)", "Y veto", "pT(ll) > 3 GeV", "1 jet", "2/3 < met/HT < 1.4", "HT > 100 GeV", "200 GeV < metcorr < 240 GeV", "trigger path combination (med)", "OS leptons", "Tight lepton ID", "No b-jets", "m(tautau) < 0. or m(tautau) > 160.", "MT(l1, met) < 70. GeV && MT(l2, met) < 70.0 GeV", "SF leptons", "1 GeV < mll < 50 GeV", "J/Psi veto", "3.5 (5) GeV < pT(l1) < 30.0 GeV", "deltaR < 0.3")
@@ -46,7 +46,7 @@ namespace Gambit
         DEFINE_SIGNAL_REGIONS("3lEWlow", 4, "3 leptons", "pT(l2) > 3.5 (5) for muon (electron)", "pT(l3) > 3.5 (5) for muon (electron)", "Y veto", "HT > 100 GeV", "met > 125 GeV && 125 GeV < metcorr < 200 GeV", "trigger path combination (low)", "1 OS SF pair", "4 GeV < min(MSFOS(ll)) < 50 GeV", "5 GeV < pT(l1) < 30.0 GeV", "Tight lepton ID", "No b-jets", "pT(l2) > 5 GeV", "2 muons", "max(MSFOS(ll) < 60 GeV") //TODO: Should the last cut be for any sign?
         DEFINE_SIGNAL_REGIONS("3lEWmed", 5, "3 leptons", "pT(l2) > 3.5 (5) for muon (electron)", "pT(l3) > 3.5 (5) for muon (electron)", "Y veto", "HT > 100 GeV", "200 GeV < metcorr", "trigger path combination (med)", "1 OS SF pair", "Tight lepton ID", "No b-jets", "1 GeV < min(MSFOS(ll) < 50 GeV", "J/Psi veto", "deltaR < 0.3", "3.5 (5) GeV < pT(l1) < 30.0 GeV")
 
-        set_analysis_name("CMS_13TeV_2LEPsoft_137invfb");
+        set_analysis_name("CMS_SUS_18_004");
         set_luminosity(137.);
       }
 
@@ -798,16 +798,16 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2LEPsoft_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_18_004)
 
 
     // Only EW signal regions with covariance matrix
-    class Analysis_CMS_13TeV_2LEPsoft_ewinos_137invfb : public Analysis_CMS_13TeV_2LEPsoft_137invfb
+    class Analysis_CMS_SUS_18_004_ewino : public Analysis_CMS_SUS_18_004
     {
       public:
-      Analysis_CMS_13TeV_2LEPsoft_ewinos_137invfb()
+      Analysis_CMS_SUS_18_004_ewino()
       {
-        set_analysis_name("CMS_13TeV_2LEPsoft_ewinos_137invfb");
+        set_analysis_name("CMS_SUS_18_004_ewino");
       }
 
       virtual void collect_results()
@@ -885,15 +885,15 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2LEPsoft_ewinos_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_18_004_ewino)
 
     // Only stop signal regions
-    class Analysis_CMS_13TeV_2LEPsoft_stop_137invfb : public Analysis_CMS_13TeV_2LEPsoft_137invfb
+    class Analysis_CMS_SUS_18_004_stop : public Analysis_CMS_SUS_18_004
     {
       public:
-      Analysis_CMS_13TeV_2LEPsoft_stop_137invfb()
+      Analysis_CMS_SUS_18_004_stop()
       {
-        set_analysis_name("CMS_13TeV_2LEPsoft_stop_137invfb");
+        set_analysis_name("CMS_SUS_18_004_stop");
       }
 
       virtual void collect_results()
@@ -931,7 +931,7 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2LEPsoft_stop_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_18_004_stop)
 
   }
 }

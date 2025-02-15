@@ -119,15 +119,15 @@ namespace Gambit {
   namespace ColliderBit {
 
     // This analysis class is also a base class for the analysis
-    // class Analysis_CMS_13TeV_1Photon1Lepton_emu_combined_36invfb
+    // class Analysis_CMS_SUS_17_012_emu_combined
     // defined further down
-    class Analysis_CMS_13TeV_1Photon1Lepton_36invfb : public Analysis {
+    class Analysis_CMS_SUS_17_012 : public Analysis {
     public:
 
       static constexpr const char* detector = "CMS";
 
-      // Analysis_CMS_13TeV_1Photon1Lepton_36invfb():
-      Analysis_CMS_13TeV_1Photon1Lepton_36invfb()
+      // Analysis_CMS_SUS_17_012():
+      Analysis_CMS_SUS_17_012()
       {
         // Counters for the number of accepted events for each signal region
         _counters["SR1"] = EventCounter("SR1");
@@ -168,7 +168,7 @@ namespace Gambit {
         _counters["SR36"] = EventCounter("SR36");
 
 
-        set_analysis_name("CMS_13TeV_1Photon1Lepton_36invfb");
+        set_analysis_name("CMS_SUS_17_012");
         set_luminosity(35.9);
       }
 
@@ -448,7 +448,7 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_1Photon1Lepton_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_17_012)
 
 
 
@@ -456,11 +456,11 @@ namespace Gambit {
     // Derived analysis class, where we combine the e+gamma and
     // mu+gamma SRs, to reduce the SR flip-flopping issue
     //
-    class Analysis_CMS_13TeV_1Photon1Lepton_emu_combined_36invfb : public Analysis_CMS_13TeV_1Photon1Lepton_36invfb {
+    class Analysis_CMS_SUS_17_012_emu_combined : public Analysis_CMS_SUS_17_012 {
 
     public:
-      Analysis_CMS_13TeV_1Photon1Lepton_emu_combined_36invfb() {
-        set_analysis_name("CMS_13TeV_1Photon1Lepton_emu_combined_36invfb");
+      Analysis_CMS_SUS_17_012_emu_combined() {
+        set_analysis_name("CMS_SUS_17_012_emu_combined");
       }
 
       virtual void collect_results() {
@@ -492,7 +492,7 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_1Photon1Lepton_emu_combined_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_17_012_emu_combined)
 
 
   }

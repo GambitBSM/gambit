@@ -30,7 +30,7 @@ using namespace std;
 namespace Gambit {
   namespace ColliderBit {
 
-    class Analysis_CMS_13TeV_2SSLEP_Stop_36invfb : public Analysis {
+    class Analysis_CMS_SUS_16_035 : public Analysis {
     protected:
 
         Cutflow _cutflow;
@@ -92,8 +92,8 @@ namespace Gambit {
         // Required detector sim
         static constexpr const char* detector = "CMS";
 
-        Analysis_CMS_13TeV_2SSLEP_Stop_36invfb():
-        _cutflow("CMS_13TeV_2SSLEP_Stop_36invfb", {"Trigger_and_2leptons", "At_least_one_SS_lepton_pair", "Baseline"})
+        Analysis_CMS_SUS_16_035():
+        _cutflow("CMS_SUS_16_035", {"Trigger_and_2leptons", "At_least_one_SS_lepton_pair", "Baseline"})
         {
             // Counters for the number of accepted events for each signal region
             // HH
@@ -233,7 +233,7 @@ namespace Gambit {
             _counters["SRexc-14"] = EventCounter("SRexc-14");
 
 
-            set_analysis_name("CMS_13TeV_2SSLEP_Stop_36invfb");
+            set_analysis_name("CMS_SUS_16_035");
             set_luminosity(36);
         }
 
@@ -732,16 +732,16 @@ namespace Gambit {
     };
 
 
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2SSLEP_Stop_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_035)
 
     //
     // Derived analysis class for the 2Lep0Jets SRs
     //
-    class Analysis_CMS_13TeV_2SSLEP_Stop_inclusive_36invfb : public Analysis_CMS_13TeV_2SSLEP_Stop_36invfb {
+    class Analysis_CMS_SUS_16_035_inclusive : public Analysis_CMS_SUS_16_035 {
 
     public:
-      Analysis_CMS_13TeV_2SSLEP_Stop_inclusive_36invfb() {
-        set_analysis_name("CMS_13TeV_2SSLEP_Stop_inclusive_36invfb");
+      Analysis_CMS_SUS_16_035_inclusive() {
+        set_analysis_name("CMS_SUS_16_035_inclusive");
       }
 
         virtual void collect_results() {
@@ -768,16 +768,16 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2SSLEP_Stop_inclusive_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_035_inclusive)
 
     //
     // Derived analysis class for the 2Lep0Jets SRs
     //
-    class Analysis_CMS_13TeV_2SSLEP_Stop_exclusive_36invfb : public Analysis_CMS_13TeV_2SSLEP_Stop_36invfb {
+    class Analysis_CMS_SUS_16_035_exclusive : public Analysis_CMS_SUS_16_035 {
 
     public:
-      Analysis_CMS_13TeV_2SSLEP_Stop_exclusive_36invfb() {
-        set_analysis_name("CMS_13TeV_2SSLEP_Stop_exclusive_36invfb");
+      Analysis_CMS_SUS_16_035_exclusive() {
+        set_analysis_name("CMS_SUS_16_035_exclusive");
       }
 
         virtual void collect_results() {
@@ -824,7 +824,7 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2SSLEP_Stop_exclusive_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_035_exclusive)
 
   }
 }

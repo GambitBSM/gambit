@@ -1,53 +1,50 @@
+#include <vector>
+#include <cmath>
+#include <memory>
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
-#include "gambit/ColliderBit/mt2w.h"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
+
+/// @todo Remove the ROOT classes...
 
 using namespace std;
 
-// The CMS 1 lepton DM + top pair analysis (20fb^-1)
+// The CMS 2 lepton DM + top pair analysis (20fb^-1)
 
-// based on: https://twiki.cern.ch/twiki/bin/view/CMSPublic/PhysicsResultsB2G14004
+// based on: https://twiki.cern.ch/twiki/bin/view/CMSPublic/PhysicsResultsB2G13004
 
 //    Code by Martin White, Guy Pitman
 //    Known issues:
 //    a) Impossible to test results against CMS due to the impossibility of reproducing their model information (even after contacting CMS). Note that the variables used have been debugged in other contexts however.
 //    b) Overlap removal is not applied (CMS do not use it, but we don't exactly use their particle flow technique either)
 //    c) Jets here need kT radius of 0.5 not 0.4
+//    d) Jets go out to eta of 5: need to make sure that sim does not cut these away
 
 namespace Gambit {
   namespace ColliderBit {
 
 
-
-    //Puts dphi in the range -pi to pi
-    double _Phi_mpi_pi(double x){
-      while (x >= M_PI) x -= 2*M_PI;
-      while (x < -M_PI) x += 2*M_PI;
-      return x;
-    }
-
-
-    class Analysis_CMS_8TeV_1LEPDMTOP_20invfb : public Analysis {
+    class Analysis_CMS_B2G_13_004 : public Analysis {
     private:
 
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
       int NCUTS; //=24;
 
+      // Debug histos
+
     public:
 
       // Required detector sim
       static constexpr const char* detector = "CMS";
 
-      Analysis_CMS_8TeV_1LEPDMTOP_20invfb()
+      Analysis_CMS_B2G_13_004()
         : NCUTS(6)
       {
-        // Numbers passing cuts
-        _counters["SR"] = EventCounter("SR");
+        _counters["SR" ] = EventCounter("SR");
 
-        set_analysis_name("CMS_8TeV_1LEPDMTOP_20invfb");
+        set_analysis_name("CMS_B2G_13_004");
         set_luminosity(19.7);
 
         for (int i=0; i<NCUTS; i++) {
@@ -56,7 +53,7 @@ namespace Gambit {
         }
       }
 
-      double SmallestdPhi(std::vector<const HEPUtils::Jet*> jets,double phi_met)
+      double SmallestdPhi(std::vector<HEPUtils::Jet *> jets,double phi_met)
       {
         if (jets.size()<2) return(999);
         double dphi1 = std::acos(std::cos(jets.at(0)->phi()-phi_met));
@@ -73,13 +70,13 @@ namespace Gambit {
       void run(const HEPUtils::Event* event) {
 
         // Missing energy
-        HEPUtils::P4 ptot = event->missingmom();
+        // HEPUtils::P4 ptot = event->missingmom();
         double met = event->met();
 
         // Baseline electrons
         vector<const HEPUtils::Particle*> baselineElectrons;
         for (const HEPUtils::Particle* electron : event->electrons()) {
-          if (electron->pT() > 30. && fabs(electron->eta()) < 2.5) {
+          if (electron->pT() > 20. && fabs(electron->eta()) < 2.5) {
             baselineElectrons.push_back(electron);
           }
         }
@@ -90,7 +87,7 @@ namespace Gambit {
         // Baseline muons
         vector<const HEPUtils::Particle*> baselineMuons;
         for (const HEPUtils::Particle* muon : event->muons()) {
-          if (muon->pT() > 30. && fabs(muon->eta()) < 2.1) {
+          if (muon->pT() > 20. && fabs(muon->eta()) < 2.4) {
             baselineMuons.push_back(muon);
           }
         }
@@ -103,7 +100,6 @@ namespace Gambit {
         baselineLeptons.insert(baselineLeptons.end(), baselineMuons.begin(), baselineMuons.end() );
 
         vector<const HEPUtils::Jet*> baselineJets;
-        //vector<LorentzVector> jets;
         vector<HEPUtils::P4> jets;
         vector<const HEPUtils::Jet*> bJets;
         vector<bool> btag;
@@ -114,10 +110,9 @@ namespace Gambit {
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
 
         for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
-          if (jet->pT() > 30. && fabs(jet->eta()) < 4.0) {
+          if (jet->pT() > 30. && fabs(jet->eta()) < 5.0) {
             baselineJets.push_back(jet);
             //LorentzVector j1 (jet->mom().px(),jet->mom().py(),jet->mom().pz(),jet->mom().E()) ;
-            //jets.push_back(j1);
             jets.push_back(jet->mom());
             bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
             bool isB=false;
@@ -137,51 +132,49 @@ namespace Gambit {
         //int nMuons = signalMuons.size();
         int nJets = baselineJets.size();
         int nLeptons = baselineLeptons.size();
-        int nBJets = bJets.size();
+        // int nBJets = bJets.size();
 
         //Preselection cuts
+
+        bool passMll=true;
+        if(baselineElectrons.size()==2 && baselineMuons.size()==0){
+          double mll=(baselineElectrons[0]->mom()+baselineElectrons[1]->mom()).m();
+          if(mll<=20.)passMll=false;
+          if(fabs(mll-91.)<=15.)passMll=false;
+        }
+
+        if(baselineMuons.size()==2 && baselineElectrons.size()==0){
+          double mll=(baselineMuons[0]->mom()+baselineMuons[1]->mom()).m();
+          if(mll<=20.)passMll=false;
+          if(fabs(mll-91.)<=15.)passMll=false;
+        }
+
         bool passPresel=false;
-        if(nLeptons==1 &&
-           nJets>=3 &&
-           nBJets>=1 &&
-           met > 160.)passPresel=true;
-
-        //Calculate mT
-        HEPUtils::P4 lepVec;
-        double mT=0;
-        if(nLeptons==1){
-          lepVec=baselineLeptons[0]->mom();
-          mT=sqrt(2.*lepVec.pT()*met*(1. - cos(_Phi_mpi_pi(lepVec.phi()-ptot.phi()))));
-        }
-
-        //Calculate MT2W
-        double MT2W=0;
-        // double MT2W_HU=0;
-        if (nJets > 1 && nLeptons==1) {
-          HEPUtils::P4 lepVec;
-          lepVec=baselineLeptons[0]->mom();
-          //LorentzVector lep (lepVec.px(),lepVec.py(),lepVec.pz(),lepVec.E());
-          float phi=float (ptot.phi());
-          //MT2W=calculateMT2w(jets, btag, lep, met, phi);
-          MT2W=calculateMT2wHepUtils(jets,btag,lepVec,met,phi);
-        }
-
-        //Calculate dPhi variable
-        float  phi=float (ptot.phi());
-        double dPhiMin12=SmallestdPhi(baselineJets,phi);
+        if(nLeptons==2 &&
+           nJets>=2 &&
+           passMll)passPresel=true;
 
         //Cuts
-        //MET > 320
-        //MT > 160
-        //MT2W > 300
-        //dPhiMin12 > 1.2
+
+        // met > 320 GeV
+        // Scalar sum of leading 2 jet pTs < 400 GeV
+        // Scalar sum of pT of leptons > 120 GeV
+        // dPhi_ll < 2.
+
+        double jetPtSum=0;
+        if(nJets>=2)jetPtSum=baselineJets[0]->pT()+baselineJets[1]->pT();
+        double lepPtSum=0;
+        if(baselineLeptons.size()==2)lepPtSum=baselineLeptons[0]->pT()+baselineLeptons[1]->pT();
+
+        double dPhiLL=99.;
+        if(baselineLeptons.size()==2)dPhiLL=acos(cos((baselineLeptons[0]->phi() - baselineLeptons[1]->phi())));
 
         cutFlowVector_str[0] = "No cuts ";
         cutFlowVector_str[1] = "Presel ";
         cutFlowVector_str[2] = "MET > 320 GeV ";
-        cutFlowVector_str[3] = "MT > 160 GeV ";
-        cutFlowVector_str[4] = "MT2W > 300 GeV ";
-        cutFlowVector_str[5] = "dPhiMin12 > 1.2 ";
+        cutFlowVector_str[3] = "pT_j1 + pT_j2 < 400 GeV ";
+        cutFlowVector_str[4] = "pT_l1 + pT_l2 > 120 GeV ";
+        cutFlowVector_str[5] = "dPhi_ll < 2. ";
 
         for(int j=0;j<NCUTS;j++){
           if(
@@ -191,25 +184,32 @@ namespace Gambit {
 
              (j==2 && passPresel && met > 320.) ||
 
-             (j==3 && passPresel && met > 320. && mT > 160.) ||
+             (j==3 && passPresel && met > 320. && jetPtSum < 400.) ||
 
-             (j==4 && passPresel && met > 320. && mT > 160. && MT2W > 300.) ||
+             (j==4 && passPresel && met > 320. && jetPtSum < 400. && lepPtSum > 120.) ||
 
-             (j==5 && passPresel && met > 320. && mT > 160. && MT2W > 300. && dPhiMin12 > 1.2))
+             (j==5 && passPresel && met > 320. && jetPtSum < 400. && lepPtSum > 120. && dPhiLL < 2.))
 
             cutFlowVector[j]++;
         }
 
         //We're now ready to apply the cuts for each signal region
 
-        if(passPresel && met > 320. && mT > 160. && MT2W > 300. && dPhiMin12 > 1.2) _counters["SR"].add_event(event);
+        if(passPresel && met > 320. && jetPtSum < 400. && lepPtSum > 120. && dPhiLL < 2.) _counters["SR"].add_event(event);
 
         return;
       }
 
-      void collect_results()
-      {
-        add_result(SignalRegionData(_counters["SR"], 18., { 16.4, 3.48}));
+
+
+      double loglikelihood() {
+        /// @todo Implement!
+        return 0;
+      }
+
+      void collect_results() {
+
+        add_result(SignalRegionData(_counters["SR"], 1., {1.89, 0.66}));
 
         return;
       }
@@ -225,7 +225,7 @@ namespace Gambit {
     };
 
 
-    DEFINE_ANALYSIS_FACTORY(CMS_8TeV_1LEPDMTOP_20invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_B2G_13_004)
 
 
   }

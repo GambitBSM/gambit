@@ -58,16 +58,16 @@ namespace Gambit {
   namespace ColliderBit {
 
 
-    class Analysis_CMS_13TeV_Photon_GMSB_137invfb : public Analysis {
+    class Analysis_CMS_SUS_21_009 : public Analysis {
     public:
 
       static constexpr const char* detector = "CMS";
 
       Cutflow _cutflow;
 
-      Analysis_CMS_13TeV_Photon_GMSB_137invfb()
+      Analysis_CMS_SUS_21_009()
       {
-        set_analysis_name("CMS_13TeV_Photon_GMSB_137invfb");
+        set_analysis_name("CMS_SUS_21_009");
         set_luminosity(137.0);
 
         // Counters for the number of accepted events for each signal region
@@ -417,7 +417,7 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_Photon_GMSB_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_21_009)
 
   }
 }

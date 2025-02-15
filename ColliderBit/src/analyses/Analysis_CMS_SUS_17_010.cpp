@@ -27,7 +27,7 @@ namespace Gambit {
     // defined further down:
     // - Analysis_CMS_13TeV_2OSLEP_chargino_36invfb
     // - Analysis_CMS_13TeV_2OSLEP_stop_36invfb
-    class Analysis_CMS_13TeV_2OSLEP_chargino_stop_36invfb : public Analysis {
+    class Analysis_CMS_SUS_17_010 : public Analysis {
 
     protected:
       static const size_t NUMSR_stop = 84;
@@ -40,7 +40,7 @@ namespace Gambit {
       // Required detector sim
       static constexpr const char* detector = "CMS";
 
-      Analysis_CMS_13TeV_2OSLEP_chargino_stop_36invfb():
+      Analysis_CMS_SUS_17_010():
       _cutflow("CMS 2-lep stop 13 TeV", {"Two_OC_leptons", "Third_lepton_veto", "mll_20", "mll_mZ_15", "PTmiss_140"})
       {
 
@@ -204,7 +204,7 @@ namespace Gambit {
         _counters["SR-chargino-69"] = EventCounter("SR-chargino-69");
 
 
-        set_analysis_name("Analysis_CMS_13TeV_2OSLEP_chargino_stop_36invfb");
+        set_analysis_name("Analysis_CMS_SUS_17_010");
         set_luminosity(35.9);
       }
 
@@ -748,18 +748,18 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2OSLEP_chargino_stop_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_17_010)
 
 
 
     //
     // Derived analysis class for the chargino SRs
     //
-    class Analysis_CMS_13TeV_2OSLEP_for_chargino_36invfb : public Analysis_CMS_13TeV_2OSLEP_chargino_stop_36invfb {
+    class Analysis_CMS_SUS_17_010_chargino : public Analysis_CMS_SUS_17_010 {
 
     public:
-      Analysis_CMS_13TeV_2OSLEP_for_chargino_36invfb() {
-        set_analysis_name("CMS_13TeV_2OSLEP_for_chargino_36invfb");
+      Analysis_CMS_SUS_17_010_chargino() {
+        set_analysis_name("CMS_SUS_17_010_chargino");
       }
 
       virtual void collect_results() {
@@ -916,18 +916,18 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2OSLEP_for_chargino_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_17_010_chargino)
 
 
 
     //
     // Derived analysis class for the stop SRs
     //
-    class Analysis_CMS_13TeV_2OSLEP_for_stop_36invfb : public Analysis_CMS_13TeV_2OSLEP_chargino_stop_36invfb {
+    class Analysis_CMS_SUS_17_010_stop : public Analysis_CMS_SUS_17_010 {
 
     public:
-      Analysis_CMS_13TeV_2OSLEP_for_stop_36invfb() {
-        set_analysis_name("CMS_13TeV_2OSLEP_for_stop_36invfb");
+      Analysis_CMS_SUS_17_010_stop() {
+        set_analysis_name("CMS_SUS_17_010_stop");
       }
 
       virtual void collect_results() {
@@ -1112,7 +1112,7 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2OSLEP_for_stop_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_17_010_stop)
 
 
   }

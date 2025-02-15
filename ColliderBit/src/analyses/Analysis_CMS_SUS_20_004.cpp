@@ -40,7 +40,7 @@ using namespace std;
 namespace Gambit {
   namespace ColliderBit {
 
-    class Analysis_CMS_13TeV_2Higgs_4b_neutralino_137invfb : public Analysis {
+    class Analysis_CMS_SUS_20_004 : public Analysis {
     protected:
 
         Cutflow _cutflow;
@@ -53,8 +53,8 @@ namespace Gambit {
         // Required detector sim
         static constexpr const char* detector = "CMS";
 
-        Analysis_CMS_13TeV_2Higgs_4b_neutralino_137invfb():
-        _cutflow("CMS_13TeV_2Higgs_4b_neutralino_137invfb", {
+        Analysis_CMS_SUS_20_004():
+        _cutflow("CMS_SUS_20_004", {
           "Filters",
           "N_vl=N_tk=0",
           "4<=N_jet<=5",
@@ -78,7 +78,7 @@ namespace Gambit {
           "DbbJ1&2>0.7"
           })
         {
-            set_analysis_name("CMS_13TeV_2Higgs_4b_neutralino_137invfb");
+            set_analysis_name("CMS_SUS_20_004");
             set_luminosity(137);
 
             for(size_t i=1; i<=22; ++i)
@@ -349,7 +349,7 @@ namespace Gambit {
     };
 
 
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2Higgs_4b_neutralino_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_20_004)
 
   }
 }

@@ -18,7 +18,7 @@ namespace Gambit
     ///
     /// Based on: http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-19-006/index.html
     ///
-    class Analysis_CMS_13TeV_0LEP_137invfb : public Analysis
+    class Analysis_CMS_SUS_19_006 : public Analysis
     {
       public:
 
@@ -29,7 +29,7 @@ namespace Gambit
         Cutflow _cutflow;
 
 
-        Analysis_CMS_13TeV_0LEP_137invfb() :
+        Analysis_CMS_SUS_19_006() :
           _cutflow("CMS 0-lep 13 TeV",
                    {"Njet >= 2", "HT > 300", "HTmiss > 300", "HTmiss/HT < 1",
                        "Nmuon = 0", "Nelectron = 0", "Nphoton = 0",
@@ -53,7 +53,7 @@ namespace Gambit
           _counters["SR12"] = EventCounter("SR12");
 
 
-          set_analysis_name("CMS_13TeV_0LEP_137invfb");
+          set_analysis_name("CMS_SUS_19_006");
           set_luminosity(137.0);
         }
 
@@ -249,7 +249,7 @@ namespace Gambit
 
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_0LEP_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_19_006)
 
 
   }

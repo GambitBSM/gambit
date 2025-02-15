@@ -64,16 +64,16 @@ namespace Gambit {
   namespace ColliderBit {
 
 
-    class Analysis_CMS_13TeV_2Photon_GMSB_36invfb : public Analysis {
+    class Analysis_CMS_SUS_17_011 : public Analysis {
     public:
 
       static constexpr const char* detector = "CMS";
 
      // Cutflow _cutflow;
 
-      // Analysis_CMS_13TeV_2Photon_GMSB_36invfb():
+      // Analysis_CMS_SUS_17_011():
       // _cutflow("CMS 2-photon GMSB 13 TeV", {"preselection", "MET>300GeV", "MT(g,MET)>300GeV", "S_T^g>600GeV"})
-      Analysis_CMS_13TeV_2Photon_GMSB_36invfb()
+      Analysis_CMS_SUS_17_011()
       {
 
         // Counters for the number of accepted events for each signal region
@@ -85,7 +85,7 @@ namespace Gambit {
         _counters["SR_MET_>250"] = EventCounter("SR_MET_>250");
 
 
-        set_analysis_name("CMS_13TeV_2Photon_GMSB_36invfb");
+        set_analysis_name("CMS_SUS_17_011");
         set_luminosity(35.9);
       }
 
@@ -306,7 +306,7 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2Photon_GMSB_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_17_011)
 
 
   }

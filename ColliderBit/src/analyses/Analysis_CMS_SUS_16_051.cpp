@@ -24,7 +24,7 @@ using namespace std;
 namespace Gambit {
   namespace ColliderBit {
 
-    class Analysis_CMS_13TeV_1LEPStop_36invfb : public Analysis {
+    class Analysis_CMS_SUS_16_051 : public Analysis {
     private:
 
         static const size_t NUM_aggregateSR = 6;
@@ -63,7 +63,7 @@ namespace Gambit {
         // Required detector sim
         static constexpr const char* detector = "CMS";
 
-        Analysis_CMS_13TeV_1LEPStop_36invfb():
+        Analysis_CMS_SUS_16_051():
             _cutflow("CMS 0-lep stop 13 TeV", {
             "Trigger",
             "M_{T}>150",
@@ -120,7 +120,7 @@ namespace Gambit {
             // _counters["SR30"] = EventCounter("SR30");
 
 
-            set_analysis_name("CMS_13TeV_1LEPStop_36invfb");
+            set_analysis_name("CMS_SUS_16_051");
             set_luminosity(35.9);
         }
 
@@ -459,7 +459,7 @@ namespace Gambit {
     };
 
 
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_1LEPStop_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_051)
 
 
   }

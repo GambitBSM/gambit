@@ -200,9 +200,9 @@ namespace Gambit {
 
     // This analysis class is a base class for the following SR-specific
     // analysis classes defined further down:
-    // - Analysis_CMS_8TeV_MultiLEP_3Lep_20invfb
-    // - Analysis_CMS_8TeV_MultiLEP_4Lep_20invfb
-    class Analysis_CMS_8TeV_MultiLEP_20invfb : public Analysis {
+    // - Analysis_CMS_SUS_13_006_3Lep
+    // - Analysis_CMS_SUS_13_006_4Lep
+    class Analysis_CMS_SUS_13_006 : public Analysis {
 
     protected:
 
@@ -295,7 +295,7 @@ namespace Gambit {
       // Required detector sim
       static constexpr const char* detector = "CMS";
 
-      Analysis_CMS_8TeV_MultiLEP_20invfb()
+      Analysis_CMS_SUS_13_006()
       {
 
         // Counters for the number of accepted events for each signal region
@@ -438,7 +438,7 @@ namespace Gambit {
         _counters["SR4l_2OSSF0tau_ETmiss>100"] = EventCounter("SR4l_2OSSF0tau_ETmiss>100");
 
 
-        set_analysis_name("CMS_8TeV_MultiLEP_20invfb");
+        set_analysis_name("CMS_SUS_13_006");
         set_luminosity(19.5);
       }
 
@@ -858,18 +858,18 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_8TeV_MultiLEP_20invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_13_006)
 
 
 
     //
     //  Derived analysis class for the 3-lepton SRs
     //
-    class Analysis_CMS_8TeV_MultiLEP_3Lep_20invfb : public Analysis_CMS_8TeV_MultiLEP_20invfb {
+    class Analysis_CMS_SUS_13_006_3Lep : public Analysis_CMS_SUS_13_006 {
 
     public:
-      Analysis_CMS_8TeV_MultiLEP_3Lep_20invfb() {
-        set_analysis_name("CMS_8TeV_MultiLEP_3Lep_20invfb");
+      Analysis_CMS_SUS_13_006_3Lep() {
+        set_analysis_name("CMS_SUS_13_006_3Lep");
       }
 
       virtual void collect_results() {
@@ -883,17 +883,17 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_8TeV_MultiLEP_3Lep_20invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_13_006_3Lep)
 
 
     //
     //  Derived analysis class for the 4-lepton SRs
     //
-    class Analysis_CMS_8TeV_MultiLEP_4Lep_20invfb : public Analysis_CMS_8TeV_MultiLEP_20invfb {
+    class Analysis_CMS_SUS_13_006_4Lep : public Analysis_CMS_SUS_13_006 {
 
     public:
-      Analysis_CMS_8TeV_MultiLEP_4Lep_20invfb() {
-        set_analysis_name("CMS_8TeV_MultiLEP_4Lep_20invfb");
+      Analysis_CMS_SUS_13_006_4Lep() {
+        set_analysis_name("CMS_SUS_13_006_4Lep");
       }
 
       virtual void collect_results() {
@@ -904,7 +904,7 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_8TeV_MultiLEP_4Lep_20invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_13_006_4Lep)
 
 
   }

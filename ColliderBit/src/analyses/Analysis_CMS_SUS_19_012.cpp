@@ -19,7 +19,7 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    class Analysis_CMS_13TeV_MultiLEP_137invfb : public Analysis
+    class Analysis_CMS_SUS_19_012 : public Analysis
     {
 
       protected:
@@ -38,7 +38,7 @@ namespace Gambit
         static constexpr const char* detector = "CMS";
 
 
-        Analysis_CMS_13TeV_MultiLEP_137invfb()
+        Analysis_CMS_SUS_19_012()
         {
 
           // Fill counters map
@@ -116,7 +116,7 @@ namespace Gambit
           }
 
 
-          set_analysis_name("CMS_13TeV_MultiLEP_137invfb");
+          set_analysis_name("CMS_SUS_19_012");
           set_luminosity(137.0);
 
         }
@@ -893,17 +893,17 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_MultiLEP_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_19_012)
 
     // Subset of analysis with only 2lSS SRs
-    class Analysis_CMS_13TeV_MultiLEP_2LEP_137invfb : public Analysis_CMS_13TeV_MultiLEP_137invfb
+    class Analysis_CMS_SUS_19_012_2Lep : public Analysis_CMS_SUS_19_012
     {
 
       public:
 
-        Analysis_CMS_13TeV_MultiLEP_2LEP_137invfb()
+        Analysis_CMS_SUS_19_012_2Lep()
         {
-          set_analysis_name("CMS_13TeV_MultiLEP_2LEP_137invfb");
+          set_analysis_name("CMS_SUS_19_012_2Lep");
         }
 
         virtual void collect_results()
@@ -937,17 +937,17 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_MultiLEP_2LEP_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_19_012_2Lep)
 
     // Subset of analysis with only 3l (no taus)SRs
-    class Analysis_CMS_13TeV_MultiLEP_3LEP_137invfb : public Analysis_CMS_13TeV_MultiLEP_137invfb
+    class Analysis_CMS_SUS_19_012_3Lep : public Analysis_CMS_SUS_19_012
     {
 
       public:
 
-        Analysis_CMS_13TeV_MultiLEP_3LEP_137invfb()
+        Analysis_CMS_SUS_19_012_3Lep()
         {
-          set_analysis_name("CMS_13TeV_MultiLEP_3LEP_137invfb");
+          set_analysis_name("CMS_SUS_19_012_3Lep");
         }
 
         virtual void collect_results()
@@ -1030,17 +1030,17 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_MultiLEP_3LEP_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_19_012_3Lep)
 
     // Subset of analysis with only 3l (with taus)SRs
-    class Analysis_CMS_13TeV_MultiLEP_3LEPTau_137invfb : public Analysis_CMS_13TeV_MultiLEP_137invfb
+    class Analysis_CMS_SUS_19_012_3LEPTau : public Analysis_CMS_SUS_19_012
     {
 
       public:
 
-        Analysis_CMS_13TeV_MultiLEP_3LEPTau_137invfb()
+        Analysis_CMS_SUS_19_012_3LEPTau()
         {
-          set_analysis_name("CMS_13TeV_MultiLEP_3LEPTau_137invfb");
+          set_analysis_name("CMS_SUS_19_012_3LEPTau");
         }
 
         virtual void collect_results()
@@ -1106,17 +1106,17 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_MultiLEP_3LEPTau_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_19_012_3LEPTau)
 
     // Subset of analysis with only 4l (no taus) SRs
-    class Analysis_CMS_13TeV_MultiLEP_4LEP_137invfb : public Analysis_CMS_13TeV_MultiLEP_137invfb
+    class Analysis_CMS_SUS_19_012_4LEP : public Analysis_CMS_SUS_19_012
     {
 
       public:
 
-        Analysis_CMS_13TeV_MultiLEP_4LEP_137invfb()
+        Analysis_CMS_SUS_19_012_4LEP()
         {
-          set_analysis_name("CMS_13TeV_MultiLEP_4LEP_137invfb");
+          set_analysis_name("CMS_SUS_19_012_4LEP");
         }
 
         virtual void collect_results()
@@ -1140,17 +1140,17 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_MultiLEP_4LEP_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_19_012_4LEP)
 
      // Subset of analysis with only 4l (with taus) SRs
-    class Analysis_CMS_13TeV_MultiLEP_4LEPTau_137invfb : public Analysis_CMS_13TeV_MultiLEP_137invfb
+    class Analysis_CMS_SUS_19_012_4LEPTau : public Analysis_CMS_SUS_19_012
     {
 
       public:
 
-        Analysis_CMS_13TeV_MultiLEP_4LEPTau_137invfb()
+        Analysis_CMS_SUS_19_012_4LEPTau()
         {
-          set_analysis_name("CMS_13TeV_MultiLEP_4LEPTau_137invfb");
+          set_analysis_name("CMS_SUS_19_012_4LEPTau");
         }
 
         virtual void collect_results()
@@ -1177,7 +1177,7 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_MultiLEP_4LEPTau_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_19_012_4LEPTau)
 
   }
 }

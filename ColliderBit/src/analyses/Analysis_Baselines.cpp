@@ -2217,8 +2217,8 @@ namespace Gambit
           // Baseline objects //
 
           // Baseline selections inspired by 
-          // - CMS_13TeV_MultiLEP_137invfb
-          // - CMS_13TeV_2OSLEP_137invfb
+          // - CMS_SUS_19_012
+          // - CMS_SUS_20_001
 
           // HEPUtils objects: photons, electrons, muons, taus, invisibles, jets
           // HEPUtils variables: met, missingmom

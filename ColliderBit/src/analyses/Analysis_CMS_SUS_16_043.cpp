@@ -26,7 +26,7 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    class Analysis_CMS_13TeV_1LEPbb_36invfb : public Analysis
+    class Analysis_CMS_SUS_16_043 : public Analysis
     {
     private:
 
@@ -51,12 +51,12 @@ namespace Gambit
       // Required detector sim
       static constexpr const char* detector = "CMS";
 
-      Analysis_CMS_13TeV_1LEPbb_36invfb()
+      Analysis_CMS_SUS_16_043()
       {
         _counters["SRA"] = EventCounter("SRA");
         _counters["SRB"] = EventCounter("SRB");
 
-        set_analysis_name("CMS_13TeV_1LEPbb_36invfb");
+        set_analysis_name("CMS_SUS_16_043");
         set_luminosity(35.9);
 
         NCUTS=10;
@@ -336,7 +336,7 @@ namespace Gambit
 
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_1LEPbb_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_043)
 
 
   }

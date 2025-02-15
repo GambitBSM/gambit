@@ -24,7 +24,7 @@ using namespace std;
 namespace Gambit {
   namespace ColliderBit {
 
-    class Analysis_CMS_8TeV_MONOJET_20invfb : public Analysis {
+    class Analysis_CMS_EXO_12_048 : public Analysis {
     private:
 
       vector<int> cutFlowVector;
@@ -38,7 +38,7 @@ namespace Gambit {
       // Required detector sim
       static constexpr const char* detector = "CMS";
 
-      Analysis_CMS_8TeV_MONOJET_20invfb()
+      Analysis_CMS_EXO_12_048()
         : NCUTS(12)
       {
 
@@ -51,7 +51,7 @@ namespace Gambit {
         _counters["500"] = EventCounter("500");
         _counters["550"] = EventCounter("550");
 
-        set_analysis_name("CMS_8TeV_MONOJET_20invfb");
+        set_analysis_name("CMS_EXO_12_048");
         set_luminosity(19.7);
 
         for (int i=0; i<NCUTS; i++) {
@@ -229,7 +229,7 @@ namespace Gambit {
     };
 
 
-    DEFINE_ANALYSIS_FACTORY(CMS_8TeV_MONOJET_20invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_EXO_12_048)
 
 
   }

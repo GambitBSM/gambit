@@ -16,7 +16,7 @@ namespace Gambit {
     ///
     /// @todo Add W/Z region with AKT8 jets and 2/1 n-subjettiness ratio cut
     ///
-    class Analysis_CMS_13TeV_MONOJET_36invfb : public Analysis {
+    class Analysis_CMS_EXO_16_048 : public Analysis {
     public:
 
       // Required detector sim
@@ -26,7 +26,7 @@ namespace Gambit {
 
       Cutflow _cutflow;
 
-      Analysis_CMS_13TeV_MONOJET_36invfb()
+      Analysis_CMS_EXO_16_048()
       // : _cutflow("CMS monojet 13 TeV", {"Njet >= 3", "HT > 300", "HTmiss > 300", "Nmuon = 0", "Nelectron = 0", "Nhadron = 0 (no-op)", "Dphi_htmiss_j1", "Dphi_htmiss_j2", "Dphi_htmiss_j3", "Dphi_htmiss_j4"})
       {
 
@@ -55,7 +55,7 @@ namespace Gambit {
 
 
         analysis_specific_reset();
-        set_analysis_name("CMS_13TeV_MONOJET_36invfb");
+        set_analysis_name("CMS_EXO_16_048");
         set_luminosity(35.9);
       }
 
@@ -189,7 +189,7 @@ namespace Gambit {
 
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_MONOJET_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_EXO_16_048)
 
 
   }

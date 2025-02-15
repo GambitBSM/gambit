@@ -29,7 +29,7 @@ using namespace std;
 namespace Gambit {
   namespace ColliderBit {
 
-    class Analysis_CMS_13TeV_2SSLEP_Stop_137invfb : public Analysis
+    class Analysis_CMS_SUS_19_008 : public Analysis
     {
     protected:
         Cutflow _cutflow;
@@ -40,8 +40,8 @@ namespace Gambit {
         // Required detector sim
         static constexpr const char* detector = "CMS";
 
-        Analysis_CMS_13TeV_2SSLEP_Stop_137invfb():
-        _cutflow("CMS_13TeV_2SSLEP_Stop_137invfb", {"Trigger_and_2leptons", "At_least_one_SS_lepton_pair", "Baseline"})
+        Analysis_CMS_SUS_19_008():
+        _cutflow("CMS_SUS_19_008", {"Trigger_and_2leptons", "At_least_one_SS_lepton_pair", "Baseline"})
         {
 
             // Counters for the number of accepted events for each signal region
@@ -238,7 +238,7 @@ namespace Gambit {
 //            _counters["SRML-43"] = EventCounter("SRML-43");
 
 
-            set_analysis_name("CMS_13TeV_2SSLEP_Stop_137invfb");
+            set_analysis_name("CMS_SUS_19_008");
             set_luminosity(137);
         }
 
@@ -983,7 +983,7 @@ namespace Gambit {
     };
 
 
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2SSLEP_Stop_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_19_008)
 
   }
 }

@@ -23,7 +23,7 @@ using namespace std;
 namespace Gambit {
   namespace ColliderBit {
 
-    class Analysis_CMS_13TeV_2OSLEP_confnote_36invfb : public Analysis {
+    class Analysis_CMS_SUS_16_034 : public Analysis {
     private:
 
       vector<int> cutFlowVector;
@@ -47,7 +47,7 @@ namespace Gambit {
         bool operator() (const HEPUtils::Jet* i,const HEPUtils::Jet* j) {return (i->pT()>j->pT());}
       } compareJetPt;
 
-      Analysis_CMS_13TeV_2OSLEP_confnote_36invfb()
+      Analysis_CMS_SUS_16_034()
       {
 
         // Numbers passing cuts
@@ -62,7 +62,7 @@ namespace Gambit {
         _counters["SR9"] = EventCounter("SR9");
 
 
-        set_analysis_name("CMS_13TeV_2OSLEP_confnote_36invfb");
+        set_analysis_name("CMS_SUS_16_034");
         set_luminosity(35.9);
 
         NCUTS=13;
@@ -376,7 +376,7 @@ namespace Gambit {
 
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2OSLEP_confnote_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_034)
 
 
   }

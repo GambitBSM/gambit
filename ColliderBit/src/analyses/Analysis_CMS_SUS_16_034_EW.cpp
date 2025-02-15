@@ -25,10 +25,10 @@ namespace Gambit {
   namespace ColliderBit {
 
     // This analysis class is also a base class for the class
-    // Analysis_CMS_13TeV_2OSLEP_36invfb_nocovar defined further down.
+    // Analysis_CMS_SUS_16_034_EW_nocovar defined further down.
     // This is the same analysis, but it does not make use of the
     // SR covariance information.
-    class Analysis_CMS_13TeV_2OSLEP_36invfb : public Analysis {
+    class Analysis_CMS_SUS_16_034_EW : public Analysis {
 
     protected:
 
@@ -54,7 +54,7 @@ namespace Gambit {
         bool operator() (const HEPUtils::Jet* i,const HEPUtils::Jet* j) {return (i->pT()>j->pT());}
       } compareJetPt;
 
-      Analysis_CMS_13TeV_2OSLEP_36invfb()
+      Analysis_CMS_SUS_16_034_EW()
       {
         // Counters for the number of accepted events for each signal region
         _counters["SR1"] = EventCounter("SR1");
@@ -65,7 +65,7 @@ namespace Gambit {
         _counters["SR6"] = EventCounter("SR6");
         _counters["SR7"] = EventCounter("SR7");
 
-        set_analysis_name("CMS_13TeV_2OSLEP_36invfb");
+        set_analysis_name("CMS_SUS_16_034_EW");
         set_luminosity(35.9);
         // xsecCMS_550_200=30.2;
 
@@ -416,18 +416,18 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2OSLEP_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_034_EW)
 
 
 
     //
     // Derived analysis class that does not make use of the SR covariance matrix
     //
-    class Analysis_CMS_13TeV_2OSLEP_36invfb_nocovar : public Analysis_CMS_13TeV_2OSLEP_36invfb {
+    class Analysis_CMS_SUS_16_034_EW_nocovar : public Analysis_CMS_SUS_16_034_EW {
 
     public:
-      Analysis_CMS_13TeV_2OSLEP_36invfb_nocovar() {
-        set_analysis_name("CMS_13TeV_2OSLEP_36invfb_nocovar");
+      Analysis_CMS_SUS_16_034_EW_nocovar() {
+        set_analysis_name("CMS_SUS_16_034_EW_nocovar");
       }
 
       virtual void collect_results() {
@@ -445,7 +445,7 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2OSLEP_36invfb_nocovar)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_034_EW_nocovar)
 
 
   }

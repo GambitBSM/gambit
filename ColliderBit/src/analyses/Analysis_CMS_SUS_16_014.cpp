@@ -10,11 +10,11 @@ namespace Gambit {
     using namespace HEPUtils;
 
 
-    /// @brief CMS Run 2 0-lepton jet+MET SUSY analysis, with 36/fb of data
+    /// @brief CMS Run 2 0-lepton jet+MET SUSY analysis, with 13/fb of data
     ///
-    /// Based on: https://arxiv.org/pdf/1704.07781.pdf
+    /// Based on: CMS-SUS-16-014,  http://cms-results.web.cern.ch/cms-results/public-results/preliminary-results/SUS-16-014/index.html
     ///
-    class Analysis_CMS_13TeV_0LEP_36invfb : public Analysis {
+    class Analysis_CMS_SUS_16_014 : public Analysis {
     public:
 
       // Required detector sim
@@ -24,7 +24,7 @@ namespace Gambit {
 
       Cutflow _cutflow;
 
-      Analysis_CMS_13TeV_0LEP_36invfb() :
+      Analysis_CMS_SUS_16_014() :
         _cutflow("CMS 0-lep 13 TeV", {"Njet >= 3", "HT > 300", "HTmiss > 300", "Nmuon = 0", "Nelectron = 0", "Nhadron = 0 (no-op)", "Dphi_htmiss_j1", "Dphi_htmiss_j2", "Dphi_htmiss_j3", "Dphi_htmiss_j4"})
       {
 
@@ -43,8 +43,8 @@ namespace Gambit {
         _counters["SR12"] = EventCounter("SR12");
 
 
-        set_analysis_name("CMS_13TeV_0LEP_36invfb");
-        set_luminosity(35.9);
+        set_analysis_name("CMS_SUS_16_014");
+        set_luminosity(12.9);
       }
 
 
@@ -62,7 +62,7 @@ namespace Gambit {
           if (jet->abseta() < 2.4) jets24.push_back(jet);
           if (jet->abseta() < 5.0) jets50.push_back(jet);
         }
-        if (jets24.size() < 2) return;
+        if (jets24.size() < 3) return;
         _cutflow.fill(1);
 
         // HT cut
@@ -95,7 +95,7 @@ namespace Gambit {
           if (muon->pT() > 10. && muon->abseta() < 2.4)
             basemuons.push_back(muon);
 
-        // Apply muon efficiency
+        // Apply electron efficiency
         applyEfficiency(basemuons, CMS::eff2DMu.at("Generic"));
 
         // Electron isolation
@@ -156,7 +156,7 @@ namespace Gambit {
         _cutflow.fill(7);
         if (deltaPhi(-htvec, jets24[1]->mom()) < 0.5) return;
         _cutflow.fill(8);
-        if (jets24.size() >= 3 && deltaPhi(-htvec, jets24[2]->mom()) < 0.3) return;
+        if (deltaPhi(-htvec, jets24[2]->mom()) < 0.3) return;
         _cutflow.fill(9);
         if (jets24.size() >= 4 && deltaPhi(-htvec, jets24[3]->mom()) < 0.3) return;
         _cutflow.fill(10);
@@ -201,27 +201,26 @@ namespace Gambit {
 
 
         // Fill aggregate SR bins
-        const size_t njets = jets24.size();
-
-        size_t nbjets = 0;
+        const size_t nj = jets24.size();
+        size_t nbj = 0;
         for (const Jet* j : jets24) {
+          if (j->pT() < 50 && j->abseta() > 2.5) continue;
           // b-tag effs: b: 0.55, c: 0.12, l: 0.016
           const bool btagged = Random::draw() < (j->btag() ? 0.55 : j->ctag() ? 0.12 : 0.016);
-          if (btagged) nbjets += 1;
+          if (btagged) nbj += 1;
         }
-
-        if (njets >= 2 && nbjets == 0 && ht >=  500 && htmiss >= 500) _counters.at("SR1").add_event(event);
-        if (njets >= 3 && nbjets == 0 && ht >= 1500 && htmiss >= 750) _counters.at("SR2").add_event(event);
-        if (njets >= 5 && nbjets == 0 && ht >=  500 && htmiss >= 500) _counters.at("SR3").add_event(event);
-        if (njets >= 5 && nbjets == 0 && ht >= 1500 && htmiss >= 750) _counters.at("SR4").add_event(event);
-        if (njets >= 9 && nbjets == 0 && ht >= 1500 && htmiss >= 750) _counters.at("SR5").add_event(event);
-        if (njets >= 2 && nbjets >= 2 && ht >=  500 && htmiss >= 500) _counters.at("SR6").add_event(event);
-        if (njets >= 3 && nbjets >= 1 && ht >=  750 && htmiss >= 750) _counters.at("SR7").add_event(event);
-        if (njets >= 5 && nbjets >= 3 && ht >=  500 && htmiss >= 500) _counters.at("SR8").add_event(event);
-        if (njets >= 5 && nbjets >= 2 && ht >= 1500 && htmiss >= 750) _counters.at("SR9").add_event(event);
-        if (njets >= 9 && nbjets >= 3 && ht >=  750 && htmiss >= 750) _counters.at("SR10").add_event(event);
-        if (njets >= 7 && nbjets >= 1 && ht >=  300 && htmiss >= 300) _counters.at("SR11").add_event(event);
-        if (njets >= 5 && nbjets >= 1 && ht >=  750 && htmiss >= 750) _counters.at("SR12").add_event(event);
+        if (nj >= 3 && nbj == 0 && ht >  500 && htmiss > 500) _counters.at("SR1").add_event(event);
+        if (nj >= 3 && nbj == 0 && ht > 1500 && htmiss > 750) _counters.at("SR2").add_event(event);
+        if (nj >= 5 && nbj == 0 && ht >  500 && htmiss > 500) _counters.at("SR3").add_event(event);
+        if (nj >= 5 && nbj == 0 && ht > 1500 && htmiss > 750) _counters.at("SR4").add_event(event);
+        if (nj >= 9 && nbj == 0 && ht > 1500 && htmiss > 750) _counters.at("SR5").add_event(event);
+        if (nj >= 3 && nbj >= 2 && ht >  500 && htmiss > 500) _counters.at("SR6").add_event(event);
+        if (nj >= 3 && nbj >= 1 && ht >  750 && htmiss > 750) _counters.at("SR7").add_event(event);
+        if (nj >= 5 && nbj >= 3 && ht >  500 && htmiss > 500) _counters.at("SR8").add_event(event);
+        if (nj >= 5 && nbj >= 2 && ht > 1500 && htmiss > 750) _counters.at("SR9").add_event(event);
+        if (nj >= 9 && nbj >= 3 && ht >  750 && htmiss > 750) _counters.at("SR10").add_event(event);
+        if (nj >= 7 && nbj >= 1 && ht >  300 && htmiss > 300) _counters.at("SR11").add_event(event);
+        if (nj >= 5 && nbj >= 1 && ht >  750 && htmiss > 750) _counters.at("SR12").add_event(event);
 
       }
 
@@ -229,19 +228,19 @@ namespace Gambit {
       /// Register results objects with the results for each SR; obs & bkg numbers from the CONF note
       void collect_results() {
 
-        // The bkg errors are quad sums of upper limits
-        add_result(SignalRegionData(_counters.at("SR1"), 7838., {7584., sqrt(63*63+370*370)} ));
-        add_result(SignalRegionData(_counters.at("SR2"), 71., {55.2, sqrt(6.2*6.2+5.3*5.3)} ));
-        add_result(SignalRegionData(_counters.at("SR3"), 819., {806., sqrt(19*19+38*38)} ));
-        add_result(SignalRegionData(_counters.at("SR4"), 25., {23.0, sqrt(3.8*3.8+2.7*2.7)} ));
-        add_result(SignalRegionData(_counters.at("SR5"), 1., {0.6, sqrt(1.1*1.1+0.2*0.2)} ));
-        add_result(SignalRegionData(_counters.at("SR6"), 216., {196., sqrt(13*13+15*15)} ));
-        add_result(SignalRegionData(_counters.at("SR7"), 123., {113., sqrt(8*8+10*10)} ));
-        add_result(SignalRegionData(_counters.at("SR8"), 17., {19.5, sqrt(5.2*5.2+3.2*3.2)} ));
-        add_result(SignalRegionData(_counters.at("SR9"), 6., {4.4, sqrt(2.8*2.8+0.6*0.6)} ));
-        add_result(SignalRegionData(_counters.at("SR10"), 0., {0., sqrt(1.3*1.3+0.*0.)} ));
-        add_result(SignalRegionData(_counters.at("SR11"), 890., {969., sqrt(23*23+57*57)} ));
-        add_result(SignalRegionData(_counters.at("SR12"), 48., {42.2, sqrt(5.7*5.7+4.0*4.0)} ));
+        // The bkg errors are the quad sums of upper limits
+        add_result(SignalRegionData(_counters.at("SR1"), 1614., {1498., 99.7} ));
+        add_result(SignalRegionData(_counters.at("SR2"), 18., {15.9, 3.91} ));
+        add_result(SignalRegionData(_counters.at("SR3"), 306., {284., 21.6} ));
+        add_result(SignalRegionData(_counters.at("SR4"), 7., {8.9, 2.86} ));
+        add_result(SignalRegionData(_counters.at("SR5"), 1., {0.17, 0.98} ));
+        add_result(SignalRegionData(_counters.at("SR6"), 71., {63.3, 11.2} ));
+        add_result(SignalRegionData(_counters.at("SR7"), 54., {41.4, 8.24} ));
+        add_result(SignalRegionData(_counters.at("SR8"), 7., {4.2, 4.24} ));
+        add_result(SignalRegionData(_counters.at("SR9"), 2., {0.9, 2.60} ));
+        add_result(SignalRegionData(_counters.at("SR10"), 0., {0., 1.60} ));
+        add_result(SignalRegionData(_counters.at("SR11"), 316., {385., 33.0} ));
+        add_result(SignalRegionData(_counters.at("SR12"), 17., {15.9, 5.47} ));
 
       }
 
@@ -255,7 +254,7 @@ namespace Gambit {
 
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_0LEP_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_014)
 
 
   }

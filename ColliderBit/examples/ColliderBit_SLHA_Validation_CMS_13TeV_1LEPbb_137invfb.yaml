@@ -131,7 +131,7 @@ Rules:
         all_SR_must_converge: false
         maxFailedEvents: 10
         analyses:
-          - CMS_13TeV_1LEPbb_137invfb
+          - CMS_SUS_20_003
 
   # Choose Monte Carlo event simulator and options.
   - capability:  HardScatteringSim
@@ -240,7 +240,7 @@ KeyValues:
     model_invalid_for_lnlike_below_alt: -1e5
 
   # Set the default output path
-  default_output_path: "runs/ColliderBit_SLHA_Validation_CMS_13TeV_1LEPbb_137invfb/"
+  default_output_path: "runs/ColliderBit_SLHA_Validation_CMS_SUS_20_003/"
 
   # Exceptions fatal or non-fatal?
   exceptions:

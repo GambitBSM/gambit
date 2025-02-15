@@ -34,10 +34,10 @@ namespace Gambit
 
     // This analysis class is a base class for three SR-specific analysis classes
     // defined further down:
-    // - Analysis_CMS_13TeV_MultiLEP_Full_2SSLep_36invfb
-    // - Analysis_CMS_13TeV_MultiLEP_Full_3Lep_36invfb
-    // - Analysis_CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
-    class Analysis_CMS_13TeV_MultiLEP_Full_36invfb : public Analysis
+    // - Analysis_CMS_SUS_16_039_Full_2SSLep
+    // - Analysis_CMS_SUS_16_039_Full_3Lep
+    // - Analysis_CMS_SUS_16_039_Full_3Lep_rebinned
+    class Analysis_CMS_SUS_16_039_Full : public Analysis
     {
 
     protected:
@@ -61,7 +61,7 @@ namespace Gambit
         bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
       } comparePt;
 
-      Analysis_CMS_13TeV_MultiLEP_Full_36invfb()
+      Analysis_CMS_SUS_16_039_Full()
       {
 
         // Counters for the number of accepted events for each signal region
@@ -204,7 +204,7 @@ namespace Gambit
 
 
 
-        set_analysis_name("CMS_13TeV_MultiLEP_Full_36invfb");
+        set_analysis_name("CMS_SUS_16_039_Full");
         set_luminosity(35.9);
 
         NCUTS1=10;
@@ -832,7 +832,7 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_MultiLEP_Full_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_039_Full)
 
 
 
@@ -840,11 +840,11 @@ namespace Gambit
     //
     // Derived analysis class for the 2Lep0Jets SRs
     //
-    class Analysis_CMS_13TeV_MultiLEP_Full_2SSLep_36invfb : public Analysis_CMS_13TeV_MultiLEP_Full_36invfb {
+    class Analysis_CMS_SUS_16_039_Full_2SSLep : public Analysis_CMS_SUS_16_039_Full {
 
     public:
-      Analysis_CMS_13TeV_MultiLEP_Full_2SSLep_36invfb() {
-        set_analysis_name("CMS_13TeV_MultiLEP_Full_2SSLep_36invfb");
+      Analysis_CMS_SUS_16_039_Full_2SSLep() {
+        set_analysis_name("CMS_SUS_16_039_Full_2SSLep");
       }
 
       virtual void collect_results() {
@@ -885,18 +885,18 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_MultiLEP_Full_2SSLep_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_039_Full_2SSLep)
 
 
 
     //
     // Derived analysis class for the 3Lep SRs
     //
-    class Analysis_CMS_13TeV_MultiLEP_Full_3Lep_36invfb : public Analysis_CMS_13TeV_MultiLEP_Full_36invfb {
+    class Analysis_CMS_SUS_16_039_Full_3Lep : public Analysis_CMS_SUS_16_039_Full {
 
     public:
-      Analysis_CMS_13TeV_MultiLEP_Full_3Lep_36invfb() {
-        set_analysis_name("CMS_13TeV_MultiLEP_Full_3Lep_36invfb");
+      Analysis_CMS_SUS_16_039_Full_3Lep() {
+        set_analysis_name("CMS_SUS_16_039_Full_3Lep");
       }
 
       virtual void collect_results() {
@@ -1002,18 +1002,18 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_MultiLEP_Full_3Lep_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_039_Full_3Lep)
 
 
 
     //
     // Derived analysis class for the 3Lep SRs (rebinned version)
     //
-    class Analysis_CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb : public Analysis_CMS_13TeV_MultiLEP_Full_36invfb {
+    class Analysis_CMS_SUS_16_039_Full_3Lep_rebinned : public Analysis_CMS_SUS_16_039_Full {
 
     public:
-      Analysis_CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb() {
-        set_analysis_name("CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb");
+      Analysis_CMS_SUS_16_039_Full_3Lep_rebinned() {
+        set_analysis_name("CMS_SUS_16_039_Full_3Lep_rebinned");
       }
 
       virtual void collect_results() {
@@ -1146,7 +1146,7 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_039_Full_3Lep_rebinned)
 
 
   }

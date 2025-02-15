@@ -32,16 +32,16 @@ namespace Gambit
 
     // This analysis class is also a base class for the classes
     // 
-    //   - CMS_13TeV_2OSLEP_Strong_Production_137invfb
-    //   - CMS_13TeV_2OSLEP_EW_Production_137invfb
-    //   - CMS_13TeV_2OSLEP_Slepton_137invfb
+    //   - CMS_SUS_20_001_strong_production
+    //   - CMS_SUS_20_001_EW_production
+    //   - CMS_SUS_20_001_Slepton
     // 
     // all defined below. The subclasses make use of the background
     // covariance matrices for their respective subset of signal regions.
     // This base class contains all SRs and does not make use of the
     // background covariance information.
 
-    class Analysis_CMS_13TeV_2OSLEP_137invfb : public Analysis
+    class Analysis_CMS_SUS_20_001 : public Analysis
     {
 
       protected:
@@ -73,10 +73,10 @@ namespace Gambit
           bool operator() (const HEPUtils::Jet* i,const HEPUtils::Jet* j) {return (i->pT()>j->pT());}
         } compareJetPt;
 
-        Analysis_CMS_13TeV_2OSLEP_137invfb()
+        Analysis_CMS_SUS_20_001()
         {
 
-          set_analysis_name("CMS_13TeV_2OSLEP_137invfb");
+          set_analysis_name("CMS_SUS_20_001");
           set_luminosity(137.);
 
           // Counters for the number of accepted events for each signal region
@@ -770,20 +770,20 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2OSLEP_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_20_001)
 
 
 
     //
     // Derived analysis class for the Strong-production on-Z search regions
     //
-    class Analysis_CMS_13TeV_2OSLEP_Strong_Production_137invfb : public Analysis_CMS_13TeV_2OSLEP_137invfb
+    class Analysis_CMS_SUS_20_001_strong_production : public Analysis_CMS_SUS_20_001
     {
 
       public:
-        Analysis_CMS_13TeV_2OSLEP_Strong_Production_137invfb()
+        Analysis_CMS_SUS_20_001_strong_production()
         {
-          set_analysis_name("CMS_13TeV_2OSLEP_Strong_Production_137invfb");
+          set_analysis_name("CMS_SUS_20_001_strong_production");
         }
 
         virtual void collect_results()
@@ -857,20 +857,20 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2OSLEP_Strong_Production_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_20_001_strong_production)
 
 
 
     //
     // Derived analysis class for the EW-production on-Z search regions
     //
-    class Analysis_CMS_13TeV_2OSLEP_EW_Production_137invfb : public Analysis_CMS_13TeV_2OSLEP_137invfb
+    class Analysis_CMS_SUS_20_001_EW_production : public Analysis_CMS_SUS_20_001
     {
 
       public:
-        Analysis_CMS_13TeV_2OSLEP_EW_Production_137invfb()
+        Analysis_CMS_SUS_20_001_EW_production()
         {
-          set_analysis_name("CMS_13TeV_2OSLEP_EW_Production_137invfb");
+          set_analysis_name("CMS_SUS_20_001_EW_production");
         }
 
         virtual void collect_results()
@@ -923,20 +923,20 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2OSLEP_EW_Production_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_20_001_EW_production)
 
 
 
     //
     // Derived analysis class for the Slepton search regions
     //
-    class Analysis_CMS_13TeV_2OSLEP_Slepton_137invfb : public Analysis_CMS_13TeV_2OSLEP_137invfb
+    class Analysis_CMS_SUS_20_001_Slepton : public Analysis_CMS_SUS_20_001
     {
 
       public:
-        Analysis_CMS_13TeV_2OSLEP_Slepton_137invfb()
+        Analysis_CMS_SUS_20_001_Slepton()
         {
-          set_analysis_name("CMS_13TeV_2OSLEP_Slepton_137invfb");
+          set_analysis_name("CMS_SUS_20_001_Slepton");
         }
 
         virtual void collect_results()
@@ -970,7 +970,7 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2OSLEP_Slepton_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_20_001_Slepton)
 
   }
 }

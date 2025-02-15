@@ -246,11 +246,11 @@ namespace Gambit
       Model_analysis_info empty_analysis_info;
 
       //
-      // New analysis: CMS_13TeV_MONOJET_36invfb_interpolated
+      // New analysis: CMS_SUS_16_048_interpolated
       //
 
       // Analysis name
-      if (current_analysis_name == "CMS_13TeV_MONOJET_36invfb_interpolated")
+      if (current_analysis_name == "CMS_SUS_16_048_interpolated")
       {
         current_ainfo->name = current_analysis_name;
         current_ainfo->lumi_invfb = 36.1;
@@ -444,11 +444,11 @@ namespace Gambit
       Model_analysis_info* current_ainfo;
 
       //
-      // New analysis: CMS_13TeV_MONOJET_36invfb_interpolated
+      // New analysis: CMS_SUS_16_048_interpolated
       //
 
       // Analysis name
-      current_analysis_name = "CMS_13TeV_MONOJET_36invfb_interpolated";
+      current_analysis_name = "CMS_SUS_16_048_interpolated";
 
       // Create an entry in the global analysis_info_map and point the pointer current_ainfo to it
       analysis_info_map[current_analysis_name] = Model_analysis_info();
@@ -1297,7 +1297,7 @@ namespace Gambit
       Model_analysis_info* current_ainfo;
       std::vector< std::vector<double>> bkgcov;
 
-      current_analysis_name = "CMS_13TeV_MONOJET_36invfb_interpolated";
+      current_analysis_name = "CMS_SUS_16_048_interpolated";
 
       if (std::find(skip_analyses.begin(), skip_analyses.end(), current_analysis_name) == skip_analyses.end() && Analysis_data_path[current_analysis_name] != "Skip Analysis")
       {
@@ -1439,11 +1439,11 @@ namespace Gambit
 
       if(ModelInUse("DMsimpVectorMedScalarDM"))
       {
-        Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_CMS36_MonoJet.txt";
+        Analysis_data_path["CMS_SUS_16_048_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_CMS36_MonoJet.txt";
         Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_ATLAS139_MonoJet.txt";
         Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_CMS137_MonoJet.txt";
 
-        Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
+        Interpolation_columns["CMS_SUS_16_048_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
                                                                          "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
                                                                          "SR18", "SR19", "SR20", "SR21", "SR22"};
@@ -1464,11 +1464,11 @@ namespace Gambit
       }
       else if(ModelInUse("DMsimpVectorMedMajoranaDM"))
       {
-        Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_CMS36_MonoJet.txt";
+        Analysis_data_path["CMS_SUS_16_048_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_CMS36_MonoJet.txt";
         Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_ATLAS139_MonoJet.txt";
         Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_CMS137_MonoJet.txt";
 
-        Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gAchi", "gq","xsec", "xsec_unc" ,
+        Interpolation_columns["CMS_SUS_16_048_interpolated"] = {"mDMmV_ratio","mass_MED","gAchi", "gq","xsec", "xsec_unc" ,
                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
                                                                          "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
                                                                          "SR18", "SR19", "SR20", "SR21", "SR22"};
@@ -1489,11 +1489,11 @@ namespace Gambit
       }
       else if(ModelInUse("DMsimpVectorMedDiracDM"))
       {
-        Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_CMS36_MonoJet.txt";
+        Analysis_data_path["CMS_SUS_16_048_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_CMS36_MonoJet.txt";
         Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_ATLAS139_MonoJet.txt";
         Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_CMS137_MonoJet.txt";
 
-        Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi","gAchi", "gq","xsec", "xsec_unc" ,
+        Interpolation_columns["CMS_SUS_16_048_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi","gAchi", "gq","xsec", "xsec_unc" ,
                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
                                                                          "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
                                                                          "SR18", "SR19", "SR20", "SR21", "SR22"};
@@ -1515,11 +1515,11 @@ namespace Gambit
       else if(ModelInUse("DMsimpVectorMedVectorDM"))
       {
         // Skipping the 36 invfb anaysis since it was not simulated for this model
-        Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = "Skip Analysis";
+        Analysis_data_path["CMS_SUS_16_048_interpolated"] = "Skip Analysis";
         Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedVectorDM_MonoJets/VectorDM_ATLAS139_MonoJet.txt";
         Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedVectorDM_MonoJets/VectorDM_CMS137_MonoJet.txt";
 
-        Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
+        Interpolation_columns["CMS_SUS_16_048_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
                                                                          "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
                                                                          "SR18", "SR19", "SR20", "SR21", "SR22"};

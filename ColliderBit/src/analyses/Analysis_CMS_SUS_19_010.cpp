@@ -28,7 +28,7 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    class Analysis_CMS_13TeV_0LEPStop_137invfb : public Analysis
+    class Analysis_CMS_SUS_19_010 : public Analysis
     {
 
     protected:
@@ -55,9 +55,9 @@ namespace Gambit
       // Required detector sim
       static constexpr const char* detector = "CMS";
 
-      Analysis_CMS_13TeV_0LEPStop_137invfb()
+      Analysis_CMS_SUS_19_010()
       {
-        set_analysis_name("CMS_13TeV_0LEPStop_137invfb");
+        set_analysis_name("CMS_SUS_19_010");
         set_luminosity(137);
 //
 //      Counters for the number of accepted events for each signal region
@@ -1440,7 +1440,7 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_0LEPStop_137invfb);
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_19_010);
 
   }
 }

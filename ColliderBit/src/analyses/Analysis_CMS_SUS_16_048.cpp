@@ -35,14 +35,14 @@ namespace Gambit {
 
     // This analysis class only returns the results from the EWino signal regions.
     // The stop signal regions are returned from the derived class
-    // Analysis_CMS_13TeV_2LEPsoft_stop_36invfb below.
+    // Analysis_CMS_SUS_16_048_stop below.
     //
     // There also the derived classes
-    // - Analysis_CMS_13TeV_2LEPsoft_36invfb_nocovar
-    // - Analysis_CMS_13TeV_2LEPsoft_stop_36invfb_nocovar
+    // - Analysis_CMS_SUS_16_048_nocovar
+    // - Analysis_CMS_SUS_16_048_stop_nocovar
     // that don't make use of the the covariance matrices
 
-    class Analysis_CMS_13TeV_2LEPsoft_36invfb : public Analysis {
+    class Analysis_CMS_SUS_16_048 : public Analysis {
 
     protected:
 
@@ -68,7 +68,7 @@ namespace Gambit {
         bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
       } comparePt;
 
-      Analysis_CMS_13TeV_2LEPsoft_36invfb() {
+      Analysis_CMS_SUS_16_048() {
 
         // Counters for the number of accepted events for each signal region
         _counters["SREW1"] = EventCounter("SREW1");
@@ -94,7 +94,7 @@ namespace Gambit {
         _counters["SRST9"] = EventCounter("SRST9");
 
 
-        set_analysis_name("CMS_13TeV_2LEPsoft_36invfb");
+        set_analysis_name("CMS_SUS_16_048");
         set_luminosity(35.9);
 
         NCUTS=14;
@@ -415,7 +415,7 @@ namespace Gambit {
           // double scale_by= 172004. / 1000000.;
           double scale_by = 1;
           cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-          cout << "CUT FLOW: CMS_13TeV_2LEPsoft_36invfb: Signal Region 1 "<<endl;
+          cout << "CUT FLOW: CMS_SUS_16_048: Signal Region 1 "<<endl;
           cout << "------------------------------------------------------------------------------------------------------------------------------"<<endl;
           cout << right << setw(40) << "CUT," << setw(20) << "RAW," << setw(20) << "SCALED,"
                << setw(20) << "%," << setw(20) << "CMS," << setw(20) << "GAMBIT(scaled)/CMS" << endl;
@@ -427,7 +427,7 @@ namespace Gambit {
           cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
 
           cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-          cout << "CUT FLOW: CMS_13TeV_2LEPsoft_36invfb: Signal Region 2 "<<endl;
+          cout << "CUT FLOW: CMS_SUS_16_048: Signal Region 2 "<<endl;
           cout << "------------------------------------------------------------------------------------------------------------------------------"<<endl;
           cout << right << setw(40) << "CUT," << setw(20) << "RAW," << setw(20) << "SCALED,"
                << setw(20) << "%," << setw(20) << "CMS," << setw(20) << "GAMBIT(scaled)/CMS" << endl;
@@ -441,7 +441,7 @@ namespace Gambit {
 
 
         // The stop signal regions are collected in the derived analysis class
-        // Analysis_CMS_13TeV_2LEPsoft_stop_36invfb below.
+        // Analysis_CMS_SUS_16_048_stop below.
 
         add_result(SignalRegionData(_counters.at("SREW1"),  2.,  {3.5, 1.}));
         add_result(SignalRegionData(_counters.at("SREW2"),  15., {12, 2.3}));
@@ -487,17 +487,17 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2LEPsoft_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_048)
 
 
     //
     // Derived analysis class that for the stop search signal regions
     //
-    class Analysis_CMS_13TeV_2LEPsoft_stop_36invfb : public Analysis_CMS_13TeV_2LEPsoft_36invfb {
+    class Analysis_CMS_SUS_16_048_stop : public Analysis_CMS_SUS_16_048 {
 
     public:
-      Analysis_CMS_13TeV_2LEPsoft_stop_36invfb() {
-        set_analysis_name("CMS_13TeV_2LEPsoft_stop_36invfb");
+      Analysis_CMS_SUS_16_048_stop() {
+        set_analysis_name("CMS_SUS_16_048_stop");
       }
 
       virtual void collect_results() {
@@ -505,7 +505,7 @@ namespace Gambit {
         #ifdef CUTFLOW
           double scale_by = 1;
           cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-          cout << "CUT FLOW: CMS_13TeV_2LEPsoft_stop_36invfb: Signal Region 1 "<<endl;
+          cout << "CUT FLOW: CMS_SUS_16_048_stop: Signal Region 1 "<<endl;
           cout << "------------------------------------------------------------------------------------------------------------------------------"<<endl;
           cout << right << setw(40) << "CUT," << setw(20) << "RAW," << setw(20) << "SCALED,"
                << setw(20) << "%," << setw(20) << "CMS," << setw(20) << "GAMBIT(scaled)/CMS" << endl;
@@ -517,7 +517,7 @@ namespace Gambit {
 
           cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
           cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-          cout << "CUT FLOW: CMS_13TeV_2LEPsoft_stop_36invfb: Signal Region 2 "<<endl;
+          cout << "CUT FLOW: CMS_SUS_16_048_stop: Signal Region 2 "<<endl;
           cout << "------------------------------------------------------------------------------------------------------------------------------"<<endl;
           cout << right << setw(40) << "CUT," << setw(20) << "RAW," << setw(20) << "SCALED,"
                << setw(20) << "%," << setw(20) << "CMS," << setw(20) << "GAMBIT(scaled)/CMS" << endl;
@@ -559,18 +559,18 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2LEPsoft_stop_36invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_048_stop)
 
 
 
     //
     // Derived EWino analysis class that does not make use of the SR covariance matrix
     //
-    class Analysis_CMS_13TeV_2LEPsoft_36invfb_nocovar : public Analysis_CMS_13TeV_2LEPsoft_36invfb {
+    class Analysis_CMS_SUS_16_048_nocovar : public Analysis_CMS_SUS_16_048 {
 
     public:
-      Analysis_CMS_13TeV_2LEPsoft_36invfb_nocovar() {
-        set_analysis_name("CMS_13TeV_2LEPsoft_36invfb_nocovar");
+      Analysis_CMS_SUS_16_048_nocovar() {
+        set_analysis_name("CMS_SUS_16_048_nocovar");
       }
 
       virtual void collect_results() {
@@ -593,17 +593,17 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2LEPsoft_36invfb_nocovar)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_048_nocovar)
 
 
     //
     // Derived stop-search analysis class that does not make use of the SR covariance matrix
     //
-    class Analysis_CMS_13TeV_2LEPsoft_stop_36invfb_nocovar : public Analysis_CMS_13TeV_2LEPsoft_36invfb {
+    class Analysis_CMS_SUS_16_048_stop_nocovar : public Analysis_CMS_SUS_16_048 {
 
     public:
-      Analysis_CMS_13TeV_2LEPsoft_stop_36invfb_nocovar() {
-        set_analysis_name("CMS_13TeV_2LEPsoft_stop_36invfb_nocovar");
+      Analysis_CMS_SUS_16_048_stop_nocovar() {
+        set_analysis_name("CMS_SUS_16_048_stop_nocovar");
       }
 
       virtual void collect_results() {
@@ -623,7 +623,7 @@ namespace Gambit {
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2LEPsoft_stop_36invfb_nocovar)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_048_stop_nocovar)
 
 
   }

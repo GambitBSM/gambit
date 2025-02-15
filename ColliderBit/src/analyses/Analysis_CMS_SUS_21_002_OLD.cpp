@@ -2,9 +2,6 @@
 ///  \author Adil Jueid
 ///  \date 2023 Sep
 ///
-///  \author Anders Kvellestad
-///  \date 2024 Mar
-///
 ///
 ///  *********************************************
 // Based on the CMS publication https://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-21-002/
@@ -30,7 +27,7 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    class Analysis_CMS_13TeV_0LEP_chargino_VV_VH_137invfb : public Analysis
+    class Analysis_CMS_SUS_21_002_OLD : public Analysis
     {
     private:
       std::map<string, EventCounter> _counters = {
@@ -71,6 +68,7 @@ namespace Gambit
           {"1H-MET-800-1200", EventCounter("1H-MET-800-1200")},
       };
 
+      // ofstream cutflowFile;
 
     public:
       // Required detector sim
@@ -78,13 +76,27 @@ namespace Gambit
 
       Cutflow _cutflow;
 
-      Analysis_CMS_13TeV_0LEP_chargino_VV_VH_137invfb():
-      _cutflow("CMS 0 lepton charginos 13 TeV NEW", {"Electron veto", "Muon veto", "MET>300 GeV", "HT > 300 GeV", "Njets > 2", "Photon veto", "NAK8 > 0", "Delta phi", "NAK8 > 1", "b-veto", "WH SR", "W SR", "H SR"})
+      Analysis_CMS_SUS_21_002_OLD():
+      _cutflow("CMS 0 lepton charginos 13 TeV", {"Electron veto", "Muon veto", "MET>300 GeV", "HT > 300 GeV", "Njets > 2", "Photon veto", "NAK8 > 0", "Delta phi", "NAK8 > 1", "b-veto", "WH SR", "W SR", "H SR"})
 
       {
-        set_analysis_name("CMS_13TeV_0LEP_chargino_VV_VH_137invfb");
+        set_analysis_name("CMS_SUS_21_002_OLD");
         set_luminosity(137.0);
       }
+
+      // Commented out for now since it's not used.
+      // double findMapValue(map<double, double> effMap, double pt)
+      // {
+      //   double eff = -1.0;
+      //   for (const auto& pair : effMap)
+      //   {
+      //     if (pt > pair.first)
+      //     {
+      //       eff = pair.second; 
+      //     }
+      //   }
+      //   return eff;
+      // }
 
       void run(const HEPUtils::Event *event)
       {
@@ -116,7 +128,7 @@ namespace Gambit
         vector<const HEPUtils::Particle*> vetoedPhotons;
         for (const HEPUtils::Particle* photon : event->photons())
         {
-          if ( photon->pT() > 100. && photon->abseta() < 2.4 ) vetoedPhotons.push_back(photon);
+          if ( photon->pT() > 100. && fabs( photon->eta() ) < 2.4 ) vetoedPhotons.push_back(photon);
         }
 
         // Need other selection on tracks (to recover also electrons and muons coming from tau decays)
@@ -129,13 +141,12 @@ namespace Gambit
         double misstag = 0.01;
         for ( const HEPUtils::Jet * jet : event->jets("antikt_R04") ) 
         {
-          if ( jet->pT() > 30. && fabs( jet->eta() ) < 2.4 )  signalJets.push_back(jet);
+          if ( jet->pT() > 30. && fabs( jet->eta() ) < 2.4 )                  signalJets.push_back(jet);
         }
-        for ( const HEPUtils::Jet* jet : signalJets ) 
-        {
+        for ( const HEPUtils::Jet* jet : signalJets ) {
           if ( jet->btag() && random_bool(btag) )         signalBJets.push_back(jet);
-          else if ( jet->ctag() && random_bool(cmisstag) )     signalBJets.push_back(jet);
-          else if ( random_bool(misstag) )                     signalBJets.push_back(jet);
+          if ( jet->ctag() && random_bool(cmisstag) )     signalBJets.push_back(jet);
+          if ( random_bool(misstag) )                     signalBJets.push_back(jet);
         }
 
         // CMS::applyCSVv2MediumBtagEff(signalBJets);
@@ -144,23 +155,8 @@ namespace Gambit
         // applyBtagMisId(signalJets, signalBJets, CMS::misIDBJet.at("CSVv2Medium"));
 
         vector<const HEPUtils::Jet *> baselineAK8Jets;
-        for ( const HEPUtils::Jet * jet : event->jets("antikt_R08") ) 
-        {
-          if (jet->pT() > 200. && fabs(jet->eta()) < 2.0) 
-          {
-            baselineAK8Jets.push_back(jet);
-
-            // double beta = 0.0;
-            // double z_cut = 0.1;
-            // double RSD  = 0.8;
-            // FJNS::contrib::SoftDrop sd(beta, z_cut, RSD);
-            // FJNS::PseudoJet pj = jet->pseudojet();
-            // FJNS::PseudoJet groomed_jet = sd(pj);
-            // if (groomed_jet.m() > 50.0)
-            // {
-            //   baselineAK8Jets.push_back(jet);
-            // }
-          }
+        for ( const HEPUtils::Jet * jet : event->jets("antikt_R08") ) {
+          if ( jet->pT() > 200. && fabs( jet->eta() ) < 2.0 && jet->mass() > 50. )   baselineAK8Jets.push_back(jet);
         }
 
         int nElectrons = vetoedElectrons.size();
@@ -174,11 +170,6 @@ namespace Gambit
         for ( unsigned int ij=0; ij < signalJets.size(); ij++ ) {
           HT += signalJets[ij]->pT();
         }
-
-        // Sort particles/jets by pT
-        sortByPt(signalJets);
-        sortByPt(signalBJets);
-        sortByPt(baselineAK8Jets);
 
         // Initial events
         _cutflow.fillinit();
@@ -207,22 +198,20 @@ namespace Gambit
         // CMS require deltaphi(pmiss, j1) > 1.5, deltaphi(pmiss, j2) > 0.5, deltaphi(pmiss, j3, j4) > 3
         //             deltaphi(pmiss, AK8) > 1.5 and deltaphi(pmiss, AK8_2) > 0.5
         HEPUtils::P4  pmiss = event->missingmom();
+        double deltaPhi_j3 = 9999.0; 
+        double deltaPhi_j4 = 9999.0;
+        double deltaPhi_J2 = 9999.0;
         double deltaPhi_j1=signalJets.at(0)->mom().deltaPhi(pmiss);
         double deltaPhi_j2=signalJets.at(1)->mom().deltaPhi(pmiss);
-        double deltaPhi_j3 = M_PI; 
-        double deltaPhi_j4 = M_PI;
         if ( nJets > 2 ) deltaPhi_j3=signalJets.at(2)->mom().deltaPhi(pmiss);
         if ( nJets > 3 ) deltaPhi_j4=signalJets.at(3)->mom().deltaPhi(pmiss);
-
         double deltaPhi_J1=baselineAK8Jets.at(0)->mom().deltaPhi(pmiss);
-        double deltaPhi_J2 = M_PI;
         if ( nAK8Jets > 1 )  deltaPhi_J2=baselineAK8Jets.at(1)->mom().deltaPhi(pmiss);
-
         bool deltaphi_cuts = false;
-        if (deltaPhi_j1 > 1.5 && deltaPhi_j2 > 0.5 && deltaPhi_j3 > 0.3 && deltaPhi_j4 > 0.3 && deltaPhi_J1 > 1.5 && deltaPhi_J2 > 0.5) 
-        {
-          deltaphi_cuts = true;
-        }
+        if ( deltaPhi_j1 > 1.5 && deltaPhi_j2 > 0.5 && deltaPhi_J1 > 1.5 ) deltaphi_cuts = true;
+        if ( deltaPhi_j3 > 0.3 ) deltaphi_cuts = true;
+        if ( deltaPhi_j4 > 0.3 ) deltaphi_cuts = true;      
+        if ( deltaPhi_J2 > 0.5 ) deltaphi_cuts = true;
 
         if ( !deltaphi_cuts ) return;
         _cutflow.fill(8);
@@ -230,138 +219,58 @@ namespace Gambit
         if ( nAK8Jets < 2 ) return;
         _cutflow.fill(9);
 
-
         // Defining the signal regions
-        // Tagger efficiency maps from 
-        // - https://www.hepdata.net/record/ins2085373?version=2&table=Efficiency%20of%20W-%20and%20V-taggers
-        // - https://www.hepdata.net/record/ins2085373?version=2&table=Efficiency%20of%20bb-tagger
-
-        const std::vector<double>  pT_bin_edges_Wtagger = {0, 200., 300., 400., DBL_MAX};
-        const std::vector<double>  Wqq_Wtagger_eff = {0., 0.403, 0.439, 0.455};
-        const std::vector<double>  Zqq_Wtagger_eff = {0., 0.298, 0.331, 0.320};
-        const std::vector<double>  Wqq_Vtagger_eff = {0., 0.407, 0.488, 0.513};
-        const std::vector<double>  Zqq_Vtagger_eff = {0., 0.330, 0.424, 0.453};
-
-        const std::vector<double>  pT_bin_edges_bbtagger = {0, 200., 250., 300., 350., 400., 500., DBL_MAX};
-        const std::vector<double>  Hbb_Htagger_eff = {0., 0.135, 0.427, 0.662, 0.713, 0.739, 0.681};
-        const std::vector<double>  Zbb_Htagger_eff = {0., 0.362, 0.560, 0.687, 0.711, 0.744, 0.671};
-        const std::vector<double>  Zcc_Htagger_eff = {0., 0.164, 0.301, 0.331, 0.396, 0404., 0.433};
-
-        HEPUtils::BinnedFn1D<double> _eff1d_Wqq_Wtagger(pT_bin_edges_Wtagger, Wqq_Wtagger_eff);
-        HEPUtils::BinnedFn1D<double> _eff1d_Zqq_Wtagger(pT_bin_edges_Wtagger, Zqq_Wtagger_eff);
-        HEPUtils::BinnedFn1D<double> _eff1d_Wqq_Vtagger(pT_bin_edges_Wtagger, Wqq_Vtagger_eff);
-        HEPUtils::BinnedFn1D<double> _eff1d_Zqq_Vtagger(pT_bin_edges_Wtagger, Zqq_Vtagger_eff);
-
-        HEPUtils::BinnedFn1D<double> _eff1d_Hbb_Htagger(pT_bin_edges_bbtagger, Hbb_Htagger_eff);
-        HEPUtils::BinnedFn1D<double> _eff1d_Zbb_Htagger(pT_bin_edges_bbtagger, Zbb_Htagger_eff);
-        HEPUtils::BinnedFn1D<double> _eff1d_Zcc_Htagger(pT_bin_edges_bbtagger, Zcc_Htagger_eff);
-
-
-        int nWJets = 0;
-        int nHJets = 0;
-        vector<const HEPUtils::Jet*> W_candidates;
-        vector<const HEPUtils::Jet*> H_candidates;
+        // @todo use realistic (pT, eta) maps when available
+        const std::vector<double>  a = {0, 200., 300., DBL_MAX};
+        const std::vector<double>  b_W = {0., 1.0, 0.41};
+        const std::vector<double>  b_H = {0., 0.0, 0.54};
+        HEPUtils::BinnedFn1D<double> _eff1dW(a, b_W);
+        HEPUtils::BinnedFn1D<double> _eff1dH(a, b_H);
+        vector<const FJNS::PseudoJet*> SDWJets;
         double beta = 0.0;
         double z_cut = 0.1;
         double RSD  = 0.8;
         FJNS::contrib::SoftDrop sd(beta, z_cut, RSD);
-
-        // First collect candidates for boson jets
-        for (const HEPUtils::Jet* jet : baselineAK8Jets) 
-        {
-          // Check if there is a nearby b jet
-          bool contains_b_jet = false;
-          for (const HEPUtils::Jet* bjet : signalBJets) 
-          {
-            if (jet->mom().deltaR_eta(bjet->mom()) < 0.8) 
-            {
-              contains_b_jet = true;
-            }
-          }
-
-          // Check jet mass
-          bool WZ_mass_window = false;
-          bool HZ_mass_window = false;
+        for ( const HEPUtils::Jet* jet : baselineAK8Jets ) {
+          bool isW=has_tag(_eff1dW, jet->pT());
+          if ( !isW ) continue;
           FJNS::PseudoJet pj = jet->pseudojet();
           FJNS::PseudoJet groomed_jet = sd(pj);
-          if ( groomed_jet.m() > 65.0 && groomed_jet.m() < 105.0 )
-          {
-            WZ_mass_window = true;
-          }
-          if ( groomed_jet.m() > 75.0 && groomed_jet.m() < 140.0 )
-          {
-            HZ_mass_window = true;
-          }
-
-          if (!contains_b_jet && WZ_mass_window) W_candidates.push_back(jet);
-          if (contains_b_jet && HZ_mass_window) H_candidates.push_back(jet);
+          if ( groomed_jet.m() <= 65.0 || groomed_jet.m() >= 105.0 ) continue;
+          SDWJets.push_back(&groomed_jet);
         }
-
-        // Now apply tagger efficiencies.
-        // Note: Applying the efficiencies in the way we do below (e.g. without 
-        // checking the the truth-level tags, not using both the Wtagger and Vtagger
-        // for Z's, etc.) was found to give the overall best agreement with the 
-        // published exclusion limits for the TChiWW, TChiWZ and TChiWH 
-        // signal models. Also, we are missing detailed efficiency tables for
-        // misstags.
-
-        for (const HEPUtils::Jet* jet : W_candidates) 
-        {
-          bool Wqq_Wtag = false;
-          bool Zqq_Wtag = false;
-          // if (has_tag(_eff1d_Wqq_Wtagger, jet->pT())) Wqq_Wtag = true;
-          if (has_tag(_eff1d_Wqq_Wtagger, jet->pT()) || has_tag(_eff1d_Wqq_Vtagger, jet->pT())) Wqq_Wtag = true;
-          if (has_tag(_eff1d_Zqq_Wtagger, jet->pT())) Zqq_Wtag = true;
-          // if (has_tag(_eff1d_Zqq_Wtagger, jet->pT()) || has_tag(_eff1d_Zqq_Vtagger, jet->pT())) Zqq_Wtag = true;
-          if (Wqq_Wtag || Zqq_Wtag) nWJets++;
-        }
-
-        for (const HEPUtils::Jet* jet : H_candidates) 
-        {
-          bool Zbb_Htag = false;
-          bool Hbb_Htag = false;
-          // if (has_tag(_eff1d_Zbb_Htagger, jet->pT())) Zbb_Htag = true;
-          if (has_tag(_eff1d_Zbb_Htagger, jet->pT()) || has_tag(_eff1d_Zcc_Htagger, jet->pT())) Zbb_Htag = true;
-          if (has_tag(_eff1d_Hbb_Htagger, jet->pT())) Hbb_Htag = true;
-          if (Zbb_Htag || Hbb_Htag) nHJets++;
-        }
-
+        int nWJets = SDWJets.size();
         bool ZeroB_SR = ( nBJets == 0 ) && ( nWJets >= 2 );
-        bool WH_SR    = ( nBJets > 0 && nHJets > 0 && nWJets > 0 );
-        bool W_SR     = ( nBJets > 0 && nHJets == 0 && nWJets > 0 );
-        bool H_SR     = ( nBJets > 0 && nHJets > 0 && nWJets == 0 );
+        if ( ZeroB_SR ) _cutflow.fill(10);
 
-        // std::cerr << std::endl;
-        // std::cerr << "DEBUG:"
-        //           << "  nJets: " << nJets 
-        //           << "  nBJets: " << nBJets 
-        //           << "  nAK8Jets: " << nAK8Jets
-        //           << "  n_true_W_AK8: " << n_true_W_AK8 
-        //           << "  n_true_Z_AK8: " << n_true_Z_AK8
-        //           << "  n_true_H_AK8: " << n_true_H_AK8
-        //           << std::endl;
-        // std::cerr << "DEBUG:"
-        //           << "  nWZcandidates: " << W_candidates.size()
-        //           << "  nHZcandidates: " << H_candidates.size()
-        //           << std::endl;
-        // std::cerr << "DEBUG:"
-        //           << "  nBJets: " << nBJets
-        //           << "  nWJets: " << nWJets
-        //           << "  nHJets: " << nHJets
-        //           << std::endl;
-        // std::cerr << "DEBUG:"
-        //           << "  ZeroB_SR: " << ZeroB_SR
-        //           << "  WH_SR: " << WH_SR
-        //           << "  W_SR: " << W_SR
-        //           << "  H_SR: " << H_SR
-        //           << std::endl;
+        // Signal regions with at least one b-tagged jet
+        // Higgs jet is defined as a SD AK 8 jet with pT > 200 GeV and m in ]75, 140[ GeV
+        // Higgs jet is also defined to contain at least one b-tagged jet, i.e. Delta R (b, H) < 0.8
+        vector <const FJNS::PseudoJet*> SDHJets;
+        if ( nBJets > 0 ) {
+          for ( unsigned int ib=0; ib < signalBJets.size(); ib++ ) {
+            for ( unsigned int IJ=0; IJ < baselineAK8Jets.size(); IJ++ ) {
+              double dR = signalBJets.at(ib)->mom().deltaR_eta(baselineAK8Jets.at(IJ)->mom());
+              if ( dR >= 0.8 ) continue;
+              bool isH=has_tag(_eff1dH, baselineAK8Jets[IJ]->pT());
+              if ( !isH ) continue;
+              FJNS::PseudoJet pj = baselineAK8Jets[IJ]->pseudojet();
+              FJNS::PseudoJet groomed_jet = sd(pj);
+              if ( groomed_jet.m() <= 75.0 || groomed_jet.m() >= 140.0 ) continue;
+              SDHJets.push_back(&groomed_jet);            
+            }
+          }
+        }
 
+        int nHJets = SDHJets.size();
+        bool WH_SR = ( nBJets > 0 && nHJets > 0 && nWJets > 0 );
+        bool W_SR  = ( nBJets > 0 && nHJets == 0 && nWJets > 0 );
+        bool H_SR  = ( nBJets > 0 && nHJets > 0 && nWJets == 0 );
 
+        if ( WH_SR ) _cutflow.fill(11);  // WH SR
+        if (  W_SR ) _cutflow.fill(12);  // W  SR
+        if (  H_SR ) _cutflow.fill(13);  // H  SR
 
-        if (ZeroB_SR) _cutflow.fill(10);
-        if (WH_SR)    _cutflow.fill(11);
-        if (W_SR)     _cutflow.fill(12);
-        if (H_SR)     _cutflow.fill(13);
 
         if ( ZeroB_SR ) {
           if  ( met > 200. && met <= 250. )   _counters.at("0b-MET-200-250").add_event(event);
@@ -418,12 +327,10 @@ namespace Gambit
           cout << _cutflow << endl;
           // Note: The EventCount::sum() call below gives the raw MC event count.
           //       Use weight_sum() to get the sum of event weights.
-          // for (auto& pair : _counters) {
-          //     cout << pair.first << "\t" << pair.second.sum() << endl;
-          // }
+          for (auto& pair : _counters) {
+              cout << pair.first << "\t" << pair.second.sum() << endl;
+          }
         #endif
-
-        // Note that order in which the SR results are added must match the order in the covariance matrix below.
         add_result(SignalRegionData(_counters.at("0b-MET-200-250"),  82.0, {88.139, 9.2357}));
         add_result(SignalRegionData(_counters.at("0b-MET-250-300"),  48.0, {48.165, 6.7386}));
         add_result(SignalRegionData(_counters.at("0b-MET-300-350"),  24.0, {25.378, 4.4114}));
@@ -519,7 +426,7 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_0LEP_chargino_VV_VH_137invfb)
+    DEFINE_ANALYSIS_FACTORY(CMS_SUS_21_002_OLD)
 
   }
 }
