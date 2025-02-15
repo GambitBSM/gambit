@@ -479,10 +479,7 @@ namespace Gambit
                 add_result(SignalRegionData(_counters.at("SR"), 58, {64.0, 9.0}));
 
                 COMMIT_CUTFLOWS;
-#ifdef CHECK_CUTFLOW
-                cout << "\n ===== CUTFLOWS ====== \n"
-                     << _cutflows << endl;
-#endif
+
                 return;
             }
 

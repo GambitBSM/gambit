@@ -205,37 +205,7 @@ namespace Gambit
       }
       _cutflows.combine(other->get_cutflows());
       _results.add_cutflows(_cutflows);
-      std::cout << "Cutflow combined after this cout" << std::endl; 
     }
-
-    // For printing progress
-
-    // void Analysis::enable_progress_tracking(size_t interval)
-    // {
-    //   _progress_tracking_enabled = true;
-    //   _progress_interval = interval;
-    //   _start_time = std::chrono::steady_clock::now();
-    // }
-
-    // void Analysis::log_progress()
-    // {
-    //   if (!_progress_tracking_enabled)
-    //     return;
-
-    //   _processed_events++;
-    //   if (_processed_events % _progress_interval == 0)
-    //   {
-    //     auto now = std::chrono::steady_clock::now();
-    //     auto elapsed_seconds = std::chrono::duration_cast<std::chrono::seconds>(now - _start_time).count();
-
-    //     int minutes = elapsed_seconds / 60;
-    //     int seconds = elapsed_seconds % 60;
-
-    //     std::cout << "Processed " << _processed_events
-    //               << " events (" << minutes << "m " << seconds << "s elapsed)"
-    //               << std::endl;
-    //   }
-    // }
 
   }
 }
