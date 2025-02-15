@@ -544,9 +544,9 @@ int main(int argc, char* argv[])
         {
           const Gambit::ColliderBit::SignalRegionData srData = adata[sr_index];
           json sr;
-          sr["sr_label"] = srData.sr_label;
           sr["n_obs"] = srData.n_obs;
           sr["n_bkg"] = srData.n_bkg;
+          sr["n_sig_MC"] = srData.n_sig_MC; 
           sr["n_bkg_err"] = srData.n_bkg_err;
           sr["n_sig_scaled"] = srData.n_sig_scaled;
           sr["n_sig_scaled_err"] = srData.calc_n_sig_scaled_err();
