@@ -43,7 +43,7 @@
 
 using namespace std;
 // #define CHECK_CUTFLOW
-#define CHECK_PLOT
+// #define CHECK_PLOT
 
 namespace Gambit
 {
