@@ -480,7 +480,6 @@ namespace Gambit
 
                 COMMIT_CUTFLOWS;
 #ifdef CHECK_CUTFLOW
-                _cutflows.combine();
                 cout << "\n ===== CUTFLOWS ====== \n"
                      << _cutflows << endl;
 #endif
