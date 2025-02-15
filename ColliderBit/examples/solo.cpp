@@ -445,6 +445,7 @@ int main(int argc, char* argv[])
       nested_functions.push_back(&Contur_LHC_measurements_from_stream);
     }
 
+    std::cout << "Tagging 0! -> operateLHCLoop.setNestedList(nested_functions);" << std::endl; 
     operateLHCLoop.setNestedList(nested_functions);
 
     // Call the initialisation function for backends
@@ -456,10 +457,12 @@ int main(int argc, char* argv[])
     }
 
     // Run the detector sim and selected analyses on all the events read in.
+    std::cout << "Tagging 1! -> operateLHCLoop.reset_and_calculate();" << std::endl; 
     operateLHCLoop.reset_and_calculate();
     CollectAnalyses.reset_and_calculate();
     calc_LHC_LogLikes_full.reset_and_calculate();
     get_LHC_LogLike_per_analysis.reset_and_calculate();
+    std::cout << "Tagging 2! -> calc_combined_LHC_LogLike.reset_and_calculate();" << std::endl; 
     calc_combined_LHC_LogLike.reset_and_calculate();
     if (withContur)
     {
