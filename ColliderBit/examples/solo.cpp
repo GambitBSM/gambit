@@ -25,9 +25,8 @@
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/cats.hpp"
+#include "gambit/Utils/json.hpp"
 // #include "gambit/Backends/backend_rollcall.hpp"
-
-
 
 #define NULIKE_VERSION "1.0.9"
 #define NULIKE_SAFE_VERSION 1_0_9
@@ -40,15 +39,17 @@
 #define FULLLIKES_VERSION "1.0"
 #define FULLLIKES_SAFE_VERSION 1_0
 
-#if __has_include(<filesystem>)
-    #include <filesystem>
-    namespace fs = std::filesystem;
-#elif __has_include(<experimental/filesystem>)
-    #include <experimental/filesystem>
-    namespace fs = std::experimental::filesystem;
-#else
-    #error "Filesystem not supported"
+// #include <nlohmann/json.hpp>
+#include <sys/stat.h>  // For mkdir() in C++11/C++14
+#ifdef __cpp_lib_filesystem // If C++17 is available, use std::filesystem
+  #include <filesystem>
+  namespace fs = std::filesystem;
+#else // Otherwise, use Boost.Filesystem (C++11/14)
+#include <boost/filesystem.hpp>
+  namespace fs = boost::filesystem;
 #endif
+
+
 
 using namespace ColliderBit::Functown;
 using namespace BackendIniBit::Functown;
@@ -72,7 +73,6 @@ bool apply_setting_if_present(const std::string &setting, Options& settings, Gam
 
 bool ensure_directory_exists(const std::string& directory)
 {
-  
     if (directory.empty()) return true; // No directory to create
 
 #ifdef __cpp_lib_filesystem  // C++17+
@@ -106,7 +106,6 @@ bool ensure_directory_exists(const std::string& directory)
 #endif
 }
 
-// Function to save YAML file after ensuring directory exists
 void save_yaml_to_file(const YAML::Node& yml, const std::string& yaml_filename)
 {
     try
@@ -525,65 +524,81 @@ int main(int argc, char* argv[])
 
     if (yaml_output)
     {
-        YAML::Node yml;
-        yml["n_events"] = n_events;
-        yml["combined_loglike"] = loglike;
-    
-        YAML::Node analyses;
-        for (size_t analysis_index = 0; analysis_index < CollectAnalyses(0).size(); ++analysis_index)
+      // json j;
+      // j["n_events"] = n_events;
+      // j["combined_loglike"] = loglike;
+      // json analyses_json = json::object();
+      YAML::Node yml;
+      yml["n_events"] = n_events;
+      yml["combined_loglike"] = loglike;
+      YAML::Node analyses;
+
+
+      for (size_t analysis = 0; analysis < CollectAnalyses(0).size(); ++analysis)
+      {
+        const Gambit::ColliderBit::AnalysisData &adata = *(CollectAnalyses(0).at(analysis));
+        const std::string &analysis_name = adata.analysis_name;
+        const Gambit::ColliderBit::AnalysisLogLikes &analysis_loglikes = calc_LHC_LogLikes_full(0).at(analysis_name);
+
+        YAML::Node analysis_obj;
+
+        // analysis_obj["analysis_name"] = analysis_name;
+        analysis_obj["combination_sr_label"] = analysis_loglikes.combination_sr_label;
+        analysis_obj["combination_loglike"] = analysis_loglikes.combination_loglike;
+
+        // Array for the signal regions.
+        YAML::Node sr_dict;  // 这是一个字典（dict）
+        for (size_t sr_index = 0; sr_index < adata.size(); ++sr_index)
         {
-            const Gambit::ColliderBit::AnalysisData& analysis = *(CollectAnalyses(0).at(analysis_index));
-            
-            YAML::Node analysis_node;
-            analysis_node["analysis_name"] = analysis.analysis_name;
-            analysis_node["combination_sr_label"] = analysis.combination_sr_label;
-            analysis_node["combination_loglike"] = analysis.combination_loglike;
-    
-            YAML::Node signal_regions;
-            for (size_t sr_index = 0; sr_index < analysis.size(); ++sr_index)
-            {
-                const Gambit::ColliderBit::SignalRegionData& sr = analysis[sr_index];
-    
-                YAML::Node sr_node;
-                sr_node["n_obs"] = sr.n_obs;
-                sr_node["n_bkg"] = sr.n_bkg;
-                sr_node["n_sig_MC"] = sr.n_sig_MC;
-                sr_node["n_sig_scaled"] = sr.n_sig_scaled;
-                sr_node["loglike"] = sr.loglike;
-    
-                signal_regions[sr.sr_label] = sr_node;
-            }
-    
-            analysis_node["signal_regions"] = signal_regions;
-            analyses[analysis.analysis_name] = analysis_node;
+          const Gambit::ColliderBit::SignalRegionData srData = adata[sr_index];
+          YAML::Node sr;
+          sr["n_obs"] = srData.n_obs;
+          sr["n_bkg"] = srData.n_bkg;
+          sr["n_sig_MC"] = srData.n_sig_MC; 
+          sr["n_bkg_err"] = srData.n_bkg_err;
+          sr["n_sig_scaled"] = srData.n_sig_scaled;
+          sr["n_sig_scaled_err"] = srData.calc_n_sig_scaled_err();
+          sr["loglike"] = analysis_loglikes.sr_loglikes.at(sr_index);
+
+          // Optionally include alternative log-like values if enabled.
+          if (calc_noerr_loglikes)
+            sr["noerr_loglike"] = analysis_loglikes.alt_sr_loglikes.at("noerr").at(sr_index);
+          if (calc_expected_loglikes)
+            sr["expected_loglike"] = analysis_loglikes.alt_sr_loglikes.at("expected").at(sr_index);
+          if (calc_expected_noerr_loglikes)
+            sr["expected_noerr_loglike"] = analysis_loglikes.alt_sr_loglikes.at("expected_noerr").at(sr_index);
+          if (calc_scaledsignal_loglikes)
+            sr["scaledsignal_loglike"] = analysis_loglikes.alt_sr_loglikes.at("scaledsignal").at(sr_index);
+
+          sr_dict[srData.sr_label] = sr;
         }
-    
-        yml["analyses"] = analyses;
-    
-        if (withContur)
+        analysis_obj["signal_regions"] = sr_dict;
+        analyses_json[analysis_name] = analysis_obj;
+      }
+      yml["analyses"] = analyses_json;
+
+      if (withContur)
+      {
+        YAML::Node contur_obj;
+        contur_obj["total_loglike"] = Contur_LHC_measurements_LogLike(0);
+        // Assuming pool_LLRs and pool_info are defined as in your code.
+        YAML::Node pools;
+        map_str_dbl pool_LLRs = Contur_LHC_measurements_LogLike_perPool(0);
+        map_str_str pool_info = Contur_LHC_measurements_histotags_perPool(0);
+        for (const auto &pool : pool_LLRs)
         {
-            YAML::Node contur_node;
-            contur_node["total_loglike"] = Contur_LHC_measurements_LogLike(0);
-    
-            YAML::Node pools;
-            map_str_dbl pool_LLRs = Contur_LHC_measurements_LogLike_perPool(0);
-            map_str_str pool_info = Contur_LHC_measurements_histotags_perPool(0);
-    
-            for (const auto &pool : pool_LLRs)
-            {
-                YAML::Node pool_node;
-                pool_node["loglike"] = pool.second;
-                pool_node["dominant_measurement"] = pool_info[pool.first];
-                pools[pool.first] = pool_node;
-            }
-    
-            contur_node["pools"] = pools;
-            yml["contur"] = contur_node;
+          YAML::Node pool_obj;
+          pool_obj["loglike"] = pool.second;
+          pool_obj["dominant_measurement"] = pool_info[pool.first];
+          pools[pool.first] = pool_obj;
         }
-    
-        // Save to YAML file
-        save_yaml_to_file(yml, yaml_output_filename);
+        contur_obj["pools"] = pools;
+        yml["contur"] = contur_obj;
+      }
+      // Write the JSON object to the specified file.
+      save_yaml_to_file(yml, yaml_output_filename);
     }
+
     // No more to see here folks, go home.
     return 0;
   }
