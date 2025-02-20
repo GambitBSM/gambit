@@ -573,9 +573,9 @@ int main(int argc, char* argv[])
           sr_dict[srData.sr_label] = sr;
         }
         analysis_obj["signal_regions"] = sr_dict;
-        analyses_json[analysis_name] = analysis_obj;
+        analyses[analysis_name] = analysis_obj;
       }
-      yml["analyses"] = analyses_json;
+      yml["analyses"] = analyses;
 
       if (withContur)
       {
