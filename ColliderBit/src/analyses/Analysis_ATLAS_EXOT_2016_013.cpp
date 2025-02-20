@@ -399,6 +399,7 @@ namespace Gambit
                     histos.push_back(_histo_meff_SR0L_01);
                     histos.push_back(_histo_mTBmin);
 
+                    // del _histo_mTBmin;
                     YODA::WriterYODA::write("ATLAS_EXOT_2016_013.yoda", histos.begin(), histos.end());
                 #endif
                 return;

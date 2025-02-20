@@ -25,6 +25,7 @@
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/cats.hpp"
+#include "gambit/Utils/json.hpp"
 // #include "gambit/Backends/backend_rollcall.hpp"
 
 #define NULIKE_VERSION "1.0.9"
@@ -38,7 +39,7 @@
 #define FULLLIKES_VERSION "1.0"
 #define FULLLIKES_SAFE_VERSION 1_0
 
-#include <nlohmann/json.hpp>
+// #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 #include <sys/stat.h>  // For mkdir() in C++11/C++14
 #ifdef __cpp_lib_filesystem // If C++17 is available, use std::filesystem
