@@ -566,9 +566,7 @@ int main(int argc, char* argv[])
           yml["contur"] = contur_node;
       }
             // Save to YAML file
-            save_yaml_to_file(yml, yaml_filename);
-      // Write the JSON object to the specified file.
-      save_json_to_file(j, json_filename);
+      save_yaml_to_file(yml, yaml_filename);
     }
 
     // No more to see here folks, go home.
