@@ -84,6 +84,7 @@ namespace Gambit
       F(ATLAS_SUSY_2018_08_exclusive)                \
       F(ATLAS_EXOT_2016_013)                         \
       F(ATLAS_EXOT_2016_014)                         \
+      F(ATLAS_EXOT_2016_017)                         \
       F(ATLAS_CONF_2017_039)                         \
       F(ATLAS_SUSY_2016_24)                          \
       F(ATLAS_SUSY_2016_24_2Lep0Jets)                \
