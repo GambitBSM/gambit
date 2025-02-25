@@ -50,10 +50,14 @@ namespace Gambit
                 double met = event->met();
                 HEPUtils::P4 metVec = event->missingmom();
 
-                BASELINE_PARTICLES(event->electrons(), baselineEl1, 25, 0, DBL_MAX, 1.37, ATLAS::eff1DEl.at("PERF_2017_01_ID_Tight"));
-                BASELINE_PARTICLES(event->electrons(), baselineEl2, 25, 1.52, DBL_MAX, 2.47, ATLAS::eff1DEl.at("PERF_2017_01_ID_Tight"));
-                BASELINE_PARTICLES(event->muons(), baselineMuons, 25, 0, DBL_MAX, 2.5, ATLAS::eff1DMu.at("MUON_2018_03_ID_Tight"));
+                BASELINE_PARTICLES(event->electrons(), baselineEl1, 25, 0, DBL_MAX, 1.37);
+                BASELINE_PARTICLES(event->electrons(), baselineEl2, 25, 1.52, DBL_MAX, 2.47);
+                BASELINE_PARTICLES(event->muons(), baselineMuons, 25, 0, DBL_MAX, 2.5);
+                
                 BASELINE_PARTICLE_COMBINATION(baselineElectrons, baselineEl1, baselineEl2)
+                applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Tight")); 
+                applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Tight")); 
+                
                 BASELINE_PARTICLE_COMBINATION(baselineLeptons, baselineElectrons, baselineMuons);
 
                 BASELINE_JETS(event->jets("antikt_R04"), basectrJets, 25, 0, DBL_MAX, 2.5);
@@ -116,7 +120,7 @@ namespace Gambit
                             double jeteta = signalJets.at(ii)->abseta();
                             if (jetpt > 75. && jeteta < 2.5) {
                                 double dRjj = Bjet0mom.deltaR_eta(jetmom); 
-                                if (dRjj < 1.2) || (dRjj > 2.7) Jetincone = true; 
+                                if ((dRjj < 1.2) || (dRjj > 2.7)) Jetincone = true; 
                             }
                         }
                         double dPhiLepBjet0 = signalLeptons.at(0)->mom().deltaPhi(Bjet0mom); 
