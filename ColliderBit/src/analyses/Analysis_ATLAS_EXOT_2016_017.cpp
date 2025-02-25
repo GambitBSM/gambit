@@ -23,6 +23,11 @@ using namespace std;
 
 #define CHECK_CUTFLOW
 
+#ifdef CHECK_CUTFLOW
+    #include "YODA/Histo1D.h"
+    #include "YODA/WriterYODA.h"
+#endif
+
 namespace Gambit
 {
     namespace ColliderBit
@@ -34,6 +39,7 @@ namespace Gambit
         public:
             #ifdef CHECK_CUTFLOW
                 Cutflows _cutflows;
+                YODA::Histo1D *_histo_mVLQ; 
             #endif
 
             static constexpr const char *detector = "ATLAS";
@@ -43,6 +49,10 @@ namespace Gambit
 
                 set_analysis_name("ATLAS_EXOT_2016_017");
                 set_luminosity(36.1);
+
+                #ifdef CHECK_CUTFLOW
+                    _histo_mVLQ = new YODA::Histo1D(17, 0., 2550., "SR/mVLQ"); 
+                #endif
             }
 
             void run(const HEPUtils::Event *event)
@@ -135,14 +145,18 @@ namespace Gambit
                         if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1) {FILL_SIGNAL_REGION("SR"); }
 
                         // Reconstructing mVLQ 
-                        double nv_px = pmiss.px();
-                        double nv_py = pmiss.py();
-                        std::vector<dobule> pz_nus = calculate_pvz(signalLeptons.at(0)->mom(), nv_px, nv_py); 
-                        double nv_pz = solute_pvZ(pz_nus); 
-                        double nv_E  = std::sqrt(nv_px * nv_px + nv_py * nv_py + nv_pz * nv_pz ); 
-                        HEPUtils::P4 pv4(nv_px, nv_py, nv_pz, nv_E);
-                        HEPUtils::P4 pVLQ4 = pv4 + signalLeptons.at(0)->mom() + Bjet0mom; 
-                        double mVLQ = pVLQ4.m(); 
+                        #ifdef CHECK_CUTFLOW
+                            double nv_px = pmiss.px();
+                            double nv_py = pmiss.py();
+                            std::vector<double> pz_nus = calculate_pvz(signalLeptons.at(0)->mom(), nv_px, nv_py); 
+                            double nv_pz = solute_pvZ(pz_nus); 
+                            double nv_E  = std::sqrt(nv_px * nv_px + nv_py * nv_py + nv_pz * nv_pz ); 
+                            HEPUtils::P4 pv4(nv_px, nv_py, nv_pz, nv_E);
+                            HEPUtils::P4 pVLQ4 = pv4 + signalLeptons.at(0)->mom() + Bjet0mom; 
+                            double mVLQ = pVLQ4.m(); 
+                            if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)
+                                _histo_mVLQ->fill(mVLQ, 1.); 
+                        #endif
 
                     }
                 }
@@ -155,7 +169,12 @@ namespace Gambit
                 add_result(SignalRegionData(_counters.at("SR"), 497, {500, 30}));
 
                 COMMIT_CUTFLOWS;
-
+                #ifdef CHECK_CUTFLOW
+                    std::vector<YODA::AnalysisObject *> histos; 
+                    histos.push_back(_histo_mVLQ);
+                    YODA::WriterYODA::write("ATLAS_EXOT_2016_017.yoda", histos.begin(), histos.end()); 
+                    delete _histo_mVLQ; 
+                #endif
                 return;
             }
 
