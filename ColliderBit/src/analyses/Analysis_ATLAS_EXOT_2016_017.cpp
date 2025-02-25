@@ -60,7 +60,7 @@ namespace Gambit
                 BASELINE_JETS(event->jets("antikt_R04"), basefwdJets, 40., 2.5, DBL_MAX, 4.5);
 
                 removeOverlap(basectrJets, baselineLeptons, 0.2);
-                removeOverlap(baselineLeptons, basectrJets, 0.2);
+                removeOverlap(baselineLeptons, basectrJets, 0.4);
 
                 // define Signal Objects;
                 vector<const HEPUtils::Jet *> signalctrJets;
@@ -76,11 +76,11 @@ namespace Gambit
                     }
                 }
                 // B-tag efficiency
-                std::map<const Jet *, bool> analysisBtags = generateBTagsMap(basectrJets, 0.85, 1. / 3., 1. / 34.);
+                std::map<const Jet *, bool> analysisBtags = generateBTagsMap(basectrJets, 0.85, 0.334, 0.0294);
                 for (const HEPUtils::Jet *jet : basectrJets)
                 {
-                    bool hasbtag = analysisBtags.at(jet);
-                    if (hasbtag && fabs(jet->eta()) < 2.5 && jet->pT() > 25.)
+                    bool isbtag = analysisBtags.at(jet);
+                    if (isbtag && jet->abseta() < 2.5 && jet->pT() > 25.)
                     {
                         signalctrBJets.push_back(jet);
                     }
@@ -121,10 +121,10 @@ namespace Gambit
                         }
                         double dPhiLepBjet0 = signalLeptons.at(0)->mom().deltaPhi(Bjet0mom); 
                         double dRLepj = 999.; 
-                        for (unsigned int ii = 1; ii < nctrBJet; ii ++) {
+                        for (unsigned int ii = 1; ii < signalctrBJets.size(); ii ++) {
                             double dRlj = std::min(dRLepj, signalLeptons.at(0)->mom().deltaR_eta(signalctrBJets.at(ii)->mom())); 
                         }
-                        for (unsigned int ii = 1; ii < nctrJet; ii ++) {
+                        for (unsigned int ii = 1; ii < signalctrJets.size(); ii ++) {
                             double dRlj = std::min(dRLepj, signalLeptons.at(0)->mom().deltaR_eta(signalctrJets.at(ii)->mom())); 
                         }
                         int nfwdJet = signalfwdJets.size(); 
@@ -149,7 +149,7 @@ namespace Gambit
             {
                 for (auto &pair : _counters)
                 {
-                    pair.second.reset()
+                    pair.second.reset();
                 }
             }
         };
