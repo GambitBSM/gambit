@@ -49,46 +49,46 @@ namespace Gambit
     // - If the analysis depends on RestFrames (which uses ROOT), add it to MAP_ANALYSES_WITH_ROOT_RESTFRAMES
     // - If the analysis only depends on ROOT, add it to MAP_ANALYSES_WITH_ROOT
     // - Else, add the analysis to MAP_ANALYSES
-    #define MAP_ANALYSES_WITH_ROOT_RESTFRAMES(F)     \
-      F(ATLAS_SUSY_2017_03_RJR_2L2J)          \
-      F(ATLAS_SUSY_2017_03_RJR_3L)               \
-      F(ATLAS_SUSY_2017_03_RJR_Lowmass)            \
-      F(ATLAS_SUSY_2018_05_RJR)           \
-      F(ATLAS_SUSY_2018_12_RJR)           \
+    #define MAP_ANALYSES_WITH_ROOT_RESTFRAMES(F)        \
+      F(ATLAS_SUSY_2017_03_RJR_2L2J)                    \
+      F(ATLAS_SUSY_2017_03_RJR_3L)                      \
+      F(ATLAS_SUSY_2017_03_RJR_Lowmass)                 \
+      F(ATLAS_SUSY_2018_05_RJR)                         \
+      F(ATLAS_SUSY_2018_12_RJR)                         \
       
-    #define MAP_ANALYSES_WITH_ROOT(F)                \
-      F(ATLAS_SUSY_2016_06)                \
-      F(ATLAS_SUSY_2019_02)            \
+    #define MAP_ANALYSES_WITH_ROOT(F)                   \
+      F(ATLAS_SUSY_2016_06)                             \
+      F(ATLAS_SUSY_2019_02)                             \
 
-    #define MAP_ANALYSES_WITH_ONNX(F)                \
-      F(ATLAS_SUSY_2018_30)                  \
+    #define MAP_ANALYSES_WITH_ONNX(F)                   \
+      F(ATLAS_SUSY_2018_30)                             \
 
-    #define MAP_ANALYSES(F)                          \
-      F(Minimum)                                     \
-      F(Covariance)                                  \
-      F(Dummy)                                       \
-      F(Baselines)                                   \
-      F(ATLAS_8TeV_1LEPbb_20invfb)                   \
-      F(ATLAS_SUSY_2018_41)                          \
-      F(ATLAS_CONF_2016_078)                         \
-      F(ATLAS_SUSY_2016_07)                          \
-      F(ATLAS_SUSY_2018_22)                          \
-      F(ATLAS_SUSY_2016_15)                          \
-      F(ATLAS_SUSY_2018_12)                          \
-      F(ATLAS_SUSY_2019_08)                          \
-      F(ATLAS_SUSY_2018_07)                          \
-      F(ATLAS_SUSY_2017_01)                          \
-      F(ATLAS_SUSY_2018_05)                          \
-      F(ATLAS_SUSY_2018_08)                          \
-      F(ATLAS_SUSY_2018_08_inclusive)                \
-      F(ATLAS_SUSY_2018_08_exclusive)                \
-      F(ATLAS_EXOT_2016_013)                         \
-      F(ATLAS_EXOT_2016_014)                         \
-      F(ATLAS_EXOT_2016_017)                         \
-      F(ATLAS_CONF_2017_039)                         \
-      F(ATLAS_SUSY_2016_24)                          \
-      F(ATLAS_SUSY_2016_24_2Lep0Jets)                \
-      F(ATLAS_SUSY_2016_24_2LepPlusJets)             \
+    #define MAP_ANALYSES(F)                             \
+      F(Minimum)                                        \
+      F(Covariance)                                     \
+      F(Dummy)                                          \
+      F(Baselines)                                      \
+      F(ATLAS_8TeV_1LEPbb_20invfb)                      \
+      F(ATLAS_SUSY_2018_41)                             \
+      F(ATLAS_CONF_2016_078)                            \
+      F(ATLAS_SUSY_2016_07)                             \
+      F(ATLAS_SUSY_2018_22)                             \
+      F(ATLAS_SUSY_2016_15)                             \
+      F(ATLAS_SUSY_2018_12)                             \
+      F(ATLAS_SUSY_2019_08)                             \
+      F(ATLAS_SUSY_2018_07)                             \
+      F(ATLAS_SUSY_2017_01)                             \
+      F(ATLAS_SUSY_2018_05)                             \
+      F(ATLAS_SUSY_2018_08)                             \
+      F(ATLAS_SUSY_2018_08_inclusive)                   \
+      F(ATLAS_SUSY_2018_08_exclusive)                   \
+      F(ATLAS_EXOT_2016_013)                            \
+      F(ATLAS_EXOT_2016_014)                            \
+      F(ATLAS_EXOT_2016_017)                            \
+      F(ATLAS_CONF_2017_039)                            \
+      F(ATLAS_SUSY_2016_24)                             \
+      F(ATLAS_SUSY_2016_24_2Lep0Jets)                   \
+      F(ATLAS_SUSY_2016_24_2LepPlusJets)                \
       F(ATLAS_SUSY_2016_24_3Lep)                     \
       F(ATLAS_SUSY_2018_09)                          \
       F(ATLAS_EXOT_2018_06)                          \
@@ -129,7 +129,7 @@ namespace Gambit
       F(ATLAS_SUSY_2013_12)                          \
       F(ATLAS_SUSY_2012_10)                          \
       F(ATLAS_SUSY_2012_04)                          \
-      F(CMS_SUS_16_014)                      \
+      F(CMS_SUS_16_014)                              \
       F(CMS_SUS_16_033)                      \
       F(CMS_SUS_19_006)                     \
       F(CMS_SUS_21_002_OLD)  \

@@ -32,9 +32,9 @@ namespace Gambit
         private:
             /* data */
         public:
-#ifdef CHECK_CUTFLOW
-            Cutflows _cutflows;
-#endif
+            #ifdef CHECK_CUTFLOW
+                Cutflows _cutflows;
+            #endif
 
             static constexpr const char *detector = "ATLAS";
             Analysis_ATLAS_EXOT_2016_017()
@@ -139,7 +139,7 @@ namespace Gambit
             }
 
             virtual void
-            collect_result()
+            collect_results()
             {
                 add_result(SignalRegionData(_counters.at("SR"), 497, {500, 30}));
 
@@ -157,8 +157,6 @@ namespace Gambit
                 }
             }
         };
-
-        // Factory fn 
         DEFINE_ANALYSIS_FACTORY(ATLAS_EXOT_2016_017)
     } // namespace ColliderBit
 } // namespace Gambi
