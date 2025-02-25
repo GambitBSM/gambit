@@ -76,7 +76,7 @@ namespace Gambit
                     }
                 }
                 // B-tag efficiency
-                std::map<const Jet *, bool> analysisBtags = generateBTagsMap(baselineJets, 0.85, 1. / 3., 1. / 34.);
+                std::map<const Jet *, bool> analysisBtags = generateBTagsMap(basectrJets, 0.85, 1. / 3., 1. / 34.);
                 for (const HEPUtils::Jet *jet : basectrJets)
                 {
                     bool hasbtag = analysisBtags.at(jet);
