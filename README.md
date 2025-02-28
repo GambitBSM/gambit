@@ -22,6 +22,7 @@ Quickstart
 
 You can build and run a minimal program by e.g.,
 ```bash
+sudo apt install build-essential gfortran cmake git python3-yaml libboost-all-dev libgsl-dev libeigen3-dev liblapack-dev pkg-config
 git clone https://github.com/GambitBSM/gambit
 cd gambit
 mkdir build
@@ -30,6 +31,7 @@ cmake -Ditch="DarkBit;ColliderBit;CosmoBit;FlavBit;PrecisionBit;NeutrinoBit;Obje
 make -j4 scanners
 cmake ..
 make -j4 gambit
+cd ..
 gambit -f yaml_files/spartan.yaml
 ```
 Check out the [tutorials](https://gambitbsm.org/documentation/tutorials/the_gambit_interface/) for more examples.
@@ -68,13 +70,28 @@ GAMBIT is built using the [CMake](https://cmake.org/) system. GAMBIT depends on 
  - LAPACK
  - pkg-config
 
+
+On Debian-based systems, they can be installed by
+
+    sudo apt install build-essential gfortran cmake git python3-yaml libboost-all-dev libgsl-dev libeigen3-dev liblapack-dev pkg-config
+
 ### Optional
 
  - HDF5 (for use of the hdf5 printer)
  - MPI (required for parallel sampling)
  - axel (speeds up downloads of backends and scanners)
  - graphviz (required for model hierarchy and dependency tree plots)
- - ROOT (required for RestFrames support in ColliderBit, or the GreAT scanner from ScannerBit)
+
+On Debian-based systems, they can be installed by
+    
+    sudo apt install libhdf5-dev libopenmpi-dev axel graphviz
+
+#### ROOT
+
+[ROOT](https://root.cern/) is required for RestFrames support in ColliderBit, or the GreAT scanner from ScannerBit. See [here](https://root.cern/install/) for installation instructions.
+
+#### GUM & Mathematica
+
  - Mathematica 7.0 or greater (required for the use of Mathematica backends and GUM)
  - UUID (required for the use of the WSTP interface for Mathematica backends and GUM)
  - X11 development libraries (required for the use of GUM)
@@ -82,18 +99,28 @@ GAMBIT is built using the [CMake](https://cmake.org/) system. GAMBIT depends on 
     - Boost.Python
     - Boost.Filesystem
     - Boost.System
- - Python modules:
-    - cython (required for using the classy and contur backends)
-    - scipy (required for using the MontePython, DarkAges and Acropolis backends)
-    - numpy 1.12 or greater (required for using any python backend)
-    - dill (required for using the DarkAges backend)
-    - six (required for using the classy backend)
-    - pandas, numexpr (required for using the MontePython backend)
-    - h5py (required to use hdf5 utilities located in gambit/Printers/scripts and the backend pbarlike)
-    - pyhf (required for use of the ATLAS_FullLikes backend)
-    - numba (required for using the Acropolis backend)
-    - configobj, pandas and matplotlib (required for using the contur backend)
-    - tensorflow and iminuit (required for using the pbarlike backend)
+  
+Other than Mathematica, on Debian-based systems, they can be installed by
+    
+    sudo apt install libx11-dev uuid-dev libboost-python-dev libboost-filesystem-dev libboost-system-dev
+  
+#### Python
+
+   - cython (required for using the classy and contur backends)
+   - scipy (required for using the MontePython, DarkAges and Acropolis backends)
+   - numpy 1.12 or greater (required for using any python backend)
+   - dill (required for using the DarkAges backend)
+   - six (required for using the classy backend)
+   - pandas, numexpr (required for using the MontePython backend)
+   - h5py (required to use hdf5 utilities located in gambit/Printers/scripts and the backend pbarlike)
+   - pyhf (required for use of the ATLAS_FullLikes backend)
+   - numba (required for using the Acropolis backend)
+   - configobj, pandas and matplotlib (required for using the contur backend)
+   - tensorflow and iminuit (required for using the pbarlike backend)
+
+They can be installed through pip by
+
+    pip install -r optional.txt
 
 Memory requirements
 --
