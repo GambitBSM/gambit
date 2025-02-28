@@ -57,7 +57,10 @@ namespace Gambit
 
             void run(const HEPUtils::Event *event)
             {
-                cout << "Tag 0: start new event" << endl; 
+                #ifdef CHECK_CUTFLOW
+                    _cutflows['SR'].fillinit(event->weight());
+                #endif
+
                 double met = event->met();
                 HEPUtils::P4 pmiss = event->missingmom();
 
@@ -116,15 +119,12 @@ namespace Gambit
                 SIGNAL_JET_COMBINATION(signalJets, basectrJets, signalfwdJets);
 
                 bool preselection = (signalLeptons.size() == 1) && (met > 120.) && (nctrBJet + nctrJet >= 1);
-                cout << "Tag 1: Preselection" << endl; 
 
                 if (preselection)
                 {
-                    cout << "Tag 2: Preselection in" << endl; 
 
                     bool leadbjet = nctrBJet > 0 ? signalctrBJets.at(0)->pT() >= 350. : false;
                     leadbjet = (nctrBJet > 0 && nctrJet > 0) ? signalctrBJets.at(0)->pT() > signalctrJets.at(0)->pT() : false;
-                    cout << "Tag 3: Leading jet in" << endl; 
 
                     int Jetincone = false;
                     if (leadbjet)
@@ -140,7 +140,6 @@ namespace Gambit
                                 if ((dRjj < 1.2) || (dRjj > 2.7)) Jetincone = true; 
                             }
                         }
-                        cout << "Tag 4: Jetincone" << endl; 
 
                         double dPhiLepBjet0 = signalLeptons.at(0)->mom().deltaPhi(Bjet0mom); 
                         double dRLepj = 999.; 
@@ -151,47 +150,31 @@ namespace Gambit
                             double dRLepj = std::min(dRLepj, signalLeptons.at(0)->mom().deltaR_eta(signalctrJets.at(ii)->mom())); 
                         }
                         int nfwdJet = signalfwdJets.size(); 
-                        cout << "Tag 5: dR(lep, jet)" << dRLepj << endl; 
-                        cout << "Jetincone -> " << Jetincone; 
-                        cout << "\t, dPhiLepBjet0 -> " << dPhiLepBjet0; 
-                        cout << "\t, dRLepj -> " << dRLepj; 
-                        cout << "\t, nfwdJet -> " << nfwdJet; 
-                        cout << "\t, SR -> " << (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1) << endl; 
 
                         if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)                    
-                            _counters.at("SR").add_event(event);
+                            {
+                                _counters.at("SR").add_event(event);
+                                #ifdef CHECK_CUTFLOW
+                                    _cutflows['SR'].fillnext(event->weight());
+                                #endif
+                            }
 
-                        cout << "Tag 6: SR" << endl; 
 
                         // Reconstructing mVLQ 
                         #ifdef CHECK_CUTFLOW
                             double nv_px = pmiss.px();
                             double nv_py = pmiss.py();
-                            cout << "Tag 7: cutflow " << endl; 
                             std::vector<double> pz_nus = calculate_pvz(signalLeptons.at(0)->mom(), nv_px, nv_py); 
-                            cout << "Tag 8: solve nv pz " << endl; 
-
                             double nv_pz = solute_pvZ(pz_nus); 
                             double nv_E  = std::sqrt(nv_px * nv_px + nv_py * nv_py + nv_pz * nv_pz ); 
-                            cout << "Tag 8: solve nv E " << endl; 
-
                             HEPUtils::P4 pv4(nv_px, nv_py, nv_pz, nv_E);
-                            cout << "Tag 9: solve nv p4 " << pv4 << endl; 
-
                             HEPUtils::P4 pVLQ4 = pv4 + signalLeptons.at(0)->mom() + Bjet0mom; 
-                            cout << "Tag 10: solve VLQ p4 " << pVLQ4 << endl; 
-
                             double mVLQ = pVLQ4.m(); 
-                            cout << "Tag 11: solve mVLQ " << mVLQ << endl; 
-
                             if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)
                                 _histo_mVLQ->fill(mVLQ, 1.); 
                         #endif
-                        cout << "Tag 12: Fill histogram" << endl; 
-
                     }
                 }
-                cout << "Tag 13: return and start new events" << endl; 
                 return; 
             }
 
