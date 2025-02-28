@@ -151,7 +151,12 @@ namespace Gambit
                             double dRLepj = std::min(dRLepj, signalLeptons.at(0)->mom().deltaR_eta(signalctrJets.at(ii)->mom())); 
                         }
                         int nfwdJet = signalfwdJets.size(); 
-                        cout << "Tag 5: dR(lep, jet)" << endl; 
+                        cout << "Tag 5: dR(lep, jet)" << dRLepj << endl; 
+                        cout << "Jetincone -> " << Jetincone; 
+                        cout << "\t, dPhiLepBjet0 -> " << dPhiLepBjet0; 
+                        cout << "\t, dRLepj -> " << dRLepj; 
+                        cout << "\t, nfwdJet -> " << nfwdJet; 
+                        cout << "\t, SR -> " << (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1) << endl; 
 
                         if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1) {FILL_SIGNAL_REGION("SR"); }
                         cout << "Tag 6: SR" << endl; 
