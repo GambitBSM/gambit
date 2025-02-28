@@ -64,7 +64,6 @@ namespace Gambit
                         "Forward jets > 0",
                         "dR(l, jets) > 2.0"
                     });
-                    cout << _cutflows << endl; 
                 #endif
             }
 
