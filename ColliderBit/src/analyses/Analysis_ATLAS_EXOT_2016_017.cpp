@@ -62,7 +62,6 @@ namespace Gambit
             void run(const HEPUtils::Event *event)
             {
                 #ifdef CHECK_CUTFLOW
-                    cout << event->weight(); 
                     _cutflows["SR"].fillinit(event->weight());
                     _cutflows["SR"].fill(1, true, event->weight()); 
                     if (Nevent % 200 == 0)
