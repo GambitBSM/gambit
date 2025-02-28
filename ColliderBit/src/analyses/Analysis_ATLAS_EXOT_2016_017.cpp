@@ -54,7 +54,7 @@ namespace Gambit
                 #ifdef CHECK_CUTFLOW
                     _histo_mVLQ = new YODA::Histo1D(17, 0., 2550., "SR/mVLQ"); 
                     cout << "====== Cutflows ======" << endl; 
-                    _cutflows.addCutflow("SR", {
+                    _cutflows.addCutflow("Signal Region", {
                         "No Cut", 
                         "Preselection",
                         "Leading Jet is b-tagged",
@@ -71,8 +71,8 @@ namespace Gambit
             void run(const HEPUtils::Event *event)
             {
                 #ifdef CHECK_CUTFLOW
-                    _cutflows["SR"].fillinit(event->weight());
-                    _cutflows["SR"].fill(1, true, event->weight()); 
+                    _cutflows["Signal Region"].fillinit(event->weight());
+                    _cutflows["Signal Region"].fill(1, true, event->weight()); 
                     if (Nevent % 200 == 0)
                     {
                         cout << "Complete " << Nevent << " Events" << endl;
@@ -147,12 +147,12 @@ namespace Gambit
                     #ifdef CHECK_CUTFLOW
                         if (nctrBJet > 0 && nctrJet > 0) {
                             if (signalctrBJets.at(0)->pT() > signalctrJets.at(0)->pT()) {
-                                _cutflows["SR"].fill(2, true, event->weight());
+                                _cutflows["Signal Region"].fill(2, true, event->weight());
                             }
                         }
                         else if (nctrBJet > 0 && nctrJet == 0)
                         {
-                            _cutflows["SR"].fill(2, true, event->weight());
+                            _cutflows["Signal Region"].fill(2, true, event->weight());
                         }
                     #endif
                     int Jetincone = false;
@@ -182,7 +182,7 @@ namespace Gambit
                         int nfwdJet = signalfwdJets.size(); 
 
                         #ifdef CHECK_CUTFLOW
-                            _cutflows["SR"].fillnext({
+                            _cutflows["Signal Region"].fillnext({
                                 leadbjet,
                                 !Jetincone, 
                                 dPhiLepBjet0 > 2.5, 
