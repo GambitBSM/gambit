@@ -226,7 +226,6 @@ namespace Gambit
                     histos.push_back(_histo_mVLQ);
                     YODA::WriterYODA::write("ATLAS_EXOT_2016_017.yoda", histos.begin(), histos.end()); 
                     delete _histo_mVLQ; 
-                    cout << _cutflows << endl; 
                 #endif
                 return;
             }
