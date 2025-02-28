@@ -54,7 +54,16 @@ namespace Gambit
                 #ifdef CHECK_CUTFLOW
                     _histo_mVLQ = new YODA::Histo1D(17, 0., 2550., "SR/mVLQ"); 
                     cout << "====== Cutflows ======" << endl; 
-                    _cutflows.addCutflow("SR", {"No Cut", "SR"});
+                    _cutflows.addCutflow("SR", {
+                        "No Cut", 
+                        "Preselection",
+                        "Leading Jet is b-tagged",
+                        "Leading Jet pT > 350 GeV",
+                        "Veto event with jet with dR(jet, b-tagged jet) < 1.2 or > 2.7",
+                        "dPhi(l, b-tagged jet) > 2.5",
+                        "Forward jets > 0",
+                        "dR(l, jets) > 2.0"
+                    });
                     cout << _cutflows << endl; 
                 #endif
             }
@@ -135,7 +144,17 @@ namespace Gambit
 
                     bool leadbjet = nctrBJet > 0 ? signalctrBJets.at(0)->pT() >= 350. : false;
                     leadbjet = (nctrBJet > 0 && nctrJet > 0) ? signalctrBJets.at(0)->pT() > signalctrJets.at(0)->pT() : false;
-
+                    #ifdef CHECK_CUTFLOW
+                        if (nctrBJet > 0 && nctrJet > 0) {
+                            if (signalctrBJets.at(0)->pT() > signalctrJets.at(0)->pT()) {
+                                _cutflows["SR"].fill(2, true, event->weight());
+                            }
+                        }
+                        else if (nctrBJet > 0 && nctrJet == 0)
+                        {
+                            _cutflows["SR"].fill(2, true, event->weight());
+                        }
+                    #endif
                     int Jetincone = false;
                     if (leadbjet)
                     {
@@ -151,6 +170,7 @@ namespace Gambit
                             }
                         }
 
+
                         double dPhiLepBjet0 = signalLeptons.at(0)->mom().deltaPhi(Bjet0mom); 
                         double dRLepj = 999.; 
                         for (unsigned int ii = 1; ii < signalctrBJets.size(); ii ++) {
@@ -161,12 +181,18 @@ namespace Gambit
                         }
                         int nfwdJet = signalfwdJets.size(); 
 
+                        #ifdef CHECK_CUTFLOW
+                            _cutflows["SR"].fillnext(
+                                leadbjet,
+                                !Jetincone, 
+                                dPhiLepBjet0 > 2.5, 
+                                nfwdJet >= 1, 
+                                dRLepj > 2.0
+                            );
+                        #endif
                         if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)                    
                         {
                             _counters.at("SR").add_event(event);
-                            #ifdef CHECK_CUTFLOW
-                                _cutflows["SR"].fill(2, true, event->weight());
-                            #endif
                         }
 
 
