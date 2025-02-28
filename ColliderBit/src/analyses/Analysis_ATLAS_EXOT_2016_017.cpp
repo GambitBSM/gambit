@@ -54,21 +54,22 @@ namespace Gambit
                 #ifdef CHECK_CUTFLOW
                     _histo_mVLQ = new YODA::Histo1D(17, 0., 2550., "SR/mVLQ"); 
                     cout << "====== Cutflows ======" << endl; 
-                    _cutflows.addCutflow("sr", {"No Cut", "SR"});
+                    _cutflows.addCutflow("Signal Region", {"No Cut", "SR"});
                     // cout << _cutflows << endl; 
-                    cout << _cutflows['sr'] << endl; 
+                    cout << _cutflows['Signal Region'] << endl; 
                 #endif
             }
 
             void run(const HEPUtils::Event *event)
             {
                 #ifdef CHECK_CUTFLOW
-                    _cutflows['sr'].fillinit(event->weight());
-                    _cutflows['sr'].fillnext(event->weight()); 
+                    _cutflows['Signal Region'].fillinit(event->weight());
+                    _cutflows['Signal Region'].fill(1, true, event->weight()); 
                     if (Nevent % 200 == 0)
                     {
                         cout << "Complete " << Nevent << " Events" << endl;
                     }
+                    Nevent += 1; 
                 #endif
 
                 double met = event->met();
@@ -165,7 +166,7 @@ namespace Gambit
                         {
                             _counters.at("SR").add_event(event);
                             #ifdef CHECK_CUTFLOW
-                                _cutflows['sr'].fillnext(event->weight());
+                                _cutflows['Signal Region'].fill(2, true, event->weight());
                             #endif
                         }
 
