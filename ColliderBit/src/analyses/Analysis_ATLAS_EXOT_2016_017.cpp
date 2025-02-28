@@ -182,13 +182,13 @@ namespace Gambit
                         int nfwdJet = signalfwdJets.size(); 
 
                         #ifdef CHECK_CUTFLOW
-                            _cutflows["SR"].fillnext(
+                            _cutflows["SR"].fillnext({
                                 leadbjet,
                                 !Jetincone, 
                                 dPhiLepBjet0 > 2.5, 
                                 nfwdJet >= 1, 
                                 dRLepj > 2.0
-                            );
+                            }, event->weight());
                         #endif
                         if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)                    
                         {
