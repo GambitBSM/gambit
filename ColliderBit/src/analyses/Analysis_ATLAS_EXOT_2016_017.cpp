@@ -52,6 +52,7 @@ namespace Gambit
 
                 #ifdef CHECK_CUTFLOW
                     _histo_mVLQ = new YODA::Histo1D(17, 0., 2550., "SR/mVLQ"); 
+                    cout << "====== Cutflows ======" << endl; 
                     cout << _cutflows << endl; 
                 #endif
             }
