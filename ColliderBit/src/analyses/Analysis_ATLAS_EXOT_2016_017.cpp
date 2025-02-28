@@ -158,7 +158,9 @@ namespace Gambit
                         cout << "\t, nfwdJet -> " << nfwdJet; 
                         cout << "\t, SR -> " << (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1) << endl; 
 
-                        if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1) {FILL_SIGNAL_REGION("SR"); }
+                        if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)                    
+                            _counters.at("SR").add_event(event);
+
                         cout << "Tag 6: SR" << endl; 
 
                         // Reconstructing mVLQ 
