@@ -57,6 +57,7 @@ namespace Gambit
 
             void run(const HEPUtils::Event *event)
             {
+                cout << "Tag 0: start new event" << endl; 
                 double met = event->met();
                 HEPUtils::P4 pmiss = event->missingmom();
 
@@ -115,10 +116,16 @@ namespace Gambit
                 SIGNAL_JET_COMBINATION(signalJets, basectrJets, signalfwdJets);
 
                 bool preselection = (signalLeptons.size() == 1) && (met > 120.) && (nctrBJet + nctrJet >= 1);
+                cout << "Tag 1: Preselection" << endl; 
+
                 if (preselection)
                 {
+                    cout << "Tag 2: Preselection in" << endl; 
+
                     bool leadbjet = nctrBJet > 0 ? signalctrBJets.at(0)->pT() >= 350. : false;
                     leadbjet = (nctrBJet > 0 && nctrJet > 0) ? signalctrBJets.at(0)->pT() > signalctrJets.at(0)->pT() : false;
+                    cout << "Tag 3: Leading jet in" << endl; 
+
                     int Jetincone = false;
                     if (leadbjet)
                     {
@@ -133,6 +140,8 @@ namespace Gambit
                                 if ((dRjj < 1.2) || (dRjj > 2.7)) Jetincone = true; 
                             }
                         }
+                        cout << "Tag 4: Jetincone" << endl; 
+
                         double dPhiLepBjet0 = signalLeptons.at(0)->mom().deltaPhi(Bjet0mom); 
                         double dRLepj = 999.; 
                         for (unsigned int ii = 1; ii < signalctrBJets.size(); ii ++) {
@@ -142,6 +151,8 @@ namespace Gambit
                             double dRLepj = std::min(dRLepj, signalLeptons.at(0)->mom().deltaR_eta(signalctrJets.at(ii)->mom())); 
                         }
                         int nfwdJet = signalfwdJets.size(); 
+                        cout << "Tag 5: dR(lep, jet)" << endl; 
+
                         if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1) {FILL_SIGNAL_REGION("SR"); }
 
                         // Reconstructing mVLQ 
@@ -157,6 +168,7 @@ namespace Gambit
                             if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)
                                 _histo_mVLQ->fill(mVLQ, 1.); 
                         #endif
+                        cout << "Tag 6: SR & Fill histogram" << endl; 
 
                     }
                 }
