@@ -55,8 +55,7 @@ namespace Gambit
                     _histo_mVLQ = new YODA::Histo1D(17, 0., 2550., "SR/mVLQ"); 
                     cout << "====== Cutflows ======" << endl; 
                     _cutflows.addCutflow("ATLAS_EXOT_2016_017", {"No Cut", "SR"});
-                    // cout << _cutflows << endl; 
-                    cout << _cutflows['ATLAS_EXOT_2016_017'] << endl; 
+                    cout << _cutflows << endl; 
                 #endif
             }
 
