@@ -40,6 +40,7 @@ namespace Gambit
             #ifdef CHECK_CUTFLOW
                 Cutflows _cutflows;
                 YODA::Histo1D *_histo_mVLQ; 
+                int Nevent = 0;
             #endif
 
             static constexpr const char *detector = "ATLAS";
@@ -54,6 +55,7 @@ namespace Gambit
                     _histo_mVLQ = new YODA::Histo1D(17, 0., 2550., "SR/mVLQ"); 
                     cout << "====== Cutflows ======" << endl; 
                     cout << _cutflows << endl; 
+                    cout << _cutflows['SR'] << endl; 
                 #endif
             }
 
@@ -62,6 +64,10 @@ namespace Gambit
                 #ifdef CHECK_CUTFLOW
                     _cutflows['SR'].fillinit(event->weight());
                     _cutflows['SR'].fillnext(event->weight()); 
+                    if (Nevent % 200 == 0)
+                    {
+                        cout << "Complete " << Nevent << " Events" << endl;
+                    }
                 #endif
 
                 double met = event->met();
