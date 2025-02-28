@@ -154,24 +154,37 @@ namespace Gambit
                         cout << "Tag 5: dR(lep, jet)" << endl; 
 
                         if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1) {FILL_SIGNAL_REGION("SR"); }
+                        cout << "Tag 6: SR" << endl; 
 
                         // Reconstructing mVLQ 
                         #ifdef CHECK_CUTFLOW
                             double nv_px = pmiss.px();
                             double nv_py = pmiss.py();
+                            cout << "Tag 7: cutflow " << endl; 
                             std::vector<double> pz_nus = calculate_pvz(signalLeptons.at(0)->mom(), nv_px, nv_py); 
+                            cout << "Tag 8: solve nv pz " << endl; 
+
                             double nv_pz = solute_pvZ(pz_nus); 
                             double nv_E  = std::sqrt(nv_px * nv_px + nv_py * nv_py + nv_pz * nv_pz ); 
+                            cout << "Tag 8: solve nv E " << endl; 
+
                             HEPUtils::P4 pv4(nv_px, nv_py, nv_pz, nv_E);
+                            cout << "Tag 9: solve nv p4 " << pv4 << endl; 
+
                             HEPUtils::P4 pVLQ4 = pv4 + signalLeptons.at(0)->mom() + Bjet0mom; 
+                            cout << "Tag 10: solve VLQ p4 " << pVLQ4 << endl; 
+
                             double mVLQ = pVLQ4.m(); 
+                            cout << "Tag 11: solve mVLQ " << mVLQ << endl; 
+
                             if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)
                                 _histo_mVLQ->fill(mVLQ, 1.); 
                         #endif
-                        cout << "Tag 6: SR & Fill histogram" << endl; 
+                        cout << "Tag 12: Fill histogram" << endl; 
 
                     }
                 }
+                cout << "Tag 13: return and start new events" << endl; 
                 return; 
             }
 
