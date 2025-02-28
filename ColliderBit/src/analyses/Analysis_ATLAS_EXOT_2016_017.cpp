@@ -54,7 +54,7 @@ namespace Gambit
                 #ifdef CHECK_CUTFLOW
                     _histo_mVLQ = new YODA::Histo1D(17, 0., 2550., "SR/mVLQ"); 
                     cout << "====== Cutflows ======" << endl; 
-                    _cutflows.addCutflow("ATLAS_EXOT_2016_017", {"No Cut", "SR"});
+                    _cutflows.addCutflow("SR", {"No Cut", "SR"});
                     cout << _cutflows << endl; 
                 #endif
             }
@@ -63,8 +63,8 @@ namespace Gambit
             {
                 #ifdef CHECK_CUTFLOW
                     cout << event->weight(); 
-                    _cutflows['ATLAS_EXOT_2016_017'].fillinit(event->weight());
-                    _cutflows['ATLAS_EXOT_2016_017'].fill(1, true, event->weight()); 
+                    _cutflows["SR"].fillinit(event->weight());
+                    _cutflows["SR"].fill(1, true, event->weight()); 
                     if (Nevent % 200 == 0)
                     {
                         cout << "Complete " << Nevent << " Events" << endl;
@@ -166,7 +166,7 @@ namespace Gambit
                         {
                             _counters.at("SR").add_event(event);
                             #ifdef CHECK_CUTFLOW
-                                _cutflows['ATLAS_EXOT_2016_017'].fill(2, true, event->weight());
+                                _cutflows["SR"].fill(2, true, event->weight());
                             #endif
                         }
 
