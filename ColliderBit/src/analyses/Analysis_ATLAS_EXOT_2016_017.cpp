@@ -62,6 +62,7 @@ namespace Gambit
             void run(const HEPUtils::Event *event)
             {
                 #ifdef CHECK_CUTFLOW
+                    cout << event->weight(); 
                     _cutflows['ATLAS_EXOT_2016_017'].fillinit(event->weight());
                     _cutflows['ATLAS_EXOT_2016_017'].fill(1, true, event->weight()); 
                     if (Nevent % 200 == 0)
