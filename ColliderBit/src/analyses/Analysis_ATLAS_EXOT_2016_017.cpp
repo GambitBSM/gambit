@@ -54,17 +54,17 @@ namespace Gambit
                 #ifdef CHECK_CUTFLOW
                     _histo_mVLQ = new YODA::Histo1D(17, 0., 2550., "SR/mVLQ"); 
                     cout << "====== Cutflows ======" << endl; 
-                    _cutflows.addCutflow("Signal Region", {"No Cut", "SR"});
+                    _cutflows.addCutflow("ATLAS_EXOT_2016_017", {"No Cut", "SR"});
                     // cout << _cutflows << endl; 
-                    cout << _cutflows['Signal Region'] << endl; 
+                    cout << _cutflows['ATLAS_EXOT_2016_017'] << endl; 
                 #endif
             }
 
             void run(const HEPUtils::Event *event)
             {
                 #ifdef CHECK_CUTFLOW
-                    _cutflows['Signal Region'].fillinit(event->weight());
-                    _cutflows['Signal Region'].fill(1, true, event->weight()); 
+                    _cutflows['ATLAS_EXOT_2016_017'].fillinit(event->weight());
+                    _cutflows['ATLAS_EXOT_2016_017'].fill(1, true, event->weight()); 
                     if (Nevent % 200 == 0)
                     {
                         cout << "Complete " << Nevent << " Events" << endl;
@@ -166,7 +166,7 @@ namespace Gambit
                         {
                             _counters.at("SR").add_event(event);
                             #ifdef CHECK_CUTFLOW
-                                _cutflows['Signal Region'].fill(2, true, event->weight());
+                                _cutflows['ATLAS_EXOT_2016_017'].fill(2, true, event->weight());
                             #endif
                         }
 
@@ -200,6 +200,7 @@ namespace Gambit
                     histos.push_back(_histo_mVLQ);
                     YODA::WriterYODA::write("ATLAS_EXOT_2016_017.yoda", histos.begin(), histos.end()); 
                     delete _histo_mVLQ; 
+                    cout << _cutflows << endl; 
                 #endif
                 return;
             }
