@@ -54,17 +54,17 @@ namespace Gambit
                 #ifdef CHECK_CUTFLOW
                     _histo_mVLQ = new YODA::Histo1D(17, 0., 2550., "SR/mVLQ"); 
                     cout << "====== Cutflows ======" << endl; 
-                    _cutflows.addCutflow("SR", {"No Cut", "SR"});
-                    cout << _cutflows << endl; 
-                    cout << _cutflows['SR'] << endl; 
+                    _cutflows.addCutflow("sr", {"No Cut", "SR"});
+                    // cout << _cutflows << endl; 
+                    cout << _cutflows['sr'] << endl; 
                 #endif
             }
 
             void run(const HEPUtils::Event *event)
             {
                 #ifdef CHECK_CUTFLOW
-                    _cutflows['SR'].fillinit(event->weight());
-                    _cutflows['SR'].fillnext(event->weight()); 
+                    _cutflows['sr'].fillinit(event->weight());
+                    _cutflows['sr'].fillnext(event->weight()); 
                     if (Nevent % 200 == 0)
                     {
                         cout << "Complete " << Nevent << " Events" << endl;
@@ -162,12 +162,12 @@ namespace Gambit
                         int nfwdJet = signalfwdJets.size(); 
 
                         if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)                    
-                            {
-                                _counters.at("SR").add_event(event);
-                                #ifdef CHECK_CUTFLOW
-                                    _cutflows['SR'].fillnext(event->weight());
-                                #endif
-                            }
+                        {
+                            _counters.at("SR").add_event(event);
+                            #ifdef CHECK_CUTFLOW
+                                _cutflows['sr'].fillnext(event->weight());
+                            #endif
+                        }
 
 
                         // Reconstructing mVLQ 
