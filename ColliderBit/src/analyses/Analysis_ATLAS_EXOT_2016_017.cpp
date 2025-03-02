@@ -141,8 +141,9 @@ namespace Gambit
                 if (preselection)
                 {
 
-                    bool leadbjet = nctrBJet > 0 ? signalctrBJets.at(0)->pT() >= 350. : false;
-                    leadbjet = (nctrBJet > 0 && nctrJet > 0) ? signalctrBJets.at(0)->pT() > signalctrJets.at(0)->pT() : false;
+                    bool leadbjet01 = (nctrBJet > 0 && nctrJet == 0) ? signalctrBJets.at(0)->pT() >= 350. : false;
+                    bool leadbjet02 = (nctrBJet > 0 && nctrJet > 0) ? ((signalctrBJets.at(0)->pT() > signalctrJets.at(0)->pT()) && (signalctrBJets.at(0)->pT() >= 350.)) : false;
+                    bool leadbjet = leadbjet01 || leadbjet02; 
                     #ifdef CHECK_CUTFLOW
                         _cutflows["Signal Region"].fill(2, true, event->weight());
                         if (nctrBJet > 0 && nctrJet > 0) {
