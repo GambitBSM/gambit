@@ -141,20 +141,12 @@ namespace Gambit
                 if (preselection)
                 {
 
-                    bool leadbjet01 = (nctrBJet > 0 && nctrJet == 0) ? signalctrBJets.at(0)->pT() >= 350. : false;
-                    bool leadbjet02 = (nctrBJet > 0 && nctrJet > 0) ? ((signalctrBJets.at(0)->pT() > signalctrJets.at(0)->pT()) && (signalctrBJets.at(0)->pT() >= 350.)) : false;
+                    bool leadbjet01 = (nctrBJet > 0 && nctrJet == 0);
+                    bool leadbjet02 = (nctrBJet > 0 && nctrJet > 0) ? (signalctrBJets.at(0)->pT() > signalctrJets.at(0)->pT()) : false;
                     bool leadbjet = leadbjet01 || leadbjet02; 
+
                     #ifdef CHECK_CUTFLOW
                         _cutflows["Signal Region"].fill(2, true, event->weight());
-                        if (nctrBJet > 0 && nctrJet > 0) {
-                            if (signalctrBJets.at(0)->pT() > signalctrJets.at(0)->pT()) {
-                                _cutflows["Signal Region"].fill(3, true, event->weight());
-                            }
-                        }
-                        else if (nctrBJet > 0 && nctrJet == 0)
-                        {
-                            _cutflows["Signal Region"].fill(3, true, event->weight());
-                        }
                     #endif
                     int Jetincone = false;
                     if (leadbjet)
@@ -184,13 +176,14 @@ namespace Gambit
                         #ifdef CHECK_CUTFLOW
                             _cutflows["Signal Region"].fillnext({
                                 leadbjet,
+                                signalctrBJets.at(0)->pT() > 350., 
                                 !Jetincone, 
                                 dPhiLepBjet0 > 2.5, 
                                 nfwdJet >= 1, 
                                 dRLepj > 2.0
                             }, event->weight());
                         #endif
-                        if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)                    
+                        if (signalctrBJets.at(0)->pT() > 350. && !Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)                    
                         {
                             _counters.at("SR").add_event(event);
                         }
