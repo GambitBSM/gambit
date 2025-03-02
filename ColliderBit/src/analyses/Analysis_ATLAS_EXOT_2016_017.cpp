@@ -135,6 +135,7 @@ namespace Gambit
                         signalfwdJets.push_back(jet);
                 }
                 SIGNAL_JET_COMBINATION(signalJets, basectrJets, signalfwdJets);
+                SIGNAL_JET_COMBINATION(ctrJets, signalctrBJets, signalctrJets); 
 
                 bool preselection = (signalLeptons.size() == 1) && (met > 120.) && (nctrBJet + nctrJet >= 1);
 
@@ -152,11 +153,11 @@ namespace Gambit
                     if (leadbjet)
                     {
                         HEPUtils::P4 Bjet0mom = signalctrBJets.at(0)->mom(); 
-                        for (unsigned int ii = 1; ii < signalJets.size(); ii++)
+                        for (unsigned int ii = 1; ii < ctrJets.size(); ii++)
                         {
-                            HEPUtils::P4 jetmom = signalJets.at(ii)->mom();
-                            double jetpt = signalJets.at(ii)->pT();
-                            double jeteta = signalJets.at(ii)->abseta();
+                            HEPUtils::P4 jetmom = ctrJets.at(ii)->mom();
+                            double jetpt = ctrJets.at(ii)->pT();
+                            double jeteta = ctrJets.at(ii)->abseta();
                             if (jetpt > 75. && jeteta < 2.5) {
                                 double dRjj = Bjet0mom.deltaR_eta(jetmom); 
                                 if ((dRjj < 1.2) || (dRjj > 2.7)) Jetincone = true; 
