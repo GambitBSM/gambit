@@ -170,10 +170,9 @@ namespace Gambit
                             }
                         }
 
-
                         double dPhiLepBjet0 = signalLeptons.at(0)->mom().deltaPhi(Bjet0mom); 
                         double dRLepj = 999.; 
-                        for (unsigned int ii = 0; ii < signalctrBJets.size(); ii ++) {
+                        for (unsigned int ii = 1; ii < signalctrBJets.size(); ii ++) {
                             dRLepj = std::min(dRLepj, signalLeptons.at(0)->mom().deltaR_eta(signalctrBJets.at(ii)->mom())); 
                         }
                         for (unsigned int ii = 0; ii < signalctrJets.size(); ii ++) {
