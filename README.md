@@ -39,7 +39,7 @@ Check out the [tutorials](https://gambitbsm.org/documentation/tutorials/the_gamb
 Documentation
 --
 
-Please the [manual](https://arxiv.org/abs/1705.07908) for the main documentation on the design and use of the GAMBIT Core and modules. Further details on the code are available [here](https://gambitbsm.org/).
+Please see the [manual](https://arxiv.org/abs/1705.07908) for the main documentation on the design and use of the GAMBIT Core and modules. Further details on the code are available [here](https://gambitbsm.org/).
 
 Tooling
 --
@@ -122,6 +122,12 @@ They can be installed through pip by
 
     pip install -r optional.txt
 
+To ensure that the the h5py Python module and hdf5 library are compatible, we recommend you install h5py using the --no-binary flag by
+
+     pip install --no-binary=h5py h5py
+
+This will happen automatically if you install Python dependencies by our optional.txt file.
+
 Memory requirements
 --
 
@@ -135,7 +141,7 @@ Building GAMBIT
 
 The basic build instructions are below.  GAMBIT supports Linux and Mac OSX.  On Windows, you can run it thorugh the Linux subsystem or Cygwin.  A full walkthrough of how to install all dependencies and build GAMBIT with AppleClang on OSX can be found in the file README_OSX.md.
 
-Note that CMake will fail to find some dependencies on some systems without guidance. If you encounter problems configuring or building GAMBIT, have a look in BUILD_OPTIONS.md for a list of commonly used build options.
+Note that CMake will fail to find some dependencies on some systems without guidance. If you encounter problems configuring or building GAMBIT, have a look [here](BUILD_OPTIONS.md) for a list of commonly used build options.
 
 More information about the GAMBIT CMake system is provided in the Core paper. Configuration examples for specific computing clusters are available via gambit.hepforge.org.
 
