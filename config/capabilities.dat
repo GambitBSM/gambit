@@ -6315,14 +6315,14 @@ varNames: |
 #  Rivet & Contur capabilites
 #-----------------------
 
-Rivet_4_0_0_init: |
+Rivet_4_0_3_init: |
   Initialise Rivet backend
 
 Rivet_measurements: |
   Run's rivet on current hepmc event. Creates output YODA object on COLLIDER_FINALISE
 
 addAnalysisLibPath: |
-  Wrapper for Rivet's addaAnalysisLibPath. Adds a path to Rivet's AnalysisLibPath environment variable.
+  Wrapper for Rivet's addAnalysisLibPath. Adds a path to Rivet's AnalysisLibPath environment variable.
 
 Contur_3_0_0_init: |
   Initialise Contur backend
@@ -6331,7 +6331,7 @@ Contur_GetAnalyses: |
   Wrapper for Contur's static_db.getAnalyses(). Gets a string vector of all the analyses known to this version of Contur for a given beam energy, e.g. "13TeV".
 
 Contur_Measurements: |
-  Capability for a wrapper functions that can provide Contur output, e.g. from file or stream input.
+  Capability for wrapper functions that can provide Contur output, e.g. from file or stream input.
 
 LHC_measurements: |
   Produces a Contur_output object. Typically will require some form of yoda input to run contur on.
