@@ -149,7 +149,7 @@ Pythia:
   8.212:       ./Backends/installed/pythia/8.212/lib/libpythia8.so
 
 Rivet:
-  4.0.1:       ./Backends/installed/rivet/4.0.1/local/lib/libRivet.so
+  4.0.3:       ./Backends/installed/rivet/4.0.3/local/lib/libRivet.so
 
 SPheno:
   3.3.8:       ./Backends/installed/spheno/3.3.8/lib/libSPheno.so

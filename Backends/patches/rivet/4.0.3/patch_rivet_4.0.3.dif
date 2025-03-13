@@ -1,6 +1,6 @@
-diff -rupN Rivet-4.0.1/Makefile.in ../installed/rivet/4.0.1/Makefile.in
---- Rivet-4.0.1/Makefile.in	2024-07-07 23:10:54.000000000 +0900
-+++ ../installed/rivet/4.0.1/Makefile.in	2024-10-15 14:22:43.930488154 +0900
+diff -rupN Rivet-4.0.3/Makefile.in ../installed/rivet/4.0.3/Makefile.in
+--- Rivet-4.0.3/Makefile.in	2024-07-07 23:10:54.000000000 +0900
++++ ../installed/rivet/4.0.3/Makefile.in	2024-10-15 14:22:43.930488154 +0900
 @@ -478,6 +478,24 @@ dist_pkgconfig_DATA = rivet.pc
  DEST = login.hepforge.org:rivet/downloads/
  all: all-recursive
@@ -34,9 +34,9 @@ diff -rupN Rivet-4.0.1/Makefile.in ../installed/rivet/4.0.1/Makefile.in
  
  distclean-libtool:
  	-rm -f libtool config.lt
-diff -rupN Rivet-4.0.1/include/Rivet/Makefile.in ../installed/rivet/4.0.1/include/Rivet/Makefile.in
---- Rivet-4.0.1/include/Rivet/Makefile.in	2024-07-07 23:10:54.000000000 +0900
-+++ ../installed/rivet/4.0.1/include/Rivet/Makefile.in	2024-10-15 14:42:58.436319591 +0900
+diff -rupN Rivet-4.0.3/include/Rivet/Makefile.in ../installed/rivet/4.0.3/include/Rivet/Makefile.in
+--- Rivet-4.0.3/include/Rivet/Makefile.in	2024-07-07 23:10:54.000000000 +0900
++++ ../installed/rivet/4.0.3/include/Rivet/Makefile.in	2024-10-15 14:42:58.436319591 +0900
 @@ -1175,7 +1175,22 @@ nobase_pkginclude_HEADERS = Rivet.hh Run
  	Math/eigen3/src/SparseCore/SparseDiagonalProduct.h \
  	Math/eigen3/src/SparseCore/SparseMatrixBase.h \
@@ -50,20 +50,20 @@ diff -rupN Rivet-4.0.1/include/Rivet/Makefile.in ../installed/rivet/4.0.1/includ
 +    ../gambit/Backends/wrappertypedefs.hh \
 +    ../gambit/Backends/function_return_utils.hpp \
 +    ../gambit/Utils/cats.hpp \
-+    ../backend_types/Rivet_4_0_1/identification.hpp \
-+    ../backend_types/Rivet_4_0_1/forward_decls_abstract_classes.hh \
-+    ../backend_types/Rivet_4_0_1/forward_decls_wrapper_classes.hh \
-+    ../backend_types/Rivet_4_0_1/abstract_AnalysisHandler.hh \
-+    ../backend_types/Rivet_4_0_1/wrapper_AnalysisHandler.hh \
-+    ../backend_types/Rivet_4_0_1/wrapper_AnalysisHandler_decl.hh \
-+    ../backend_types/Rivet_4_0_1/wrapper_AnalysisHandler_def.hh
++    ../backend_types/Rivet_4_0_3/identification.hpp \
++    ../backend_types/Rivet_4_0_3/forward_decls_abstract_classes.hh \
++    ../backend_types/Rivet_4_0_3/forward_decls_wrapper_classes.hh \
++    ../backend_types/Rivet_4_0_3/abstract_AnalysisHandler.hh \
++    ../backend_types/Rivet_4_0_3/wrapper_AnalysisHandler.hh \
++    ../backend_types/Rivet_4_0_3/wrapper_AnalysisHandler_decl.hh \
++    ../backend_types/Rivet_4_0_3/wrapper_AnalysisHandler_def.hh
 +
  all: all-am
  
  .SUFFIXES:
-diff -rupN Rivet-4.0.1/src/Core/Makefile.in ../installed/rivet/4.0.1/src/Core/Makefile.in
---- Rivet-4.0.1/src/Core/Makefile.in	2024-07-07 23:10:54.000000000 +0900
-+++ ../installed/rivet/4.0.1/src/Core/Makefile.in	2024-10-15 15:36:51.203169607 +0900
+diff -rupN Rivet-4.0.3/src/Core/Makefile.in ../installed/rivet/4.0.3/src/Core/Makefile.in
+--- Rivet-4.0.3/src/Core/Makefile.in	2024-07-07 23:10:54.000000000 +0900
++++ ../installed/rivet/4.0.3/src/Core/Makefile.in	2024-10-15 15:36:51.203169607 +0900
 @@ -120,7 +120,12 @@ am_libRivetCore_la_OBJECTS = libRivetCor
  	libRivetCore_la-AnalysisLoader.lo \
  	libRivetCore_la-AnalysisInfo.lo \
@@ -183,9 +183,9 @@ diff -rupN Rivet-4.0.1/src/Core/Makefile.in ../installed/rivet/4.0.1/src/Core/Ma
  	-rm -f ./$(DEPDIR)/libRivetCore_la-DressedLepton.Plo
  	-rm -f ./$(DEPDIR)/libRivetCore_la-Event.Plo
  	-rm -f ./$(DEPDIR)/libRivetCore_la-Jet.Plo
-diff -rupN Rivet-4.0.1/include/Rivet/AnalysisHandler.hh ../installed/rivet/4.0.1/include/Rivet/AnalysisHandler.hh
---- Rivet-4.0.1/include/Rivet/AnalysisHandler.hh	2024-07-07 06:16:35.000000000 +0900
-+++ ../installed/rivet/4.0.1/include/Rivet/AnalysisHandler.hh	2024-10-15 14:46:32.214039304 +0900
+diff -rupN Rivet-4.0.3/include/Rivet/AnalysisHandler.hh ../installed/rivet/4.0.3/include/Rivet/AnalysisHandler.hh
+--- Rivet-4.0.3/include/Rivet/AnalysisHandler.hh	2024-07-07 06:16:35.000000000 +0900
++++ ../installed/rivet/4.0.3/include/Rivet/AnalysisHandler.hh	2024-10-15 14:46:32.214039304 +0900
 @@ -40,10 +49,10 @@ namespace Rivet {
      AnalysisHandler(const string& runname="");
  
@@ -210,10 +210,10 @@ diff -rupN Rivet-4.0.1/include/Rivet/AnalysisHandler.hh ../installed/rivet/4.0.1
      /// @brief Configure the AnalysisObject dump rate and destination.
      ///
      /// Tell Rivet to dump intermediate result to a file named @a
-diff -rupN Rivet-4.0.1/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/4.0.1/include/Rivet/Tools/RivetHepMC.hh
-diff -rupN Rivet-4.0.1/analyses/Makefile.in ../installed/rivet/4.0.1/analyses/Makefile.in
---- Rivet-4.0.1/analyses/Makefile.in	2024-07-07 23:10:54.000000000 +0900
-+++ ../installed/rivet/4.0.1/analyses/Makefile.in	2024-10-15 14:22:43.931488097 +0900
+diff -rupN Rivet-4.0.3/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/4.0.3/include/Rivet/Tools/RivetHepMC.hh
+diff -rupN Rivet-4.0.3/analyses/Makefile.in ../installed/rivet/4.0.3/analyses/Makefile.in
+--- Rivet-4.0.3/analyses/Makefile.in	2024-07-07 23:10:54.000000000 +0900
++++ ../installed/rivet/4.0.3/analyses/Makefile.in	2024-10-15 14:22:43.931488097 +0900
 @@ -350,7 +350,7 @@ top_builddir = @top_builddir@
  top_srcdir = @top_srcdir@
  with_highfive = @with_highfive@
@@ -241,9 +241,9 @@ diff -rupN Rivet-4.0.1/analyses/Makefile.in ../installed/rivet/4.0.1/analyses/Ma
  
  # clean-local:
  # 	rm -rf $(builddir)/data
-diff -rupN Rivet-4.0.1/src/Core/AnalysisHandler.cc ../installed/rivet/4.0.1/src/Core/AnalysisHandler.cc
---- Rivet-4.0.1/src/Core/AnalysisHandler.cc	2024-07-07 06:16:35.000000000 +0900
-+++ ../installed/rivet/4.0.1/src/Core/AnalysisHandler.cc	2024-10-15 14:22:43.931488097 +0900
+diff -rupN Rivet-4.0.3/src/Core/AnalysisHandler.cc ../installed/rivet/4.0.3/src/Core/AnalysisHandler.cc
+--- Rivet-4.0.3/src/Core/AnalysisHandler.cc	2024-07-07 06:16:35.000000000 +0900
++++ ../installed/rivet/4.0.3/src/Core/AnalysisHandler.cc	2024-10-15 14:22:43.931488097 +0900
 @@ -897,7 +897,8 @@ namespace Rivet {
  
      if (allaos.empty()) {
@@ -296,9 +296,9 @@ diff -rupN Rivet-4.0.1/src/Core/AnalysisHandler.cc ../installed/rivet/4.0.1/src/
  
    string AnalysisHandler::runName() const {
      return _runname;
-diff -rupN Rivet-4.0.1/configure ../installed/rivet/4.0.1/configure
---- Rivet-4.0.1/configure	2024-07-07 23:10:54.000000000 +0900
-+++ ../installed/rivet/4.0.1/configure	2024-10-15 14:22:43.934487924 +0900
+diff -rupN Rivet-4.0.3/configure ../installed/rivet/4.0.3/configure
+--- Rivet-4.0.3/configure	2024-07-07 23:10:54.000000000 +0900
++++ ../installed/rivet/4.0.3/configure	2024-10-15 14:22:43.934487924 +0900
 @@ -20522,7 +20522,7 @@ printf "%s\n" "$fjversion" >&6; }
    if test "$fjmajor" -lt 3 -o "$fjminor" -lt 2 ; then  #< only works for v3.x
      as_fn_error $? "FastJet version 3.2.0 or later is required" "$LINENO" 5
