@@ -282,7 +282,7 @@ else()
 endif()
 
 set(name "yoda")
-set(ver "2.0.1")
+set(ver "2.0.3")
 set(dir "${PROJECT_SOURCE_DIR}/contrib/YODA-${ver}")
 if(WITH_YODA)
   message("-- YODA-dependent functions in ColliderBit will be activated.")
@@ -298,7 +298,7 @@ endif()
 if(NOT EXCLUDE_YODA)
   set(lib "YODA")
   set(dl "https://yoda.hepforge.org/downloads/?f=YODA-${ver}.tar.gz")
-  set(md5 "3056e76241457797536803846f56c271")
+  set(md5 "5d386feaefafcf01609be30cdbda7f55")
   include_directories("${dir}/include")
   set(YODA_PATH "${dir}")
   set(YODA_LIB "${dir}/local/lib")
@@ -413,7 +413,7 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_dir} fjcontrib 1.049
     SOURCE_DIR ${fjcontrib_dir}
     BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} -std=c++17 --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local --only=RecursiveTools
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local --only=RecursiveTools
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
