@@ -23,7 +23,7 @@
 #ifndef EXCLUDE_YODA
 #ifndef EXCLUDE_HEPMC
 
-#include "gambit/Backends/frontends/Rivet_4_0_3.hpp"
+#include "gambit/Backends/frontends/Rivet_4_1_0.hpp"
 #include "gambit/Utils/util_functions.hpp"
 
 
@@ -34,7 +34,7 @@ BE_INI_FUNCTION
   if (scan_level)
   {
     std::string rivet_analyses_dir = std::string(GAMBIT_DIR)+
-        "/Backends/installed/rivet/4.0.3/analyses";
+        "/Backends/installed/rivet/4.1.0/analyses";
 
     //Check if the rivet_analyses_dir if it actually exists: if it
     //doesn't then installation probably hasn't installed properly.

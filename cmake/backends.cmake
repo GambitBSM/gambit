@@ -2040,10 +2040,10 @@ endif()
 
 # Rivet
 set(name "rivet")
-set(ver "4.0.3")
+set(ver "4.1.0")
 set(Rivet_ver "${ver}")
 set(dl "https://rivet.hepforge.org/downloads/?f=Rivet-${ver}.tar.gz")
-set(md5 "44b10add0b5f68a8551f9d08ab95dac0")
+set(md5 "9d33e74b9d64053a9e317ec437c71ff0")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(yoda_name "yoda")
 set(yoda_dir "${YODA_PATH}/local")
