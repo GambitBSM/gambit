@@ -540,7 +540,7 @@ START_MODULE
       DEPENDENCY(WIMP_properties, WIMPprops)
       DEPENDENCY(decay_rates, DecayTable)
       DEPENDENCY(DMEFT_spectrum, Spectrum)
-      BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
+      BACKEND_REQ(CH_Sigma_V, (), double, (const str&, const std::vector<str>&, const std::vector<str>&, const double&, const DecayTable&))
       ALLOW_MODELS(DMEFT)
     #undef FUNCTION
 
