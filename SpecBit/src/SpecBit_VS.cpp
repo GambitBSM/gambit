@@ -438,6 +438,11 @@ namespace Gambit
     {
         using namespace Pipes::get_likelihood_VS;
 
+        bool silence = runOptions->getValueOrDef<bool>(false, "silence");
+
+        static std::streambuf *coutbuf = std::cout.rdbuf();
+        if (silence) std::cout.rdbuf(0);
+
         // Compute all vacuum stability results
         VevaciousResultContainer vevacious_results = *Dep::check_vacuum_stability;
 
@@ -457,6 +462,8 @@ namespace Gambit
           }
         }
 
+        if (silence) std::cout.rdbuf(coutbuf);
+
         double lifetime = hbar/width;
 
         // This is based on the estimation of the past lightcone from 1806.11281
@@ -469,6 +476,11 @@ namespace Gambit
     {
         using namespace Pipes::get_VS_results;
 
+      bool silence = runOptions->getValueOrDef<bool>(false, "silence");
+
+        static std::streambuf *coutbuf = std::cout.rdbuf();
+        if (silence) std::cout.rdbuf(0);
+
         VevaciousResultContainer vevacious_results = *Dep::check_vacuum_stability;
         for(auto vacua : *Dep::compare_panic_vacua)
         {
@@ -480,6 +492,8 @@ namespace Gambit
           for(auto it = tempmap.begin(); it != tempmap.end(); ++it)
             result[it->first + "::" + vacua.first] = it->second;
         }
+
+        if (silence) std::cout.rdbuf(coutbuf);
     }
 
     /**********************/
@@ -1294,6 +1308,11 @@ namespace Gambit
     {
         using namespace Pipes::check_vacuum_stability_vevacious;
 
+        bool silence = runOptions->getValueOrDef<bool>(false, "silence");
+
+        static std::streambuf *coutbuf = std::cout.rdbuf();
+        if (silence) std::cout.rdbuf(0);
+
         // get a str-str map with valculations vevacious has to execute for this parameter point
         // note: this has to be executed for each point as it can happen that the nearest and the
         // global panic vaccum are the same.
@@ -1339,6 +1358,9 @@ namespace Gambit
               logger() << LogTags::debug << "Error occurred: " << e.what() << EOM;
           }
         }
+
+        if (silence) std::cout.rdbuf(coutbuf);
+
     }
 
     /********/
