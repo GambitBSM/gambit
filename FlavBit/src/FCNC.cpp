@@ -1428,8 +1428,10 @@ namespace Gambit
       {
         for (auto pred : binned_prediction)
         {
-          nDimGaussian.push_back(HepLike_default::HL_nDimGaussian(inputfile + pred.first + ".yaml"));
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + "_CPA.yaml" << std::endl;
+          std::string pred_name = pred.first;
+          if (pred_name == "15.0_19.0") pred_name = "15.0_19";
+          nDimGaussian.push_back(HepLike_default::HL_nDimGaussian(inputfile + pred_name + ".yaml"));
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred_name + "_CPA.yaml" << std::endl;
           nDimGaussian[nDimGaussian.size()-1].Read();
         }
         update_obs_list(obs_list, nDimGaussian[0].GetObservables());
