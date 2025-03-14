@@ -2052,7 +2052,7 @@ namespace Gambit
         first = false;
       }
 
-      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs)) - 10;
     }
 
     /// HEPLike LogLikehood for BR(B -> K nu nu) from Belle with hadronic tagging
@@ -2075,7 +2075,7 @@ namespace Gambit
         first = false;
       }
 
-      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs)) - 10;
     }
 
     /// HEPLike LogLikehood for BR(B_u+ -> K+ nu nu) from Belle with semileptonic tagging
@@ -2098,7 +2098,7 @@ namespace Gambit
         first = false;
       }
 
-      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs)) - 10;
     }
 
     /// HEPLike LogLikehood for BR(B_u+ -> K+ nu nu) from Belle with hadronic tagging
@@ -2121,7 +2121,7 @@ namespace Gambit
         first = false;
       }
 
-      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs)) - 10;
     }
 
     /// HEPLike LogLikehood for BR(B_u+ -> K+ nu nu) from BelleII
@@ -2149,7 +2149,7 @@ namespace Gambit
       //std::cout << "BR(Bu->Knunu) = " << get_obs_theory(prediction,obs) << " +- " << sqrt(get_obs_covariance(prediction,obs)) << std::endl;
       //std::cout << "BR/BRSM = " << get_obs_theory(prediction,obs)/BR_SM << " +- " << sqrt(get_obs_covariance(prediction,obs)/BR_SM/BR_SM) << std::endl;
       //std::cout << "Loglike without error = " << ProfLikelihood.GetLogLikelihood(get_obs_theory(prediction,obs)/BR_SM) << std::endl;
-      result = ProfLikelihood.GetLogLikelihood(get_obs_theory(prediction, obs)/BR_SM, get_obs_covariance(prediction, obs)/BR_SM/BR_SM);
+      result = ProfLikelihood.GetLogLikelihood(get_obs_theory(prediction, obs)/BR_SM, get_obs_covariance(prediction, obs)/BR_SM/BR_SM) - 10;
     }
 
     /// HEPLike LogLikehood for BR(B -> K* nu nu) from Belle with semileptonic tagging
@@ -2172,7 +2172,7 @@ namespace Gambit
         first = false;
       }
 
-      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs)) - 10;
     }
 
     /// HEPLike LogLikehood for BR(B -> K* nu nu) from Belle with hadronic tagging
@@ -2195,7 +2195,7 @@ namespace Gambit
         first = false;
       }
 
-      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs)) - 10;
     }
 
     /// HEPLike LogLikehood for BR(B_u+ -> K*+ nu nu) from Belle with semileptonic tagging
@@ -2218,7 +2218,7 @@ namespace Gambit
         first = false;
       }
 
-      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs)) - 10;
     }
 
     /// HEPLike LogLikehood for BR(B_u+ -> K*+ nu nu) from Belle with hadronic tagging
@@ -2241,7 +2241,7 @@ namespace Gambit
         first = false;
       }
 
-      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs)) - 10;
     }
 
     /// HEPLike LogLikelihood for BR(B -> K nu nu) from BaBar
@@ -2264,7 +2264,7 @@ namespace Gambit
         first = false;
       }
 
-      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs)) - 10;
     }
 
     /// HEPLike LogLikelihood for BR(B_u+ -> K+ nu nu) from BaBar
@@ -2287,7 +2287,7 @@ namespace Gambit
         first = false;
       }
 
-      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs)) - 10;
     }
 
     /// HEPLike LogLikelihood for BR(B -> K* nu nu) from BaBar
@@ -2310,7 +2310,7 @@ namespace Gambit
         first = false;
       }
 
-      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs)) - 10;
     }
 
     /// HEPLike LogLikelihood for BR(B_u+ -> K*+ nu nu) from BaBar
@@ -2333,7 +2333,7 @@ namespace Gambit
         first = false;
       }
 
-      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs));
+      result = Limit.GetLogLikelihood(get_obs_theory(prediction, obs), get_obs_covariance(prediction, obs)) - 10;
     }
 
   }
