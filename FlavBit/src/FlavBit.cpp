@@ -921,7 +921,10 @@ namespace Gambit
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       double DeltaMBd = BEreq::Delta_MB(&param);
-      result = flav_prediction("Delta_MBd", DeltaMBd);
+      double thError = 0.15; // 1511.09466, 1602.03560
+
+      result.central_values["Delta_MBd"] = DeltaMBd;
+      result.covariance["Delta_MBd"]["Delta_MBd"] = thError*thError;
 
       if (flav_debug) std::cout << "Delta_MBd=" << DeltaMBd << std::endl;
       if (flav_debug) std::cout << "Finished SuperIso_prediction_Delta_MBd" << std::endl;
@@ -935,7 +938,10 @@ namespace Gambit
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       double DeltaMBs = BEreq::Delta_MBs(&param);
-      result = flav_prediction("Delta_MBs", DeltaMBs);
+      double thError = 2.8; // 1511.09466, 1602.03560
+
+      result.central_values["Delta_MBs"] = DeltaMBs;
+      result.covariance["Delta_MBs"]["Delta_MBs"] = thError*thError;
 
       if (flav_debug) std::cout << "Delta_MBs=" << DeltaMBs << std::endl;
       if (flav_debug) std::cout << "Finished SuperIso_prediction_Delta_MBs" << std::endl;
@@ -1504,12 +1510,12 @@ namespace Gambit
     void HepLike_Delta_MBd_LogLikelihood(double &result)
     {
       using namespace Pipes::HepLike_Delta_MBd_LogLikelihood;
-      static const std::string inputfile = path_to_latest_heplike_data() + "/data/HFLAV_22/BMixing/Delta_MBs.yaml";
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/HFLAV_22/BMixing/Delta_MBd.yaml";
       static HepLike_default::HL_Gaussian Gaussian(inputfile);
 
       static bool first = true;
 
-      if (flav_debug) std::cout << "Starting HepLike_Delta_MBs_LogLikelihood"<< std::endl;
+      if (flav_debug) std::cout << "Starting HepLike_Delta_MBd_LogLikelihood"<< std::endl;
 
       if (first)
       {
