@@ -25,7 +25,18 @@
 #          (wh260@cam.ac.uk)
 #  \date 2018 May, Dec
 #
+#  \author Yang Zhang
+#          (zhangyangphy@zzu.edu.cn)
+#  \date 2023 June
+#
 #************************************************
+# Print cutflow in ColliderBit
+option(CUTFLOW "Enable cut-flow ouput" OFF)
+if(CUTFLOW)
+  add_definitions(-DCHECK_CUTFLOW)
+  message("${Yellow}-- Print cutflow in ColliderBit.")
+endif()
+
 
 # Check for MPI libraries; enable manually with "cmake -DWITH_MPI=ON .."
 option(WITH_MPI "Compile with MPI enabled" OFF)
