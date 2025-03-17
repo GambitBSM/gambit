@@ -2241,16 +2241,16 @@ endif()
 
 # Contur
 set(name "contur")
-set(ver "3.0.0")
+set(ver "3.1.0")
 set(dl "https://gitlab.com/hepcedar/${name}/-/archive/${name}-${ver}/${name}-${name}-${ver}.tar.gz")
-set(md5 "aee676621c6a2f4b66a94e456a96dac8")
+set(md5 "dc356016d12164724adc8eb811f6c964")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(contur_dir "${dir}/contur")
 set(init_file ${contur_dir}/init_by_GAMBIT.py)
 set(Rivet_name "rivet")
 set(ditch_if_absent "Python;SQLITE3;YODA;HepMC;Rivet")
 set(required_modules "cython;configobj;pandas;matplotlib;pathos;joblib")
-# Contur 3.0.0 shouldn't need a patch. Leave command commented in case subsequent versions do.
+# Contur 3.1.0 shouldn't need a patch. Leave command commented in case subsequent versions do.
 #set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
@@ -2263,7 +2263,7 @@ if(NOT ditched_${name}_${ver})
       DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
-      # Contur 3.0.0 shouldn't need a patch. Leave command commented in case subsequent versions do.
+      # Contur 3.1.0 shouldn't need a patch. Leave command commented in case subsequent versions do.
       # PATCH_COMMAND patch -p1 < ${patch}
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "import os" >> ${init_file}

@@ -6493,7 +6493,7 @@ Rivet_measurements: |
 addAnalysisLibPath: |
   Wrapper for Rivet's addAnalysisLibPath. Adds a path to Rivet's AnalysisLibPath environment variable.
 
-Contur_3_0_0_init: |
+Contur_3_1_0_init: |
   Initialise Contur backend
 
 Contur_GetAnalyses: |
