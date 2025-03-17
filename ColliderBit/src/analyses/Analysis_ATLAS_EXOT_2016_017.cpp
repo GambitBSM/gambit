@@ -21,7 +21,7 @@
 
 using namespace std;
 
-#define CHECK_CUTFLOW
+// #define CHECK_CUTFLOW
 
 #ifdef CHECK_CUTFLOW
     #include "YODA/Histo1D.h"
