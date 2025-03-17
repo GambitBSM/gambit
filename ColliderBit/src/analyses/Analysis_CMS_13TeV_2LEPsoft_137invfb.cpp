@@ -55,14 +55,14 @@ namespace Gambit
         //////////////////////
         // Baseline objects //
 
-        //BASELINE_PARTICLES(event->electrons(), baselineElectrons, 5., 0., 30., 2.5, CMS::eff2DEl.at("SUS-18-004"))
-        //BASELINE_PARTICLES(event->muons(), baselineMuons, 3.5, 0., 30., 2.4, CMS::eff2DMu.at("SUS-18-004"))
+        BASELINE_PARTICLES(event->electrons(), baselineElectrons, 5., 0., 30., 2.5, CMS::eff2DEl.at("SUS-18-004"))
+        BASELINE_PARTICLES(event->muons(), baselineMuons, 3.5, 0., 30., 2.4, CMS::eff2DMu.at("SUS-18-004"))
         // TODO: Test with looser constraints on lepton pTs at baseline selection
         //BASELINE_PARTICLES(event->electrons(), baselineElectrons, 1., 0., 50., 2.5, CMS::eff2DEl.at("SUS-18-004"))
         //BASELINE_PARTICLES(event->muons(), baselineMuons, 1., 0., 50., 2.4, CMS::eff2DMu.at("SUS-18-004"))
         // TODO: Test with no cut on baseline selection
-        BASELINE_PARTICLES(event->electrons(), baselineElectrons)
-        BASELINE_PARTICLES(event->muons(), baselineMuons)
+        //BASELINE_PARTICLES(event->electrons(), baselineElectrons)
+        //BASELINE_PARTICLES(event->muons(), baselineMuons)
         BASELINE_PARTICLE_COMBINATION(baselineLeptons, baselineElectrons, baselineMuons)
         BASELINE_JETS(event->jets("antikt_R04"), baselineJets, 25., 0., DBL_MAX, 2.4)
         BASELINE_BJETS(event->jets("antikt_R04"), baselineBJets, 25., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("DeepCSVMedium"), CMS::misIDBJet.at("DeepCSVMedium"))
@@ -76,9 +76,9 @@ namespace Gambit
         //SIGNAL_PARTICLES(baselineElectrons, signalElectrons)
         //SIGNAL_PARTICLES(baselineMuons, signalMuons)
         SIGNAL_PARTICLES(baselineElectrons, signalElectrons, true, 5., 0., 30., 2.5)
-        applyEfficiency(signalElectrons, CMS::eff2DEl.at("SUS-18-004"));
+        //applyEfficiency(signalElectrons, CMS::eff2DEl.at("SUS-18-004"));
         SIGNAL_PARTICLES(baselineMuons, signalMuons, true, 3.5, 0., 30., 2.4)
-        applyEfficiency(signalMuons, CMS::eff2DMu.at("SUS-18-004"));
+        //applyEfficiency(signalMuons, CMS::eff2DMu.at("SUS-18-004"));
         SIGNAL_JETS(baselineJets, signalJets)
         SIGNAL_JETS(baselineBJets, signalBJets)
 
@@ -118,7 +118,8 @@ namespace Gambit
         // - SF pairs, unique and ordered from highest invariant mass
         std::vector<std::vector<const HEPUtils::Particle*> > SFpairs = getSFpairs(signalLeptons);
         uniquePairs(SFpairs);
-        sortByParentMass(SFpairs, DBL_MAX);
+        //sortByParentMass(SFpairs, DBL_MAX);
+        sortByInvariantMass(SFpairs);
 
 
         ///////////////////////////////
@@ -658,7 +659,7 @@ namespace Gambit
         LOG_CUTS_N(cuts, "3lEWlow", 4)
         cuts = cuts and (nSignalMuons == 2);
         LOG_CUTS_N(cuts, "3lEWlow", 4)
-        cuts = cuts and (mllOSSF < 60.); //TODO: Should the last cut be for any sign, i.e. mllSF?
+        cuts = cuts and (mllSF < 60.);
         LOG_CUTS_N(cuts, "3lEWlow", 4)
         if(cuts)
         {

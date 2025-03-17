@@ -27,7 +27,9 @@
 #include "gambit/Printers/printers/hdf5printer/hdf5tools.hpp"
 #include "gambit/Printers/printers/hdf5printer/DataSetInterfaceScalar.hpp"
 #include "gambit/Utils/cats.hpp"
+#ifndef SCANNER_STANDALONE
 #include "gambit/Utils/slhaea_helpers.hpp"
+#endif
 
 #include <boost/preprocessor/seq/for_each_i.hpp>
 
@@ -210,10 +212,10 @@ namespace Gambit
            // Extract data validity flag
            return selected_buffer.isvalid.get_entry(dset_index);
         }
-
+#ifndef SCANNER_STANDALONE
         /// Extra helper function for spectrum retrieval
         bool retrieve_and_add_to_SLHAea(SLHAstruct& out, bool& found, const std::string& spec_type, const std::string& entry, const SLHAcombo& item, const std::set<std::string>& all_dataset_labels, const uint rank, const ulong pointID);
-
+#endif
     };
 
     /// Buffer retrieve function

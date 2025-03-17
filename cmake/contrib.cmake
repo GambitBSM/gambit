@@ -99,6 +99,7 @@ add_gambit_library(mkpath OPTION OBJECT
                           SOURCES ${PROJECT_SOURCE_DIR}/contrib/mkpath/src/mkpath.c
                           HEADERS ${PROJECT_SOURCE_DIR}/contrib/mkpath/include/mkpath/mkpath.h)
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:mkpath>)
+add_dependencies(contrib mkpath)
 
 #contrib/yaml-cpp-0.6.2
 set(yaml_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.6.2/include)
@@ -206,7 +207,7 @@ endif()
 if(NOT EXCLUDE_HEPMC)
   set(lib "HepMC3")
   set(md5 "d3079a7ffcc926b34c5ad2868ed6d8f0")
-  set(dl "https://hepmc.web.cern.ch/hepmc/releases/HepMC3-${ver}.tar.gz")
+  set(dl "https://gitlab.cern.ch/hepmc/HepMC3/-/archive/${ver}/HepMC3-${ver}.tar.gz")
   include_directories("${HEPMC_PATH}/local/include")
 
   set(HEPMC_LDFLAGS "-L${HEPMC_PATH}/local/lib -l${lib}")
@@ -229,8 +230,6 @@ if(NOT EXCLUDE_HEPMC)
 
   # Add clean-hepmc and nuke-hepmc
   add_contrib_clean_and_nuke(${name} ${HEPMC_PATH} clean)
-  # HEPMC must be build before any bits as it is included early because it's in Rivet's headers
-  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
 endif()
 
 # contrib/onnxruntime
@@ -338,8 +337,6 @@ if(NOT EXCLUDE_YODA)
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
   add_contrib_clean_and_nuke(${name} ${dir} clean)
-  # YODA must be build before any bits as it is included early because it's in Rivet's headers
-  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
 endif()
 
 #contrib/fjcore-3.2.0
@@ -435,6 +432,7 @@ add_gambit_library(multimin OPTION OBJECT
                           SOURCES ${PROJECT_SOURCE_DIR}/contrib/multimin/src/multimin.cpp
                           HEADERS ${PROJECT_SOURCE_DIR}/contrib/multimin/include/multimin/multimin.hpp)
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:multimin>)
+add_dependencies(contrib multimin)
 
 
 #contrib/METSignificance
@@ -637,4 +635,24 @@ else()
 
   set (EXCLUDE_FLEXIBLESUSY TRUE)
 
+endif()
+
+
+
+# If ColliderBit is in use, set various dependencies
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  # If RestFrames is in use, make it a dependency of contrib
+  if(NOT EXCLUDE_RESTFRAMES)
+    add_dependencies(contrib restframes)
+  endif()
+  # contrib depends on HepMC
+  if(EXCLUDE_HEPMC)
+    message(FATAL_ERROR "\nColliderBit needs HepMC3. Either use -DWITH_HEPMC=ON or ditch ColliderBit with -Ditch=\"ColliderBit\".")
+  endif()
+  add_dependencies(contrib hepmc)
+  # contrib depends on YODA
+  if(EXCLUDE_YODA)
+    message(FATAL_ERROR "\nColliderBit needs YODA. Either use -DWITH_YODA=ON or ditch ColliderBit with -Ditch=\"ColliderBit\".")
+  endif()
+  add_dependencies(contrib yoda)
 endif()

@@ -318,6 +318,11 @@ int main(int argc, char* argv[])
     initialise_standalone_logs("runs/DarkBit_standalone_WIMP/logs/");
     logger()<<"Running DarkBit standalone example"<<LogTags::info<<EOM;
     model_warning().set_fatal(true);
+    
+    // Initialise settings for printer (required)
+    YAML::Node printerNode = get_standalone_printer("cout", "runs/DarkBit_standalone_WIMP/logs/","");
+    Printers::PrinterManager printerManager(printerNode, false);
+    set_global_printer_manager(&printerManager);
 
 
     // ---- Check that required backends are present ----

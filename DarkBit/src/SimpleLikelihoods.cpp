@@ -145,7 +145,7 @@ namespace Gambit {
     {
       using namespace Pipes::lnL_FermiLATdwarfs_gamLike;
 
-      double fraction = *Dep::RD_fraction;
+      double suppression = *Dep::ID_suppression;
       int mode = 0;
       result = 0;
 
@@ -165,12 +165,12 @@ namespace Gambit {
       std::string proc = *Dep::DM_process;
       if (proc == "annihilation")
       {
-        y = ((*Dep::GA_Yield)/8./M_PI*fraction*fraction)->set("v", 0)->bind("E")->vect(x);
+        y = ((*Dep::GA_Yield)/8./M_PI*suppression)->set("v", 0)->bind("E")->vect(x);
       }
       else if (proc == "decay")
       {
         DarkBit_error().raise(LOCAL_INFO, "Sorry, decaying DM is not supported yet in gamlike.");
-        y = ((*Dep::GA_Yield)/4./M_PI*fraction)->bind("E")->vect(x);
+        y = ((*Dep::GA_Yield)/4./M_PI*suppression)->bind("E")->vect(x);
       }
       else
       {
@@ -186,7 +186,7 @@ namespace Gambit {
     {
       using namespace Pipes::lnL_HESSGC_gamLike;
 
-      double fraction = *Dep::RD_fraction;
+      double suppression = *Dep::ID_suppression;
       int mode = 0;
       result = 0;
 
@@ -208,12 +208,12 @@ namespace Gambit {
       std::string proc = *Dep::DM_process;
       if (proc == "annihilation")
       {
-        y = ((*Dep::GA_Yield)/8./M_PI*fraction*fraction)->set("v", 0)->bind("E")->vect(x);
+        y = ((*Dep::GA_Yield)/8./M_PI*suppression)->set("v", 0)->bind("E")->vect(x);
       }
       else if (proc == "decay")
       {
         DarkBit_error().raise(LOCAL_INFO, "Sorry, decaying DM is not supported yet in gamlike.");
-        y = ((*Dep::GA_Yield)/4./M_PI*fraction)->bind("E")->vect(x);
+        y = ((*Dep::GA_Yield)/4./M_PI*suppression)->bind("E")->vect(x);
       }
       else
       {
@@ -229,7 +229,7 @@ namespace Gambit {
     {
       using namespace Pipes::lnL_CTAGC_gamLike;
 
-      double fraction = *Dep::RD_fraction;
+      double suppression = *Dep::ID_suppression;
       result = 0;
 
       // from 25 GeV to 10 TeV
@@ -242,12 +242,12 @@ namespace Gambit {
       std::string proc = *Dep::DM_process;
       if (proc == "annihilation")
       {
-        y = ((*Dep::GA_Yield)/8./M_PI*fraction*fraction)->set("v", 0)->bind("E")->vect(x);
+        y = ((*Dep::GA_Yield)/8./M_PI*suppression)->set("v", 0)->bind("E")->vect(x);
       }
       else if (proc == "decay")
       {
         DarkBit_error().raise(LOCAL_INFO, "Sorry, decaying DM is not supported yet in gamlike.");
-        y = ((*Dep::GA_Yield)/4./M_PI*fraction)->bind("E")->vect(x);
+        y = ((*Dep::GA_Yield)/4./M_PI*suppression)->bind("E")->vect(x);
       }
       else
       {
@@ -265,7 +265,7 @@ namespace Gambit {
     {
       using namespace Pipes::lnL_FermiGC_gamLike;
 
-      double fraction = *Dep::RD_fraction;
+      double suppression = *Dep::ID_suppression;
       int mode = 0;
       result = 0;
 
@@ -287,12 +287,12 @@ namespace Gambit {
       std::string proc = *Dep::DM_process;
       if (proc == "annihilation")
       {
-        y = ((*Dep::GA_Yield)/8./M_PI*fraction*fraction)->set("v", 0)->bind("E")->vect(x);
+        y = ((*Dep::GA_Yield)/8./M_PI*suppression)->set("v", 0)->bind("E")->vect(x);
       }
       else if (proc == "decay")
       {
         DarkBit_error().raise(LOCAL_INFO, "Sorry, decaying DM is not supported yet in gamlike.");
-        y = ((*Dep::GA_Yield)/4./M_PI*fraction)->bind("E")->vect(x);
+        y = ((*Dep::GA_Yield)/4./M_PI*suppression)->bind("E")->vect(x);
       }
       else
       {

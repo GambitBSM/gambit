@@ -604,6 +604,32 @@ namespace Gambit
 
       /// @}
 
+      /// Efficiencies from ATLAS_SUSY_2018_16
+      /// Digitised from Figure 3
+      /// This is specific to this search, and probably not used on other searches
+      /// @{
+
+        // Track Efficiencies
+        const static HEPUtils::BinnedFn1D<double> eff1DTrack_ATLAS_SUSY_2018_16_isolated_track(
+          {0.0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 6.0, 8.0, DBL_MAX},    // Bin edges in pT
+          {0.0, 0.00554, 0.036175, 0.393355, 0.7706, 0.429725, 0.362845, 0.337615, 0.28892, 0.241395, 0.202085, 0.}
+        );
+        
+        // Muon Efficiencies
+        const static HEPUtils::BinnedFn1D<double> eff1DMuon_ATLAS_SUSY_2018_16(
+          {3.0, 3.5, 4.0, 4.5, 5.0, 6.0, 8.0, 10.0, 12.0, 15.0, 20.0, 30.0, 50.0, 80.0, 120.0, DBL_MAX},    // Bin edges in pT
+          {0.51128, 0.64915, 0.68318, 0.712515, 0.72953, 0.7266, 0.77295, 0.773535, 0.77647, 0.813425, 0.85626, 0.90202, 0.927835, 0.93253, 1.}
+        );
+        
+        // Electron Efficiencies
+        const static HEPUtils::BinnedFn1D<double> eff1DElectron_ATLAS_SUSY_2018_16(
+          {4.5, 5.0, 6.0, 8.0, 10.0, 12.0, 15.0, 20.0, 30.0, 50.0, 80.0, 120.0, DBL_MAX},    // Bin edges in pT
+          {0.230245, 0.385725, 0.50248, 0.59107, 0.646805, 0.660885, 0.636245, 0.701955, 0.77471, 0.86154, 0.89029, 1.}
+        );
+
+      /// @}
+
+
       /// Track efficiencies from ATL-PHYS-PUB-2015-051
       /// Digitised and made 2d from figs 1a and 1b
       /// @{
@@ -719,6 +745,7 @@ namespace Gambit
         {"EGAM_2018_01_Iso_Loose",           eff1DEl_EGAM_2018_01_Iso_Loose},
         {"EGAM_2018_01_Iso_Tight",           eff1DEl_EGAM_2018_01_Iso_Tight},
         {"EGAM_2018_01_Iso_HighPtCaloOnly",  eff1DEl_EGAM_2018_01_Iso_HighPtCaloOnly},
+        {"ATLAS_SUSY_2018_16",               eff1DElectron_ATLAS_SUSY_2018_16}
 //        {"VeryLoose", eff2DEl_VeryLoose},
 //        {"Medium", eff2DEl_Medium}
       });
@@ -744,6 +771,7 @@ namespace Gambit
         {"MUON_2018_03_ID_Tight",  eff1DMu_MUON_2018_03_ID_Tight},
         {"ATLAS_PHYS_PUB_2020_002_Medium", eff1DMu_ATLAS_PHYS_PUB_2020_002_Medium},
         {"ATLAS_PHYS_PUB_2020_002_LowPT", eff1DMu_ATLAS_PHYS_PUB_2020_002_LowPT},
+        {"ATLAS_SUSY_2018_16", eff1DMuon_ATLAS_SUSY_2018_16}
       });
 
       // Map of muon 2D efficiencies
@@ -767,6 +795,12 @@ namespace Gambit
       static const efficiency_map<HEPUtils::BinnedFn1D<double> > eff1DTau(
       {
         {"R2",            eff1DTau_R2},
+      });
+
+      // Map of track 1D efficiencies
+      static const efficiency_map<HEPUtils::BinnedFn1D<double> > eff1DTrack(
+      {
+        {"ATLAS_SUSY_2018_16_isolated_track",   eff1DTrack_ATLAS_SUSY_2018_16_isolated_track}, // Note: This is specific to the ATLAS_SUSY_2018_16 search
       });
 
       // Map of track 2D efficiencies

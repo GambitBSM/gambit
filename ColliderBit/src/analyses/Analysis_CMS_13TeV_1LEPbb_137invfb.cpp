@@ -19,7 +19,7 @@
 #include "HEPUtils/FastJet.h"
 
 using namespace std;
-#define CHECK_CUTFLOW
+//#define CHECK_CUTFLOW
 
 namespace Gambit
 {
@@ -44,10 +44,10 @@ namespace Gambit
 
       Analysis_CMS_13TeV_1LEPbb_137invfb()
       {
-        DEFINE_SIGNAL_REGIONS("SR2J-0H-", 4);
-        DEFINE_SIGNAL_REGIONS("SR2J-1H-", 2);
-        DEFINE_SIGNAL_REGIONS("SR3J-0H-", 4);
-        DEFINE_SIGNAL_REGIONS("SR3J-1H-", 2);
+        DEFINE_SIGNAL_REGIONS_NOCUTS("SR2J-0H-", 4);
+        DEFINE_SIGNAL_REGIONS_NOCUTS("SR2J-1H-", 2);
+        DEFINE_SIGNAL_REGIONS_NOCUTS("SR3J-0H-", 4);
+        DEFINE_SIGNAL_REGIONS_NOCUTS("SR3J-1H-", 2);
 
         set_analysis_name("CMS_13TeV_1LEPbb_137invfb");
         set_luminosity(137.0);

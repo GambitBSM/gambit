@@ -205,12 +205,24 @@ namespace Gambit
   /// Given a backend and a safe version (with no periods), return the true version
   str Backends::backend_info::version_from_safe_version (str be, str sv) const
   {
+    if (safe_version_map.find(be) == safe_version_map.end())
+    {
+      std::ostringstream msg;
+      msg << "The backend \"" << be << "\" is not known to GAMBIT.";
+      backend_error().raise(LOCAL_INFO, msg.str());
+    }
     return safe_version_map.at(be).first.at(sv);
   }
 
   /// Given a backend and a true version (with periods), return the safe version
   str Backends::backend_info::safe_version_from_version (str be, str v) const
   {
+    if (safe_version_map.find(be) == safe_version_map.end())
+    {
+      std::ostringstream msg;
+      msg << "The backend \"" << be << "\" is not known to GAMBIT.";
+      backend_error().raise(LOCAL_INFO, msg.str());
+    }
     return safe_version_map.at(be).second.at(v);
   }
 

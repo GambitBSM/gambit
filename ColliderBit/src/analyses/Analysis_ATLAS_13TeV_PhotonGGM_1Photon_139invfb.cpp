@@ -50,8 +50,6 @@ namespace Gambit
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
-      Cutflows _cutflows;
-
       Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb()
       {
 

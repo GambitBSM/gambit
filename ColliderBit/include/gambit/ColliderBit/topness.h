@@ -234,21 +234,21 @@ void my_simplex::my_SetUp(double xin[DMAX*(DMAX+1)])
       x[i]=xstart[i];
     }
 
+  std::vector<double> xi(d);
   for (int i=0; i<d+1; i++)
     {
-      double xi[d];
-      std::copy(x+d*i,x+d*i+d,xi);  // get coordinates of i'th point and copy into xi
-           y[i]=(*f)(xi,d);
+      std::copy(x+d*i,x+d*i+d,&xi[0]);  // get coordinates of i'th point and copy into xi
+      y[i]=(*f)(&xi[0],d);
     }
 }
 
 void my_simplex::set_y()
 {
+  std::vector<double> xi(d);
   for (int i=0; i<d+1; i++)
     {
-      double xi[d];
-      std::copy(x+d*i,x+d*i+d,xi);  // get coordinates of i'th point and copy into xi
-      y[i]=(*f)(xi,d);
+      std::copy(x+d*i,x+d*i+d,&xi[0]);  // get coordinates of i'th point and copy into xi
+      y[i]=(*f)(&xi[0],d);
     }
 }
 

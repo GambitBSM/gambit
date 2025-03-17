@@ -39,6 +39,10 @@
 ///          (tomas.gonzalo@kit.edu)
 ///  \date 2023 Aug
 ///
+///  \author Taylor R. Gray
+///          (gray@chalmers.se)
+///  \date 2023 Oct
+///
 ///  *********************************************
 
 #pragma once
@@ -331,6 +335,13 @@
     MODEL_CONDITIONAL_DEPENDENCY(Unitarity_Bound_DMsimpVectorMedDiracDM, double, DMsimpVectorMedDiracDM)
     ALLOW_MODELS(DMsimpVectorMedScalarDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedDiracDM, DMsimpVectorMedVectorDM)
     #undef FUNCTION
+
+    #define FUNCTION SubGeVDM_results
+    START_FUNCTION(AnalysisDataPointers)
+    DEPENDENCY(SubGeVDM_spectrum, Spectrum)
+    ALLOW_MODELS(SubGeVDM_fermion, SubGeVDM_scalar)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
   #define CAPABILITY AllAnalysisNumbersUnmodified
@@ -630,5 +641,16 @@
     #endif
 
   #undef CAPABILITY
+
+  /// BaBar single photon likelihood
+  #define CAPABILITY BaBar_single_photon_LogLike
+    #define FUNCTION BaBar_single_photon_LogLike_SubGeVDM
+    START_FUNCTION(double)
+    DEPENDENCY(dark_photon_decay_rates,DecayTable::Entry)
+    ALLOW_MODELS(SubGeVDM_fermion)
+    ALLOW_MODELS(SubGeVDM_scalar)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 
 #undef MODULE

@@ -345,7 +345,7 @@ Rules:
           - ATLAS_13TeV_4b_139invfb              # New! (Are)
           - ATLAS_13TeV_4b_discoverySR_139invfb  # [in skip_analyses]
           - ATLAS_13TeV_4b_allyears_139invfb     # [in skip_analyses]
-          - ATLAS_13TeV_2LEPsoft_139invfb        # [in skip_analyses, since not yet validated] New! (Tomas)
+          - ATLAS_13TeV_2LEPsoft_139invfb        # New! (Tomas)
           - ATLAS_13TeV_3b_NN_139invfb           # [in skip_analyses, due to probable overlap with ATLAS_13TeV_4b_139invfb] New! (Tomek)
           - ATLAS_13TeV_0LEP_139invfb
           - ATLAS_13TeV_2BoostedBosons_139invfb  # Uses antikt_R1.
@@ -363,7 +363,7 @@ Rules:
           # 
           - CMS_13TeV_1LEPbb_137invfb                   # New! (Pengxuan) - Uses antikt_R08.
           - CMS_13TeV_2Higgs_4b_neutralino_137invfb     # New! (Yang) - Uses antikt_R08.
-          - CMS_13TeV_2LEPsoft_137invfb                 # New! (Tomas)
+          - CMS_13TeV_2LEPsoft_137invfb                 # New! (Tomas) [in skip_analyses]
           - CMS_13TeV_0LEPStop_137invfb                 # New! (Holly)
           - CMS_13TeV_0LEP_chargino_VV_VH_137invfb      # New! (Adil) - Uses antikt_R08.
           - CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD  # [in skip_analyses]
@@ -422,6 +422,7 @@ Rules:
           - SUSY:qqbar2chi0chi0 = on
           - SUSY:qqbar2chi+-chi0 = on
           - SUSY:qqbar2chi+chi- = on
+          - SUSYResonance:3BodyMatrixElement = on
           - TauDecays:mode = 0
           - TimeShower:pTmin = 2
           - 23:mMin = 0.1
@@ -462,12 +463,12 @@ Rules:
         - ATLAS_13TeV_0LEPStop_139invfb
         - ATLAS_13TeV_4b_discoverySR_139invfb
         - ATLAS_13TeV_4b_allyears_139invfb
-        - ATLAS_13TeV_2LEPsoft_139invfb
         - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb
         - ATLAS_13TeV_3b_NN_139invfb
         - CMS_13TeV_2OSLEP_Strong_Production_137invfb
         - CMS_13TeV_2OSLEP_Slepton_137invfb
         - CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD
+        - CMS_13TeV_2LEPsoft_137invfb
 
   # Set analyses for Rivet measurements
   - capability: Rivet_measurements

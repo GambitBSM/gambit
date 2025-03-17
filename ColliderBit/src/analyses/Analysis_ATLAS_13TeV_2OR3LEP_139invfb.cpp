@@ -40,9 +40,6 @@ namespace Gambit
 
     class Analysis_ATLAS_13TeV_2OR3LEP_139invfb : public Analysis 
     {
-    protected:
-      
-      Cutflows _cutflows;
 
     public:
 

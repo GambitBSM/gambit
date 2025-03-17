@@ -26,13 +26,21 @@
 #define PTMAX DBL_MAX
 
 /// Add a cutflow the the list of cutflows
+/// TODO: Find a neater solution than a _NOCUTS version of each macro to solve "ISO C++11 requires at least one argument for the "..." in a variadic macro"
 #define ADD_CUTFLOW(SR, ...)                                                      \
-  _cutflows.addCutflow(SR, {"Preselection", ## __VA_ARGS__, "Final"});
+  _cutflows.addCutflow(SR, {"Preselection", ##__VA_ARGS__, "Final"});
+
+#define ADD_CUTFLOW_NOCUTS(SR)                                                           \
+  _cutflows.addCutflow(SR, {"Preselection", "Final"});
 
 /// Define a signal region by initialzing the counter and cutflow
 #define DEFINE_SIGNAL_REGION(NAME, ...)                                           \
   _counters[NAME] = EventCounter(NAME);                                           \
-  ADD_CUTFLOW(NAME, ## __VA_ARGS__)
+  ADD_CUTFLOW(NAME, ##__VA_ARGS__)
+
+#define DEFINE_SIGNAL_REGION_NOCUTS(NAME)                                           \
+  _counters[NAME] = EventCounter(NAME);                                           \
+  ADD_CUTFLOW_NOCUTS(NAME)
 
 /// Define multiple signal regions that share a common name and
 /// only vary on sequential numbering
@@ -41,7 +49,15 @@
   {                                                                               \
     str basename(NAME);                                                           \
     str name = basename + std::to_string(i);                                      \
-    DEFINE_SIGNAL_REGION(name, ## __VA_ARGS__)                                    \
+    DEFINE_SIGNAL_REGION(name,## __VA_ARGS__)                                    \
+  }
+
+#define DEFINE_SIGNAL_REGIONS_NOCUTS(NAME, N)                                       \
+  for(size_t i=1; i<=N; ++i)                                                      \
+  {                                                                               \
+    str basename(NAME);                                                           \
+    str name = basename + std::to_string(i);                                      \
+    DEFINE_SIGNAL_REGION_NOCUTS(name)                                    \
   }
 
 /// Define baseline objects without cuts
