@@ -68,7 +68,7 @@ def main(argv):
             exclude_plugins.update(neatsplit(",",arg))
     # info for the different plugin types
     src_paths = sorted(["./ScannerBit/src/scanners", "./ScannerBit/src/objectives", "./ScannerBit/src/emulators"])
-    inc_paths = sorted(["./ScannerBit/include/gambit/ScannerBit/scanners", "./ScannerBit/include/gambit/ScannerBit/objectives" "./ScannerBit/include/gambit/ScannerBit/emulators"])
+    inc_paths = sorted(["./ScannerBit/include/gambit/ScannerBit/scanners", "./ScannerBit/include/gambit/ScannerBit/objectives", "./ScannerBit/include/gambit/ScannerBit/emulators"])
     plug_type = sorted(["scanner", "objective", "emulator"])
     config_files = []
     for ptype in plug_type:
@@ -943,6 +943,12 @@ if(WITH_PYTHON_SCANNERBIT)
     add_subdirectory(python) 
 else()
     message(\"${{BoldCyan}} X The ScannerBit_python_interface build target is not activated. Use -DWITH_PYTHON_SCANNERBIT=ON to enable it.${{ColourReset}}")
+endif()
+
+option(WITH_SCANNERBIT_EMULATION \"Build ScannerBit's Emulation interface when building ScannerBit\" OFF)
+if(WITH_SCANNERBIT_EMULATION)
+    message(\"${{BoldYellow}}-- Enabling the Emulation build target.${{ColourReset}}")
+    add_subdirectory(emu_egg) 
 endif()
 """.format() # To include scan_python and scan_boost_python targets, for pyScannerBit interface. 
 
