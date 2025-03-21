@@ -214,11 +214,13 @@ namespace Gambit
               //assignment or copy initialisation, and which is necesarry to access items via 
               //Gambit's backends system, so we need to go via a pointer. 
               result = std::make_shared<std::ostringstream>();
-
+              const static bool drop_perthread_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_perthread_YODA_file");
               int count = 0;
               for (const auto & handler : anahandlers){
                 handler->finalize();
-                handler->writeData("TEST_"+std::to_string(count++)+".yoda");
+                if (drop_perthread_YODA_file){
+                  handler->writeData("TEST_"+std::to_string(count++)+".yoda");
+                }
               }
 
               //Merge non-master threads back into master IF they analysed any events.
