@@ -281,7 +281,7 @@ else()
 endif()
 
 set(name "yoda")
-set(ver "1.9.7")
+set(ver "2.1.0")
 set(dir "${PROJECT_SOURCE_DIR}/contrib/YODA-${ver}")
 if(WITH_YODA)
   message("-- YODA-dependent functions in ColliderBit will be activated.")
@@ -297,7 +297,7 @@ endif()
 if(NOT EXCLUDE_YODA)
   set(lib "YODA")
   set(dl "https://yoda.hepforge.org/downloads/?f=YODA-${ver}.tar.gz")
-  set(md5 "c5bc336d3caa3f357db484536c10dbc8")
+  set(md5 "87da674a8e8127b54c408d1b465bf5f7")
   include_directories("${dir}/include")
   set(YODA_PATH "${dir}")
   set(YODA_LIB "${dir}/local/lib")
@@ -310,6 +310,8 @@ if(NOT EXCLUDE_YODA)
   set_compiler_warning("no-deprecated-copy" YODA_CXX_FLAGS)
   set_compiler_warning("no-implicit-fallthrough" YODA_CXX_FLAGS)
   set(YODA_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
+  #TODO (TP Dec 23): Bodge to cover different forms of python install: would be good to be able to autodetect
+  set(YODA_ALT_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/dist-packages")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
   # If cython is not installed disable the python extension
   gambit_find_python_module(cython)
@@ -384,14 +386,14 @@ else()
   set(EXCLUDE_FASTJET TRUE)
 endif()
 
-#contrib/fjcontrib-1.041; include only if Colliderbit is in use.
+#contrib/fjcontrib-1.049; include only if Colliderbit is in use.
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   message("   ColliderBit included, include fjcontrib too")
   set(EXCLUDE_FJCONTRIB FALSE)
 
-  set(fjcontrib_dl "http://fastjet.hepforge.org/contrib/downloads/fjcontrib-1.041.tar.gz")
-  set(fjcontrib_md5 "b37674a8701af52b58ebced94a270877")
-  set(fjcontrib_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.041")
+  set(fjcontrib_dl "http://fastjet.hepforge.org/contrib/downloads/fjcontrib-1.049.tar.gz")
+  set(fjcontrib_md5 "bfea8bfd311d958a40e445f76668bd32")
+  set(fjcontrib_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.049")
   include_directories("${fjcontrib_dir}/RecursiveTools")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fjcontrib_dir}/local/lib")
   set(fjcontrib_LDFLAGS "-L${fastjet_dir}/local/lib -lRecursiveTools")
@@ -405,10 +407,10 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
 
   ExternalProject_Add(fjcontrib
     DEPENDS fastjet
-    DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_dir} fjcontrib 1.041
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_dir} fjcontrib 1.049
     SOURCE_DIR ${fjcontrib_dir}
     BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local --only=RecursiveTools
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local # --only=RecursiveTools
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )

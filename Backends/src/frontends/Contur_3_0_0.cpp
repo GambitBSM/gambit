@@ -15,6 +15,8 @@
 /// \author Tomasz Procter
 ///          (t.procter.1@research.gla.ac.uk)
 /// \date 2021 June
+/// \date 2023 May
+/// \date  2024 Oct
 ///
 /// \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
@@ -23,7 +25,7 @@
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
-#include "gambit/Backends/frontends/Contur_2_1_1.hpp"
+#include "gambit/Backends/frontends/Contur_3_0_0.hpp"
 
 #ifdef HAVE_PYBIND11
 
@@ -37,6 +39,7 @@
     void Contur_add_GAMBIT_default_args(pybind11::dict& args_dict)
     {
       args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
+      args_dict[pybind11::cast("NOMULTIP")] = pybind11::bool_(true);
       args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")] = pybind11::list();
       args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("LLR");
       args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("Pool_LLR");
@@ -83,14 +86,33 @@
     //to study.
     void Contur_get_analyses_from_beam(std::vector<std::string>& analyses, std::string& beamString)
     {
-      std::vector<std::string> obtained_analyses;
+      pybind11::list beams;
+      pybind11::object theBeam;
+      bool beamFound = false;
+      #pragma omp critical
+      {
+        beams = Contur.attr("static_db").attr("get_beams")();
+      }
+      for (size_t  i = 0; i <= pybind11::len(beams); ++i){
+        if (beams[i].attr("id").cast<std::string>() == beamString){
+          theBeam = beams[i];
+          beamFound = true;
+          break;
+        }
+      }
+      if (! beamFound ){
+        // TODO: give appropriate warning that we're returning an empty vector.
+        analyses = {};
+        return;
+      }
       # pragma omp critical
       {
-        obtained_analyses = Contur.attr("static_db").attr("getAnalyses")(pybind11::none(), beamString).cast<std::vector<std::string>>();
+        pybind11::list anaObjectList = Contur.attr("static_db").attr("get_analyses")(pybind11::none(), pybind11::none(), theBeam);
+        for (const pybind11::handle anaObject : anaObjectList){
+          analyses.push_back(anaObject.attr("name").cast<str>());
+        }
       }
-      for (std::string analysis : obtained_analyses){
-        analyses.push_back(analysis);
-      }
+      
     }
   }
   END_BE_NAMESPACE

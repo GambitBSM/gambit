@@ -15,6 +15,8 @@
 ///  \author Tomasz Procter
 ///          (t.procter.1@research.gla.ac.uk)
 ///  \date   June 2021
+///  \date   May 2023
+///  \date   Oct 2024
 ///
 ///  *********************************************
 
@@ -62,24 +64,26 @@ namespace Gambit
           using namespace Pipes::Rivet_measurements;
           using namespace Rivet_default::Rivet;
 
-          static std::shared_ptr<AnalysisHandler> ah;
-          static bool studying_first_event;
-          static int events_analysed = 0;
+          static std::vector<std::unique_ptr<AnalysisHandler>> anahandlers;
+          // TODO: Does event count ever go over int_max? Playing safe
+          thread_local long int events_analysed = 0;
+          static std::map<int, long int> events_analysed_perthread;
+
+          static std::vector<string>  analyses;
+          static std::vector<string> excluded_analyses;
 
           if (*Loop::iteration == COLLIDER_INIT)
           {
-            if (ah != nullptr)
-            {
-              ah->~AnalysisHandler();
-              ah = nullptr;
-            }
-            ah = std::make_shared<AnalysisHandler>();
-            studying_first_event = true;
+            // Wipe out all analysisHandlers (will be reinitialised in COLLIDER_INIT_OMP)
+            anahandlers.clear();
+
+            // Remainder of Loop iteration is to get analysis list.
+            analyses.clear();
+            excluded_analyses.clear();
 
             //Are we running in a standalone (i.e. CBS) or in GAMBIT proper
-            //This should be added manually
-            bool runningStandalone = runOptions->getValueOrDef<bool>(false, "runningStandalone");
-            std::vector<std::string> analyses, excluded_analyses;
+            //This should be added manually by the standalone
+            const static bool runningStandalone = runOptions->getValueOrDef<bool>(false, "runningStandalone");
 
             if (!runningStandalone)
             {
@@ -96,7 +100,6 @@ namespace Gambit
 
             if(not analyses.size())
               ColliderBit_warning().raise(LOCAL_INFO, "No analyses set for Rivet. This means an empty yoda file will be passed to Contur");
-            // TODO: Add somewhere a check to make sure we only do LHC analyses
             else
             {
               for (size_t i = 0; i < analyses.size() ; ++i)
@@ -108,177 +111,176 @@ namespace Gambit
                 {
                   BEreq::Contur_GetAnalyses(analyses, analyses[i]);
                 }
-                //If its a normal analyis just add it.
-                else
-                {
-                  ah->addAnalysis(analyses[i]);
-                }
               }
             }
-
-            //If the yaml file wants to exclude analyses, remove them
-            //This feature was inspired by ATLAS_2016_I1469071, which is effectively
-            //invalid for most BSM cases and can cause crashes.
-            ah->removeAnalyses(excluded_analyses);
-
-            //Write the utilised analyses to a file in yaml-like format
-            //This will list only the analyses that RIVET has succesfully loaded.
-            //Only do this the first time contur is run.
-            //TODO: the analysishandler can choose to autoremove analyses e.g. if the energy is wrong LATER.
-            // Should we account for this? E.g. By wiping the file in base_init.
-            const static bool output_used_analyses = runOptions->getValueOrDef<bool>(false, "drop_used_analyses");
-            if (output_used_analyses)
-            {
-              static bool analysis_file_opened = false;
-              static std::map<std::string, bool> analyses_written_to_file_per_collider;
-              if (analyses_written_to_file_per_collider.count(Dep::RunMC->current_collider()) == 0)
-              {
-                std::ofstream analyses_output_file;
-                //TODO please feel free to change name/put in more appropriate location.
-                str filename = "/GAMBIT_rivet_analyses.log";
-                if (!analysis_file_opened)
-                {
-                  analyses_output_file.open(GAMBIT_DIR+std::string(filename));
-                  analysis_file_opened = true;
-                }
-                else
-                {
-                  analyses_output_file.open(GAMBIT_DIR+std::string(filename),std::ios_base::app);
-                  analyses_output_file << "\n";
-                }
-                analyses_output_file << Dep::RunMC->current_collider() << ":\n";
-                analyses_output_file << "  analyses:";
-
-                for (std::string an_analysis_string : ah->analysisNames())
-                {
-                  analyses_output_file << "\n   - " << an_analysis_string;
-                }
-                analyses_output_file.close();
-                analyses_written_to_file_per_collider[Dep::RunMC->current_collider()] = true;
-              }
-            }
-
+            // Now we have a final list of all analyses to add/exclude 
           }
 
+
+          if (*Loop::iteration == COLLIDER_INIT_OMP){
+            
+            #pragma omp critical
+            {
+              anahandlers.emplace_back(std::make_unique<AnalysisHandler>());
+              events_analysed_perthread[omp_get_thread_num()] = 0L;
+              
+              for (const std::string& ananame :  analyses){
+                // Rememeber analysis list already formed.
+                if (!(ananame == "13TeV" || ananame == "8TeV" || ananame == "7TeV"))
+                  anahandlers.back()->addAnalysis(ananame);
+              }
+ 
+              //If the yaml file wants to exclude analyses, remove them
+              //This feature was inspired by ATLAS_2016_I1469071, which is effectively
+              //invalid for most BSM cases and can cause crashes.
+              anahandlers.back()->removeAnalyses(excluded_analyses);
+
+              //Write the utilised analyses to a file in yaml-like format
+              //This will list only the analyses that RIVET has succesfully loaded.
+              //Only do this the first time contur is run.
+              if (omp_get_thread_num() == 0){
+                const static bool output_used_analyses = runOptions->getValueOrDef<bool>(false, "drop_used_analyses");
+                if (output_used_analyses)
+                {
+                  static bool analysis_file_opened = false;
+                  static std::map<std::string, bool> analyses_written_to_file_per_collider;
+                  if (analyses_written_to_file_per_collider.count(Dep::RunMC->current_collider()) == 0)
+                  {
+                    std::ofstream analyses_output_file;
+                    //TODO please feel free to change name/put in more appropriate location.
+                    str filename = "/GAMBIT_rivet_analyses.log";
+                    if (!analysis_file_opened)
+                    {
+                      analyses_output_file.open(GAMBIT_DIR+std::string(filename));
+                      analysis_file_opened = true;
+                    }
+                    else
+                    {
+                      analyses_output_file.open(GAMBIT_DIR+std::string(filename),std::ios_base::app);
+                      analyses_output_file << "\n";
+                    }
+                    analyses_output_file << Dep::RunMC->current_collider() << ":\n";
+                    analyses_output_file << "  analyses:";
+
+                    // TODO: fix.
+                    for (std::string an_analysis_string : anahandlers[0]->analysisNames())
+                    {
+                      analyses_output_file << "\n   - " << an_analysis_string;
+                    }
+                    analyses_output_file.close();
+                    analyses_written_to_file_per_collider[Dep::RunMC->current_collider()] = true;
+                  }
+                }
+              }
+            }
+          }
+
+          // TODO: think about this whole event number check is still needed.
+          if (*Loop::iteration == END_SUBPROCESS){
+            //Save which threads have run enough events.
+            events_analysed_perthread[omp_get_thread_num()] = events_analysed;
+            #ifdef COLLIDERBIT_DEBUG
+              std::cout << "Rivet: thread " << omp_get_thread_num() << " analysed " << events_analysed << " events" << std::endl;
+            #endif
+          }
+
+          // TODO: consider cleaning up.
           if (*Loop::iteration == COLLIDER_FINALIZE)
           {
             //Check if events have actually been generated. If not, don't call finalise, as
             //rivet hasn't been fully initialised. Just return a nullptr, the contur functions
             //will know what to do.
-            if (!studying_first_event)
+            // Test if thread 0 analysed any events. If not, very unlikely any threads did and merging won't work properly - skip.
+            if (events_analysed > 0)
             {
               #ifdef COLLIDERBIT_DEBUG
                 std::cout << "Summary data from rivet:\n\tAnalyses used: ";
-                for (auto analysis : ah->analysisNames())
-                {
+                for (auto analysis : anahandlers[0]->analysisNames()){
                     std::cout << analysis << ", ";
                 }
-                std::cout << "\n\tBeam IDs are " << ah->beamIds().first << ", " << ah->beamIds().second;
-                std::cout << "\n\tXS: " << ah->nominalCrossSection();
-                std::cout << "\n\tRunName: " << ah->runName();
-                std::cout << "\n\tSqrtS: " << ah->sqrtS();
+                std::cout << "\n\tBeam IDs are " << anahandlers[0]->beamIds().first << ", " << anahandlers[0]->beamIds().second;
+                std::cout << "\n\tXS: " << anahandlers[0]->nominalCrossSection();
+                std::cout << "\n\tRunName: " << anahandlers[0]->runName();
+                std::cout << "\n\tSqrtS: " << anahandlers[0]->sqrtS();
                 std::cout << "\n\tList of available analyses: ";
-                for (auto analysis : ah->stdAnalysisNames())
-                {
+                for (auto analysis : anahandlers[0]->stdAnalysisNames()){
                     std::cout << analysis << ", ";
                 }
                 std::cout << std::flush;
               #endif
 
               //Initialise somewhere for the yoda file to be outputted.
-              //This circuitous route is necesarry because ostringstream does not support copy
-              //assignment or copy initialisation, and which is necesarry to access items via
-              //Gambit's backends system, so we need to go via a pointer.
+              //This circuitous route is necesarry because ostringstream does not support copy 
+              //assignment or copy initialisation, and which is necesarry to access items via 
+              //Gambit's backends system, so we need to go via a pointer. 
               result = std::make_shared<std::ostringstream>();
 
-              #pragma omp critical
-              {
-                ah->finalize();
-                ah->writeData(*result, "yoda");
+              int count = 0;
+              for (const auto & handler : anahandlers){
+                handler->finalize();
+                handler->writeData("TEST_"+std::to_string(count++)+".yoda");
               }
 
+              //Merge non-master threads back into master IF they analysed any events.
+              for (size_t j = 1; j < anahandlers.size(); ++j){
+                //Note rivet needs uses the first event for init so need more than one to
+                // actually do analysis.
+                if (events_analysed_perthread[j] > 1){
+                  #ifdef COLLIDERBIT_DEBUG
+                  std::cout << "Merging yoda from thread " << j << " into master." << std::endl;
+                  #endif
+                  anahandlers[0]->merge(*anahandlers[j]);
+                }
+                else {
+                  std::cout << "Not merging yoda from thread " << j << " into master." << std::endl;
+                  ColliderBit_warning().raise(LOCAL_INFO, "Thread "+std::to_string(j)+" did not get any events to Rivet analyse" );
+                }
+              }
+              anahandlers[0]->finalize();
+              anahandlers[0]->writeData(*result, "yoda");
+
               // Drop YODA file if requested
-              bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
+              const static bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
               if(drop_YODA_file)
               {
-                str filename = "GAMBIT_collider_measurements_"+Dep::RunMC->current_collider()+".yoda";
+                str filename = "GAMBIT_collider_measurements_"+Dep::RunMC->current_collider()+".yoda";     
                 #pragma omp critical
                 {
-                  try { ah->writeData(filename); }
+                  try{ anahandlers[0]->writeData(filename); }
                   catch (...)
                   { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
                 }
               }
             }
-            else
-            {
+            else{
               result = nullptr;
+              ColliderBit_warning().raise(LOCAL_INFO, "Rivet didn't analyse any events at this point.");
             }
 
-            #pragma omp critical
-            {
-              ah->~AnalysisHandler();
-              ah = nullptr;
-            }
+            anahandlers.clear();
           }
 
           // Don't do anything else during special iterations
           if (*Loop::iteration < 0) return;
 
-          if (studying_first_event)
-          {
-            if (omp_get_thread_num() == 0)
-            {
-              // Get the HepMC event
-              HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
-              try { ah->analyze(ge); }
-              catch(std::runtime_error &e)
-              {
-                ColliderBit_error().raise(LOCAL_INFO, e.what());
-              }
-              studying_first_event = false;
-            }
-            #pragma omp barrier
-            if (omp_get_thread_num() != 0)
-            {
+          // Get the HepMC event
+          HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
+          try {
+            // The first event only must be analysed single-threaded
+            if (events_analysed < 1){
               #pragma omp critical
               {
-                // Get the HepMC event
-                HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
-                // Save the old event number in case other bits of Gambit need it.
-                int old_events_analysed = ge.event_number();
-                // Set the Event number to a stream independent total so Rivet can
-                // make sense of things.
-                ge.set_event_number(++events_analysed);
-                try { ah->analyze(ge); }
-                catch(std::runtime_error &e)
-                {
-                  ColliderBit_error().raise(LOCAL_INFO, e.what());
-                }
-                // Reset the old event number in case GAMBIT needs it elsewhere.
-                ge.set_event_number(old_events_analysed);
+                anahandlers[omp_get_thread_num()]->analyze(ge); 
               }
             }
+            else {
+              anahandlers[omp_get_thread_num()]->analyze(ge); 
+            }
+            events_analysed++;
           }
-          else
+          catch(std::runtime_error &e)
           {
-            # pragma omp critical
-            {
-              // Get the HepMC event
-              HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
-              // Save the old event number in case other bits of Gambit need it.
-              int old_events_analysed = ge.event_number();
-              // Set the Event number to a stream independent total so Rivet can
-              // make sense of things.
-              ge.set_event_number(++events_analysed);
-              try { ah->analyze(ge); }
-              catch(std::runtime_error &e)
-              {
-                ColliderBit_error().raise(LOCAL_INFO, e.what());
-              }
-              // Reset the old event number in case GAMBIT needs it elsewhere.
-              ge.set_event_number(old_events_analysed);
-            }
+            ColliderBit_error().raise(LOCAL_INFO, e.what());
           }
         }
 
@@ -317,13 +319,13 @@ namespace Gambit
               #pragma omp critical
               {
                 ///Call contur
-                temp_result = BEreq::Contur_Measurements(std::move(yodastream), yaml_contur_options);
+                Contur_output altOut = BEreq::Contur_Measurements(std::move(yodastream), yaml_contur_options);
+                temp_result = altOut;
               }
             }
             results.push_back(temp_result);
 
             #ifdef COLLIDERBIT_DEBUG
-              std::cout << "\n\nSINGLE COLLIDER CCONTUR OBTAINED: ";
               temp_result.print_Contur_output_debug();
             #endif
           }
@@ -450,8 +452,13 @@ namespace Gambit
         void Contur_LHC_measurements_LogLike(double &result)
         {
           using namespace Pipes::Contur_LHC_measurements_LogLike;
+          //Which background type to use in the calculation.
+          const static string background_type = runOptions->getValueOrDef<str>("DATABG", "background");
+          if (background_type != "DATABG" && background_type != "SMBG" && background_type != "EXP"){
+            ColliderBit_error().raise(LOCAL_INFO, "Requested Contur Background type does not exist");
+          }
           Contur_output contur_likelihood_object = *Dep::LHC_measurements;
-          result = contur_likelihood_object.LLR;
+          result = contur_likelihood_object.outputs.at(background_type).LLR;
         }
 
         // Extracts the likelihood value for every set of contur settings from a map<string, Contur_output>
@@ -463,7 +470,9 @@ namespace Gambit
 
           for (auto Contur_name : contur_likelihood_object)
           {
-            result[Contur_name.first + "_LLR"] = Contur_name.second.LLR;
+            for (const str & bkg : Contur_name.second._bkg_types){
+              result[Contur_name.first + "_" + bkg + "_LLR"] = Contur_name.second.outputs.at(bkg).LLR;
+            }
           }
         }
 
@@ -473,7 +482,11 @@ namespace Gambit
           using namespace Pipes::Multi_Contur_LHC_measurements_LogLike_single;
           Multi_Contur_output contur_likelihood_object = *Dep::LHC_measurements;
           static const std::string which_as_LLR = runOptions->getValueOrDef<str>("Contur", "Use_as_likelihood");
-          result = contur_likelihood_object[which_as_LLR].LLR;
+          static const string background_type = runOptions->getValueOrDef<str>("DATABG", "background");
+          if (background_type != "DATABG" && background_type != "SMBG" && background_type != "EXP"){
+            ColliderBit_error().raise(LOCAL_INFO, "Requested Contur Background type does not exist");
+          }
+          result = contur_likelihood_object[which_as_LLR].outputs.at(background_type).LLR;
         }
 
         // Extracts the likelihood contribution from each contur pool from Contur_output
@@ -482,7 +495,7 @@ namespace Gambit
           using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
           std::stringstream summary_line;
           summary_line << "LHC Contur LogLikes per pool: ";
-          result = (*Dep::LHC_measurements).pool_LLR;
+          result = (*Dep::LHC_measurements).pool_LLR();
 
           for (auto const& entry : result)
           {
@@ -501,7 +514,7 @@ namespace Gambit
           Multi_Contur_output contur_likelihood_object = *Dep::LHC_measurements;
           for (const auto& contur_output_instance : contur_likelihood_object)
           {
-            for (auto const& pool_LLR_entry : contur_output_instance.second.pool_LLR)
+            for (auto const& pool_LLR_entry : contur_output_instance.second.pool_LLR())
             {
               result[pool_LLR_entry.first + "_" + contur_output_instance.first] = pool_LLR_entry.second;
             }
@@ -517,10 +530,10 @@ namespace Gambit
         // Note map_str_str will not print to hdf5! Use for ASCII debug only.
         void Contur_LHC_measurements_histotags_perPool(map_str_str &result)
         {
-          using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
+          using namespace Pipes::Contur_LHC_measurements_histotags_perPool;
           std::stringstream summary_line;
           summary_line << "LHC Contur LogLikes per pool: ";
-          result = (*Dep::LHC_measurements).pool_tags;
+          result = (*Dep::LHC_measurements).pool_tags();
 
           for (auto const& entry : result)
           {
@@ -542,7 +555,7 @@ namespace Gambit
           Multi_Contur_output contur_likelihood_object = *Dep::LHC_measurements;
           for (const auto& contur_output_instance : contur_likelihood_object)
           {
-            for (auto const& pool_LLR_entry : contur_output_instance.second.pool_tags)
+            for (auto const& pool_LLR_entry : contur_output_instance.second.pool_tags())
             {
               result[pool_LLR_entry.first + "_" + contur_output_instance.first] = pool_LLR_entry.second;
             }
