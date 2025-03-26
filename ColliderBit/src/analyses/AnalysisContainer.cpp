@@ -69,6 +69,11 @@ namespace Gambit
       F(Dummy)                                          \
       F(Baselines)                                      \
       F(ATLAS_8TeV_1LEPbb_20invfb)                      \
+      F(ATLAS_EXOT_2016_013)                            \
+      F(ATLAS_EXOT_2016_014)                            \
+      F(ATLAS_EXOT_2016_017)                            \
+      F(ATLAS_EXOT_2018_06)                             \
+      F(ATLAS_EXOT_2019_07)                             \
       F(ATLAS_SUSY_2018_41)                             \
       F(ATLAS_CONF_2016_078)                            \
       F(ATLAS_SUSY_2016_07)                             \
@@ -82,16 +87,12 @@ namespace Gambit
       F(ATLAS_SUSY_2018_08)                             \
       F(ATLAS_SUSY_2018_08_inclusive)                   \
       F(ATLAS_SUSY_2018_08_exclusive)                   \
-      F(ATLAS_EXOT_2016_013)                            \
-      F(ATLAS_EXOT_2016_014)                            \
-      F(ATLAS_EXOT_2016_017)                            \
       F(ATLAS_CONF_2017_039)                            \
       F(ATLAS_SUSY_2016_24)                             \
       F(ATLAS_SUSY_2016_24_2Lep0Jets)                   \
       F(ATLAS_SUSY_2016_24_2LepPlusJets)                \
       F(ATLAS_SUSY_2016_24_3Lep)                     \
       F(ATLAS_SUSY_2018_09)                          \
-      F(ATLAS_EXOT_2018_06)                          \
       F(ATLAS_CONF_2018_042)                         \
       F(ATLAS_CONF_2018_042_chargino_binned)         \
       F(ATLAS_CONF_2018_042_chargino_inclusive)      \
@@ -130,62 +131,62 @@ namespace Gambit
       F(ATLAS_SUSY_2012_10)                          \
       F(ATLAS_SUSY_2012_04)                          \
       F(CMS_SUS_16_014)                              \
-      F(CMS_SUS_16_033)                      \
-      F(CMS_SUS_19_006)                     \
-      F(CMS_SUS_21_002_OLD)  \
-      F(CMS_SUS_21_002)      \
-      F(CMS_SUS_16_043)                    \
-      F(CMS_SUS_20_003)                   \
-      F(CMS_SUS_16_051)                  \
-      F(CMS_SUS_17_001)                  \
-      F(CMS_SUS_16_048)                  \
-      F(CMS_SUS_16_048_nocovar)          \
-      F(CMS_SUS_16_048_stop)             \
-      F(CMS_SUS_16_048_stop_nocovar)     \
-      F(CMS_SUS_18_004)                 \
-      F(CMS_SUS_18_004_ewino)          \
-      F(CMS_SUS_18_004_stop)            \
-      F(CMS_SUS_16_034_EW)                    \
-      F(CMS_SUS_20_001)                   \
-      F(CMS_SUS_20_001_strong_production) \
-      F(CMS_SUS_20_001_EW_production)     \
-      F(CMS_SUS_20_001_Slepton)           \
-      F(CMS_SUS_16_034_EW_nocovar)            \
-      F(CMS_SUS_16_034)           \
-      F(CMS_SUS_17_010)      \
-      F(CMS_SUS_17_010_stop)           \
-      F(CMS_SUS_17_010_chargino)       \
-      F(CMS_SUS_16_035)               \
-      F(CMS_SUS_16_035_inclusive)     \
-      F(CMS_SUS_16_035_exclusive)     \
-      F(CMS_SUS_19_008)              \
-      F(CMS_SUS_16_046)               \
-      F(CMS_SUS_21_009)              \
-      F(CMS_SUS_17_011)              \
-      F(CMS_SUS_17_012)            \
-      F(CMS_SUS_17_012_emu_combined) \
-      F(CMS_SUS_16_039)                  \
-      F(CMS_SUS_16_039_2SSLep)           \
-      F(CMS_SUS_16_039_3Lep)             \
-      F(CMS_SUS_16_039_Full)             \
-      F(CMS_SUS_16_039_Full_2SSLep)      \
-      F(CMS_SUS_16_039_Full_3Lep)        \
-      F(CMS_SUS_16_039_Full_3Lep_rebinned) \
-      F(CMS_EXO_16_048)                   \
-      F(CMS_SUS_19_012)                 \
-      F(CMS_SUS_19_012_2Lep)            \
-      F(CMS_SUS_19_012_3Lep)            \
-      F(CMS_SUS_19_012_3LEPTau)         \
-      F(CMS_SUS_19_012_4LEP)            \
-      F(CMS_SUS_19_012_4LEPTau)         \
-      F(CMS_SUS_20_004)     \
-      F(CMS_SUS_19_010)                 \
-      F(CMS_B2G_14_004)                  \
-      F(CMS_B2G_13_004)                  \
-      F(CMS_SUS_13_006)                   \
-      F(CMS_SUS_13_006_3Lep)              \
-      F(CMS_SUS_13_006_4Lep)              \
-      F(CMS_EXO_12_048)                    \
+      F(CMS_SUS_16_033)                              \
+      F(CMS_SUS_19_006)                              \
+      F(CMS_SUS_21_002_OLD)                          \
+      F(CMS_SUS_21_002)                              \
+      F(CMS_SUS_16_043)                              \
+      F(CMS_SUS_20_003)                              \
+      F(CMS_SUS_16_051)                              \
+      F(CMS_SUS_17_001)                              \
+      F(CMS_SUS_16_048)                              \
+      F(CMS_SUS_16_048_nocovar)                      \
+      F(CMS_SUS_16_048_stop)                         \
+      F(CMS_SUS_16_048_stop_nocovar)                 \
+      F(CMS_SUS_18_004)                              \
+      F(CMS_SUS_18_004_ewino)                        \
+      F(CMS_SUS_18_004_stop)                         \
+      F(CMS_SUS_16_034_EW)                           \
+      F(CMS_SUS_20_001)                              \
+      F(CMS_SUS_20_001_strong_production)            \
+      F(CMS_SUS_20_001_EW_production)                \
+      F(CMS_SUS_20_001_Slepton)                      \
+      F(CMS_SUS_16_034_EW_nocovar)                   \
+      F(CMS_SUS_16_034)                              \
+      F(CMS_SUS_17_010)                              \
+      F(CMS_SUS_17_010_stop)                         \
+      F(CMS_SUS_17_010_chargino)                     \
+      F(CMS_SUS_16_035)                              \
+      F(CMS_SUS_16_035_inclusive)                    \
+      F(CMS_SUS_16_035_exclusive)                    \
+      F(CMS_SUS_19_008)                              \
+      F(CMS_SUS_16_046)                              \
+      F(CMS_SUS_21_009)                              \
+      F(CMS_SUS_17_011)                              \
+      F(CMS_SUS_17_012)                              \
+      F(CMS_SUS_17_012_emu_combined)                 \
+      F(CMS_SUS_16_039)                              \
+      F(CMS_SUS_16_039_2SSLep)                       \
+      F(CMS_SUS_16_039_3Lep)                         \
+      F(CMS_SUS_16_039_Full)                         \
+      F(CMS_SUS_16_039_Full_2SSLep)                  \
+      F(CMS_SUS_16_039_Full_3Lep)                    \
+      F(CMS_SUS_16_039_Full_3Lep_rebinned)           \
+      F(CMS_EXO_16_048)                              \
+      F(CMS_SUS_19_012)                              \
+      F(CMS_SUS_19_012_2Lep)                         \
+      F(CMS_SUS_19_012_3Lep)                         \
+      F(CMS_SUS_19_012_3LEPTau)                      \
+      F(CMS_SUS_19_012_4LEP)                         \
+      F(CMS_SUS_19_012_4LEPTau)                      \
+      F(CMS_SUS_20_004)                              \
+      F(CMS_SUS_19_010)                              \
+      F(CMS_B2G_14_004)                              \
+      F(CMS_B2G_13_004)                              \
+      F(CMS_SUS_13_006)                              \
+      F(CMS_SUS_13_006_3Lep)                         \
+      F(CMS_SUS_13_006_4Lep)                         \
+      F(CMS_EXO_12_048)                              \
 
     /// For analysis factory function declaration
     #define DECLARE_ANALYSIS_FACTORY(ANAME)          \
