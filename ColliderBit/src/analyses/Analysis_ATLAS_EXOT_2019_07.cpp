@@ -118,12 +118,11 @@ namespace Gambit
             constexpr static double mtop = 172.76; // [GeV]
 
         public:
-#ifdef CHECK_CUTFLOW
-            Cutflows _cutflows;
-            YODA::Histo1D *_histo_mHt;
-            int Nents = 0;
-
-#endif
+            #ifdef CHECK_CUTFLOW
+                    Cutflows _cutflows;
+                    YODA::Histo1D *_histo_mHt;
+                    int Nents = 0;
+            #endif
 
             // Required detector sim
             static constexpr const char *detector = "ATLAS";
@@ -134,8 +133,8 @@ namespace Gambit
                 set_analysis_name("ATLAS_EXOT_2019_07");
                 set_luminosity(140.);
 
-#ifdef CHECK_CUTFLOW
-                _histo_mHt = new YODA::Histo1D(25, 1000., 2500., "SR/mHt");
+            #ifdef CHECK_CUTFLOW
+                _histo_mHt = new YODA::Histo1D(15, 1000., 2500., "SR/mHt");
                 cout << "====== Cutflows ======" << endl;
                 _cutflows.addCutflow("Signal Region", {"Initial signal event",
                                                        "Large-R jet pT and eta cuts",
@@ -144,8 +143,7 @@ namespace Gambit
                                                        "Second-leading large-R jet mass in (100, 225) GeV",
                                                        "SR tagging requirements",
                                                        "m_Ht > 1 TeV"});
-
-#endif
+            #endif
 
                 // _cutflows.addCutflow( "SR_binAll", {"JetpTEta", "0LEP", "massJ1", "massJ2", "htTagging", "massHt",});
                 // _cutflows.addCutflow( "SR_bin_mJJ_1p0_1p1", {"1.0 TeV < mJJ < 1.1 TeV",});
@@ -260,11 +258,12 @@ namespace Gambit
                 }
                 sort(largeR_Jets.begin(), largeR_Jets.end(), compareJetPt);
 
+                
                 vector<const HEPUtils::Jet *> VR_jets;
                 for (auto &pj : event->vrjets("VRTrackJets"))
                 {
                     if (pj->pT() > 25.0 && pj->abseta() < 2.5)
-                        VR_jets.push_back(pj);
+                    VR_jets.push_back(pj);
                 }
                 sort(VR_jets.begin(), VR_jets.end(), compareJetPt);
                 // // B-tag Efficiencies: Figure 3 of ATLAS-CONF-2019-027
@@ -277,16 +276,15 @@ namespace Gambit
                         bTagged_Jets.push_back(jet);
                     }
                 }
-
+                
                 // Large-R jet Trimming
                 vector<const HEPUtils::Jet *> higgsJets;
                 vector<const HEPUtils::Jet *> topJets;
                 vector<const HEPUtils::Jet *> signalLargeRJets; 
-
+                
                 const double Rsub = 0.2;
                 const double ptfrac = 0.05;
                 FJNS::Filter trimmer(fastjet::JetDefinition(fastjet::antikt_algorithm, Rsub), fastjet::SelectorPtFractionMin(ptfrac));
-
                 int hid = -1; 
                 int tid = -1; 
                 std::random_device rd;
@@ -298,17 +296,17 @@ namespace Gambit
                     const fastjet::PseudoJet &pseudojet = largeR_Jets.at(i)->pseudojet();
                     // Make sure there is constituents inside the jets
                     if (pseudojet.constituents().empty())
-                        continue;
+                    continue;
                     fastjet::PseudoJet trimmedJet = trimmer(pseudojet);
                     vector<fastjet::PseudoJet> subjets = trimmedJet.pieces();
-
+                    
                     int Nsub = subjets.size();
                     double randomNumber = dis(gen);
                     // cout << "Trimming LargeR Jet -> " << i << " contains -> " << Nsub << " items" << endl;
                     bool lrjet  = (trimmedJet.pt() > 350.) && (abs(trimmedJet.eta()) < 2.0); 
                     bool toptag = lrjet && (trimmedJet.m() >= 140.) && (trimmedJet.m() <= 225.) && (randomNumber < 0.8);
                     bool higgstag = lrjet && (trimmedJet.m() >= 105.) && (trimmedJet.m() <= 140.) && (randomNumber < 0.7);
-
+                    
                     HEPUtils::Jet *hepUtilsJet = new HEPUtils::Jet(trimmedJet);
                     if (toptag)
                     {
@@ -322,7 +320,8 @@ namespace Gambit
                     }
                     if (lrjet) signalLargeRJets.push_back(hepUtilsJet); 
                 }
-
+                
+                
                 // Overlap Remove 
                 removeOverlap(Electrons, Muons, 0.01);
                 removeOverlap(smallR_Jets, Electrons, 0.2);
@@ -335,17 +334,16 @@ namespace Gambit
                 removeOverlap(Muons, smallR_Jets, 0.4); 
                 removeOverlap(Muons, VR_jets, 0.4); 
 
-                // removeOverlap(signalLargeRJets, Electrons, 1.0 ); 
-                // removeOverlap(smallR_Jets, signalLargeRJets, 1.0 ); 
+                removeOverlap(signalLargeRJets, Electrons, 1.0 ); 
+                removeOverlap(smallR_Jets, signalLargeRJets, 1.0 ); 
                 
+                bool leadingj = (signalLargeRJets.size() > 0) ? signalLargeRJets.at(0)->pT() > 500. : false; 
                 int n_leptons = Electrons.size() + Muons.size();
                 double mJ1 = signalLargeRJets.size() >= 1 ? signalLargeRJets.at(0)->mass() : 0.; 
                 double mJ2 = signalLargeRJets.size() >= 2 ? signalLargeRJets.at(1)->mass() : 0.; 
                 
-                bool srHiggs = false; 
                 int  nbHiggs = 0; 
                 if (higgsJets.size() >= 1) {
-                    srHiggs = true; 
                     for (const HEPUtils::Jet *jet : bTagged_Jets) {
                         if (jet->mom().deltaR_eta(higgsJets.at(0)->mom()) < 1.0) {
                             nbHiggs += 1; 
@@ -353,28 +351,23 @@ namespace Gambit
                     }
                 }
                 
-                bool srtop = false; 
                 int  nbtop = 0; 
                 if (topJets.size() >= 1) {
-                    srtop = true; 
                     for (const HEPUtils::Jet *jet : bTagged_Jets) {
                         if (jet->mom().deltaR_eta(topJets.at(0)->mom()) < 1.0) {
                             nbtop += 1; 
                         }
                     }
                 }
-                bool srnb01 = (tid == 0) && (hid == 1) && (nbtop == 1) && (nbHiggs >= 2); 
-                bool srnb02 = (tid == 1) && (hid == 0) && (nbtop >= 2) && (nbHiggs >= 2); 
-                bool srnb03 = (tid == 1) && (hid == 0) && (nbtop == 1) && (nbHiggs >= 2); 
-                bool srnb04 = (tid == 0) && (hid == 1) && (nbtop >= 2) && (nbHiggs >= 2); 
+                bool srht = (tid == 0 && hid == 1) || (tid == 1 && hid == 0); 
+                bool srnb = srht && (nbtop >= 1) && (nbHiggs >= 2); 
+                double mHt = srht ? (higgsJets.at(0)->mom() + topJets.at(0)->mom()).m() : 0.; 
                 
-                double mHt = (tid + hid == 1 && srtop && srHiggs) ? (higgsJets.at(0)->mom() + topJets.at(0)->mom()).m() : 0.; 
-                
-                bool pass_JetpTEta = (signalLargeRJets.size() >= 2) && (signalLargeRJets.at(0)->pT() > 500.);
+                bool pass_JetpTEta = (signalLargeRJets.size() >= 2) && leadingj;
                 bool pass_JetpTEta_0LEP = pass_JetpTEta && (n_leptons == 0);
                 bool pass_JetpTEta_0LEP_massJ1 = pass_JetpTEta_0LEP && (mJ1 >= 100.) && (mJ1 <= 225.);
                 bool pass_JetpTEta_0LEP_massJ1_massJ2 = pass_JetpTEta_0LEP_massJ1 && (mJ2 >= 100.) && (mJ2 <= 225.);
-                bool pass_JetpTEta_0LEP_massJ1_massJ2_htTagging = pass_JetpTEta_0LEP_massJ1_massJ2 && (srnb01 || srnb02 || srnb03 || srnb04) ;
+                bool pass_JetpTEta_0LEP_massJ1_massJ2_htTagging = pass_JetpTEta_0LEP_massJ1_massJ2 && (srnb) ;
                 bool pass_JetpTEta_0LEP_massJ1_massJ2_htTagging_massht = pass_JetpTEta_0LEP_massJ1_massJ2_htTagging && (mHt >= 1000.);
                 // if (pass_JetpTEta_0LEP_massJ1_massJ2_htTagging)
                     // std::cout << "tid -> " << tid << ",hid -> " << hid << ",nbtop -> " << nbtop << ",hbHiggs -> " << nbHiggs << "; " << srnb01 << "; " << srnb02 << "; " << srnb03 << "; " << srnb04 << endl;
