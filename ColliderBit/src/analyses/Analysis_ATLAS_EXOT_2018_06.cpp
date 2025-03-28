@@ -8,6 +8,8 @@
 
 // This is based on the ATLAS 139 invfb Monojet analysis, found at: https://arxiv.org/pdf/2102.10874.pdf
 
+// Renamed from: Analysis_ATLAS_13TeV_MONOJET_139infb
+
 // #define CHECK_CUTFLOW
 
 namespace Gambit

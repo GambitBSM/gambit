@@ -10,6 +10,8 @@
 
 // #define CUTFLOW
 
+// Renamed from: 
+//      Analysis_ATLAS_8TeV_2LEPEW_20invfb
 
 /* The ATLAS 2 lepton EW analysis (20fb^-1)
 

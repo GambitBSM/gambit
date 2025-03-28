@@ -12,6 +12,8 @@
 
 using namespace std;
 
+// Renamed from: 
+//      Analysis_ATLAS_8TeV_2bStop_20invfb
 
 // The ATLAS 2b stop/bottom analysis (20fb^-1)
 //

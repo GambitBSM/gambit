@@ -37,6 +37,9 @@
 
 using namespace std;
 
+// Renamed from: 
+//        Analysis_CMS_13TeV_2Higgs_4b_neutralino_137invfb
+
 namespace Gambit {
   namespace ColliderBit {
 

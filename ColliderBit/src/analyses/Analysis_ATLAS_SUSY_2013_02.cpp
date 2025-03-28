@@ -10,6 +10,9 @@ using namespace std;
 
 // Based on arXiv:1405.7875
 
+// Renamed from: 
+//      Analysis_ATLAS_8TeV_0LEP_20invfb
+
 //Note: have not included the W signal regions
 
 namespace Gambit {

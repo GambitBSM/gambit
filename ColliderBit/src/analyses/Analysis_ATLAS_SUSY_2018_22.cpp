@@ -9,6 +9,8 @@
 
 // #define CHECK_CUTFLOW
 
+// Renamed from: Analysis_ATLAS_13TeV_0LEP_139invfb
+
 namespace Gambit
 {
   namespace ColliderBit
@@ -16,7 +18,6 @@ namespace Gambit
 
     using namespace std;
     using namespace HEPUtils;
-
 
     /// @brief ATLAS Run 2 0-lepton jet+MET SUSY analysis, with 139/fb of data
     ///

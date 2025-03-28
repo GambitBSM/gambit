@@ -3,6 +3,7 @@
 ///  \date 2024 February
 ///
 ///  Based on SUSY-2020-16 presented in 2401.14922.
+///           http://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2020-16
 ///  Only the low mass analysis is currently implemented here.
 ///  The high mass analysis uses a BDT and reclusters jets to R=0.8.
 ///  *********************************************
@@ -15,6 +16,9 @@
 // #define CHECK_CUTFLOW
 
 using namespace std;
+
+// Renamed from: 
+//        Analysis_ATLAS_13TeV_4b_139invfb
 
 namespace Gambit {
   namespace ColliderBit {

@@ -10,6 +10,9 @@
 // Based on confnote http://cms-results.web.cern.ch/cms-results/public-results/preliminary-results/SUS-16-043/index.html
 // and the paper version http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-16-043/index.html
 
+// Renamed from: 
+//      Analysis_CMS_13TeV_1LEPbb_36invfb
+
 #include <vector>
 #include <cmath>
 #include <memory>

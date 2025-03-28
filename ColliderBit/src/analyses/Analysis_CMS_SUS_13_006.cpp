@@ -8,6 +8,12 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 
+// Renamed from: 
+//        Analysis_CMS_8TeV_MultiLEP_20invfb
+//        Analysis_CMS_8TeV_MultiLEP_3Lep_20invfb
+//        Analysis_CMS_8TeV_MultiLEP_4Lep_20invfb
+
+
 /*
   A simulation of CMS paper PAS SUS-13-006, http://cds.cern.ch/record/1563142/files/SUS-13-006-pas.pdf
 

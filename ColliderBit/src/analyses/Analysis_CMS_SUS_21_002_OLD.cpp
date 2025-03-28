@@ -22,6 +22,10 @@
 
 using namespace std;
 
+// Renamed from: 
+//        Analysis_CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD
+
+
 namespace Gambit
 {
   namespace ColliderBit

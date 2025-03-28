@@ -39,6 +39,10 @@
 
 using namespace std;
 
+// Renamed from: 
+//        ATLAS_13TeV_1LEPStop_139invfb
+//        Not validated, still in progress
+
 namespace Gambit
 {
   namespace ColliderBit

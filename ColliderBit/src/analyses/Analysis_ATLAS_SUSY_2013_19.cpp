@@ -11,6 +11,9 @@
 
 using namespace std;
 
+// Renamed from: 
+//      Analysis_ATLAS_8TeV_2LEPStop_20invfb
+
 // The ATLAS 2 lepton direct stop analysis (20fb^-1) - `heavy stop'.
 
 // based on: arXiv: 1403.4853

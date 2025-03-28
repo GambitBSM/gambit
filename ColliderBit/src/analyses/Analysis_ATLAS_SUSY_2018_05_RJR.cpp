@@ -28,11 +28,12 @@
 #include "RestFrames/RestFrames.hh"
 #include "TLorentzVector.h"
 
-using namespace std;
-
 // #define CHECK_CUTFLOW
 
 using namespace std;
+
+// Renamed from: 
+//        Analysis_ATLAS_13TeV_2LEPJETS_RJR_139invfb
 
 namespace Gambit
 {

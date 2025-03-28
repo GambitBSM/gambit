@@ -5,12 +5,12 @@
 ///  *********************************************
 
 // Based on
-//  - https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/EXOT-2016-17/
-//  - https://cds.cern.ch/record/2652224
-//  - https://arxiv.org/abs/1812.07343
-// Search for the single production of heavy vector-like T and/or Y in pp collisions at s√= 13 TeV
-//   primarily targeting the events of final a W boson + b-quark
-
+//  - https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/EXOT-2021-35/
+//  - https://inspirehep.net/literature/2791855
+//  - https://arxiv.org/abs/2405.19862
+// Search for the pair production of heavy vector-like Q (light-flavor) in pp collisions at s√= 13 TeV
+//   primarily BR(Q->Wq) = 1
+ 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/Utils.hpp"
@@ -84,21 +84,52 @@ namespace Gambit
                 double met = event->met();
                 HEPUtils::P4 pmiss = event->missingmom();
 
-                BASELINE_PARTICLES(event->electrons(), baselineEl1, 25, 0, DBL_MAX, 1.37);
-                BASELINE_PARTICLES(event->electrons(), baselineEl2, 25, 1.52, DBL_MAX, 2.47);
-                BASELINE_PARTICLES(event->muons(), baselineMuons, 25, 0, DBL_MAX, 2.5);
+                BASELINE_PARTICLES(event->electrons(), baselineEl1, 27., 0, DBL_MAX, 1.37);
+                BASELINE_PARTICLES(event->electrons(), baselineEl2, 27., 1.52, DBL_MAX, 2.47);
+                BASELINE_PARTICLES(event->muons(), baselineMuons, 27., 0, DBL_MAX, 2.5);
                 
-                BASELINE_PARTICLE_COMBINATION(baselineElectrons, baselineEl1, baselineEl2)
+                BASELINE_PARTICLE_COMBINATION(baselineElectrons, baselineEl1, baselineEl2);
                 applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Tight")); 
                 applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Tight")); 
                 
-                BASELINE_PARTICLE_COMBINATION(baselineLeptons, baselineElectrons, baselineMuons);
+                BASELINE_JETS(event->jets("antikt_R04"), baselineJets, 25., 0, DBL_MAX, 2.5);
+                BASELINE_JETS(event->jets("antikt_R10"), baseLargeRJets, 200., 0, DBL_MAX, 2.0);
 
-                BASELINE_JETS(event->jets("antikt_R04"), basectrJets, 25, 0, DBL_MAX, 2.5);
-                BASELINE_JETS(event->jets("antikt_R04"), basefwdJets, 40., 2.5, DBL_MAX, 4.5);
+                removeOverlap(baselineJets, baselineElectrons, 0.2);
+                removeOverlap(baselineJets, baselineElectrons, 0.2);
+                
+                removeOverlap(baselineElectrons, baselineJets, 0.4);
 
-                removeOverlap(basectrJets, baselineLeptons, 0.2);
-                removeOverlap(baselineLeptons, basectrJets, 0.4);
+                vector<const HEPUtils::Particle *> sgmuons; 
+                for (const HEPUtils::Particle *mu : baselineMuons) 
+                {
+                    double deltaR = min(0.4, 0.004 + 10./ mu->pT()); 
+                    bool ovtag = true; 
+                    for (const HEPUtils::Jet * jet : baselineJets)
+                    {
+                        double dR = jet->mom().deltaR_eta(mu->mom()); 
+                        if (dR < deltaR) ovtag = false; 
+                    }
+                    if (ovtag) sgmuons.push_back(mu); 
+                }
+                removeOverlap(sgmuons, baselineJets, 0.4); 
+
+                SIGNAL_PARTICLES(baselineElectrons, signalEl); 
+                SIGNAL_PARTICLES(sgmuons, signalMu); 
+                SIGNAL_PARTICLE_COMBINATION(signalLep, signalEl, signalMu); 
+
+                bool base_pre = (signalLep.size() == 1) ? signalLep.at(0)->pT() > 60. : false;
+                if (base_pre)
+                {
+                    double nv_px = pmiss.px();
+                    double nv_py = pmiss.py();
+                    std::vector<double> pz_nus = calculate_pvz(signalLep.at(0)->mom(), nv_px, nv_py);
+                    double nv_pz = solute_pvZ(pz_nus);
+                    double nv_E = std::sqrt(nv_px * nv_px + nv_py * nv_py + nv_pz * nv_pz);
+                    HEPUtils::P4 vp4(nv_px, nv_py, nv_pz, nv_E);
+                    HEPUtils::P4 WLepp4 = vp4 + signalLep.at(0)->mom();
+                }
+                return; 
 
                 // define Signal Objects;
                 vector<const HEPUtils::Jet *> signalctrJets;

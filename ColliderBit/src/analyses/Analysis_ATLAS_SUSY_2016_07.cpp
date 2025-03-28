@@ -8,6 +8,7 @@
 #include "Eigen/Eigen"
 #include "gambit/Utils/end_ignore_warnings.hpp"
 
+// Renamed from: Analysis_ATLAS_13TeV_0LEP_36invfb
 
 namespace Gambit {
   namespace ColliderBit {

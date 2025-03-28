@@ -26,6 +26,11 @@
 
 using namespace std;
 
+// Renamed from: Analysis_ATLAS_13TeV_2OSLEP_chargino_80invfb
+//               Analysis_ATLAS_13TeV_2OSLEP_chargino_inclusive_80invfb
+//               Analysis_ATLAS_13TeV_2OSLEP_chargino_binned_80invfb
+
+
 namespace Gambit
 {
   namespace ColliderBit
@@ -35,6 +40,7 @@ namespace Gambit
     // defined further down:
     // - ATLAS_CONF_2018_042_chargino_binned
     // - ATLAS_CONF_2018_042_chargino_inclusive
+    
     class Analysis_ATLAS_CONF_2018_042 : public Analysis
     {
 

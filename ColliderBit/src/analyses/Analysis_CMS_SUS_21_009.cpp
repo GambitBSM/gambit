@@ -54,6 +54,9 @@ To be checked:
 using namespace std;
 using namespace HEPUtils;
 
+// Renamed from: 
+//        Analysis_CMS_13TeV_Photon_GMSB_137invfb
+
 namespace Gambit {
   namespace ColliderBit {
 

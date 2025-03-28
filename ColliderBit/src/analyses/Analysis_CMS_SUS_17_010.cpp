@@ -20,6 +20,11 @@
 
 using namespace std;
 
+// Renamed from: 
+//      Analysis_CMS_13TeV_2OSLEP_chargino_stop_36invfb
+//      Analysis_CMS_13TeV_2OSLEP_for_chargino_36invfb
+//      Analysis_CMS_13TeV_2OSLEP_for_stop_36invfb
+
 namespace Gambit {
   namespace ColliderBit {
 
