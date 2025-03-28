@@ -7,6 +7,8 @@
 // Based on the CMS publication https://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-21-002/
 // Phys. Lett. B 842 (2023) 137460, arXiv:2205.09597 [hep-ex],
 
+// Old Analysis Name: CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD
+
 #include <vector>
 #include <cmath>
 #include <memory>

@@ -66,6 +66,9 @@ BE_FUNCTION(dsddgpgn, void, (Farray<Fcomplex16,1,27,1,2>&, int&), "dsddgpgn_", "
 
 // Common blocks in the DarkSUSY core library that are not identical for all DS6 versions
 BE_VARIABLE(rdpars, DS_RDPARS,     "rdpars_",    "rdpars")    // gRD Parameters
+BE_VARIABLE(rdlims, DS_RDLIMS,     "rdlims_",    "rdlims")    // new Boltzmann routines
+BE_VARIABLE(rd20opt, DS_RD20OPT,     "rd20opt_",    "rd20opt")  // new Boltzmann routines
+BE_VARIABLE(adm_com, DS_ADM_COM,     "adm_com_",    "adm_com")  // asymmetric DM
 // Common blocks in the MSSM module library
 BE_VARIABLE(smquarkmasses, DS_SMQUARKMASSES, "smquarkmasses_", "smquarkmasses")
 BE_VARIABLE(smcoupling, DS_SMCOUPLING, "smcoupling_", "smcoupling")

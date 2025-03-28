@@ -19,6 +19,8 @@ using namespace std;
            highest CSV discriminator values.
    Known features:
 
+   Old Analysis Name: CMS_13TeV_1LEPStop_36invfb
+
 */
 
 namespace Gambit {

@@ -51,6 +51,9 @@ namespace Gambit
     // - Else, add the analysis to MAP_ANALYSES
     #define MAP_ANALYSES_WITH_ROOT_RESTFRAMES(F)        \
       F(ATLAS_SUSY_2017_03_RJR_2L2J)                    \
+      F(ATLAS_SUSY_2018_16)                             \
+      F(ATLAS_SUSY_2018_16_combined)                    \
+      F(ATLAS_SUSY_2018_16_exclusive)                   \
       F(ATLAS_SUSY_2017_03_RJR_3L)                      \
       F(ATLAS_SUSY_2017_03_RJR_Lowmass)                 \
       F(ATLAS_SUSY_2018_05_RJR)                         \
@@ -118,7 +121,6 @@ namespace Gambit
       F(ATLAS_CONF_2018_019)                         \
       F(ATLAS_SUSY_2018_21_StopZH)                   \
       F(ATLAS_SUSY_2018_21)                          \
-      F(ATLAS_SUSY_2018_16)                          \
       F(ATLAS_SUSY_2019_18)                          \
       F(ATLAS_SUSY_2019_22)                          \
       F(ATLAS_SUSY_2013_02)                          \

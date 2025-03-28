@@ -7,6 +7,8 @@
 // Based on http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-17-010/index.html
 // Searches for pair production of charginos and top squarks in final states with two oppositely charged leptons in proton-proton collisions at √s= 13 TeV
 
+// Old Analysis Name: CMS_13TeV_2OSLEP_36invfb
+
 #include <vector>
 #include <cmath>
 #include <memory>

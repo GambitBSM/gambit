@@ -20,6 +20,7 @@ using namespace std;
 // Have gone with the code snippet version (60% working point for the signal B jets)
 //
 
+// Old Analysis Name: ATLAS_13TeV_2bMET_36invfb
 
 namespace Gambit
 {

@@ -103,6 +103,32 @@ namespace Gambit
         result["dNnu"] = dNurBBN;                                // dNnu: within AlterBBN scenarios in which the sum Nnu+dNnu is the same are identical
         result["eta0"] = *Param.at("eta_BBN");                // eta at the end of BBN
       }
+      else if (ModelInUse("SubGeVDM_fermion"))
+      {
+        result["Nnu"] = 3.045; // contribution from SM neutrinos
+        result["dNnu"] = 0;                                // dNnu: within AlterBBN scenarios in which the sum Nnu+dNnu is the same are identical
+        result["eta0"] = 6.12e-10;                // eta at the end of BBN
+
+        result["m_chi"] = (*Param.at("mDM"))*1000;
+        result["g_chi"] = 4;
+        result["fermion"] = 1;
+        result["selfConjugate"] = 0;
+        result["EM_coupled"] = 1;
+        result["wimp"] = 1;
+      }
+      else if (ModelInUse("SubGeVDM_scalar"))
+      {
+        result["Nnu"] = 3.045; // contribution from SM neutrinos
+        result["dNnu"] = 0;                                // dNnu: within AlterBBN scenarios in which the sum Nnu+dNnu is the same are identical
+        result["eta0"] = 6.12e-10;                // eta at the end of BBN
+
+        result["m_chi"] = (*Param.at("mDM"))*1000;
+        result["g_chi"] = 2;
+        result["fermion"] = 0;
+        result["selfConjugate"] = 0;
+        result["EM_coupled"] = 1;
+        result["wimp"] = 1;
+      }
       else // at this point either LCDM or LCDM_theta are in use so we assume standard values for Nnu and dNnu
       {
         result["Nnu"] = *Dep::Neff_SM; // contribution from SM neutrinos
@@ -431,7 +457,7 @@ namespace Gambit
 
       // Fill relative (absolute) errors
       std::vector<double> err_ratio(NNUC+1,0);
-      if (use_custom_covariances) for (size_t ie=1; ie <= NNUC; ++ie)
+      if (use_custom_covariances) for (size_t ie=0; ie <= NNUC; ++ie)
       {
         if (has_relative_errors && (errors.at(ie) > 0.0))
           err_ratio.at(ie) =  errors.at(ie) * ratioH[ie];
@@ -449,10 +475,10 @@ namespace Gambit
       }
 
       // Fill abundances and covariance matrix of BBN_container with requested results from AlterBBN
-      for (size_t ie=1; ie <= NNUC; ++ie)
+      for (size_t ie=0; ie <= NNUC; ++ie)
       {
         result.set_BBN_abund(ie, triplet<double>(ratioH[ie],ratioH_upper[ie],ratioH_lower[ie]));
-        for (size_t je=1; je <= NNUC; ++je)
+        for (size_t je=0; je <= NNUC; ++je)
         {
           if (use_custom_covariances)
             result.set_BBN_covmat(ie, je, corr.at(ie).at(je) * err_ratio.at(ie) * err_ratio.at(je));
@@ -587,6 +613,13 @@ namespace Gambit
       result = Dep::primordial_abundances->get_BBN_abund("He4");
     }
 
+    /// Extract Neff from BBN abundance container
+    void extract_Neff_after_BBN(double &result)
+    {
+      using namespace Pipes::extract_Neff_after_BBN;
+      result = Dep::primordial_abundances->get_BBN_abund("Neff");
+    }
+
     /// Compute the overall log-likelihood from BBN
     void compute_BBN_LogLike(double &result)
     {
@@ -604,7 +637,7 @@ namespace Gambit
       // The measurement of the abundance for 3He is done for 3H/D, whereas the computed abundance is 3He/H, so convert it
       int He3 = abund_map.at("He3"), D = abund_map.at("D");
       double YD = BBN_res.get_BBN_abund("D"), YHe3 = BBN_res.get_BBN_abund("He3")/BBN_res.get_BBN_abund("D");
-      
+
       // If the abundance of deuterium is smaller than some arbitrary value, it is effectively zero, so no need to compute anything as the point will be invalidated anyway
       if(YD > 1.0e-20)
       {
@@ -700,8 +733,8 @@ namespace Gambit
       }
 
       // Init vectors with observations, predictions and covariance matrix
-      double prediction[nobs],observed[nobs],sigmaobs[nobs],translate[nobs];
-      bool upperlimit[nobs];
+      std::vector<double> prediction(nobs),observed(nobs),sigmaobs(nobs),translate(nobs);
+      std::vector<bool> upperlimit(nobs);
       gsl_matrix *cov = gsl_matrix_alloc(nobs, nobs);
       gsl_matrix *invcov = gsl_matrix_alloc(nobs, nobs);
       gsl_permutation *p = gsl_permutation_alloc(nobs);

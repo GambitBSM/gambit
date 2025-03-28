@@ -7,6 +7,8 @@
 // Based on https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2019-18/
 // Luminosity: 139 fb^-1
 
+// Old Analysis Name: ATLAS_13TeV_bTaus_StopStau_139invfb
+
 #include <vector>
 #include <cmath>
 #include <memory>
@@ -29,10 +31,6 @@ namespace Gambit
 
     class Analysis_ATLAS_SUSY_2019_18 : public Analysis
     {
-
-    protected:
-
-      Cutflows _cutflows;
 
     private:
 
@@ -376,7 +374,7 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(ATLAS_SUSY_2019_18);
+    DEFINE_ANALYSIS_FACTORY(ATLAS_SUSY_2019_18)
 
   }
 }

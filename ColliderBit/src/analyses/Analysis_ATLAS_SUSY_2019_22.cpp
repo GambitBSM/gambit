@@ -7,6 +7,9 @@
 
 /// based on https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2019-22/
 /// arXiv:2305.09322
+
+// Old Analysis Name: ATLAS_13TeV_2OR3LEP_139invfb
+
 #include <vector>
 #include <cmath>
 #include <memory>
@@ -40,9 +43,6 @@ namespace Gambit
 
     class Analysis_ATLAS_SUSY_2019_22 : public Analysis 
     {
-    protected:
-      
-      Cutflows _cutflows;
 
     public:
 

@@ -113,7 +113,7 @@ namespace Gambit
 
             Analysis_ATLAS_EXOT_2016_014()
             {
-                DEFINE_SIGNAL_REGION("SR");
+                DEFINE_SIGNAL_REGION_NOCUTS("SR");
 
                 set_analysis_name("ATLAS_EXOT_2016_014");
                 set_luminosity(36.1);

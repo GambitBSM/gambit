@@ -1,12 +1,12 @@
 name: Gambit Ubuntu CI
 
-on:
-  push:
-    branches: [ master, ci-* ]
-  pull_request:
-    branches: [ master ]
-  schedule:
-    - cron:  '0 5 * * *'
+on: workflow_dispatch
+  # push:
+  #   branches: [ master, ci-* ]
+  # pull_request:
+  #   branches: [ master ]
+  # schedule:
+  #   - cron:  '0 5 * * *'
 
 jobs:
   # A job that builds GAMBIT + scanners, tests the command-line interface 
@@ -46,7 +46,7 @@ jobs:
         echo "export PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR" >> buildenv.sh
         echo "export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH" >> buildenv.sh
         cat buildenv.sh
-        pip install --upgrade pyyaml pybind11 h5py scipy numpy pyhf configobj pandas matplotlib setuptools==58.2.0
+        pip install --upgrade pyyaml pybind11 h5py scipy numpy pyhf configobj pandas matplotlib setuptools==58.2.0 pathos joblib
     - name: Configure with cmake
       run: |
         cd BUILD/ && . buildenv.sh
@@ -59,10 +59,6 @@ jobs:
     - name: Build Gambit
       run: |
         cd BUILD && . buildenv.sh
-        # Build YODA and HepMC first, to avoid race condition during parallel build: https://github.com/GambitBSM/gambit/issues/467
-        # Can remove this once issue #467 is fixed.
-        make -j$(( ($(nproc)+1)/2 )) yoda
-        make -j$(( ($(nproc)+1)/2 )) hepmc
         # Now build Gambit
         make -j$(( ($(nproc)+1)/2 )) gambit
     - name: CLI test
@@ -79,7 +75,7 @@ jobs:
   # Backends that are anyway tested as part of the "test_runs" job can be skipped, 
   # see the build_backends.sh command below.
   backends_build:
-    if: ${{ always() }}
+    if: ${{ !cancelled() }}
     needs: [gambit_build] # Sets run order
     runs-on: [docker, self-hosted]
     strategy:
@@ -131,7 +127,7 @@ jobs:
   # A job for GAMBIT test runs. Only those GAMBIT modules, scanners and backends
   # required by the test runs are built.
   test_runs:
-    if: ${{ always() }}
+    if: ${{ !cancelled() }}
     needs: [gambit_build, backends_build] # Sets run order
     runs-on: [docker, self-hosted]
     strategy:
@@ -196,10 +192,6 @@ jobs:
     - name: Build Gambit
       run: |
         cd BUILD && . buildenv.sh
-        # Build YODA and HepMC first, to avoid race condition during parallel build: https://github.com/GambitBSM/gambit/issues/467
-        # Can remove this once issue #467 is fixed.
-        make -j$(( ($(nproc)+1)/2 )) yoda
-        make -j$(( ($(nproc)+1)/2 )) hepmc
         # Now build Gambit
         make -j$(( ($(nproc)+1)/2 )) gambit
     - name: Run ColliderBit_CMSSM.yaml
@@ -214,7 +206,7 @@ jobs:
 
   # A job that builds all the standalones
   standalones_build:
-    if: ${{ always() }}
+    if: ${{ !cancelled() }}
     needs: [gambit_build, backends_build, test_runs] # Sets run order
     runs-on: [docker, self-hosted]
     strategy:

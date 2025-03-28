@@ -97,6 +97,8 @@ ObsLikes:
     # Calculate the LHC likelihood
     - purpose:    LogLike
       capability: LHC_Combined_LogLike
+      # sub_capabilities:
+      #   skip_analyses:
 
     - purpose:    LogLike
       capability: LHC_Higgs_LogLike
@@ -403,7 +405,6 @@ Rules:
       write_summary_to_log: false
       cap_loglike: false
       cap_loglike_individual_analyses: false
-      # skip_analyses:
 
   # Set analyses for Rivet measurements
   - capability: Rivet_measurements
@@ -423,12 +424,9 @@ Rules:
           - ATLAS_2015_I1408516:LMODE=MU
       LHC_13TeV:
         analyses:
-          # - 13TeV
-          - ATLAS_2016_I1458270
-          - ATLAS_2017_I1514251:LMODE=EL
-          - ATLAS_2017_I1514251:LMODE=MU
+          - 13TeV
         exclude_analyses:
-          - ATLAS_2016_I1469071 # This analysis causes crashes if run on BSM outside of rivet.
+          - ATLAS_2016_I1469071 # This analysis no longer crashes if run on BSM outside of rivet, but is still not useful.
 
 
 
@@ -449,17 +447,17 @@ Rules:
     function: Contur_LHC_measurements_LogLike_perPool
 
 
-  # Dummy likelihood that can be used to guide the scanner.
-  # (If used, remember subtract this loglike contribution from the
-  # total loglike again when analysing the scan results.)
-  - capability: TotalCrossSection_LogLike
-    function: calc_TotalCrossSection_LogLike
-    options:
-      cross_section_lowerlim_fb: 1.0
-      cross_section_lowerlim_width_fb: 0.5 
-      # cross_section_upperlim_fb: 1.0e5
-      # cross_section_upperlim_width_fb: 0.5e5 
-      # max_random_loglike_increase: 0.01
+  # # Dummy likelihood that can be used to guide the scanner.
+  # # (If used, remember subtract this loglike contribution from the
+  # # total loglike again when analysing the scan results.)
+  # - capability: TotalCrossSection_LogLike
+  #   function: calc_TotalCrossSection_LogLike
+  #   options:
+  #     cross_section_lowerlim_fb: 1.0
+  #     cross_section_lowerlim_width_fb: 0.5 
+  #     # cross_section_upperlim_fb: 1.0e5
+  #     # cross_section_upperlim_width_fb: 0.5e5 
+  #     # max_random_loglike_increase: 0.01
 
 Logger:
 

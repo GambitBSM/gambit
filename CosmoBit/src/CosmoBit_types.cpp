@@ -212,7 +212,7 @@ namespace Gambit
       result["N_pivot"] = N_pivot;
 
       return result;
-    };
+    }
 
     void Primordial_ps::fill_k(double *k_array, int len)
     {

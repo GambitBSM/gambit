@@ -6,6 +6,8 @@
 
 // Based on https://arxiv.org/pdf/1909.09226.pdf
 
+// Old Analysis Name: ATLAS_13TeV_1Lep2b_139invfb
+
 #include <vector>
 #include <cmath>
 #include <memory>

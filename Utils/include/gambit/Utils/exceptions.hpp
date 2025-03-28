@@ -369,6 +369,29 @@ namespace Gambit
     private:
       std::string myWhat;
   };
+  
+  
+  /// Gambit suspicious point exception class.
+  class Suspicious_point_exception
+  {
+
+    public:
+
+      /// Constructor
+      Suspicious_point_exception() {}
+
+      /// Raise the suspicious point exception. Print it with a message and a code. The default code is 1.
+      void raise(const std::string &msg, int code, bool debug);
+      //void raise(const std::string &msg, int code=1, bool debug=false)
+      //{
+      //  // get the printer pointer
+      //  Printers::BasePrinter& printer = *(get_global_printer_manager()->printerptr);
+      //  printer.print(code, "Suspicious Point Code", Printers::get_main_param_id("Suspicious Point Code"), printer.getRank(), Printers::get_point_id());
+     // 
+     //   if (debug) std::cout << "Point Suspicious (" << code << "): " << msg << std::endl;
+     // }
+
+  };
 
 }
 

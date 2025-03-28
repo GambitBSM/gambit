@@ -31,10 +31,10 @@
 #define NULIKE_VERSION "1.0.9"
 #define NULIKE_SAFE_VERSION 1_0_9
 
-#define RIVET_VERSION "3.1.5"
-#define RIVET_SAFE_VERSION 3_1_5
-#define CONTUR_VERSION "2.1.1"
-#define CONTUR_SAFE_VERSION 2_1_1
+#define RIVET_VERSION "3.1.8"
+#define RIVET_SAFE_VERSION 3_1_8
+#define CONTUR_VERSION "2.4.4"
+#define CONTUR_SAFE_VERSION 2_4_4
 
 #define FULLLIKES_VERSION "1.0"
 #define FULLLIKES_SAFE_VERSION 1_0
@@ -272,11 +272,18 @@ int main(int argc, char* argv[])
     if (debug) cout << "Reading HepMC" << " file: " << event_filename << endl;
     auto& getEvent = getHepMCEvent;
     auto& convertEvent = convertHepMCEvent_HEPUtils;
+    auto& AnalysisNumbers = CollectAnalyses;
+    AnalysisNumbers.setOption<bool>("print_cutflows", true);
 
     // Initialise logs
     logger().set_log_debug_messages(debug);
     initialise_standalone_logs("CBS_logs/");
     logger()<<"Running CBS"<<LogTags::info<<EOM;
+    
+    // Initialise settings for printer (required)
+    YAML::Node printerNode = get_standalone_printer("cout", "CBS_logs/", "");
+    Printers::PrinterManager printerManager(printerNode, false);
+    set_global_printer_manager(&printerManager);
 
     // Initialise the random number generator, using a hardware seed if no seed is given in the input file.
     int seed = settings.getValueOrDef<int>(-1, "seed");

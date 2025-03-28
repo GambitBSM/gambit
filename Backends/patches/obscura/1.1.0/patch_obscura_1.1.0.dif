@@ -1,0 +1,45 @@
+diff -rupN a/CMakeLists.txt b/CMakeLists/txt
+--- a/CMakeLists.txt	2023-06-26 13:41:28.141804982 +0200
++++ b/CMakeLists.txt	2023-06-26 13:44:54.374228407 +0200
+@@ -27,22 +27,29 @@ find_package(Boost 1.65 REQUIRED)
+ include(FetchContent)
+ 
+ # libphysica
+-set(LIBPHYSICA_DIR ${EXTERNAL_DIR}/libphysica)
+-FetchContent_Declare(libphysica
+-  GIT_REPOSITORY https://github.com/temken/libphysica.git
+-  GIT_TAG v0.1.5
+-  SOURCE_DIR "${LIBPHYSICA_DIR}"
+-  CMAKE_ARGS "-DCMAKE_BUILD_TYPE=Release -DCODE_COVERAGE=OFF")
+-FetchContent_GetProperties(libphysica)
++# Modified by GAMBIT
++if("${libphysica_SOURCE_DIR}" STREQUAL "")
++  set(LIBPHYSICA_DIR ${EXTERNAL_DIR}/libphysica)
++  FetchContent_Declare(libphysica
++    GIT_REPOSITORY https://github.com/temken/libphysica.git
++    GIT_TAG origin/dev
++    SOURCE_DIR "${LIBPHYSICA_DIR}"
++    CMAKE_ARGS "-DCMAKE_BUILD_TYPE=Release -DCODE_COVERAGE=OFF")
++  FetchContent_GetProperties(libphysica)
+ 
+-if(NOT libphysica_POPULATED)
+-  FetchContent_Populate(libphysica)
+-  add_subdirectory(${libphysica_SOURCE_DIR})
++  if(NOT libphysica_POPULATED)
++    FetchContent_Populate(libphysica)
++    add_subdirectory(${libphysica_SOURCE_DIR})
++  endif()
++else()
++  add_subdirectory(${libphysica_SOURCE_DIR} ${BIN_DIR})
+ endif()
+ 
+ # When installing, CMake will clear the RPATH of these targets so they are installed with an empty RPATH.
+ # This setting avoids the clearing of the libconfig path.
+-set(LIBCONFIG_DIR ${EXTERNAL_DIR}/libphysica/external/libconfig)
++# Modified by GAMBIT
++#set(LIBCONFIG_DIR ${EXTERNAL_DIR}/libphysica/external/libconfig)
++set(LIBCONFIG_DIR ${libphysica_SOURCE_DIR}/external/libconfig)
+ 
+ if(IS_DIRECTORY "${LIBCONFIG_DIR}")
+   message(STATUS "Libconfig was downloaded by libphysica. Setting RPATH manually for libconfig.")
+

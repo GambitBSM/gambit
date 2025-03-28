@@ -56,6 +56,45 @@ twalk: |
       mult:     Multiplicity (weight) of each point.
       chains:   Chain number that each point is a member of.  Rejected points have chain number of -1.
 
+jswarm: |
+  #remove_newlines
+  j-Swarm is a particle swarm optimiser featuring a self-adaptive mode
+  reminiscent of jDE, the self-adaptive variant of differential evolution.
+  It evolves a swarm of particles by giving them velocities determined as
+  vector sums of a) their present velocity, b) a velocity in the direction
+  of the best fit that the particle has seen to date, and c) a velocity in
+  the direction of the global best fit found to date.  The self-adaptive
+  modes control whether the weightings of these three different velocites
+  are fixed, or optimised on the fly as part of the fit.
+
+  YAML options [defaults]:
+      NP[no default]:                     Population size (individuals per generation)
+      maxgen[5000]:                       Maximum number of generations
+      omega[0.7298]:                      Inertial weight (default is Constriction Coefficient PSO)
+      phi1[1.5]:                          Cognitive weight (default is Constriction Coefficient PSO)
+      phi2[1.5]:                          Social weight (default is Constriction Coefficient PSO)
+      adaptive_phi[false]:                Use self-optimising adaptive choices for phi1 and phi2
+      adaptive_omega[false]:              Use self-optimising adaptive choices for omega
+      bndry[3]:                           Boundary constraint: 1=brick wall, 2=random re-initialization, 3=reflection
+      convthresh[1.e-3]:                  Threshold for gen-level convergence: smoothed fractional improvement in the mean personal best population value
+      convsteps[10]:                      Number of steps to smooth over when checking convergence
+      savecount[1]:                       Save progress every savecount generations
+      init_population_strategy[2]:        Initialisation strategy: 0=one shot, 1=n-shot, 2=n-shot with error if no valid vectors found.
+      init_stationary[false]:             Initialise particle velocities to to zero
+      max_initialisation_attempts[10000]: Maximum number of times to try to find a valid vector for each slot in the initial population.
+  #remove_newlines
+      min_acceptable_value[0.9999*min]:   Minimum function value to accept for the initial generation if init_population_strategy > 0.
+  Here "min" is the valued extracted from the KeyValues section of the main yaml file corresponding to the
+  "likelihood: model_invalid_for_lnlike_below" tag.
+  #dont_remove_newlines
+      verbosity[1]:                       Output verbosity: 0=only error messages, 1=basic info, 2=generation-level info, 3+=particle-level info
+      seed[-1]:                           Base seed for random number generation; non-positive means seed from the system clock
+      allow_new_settings[false]:          Allow settings to be overridden with new values when resuming
+      save_particles_natively[false]:     Save full particle data from every generation
+
+  Auxillary output variables:
+      none
+
 multinest: |
   #remove_newlines
   MultiNest is a nested sampling algorithm that calculates the evidence and
@@ -300,13 +339,26 @@ diver: |
       savecount[1]:                       Save progress every savecount generations.
       full_native_output[true]:           Output .raw file (Diver native sample output format).
       init_population_strategy[2]:        Initialisation strategy: 0=one shot, 1=n-shot, 2=n-shot with error if no valid vectors found.
+      discard_unfit_points[false]:        Recalculate any trial vector whose fitness is above max_acceptable_value.  Introduced in Diver 1.0.5.
       max_initialisation_attempts[10000]: Maximum number of times to try to find a valid vector for each slot in the initial population.
-
   #remove_newlines
-  max_acceptable_value[0.9999*min]:   Maximum function value to accept for the initial generation if init_population_strategy > 0.
-  Here "min" is the valued extracted from key values section of the main yaml file corresponding to the
+      max_acceptable_value[-0.9999*min]:  Maximum function value to accept for the initial generation if init_population_strategy > 0, or (from 1.0.5) any generation if discard_unfit_points=T.
+  Here "min" is the valued extracted from the KeyValues section of the main yaml file corresponding to the
   "likelihood: model_invalid_for_lnlike_below" tag.
   #dont_remove_newlines
+      verbosity[0]:                       Output verbosity: 0=only error messages, 1=basic info, 2=civ-level info, 3+=population info.
 
-  verbosity[0]:                       Output verbosity: 0=only error messages, 1=basic info, 2=civ-level info, 3+=population info.
+
+badass: |
+  #remove_newlines
+  badass is a simple annealed importance sampler.  It explores the composite pdf, Prior^(1-b)*Posterior^b, and varies the 'b' parameter between 0 and 1 through updates. The sampler continuously updates a set of live points by updating each point independently through a Metropolis-Hastings update.  At the end, each point is weighted such that the points are statistically consistent with the target posterior.   Each update uses the twalk algorithm for the M-H update and jump a user specified amount of times.
+
+  MCMC YAML options:
+      projection_dimension (dim): The dimension of the space being projected onto.
+      walk_distance: (2.5):       The distance of the kwalk jump over a point.
+      transverse_distance (6.0):  The distance of the kwalk jump away from a point.
+      jumps (10):                 The number of attempted jumps.
+
+  Sampler YAML options:
+      Bs ([0, 1]):  The 'b' values used in each update.
 

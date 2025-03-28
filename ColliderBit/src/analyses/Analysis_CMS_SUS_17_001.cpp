@@ -17,6 +17,8 @@ using namespace std;
    Known errors:
         Using ATLASEfficiencies instead of CMSEfficiencies because "applyLooseIDElectronSelectionR2" and "applyMediumIDElectronSelectionR2" functions are important for this analysis.
 
+   Old Analysis Name: CMS_13TeV_2LEPStop_36invfb
+
 */
 
 namespace Gambit {

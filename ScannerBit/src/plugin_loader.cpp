@@ -57,7 +57,10 @@ namespace Gambit
 
         namespace Plugins
         {
-
+            
+            // Set the root directory relative to which we should search for various config files
+            static const std::string root_path(Utils::GAMBIT_root_dir());
+            
             /*********************************************/
             /************** PYTHON STUFF *****************/
             /*********************************************/
@@ -128,7 +131,7 @@ namespace Gambit
                     guard = nullptr;
                 }
                 {
-                    std::string path = std::string(GAMBIT_DIR "/ScannerBit/src/") + type + "s/python/plugins";
+                    std::string path = std::string(root_path + "/ScannerBit/src/") + type + "s/python/plugins";
                     auto sys_list = py::list(py::module::import("sys").attr("path"));
                     sys_list.append(py::cast(path));
 
@@ -342,7 +345,7 @@ namespace Gambit
                 return table.str();
             }
 
-            Plugin_Loader::Plugin_Loader() : path(GAMBIT_DIR "/ScannerBit/lib/")//, python_plugin_map(pyplugin_info())
+            Plugin_Loader::Plugin_Loader() : path(root_path + "/ScannerBit/lib/")//, python_plugin_map(pyplugin_info())
             {
                 std::string p_str;
                 std::ifstream lib_list(path + "plugin_libraries.list");
@@ -358,15 +361,15 @@ namespace Gambit
                             scan_warn << "Could not find plugin library \"" << p_str << "\"." << scan_end;
                     }
 
-                    auto excluded_plugins = loadExcluded(Utils::buildtime_scratch+"scanbit_excluded_libs.yaml");
-                    const str linked_libs(Utils::buildtime_scratch+"scanbit_linked_libs.yaml");
-                    const str reqd_entries(Utils::buildtime_scratch+"scanbit_reqd_entries.yaml");
-                    const str flags(Utils::buildtime_scratch+"scanbit_flags.yaml");
+                    auto excluded_plugins = loadExcluded(Utils::buildtime_scratch()+"scanbit_excluded_libs.yaml");
+                    const str linked_libs(Utils::buildtime_scratch()+"scanbit_linked_libs.yaml");
+                    const str reqd_entries(Utils::buildtime_scratch()+"scanbit_reqd_entries.yaml");
+                    const str flags(Utils::buildtime_scratch()+"scanbit_flags.yaml");
                     process(linked_libs, reqd_entries, flags, excluded_plugins);
                 }
                 else
                 {
-                    scan_err << "Cannot open ./ScannerBit/lib/plugin_libraries.list" << scan_end;
+                    scan_err << "Cannot open "<<path<<"plugin_libraries.list" << scan_end;
                 }
 
             }
@@ -390,7 +393,7 @@ namespace Gambit
                 YAML::Node libNode = YAML::LoadFile(libFile);
                 YAML::Node plugNode = YAML::LoadFile(plugFile);
                 YAML::Node flagNode = YAML::LoadFile(flagFile);
-
+ 
                 for (auto it = excluded_plugins.begin(), end = excluded_plugins.end(); it != end; it++)
                 {
                     if (is_new_plugin(total_plugin_map, *it))
@@ -416,7 +419,7 @@ namespace Gambit
             {
                 std::vector<Plugin_Details> excluded_plugins;
                 YAML::Node node = YAML::LoadFile(file);
-
+ 
                 if (node.IsMap())
                 {
                     for (auto it = node.begin(), end = node.end(); it != end; it++)
@@ -557,7 +560,7 @@ namespace Gambit
 
             std::vector<std::string> Plugin_Loader::list_prior_groups() const
             {
-                YAML::Node node = YAML::LoadFile(GAMBIT_DIR "/config/priors.dat");
+                YAML::Node node = YAML::LoadFile(root_path + "/config/priors.dat");
                 std::vector<std::string> vec;
 
                 for(auto &&n : node)
@@ -573,7 +576,7 @@ namespace Gambit
 
             std::string Plugin_Loader::print_priors(const std::string &prior_group) const
             {
-                YAML::Node node = YAML::LoadFile(GAMBIT_DIR "/config/priors.dat");
+                YAML::Node node = YAML::LoadFile(root_path + "/config/priors.dat");
                 std::stringstream out;
 
                 if (prior_group == "priors")

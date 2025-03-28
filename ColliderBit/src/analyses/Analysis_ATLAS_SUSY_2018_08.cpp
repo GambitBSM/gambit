@@ -26,6 +26,8 @@ using namespace std;
   - Use the event-based ETmiss significance rather than the object-based one.
     See https://cds.cern.ch/record/2630948/files/ATLAS-CONF-2018-038.pdf
 
+  Old Analysis Name: ATLAS_13TeV_2LEPStop_139invfb
+
 */
 
 namespace Gambit

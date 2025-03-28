@@ -4,6 +4,9 @@
 ///  \date 2021 July
 ///  *********************************************
 
+// Old Analysis Names: CMS_SUS_19_012_2Lep
+//                     CMS_SUS_19_012_3Lep
+//                     CMS_SUS_19_012_4Lep
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/Utils.hpp"

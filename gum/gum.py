@@ -106,6 +106,8 @@ if args.file:
                 raise GumError(("\n\nPythia output requested but no "
                                 "collider_processes specified.\n"
                                 "Please amend your .gum file!"))
+            base_pythia_version = "312" # Override to a fixed pythia version
+            print("Using Pythia version 8.{}".format(base_pythia_version))
         else:
             colliderbit = False
 
@@ -283,7 +285,7 @@ if args.file:
                     # Clear and remake the copy of Pythia that will receive the
                     #  matrix element code produced by MadGraph
                     pristine_pythia_dir = os.path.join(os.getcwd(),
-                                                       'contrib','Pythia')
+                                                       'contrib','Pythia_8_'+base_pythia_version)
                     new_pythia_dir = mg5_output_dir + "/Pythia_patched"
                     remove_tree_quietly(new_pythia_dir)
 
@@ -670,20 +672,26 @@ if args.file:
             fix_pythia_lib(gum.name, new_pythia_dir, pythia_groups,
                            bsm_particle_list, decays)
             print("Creating a diff vs original version of Pythia.")
+            # Before writing the backend patch, find and replace couplingsPtr with coupSMPtr in any of the Sigma_ModelName_process.cc files
+            # Swap out any use of couplingsPtr with coupSMPtr in MadGraph output, needed for Pythia 8.3
+            for filename in os.listdir(new_pythia_dir+"/src"):
+                if os.path.isfile(os.path.join(new_pythia_dir+"/src",filename)) and ('Sigma_'+ gum.name) in filename:
+                    find_and_replace(os.path.join(new_pythia_dir+"/src",filename), ",", " couplingsPtr", " coupSMPtr")
+            
             write_backend_patch(output_dir, pristine_pythia_dir, new_pythia_dir,
                                 "pythia_"+gum.name.lower(),
                                 "8."+base_pythia_version)
             print("Writing an additional patch for the new version of Pythia.")
-            patch_pythia_patch(parameters, gum.name, reset_contents)
+            patch_pythia_patch(parameters, gum.name, reset_contents, base_pythia_version)
             print("Creating a cmake entry for Pythia"+gum.name+".")
-            pythia_cmake = write_pythia_cmake_entry(gum.name, output_dir)
+            pythia_cmake = write_pythia_cmake_entry(gum.name, output_dir, base_pythia_version)
             print(("Setting the default version of Pythia_"+gum.name+" for "
                    "BOSSed classes to 8."+base_pythia_version))
-            write_pythia_capability_defs(gum.name, capability_definitions)
+            write_pythia_capability_defs(gum.name, capability_definitions, base_pythia_version)
 
             # Adding in a UserHook
             print("Writing a Pythia UserHooks class for ColliderBit")
-            set_userhook = write_set_userhook(gum.name,base_pythia_version)
+            set_userhook = write_set_userhook(gum.name, base_pythia_version)
             apply_userhook = write_apply_userhook(gum.name)
 
         # Stop now if we're just doing a dry run
@@ -899,7 +907,7 @@ if args.file:
             safe_ver = "8_"+base_pythia_version
             ver = "8."+base_pythia_version
             print("Creating BOSS config files for Pythia_"+gum.name+".")
-            write_boss_configs_for_pythia(gum.name, output_dir,reset_contents)
+            write_boss_configs_for_pythia(gum.name, output_dir,reset_contents, base_pythia_version)
             copy_file(be+"/"+ver+"/patch_"+be+"_"+ver+".dif", m, output_dir,
                       reset_contents, existing = False)
             add_to_backend_locations("Pythia_"+gum.name,

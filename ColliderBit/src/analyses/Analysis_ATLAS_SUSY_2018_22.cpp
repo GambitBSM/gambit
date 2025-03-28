@@ -27,6 +27,8 @@ namespace Gambit
     ///   https://arxiv.org/abs/2010.14293
     ///   https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-22/
 
+    // Old Analysis Name : ATLAS_13TeV_0LEP_139invfb
+
     class Analysis_ATLAS_SUSY_2018_22 : public Analysis
     {
       public:

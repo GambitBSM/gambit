@@ -4,6 +4,8 @@
 ///
 ///  *********************************************
 
+// Old Analysis Name: ATLAS_13TeV_PhotonGGM_1Photon_139invfb
+
 #include <vector>
 #include <cmath>
 #include <memory>
@@ -50,7 +52,7 @@ namespace Gambit
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
-      Cutflows _cutflows;
+      //Cutflows _cutflows;
 
       Analysis_ATLAS_SUSY_2018_11()
       {

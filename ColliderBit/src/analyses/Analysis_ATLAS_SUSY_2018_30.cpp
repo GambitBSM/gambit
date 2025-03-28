@@ -14,6 +14,9 @@
 ///         For now, I've commented out the `add_result` lines to make sure they're not accidentally used.
 ///
 /// *********************************************
+
+// Old Analysis Name: ATLAS_13TeV_3b_NN_139invfb
+
 #include "gambit/cmake/cmake_variables.hpp"
 #ifndef EXCLUDE_ONNXRUNTIME
 
@@ -88,7 +91,6 @@ namespace Gambit {
 
     private:
 
-      Cutflows _cutflows;
       std::unique_ptr<onnx_rt_wrapper> _nn;
       
     public:

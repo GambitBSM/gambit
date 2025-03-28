@@ -16,6 +16,9 @@ settings:
   event_file: /home/pzhu/gambitWS/CBS_yaml/ATLAS_EXOT_2016_017/VLQ_mY_1600_1k.hepmc
   max_nEvent: 50000
   cross_section_fb: 100.0
+  #seed: 1337
+  #event_file: /home/a1234301/Workshop/VLQ_TT/Events/run_03/vlq_1000GeV_10k.hepmc
+  #cross_section_fb: 45.0
   cross_section_fractional_uncert: 0.2
   use_lognormal_distribution_for_1d_systematic: true
   events_between_convergence_checks: 10
