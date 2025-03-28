@@ -1,0 +1,19 @@
+cython
+dynesty
+numpy
+emcee
+h5py --no-binary=h5py 
+nautilus
+nessai
+pocomc
+scipy
+ultranest
+zeus-mcmc
+numba
+pyhf
+pandas
+matplotlib
+tensorflow
+iminuit
+future
+dill
