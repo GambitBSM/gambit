@@ -41,7 +41,7 @@ struct feed_def
     }
 
 
-    feed_crap(std::vector<uint> sizes, unsigned short int flag = NONE)
+    feed_def(std::vector<uint> sizes, unsigned short int flag = NONE)
     {
         int tot_size = 0;
         for (auto &&s : sizes)

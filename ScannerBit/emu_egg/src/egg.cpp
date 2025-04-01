@@ -35,21 +35,20 @@ int main(int argc, char *argv[]) {
         if (buffer.flag() & feed_crap::TRAINING_PT)
         {
             std::cout << "doing training" << std::endl;
-            std::cout << "input: " << buffer.get_vector(0).transpose() << std::endl;
-            std::cout << "target: " << buffer.get_vector(1).transpose() << std::endl;
-            std::cout << "target uncertainty: " << buffer.get_vector(2).transpose() << std::endl;
+            // std::cout << "input: " << buffer.get_vector(0).transpose() << std::endl;
+            // std::cout << "target: " << buffer.get_vector(1).transpose() << std::endl;
+            // std::cout << "target uncertainty: " << buffer.get_vector(2).transpose() << std::endl;
             //call emuplugin
         }
         else if (buffer.flag() & feed_crap::PREDICT)
         {
             std::cout << "doing predict" << std::endl;
-            std::cout << "input": << buffer.get)vector(0).transpose() << std::endl;
-            //call emu.predict(input)
-            int N = buffer.sizes(0);
-            feed_def ret({N, N});
-            MPI_Send(buffer.buffer, buffer.size(), MPI_CHAR, status.MPI_SOURCE, ANY_TAG, parentcomm)
+            // std::cout << "input": << buffer.get_vector(0).transpose() << std::endl;
+            // //call emu.predict(input)
+            // int N = buffer.sizes(0);
+            // feed_def ret({N, N});
+            // MPI_Send(buffer.buffer, buffer.size(), MPI_CHAR, status.MPI_SOURCE, ANY_TAG, parentcomm)
         }
-        
     }
 
     MPI_Finalize();
