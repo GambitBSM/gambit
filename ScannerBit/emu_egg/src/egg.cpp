@@ -3,7 +3,10 @@
 
 #include "egg.hpp"
 
-int main(int argc, char *argv[]) {
+using namespace Gambit::Scanner::Emulator;
+
+int main(int argc, char *argv[])
+{
     MPI_Init(&argc, &argv);
 
     MPI_Comm parentcomm;
