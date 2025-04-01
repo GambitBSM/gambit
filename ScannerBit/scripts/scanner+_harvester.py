@@ -67,9 +67,9 @@ def main(argv):
         elif opt in ('-x','--exclude-plugins','--exclude-plugin'):
             exclude_plugins.update(neatsplit(",",arg))
     # info for the different plugin types
-    src_paths = sorted(["./ScannerBit/src/scanners", "./ScannerBit/src/objectives", "./ScannerBit/src/emulators"])
+    src_paths = sorted(["./ScannerBit/src/scanners", "./ScannerBit/src/objectives", "./ScannerBit/emu_egg/src"])
     inc_paths = sorted(["./ScannerBit/include/gambit/ScannerBit/scanners", "./ScannerBit/include/gambit/ScannerBit/objectives", "./ScannerBit/include/gambit/ScannerBit/emulators"])
-    plug_type = sorted(["scanner", "objective", "emulator"])
+    plug_type = sorted(["scanner", "objective"])
     config_files = []
     for ptype in plug_type:
         config_files += ["./config/" + ptype + "_locations.yaml"]
