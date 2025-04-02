@@ -352,17 +352,25 @@ Scanner:
       plugin: binmin_bottomup
       run:
         n_bins:
-          NormalDist::mu: 40
-          NormalDist::sigma: 40
-        sampler: "latinhypercube"
-        optimizer: "minimize"
+          NormalDist::mu: 100
+          NormalDist::sigma: 100
         sampled_parameters: ["NormalDist::mu", "NormalDist::sigma"]
         optimized_parameters: []
+        sampler: "latinhypercube"
+        optimizer: "minimize"
+        optimizer_kwargs:
+          method: "L-BFGS-B"
+          tol: 1e-4
         n_initial_points: 10
         n_sampler_points_per_bin: 10
+        # accept_loglike_above: -30.0
+        accept_delta_loglike_above: -7.0
+        # contour_guide: 
+        #   loglike_contour_central_value: -28.4
+        #   loglike_contour_width: 0.5
         inherit_best_init_point_within_bin: False
-        optima_comparison_rtol: 1e-6
-        optima_comparison_atol: 1e-4
+        # optima_comparison_rtol: 1e-6
+        # optima_comparison_atol: 1e-4
         n_restarts_per_bin: 1
         n_tasks_per_batch: 1
 

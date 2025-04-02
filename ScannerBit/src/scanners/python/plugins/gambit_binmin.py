@@ -20,7 +20,7 @@ import scanner_plugin as splug
 
 class BinMinBottomUp(splug.scanner):
     """
-See https://github.com/anderkve/binminpy
+    See https://github.com/anderkve/binminpy
     """
     __version__ = binminpy_version
     __plugin_name__ = "binmin_bottomup"
@@ -67,17 +67,51 @@ See https://github.com/anderkve/binminpy
         def target_function(x, *args):
             return -self.loglike_hypercube(x)
 
+        accept_target_below = -np.inf
+        if "accept_loglike_above" in self.run_args:
+            accept_target_below = -1.0 * self.run_args["accept_loglike_above"]
+
+        accept_delta_target_below = -np.inf
+        if "accept_delta_loglike_above" in self.run_args:
+            accept_delta_target_below = -1.0 * self.run_args["accept_delta_loglike_above"]
+
+        guide_function = None
+        accept_guide_below = -np.inf
+        accept_delta_guide_below = -np.inf
+        if "contour_guide" in self.run_args:
+            if "loglike_contour_central_value" not in self.run_args["contour_guide"]:
+                raise RuntimeError(f"{self.print_prefix} The argument 'contour_guide' is missing the entry 'loglike_contour_central_value'.")
+            if "loglike_contour_width" not in self.run_args["contour_guide"]:
+                raise RuntimeError(f"{self.print_prefix} The argument 'contour_guide' is missing the entry 'loglike_contour_width'.")
+            neg_contour_central_value = -1.0 * self.run_args["contour_guide"]["loglike_contour_central_value"]
+            contour_width = self.run_args["contour_guide"]["loglike_contour_width"]
+            def guide_function(x, y, *args):
+                contour_chi2 = (y - neg_contour_central_value)**2 / (0.5 * contour_width)**2
+                return contour_chi2
+            accept_target_below = -np.inf
+            accept_delta_target_below = -np.inf
+            accept_guide_below = 4.0
+            accept_delta_guide_below = -np.inf
+
+
+        if ((accept_target_below == -np.inf) and (accept_delta_target_below == -np.inf)
+            and (accept_guide_below == -np.inf) and (accept_delta_guide_below == -np.inf)):
+            if self.mpi_rank == 0:
+                print(f"{self.print_prefix} Running with no restrictions on the set of parameter space bins.")
+            accept_target_below = np.inf
+            accept_delta_target_below = np.inf
+            accept_guide_below = np.inf
+            accept_delta_guide_below = np.inf
+
         # Create the BinMinBottomUp instance
         binned_opt = binminpy_BinMinBottomUp(
             target_function,
             binning_tuples,
             args=(),
-            guide_function=None,
-            # guide_function=guide_function,
+            guide_function=guide_function,
             # bin_check_function=None,
-            bin_check_function=None, #bin_check_function,
-            callback=None, #callback,
-            callback_on_rank_0=True,
+            # callback=None,
+            # callback_on_rank_0=True,
             sampler=self.run_args.get("sampler", "latinhypercube"),
             optimizer=self.run_args.get("optimizer", "minimize"),
             optimizer_kwargs=self.run_args.get("optimizer_kwargs", {}),
@@ -86,15 +120,15 @@ See https://github.com/anderkve/binminpy
             n_initial_points=self.run_args.get("n_initial_points", self.mpi_size),
             n_sampler_points_per_bin=self.run_args.get("n_sampler_points_per_bin", 10),
             inherit_best_init_point_within_bin=self.run_args.get("inherit_best_init_point_within_bin", False),
-            accept_target_below=self.run_args.get("accept_target_below", np.inf), 
-            accept_delta_target_below=self.run_args.get("accept_delta_target_below", np.inf),
-            accept_guide_below=self.run_args.get("accept_guide_below", np.inf), 
-            accept_delta_guide_below=self.run_args.get("accept_delta_guide_below", np.inf),
+            accept_target_below=accept_target_below, 
+            accept_delta_target_below=accept_delta_target_below,
+            accept_guide_below=accept_guide_below,
+            accept_delta_guide_below=accept_delta_guide_below,
             save_evals=self.run_args.get("save_evals", False),
             return_evals=False,
             return_bin_centers=False,
-            optima_comparison_rtol=self.run_args.get("optima_comparison_rtol", 1e-6),
-            optima_comparison_atol=self.run_args.get("optima_comparison_atol", 1e-4),
+            # optima_comparison_rtol=self.run_args.get("optima_comparison_rtol", 1e-6),
+            # optima_comparison_atol=self.run_args.get("optima_comparison_atol", 1e-4),
             n_restarts_per_bin=self.run_args.get("n_restarts_per_bin", 1),
             n_tasks_per_batch=self.run_args.get("n_tasks_per_batch", 10),
             max_tasks_per_worker=self.run_args.get("max_tasks_per_worker", np.inf),
