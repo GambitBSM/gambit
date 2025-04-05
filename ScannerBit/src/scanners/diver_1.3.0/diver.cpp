@@ -161,13 +161,16 @@ scanner_plugin(diver, version(1, 3, 0))
       std::vector<std::string> ig_parnames = initial_guesses_node["parameters"].as<std::vector<std::string>>();
       std::vector<std::vector<double>> ig_values = initial_guesses_node["values"].as<std::vector<std::vector<double>>>();
 
-      // Make sure the parameter names all match those being scanned.
-      const std::vector<std::string> valid_parameters = data.likelihood_function->getPrior().getShownParameters();
+      // Make sure the parameter names all match up to ones being scanned.
+      const std::unordered_map<std::string, double> valid_parameter_map = data.likelihood_function->transform(std::vector<double>(nPar, 0.5));
       for (auto parname : ig_parnames)
       {
-        if (not std::count(valid_parameters.begin(), valid_parameters.end(), parname))
+        if (valid_parameter_map.find(parname) == valid_parameter_map.end())
         {
-          scan_err << "Parameter " << parname << " specified in \"initial_guesses\" is not one of those being scanned over." << scan_end;
+          std::vector<std::string> valid_parameters;
+          for (const std::pair<std::string, double> p : valid_parameter_map) valid_parameters.push_back(p.first);
+          scan_err << "Parameter " << parname << " specified in \"initial_guesses\" is not one of the following being scanned over:"
+          << endl << "  " << valid_parameters << scan_end;
         }
       }
 
