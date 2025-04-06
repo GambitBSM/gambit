@@ -242,7 +242,7 @@ namespace Gambit
     // =========== Forward declarations ===========
 
     /// Forward declaration of function in LHC_likelihoods
-    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, double (*)(const int&, const double&, const double&, const double&), bool, bool, const Options&, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), const std::string);
+    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, double (*)(const int&, const double&, const double&, const double&), bool, bool, const Options&, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), double, int, const std::string);
 
     /// Forward declarations of functions in this file
     void DMEFT_fill_analysis_info_map();
@@ -1157,7 +1157,16 @@ namespace Gambit
         // Compute the combined analysis loglike and add it to total_loglike
         AnalysisLogLikes analoglikes;
         analoglikes.initialize(adata);
-        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->marginaliser, fpars->use_covar && has_covar, fpars->combine_nocovar_SRs, fpars->runOptions, fpars->use_fulllikes, fpars->FullLikes_FileExists, fpars->FullLikes_ReadIn, fpars->FullLikes_Evaluate, "");
+        
+        // For now, throw an error if trying to use Collider Interpolated likelihoods with the umbue poisson like.
+        // This would require careful checking of what total cross-section to pass on a case-by-case basis.
+        // Setting xsec/n_mc to zero as they are not used
+        static const std::string poisson_estimator = fpars->runOptions.getValueOrDef<std::string>("MLE", "poisson_estimator");
+        if (poisson_estimator == "UMVUE")
+        {
+          ColliderBit_error().raise(LOCAL_INFO,"Error: umvue poisson estimator cannot currently be run with collider interpolated likelihoods.");
+        }
+        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->marginaliser, fpars->use_covar && has_covar, fpars->combine_nocovar_SRs, fpars->runOptions, fpars->use_fulllikes, fpars->FullLikes_FileExists, fpars->FullLikes_ReadIn, fpars->FullLikes_Evaluate, 0.0, 0, "");
         total_loglike += analoglikes.combination_loglike;
       }
 
