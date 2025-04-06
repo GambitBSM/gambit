@@ -45,17 +45,24 @@ Printer:
   # printer: sqlite
   # options:
   #   output_file: "results.sql"
-  #   table_name: "spartan"
+  #   table_name: "data"
   #   buffer_length: 1000
   #   delete_file_on_restart: true
 
-  # printer: hdf5
+  printer: hdf5
+  options:
+    output_file: "results.hdf5"
+    group: "/data"
+    delete_file_on_restart: true
+    buffer_length: 1000
+    # disable_autorepair: true
+
+  # printer: hdf5_v1
   # options:
-  #   output_file: "results.hdf5"
-  #   group: "/spartan"
+  #   output_file: "gambit_output.hdf5"
+  #   group: "/data"
   #   delete_file_on_restart: true
-  #   buffer_length: 1000
-  #   # disable_autorepair: true
+  #   disable_combine_routines: true
 
   # printer: ascii
   # options:
@@ -64,15 +71,6 @@ Printer:
   #   delete_file_on_restart: true
   #   print_debug_data: true
 
-  printer: hdf5
-  options:
-    # Name of info file (explains content of output file)
-    #info_file: "runs/spartan/samples/gambit_output2.info"
-    # Name of output file
-    output_file: "gambit_output.hdf5"
-    group: "/data"
-    delete_file_on_restart: true
-    disable_combine_routines: true
 
   # printer: none
 
@@ -347,9 +345,9 @@ Scanner:
         min_num_live_points: 1000
         dlogz: 0.5
 
-    binmin_bottomup:
+    binminpy:
       like: LogLike
-      plugin: binmin_bottomup
+      plugin: binminpy
       run:
         n_bins:
           NormalDist::mu: 100
@@ -364,15 +362,15 @@ Scanner:
         n_initial_points: 10
         n_sampler_points_per_bin: 10
         # accept_loglike_above: -30.0
-        accept_delta_loglike_above: -7.0
+        accept_delta_loglike_above: -6.5
         # contour_guide: 
         #   loglike_contour_central_value: -28.4
         #   loglike_contour_width: 0.5
+        neighborhood_distance: 2
         inherit_best_init_point_within_bin: False
-        # optima_comparison_rtol: 1e-6
-        # optima_comparison_atol: 1e-4
-        n_restarts_per_bin: 1
+        n_optim_restarts_per_bin: 1
         n_tasks_per_batch: 1
+        print_progress_every_n_batch: 1
 
 
 ObsLikes:
