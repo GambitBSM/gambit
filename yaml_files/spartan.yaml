@@ -18,7 +18,7 @@ Parameters:
       prior_type: flat
       range: [0, 5]
 
-    # If using a more complicated prior specified in the 'Priors' section below, 
+    # If using a more complicated prior specified in the 'Priors' section below,
     # use the 'in_priors' keyword in this section:
     # mu: in_priors
     # sigma: in_priors
@@ -29,9 +29,9 @@ Priors:
   # None needed: simple priors are already specified in the 'Parameters' section above.
 
   # If defining a more complicated prior, make sure to tag the relevant parameters with the
-  # keyword 'in_priors' in the 'Parameters' section above. Below is an example of a 
-  # 2D gaussian prior for the two parameters 'mu' and 'sigma': 
-  # 
+  # keyword 'in_priors' in the 'Parameters' section above. Below is an example of a
+  # 2D gaussian prior for the two parameters 'mu' and 'sigma':
+  #
   # my_prior:
   #   parameters: ["NormalDist::mu", "NormalDist::sigma"]
   #   prior_type: gaussian
@@ -98,6 +98,12 @@ Scanner:
       plugin: diver
       like: LogLike
       NP: 500
+      initial_guesses:
+        parameters: [NormalDist::sigma, NormalDist::mu]
+        values:
+        - [2.5, 25]
+        - [2, 24]
+        - [1.5, 22]
 
     multinest:
       plugin: multinest
@@ -151,7 +157,7 @@ Scanner:
     scipy_basin_hopping:
       like: LogLike
       plugin: scipy_basin_hopping
-      # The run arguments below have been tested with scipy v1.9. 
+      # The run arguments below have been tested with scipy v1.9.
       # Other versions might expect different arguments.
       run:
         # n_runs: 4
@@ -171,7 +177,7 @@ Scanner:
     scipy_differential_evolution:
       like: LogLike
       plugin: scipy_differential_evolution
-      # The run arguments below have been tested with scipy v1.9. 
+      # The run arguments below have been tested with scipy v1.9.
       # Other versions might expect different arguments.
       run:
         # n_runs: 4
@@ -193,7 +199,7 @@ Scanner:
     scipy_direct:
       like: LogLike
       plugin: scipy_direct
-      # The run arguments below have been tested with scipy v1.9. 
+      # The run arguments below have been tested with scipy v1.9.
       # Other versions might expect different arguments.
       run:
         # n_runs: 4
@@ -207,7 +213,7 @@ Scanner:
     scipy_dual_annealing:
       like: LogLike
       plugin: scipy_dual_annealing
-      # The run arguments below have been tested with scipy v1.9. 
+      # The run arguments below have been tested with scipy v1.9.
       # Other versions might expect different arguments.
       run:
         # n_runs: 4
@@ -225,7 +231,7 @@ Scanner:
     scipy_shgo:
       like: LogLike
       plugin: scipy_shgo
-      # The run arguments below have been tested with scipy v1.9. 
+      # The run arguments below have been tested with scipy v1.9.
       # Other versions might expect different arguments.
       run:
         split_param_space:
@@ -255,7 +261,7 @@ Scanner:
     scipy_minimize:
       like: LogLike
       plugin: scipy_minimize
-      # The run arguments below have been tested with scipy v1.9. 
+      # The run arguments below have been tested with scipy v1.9.
       # Other versions might expect different arguments.
       run:
         # n_runs: 5
@@ -280,7 +286,7 @@ Scanner:
       run:
         dlogz: 0.5
         checkpoint_every: 60
-        
+
     dynamic_dynesty:
       like: LogLike
       plugin: dynamic_dynesty
@@ -379,7 +385,7 @@ KeyValues:
 
   # An additional entry in the dataset and metadata, useful for identifying which
   # points correspond to a given scan in combined datasets.
-  # The default is for print_scanID: true, 
+  # The default is for print_scanID: true,
   # and for it to print the date and time as an int of the form
   # scanID: HourMinuteSecondMillisecond. This can be overwritten to any integer.
   print_scanID: true
