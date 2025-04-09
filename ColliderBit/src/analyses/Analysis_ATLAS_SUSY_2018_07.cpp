@@ -4,7 +4,7 @@
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
-#include "gambit/ColliderBit/warppertopness.h"
+//#include "gambit/ColliderBit/warppertopness.h" // TODO: Chris Chang: turning this off temporarily to compile test the rest of gambit
 
 // #include "gambit/ColliderBit/topness.h"
 
@@ -245,14 +245,14 @@ namespace Gambit
       {
         _hist_Topness = std::make_shared<YODA::Histo1D>(10, 0.0, 100.0, "Topness", "My Topness");
         // Signal region counter
-        DEFINE_SIGNAL_REGION("SR-tN_med");
-        DEFINE_SIGNAL_REGION("SR-tN_high");
-        DEFINE_SIGNAL_REGION("SR-tN_diag_low");
-        DEFINE_SIGNAL_REGION("SR-tN_diag_high");
-        DEFINE_SIGNAL_REGION("SR-bWN");
-        DEFINE_SIGNAL_REGION("SR-bffN_btag");
-        DEFINE_SIGNAL_REGION("SR-bffN_softb");
-        DEFINE_SIGNAL_REGION("SR-DM");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR-tN_med");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR-tN_high");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR-tN_diag_low");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR-tN_diag_high");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR-bWN");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR-bffN_btag");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR-bffN_softb");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR-DM");
 
         // Set the analysis name
         set_analysis_name("ATLAS_SUSY_2018_07");
@@ -515,9 +515,11 @@ namespace Gambit
                   nonbJets.at(i)->mom().pz(),
                   nonbJets.at(i)->mom().E()};
 
+              /* // TODO: Chris Chang: turning this off while I compile test the rest of gambit
               double tmod_temp = log(topnesscompute(pb1, pb2, pl, pTmiss, sigmat, sigmaW, sigmas, xbest));
               if (topness > tmod_temp)
                 topness = tmod_temp;
+              */
               b2idx = i;
             }
           }
@@ -534,7 +536,9 @@ namespace Gambit
                 bJets.at(1)->mom().py(),
                 bJets.at(1)->mom().pz(),
                 bJets.at(1)->mom().E()};
+            /* // TODO: Chris Chang: turning this off while I compile test the rest of gambit
             topness = log(topnesscompute(pb1, pb2, pl, pTmiss, sigmat, sigmaW, sigmas, xbest));
+            */
           }
 
           // Reconstruct Hadronic Top by Chi2 Method; 

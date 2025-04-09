@@ -169,8 +169,6 @@ macro(add_extra_targets type package ver dir dl target)
 
 endmacro()
 
-message(STATUS "${Yellow}-- Using C++ standard: C++${CMAKE_CXX_STANDARD}")
-
 
 # Function to check whether or not a given scanner or backend has been ditched
 function(check_ditch_status name version dir)

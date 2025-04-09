@@ -129,7 +129,7 @@ namespace Gambit
 
             Analysis_ATLAS_EXOT_2019_07()
             {
-                DEFINE_SIGNAL_REGION("SR");
+                DEFINE_SIGNAL_REGION_NOCUTS("SR");
                 set_analysis_name("ATLAS_EXOT_2019_07");
                 set_luminosity(140.);
 
@@ -434,7 +434,7 @@ namespace Gambit
         };
 
         // Factory fn
-        DEFINE_ANALYSIS_FACTORY(ATLAS_EXOT_2019_07);
+        DEFINE_ANALYSIS_FACTORY(ATLAS_EXOT_2019_07)
 
     }
 }

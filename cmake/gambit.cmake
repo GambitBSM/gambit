@@ -19,9 +19,6 @@
 #  \date 2015 Apr
 #                                               
 #************************************************
-# Set the C++ standard
-# set(CMAKE_CXX_STANDARD 14)
-# set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # set include directores for GAMBIT
 set(GAMBIT_INCDIRS ${GAMBIT_INCDIRS} "${PROJECT_SOURCE_DIR}/Printers/include"

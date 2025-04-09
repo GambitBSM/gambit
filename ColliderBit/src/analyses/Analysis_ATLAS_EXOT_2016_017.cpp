@@ -46,7 +46,7 @@ namespace Gambit
             static constexpr const char *detector = "ATLAS";
             Analysis_ATLAS_EXOT_2016_017()
             {
-                DEFINE_SIGNAL_REGION("SR");
+                DEFINE_SIGNAL_REGION_NOCUTS("SR");
 
                 set_analysis_name("ATLAS_EXOT_2016_017");
                 set_luminosity(36.1);

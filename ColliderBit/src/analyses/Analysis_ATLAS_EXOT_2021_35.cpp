@@ -47,8 +47,8 @@ namespace Gambit
             static constexpr const char *detector = "ATLAS";
             Analysis_ATLAS_EXOT_2021_035()
             {
-                DEFINE_SIGNAL_REGION("SR1");
-                DEFINE_SIGNAL_REGION("SR2");
+                DEFINE_SIGNAL_REGION_NOCUTS("SR1");
+                DEFINE_SIGNAL_REGION_NOCUTS("SR2");
 
                 set_analysis_name("ATLAS_EXOT_2021_035");
                 set_luminosity(140.0);
@@ -71,6 +71,8 @@ namespace Gambit
 
             void run(const HEPUtils::Event *event)
             {
+              /* // TODO: Chris Chang: Turning off everything because this should not be compiled
+            
                 #ifdef CHECK_CUTFLOW
                     _cutflows["Signal Region"].fillinit(event->weight());
                     _cutflows["Signal Region"].fill(1, true, event->weight()); 
@@ -136,6 +138,7 @@ namespace Gambit
                 vector<const HEPUtils::Jet *> signalctrBJets;
                 vector<const HEPUtils::Particle *> signalLeptons;
                 vector<const HEPUtils::Jet *> signalfwdJets;
+
 
                 for (const HEPUtils::Particle *lep : baselineLeptons)
                 {
@@ -238,7 +241,9 @@ namespace Gambit
                         #endif
                     }
                 }
-                return; 
+                return;
+                
+              */ 
             }
 
             virtual void

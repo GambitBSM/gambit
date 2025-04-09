@@ -659,6 +659,7 @@ namespace Gambit
       // Get the analysis name
       const std::string ana_name = ana_data.analysis_name;
 
+
       // Check if analysis is to use ATLAS Full Likelihood backend
       // If the json hasn't been read in, read it in
       bool FullLikes_jsonread = (*FullLikes_FileExists)(ana_name);
@@ -1267,6 +1268,11 @@ namespace Gambit
           // Continue to next analysis
           continue;
         }
+
+
+        // Check if analysis has fulllikes, if not, turn off full likes
+        if (!ana_data.hasFullLikes()) {use_fulllikes = false;}
+
 
         // Now perform the actual loglikes compuations for this analysis
         //

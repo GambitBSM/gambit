@@ -36,9 +36,6 @@
 #  \date 2023 Jun
 #
 #************************************************
-# Set the C++ standard
-# set(CMAKE_CXX_STANDARD 14)
-# set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Define minimum cmake version
 cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
@@ -58,9 +55,6 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Release_O3")
 endif()
 message("${Yellow}-- Build type is set to ${CMAKE_BUILD_TYPE} ${ColourReset}")
 
-# message(STATUS "${Yellow}-- C++ Standard: ${CMAKE_CXX_STANDARD}")
-# message(STATUS "${Yellow}-- Using CXX compiler: ${CMAKE_CXX_COMPILER}")
-# message(STATUS "${Yellow}-- CXX compiler version: ${CMAKE_CXX_COMPILER_VERSION}")
 
 # Set certain policies to NEW
 foreach(p
@@ -105,10 +99,6 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" AND CMAKE_CXX_COMPILER_VERSION 
     ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS MIN_APPLECLANG_VERSION))
   message(FATAL_ERROR "${BoldRed}\nGAMBIT requires at least g++ ${MIN_GCC_VERSION} or icpc ${MIN_ICC_VERSION}.  Please install a newer compiler.${ColourReset}")
 endif()
-
-
-# Print the C++ standard 
-message(STATUS "Using C++ standard: C++${CMAKE_CXX_STANDARD}")
 
 
 # Don't relink all binaries when shared lib changes (programs will be rebuilt anyway if used headers change)
