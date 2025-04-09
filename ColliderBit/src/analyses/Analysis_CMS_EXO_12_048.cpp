@@ -11,6 +11,9 @@
 
 using namespace std;
 
+// Renamed from: 
+//        Analysis_CMS_8TeV_MONOJET_20invfb
+
 // The CMS monojet analysis (20fb^-1)
 
 // based on: http://lanl.arxiv.org/pdf/1408.3583v1.pdf

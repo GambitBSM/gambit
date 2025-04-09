@@ -11,6 +11,8 @@
 
 using namespace std;
 
+// Renamed from: 
+//      Analysis_ATLAS_8TeV_1LEPStop_20invfb
 
 // The ATLAS 1 lepton direct stop analysis (20fb^-1).
 //

@@ -9,6 +9,8 @@
 
 using namespace std;
 
+// Renamed from: Analysis_ATLAS_13TeV_2LEPStop_36invfb
+
 /* The ATLAS 2 lepton direct stop analysis (36.1fb^-1) - `heavy stop'.
 
    Based on: arXiv:1708.03247

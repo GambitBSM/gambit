@@ -9,7 +9,10 @@
 
 // #define CHECK_CUTFLOW
 
-// Old Anlaysis Name: ATLAS_13TeV_PhotonGGM_36invfb
+// Renamed from: 
+//      Analysis_ATLAS_13TeV_PhotonGGM_36invfb
+//      Analysis_ATLAS_13TeV_PhotonGGM_1Photon_36invfb
+//      Analysis_ATLAS_13TeV_PhotonGGM_2Photon_36invfb
 
 using namespace std;
 

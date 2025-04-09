@@ -6,6 +6,9 @@
 
 using namespace std;
 
+// Renamed from: 
+//          Analysis_CMS_13TeV_1LEPStop_36invfb
+
 /* The CMS 0 lepton direct stop analysis (35.9fb^-1).
 
    Based on: https://arxiv.org/pdf/1706.04402.pdf

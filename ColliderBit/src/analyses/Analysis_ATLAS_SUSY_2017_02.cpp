@@ -20,6 +20,9 @@
 
 using namespace std;
 
+// Renamed from: Analysis_ATLAS_13TeV_3b_24invfb
+//               Analysis_ATLAS_13TeV_3b_discoverySR_24invfb
+
 // TODO: See if we can get some further improvement by joining muons to b-jets
 
 namespace Gambit {

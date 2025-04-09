@@ -17,6 +17,8 @@
 
 using namespace std;
 
+// Renamed from: Analysis_ATLAS_13TeV_1LEPStop_36invfb
+
 /* The ATLAS 1 lepton direct stop analysis
 
    Based on: https://arxiv.org/abs/1711.11520

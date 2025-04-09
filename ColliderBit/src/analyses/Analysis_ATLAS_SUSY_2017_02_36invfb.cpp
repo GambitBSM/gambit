@@ -18,6 +18,9 @@
 
 using namespace std;
 
+// Renamed from: Analysis_ATLAS_13TeV_3b_36invfb
+//               Analysis_ATLAS_13TeV_3b_discoverySR_36invfb
+
 // TODO: See if adding muons to jets gives some improvement.
 
 namespace Gambit {

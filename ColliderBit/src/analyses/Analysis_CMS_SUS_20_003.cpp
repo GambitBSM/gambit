@@ -6,7 +6,8 @@
 // Based on the CMS publication https://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-20-003/index.html
 // JHEP 10 (2021) 045, arXiv:2107.12553 [hep-ex],
 
-// Old Analysis Name: CMS_13TeV_1LEPbb_137invfb
+// Renamed from: 
+//      CMS_13TeV_1LEPbb_137invfb
 
 #include <vector>
 #include <cmath>

@@ -3,6 +3,9 @@
 #include "gambit/ColliderBit/mt2_bisect.h"
 using namespace std;
 
+// Renamed from: 
+//      Analysis_ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
+
 namespace Gambit {
   namespace ColliderBit {
 

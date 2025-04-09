@@ -30,6 +30,12 @@
 
 using namespace std;
 
+// Renamed from: 
+//      Analysis_CMS_13TeV_2LEPsoft_36invfb
+//      Analysis_CMS_13TeV_2LEPsoft_stop_36invfb
+//      Analysis_CMS_13TeV_2LEPsoft_36invfb_nocovar
+//      Analysis_CMS_13TeV_2LEPsoft_stop_36invfb_nocovar
+
 namespace Gambit {
   namespace ColliderBit {
 

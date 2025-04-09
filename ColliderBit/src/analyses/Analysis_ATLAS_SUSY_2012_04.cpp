@@ -10,6 +10,8 @@
 #include "gambit/ColliderBit/analyses/AnalysisUtil.hpp"
 #include "gambit/ColliderBit/Utils.hpp"
 
+// Renamed from: 
+//      Analysis_ATLAS_7TeV_2LEPStop_4_7invfb
 namespace Gambit
 {
   namespace ColliderBit

@@ -27,6 +27,13 @@
 
 using namespace std;
 
+// Renamed from: 
+//        Analysis_CMS_13TeV_MultiLEP_Full_36invfb
+//        Analysis_CMS_13TeV_MultiLEP_Full_2SSLep_36invfb
+//        Analysis_CMS_13TeV_MultiLEP_Full_3Lep_36invfb
+//        Analysis_CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
+
+
 namespace Gambit
 {
   namespace ColliderBit

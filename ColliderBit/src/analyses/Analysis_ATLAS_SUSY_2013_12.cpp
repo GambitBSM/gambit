@@ -7,6 +7,9 @@
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
+// Renamed from: 
+//      Analysis_ATLAS_8TeV_3LEPEW_20invfb
+
 /* The ATLAS 3 lepton EW analysis (20fb^-1)
 
    based on: arXiv: 1402.7029

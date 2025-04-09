@@ -23,6 +23,8 @@
 
 using namespace std;
 
+// Renamed from: Analysis_ATLAS_13TeV_4LEP_36invfb
+
 namespace Gambit
 {
   namespace ColliderBit

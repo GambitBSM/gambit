@@ -5,6 +5,9 @@
 
 // Based on http://cms-results.web.cern.ch/cms-results/public-results/publications/EXO-16-048/index.html
 
+// Renamed from: 
+//      Analysis_CMS_13TeV_MONOJET_36invfb
+
 namespace Gambit {
   namespace ColliderBit {
 

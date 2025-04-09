@@ -17,6 +17,15 @@
 
 // Based on http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-19-012/index.html
 
+// Renamed from: 
+//      Analysis_CMS_13TeV_MultiLEP_137invfb
+//      Analysis_CMS_13TeV_MultiLEP_2LEP_137invfb
+//      Analysis_CMS_13TeV_MultiLEP_3LEP_137invfb
+//      Analysis_CMS_13TeV_MultiLEP_3LEPTau_137invfb
+//      Analysis_CMS_13TeV_MultiLEP_4LEP_137invfb
+//      Analysis_CMS_13TeV_MultiLEP_4LEPTau_137invfb
+
+
 namespace Gambit
 {
   namespace ColliderBit

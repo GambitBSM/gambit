@@ -9,6 +9,9 @@
 
 using namespace std;
 
+// Renamed from: 
+//          Analysis_CMS_13TeV_2LEPStop_36invfb
+
 /* The CMS 2 lepton direct stop analysis (35.9fb^-1) - `heavy stop'.
 
    Based on: arXiv:1711.00752

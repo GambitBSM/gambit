@@ -117,6 +117,11 @@
 
 using namespace std;
 
+// Renamed from: 
+//      Analysis_CMS_13TeV_1Photon1Lepton_36invfb
+//      Analysis_CMS_13TeV_1Photon1Lepton_emu_combined_36invfb
+
+
 namespace Gambit {
   namespace ColliderBit {
 

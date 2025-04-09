@@ -3,6 +3,9 @@
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 
+// Renamed from: 
+//      Analysis_CMS_13TeV_0LEP_13invfb
+
 namespace Gambit {
   namespace ColliderBit {
 
