@@ -52,6 +52,12 @@ YAML options:
 
 
     def __init__(self, **kwargs):
+        if not with_mpi:
+            raise Exception(f"GAMBIT has been compiled with MPI disabled (WITH_MPI=0), but the "
+                            f"binminpy scanner requires MPI parallelisation with >1 MPI processes. "
+                            f"Either recompile GAMBIT with the flag -DWITH_MPI=1 or choose a scanner "
+                            f"that can run without MPI parallelisation.")
+
         super().__init__(use_mpi=True, use_resume=False)
 
         self.print_prefix = f"{BinMinBottomUp.__plugin_name__} scanner plugin:"
