@@ -242,6 +242,8 @@ namespace Gambit
                 std::mt19937 gen(rd()); 
                 std::uniform_real_distribution<> dis(0.0, 1.0);
 
+
+                // W-tagging from https://cds.cern.ch/record/2041461/files/ATL-PHYS-PUB-2015-033.pdf
                 for (size_t i = 0; i < baselineLargeRJets.size(); ++i)
                 {
                     // Obtain the FastJet PseudoJet objects;
