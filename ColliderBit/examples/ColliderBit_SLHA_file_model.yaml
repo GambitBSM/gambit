@@ -90,9 +90,10 @@ Rules:
         - 1000024;(any),2,1000022,24;0  # <-- BR for two-body decay 1000024 -> 1000022 24
 
   # Assign cross-sections and uncertainties for each SLHA file
-  - capability: TotalCrossSection
+  - capability: InitialTotalCrossSection
     function: getYAMLCrossSection_SLHA
     options:
+      collider: LHC_13TeV
       cross_section_fb:
         ColliderBit/data/example.slha: 1807.4
         # list more SLHA files and corrsponding total cross sections here

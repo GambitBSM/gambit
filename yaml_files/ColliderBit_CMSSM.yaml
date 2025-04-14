@@ -211,6 +211,22 @@ Rules:
           - 23:mMin = 0.1
           - 24:mMin = 0.1
 
+  - if:
+      capability: InitialTotalCrossSection
+      type: map_str_xsec_container
+    then:
+      module: ColliderBit
+      function: InitialTotalCrossSection_Pythia
+  
+  # Choose to where to get cross-sections from
+  - if:
+      capability: TotalCrossSection
+      type: xsec_container
+    then:
+      module: ColliderBit
+      function: getEvGenCrossSection_as_base
+
+
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates
     function: all_decays
@@ -267,10 +283,6 @@ Rules:
     options:
       slha_version: 2
       write_summary_to_log: false
-
-  # Choose to where to get cross-sections from
-  - capability: TotalCrossSection
-    function: getEvGenCrossSection_as_base
 
   # Just use unweighted cross-sections
   - capability: EventWeighterFunction

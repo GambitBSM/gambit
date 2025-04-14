@@ -297,6 +297,10 @@ int main(int argc, char* argv[])
     operateLHCLoop.setOption<YAML::Node>("CBS", CBS);
     operateLHCLoop.setOption<bool>("silenceLoop", not debug);
 
+    // Tell operateLHCLoop to use the "CBS" collider
+    std::vector<std::string> use_colliders = {"CBS"};
+    operateLHCLoop.setOption<std::vector<std::string>>("use_colliders", use_colliders);
+
     // Pass the filename and the jet pt cutoff to the HepMC reader/HEPUtils converter function
     getEvent.setOption<str>("hepmc_filename", event_filename);
     convertEvent.setOption<double>("jet_pt_min", jet_pt_min);
@@ -308,6 +312,7 @@ int main(int argc, char* argv[])
     convertEvent.setOption<YAML::Node>("jet_collections", jet_collections);
 
     // Pass options to the cross-section function
+    getYAMLCrossSection.setOption<std::string>("collider", "CBS");
     if (settings.hasKey("cross_section_pb"))
     {
       getYAMLCrossSection.setOption<double>("cross_section_pb", settings.getValue<double>("cross_section_pb"));
@@ -374,6 +379,7 @@ int main(int argc, char* argv[])
     get_LHC_LogLike_per_analysis.resolveDependency(&calc_LHC_LogLikes_full);
     calc_LHC_LogLikes_full.resolveDependency(&CollectAnalyses);
     calc_LHC_LogLikes_full.resolveDependency(&operateLHCLoop);
+    calc_LHC_LogLikes_full.resolveDependency(&getYAMLCrossSection);
     calc_LHC_LogLikes_full.resolveBackendReq(use_lnpiln ? &nulike_lnpiln : &nulike_lnpin);
     calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_FileExists);
     calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_ReadIn);

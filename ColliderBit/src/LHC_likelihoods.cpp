@@ -1358,6 +1358,7 @@ namespace Gambit
       std::string collider = Dep::RunMC->current_collider();
       std::map<std::string, xsec_container> xsec_map = *Dep::InitialTotalCrossSection;
       double xsec = xsec_map[collider].xsec();
+      //double xsec = Dep::InitialTotalCrossSection->xsec();
       int n_mc = Dep::RunMC->mean_nEvents;
 
       // Set the estimator setting in the options and pass it down the chain
@@ -1392,6 +1393,7 @@ namespace Gambit
       std::string collider = Dep::RunMC->current_collider();
       std::map<std::string, xsec_container> xsec_map = *Dep::InitialTotalCrossSection;
       double xsec = xsec_map[collider].xsec();
+      //double xsec = Dep::InitialTotalCrossSection->xsec();
       int n_mc = Dep::RunMC->mean_nEvents;
 
       // Set the estimator setting in the options and pass it down the chain

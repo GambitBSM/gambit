@@ -174,6 +174,7 @@ namespace Gambit
             double max_lumi = GetMaxLumi(result.analyses.at(collider));
             std::map<std::string, xsec_container> xsec_map = *Dep::InitialTotalCrossSection;
             double xsec = xsec_map[collider].xsec();
+            // Update the collider
             mean_nEvents = max_lumi * xsec * result.ratio_MC_expected[collider];
 
             #ifdef COLLIDERBIT_DEBUG

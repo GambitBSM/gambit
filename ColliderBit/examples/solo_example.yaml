@@ -32,3 +32,10 @@ settings:
   covariance_marg_convthres_rel: 0.05
   covariance_nsamples_start: 100000 
   output: ./runs/CBS_result.json
+  jet_collections:
+    antikt_R04:
+      algorithm: antikt
+      R: 0.4
+      recombination_scheme: E_scheme
+      strategy: Best
+  jet_collection_taus: antikt_R04

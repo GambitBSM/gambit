@@ -64,6 +64,31 @@
     START_FUNCTION(map_str_xsec_container)
     DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
     #undef FUNCTION
+    
+    /// A function that reads the total cross-section from the input file,
+    /// but builds up the number of events from the event loop
+    #define FUNCTION getYAMLCrossSection
+    START_FUNCTION(map_str_xsec_container)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    #undef FUNCTION
+
+    /// A function that assigns a total cross-sections to a given SLHA input file
+    /// (for model ColliderBit_SLHA_file_model)
+    #define FUNCTION getYAMLCrossSection_SLHA
+    START_FUNCTION(map_str_xsec_container)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    ALLOW_MODELS(ColliderBit_SLHA_file_model)
+    DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct)
+    #undef FUNCTION
+
+    /// A function that assigns a total cross-sections directly from the scan parameters
+    /// for model ColliderBit_SLHA_scan_model
+    #define FUNCTION getYAMLCrossSection_param
+    START_FUNCTION(map_str_xsec_container)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    ALLOW_MODELS(ColliderBit_SLHA_scan_model)
+    #undef FUNCTION
+    
   #undef CAPABILITY
   
   #define CAPABILITY InitialProcessCrossSections
@@ -124,29 +149,6 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     #undef FUNCTION
 
-    /// A function that reads the total cross-section from the input file,
-    /// but builds up the number of events from the event loop
-    #define FUNCTION getYAMLCrossSection
-    START_FUNCTION(xsec_container)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    #undef FUNCTION
-
-    /// A function that assigns a total cross-sections to a given SLHA input file
-    /// (for model ColliderBit_SLHA_file_model)
-    #define FUNCTION getYAMLCrossSection_SLHA
-    START_FUNCTION(xsec_container)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    ALLOW_MODELS(ColliderBit_SLHA_file_model)
-    DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct)
-    #undef FUNCTION
-
-    /// A function that assigns a total cross-sections directly from the scan parameters
-    /// for model ColliderBit_SLHA_scan_model
-    #define FUNCTION getYAMLCrossSection_param
-    START_FUNCTION(xsec_container)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    ALLOW_MODELS(ColliderBit_SLHA_scan_model)
-    #undef FUNCTION
   #undef CAPABILITY
 
   /// Output info on TotalCrossSection as
