@@ -35,11 +35,8 @@ YAML options:
     optimizer_kwargs:             Keyword arguments to be forwarded to the optimzer.
     n_initial_points:             Number of starting points for the initial search for local optima.
     n_sampler_points_per_bin:     Number of sampled points within each bin.
-    accept_loglike_above:         Only add neighboring bins for bins that have a highest loglike above this threshold.
-    accept_delta_loglike_above:   Only add neighboring bins for delta loglike (difference to best-fit point) is within this threshold.
-    contour_guide:                Settings to only allow bins that include points with loglike value close to a chosen value, for tracing loglike contours.
-      loglike_contour_central_value:  Loglike contour value.
-      loglike_contour_width:          Spread around loglike contour value.
+    accept_loglike_above:         Add neighboring bins for bins that have a highest loglike above this threshold.
+    accept_delta_loglike:         Add neighboring bins for bins that have a delta loglike (difference to best-fit point) within this threshold.
     neighborhood_distance:        If the current bin is accepted, how many bins in each direction should be added to the list of tasks.
     inherit_best_init_point_within_bin:   When optimizing parameters, start optimization from the current best point within the given bin.
     n_optim_restarts_per_bin:     Number of repeated attempts at optimizing parameters per bin.
@@ -52,10 +49,10 @@ YAML options:
 
 
     def __init__(self, **kwargs):
-        if not with_mpi:
-            raise Exception(f"GAMBIT has been compiled with MPI disabled (WITH_MPI=0), but the "
-                            f"binminpy scanner requires MPI parallelisation with >1 MPI processes. "
-                            f"Rerun CMake with \"cmake -DWITH_MPI=1\" and then recompile GAMBIT.")
+        # if not with_mpi:
+        #     raise Exception(f"GAMBIT has been compiled with MPI disabled (WITH_MPI=0), but the "
+        #                     f"binminpy scanner requires MPI parallelisation with >1 MPI processes. "
+        #                     f"Rerun CMake with \"cmake -DWITH_MPI=1\" and then recompile GAMBIT.")
 
         super().__init__(use_mpi=True, use_resume=False)
 
@@ -103,48 +100,30 @@ YAML options:
             print(f"{self.print_prefix} Parameters that will be *optimized* in each bin: {optimized_parameter_names}", flush=True)
 
         # Parse options for restricting the set of parameter bins
+        if ("accept_loglike_above" in self.run_args) and ("accept_delta_loglike" in self.run_args):
+            if self.mpi_rank == 0:
+                print(f"{self.print_prefix} Both 'accept_loglike_above' and 'accept_delta_loglike' have been set. " 
+                      f"Will use the weaker of the two requirements when constructing bins.", flush=True)
+
         accept_target_below = -np.inf
         if "accept_loglike_above" in self.run_args:
             accept_target_below = -1.0 * self.run_args["accept_loglike_above"]
 
         accept_delta_target_below = -np.inf
-        if "accept_delta_loglike_above" in self.run_args:
-            accept_delta_target_below = -1.0 * self.run_args["accept_delta_loglike_above"]
+        if "accept_delta_loglike" in self.run_args:
+            accept_delta_target_below = abs(self.run_args["accept_delta_loglike"])
 
-        # Set up guide function, if requested
-        guide_function = None
-        accept_guide_below = -np.inf
-        accept_delta_guide_below = -np.inf
-        if "contour_guide" in self.run_args:
-            if "loglike_contour_central_value" not in self.run_args["contour_guide"]:
-                raise RuntimeError(f"{self.print_prefix} The argument 'contour_guide' is missing the entry 'loglike_contour_central_value'.")
-            if "loglike_contour_width" not in self.run_args["contour_guide"]:
-                raise RuntimeError(f"{self.print_prefix} The argument 'contour_guide' is missing the entry 'loglike_contour_width'.")
-            neg_contour_central_value = -1.0 * self.run_args["contour_guide"]["loglike_contour_central_value"]
-            contour_width = self.run_args["contour_guide"]["loglike_contour_width"]
-            def guide_function(x, y, *args):
-                contour_chi2 = (y - neg_contour_central_value)**2 / (0.5 * contour_width)**2
-                return contour_chi2
-            accept_target_below = -np.inf
-            accept_delta_target_below = -np.inf
-            accept_guide_below = 4.0
-            accept_delta_guide_below = -np.inf
-
-        if ((accept_target_below == -np.inf) and (accept_delta_target_below == -np.inf)
-            and (accept_guide_below == -np.inf) and (accept_delta_guide_below == -np.inf)):
+        if (accept_target_below == -np.inf) and (accept_delta_target_below == -np.inf):
             if self.mpi_rank == 0:
                 print(f"{self.print_prefix} Running with no restrictions on the set of parameter space bins.", flush=True)
             accept_target_below = np.inf
             accept_delta_target_below = np.inf
-            accept_guide_below = np.inf
-            accept_delta_guide_below = np.inf
 
         # Create the BinMinBottomUp instance
         binned_opt = binminpy_BinMinBottomUp(
             target_function,
             binning_tuples,
             args=(),
-            guide_function=guide_function,
             sampler=self.run_args.get("sampler", "latinhypercube"),
             optimizer=self.run_args.get("optimizer", "minimize"),
             optimizer_kwargs=self.run_args.get("optimizer_kwargs", {}),
@@ -155,8 +134,6 @@ YAML options:
             inherit_best_init_point_within_bin=self.run_args.get("inherit_best_init_point_within_bin", False),
             accept_target_below=accept_target_below, 
             accept_delta_target_below=accept_delta_target_below,
-            accept_guide_below=accept_guide_below,
-            accept_delta_guide_below=accept_delta_guide_below,
             save_evals=self.run_args.get("save_evals", False),
             return_evals=False,
             return_bin_centers=False,

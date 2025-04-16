@@ -71,8 +71,8 @@ Printer:
   #   delete_file_on_restart: true
   #   print_debug_data: true
 
-
   # printer: none
+
 
 Scanner:
 
@@ -362,10 +362,7 @@ Scanner:
         n_initial_points: 10
         n_sampler_points_per_bin: 10
         # accept_loglike_above: -30.0
-        accept_delta_loglike_above: -6.5
-        # contour_guide: 
-        #   loglike_contour_central_value: -28.4
-        #   loglike_contour_width: 0.5
+        accept_delta_loglike: 6.5
         neighborhood_distance: 2
         inherit_best_init_point_within_bin: False
         n_optim_restarts_per_bin: 1
