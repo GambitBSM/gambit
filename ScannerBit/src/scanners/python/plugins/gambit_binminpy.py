@@ -49,10 +49,13 @@ YAML options:
 
 
     def __init__(self, **kwargs):
-        if not with_mpi:
+        if not scannerbit.with_mpi:
             raise Exception(f"GAMBIT has been compiled with MPI disabled (WITH_MPI=0), but the "
                             f"binminpy scanner requires MPI parallelisation with >1 MPI processes. "
                             f"Rerun CMake with \"cmake -DWITH_MPI=1\" and then recompile GAMBIT.")
+        if not with_mpi:
+            raise Exception(f"The binminpy scanner requires MPI parallelisation with >1 MPI processes. "
+                            f"Make sure that mpi4py is installed and restart GAMBIT with >1 processes.")
 
         super().__init__(use_mpi=True, use_resume=False)
 
@@ -137,6 +140,7 @@ YAML options:
             save_evals=self.run_args.get("save_evals", False),
             return_evals=False,
             return_bin_centers=False,
+            return_bin_results=False,
             optima_comparison_rtol=self.run_args.get("optima_comparison_rtol", 1e-9),
             optima_comparison_atol=self.run_args.get("optima_comparison_atol", 0.0),
             neighborhood_distance=self.run_args.get("neighborhood_distance", 1),
@@ -164,9 +168,6 @@ YAML options:
                     print(f"{self.print_prefix}     - {key}: {val}")
                 print(f"{self.print_prefix}   - Log-likelihood: {result['y_optimal'][i]}", flush=True)
             print()
-            n_bins_evaluated = len(result["bin_tuples"])
-            max_n_bins = np.prod([bt[2] for bt in binning_tuples])
-            print(f"{self.print_prefix} Bins evaluated: {n_bins_evaluated} / {max_n_bins}", flush=True)
             print(f"{self.print_prefix} Target function calls: {result['n_target_calls']}", flush=True)
             print()
 
