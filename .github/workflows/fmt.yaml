@@ -1,0 +1,32 @@
+name: Formatting CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  gambit_style:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Find changes
+      id: changed-files
+      uses: tj-actions/changed-files@v45
+
+    - name: Install gambit-style
+      run: pip install git+https://github.com/GambitBSM/gambit-style
+      
+    - name: Run compliance check
+      run: gambit-style ci .
+
+    - name: Run compliance check only on changed files
+      if: always()
+      env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+      run: |
+        gambit-style ci ${ALL_CHANGED_FILES}

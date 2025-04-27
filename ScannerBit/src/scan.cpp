@@ -47,7 +47,7 @@ namespace Gambit
             return outNode;
         }
         
-        Scan_Manager::Scan_Manager (const YAML::Node &main_node, printer_interface *printerInterface, const Factory_Base *factoryIn) 
+        Scan_Manager::Scan_Manager (const YAML::Node &main_node, printer_interface *printerInterface, const Factory_Base *factoryIn, Priors::BasePrior *user_prior) 
         : printerInterface(printerInterface), has_local_factory(false)
         {
             options = main_node["Scanner"];
@@ -110,21 +110,30 @@ namespace Gambit
                         paramNode = main_node["Parameters"];
                     }
 
-                    prior = new Gambit::Priors::CompositePrior(paramNode, main_node["Priors"]);
+                    if (user_prior == 0)
+                        prior = new Gambit::Priors::CompositePrior(paramNode, main_node["Priors"]);
+                    else
+                        prior = user_prior;
                     factory = new Plugin_Function_Factory(prior->getParameters(), names);
                     Plugins::plugin_info.printer_prior(*printerInterface, *prior);
                     has_local_factory = true;                        
                 }
                 else
                 {
-                    prior = new Gambit::Priors::CompositePrior(main_node["Parameters"], main_node["Priors"]);
+                    if (user_prior == 0)
+                        prior = new Gambit::Priors::CompositePrior(main_node["Parameters"], main_node["Priors"]);
+                    else
+                        prior = user_prior;
                     factory = factoryIn;
                     Plugins::plugin_info.printer_prior(*printerInterface, *prior);
                 }
             }
             else
             {
-                prior = new Gambit::Priors::CompositePrior(main_node["Parameters"], main_node["Priors"]);
+                if (user_prior == 0)
+                    prior = new Gambit::Priors::CompositePrior(main_node["Parameters"], main_node["Priors"]);
+                else
+                    prior = user_prior;
                 factory = factoryIn;
                 Plugins::plugin_info.printer_prior(*printerInterface, *prior);
             }

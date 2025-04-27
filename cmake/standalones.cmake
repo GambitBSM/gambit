@@ -14,8 +14,9 @@
 #  \date 2016
 #
 #  \author Tomas Gonzalo
-#          (tomas.gonzalo@monash.edu)
+#          (tomas.gonzalo@partner.kit.edu)
 #  \date 2020
+#  \date 2024
 #
 #  \author Anders Kvellestad
 #          (anders.kvellestad@fys.uio.no)
@@ -30,11 +31,8 @@ add_standalone(DarkBit_standalone_ScalarSingletDM_Z2 SOURCES DarkBit/examples/Da
 add_standalone(DarkBit_standalone_WIMP SOURCES DarkBit/examples/DarkBit_standalone_WIMP.cpp MODULES DarkBit DEPENDENCIES pybind11)
 add_standalone(3bithit SOURCES DecayBit/examples/3bithit.cpp MODULES DecayBit SpecBit PrecisionBit)
 add_standalone(FlavBit_standalone SOURCES FlavBit/examples/FlavBit_standalone_example.cpp MODULES FlavBit)
-
-# # Set the C++ standard
-# set(CMAKE_CXX_STANDARD 14)
-# set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+add_standalone(NeutrinoBit_standalone SOURCES NeutrinoBit/examples/NeutrinoBit_standalone.cpp MODULES NeutrinoBit)
+add_standalone(NeutrinoBit_standalone_RHN SOURCES NeutrinoBit/examples/NeutrinoBit_standalone_RHN.cpp MODULES NeutrinoBit)
 add_standalone(CBS SOURCES ColliderBit/examples/solo.cpp MODULES ColliderBit DEPENDENCIES hepmc pybind11)
 
 

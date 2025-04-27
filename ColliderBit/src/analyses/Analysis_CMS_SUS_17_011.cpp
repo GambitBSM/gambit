@@ -4,6 +4,8 @@
 ///
 ///  *********************************************
 
+// Old Analysis Name: CMS_13TeV_2Photon_GMSB_36invfb
+
 /*
   Based on:
     "Search for supersymmetry in final states with photons and missing transverse momentum in proton-proton collisions at 13 TeV"

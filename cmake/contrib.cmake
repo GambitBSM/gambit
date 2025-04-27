@@ -99,6 +99,7 @@ add_gambit_library(mkpath OPTION OBJECT
                           SOURCES ${PROJECT_SOURCE_DIR}/contrib/mkpath/src/mkpath.c
                           HEADERS ${PROJECT_SOURCE_DIR}/contrib/mkpath/include/mkpath/mkpath.h)
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:mkpath>)
+add_dependencies(contrib mkpath)
 
 #contrib/yaml-cpp-0.6.2
 set(yaml_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.6.2/include)
@@ -206,7 +207,7 @@ endif()
 if(NOT EXCLUDE_HEPMC)
   set(lib "HepMC3")
   set(md5 "d3079a7ffcc926b34c5ad2868ed6d8f0")
-  set(dl "https://hepmc.web.cern.ch/hepmc/releases/HepMC3-${ver}.tar.gz")
+  set(dl "https://gitlab.cern.ch/hepmc/HepMC3/-/archive/${ver}/HepMC3-${ver}.tar.gz")
   include_directories("${HEPMC_PATH}/local/include")
 
   set(HEPMC_LDFLAGS "-L${HEPMC_PATH}/local/lib -l${lib}")
@@ -229,8 +230,6 @@ if(NOT EXCLUDE_HEPMC)
 
   # Add clean-hepmc and nuke-hepmc
   add_contrib_clean_and_nuke(${name} ${HEPMC_PATH} clean)
-  # HEPMC must be build before any bits as it is included early because it's in Rivet's headers
-  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
 endif()
 
 # contrib/onnxruntime
@@ -282,7 +281,7 @@ else()
 endif()
 
 set(name "yoda")
-set(ver "1.9.7")
+set(ver "2.1.0")
 set(dir "${PROJECT_SOURCE_DIR}/contrib/YODA-${ver}")
 if(WITH_YODA)
   message("-- YODA-dependent functions in ColliderBit will be activated.")
@@ -298,19 +297,21 @@ endif()
 if(NOT EXCLUDE_YODA)
   set(lib "YODA")
   set(dl "https://yoda.hepforge.org/downloads/?f=YODA-${ver}.tar.gz")
-  set(md5 "c5bc336d3caa3f357db484536c10dbc8")
+  set(md5 "87da674a8e8127b54c408d1b465bf5f7")
   include_directories("${dir}/include")
   set(YODA_PATH "${dir}")
   set(YODA_LIB "${dir}/local/lib")
   set(YODA_LDFLAGS "-L${YODA_LIB} -l${lib}")
 
   # OpenMP flags does not play nicely with clang and Yoda's use of libtools
-  string(REGEX REPLACE "-Xclang -fopenmp" "" YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3")
+  string(REGEX REPLACE "-Xclang -fopenmp" "" YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3 -std=c++17")
   #set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3" )
   set_compiler_warning("no-unused-parameter" YODA_CXX_FLAGS)
   set_compiler_warning("no-deprecated-copy" YODA_CXX_FLAGS)
   set_compiler_warning("no-implicit-fallthrough" YODA_CXX_FLAGS)
   set(YODA_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
+  #TODO (TP Dec 23): Bodge to cover different forms of python install: would be good to be able to autodetect
+  set(YODA_ALT_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/dist-packages")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
   # If cython is not installed disable the python extension
   gambit_find_python_module(cython)
@@ -336,8 +337,6 @@ if(NOT EXCLUDE_YODA)
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
   add_contrib_clean_and_nuke(${name} ${dir} clean)
-  # YODA must be build before any bits as it is included early because it's in Rivet's headers
-  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
 endif()
 
 #contrib/fjcore-3.2.0
@@ -387,16 +386,15 @@ else()
   set(EXCLUDE_FASTJET TRUE)
 endif()
 
-#contrib/fjcontrib-1.045; include only if Colliderbit is in use.
-#Pengxuan: change version from 1.041 to 1.045
+#contrib/fjcontrib-1.049; include only if Colliderbit is in use.
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   message("   ColliderBit included, include fjcontrib too")
   set(EXCLUDE_FJCONTRIB FALSE)
 
-  set(fjcontrib_dl "http://fastjet.hepforge.org/contrib/downloads/fjcontrib-1.045.tar.gz")
-  set(fjcontrib_md5 "99b347b9eedc5a91e7bd7f7725427367")
-  set(fjcontrib_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.045")
-  # include_directories("${fjcontrib_dir}/RecursiveTools")
+  set(fjcontrib_dl "http://fastjet.hepforge.org/contrib/downloads/fjcontrib-1.049.tar.gz")
+  set(fjcontrib_md5 "bfea8bfd311d958a40e445f76668bd32")
+  set(fjcontrib_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.049")
+  #include_directories("${fjcontrib_dir}/RecursiveTools")
   include_directories("${fastjet_dir}/local/include" "${fjcontrib_dir}/RecursiveTools" "${fjcontrib_dir}/EnergyCorrelator" "${fjcontrib_dir}/VariableR")
 
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fjcontrib_dir}/local/lib")
@@ -414,12 +412,10 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   link_directories("${fastjet_dir}/local/lib")
   ExternalProject_Add(fjcontrib
     DEPENDS fastjet
-    DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_dir} fjcontrib 1.045
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_dir} fjcontrib 1.049
     SOURCE_DIR ${fjcontrib_dir}
     BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local --only=RecursiveTools,EnergyCorrelator,VariableR
-    # CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS="${CMAKE_SHARED_LINKER_FLAGS} -L${fastjet_dir}/local/lib -lfastjet -lfastjettools" --prefix=${fastjet_dir}/local --enable-silent-rules --enable-shared
-    # CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS="${CMAKE_SHARED_LINKER_FLAGS} -L${fastjet_dir}/local/lib -lfastjet -lfastjettools" --prefix=${fastjet_dir}/local --enable-silent-rules --enable-shared
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local # --only=RecursiveTools
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
@@ -441,6 +437,7 @@ add_gambit_library(multimin OPTION OBJECT
                           SOURCES ${PROJECT_SOURCE_DIR}/contrib/multimin/src/multimin.cpp
                           HEADERS ${PROJECT_SOURCE_DIR}/contrib/multimin/include/multimin/multimin.hpp)
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:multimin>)
+add_dependencies(contrib multimin)
 
 
 #contrib/METSignificance
@@ -643,4 +640,24 @@ else()
 
   set (EXCLUDE_FLEXIBLESUSY TRUE)
 
+endif()
+
+
+
+# If ColliderBit is in use, set various dependencies
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  # If RestFrames is in use, make it a dependency of contrib
+  if(NOT EXCLUDE_RESTFRAMES)
+    add_dependencies(contrib restframes)
+  endif()
+  # contrib depends on HepMC
+  if(EXCLUDE_HEPMC)
+    message(FATAL_ERROR "\nColliderBit needs HepMC3. Either use -DWITH_HEPMC=ON or ditch ColliderBit with -Ditch=\"ColliderBit\".")
+  endif()
+  add_dependencies(contrib hepmc)
+  # contrib depends on YODA
+  if(EXCLUDE_YODA)
+    message(FATAL_ERROR "\nColliderBit needs YODA. Either use -DWITH_YODA=ON or ditch ColliderBit with -Ditch=\"ColliderBit\".")
+  endif()
+  add_dependencies(contrib yoda)
 endif()

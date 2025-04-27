@@ -40,11 +40,17 @@
 ///  \date 2016 Aug
 ///
 ///  \author Tomas Gonzalo
-///          (gonzalo@physik.rwth-aachen.de)
+///          (tomas.gonzalo@kit.edu)
 ///  \date 2021 Sep
+///  \date 2023 June
+///
+///  \author Torsten Bringmann
+///          (torsten.bringmann@fys.uio.no)
+///  \date 2023 Nov
 ///
 ///  *********************************************
 
+#include "gambit/Utils/numerical_constants.hpp"
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/DarkBit/DarkBit_rollcall.hpp"
 #include "gambit/DarkBit/DarkBit_utils.hpp"
@@ -66,6 +72,7 @@ namespace Gambit
       using namespace Pipes::WIMP_properties;
       props.name = *Dep::DarkMatter_ID;
       props.spinx2 = Models::ParticleDB().get_spinx2(props.name);
+      props.etaDM = 0.0; // per default, there is no primordial DM-antiDM asymmetry
       props.sc = not Models::ParticleDB().has_antiparticle(props.name);
       props.conjugate = props.sc ? props.name : *Dep::DarkMatterConj_ID;
       if(props.conjugate != Models::ParticleDB().get_antiparticle(props.name))
@@ -102,6 +109,22 @@ namespace Gambit
         props.mass = Dep::DMsimpVectorMedVectorDM_spectrum->get(Par::Pole_Mass, props.name);
       else if(ModelInUse("DMEFT"))
         props.mass = Dep::DMEFT_spectrum->get(Par::Pole_Mass, props.name);
+      else if(ModelInUse("SubGeVDM_scalar"))
+      {
+        // TODO: Probably only need mass & etaDM here (?)
+        props.mass = *Param["mDM"];
+        props.etaDM = *Param["etaDM"];
+        props.spinx2 = 0;
+        props.sc = false;
+      }
+      else if(ModelInUse("SubGeVDM_fermion"))
+      {
+        // TODO: Probably only need mass & etaDM  here (?)
+        props.mass = *Param["mDM"];
+        props.etaDM = *Param["etaDM"];
+        props.spinx2 = 2;
+        props.sc = false;
+      }
       else
         DarkBit_error().raise(LOCAL_INFO, "WIMP properties cannot find a ModelInUse to get the wimp mass.");
     }
@@ -173,12 +196,12 @@ namespace Gambit
 
     }
 
-    /// Information about the nature of the DM process in question (i.e. decay or annihilation) 
+    /// Information about the nature of the DM process in question (i.e. decay or annihilation)
     /// to use the correct scaling for ID in terms of the DM density, phase space, etc.
     void DM_process_from_ProcessCatalog(std::string &result)
     {
       using namespace Pipes::DM_process_from_ProcessCatalog;
-      
+
       // Only need to check this once.
       static bool first = true;
       if (first)
@@ -192,7 +215,7 @@ namespace Gambit
         else result = "decay";
         first = false;
       }
-      
+
     }
 
 
@@ -250,6 +273,23 @@ namespace Gambit
       result.vesc = vesc;
       result.vrot = vrot;
     }
+
+    /// Module function providing local density and velocity dispersion parameters, in powers of GeV
+    void ExtractLocalMaxwellianHalo_GeV(LocalMaxwellianHalo &result)
+    {
+      using namespace Pipes::ExtractLocalMaxwellianHalo_GeV;
+      double rho0  = *Param["rho0"];
+      double v0  = *Param["v0"];
+      double vesc  = *Param["vesc"];
+      double vrot  = *Param["vrot"];
+
+      // Conversion to GeV
+      result.rho0 = rho0 * gev3cm3;
+      result.v0 = v0 / c_km;
+      result.vesc = vesc / c_km;
+      result.vrot = vrot / c_km;
+    }
+
 
     //////////////////////////////////////////////////////////////////////////
     //

@@ -88,7 +88,6 @@ namespace Gambit
 
       else if (iteration == COLLIDER_INIT_OMP)
       {
-
         std::vector<str> pythiaOptions;
 
         // By default we tell Pythia to be quiet. (Can be overridden from yaml settings)
@@ -155,21 +154,13 @@ namespace Gambit
         // We need "SLHA:file = slhaea" for the SLHAea interface.
         pythiaOptions.push_back("SLHA:file = slhaea");
 
-        // If the collider energy is not given in the list of Pythia options, we set it to 13 TeV by default.
-        // We search for the substring "Beams:e", meaning that if any of the Pythia options "Beams:eCM", "Beams:eA" 
-        // or "Beams:eB" are present we don't apply the default.
+        // Make sure the user has selected a collider energy in their Pythia settings by searching 
+        // for the substring "Beams:e", to match Pythia options "Beams:eCM", "Beams:eA" or "Beams:eB".
         bool has_beam_energy_option = std::any_of(pythiaOptions.begin(), pythiaOptions.end(), [](const str& s){ return s.find("Beams:e") != str::npos; });
         if (!has_beam_energy_option)
         {
-          pythiaOptions.push_back("Beams:eCM = 13000");
-          logger() << LogTags::debug << "Could not find a beam energy in the list of Pythia settings. Will add the setting 'Beams:eCM = 13000'." << EOM;
+          ColliderBit_error().raise(LOCAL_INFO,"Could not find a beam energy in the list of Pythia settings. Please add one, e.g. 'Beams:eCM = 13000'.");
         }
-
-        // Variables needed for the xsec veto
-        std::stringstream processLevelOutput;
-        str _junk, readline;
-        int code, nxsec;
-        double xsec, totalxsec;
 
         // Each thread needs an independent Pythia instance at the start
         // of each event generation loop.
@@ -188,7 +179,7 @@ namespace Gambit
 
         try
         {
-          result.init(pythia_doc_path, pythiaOptions, &slha, processLevelOutput);
+          result.init(pythia_doc_path, pythiaOptions, &slha);
         }
         catch (typename Py8Collider<PythiaT,EventT,hepmc_writerT>::InitializationError& e)
         {
@@ -197,7 +188,7 @@ namespace Gambit
           pythiaOptions.push_back("Random:seed = " + std::to_string(newSeedBase));
           try
           {
-            result.init(pythia_doc_path, pythiaOptions, &slha, processLevelOutput);
+            result.init(pythia_doc_path, pythiaOptions, &slha);
           }
           catch (typename Py8Collider<PythiaT,EventT,hepmc_writerT>::InitializationError& e)
           {
@@ -213,30 +204,14 @@ namespace Gambit
         // Should we apply the xsec veto and skip event generation?
 
         // - Get the upper limt xsec as estimated by Pythia
-        code = -1;
-        nxsec = 0;
-        totalxsec = 0.;
-        while(true)
-        {
-          std::getline(processLevelOutput, readline);
-          std::istringstream issPtr(readline);
-          issPtr.seekg(47, issPtr.beg);
-          issPtr >> code;
-          if (!issPtr.good() && nxsec > 0) break;
-          issPtr >> _junk >> xsec;
-          if (issPtr.good())
-          {
-            totalxsec += xsec;
-            nxsec++;
-          }
-        }
+        double max_xsec_fb = result.max_xsec_fb();
 
         #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "totalxsec [fb] = " << totalxsec * 1e12 << ", veto limit [fb] = " << xsec_veto_fb << endl;
+          cout << DEBUG_PREFIX << "max xsec [fb] = " << max_xsec_fb << ", veto limit [fb] = " << xsec_veto_fb << endl;
         #endif
 
         // - Check for NaN xsec
-        if (Utils::isnan(totalxsec))
+        if (Utils::isnan(max_xsec_fb))
         {
           #ifdef COLLIDERBIT_DEBUG
           cout << DEBUG_PREFIX << "Got NaN cross-section estimate from Pythia." << endl;
@@ -247,7 +222,7 @@ namespace Gambit
         }
 
         // - Wrap up loop if veto applies
-        if (totalxsec * 1e12 < xsec_veto_fb)
+        if (max_xsec_fb < xsec_veto_fb)
         {
           #ifdef COLLIDERBIT_DEBUG
           cout << DEBUG_PREFIX << "Cross-section veto applies. Will now call Loop::wrapup() to skip event generation for this collider." << endl;
@@ -278,7 +253,7 @@ namespace Gambit
               #pragma omp critical (pythia_event_failure)
               {
                 std::stringstream ss;
-                dummy_pythia_event.list(ss, 1);
+                dummy_pythia_event.list(false, false, 1, ss);
                 logger() << LogTags::debug << "Failed to generate dummy test event during COLLIDER_INIT_OMP iteration in getPy8Collider. Pythia record for the event that failed:\n" << ss.str() << EOM;
               }
             }

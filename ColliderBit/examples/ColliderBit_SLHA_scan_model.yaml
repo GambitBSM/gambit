@@ -109,8 +109,10 @@ Rules:
 
 
   # Take the total cross-section from the input parameters in this yaml file
-  - capability: TotalCrossSection
+  - capability: InitialTotalCrossSection
     function: getYAMLCrossSection_param
+    options:
+      collider: LHC_13TeV
 
   # Choose how to do event weighting
   - capability: EventWeighterFunction

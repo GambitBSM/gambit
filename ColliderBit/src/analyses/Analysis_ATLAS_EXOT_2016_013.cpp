@@ -73,17 +73,17 @@ namespace Gambit
 
             Analysis_ATLAS_EXOT_2016_013()
             {
-                DEFINE_SIGNAL_REGION("SR1L-01"); // >=2t, 0-1H, >=6j, 3b
-                DEFINE_SIGNAL_REGION("SR1L-02"); // 1t, 0H, >=6j, >=4b
-                DEFINE_SIGNAL_REGION("SR1L-03"); // 1t, 1H, >=6j, >=4b
-                DEFINE_SIGNAL_REGION("SR1L-04"); // >=2t, 0-1H,>=6j,>=4b
-                DEFINE_SIGNAL_REGION("SR1L-05"); // >=0t, >=2H, >=6j, >=4b
+                DEFINE_SIGNAL_REGION_NOCUTS("SR1L-01"); // >=2t, 0-1H, >=6j, 3b
+                DEFINE_SIGNAL_REGION_NOCUTS("SR1L-02"); // 1t, 0H, >=6j, >=4b
+                DEFINE_SIGNAL_REGION_NOCUTS("SR1L-03"); // 1t, 1H, >=6j, >=4b
+                DEFINE_SIGNAL_REGION_NOCUTS("SR1L-04"); // >=2t, 0-1H,>=6j,>=4b
+                DEFINE_SIGNAL_REGION_NOCUTS("SR1L-05"); // >=0t, >=2H, >=6j, >=4b
 
-                DEFINE_SIGNAL_REGION("SR0L-01"); // >=2tH, >=7j, 2b, HM
-                DEFINE_SIGNAL_REGION("SR0L-02"); // 1t, 1H, >=7j, 3b, HM
-                DEFINE_SIGNAL_REGION("SR0L-03"); // >=2t, 0-1H, >=7j, 3b, HM
-                DEFINE_SIGNAL_REGION("SR0L-04"); // 1t, 0H, >=7j, >=4b, HM
-                DEFINE_SIGNAL_REGION("SR0L-05"); // >=2tH, >=7j, >=4b
+                DEFINE_SIGNAL_REGION_NOCUTS("SR0L-01"); // >=2tH, >=7j, 2b, HM
+                DEFINE_SIGNAL_REGION_NOCUTS("SR0L-02"); // 1t, 1H, >=7j, 3b, HM
+                DEFINE_SIGNAL_REGION_NOCUTS("SR0L-03"); // >=2t, 0-1H, >=7j, 3b, HM
+                DEFINE_SIGNAL_REGION_NOCUTS("SR0L-04"); // 1t, 0H, >=7j, >=4b, HM
+                DEFINE_SIGNAL_REGION_NOCUTS("SR0L-05"); // >=2tH, >=7j, >=4b
 
                 set_analysis_name("ATLAS_EXOT_2016_013");
                 set_luminosity(36.1);

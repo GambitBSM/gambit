@@ -26,6 +26,8 @@ using namespace std;
 
    Note: RJR regions will be coded up in a separate file
 
+   Old Analysis Name: ATLAS_13TeV_0LEPStop_139invfb
+
 */
 
 namespace Gambit

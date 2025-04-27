@@ -7,6 +7,8 @@
 // Based on RJR regions of https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-05/
 // Luminosity: 139 fb^-1
 
+// Old Analysis Name: ATLAS_13TeV_2LEPJETS_RJR_139invfb
+
 #include "gambit/cmake/cmake_variables.hpp"
 #ifndef EXCLUDE_ROOT
 #ifndef EXCLUDE_RESTFRAMES
@@ -51,12 +53,10 @@ namespace Gambit
       return jv1.Pt() > jv2.Pt();
     }
 
-    class Analysis_ATLAS_SUSY_2018_05 : public Analysis
+    class Analysis_ATLAS_SUSY_2018_05_RJR : public Analysis
     {
 
     protected:
-
-      Cutflows _cutflows;
 
       //vector<int> _test;
       //int _test2;
@@ -140,7 +140,7 @@ namespace Gambit
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
-      Analysis_ATLAS_SUSY_2018_05()
+      Analysis_ATLAS_SUSY_2018_05_RJR()
       {
 
         // Counters for the number of accepted events for each signal region
@@ -151,7 +151,7 @@ namespace Gambit
         _counters["SR2L_ISR"] = EventCounter("SR2L_ISR");
 
 
-        set_analysis_name("ATLAS_SUSY_2018_05");
+        set_analysis_name("ATLAS_SUSY_2018_05_RJR");
         set_luminosity(139);
 
         _cutflows.addCutflow("SR2L_low", {"Trigger and 2 signal leptons", "Preselection", "0.35 < HPP11/HPP41 < 0.60", "pTlabPP/(pTlabPP+HTPP11) < 0.05", "min(dPhi(j1/j2,ptmiss))<2.4", "HPP41 > 400 GeV",});
@@ -160,7 +160,7 @@ namespace Gambit
 
 
         // Recursive jigsaw setup
-        #pragma omp critical (init_ATLAS_SUSY_2018_05)
+        #pragma omp critical (init_ATLAS_SUSY_2018_05_RJR)
         {
 
           LAB_2L2J.reset(new RestFrames::LabRecoFrame("LAB_2L2J","lab2L2J"));
@@ -192,7 +192,7 @@ namespace Gambit
           if(!LAB_2L2J->InitializeTree())
           {
             str errmsg;
-            errmsg  = "Some problem occurred when calling LAB_2L2J->InitializeTree() from the Analysis_ATLAS_SUSY_2018_05 analysis class.\n";
+            errmsg  = "Some problem occurred when calling LAB_2L2J->InitializeTree() from the Analysis_ATLAS_SUSY_2018_05_RJR analysis class.\n";
             piped_errors.request(LOCAL_INFO, errmsg);
           }
 
@@ -221,7 +221,7 @@ namespace Gambit
           if(!LAB_2L2J->InitializeAnalysis())
           {
             str errmsg;
-            errmsg  = "Some problem occurred when calling LAB_2L2J->InitializeAnalysis() from the Analysis_ATLAS_SUSY_2018_05 analysis class.\n";
+            errmsg  = "Some problem occurred when calling LAB_2L2J->InitializeAnalysis() from the Analysis_ATLAS_SUSY_2018_05_RJR analysis class.\n";
             piped_errors.request(LOCAL_INFO, errmsg);
           }
 
@@ -244,7 +244,7 @@ namespace Gambit
           if(!LAB_comb->InitializeTree())
           {
             str errmsg;
-            errmsg  = "Some problem occurred when calling LAB_comb->InitializeTree() from the Analysis_ATLAS_SUSY_2018_05 analysis class.\n";
+            errmsg  = "Some problem occurred when calling LAB_comb->InitializeTree() from the Analysis_ATLAS_SUSY_2018_05_RJR analysis class.\n";
             piped_errors.request(LOCAL_INFO, errmsg);
           }
 
@@ -279,7 +279,7 @@ namespace Gambit
           if(!LAB_2LNJ->InitializeTree())
           {
             str errmsg;
-            errmsg  = "Some problem occurred when calling LAB_2LNJ->InitializeTree() from the Analysis_ATLAS_SUSY_2018_05 analysis class.\n";
+            errmsg  = "Some problem occurred when calling LAB_2LNJ->InitializeTree() from the Analysis_ATLAS_SUSY_2018_05_RJR analysis class.\n";
             piped_errors.request(LOCAL_INFO, errmsg);
           }
 
@@ -309,7 +309,7 @@ namespace Gambit
           if(!LAB_comb->InitializeAnalysis())
           {
             str errmsg;
-            errmsg  = "Some problem occurred when calling LAB_comb->InitializeAnalysis() from the Analysis_ATLAS_SUSY_2018_05 analysis class.\n";
+            errmsg  = "Some problem occurred when calling LAB_comb->InitializeAnalysis() from the Analysis_ATLAS_SUSY_2018_05_RJR analysis class.\n";
             piped_errors.request(LOCAL_INFO, errmsg);
           }
 
@@ -599,7 +599,7 @@ namespace Gambit
             if(!LAB_2L2J->AnalyzeEvent())
             {
               str errmsg;
-              errmsg  = "Some problem occurred when calling LAB_2L2J->AnalyzeEvent() from the Analysis_ATLAS_SUSY_2018_05 analysis class.\n";
+              errmsg  = "Some problem occurred when calling LAB_2L2J->AnalyzeEvent() from the Analysis_ATLAS_SUSY_2018_05_RJR analysis class.\n";
               piped_warnings.request(LOCAL_INFO, errmsg);
               return;
             }
@@ -710,7 +710,7 @@ namespace Gambit
               if(!LAB_comb->AnalyzeEvent())
               {
                 str errmsg;
-                errmsg  = "Some problem occurred when calling LAB_comb->AnalyzeEvent() from the Analysis_ATLAS_SUSY_2018_05 analysis class.\n";
+                errmsg  = "Some problem occurred when calling LAB_comb->AnalyzeEvent() from the Analysis_ATLAS_SUSY_2018_05_RJR analysis class.\n";
                 piped_warnings.request(LOCAL_INFO, errmsg);
                   return;
               }
@@ -752,7 +752,7 @@ namespace Gambit
               if(!LAB_2LNJ->AnalyzeEvent())
               {
                 str errmsg;
-                errmsg  = "Some problem occurred when calling LAB_2LNJ->AnalyzeEvent() from the Analysis_ATLAS_SUSY_2018_05 analysis class.\n";
+                errmsg  = "Some problem occurred when calling LAB_2LNJ->AnalyzeEvent() from the Analysis_ATLAS_SUSY_2018_05_RJR analysis class.\n";
                 piped_warnings.request(LOCAL_INFO, errmsg);
                 return;
               }
@@ -851,7 +851,7 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(ATLAS_SUSY_2018_05)
+    DEFINE_ANALYSIS_FACTORY(ATLAS_SUSY_2018_05_RJR)
 
 
   }

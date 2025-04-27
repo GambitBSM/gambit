@@ -13,6 +13,7 @@
 //#define BENCHMARK "WZ_600_100"
 // #define BENCHMARK "Wh_190_60"
 
+// Old Analysis Name: ATLAS_13TeV_3LEP_eRJR_139invfb
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
@@ -86,7 +87,7 @@ namespace Gambit
         } compareJetPt;
 
 
-        Cutflows _cutflows;
+        //Cutflows _cutflows;
 
         Analysis_ATLAS_SUSY_2018_06()
         {

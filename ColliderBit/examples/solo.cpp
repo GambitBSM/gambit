@@ -31,10 +31,10 @@
 #define NULIKE_VERSION "1.0.9"
 #define NULIKE_SAFE_VERSION 1_0_9
 
-#define RIVET_VERSION "3.1.5"
-#define RIVET_SAFE_VERSION 3_1_5
-#define CONTUR_VERSION "2.1.1"
-#define CONTUR_SAFE_VERSION 2_1_1
+#define RIVET_VERSION "4.1.0"
+#define RIVET_SAFE_VERSION 4_1_0
+#define CONTUR_VERSION "3.0.0"
+#define CONTUR_SAFE_VERSION 3_0_0
 
 #define FULLLIKES_VERSION "1.0"
 #define FULLLIKES_SAFE_VERSION 1_0
@@ -272,11 +272,18 @@ int main(int argc, char* argv[])
     if (debug) cout << "Reading HepMC" << " file: " << event_filename << endl;
     auto& getEvent = getHepMCEvent;
     auto& convertEvent = convertHepMCEvent_HEPUtils;
+    auto& AnalysisNumbers = CollectAnalyses;
+    AnalysisNumbers.setOption<bool>("print_cutflows", true);
 
     // Initialise logs
     logger().set_log_debug_messages(debug);
     initialise_standalone_logs("CBS_logs/");
     logger()<<"Running CBS"<<LogTags::info<<EOM;
+    
+    // Initialise settings for printer (required)
+    YAML::Node printerNode = get_standalone_printer("cout", "CBS_logs/", "");
+    Printers::PrinterManager printerManager(printerNode, false);
+    set_global_printer_manager(&printerManager);
 
     // Initialise the random number generator, using a hardware seed if no seed is given in the input file.
     int seed = settings.getValueOrDef<int>(-1, "seed");
@@ -290,6 +297,10 @@ int main(int argc, char* argv[])
     operateLHCLoop.setOption<YAML::Node>("CBS", CBS);
     operateLHCLoop.setOption<bool>("silenceLoop", not debug);
 
+    // Tell operateLHCLoop to use the "CBS" collider
+    std::vector<std::string> use_colliders = {"CBS"};
+    operateLHCLoop.setOption<std::vector<std::string>>("use_colliders", use_colliders);
+
     // Pass the filename and the jet pt cutoff to the HepMC reader/HEPUtils converter function
     getEvent.setOption<str>("hepmc_filename", event_filename);
     convertEvent.setOption<double>("jet_pt_min", jet_pt_min);
@@ -301,6 +312,7 @@ int main(int argc, char* argv[])
     convertEvent.setOption<YAML::Node>("jet_collections", jet_collections);
 
     // Pass options to the cross-section function
+    getYAMLCrossSection.setOption<std::string>("collider", "CBS");
     if (settings.hasKey("cross_section_pb"))
     {
       getYAMLCrossSection.setOption<double>("cross_section_pb", settings.getValue<double>("cross_section_pb"));
@@ -367,6 +379,7 @@ int main(int argc, char* argv[])
     get_LHC_LogLike_per_analysis.resolveDependency(&calc_LHC_LogLikes_full);
     calc_LHC_LogLikes_full.resolveDependency(&CollectAnalyses);
     calc_LHC_LogLikes_full.resolveDependency(&operateLHCLoop);
+    calc_LHC_LogLikes_full.resolveDependency(&getYAMLCrossSection);
     calc_LHC_LogLikes_full.resolveBackendReq(use_lnpiln ? &nulike_lnpiln : &nulike_lnpin);
     calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_FileExists);
     calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_ReadIn);

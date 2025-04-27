@@ -104,6 +104,7 @@ Rules:
     function: getEvGenCrossSection_as_base
     # function: getYAMLCrossSection
     # options:
+    #   collider: LHC_13TeV
     #   cross_section_fb: 123.0
     #   cross_section_uncert_fb: 1.23
 

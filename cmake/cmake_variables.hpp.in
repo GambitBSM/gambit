@@ -21,6 +21,10 @@
 ///        (t.e.gonzalo@fys.uio.no)
 ///  \date 2016 Sep
 ///
+///  \author Ben Farmer
+///        (b.farmer@imperial.ac.uk)
+///  \date 2019 Nov
+///
 ///  \author Anders Kvellestad
 ///        (anders.kvellestad@fys.uio.no)
 ///  \date 2021 Jul
@@ -34,6 +38,10 @@
 
 /// Gambit source directory
 #define GAMBIT_DIR "@PROJECT_SOURCE_DIR@"
+
+/// Gambit install/run directory
+/// (Used be e.g. pyScannerBit, which runs gambit libraries in a different location than they are built)
+#define GAMBIT_RUN_DIR "@GAMBIT_RUN_DIR@"
 
 /// Name of the gambit executable
 #define GAMBIT_EXECUTABLE "@PROJECT_NAME@"

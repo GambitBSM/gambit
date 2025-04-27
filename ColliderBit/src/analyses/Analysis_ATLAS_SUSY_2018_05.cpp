@@ -11,6 +11,8 @@
 // Luminosity: 139 fb^-1
 // Note that this uses the ATLAS object-based met significance
 
+// Old Analysis Name: ATLAS_13TeV_2LEPJETS_EW_139invfb
+
 #include <vector>
 #include <cmath>
 #include <memory>
@@ -37,10 +39,6 @@ namespace Gambit
 
     class Analysis_ATLAS_SUSY_2018_05 : public Analysis
     {
-
-    protected:
-
-      Cutflows _cutflows;
 
     private:
 

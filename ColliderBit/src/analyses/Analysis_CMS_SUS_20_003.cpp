@@ -6,6 +6,9 @@
 // Based on the CMS publication https://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-20-003/index.html
 // JHEP 10 (2021) 045, arXiv:2107.12553 [hep-ex],
 
+// Renamed from: 
+//      CMS_13TeV_1LEPbb_137invfb
+
 #include <vector>
 #include <cmath>
 #include <memory>
@@ -19,11 +22,7 @@
 #include "HEPUtils/FastJet.h"
 
 using namespace std;
-
-// Renamed from: 
-//        Analysis_CMS_13TeV_1LEPbb_137invfb
-
-#define CHECK_CUTFLOW
+//#define CHECK_CUTFLOW
 
 namespace Gambit
 {
@@ -48,10 +47,10 @@ namespace Gambit
 
       Analysis_CMS_SUS_20_003()
       {
-        DEFINE_SIGNAL_REGIONS("SR2J-0H-", 4);
-        DEFINE_SIGNAL_REGIONS("SR2J-1H-", 2);
-        DEFINE_SIGNAL_REGIONS("SR3J-0H-", 4);
-        DEFINE_SIGNAL_REGIONS("SR3J-1H-", 2);
+        DEFINE_SIGNAL_REGIONS_NOCUTS("SR2J-0H-", 4);
+        DEFINE_SIGNAL_REGIONS_NOCUTS("SR2J-1H-", 2);
+        DEFINE_SIGNAL_REGIONS_NOCUTS("SR3J-0H-", 4);
+        DEFINE_SIGNAL_REGIONS_NOCUTS("SR3J-1H-", 2);
 
         set_analysis_name("CMS_SUS_20_003");
         set_luminosity(137.0);

@@ -1,0 +1,66 @@
+name: CMake CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  compulsory-deps:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install debian deps
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential gfortran cmake git python3-yaml libboost-all-dev libgsl-dev libeigen3-dev liblapack-dev pkg-config
+
+    - name: Run cmake
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+
+    - name: Run cmake with warnings as errors
+      run: |
+        mkdir build_cmake_errors
+        cd build_cmake_errors
+        cmake -Werror=dev ..
+
+  add-optional-deps:
+  
+    runs-on: ubuntu-latest
+
+    steps:
+    
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        cache: 'pip'
+        cache-dependency-path: optional.txt
+
+    - name: Install debian deps
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential gfortran cmake git python3-yaml libboost-all-dev libgsl-dev libeigen3-dev liblapack-dev pkg-config libhdf5-dev libopenmpi-dev axel graphviz libx11-dev uuid-dev 
+
+    - name: Install pip deps
+      run: pip install -r optional.txt
+
+    - name: Run cmake
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+
+    - name: Run cmake with warnings as errors
+      run: |
+        mkdir build_cmake_errors
+        cd build_cmake_errors
+        cmake -Werror=dev ..

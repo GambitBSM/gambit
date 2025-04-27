@@ -74,8 +74,8 @@ endif()
 set(name "pippi")
 set(dir "${CMAKE_SOURCE_DIR}/${name}")
 ExternalProject_Add(get-${name}
-  GIT_REPOSITORY https://github.com/patscott/pippi.git
-  GIT_TAG v2.2
+  GIT_REPOSITORY https://github.com/GambitBSM/pippi.git
+  GIT_TAG origin/master
   SOURCE_DIR ${dir}
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
@@ -168,8 +168,6 @@ macro(add_extra_targets type package ver dir dl target)
     DEPENDERS patch configure build)
 
 endmacro()
-
-message(STATUS "${Yellow}-- Using C++ standard: C++${CMAKE_CXX_STANDARD}")
 
 
 # Function to check whether or not a given scanner or backend has been ditched

@@ -21,6 +21,8 @@
 //    (JSON file for FullLikelihood is available.)
 // 3. Use event-based MET significance instead of object-based significance
 
+// Old Analysis Name: ATLAS_13TeV_2OSLEP_chargino_139invfb
+
 #include <vector>
 #include <cmath>
 #include <memory>

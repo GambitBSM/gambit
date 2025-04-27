@@ -189,6 +189,29 @@ OtherModels:
     name: V
     spinx2: 2
 
+
+  - DecayBit:
+      Decays: true
+    PDG_context:
+    - 9900005
+    - 0
+    chargex3: 0
+    color: 1
+    description: Dark photon
+    name: Ap
+    spinx2: 2
+
+
+  - PDG_context:
+    - 9900006
+    - 0
+    chargex3: 0
+    color: 1
+    description: Sub-GeV DM
+    name: DM
+    conjugate: DM~
+    spinx2: 2
+
   - DecayBit:
       Decays: true
     PDG_context:
@@ -700,6 +723,18 @@ StandardModel:
     description: Omega meson
     name: omega
     spinx2: 3
+
+  - DecayBit:
+      Decays: true
+      name: K_0
+    PDG_context:
+    - 311
+    - 0
+    chargex3: 0
+    color: 1
+    description: Neutral kaon
+    name: K0
+    spinx2: 0
   Sets:
 
   - PDG_context:

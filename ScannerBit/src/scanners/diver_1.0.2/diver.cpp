@@ -18,7 +18,7 @@
 #include <limits>
 #include <fstream>
 
-#include "gambit/ScannerBit/scanners/diver/1.0.2/diver.hpp"
+#include "gambit/ScannerBit/scanners/diver_1.0.2/diver.hpp"
 #include "gambit/Utils/yaml_options.hpp"
 #include "gambit/Utils/util_types.hpp"
 #include "gambit/Utils/util_functions.hpp"
@@ -130,35 +130,25 @@ scanner_plugin(diver, version(1, 0, 2))
     void*  context             = &data;                                                   // Pointer to GAMBIT likelihood function and printers, passed through to objective function.
 
     // Copy the contents of root to a char array.
-    char path[root.length()+1];
-    strcpy(path, root.c_str());
+    std::vector<char> path(root.length()+1);
+    strcpy(&path[0], root.c_str());
 
     // Unit cube boundaries
-    double lowerbounds[nPar];                                                             // Lower boundaries of parameter space to scan
-    double upperbounds[nPar];                                                             // Upper boundaries of parameter space to scan
-    for (int i = 0; i < nPar; i++)
-    {
-      lowerbounds[i] = 0.0;
-      upperbounds[i] = 1.0;
-    }
+    std::vector<double> lowerbounds(nPar, 0.0);                                                             // Lower boundaries of parameter space to scan
+    std::vector<double> upperbounds(nPar, 1.0);                                                             // Upper boundaries of parameter space to scan
 
     // Scale factors
     std::vector<double> Fvec = get_inifile_value<std::vector<double> >("F", initVector<double>(0.7));
     int nF = Fvec.size();                                                                 // Size of the array indicating scale factors
-    double F[nF];                                                                         // Scale factor(s).
-    std::copy(Fvec.begin(), Fvec.end(), F);
 
     // Discrete parameters
-    int discrete[nDiscrete];                                                              // Indices of discrete parameters, Fortran style, i.e. starting at 1!!
-    for (int i = 0; i < nDiscrete; i++)
-    {
-      discrete[i] = 0; //TODO Needs to be set automatically somehow?  Not yet sure how to deal with discrete parameters in GAMBIT.
-    }
+    std::vector<int> discrete(nDiscrete, 0);                                                              // Indices of discrete parameters, Fortran style, i.e. starting at 1!!
+    //TODO Needs to be set automatically somehow?  Not yet sure how to deal with discrete parameters in GAMBIT.
 
     // Run Diver
     if (data.likelihood_function->getRank() == 0) cout << "Starting Diver run..." << std::endl;
-    cdiver(&objective, nPar, lowerbounds, upperbounds, path, nDerived, nDiscrete,
-           discrete, partitionDiscrete, maxciv, maxgen, NP, nF, F, Cr, lambda, current,
+    cdiver(&objective, nPar, &lowerbounds[0], &upperbounds[0], &path[0], nDerived, nDiscrete,
+           &discrete[0], partitionDiscrete, maxciv, maxgen, NP, nF, &Fvec[0], Cr, lambda, current,
            expon, bndry, jDE, lambdajDE, convthresh, convsteps, removeDuplicates, doBayesian,
            prior, maxNodePop, Ztolerance, savecount, resume, native_output, init_pop_strategy,
            max_ini_attempts, max_acceptable_value, context, verbose);

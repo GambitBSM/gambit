@@ -39,6 +39,10 @@
 ///          (tomas.gonzalo@kit.edu)
 ///  \date 2023 Aug
 ///
+///  \author Taylor R. Gray
+///          (gray@chalmers.se)
+///  \date 2023 Oct
+///
 ///  *********************************************
 
 #pragma once
@@ -46,6 +50,56 @@
 #include "gambit/Utils/util_types.hpp"
 
 #define MODULE ColliderBit
+
+  /// Calculate an initial cross-section for each collider (stored as a map)
+  /// Could happen by calling Pythia with minimal generation, or with an external tool
+  /// Copies of this function are created for each Pythia collider (e.g. model extensions)
+  #define CAPABILITY PerformInitialCrossSection
+    START_CAPABILITY
+  #undef CAPABILITY
+  
+  #define CAPABILITY InitialTotalCrossSection
+    START_CAPABILITY
+    #define FUNCTION InitialTotalCrossSection_Pythia
+    START_FUNCTION(map_str_xsec_container)
+    DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
+    #undef FUNCTION
+    
+    /// A function that reads the total cross-section from the input file,
+    /// but builds up the number of events from the event loop
+    #define FUNCTION getYAMLCrossSection
+    START_FUNCTION(map_str_xsec_container)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    #undef FUNCTION
+
+    /// A function that assigns a total cross-sections to a given SLHA input file
+    /// (for model ColliderBit_SLHA_file_model)
+    #define FUNCTION getYAMLCrossSection_SLHA
+    START_FUNCTION(map_str_xsec_container)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    ALLOW_MODELS(ColliderBit_SLHA_file_model)
+    DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct)
+    #undef FUNCTION
+
+    /// A function that assigns a total cross-sections directly from the scan parameters
+    /// for model ColliderBit_SLHA_scan_model
+    #define FUNCTION getYAMLCrossSection_param
+    START_FUNCTION(map_str_xsec_container)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    ALLOW_MODELS(ColliderBit_SLHA_scan_model)
+    #undef FUNCTION
+    
+  #undef CAPABILITY
+  
+  #define CAPABILITY InitialProcessCrossSections
+    START_CAPABILITY
+    #define FUNCTION InitialProcessCrossSections_Pythia
+    START_FUNCTION(map_str_map_int_process_xsec)
+    DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
+
 
   /// Execute the main Monte Carlo event loop.
   /// Note:
@@ -56,6 +110,7 @@
   START_CAPABILITY
     #define FUNCTION operateLHCLoop
     START_FUNCTION(MCLoopInfo, CAN_MANAGE_LOOPS)
+    DEPENDENCY(InitialTotalCrossSection, map_str_xsec_container)
     MODEL_CONDITIONAL_DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct, ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     #undef FUNCTION
 
@@ -64,7 +119,6 @@
     START_FUNCTION(MCLoopInfo)
     #undef FUNCTION
   #undef CAPABILITY
-
 
 
   /// Total cross-section
@@ -95,29 +149,6 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     #undef FUNCTION
 
-    /// A function that reads the total cross-section from the input file,
-    /// but builds up the number of events from the event loop
-    #define FUNCTION getYAMLCrossSection
-    START_FUNCTION(xsec_container)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    #undef FUNCTION
-
-    /// A function that assigns a total cross-sections to a given SLHA input file
-    /// (for model ColliderBit_SLHA_file_model)
-    #define FUNCTION getYAMLCrossSection_SLHA
-    START_FUNCTION(xsec_container)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    ALLOW_MODELS(ColliderBit_SLHA_file_model)
-    DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct)
-    #undef FUNCTION
-
-    /// A function that assigns a total cross-sections directly from the scan parameters
-    /// for model ColliderBit_SLHA_scan_model
-    #define FUNCTION getYAMLCrossSection_param
-    START_FUNCTION(xsec_container)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    ALLOW_MODELS(ColliderBit_SLHA_scan_model)
-    #undef FUNCTION
   #undef CAPABILITY
 
   /// Output info on TotalCrossSection as
@@ -238,7 +269,7 @@
     #define FUNCTION getATLASAnalysisContainer
     START_FUNCTION(AnalysisContainer)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    DEPENDENCY(TotalCrossSection, xsec_container)
+    DEPENDENCY(InitialTotalCrossSection, map_str_xsec_container)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -247,7 +278,7 @@
     #define FUNCTION getCMSAnalysisContainer
     START_FUNCTION(AnalysisContainer)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    DEPENDENCY(TotalCrossSection, xsec_container)
+    DEPENDENCY(InitialTotalCrossSection, map_str_xsec_container)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -256,7 +287,7 @@
     #define FUNCTION getIdentityAnalysisContainer
     START_FUNCTION(AnalysisContainer)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    DEPENDENCY(TotalCrossSection, xsec_container)
+    DEPENDENCY(InitialTotalCrossSection, map_str_xsec_container)
     #undef FUNCTION
   #undef CAPABILITY
   /// @}
@@ -331,6 +362,13 @@
     MODEL_CONDITIONAL_DEPENDENCY(Unitarity_Bound_DMsimpVectorMedDiracDM, double, DMsimpVectorMedDiracDM)
     ALLOW_MODELS(DMsimpVectorMedScalarDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedDiracDM, DMsimpVectorMedVectorDM)
     #undef FUNCTION
+
+    #define FUNCTION SubGeVDM_results
+    START_FUNCTION(AnalysisDataPointers)
+    DEPENDENCY(SubGeVDM_spectrum, Spectrum)
+    ALLOW_MODELS(SubGeVDM_fermion, SubGeVDM_scalar)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
   #define CAPABILITY AllAnalysisNumbersUnmodified
@@ -400,6 +438,7 @@
     START_FUNCTION(map_str_AnalysisLogLikes)
     DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(RunMC, MCLoopInfo)
+    DEPENDENCY(InitialTotalCrossSection, map_str_xsec_container)
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_lognormal_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_gaussian_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_GROUP(lnlike_marg_poisson)
@@ -412,6 +451,7 @@
     START_FUNCTION(map_str_AnalysisLogLikes)
     DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(RunMC, MCLoopInfo)
+    DEPENDENCY(InitialTotalCrossSection, map_str_xsec_container)
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_lognormal_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_gaussian_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_GROUP(lnlike_marg_poisson)
@@ -630,5 +670,16 @@
     #endif
 
   #undef CAPABILITY
+
+  /// BaBar single photon likelihood
+  #define CAPABILITY BaBar_single_photon_LogLike
+    #define FUNCTION BaBar_single_photon_LogLike_SubGeVDM
+    START_FUNCTION(double)
+    DEPENDENCY(dark_photon_decay_rates,DecayTable::Entry)
+    ALLOW_MODELS(SubGeVDM_fermion)
+    ALLOW_MODELS(SubGeVDM_scalar)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 
 #undef MODULE

@@ -3,6 +3,7 @@
 ///  \file
 ///
 ///  Xray likelihoods for DarkBit.
+///  From Cirelli et al. https://arxiv.org/abs/2303.08854
 ///
 ///  *********************************************
 ///
@@ -16,6 +17,10 @@
 ///          (inigo.saez_casares@ens-paris-saclay.fr)
 ///  \date 2021 April, May
 ///
+///  \author Chris Cappiello
+///          (cvc1@queensu.ca)
+///  \date 2023 Aug
+///
 ///  *********************************************
 
 // TODO: Temporarily disabled until project is ready
@@ -26,18 +31,159 @@
 #include <gsl/gsl_monte_plain.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_min.h>
+*/
+
+#include <gsl/gsl_odeiv2.h>
 
 #include "gambit/Elements/gambit_module_headers.hpp"
+#include "gambit/DarkBit/DarkBit_rollcall.hpp"
+#include "gambit/DarkBit/DarkBit_utils.hpp"
+#include "gambit/DarkBit/DarkBit_types.hpp"
+#include "gambit/Utils/interp_collection.hpp"
+#include "gambit/Utils/numerical_constants.hpp"
+#include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/ascii_table_reader.hpp"
 #include "gambit/Utils/statistics.hpp"
 
-#include "gambit/DarkBit/DarkBit_rollcall.hpp"
-#include "gambit/DarkBit/DarkBit_utils.hpp"
 
 namespace Gambit
 {
   namespace DarkBit
   {
+
+    /// Xray loglikelihood from Cirelli et al (MISSINGREF)
+    void Xray_loglikes_Cirelli(double &result)
+    {
+      using Interpolator2D = Utils::interp2d_gsl_collection;
+      using namespace Pipes::Xray_loglikes_Cirelli;
+
+      std::string DM_ID = Dep::WIMP_properties->name;
+      std::string DMbar_ID = Dep::WIMP_properties->conjugate;
+      double DM_mass = Dep::WIMP_properties->mass;
+      LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
+      double rho0_resc = LocalHaloParameters.rho0/0.3;
+      double suppression = *Dep::ID_suppression;
+      TH_Process process = Dep::TH_ProcessCatalog->getProcess(DM_ID, DMbar_ID);
+
+      double logchisqre;
+      double logchisqrmu;
+      double logchisqrpi;
+      double logchisqr;
+
+      static Interpolator2D xraygride(
+        "xraygride",
+        GAMBIT_DIR "/DarkBit/data/Xray/xraylikelihoodse.dat",
+        { "me","sigmave","loglikee"}
+      );
+      static Interpolator2D xraygridmu(
+        "xraygridmu",
+        GAMBIT_DIR "/DarkBit/data/Xray/xraylikelihoodsmu.dat",
+        { "mmu","sigmavmu","loglikemu"}
+      );
+      static Interpolator2D xraygridpi(
+        "xraygridpi",
+        GAMBIT_DIR "/DarkBit/data/Xray/xraylikelihoodspi.dat",
+        { "mpi","sigmavpi","loglikepi"}
+      );
+
+      double m_mine = pow(10,xraygride.x_min-3);
+      double m_maxe = pow(10,xraygride.x_max-3);
+      double sigmav_mine = pow(10,xraygride.y_min);
+      double sigmav_maxe = pow(10,xraygride.y_max);
+      double m_minmu = pow(10,xraygridmu.x_min-3);
+      double m_maxmu = pow(10,xraygridmu.x_max-3);
+      double sigmav_minmu = pow(10,xraygridmu.y_min);
+      double sigmav_maxmu = pow(10,xraygridmu.y_max);
+      double m_minpi = pow(10,xraygridpi.x_min-3);
+      double m_maxpi = pow(10,xraygridpi.x_max-3);
+      double sigmav_minpi = pow(10,xraygridpi.y_min);
+      double sigmav_maxpi = pow(10,xraygridpi.y_max);
+
+      double sve=0;
+      double svmu=0;
+      double svpi=0;
+      std::vector<std::string> fs;
+      std::string finalStates;
+      double rate=0;
+
+      for (std::vector<TH_Channel>::iterator it = process.channelList.begin(); it!=process.channelList.end();it++)
+      {
+        fs = it->finalStateIDs;
+        finalStates = fs[0] + " " + fs[1];
+        rate = it->genRate->bind("v")->eval(0.);
+        if(fs[0]=="e+_1")
+        {
+          sve += rate*suppression * rho0_resc * rho0_resc;
+        }
+        else if(fs[0]=="e+_2")
+        {
+          svmu += rate*suppression * rho0_resc * rho0_resc;
+        }
+        else if(fs[0]=="pi+")
+        {
+          svpi += rate*suppression * rho0_resc * rho0_resc;
+        }
+      }
+
+      if (DM_mass > m_maxe || DM_mass < m_mine)
+      {
+        logchisqre=-3;
+      }
+      else if(sve > sigmav_maxe)
+      {
+        logchisqre = xraygride.eval(log10(DM_mass)+3, log10(sigmav_maxe));
+      }
+      else if(sve < sigmav_mine)
+      {
+        logchisqre=-3;
+      }
+      else
+      {
+        logchisqre = xraygride.eval(log10(DM_mass)+3, log10(sve));
+      }
+//
+      if (DM_mass > m_maxmu || DM_mass < m_minmu)
+      {
+        logchisqrmu=-3;
+      }
+      else if(svmu > sigmav_maxmu)
+      {
+        logchisqrmu = xraygridmu.eval(log10(DM_mass)+3, log10(sigmav_maxmu));
+      }
+      else if(svmu < sigmav_minmu)
+      {
+        logchisqrmu=-3;
+      }
+      else
+      {
+        logchisqrmu = xraygridmu.eval(log10(DM_mass)+3, log10(svmu));
+      }
+//
+      if (DM_mass > m_maxpi || DM_mass < m_minpi)
+      {
+        logchisqrpi=-3;
+      }
+      else if(svpi > sigmav_maxpi)
+      {
+        logchisqrpi = xraygridpi.eval(log10(DM_mass)+3, log10(sigmav_maxpi));
+      }
+      else if(svpi < sigmav_minpi)
+      {
+        logchisqrpi=-3;
+      }
+      else
+      {
+        logchisqrpi = xraygridpi.eval(log10(DM_mass)+3, log10(svpi));
+      }
+      logchisqr = std::max(logchisqrpi,std::max(logchisqre,logchisqrmu));
+      result = -pow(10,logchisqr)/2;
+    }
+
+///  *********************************************
+
+// TODO: Temporarily disabled until project is ready
+/*
+
     /////////////////////////////////////////////////////////////////
     //      Auxillary functions and classes for interpolation      //
     /////////////////////////////////////////////////////////////////
@@ -454,7 +600,7 @@ namespace Gambit
 
       gsl_monte_plain_integrate(&F, xl, xu, dim, calls, r, s, &result, &abserr);
 
-      gsl_monte_plain_free(s);  
+      gsl_monte_plain_free(s);
 
       return result;
     }
@@ -578,7 +724,7 @@ namespace Gambit
       return result;
     }
 
-    //------------- Elevator functions -------------// 
+    //------------- Elevator functions -------------//
 
     double Xray::getDeltaOmega() const { return m_deltaOmega; }
 
@@ -615,7 +761,7 @@ namespace Gambit
     // computes the age of the Universe at a given redshift ([0] age, [1] abserr)
     std::vector<double> ageUniverse (double redshift, double OmegaM, double OmegaR, double OmegaLambda, double H0)
     {
-      size_t n = 1e4; 
+      size_t n = 1e4;
 
       gsl_integration_workspace *w =  gsl_integration_workspace_alloc(n);
 
@@ -646,7 +792,7 @@ namespace Gambit
     // extra-galactic contribution to the differential photon flux [photons/eV/cm²/s]
     double dPhiEG(double const& E, XrayLikelihood_params *params)
     {
-      double mass = params->mass; 
+      double mass = params->mass;
       double x = mass/2./E;
       double z = x - 1.;
 
@@ -1171,7 +1317,7 @@ namespace Gambit
       using namespace Pipes::calc_lnL_HEAO;
 
       double OmegaDM = *Dep::Omega0_cdm;
-      
+
       daFunk::Funk H_z = *Dep::H_at_z;
       daFunk::Funk t_z = *Dep::time_at_z;
 
@@ -1217,6 +1363,7 @@ namespace Gambit
 
       else { result = 0; }
     }
+*/
   }
 }
-*/
+

@@ -49,7 +49,8 @@ namespace Gambit
     struct DMsimpVectorMedDiracDM   : SubSpectrumContents { DMsimpVectorMedDiracDM(); };
     struct DMsimpVectorMedMajoranaDM: SubSpectrumContents { DMsimpVectorMedMajoranaDM(); };
     struct DMsimpVectorMedScalarDM  : SubSpectrumContents { DMsimpVectorMedScalarDM(); };
-    struct DMsimpVectorMedVectorDM: SubSpectrumContents { DMsimpVectorMedVectorDM(); };
+    struct DMsimpVectorMedVectorDM  : SubSpectrumContents { DMsimpVectorMedVectorDM(); };
+    struct SubGeVDM                 : SubSpectrumContents { SubGeVDM(); };
 
     // TODO: Temporarily disabled until project is ready
     // struct SuperRenormHP        : SubSpectrumContents { SuperRenormHP(); };

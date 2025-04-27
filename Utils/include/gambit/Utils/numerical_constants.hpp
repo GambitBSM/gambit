@@ -27,8 +27,13 @@
 ///  \date   2019 Mar
 ///
 ///  \author Tomas Gonzalo
-///          (tomas.gonzalo@monash.edu)
+///          (tomas.gonzalo@kit.edu)
 ///  \date 2020 Jan
+///  \date 2023 June
+///
+///  \author Torsten Bringmann
+///          (torsten.bringmann@fys.uio.no)
+///  \date 2023 Nov
 //
 ///  *********************************************
 
@@ -48,10 +53,11 @@ namespace Gambit
   const double eV2g = 1.782661907e-33;                          // eV per g
   const double gev2cm = 197.327053e-16;                         // cm per GeV^-1
   const double gev2cm2 = pow(197.327053e-16, 2.0);              // cm^2 per GeV^-2
+  const double gev3cm3 = pow(197.327053e-16, 3.0);              // cm^3 per GeV^-3
   const double gev2pb = gev2cm2*1e36;                           // pb per GeV^-2
   const double gev2tocm3s1 = 1.16733e-17;                       // cm^3 s^-1 per GeV^-2
   const double s2cm = 2.99792458e10;                            // cm per s
-  const double m_planck = 1.220910e19;                          // Planck mass (GeV) 
+  const double m_planck = 1.220910e19;                          // Planck mass (GeV)
   const double m_planck_red = m_planck/sqrt(8.0*pi);            // reduced Planck mass (GeV)
   const double atomic_mass_unit = 0.931494028;                  // atomic mass unit (GeV/c^2)
   const double m_proton_amu = 1.00727646688;                    // proton mass (amu)
@@ -61,9 +67,12 @@ namespace Gambit
   const double m_deuteron = 1.87561294257;                      // deuteron mass (GeV/c^2)
   const double m_electron = 0.5109989461e-3;                    // electron mass (GeV/c^2)
   const double alpha_EM = 7.2973525664e-3;                      // fine structure constant
+  const double TCMB = 2.725;                                    // Photon temperature today (K)
+  const double g0_entr = 3.91757;                               // entropy degrees of freedom today
 
   /// Values from Particle Data Group 2018 (http://pdg.lbl.gov/2018/reviews/rpp2018-rev-phys-constants.pdf)
   const double c_SI = s2cm/100;                                 // speed of light in m/s
+  const double c_km = s2cm/1e5;                                 // spped of light in km/s
   const double eV_to_J = 1.6021766208e-19;                      // electron charge in C
   const double Mpc_SI = 969394202136*pow(10,11)/pi;             // Mpc in m
 
@@ -107,6 +116,7 @@ namespace Gambit
 
   static const struct Mesons_masses
   {
+    Mesons_masses(){}
     static constexpr double pi0 = 0.135;          // neutral pion mass (GeV/c^2)
     static constexpr double pi_plus = 0.1396;     // charged pion mass (GeV/c^2)
     static constexpr double pi_minus = 0.1396;    // charged pion mass (GeV/c^2)

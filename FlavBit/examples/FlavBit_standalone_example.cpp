@@ -94,6 +94,11 @@ int main(int argc, char** argv)
     // Define where the logs will end up
     std::string prefix("runs/FlavBit_standalone/logs/");
 
+    // Initialise settings for printer (required)
+    YAML::Node printerNode = get_standalone_printer("cout", "runs/FlavBit_standalone/logs/","");
+    Printers::PrinterManager printerManager(printerNode, false);
+    set_global_printer_manager(&printerManager);
+
     // Ensure that the above directory exists
     Utils::ensure_path_exists(prefix);
 

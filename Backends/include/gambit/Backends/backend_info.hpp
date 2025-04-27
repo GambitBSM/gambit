@@ -54,7 +54,6 @@
   #include "gambit/Utils/end_ignore_warnings.hpp"
 #endif
 
-
 namespace Gambit
 {
 

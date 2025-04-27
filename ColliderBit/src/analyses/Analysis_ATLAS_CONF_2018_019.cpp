@@ -22,6 +22,9 @@ namespace Gambit {
     /// passing all cuts: underestimation of MET and satisfaction of angular/balance cuts.
     /// Adding MET smearing doesn't appear to have helped.
     ///
+
+    /// Old Analysis Name: ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
+
     class Analysis_ATLAS_CONF_2018_019 : public Analysis {
     public:
 
@@ -178,9 +181,7 @@ namespace Gambit {
     };
 
 
-
-    DEFINE_ANALYSIS_FACTORY(ATLAS_CONF_2018_019);
-
+    DEFINE_ANALYSIS_FACTORY(ATLAS_CONF_2018_019)
 
   }
 }

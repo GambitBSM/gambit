@@ -33,9 +33,6 @@
 #include "gambit/Utils/model_parameters.hpp"
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Utils/local_info.hpp"
-#include "gambit/Elements/functors.hpp"
-#include "gambit/Models/claw_singleton.hpp"
-#include "gambit/Core/core_singleton.hpp"
 
 namespace Gambit 
 {

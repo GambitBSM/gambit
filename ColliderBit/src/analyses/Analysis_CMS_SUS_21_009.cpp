@@ -27,6 +27,9 @@ Event selections:
 To be checked:
 - Photon efficiency: https://arxiv.org/pdf/2012.06888.pdf or keep the old one?
 - jet->mom().deltaR_eta(photon->mom()) < 0.5 . Should this be < 0.5 or something else?
+
+Old Analysis Name: CMS_13TeV_Photon_GMSB_137invfb
+
 */
 
 #include <vector>
