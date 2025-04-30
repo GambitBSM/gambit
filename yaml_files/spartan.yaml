@@ -76,7 +76,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: binminpy
+  use_scanner: de
 
   scanners:
 
