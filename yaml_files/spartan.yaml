@@ -76,7 +76,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: de
+  use_scanner: binminpy
 
   scanners:
 
@@ -356,10 +356,10 @@ Scanner:
       plugin: binminpy
       run:
         n_bins:
+          # For any parameters not listed under 'n_bins' binminpy will assume a single bin
           NormalDist::mu: 100
           NormalDist::sigma: 100
-        sampled_parameters: ["NormalDist::mu", "NormalDist::sigma"]
-        optimized_parameters: []
+        # sampled_parameters: ["NormalDist::mu", "NormalDist::sigma"]  # By default parameters are optimized within each bin
         sampler: "latinhypercube"
         optimizer: "minimize"
         optimizer_kwargs:
