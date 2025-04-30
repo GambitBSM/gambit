@@ -4,6 +4,7 @@ Binminpy scanners
 """
 
 import numpy as np
+from scannerbit import with_mpi as scannerbit_with_mpi
 from utils import copydoc, version, with_mpi
 try:
     import binminpy
@@ -29,7 +30,7 @@ YAML options:
   run:
     n_bins:                       Number of bins for each parameter, given as a list on the form "model::parameter: <number of bins>".
     sampled_parameters:           List of the parameters that should be sampled within each bin, e.g ["model::par_1", "model::par_2"]. 
-    optimized_parameters:         List of the parameters that should be optimized within each bin, e.g ["model::par_3", "model::par_4"]. 
+                                  (Remaining parameters will be optimized within each bin.)
     sampler:                      Choice of sampler for sampling parameters within each bin.
     optimizer                     Choice of optimizer for initial global optimization and optimizing parameters within each bin.
     optimizer_kwargs:             Keyword arguments to be forwarded to the optimzer.
@@ -49,7 +50,7 @@ YAML options:
 
 
     def __init__(self, **kwargs):
-        if not scannerbit.with_mpi:
+        if not scannerbit_with_mpi:
             raise Exception(f"GAMBIT has been compiled with MPI disabled (WITH_MPI=0), but the "
                             f"binminpy scanner requires MPI parallelisation with >1 MPI processes. "
                             f"Rerun CMake with \"cmake -DWITH_MPI=1\" and then recompile GAMBIT.")
@@ -77,26 +78,16 @@ YAML options:
             raise RuntimeError(f"{self.print_prefix} The run argument 'n_bins' is missing.")
         for param_name in self.parameter_names:
             if not param_name in self.run_args["n_bins"]:
-                raise RuntimeError(f"{self.print_prefix} The argument 'n_bins' is missing an entry for the parameter '{param_name}'.")
+                self.run_args["n_bins"][param_name] = 1
             par_n_bins = self.run_args["n_bins"][param_name]
             binning_tuples.append([0., 1., par_n_bins])  # <-- Working in the unit hypercube
 
-        # Read list of sampled and optimized parameters, and remove any duplicate entries
+        # Read list of sampled parameters, and remove any duplicate entries
         sampled_parameter_names = list(set(self.run_args.get("sampled_parameters", [])))
-        optimized_parameter_names = list(set(self.run_args.get("optimized_parameters", [])))
-
         # Remove any parameter that is not scanned by GAMBIT
         sampled_parameter_names = [par_name for par_name in sampled_parameter_names if par_name in self.parameter_names]
-        optimized_parameter_names = [par_name for par_name in optimized_parameter_names if par_name in self.parameter_names]
-
-        # Deal with parameters that are not listed in "sampled_parameters" or "optimized_parameters"
-        if (len(sampled_parameter_names) == 0) and (len(optimized_parameter_names) == 0):
-            sampled_parameter_names = self.parameter_names
-            optimized_parameter_names = []
-        elif (len(sampled_parameter_names) == 0) and (len(optimized_parameter_names) > 0):
-            sampled_parameter_names = list(set(self.parameter_names).difference(optimized_parameter_names))
-        elif (len(sampled_parameter_names) > 0) and (len(optimized_parameter_names) == 0):
-            optimized_parameter_names = list(set(self.parameter_names).difference(sampled_parameter_names))
+        # All parameters that are not listed as sampled parameters should be optimized
+        optimized_parameter_names = list(set(self.parameter_names).difference(sampled_parameter_names))
 
         if self.mpi_rank == 0:
             print(f"{self.print_prefix} Parameters that will be *sampled* in each bin: {sampled_parameter_names}", flush=True)
@@ -131,7 +122,6 @@ YAML options:
             optimizer=self.run_args.get("optimizer", "minimize"),
             optimizer_kwargs=self.run_args.get("optimizer_kwargs", {}),
             sampled_parameters=tuple(par_indices[par_name] for par_name in sampled_parameter_names),
-            optimized_parameters=tuple(par_indices[par_name] for par_name in optimized_parameter_names),
             n_initial_points=self.run_args.get("n_initial_points", self.mpi_size),
             n_sampler_points_per_bin=self.run_args.get("n_sampler_points_per_bin", 10),
             inherit_best_init_point_within_bin=self.run_args.get("inherit_best_init_point_within_bin", False),
