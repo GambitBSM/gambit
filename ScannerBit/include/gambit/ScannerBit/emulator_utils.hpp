@@ -72,7 +72,7 @@ namespace Gambit
 
                 unsigned char * buffer_0() {return &buffer[0];}
 
-                map_vector<double> get_vector(int i)
+                map_vector<double> vector(int i)
                 {
                     assert(i < dim());
 
@@ -81,6 +81,17 @@ namespace Gambit
                         _data += sizes(j);
 
                     return eigen::Map<vector<double>>((double *)&_data, sizes(i));
+                }
+
+                decltype(auto) params(){return vector(0);}
+                decltype(auto) target(){return vector(1);}
+                decltype(auto) target_uncertainty(){return vector(2);}
+                decltype(auto) prediction(){return vector(1);}
+                decltype(auto) prediction_uncertainty(){return vector(2);}
+                bool if_train() {return TRAIN & flag()}
+                bool set_train()
+                {
+                    flag() = flag() | TRAIN;
                 }
 
             };
