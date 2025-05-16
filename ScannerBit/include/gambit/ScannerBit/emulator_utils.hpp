@@ -17,6 +17,7 @@ namespace Gambit
                 static const unsigned short int NONE = 0x0000;
                 static const unsigned short int TRAIN = 0x0001;
                 static const unsigned short int PREDICT = 0x0002;
+                static const unsigned short int RESULT = 0x0003;
 
                 typedef unsigned short int usint;
                 typedef unsigned int uint;
@@ -31,9 +32,9 @@ namespace Gambit
                     return (usint &)buffer[sizeof(usint)];
                 }
 
-                uint &sizes(int i)
+                uint &get_sizes(int i) // changed name of function
                 {
-                    return ((uint *)&buffer[2*sizeof(uint)])[i];
+                    return ((uint *)&buffer[2*sizeof(usint)])[i]; // changed from uint to usint
                 }
 
                 double *data()
@@ -57,42 +58,92 @@ namespace Gambit
 
                     buffer.resize(2*sizeof(usint) + sizes.size()*sizeof(uint) + tot_size*sizeof(double));
                     uint pos = 0;
+
+                    // store the flags
                     (unsigned short int &)(buffer[0]) = flag;
                     pos += sizeof(unsigned short int);
 
+                    // store the total size of the vectors first sizes
                     (size_t &)(buffer[pos]) = (size_t )sizes.size();
                     pos += sizeof(unsigned short int);
-
+    
+                    // store the sizes of the vectors
                     for (auto &&s : sizes)
                     {
                         (uint &)buffer[pos] = s;
                         pos += sizeof(uint);
                     }
                 }
-
                 unsigned char * buffer_0() {return &buffer[0];}
 
-                map_vector<double> vector(int i)
+                // cant figure out how to get the correct address when using this function
+                map_vector<double> buffer_vector_greg(uint i)
                 {
                     assert(i < dim());
-
                     double *_data = data();
-                    for (uint j = 0; j < i; ++j)
-                        _data += sizes(j);
-
-                    return eigen::Map<vector<double>>((double *)&_data, sizes(i));
+                    for (uint j = 0; j < i; ++j){
+                        _data += get_sizes(j);
+                    }
+                    return Eigen::Map< vector<double>, Eigen::Unaligned, Eigen::Stride<1,1> >((double*)&_data, get_sizes(i));
                 }
 
-                decltype(auto) params(){return vector(0);}
-                decltype(auto) target(){return vector(1);}
-                decltype(auto) target_uncertainty(){return vector(2);}
-                decltype(auto) prediction(){return vector(1);}
-                decltype(auto) prediction_uncertainty(){return vector(2);}
-                bool if_train() {return TRAIN & flag()}
-                bool set_train()
+                // _ida: Made new buffer_vector function using the positions to get correct address
+                map_vector<double> buffer_vector(uint i)
                 {
-                    flag() = flag() | TRAIN;
+                    assert(i < dim());
+                    uint pos = 2*sizeof(usint) + dim()*sizeof(uint);
+                    for (uint j = 0; j < i; ++j){
+                        pos += get_sizes(j)*sizeof(double);
+                    }
+                    return Eigen::Map< vector<double>, Eigen::Unaligned, Eigen::Stride<1,1> >((double*)&buffer[pos], get_sizes(i));
                 }
+
+                // constructing the buffer
+                decltype(auto) params(){return buffer_vector(0);}
+                decltype(auto) target(){return buffer_vector(1);}
+                decltype(auto) target_uncertainty(){return buffer_vector(2);}
+                decltype(auto) prediction(){return buffer_vector(1);}
+                decltype(auto) prediction_uncertainty(){return buffer_vector(2);}
+                
+                void add_for_evaluation(std::vector<double> parameters)
+                {
+                    set_predict();
+                    auto params_pointer = buffer_vector(0);
+                    params_pointer = map_vector<double>(&parameters[0], parameters.size());
+                
+                }
+
+                void add_for_training(std::vector<double> parameters, std::vector<double> target_value, std::vector<double> target_uncertainty_value)
+                {
+                    set_train();
+                    auto params_pointer = buffer_vector(0);
+                    params_pointer = map_vector<double>(&parameters[0], parameters.size());
+                
+                    auto target_pointer = buffer_vector(1);
+                    target_pointer = map_vector<double>(&target_value[0], target_value.size());
+
+                    auto target_uncertainty_pointer = buffer_vector(2);
+                    target_uncertainty_pointer = map_vector<double>(&target_uncertainty_value[0], target_uncertainty_value.size());
+                }
+
+                void add_for_result(std::vector<double> result, std::vector<double> result_uncertainty)
+                {
+                    set_result();
+                    
+                    auto prediction_pointer = buffer_vector(1);
+                    prediction_pointer = map_vector<double>(&result[0], result.size());
+
+                    auto prediction_uncertainty_pointer = buffer_vector(2);
+                    prediction_uncertainty_pointer = map_vector<double>(&result_uncertainty[0], result_uncertainty.size());
+                }
+
+                // flags
+                bool if_train() {return TRAIN & flag();}
+                bool if_predict() {return PREDICT & flag();}
+                bool if_result() {return RESULT & flag();}
+                void set_train() { flag() = flag() | TRAIN;}
+                void set_predict() { flag() = flag() | PREDICT;}
+                void set_result() { flag() = flag() | RESULT;}
 
             };
 
