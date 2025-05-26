@@ -62,7 +62,12 @@ namespace Gambit
     double Analysis::luminosity() const { return _luminosity; }
 
     /// Set the integrated luminosity.
-    void Analysis::set_luminosity(double lumi) { _luminosity_is_set = true; _luminosity = lumi; }
+    void Analysis::set_luminosity(double lumi)
+    {
+      _luminosity_is_set = true;
+      _luminosity = lumi;
+      _results.luminosity = lumi;
+    }
 
     /// Set the analysis name
     void Analysis::set_analysis_name(str aname)

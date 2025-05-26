@@ -318,6 +318,15 @@ diff --git a/python/classy.pyx b/python/classy.pyx
 index b61a20e9..748ad4bb 100644
 --- a/python/classy.pyx
 +++ b/python/classy.pyx
+@@ -29,7 +29,7 @@
+         return d.viewitems()
+ 
+ ctypedef np.float_t DTYPE_t
+-ctypedef np.int_t DTYPE_i
++ctypedef np.int64_t DTYPE_i
+ 
+ 
+ 
 @@ -99,10 +99,10 @@ cdef class Class:
      cdef distortions sd
      cdef file_content fc

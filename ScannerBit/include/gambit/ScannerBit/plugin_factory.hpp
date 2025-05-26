@@ -133,10 +133,10 @@ namespace Gambit
             }
         };
 
-        LOAD_FUNC_TEMPLATE(Scanner_Plugin_Function, double (std::unordered_map<std::string, double> &));
-        LOAD_FUNC_TEMPLATE(Scanner_Plugin_Function, void (const std::vector<double> &, std::unordered_map<std::string, double> &));
-        LOAD_FUNC_TEMPLATE(Scanner_Plugin_Function, std::vector<double> (std::unordered_map<std::string, double> &));
-        LOAD_MULTI_FUNC_TEMPLATE(Multi_Scanner_Plugin_Function, double(std::unordered_map<std::string, double> &));
+        LOAD_FUNC_TEMPLATE(Scanner_Plugin_Function, double (std::unordered_map<std::string, double> &))
+        LOAD_FUNC_TEMPLATE(Scanner_Plugin_Function, void (const std::vector<double> &, std::unordered_map<std::string, double> &))
+        LOAD_FUNC_TEMPLATE(Scanner_Plugin_Function, std::vector<double> (std::unordered_map<std::string, double> &))
+        LOAD_MULTI_FUNC_TEMPLATE(Multi_Scanner_Plugin_Function, double(std::unordered_map<std::string, double> &))
 
         /// Factory class to make objectives using objective plugins.
         class Plugin_Function_Factory : public Factory_Base

@@ -819,7 +819,7 @@ DMEFT: |
    Effective field theory model of Dirac DM. The parameters of the model are the DM Mass, mchi, the new physics scale, Lambda, the MSbar running top mass, mtrunIN, and the dimensions I=5,6,7 Wilson coefficients, CIJ
 
 SuperRenormHP: |
-   The super-renormalizable Higgs portal model. A new scalar S with an SHH interaction. 
+   The super-renormalizable Higgs portal model. A new scalar S with an SHH interaction.
 
    mS     - the physical mass of the S scalar
    theta  - the mixing angle with the Higgs boson
@@ -829,6 +829,36 @@ ModifiedGravityYukawa: |
 
    alpha  - the amplitude of the new Yukawa interaction
    lambda - the range of the new Yukawa interaction
+
+SubGeVDM_scalar: |
+   Model for Sub-GeV DM with a complex scalar and a dark photon mediator. The model parameters are the DM mass, mDM, the dark photon mass, mAp, the DM coupling, gDM, the kinetic mixing parameter, kappa, and the DM asymmetry, etaDM
+
+SubGeVDM_scalar_RDprior: |
+   Child model of SubGeVDM scalar with a relic density prior, i.e. substituting the asymmetry parameter etaDM with the combination etaDM mDM.
+
+Resonant_SubGeVDM_scalar: |
+   Child model of SubGeVDM scalar with in the resonance mDM ~ 2mAp, so substituting the parameter mAp by the mass splitting epsR.
+
+Resonant_SubGeVDM_scalar_RDprior:  |
+   Child model of SubGeVDM scalar using both the resonance paramenter epsR and the relic density prior parameter etaDM mDM
+
+SubGeVDM_fermion: |
+   Model for Sub-GeV DM with a Dirac fermion and a dark photon mediator. The model parameters are the DM mass, mDM, the dark photon mass, mAp, the DM coupling, gDM, the kinetic mixing parameter, kappa, and the DM asymmetry, etaDM
+
+SubGeVDM_fermion_sigmae: |
+   Child model of SubGeVDM fermion with the DM-electron cross section sigmae as a parameter instead of the coupling gDM.
+
+SubGeVDM_fermion_sigmaN: |
+   Child model of SubGeVDM fermion with the DM-nucleon cross section sigmaN as a parameter instead of the coupling gDM.
+
+SubGeVDM_fermion_RDprior: |
+   Child model of SubGeVDM fermion with a relic density prior, i.e. substituting the asymmetry parameter etaDM with the combination etaDM mDM
+
+Resonant_SubGeVDM_fermion: |
+   Child model of SubGeVDM fermion with in the resonance mDM ~ 2mAp, so substituting the parameter mAp by the mass splitting epsR.
+
+Resonant_SubGeVDM_fermion_RDprior: |
+   Child model of SubGeVDM fermion using both the resonance paramenter epsR and the relic density prior parameter etaDM mDM.
 
 ############################
 # Cosmology related models #

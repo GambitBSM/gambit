@@ -4,12 +4,12 @@
 ///
 ///  Combine several priors to a prior for
 ///  e.g. an entire model
-///  
+///
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Ben Farmer
 ///          (benjamin.farmer@monash.edu.au)
 ///  \date 2013 Dec
@@ -36,9 +36,9 @@
 #include "gambit/ScannerBit/scanner_utils.hpp"
 
 
-namespace Gambit 
+namespace Gambit
 {
-    namespace Priors 
+    namespace Priors
     {
         /// Special "build-a-prior" class
         /// This is the class to use for setting simple 1D priors (from the library above) on individual parameters.
@@ -47,32 +47,35 @@ namespace Gambit
 
         class CompositePrior : public BasePrior
         {
-                        
+
         private:
             // References to component prior objects
             std::vector<BasePrior*> my_subpriors;
             std::vector<std::string> shown_param_names;
-                
+            std::set<std::string> set_param_names;
+
         public:
-        
+
             // Constructors defined in composite.cpp
             CompositePrior(const Options &model_options, const Options &prior_options);
-            
+
             CompositePrior(const std::vector<std::string> &params, const Options &options);
-            
-            double log_prior_density(const std::unordered_map<std::string, double> &physical) const override 
+
+            double log_prior_density(const std::unordered_map<std::string, double> &physical) const override
             {
                 double log_pdf_density = 0.0;
                 for (auto it = my_subpriors.begin(), end = my_subpriors.end(); it != end; ++it)
                 {
                     log_pdf_density += (*it)->log_prior_density(physical);
                 }
-                
+
                 return log_pdf_density;
             }
-            
+
             inline std::vector<std::string> getShownParameters() const override { return shown_param_names; }
-            
+
+            inline std::vector<std::string> getSetParameters() const override { return std::vector<std::string>(set_param_names.begin(), set_param_names.end()); }
+
             // Transformation from unit hypercube to physical parameters
             void transform(hyper_cube_ref<double> unitPars, std::unordered_map<std::string,double> &outputMap) const override
             {
@@ -108,7 +111,7 @@ namespace Gambit
                 auto round_trip = physical;
                 transform(unit, round_trip);
                 const double rtol = 1e-4;
-                for (const auto &s : physical) 
+                for (const auto &s : physical)
                 {
                     const double a = round_trip.at(s.first);
                     const double b = s.second;
@@ -119,19 +122,19 @@ namespace Gambit
                     }
                 }
             }
-            
+
             //~CompositePrior() noexcept
             ~CompositePrior()
             {
                 // Need to destroy all the prior objects that we created using 'new'
                 for (auto it = my_subpriors.begin(), end = my_subpriors.end(); it != end; it++)
-                {  
+                {
                     // Delete prior object
                     delete *it;
                 }
-            }  
+            }
         };
-            
+
         LOAD_PRIOR(composite, CompositePrior)
     } // end namespace Priors
 } // end namespace Gambit

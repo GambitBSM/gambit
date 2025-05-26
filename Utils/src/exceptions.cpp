@@ -27,6 +27,8 @@
 #include "gambit/Utils/exceptions.hpp"
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Logs/logger.hpp"
+#include "gambit/Printers/baseprinter.hpp"
+#include "gambit/Printers/printermanager.hpp"
 
 namespace Gambit
 {
@@ -623,6 +625,16 @@ namespace Gambit
 
     /// Global instance of Piped_exceptions class for warnings.
     Piped_exceptions piped_warnings(1000);
+
+    /// Raise the suspicious point exception. Print it with a message and a code. The default code is 1.
+    void Suspicious_point_exception::raise(const std::string &msg, int code=1, bool debug=false)
+    {
+      // get the printer pointer
+      Printers::BasePrinter& printer = *(get_global_printer_manager()->printerptr);
+      printer.print(code, "Suspicious Point Code", Printers::get_main_param_id("Suspicious Point Code"), printer.getRank(), Printers::get_point_id());
+
+      if (debug) std::cout << "Point Suspicious (" << code << "): " << msg << std::endl;
+    }
 }
 
 

@@ -124,9 +124,9 @@ namespace Gambit
 
           cutFlowVector_1_str[0] = "All events";
           cutFlowVector_1_str[1] = "2 OSSF leptons with $p_{T} > 25(20)$ GeV";
-          cutFlowVector_1_str[2] = "$P_T^{\ell\ell}$>50 GeV";
+          cutFlowVector_1_str[2] = R"($P_T^{\ell\ell}$>50 GeV)";
           cutFlowVector_1_str[3] = R"($\Delta R(\ell\ell)$>0.1)"; // string literal R"(...)" to avoid compiler warning about the '\D'
-          cutFlowVector_1_str[4] = "$m_{\ell}<$65 or >120 GeV";
+          cutFlowVector_1_str[4] = R"($m_{\ell}<$65 or >120 GeV)";
           cutFlowVector_1_str[5] = "Leading lepton $p_{T} > 50$ GeV";
           cutFlowVector_1_str[6] = "Thied lepton veto";
           cutFlowVector_1_str[7] = "$M_{T2}(ll) > 100 GeV$";

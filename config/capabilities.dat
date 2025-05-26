@@ -216,7 +216,7 @@ run_light_quark_test: |
 ptr_arr_tests: |
    Function that tests array and -> operators on deps and BE vars.
 
-libMathematicaTest_1_0_init: |
+LibMathematicaTest_1_0_init: |
    Initialises the backend for Mathematica tests.
 
 MathematicaTest: |
@@ -289,6 +289,10 @@ starting_value: |
 DMEFT_spectrum: |
     The spectrum for the DMEFT model.
 
+##### SubGeVDM #####
+
+SubGeVDM_spectrum: |
+    Spectrum object for a SubGeVDM model.
 
 #####  Scalar singlet Higgs-portal models  #####
 
@@ -1186,6 +1190,9 @@ xsecBE_import_slha_string: |
 xsecBE_set_parameters: |
    Xsec backend function: set parameters in xsec.
 
+BaBar_single_photon_LogLike: |
+   Log-Likelihood for the BaBar single photon search.
+
 
 #-------------------------------------
 #  DarkBit capabilities
@@ -1232,6 +1239,9 @@ sigma_SI_n: |
 sigma_SD_n: |
    Spin-dependent WIMP-neutron cross section, in cm^2.
 
+sigma_e:
+   WIMP-electron cross section, in cm^2.
+
 DarkMatter_ID: |
    Contains string ID to identify dark matter particle.
 
@@ -1266,6 +1276,12 @@ RD_eff_annrate: |
 RD_oh2: |
    The dark matter relic density.
 
+RD_oh2_aDM: |
+   The dark matter relic density for asymmetric dark matter.
+
+RD_oh2_underprediction: |
+    Underprediction of the relic abundance by using the simple vs full Boltzman solution.
+
 Xf: |
    X_f = m_DM / T_f, where T_f is the freezeout temperature of the
    thermal relic DM.
@@ -1277,6 +1293,9 @@ RD_oh2_Xf: |
 RD_fraction: |
    Contains the fraction of the observed dark matter density that is
    used to calculate direct and indirect detection observables.
+
+ID_suppression: |
+   Suppression factor for indirect detection signals from underabundant dark matter.
 
 lnL_oh2: |
    Contains the log likelihood function constraining the relic density.
@@ -1293,6 +1312,11 @@ LocalHalo: |
    Provides the parameters of the Maxwell-Boltzmann velocity distribution,
    in terms of the strucutre LocalMaxwellianHalo containing the parameters
    rho0, v0, vrot, vesc.
+
+LocalHalo_GeV: |
+   Provides the parameters of the Maxwell-Boltzmann velocity distribution,
+   in terms of the strucutre LocalMaxwellianHalo containing the parameters
+   rho0, v0, vrot, vesc, in GeV.
 
 GalacticHalo: |
    Provides the properties of the dark matter density distribution in the Galaxy,
@@ -2169,6 +2193,40 @@ DarkSide_50_S2_SignalSI: |
 DarkSide_50_S2_SignalSD: |
    The number of spin-dependent signal events for the DarkSide 50 (S2-only) direct detection analysis.
 
+
+CDMS_HVeV_2020_LogLikelihood: |
+   Log likelihood from direct detection with electron recoils from the CDMS HVeV experiment.
+
+DAMIC_M_2023_LogLikelihood: |
+   Log likelihood from direct detection with electron recoils from the DAMIC-M HVeV experiment.
+
+DarkSide50_ER_2023_LogLikelihood: |
+   Log likelihood from direct detection with electron recoils from the DarkSide50 2023 experiment.
+
+DarkSide50_ER_LogLikelihood: |
+   Log likelihood from direct detection with electron recoils from the DarkSide50 experiment.
+
+DarkSide50_Migdal_2023_LogLikelihood: |
+   Log likelihood from direct detection with Migdal scattering recoils from the DarkSide50 2023 experiment.
+
+DarkSide50_Migdal_LogLikelihood: |
+   Log likelihood from direct detection with Migdal scattering recoils from the DarkSide50 experiment.
+
+PandaX_4T_ER_LogLikelihood: |
+   Log likelihood from direct detection with electron recoils from the PandaX 4T experiment.
+
+PandaX_4T_Migdal_LogLikelihood: |
+   Log likelihood from direct detection with Migdal scattering from the PandaX 4T experiment.
+
+SENSEI_at_MINOS_LogLikelihood: |
+   Log likelihood from direct detection with electron recoils from the SENSEI experiment.
+
+XENON1T_ER_LogLikelihood: |
+   Log likelihood from direct detection with electron recoils from the XENON1T experiment.
+
+XENON1T_Migdal_LogLikelihood: |
+   Log likelihood from direct detection with Migdal scattering from the XENON1T experiment.
+
 lnL_SI_nuclear_parameters: |
    The log-likehood for the spin-independent nuclear parameters.
 
@@ -2646,6 +2704,46 @@ InitHalo: |
 SetSHM: |
   Sets the dark matter halo to the Standard Halo Model (SHM), used in DDCalc
 
+obscura_1_1_0_init: |
+   Initialises obscura 1.1.0.
+
+CDMS_HVeV_2020: |
+   Results from direct detection with electron recoils for the CDMS HVeV 2020 experiment with obscura.
+
+DAMIC_M_2023: |
+   Results from direct detection with electron recoils for the DAMIC M 2023 experiment with obscura.
+
+DarkSide50_S2_ER: |
+   Results from direct detection with electron recoils for the DarkSide50 experiment with obscura.
+
+DarkSide50_S2_ER_2023: |
+   Results from direct detection with electron recoils for the DarkSide50 experiment with obscura.
+
+DarkSide50_S2_Migdal: |
+   Results from direct detection with Migdal scattering for the DarkSide50 experiment with obscura.
+
+DarkSide50_S2_Migdal_2023: |
+   Results from direct detection with Migdal scattering for the DarkSide50 2023 experiment with obscura.
+
+PandaX_4T_S2_ER: |
+   Results from direct detection with electron recoils from the PandaX 4T experiment with obscura.
+
+PandaX_4T_S2_Migdal: |
+   Results from direct detection with Migdal scattering from the PandaX 4T experiment with obscura.
+
+SENSEI_at_MINOS: |
+   Results from direct detection with electron recoils from the SENSEI experiment with obscura.
+
+XENON1T_S2_ER: |
+   Results from direct detection with electron recoils from the XENON1T experiment with obscura.
+
+XENON1T_S2_Migdal: |
+   Results from direct detection with Migdal scattering from the XENON1T experiment with obscura.
+
+#-------------------------------
+# Indirect Detection capabilities
+#-------------------------------
+
 nulike_init: |
   Initializes nulike.
 
@@ -2669,6 +2767,9 @@ nulike_1_0_9_init: |
 
 nubounds:
   Counts, likelihoods and p-values from neutrino telescope searches for dark matter annihilation in the Sun.
+
+Xray_loglikelihoods: |
+  Log likelihood for the constraints from the annihilation of DM into X-rays
 
 lnL_Xray_Integral_SPI_sterile_nu: |
   Bound on decaying dark matter subcomponent into \gamma\gamma based on Integral SPI data.
@@ -2732,6 +2833,12 @@ lnL_ShortRangeForces_Sushkov2011: |
 
 Higgs_Nucleon_coupling_fN: |
   fN parameter from the Higgs-Nucleon coupling. The complete coupling constant is given by fN*mN/vev. Returns a Higgs_Nucleon_coupling_fN object, which is a simple structure containing the value of fN for protons and neutrons.
+
+BulletCluster_lnL: |
+  Marginalised log-likelihood based on mass lost by subcluster due to DM self-interactions in the Bullet Cluster. Observed mass loss obtained by comparing initial and final subcluster mass-to-light ratio; likelihood marginalised over initial subcluster mass-to-light ratio.
+
+DM_mass_loss: |
+  Calculates the dark matter mass lost by the sublcuster in the Bullet Cluster for a model with self-interacting DM; also compatible with subdominant, asymmetric DM.
 
 #-------------------------------------
 #  HiggsBounds capabilities
@@ -2870,6 +2977,12 @@ dshainit: |
 dshayield: |
    Integrated or differential yield of a range of SM species from various final states.
 
+an_how: |
+   DarkSUSY6 common block storing information about which annihilation yield table is in use.
+
+dsanyield_set: |
+   DarkSUSY6 routine to set defaults annihilation yield table.
+
 dshigwid: |
    Choose which Higgs width calculation to use in DarkSUSY.
 
@@ -2921,11 +3034,21 @@ dsrdtab: |
 dsrdthlim: |
    Determine which limits in p_eff for DarkSUSY to use when integrating for the thermal average.
 
+rd20opt: |
+   DarkSUSY common block containing accuracy settings for the DarkSUSY Boltzmann solver
+   (specifically for opt=20 in dsrdomega).
+
+rdlims: |
+   DarkSUSY common block containing accuracy settings for the DarkSUSY Boltzmann solver.
+
 dsrdwintp: |
    Interpolation of tabulated invariant rate.
 
 dsrdcom: |
-   DarkSUSY 6 common block use by the Boltzmann solver.
+   DarkSUSY 6 common block used by the Boltzmann solver.
+
+adm_com: |
+   DarkSUSY 6 common block that contains the dark matter asymmetry parameter.
 
 dsrdens: |
    DarkSUSY Boltzmann solver (for relic density).
@@ -3454,6 +3577,16 @@ lnL_Z_inv: |
 
 inv_Higgs_BF: |
    Invisible decay branching fraction of the SM-like Higgs boson.
+
+dark_photon_decay_rates: |
+   Decay rates for the dark photon.
+
+dark_photon_decay_length: |
+   Decay length of the dark photon.
+
+dark_photon_visible_branching: |
+    Branching ratio of the dark photon to visible decay products.
+
 
 #-------------------------------------
 #  PrecisionBit capabilities
@@ -4734,6 +4867,36 @@ RightHandedNeutrinos_parameters: |
 RightHandedNeutrinos_diff_parameters: |
    Parameters for the model RightHandedNeutrinos_diff (see ./gambit RightHandedNeutrinos_diff)
 
+SubGeVDM_scalar_parameters: |
+   Parameters for the SubGeVDM_scalar model (see ./gambit SubGeVDM_scalar)
+
+Resonant_SubGeVDM_fermion_RDprior_parameters: |
+   Parameters for the Resonant_SubGeVDM_fermion_RDprior model (see ./gambit SubGeVDM_fermion)
+
+Resonant_SubGeVDM_fermion_parameters: |
+   Parameters for the Resonant_SubGeVDM_fermion model (see ./gambit Resonant_SubGeVDM_fermion)
+
+Resonant_SubGeVDM_scalar_RDprior_parameters: |
+   Parameters for the Resonant_SubGeVDM_scalar_RDprior model (see ./gambit Resonant_SubGeVDM_scalar_RDprior)
+
+Resonant_SubGeVDM_scalar_parameters: |
+   Parameters for the Resonant_SubGeVDM_scalar model (see ./gambit Resonant_SubGeVDM_scalar)
+
+SubGeVDM_fermion_RDprior_parameters: |
+   Parameters for the SubGeVDM_fermion_RDprior model (see ./gambit SubGeVDM_fermion_RDprior)
+
+SubGeVDM_fermion_parameters: |
+   Parameters for the SubGeVDM_fermion model (see ./gambit SubGeVDM_fermion)
+
+SubGeVDM_fermion_sigmaN_parameters: |
+   Parameters for the SubGeVDM_fermion_sigmaN model (see ./gambit SubGeVDM_fermion_sigmaN)
+
+SubGeVDM_fermion_sigmae_parameters: |
+   Parameters for the SubGeVDM_fermion_sigmae model (see ./gambit SubGeVDM_fermion_sigmae)
+
+SubGeVDM_scalar_RDprior_parameters: |
+   Parameters for the SubGeVDM_scalar_RDprior model (see ./gambit SubGeVDM_scalar_RDprior)
+
 ColliderBit_SLHA_file_model_parameters: |
    Parameters for the ColliderBit dummy model ColliderBit_SLHA_file_model.
    See ./gambit ColliderBit_SLHA_file_model_parameters for details.
@@ -5733,6 +5896,12 @@ lnL_p_ann: |
 gagg: |
    ALP-photon coupling.
 
+N_eff_likelihood_Planck_BAO: |
+   Neff likelihood from Planck TT,TE,EE+lowE+lensing+BAO (arXiv:1807.06209)
+
+Neff_after_BBN: |
+   Extract Neff from BBN abundance container
+
 # -----------
 # ACROPOLIS
 # -----------
@@ -6343,7 +6512,7 @@ LHC_measurements_histotags_perPool: |
   Extracts the name, as a string, of the histogram(s) that provide exclusion for each bin. Useless except for single param points.
 
 #---------------------
-# DirecDM capabilities
+# DirectDM capabilities
 #---------------------
 
 DirectDM_2_2_0_init: |
@@ -6354,6 +6523,25 @@ get_NR_WCs_flav: |
 
 DirectDMNuisanceParameters: |
   Extract the nuisance parameters for DirectDM as a map
+
+#-------------------------------------
+#  DarkCast capabilities
+#-------------------------------------
+
+DarkCast_1_1_init: |
+  Initialise DarkCast v1.1 backend.
+
+dark_photon_decay_width: |
+  Calculate the decay width of a dark photon with a given coupling strength, decay state and mass.
+
+dark_photon_branching_fraction: |
+  Calculate the branching fraction of a dark photon with a given decay state and mass.
+
+dark_photon_decay_width_multi: |
+  Calculate the combined decay width in multiple channels for a dark photon with a given coupling strength and mass.
+
+dark_photon_branching_fraction_multi: |
+  Calculate the combined branching fraction in multiple channels for a dark photon with a given mass.
 
 #--------------------------------
 #  Vacuum stability capabilities

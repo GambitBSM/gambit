@@ -67,9 +67,19 @@ namespace Gambit
 
   namespace Utils
   {
+    /// Get an environment variable, or "" if the variable is not set
+    std::string getEnvVar(std::string const & key );
+
+    /// Return the root directory of GAMBIT.
+    /// Useful for locating configuration files and other such things
+    /// in a robust manner at runtime 
+    EXPORT_SYMBOLS const std::string& GAMBIT_root_dir();
 
     /// Return the path to the build-time scratch directory
-    const str buildtime_scratch = GAMBIT_DIR "/scratch/build_time/";
+    /// bjf> There is stuff using this variable that is needed by ScannerBit at run time,
+    /// not just build time, therefore it needs to be located using the function above
+    //const str buildtime_scratch = GAMBIT_DIR "/scratch/build_time/";
+    EXPORT_SYMBOLS const std::string& buildtime_scratch();
 
     /// Return the path to the run-specific scratch directory
     /// Don't call this from a destructor, as the internal static str may have already been destroyed.

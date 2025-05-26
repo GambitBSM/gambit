@@ -60,7 +60,6 @@ ScannerBit/CMakeLists.txt
 */include/gambit/*/*_rollcall.hpp
 Backends/include/gambit/Backends/backend_functor_types.hpp
 Elements/include/gambit/Elements/module_functor_types.hpp
-Elements/include/gambit/Elements/elements_extras.hpp
 Models/src/particle_database.cpp
 ColliderBit/include/gambit/ColliderBit/colliders/Pythia8/Py8Collider_typedefs.hpp
 

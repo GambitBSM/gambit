@@ -113,8 +113,11 @@ namespace Gambit
     void NAME(AnalysisContainer& result)                           \
     {                                                              \
       using namespace Pipes::NAME;                                 \
+                                                                    \
+      map_str_xsec_container Totalxsec = *Dep::InitialTotalCrossSection; \
+                                       \
       getAnalysisContainer(result, #EXPERIMENT, *Dep::RunMC,       \
-       *Dep::TotalCrossSection, *Loop::iteration);                 \
+       Totalxsec[Dep::RunMC->current_collider()], *Loop::iteration);                 \
     }
 
     GET_ANALYSIS_CONTAINER(getATLASAnalysisContainer, ATLAS)

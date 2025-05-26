@@ -658,7 +658,11 @@ PYBIND11_EMBEDDED_MODULE(scanner_plugin, m)
     
     // Bind the scanner base class to the module
     py::class_<scanner_base, std::shared_ptr<scanner_base>>(m, "scanner")
-    .def(py::init([](bool use_mpi, bool use_resume)
+    .def(py::init([](bool 
+        #ifdef WITH_MPI
+                     use_mpi
+        #endif 
+                    , bool use_resume)
         {
         #ifdef WITH_MPI
             if (!use_mpi)
@@ -855,6 +859,12 @@ PYBIND11_EMBEDDED_MODULE(scanner_plugin, m)
     .def_property_readonly_static("parameter_names", [](py::object)
     {
         static py::list names = scanner_base::to_list<std::string>(get_prior().getShownParameters());
+        
+        return names;
+    })
+    .def_property_readonly_static("set_parameter_names", [](py::object)
+    {
+        static py::list names = scanner_base::to_list<std::string>(get_prior().getSetParameters());
         
         return names;
     })

@@ -3,8 +3,57 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v2.6.0:
+Feature release
+- Added UMVUE estimator and support for additional collider likelihood estimators
+- Added support for Pythia version 8.312
+- Allow initial cross-section estimate from Pythia outside of full collider event loop
+- Added jswarm scanner
+- Added ais scanner
+- Fix pybind11 clash with python versions above 3.11
+- Fix metadata writing for hdf5 and postprocessor
+- Various bug fixes
+
+v2.5.1:
+Bugfix release
+- Remove pedantic errors
+- Updated HepMC url
+
+v2.5.0:
+Feature release
+- Support for sub-GeV DM models
+- Added support for Python scanners
+- Added new module and backend rule structures
+- Generalised suppression factor of indirect detection signals for asymmetric DM
+- Added new routines for the calculation of Bullet Cluster constraints
+- Added new routines for dark matter indirect detection constraints with X-rays
+- Added new routines for dark matter direct detection constraints with electron recoil and Migdal scattering
+- Added new routines for single photon searches at BaBar
+- Added multiple jet collections for LHC analyses
+- Added new backend DarkCast 1.1
+- Added new backend obscura 1.1
+- Updated backend interface to DarkSUSY for asymmetric DM
+- Updated backend interface to AlterBBN to return Neff after BBN
+- Updated scanner interface to PolyChord
+- Made ColliderBit module require HepMC and YODA
+- Added cmake flag to make all library symbols visible
+- Added printer module to standalones
+- Improved documentation on functor statuses
+- Improved diagnostics system
+- Removed support for Python 2
+- Fix ordering of build of contrib packages
+- Fix ascii printer to print invalid and suspicious points
+- Fix to add pedantic errors and remove deprecated code
+- Squash warnings
+- Various BOSS updates
+- Various bug fixes
+
+v2.4.4
+Bugfix release
+- Fix bug on HEPLike url
+
 v2.4.3
-Bufix release
+Bugfix release
 - Remove usage of binary functions
 - Removed plc_data from building by default with backends
 - Used archived backends for broken links
