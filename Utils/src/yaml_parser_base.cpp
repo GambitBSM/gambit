@@ -164,6 +164,17 @@ namespace Gambit
       logNode = root["Logger"];
       keyValuePairNode = root["KeyValues"];
 
+      try
+      {
+        emulationNode = root["Emulation"];
+      }
+      catch(const std::exception& e)
+      {
+        std::cerr << "No emulation" << '\n';
+        emulationNode = YAML::Node();
+      }
+      
+
       // Set default output path
       std::string defpath;
       if(hasKey("default_output_path"))
@@ -325,6 +336,7 @@ namespace Gambit
     YAML::Node Parser::getScannerNode()      const {return scannerNode;}
     YAML::Node Parser::getLoggerNode()       const {return logNode;}
     YAML::Node Parser::getKeyValuePairNode() const {return keyValuePairNode;}
+    YAML::Node Parser::getEmulationNode()    const {return emulationNode;}
     /// @}
 
     /// Getters for model/parameter section

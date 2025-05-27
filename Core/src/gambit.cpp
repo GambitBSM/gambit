@@ -18,6 +18,7 @@
 #include "gambit/Core/gambit.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
 #include "gambit/Utils/file_lock.hpp"
+#include "gambit/Core/emu_comm.hpp"
 
 
 using namespace Gambit;
@@ -25,6 +26,7 @@ using namespace LogTags;
 
 #ifdef WITH_MPI
   bool use_mpi_abort = true; // Set later via inifile value
+
 #endif
 
 /// Cleanup function
@@ -95,6 +97,11 @@ int main(int argc, char* argv[])
       /// MPI rank for use in error messages;
       int rank = scanComm.Get_rank();
       int size = scanComm.Get_size();
+
+      //_emu
+      // lage en emu comm her, spawn etter lest yaml fil
+      MPI_Comm emuComm = MPI_COMM_NULL;
+
      #else
       int rank = 0;
       //int size = 0; // Unused if not WITH_MPI
@@ -118,7 +125,8 @@ int main(int argc, char* argv[])
         cout << endl << "Starting GAMBIT" << endl;
         cout << "----------" << endl;
         #ifdef WITH_MPI
-        cout << "Running in MPI-parallel mode with "<<size<<" processes" << endl;
+        cout << "Running in MPI-parallel mode with "<<size<<" processes" << endl; 
+        cout << " plus 2 processes if emulator feature is used" << endl;
         #else
         cout << "WARNING! Running in SERIAL (no MPI) mode! Recompile with -DWITH_MPI=1 for MPI parallelisation" << endl;
         #endif
@@ -159,6 +167,48 @@ int main(int argc, char* argv[])
       str generator = rng.getValueOrDef<str>("default", "generator");
       int seed = rng.getValueOrDef<int>(-1, "seed");
       Random::create_rng_engine(generator, seed);
+
+      //_emu 
+      // spør yaml filen om den har en emulator block
+      // spawn emulator her
+      std::cout << filename << std::endl;
+      std::cout << "right before checking emulation" << std::endl;
+      if (iniFile.getEmulationNode().size() == 0) {std::cerr << "no emulation" <<std::endl;}
+      else 
+      {
+        std::cout << "Size of node: " << iniFile.getEmulationNode().size() << std::endl;
+        std::cout << iniFile.getEmulationNode() << std::endl;
+        std::cout << "spawn time" << endl;
+        int num_procs_to_spawn = 2; 
+        const char *worker_program = "./egg";
+        const char *argv_spawn[] = {"yaml_files/spartan.yaml", NULL};
+        MPI_Info info = MPI_INFO_NULL;
+        MPI_Comm_spawn((char *)worker_program, (char**)argv_spawn, num_procs_to_spawn, info, 0, MPI_COMM_WORLD, &emuComm, MPI_ERRCODES_IGNORE);
+
+
+        std::cout << "found emulation node" << std::endl;
+        
+        YAML::Node node = iniFile.getEmulationNode();
+        std::cout << "is it a sequence: " <<  node.IsSequence() << std::endl;
+
+        std::string capability = node[0]["capability"].as<std::string>();
+        std::cout << "capability: " << capability << std::endl;
+        std::string emulator_plugin = node[0]["emulator_plugin"].as<std::string>();
+        std::cout << "emulator_plugin: " << emulator_plugin << std::endl;
+
+        std::cout << "is plugin_options a sequence: " << node[0]["plugin_options"]["ktrain"] << std::endl;
+
+        if (rank == 0) {
+            int OKorNot;
+            MPI_Recv(&OKorNot, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, emuComm, MPI_STATUS_IGNORE);
+            if (OKorNot == 1){std::cout << "ok" << std::endl;}
+            else {std::cout << "make it stop" << std::endl; }
+        }
+
+        MPI_Barrier(MPI_COMM_WORLD);
+      }
+
+      std::cout << "after checking emulation" << std::endl;
 
       // Determine selected model(s)
       std::set<str> selectedmodels = iniFile.getModelNames();

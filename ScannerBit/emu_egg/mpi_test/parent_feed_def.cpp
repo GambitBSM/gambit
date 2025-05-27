@@ -5,6 +5,7 @@
 
 // #ifdef WITH_MPI
 #include <mpi.h>
+
 // #endif
 
 #include "gambit/ScannerBit/emulator_utils.hpp"
@@ -29,9 +30,9 @@ int main(int argc, char *argv[])
 
 
         // spawning children
-        int num_procs_to_spawn = 4; 
-        const char *worker_program = "./parent_feed";
-        const char *argv_spawn[] = {"child", NULL};
+        int num_procs_to_spawn = 2; 
+        const char *worker_program = "./egg";
+        const char *argv_spawn[] = {"yaml_files/spartan.yaml", NULL};
         MPI_Info info = MPI_INFO_NULL;
         MPI_Comm intercomm;
         MPI_Comm_spawn((char *)worker_program, (char**)argv_spawn, num_procs_to_spawn, info, 0, MPI_COMM_WORLD, &intercomm, MPI_ERRCODES_IGNORE);
@@ -59,13 +60,13 @@ int main(int argc, char *argv[])
         fd.add_for_training(input_point, likelihood, likelihood_sigma);
         
         // Print updated values from buffer
-        // std::cout << "Updated params: ";
-        // for (size_t i = 0; i < params.size(); ++i)    {    std::cout << params[i] << " ";  // Print updated values in the buffer
-        // }
-        // std::cout << std::endl;
+        std::cout << "Updated params: ";
+        for (size_t i = 0; i < fd.params().size(); ++i)    {    std::cout << fd.params()[i] << " ";  // Print updated values in the buffer
+        }
+        std::cout << std::endl;
 
         // send feed_def structure to child
-        MPI_Send(fd.buffer.data(), fd.buffer.size(), MPI_CHAR, 2, 0, intercomm);
+        MPI_Send(fd.buffer.data(), fd.buffer.size(), MPI_CHAR, 0, 0, intercomm);
 
 
 

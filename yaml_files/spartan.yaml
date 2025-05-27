@@ -64,17 +64,17 @@ Printer:
   #   delete_file_on_restart: true
   #   print_debug_data: true
 
-  printer: hdf5
-  options:
-    # Name of info file (explains content of output file)
-    #info_file: "runs/spartan/samples/gambit_output2.info"
-    # Name of output file
-    output_file: "gambit_output.hdf5"
-    group: "/data"
-    delete_file_on_restart: true
-    disable_combine_routines: true
+  # printer: hdf5
+  # options:
+  #   # Name of info file (explains content of output file)
+  #   #info_file: "runs/spartan/samples/gambit_output2.info"
+  #   # Name of output file
+  #   output_file: "gambit_output.hdf5"
+  #   group: "/data"
+  #   delete_file_on_restart: true
+  #   disable_combine_routines: true
 
-  # printer: none
+  printer: cout
 
 Scanner:
 
@@ -353,6 +353,26 @@ ObsLikes:
     capability:   normaldist_loglike
     module:       ExampleBit_A
     type:         double
+
+Emulation:
+  - capability:      LogLike
+    emulator_plugin: plugin_1
+    train:           true
+    predict:         true
+    plugin_options: # gambit bryr seg ikke om dette, bare sender det videre til emulatoren
+      ktrain: 200
+      pretrained: path
+      # ...
+  # add more capabilities with different plugins
+  # burde gå fint å starte flere ulike plugins i emu_egg
+  - capability:      LogLike_A
+    emulator_plugin: plugin_2
+    train:           true
+    predict:         true
+    plugin_options: # gambit bryr seg ikke om dette, bare sender det videre til emulatoren
+      ktrain: 100
+      pretrained: path
+      # ...
 
 
 Rules:

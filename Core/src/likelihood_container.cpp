@@ -41,6 +41,7 @@
 #include "gambit/Utils/signal_handling.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
 #include "gambit/Utils/lnlike_modifiers.hpp"
+#include "gambit/ScannerBit/emulator_utils.hpp"
 
 //#define CORE_DEBUG
 
@@ -74,6 +75,7 @@ namespace Gambit
     invalidcodeID(Printers::get_main_param_id("Invalidation Code")),
     scancodeID(Printers::get_main_param_id("scanID")),
     print_scanID(iniFile.getValueOrDef<bool>(true, "print_scanID")),
+    emulatorNode(iniFile.getEmulationNode()),
     #ifdef CORE_DEBUG
       debug            (true)
     #else
@@ -219,6 +221,53 @@ namespace Gambit
 
       // Set the values of the parameter point in the PrimaryParameters functor, and log them to cout and/or the logs if desired.
       setParameters(in);
+
+      std::cout << "here" << std::endl;
+
+      //_emu:
+      // maybe add emulator here if emulating total likelihood and skip the dependency tree compeletely
+    //   if (emulatorNode != YAML::Node())
+    //   {
+    //     YAML::Node node = emulatorNode;
+    //     if (node[0]["capability"].as<std::string>() == "LogLike")
+    //     {
+    //         std::vector<double> parameters;
+    //         // emulae
+    //         for (auto key : in)
+    //         {
+    //             parameters.push_back(key.second);
+    //         }
+    //         unsigned int n = parameters.size();
+    //         std::vector<unsigned int> sizes = {n, 1, 1};
+
+    //         Scanner::Emulator::feed_def fd(sizes);
+    //         fd.add_for_evaluation(parameters);
+    //         fd.set_predict();
+
+    //         MPI_Send(fd.buffer.data(), fd.buffer.size(), MPI_CHAR, 0, 0, emuComm);
+
+    //         // wait for prediction
+    //         // prepare to get result from child
+    //         Scanner::Emulator::feed_def results;
+
+    //         // probe size of result buffer
+    //         int size_result;
+    //         MPI_Status status_parent;
+    //         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, emuComm, &status_parent);
+    //         MPI_Get_count(&status_parent, MPI_CHAR, &size_result);
+    //         // std::cout << "size of result buffer: " << size_result << std::endl;
+    //         results.resize(size_result);
+
+    //         // recieve buffer
+    //         MPI_Recv(results.buffer.data(), size_result, MPI_CHAR, MPI_ANY_SOURCE, 0, emuComm, MPI_STATUS_IGNORE);
+
+    //         std::cout << "results from emu "<< results.prediction() << std::endl;
+
+    //     }
+    //   }
+
+
+
 
       // Logger debug output; things labelled 'LogTags::debug' only get logged if the logger::debug or master debug flags are true, not if only 'likelihood::debug' is true.
       logger() << LogTags::core << LogTags::debug << "Number of target vertices to calculate:    " << target_vertices.size() << endl

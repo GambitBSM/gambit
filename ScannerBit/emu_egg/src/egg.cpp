@@ -2,8 +2,9 @@
 #include <stdio.h>
 
 #include "egg.hpp"
+#include "yaml-cpp/yaml.h"
 
-using namespace Gambit::Scanner::Emulator;
+using namespace Gambit;
 
 int main(int argc, char *argv[])
 {
@@ -14,43 +15,75 @@ int main(int argc, char *argv[])
 
     if (parentcomm == MPI_COMM_NULL)
     {
-        std::cout << "bad stuff happening" << std::endl;
+        std::cout << "No parent comm exists" << std::endl;
     }
     else
     {
-        int message;
         int size, rank;
-        int parent_size, parent_rank;
-        //MPI_Comm_size(parentcomm, &parent_size);
-        //MPI_Comm_rank(parentcomm, &parent_rank);
-        //MPI_Comm_size(MPI_COMM_WORLD, &size);
-        //MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-        int num;
-        MPI_Status status;
-        feed_def buffer;
-        
-        MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, parentcomm, &status);
-        MPI_Get_count(&status, MPI_INT, &num);
-        buffer.resize(num);
+        MPI_Comm_size(MPI_COMM_WORLD, &size);
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-        MPI_Recv(buffer.buffer(), num, MPI_CHAR, ANY_RANK, MPI_ANY_TAG, parentcomm, status);
+        // read yaml file to get emulator plugin name and options
+        std::cout << "Filename: " << argv[1] << std::endl;
+        YAML::Node node = YAML::LoadFile(argv[1])["Emulation"];
+        std::cout << "Number of emulators: " << node.size() << std::endl;
+        for (int i = 0; i < node.size(); ++i)
+        {
+            std::cout << "Capabilitiy: " <<  node[i]["capability"] << std::endl; 
+            std::cout << "Plugin name: " <<  node[i]["emulator_plugin"] << std::endl; 
+        }
+
+
+        // initialize emulator plugins
+        
+
+        // send ok message
+        int ok = 1;
+        MPI_Send(&ok, 1, MPI_INT, 0, 0, parentcomm);
+
+
+        // Prepare to recieve datapoints
+        Scanner::Emulator::feed_def receiver;
+
+        // probe to find receiver size
+        int receiver_size;
+        MPI_Status status;
+        MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, parentcomm, &status);
+        MPI_Get_count(&status, MPI_CHAR, &receiver_size);
+
+        // resize receiver
+        receiver.resize(receiver_size);
+
+        // recieve data
+        MPI_Recv(receiver.buffer.data(), receiver_size, MPI_CHAR, 0, 0, parentcomm, MPI_STATUS_IGNORE);
             
-        if (buffer.flag() & feed_crap::TRAINING_PT)
+        if (receiver.if_train() && rank==0)
         {
             std::cout << "doing training" << std::endl;
-            // std::cout << "input: " << buffer.get_vector(0).transpose() << std::endl;
-            // std::cout << "target: " << buffer.get_vector(1).transpose() << std::endl;
-            // std::cout << "target uncertainty: " << buffer.get_vector(2).transpose() << std::endl;
-            //call emuplugin
+            // add training point to training buffer
+
+            // check if training buffer is full
         }
-        else if (buffer.flag() & feed_crap::PREDICT)
+        else if (receiver.if_predict() && rank == 1)
         {
             std::cout << "doing predict" << std::endl;
-            // std::cout << "input": << buffer.get_vector(0).transpose() << std::endl;
-            // //call emu.predict(input)
-            // int N = buffer.sizes(0);
-            // feed_def ret({N, N});
-            // MPI_Send(buffer.buffer, buffer.size(), MPI_CHAR, status.MPI_SOURCE, ANY_TAG, parentcomm)
+            // call plugin to do predict
+
+            // send results
+            std::vector<double> pred = {-100.2};
+            std::vector<double> pred_u = {1.2};
+
+            // make new buffer with size 0 for the input parameters
+            std::vector<unsigned int> sizes = {0, 1, 1};
+            Scanner::Emulator::feed_def answer_buffer(sizes);
+
+            // populate answer_buffer
+            answer_buffer.add_for_result(pred, pred_u);
+
+            // send to parent
+            MPI_Send(answer_buffer.buffer.data(), answer_buffer.buffer.size(), MPI_CHAR, 0, 0, parentcomm);
+
+
         }
     }
 

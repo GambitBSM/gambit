@@ -68,6 +68,7 @@ namespace Gambit
         YAML::Node getScannerNode() const;
         YAML::Node getLoggerNode() const;
         YAML::Node getKeyValuePairNode() const;
+        YAML::Node getEmulationNode() const;
         
         template <typename... args>
         bool hasKey(args... keys) const
@@ -129,6 +130,7 @@ namespace Gambit
         YAML::Node printerNode;
         YAML::Node scannerNode;
         YAML::Node logNode;
+        YAML::Node emulationNode;
     };
 
 
