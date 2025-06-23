@@ -363,6 +363,16 @@
     #undef FUNCTION
   #undef CAPABILITY
 
+  // _Anders
+  /// Extract the record of IDs for accepted events
+  #define CAPABILITY LHC_event_acceptance_records
+  START_CAPABILITY
+    #define FUNCTION collect_LHC_event_acceptance_records
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   /// Extract the signal predictions and uncertainties for all analyses
   #define CAPABILITY LHC_signals
   START_CAPABILITY

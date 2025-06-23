@@ -106,6 +106,33 @@ namespace Gambit
       logger() << LogTags::debug << summary_line.str() << EOM;
     }
 
+
+    // _Anders
+    /// Loop over all analyses and fill a map of int vectors to save the IDs of accepted events
+    void collect_LHC_event_acceptance_records(map_str_dbl& result)
+    {
+      using namespace Pipes::collect_LHC_event_acceptance_records;
+
+      // Clear the result map
+      result.clear();
+
+      // Loop over analyses
+      for (size_t analysis = 0; analysis < Dep::AllAnalysisNumbers->size(); ++analysis)
+      {
+        // AnalysisData for this analysis
+        const AnalysisData& ana_data = *(Dep::AllAnalysisNumbers->at(analysis));
+
+        // const str key = ana_data.analysis_name
+
+        // TODO: 
+        // Get map<str,EventCounters from 
+        // For each entry in map:
+        // - Print key (SR-specific)
+        // - Print IDs of accepted events
+      }
+    }
+
+
     // Loop over all analyses and compute efficiency x acceptance for each signal region
     void calc_LHC_efficiencies_per_SR(map_str_dbl& result)
     {

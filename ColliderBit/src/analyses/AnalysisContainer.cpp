@@ -322,6 +322,7 @@ namespace Gambit
     void AnalysisContainer::set_current_collider(str collider_name)
     {
       current_collider = collider_name;
+      event_counters[current_collider] = 0;
     }
 
 
@@ -434,26 +435,25 @@ namespace Gambit
       return analyses_map;
     }
 
-    /// Pass event through specific analysis
-    void AnalysisContainer::analyze(const HEPUtils::Event& event, str collider_name, str analysis_name) const
-    {
-      analyses_map.at(collider_name).at(analysis_name)->analyze(event);
-    }
-
     /// Pass event through all analyses for a specific collider
     void AnalysisContainer::analyze(const HEPUtils::Event& event, str collider_name) const
     {
+      // Keep track of event count and use this as event ID
+      event_counters.at(collider_name) += 1;
+      event.set_id(event_counters.at(collider_name));
+
       for (auto& analysis_pointer_pair : analyses_map.at(collider_name))
       {
         analysis_pointer_pair.second->analyze(event);
       }
     }
 
-    /// Pass event through all analysis for the current collider
+    /// Pass event through all analyses for the current collider
     void AnalysisContainer::analyze(const HEPUtils::Event& event) const
     {
       analyze(event, current_collider);
     }
+
 
     /// Collect signal predictions from other threads and add to this one,
     /// for specific analysis. Note: Analysis::add will not add analyses to themselves.

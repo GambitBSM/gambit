@@ -197,6 +197,10 @@ namespace Gambit
       /// Collection of cutflows
       Cutflows cutflows;
 
+      // _Anders
+      /// For each SR a vector of event IDs for the accepted events
+      std::map<std::string, std::vector<int>> event_acceptance_records;
+
     };
 
 

@@ -78,6 +78,8 @@ namespace Gambit
         /// (There should only be one instance of this class per OMP thread.)
         static std::map<str,std::map<int,AnalysisContainer*> > instances_map;
 
+        /// Map of event counters, one for each collider.
+        mutable std::map<str,int> event_counters;
 
       public:
 
@@ -127,8 +129,6 @@ namespace Gambit
         /// Get the full analyses map
         const std::map<str,std::map<str,Analysis*> >& get_full_analyses_map() const;
 
-        /// Pass event through specific analysis
-        void analyze(const HEPUtils::Event&, str, str) const;
         /// Pass event through all analysis for a specific collider
         void analyze(const HEPUtils::Event&, str) const;
         /// Pass event through all analysis for the current collider

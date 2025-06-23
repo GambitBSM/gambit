@@ -96,6 +96,8 @@ namespace Gambit {
         _weight_sum += w;
         _weight_sum_err = sqrt((_weight_sum_err * _weight_sum_err) + (werr * werr));
         _event_acceptance_record.push_back(event_id);
+        // _Anders
+        std::cerr << "Thread: " << omp_get_thread_num() << "   SR: " << _name << "   Accepted event ID: " << event_id << std::endl;
       }
 
       // Increment event count with weigths from an HEPUtils::Event
@@ -122,6 +124,8 @@ namespace Gambit {
         _sum += rhs.sum();
         _weight_sum += rhs.weight_sum();
         _weight_sum_err = sqrt( (_weight_sum_err * _weight_sum_err) + (rhs.weight_sum_err() * rhs.weight_sum_err()) );
+        // _Anders
+        _event_acceptance_record.insert( _event_acceptance_record.end(), rhs._event_acceptance_record.begin(), rhs._event_acceptance_record.end() );
         return *this;
       }
 
@@ -134,6 +138,8 @@ namespace Gambit {
         double other_weight_sum_err = other.weight_sum_err();
         _weight_sum_err = sqrt((_weight_sum_err * _weight_sum_err) + (other_weight_sum_err * other_weight_sum_err));
 
+        // _Anders
+        _event_acceptance_record.insert( _event_acceptance_record.end(), other._event_acceptance_record.begin(), other._event_acceptance_record.end() );
         return *this;
       }
 

@@ -128,13 +128,6 @@ namespace Gambit
 
       if (iteration <= BASE_INIT) return;
 
-      // Keep track of event count on this thread
-      thread_local unsigned int event_counter = 0;
-      event_counter++;
-      // Use event count to give each event an ID, 
-      // before passing the event to the analyses
-      SmearedEvent.set_id(event_counter);
-
       // Loop over contained analyses and run them.
       Container.analyze(SmearedEvent);
 
