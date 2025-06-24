@@ -82,6 +82,10 @@ namespace Gambit
       std::stringstream summary_line;
       summary_line << "LHC signals per SR: ";
 
+      // _Anders
+      // Should we be creating a file with the accepted event IDs?
+      static bool drop_accepted_event_IDs_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_event_IDs_file");
+
       // Loop over analyses and collect the predicted events into the map
       for (size_t analysis = 0; analysis < Dep::AllAnalysisNumbers->size(); ++analysis)
       {
@@ -101,37 +105,20 @@ namespace Gambit
           result[key + "_uncert"] = n_sig_scaled_err;
 
           summary_line << srData.sr_label + "__i" + std::to_string(SR) << ":" << srData.n_sig_scaled << "+-" << n_sig_scaled_err << ", ";
+
+          // _Anders
+          if (drop_accepted_event_IDs_file)
+          {
+            std::vector<unsigned int> accepted_event_IDs = ana_data._counters.at(srData.sr_label).get_event_acceptance_record();
+            std::cerr << key << ": ";
+            for (int value : accepted_event_IDs) {std::cerr << value << " ";}
+            std::cerr << std::endl;
+          }
+
         }
       }
       logger() << LogTags::debug << summary_line.str() << EOM;
     }
-
-
-    // _Anders
-    /// Loop over all analyses and fill a map of int vectors to save the IDs of accepted events
-    void collect_LHC_event_acceptance_records(map_str_dbl& result)
-    {
-      using namespace Pipes::collect_LHC_event_acceptance_records;
-
-      // Clear the result map
-      result.clear();
-
-      // Loop over analyses
-      for (size_t analysis = 0; analysis < Dep::AllAnalysisNumbers->size(); ++analysis)
-      {
-        // AnalysisData for this analysis
-        const AnalysisData& ana_data = *(Dep::AllAnalysisNumbers->at(analysis));
-
-        // const str key = ana_data.analysis_name
-
-        // TODO: 
-        // Get map<str,EventCounters from 
-        // For each entry in map:
-        // - Print key (SR-specific)
-        // - Print IDs of accepted events
-      }
-    }
-
 
     // Loop over all analyses and compute efficiency x acceptance for each signal region
     void calc_LHC_efficiencies_per_SR(map_str_dbl& result)

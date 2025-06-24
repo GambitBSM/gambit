@@ -42,7 +42,10 @@ namespace Gambit
                          , _is_scaled(false)
                          , _needs_collection(true)
                          , _collider_name("")
-                         { }
+                         , _counters(_results._counters)
+    { 
+      // _counters = _results._counters;
+    }
 
     /// Public method to reset this instance for reuse, avoiding the need for "new" or "delete".
     void Analysis::reset()
@@ -198,11 +201,32 @@ namespace Gambit
       {
         _results[i].combine_SR_MC_signal(otherResults[i]);
       }
-      for (auto& pair : _counters) { pair.second += other->_counters.at(pair.first); }
+
+      for (auto& kv : _counters) 
+      { 
+        // kv.first (key) is the SR name
+        // kv.second (value) is the EventCounter instance
+        kv.second += other->_counters.at(kv.first); 
+      }
+
       _cutflows.combine(other->get_cutflows());
       _results.add_cutflows(_cutflows);
 
     }
+
+
+    // _Anders
+    ///
+    void Analysis::set_store_accepted_event_IDs(bool setting)
+    {
+      for (auto& kv : _counters) 
+      { 
+        // kv.first (key) is the SR name
+        // kv.second (value) is the EventCounter instance
+        kv.second.set_store_accepted_event_IDs(setting);
+      }      
+    }
+
 
   }
 }
