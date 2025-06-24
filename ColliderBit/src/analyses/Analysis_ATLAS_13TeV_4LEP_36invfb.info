@@ -1,0 +1,6 @@
+Summary: ATLAS >=4-lepton SUSY search at 13 TeV with 36/fb
+InspireID: 1667045
+ExptRun: ATLAS-R2
+Lumi_ifb: 36.1
+Ecm_TeV: 13.0
+Superseded: true

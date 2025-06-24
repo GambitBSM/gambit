@@ -1,0 +1,7 @@
+Summary: ATLAS 2-lepton + MET chargino pair-production search at 13 TeV with 80/fb
+InspireID: -1
+ExptRun: ATLAS-R2
+Lumi_ifb: 80.5
+Ecm_TeV: 13.0
+Superseded: true
+Note: CONF note, superseded by 139/fb paper

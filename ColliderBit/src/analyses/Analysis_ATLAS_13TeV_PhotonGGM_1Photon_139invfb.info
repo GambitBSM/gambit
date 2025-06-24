@@ -1,0 +1,6 @@
+Summary: ATLAS photons, jets + MET search at 13 TeV with 139/fb
+InspireID: 2094882
+ExptRun: ATLAS-R2
+Lumi_ifb: 36.1
+Ecm_TeV: 13.0
+Note: check that this data from the CONF agrees with the paper
