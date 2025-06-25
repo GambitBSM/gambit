@@ -369,6 +369,7 @@
     #define FUNCTION calc_LHC_signals
     START_FUNCTION(map_str_dbl)
     DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(LHCEventLoopInfo, map_str_dbl)
     #undef FUNCTION
   #undef CAPABILITY
 

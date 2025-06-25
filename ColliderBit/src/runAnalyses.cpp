@@ -128,24 +128,39 @@ namespace Gambit
 
       if (iteration <= BASE_INIT) return;
 
+      // Assign event ID. The event ID is only unique within 
+      // the current collider and detector.
+      SmearedEvent.set_id(iteration);
+
       // Loop over contained analyses and run them.
       Container.analyze(SmearedEvent);
 
     }
 
-    /// Run all analyses for EXPERIMENT
-    #define RUN_ANALYSES(NAME, EXPERIMENT, SMEARED_EVENT_DEP)                 \
-    void NAME(AnalysisDataPointers& result)                                   \
-    {                                                                         \
-      using namespace Pipes::NAME;                                            \
-      runAnalyses(result, #EXPERIMENT, *Dep::RunMC,                           \
-       *Dep::CAT(EXPERIMENT,AnalysisContainer), *Dep::SMEARED_EVENT_DEP,      \
-       *Loop::iteration, Loop::wrapup);                                       \
+    /// Run all analyses for the given experiment
+    void runATLASAnalyses(AnalysisDataPointers& result)
+    {
+      using namespace Pipes::runATLASAnalyses;
+      runAnalyses(result, "ATLAS", *Dep::RunMC,
+       *Dep::ATLASAnalysisContainer, *Dep::ATLASSmearedEvent,
+       *Loop::iteration, Loop::wrapup);
     }
 
-    RUN_ANALYSES(runATLASAnalyses, ATLAS, ATLASSmearedEvent)
-    RUN_ANALYSES(runCMSAnalyses, CMS, CMSSmearedEvent)
-    RUN_ANALYSES(runIdentityAnalyses, Identity, CopiedEvent)
+    void runCMSAnalyses(AnalysisDataPointers& result)
+    {
+      using namespace Pipes::runCMSAnalyses;
+      runAnalyses(result, "CMS", *Dep::RunMC,
+       *Dep::CMSAnalysisContainer, *Dep::CMSSmearedEvent,
+       *Loop::iteration, Loop::wrapup);
+    }
+
+    void runIdentityAnalyses(AnalysisDataPointers& result)
+    {
+      using namespace Pipes::runIdentityAnalyses;
+      runAnalyses(result, "Identity", *Dep::RunMC,
+       *Dep::IdentityAnalysisContainer, *Dep::CopiedEvent,
+       *Loop::iteration, Loop::wrapup);
+    }
 
   }
 }

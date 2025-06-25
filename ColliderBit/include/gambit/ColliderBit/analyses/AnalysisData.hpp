@@ -165,6 +165,9 @@ namespace Gambit
       /// Analysis name
       std::string analysis_name;
 
+      /// Detector name
+      std::string detector_name;
+
       /// Collider name
       std::string collider_name;
 

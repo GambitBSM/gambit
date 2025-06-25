@@ -74,6 +74,10 @@ namespace Gambit
         void set_analysis_name(str);
         /// Get the analysis name
         str analysis_name();
+        /// Set the detector name
+        void set_detector_name(str);
+        /// Get the detector name
+        str detector_name();
         /// Set the collider name
         void set_collider_name(str);
         // Get the collider name
@@ -101,11 +105,10 @@ namespace Gambit
         void add(Analysis* other);
         ///@}
 
-        // _Anders
-        ///
+        /// Set the store_accepted_event_IDs bool for the EventCounter instances in this analysis
         void set_store_accepted_event_IDs(bool setting);
 
-        
+
 
       protected:
 
@@ -146,6 +149,7 @@ namespace Gambit
         bool _needs_collection;
         AnalysisData _results;
         std::string _analysis_name;
+        std::string _detector_name;
         std::string _collider_name;
 
     };

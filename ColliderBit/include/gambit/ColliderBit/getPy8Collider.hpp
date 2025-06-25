@@ -253,8 +253,9 @@ namespace Gambit
           cout << DEBUG_PREFIX << "Cross-section veto applies. Will now call Loop::wrapup() to skip event generation for this collider." << endl;
           #endif
           wrapup();
-        } else {
-
+        } 
+        else 
+        {
           // Create a dummy event to make Pythia fill its internal list of process codes
           EventT dummy_pythia_event;
           try

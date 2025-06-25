@@ -149,19 +149,5 @@ namespace Gambit
       }
     }
 
-
-    // #define GET_ANALYSIS_CONTAINER(NAME, EXPERIMENT)
-    // void NAME(AnalysisContainer& result)
-    // {
-    //   using namespace Pipes::NAME;
-    //   getAnalysisContainer(result, #EXPERIMENT, *Dep::RunMC,
-    //    *Dep::TotalCrossSection, *Loop::iteration);
-    // }
-
-    // GET_ANALYSIS_CONTAINER(getATLASAnalysisContainer, ATLAS)
-    // GET_ANALYSIS_CONTAINER(getCMSAnalysisContainer, CMS)
-    // GET_ANALYSIS_CONTAINER(getIdentityAnalysisContainer, Identity)
-
-
   }
 }

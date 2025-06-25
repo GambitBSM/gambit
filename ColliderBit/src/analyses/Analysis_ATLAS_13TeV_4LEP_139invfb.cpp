@@ -261,10 +261,6 @@ namespace Gambit
       void run(const HEPUtils::Event* event)
       {
 
-        // _Anders
-        _counters.at("SR0-ZZ-tight-bveto").add_event(event);
-
-
         // Baseline objects
         vector<const HEPUtils::Particle*> baselineElectrons;
         vector<const HEPUtils::Particle*> baselineMuons;

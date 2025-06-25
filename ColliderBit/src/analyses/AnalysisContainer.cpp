@@ -438,15 +438,6 @@ namespace Gambit
     /// Pass event through all analyses for a specific collider
     void AnalysisContainer::analyze(const HEPUtils::Event& event, str collider_name) const
     {
-      // _Anders
-      // Keep track of event count and use this as the event ID
-      int id = (omp_get_thread_num() + 1) + omp_get_num_threads() * event_count.at(collider_name); 
-      event.set_id(id);
-
-      // Increment our the event count for this thread
-      event_count.at(collider_name) += 1;
-
-      // Now send the event to all the analyses
       for (auto& analysis_pointer_pair : analyses_map.at(collider_name))
       {
         analysis_pointer_pair.second->analyze(event);
@@ -522,7 +513,6 @@ namespace Gambit
       }
     }
 
-    // _Anders
     /// Call the set_store_accepted_event_IDs method on all analyses
     void AnalysisContainer::set_store_accepted_event_IDs(bool setting)
     {

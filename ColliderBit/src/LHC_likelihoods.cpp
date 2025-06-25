@@ -70,6 +70,58 @@ namespace Gambit
   namespace ColliderBit
   {
 
+    // Helper function to write a csv file with the 
+    // content of a vector<vector<int>>
+    void write_csv(const std::string& filename,
+                   const std::vector<std::string>& headers,
+                   const std::vector<std::vector<int>>& columns,
+                   char sep = ',')
+    {
+
+      if (columns.empty()) { return; }
+
+      if (headers.size() != columns.size()) 
+      {
+        ColliderBit_error().raise(LOCAL_INFO, "Number of headers do not match the number of columns.");
+      }
+
+      // Ensure all columns have the same length
+      std::size_t nrows = columns[0].size();
+      for (std::size_t c = 1; c < columns.size(); ++c) 
+      {
+        if (columns[c].size() != nrows) 
+        {
+          ColliderBit_error().raise(LOCAL_INFO, "All columns must have equal length.");
+        }
+      }
+
+      // Open file for writing
+      std::ofstream out{filename};
+      if (!out) 
+      {
+        ColliderBit_error().raise(LOCAL_INFO, "Failed to open " + filename + " for writing.");
+      }
+
+      // Write header
+      for (std::size_t c = 0; c < headers.size(); ++c) 
+      {
+        out << headers[c];
+        if (c + 1 < headers.size()) out << sep;
+      }
+      out << '\n';
+
+      // Write data rows
+      for (std::size_t r = 0; r < nrows; ++r) 
+      {
+        for (std::size_t c = 0; c < columns.size(); ++c)
+        {
+          out << columns[c][r];
+          if (c + 1 < columns.size()) out << sep;
+        }
+        out << '\n';
+      }
+    }
+
 
     /// Loop over all analyses and fill a map of predicted counts
     void calc_LHC_signals(map_str_dbl& result)
@@ -81,10 +133,6 @@ namespace Gambit
 
       std::stringstream summary_line;
       summary_line << "LHC signals per SR: ";
-
-      // _Anders
-      // Should we be creating a file with the accepted event IDs?
-      static bool drop_accepted_event_IDs_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_event_IDs_file");
 
       // Loop over analyses and collect the predicted events into the map
       for (size_t analysis = 0; analysis < Dep::AllAnalysisNumbers->size(); ++analysis)
@@ -105,18 +153,68 @@ namespace Gambit
           result[key + "_uncert"] = n_sig_scaled_err;
 
           summary_line << srData.sr_label + "__i" + std::to_string(SR) << ":" << srData.n_sig_scaled << "+-" << n_sig_scaled_err << ", ";
-
-          // _Anders
-          if (drop_accepted_event_IDs_file)
-          {
-            std::vector<unsigned int> accepted_event_IDs = ana_data._counters.at(srData.sr_label).get_event_acceptance_record();
-            std::cerr << key << ": ";
-            for (int value : accepted_event_IDs) {std::cerr << value << " ";}
-            std::cerr << std::endl;
-          }
-
         }
       }
+
+      // Should we be creating a file with the accepted event IDs?
+      static bool drop_accepted_events_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_events_file");
+
+      if (drop_accepted_events_file)
+      {
+
+        // Filename --> vec<vec<int>> map, to hold the data to be written to files
+        std::map<str,std::vector<std::vector<int>>> accepted_events_file_data;
+
+        // Filename --> vec<str> map, to hold header entries
+        std::map<str,std::vector<str>> accepted_events_file_header;
+
+        // Get the loop info for the number of events
+        map_str_dbl loop_info = *Dep::LHCEventLoopInfo;
+
+        // Loop over analyses
+        for (size_t analysis = 0; analysis < Dep::AllAnalysisNumbers->size(); ++analysis)
+        {
+          const AnalysisData& ana_data = *(Dep::AllAnalysisNumbers->at(analysis));
+
+          // Construct filename 
+          str filename = "accepted_events__" + ana_data.collider_name + "__" + ana_data.detector_name + ".csv";
+
+          // Get count of generated events
+          int n_generated_events = loop_info.at("event_count_" + ana_data.collider_name);
+
+          // Loop over the signal regions
+          for (size_t SR = 0; SR < ana_data.size(); ++SR)
+          {
+            const str sr_label = ana_data[SR].sr_label;
+
+            // Get the IDs of the accepted events for this SR
+            std::vector<unsigned int> accepted_event_IDs = ana_data._counters.at(sr_label).get_event_acceptance_record();
+
+            // Convert to a vector of 0/1 for each generated event 
+            std::vector<int> accepted(n_generated_events, 0);
+            for (int event_id : accepted_event_IDs) 
+            {
+              size_t idx = event_id - 1;                
+              accepted[idx] = 1;
+            }
+
+            // Store in the accepted_events_file_data map
+            accepted_events_file_data[filename].push_back(accepted);
+            
+            // Create and store header entry
+            const str header = ana_data.analysis_name + "__" + sr_label + "__i" + std::to_string(SR);
+            accepted_events_file_header[filename].push_back(header);
+          }
+        }
+
+        // Now write each file
+        for (const auto& kv : accepted_events_file_data)
+        {
+          const str& filename = kv.first;
+          write_csv(filename, accepted_events_file_header[filename], accepted_events_file_data[filename]);
+        }
+      }
+
       logger() << LogTags::debug << summary_line.str() << EOM;
     }
 
