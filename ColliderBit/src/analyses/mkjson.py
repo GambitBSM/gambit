@@ -31,7 +31,10 @@ for afile in args.ANAFILES:
     aname = os.path.basename(afile).replace("Analysis_", "").replace(".info", "")
     with open(afile, "r") as af:
         ayaml = yaml.safe_load(af)
-        adata.append( {"inspire_id" : ayaml["InspireID"], "implementations" : { "name" : aname } } )
+        inspireid = ayaml.get("InspireID", -1)
+        ## Analyses without valid Inspire entries  are either missing or set to negative values
+        if inspireid > 0:
+            adata.append( {"inspire_id" : inspireid, "implementations" : { "name" : aname } } )
 
 ## Write JSON
 import json, datetime
