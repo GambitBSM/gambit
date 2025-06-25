@@ -39,11 +39,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   if(CMAKE_OSX_DEPLOYMENT_TARGET)
     set(OSX_MIN "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   endif()
-  
-  set(ALT_SYSROOT "/Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk")
-  #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isysroot${ALT_SYSROOT} ${OSX_MIN}")
-
+  message("Using this MacOS SDK ${CMAKE_OSX_SYSROOT}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
   string(STRIP ${CMAKE_CXX_FLAGS} CMAKE_CXX_FLAGS)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
   string(STRIP ${CMAKE_C_FLAGS} CMAKE_C_FLAGS)
