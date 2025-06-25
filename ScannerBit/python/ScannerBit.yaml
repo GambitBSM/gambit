@@ -1,0 +1,193 @@
+##########################################################################
+## GAMBIT example configuration for the scanner system.
+##
+## This example configures ScannerBit to explore a EggBox likelihood using
+## the multinest sampler.  Also include are instructions to use other
+## likelihoods and scanners.
+##########################################################################
+
+
+Parameters:
+
+  model1:
+    x:
+    y:
+
+Priors:
+    x_prior: 
+        prior_type: 'flat' 
+        parameters: ['model1::x']
+        range: [1.0, 40.0]
+    y_prior: 
+        prior_type: 'flat' 
+        parameters: ['model1::y']
+        range: [1.0, 40.0]
+
+  # None -- we're using ScannerBit's built-in objective functions in this example
+
+
+Printer:
+
+  # Select printer to use via string tag)
+  #printer: ascii
+  printer: hdf5
+
+  # This options node is passed on wholesale to
+  # the printer object; required options may
+  # therefore vary according to the selected
+  # printer.
+  options:
+    # Name of info file (explains content of output file)
+    #info_file: "runs/spartan/samples/gambit_output2.info"
+    # Name of output file
+    output_file: "gambit_output.hdf5"
+    group: "/test"
+    delete_file_on_restart: true
+
+
+Scanner:
+
+  # This tag specifies which plugin(s) to use as likelihood functions
+  # Here the EggBox likelihood is chosen, but you could choose the
+  # EggBox and a gaussian ([EggBox, gaussian]) as defined under
+  # the objectives section
+  # use_objectives: EggBox #[EggBox, gaussian]
+
+  # This tag specifies which plugin to use as the scanner.
+  # Here the multinest scanner is choosen, but you could
+  # choose any scanner defined under the scanners section
+  use_scanner: twalk #multinest
+
+  scanners:
+
+    mcmc:
+      plugin: GreAT
+      nTrialLists: 5
+      nTrials: 40000
+      like: LogLike
+
+    twalk:
+      plugin: twalk
+      like: LogLike
+      tolerance: 1.003
+      kwalk_ratio: 0.9
+      #chain_number: 20
+      projection_dimension: 4
+
+    badass:
+      plugin: badass
+      like: LogLike
+      points: 10000
+      jumps: 10
+      Bs: [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+      #projection_dimension: 4
+     
+    poly:
+      plugin: polychord
+      like: LogLike
+      nlive: 2000
+      tol: 0.1
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 1000
+      path: "runs"
+      verbosity: 1
+
+    random:
+      plugin: random
+      point_number: 1000008
+      like: LogLike
+
+    toy:
+      like: LogLike
+      plugin: toy_mcmc
+      point_number: 2000
+
+    square_grid:
+      plugin: square_grid
+      # The version number can be absolute, or a logical statement (as here).
+      version: ">=1.0"
+      like: LogLike
+      grid_pts: 3 #NxN grid
+
+    grid:
+      plugin: grid
+      version: ">=1.0"
+      like: LogLike
+      grid_pts: [5, 3]
+      parameters: ["EggBox::param_1", "EggBox::param_0"]
+
+    multinest:
+      plugin: multinest
+      like: LogLike
+      nlive: 2000
+      tol: 0.1
+
+    raster:
+      plugin: raster
+      like: LogLike
+      parameters:
+        "EggBox::param_0": 3.14
+        "EggBox::param_1": [.2, .3]
+
+
+  # Define built-in SB likelihoods
+  objectives:
+
+    uniform:
+      purpose: LogLike
+      plugin: uniform
+      #version: ">=1.0 & <2.0"
+      parameters:
+        param...2: # note that param...2 expands to [param_0, param_1]
+          range: [0, 4]
+
+    EggBox:
+      plugin: EggBox
+      purpose: LogLike
+      parameters:
+        param_0:
+          #prior_type: none
+          #plugin: flat
+          range: [0, 1]
+        param_1:
+          range: [0, 1]
+
+    gaussian:
+      plugin: gaussian
+      purpose: LogLike
+      #cov: [[0.01, 0.0], [0.0, 0.01]]
+      #mean: [0.5, 0.5]
+      parameters:
+        param...20:
+          range: [-5, 5]
+
+
+ObsLikes:
+
+  # None in this example: the objective function is not defined in terms of a model
+
+
+Rules:
+
+  # No model = no need for other Bits' capability rules
+
+
+Logger:
+
+  # Redirection of specific messages according to tags
+  redirection:
+    !!python/tuple ["Debug"] : "debug.log"
+    !!python/tuple ["Default"] : "default.log"
+    !!python/tuple ["Error"] : "errors.log"
+    !!python/tuple ["Warning"] : "warnings.log"
+
+
+KeyValues:
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+
+  default_output_path: "runs/ScannerBit"

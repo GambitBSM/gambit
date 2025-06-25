@@ -88,6 +88,7 @@ namespace Gambit
       private:
         BasePrinter* primary_printer;
         bool is_aux;
+        bool output_metadata;
 
       public:
         BasePrinter()
@@ -118,6 +119,10 @@ namespace Gambit
 
         /// Set this as an auxilliary printer
         void set_as_aux() { is_aux = true; }
+
+        /// Set/Get whether to print the metadata
+        void set_output_metadata(bool use_metadata) {output_metadata = use_metadata;}
+        bool get_output_metadata() {return output_metadata;}
 
         /// Helper initialisation for auxilliary printers
         /// Will be run when the auxilliary printer is

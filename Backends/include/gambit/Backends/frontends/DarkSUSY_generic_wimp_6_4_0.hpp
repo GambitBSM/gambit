@@ -31,6 +31,9 @@ LOAD_LIBRARY
 
 // Common blocks in the DarkSUSY core library that are not identical for all DS6 versions
 BE_VARIABLE(rdpars, DS_RDPARS,     "rdpars_",    "rdpars")    // gRD Parameters
+BE_VARIABLE(rdlims, DS_RDLIMS,     "rdlims_",    "rdlims")    // new Boltzmann routines
+BE_VARIABLE(rd20opt, DS_RD20OPT,     "rd20opt_",    "rd20opt")  // new Boltzmann routines
+BE_VARIABLE(adm_com, DS_ADM_COM,     "adm_com_",    "adm_com")  // asymmetric DM
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

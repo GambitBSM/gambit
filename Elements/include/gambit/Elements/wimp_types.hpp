@@ -17,6 +17,10 @@
 ///          (gonzalo@physik.rwth-aachen.de)
 ///  \date 2021 Sep
 ///
+///  \author Torsten Bringmann
+///          (torsten.bringmann@fys.uio.no)
+///  \date 2023 Nov
+///
 ///  *********************************************
 
 #ifndef __wimp_types_hpp__
@@ -32,6 +36,7 @@ namespace Gambit
     {
       double mass;
       unsigned int spinx2;
+      double etaDM; // primordial asymmetry
       bool sc; // Self-conjugate?
       std::string name; // Name in the particle database
       std::string conjugate; // Name of conjugate in the particle database

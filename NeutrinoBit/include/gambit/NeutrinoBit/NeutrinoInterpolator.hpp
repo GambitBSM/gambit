@@ -62,7 +62,7 @@ namespace Gambit
           unsigned int npoints = array.size();
 
           // Fill axes
-          double x[npoints], y[npoints];
+          std::vector<double> x(npoints), y(npoints);
           for (unsigned int i=0; i<npoints; i++)
           {
             x[i] = array[i].first;
@@ -72,7 +72,7 @@ namespace Gambit
           // Create and initialize spline
           acc = gsl_interp_accel_alloc();
           spline = gsl_spline_alloc(gsl_interp_cspline, npoints);
-          gsl_spline_init(spline, x, y, npoints);
+          gsl_spline_init(spline, &x[0], &y[0], npoints);
 
         }
 
@@ -150,7 +150,7 @@ namespace Gambit
           size_t ysize = yvals.size();
 
           // Fill axes
-          double x[xsize], y[ysize], z[xsize*ysize];
+          std::vector<double> x(xsize), y(ysize), z(xsize*ysize);
           for (size_t j=0; j<ysize; j++)
           {
             y[j] = yvals[j];
@@ -169,7 +169,7 @@ namespace Gambit
           xacc = gsl_interp_accel_alloc();
           yacc = gsl_interp_accel_alloc();
           spline2d = gsl_spline2d_alloc(gsl_interp2d_bicubic, xsize, ysize);
-          gsl_spline2d_init(spline2d, x, y, z, xsize, ysize);
+          gsl_spline2d_init(spline2d, &x[0], &y[0], &z[0], xsize, ysize);
 
         }
 

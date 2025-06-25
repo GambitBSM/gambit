@@ -19,8 +19,8 @@
 ///  \date 2019 Aug
 ///
 ///  \author Tomas Gonzalo
-///          (gonzalo@physik.rwth-aachen.de)
-///  \date 2021 Apr
+///          (tomas.gonzalo@kit.edu)
+///  \date 2021 Apr, 2023 Nov
 ///
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
@@ -30,8 +30,15 @@
 ///          (christopher.chang@uq.net.au)
 ///  \date 2022 June
 ///
+///  \author Taylor R. Gray
+///          (gray@chalmers.se)
+///  \date 2023 Oct
+///
 ///  Analyses based on: arxiv:1711.03301 and https://journals.aps.org/prd/abstract/10.1103/PhysRevD.97.092005
 ///  139invfb analysis based on arXiv:2102.10874
+///
+///  BEAMDUMP analyses based on:
+///     arXiv:1609.01770, arXiv:2307.02404, arXiv:1107.4580, arXiv:1807.06137
 ///
 ///  *********************************************
 
@@ -158,23 +165,51 @@ namespace Gambit
 
         }
 
+        bool has_interp1d(str name) const
+        {
+          return interp1d.find(name) != interp1d.end();
+        }
+
         const Utils::interp1d_gsl_collection& get_interp1d(str name) const
         {
+          if(not has_interp1d(name))
+            ColliderBit_error().raise(LOCAL_INFO, "ERROR! Interpolator does not have a 1d collection");
           return *interp1d.at(name);
+        }
+
+        bool has_interp2d(str name) const
+        {
+          return interp2d.find(name) != interp2d.end();
         }
 
         const Utils::interp2d_gsl_collection& get_interp2d(str name) const
         {
+          if(not has_interp2d(name))
+            ColliderBit_error().raise(LOCAL_INFO, "ERROR! Interpolator does not have a 2d collection");
           return *interp2d.at(name);
+        }
+
+        bool has_interp4d(str name) const
+        {
+          return interp4d.find(name) != interp4d.end();
         }
 
         Utils::interp4d_collection& get_interp4d(str name) const
         {
+          if(not has_interp4d(name))
+            ColliderBit_error().raise(LOCAL_INFO, "ERROR! Interpolator does not have a 4d collection");
           return *interp4d.at(name);
+        }
+
+        bool has_interp5d(str name) const
+        {
+          return interp5d.find(name) != interp5d.end();
         }
 
         Utils::interp5d_collection& get_interp5d(str name) const
         {
+          if(not has_interp5d(name))
+            ColliderBit_error().raise(LOCAL_INFO, "ERROR! Interpolator does not have a 5d collection");
           return *interp5d.at(name);
         }
 
@@ -191,6 +226,11 @@ namespace Gambit
       bool always_compute_all_SR_loglikes;
       bool combine_nocovar_SRs;
       bool use_fulllikes;
+      Options runOptions;
+      bool (*FullLikes_FileExists)(const str&);
+      int (*FullLikes_ReadIn)(const str&, const str&, const str&);
+      double (*FullLikes_Evaluate)(std::map<str,double>&,const str&);
+      double (*marginaliser)(const int&, const double&, const double&, const double&);
     };
 
 
@@ -202,17 +242,29 @@ namespace Gambit
 
     // =========== Forward declarations ===========
 
-    /// Forward declaration of funtion in LHC_likelihoods
-    // @todo Interpolation will not currently work with the FullLikes backend. None of the currently written interpolation analysis require this.
-    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, bool, bool, bool, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), const std::string);
+    /// Forward declaration of function in LHC_likelihoods
+    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, bool, double (*)(const int&, const double&, const double&, const double&), bool, bool, const Options&, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), const std::string);
 
     /// Forward declarations of functions in this file
     void DMEFT_fill_analysis_info_map();
-    void DMsimp_fill_analysis_info_map(std::map<str,str>, std::map<str,std::vector<str>>, int);
+    void DMsimp_fill_analysis_info_map(std::map<str,str>, std::map<str,std::vector<str>>, int, std::vector<str>);
+    void SubGeVDM_fill_analysis_info_map(std::map<str,str>, std::map<str,std::vector<str>>, std::vector<str>);
 
     void DMEFT_results(AnalysisDataPointers&);
     void DMEFT_results_profiled(AnalysisDataPointers&);
     void DMEFT_results_cutoff(AnalysisDataPointers&);
+    void DMsimpVectorMedScalarDM_monojet_results(AnalysisDataPointers&);
+    void DMsimpVectorMedMajoranaDM_monojet_results(AnalysisDataPointers&);
+    void DMsimpVectorMedDiracDM_monojet_results(AnalysisDataPointers&);
+    void SubGeVDM_results(AnalysisDataPointers&);
+
+    void get_DMEFT_signal_yields_dim6_operator(std::vector<double>&, const str, const Model_analysis_info&, double, double, double, double);
+    void get_DMEFT_signal_yields_dim7_operator(std::vector<double>&, const str, const Model_analysis_info&, double, double, double);
+    void get_DMsimpVectorMedScalarDM_signal_yields(std::vector<double>&, const Model_analysis_info&, double, double, double, double);
+    void get_DMsimpVectorMedMajoranaDM_signal_yields(std::vector<double>&, const Model_analysis_info&, double, double, double, double);
+    void get_DMsimpVectorMedDiracDM_signal_yields(std::vector<double>&, const Model_analysis_info&, double, double, double, double, double);
+    void get_SubGeVDM_scalar_signal_yields(std::vector<double>&, const Model_analysis_info&, double, double, double, double);
+    void get_SubGeVDM_fermion_signal_yields(std::vector<double>&, const Model_analysis_info&, double, double, double, double);
 
     void get_DMEFT_signal_yields_dim6_operator(std::vector<double>&, const str, const Model_analysis_info&, double, double, double, double);
     void get_DMEFT_signal_yields_dim7_operator(std::vector<double>&, const str, const Model_analysis_info&, double, double, double);
@@ -223,6 +275,8 @@ namespace Gambit
 
     void get_all_DMEFT_signal_yields(std::vector<double>&, const Model_analysis_info&, const Spectrum&);
     void get_all_DMsimp_signal_yields(std::vector<double>&, const Model_analysis_info&, const Spectrum&, str&);
+    void get_all_SubGeVDM_signal_yields(std::vector<double>&, const Model_analysis_info&, const Spectrum&, str&);
+
 
     void signal_modifier_function(AnalysisData&, double, double);
     void signal_cutoff_function(AnalysisData&, double);
@@ -232,6 +286,7 @@ namespace Gambit
     void calc_DMEFT_profiled_LHC_nuisance_params(map_str_dbl&);
 
     void InterpolatedMCInfo(MCLoopInfo&);
+
 
     // =========== Functions ===========
 
@@ -431,6 +486,81 @@ namespace Gambit
 
       }
 
+      ////////////////////////////////////////////
+      /// NEW BEAM DUMP content added by Taylor
+      // New analysis: SubGeVBeamDump_MB_interpolated
+      ////////////////////////////////////////////
+
+      if (current_analysis_name == "SubGeVBeamDump_MBe_interpolated") // MiniBooNE electron limits
+      {
+        // Create an entry in the global analysis_info_map and point the reference current_ainfo to it
+        analysis_info_map[current_analysis_name] = Model_analysis_info();
+        current_ainfo = &(analysis_info_map[current_analysis_name]);
+
+        current_ainfo->name = current_analysis_name;
+
+        current_ainfo->obsnum = {0};
+        current_ainfo->bkgnum = {0.0};
+        current_ainfo->bkgerr = {0.0};
+
+        assert(current_ainfo->obsnum.size() == current_ainfo->bkgnum.size());
+        assert(current_ainfo->obsnum.size() == current_ainfo->bkgerr.size());
+        current_ainfo->n_signal_regions = current_ainfo->obsnum.size();
+      }
+
+      if (current_analysis_name == "SubGeVBeamDump_MBN_interpolated") // MiniBooNE nucleon limits
+      {
+        // Create an entry in the global analysis_info_map and point the reference current_ainfo to it
+        analysis_info_map[current_analysis_name] = Model_analysis_info();
+        current_ainfo = &(analysis_info_map[current_analysis_name]);
+
+        current_ainfo->name = current_analysis_name;
+
+        current_ainfo->obsnum = {0};
+        current_ainfo->bkgnum = {0.0};
+        current_ainfo->bkgerr = {0.0};
+
+        assert(current_ainfo->obsnum.size() == current_ainfo->bkgnum.size());
+        assert(current_ainfo->obsnum.size() == current_ainfo->bkgerr.size());
+        current_ainfo->n_signal_regions = current_ainfo->obsnum.size();
+      }
+
+      if (current_analysis_name == "SubGeVBeamDump_LSND_interpolated") // LSND electron limits
+      {
+        // Create an entry in the global analysis_info_map and point the reference current_ainfo to it
+        analysis_info_map[current_analysis_name] = Model_analysis_info();
+        current_ainfo = &(analysis_info_map[current_analysis_name]);
+
+        current_ainfo->name = current_analysis_name;
+
+        current_ainfo->obsnum = {242}; // not entirely sure about this number
+        current_ainfo->bkgnum = {229}; 
+        current_ainfo->bkgerr = {28};
+
+        assert(current_ainfo->obsnum.size() == current_ainfo->bkgnum.size());
+        assert(current_ainfo->obsnum.size() == current_ainfo->bkgerr.size());
+        current_ainfo->n_signal_regions = current_ainfo->obsnum.size();
+      }
+
+      if (current_analysis_name == "SubGeVBeamDump_NA64_interpolated") // NA64 limits
+      {
+        // Create an entry in the global analysis_info_map and point the reference current_ainfo to it
+        analysis_info_map[current_analysis_name] = Model_analysis_info();
+        current_ainfo = &(analysis_info_map[current_analysis_name]);
+
+        current_ainfo->name = current_analysis_name;
+
+        current_ainfo->obsnum = {0};
+        current_ainfo->bkgnum = {0.0};
+        current_ainfo->bkgerr = {0.0};
+
+        assert(current_ainfo->obsnum.size() == current_ainfo->bkgnum.size());
+        assert(current_ainfo->obsnum.size() == current_ainfo->bkgerr.size());
+        current_ainfo->n_signal_regions = current_ainfo->obsnum.size();
+      }
+
+
+
     }
 
     /// A function for filling the analysis_info_map for the DMEFT model.
@@ -622,7 +752,7 @@ namespace Gambit
 
       } // End loop over analyses
 
-    };
+    }
 
 
     /// Fill the input vector with the total DMEFT signal prediction for each SR in the given LHC analysis
@@ -1021,7 +1151,6 @@ namespace Gambit
       {
         // Grab some info about the current analysis
         const bool has_covar = adata.srcov.rows() > 0;
-        const bool has_fulllikes = adata.hasFullLikes();
 
         // Modify the signal predictions for this analysis
         signal_modifier_function(adata, fpars->lambda, *a);
@@ -1029,7 +1158,7 @@ namespace Gambit
         // Compute the combined analysis loglike and add it to total_loglike
         AnalysisLogLikes analoglikes;
         analoglikes.initialize(adata);
-        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->always_compute_all_SR_loglikes, fpars->use_covar && has_covar, fpars->combine_nocovar_SRs, fpars->use_fulllikes && has_fulllikes, nullptr, nullptr, nullptr, "");
+        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->always_compute_all_SR_loglikes, fpars->marginaliser, fpars->use_covar && has_covar, fpars->combine_nocovar_SRs, fpars->runOptions, fpars->use_fulllikes, fpars->FullLikes_FileExists, fpars->FullLikes_ReadIn, fpars->FullLikes_Evaluate, "");
         total_loglike += analoglikes.combination_loglike;
       }
 
@@ -1065,20 +1194,45 @@ namespace Gambit
         return;
       }
 
-      // Steal the list of skipped analyses from the options from the "calc_combined_LHC_LogLike" function
-      std::vector<str> default_skip_analyses;  // The default is empty lists of analyses to skip
-      static const std::vector<str> skip_analyses = Pipes::calc_combined_LHC_LogLike::runOptions->getValueOrDef<std::vector<str> >(default_skip_analyses, "skip_analyses");
+      // If using the calc_LHC_LogLikes_full capability, turn on full likes
+      bool use_fulllikes = (ColliderBit::Functown::calc_LHC_LogLikes_full.status() == FunctorStatus::Active);
 
-      // Steal some settings from the "calc_LHC_LogLikes" function
-      static const bool use_covar = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(true, "use_covariances");
+      // Access the list of skipped analyses from the sub-capability
+      std::vector<str> default_skip_analyses;  // The default is empty lists of analyses to skip
+      static const std::vector<str> skip_analyses = Downstream::subcaps->getValueOrDef<std::vector<str> >(default_skip_analyses, "skip_analyses");
+
+      // Steal settings from either the "calc_LHC_LogLikes" or "calc_LHC_LogLikes_full" function
+      // depending on which is active
+      // This also pulls the function pointers for the fulllikes backend from the stolen pipe
+      Options calc_LHC_LogLikes_runOptions;
+      bool (*FullLikes_FileExists)(const str&);
+      int (*FullLikes_ReadIn)(const str&, const str&, const str&);
+      double (*FullLikes_Evaluate)(std::map<str,double>&,const str&);
+      double (*marginaliser)(const int&, const double&, const double&, const double&);
+      if (use_fulllikes)
+      {
+        calc_LHC_LogLikes_runOptions = *Pipes::calc_LHC_LogLikes_full::runOptions;
+        FullLikes_FileExists = Pipes::calc_LHC_LogLikes_full::BEreq::FullLikes_FileExists.pointer();
+        FullLikes_ReadIn = Pipes::calc_LHC_LogLikes_full::BEreq::FullLikes_ReadIn.pointer();
+        FullLikes_Evaluate = Pipes::calc_LHC_LogLikes_full::BEreq::FullLikes_Evaluate.pointer();
+        marginaliser = (*Pipes::calc_LHC_LogLikes_full::BEgroup::lnlike_marg_poisson == "lnlike_marg_poisson_lognormal_error") ? Pipes::calc_LHC_LogLikes_full::BEreq::lnlike_marg_poisson_lognormal_error.pointer() : Pipes::calc_LHC_LogLikes_full::BEreq::lnlike_marg_poisson_gaussian_error.pointer();
+      }
+      else
+      {
+        calc_LHC_LogLikes_runOptions = *Pipes::calc_LHC_LogLikes::runOptions;
+        FullLikes_FileExists = nullptr;
+        FullLikes_ReadIn = nullptr;
+        FullLikes_Evaluate = nullptr;
+        marginaliser = (*Pipes::calc_LHC_LogLikes::BEgroup::lnlike_marg_poisson == "lnlike_marg_poisson_lognormal_error") ? Pipes::calc_LHC_LogLikes::BEreq::lnlike_marg_poisson_lognormal_error.pointer() : Pipes::calc_LHC_LogLikes::BEreq::lnlike_marg_poisson_gaussian_error.pointer();
+      }
+
+      static const bool use_covar = calc_LHC_LogLikes_runOptions.getValueOrDef<bool>(true, "use_covariances");
       // Use marginalisation rather than profiling (probably less stable)?
-      static const bool use_marg = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(false, "use_marginalising");
+      static const bool use_marg = calc_LHC_LogLikes_runOptions.getValueOrDef<bool>(false, "use_marginalising");
       // Use the naive sum of SR loglikes for analyses without known correlations?
-      static const bool combine_nocovar_SRs = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
       // Always compute all individual SR loglikes (even if not used for the combined loglike)?
-      static const bool always_compute_all_SR_loglikes = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(true, "always_compute_all_SR_loglikes");
-      // These LHC likelihoods don't use the ATLAS full likelihood system
-      static const bool use_fulllikes = false;
+      static const bool always_compute_all_SR_loglikes = calc_LHC_LogLikes_runOptions.getValueOrDef<bool>(true, "always_compute_all_SR_loglikes");
+      static const bool combine_nocovar_SRs = calc_LHC_LogLikes_runOptions.getValueOrDef<bool>(false, "combine_SRs_without_covariances");
 
       // Clear previous result map
       result.clear();
@@ -1115,6 +1269,11 @@ namespace Gambit
       fpars.always_compute_all_SR_loglikes = always_compute_all_SR_loglikes;
       fpars.combine_nocovar_SRs = combine_nocovar_SRs;
       fpars.use_fulllikes = use_fulllikes;
+      fpars.runOptions = calc_LHC_LogLikes_runOptions;
+      fpars.FullLikes_FileExists = FullLikes_FileExists;
+      fpars.FullLikes_ReadIn = FullLikes_ReadIn;
+      fpars.FullLikes_Evaluate = FullLikes_Evaluate;
+      fpars.marginaliser = marginaliser;
 
       // Create a variable to store the best-fit loglike
       double minus_loglike_bestfit = 50000.;
@@ -1284,11 +1443,8 @@ namespace Gambit
     };
 
     /// A function for filling the analysis_info_map for the DMsimp models.
-    void DMsimp_fill_analysis_info_map(std::map<str,str> Analysis_data_path, std::map<str,std::vector<str>> Interpolation_columns, int Ndim)
+    void DMsimp_fill_analysis_info_map(std::map<str,str> Analysis_data_path, std::map<str,std::vector<str>> Interpolation_columns, int Ndim, std::vector<str> skip_analyses)
     {
-
-      std::vector<str> default_skip_analyses;  // The default is empty lists of analyses to skip
-      static const std::vector<str> skip_analyses = Pipes::calc_combined_LHC_LogLike::runOptions->getValueOrDef<std::vector<str> >(default_skip_analyses, "skip_analyses");
 
       // Helper variables
       str current_analysis_name;
@@ -1544,7 +1700,10 @@ namespace Gambit
       // and the thread_local analysis_data_map
       if (first)
       {
-        DMsimp_fill_analysis_info_map(Analysis_data_path,Interpolation_columns, Ndim);
+        std::vector<str> default_skip_analyses;  // The default is empty lists of analyses to skip
+        static const std::vector<str> skip_analyses = Downstream::subcaps->getValueOrDef<std::vector<str> >(default_skip_analyses, "skip_analyses");
+
+        DMsimp_fill_analysis_info_map(Analysis_data_path,Interpolation_columns, Ndim, skip_analyses);
 
         for (const std::pair<const str, Model_analysis_info>& aname_ainfo_pair : analysis_info_map)
         {
@@ -1582,7 +1741,7 @@ namespace Gambit
         get_all_signal_yields(get_all_DMsimp_signal_yields, spec, analysis_data_map, result, modelname);
       }
 
-    };
+    }
 
 
     /// Fill the input vector with the total DMsimp signal prediction for each SR in the given LHC analysis
@@ -1965,6 +2124,362 @@ namespace Gambit
 
     }
 
+    //// NEW BEAM-DUMP Functions ////
+
+    /// A function for filling the analysis_info_map for the SubGeVDM_fermion and SubGeVDM_scalar models.
+    void SubGeVDM_fill_analysis_info_map(std::map<str,str> Analysis_data_path, std::map<str,std::vector<str>> Interpolation_columns, std::vector<str> skip_analyses)
+    {
+
+      // Helper variables
+      str current_analysis_name;
+      Model_analysis_info empty_analysis_info;
+      Model_analysis_info* current_ainfo;
+
+
+      // Analysis name
+      current_analysis_name = "SubGeVBeamDump_MBe_interpolated";
+
+      if (std::find(skip_analyses.begin(), skip_analyses.end(), current_analysis_name) == skip_analyses.end())
+      {
+        if (not(Utils::file_exists(Analysis_data_path[current_analysis_name])))
+        {
+          ColliderBit_error().raise(LOCAL_INFO, "ERROR! Cannot find interpolation data file: " + Analysis_data_path[current_analysis_name]);
+        }
+
+        // Create an entry in the global analysis_info_map and point the reference current_ainfo to it
+        analysis_info_map[current_analysis_name] = Model_analysis_info();
+        current_ainfo = &(analysis_info_map[current_analysis_name]);
+        fill_analysis_info_map(current_analysis_name, current_ainfo);
+        current_ainfo->add_interp2d("SubGeVBeamDump", Analysis_data_path[current_analysis_name], Interpolation_columns[current_analysis_name]);
+
+        current_ainfo = &empty_analysis_info;
+      }
+
+      // Analysis name
+      current_analysis_name = "SubGeVBeamDump_MBN_interpolated";
+
+      if (std::find(skip_analyses.begin(), skip_analyses.end(), current_analysis_name) == skip_analyses.end())
+      {
+        if (not(Utils::file_exists(Analysis_data_path[current_analysis_name])))
+        {
+          ColliderBit_error().raise(LOCAL_INFO, "ERROR! Cannot find interpolation data file: " + Analysis_data_path[current_analysis_name]);
+        }
+
+        // Create an entry in the global analysis_info_map and point the reference current_ainfo to it
+        analysis_info_map[current_analysis_name] = Model_analysis_info();
+        current_ainfo = &(analysis_info_map[current_analysis_name]);
+        fill_analysis_info_map(current_analysis_name, current_ainfo);
+        current_ainfo->add_interp2d("SubGeVBeamDump", Analysis_data_path[current_analysis_name], Interpolation_columns[current_analysis_name]);
+
+        current_ainfo = &empty_analysis_info;
+      }
+
+      // Analysis name
+      current_analysis_name = "SubGeVBeamDump_LSND_interpolated";
+
+      if (std::find(skip_analyses.begin(), skip_analyses.end(), current_analysis_name) == skip_analyses.end())
+      {
+        if (not(Utils::file_exists(Analysis_data_path[current_analysis_name])))
+        {
+          ColliderBit_error().raise(LOCAL_INFO, "ERROR! Cannot find interpolation data file: " + Analysis_data_path[current_analysis_name]);
+        }
+
+        // Create an entry in the global analysis_info_map and point the reference current_ainfo to it
+        analysis_info_map[current_analysis_name] = Model_analysis_info();
+        current_ainfo = &(analysis_info_map[current_analysis_name]);
+        fill_analysis_info_map(current_analysis_name, current_ainfo);
+        current_ainfo->add_interp2d("SubGeVBeamDump", Analysis_data_path[current_analysis_name], Interpolation_columns[current_analysis_name]);
+
+        current_ainfo = &empty_analysis_info;
+      }
+
+      // Analysis name
+      current_analysis_name = "SubGeVBeamDump_NA64_interpolated";
+
+      if (std::find(skip_analyses.begin(), skip_analyses.end(), current_analysis_name) == skip_analyses.end())
+      {
+        if (not(Utils::file_exists(Analysis_data_path[current_analysis_name])))
+        {
+          ColliderBit_error().raise(LOCAL_INFO, "ERROR! Cannot find interpolation data file: " + Analysis_data_path[current_analysis_name]);
+        }
+
+        // Create an entry in the global analysis_info_map and point the reference current_ainfo to it
+        analysis_info_map[current_analysis_name] = Model_analysis_info();
+        current_ainfo = &(analysis_info_map[current_analysis_name]);
+        fill_analysis_info_map(current_analysis_name, current_ainfo);
+        current_ainfo->add_interp1d("SubGeVBeamDump", Analysis_data_path[current_analysis_name], Interpolation_columns[current_analysis_name]);
+
+        current_ainfo = &empty_analysis_info;
+      }
+
+    }
+
+    /// Results for the SubGeVDM_fermion and SubGeVDM_scalar model
+    void SubGeVDM_results(AnalysisDataPointers& result)
+    {
+      using namespace Pipes::SubGeVDM_results;
+
+      // Clear previous vectors, etc.
+      result.clear();
+
+      static bool first = true;
+
+      // We need thread_local AnalysisData instances. Let's collect them in a map.
+      thread_local std::map<str,AnalysisData> analysis_data_map;
+
+      // Store the locations of monojet interpolation data files to pass to DMsimp_fill_analysis_info_map
+      std::map<str,str> Analysis_data_path;
+      std::map<str,std::vector<str>> Interpolation_columns;
+
+      if(ModelInUse("SubGeVDM_scalar"))
+      {
+        Analysis_data_path["SubGeVBeamDump_MBe_interpolated"] = GAMBIT_DIR "/ColliderBit/data/SubGeVDM/BeamDump/MB_electron_scalarDM_NEvents.txt";
+        Analysis_data_path["SubGeVBeamDump_MBN_interpolated"] = GAMBIT_DIR "/ColliderBit/data/SubGeVDM/BeamDump/MB_nucleon_scalarDM_NEvents.txt";
+        Analysis_data_path["SubGeVBeamDump_LSND_interpolated"] = GAMBIT_DIR "/ColliderBit/data/SubGeVDM/BeamDump/LSND_scalarDM_NEvents.txt";
+        Analysis_data_path["SubGeVBeamDump_NA64_interpolated"] = GAMBIT_DIR "/ColliderBit/data/SubGeVDM/BeamDump/NA64_2023.txt";
+
+        Interpolation_columns["SubGeVBeamDump_MBe_interpolated"] = {"mDM","mAp","signal_counts"};
+        Interpolation_columns["SubGeVBeamDump_MBN_interpolated"] = {"mDM","mAp","signal_counts"};
+        Interpolation_columns["SubGeVBeamDump_LSND_interpolated"] = {"mDM","mAp","signal_counts"};
+        Interpolation_columns["SubGeVBeamDump_NA64_interpolated"] = {"mAp","epsilon"};
+      }
+      else if(ModelInUse("SubGeVDM_fermion"))
+      {
+        Analysis_data_path["SubGeVBeamDump_MBe_interpolated"] = GAMBIT_DIR "/ColliderBit/data/SubGeVDM/BeamDump/MB_electron_fermionDM_NEvents.txt";
+        Analysis_data_path["SubGeVBeamDump_MBN_interpolated"] = GAMBIT_DIR "/ColliderBit/data/SubGeVDM/BeamDump/MB_nucleon_fermionDM_NEvents.txt";
+        Analysis_data_path["SubGeVBeamDump_LSND_interpolated"] = GAMBIT_DIR "/ColliderBit/data/SubGeVDM/BeamDump/LSND_fermionDM_NEvents.txt";
+        Analysis_data_path["SubGeVBeamDump_NA64_interpolated"] = GAMBIT_DIR "/ColliderBit/data/SubGeVDM/BeamDump/NA64_2023.txt";
+
+        Interpolation_columns["SubGeVBeamDump_MBe_interpolated"] = {"mDM","mAp","signal_counts"};
+        Interpolation_columns["SubGeVBeamDump_MBN_interpolated"] = {"mDM","mAp","signal_counts"};
+        Interpolation_columns["SubGeVBeamDump_LSND_interpolated"] = {"mDM","mAp","signal_counts"};
+        Interpolation_columns["SubGeVBeamDump_NA64_interpolated"] = {"mAp","epsilon"};
+      }
+      else
+      {
+        ColliderBit_error().raise(LOCAL_INFO, "ERROR! Model not known to GAMBIT");
+      }
+
+
+      // The first time this function is run we must initialize the global analysis_info_map
+      // and the thread_local analysis_data_map
+      if (first)
+      {
+        std::vector<str> default_skip_analyses;  // The default is empty lists of analyses to skip
+        static const std::vector<str> skip_analyses = Downstream::subcaps->getValueOrDef<std::vector<str> >(default_skip_analyses, "skip_analyses");
+      
+        SubGeVDM_fill_analysis_info_map(Analysis_data_path,Interpolation_columns, skip_analyses);
+
+        for (const std::pair<const str, Model_analysis_info>& aname_ainfo_pair : analysis_info_map)
+        {
+          // Extract analysis name and use it to create an AnalysisData element in the analysis_data_map
+          str aname = aname_ainfo_pair.first;
+          analysis_data_map[aname] = AnalysisData(aname);
+        }
+
+        first = false;
+      }
+
+      // Retrieve the signal yields
+      const Spectrum& spec = *Dep::SubGeVDM_spectrum;
+      str modelname;
+      if(ModelInUse("SubGeVDM_scalar"))
+        modelname = "SubGeVDM_scalar";
+      else if(ModelInUse("SubGeVDM_fermion"))
+        modelname = "SubGeVDM_fermion";
+      get_all_signal_yields(get_all_SubGeVDM_signal_yields, spec, analysis_data_map, result, modelname);
+
+    }
+
+    /// Fill the input vector with the total SubGeV signal prediction for each SR in the given analysis
+    void get_all_SubGeVDM_signal_yields(std::vector<double>& sr_nums, const Model_analysis_info& analysis_info, const Spectrum& spec, str& modelname)
+    {
+
+      // Get the yields
+      std::vector<double> signal(analysis_info.n_signal_regions, 0.);
+
+      // Get the parameters we need from the theory spectrum
+      if(modelname == "SubGeVDM_scalar")
+      {
+        // TODO: If your model has more/less than 2 masses and 2 couplings, then the get_SubGeVBeamDump_MB_signal_yields function will need to be changed.
+        // TODO: Would need to change mass_i and coupling_i to the relevant parameters in your model
+        double mDM = spec.get(Par::Pole_Mass, "DM");
+        double mAp = spec.get(Par::Pole_Mass, "Ap");
+        double kappa = spec.get(Par::dimensionless, "kappa");
+        double gDM = spec.get(Par::dimensionless, "gDM");
+        get_SubGeVDM_scalar_signal_yields(signal, analysis_info, mDM, mAp, kappa, gDM);
+
+        double mApmdm_ratio = mAp/mDM;
+        if (mApmdm_ratio <= 2.)
+          ColliderBit_error().raise(LOCAL_INFO, "ERROR! mAp/mdm <= 2., in off-shell regime"); // beam dump yield will just return 0
+      }
+      else if(modelname == "SubGeVDM_fermion")
+      {
+        double mDM = spec.get(Par::Pole_Mass, "DM");
+        double mAp = spec.get(Par::Pole_Mass, "Ap");
+        double kappa = spec.get(Par::dimensionless, "kappa");
+        double gDM = spec.get(Par::dimensionless, "gDM");
+        get_SubGeVDM_fermion_signal_yields(signal, analysis_info, mDM, mAp, kappa, gDM);
+
+        double mApmdm_ratio = mAp/mDM;
+        if (mApmdm_ratio <= 2.)
+          ColliderBit_error().raise(LOCAL_INFO, "ERROR! mAp/mdm <= 2., in off-shell regime"); // beam dump yield will just return 0
+      }
+      // Add yields and save in sr_num
+      for (size_t i = 0; i < analysis_info.n_signal_regions; ++i)
+      {
+        sr_nums[i] = signal[i];
+      }
+    }
+
+    /// Fill the input vector with the signal prediction for the SubGeVBeamDump_MB model
+    /// TODO: If you apply some scaling based on couplings, then this is where you would want to do this
+    void get_SubGeVDM_scalar_signal_yields(std::vector<double>& signal_yields, const Model_analysis_info& analysis_info, double mDM, double mAp, double kappa, double gDM)
+    {
+      double signalcounts = 0.;
+
+      // SubGeVBeamDump contains both 1d and 2d interpolators, check which one this is
+      if(analysis_info.has_interp1d("SubGeVBeamDump"))
+      {
+        // Get the interpolator collections for the given operator_key
+        const Utils::interp1d_gsl_collection& eps_interp = analysis_info.get_interp1d("SubGeVBeamDump");
+
+        // If values are outside bounds give zero signal
+        if(eps_interp.is_inside_range(mAp))
+        {
+          // Compute the signal
+          // Note: The last entry in this function is the index of the column (minus the number of free params, i.e. 2)
+          double kappa_interp = eps_interp.eval(mAp, 0); // mAp and eps
+
+          double me = 0.000511; // mass of electron
+          double mmu = 0.1057; // mass of muon
+          double ee = 0.31343; // elementary charge
+          double width_ff = 0.0;
+          if (mAp > 2*me) {width_ff += pow(kappa*ee,2) * (4*pow(mAp,2)+8*pow(me,2))*sqrt(pow(mAp,2)/4-pow(me,2)) / (24*pi*pow(mAp,2));}
+          if (mAp > 2*mmu) {width_ff += pow(kappa*ee,2) * (4*pow(mAp,2)+8*pow(mmu,2))*sqrt(pow(mAp,2)/4-pow(mmu,2)) / (24*pi*pow(mAp,2));}
+          double width_XXscalar = pow(gDM,2)*(pow(mAp,2)-4*pow(mDM,2))/(8*pi*pow(mAp,2))*sqrt(pow(mAp,2)/4-pow(mDM,2));
+        //// Gamma_VtoXX / (Gamma_VtoXX + Gamma_Vtoff)
+          double BR_scalarDM  = width_XXscalar / (width_XXscalar + width_ff); // Branching ratio for scalar DM
+
+
+          signalcounts = pow(kappa,2) / (pow(kappa_interp,2)) * 2.3 * BR_scalarDM;
+        }
+
+      }
+      else if(analysis_info.has_interp2d("SubGeVBeamDump"))
+      {
+        const Utils::interp2d_gsl_collection& signal_interp = analysis_info.get_interp2d("SubGeVBeamDump");
+
+        // If values are outside bounds give zero signal
+        double signal = 0.;
+        if(signal_interp.is_inside_range(mDM, mAp))
+        {
+          // Compute the signal
+          // Note: The last entry in this function is the index of the column (minus the number of free params, i.e. 2)
+          signal = signal_interp.eval(mDM, mAp, 0); // mdm and mAp
+        }
+
+        // TODO: After interpolating the signal, apply any scaling, etc that you intend to.
+        double kappa_simulated  = 1e-4; // epsilon value which the data was simulated with
+        double gDM_simulated    = 2.5;  // gD (dark coupling between A' and DM) value which the data was simulated with
+
+        // TODO: change to values in numerical constants
+        double me = 0.000511; // mass of electron
+        double mmu = 0.1057; // mass of muon
+        double ee = 0.31343; // elementary charge
+
+
+        double width_ff = 0.0;
+        if (mAp > 2*me) {width_ff += pow(kappa*ee,2) * (4*pow(mAp,2)+8*pow(me,2))*sqrt(pow(mAp,2)/4-pow(me,2)) / (24*pi*pow(mAp,2));}
+        if (mAp > 2*mmu) {width_ff += pow(kappa*ee,2) * (4*pow(mAp,2)+8*pow(mmu,2))*sqrt(pow(mAp,2)/4-pow(mmu,2)) / (24*pi*pow(mAp,2));}
+
+        double width_XXscalar = pow(gDM,2)*(pow(mAp,2)-4*pow(mDM,2))/(8*pi*pow(mAp,2))*sqrt(pow(mAp,2)/4-pow(mDM,2));
+
+        //// Gamma_VtoXX / (Gamma_VtoXX + Gamma_Vtoff)
+        double BR_scalarDM  = width_XXscalar / (width_XXscalar + width_ff); // Branching ratio for scalar DM
+        signalcounts = signal * pow(kappa/kappa_simulated,4) * pow(gDM/gDM_simulated,2) * BR_scalarDM;
+
+      }
+
+      for (size_t sr_i = 0; sr_i < analysis_info.n_signal_regions; ++sr_i)
+      {
+        signal_yields[sr_i] = signalcounts;
+      }
+    }
+
+    void get_SubGeVDM_fermion_signal_yields(std::vector<double>& signal_yields, const Model_analysis_info& analysis_info, double mDM, double mAp, double kappa, double gDM)
+    {
+      double signalcounts = 0.;
+
+      // SubGeVBeamDump contains both 1d and 2d interpolators, check which one this is
+      if(analysis_info.has_interp1d("SubGeVBeamDump"))
+      {
+        // Get the interpolator collections for the given operator_key
+        const Utils::interp1d_gsl_collection& eps_interp = analysis_info.get_interp1d("SubGeVBeamDump");
+
+        // If values are outside bounds give zero signal
+        if(eps_interp.is_inside_range(mAp))
+        {
+          // Compute the signal
+          // Note: The last entry in this function is the index of the column (minus the number of free params, i.e. 2)
+          double kappa_interp = eps_interp.eval(mAp, 0); // mAp and eps
+
+        double me = 0.000511; // mass of electron
+        double mmu = 0.1057; // mass of muon
+        double ee = 0.31343; // elementary charge
+        double width_ff = 0.0;
+        if (mAp > 2*me) {width_ff += pow(kappa*ee,2) * (4*pow(mAp,2)+8*pow(me,2))*sqrt(pow(mAp,2)/4-pow(me,2)) / (24*pi*pow(mAp,2));}
+        if (mAp > 2*mmu) {width_ff += pow(kappa*ee,2) * (4*pow(mAp,2)+8*pow(mmu,2))*sqrt(pow(mAp,2)/4-pow(mmu,2)) / (24*pi*pow(mAp,2));}
+
+        double width_XXfermion = pow(gDM,2)/3 * (4*pow(mAp,2)+8*pow(mDM,2)) * sqrt(pow(mAp,2)/4 - pow(mDM,2))/(8*pi*pow(mAp,2));
+        //// Gamma_VtoXX / (Gamma_VtoXX + Gamma_Vtoff)
+        double BR_fermionDM  = width_XXfermion / (width_XXfermion + width_ff); // Branching ratio for dirac fermion DM
+
+          signalcounts = pow(kappa,2) / (pow(kappa_interp,2)) * 2.3 * BR_fermionDM;
+        }
+      }
+
+      else if(analysis_info.has_interp2d("SubGeVBeamDump"))
+      {
+        // Get the interpolator collections for the given operator_key
+        const Utils::interp2d_gsl_collection& signal_interp = analysis_info.get_interp2d("SubGeVBeamDump");
+
+        // If values are outside bounds give zero signal
+        double signal = 0.;
+        if(signal_interp.is_inside_range(mDM, mAp))
+        {
+          // Compute the signal
+          // Note: The last entry in this function is the index of the column (minus the number of free params, i.e. 2)
+          signal = signal_interp.eval(mDM, mAp, 0); // mdm and mAp
+        }
+
+        // TODO: After interpolating the signal, apply any scaling, etc that you intend to.
+        double kappa_simulated  = 1e-4; // epsilon value which the data was simulated with
+        double gDM_simulated    = 2.5;  // gD (dark coupling between A' and DM) value which the data was simulated with
+
+        // TODO: change to values in numerical constants
+        double me = 0.000511; // mass of electron
+        double mmu = 0.1057; // mass of muon
+        double ee = 0.31343; // elementary charge
+
+
+        double width_ff = 0.0;
+        if (mAp > 2*me) {width_ff += pow(kappa*ee,2) * (4*pow(mAp,2)+8*pow(me,2))*sqrt(pow(mAp,2)/4-pow(me,2)) / (24*pi*pow(mAp,2));}
+        if (mAp > 2*mmu) {width_ff += pow(kappa*ee,2) * (4*pow(mAp,2)+8*pow(mmu,2))*sqrt(pow(mAp,2)/4-pow(mmu,2)) / (24*pi*pow(mAp,2));}
+
+        double width_XXfermion = pow(gDM,2)/3 * (4*pow(mAp,2)+8*pow(mDM,2)) * sqrt(pow(mAp,2)/4 - pow(mDM,2))/(8*pi*pow(mAp,2));
+
+        //// Gamma_VtoXX / (Gamma_VtoXX + Gamma_Vtoff)
+        double BR_fermionDM  = width_XXfermion / (width_XXfermion + width_ff); // Branching ratio for dirac fermion DM
+
+        signalcounts = signal * pow(kappa/kappa_simulated,4) * pow(gDM/gDM_simulated,2) * BR_fermionDM;
+      }
+
+      for (size_t sr_i = 0; sr_i < analysis_info.n_signal_regions; ++sr_i)
+      {
+        signal_yields[sr_i] = signalcounts;
+      }
+    }
 
   } // namespace ColliderBit
 

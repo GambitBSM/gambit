@@ -117,6 +117,6 @@ namespace Gambit
 
         // .. and store it in map
         spec_entry_map[entry.name]= entry;
-    };
+    }
   }
 }

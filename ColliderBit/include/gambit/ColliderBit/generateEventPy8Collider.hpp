@@ -136,7 +136,7 @@ namespace Gambit
             nFailedEvents += 1;
             // Store Pythia event record in the logs
             std::stringstream ss;
-            pythia_event.list(ss, 1);
+            pythia_event.list(false, false, 1, ss);
             logger() << LogTags::debug << "Py8Collider::EventGenerationError error caught in generateEventPy8Collider. Pythia record for event that failed:\n" << ss.str() << EOM;
           }
         }
@@ -200,7 +200,7 @@ namespace Gambit
         {
           // Store Pythia event record in the logs
           std::stringstream ss;
-          pythia_event.list(ss, 1);
+          pythia_event.list(false, false, 1, ss);
           logger() << LogTags::debug << "Gambit::exception caught in convetEventToHEPUtilsPy8Collider. Pythia record for event that failed:\n" << ss.str() << EOM;
         }
 
@@ -256,7 +256,7 @@ namespace Gambit
           {
             // Store Pythia event record in the logs
             std::stringstream ss;
-            pythia_event.list(ss, 1);
+            pythia_event.list(false, false, 1, ss);
             logger() << LogTags::debug << "Gambit::exception caught in convertEventToHepMCPy8Collider. Pythia record for event that failed:\n" << ss.str() << EOM;
           }
 

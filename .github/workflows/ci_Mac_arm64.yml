@@ -30,7 +30,9 @@ jobs:
       run: |
         echo "Configure with cmake"
         cd BUILD
-        cmake -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
+        # Temporary ditch ColliderBit due to YODA/Python problem mentioned here: https://github.com/GambitBSM/gambit/pull/509#issuecomment-2413565672
+        # cmake -D PYTHON_EXECUTABLE=/usr/bin/python3 -D PYTHON_LIBRARY=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/Current/Python3 -D PYTHON_INCLUDE_DIR=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Headers -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
+        cmake -D PYTHON_EXECUTABLE=/usr/bin/python3 -D PYTHON_LIBRARY=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/Current/Python3 -D PYTHON_INCLUDE_DIR=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Headers -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DWITH_HEPMC=OFF -DWITH_YODA=OFF -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="ColliderBit;micromegas_DMsimpVectorMedVectorDM" ..
     - name: Build scanners
       run: |
         echo "Build scanners"
@@ -41,10 +43,6 @@ jobs:
       run: |
         echo "Build GAMBIT."
         cd BUILD
-        # Build YODA and HepMC first, to avoid race condition during parallel build: https://github.com/GambitBSM/gambit/issues/467
-        # Can remove this once issue #467 is fixed.
-        make -j $(( $(sysctl -n hw.ncpu)/2 )) yoda
-        make -j $(( $(sysctl -n hw.ncpu)/2 )) hepmc
         # Now build Gambit
         make -j $(( $(sysctl -n hw.ncpu)/2 )) gambit
     - name: CLI test
@@ -59,7 +57,7 @@ jobs:
 
 
   backends_build:
-    if: ${{ always() }}
+    if: ${{ !cancelled() }}
     needs: [gambit_build] # Sets run order
     runs-on: [self-hosted, macOS, Arm64]
     strategy:
@@ -81,7 +79,9 @@ jobs:
       run: |
         echo "Configure with cmake"
         cd BUILD
-        cmake -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
+        # Temporary ditch ColliderBit due to YODA/Python problem mentioned here: https://github.com/GambitBSM/gambit/pull/509#issuecomment-2413565672
+        # cmake -D PYTHON_EXECUTABLE=/usr/bin/python3 -D PYTHON_LIBRARY=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/Current/Python3 -D PYTHON_INCLUDE_DIR=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Headers -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
+        cmake -D PYTHON_EXECUTABLE=/usr/bin/python3 -D PYTHON_LIBRARY=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/Current/Python3 -D PYTHON_INCLUDE_DIR=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Headers -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DWITH_HEPMC=OFF -DWITH_YODA=OFF -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="ColliderBit;micromegas_DMsimpVectorMedVectorDM" ..
     - name: Build Backends
       run: |
         echo "Building all Backends"
@@ -92,7 +92,7 @@ jobs:
 
 
   test_runs:
-    if: ${{ always() }}
+    if: ${{ !cancelled() }}
     needs: [gambit_build, backends_build] # Sets run order
     runs-on: [self-hosted, macOS, Arm64]
     strategy:
@@ -114,7 +114,9 @@ jobs:
       run: |
         echo "Configure with cmake"
         cd BUILD
-        cmake -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
+        # Temporary ditch ColliderBit due to YODA/Python problem mentioned here: https://github.com/GambitBSM/gambit/pull/509#issuecomment-2413565672
+        # cmake -D PYTHON_EXECUTABLE=/usr/bin/python3 -D PYTHON_LIBRARY=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/Current/Python3 -D PYTHON_INCLUDE_DIR=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Headers -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
+        cmake -D PYTHON_EXECUTABLE=/usr/bin/python3 -D PYTHON_LIBRARY=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/Current/Python3 -D PYTHON_INCLUDE_DIR=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Headers -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DWITH_HEPMC=OFF -DWITH_YODA=OFF -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="ColliderBit;micromegas_DMsimpVectorMedVectorDM" ..
     - name: Build required scanners
       run: |
         echo "Build scanners required for test runs"
@@ -140,10 +142,6 @@ jobs:
       run: |
         echo "Build GAMBIT."
         cd BUILD
-        # Build YODA and HepMC first, to avoid race condition during parallel build: https://github.com/GambitBSM/gambit/issues/467
-        # Can remove this once issue #467 is fixed.
-        make -j $(( $(sysctl -n hw.ncpu)/2 )) yoda
-        make -j $(( $(sysctl -n hw.ncpu)/2 )) hepmc
         # Now build Gambit
         make -j $(( $(sysctl -n hw.ncpu)/2 )) gambit
     - name: Run ColliderBit_CMSSM.yaml
@@ -158,7 +156,7 @@ jobs:
 
 
   standalones_build:
-    if: ${{ always() }}
+    if: ${{ !cancelled() }}
     needs: [gambit_build, backends_build, test_runs] # Sets run order
     runs-on: [self-hosted, macOS, Arm64]
     strategy:
@@ -180,7 +178,9 @@ jobs:
       run: |
         echo "Configure with cmake"
         cd BUILD
-        cmake -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
+        # Temporary ditch ColliderBit due to YODA/Python problem mentioned here: https://github.com/GambitBSM/gambit/pull/509#issuecomment-2413565672
+        # cmake -D PYTHON_EXECUTABLE=/usr/bin/python3 -D PYTHON_LIBRARY=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/Current/Python3 -D PYTHON_INCLUDE_DIR=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Headers -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
+        cmake -D PYTHON_EXECUTABLE=/usr/bin/python3 -D PYTHON_LIBRARY=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/Current/Python3 -D PYTHON_INCLUDE_DIR=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Headers -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DWITH_HEPMC=OFF -DWITH_YODA=OFF -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="ColliderBit;micromegas_DMsimpVectorMedVectorDM" ..
     - name: Build standalones
       run: |
         echo "Test the building of the standalones"

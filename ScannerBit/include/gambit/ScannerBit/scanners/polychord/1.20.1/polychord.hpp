@@ -117,7 +117,7 @@ namespace Gambit
             // gambit_hypercube[paramname] = polychord_hypercube[index_map[paramname]]
             // This is required because PolyChord needs parameters to be
             // ordered slow-to-fast to exploit a speed hierarchy
-            std::unordered_map<std::string, int> index_map;
+            std::unordered_map<std::string, int> index_map, derived_index_map;
 
             /// copy of the settings in use.
             Settings boundSettings;

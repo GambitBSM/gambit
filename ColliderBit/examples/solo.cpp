@@ -27,10 +27,10 @@
 #define NULIKE_VERSION "1.0.9"
 #define NULIKE_SAFE_VERSION 1_0_9
 
-#define RIVET_VERSION "3.1.5"
-#define RIVET_SAFE_VERSION 3_1_5
-#define CONTUR_VERSION "2.1.1"
-#define CONTUR_SAFE_VERSION 2_1_1
+#define RIVET_VERSION "3.1.8"
+#define RIVET_SAFE_VERSION 3_1_8
+#define CONTUR_VERSION "2.4.4"
+#define CONTUR_SAFE_VERSION 2_4_4
 
 #define FULLLIKES_VERSION "1.0"
 #define FULLLIKES_SAFE_VERSION 1_0
@@ -127,6 +127,10 @@ int main(int argc, char* argv[])
     if (not event_file_is_HepMC)
       throw std::runtime_error("Unrecognised event file format in "+event_filename+"; must be .hepmc.");
 
+    // Extract the jet collections yaml node
+    YAML::Node jet_collections = settings.getValue<YAML::Node>("jet_collections");
+    std::string jet_collection_taus = settings.getValueOrDef<std::string>("antikt_R04", "jet_collection_taus");
+
     // Check if Rivet & Contur requested and/or enabled then extract options from yaml
     bool withRivet;
     bool withContur;
@@ -183,11 +187,18 @@ int main(int argc, char* argv[])
     if (debug) cout << "Reading HepMC" << " file: " << event_filename << endl;
     auto& getEvent = getHepMCEvent;
     auto& convertEvent = convertHepMCEvent_HEPUtils;
+    auto& AnalysisNumbers = CollectAnalyses;
+    AnalysisNumbers.setOption<bool>("print_cutflows", true);
 
     // Initialise logs
     logger().set_log_debug_messages(debug);
     initialise_standalone_logs("CBS_logs/");
     logger()<<"Running CBS"<<LogTags::info<<EOM;
+    
+    // Initialise settings for printer (required)
+    YAML::Node printerNode = get_standalone_printer("cout", "CBS_logs/", "");
+    Printers::PrinterManager printerManager(printerNode, false);
+    set_global_printer_manager(&printerManager);
 
     // Initialise the random number generator, using a hardware seed if no seed is given in the input file.
     int seed = settings.getValueOrDef<int>(-1, "seed");
@@ -204,6 +215,12 @@ int main(int argc, char* argv[])
     // Pass the filename and the jet pt cutoff to the HepMC reader/HEPUtils converter function
     getEvent.setOption<str>("hepmc_filename", event_filename);
     convertEvent.setOption<double>("jet_pt_min", jet_pt_min);
+
+    // Pass the jet collections yaml node to the hepMC reader/HEPUtils converter function
+    getEvent.setOption<std::string>("jet_collection_taus", jet_collection_taus);
+    getEvent.setOption<YAML::Node>("jet_collections", jet_collections);
+    convertEvent.setOption<std::string>("jet_collection_taus", jet_collection_taus);
+    convertEvent.setOption<YAML::Node>("jet_collections", jet_collections);
 
     // Pass options to the cross-section function
     if (settings.hasKey("cross_section_pb"))

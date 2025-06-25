@@ -46,6 +46,23 @@ BE_INI_FUNCTION
     dsinit();
     mylock.release_lock();
 
+    
+    // Here we would choose non-default yield tables. Unfortunately, this segfaults
+    // (presumably) due to a problem with the Fstring class
+    // Note that dsanyield_set (declared in DarkSUSY_6.hpp) expects strings with
+    // unspecified length as input on the DS side, i.e. char*(*)
+    //
+    //Fstring<20>  yield_key = "yieldtables";
+    //Fstring<20>  DS_yield_tables = "Hazma";
+    //dsanyield_set(yield_key,DS_yield_tables);
+
+    // Directly overwriting common block variables works, but is *not* intended DS usage!
+    // (this bypases, e.g., all the internal error handling)
+    an_how->anyieldhow = runOptions->getValueOrDef<std::string>("Hazma", "DS_yieldtables");
+//    an_how->anyieldhow = runOptions->getValueOrDef<std::string>("default", "DS_yieldtables");
+
+
+
     //// Initialize yield tables for use in cascade decays (initialize more if needed)
     // This makes sure that different processes later don't read the yield tables
     // from disk simultaneously

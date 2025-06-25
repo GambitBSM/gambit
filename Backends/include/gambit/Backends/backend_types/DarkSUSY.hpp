@@ -15,7 +15,7 @@
 ///
 ///  \author Torsten Bringmann
 ///          (torsten.bringmann@fys.uio.no)
-///  \date 2013 Jun, 2014 Mar, 2015 Apr, 2018 Sep, 2019 May
+///  \date 2013 Jun, 2014 Mar, 2015 Apr, 2018 Sep, 2019 May, 2023
 ///
 ///  \author Pat Scott
 ///          (patscott@physics.mcgill.ca)
@@ -39,6 +39,10 @@
 namespace Gambit
 {
  
+  struct DS_an_how
+  {
+      Fstring<10> anyieldhow, defaulthow, fallback;
+  };
   struct DS_IBINTVARS
   {
       Fdouble ibcom_x, ibcom_z, ibcom_mx, ibcom_mp1, ibcom_mp2;
@@ -325,6 +329,29 @@ namespace Gambit
       Farray<Finteger,1,50> kco;
       Finteger nco;
   };
+
+  // only in DarkSUSY >= 6.4
+  struct DS_RDLIMS
+  {
+      Fdouble pmaxT;
+      Farray<Fdouble,1,2000> plow,phigh;
+      Finteger nlim;
+      Flogical rd_excl_th_int;
+  };
+
+  // only in DarkSUSY >= 6.4
+  struct DS_ADM_COM
+  {
+      Fdouble adm_eta;
+  };
+
+  // only in DarkSUSY >= 6.4
+  struct DS_RD20OPT
+  {
+      Fdouble rdquaderr,rdlinerr,wresratio,wdev,ngammamax;
+      Fdouble ngastart, almin,almax,ngafac;
+  };
+
 
   struct DS_RDPTH
   {

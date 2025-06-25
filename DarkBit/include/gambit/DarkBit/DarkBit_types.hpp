@@ -23,7 +23,7 @@
 ///
 ///  \author Torsten Bringmann
 ///          (torsten.bringmann@fys.uio.no)
-///  \date 2013 Jun
+///  \date 2013 Jun, 2023
 ///
 ///  \author Pat Scott
 ///          (pat.scott@uq.edu.au)
@@ -120,6 +120,7 @@ namespace Gambit
       std::vector<TH_Resonance> resonances;
       std::vector<double> threshold_energy;
       std::string particle_index_type;
+      double etaDM; // primordial asymmetry
       bool isSelfConj;
     };
 

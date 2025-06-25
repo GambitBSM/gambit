@@ -549,6 +549,16 @@ namespace Gambit
       std::sort(pairs.begin(), pairs.end(), compfn);
     }
 
+    // Sort a list of pairs in order of highest invariant mass to lowest
+    inline void sortByInvariantMass(std::vector<std::vector<const Particle *> > &pairs)
+    {
+      auto compm = [&](std::vector<const Particle *> pair1, std::vector<const Particle *> pair2)
+      {
+        return (pair1.at(0)->mom() + pair1.at(1)->mom()).m() > (pair2.at(0)->mom() + pair2.at(1)->mom()).m();
+      }; 
+      std::sort(pairs.begin(), pairs.end(), compm);
+    }
+
     //@}
 
     /// Remove pairs with already used leptons, assumes some order

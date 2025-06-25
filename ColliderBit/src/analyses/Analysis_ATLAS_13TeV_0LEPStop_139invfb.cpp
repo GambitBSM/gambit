@@ -5,14 +5,19 @@
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "METSignificance/METSignificance.hpp"
 #include "HEPUtils/FastJet.h"
+#include <random>
+#include <cmath> 
+
 
 using namespace std;
+// #define CHECK_CUTFLOW
 
 /* The ATLAS 0 lepton direct stop analysis
 
    Based on: https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-12/
 
    Code by Martin White (based on ATLAS public code snippet on HepData)
+   Validation by Pengxuan Zhu 
 
    Note: RJR regions will be coded up in a separate file
 
@@ -103,6 +108,7 @@ namespace Gambit
         set_analysis_name("ATLAS_13TeV_0LEPStop_139invfb");
         set_luminosity(139.);
 
+        #ifdef CHECK_CUTFLOW
         _cutflows.addCutflow("SRATT",
           {"MET > 250.",
            "njets >= 4",
@@ -146,11 +152,114 @@ namespace Gambit
            "S > 25",
            "j1(R=1.2)",});
 
+        _cutflows.addCutflow("SRAT0", 
+          {"MET > 250.",
+           "njets >= 4",
+           "nbjets >=2",
+           "Lepton veto",
+           "pT j4 > 40 GeV",
+           "pT j2 > 80 GeV",
+           "|dPhi(pT1-4, MET)| > 0.4",
+           "Pass MET trigger",
+           "S > 5",
+           "mTbmin > 50 GeV",
+           "tau veto",
+           "mTbmin > 200 GeV",
+           "m1(R=1.2) > 120 GeV",
+           "m2(R=1.2) < 60 GeV",
+           "mT2, chi^2 > 450 GeV",
+           "m1(R=0.8) > 60 GeV",
+           "S > 25",
+           "j1(R=1.2)",});
+        
+        _cutflows.addCutflow("SRB", 
+          {"MET > 250.",
+           "njets >= 4",
+           "nbjets >=2",
+           "Lepton veto",
+           "pT j4 > 40 GeV",
+           "pT j2 > 80 GeV",
+           "|dPhi(pT1-4, MET)| > 0.4",
+           "Pass MET trigger",
+           "S > 5",
+           "mTbmin > 50 GeV",
+           "tau veto",
+           "mTbmin > 200 GeV",
+           "mTbmax > 200 GeV",
+           "deltaR(b1.b2) > 1.4",
+           "m1(R=1.2) > 120 GeV",
+           "mT2, chi^2 < 450 GeV",
+           "S > 14",
+           "m2(R=1.2) > 120 GeV (SRB-TT)",
+           "60 <= m2(R=1.2) <= 120 GeV (SRB-TW)",
+           "m2(R=1.2) <60 GeV (SRB-T0)",});
+
+        _cutflows.addCutflow("SRD0", 
+          {"Leading jet tight cleaning",
+           "Pass MET trigger",
+           "MET > 250.",
+           "Lepton veto",
+           "pT jISR >= 250 GeV",
+           "|dPhi(pTjISR, MET)| > 2.4",
+           "|dPhi(MET,pTmissTrack)| < Pi/3",
+           "ETmissTrack > 30 GeV", 
+           "MET/Sqrt(HT) >= 26 Sqrt(GeV)", 
+           "Nbtrack > 0", 
+           "Nb == 0",
+           "|dPhi(pT1btrack, pT2btrack)| < 2.5", 
+           "pT1btrack < 50", 
+           "|dPhi(pT1,1-4, pTjISR)| < 1.2", 
+           "|dPhimin(pT1-4, MET)| > 0.4",
+           "max|dPhi(pTjISR, pTbtrack)| > 2.2", 
+           "No track jet and jet overlap",});
+
+        _cutflows.addCutflow("SRD1", 
+          {"Leading jet tight cleaning",
+           "Pass MET trigger",
+           "MET > 250.",
+           "Lepton veto",
+           "pT jISR >= 250 GeV",
+           "|dPhi(pTjISR, MET)| > 2.4",
+           "|dPhi(MET,pTmissTrack)| < Pi/3",
+           "ETmissTrack > 30 GeV", 
+           "pT1btrack > 10",
+           "MET/Sqrt(HT) >= 22 Sqrt(GeV)", 
+           "Nbtrack > 0", 
+           "Nb == 1",
+           "pT1btrack < 40", 
+           "|dPhi(pTjISR, pT1b)| > 2.2", 
+           "|eta1b| < 1.6",
+           "|dPhi(pT1,1-4, pTjISR)| > 1.2",
+           "No track jet and jet overlap",});
+
+        _cutflows.addCutflow("SRD2", 
+          {"Leading jet tight cleaning",
+           "Pass MET trigger",
+           "MET > 250.",
+           "Lepton veto",
+           "pT jISR >= 250 GeV",
+           "|dPhi(pTjISR, MET)| > 2.4",
+           "|dPhi(MET,pTmissTrack)| < Pi/3",
+           "ETmissTrack > 30 GeV", 
+           "MET/Sqrt(HT) >= 22 Sqrt(GeV)", 
+           "Nb >= 2",
+           "|dPhi(pTjISR, pT1btrack)| > 2.2", 
+           "|dPhi(pTjISR, pT2btrack)| > 1.6", 
+           "pT1b < 175", 
+           "pT1b > 0", 
+           "|eta2b| < 1.2", });
+
+        std::cout << "======= CutFlow ========" 
+            << _cutflows["SRATT"] << std::endl; 
+        
+        #endif
+
 
       }
 
       void run(const HEPUtils::Event* event)
       {
+        // std::cout << "Start New Events" << std::endl; 
 
         // Missing energy
         HEPUtils::P4 metVec = event->missingmom();
@@ -178,6 +287,7 @@ namespace Gambit
         // Apply muon efficiency
         // Missing: "Medium" muon ID criteria
         applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("R2"));
+        // applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Medium"));
 
         // Baseline jets
         vector<const HEPUtils::Jet*> baselineJets;
@@ -187,31 +297,47 @@ namespace Gambit
             baselineJets.push_back(jet);
         }
 
-        // Taus
-        float MtTauCand = -1;
-        vector<const HEPUtils::Particle*> tauCands;
-        for (const HEPUtils::Particle* tau : event->taus())
-        {
-          if (tau->pT() > 10. && tau->abseta() < 2.47) tauCands.push_back(tau);
-        }
-        applyEfficiency(tauCands, ATLAS::effTau.at("R1"));
-
         // Jets
         vector<const HEPUtils::Jet*> bJets;
         vector<const HEPUtils::Jet*> nonBJets;
         vector<const HEPUtils::Jet*> trueBJets; //for debugging
 
+        // Taus
+        float MtTauCand = -1;
+        vector<const HEPUtils::Particle*> tauCands;
+        for (const HEPUtils::Particle* tau : event->taus())
+        {
+          if (tau->pT() > 20. && tau->abseta() < 2.47) {
+            tauCands.push_back(tau); 
+            // HEPUtils::Jet* newJet = new HEPUtils::Jet(tau->mom());
+            // nonBJets.push_back(newJet);
+            }
+        }
+        applyEfficiency(tauCands, ATLAS::effTau.at("R1"));
+
+
+
+        // B-tag efficiencies 
+        std::map<const Jet*, bool> analysisBtags = generateBTagsMap(baselineJets, 0.77, 0.10, 0.005);
+
+        const double accbtag = pow(0.7 / 0.77, 2); 
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<> dis(0.0, 1.0);
+        double randomNumber = dis(gen);
+        bool accbtag_SRA = randomNumber < accbtag; 
+
         // Get b jets
         /// @note We assume that b jets have previously been 100% tagged
-        const std::vector<double>  a = {0,10.};
-        const std::vector<double>  b = {0,10000.};
-        const std::vector<double> c = {0.77}; // set b-tag efficiency to 77%
-        HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
+        // const std::vector<double>  a = {0,5.};
+        // const std::vector<double>  b = {0,110.};
+        // const std::vector<double> c = {0.77}; // set b-tag efficiency to 77%
+        // HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
         for (const HEPUtils::Jet* jet : baselineJets)
         {
-          bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
+          bool hasTag = analysisBtags.at(jet);
 
-          if(jet->btag() && hasTag && fabs(jet->eta()) < 2.5 && jet->pT() > 20.)
+          if(hasTag && fabs(jet->eta()) < 2.5 && jet->pT() > 20.)
           {
             bJets.push_back(jet);
           }
@@ -241,9 +367,9 @@ namespace Gambit
         removeOverlap(baselineElectrons, nonBJets, lambda);
         removeOverlap(baselineElectrons, bJets, lambda);
 
-        // Fill a jet-pointer-to-bool map to make it easy to check
-        // if a given jet is treated as a b-jet in this analysis
-        map<const HEPUtils::Jet*,bool> analysisBtags;
+        // // Fill a jet-pointer-to-bool map to make it easy to check
+        // // if a given jet is treated as a b-jet in this analysis
+        // map<const HEPUtils::Jet*,bool> analysisBtags;
         for (const HEPUtils::Jet* jet : bJets) {
           analysisBtags[jet] = true;
         }
@@ -366,9 +492,11 @@ namespace Gambit
 
         bool hasTaus = false;
         for (const HEPUtils::Particle* tau : tauCands) {
+          // cout << tau->mom().deltaPhi(metVec) << endl; 
           if (tau->mom().deltaPhi(metVec) < M_PI/5.) {
-            MtTauCand = get_mT(tau->mom(), metVec);
+            hasTaus = true; 
           }
+          MtTauCand = get_mT(tau->mom(), metVec);
           if (MtTauCand > 0) hasTaus = true;
         }
 
@@ -565,9 +693,9 @@ namespace Gambit
         bool pre1B4J0L = Met > 250 && nLep == 0 && nSignalJets >= 4 && nBJets >= 1 && signalJets[1]->pT() > 80 && signalJets[3]->pT() > 40 && dPhiJetMetMin2>0.4;
         bool pre2B4J0L = pre1B4J0L && nBJets >= 2 && dPhiJetMetMin4 > 0.4 && MetSig > 5 && MtBMin > 50 && MtTauCand < 0;
         bool pre2B4J0Ltight = pre2B4J0L && MtBMin > 200;
-        bool pre2B4J0LtightTT = pre2B4J0Ltight && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>120;
-        bool pre2B4J0LtightTW = pre2B4J0Ltight && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>60 && AntiKt12M_1<120;
-        bool pre2B4J0LtightT0 = pre2B4J0Ltight && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>0 && AntiKt12M_1<60;
+        bool pre2B4J0LtightTT = pre2B4J0Ltight && accbtag_SRA && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>120;
+        bool pre2B4J0LtightTW = pre2B4J0Ltight && accbtag_SRA && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>60 && AntiKt12M_1<120;
+        bool pre2B4J0LtightT0 = pre2B4J0Ltight && accbtag_SRA && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>0 && AntiKt12M_1<60;
 
         //bool SRA = pre2B4J0Ltight && MT2Chi2 > 450 && nFatJetsR12>=2 && AntiKt12M_0>120 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1;
         bool SRATT = !hasTaus && pre2B4J0LtightTT && MT2Chi2 > 450 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1 && NCloseByBJets12Subleading >= 1 && DRBB > 1.00;
@@ -587,7 +715,6 @@ namespace Gambit
         if (SRBT0)_counters.at("SRBT0").add_event(event);
 
         // SRC missing (these are the RJR regions)
-
         bool SRDLoose = nLep == 0 && nBadJets == 0 && Met > 250 && nonBJets.size() > 0 && nonBJets.size() > 0 && nonBJets[0]->pT()>250 && nonBJets[0]->mom().deltaR_eta(metVec) > 2.4 && HtSig > 22;
         bool SRD0 = SRDLoose && nBJets == 0 && dPhiJetMetMin4>0.4 && HtSig > 26;
         bool SRD1 = SRDLoose && nBJets == 1 && fabs(signalBJets[0]->eta())<1.6 && signalBJets[0]->mom().deltaPhi(nonBJets[0]->mom())>2.0 && signalBJets[0]->mom().deltaPhi(nonBJets[0]->mom())>2.2;
@@ -602,50 +729,159 @@ namespace Gambit
         // Now fill the cutflows
         const double w = event->weight();
 
-        _cutflows.fillinit(w);
 
-        _cutflows["SRATT"].fillnext({
-          Met > 250.,
-          nSignalJets >=4,
-          nBJets >=2,
-          nLep == 0,
-          nSignalJets >=4 && signalJets[3]->pT() > 40,
-          nSignalJets >=2 && signalJets[1]->pT() > 80,
-          dPhiJetMetMin2>0.4,
-          true,
-          MetSig > 5,
-          MtBMin > 50.,
-          !hasTaus,
-          MtBMin > 200.,
-          AntiKt12M_0>120.,
-          AntiKt12M_1>120,
-          MT2Chi2 > 450,
-          AntiKt8M_0 > 60.,
-          MetSig > 25.,
-          NCloseByBJets12Leading >= 1,
-          NCloseByBJets12Subleading >= 1,
-          DRBB > 1.}, w);
+        #ifdef CHECK_CUTFLOW
+          _cutflows.fillinit(w);
 
-        _cutflows["SRATW"].fillnext({
-          Met > 250.,
-          nSignalJets >=4,
-          nBJets >=2,
-          nLep == 0,
-          nSignalJets >=4 && signalJets[3]->pT() > 40,
-          nSignalJets >=2 && signalJets[1]->pT() > 80,
-          dPhiJetMetMin2>0.4,
-          true,
-          MetSig > 5,
-          MtBMin > 50.,
-          !hasTaus,
-          MtBMin > 200.,
-          AntiKt12M_0>120.,
-          AntiKt12M_1>60.,
-                           AntiKt12M_1<120.,
-          MT2Chi2 > 450.,
-          AntiKt8M_0 > 60.,
-          MetSig > 25.,
-          NCloseByBJets12Leading >= 1},w);
+          _cutflows["SRATT"].fillnext({
+            Met > 250.,
+            nSignalJets >=4,
+            nBJets >=2 && accbtag_SRA,
+            nLep == 0,
+            nSignalJets >=4 && signalJets[3]->pT() > 40,
+            nSignalJets >=2 && signalJets[1]->pT() > 80,
+            dPhiJetMetMin4>0.4,
+            true,
+            MetSig > 5,
+            MtBMin > 50.,
+            !hasTaus,
+            MtBMin > 200.,
+            AntiKt12M_0>120.,
+            AntiKt12M_1>120,
+            MT2Chi2 > 450,
+            AntiKt8M_0 > 60.,
+            MetSig > 25.,
+            NCloseByBJets12Leading >= 1,
+            NCloseByBJets12Subleading >= 1,
+            DRBB > 1.}, w);
+
+          _cutflows["SRATW"].fillnext({
+            Met > 250.,
+            nSignalJets >=4,
+            nBJets >=2 && accbtag_SRA,
+            nLep == 0,
+            nSignalJets >=4 && signalJets[3]->pT() > 40,
+            nSignalJets >=2 && signalJets[1]->pT() > 80,
+            dPhiJetMetMin4>0.4,
+            true,
+            MetSig > 5,
+            MtBMin > 50.,
+            !hasTaus,
+            MtBMin > 200.,
+            AntiKt12M_0>120.,
+            AntiKt12M_1>60.,
+            AntiKt12M_1<120.,
+            MT2Chi2 > 450.,
+            AntiKt8M_0 > 60.,
+            MetSig > 25.,
+            NCloseByBJets12Leading >= 1},w);
+
+          _cutflows["SRAT0"].fillnext({
+            Met > 250.,
+            nSignalJets >=4,
+            nBJets >=2 && accbtag_SRA,
+            nLep == 0,
+            nSignalJets >=4 && signalJets[3]->pT() > 40,
+            nSignalJets >=2 && signalJets[1]->pT() > 80,
+            dPhiJetMetMin4>0.4,
+            true,
+            MetSig > 5,
+            MtBMin > 50.,
+            !hasTaus,
+            MtBMin > 200.,
+            AntiKt12M_0>120.,
+            AntiKt12M_1<60,
+            MT2Chi2 > 450,
+            AntiKt8M_0 > 60.,
+            MetSig > 25.,
+            NCloseByBJets12Leading >= 1,}, w);
+
+          _cutflows["SRB"].fillnext({
+            Met > 250.,
+            nSignalJets >=4,
+            nBJets >=2,
+            nLep == 0,
+            nSignalJets >=4 && signalJets[3]->pT() > 40,
+            nSignalJets >=2 && signalJets[1]->pT() > 80,
+            dPhiJetMetMin4>0.4,
+            true,
+            MetSig > 5,
+            MtBMin > 50.,
+            !hasTaus,
+            MtBMin > 200.,
+            MtBMax > 200., 
+            DRBB > 1.4, 
+            AntiKt12M_0>120.,
+            MT2Chi2 < 450,
+            MetSig > 14.,}, w);
+            if (SRB){
+              if (AntiKt12M_1 > 120.) 
+                _cutflows["SRB"].fill(18, true, w);
+              if (AntiKt12M_1 > 60. && AntiKt12M_1 <= 120.) 
+                _cutflows["SRB"].fill(19, true, w);
+              if (AntiKt12M_1 <= 60.) 
+                _cutflows["SRB"].fill(20, true, w);
+            }
+          
+          _cutflows["SRD0"].fillnext({
+            nonBJets.size() > 0,
+            true, 
+            Met > 250., 
+            nLep == 0, 
+            nonBJets.size() > 0 && nonBJets[0]->pT()>250., 
+            nonBJets.size() > 0 && nonBJets[0]->mom().deltaR_eta(metVec) > 2.4, 
+            true, 
+            true, 
+            HtSig > 26., 
+            true, 
+            nBJets == 0, 
+            true, 
+            true, 
+            true, 
+            dPhiJetMetMin4 > 0.4, 
+            true, 
+            true,}, w); 
+
+
+          _cutflows["SRD1"].fillnext({
+            nonBJets.size() > 0,
+            true, 
+            Met > 250., 
+            nLep == 0, 
+            nonBJets.size() > 0 && nonBJets[0]->pT()>250., 
+            nonBJets.size() > 0 && nonBJets[0]->mom().deltaR_eta(metVec) > 2.4, 
+            true, 
+            true, 
+            true, 
+            HtSig >= 22., 
+            true, 
+            signalBJets.size() == 1, 
+            true, 
+            signalBJets.size() == 1 && nonBJets.size() > 0 && signalBJets[0]->mom().deltaPhi(nonBJets[0]->mom()) > 2.2,
+            signalBJets.size() == 1 && fabs(signalBJets[0]->eta())<1.6,
+            true, 
+            true}, w); 
+
+          _cutflows["SRD2"].fillnext({
+            nonBJets.size() > 0,
+            true, 
+            Met > 250., 
+            nLep == 0, 
+            nonBJets.size() > 0 && nonBJets[0]->pT()>250., 
+            nonBJets.size() > 0 && nonBJets[0]->mom().deltaR_eta(metVec) > 2.4, 
+            true, 
+            true, 
+            HtSig >= 22., 
+            signalBJets.size() >=2, 
+            signalBJets.size() >=2 && nonBJets.size() > 0 && signalBJets[0]->mom().deltaPhi(nonBJets[0]->mom())>2.2, 
+            signalBJets.size() >=2 && nonBJets.size() > 0 && signalBJets[1]->mom().deltaPhi(nonBJets[0]->mom())>1.6, 
+            signalBJets.size() >=2 && signalBJets[0]->pT()<175.,
+            signalBJets.size() >=2 && signalBJets[0]->pT() > 0.,
+            signalBJets.size() >=2 && fabs(signalBJets[1]->eta())<1.2,}, w); 
+
+
+
+        #endif
 
         return;
 
@@ -663,9 +899,26 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SRD0"), 5., { 6.9, 1.3}));
         add_result(SignalRegionData(_counters.at("SRD1"), 4., { 3.1, 1.0}));
         add_result(SignalRegionData(_counters.at("SRD2"), 10., { 12.2, 1.5}));
+        
+        #ifdef CHECK_CUTFLOW
+          std::cout << "\n ===== CUTFLOWS ====== \n"
+               << _cutflows["SRATT"] << std::endl;        
+          std::cout << "\n ===== CUTFLOWS ====== \n"
+               << _cutflows["SRATW"] << std::endl;    
+          std::cout << "\n ===== CUTFLOWS ====== \n"
+               << _cutflows["SRAT0"] << std::endl;    
+          std::cout << "\n ===== CUTFLOWS ====== \n"
+               << _cutflows["SRB"] << std::endl;      
+          std::cout << "\n ===== CUTFLOWS ====== \n"
+               << _cutflows["SRD0"] << std::endl;  
+          std::cout << "\n ===== CUTFLOWS ====== \n"
+               << _cutflows["SRD1"] << std::endl;  
+          std::cout << "\n ===== CUTFLOWS ====== \n"
+               << _cutflows["SRD2"] << std::endl;  
 
-        add_cutflows(_cutflows);
-
+          add_cutflows(_cutflows);
+        #endif
+        
         return;
       }
 

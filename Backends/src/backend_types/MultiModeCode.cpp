@@ -48,6 +48,6 @@ namespace Gambit
     // N.B. For single field inflation, MMC determines the parameters below self-consistenly; choose sensible entries as starting point
     phi_init0 = {10.0};
     dphi_init0 = {1.0};
-  };
+  }
 
 }

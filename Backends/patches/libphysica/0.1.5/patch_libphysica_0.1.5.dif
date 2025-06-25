@@ -1,0 +1,29 @@
+diff -rupN a/src/Integration.cpp b/src/Integration.cpp
+--- a/src/Integration.cpp	2023-06-26 10:35:27.699493698 +0200
++++ b/src/Integration.cpp	2023-06-26 10:35:38.803479932 +0200
+@@ -59,7 +59,7 @@ void Check_Integration_Limits(double& a,
+ {
+ 	if(a > b)
+ 	{
+-		std::cerr << "Warning in libphysica::Integrate(): From the integral from a to b, a>b (a = " << a << ", b = " << b << "). Sign will get swapped." << std::endl;
++//		std::cerr << "Warning in libphysica::Integrate(): From the integral from a to b, a>b (a = " << a << ", b = " << b << "). Sign will get swapped." << std::endl;
+ 		std::swap(a, b);
+ 		sign = -1.0;
+ 	}
+diff -rupN a/src/Statistics.cpp b/src/Statistics.cpp
+--- a/src/Statistics.cpp	2023-07-26 13:41:55.397799962 +0200
++++ b/src/Statistics.cpp	2023-07-26 13:42:49.502981356 +0200
+@@ -240,7 +240,11 @@ double Log_Likelihood_Poisson(double N_p
+ 	for(unsigned int j = 1; j <= N_observed; j++)
+ 		log_N_obs_factorial += log(j);
+ 
+-	return N_observed * log(N_prediction + expected_background) - log_N_obs_factorial - (N_prediction + expected_background);
++  // Modified by GAMBIT
++	if(N_observed==0)
++    return - log_N_obs_factorial - (N_prediction + expected_background);
++  else
++    return N_observed * log(N_prediction + expected_background) - log_N_obs_factorial - (N_prediction + expected_background);
+ }
+ 
+ double Likelihood_Poisson(double N_prediction, unsigned long int N_observed, double expected_background)
+

@@ -22,8 +22,8 @@ GUM_DIR = "@GUM_DIR@"
 # Python executable
 PYTHON_EXECUTABLE = "@PYTHON_EXECUTABLE@"
 
-# Pythia version
-base_pythia_version = "@BASE_PYTHIA_VERSION@"
+# Pythia version (No longer a constant)
+# base_pythia_version = "@BASE_PYTHIA_VERSION@"
 
 # Pythia md5 sum
 pythia_md5 = "@PYTHIA_MD5@"

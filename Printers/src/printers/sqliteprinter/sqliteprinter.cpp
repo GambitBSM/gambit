@@ -333,29 +333,33 @@ namespace Gambit
       dump_buffer();
 
       // Add last point ID to metadata
-      std::stringstream ssPPID;
-      ssPPID << lastPointID;
-
-      std::stringstream sql;
-      ensure_column_exists(get_metadata_table_name(), "lastPointID", "MEDIUMTEXT");
-      sql << " UPDATE " << get_metadata_table_name() << " SET lastPointID = \"" << ssPPID.str() << "\" WHERE metadataID = " << lastMetadataID << ";\n";
-
-      /* Execute SQL statement */
-      int rc;
-      char *zErrMsg = 0;
-      // Need allow_fail=true for this case
-      rc = submit_sql(LOCAL_INFO, sql.str(), true, NULL, NULL, &zErrMsg);
-
-      if( rc != SQLITE_OK )
+      if (get_output_metadata())
       {
-        std::stringstream err;
-        err << "Failed to add metadata to output SQL table! The SQL error was: " << zErrMsg << std::endl;
+        std::stringstream ssPPID;
+        ssPPID << lastPointID;
+
+        std::stringstream sql;
+        ensure_column_exists(get_metadata_table_name(), "lastPointID", "MEDIUMTEXT");
+        sql << " UPDATE " << get_metadata_table_name() << " SET lastPointID = \"" << ssPPID.str() << "\" WHERE metadataID = " << lastMetadataID << ";\n";
+
+        /* Execute SQL statement */
+        int rc;
+        char *zErrMsg = 0;
+        // Need allow_fail=true for this case
+        rc = submit_sql(LOCAL_INFO, sql.str(), true, NULL, NULL, &zErrMsg);
+
+        if( rc != SQLITE_OK )
+        {
+          std::stringstream err;
+          err << "Failed to add metadata to output SQL table! The SQL error was: " << zErrMsg << std::endl;
 //#ifdef SQL_DEBUG
-        err << "The attempted SQL statement was:"<<std::endl;
-        err << sql.str() << std::endl;
+          err << "The attempted SQL statement was:"<<std::endl;
+          err << sql.str() << std::endl;
 //#endif
-        sqlite3_free(zErrMsg);
-        printer_error().raise(LOCAL_INFO,err.str());
+          sqlite3_free(zErrMsg);
+          printer_error().raise(LOCAL_INFO,err.str());
+        }
+
       }
 
     }

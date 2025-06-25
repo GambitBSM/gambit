@@ -552,12 +552,13 @@ namespace Gambit
               // Check that metadata group is readable
               if(not HDF5::checkGroupReadable(file_id, metadata_group, msg2))
               {
-                // We are supposed to be resuming, but metadata group was not readable in the output file, so we can't.
+                // We are supposed to be resuming, but metadata group was not readable in the output file, so throw a warning
                 std::ostringstream errmsg;
-                errmsg << "Error! GAMBIT is in resume mode, however the chosen output system (HDF5Printer) was unable to open the metadata group ("<<metadata_group<<") within the existing output file ("<<tmp_comb_file<<"). Resuming is therefore not possible; aborting run... (see below for IO error message)";
-                errmsg << std::endl << "(Strictly speaking we could allow the run to continue (if the scanner can find its necessary output files from the last run), however the printer output from that run is gone, so most likely the scan needs to start again).";
-                errmsg << std::endl << "IO error message: " << msg2;
-                printer_error().raise(LOCAL_INFO, errmsg.str());
+                errmsg << "Warning! GAMBIT is in resume mode, however the chosen output system (HDF5Printer) was unable to open the metadata group ("<<metadata_group<<") within the existing output file ("<<tmp_comb_file<<"). The scan will be resumed but all previous metadata will be lost. ";
+                logger() << LogTags::info << errmsg.str() << EOM;
+                #ifdef DEBUG_MODE
+                  std::cout << errmsg.str() << std::endl;
+                #endif
               }
 
               // Open requested group (creating it plus parents if needed)
@@ -851,11 +852,14 @@ namespace Gambit
         logger() << LogTags::printers << "Running finalise() routine for HDF5Printer (with name=\""<<printer_name<<"\")..." << EOM;
 
         // Add last point ID to metadata
-        std::stringstream ssPPID;
-        ssPPID << lastPointID;
-        map_str_str lastpoint;
-        lastpoint["lastPointID"] = ssPPID.str();
-        _print_metadata(lastpoint);
+        if (get_output_metadata())
+        {
+          std::stringstream ssPPID;
+          ssPPID << lastPointID;
+          map_str_str lastpoint;
+          lastpoint["lastPointID"] = ssPPID.str();
+          _print_metadata(lastpoint);
+        }
 
         // Make sure all the buffers are caught up to the final point.
         synchronise_buffers();

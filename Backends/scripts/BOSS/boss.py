@@ -147,13 +147,13 @@ def main():
         sys.exit()
 
 
-    # Check that CastXML is found and get the correct path 
+    # Check that CastXML is found and get the correct path
     # (system-wide executable or prebuilt binary in castxml/bin/castxml)
     boss_abs_dir = os.path.dirname(os.path.abspath(__file__))
     local_castxml_path = os.path.join(boss_abs_dir,"castxml/bin/castxml")
     has_castxml_system = True
     has_castxml_local = True
-    try: 
+    try:
         subprocess.check_output(["which","castxml"])
     except subprocess.CalledProcessError:
         print()
@@ -162,7 +162,7 @@ def main():
         has_castxml_system = False
         print("Will now look for a prebuilt CastXML binary in %s" % (local_castxml_path))
 
-    try: 
+    try:
         subprocess.check_output(["which",local_castxml_path])
     except subprocess.CalledProcessError:
         print()
@@ -177,7 +177,7 @@ def main():
         print()
         print("and extract it in the main BOSS directory: %s/" % (boss_abs_dir))
         print()
-        has_castxml_local = False        
+        has_castxml_local = False
 
     # Quit if no version of CastXML is found
     if (not has_castxml_system) and (not has_castxml_local): sys.exit()
@@ -581,7 +581,6 @@ def main():
                     raise
 
                 compare_func_name = func_name_long_templ_args.replace(' ','')
-                # print("DEBUG: compare_func_name: ", [compare_func_name])
                 if compare_func_name in cfg.load_functions:
 
                     is_loadable = not funcutils.ignoreFunction(el, limit_pointerness=True, print_warning=True)

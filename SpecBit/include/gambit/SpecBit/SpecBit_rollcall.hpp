@@ -85,6 +85,10 @@ START_MODULE
   /// Module function declarations for SpecBit_SuperRenormHP.cpp
   #include "gambit/SpecBit/SpecBit_SuperRenormHP_rollcall.hpp"
 */
+
+  /// Module function declarations for SpecBit_SubGeVDM.cpp
+  #include "gambit/SpecBit/SpecBit_SubGeVDM_rollcall.hpp"
+
   /// For SpecBit testing only
   //#include "gambit/SpecBit/SpecBit_sandbox_rollcall.hpp"
 

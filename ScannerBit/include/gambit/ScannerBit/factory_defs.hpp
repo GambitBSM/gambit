@@ -111,6 +111,27 @@ namespace Gambit
                    if(myRealRank==0) Gambit::Scanner::Plugins::plugin_info.clear_alt_min_LogL_state();
                 }
             }
+            
+            void init()
+            {
+                #ifdef WITH_MPI
+                GMPI::Comm world;
+                myRealRank = world.Get_rank();
+                #endif
+                // Check if we should be using the alternative min_LogL from the very beginning
+                // (for example if we are resuming from a run where we already switched to this)
+                if (Gambit::Scanner::Plugins::plugin_info.resume_mode())
+                {
+                   use_alternate_min_LogL = Gambit::Scanner::Plugins::plugin_info.check_alt_min_LogL_state();
+                }
+                else
+                {
+                   // New scan; delete any old persistence file
+                   // But only do this if we are process 0, otherwise I think race conditions can occur.
+                   // (TODO do we need to ensure a sync here in case other processes than 0 get too far ahead?)
+                   if(myRealRank==0) Gambit::Scanner::Plugins::plugin_info.clear_alt_min_LogL_state();
+                }
+            }
 
             virtual double purposeModifier(double ret_val) {return ret_val;}
             virtual ret main(const args&...) = 0;

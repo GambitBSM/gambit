@@ -175,10 +175,10 @@ namespace daFunk
         double dx = 0;
         if (n > 1)
             dx = (x1-x0)/(n-1);
-            for (unsigned int i = 0; i<n; i++)
-            {
-                ret.push_back(x0 + i * dx);
-            }
+        for (unsigned int i = 0; i<n; i++)
+        {
+            ret.push_back(x0 + i * dx);
+        }
         return ret;
     }
 
@@ -189,10 +189,10 @@ namespace daFunk
         double dx = 0;
         if (n > 1)
             dx = (x1-x0)/(n-1);
-            for (unsigned int i = 0; i<n; i++)
-            {
-                ret.push_back(pow(10, x0 + i * dx));
-            }
+        for (unsigned int i = 0; i<n; i++)
+        {
+            ret.push_back(pow(10, x0 + i * dx));
+        }
         return ret;
     }
 

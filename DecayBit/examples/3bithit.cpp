@@ -76,6 +76,11 @@ int main()
     std::map<std::string, std::string> loggerinfo;
     loggerinfo["Default"] = "3bithit.log";
     logger().initialise(loggerinfo);
+    
+    // Initialise settings for printer (required)
+    YAML::Node printerNode = get_standalone_printer("cout", "runs/3bithit/logs/","");
+    Printers::PrinterManager printerManager(printerNode, false);
+    set_global_printer_manager(&printerManager);
 
     // Initialise the random number generator.
     Random::create_rng_engine("default");

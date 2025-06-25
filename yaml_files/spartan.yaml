@@ -10,22 +10,35 @@
 Parameters:
   # In this example we will simply be fitting the mean and standard deviation of a normal distribution.
   NormalDist:
+    # Example of using simple priors:
     mu:
+      prior_type: flat
       range: [15, 30]
     sigma:
+      prior_type: flat
       range: [0, 5]
+
+    # If using a more complicated prior specified in the 'Priors' section below, 
+    # use the 'in_priors' keyword in this section:
+    # mu: in_priors
+    # sigma: in_priors
 
 
 Priors:
 
-  # None needed: flat priors are automatically generated for NormalDist::mu and NormalDist::sigma
-  # If you wanted to use a Gaussian prior on these parameters instead, you would comment
-  # out their ranges above, and do e.g.
-  #prior1:
-  #  parameters: ["NormalDist::mu", "NormalDist::sigma"]
-  #  prior_type: gaussian
-  # mu: [18, 5]
-  #  sigma: [3.0, 1]
+  # None needed: simple priors are already specified in the 'Parameters' section above.
+
+  # If defining a more complicated prior, make sure to tag the relevant parameters with the
+  # keyword 'in_priors' in the 'Parameters' section above. Below is an example of a 
+  # 2D gaussian prior for the two parameters 'mu' and 'sigma': 
+  # 
+  # my_prior:
+  #   parameters: ["NormalDist::mu", "NormalDist::sigma"]
+  #   prior_type: gaussian
+  #   mu: [18, 5]
+  #   cov_matrix: [[9.0, 0.0], [0.0, 1.0]]
+  #   # sigma: [3.0, 1]
+
 
 Printer:
 
@@ -49,6 +62,7 @@ Printer:
   #   output_file: "results.dat"
   #   buffer_length: 10
   #   delete_file_on_restart: true
+  #   print_debug_data: true
 
   printer: hdf5
   options:
@@ -83,7 +97,7 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 5000
+      NP: 500
 
     multinest:
       plugin: multinest
@@ -108,6 +122,14 @@ Scanner:
       like:  LogLike
       print_parameters_in_native_output: true
       tol: 0.1
+
+    pso:
+      plugin: jswarm
+      like:  LogLike
+      NP: 400
+      adaptive_phi: true
+      adaptive_omega: true
+      verbosity: 2
 
     minuit2:
       plugin: minuit2
@@ -324,7 +346,6 @@ Scanner:
       run:
         min_num_live_points: 1000
         dlogz: 0.5
-
 
 ObsLikes:
 

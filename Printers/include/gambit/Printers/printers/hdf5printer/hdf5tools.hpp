@@ -113,7 +113,7 @@ namespace Gambit
          /// Check if a dataset exists and can be read from fully
          /// (Reads through entire dataset to make sure! May take some time)
          std::pair<bool,std::size_t> checkDatasetReadable(hid_t location, const std::string& dsetname);
-  
+
          /// Create hdf5 file (always overwrite existing files)
          hid_t createFile(const std::string& fname);
 
@@ -139,7 +139,7 @@ namespace Gambit
           * does not yet exist.
           *
           */
-         hid_t openGroup(hid_t file_id, const std::string& name, bool nocreate=false);
+         hid_t openGroup(hid_t file_id, const std::string& name, bool nocreate=false, bool fatal=true);
 
          /// Close group
          hid_t closeGroup(hid_t group);
@@ -177,7 +177,7 @@ namespace Gambit
 
          /// Select a simple hyperslab in a 1D dataset
          std::pair<hid_t,hid_t> selectChunk(const hid_t dset_id, std::size_t offset, std::size_t length);
- 
+
          /// Check if an object in a group is a dataset
          bool isDataSet(hid_t group_id, const std::string& name);
 
@@ -188,7 +188,7 @@ namespace Gambit
          {
              // Buffer to receive data (and return from function)
              std::vector<T> chunkdata(length);
- 
+
              // Select hyperslab
              std::pair<hid_t,hid_t> selection_ids = selectChunk(dset_id,offset,length);
              hid_t memspace_id = selection_ids.first;
@@ -211,7 +211,7 @@ namespace Gambit
 
              H5Sclose(dspace_id);
              H5Sclose(memspace_id);
- 
+
              return chunkdata;
          }
 
@@ -221,7 +221,7 @@ namespace Gambit
 
          // Match fixed integers to HDF5 types
          int inttype_from_h5type(hid_t h5type);
-   
+
          // Query whether type integer indicates general 'float' or 'int'
          bool is_float_type(int inttype);
 

@@ -32,11 +32,11 @@ namespace Gambit
           // DEFINE_SIGNAL_REGION(SRNAME, CF1, CF2, ...)
           // Fills _counters and _cutflows variables
           // By default the Preselection and Final cuts are always defined
-          DEFINE_SIGNAL_REGION("SR")
+          DEFINE_SIGNAL_REGION_NOCUTS("SR")
 
           // Define multiple signal regions at one, number 1..N
           // This defines the signal regions SR1, SR2, SR3, SR4 and SR5
-          DEFINE_SIGNAL_REGIONS("SR", 5)
+          DEFINE_SIGNAL_REGIONS_NOCUTS("SR", 5)
 
           set_analysis_name("Dummy");
           set_luminosity(137.0);

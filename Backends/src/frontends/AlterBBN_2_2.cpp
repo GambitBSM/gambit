@@ -54,7 +54,7 @@ BE_NAMESPACE
   /// string set containing the name of all members of the AlterBBN relicparam structures that can currently
   /// be set with GAMBIT. If you add a new model and need to pass a different option to AlterBBN add e.g. "neutron_lifetime"
   /// here and in the function fill_cosmomodel below to modify the lifetime of the neutron
-  std::set<std::string> known_relicparam_options = {"eta0", "Nnu", "dNnu", "neutron_lifetime", "err","failsafe"};
+  std::set<std::string> known_relicparam_options = {"eta0", "Nnu", "dNnu", "neutron_lifetime", "err","failsafe","m_chi","g_chi","fermion","EM_coupled","wimp","selfConjugate"};
 
   /// Fill AlterBBN's relicparam with the entries from the AlterBBN_input
   void fill_cosmomodel(AlterBBN_2_2::relicparam * input_relicparam, map_str_dbl & AlterBBN_input)
@@ -88,6 +88,12 @@ BE_NAMESPACE
     if (AlterBBN_input.count("Nnu")){input_relicparam->Nnu = AlterBBN_input["Nnu"];}
     if (AlterBBN_input.count("dNnu")){input_relicparam->dNnu = AlterBBN_input["dNnu"];}
     if (AlterBBN_input.count("neutron_lifetime")){input_relicparam->life_neutron = AlterBBN_input["neutron_lifetime"];}
+    if (AlterBBN_input.count("m_chi")){input_relicparam->m_chi = AlterBBN_input["m_chi"];}
+    if (AlterBBN_input.count("g_chi")){input_relicparam->g_chi = AlterBBN_input["g_chi"];}
+    if (AlterBBN_input.count("fermion")){input_relicparam->fermion = AlterBBN_input["fermion"];}
+    if (AlterBBN_input.count("EM_coupled")){input_relicparam->EM_coupled = AlterBBN_input["EM_coupled"];}
+    if (AlterBBN_input.count("wimp")){input_relicparam->wimp = AlterBBN_input["wimp"];}
+    if (AlterBBN_input.count("selfConjugate")){input_relicparam->selfConjugate = AlterBBN_input["selfConjugate"];}
 
     // set error handling related parameters
     if (AlterBBN_input.count("failsafe")){input_relicparam->failsafe = (int)AlterBBN_input["failsafe"];}
@@ -136,7 +142,7 @@ BE_NAMESPACE
   /// (holding the computed element abundances)
   /// BE convinience function just in case it changes with a different version of AlterBBN
   map_str_int get_abund_map_AlterBBN()
-  { return {{"H2",3},{"D",3},{"H3",4},{"He3",5},{"He4",6},{"Yp",6},{"Li6",7},{"Li7",8},{"Be7",9},{"Li8",10}}; }
+  { return {{"Neff",0},{"H2",3},{"D",3},{"H3",4},{"He3",5},{"He4",6},{"Yp",6},{"Li6",7},{"Li7",8},{"Be7",9},{"Li8",10}}; }
 
 }
 END_BE_NAMESPACE

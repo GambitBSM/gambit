@@ -1,0 +1,20 @@
+diff -rupN a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt	2024-05-31 14:07:27.047984681 +0200
++++ b/CMakeLists.txt	2024-05-31 14:08:03.608724979 +0200
+@@ -42,9 +42,13 @@ endif()
+ # Use provided version of yaml-cpp
+ add_subdirectory(${PROJECT_SOURCE_DIR}/yaml-cpp EXCLUDE_FROM_ALL)
+ # looking for boost
+-find_package(Boost REQUIRED)
++if("${Boost_INCLUDE_DIRS}" STREQUAL "")
++  find_package(Boost REQUIRED)
++endif()
+ # GSL
+-find_package(GSL REQUIRED)
++if("${GSL_INCLUDE_DIR}" STREQUAL "")
++  find_package(GSL REQUIRED)
++endif()
+ 
+ include_directories(${CMAKE_SOURCE_DIR}/yaml-cpp/include)
+ include_directories(${CMAKE_SOURCE_DIR}/include ${Boost_INCLUDE_DIRS})
+

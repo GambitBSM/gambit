@@ -31,9 +31,9 @@ import modules.infomsg as infomsg
 def run():
 
     #
-    # Loop over all functions 
+    # Loop over all functions
     #
-    
+
     for func_name_full, func_el in gb.func_dict.items():
 
         # Clear all info messages
@@ -54,10 +54,13 @@ def run():
         # Check if this function is accepted
         if funcutils.ignoreFunction(func_el):
             continue
-       
+
         # Function namespace
         namespaces = utils.getNamespaces(func_el)
         has_namespace = bool(len(namespaces))
+
+        # Check if this function makes use of any loaded types
+        uses_loaded_type = funcutils.usesLoadedType(func_el)
 
 
         # Check if this is a template function
@@ -83,11 +86,12 @@ def run():
         include_statements = []
 
         # - Generate include statements based on the types used in the function
-        include_statements += utils.getIncludeStatements(func_el, convert_loaded_to='none', input_element='function')
-        include_statements += utils.getIncludeStatements(func_el, convert_loaded_to='wrapper', input_element='function', use_full_path=True)
-        include_statements.append( '#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.abstract_typedefs_fname + cfg.header_extension) + '"' )
-        include_statements.append( '#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.wrapper_typedefs_fname + cfg.header_extension) + '"' )
-        
+        include_statements += utils.getIncludeStatements(func_el, convert_loaded_to='none', input_element='function', include_parents=cfg.load_parent_classes)
+        include_statements += utils.getIncludeStatements(func_el, convert_loaded_to='wrapper', input_element='function', use_full_path=True, include_parents=cfg.load_parent_classes)
+        if uses_loaded_type:
+            include_statements.append( '#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.abstract_typedefs_fname + cfg.header_extension) + '"' )
+            include_statements.append( '#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.wrapper_typedefs_fname + cfg.header_extension) + '"' )
+
         # - Then check if we have a header file for the function in question.
         #   If not, declare the original function as 'extern'
         file_el = gb.id_dict[func_el.get('file')]
@@ -123,9 +127,9 @@ def run():
         #
         # Generate code for wrapper class version
         #
-        
+
         # Construct wrapper function code
-        wrapper_code, wr_func_names_generated = generateFunctionWrapperClassVersion(func_el, namespaces, n_overloads) 
+        wrapper_code, wr_func_names_generated = generateFunctionWrapperClassVersion(func_el, namespaces, n_overloads)
         wrapper_code = utils.addIndentation(wrapper_code, len(namespaces)*cfg.indent)
         wrapper_code += '\n'
 
@@ -152,7 +156,7 @@ def run():
 
         # - Construct the closing of the namespaces
         new_code += utils.constrNamespace(namespaces, 'close')
-        
+
         new_code += '\n'
 
 
@@ -193,7 +197,7 @@ def generateFunctionWrapperClassVersion(func_el, namespaces, n_overloads):
 
     new_code = ''
     wr_func_names_generated = []
-    
+
     # Function name
     func_name = func_el.get('name')
 
@@ -203,16 +207,17 @@ def generateFunctionWrapperClassVersion(func_el, namespaces, n_overloads):
     pointerness    = return_type_dict['pointerness']
     is_ref         = return_type_dict['is_reference']
     return_type_kw = return_type_dict['cv_qualifiers']
-    
+
     return_kw_str  = ' '.join(return_type_kw) + ' '*bool(len(return_type_kw))
-    
+
     return_is_loaded    = utils.isLoadedClass(return_el)
 
     return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
+
     # If return type is a known class, add '::' for absolute namespace.
     if (not return_is_loaded) and utils.isKnownClass(return_el):
-        return_type = '::' + return_type 
+        return_type = '::' + return_type
 
 
     # If return-by-value, then a const qualifier on the return value is meaningless
@@ -257,6 +262,12 @@ def generateFunctionWrapperClassVersion(func_el, namespaces, n_overloads):
             wrapper_return_type = return_type
 
         # Write declaration line
+
+        # Add underscore to symbol name to work with OSX
+        symbol_name = "_" + wr_func_name
+
+        # Anders: Testing use of 'asm' to set symbol names
+        new_code += return_kw_str + wrapper_return_type + ' ' + wr_func_name + args_bracket + ' asm("' + symbol_name + '"); \n'
         new_code += return_kw_str + wrapper_return_type + ' ' + wr_func_name + args_bracket + '\n'
 
         # Write function body
@@ -266,17 +277,17 @@ def generateFunctionWrapperClassVersion(func_el, namespaces, n_overloads):
         # args_bracket_notypes = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=False, wrapper_to_pointer=True)
         args_bracket_notypes = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=False, cast_to_original=True, wrapper_to_pointer=True)
 
-        if return_is_loaded: 
+        if return_is_loaded:
 
             abs_return_type_simple = classutils.toAbstractType(return_type, include_namespace=True, remove_reference=True, remove_pointers=True)
             wrapper_return_type_simple = wrapper_return_type.replace('*','').replace('&','')
 
             if is_ref:  # Return-by-reference
-                new_code += 'reference_returner< ' + wrapper_return_type_simple + ', ' + abs_return_type_simple +  ' >( ' + call_func_name + args_bracket_notypes + ' );\n'
+                new_code += indent + 'return reference_returner< ' + wrapper_return_type_simple + ', ' + abs_return_type_simple +  ' >( ' + call_func_name + args_bracket_notypes + ' );\n'
 
             elif (not is_ref) and (pointerness > 0):  # Return-by-pointer
-                new_code += 'pointer_returner< ' + wrapper_return_type_simple + ', ' + abs_return_type_simple +  ' >( ' + call_func_name + args_bracket_notypes + ' );\n'
-            
+                new_code += indent + 'return pointer_returner< ' + wrapper_return_type_simple + ', ' + abs_return_type_simple +  ' >( ' + call_func_name + args_bracket_notypes + ' );\n'
+
             else:  # Return-by-value
                 # Old
                 # new_code += wrapper_return_type + '( ' + call_func_name + args_bracket_notypes + ' );\n'

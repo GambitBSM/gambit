@@ -410,8 +410,8 @@ namespace Gambit
                             }
                         //}
 
-                        metadata_group_id = HDF5::openGroup(file_id, metadata_group_name, true);
-                        // If there is no metadata group, skip it 
+                        metadata_group_id = HDF5::openGroup(file_id, metadata_group_name, true, false);
+                        // If there is no metadata group, skip it
                         if(metadata_group_id >= 0)
                         {
                           std::vector<std::string> names = get_dset_names(metadata_group_id);
@@ -454,30 +454,33 @@ namespace Gambit
                         if(not custom_mode)
                         {
                             // Get RA dataset names
-                            aux_group_id = HDF5::openGroup(file_id, group_name+"/RA", true);
+                            aux_group_id = HDF5::openGroup(file_id, group_name+"/RA", true, false);
                             //std::vector<std::string> aux_names;
                             //H5Literate (aux_group_id, H5_INDEX_NAME, H5_ITER_NATIVE, NULL, op_func_aux, (void *) &aux_names);
 
-                            std::vector<std::string> aux_names = get_dset_names(aux_group_id);
+                            if(aux_group_id >= 0)
+                            {
+                              std::vector<std::string> aux_names = get_dset_names(aux_group_id);
 
-                            // Don't need this special case I think
-                            //if (not found_valid_file) // These are the first of these names we have found
-                            //{
-                            //    aux_param_names = aux_names;
-                            //    aux_param_set = std::unordered_set<std::string>(aux_names.begin(), aux_names.end());
-                            //}
-                            //else
-                            //{
-                                for (auto it = aux_names.begin(), end = aux_names.end(); it != end; ++it)
-                                {
-                                    if (aux_param_set.find(*it) == aux_param_set.end())
-                                    {
-                                        // New aux parameter name found; add it to the list to be processed.
-                                        aux_param_names.push_back(*it);
-                                        aux_param_set.insert(*it);
-                                    }
-                                }
-                            //}
+                              // Don't need this special case I think
+                              //if (not found_valid_file) // These are the first of these names we have found
+                              //{
+                              //    aux_param_names = aux_names;
+                              //    aux_param_set = std::unordered_set<std::string>(aux_names.begin(), aux_names.end());
+                              //}
+                              //else
+                              //{
+                                  for (auto it = aux_names.begin(), end = aux_names.end(); it != end; ++it)
+                                  {
+                                      if (aux_param_set.find(*it) == aux_param_set.end())
+                                      {
+                                          // New aux parameter name found; add it to the list to be processed.
+                                          aux_param_names.push_back(*it);
+                                          aux_param_set.insert(*it);
+                                      }
+                                  }
+                              //}
+                          }
                         }
 
                         HDF5::errorsOff();

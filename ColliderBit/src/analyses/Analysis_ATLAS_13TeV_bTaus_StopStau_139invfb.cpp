@@ -30,10 +30,6 @@ namespace Gambit
     class Analysis_ATLAS_13TeV_bTaus_StopStau_139invfb : public Analysis
     {
 
-    protected:
-
-      Cutflows _cutflows;
-
     private:
 
       struct ptComparison
@@ -376,7 +372,7 @@ namespace Gambit
     };
 
     // Factory fn
-    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_bTaus_StopStau_139invfb);
+    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_bTaus_StopStau_139invfb)
 
   }
 }

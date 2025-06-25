@@ -45,3 +45,43 @@ diff -rupN darksusy-6.4.0_original/src/rd/dsrdxi.f darksusy-6.4.0_patched/src/rd
  
        dsrdxi = 1.0d0
        
+diff -rupN darksusy-6.4.0_original/src/aux/dsinterpolatetable2D.f darksusy-6.4.0_patched/src/aux/dsinterpolatetable2D.f 
+--- darksusy-6.4.0_original/src/aux/dsinterpolatetable2D.f	2022-12-09 16:01:49
++++ darksusy-6.4.0_patched//src/aux/dsinterpolatetable2D.f	2023-06-25 08:17:33
+@@ -46,6 +46,7 @@
+ ***                                                                         ***
+ *** author: Torsten.Bringmann.fys.uio.no                                    ***
+ *** date 2020-05-26                                                         ***
++***  mod 2023-06-25 made threadsafe                                         ***
+ *******************************************************************************
+       real*8 function dsInterpolateTable2D(x,y,functab,Nx,Ny,Nymax,xtab,ytab,
+      &                                     tabID,how)
+@@ -64,6 +65,7 @@
+       real*8 res, resy(2), funcbest(2,2), xbest(2), ybest(2,2), xfit,yfit
+       real*8 dslogcut
+       save initialized, xlo, xhi, ylo, yhi, lastNpoints
++!$omp threadprivate(initialized, xlo, xhi, ylo, yhi, lastNpoints)
+ 
+       tabIDp = abs(tabID)
+       if (tabIDp.lt.1.or.tabIDp.gt.tabIDmax) then
+diff -rupN darksusy-6.4.0_original/src_models/common/sm/dssmgammah_Dittmaier_tab.f darksusy-6.4.0_patched/src_models/common/sm/dssmgammah_Dittmaier_tab.f 
+--- darksusy-6.4.0_original/src_models/common/sm/dssmgammah_Dittmaier_tab.f	2023-09-06 15:58:31.220048832 +0200
++++ darksusy-6.4.0_patched/src_models/common/sm/dssmgammah_Dittmaier_tab.f	2023-09-06 15:59:09.100857422 +0200
+@@ -180,12 +180,14 @@
+ 
+       dssmgammah_Dittmaier_tab=0.d0
+       if (sqrts.lt.mh(1).or.sqrts.gt.mh(52)) then
+-        if (prtlevel.gt.1) write (*,*) 'WARNING in dssmgammah_Dittmaier_tab: sqrts out of range. Returning dssmgammah_Dittmaier_tab=0.'
++        if (prtlevel.gt.1) write (*,*) 'WARNING in dssmgammah_Dittmaier_tab:'
++        write (*,*) '  sqrts out of range. Returning dssmgammah_Dittmaier_tab 0.'
+         dssmgammah_Dittmaier_tab=0.d0
+         return
+       endif
+       if (ichannel.lt.0.or.ichannel.gt.18) then
+-        if (prtlevel.gt.1) write (*,*) 'WARNING in dssmgammah_Dittmaier_tab: untabulated channel=',ichannel,'. Returning dssmgammah_Dittmaier_tab=0.'
++        if (prtlevel.gt.1) write (*,*) 'WARNING in dssmgammah_Dittmaier_tab:'
++        write (*,*) 'untabulated channel=',ichannel,'. Returning dssmgammah_Dittmaier_tab 0.'
+         dssmgammah_Dittmaier_tab=0.d0
+         return
+       endif
+

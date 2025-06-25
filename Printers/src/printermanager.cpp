@@ -69,6 +69,7 @@ namespace Gambit
   void set_global_printer_manager(Printers::PrinterManager* pm)
   {
      global_printer_manager = pm;
+     (pm->printerptr)->set_output_metadata(true);// Choose to print metadata (can be overuled elsewhere)
   }
 
  
@@ -289,6 +290,7 @@ namespace Gambit
     }
 
   }
+
 }
 
 #undef DBUG

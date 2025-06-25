@@ -263,7 +263,27 @@ START_MODULE
     ALLOW_MODEL_COMBINATION(group1, group2)
     DEPENDENCY(Neff_SM, double)
     #undef FUNCTION
+
+    #define FUNCTION get_N_ur_from_BBN
+    START_FUNCTION(double)
+    ALLOW_MODEL(StandardModel_SLHA2,SubGeVDM_fermion,SubGeVDM_scalar)
+    MODEL_GROUP(group1, StandardModel_SLHA2)
+    MODEL_GROUP(group2,(SubGeVDM_fermion,SubGeVDM_scalar))
+    ALLOW_MODEL_COMBINATION(group1, group2)
+    DEPENDENCY(Neff_SM, double)
+    DEPENDENCY(Neff_after_BBN, double)
+    #undef FUNCTION
+
   #undef CAPABILITY
+
+  #define CAPABILITY N_eff_likelihood_Planck_BAO
+  START_CAPABILITY
+    #define FUNCTION compute_N_eff_likelihood_Planck_BAO
+    START_FUNCTION(double)
+    DEPENDENCY(Neff_after_BBN, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 
   // ------------------------
 
@@ -906,9 +926,9 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION AlterBBN_Input
     START_FUNCTION(map_str_dbl)
-    ALLOW_MODELS(LCDM, LCDM_theta, LCDM_zreio, etaBBN_rBBN_rCMB_dNurBBN_dNurCMB)
+    ALLOW_MODELS(LCDM, LCDM_theta, LCDM_zreio, etaBBN_rBBN_rCMB_dNurBBN_dNurCMB,SubGeVDM_fermion,SubGeVDM_scalar)
     ALLOW_MODEL_DEPENDENCE(nuclear_params_neutron_lifetime)
-    MODEL_GROUP(cosmo,(LCDM, LCDM_theta, LCDM_zreio, etaBBN_rBBN_rCMB_dNurBBN_dNurCMB))
+    MODEL_GROUP(cosmo,(LCDM, LCDM_theta, LCDM_zreio, etaBBN_rBBN_rCMB_dNurBBN_dNurCMB,SubGeVDM_fermion,SubGeVDM_scalar))
     MODEL_GROUP(neutron,(nuclear_params_neutron_lifetime))
     ALLOW_MODEL_COMBINATION(cosmo,neutron)
     DEPENDENCY(Neff_SM, double)
@@ -958,6 +978,15 @@ START_MODULE
   #define CAPABILITY helium_abundance
   START_CAPABILITY
     #define FUNCTION extract_helium_abundance
+    START_FUNCTION(double)
+    DEPENDENCY(primordial_abundances, BBN_container)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// compute Neff after BBN
+  #define CAPABILITY Neff_after_BBN
+  START_CAPABILITY
+    #define FUNCTION extract_Neff_after_BBN
     START_FUNCTION(double)
     DEPENDENCY(primordial_abundances, BBN_container)
     #undef FUNCTION

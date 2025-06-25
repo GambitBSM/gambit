@@ -23,7 +23,7 @@
 ///          (torsten.bringmann@fys.uio.no)
 ///  \date 2013 Jun
 ///  \date 2014 Mar
-///  \date 2019 May, 2022 Jan
+///  \date 2019 May, 2022 Jan, 2023 Oct
 ///
 ///  \author Lars A. Dal
 ///          (l.a.dal@fys.uio.no)
@@ -89,8 +89,13 @@
 /// \date 2013 - 2020
 ///
 /// \author Tomas Gonzalo
-///         (gonzalo@physik.rwth-aachen.de)
+///         (tomas.gonzalo@kit.edu)
 /// \date 2021 Sep
+/// \date 2023 June
+///
+///  \author Timon Emken
+///          (timon.emken@fysik.su.se )
+///  \date 2022 May
 ///
 /// \author Iñigo Saez Casares
 ///          (inigo.saez_casares@ens-paris-saclay.fr)
@@ -153,6 +158,7 @@ START_MODULE
       DEPENDENCY(MSSM_spectrum, Spectrum)
       DEPENDENCY(DarkMatter_ID, std::string)
       DEPENDENCY(decay_rates,DecayTable)
+      ALLOW_MODELS(MSSM63atQ)
     #undef FUNCTION
     #define FUNCTION RD_spectrum_SUSY_DS5
       START_FUNCTION(RD_spectrum_type)
@@ -162,16 +168,19 @@ START_MODULE
       BACKEND_REQ(pacodes, (ds5), DS5_PACODES)
       BACKEND_REQ(DS5particle_code, (ds5), int, (const str&))
       BACKEND_OPTION((DarkSUSY, 5.1.3), (ds5))  // Only for DarkSUSY5
+      ALLOW_MODELS(MSSM63atQ)
     #undef FUNCTION
     #define FUNCTION RD_spectrum_from_ProcessCatalog
       START_FUNCTION(RD_spectrum_type)
       DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
       DEPENDENCY(DarkMatter_ID, std::string)
+      DEPENDENCY(WIMP_properties, WIMPprops)
       DEPENDENCY(DarkMatterConj_ID, std::string)
       ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, ScalarSingletDM_Z3,
                    ScalarSingletDM_Z3_running, DiracSingletDM_Z2, MajoranaSingletDM_Z2,
                    VectorSingletDM_Z2, DMEFT)
       ALLOW_MODELS(DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM, DMsimpVectorMedVectorDM)
+      ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -228,6 +237,7 @@ START_MODULE
       DEPENDENCY(DarkMatterConj_ID, std::string)
       ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2, DMEFT)
       ALLOW_MODELS(DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM, DMsimpVectorMedVectorDM)
+      ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -250,6 +260,8 @@ START_MODULE
       START_FUNCTION(int)
       DEPENDENCY(RD_spectrum_ordered, RD_spectrum_type)
       BACKEND_REQ(rdpars, (ds6), DS_RDPARS)
+      BACKEND_REQ(rdlims, (ds6), DS_RDLIMS)
+      BACKEND_REQ(rd20opt, (ds6), DS_RD20OPT)
       BACKEND_REQ(rdtime, (ds6), DS_RDTIME)
       BACKEND_OPTION((DarkSUSY_MSSM, 6.4.0), (ds6))
       BACKEND_OPTION((DarkSUSY_generic_wimp, 6.4.0), (ds6))
@@ -259,14 +271,21 @@ START_MODULE
 
   #define CAPABILITY RD_oh2
   START_CAPABILITY
+    /// simply grab oh2 from capability RD_oh2_aDM
+    #define FUNCTION RD_oh2_from_oh2_aDM
+      START_FUNCTION(double)
+      DEPENDENCY(RD_oh2_aDM, ddpair)
+      ALLOW_MODELS(SubGeVDM_scalar,SubGeVDM_fermion)
+    #undef FUNCTION
+
     /// General Boltzmann solver from DarkSUSY, using arbitrary Weff
     #define FUNCTION RD_oh2_DS_general
       START_FUNCTION(double)
       DEPENDENCY(RD_spectrum_ordered, RD_spectrum_type)
       DEPENDENCY(RD_eff_annrate, fptr_dd)
-      #ifdef DARKBIT_RD_DEBUG
-        DEPENDENCY(MSSM_spectrum, Spectrum)
-      #endif
+      //#ifdef DARKBIT_RD_DEBUG
+      //  DEPENDENCY(MSSM_spectrum, Spectrum)
+      //#endif
       BACKEND_REQ(dsrdstart,(ds6),void,(int&, double(&)[1000], double(&)[1000], int&, double(&)[1000], double(&)[1000], int&, double(&)[1000]))
       BACKEND_REQ(dsrdens, (ds6), void, (double(*)(double&), double&, double&, int&, int&, int&))
       BACKEND_OPTION((DarkSUSY_MSSM),(ds6))
@@ -349,6 +368,33 @@ START_MODULE
 */
   #undef CAPABILITY
 
+  #define CAPABILITY RD_oh2_underprediction
+  START_CAPABILITY
+    #define FUNCTION RD_oh2_underprediction_SubGeVDM
+    START_FUNCTION(double)
+    ALLOW_MODEL(SubGeVDM_fermion, SubGeVDM_scalar)
+    #undef FUNCTION
+ #undef CAPABILITY
+
+  #define CAPABILITY RD_oh2_aDM
+  START_CAPABILITY
+    /// General Boltzmann solver from DarkSUSY, using arbitrary Weff
+    /// Version  of RD_oh2_DS_general that also allows asymmetric DM
+    #define FUNCTION RD_oh2_DS_general_aDM
+      START_FUNCTION(ddpair)
+      DEPENDENCY(RD_spectrum_ordered, RD_spectrum_type)
+      DEPENDENCY(RD_eff_annrate, fptr_dd)
+      DEPENDENCY(RD_oh2_DS6_ini,int)
+      BACKEND_REQ(dsrdstart,(ds6),void,(int&, double(&)[1000], double(&)[1000], int&, double(&)[1000], double(&)[1000], int&, double(&)[1000]))
+      BACKEND_REQ(dsrdens, (ds6), void, (double(*)(double&), double&, double&, int&, int&, int&))
+      BACKEND_REQ(rdpars, (ds6), DS_RDPARS)
+      BACKEND_REQ(adm_com, (ds6), DS_ADM_COM)
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.4.0),(ds6))
+      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.4.0),(ds6))
+      FORCE_SAME_BACKEND(ds6)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 
   /// Get oh2 and Xf simultaneously
   #define CAPABILITY RD_oh2_Xf
@@ -412,7 +458,7 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// Fraction of the relic density constituted by the DM candidate under investigation
+  /// Cosmological fraction of the relic density constituted by the DM candidate under investigation
   #define CAPABILITY RD_fraction
   START_CAPABILITY
     #define FUNCTION RD_fraction_one
@@ -430,6 +476,23 @@ START_MODULE
       START_FUNCTION(double)
       ALLOW_MODELS(LCDM, LCDM_theta, LCDM_zreio)
       DEPENDENCY(RD_oh2, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// Suppression of indirect rates due to (cosmologically) underabundant DM
+  #define CAPABILITY ID_suppression
+  START_CAPABILITY
+    #define FUNCTION ID_suppression_aDM
+      START_FUNCTION(double)
+      DEPENDENCY(RD_oh2_aDM, ddpair)
+      DEPENDENCY(RD_fraction, double)
+      DEPENDENCY(DM_process, std::string)
+      ALLOW_MODELS(SubGeVDM_scalar,SubGeVDM_fermion)
+    #undef FUNCTION
+    #define FUNCTION ID_suppression_symDM
+      START_FUNCTION(double)
+      DEPENDENCY(RD_fraction, double)
+      DEPENDENCY(DM_process, std::string)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -542,6 +605,20 @@ START_MODULE
       DEPENDENCY(DMEFT_spectrum, Spectrum)
       BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
       ALLOW_MODELS(DMEFT)
+    #undef FUNCTION
+
+    #define FUNCTION TH_ProcessCatalog_SubGeVDM_scalar
+      START_FUNCTION(TH_ProcessCatalog)
+      DEPENDENCY(SubGeVDM_spectrum, Spectrum)
+      DEPENDENCY(decay_rates, DecayTable)
+      ALLOW_MODELS(SubGeVDM_scalar)
+    #undef FUNCTION
+
+    #define FUNCTION TH_ProcessCatalog_SubGeVDM_fermion
+      START_FUNCTION(TH_ProcessCatalog)
+      DEPENDENCY(SubGeVDM_spectrum, Spectrum)
+      DEPENDENCY(decay_rates, DecayTable)
+      ALLOW_MODELS(SubGeVDM_fermion)
     #undef FUNCTION
 
     #define FUNCTION TH_ProcessCatalog_DMsimpVectorMedDiracDM
@@ -996,7 +1073,7 @@ START_MODULE
     DEPENDENCY(WIMP_properties, WIMPprops)
     DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
     DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
-    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(ID_suppression, double)
     BACKEND_REQ(drn_pbar_logLikes,(),map_str_dbl,(double&,  map_str_dbl&, double& ))
     #undef FUNCTION
   #undef CAPABILITY
@@ -1017,14 +1094,38 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  // Gamma-ray likelihoods =============================================
+  // Self-interaction likelihoods ================================================
 
-  #define CAPABILITY set_gamLike_GC_halo
+  #define CAPABILITY DM_mass_loss
   START_CAPABILITY
-    #define FUNCTION set_gamLike_GC_halo
-      START_FUNCTION(bool)
-      DEPENDENCY(GalacticHalo, GalacticHaloProperties)
-      BACKEND_REQ(set_halo_profile, (gamLike), void, (int, const std::vector<double> &, const std::vector<double> &, double))
+    #define FUNCTION calc_bullet_cluster_DMmassLoss
+    START_FUNCTION(double)
+    DEPENDENCY(SubGeVDM_spectrum, Spectrum)
+    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(RD_oh2_aDM, ddpair)
+    DEPENDENCY(decay_rates, DecayTable)
+    ALLOW_MODELS(SubGeVDM_scalar,SubGeVDM_fermion)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY BulletCluster_lnL
+  START_CAPABILITY
+    #define FUNCTION calc_bullet_cluster_lnL
+    START_FUNCTION(double)
+    DEPENDENCY(DM_mass_loss, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+// X-ray likelihoods ================================================
+
+  #define CAPABILITY Xray_loglikelihoods
+  START_CAPABILITY
+    #define FUNCTION Xray_loglikes_Cirelli
+    START_FUNCTION(double)
+    DEPENDENCY(WIMP_properties, WIMPprops)
+    DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
+    DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
+    DEPENDENCY(ID_suppression, double)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1067,12 +1168,24 @@ START_MODULE
   #undef CAPABILITY
 */
 
+// Gamma-ray likelihoods =============================================
+
+  #define CAPABILITY set_gamLike_GC_halo
+  START_CAPABILITY
+    #define FUNCTION set_gamLike_GC_halo
+      START_FUNCTION(bool)
+      DEPENDENCY(GalacticHalo, GalacticHaloProperties)
+      BACKEND_REQ(set_halo_profile, (gamLike), void, (int, const std::vector<double> &, const std::vector<double> &, double))
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
   #define CAPABILITY lnL_FermiLATdwarfs
   START_CAPABILITY
     #define FUNCTION lnL_FermiLATdwarfs_gamLike
       START_FUNCTION(double)
       DEPENDENCY(GA_Yield, daFunk::Funk)
-      DEPENDENCY(RD_fraction, double)
+      DEPENDENCY(ID_suppression, double)
       DEPENDENCY(DM_process, std::string)
       BACKEND_REQ(lnL, (gamLike), double, (int, const std::vector<double> &, const std::vector<double> &))
     #undef FUNCTION
@@ -1083,7 +1196,7 @@ START_MODULE
     #define FUNCTION lnL_FermiGC_gamLike
       START_FUNCTION(double)
       DEPENDENCY(GA_Yield, daFunk::Funk)
-      DEPENDENCY(RD_fraction, double)
+      DEPENDENCY(ID_suppression, double)
       DEPENDENCY(set_gamLike_GC_halo, bool)
       DEPENDENCY(DM_process, std::string)
       BACKEND_REQ(lnL, (gamLike), double, (int, const std::vector<double> &, const std::vector<double> &))
@@ -1095,7 +1208,7 @@ START_MODULE
     #define FUNCTION lnL_CTAGC_gamLike
       START_FUNCTION(double)
       DEPENDENCY(GA_Yield, daFunk::Funk)
-      DEPENDENCY(RD_fraction, double)
+      DEPENDENCY(ID_suppression, double)
       DEPENDENCY(DM_process, std::string)
       //DEPENDENCY(set_gamLike_GC_halo, bool)
       BACKEND_REQ(lnL, (gamLike), double, (int, const std::vector<double> &, const std::vector<double> &))
@@ -1107,7 +1220,7 @@ START_MODULE
     #define FUNCTION lnL_HESSGC_gamLike
       START_FUNCTION(double)
       DEPENDENCY(GA_Yield, daFunk::Funk)
-      DEPENDENCY(RD_fraction, double)
+      DEPENDENCY(ID_suppression, double)
       DEPENDENCY(set_gamLike_GC_halo, bool)
       DEPENDENCY(DM_process, std::string)
       BACKEND_REQ(lnL, (gamLike), double, (int, const std::vector<double> &, const std::vector<double> &))
@@ -1147,6 +1260,14 @@ START_MODULE
   #define CAPABILITY LocalHalo
   START_CAPABILITY
     #define FUNCTION ExtractLocalMaxwellianHalo
+    START_FUNCTION(LocalMaxwellianHalo)
+    ALLOW_MODELS(Halo_gNFW, Halo_Einasto)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY LocalHalo_GeV
+  START_CAPABILITY
+    #define FUNCTION ExtractLocalMaxwellianHalo_GeV
     START_FUNCTION(LocalMaxwellianHalo)
     ALLOW_MODELS(Halo_gNFW, Halo_Einasto)
     #undef FUNCTION
@@ -1204,6 +1325,7 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum, DMsimpVectorMedScalarDM)
     MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum, DMsimpVectorMedMajoranaDM)
     MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum, DMsimpVectorMedDiracDM)
+    MODEL_CONDITIONAL_DEPENDENCY(SubGeVDM_spectrum, Spectrum, SubGeVDM_fermion, SubGeVDM_scalar)
     ALLOW_MODELS(DMsimpVectorMedScalarDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedDiracDM, DMsimpVectorMedVectorDM)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     ALLOW_MODELS(ScalarSingletDM_Z2_running, ScalarSingletDM_Z3_running)
@@ -1211,6 +1333,7 @@ START_MODULE
     ALLOW_MODELS(AnnihilatingDM_mixture, DecayingDM_mixture)
     ALLOW_MODELS(NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM)
     ALLOW_MODELS(MDM, DMEFT)
+    ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1337,6 +1460,16 @@ START_MODULE
       ALLOW_JOINT_MODEL(nuclear_params_fnq, VectorSingletDM_Z2)
      #undef FUNCTION
 
+     #define FUNCTION DD_couplings_SubGeVDM_scalar
+      START_FUNCTION(DM_nucleon_couplings)
+      ALLOW_MODEL(SubGeVDM_scalar)
+     #undef FUNCTION
+
+     #define FUNCTION DD_couplings_SubGeVDM_fermion
+      START_FUNCTION(DM_nucleon_couplings)
+      ALLOW_MODEL(SubGeVDM_fermion)
+     #undef FUNCTION
+
   #undef CAPABILITY
 
 
@@ -1456,6 +1589,20 @@ START_MODULE
       START_FUNCTION(map_intpair_dbl)
       DEPENDENCY(mwimp,double)
       ALLOW_MODELS(DiracSingletDM_Z2, MajoranaSingletDM_Z2)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY sigma_e
+    #define FUNCTION sigma_e_SubGeVDM_fermion
+    START_FUNCTION(double)
+    ALLOW_MODELS(SubGeVDM_fermion)
+    DEPENDENCY(SubGeVDM_spectrum, Spectrum)
+    #undef FUNCTION
+
+    #define FUNCTION sigma_e_SubGeVDM_scalar
+    START_FUNCTION(double)
+    ALLOW_MODELS(SubGeVDM_scalar)
+    DEPENDENCY(SubGeVDM_spectrum, Spectrum)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2113,6 +2260,14 @@ START_MODULE
     START_FUNCTION(std::string)
     ALLOW_MODELS(DMsimpVectorMedVectorDM)
     #undef FUNCTION
+    #define FUNCTION DarkMatter_ID_SubGeVDM_scalar
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(SubGeVDM_scalar)
+    #undef FUNCTION
+    #define FUNCTION DarkMatter_ID_SubGeVDM_fermion
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(SubGeVDM_fermion)
+    #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY DarkMatterConj_ID
@@ -2168,6 +2323,14 @@ START_MODULE
     #define FUNCTION DarkMatterConj_ID_DMsimpVectorMedVectorDM
     START_FUNCTION(std::string)
     ALLOW_MODELS(DMsimpVectorMedVectorDM)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_SubGeVDM_scalar
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(SubGeVDM_scalar)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_SubGeVDM_fermion
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(SubGeVDM_fermion)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2418,6 +2581,186 @@ START_MODULE
     ALLOW_MODEL(GeneralCosmoALP)
     #undef FUNCTION
   #undef CAPABILITY
+
+  #define CAPABILITY XENON1T_ER_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION calc_XENON1T_ER_LogLikelihood
+    START_FUNCTION(double)
+    NEEDS_CLASSES_FROM(obscura, default)
+    BACKEND_REQ(XENON1T_S2_ER, (), obscura_default::obscura::DM_Detector_Ionization_ER, ())
+    ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
+    DEPENDENCY(LocalHalo_GeV,LocalMaxwellianHalo)
+    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(sigma_e, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY DarkSide50_ER_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION calc_DarkSide50_ER_LogLikelihood
+    START_FUNCTION(double)
+    NEEDS_CLASSES_FROM(obscura, default)
+    BACKEND_REQ(DarkSide50_S2_ER, (), obscura_default::obscura::DM_Detector_Ionization_ER, ())
+    ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
+    DEPENDENCY(LocalHalo_GeV,LocalMaxwellianHalo)
+    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(sigma_e, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY DarkSide50_ER_2023_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION calc_DarkSide50_ER_2023_LogLikelihood
+    START_FUNCTION(double)
+    NEEDS_CLASSES_FROM(obscura, default)
+    BACKEND_REQ(DarkSide50_S2_ER_2023, (), obscura_default::obscura::DM_Detector_Ionization_ER, ())
+    ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
+    DEPENDENCY(LocalHalo_GeV,LocalMaxwellianHalo)
+    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(sigma_e, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY PandaX_4T_ER_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION calc_PandaX_4T_ER_LogLikelihood
+    START_FUNCTION(double)
+    NEEDS_CLASSES_FROM(obscura, default)
+    BACKEND_REQ(PandaX_4T_S2_ER, (), obscura_default::obscura::DM_Detector_Ionization_ER, ())
+    ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
+    DEPENDENCY(LocalHalo_GeV,LocalMaxwellianHalo)
+    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(sigma_e, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+// TODO: Not implemented in obscura yet, uncomment when it is
+/*
+  #define CAPABILITY LZ_ER_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION calc_LZ_ER_LogLikelihood
+    START_FUNCTION(double)
+    NEEDS_CLASSES_FROM(obscura, default)
+    BACKEND_REQ(LZ_S2_ER, (), obscura_default::obscura::DM_Detector_Ionization_ER, ())
+    ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
+    DEPENDENCY(LocalHalo_GeV,LocalMaxwellianHalo)
+    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(sigma_e, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+*/
+
+  #define CAPABILITY SENSEI_at_MINOS_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION calc_SENSEI_at_MINOS_LogLikelihood
+    START_FUNCTION(double)
+    NEEDS_CLASSES_FROM(obscura, default)
+    BACKEND_REQ(SENSEI_at_MINOS, (), obscura_default::obscura::DM_Detector_Crystal, ())
+    ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
+    DEPENDENCY(LocalHalo_GeV,LocalMaxwellianHalo)
+    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(sigma_e, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY CDMS_HVeV_2020_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION calc_CDMS_HVeV_2020_LogLikelihood
+    START_FUNCTION(double)
+    NEEDS_CLASSES_FROM(obscura, default)
+    BACKEND_REQ(CDMS_HVeV_2020, (), obscura_default::obscura::DM_Detector_Crystal, ())
+    ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
+    DEPENDENCY(LocalHalo_GeV,LocalMaxwellianHalo)
+    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(sigma_e, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY DAMIC_M_2023_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION calc_DAMIC_M_2023_LogLikelihood
+    START_FUNCTION(double)
+    NEEDS_CLASSES_FROM(obscura, default)
+    BACKEND_REQ(DAMIC_M_2023, (), obscura_default::obscura::DM_Detector_Crystal, ())
+    ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
+    DEPENDENCY(LocalHalo_GeV,LocalMaxwellianHalo)
+    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(sigma_e, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY XENON1T_Migdal_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION calc_XENON1T_Migdal_LogLikelihood
+    START_FUNCTION(double)
+    NEEDS_CLASSES_FROM(obscura, default)
+    BACKEND_REQ(XENON1T_S2_Migdal, (), obscura_default::obscura::DM_Detector_Ionization_Migdal, ())
+    ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
+    DEPENDENCY(LocalHalo_GeV,LocalMaxwellianHalo)
+    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(sigma_SI_p, double)
+    DEPENDENCY(sigma_SI_n, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY DarkSide50_Migdal_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION calc_DarkSide50_Migdal_LogLikelihood
+    START_FUNCTION(double)
+    NEEDS_CLASSES_FROM(obscura, default)
+    BACKEND_REQ(DarkSide50_S2_Migdal, (), obscura_default::obscura::DM_Detector_Ionization_Migdal, ())
+    ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
+    DEPENDENCY(LocalHalo_GeV,LocalMaxwellianHalo)
+    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(sigma_SI_p, double)
+    DEPENDENCY(sigma_SI_n, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY DarkSide50_Migdal_2023_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION calc_DarkSide50_Migdal_2023_LogLikelihood
+    START_FUNCTION(double)
+    NEEDS_CLASSES_FROM(obscura, default)
+    BACKEND_REQ(DarkSide50_S2_Migdal_2023, (), obscura_default::obscura::DM_Detector_Ionization_Migdal, ())
+    ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
+    DEPENDENCY(LocalHalo_GeV,LocalMaxwellianHalo)
+    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(sigma_SI_p, double)
+    DEPENDENCY(sigma_SI_n, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY PandaX_4T_Migdal_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION calc_PandaX_4T_Migdal_LogLikelihood
+    START_FUNCTION(double)
+    NEEDS_CLASSES_FROM(obscura, default)
+    BACKEND_REQ(PandaX_4T_S2_Migdal, (), obscura_default::obscura::DM_Detector_Ionization_Migdal, ())
+    ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
+    DEPENDENCY(LocalHalo_GeV,LocalMaxwellianHalo)
+    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(sigma_SI_p, double)
+    DEPENDENCY(sigma_SI_n, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+// TODO: Not implemented in obscura yet, uncomment when it is
+/*
+  #define CAPABILITY LZ_Migdal_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION calc_LZ_Migdal_LogLikelihood
+    START_FUNCTION(double)
+    NEEDS_CLASSES_FROM(obscura, default)
+    BACKEND_REQ(LZ_S2_Migdal, (), obscura_default::obscura::DM_Detector_Ionization_Migdal, ())
+    ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
+    DEPENDENCY(LocalHalo_GeV,LocalMaxwellianHalo)
+    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(sigma_SI_p, double)
+    DEPENDENCY(sigma_SI_n, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+*/
 
   // Super Renormalizable Higgs Portal DM relative observables and likelihoods -----------------
 

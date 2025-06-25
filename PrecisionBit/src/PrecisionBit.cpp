@@ -220,7 +220,7 @@ namespace Gambit
       //  3 = mean of precision mass and mass from spectrum calculator
       std::vector<double> mh_s;
       for (int i = 0; i < n_higgs; ++i) mh_s.push_back(HE.get(Par::Pole_Mass, higgses[i]));
-      double mh[n_higgs];
+      std::vector<double> mh(n_higgs);
 
       #ifdef PRECISIONBIT_DEBUG
         for (int i = 0; i < n_higgs; i++) cout << "h masses, spectrum generator: "<< mh_s[i] << endl;
@@ -265,7 +265,7 @@ namespace Gambit
       //  5 = RACC, with 1/2 * D_g taken at the precision-calculator edge, D_s taken at the other edge.
       std::vector<double> D_g;
       for (int i = 0; i < n_higgs; ++i) D_g.push_back(MH[i].central - mh_s[i]);
-      double mh_low[n_higgs], mh_high[n_higgs];
+      std::vector<double> mh_low(n_higgs), mh_high(n_higgs);
 
       //  1 = sum in quadrature of D_s, D_p and D_g
       if (error == 1)

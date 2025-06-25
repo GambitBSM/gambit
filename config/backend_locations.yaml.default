@@ -36,10 +36,13 @@ classy_exo:
   2.7.2:       ./Backends/installed/classy/exo_2.7.2/lib/classy_exo_2_7_2.py
 
 Contur:
-  2.1.1:       ./Backends/installed/contur/2.1.1/contur/init_by_GAMBIT.py
+  3.0.0:       ./Backends/installed/contur/3.0.0/contur/init_by_GAMBIT.py
 
 DarkAges:
   1.2.0:       ./Backends/installed/darkages/1.2.0/DarkAges_1_2_0
+
+DarkCast:
+  1.1:         ./Backends/installed/darkcast/model.py
 
 DarkSUSY:
   5.1.3:       ./Backends/installed/darksusy/5.1.3/lib/libdarksusy.so
@@ -136,6 +139,9 @@ nulike:
   1.0.8:       ./Backends/installed/nulike/1.0.8/lib/libnulike.so
   1.0.9:       ./Backends/installed/nulike/1.0.9/lib/libnulike.so
 
+obscura:
+  1.1.0:       ./Backends/installed/obscura/1.1.0/src/libobscura.so
+
 pbarlike:
   1.0:         ./Backends/installed/pbarlike/1.0/pbarlike-gambit-interface.py
 
@@ -146,10 +152,10 @@ plc:
   3.0:         ./Backends/installed/plc/3.0/lib/libclik.so
 
 Pythia:
-  8.212:       ./Backends/installed/pythia/8.212/lib/libpythia8.so
+  8.312:       ./Backends/installed/pythia/8.312/lib/libpythia8.so
 
 Rivet:
-  3.1.5:       ./Backends/installed/rivet/3.1.5/local/lib/libRivet.so
+  4.1.0:       ./Backends/installed/rivet/4.1.0/local/lib/libRivet.so
 
 SPheno:
   3.3.8:       ./Backends/installed/spheno/3.3.8/lib/libSPheno.so

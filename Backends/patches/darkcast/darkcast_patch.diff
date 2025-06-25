@@ -1,0 +1,13 @@
+diff -ruN darkcast-master/model.py darkcast-backend/model.py
+--- darkcast-master/model.py	2021-04-03 07:34:51.000000000 +1100
++++ darkcast-backend/model.py	2022-06-15 17:32:16.415990400 +1000
+@@ -1,7 +1,8 @@
+ # DARKCAST is licensed under the GNU GPL version 2 or later.
+ # Copyright (C) 2021 Philip Ilten, Yotam Soreq, Mike Williams, and Wei Xue.
+ import os, sys, inspect, math, collections
+-from . import pars
++sys.path.insert(1,os.path.abspath(os.path.join(os.path.dirname(__file__),"..")))
++from darkcast import pars
+ 
+ ###############################################################################
+ # Update the model paths.

@@ -26,13 +26,21 @@
 #define PTMAX DBL_MAX
 
 /// Add a cutflow the the list of cutflows
+/// TODO: Find a neater solution than a _NOCUTS version of each macro to solve "ISO C++11 requires at least one argument for the "..." in a variadic macro"
 #define ADD_CUTFLOW(SR, ...)                                                      \
-  _cutflows.addCutflow(SR, {"Preselection", ## __VA_ARGS__, "Final"});
+  _cutflows.addCutflow(SR, {"Preselection", ##__VA_ARGS__, "Final"});
+
+#define ADD_CUTFLOW_NOCUTS(SR)                                                           \
+  _cutflows.addCutflow(SR, {"Preselection", "Final"});
 
 /// Define a signal region by initialzing the counter and cutflow
 #define DEFINE_SIGNAL_REGION(NAME, ...)                                           \
   _counters[NAME] = EventCounter(NAME);                                           \
-  ADD_CUTFLOW(NAME, ## __VA_ARGS__)
+  ADD_CUTFLOW(NAME, ##__VA_ARGS__)
+
+#define DEFINE_SIGNAL_REGION_NOCUTS(NAME)                                           \
+  _counters[NAME] = EventCounter(NAME);                                           \
+  ADD_CUTFLOW_NOCUTS(NAME)
 
 /// Define multiple signal regions that share a common name and
 /// only vary on sequential numbering
@@ -41,7 +49,23 @@
   {                                                                               \
     str basename(NAME);                                                           \
     str name = basename + std::to_string(i);                                      \
-    DEFINE_SIGNAL_REGION(name, ## __VA_ARGS__)                                    \
+    DEFINE_SIGNAL_REGION(name,## __VA_ARGS__)                                    \
+  }
+
+#define DEFINE_SIGNAL_REGIONS_NOCUTS(NAME, N)                                       \
+  for(size_t i=1; i<=N; ++i)                                                      \
+  {                                                                               \
+    str basename(NAME);                                                           \
+    str name = basename + std::to_string(i);                                      \
+    DEFINE_SIGNAL_REGION_NOCUTS(name)                                    \
+  }
+
+/// Define baseline objects without cuts
+#define BASELINE_OBJECTS_3(TYPE, OBJECTS, NAME)                                   \
+  std::vector<const HEPUtils::TYPE*> NAME;                                        \
+  for (const HEPUtils::TYPE* object : OBJECTS)                                    \
+  {                                                                               \
+    NAME.push_back(object);                                                       \
   }
 
 /// Define baseline objects with min pT and min eta
@@ -98,6 +122,10 @@
     }                                                                             \
   }
 
+/// Define baseline particles without cuts
+#define BASELINE_PARTICLES_2(OBJECTS, NAME)                                       \
+  BASELINE_OBJECTS_3(Particle, OBJECTS, NAME)
+
 /// Define baseline particles with min pT and min et
 #define BASELINE_PARTICLES_4(OBJECTS, NAME, MINPT, MINETA)                         \
   BASELINE_OBJECTS_5(Particle, OBJECTS, NAME, MINPT, MINETA)
@@ -113,6 +141,10 @@
 /// Define baseline particles with min pT, min eta, max pT, max eta and selection efficiency
 #define BASELINE_PARTICLES_7(OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)     \
   BASELINE_OBJECTS_8(Particle, OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)
+
+/// Define baseline jets without cuts
+#define BASELINE_JETS_2(OBJECTS, NAME)                                             \
+  BASELINE_OBJECTS_3(Jet, OBJECTS, NAME)
 
 /// Define baseline jets with a min pT and a min eta
 #define BASELINE_JETS_4(OBJECTS, NAME, MINPT, MINETA)                              \
@@ -367,6 +399,16 @@
 #define LOG_CUT_9(A,B,C,D,E,F,G,H,I)      LOG_CUT_1(A) LOG_CUT_8(B,C,D,E,F,G,H,I)
 #define LOG_CUT_10(A,B,C,D,E,F,G,H,I,J)   LOG_CUT_1(A) LOG_CUT_9(B,C,D,E,F,G,H,I,J)
 #define LOG_CUT(...)                      VARARG(LOG_CUT, __VA_ARGS__)
+
+// Log specific cuts for a sequential list of signal regions
+#define LOG_CUT_N(SR, N)                                                          \
+  for(size_t i=1; i<=N; ++i)                                                      \
+  {                                                                               \
+    str basename(SR);                                                             \
+    str name = basename + std::to_string(i);                                      \
+    _cutflows[name].fillnext(event->weight());                                    \
+  }
+
 
 // Log specific cuts for one or more signal region
 #define LOG_CUTS_2(CUTS,A)                     _cutflows[A].fillnext(CUTS,event->weight());

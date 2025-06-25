@@ -357,7 +357,9 @@ namespace Gambit
       void combine(const Cutflows& othercfs)
       {
         if(cfs.size() != othercfs.cfs.size())
+        {
           utils_error().raise(LOCAL_INFO, "Cannot combine cutflows, they are of different sizes. Maybe you forgot to call `add_cutflows(_cutflows)` in the collect step of your analysis.");
+        }
         for (Cutflow& cf : cfs) cf.combine(othercfs[cf.name]);
       }
 

@@ -26,6 +26,7 @@
 #include <cctype>  // ::tolower function
 #include <sstream> // stringstream
 #include <string>  // string
+#include <cstdlib> // environment variable handling
 #include <regex>   // regular expressions
 
 /// POSIX filesystem libraries
@@ -53,6 +54,53 @@ namespace Gambit
   {
 
     const char* whitespaces[] = {" ", "\t", "\n", "\f", "\r"};
+
+    /// Get an environment variable, or "" if the variable is not set
+    std::string getEnvVar( std::string const & key )
+    {
+        char * val = std::getenv( key.c_str() );
+        return val == NULL ? std::string("") : std::string(val);
+    }
+
+    std::string get_GAMBIT_root_dir()
+    {
+       std::string root_dir;
+       /// The initial assumption is that this is provided by CMake
+       /// via the GAMBIT_RUN_DIR variable
+       /// However, in situations where GAMBIT is built in some
+       /// temporary directory and then moved (as occurs in the
+       /// pip installation of pyScannerBit), then we need to
+       /// locate the root directory via an environment variable
+       /// at runtime instead. If this environment variable is set
+       /// then it will override the value set at build time.
+       root_dir = getEnvVar("GAMBIT_RUN_DIR");
+       if(root_dir==std::string(""))
+       {
+          root_dir = GAMBIT_RUN_DIR;
+       }
+
+       if(root_dir==std::string(""))
+       {
+          utils_error().raise(LOCAL_INFO, "Could not determine GAMBIT root directory! This should have been set by 'GAMBIT_RUN_DIR' at build time, however the value we found is empty. The environment variable GAMBIT_RUN_DIR is also not set. If you suspect that this is a bug in the build system then please report it.");
+       }
+       return root_dir;
+    }
+
+    /// Return the root directory of GAMBIT.
+    /// Useful for locating configuration files and other such things
+    /// in a robust manner 
+    const std::string& GAMBIT_root_dir()
+    {
+       static const std::string root_dir = get_GAMBIT_root_dir();
+       return root_dir;
+    }
+
+    /// Return the path to the build-time scratch directory
+    const str& buildtime_scratch()
+    {
+       static const str path = GAMBIT_root_dir() + "/scratch/build_time/";
+       return path;
+    }
 
     /// Return the path to the run-specific scratch directory
     /// Don't call this from a destructor, as the internal static str may have already been destroyed.

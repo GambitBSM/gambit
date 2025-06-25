@@ -916,9 +916,38 @@ START_MODULE
     BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
     ALLOW_MODELS(DMsimpVectorMedVectorDM)
     #undef FUNCTION
+
   #undef CAPABILITY
 
+  #define CAPABILITY dark_photon_decay_rates
+  START_CAPABILITY
 
+    #define FUNCTION SubGeVDM_dark_photon_decays
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(SubGeVDM_spectrum, Spectrum)
+    BACKEND_REQ(dark_photon_decay_width, (), double, (double&, std::string, double&))
+    BACKEND_REQ(dark_photon_branching_fraction, (), double, (std::string, double&))
+    ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY dark_photon_decay_length
+  START_CAPABILITY
+    #define FUNCTION get_dark_photon_decay_length
+    START_FUNCTION(double)
+    DEPENDENCY(dark_photon_decay_rates, DecayTable::Entry)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY dark_photon_visible_branching
+  START_CAPABILITY
+    #define FUNCTION get_dark_photon_visible_branching
+    START_FUNCTION(double)
+    DEPENDENCY(dark_photon_decay_rates, DecayTable::Entry)
+    #undef FUNCTION
+  #undef CAPABILITY  
+  
   #define CAPABILITY decay_rates
   START_CAPABILITY
 
@@ -1005,6 +1034,7 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(neutralino_2_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     MODEL_CONDITIONAL_DEPENDENCY(neutralino_3_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     MODEL_CONDITIONAL_DEPENDENCY(neutralino_4_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
+    MODEL_CONDITIONAL_DEPENDENCY(dark_photon_decay_rates, DecayTable::Entry, SubGeVDM_scalar, SubGeVDM_fermion)
     #undef FUNCTION
 
   #undef CAPABILITY

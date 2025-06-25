@@ -88,7 +88,6 @@ namespace Gambit {
 
     private:
 
-      Cutflows _cutflows;
       std::unique_ptr<onnx_rt_wrapper> _nn;
       
     public:

@@ -105,9 +105,13 @@ scanner_plugin(polychord, version(1, 17, 1))
       // Offset the minimum interesting likelihood by the offset
       gl0 = gl0 + offset;
 
+     // Get list of parameters used from loglikelihood
+      std::vector<std::string> varied_params = LogLike->getShownParameters();
+      std::vector<std::string> all_params = LogLike->getParameters();
+
       // Retrieve whether the scanned parameters should be added to the native output and determine nderived
       int nderived = 2;
-      if (get_inifile_value<bool>("print_parameters_in_native_output", false)) nderived += ma;
+      if (get_inifile_value<bool>("print_parameters_in_native_output", false)) nderived += all_params.size();
 
       // Initialise polychord settings
       Settings settings(ma, nderived);
@@ -119,9 +123,6 @@ scanner_plugin(polychord, version(1, 17, 1))
       // ---------- Compute an ordering for fast and slow parameters
       // Read list of fast parameters from file
       std::vector<std::string> fast_params = get_inifile_value<std::vector<std::string>>("fast_params", {});
-      // Get list of parameters used from loglikelihood
-      std::vector<std::string> varied_params = LogLike->getShownParameters();
-      std::vector<std::string> all_params = LogLike->getParameters();
 
       // Compute the set difference between fast_params and all_params to check if there are any fast_params not included in all_params
       std::set<std::string> set_fast_params(fast_params.begin(), fast_params.end()), set_params(all_params.begin(), all_params.end()), diff;
@@ -164,6 +165,11 @@ scanner_plugin(polychord, version(1, 17, 1))
       }
       else if (nslow==0) // In the unusual case of all fast parameters, there's only one grade.
          nslow = nfast;
+
+      i = 0;
+      for (auto param : all_params)
+         global_loglike_object->derived_index_map[param] = (i++);
+
       // ---------- End computation of ordering for fast and slow parameters
 
       // PolyChord algorithm options.
@@ -338,9 +344,9 @@ namespace Gambit {
             for (auto& param: param_map)
             {
                // param_map contains ALL parameters.
-               // We just need the ones which are varied (i.e. the keys of index_map)
-               if (index_map.find(param.first) != index_map.end())
-                  phi[index_map[param.first]] = param.second;
+               // We just need the ones which are varied (i.e. the keys of derived_index_map)
+               if (derived_index_map.find(param.first) != derived_index_map.end())
+                  phi[derived_index_map[param.first]] = param.second;
             }
          }
 
@@ -392,11 +398,12 @@ namespace Gambit {
          if (first)
          {
             int ndim = boundSettings.nDims;
-            int nderived = boundSettings.nDerived;
+            // int nderived = boundSettings.nDerived;
 
             // Construct the inversed index map
             // map[polychord_hypercube] = {name, gambit_hypercube}
             std::vector<std::string> params = boundLogLike->getShownParameters();
+            std::vector<std::string> all_params = boundLogLike->getParameters();
             std::map<int,std::pair<std::string,int>> inversed_map;
             for (int i=0; i<ndim; ++i)
                inversed_map[index_map[params[i]]] = {params[i],i};
@@ -410,9 +417,9 @@ namespace Gambit {
             ofs << index++ << "\t" << "-2*(" << boundLogLike->getPurpose() << ")" << std::endl;
 
             for (int i=0; i<ndim; ++i)
-               ofs << index++ << "\t" << "unitCubeParameters[" << inversed_map[i].second <<"]" << std::endl;
-            for (int i=0; i<nderived -2; ++i)
-               ofs << index++ << "\t" << inversed_map[i].first << std::endl;
+               ofs << index++ << "\t" << "unitCubeParameters[" << inversed_map[i].first <<"]" << std::endl;
+            for (auto param : all_params)
+               ofs << index++ << "\t" << param << std::endl;
 
             ofs << index++ << "\t" << "MPIrank" << std::endl;
             ofs << index++ << "\t" << "pointID" << std::endl;

@@ -27,13 +27,12 @@
 #include "gambit/Utils/static_members.hpp"
 #include "gambit/Utils/stream_overloads.hpp"
 #include "gambit/Elements/module_macros_incore.hpp"
+#include "gambit/Printers/baseprinter.hpp"
+#include "gambit/Printers/printermanager.hpp"
 
 using namespace Gambit;
 using std::cout;
 using std::endl;
-
-/// This function fixes an issue for linking to suspicious points. It is not intented to be called anywhere.
-void Suspicious() {Suspicious_point_exception().raise(".");}
 
 #endif //__standalone_hpp__
 

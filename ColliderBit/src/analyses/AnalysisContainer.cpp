@@ -51,6 +51,9 @@ namespace Gambit
     // - Else, add the analysis to MAP_ANALYSES
     #define MAP_ANALYSES_WITH_ROOT_RESTFRAMES(F)     \
       F(ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb)          \
+      F(ATLAS_13TeV_2LEPsoft_139invfb)               \
+      F(ATLAS_13TeV_2LEPsoft_combined_139invfb)      \
+      F(ATLAS_13TeV_2LEPsoft_exclusive_139invfb)     \
       F(ATLAS_13TeV_RJ3L_3Lep_36invfb)               \
       F(ATLAS_13TeV_RJ3L_lowmass_36invfb)            \
       F(ATLAS_13TeV_2LEPJETS_RJR_139invfb)           \
@@ -79,6 +82,7 @@ namespace Gambit
       F(ATLAS_13TeV_2LEPStop_139invfb)               \
       F(ATLAS_13TeV_2LEPStop_inclusive_139invfb)     \
       F(ATLAS_13TeV_2LEPStop_exclusive_139invfb)     \
+      F(ATLAS_13TeV_EXOT_TT_WbWb_36invfb)            \
       F(ATLAS_13TeV_MultiLEP_confnote_36invfb)       \
       F(ATLAS_13TeV_MultiLEP_36invfb)                \
       F(ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb)      \
@@ -110,7 +114,6 @@ namespace Gambit
       F(ATLAS_13TeV_PhotonGGM_1Photon_139invfb)      \
       F(ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb)     \
       F(ATLAS_13TeV_2OSLEP_Z_139invfb)               \
-      F(ATLAS_13TeV_2LEPsoft_139invfb)               \
       F(ATLAS_13TeV_bTaus_StopStau_139invfb)         \
       F(ATLAS_13TeV_1OR3LEP_StopHZ_139invfb)         \
       F(ATLAS_8TeV_0LEP_20invfb)                     \
@@ -137,6 +140,8 @@ namespace Gambit
       F(CMS_13TeV_2LEPsoft_stop_36invfb)             \
       F(CMS_13TeV_2LEPsoft_stop_36invfb_nocovar)     \
       F(CMS_13TeV_2LEPsoft_137invfb)                 \
+      F(CMS_13TeV_2LEPsoft_ewinos_137invfb)          \
+      F(CMS_13TeV_2LEPsoft_stop_137invfb)            \
       F(CMS_13TeV_2OSLEP_36invfb)                    \
       F(CMS_13TeV_2OSLEP_137invfb)                   \
       F(CMS_13TeV_2OSLEP_Strong_Production_137invfb) \

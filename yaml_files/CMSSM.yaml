@@ -115,6 +115,8 @@ ObsLikes:
   # LHC likelihoods
   - capability: LHC_Combined_LogLike
     purpose:    LogLike
+    # sub_capabilities:
+    #   skip_analyses:
 
   - capability: LHC_Higgs_LogLike
     purpose:    LogLike
@@ -797,7 +799,6 @@ Rules:
         write_summary_to_log: false
         cap_loglike: false
         cap_loglike_individual_analyses: false
-        # skip_analyses: 
 
 
 Logger:

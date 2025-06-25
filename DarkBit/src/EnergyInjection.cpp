@@ -12,6 +12,10 @@
 ///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2021 Mar
 ///
+///  \author Torsten Bringmann
+///          (torsten.bringmann@fys.uio.no)
+///  \date 2023 Oct
+///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -105,6 +109,7 @@ namespace Gambit
 
         positronElectronYield = positronElectronYield / totalRate;
         gammaYield = gammaYield / totalRate;
+        
       }
 
       // Define the underlying energy axes (kinetic energies)
