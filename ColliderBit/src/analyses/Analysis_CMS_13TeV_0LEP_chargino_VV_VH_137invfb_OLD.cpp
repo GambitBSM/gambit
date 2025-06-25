@@ -29,8 +29,25 @@ namespace Gambit
 
     class Analysis_CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD : public Analysis
     {
+
     private:
-      std::map<string, EventCounter> _counters = {
+
+      // ofstream cutflowFile;
+
+    public:
+      // Required detector sim
+      static constexpr const char *detector = "CMS";
+
+      Cutflow _cutflow;
+
+      Analysis_CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD():
+      _cutflow("CMS 0 lepton charginos 13 TeV", {"Electron veto", "Muon veto", "MET>300 GeV", "HT > 300 GeV", "Njets > 2", "Photon veto", "NAK8 > 0", "Delta phi", "NAK8 > 1", "b-veto", "WH SR", "W SR", "H SR"})
+
+      {
+        set_analysis_name("CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD");
+        set_luminosity(137.0);
+
+        _counters = {
           {"0b-MET-200-250", EventCounter("0b-MET-200-250")},
           {"0b-MET-250-300", EventCounter("0b-MET-250-300")},
           {"0b-MET-300-350", EventCounter("0b-MET-300-350")},
@@ -66,22 +83,8 @@ namespace Gambit
           {"1H-MET-500-600", EventCounter("1H-MET-500-600")},
           {"1H-MET-600-800", EventCounter("1H-MET-600-800")},
           {"1H-MET-800-1200", EventCounter("1H-MET-800-1200")},
-      };
+        };
 
-      // ofstream cutflowFile;
-
-    public:
-      // Required detector sim
-      static constexpr const char *detector = "CMS";
-
-      Cutflow _cutflow;
-
-      Analysis_CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD():
-      _cutflow("CMS 0 lepton charginos 13 TeV", {"Electron veto", "Muon veto", "MET>300 GeV", "HT > 300 GeV", "Njets > 2", "Photon veto", "NAK8 > 0", "Delta phi", "NAK8 > 1", "b-veto", "WH SR", "W SR", "H SR"})
-
-      {
-        set_analysis_name("CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD");
-        set_luminosity(137.0);
       }
 
       // Commented out for now since it's not used.

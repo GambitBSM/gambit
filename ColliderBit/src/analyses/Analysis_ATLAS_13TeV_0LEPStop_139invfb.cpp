@@ -38,21 +38,6 @@ namespace Gambit
     class Analysis_ATLAS_13TeV_0LEPStop_139invfb : public Analysis
     {
 
-    protected:
-      std::map<string, EventCounter> _counters = {
-        //{"SRA", EventCounter("SRA")},
-        {"SRATT", EventCounter("SRATT")},
-        {"SRATW", EventCounter("SRATW")},
-        {"SRAT0", EventCounter("SRAT0")},
-        {"SRBTT", EventCounter("SRBTT")},
-        {"SRBTW", EventCounter("SRBTW")},
-        {"SRBT0", EventCounter("SRBT0")},
-        {"SRD0", EventCounter("SRD0")},
-        {"SRD1", EventCounter("SRD1")},
-        {"SRD2", EventCounter("SRD2")},
-      };
-
-
     private:
 
     public:
@@ -108,6 +93,19 @@ namespace Gambit
         set_analysis_name("ATLAS_13TeV_0LEPStop_139invfb");
         set_detector_name(detector);
         set_luminosity(139.);
+
+        _counters = {
+          //{"SRA", EventCounter("SRA")},
+          {"SRATT", EventCounter("SRATT")},
+          {"SRATW", EventCounter("SRATW")},
+          {"SRAT0", EventCounter("SRAT0")},
+          {"SRBTT", EventCounter("SRBTT")},
+          {"SRBTW", EventCounter("SRBTW")},
+          {"SRBT0", EventCounter("SRBT0")},
+          {"SRD0", EventCounter("SRD0")},
+          {"SRD1", EventCounter("SRD1")},
+          {"SRD2", EventCounter("SRD2")},
+        };
 
         #ifdef CHECK_CUTFLOW
         _cutflows.addCutflow("SRATT",
@@ -888,7 +886,7 @@ namespace Gambit
 
       }
 
-      void collect_results()
+      virtual void collect_results()
       {
 
         add_result(SignalRegionData(_counters.at("SRATT"), 4.0, { 3.2, 0.5}));

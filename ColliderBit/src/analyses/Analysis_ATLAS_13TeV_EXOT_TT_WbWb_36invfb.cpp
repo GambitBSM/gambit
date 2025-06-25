@@ -53,11 +53,6 @@ namespace Gambit
 
         class Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb : public Analysis
         {
-            // protected:
-            //     // Counters for the number of accepted events for each signal region
-            //     std::map<string, EventCounter> _counters = {
-            //         {"SR", EventCounter("SR")},
-            //     };
 
         public:
 #ifdef CHECK_CUTFLOW
@@ -73,6 +68,12 @@ namespace Gambit
                 set_analysis_name("ATLAS_13TeV_EXOT_TT_WbWb_36invfb");
                 set_detector_name(detector);
                 set_luminosity(36.1);
+                
+                // // Counters for the number of accepted events for each signal region
+                // _counters = {
+                //     {"SR", EventCounter("SR")},
+                // };
+
 
 #ifdef CHECK_CUTFLOW
                 cout << "Starting run Analysis \n booking Cutflows" << endl;

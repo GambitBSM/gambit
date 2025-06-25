@@ -52,40 +52,6 @@ namespace Gambit {
 
     class Analysis_ATLAS_13TeV_3b_NN_139invfb : public Analysis {
 
-    protected:
-      // Signal region map
-      std::map<string, EventCounter> _counters = {
-        // C&C regions
-        {"SR_Gtt_0l_B", EventCounter("SR_Gtt_0l_B")},
-        {"SR_Gtt_0l_M1", EventCounter("SR_Gtt_0l_M1")},
-        {"SR_Gtt_0l_M2", EventCounter("SR_Gtt_0l_M2")},
-        {"SR_Gtt_0l_C", EventCounter("SR_Gtt_0l_C")},
-
-        {"SR_Gtt_1l_B", EventCounter("SR_Gtt_1l_B")},
-        {"SR_Gtt_1l_M1", EventCounter("SR_Gtt_1l_M1")},
-        {"SR_Gtt_1l_M2", EventCounter("SR_Gtt_1l_M2")},
-        {"SR_Gtt_1l_C", EventCounter("SR_Gtt_1l_C")},
-
-        {"SR_Gbb_B", EventCounter("SR_Gbb_B")},
-        {"SR_Gbb_M", EventCounter("SR_Gbb_M")},
-        {"SR_Gbb_C", EventCounter("SR_Gbb_C")},
-
-        {"SR_Gtb_B", EventCounter("SR_Gtb_B")},
-        {"SR_Gtb_M", EventCounter("SR_Gtb_M")},
-        {"SR_Gtb_C", EventCounter("SR_Gtb_C")},
-
-        // NN regions
-        {"SR_Gtt_2100_1", EventCounter("SR_Gtt_2100_1")},
-        {"SR_Gtt_1800_1", EventCounter("SR_Gtt_1800_1")},
-        {"SR_Gtt_2300_1200", EventCounter("SR_Gtt_2300_1200")},
-        {"SR_Gtt_1900_1400", EventCounter("SR_Gtt_1900_1400")},
-
-        {"SR_Gbb_2800_1400", EventCounter("SR_Gbb_2800_1400")},
-        {"SR_Gbb_2300_1000", EventCounter("SR_Gbb_2300_1000")},
-        {"SR_Gbb_2100_1600", EventCounter("SR_Gbb_2100_1600")},
-        {"SR_Gbb_2000_1800", EventCounter("SR_Gbb_2000_1800")},
-      };
-
     private:
 
       std::unique_ptr<onnx_rt_wrapper> _nn;
@@ -162,6 +128,40 @@ namespace Gambit {
         set_analysis_name("ATLAS_13TeV_3b_NN_139invfb");
         set_detector_name(detector);
         set_luminosity(139.);
+
+        // Register signal regions
+        _counters = {
+          // C&C regions
+          {"SR_Gtt_0l_B", EventCounter("SR_Gtt_0l_B")},
+          {"SR_Gtt_0l_M1", EventCounter("SR_Gtt_0l_M1")},
+          {"SR_Gtt_0l_M2", EventCounter("SR_Gtt_0l_M2")},
+          {"SR_Gtt_0l_C", EventCounter("SR_Gtt_0l_C")},
+
+          {"SR_Gtt_1l_B", EventCounter("SR_Gtt_1l_B")},
+          {"SR_Gtt_1l_M1", EventCounter("SR_Gtt_1l_M1")},
+          {"SR_Gtt_1l_M2", EventCounter("SR_Gtt_1l_M2")},
+          {"SR_Gtt_1l_C", EventCounter("SR_Gtt_1l_C")},
+
+          {"SR_Gbb_B", EventCounter("SR_Gbb_B")},
+          {"SR_Gbb_M", EventCounter("SR_Gbb_M")},
+          {"SR_Gbb_C", EventCounter("SR_Gbb_C")},
+
+          {"SR_Gtb_B", EventCounter("SR_Gtb_B")},
+          {"SR_Gtb_M", EventCounter("SR_Gtb_M")},
+          {"SR_Gtb_C", EventCounter("SR_Gtb_C")},
+
+          // NN regions
+          {"SR_Gtt_2100_1", EventCounter("SR_Gtt_2100_1")},
+          {"SR_Gtt_1800_1", EventCounter("SR_Gtt_1800_1")},
+          {"SR_Gtt_2300_1200", EventCounter("SR_Gtt_2300_1200")},
+          {"SR_Gtt_1900_1400", EventCounter("SR_Gtt_1900_1400")},
+
+          {"SR_Gbb_2800_1400", EventCounter("SR_Gbb_2800_1400")},
+          {"SR_Gbb_2300_1000", EventCounter("SR_Gbb_2300_1000")},
+          {"SR_Gbb_2100_1600", EventCounter("SR_Gbb_2100_1600")},
+          {"SR_Gbb_2000_1800", EventCounter("SR_Gbb_2000_1800")},
+        };
+
 
         // Load the NN
         //TODO: We really want to be as sure as possible this is called the minimal number of times.

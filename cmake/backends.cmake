@@ -2127,8 +2127,8 @@ endif()
 # Fjcontrib
 set(name "fjcontrib")
 set(ver "1.049")
-set(dl "http://fastjet.hepforge.org/contrib/downloads/${name}-${ver}.tar.gz")
-set(md5 "bfea8bfd311d958a40e445f76668bd32")
+# set(dl "https://github.com/fjcontrib/fjcontrib/archive/refs/tags/${ver}.tar.gz")
+# set(md5 "c7b9803f7e37d44a9a7f3c09347c2043")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(fastjet_name "fastjet")
 set(fastjet_ver "3.4.0")
@@ -2145,7 +2145,7 @@ check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DEPENDS ${fastjet_name}_${fastjet_ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    # DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
