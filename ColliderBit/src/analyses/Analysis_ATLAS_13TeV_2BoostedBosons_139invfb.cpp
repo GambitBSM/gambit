@@ -96,6 +96,7 @@ namespace Gambit
 
 
           set_analysis_name("ATLAS_13TeV_2BoostedBosons_139invfb");
+          set_detector_name(detector);
           set_luminosity(139.);
 
         }

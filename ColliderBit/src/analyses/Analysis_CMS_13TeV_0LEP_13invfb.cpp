@@ -44,6 +44,7 @@ namespace Gambit {
 
 
         set_analysis_name("CMS_13TeV_0LEP_13invfb");
+        set_detector_name(detector);
         set_luminosity(12.9);
       }
 

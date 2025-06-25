@@ -596,6 +596,7 @@ namespace Gambit
         {
 
           set_analysis_name("ATLAS_13TeV_2LEP0JET_EW_139invfb");
+          set_detector_name(detector);
           set_luminosity(139.0);
 
           // Slepton regions

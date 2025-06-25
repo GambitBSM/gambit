@@ -48,6 +48,7 @@ namespace Gambit {
         _counters["SR"] = EventCounter("SR");
 
         set_analysis_name("CMS_8TeV_1LEPDMTOP_20invfb");
+        set_detector_name(detector);
         set_luminosity(19.7);
 
         for (int i=0; i<NCUTS; i++) {

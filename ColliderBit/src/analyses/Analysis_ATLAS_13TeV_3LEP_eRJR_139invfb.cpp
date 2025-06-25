@@ -91,6 +91,7 @@ namespace Gambit
 
 
           set_analysis_name("ATLAS_13TeV_3LEP_eRJR_139invfb");
+          set_detector_name(detector);
           set_luminosity(139.);
 
           /*_cutflows.addCutflow("SR-ISR", {"Trigger (one photon pT > 140 GeV)",

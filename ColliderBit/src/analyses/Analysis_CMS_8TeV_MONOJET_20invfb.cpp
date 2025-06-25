@@ -52,6 +52,7 @@ namespace Gambit {
         _counters["550"] = EventCounter("550");
 
         set_analysis_name("CMS_8TeV_MONOJET_20invfb");
+        set_detector_name(detector);
         set_luminosity(19.7);
 
         for (int i=0; i<NCUTS; i++) {

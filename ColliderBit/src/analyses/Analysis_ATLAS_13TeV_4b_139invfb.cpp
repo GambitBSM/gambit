@@ -70,6 +70,7 @@ namespace Gambit {
         _counters["SR_LM_300"] = EventCounter("SR_LM_300");
 
         set_analysis_name("ATLAS_13TeV_4b_139invfb");
+        set_detector_name(detector);
         set_luminosity(139.);
 
         #ifdef CHECK_CUTFLOW

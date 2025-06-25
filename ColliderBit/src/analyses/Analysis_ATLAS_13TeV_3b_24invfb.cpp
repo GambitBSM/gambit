@@ -101,6 +101,7 @@ namespace Gambit {
 
 
         set_analysis_name("ATLAS_13TeV_3b_24invfb");
+        set_detector_name(detector);
         set_luminosity(24.3);
 
         #ifdef CHECK_CUTFLOW

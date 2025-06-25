@@ -63,6 +63,7 @@ namespace Gambit {
 
 
         set_analysis_name("CMS_13TeV_2OSLEP_confnote_36invfb");
+        set_detector_name(detector);
         set_luminosity(35.9);
 
         NCUTS=13;

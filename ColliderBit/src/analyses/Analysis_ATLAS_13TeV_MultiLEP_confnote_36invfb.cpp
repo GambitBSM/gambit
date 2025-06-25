@@ -93,6 +93,7 @@ namespace Gambit {
 
 
         set_analysis_name("ATLAS_13TeV_MultiLEP_confnote_36invfb");
+        set_detector_name(detector);
         set_luminosity(36.1);
 
         NCUTS1=22;

@@ -199,6 +199,7 @@ namespace Gambit
         _counters["2LSR2"] = EventCounter("1LSR");
 
         set_analysis_name("ATLAS_7TeV_1OR2LEPStop_4_7invfb");
+        set_detector_name(detector);
         set_luminosity(4.7);
       }
 

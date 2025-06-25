@@ -205,6 +205,7 @@ namespace Gambit
 
 
         set_analysis_name("CMS_13TeV_MultiLEP_Full_36invfb");
+        set_detector_name(detector);
         set_luminosity(35.9);
 
         NCUTS1=10;

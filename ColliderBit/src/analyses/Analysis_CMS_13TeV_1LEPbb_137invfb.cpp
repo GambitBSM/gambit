@@ -50,6 +50,7 @@ namespace Gambit
         DEFINE_SIGNAL_REGIONS_NOCUTS("SR3J-1H-", 2);
 
         set_analysis_name("CMS_13TeV_1LEPbb_137invfb");
+        set_detector_name(detector);
         set_luminosity(137.0);
 
         #ifdef CHECK_CUTFLOW

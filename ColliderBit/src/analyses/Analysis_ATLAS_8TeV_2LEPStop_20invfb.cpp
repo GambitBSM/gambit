@@ -65,6 +65,7 @@ namespace Gambit {
 
 
         set_analysis_name("ATLAS_8TeV_2LEPStop_20invfb");
+        set_detector_name(detector);
         set_luminosity(20.3);
 
         for (int i=0; i<NCUTS; i++) {

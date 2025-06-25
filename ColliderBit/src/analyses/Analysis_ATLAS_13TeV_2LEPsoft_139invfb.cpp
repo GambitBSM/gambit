@@ -99,6 +99,7 @@ namespace Gambit
         DEFINE_SIGNAL_REGIONS("SR-S-high-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))")
 
         set_analysis_name("ATLAS_13TeV_2LEPsoft_139invfb");
+        set_detector_name(detector);
         set_luminosity(139);
 
 

@@ -47,6 +47,7 @@ namespace Gambit
         DEFINE_SIGNAL_REGIONS("3lEWmed", 5, "3 leptons", "pT(l2) > 3.5 (5) for muon (electron)", "pT(l3) > 3.5 (5) for muon (electron)", "Y veto", "HT > 100 GeV", "200 GeV < metcorr", "trigger path combination (med)", "1 OS SF pair", "Tight lepton ID", "No b-jets", "1 GeV < min(MSFOS(ll) < 50 GeV", "J/Psi veto", "deltaR < 0.3", "3.5 (5) GeV < pT(l1) < 30.0 GeV")
 
         set_analysis_name("CMS_13TeV_2LEPsoft_137invfb");
+        set_detector_name(detector);
         set_luminosity(137.);
       }
 

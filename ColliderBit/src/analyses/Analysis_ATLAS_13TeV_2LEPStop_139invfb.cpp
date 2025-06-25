@@ -77,6 +77,7 @@ namespace Gambit
 
 
             set_analysis_name("ATLAS_13TeV_2LEPStop_139invfb");
+            set_detector_name(detector);
             set_luminosity(139.);
 
             #ifdef CHECK_CUTFLOW

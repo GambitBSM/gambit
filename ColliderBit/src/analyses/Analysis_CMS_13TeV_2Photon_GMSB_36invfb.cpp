@@ -86,6 +86,7 @@ namespace Gambit {
 
 
         set_analysis_name("CMS_13TeV_2Photon_GMSB_36invfb");
+        set_detector_name(detector);
         set_luminosity(35.9);
       }
 

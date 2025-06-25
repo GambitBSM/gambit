@@ -160,6 +160,7 @@ namespace Gambit {
 
       Analysis_ATLAS_13TeV_3b_NN_139invfb() {
         set_analysis_name("ATLAS_13TeV_3b_NN_139invfb");
+        set_detector_name(detector);
         set_luminosity(139.);
 
         // Load the NN

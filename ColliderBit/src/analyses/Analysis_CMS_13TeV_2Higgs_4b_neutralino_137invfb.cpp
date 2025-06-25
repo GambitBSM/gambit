@@ -79,6 +79,7 @@ namespace Gambit {
           })
         {
             set_analysis_name("CMS_13TeV_2Higgs_4b_neutralino_137invfb");
+            set_detector_name(detector);
             set_luminosity(137);
 
             for(size_t i=1; i<=22; ++i)

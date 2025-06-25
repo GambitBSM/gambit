@@ -53,6 +53,7 @@ namespace Gambit
       Analysis_ATLAS_13TeV_1OR3LEP_StopHZ_139invfb()
       {
         set_analysis_name("ATLAS_13TeV_1OR3LEP_StopHZ_139invfb");
+        set_detector_name(detector);
         set_luminosity(139);
 //
 //      Counters for the number of accepted events for each signal region

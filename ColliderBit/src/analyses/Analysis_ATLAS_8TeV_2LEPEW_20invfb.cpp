@@ -66,6 +66,7 @@ namespace Gambit
         {
 
           set_analysis_name("ATLAS_8TeV_2LEPEW_20invfb");
+          set_detector_name(detector);
           set_luminosity(20.3);
 
           _counters["MT2_90_SF"] = EventCounter("MT2_90_SF");

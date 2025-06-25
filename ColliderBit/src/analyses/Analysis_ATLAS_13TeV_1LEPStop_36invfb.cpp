@@ -176,6 +176,7 @@ namespace Gambit {
 
 
         set_analysis_name("ATLAS_13TeV_1LEPStop_36invfb");
+        set_detector_name(detector);
         set_luminosity(36.);
 
         NCUTS=150;

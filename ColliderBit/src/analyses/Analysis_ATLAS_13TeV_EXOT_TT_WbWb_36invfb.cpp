@@ -71,6 +71,7 @@ namespace Gambit
                 DEFINE_SIGNAL_REGION_NOCUTS("SR");
 
                 set_analysis_name("ATLAS_13TeV_EXOT_TT_WbWb_36invfb");
+                set_detector_name(detector);
                 set_luminosity(36.1);
 
 #ifdef CHECK_CUTFLOW

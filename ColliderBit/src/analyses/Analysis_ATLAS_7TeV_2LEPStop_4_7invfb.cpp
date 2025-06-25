@@ -35,6 +35,7 @@ namespace Gambit
 
 
         set_analysis_name("ATLAS_7TeV_2LEPStop_4_7invfb");
+        set_detector_name(detector);
         set_luminosity(4.7);
         //clear();
       }

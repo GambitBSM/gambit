@@ -97,6 +97,7 @@ namespace Gambit {
       Analysis_ATLAS_8TeV_0LEPStop_20invfb() {
 
         set_analysis_name("ATLAS_8TeV_0LEPStop_20invfb");
+        set_detector_name(detector);
         set_luminosity(20.1);
 
         // Numbers passing cuts

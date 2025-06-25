@@ -60,6 +60,7 @@ namespace Gambit
         {
 
           set_analysis_name("ATLAS_8TeV_2bStop_20invfb");
+          set_detector_name(detector);
           set_luminosity(20.1);
 
           _counters["SRA"] = EventCounter("SRA");

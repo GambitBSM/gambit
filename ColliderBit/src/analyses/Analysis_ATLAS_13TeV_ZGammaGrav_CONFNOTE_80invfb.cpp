@@ -31,6 +31,7 @@ namespace Gambit {
         _counters["SR"] = EventCounter("SR");
 
         set_analysis_name("ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb");
+        set_detector_name(detector);
         set_luminosity(79.8);
         analysis_specific_reset();
       }

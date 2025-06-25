@@ -107,6 +107,7 @@ namespace Gambit
 
 
         set_analysis_name("ATLAS_13TeV_2OSLEP_chargino_80invfb");
+        set_detector_name(detector);
         set_luminosity(80.5);
 
       }

@@ -50,6 +50,7 @@ namespace Gambit
       Analysis_ATLAS_13TeV_2OR3LEP_139invfb() 
       {
         set_analysis_name("ATLAS_13TeV_2OR3LEP_139invfb");
+        set_detector_name(detector);
         set_luminosity(139);
 
         //Defining signal regions

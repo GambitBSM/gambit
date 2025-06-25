@@ -54,6 +54,7 @@ namespace Gambit
 
 
           set_analysis_name("ATLAS_13TeV_0LEP_13invfb");
+          set_detector_name(detector);
           set_luminosity(13.3);
 
           // Book cut-flows

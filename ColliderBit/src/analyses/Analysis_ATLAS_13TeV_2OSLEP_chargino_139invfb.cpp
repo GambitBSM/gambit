@@ -121,6 +121,7 @@ namespace Gambit
 
 
         set_analysis_name("ATLAS_13TeV_2OSLEP_chargino_139invfb");
+        set_detector_name(detector);
         set_luminosity(139);
         set_bkgjson("ColliderBit/data/analyses_json_files/ATLAS_13TeV_2OSLEP_chargino_139invfb_bkgonly.json");
       }

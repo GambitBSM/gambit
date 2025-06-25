@@ -149,6 +149,7 @@ namespace Gambit
 
 
         set_analysis_name("ATLAS_13TeV_2LEPJETS_RJR_139invfb");
+        set_detector_name(detector);
         set_luminosity(139);
 
         _cutflows.addCutflow("SR2L_low", {"Trigger and 2 signal leptons", "Preselection", "0.35 < HPP11/HPP41 < 0.60", "pTlabPP/(pTlabPP+HTPP11) < 0.05", "min(dPhi(j1/j2,ptmiss))<2.4", "HPP41 > 400 GeV",});

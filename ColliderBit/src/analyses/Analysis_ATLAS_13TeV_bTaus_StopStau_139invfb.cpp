@@ -51,6 +51,7 @@ namespace Gambit
       {
 //        std::cout<<"define analysis"<<std::endl;
         set_analysis_name("ATLAS_13TeV_bTaus_StopStau_139invfb");
+        set_detector_name(detector);
         set_luminosity(139);
 //
 //        // Counters for the number of accepted events for each signal region

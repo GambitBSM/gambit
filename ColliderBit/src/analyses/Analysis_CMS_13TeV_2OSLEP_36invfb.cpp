@@ -66,6 +66,7 @@ namespace Gambit {
         _counters["SR7"] = EventCounter("SR7");
 
         set_analysis_name("CMS_13TeV_2OSLEP_36invfb");
+        set_detector_name(detector);
         set_luminosity(35.9);
         // xsecCMS_550_200=30.2;
 
