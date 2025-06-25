@@ -4,8 +4,8 @@
 import argparse
 ap = argparse.ArgumentParser()
 ap.add_argument("ANAFILES", nargs="*", help="analysis info files to parse, defaults to using all in the pwd")
-ap.add_argument("OUTFILE", nargs="?", default="analyses.json", help="output JSON filename [default=%(default)s]")
-ap.add_argument("GVERSION", nargs="?", default=None, help="specify the GAMBIT version [default=try to read from CMake]")
+ap.add_argument("-o", dest="OUTFILE", nargs="?", default="analyses.json", help="output JSON filename [default=%(default)s]")
+ap.add_argument("--gversion", dest="GVERSION", nargs="?", default=None, help="specify the GAMBIT version [default=try to read from CMake]")
 args = ap.parse_args()
 
 ## Identify the input files
