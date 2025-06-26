@@ -120,7 +120,7 @@ namespace Gambit {
         if (i_sr >= 0)
         {
           std::stringstream sr_key; sr_key << "SR-" << i_sr;
-          _counters.at(sr_key.str()).add_event(event->weight() * trigweight, event->weight_err() * trigweight);
+          _counters.at(sr_key.str()).add_event(event, event->weight() * trigweight, event->weight_err() * trigweight);
         }
       }
 

@@ -257,7 +257,7 @@ namespace Gambit
             if (i_sr >= 0)
             {
               std::stringstream sr_key; sr_key << "EM" << i_sr;
-              _counters.at(sr_key.str()).add_event(event->weight(), event->weight_err());
+              _counters.at(sr_key.str()).add_event(event, event->weight(), event->weight_err());
             }
 
             // Applied all cuts

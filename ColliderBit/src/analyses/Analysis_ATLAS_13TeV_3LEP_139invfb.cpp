@@ -372,22 +372,22 @@ namespace Gambit
               double weight = event->weight()*weight_trigger_WZ*weight_SR1_8_WZ;
               if(mT > 100 && mT < 160)
               {
-                // if(             met < 100) _counters.at("SR-WZ-1").add_event(weight, 0.0);
+                // if(             met < 100) _counters.at("SR-WZ-1").add_event(event, weight, 0.0);
                 if(             met < 100) 
                 {
                   std::cerr << "DEBUG: Accepting event for SR-WZ-1!" << std::endl;
-                  _counters.at("SR-WZ-1").add_event(weight, 0.0);
+                  _counters.at("SR-WZ-1").add_event(event, weight, 0.0);
                 }
-                if(met > 100 && met < 150) _counters.at("SR-WZ-2").add_event(weight, 0.0);
-                if(met > 150 && met < 200) _counters.at("SR-WZ-3").add_event(weight, 0.0);
-                if(met > 200             ) _counters.at("SR-WZ-4").add_event(weight, 0.0);
+                if(met > 100 && met < 150) _counters.at("SR-WZ-2").add_event(event, weight, 0.0);
+                if(met > 150 && met < 200) _counters.at("SR-WZ-3").add_event(event, weight, 0.0);
+                if(met > 200             ) _counters.at("SR-WZ-4").add_event(event, weight, 0.0);
               }
               if(mT > 160)
               {
-                if(             met < 150) _counters.at("SR-WZ-5").add_event(weight, 0.0);
-                if(met > 150 && met < 200) _counters.at("SR-WZ-6").add_event(weight, 0.0);
-                if(met > 200 && met < 350) _counters.at("SR-WZ-7").add_event(weight, 0.0);
-                if(met > 350             ) _counters.at("SR-WZ-8").add_event(weight, 0.0);
+                if(             met < 150) _counters.at("SR-WZ-5").add_event(event, weight, 0.0);
+                if(met > 150 && met < 200) _counters.at("SR-WZ-6").add_event(event, weight, 0.0);
+                if(met > 200 && met < 350) _counters.at("SR-WZ-7").add_event(event, weight, 0.0);
+                if(met > 350             ) _counters.at("SR-WZ-8").add_event(event, weight, 0.0);
               }
             }
             if(njets > 0 && HT < 200)
@@ -395,17 +395,17 @@ namespace Gambit
               double weight = event->weight()*weight_trigger_WZ*weight_SR9_16_WZ;
               if(mT > 100 && mT < 160)
               {
-                if(met > 100 && met < 150) _counters.at("SR-WZ-9").add_event(weight, 0.0);
-                if(met > 150 && met < 250) _counters.at("SR-WZ-10").add_event(weight, 0.0);
-                if(met > 250 && met < 300) _counters.at("SR-WZ-11").add_event(weight, 0.0);
-                if(met > 300             ) _counters.at("SR-WZ-12").add_event(weight, 0.0);
+                if(met > 100 && met < 150) _counters.at("SR-WZ-9").add_event(event, weight, 0.0);
+                if(met > 150 && met < 250) _counters.at("SR-WZ-10").add_event(event, weight, 0.0);
+                if(met > 250 && met < 300) _counters.at("SR-WZ-11").add_event(event, weight, 0.0);
+                if(met > 300             ) _counters.at("SR-WZ-12").add_event(event, weight, 0.0);
               }
               if(mT > 160)
               {
-                if(             met < 150) _counters.at("SR-WZ-13").add_event(weight, 0.0);
-                if(met > 150 && met < 250) _counters.at("SR-WZ-14").add_event(weight, 0.0);
-                if(met > 250 && met < 400) _counters.at("SR-WZ-15").add_event(weight, 0.0);
-                if(met > 400             ) _counters.at("SR-WZ-16").add_event(weight, 0.0);
+                if(             met < 150) _counters.at("SR-WZ-13").add_event(event, weight, 0.0);
+                if(met > 150 && met < 250) _counters.at("SR-WZ-14").add_event(event, weight, 0.0);
+                if(met > 250 && met < 400) _counters.at("SR-WZ-15").add_event(event, weight, 0.0);
+                if(met > 400             ) _counters.at("SR-WZ-16").add_event(event, weight, 0.0);
               }
             }
             if(njets > 0 && HT > 200 && HTlep < 350)
@@ -413,10 +413,10 @@ namespace Gambit
               double weight = event->weight()*weight_trigger_WZ*weight_SR17_20_WZ;
               if(mT > 100)
               {
-                if(met > 150 && met < 200) _counters.at("SR-WZ-17").add_event(weight, 0.0);
-                if(met > 200 && met < 300) _counters.at("SR-WZ-18").add_event(weight, 0.0);
-                if(met > 300 && met < 400) _counters.at("SR-WZ-19").add_event(weight, 0.0);
-                if(met > 400             ) _counters.at("SR-WZ-20").add_event(weight, 0.0);
+                if(met > 150 && met < 200) _counters.at("SR-WZ-17").add_event(event, weight, 0.0);
+                if(met > 200 && met < 300) _counters.at("SR-WZ-18").add_event(event, weight, 0.0);
+                if(met > 300 && met < 400) _counters.at("SR-WZ-19").add_event(event, weight, 0.0);
+                if(met > 400             ) _counters.at("SR-WZ-20").add_event(event, weight, 0.0);
               }
             }
           }
@@ -432,54 +432,54 @@ namespace Gambit
               {
                 if(mT < 100)
                 {
-                  if(             met < 100) _counters.at("SR-Wh-1").add_event(weight, 0.0);
-                  if(met > 100 && met < 150) _counters.at("SR-Wh-2").add_event(weight, 0.0);
-                  if(met > 150             ) _counters.at("SR-Wh-3").add_event(weight, 0.0);
+                  if(             met < 100) _counters.at("SR-Wh-1").add_event(event, weight, 0.0);
+                  if(met > 100 && met < 150) _counters.at("SR-Wh-2").add_event(event, weight, 0.0);
+                  if(met > 150             ) _counters.at("SR-Wh-3").add_event(event, weight, 0.0);
                 }
                 if(mT > 100 && mT < 160)
                 {
-                  if(             met < 100) _counters.at("SR-Wh-4").add_event(weight, 0.0);
-                  if(met > 100             ) _counters.at("SR-Wh-5").add_event(weight, 0.0);
+                  if(             met < 100) _counters.at("SR-Wh-4").add_event(event, weight, 0.0);
+                  if(met > 100             ) _counters.at("SR-Wh-5").add_event(event, weight, 0.0);
                 }
                 if(mT > 160)
                 {
-                  if(             met < 100) _counters.at("SR-Wh-6").add_event(weight, 0.0);
-                  if(met > 100             ) _counters.at("SR-Wh-7").add_event(weight, 0.0);
+                  if(             met < 100) _counters.at("SR-Wh-6").add_event(event, weight, 0.0);
+                  if(met > 100             ) _counters.at("SR-Wh-7").add_event(event, weight, 0.0);
                 }
               }
               if(njets > 0 && mll < 75 && HT < 200)
               {
                 if(mT < 50)
                 {
-                  if(             met < 100) _counters.at("SR-Wh-8").add_event(weight, 0.0);
+                  if(             met < 100) _counters.at("SR-Wh-8").add_event(event, weight, 0.0);
                 }
                 if(mT > 50 && mT < 100)
                 {
-                  if(             met < 100) _counters.at("SR-Wh-9").add_event(weight, 0.0);
+                  if(             met < 100) _counters.at("SR-Wh-9").add_event(event, weight, 0.0);
                 }
                 if(mT < 100)
                 {
-                  if(met > 100 && met < 150) _counters.at("SR-Wh-10").add_event(weight, 0.0);
-                  if(met > 150             ) _counters.at("SR-Wh-11").add_event(weight, 0.0);
+                  if(met > 100 && met < 150) _counters.at("SR-Wh-10").add_event(event, weight, 0.0);
+                  if(met > 150             ) _counters.at("SR-Wh-11").add_event(event, weight, 0.0);
                 }
                 if(mT > 100 && mT < 160)
                 {
-                  if(             met < 100) _counters.at("SR-Wh-12").add_event(weight, 0.0);
-                  if(met > 100 && met < 150) _counters.at("SR-Wh-13").add_event(weight, 0.0);
-                  if(met > 150             ) _counters.at("SR-Wh-14").add_event(weight, 0.0);
+                  if(             met < 100) _counters.at("SR-Wh-12").add_event(event, weight, 0.0);
+                  if(met > 100 && met < 150) _counters.at("SR-Wh-13").add_event(event, weight, 0.0);
+                  if(met > 150             ) _counters.at("SR-Wh-14").add_event(event, weight, 0.0);
                 }
                 if(mT > 160)
                 {
-                  if(             met < 150) _counters.at("SR-Wh-15").add_event(weight, 0.0);
-                  if(met > 150             ) _counters.at("SR-Wh-16").add_event(weight, 0.0);
+                  if(             met < 150) _counters.at("SR-Wh-15").add_event(event, weight, 0.0);
+                  if(met > 150             ) _counters.at("SR-Wh-16").add_event(event, weight, 0.0);
                 }
                 if(njets == 0 && mll > 105)
                 {
                   if(mT > 100)
                   {
-                    if(             met < 100) _counters.at("SR-Wh-17").add_event(weight, 0.0);
-                    if(met > 100 && met < 200) _counters.at("SR-Wh-18").add_event(weight, 0.0);
-                    if(met > 200             ) _counters.at("SR-Wh-19").add_event(weight, 0.0);
+                    if(             met < 100) _counters.at("SR-Wh-17").add_event(event, weight, 0.0);
+                    if(met > 100 && met < 200) _counters.at("SR-Wh-18").add_event(event, weight, 0.0);
+                    if(met > 200             ) _counters.at("SR-Wh-19").add_event(event, weight, 0.0);
                   }
                 }
               }

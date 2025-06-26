@@ -257,10 +257,10 @@ namespace Gambit {
         // Signal Regions
         // In the low ETmiss region, for each passing event we add 0.65 due to trigger efficiency
         if (EWpreselection && met>125. && met<200. && nSignalMuons == 2) {
-          if (m_ll>4. && m_ll<9.) _counters.at("SREW1").add_event(event->weight() * 0.65, event->weight_err() * 0.65);
-          if (m_ll>10.5 && m_ll<20.) _counters.at("SREW2").add_event(event->weight() * 0.65, event->weight_err() * 0.65);
-          if (m_ll>20. && m_ll<30.) _counters.at("SREW3").add_event(event->weight() * 0.65, event->weight_err() * 0.65);
-          if (m_ll>30. && m_ll<50.) _counters.at("SREW4").add_event(event->weight() * 0.65, event->weight_err() * 0.65);
+          if (m_ll>4. && m_ll<9.) _counters.at("SREW1").add_event(event, event->weight() * 0.65, event->weight_err() * 0.65);
+          if (m_ll>10.5 && m_ll<20.) _counters.at("SREW2").add_event(event, event->weight() * 0.65, event->weight_err() * 0.65);
+          if (m_ll>20. && m_ll<30.) _counters.at("SREW3").add_event(event, event->weight() * 0.65, event->weight_err() * 0.65);
+          if (m_ll>30. && m_ll<50.) _counters.at("SREW4").add_event(event, event->weight() * 0.65, event->weight_err() * 0.65);
         }
         if (EWpreselection && met>200. && met<250.) {
           if (m_ll>4. && m_ll<9.) _counters.at("SREW5").add_event(event);

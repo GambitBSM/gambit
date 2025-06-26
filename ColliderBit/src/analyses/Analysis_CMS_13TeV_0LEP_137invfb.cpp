@@ -189,18 +189,18 @@ namespace Gambit
 
 
           // Fill aggregate SR bins
-          if (htmiss >= 600 && ht >=  600 && njets >=  2 && nbjets == 0) _counters.at("SR1").add_event(w,werr);
-          if (htmiss >= 850 && ht >= 1700 && njets >=  4 && nbjets == 0) _counters.at("SR2").add_event(w,werr);
-          if (htmiss >= 600 && ht >=  600 && njets >=  6 && nbjets == 0) _counters.at("SR3").add_event(w,werr);
-          if (htmiss >= 600 && ht >=  600 && njets >=  8 && nbjets <= 1) _counters.at("SR4").add_event(w,werr);
-          if (htmiss >= 850 && ht >= 1700 && njets >= 10 && nbjets <= 1) _counters.at("SR5").add_event(w,werr);
-          if (htmiss >= 300 && ht >=  300 && njets >=  4 && nbjets >= 2) _counters.at("SR6").add_event(w,werr);
-          if (htmiss >= 600 && ht >=  600 && njets >=  2 && nbjets >= 2) _counters.at("SR7").add_event(w,werr);
-          if (htmiss >= 350 && ht >=  350 && njets >=  6 && nbjets >= 2) _counters.at("SR8").add_event(w,werr);
-          if (htmiss >= 600 && ht >=  600 && njets >=  4 && nbjets >= 2) _counters.at("SR9").add_event(w,werr);
-          if (htmiss >= 300 && ht >=  300 && njets >=  8 && nbjets >= 3) _counters.at("SR10").add_event(w,werr);
-          if (htmiss >= 600 && ht >=  600 && njets >=  6 && nbjets >= 1) _counters.at("SR11").add_event(w,werr);
-          if (htmiss >= 850 && ht >=  850 && njets >= 10 && nbjets >= 3) _counters.at("SR12").add_event(w,werr);
+          if (htmiss >= 600 && ht >=  600 && njets >=  2 && nbjets == 0) _counters.at("SR1").add_event(event, w, werr);
+          if (htmiss >= 850 && ht >= 1700 && njets >=  4 && nbjets == 0) _counters.at("SR2").add_event(event, w, werr);
+          if (htmiss >= 600 && ht >=  600 && njets >=  6 && nbjets == 0) _counters.at("SR3").add_event(event, w, werr);
+          if (htmiss >= 600 && ht >=  600 && njets >=  8 && nbjets <= 1) _counters.at("SR4").add_event(event, w, werr);
+          if (htmiss >= 850 && ht >= 1700 && njets >= 10 && nbjets <= 1) _counters.at("SR5").add_event(event, w, werr);
+          if (htmiss >= 300 && ht >=  300 && njets >=  4 && nbjets >= 2) _counters.at("SR6").add_event(event, w, werr);
+          if (htmiss >= 600 && ht >=  600 && njets >=  2 && nbjets >= 2) _counters.at("SR7").add_event(event, w, werr);
+          if (htmiss >= 350 && ht >=  350 && njets >=  6 && nbjets >= 2) _counters.at("SR8").add_event(event, w, werr);
+          if (htmiss >= 600 && ht >=  600 && njets >=  4 && nbjets >= 2) _counters.at("SR9").add_event(event, w, werr);
+          if (htmiss >= 300 && ht >=  300 && njets >=  8 && nbjets >= 3) _counters.at("SR10").add_event(event, w, werr);
+          if (htmiss >= 600 && ht >=  600 && njets >=  6 && nbjets >= 1) _counters.at("SR11").add_event(event, w, werr);
+          if (htmiss >= 850 && ht >=  850 && njets >= 10 && nbjets >= 3) _counters.at("SR12").add_event(event, w, werr);
 
         }
 
