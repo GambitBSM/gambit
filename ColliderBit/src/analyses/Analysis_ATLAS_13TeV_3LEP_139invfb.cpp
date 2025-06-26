@@ -373,11 +373,7 @@ namespace Gambit
               if(mT > 100 && mT < 160)
               {
                 // if(             met < 100) _counters.at("SR-WZ-1").add_event(event, weight, 0.0);
-                if(             met < 100) 
-                {
-                  std::cerr << "DEBUG: Accepting event for SR-WZ-1!" << std::endl;
-                  _counters.at("SR-WZ-1").add_event(event, weight, 0.0);
-                }
+                if(             met < 100) _counters.at("SR-WZ-1").add_event(event, weight, 0.0);
                 if(met > 100 && met < 150) _counters.at("SR-WZ-2").add_event(event, weight, 0.0);
                 if(met > 150 && met < 200) _counters.at("SR-WZ-3").add_event(event, weight, 0.0);
                 if(met > 200             ) _counters.at("SR-WZ-4").add_event(event, weight, 0.0);

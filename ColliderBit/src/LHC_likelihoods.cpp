@@ -202,7 +202,7 @@ namespace Gambit
             accepted_events_file_data[filename].push_back(accepted);
             
             // Create and store header entry
-            const str header = ana_data.analysis_name + "__" + sr_label + "__i" + std::to_string(SR);
+            const str header = ana_data.analysis_name + "::" + sr_label + "__i" + std::to_string(SR);
             accepted_events_file_header[filename].push_back(header);
           }
         }
