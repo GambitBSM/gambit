@@ -77,8 +77,6 @@ namespace Gambit
                    const std::vector<std::vector<unsigned int>>& columns,
                    char sep = ',')
     {
-      std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;        
-
       if (columns.empty()) { return; }
 
       if (headers.size() != columns.size()) 
@@ -121,7 +119,7 @@ namespace Gambit
         }
         out << '\n';
       }
-      std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;        
+    
     }
 
 
@@ -161,19 +159,14 @@ namespace Gambit
       // Should we be creating a file with the accepted event IDs?
       static bool drop_accepted_events_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_events_file");
 
-      // std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
       if (drop_accepted_events_file)
       {
 
         // Filename --> vec<vec<int>> map, to hold the data to be written to files
-        // std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
         std::map<str,std::vector<std::vector<unsigned int>>> accepted_events_file_data;
-        // std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
 
         // Filename --> vec<str> map, to hold header entries
-        // std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
         std::map<str,std::vector<str>> accepted_events_file_header;
-        // std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
 
         // Get the loop info for the number of events
         map_str_dbl loop_info = *Dep::LHCEventLoopInfo;
@@ -181,7 +174,6 @@ namespace Gambit
         // Loop over analyses
         for (size_t analysis = 0; analysis < Dep::AllAnalysisNumbers->size(); ++analysis)
         {
-          // std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;        
           const AnalysisData& ana_data = *(Dep::AllAnalysisNumbers->at(analysis));
 
           // Construct filename 
@@ -198,45 +190,32 @@ namespace Gambit
             // Get the IDs of the accepted events for this SR
             std::vector<unsigned int> accepted_event_IDs = ana_data._counters.at(sr_label).get_event_acceptance_record();
 
-            std::cerr << "DEBUG: " << ana_data.analysis_name << ", n_accepted: " << accepted_event_IDs.size() << std::endl; 
-
             // Convert to a vector of 0/1 for each generated event 
             std::vector<unsigned int> accepted(n_generated_events, 0);
             for (int event_id : accepted_event_IDs) 
             {
               size_t idx = event_id - 1;                
-              std::cerr << "DEBUG: - " << ana_data.analysis_name << ", " << sr_label 
-                        << "  event_id = " << event_id         
-                        << "  idx = " << idx << std::endl;        
-              accepted[idx] = 1;
+              accepted.at(idx) = 1;
             }
 
-            // Store in the accepted_events_file_data map
-            // _Anders
-            // accepted_events_file_data[filename].push_back(accepted);
-            accepted_events_file_data[filename].push_back(std::vector<unsigned int>(accepted));
+            // Store the accepted_events_file_data map
+            accepted_events_file_data[filename].push_back(accepted);
             
             // Create and store header entry
             const str header = ana_data.analysis_name + "__" + sr_label + "__i" + std::to_string(SR);
             accepted_events_file_header[filename].push_back(header);
-            // std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;        
           }
-          // std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;        
         }
-        // std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;        
 
         // Now write each file
         for (const auto& kv : accepted_events_file_data)
         {
-          // std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
           const str& filename = kv.first;
           write_csv(filename, accepted_events_file_header.at(filename), accepted_events_file_data.at(filename));
         }
-        // std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;        
       }
 
       logger() << LogTags::debug << summary_line.str() << EOM;
-      // std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
     }
 
     // Loop over all analyses and compute efficiency x acceptance for each signal region
