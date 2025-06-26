@@ -109,6 +109,12 @@ namespace Gambit {
       // Increment event count with weigths from an HEPUtils::Event
       void add_event(const HEPUtils::Event& event)
       {
+        // _Anders
+        std::cerr << "DEBUG: " << _name 
+                               << ": Accepted event ID: " << event.id() 
+                               << "  address: " << &event 
+                               << "  _store_accepted_event_IDs: " << _store_accepted_event_IDs 
+                               << std::endl; 
         add_event(event.id(), event.weight(), event.weight_err());
       }
 

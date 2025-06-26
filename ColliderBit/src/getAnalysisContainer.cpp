@@ -118,8 +118,8 @@ namespace Gambit
 
       if (*Loop::iteration == COLLIDER_INIT_OMP)
       {
-        static bool drop_accepted_event_IDs_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_event_IDs_file");
-        result.set_store_accepted_event_IDs(drop_accepted_event_IDs_file);
+        static bool drop_accepted_events_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_events_file");
+        result.set_store_accepted_event_IDs(drop_accepted_events_file);
       }
     }
 
@@ -131,8 +131,8 @@ namespace Gambit
 
       if (*Loop::iteration == COLLIDER_INIT_OMP)
       {
-        static bool drop_accepted_event_IDs_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_event_IDs_file");
-        result.set_store_accepted_event_IDs(drop_accepted_event_IDs_file);
+        static bool drop_accepted_events_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_events_file");
+        result.set_store_accepted_event_IDs(drop_accepted_events_file);
       }
     }
 
@@ -144,8 +144,8 @@ namespace Gambit
 
       if (*Loop::iteration == COLLIDER_INIT_OMP)
       {
-        static bool drop_accepted_event_IDs_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_event_IDs_file");
-        result.set_store_accepted_event_IDs(drop_accepted_event_IDs_file);
+        static bool drop_accepted_events_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_events_file");
+        result.set_store_accepted_event_IDs(drop_accepted_events_file);
       }
     }
 
