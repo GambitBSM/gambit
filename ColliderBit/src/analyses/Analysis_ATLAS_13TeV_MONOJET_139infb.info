@@ -3,3 +3,5 @@ InspireID: 1847779
 ExptRun: ATLAS-R2
 Lumi_ifb: 139.0
 Ecm_TeV: 13.0
+Signatures: [">=1J + MET + 0L + 0TL + 0P"]
+Keywords: ["0lepton", "jetmet"]

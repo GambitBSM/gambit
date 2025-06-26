@@ -3,3 +3,5 @@ InspireID: 1866951
 ExptRun: ATLAS-R2
 Lumi_ifb: 139.0
 Ecm_TeV: 13.0
+Signatures: ["3L + 0J + 0Z + MET", "3L + >=1J + 0B + 0Z + MET", "3L + >=1E + >=1M + 0J", "3L + >=1E + >=1M + >=1J + <=2J"]
+Keywords: ["leptons", "sfos", "dfos"]

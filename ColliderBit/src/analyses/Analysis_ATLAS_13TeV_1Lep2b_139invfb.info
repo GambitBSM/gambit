@@ -3,3 +3,5 @@ InspireID: 1755298
 ExptRun: ATLAS-R2
 Lumi_ifb: 139
 Ecm_TeV: 13.0
+Signatures: ["1L + >=2J + <=3J + 2B + MET + 1H"]
+Keywords: ["Higgs", "mCT"]

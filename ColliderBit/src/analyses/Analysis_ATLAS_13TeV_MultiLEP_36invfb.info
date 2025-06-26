@@ -3,3 +3,5 @@ InspireID: 1658902
 ExptRun: ATLAS-R2
 Lumi_ifb: 36.1
 Ecm_TeV: 13.0
+Signatures: ["2L + 0J", "2L + >=2J + 0B + MET + 1Z + 1W", "2L + >=2J + 0B + MET + 1Z", "3L + MET", "3L + 0J + MET", "3L + >=1J + 0B + MET"]
+Keywords: ["leptons"]

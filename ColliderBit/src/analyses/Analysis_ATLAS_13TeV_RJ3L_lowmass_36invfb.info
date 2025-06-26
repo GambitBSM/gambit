@@ -3,3 +3,5 @@ InspireID: 1676551
 ExptRun: ATLAS-R2
 Lumi_ifb: 36.1
 Ecm_TeV: 13.0
+Signatures: ["2L + >=2J + 0B", "2L + >=3J + 0B"]
+Keywords: ["jigsaw", "isr", "leptons"]

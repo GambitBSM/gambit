@@ -3,3 +3,6 @@ InspireID: 1620694
 ExptRun: ATLAS-R2
 Lumi_ifb: 36.1
 Ecm_TeV: 13.0
+Signatures: ["0L + >=2J + <=4J + 2B + MET", "0L + >=2J + <=5J + >=1B + MET + meff",
+             "1L + >=2J + 2B + MET + meff", "1L + =2J + 2B + MET + meff"] 
+Keywords: ["meff", "mT2", "mbb"]

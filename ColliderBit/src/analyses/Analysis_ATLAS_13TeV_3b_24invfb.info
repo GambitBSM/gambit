@@ -3,3 +3,7 @@ InspireID: 1677389
 ExptRun: ATLAS-R2
 Lumi_ifb: 24.3
 Ecm_TeV: 13.0
+Signatures: ["3B + >=4J + <=5J + 2H + MET", ">=3B + >=4J + <=5J + 2H + MET", ">=4B + >=4J + <=5J + 2H + MET", ">=4B + >=4J + <=6J + 2H + MET"]
+Keywords: ["bjets", "higgs"]
+Superseded: yes
+Note: replaced by 139/fb record 1866951

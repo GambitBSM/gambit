@@ -34,7 +34,7 @@ for afile in args.ANAFILES:
         inspireid = ayaml.get("InspireID", -1)
         ## Analyses without valid Inspire entries  are either missing or set to negative values
         if inspireid > 0:
-            adata.append( {"inspire_id" : inspireid, "implementations" : { "name" : aname } } )
+            adata.append( {"inspire_id" : inspireid, "implementations" : [{ "name" : aname }] } )
 
 ## Write JSON
 import json, datetime
@@ -43,7 +43,7 @@ data["tool"] = "GAMBIT"
 data["version"] = args.GVERSION
 data["date_created"] = datetime.datetime.now().isoformat()
 data["implementations_description"] = "GAMBIT ColliderBit analysis"
-data["url_templates"] = { "main_url": "https://github.com/GambitBSM/gambit/blob/master/ColliderBit/src/analyses/Analysis_{name}.cpp" }
+data["url_templates"] = { "main_url": "https://github.com/GambitBSM/gambit_{gv}/blob/release_{gv}/ColliderBit/src/analyses/Analysis_{{name}}.cpp".format(gv=args.GVERSION[:3]) }
 data["analyses"] = adata
 data["implementations_license"] = { "name" : "BSD-3", "url" : "https://opensource.org/license/bsd-3-clause" }
 with open(args.OUTFILE, 'w', encoding='utf-8') as of:

@@ -3,3 +3,8 @@ InspireID: 1615470
 ExptRun: ATLAS-R2
 Lumi_ifb: 36.1
 Ecm_TeV: 13.0
+Signatures: ["2L + 1OSSF + 0B + 0Z", "2L + 1OSDF + 0B", "2L + 1OSSF + >=2J + >=1B + 0Z", "2L + 1OSDF + >=2J + >=1B", "2L + 1OSSF + >=3J + >=1B + 0Z +MET", "2L + 1OSDF + >=3J + >=1B + MET",
+            "3L + 1OSSF + 0B + 0Z", "3L + 1OSDF + 0B", "3L + 1OSSF + >=1B + 0Z", "3L + 1OSDF + >=1B",
+            "4L + >=1OS + >=2J + 0B + MET"]
+Keywords: ["leptons", "razor", "mT2"]
+Note: b-jet veto in 4L region is only on jets 1 & 2.
