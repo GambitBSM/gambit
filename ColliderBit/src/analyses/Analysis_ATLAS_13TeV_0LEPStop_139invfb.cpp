@@ -724,12 +724,10 @@ namespace Gambit
         if ( SRD1 )_counters.at("SRD1").add_event(event);
         if ( SRD2 )_counters.at("SRD2").add_event(event);
 
-
-        // Now fill the cutflows
-        const double w = event->weight();
-
-
         #ifdef CHECK_CUTFLOW
+          // Now fill the cutflows
+          const double w = event->weight();
+
           _cutflows.fillinit(w);
 
           _cutflows["SRATT"].fillnext({

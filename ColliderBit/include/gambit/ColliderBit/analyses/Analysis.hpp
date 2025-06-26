@@ -133,11 +133,6 @@ namespace Gambit
         virtual void collect_results() = 0;
         ///@}
 
-        // A map of event counters for the number of accepted events for each signal region.
-        // This varible is just a shorthand reference to the actual map living 
-        // in _results._counters. (The reference is initialized in the constructor.)
-        std::map<str, EventCounter>& _counters;
-
         // Every analysis should store its cutflows
         Cutflows _cutflows;
 
@@ -152,6 +147,13 @@ namespace Gambit
         std::string _detector_name;
         std::string _collider_name;
 
+      protected:
+
+        // A map of event counters for the number of accepted events for each signal region.
+        // This varible is just a shorthand reference to the actual map living 
+        // in _results._counters. (The reference is initialized in the constructor.)
+        std::map<str, EventCounter>& _counters;
+        
     };
 
 
