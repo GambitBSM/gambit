@@ -165,22 +165,22 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->errorStream();
         }
         
-        inline ::std::__map_iterator<std::__tree_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> Logger::begin()
+        inline ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> Logger::begin()
         {
             return get_BEptr()->begin();
         }
         
-        inline ::std::__map_iterator<std::__tree_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> Logger::end()
+        inline ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> Logger::end()
         {
             return get_BEptr()->end();
         }
         
-        inline ::std::__map_const_iterator<std::__tree_const_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> Logger::begin() const
+        inline ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> Logger::begin() const
         {
             return get_BEptr()->begin();
         }
         
-        inline ::std::__map_const_iterator<std::__tree_const_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> Logger::end() const
+        inline ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> Logger::end() const
         {
             return get_BEptr()->end();
         }

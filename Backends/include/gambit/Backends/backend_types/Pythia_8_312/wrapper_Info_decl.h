@@ -55,7 +55,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 double& sigGen;
                 double& sigErr;
                 double& wtAccSum;
-                std::map<int, std::string>& procNameM;
+                std::map<int, std::basic_string<char>>& procNameM;
                 std::map<int, long>& nTryM;
                 std::map<int, long>& nSelM;
                 std::map<int, long>& nAccM;
