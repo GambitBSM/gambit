@@ -519,7 +519,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual double& wtAccSum_ref__BOSS() =0;
     
-                virtual std::map<int, std::basic_string<char>>& procNameM_ref__BOSS() =0;
+                virtual std::map<int, std::string>& procNameM_ref__BOSS() =0;
     
                 virtual std::map<int, long>& nTryM_ref__BOSS() =0;
     

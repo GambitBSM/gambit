@@ -92,13 +92,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 ::std::ostream& errorStream();
         
-                ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> begin();
+                ::std::__map_iterator<std::__tree_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> begin();
         
-                ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> end();
+                ::std::__map_iterator<std::__tree_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> end();
         
-                ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> begin() const;
+                ::std::__map_const_iterator<std::__tree_const_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> begin() const;
         
-                ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> end() const;
+                ::std::__map_const_iterator<std::__tree_const_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> end() const;
         
         
                 // Wrappers for original constructors: 

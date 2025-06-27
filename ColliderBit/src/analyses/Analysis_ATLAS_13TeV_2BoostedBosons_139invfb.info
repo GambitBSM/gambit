@@ -3,7 +3,7 @@ InspireID: 1906174
 ExptRun: ATLAS-R2
 Lumi_ifb: 139.0
 Ecm_TeV: 13.0
-Signatures: ["0L + 2W + 0Z + 0H + 0B", "0L + 1W + 1Z + 0H + 0B", "0L + 0W + 2Z + 0H + 0B", , "0L + 4J + 0H + 0B",
+Signatures: ["0L + 2W + 0Z + 0H + 0B", "0L + 1W + 1Z + 0H + 0B", "0L + 0W + 2Z + 0H + 0B", "0L + 4J + 0H + 0B",
             "0L + 1W + 1Z + 0H + 4J + 2B", "0L + 2Z + 0H + 4J + 2B", "0L + 1W + 1H + 4J + 2B", "0L + 1Z + 1H + 4J + 2B",
             "0L + 1Z + 0H + 4J + 2B", "0L + 1H + 4J + 2B"]
 Keywords: ["0lepton", "boost", "bosons"]

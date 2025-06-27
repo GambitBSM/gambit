@@ -35,7 +35,10 @@ for afile in args.ANAFILES:
         summary = ayaml.get("Summary", "")
         lumi = ayaml.get("Lumi_ifb", 0)
         sqrts = ayaml.get("Ecm_TeV", 0)
-        adata.append( {"inspire_id" : inspireid, "name" : aname, "summary" : summary, "luminosity" : lumi, "ecm" : sqrts} )
+        keywords = ayaml.get("Keywords", "")
+        signatures = ayaml.get("Signatures", "")
+        experiment = ayaml.get("ExptRun", "Unknown")
+        adata.append( {"inspire_id" : inspireid, "name" : aname, "exp" : experiment, "summary" : summary, "luminosity" : lumi, "ecm" : sqrts, "sign" : signatures, "keyword" : keywords} )
 
 ## Write JSON
 import json, datetime

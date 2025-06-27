@@ -84,13 +84,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual ::std::ostream& errorStream() =0;
     
-                virtual ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> begin() =0;
+                virtual ::std::__map_iterator<std::__tree_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> begin() =0;
     
-                virtual ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> end() =0;
+                virtual ::std::__map_iterator<std::__tree_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> end() =0;
     
-                virtual ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> begin() const =0;
+                virtual ::std::__map_const_iterator<std::__tree_const_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> begin() const =0;
     
-                virtual ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> end() const =0;
+                virtual ::std::__map_const_iterator<std::__tree_const_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> end() const =0;
     
                 virtual const int& ABORT_ref__BOSS() =0;
     
