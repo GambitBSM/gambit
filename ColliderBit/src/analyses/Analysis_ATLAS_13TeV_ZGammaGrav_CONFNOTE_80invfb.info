@@ -3,4 +3,5 @@ InspireID: -1
 ExptRun: ATLAS-R2
 Lumi_ifb: 79.8
 Ecm_TeV: 13.0
+Authors: ["Andy Buckley"]
 Note: CONF note, can't find an eventual paper
