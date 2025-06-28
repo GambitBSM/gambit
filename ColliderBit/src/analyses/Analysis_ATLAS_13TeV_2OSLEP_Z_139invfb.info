@@ -6,3 +6,4 @@ Ecm_TeV: 13.0
 Signatures: [">=3L + >=1OSSF + >=4J + >=1B + MET", ">=3L + >=1OSSF + >=5J + >=1B + MET", ">=3L + >=1OSSF + >=3J + MET", ">=3L + >=1OSSF + >=3J + >=1B + MET",
             "1L + >=1H + >=4J + >=4B", "1L + >=1H + >=6J + >=4B"]
 Keywords: ["leptons", "higgs", "mT2"]
+Authors: ["Tomas Gonzalo", "Anders Kvellestad"]

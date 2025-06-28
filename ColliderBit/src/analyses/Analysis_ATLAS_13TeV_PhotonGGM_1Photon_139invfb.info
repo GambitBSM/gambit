@@ -5,4 +5,4 @@ Lumi_ifb: 36.1
 Ecm_TeV: 13.0
 Signatures: [">1P + 0L + >=5J", ">1P + 0L + >=3J"]
 Keywords: ["photon", "multijet", "0lepton"]
-Note: check that this data from the CONF agrees with the paper
+Authors: ["Anders Kvellestad"]

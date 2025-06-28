@@ -4,3 +4,5 @@ ExptRun: ATLAS-R2
 Lumi_ifb: 36.1
 Ecm_TeV: 13.0
 Superseded: true
+Authors: ["Anders Kvellestad"]
+Notes: Only SRs with zero taus have been implemented.

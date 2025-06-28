@@ -7,4 +7,5 @@ Signatures: ["0L + >=2J + MET + meff", "0L + >=3J + MET + meff",
              "0L + >=4J + MET + meff", "0L + >=5J + MET + meff", "0L + >=6J + MET + meff",
              "0L + >=2J + 1V + MET + meff"]
 Keywords: ["0lepton", "jigsaw", "meff"]
+Authors: ["Yang Zhang"]
 Note: Recursive jigsaw SRs have similar selection topologies to Meff-based SRs, but different cut variables.

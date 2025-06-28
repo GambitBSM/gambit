@@ -6,4 +6,5 @@ Ecm_TeV: 13.0
 Signatures: ["3B + >=4J + <=5J + 2H + MET", ">=3B + >=4J + <=5J + 2H + MET", ">=4B + >=4J + <=5J + 2H + MET", ">=4B + >=4J + <=6J + 2H + MET"]
 Keywords: ["bjets", "higgs"]
 Superseded: yes
-Note: replaced by 139/fb record 1866951
+Authors: ["Are Raklev"]
+Note: Only low mass signal region implemented here. Replaced by 139/fb record 1866951. This analysis has overlapping exclusion and discovery signal regions. The discovery regions are separated into a derived class.

@@ -38,6 +38,7 @@ for afile in args.ANAFILES:
         keywords = ayaml.get("Keywords", "")
         signatures = ayaml.get("Signatures", "")
         experiment, run = ayaml.get("ExptRun", "Unknown-Unknown").split("-")
+        authors = ayaml.get("Authors", "")
         note = ayaml.get("Note", "")
         adata.append( {"inspire_id" : inspireid, "name" : aname, "exp" : experiment, "run" : run, "summary" : summary, "luminosity" : lumi, "ecm" : sqrts, "sign" : signatures, "keyword" : keywords, "note": note} )
 

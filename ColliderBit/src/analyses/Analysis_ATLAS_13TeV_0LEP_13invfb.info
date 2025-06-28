@@ -4,4 +4,4 @@ ExptRun: ATLAS-R2
 Lumi_ifb: 13.0
 Ecm_TeV: 13.0
 Superseded: true
-Note: InspireID=1641270 for eventual 36/fb paper
+Note: InspireID=1641270 for eventual 36/fb paper. Signal regions based on recursive jigsaw are not used as validation fails.
