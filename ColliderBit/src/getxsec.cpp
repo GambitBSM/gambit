@@ -1757,5 +1757,98 @@ namespace Gambit
     }
 
 
+    /// A function that assigns an initial total cross-sections directly from the scan parameters
+    /// (for model ColliderBit_SLHA_scan_model)
+    void InitialTotalCrossSection_YAMLparam(map_str_xsec_container& result)
+    {
+      using namespace Pipes::InitialTotalCrossSection_YAMLparam;
+
+      static std::vector<str> pnames;
+      static std::pair<str,str> xsec_pnames;
+
+      static str input_unit; 
+      static bool input_fractional_uncert = false;
+
+      static bool first = true;
+
+      if (first)
+      {
+
+        // Get all parameter names
+        for (const auto& parname_parptr_pair : Param)
+        {
+          pnames.push_back(parname_parptr_pair.first);
+        }
+
+        // Determine the correct combination of parameters
+        if ((std::find(pnames.begin(), pnames.end(), "cross_section_fb") != pnames.end()) 
+              && (std::find(pnames.begin(), pnames.end(), "cross_section_uncert_fb") != pnames.end()))
+        {
+          xsec_pnames.first = "cross_section_fb";
+          xsec_pnames.second = "cross_section_uncert_fb";
+          input_unit = "fb";
+          input_fractional_uncert = false;
+        }
+        else if ((std::find(pnames.begin(), pnames.end(), "cross_section_fb") != pnames.end()) 
+                  && (std::find(pnames.begin(), pnames.end(), "cross_section_fractional_uncert") != pnames.end()))
+        {
+          xsec_pnames.first = "cross_section_fb";
+          xsec_pnames.second = "cross_section_fractional_uncert";
+          input_unit = "fb";
+          input_fractional_uncert = true;
+        }
+        else if ((std::find(pnames.begin(), pnames.end(), "cross_section_pb") != pnames.end()) 
+                  && (std::find(pnames.begin(), pnames.end(), "cross_section_uncert_pb") != pnames.end()))
+        {
+          xsec_pnames.first = "cross_section_pb";
+          xsec_pnames.second = "cross_section_uncert_pb";
+          input_unit = "pb";
+          input_fractional_uncert = false;
+        }
+        else if ((std::find(pnames.begin(), pnames.end(), "cross_section_pb") != pnames.end()) 
+                  && (std::find(pnames.begin(), pnames.end(), "cross_section_fractional_uncert") != pnames.end()))
+        {
+          xsec_pnames.first = "cross_section_pb";
+          xsec_pnames.second = "cross_section_fractional_uncert";
+          input_unit = "pb";
+          input_fractional_uncert = true;
+        }
+        else
+        {
+          std::stringstream errmsg_ss;
+          errmsg_ss << "Unknown combination of parameters for function InitialTotalCrossSection_YAMLparam." << endl;
+          errmsg_ss << "Needs one of the following sets of parameter names:" << endl;
+          errmsg_ss << "  cross_section_fb, cross_section_uncert_fb" << endl;
+          errmsg_ss << "  cross_section_fb, cross_section_fractional_uncert" << endl;
+          errmsg_ss << "  cross_section_pb, cross_section_uncert_pb" << endl;
+          errmsg_ss << "  cross_section_pb, cross_section_fractional_uncert" << endl;
+          ColliderBit_error().raise(LOCAL_INFO, errmsg_ss.str());
+        }
+
+        first = false;
+      }
+
+
+      double input_xsec = *Param.at(xsec_pnames.first);
+      double input_xsec_uncert = *Param.at(xsec_pnames.second); 
+
+      std::pair<double,double> temp = convert_xsecs_to_fb(input_xsec, input_xsec_uncert, input_unit, input_fractional_uncert);
+      double xsec_fb = temp.first;
+      double xsec_uncert_fb = temp.second;
+      xsec_container collider_xsec;
+      collider_xsec.set_xsec(xsec_fb, xsec_uncert_fb);
+
+      // Retrieve all the names of all colliders from the YAML node.
+      const Options& colliderOptions = *runOptions;
+      std::vector<str> collider_names = colliderOptions.getValue<std::vector<std::string>>("use_colliders");
+      for (std::string collider : collider_names)
+      {
+        result[collider] = collider_xsec;
+      }
+
+
+    }
+
+
   }
 }

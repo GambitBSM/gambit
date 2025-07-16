@@ -60,6 +60,11 @@
     START_FUNCTION(map_str_xsec_container)
     DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
     #undef FUNCTION
+    
+    #define FUNCTION InitialTotalCrossSection_YAMLparam
+    START_FUNCTION(map_str_xsec_container)
+    ALLOW_MODELS(ColliderBit_SLHA_scan_model)
+    #undef FUNCTION
   #undef CAPABILITY
   
   #define CAPABILITY InitialProcessCrossSections
