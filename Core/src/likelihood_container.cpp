@@ -95,12 +95,7 @@ namespace Gambit
     auto all_vertices = dependencyResolver.getObsLikeOrder();
     for (auto it = all_vertices.begin(); it != all_vertices.end(); ++it)
     {
-      if (dependencyResolver.getPurpose(*it) == purpose)
-      {
-        return_types[*it] = dependencyResolver.checkTypeMatch(*it, purpose, allowed_types_for_purpose);
-        target_vertices.push_back(std::move(*it));
-      }
-      else if (dependencyResolver.getCritical(*it) == true)
+      if (dependencyResolver.getPurpose(*it) == purpose || dependencyResolver.getCritical(*it) == true)
       {
         return_types[*it] = dependencyResolver.checkTypeMatch(*it, purpose, allowed_types_for_purpose);
         target_vertices.push_back(std::move(*it));
@@ -284,11 +279,10 @@ namespace Gambit
               lnlike += *jt;
             }
           }
-          else if (rtype == "bool")
+          else if (dependencyResolver.getCritical(*it) == true)
           {
-            float result = dependencyResolver.getObsLike<bool>(*it);
-            if (debug) debug_to_cout << result;
-            lnlike += result;
+            // Don't throw an error if the target vertex is a critical obslike,
+            // but don't add it to the total LogLike
           }
           else core_error().raise(LOCAL_INFO, "Unexpected target functor type.");
 

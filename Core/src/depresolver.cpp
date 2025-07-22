@@ -709,16 +709,15 @@ namespace Gambit
       return none;
     }
 
-    /// Return the whether a given functor is critical.
-    const bool& DependencyResolver::getCritical(VertexID v)
+    /// Return whether a given functor is critical.
+    bool DependencyResolver::getCritical(VertexID v)
     {
       for (const OutputVertex& ov : outputVertices)
       {
         if (ov.vertex == v) return ov.critical;
       }
       /// critical can safely be false if the functor does not correspond to an ObsLike entry in the ini file.
-      static const bool notcritical(false);
-      return notcritical;
+      return false;
     }
 
     /// Tell functor that it invalidated the current point in model space (due to a large or NaN contribution to lnL)

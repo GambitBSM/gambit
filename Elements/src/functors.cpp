@@ -100,7 +100,7 @@ namespace Gambit
     /// Setter for purpose (relevant only for next-to-output functors)
     void functor::setPurpose(str purpose) { myPurpose = purpose; }
 
-    /// Setter for purpose (relevant only for next-to-output functors)
+    /// Setter for critical flag (relevant only for next-to-output functors)
     void functor::setCritical(bool critical) { myCritical = critical; }
 
     /// Setter for vertex ID (used in printer system)
@@ -145,7 +145,7 @@ namespace Gambit
     /// Getter for purpose (relevant for output nodes, aka helper structures for the dep. resolution)
     str functor::purpose()     const { return myPurpose; }
     /// Getter for critical (relevant for output nodes, aka helper structures for the dep. resolution)
-    bool functor::critical()     const { return myCritical; }
+    bool functor::critical()   const { return myCritical; }
     /// Getter for citation key
     str functor::citationKey() const { return myCitationKey; }
     /// Getter for vertex ID

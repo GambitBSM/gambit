@@ -162,7 +162,7 @@ namespace Gambit
 
         /// Returns whether a given functor is critical
         /// True only if the functor corresponds to a critical ObsLike entry in the ini file.
-        const bool& getCritical(VertexID);
+        bool getCritical(VertexID);
 
         /// Tell functor that it invalidated the current point in model space (due to a large or NaN contribution to lnL)
         void invalidatePointAt(VertexID, bool);

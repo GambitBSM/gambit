@@ -387,7 +387,7 @@ ObsLikes:
   #  capability:   normaldist_loglike
   #  module:       ExampleBit_A
   #  type:         double
-  #  critical: true
+  #  critical:     true
 
 Rules:
 

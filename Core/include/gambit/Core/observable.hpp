@@ -65,7 +65,7 @@ namespace Gambit
       /// Instruction to printer as to whether to write result to disk.
       bool printme;
 
-      /// Flag for whether this observable should be allowed to invalidate
+      /// Allowed to invalidate a point.
       bool critical;
 
       /// Whether or not to log matches to the observable with functors.
