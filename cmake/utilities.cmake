@@ -698,10 +698,16 @@ macro(BOSS_backend_full name backend_version ${ARGN})
       set(BOSS_includes_Eigen3 "-I${EIGEN3_INCLUDE_DIR}")
     endif()
 
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-      set(BOSS_castxml_cc "--castxml-cc=${CMAKE_CXX_COMPILER}")
-    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-      set(BOSS_castxml_cc "")
+    # Set the BOSS castxml compiler to the cxx compiler
+    # If it is passed by the user, add on "castxml-cc=" for BOSS
+    if (NOT DEFINED BOSS_castxml_compiler)
+      if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        set(BOSS_castxml_cc "--castxml-cc=${CMAKE_CXX_COMPILER}")
+      elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+        set(BOSS_castxml_cc "")
+      endif()
+    else()
+      set(BOSS_castxml_cc "--castxml-cc=${BOSS_castxml_compiler}")
     endif()
 
     # Parse command line options from optional arguments
