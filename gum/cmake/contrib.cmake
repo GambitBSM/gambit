@@ -171,3 +171,29 @@ ExternalProject_Add(
   INSTALL_COMMAND ""
 )
 add_extra_targets(${name} ${dir})
+
+# Download MARTY
+set(name "MARTY")
+set(dir "${CMAKE_SOURCE_DIR}/contrib/${name}")
+set(install_dir "${CMAKE_SOURCE_DIR}/contrib/${name}/install")
+set(ver "1.6-beta")
+#set(ver "1.5")
+set(dl https://github.com/docbrown1955/marty-public/archive/refs/heads/master.zip)
+#set(dl https://github.com/docbrown1955/marty-public/archive/refs/tags/v${ver}.tar.gz)
+set(md5 "d948c72f39f68af182a4839167a33885")
+#set(md5 "18aa0347f56aacafbd8eb4db701d4a04")
+set(MARTY_DIR ${dir})
+set(MARTY_VERSION ${ver})
+ExternalProject_Add(
+  MARTY
+  URL ${dl}
+  URL_MD5 ${md5}
+  SOURCE_DIR ${dir}
+  PATCH_COMMAND ""
+  #CONFIGURE_COMMAND ""
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} ${dir}/ -DCMAKE_INSTALL_PREFIX=${install_dir}
+  #CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+  BUILD_COMMAND ${MAKE_PARALLEL}
+  INSTALL_COMMAND ${MAKE} install
+)
+add_extra_targets(${name} ${dir})
