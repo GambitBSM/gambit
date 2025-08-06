@@ -1,6 +1,7 @@
 // Run with commands:
-// mpic++ -std=c++20 -I ./include -I/usr/include/eigen3 emu_egg/src/egg.cpp -o egg
-// mpic++ -std=c++20 -I ./include -I/usr/include/eigen3 emu_egg/mpi_test/gambit_dummy.cpp -o dummy
+// cd ScannerBit/emu_egg
+// mpic++ -std=c++20 /src/egg.cpp -o egg
+// mpic++ -std=c++20 mpi_test/gambit_dummy.cpp -o dummy
 // mpirun -np 2 ./dummy : -np 2 ./egg "plugin1"
 
 
@@ -86,30 +87,35 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
-   
-
-    // creating children
+    //////// split to create local communicators
     int color = 0;
+    // TODO: send color to the other executables
 
-    // split communicator
+    // split local communicator
     MPI_Comm comm_local;
     MPI_Comm_split(MPI_COMM_WORLD, color, world_rank, &comm_local);
 
+    // get local information
     int local_rank, local_size;
     MPI_Comm_rank(comm_local, &local_rank);
     MPI_Comm_size(comm_local, &local_size);
 
+    // print 
     std::cout  << "In dummy: world rank " << world_rank << ", color " << color << ", local rank " << local_rank << ", local size " << local_size << std::endl;
 
+    //////// create map of plugins and their world ranks
     std::map<std::string, int> rank_map;
     std::vector<char> buffer;
     if (world_rank == 0)
     {
-        // get plugin name and rank from all processes
-        char my_string[10];
-        MPI_Recv(&my_string, 10, MPI_CHAR, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        auto [plugin_rank, plugin_name] = splitChar(my_string);
+        // TODO: recieve from all executables, need to know how many
 
+        // get plugin name and rank from all processes
+        char my_string[10]; // TODO: probe for size of the string?
+        MPI_Recv(&my_string, 10, MPI_CHAR, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        // TODO: send color to other executables as an answer to this?
+
+        auto [plugin_rank, plugin_name] = splitChar(my_string);
         rank_map.insert({plugin_name, plugin_rank});
 
         std::cout << "Dummy recieved: plugin name " << plugin_name << ", and plugin master world rank " << plugin_rank << std::endl;
@@ -130,7 +136,7 @@ int main(int argc, char *argv[])
     MPI_Bcast(buffer.data(), buffer_size, MPI_CHAR, 0, comm_local);
 
 
-    //////// get rank map on all processes
+    //////// extract rank map on all gambit processes
     rank_map = deserializeMap(buffer);
     std::cout << "Dummy rank " << world_rank << ", has rank " << rank_map["plugin1"] << " in map for plugin1" << std::endl;
 
