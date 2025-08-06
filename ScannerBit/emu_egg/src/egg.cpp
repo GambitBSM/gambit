@@ -16,15 +16,8 @@ int main(int argc, char *argv[])
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-    // get plugin name from arguments
-    char* plugin_name = argv[1];
-
-    std::ostringstream oss;
-    oss << plugin_name << " " << world_rank; // Append rank to the original string
-    std::string message = oss.str();
-
-
-    // do mpi split
+    //////// split to create local communicators
+    // TODO: recieve color from rank 0
     int color = 1;
     MPI_Comm comm_local;
     MPI_Comm_split(MPI_COMM_WORLD, color, world_rank, &comm_local);
@@ -36,19 +29,15 @@ int main(int argc, char *argv[])
 
     std::cout  << "In egg:   world rank " << world_rank << ", color " << color << ", local rank " << local_rank << ", local size " << local_size << std::endl;
 
-    // read yaml file to get emulator plugin name and options
-    // std::cout << "Filename: " << argv[2] << std::endl;
-    // YAML::Node node = YAML::LoadFile(argv[2])["Emulation"];
-    // std::cout << "Number of emulators: " << node.size() << std::endl;
-    // for (int i = 0; i < node.size(); ++i)
-    // {
-    //     std::cout << "Capabilitiy: " <<  node[i]["capability"] << std::endl; 
-    //     std::cout << "Plugin name: " <<  node[i]["emulator_plugin"] << std::endl; 
-    // }
+    /////// send plugin info to world rank 0
 
+    // get plugin name from arguments
+    char* plugin_name = argv[1];
 
-    // initialize emulator plugins
-    
+    // add the worldrank to the back of the plugin-name before sending
+    std::ostringstream oss;
+    oss << plugin_name << " " << world_rank;
+    std::string message = oss.str();
 
     // send plugin name and world rank to gambit processes
     std::cout <<"In egg: " << message  << " # " << message.length()+1 << std::endl;
@@ -59,6 +48,25 @@ int main(int argc, char *argv[])
 
 
     //////////////// Actuall egg stuff (sketch)
+    
+    ///////// read yaml file to get emulator plugin name and options
+    // std::cout << "Filename: " << argv[2] << std::endl;
+    // YAML::Node node = YAML::LoadFile(argv[2])["Emulation"];
+    // std::cout << "Number of emulators: " << node.size() << std::endl;
+    // for (int i = 0; i < node.size(); ++i)
+    // {
+    //     std::cout << "Capabilitiy: " <<  node[i]["capability"] << std::endl; 
+    //     std::cout << "Plugin name: " <<  node[i]["emulator_plugin"] << std::endl; 
+    // }
+
+    // TODO: send plugin message to rank 0 after checking that plugin exists / works
+
+
+    //////////// initialize emulator plugins
+
+    /////////// Send and recieve
+    // // TODO:  make while loop that continues to recieve
+
     // // Prepare to recieve datapoints
     // Scanner::Emulator::feed_def receiver;
 
