@@ -203,7 +203,13 @@ ExternalProject_Add(
 add_extra_targets(${name} ${dir})
 
 # Add a MARTY test script
-add_executable(marty_test src/marty_test.cpp)
+add_custom_command(
+  OUTPUT ${CMAKE_SOURCE_DIR}/src/marty_test_patched.cpp
+  COMMAND cp ${CMAKE_SOURCE_DIR}/src/marty_test.cpp ${CMAKE_SOURCE_DIR}/src/marty_test_patched.cpp
+  COMMAND sed -i s%MARTY_INSTALL_PATH%${install_dir}%g ${CMAKE_SOURCE_DIR}/src/marty_test_patched.cpp
+  DEPENDS ${CMAKE_SOURCE_DIR}/src/marty_test.cpp
+  VERBATIM)
+add_executable(marty_test src/marty_test_patched.cpp)
 set_property(TARGET marty_test PROPERTY CXX_STANDARD 17)
 target_include_directories(marty_test PUBLIC ${install_dir}/include)
 #target_link_directories(marty_test PUBLIC ${install_dir}/lib/)

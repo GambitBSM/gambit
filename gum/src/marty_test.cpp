@@ -97,11 +97,11 @@ int main ()
   mty::Library myLib("toy", path_to_generated_library);
   myLib.addFunction("squared_ampl", squared_ampl, "G");
   
-  // TODO: These would need to be patched in by cmake
-  myLib.addIPath("/home/chris-chang/WORK/GAMBIT/withMARTY/gambit/gum/contrib/MARTY/install/include");
-  myLib.addIPath("/home/chris-chang/WORK/GAMBIT/withMARTY/gambit/gum/contrib/MARTY/install/include");
-  myLib.addLPath("/home/chris-chang/WORK/GAMBIT/withMARTY/gambit/gum/contrib/MARTY/install/lib");
-  myLib.addLPath("/home/chris-chang/WORK/GAMBIT/withMARTY/gambit/gum/contrib/MARTY/install/lib");
+  // MARTY_INSTALL_PATH is replaced with the correct path by cmake
+  myLib.addIPath("MARTY_INSTALL_PATH/include");
+  myLib.addIPath("MARTY_INSTALL_PATH/include");
+  myLib.addLPath("MARTY_INSTALL_PATH/lib");
+  myLib.addLPath("MARTY_INSTALL_PATH/lib");
   
   myLib.build();
   
