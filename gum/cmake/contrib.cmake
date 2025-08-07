@@ -180,7 +180,7 @@ set(ver "1.6-beta")
 #set(ver "1.5")
 set(dl https://github.com/docbrown1955/marty-public/archive/refs/heads/master.zip)
 #set(dl https://github.com/docbrown1955/marty-public/archive/refs/tags/v${ver}.tar.gz)
-set(md5 "d948c72f39f68af182a4839167a33885")
+set(md5 "3e4d6753d7db8c84f34a0ff69f181994")
 #set(md5 "18aa0347f56aacafbd8eb4db701d4a04")
 set(MARTY_DIR ${dir})
 set(MARTY_VERSION ${ver})
@@ -190,10 +190,10 @@ ExternalProject_Add(
   URL_MD5 ${md5}
   SOURCE_DIR ${dir}
   PATCH_COMMAND ""
-  #CONFIGURE_COMMAND ""
-  CONFIGURE_COMMAND ${CMAKE_COMMAND} ${dir}/ -DCMAKE_INSTALL_PREFIX=${install_dir}
-  #CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-  BUILD_COMMAND ${MAKE_PARALLEL}
-  INSTALL_COMMAND ${MAKE} install
+  COMMAND mkdir -p ${install_dir}
+  #CONFIGURE_COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${install_dir} ${dir}/
+  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${install_dir}
+  #BUILD_COMMAND ${MAKE_PARALLEL}
+  #INSTALL_COMMAND ${MAKE_PARALLEL} install
 )
 add_extra_targets(${name} ${dir})
