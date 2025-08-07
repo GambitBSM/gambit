@@ -201,3 +201,14 @@ ExternalProject_Add(
   #INSTALL_COMMAND ${MAKE_PARALLEL} install
 )
 add_extra_targets(${name} ${dir})
+
+# Add a MARTY test script
+add_executable(marty_test src/marty_test.cpp)
+set_property(TARGET marty_test PROPERTY CXX_STANDARD 17)
+target_include_directories(marty_test PUBLIC ${install_dir}/include)
+#target_link_directories(marty_test PUBLIC ${install_dir}/lib/)
+target_link_libraries(marty_test PUBLIC ${install_dir}/lib/libmarty.so)
+target_link_libraries(marty_test PUBLIC ${install_dir}/lib/libooptools.so)
+#target_link_libraries(marty_test PUBLIC ${install_dir}/lib/libcsl.so)
+
+
