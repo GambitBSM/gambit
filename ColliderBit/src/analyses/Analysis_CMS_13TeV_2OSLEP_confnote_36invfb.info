@@ -5,3 +5,7 @@ Lumi_ifb: 35.9
 Ecm_TeV: 13.0
 #Superseded: true
 Note: Inspire ID given for superseding paper
+Signatures: ["=2L + OSSF + 1DY + >=2J + MET + MT2",
+             "=2L + OSSF + 1DY + >=2J + MET + MT2 + 0B",
+             "=2L + OSSF + 1DY + >=2J + MET + MT2 + 2B"]
+Notes: The experimental analysis also includes a shape-fit on a kinematic edge.

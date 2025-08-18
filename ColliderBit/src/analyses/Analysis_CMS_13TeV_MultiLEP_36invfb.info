@@ -5,3 +5,5 @@ Lumi_ifb: 35.9
 Ecm_TeV: 13.0
 Superseded: true
 Note: superseding Inspire ID given
+Signatures: ["2L + 2SSL + MET + 0DY", "MET + >=3LC + <=2TH + 0DY"]
+Notes: Veto low-mass and MZ dilepton OSSF.

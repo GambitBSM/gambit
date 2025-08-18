@@ -1,5 +1,10 @@
 Summary: CMS multilepton (same-sign, many, off-Z) search at 8 TeV with 20/fb
 InspireID: 1260847
 ExptRun: CMS-R1.5
-Lumi_ifb: 19.7
+Lumi_ifb: 19.5
 Ecm_TeV: 8.0
+Signatures: ["3L + <=1TAU + 1OSSF + MET", "3L + <=1TAU + 0OSSF + MET",
+             "4L + 0TAU + 1Z + 1OSSF + MET", "4L + 1TAU + 1Z + 1OSSF + MET", "4L + 0TAU + 2Z + 2OSSF + MET",
+             "2L + 1SSL + 0Z + MET"]
+Keywords: ["photon", "multijet", "0lepton"]
+Notes: also MT bins
