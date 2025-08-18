@@ -5,3 +5,4 @@ Lumi_ifb: 35.9
 Ecm_TeV: 13.0
 Signatures: ["2P + 0L + MET"]
 Notes:
+Authors: ["Anders Kvellestad"]

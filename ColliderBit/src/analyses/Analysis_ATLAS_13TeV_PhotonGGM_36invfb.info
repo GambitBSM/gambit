@@ -4,4 +4,5 @@ ExptRun: ATLAS-R2
 Lumi_ifb: 36.1
 Ecm_TeV: 13.0
 Superseded: ???
+Authors: ["Martin White"]
 Note: may be superseded by the 139/fb, requires checking

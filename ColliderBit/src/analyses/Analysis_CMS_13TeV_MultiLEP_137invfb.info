@@ -5,3 +5,4 @@ Lumi_ifb: 137.0
 Ecm_TeV: 13.0
 Signatures: ["=2L2 + 0TH + 2SSL + 0DY + <=1J + MET", ">=3L3 + <=2TH + MET"]
 Notes: SR binning in MT2.
+Authors: ["Tomas Gonzalo"]

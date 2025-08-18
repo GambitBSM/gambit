@@ -5,3 +5,4 @@ Lumi_ifb: 35.9
 Ecm_TeV: 13.0
 Signatures: ["1P + MET + MT"]
 Notes: Also dphi_miss cuts on jets. SRs binned in ST=pTmiss+HT.
+Authors: ["Yang Zhang"]

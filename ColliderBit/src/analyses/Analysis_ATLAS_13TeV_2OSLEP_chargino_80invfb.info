@@ -4,4 +4,5 @@ ExptRun: ATLAS-R2
 Lumi_ifb: 80.5
 Ecm_TeV: 13.0
 Superseded: true
-Note: CONF note, superseded by 139/fb paper
+Author: ["Yang Zhang"]
+Note: Based on CONF note, superseded by 139/fb paper

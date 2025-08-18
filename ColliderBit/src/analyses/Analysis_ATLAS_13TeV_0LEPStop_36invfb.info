@@ -6,3 +6,5 @@ Ecm_TeV: 13.0
 Signatures: ["0L + 0TL + >=4J + >=1B + MET + 2T", "0L + 0TL + >=4J + >=1B + MET + 1T + 1W", "0L + 0TL + >=4J + >=1B + MET + 1T",
              "0L + 0TL + >=5J + >=1B + MET"]
 Keywords: ["0lepton", "top reco", "ISR", "hemispheres"]
+Authors: ["Martin White"]
+Note: Signal regions based on recursive jigsaw are not used as validation fails.

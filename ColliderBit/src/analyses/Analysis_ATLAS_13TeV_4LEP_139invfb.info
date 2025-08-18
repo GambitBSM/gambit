@@ -8,3 +8,4 @@ Signatures: [">=4L + 0B + 2Z + MET", ">=4L + 2Z + MET", ">=4L + 0B + 0Z", ">=4L 
             "2L + >=2TL + 0B + 0Z", "2L + >=2TL + >=1B + 0Z",
             ">=5L"]
 Keywords: ["leptons"]
+Authors: ["Anders Kvellestad", "Victor Ananyev"]
