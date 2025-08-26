@@ -1,0 +1,8 @@
+Summary: CMS 2-lepton + jets + MET (dileptonic top-pair) search at 8 TeV with 20/fb
+InspireID: 1292446
+ExptRun: CMS-R1.5
+Lumi_ifb: 19.7
+Ecm_TeV: 8.0
+Signatures: ["2L + >=2J + 0J + MET + !MJJ + MLL"]
+Superseded: ???
+Note: No explicit top reconstruction. This is a PAS note, so the paper implementation is probably more important.

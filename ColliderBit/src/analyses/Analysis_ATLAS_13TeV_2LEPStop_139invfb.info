@@ -1,0 +1,11 @@
+Summary: ATLAS search for two opposite-charge leptons, jets and MET at 13 TeV with 139/fb
+InspireID: 1844425
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["2L + >=1B + MET + 1DF", "2L + >=1B + MET + 1SF + 0Z",
+             "2L + 0B + MET + DF", "2L + 0B + MET + 1SF + 0Z", "2L + >=1B + MET + DF", "2L + >=1B + MET + 1SF + 0Z",
+             "2L + 0B + MET"]
+Keywords: ["leptons", "boost", "mT2"]
+Authors: ["Anders Kvellestad"]
+Note: The 3-body and 4-body SRs are not implemented yet.

@@ -1,0 +1,8 @@
+Summary: CMS 2-lepton + MET SUSY search at 13 TeV with 137/fb
+InspireID: 1836850
+ExptRun: CMS-R2
+Lumi_ifb: 137.0
+Ecm_TeV: 13.0
+Signatures: []
+Notes:
+Authors: ["Yang Zhang"]
