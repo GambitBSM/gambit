@@ -186,6 +186,7 @@ namespace YAML
       const std::string key = entry.first.as<std::string>(); 
       if      (key == "purpose")          rhs.purpose        = entry.second.as<std::string>();
       else if (key == "capability")       rhs.capability     = entry.second.as<std::string>();
+      else if (key == "critical")         rhs.critical       = entry.second.as<bool>();
       else if (key == "type")             rhs.type           = entry.second.as<std::string>();
       else if (key == "function")         rhs.function       = entry.second.as<std::string>();
       else if (key == "module")           rhs.module         = entry.second.as<std::string>();

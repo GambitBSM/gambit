@@ -32,9 +32,12 @@
 __attribute__((constructor))
 static void initializer()
 {
+  // Print GAMBIT startup message
   printf("%s", "\n\x1b[1;33mGAMBIT " STRINGIFY(GAMBIT_VERSION_MAJOR) "." STRINGIFY(GAMBIT_VERSION_MINOR) "." STRINGIFY(GAMBIT_VERSION_REVISION));
   if (strcmp(GAMBIT_VERSION_PATCH, "") != 0) printf("%s", "-" GAMBIT_VERSION_PATCH);
   printf("\nhttp://gambitbsm.org\n\n\x1b[0m");
+
+  // Set environment variable for RestFrames
   #ifndef EXCLUDE_RESTFRAMES
   {
     const char* oldenv = getenv("CPLUS_INCLUDE_PATH");
@@ -51,4 +54,6 @@ static void initializer()
   }
   #endif
 
+  // Set environment variable for HDF5
+  setenv("HDF5_USE_FILE_LOCKING", "FALSE", 1);
 }

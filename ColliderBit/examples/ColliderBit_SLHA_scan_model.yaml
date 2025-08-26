@@ -12,8 +12,10 @@ Parameters:
       prior_type: none
     cross_section_uncert_fb:
       prior_type: none
-    br1: 1.0
-    br2: 1.0
+    br1:
+      prior_type: none
+    br2:
+      prior_type: none
 
 Priors:
   # All priors simple, so specified in Parameters section
@@ -33,6 +35,8 @@ Scanner:
         "ColliderBit_SLHA_scan_model::m2": [100.0, 100.0, 150.0, 150.0, 150.0, 200.0, 200.0, 200.0, 200.0, 250.0, 250.0, 250.0, 250.0, 250.0, 300.0, 300.0, 300.0, 300.0, 300.0, 300.0, 350.0, 350.0, 350.0, 350.0, 350.0, 350.0, 350.0, 400.0, 400.0, 400.0, 400.0, 400.0, 400.0, 400.0, 400.0, 450.0, 450.0, 450.0, 450.0, 450.0, 450.0, 450.0, 450.0, 450.0]
         "ColliderBit_SLHA_scan_model::cross_section_fb": [22670.1, 22670.1, 5180.9, 5180.9, 5180.9, 1807.4, 1807.4, 1807.4, 1807.4, 782.5, 782.5, 782.5, 782.5, 782.5, 386.9, 386.9, 386.9, 386.9, 386.9, 386.9, 209.4, 209.4, 209.4, 209.4, 209.4, 209.4, 209.4, 121.0, 121.0, 121.0, 121.0, 121.0, 121.0, 121.0, 121.0, 73.4, 73.4, 73.4, 73.4, 73.4, 73.4, 73.4, 73.4, 73.4]
         "ColliderBit_SLHA_scan_model::cross_section_uncert_fb": [973.97, 973.97, 253.22, 253.22, 253.22, 101.32, 101.32, 101.32, 101.32, 48.75, 48.75, 48.75, 48.75, 48.75, 26.36, 26.36, 26.36, 26.36, 26.36, 26.36, 15.45, 15.45, 15.45, 15.45, 15.45, 15.45, 15.45, 9.62, 9.62, 9.62, 9.62, 9.62, 9.62, 9.62, 9.62, 6.24, 6.24, 6.24, 6.24, 6.24, 6.24, 6.24, 6.24, 6.24]
+        "ColliderBit_SLHA_scan_model::br1": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+        "ColliderBit_SLHA_scan_model::br2": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 
 
 Printer:
@@ -111,6 +115,12 @@ Rules:
   # Take the total cross-section from the input parameters in this yaml file
   - capability: TotalCrossSection
     function: getYAMLCrossSection_param
+    
+  - capability: InitialTotalCrossSection
+    function: InitialTotalCrossSection_YAMLparam
+    options:
+      use_colliders:
+        - LHC_13TeV_SUSY_EWonly
 
   # Choose how to do event weighting
   - capability: EventWeighterFunction
@@ -132,6 +142,8 @@ Rules:
   - capability: RunMC
     function: operateLHCLoop
     options:
+      use_colliders:
+        - LHC_13TeV_SUSY_EWonly
       silenceLoop: false
       LHC_13TeV_SUSY_EWonly:
         min_nEvents: 10000  # Chosen only for quick demo -- should be increased
@@ -151,6 +163,13 @@ Rules:
     function: getPythia_SLHA   # <-- The function to use for the model ColliderBit_SLHA_scan_model
     options:
       LHC_13TeV_SUSY_EWonly:
+        jet_collections:
+          antikt_R04:
+            algorithm: antikt
+            R: 0.4
+            recombination_scheme: E_scheme
+            strategy: Best
+        jet_collection_taus: antikt_R04
         xsec_veto: 0.028  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
         pythia_settings:
           - SLHA:verbose = 1

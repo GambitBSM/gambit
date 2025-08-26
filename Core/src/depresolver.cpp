@@ -256,12 +256,13 @@ namespace Gambit
       for (const Observable& obslike : obslikes)
       {
         // Format output
-        logger() << LogTags::dependency_resolver << endl << obslike.capability << " (" << obslike.type << ") [" << obslike.purpose << "]";
+        logger() << LogTags::dependency_resolver << endl << obslike.capability << " (" << obslike.type << ") [" << obslike.purpose << "] critical:" << obslike.critical << "";
         QueueEntry target;
         target.quantity.first = obslike.capability;
         target.quantity.second = obslike.type;
         target.obslike = &obslike;
         target.printme = obslike.printme;
+        target.critical = obslike.critical;
         resolutionQueue.push(target);
       }
       logger() << EOM;
@@ -333,11 +334,11 @@ namespace Gambit
       makeFunctorsModelCompatible();
 
       graph_traits<MasterGraphType>::vertex_iterator vi, vi_end;
-      const str formatString = "%-20s %-32s %-32s %-32s %-15s %-7i %-5i %-5i\n";
+      const str formatString = "%-20s %-32s %-32s %-32s %-15s %-5i %-7i %-5i %-5i\n";
       logger() << LogTags::dependency_resolver << endl << "Vertices registered in masterGraph" << endl;
       logger() << "----------------------------------" << endl;
       logger() << boost::format(formatString)%
-       "MODULE"% "FUNCTION"% "CAPABILITY"% "TYPE"% "PURPOSE"% "STATUS"% "#DEPs"% "#BE_REQs";
+       "MODULE"% "FUNCTION"% "CAPABILITY"% "TYPE"% "PURPOSE"% "CRITICAL"% "STATUS"% "#DEPs"% "#BE_REQs";
       for (std::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
       {
         logger() << boost::format(formatString)%
@@ -346,6 +347,7 @@ namespace Gambit
          (*masterGraph[*vi]).capability()%
          (*masterGraph[*vi]).type()%
          (*masterGraph[*vi]).purpose()%
+         (*masterGraph[*vi]).critical()%
          (*masterGraph[*vi]).status()%
          (*masterGraph[*vi]).dependencies().size()%
          (*masterGraph[*vi]).backendreqs().size();
@@ -705,6 +707,17 @@ namespace Gambit
       /// '__no_purpose' if the functor does not correspond to an ObsLike entry in the ini file.
       static const str none("__no_purpose");
       return none;
+    }
+
+    /// Return whether a given functor is critical.
+    bool DependencyResolver::getCritical(VertexID v)
+    {
+      for (const OutputVertex& ov : outputVertices)
+      {
+        if (ov.vertex == v) return ov.critical;
+      }
+      /// critical can safely be false if the functor does not correspond to an ObsLike entry in the ini file.
+      return false;
     }
 
     /// Tell functor that it invalidated the current point in model space (due to a large or NaN contribution to lnL)
@@ -1564,7 +1577,8 @@ namespace Gambit
           else // if output vertex
           {
             outVertex.vertex = fromVertex;
-            outVertex.purpose = entry.obslike->purpose;;
+            outVertex.purpose = entry.obslike->purpose;
+            outVertex.critical = entry.obslike->critical;
             outputVertices.push_back(outVertex);
             // Don't need subcaps during dry-run
             if (not boundCore->show_runorder)
