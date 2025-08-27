@@ -3,6 +3,5 @@ InspireID: 1608161
 ExptRun: CMS-R2
 Lumi_ifb: 35.9
 Ecm_TeV: 13.0
-Signatures: []
-Notes:
-
+Signatures: ["=1L + 2B + !TH + MET + MT + H"]
+Notes: Also uses M_CT contransverse mass and M_bb ~ H.

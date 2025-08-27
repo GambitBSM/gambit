@@ -3,6 +3,6 @@ InspireID: 1683312
 ExptRun: CMS-R2
 Lumi_ifb: 35.9
 Ecm_TeV: 13.0
-Signatures: []
-Notes:
-
+Signatures: ["2L + OSL + !DY + MET + 0J", "2L + OSL + !DY + MET + >=1J + 0B", "2L + OSL + !DY + MET + >=1B", "2L + OSL + !DY + MET + >=2J + >=1B"]
+Superseded: ???
+Notes: mT2 bins used

@@ -3,6 +3,5 @@ InspireID: 1708516
 ExptRun: CMS-R2
 Lumi_ifb: 35.9
 Ecm_TeV: 13.0
-Signatures: []
+Signatures: [">=1P + >=1L + !DY + MET + MT"]
 Notes:
-

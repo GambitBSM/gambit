@@ -3,3 +3,5 @@ InspireID: 1282905
 ExptRun: ATLAS-R1.5
 Lumi_ifb: 20.3
 Ecm_TeV: 8.0
+Signatures: ["3L3 + >=1L2 + 0B + 1OSSF", "3L3 + >=1L2 + 0B + !OSSF",
+             "3L3 + >=1L2 + 0B + SSL + !DY", "3L3 + >=1L2 + 0B + MT2"]

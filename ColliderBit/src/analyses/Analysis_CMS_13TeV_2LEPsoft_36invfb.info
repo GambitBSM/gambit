@@ -3,6 +3,6 @@ InspireID: 1518834
 ExptRun: CMS-R2
 Lumi_ifb: 35.9
 Ecm_TeV: 13.0
-Signatures: []
-Notes:
-
+Signatures: ["2L + OSSF + 0B + !DY3 + !MT + MET + HT"]
+Notes: PAS note, not paper. Low-pT leptons. SRs binned in m_ll and MET.
+Superseded: ???

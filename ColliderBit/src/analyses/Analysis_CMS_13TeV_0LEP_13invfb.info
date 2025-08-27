@@ -4,6 +4,5 @@ ExptRun: CMS-R2
 Lumi_ifb: 12.9
 Ecm_TeV: 13.0
 Superseded: true
-Signatures: []
-Notes:
-
+Signatures: [">=3J + HT + MET + 0L + 0TH"]
+Notes: PAS note, not paper. Binned in N_J and N_b.

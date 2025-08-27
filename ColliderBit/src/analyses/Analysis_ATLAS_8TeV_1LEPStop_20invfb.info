@@ -3,4 +3,5 @@ InspireID: 1304456
 ExptRun: ATLAS-R1.5
 Lumi_ifb: 20.3
 Ecm_TeV: 8.0
+Signatures: ["1L + >=2J + MET + MT + MT2"]
 Note: this ref for the paper; note says this is based on the CONF note with Inspire ID 1229945

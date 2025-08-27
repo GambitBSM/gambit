@@ -3,3 +3,4 @@ InspireID: 1128464
 ExptRun: ATLAS-R1
 Lumi_ifb: 4.7
 Ecm_TeV: 7.0
+Signatures: ["2L + OSL + >=1J + MET + !DY"]

@@ -3,3 +3,4 @@ InspireID: 1299143
 ExptRun: ATLAS-R1.5
 Lumi_ifb: 20.3
 Ecm_TeV: 8.0
+Signatures: ["0L + >=2B + MET + MT + >=6J", "0L + >=2B + MET + MT + >=4J + <=5J"]
