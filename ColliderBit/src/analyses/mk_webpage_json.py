@@ -44,10 +44,11 @@ for afile in args.ANAFILES:
         adata.append( {"inspire_id" : inspireid, "name" : aname, "authors" : authors, "exp" : experiment, "run" : run, "summary" : summary, "luminosity" : lumi, "ecm" : sqrts, "sign" : signatures, "keyword" : keywords, "note": note, "validation": validation} )
 
 ## Write JSON
-import json, datetime
+import json
+from datetime import datetime, timezone
 data = {}
 data["version"] = args.GVERSION
-data["date_created"] = datetime.datetime.now().isoformat()
+data["date_created"] = datetime.now(timezone.utc).astimezone().isoformat()
 data["analyses"] = adata
 with open(args.OUTFILE, 'w', encoding='utf-8') as of:
     json.dump(data, of, ensure_ascii=False, indent=4)
