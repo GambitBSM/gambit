@@ -37,11 +37,13 @@ for afile in args.ANAFILES:
             adata.append( {"inspire_id" : inspireid, "implementations" : [{ "name" : aname }] } )
 
 ## Write JSON
-import json, datetime
+import json
+from datetime import datetime, timezone
 data = {}
+data["schema_version"] = "1.0.0"
 data["tool"] = "GAMBIT"
 data["version"] = args.GVERSION
-data["date_created"] = datetime.datetime.now().isoformat()
+data["date_created"] = datetime.now(timezone.utc).astimezone().isoformat()
 data["implementations_description"] = "GAMBIT ColliderBit analysis"
 data["url_templates"] = { "main_url": "https://github.com/GambitBSM/gambit_{gv}/blob/release_{gv}/ColliderBit/src/analyses/Analysis_{{name}}.cpp".format(gv=args.GVERSION[:3]) }
 data["analyses"] = adata
