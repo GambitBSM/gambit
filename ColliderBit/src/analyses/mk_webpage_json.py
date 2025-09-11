@@ -48,7 +48,7 @@ import json
 from datetime import datetime, timezone
 data = {}
 data["version"] = args.GVERSION
-data["date_created"] = datetime.now(timezone.utc).astimezone().isoformat()
+data["date_created"] = datetime.now(timezone.utc).isoformat()
 data["analyses"] = adata
 with open(args.OUTFILE, 'w', encoding='utf-8') as of:
     json.dump(data, of, ensure_ascii=False, indent=4)
