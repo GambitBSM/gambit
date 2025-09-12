@@ -78,7 +78,7 @@ in the following scheme:
 - *Reserved syntax for numeric-cuts:* We reserve for expansion a
   syntax with brackets immediately following the requirement-type
   term, to permit more detailed specification of cut variables and
-  values, e.g. `MET{100} + HT(< 1000)`, or `3J[PT > 100].
+  values, e.g. `MET{100} + HT(< 1000)`, or `3J[PT > 100]`.
 
   Note that several types of bracket and several syntaxes for their
   content are illustrated here: this is just to indicate that this is
