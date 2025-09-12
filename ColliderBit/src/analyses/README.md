@@ -70,7 +70,7 @@ in the following scheme:
 
 - Boolean event-characteristic requirement types, which can be negated
   to favour lower-scale events by using a `!` prefix, are:
-  - `MET`, `MPT`: synonyms for significantly large missing transverse momentum; no absolute number is implied, other than non-zero;
+  - `MET|MPT|PTMISS`: synonyms for significantly large missing transverse momentum; no absolute number is implied, other than non-zero;
   - `MT`, `MT2`: high (s)transverse mass between the MET vector and a context-dependent visible physics object;
   - `MLL`, `MJJ`: presence of high-mass object pairs;
   - `HT`, `MEFF`: high general scale of scalar event energy.
