@@ -59,14 +59,14 @@ in the following scheme:
 
 - Physics-object requirement types, in all cases implying a context-dependent
   "significant energy" threshold, are:
-  - `L`, `L2`, `L3`: charged leptons, by default meaning electrons and muons. `L3` variants specifically refer to all three generations, including taus; `L2` specifically limits to e+mu;
+  - `L|L2`, `L3`: charged leptons, by default meaning electrons and muons. `L3` variants specifically refer to all three generations, including taus; `L2` specifically limits to e+mu;
   - `E`, `M`: electrons and muons specifically;
   - `TH`: hadronic taus. Leptonic taus are treated as final-state electrons and muons;
-  - `SSL`, `OSL`: same-sign and opposite-sign leptons. `2` and `3` suffixes can be attached again, defaulting to `2`. The count is the number of leptons, not number of groups;
-  - `OSSF`, `SSSF`, `OSOF`, `SSOF`: pairs of opposite-sign, same-flavour etc. leptons. `2` and `3` suffixes can be attached again, though `3` will be uncommon. The count is the number of pairs, not number of leptons;
-  - `DY`: reconstructed candidate photon/Z decay to fermions, peaking around the Z or photon pole masses. Probably via leptons. Needed since OSSF doesn't focus on those mass ranges, which are often specifically excluded;
-  - `P`, `J`, `JJ`, `B`, `LJ`: photons, jets, large-R/reclustered jets, b-jets, and light-jets;
-  - `W`, `Z`, `T`, `H`: less preferred, counting numbers of Standard Model EW particles -- W, Z, top, and Higgs -- reconstructed by implied & context-dependent methods (which are not obvious, hence the disfavouring).
+  - `SSL|SSL2`, `OSL|OSL2`, + 3-flavour variants: same-sign and opposite-sign leptons. `2` and `3` suffixes can be attached again, defaulting to `2`. The count is the number of leptons, not number of groups;
+  - `OSSF|OSSF2`, `SSSF|SSSF2`, `OSOF|OSOF2`, `SSOF|SSOF2`, + 3-flavour variants: pairs of opposite-sign, same-flavour etc. leptons. `2` and `3` suffixes can be attached again, though `3` will be uncommon. The count is the number of pairs, not number of leptons;
+  - `DY`: reconstructed candidate photon/Z decay to same-flavour fermions, peaking around the Z or photon pole masses. Probably via leptons. Needed since OSSF doesn't focus on those mass ranges, which are often specifically excluded;
+  - `P`, `J`, `JJ`, `JB|B`, `JC|C`, `JL`: photons, jets, large-R/reclustered jets, and b-, c-, and light-jets;
+  - `W`, `Z`, `T`, `H`, `PP`: numbers of Standard Model EW resonances -- W, Z, top, Higgs, and photon-propagator -- reconstructed by implied & context-dependent methods (which are not ambiguous and not final-state, so these are discouraged).
 
 - Boolean event-characteristic requirement types, which can be negated
   to favour lower-scale events by using a `!` prefix, are:
@@ -74,6 +74,19 @@ in the following scheme:
   - `MT`, `MT2`: high (s)transverse mass between the MET vector and a context-dependent visible physics object;
   - `MLL`, `MJJ`: presence of high-mass object pairs;
   - `HT`, `MEFF`: high general scale of scalar event energy.
+
+- *Reserved syntax for numeric-cuts:* We reserve for expansion a
+  syntax with brackets immediately following the requirement-type
+  term, to permit more detailed specification of cut variables and
+  values, e.g. `MET{100} + HT(< 1000)`, or `3J[PT > 100].
+
+  Note that several types of bracket and several syntaxes for their
+  content are illustrated here: this is just to indicate that this is
+  not a currently fixed aspect of the format and users should avoid
+  any ad hoc uses that could clash with it. If you are in that
+  situation or need/want to specify numerical values within the
+  signature syntax, please contact us to discuss the design!
+
 
 ### Examples
 
