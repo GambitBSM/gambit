@@ -78,7 +78,9 @@ Printer:
 
 Scanner:
 
-  use_scanner: de
+  use_scanner: scipy_differential_evolution
+
+
 
   scanners:
 
@@ -354,7 +356,20 @@ ObsLikes:
     module:       ExampleBit_A
     type:         double
 
+
 Emulation:
+
+  use_emulator: LogLike
+
+  emulators:
+    LogLike: 
+      plugin:  plugin_1
+      train: true
+      predict: true
+
+
+
+
   - capability:      LogLike
     emulator_plugin: plugin_1
     train:           true
@@ -382,6 +397,7 @@ Rules:
     then:
       options:
         probability_of_validity: 1.0
+        use_emulator: plugin_1
 
 Logger:
 

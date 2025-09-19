@@ -34,7 +34,8 @@
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Printers/printermanager.hpp"
 
-extern MPI_Comm emuComm; // Declare the global communicator
+//_emu
+// extern MPI_Comm emuComm; // Declare the global communicator
 
 #endif //__gambit_main_hpp__
 

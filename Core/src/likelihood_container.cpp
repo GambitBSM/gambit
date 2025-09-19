@@ -75,6 +75,7 @@ namespace Gambit
     invalidcodeID(Printers::get_main_param_id("Invalidation Code")),
     scancodeID(Printers::get_main_param_id("scanID")),
     print_scanID(iniFile.getValueOrDef<bool>(true, "print_scanID")),
+    //_emu
     emulatorNode(iniFile.getEmulationNode()),
     #ifdef CORE_DEBUG
       debug            (true)

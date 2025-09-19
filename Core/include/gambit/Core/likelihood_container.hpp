@@ -119,8 +119,9 @@ namespace Gambit
       /// Run in likelihood debug mode?
       bool debug;
 
+      //_emu
       /// emulation
-    //   YAML::Node emulatorNode;
+      YAML::Node emulatorNode;
 
     public:
 

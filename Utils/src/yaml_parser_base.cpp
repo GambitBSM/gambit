@@ -164,6 +164,7 @@ namespace Gambit
       logNode = root["Logger"];
       keyValuePairNode = root["KeyValues"];
 
+      //_emu
       try
       {
         emulationNode = root["Emulation"];
@@ -336,6 +337,8 @@ namespace Gambit
     YAML::Node Parser::getScannerNode()      const {return scannerNode;}
     YAML::Node Parser::getLoggerNode()       const {return logNode;}
     YAML::Node Parser::getKeyValuePairNode() const {return keyValuePairNode;}
+    
+    //_emu
     YAML::Node Parser::getEmulationNode()    const {return emulationNode;}
     /// @}
 

@@ -170,6 +170,7 @@ namespace Gambit
       // The loglikelihood value for the hypothesised parameters is then:
       if (ModelInUse("NormalDist"))
       {
+        std::cout << "in normal Dist" << std::endl;
         for (int i=0; i<N; ++i)
         {
           double mu = *Param["mu"];

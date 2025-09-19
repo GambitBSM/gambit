@@ -85,22 +85,52 @@ int main(int argc, char* argv[])
 
     #ifdef WITH_MPI
       /// Create an MPI communicator group for use by error handlers
+      std::cerr << " create MPI comms " << std::endl;
       GMPI::Comm errorComm;
       errorComm.dup(MPI_COMM_WORLD,"errorComm"); // duplicates the COMM_WORLD context
       const int ERROR_TAG=1;         // Tag for error messages
       errorComm.mytag = ERROR_TAG;
       signaldata().set_MPI_comm(&errorComm); // Provide a communicator for signal handling routines to use.
       /// Create an MPI communicator group for ScannerBit to use
-      GMPI::Comm scanComm;
-      scanComm.dup(MPI_COMM_WORLD,"scanComm"); // duplicates the COMM_WORLD context
+
+      //_emu 
+      // split mpi world til scanComm og lag kopi av scannerComm som blir til errorComm
+      // må sjekke at vi ikke ødelegger gambit sitt signal system
+      // kanskje errorComm fortsatt burde være hele world comm, og kan sende signal til emu også
+      int world_size, world_rank;
+      MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+      MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+      std::cout  << "In dummy: world rank " << world_rank << ", local rank " << world_size << std::endl;
+
+      std::vector<int> processes;
+      for (int i = 0; i < world_size; ++i) 
+      { 
+        std::cerr << i << std::endl;
+        processes.push_back(i);
+      }
+
+      GMPI::Comm scanComm(processes, "scannComm");
+      //   MPI_Comm_split(MPI_COMM_WORLD, 0, world_rank, &scanComm);
+      //   scanComm.dup(MPI_COMM_WORLD,"scanComm"); // duplicates the COMM_WORLD context
       Scanner::Plugins::plugin_info.initMPIdata(&scanComm);
+
       /// MPI rank for use in error messages;
       int rank = scanComm.Get_rank();
       int size = scanComm.Get_size();
 
+      if (world_rank < world_size-2) 
+      {
+        std::cout  << "In gaMBIT: world rank " << world_rank << ", local rank " << rank << ", local size " << size << std::endl;
+      }
+      else 
+      { 
+        std::cout << " the other processes " << std::endl;
+      }
+
+
       //_emu
-      // lage en emu comm her, spawn etter lest yaml fil
-      MPI_Comm emuComm = MPI_COMM_NULL;
+      // lage en emu comm her
+      // lag map av plugin + world rank
 
      #else
       int rank = 0;
@@ -171,44 +201,44 @@ int main(int argc, char* argv[])
       //_emu 
       // spør yaml filen om den har en emulator block
       // spawn emulator her
-      std::cout << filename << std::endl;
-      std::cout << "right before checking emulation" << std::endl;
-      if (iniFile.getEmulationNode().size() == 0) {std::cerr << "no emulation" <<std::endl;}
-      else 
-      {
-        std::cout << "Size of node: " << iniFile.getEmulationNode().size() << std::endl;
-        std::cout << iniFile.getEmulationNode() << std::endl;
-        std::cout << "spawn time" << endl;
-        int num_procs_to_spawn = 2; 
-        const char *worker_program = "./egg";
-        const char *argv_spawn[] = {"yaml_files/spartan.yaml", NULL};
-        MPI_Info info = MPI_INFO_NULL;
-        MPI_Comm_spawn((char *)worker_program, (char**)argv_spawn, num_procs_to_spawn, info, 0, MPI_COMM_WORLD, &emuComm, MPI_ERRCODES_IGNORE);
+    //   std::cout << filename << std::endl;
+    //   std::cout << "right before checking emulation" << std::endl;
+    //   if (iniFile.getEmulationNode().size() == 0) {std::cerr << "no emulation" <<std::endl;}
+    //   else 
+    //   {
+    //     std::cout << "Size of node: " << iniFile.getEmulationNode().size() << std::endl;
+    //     std::cout << iniFile.getEmulationNode() << std::endl;
+    //     std::cout << "spawn time" << endl;
+    //     int num_procs_to_spawn = 2; 
+    //     const char *worker_program = "./egg";
+    //     const char *argv_spawn[] = {"yaml_files/spartan.yaml", NULL};
+    //     MPI_Info info = MPI_INFO_NULL;
+    //     MPI_Comm_spawn((char *)worker_program, (char**)argv_spawn, num_procs_to_spawn, info, 0, MPI_COMM_WORLD, &emuComm, MPI_ERRCODES_IGNORE);
 
 
-        std::cout << "found emulation node" << std::endl;
+    //     std::cout << "found emulation node" << std::endl;
         
-        YAML::Node node = iniFile.getEmulationNode();
-        std::cout << "is it a sequence: " <<  node.IsSequence() << std::endl;
+    //     YAML::Node node = iniFile.getEmulationNode();
+    //     std::cout << "is it a sequence: " <<  node.IsSequence() << std::endl;
 
-        std::string capability = node[0]["capability"].as<std::string>();
-        std::cout << "capability: " << capability << std::endl;
-        std::string emulator_plugin = node[0]["emulator_plugin"].as<std::string>();
-        std::cout << "emulator_plugin: " << emulator_plugin << std::endl;
+    //     std::string capability = node[0]["capability"].as<std::string>();
+    //     std::cout << "capability: " << capability << std::endl;
+    //     std::string emulator_plugin = node[0]["emulator_plugin"].as<std::string>();
+    //     std::cout << "emulator_plugin: " << emulator_plugin << std::endl;
 
-        std::cout << "is plugin_options a sequence: " << node[0]["plugin_options"]["ktrain"] << std::endl;
+    //     std::cout << "is plugin_options a sequence: " << node[0]["plugin_options"]["ktrain"] << std::endl;
 
-        if (rank == 0) {
-            int OKorNot;
-            MPI_Recv(&OKorNot, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, emuComm, MPI_STATUS_IGNORE);
-            if (OKorNot == 1){std::cout << "ok" << std::endl;}
-            else {std::cout << "make it stop" << std::endl; }
-        }
+    //     if (rank == 0) {
+    //         int OKorNot;
+    //         MPI_Recv(&OKorNot, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, emuComm, MPI_STATUS_IGNORE);
+    //         if (OKorNot == 1){std::cout << "ok" << std::endl;}
+    //         else {std::cout << "make it stop" << std::endl; }
+    //     }
 
-        MPI_Barrier(MPI_COMM_WORLD);
-      }
+    //     MPI_Barrier(MPI_COMM_WORLD);
+    //   }
 
-      std::cout << "after checking emulation" << std::endl;
+    //   std::cout << "after checking emulation" << std::endl;
 
       // Determine selected model(s)
       std::set<str> selectedmodels = iniFile.getModelNames();
