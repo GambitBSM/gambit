@@ -46,10 +46,16 @@ int main(int argc, char* argv[])
   // Default exit behaviour in cases where no exceptions are raised
   int return_value(EXIT_SUCCESS);
 
+  std::cout << "gambit.cpp. I am Here 1" << std::endl; // TODO: Debugging
+
+
   #ifdef WITH_MPI
     bool allow_finalize(true);
     GMPI::Init();
   #endif
+
+  std::cout << "gambit.cpp. I am Here 2" << std::endl; // TODO: Debugging
+
 
   /// Idea by Tom Fogal, for optionally preventing execution of code until debugger allows it
   /// Source: http://www.sci.utah.edu/~tfogal/academic/Fogal-ParallelDebugging.pdf
@@ -66,13 +72,21 @@ int main(int argc, char* argv[])
            while(i == 0) { /* change ’i’ in the debugger */ }
            fprintf(stderr, "Variable 'i' changed externally; resuming execution! \n");
         }
+
+        temp_comm.Barrier(); // TODO: Moving in from outside
      }
-     temp_comm.Barrier();
+
+     //int mysize = temp_comm.Get_size(); // TODO: Chris CHang: DELETEME
+     //std::cout << "gambit.cpp. I am Here 2.5, rank: " << rank <<  ", " << mysize << std::endl; // TODO: Debugging
+     //temp_comm.Barrier();
      // All processes wait at the barrier until process 0 is "released" by debugger.
      // If try/catch etc needs to be set for other processes, do those first before
      // releasing process zero.
   }
   #endif
+
+  std::cout << "gambit.cpp. I am Here 3" << std::endl; // TODO: Debugging
+
 
   { // Scope to ensure that all MPI communicators get destroyed before Finalize is called.
 
@@ -83,6 +97,9 @@ int main(int argc, char* argv[])
     signal(SIGUSR1, sighandler_soft);
     signal(SIGUSR2, sighandler_soft);
 
+    std::cout << "gambit.cpp. I am Here 4" << std::endl; // TODO: Debugging
+
+
     #ifdef WITH_MPI
       /// Create an MPI communicator group for use by error handlers
       std::cerr << " create MPI comms " << std::endl;
@@ -92,6 +109,9 @@ int main(int argc, char* argv[])
       errorComm.mytag = ERROR_TAG;
       signaldata().set_MPI_comm(&errorComm); // Provide a communicator for signal handling routines to use.
       /// Create an MPI communicator group for ScannerBit to use
+      ///
+      std::cout << "gambit.cpp. I am Here 5" << std::endl; // TODO: Debugging
+
 
       //_emu 
       // split mpi world til scanComm og lag kopi av scannerComm som blir til errorComm
@@ -101,6 +121,9 @@ int main(int argc, char* argv[])
       MPI_Comm_size(MPI_COMM_WORLD, &world_size);
       MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
       std::cout  << "In dummy: world rank " << world_rank << ", local rank " << world_size << std::endl;
+
+      std::cout << "gambit.cpp. I am Here 6" << std::endl; // TODO: Debugging
+
 
       std::vector<int> processes;
       for (int i = 0; i < world_size; ++i) 
@@ -114,6 +137,9 @@ int main(int argc, char* argv[])
       //   scanComm.dup(MPI_COMM_WORLD,"scanComm"); // duplicates the COMM_WORLD context
       Scanner::Plugins::plugin_info.initMPIdata(&scanComm);
 
+      std::cout << "gambit.cpp. I am Here 7" << std::endl; // TODO: Debugging
+
+
       /// MPI rank for use in error messages;
       int rank = scanComm.Get_rank();
       int size = scanComm.Get_size();
@@ -126,6 +152,8 @@ int main(int argc, char* argv[])
       { 
         std::cout << " the other processes " << std::endl;
       }
+
+      std::cout << "gambit.cpp. I am Here 8" << std::endl; // TODO: Debugging
 
 
       //_emu
@@ -143,6 +171,8 @@ int main(int argc, char* argv[])
     {
       if(omp_get_thread_num()==0) n_omp_threads = omp_get_num_threads();
     }
+
+
 
     try
     {

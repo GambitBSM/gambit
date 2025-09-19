@@ -10,17 +10,27 @@
 
 int main(int argc, char *argv[])
 {
+
+    std::cout << "egg.cpp. I am Here 1" << std::endl; // TODO: Debugging
+
     MPI_Init(&argc, &argv);
+
+    std::cout << "egg.cpp. I am Here 2" << std::endl; // TODO: Debugging
 
     int world_size, world_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
+    std::cout << "egg.cpp. I am Here 3" << std::endl; // TODO: Debugging
+
     //////// split to create local communicators
     // TODO: recieve color from rank 0
     int color = 1;
     MPI_Comm comm_local;
+    std::cout << "egg.cpp. world_rank: " << world_rank << ", world_size: " << world_size << std::endl; // TODO: Debugging
     MPI_Comm_split(MPI_COMM_WORLD, color, world_rank, &comm_local);
+
+    std::cout << "egg.cpp. I am Here 4" << std::endl; // TODO: Debugging
 
     // find local rank
     int local_rank, local_size;
