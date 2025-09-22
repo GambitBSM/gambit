@@ -6,7 +6,7 @@
 ///  HDF5 databases.
 ///
 ///  Currently I am using the C++ bindings for
-///  HDF5, however they are a bit crap and it may
+///  HDF5, however they not great and it may
 ///  be better to just write our own.
 ///
 ///  *********************************************
