@@ -19,6 +19,17 @@
 
 #pragma once
 
+#include <cfloat>
+
+#if defined(__clang__)
+  // Silence GNU variadic macro extension warning for '##__VA_ARGS__'.
+  // This header intentionally uses '##__VA_ARGS__' to allow empty varargs.
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+
+
+
 /// Min and max values of eta and pT
 #define ETAMIN 0
 #define PTMIN 0
@@ -450,5 +461,8 @@
 #define COMMIT_CUTFLOWS                                                           \
   add_cutflows(_cutflows);
 
+#if defined(__clang__)
+  #pragma clang diagnostic pop
+#endif
 
 
