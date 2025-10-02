@@ -27,7 +27,23 @@
 #
 #************************************************
 
+
 include(ExternalProject)
+# ---------------------------------------------------------------------------
+# Common CMake arguments for CMake-based contrib ExternalProjects.
+# Ensures modern policy compatibility and consistent macOS toolchain.
+set(CONTRIB_COMMON_CMAKE_ARGS
+  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+  -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+  -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
+  -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+  -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
+  -DCMAKE_CXX_STANDARD=17
+  -DCMAKE_CXX_STANDARD_REQUIRED=ON
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+)
+# ---------------------------------------------------------------------------
 
 # Define the newline strings to use for OSX-safe substitution.
 # This can be moved into externals.cmake if ever it is no longer used in this file.
@@ -223,7 +239,7 @@ if(NOT EXCLUDE_HEPMC)
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${HEPMC_PATH} ${name} ${ver}
     SOURCE_DIR ${HEPMC_PATH}
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HEPMC_CXX_FLAGS} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${HEPMC_PATH}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_PATH}/local/lib -DHEPMC3_ENABLE_PYTHON=OFF -DHEPMC3_ENABLE_SEARCH=ON -DHEPMC3_BUILD_STATIC_LIBS=OFF
+    CMAKE_ARGS ${CONTRIB_COMMON_CMAKE_ARGS} -DCMAKE_CXX_FLAGS=${HEPMC_CXX_FLAGS} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${HEPMC_PATH}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_PATH}/local/lib -DHEPMC3_ENABLE_PYTHON=OFF -DHEPMC3_ENABLE_SEARCH=ON -DHEPMC3_BUILD_STATIC_LIBS=OFF
     BUILD_COMMAND ${MAKE_PARALLEL} ${lib}
     INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
     )
@@ -361,6 +377,7 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(fastjet_md5 "d8aede1539f478547f8be5412ab6869c")
   set(fastjet_dir "${PROJECT_SOURCE_DIR}/contrib/fastjet-3.4.2")
   include_directories("${fastjet_dir}/local/include")
+  include_directories("${fastjet_dir}/local/include/fastjet/contrib")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fastjet_dir}/local/lib")
   set(fastjet_LDFLAGS "-L${fastjet_dir}/local/lib -lfastjet -lfastjettools")
   string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_C_FLAGS "${CONTRIB_C_FLAGS}")
@@ -395,7 +412,7 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(fjcontrib_md5 "bfea8bfd311d958a40e445f76668bd32")
   set(fjcontrib_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.049")
   #include_directories("${fjcontrib_dir}/RecursiveTools")
-  include_directories("${fastjet_dir}/local/include" "${fjcontrib_dir}/RecursiveTools" "${fjcontrib_dir}/EnergyCorrelator" "${fjcontrib_dir}/VariableR")
+  include_directories("${fastjet_dir}/local/include" "${fastjet_dir}/local/include/fastjet/contrib" "${fjcontrib_dir}/RecursiveTools" "${fjcontrib_dir}/EnergyCorrelator" "${fjcontrib_dir}/VariableR")
 
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fjcontrib_dir}/local/lib")
   # set(fjcontrib_LDFLAGS "-L${fastjet_dir}/local/lib -lRecursiveTools")

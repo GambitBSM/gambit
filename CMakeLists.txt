@@ -38,7 +38,7 @@
 #************************************************
 
 # Define minimum cmake version
-cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 # Define minimum compiler versions
 set(MIN_GCC_VERSION 9.1)
@@ -77,7 +77,30 @@ foreach(p
 endforeach()
 
 # Set the project name, enabling C, C++ and Fortran support
+if(NOT CMAKE_C_COMPILER)
+  find_program(CMAKE_C_COMPILER NAMES gcc)
+endif()
+if(NOT CMAKE_CXX_COMPILER)
+  find_program(CMAKE_CXX_COMPILER NAMES g++)
+endif()
+if(NOT CMAKE_Fortran_COMPILER)
+  find_program(CMAKE_Fortran_COMPILER NAMES gfortran)
+endif()
 project(gambit C CXX Fortran)
+
+# --- Toolchain baseline: modern policy + libc++ on macOS clang ---
+# Some bundled deps (e.g. pybind11) require newer CMake policies.
+if (NOT DEFINED CMAKE_POLICY_VERSION_MINIMUM)
+  set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+endif()
+
+# Ensure we compile against the SDK's libc++ when using (Apple)Clang
+if (APPLE AND (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang"))
+  if (NOT CMAKE_CXX_FLAGS MATCHES "(^| )-stdlib=libc\\+\\+( |$)")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+  endif()
+endif()
+
 
 # Make sure the user hasn't accidentally set the C++ compiler to the C compiler.
 get_filename_component(CXX_COMPILER_NAME ${CMAKE_CXX_COMPILER} NAME)
@@ -116,6 +139,10 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 # Add the automatically determined parts of the RPATH that point to directories outside the build tree to the install RPATH
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+# Make Homebrew libomp discoverable at build/run time without forcing Homebrew libc++
+list(APPEND CMAKE_BUILD_RPATH   "/opt/homebrew/opt/llvm/lib")
+list(APPEND CMAKE_INSTALL_RPATH "/opt/homebrew/opt/llvm/lib")
 
 # Check if pybind11 is to be ditched
 string(REGEX MATCH ";pybind;|;pybind11;|;Pybind;|;Pybind11;" DITCH_PYBIND ";${itch};")
@@ -718,6 +745,14 @@ endif()
 
 # Add the executables
 include(cmake/executables.cmake)
+
+# --- Post-target tweak: ensure any accidental '-lc++' resolves to system libc++ ---
+if (APPLE AND (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang") AND DEFINED CMAKE_OSX_SYSROOT)
+  if (TARGET CBS)
+    # Put SDK usr/lib first for this target so any accidental '-lc++' binds to the system libc++
+    target_link_directories(CBS BEFORE PRIVATE "${CMAKE_OSX_SYSROOT}/usr/lib")
+  endif()
+endif()
 
 # Finish setting the link commands and rpath variables for ScannerBit
 if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")

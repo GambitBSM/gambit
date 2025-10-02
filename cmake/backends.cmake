@@ -113,6 +113,23 @@
 #
 #************************************************
 
+# ---------------------------------------------------------------------------
+# Common CMake arguments to pass into ExternalProject-based CMake backends.
+# These ensure newer CMake/macOS policy compatibility and consistent toolchain.
+# NOTE: This is intentionally a simple list so we can prepend it to CMAKE_ARGS.
+set(COMMON_EP_CMAKE_ARGS
+  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+  -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+  -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
+  -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+  -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
+  -DCMAKE_CXX_STANDARD=17
+  -DCMAKE_CXX_STANDARD_REQUIRED=ON
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+)
+# ---------------------------------------------------------------------------
+
 
 # Target for downloading castxml (required by BOSS)
 set(name "castxml")
@@ -622,7 +639,7 @@ if(NOT ditched_${name}_${ver})
     PATCH_COMMAND patch -p1 < ${patch}
     UPDATE_COMMAND ${CMAKE_COMMAND} -E echo "set_target_properties(HEPLike_shared PROPERTIES OUTPUT_NAME HEPLike SUFFIX \".so\")" >> ${dir}/CMakeLists.txt
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HL_CXXFLAGS} -DCMAKE_MODULE_PATH=${PROJECT_SOURCE_DIR}/cmake -DUSE_ROOT=false -DBoost_INCLUDE_DIRS=${Boost_INCLUDE_DIR} -DBoost_LIBRARIES=${Boost_LIBRARIES} -DGSL_INCLUDE_DIR=${GSL_INCLUDE_DIR} -DGSL_LIBRARIES=${GSL_LIBRARIES}
+    CMAKE_ARGS ${COMMON_EP_CMAKE_ARGS} -DCMAKE_CXX_FLAGS=${HL_CXXFLAGS} -DCMAKE_MODULE_PATH=${PROJECT_SOURCE_DIR}/cmake -DUSE_ROOT=false -DBoost_INCLUDE_DIRS=${Boost_INCLUDE_DIR} -DBoost_LIBRARIES=${Boost_LIBRARIES} -DGSL_INCLUDE_DIR=${GSL_INCLUDE_DIR} -DGSL_LIBRARIES=${GSL_LIBRARIES}
     BUILD_COMMAND ${MAKE_PARALLEL} HEPLike_shared
     INSTALL_COMMAND ""
     )
@@ -1159,7 +1176,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${libphysica_dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
-    CMAKE_ARGS -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_C_FLAGS=${BACKEND_C_FLAGS} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCODE_COVERAGE=OFF -DCMAKE_BUILD_TYPE=Release
+    CMAKE_ARGS ${COMMON_EP_CMAKE_ARGS} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS} -DCMAKE_C_FLAGS=${BACKEND_C_FLAGS} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCODE_COVERAGE=OFF
     BUILD_COMMAND ${MAKE_PARALLEL} ${dir}
     INSTALL_COMMAND ""
   )
@@ -1195,7 +1212,7 @@ if(NOT ditched_${name}_${ver})
     PATCH_COMMAND patch -p1 < ${patch}
           COMMAND  ${CMAKE_COMMAND} -E make_directory "${dir}/generated/"
           COMMAND ${CMAKE_COMMAND} -E echo "" > "${dir}/generated/version.hpp"
-    CMAKE_ARGS -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${obscura_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_C_FLAGS=${obscura_C_FLAGS} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCODE_COVERAGE=OFF -DCMAKE_BUILD_TYPE=Release ${dir} -Dlibphysica_SOURCE_DIR=${libphysica_dir}
+    CMAKE_ARGS ${COMMON_EP_CMAKE_ARGS} -DCMAKE_CXX_FLAGS=${obscura_CXX_FLAGS} -DCMAKE_C_FLAGS=${obscura_C_FLAGS} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCODE_COVERAGE=OFF ${dir} -Dlibphysica_SOURCE_DIR=${libphysica_dir}
     BUILD_COMMAND ${MAKE_PARALLEL} libobscura
     INSTALL_COMMAND ""
   )

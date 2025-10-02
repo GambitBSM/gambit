@@ -41,7 +41,7 @@
 using namespace std;
 
 
-#define CHECK_CUTFLOW
+// #define CHECK_CUTFLOW
 
 #ifdef CHECK_CUTFLOW
     #include "YODA/Histo1D.h"
@@ -120,8 +120,8 @@ namespace Gambit
             static constexpr const char *detector = "ATLAS";
             Analysis_ATLAS_EXOT_2021_035()
             {
-                DEFINE_SIGNAL_REGION("SR1")
-                DEFINE_SIGNAL_REGION("SR2")
+                DEFINE_SIGNAL_REGION_NOCUTS("SR1");
+                DEFINE_SIGNAL_REGION_NOCUTS("SR2");
 
                 set_analysis_name("ATLAS_EXOT_2021_035");
                 set_luminosity(140.0);
@@ -135,7 +135,7 @@ namespace Gambit
             void run(const HEPUtils::Event *event)
             {
                 #ifdef CHECK_CUTFLOW
-                    BEGIN_PRESELECTION
+                    // BEGIN_PRESELECTION
 
                     if (Nevent % 200 == 0)
                     {
@@ -258,9 +258,9 @@ namespace Gambit
                 bool preselection = lep_pre && lRj_pre && sRj_pre1 && sRj_pre2; 
                 if (preselection)
                 {
-                    #ifdef CHECK_CUTFLOW
-                        END_PRESELECTION
-                    #endif
+                    // #ifdef CHECK_CUTFLOW
+                        // END_PRESELECTION
+                    // #endif
 
                     double nv_px = pmiss.px();
                     double nv_py = pmiss.py();
