@@ -396,12 +396,12 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(fjcontrib_md5 "b37674a8701af52b58ebced94a270877")
   set(fjcontrib_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.041")
   # include_directories("${fjcontrib_dir}/RecursiveTools")
-  include_directories("${fastjet_dir}/local/include" "${fjcontrib_dir}/RecursiveTools" "${fjcontrib_dir}/EnergyCorrelator" "${fjcontrib_dir}/VariableR")
+  #include_directories("${fastjet_dir}/local/include" "${fjcontrib_dir}/RecursiveTools" "${fjcontrib_dir}/EnergyCorrelator" "${fjcontrib_dir}/VariableR")
+  include_directories("${fastjet_dir}/local/include" "${fjcontrib_dir}/RecursiveTools" "${fjcontrib_dir}/EnergyCorrelator" "${fjcontrib_dir}/VariableR"  "${fjcontrib_dir}/Nsubjettiness")
 
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fjcontrib_dir}/local/lib")
   # set(fjcontrib_LDFLAGS "-L${fastjet_dir}/local/lib -lRecursiveTools -lVariableR")
-  set(fjcontrib_LDFLAGS "-L${fastjet_dir}/local/lib -lRecursiveTools -lEnergyCorrelator -lVariableR")
-
+  set(fjcontrib_LDFLAGS "-L${fastjet_dir}/local/lib -lRecursiveTools -lEnergyCorrelator -lVariableR  -lRecursiveTools -lNsubjettiness")
 
   string(REGEX REPLACE "-Xclang -fopenmp" "" FJCONTRIB_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
   set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
@@ -416,7 +416,7 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
     SOURCE_DIR ${fjcontrib_dir}
     BUILD_IN_SOURCE 1
     # CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local --only=RecursiveTools,VariableR
-    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local --only=RecursiveTools,EnergyCorrelator,VariableR
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local --only=RecursiveTools,EnergyCorrelator,VariableR,Nsubjettiness
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
