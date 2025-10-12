@@ -27,6 +27,9 @@
 ///  \date 2019 June
 ///  \date 2023 Aug
 ///
+///  \author Pengxuan Zhu 
+///          (pengxuan.zhu@adelaide.edu.au, zhupx99@icloud.com)
+///  \date 2025 Oct
 ///  *********************************************
 
 #include <stdexcept>

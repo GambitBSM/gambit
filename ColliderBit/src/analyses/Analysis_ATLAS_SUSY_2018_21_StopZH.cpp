@@ -650,7 +650,8 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SR2AZ_3L", 3.,  5.6,  1.6);
         COMMIT_SIGNAL_REGION("SR2BZ_3L", 6.,  5.5,  0.9);
         COMMIT_SIGNAL_REGION("SR1AH_1L", 11., 17.0, 3.0);
-        COMMIT_SIGNAL_REGION("SR1BH_1L", 24., 3.0,  5.0);
+        COMMIT_SIGNAL_REGION("SR1BH_1L", 24., 19.0,  5.0); // This SR have a typo of expected backgrounds
+
 
         COMMIT_CUTFLOWS;
 
