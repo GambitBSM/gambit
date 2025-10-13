@@ -43,10 +43,12 @@ namespace Gambit
       onnx_rt_wrapper() = delete;
 
       /// Given a multi-node input vector, populate and return the multi-node output vector
-      void compute(std::vector<std::vector<float>> &inputs, std::vector<std::vector<float>>& outputs) const;
+      template<typename Tin = float, typename Tout =  float> 
+      void compute(std::vector<std::vector<Tin>> &inputs, std::vector<std::vector<Tout>>& outputs) const;
 
       /// Given a single-node input vector, populate and return the single-node output vector
-      void compute(std::vector<float>& inputs, std::vector<float> & outputs);
+      template<typename Tin = float, typename Tout =  float> 
+      void compute(std::vector<Tin>& inputs, std::vector<Tout> & outputs);
 
       /// Printing function for debugging.
       friend std::ostream& operator <<(std::ostream& os, const onnx_rt_wrapper& rort);

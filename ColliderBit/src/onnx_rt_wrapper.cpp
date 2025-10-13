@@ -40,7 +40,8 @@ namespace Gambit
 
 
     /// Given a multi-node input vector, populate and return the multi-node output vector
-    void onnx_rt_wrapper::compute(std::vector<std::vector<float>> &inputs, std::vector<std::vector<float>>& outputs) const
+    template<typename Tin = float, typename Tout =  float>  
+    void onnx_rt_wrapper::compute(std::vector<std::vector<Tin>> &inputs, std::vector<std::vector<Tout>>& outputs) const
     {
       /// Check that number of input nodes matches what the model expects
       if (inputs.size() != _inDims.size())
@@ -85,7 +86,8 @@ namespace Gambit
 
 
     /// Given a single-node input vector, populate and return the single-node output vector
-    void onnx_rt_wrapper::compute(vector<float>& inputs, vector<float> & outputs)
+    template<typename Tin = float, typename Tout =  float> 
+    void onnx_rt_wrapper::compute(vector<Tin>& inputs, vector<Tout> & outputs)
     {
       if (_inDims.size() != 1 || _outDims.size() != 1)
       {
