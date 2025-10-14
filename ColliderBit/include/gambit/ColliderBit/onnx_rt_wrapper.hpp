@@ -42,13 +42,68 @@ namespace Gambit
 
       onnx_rt_wrapper() = delete;
 
-      /// Given a multi-node input vector, populate and return the multi-node output vector
-      template<typename Tin = float, typename Tout =  float> 
-      void compute(const std::vector<std::vector<Tin>> &inputs, std::vector<std::vector<Tout>>& outputs) const;
+      /// Given a multi-node input std::vector, populate and return the multi-node output std::vector
+      /// Apologies for the SFINAE, needed to deal with vec<vec<float>> and vec<vec<double>> seperately
+      /// to vec<float> and vec<double>
+      template<typename Tin = float, typename Tout =  float, 
+                std::enable_if_t<std::is_arithmetic_v<Tin> && std::is_arithmetic_v<Tout>, int> = 0 > 
+      void compute(std::vector<std::vector<Tin>> &inputs, std::vector<std::vector<Tout>>& outputs) const
+      {
+        /// Check that number of input nodes matches what the model expects
+        if (inputs.size() != _inDims.size())
+        {
+          throw("Expected " + std::to_string(_inDims.size())
+                + " input nodes, received " + std::to_string(inputs.size()));
+        }
 
-      /// Given a single-node input vector, populate and return the single-node output vector
-      template<typename Tin = float, typename Tout =  float> 
-      void compute(const std::vector<Tin>& inputs, std::vector<Tout> & outputs) const;
+        // Create input tensor objects from input data
+        std::vector<Ort::Value> ort_input;
+        ort_input.reserve(_inDims.size());
+        auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
+        for (size_t i=0; i < _inDims.size(); ++i)
+        {
+
+          // Check that input data matches expected input node dimension
+          if (inputs[i].size() != (size_t) _inDimsFlat[i])
+          {
+            throw("Expected flattened input node dimension " + std::to_string(_inDimsFlat[i])
+                    + ", received " + std::to_string(inputs[i].size()));
+          }
+
+          ort_input.emplace_back(Ort::Value::CreateTensor<Tin>(memory_info,
+                                                                  inputs[i].data(), inputs[i].size(),
+                                                                  _inDims[i].data(), _inDims[i].size()));
+        }
+
+        // Retrieve output tensors
+        auto ort_output = _session->Run(Ort::RunOptions{nullptr}, _inNames.data(),
+                                        ort_input.data(), ort_input.size(),
+                                        _outNames.data(), _outNames.size());
+
+        // Construct flattened values and return
+        outputs.clear();
+        outputs.resize(_outDims.size());
+        for (size_t i = 0; i < _outDims.size(); ++i)
+        {
+          Tout* floatarr = ort_output[i].GetTensorMutableData<Tout>();
+          outputs[i].assign(floatarr, floatarr + _outDimsFlat[i]);
+        }                                             
+      }
+
+      /// Given a single-node input std::vector, populate and return the single-node output std::vector
+      template<typename Tin = float, typename Tout = float,
+              std::enable_if_t<std::is_arithmetic_v<Tin> && std::is_arithmetic_v<Tout>, int> = 0> 
+      void compute(const std::vector<Tin>& inputs, std::vector<Tout> & outputs) const
+      {
+        if (_inDims.size() != 1 || _outDims.size() != 1)
+        {
+          throw("This method assumes a single input/output node!");
+        }
+        std::vector<std::vector<Tin>> wrapped_inputs = { inputs };
+        std::vector<std::vector<Tout>> wrapped_outputs;
+        compute(wrapped_inputs, wrapped_outputs);
+        outputs = wrapped_outputs[0];
+      }
 
       /// Printing function for debugging.
       friend std::ostream& operator <<(std::ostream& os, const onnx_rt_wrapper& rort);
@@ -86,7 +141,6 @@ namespace Gambit
       std::vector<const char*> _inNames, _outNames;
 
     };
-
   }
 
 }

@@ -38,68 +38,6 @@ namespace Gambit
       getNetworkInfo();
     }
 
-
-    /// Given a multi-node input vector, populate and return the multi-node output vector
-    template<typename Tin, typename Tout>  
-    void onnx_rt_wrapper::compute(const std::vector<std::vector<Tin>> &inputs, std::vector<std::vector<Tout>>& outputs) const
-    {
-      /// Check that number of input nodes matches what the model expects
-      if (inputs.size() != _inDims.size())
-      {
-        throw("Expected " + to_string(_inDims.size())
-              + " input nodes, received " + to_string(inputs.size()));
-      }
-
-      // Create input tensor objects from input data
-      vector<Ort::Value> ort_input;
-      ort_input.reserve(_inDims.size());
-      auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
-      for (size_t i=0; i < _inDims.size(); ++i)
-      {
-
-        // Check that input data matches expected input node dimension
-        if (inputs[i].size() != (size_t) _inDimsFlat[i])
-        {
-          throw("Expected flattened input node dimension " + to_string(_inDimsFlat[i])
-                  + ", received " + to_string(inputs[i].size()));
-        }
-
-        ort_input.emplace_back(Ort::Value::CreateTensor<float>(memory_info,
-                                                                inputs[i].data(), inputs[i].size(),
-                                                                _inDims[i].data(), _inDims[i].size()));
-      }
-
-      // Retrieve output tensors
-      auto ort_output = _session->Run(Ort::RunOptions{nullptr}, _inNames.data(),
-                                      ort_input.data(), ort_input.size(),
-                                      _outNames.data(), _outNames.size());
-
-      // Construct flattened values and return
-      outputs.clear();
-      outputs.resize(_outDims.size());
-      for (size_t i = 0; i < _outDims.size(); ++i)
-      {
-        float* floatarr = ort_output[i].GetTensorMutableData<float>();
-        outputs[i].assign(floatarr, floatarr + _outDimsFlat[i]);
-      }                                             
-    }
-
-
-    /// Given a single-node input vector, populate and return the single-node output vector
-    template<typename Tin, typename Tout> 
-    void onnx_rt_wrapper::compute(const vector<Tin>& inputs, vector<Tout> & outputs) const
-    {
-      if (_inDims.size() != 1 || _outDims.size() != 1)
-      {
-        throw("This method assumes a single input/output node!");
-      }
-      vector<vector<float>> wrapped_inputs = { inputs };
-      vector<vector<float>> wrapped_outputs;
-      compute(wrapped_inputs, wrapped_outputs);
-      outputs = wrapped_outputs[0];
-    }
-
-
     /// Printing function for debugging.
     std::ostream& operator <<(std::ostream& os, const onnx_rt_wrapper& rort)
     {
@@ -199,7 +137,7 @@ namespace Gambit
         for (auto& dim : dims)
         {
           if (dim < 0)  dim = abs(dim);
-          n *= dim;
+          n *= dim; 
         }
         _outDimsFlat.push_back(n);
       }
