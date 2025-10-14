@@ -44,11 +44,11 @@ namespace Gambit
 
       /// Given a multi-node input vector, populate and return the multi-node output vector
       template<typename Tin = float, typename Tout =  float> 
-      void compute(std::vector<std::vector<Tin>> &inputs, std::vector<std::vector<Tout>>& outputs) const;
+      void compute(const std::vector<std::vector<Tin>> &inputs, std::vector<std::vector<Tout>>& outputs) const;
 
       /// Given a single-node input vector, populate and return the single-node output vector
       template<typename Tin = float, typename Tout =  float> 
-      void compute(std::vector<Tin>& inputs, std::vector<Tout> & outputs);
+      void compute(const std::vector<Tin>& inputs, std::vector<Tout> & outputs) const;
 
       /// Printing function for debugging.
       friend std::ostream& operator <<(std::ostream& os, const onnx_rt_wrapper& rort);
