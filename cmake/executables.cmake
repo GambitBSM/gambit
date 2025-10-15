@@ -108,4 +108,13 @@ if(HDF5_FOUND)
   endif()
 endif()
 
-
+# Add the Egg standalone executable
+if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
+  add_gambit_executable(egg ""
+                        SOURCES ${PROJECT_SOURCE_DIR}/ScannerBit/emu_egg/src/egg.cpp
+                                $<TARGET_OBJECTS:ScannerBit>
+                                $<TARGET_OBJECTS:Logs>
+                                $<TARGET_OBJECTS:Utils>
+                                $<TARGET_OBJECTS:Printers>
+                                )
+endif()

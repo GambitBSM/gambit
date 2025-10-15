@@ -4,9 +4,15 @@
 #include <sstream> // For stringstream
 
 // #include "egg.hpp"
-// #include "yaml-cpp/yaml.h"
+#define WITH_MPI 1
+#include "gambit/Utils/mpiwrapper.hpp"
+// #include "gambit/Utils/signal_handling.hpp"
+// #include "gambit/Utils/static_members.hpp"
+// #include "src/new_mpi_datatypes.cpp"
 
 // using namespace Gambit;
+using namespace Gambit;
+using namespace GMPI;
 
 int main(int argc, char *argv[])
 {
@@ -16,6 +22,12 @@ int main(int argc, char *argv[])
     MPI_Init(&argc, &argv);
 
     std::cout << "egg.cpp. I am Here 2" << std::endl; // TODO: Debugging
+
+    GMPI::Comm errorComm;
+    errorComm.dup(MPI_COMM_WORLD,"errorComm"); // duplicates the COMM_WORLD context
+    const int ERROR_TAG=1;         // Tag for error messages
+    errorComm.mytag = ERROR_TAG;
+
 
     int world_size, world_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
