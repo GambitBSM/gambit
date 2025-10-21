@@ -163,13 +163,25 @@ namespace ColliderBit {
         std::string _name;
 
     public:
-        SIGNAL_DISTRIBUTION(const string & name, vector<double> binedges) : _name(name), _edges(binedges) {
+        SIGNAL_DISTRIBUTION(const string & name, const vector<double>& binedges) :  _edges(binedges), _counters(), _name(name) {
             for (size_t i = 0; i < binedges.size()-1; ++i){
                 _counters[_name+"_"s+to_string(i)] = EventCounter(_name+to_string(i));
             }
         }
 
-        void fill(const double fillval, Event* event, bool includeOverFlow=true, bool includeUnderFlow=false) {
+        SIGNAL_DISTRIBUTION() : SIGNAL_DISTRIBUTION(""s, {}){};
+
+        // combine another signal distribution into this one/
+        // DOES NOT CHECK THAT BINS MATCH! USE RESPONSIBLY!
+        void combine(const SIGNAL_DISTRIBUTION& other){
+            for (auto & p : _counters){
+                p.second += other._counters.at(p.first);
+            }
+        }
+
+
+        void fill(const double fillval, const Event* event,
+                    const bool includeOverFlow=true, const bool includeUnderFlow=false) {
             if (fillval < xmin()){
                 if (includeUnderFlow) {_counters[_name+"_0"].add_event(event); return;} else return;
             }
@@ -180,11 +192,11 @@ namespace ColliderBit {
             _counters[_name+"_"+to_string(binIndex(fillval, _edges, false))].add_event(event);
         }
 
-        double xmax() const {
+        inline double xmax() const {
             return _edges[_edges.size()-1];
         }
         
-        double xmin() const {
+        inline double xmin() const {
             return _edges[0];
         }
 
@@ -198,7 +210,14 @@ namespace ColliderBit {
     class Analysis_ATLAS_13TeV_EXOT_2018_58 : public Analysis {
 
         protected:
-        // TODO SR MAP
+        std::map<std::string, SIGNAL_DISTRIBUTION> _distributions;
+        std::map<std::string, EventCounter> _counters;
+        std::vector<std::string> _sigRegionNames = {
+            "2l_1b_notag", "2l_1b_Vtag", "2l_1b_Htag", "2l_1b_toptag", "2l_1b_doubletag1", "2l_1b_doubletag2", "2l_1b_OF", 
+            "2l_2b_notag", "2l_2b_Vtag", "2l_2b_Htag", "2l_2b_toptag", "2l_2b_doubletag1", "2l_2b_doubletag2", "2l_2b_OF", 
+            "3l_notag", "3l_Vtag", "3l_Htag", "3l_toptag", "3l_OF"
+        };
+        std::vector<std::string> _controlRegionNames = {"2l_1b_CR", "2l_2b_CR", "3l_VV_CR"};
 
         private:
         unique_ptr<MCBOT::MCBOT> _mcbot;
@@ -236,6 +255,41 @@ namespace ColliderBit {
 
 
         Analysis_ATLAS_13TeV_EXOT_2018_58() {
+            // 2l 1b 
+            _distributions["2l_1b_notag"] = SIGNAL_DISTRIBUTION("2l_1b_notag"s, vector<double>{0,600,1000,1400,2000});
+            _distributions["2l_1b_Vtag"] = SIGNAL_DISTRIBUTION("2l_1b_Vtag"s, {0,600,1000,1400,2000});
+            _distributions["2l_1b_Htag"] = SIGNAL_DISTRIBUTION("2l_1b_Htag"s, {0,600,1000,1400,2000});
+            _distributions["2l_1b_toptag"] = SIGNAL_DISTRIBUTION("2l_1b_toptag"s, {0,600,1000,1400,2000});
+            _distributions["2l_1b_doubletag1"] = SIGNAL_DISTRIBUTION("2l_1b_doubletag1"s, {0,600,1000,1400,2000});
+            _distributions["2l_1b_doubletag2"] = SIGNAL_DISTRIBUTION("2l_1b_doubletag2"s, {0,600,1000,1400,2000});
+            _distributions["2l_1b_OF"] = SIGNAL_DISTRIBUTION("2l_1b_OF"s, {0,600,1000,1400,2000});
+
+            _distributions["2l_2b_notag"] = SIGNAL_DISTRIBUTION("2l_2b_notag", {0,600,1000,1400,2000});
+            _distributions["2l_2b_Vtag"] = SIGNAL_DISTRIBUTION("2l_2b_Vtag", {0,600,1000,2000});
+            _distributions["2l_2b_Htag"] = SIGNAL_DISTRIBUTION("2l_2b_Htag", {0,600,1000,1400,2000});
+            _distributions["2l_2b_toptag"] = SIGNAL_DISTRIBUTION("2l_2b_toptag", {0,600,1000,1400,2000});
+            _distributions["2l_2b_doubletag1"] = SIGNAL_DISTRIBUTION("2l_2b_doubletag1", {0,600,1000,2000});
+            _distributions["2l_2b_doubletag2"] = SIGNAL_DISTRIBUTION("2l_2b_doubletag2", {0,600,1000,2000});
+            _distributions["2l_2b_OF"] = SIGNAL_DISTRIBUTION("2l_2b_OF", {0,600,1000,2000});
+
+            _distributions["3l_Htag"] = SIGNAL_DISTRIBUTION("3l_Htag", {1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400});
+            _distributions["3l_OF"] = SIGNAL_DISTRIBUTION("3l_OF", {1000, 1200, 1400, 1600, 1800, 2000, 2400});
+            _distributions["3l_notag"] = SIGNAL_DISTRIBUTION("3l_notag", {1000, 1200,  2400});
+            _distributions["3l_toptag"] = SIGNAL_DISTRIBUTION("3l_toptag", {1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400});
+            _distributions["3l_Vtag"] = SIGNAL_DISTRIBUTION("3l_Vtag", {1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400});
+            
+            _distributions["2l_1b_CR"] = SIGNAL_DISTRIBUTION("2l_1b_CR", {920, 1150, 1380});
+            _distributions["2l_2b_CR"] = SIGNAL_DISTRIBUTION("2l_2b_CR", {920, 1150, 1380});
+            _distributions["3l_VV_CR"] = SIGNAL_DISTRIBUTION("3l_VV_CR", {300,375,450,525,600,675,750,825,900,975,1050,1125,1200,1275,1350,1425,1500});
+            
+            // Book region summaries:
+            for (const string & s : _sigRegionNames){
+                _counters[s]=EventCounter(s);
+            }
+            for (const string & s : _controlRegionNames){
+                _counters[s]=EventCounter(s);
+            }
+
             set_analysis_name("ATLAS_13TeV_EXOT_2018_58");
             set_luminosity(139.);
 
@@ -383,17 +437,32 @@ namespace ColliderBit {
                 if (HT + met <= 1380*GeV ){
                     if (bJets.size() == 1){
                         // 2l_1b_CR
+                        _counters["2l_1b_CR"].add_event(event);
+                        _distributions["2l_1b_CR"].fill(HT+met, event);
                     }
                     else {
                         // 2l_2b_CR
+                        _counters["2l_2b_CR"].add_event(event);
+                        _distributions["2l_2b_CR"].fill(HT+met, event);
                     }
                     // And we're all done
                     return;
                 }
                 // If we're in the SR, need to use MCBOT.
                 const vector<MCBOT::MCBOTtag> tags = _mcbot->tagJets(TrimmedRCjets, TrimmedRCjetConstituents, TrimmedRCjetConstituentBtags, true);
-                const string category = get_2l_MCBOT_category(tags, bJets.size());
-                // TODO FILLING
+                if (bJets.size() == 1) {
+                    const string region = "2l_1b_" + get_2l_MCBOT_category(tags, bJets.size());
+                    _counters[region].add_event(event);
+                    // TODO: ensure bJets are pT ordered!
+                    _distributions[region].fill((ZCandidate+bJets[0]->mom()).m(), event);
+                }
+                else {
+                    const string region = "2l_2b_" + get_2l_MCBOT_category(tags, bJets.size());
+                    _counters[region].add_event(event);
+                    // TODO: ensure bJets are pT ordered!
+                    _distributions[region].fill((ZCandidate+bJets[1]->mom()).m(), event);
+                }
+                
             }
             // 3 LEPTON CHANNEL:
             else {
@@ -404,20 +473,79 @@ namespace ColliderBit {
                 if (HTjetlep < 300*GeV) return;
 
                 if (bJets.size() == 0){
-                    // We're in the VV CR
-                    // TODO FILLING
+                    _counters["3l_VV_CR"].add_event(event);
+                    _distributions["3l_VV_CR"].fill(HTjetlep, event);
                     return;
                 }
                 // Signal region
                 // Need to run MCBOT
                 const vector<MCBOT::MCBOTtag> tags = _mcbot->tagJets(TrimmedRCjets, TrimmedRCjetConstituents, TrimmedRCjetConstituentBtags, true);
-                const string category = get_3l_MCBOT_category(tags);
-                // TODO FILLING
-
+                const string region = "3l_"+get_3l_MCBOT_category(tags);
+                _counters[region].add_event(event);
+                _distributions[region].fill(HTjetlep, event);
             }
-
         }
 
+        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
+        void combine(const Analysis* other)
+        {
+            const Analysis_ATLAS_13TeV_EXOT_2018_58* specificOther
+            = dynamic_cast<const Analysis_ATLAS_13TeV_EXOT_2018_58*>(other);
+            for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
+            for (auto & pair : _distributions) {pair.second.combine(specificOther->_distributions.at(pair.first));}
+        }
+
+        void analysis_specific_reset() {
+            for (auto& pair : _counters) { pair.second.reset(); }
+            for (auto& pair : _distributions) { pair.second.reset(); }
+        }
+
+        virtual void collect_results() {
+
+        // Now fill a results object with the results for each SR
+        // TODO: prefit errors not present in table - using postfit errors as 1st approx
+        // NN SR's
+        add_result(SignalRegionData(_counters.at("SR_Gtt_2100_1"), 0., {0.56, 0.4}));
+        add_result(SignalRegionData(_counters.at("SR_Gtt_1800_1"), 0., {0.50, 0.27}));
+        add_result(SignalRegionData(_counters.at("SR_Gtt_2300_1200"), 1., {0.7, 0.5}));
+        add_result(SignalRegionData(_counters.at("SR_Gtt_1900_1400"), 1., {0.7, 1.0}));
+
+    
+        // "Summary plot level" information
+        // Numbers all prefit
+        // From Hepdata, Aux table 1
+        add_result(SignalRegionData(_counters.at("2l_1b_CR"), 610, {630, 180}));
+        add_result(SignalRegionData(_counters.at("2l_1b_SR_notag"), 72, {83, 26}));
+        add_result(SignalRegionData(_counters.at("2l_1b_SR_Vtag"), 18, {21, 7}));
+        add_result(SignalRegionData(_counters.at("2l_1b_SR_Htag"), 34, {28, 10}));
+        add_result(SignalRegionData(_counters.at("2l_1b_SR_toptag"), 32, {45, 14}));
+        add_result(SignalRegionData(_counters.at("2l_1b_SR_doubletag1"), 7, {8.7, 2.8}));
+        add_result(SignalRegionData(_counters.at("2l_1b_SR_doubletag2"), 2, {3.6, 1.3}));
+        add_result(SignalRegionData(_counters.at("2l_1b_SR_OF"), 9, {6.4, 2.7}));
+
+        add_result(SignalRegionData(_counters.at("2l_2b_CR"), 160, {150, 40}));
+        add_result(SignalRegionData(_counters.at("2l_2b_SR_notag"), 14, {11.2, 3.3}));
+        add_result(SignalRegionData(_counters.at("2l_2b_SR_Vtag"), 1, {2.7, 0.9}));
+        add_result(SignalRegionData(_counters.at("2l_2b_SR_Htag"), 10, {9.6, 2.6}));
+        add_result(SignalRegionData(_counters.at("2l_2b_SR_toptag"), 10, {12, 4}));
+        add_result(SignalRegionData(_counters.at("2l_2b_SR_doubletag1"), 4, {4.4, 1.6}));
+        add_result(SignalRegionData(_counters.at("2l_2b_SR_doubletag2"), 0, {3.9, 1.3}));
+        add_result(SignalRegionData(_counters.at("2l_2b_SR_OF"), 2, {2.6, 1}));
+
+        add_result(SignalRegionData(_counters.at("3l_VV_CR"), 3149, {3300, 600}));
+        add_result(SignalRegionData(_counters.at("2l_2b_SR_notag"), 198, {196, 22}));
+        add_result(SignalRegionData(_counters.at("2l_2b_SR_Vtag"), 20, {14.9, 2.2}));
+        add_result(SignalRegionData(_counters.at("2l_2b_SR_Htag"), 59, {52, 6}));
+        add_result(SignalRegionData(_counters.at("2l_2b_SR_toptag"), 40, {36, 4}));
+        add_result(SignalRegionData(_counters.at("2l_2b_SR_OF"), 4, {4.4, 1.2}));
+            
+        return;
+
+      }
+
+
+        /// Utility functions for the analysis
+        /// @{
 
         //Get the MCBot category (defined in Table 2) for 2l channel
         static string get_2l_MCBOT_category(const vector<MCBOT::MCBOTtag>& tags, const size_t nbtags) {
@@ -565,6 +693,7 @@ namespace ColliderBit {
             std::transform(permutation.begin(), permutation.end(), consitituentBtagsOut.begin(),
                 [&bJetsOutTemp](size_t i){return bJetsOutTemp[i];});
         }
+        /// @}
 
         
 
