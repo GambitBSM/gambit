@@ -176,6 +176,9 @@ namespace Gambit
       /// FullLikes bkg json file path realtive to the GAMBIT directory
       std::string bkgjson_path;
 
+      /// Store the analysis luminosity
+      double luminosity;
+
     };
 
 

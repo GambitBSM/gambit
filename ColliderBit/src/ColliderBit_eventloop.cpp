@@ -36,6 +36,8 @@
 
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
+#include "gambit/ColliderBit/PoissonCalculators.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 
 // #define COLLIDERBIT_DEBUG
 #define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  " << __FILE__ << ":" << __LINE__ << ":  "
@@ -45,6 +47,51 @@ namespace Gambit
 
   namespace ColliderBit
   {
+
+    /// Calculate the required number of MC events
+    /// Currently can pick between fixed, or provide the mean and pull from a Poisson
+    int calc_N_MC(std::string method, double n_mc_mean)
+    {
+      if (method == "UMVUE")
+      {
+        return Gambit::ColliderBit::PoissonCalculators::umvue_draw_n_mc_threadsafe(n_mc_mean);
+      }
+      else
+      {
+        // default to fixed
+        return n_mc_mean;
+      }
+    }
+
+
+    /// Get the maximum luminosity required for any analysis in a given collider
+    double GetMaxLumi(const std::vector<str>& analyses)
+    {
+      AnalysisContainer Container;
+
+      try
+      {
+        Container.init(analyses);
+      }
+      catch (std::runtime_error& e)
+      {
+        ColliderBit_error().raise(LOCAL_INFO,"Failed to initialise Analysis Containers in GetMaxLumi.");
+      }
+
+      // Loop over all analyses and get the maximum luminosity
+      double max_lumi = 0.0;
+      if (Container.has_analyses())
+      {
+        for (auto& analysis_pointer_pair : Container.get_current_analyses_map())
+        {
+          double lumi = analysis_pointer_pair.second->luminosity();
+          if (lumi > max_lumi) {max_lumi = lumi;}
+        }
+      }
+
+      return max_lumi;
+    }
+
 
     /// LHC Loop Manager
     void operateLHCLoop(MCLoopInfo& result)
@@ -63,26 +110,79 @@ namespace Gambit
       static std::map<str,int> min_nEvents;
       static std::map<str,int> max_nEvents;
       static std::map<str,int> stoppingres;
+      static bool fixed_nEvents = true;
       if (first)
       {
         // Should we silence stdout during the loop?
         silenceLoop = runOptions->getValueOrDef<bool>(true, "silenceLoop");
 
-        // Retrieve all the names of all entries in the yaml options node.
-        std::vector<str> vec = runOptions->getNames();
-        // Step though the names, and accept only those with a "min_nEvents" sub-entry as colliders.
-        for (str& name : vec)
+        // Retrieve all collider names form the YAML options
+        result.collider_names = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), "use_colliders");
+        if ((result.collider_names).size() == 0)
         {
-          YAML::Node node = runOptions->getNode(name);
-          if (not node.IsScalar() and node["min_nEvents"]) result.collider_names.push_back(name);
+          ColliderBit_error().set_fatal(true); // This one must regarded fatal since there is something wrong in the user input
+          ColliderBit_error().raise(LOCAL_INFO,"Cannot find any collider names in use_colliders option for operateLHCLoop. Please correct your YAML file.");
         }
+        
 
         // Retrieve the options for each collider.
         for (auto& collider : result.collider_names)
         {
           Options colOptions(runOptions->getValue<YAML::Node>(collider));
-          min_nEvents[collider]                                           = colOptions.getValue<int>("min_nEvents");
-          max_nEvents[collider]                                           = colOptions.getValue<int>("max_nEvents");
+
+          result.analyses[collider]                                       = colOptions.getValueOrDef<std::vector<str>>(std::vector<str>(), "analyses");
+          // Check that the analyses all correspond to actual ColliderBit analyses, and sort them into separate maps for each detector.
+          for (str& analysis : result.analyses.at(collider))
+          {
+            result.detector_analyses[collider][getDetector(analysis)].push_back(analysis);
+          }
+
+          // Specify whether the number of MC events should be the same for each param point
+          fixed_nEvents = colOptions.hasKey("max_nEvents");
+
+          // Check that the nEvents options given make sense.
+          if (  (colOptions.hasKey("mean_nEvents") and colOptions.hasKey("mean_relative_nEvents"))
+             or (colOptions.hasKey("mean_nEvents") and colOptions.hasKey("max_nEvents"))
+             or (colOptions.hasKey("max_nEvents")  and colOptions.hasKey("mean_relative_nEvents")))
+          {
+            ColliderBit_error().set_fatal(true); // This one must regarded fatal since there is something wrong in the user input
+            ColliderBit_error().raise(LOCAL_INFO,"Options mean_nEvents, mean_relative_nEvents and max_nEvents must not be used together for collider"
+                                                 +collider+". Please correct your YAML file.");
+          }
+
+          min_nEvents[collider]                                           = colOptions.getValueOrDef<int>(10000, "min_nEvents");
+          max_nEvents[collider]                                           = colOptions.getValueOrDef<int>(10000, "max_nEvents");
+          double mean_nEvents                                             = colOptions.getValueOrDef<double>(10000, "mean_nEvents");
+          result.ratio_MC_expected[collider]                              = colOptions.getValueOrDef<double>(1.0, "mean_relative_nEvents");
+          result.estimator                                                = colOptions.getValueOrDef<std::string>("MLE", "poisson_like_estimator"); 
+
+          // Check that the nEvents options given make sense.
+          if (fixed_nEvents and (min_nEvents.at(collider) > max_nEvents.at(collider)) )
+          {
+            ColliderBit_error().set_fatal(true); // This one must regarded fatal since there is something wrong in the user input
+            ColliderBit_error().raise(LOCAL_INFO,"Option min_nEvents is greater than corresponding max_nEvents for collider "
+                                                 +collider+". Please correct your YAML file.");
+          }
+
+          // In the case of a relative number of events, set mean_nEvents based on expected nEvents
+          if (colOptions.hasKey("mean_relative_nEvents"))
+          {
+            double max_lumi = GetMaxLumi(result.analyses.at(collider));
+            std::map<std::string, xsec_container> xsec_map = *Dep::InitialTotalCrossSection;
+            double xsec = xsec_map[collider].xsec();
+            mean_nEvents = max_lumi * xsec * result.ratio_MC_expected[collider];
+
+            #ifdef COLLIDERBIT_DEBUG
+              // Check for zero events
+              if (mean_nEvents == 0)
+              {
+                cout << DEBUG_PREFIX << "Zero events predicted for collider " + collider + ". Perhaps consider a cross-section veto." << endl;
+              }
+            #endif
+          }
+
+          result.mean_nEvents                                             = mean_nEvents;
+          result.desired_nEvents[collider]                                = calc_N_MC(result.estimator, mean_nEvents);
           result.convergence_options[collider].target_stat                = colOptions.getValue<double>("target_fractional_uncert");
           result.convergence_options[collider].stop_at_sys                = colOptions.getValueOrDef<bool>(true, "halt_when_systematic_dominated");
           result.convergence_options[collider].all_analyses_must_converge = colOptions.getValueOrDef<bool>(false, "all_analyses_must_converge");
@@ -90,19 +190,20 @@ namespace Gambit
           result.maxFailedEvents[collider]                                = colOptions.getValueOrDef<int>(1, "maxFailedEvents");
           result.invalidate_failed_points[collider]                       = colOptions.getValueOrDef<bool>(false, "invalidate_failed_points");
           stoppingres[collider]                                           = colOptions.getValueOrDef<int>(200, "events_between_convergence_checks");
-          result.analyses[collider]                                       = colOptions.getValueOrDef<std::vector<str>>(std::vector<str>(), "analyses");
           result.event_count[collider]                                    = 0;
-          // Check that the nEvents options given make sense.
-          if (min_nEvents.at(collider) > max_nEvents.at(collider))
+
+          // In the case of using the UMVUE estimator, override some options
+          if (result.estimator == "UMVUE")
           {
-            ColliderBit_error().set_fatal(true); // This one must regarded fatal since there is something wrong in the user input
-            ColliderBit_error().raise(LOCAL_INFO,"Option min_nEvents is greater than corresponding max_nEvents for collider "
-                                                 +collider+". Please correct your YAML file.");
-          }
-          // Check that the analyses all correspond to actual ColliderBit analyses, and sort them into separate maps for each detector.
-          for (str& analysis : result.analyses.at(collider))
-          {
-            result.detector_analyses[collider][getDetector(analysis)].push_back(analysis);
+            if (fixed_nEvents)
+            {
+              ColliderBit_error().set_fatal(true); // This one must regarded fatal since there is something wrong in the user input
+              ColliderBit_error().raise(LOCAL_INFO,"Options min_nEvents and max_nEvents should not be used for the UMVUE estimator for collider "
+                                                   +collider+". Please correct your YAML file.");
+            }
+          
+            // Avoid convergence checks by setting the number of events higher than are actually generated
+            stoppingres[collider] = result.desired_nEvents[collider]*2;
           }
         }
         first = false;
@@ -184,7 +285,7 @@ namespace Gambit
         piped_invalid_point.check();
 
         // Convergence loop
-        while(result.current_event_count() < max_nEvents.at(collider) and not *Loop::done)
+        while(((fixed_nEvents && result.current_event_count() < max_nEvents.at(collider)) or (!fixed_nEvents && result.current_event_count() < result.desired_nEvents[collider])) and not *Loop::done)
         {
           int eventCountBetweenConvergenceChecks = 0;
           #ifdef COLLIDERBIT_DEBUG
@@ -196,7 +297,7 @@ namespace Gambit
           #pragma omp parallel
           {
             while(eventCountBetweenConvergenceChecks < stoppingres.at(collider) and
-                  result.current_event_count() < max_nEvents.at(collider) and
+                  ((fixed_nEvents && result.current_event_count() < max_nEvents.at(collider)) or (!fixed_nEvents && result.current_event_count() < result.desired_nEvents[collider])) and
                   not *Loop::done and
                   not result.end_of_event_file and
                   not result.exceeded_maxFailedEvents and
@@ -210,7 +311,8 @@ namespace Gambit
               // to stop other threads from starting any event iterations beyond max_nEvents.
               #pragma omp critical
               {
-                if(result.current_event_count() < max_nEvents.at(collider))
+                if (   (fixed_nEvents && result.current_event_count() < max_nEvents.at(collider))
+                    or (!fixed_nEvents && result.current_event_count() < result.desired_nEvents[collider]))
                 {
                   result.current_event_count()++;
                   thread_my_iteration = result.current_event_count();
@@ -221,7 +323,7 @@ namespace Gambit
                   thread_do_iteration = false;
                 }
               }
-              
+
               if(thread_do_iteration)
               {
                 try
@@ -257,8 +359,9 @@ namespace Gambit
           // Break convergence loop if too many events fail
           if(result.exceeded_maxFailedEvents) break;
 
-          // Don't bother with convergence stuff if we haven't passed the minimum number of events yet
-          if (result.current_event_count() >= min_nEvents.at(collider))
+          // Don't bother with convergence stuff if we haven't passed the minimum number of events yet.
+          // Only do this if we are using a fixed number of events.
+          if (fixed_nEvents and result.current_event_count() >= min_nEvents.at(collider))
           {
             #pragma omp parallel
             {
@@ -384,7 +487,7 @@ namespace Gambit
       //   }
       // #endif
     }
-
+    
 
   }
 

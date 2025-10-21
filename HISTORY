@@ -3,6 +3,17 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v2.6.0:
+Feature release
+- Added UMVUE estimator and support for additional collider likelihood estimators
+- Added support for Pythia version 8.312
+- Allow initial cross-section estimate from Pythia outside of full collider event loop
+- Added jswarm scanner
+- Added ais scanner
+- Fix pybind11 clash with python versions above 3.11
+- Fix metadata writing for hdf5 and postprocessor
+- Various bug fixes
+
 v2.5.1:
 Bugfix release
 - Remove pedantic errors

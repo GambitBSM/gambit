@@ -1805,7 +1805,9 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(dl "http://www.math.nsysu.edu.tw/~leetsung/works/HOM4PS_soft_files/HOM4PS2_MacOSX.tar.gz")
   set(md5 "daa880bd51fc166a9a2f85332b025fae")
 else()
-  set(dl "http://www.math.nsysu.edu.tw/~leetsung/works/HOM4PS_soft_files/HOM4PS2_64-bit.tar.gz")
+  # set(dl "http://www.math.nsysu.edu.tw/~leetsung/works/HOM4PS_soft_files/HOM4PS2_64-bit.tar.gz")
+  # Using our archived version:
+  set(dl "https://github.com/GambitBSM/archived_backends/raw/refs/heads/main/hom4ps_2.0.tar.gz")
   set(md5 "134a2539faf2c0596eaf039e7ccc1677")
 endif()
 
