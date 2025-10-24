@@ -35,6 +35,20 @@ void do_cleanup()
   Gambit::Scanner::Plugins::plugin_info.dump(); // Also calls printer finalise() routine
 }
 
+std::tuple<int, std::string> splitChar(char* input)
+{
+    std::string received_message(input);
+
+    std::string nonNumericPart;
+    int numericPart;
+    std::istringstream iss(received_message);
+    iss >> nonNumericPart >> numericPart; 
+    std::cerr << nonNumericPart << " # " << numericPart << std::endl;
+
+    return {numericPart, nonNumericPart};
+}
+
+
 
 /// Main GAMBIT program
 int main(int argc, char* argv[])
@@ -126,13 +140,13 @@ int main(int argc, char* argv[])
 
 
       std::vector<int> processes;
-      for (int i = 0; i < world_size; ++i) 
+      for (int i = 0; i < world_size-2; ++i) 
       { 
         std::cerr << i << std::endl;
         processes.push_back(i);
       }
 
-      GMPI::Comm scanComm(processes, "scannComm");
+      GMPI::Comm scanComm(processes, "scanComm");
       //   MPI_Comm_split(MPI_COMM_WORLD, 0, world_rank, &scanComm);
       //   scanComm.dup(MPI_COMM_WORLD,"scanComm"); // duplicates the COMM_WORLD context
       Scanner::Plugins::plugin_info.initMPIdata(&scanComm);
@@ -157,8 +171,36 @@ int main(int argc, char* argv[])
 
 
       //_emu
-      // lage en emu comm her
-      // lag map av plugin + world rank
+      //////// create map of plugins and their world ranks
+      std::map<std::string, int> rank_map;
+
+      // TODO: recieve from all executables, need to know how many
+
+      // get plugin name and rank from all processes
+      // probe to find receiver size
+      int receiver_size;
+      MPI_Status status;
+      MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+      MPI_Get_count(&status, MPI_CHAR, &receiver_size);
+
+      std::cerr     << "gambit: length of incomming array " << receiver_size << std::endl;
+
+      char *my_string = new char[receiver_size];
+
+      //   char my_string[10]; // TODO: probe for size of the string?
+      MPI_Recv(my_string, receiver_size, MPI_CHAR, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      // TODO: send color to other executables as an answer to this?
+      std::cerr << "rank " << rank << " recieved: " << my_string << std::endl;
+
+      auto [plugin_rank, plugin_name] = splitChar(my_string);
+      delete [] my_string;
+      rank_map.insert({plugin_name, plugin_rank});
+      std::cerr << "gambit rank " << rank << " recieved: plugin name " << plugin_name << ", and plugin master world rank " << plugin_rank << std::endl;
+
+      std::ostringstream oss;
+      oss << "1,2,3";
+      std::string message = oss.str();
+      MPI_Send(message.c_str(), message.length()+1, MPI_CHAR, plugin_rank, 1, MPI_COMM_WORLD);
 
      #else
       int rank = 0;
@@ -319,6 +361,9 @@ int main(int argc, char* argv[])
         scanner_node["Scanner"] = iniFile.getScannerNode();
         scanner_node["Parameters"] = iniFile.getParametersNode();
         scanner_node["Priors"] = iniFile.getPriorsNode();
+        scanner_node["Emulator"] = iniFile.getEmulationNode();
+
+        std::cerr << "here: " <<YAML::Dump(scanner_node["Emulator"]) << std::endl;
 
         // Print scan metadata from rank 0
         if (iniFile.getValueOrDef<bool>(true, "print_metadata_info"))

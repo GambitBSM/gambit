@@ -411,6 +411,7 @@ namespace Gambit
                         it->get_status(libNode, plugNode, flagNode);
                         plugin_map[it->type][it->plugin].push_back(*it);
                         total_plugin_map[it->type][it->plugin].push_back(*it);
+                        std::cerr <<"plugin_loader: " <<it->type << " # " << it->plugin << std::endl;
                     }
                 }
             }

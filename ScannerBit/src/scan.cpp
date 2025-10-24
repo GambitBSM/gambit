@@ -156,8 +156,11 @@ namespace Gambit
             // Otherwise, attempting to shut down with only some processes begun will screw up the
             // output.
             #ifdef WITH_MPI
-              GMPI::Comm comm;
-              comm.dup(MPI_COMM_WORLD,"ScanRunComm"); // duplicates MPI_COMM_WORLD
+            //   GMPI::Comm comm;
+            //   comm.dup(MPI_COMM_WORLD,"ScanRunComm"); // duplicates MPI_COMM_WORL
+              GMPI::Comm& comm(Gambit::Scanner::Plugins::plugin_info.scanComm());
+              std::cerr << " DEBUG: In scan.cpp line " << __LINE__  << std::endl;
+              
               int rank = comm.Get_rank();
               if(rank==0)
               {

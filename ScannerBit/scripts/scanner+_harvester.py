@@ -70,7 +70,7 @@ def main(argv):
     # NOTE: I need to chnage src_paths and plug_type back for emulators.
     src_paths = sorted(["./ScannerBit/src/scanners", "./ScannerBit/src/objectives", "./ScannerBit/emu_egg/src"])
     inc_paths = sorted(["./ScannerBit/include/gambit/ScannerBit/scanners", "./ScannerBit/include/gambit/ScannerBit/objectives", "./ScannerBit/include/gambit/ScannerBit/emulators"])
-    plug_type = sorted(["scanner", "objective"])
+    plug_type = sorted(["scanner", "objective", "emulator"])
     config_files = []
     for ptype in plug_type:
         config_files += ["./config/" + ptype + "_locations.yaml"]

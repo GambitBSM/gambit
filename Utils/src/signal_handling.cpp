@@ -396,7 +396,7 @@ namespace Gambit
           signalComm->Recv(&code, 1, MPI_ANY_SOURCE, signalComm->mytag, &msg_status);
 
           // Check what code was received and use it to determined what kind of shutdown to do
-          if(code==SOFT_SHUTDOWN)
+          if(code==SOFT_SHUTDOWN || code==SignalData::NO_MORE_MESSAGES)
           {
             set_shutdown_begun();
             logger() << LogTags::core << LogTags::info << "Received SOFT shutdown message from process with rank " << msg_status.MPI_SOURCE << EOM;

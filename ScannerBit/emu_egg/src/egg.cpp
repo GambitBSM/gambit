@@ -1,25 +1,30 @@
 #include <mpi.h>
-#include <stdio.h>
-#include <cstring> // For strlen
-#include <sstream> // For stringstream
-
+// #include <stdio.h>
+// #include <cstring> // For strlen
+// #include <sstream> // For stringstream
+#include <csignal>
 // #include "egg.hpp"
-#define WITH_MPI 1
 #include "gambit/Utils/mpiwrapper.hpp"
+#include "gambit/Utils/static_members.hpp"
+#include "gambit/Utils/file_lock.hpp"
+#include "gambit/Utils/signal_helpers.hpp"
+#include "gambit/Utils/signal_handling.hpp"
+// #include "gambit/Core/yaml_parser.hpp"
+#include "yaml-cpp/yaml.h"
+
 // #include "gambit/Utils/signal_handling.hpp"
 // #include "gambit/Utils/static_members.hpp"
 // #include "src/new_mpi_datatypes.cpp"
 
 // using namespace Gambit;
 using namespace Gambit;
-using namespace GMPI;
 
 int main(int argc, char *argv[])
 {
 
     std::cout << "egg.cpp. I am Here 1" << std::endl; // TODO: Debugging
 
-    MPI_Init(&argc, &argv);
+    GMPI::Init();
 
     std::cout << "egg.cpp. I am Here 2" << std::endl; // TODO: Debugging
 
@@ -27,6 +32,10 @@ int main(int argc, char *argv[])
     errorComm.dup(MPI_COMM_WORLD,"errorComm"); // duplicates the COMM_WORLD context
     const int ERROR_TAG=1;         // Tag for error messages
     errorComm.mytag = ERROR_TAG;
+    signaldata().set_MPI_comm(&errorComm);
+
+    std::cout << "egg.cpp. I am here 2.5" << std::endl;
+    
 
 
     int world_size, world_rank;
@@ -34,40 +43,99 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
     std::cout << "egg.cpp. I am Here 3" << std::endl; // TODO: Debugging
+    std::cout << "egg.cpp. world_rank: " << world_rank << ", world_size: " << world_size << std::endl; // TODO: Debugging
+
 
     //////// split to create local communicators
     // TODO: recieve color from rank 0
-    int color = 1;
-    MPI_Comm comm_local;
-    std::cout << "egg.cpp. world_rank: " << world_rank << ", world_size: " << world_size << std::endl; // TODO: Debugging
-    MPI_Comm_split(MPI_COMM_WORLD, color, world_rank, &comm_local);
+    std::vector<int> processes = {2,3};
+    GMPI::Comm emuComm(processes, "emuComm");
 
     std::cout << "egg.cpp. I am Here 4" << std::endl; // TODO: Debugging
 
     // find local rank
-    int local_rank, local_size;
-    MPI_Comm_rank(comm_local, &local_rank);
-    MPI_Comm_size(comm_local, &local_size);
+    int local_rank = emuComm.Get_rank();
+    int local_size = emuComm.Get_size();
 
-    std::cout  << "In egg:   world rank " << world_rank << ", color " << color << ", local rank " << local_rank << ", local size " << local_size << std::endl;
+    std::cout  << "In egg:   world rank " << world_rank<< ", local rank " << local_rank << ", local size " << local_size << std::endl;
+
+    /////// Read yaml node
+
+    // Read YAML file, which also initialises the logger.
+    const str filename = "yaml_files/spartan.yaml";
+
+    YAML::Node settings = YAML::LoadFile(filename);
+
+    YAML::Node emulator_node =settings["Emulation"];
+
+    std::cerr << "here: " << YAML::Dump(emulator_node) << std::endl;
+
+    str capability = emulator_node["use_emulator"].as<str>();
+    str plugin_name = emulator_node["emulators"][capability]["plugin"].as<str>();
+
+    std::cout << "In egg.cpp: capability = " << capability << " and plugin name = "<<plugin_name << std::endl;
+
 
     /////// send plugin info to world rank 0
 
     // get plugin name from arguments
-    char* plugin_name = argv[1];
+    // char* plugin_name = argv[1];
 
     // add the worldrank to the back of the plugin-name before sending
     std::ostringstream oss;
-    oss << plugin_name << " " << world_rank;
+    oss << capability << " " << world_rank;
     std::string message = oss.str();
 
     // send plugin name and world rank to gambit processes
     std::cout <<"In egg: " << message  << " # " << message.length()+1 << std::endl;
     if (local_rank == 0)
     {
-        MPI_Send(message.c_str(), message.length() +1, MPI_CHAR, 0, 0, MPI_COMM_WORLD);
+        std::cout << " egg.cpp: In here 5, loop over " << world_size-local_size << std::endl;
+        for (int i = 0; i < world_size-local_size; i++)
+        {
+            std::cout << " sending message of size " << message.length() << " to " << i << std::endl;
+            MPI_Send(message.c_str(), message.length() +1, MPI_CHAR, i, 0, MPI_COMM_WORLD);
+        }
     }
 
+    std::cout << "In egg, sent messages " << std::endl;
+
+    ///// Listen to messages either for tasks or for shut down 
+    bool finished = false;
+
+    while (!finished)
+    {
+        if (local_rank == 0)
+        {
+            MPI_Status status;
+            int receiver_size;
+            int flag;
+            MPI_Iprobe(MPI_ANY_SOURCE, 1, MPI_COMM_WORLD, &flag, &status);
+            if (flag && status.MPI_TAG != 0)
+            {
+                std::cout << "######################### " <<status.MPI_TAG << std::endl;
+                MPI_Get_count(&status, MPI_CHAR, &receiver_size);
+
+                char *my_string = new char[receiver_size];
+
+                MPI_Recv(my_string, receiver_size, MPI_CHAR, MPI_ANY_SOURCE, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+                std::cout << " ####### " << my_string << std::endl;
+            }
+        }
+
+        finished = signaldata().check_if_shutdown_begun();
+    }
+
+    ////// Shut down egg
+
+    std::cout << "rank " << local_rank <<" got shut down" << std::endl;
+
+    signaldata().broadcast_shutdown_signal(SignalData::NO_MORE_MESSAGES);
+
+    GMPI::Finalize();
+
+    
 
     //////////////// Actuall egg stuff (sketch)
     
@@ -132,6 +200,6 @@ int main(int argc, char *argv[])
     // }
     
 
-    MPI_Finalize();
+    // MPI_Finalize();
     return 0;
 }

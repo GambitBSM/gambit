@@ -116,5 +116,6 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
                                 $<TARGET_OBJECTS:Logs>
                                 $<TARGET_OBJECTS:Utils>
                                 $<TARGET_OBJECTS:Printers>
+                                $<TARGET_OBJECTS:mkpath>
                                 )
 endif()
