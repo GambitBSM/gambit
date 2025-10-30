@@ -998,11 +998,13 @@ namespace Gambit
           else // Option already exists in collector node
           {
             // Throw an error if the existing value differs from the new value
-            if (nodes[opt.first.as<std::string>()] != opt.second)
-            {
-              str errmsg = str("ERROR! Multiple option values for key: ") + opt.first.as<str>();
-              dependency_resolver_error().raise(LOCAL_INFO, errmsg);
-            }
+            // TODO: Direct comparison of two yaml nodes was removed when updating yaml-cpp v0.6.2->0.8.0. 
+            //       Lets throw an error always
+            //if (nodes[opt.first.as<std::string>()] != opt.second)
+            //{
+            str errmsg = str("ERROR! Multiple option values for key: ") + opt.first.as<str>();
+            dependency_resolver_error().raise(LOCAL_INFO, errmsg);
+            //}
           }
         }
       }

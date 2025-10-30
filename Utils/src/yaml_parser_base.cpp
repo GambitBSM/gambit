@@ -331,7 +331,7 @@ namespace Gambit
     /// @{
     bool Parser::hasModelParameterEntry(std::string model, std::string param, std::string key) const
     {
-      return parametersNode[model][param][key];
+      return parametersNode[model][param][key].as<bool>();
     }
 
     /// Return list of model names (without "adhoc" model!)
