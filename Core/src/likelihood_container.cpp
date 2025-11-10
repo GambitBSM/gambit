@@ -225,47 +225,42 @@ namespace Gambit
 
       std::cout << "here" << std::endl;
 
-      //_emu:
-      // maybe add emulator here if emulating total likelihood and skip the dependency tree compeletely
-    //   if (emulatorNode != YAML::Node())
-    //   {
-    //     YAML::Node node = emulatorNode;
-    //     if (node[0]["capability"].as<std::string>() == "LogLike")
-    //     {
-    //         std::vector<double> parameters;
-    //         // emulae
-    //         for (auto key : in)
-    //         {
-    //             parameters.push_back(key.second);
-    //         }
-    //         unsigned int n = parameters.size();
-    //         std::vector<unsigned int> sizes = {n, 1, 1};
+      //_emu predict
+      // TODO: if emu is turned on, otherwise dont do this
+      std::vector<double> parameters;
+      for (auto key : in)
+      {
+        parameters.push_back(key.second);
+      }
+      unsigned int n = parameters.size();
+      std::vector<unsigned int> sizes = {n, 1, 1};
 
-    //         Scanner::Emulator::feed_def fd(sizes);
-    //         fd.add_for_evaluation(parameters);
-    //         fd.set_predict();
 
-    //         MPI_Send(fd.buffer.data(), fd.buffer.size(), MPI_CHAR, 0, 0, emuComm);
+      Scanner::Emulator::feed_def fd_predict(sizes);
+      fd_predict.add_for_evaluation(parameters);
+      fd_predict.set_predict();
 
-    //         // wait for prediction
-    //         // prepare to get result from child
-    //         Scanner::Emulator::feed_def results;
+      MPI_Send(fd_predict.buffer.data(), fd_predict.buffer.size(), MPI_CHAR, 2, 3, MPI_COMM_WORLD);
 
-    //         // probe size of result buffer
-    //         int size_result;
-    //         MPI_Status status_parent;
-    //         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, emuComm, &status_parent);
-    //         MPI_Get_count(&status_parent, MPI_CHAR, &size_result);
-    //         // std::cout << "size of result buffer: " << size_result << std::endl;
-    //         results.resize(size_result);
+      // wait for prediction
+      // prepare to get result from egg
+      Scanner::Emulator::feed_def predict_results;
 
-    //         // recieve buffer
-    //         MPI_Recv(results.buffer.data(), size_result, MPI_CHAR, MPI_ANY_SOURCE, 0, emuComm, MPI_STATUS_IGNORE);
+      // probe size of result buffer
+      int size_result;
+      MPI_Status status_parent;
+      MPI_Probe(MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, &status_parent);
+      MPI_Get_count(&status_parent, MPI_CHAR, &size_result);
+      std::cout << "size of result buffer: " << size_result << std::endl;
+      predict_results.resize(size_result);
 
-    //         std::cout << "results from emu "<< results.prediction() << std::endl;
+      // recieve buffer
+      MPI_Recv(predict_results.buffer.data(), size_result, MPI_CHAR, MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-    //     }
-    //   }
+      std::cout << "results from emu "<< predict_results.prediction() << std::endl;
+
+      // TODO: threshold to use this prediction and skip the rest
+      //_emu predict end
 
 
 
@@ -448,6 +443,31 @@ namespace Gambit
     if(point_invalidated) printer.disable(1);
 
     logger() << LogTags::core << LogTags::debug << "Returning control to ScannerBit" << EOM;
+
+
+    std::cout << "Total lnL: " << lnlike << std::endl;
+
+    //_emu train
+    // TODO: if emu is turned on, otherwise dont do this
+    std::vector<double> parameters;
+    for (auto key : in)
+    {
+    parameters.push_back(key.second);
+    }
+    unsigned int n = parameters.size();
+    std::vector<unsigned int> sizes = {n, 1, 1};
+
+    Scanner::Emulator::feed_def fd(sizes);
+    fd.add_for_training(parameters, {lnlike}, {0.1});
+    fd.set_train();
+    
+    MPI_Send(fd.buffer.data(), fd.buffer.size(), MPI_CHAR, 2, 3, MPI_COMM_WORLD);
+
+    //_emu train end
+
+
+
+
 
     return lnlike;
   }
