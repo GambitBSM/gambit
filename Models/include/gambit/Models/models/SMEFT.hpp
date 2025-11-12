@@ -21,6 +21,7 @@
 #define __SMEFT_hpp__
 
 #include "gambit/Models/models/WC.hpp"
+#include "gambit/Elements/sminputs.hpp"
 
 // Most generic model, top of the hierarchy
 #define MODEL SMEFT
