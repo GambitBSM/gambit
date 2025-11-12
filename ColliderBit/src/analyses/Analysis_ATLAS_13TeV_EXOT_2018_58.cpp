@@ -6,7 +6,8 @@
 /// \date 2025 October
 ///
 /// Note 1: This analysis requires ONNXRunTime for the MCBOT NN tagger
-///
+/// Note 2: The onnx file is produced by petrifyML (using the original
+///     lwtnn as input)
 ///
 /// ***************************************
 
@@ -135,14 +136,14 @@ namespace ColliderBit {
 
             vector<MCBOTtag> tagJets(const vector<Jet> & js, const vector<vector<const Jet*>> constitJetss,
                                     const vector<vector<bool>> constitBtags, const bool twoLep=true){
-            // Assume js and constitJetss are same length, if not its someone elses fault.
-            const size_t nTags = js.size();
-            vector<MCBOTtag> rtn;
-            rtn.reserve(nTags);
-            for (size_t i{0}; i < nTags; ++i){
-                rtn.push_back(tagJet(js[i], constitJetss[i], constitBtags[i], twoLep));
-            }
-            return rtn;
+                // Assume js and constitJetss are same length, if not its someone elses fault.
+                const size_t nTags = js.size();
+                vector<MCBOTtag> rtn;
+                rtn.reserve(nTags);
+                for (size_t i{0}; i < nTags; ++i){
+                    rtn.push_back(tagJet(js[i], constitJetss[i], constitBtags[i], twoLep));
+                }
+                return rtn;
             }
 
         private:
@@ -155,7 +156,7 @@ namespace ColliderBit {
     // I don't want to have to write DEFINE_SIGNAL_REGION a million times, so here's a class that uses the existing machinery
     // Maybe we should consider something like this more centrally? Expecially if we are including more and more EXOT analyses,
     // where this is more common.
-    // As far as I can see, whether the counters are stores in _counters vs in a different counter makes no difference?
+    // As far as I can see, whether the counters are stored in _counters vs in a different counter makes no difference?
     // No YODA style template cleverness here.
     class SIGNAL_DISTRIBUTION{
         vector<double> _edges;
@@ -164,6 +165,7 @@ namespace ColliderBit {
 
     public:
         SIGNAL_DISTRIBUTION(const string & name, const vector<double>& binedges) :  _edges(binedges), _counters(), _name(name) {
+            if (binedges.size() == 0) return;
             for (size_t i = 0; i < binedges.size()-1; ++i){
                 _counters[_name+"_"s+to_string(i)] = EventCounter(_name+to_string(i));
             }
@@ -188,7 +190,6 @@ namespace ColliderBit {
             if (fillval > xmax()){
                 if (includeOverFlow) {_counters[_name+"_"s+to_string(_edges.size())].add_event(event); return;} else return;
             }
-             
             _counters[_name+"_"+to_string(binIndex(fillval, _edges, false))].add_event(event);
         }
 
@@ -198,6 +199,18 @@ namespace ColliderBit {
         
         inline double xmin() const {
             return _edges[0];
+        }
+
+        inline size_t nbins() const {
+            return _counters.size();
+        }
+
+        inline std::map<string, EventCounter> getCounters() const {
+            return _counters;
+        }
+
+        inline string getName() const {
+            return _name;
         }
 
         void reset() {
@@ -213,9 +226,9 @@ namespace ColliderBit {
         std::map<std::string, SIGNAL_DISTRIBUTION> _distributions;
         std::map<std::string, EventCounter> _counters;
         std::vector<std::string> _sigRegionNames = {
-            "2l_1b_notag", "2l_1b_Vtag", "2l_1b_Htag", "2l_1b_toptag", "2l_1b_doubletag1", "2l_1b_doubletag2", "2l_1b_OF", 
-            "2l_2b_notag", "2l_2b_Vtag", "2l_2b_Htag", "2l_2b_toptag", "2l_2b_doubletag1", "2l_2b_doubletag2", "2l_2b_OF", 
-            "3l_notag", "3l_Vtag", "3l_Htag", "3l_toptag", "3l_OF"
+            "2l_1b_SR_notag", "2l_1b_SR_Vtag", "2l_1b_SR_Htag", "2l_1b_SR_toptag", "2l_1b_SR_doubletag1", "2l_1b_SR_doubletag2", "2l_1b_SR_OF", 
+            "2l_2b_SR_notag", "2l_2b_SR_Vtag", "2l_2b_SR_Htag", "2l_2b_SR_toptag", "2l_2b_SR_doubletag1", "2l_2b_SR_doubletag2", "2l_2b_SR_OF", 
+            "3l_SR_notag", "3l_SR_Vtag", "3l_SR_Htag", "3l_SR_toptag", "3l_SR_OF"
         };
         std::vector<std::string> _controlRegionNames = {"2l_1b_CR", "2l_2b_CR", "3l_VV_CR"};
 
@@ -251,37 +264,52 @@ namespace ColliderBit {
                 }
             }
         }
+
+        void add_distribution_results(const SIGNAL_DISTRIBUTION &s, vector<double> data,
+                                        vector<double> bkg, vector<double> bkgerr){
+            const size_t length = s.nbins();
+            if (data.size() != length || bkg.size() != length || bkgerr.size() != length ){
+                cout << "ADDING SIGNAL DISTRIBUTION WENT WRoNG";
+                // TODO: throw?
+                return;
+            }
+            const std::map<string, EventCounter> histo = s.getCounters();
+            const string histoname = s.getName()+"_";
+            for (size_t i = 0; i < length; ++i){
+                add_result(SignalRegionData(histo.at(histoname+std::to_string(i)), data[i], {bkg[i], bkgerr[i]}));
+            }
+        }
         // @}
 
 
         Analysis_ATLAS_13TeV_EXOT_2018_58() {
             // 2l 1b 
-            _distributions["2l_1b_notag"] = SIGNAL_DISTRIBUTION("2l_1b_notag"s, vector<double>{0,600,1000,1400,2000});
-            _distributions["2l_1b_Vtag"] = SIGNAL_DISTRIBUTION("2l_1b_Vtag"s, {0,600,1000,1400,2000});
-            _distributions["2l_1b_Htag"] = SIGNAL_DISTRIBUTION("2l_1b_Htag"s, {0,600,1000,1400,2000});
-            _distributions["2l_1b_toptag"] = SIGNAL_DISTRIBUTION("2l_1b_toptag"s, {0,600,1000,1400,2000});
-            _distributions["2l_1b_doubletag1"] = SIGNAL_DISTRIBUTION("2l_1b_doubletag1"s, {0,600,1000,1400,2000});
-            _distributions["2l_1b_doubletag2"] = SIGNAL_DISTRIBUTION("2l_1b_doubletag2"s, {0,600,1000,1400,2000});
-            _distributions["2l_1b_OF"] = SIGNAL_DISTRIBUTION("2l_1b_OF"s, {0,600,1000,1400,2000});
+            _distributions["2l_1b_SR_notag"] = SIGNAL_DISTRIBUTION("2l_1b_SR_notag"s, vector<double>{0,600,1000,1400,2000});
+            _distributions["2l_1b_SR_Vtag"] = SIGNAL_DISTRIBUTION("2l_1b_SR_Vtag"s, {0,600,1000,1400,2000});
+            _distributions["2l_1b_SR_Htag"] = SIGNAL_DISTRIBUTION("2l_1b_SR_Htag"s, {0,600,1000,1400,2000});
+            _distributions["2l_1b_SR_toptag"] = SIGNAL_DISTRIBUTION("2l_1b_SR_toptag"s, {0,600,1000,1400,2000});
+            _distributions["2l_1b_SR_doubletag1"] = SIGNAL_DISTRIBUTION("2l_1b_SR_doubletag1"s, {0,600,1000,1400,2000});
+            _distributions["2l_1b_SR_doubletag2"] = SIGNAL_DISTRIBUTION("2l_1b_SR_doubletag2"s, {0,600,1000,1400,2000});
+            _distributions["2l_1b_SR_OF"] = SIGNAL_DISTRIBUTION("2l_1b_SR_OF"s, {0,600,1000,1400,2000});
 
-            _distributions["2l_2b_notag"] = SIGNAL_DISTRIBUTION("2l_2b_notag", {0,600,1000,1400,2000});
-            _distributions["2l_2b_Vtag"] = SIGNAL_DISTRIBUTION("2l_2b_Vtag", {0,600,1000,2000});
-            _distributions["2l_2b_Htag"] = SIGNAL_DISTRIBUTION("2l_2b_Htag", {0,600,1000,1400,2000});
-            _distributions["2l_2b_toptag"] = SIGNAL_DISTRIBUTION("2l_2b_toptag", {0,600,1000,1400,2000});
-            _distributions["2l_2b_doubletag1"] = SIGNAL_DISTRIBUTION("2l_2b_doubletag1", {0,600,1000,2000});
-            _distributions["2l_2b_doubletag2"] = SIGNAL_DISTRIBUTION("2l_2b_doubletag2", {0,600,1000,2000});
-            _distributions["2l_2b_OF"] = SIGNAL_DISTRIBUTION("2l_2b_OF", {0,600,1000,2000});
+            _distributions["2l_2b_SR_notag"] = SIGNAL_DISTRIBUTION("2l_2b_SR_notag", {0,600,1000,1400,2000});
+            _distributions["2l_2b_SR_Vtag"] = SIGNAL_DISTRIBUTION("2l_2b_SR_Vtag", {0,600,1000,2000});
+            _distributions["2l_2b_SR_Htag"] = SIGNAL_DISTRIBUTION("2l_2b_SR_Htag", {0,600,1000,1400,2000});
+            _distributions["2l_2b_SR_toptag"] = SIGNAL_DISTRIBUTION("2l_2b_SR_toptag", {0,600,1000,1400,2000});
+            _distributions["2l_2b_SR_doubletag1"] = SIGNAL_DISTRIBUTION("2l_2b_SR_doubletag1", {0,600,1000,2000});
+            _distributions["2l_2b_SR_doubletag2"] = SIGNAL_DISTRIBUTION("2l_2b_SR_doubletag2", {0,600,1000,2000});
+            _distributions["2l_2b_SR_OF"] = SIGNAL_DISTRIBUTION("2l_2b_SR_OF", {0,600,1000,2000});
 
-            _distributions["3l_Htag"] = SIGNAL_DISTRIBUTION("3l_Htag", {1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400});
-            _distributions["3l_OF"] = SIGNAL_DISTRIBUTION("3l_OF", {1000, 1200, 1400, 1600, 1800, 2000, 2400});
-            _distributions["3l_notag"] = SIGNAL_DISTRIBUTION("3l_notag", {1000, 1200,  2400});
-            _distributions["3l_toptag"] = SIGNAL_DISTRIBUTION("3l_toptag", {1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400});
-            _distributions["3l_Vtag"] = SIGNAL_DISTRIBUTION("3l_Vtag", {1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400});
+            _distributions["3l_SR_Htag"] = SIGNAL_DISTRIBUTION("3l_SR_Htag", {1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400});
+            _distributions["3l_SR_OF"] = SIGNAL_DISTRIBUTION("3l_SR_OF", {1000, 1200, 1400, 1600, 1800, 2000, 2400});
+            _distributions["3l_SR_notag"] = SIGNAL_DISTRIBUTION("3l_SR_notag", {1000, 1200,  2400});
+            _distributions["3l_SR_toptag"] = SIGNAL_DISTRIBUTION("3l_SR_toptag", {1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400});
+            _distributions["3l_SR_Vtag"] = SIGNAL_DISTRIBUTION("3l_SR_Vtag", {1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400});
             
             _distributions["2l_1b_CR"] = SIGNAL_DISTRIBUTION("2l_1b_CR", {920, 1150, 1380});
             _distributions["2l_2b_CR"] = SIGNAL_DISTRIBUTION("2l_2b_CR", {920, 1150, 1380});
             _distributions["3l_VV_CR"] = SIGNAL_DISTRIBUTION("3l_VV_CR", {300,375,450,525,600,675,750,825,900,975,1050,1125,1200,1275,1350,1425,1500});
-            
+
             // Book region summaries:
             for (const string & s : _sigRegionNames){
                 _counters[s]=EventCounter(s);
@@ -299,7 +327,6 @@ namespace ColliderBit {
         }
 
         void run(const HEPUtils::Event* event) {
-
             // Get objects, do overlaps, etc:
             // TODO: EDIT!!!!!!!!!!!!!!!!!!!!!
 
@@ -324,7 +351,7 @@ namespace ColliderBit {
             JetPtrs bJets, nonbJets;
         
             // Find b-jets
-            const double cmisstag = 1/6.; const double misstag = 1./134.;
+            constexpr double cmisstag = 1/6.; constexpr double misstag = 1./134.;
             // pt-dependent b-tagging -> turns out to be kind of important due to
             // large number of high-pt jets.
             const static vector<double>binedges_pt = {0.00, 30.0, 40.00, 50.00, 60.0, 75.00, 90.0, 105., 150., 200., 500 };
@@ -339,7 +366,7 @@ namespace ColliderBit {
                 // Misstag c-jet
                 else if( jet->ctag() && random_bool(cmisstag) ) bJets.push_back(jet);
                 // Misstag light jet
-                else if( random_bool(misstag) ) bJets.push_back(jet);
+                else if( (!jet->btag()) && (!jet->ctag()) && random_bool(misstag) ) bJets.push_back(jet);
                 // Non b-jet
                 else nonbJets.push_back(jet);
             }
@@ -353,14 +380,13 @@ namespace ColliderBit {
             removeOverlap(candJets, electrons, 0.2);
             removeOverlap(bJets, electrons, 0.2);
             removeOverlap(nonbJets, electrons, 0.2);
-            // 4. Electeons within 0.4 of remaining jets
+            // 4. Electrons within 0.4 of remaining jets
             removeOverlap(electrons, candJets, 0.4);
             // 5. TODO: Non b-jets, track req. within 0.2 of a mu
             // TODO
             // 6. Muons within deltaR < min(0,4m 0.04/10mu.pt) iof remaining jets
             auto mudRmax = [](const double mupt){return std::min(0.4, 0.04 + 10./mupt);};
             removeOverlap(muons, candJets, mudRmax);
-
 
             // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -381,9 +407,9 @@ namespace ColliderBit {
             }
             for (size_t i = 0; i < muons.size(); ++i){
                 for (size_t j = 0; j < i; ++j){
-                if (muons[i]->pid() * muons[j]->pid() < 0){
-                    OSSF_PAIRS.push_back({muons[i], muons[j]});
-                }
+                    if (muons[i]->pid() * muons[j]->pid() < 0){
+                        OSSF_PAIRS.push_back({muons[i], muons[j]});
+                    }
                 }
             }
             if (OSSF_PAIRS.size() < 1) return;
@@ -409,7 +435,15 @@ namespace ColliderBit {
             ///////////////////////////////////
 
             // Time for reclustering.
-            vector<shared_ptr<Jet>> RCjets = get_jets(candJets, 1.0, 150*GeV);
+            // Gambit get_jets destroys constituent info, and HEPUtils::get_jets allows cseq to go out of scope
+            // TODO: Add a cseq conserving get_jets method?
+            vector<FJNS::PseudoJet> inputJets;
+            for (const auto & j : candJets){
+                inputJets.push_back(j->pseudojet());
+            }
+            const FJNS::JetDefinition jet_def(FJNS::antikt_algorithm, 1.0);
+            FJNS::ClusterSequence cseq(inputJets, jet_def);
+            vector<FJNS::PseudoJet> RCjets = sorted_by_pt(cseq.inclusive_jets(150*GeV));
 
             // Trimming, and matching Jets to constituents
             // This is a bit ugly, but no way around it
@@ -418,7 +452,6 @@ namespace ColliderBit {
             vector<vector<bool>> TrimmedRCjetConstituentBtags;
             trim_and_match(RCjets, candJets, bJets,
                             TrimmedRCjets, TrimmedRCjetConstituents, TrimmedRCjetConstituentBtags);
-
 
             // Channel decision
             // 2 LEPTON CHANNEL:
@@ -451,13 +484,13 @@ namespace ColliderBit {
                 // If we're in the SR, need to use MCBOT.
                 const vector<MCBOT::MCBOTtag> tags = _mcbot->tagJets(TrimmedRCjets, TrimmedRCjetConstituents, TrimmedRCjetConstituentBtags, true);
                 if (bJets.size() == 1) {
-                    const string region = "2l_1b_" + get_2l_MCBOT_category(tags, bJets.size());
+                    const string region = "2l_1b_SR_" + get_2l_MCBOT_category(tags, bJets.size());
                     _counters[region].add_event(event);
                     // TODO: ensure bJets are pT ordered!
                     _distributions[region].fill((ZCandidate+bJets[0]->mom()).m(), event);
                 }
                 else {
-                    const string region = "2l_2b_" + get_2l_MCBOT_category(tags, bJets.size());
+                    const string region = "2l_2b_SR_" + get_2l_MCBOT_category(tags, bJets.size());
                     _counters[region].add_event(event);
                     // TODO: ensure bJets are pT ordered!
                     _distributions[region].fill((ZCandidate+bJets[1]->mom()).m(), event);
@@ -480,7 +513,7 @@ namespace ColliderBit {
                 // Signal region
                 // Need to run MCBOT
                 const vector<MCBOT::MCBOTtag> tags = _mcbot->tagJets(TrimmedRCjets, TrimmedRCjetConstituents, TrimmedRCjetConstituentBtags, true);
-                const string region = "3l_"+get_3l_MCBOT_category(tags);
+                const string region = "3l_SR_"+get_3l_MCBOT_category(tags);
                 _counters[region].add_event(event);
                 _distributions[region].fill(HTjetlep, event);
             }
@@ -502,15 +535,9 @@ namespace ColliderBit {
 
         virtual void collect_results() {
 
-        // Now fill a results object with the results for each SR
-        // TODO: prefit errors not present in table - using postfit errors as 1st approx
-        // NN SR's
-        add_result(SignalRegionData(_counters.at("SR_Gtt_2100_1"), 0., {0.56, 0.4}));
-        add_result(SignalRegionData(_counters.at("SR_Gtt_1800_1"), 0., {0.50, 0.27}));
-        add_result(SignalRegionData(_counters.at("SR_Gtt_2300_1200"), 1., {0.7, 0.5}));
-        add_result(SignalRegionData(_counters.at("SR_Gtt_1900_1400"), 1., {0.7, 1.0}));
+        // TODO (most important todo of the whole thing):
+        //  Which regions/combinations of regions do we want to use?
 
-    
         // "Summary plot level" information
         // Numbers all prefit
         // From Hepdata, Aux table 1
@@ -533,12 +560,32 @@ namespace ColliderBit {
         add_result(SignalRegionData(_counters.at("2l_2b_SR_OF"), 2, {2.6, 1}));
 
         add_result(SignalRegionData(_counters.at("3l_VV_CR"), 3149, {3300, 600}));
-        add_result(SignalRegionData(_counters.at("2l_2b_SR_notag"), 198, {196, 22}));
-        add_result(SignalRegionData(_counters.at("2l_2b_SR_Vtag"), 20, {14.9, 2.2}));
-        add_result(SignalRegionData(_counters.at("2l_2b_SR_Htag"), 59, {52, 6}));
-        add_result(SignalRegionData(_counters.at("2l_2b_SR_toptag"), 40, {36, 4}));
-        add_result(SignalRegionData(_counters.at("2l_2b_SR_OF"), 4, {4.4, 1.2}));
-            
+        add_result(SignalRegionData(_counters.at("3l_SR_notag"), 198, {196, 22}));
+        add_result(SignalRegionData(_counters.at("3l_SR_Vtag"), 20, {14.9, 2.2}));
+        add_result(SignalRegionData(_counters.at("3l_SR_Htag"), 59, {52, 6}));
+        add_result(SignalRegionData(_counters.at("3l_SR_toptag"), 40, {36, 4}));
+        add_result(SignalRegionData(_counters.at("3l_SR_OF"), 4, {4.4, 1.2}));
+
+        // Histo-level information (only public for some data points 
+        //    -- unless you want to guess based on log plots)
+        // For these, numbers all postfit (only available):
+
+        
+        add_distribution_results(_distributions.at("2l_2b_SR_doubletag1"), {2,1,1},
+                                {3.175272, 1.07258, 0.25529}, {0.678, 0.2758, 0.1575});
+        add_distribution_results(_distributions.at("2l_2b_SR_toptag"), {6,3,0,1},
+                                {9.5576, 2.529, 0.67497, 0.31593}, {1.317, 0.63, 0.522, 0.514});
+
+        add_distribution_results(_distributions.at("2l_1b_SR_Vtag"), {8,6,3,1},
+                                {10.95, 3.10, 2.33, 3.12}, {1.61, 0.715, 0.687, 0.781});
+        add_distribution_results(_distributions.at("2l_1b_SR_notag"), {43,17,5,7},
+                                {44.86, 13.89, 8.98, 8.66}, {4.29, 1.36, 1.58, 2.13});
+
+        add_distribution_results(_distributions.at("3l_SR_Htag"), {50, 2, 3, 1, 2, 1, 0},
+                                {46.9, 3.74, 1.64, 0.905, 0.518, 0.20, 0.267}, {3.01, 0.271, 0.144, 0.101, 0.073, 0.044, 0.045});
+        add_distribution_results(_distributions.at("3l_SR_toptag"), {34, 3, 0, 2, 1, 0, 0},
+                                {27.3, 4.87, 2.78, 1.63, 0.9, 0.5, 0.62}, {2.11, 0.53, 0.41, 0.339, 0.304, 0.29, 0.29});
+
         return;
 
       }
@@ -561,27 +608,27 @@ namespace ColliderBit {
                 }
             }
             if (nVtags == 0 && nHtags == 0 && ntoptags == 0){
-                return "No_tag";
+                return "notag";
             }
             else if (nVtags == 1 && nHtags == 0 && ntoptags == 0){
-                return "V_tag";
+                return "Vtag";
             }
             else if (nVtags == 0 && nHtags == 1 && ntoptags == 0){
-                return "H_tag";
+                return "Htag";
             }
             else if (nVtags == 0 && nHtags == 0 && ntoptags == 1){
-                return "top_tag";
+                return "toptag";
             }
             else if ((nVtags == 2 && nHtags == 0 && ntoptags == 0) ||
                 (nVtags == 0 && nHtags == 2 && ntoptags == 0)
                 || (nVtags == 1 && nHtags == 0 && ntoptags == 1 && nbtags == 1)
                 || (nVtags == 1 && nHtags == 1 && ntoptags == 0 && nbtags >= 2)
                 || (nVtags == 0 && nHtags == 0 && ntoptags == 2 && nbtags >= 2)){
-                return "Double_tag_1";
+                return "doubletag1";
             }
             else if ((nVtags == 0 && nHtags == 1 && ntoptags == 1)
                 || (nVtags == 0 && nHtags == 0 && ntoptags == 2 && nbtags == 1)){
-                return "Double_tag_2";
+                return "doubletag2";
             }
             else if ((nVtags == 1 && nHtags == 1 && ntoptags == 0 && nbtags == 1)
                 || (nVtags == 1 && nHtags == 0 && ntoptags == 1 && nbtags >= 2)
@@ -609,16 +656,16 @@ namespace ColliderBit {
                 }
             }
             if (nVtags == 0 && nHtags == 0 && ntoptags == 0){
-                return "No_tag";
+                return "notag";
             }
             else if (nVtags >= 1 && nHtags == 0 && ntoptags == 0){
-                return "V_tag";
+                return "Vtag";
             }
             else if (nVtags == 0 && nHtags >= 1 && ntoptags == 0){
-                return "H_tag";
+                return "Htag";
             }
             else if (nVtags == 0 && nHtags == 0 && ntoptags >= 1){
-                return "top_tag";
+                return "toptag";
             }
             else 
                 return "OF";
@@ -635,18 +682,18 @@ namespace ColliderBit {
 
         // Given reclustered jets, remove subjets < 5% of total pT, and match the remaining subjets to existing btagged
         // objects
-        // This is ugly, I fdon't see a way around.
-        static void trim_and_match(const vector<shared_ptr<Jet>> & RCJetsIn, const vector<const Jet*> & smallJetsIn, vector<const Jet*> bJetsIn,
+        // This is ugly, I don't see a way around fastjet is just too happy to forget things.
+        static void trim_and_match(const vector<FJNS::PseudoJet> & RCJetsIn, const vector<const Jet*> & smallJetsIn, vector<const Jet*> bJetsIn,
                             vector<Jet> & RCJetsOut, vector<vector<const Jet*>> & constituentsOut, vector<vector<bool>> & consitituentBtagsOut,
                             const double ptfrac = 0.05, const double ptmin = 150*GeV, const double etamax = 4.5){
             vector<Jet> RCJetsOutTemp; vector<vector<const Jet*>> constituentsOutTemp; vector<vector<bool>> bJetsOutTemp;
-            for (const shared_ptr<Jet> j : RCJetsIn){
-                const double pTmin = ptfrac*j->pT();
+            for (const  FJNS::PseudoJet & j  : RCJetsIn){
+                const double pTmin = ptfrac*j.pt();
                 bool jetfound; //technically, need a guard in case the RC jet is made of loads on tiny tiny jets and disappears
                 FJNS::PseudoJet trimmed;
                 vector<const Jet*> constituentList;
                 vector<bool> tagList;
-                for (const FJNS::PseudoJet & jin : j->pseudojet().constituents() ){
+                for (const FJNS::PseudoJet & jin : j.constituents() ){
                     jetfound=true;
                     if (jin.pt() < pTmin) continue;
                     trimmed += jin;
@@ -694,10 +741,8 @@ namespace ColliderBit {
                 [&bJetsOutTemp](size_t i){return bJetsOutTemp[i];});
         }
         /// @}
-
-        
-
     };
+    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_EXOT_2018_58);
 }
 }
 

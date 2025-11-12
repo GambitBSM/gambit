@@ -48,6 +48,7 @@ namespace Gambit
     // Add analysis names here and only here (trick to avoid duplication)
     // - If the analysis depends on RestFrames (which uses ROOT), add it to MAP_ANALYSES_WITH_ROOT_RESTFRAMES
     // - If the analysis only depends on ROOT, add it to MAP_ANALYSES_WITH_ROOT
+    // - If the analysis depends on onnx (but not ROOT), then add it to MAP_ANALYSES_WITH_ONNX
     // - Else, add the analysis to MAP_ANALYSES
     #define MAP_ANALYSES_WITH_ROOT_RESTFRAMES(F)     \
       F(ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb)          \
@@ -62,6 +63,7 @@ namespace Gambit
 
     #define MAP_ANALYSES_WITH_ONNX(F)                \
       F(ATLAS_13TeV_3b_NN_139invfb)                  \
+      F(ATLAS_13TeV_EXOT_2018_58)                    \
 
     #define MAP_ANALYSES(F)                          \
       F(Minimum)                                     \
