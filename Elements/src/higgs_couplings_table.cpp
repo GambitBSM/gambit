@@ -235,4 +235,19 @@ namespace Gambit
     return couplings_map;
   }
 
+  void HiggsCouplingsTable::print() const
+  {
+    auto c = to_map();
+
+    for (auto& i : c)
+    {
+      std::cerr << i.first << "  " << i.second << std::endl;
+    }
+  }
+
+
+
 }
+
+
+

@@ -120,11 +120,11 @@ int main(int argc, char** argv)
     // Have to resolve dependencies by hand
     // deltaMB_likelihood depends on:
     //    - deltaMs
-    deltaMB_likelihood.resolveDependency(&FeynHiggs_prediction_DeltaMs);
+    deltaMB_likelihood.resolveDependency(&FeynHiggs_prediction_Delta_MBs);
 
-    // FeynHiggs_prediction_DeltaMs depends on:
+    // FeynHiggs_prediction_Delta_MBs depends on:
     //    - FeynHiggs_FlavourObs
-    FeynHiggs_prediction_DeltaMs.resolveDependency(&FeynHiggs_FlavourObs);
+    FeynHiggs_prediction_Delta_MBs.resolveDependency(&FeynHiggs_FlavourObs);
 
     // FeynHiggs_FlavourObs has only one backend requirement:
     //    - FHFlavour
@@ -337,7 +337,7 @@ int main(int argc, char** argv)
 
     // Calculate the B meson mass asymmetry likelihood
     FeynHiggs_FlavourObs.reset_and_calculate();
-    FeynHiggs_prediction_DeltaMs.reset_and_calculate();
+    FeynHiggs_prediction_Delta_MBs.reset_and_calculate();
     deltaMB_likelihood.reset_and_calculate();
     loglike = deltaMB_likelihood(0);
     std::cout << std::endl << "B meson mass asymmetry log-likelihood: " << loglike << std::endl;

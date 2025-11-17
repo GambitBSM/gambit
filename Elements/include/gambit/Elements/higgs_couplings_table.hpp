@@ -179,9 +179,11 @@ namespace Gambit
       const DecayTable::Entry& get_t_decays() const;
       /// @}
 
-
-      // Print Higgs coupling table to a map
+     // Print Higgs coupling table to a map
       map_str_dbl to_map() const;
+
+      void print() const;
+
   };
 
 }
