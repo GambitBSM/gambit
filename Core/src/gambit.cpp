@@ -18,7 +18,7 @@
 #include "gambit/Core/gambit.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
 #include "gambit/Utils/file_lock.hpp"
-#include "gambit/Core/emu_comm.hpp"
+#include "gambit/Core/emu_map.hpp"
 
 
 using namespace Gambit;
@@ -196,7 +196,8 @@ int main(int argc, char* argv[])
       delete [] my_string;
       rank_map.insert({plugin_name, plugin_rank});
       std::cerr << "gambit rank " << rank << " recieved: plugin name " << plugin_name << ", and plugin master world rank " << plugin_rank << std::endl;
-
+      EmulatorMap::mapping_ranks = rank_map;
+      EmulatorMap::useEmulator = true;
       std::ostringstream oss;
       oss << "1,2,3";
       std::string message = oss.str();

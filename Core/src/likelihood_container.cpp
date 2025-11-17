@@ -42,6 +42,7 @@
 #include "gambit/Utils/mpiwrapper.hpp"
 #include "gambit/Utils/lnlike_modifiers.hpp"
 #include "gambit/ScannerBit/emulator_utils.hpp"
+#include "gambit/Core/emu_map.hpp"
 
 //#define CORE_DEBUG
 
@@ -226,41 +227,48 @@ namespace Gambit
       std::cout << "here" << std::endl;
 
       //_emu predict
-      // TODO: if emu is turned on, otherwise dont do this
-      std::vector<double> parameters;
-      for (auto key : in)
+      if (EmulatorMap::useEmulator) 
       {
-        parameters.push_back(key.second);
-      }
-      unsigned int n = parameters.size();
-      std::vector<unsigned int> sizes = {n, 1, 1};
+        // TODO: if emu is turned on, otherwise dont do this
+        std::vector<double> parameters;
+        for (auto key : in)
+        {
+            parameters.push_back(key.second);
+        }
+        unsigned int n = parameters.size();
+        std::vector<unsigned int> sizes = {n, 1, 1};
 
 
-      Scanner::Emulator::feed_def fd_predict(sizes);
-      fd_predict.add_for_evaluation(parameters);
-      fd_predict.set_predict();
+        Scanner::Emulator::feed_def fd_predict(sizes);
+        fd_predict.add_for_evaluation(parameters);
+        fd_predict.set_predict();
 
-      MPI_Send(fd_predict.buffer.data(), fd_predict.buffer.size(), MPI_CHAR, 2, 3, MPI_COMM_WORLD);
+        // find rank to send to
+        std::cout << "Get from map: " <<EmulatorMap::mapping_ranks["LogLike"] << std::endl;
 
-      // wait for prediction
-      // prepare to get result from egg
-      Scanner::Emulator::feed_def predict_results;
+        int send_rank = EmulatorMap::mapping_ranks["LogLike"];
+        MPI_Send(fd_predict.buffer.data(), fd_predict.buffer.size(), MPI_CHAR, send_rank, 3, MPI_COMM_WORLD);
 
-      // probe size of result buffer
-      int size_result;
-      MPI_Status status_parent;
-      MPI_Probe(MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, &status_parent);
-      MPI_Get_count(&status_parent, MPI_CHAR, &size_result);
-      std::cout << "size of result buffer: " << size_result << std::endl;
-      predict_results.resize(size_result);
+        // wait for prediction
+        // prepare to get result from egg
+        Scanner::Emulator::feed_def predict_results;
 
-      // recieve buffer
-      MPI_Recv(predict_results.buffer.data(), size_result, MPI_CHAR, MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        // probe size of result buffer
+        int size_result;
+        MPI_Status status_parent;
+        MPI_Probe(MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, &status_parent);
+        MPI_Get_count(&status_parent, MPI_CHAR, &size_result);
+        std::cout << "size of result buffer: " << size_result << std::endl;
+        predict_results.resize(size_result);
 
-      std::cout << "results from emu "<< predict_results.prediction() << std::endl;
+        // recieve buffer
+        MPI_Recv(predict_results.buffer.data(), size_result, MPI_CHAR, MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-      // TODO: threshold to use this prediction and skip the rest
-      //_emu predict end
+        std::cout << "results from emu "<< predict_results.prediction() << std::endl;
+
+        // TODO: threshold to use this prediction and skip the rest
+        }
+        //_emu predict end
 
 
 
@@ -448,21 +456,23 @@ namespace Gambit
     std::cout << "Total lnL: " << lnlike << std::endl;
 
     //_emu train
-    // TODO: if emu is turned on, otherwise dont do this
-    std::vector<double> parameters;
-    for (auto key : in)
+    if (EmulatorMap::useEmulator) 
     {
-    parameters.push_back(key.second);
+        // TODO: if emu is turned on, otherwise dont do this
+        std::vector<double> parameters;
+        for (auto key : in)
+        {
+        parameters.push_back(key.second);
+        }
+        unsigned int n = parameters.size();
+        std::vector<unsigned int> sizes = {n, 1, 1};
+
+        Scanner::Emulator::feed_def fd(sizes);
+        fd.add_for_training(parameters, {lnlike}, {0.1});
+        fd.set_train();
+        
+        MPI_Send(fd.buffer.data(), fd.buffer.size(), MPI_CHAR, 2, 3, MPI_COMM_WORLD);
     }
-    unsigned int n = parameters.size();
-    std::vector<unsigned int> sizes = {n, 1, 1};
-
-    Scanner::Emulator::feed_def fd(sizes);
-    fd.add_for_training(parameters, {lnlike}, {0.1});
-    fd.set_train();
-    
-    MPI_Send(fd.buffer.data(), fd.buffer.size(), MPI_CHAR, 2, 3, MPI_COMM_WORLD);
-
     //_emu train end
 
 
