@@ -446,6 +446,29 @@ namespace Gambit
         );
 
 
+        /// Photon 2020 isolation efficiency functions in 1908.00005 using 81 fb^-1 of Run 2 data, EGAM-2018-01
+        /// @note These efficiencies are 1D efficiencies so only dependence on pT is used
+        /// Digitize from Fig 26 (left bottom panel)
+
+        // Loose 
+        static const HEPUtils::BinnedFn1D<double> eff1DPhoton_EGAM_2018_01_Iso_Loose(
+          {10., 15., 20., 25., 30., 35., 40., 45., 50., 60., 80., DBL_MAX}, //Bin egdes in pT
+          {0.56496, 0.62650, 0.69829, 0.75812, 0.81966, 0.86581, 0.89658, 0.88803, 0.92051, 0.92564, 0.99915}
+        );
+
+        // Tight
+        static const HEPUtils::BinnedFn1D<double> eff1DPhoton_EGAM_2018_01_Iso_Tight(
+          {10., 15., 20., 25., 30., 35., 40., 45., 50., 60., 80., DBL_MAX}, //Bin egdes in pT
+          {0.68120, 0.68632, 0.72051, 0.75128, 0.77009, 0.81111, 0.83162, 0.79231, 0.83504, 0.82991, 0.92393}
+        );
+
+        // TightCaloOnly
+        static const HEPUtils::BinnedFn1D<double> eff1DPhoton_EGAM_2018_01_Iso_TightCaloOnly(
+          {10., 15., 20., 25., 30., 35., 40., 45., 50., 60., 80., DBL_MAX}, //Bin egdes in pT
+          {0.78376, 0.79231, 0.81453, 0.83162, 0.83675, 0.86068, 0.86068, 0.84359, 0.85897, 0.86923, 0.92222}
+        );
+
+
         // FIXME: Where is this from and is it used?
         // VeryLoose WP from
         //static const HEPUtils::BinnedFn2D<double> eff2DEl_VeryLoose(
@@ -809,6 +832,17 @@ namespace Gambit
         {"ATL_PHYS_PUB_2015_051_Tight_Primary",   eff2DTrack_ATL_PHYS_PUB_2015_051_Tight_Primary},
         {"ATL_PHYS_PUB_2015_051_Loose",           eff2DTrack_ATL_PHYS_PUB_2015_051_Loose},
       });
+
+      // Map of Photon 1D efficiencies
+      static const efficiency_map<HEPUtils::BinnedFn1D<double> > eff1DPhoton(
+      {
+        {"GAM_2018_01_Iso_Loose", eff1DPhoton_EGAM_2018_01_Iso_Loose},
+        {"GAM_2018_03_Iso_Tight", eff1DPhoton_EGAM_2018_01_Iso_Tight},
+        {"GAM_2018_03_Iso_TightCaloOnly",  eff1DPhoton_EGAM_2018_01_Iso_TightCaloOnly}
+      });
+
+
+
 
       // Map of photon 2D efficiencies
       static const efficiency_map<HEPUtils::BinnedFn2D<double> > eff2DPhoton(
