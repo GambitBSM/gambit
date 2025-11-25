@@ -158,6 +158,7 @@ namespace Gambit
             #ifdef WITH_MPI
             //   GMPI::Comm comm;
             //   comm.dup(MPI_COMM_WORLD,"ScanRunComm"); // duplicates MPI_COMM_WORL
+              // _emu
               GMPI::Comm& comm(Gambit::Scanner::Plugins::plugin_info.scanComm());
               std::cerr << " DEBUG: In scan.cpp line " << __LINE__  << std::endl;
               

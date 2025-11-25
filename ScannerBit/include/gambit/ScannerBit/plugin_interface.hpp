@@ -109,11 +109,8 @@ namespace Gambit
                 template <typename... plug_args>
                 const std::map<type_index, void *> &initPlugin(const std::string &type, const std::string &name, const plug_args&... inputs) 
                 {
-                    std::cerr << " DEBUG: In plugin_interface.hpp line " << __LINE__   << " # " << type << " # " << name << std::endl;   
                     Plugin_Interface_Details details = plugin_info(type, name);
-                    std::cerr << " DEBUG: In plugin_interface.hpp line " << __LINE__  << std::endl; 
                     flags = details.flags;
-                    std::cerr << " DEBUG: In plugin_interface.hpp line " << __LINE__  << std::endl;
                     plugin = dlopen (details.details.path.c_str(), RTLD_LAZY);
                     
                     if (bool(plugin))

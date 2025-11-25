@@ -43,7 +43,6 @@ std::tuple<int, std::string> splitChar(char* input)
     int numericPart;
     std::istringstream iss(received_message);
     iss >> nonNumericPart >> numericPart; 
-    std::cerr << nonNumericPart << " # " << numericPart << std::endl;
 
     return {numericPart, nonNumericPart};
 }
@@ -60,16 +59,10 @@ int main(int argc, char* argv[])
   // Default exit behaviour in cases where no exceptions are raised
   int return_value(EXIT_SUCCESS);
 
-  std::cout << "gambit.cpp. I am Here 1" << std::endl; // TODO: Debugging
-
-
   #ifdef WITH_MPI
     bool allow_finalize(true);
     GMPI::Init();
   #endif
-
-  std::cout << "gambit.cpp. I am Here 2" << std::endl; // TODO: Debugging
-
 
   /// Idea by Tom Fogal, for optionally preventing execution of code until debugger allows it
   /// Source: http://www.sci.utah.edu/~tfogal/academic/Fogal-ParallelDebugging.pdf
@@ -99,9 +92,6 @@ int main(int argc, char* argv[])
   }
   #endif
 
-  std::cout << "gambit.cpp. I am Here 3" << std::endl; // TODO: Debugging
-
-
   { // Scope to ensure that all MPI communicators get destroyed before Finalize is called.
 
     // Set up signal handling function
@@ -111,97 +101,97 @@ int main(int argc, char* argv[])
     signal(SIGUSR1, sighandler_soft);
     signal(SIGUSR2, sighandler_soft);
 
-    std::cout << "gambit.cpp. I am Here 4" << std::endl; // TODO: Debugging
+    // std::cout << "gambit.cpp. I am Here 4" << std::endl; // TODO: Debugging
 
 
     #ifdef WITH_MPI
       /// Create an MPI communicator group for use by error handlers
-      std::cerr << " create MPI comms " << std::endl;
       GMPI::Comm errorComm;
       errorComm.dup(MPI_COMM_WORLD,"errorComm"); // duplicates the COMM_WORLD context
       const int ERROR_TAG=1;         // Tag for error messages
       errorComm.mytag = ERROR_TAG;
       signaldata().set_MPI_comm(&errorComm); // Provide a communicator for signal handling routines to use.
-      /// Create an MPI communicator group for ScannerBit to use
-      ///
-      std::cout << "gambit.cpp. I am Here 5" << std::endl; // TODO: Debugging
-
-
-      //_emu 
-      // split mpi world til scanComm og lag kopi av scannerComm som blir til errorComm
-      // må sjekke at vi ikke ødelegger gambit sitt signal system
-      // kanskje errorComm fortsatt burde være hele world comm, og kan sende signal til emu også
+      
       int world_size, world_rank;
       MPI_Comm_size(MPI_COMM_WORLD, &world_size);
       MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-      std::cout  << "In dummy: world rank " << world_rank << ", local rank " << world_size << std::endl;
 
-      std::cout << "gambit.cpp. I am Here 6" << std::endl; // TODO: Debugging
+      //_emu 
+      // check how many processes gambit has, and if emulator is to be used
+      int my_appnum = 1;
+      std::vector<int> all_appnums(world_size);
+      MPI_Allgather(&my_appnum, 1, MPI_INT, all_appnums.data(), 1, MPI_INT, MPI_COMM_WORLD);
+      int app_size = 0;
+      for (int i = 0; i < world_size; ++i) { if (all_appnums[i] == my_appnum) ++app_size;}
+      int numberOfProcessesInEgg = world_size - app_size;
 
+      // containers
+      int rank, size;
+      GMPI::Comm scanComm;
 
-      std::vector<int> processes;
-      for (int i = 0; i < world_size-2; ++i) 
-      { 
-        std::cerr << i << std::endl;
-        processes.push_back(i);
-      }
-
-      GMPI::Comm scanComm(processes, "scanComm");
-      //   MPI_Comm_split(MPI_COMM_WORLD, 0, world_rank, &scanComm);
-      //   scanComm.dup(MPI_COMM_WORLD,"scanComm"); // duplicates the COMM_WORLD context
-      Scanner::Plugins::plugin_info.initMPIdata(&scanComm);
-
-      std::cout << "gambit.cpp. I am Here 7" << std::endl; // TODO: Debugging
-
-
-      /// MPI rank for use in error messages;
-      int rank = scanComm.Get_rank();
-      int size = scanComm.Get_size();
-
-      if (world_rank < world_size-2) 
+      // start emulator if number of processes belonging to egg is larger than 0
+      if (numberOfProcessesInEgg > 0)
       {
-        std::cout  << "In gaMBIT: world rank " << world_rank << ", local rank " << rank << ", local size " << size << std::endl;
+        std::cout << "gambit: egg has "<< numberOfProcessesInEgg << " processes" << std::endl;
+    
+        // get vector of gambit processes
+        std::vector<int> processes;
+        for (int i = 0; i < numberOfProcessesInEgg; ++i) { processes.push_back(i);}
+
+        // make scannComm
+        scanComm = GMPI::Comm(processes, "scanComm");
+
+
+        /// MPI rank for use in error messages;
+        rank = scanComm.Get_rank();
+        size = scanComm.Get_size();
+
+        if (world_rank < numberOfProcessesInEgg) 
+        {
+            std::cout  << "In gambit: world rank " << world_rank << ", local rank " << rank << ", local size " << size << std::endl;
+        }
+        else 
+        { 
+            std::cout << " HELP: there are other processes " << std::endl;
+        }
+
+
+        //////// create map of plugins and their world ranks
+        std::map<std::string, int> rank_map;
+
+        // TODO: recieve from all executables, need to know how many
+
+        // probe to find receiver size
+        int receiver_size;
+        MPI_Status status;
+        MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        MPI_Get_count(&status, MPI_CHAR, &receiver_size);
+
+        // recieve message
+        char *my_string = new char[receiver_size];
+        MPI_Recv(my_string, receiver_size, MPI_CHAR, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        
+        // split message into map
+        auto [plugin_rank, plugin_name] = splitChar(my_string);
+        delete [] my_string;
+        rank_map.insert({plugin_name, plugin_rank});
+        std::cerr << "gambit rank " << rank << " recieved: plugin name " << plugin_name << ", and plugin master world rank " << plugin_rank << std::endl;
+        
+        // add map to emulator namespace
+        EmulatorMap::mapping_ranks = rank_map;
+        EmulatorMap::useEmulator = true;
+
       }
+      // not use emulators
       else 
-      { 
-        std::cout << " the other processes " << std::endl;
+      {
+        scanComm.dup(MPI_COMM_WORLD,"scanComm"); // duplicates the COMM_WORLD context
       }
-
-      std::cout << "gambit.cpp. I am Here 8" << std::endl; // TODO: Debugging
-
-
-      //_emu
-      //////// create map of plugins and their world ranks
-      std::map<std::string, int> rank_map;
-
-      // TODO: recieve from all executables, need to know how many
-
-      // get plugin name and rank from all processes
-      // probe to find receiver size
-      int receiver_size;
-      MPI_Status status;
-      MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-      MPI_Get_count(&status, MPI_CHAR, &receiver_size);
-
-      std::cerr     << "gambit: length of incomming array " << receiver_size << std::endl;
-
-      char *my_string = new char[receiver_size];
-
-      //   char my_string[10]; // TODO: probe for size of the string?
-      MPI_Recv(my_string, receiver_size, MPI_CHAR, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      // TODO: send color to other executables as an answer to this?
-      std::cerr << "rank " << rank << " recieved: " << my_string << std::endl;
-
-      auto [plugin_rank, plugin_name] = splitChar(my_string);
-      delete [] my_string;
-      rank_map.insert({plugin_name, plugin_rank});
-      std::cerr << "gambit rank " << rank << " recieved: plugin name " << plugin_name << ", and plugin master world rank " << plugin_rank << std::endl;
-      EmulatorMap::mapping_ranks = rank_map;
-      EmulatorMap::useEmulator = true;
-      std::ostringstream oss;
-      oss << "1,2,3";
-      std::string message = oss.str();
-      MPI_Send(message.c_str(), message.length()+1, MPI_CHAR, plugin_rank, 1, MPI_COMM_WORLD);
+      
+      // final scanComm steps
+      Scanner::Plugins::plugin_info.initMPIdata(&scanComm);
+      rank = scanComm.Get_rank();
+      size = scanComm.Get_size();
 
      #else
       int rank = 0;
@@ -271,48 +261,6 @@ int main(int argc, char* argv[])
       int seed = rng.getValueOrDef<int>(-1, "seed");
       Random::create_rng_engine(generator, seed);
 
-      //_emu 
-      // spør yaml filen om den har en emulator block
-      // spawn emulator her
-    //   std::cout << filename << std::endl;
-    //   std::cout << "right before checking emulation" << std::endl;
-    //   if (iniFile.getEmulationNode().size() == 0) {std::cerr << "no emulation" <<std::endl;}
-    //   else 
-    //   {
-    //     std::cout << "Size of node: " << iniFile.getEmulationNode().size() << std::endl;
-    //     std::cout << iniFile.getEmulationNode() << std::endl;
-    //     std::cout << "spawn time" << endl;
-    //     int num_procs_to_spawn = 2; 
-    //     const char *worker_program = "./egg";
-    //     const char *argv_spawn[] = {"yaml_files/spartan.yaml", NULL};
-    //     MPI_Info info = MPI_INFO_NULL;
-    //     MPI_Comm_spawn((char *)worker_program, (char**)argv_spawn, num_procs_to_spawn, info, 0, MPI_COMM_WORLD, &emuComm, MPI_ERRCODES_IGNORE);
-
-
-    //     std::cout << "found emulation node" << std::endl;
-        
-    //     YAML::Node node = iniFile.getEmulationNode();
-    //     std::cout << "is it a sequence: " <<  node.IsSequence() << std::endl;
-
-    //     std::string capability = node[0]["capability"].as<std::string>();
-    //     std::cout << "capability: " << capability << std::endl;
-    //     std::string emulator_plugin = node[0]["emulator_plugin"].as<std::string>();
-    //     std::cout << "emulator_plugin: " << emulator_plugin << std::endl;
-
-    //     std::cout << "is plugin_options a sequence: " << node[0]["plugin_options"]["ktrain"] << std::endl;
-
-    //     if (rank == 0) {
-    //         int OKorNot;
-    //         MPI_Recv(&OKorNot, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, emuComm, MPI_STATUS_IGNORE);
-    //         if (OKorNot == 1){std::cout << "ok" << std::endl;}
-    //         else {std::cout << "make it stop" << std::endl; }
-    //     }
-
-    //     MPI_Barrier(MPI_COMM_WORLD);
-    //   }
-
-    //   std::cout << "after checking emulation" << std::endl;
-
       // Determine selected model(s)
       std::set<str> selectedmodels = iniFile.getModelNames();
 
@@ -362,9 +310,8 @@ int main(int argc, char* argv[])
         scanner_node["Scanner"] = iniFile.getScannerNode();
         scanner_node["Parameters"] = iniFile.getParametersNode();
         scanner_node["Priors"] = iniFile.getPriorsNode();
+        // _emu
         scanner_node["Emulator"] = iniFile.getEmulationNode();
-
-        std::cerr << "here: " <<YAML::Dump(scanner_node["Emulator"]) << std::endl;
 
         // Print scan metadata from rank 0
         if (iniFile.getValueOrDef<bool>(true, "print_metadata_info"))
