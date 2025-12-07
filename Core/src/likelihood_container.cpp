@@ -464,9 +464,12 @@ namespace Gambit
         Scanner::Emulator::feed_def fd(sizes);
         fd.add_for_training(parameters, {lnlike}, {0.1});
         fd.set_train();
+
+        // find rank to send to
+        int send_rank = EmulatorMap::mapping_ranks["LogLike"];
         
         // send to egg
-        MPI_Send(fd.buffer.data(), fd.buffer.size(), MPI_CHAR, 2, 3, MPI_COMM_WORLD);
+        MPI_Send(fd.buffer.data(), fd.buffer.size(), MPI_CHAR, send_rank, 3, MPI_COMM_WORLD);
     }
     //_emu train end
 
