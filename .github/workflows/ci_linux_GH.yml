@@ -1,4 +1,4 @@
-name: Gambit Linux X64 CI on Wino
+name: Gambit Linux X64 CI on GH Runner
 
 on:
   push:
