@@ -63,6 +63,7 @@ double nearestNeighborAverage(const std::vector<std::vector<double>>& parameters
 
 int main(int argc, char *argv[])
 {
+    //////////// Initializing ///////////////////
     // initialize MPI
     GMPI::Init();
 
@@ -73,39 +74,71 @@ int main(int argc, char *argv[])
     errorComm.mytag = ERROR_TAG;
     signaldata().set_MPI_comm(&errorComm);
 
+    /////// Read yaml file and capability
+    // read terminal input and extract capability and yaml file
+    std::unordered_map<str, str> argsMap;
+    if ( argc >= 5) {
+        for (int i = 1; i < argc; i += 2) 
+        {
+            str key = argv[i];
+            str value = argv[i + 1];
+            argsMap[key] = value;
+            std::cout << key << " # " << value << std::endl;
+        }
+    }
+    else { std::cout << "Too few arguments: " << argc << " inputs, but 5 required" << std::endl; }
+
+    std::cout << "capability: " << argsMap["-c"] << ", yaml file: " << argsMap["-f"] << std::endl;
+
+    // Read yaml file
+    const str filename = argsMap["-f"];
+    YAML::Node settings = YAML::LoadFile(filename);
+    YAML::Node emulator_node = settings["Emulation"];
+
+    // Get plugin name
+    str capability = argsMap["-c"];
+    str plugin_name = emulator_node["emulators"][capability]["plugin"].as<str>();
+
+    std::vector<str> all_capabilities = emulator_node["use_emulator"].as<std::vector<str>>();
+
+    int my_process_color = 0;
+
+    for (int k = 0; k < all_capabilities.size(); ++k)
+    {
+        if (all_capabilities[k] == capability) {my_process_color = 2+k;}
+    }
+    std::cout << "color: " << my_process_color << std::endl;
+
+    //////////////// Make emulator communicators to give to plugin /////////////////
+    logger() << Gambit::LogTags::core << "making emulator communicator. "<< EOM;
     // get world size/rank
     int world_size, world_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
     // check number of processes in egg
-    int my_appnum = 0;
-    std::vector<int> all_appnums(world_size);
-    MPI_Allgather(&my_appnum, 1, MPI_INT, all_appnums.data(), 1, MPI_INT, MPI_COMM_WORLD);
-    int app_size = 0;
-    for (int i = 0; i < world_size; ++i) { if (all_appnums[i] == my_appnum) ++app_size;}
-    int numberOfProcessesInEgg = world_size - app_size;
+    // TODO: decide color based on capability
+    // int my_process_color = 0;
+    std::vector<int> all_process_colors(world_size);
+    MPI_Allgather(&my_process_color, 1, MPI_INT, all_process_colors.data(), 1, MPI_INT, MPI_COMM_WORLD);
+
+    // extact processes with my process color
+    // processes with color 1 belong to gambit executable
+    int numberOfGambitProcesses = 0;
+    std::vector<int> emuProcesses;
+    for (int i = 0; i < world_size; ++i) 
+    { 
+        if (all_process_colors[i] == my_process_color) {emuProcesses.push_back(i);}
+        if (all_process_colors[i] == 1) {++numberOfGambitProcesses;}
+    }
 
     //////// split the communicator
-    // TODO: only works for one executable 
-    std::vector<int> processes;
-    for (int i = 0; i < world_size; ++i){ if (i >= numberOfProcessesInEgg){  processes.push_back(i); }}
-    
-    // make local comm
-    GMPI::Comm emuComm(processes, "emuComm");
+    GMPI::Comm emuComm(emuProcesses, "emuComm");
 
     // find local rank/size
     int local_rank = emuComm.Get_rank();
     int local_size = emuComm.Get_size();
 
-    /////// Read yaml file
-    // TODO: get file path from commandline
-    const str filename = "yaml_files/spartan.yaml";
-    YAML::Node settings = YAML::LoadFile(filename);
-    YAML::Node emulator_node = settings["Emulation"];
-
-    str capability = emulator_node["use_emulator"].as<str>();
-    str plugin_name = emulator_node["emulators"][capability]["plugin"].as<str>();
 
     /////// send plugin info to world rank 0
 
@@ -115,12 +148,9 @@ int main(int argc, char *argv[])
     std::string message = oss.str();
 
     // send plugin name and world rank to gambit processes
-    if (local_rank == 0)
+    for (int i = 0; i < numberOfGambitProcesses; i++)
     {
-        for (int i = 0; i < world_size-local_size; i++)
-        {
-            MPI_Send(message.c_str(), message.length() +1, MPI_CHAR, i, 0, MPI_COMM_WORLD);
-        }
+        MPI_Send(message.c_str(), message.length() +1, MPI_CHAR, i, 0, MPI_COMM_WORLD);
     }
 
     std::cout << "In egg, sent messages " << std::endl;
@@ -135,34 +165,37 @@ int main(int argc, char *argv[])
     bool finished = false;
     while (!finished)
     {
-        if (local_rank == 0)
+        // Probe for incomming message with tag 3 ( 3 = train/predict )
+        MPI_Status status;
+        int flag;
+        MPI_Iprobe(MPI_ANY_SOURCE, 3, MPI_COMM_WORLD, &flag, &status);
+
+        // if message with tag 3, accept it
+        if (flag && status.MPI_TAG == 3)
         {
-            // Probe for incomming message with tag 3 ( 3 = train/predict )
-            MPI_Status status;
-            int flag;
-            MPI_Iprobe(MPI_ANY_SOURCE, 3, MPI_COMM_WORLD, &flag, &status);
+            // get size of buffer
+            int receiver_size;
+            MPI_Get_count(&status, MPI_CHAR, &receiver_size);
 
-            // if message with tag 3, accept it
-            if (flag && status.MPI_TAG == 3)
+            // Prepare to recieve datapoints
+            Scanner::Emulator::feed_def receiver;
+            MPI_Status status_recv;
+
+            // resize receiver
+            receiver.resize(receiver_size);
+
+            // recieve data
+            MPI_Recv(receiver.buffer.data(), receiver_size, MPI_CHAR, MPI_ANY_SOURCE, 3, MPI_COMM_WORLD, &status_recv); 
+
+            std::cout << " rank " << world_rank << " recieved: " << receiver.if_train() << " from " << status_recv.MPI_SOURCE << std::endl;
+
+            // Train, add point to buffer
+            if (receiver.if_train()) 
             {
-                // get size of buffer
-                int receiver_size;
-                MPI_Get_count(&status, MPI_CHAR, &receiver_size);
+                // pluigin.train(reciever.params(), receiver.target(), receiver.target_uncertainty());
 
-                // Prepare to recieve datapoints
-                Scanner::Emulator::feed_def receiver;
-                MPI_Status status_recv;
-
-                // resize receiver
-                receiver.resize(receiver_size);
-
-                // recieve data
-                MPI_Recv(receiver.buffer.data(), receiver_size, MPI_CHAR, MPI_ANY_SOURCE, 3, MPI_COMM_WORLD, &status_recv); 
-
-                // std::cout << " rank " << world_rank << " recieved: " << receiver.if_train() << " from " << status_recv.MPI_SOURCE << std::endl;
-
-                // Train, add point to buffer
-                if (receiver.if_train()) 
+                // inside plugin decide mpi configuration, but for now:
+                if (local_rank == 0) 
                 {
                     // extract parameters
                     double mu = receiver.params()[0];
@@ -175,21 +208,27 @@ int main(int argc, char *argv[])
 
                     std::cout <<"train: " << mu << " # " << sig  << " # " << lnL << std::endl;
                 }
-                // Predict, ask for prediction and send
-                else if (receiver.if_predict())
+            }
+            // Predict, ask for prediction and send
+            else if (receiver.if_predict())
+            {
+                // pluigin.train(reciever.params());
+
+                // inside plugin decide mpi configuration, but for now:
+                if ( local_rank == 0)
                 {
                     // extract parameters
                     double mu = receiver.params() [0];
                     double sig = receiver.params() [1];
-
-                    std::cout <<"predict: " << mu << " # " << sig  << std::endl;
                     
                     // evaluate
                     double new_lnL = nearestNeighborAverage(parameters, likes, {mu,sig}, 1);
 
+                    std::cout <<"predict: " << new_lnL << " # " << std::abs(new_lnL)*0.1  << std::endl;
+
                     // send results
                     std::vector<double> pred = {new_lnL};
-                    std::vector<double> pred_u = {new_lnL*0.01};
+                    std::vector<double> pred_u = {std::max(0.1, std::abs(new_lnL)*0.1)};
 
                     // make new buffer with size 0 for the input parameters
                     std::vector<unsigned int> sizes = {0, 1, 1};
@@ -203,7 +242,7 @@ int main(int argc, char *argv[])
                 }
             }
         }
-
+        
         // Always listen to messages for shut down 
         finished = signaldata().check_if_shutdown_begun();
     }

@@ -395,13 +395,22 @@ ObsLikes:
 
 Emulation:
 
-  use_emulator: LogLike
+  use_emulator: 
+  - LogLike
+  - otherL
 
   emulators:
     LogLike: 
       plugin:  plugin_1
       train: true
       predict: true
+      uncertainty: 0.001
+
+    otherL: 
+      plugin:  plugin_1
+      train: true
+      predict: true
+      uncertainty: 0.001
 
 
 

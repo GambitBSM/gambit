@@ -101,9 +101,6 @@ int main(int argc, char* argv[])
     signal(SIGUSR1, sighandler_soft);
     signal(SIGUSR2, sighandler_soft);
 
-    // std::cout << "gambit.cpp. I am Here 4" << std::endl; // TODO: Debugging
-
-
     #ifdef WITH_MPI
       /// Create an MPI communicator group for use by error handlers
       GMPI::Comm errorComm;
@@ -118,69 +115,68 @@ int main(int argc, char* argv[])
 
       //_emu 
       // check how many processes gambit has, and if emulator is to be used
-      int my_appnum = 1;
-      std::vector<int> all_appnums(world_size);
-      MPI_Allgather(&my_appnum, 1, MPI_INT, all_appnums.data(), 1, MPI_INT, MPI_COMM_WORLD);
-      int app_size = 0;
-      for (int i = 0; i < world_size; ++i) { if (all_appnums[i] == my_appnum) ++app_size;}
-      int numberOfProcessesInEgg = world_size - app_size;
+
+      // gather colors from all processes
+      int process_color = 1;
+      std::vector<int> all_process_colors(world_size);
+      MPI_Allgather(&process_color, 1, MPI_INT, all_process_colors.data(), 1, MPI_INT, MPI_COMM_WORLD);
+
+      // count the number of processes with MY color
+      int process_colors = 0;
+      for (int i = 0; i < world_size; ++i) { if (all_process_colors[i] == process_color) ++process_colors;}
+      int numberOfProcessesNotInGambit = world_size - process_colors;
 
       // containers
       int rank, size;
       GMPI::Comm scanComm;
 
       // start emulator if number of processes belonging to egg is larger than 0
-      if (numberOfProcessesInEgg > 0)
+      if (numberOfProcessesNotInGambit > 0)
       {
-        std::cout << "gambit: egg has "<< numberOfProcessesInEgg << " processes" << std::endl;
+        std::cout << "gambit: egg has "<< numberOfProcessesNotInGambit << " processes" << std::endl;
     
         // get vector of gambit processes
         std::vector<int> processes;
-        for (int i = 0; i < numberOfProcessesInEgg; ++i) { processes.push_back(i);}
+        for (int i = 0; i < world_size - numberOfProcessesNotInGambit; ++i) { processes.push_back(i);}
 
         // make scannComm
         scanComm = GMPI::Comm(processes, "scanComm");
-
 
         /// MPI rank for use in error messages;
         rank = scanComm.Get_rank();
         size = scanComm.Get_size();
 
-        if (world_rank < numberOfProcessesInEgg) 
-        {
-            std::cout  << "In gambit: world rank " << world_rank << ", local rank " << rank << ", local size " << size << std::endl;
-        }
-        else 
-        { 
-            std::cout << " HELP: there are other processes " << std::endl;
-        }
-
-
         //////// create map of plugins and their world ranks
-        std::map<std::string, int> rank_map;
+        std::map<std::string, std::vector<int>> rank_map;
 
-        // TODO: recieve from all executables, need to know how many
+        // loop over all processes not belonging to gambit
+        for ( int j = world_size-numberOfProcessesNotInGambit; j < world_size; ++j)
+        {
+            // get size of message
+            int receiver_size;
+            MPI_Status status;
+            MPI_Probe(j, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+            MPI_Get_count(&status, MPI_CHAR, &receiver_size);
 
-        // probe to find receiver size
-        int receiver_size;
-        MPI_Status status;
-        MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-        MPI_Get_count(&status, MPI_CHAR, &receiver_size);
+            // recieve message
+            char *my_string = new char[receiver_size];
+            MPI_Recv(my_string, receiver_size, MPI_CHAR, j, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        // recieve message
-        char *my_string = new char[receiver_size];
-        MPI_Recv(my_string, receiver_size, MPI_CHAR, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        
-        // split message into map
-        auto [plugin_rank, plugin_name] = splitChar(my_string);
-        delete [] my_string;
-        rank_map.insert({plugin_name, plugin_rank});
-        std::cerr << "gambit rank " << rank << " recieved: plugin name " << plugin_name << ", and plugin master world rank " << plugin_rank << std::endl;
-        
-        // add map to emulator namespace
+            // split message into map
+            auto [plugin_rank, plugin_name] = splitChar(my_string);
+            delete [] my_string;
+
+            // add capability and ranks to map
+            rank_map[plugin_name].push_back(plugin_rank);
+            std::cerr << "gambit rank " << rank << " recieved: plugin name " << plugin_name << ", and plugin master world rank " << plugin_rank << std::endl;
+            
+            // set boolean when emulating LogLike
+            if (plugin_name == "LogLike") { EmulatorMap::emulateLikelihood = true; }
+        }
+
+        // add finished map to emulator namespace
         EmulatorMap::mapping_ranks = rank_map;
         EmulatorMap::useEmulator = true;
-
       }
       // not use emulators
       else 
