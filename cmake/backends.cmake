@@ -141,6 +141,28 @@ add_custom_target(nuke-castxml COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}
 add_dependencies(nuke-all nuke-castxml)
 set_target_properties(castxml PROPERTIES EXCLUDE_FROM_ALL 1)
 
+
+# Dummy backend
+set(name "dummy")
+set(ver "1.0")
+set(dl "https://example.invalid/${name}-${ver}.tar.gz") # 故意不可达
+set(md5 "none")                                    # 或者填真实 md5
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
+
+
 # Acropolis
 set(name "acropolis")
 set(ver "1.2.1")
