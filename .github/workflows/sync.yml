@@ -8,8 +8,6 @@ on:
 
 jobs:
   sync:
-    # runs-on: [self-hosted, macOS, Arm64]
-    # runs-on: [self-hosted, Linux, X64]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
