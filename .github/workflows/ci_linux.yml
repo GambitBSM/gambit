@@ -38,10 +38,16 @@ jobs:
           liblapack-dev \
           pkg-config && \
           apt-get clean
+          
+        echo "CHRIS. HERE 1"
         
         sudo apt install -y gcc-10 g++-10 gfortran-10
         
+        echo "CHRIS. HERE 2"
+        
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gfortran gfortran /usr/bin/gfortran-10
+        
+        echo "CHRIS. HERE 3"
         
         sudo apt-get -y install --no-install-recommends \
           libhdf5-dev \
@@ -60,7 +66,11 @@ jobs:
           libhdf5-dev && \
           apt-get clean
           
+        echo "CHRIS. HERE 4"
+          
         sudo mkdir -p /opt/venv
+        
+        echo "CHRIS. HERE 5"
         
         python3 -m venv /opt/venv && \
           /opt/venv/bin/python -m pip install --upgrade pip setuptools wheel && \
@@ -77,8 +87,12 @@ jobs:
           future \
           pyyaml \
           dill
+          
+        echo "CHRIS. HERE 6"
         
         PATH="/opt/venv/bin:${PATH}"
+        
+        echo "CHRIS. HERE 7"
         
         #sudo apt-get -y install --no-install-recommends \
         #    binutils dpkg-dev libssl-dev libx11-dev \
@@ -103,6 +117,8 @@ jobs:
         #  && ln -s /opt/cmake-3.24.1/bin/* /usr/local/bin
         
         # TODO: Install ROOT
+        
+        echo "CHRIS. HERE 8"
         
         mkdir -p BUILD
         cd BUILD
