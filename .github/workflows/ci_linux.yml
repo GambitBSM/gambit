@@ -1,4 +1,4 @@
-name: Gambit Linux X64 CI on Wino
+name: Gambit Ubuntu CI on GitHub
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
     - name: Set up build environment
       run: |
         echo "Set up the build environment"
-        apt-get -y install --no-install-recommends \
+        sudo apt-get -y install --no-install-recommends \
           build-essential \
           gfortran \
           curl \
@@ -39,11 +39,11 @@ jobs:
           pkg-config && \
           apt-get clean
         
-        apt install -y gcc-10 g++-10 gfortran-10
+        sudo apt install -y gcc-10 g++-10 gfortran-10
         
-        update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gfortran gfortran /usr/bin/gfortran-10
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gfortran gfortran /usr/bin/gfortran-10
         
-        apt-get -y install --no-install-recommends \
+        sudo apt-get -y install --no-install-recommends \
           libhdf5-dev \
           libopenmpi-dev \
           libcfitsio-dev \
@@ -60,7 +60,7 @@ jobs:
           libhdf5-dev && \
           apt-get clean
           
-        mkdir -p /opt/venv
+        sudo mkdir -p /opt/venv
         
         python3 -m venv /opt/venv && \
           /opt/venv/bin/python -m pip install --upgrade pip setuptools wheel && \
@@ -80,7 +80,7 @@ jobs:
         
         PATH="/opt/venv/bin:${PATH}"
         
-        #apt-get -y install --no-install-recommends \
+        #sudo apt-get -y install --no-install-recommends \
         #    binutils dpkg-dev libssl-dev libx11-dev \
         #    libxext-dev libxft-dev libxpm-dev libtbb-dev libgif-dev \
         #    libpcre3-dev \
