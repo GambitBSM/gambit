@@ -246,7 +246,11 @@ scanner_plugin(polychord, version(1, 17, 1))
 
       //Run PolyChord, passing callback functions for the loglike and dumper.
       if(myrank == 0) std::cout << "Starting PolyChord run..." << std::endl;
+#ifdef WITH_MPI
+      run_polychord(callback_loglike, callback_dumper, settings, get_mpi_comm());
+#else
       run_polychord(callback_loglike, callback_dumper, settings);
+#endif
       if(myrank == 0) std::cout << "PolyChord run finished!" << std::endl;
       return 0;
 

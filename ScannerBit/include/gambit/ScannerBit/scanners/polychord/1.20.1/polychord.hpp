@@ -79,6 +79,12 @@ void run_polychord(
          void (*dumper)(int,int,int,double*,double*,double*,double,double), 
          Settings);
 
+#ifdef WITH_MPI
+void run_polychord(
+        double (*loglikelihood)(double*,int,double*,int),
+        void (*dumper)(int,int,int,double*,double*,double*,double,double),
+        Settings, MPI_Comm &comm);
+#endif
 
 namespace Gambit
 {
