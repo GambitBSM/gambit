@@ -37,7 +37,7 @@ jobs:
           libeigen3-dev \
           liblapack-dev \
           pkg-config && \
-          apt-get clean
+          sudo apt-get clean
           
         echo "CHRIS. HERE 1"
         
@@ -64,7 +64,7 @@ jobs:
           python3-pip \
           python3-dev \
           libhdf5-dev && \
-          apt-get clean
+          sudo apt-get clean
           
         echo "CHRIS. HERE 4"
           
@@ -106,7 +106,7 @@ jobs:
         #    libmariadb-dev-compat libmariadb-dev \
         #    libgl2ps-dev \
         #    liblzma-dev libxxhash-dev liblz4-dev libzstd-dev && \
-        #    apt-get clean
+        #    sudo apt-get clean
         
         #wget https://github.com/Kitware/CMake/releases/download/v3.24.1/cmake-3.24.1-Linux-x86_64.sh \
         #  -q -O /tmp/cmake-install.sh \
