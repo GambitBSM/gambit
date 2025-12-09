@@ -47,6 +47,9 @@ scanner_plugin(badass, version(1, 0, 0))
                         get_inifile_value<int>("points", 10000),
                         get_inifile_value<int>("jumps", 10),
                         get_inifile_value<std::vector<double>>("Bs", {0.0, 1.0})
+                        #ifdef WITH_MPI
+                            , &get_mpi_comm()
+                        #endif
             );
 
         return 0;
@@ -65,17 +68,21 @@ void AIS(Gambit::Scanner::like_ptr LogLike,
            const long long &rand,
            int N,
            int M,
-           std::vector<double> Bs)
+           std::vector<double> Bs
+#ifdef WITH_MPI
+           , MPI_Comm *comm
+#endif
+)
 {
     int rank = 0;
 
 #ifdef WITH_MPI
     int numtasks = 1;
-    MPI_Comm_size(MPI_COMM_WORLD,&numtasks);
-    MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+    MPI_Comm_size(*comm,&numtasks);
+    MPI_Comm_rank(*comm,&rank);
     if (numtasks > 1)
     {
-        AIS_MPI(LogLike, printer, set_resume_params, ma, proj, din, alim, alimt, rand, N, M, Bs);
+        AIS_MPI(LogLike, printer, set_resume_params, ma, proj, din, alim, alimt, rand, N, M, Bs, comm);
         return;
     }
 #endif
@@ -208,7 +215,8 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
            const long long &rand,
            int N,
            int M,
-           std::vector<double> Bs)
+           std::vector<double> Bs,
+           MPI_Comm *comm)
 {
     std::vector<std::vector<double>> currentPts(N, std::vector<double>(ma)), nextPts(N, std::vector<double>(ma));
     std::vector<double> weights(N, 0.0);
@@ -217,8 +225,8 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
     std::vector<double> aNext(ma);
     double ans, chisqnext, logWtTot = std::log(N);
     int rank, numtasks;
-    MPI_Comm_size(MPI_COMM_WORLD,&numtasks);
-    MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+    MPI_Comm_size(*comm,&numtasks);
+    MPI_Comm_rank(*comm,&rank);
 
     std::vector<unsigned long long int> ids(N);
     unsigned long long int next_id;
@@ -245,7 +253,7 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
 
         for (int r = 1; r < numtasks; r++)
         {
-            MPI_Irecv(&buf[r-1], 1, MPI_INT, r, r, MPI_COMM_WORLD, &reqs[r-1]);
+            MPI_Irecv(&buf[r-1], 1, MPI_INT, r, r, *comm, &reqs[r-1]);
         }
 
         do
@@ -254,8 +262,8 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
             for (int rr = 0; rr < outcount; rr++)
             {
                 int r = indices[rr]+1;
-                MPI_Send(&counter, 1, MPI_INT, r, r+numtasks, MPI_COMM_WORLD);
-                MPI_Irecv(&buf[r-1], 1, MPI_INT, r, r, MPI_COMM_WORLD, &reqs[r-1]);
+                MPI_Send(&counter, 1, MPI_INT, r, r+numtasks, *comm);
+                MPI_Irecv(&buf[r-1], 1, MPI_INT, r, r, *comm, &reqs[r-1]);
                 //std::cout << "point " << counter << " complete."  << std::endl;
 
                 if (counter != N)
@@ -283,8 +291,8 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
         for(;;)
         {
             MPI_Request req;
-            MPI_Isend(&iii, 1, MPI_INT, 0, rank, MPI_COMM_WORLD, &req);
-            MPI_Recv(&i, 1, MPI_INT, 0, rank + numtasks, MPI_COMM_WORLD, &stat);
+            MPI_Isend(&iii, 1, MPI_INT, 0, rank, *comm, &req);
+            MPI_Recv(&i, 1, MPI_INT, 0, rank + numtasks, *comm, &stat);
 
             if (i == N)
                 break;
@@ -298,16 +306,16 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
         }
     }
 
-    MPI_Barrier(MPI_COMM_WORLD);
-    MPI_Bcast (&ranks[0], ranks.size(), MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Barrier(*comm);
+    MPI_Bcast (&ranks[0], ranks.size(), MPI_INT, 0, *comm);
 
     for (int i = 0; i < N; i++)
     {
         double r = ranks[i];
-        MPI_Barrier(MPI_COMM_WORLD);
-        MPI_Bcast (&chisq[i], 1, MPI_DOUBLE, r, MPI_COMM_WORLD);
-        MPI_Bcast (&ids[i], 1, MPI_UNSIGNED_LONG_LONG, r, MPI_COMM_WORLD);
-        MPI_Bcast (&currentPts[i][0], ma, MPI_DOUBLE, r, MPI_COMM_WORLD);
+        MPI_Barrier(*comm);
+        MPI_Bcast (&chisq[i], 1, MPI_DOUBLE, r, *comm);
+        MPI_Bcast (&ids[i], 1, MPI_UNSIGNED_LONG_LONG, r, *comm);
+        MPI_Bcast (&currentPts[i][0], ma, MPI_DOUBLE, r, *comm);
     }
 
     nextPts = currentPts;
@@ -326,7 +334,7 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
 
             for (int r = 1; r < numtasks; r++)
             {
-                MPI_Irecv(&buf[r-1], 1, MPI_INT, r, r, MPI_COMM_WORLD, &reqs[r-1]);
+                MPI_Irecv(&buf[r-1], 1, MPI_INT, r, r, *comm, &reqs[r-1]);
             }
 
             do
@@ -336,8 +344,8 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
                 {
                     std::cout << "handing point " << counter << " to rank " << indices[rr]+1 << std::endl;
                     int r = indices[rr]+1;
-                    MPI_Send(&counter, 1, MPI_INT, r, r+numtasks, MPI_COMM_WORLD);
-                    MPI_Irecv(&buf[r-1], 1, MPI_INT, r, r, MPI_COMM_WORLD, &reqs[r-1]);
+                    MPI_Send(&counter, 1, MPI_INT, r, r+numtasks, *comm);
+                    MPI_Irecv(&buf[r-1], 1, MPI_INT, r, r, *comm, &reqs[r-1]);
 
                     if (counter != N)
                     {
@@ -361,8 +369,8 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
                 int j, iii;
                 MPI_Status stat;
                 MPI_Request req;
-                MPI_Isend(&iii, 1, MPI_INT, 0, rank, MPI_COMM_WORLD, &req);
-                MPI_Recv(&j, 1, MPI_INT, 0, rank + numtasks, MPI_COMM_WORLD, &stat);
+                MPI_Isend(&iii, 1, MPI_INT, 0, rank, *comm, &req);
+                MPI_Recv(&j, 1, MPI_INT, 0, rank + numtasks, *comm, &stat);
                 //std::cout << "rank " << rank << "receiving point " << j << std::endl;
                 if (j == N)
                     break;
@@ -420,16 +428,16 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
             }
         }
 
-        MPI_Barrier(MPI_COMM_WORLD);
-        MPI_Bcast (&ranks[0], ranks.size(), MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Barrier(*comm);
+        MPI_Bcast (&ranks[0], ranks.size(), MPI_INT, 0, *comm);
 
         for (int i = 0; i < N; i++)
         {
             double r = ranks[i];
-            MPI_Barrier(MPI_COMM_WORLD);
-            MPI_Bcast (&chisq[i], 1, MPI_DOUBLE, r, MPI_COMM_WORLD);
-            MPI_Bcast (&ids[i], 1, MPI_UNSIGNED_LONG_LONG, r, MPI_COMM_WORLD);
-            MPI_Bcast (&currentPts[i][0], ma, MPI_DOUBLE, r, MPI_COMM_WORLD);
+            MPI_Barrier(*comm);
+            MPI_Bcast (&chisq[i], 1, MPI_DOUBLE, r, *comm);
+            MPI_Bcast (&ids[i], 1, MPI_UNSIGNED_LONG_LONG, r, *comm);
+            MPI_Bcast (&currentPts[i][0], ma, MPI_DOUBLE, r, *comm);
         }
 
         currentPts = nextPts;

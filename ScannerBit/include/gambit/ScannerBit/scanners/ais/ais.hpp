@@ -266,7 +266,11 @@ void AIS(Gambit::Scanner::like_ptr LogLike,
            const long long &rand,
            int N,
            int M,
-           std::vector<double> Bs);
+           std::vector<double> Bs
+#ifdef WITH_MPI
+           , MPI_Comm *comm
+#endif
+);
 
 #ifdef WITH_MPI
 void AIS_MPI(Gambit::Scanner::like_ptr LogLike, 
@@ -281,7 +285,8 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
            const long long &rand,
            int N,
            int M,
-           std::vector<double> Bs);
+           std::vector<double> Bs,
+           MPI_Comm *comm);
 #endif
 
 #endif

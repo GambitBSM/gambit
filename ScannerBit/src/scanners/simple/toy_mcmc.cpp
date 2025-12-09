@@ -49,8 +49,8 @@ scanner_plugin(toy_mcmc, version(1, 0, 0))
             scan_err << "You need to choose at least 2 points" << scan_end;
         
 #ifdef WITH_MPI
-        MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
-        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        MPI_Comm_size(get_mpi_comm(), &numtasks);
+        MPI_Comm_rank(get_mpi_comm(), &rank);
 #else
         numtasks = 1;
         rank = 0;
@@ -119,8 +119,8 @@ scanner_plugin(toy_mcmc, version(1, 0, 0))
                         int tag = i%numtasks;
                         if (tag != 0)
                         {
-                            MPI_Recv (&buffer_ids[i], 1, MPI_UNSIGNED_LONG_LONG, tag, tag, MPI_COMM_WORLD, &stat);
-                            MPI_Recv (&buffer_chisqs[i], 1, MPI_DOUBLE, tag, tag, MPI_COMM_WORLD, &stat);
+                            MPI_Recv (&buffer_ids[i], 1, MPI_UNSIGNED_LONG_LONG, tag, tag, get_mpi_comm(), &stat);
+                            MPI_Recv (&buffer_chisqs[i], 1, MPI_DOUBLE, tag, tag, get_mpi_comm(), &stat);
                         }
                     }
                 
@@ -148,8 +148,8 @@ scanner_plugin(toy_mcmc, version(1, 0, 0))
                 {
                     for (int i = rank, end = countsofar; i < end; i+=numtasks)
                     {
-                        MPI_Send (&buffer_ids[i], 1, MPI_UNSIGNED_LONG_LONG, 0, rank, MPI_COMM_WORLD);
-                        MPI_Send (&buffer_chisqs[i], 1, MPI_DOUBLE, 0, rank, MPI_COMM_WORLD);
+                        MPI_Send (&buffer_ids[i], 1, MPI_UNSIGNED_LONG_LONG, 0, rank, get_mpi_comm());
+                        MPI_Send (&buffer_chisqs[i], 1, MPI_DOUBLE, 0, rank, get_mpi_comm());
                     }
                 }
             }

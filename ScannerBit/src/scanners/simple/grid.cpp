@@ -65,8 +65,8 @@ scanner_plugin(grid, version(1, 0, 0))
         int rank;
         
 #ifdef WITH_MPI
-        MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
-        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        MPI_Comm_size(get_mpi_comm(), &numtasks);
+        MPI_Comm_rank(get_mpi_comm(), &rank);
 #else
         numtasks = 1;
         rank = 0;
