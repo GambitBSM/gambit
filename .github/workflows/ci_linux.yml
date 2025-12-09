@@ -11,10 +11,11 @@ on:
 jobs:
   gambit_build:
     runs-on: ubuntu-latest
+    timeout-minutes: 60 # Sets a 30-minute timeout for this job
     strategy:
       fail-fast: false
-      matrix:
-        arch: [X64]
+    #  matrix:
+    #    arch: [X64]
     defaults:
       run:
         shell: bash -eo pipefail {0}
