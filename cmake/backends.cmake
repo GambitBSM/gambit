@@ -166,11 +166,13 @@ endif()
 # Acropolis
 set(name "acropolis")
 set(ver "1.2.1")
-set(dl "https://acropolis.hepforge.org/downloads/${name}-${ver}.tar.gz")
+# set(dl "https://acropolis.hepforge.org/downloads/${name}-${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "e427da6d401d5b63ad485b4a8841f6d2")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/${name}_${ver}_patch.diff")
 set(required_modules "numpy,scipy,numba")
+
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
@@ -178,7 +180,7 @@ if(NOT ditched_${name}_${ver})
     inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
   else()
     ExternalProject_Add(${name}_${ver}
-      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+      DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       PATCH_COMMAND patch -p1 < ${patch}
