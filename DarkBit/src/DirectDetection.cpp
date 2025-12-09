@@ -460,6 +460,7 @@ namespace Gambit
     DD_EX(XENON100_2012)        // Aprile et al., PRL 109, 181301 (2013) [arxiv:1207.5988]
     DD_EX(XENON1T_2017)         // Aprile et al., PRL 119, 181301 (2017) [arxiv:1705.06655]
     DD_EX(XENON1T_2018)         // Aprile et al., May 28 talk at Gran Sasso.
+    DD_EX(XENON1T_2022)         // Aprile et al  EPJC 32 989 (2022) replaces 2018 result [2210.07231]
     DD_EX(DARWIN)               // M. Schumann et al., [arXiv:1506.08309]
     DD_EX(LUX_2013)             // Akerib et al., PRL 112, 091303 (2014) [arxiv:1310.8214]
     DD_EX(LUX_2015)             // D.S. Akerib et al., PRL 116, 161301 (2016) [arXiv:1512.03506]
