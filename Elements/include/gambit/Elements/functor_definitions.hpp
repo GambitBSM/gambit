@@ -54,6 +54,8 @@
 #ifndef NO_PRINTERS
   #include "gambit/Printers/baseprinter.hpp"
 #endif
+// _Anders
+#include "gambit/Core/emu_map.hpp"
 
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/io/ios_state.hpp>
@@ -92,6 +94,7 @@ namespace Gambit
     template <typename TYPE>
     bool module_functor<TYPE>::requiresPrinting() const { return myPrintFlag; }
 
+    // _Anders
     /// Calculate method
     /// (no loop-manager stuff here because only void specialisation can manage loops)
     template <typename TYPE>
@@ -115,6 +118,11 @@ namespace Gambit
         this->startTiming(thread_num);             //Begin timing function evaluation
         try
         {
+          // _Anders
+          if (EmulatorMap::useEmulator) 
+          {
+            
+          }
           this->myFunction(myValue[thread_num]);   //Run and place result in the appropriate slot in myValue
         }
         catch (invalid_point_exception& e)
@@ -146,6 +154,7 @@ namespace Gambit
       }
     }
 
+    // _Anders
     /// Operation (return value)
     template <typename TYPE>
     const TYPE& module_functor<TYPE>::operator()(int index)

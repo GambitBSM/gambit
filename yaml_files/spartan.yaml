@@ -382,8 +382,13 @@ Scanner:
 
 ObsLikes:
 
+  # - purpose:      LogLike
+  #   capability:   normaldist_loglike
+  #   module:       ExampleBit_A
+  #   type:         double
+
   - purpose:      LogLike
-    capability:   normaldist_loglike
+    capability:   Example_lnL_A
     module:       ExampleBit_A
     type:         double
 
@@ -395,15 +400,19 @@ ObsLikes:
 
 Emulation:
 
-  use_emulator: LogLike
+  # use_emulator: LogLike
+  use_emulator: nevents
 
   emulators:
-    LogLike: 
+    # LogLike: 
+    #   plugin:  plugin_1
+    #   train: true
+    #   predict: true
+
+    nevents: 
       plugin:  plugin_1
       train: true
       predict: true
-
-
 
 
   # - capability:      LogLike
@@ -428,12 +437,20 @@ Emulation:
 
 Rules:
 
+  # - if:
+  #     capability: normaldist_loglike
+  #   then:
+  #     options:
+  #       probability_of_validity: 1.0
+  #       use_emulator: plugin_1
+
   - if:
-      capability: normaldist_loglike
+      capability: xsection
+      type: double
     then:
-      options:
-        probability_of_validity: 1.0
-        use_emulator: plugin_1
+      module: ExampleBit_A
+      function: test_sigma
+
 
 Logger:
 
@@ -445,7 +462,7 @@ Logger:
 
 KeyValues:
 
-  debug: false #true
+  debug: true
 
   default_output_path: "${PWD}/runs/spartan"
 

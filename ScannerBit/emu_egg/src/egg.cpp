@@ -145,9 +145,11 @@ int main(int argc, char *argv[])
             // if message with tag 3, accept it
             if (flag && status.MPI_TAG == 3)
             {
+                std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
                 // get size of buffer
                 int receiver_size;
                 MPI_Get_count(&status, MPI_CHAR, &receiver_size);
+                std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
 
                 // Prepare to recieve datapoints
                 Scanner::Emulator::feed_def receiver;
@@ -157,7 +159,9 @@ int main(int argc, char *argv[])
                 receiver.resize(receiver_size);
 
                 // recieve data
+                std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
                 MPI_Recv(receiver.buffer.data(), receiver_size, MPI_CHAR, MPI_ANY_SOURCE, 3, MPI_COMM_WORLD, &status_recv); 
+                std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
 
                 // std::cout << " rank " << world_rank << " recieved: " << receiver.if_train() << " from " << status_recv.MPI_SOURCE << std::endl;
 
@@ -178,28 +182,45 @@ int main(int argc, char *argv[])
                 // Predict, ask for prediction and send
                 else if (receiver.if_predict())
                 {
+                    std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
+
                     // extract parameters
-                    double mu = receiver.params() [0];
-                    double sig = receiver.params() [1];
+                    double mu = receiver.params()[0];
+                    std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
+                    double sig = receiver.params()[1];
+
+                    std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
 
                     std::cout <<"predict: " << mu << " # " << sig  << std::endl;
                     
+                    std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
+
                     // evaluate
                     double new_lnL = nearestNeighborAverage(parameters, likes, {mu,sig}, 1);
+
+                    std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
 
                     // send results
                     std::vector<double> pred = {new_lnL};
                     std::vector<double> pred_u = {new_lnL*0.01};
 
+                    std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
+
                     // make new buffer with size 0 for the input parameters
                     std::vector<unsigned int> sizes = {0, 1, 1};
                     Scanner::Emulator::feed_def answer_buffer(sizes);
 
+                    std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
+
                     // populate answer_buffer
                     answer_buffer.add_for_result(pred, pred_u);
 
+                    std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
+
                     // send to process it arrived from ( tag 4 = results )
                     MPI_Send(answer_buffer.buffer.data(), answer_buffer.buffer.size(), MPI_CHAR, status_recv.MPI_SOURCE, 4, MPI_COMM_WORLD);
+
+                    std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
                 }
             }
         }

@@ -38,6 +38,10 @@
 
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ExampleBit_A/ExampleBit_A_rollcall.hpp"
+// _Anders
+#include "gambit/Utils/mpiwrapper.hpp"
+#include "gambit/ScannerBit/emulator_utils.hpp"
+#include "gambit/Core/emu_map.hpp"
 
 
 namespace Gambit
@@ -76,9 +80,82 @@ namespace Gambit
 
     /// \name Module functions
     /// @{
-    void nevents_pred      (double &result)    { static double count = 3.5; result = count++; cout << "My xsection dep: " << *Pipes::nevents_pred::Dep::xsection << endl;}
-    void nevents_like      (double &result)    { result = 2.0 * (*Pipes::nevents_like::Dep::eventAccumulation); }
-    void particle_identity (str    &result)    { result = "fakion"; }
+
+    // Example of dependency-to-emu-argument conversion
+    void emu_args_nevents_pred(std::vector<double>& emu_args)
+    {
+      emu_args.push_back(*Pipes::nevents_pred::Dep::xsection);
+    }
+
+    void nevents_pred(double &result)
+    { 
+      std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
+
+      // _Anders
+      // This is mostly copied from the example in likelihood_container.cpp. 
+      // Most of this should be hidden inside the module_functor class eventually.
+      // One thing we will need is a function that converts dependencies to emulator arguments.
+      if (EmulatorMap::useEmulator)
+      {
+        // Convert dependencies to vector of emulator arguments
+        // std::vector<double> emu_args;
+        // emu_args_nevents_pred(emu_args);
+
+        std::vector<double> emu_args;
+        emu_args.push_back(3.14);
+
+        // Set message size
+        unsigned int n = emu_args.size();
+        std::vector<unsigned int> sizes = {n, 1, 1};
+
+        // Make send buffer
+        Scanner::Emulator::feed_def fd_predict(sizes);
+        fd_predict.add_for_evaluation(emu_args);
+        fd_predict.set_predict();
+
+        // find rank to send to
+        int send_rank = EmulatorMap::mapping_ranks["nevents"];
+
+        // send message
+        std::cerr << "DEBUG: emu_args[0]: " << emu_args[0] << std::endl;
+        std::cerr << "DEBUG: fd_predict.params()[0]: " << fd_predict.params()[0] << std::endl;
+        std::cerr << "DEBUG: fd_predict.params()[1]: " << fd_predict.params()[1] << std::endl;
+
+        MPI_Send(fd_predict.buffer.data(), fd_predict.buffer.size(), MPI_CHAR, send_rank, 3, MPI_COMM_WORLD);
+
+        // wait for prediction
+        // prepare to get result from egg
+        Scanner::Emulator::feed_def predict_results;
+
+        // probe size of result buffer
+        int size_result;
+        MPI_Status status_parent;
+        MPI_Probe(MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, &status_parent);
+        MPI_Get_count(&status_parent, MPI_CHAR, &size_result);
+        predict_results.resize(size_result);
+
+        // recieve buffer
+        MPI_Recv(predict_results.buffer.data(), size_result, MPI_CHAR, MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+        // print result
+        std::cout << "results from emu "<< predict_results.prediction() << std::endl;
+      }
+
+
+      static double count = 3.5; 
+      result = count++; 
+      cout << "My xsection dep: " << *Pipes::nevents_pred::Dep::xsection << endl;
+    }
+
+    void nevents_like(double &result)
+    { 
+      result = 2.0 * (*Pipes::nevents_like::Dep::eventAccumulation); 
+    }
+    
+    void particle_identity(str &result)
+    { 
+      result = "fakion"; 
+    }
 
     void nevents_pred_rounded(int &result)
     {

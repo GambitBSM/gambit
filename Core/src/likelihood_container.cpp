@@ -224,31 +224,46 @@ namespace Gambit
       // Set the values of the parameter point in the PrimaryParameters functor, and log them to cout and/or the logs if desired.
       setParameters(in);
 
+      // _Anders
+      std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
+
       //_emu predict
-      if (EmulatorMap::useEmulator) 
+      if (EmulatorMap::useEmulator && EmulatorMap::mapping_ranks.find("LogLike") != EmulatorMap::mapping_ranks.end())
       {
         // get parameters
         std::vector<double> parameters;
         for (auto key : in) { parameters.push_back(key.second); }
 
+        std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
+
         // get message size
         unsigned int n = parameters.size();
         std::vector<unsigned int> sizes = {n, 1, 1};
 
+        std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
+  
         // make send buffer
         Scanner::Emulator::feed_def fd_predict(sizes);
         fd_predict.add_for_evaluation(parameters);
         fd_predict.set_predict();
 
+        std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
+  
         // find rank to send to
         int send_rank = EmulatorMap::mapping_ranks["LogLike"];
 
+        std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
+  
         // send message
         MPI_Send(fd_predict.buffer.data(), fd_predict.buffer.size(), MPI_CHAR, send_rank, 3, MPI_COMM_WORLD);
+
+        std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
 
         // wait for prediction
         // prepare to get result from egg
         Scanner::Emulator::feed_def predict_results;
+
+        std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
 
         // probe size of result buffer
         int size_result;
@@ -257,16 +272,22 @@ namespace Gambit
         MPI_Get_count(&status_parent, MPI_CHAR, &size_result);
         predict_results.resize(size_result);
 
+        std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
+
         // recieve buffer
         MPI_Recv(predict_results.buffer.data(), size_result, MPI_CHAR, MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+        std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
 
         // print result
         std::cout << "results from emu "<< predict_results.prediction() << std::endl;
 
         // TODO: threshold to use this prediction and skip the rest
-        }
-        //_emu predict end
+      }
+      //_emu predict end
 
+      // _Anders
+      std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
 
 
 
@@ -280,6 +301,7 @@ namespace Gambit
       // Compute time since the previous likelihood evaluation ended
       std::chrono::duration<double> interloop_time = startL - previous_endL;
 
+      // _Anders
       // First work through the target functors, i.e. the ones contributing to the likelihood.
       for (auto it = target_vertices.begin(), end = target_vertices.end(); it != end; ++it)
       {
@@ -294,6 +316,7 @@ namespace Gambit
           std::ostringstream debug_to_cout;
           if (debug) debug_to_cout << "  L" << likelihood_tag << ": ";
 
+          // _Anders
           // Calculate the likelihood component.
           dependencyResolver.calcObsLike(*it);
 

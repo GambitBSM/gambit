@@ -181,6 +181,12 @@ int main(int argc, char* argv[])
         EmulatorMap::mapping_ranks = rank_map;
         EmulatorMap::useEmulator = true;
 
+        // _Andes
+        for (std::pair<std::string,int> kvpair : EmulatorMap::mapping_ranks)
+        {
+          std::cerr << "DEBUG:  key: " << kvpair.first << "  value: " << kvpair.second << std::endl;
+        }
+
       }
       // not use emulators
       else 

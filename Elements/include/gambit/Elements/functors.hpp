@@ -866,8 +866,10 @@ namespace Gambit
       virtual bool requiresPrinting() const;
 
       /// Calculate method
+      // _Anders
       void calculate();
 
+      // _Anders
       /// Operation (return value)
       const TYPE& operator()(int index);
 
