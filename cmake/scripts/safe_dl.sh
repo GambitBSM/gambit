@@ -187,7 +187,7 @@ if [ ! -f ${target_file} ]; then
   elif [ ! -z "${ARCHIVE_URL}" ]; then
     download_url=${ARCHIVE_URL}
     [ ! -z "${ARCHIVE_MD5}" ] && download_md5=${ARCHIVE_MD5}
-    ${cmake_cmd} -E echo "使用归档备份: ${download_url}"
+    ${cmake_cmd} -E echo "Using archived backup: ${download_url}"
     if attempt_downloads "${download_url}" "${max_retries}"; then
       download_success=1
     fi

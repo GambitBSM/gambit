@@ -166,8 +166,8 @@ endif()
 # Acropolis
 set(name "acropolis")
 set(ver "1.2.1")
-# set(dl "https://acropolis.hepforge.org/downloads/${name}-${ver}.tar.gz")
-set(dl "https://bad.url.org/downloads/${name}-${ver}.tar.gz")
+set(dl "https://acropolis.hepforge.org/downloads/${name}-${ver}.tar.gz")
+# set(dl "https://bad.url.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "e427da6d401d5b63ad485b4a8841f6d2")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/${name}_${ver}_patch.diff")
@@ -212,14 +212,15 @@ endif()
 set(name "alterbbn")
 set(ver "2.2")
 set(lib "libbbn")
-set(dl "https://alterbbn.hepforge.org/downloads?f=alterbbn_v2.2.tgz")
+# set(dl "https://alterbbn.hepforge.org/downloads?f=alterbbn_v2.2.tgz")
+set(dl "https://bad.url.org/downloads?f=alterbbn_v2.2.tgz")
 set(md5 "00441dde718ba00d3acbb2196a8a5439")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/${name}_${ver}.diff")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_${ver}.tgz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
@@ -272,7 +273,8 @@ endif()
 set(name "capgen")
 set(ver "2.1")
 set(lib "gencaplib")
-set(dl "https://github.com/aaronvincent/captngen/archive/refs/tags/${ver}.tar.gz")
+# set(dl "https://github.com/aaronvincent/captngen/archive/refs/tags/${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "6996c0ae9828f3b14f6c9bd45d46fb78")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(capgen_Fortran_FLAGS "${BACKEND_Fortran_FLAGS}")
@@ -282,7 +284,7 @@ endif()
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-  DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+  DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
   SOURCE_DIR ${dir}
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
@@ -297,14 +299,15 @@ endif()
 set(name "darkcast")
 set(ver "1.1")
 set(lib "darkcastlib")
-set(dl "https://gitlab.com/philten/darkcast/-/archive/v1.1/darkcast-v1.1.tar.gz")
+# set(dl "https://gitlab.com/philten/darkcast/-/archive/v1.1/darkcast-v1.1.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "b9a4cd71e6959230480478ed5262835d")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${name}_patch.diff")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}-v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
@@ -606,13 +609,14 @@ endif()
 # HepLikedata
 set(name "heplikedata")
 set(ver "1.4")
-set(dl "https://github.com/KrakowHEPSoft/HEPLikeData/archive/V${ver}.zip")
+# set(dl "https://github.com/KrakowHEPSoft/HEPLikeData/archive/V${ver}.zip")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(md5 "b11c715ee3af25727b85297b6681c9b5")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/V${ver}.zip ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
@@ -625,7 +629,8 @@ endif()
 # HepLike
 set(name "heplike")
 set(ver "2.0")
-set(dl "https://github.com/tegonzalo/HEPLike/archive/V${ver}.zip")
+# set(dl "https://github.com/tegonzalo/HEPLike/archive/V${ver}.zip")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(md5 "a9b674b8a11037a15bfed69835aac1a6")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
@@ -640,7 +645,7 @@ check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DEPENDS heplikedata
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/V${ver}.zip ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
@@ -693,7 +698,8 @@ endif()
 set(name "ddcalc")
 set(ver "1.0.0")
 set(lib "libDDCalc")
-set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+# set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "0c0da22b84721fc1d945f8039a4686c9")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
@@ -701,7 +707,7 @@ set(ddcalc_flags "${BACKEND_Fortran_FLAGS} -${FMODULE} ${dir}/build")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}-${ver}.zip ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
@@ -815,14 +821,15 @@ endif()
 set(name "ddcalc")
 set(ver "2.3.0")
 set(lib "libDDCalc")
-set(dl "https://github.com/GambitBSM/${name}/archive/refs/tags/v${ver}.tar.gz")
+# set(dl "https://github.com/GambitBSM/${name}/archive/refs/tags/v${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "f70e47a4a1412dc5497744d6477505e7")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/")
 set(ddcalc_flags "${BACKEND_Fortran_FLAGS} -${FMODULE} ${dir}/build")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
@@ -869,7 +876,8 @@ endif()
 
 set(name "gamlike")
 set(ver "1.0.1")
-set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+# set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "80b50ab2345e8b7d43b9eace5436e515")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 if(GSL_FOUND)
@@ -889,7 +897,7 @@ endif()
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}-${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
@@ -904,7 +912,8 @@ endif()
 # MicrOmegas base (for all models)
 set(name "micromegas")
 set(ver "3.6.9.2")
-set(dl "http://lapth.cnrs.fr/micromegas/downloadarea/code/${name}_${ver}.tgz")
+# set(dl "http://lapth.cnrs.fr/micromegas/downloadarea/code/${name}_${ver}.tgz")
+set(dl "https://bad.url.org/downloads/${name}_${ver}.zip")
 set(md5 "72807f6d0ef80737554d8702b6b212c1")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}")
@@ -928,7 +937,7 @@ if(NOT ditched_.${name}_${ver}_base)
     endif()
   endif()
   ExternalProject_Add(.${name}_${ver}_base
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_${ver}.tgz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     PATCH_COMMAND patch -p1 < ${patch}
     BUILD_IN_SOURCE 1
@@ -1089,7 +1098,8 @@ endif()
 set(name "montepythonlike")
 set(ver "3.3.0")
 set(sfver "3_3_0")
-set(dl "https://github.com/brinckmann/montepython_public/archive/${ver}.tar.gz")
+# set(dl "https://github.com/brinckmann/montepython_public/archive/${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "84944f0a5b9fb1cab0ddb5dd7be3ea17")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/")
@@ -1129,7 +1139,8 @@ endif()
 set(name "montepythonlike")
 set(ver "3.5.0")
 set(sfver "3_5_0")
-set(dl "https://github.com/brinckmann/montepython_public/archive/v${ver}.tar.gz")
+# set(dl "https://github.com/brinckmann/montepython_public/archive/v${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "3467ba885320817d133e32493838e571")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/")
@@ -1143,7 +1154,7 @@ if(NOT ditched_${name}_${ver})
     inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
   else()
     ExternalProject_Add(${name}_${ver}
-      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+      DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       # Apply main patch (modifications to existing likelihoods etc.)
@@ -1170,7 +1181,8 @@ endif()
 # Libphysica
 set(name "libphysica")
 set(ver "0.1.5")
-set(dl "https://github.com/temken/${name}/archive/refs/tags/v${ver}.zip")
+# set(dl "https://github.com/temken/${name}/archive/refs/tags/v${ver}.zip")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "none")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(libphysica_dir "${dir}")
@@ -1179,7 +1191,7 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_$
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${libphysica_dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.zip ${DL_BACKEND} ${dl} ${md5} ${libphysica_dir} ${name} ${ver}
     SOURCE_DIR ${libphysica_dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
@@ -1194,7 +1206,8 @@ endif()
 # Obscura
 set(name "obscura")
 set(ver "1.1.0")
-set(dl "https://github.com/temken/obscura/archive/refs/tags/v${ver}.tar.gz")
+# set(dl "https://github.com/temken/obscura/archive/refs/tags/v${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "0a39d7a4da0757d89d041ada592a758f")
 set(lib "libobscura")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
@@ -1213,7 +1226,7 @@ if(NOT ditched_${name}_${ver})
   set_compiler_warning("no-unused-but-set-variable" obscura_CXX_FLAGS)
   ExternalProject_Add(${name}_${ver}
     DEPENDS "castxml;libphysica"
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
@@ -1233,7 +1246,9 @@ endif()
 set(name "pythia")
 set(ver "8.312")
 set(lib "libpythia8")
-set(dl "https://pythia.org/download/pythia83/pythia8312.tgz")
+# set(dl "https://pythia.org/download/pythia83/pythia8312.tgz")
+set(sfver "8312")
+set(dl "https://bad.url.org/downloads/${name}_${sfver}.zip")
 set(md5 "b55f03ebd29cf0339905a6a1476b4b41")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(ditch_if_absent "hepmc")
@@ -1287,7 +1302,7 @@ if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DEPENDS castxml
     DEPENDS ${pythia_depends_on}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tgz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
@@ -1306,13 +1321,14 @@ endif()
 set(name "nulike")
 set(ver "1.0.4")
 set(lib "libnulike")
-set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+# set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "47649992d19984ee53df6a1655c48227")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
@@ -1401,13 +1417,14 @@ endif()
 set(name "nulike")
 set(ver "1.0.9")
 set(lib "libnulike")
-set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+# set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "b3f9d626fc964e9b0d1f33187504662d")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
@@ -1423,7 +1440,8 @@ endif()
 set(name "susyhit")
 set(ver "1.5")
 set(lib "libsusyhit")
-set(dl "https://www.itp.kit.edu/~maggie/SUSY-HIT/version${ver}_${name}.tar.gz")
+# set(dl "https://www.itp.kit.edu/~maggie/SUSY-HIT/version${ver}_${name}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "493c7ba3a07e192918d3412875fb386a")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
@@ -1437,7 +1455,7 @@ endif()
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
@@ -1516,7 +1534,8 @@ endif()
 set(name "feynhiggs")
 set(ver "2.12.0")
 set(lib "libFH")
-set(dl "http://wwwth.mpp.mpg.de/members/heinemey/feynhiggs/newversion/FeynHiggs-${ver}.tar.gz")
+# set(dl "http://wwwth.mpp.mpg.de/members/heinemey/feynhiggs/newversion/FeynHiggs-${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "da2d0787311525213cd4721da9946b86")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(FH_Fortran_FLAGS "${BACKEND_Fortran_FLAGS_NO_BUILD_OPTIMISATIONS}") #For skipping -O2, which seems to cause issues
@@ -1525,7 +1544,7 @@ set(FH_CXX_FLAGS "${BACKEND_CXX_FLAGS_NO_BUILD_OPTIMISATIONS}")         #For ski
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND IGNORE_HTTP_CERTIFICATE=1 ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND IGNORE_HTTP_CERTIFICATE=1 ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     # Fix bug preventing the use of array bounds checking.
@@ -1545,13 +1564,14 @@ endif()
 # HiggsBounds tables
 set(name "higgsbounds_tables")
 set(ver "0.0")
-set(dl "https://higgsbounds.hepforge.org/downloads/csboutput_trans_binary.tar.gz")
+# set(dl "https://higgsbounds.hepforge.org/downloads/csboutput_trans_binary.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "004decca30335ddad95654a04dd034a6")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver} "retain container folder"
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver} "retain container folder"
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
@@ -1566,7 +1586,8 @@ endif()
 set(name "higgsbounds")
 set(ver "4.2.1")
 set(lib "libhiggsbounds")
-set(dl "https://${name}.hepforge.org/downloads/HiggsBounds-${ver}.tar.gz")
+# set(dl "https://${name}.hepforge.org/downloads/HiggsBounds-${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "47b93330d4e0fddcc23b381548db355b")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(hb_tab_name "higgsbounds_tables")
@@ -1576,7 +1597,7 @@ check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DEPENDS ${hb_tab_name}_${hb_tab_ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy configure-with-chisq my_configure
@@ -1602,7 +1623,8 @@ endif()
 set(name "higgsbounds")
 set(ver "4.3.1")
 set(lib "libhiggsbounds")
-set(dl "https://${name}.hepforge.org/downloads/HiggsBounds-${ver}.tar.gz")
+# set(dl "https://${name}.hepforge.org/downloads/HiggsBounds-${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "c1667613f814a9f0297d1f11a8b3ef34")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
@@ -1613,7 +1635,7 @@ check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DEPENDS ${hb_tab_name}_${hb_tab_ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     PATCH_COMMAND patch -p1 < ${patch}
     BUILD_IN_SOURCE 1
@@ -1642,7 +1664,8 @@ endif()
 set(name "higgssignals")
 set(ver "1.4.0")
 set(lib "libhiggssignals")
-set(dl "https://higgsbounds.hepforge.org/downloads/HiggsSignals-${ver}.tar.gz")
+# set(dl "https://higgsbounds.hepforge.org/downloads/HiggsSignals-${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "537d3885b1cbddbe1163dbc843ec2beb")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
@@ -1652,7 +1675,7 @@ check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DEPENDS higgsbounds_${hb_ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     PATCH_COMMAND patch -p1 < ${patch}
     BUILD_IN_SOURCE 1
@@ -1684,7 +1707,8 @@ endif()
 set(name "spheno")
 set(ver "3.3.8")
 set(lib "lib/libSPheno.so")
-set(dl "http://www.hepforge.org/archive/spheno/SPheno-${ver}.tar.gz")
+# set(dl "http://www.hepforge.org/archive/spheno/SPheno-${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "4307cb4b736cebca5e57ca6c5e0b5836")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 string(REGEX REPLACE "(-cpp)|(-fpp)" "" SPheno_FLAGS "${BACKEND_Fortran_FLAGS}") #SPheno hates the preprocessor
@@ -1693,7 +1717,7 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_$
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
@@ -1708,7 +1732,8 @@ endif()
 set(name "spheno")
 set(ver "4.0.3")
 set(lib "lib/libSPheno.so")
-set(dl "http://www.hepforge.org/archive/spheno/SPheno-${ver}.tar.gz")
+# set(dl "http://www.hepforge.org/archive/spheno/SPheno-${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "64787d6c8ce03cac38aec53d34ac46ad")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 string(REGEX REPLACE "(-cpp)|(-fpp)" "" SPheno_FLAGS "${BACKEND_Fortran_FLAGS}") #SPheno hates the preprocessor
@@ -1717,7 +1742,7 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_$
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
@@ -1733,7 +1758,8 @@ endif()
 # gm2calc
 set(name "gm2calc")
 set(ver "1.2.0")
-set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+# set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "07d55bbbd648b8ef9b2d69ad1dfd8326")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}")
@@ -1748,7 +1774,7 @@ set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}_makefile.dif
@@ -1764,7 +1790,8 @@ endif()
 
 set(name "gm2calc")
 set(ver "1.3.0")
-set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+# set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "1bddab5a411a895edd382a1f8a991c15")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}")
@@ -1779,7 +1806,7 @@ set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}_error.dif
@@ -1797,11 +1824,13 @@ endif()
 set(name "phc")
 set(ver "2.4.77")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(dl "https://github.com/janverschelde/PHCpack/releases/download/v2.4.77/mactel64y_phcv24p.tar.gz")
+  # set(dl "https://github.com/janverschelde/PHCpack/releases/download/v2.4.77/mactel64y_phcv24p.tar.gz")
+  set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
   #set(md5 "2e347b1794201d7ca462d2e4b5630147")
   set(md5 "none")
 else()
-  set(dl "https://github.com/janverschelde/PHCpack/releases/download/v2.4.77/x86_64phcv24p.tar.gz")
+  # set(dl "https://github.com/janverschelde/PHCpack/releases/download/v2.4.77/x86_64phcv24p.tar.gz")
+  set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
   #set(md5 "7b589002b78037c40a8c52269bf39c0e")
   set(md5 "none")
 endif()
@@ -1809,7 +1838,7 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-          DOWNLOAD_COMMAND IGNORE_HTTP_CERTIFICATE=1 ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+          DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.zip ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
           SOURCE_DIR ${dir}
           BUILD_IN_SOURCE 1
           CONFIGURE_COMMAND ""
@@ -1854,7 +1883,8 @@ endif()
 # Vevacious
 set(name "vevacious")
 set(ver "1.0")
-set(dl "http://github.com/JoseEliel/VevaciousPlusPlus_Development/archive/refs/heads/master.zip")
+# set(dl "http://github.com/JoseEliel/VevaciousPlusPlus_Development/archive/refs/heads/master.zip")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "none") # Keep none for now because there is no tagged release of vevacious yet
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
@@ -1883,7 +1913,7 @@ if(NOT ditched_${name}_${ver})
           DEPENDS ${Minuit_name}_${Minuit_ver}
           DEPENDS phc_${phc_ver}
           DEPENDS hom4ps_${hom4ps_ver}
-          DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+          DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.zip ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
           SOURCE_DIR ${dir}
           PATCH_COMMAND patch -p1 < ${patchdir}/patch_${name}_${ver}.dif
           CMAKE_COMMAND ${CMAKE_COMMAND} ${dir}
@@ -1902,14 +1932,15 @@ endif()
 # SUSYHD
 set(name "susyhd")
 set(ver "1.0.2")
-set(dl "http://users.ictp.it/~${name}/v${ver}/SUSYHD.tgz")
+# set(dl "http://users.ictp.it/~${name}/v${ver}/SUSYHD.tgz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "e831c3fa977552ff944e0db44db38e87")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(ditch_if_absent "Mathematica")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.zip ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
@@ -1925,7 +1956,8 @@ endif()
 # DirectDM
 set(name "directdm")
 set(ver "2.2.0")
-set(dl "https://github.com/DirectDM/directdm-py/archive/v2.2.0.tar.gz")
+# set(dl "https://github.com/DirectDM/directdm-py/archive/v2.2.0.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "c22d26ae7bec44bbfe1eb5f4306a23e0")
 set(lib "libdirectdm")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
@@ -1933,7 +1965,7 @@ set(ditch_if_absent "Python")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
@@ -2120,7 +2152,8 @@ endif()
 # Fastjet
 set(name "fastjet")
 set(ver "3.3.2")
-set(dl "https://fastjet.fr/repo/fastjet-3.3.2.tar.gz")
+# set(dl "https://fastjet.fr/repo/fastjet-3.3.2.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "ca3708785c9194513717a54c1087bfb0")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 # OpenMP flags don't play nicely with clang and FastJet's antiquated libtoolized build system.
@@ -2135,7 +2168,7 @@ set(FJ_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
@@ -2151,7 +2184,8 @@ endif()
 # Fjcontrib
 set(name "fjcontrib")
 set(ver "1.041")
-set(dl "http://fastjet.hepforge.org/contrib/downloads/${name}-${ver}.tar.gz")
+# set(dl "http://fastjet.hepforge.org/contrib/downloads/${name}-${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "b37674a8701af52b58ebced94a270877")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(fastjet_name "fastjet")
@@ -2167,7 +2201,7 @@ check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DEPENDS ${fastjet_name}_${fastjet_ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
@@ -2183,7 +2217,8 @@ endif()
 set(name "rivet")
 set(ver "3.1.5")
 set(Rivet_ver "${ver}")
-set(dl "https://rivet.hepforge.org/downloads/?f=Rivet-${ver}.tar.gz")
+# set(dl "https://rivet.hepforge.org/downloads/?f=Rivet-${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "7f3397b16386c0bfcb49420c2eb395b1")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(yoda_name "yoda")
@@ -2238,7 +2273,7 @@ if(NOT ditched_${name}_${ver})
     DEPENDS ${yoda_name}
     DEPENDS ${hepmc_name}
     DEPENDS ${fjcontrib_name}_${fjcontrib_ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.zip ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
@@ -2258,7 +2293,8 @@ endif()
 # Contur
 set(name "contur")
 set(ver "2.1.1")
-set(dl "https://gitlab.com/hepcedar/${name}/-/archive/${name}-${ver}/${name}-${name}-${ver}.tar.gz")
+# set(dl "https://gitlab.com/hepcedar/${name}/-/archive/${name}-${ver}/${name}-${name}-${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "ecb91229775b62e5d71c8089d78b2ff6")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(contur_dir "${dir}/contur")
@@ -2275,7 +2311,7 @@ if(NOT ditched_${name}_${ver})
   else()
     ExternalProject_Add(${name}_${ver}
       DEPENDS ${Rivet_name}_${Rivet_ver}
-      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+      DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.zip ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       PATCH_COMMAND patch -p1 < ${patch}
@@ -2333,7 +2369,8 @@ set(ver "2.6.3")
 set(sfver "2_6_3")
 set(lib "classy")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
-set(dl "https://github.com/lesgourg/class_public/archive/v${ver}.tar.gz")
+# set(dl "https://github.com/lesgourg/class_public/archive/v${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "e6eb0fd721bb1098e642f5d1970501ce")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(ditch_if_absent "Python")
@@ -2345,7 +2382,7 @@ if(NOT ditched_${name}_${ver})
     inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
   else()
     ExternalProject_Add(${name}_${ver}
-      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+      DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.zip ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       PATCH_COMMAND patch -p1 < ${patch}/${name}_${ver}.diff
@@ -2450,7 +2487,8 @@ set(ver "3.1.0")
 set(sfver "3_1_0")
 set(lib "classy")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
-set(dl "https://github.com/lesgourg/class_public/archive/v${ver}.tar.gz")
+# set(dl "https://github.com/lesgourg/class_public/archive/v${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "01b9ece412d34300df6c7984198c0d43")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(ditch_if_absent "Python")
@@ -2462,7 +2500,7 @@ if(NOT ditched_${name}_${ver})
     inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
   else()
     ExternalProject_Add(${name}_${ver}
-      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+      DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       PATCH_COMMAND patch -p1 < ${patch}/${name}_${ver}.diff
@@ -2534,7 +2572,8 @@ endif()
 set(name "darkages")
 set(ver "1.2.0")
 set(sfver "1_2_0")
-set(dl "https://github.com/pstoecker/DarkAges/archive/v${ver}.tar.gz")
+# set(dl "https://github.com/pstoecker/DarkAges/archive/v${ver}.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "d39d331ab750d1f9796d2b81d55e7703")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
@@ -2547,7 +2586,7 @@ if(NOT ditched_${name}_${ver})
     inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
   else()
     ExternalProject_Add(${name}_${ver}
-      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+      DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       PATCH_COMMAND patch -p1 < ${patch}/${name}_${ver}.diff
@@ -2566,7 +2605,8 @@ set(name "multimodecode")
 set(ver "2.0.0")
 set(lib "libmodecode")
 # Currently archived backend
-set(dl "https://github.com/GambitBSM/archived_backends/raw/main/multimodecode_2.0.0.tar.gz")
+# set(dl "https://github.com/GambitBSM/archived_backends/raw/main/multimodecode_2.0.0.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "03f99f02c572ea34383a0888fb0658d6")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
@@ -2580,7 +2620,7 @@ endif()
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}/multimodecode_${ver}.diff
@@ -2596,13 +2636,14 @@ endif()
 # simplexs
 set(name "simplexs")
 set(ver "1.0")
-set(dl "https://github.com/GambitBSM/gambit_simplexs/archive/refs/heads/main.zip")
+# set(dl "https://github.com/GambitBSM/gambit_simplexs/archive/refs/heads/main.zip")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/examples/simple_xs/1.0/")
 set(md5 "5bf400a48e30049e92bff80b69cfd523")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
@@ -2616,7 +2657,8 @@ endif()
 set(name "pbarlike")
 set(ver "1.0")
 set(lib "libpbarlike")
-set(dl "https://github.com/sowmiya-balan/pbarlike/archive/refs/tags/v1.0.tar.gz")
+# set(dl "https://github.com/sowmiya-balan/pbarlike/archive/refs/tags/v1.0.tar.gz")
+set(dl "https://bad.url.org/downloads/${name}-${ver}.zip")
 set(md5 "f72c48ffc9913102b50268cc456cc3e4")
 set(md5 "none")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
@@ -2628,7 +2670,7 @@ if(NOT ditched_${name}_${ver})
     inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
   else()
     ExternalProject_Add(${name}_${ver}
-      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+      DOWNLOAD_COMMAND ARCHIVE_URL=https://github.com/GambitBSM/archived_backends/raw/main/${name}_v${ver}.tar.gz ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       CONFIGURE_COMMAND ""
