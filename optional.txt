@@ -17,3 +17,4 @@ tensorflow
 iminuit
 future
 dill
+binminpy @ git+https://github.com/anderkve/binminpy.git@main

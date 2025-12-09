@@ -104,6 +104,9 @@ namespace Gambit
     /// Setter for purpose (relevant only for next-to-output functors)
     void functor::setPurpose(str purpose) { myPurpose = purpose; }
 
+    /// Setter for critical flag (relevant only for next-to-output functors)
+    void functor::setCritical(bool critical) { myCritical = critical; }
+
     /// Setter for vertex ID (used in printer system)
     void functor::setVertexID(int ID) { myVertexID = ID; }
 
@@ -145,6 +148,8 @@ namespace Gambit
     sspair functor::quantity() const { return std::make_pair(myCapability, myType); }
     /// Getter for purpose (relevant for output nodes, aka helper structures for the dep. resolution)
     str functor::purpose()     const { return myPurpose; }
+    /// Getter for critical (relevant for output nodes, aka helper structures for the dep. resolution)
+    bool functor::critical()   const { return myCritical; }
     /// Getter for citation key
     str functor::citationKey() const { return myCitationKey; }
     /// Getter for vertex ID
@@ -1166,12 +1171,13 @@ namespace Gambit
     }
 
     /// Add and activate unconditional dependencies.
-    void module_functor_common::setDependency(str dep, str dep_type, void(*resolver)(functor*, module_functor_common*), str purpose)
+    void module_functor_common::setDependency(str dep, str dep_type, void(*resolver)(functor*, module_functor_common*), str purpose, bool critical)
     {
       sspair key (dep, Utils::fix_type(dep_type));
       myDependencies.insert(key);
       dependency_map[key] = resolver;
       this->myPurpose = purpose; // only relevant for output nodes
+      this->myCritical = critical; // only relevant for output nodes
     }
 
     /// Add conditional dependency-type pairs in advance of later conditions.
@@ -1529,6 +1535,8 @@ namespace Gambit
         if (dependency_map.find(key) != dependency_map.end()) (*dependency_map[key])(dep_functor,this);
         // propagate purpose from next to next-to-output nodes
         dep_functor->setPurpose(this->myPurpose);
+        // propagate critical from next to next-to-output nodes
+        dep_functor->setCritical(this->myCritical);
         // propagate this functor's dependees and subcaps on to the resolving functor
         dep_functor->notifyOfDependee(this);
         // save the pointer to the resolving functor to allow this functor to notify it of future dependees

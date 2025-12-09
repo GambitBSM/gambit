@@ -1,6 +1,6 @@
 """
-Scipy dual annealing scannner
-=============================
+Scipy scannners
+===============
 """
 
 from utils import copydoc, version, with_mpi

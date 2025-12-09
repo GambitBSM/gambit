@@ -99,6 +99,18 @@ Rules:
       cross_section_uncert_fb:
         ColliderBit/data/example.slha: 101.32
         # list more SLHA files and corrsponding total cross section uncertainties here
+   
+  - capability: InitialTotalCrossSection
+    function: InitialTotalCrossSection_YAMLSLHA
+    options:
+      use_colliders:
+        - LHC_13TeV_SUSY_EWonly
+      cross_section_fb:
+        ColliderBit/data/example.slha: 1807.4
+        # list more SLHA files and corrsponding total cross sections here
+      cross_section_uncert_fb:
+        ColliderBit/data/example.slha: 101.32
+        # list more SLHA files and corrsponding total cross section uncertainties here
 
   # Choose how to do event weighting
   - capability: EventWeighterFunction
@@ -120,6 +132,8 @@ Rules:
   - capability: RunMC
     function: operateLHCLoop
     options:
+      use_colliders:
+        - LHC_13TeV_SUSY_EWonly
       silenceLoop: false
       LHC_13TeV_SUSY_EWonly:
         min_nEvents: 10000  # Chosen only for quick demo -- should be increased
@@ -139,6 +153,13 @@ Rules:
     function: getPythia_SLHA   # <-- The function to use for the model ColliderBit_SLHA_file_model
     options:
       LHC_13TeV_SUSY_EWonly:
+        jet_collections:
+          antikt_R04:
+            algorithm: antikt
+            R: 0.4
+            recombination_scheme: E_scheme
+            strategy: Best
+        jet_collection_taus: antikt_R04
         xsec_veto: 0.028  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
         pythia_settings:
           - SLHA:verbose = 1
