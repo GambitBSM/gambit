@@ -198,6 +198,7 @@ namespace Gambit
       scannerNode["default_output_path"] = Utils::ensure_path_exists(defpath+"/scanner_plugins/");
       logNode    ["default_output_path"] = Utils::ensure_path_exists(defpath+"/logs/");
       printerNode["options"]["default_output_path"] = Utils::ensure_path_exists(defpath+"/samples/");
+      emulationNode["default_output_path"] = Utils::ensure_path_exists(defpath+"/emulator_plugins/");
 
       // Make a copy of yaml file in output dir
       str new_filename = defpath+'/'+Utils::base_name(filename);
@@ -206,9 +207,11 @@ namespace Gambit
 
       // Postprocessor is currently incompatible with 'print_timing_data', so need to pass this option on for checking
       scannerNode["print_timing_data"] = getValueOrDef<bool>(false,"print_timing_data");
+      emulationNode["print_timing_data"] = getValueOrDef<bool>(false,"print_timing_data");
 
       // Pass on minimum recognised lnlike and offset to Scanner
       scannerNode["model_invalid_for_lnlike_below"] = getValueOrDef<double>(0.9*std::numeric_limits<double>::lowest(), "likelihood", "model_invalid_for_lnlike_below");
+      emulationNode["model_invalid_for_lnlike_below"] = getValueOrDef<double>(0.9*std::numeric_limits<double>::lowest(), "likelihood", "model_invalid_for_lnlike_below");
       if (hasKey("likelihood", "lnlike_offset"))
         scannerNode["lnlike_offset"] = getValue<double>("likelihood", "lnlike_offset");
 

@@ -105,36 +105,36 @@ namespace Gambit
                 decltype(auto) prediction(){return buffer_vector(1);}
                 decltype(auto) prediction_uncertainty(){return buffer_vector(2);}
                 
-                void add_for_evaluation(std::vector<double> parameters)
+                void add_for_evaluation(const std::vector<double> &parameters)
                 {
                     set_predict();
                     auto params_pointer = buffer_vector(0);
-                    params_pointer = map_vector<double>(&parameters[0], parameters.size());
+                    params_pointer = map_vector<double>((double *)parameters.data(), parameters.size());
                 
                 }
 
-                void add_for_training(std::vector<double> parameters, std::vector<double> target_value, std::vector<double> target_uncertainty_value)
+                void add_for_training(const std::vector<double> &parameters, const std::vector<double> &target_value, const std::vector<double> &target_uncertainty_value)
                 {
                     set_train();
                     auto params_pointer = buffer_vector(0);
-                    params_pointer = map_vector<double>(&parameters[0], parameters.size());
+                    params_pointer = map_vector<double>((double *)parameters.data(), parameters.size());
                 
                     auto target_pointer = buffer_vector(1);
-                    target_pointer = map_vector<double>(&target_value[0], target_value.size());
+                    target_pointer = map_vector<double>((double *)target_value.data(), target_value.size());
 
                     auto target_uncertainty_pointer = buffer_vector(2);
-                    target_uncertainty_pointer = map_vector<double>(&target_uncertainty_value[0], target_uncertainty_value.size());
+                    target_uncertainty_pointer = map_vector<double>((double *)target_uncertainty_value.data(), target_uncertainty_value.size());
                 }
 
-                void add_for_result(std::vector<double> result, std::vector<double> result_uncertainty)
+                void add_for_result(const std::vector<double> &result, const std::vector<double> &result_uncertainty)
                 {
                     set_result();
                     
                     auto prediction_pointer = buffer_vector(1);
-                    prediction_pointer = map_vector<double>(&result[0], result.size());
+                    prediction_pointer = map_vector<double>((double *)result.data(), result.size());
 
                     auto prediction_uncertainty_pointer = buffer_vector(2);
-                    prediction_uncertainty_pointer = map_vector<double>(&result_uncertainty[0], result_uncertainty.size());
+                    prediction_uncertainty_pointer = map_vector<double>((double *)result_uncertainty.data(), result_uncertainty.size());
                 }
 
                 // flags

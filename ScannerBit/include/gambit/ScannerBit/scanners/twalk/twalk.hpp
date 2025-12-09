@@ -292,9 +292,11 @@ namespace Gambit
                    const bool &hyper_grid,
                    const int &burn_in,
                    const int &save_freq,
-                   const double &hrs_max);
-
+                   const double &hrs_max
+        #ifdef WITH_MPI
+                   , MPI_Comm *comm
         #endif
+        );
 
         /*
                 double ran = gDev.Doub();
@@ -354,3 +356,5 @@ namespace Gambit
                 }*/
      }
 }
+
+#endif

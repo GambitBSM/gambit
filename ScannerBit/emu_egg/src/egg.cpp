@@ -9,9 +9,13 @@
 #include "gambit/Utils/file_lock.hpp"
 #include "gambit/Utils/signal_helpers.hpp"
 #include "gambit/Utils/signal_handling.hpp"
+#include "gambit/Utils/yaml_parser_base.hpp"
 // #include "gambit/Core/yaml_parser.hpp"
 #include "yaml-cpp/yaml.h"
+#include "gambit/ScannerBit/plugin_interface.hpp"
+#include "gambit/ScannerBit/plugin_factory.hpp"
 #include "gambit/ScannerBit/emulator_utils.hpp"
+#include "gambit/ScannerBit/scanner_util_types.hpp"
 
 // #include "gambit/Utils/signal_handling.hpp"
 // #include "gambit/Utils/static_members.hpp"
@@ -19,6 +23,8 @@
 
 // using namespace Gambit;
 using namespace Gambit;
+using namespace Gambit::Scanner;
+using Gambit::Scanner::map_vector;
 
 
 // Function to compute Euclidean distance between two 2D points
@@ -92,12 +98,23 @@ int main(int argc, char *argv[])
 
     // Read yaml file
     const str filename = argsMap["-f"];
-    YAML::Node settings = YAML::LoadFile(filename);
-    YAML::Node emulator_node = settings["Emulation"];
-
     // Get plugin name
     str capability = argsMap["-c"];
+    
+
+    IniParser::Parser iniFile;
+    iniFile.readFile(filename);
+
+    YAML::Node emulator_node = iniFile.getEmulationNode();
     str plugin_name = emulator_node["emulators"][capability]["plugin"].as<str>();
+
+    // str capability = emulator_node["use_emulator"].as<str>();
+    //str plugin_name = emulator_node["emulators"][capability]["plugin"].as<str>();
+
+    Plugins::plugin_info.iniFile(emulator_node);
+
+    
+    
 
     std::vector<str> all_capabilities = emulator_node["use_emulator"].as<std::vector<str>>();
 
@@ -110,7 +127,8 @@ int main(int argc, char *argv[])
     std::cout << "color: " << my_process_color << std::endl;
 
     //////////////// Make emulator communicators to give to plugin /////////////////
-    logger() << Gambit::LogTags::core << "making emulator communicator. "<< EOM;
+    // logger() << Gambit::LogTags::core << "making emulator communicator. "<< EOM;
+
     // get world size/rank
     int world_size, world_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
@@ -134,11 +152,20 @@ int main(int argc, char *argv[])
 
     //////// split the communicator
     GMPI::Comm emuComm(emuProcesses, "emuComm");
+    std::cout << "made emuComm" << std::endl;
+    /// make plugin
+    MPI_Comm* emu_comm_ptr = emuComm.get_boundcomm();
+    Plugins::Plugin_Interface<void (map_vector<double> &, map_vector<double> &, map_vector<double> &), std::pair<std::vector<double>, std::vector<double>> (map_vector<double> &)> plugin_interface("emulator", capability, *emu_comm_ptr);
 
+    int isInter;
+    MPI_Comm_test_inter((*emu_comm_ptr), &isInter);
+    if (isInter) std::cout << "This is an intercommunicator!\n";
+
+
+    std::cout << "made plugin " << std::endl;
     // find local rank/size
     int local_rank = emuComm.Get_rank();
     int local_size = emuComm.Get_size();
-
 
     /////// send plugin info to world rank 0
 
@@ -198,15 +225,11 @@ int main(int argc, char *argv[])
                 if (local_rank == 0) 
                 {
                     // extract parameters
-                    double mu = receiver.params()[0];
-                    double sig = receiver.params()[1];
-                    double lnL = receiver.target()[0];
+                    auto params = receiver.params();
+                    auto target = receiver.target();
+                    auto target_uncertainty = receiver.target_uncertainty();
 
-                    // add parameters to list
-                    parameters.push_back({mu, sig});
-                    likes.push_back(lnL);
-
-                    std::cout <<"train: " << mu << " # " << sig  << " # " << lnL << std::endl;
+                    plugin_interface(params, target, target_uncertainty);
                 }
             }
             // Predict, ask for prediction and send
@@ -218,24 +241,18 @@ int main(int argc, char *argv[])
                 if ( local_rank == 0)
                 {
                     // extract parameters
-                    double mu = receiver.params() [0];
-                    double sig = receiver.params() [1];
-                    
-                    // evaluate
-                    double new_lnL = nearestNeighborAverage(parameters, likes, {mu,sig}, 1);
+                    auto params = receiver.params();
+                    auto pred = plugin_interface(params);
 
-                    std::cout <<"predict: " << new_lnL << " # " << std::abs(new_lnL)*0.1  << std::endl;
 
-                    // send results
-                    std::vector<double> pred = {new_lnL};
-                    std::vector<double> pred_u = {std::max(0.1, std::abs(new_lnL)*0.1)};
+                    std::cout <<"predict: " << pred.first.size()  << std::endl;
 
                     // make new buffer with size 0 for the input parameters
-                    std::vector<unsigned int> sizes = {0, 1, 1};
+                    std::vector<unsigned int> sizes = {0, (unsigned int)pred.first.size(), (unsigned int)pred.second.size()};
                     Scanner::Emulator::feed_def answer_buffer(sizes);
 
                     // populate answer_buffer
-                    answer_buffer.add_for_result(pred, pred_u);
+                    answer_buffer.add_for_result(pred.first, pred.second);
 
                     // send to process it arrived from ( tag 4 = results )
                     MPI_Send(answer_buffer.buffer.data(), answer_buffer.buffer.size(), MPI_CHAR, status_recv.MPI_SOURCE, 4, MPI_COMM_WORLD);

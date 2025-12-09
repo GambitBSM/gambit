@@ -229,6 +229,7 @@ namespace Gambit
       if (EmulatorMap::useEmulator && EmulatorMap::emulateLikelihood) 
       {
         if (debug) logger() << LogTags::core << "Prediction from emulator for lnlike started." << EOM;
+        #ifdef WITH_MPI
         // get parameters
         std::vector<double> parameters;
         for (auto key : in) { parameters.push_back(key.second); }
@@ -277,9 +278,15 @@ namespace Gambit
             emulatorValidPrediction = true;
             lnlike = predict_results.prediction()[0];
         }
+        // print result
+        std::cout << "results from emu "<< predict_results.prediction() << std::endl;
 
         // logger stuff
         if (debug) logger() << LogTags::core << "Emulator evaluation done for lnlike." << EOM;
+
+        #else
+        core_error().raise(LOCAL_INFO, "Emulators needs MPI to be enabled");
+        #endif
       }
       //_emu predict end
 

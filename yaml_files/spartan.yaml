@@ -78,7 +78,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: scipy_differential_evolution
+  use_scanner: twalk #scipy_differential_evolution
 
 
 
@@ -401,13 +401,13 @@ Emulation:
 
   emulators:
     LogLike: 
-      plugin:  plugin_1
+      plugin: python
       train: true
       predict: true
       uncertainty: 0.001
 
     otherL: 
-      plugin:  plugin_1
+      plugin: python
       train: true
       predict: true
       uncertainty: 0.001
@@ -448,7 +448,7 @@ Logger:
 
   redirection:
     [Default]      : "default.log"
-    [ExampleBit_A] : "ExampleBit_A.log"
+    #[ExampleBit_A] : "ExampleBit_A.log"
     [Scanner]      : "Scanner.log"
   debug: true
 

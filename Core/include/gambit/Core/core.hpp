@@ -108,6 +108,7 @@ namespace Gambit
     void capability_diagnostic();
     void model_diagnostic();
     void scanner_diagnostic();
+    void emulator_diagnostic();
     void test_function_diagnostic();
     void prior_diagnostic();
 
@@ -121,6 +122,7 @@ namespace Gambit
     void ff_capability_diagnostic(const str &, str&);
     void ff_model_diagnostic(const str &, str&);
     void ff_scanner_diagnostic(const str &, str&);
+    void ff_emulator_diagnostic(const str &, str&);
     void ff_test_function_diagnostic(const str &, str&);
     void ff_prior_diagnostic(const str &, str&);
     /// @}

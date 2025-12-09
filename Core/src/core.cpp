@@ -95,6 +95,7 @@ namespace Gambit
               "\n   models                List registered models and output model graph     "
               "\n   capabilities          List all registered function capabilities         "
               "\n   scanners              List registered scanners                          "
+              "\n   emulators             list registered emulators                         "
               "\n   test-functions        List registered scanner test objective functions  "
               "\n   <name>                Give info on a specific module, module function,  "
               "\n                           backend, backend function, model, capability,   "
@@ -636,7 +637,7 @@ namespace Gambit
     }
 
     // Initial list of valid diagnostic commands
-    std::vector<str> valid_commands = initVector<str>("modules", "backends", "models", "capabilities", "scanners", "test-functions");
+    std::vector<str> valid_commands = initVector<str>("modules", "backends", "models", "capabilities", "scanners", "emulators", "test-functions");
 
     // Test if the user has requested one of the basic diagnostics
     if (std::find(valid_commands.begin(), valid_commands.end(), command) == valid_commands.end())
@@ -723,6 +724,7 @@ namespace Gambit
       else if (command == "models") model_diagnostic();
       else if (command == "capabilities") capability_diagnostic();
       else if (command == "scanners") scanner_diagnostic();
+      else if (command == "emulators") emulator_diagnostic();
       else if (command == "test-functions") test_function_diagnostic();
       else if (command == "priors") prior_diagnostic();
       else free_form_diagnostic(command);
