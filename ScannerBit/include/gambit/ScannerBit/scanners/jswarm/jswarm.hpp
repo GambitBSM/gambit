@@ -161,6 +161,10 @@ namespace Gambit
         /// Collect all particles and related data to rank 0
         void collect_data();
 
+      #if WITH_MPI
+        MPI_Comm *comm;
+      #endif
+
       public:
 
         /// Pointer to objective function
@@ -257,7 +261,11 @@ namespace Gambit
         std::vector<int> discrete;
 
         /// Constructor
-        particle_swarm();
+        particle_swarm(
+        #if WITH_MPI
+            MPI_Comm *
+        #endif
+        );
 
         /// Initialise the swarm
         void init();

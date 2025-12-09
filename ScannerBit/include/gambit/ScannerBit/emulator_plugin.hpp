@@ -40,20 +40,7 @@ using namespace Gambit::Scanner;                                                
 using Gambit::Printers::get_point_id;                                                                           \
 using Gambit::Scanner::map_vector;                                                                              \
 
-#define __EMULATOR_MPI_SETUP__(setup)                                                                           \
-setup                                                                                                           \
-inline MPI_Comm &get_mpi_comm(){return get_input_value<MPI_Comm>(0);}                                           \
-
-#ifdef WITH_MPI
-
-#define EMULATOR_PLUGIN(plug_name, ...)                                                                         \
-GAMBIT_PLUGIN_INITIALIZE(__EMULATOR_MPI_SETUP__(__EMULATOR_SETUP__), plug_name, emulator, __VA_ARGS__)          \
-
-#else
-
 #define EMULATOR_PLUGIN(plug_name, ...)                                                                         \
 GAMBIT_PLUGIN_INITIALIZE(__EMULATOR_SETUP__, plug_name, emulator, __VA_ARGS__)                                  \
-
-#endif
 
 #endif

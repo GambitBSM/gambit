@@ -29,7 +29,7 @@ scanner_plugin(jswarm, version(1, 0, 0))
   reqd_inifile_entries("NP");
 
   // Make a new particle swarm
-  particle_swarm swarm;
+  particle_swarm swarm(&get_mpi_comm());
 
   // Code to execute when the plugin is loaded.
   plugin_constructor

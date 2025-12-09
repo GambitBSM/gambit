@@ -253,6 +253,17 @@ namespace __gambit_plugin_namespace__                                           
 }                                                                                                       \
 __PLUGIN_MAIN_RET_VAL__(__VA_ARGS__) PLUGIN_MAIN (__VA_ARGS__)                                          \
 
+#ifdef WITH_MPI
+
+#define __MPI_COMM_FUNC__()                                                                             \
+inline MPI_Comm &get_mpi_comm(){return *__gambit_plugin_namespace__::myData.comm;}                      \
+
+#else
+
+#define __MPI_COMM_FUNC__()                                                                             \
+
+#endif
+
 /*Defines a Gambit plugin*/
 #define __GAMBIT_PLUGIN__(plug_name, plug_type, plug_version)                                               \
 namespace __gambit_plugin_ ## plug_name ## __t__ ## plug_type ## __v__ ## plug_version ##  _namespace__     \
@@ -399,6 +410,8 @@ namespace __gambit_plugin_ ## plug_name ## __t__ ## plug_type ## __v__ ## plug_v
     {                                                                                                       \
         return *static_cast<T*>(__gambit_plugin_namespace__::myData.inputData[i]);                          \
     }                                                                                                       \
+                                                                                                            \
+    __MPI_COMM_FUNC__();                                                                                    \
                                                                                                             \
     Gambit::Scanner::resume_params_func                                                                     \
                     set_resume_params(__STR__(plug_name ## __t__ ## plug_type ## __v__ ## plug_version));   \

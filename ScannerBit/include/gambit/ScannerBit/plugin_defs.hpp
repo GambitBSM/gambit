@@ -61,8 +61,9 @@ namespace Gambit
             resume_params_func(const std::string &name_in) : resume(false)
             {
 #ifdef WITH_MPI
-                MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-                MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
+                MPI_Comm *comm = Gambit::Scanner::Plugins::plugin_info.scanComm().get_boundcomm();
+                MPI_Comm_rank(*comm, &rank);
+                MPI_Comm_size(*comm, &numtasks);
 #else
                 rank = 0;
                 numtasks = 1;
@@ -172,6 +173,9 @@ namespace Gambit
                 std::map<type_index, void *> plugin_mains;
                 void (*deconstructor)();
                 bool loaded;
+#ifdef WITH_MPI
+                MPI_Comm *comm;
+#endif
                 
                 pluginData(const std::string &name, const std::string &type, const std::string &version_in) 
                         : name(name), type(type), version(version_in), deconstructor(NULL), loaded(false)
@@ -186,6 +190,9 @@ namespace Gambit
                     version = major_version + "." + minor_version + "." + patch_version;
                     if (release_version != "") 
                         version += "-" + release_version;
+#ifdef WITH_MPI
+                    comm = Gambit::Scanner::Plugins::plugin_info.scanComm().get_boundcomm();
+#endif
                 }
                 
                 std::string print()

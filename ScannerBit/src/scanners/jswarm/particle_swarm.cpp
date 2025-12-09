@@ -32,7 +32,11 @@ namespace Gambit
   {
 
     /// Constructor
-    particle_swarm::particle_swarm()
+    particle_swarm::particle_swarm(
+#if WITH_MPI
+      MPI_Comm *comm
+#endif
+    )
     : rank(0)
     , nprocs(1)
     , global_best_value(-std::numeric_limits<double>::max())
@@ -66,6 +70,9 @@ namespace Gambit
     , init_stationary(false)
     , resume(false)
     , save_particles_natively(false)
+#if WITH_MPI
+    , comm(comm)
+#endif
     {}
 
     /// Initialise the swarm
@@ -109,10 +116,10 @@ namespace Gambit
 
       #ifdef WITH_MPI
         // Get the MPI process rank and total number of MPI processes
-        rank = GMPI::Comm().Get_rank();
+        rank = GMPI::Comm(*comm, "comm").Get_rank();
 
         // Determine the total number of MPI processes, and make sure NP is a multiple of it
-        nprocs = GMPI::Comm().Get_size();
+        nprocs = GMPI::Comm(*comm, "comm").Get_size();
         if (NP%nprocs != 0)
         {
           int new_NP = (NP/nprocs + 1) * nprocs;
@@ -133,7 +140,7 @@ namespace Gambit
       input_seed = seed;
       if (seed == -1 and rank == 0) seed = std::random_device()();
       #ifdef WITH_MPI
-        GMPI::Comm().Bcast_single(seed, 0);
+        GMPI::Comm(*comm, "comm").Bcast_single(seed, 0);
         seed += rank;
       #endif
       if (rank == 0 and verbose > 2) cout << "j-Swarm:  seeding RNG on rank " << rank << " with " << seed << endl;
@@ -284,7 +291,7 @@ namespace Gambit
         bool complete;
         if (rank == 0) complete = converged();
         #ifdef WITH_MPI
-          GMPI::Comm().Bcast_single(complete, 0);
+          GMPI::Comm(*comm, "comm").Bcast_single(complete, 0);
         #endif
         if (complete or Scanner::Plugins::plugin_info.early_shutdown_in_progress())
         {
@@ -326,11 +333,11 @@ namespace Gambit
           std::vector<std::vector<double>> local_x(size, std::vector<double>(nPar_total));
           std::vector<std::vector<double>> local_v(size, std::vector<double>(nPar_total));
           std::vector<std::vector<double>> local_personal_best_x(size, std::vector<double>(nPar_total));
-          GMPI::Comm().Gather_single(particles.at(i).lnlike, local_lnlike, 0);
-          GMPI::Comm().Gather_single(particles.at(i).personal_best_value, local_personal_best_value, 0);
-          GMPI::Comm().Gather_arrays(particles.at(i).x[0], local_x[0][0], nPar_total, 0);
-          GMPI::Comm().Gather_arrays(particles.at(i).v[0], local_v[0][0], nPar_total, 0);
-          GMPI::Comm().Gather_arrays(particles.at(i).personal_best_x[0], local_personal_best_x[0][0], nPar_total, 0);
+          GMPI::Comm(*comm, "comm").Gather_single(particles.at(i).lnlike, local_lnlike, 0);
+          GMPI::Comm(*comm, "comm").Gather_single(particles.at(i).personal_best_value, local_personal_best_value, 0);
+          GMPI::Comm(*comm, "comm").Gather_arrays(particles.at(i).x[0], local_x[0][0], nPar_total, 0);
+          GMPI::Comm(*comm, "comm").Gather_arrays(particles.at(i).v[0], local_v[0][0], nPar_total, 0);
+          GMPI::Comm(*comm, "comm").Gather_arrays(particles.at(i).personal_best_x[0], local_personal_best_x[0][0], nPar_total, 0);
 
           if (rank == 0)
           {
@@ -349,20 +356,20 @@ namespace Gambit
         }
 
         // Sum fcall from all processes
-        GMPI::Comm().Reduce(fcall, fcall_global, MPI_SUM, 0);
+        GMPI::Comm(*comm, "comm").Reduce(fcall, fcall_global, MPI_SUM, 0);
 
         // Collect the global best fit across all processes
         int global_best_rank;
         std::vector<double> global_best_values(size);
-        GMPI::Comm().Gather_single(global_best_value, global_best_values, 0);
+        GMPI::Comm(*comm, "comm").Gather_single(global_best_value, global_best_values, 0);
         if (rank == 0)
         {
           auto max_it = std::max_element(global_best_values.begin(), global_best_values.end());
           global_best_rank = std::distance(global_best_values.begin(), max_it);
         }
-        GMPI::Comm().Bcast_single(global_best_rank, 0);
-        GMPI::Comm().Bcast_single(global_best_value, global_best_rank);
-        GMPI::Comm().Bcast(global_best_x, nPar_total, global_best_rank);
+        GMPI::Comm(*comm, "comm").Bcast_single(global_best_rank, 0);
+        GMPI::Comm(*comm, "comm").Bcast_single(global_best_value, global_best_rank);
+        GMPI::Comm(*comm, "comm").Bcast(global_best_x, nPar_total, global_best_rank);
 
       #else
 
