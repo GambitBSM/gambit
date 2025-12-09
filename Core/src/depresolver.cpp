@@ -611,9 +611,10 @@ namespace Gambit
     /// Evaluates ObsLike vertex, and everything it depends on, and prints results
     void DependencyResolver::calcObsLike(VertexID vertex)
     {
-      if (SortedParentVertices.find(vertex) == SortedParentVertices.end())
+      auto found = SortedParentVertices.find(vertex);
+      if (found == SortedParentVertices.end())
         core_error().raise(LOCAL_INFO, "Tried to calculate a function not in or not at top of dependency graph.");
-      std::vector<VertexID> order = SortedParentVertices.at(vertex);
+      std::vector<VertexID> order = found->second;
 
       for (const VertexID& v : order)
       {
@@ -641,9 +642,10 @@ namespace Gambit
       // pointID is supplied by the scanner, and is used to tell the printer which model
       // point the results should be associated with.
 
-      if (SortedParentVertices.find(vertex) == SortedParentVertices.end())
+      auto found = SortedParentVertices.find(vertex);
+      if (found == SortedParentVertices.end())
         core_error().raise(LOCAL_INFO, "Tried to calculate a function not in or not at top of dependency graph.");
-      std::vector<VertexID> order = SortedParentVertices.at(vertex);
+      std::vector<VertexID> order = found->second;
 
       for (const VertexID& v : order)
       {
@@ -1499,10 +1501,11 @@ namespace Gambit
 
               // Take any dependencies of loop-managed vertices that have already been resolved,
               // and add them as "hidden" dependencies to this loop manager.
-              if (edges_to_force_on_manager.find(entry.toVertex) != edges_to_force_on_manager.end())
+              auto found_edges_it = edges_to_force_on_manager.find(entry.toVertex);
+              if (found_edges_it != edges_to_force_on_manager.end())
               {
-                for (auto it = edges_to_force_on_manager.at(entry.toVertex).begin();
-                     it != edges_to_force_on_manager.at(entry.toVertex).end(); ++it)
+                for (auto it = found_edges_it->second.begin();
+                     it != found_edges_it->second.end(); ++it)
                 {
                   logger() << "Dynamically adding dependency of " << masterGraph[fromVertex]->origin()
                            << "::" << masterGraph[fromVertex]->name() << " on "
