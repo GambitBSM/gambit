@@ -43,7 +43,7 @@ scanner_plugin(twalk, version(1, 0, 1))
         int dim = get_dimension();
         int numtasks;
         #ifdef WITH_MPI
-            MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
+            MPI_Comm_size(get_mpi_comm(), &numtasks);
         #else
             numtasks = 1;
         #endif
@@ -69,6 +69,9 @@ scanner_plugin(twalk, version(1, 0, 1))
                         get_inifile_value<int>("burn_in", 0),
                         get_inifile_value<int>("save_freq", 1000),
                         get_inifile_value<double>("timeout_mins", -1)
+        #ifdef WITH_MPI
+                        , &get_mpi_comm()
+        #endif
                 );
 
         return 0;
@@ -103,7 +106,11 @@ namespace Gambit
                    const bool &hyper_grid,
                    const int &burn_in,
                    const int &save_freq,
-                   const double &mins_max)
+                   const double &mins_max
+        #ifdef WITH_MPI
+                   , MPI_Comm *comm
+        #endif
+                   )
         {
 
             const double massiveR = 1e100;
@@ -172,13 +179,13 @@ namespace Gambit
                 #ifdef WITH_MPI
                     for (int i = 0; i < numtasks; i++)
                     {
-                        MPI_Barrier(MPI_COMM_WORLD);
-                        MPI_Bcast (c_ptr(a0[talls[i]]), a0[talls[i]].size(), MPI_DOUBLE, i, MPI_COMM_WORLD);
-                        MPI_Bcast (&chisq[talls[i]], 1, MPI_DOUBLE, i, MPI_COMM_WORLD);
-                        MPI_Bcast (&mult[talls[i]], 1, MPI_INT, i, MPI_COMM_WORLD);
-                        MPI_Bcast (&count[talls[i]], 1, MPI_INT, i, MPI_COMM_WORLD);
-                        MPI_Bcast (&ranks[talls[i]], 1, MPI_INT, i, MPI_COMM_WORLD);
-                        MPI_Bcast (&ids[talls[i]], 1, MPI_UNSIGNED_LONG_LONG, i, MPI_COMM_WORLD);
+                        MPI_Barrier(*comm);
+                        MPI_Bcast (c_ptr(a0[talls[i]]), a0[talls[i]].size(), MPI_DOUBLE, i, *comm);
+                        MPI_Bcast (&chisq[talls[i]], 1, MPI_DOUBLE, i, *comm);
+                        MPI_Bcast (&mult[talls[i]], 1, MPI_INT, i, *comm);
+                        MPI_Bcast (&count[talls[i]], 1, MPI_INT, i, *comm);
+                        MPI_Bcast (&ranks[talls[i]], 1, MPI_INT, i, *comm);
+                        MPI_Bcast (&ids[talls[i]], 1, MPI_UNSIGNED_LONG_LONG, i, *comm);
                     }
                 #endif
             }
@@ -201,9 +208,9 @@ namespace Gambit
                         ranks[t] = rank;
                     }
                     #ifdef WITH_MPI
-                        MPI_Barrier(MPI_COMM_WORLD);
-                        MPI_Bcast (c_ptr(a0[t]), a0[t].size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
-                        MPI_Bcast (&quit, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
+                        MPI_Barrier(*comm);
+                        MPI_Bcast (c_ptr(a0[t]), a0[t].size(), MPI_DOUBLE, 0, *comm);
+                        MPI_Bcast (&quit, 1, MPI_UNSIGNED, 0, *comm);
                     #endif
                     if(quit)
                     {
@@ -217,7 +224,12 @@ namespace Gambit
                 }
                 */
                 std::vector<int> loop_ranks;
+
+            #ifdef WITH_MPI
+                loop_ranks = mpi_distribute(t, NChains , comm)
+            #else
                 loop_ranks = mpi_distribute(t, NChains)
+            #endif
                 {
                     if (not quit)
                     {
@@ -232,8 +244,8 @@ namespace Gambit
                 
                 #ifdef WITH_MPI
                     bool quit_buf;
-                    MPI_Barrier(MPI_COMM_WORLD);
-                    MPI_Allreduce (&quit, &quit_buf, 1, MPI_C_BOOL, MPI_LOR, MPI_COMM_WORLD);
+                    MPI_Barrier(*comm);
+                    MPI_Allreduce (&quit, &quit_buf, 1, MPI_C_BOOL, MPI_LOR, *comm);
                     quit = quit_buf;
                 #endif
                 
@@ -253,20 +265,20 @@ namespace Gambit
 #ifdef WITH_MPI
                 for (int i = 0; i < NChains; i++)
                 {
-                    MPI_Barrier(MPI_COMM_WORLD);
-                    MPI_Bcast (c_ptr(a0[i]), a0[i].size(), MPI_DOUBLE, loop_ranks[i], MPI_COMM_WORLD);
-                    MPI_Bcast (&chisq[i], 1, MPI_DOUBLE, loop_ranks[i], MPI_COMM_WORLD);
-                    MPI_Bcast (&ranks[i], 1, MPI_INT, loop_ranks[i], MPI_COMM_WORLD);
-                    MPI_Bcast (&ids[i], 1, MPI_UNSIGNED_LONG_LONG, loop_ranks[i], MPI_COMM_WORLD);
+                    MPI_Barrier(*comm);
+                    MPI_Bcast (c_ptr(a0[i]), a0[i].size(), MPI_DOUBLE, loop_ranks[i], *comm);
+                    MPI_Bcast (&chisq[i], 1, MPI_DOUBLE, loop_ranks[i], *comm);
+                    MPI_Bcast (&ranks[i], 1, MPI_INT, loop_ranks[i], *comm);
+                    MPI_Bcast (&ids[i], 1, MPI_UNSIGNED_LONG_LONG, loop_ranks[i], *comm);
                 }
 #endif
             }
 
 /*#ifdef WITH_MPI
-            MPI_Barrier(MPI_COMM_WORLD);
-            MPI_Bcast (c_ptr(chisq), chisq.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
-            MPI_Bcast (c_ptr(ids), ids.size(), MPI_UNSIGNED_LONG_LONG, 0, MPI_COMM_WORLD);
-            MPI_Bcast (c_ptr(ranks), ranks.size(), MPI_INT, 0, MPI_COMM_WORLD);
+            MPI_Barrier(*comm);
+            MPI_Bcast (c_ptr(chisq), chisq.size(), MPI_DOUBLE, 0, *comm);
+            MPI_Bcast (c_ptr(ids), ids.size(), MPI_UNSIGNED_LONG_LONG, 0, *comm);
+            MPI_Bcast (c_ptr(ranks), ranks.size(), MPI_INT, 0, *comm);
 #endif*/
 
             std::cout << "Metropolis Hastings/TWalk Algorithm Started"  << std::endl;
@@ -291,9 +303,9 @@ namespace Gambit
                         }
                     }
 
-                    MPI_Barrier(MPI_COMM_WORLD);
-                    MPI_Bcast (c_ptr(talls), talls.size(), MPI_INT, 0, MPI_COMM_WORLD);
-                    MPI_Bcast (c_ptr(tints), tints.size(), MPI_INT, 0, MPI_COMM_WORLD);
+                    MPI_Barrier(*comm);
+                    MPI_Bcast (c_ptr(talls), talls.size(), MPI_INT, 0, *comm);
+                    MPI_Bcast (c_ptr(tints), tints.size(), MPI_INT, 0, *comm);
 
                     t = talls[rank];
                     tt = talls[rank + numtasks];
@@ -336,13 +348,13 @@ namespace Gambit
                 #ifdef WITH_MPI
                   for (int i = 0; i < numtasks; i++)
                   {
-                      MPI_Barrier(MPI_COMM_WORLD);
-                      MPI_Bcast (c_ptr(a0[talls[i]]), a0[talls[i]].size(), MPI_DOUBLE, i, MPI_COMM_WORLD);
-                      MPI_Bcast (&chisq[talls[i]], 1, MPI_DOUBLE, i, MPI_COMM_WORLD);
-                      MPI_Bcast (&mult[talls[i]], 1, MPI_INT, i, MPI_COMM_WORLD);
-                      MPI_Bcast (&count[talls[i]], 1, MPI_INT, i, MPI_COMM_WORLD);
-                      MPI_Bcast (&ranks[talls[i]], 1, MPI_INT, i, MPI_COMM_WORLD);
-                      MPI_Bcast (&ids[talls[i]], 1, MPI_UNSIGNED_LONG_LONG, i, MPI_COMM_WORLD);
+                      MPI_Barrier(*comm);
+                      MPI_Bcast (c_ptr(a0[talls[i]]), a0[talls[i]].size(), MPI_DOUBLE, i, *comm);
+                      MPI_Bcast (&chisq[talls[i]], 1, MPI_DOUBLE, i, *comm);
+                      MPI_Bcast (&mult[talls[i]], 1, MPI_INT, i, *comm);
+                      MPI_Bcast (&count[talls[i]], 1, MPI_INT, i, *comm);
+                      MPI_Bcast (&ranks[talls[i]], 1, MPI_INT, i, *comm);
+                      MPI_Bcast (&ids[talls[i]], 1, MPI_UNSIGNED_LONG_LONG, i, *comm);
                   }
                 #endif
 
@@ -432,16 +444,16 @@ namespace Gambit
 
                 quit = Gambit::Scanner::Plugins::plugin_info.early_shutdown_in_progress();
                 /*#ifdef WITH_MPI
-                    MPI_Barrier(MPI_COMM_WORLD);
-                    MPI_Bcast (&converged, 1, MPI_C_BOOL, 0, MPI_COMM_WORLD);
-                    MPI_Bcast (&quit, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
+                    MPI_Barrier(*comm);
+                    MPI_Bcast (&converged, 1, MPI_C_BOOL, 0, *comm);
+                    MPI_Bcast (&quit, 1, MPI_UNSIGNED, 0, *comm);
                 #endif*/
                     
                 #ifdef WITH_MPI
                     bool quit_buf;
-                    MPI_Barrier(MPI_COMM_WORLD);
-                    MPI_Bcast (&converged, 1, MPI_C_BOOL, 0, MPI_COMM_WORLD);
-                    MPI_Allreduce (&quit, &quit_buf, 1, MPI_C_BOOL, MPI_LOR, MPI_COMM_WORLD);
+                    MPI_Barrier(*comm);
+                    MPI_Bcast (&converged, 1, MPI_C_BOOL, 0, *comm);
+                    MPI_Allreduce (&quit, &quit_buf, 1, MPI_C_BOOL, MPI_LOR, *comm);
                     quit = quit_buf;
                 #endif
                 

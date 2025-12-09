@@ -68,7 +68,7 @@ def main(argv):
             exclude_plugins.update(neatsplit(",",arg))
     # info for the different plugin types
     # NOTE: I need to chnage src_paths and plug_type back for emulators.
-    src_paths = sorted(["./ScannerBit/src/scanners", "./ScannerBit/src/objectives", "./ScannerBit/emu_egg/src"])
+    src_paths = sorted(["./ScannerBit/src/scanners", "./ScannerBit/src/objectives", "./ScannerBit/src/emulators"])
     inc_paths = sorted(["./ScannerBit/include/gambit/ScannerBit/scanners", "./ScannerBit/include/gambit/ScannerBit/objectives", "./ScannerBit/include/gambit/ScannerBit/emulators"])
     plug_type = sorted(["scanner", "objective", "emulator"])
     config_files = []

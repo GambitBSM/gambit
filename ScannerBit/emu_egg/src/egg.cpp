@@ -9,9 +9,13 @@
 #include "gambit/Utils/file_lock.hpp"
 #include "gambit/Utils/signal_helpers.hpp"
 #include "gambit/Utils/signal_handling.hpp"
+#include "gambit/Utils/yaml_parser_base.hpp"
 // #include "gambit/Core/yaml_parser.hpp"
 #include "yaml-cpp/yaml.h"
+#include "gambit/ScannerBit/plugin_interface.hpp"
+#include "gambit/ScannerBit/plugin_factory.hpp"
 #include "gambit/ScannerBit/emulator_utils.hpp"
+#include "gambit/ScannerBit/scanner_util_types.hpp"
 
 // #include "gambit/Utils/signal_handling.hpp"
 // #include "gambit/Utils/static_members.hpp"
@@ -19,6 +23,8 @@
 
 // using namespace Gambit;
 using namespace Gambit;
+using namespace Gambit::Scanner;
+using Gambit::Scanner::map_vector;
 
 
 // Function to compute Euclidean distance between two 2D points
@@ -94,6 +100,8 @@ int main(int argc, char *argv[])
     // make local comm
     GMPI::Comm emuComm(processes, "emuComm");
 
+    MPI_Comm* emu_comm_ptr = emuComm.get_boundcomm();
+
     // find local rank/size
     int local_rank = emuComm.Get_rank();
     int local_size = emuComm.Get_size();
@@ -101,11 +109,19 @@ int main(int argc, char *argv[])
     /////// Read yaml file
     // TODO: get file path from commandline
     const str filename = "yaml_files/spartan.yaml";
-    YAML::Node settings = YAML::LoadFile(filename);
-    YAML::Node emulator_node = settings["Emulation"];
+    //YAML::Node settings = YAML::LoadFile(filename);
+
+    IniParser::Parser iniFile;
+    iniFile.readFile(filename);
+
+    YAML::Node emulator_node = iniFile.getEmulationNode();
 
     str capability = emulator_node["use_emulator"].as<str>();
-    str plugin_name = emulator_node["emulators"][capability]["plugin"].as<str>();
+    //str plugin_name = emulator_node["emulators"][capability]["plugin"].as<str>();
+
+    Plugins::plugin_info.iniFile(emulator_node);
+
+    Plugins::Plugin_Interface<void (map_vector<double> &, map_vector<double> &, map_vector<double> &), std::pair<std::vector<double>, std::vector<double>> (map_vector<double> &)> plugin_interface("emulator", capability, *emu_comm_ptr);
 
     /////// send plugin info to world rank 0
 
@@ -165,38 +181,26 @@ int main(int argc, char *argv[])
                 if (receiver.if_train()) 
                 {
                     // extract parameters
-                    double mu = receiver.params()[0];
-                    double sig = receiver.params()[1];
-                    double lnL = receiver.target()[0];
+                    auto params = receiver.params();
+                    auto target = receiver.target();
+                    auto target_uncertainty = receiver.target_uncertainty();
 
-                    // add parameters to list
-                    parameters.push_back({mu, sig});
-                    likes.push_back(lnL);
-
-                    std::cout <<"train: " << mu << " # " << sig  << " # " << lnL << std::endl;
+                    plugin_interface(params, target, target_uncertainty);
                 }
                 // Predict, ask for prediction and send
                 else if (receiver.if_predict())
                 {
                     // extract parameters
-                    double mu = receiver.params() [0];
-                    double sig = receiver.params() [1];
+                    auto params = receiver.params();
 
-                    std::cout <<"predict: " << mu << " # " << sig  << std::endl;
-                    
-                    // evaluate
-                    double new_lnL = nearestNeighborAverage(parameters, likes, {mu,sig}, 1);
-
-                    // send results
-                    std::vector<double> pred = {new_lnL};
-                    std::vector<double> pred_u = {new_lnL*0.01};
+                    auto pred = plugin_interface(params);
 
                     // make new buffer with size 0 for the input parameters
-                    std::vector<unsigned int> sizes = {0, 1, 1};
+                    std::vector<unsigned int> sizes = {0, (unsigned int)pred.first.size(), (unsigned int)pred.second.size()};
                     Scanner::Emulator::feed_def answer_buffer(sizes);
 
                     // populate answer_buffer
-                    answer_buffer.add_for_result(pred, pred_u);
+                    answer_buffer.add_for_result(pred.first, pred.second);
 
                     // send to process it arrived from ( tag 4 = results )
                     MPI_Send(answer_buffer.buffer.data(), answer_buffer.buffer.size(), MPI_CHAR, status_recv.MPI_SOURCE, 4, MPI_COMM_WORLD);

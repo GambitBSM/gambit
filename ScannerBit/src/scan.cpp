@@ -180,7 +180,11 @@ namespace Gambit
             
             for(auto &&pluginName : pluginNames)
             {
+            #ifdef WITH_MPI
+                Plugins::Plugin_Interface<int ()> plugin_interface("scanner", pluginName, dim, *factory, *comm.get_boundcomm());
+            #else
                 Plugins::Plugin_Interface<int ()> plugin_interface("scanner", pluginName, dim, *factory);
+            #endif
                 plugin_interface();
             }
 

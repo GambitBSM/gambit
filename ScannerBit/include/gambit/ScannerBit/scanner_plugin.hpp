@@ -58,6 +58,8 @@ void *get_purpose(const std::string &purpose)                                   
 }                                                                                           \
                                                                                             \
 inline unsigned int &get_dimension() {return get_input_value<unsigned int>(0);}             \
+                                                                                            \
+inline MPI_Comm &get_mpi_comm(){return get_input_value<MPI_Comm>(2);}                       \
 
 #define SCANNER_PLUGIN(plug_name, ...)                                                      \
     GAMBIT_PLUGIN_INITIALIZE(__SCANNER_SETUP__, plug_name, scanner, __VA_ARGS__)            \

@@ -227,6 +227,7 @@ namespace Gambit
       //_emu predict
       if (EmulatorMap::useEmulator) 
       {
+#ifdef WITH_MPI
         // get parameters
         std::vector<double> parameters;
         for (auto key : in) { parameters.push_back(key.second); }
@@ -264,6 +265,9 @@ namespace Gambit
         std::cout << "results from emu "<< predict_results.prediction() << std::endl;
 
         // TODO: threshold to use this prediction and skip the rest
+#else
+        core_error().raise(LOCAL_INFO, "Emulators needs MPI to be enabled");
+#endif
         }
         //_emu predict end
 

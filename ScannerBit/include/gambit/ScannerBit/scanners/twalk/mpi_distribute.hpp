@@ -51,19 +51,24 @@ namespace Gambit
                 int N;
                 int rank;
                 int numtasks;
-                
-                mpi_dist(int N) : N(N), rank(0), numtasks(1)
-                {
 #ifdef WITH_MPI
+                MPI_Comm *comm;
+
+                mpi_dist(int N, MPI_Comm *comm) : N(N), rank(0), numtasks(1), comm(comm)
+                {
+
                     int rankin, numin;
-                    MPI_Comm_rank(MPI_COMM_WORLD, &rankin);
-                    MPI_Comm_size(MPI_COMM_WORLD, &numin);
+                    MPI_Comm_rank(*comm, &rankin);
+                    MPI_Comm_size(*comm, &numin);
                     rank = rankin;
                     numtasks = numin;
-#endif
+
                 }
-                
+                mpi_dist(int N, int rank, int numtasks, MPI_Comm *comm) : N(N), rank(rank), numtasks(numtasks), comm(comm) {}
+#else
+                mpi_dist(int N) : N(N), rank(0), numtasks(1) {}
                 mpi_dist(int N, int rank, int numtasks) : N(N), rank(rank), numtasks(numtasks) {}
+#endif
                 
                 template<typename T>
                 inline std::vector<int> operator = (T&& func)
@@ -92,7 +97,7 @@ namespace Gambit
                         
                         for (int r = 1; r < numtasks; r++)
                         {
-                            MPI_Irecv(&buf[r-1], 1, MPI_INT, r, r, MPI_COMM_WORLD, &reqs[r-1]);
+                            MPI_Irecv(&buf[r-1], 1, MPI_INT, r, r, *comm, &reqs[r-1]);
                         }
                         
                         do
@@ -101,8 +106,8 @@ namespace Gambit
                             for (int rr = 0; rr < outcount; rr++)
                             {
                                 int r = indices[rr]+1;
-                                MPI_Send(&counter, 1, MPI_INT, r, r+numtasks, MPI_COMM_WORLD);
-                                MPI_Irecv(&buf[r-1], 1, MPI_INT, r, r, MPI_COMM_WORLD, &reqs[r-1]);
+                                MPI_Send(&counter, 1, MPI_INT, r, r+numtasks, *comm);
+                                MPI_Irecv(&buf[r-1], 1, MPI_INT, r, r, *comm, &reqs[r-1]);
                                 
                                 if (counter != N)
                                 {
@@ -127,8 +132,8 @@ namespace Gambit
                         for(;;)
                         {
                             MPI_Request req;
-                            MPI_Isend(&iii, 1, MPI_INT, 0, rank, MPI_COMM_WORLD, &req);
-                            MPI_Recv(&i, 1, MPI_INT, 0, rank + numtasks, MPI_COMM_WORLD, &stat);
+                            MPI_Isend(&iii, 1, MPI_INT, 0, rank, *comm, &req);
+                            MPI_Recv(&i, 1, MPI_INT, 0, rank + numtasks, *comm, &stat);
                             
                             if (i == N)
                                 break;
@@ -137,8 +142,8 @@ namespace Gambit
                         }
                     }
                     
-                    MPI_Barrier(MPI_COMM_WORLD);
-                    MPI_Bcast (&ranks[0], ranks.size(), MPI_INT, 0, MPI_COMM_WORLD);
+                    MPI_Barrier(*comm);
+                    MPI_Bcast (&ranks[0], ranks.size(), MPI_INT, 0, *comm);
 #endif
                     return ranks;
                 }

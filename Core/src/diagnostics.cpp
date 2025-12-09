@@ -281,6 +281,14 @@ namespace Gambit
     print_to_screen(output, "scanners");
   }
 
+  /// Basic scanner diagnostic function
+  void gambit_core::emulator_diagnostic()
+  {
+    // Import scanner plugin info from ScannerBit
+    const std::string output = Scanner::Plugins::plugin_info().print_all("emulator");
+    print_to_screen(output, "emulators");
+  }
+
   /// Basic test function diagnostic function
   void gambit_core::test_function_diagnostic()
   {
@@ -779,6 +787,14 @@ namespace Gambit
     const std::string output = Scanner::Plugins::plugin_info().print_plugin("scanner", command);
     ff_output += output;
   }
+
+  /// Free-form scanner diagnostic function
+  void gambit_core::ff_emulator_diagnostic(const str &command, str &ff_output)
+  {
+    const std::string output = Scanner::Plugins::plugin_info().print_plugin("emulator", command);
+    ff_output += output;
+  }
+
 
   /// Free-form test function diagnostic function
   void gambit_core::ff_test_function_diagnostic(const str &command, str &ff_output)

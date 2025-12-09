@@ -399,7 +399,7 @@ Emulation:
 
   emulators:
     LogLike: 
-      plugin:  plugin_1
+      plugin:  python
       train: true
       predict: true
 
@@ -439,7 +439,7 @@ Logger:
 
   redirection:
     [Default]      : "default.log"
-    [ExampleBit_A] : "ExampleBit_A.log"
+    #[ExampleBit_A] : "ExampleBit_A.log"
     [Scanner]      : "Scanner.log"
   debug: true
 
