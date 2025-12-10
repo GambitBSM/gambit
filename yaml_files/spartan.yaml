@@ -78,7 +78,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: twalk #scipy_differential_evolution
+  use_scanner: scipy_differential_evolution
 
 
 
@@ -379,6 +379,8 @@ Scanner:
         n_tasks_per_batch: 1
         print_progress_every_n_batch: 100
 
+  
+
 
 ObsLikes:
 
@@ -386,6 +388,11 @@ ObsLikes:
     capability:   normaldist_loglike
     module:       ExampleBit_A
     type:         double
+
+  # - purpose:      LogLike
+  #   capability:   Example_lnL_A
+  #   module:       ExampleBit_A
+  #   type:         double
 
   #- purpose:      Observable
   #  capability:   normaldist_loglike
@@ -397,7 +404,7 @@ Emulation:
 
   use_emulator: 
   - LogLike
-  - otherL
+  # - nevents
 
   emulators:
     LogLike: 
@@ -406,7 +413,7 @@ Emulation:
       predict: true
       uncertainty: 0.001
 
-    otherL: 
+    nevents: 
       plugin: python
       train: true
       predict: true
@@ -443,6 +450,13 @@ Rules:
       options:
         probability_of_validity: 1.0
         use_emulator: plugin_1
+
+  # - if:
+  #     capability: xsection
+  #     type: double
+  #   then:
+  #     module: ExampleBit_A
+  #     function: test_sigma
 
 Logger:
 
