@@ -330,8 +330,14 @@ namespace Gambit
     /// Get directory name from full path+filename (POSIX)
     std::string dir_name(const std::string& path)
     {
+       if(path.size() >= 1000)
+       {
+          std::string msg = "Utils::dir_name error: path length (" + std::to_string(path.size()) + ") exceeds buffer size (1000)!";
+          std::cerr << msg << std::endl;
+          abort();
+       }
        char buffer[1000]; // temporary buffer for dirname to work with (it is a C function)
-       path.copy(buffer, path.size()); //TODO: error if path.size()>1000
+       path.copy(buffer, path.size());
        buffer[path.size()] = '\0';
        std::string result = dirname(&buffer[0]); // should use the C function...
        return result;
@@ -340,8 +346,14 @@ namespace Gambit
     /// Get file name from full path+filename (POSIX)
     std::string base_name(const std::string& path)
     {
+       if(path.size() >= 1000)
+       {
+          std::string msg = "Utils::base_name error: path length (" + std::to_string(path.size()) + ") exceeds buffer size (1000)!";
+          std::cerr << msg << std::endl;
+          abort();
+       }
        char buffer[1000]; // temporary buffer for basename to work with (it is a C function)
-       path.copy(buffer, path.size()); //TODO: error if path.size()>1000
+       path.copy(buffer, path.size());
        buffer[path.size()] = '\0';
        std::string result = basename(&buffer[0]); // should use the C function...
        return result;
