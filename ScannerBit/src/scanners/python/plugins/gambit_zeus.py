@@ -142,7 +142,7 @@ AVAILABLE CALLBACKS
                                           callbacks=self.callbacks(self.args, chainmaster=cm), 
                                           **kwargs)
             else:
-                with MPIPool() as pool:
+                with MPIPool(comm=self.mpi_comm) as pool:
                     if pool.is_master():
                         if start is None:
                             start = np.random.rand(self.nwalkers, self.dim)

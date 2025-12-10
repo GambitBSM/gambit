@@ -92,7 +92,7 @@ There are additional arguments:
             self.sampler.run_mcmc(initial_state, nsteps,
                                 progress=progress, **kwargs)
         else:
-            with MPIPool() as pool:
+            with MPIPool(comm=self.mpi_comm) as pool:
                 if pool.is_master():
                     if initial_state is None:
                         initial_state = np.random.rand(self.nwalkers, self.dim)

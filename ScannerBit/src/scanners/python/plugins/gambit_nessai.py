@@ -91,7 +91,7 @@ We defined the additional parameters:
             self.sampler.run(**kwargs)
         else:
             initialise_pool_variables(model)
-            with MPIPool(use_join=True) as pool:
+            with MPIPool(comm=self.mpi_comm, use_join=True) as pool:
                 if pool.is_master():
                     self.sampler = FlowSampler(model, 
                                                pool=pool,

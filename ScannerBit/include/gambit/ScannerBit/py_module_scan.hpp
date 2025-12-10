@@ -371,7 +371,7 @@ namespace Gambit
                     static int rank()
                     {
                         int rank;
-                        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+                        MPI_Comm_rank(*Gambit::Scanner::Plugins::plugin_info.scanComm().get_boundcomm(), &rank);
                         
                         return rank;
                     }
@@ -386,9 +386,14 @@ namespace Gambit
                     static int numtasks()
                     {
                         int numtasks;
-                        MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
+                        MPI_Comm_size(*Gambit::Scanner::Plugins::plugin_info.scanComm().get_boundcomm(), &numtasks);
                         
                         return numtasks;
+                    }
+
+                    static MPI_Fint get_mpi_comm()
+                    {
+                        return MPI_Comm_c2f(*Gambit::Scanner::Plugins::plugin_info.scanComm().get_boundcomm());
                     }
                 #else
                     /**
@@ -880,6 +885,14 @@ PYBIND11_EMBEDDED_MODULE(scanner_plugin, m)
         
         return tasks;
     })
+#ifdef WITH_MPI
+    .def_property_readonly_static("mpi_comm", [](py::object)
+    {
+        MPI_Fint comm = scanner_base::get_mpi_comm();
+
+        return comm;
+    })
+#endif
     .def_property_readonly_static("dim", [](py::object)
     {
         static int dim = get_dimension();

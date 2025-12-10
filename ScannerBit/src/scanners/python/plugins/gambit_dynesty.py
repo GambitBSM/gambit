@@ -84,7 +84,7 @@ We add these additional parameters:
                 self.sampler.run_nested(checkpoint_file=self.filename, **self.run_args)
         
         else:
-            with MPIPool() as pool:
+            with MPIPool(comm=self.mpi_comm) as pool:
                 if self.printer.resume_mode():
                     self.sampler = dynesty.NestedSampler.restore(self.filename, pool=pool)
                 
@@ -179,7 +179,7 @@ class DynamicDynesty(splug.scanner):
                 self.sampler.run_nested(checkpoint_file=self.filename, **self.run_args)
         
         else:
-            with MPIPool() as pool:
+            with MPIPool(comm=self.mpi_comm) as pool:
                 if self.printer.resume_mode():
                     self.sampler = dynesty.DynamicNestedSampler.restore(self.filename, pool=pool)
                 

@@ -59,6 +59,8 @@ class MPIPool(BasePool):
         global MPI
         if comm is None:
             comm = MPI.COMM_WORLD
+        else:
+            comm = MPI.Comm.f2py(comm)
         self.comm = comm
         self.use_join = use_join
         self.master = 0

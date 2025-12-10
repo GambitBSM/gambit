@@ -127,7 +127,7 @@ pkl_name ('ocomc.pkl'):  File name where results will be pickled
                              resume_state_path=self.get_last_save(save_every, resume_state_path),
                              **self.run_args)
         else:
-            with MPIPool() as pool:
+            with MPIPool(comm=self.mpi_comm) as pool:
                 if pool.is_master():
                     if prior_samples is None:
                         prior_samples = np.random.rand(self.n_particles, self.dim).astype(np.float32)

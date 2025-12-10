@@ -65,7 +65,7 @@ We defined the additional parameters:
                                        **self.init_args)
             sampler.run(**self.run_args)
         else:
-            with MPIPool() as pool:
+            with MPIPool(comm=self.mpi_comm) as pool:
                 if pool.is_master():
                     sampler = nautilus.Sampler(self.prior, 
                                                self.my_like, 
