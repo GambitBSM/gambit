@@ -286,27 +286,25 @@ namespace Gambit
         piped_invalid_point.check();
 
         const int max_nEvents_collider = max_nEvents.at(collider);
+        const int min_nEvents_collider = min_nEvents.at(collider);
+        const int stoppingres_collider = stoppingres.at(collider);
         const int desired_nEvents_collider = result.desired_nEvents[collider];
 
         // Convergence loop
         while(((fixed_nEvents && result.current_event_count() < max_nEvents_collider) or (!fixed_nEvents && result.current_event_count() < desired_nEvents_collider)) and not *Loop::done)
         {
-          const int max_nEvents_val = max_nEvents.at(collider);
-          const int min_nEvents_val = min_nEvents.at(collider);
-          const int stoppingres_val = stoppingres.at(collider);
-          const int desired_nEvents_val = result.desired_nEvents[collider];
           
           int eventCountBetweenConvergenceChecks = 0;
           #ifdef COLLIDERBIT_DEBUG
-            cout << DEBUG_PREFIX << "Starting main event loop.  Will do " << stoppingres_val << " events before testing convergence." << endl;
+            cout << DEBUG_PREFIX << "Starting main event loop.  Will do " << stoppingres_collider << " events before testing convergence." << endl;
           #endif
 
           // Main event loop
           result.event_generation_began = true;
           #pragma omp parallel
           {
-            while(eventCountBetweenConvergenceChecks < stoppingres_val and
-                  ((fixed_nEvents && result.current_event_count() < max_nEvents_val) or (!fixed_nEvents && result.current_event_count() < desired_nEvents_val)) and
+            while(eventCountBetweenConvergenceChecks < stoppingres_collider and
+                  ((fixed_nEvents && result.current_event_count() < max_nEvents_collider) or (!fixed_nEvents && result.current_event_count() < desired_nEvents_collider)) and
                   not *Loop::done and
                   not result.end_of_event_file and
                   not result.exceeded_maxFailedEvents and
@@ -320,8 +318,8 @@ namespace Gambit
               // to stop other threads from starting any event iterations beyond max_nEvents.
               #pragma omp critical
               {
-                if (   (fixed_nEvents && result.current_event_count() < max_nEvents_val)
-                    or (!fixed_nEvents && result.current_event_count() < desired_nEvents_val))
+                if (   (fixed_nEvents && result.current_event_count() < max_nEvents_collider)
+                    or (!fixed_nEvents && result.current_event_count() < desired_nEvents_collider))
                 {
                   result.current_event_count()++;
                   thread_my_iteration = result.current_event_count();
@@ -370,7 +368,7 @@ namespace Gambit
 
           // Don't bother with convergence stuff if we haven't passed the minimum number of events yet.
           // Only do this if we are using a fixed number of events.
-          if (fixed_nEvents and result.current_event_count() >= min_nEvents_val)
+          if (fixed_nEvents and result.current_event_count() >= min_nEvents_collider)
           {
             #pragma omp parallel
             {
