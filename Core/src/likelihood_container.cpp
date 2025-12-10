@@ -226,7 +226,7 @@ namespace Gambit
     
       //_emu predict
       bool emulatorValidPrediction = false;
-      if (EmulatorMap::useEmulator && EmulatorMap::emulateLikelihood) 
+      if (EmulatorMap::useEmulator && EmulatorMap::mapping_ranks.find("LogLike") != EmulatorMap::mapping_ranks.end()) 
       {
         if (debug) logger() << LogTags::core << "Prediction from emulator for lnlike started." << EOM;
         #ifdef WITH_MPI
@@ -290,7 +290,7 @@ namespace Gambit
       }
       //_emu predict end
 
-      if (emulatorValidPrediction)
+      if (!emulatorValidPrediction)
       {
 
 
