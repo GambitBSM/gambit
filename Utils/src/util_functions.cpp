@@ -421,17 +421,15 @@ namespace Gambit
     bool check1(const std::string& s1, const std::string& s2)
     {
       if(s2.length() - s1.length() != 1){ return false; }
-      unsigned int i,j;
-      for(i=0,j=0; i<s2.length(); i++,j++)
+      unsigned int i = 0;
+      unsigned int j = 0;
+      while (i < s2.length() && j < s1.length()) 
       {
-          if(s2[i] == s1[j])
-          {/*do  nothing*/}
-          else if(i == j)
-          { j++;}
-          else
-          {return false;}
+        if (s2[i] == s1[j]) { i++; j++; } 
+        else { i++; } // Skip character in s2 only
       }
-      return true;
+      // If we reached the end of s1, it's a match
+      return (j == s1.length());
     }
 
     /// true if s1 can be obtained from s2 by changing no more than X characters (X=2 for now)
