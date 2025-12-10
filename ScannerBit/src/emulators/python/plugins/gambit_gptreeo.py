@@ -18,26 +18,16 @@ class pyGPtreeoEmulator():
     __version__ = "0.1.0"
     __plugin_name__ = "pygptreeo"
 
-    mpiComm = None
-    rank = 0
-    size = 1
-    gpt =  None
-
-    Xcache = []
-    Ycache = []
-
-    max_cache_size = 10  # maximum number of points to cache before training
-
-    last_mtime = 0
-    
-    tree_filename = 'pygptreeo_model.joblib'
-
     def __init__(self, mpi_comm, **kwargs):
         # super().__init__(use_mpi=True)
+        # mpi stuff
         self.mpiComm = mpi_comm
-        self.rank = mpi_comm.Get_rank()
+        self.mpi_rank = mpi_comm.Get_rank()
+        self.mpi_size = mpi_comm.Get_size()
 
         # TODO: read tree filename 
+        self.tree_filename = 'pygptreeo_model.joblib'
+        self.max_cache_size = 10  # maximum number of points to cache before training
 
         # TODO: read all GPT parameters from kwargs
         self.gpt = GPTree(
@@ -50,16 +40,20 @@ class pyGPtreeoEmulator():
             use_calibrated_sigma=True,
             splitting_strategy='gradual',
         )
-        if self.rank == 1:
+
+        if self.mpi_size == 1 or self.mpi_rank == 1:
             self.gpt.save(self.tree_filename)
 
         self.last_mtime = os.path.getmtime(self.tree_filename)
+        
+        self.Xcache = []
+        self.Ycache = []
 
     # @copydoc(scipy_optimize_dual_annealing)
     # update tree with buffer values
     def train(self, x, y):
 
-        if self.rank == 1:
+        if self.mpi_size == 1  or self.mpi_rank == 1:
             X_train = x.reshape(-1, 1)
             y_train = y.reshape(-1, 1)
 
@@ -90,7 +84,7 @@ class pyGPtreeoEmulator():
 
     # predict for x
     def predict(self, x):
-        if self.rank == 0:
+        if self.mpi_size == 1 or self.mpi_rank == 0:
             # load tree if file was updated
             time.sleep(1)
             
