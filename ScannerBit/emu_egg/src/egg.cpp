@@ -4,6 +4,7 @@
 // #include <sstream> // For stringstream
 #include <csignal>
 // #include "egg.hpp"
+#include "gambit/ScannerBit/py_module.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
 #include "gambit/Utils/static_members.hpp"
 #include "gambit/Utils/file_lock.hpp"

@@ -182,7 +182,7 @@ namespace Gambit
                                                         detail.run_doc = run.attr("__doc__").cast<std::string>();
                                                     }
                                                 }
-                                                else
+                                                else if (type != "emulator")
                                                 {
                                                     detail.status = "\"run\" not defined";
                                                 }

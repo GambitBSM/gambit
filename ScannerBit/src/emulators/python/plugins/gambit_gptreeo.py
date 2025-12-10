@@ -25,15 +25,15 @@ class pyGPtreeoEmulator():
         self.mpi_rank = mpi_comm.Get_rank()
         self.mpi_size = mpi_comm.Get_size()
 
-        # TODO: read tree filename 
+        # TODO: read tree filename
         self.tree_filename = 'pygptreeo_model.joblib'
         self.max_cache_size = 10  # maximum number of points to cache before training
 
         # TODO: read all GPT parameters from kwargs
         self.gpt = GPTree(
-            GPR=Default_GPR(), 
+            GPR=Default_GPR(),
             Nbar=50,
-            theta=1e-4, 
+            theta=1e-4,
             split_position_method='median',
             split_dimension_criteria='max_variance',
             retrain_every_n_points=20,
@@ -45,7 +45,7 @@ class pyGPtreeoEmulator():
             self.gpt.save(self.tree_filename)
 
         self.last_mtime = os.path.getmtime(self.tree_filename)
-        
+
         self.Xcache = []
         self.Ycache = []
 
@@ -80,14 +80,14 @@ class pyGPtreeoEmulator():
                 # store file
                 self.gpt.save(self.tree_filename)
                 time.sleep(1)
-                
+
 
     # predict for x
     def predict(self, x):
         if self.mpi_size == 1 or self.mpi_rank == 0:
             # load tree if file was updated
             time.sleep(1)
-            
+
             current_mtime = os.path.getmtime(self.tree_filename)
             # print("Current mtime:", current_mtime, "Last mtime:", self.last_mtime)
             if current_mtime != self.last_mtime:
@@ -102,7 +102,7 @@ class pyGPtreeoEmulator():
             return y_pred, y_std
         else:
             return None, None
-    
+
 
 
 
