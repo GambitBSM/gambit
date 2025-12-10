@@ -113,7 +113,7 @@ namespace Gambit
             {
                 if (python_plugin_map.size() == 0)
                 {
-                    std::vector<std::string> types = {"objective", "scanner"};
+                    std::vector<std::string> types = {"objective", "scanner", "emulator"};
                     for (auto &&type : types)
                         Load_PyPlugins(type);
                 }

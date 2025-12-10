@@ -40,5 +40,6 @@ namespace py = pybind11;
 #include "gambit/ScannerBit/py_module_scanbit.hpp"
 #include "gambit/ScannerBit/py_module_scan.hpp"
 #include "gambit/ScannerBit/py_module_obj.hpp"
+#include "gambit/ScannerBit/py_module_emu.hpp"
 
 #endif  // HAVE_PYBIND11

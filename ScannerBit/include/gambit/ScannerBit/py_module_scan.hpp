@@ -476,9 +476,6 @@ PYBIND11_EMBEDDED_MODULE(scanner_plugin, m)
     typedef Gambit::Scanner::Plugins::ScannerPyPlugin::like_physical s_phys_func;
     typedef Gambit::Scanner::Plugins::ScannerPyPlugin::like_prior_physical s_phys_pr_func;
     typedef Gambit::Scanner::Plugins::ScannerPyPlugin::prior_physical s_pr_func;
-    using namespace Gambit::Scanner::Plugins::ScannerPyPlugin;
-    
-
 
     py::class_<s_hyper_func, std::shared_ptr<s_hyper_func>> pylike_hypercube_ptr(m, "like_hypercube_ptr");
     pylike_hypercube_ptr

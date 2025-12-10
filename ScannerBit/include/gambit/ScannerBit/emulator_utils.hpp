@@ -137,6 +137,38 @@ namespace Gambit
                     prediction_uncertainty_pointer = map_vector<double>((double *)result_uncertainty.data(), result_uncertainty.size());
                 }
 
+                void add_for_evaluation(const vector<double> &parameters)
+                {
+                    set_predict();
+                    auto params_pointer = buffer_vector(0);
+                    params_pointer = parameters;;
+
+                }
+
+                void add_for_training(const vector<double> &parameters, const vector<double> &target_value, const vector<double> &target_uncertainty_value)
+                {
+                    set_train();
+                    auto params_pointer = buffer_vector(0);
+                    params_pointer = parameters;
+
+                    auto target_pointer = buffer_vector(1);
+                    target_pointer = target_value;
+
+                    auto target_uncertainty_pointer = buffer_vector(2);
+                    target_uncertainty_pointer = target_uncertainty_value;
+                }
+
+                void add_for_result(const vector<double> &result, const vector<double> &result_uncertainty)
+                {
+                    set_result();
+
+                    auto prediction_pointer = buffer_vector(1);
+                    prediction_pointer = result;
+
+                    auto prediction_uncertainty_pointer = buffer_vector(2);
+                    prediction_uncertainty_pointer = result_uncertainty;
+                }
+
                 // flags
                 bool if_train() {return TRAIN & flag();}
                 bool if_predict() {return PREDICT & flag();}

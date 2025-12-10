@@ -25,6 +25,7 @@
 using namespace Gambit;
 using namespace Gambit::Scanner;
 using Gambit::Scanner::map_vector;
+using Gambit::Scanner::vector;
 
 
 // Function to compute Euclidean distance between two 2D points

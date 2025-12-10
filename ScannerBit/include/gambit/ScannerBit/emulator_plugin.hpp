@@ -39,6 +39,7 @@
 using namespace Gambit::Scanner;                                                                                \
 using Gambit::Printers::get_point_id;                                                                           \
 using Gambit::Scanner::map_vector;                                                                              \
+using Gambit::Scanner::vector;                                                                                  \
 
 #define EMULATOR_PLUGIN(plug_name, ...)                                                                         \
 GAMBIT_PLUGIN_INITIALIZE(__EMULATOR_SETUP__, plug_name, emulator, __VA_ARGS__)                                  \

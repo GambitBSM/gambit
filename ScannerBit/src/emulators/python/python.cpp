@@ -85,12 +85,13 @@ emulator_plugin(python, version(1, 0, 0))
      * Instance of python scanner
      */
     py::object instance;
-    py::object run_func;
+    py::object train_func;
+    py::object predict_func;
 
     plugin_constructor
-    {/*
+    {
         // export plugin data to python plugin
-        Gambit::Emulator::Plugins::EmulatorPyPlugin::pythonPluginData() = &__gambit_plugin_namespace__::myData;
+        Gambit::Scanner::Plugins::EmulatorPyPlugin::pythonPluginData() = &__gambit_plugin_namespace__::myData;
 
         // get plugin name
         std::string plugin_name = get_inifile_value<std::string>("plugin");
@@ -106,8 +107,8 @@ emulator_plugin(python, version(1, 0, 0))
         {
             if (pkg == "")
             {
-                Gambit::Emulator::Plugins::plugin_info.load_python_plugins();
-                decltype(auto) details =  Gambit::Emulator::Plugins::plugin_info.load_python_plugin("scanner", plugin_name);
+                Gambit::Scanner::Plugins::plugin_info.load_python_plugins();
+                decltype(auto) details =  Gambit::Scanner::Plugins::plugin_info.load_python_plugin("emulator", plugin_name);
                 py::list(py::module::import("sys").attr("path")).append(py::cast(details.loc));
                 file = py::module::import(details.package.c_str());
             }
@@ -130,32 +131,29 @@ emulator_plugin(python, version(1, 0, 0))
             }
             
             instance = py::dict(file.attr("__plugins__"))[plugin_name.c_str()](**options);
-            run_func = instance.attr("run");
+            train_func = instance.attr("train");
+            predict_func = instance.attr("predict");
         }
         catch (std::exception &ex)
         {
             scan_err << "Error loading plugin \"" << plugin_name << "\": " << ex.what() << scan_end;
-        }*/
+        }
     }
 
     //training
     void plugin_main(map_vector<double> &x, map_vector<double> &y, map_vector<double> &sigs)
     {
-        // run scanner
-        //run_func(x, y, sigs);
-        std::cout << "x: " << x.transpose() << std::endl;
-        std::cout << "y: " << y.transpose() << std::endl;
-        std::cout << "sigs: " << sigs.transpose() << std::endl;
+        train_func(x, y, sigs);
+
         return;
     }
 
     //predict
-    std::pair<std::vector<double>, std::vector<double>> plugin_main(map_vector<double>&)
+    std::pair<vector<double>, vector<double>> plugin_main(map_vector<double>&x)
     {
-        // run scanner
-        //auto ret = run_func(x);
-        std::vector<double> x = {0.02}, y = {0.0};
-        return std::make_pair(x, y);
+        py::tuple ret = predict_func(x);
+
+        return std::make_pair(ret[0].cast<vector<double>>(), ret[1].cast<vector<double>>());
     }
 
     plugin_deconstructor 
