@@ -6,6 +6,7 @@ PocoMC scanner
 import pickle
 import numpy as np
 import os
+from scipy.stats import uniform
 
 from utils import copydoc, version, with_mpi, store_pt_data, get_directory
 if with_mpi:
@@ -112,17 +113,21 @@ pkl_name ('ocomc.pkl'):  File name where results will be pickled
         if self.mpi_size == 1:
             if prior_samples is None:
                 prior_samples = np.random.rand(self.n_particles, self.dim).astype(np.float32)
-            self.sampler = self.make_sampler(self.n_particles,
-                                             self.dim,
-                                             log_likelihood=self.my_like,
-                                             log_prior=self.log_prior,
-                                             bounds=np.array([[0.0, 1.0]]*self.dim),
-                                             vectorize_likelihood=False,
-                                             vectorize_prior=False,
-                                             infer_vectorization=False,
+            
+            # set up prior with custom rsv for prior samples
+            prior = pocomc.Prior(self.dim*[uniform(0.0, 1.0)])
+            prior.rvs = lambda size=None: prior_samples
+                
+            self.sampler = self.make_sampler(n_effective=self.n_particles,
+                                             n_dim=self.dim,
+                                             likelihood=self.my_like,
+                                             prior=prior,
+                                             n_prior=self.n_particles,
+                                             #bounds=np.array([[0.0, 1.0]]*self.dim),
+                                             vectorize=False,
                                              output_dir=self.log_dir,
                                              **self.init_args)
-            self.sampler.run(prior_samples, 
+            self.sampler.run(self.n_particles, 
                              save_every=save_every, 
                              resume_state_path=self.get_last_save(save_every, resume_state_path),
                              **self.run_args)
@@ -131,18 +136,22 @@ pkl_name ('ocomc.pkl'):  File name where results will be pickled
                 if pool.is_master():
                     if prior_samples is None:
                         prior_samples = np.random.rand(self.n_particles, self.dim).astype(np.float32)
-                    self.sampler = self.make_sampler(self.n_particles,
-                                                     self.dim,
-                                                     log_likelihood=self.my_like,
-                                                     log_prior=self.log_prior,
-                                                     bounds=np.array([[0.0, 1.0]]*self.dim),
-                                                     vectorize_likelihood=False,
-                                                     vectorize_prior=False,
-                                                     infer_vectorization=False,
+                    
+                    # set up prior with custom rsv for prior samples
+                    prior = pocomc.Prior(self.dim*[uniform(0.0, 1.0)])
+                    prior.rvs = lambda size=None: prior_samples 
+                    
+                    self.sampler = self.make_sampler(n_effective=self.n_particles,
+                                                     n_dim=self.dim,
+                                                     likelihood=self.my_like,
+                                                     prior=prior,
+                                                     n_prior=self.n_particles,
+                                                     # bounds=np.array([[0.0, 1.0]]*self.dim),
+                                                     vectorize=False,
                                                      output_dir=self.log_dir,
                                                      pool=pool,
                                                      **self.init_args)
-                    self.sampler.run(prior_samples, 
+                    self.sampler.run(self.n_particles, 
                                      save_every=save_every, 
                                      resume_state_path=self.get_last_save(save_every, resume_state_path),
                                      **self.run_args)
@@ -154,22 +163,29 @@ pkl_name ('ocomc.pkl'):  File name where results will be pickled
         if self.mpi_rank == 0:
             
             results = self.sampler.results
-            pts = results["samples"]
+
+            pts, _, _, _ = self.sampler.posterior()
+            # pts = results["x"]
             wts = results["logw"]
             stream = self.printer.get_stream("txt")
             stream.reset()
-            
+            print(PocoMC.ids.saves)
+            # print(pts)
+            pts = pts.reshape(-1, self.dim)
             for pt in pts:
-                if tuple(pt) in PocoMC.ids.saves:
-                    save = PocoMC.ids.saves[tuple(pt)]
+                key = tuple(pt)
+                # print("key:", key)
+
+                if key in PocoMC.ids.saves:
+                    save = PocoMC.ids.saves[key]
                     stream.print(1.0, "Posterior", save[0], save[1])
                 else:
-                    print("warning: point ", tuple(pt), " has no correponding id.")
+                    print("warning: point ", key, " has no correponding id.")
 
             stream.flush()
             
             if self.pkl_name:
-                results["phys_samples"] = np.array([self.transform_to_vec(pt) for pt in results["samples"]])
+                results["phys_samples"] = np.array([self.transform_to_vec(pt) for pt in pts])
                 results["parameter_names"] = self.parameter_names
                 with open(self.log_dir + self.pkl_name, "wb") as f:
                     pickle.dump(self.sampler.results, f)
