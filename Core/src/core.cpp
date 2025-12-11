@@ -655,8 +655,10 @@ namespace Gambit
       for (const auto &primaryModelFunctor : primaryModelFunctorList) valid_commands.push_back(primaryModelFunctor->origin());
       const std::vector<std::string> scanner_names = Scanner::Plugins::plugin_info().print_plugin_names("scanner");
       const std::vector<std::string> objective_names = Scanner::Plugins::plugin_info().print_plugin_names("objective");
+      const std::vector<std::string> emulator_names = Scanner::Plugins::plugin_info().print_plugin_names("emulator");
       const std::vector<std::string> prior_groups = Scanner::Plugins::plugin_info().list_prior_groups();
       valid_commands.insert(valid_commands.end(), scanner_names.begin(), scanner_names.end());
+      valid_commands.insert(valid_commands.end(), emulator_names.begin(), emulator_names.end());
       valid_commands.insert(valid_commands.end(), objective_names.begin(), objective_names.end());
       valid_commands.insert(valid_commands.end(), prior_groups.begin(), prior_groups.end());
 

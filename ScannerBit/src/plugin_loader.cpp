@@ -174,17 +174,38 @@ namespace Gambit
 
                                             try
                                             {
-                                                if (py::hasattr(plug_class, "run") && py::isinstance<py::function>(plug_class.attr("run")))
+                                                if (type == "emulator")
                                                 {
-                                                    auto run = plug_class.attr("run");
-                                                    if (py::hasattr(run, "__doc__") && py::isinstance<py::str>(run.attr("__doc__")))
+                                                    if (py::hasattr(plug_class, "train") && py::isinstance<py::function>(plug_class.attr("train")))
                                                     {
-                                                        detail.run_doc = run.attr("__doc__").cast<std::string>();
+                                                    }
+                                                    else
+                                                    {
+                                                        detail.status = "\"train\" not defined";
+                                                    }
+
+                                                    if (py::hasattr(plug_class, "predict") && py::isinstance<py::function>(plug_class.attr("predict")))
+                                                    {
+                                                    }
+                                                    else
+                                                    {
+                                                        detail.status = "\"predict\" not defined";
                                                     }
                                                 }
-                                                else if (type != "emulator")
+                                                else
                                                 {
-                                                    detail.status = "\"run\" not defined";
+                                                    if (py::hasattr(plug_class, "run") && py::isinstance<py::function>(plug_class.attr("run")))
+                                                    {
+                                                        auto run = plug_class.attr("run");
+                                                        if (py::hasattr(run, "__doc__") && py::isinstance<py::str>(run.attr("__doc__")))
+                                                        {
+                                                            detail.run_doc = run.attr("__doc__").cast<std::string>();
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        detail.status = "\"run\" not defined";
+                                                    }
                                                 }
 
                                                 if (py::hasattr(plug_class, "__init__") && py::isinstance<py::function>(plug_class.attr("__init__")))

@@ -160,14 +160,14 @@ namespace Gambit
                 {
                 public:
 
-                    void train(map_vector<double> &, map_vector<double> &, map_vector<double> &)
+                    void train(map_vector<double>, map_vector<double>, map_vector<double>)
                     {
                         scan_err << "\"train()\" method not defined in python scanner plugin." << scan_end;
                         return;
                     }
 
                     //predict
-                    std::pair<vector<double>, vector<double>> predict(map_vector<double>&)
+                    std::pair<vector<double>, vector<double>> predict(map_vector<double>)
                     {
                         scan_err << "\"predict()\" method not defined in python scanner plugin." << scan_end;
                         return std::pair<vector<double>, vector<double>>();
@@ -336,8 +336,15 @@ PYBIND11_EMBEDDED_MODULE(emulator_plugin, m)
     {
         return std::shared_ptr<emulator_base>(new emulator_base());
     }))
-    //.def("train", &emulator_base::train)
-    //.def("predict", &emulator_base::predict)
+    .def("train", [](emulator_base &, py::object, py::object, py::object)
+    {
+        scan_err << "\"train()\" method not defined in python scanner plugin." << scan_end;
+    })
+    .def("predict", [](emulator_base &, py::object)
+    {
+        scan_err << "\"train()\" method not defined in python scanner plugin." << scan_end;
+        return py::object();
+    })
     .def_property_readonly_static("args", [](py::object)
     {
         static py::dict opts = ::Gambit::Scanner::yaml_to_dict(emulator_base::getNode());
