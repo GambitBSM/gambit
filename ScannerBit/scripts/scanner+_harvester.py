@@ -203,12 +203,14 @@ set( scanner_scanlibs_headers"""
                     text = comment_remover(f.read())
                     it = re.finditer(r'\breqd_inifile_entries\s*?\(.*?\)|\bREQD_INIFILE_ENTRIES\s*?\(.*?\)', text, re.DOTALL)
                     ini_finds = [[m.span()[0], -1, re.sub(r'\s', '', m.group())] for m in it]
+                    # Note: indices must match sorted(["scanner", "objective", "emulator"]) = ['emulator', 'objective', 'scanner']
+                    # So: emulator=0, objective=1, scanner=2
                     it = re.finditer(r'\bemulator_plugin\s*?\(.*?\)\s*?\{|\bEMULATOR_PLUGIN\s*?\(.*?\)\s*?\{', text, re.DOTALL)
                     emu_finds = [[m.span()[0], 0, m.group()] for m in it]
                     it = re.finditer(r'\bobjective_plugin\s*?\(.*?\)\s*?\{|\bOBJECTIVE_PLUGIN\s*?\(.*?\)\s*?\{', text, re.DOTALL)
-                    obj_finds = [[m.span()[0], 0, m.group()] for m in it]
+                    obj_finds = [[m.span()[0], 1, m.group()] for m in it]
                     it = re.finditer(r'\bscanner_plugin\s*?\(.*?\)\s*?\{|\bSCANNER_PLUGIN\s*?\(.*?\)\s*?\{', text, re.DOTALL)
-                    scan_finds = [[m.span()[0], 1, m.group()] for m in it]
+                    scan_finds = [[m.span()[0], 2, m.group()] for m in it]
                     it = re.finditer(r'\breqd_libraries\s*?\(.*?\)|\bREQD_LIBRARIES\s*?\(.*?\)', text, re.DOTALL)
                     lib_finds = [[m.span()[0], -2, re.sub(r'\s', '', m.group())] for m in it]
                     it = re.finditer(r'\breqd_headers\s*?\(.*?\)|\bREQD_HEADERS\s*?\(.*?\)', text, re.DOTALL)
