@@ -36,7 +36,7 @@ endmacro()
 if(${WERROR})
   set_compiler_warning("error")
 else()
-  message(STATUS "${Red}Werror is disabled${ColourReset}")
+  message(STATUS "Werror is disabled (this is normal for most builds)")
 endif()
 
 set_compiler_warning("all" CMAKE_CXX_FLAGS)
