@@ -89,9 +89,10 @@ namespace Gambit
       std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
 
       // _Anders
-      // This is mostly copied from the example in likelihood_container.cpp. 
+      // This is mostly copied from the example in likelihood_container.cpp.
       // Most of this should be hidden inside the module_functor class eventually.
       // One thing we will need is a function that converts dependencies to emulator arguments.
+#ifdef WITH_MPI
       if (EmulatorMap::useEmulator && EmulatorMap::mapping_ranks.find("nevents") != EmulatorMap::mapping_ranks.end())
       {
         // Convert dependencies to vector of emulator arguments
@@ -123,7 +124,7 @@ namespace Gambit
         std::vector<int> send_rank = EmulatorMap::mapping_ranks["nevents"];
 
         // send to egg
-        // 
+        //
         for ( auto rank : send_rank)
         {
             MPI_Send(fd_predict.buffer.data(), fd_predict.buffer.size(), MPI_CHAR, rank, 3, MPI_COMM_WORLD);
@@ -148,6 +149,7 @@ namespace Gambit
         // print result
         std::cout << "results from x "<< predict_results.prediction() << std::endl;
       }
+#endif
 
 
       static double count = 3.5; 

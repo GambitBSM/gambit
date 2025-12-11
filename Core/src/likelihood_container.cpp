@@ -465,7 +465,8 @@ namespace Gambit
 
         
         //_emu train
-        if (EmulatorMap::useEmulator && EmulatorMap::emulateLikelihood) 
+        #ifdef WITH_MPI
+        if (EmulatorMap::useEmulator && EmulatorMap::emulateLikelihood)
         {
             if (debug) logger() << LogTags::core << "Sending training point to emulator for lnlike started " << EOM;
             // extract parameters
@@ -485,7 +486,7 @@ namespace Gambit
             std::vector<int> send_rank = EmulatorMap::mapping_ranks["LogLike"];
 
             // send to egg
-            // 
+            //
             for ( auto rank : send_rank)
             {
                 MPI_Send(fd.buffer.data(), fd.buffer.size(), MPI_CHAR, rank, 3, MPI_COMM_WORLD);
@@ -493,6 +494,7 @@ namespace Gambit
 
             if (debug) logger() << LogTags::core << "Sending training point to emulator for lnlike done." << EOM;
         }
+        #endif
         //_emu train end
     }
 

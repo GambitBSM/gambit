@@ -4,8 +4,10 @@
 #include <map>
 #include <vector>
 #include <string>
+#ifdef WITH_MPI
 #include <mpi.h>
 #include "gambit/Utils/mpiwrapper.hpp"
+#endif
 
 using namespace Gambit;
 // namespace GMPI { class Comm; }
@@ -19,8 +21,9 @@ namespace EmulatorMap
 
     inline double emulatorUncertaintyThreshold;
 
-    
+#ifdef WITH_MPI
     inline MPI_Comm emuComm;
+#endif
 }
 
 
