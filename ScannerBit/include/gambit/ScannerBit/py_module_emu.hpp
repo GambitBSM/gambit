@@ -23,7 +23,7 @@ namespace Gambit
         
         namespace Plugins
         {
-            
+
             namespace EmulatorPyPlugin
             {
 
@@ -332,7 +332,10 @@ PYBIND11_EMBEDDED_MODULE(emulator_plugin, m)
     
     // Bind the scanner base class to the module
     py::class_<emulator_base, std::shared_ptr<emulator_base>>(m, "emulator")
-    //.def(py::init([](){}))
+    .def(py::init([]()
+    {
+        return std::shared_ptr<emulator_base>(new emulator_base());
+    }))
     //.def("train", &emulator_base::train)
     //.def("predict", &emulator_base::predict)
     .def_property_readonly_static("args", [](py::object)

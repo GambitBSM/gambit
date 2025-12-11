@@ -315,6 +315,7 @@ namespace Gambit
     ff_module_function_diagnostic(command, ff_output);
     ff_backend_function_diagnostic(command, ff_output);
     ff_scanner_diagnostic(command, ff_output);
+    ff_emulator_diagnostic(command, ff_output);
     ff_test_function_diagnostic(command, ff_output);
     ff_prior_diagnostic(command, ff_output);
 
