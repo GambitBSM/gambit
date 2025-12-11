@@ -116,6 +116,12 @@ int main(int argc, char* argv[])
       //_emu 
       // check how many processes gambit has, and if emulator is to be used
 
+      int appnum;
+      int flag;
+      MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_APPNUM, &appnum, &flag);
+
+      std::cout << " gambit: appnum " << appnum << std::endl;
+
       // gather colors from all processes
       int process_color = 1;
       std::vector<int> all_process_colors(world_size);
@@ -245,6 +251,21 @@ int main(int argc, char* argv[])
       // Read YAML file, which also initialises the logger.
       IniParser::IniFile iniFile;
       iniFile.readFile(filename);
+
+      //_emu send yaml filename to egg
+      if (EmulatorMap::useEmulator)
+      {
+        str copy_filename = filename;
+        //   MPI_Bcast(copy_filename.data(), copy_filename.size(), MPI_CHAR, 0, MPI_COMM_WORLD);
+        int msg_size = copy_filename.size();     // only known on root executable
+        // int *data = NULL;
+
+        // Step 1: broadcast the size
+        MPI_Bcast(&msg_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+        // Step 3: broadcast the actual data
+        MPI_Bcast(copy_filename.data(), msg_size, MPI_CHAR, 0, MPI_COMM_WORLD);
+      } 
 
       // Check if user wants to disable use of MPI_Abort (since it does not work correctly in all MPI implementations)
       #ifdef WITH_MPI
