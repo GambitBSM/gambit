@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     /////// Read yaml file and capability
     // read terminal input and extract capability and yaml file
     std::unordered_map<str, str> argsMap;
-    if ( argc >= 5) {
+    if ( argc >= 3) {
         for (int i = 1; i < argc; i += 2) 
         {
             str key = argv[i];
@@ -94,42 +94,23 @@ int main(int argc, char *argv[])
             std::cout << key << " # " << value << std::endl;
         }
     }
-    else { std::cout << "Too few arguments: " << argc << " inputs, but 5 required" << std::endl; }
+    else { std::cout << "Too few arguments: " << argc << " inputs, but 3 required" << std::endl; }
 
-    std::cout << "capability: " << argsMap["-c"] << ", yaml file: " << argsMap["-f"] << std::endl;
+    std::cout << "capability: " << argsMap["-c"] << std::endl;
 
     // Read yaml file
-    const str filename = argsMap["-f"];
+    // const str filename = argsMap["-f"];
     // Get plugin name
     str capability = argsMap["-c"];
+
+    int* appnum;
+    int flag;
+    MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_APPNUM, &appnum, &flag);
+    // std::cout << " egg: appnum " << *appnum  << " # " << flag << std::endl;
+    int my_process_color = 1+*appnum;
     
-
-    IniParser::Parser iniFile;
-    iniFile.readFile(filename);
-
-    YAML::Node emulator_node = iniFile.getEmulationNode();
-    str plugin_name = emulator_node["emulators"][capability]["plugin"].as<str>();
-
-    // str capability = emulator_node["use_emulator"].as<str>();
-    //str plugin_name = emulator_node["emulators"][capability]["plugin"].as<str>();
-
-    Plugins::plugin_info.iniFile(emulator_node);
-
-    
-    
-
-    std::vector<str> all_capabilities = emulator_node["use_emulator"].as<std::vector<str>>();
-
-    int my_process_color = 0;
-
-    for (int k = 0; k < all_capabilities.size(); ++k)
-    {
-        if (all_capabilities[k] == capability) {my_process_color = 2+k;}
-    }
-    std::cout << "color: " << my_process_color << std::endl;
 
     //////////////// Make emulator communicators to give to plugin /////////////////
-    // logger() << Gambit::LogTags::core << "making emulator communicator. "<< EOM;
 
     // get world size/rank
     int world_size, world_rank;
@@ -137,8 +118,6 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
     // check number of processes in egg
-    // TODO: decide color based on capability
-    // int my_process_color = 0;
     std::vector<int> all_process_colors(world_size);
     MPI_Allgather(&my_process_color, 1, MPI_INT, all_process_colors.data(), 1, MPI_INT, MPI_COMM_WORLD);
 
@@ -155,23 +134,12 @@ int main(int argc, char *argv[])
     //////// split the communicator
     GMPI::Comm emuComm(emuProcesses, "emuComm");
     std::cout << "made emuComm" << std::endl;
-    /// make plugin
-    MPI_Comm* emu_comm_ptr = emuComm.get_boundcomm();
-    Scanner::Plugins::plugin_info.initMPIdata(&emuComm);
-    Plugins::Plugin_Interface<void (map_vector<double> , map_vector<double> , map_vector<double> ), std::pair<vector<double>, vector<double>> (map_vector<double> )> plugin_interface("emulator", capability);
-
-    int isInter;
-    MPI_Comm_test_inter((*emu_comm_ptr), &isInter);
-    if (isInter) std::cout << "This is an intercommunicator!\n";
-
-
-    std::cout << "made plugin " << std::endl;
+   
     // find local rank/size
     int local_rank = emuComm.Get_rank();
-    int local_size = emuComm.Get_size();
+    // int local_size = emuComm.Get_size();
 
     /////// send plugin info to world rank 0
-
     // add the worldrank to the back of the plugin-name before sending
     std::ostringstream oss;
     oss << capability << " " << world_rank;
@@ -184,6 +152,33 @@ int main(int argc, char *argv[])
     }
 
     std::cout << "In egg, sent messages " << std::endl;
+
+    //////// Get yaml file
+    str filename;
+    int msg_size;
+
+    // get size
+    MPI_Bcast(&msg_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    filename.resize(msg_size);
+
+    // get yaml filename
+    MPI_Bcast(filename.data(), msg_size, MPI_CHAR, 0, MPI_COMM_WORLD);
+    std::cout << "filename: " <<  filename << std::endl;
+
+    // read yaml file
+    IniParser::Parser iniFile;
+    iniFile.readFile(filename);
+
+    // get emulator node
+    YAML::Node emulator_node = iniFile.getEmulationNode();
+    str plugin_name = emulator_node["emulators"][capability]["plugin"].as<str>();
+    Plugins::plugin_info.iniFile(emulator_node);
+    
+    ////////// Make plugin
+
+    Scanner::Plugins::plugin_info.initMPIdata(&emuComm);
+    Plugins::Plugin_Interface<void (map_vector<double> , map_vector<double> , map_vector<double> ), std::pair<vector<double>, vector<double>> (map_vector<double> )> plugin_interface("emulator", capability);
+    std::cout << "made plugin " << std::endl;
 
     ///////// Recieve messages from gambit
 
