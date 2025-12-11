@@ -1,7 +1,4 @@
 #include <mpi.h>
-// #include <stdio.h>
-// #include <cstring> // For strlen
-// #include <sstream> // For stringstream
 #include <csignal>
 // #include "egg.hpp"
 #include "gambit/ScannerBit/py_module.hpp"
@@ -11,63 +8,18 @@
 #include "gambit/Utils/signal_helpers.hpp"
 #include "gambit/Utils/signal_handling.hpp"
 #include "gambit/Utils/yaml_parser_base.hpp"
-// #include "gambit/Core/yaml_parser.hpp"
 #include "yaml-cpp/yaml.h"
 #include "gambit/ScannerBit/plugin_interface.hpp"
 #include "gambit/ScannerBit/plugin_factory.hpp"
 #include "gambit/ScannerBit/emulator_utils.hpp"
 #include "gambit/ScannerBit/scanner_util_types.hpp"
 
-// #include "gambit/Utils/signal_handling.hpp"
-// #include "gambit/Utils/static_members.hpp"
-// #include "src/new_mpi_datatypes.cpp"
 
 // using namespace Gambit;
 using namespace Gambit;
 using namespace Gambit::Scanner;
 using Gambit::Scanner::map_vector;
 using Gambit::Scanner::vector;
-
-
-// Function to compute Euclidean distance between two 2D points
-double euclideanDistance(const std::vector<double>& point1, const std::vector<double>& point2) {
-    return std::sqrt(std::pow(point1[0] - point2[0], 2) + std::pow(point1[1] - point2[1], 2));
-}
-
-// Nearest Neighbor Averaging Function
-double nearestNeighborAverage(const std::vector<std::vector<double>>& parameters, 
-                              const std::vector<double>& likelihoods, 
-                              const std::vector<double> target, 
-                              int k = 1) 
-{
-                                
-    if (parameters.empty() || likelihoods.empty() || parameters.size() != likelihoods.size()) 
-    {
-        return 0;
-    }
-
-    // Vector to hold distances
-    std::vector<std::pair<double, double>> distances;
-
-    // Calculate the distance from the target point to all other points
-    for (size_t i = 0; i < parameters.size(); ++i) {
-        double distance = euclideanDistance(target, parameters[i]);
-        distances.emplace_back(distance, likelihoods[i]);
-    }
-
-    // Sort distances (first element of pairs)
-    std::sort(distances.begin(), distances.end());
-
-    // Calculate average for k nearest neighbors
-    double sum_likelihood = 0.0;
-    int count = std::min(k, static_cast<int>(distances.size()));
-
-    for (int i = 0; i < count; ++i) {
-        sum_likelihood += distances[i].second;
-    }
-
-    return sum_likelihood / count;
-}
 
 int main(int argc, char *argv[])
 {
@@ -96,17 +48,12 @@ int main(int argc, char *argv[])
     }
     else { std::cout << "Too few arguments: " << argc << " inputs, but 3 required" << std::endl; }
 
-    std::cout << "capability: " << argsMap["-c"] << std::endl;
-
-    // Read yaml file
-    // const str filename = argsMap["-f"];
-    // Get plugin name
+    // Get plugin capability
     str capability = argsMap["-c"];
 
     int* appnum;
     int flag;
     MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_APPNUM, &appnum, &flag);
-    // std::cout << " egg: appnum " << *appnum  << " # " << flag << std::endl;
     int my_process_color = 1+*appnum;
     
 
@@ -133,7 +80,6 @@ int main(int argc, char *argv[])
 
     //////// split the communicator
     GMPI::Comm emuComm(emuProcesses, "emuComm");
-    std::cout << "made emuComm" << std::endl;
    
     // find local rank/size
     int local_rank = emuComm.Get_rank();
@@ -151,8 +97,6 @@ int main(int argc, char *argv[])
         MPI_Send(message.c_str(), message.length() +1, MPI_CHAR, i, 0, MPI_COMM_WORLD);
     }
 
-    std::cout << "In egg, sent messages " << std::endl;
-
     //////// Get yaml file
     str filename;
     int msg_size;
@@ -163,7 +107,6 @@ int main(int argc, char *argv[])
 
     // get yaml filename
     MPI_Bcast(filename.data(), msg_size, MPI_CHAR, 0, MPI_COMM_WORLD);
-    std::cout << "filename: " <<  filename << std::endl;
 
     // read yaml file
     IniParser::Parser iniFile;
@@ -212,49 +155,36 @@ int main(int argc, char *argv[])
             // recieve data
             MPI_Recv(receiver.buffer.data(), receiver_size, MPI_CHAR, MPI_ANY_SOURCE, 3, MPI_COMM_WORLD, &status_recv); 
 
-            std::cout << " rank " << world_rank << " recieved: " << receiver.if_train() << " from " << status_recv.MPI_SOURCE << std::endl;
+            // std::cout << " rank " << world_rank << " recieved: " << receiver.if_train() << " from " << status_recv.MPI_SOURCE << std::endl;
 
             // Train, add point to buffer
             if (receiver.if_train()) 
             {
-                // pluigin.train(reciever.params(), receiver.target(), receiver.target_uncertainty());
+                // extract parameters
+                auto params = receiver.params();
+                auto target = receiver.target();
+                auto target_uncertainty = receiver.target_uncertainty();
 
-                // inside plugin decide mpi configuration, but for now:
-                if (local_rank == 0) 
-                {
-                    // extract parameters
-                    auto params = receiver.params();
-                    auto target = receiver.target();
-                    auto target_uncertainty = receiver.target_uncertainty();
-
-                    plugin_interface(params, target, target_uncertainty);
-                }
+                plugin_interface(params, target, target_uncertainty);
             }
             // Predict, ask for prediction and send
             else if (receiver.if_predict())
             {
-                // pluigin.train(reciever.params());
+                // extract parameters
+                auto params = receiver.params();
+                auto pred = plugin_interface(params);
 
-                // inside plugin decide mpi configuration, but for now:
-                if ( local_rank == 0)
-                {
-                    // extract parameters
-                    auto params = receiver.params();
-                    auto pred = plugin_interface(params);
+                if ( std::isnan(pred.first[0]) ) { continue; }
 
+                // make new buffer with size 0 for the input parameters
+                std::vector<unsigned int> sizes = {0, (unsigned int)pred.first.size(), (unsigned int)pred.second.size()};
+                Scanner::Emulator::feed_def answer_buffer(sizes);
 
-                    std::cout <<"predict: " << pred.first.size()  << std::endl;
+                // populate answer_buffer
+                answer_buffer.add_for_result(pred.first, pred.second);
 
-                    // make new buffer with size 0 for the input parameters
-                    std::vector<unsigned int> sizes = {0, (unsigned int)pred.first.size(), (unsigned int)pred.second.size()};
-                    Scanner::Emulator::feed_def answer_buffer(sizes);
-
-                    // populate answer_buffer
-                    answer_buffer.add_for_result(pred.first, pred.second);
-
-                    // send to process it arrived from ( tag 4 = results )
-                    MPI_Send(answer_buffer.buffer.data(), answer_buffer.buffer.size(), MPI_CHAR, status_recv.MPI_SOURCE, 4, MPI_COMM_WORLD);
-                }
+                // send to process it arrived from ( tag 4 = results )
+                MPI_Send(answer_buffer.buffer.data(), answer_buffer.buffer.size(), MPI_CHAR, status_recv.MPI_SOURCE, 4, MPI_COMM_WORLD);
             }
         }
         

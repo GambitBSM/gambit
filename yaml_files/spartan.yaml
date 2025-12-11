@@ -408,10 +408,22 @@ Emulation:
 
   emulators:
     LogLike: 
-      plugin: python
+      plugin: pygptreeo
+      # pkg: test
       train: true
       predict: true
-      uncertainty: 0.001
+      uncertainty: 0.1
+      max_cache_size: 10
+      Nbar: 50
+      theta: 1e-4
+      split_position_method: median
+      split_dimension_criteria: max_variance
+      retrain_every_n_points: 20
+      use_calibrated_sigma: true
+      splitting_strategy: gradual
+      pre_trained: false
+      pre_trained_path: /home/ida-marie-johansson/Physics/gambit_emu/runs/spartan/emulator_plugins/pygptreeo_model1.joblib
+
 
     nevents: 
       plugin: python

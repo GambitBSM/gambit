@@ -116,14 +116,14 @@ int main(int argc, char* argv[])
       //_emu 
       // check how many processes gambit has, and if emulator is to be used
 
-      int appnum;
+      int* appnum;
       int flag;
       MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_APPNUM, &appnum, &flag);
 
-      std::cout << " gambit: appnum " << appnum << std::endl;
+      std::cout << " gambit: appnum " << *appnum << std::endl;
 
       // gather colors from all processes
-      int process_color = 1;
+      int process_color = *appnum+1;//1;
       std::vector<int> all_process_colors(world_size);
       MPI_Allgather(&process_color, 1, MPI_INT, all_process_colors.data(), 1, MPI_INT, MPI_COMM_WORLD);
 
