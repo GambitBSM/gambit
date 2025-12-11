@@ -141,7 +141,7 @@ emulator_plugin(python, version(1, 0, 0))
     }
 
     //training
-    void plugin_main(map_vector<double> &x, map_vector<double> &y, map_vector<double> &sigs)
+    void plugin_main(map_vector<double> x, map_vector<double> y, map_vector<double> sigs)
     {
         train_func(x, y, sigs);
 
@@ -149,7 +149,7 @@ emulator_plugin(python, version(1, 0, 0))
     }
 
     //predict
-    std::pair<vector<double>, vector<double>> plugin_main(map_vector<double>&x)
+    std::pair<vector<double>, vector<double>> plugin_main(map_vector<double> x)
     {
         py::tuple ret = predict_func(x);
 

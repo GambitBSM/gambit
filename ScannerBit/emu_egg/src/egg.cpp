@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
     /// make plugin
     MPI_Comm* emu_comm_ptr = emuComm.get_boundcomm();
     Scanner::Plugins::plugin_info.initMPIdata(&emuComm);
-    Plugins::Plugin_Interface<void (map_vector<double> &, map_vector<double> &, map_vector<double> &), std::pair<std::vector<double>, std::vector<double>> (map_vector<double> &)> plugin_interface("emulator", capability);
+    Plugins::Plugin_Interface<void (map_vector<double> , map_vector<double> , map_vector<double> ), std::pair<vector<double>, vector<double>> (map_vector<double> )> plugin_interface("emulator", capability);
 
     int isInter;
     MPI_Comm_test_inter((*emu_comm_ptr), &isInter);
