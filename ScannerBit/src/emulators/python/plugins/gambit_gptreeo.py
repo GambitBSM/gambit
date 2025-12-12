@@ -2,15 +2,22 @@
 import emulator_plugin as eplug
 import numpy as np
 import os
-import joblib
 from mpi4py import MPI
 import time
 import tempfile
-
-
 import sys
-sys.path.insert(0, '../pygptreeo_project')
-from pygptreeo import GPTree, Default_GPR
+
+try:
+    import joblib
+except:
+    __error__="joblib not installed"
+
+try:
+
+    sys.path.insert(0, '../pygptreeo_project')
+    from pygptreeo import GPTree, Default_GPR
+except:
+    __error__="pygptreeo not installed."
 
 
 # incase atomic save doesnt get added to gptreeo
@@ -50,7 +57,9 @@ YAML options:
 
     __version__ = "1.0.0"
     __plugin_name__ = "pygptreeo"
-
+    """
+Ander's awesome gp emulator
+    """
     def __init__(self, **kwargs):
         super().__init__()
 
