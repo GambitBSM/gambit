@@ -18,6 +18,7 @@ namespace EmulatorMap
     inline bool useEmulator;
     inline bool emulateLikelihood;
     inline std::map<std::string, std::vector<int>> mapping_ranks;
+    inline std::map<std::string, std::vector<double>> mapping_uncertainty;
 
     inline double emulatorUncertaintyThreshold;
 
