@@ -122,17 +122,26 @@ namespace Gambit
 //             this-> translateInput(input);
 //             vector<double> prediction, uncertainty;
 //             emulatorPredict(name, input, prediction, uncertainty );
+
+//             // check if prediction is valid
 //             bool prediction_valid = checkThreshold(name, uncertainty)
 
 //             if (!prediction_valid)
 //             {
-//                 this->myFunction(myValue[thread_num]);
-//                 this->translateTarget(target, myValue[thread_num]);
-//                 emulatorTrain(name, input, target, target_uncertainty);
+//               // evaluate function and train
+//               this->myFunction(myValue[thread_num]);
+//               this->translateTarget(target, myValue[thread_num]);
+//               emulatorTrain(name, input, target, target_uncertainty);
+//             }
+//             else
+//             {
+//               // translate and store predictions
+//               this-> translatePrediction(prediction, myValue[thread_num])
 //             }
 //           }
 //           else 
 //           {
+//             // just evaluate function
 //             this->myFunction(myValue[thread_num]);   //Run and place result in the appropriate slot in myValue
 //           }
 // #else

@@ -116,29 +116,31 @@ Ander's awesome gp emulator
                 X_train = x.reshape(1, -1)
                 y_train = y.reshape(1, -1)
 
+                self.gpt.update_tree(X_train, y_train)
+
                 # add points to cache
-                if len(self.Xcache) < self.max_cache_size-1:
-                    self.Xcache.append(X_train[0])
-                    self.Ycache.append(y_train[0])
+                # if len(self.Xcache) < self.max_cache_size-1:
+                #     self.Xcache.append(X_train[0])
+                #     self.Ycache.append(y_train[0])
 
-                # cache is full, train the tree
-                else:
-                    # add current point
-                    self.Xcache.append(X_train[0])
-                    self.Ycache.append(y_train[0])
+                # # cache is full, train the tree
+                # else:
+                #     # add current point
+                #     self.Xcache.append(X_train[0])
+                #     self.Ycache.append(y_train[0])
 
-                    # Feed data points to the tree sequentially
-                    for i in range(self.max_cache_size):
-                        x_sample = np.array(self.Xcache)[i:i+1, :]
-                        y_sample = np.array(self.Ycache)[i:i+1, :]
-                        self.gpt.update_tree(x_sample, y_sample)
+                #     # Feed data points to the tree sequentially
+                #     for i in range(self.max_cache_size):
+                #         x_sample = np.array(self.Xcache)[i:i+1, :]
+                #         y_sample = np.array(self.Ycache)[i:i+1, :]
+                        
 
-                    # clear cache
-                    self.Xcache = []
-                    self.Ycache = []
+                #     # clear cache
+                #     self.Xcache = []
+                #     self.Ycache = []
 
-                    # store file
-                    self.gpt.atomic_save(self.tree_filename)
+                # store file
+                self.gpt.atomic_save(self.tree_filename)
                     # atomic_joblib_dump(self.gpt, self.tree_filename)
         else:
             print("Training is disabled for this emulator instance.")
