@@ -120,8 +120,6 @@ int main(int argc, char* argv[])
       int flag;
       MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_APPNUM, &appnum, &flag);
 
-      std::cout << " gambit: appnum " << *appnum << std::endl;
-
       // gather colors from all processes
       int process_color = *appnum+1;//1;
       std::vector<int> all_process_colors(world_size);

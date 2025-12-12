@@ -408,7 +408,7 @@ Emulation:
 
   emulators:
     LogLike: 
-      plugin: pygptreeo
+      plugin: emutest #pygptreeo
       # pkg: test
       train: true
       predict: true

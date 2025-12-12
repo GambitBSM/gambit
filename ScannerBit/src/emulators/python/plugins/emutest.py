@@ -8,18 +8,18 @@ class Test:#(eplug.emulator):
 
     def __init__(self, **options):
 
-        # super().__init__()
+        super().__init__()
         print("starting test emulator plugin x")
 
-    def train(self, x, y, sigs):
+    def train(self, x, y, sigs, flag):
 
-        print(f"training inputed points, x: {x}; y: {y}; sigs: {sigs}")
+        print(f"training inputed points, x: {x}; y: {y}; sigs: {sigs}, train: {flag.train}, predict: {flag.predict}")
 
         return
 
-    def predict(self, x):
+    def predict(self, x, flag):
 
-        print(f"predicted input, x: {x}")
+        print(f"predicted input, x: {x}, train: {flag.train}, predict: {flag.predict}")
         
         return (np.array([3.5]), np.array([0.2]))
 

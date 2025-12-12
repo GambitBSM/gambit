@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
     ////////// Make plugin
 
     Scanner::Plugins::plugin_info.initMPIdata(&emuComm);
-    Plugins::Plugin_Interface<void (map_vector<double> , map_vector<double> , map_vector<double> ), std::pair<vector<double>, vector<double>> (map_vector<double> )> plugin_interface("emulator", capability);
+    Plugins::Plugin_Interface<void (map_vector<double> , map_vector<double> , map_vector<double>, unsigned short int &), std::pair<vector<double>, vector<double>> (map_vector<double>, unsigned short int &)> plugin_interface("emulator", capability);
     std::cout << "made plugin " << std::endl;
 
     ///////// Recieve messages from gambit
@@ -165,23 +165,26 @@ int main(int argc, char *argv[])
                 auto target = receiver.target();
                 auto target_uncertainty = receiver.target_uncertainty();
 
-                plugin_interface(params, target, target_uncertainty);
+                plugin_interface(params, target, target_uncertainty, receiver.flag());
             }
             // Predict, ask for prediction and send
             else if (receiver.if_predict())
             {
                 // extract parameters
                 auto params = receiver.params();
-                auto pred = plugin_interface(params);
+                unsigned short int flag = 0;
+                auto pred = plugin_interface(params, flag);
 
                 if ( std::isnan(pred.first[0]) ) { continue; }
 
                 // make new buffer with size 0 for the input parameters
                 std::vector<unsigned int> sizes = {0, (unsigned int)pred.first.size(), (unsigned int)pred.second.size()};
                 Scanner::Emulator::feed_def answer_buffer(sizes);
+                answer_buffer.flag() = flag;
 
                 // populate answer_buffer
                 answer_buffer.add_for_result(pred.first, pred.second);
+
 
                 // send to process it arrived from ( tag 4 = results )
                 MPI_Send(answer_buffer.buffer.data(), answer_buffer.buffer.size(), MPI_CHAR, status_recv.MPI_SOURCE, 4, MPI_COMM_WORLD);

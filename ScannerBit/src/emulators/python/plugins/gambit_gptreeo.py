@@ -56,7 +56,6 @@ YAML options:
 """
 
     __version__ = "1.0.0"
-    __plugin_name__ = "pygptreeo"
     """
 Ander's awesome gp emulator
     """
@@ -101,7 +100,7 @@ Ander's awesome gp emulator
         self.prediction_enabled = kwargs.get('predict', True)
 
     # update tree with buffer values
-    def train(self, x, y, z):
+    def train(self, x, y, z, flag):
         if self.training_enabled:
             if self.mpi_size == 1  or self.mpi_rank == 1:
                 X_train = x.reshape(1, -1)
@@ -135,7 +134,7 @@ Ander's awesome gp emulator
             print("Training is disabled for this emulator instance.")
     
     # predict for x
-    def predict(self, x):
+    def predict(self, x, flag):
         if self.prediction_enabled:
             if self.mpi_size == 1 or self.mpi_rank == 0:
 

@@ -48,6 +48,7 @@
 #include "gambit/Utils/python_interpreter.hpp"
 #include "gambit/ScannerBit/emulator_plugin.hpp"
 #include "gambit/ScannerBit/python_utils.hpp"
+#include "gambit/ScannerBit/emulator_utils.hpp"
 
 namespace py = pybind11;
 
@@ -141,17 +142,19 @@ emulator_plugin(python, version(1, 0, 0))
     }
 
     //training
-    void plugin_main(map_vector<double> x, map_vector<double> y, map_vector<double> sigs)
+    void plugin_main(map_vector<double> x, map_vector<double> y, map_vector<double> sigs, unsigned short int &flag)
     {
-        train_func(x, y, sigs);
+        Gambit::Scanner::Emulator::flag_wrapper in_flag(flag);
+        train_func(x, y, sigs, in_flag);
 
         return;
     }
 
     //predict
-    std::pair<vector<double>, vector<double>> plugin_main(map_vector<double> x)
+    std::pair<vector<double>, vector<double>> plugin_main(map_vector<double> x, unsigned short int &flag)
     {
-        py::tuple ret = predict_func(x);
+        Gambit::Scanner::Emulator::flag_wrapper in_flag(flag);
+        py::tuple ret = predict_func(x, in_flag);
 
         return std::make_pair(ret[0].cast<vector<double>>(), ret[1].cast<vector<double>>());
     }

@@ -1,3 +1,6 @@
+#ifndef EMULATOR_UTILS_HPP
+#define EMULATOR_UTILS_HPP
+
 #include "gambit/ScannerBit/scanner_util_types.hpp"
 
 namespace Gambit
@@ -17,7 +20,8 @@ namespace Gambit
                 static const unsigned short int NONE = 0x0000;
                 static const unsigned short int TRAIN = 0x0001;
                 static const unsigned short int PREDICT = 0x0002;
-                static const unsigned short int RESULT = 0x0003;
+                static const unsigned short int RESULT = 0x0004;
+                static const unsigned short int NOT_VALID = 0x0008;
 
                 typedef unsigned short int usint;
                 typedef unsigned int uint;
@@ -173,10 +177,54 @@ namespace Gambit
                 bool if_train() {return TRAIN & flag();}
                 bool if_predict() {return PREDICT & flag();}
                 bool if_result() {return RESULT & flag();}
+                bool if_not_valid() {return NOT_VALID & flag();}
                 void set_train() { flag() = flag() | TRAIN;}
                 void set_predict() { flag() = flag() | PREDICT;}
                 void set_result() { flag() = flag() | RESULT;}
+                void set_not_valid() { flag() = flag() | NOT_VALID;}
 
+            };
+
+            class flag_wrapper
+            {
+            private:
+                unsigned short int *flag;
+
+            public:
+                flag_wrapper (unsigned short int &flag) : flag(&flag) {}
+
+                bool train() {return feed_def::TRAIN & *flag;}
+                bool predict() {return feed_def::PREDICT & *flag;}
+                bool result() {return feed_def::RESULT & *flag;}
+                bool not_valid() {return feed_def::NOT_VALID & *flag;}
+                void set_train(bool set)
+                {
+                    if (set)
+                        *flag |= feed_def::TRAIN;
+                    else
+                        *flag &= ~feed_def::TRAIN;
+                }
+                void set_predict(bool set)
+                {
+                    if (set)
+                        *flag |= feed_def::PREDICT;
+                    else
+                        *flag &= ~feed_def::PREDICT;
+                }
+                void set_result(bool set)
+                {
+                    if (set)
+                        *flag |= feed_def::RESULT;
+                    else
+                        *flag &= ~feed_def::RESULT;
+                }
+                void set_not_valid(bool set)
+                {
+                    if (set)
+                        *flag |= feed_def::NOT_VALID;
+                    else
+                        *flag &= ~feed_def::NOT_VALID;
+                }
             };
 
         }
@@ -184,3 +232,5 @@ namespace Gambit
     }
 
 }
+
+#endif

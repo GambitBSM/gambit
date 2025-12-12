@@ -279,7 +279,7 @@ namespace Gambit
                     static int numtasks() {return 1;}
                 #endif
                 };
-                
+
             }
             
         }
@@ -384,5 +384,12 @@ PYBIND11_EMBEDDED_MODULE(emulator_plugin, m)
     })
 #endif
     ;
+
+    using Gambit::Scanner::Emulator::flag_wrapper;
+    py::class_<flag_wrapper, std::shared_ptr<flag_wrapper>>(m, "flag_wrapper")
+    .def_property("train", &flag_wrapper::train, &flag_wrapper::set_train)
+    .def_property("predict", &flag_wrapper::predict, &flag_wrapper::set_predict)
+    .def_property("result", &flag_wrapper::result, &flag_wrapper::set_result)
+    .def_property("not_valid", &flag_wrapper::not_valid, &flag_wrapper::set_not_valid);
 
 }

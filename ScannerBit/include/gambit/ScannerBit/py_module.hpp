@@ -34,6 +34,7 @@
 #include "gambit/ScannerBit/plugin_defs.hpp"
 #include "gambit/ScannerBit/scanner_utils.hpp"
 #include "gambit/ScannerBit/python_utils.hpp"
+#include "gambit/ScannerBit/emulator_utils.hpp"
 
 namespace py = pybind11;
 
