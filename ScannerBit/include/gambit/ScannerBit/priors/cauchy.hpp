@@ -62,7 +62,7 @@ namespace Gambit
             Cauchy(const std::vector<std::string>& param, const Options& options);
 
             /** @brief Transformation from unit interval to the Cauchy */
-            void transform(hyper_cube_ref<double> unitpars, std::unordered_map<std::string, double>& outputMap) const
+            void transform(hyper_cube_ref<double> unitpars, std::unordered_map<std::string, double>& outputMap) const override
             {
                 std::vector<double> vec(unitpars.size());
 
