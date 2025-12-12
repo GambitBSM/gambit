@@ -459,6 +459,45 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+# MultiNest 3.13 (with user-defined MPI communicator support from handley-lab fork)
+set(name "multinest")
+set(ver "3.13")
+set(lib "libnest3")
+set(md5 "099785f2c12bf860b449dda7a711fdd1")
+set(dl "https://github.com/handley-lab/MultiNest/archive/f3b504edf426842f63da21166b9e38268e0ea812.tar.gz")
+set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
+set(mn_subdir "${dir}/MultiNest_v3.12")
+set(mnSO_LINK "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS} ${CMAKE_Fortran_MPI_SO_LINK_FLAGS}")
+if (NOT LAPACK_STATIC)
+  set(mnLAPACK "${LAPACK_LINKLIBS}")
+endif()
+if(MPI_Fortran_FOUND)
+  set(mnFFLAGS "${BACKEND_Fortran_FLAGS_PLUS_MPI}")
+else()
+  set(mnFFLAGS "${BACKEND_Fortran_FLAGS}")
+endif()
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_SCANNER} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND sed ${dashi} -e "s#nested.o[[:space:]]*$#nested.o cwrapper.o#g"
+                                   -e "s#-o[[:space:]]*\\(\\$\\)(LIBS)[[:space:]]*\\$@[[:space:]]*\\$^#-o \\$\\(LIBS\\)\\$@ \\$^ ${mnLAPACK}#g"
+                                   -e "s#default:#.NOTPARALLEL:${nl}${nl}default:#"
+                                   ${mn_subdir}/Makefile
+              COMMAND ${CMAKE_COMMAND} -E copy ${mn_subdir}/Makefile ${mn_subdir}/Makefile.tmp
+              COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" ${mn_subdir}/Makefile.tmp > ${mn_subdir}/Makefile
+              COMMAND ${CMAKE_COMMAND} -E remove ${mn_subdir}/Makefile.tmp
+              COMMAND sed ${dashi} -e "s#function[[:space:]]*loglike_proto(Cube,n_dim,nPar,context)[[:space:]]*$#function loglike_proto(Cube,n_dim,nPar,context) bind(c)#g"
+                                   -e "s#subroutine[[:space:]]*dumper_proto(nSamples,nlive,nPar,physLive,posterior,paramConstr,maxLogLike,logZ,INSlogZ,logZerr,context)[[:space:]]*$#subroutine dumper_proto(nSamples,nlive,nPar,physLive,posterior,paramConstr,maxLogLike,logZ,INSlogZ,logZerr,context) bind(c)#g"
+                                   ${mn_subdir}/cwrapper.f90
+    BUILD_COMMAND cd ${mn_subdir} && ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${mnFFLAGS} LINKLIB=${mnSO_LINK} LIBS=${dir}/
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("scanner" ${name} ${ver})
 endif()
 
