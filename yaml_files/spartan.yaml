@@ -408,11 +408,12 @@ Emulation:
 
   emulators:
     LogLike: 
-      plugin: emutest #pygptreeo
-      # pkg: test
+      plugin: pygptreeo
       train: true
       predict: true
-      uncertainty: 0.1
+      uncertainty: 
+      - 0.1
+      - 0.01
       max_cache_size: 10
       Nbar: 50
       theta: 1e-4
@@ -426,10 +427,11 @@ Emulation:
 
 
     nevents: 
-      plugin: python
+      plugin: emutest
       train: true
       predict: true
-      uncertainty: 0.001
+      uncertainty: 
+      - 0.001
 
 
 

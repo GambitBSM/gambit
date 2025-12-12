@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
       // start emulator if number of processes belonging to egg is larger than 0
       if (numberOfProcessesNotInGambit > 0)
       {
-        std::cout << "gambit: egg has "<< numberOfProcessesNotInGambit << " processes" << std::endl;
+        // std::cout << "gambit: egg has "<< numberOfProcessesNotInGambit << " processes" << std::endl;
     
         // get vector of gambit processes
         std::vector<int> processes;
@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
 
             // add capability and ranks to map
             rank_map[plugin_name].push_back(plugin_rank);
-            std::cerr << "gambit rank " << rank << " recieved: plugin name " << plugin_name << ", and plugin master world rank " << plugin_rank << std::endl;
+            // std::cerr << "gambit rank " << rank << " recieved: plugin name " << plugin_name << ", and plugin master world rank " << plugin_rank << std::endl;
             
             // set boolean when emulating LogLike
             if (plugin_name == "LogLike") { EmulatorMap::emulateLikelihood = true; }
@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
         cout << "----------" << endl;
         #ifdef WITH_MPI
         cout << "Running in MPI-parallel mode with "<<size<<" processes" << endl; 
-        cout << " plus 2 processes if emulator feature is used" << endl;
+        if (EmulatorMap::useEmulator) { cout << " plus " << world_size-size << " emulator processes." << endl; }
         #else
         cout << "WARNING! Running in SERIAL (no MPI) mode! Recompile with -DWITH_MPI=1 for MPI parallelisation" << endl;
         #endif
@@ -254,14 +254,10 @@ int main(int argc, char* argv[])
       if (EmulatorMap::useEmulator)
       {
         str copy_filename = filename;
-        //   MPI_Bcast(copy_filename.data(), copy_filename.size(), MPI_CHAR, 0, MPI_COMM_WORLD);
-        int msg_size = copy_filename.size();     // only known on root executable
-        // int *data = NULL;
-
-        // Step 1: broadcast the size
+        int msg_size = copy_filename.size();
+        
+        // broadcast the size, then filename
         MPI_Bcast(&msg_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
-
-        // Step 3: broadcast the actual data
         MPI_Bcast(copy_filename.data(), msg_size, MPI_CHAR, 0, MPI_COMM_WORLD);
       } 
 
@@ -327,6 +323,16 @@ int main(int argc, char* argv[])
         scanner_node["Priors"] = iniFile.getPriorsNode();
         // _emu
         scanner_node["Emulator"] = iniFile.getEmulationNode();
+
+        // _emu make uncertainty map
+        std::map<std::string, std::vector<double>> uncertainty_map;
+        for (const auto& pair : EmulatorMap::mapping_ranks)
+        {
+            str key = pair.first;
+            std::vector<double> uncertainty = scanner_node["Emulator"]["emulators"][key]["uncertainty"].as<std::vector<double>>();
+            uncertainty_map[key] = uncertainty;
+        }
+        EmulatorMap::mapping_uncertainty = uncertainty_map;
 
         // Print scan metadata from rank 0
         if (iniFile.getValueOrDef<bool>(true, "print_metadata_info"))

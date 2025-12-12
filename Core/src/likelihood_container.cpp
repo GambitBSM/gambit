@@ -43,6 +43,9 @@
 #include "gambit/Utils/lnlike_modifiers.hpp"
 #include "gambit/ScannerBit/emulator_utils.hpp"
 #include "gambit/Core/emu_map.hpp"
+#include "gambit/Elements/emulator_functions.hpp"
+
+// using Gambit::Scanner::vector;
 
 //#define CORE_DEBUG
 
@@ -77,7 +80,7 @@ namespace Gambit
     scancodeID(Printers::get_main_param_id("scanID")),
     print_scanID(iniFile.getValueOrDef<bool>(true, "print_scanID")),
     //_emu
-    emulatorNode(iniFile.getEmulationNode()),
+    // emulatorNode(iniFile.getEmulationNode()),
     #ifdef CORE_DEBUG
       debug            (true)
     #else
@@ -226,68 +229,40 @@ namespace Gambit
     
       //_emu predict
       bool emulatorValidPrediction = false;
+      #ifdef WITH_MPI
       if (EmulatorMap::useEmulator && EmulatorMap::mapping_ranks.find("LogLike") != EmulatorMap::mapping_ranks.end()) 
       {
         if (debug) logger() << LogTags::core << "Prediction from emulator for lnlike started." << EOM;
-        #ifdef WITH_MPI
+        
         // get parameters
         std::vector<double> parameters;
         for (auto key : in) { parameters.push_back(key.second); }
 
-        // get message size
-        unsigned int n = parameters.size();
-        std::vector<unsigned int> sizes = {n, 1, 1};
-
-        // make send buffer
-        Scanner::Emulator::feed_def fd_predict(sizes);
-        fd_predict.add_for_evaluation(parameters);
-        fd_predict.set_predict();
-
-        // find rank to send to
-        std::vector<int> send_rank = EmulatorMap::mapping_ranks["LogLike"];
-
-        // send to egg
-        for ( auto rank : send_rank)
-        {
-            MPI_Send(fd_predict.buffer.data(), fd_predict.buffer.size(), MPI_CHAR, rank, 3, MPI_COMM_WORLD);
-        }
-
-        // wait for prediction
-        // prepare to get result from egg
-        Scanner::Emulator::feed_def predict_results;
-
-        // probe size of result buffer
-        int size_result;
-        MPI_Status status_parent;
-        MPI_Probe(MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, &status_parent);
-        MPI_Get_count(&status_parent, MPI_CHAR, &size_result);
-        predict_results.resize(size_result);
-
-        // recieve buffer
-        MPI_Recv(predict_results.buffer.data(), size_result, MPI_CHAR, MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        vector<double> predictions, uncertainty;
+        emulatorPredict("LogLike",parameters, predictions, uncertainty);
 
         // log result
-        std::cout << "results from emu " << predict_results.prediction() << " # " << predict_results.prediction_uncertainty()  << std::endl;
-        if (debug) logger() << LogTags::core << "Results from emulator for lnLike: " << predict_results.prediction()[0] << ", " << predict_results.prediction_uncertainty()[0] << EOM;
-        logger() << "Emulator results for lnlike: " << predict_results.prediction()[0] << ", " << predict_results.prediction_uncertainty()[0] << ", " << (predict_results.prediction_uncertainty()[0] < emulatorNode["emulators"]["LogLike"]["uncertainty"].as<double>()) << EOM;
+        std::cout << "results from emu " << predictions[0] << " # " << uncertainty[0]  << std::endl;
+        if (debug) logger() << LogTags::core << "Results from emulator for lnLike: " << predictions[0] << ", " << uncertainty[0] << EOM;
+        logger() << "Emulator results for lnlike: " << predictions[0] << ", " << uncertainty[0] << ", " << uncertainty[0] << EOM;
         
         // threshold to use this prediction and skip the rest
-        double threshold = emulatorNode["emulators"]["LogLike"]["uncertainty"].as<double>();
-        if (predict_results.prediction_uncertainty()[0] < threshold) 
+        emulatorValidPrediction = checkThreshold("LogLike", uncertainty);
+        if (emulatorValidPrediction)
         {
-            emulatorValidPrediction = true;
-            lnlike = predict_results.prediction()[0];
+            lnlike = predictions[0];
         }
         // print result
-        std::cout << "results from emu "<< predict_results.prediction() << std::endl;
+        std::cout << "results from emu "<< predictions[0] << " # " <<  emulatorValidPrediction << std::endl;
 
         // logger stuff
-        if (debug) logger() << LogTags::core << "Emulator evaluation done for lnlike." << EOM;
+        if (debug) logger() << LogTags::core << "Emulator evaluation done for lnlike. Accepted? " << emulatorValidPrediction << EOM;
 
-        #else
-        core_error().raise(LOCAL_INFO, "Emulators needs MPI to be enabled");
-        #endif
+        
       }
+      #else
+      core_error().raise(LOCAL_INFO, "Emulators needs MPI to be enabled");
+      #endif
       //_emu predict end
 
       if (!emulatorValidPrediction)
@@ -466,31 +441,15 @@ namespace Gambit
         
         //_emu train
         #ifdef WITH_MPI
-        if (EmulatorMap::useEmulator && EmulatorMap::emulateLikelihood)
+        if (EmulatorMap::useEmulator && EmulatorMap::mapping_ranks.find("LogLike") != EmulatorMap::mapping_ranks.end())
         {
             if (debug) logger() << LogTags::core << "Sending training point to emulator for lnlike started " << EOM;
+
             // extract parameters
             std::vector<double> parameters;
             for (auto key : in)  { parameters.push_back(key.second); }
 
-            // size of message
-            unsigned int n = parameters.size();
-            std::vector<unsigned int> sizes = {n, 1, 1};
-
-            // make send-buffer
-            Scanner::Emulator::feed_def fd(sizes);
-            fd.add_for_training(parameters, {lnlike}, {0.1});
-            fd.set_train();
-
-            // find ranks to send to
-            std::vector<int> send_rank = EmulatorMap::mapping_ranks["LogLike"];
-
-            // send to egg
-            //
-            for ( auto rank : send_rank)
-            {
-                MPI_Send(fd.buffer.data(), fd.buffer.size(), MPI_CHAR, rank, 3, MPI_COMM_WORLD);
-            }
+            emulatorTrain("LogLike", parameters, {lnlike}, {0.1});
 
             if (debug) logger() << LogTags::core << "Sending training point to emulator for lnlike done." << EOM;
         }
