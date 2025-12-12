@@ -115,7 +115,31 @@ namespace Gambit
         this->startTiming(thread_num);             //Begin timing function evaluation
         try
         {
-          this->myFunction(myValue[thread_num]);   //Run and place result in the appropriate slot in myValue
+// #ifdef WITH_MPI
+//           if (EmulatorMap::useEmulator && EmulatorMap::mapping_ranks.find(name()) != EmulatorMap::mapping_ranks.end())
+//           {
+//             // predict
+//             this-> translateInput(input);
+//             vector<double> prediction, uncertainty;
+//             emulatorPredict(name, input, prediction, uncertainty );
+//             bool prediction_valid = checkThreshold(name, uncertainty)
+
+//             if (!prediction_valid)
+//             {
+//                 this->myFunction(myValue[thread_num]);
+//                 this->translateTarget(target, myValue[thread_num]);
+//                 emulatorTrain(name, input, target, target_uncertainty);
+//             }
+//           }
+//           else 
+//           {
+//             this->myFunction(myValue[thread_num]);   //Run and place result in the appropriate slot in myValue
+//           }
+// #else
+            this->myFunction(myValue[thread_num]);
+// #endif
+          std::cout << origin() << "::" << name() << std::endl;
+          std::cout << "DEBUG: functor " << __LINE__ << std::endl;
         }
         catch (invalid_point_exception& e)
         {
