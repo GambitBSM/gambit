@@ -20,6 +20,8 @@ class Test:#(eplug.emulator):
     def predict(self, x, flag):
 
         print(f"predicted input, x: {x}, train: {flag.train}, predict: {flag.predict}")
+
+        flag.results = True
         
         return (np.array([3.5]), np.array([0.2]))
 

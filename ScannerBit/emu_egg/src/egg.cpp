@@ -43,7 +43,6 @@ int main(int argc, char *argv[])
             str key = argv[i];
             str value = argv[i + 1];
             argsMap[key] = value;
-            std::cout << key << " # " << value << std::endl;
         }
     }
     else { std::cout << "Too few arguments: " << argc << " inputs, but 3 required" << std::endl; }
@@ -175,12 +174,12 @@ int main(int argc, char *argv[])
                 unsigned short int flag = 0;
                 auto pred = plugin_interface(params, flag);
 
-                if ( std::isnan(pred.first[0]) ) { continue; }
-
                 // make new buffer with size 0 for the input parameters
                 std::vector<unsigned int> sizes = {0, (unsigned int)pred.first.size(), (unsigned int)pred.second.size()};
                 Scanner::Emulator::feed_def answer_buffer(sizes);
                 answer_buffer.flag() = flag;
+
+                if (!answer_buffer.if_result()) {continue;} 
 
                 // populate answer_buffer
                 answer_buffer.add_for_result(pred.first, pred.second);

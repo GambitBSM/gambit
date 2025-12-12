@@ -20,6 +20,12 @@ except:
     __error__="pygptreeo not installed."
 
 
+import warnings
+
+warnings.filterwarnings("error", category=RuntimeWarning)
+np.seterr(over='raise', invalid='raise')
+
+
 # incase atomic save doesnt get added to gptreeo
 def atomic_joblib_dump(obj, path):
     dir_name = os.path.dirname(path)
@@ -91,7 +97,11 @@ Ander's awesome gp emulator
                 self.gpt.atomic_save(self.tree_filename)
                 # atomic_joblib_dump(self.gpt, self.tree_filename)
 
-        self.last_mtime = os.path.getmtime(self.tree_filename)
+        # get time of last modification, if file exists
+        if os.path.exists(self.tree_filename):
+            self.last_mtime = os.path.getmtime(self.tree_filename)
+        else:
+            self.last_mtime = time.time()
 
         self.Xcache = []
         self.Ycache = []
@@ -137,18 +147,28 @@ Ander's awesome gp emulator
     def predict(self, x, flag):
         if self.prediction_enabled:
             if self.mpi_size == 1 or self.mpi_rank == 0:
+                flag.result = True
 
                 # load tree if file was updated
-                current_mtime = os.path.getmtime(self.tree_filename)
-                if current_mtime != self.last_mtime:
-                    self.gpt = joblib.load(self.tree_filename)
-                    self.last_mtime = current_mtime
+                if os.path.exists(self.tree_filename):
+                    current_mtime = os.path.getmtime(self.tree_filename)
+                    if current_mtime != self.last_mtime:
+                        self.gpt = joblib.load(self.tree_filename)
+                        self.last_mtime = current_mtime
 
                 # predict
                 X_test = x.reshape(1,-1)
-                y_pred, y_std = self.gpt.predict(X_test)
-
-                return (y_pred[0], y_std[0])
+                try:
+                    y_pred, y_std = self.gpt.predict(X_test)
+                    return (y_pred[0], y_std[0])
+                except FloatingPointError as e:
+                    print("Caught numerical issue:", e)
+                    flag.notvalid = True
+                    return (np.array([0]), np.array([0]))
+                except RuntimeWarning as e:
+                    print("Caught RuntimeWarning as exception:", e)
+                    flag.notvalid = True
+                    return (np.array([0]), np.array([0]))
             else:
                 return (np.array([None]), np.array([None]))
         else:
