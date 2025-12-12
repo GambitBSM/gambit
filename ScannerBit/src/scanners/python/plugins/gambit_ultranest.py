@@ -5,7 +5,7 @@ Ultranest scanners
 
 import pickle
 import numpy as np
-from packaging.version import parse    
+from packaging.version import parse
 from utils import copydoc, version, get_directory, store_pt_data, with_mpi
 if with_mpi:
     from utils import MPI
@@ -33,20 +33,28 @@ pkl_name ('ultranest.pkl'):  File name where results will be pickled
     """
 
     __version__ = ultranest_version
-    
+
     def ultra_like(self, params):
         lnew = self.loglike_hypercube(params)
         self.ids.save(tuple(params), (self.mpi_rank, self.point_id))
-        
+
         return lnew
-    
+
     @copydoc(ultranest_ReactiveNestedSampler)
     def __init__(self, pkl_name='ultranest.pkl', log_dir="ultranest", **kwargs):
-        
+
         super().__init__(use_mpi=True, use_resume=True)
         if self.mpi_size > 1 and parse(ultranest.__version__) < parse("3.6.3"):
             print("WARNING: UltraNest current version is {0}.  Versions < 3.6.3 are bugged when using MPI.".format(ultranest.__version__))
-        
+
+        # Get the MPI communicator (convert from Fortran handle to Python)
+        if with_mpi and self.mpi_comm is not None:
+            self.comm = MPI.Comm.f2py(self.mpi_comm)
+        elif with_mpi:
+            self.comm = MPI.COMM_WORLD
+        else:
+            self.comm = None
+
         self.assign_aux_numbers("Posterior")
         if self.mpi_rank == 0:
             self.pkl_name = pkl_name
@@ -54,10 +62,10 @@ pkl_name ('ultranest.pkl'):  File name where results will be pickled
             self.log_dir = get_directory(log_dir, **kwargs)
         else:
             self.log_dir = None
-            
+
         if self.mpi_size > 1:
-            self.log_dir = MPI.COMM_WORLD.bcast(self.log_dir, root=0)
-            
+            self.log_dir = self.comm.bcast(self.log_dir, root=0)
+
         self.ids = store_pt_data(resume=self.printer.resume_mode(), log_dir=self.log_dir)
 
         self.sampler = ultranest.ReactiveNestedSampler(
@@ -65,6 +73,7 @@ pkl_name ('ultranest.pkl'):  File name where results will be pickled
             self.ultra_like,
             resume='resume-similar' if self.printer.resume_mode() else 'overwrite',
             log_dir=self.log_dir,
+            comm=self.comm,
             **self.init_args)
     
     def run_internal(self, **kwargs):
