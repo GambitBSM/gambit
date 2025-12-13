@@ -27,9 +27,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "gambit/Utils/begin_ignore_warnings_eigen.hpp"
 #include <Eigen/Core>
-#include "gambit/Utils/end_ignore_warnings.hpp"
 
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_sf.h>
