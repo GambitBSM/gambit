@@ -360,7 +360,7 @@ endif()
 # Check for Eigen
 find_package(Eigen3 3.1.0)
 if(EIGEN3_FOUND)
-  include_directories("${EIGEN3_INCLUDE_DIR}")
+  include_directories(SYSTEM "${EIGEN3_INCLUDE_DIR}")
   message("-- Eigen version: ${EIGEN3_VERSION}")
 else()
   message("${BoldRed}   Eigen v3.1.0 or greater not found.  FlexibleSUSY and GM2Calc interfaces will be excluded.${ColourReset}")
