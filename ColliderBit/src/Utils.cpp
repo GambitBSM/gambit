@@ -150,7 +150,7 @@ namespace Gambit
 
 
     // Utility function for returning a collection of same-flavour, oppsosite-sign particle pairs
-    std::vector<std::vector<const HEPUtils::Particle*>> getSFOSpairs(std::vector<const HEPUtils::Particle*> particles)
+    std::vector<std::vector<const HEPUtils::Particle*>> getSFOSpairs(const std::vector<const HEPUtils::Particle*>& particles)
     {
       std::vector<std::vector<const HEPUtils::Particle*>> SFOSpair_container;
       for (size_t ip1=0; ip1<particles.size(); ip1++)
@@ -171,7 +171,7 @@ namespace Gambit
 
 
     // Utility function for returning a collection of oppsosite-sign particle pairs
-    std::vector<std::vector<const HEPUtils::Particle*>> getOSpairs(std::vector<const HEPUtils::Particle*> particles)
+    std::vector<std::vector<const HEPUtils::Particle*>> getOSpairs(const std::vector<const HEPUtils::Particle*>& particles)
     {
       std::vector<std::vector<const HEPUtils::Particle*>> OSpair_container;
       for (size_t ip1=0;ip1<particles.size();ip1++)
@@ -192,7 +192,7 @@ namespace Gambit
 
 
     // Utility function for returning a collection of same-sign particle pairs
-    std::vector<std::vector<const HEPUtils::Particle*>> getSSpairs(std::vector<const HEPUtils::Particle*> particles)
+    std::vector<std::vector<const HEPUtils::Particle*>> getSSpairs(const std::vector<const HEPUtils::Particle*>& particles)
     {
       std::vector<std::vector<const HEPUtils::Particle*>> SSpair_container;
       for (size_t ip1=0;ip1<particles.size();ip1++)
@@ -212,7 +212,7 @@ namespace Gambit
     }
 
     // Utility function for returning a collection of b-tagged jet pairs
-    std::vector<std::vector<const HEPUtils::Jet*>> getBJetPairs(std::vector<const HEPUtils::Jet*> bjets)
+    std::vector<std::vector<const HEPUtils::Jet*>> getBJetPairs(const std::vector<const HEPUtils::Jet*>& bjets)
     {
       std::vector<std::vector<const HEPUtils::Jet*>> BJetpair_container;
       for (size_t ibj1=0; ibj1<bjets.size(); ++ibj1)
