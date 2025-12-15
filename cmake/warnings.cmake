@@ -36,7 +36,7 @@ endmacro()
 if(${WERROR})
   set_compiler_warning("error")
 else()
-  message(STATUS "Werror is disabled (this is normal for most builds)")
+  message(STATUS "Werror is disabled")
 endif()
 
 set_compiler_warning("all" CMAKE_CXX_FLAGS)
