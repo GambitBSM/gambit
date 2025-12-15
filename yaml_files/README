@@ -58,11 +58,6 @@ RHN.yaml                  --- Diver scan of a right-handed neutrino model
 DMEFT.yaml                --- Diver scan of the effective field theory of DM
 
 
-Plotting examples
------------------
-WC_lite.pip               --- plot the results of WC_lite.yaml with pippi
-spartan.pip               --- plot the results of spartan.yaml with pippi
-
 
 Config fragments containing parameters for inclusion in other steering files
 ----------------------------------------------------------------------------
