@@ -37,8 +37,14 @@
 #
 #************************************************
 
+# Set CMAKE_POLICY_VERSION_MINIMUM to 3.5 if CMAKE version >= 4
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 4)
+  set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+endif()
+
 # Define minimum cmake version
 cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+
 
 # Define minimum compiler versions
 set(MIN_GCC_VERSION 9.1)
