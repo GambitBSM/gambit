@@ -2,7 +2,6 @@
 #define __SCAN_PYTHON_UTILS_HPP__
 
 #include "gambit/Utils/begin_ignore_warnings_pybind11.hpp"
-#include "gambit/Utils/begin_ignore_warnings_eigen.hpp"
 #include <pybind11/embed.h>
 #include <pybind11/eigen.h>
 #include <pybind11/stl.h>

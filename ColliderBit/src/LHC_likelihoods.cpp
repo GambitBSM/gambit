@@ -52,9 +52,7 @@
 
 #include "multimin/multimin.hpp"
 
-#include "gambit/Utils/begin_ignore_warnings_eigen.hpp"
 #include "Eigen/Eigenvalues"
-#include "gambit/Utils/end_ignore_warnings.hpp"
 
 #include <gsl/gsl_sf_gamma.h>
 
