@@ -6,7 +6,7 @@
 #  Script to restore downloaded tarballs from a central location.
 #
 #  This script reads paths from the consolidated
-#  downloaded_tarballs/downloaded_tarball_paths.txt file and
+#  downloaded_tarballs/downloaded_tarball_paths_all.txt file and
 #  copies each tarball from the downloaded_tarballs folder
 #  back to its original location.
 #
