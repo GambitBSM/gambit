@@ -16,6 +16,10 @@
 ///  \author Pat Scott
 ///  \date 2013 Sep
 ///
+///  \author Patrick Stöcker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2025 June
+///
 ///  *********************************************
 
 
@@ -61,6 +65,7 @@
 #define MODEL NormalDist
   START_MODEL
   DEFINEPARS(mu,sigma)
+  MODEL_CONSISTENCY_CHECK(NormalDist_ensure_positive_sigma)
 #undef MODEL
 
 // A one-parameter model for testing simple prior transformations
@@ -283,6 +288,8 @@
   #undef CAPABILITY
 
   // The "module function" definition
+  // Use #ifdef as guard to ensure that this code gets only compiled once
+  #ifdef __gambit_main_hpp__
   void MODEL_NAMESPACE::get_a_cap(unsigned int& result)
   {
       using namespace Pipes::get_a_cap;
@@ -293,6 +300,7 @@
 
       result = *Param.at("a") * xsec;
   }
+  #endif /* defined(__gambit_main_hpp__) */
 #undef MODEL
 
 #endif /* defined(__demo_hpp__) */

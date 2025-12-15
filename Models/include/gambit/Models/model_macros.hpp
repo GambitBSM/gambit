@@ -38,6 +38,7 @@
   #endif
   #define START_MODEL                                             CORE_START_MODEL
   #define DEFINEPARS(...)                                         CORE_DEFINEPARS(__VA_ARGS__)
+  #define MODEL_CONSISTENCY_CHECK(FUNC)                           CORE_MODEL_CONSISTENCY_CHECK(MODEL,FUNC)
   #define MAP_TO_CAPABILITY(PARAMETER,CAPABILITY)                 CORE_MAP_TO_CAPABILITY(PARAMETER,CAPABILITY)
   #define INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)                   CORE_INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)
   #define INTERPRET_AS_PARENT_FUNCTION(FUNC)                      CORE_INTERPRET_AS_PARENT_FUNCTION(FUNC)
@@ -79,6 +80,7 @@
   #define START_MODEL                                       /* Do nothing */
   #define DEFINEPARS(...)                                   /* Do nothing */
   #define MAP_TO_CAPABILITY(PARAMETER,CAPABILITY)           /* Do nothing */
+  #define MODEL_CONSISTENCY_CHECK(FUNC)                     MODULE_MODEL_CONSISTENCY_CHECK(FUNC)
   #define INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)             MODULE_INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)
   #define INTERPRET_AS_PARENT_FUNCTION(FUNC)                MODULE_INTERPRET_AS_X_FUNCTION(PARENT,FUNC)
   #define INTERPRET_AS_X_DEPENDENCY(MODEL_X, DEP, TYPE)     MODULE_INTERPRET_AS_X_DEPENDENCY(MODEL_X, DEP, TYPE)
@@ -127,6 +129,33 @@
 //  ****************************************************************************
 /// "Rollcall" macros. These are lifted straight from module_macros_incore.hpp
 /// but are modified here and there to suit the role of models.
+
+/// "In module" version of the MODEL_CONSISTTENCY_CHECK macro
+#define MODULE_MODEL_CONSISTENCY_CHECK(FUNC)                                   \
+  namespace Gambit                                                             \
+  {                                                                            \
+    namespace Models                                                           \
+    {                                                                          \
+      namespace MODEL                                                          \
+      {                                                                        \
+        /* Declare the user-defined function as defined elsewhere */           \
+        extern bool FUNC (const ModelParameters&);                             \
+                                                                               \
+        /* Let the module source know that this functor is declared*/          \
+        namespace Functown { extern module_functor<void>                       \
+                                           CAT(MODEL,_consistency_check); }    \
+                                                                               \
+        namespace Pipes                                                        \
+        {                                                                      \
+          namespace CAT(MODEL,_consistency_check)                              \
+          {                                                                    \
+            /* Declare the safe pointer to the run options as external. */     \
+            extern safe_ptr<Options> runOptions;                               \
+          }                                                                    \
+        }                                                                      \
+      }                                                                        \
+    }                                                                          \
+  }                                                                            \
 
 /// "In module" version of the INTERPRET_AS_X_FUNCTION macro
 #define MODULE_INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)                           \
@@ -303,6 +332,69 @@
   BOOST_PP_SEQ_FOR_EACH(DO_LINK, _, BOOST_PP_TUPLE_TO_SEQ((__VA_ARGS__)))
 #define DO_LINK(r,data,elem) DEFINEPAR(elem)
 /// @}
+
+#define CORE_MODEL_CONSISTENCY_CHECK(MODEL,FUNC)                               \
+  namespace Gambit                                                             \
+  {                                                                            \
+                                                                               \
+    namespace Models                                                           \
+    {                                                                          \
+                                                                               \
+      namespace MODEL                                                          \
+      {                                                                        \
+                                                                               \
+        ADD_TAG_IN_CURRENT_NAMESPACE(CAT(MODEL,_consistency_check))            \
+        ADD_TAG_IN_CURRENT_NAMESPACE(FUNC)                                     \
+                                                                               \
+        /* Register (prototype) the function */                                \
+        void CAT(MODEL,_consistency_check) (bool&);                            \
+                                                                               \
+        /* Register the Functor */                                             \
+        MAKE_FUNCTOR(                                                          \
+          CAT(MODEL,_consistency_check),bool,CAT(MODEL,_consistency_check),    \
+          MODEL,0                                                              \
+        )                                                                      \
+      }                                                                        \
+                                                                               \
+      /* Make the functor exclusive to this model and its descendants */       \
+      CORE_ALLOW_MODEL(MODEL,CAT(MODEL,_consistency_check),MODEL)              \
+    }                                                                          \
+                                                                               \
+  }                                                                            \
+                                                                               \
+  /* Declare a dependence on the model parameters */                           \
+  CORE_DEPENDENCY(                                                             \
+    CAT(MODEL,_parameters), ModelParameters, MODEL,                            \
+    CAT(MODEL,_consistency_check), 1                                           \
+  )                                                                            \
+                                                                               \
+  namespace Gambit                                                             \
+  {                                                                            \
+                                                                               \
+    namespace Models                                                           \
+    {                                                                          \
+                                                                               \
+      namespace MODEL                                                          \
+      {                                                                        \
+        /* Prototype the user-defined function */                              \
+        bool FUNC (const ModelParameters&);                                    \
+                                                                               \
+        /* The actual definition of the consistency:check "module" function */ \
+        void CAT(MODEL,_consistency_check) (bool& model_is_valid)              \
+        {                                                                      \
+          /* Collect MODEL's parameters via dependency system */               \
+          using namespace Pipes::CAT(MODEL,_consistency_check);                \
+          const ModelParameters& modelparams = *Dep::CAT(MODEL,_parameters);   \
+                                                                               \
+          /* Run user-supplied code */                                         \
+          /* Code returns false, if model parameters are inconsistent) */      \
+          model_is_valid = FUNC (modelparams);                                 \
+        }                                                                      \
+      }                                                                        \
+                                                                               \
+    }                                                                          \
+                                                                               \
+  }                                                                            \
 
 /// Real declaration macro for INTERPRET_AS_X functions.
 #define CORE_INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)                             \
