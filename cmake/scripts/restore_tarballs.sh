@@ -16,7 +16,7 @@
 #
 #  Authors (add name and date if you modify):
 #
-#  \author Claude Code
+#  \author Chris Chang + Claude Code
 #  \date 2025 Dec
 #
 #************************************************

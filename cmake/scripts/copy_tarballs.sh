@@ -8,7 +8,7 @@
 #  This script automatically finds all downloaded_tarball_paths.txt
 #  files in the repository, copies each tarball to the
 #  downloaded_tarballs folder, and creates a single consolidated
-#  downloaded_tarball_paths.txt file for later restoration.
+#  downloaded_tarball_paths_all.txt file for later restoration.
 #
 #  Usage: ./copy_tarballs.sh [search_directory]
 #
@@ -18,7 +18,7 @@
 #
 #  Authors (add name and date if you modify):
 #
-#  \author Claude Code
+#  \author Chris Chang + Claude Code
 #  \date 2025 Dec
 #
 #************************************************
