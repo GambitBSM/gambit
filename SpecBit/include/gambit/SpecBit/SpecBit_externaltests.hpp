@@ -540,7 +540,7 @@ namespace Gambit
                               FSmssm.get_physical_slha().MCha(i-1), i);
           if(immediate_exit == true && pass == false) return pass;
        }
-       //In the the neutralino and chargino tests I compare against
+       // In the neutralino and chargino tests I compare against
        // value in physical_slha struct since the value in
        // physical may differ by a sign since it stores positive masses
        // and a complex mixing matrix.
@@ -607,7 +607,7 @@ namespace Gambit
                               FSmssm.get_physical_slha().MCha(i-1), i);
           if(immediate_exit == true && pass == false) return pass;
        }
-       //In the the neutralino and chargino tests I compare against
+       // In the neutralino and chargino tests I compare against
        // value in physical_slha struct since the value in
        // physical may differ by a sign since it stores positive masses
        // and a complex mixing matrix.
