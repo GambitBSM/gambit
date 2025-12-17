@@ -1,0 +1,9 @@
+Summary: ATLAS 2-lepton + MET chargino and slepton search at 13 TeV with 139/fb
+InspireID: 1750597
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["2L + 1OSSF + 0J + MET", "2L + 1OSSF + 1J + 0B + MET",
+             "2L + 1OSDF + 0J + MET", "2L + 1OSDF + 1J + 0B + MET"]
+Keywords: ["leptons", "mT2"]
+Authors: ["Yang Zhang", "Anders Kvellestad"]

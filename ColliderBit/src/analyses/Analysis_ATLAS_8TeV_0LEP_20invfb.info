@@ -1,0 +1,6 @@
+Summary: ATLAS jet+MET SUSY search at 8 TeV with 20/fb
+InspireID: 1298722
+ExptRun: ATLAS-R1.5
+Lumi_ifb: 20.3
+Ecm_TeV: 8.0
+Signatures: ["0L + MET + >=2J + MEFF"]

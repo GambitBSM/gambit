@@ -1,0 +1,8 @@
+Summary: ATLAS 1-lepton + MET + H->bb electroweakino search, at 13 TeV with 139/fb
+InspireID: 1755298
+ExptRun: ATLAS-R2
+Lumi_ifb: 139
+Ecm_TeV: 13.0
+Signatures: ["1L + >=2J + <=3J + 2B + MET + 1H"]
+Keywords: ["Higgs", "mCT"]
+Authors: ["Christopher Chang"]

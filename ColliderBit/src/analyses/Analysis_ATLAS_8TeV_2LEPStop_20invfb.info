@@ -1,0 +1,7 @@
+Summary: ATLAS 2-lepton top-squark search at 8 TeV with 20/fb
+InspireID: 1286444
+ExptRun: ATLAS-R1.5
+Lumi_ifb: 20.3
+Ecm_TeV: 8.0
+Signatures: ["2L + OSL + MT2 + MEFF"]
+Notes: Also an MVA selection in the paper.

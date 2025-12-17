@@ -1,0 +1,8 @@
+Summary: 0-lepton jet+MET SUSY analysis, with 139/fb of data
+InspireID: 1827025
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["0L + MET + >=2J + meff", "0L + MET + >=4J + meff", "0L + MET + >=5J + meff", "0L + MET + >=6J + meff"]
+Keywords: ["0lepton", "meff", "bdt"]
+Note: Cut-based (2-4 jets), BDT (4-6 jets) and model-independent aggregate search regions.
