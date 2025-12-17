@@ -61,7 +61,7 @@ void usage()
           "\n                         them from <filename>. Filenames are to be supplied in a single"
           "\n                         ascii file, on separate lines."
           "\n                         In this mode <filename> will only be used for naming the output"
-          "\n                         file (Note: WITHOUT the usual addition of '_temp_combined'!!!)."
+          "\n                         file (Note: WITHOUT the usual addition of '_combined'!!!)."
           "\n                         All files must have the same <group>."
           "\n                         Note: Auxilliary ('RA') datasets will be IGNORED! These should"
           "\n                         be combined during 'normal' combination of results from a single"
@@ -196,7 +196,7 @@ int main(int argc, char* argv[])
 
       // Name of temporary combined file, if one exists
       std::ostringstream name;
-      name << finalfile << "_temp_combined";
+      name << finalfile << "_combined";
       tmp_comb_file = name.str();
 
       combined_file_exists = Utils::file_exists(tmp_comb_file);
