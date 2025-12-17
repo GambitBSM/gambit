@@ -1000,7 +1000,8 @@ namespace Gambit
           else // Option already exists in collector node
           {
             // Throw an error if the existing value differs from the new value
-            if (nodes[opt.first.as<std::string>()] != opt.second)
+            // NOTE: THIS TESTS IS IT'S THE SAME OBJECT, NOT THE SAME VALUE. IS THIS WHAT YOU WHAT?
+            if (!(nodes[opt.first.as<std::string>()] == opt.second))
             {
               str errmsg = str("ERROR! Multiple option values for key: ") + opt.first.as<str>();
               dependency_resolver_error().raise(LOCAL_INFO, errmsg);
