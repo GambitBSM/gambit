@@ -79,7 +79,7 @@ namespace Gambit
       }
       _current_event_count_it = it;
 
-      // Save an iterator to the the list of analyses for the current collider
+      // Save an iterator to the list of analyses for the current collider
       auto jt = convergence_options.find(_current_collider);
       if (jt == convergence_options.end())
       {
@@ -88,7 +88,7 @@ namespace Gambit
       }
       _current_convergence_options_it = jt;
 
-      // Save an iterator to the the list of analyses for the current collider
+      // Save an iterator to the list of analyses for the current collider
       auto kt = analyses.find(_current_collider);
       if (kt == analyses.end())
       {
@@ -97,7 +97,7 @@ namespace Gambit
       }
       _current_analyses_it = kt;
 
-      // Save an iterator to the the list of analyses for the current collider, sorted by detector
+      // Save an iterator to the list of analyses for the current collider, sorted by detector
       auto lt = detector_analyses.find(_current_collider);
       if (lt == detector_analyses.end())
       {

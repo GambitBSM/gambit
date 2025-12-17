@@ -780,7 +780,7 @@ namespace Gambit
                    or Gambit::Utils::startsWith(*it,(*jt)+"{")
                    or Gambit::Utils::startsWith(*it,(*jt)+"%")
                    or Gambit::Utils::startsWith(*it,(*jt)+"#")
-                 ) // if not [input data label] starts with [existing parameter] (plus append seperator character, for extra info like parameter name or index)
+                 ) // if not [input data label] starts with [existing parameter] (plus append separator character, for extra info like parameter name or index)
                {
                   // Then it is not new. Not allowed to copy this, the likelihood container is already printing it anew.
                   new_params.erase(*jt);

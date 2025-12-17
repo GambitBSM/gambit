@@ -201,7 +201,7 @@ namespace Gambit
       if (isFatal) throw_iff_outside_parallel();
     }
 
-    /// Log the exception and throw it regardless of whether is is fatal or not.
+    /// Log the exception and throw it regardless of whether it is fatal or not.
     void exception::forced_throw(const std::string& origin, const std::string& specific_message)
     {
       #pragma omp critical (GAMBIT_exception)
