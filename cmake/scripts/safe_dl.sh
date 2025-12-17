@@ -137,6 +137,8 @@ if [ ! -f $1/${filename} ]; then
       exit 1
     fi
   fi
+  # Record the path of the downloaded tarball
+  $2 -E echo "$1/${filename}" >> downloaded_tarball_paths.txt
 fi
 # Check the MD5 sum
 if [ "$5" != "none" ]; then
