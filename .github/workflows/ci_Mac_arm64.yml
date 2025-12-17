@@ -24,6 +24,7 @@ jobs:
     - name: Set up build environment
       run: |
         echo "Set up the build environment"
+        source /Users/gambitci/Packages/GBTest_Venv/bin/activate
         mkdir -p BUILD
         cd BUILD
     - name: Configure with cmake
@@ -73,6 +74,7 @@ jobs:
     - name: Set up build environment
       run: |
         echo "Set up the build environment"
+        source /Users/gambitci/Packages/GBTest_Venv/bin/activate
         mkdir -p BUILD
         cd BUILD
     - name: Configure with cmake
@@ -108,6 +110,7 @@ jobs:
     - name: Set up build environment
       run: |
         echo "Set up the build environment"
+        source /Users/gambitci/Packages/GBTest_Venv/bin/activate
         mkdir -p BUILD
         cd BUILD
     - name: Configure with cmake
@@ -172,6 +175,7 @@ jobs:
     - name: Set up build environment
       run: |
         echo "Set up the build environment"
+        source /Users/gambitci/Packages/GBTest_Venv/bin/activate
         mkdir -p BUILD
         cd BUILD
     - name: Configure with cmake
@@ -186,3 +190,22 @@ jobs:
         echo "Test the building of the standalones"
         cd BUILD
         make standalones
+
+    - name: Build test dependencies
+      run: |
+        source /Users/gambitci/Packages/GBTest_Venv/bin/activate
+        git clone --recursive https://github.com/GambitBSM/gambit-test
+        python3 -m pip install git+https://github.com/GambitBSM/gambit-yaml
+
+    - name: Run tests
+      run: |
+        source /Users/gambitci/Packages/GBTest_Venv/bin/activate
+        export GAMBIT=.
+        ./gambit-test/test/bats/bin/bats ./gambit-test/test/*.bats | tee results.tap
+        exit ${PIPESTATUS[0]}
+
+    - name: Summarize tests
+      if: always()
+      uses: pcolby/tap-summary@v1.2.0
+      with:
+          path: results.tap

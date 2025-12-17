@@ -1,0 +1,32 @@
+name: Documentation CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  test_docs:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Build test dependencies
+      run: |
+        git clone --recursive https://github.com/GambitBSM/gambit-test
+        python3 -m pip install git+https://github.com/GambitBSM/gambit-yaml
+
+    - name: Run tests
+      run: |
+        export GAMBIT=.
+        ./gambit-test/test/bats/bin/bats --tap ./gambit-test/test/docs.bats | tee docs.tap
+        exit ${PIPESTATUS[0]}
+
+    - name: Summarize tests
+      if: always()
+      uses: pcolby/tap-summary@v1.2.0
+      with:
+          path: docs.tap
