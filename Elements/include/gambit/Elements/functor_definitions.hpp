@@ -70,11 +70,13 @@ namespace Gambit
                                    str func_capability,
                                    str result_type,
                                    str origin_name,
-                                   Models::ModelFunctorClaw &claw)
+                                   Models::ModelFunctorClaw &claw,
+                                   void (*PredictFunction)(str &, std::vector<double> &, std::vector<double> &, std::vector<double> &))
     : module_functor_common(func_name, func_capability, result_type, origin_name, claw),
       myFunction        (inputFunction),
       myValue           (NULL),
-      myPrintFlag       (false)
+      myPrintFlag       (false),
+      myEmulatorPredictFunction (PredictFunction)
     {}
 
     /// Destructor
@@ -145,6 +147,12 @@ namespace Gambit
 //             this->myFunction(myValue[thread_num]);   //Run and place result in the appropriate slot in myValue
 //           }
 // #else
+            if (myEmulatorPredictFunction != nullptr)
+            {
+              str mytest = "CHRIS QUICK TEST blah";
+              std::vector<double> mytest_vec = {0.0};
+              this->myEmulatorPredictFunction(mytest, mytest_vec, mytest_vec, mytest_vec); // TODO: CHRIS CHANG: DELETE THIS. QUICK TEST
+            }
             this->myFunction(myValue[thread_num]);
 // #endif
           std::cout << origin() << "::" << name() << std::endl;

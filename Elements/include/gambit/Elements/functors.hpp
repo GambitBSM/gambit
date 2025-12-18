@@ -854,7 +854,7 @@ namespace Gambit
     public:
 
       /// Constructor
-      module_functor(void(*)(TYPE &), str, str, str, str, Models::ModelFunctorClaw&);
+      module_functor(void(*)(TYPE &), str, str, str, str, Models::ModelFunctorClaw&, void (*PredictFunction)(str &, std::vector<double> &, std::vector<double> &, std::vector<double> &) = nullptr);
 
       /// Destructor
       virtual ~module_functor();
@@ -887,7 +887,7 @@ namespace Gambit
 
       /// Internal storage of function pointer
       void (*myFunction)(TYPE &);
-
+      
       /// Internal pointer to storage location of function value
       TYPE* myValue;
 
@@ -896,6 +896,13 @@ namespace Gambit
 
       /// Initialise the memory of this functor.
       virtual void init_memory();
+      
+    public:
+    
+      /// Internal storage of emulator predict function pointer
+      /// TODO: CHRIS CHANG: EMULATOR HACKS
+      /// TODO: Put in setter function
+      void (*myEmulatorPredictFunction)(str &, std::vector<double> &, std::vector<double> &, std::vector<double> &);
 
   };
 

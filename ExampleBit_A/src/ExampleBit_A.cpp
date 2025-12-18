@@ -77,6 +77,14 @@ namespace Gambit
 
     //************************************************************
 
+    void nevents_pred_EmulatorPredict(str & name, std::vector<double> & input, std::vector<double> &prediction, std::vector<double> & uncertainty)
+    {
+      // TODO: Debugging
+      std::cout << "HEY CHRIS. Inside nevents_pred_EmulatorPredict function. name: " << name << std::endl;
+
+    }
+
+
     /// \name Module functions
     /// @{
     // Example of dependency-to-emu-argument conversion

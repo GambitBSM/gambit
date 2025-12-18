@@ -52,6 +52,8 @@
 #define NOT_MODEL 0
 #define NEW_CAPABILITY 1
 #define OLD_CAPABILITY 0
+#define EMULATABLE 1
+#define NOT_EMULATABLE 0
 /// @}
 
 /// \name Variadic redirectors for \link QUICK_FUNCTION() QUICK_FUNCTION\endlink function.
@@ -151,6 +153,9 @@
 #define START_FUNCTION_2(_1, _2)                                 CAT(START_FUNCTION_,IF_DEFINED(START_FUNCTION_##_2,_2))(_1)
 #define START_FUNCTION_1(_1)                                     CAT(START_FUNCTION_,CANNOT_MANAGE_LOOPS)(_1)
 #define START_FUNCTION(...)                                      VARARG(START_FUNCTION, __VA_ARGS__)
+
+/// TODO: Chris Chang
+#define START_FUNCTION_EMULATABLE(TYPE)                          DECLARE_EMULATABLE_FUNCTION(TYPE)
 
 /// \name Variadic redirection macro for BACKEND_REQ_FROM_GROUP(GROUP, CAPABILITY, (TAGS), TYPE, [(ARGS)])
 #define BACKEND_REQ_FROM_GROUP_5(_1, _2, _3, _4, _5)          DECLARE_BACKEND_REQ(_1, _2, _3, _4, _5, 0)
