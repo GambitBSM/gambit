@@ -53,7 +53,7 @@ def get_default_boss_namespaces():
             newline = newline.strip()
             if not newline.startswith("#define"):
                 continue
-            line = neatsplit('\\s', newline)
+            line = neatsplit(r'\s', newline)
             if not line[1].startswith("Default_"):
                 continue
             key = line[1][len("Default_"):]
@@ -62,7 +62,10 @@ def get_default_boss_namespaces():
 
 
 def get_type_equivalencies(nses):
-    """Load type equivalencies yaml file and return a dictionary containing all the equivalency classes. Just use regex rather than pyYAML, as the latter chokes on :: in scalar entries >:-/"""
+    """Load type equivalencies yaml file and return a dictionary containing all the equivalency classes.
+
+    Note: This just uses regex rather than pyYAML, as the latter chokes on :: in scalar entries >:-/
+    """
     from collections import defaultdict
     result = defaultdict(list)
     # Load the equivalencies yaml file
@@ -71,16 +74,16 @@ def get_type_equivalencies(nses):
             newline = newline.strip()
             if newline == "" or newline.startswith("#"):
                 continue
-            newline = re.sub("^\\[\\s*|\\s*\\]", "", newline)
+            newline = re.sub(r"^\[\s*|\s*\]", "", newline)
             equivalency_class = list()
-            for member in re.findall("[^,]*?\\(.*?\\)[^,]*?\\(.*?\\).*?,|[^,]*?<[^>]*?<.*?>[^<]*?>.*?,|[^,]*?<.*?>.*?,|[^,]*?\\(.*?\\).*?,|[^>\\)]*?,", newline+","):
-              member = re.sub("\"","",member[:-1].strip())
+            for member in re.findall(r"[^,]*?(.*?)[^,]*?\(.*?\).*?,|[^,]*?<[^>]*?<.*?>[^<]*?>.*?,|[^,]*?<.*?>.*?,|[^,]*?\(.*?\).*?,|[^>\)]*?,", newline+","):
+              member = re.sub(r"\"","",member[:-1].strip())
               # Convert the leading BOSSed namespace for the default version to the explicit namespace of the actual version
               for key in nses:
                 ns_default = key+"_default"+"::"
                 ns_true = key+"_"+nses[key]+"::"
                 if member.startswith(ns_default): member = ns_true+member[len(ns_default):]
-                member = re.sub("\\s"+ns_default," "+ns_true,member)
+                member = re.sub(r"\s"+ns_default," "+ns_true,member)
 
               # If the type is an alias of a native int then add int to the equivalency class
               if re.match("int[0-9]+_t", member):
@@ -146,11 +149,10 @@ Sort the given iterable in the way that humans expect."""
 
 def check_for_declaration(input_snippet, module, all_modules, local_namespace, candidate_type):
     """Parse a string to see if it has a class, struct or typedef declaration"""
-    splitline = neatsplit('\\s|\\(|\\)|\\*|\\&|\\;', input_snippet)
-    candidate_type = re.sub("^\\s*|\\s*$", "", candidate_type)
-    candidate_parts = neatsplit('::', re.sub(
-        "^.*\\s", "", re.sub("<.*>", "", candidate_type)))
-    namespace_parts = neatsplit('::', local_namespace)
+    splitline = neatsplit(r'\s|\(|\)|\*|\&|\;', input_snippet)
+    candidate_type = re.sub(r"^\s*|\s*$", "", candidate_type)
+    candidate_parts = neatsplit(r'::', re.sub(r"^.*\s", "", re.sub(r"<.*>", "", candidate_type)))
+    namespace_parts = neatsplit(r'::', local_namespace)
     right_class = False
     # Work out if we are in the module namespace, and if any sub-namespace matches the candidate type.
     in_module_and_namespace_matches = False
@@ -187,14 +189,13 @@ def check_for_declaration(input_snippet, module, all_modules, local_namespace, c
         # The class declared at this line matches the candidate class
         if right_class and local_namespace and local_namespace != "Gambit":
             main_class = candidate_parts[-1]
-            template_args = re.findall("<.*>\\*?", candidate_type)
+            template_args = re.findall(r"<.*>\*?", candidate_type)
             if template_args == []:
                 template_args = ""
             else:
                 template_args = template_args[0]
-                main_class = re.sub("\\*$", "", candidate_parts[-1])
-            qualifiers = re.findall(
-                "^.*\\s", re.sub("<.*>\\*?", "", candidate_type))
+                main_class = re.sub(r"\*$", "", candidate_parts[-1])
+            qualifiers = re.findall(r"^.*\s", re.sub(r"<.*>\*?", "", candidate_type))
             qualifiers = "" if qualifiers == [] else qualifiers[0]
             candidate_type = qualifiers + local_namespace + "::" + main_class + template_args
     return (right_class, candidate_type)
@@ -205,11 +206,11 @@ def check_for_namespace(input_snippet, local_namespace):
     # TODO: This is really limited. E.g. a forward declaration in a small, temporary namespace will get appended to local_namespace,
     # and this function has no way to notice when that namespace ends, so all subsequent types in some different namespace will be
     # screwed up.
-    # 
+    #
     # Exit if the line just defines a namespace alias
     if "=" in input_snippet:
         return local_namespace
-    splitline = neatsplit('\\s', input_snippet)
+    splitline = neatsplit(r'\s', input_snippet)
     if len(splitline) > 1:
         # If the line starts by declaring a namespace, return it appended to the current namespace
         if splitline[0] == "namespace":
@@ -237,7 +238,7 @@ def addifheader(line, headerset, exclude_set, verbose=False):
 
 def update_module(line, module):
     """Harvest module names from rollcall headers"""
-    splitline = neatsplit('\\(|\\)|,|\\s', line)
+    splitline = neatsplit(r'\(|\)|,|\s', line)
     if len(splitline) > 2:
         if splitline[0] == "#define" and splitline[1] == "MODULE":
             # This line defines a module, return its name instead of bothering to look for a START_FUNCTION
@@ -261,7 +262,7 @@ def first_simple_type_equivalent(candidate_in, equivs, nses, existing):
         ns_true = key+"_"+nses[key]+"::"
         if candidate.startswith(ns_default):
             candidate = ns_true+candidate[len(ns_default):]
-        candidate = re.sub("\\s"+ns_default, " "+ns_true, candidate)
+        candidate = re.sub(r"\s"+ns_default, " "+ns_true, candidate)
 
     # Exists in the equivalency classes
 
@@ -301,8 +302,8 @@ def first_simple_type_equivalent(candidate_in, equivs, nses, existing):
 def strip_ws(s, qualifiers):
     """Strips all whitespaces from a string, but re-inserts a single regular space after "const" or "struct"."""
     for q in qualifiers:
-        s = re.sub(q+"\\s*", q+"__TEMP_SPACE__", s)
-        s = re.sub("\\s*", "", s)
+        s = re.sub(q+r"\s*", q+"__TEMP_SPACE__", s)
+        s = re.sub(r"\s*", "", s)
     return re.sub("__TEMP_SPACE__", " ", s)
 
 
@@ -319,7 +320,7 @@ def addiffunctormacro(line, module, all_modules, typedict, typeheaders, intrinsi
                      "BE_INI_CONDITIONAL_DEPENDENCY": 2}
 
     line = re.sub(";", "", line)
-    splitline = neatsplit('\\(|\\)|,|\\s', line)
+    splitline = neatsplit(r'\(|\)|,|\s', line)
 
     qualifier_list = ["const", "struct"]
     typeset = typedict["all"]
@@ -335,9 +336,9 @@ def addiffunctormacro(line, module, all_modules, typedict, typeheaders, intrinsi
         if splitline[0] == "QUICK_FUNCTION" and len(splitline) > 6:
             # Get the dep types out of a QUICK_FUNCTION command
             splitline = re.findall(
-                "\\(.*?\\)", re.sub("QUICK_FUNCTION\\(", "", re.sub("\\)\\)\\s*$", ")", line)))
+                r"\(.*?\)", re.sub(r"QUICK_FUNCTION\(", "", re.sub(r"\)\)\s*$", ")", line)))
             for dep in splitline[1:]:
-                splitdep = neatsplit('\\(|\\)|,', dep)
+                splitdep = neatsplit(r'\(|\)|,', dep)
                 candidate_types.add(splitdep[1].strip())
         # Remove excluded types from the set
         candidate_types.difference_update(exclude_types)
@@ -366,7 +367,7 @@ def addiffunctormacro(line, module, all_modules, typedict, typeheaders, intrinsi
                     found_declaration = False
                     with io.open(header, encoding='utf-8') as f:
                         for newline in readlines_nocomments(f):
-                            splitline = neatsplit('\\{|\\}|:|;', newline)
+                            splitline = neatsplit(r'\{|\}|:|;', newline)
                             # Determine the local namespace and look for a class or struct matching the candidate type
                             for i in range(5):
                                 if len(splitline) > i:
@@ -407,7 +408,7 @@ def addifbefunctormacro(line, be_typeset, type_pack_set, equiv_classes, equiv_ns
                      "BACKEND_REQ_FROM_GROUP": 0}
 
     line = re.sub(";", "", line)
-    splitline = neatsplit('\\(|\\)|,|\\s', line)
+    splitline = neatsplit(r'\(|\)|,|\s', line)
 
     qualifier_list = ["const", "struct"]
 
@@ -416,23 +417,22 @@ def addifbefunctormacro(line, be_typeset, type_pack_set, equiv_classes, equiv_ns
 
         if splitline[0].startswith("BACKEND_REQ"):
             args = re.sub(
-                "\\s*BACKEND_REQ(_FROM_GROUP)?\\s*\\(.*?,\\s*\\(.*?\\)\\s*,\\s*", "", re.sub("\\s*\\)\\s*$", "", line))
+                r"\s*BACKEND_REQ(_FROM_GROUP)?\s*\(.*?,\s*\(.*?\)\s*,\s*", "", re.sub(r"\s*\)\s*$", "", line))
             args = args.strip()
-            if re.search("\\)\\s*\\)\\s*$", line):
+            if re.search(r"\)\s*\)\s*$", line):
                 # This is a backend function requirement
                 leading_type = strip_ws(
-                    re.sub("\\s*,\\s*\\(.*?\\)\\s*$", "", args), qualifier_list)
+                    re.sub(r"\s*,\s*\(.*?\)\s*$", "", args), qualifier_list)
                 leading_type = first_simple_type_equivalent(
                     leading_type, equiv_classes, equiv_ns, be_typeset)
                 functor_template_types = list([leading_type])
-                args = re.sub(
-                    ".*?,\\s*\\(\\s*", "", re.sub("\\s*\\)\\s*$", "", args))
-                for arg in re.findall("[^,]*?\\(.*?\\)[^,]*?\\(.*?\\).*?,|[^,]*?<.*?>.*?,|[^,]*?\\(.*?\\).*?,|[^>\\)]*?,", args+","):
+                args = re.sub(r".*?,\s*\(\s*", "", re.sub(r"\s*\)\s*$", "", args))
+                for arg in re.findall(r"[^,]*?\(.*?\)[^,]*?\(.*?\).*?,|[^,]*?<.*?>.*?,|[^,]*?\(.*?\).*?,|[^>\)]*?,", args+","):
                     arg = arg[:-1].strip()
                     if arg != "":
                         if arg == "etc":
                             arg = "..."
-                        arg_list = neatsplit('\\s', arg)
+                        arg_list = neatsplit(r'\s', arg)
                         if arg_list[0] in ("class", "struct", "typename"):
                             arg = arg_list[1]
                         arg = first_simple_type_equivalent(
@@ -457,18 +457,18 @@ def addifbefunctormacro(line, be_typeset, type_pack_set, equiv_classes, equiv_ns
             if splitline[0].endswith("FUNCTION"):
                 # Get the argument types out of a BE_FUNCTION or BE_CONV_FUNCTION command
                 args = re.sub(
-                    "\\s*BE_(CONV_)?FUNCTION\\s*\\(.*?,.*?,\\s*?\\(", "", line)
-                args = re.sub("\\([^\\(]*?\\)\\s*\\)\\s*$", "\\)", args)
+                    r"\s*BE_(CONV_)?FUNCTION\s*\(.*?,.*?,\s*?\(", "", line)
+                args = re.sub(r"\([^\(]*?\)\s*\)\s*$", r"\)", args)
                 if splitline[0] == "BE_FUNCTION":
-                    args = re.sub("\\)\\s*,[^\\)]*?,[^\\)]*?\\)\\s*$", "", args)
+                    args = re.sub(r"\)\s*,[^\)]*?,[^\)]*?\)\s*$", "", args)
                 else:
-                    args = re.sub("\\)\\s*,[^\\)]*?\\)\\s*$", "", args)
-                for arg in re.findall("[^,]*?\\(.*?\\)[^,]*?\\(.*?\\).*?,|[^,]*?<[^>]*?<.*?>[^<]*?>.*?,|[^,]*?<.*?>.*?,|[^,]*?\\(.*?\\).*?,|[^>\\)]*?,", args+","):
+                    args = re.sub(r"\)\s*,[^\)]*?\)\s*$", "", args)
+                for arg in re.findall(r"[^,]*?\(.*?\)[^,]*?\(.*?\).*?,|[^,]*?<[^>]*?<.*?>[^<]*?>.*?,|[^,]*?<.*?>.*?,|[^,]*?\(.*?\).*?,|[^>\)]*?,", args+","):
                     arg = arg[:-1].strip()
                     if arg != "" and not arg.startswith("\"") and not arg.startswith("("):
                         if arg == "etc":
                             arg = "..."
-                        arg_list = neatsplit('\\s', arg)
+                        arg_list = neatsplit(r'\s', arg)
                         if arg_list[0] in ("class", "struct", "typename"):
                             arg = arg_list[1]
                         arg = first_simple_type_equivalent(
@@ -582,7 +582,7 @@ def retrieve_rollcall_headers(verbose, install_dir, excludes, retrieve_excluded=
         if (not core_exists and root == install_dir+"/Core/include/gambit/Core"):
             core_exists = True
         for name in files:
-            prefix = re.sub("_rollcall\\.h.*", "", name)
+            prefix = re.sub(r"_rollcall\.h.*", "", name)
             if ((name.lower().endswith("_rollcall.hpp") or
                  name.lower().endswith("_rollcall.h") or
                  name.lower().endswith("_rollcall.hh")) and name.lower().find("bit") != -1 and root.endswith(prefix)):
@@ -621,7 +621,7 @@ def retrieve_module_type_headers(verbose, install_dir, excludes):
                  name.lower().endswith("_types.h") or
                  name.lower().endswith("_types.hh")) and name.lower().find("bit") != -1):
                 exclude = False
-                bare_name = re.sub(".*_types\\.[h|hpp|hh]$", "", name)
+                bare_name = re.sub(r".*_types\.[h|hpp|hh]$", "", name)
                 for x in excludes:
                     if bare_name.startswith(x):
                         exclude = True
@@ -697,12 +697,12 @@ def same(f1, f2):
             # print l1
             # print l2
             # print l1nospace
-            if not l1nospace.startswith("#\\date") \
-                    and not l1nospace.startswith("#\\\\date") \
-                    and not l1nospace.startswith("//\\date") \
-                    and not l1nospace.startswith("//\\\\date") \
-                    and not l1nospace.startswith("///\\date") \
-                    and not l1nospace.startswith("///\\\\date"):
+            if not l1nospace.startswith(r"#\date") \
+                    and not l1nospace.startswith(r"#\\date") \
+                    and not l1nospace.startswith(r"//\date") \
+                    and not l1nospace.startswith(r"//\\date") \
+                    and not l1nospace.startswith(r"///\date") \
+                    and not l1nospace.startswith(r"///\\date"):
                 # print "Doesn't match!", file1, file2
                 # quit()
                 return False
@@ -713,55 +713,58 @@ def update_only_if_different(existing, candidate, verbose=True):
     if not os.path.isfile(existing):
          shutil.move(candidate,existing)
          if verbose:
-             print( "\033[1;33m   Created "+re.sub("\\.\\/","",existing)+"\033[0m" )
+             print( "\033[1;33m   Created "+re.sub(r"\.\/","",existing)+"\033[0m" )
     elif same(existing, candidate):
          os.remove(candidate)
          if verbose:
-             print( "\033[1;33m   Existing "+re.sub("\\.\\/","",existing)+" is identical to candidate; leaving it untouched\033[0m" )
+             print( "\033[1;33m   Existing "+re.sub(r"\.\/","",existing)+" is identical to candidate; leaving it untouched\033[0m" )
     else:
          shutil.move(candidate,existing)
          if verbose:
-             print( "\033[1;33m   Updated "+re.sub("\\.\\/","",existing)+"\033[0m" )
+             print( "\033[1;33m   Updated "+re.sub(r"\.\/","",existing)+"\033[0m" )
 
 def make_module_rollcall(rollcall_headers, verbose):
     """Create the module_rollcall header in the Core directory"""
-    towrite = """//   GAMBIT: Global and Modular BSM Inference Tool
-//   *********************************************
-///  \\file                                       
-///                                               
-///  Compile-time registration of GAMBIT modules. 
-///                                               
-///  This file was automatically generated by     
-///  module_harvester.py. Do not modify.          
-///  The content is harvested from your local     
-///  installation.  If you want to add a new      
-///  module, just create it and make sure it      
-///  contains a rollcall header, and the          
-///  module_harvester.py script will make         
-///  sure it turns up here.                       
-///                                               
-///  By 'rollcall header', we mean a file         
-///  myBit/include/gambit/myBit/myBit_rollcall.hpp,
-///  where myBit is the name of your module.      
-///                                               
-///  *********************************************
-///                                               
-///  Authors:                                     
-///                                               
-///  \\author The GAMBIT Collaboration            
-///  \\date """+datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")+"""
-///                                               
-///  *********************************************
-                                                  
-#ifndef __module_rollcall_hpp__                   
-#define __module_rollcall_hpp__                   
-                                                  
-#include \"gambit/Elements/module_macros_incore.hpp\"
 
-"""
+    now = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
+    towrite = rf'''\
+//   GAMBIT: Global and Modular BSM Inference Tool
+//   *********************************************
+///  \\file
+///
+///  Compile-time registration of GAMBIT modules.
+///
+///  This file was automatically generated by
+///  module_harvester.py. Do not modify.
+///  The content is harvested from your local
+///  installation.  If you want to add a new
+///  module, just create it and make sure it
+///  contains a rollcall header, and the
+///  module_harvester.py script will make
+///  sure it turns up here.
+///
+///  By "rollcall header", we mean a file
+///  myBit/include/gambit/myBit/myBit_rollcall.hpp,
+///  where myBit is the name of your module.
+///
+///  *********************************************
+///
+///  Authors:
+///
+///  \\author The GAMBIT Collaboration
+///  \\date {now}
+///
+///  *********************************************
+
+#ifndef __module_rollcall_hpp__
+#define __module_rollcall_hpp__
+
+#include "gambit/Elements/module_macros_incore.hpp"
+
+'''
 
     for h in rollcall_headers:
-        towrite += '#include \"{0}\"\n'.format(h)
+        towrite += f'#include "{h}"\n'
     towrite += "\n#endif // defined __module_rollcall_hpp__\n"
 
     with open("./Core/include/gambit/Core/module_rollcall.hpp", "w") as f:
