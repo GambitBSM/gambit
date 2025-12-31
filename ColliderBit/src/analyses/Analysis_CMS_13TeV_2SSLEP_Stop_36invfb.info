@@ -1,0 +1,12 @@
+Summary: CMS 2-SS-lepton + jets + MET search at 13 TeV with 36/fb
+InspireID: 1594731
+ExptRun: CMS-R2
+Lumi_ifb: 35.9
+Ecm_TeV: 13.0
+Signatures: ["2SSL + !DY + >=2J + <5J + MET + !MT + !HT", "2SSL + !DY + >=2J + <5J + MET + !MT + HT",
+             "2SSL + !DY + >=2J + MET + HT", "2SSL + !DY + >=5J + MET + !MT + HT",
+             "2SSL + !DY + >=2J + MET + !MT + HT", "2SSL + !DY + >=2J + MET + MT + HT",
+             "2SSL + !DY + >=2J + <5J + MET + !MT + HT"]
+Superseded: true
+Notes: This SR structure repeats in bins of Nb, and several special bins in > 1.1 TeV HT.
+Authors: ["Yang Zhang"]

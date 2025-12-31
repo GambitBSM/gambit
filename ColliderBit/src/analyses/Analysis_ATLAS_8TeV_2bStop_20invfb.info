@@ -1,0 +1,6 @@
+Summary: ATLAS MET + two b-jets at 8 TeV with 20/fb
+InspireID: 1247462
+ExptRun: ATLAS-R1.5
+Lumi_ifb: 20.3
+Ecm_TeV: 8.0
+Signatures: ["0L + MET + 2J + 2B + MCT + MJJ", "0L + MET + 3J + 2B + !HT"]

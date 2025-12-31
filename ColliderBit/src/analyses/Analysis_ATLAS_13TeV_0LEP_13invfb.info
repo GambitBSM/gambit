@@ -1,0 +1,7 @@
+Summary: ATLAS 0-lepton jet+MET recursive-jigsaw SUSY analysis, with 13/fb of data
+InspireID: -1
+ExptRun: ATLAS-R2
+Lumi_ifb: 13.0
+Ecm_TeV: 13.0
+Superseded: true
+Note: InspireID=1641270 for eventual 36/fb paper. Signal regions based on recursive jigsaw are not used as validation fails.
