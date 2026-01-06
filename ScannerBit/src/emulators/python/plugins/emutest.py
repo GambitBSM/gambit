@@ -2,7 +2,7 @@ import emulator_plugin as eplug
 import numpy as np
 
 
-class Test:#(eplug.emulator):
+class Test(eplug.emulator):
 
     __version__="1.0.0"
 
