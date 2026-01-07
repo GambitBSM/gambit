@@ -67,7 +67,7 @@
         // apply for CLASS input dictionaries
         // e.g. concatenate strings for 'output' option, take
         // more precise values for a given precision parameter (which 
-        // one the more precise one is is set in the string sets
+        // one the more precise one is set in the string sets
         // keep_larger_val and keep_smaller_val defined below)
         void merge_input_dicts(pybind11::dict);
 

@@ -1,0 +1,7 @@
+GAMBIT plotting files
+=====================
+
+WC_lite.pip               --- plot the results of WC_lite.yaml with pippi
+spartan.pip               --- plot the results of spartan.yaml with pippi
+
+

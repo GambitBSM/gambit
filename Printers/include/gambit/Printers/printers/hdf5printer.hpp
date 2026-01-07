@@ -123,7 +123,7 @@ namespace Gambit
         /// Initialise the buffer (attach it to a printer and set its behaviour)
         void init(HDF5Printer* p, bool synchronised);
 
-        /// Signal whether initialisation has occured
+        /// Signal whether initialisation has occurred
         bool ready() { if(printer==NULL){return false;}else{return true;} }
 
         /// Retrieve a buffer for an IDcode/auxilliary-index pair
