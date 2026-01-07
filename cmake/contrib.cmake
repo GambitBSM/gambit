@@ -373,7 +373,7 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(FJ_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
 
   ExternalProject_Add(fastjet
-    # DOWNLOAD_COMMAND ${DL_CONTRIB} ${fastjet_dl} ${fastjet_md5} ${fastjet_dir} fastjet 3.4.2
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${fastjet_dl} ${fastjet_md5} ${fastjet_dir} fastjet 3.4.2
     SOURCE_DIR ${fastjet_dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${fastjet_dir}/local --enable-silent-rules --enable-shared
@@ -394,8 +394,8 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   message("   ColliderBit included, include fjcontrib too")
   set(EXCLUDE_FJCONTRIB FALSE)
 
-  # set(fjcontrib_dl "https://github.com/fjcontrib/fjcontrib/archive/refs/tags/1.049.tar.gz")
-  # set(fjcontrib_md5 "c7b9803f7e37d44a9a7f3c09347c2043")
+  set(fjcontrib_dl "https://github.com/fjcontrib/fjcontrib/archive/refs/tags/1.049.tar.gz")
+  set(fjcontrib_md5 "c7b9803f7e37d44a9a7f3c09347c2043")
   set(fjcontrib_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.049")
   include_directories("${fjcontrib_dir}/RecursiveTools")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fjcontrib_dir}/local/lib")
@@ -410,7 +410,7 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
 
   ExternalProject_Add(fjcontrib
     DEPENDS fastjet
-    # DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_dir} fjcontrib 1.049
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_dir} fjcontrib 1.049
     SOURCE_DIR ${fjcontrib_dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local # --only=RecursiveTools
