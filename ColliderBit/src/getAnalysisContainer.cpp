@@ -108,7 +108,6 @@ namespace Gambit
 
     }
 
-
     /// Retrieve a container for analyses with a given experiment
     void getATLASAnalysisContainer(AnalysisContainer& result)
     {

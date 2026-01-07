@@ -641,7 +641,7 @@ namespace Gambit
     // Routine to return the temperature (in keV) of the zone around the distance r from the centre of the Sun.
     double SolarModel::temperature_in_keV(double r) { return gsl_spline_eval(linear_interp[0], r, accel[0]); }
 
-    // Routine to return the screening paramter kappa^2 in units of keV^2 (kappa^-1 = Debye-Hueckel radius).
+    // Routine to return the screening parameter kappa^2 in units of keV^2 (kappa^-1 = Debye-Hueckel radius).
     double SolarModel::kappa_squared(double r)
     {
       // Interpolated value, directly from the Solar model.
@@ -1567,7 +1567,7 @@ namespace Gambit
       //                                  11.298638, 11.583999, 12.845377, 13.234130, 15.301962, 16.2655809};
       // N_sigma values as defined in the paper.
       //const double N_sigma [21] = {5.0, 5.0, 5.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 0.0, 5.0, 4.0, 4.0, 4.0, 4.0};
-      // Proportionality factors ("sigma") inferred from Table I in in units of GeV^-1/cm^3.
+      // Proportionality factors ("sigma") inferred from Table I in units of GeV^-1/cm^3.
       //const double eff_sigma [21] = {8.3030524510E+01, 3.5789241789E+02, 5.3457189090E+02, 8.3673921774E+02, 7.3205267295E+02, 7.1850356207E+02, 7.0099211538E+02, 9.3243407987E+02, 1.3132694610E+03, 1.9447760075E+03, 2.4028734743E+03,
       //                               3.5992849457E+03, 5.8433323192E+03, 1.2415907565E+03, 1.1487509033E+03, 1.0000000000E+99, 2.6768234439E+03, 9.1546564260E+04, 1.7208310692E+04, 4.2462784870E+04, 2.8794160844E+04};
       // The results below are derived from Fig. 14 (assuming N_sigma = 4 for all values).

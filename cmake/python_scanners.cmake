@@ -74,4 +74,5 @@ check_python_scanner_modules(scipy_shgo "scipy,numpy" "scipy,numpy")
 check_python_scanner_modules(scipy_minimize "scipy,numpy" "scipy,numpy")
 check_python_scanner_modules(reactive_ultranest "ultranest,numpy,packaging" "ultranest,numpy,packaging")
 check_python_scanner_modules(zeus "zeus,numpy" "zeus-mcmc,numpy")
+check_python_scanner_modules(binminpy "binminpy,numpy,scipy,mpi4py" "binminpy,numpy,scipy,mpi4py")
 

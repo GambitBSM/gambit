@@ -65,6 +65,9 @@ namespace Gambit
       /// Instruction to printer as to whether to write result to disk.
       bool printme;
 
+      /// Allowed to invalidate a point.
+      bool critical;
+
       /// Whether or not to log matches to the observable with functors.
       bool log_matches;
 
@@ -100,6 +103,7 @@ namespace Gambit
         functionChain(),
         subcaps(),
         printme(true),
+        critical(false),
         log_matches(true),
         include_all(false)
       {}

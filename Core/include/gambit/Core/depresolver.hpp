@@ -77,6 +77,7 @@ namespace Gambit
     {
       VertexID vertex;
       str purpose;
+      bool critical;
     };
 
     /// Information in resolution queue
@@ -88,6 +89,7 @@ namespace Gambit
       VertexID toVertex;
       int dependency_type;
       bool printme;
+      bool critical;
       const Observable* obslike;
     };
 
@@ -157,6 +159,10 @@ namespace Gambit
         /// Returns the purpose associated with a given functor.
         /// Non-null only if the functor corresponds to an ObsLike entry in the ini file.
         const str& getPurpose(VertexID);
+
+        /// Returns whether a given functor is critical
+        /// True only if the functor corresponds to a critical ObsLike entry in the ini file.
+        bool getCritical(VertexID);
 
         /// Tell functor that it invalidated the current point in model space (due to a large or NaN contribution to lnL)
         void invalidatePointAt(VertexID, bool);

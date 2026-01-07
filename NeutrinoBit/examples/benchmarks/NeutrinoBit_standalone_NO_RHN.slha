@@ -1,0 +1,48 @@
+# Example SLHA file for a RHN benchmark point
+BLOCK SMINPUTS
+    1   1.279400100000000e+02   # alpha^{-1}(mZ)^MSbar
+    2   1.166378700000000e-05   # G_Fermi
+    3   1.185926416400000e-01   # alpha_s(mZ)^MSbar
+    4   9.118760000000000e+01   # mZ(pole)
+    5   4.180000000000000e+00   # mb(mb)^MSbar
+    6   1.733291360190000e+02   # mtop(pole)
+    7   1.776820000000000e+00   # mtau(pole)
+    8   5.022847797813510e-11   # mnu3(pole)
+    11  5.109989280000000e-04   # melectron(pole)
+    12  0.000000000000000e+00   # mnu1(pole)
+    13  1.056583720000000e-01   # mmuon(pole)
+    14  8.596510920134900e-12   # mnu2(pole)
+    21  4.800000000000000e-03   # md(2 GeV)^MSbar
+    22  2.300000000000000e-03   # mu(2 GeV)^MSbar
+    23  9.500000000000000e-02   # ms(2 GeV)^MSbar
+    24  1.275000000000000e+00   # mc(mc)^MSbar
+#   100  0.000000000000000e+00   # mNu0
+#   101  7.390000000000000e-05   # m_{21}^2 [eV^2]
+#   102  2.449000000000000e-03   # m_{3l}^2 [eV^2] (l=2 for NO, l=1 for IO)
+BLOCK MASS
+    25  1.252000000000000e+02   # mH
+BLOCK VCKMIN
+    1   2.253700000000000e-01   # lambda
+    2   8.139999999999999e-01   # A
+    3   1.170000000000000e-01   # rhobar
+    4   3.530000000000000e-01   # etabar
+BLOCK UPMNSIN
+    1   5.902700000000000e-01   # theta12 (solar angle) [NuFit v4.1]
+    2   8.482300000000000e-01   # theta23 (atmospheric mixing angle) [NuFit v4.1]
+    3   1.501000000000000e-01   # theta13 [NuFit v4.1]
+    4   3.857180000000000e+00   # delta13 (Dirac CP-violating phase) [NuFit v4.1]
+    5   0.000000000000000e+00   # alpha1 (first Majorana CP-violating phase)
+    6   0.000000000000000e+00   # alpha2 (second CP-violating Majorana phase)
+BLOCK RHN
+    1  8.8828535542041180e+01   # M1
+    2  8.8828535542047270e+01   # M2
+#   12  6.0913192854031400e-13   # delta_M21
+    3  6.4592904043506210e+01   # M3
+    4  0.0041383293012002e+00   # Re(Omega_12)
+    5  3.4954151161803530e+00   # Im(Omega_12)
+    6  1.1186962445494144e+00   # Re(Omega_13)
+    7  0.2297999571164375e+00   # Im(Omega_13)
+    8  0.1596631465225808e+00   # Re(Omega_23)
+    9  5.9232058654672530e+00   # Im(Omega(23)
+#RightHandedNeutrinos_diff_parameters @RightHandedNeutrinos_diff::primary_parameters::Rorder :  0.6631623335430079
+

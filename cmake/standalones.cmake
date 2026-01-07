@@ -14,8 +14,9 @@
 #  \date 2016
 #
 #  \author Tomas Gonzalo
-#          (tomas.gonzalo@monash.edu)
+#          (tomas.gonzalo@partner.kit.edu)
 #  \date 2020
+#  \date 2024
 #
 #  \author Anders Kvellestad
 #          (anders.kvellestad@fys.uio.no)
@@ -31,8 +32,10 @@ add_standalone(DarkBit_standalone_ScalarSingletDM_Z2 SOURCES DarkBit/examples/Da
 add_standalone(DarkBit_standalone_WIMP SOURCES DarkBit/examples/DarkBit_standalone_WIMP.cpp MODULES DarkBit DEPENDENCIES pybind11)
 add_standalone(3bithit SOURCES DecayBit/examples/3bithit.cpp MODULES DecayBit SpecBit PrecisionBit)
 add_standalone(FlavBit_standalone SOURCES FlavBit/examples/FlavBit_standalone_example.cpp MODULES FlavBit)
+add_standalone(NeutrinoBit_standalone SOURCES NeutrinoBit/examples/NeutrinoBit_standalone.cpp MODULES NeutrinoBit)
+add_standalone(NeutrinoBit_standalone_RHN SOURCES NeutrinoBit/examples/NeutrinoBit_standalone_RHN.cpp MODULES NeutrinoBit)
 
-# Add a message that is only shown if CBS is built 
+# Add a message that is only shown if CBS is built
 # and -O3 level compiler optimisations are not activated.
 if(EXISTS CBS AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "Release" AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo")
   add_custom_command(

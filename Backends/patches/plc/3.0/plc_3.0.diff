@@ -1,7 +1,7 @@
 diff -rupN plc_3.0_pristine/waf_tools/try_ifort.py plc_3.0/waf_tools/try_ifort.py
---- plc_3.0_pristine/waf_tools/try_ifort.py	2020-03-18 21:12:56.686186090 +1000
-+++ plc_3.0/waf_tools/try_ifort.py	2020-03-18 21:15:55.340618887 +1000
-@@ -101,7 +101,7 @@ def ifort_conf(ctx):
+--- plc_3.0_pristine/waf_tools/try_ifort.py	2025-02-28 11:33:22.257942719 +0100
++++ plc_3.0/waf_tools/try_ifort.py	2025-02-28 11:40:46.810658298 +0100
+@@ -101,7 +101,7 @@
          ctx.env.append_value("LIBPATH_fc_runtime",pth)
          ctx.env.append_value("RPATH_fc_runtime",pth)
      
@@ -10,3 +10,26 @@ diff -rupN plc_3.0_pristine/waf_tools/try_ifort.py plc_3.0/waf_tools/try_ifort.p
      ctx.end_msg(True)
    show_linkline(ctx)
    ctx.env.has_ifort = True
+@@ -182,8 +182,9 @@
+     ctx.end_msg("not found, let's hope for the best...",color="PINK")
+   else:
+     version90 = version90[0]
++    version90_check = re.findall("(14\.[0-9]\.[0-9])",v90) # GAMBIT Hack to make sure gfortran version 14.2.0 does not trigger a failed gfortran version check
+     vmid = int(version90.split(".")[1])
+-    if vmid<3:
++    if vmid<3 and len(version90_check)<1:
+       ctx.end_msg(v90,color="YELLOW")
+       raise Errors.WafError("gfortran version need to be above 4.3 got %s"%version90)
+     ctx.end_msg(v90)
+diff -rupN plc_3.0_pristine/waf_tools/try_icc.py plc_3.0/waf_tools/try_icc.py
+--- plc_3.0_pristine/waf_tools/try_icc.py	2025-02-28 11:33:18.001898987 +0100
++++ plc_3.0/waf_tools/try_icc.py	2025-02-28 11:34:08.814423259 +0100
+@@ -84,7 +84,7 @@
+   ctx.end_msg(v90)
+   ctx.check_cc(
+     errmsg="failed",msg="Compile a test code with clang",
+-    mandatory=1,fragment = "#include <stdio.h>\nmain() {fprintf(stderr,\"hello world\");}\n",compile_filename='test.c',features='c cprogram')
++    mandatory=1,fragment = "#include <stdio.h>\nvoid main() {fprintf(stderr,\"hello world\");}\n",compile_filename='test.c',features='c cprogram')
+   ctx.env["CCFLAGS_cc_omp"]=[]
+   # try if omp is installed somewhere !
+   try:

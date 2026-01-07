@@ -203,6 +203,9 @@ namespace Gambit
       // For each SR a vector of event IDs for the accepted events
       std::map<str, EventCounter> _counters;
 
+      /// Store the analysis luminosity
+      double luminosity;
+
     };
 
 
