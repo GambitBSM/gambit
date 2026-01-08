@@ -112,8 +112,10 @@ namespace Gambit
     void getATLASAnalysisContainer(AnalysisContainer& result)
     {
       using namespace Pipes::getATLASAnalysisContainer;
-      getAnalysisContainer(result, "ATLAS", *Dep::RunMC,
-       *Dep::TotalCrossSection, *Loop::iteration);
+
+      map_str_xsec_container Totalxsec = *Dep::InitialTotalCrossSection;
+
+      getAnalysisContainer(result, "ATLAS", *Dep::RunMC, Totalxsec[Dep::RunMC->current_collider()], *Loop::iteration);
 
       if (*Loop::iteration == COLLIDER_INIT_OMP)
       {
@@ -125,8 +127,10 @@ namespace Gambit
     void getCMSAnalysisContainer(AnalysisContainer& result)
     {
       using namespace Pipes::getCMSAnalysisContainer;
-      getAnalysisContainer(result, "CMS", *Dep::RunMC,
-       *Dep::TotalCrossSection, *Loop::iteration);
+
+      map_str_xsec_container Totalxsec = *Dep::InitialTotalCrossSection;
+
+      getAnalysisContainer(result, "CMS", *Dep::RunMC, Totalxsec[Dep::RunMC->current_collider()], *Loop::iteration);
 
       if (*Loop::iteration == COLLIDER_INIT_OMP)
       {
@@ -138,8 +142,10 @@ namespace Gambit
     void getIdentityAnalysisContainer(AnalysisContainer& result)
     {
       using namespace Pipes::getIdentityAnalysisContainer;
-      getAnalysisContainer(result, "Identity", *Dep::RunMC,
-       *Dep::TotalCrossSection, *Loop::iteration);
+
+      map_str_xsec_container Totalxsec = *Dep::InitialTotalCrossSection;
+
+      getAnalysisContainer(result, "Identity", *Dep::RunMC, Totalxsec[Dep::RunMC->current_collider()], *Loop::iteration);
 
       if (*Loop::iteration == COLLIDER_INIT_OMP)
       {

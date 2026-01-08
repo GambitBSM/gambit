@@ -171,9 +171,6 @@ namespace Gambit
       /// Collider name
       std::string collider_name;
 
-      /// Luminosity
-      double luminosity;
-
       /// Access the i'th signal region's data
       SignalRegionData& operator[] (size_t i) { return srdata[i]; }
       /// Access the i'th signal region's data (const)
