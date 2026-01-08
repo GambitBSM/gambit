@@ -77,7 +77,7 @@ namespace Gambit
       if (xs.trust_level() >= use_trust_level)
       {
         // Add the generator cross-sections for other process codes which also 
-        // contribute to the externaly provided cross-section
+        // contribute to the externally provided cross-section
         for (int other_process_code : xs.processes_sharing_xsec())
         {
           process_xsec_generator += HardScatteringSim_ptr->xsec_fb(other_process_code);

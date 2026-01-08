@@ -117,7 +117,7 @@ We defined the additional parameters:
                     save = self.ids.saves[tuple(pt)]
                     stream.print(1.0, "Posterior", save[0], save[1])
                 else:
-                    print("warning: point ", tuple(pt), " has no correponding id.")
+                    print("warning: point ", tuple(pt), " has no corresponding id.")
             stream.flush()
             
             if self.pkl_name:

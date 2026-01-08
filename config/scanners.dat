@@ -52,7 +52,7 @@ twalk: |
       tolerance (1.001): The accuracy of the second order moment (1 is perfect).
       burn_in (0):       Number of burn-in points that are not considered in the convergence.
 
-  Auxillary output variables (defaults):
+  Auxiliary output variables (defaults):
       mult:     Multiplicity (weight) of each point.
       chains:   Chain number that each point is a member of.  Rejected points have chain number of -1.
 
@@ -92,7 +92,7 @@ jswarm: |
       allow_new_settings[false]:          Allow settings to be overridden with new values when resuming
       save_particles_natively[false]:     Save full particle data from every generation
 
-  Auxillary output variables:
+  Auxiliary output variables:
       none
 
 multinest: |
@@ -125,7 +125,7 @@ multinest: |
       logZero (-1E90): points with loglike < logZero will be ignored by MultiNest
       maxiter (0):     Max no. of iterations, a non-positive value means infinity.
 
-  Auxillary output variables:
+  Auxiliary output variables:
       Posterior:    Statistical weight of each point.
       live_points:  Boolean, true if the point is a live point.  False otherwise.
 
@@ -156,7 +156,7 @@ polychord: |
       seed (-1):                    seed for random number generator. Negative means seed from system time
       maximise (0)                  perform nelder meade maximisation at end?
 
-  Auxillary output variables:
+  Auxiliary output variables:
       Posterior:    Statistical weight of each point.
       live_points:  Boolean, true if the point is a live point.  False otherwise.
 
@@ -188,7 +188,7 @@ great: |
       nTrialLists:    The number of trial lists (Markov Chains)
       nTrials:        The number of trials (steps in the parameter space per trial list)
 
-  Auxillary output variables:
+  Auxiliary output variables:
       multiplicity:    Statistical weight (multiplicity) of each point
 
 grid: |
@@ -222,13 +222,13 @@ toy_mcmc: |
       point_number(1000):  The number of accepted points.  Default is 1000.
       like:                Use the functors thats corresponds to the specified purpose.
 
-  Auxillary output variables:
+  Auxiliary output variables:
       mult:     Multiplicity (weight) of each point.
 
 
 minuit2: |
   #remove_newlines
-  Minuit2 is a C++ implemntation of the classic MINUIT minimization library. See www.cern.ch/minuit and https://root.cern.ch/doc/master/Minuit2Page.html
+  Minuit2 is a C++ implementation of the classic MINUIT minimization library. See www.cern.ch/minuit and https://root.cern.ch/doc/master/Minuit2Page.html
   for further details.
 
   YAML options (defaults):

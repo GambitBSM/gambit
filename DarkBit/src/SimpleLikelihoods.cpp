@@ -457,7 +457,7 @@ namespace Gambit {
 
     /// \brief Likelihoods for halo parameters. The likelihood for the local DM density follows a
     /// log normal distribution while for the velocities the distribution is Gaussian.
-    /// For discussion of the default values for measured halo paramters and their errors,
+    /// For discussion of the default values for measured halo parameters and their errors,
     /// see JCAP04(2011)012.
 
     void lnL_rho0_lognormal(double &result)

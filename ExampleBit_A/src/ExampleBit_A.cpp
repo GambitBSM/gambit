@@ -344,7 +344,7 @@ namespace Gambit
 
       using namespace Pipes::eventAccumulator;
 
-      // Do the actual computations in each thread seperately
+      // Do the actual computations in each thread separately
       int increment = *Dep::event + 1;
 
       // Only let one thread at a time mess with the accumulator.

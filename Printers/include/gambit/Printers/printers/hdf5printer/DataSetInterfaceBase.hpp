@@ -192,7 +192,7 @@ namespace Gambit {
          // To fix, will probably need to have a fancy copy constructor or something. Or wrap datasets in an
          // object which itself has a fancy copy constructor. For now, just leave dataset resources lying around,
          // probably won't cause any issues.
-         // Or could explicity tell interface to close datasets before the objects are destroyed.
+         // Or could explicitly tell interface to close datasets before the objects are destroyed.
          //if(this->dset_id>=0)
          //{
          //  herr_t status = H5Dclose(this->dset_id);

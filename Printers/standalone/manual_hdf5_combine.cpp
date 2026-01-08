@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
      }
    }
  
-   // Begining timing of operation
+   // Beginning timing of operation
    std::chrono::time_point<std::chrono::system_clock> startT = std::chrono::system_clock::now();
 
    if(custom_mode)

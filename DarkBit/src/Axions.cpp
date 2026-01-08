@@ -72,7 +72,7 @@ namespace Gambit
      const double gaee_conversion = 1.0E+13;
 
     /////////////////////////////////////////////////////////////////
-    //      Auxillary functions and classes for interpolation      //
+    //      Auxiliary functions and classes for interpolation      //
     /////////////////////////////////////////////////////////////////
 
     /*! \brief Generic one-dimensional integration container for linear interpolation and cubic splines.
@@ -348,10 +348,10 @@ namespace Gambit
      /*! \brief H.E.S.S.-likelihood-related interpolation routines.
      */
 
-    // Auxillary function for a parabola (needed for H.E.S.S. likelihood approximation).
+    // Auxiliary function for a parabola (needed for H.E.S.S. likelihood approximation).
     double parabola(double x, const double params[]) { return params[0]*x*x + params[1]*x + params[2]; }
 
-    // Auxillary function to return the appropriate intersection between a parabola and a line (needed for H.E.S.S. likelihood).
+    // Auxiliary function to return the appropriate intersection between a parabola and a line (needed for H.E.S.S. likelihood).
     double intersect_parabola_line(double a, double b, double sign, const double pparams[])
     {
       const double x1 = -3.673776;
@@ -654,7 +654,7 @@ namespace Gambit
     // Constant numbers for precision etc.
     const double abs_prec = 1.0E-1, rel_prec = 1.0E-6;
     const int method = 5;
-    // Auxillary structure for passing the model parameters to the gsl solver.
+    // Auxiliary structure for passing the model parameters to the gsl solver.
     struct SolarModel_params1 {double erg; double rad; SolarModel* sol;};
     struct SolarModel_params2 {double erg; double rs; SolarModel* sol;};
     struct SolarModel_params3 {double rs; double ma0; SolarModel* sol; AxionInterpolator* eff_exp;};
@@ -1144,7 +1144,7 @@ namespace Gambit
       result = gaussian_nuisance_lnL(CaggQCDmu, CaggQCD, CaggQCDsigma);
     }
 
-    // Auxillary function for QCD nuisance likelihood below.
+    // Auxiliary function for QCD nuisance likelihood below.
     double log_chi (double T, double beta, double Tchi)
     {
       double result = 0.0;
@@ -1255,7 +1255,7 @@ namespace Gambit
       const double exp_sig_mu_v1 = -4.01, exp_sig_std_v1 = 3.01;
       // ALPS Collaboration results, vacuum, 6 frames.
       const double exp_sig_mu_v2 = -2.35, exp_sig_std_v2 = 3.44;
-      // ALPS Collaboration results, vacuum combined(!), 11 frames (we keep them seperated).
+      // ALPS Collaboration results, vacuum combined(!), 11 frames (we keep them separated).
       //const double exp_sig_mu_vc = -3.29, exp_sig_std_vc = 2.27;
       // ALPS Collaboration results, gas, 8 frames (P = 0.18 mbar).
       const double exp_sig_mu_g = 3.98, exp_sig_std_g = 2.45;
@@ -1610,7 +1610,7 @@ namespace Gambit
     //      Energy density in realignment axions today      //
     //////////////////////////////////////////////////////////
 
-    /* Some auxillary functions for solving the  necessary differential equations
+    /* Some auxiliary functions for solving the  necessary differential equations
      */
 
     // Provides function F1 for the change in variables time -> temperature (see 1810.07192).
@@ -1637,7 +1637,7 @@ namespace Gambit
       return res;
     }
 
-    // Auxillary function to calculate the Hubble parameter in a radiation-dominated universe.
+    // Auxiliary function to calculate the Hubble parameter in a radiation-dominated universe.
     double hubble_rad_dom(double T)
     {
       // H(T)/eV, T/MeV, m_pl/10^12eV = m_pl/10^3 GeV
@@ -1653,10 +1653,10 @@ namespace Gambit
       return res;
     }
 
-    // Auxillary structure for passing the model parameters to the gsl solver.
+    // Auxiliary structure for passing the model parameters to the gsl solver.
     struct AxionEDT_params {double ma0; double beta; double Tchi; double thetai; double Tosc;};
 
-    // Auxillary function with root Tosc, the temperature where the axion field oscillations start (defined by mA = 3H).
+    // Auxiliary function with root Tosc, the temperature where the axion field oscillations start (defined by mA = 3H).
     // Note that this is only to set the temperature scale of the problem. The differential equation is solved numerically around
     // this point and the numerical factor in the definition is pure convention.
     double equation_Tosc(double T, void *params)

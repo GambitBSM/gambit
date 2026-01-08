@@ -306,7 +306,7 @@ namespace Gambit
                         errmsg << "  Number of files to be combined (num="<<num<<") is less than two! Therefore there is no combining to be done!"<<std::endl;
                         printer_error().raise(LOCAL_INFO, errmsg.str());
                     }
-                    std::cout << "  Running combination routines in 'custom' mode. Primary datasets from all specified files (in the specified group) will be concatenated. Auxilliary (\"random access\") datasets will be IGNORED! If you need auxilliary datasets to be merged into the primary datasets then please merge them in 'normal' mode." << std::endl;
+                    std::cout << "  Running combination routines in 'custom' mode. Primary datasets from all specified files (in the specified group) will be concatenated. Auxilliary (\"random access\") datasets will be IGNORED! If you need auxiliary datasets to be merged into the primary datasets then please merge them in 'normal' mode." << std::endl;
                     // TODO: It would actually be good to write out an extra dataset which records which points come from which files. Could just be an int, and could write out a txt file which gives the mapping from indices to input files. This is too much work for now though.
                 }
 
@@ -703,7 +703,7 @@ namespace Gambit
                 if(size_tot==0 and aux_param_names.size()==0)
                 {
                     // If size_tot==0 then there are no primary sync datapoints in any of the temp files (or previous combined output)
-                    // If there are also no auxilliary datapoints found, then there is nothing to combine! Raise an error, because
+                    // If there are also no auxiliary datapoints found, then there is nothing to combine! Raise an error, because
                     // this is a weird situation, and the run would effectively be starting again anyway.
                     // TODO: Keep this? Someone could restart a run from old scanner data, but just have deleted all the old
                     // printer output. Not sure if we want to allow this or not.
@@ -713,10 +713,10 @@ namespace Gambit
                 }
                 else if(size_tot==0 and aux_param_names.size()!=0)
                 {
-                    // Ok now size_tot==0 AND there are auxillary datapoints to be combined. Currently we require primary
-                    // datapoints to exist in order to write auxilliary data to them.
+                    // Ok now size_tot==0 AND there are auxiliary datapoints to be combined. Currently we require primary
+                    // datapoints to exist in order to write auxiliary data to them.
                     std::ostringstream errmsg;
-                    errmsg << "Error combining HDF5 temporary data! No model points in primary (synchronised) datasets were found in the existing temporary files, however auxilliary datasets WERE found. Currently auxilliary datasets cannot be 'combined' with nothing, i.e. they must have a corresponding model point in a 'primary' dataset to which they should be associated. It is possible to loosen this requirement, so if you have written a scanner or likelihood container which writes only to auxillary datasets then please report this error and request the print system be upgraded. Otherwise this error indicates a bug, please report it." << std::endl;
+                    errmsg << "Error combining HDF5 temporary data! No model points in primary (synchronised) datasets were found in the existing temporary files, however auxiliary datasets WERE found. Currently auxiliary datasets cannot be 'combined' with nothing, i.e. they must have a corresponding model point in a 'primary' dataset to which they should be associated. It is possible to loosen this requirement, so if you have written a scanner or likelihood container which writes only to auxiliary datasets then please report this error and request the print system be upgraded. Otherwise this error indicates a bug, please report it." << std::endl;
                     printer_error().raise(LOCAL_INFO, errmsg.str());
                 }
                 // else everything is cool
@@ -1058,7 +1058,7 @@ namespace Gambit
                       counter = 1; //reset counter
                       for (auto it = aux_param_names.begin(), end = aux_param_names.end(); it != end; ++it, ++counter)
                       {
-                          std::cout << "  Combining auxilliary datasets... "<<int(100*counter/aux_param_names.size())<<"%    (merged "<<counter<<" parameters of "<<aux_param_names.size()<<")         \r"<<std::flush;
+                          std::cout << "  Combining auxiliary datasets... "<<int(100*counter/aux_param_names.size())<<"%    (merged "<<counter<<" parameters of "<<aux_param_names.size()<<")         \r"<<std::flush;
                           std::vector<hid_t> file_ids, group_ids, datasets, datasets2;
                           int valid_dset  = -1; // index of a validly opened dataset (-1 if none)
 
@@ -1168,11 +1168,11 @@ namespace Gambit
                               if(file_ids[i]>=0)  HDF5::closeFile(file_ids[i]);
                           }
                       }
-                      std::cout << "  Combining auxilliary datasets... Done.                 "<<std::endl;
+                      std::cout << "  Combining auxiliary datasets... Done.                 "<<std::endl;
                    }
                    else
                    {
-                      std::cout << "  Combining auxilliary datasets... None found, skipping. "<<std::endl;
+                      std::cout << "  Combining auxiliary datasets... None found, skipping. "<<std::endl;
                    }
                 }
 
@@ -1487,7 +1487,7 @@ namespace Gambit
                if( left_to_match.size() > 0 )
                {
                    std::ostringstream errmsg;
-                   errmsg << "Error generating hash map for Auxilliary parameter copy! Failed to find matches in primary datasets for all auxilliary data! There were "<<left_to_match.size()<<" unmatched auxilliary points. Unmatched points follow:" << std::endl;
+                   errmsg << "Error generating hash map for Auxilliary parameter copy! Failed to find matches in primary datasets for all auxiliary data! There were "<<left_to_match.size()<<" unmatched auxiliary points. Unmatched points follow:" << std::endl;
                    for(auto it=left_to_match.begin(); it!=left_to_match.end(); ++it)
                    {
                       errmsg << "  rank: "<<it->rank<<", pointID: "<<it->pointID<< std::endl;

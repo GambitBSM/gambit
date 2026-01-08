@@ -31,7 +31,7 @@ namespace Gambit
     struct MCLoopInfo
     {
      
-      // Event genration has been bypassed: Default = false
+      // Event generation has been bypassed: Default = false
       bool event_gen_BYPASS = false;
 
       /// Event generation has started

@@ -142,7 +142,7 @@ namespace Gambit
 
         // Overlap removal
         // Inspire by ATLAS code snippet on HEPData
-        // Doesn't exactly match the earlier paper decsription
+        // Doesn't exactly match the earlier paper description
 
         removeOverlap(baselineElectrons, baselineMuons, 0.01);
         removeOverlap(baselinePhotons, baselineElectrons, 0.4);

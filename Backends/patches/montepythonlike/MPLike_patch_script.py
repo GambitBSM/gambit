@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
     for like in output:
         # replace importin of montepython.likelihood_class with import of MontePythonLike
-        # Note that the system path has to be inserted in the begining of the file as well
+        # Note that the system path has to be inserted in the beginning of the file as well
         replace("montepython/likelihoods/"+like+"/__init__.py", "from montepython.likelihood_class import", 
             "from MontePythonLike_X_Y_Z import", append_to_beginning="import sys \nsys.path.insert(0,'"+abspath+"')\n" )
         # also replace importing of io_mp module (only contains input/output stream so safe to use with GAMBIT)

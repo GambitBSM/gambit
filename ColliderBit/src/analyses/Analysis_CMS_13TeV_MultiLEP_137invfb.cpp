@@ -573,7 +573,7 @@ namespace Gambit
             // Set mlth to zero is the tau has the same sign as the pair of light leptons
             if(sameSign(signalTaus.at(0), signalLightLeptons.at(0))) mlth = 0.;
 
-            // mT2 varaible
+            // mT2 variable
             double mT2 = get_mT2(signalLightLeptons.at(0), signalTaus.at(0), mmom, 0.);
 
             if(mT2 >= 0. and mT2 < 80. and mlth <= 50. and met >=  50. and met < 100.) counter_cutflow("E01",event,w);

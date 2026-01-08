@@ -1066,7 +1066,7 @@ BE_NAMESPACE
         if(inputs.param.find(parname.str()) != inputs.param.end())
         {
           (*Au_0_sckm)(i,j).re = *inputs.param.at(parname.str());
-          // unfortunatly there is a transpose due to the RGE implemenation
+          // unfortunatly there is a transpose due to the RGE implementation
           (*Au_sckm)(j,i).re = *inputs.param.at(parname.str());
           *l_Au = true;
         }
@@ -1079,7 +1079,7 @@ BE_NAMESPACE
         if(inputs.param.find(parname.str()) != inputs.param.end())
         {
           (*Ad_0_sckm)(i,j).re = *inputs.param.at(parname.str());
-          // unfortunatly there is a transpose due to the RGE implemenation
+          // unfortunatly there is a transpose due to the RGE implementation
           (*Ad_sckm)(j,i).re = *inputs.param.at(parname.str());
           *l_Ad = true;
         }
@@ -1092,7 +1092,7 @@ BE_NAMESPACE
         if(inputs.param.find(parname.str()) != inputs.param.end())
         {
           (*Al_0_pmns)(i,j).re = *inputs.param.at(parname.str());
-          // unfortunatly there is a transpose due to the RGE implemenation
+          // unfortunatly there is a transpose due to the RGE implementation
           (*Al_pmns)(j,i).re = *inputs.param.at(parname.str());
           *l_Al = true;
         }
