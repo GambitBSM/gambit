@@ -40,7 +40,7 @@ To be checked:
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
-#include "SoftDrop.hh"
+#include "fastjet/contrib/SoftDrop.hh"
 
 // #define CHECK_CUTFLOW
 

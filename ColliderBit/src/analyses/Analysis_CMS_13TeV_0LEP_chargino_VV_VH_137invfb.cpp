@@ -15,7 +15,7 @@
 #include <memory>
 #include <iomanip>
 #include <fstream>
-#include "SoftDrop.hh"
+#include "fastjet/contrib/SoftDrop.hh"
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"

@@ -397,8 +397,11 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(fjcontrib_dl "http://fastjet.hepforge.org/contrib/downloads/fjcontrib-1.049.tar.gz")
   set(fjcontrib_md5 "bfea8bfd311d958a40e445f76668bd32")
   set(fjcontrib_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.049")
-  include_directories("${fjcontrib_dir}/RecursiveTools")
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fjcontrib_dir}/local/lib")
+  include_directories("${fastjet_dir}/local/include")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fastjet_dir}/local/lib")
+  # Link the fjcontrib libraries needed by ColliderBit analyses
+  # RecursiveTools provides SoftDrop and related jet grooming tools
+  # Add other libraries here as needed (e.g., -lNsubjettiness -lConstituentSubtractor)
   set(fjcontrib_LDFLAGS "-L${fastjet_dir}/local/lib -lRecursiveTools")
 
   string(REGEX REPLACE "-Xclang -fopenmp" "" FJCONTRIB_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
@@ -406,16 +409,15 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set_compiler_warning("no-unused-parameter" FJCONTRIB_CXX_FLAGS)
   set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
   set_compiler_warning("no-catch-value" FJCONTRIB_CXX_FLAGS)
-#  set(FJCONTRIB_CXX_FLAGS "${FJCONTRIB_CXX_FLAGS} -L${fastjet_dir}/local/lib -lfastjet -lfastjettools -Wl,-rpath,${fastjet_dir}/local/lib")
 
   ExternalProject_Add(fjcontrib
     DEPENDS fastjet
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_dir} fjcontrib 1.049
     SOURCE_DIR ${fjcontrib_dir}
     BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local # --only=RecursiveTools
-    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
-    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
+    BUILD_COMMAND ${MAKE_PARALLEL}
+    INSTALL_COMMAND ${MAKE_PARALLEL} install
   )
 
 
