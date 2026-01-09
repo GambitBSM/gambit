@@ -99,6 +99,17 @@ ObsLikes:
     # Combined likelihood for LHC searches
     - purpose:    LogLike
       capability: LHC_Combined_LogLike
+      sub_capabilities:
+        skip_analyses:
+          - ATLAS_13TeV_0LEPStop_139invfb
+          - ATLAS_13TeV_4b_discoverySR_139invfb
+          - ATLAS_13TeV_4b_allyears_139invfb
+          - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb
+          - ATLAS_13TeV_3b_NN_139invfb
+          - CMS_13TeV_2OSLEP_Strong_Production_137invfb
+          - CMS_13TeV_2OSLEP_Slepton_137invfb
+          - CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD
+          - CMS_13TeV_2LEPsoft_137invfb
 
     # Combined likelihood for LHC measurements
     # NOTE: The LHC_measurements_LogLike should be run as a separate post-processing run.
@@ -170,6 +181,32 @@ Rules:
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates
     function: all_decays
+    
+  - capability: PerformInitialCrossSection
+    function: PerformInitialCrossSection_Pythia
+    options:
+      silenceLoop: false
+      LHC_13TeV:
+        nEvents: 10000
+        maxFailedEvents: 10
+        pythia_settings:
+          - Beams:eCM = 13000
+          - Next:numberCount = 0
+          - Next:numberShowProcess = 1
+          - Print:quiet = on
+          - Random:setSeed = on
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - SUSY:all = off
+          - SUSY:qqbar2chi0chi0 = on
+          - SUSY:qqbar2chi+-chi0 = on
+          - SUSY:qqbar2chi+chi- = on
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
+          - 23:mMin = 0.1
+          - 24:mMin = 0.1
 
   # Require a small, additional mass difference before switching on new decay decay modes in the
   # limit of small chargino--neutralino mass difference. Can help avoid problems with chargino
@@ -320,6 +357,8 @@ Rules:
   - capability: RunMC
     function: operateLHCLoop
     options:
+      use_colliders:
+        - LHC_13TeV
       silenceLoop: false
       LHC_13TeV:
         min_nEvents: 16000000
@@ -459,16 +498,6 @@ Rules:
       write_summary_to_log: false
       cap_loglike: false
       cap_loglike_individual_analyses: false
-      skip_analyses:
-        - ATLAS_13TeV_0LEPStop_139invfb
-        - ATLAS_13TeV_4b_discoverySR_139invfb
-        - ATLAS_13TeV_4b_allyears_139invfb
-        - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb
-        - ATLAS_13TeV_3b_NN_139invfb
-        - CMS_13TeV_2OSLEP_Strong_Production_137invfb
-        - CMS_13TeV_2OSLEP_Slepton_137invfb
-        - CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD
-        - CMS_13TeV_2LEPsoft_137invfb
 
   # Set analyses for Rivet measurements
   - capability: Rivet_measurements

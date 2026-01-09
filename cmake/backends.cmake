@@ -2127,8 +2127,8 @@ endif()
 # Fjcontrib
 set(name "fjcontrib")
 set(ver "1.049")
-set(dl "https://github.com/fjcontrib/fjcontrib/archive/refs/tags/${ver}.tar.gz")
-set(md5 "c7b9803f7e37d44a9a7f3c09347c2043")
+set(dl "http://fastjet.hepforge.org/contrib/downloads/fjcontrib-${ver}.tar.gz")
+set(md5 "bfea8bfd311d958a40e445f76668bd32")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(fastjet_name "fastjet")
 set(fastjet_ver "3.4.0")
@@ -2151,8 +2151,8 @@ if(NOT ditched_${name}_${ver})
     PATCH_COMMAND ""
     #PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local #--only=RecursiveTools
-    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
-    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
+    BUILD_COMMAND ${MAKE_PARALLEL}
+    INSTALL_COMMAND ${MAKE_PARALLEL} install && ${MAKE_PARALLEL} fragile-shared-install
   )
 #  BOSS_backend(${name} ${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
