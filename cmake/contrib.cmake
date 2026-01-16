@@ -669,4 +669,8 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
     message(FATAL_ERROR "\nColliderBit needs YODA. Either use -DWITH_YODA=ON or ditch ColliderBit with -Ditch=\"ColliderBit\".")
   endif()
   add_dependencies(contrib yoda)
+  
+  # fastjet and fjcontrib are dependencies of using ColliderBit
+  add_dependencies(contrib fastjet)
+  add_dependencies(contrib fjcontrib)
 endif()
