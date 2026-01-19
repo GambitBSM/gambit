@@ -856,9 +856,9 @@ namespace Gambit {
       void analysis_specific_reset()
       {
         for (auto& pair : _counters) { pair.second.reset(); }
-        #ifdef CHECK_CUTFLOW
-          std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
-        #endif
+        // #ifdef CHECK_CUTFLOW
+          // std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
+        // #endif
       }
 
     };
