@@ -83,15 +83,19 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 virtual ::std::ostream& infoStream() =0;
     
                 virtual ::std::ostream& errorStream() =0;
-    
-                virtual ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> begin() =0;
-    
-                virtual ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> end() =0;
-    
-                virtual ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> begin() const =0;
-    
-                virtual ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> end() const =0;
-    
+
+
+                //  Pengxuan: Modified for MacOS clang++ build system
+                // virtual ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> begin() =0;
+                // virtual ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> end() =0;
+                // virtual ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> begin() const =0;
+                // virtual ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> end() const =0;
+
+                virtual ::std::map<std::basic_string<char>, int>::iterator begin() =0;
+                virtual ::std::map<std::basic_string<char>, int>::iterator end() =0;
+                virtual ::std::map<std::basic_string<char>, int>::const_iterator begin() const =0;
+                virtual ::std::map<std::basic_string<char>, int>::const_iterator end() const =0;
+
                 virtual const int& ABORT_ref__BOSS() =0;
     
                 virtual const int& NORMAL_ref__BOSS() =0;

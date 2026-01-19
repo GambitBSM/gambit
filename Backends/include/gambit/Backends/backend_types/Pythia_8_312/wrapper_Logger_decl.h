@@ -91,16 +91,21 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ::std::ostream& infoStream();
         
                 ::std::ostream& errorStream();
+
+                //  Pengxuan: Modified for MacOS clang++ build system
+                ::std::map<std::basic_string<char>, int>::iterator begin();
+                ::std::map<std::basic_string<char>, int>::iterator end();
+                ::std::map<std::basic_string<char>, int>::const_iterator begin() const;
+                ::std::map<std::basic_string<char>, int>::const_iterator end() const;
         
-                ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> begin();
+                // ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> begin();
         
-                ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> end();
+                // ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> end();
         
-                ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> begin() const;
-        
-                ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> end() const;
-        
-        
+                // ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> begin() const;
+                
+                // ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> end() const;
+                
                 // Wrappers for original constructors: 
             public:
                 Logger();

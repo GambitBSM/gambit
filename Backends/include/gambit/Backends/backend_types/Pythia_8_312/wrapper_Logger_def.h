@@ -165,23 +165,28 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->errorStream();
         }
         
-        inline ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> Logger::begin()
+        //  Pengxuan: Modified for MacOS clang++ build system
+
+        // inline ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> Logger::begin()
+        inline ::std::map<std::basic_string<char>, int>::iterator Logger::begin()
         {
             return get_BEptr()->begin();
         }
         
-        inline ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> Logger::end()
+        // inline ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> Logger::end()
+        inline ::std::map<std::basic_string<char>, int>::iterator Logger::end()
         {
             return get_BEptr()->end();
         }
         
-        inline ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> Logger::begin() const
+        // inline ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> Logger::begin() const
+        inline ::std::map<std::basic_string<char>, int>::const_iterator Logger::begin() const
         {
             return get_BEptr()->begin();
         }
         
-        inline ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> Logger::end() const
-        {
+        // inline ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> Logger::end() const
+        inline ::std::map<std::basic_string<char>, int>::const_iterator Logger::end() const        {
             return get_BEptr()->end();
         }
         
