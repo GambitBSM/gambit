@@ -501,10 +501,11 @@ int main(int argc, char* argv[])
         const double combined_s_uncertainty = srData.calc_n_sig_scaled_err();
         const double combined_bg_uncertainty = srData.n_bkg_err;
         summary_line << "    Signal region " << srData.sr_label << " (SR index " << sr_index << "):" << endl;
-        summary_line << "      Observed events: " << srData.n_obs << endl;
-        summary_line << "      SM prediction: " << srData.n_bkg << " +/- " << combined_bg_uncertainty << endl;
-        summary_line << "      Signal prediction: " << srData.n_sig_scaled << " +/- " << combined_s_uncertainty << endl;
-        summary_line << "      Log-likelihood: " << analysis_loglikes.sr_loglikes.at(sr_index) << endl;
+        summary_line << "      Observed events:        " << srData.n_obs << endl;
+        summary_line << "      SM prediction:          " << srData.n_bkg << " +/- " << combined_bg_uncertainty << endl;
+        summary_line << "      Signal prediction (MC): " << srData.n_sig_MC << " +/- " << srData.n_sig_MC_stat << endl;
+        summary_line << "      Signal prediction:      " << srData.n_sig_scaled << " +/- " << combined_s_uncertainty << endl;
+        summary_line << "      Log-likelihood:         " << analysis_loglikes.sr_loglikes.at(sr_index) << endl;
         if (calc_noerr_loglikes) {summary_line << "      No-Error Log-Likelihood: " << analysis_loglikes.alt_sr_loglikes.at("noerr").at(sr_index) << "\n";}
         if (calc_expected_loglikes) {summary_line << "      Expected Log-Likelihood: " << analysis_loglikes.alt_sr_loglikes.at("expected").at(sr_index) << "\n";}
         if (calc_expected_noerr_loglikes) {summary_line << "      Expected No-Error Log-Likelihood: " << analysis_loglikes.alt_sr_loglikes.at("expected_noerr").at(sr_index) << "\n";}
