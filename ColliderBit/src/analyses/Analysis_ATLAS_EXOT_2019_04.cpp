@@ -1,3 +1,6 @@
+// TEMP: This analysis is not finished yet on ColliderBit_solo_development.
+// Disable it for now to allow GAMBIT to compile on macOS/clang. 
+#if 0
 ///
 ///  \author Pengxuan Zhu (zhupx99@icloud.com, pengxuan.zhu@adelaide.edu.au)
 ///  \date 2025 Oct
@@ -320,3 +323,5 @@ namespace Gambit
         DEFINE_ANALYSIS_FACTORY(ATLAS_EXOT_2019_04)
     } // namespace ColliderBit
 } // namespace Gambit
+
+#endif // TEMP: disable unfinished Analysis_ATLAS_EXOT_2019_04

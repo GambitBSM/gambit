@@ -38,9 +38,7 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    Analysis::Analysis() : _luminosity(0), _luminosity_is_set(false), _is_scaled(false), _needs_collection(true), _collider_name("")
-    {
-    }
+    Analysis::Analysis() : _luminosity(0), _luminosity_is_set(false), _is_scaled(false), _needs_collection(true), _collider_name("") {}
 
     /// Public method to reset this instance for reuse, avoiding the need for "new" or "delete".
     void Analysis::reset()
@@ -109,10 +107,8 @@ namespace Gambit
     const AnalysisData &Analysis::get_results(str &warning)
     {
       warning = "";
-      if (not _luminosity_is_set)
-        warning += "Luminosity has not been set for analysis " + _analysis_name + ".";
-      if (not _is_scaled)
-        warning += "Results have not been scaled for analysis " + _analysis_name + ".";
+      if (not _luminosity_is_set) warning += "Luminosity has not been set for analysis " + _analysis_name + ".";
+      if (not _is_scaled) warning += "Results have not been scaled for analysis " + _analysis_name + ".";
 
       return get_results();
     }
@@ -139,22 +135,13 @@ namespace Gambit
     void Analysis::add_result(const SignalRegionData &sr) { _results.add(sr); }
 
     /// Get the cutflows
-    const Cutflows &Analysis::get_cutflows()
-    {
-      return _results.cutflows;
-    }
+    const Cutflows &Analysis::get_cutflows() { return _results.cutflows; }
 
     /// Add cutflows to the internal results list
-    void Analysis::add_cutflows(const Cutflows &cf)
-    {
-      _results.add_cutflows(cf);
-    }
+    void Analysis::add_cutflows(const Cutflows &cf) { _results.add_cutflows(cf); }
 
     /// Set the path to the FullLikes BKG file
-    void Analysis::set_bkgjson(const std::string &bkgpath)
-    {
-      _results.bkgjson_path = bkgpath;
-    }
+    void Analysis::set_bkgjson(const std::string &bkgpath) { _results.bkgjson_path = bkgpath; }
 
     /// Set the covariance matrix, expressing SR correlations
     void Analysis::set_covariance(const Eigen::MatrixXd &srcov) { _results.srcov = srcov; }
@@ -165,10 +152,7 @@ namespace Gambit
       Eigen::MatrixXd cov(srcov.size(), srcov.front().size());
       for (size_t i = 0; i < srcov.size(); ++i)
       {
-        for (size_t j = 0; j < srcov.front().size(); ++j)
-        {
-          cov(i, j) = srcov[i][j];
-        }
+        for (size_t j = 0; j < srcov.front().size(); ++j) { cov(i, j) = srcov[i][j]; }
       }
       set_covariance(cov);
     }
@@ -178,34 +162,30 @@ namespace Gambit
     {
       double factor = luminosity() * xsec_per_event;
       assert(factor >= 0);
-      for (SignalRegionData &sr : _results)
-      {
-        sr.n_sig_scaled = factor * sr.n_sig_MC;
-      }
+      for (SignalRegionData &sr : _results) { sr.n_sig_scaled = factor * sr.n_sig_MC; }
       _is_scaled = true;
     }
 
     /// Add the results of another analysis to this one. Argument is not const, because the other needs to be able to gather its results if necessary.
     void Analysis::add(Analysis *other)
     {
-      if (_results.empty())
-        collect_results();
+      if (_results.empty()) collect_results();
       if (this == other)
+      {
+        _cutflows.combine(other->get_cutflows());
+        _results.add_cutflows(_cutflows);
         return;
+      }
+
       const AnalysisData otherResults = other->get_results();
       /// @todo Access by name, including merging disjoint region sets?
       assert(otherResults.size() == _results.size());
-      for (size_t i = 0; i < _results.size(); ++i)
-      {
-        _results[i].combine_SR_MC_signal(otherResults[i]);
-      }
-      for (auto &pair : _counters)
-      {
-        pair.second += other->_counters.at(pair.first);
-      }
+
+      for (size_t i = 0; i < _results.size(); ++i) { _results[i].combine_SR_MC_signal(otherResults[i]); }
+      for (auto &pair : _counters) { pair.second += other->_counters.at(pair.first); }
+
       _cutflows.combine(other->get_cutflows());
       _results.add_cutflows(_cutflows);
     }
-
-  }
-}
+  } // namespace ColliderBit
+} // namespace Gambit

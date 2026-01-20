@@ -41,7 +41,7 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/Utils/standalone_error_handlers.hpp"
 
-// #define ANALYSISCONTAINER_DEBUG
+#define ANALYSISCONTAINER_DEBUG
 
 namespace Gambit
 {
@@ -81,7 +81,6 @@ namespace Gambit
       F(ATLAS_EXOT_2018_06)                             \
       F(ATLAS_EXOT_2019_07)                             \
       F(ATLAS_EXOT_2021_035)                            \
-      F(ATLAS_EXOT_2019_04)                             \
       F(ATLAS_SUSY_2018_41)                             \
       F(ATLAS_CONF_2016_078)                            \
       F(ATLAS_SUSY_2016_07)                             \
@@ -194,7 +193,8 @@ namespace Gambit
       F(CMS_SUS_13_006_3Lep)                         \
       F(CMS_SUS_13_006_4Lep)                         \
       F(CMS_EXO_12_048)                              \
-
+      
+      ///// F(ATLAS_EXOT_2019_04)                    
     /// For analysis factory function declaration
     #define DECLARE_ANALYSIS_FACTORY(ANAME)          \
       Analysis* create_Analysis_ ## ANAME();         \
@@ -478,7 +478,7 @@ namespace Gambit
       {
         AnalysisContainer* other_container = thread_container_pair.second;
         Analysis* other_analysis = other_container->analyses_map.at(collider_name).at(analysis_name);
-        analyses_map.at(collider_name).at(analysis_name)->add(other_analysis);
+        analyses_map.at(collider_name).at(analysis_name)->add(other_analysis);      
       }
     }
 

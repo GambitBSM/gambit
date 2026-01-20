@@ -136,7 +136,7 @@ namespace Gambit
             {
                 #ifdef CHECK_CUTFLOW
                     // BEGIN_PRESELECTION
-
+                    cout << Nevent << "Events" << endl; 
                     if (Nevent % 200 == 0)
                     {
                         cout << "Complete " << Nevent << " Events" << endl;
