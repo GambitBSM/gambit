@@ -1810,6 +1810,81 @@ namespace Gambit
       result = Dep::PerformInitialCrossSection->second;
     }
 
+    /// A function that assigns an initial total cross-sections directly from the scan parameters
+    /// (for model ColliderBit_SLHA_scan_model)
+    void InitialTotalCrossSection_YAMLCBS(map_str_xsec_container& result)
+    {
+      using namespace Pipes::InitialTotalCrossSection_YAMLCBS;
+
+      // result.clear();
+
+      static str input_unit; 
+      static bool input_fractional_uncert = false;
+
+      // Retrieve all the names of all colliders from the YAML node.
+      const Options& colliderOptions = *runOptions;
+
+      double input_xsec;
+      double input_xsec_uncert;
+
+      static bool first = true;
+
+      if (first)
+      {
+
+        // Determine the correct combination of parameters
+        if (colliderOptions.hasKey("cross_section_fb") && colliderOptions.hasKey("cross_section_uncert_fb"))
+        {
+          input_unit = "fb";
+          input_fractional_uncert = false;
+          input_xsec = colliderOptions.getValue<double>("cross_section_fb");
+          input_xsec_uncert = colliderOptions.getValue<double>("cross_section_uncert_fb");
+        }
+        else if (colliderOptions.hasKey("cross_section_fb") && colliderOptions.hasKey("cross_section_fractional_uncert"))
+        {
+          input_unit = "fb";
+          input_fractional_uncert = true;
+          input_xsec = colliderOptions.getValue<double>("cross_section_fb");
+          input_xsec_uncert = colliderOptions.getValue<double>("cross_section_fractional_uncert");
+        }
+        else if (colliderOptions.hasKey("cross_section_pb") && colliderOptions.hasKey("cross_section_uncert_pb"))
+        {
+          input_unit = "pb";
+          input_fractional_uncert = false;
+          input_xsec = colliderOptions.getValue<double>("cross_section_pb");
+          input_xsec_uncert = colliderOptions.getValue<double>("cross_section_uncert_pb");
+        }
+        else if (colliderOptions.hasKey("cross_section_pb") && colliderOptions.hasKey("cross_section_fractional_uncert"))
+        {
+          input_unit = "pb";
+          input_fractional_uncert = true;
+          input_xsec = colliderOptions.getValue<double>("cross_section_pb");
+          input_xsec_uncert = colliderOptions.getValue<double>("cross_section_fractional_uncert");
+        }
+        else
+        {
+          std::stringstream errmsg_ss;
+          errmsg_ss << "Unknown combination of parameters for function InitialTotalCrossSection_YAMLparam." << endl;
+          errmsg_ss << "Needs one of the following sets of parameter names:" << endl;
+          errmsg_ss << "  cross_section_fb, cross_section_uncert_fb" << endl;
+          errmsg_ss << "  cross_section_fb, cross_section_fractional_uncert" << endl;
+          errmsg_ss << "  cross_section_pb, cross_section_uncert_pb" << endl;
+          errmsg_ss << "  cross_section_pb, cross_section_fractional_uncert" << endl;
+          ColliderBit_error().raise(LOCAL_INFO, errmsg_ss.str());
+        }
+
+        first = false;
+      }
+
+      std::pair<double,double> temp = convert_xsecs_to_fb(input_xsec, input_xsec_uncert, input_unit, input_fractional_uncert);
+      double xsec_fb = temp.first;
+      double xsec_uncert_fb = temp.second;
+      xsec_container collider_xsec;
+      collider_xsec.set_xsec(xsec_fb, xsec_uncert_fb);
+
+      result["CBS"] = collider_xsec;
+
+    }
 
     /// A function that assigns an initial total cross-sections directly from the scan parameters
     /// (for model ColliderBit_SLHA_scan_model)
@@ -1833,6 +1908,7 @@ namespace Gambit
         {
           pnames.push_back(parname_parptr_pair.first);
         }
+
 
         // Determine the correct combination of parameters
         if ((std::find(pnames.begin(), pnames.end(), "cross_section_fb") != pnames.end()) 

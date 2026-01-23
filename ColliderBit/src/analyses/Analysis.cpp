@@ -228,7 +228,12 @@ namespace Gambit
     void Analysis::add(Analysis* other)
     {
       if (_results.empty()) collect_results();
-      if (this == other) return;
+      if (this == other)
+      {
+        _cutflows.combine(other->get_cutflows());
+        _results.add_cutflows(_cutflows);
+        return;
+      }
       const AnalysisData otherResults = other->get_results();
       /// @todo Access by name, including merging disjoint region sets?
       assert(otherResults.size() == _results.size());
