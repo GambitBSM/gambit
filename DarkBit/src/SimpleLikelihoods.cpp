@@ -450,7 +450,7 @@ namespace Gambit {
             + Stats::gaussian_loglikelihood(Deltas, Deltas_obs, 0, Deltas_obserr, profile)
             + Stats::gaussian_loglikelihood(gTs, gTs_obs, 0, gTs_obserr, profile)
             + Stats::gaussian_loglikelihood(rs2, rs2_obs, 0, rs2_obserr, profile);
-        
+
         logger() << LogTags::debug << "lnL for nuclear parameters (ChPT) is " << result << EOM;
     }
 

@@ -95,7 +95,7 @@ namespace Gambit
       //   {
       //     if (pt > pair.first)
       //     {
-      //       eff = pair.second; 
+      //       eff = pair.second;
       //     }
       //   }
       //   return eff;
@@ -108,7 +108,7 @@ namespace Gambit
 
         // Baseline objects
         // Another requirement on electrons and muons are needed to be implemented
-        // In other words, the sum of pT of all charged tracks within some R (defined in eq. 1 of https://arxiv.org/pdf/1605.04608.pdf) 
+        // In other words, the sum of pT of all charged tracks within some R (defined in eq. 1 of https://arxiv.org/pdf/1605.04608.pdf)
         // excluding the lepton candidate itself
         // needs to be smaller than 10% and 20 % of the electron and muon pT respectively.
         vector<const HEPUtils::Particle *> vetoedElectrons;
@@ -139,10 +139,10 @@ namespace Gambit
         // Signal objects
         vector<const HEPUtils::Jet *> signalJets;
         vector<const HEPUtils::Jet *> signalBJets;
-        double btag = 0.68; 
+        double btag = 0.68;
         double cmisstag = 0.12;
         double misstag = 0.01;
-        for ( const HEPUtils::Jet * jet : event->jets("antikt_R04") ) 
+        for ( const HEPUtils::Jet * jet : event->jets("antikt_R04") )
         {
           if ( jet->pT() > 30. && fabs( jet->eta() ) < 2.4 )                  signalJets.push_back(jet);
         }
@@ -201,7 +201,7 @@ namespace Gambit
         // CMS require deltaphi(pmiss, j1) > 1.5, deltaphi(pmiss, j2) > 0.5, deltaphi(pmiss, j3, j4) > 3
         //             deltaphi(pmiss, AK8) > 1.5 and deltaphi(pmiss, AK8_2) > 0.5
         HEPUtils::P4  pmiss = event->missingmom();
-        double deltaPhi_j3 = 9999.0; 
+        double deltaPhi_j3 = 9999.0;
         double deltaPhi_j4 = 9999.0;
         double deltaPhi_J2 = 9999.0;
         double deltaPhi_j1=signalJets.at(0)->mom().deltaPhi(pmiss);
@@ -213,7 +213,7 @@ namespace Gambit
         bool deltaphi_cuts = false;
         if ( deltaPhi_j1 > 1.5 && deltaPhi_j2 > 0.5 && deltaPhi_J1 > 1.5 ) deltaphi_cuts = true;
         if ( deltaPhi_j3 > 0.3 ) deltaphi_cuts = true;
-        if ( deltaPhi_j4 > 0.3 ) deltaphi_cuts = true;      
+        if ( deltaPhi_j4 > 0.3 ) deltaphi_cuts = true;
         if ( deltaPhi_J2 > 0.5 ) deltaphi_cuts = true;
 
         if ( !deltaphi_cuts ) return;
@@ -260,7 +260,7 @@ namespace Gambit
               FJNS::PseudoJet pj = baselineAK8Jets[IJ]->pseudojet();
               FJNS::PseudoJet groomed_jet = sd(pj);
               if ( groomed_jet.m() <= 75.0 || groomed_jet.m() >= 140.0 ) continue;
-              SDHJets.push_back(&groomed_jet);            
+              SDHJets.push_back(&groomed_jet);
             }
           }
         }
@@ -326,7 +326,7 @@ namespace Gambit
       virtual void collect_results()
       {
 
-        #ifdef CHECK_CUTFLOW  
+        #ifdef CHECK_CUTFLOW
           cout << _cutflow << endl;
           // Note: The EventCount::sum() call below gives the raw MC event count.
           //       Use weight_sum() to get the sum of event weights.

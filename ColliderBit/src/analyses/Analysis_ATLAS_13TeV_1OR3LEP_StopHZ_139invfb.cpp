@@ -298,10 +298,10 @@ namespace Gambit
               // Set 1 lepton preselection as passed :)
               oneLep_presel = true;
             }
-  
+
             // Applied all cuts
             break;
-  
+
         }
 
         // If event doesn't pass Pre-selection, exit early

@@ -57,7 +57,7 @@
   #define CAPABILITY PerformInitialCrossSection
     START_CAPABILITY
   #undef CAPABILITY
-  
+
   #define CAPABILITY InitialTotalCrossSection
     START_CAPABILITY
     #define FUNCTION InitialTotalCrossSection_Pythia
@@ -73,14 +73,14 @@
     #define FUNCTION InitialTotalCrossSection_YAMLCBS
     START_FUNCTION(map_str_xsec_container)
     #undef FUNCTION
-    
+
     #define FUNCTION InitialTotalCrossSection_YAMLSLHA
     START_FUNCTION(map_str_xsec_container)
     ALLOW_MODELS(ColliderBit_SLHA_file_model)
     DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct)
     #undef FUNCTION
   #undef CAPABILITY
-  
+
   #define CAPABILITY InitialProcessCrossSections
     START_CAPABILITY
     #define FUNCTION InitialProcessCrossSections_Pythia
@@ -88,7 +88,7 @@
     DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
     #undef FUNCTION
   #undef CAPABILITY
-  
+
 
 
   /// Execute the main Monte Carlo event loop.
@@ -176,7 +176,7 @@
   #undef CAPABILITY
 
   /// A log-likelihood function based on the total collider cross-section.
-  /// Can e.g. be used as a dummy likelihood to guide the scanner towards 
+  /// Can e.g. be used as a dummy likelihood to guide the scanner towards
   /// interesting parameter regions, avoid going to the decoupling limit, etc.
   #define CAPABILITY TotalCrossSection_LogLike
   START_CAPABILITY

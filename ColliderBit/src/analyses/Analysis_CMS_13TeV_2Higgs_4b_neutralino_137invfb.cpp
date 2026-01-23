@@ -12,9 +12,9 @@
 //
 // Note:
 //    For the resolved signature
-//      * No cut on PTmiss quality 
+//      * No cut on PTmiss quality
 //      * No b-tag discriminator values
-//      * They may affect some low mass or compressed range 
+//      * They may affect some low mass or compressed range
 //    For the boosted signature
 //      * No track vetoes
 //      * No reseolved event veto
@@ -69,7 +69,7 @@ namespace Gambit {
           "PT^miss>300",
           "PT^miss>400",
           "------", // 14
-          "HadronicBaseline", 
+          "HadronicBaseline",
           "NAK8>=2",
           "mJ1&2[60,260]",
           "ResolvedEventVeto",
@@ -96,7 +96,7 @@ namespace Gambit {
             for(size_t i=0; i<TightEff.num_bins(); ++i) {
                 TightEff.set_at_index(i,TightEff.get_at_index(i)*ScaleEff);
             }
-            
+
         }
 
         struct ptComparison {
@@ -140,8 +140,8 @@ namespace Gambit {
 
             // for the boosted signature
             _cutflow.fill(14);
-            if (met > 300. 
-                and baselineElectrons.size() == 0 and baselineMuons.size() == 0 
+            if (met > 300.
+                and baselineElectrons.size() == 0 and baselineMuons.size() == 0
                 and signalJets_AK4.size()>=4){
               bool DeltaPhiVeto = false;
               for (int ii=0; ii< min(4,int(signalJets_AK4.size())); ii++){
@@ -149,7 +149,7 @@ namespace Gambit {
                 DeltaPhiVeto = deltaR_eta(ptot, signalJets_AK4.at(ii)->mom()) < deltaPhi_cut;
               }
               if (not DeltaPhiVeto) {
-                _cutflow.fill(15); 
+                _cutflow.fill(15);
                 if ( signalJets_AK8.size()>=2 ) { // N_AK8>=2
                   _cutflow.fill(16);
                   double mj1 = (signalJets_AK8.at(0)->mom()).m();
@@ -238,11 +238,11 @@ namespace Gambit {
               if (signalBJets_M.size() >= 3 and signalBJets_L.size() >= 4 ) { // Nb==4
                 _cutflow.fill(10); // Nb==4
                 if (met > 200.) {
-                  _cutflow.fill(11); 
+                  _cutflow.fill(11);
                   if (met > 300.) {
                     _cutflow.fill(12);
                     if (met > 400.) {
-                      _cutflow.fill(13); 
+                      _cutflow.fill(13);
                     }
                   }
                 }
@@ -306,9 +306,9 @@ namespace Gambit {
 
 
         void collect_results() {
-        
+
             //cout << _cutflow << endl;
-        
+
             add_result(SignalRegionData(_counters.at("SR1"), 138, {149.74,8.8574}));
             add_result(SignalRegionData(_counters.at("SR2"), 91,  {91.536,6.8599}));
             add_result(SignalRegionData(_counters.at("SR3"), 14,  {12.757,2.5972}));

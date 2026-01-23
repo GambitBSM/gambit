@@ -33,7 +33,7 @@ namespace Gambit {
       double _weight_sum;
       double _weight_sum_err;
       std::vector<unsigned int> _event_acceptance_record;
-      bool _store_accepted_event_IDs; 
+      bool _store_accepted_event_IDs;
 
     public:
 
@@ -62,12 +62,12 @@ namespace Gambit {
         _name = name;
         _sum = 0;
         _weight_sum = 0;
-        _weight_sum_err = 0;        
+        _weight_sum_err = 0;
       }
 
       // Reset
-      void reset() 
-      { 
+      void reset()
+      {
         _sum = 0;
         _weight_sum = 0;
         _weight_sum_err = 0;
@@ -106,9 +106,9 @@ namespace Gambit {
         }
       }
 
-      void add_event(const HEPUtils::Event* event_ptr, double w, double werr = 0.0) 
-      { 
-        add_event(*event_ptr, w, werr); 
+      void add_event(const HEPUtils::Event* event_ptr, double w, double werr = 0.0)
+      {
+        add_event(*event_ptr, w, werr);
       }
 
       // Increment event count with weigths from an HEPUtils::Event
@@ -117,9 +117,9 @@ namespace Gambit {
         add_event(event, event.weight(), event.weight_err());
       }
 
-      void add_event(const HEPUtils::Event* event_ptr) 
-      { 
-        add_event(*event_ptr, event_ptr->weight(), event_ptr->weight_err()); 
+      void add_event(const HEPUtils::Event* event_ptr)
+      {
+        add_event(*event_ptr, event_ptr->weight(), event_ptr->weight_err());
       }
 
       // Increment event count with the operator+= and HEPUtils::Event input
@@ -160,13 +160,13 @@ namespace Gambit {
 
       // Set _store_accepted_event_IDs
       void set_store_accepted_event_IDs(bool setting)
-      { 
+      {
         _store_accepted_event_IDs = setting;
       }
 
       // Get _store_accepted_event_IDs
       bool store_accepted_event_IDs()
-      { 
+      {
         return _store_accepted_event_IDs;
       }
 

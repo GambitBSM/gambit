@@ -150,10 +150,10 @@ namespace Gambit
       protected:
 
         // A map of event counters for the number of accepted events for each signal region.
-        // This varible is just a shorthand reference to the actual map living 
+        // This varible is just a shorthand reference to the actual map living
         // in _results._counters. (The reference is initialized in the constructor.)
         std::map<str, EventCounter>& _counters;
-        
+
     };
 
 

@@ -92,7 +92,7 @@ namespace Gambit
 
         // Baseline objects
         // Another requirement on electrons and muons are needed to be implemented
-        // In other words, the sum of pT of all charged tracks within some R (defined in eq. 1 of https://arxiv.org/pdf/1605.04608.pdf) 
+        // In other words, the sum of pT of all charged tracks within some R (defined in eq. 1 of https://arxiv.org/pdf/1605.04608.pdf)
         // excluding the lepton candidate itself
         // needs to be smaller than 10% and 20 % of the electron and muon pT respectively.
         vector<const HEPUtils::Particle *> vetoedElectrons;
@@ -123,14 +123,14 @@ namespace Gambit
         // Signal objects
         vector<const HEPUtils::Jet *> signalJets;
         vector<const HEPUtils::Jet *> signalBJets;
-        double btag = 0.68; 
+        double btag = 0.68;
         double cmisstag = 0.12;
         double misstag = 0.01;
-        for ( const HEPUtils::Jet * jet : event->jets("antikt_R04") ) 
+        for ( const HEPUtils::Jet * jet : event->jets("antikt_R04") )
         {
           if ( jet->pT() > 30. && fabs( jet->eta() ) < 2.4 )  signalJets.push_back(jet);
         }
-        for ( const HEPUtils::Jet* jet : signalJets ) 
+        for ( const HEPUtils::Jet* jet : signalJets )
         {
           if ( jet->btag() && random_bool(btag) )         signalBJets.push_back(jet);
           else if ( jet->ctag() && random_bool(cmisstag) )     signalBJets.push_back(jet);
@@ -143,9 +143,9 @@ namespace Gambit
         // applyBtagMisId(signalJets, signalBJets, CMS::misIDBJet.at("CSVv2Medium"));
 
         vector<const HEPUtils::Jet *> baselineAK8Jets;
-        for ( const HEPUtils::Jet * jet : event->jets("antikt_R08") ) 
+        for ( const HEPUtils::Jet * jet : event->jets("antikt_R08") )
         {
-          if (jet->pT() > 200. && fabs(jet->eta()) < 2.0) 
+          if (jet->pT() > 200. && fabs(jet->eta()) < 2.0)
           {
             baselineAK8Jets.push_back(jet);
 
@@ -208,7 +208,7 @@ namespace Gambit
         HEPUtils::P4  pmiss = event->missingmom();
         double deltaPhi_j1=signalJets.at(0)->mom().deltaPhi(pmiss);
         double deltaPhi_j2=signalJets.at(1)->mom().deltaPhi(pmiss);
-        double deltaPhi_j3 = M_PI; 
+        double deltaPhi_j3 = M_PI;
         double deltaPhi_j4 = M_PI;
         if ( nJets > 2 ) deltaPhi_j3=signalJets.at(2)->mom().deltaPhi(pmiss);
         if ( nJets > 3 ) deltaPhi_j4=signalJets.at(3)->mom().deltaPhi(pmiss);
@@ -218,7 +218,7 @@ namespace Gambit
         if ( nAK8Jets > 1 )  deltaPhi_J2=baselineAK8Jets.at(1)->mom().deltaPhi(pmiss);
 
         bool deltaphi_cuts = false;
-        if (deltaPhi_j1 > 1.5 && deltaPhi_j2 > 0.5 && deltaPhi_j3 > 0.3 && deltaPhi_j4 > 0.3 && deltaPhi_J1 > 1.5 && deltaPhi_J2 > 0.5) 
+        if (deltaPhi_j1 > 1.5 && deltaPhi_j2 > 0.5 && deltaPhi_j3 > 0.3 && deltaPhi_j4 > 0.3 && deltaPhi_J1 > 1.5 && deltaPhi_J2 > 0.5)
         {
           deltaphi_cuts = true;
         }
@@ -231,7 +231,7 @@ namespace Gambit
 
 
         // Defining the signal regions
-        // Tagger efficiency maps from 
+        // Tagger efficiency maps from
         // - https://www.hepdata.net/record/ins2085373?version=2&table=Efficiency%20of%20W-%20and%20V-taggers
         // - https://www.hepdata.net/record/ins2085373?version=2&table=Efficiency%20of%20bb-tagger
 
@@ -266,13 +266,13 @@ namespace Gambit
         FJNS::contrib::SoftDrop sd(beta, z_cut, RSD);
 
         // First collect candidates for boson jets
-        for (const HEPUtils::Jet* jet : baselineAK8Jets) 
+        for (const HEPUtils::Jet* jet : baselineAK8Jets)
         {
           // Check if there is a nearby b jet
           bool contains_b_jet = false;
-          for (const HEPUtils::Jet* bjet : signalBJets) 
+          for (const HEPUtils::Jet* bjet : signalBJets)
           {
-            if (jet->mom().deltaR_eta(bjet->mom()) < 0.8) 
+            if (jet->mom().deltaR_eta(bjet->mom()) < 0.8)
             {
               contains_b_jet = true;
             }
@@ -297,14 +297,14 @@ namespace Gambit
         }
 
         // Now apply tagger efficiencies.
-        // Note: Applying the efficiencies in the way we do below (e.g. without 
+        // Note: Applying the efficiencies in the way we do below (e.g. without
         // checking the the truth-level tags, not using both the Wtagger and Vtagger
-        // for Z's, etc.) was found to give the overall best agreement with the 
-        // published exclusion limits for the TChiWW, TChiWZ and TChiWH 
+        // for Z's, etc.) was found to give the overall best agreement with the
+        // published exclusion limits for the TChiWW, TChiWZ and TChiWH
         // signal models. Also, we are missing detailed efficiency tables for
         // misstags.
 
-        for (const HEPUtils::Jet* jet : W_candidates) 
+        for (const HEPUtils::Jet* jet : W_candidates)
         {
           bool Wqq_Wtag = false;
           bool Zqq_Wtag = false;
@@ -315,7 +315,7 @@ namespace Gambit
           if (Wqq_Wtag || Zqq_Wtag) nWJets++;
         }
 
-        for (const HEPUtils::Jet* jet : H_candidates) 
+        for (const HEPUtils::Jet* jet : H_candidates)
         {
           bool Zbb_Htag = false;
           bool Hbb_Htag = false;
@@ -332,10 +332,10 @@ namespace Gambit
 
         // std::cerr << std::endl;
         // std::cerr << "DEBUG:"
-        //           << "  nJets: " << nJets 
-        //           << "  nBJets: " << nBJets 
+        //           << "  nJets: " << nJets
+        //           << "  nBJets: " << nBJets
         //           << "  nAK8Jets: " << nAK8Jets
-        //           << "  n_true_W_AK8: " << n_true_W_AK8 
+        //           << "  n_true_W_AK8: " << n_true_W_AK8
         //           << "  n_true_Z_AK8: " << n_true_Z_AK8
         //           << "  n_true_H_AK8: " << n_true_H_AK8
         //           << std::endl;
@@ -413,7 +413,7 @@ namespace Gambit
       virtual void collect_results()
       {
 
-        #ifdef CHECK_CUTFLOW  
+        #ifdef CHECK_CUTFLOW
           cout << _cutflow << endl;
           // Note: The EventCount::sum() call below gives the raw MC event count.
           //       Use weight_sum() to get the sum of event weights.

@@ -4,7 +4,7 @@
 ///
 ///  \author Anders Kvellestad
 ///  \date 2024 Feb
-/// 
+///
 ///  *********************************************
 
 // Based on http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-20-001/index.html
@@ -31,11 +31,11 @@ namespace Gambit
   {
 
     // This analysis class is also a base class for the classes
-    // 
+    //
     //   - CMS_13TeV_2OSLEP_Strong_Production_137invfb
     //   - CMS_13TeV_2OSLEP_EW_Production_137invfb
     //   - CMS_13TeV_2OSLEP_Slepton_137invfb
-    // 
+    //
     // all defined below. The subclasses make use of the background
     // covariance matrices for their respective subset of signal regions.
     // This base class contains all SRs and does not make use of the
@@ -250,7 +250,7 @@ namespace Gambit
             {
               // Check softdrop mass
               FJNS::PseudoJet groomed_jet = sd(jet->pseudojet());
-              double m = groomed_jet.m();              
+              double m = groomed_jet.m();
               if (m > 65. && m < 105.)
               {
                 // Accept jet
@@ -380,14 +380,14 @@ namespace Gambit
           {
             deltaPhiJet1PTmissSeparation = ( event->missingmom().deltaR_eta(signalJets[0]->mom()) > 0.4 );
           }
-          else if (nSignalJets >= 2) 
+          else if (nSignalJets >= 2)
           {
             deltaPhiJet1PTmissSeparation = ( event->missingmom().deltaR_eta(signalJets[0]->mom()) > 0.4 );
             deltaPhiJet2PTmissSeparation = ( event->missingmom().deltaR_eta(signalJets[1]->mom()) > 0.4 );
           }
-          bool deltaPhiJet12PTmissSeparation = (deltaPhiJet1PTmissSeparation && deltaPhiJet2PTmissSeparation); 
+          bool deltaPhiJet12PTmissSeparation = (deltaPhiJet1PTmissSeparation && deltaPhiJet2PTmissSeparation);
 
-          // For SRs with V jets, a baseline requirement is separation from pTmiss by 
+          // For SRs with V jets, a baseline requirement is separation from pTmiss by
           // delta phi > 0.4 *or* > 0.8, depending on the type of jet
           bool deltaPhiJet1TmissSeparation_VJetSR = true;
           if (nSignalJets >= 1 && nSignalVJets == 0)
@@ -404,7 +404,7 @@ namespace Gambit
             {
               deltaPhiJet1TmissSeparation_VJetSR = ( event->missingmom().deltaR_eta(signalJets[0]->mom()) > 0.4 );
             }
-            else 
+            else
             {
               deltaPhiJet1TmissSeparation_VJetSR = ( event->missingmom().deltaR_eta(signalVJets[0]->mom()) > 0.8 );
             }
@@ -895,9 +895,9 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("SRResolvedVZ_350"),     2.,    {6.3, 2.2}));
 
           // Covariance matrix
-          // NOTE: The ordering of the bin labels is wrong in the pdf/png figures of the covariance matrix 
+          // NOTE: The ordering of the bin labels is wrong in the pdf/png figures of the covariance matrix
           // provided at https://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-20-001/index.html
-          // The ROOT file has the correct bin labels, so the covariance matrix below is extracted from the ROOT file 
+          // The ROOT file has the correct bin labels, so the covariance matrix below is extracted from the ROOT file
           // and the order in which the SRs are registered above is matched to this.
           static const vector< vector<double> > BKGCOV = {
             {  1.617e+02,  1.135e+01,  4.261e+00,  8.042e-01,  3.021e+00,  4.050e-01, -6.691e-02,  2.447e-01, -1.306e-02,  3.087e-02, -8.126e+01, -1.601e+01,  1.789e+01,  5.536e+00,  3.430e+00},

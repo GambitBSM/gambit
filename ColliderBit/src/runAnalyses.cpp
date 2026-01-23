@@ -128,7 +128,7 @@ namespace Gambit
 
       if (iteration <= BASE_INIT) return;
 
-      // Assign event ID. The event ID is only unique within 
+      // Assign event ID. The event ID is only unique within
       // the current collider and detector.
       SmearedEvent.set_id(iteration);
 

@@ -49,7 +49,7 @@ void NodeXGBoost::Print(index_t index) const
 
 
 namespace{
- 
+
 /*  utility functions : to split option (e.g. "creator=lgbm;node=lgbm_simple")
  *  in a std::map {{"creator", "lgbm"}, {"node", "lgbm_simple"}}
  */

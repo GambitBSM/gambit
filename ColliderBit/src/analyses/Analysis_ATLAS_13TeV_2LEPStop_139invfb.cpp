@@ -164,7 +164,7 @@ namespace Gambit
             //   primary vertex (see paper)
 
             vector<const HEPUtils::Jet*> baselineJets;
-            for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) 
+            for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
             {
                 if (jet->pT() > 20. && jet->abseta() < 2.8)
                 {

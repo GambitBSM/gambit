@@ -13,7 +13,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <fstream>
-#include "fastjet/contrib/SoftDrop.hh" 
+#include "fastjet/contrib/SoftDrop.hh"
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
@@ -353,7 +353,7 @@ namespace Gambit
         {
           if (pt > pair.first)
           {
-            eff = pair.second; 
+            eff = pair.second;
           }
         }
         return eff;
@@ -393,7 +393,7 @@ namespace Gambit
         }
 
         // Only jet candidates with pT > 20 GeV and |η| < 2.4 are considered in the analysis
-        double Ht = 0.; 
+        double Ht = 0.;
         for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->pT()>20. && jet->abseta()<2.4)
@@ -479,7 +479,7 @@ namespace Gambit
         sort(signalBJets_soft.begin(), signalBJets_soft.end(), compareJetPt);
 
         // Taggers
-        
+
         // softDrop
         vector<const FJNS::PseudoJet*> SignalFatPseudoJets;
         double beta = 0.0;
@@ -569,12 +569,12 @@ namespace Gambit
           for (unsigned int j1=0; j1<signalJets_20.size(); j1++)
           {
             if (jetsused.find(j1)!=jetsused.end()) continue;
-            if (signalJets_20.at(j1)->pT()<=40.) continue; 
+            if (signalJets_20.at(j1)->pT()<=40.) continue;
             for (unsigned int j2=1; j2<signalJets_20.size(); j2++)
             {
               if (j1>=j2) continue;
               if (jetsused.find(j2)!=jetsused.end()) continue;
-              if (signalJets_20.at(j2)->pT()<=30.) continue; 
+              if (signalJets_20.at(j2)->pT()<=30.) continue;
               for (unsigned int j3=2; j3<signalJets_20.size(); j3++)
               {
                 if (j2>=j3) continue;
@@ -713,7 +713,7 @@ namespace Gambit
                 break;
               }
               if (doCutflow){ FILL_SIGNAL_REGION("lowDM_NtNwNres_mTb");}
-              // Passes the dPhi jet met cuts 
+              // Passes the dPhi jet met cuts
               if (!( (deltaPhi(signalJets_30.at(0)->mom(),metVec)>0.5 && deltaPhi(signalJets_30.at(1)->mom(),metVec)>0.15) && (n_jets_30==2 || deltaPhi(signalJets_30.at(2)->mom(),metVec)>0.15)))
               {
                 break;
@@ -763,11 +763,11 @@ namespace Gambit
               // Set Low deltaM preselection as passed :)
               high_dM_presel = true;
             }
-  
-  
+
+
             // Applied all cuts
             break;
-  
+
         }
 
         // If event doesn't pass Pre-selection, exit early

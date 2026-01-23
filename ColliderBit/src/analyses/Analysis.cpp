@@ -43,7 +43,7 @@ namespace Gambit
                          , _needs_collection(true)
                          , _collider_name("")
                          , _counters(_results._counters)
-    { 
+    {
       // _counters = _results._counters;
     }
 
@@ -124,11 +124,11 @@ namespace Gambit
        SRs_in_results.push_back(kv.first);
       }
 
-      // In _results, clear the EventCounter::_event_acceptance_record 
+      // In _results, clear the EventCounter::_event_acceptance_record
       // vector for each SR that has not been added to _result.
       // (Reminder: _counters is a reference to _results._counters.)
-      for (auto& kv : _counters) 
-      { 
+      for (auto& kv : _counters)
+      {
         const str& SR_name = kv.first;
         EventCounter& counter = kv.second;
         if (counter.store_accepted_event_IDs())
@@ -139,7 +139,7 @@ namespace Gambit
             counter.clear_event_acceptance_record();
           }
         }
-      }      
+      }
 
       return _results;
     }
@@ -242,11 +242,11 @@ namespace Gambit
         _results[i].combine_SR_MC_signal(otherResults[i]);
       }
 
-      for (auto& kv : _counters) 
-      { 
+      for (auto& kv : _counters)
+      {
         // kv.first (key) is the SR name
         // kv.second (value) is the EventCounter instance
-        kv.second += other->_counters.at(kv.first); 
+        kv.second += other->_counters.at(kv.first);
       }
 
       _cutflows.combine(other->get_cutflows());
@@ -257,12 +257,12 @@ namespace Gambit
     /// Set the store_accepted_event_IDs bool for the EventCounter instances in this analysis
     void Analysis::set_store_accepted_event_IDs(bool setting)
     {
-      for (auto& kv : _counters) 
-      { 
+      for (auto& kv : _counters)
+      {
         // kv.first (key) is the SR name
         // kv.second (value) is the EventCounter instance
         kv.second.set_store_accepted_event_IDs(setting);
-      }      
+      }
     }
 
 

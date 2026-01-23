@@ -2216,7 +2216,7 @@ namespace Gambit
           //////////////////////
           // Baseline objects //
 
-          // Baseline selections inspired by 
+          // Baseline selections inspired by
           // - CMS_13TeV_MultiLEP_137invfb
           // - CMS_13TeV_2OSLEP_137invfb
 
@@ -2275,7 +2275,7 @@ namespace Gambit
           const size_t nLeptons = leptons.size();
           const size_t nJets = jets.size();
           const size_t nBJets = bjets.size();
-          
+
           const size_t nSSpairs = SSpairs.size();
           // const size_t nOSpairs = OSpairs.size();
           const size_t nOSSFpairs = OSSFpairs.size();
@@ -2297,7 +2297,7 @@ namespace Gambit
           // {
           //   OSSFpair_masses.push_back( (pair.at(0)->mom() + pair.at(1)->mom()).m() );
           // }
-          // // Since OSSFpairs was already sorted according to how close the OSSF pair invariant 
+          // // Since OSSFpairs was already sorted according to how close the OSSF pair invariant
           // // mass is to mZ, the OSSFpair_masses vector we have created is also sorted this way.
           // int nZ = 0;
           // if (nOSSFpairs >= 1)
@@ -4487,7 +4487,7 @@ namespace Gambit
           else if ((nPhotons>=1) and (nLeptons>=4) and (nJets>=4) and (nBJets>=2) and (nSSpairs>=1) and (nOSSFpairs>=2) and (met > 300) and ((HT > 200) and (HT < 400))) { _counters.at("photon>=1__lep>=4__jet>=4__bjet>=2__SS>=1__OSSF>=2__met>=300__HT=200-400").add_event(event); }
           else if ((nPhotons>=1) and (nLeptons>=4) and (nJets>=4) and (nBJets>=2) and (nSSpairs>=1) and (nOSSFpairs>=2) and (met > 300) and (HT > 400)) { _counters.at("photon>=1__lep>=4__jet>=4__bjet>=2__SS>=1__OSSF>=2__met>=300__HT>=400").add_event(event); }
 
-          return; 
+          return;
         }
 
 

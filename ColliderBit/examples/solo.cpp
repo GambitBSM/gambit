@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
     // Translate relevant settings into appropriate variables
     bool debug = settings.getValueOrDef<bool>(false, "debug");
     // TODO: Use the use_FullLikes setting to allow CBS runs without having ATLAS_FullLikes installed
-    // bool use_FullLikes = settings.getValueOrDef<bool>(false, "use_FullLikes"); 
+    // bool use_FullLikes = settings.getValueOrDef<bool>(false, "use_FullLikes");
     bool use_lnpiln = settings.getValueOrDef<bool>(false, "use_lognormal_distribution_for_1d_systematic");
     double jet_pt_min = settings.getValueOrDef<double>(10.0, "jet_pt_min");
     str event_filename = settings.getValue<str>("event_file");
@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
     logger().set_log_debug_messages(debug);
     initialise_standalone_logs("CBS_logs/");
     logger()<<"Running CBS"<<LogTags::info<<EOM;
-    
+
     // Initialise settings for printer (required)
     YAML::Node printerNode = get_standalone_printer("cout", "CBS_logs/", "");
     Printers::PrinterManager printerManager(printerNode, false);
@@ -430,7 +430,7 @@ int main(int argc, char* argv[])
     cout << "Read and analysed " << n_events << " events from HepMC file." << endl << endl;
     cout << "Analysis details:" << endl << endl << summary_line.str() << endl;
     // TODO: Mention LHCb as contur can include an LHCb pool?
-    cout << std::scientific << "Total combined ATLAS+CMS" << (withContur?" analysis and searches ":" ") 
+    cout << std::scientific << "Total combined ATLAS+CMS" << (withContur?" analysis and searches ":" ")
          << "log-likelihood: " << loglike << endl;
     cout << endl;
 

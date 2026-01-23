@@ -2,7 +2,7 @@
 ///
 ///  \author Ida-Marie Johansson
 ///  \date 2023 November
-///  
+///
 ///  *********************************************
 
 /// based on https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2019-22/
@@ -24,9 +24,9 @@
 
 using namespace std;
 
-namespace Gambit 
+namespace Gambit
 {
-  namespace ColliderBit 
+  namespace ColliderBit
   {
     static bool SSLeptons(vector<const HEPUtils::Particle*> leptons){
       bool samesign;
@@ -38,7 +38,7 @@ namespace Gambit
       return samesign;
     }
 
-    class Analysis_ATLAS_13TeV_2OR3LEP_139invfb : public Analysis 
+    class Analysis_ATLAS_13TeV_2OR3LEP_139invfb : public Analysis
     {
 
     public:
@@ -47,7 +47,7 @@ namespace Gambit
       static constexpr const char* detector = "ATLAS";
 
 
-      Analysis_ATLAS_13TeV_2OR3LEP_139invfb() 
+      Analysis_ATLAS_13TeV_2OR3LEP_139invfb()
       {
         set_analysis_name("ATLAS_13TeV_2OR3LEP_139invfb");
         set_detector_name(detector);
@@ -93,7 +93,7 @@ namespace Gambit
       }
 
 
-      void run(const HEPUtils::Event* event) 
+      void run(const HEPUtils::Event* event)
       {
         // Containers for baseline objects
         vector<const HEPUtils::Particle*> baselineElectrons;
@@ -109,7 +109,7 @@ namespace Gambit
 
 
         // Get baseline electrons and apply efficiency
-        for (const HEPUtils::Particle* electron : event->electrons()) 
+        for (const HEPUtils::Particle* electron : event->electrons())
         {
           if (electron->pT() > 10. && electron->abseta() < 2.47)
           {
@@ -124,9 +124,9 @@ namespace Gambit
         // // Apply electron ID efficiency from "Loose" criteria in 1908.00005
         applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Loose"));
 
-       
+
         // Get baseline muons and apply efficiency
-        for (const HEPUtils::Particle* muon : event->muons()) 
+        for (const HEPUtils::Particle* muon : event->muons())
         {
           if (muon->pT() > 10. && muon->abseta() < 2.5)
           {
@@ -137,21 +137,21 @@ namespace Gambit
         applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Medium"));
         // // Apply muon isolation efficiency from "Tight" criteria in 2012.00578
         // applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_Iso_Tight"));
- 
+
 
         // Get baseline jets
-        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) 
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
-          if (jet->pT() > 20. && jet->abseta() < 4.5) 
+          if (jet->pT() > 20. && jet->abseta() < 4.5)
           {
             baselineJets.push_back(jet);
           }
         }
 
 
-        // 
+        //
         // Overlap removal
-        // 
+        //
         const bool use_rapidity = true;
         removeOverlap(baselineElectrons, baselineElectrons, 0.05, use_rapidity, DBL_MAX);
 
@@ -170,7 +170,7 @@ namespace Gambit
         removeOverlap(baselineMuons, baselineJets, deltaRLimitFunc, use_rapidity, DBL_MAX);
 
         vector<const HEPUtils::Jet*> overlapBJets;
-        // Find b-jets  
+        // Find b-jets
         double btag = 0.70; double cmisstag = 1/6.; double misstag = 1./134.;
         for (const HEPUtils::Jet* jet : baselineJets)
         {
@@ -180,18 +180,18 @@ namespace Gambit
           else if( jet->ctag() && random_bool(cmisstag) ) overlapBJets.push_back(jet);
           // Misstag light jet
           else if( random_bool(misstag) ) overlapBJets.push_back(jet);
-        }   
+        }
 
         removeOverlap(baselineElectrons, overlapBJets, 0.2, use_rapidity, DBL_MAX);
- 
+
         // // // 3) Remove jets within DeltaR = 0.4 of muon
-       
+
         // // // 4) Remove electrons and muons within DeltaR = min(0.4, 0.1 + 9.6 GeV / pT(e)) of a jet
         // // // Construct a lambda function to calculate the DeltaR limit as function of lepton pT
-        
-        
-        
-        
+
+
+
+
         // Collect all baseline leptons
         vector<const HEPUtils::Particle*> baselineLeptons = baselineElectrons;
         baselineLeptons.insert(baselineLeptons.end(), baselineMuons.begin(), baselineMuons.end());
@@ -214,9 +214,9 @@ namespace Gambit
         applyEfficiency(signalElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Medium"));
 
         //Signal jets |eta| < 2.8
-        for (const HEPUtils::Jet* jet : baselineJets) 
+        for (const HEPUtils::Jet* jet : baselineJets)
         {
-          if (jet->abseta() < 2.8) 
+          if (jet->abseta() < 2.8)
           {
             signalJets.push_back(jet);
           }
@@ -226,7 +226,7 @@ namespace Gambit
         signalLeptons = signalElectrons;
         signalLeptons.insert(signalLeptons.end(), signalMuons.begin(), signalMuons.end());
 
-        // Find b-jets  
+        // Find b-jets
         // double btag = 0.70; double cmisstag = 1/6.; double misstag = 1./134.;
         for (const HEPUtils::Jet* jet : signalJets)
         {
@@ -238,7 +238,7 @@ namespace Gambit
           else if( random_bool(misstag) ) signalBJets.push_back(jet);
           // Non b-jet
           else signalNonBJets.push_back(jet);
-        }       
+        }
 
 
         // Sort by pT
@@ -261,15 +261,15 @@ namespace Gambit
 
         //
         // Preselection
-        // 
+        //
         BEGIN_PRESELECTION
         END_PRESELECTION
 
 
-    
+
 
         //
-        // Construct selection variables 
+        // Construct selection variables
         //
 
         // njets pt>25GeV
@@ -278,7 +278,7 @@ namespace Gambit
         // njets pt>40GeV
         // int nJets40 = countPt(signalJets, 40.);
 
-        // mjj  
+        // mjj
         double mjj = 0;
         if (n_jets > 1)
         {
@@ -286,7 +286,7 @@ namespace Gambit
           mjj = dijets.m();
         }
 
-        //  mt2 
+        //  mt2
         double mt2 = 0;
         if(n_signal_Leptons > 1)
         {
@@ -368,7 +368,7 @@ namespace Gambit
 
         }
 
-        // // m_ee, m_mumu 
+        // // m_ee, m_mumu
         // double meemumu = 0.0;
         // if (n_signal_Leptons == 3) {
         //     HEPUtils::P4 p_lep3 = signalLeptons[2]->mom();
@@ -414,7 +414,7 @@ namespace Gambit
         bool mt2_lt_80   = false; // mt2 less than 80 GeV
         bool mt2_gt_100  = false; // mt2 greater than 100 GeV
         bool mt2_lt_100  = false; // mt2 less than 100 GeV
-        
+
 
 
         if (75 < met && met < 125) {met_75_125 = true;}
@@ -425,12 +425,12 @@ namespace Gambit
         if (mt2 >= 100) {mt2_gt_100 = true;}
         if (mt2 < 100) {mt2_lt_100 = true;}
 
-        
+
 
         // SR_Wh
         while (true)
         {   //njets (pt > 25 GeV) >= 1
-            if (nJets25 >= 1) 
+            if (nJets25 >= 1)
             {
               LOG_CUT("SRWh-high-mt2-ee-1", "SRWh-high-mt2-ee-2", "SRWh-high-mt2-ee-3", "SRWh-high-mt2-emu-1", "SRWh-high-mt2-emu-2" ,"SRWh-high-mt2-emu-3", "SRWh-high-mt2-mumu-1", "SRWh-high-mt2-mumu-2", "SRWh-high-mt2-mumu-3")
               LOG_CUT("SRWh-low-mt2-ee", "SRWh-low-mt2-emu", "SRWh-low-mt2-mumu")
@@ -438,15 +438,15 @@ namespace Gambit
             else {break;}
 
             //N_sig(l) >= 2
-            if (n_signal_Leptons >= 2) 
+            if (n_signal_Leptons >= 2)
             {
               LOG_CUT("SRWh-high-mt2-ee-1", "SRWh-high-mt2-ee-2", "SRWh-high-mt2-ee-3", "SRWh-high-mt2-emu-1", "SRWh-high-mt2-emu-2" ,"SRWh-high-mt2-emu-3", "SRWh-high-mt2-mumu-1", "SRWh-high-mt2-mumu-2", "SRWh-high-mt2-mumu-3")
               LOG_CUT("SRWh-low-mt2-ee", "SRWh-low-mt2-emu", "SRWh-low-mt2-mumu")
             }
             else {break;}
-            
-            //pt(l) >= 25 
-            if (signalLeptons.at(0)->pT() >= 25) 
+
+            //pt(l) >= 25
+            if (signalLeptons.at(0)->pT() >= 25)
             {
               LOG_CUT("SRWh-high-mt2-ee-1", "SRWh-high-mt2-ee-2", "SRWh-high-mt2-ee-3", "SRWh-high-mt2-emu-1", "SRWh-high-mt2-emu-2" ,"SRWh-high-mt2-emu-3", "SRWh-high-mt2-mumu-1", "SRWh-high-mt2-mumu-2", "SRWh-high-mt2-mumu-3")
               LOG_CUT("SRWh-low-mt2-ee", "SRWh-low-mt2-emu", "SRWh-low-mt2-mumu")
@@ -454,15 +454,15 @@ namespace Gambit
             else {break;}
 
             //N_sig(l) == 2
-            if (n_signal_Leptons == 2) 
+            if (n_signal_Leptons == 2)
             {
               LOG_CUT("SRWh-high-mt2-ee-1", "SRWh-high-mt2-ee-2", "SRWh-high-mt2-ee-3", "SRWh-high-mt2-emu-1", "SRWh-high-mt2-emu-2" ,"SRWh-high-mt2-emu-3", "SRWh-high-mt2-mumu-1", "SRWh-high-mt2-mumu-2", "SRWh-high-mt2-mumu-3")
               LOG_CUT("SRWh-low-mt2-ee", "SRWh-low-mt2-emu", "SRWh-low-mt2-mumu")
             }
             else {break;}
-            
+
             // Same sign
-            if (SSLeptons(signalLeptons)) 
+            if (SSLeptons(signalLeptons))
             {
               LOG_CUT("SRWh-high-mt2-ee-1", "SRWh-high-mt2-ee-2", "SRWh-high-mt2-ee-3", "SRWh-high-mt2-emu-1", "SRWh-high-mt2-emu-2" ,"SRWh-high-mt2-emu-3", "SRWh-high-mt2-mumu-1", "SRWh-high-mt2-mumu-2", "SRWh-high-mt2-mumu-3")
               LOG_CUT("SRWh-low-mt2-ee", "SRWh-low-mt2-emu", "SRWh-low-mt2-mumu")
@@ -470,7 +470,7 @@ namespace Gambit
             else {break;}
 
             //nbjets
-            if (n_bjets == 0) 
+            if (n_bjets == 0)
             {
               LOG_CUT("SRWh-high-mt2-ee-1", "SRWh-high-mt2-ee-2", "SRWh-high-mt2-ee-3", "SRWh-high-mt2-emu-1", "SRWh-high-mt2-emu-2" ,"SRWh-high-mt2-emu-3", "SRWh-high-mt2-mumu-1", "SRWh-high-mt2-mumu-2", "SRWh-high-mt2-mumu-3")
               LOG_CUT("SRWh-low-mt2-ee", "SRWh-low-mt2-emu", "SRWh-low-mt2-mumu")
@@ -478,32 +478,32 @@ namespace Gambit
             else {break;}
 
             // met >= 50
-            if (met >= 50) 
+            if (met >= 50)
             {
               LOG_CUT("SRWh-high-mt2-ee-1", "SRWh-high-mt2-ee-2", "SRWh-high-mt2-ee-3", "SRWh-high-mt2-emu-1", "SRWh-high-mt2-emu-2" ,"SRWh-high-mt2-emu-3", "SRWh-high-mt2-mumu-1", "SRWh-high-mt2-mumu-2", "SRWh-high-mt2-mumu-3")
               LOG_CUT("SRWh-low-mt2-ee", "SRWh-low-mt2-emu", "SRWh-low-mt2-mumu")
             }
-            else {break;} 
-              
+            else {break;}
+
             //mjj < 350
-            if (mjj < 350) 
+            if (mjj < 350)
             {
               LOG_CUT("SRWh-high-mt2-ee-1", "SRWh-high-mt2-ee-2", "SRWh-high-mt2-ee-3", "SRWh-high-mt2-emu-1", "SRWh-high-mt2-emu-2" ,"SRWh-high-mt2-emu-3", "SRWh-high-mt2-mumu-1", "SRWh-high-mt2-mumu-2", "SRWh-high-mt2-mumu-3")
               LOG_CUT("SRWh-low-mt2-ee", "SRWh-low-mt2-emu", "SRWh-low-mt2-mumu")
             }
-            else {break;} 
-             
+            else {break;}
+
             //high mt2 > 80
-            if (mt2_gt_80) 
+            if (mt2_gt_80)
             {
               LOG_CUT("SRWh-high-mt2-ee-1", "SRWh-high-mt2-ee-2", "SRWh-high-mt2-ee-3", "SRWh-high-mt2-emu-1", "SRWh-high-mt2-emu-2" ,"SRWh-high-mt2-emu-3", "SRWh-high-mt2-mumu-1", "SRWh-high-mt2-mumu-2", "SRWh-high-mt2-mumu-3")
               //met significance >= 7
-              if (metsig >= 7) 
+              if (metsig >= 7)
               {
                 LOG_CUT("SRWh-high-mt2-ee-1", "SRWh-high-mt2-ee-2", "SRWh-high-mt2-ee-3", "SRWh-high-mt2-emu-1", "SRWh-high-mt2-emu-2" ,"SRWh-high-mt2-emu-3", "SRWh-high-mt2-mumu-1", "SRWh-high-mt2-mumu-2", "SRWh-high-mt2-mumu-3")
-                
-                //75 <= met < 125 
-                if (met_75_125) 
+
+                //75 <= met < 125
+                if (met_75_125)
                 {
                   LOG_CUT("SRWh-high-mt2-ee-1", "SRWh-high-mt2-emu-1", "SRWh-high-mt2-mumu-1")
 
@@ -511,130 +511,130 @@ namespace Gambit
                   if (nElectrons == 2) {FILL_SIGNAL_REGION("SRWh-high-mt2-ee-1");}
                   else if (nMuons == 2){FILL_SIGNAL_REGION("SRWh-high-mt2-mumu-1");}
                   else {FILL_SIGNAL_REGION("SRWh-high-mt2-emu-1");}
-                } 
-                else if (met_125_175) 
+                }
+                else if (met_125_175)
                 {
                   LOG_CUT("SRWh-high-mt2-ee-2", "SRWh-high-mt2-emu-2", "SRWh-high-mt2-mumu-2")
 
                   //type
-                  if (nElectrons == 2) {FILL_SIGNAL_REGION("SRWh-high-mt2-ee-2");} 
-                  else if (nMuons == 2){FILL_SIGNAL_REGION("SRWh-high-mt2-mumu-2");} 
+                  if (nElectrons == 2) {FILL_SIGNAL_REGION("SRWh-high-mt2-ee-2");}
+                  else if (nMuons == 2){FILL_SIGNAL_REGION("SRWh-high-mt2-mumu-2");}
                   else {FILL_SIGNAL_REGION("SRWh-high-mt2-emu-2");}
                 }
-                else if (met_gt_175) 
+                else if (met_gt_175)
                 {
                   LOG_CUT("SRWh-high-mt2-ee-3", "SRWh-high-mt2-emu-3", "SRWh-high-mt2-mumu-3")
 
                   // type
-                  if (nElectrons == 2) {FILL_SIGNAL_REGION("SRWh-high-mt2-ee-3");} 
-                  else if (nMuons == 2){FILL_SIGNAL_REGION("SRWh-high-mt2-mumu-3");} 
+                  if (nElectrons == 2) {FILL_SIGNAL_REGION("SRWh-high-mt2-ee-3");}
+                  else if (nMuons == 2){FILL_SIGNAL_REGION("SRWh-high-mt2-mumu-3");}
                   else {FILL_SIGNAL_REGION("SRWh-high-mt2-emu-3");}
                 }
               }
             }
             //low mt2 < 80
-            else if( mt2_lt_80) 
+            else if( mt2_lt_80)
             {
               LOG_CUT("SRWh-low-mt2-ee", "SRWh-low-mt2-emu", "SRWh-low-mt2-mumu")
-              
+
               // mTmin >= 100
               if (mTmin >= 100)
               {
                 LOG_CUT("SRWh-low-mt2-ee", "SRWh-low-mt2-emu", "SRWh-low-mt2-mumu")
 
                 //met significance >= 6
-                if( metsig >=6) 
+                if( metsig >=6)
                 {
                   LOG_CUT("SRWh-low-mt2-ee", "SRWh-low-mt2-emu", "SRWh-low-mt2-mumu")
 
                   // type
                   if (nElectrons == 2)  {FILL_SIGNAL_REGION("SRWh-low-mt2-ee");}
                   else if (nMuons == 2) {FILL_SIGNAL_REGION("SRWh-low-mt2-mumu");}
-                  else{FILL_SIGNAL_REGION("SRWh-low-mt2-emu");}    
-                } 
+                  else{FILL_SIGNAL_REGION("SRWh-low-mt2-emu");}
+                }
               }
-            }   
-            
-            // Applied all cuts
-            break;   
-        }
-        
+            }
 
-        // WZ 
+            // Applied all cuts
+            break;
+        }
+
+
+        // WZ
         while (true)
         {   //n jets >= 1
-            if (n_jets >= 1) 
+            if (n_jets >= 1)
             {
               LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")}
             else {break;}
 
             //Nsig(l) >= 2 && Nbl(l) >= 2
-            if (n_baseline_Leptons >= 2 && n_signal_Leptons >= 2) 
+            if (n_baseline_Leptons >= 2 && n_signal_Leptons >= 2)
             {
               LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")}
             else {break;}
 
             // same sign
-            if (SSLeptons(signalLeptons)) 
+            if (SSLeptons(signalLeptons))
             {
               LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
             }
             else {break;}
 
             // Nbl(l) == 2
-            if (n_baseline_Leptons == 2) 
+            if (n_baseline_Leptons == 2)
             {
                 LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
             }
             else {break;}
 
             // Nsig(l) == 2
-            if (n_signal_Leptons == 2) 
+            if (n_signal_Leptons == 2)
             {
               LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
             }
             else {break;}
-            
-            //pt(l) >= 25 
-            if (signalLeptons.at(0)->pT() >= 25) 
+
+            //pt(l) >= 25
+            if (signalLeptons.at(0)->pT() >= 25)
             {
               LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
             }
             else {break;}
 
             //njets (pt > 25) >= 1
-            if (nJets25 >= 1) 
+            if (nJets25 >= 1)
             {
               LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
             }
             else {break;}
 
             //nbjets == 0
-            if (n_bjets == 0) 
+            if (n_bjets == 0)
             {
               LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
             }
-            else {break;}   
+            else {break;}
 
             //mjj <= 350
-            if (mjj <= 350) 
+            if (mjj <= 350)
             {
               LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
             }
             else {break;}
 
             //high mt2 >= 100
-            if (mt2_gt_100) 
+            if (mt2_gt_100)
             {
               LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3")
 
               //mTmin >= 100
-              if (mTmin >= 100) 
+              if (mTmin >= 100)
               {
                 LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3")
 
                 // met >= 100
-                if (met>=100) 
+                if (met>=100)
                 {
                   LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3")
 
@@ -650,11 +650,11 @@ namespace Gambit
             {
               LOG_CUT("SRWZ-low-mt2")
               // mTmin >= 130
-              if (mTmin >= 130) 
+              if (mTmin >= 130)
               {
                 LOG_CUT("SRWZ-low-mt2")
                 // met >= 140
-                if (met >= 140) 
+                if (met >= 140)
                 {
                   LOG_CUT("SRWZ-low-mt2")
                   // meff <= 600
@@ -669,13 +669,13 @@ namespace Gambit
               }
             }
             // Applied all cuts
-            break;  
+            break;
         }
-        
+
 
         // //bRVP
         // while (true)
-        // {   //pt 
+        // {   //pt
         //     if (p_lep2.pT() >= 20) {LOG_CUT("SRbRPV-2l-SS", "SRbRPV-3l")}
         //     else {break;}
         //     //njets > 25 GeV
@@ -714,18 +714,18 @@ namespace Gambit
         //                     LOG_CUT("SRbRPV-3l")
         //                     if (81 <= meemumu && meemumu<= 101) {
         //                         FILL_SIGNAL_REGION("SRbRPV-3l");
-        //                     } 
+        //                     }
         //                 }
         //             }
         //         }
         //     }
         //     // Applied all cuts
-        //     break; 
+        //     break;
         // }
 
         // UDD
 
-        
+
 
       } // End run function
 
@@ -733,7 +733,7 @@ namespace Gambit
 
 
       /// Register results objects with the results for each SR; obs & bkg numbers from the paper
-      virtual void collect_results() 
+      virtual void collect_results()
       {
         // //Wh
         COMMIT_SIGNAL_REGION("SRWh-high-mt2-ee-1", 22., 14.22, 1.87)
@@ -765,7 +765,7 @@ namespace Gambit
 
     protected:
 
-      void analysis_specific_reset() 
+      void analysis_specific_reset()
       {
         for (auto& pair : _counters) { pair.second.reset(); }
       }

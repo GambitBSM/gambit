@@ -51,7 +51,7 @@
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/ColliderBit/PoissonCalculators.hpp"
-#include "gambit/Utils/statistics.hpp" 
+#include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/util_macros.hpp"
 #include "gambit/ColliderBit/Utils.hpp"
 
@@ -72,7 +72,7 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    // Helper function to write a csv file with the 
+    // Helper function to write a csv file with the
     // content of a vector<vector<unsigned int>>
     void write_csv(const std::string& filename,
                    const std::vector<std::string>& headers,
@@ -81,16 +81,16 @@ namespace Gambit
     {
       if (columns.empty()) { return; }
 
-      if (headers.size() != columns.size()) 
+      if (headers.size() != columns.size())
       {
         ColliderBit_error().raise(LOCAL_INFO, "Number of headers do not match the number of columns.");
       }
 
       // Ensure all columns have the same length
       std::size_t nrows = columns[0].size();
-      for (std::size_t c = 1; c < columns.size(); ++c) 
+      for (std::size_t c = 1; c < columns.size(); ++c)
       {
-        if (columns[c].size() != nrows) 
+        if (columns[c].size() != nrows)
         {
           ColliderBit_error().raise(LOCAL_INFO, "All columns must have equal length.");
         }
@@ -98,13 +98,13 @@ namespace Gambit
 
       // Open file for writing
       std::ofstream out{filename};
-      if (!out) 
+      if (!out)
       {
         ColliderBit_error().raise(LOCAL_INFO, "Failed to open " + filename + " for writing.");
       }
 
       // Write header
-      for (std::size_t c = 0; c < headers.size(); ++c) 
+      for (std::size_t c = 0; c < headers.size(); ++c)
       {
         out << headers[c];
         if (c + 1 < headers.size()) out << sep;
@@ -112,7 +112,7 @@ namespace Gambit
       out << '\n';
 
       // Write data rows
-      for (std::size_t r = 0; r < nrows; ++r) 
+      for (std::size_t r = 0; r < nrows; ++r)
       {
         for (std::size_t c = 0; c < columns.size(); ++c)
         {
@@ -121,7 +121,7 @@ namespace Gambit
         }
         out << '\n';
       }
-    
+
     }
 
 
@@ -178,7 +178,7 @@ namespace Gambit
         {
           const AnalysisData& ana_data = *(Dep::AllAnalysisNumbers->at(analysis));
 
-          // Construct filename 
+          // Construct filename
           str filename = "accepted_events__" + ana_data.collider_name + "__" + ana_data.detector_name + ".csv";
 
           // Get count of generated events
@@ -192,17 +192,17 @@ namespace Gambit
             // Get the IDs of the accepted events for this SR
             std::vector<unsigned int> accepted_event_IDs = ana_data._counters.at(sr_label).get_event_acceptance_record();
 
-            // Convert to a vector of 0/1 for each generated event 
+            // Convert to a vector of 0/1 for each generated event
             std::vector<unsigned int> accepted(n_generated_events, 0);
-            for (int event_id : accepted_event_IDs) 
+            for (int event_id : accepted_event_IDs)
             {
-              size_t idx = event_id - 1;                
+              size_t idx = event_id - 1;
               accepted.at(idx) = 1;
             }
 
             // Store the accepted_events_file_data map
             accepted_events_file_data[filename].push_back(accepted);
-            
+
             // Create and store header entry
             const str header = ana_data.analysis_name + "::" + sr_label + "__i" + std::to_string(SR);
             accepted_events_file_header[filename].push_back(header);
@@ -321,7 +321,7 @@ namespace Gambit
       {
         return Gambit::ColliderBit::PoissonCalculators::mle_poisson_loglike(s, b, o);
       }
-      
+
       // If hit this point, throw an error
       ColliderBit_error().raise(LOCAL_INFO,"Error: unknown poisson estimator.");
       return 0.0; // Squashing a warning (will never hit this)
@@ -585,7 +585,7 @@ namespace Gambit
       static const size_t NSAMPLE_INPUT = runOptions.getValueOrDef<size_t>(100000, "nuisance_marg_nsamples_start");
       static const bool   NULIKE1SR = runOptions.getValueOrDef<bool>(true, "nuisance_marg_nulike1sr");
       static const std::string poisson_estimator = runOptions.getValueOrDef<std::string>("MLE", "poisson_like_estimator");
-      
+
       // Optionally use nulike's more careful 1D marginalisation for one-SR cases
       if (NULIKE1SR && nSR == 1 && poisson_estimator != "UMVUE") return marg_loglike_nulike1sr(n_preds, n_obss, sqrtevals, marginaliser);
 
@@ -599,7 +599,7 @@ namespace Gambit
       long double ana_like_prev = 1;
       long double ana_like = 1;
       long double lsum_prev = 0;
-      
+
 
       // Sampler for unit-normal nuisances
       std::normal_distribution<double> unitnormdbn(0,1);
@@ -632,7 +632,7 @@ namespace Gambit
               {
                 norm_samples_bkg(j) = sqrtevals_bkg(j) * unitnormdbn(Random::rng());
               }
-              
+
               // Rotate rate deltas into the SR basis and shift by SR mean rates
               const Eigen::VectorXd n_bkg_samples  = n_bkg + (evecs_bkg*norm_samples_bkg).array();
 
@@ -683,7 +683,7 @@ namespace Gambit
               {
                 const double lambda_j = std::max(n_pred_samples(j), 1e-3); //< manually avoid <= 0 rates
                 const double signal_j = lambda_j - n_bkg(j);
-              
+
                 // Since unscaled signal is not currently used for in this case, setting to 0
                 const double loglike_j = calc_poisson_loglike(poisson_estimator, signal_j, n_bkg(j), 0, n_obss(j), n_mc, n_mc_expected);
                 combined_loglike += loglike_j;
@@ -722,7 +722,7 @@ namespace Gambit
 
           diff_abs = fabs(ana_like_prev - ana_like);
           diff_rel = diff_abs/ana_like;
-          
+
           // Update variables
           lsum_prev += lsum;  // Aggregate result. This doubles the effective batch size for lsum_prev.
           nsample *=2;  // This ensures that the next batch for lsum is as big as the current batch size for lsum_prev, so they can be compared directly.
@@ -939,7 +939,7 @@ namespace Gambit
       }
 
       // Computation of individual SR loglikes
-      if (use_single_SR_for_combined_loglike || always_compute_all_SR_loglikes) 
+      if (use_single_SR_for_combined_loglike || always_compute_all_SR_loglikes)
       {
         // We either take the result from the SR *expected* to be most
         // constraining under the s=0 assumption (default), or naively combine
@@ -1020,7 +1020,7 @@ namespace Gambit
           const double ll_sb_obs = marg_prof_fn(runOptions, n_preds_sb, n_preds_b, n_preds_s_unscaled, n_obss, sqrtevals_sb, sqrtevals_b, dummy, dummy, marginaliser, n_mc, n_mc_expected);
           const double dll_exp = ll_sb_exp - ll_b_exp;
           const double dll_obs = ll_sb_obs - ll_b_obs;
-          
+
           // Check for problems
           if (Utils::isnan(ll_b_exp))
           {
@@ -1227,7 +1227,7 @@ namespace Gambit
           {
             const AnalysisData& ana_data = *(ana.at(analysis));
             const std::string ana_name = ana_data.analysis_name;
-            if (ana_name == "Baselines") 
+            if (ana_name == "Baselines")
             {
               continue;
             }
@@ -1235,7 +1235,7 @@ namespace Gambit
 
             // Write comment with analysis name
             ofile << "# Analysis: " << ana_name << endl;
-            ofile << endl; 
+            ofile << endl;
 
             // Write list of SR names
             ofile << "analysis_SR_names[\"" << ana_name << "\"] = [" << endl;
@@ -1252,11 +1252,11 @@ namespace Gambit
             ofile << "analysis_exp_data[\"" << ana_name << "\"] = {" << endl;
             for (size_t SR = 0; SR < ana_data.size(); ++SR)
             {
-              const SignalRegionData& srData = ana_data[SR];              
-              ofile << "  \"" << srData.sr_label << "__i" << SR <<  "\": " 
+              const SignalRegionData& srData = ana_data[SR];
+              ofile << "  \"" << srData.sr_label << "__i" << SR <<  "\": "
                    << "{\"n\": " << srData.n_obs << ",  "
                    <<  "\"b\": " << srData.n_bkg << ",  "
-                   <<  "\"b_uncert\": " << srData.n_bkg_err << "}," 
+                   <<  "\"b_uncert\": " << srData.n_bkg_err << "},"
                    << endl;
             }
             ofile << "}" << endl;
@@ -1269,7 +1269,7 @@ namespace Gambit
             ofile << endl;
             ofile << endl;
             ofile << endl;
-          }            
+          }
 
           // Stop writing to analysis_info.py
           ofile.close();
@@ -1291,14 +1291,14 @@ namespace Gambit
         const AnalysisData& ana_data = *(ana.at(analysis));
         const std::string ana_name = ana_data.analysis_name;
         // Shortcut: The special "Baselines" analysis should not be included in loglike computations
-        if (ana_name == "Baselines") 
+        if (ana_name == "Baselines")
         {
           continue;
         }
         const size_t nSR = ana_data.size();
         const bool has_covar = ana_data.srcov.rows() > 0;
         const bool has_fulllikes = ana_data.hasFullLikes();
-        
+
         // Initialize the AnalysisLogLikes instance in the result map
         result[ana_name].initialize(ana_data, alt_loglike_keys);
 
@@ -1329,7 +1329,7 @@ namespace Gambit
         // Shortcut #1
         if (skip_calc)
         {
-          // Add a single 0-entry for the combined loglike or 
+          // Add a single 0-entry for the combined loglike or
           // add 0-entries for all SRs plus the combined loglike?
           if (use_covar && has_covar && !always_compute_all_SR_loglikes)
           {
@@ -1504,7 +1504,7 @@ namespace Gambit
       std::string estimator = Dep::RunMC->estimator;
       Options runOptions_calc_LHC_LogLikes = *runOptions;
       runOptions_calc_LHC_LogLikes.setValue("poisson_like_estimator", estimator);
-      
+
       // Call the calc_LHC_LogLikes
       calc_LHC_LogLikes_common(result, use_fulllikes, ana, runOptions_calc_LHC_LogLikes, marginaliser, skip_calc, nullptr, nullptr, nullptr, xsec, n_mc);
 

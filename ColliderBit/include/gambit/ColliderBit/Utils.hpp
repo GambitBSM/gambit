@@ -555,7 +555,7 @@ namespace Gambit
       auto compm = [&](std::vector<const Particle *> pair1, std::vector<const Particle *> pair2)
       {
         return (pair1.at(0)->mom() + pair1.at(1)->mom()).m() > (pair2.at(0)->mom() + pair2.at(1)->mom()).m();
-      }; 
+      };
       std::sort(pairs.begin(), pairs.end(), compm);
     }
 
