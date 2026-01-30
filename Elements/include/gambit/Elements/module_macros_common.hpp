@@ -154,7 +154,6 @@
 #define START_FUNCTION_1(_1)                                     CAT(START_FUNCTION_,CANNOT_MANAGE_LOOPS)(_1)
 #define START_FUNCTION(...)                                      VARARG(START_FUNCTION, __VA_ARGS__)
 
-/// TODO: Chris Chang
 #define START_FUNCTION_EMULATABLE(TYPE)                          DECLARE_EMULATABLE_FUNCTION(TYPE)
 
 /// \name Variadic redirection macro for BACKEND_REQ_FROM_GROUP(GROUP, CAPABILITY, (TAGS), TYPE, [(ARGS)])
