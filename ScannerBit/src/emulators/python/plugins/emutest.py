@@ -2,7 +2,7 @@ import emulator_plugin as eplug
 import numpy as np
 
 
-class Test:#(eplug.emulator):
+class Test(eplug.emulator):
 
     __version__="1.0.0"
 
@@ -21,7 +21,7 @@ class Test:#(eplug.emulator):
 
         print(f"predicted input, x: {x}, train: {flag.train}, predict: {flag.predict}")
 
-        flag.results = True
+        flag.result = True
         
         return (np.array([3.5]), np.array([0.2]))
 
