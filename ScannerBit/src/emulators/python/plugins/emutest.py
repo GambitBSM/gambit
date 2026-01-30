@@ -21,7 +21,7 @@ class Test(eplug.emulator):
 
         print(f"predicted input, x: {x}, train: {flag.train}, predict: {flag.predict}")
 
-        flag.results = True
+        flag.result = True
         
         return (np.array([3.5]), np.array([0.2]))
 
