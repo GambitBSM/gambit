@@ -71,6 +71,7 @@
 #include "gambit/Utils/static_members.hpp"
 #include "gambit/Utils/exceptions.hpp"
 #include "gambit/Utils/python_interpreter.hpp"
+#include "gambit/Utils/emulator_module_functions.hpp"
 #include "gambit/Backends/backend_singleton.hpp"
 #include "gambit/Models/claw_singleton.hpp"
 #include "gambit/Models/safe_param_map.hpp"
@@ -301,17 +302,24 @@
 #endif
 
 
+/// Helper macros to conditionally declare emulator functions using token pasting
+/// (avoids BOOST_PP_IIF which can't handle commas in the macro expansion)
+/// @{
+#define DECLARE_EMULATOR_FUNCS_0(FUNCTION, TYPE) /* nothing when CAN_EMULATE is 0 */
+#define DECLARE_EMULATOR_FUNCS_1(FUNCTION, TYPE) DECLARE_EMULATOR_MODULE_FUNCTIONS(FUNCTION, TYPE)
+#define DECLARE_EMULATOR_FUNCS(CAN_EMULATE, FUNCTION, TYPE) CAT(DECLARE_EMULATOR_FUNCS_,CAN_EMULATE)(FUNCTION, TYPE)
+/// @}
+
 /// Main parts of the functor creation
 #define MAKE_FUNCTOR_MAIN(FUNCTION,TYPE,CAPABILITY,ORIGIN,CAN_MANAGE, CAN_EMULATE)          \
                                                                                \
-  BOOST_PP_IIF(CAN_EMULATE, void CAT(FUNCTION,_EmulatorPredict)(str &, std::vector<double> &, std::vector<double> &, std::vector<double> &);, ) \
+  DECLARE_EMULATOR_FUNCS(CAN_EMULATE, FUNCTION, TYPE)                          \
                                                                                \
                                                                                \
   namespace Functown                                                           \
   {                                                                            \
                                                                                 \
                                                                                 \
-  /*BOOST_PP_IIF(CAN_EMULATE, void CAT(FUNCTION,_EmulatorPredict)(str &, std::vector<double> &, std::vector<double> &, std::vector<double> &);, ) */\
                                                                                 \
     /* Create the function wrapper object (functor) */                         \
     BOOST_PP_IIF(IS_TYPE(ModelParameters,TYPE),                                \
@@ -320,7 +328,7 @@
     ,                                                                          \
       BOOST_PP_IIF(CAN_EMULATE,                                          \
       module_functor<TYPE> FUNCTION (&ORIGIN::FUNCTION, STRINGIFY(FUNCTION), STRINGIFY(CAPABILITY),   \
-     STRINGIFY(TYPE), STRINGIFY(ORIGIN), Models::ModelDB(), CAT(&FUNCTION,_EmulatorPredict));                   \
+     STRINGIFY(TYPE), STRINGIFY(ORIGIN), Models::ModelDB(), &CAT(FUNCTION,emu_ptrs));                   \
      ,                                                                               \
       module_functor<TYPE> FUNCTION (&ORIGIN::FUNCTION, STRINGIFY(FUNCTION), STRINGIFY(CAPABILITY),   \
      STRINGIFY(TYPE), STRINGIFY(ORIGIN), Models::ModelDB());                   \

@@ -77,11 +77,37 @@ namespace Gambit
 
     //************************************************************
 
+    // TODO: Example emulator functions. For now they just print
+    //       Could avoid having to redefine for every emulatable module functor, but for now we just define them all
+    void nevents_pred_EmulatorTranslateInput(std::vector<double> & input)
+    {
+      std::cout << "HEY DEBUGGER. Inside nevents_pred_EmulatorTranslateInput function..." << std::endl;
+    }
+
+    bool nevents_pred_EmulatorCheckThreshold(str & name, std::vector<double> & uncertainty)
+    {
+      std::cout << "HEY DEBUGGER. Inside nevents_pred_EmulatorCheckThreshold function..." << std::endl;
+      return true;
+    }
+
     void nevents_pred_EmulatorPredict(str & name, std::vector<double> & input, std::vector<double> &prediction, std::vector<double> & uncertainty)
     {
-      // TODO: Debugging
-      std::cout << "HEY CHRIS. Inside nevents_pred_EmulatorPredict function. name: " << name << std::endl;
+      std::cout << "HEY DEBUGGER. Inside nevents_pred_EmulatorPredict function. name: " << name << std::endl;
+    }
 
+    void nevents_pred_EmulatorTranslateTarget(std::vector<double> & target, double & result)
+    {
+      std::cout << "HEY DEBUGGER. Inside nevents_pred_EmulatorTranslateTarget function..." << std::endl;
+    }
+
+    void nevents_pred_EmulatorTrain(std::string & name, std::vector<double> & input, std::vector<double> & target, std::vector<double> & target_uncertainty)
+    {
+      std::cout << "HEY DEBUGGER. Inside nevents_pred_EmulatorTrain function..." << std::endl;
+    }
+
+    void nevents_pred_EmulatorTranslatePrediction(std::vector<double> & prediction, double result)
+    {
+      std::cout << "HEY DEBUGGER. Inside nevents_pred_EmulatorTranslatePrediction function..." << std::endl;
     }
 
 

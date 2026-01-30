@@ -58,6 +58,7 @@
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/yaml_options.hpp"
 #include "gambit/Utils/model_parameters.hpp"
+#include "gambit/Utils/emulator_module_functions.hpp"
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Logs/logmaster.hpp" // Need full declaration of LogMaster class
 
@@ -854,7 +855,7 @@ namespace Gambit
     public:
 
       /// Constructor
-      module_functor(void(*)(TYPE &), str, str, str, str, Models::ModelFunctorClaw&, void (*PredictFunction)(str &, std::vector<double> &, std::vector<double> &, std::vector<double> &) = nullptr);
+      module_functor(void(*)(TYPE &), str, str, str, str, Models::ModelFunctorClaw&, emulator_required_function_ptrs<TYPE>* emu_ptrs = nullptr);
 
       /// Destructor
       virtual ~module_functor();
@@ -899,11 +900,9 @@ namespace Gambit
       
     public:
     
-      /// Internal storage of emulator predict function pointer
-      /// TODO: CHRIS CHANG: EMULATOR HACKS
-      /// TODO: Put in setter function
-      void (*myEmulatorPredictFunction)(str &, std::vector<double> &, std::vector<double> &, std::vector<double> &);
-
+      /// Internal storage of emulator module function pointers with pointer to struct
+      emulator_required_function_ptrs<TYPE>* myEmulatorPointers;
+    
   };
 
 
