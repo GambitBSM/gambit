@@ -1,0 +1,7 @@
+Summary: ATLAS Search for the pair production of heavy vector-like T and B quarks
+InspireID: 1609451
+ExptRun: ATLAS-R2
+Lumi_ifb: 36.1
+Ecm_TeV: 13.0
+Signatures: ["1B + 1J"]
+Authors: ["Pengxuan Zhu"]

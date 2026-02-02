@@ -1,0 +1,8 @@
+Summary: Searches for electroweak production of supersymmetric particles with compressed mass spectra
+InspireID: 1767649
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["2L"]
+Keywords: ["soft"]
+Authors: ["Tomas Gonzalo", "Chris Chang"]
