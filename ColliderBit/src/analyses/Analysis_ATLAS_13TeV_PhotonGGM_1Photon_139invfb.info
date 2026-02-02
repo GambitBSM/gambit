@@ -1,0 +1,8 @@
+Summary: ATLAS photons, jets + MET search at 13 TeV with 139/fb
+InspireID: 2094882
+ExptRun: ATLAS-R2
+Lumi_ifb: 36.1
+Ecm_TeV: 13.0
+Signatures: [">1P + 0L + >=5J", ">1P + 0L + >=3J"]
+Keywords: ["photon", "multijet", "0lepton"]
+Authors: ["Anders Kvellestad"]
