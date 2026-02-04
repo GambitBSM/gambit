@@ -2,6 +2,9 @@
 ///  \author Are Raklev
 ///  \date 2021 July
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 January
+///  Update: Unified Cutflows Class 
 ///
 ///  Based on the search presented in 2108.07586.
 ///
