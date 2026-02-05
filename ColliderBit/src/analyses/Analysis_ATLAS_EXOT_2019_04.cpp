@@ -1,7 +1,3 @@
-// TEMP: This analysis is not finished yet on ColliderBit_solo_development.
-// Disable it for now to allow GAMBIT to compile on macOS/clang. 
-#if 0
-///
 ///  \author Pengxuan Zhu (zhupx99@icloud.com, pengxuan.zhu@adelaide.edu.au)
 ///  \date 2025 Oct
 ///
@@ -31,10 +27,6 @@
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/tools/Filter.hh"
-#include "fastjet/tools/Pruner.hh"
-#include "fastjet/Selector.hh"
-#include "fastjet/contrib/EnergyCorrelator.hh"
-// #include "gambit/contrib/fjcontrib-1.045/EnergyCorrelator/EnergyCorrelator.hh"
 #else
 #include "fjcore.hh"
 #ifndef FJNS
@@ -46,282 +38,313 @@ using namespace std;
 
 // #define CHECK_CUTFLOW
 
-#ifdef CHECK_CUTFLOW
-#include "YODA/Histo1D.h"
-#include "YODA/WriterYODA.h"
-#endif
-
 namespace Gambit
 {
-    namespace ColliderBit
+  namespace ColliderBit
+  {
+    class Analysis_ATLAS_EXOT_2019_04 : public Analysis
     {
-        class Analysis_ATLAS_EXOT_2019_04 : public Analysis
+    private:
+      /* data */
+    public:
+// #ifdef CHECK_CUTFLOW
+//       Cutflows _cutflows;
+//       int Nevent = 0;
+// #endif
+
+      static constexpr const char *detector = "ATLAS";
+      Analysis_ATLAS_EXOT_2019_04()
+      {
+        DEFINE_SIGNAL_REGION("SR");
+
+        set_analysis_name("ATLAS_EXOT_2019_04");
+        set_luminosity(139.0);
+      }
+
+      void run(const HEPUtils::Event *event)
+      {
+#ifdef CHECK_CUTFLOW
+        BEGIN_PRESELECTION
+        // Nevent += 1;
+        // if (Nevent % 200 == 0) { cout << "Complete " << Nevent << " Events" << endl; }
+        END_PRESELECTION
+#endif
+
+        BASELINE_PARTICLES(event->electrons(), baselineEl1, 25., 0, DBL_MAX, 1.37)
+        BASELINE_PARTICLES(event->electrons(), baselineEl2, 25., 1.52, DBL_MAX, 2.47)
+        BASELINE_PARTICLES(event->muons(), baselineMuons, 25., 0, DBL_MAX, 2.5)
+        BASELINE_PARTICLES(event->photons(), baselinePh1, 10., 0, DBL_MAX, 1.37)
+        BASELINE_PARTICLES(event->photons(), baselinePh2, 10., 1.52, DBL_MAX, 2.47)
+
+        BASELINE_PARTICLE_COMBINATION(baselineElectrons, baselineEl1, baselineEl2)
+        BASELINE_PARTICLE_COMBINATION(baselinePhotons, baselinePh1, baselinePh2)
+
+        applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Loose"));
+        applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Medium"));
+        applyEfficiency(baselinePhotons, ATLAS::eff1DPhoton.at("GAM_2018_03_Iso_Tight"));
+
+        BASELINE_JETS(event->jets("antikt_R04"), baselineCentralJets, 25., 0, DBL_MAX, 2.5)
+        BASELINE_JETS(event->jets("antikt_R04"), baselineForwardJets, 40., 2.5, DBL_MAX, 4.5)
+        BASELINE_JETS(event->jets("antikt_R10"), baseLargeRJets, 480., 0, DBL_MAX, 2.0)
+        BASELINE_JET_COMBINATION(BaselineJets, baselineCentralJets, baselineForwardJets)
+
+        SIGNAL_PARTICLES(baselineElectrons, signalEl)
+        SIGNAL_PARTICLES(baselineMuons, signalMu)
+        SIGNAL_PARTICLES(baselinePhotons, signalPh)
+        SIGNAL_PARTICLE_COMBINATION(signalLep, signalEl, signalMu)
+
+        std::vector<const HEPUtils::Jet *> VR_jets;
+        for (const HEPUtils::Jet *j : event->vrjets("VRTrackJets"))
         {
-        private:
-        /* data */
-        public:
-
-        #ifdef CHECK_CUTFLOW
-            Cutflows _cutflows;
-            YODA::Histo1D *_histo_mB;
-            int Nevent = 0;
-        #endif
-
-        static constexpr const char *detector = "ATLAS";
-        Analysis_ATLAS_EXOT_2019_04()
-        {
-            DEFINE_SIGNAL_REGION_NOCUTS("SR");
-
-            set_analysis_name("ATLAS_EXOT_2019_04");
-            set_luminosity(139.0);
-
-            #ifdef CHECK_CUTFLOW
-                    _histo_mB = new YODA::Histo1D(14, 900., 2300., "SR/mB");
-            #endif
+          if (j->pT() > 10. && j->abseta() < 2.5) VR_jets.push_back(j);
         }
 
-        void run(const HEPUtils::Event *event)
+        // Sort object by pT
+        sortByPt(BaselineJets);
+        sortByPt(baselineElectrons);
+        sortByPt(baselineMuons);
+        sortByPt(VR_jets);
+
+        // Large-R jet trimming and selection (ATLAS EXOT-2019-04)
+        const double Rtrim = 0.2; // R_sub
+        const double fcut = 0.05; // pT fraction
+        FJNS::Filter trimmer(fastjet::JetDefinition(fastjet::kt_algorithm, Rtrim), fastjet::SelectorPtFractionMin(fcut));
+
+        std::vector<std::unique_ptr<HEPUtils::Jet>> trimmedLargeRJets_owned;
+        std::vector<const HEPUtils::Jet *> trimmedLargeRJets;
+
+        for (size_t i = 0; i < baseLargeRJets.size(); ++i)
         {
-            #ifdef CHECK_CUTFLOW
-                    // BEGIN_PRESELECTION
-                    if (Nevent % 200 == 0) { cout << "Complete " << Nevent << " Events" << endl; }
-                    Nevent += 1;
-            #endif
+          // Obtain the FastJet PseudoJet objects
+          const fastjet::PseudoJet &pseudojet = baseLargeRJets[i]->pseudojet();
+          // Make sure there are constituents inside the jet
+          if (pseudojet.constituents().empty()) continue;
 
-            double met = event->met();
-            HEPUtils::P4 pmiss = event->missingmom();
+          // Trimming: Rsub=0.2, fcut=0.05
+          fastjet::PseudoJet trimmedJet = trimmer(pseudojet);
 
-            BASELINE_PARTICLES(event->electrons(), baselineEl1, 25., 0, DBL_MAX, 1.37)
-            BASELINE_PARTICLES(event->electrons(), baselineEl2, 25., 1.52, DBL_MAX, 2.47)
-            BASELINE_PARTICLES(event->muons(), baselineMuons, 25., 0, DBL_MAX, 2.5)
-            BASELINE_PARTICLES(event->photons(), baselinePh1, 10., 0, DBL_MAX, 1.37)
-            BASELINE_PARTICLES(event->photons(), baselinePh2, 10., 1.52, DBL_MAX, 2.47)
+          // Apply selection after trimming: pT > 480 GeV, |eta| < 2.0, mass > 50 GeV
+          if (trimmedJet.pt() <= 480.) continue;
+          if (std::fabs(trimmedJet.eta()) >= 2.0) continue;
+          if (trimmedJet.m() <= 50.) continue;
 
-            BASELINE_PARTICLE_COMBINATION(baselineElectrons, baselineEl1, baselineEl2)
-            BASELINE_PARTICLE_COMBINATION(baselinePhotons, baselinePh1, baselinePh2)
+          // Compute substructure variables (kept for potential future tuning)
 
-            applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Loose"));
-            applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Medium"));
-            applyEfficiency(baselinePhotons, ATLAS::eff1DPhoton.at("GAM_2018_03_Iso_Tight"));
+          trimmedLargeRJets_owned.emplace_back(std::make_unique<HEPUtils::Jet>(trimmedJet));
+          trimmedLargeRJets.push_back(trimmedLargeRJets_owned.back().get());
+        }
 
-            BASELINE_JETS(event->jets("antikt_R04"), baselineCentralJets, 25., 0, DBL_MAX, 2.5)
-            BASELINE_JETS(event->jets("antikt_R04"), baselineForwardJets, 40., 2.5, DBL_MAX, 4.5)
-            BASELINE_JETS(event->jets("antikt_R10"), baseLargeRJets, 200., 0, DBL_MAX, 2.0)
-            BASELINE_JET_COMBINATION(BaselineJets, baselineCentralJets, baselineForwardJets)
+        // --- Vetoes (paper preselection)
+        // Lepton veto: no isolated electrons or muons
+        if (!signalLep.empty()) return;
 
-            SIGNAL_PARTICLES(baselineElectrons, signalEl)
-            SIGNAL_PARTICLES(baselineMuons, signalMu)
-            SIGNAL_PARTICLES(baselinePhotons, signalPh)
-            SIGNAL_PARTICLE_COMBINATION(signalLep, signalEl, signalMu)
-            
-            std::vector<const HEPUtils::Jet*> VR_jets;
-            for (const HEPUtils::Jet* j : event->vrjets("VRTrackJets")) {
-                if (j->pT() > 10. && j->abseta() < 2.5) VR_jets.push_back(j);
-            }
-            std::sort(VR_jets.begin(), VR_jets.end(), [](const HEPUtils::Jet* a, const HEPUtils::Jet* b){ return a->pT() > b->pT(); });
-
-
-
-            // Sort object by pT
-            sortByPt(BaselineJets); 
-            sortByPt(baselineElectrons); 
-            sortByPt(baselineMuons); 
-            sortByPt(VR_jets); 
-
-
-            // W-tagging from https://cds.cern.ch/record/2724149/files/ATL-PHYS-PUB-2020-017.pdf
-            //              Figure 14 for W-boson 80% effeicency
-
-            // Large-R jet grooming and selection (ATLAS EXOT-2019-04, Table 6)
-            // Anti-kt R=1.0 LCTopo inputs, trimming with R_trim=0.2 and f_cut=0.05
-            const double Rtrim  = 0.2;   // R_sub
-            const double fcut   = 0.05;  // pT fraction
-            const double beta   = 1.0;
-            FJNS::Filter trimmer(fastjet::JetDefinition(fastjet::kt_algorithm, Rtrim),
-                                 fastjet::SelectorPtFractionMin(fcut));
-            FJNS::contrib::EnergyCorrelator C2(2, beta, fastjet::contrib::EnergyCorrelator::pt_R);
-            FJNS::contrib::EnergyCorrelator C3(3, beta, fastjet::contrib::EnergyCorrelator::pt_R);
-
-            vector<const HEPUtils::Jet *> trimmedLargeRJets;
-            // vector<const HEPUtils::Jet *> WJets;
-            for (size_t i = 0; i < baseLargeRJets.size(); ++i)
+        // Diphoton resonance veto: reject events with m(gg) in [105,160] GeV
+        bool diphoton_veto = false;
+        if (baselinePhotons.size() >= 2)
+        {
+          for (size_t i = 0; i < baselinePhotons.size(); ++i)
+          {
+            for (size_t j = i + 1; j < baselinePhotons.size(); ++j)
             {
-                // Obtain the FastJet PseudoJet objects;
-                const fastjet::PseudoJet &pseudojet = baseLargeRJets.at(i)->pseudojet();
-                // Make sure there is constituents inside the jets
-                if (pseudojet.constituents().empty()) continue;
-                fastjet::PseudoJet trimmedJet = trimmer(pseudojet);
-                HEPUtils::Jet *hepUtilsJet = new HEPUtils::Jet(trimmedJet);
-
-                // Apply selection after trimming: pT > 200 GeV, |eta| < 2.0, mass > 50 GeV
-                if (trimmedJet.pt() > 200. && std::fabs(trimmedJet.eta()) < 2.0 && trimmedJet.m() > 50.)
-                {
-                    const double jet_mass = trimmedJet.m();
-                    // Calculate the Energy correlator functions
-                    const double C2_value = C2(trimmedJet);
-                    const double C3_value = C3(trimmedJet);
-                    const double D2_value = (C2_value > 0) ? C3_value / std::pow(C2_value, 3) : 0.0;
-
-                    // WJetTagger Threshold;
-                    bool wtag = Threshold.passTag(trimmedJet.pt(), trimmedJet.m(), D2_value);
-                    // if (wtag && random_bool(0.8))
-                    trimmedLargeRJets.push_back(hepUtilsJet);
-                }
+              const double m_gg = (baselinePhotons[i]->mom() + baselinePhotons[j]->mom()).m();
+              if (m_gg > 105. && m_gg < 160.)
+              {
+                diphoton_veto = true;
+                break;
+              }
             }
-                        // Identify the Higgs candidate large‑R jet (leading trimmed large‑R)
-            sortByPt(trimmedLargeRJets);
-            const HEPUtils::Jet* HiggsLR = trimmedLargeRJets.empty() ? nullptr : trimmedLargeRJets.front();
-            if (!HiggsLR) return;
-            // Build the set of VR track‑jets inspected for b‑tagging: those matched to the HiggsLR
-            std::vector<const HEPUtils::Jet*> VR_matched;
-
-                        // --- VR track-jet b-tagging (DL1r 70% WP): b=0.70119, c=0.10, light=0.0025
-            std::map<const Jet*, bool> vr_btags = generateBTagsMap(VR_jets, 0.70119, 0.10, 0.0025);
-            int nVR_assoc_b = 0; 
-            int nVR_assoc   = 0; 
-            for (const HEPUtils::Jet* j : VR_jets) {
-                if (j->mom().deltaR_eta(HiggsLR->mom()) < 1.0) {
-                    nVR_assoc += 1; 
-                    VR_matched.push_back(j);
-                    if (vr_btags.at(j)) nVR_assoc_b += 1; 
-                }
-            }
-
-            bool collinear_veto = false;
-            for (size_t i = 0; i < VR_matched.size() && !collinear_veto; ++i) {
-                const HEPUtils::Jet* ji = VR_matched[i];
-                const double Ri = VR_Reff(ji->pT());
-                for (size_t j = 0; j < VR_jets.size(); ++j) {
-                    const HEPUtils::Jet* jj = VR_jets[j];
-                    if (jj == ji) continue; // skip self
-                    const double Rj = VR_Reff(jj->pT());
-                    const double dR = ji->mom().deltaR_eta(jj->mom());
-                    const double Rmin_ij = std::min(Ri, Rj);
-                    if (dR < Rmin_ij) { collinear_veto = true; break; }
-                }
-            }
-
-            // --- Diphoton resonance veto (remove overlap with H→γγ searches)
-            bool diphoton_veto = false; 
-            if (baselinePhotons.size() >= 2) {
-                for (size_t i = 0; i < baselinePhotons.size(); ++i) {
-                    for (size_t j = i + 1; j < baselinePhotons.size(); ++j) {
-                        const double m_gg = (baselinePhotons[i]->mom() + baselinePhotons[j]->mom()).m();
-                        if (m_gg > 105. && m_gg < 160.) {
-                            diphoton_veto = true; // Reject diphoton Higgs-like events
-                        }
-                    }
-                }
-            } 
-                        // --- Lepton veto (no isolated electrons or muons expected)
-            const bool lepton_veto = signalLep.size() > 0; 
-
-            bool preselection = false; 
-            if (collinear_veto) return;
-
-            vector<const HEPUtils::Jet *> sgJets;
-            vector<const HEPUtils::Jet *> bJets;
-            std::map<const Jet *, bool> analysisBtags = generateBTagsMap(baselineJets, 0.70, 0.10, 0.002);
-
-            for (const HEPUtils::Jet *jet : baselineJets)
-            {
-                bool isbtag = analysisBtags.at(jet);
-                if (isbtag && jet->abseta() < 2.5 && jet->pT() > 25.) bJets.push_back(jet);
-                if (jet->mom().deltaR_eta(Whad->mom()) > 1.0) sgJets.push_back(jet);
-            }
-            SIGNAL_JETS(sgJets, signalJets)
-
-            // bool lep_pre = (signalLep.size() == 1) ? signalLep.at(0)->pT() > 60. : false;
-            // bool lRj_pre = (trimmedJets.size() >= 1) ? trimmedJets.at(0)->pT() > 200. : false;
-            // bool sRj_pre1 = signalJets.size() >= 3;
-            // bool sRj_pre2 = (sRj_pre1) ? signalJets.at(1)->pT() > 25. : false;
-            // bool sRj_pre3 = (sRj_pre1) ? signalJets.at(0)->pT() > 200. : false;
-            // bool preselection = lep_pre && lRj_pre && sRj_pre1 && sRj_pre2;
-            // if (preselection)
-            // {
-
-            // double nv_px = pmiss.px();
-            // double nv_py = pmiss.py();
-            // std::vector<double> pz_nus = calculate_pvz(signalLep.at(0)->mom(), nv_px, nv_py);
-            // double nv_pz = solute_pvZ(pz_nus);
-            // double nv_E = std::sqrt(nv_px * nv_px + nv_py * nv_py + nv_pz * nv_pz);
-            // HEPUtils::P4 vp4(nv_px, nv_py, nv_pz, nv_E);
-            // HEPUtils::P4 WLepp4 = vp4 + signalLep.at(0)->mom();
-
-            // const int nbjets = bJets.size();
-            // const double dRWW = WLepp4.deltaR_eta(Whad->mom());
-
-            // HEPUtils::P4 p4VLQlep;
-            // HEPUtils::P4 p4VLQhad;
-            // double dmVLQ = 99999.;
-            // double dPhilmet = signalLep.at(0)->mom().deltaPhi(pmiss);
-            // double ST = met + signalLep.at(0)->pT();
-
-            // for (const HEPUtils::Jet *jet : signalJets) { ST += jet->pT(); }
-            // double dPhiJ0met = signalJets.at(0)->mom().deltaPhi(pmiss);
-
-            // VLQ pairring VLQ-lep VLQ-had
-            // for (size_t ii = 0; ii < 3; ii++)
-            //     for (size_t jj = 0; jj < 3; jj++)
-            //     {
-            //     if (ii != jj)
-            //     {
-            //         double mVLQlep = (WLepp4 + signalJets.at(ii)->mom()).m();
-            //         double mVLQhad = (Whad->mom() + signalJets.at(jj)->mom()).m();
-            //         if (fabs(mVLQlep - mVLQhad) < dmVLQ)
-            //         {
-            //         dmVLQ = fabs(mVLQlep - mVLQhad);
-            //         p4VLQhad = Whad->mom() + signalJets.at(jj)->mom();
-            //         p4VLQlep = WLepp4 + signalJets.at(ii)->mom();
-            //         }
-            //     }
-            //     }
-
-            // bool sr = true;
-            // if (sr) FILL_SIGNAL_REGION("SR1")
-
-            // #ifdef CHECK_CUTFLOW
-            // if (sr) _histo_mB->fill(p4VLQlep.m());
-            // #endif
-            // std::cout << "[VR] n_all=" << nVR_all << " n_matched=" << nVR_matched << " n_bMatched=" << nVRb_matched << std::endl;
-            // }
-            return;
+            if (diphoton_veto) break;
+          }
         }
+        if (diphoton_veto) return;
 
-        virtual void collect_results()
+        // Require at least one trimmed large-R jet candidate
+        if (trimmedLargeRJets.empty()) return;
+
+        // --- VR track-jet b-tagging (DL1r 70% WP): b=0.70119, c=0.10, light=0.0025
+        std::map<const Jet *, bool> vr_btags = generateBTagsMap(VR_jets, 0.70119, 0.10, 0.0025);
+
+        // Higgs candidate (HC): two leading associated track-jets, H2T2B
+        const HEPUtils::Jet *HC = nullptr;
+        std::vector<const HEPUtils::Jet *> HC_tjs;
+
+        for (const HEPUtils::Jet *lr : trimmedLargeRJets)
         {
-            COMMIT_SIGNAL_REGION("SR1", 262, 260, 17)
+          std::vector<const HEPUtils::Jet *> tjs;
+          for (const HEPUtils::Jet *tj : VR_jets)
+          {
+            if (tj->pT() <= 50.) continue;
+            if (tj->mom().deltaR_eta(lr->mom()) < 1.0) tjs.push_back(tj);
+          }
+          if (tjs.size() < 2) continue;
+          std::sort(tjs.begin(), tjs.end(), [](const HEPUtils::Jet *a, const HEPUtils::Jet *b) { return a->pT() > b->pT(); });
+          if (tjs.size() > 2) tjs.resize(2);
 
-            COMMIT_CUTFLOWS;
-    #ifdef CHECK_CUTFLOW
-            std::vector<YODA::AnalysisObject *> histos;
-            histos.push_back(_histo_mB);
-            histos.push_back(_histo_mVLQ_sr2);
-            YODA::WriterYODA::write("ATLAS_EXOT_2019_04.yoda", histos.begin(), histos.end());
-            delete _histo_mB;
-            delete _histo_mVLQ_sr2;
-    #endif
-            return;
+          // Collinearity veto (approximate): reject if the two leading track-jets overlap within min(Reff)
+          bool collinear_veto = false;
+          {
+            const HEPUtils::Jet *ji = tjs[0];
+            const HEPUtils::Jet *jj = tjs[1];
+            const double Ri = VR_Reff(ji->pT());
+            const double Rj = VR_Reff(jj->pT());
+            const double dR = ji->mom().deltaR_eta(jj->mom());
+            const double Rmin_ij = std::min(Ri, Rj);
+            if (dR < Rmin_ij) collinear_veto = true;
+          }
+          if (collinear_veto) continue;
+
+          // Count b-tags among the two leading associated track-jets
+          int nb = 0;
+          for (const HEPUtils::Jet *tj : tjs)
+          {
+            auto it = vr_btags.find(tj);
+            if (it != vr_btags.end() && it->second) nb += 1;
+          }
+
+          // Experimental report: require exactly two b-tagged track-jets (H2T2B)
+          if (nb != 2) continue;
+
+          // Keep the HC candidate with the largest mass (all eligible candidates are H2T2B)
+          if (!HC || lr->mass() > HC->mass())
+          {
+            HC = lr;
+            HC_tjs = tjs; // already pT-sorted and resized to 2 above
+          }
         }
 
-        protected:
-        void analysis_specific_reset()
+        if (!HC) return;
+
+        if (HC_tjs.size() >= 2)
         {
-            for (auto &pair : _counters) { pair.second.reset(); }
+          std::sort(HC_tjs.begin(), HC_tjs.end(), [](const HEPUtils::Jet *a, const HEPUtils::Jet *b) { return a->pT() > b->pT(); });
+          if (HC_tjs.size() > 2) HC_tjs.resize(2);
         }
 
-        private:
-          // ---- Helpers specific to this analysis ----
-            double VR_Reff(double pt_GeV, double rho_GeV = 30.0, double Rmin = 0.02, double Rmax = 0.40)
-            {
-                if (pt_GeV <= 0.) return Rmax;
-                const double r = rho_GeV / pt_GeV;
-                return std::max(Rmin, std::min(Rmax, r));
-            }
-          // Note: ghost association is approximated here by ΔR matching where needed.
+        // Preselection: require >=1 small-R jet with pT > 300 GeV and dR(smallR, HC) > 2.0
+        bool has_smallR_pre = false;
+        for (const HEPUtils::Jet *j : BaselineJets)
+        {
+          if (j->pT() > 300. && j->mom().deltaR_eta(HC->mom()) > 2.0)
+          {
+            has_smallR_pre = true;
+            break;
+          }
+        }
+        if (!has_smallR_pre) return;
+
+        // --- Small-R jet b-tagging (70% WP used elsewhere in ColliderBit)
+        std::map<const Jet *, bool> sr_btags = generateBTagsMap(BaselineJets, 0.70, 0.10, 0.002);
+
+        // --- Build VLB candidates: HC + b-tagged small-R jet with pT>400, |eta|<2.5, dR>2.5
+        struct VLBcand
+        {
+          const HEPUtils::Jet *j;
+          double mB;
+          double pT_B;
+          double ratio_pT_HC_over_mB;
+          double ratio_pT_B_over_mB;
         };
-        DEFINE_ANALYSIS_FACTORY(ATLAS_EXOT_2019_04)
-    } // namespace ColliderBit
-} // namespace Gambit
+        std::vector<VLBcand> vlb_cands;
+        for (const HEPUtils::Jet *j : BaselineJets)
+        {
+          if (j->pT() <= 400.) continue;
+          if (j->abseta() >= 2.5) continue;
+          auto it_sr = sr_btags.find(j);
+          if (it_sr == sr_btags.end() || !it_sr->second) continue;
+          // Experimental report: require the small-R b-jet to be well separated from the HC (ΔR(j,HC) > 2.0)
+          if (j->mom().deltaR_eta(HC->mom()) <= 2.0) continue;
 
-#endif // TEMP: disable unfinished Analysis_ATLAS_EXOT_2019_04
+          const HEPUtils::P4 p4B = HC->mom() + j->mom();
+          const double mB = p4B.m();
+          if (mB <= 0.) continue;
+
+          const double pT_B = p4B.pT();
+          const double ratio_HC = HC->pT() / mB;
+          const double ratio_B = pT_B / mB;
+          vlb_cands.push_back({j, mB, pT_B, ratio_HC, ratio_B});
+        }
+        if (vlb_cands.empty()) return;
+        // If multiple VLB candidates exist, choose the one with the lowest pT_B / mB
+        std::sort(vlb_cands.begin(), vlb_cands.end(), [](const VLBcand &a, const VLBcand &b) { return a.ratio_pT_B_over_mB < b.ratio_pT_B_over_mB; });
+
+        // --- Kinematic selection variables using the two leading track-jets associated with HC
+        // logΔR* = log( ΔR(tj0,tj1) / min(Reff0,Reff1) )
+        if (HC_tjs.size() < 2) return;
+
+        const HEPUtils::Jet *tj0 = HC_tjs[0];
+        const HEPUtils::Jet *tj1 = HC_tjs[1];
+
+        const double dR_tj = tj0->mom().deltaR_eta(tj1->mom());
+        const double Reff0 = VR_Reff(tj0->pT());
+        const double Reff1 = VR_Reff(tj1->pT());
+        const double denom = std::min(Reff0, Reff1);
+        if (denom <= 0.) return;
+        if (dR_tj <= 0.) return;
+
+        const double logDeltaRstar = std::log(dR_tj / denom);
+
+        // Apply logΔR* > 0.67
+        if (logDeltaRstar <= 0.67) return;
+
+        const VLBcand best = vlb_cands[0];
+        if (best.ratio_pT_HC_over_mB <= 0.4) return;
+
+        // Forward-jet requirement: at least one jet with pT>40 GeV and |eta| >2.5
+        bool has_forward = false;
+        for (const HEPUtils::Jet *fj : baselineForwardJets)
+        {
+          if (!fj) continue;
+
+          // Defensive: baselineForwardJets already has pT>40 and |eta|>2.5 by construction, but keep explicit.
+          if (fj->pT() <= 40.) continue;
+          if (fj->abseta() <= 2.5) continue;
+
+          // Exclude the VLB b-jet itself (and any jet overlapping with it)
+          if (best.j && fj == best.j) continue;
+          if (best.j && fj->mom().deltaR_eta(best.j->mom()) <= 0.4) continue;
+
+          // Exclude jets overlapping with the Higgs candidate (avoid counting overlap/substructure)
+          if (fj->mom().deltaR_eta(HC->mom()) <= 1.0) continue;
+
+          has_forward = true;
+          break;
+        }
+        if (!has_forward) return;
+
+        // Signal region definition (region A): H2T2B and mHC in [105,135] GeV
+        const double mHC = HC->mass();
+        const bool in_H_window = (mHC >= 105. && mHC <= 135.);
+        const bool is_H2T2B = true; // HC selection enforces H2T2B
+
+        if (in_H_window && is_H2T2B)
+        {
+          FILL_SIGNAL_REGION("SR");
+        }
+      }
+
+      virtual void collect_results()
+      {
+        COMMIT_SIGNAL_REGION("SR", 262, 260, 17)
+        COMMIT_CUTFLOWS;
+        return;
+      }
+
+    protected:
+      void analysis_specific_reset()
+      {
+        for (auto &pair : _counters) { pair.second.reset(); }
+      }
+
+    private:
+      // ---- Helpers specific to this analysis ----
+      double VR_Reff(double pt_GeV, double rho_GeV = 30.0, double Rmin = 0.02, double Rmax = 0.40)
+      {
+        if (pt_GeV <= 0.) return Rmax;
+        const double r = rho_GeV / pt_GeV;
+        return std::max(Rmin, std::min(Rmax, r));
+      }
+      // Note: ghost association is approximated here by ΔR matching where needed.
+    };
+    DEFINE_ANALYSIS_FACTORY(ATLAS_EXOT_2019_04)
+  } // namespace ColliderBit
+} // namespace Gambit

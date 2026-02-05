@@ -172,7 +172,7 @@ namespace Gambit
       if (_results.empty()) collect_results();
       if (this == other)
       {
-        _cutflows.combine(other->get_cutflows());
+        // _cutflows.combine(other->get_cutflows());
         _results.add_cutflows(_cutflows);
         return;
       }
