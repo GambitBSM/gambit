@@ -342,9 +342,18 @@ if(NOT EXCLUDE_YODA)
     set(pyext no)
     message("   Backends depending on YODA's python extension (e.g. Contur) will be disabled.")
   endif()
-  # Set LDFLAGS for MacOS to find libz
+  # Set LDFLAGS for macOS: ensure system libs are visible, and make sure OpenMP (libomp)
+  # is linkable for YODA's python extension build when using clang++ -fopenmp.
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    # System libs (e.g. libz)
     set(YODA_CONFIG_LDFLAGS "-L${CMAKE_OSX_SYSROOT}/usr/lib")
+
+    # Homebrew libomp is required for clang OpenMP builds; YODA's libtool build does not
+    # inherit GAMBIT's OpenMP link dirs, so we add it explicitly.
+    set(_HB_LIBOMP_LIB "/opt/homebrew/opt/libomp/lib")
+    if(EXISTS "${_HB_LIBOMP_LIB}/libomp.dylib")
+      set(YODA_CONFIG_LDFLAGS "${YODA_CONFIG_LDFLAGS} -L${_HB_LIBOMP_LIB} -Wl,-rpath,${_HB_LIBOMP_LIB}")
+    endif()
   else()
     set(YODA_CONFIG_LDFLAGS "")
   endif()
