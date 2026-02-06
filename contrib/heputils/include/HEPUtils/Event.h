@@ -129,9 +129,9 @@ namespace HEPUtils {
         }
       }
       for (const auto& kv : _vrjets ) {
-        const std::vector<const Jet*> js = vrjets(kv.first);  // 假设已提供 vrjets() 方法
+        const std::vector<const Jet*> js = vrjets(kv.first);  
         for (size_t i = 0; i < js.size(); ++i) {
-          e.add_vrjet(new Jet(*js[i]), kv.first);  // 假设已提供 add_vrjet() 方法
+          e.add_vrjet(new Jet(*js[i]), kv.first); 
         }
       }
       e._pmiss = _pmiss;
@@ -160,6 +160,7 @@ namespace HEPUtils {
 
       // Jets
       for (const std::string& jc : jet_collections()) clear_jets(jc);
+      for (const std::string& vjc : vrjet_collections()) clear_vrjets(vjc);
       _jets.clear();
       _vrjets.clear();
       _cseqs.clear();
@@ -424,6 +425,13 @@ namespace HEPUtils {
       return rtn;
     }
 
+    /// Get the list of VR jet-collection names
+    std::vector<std::string> vrjet_collections() {
+      std::vector<std::string> rtn;
+      for (const auto& kv : _vrjets) rtn.push_back(kv.first);
+      return rtn;
+    }
+
     
     /// @brief Set a jet collection
     ///
@@ -452,6 +460,13 @@ namespace HEPUtils {
       for (const Jet* j : jets(key)) delete j;
       _jets.erase(key);
       _cseqs.erase(key);
+    }
+
+    /// @brief Clear a VR jet collection
+    void clear_vrjets(const std::string& key) {
+      for (const Jet* j : vrjets(key)) delete j;
+      _vrjets.erase(key);
+      // Note: VR jets do not currently have their own cluster-seq storage.
     }
     
 
@@ -482,7 +497,9 @@ namespace HEPUtils {
     /// Optional template arg can be used to cast to a specific derived CS type if wanted.
     template <typename CS=FJNS::ClusterSequence>
     typename std::shared_ptr<const CS> clusterseq(const std::string& key) const {
-      return std::dynamic_pointer_cast<const CS>(_cseqs.find(key)->second);
+      auto it = _cseqs.find(key);
+      if (it == _cseqs.end()) return typename std::shared_ptr<const CS>();
+      return std::dynamic_pointer_cast<const CS>(it->second);
     }
 
     // /// @brief Non-const access to the jets' ClusterSequence object if possible (can be null)
@@ -498,7 +515,7 @@ namespace HEPUtils {
     /// @warning The CS should be new'd; Event will take ownership via a shared_ptr
     template <typename CS=FJNS::ClusterSequence>
     void set_clusterseq(std::shared_ptr<const CS> cseq, const std::string& key) {
-      if (_cseqs.find(key) != _cseqs.end() && !_cseqs.empty()) {
+      if (_cseqs.find(key) != _cseqs.end()) {
 	throw std::runtime_error("Event::set_clusterseq() called for a non-empty jet collection");
       }
       _cseqs[key] =  cseq;
@@ -514,7 +531,7 @@ namespace HEPUtils {
     /// @todo How to run a more advanced CS like the active- or Voronoi-area ones?
     template <typename CS=FJNS::ClusterSequence>
     CSeqBasePtr emplace_clusterseq(std::vector<FJNS::PseudoJet>& jetparticles, const FJNS::JetDefinition& jetdef, const std::string& key) {
-      if (_cseqs.find(key) != _cseqs.end() && !_cseqs.empty()) {
+      if (_cseqs.find(key) != _cseqs.end()) {
 	throw std::runtime_error("Event::emplace_clusterseq() called for a non-empty jet collection");
       }
       _cseqs[key] = std::make_shared<CS>(jetparticles, jetdef);
