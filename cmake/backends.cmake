@@ -1252,6 +1252,12 @@ endif()
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -undefined dynamic_lookup -flat_namespace")
   set(pythia_CXX_SONAME_FLAGS "-Wl,-dylib_install_name,")
+  # On macOS + clang, -fopenmp injects -lomp but not Homebrew's lib path.
+  # Ensure libomp is discoverable when linking libpythia8.
+  if(DEFINED OpenMP_omp_LIBRARY AND EXISTS "${OpenMP_omp_LIBRARY}")
+    get_filename_component(_pythia_omp_libdir "${OpenMP_omp_LIBRARY}" DIRECTORY)
+    set(pythia_CXX_SHARED_FLAGS "${pythia_CXX_SHARED_FLAGS} -L${_pythia_omp_libdir} -Wl,-rpath,${_pythia_omp_libdir} -lomp")
+  endif()
 else()
   set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
   set(pythia_CXX_SONAME_FLAGS "-Wl,-soname,")
