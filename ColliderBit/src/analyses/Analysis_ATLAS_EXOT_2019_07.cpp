@@ -76,10 +76,10 @@ namespace Gambit
       // };
 
     private:
-      struct ptComparison
-      {
-        bool operator()(const HEPUtils::Particle *i, const HEPUtils::Particle *j) { return (i->pT() > j->pT()); }
-      } comparePt;
+      // struct ptComparison
+      // {
+      //   bool operator()(const HEPUtils::Particle *i, const HEPUtils::Particle *j) { return (i->pT() > j->pT()); }
+      // } comparePt;
 
       struct ptJetComparison
       {
@@ -273,7 +273,6 @@ namespace Gambit
           fastjet::PseudoJet trimmedJet = trimmer(pseudojet);
           vector<fastjet::PseudoJet> subjets = trimmedJet.pieces();
 
-          int Nsub = subjets.size();
           double randomNumber = dis(gen);
           bool lrjet = (trimmedJet.pt() > 350.) && (abs(trimmedJet.eta()) < 2.0);
           bool toptag = lrjet && (trimmedJet.m() >= 140.) && (trimmedJet.m() <= 225.) && (randomNumber < 0.8);

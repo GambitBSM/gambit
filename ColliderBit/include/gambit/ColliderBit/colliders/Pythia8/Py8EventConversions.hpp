@@ -25,6 +25,7 @@
 #include "gambit/ColliderBit/colliders/BaseCollider.hpp"
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/contrib/VariableR.hh"
+#include <map>
 // #define COLLIDERBIT_DEBUG
 
 namespace Gambit
@@ -35,10 +36,28 @@ namespace Gambit
 
     using namespace EventConversion;
 
-    /// Convert a hadron-level EventT into an unsmeared HEPUtils::Event
-    /// @todo Overlap between jets and prompt containers: need some isolation in MET calculation
+
+
+    /// Vector of VR jet collection settings.
+    using vr_jet_collection_settings = std::vector<vrjet_collection_settings>;
+
+    /// Backwards-compatible overload: no VR jets unless explicitly requested.
     template <typename EventT>
-    void convertParticleEvent(const EventT &pevt, HEPUtils::Event &result, std::vector<jet_collection_settings> all_jet_collection_settings, str jetcollection_taus, double jet_pt_min)
+    void convertParticleEvent(const EventT &pevt, HEPUtils::Event &result,
+                              std::vector<jet_collection_settings> all_jet_collection_settings,
+                              str jetcollection_taus, double jet_pt_min)
+    {
+      vr_jet_collection_settings vr_collections; // empty => no VR jets
+      convertParticleEvent(pevt, result, all_jet_collection_settings, jetcollection_taus, jet_pt_min, vr_collections);
+    }
+
+    /// Overload with explicit VR jet collection configurations.
+    /// VR jets are only built if `vr_collections` is non-empty.
+    template <typename EventT>
+    void convertParticleEvent(const EventT &pevt, HEPUtils::Event &result,
+                              std::vector<jet_collection_settings> all_jet_collection_settings,
+                              str jetcollection_taus, double jet_pt_min,
+                              const vr_jet_collection_settings& vr_collections)
     {
       result.clear();
 
@@ -214,84 +233,95 @@ namespace Gambit
       }
 
       /// Jet finding
-      // VariableR track jet
-      double rho = 30.0;
-      double Rmin = 0.02;
-      double Rmax = 0.4;
-      
-      fastjet::contrib::VariableRPlugin vr_plugin(rho, Rmin, Rmax, fastjet::contrib::VariableRPlugin::AKTLIKE);
-      fastjet::JetDefinition jet_def(&vr_plugin);
-      fastjet::ClusterSequence cseq(jetparticles, jet_def);
-      std::vector<fastjet::PseudoJet> vr_pseudojets = fastjet::sorted_by_pt(cseq.inclusive_jets(5.0));
-
-      for (const auto &ps : vr_pseudojets)
+      // Optional: Variable-R (VR) track jets
+      // Build VR jets only if VRJet_collections was provided upstream (i.e. map is non-empty)
+      if (!vr_collections.empty())
       {
-        HEPUtils::P4 jetMom = HEPUtils::mk_p4(ps);
-
-        double effectiveR = std::min(Rmax, std::max(Rmin, rho / ps.pt()));
-        
-        bool isB = false;
-        for (const auto &pb : bpartons)
+        for (const auto &vr_cfg : vr_collections)
         {
-          if (jetMom.deltaR_eta(pb.mom()) < effectiveR)
+          const str &vr_key = vr_cfg.key;
+
+          const double rho  = vr_cfg.rho;
+          const double Rmin = vr_cfg.Rmin;
+          const double Rmax = vr_cfg.Rmax;
+          const double pt_min_vr = vr_cfg.pt_min;
+
+          fastjet::contrib::VariableRPlugin vr_plugin(rho, Rmin, Rmax, fastjet::contrib::VariableRPlugin::AKTLIKE);
+          fastjet::JetDefinition vr_jet_def(&vr_plugin);
+          fastjet::ClusterSequence vr_cseq(jetparticles, vr_jet_def);
+          std::vector<fastjet::PseudoJet> vr_pseudojets = fastjet::sorted_by_pt(vr_cseq.inclusive_jets(pt_min_vr));
+
+          for (const auto &ps : vr_pseudojets)
           {
-            isB = true;
-            break;
+            HEPUtils::P4 jetMom = HEPUtils::mk_p4(ps);
+
+            // Effective radius used for tagging proximity checks
+            const double effectiveR = std::min(Rmax, std::max(Rmin, rho / ps.pt()));
+
+            bool isB = false;
+            for (const auto &pb : bpartons)
+            {
+              if (jetMom.deltaR_eta(pb.mom()) < effectiveR)
+              {
+                isB = true;
+                break;
+              }
+            }
+
+            bool isC = false;
+            for (const auto &pc : cpartons)
+            {
+              if (jetMom.deltaR_eta(pc.mom()) < effectiveR)
+              {
+                isC = true;
+                break;
+              }
+            }
+
+            bool isTau = false;
+            for (HEPUtils::Particle &ptau : tauCandidates)
+            {
+              if (jetMom.deltaR_eta(ptau.mom()) < effectiveR)
+              {
+                isTau = true;
+                break;
+              }
+            }
+
+            bool isW = false;
+            for (HEPUtils::Particle &pW : WCandidates)
+            {
+              if (jetMom.deltaR_eta(pW.mom()) < 1.0) ///< @todo Make selectable?
+              {
+                isW = true;
+                break;
+              }
+            }
+
+            bool isZ = false;
+            for (HEPUtils::Particle &pZ : ZCandidates)
+            {
+              if (jetMom.deltaR_eta(pZ.mom()) < 1.0) ///< @todo Make selectable?
+              {
+                isZ = true;
+                break;
+              }
+            }
+
+            bool ish = false;
+            for (HEPUtils::Particle &ph : hCandidates)
+            {
+              if (jetMom.deltaR_eta(ph.mom()) < 1.0) ///< @todo Make selectable?
+              {
+                ish = true;
+                break;
+              }
+            }
+
+            HEPUtils::Jet::TagCounts vr_tags{{5, int(isB)}, {4, int(isC)}, {15, int(isTau)}, {23, int(isZ)}, {24, int(isW)}, {25, int(ish)}};
+            result.add_vrjet(new HEPUtils::Jet(ps, vr_tags), vr_key);
           }
         }
-        
-        bool isC = false;
-        for (const auto &pc : cpartons)
-        {
-          if (jetMom.deltaR_eta(pc.mom()) < effectiveR)
-          {
-            isC = true;
-            break;
-          }
-        }
-
-        bool isTau = false; 
-        for (HEPUtils::Particle &ptau : tauCandidates)
-        {
-          if (jetMom.deltaR_eta(ptau.mom()) < effectiveR) ///< @todo Hard-coded radius!!!
-          {
-            isTau = true;
-            break;
-          }
-        }
-
-        bool isW = false;
-        for (HEPUtils::Particle &pW : WCandidates)
-        {
-          if (jetMom.deltaR_eta(pW.mom()) < 1.0) ///< @todo Hard-coded radius from ATLAS-CONF-2021-022, make selectable?
-          {
-            isW = true;
-            break;
-          }
-        }
-
-        bool isZ = false;
-        for (HEPUtils::Particle &pZ : ZCandidates)
-        {
-          if (jetMom.deltaR_eta(pZ.mom()) < 1.0) ///< @todo Hard-coded radius from ATLAS-CONF-2021-022, make selectable?
-          {
-            isZ = true;
-            break;
-          }
-        }
-
-        bool ish = false;
-        for (HEPUtils::Particle &ph : hCandidates)
-        {
-          if (jetMom.deltaR_eta(ph.mom()) < 1.0) ///< @todo Hard-coded radius from ATLAS-CONF-2021-022, make selectable?
-          {
-            ish = true;
-            break;
-          }
-        }
-
-        HEPUtils::Jet::TagCounts vr_tags{{5, int(isB)}, {4, int(isC)}, {15, int(isTau)}, {23, int(isZ)}, {24, int(isW)}, {25, int(ish)}};
-        result.add_vrjet(new HEPUtils::Jet(ps, vr_tags), "VRTrackJets");
       }
 
       for (jet_collection_settings jetcollection : all_jet_collection_settings)
@@ -299,8 +329,8 @@ namespace Gambit
         FJNS::JetAlgorithm jet_algorithm = FJalgorithm_map(jetcollection.algorithm);
         FJNS::Strategy jet_strategy = FJstrategy_map(jetcollection.strategy);
         FJNS::RecombinationScheme jet_recomscheme = FJRecomScheme_map(jetcollection.recombination_scheme);
-        const FJNS::JetDefinition jet_def(jet_algorithm, jetcollection.R, jet_strategy, jet_recomscheme);
-
+        
+        const FJNS::JetDefinition jet_def(jet_algorithm, jetcollection.R, jet_strategy, jet_recomscheme);        
         /// Create and run a new cluster sequence for the given jet collection.
         /// The HEPUtils::Event instance ('result') takes ownership of the
         /// cluster sequence and a shared_ptr is returned here.

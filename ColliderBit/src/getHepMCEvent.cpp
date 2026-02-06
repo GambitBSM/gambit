@@ -228,6 +228,35 @@ namespace Gambit
     }
 
 
+    /// A helper function for collecting the VRJet_collections yaml settings.
+    /// If VRJet_collections is not provided, vr_jet_collection_settings is left empty.
+    void read_vrjet_collections_settings(const Options& runOptions, vr_jet_collection_settings& vr_collections)
+    {
+      vr_collections.clear();
+
+      // VR jets are optional: only parse if the user provided VRJet_collections
+      if (!runOptions.hasKey("VRJet_collections")) return;
+
+      YAML::Node all_vrjets_node = runOptions.getValue<YAML::Node>("VRJet_collections");
+      Options all_vrjet_options(all_vrjets_node);
+      std::vector<str> vrjet_names = all_vrjet_options.getNames();
+
+      for (const str& key : vrjet_names)
+      {
+        YAML::Node current_vrj_node = all_vrjet_options.getValue<YAML::Node>(key);
+        Options current_vrj_options(current_vrj_node);
+
+        // Require all fields for each collection
+        const double rho    = current_vrj_options.getValue<double>("rho");
+        const double Rmin   = current_vrj_options.getValue<double>("Rmin");
+        const double Rmax   = current_vrj_options.getValue<double>("Rmax");
+        const double pt_min = current_vrj_options.getValue<double>("pt_min");
+
+        vr_collections.push_back({key, rho, Rmin, Rmax, pt_min});
+      }
+    }
+
+
     /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
     void getHepMCEvent_HEPUtils(HEPUtils::Event &result)
     {
@@ -239,6 +268,9 @@ namespace Gambit
       std::vector<jet_collection_settings> all_jet_collection_settings = {};
       str jetcollection_taus;
       read_jet_collections_settings(*runOptions, all_jet_collection_settings, jetcollection_taus);
+
+      vr_jet_collection_settings vr_collections;
+      read_vrjet_collections_settings(*runOptions, vr_collections);
 
       // Get the HepMC event
       //HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
@@ -252,7 +284,7 @@ namespace Gambit
       result.set_weight(ge.weight());
 
       //Translate to HEPUtils event by calling the unified HEPMC/Pythia event converter:
-      Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, all_jet_collection_settings, jetcollection_taus, jet_pt_min);
+      Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, all_jet_collection_settings, jetcollection_taus, jet_pt_min, vr_collections);
 
     }
 
@@ -272,11 +304,14 @@ namespace Gambit
       str jetcollection_taus;
       read_jet_collections_settings(*runOptions, all_jet_collection_settings, jetcollection_taus);
 
+      vr_jet_collection_settings vr_collections;
+      read_vrjet_collections_settings(*runOptions, vr_collections);
+
       //Set the weight
       result.set_weight(ge.weight());
 
       //Translate to HEPUtils event by calling the unified HEPMC/Pythia event converter:
-      Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, all_jet_collection_settings, jetcollection_taus, jet_pt_min);
+      Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, all_jet_collection_settings, jetcollection_taus, jet_pt_min, vr_collections);
     }
 
   }

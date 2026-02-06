@@ -63,7 +63,25 @@ namespace Gambit
       std::string recombination_scheme;
       std::string strategy;
     };
-
+    /// Settings for Variable-R (VR) track jets.
+    ///
+    /// YAML shape expected upstream:
+    ///   VRJet_collections:
+    ///     <collection_name>:
+    ///       rho: 30.0
+    ///       Rmin: 0.02
+    ///       Rmax: 0.4
+    ///       pt_min: 5.0
+    ///
+    /// If VRJet_collections is absent or empty, VR jets are not built.
+    struct vrjet_collection_settings
+    {
+      std::string key;
+      double rho = 30.0;
+      double Rmin = 0.02;
+      double Rmax = 0.4;
+      double pt_min = 5.0;
+    };
     /// Storage of different FastJet methods
     FJNS::JetAlgorithm FJalgorithm_map(std::string);
     FJNS::Strategy FJstrategy_map(std::string);

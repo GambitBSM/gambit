@@ -254,7 +254,7 @@ namespace Gambit
                 bool lRj_pre = (trimmedJets.size() >= 1) ? trimmedJets.at(0)->pT() > 200. : false; 
                 bool sRj_pre1 = signalJets.size() >= 3; 
                 bool sRj_pre2 = (sRj_pre1) ? signalJets.at(1)->pT() > 25. : false; 
-                bool sRj_pre3 = (sRj_pre1) ? signalJets.at(0)->pT() > 200. : false; 
+                // bool sRj_pre3 = (sRj_pre1) ? signalJets.at(0)->pT() > 200. : false; 
                 bool preselection = lep_pre && lRj_pre && sRj_pre1 && sRj_pre2; 
                 if (preselection)
                 {

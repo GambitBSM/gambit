@@ -216,6 +216,14 @@ int main(int argc, char* argv[])
     YAML::Node jet_collections = settings.getValue<YAML::Node>("jet_collections");
     std::string jet_collection_taus = settings.getValueOrDef<std::string>("antikt_R04", "jet_collection_taus");
 
+    // Optional VR jet collections (do not enable / load VR jets unless user declares them in YAML)
+    bool have_vrjet_collections = settings.hasKey("VRJet_collections");
+    YAML::Node vrjet_collections;
+    if (have_vrjet_collections)
+    {
+      vrjet_collections = settings.getValue<YAML::Node>("VRJet_collections");
+    }
+
     // Check if Rivet & Contur requested and/or enabled then extract options from yaml
     bool withRivet;
     bool withContur;
@@ -310,6 +318,13 @@ int main(int argc, char* argv[])
     getEvent.setOption<YAML::Node>("jet_collections", jet_collections);
     convertEvent.setOption<std::string>("jet_collection_taus", jet_collection_taus);
     convertEvent.setOption<YAML::Node>("jet_collections", jet_collections);
+
+    // Optional VR jet collections: only pass through if explicitly declared by the user
+    if (have_vrjet_collections)
+    {
+      getEvent.setOption<YAML::Node>("VRJet_collections", vrjet_collections);
+      convertEvent.setOption<YAML::Node>("VRJet_collections", vrjet_collections);
+    }
 
     // Pass options to the cross-section function
     getYAMLCrossSection.setOption<std::string>("collider", "CBS");
