@@ -1,6 +1,5 @@
 // -*- C++ -*-
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
-#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 
 // Renamed from: 
@@ -24,12 +23,13 @@ namespace Gambit {
       static constexpr const char* detector = "CMS";
 
       static const size_t NUMSR = 12; //160;
+      static constexpr const char* CUTFLOW_NAME = "CMS 0-lep 13 TeV";
 
-      Cutflow _cutflow;
-
-      Analysis_CMS_SUS_16_014() :
-        _cutflow("CMS 0-lep 13 TeV", {"Njet >= 3", "HT > 300", "HTmiss > 300", "Nmuon = 0", "Nelectron = 0", "Nhadron = 0 (no-op)", "Dphi_htmiss_j1", "Dphi_htmiss_j2", "Dphi_htmiss_j3", "Dphi_htmiss_j4"})
+      Analysis_CMS_SUS_16_014()
       {
+        #ifdef CHECK_CUTFLOW
+        _cutflows.addCutflow(CUTFLOW_NAME, {"Njet >= 3", "HT > 300", "HTmiss > 300", "Nmuon = 0", "Nelectron = 0", "Nhadron = 0 (no-op)", "Dphi_htmiss_j1", "Dphi_htmiss_j2", "Dphi_htmiss_j3", "Dphi_htmiss_j4"});
+        #endif
 
         // Numbers passing cuts
         _counters["SR1"] = EventCounter("SR1");
@@ -53,7 +53,9 @@ namespace Gambit {
 
       void run(const Event* event) {
 
-        _cutflow.fillinit();
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fillinit();
+        #endif
 
         // FinalState isofs(Cuts::abseta < 3.0 && Cuts::abspid != PID::ELECTRON && Cuts::abspid != PID::MUON);
         // FinalState cfs(Cuts::abseta < 2.5 && Cuts::abscharge != 0);
@@ -66,21 +68,27 @@ namespace Gambit {
           if (jet->abseta() < 5.0) jets50.push_back(jet);
         }
         if (jets24.size() < 3) return;
-        _cutflow.fill(1);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(1);
+        #endif
 
         // HT cut
         double sumptj = 0;
         for (const Jet* j : jets24) sumptj += j->pT();
         const double ht = sumptj;
         if (ht < 300) return;
-        _cutflow.fill(2);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(2);
+        #endif
 
         // HTmiss cut, from full set of jets
         P4 htvec;
         for (const Jet* jet : jets50) htvec += jet->mom();
         const double htmiss = htvec.pT();
         if (htmiss < 300) return;
-        _cutflow.fill(3);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(3);
+        #endif
 
 
         // Get baseline electrons
@@ -125,9 +133,13 @@ namespace Gambit {
 
         // Veto the event if there are any remaining baseline leptons
         if (!muons.empty()) return;
-        _cutflow.fill(4);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(4);
+        #endif
         if (!elecs.empty()) return;
-        _cutflow.fill(5);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(5);
+        #endif
 
 
         /// @todo Need access to charged hadrons to do this isolation
@@ -151,18 +163,28 @@ namespace Gambit {
         //   const double mT = sqrt( t.mass2() + 2*(t.Et()*ptmiss - t->pT()*ptmiss*cos(deltaPhi(t,ptmissvec))) );
         //   if (mT < 100 && t->pT() < ptcut) vetoEvent;
         // }
-        _cutflow.fill(6);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(6);
+        #endif
 
 
         // Lead jets isolation from Htmiss
         if (deltaPhi(-htvec, jets24[0]->mom()) < 0.5) return;
-        _cutflow.fill(7);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(7);
+        #endif
         if (deltaPhi(-htvec, jets24[1]->mom()) < 0.5) return;
-        _cutflow.fill(8);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(8);
+        #endif
         if (deltaPhi(-htvec, jets24[2]->mom()) < 0.3) return;
-        _cutflow.fill(9);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(9);
+        #endif
         if (jets24.size() >= 4 && deltaPhi(-htvec, jets24[3]->mom()) < 0.3) return;
-        _cutflow.fill(10);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(10);
+        #endif
 
 
         ////////
@@ -245,6 +267,9 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SR11"), 316., {385., 33.0} ));
         add_result(SignalRegionData(_counters.at("SR12"), 17., {15.9, 5.47} ));
 
+        #ifdef CHECK_CUTFLOW
+        add_cutflows(_cutflows);
+        #endif
       }
 
 

@@ -20,7 +20,6 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
-#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 
 // #define CHECK_CUTFLOW
 
@@ -47,17 +46,18 @@ namespace Gambit
     protected:
 
       std::map<str, EventCounter> _counters_bin;
-
-      Cutflow _cutflow;
+      static constexpr const char* CUTFLOW_NAME = "ATLAS 2-lep chargino-W 13 TeV";
 
     public:
 
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
-      Analysis_ATLAS_CONF_2018_042():
-      _cutflow("ATLAS 2-lep chargino-W 13 TeV", {"Two_OS_leptons", "mll_25", "b_jet_veto", "MET_100", "MET_significance_10", "n_j<=1", "m_ll_m_Z"})
+      Analysis_ATLAS_CONF_2018_042()
       {
+        #ifdef CHECK_CUTFLOW
+        _cutflows.addCutflow(CUTFLOW_NAME, {"Two_OS_leptons", "mll_25", "b_jet_veto", "MET_100", "MET_significance_10", "n_j<=1", "m_ll_m_Z"});
+        #endif
 
         // Counters for the number of accepted events for each signal region
         _counters["SR-DF-0J-100"] = EventCounter("SR-DF-0J-100");
@@ -176,7 +176,9 @@ namespace Gambit
 
       void run(const HEPUtils::Event* event)
       {
-        _cutflow.fillinit();
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fillinit();
+        #endif
 
         // Baseline objects
         double met = event->met();
@@ -261,39 +263,53 @@ namespace Gambit
         // Tow exactly opposite-sign lepton
         if (signalLeptons.size() != 2) return;
         if (signalLeptons[0]->pid()*signalLeptons[1]->pid()>0) return;
-        _cutflow.fill(1);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(1);
+        #endif
 
 
         // m_{ll} > 25 GeV
         double mll=(signalLeptons[0]->mom()+signalLeptons[1]->mom()).m();
         if (mll<25) return;
-        _cutflow.fill(2);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(2);
+        #endif
 
         // b-jet veto
         if (bJets.size()>0) return;
-        _cutflow.fill(3);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(3);
+        #endif
 
         // MET>110 GeV
         if (met<110) return;
-        _cutflow.fill(4);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(4);
+        #endif
 
         // The missing transverse momentum significance >10
         // TODO Use event-based MET significance instead of object-based significance
         // https://cds.cern.ch/record/2630948/files/ATLAS-CONF-2018-038.pdf
         double met_sig=met/sqrt(HT);
         if (met_sig<10) return;
-        _cutflow.fill(5);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(5);
+        #endif
 
         // n_non_b_tagged_jets <= 1
         if (nonbJets.size()>1) return;
-        _cutflow.fill(6);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(6);
+        #endif
 
         // Same flavour
         bool flag_SF = signalLeptons[0]->pid() + signalLeptons[1]->pid() == 0;
         if (flag_SF) {
             if (fabs(mll-91.2)<30) return ;
         }
-        _cutflow.fill(7);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(7);
+        #endif
 
         // Mt2
         double pLep1[3] = {signalLeptons[0]->mass(), signalLeptons[0]->mom().px(), signalLeptons[0]->mom().py()};
@@ -373,7 +389,7 @@ namespace Gambit
       virtual void collect_results() {
 
         #ifdef CHECK_CUTFLOW
-        cout << _cutflow << endl;
+        cout << _cutflows[CUTFLOW_NAME] << endl;
         for (auto& el : _counters) {
             cout << el.first << "\t" << _counters.at(el.first).sum() << endl;
         }
@@ -401,6 +417,10 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR-DF-1J-160")    ,   9., {12.2 , 2.5 }));
         add_result(SignalRegionData(_counters.at("SR-DF-1J-100-120"),  39., {50.6 , 10.7}));
         add_result(SignalRegionData(_counters.at("SR-DF-1J-120-160"),  25., {21.2 , 4.0 }));
+
+        #ifdef CHECK_CUTFLOW
+        add_cutflows(_cutflows);
+        #endif
       }
 
 
@@ -448,6 +468,9 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR-DF-1J-100-120"),  39., {50.6 , 10.7}));
         add_result(SignalRegionData(_counters.at("SR-DF-1J-120-160"),  25., {21.2 , 4.0 }));
 
+        #ifdef CHECK_CUTFLOW
+        add_cutflows(_cutflows);
+        #endif
       }
 
     };
@@ -500,6 +523,9 @@ namespace Gambit
         add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-180-220"), 7   ,  {   8.888386    ,   2.181206    }));
         add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-220"    ), 10  ,  {   13.481506   ,   2.867035    }));
 
+        #ifdef CHECK_CUTFLOW
+        add_cutflows(_cutflows);
+        #endif
       }
 
     };
