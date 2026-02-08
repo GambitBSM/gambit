@@ -23,10 +23,9 @@
 #include <fstream>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
-
-// #define CUTFLOW
 
 using namespace std;
 
@@ -52,18 +51,7 @@ namespace Gambit {
 
     protected:
 
-      vector<double> cutFlowVector;
-      vector<string> cutFlowVector_str;
-      size_t NCUTS;
-      vector<double> cutFlowVectorCMS_150_130;
-      vector<double> cutFlowVectorCMS_150_143;
-      vector<double> cutFlowVectorCMS_350_330;
-      vector<double> cutFlowVectorCMS_350_340;
-
-      // double xsecCMS_150_143;
-      // double xsecCMS_150_130;
-
-      // ofstream cutflowFile;
+      static constexpr const char* CUTFLOW_NAME = "CMS-SUS-16-048";
 
     public:
 
@@ -103,18 +91,24 @@ namespace Gambit {
         set_analysis_name("CMS_SUS_16_048");
         set_luminosity(35.9);
 
-        NCUTS=14;
-        // xsecCMS_150_143=5180.;
-        // xsecCMS_150_130=5180.;
-
-        for (size_t i=0;i<NCUTS;i++){
-          cutFlowVector.push_back(0);
-          cutFlowVectorCMS_150_130.push_back(0);
-          cutFlowVectorCMS_150_143.push_back(0);
-          cutFlowVectorCMS_350_330.push_back(0);
-          cutFlowVectorCMS_350_340.push_back(0);
-          cutFlowVector_str.push_back("");
-        }
+        #ifdef CHECK_CUTFLOW
+          _cutflows.addCutflow(CUTFLOW_NAME, {
+            "All events",
+            "2 mu's with 5 < pT < 30 GeV",
+            "mu's oppositely charged",
+            "pT(mumu) > 3 GeV",
+            "M(mumu) in [4,50] GeV",
+            "M(mumu) veto [9,10.5] GeV",
+            "125 < MET < 200 GeV",
+            "Trigger (0.65 efficiency)",
+            "ISR jet",
+            "HT > 100 GeV",
+            "0.6 < MET/HT < 1.4",
+            "b-tag veto",
+            "M(tautau) veto",
+            "MT(mu_x, MET), x=1,2 < 70 GeV"
+          });
+        #endif
       }
 
 
@@ -298,154 +292,31 @@ namespace Gambit {
           if (leadpT>20. && leadpT<30.) _counters.at("SRST9").add_event(event);
         }
 
-        cutFlowVector_str[0] = "All events";
-        // cutFlowVector_str[1] = "2 reconstructed $\\mu$'s with $5 < p_{T} < 30$ GeV";
-        cutFlowVector_str[1] = "2 $\\mu$'s with $5 < p_{T} < 30$ GeV";
-        cutFlowVector_str[2] = "$\\mu$'s oppositely charged";
-        cutFlowVector_str[3] = "$p_{T}(\\mu\\mu) > 3$ GeV";
-        cutFlowVector_str[4] = "$M(\\mu\\mu) \\in [4,50]$ GeV";
-        cutFlowVector_str[5] = "$M(\\mu\\mu)$ veto [9,10.5] $GeV$";
-        cutFlowVector_str[6] = "$125 < p^{miss}_{T} < 200$ GeV";
-        cutFlowVector_str[7] = "Trigger. Implemented as efficiency.";
-        cutFlowVector_str[8] = "ISR jet";
-        cutFlowVector_str[9] = "$H_{T} > 100$ GeV";
-        cutFlowVector_str[10] = "$0.6 < p^{miss}_{T}/H_{T} < 1.4$";
-        cutFlowVector_str[11] = "b-tag veto";
-        cutFlowVector_str[12] = "$M(\\tau\\tau)$ veto";
-        cutFlowVector_str[13] = "$M_{T}(\\mu_{x},p^{miss}_{T}), x = 1,2 < 70$ GeV";
+        #ifdef CHECK_CUTFLOW
+          const double w = event->weight();
+          const bool cf0 = true;
+          const bool cf1 = (nSignalMuons == 2);
+          const bool cf2 = (cf1 && OS);
+          const bool cf3 = (cf2 && pT_ll > 3.);
+          const bool cf4 = (cf3 && m_ll > 4. && m_ll < 50.);
+          const bool cf5 = (cf4 && (m_ll < 9. || m_ll > 10.5));
+          const bool cf6 = (cf5 && met > 125. && metcorr > 125. && met < 200.);
+          const bool cf7 = cf6; // trigger step, scaled by 0.65 below
+          const bool cf8 = (cf7 && nSignalJets > 0);
+          const bool cf9 = (cf8 && hT > 100.);
+          const bool cf10 = (cf9 && met/hT < 1.4 && met/hT > 0.6);
+          const bool cf11 = (cf10 && nSignalBJets == 0);
+          const bool cf12 = (cf11 && (mTauTau < 0. || mTauTau > 160.));
+          const bool cf13 = (cf12 && mT.at(0) < 70. && mT.at(1) < 70.);
 
-
-        // Cut flow from CMS email
-        cutFlowVectorCMS_150_130[0] = 172004.;
-        cutFlowVectorCMS_150_130[1] = 1250.4;
-        cutFlowVectorCMS_150_130[2] = 1199.6;
-        cutFlowVectorCMS_150_130[3] = 1176.0;
-        cutFlowVectorCMS_150_130[4] = 1095.2;
-        cutFlowVectorCMS_150_130[5] = 988.6;
-        cutFlowVectorCMS_150_130[6] = 46.8;
-        cutFlowVectorCMS_150_130[7] = 30.7;
-        cutFlowVectorCMS_150_130[8] = 27.9;
-        cutFlowVectorCMS_150_130[9] = 23.6;
-        cutFlowVectorCMS_150_130[10] = 17.2;
-        cutFlowVectorCMS_150_130[11] = 14.0;
-        cutFlowVectorCMS_150_130[12] = 12.3;
-        cutFlowVectorCMS_150_130[13] = 9.3;
-
-        cutFlowVectorCMS_150_143[0] = 172004.;
-        cutFlowVectorCMS_150_143[1] = 242.7;
-        cutFlowVectorCMS_150_143[2] = 218.5;
-        cutFlowVectorCMS_150_143[3] = 213.8;
-        cutFlowVectorCMS_150_143[4] = 103.3;
-        cutFlowVectorCMS_150_143[5] = 102.2;
-        cutFlowVectorCMS_150_143[6] =   9.8;
-        cutFlowVectorCMS_150_143[7] =   5.5;
-        cutFlowVectorCMS_150_143[8] =   5.3;
-        cutFlowVectorCMS_150_143[9] =   4.1;
-        cutFlowVectorCMS_150_143[10] =  3.7;
-        cutFlowVectorCMS_150_143[11] =  3.0;
-        cutFlowVectorCMS_150_143[12] =  2.7;
-        cutFlowVectorCMS_150_143[13] =  2.2;
-
-        // Cut flow from CMS email
-        cutFlowVectorCMS_350_330[0] = 125715.;
-        cutFlowVectorCMS_350_330[1] = 141.3;
-        cutFlowVectorCMS_350_330[2] = 141.3;
-        cutFlowVectorCMS_350_330[3] = 127.3;
-        cutFlowVectorCMS_350_330[4] = 123.8;
-        cutFlowVectorCMS_350_330[5] = 115.4;
-        cutFlowVectorCMS_350_330[6] = 14.1;
-        cutFlowVectorCMS_350_330[7] = 8.9;
-        cutFlowVectorCMS_350_330[8] = 8.2;
-        cutFlowVectorCMS_350_330[9] = 6.1;
-        cutFlowVectorCMS_350_330[10] = 4.4;
-        cutFlowVectorCMS_350_330[11] = 4.0;
-        cutFlowVectorCMS_350_330[12] = 3.7;
-
-        cutFlowVectorCMS_350_340[0] = 125715.;
-        cutFlowVectorCMS_350_340[1] = 18.0;
-        cutFlowVectorCMS_350_340[2] = 18.0;
-        cutFlowVectorCMS_350_340[3] = 10.7;
-        cutFlowVectorCMS_350_340[4] = 10.7;
-        cutFlowVectorCMS_350_340[5] = 10.6;
-        cutFlowVectorCMS_350_340[6] = 1.4;
-        cutFlowVectorCMS_350_340[7] = 0.8;
-        cutFlowVectorCMS_350_340[8] = 0.7;
-        cutFlowVectorCMS_350_340[9] = 0.7;
-        cutFlowVectorCMS_350_340[10] = 0.6;
-        cutFlowVectorCMS_350_340[11] = 0.5;
-        cutFlowVectorCMS_350_340[12] = 0.5;
-
-
-        for (size_t j=0;j<NCUTS;j++){
-          if(
-             (j==0) ||
-
-             (j==1 && nSignalMuons==2) ||
-
-             (j==2 && nSignalMuons==2 && OS) ||
-
-             (j==3 && nSignalMuons==2 && OS && pT_ll>3.) ||
-
-             (j==4 && nSignalMuons==2 && OS && pT_ll>3. && (m_ll>4. && m_ll<50.)) ||
-
-             (j==5 && nSignalMuons==2 && OS && pT_ll>3. && (m_ll>4. && m_ll<50.) && (m_ll<9. || m_ll>10.5)) ||
-
-             (j==6 && nSignalMuons==2 && OS && pT_ll>3. && (m_ll>4. && m_ll<50.) && (m_ll<9. || m_ll>10.5) && (met>125. && metcorr > 125. && met<200.)) ||
-
-             // replace this step with efficiency of 0.65 (below)
-             (j==7 && nSignalMuons==2 && OS && pT_ll>3. && (m_ll>4. && m_ll<50.) && (m_ll<9. || m_ll>10.5) && (met>125. && metcorr > 125. && met<200.)) ||
-
-             (j==8 && nSignalMuons==2 && OS && pT_ll>3. && (m_ll>4. && m_ll<50.) && (m_ll<9. || m_ll>10.5) && (met>125. && metcorr > 125. && met<200.) && nSignalJets>0) ||
-
-             (j==9 && nSignalMuons==2 && OS && pT_ll>3. && (m_ll>4. && m_ll<50.) && (m_ll<9. || m_ll>10.5) && (met>125. && metcorr > 125. && met<200.) && nSignalJets>0 && hT>100.) ||
-
-             (j==10 && nSignalMuons==2 && OS && pT_ll>3. && (m_ll>4. && m_ll<50.) && (m_ll<9. || m_ll>10.5) && (met>125. && metcorr > 125. && met<200.) && nSignalJets>0 && hT>100. && (met/hT<1.4 && met/hT>0.6)) ||
-
-             (j==11 && nSignalMuons==2 && OS && pT_ll>3. && (m_ll>4. && m_ll<50.) && (m_ll<9. || m_ll>10.5) && (met>125. && metcorr > 125. && met<200.) && nSignalJets>0 && hT>100. && (met/hT<1.4 && met/hT>0.6) && nSignalBJets==0) ||
-
-             (j==12 && nSignalMuons==2 && OS && pT_ll>3. && (m_ll>4. && m_ll<50.) && (m_ll<9. || m_ll>10.5) && (met>125. && metcorr > 125. && met<200.) && nSignalJets>0 && hT>100. && (met/hT<1.4 && met/hT>0.6) && nSignalBJets==0  && (mTauTau<0. || mTauTau>160.)) ||
-
-             (j==13 && nSignalMuons==2 && OS && pT_ll>3. && (m_ll>4. && m_ll<50.) && (m_ll<9. || m_ll>10.5) && (met>125. && metcorr > 125. && met<200.) && nSignalJets>0 && hT>100. && (met/hT<1.4 && met/hT>0.6) && nSignalBJets==0  && (mTauTau<0. || mTauTau>160.) && (mT.at(0)<70. && mT.at(1)<70.)))
-          {
-            if (j<7) cutFlowVector[j] += 1.0;
-            else cutFlowVector[j] += 0.65;  // trigger efficiency
-          }
-        }
+          _cutflows[CUTFLOW_NAME].fillinit(w);
+          _cutflows[CUTFLOW_NAME].fillnext({cf0, cf1, cf2, cf3, cf4, cf5, cf6}, w);
+          _cutflows[CUTFLOW_NAME].fillnext({cf7, cf8, cf9, cf10, cf11, cf12, cf13}, 0.65*w);
+        #endif
       }
 
 
       virtual void collect_results() {
-
-        #ifdef CUTFLOW
-          // double scale_by= 172004. / 250000.;
-          // double scale_by= 172004. / 1000000.;
-          double scale_by = 1;
-          cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-          cout << "CUT FLOW: CMS_SUS_16_048: Signal Region 1 "<<endl;
-          cout << "------------------------------------------------------------------------------------------------------------------------------"<<endl;
-          cout << right << setw(40) << "CUT," << setw(20) << "RAW," << setw(20) << "SCALED,"
-               << setw(20) << "%," << setw(20) << "CMS," << setw(20) << "GAMBIT(scaled)/CMS" << endl;
-          for (size_t j=0; j<NCUTS; j++) {
-            cout << right <<  setw(40) << cutFlowVector_str[j].c_str() <<  "," << setw(20)
-                 << cutFlowVector[j] <<  "," << setw(20) << cutFlowVector[j]*scale_by <<  "," << setw(20)
-                 << 100.*cutFlowVector[j]/cutFlowVector[0] << "%,"  << setw(20) << cutFlowVectorCMS_150_130[j] << "," << setw(20) << (cutFlowVector[j]*scale_by / cutFlowVectorCMS_150_130[j]) << endl;
-          }
-          cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-
-          cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-          cout << "CUT FLOW: CMS_SUS_16_048: Signal Region 2 "<<endl;
-          cout << "------------------------------------------------------------------------------------------------------------------------------"<<endl;
-          cout << right << setw(40) << "CUT," << setw(20) << "RAW," << setw(20) << "SCALED,"
-               << setw(20) << "%," << setw(20) << "CMS," << setw(20) << "GAMBIT(scaled)/CMS" << endl;
-          for (size_t j=0; j<NCUTS; j++) {
-            cout << right <<  setw(40) << cutFlowVector_str[j].c_str() <<  "," << setw(20)
-                 << cutFlowVector[j] <<  "," << setw(20) << cutFlowVector[j]*scale_by <<  "," << setw(20)
-                 << 100.*cutFlowVector[j]/cutFlowVector[0] << "%,"  << setw(20) << cutFlowVectorCMS_150_143[j] << "," << setw(20) << (cutFlowVector[j]*scale_by / cutFlowVectorCMS_150_143[j]) << endl;
-          }
-          cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-        #endif
-
-
         // The stop signal regions are collected in the derived analysis class
         // Analysis_CMS_SUS_16_048_stop below.
 
@@ -479,6 +350,10 @@ namespace Gambit {
         };
 
         set_covariance(BKGCOV);
+
+        #ifdef CHECK_CUTFLOW
+          COMMIT_CUTFLOWS
+        #endif
       }
 
 
@@ -486,8 +361,6 @@ namespace Gambit {
       void analysis_specific_reset() {
 
         for (auto& pair : _counters) { pair.second.reset(); }
-
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     };
@@ -507,34 +380,6 @@ namespace Gambit {
       }
 
       virtual void collect_results() {
-
-        #ifdef CUTFLOW
-          double scale_by = 1;
-          cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-          cout << "CUT FLOW: CMS_SUS_16_048_stop: Signal Region 1 "<<endl;
-          cout << "------------------------------------------------------------------------------------------------------------------------------"<<endl;
-          cout << right << setw(40) << "CUT," << setw(20) << "RAW," << setw(20) << "SCALED,"
-               << setw(20) << "%," << setw(20) << "CMS," << setw(20) << "GAMBIT(scaled)/CMS" << endl;
-          for (size_t j=0; j<NCUTS-1; j++) {
-            cout << right <<  setw(40) << cutFlowVector_str[j].c_str() <<  "," << setw(20)
-                 << cutFlowVector[j] <<  "," << setw(20) << cutFlowVector[j]*scale_by <<  "," << setw(20)
-                 << 100.*cutFlowVector[j]/cutFlowVector[0] << "%,"  << setw(20) << cutFlowVectorCMS_350_330[j] << "," << setw(20) << (cutFlowVector[j]*scale_by / cutFlowVectorCMS_350_330[j]) << endl;
-          }
-
-          cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-          cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-          cout << "CUT FLOW: CMS_SUS_16_048_stop: Signal Region 2 "<<endl;
-          cout << "------------------------------------------------------------------------------------------------------------------------------"<<endl;
-          cout << right << setw(40) << "CUT," << setw(20) << "RAW," << setw(20) << "SCALED,"
-               << setw(20) << "%," << setw(20) << "CMS," << setw(20) << "GAMBIT(scaled)/CMS" << endl;
-          for (size_t j=0; j<NCUTS-1; j++) {
-            cout << right <<  setw(40) << cutFlowVector_str[j].c_str() <<  "," << setw(20)
-                 << cutFlowVector[j] <<  "," << setw(20) << cutFlowVector[j]*scale_by <<  "," << setw(20)
-                 << 100.*cutFlowVector[j]/cutFlowVector[0] << "%,"  << setw(20) << cutFlowVectorCMS_350_340[j] << "," << setw(20) << (cutFlowVector[j]*scale_by / cutFlowVectorCMS_350_340[j]) << endl;
-          }
-          cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-        #endif
-
         add_result(SignalRegionData(_counters.at("SRST1"),  16., {14.0,2.3}));
         add_result(SignalRegionData(_counters.at("SRST2"),  51., {37.0,6.8}));
         add_result(SignalRegionData(_counters.at("SRST3"),  67., {54.0,6.5}));
@@ -559,6 +404,10 @@ namespace Gambit {
         };
 
         set_covariance(BKGCOV);
+
+        #ifdef CHECK_CUTFLOW
+          COMMIT_CUTFLOWS
+        #endif
 
       }
 
@@ -594,6 +443,10 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SREW11"), 2.,  {1.5, 0.8}));
         add_result(SignalRegionData(_counters.at("SREW12"), 0.,  {1.2, 0.6}));
 
+        #ifdef CHECK_CUTFLOW
+          COMMIT_CUTFLOWS
+        #endif
+
       }
 
     };
@@ -623,6 +476,10 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SRST7"),  4.,  {4.7,1.3}));
         add_result(SignalRegionData(_counters.at("SRST8"),  11., {10.0,1.9}));
         add_result(SignalRegionData(_counters.at("SRST9"),  9.,  {10.0,2.5}));
+
+        #ifdef CHECK_CUTFLOW
+          COMMIT_CUTFLOWS
+        #endif
 
       }
 
