@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 
 /// @todo Remove the ROOT classes...
@@ -32,10 +33,6 @@ namespace Gambit {
     class Analysis_CMS_B2G_13_004 : public Analysis {
     private:
 
-      vector<int> cutFlowVector;
-      vector<string> cutFlowVector_str;
-      int NCUTS; //=24;
-
       // Debug histos
 
     public:
@@ -44,17 +41,15 @@ namespace Gambit {
       static constexpr const char* detector = "CMS";
 
       Analysis_CMS_B2G_13_004()
-        : NCUTS(6)
       {
-        _counters["SR" ] = EventCounter("SR");
+        DEFINE_SIGNAL_REGION("SR",
+                             "MET > 320 GeV",
+                             "pT_j1 + pT_j2 < 400 GeV",
+                             "pT_l1 + pT_l2 > 120 GeV",
+                             "dPhi_ll < 2.");
 
         set_analysis_name("CMS_B2G_13_004");
         set_luminosity(19.7);
-
-        for (int i=0; i<NCUTS; i++) {
-          cutFlowVector.push_back(0);
-          cutFlowVector_str.push_back("");
-        }
       }
 
       double SmallestdPhi(std::vector<HEPUtils::Jet *> jets,double phi_met)
@@ -173,33 +168,24 @@ namespace Gambit {
         double dPhiLL=99.;
         if(baselineLeptons.size()==2)dPhiLL=acos(cos((baselineLeptons[0]->phi() - baselineLeptons[1]->phi())));
 
-        cutFlowVector_str[0] = "No cuts ";
-        cutFlowVector_str[1] = "Presel ";
-        cutFlowVector_str[2] = "MET > 320 GeV ";
-        cutFlowVector_str[3] = "pT_j1 + pT_j2 < 400 GeV ";
-        cutFlowVector_str[4] = "pT_l1 + pT_l2 > 120 GeV ";
-        cutFlowVector_str[5] = "dPhi_ll < 2. ";
+        const bool passMet = met > 320.;
+        const bool passJetPtSum = jetPtSum < 400.;
+        const bool passLepPtSum = lepPtSum > 120.;
+        const bool passDPhiLL = dPhiLL < 2.;
+        const bool passSR = passPresel && passMet && passJetPtSum && passLepPtSum && passDPhiLL;
 
-        for(int j=0;j<NCUTS;j++){
-          if(
-             (j==0) ||
-
-             (j==1 && passPresel) ||
-
-             (j==2 && passPresel && met > 320.) ||
-
-             (j==3 && passPresel && met > 320. && jetPtSum < 400.) ||
-
-             (j==4 && passPresel && met > 320. && jetPtSum < 400. && lepPtSum > 120.) ||
-
-             (j==5 && passPresel && met > 320. && jetPtSum < 400. && lepPtSum > 120. && dPhiLL < 2.))
-
-            cutFlowVector[j]++;
-        }
+        #ifdef CHECK_CUTFLOW
+          const double w = event->weight();
+          _cutflows["SR"].fillinit(w);
+          _cutflows["SR"].fillnext(std::vector<bool>{passPresel, passMet, passJetPtSum, passLepPtSum, passDPhiLL}, w);
+        #endif
 
         //We're now ready to apply the cuts for each signal region
 
-        if(passPresel && met > 320. && jetPtSum < 400. && lepPtSum > 120. && dPhiLL < 2.) _counters["SR"].add_event(event);
+        if (passSR)
+        {
+          FILL_SIGNAL_REGION("SR")
+        }
 
         return;
       }
@@ -213,7 +199,10 @@ namespace Gambit {
 
       void collect_results() {
 
-        add_result(SignalRegionData(_counters["SR"], 1., {1.89, 0.66}));
+        COMMIT_SIGNAL_REGION("SR", 1., 1.89, 0.66)
+        #ifdef CHECK_CUTFLOW
+          COMMIT_CUTFLOWS
+        #endif
 
         return;
       }
@@ -223,7 +212,6 @@ namespace Gambit {
       void analysis_specific_reset()
       {
         for (auto& pair : _counters) { pair.second.reset(); }
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     };

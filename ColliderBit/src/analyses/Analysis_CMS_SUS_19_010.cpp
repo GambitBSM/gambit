@@ -50,8 +50,7 @@ namespace Gambit
 
 
     public:
-
-      bool doCutflow = false;
+      static constexpr const char* CUTFLOW_NAME = "CMS-SUS-19-010";
 
       // Required detector sim
       static constexpr const char* detector = "CMS";
@@ -68,23 +67,24 @@ namespace Gambit
 //      Low dM:n_MergedTop+Nw+Nres=0, mTb<175 iff Nb>=1, dPhi(j123,MET)>0.5,0.15,0.15, N_ISR=1 && dPhi(MET, ISRjet)>2, MET/sqrt(Ht)>10
 //      High dM: Nj>=5, Nb>=1, dPhi(MET,j1,2,3,4)>0.5
 
-        if (doCutflow)
-        {
-            DEFINE_SIGNAL_REGION_NOCUTS("Total");
-            DEFINE_SIGNAL_REGION_NOCUTS("baseline_MET");
-            DEFINE_SIGNAL_REGION_NOCUTS("baseline_MET_Nj");
-            DEFINE_SIGNAL_REGION_NOCUTS("baseline_MET_Nj_0e0mu");
-            DEFINE_SIGNAL_REGION_NOCUTS("baseline_MET_Nj_0e0mu_0tau");
-            DEFINE_SIGNAL_REGION_NOCUTS("baseline_MET_Nj_0e0mu_0tau_Ht");
-            DEFINE_SIGNAL_REGION_NOCUTS("lowDM_NtNwNres");
-            DEFINE_SIGNAL_REGION_NOCUTS("lowDM_NtNwNres_mTb");
-            DEFINE_SIGNAL_REGION_NOCUTS("lowDM_NtNwNres_mTb_dPhi");
-            DEFINE_SIGNAL_REGION_NOCUTS("lowDM_NtNwNres_mTb_dPhi_ISR");
-            DEFINE_SIGNAL_REGION_NOCUTS("lowDM_NtNwNres_mTb_dPhi_ISR_METHt");
-            DEFINE_SIGNAL_REGION_NOCUTS("highDM_Nj");
-            DEFINE_SIGNAL_REGION_NOCUTS("highDM_Nj_Nb");
-            DEFINE_SIGNAL_REGION_NOCUTS("highDM_Nj_Nb_dPhi");
-        }
+        #ifdef CHECK_CUTFLOW
+            _cutflows.addCutflow(CUTFLOW_NAME, {
+                "Total",
+                "baseline_MET",
+                "baseline_MET_Nj",
+                "baseline_MET_Nj_0e0mu",
+                "baseline_MET_Nj_0e0mu_0tau",
+                "baseline_MET_Nj_0e0mu_0tau_Ht",
+                "lowDM_NtNwNres",
+                "lowDM_NtNwNres_mTb",
+                "lowDM_NtNwNres_mTb_dPhi",
+                "lowDM_NtNwNres_mTb_dPhi_ISR",
+                "lowDM_NtNwNres_mTb_dPhi_ISR_METHt",
+                "highDM_Nj",
+                "highDM_Nj_Nb",
+                "highDM_Nj_Nb_dPhi"
+            });
+        #endif
 
         // low dM 53 bins
         DEFINE_SIGNAL_REGION_NOCUTS("lowDM-0_2Nj5_Nb0_Nsv0_500ISR_450MET550");
@@ -658,8 +658,10 @@ namespace Gambit
         bool low_dM_presel = false; // low dM Pre-selection cut
         bool high_dM_presel = false; // high dM Pre-selection cut
 
-//        FILL_SIGNAL_REGION("Total");
-        if (doCutflow){ FILL_SIGNAL_REGION("Total");}
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fillinit(event->weight());
+        _cutflows[CUTFLOW_NAME].fill(1, event->weight());
+        #endif
 
         // Perform all pre-selection cuts
         BEGIN_PRESELECTION
@@ -669,31 +671,41 @@ namespace Gambit
             // Passes MET > 250 GeV
             if (met > 250.)
             {
-              if (doCutflow){ FILL_SIGNAL_REGION("baseline_MET");}
+              #ifdef CHECK_CUTFLOW
+              _cutflows[CUTFLOW_NAME].fill(2, event->weight());
+              #endif
               // Passes the Nj >= 2
               if (!(n_jets_30 >= 2))
               {
                 break;
               }
-              if (doCutflow){ FILL_SIGNAL_REGION("baseline_MET_Nj");}
+              #ifdef CHECK_CUTFLOW
+              _cutflows[CUTFLOW_NAME].fill(3, event->weight());
+              #endif
               // Passes the e and mu veto
               if (!(n_electrons==0 && n_muons==0))
               {
                 break;
               }
-              if (doCutflow){ FILL_SIGNAL_REGION("baseline_MET_Nj_0e0mu");}
+              #ifdef CHECK_CUTFLOW
+              _cutflows[CUTFLOW_NAME].fill(4, event->weight());
+              #endif
               // Passes the tau veto
               if (!(n_taus==0))
               {
                 break;
               }
-              if (doCutflow){ FILL_SIGNAL_REGION("baseline_MET_Nj_0e0mu_0tau");}
+              #ifdef CHECK_CUTFLOW
+              _cutflows[CUTFLOW_NAME].fill(5, event->weight());
+              #endif
               // Passes Ht > 300 GeV
               if (!(Ht > 300.))
               {
                 break;
               }
-              if (doCutflow){ FILL_SIGNAL_REGION("baseline_MET_Nj_0e0mu_0tau_Ht");}
+              #ifdef CHECK_CUTFLOW
+              _cutflows[CUTFLOW_NAME].fill(6, event->weight());
+              #endif
               // Set Baseline preselection as passed :)
               baseline_presel = true;
             }
@@ -710,31 +722,41 @@ namespace Gambit
               {
                 break;
               }
-              if (doCutflow){ FILL_SIGNAL_REGION("lowDM_NtNwNres");}
+              #ifdef CHECK_CUTFLOW
+              _cutflows[CUTFLOW_NAME].fill(7, event->weight());
+              #endif
               // Passes the mtb cut
               if (!(n_bjets_30==0 || (n_bjets_30>0 && mTb < 175.)))
               {
                 break;
               }
-              if (doCutflow){ FILL_SIGNAL_REGION("lowDM_NtNwNres_mTb");}
+              #ifdef CHECK_CUTFLOW
+              _cutflows[CUTFLOW_NAME].fill(8, event->weight());
+              #endif
               // Passes the dPhi jet met cuts 
               if (!( (deltaPhi(signalJets_30.at(0)->mom(),metVec)>0.5 && deltaPhi(signalJets_30.at(1)->mom(),metVec)>0.15) && (n_jets_30==2 || deltaPhi(signalJets_30.at(2)->mom(),metVec)>0.15)))
               {
                 break;
               }
-              if (doCutflow){ FILL_SIGNAL_REGION("lowDM_NtNwNres_mTb_dPhi");}
+              #ifdef CHECK_CUTFLOW
+              _cutflows[CUTFLOW_NAME].fill(9, event->weight());
+              #endif
               // Passes ISR
               if (!(n_ISR==1))
               {
                 break;
               }
-              if (doCutflow){ FILL_SIGNAL_REGION("lowDM_NtNwNres_mTb_dPhi_ISR");}
+              #ifdef CHECK_CUTFLOW
+              _cutflows[CUTFLOW_NAME].fill(10, event->weight());
+              #endif
               // Passes MET/HT
               if (!((met/sqrt(Ht)) > 10))
               {
                 break;
               }
-              if (doCutflow){ FILL_SIGNAL_REGION("lowDM_NtNwNres_mTb_dPhi_ISR_METHt");}
+              #ifdef CHECK_CUTFLOW
+              _cutflows[CUTFLOW_NAME].fill(11, event->weight());
+              #endif
               // Set Low deltaM preselection as passed :)
               low_dM_presel = true;
             }
@@ -751,19 +773,25 @@ namespace Gambit
               {
                 break;
               }
-              if (doCutflow){ FILL_SIGNAL_REGION("highDM_Nj");}
+              #ifdef CHECK_CUTFLOW
+              _cutflows[CUTFLOW_NAME].fill(12, event->weight());
+              #endif
               // Passes the Nb cut
               if (!(n_bjets_30 >= 1))
               {
                 break;
               }
-              if (doCutflow){ FILL_SIGNAL_REGION("highDM_Nj_Nb");}
+              #ifdef CHECK_CUTFLOW
+              _cutflows[CUTFLOW_NAME].fill(13, event->weight());
+              #endif
               // Passes the dPhi jet met cuts
               if (!( deltaPhi(signalJets_30.at(0)->mom(),metVec)>0.5 && deltaPhi(signalJets_30.at(1)->mom(),metVec)>0.5 && deltaPhi(signalJets_30.at(2)->mom(),metVec)>0.5 && deltaPhi(signalJets_30.at(3)->mom(),metVec)>0.5 ))
               {
                 break;
               }
-              if (doCutflow){ FILL_SIGNAL_REGION("highDM_Nj_Nb_dPhi");}
+              #ifdef CHECK_CUTFLOW
+              _cutflows[CUTFLOW_NAME].fill(14, event->weight());
+              #endif
               // Set Low deltaM preselection as passed :)
               high_dM_presel = true;
             }
@@ -1161,24 +1189,6 @@ namespace Gambit
       {
         // Obs. Exp. Err.
 
-        if (doCutflow)
-        {
-            COMMIT_SIGNAL_REGION("Total", 1., 1., 1.);
-            COMMIT_SIGNAL_REGION("baseline_MET", 1., 1., 1.);
-            COMMIT_SIGNAL_REGION("baseline_MET_Nj", 1., 1., 1.);
-            COMMIT_SIGNAL_REGION("baseline_MET_Nj_0e0mu", 1., 1., 1.);
-            COMMIT_SIGNAL_REGION("baseline_MET_Nj_0e0mu_0tau", 1., 1., 1.);
-            COMMIT_SIGNAL_REGION("baseline_MET_Nj_0e0mu_0tau_Ht", 1., 1., 1.);
-            COMMIT_SIGNAL_REGION("lowDM_NtNwNres", 1., 1., 1.);
-            COMMIT_SIGNAL_REGION("lowDM_NtNwNres_mTb", 1., 1., 1.);
-            COMMIT_SIGNAL_REGION("lowDM_NtNwNres_mTb_dPhi", 1., 1., 1.);
-            COMMIT_SIGNAL_REGION("lowDM_NtNwNres_mTb_dPhi_ISR", 1., 1., 1.);
-            COMMIT_SIGNAL_REGION("lowDM_NtNwNres_mTb_dPhi_ISR_METHt", 1., 1., 1.);
-            COMMIT_SIGNAL_REGION("highDM_Nj", 1., 1., 1.);
-            COMMIT_SIGNAL_REGION("highDM_Nj_Nb", 1., 1., 1.);
-            COMMIT_SIGNAL_REGION("highDM_Nj_Nb_dPhi", 1., 1., 1.);
-        }
-
         // low dM 53 bins
         COMMIT_SIGNAL_REGION("lowDM-0_2Nj5_Nb0_Nsv0_500ISR_450MET550", 7538, 7840., 585.);
         COMMIT_SIGNAL_REGION("lowDM-1_2Nj5_Nb0_Nsv0_500ISR_550MET650", 4920, 5120., 425.);
@@ -1425,7 +1435,9 @@ namespace Gambit
 
         COMMIT_SIGNAL_REGION("highDM-182_175mTb_5Nj_3Nb_3NtNwNres_300Ht_250MET", 0, 0.11, 0.03);
 
+        #ifdef CHECK_CUTFLOW
         COMMIT_CUTFLOWS;
+        #endif
 
       }
 

@@ -30,7 +30,6 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
-#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/Utils.hpp"
 
@@ -46,8 +45,6 @@ namespace Gambit {
 
     class Analysis_CMS_SUS_20_004 : public Analysis {
     protected:
-
-        Cutflow _cutflow;
         HEPUtils::BinnedFn2D<double> LooseEff = CMS::eff2DBJet.at("DeepCSVLoose");
         HEPUtils::BinnedFn2D<double> MediumEff = CMS::eff2DBJet.at("DeepCSVMedium");
         HEPUtils::BinnedFn2D<double> TightEff = CMS::eff2DBJet.at("DeepCSVTight");
@@ -56,32 +53,36 @@ namespace Gambit {
     public:
         // Required detector sim
         static constexpr const char* detector = "CMS";
+        static constexpr const char* CUTFLOW_NAME = "CMS-SUS-20-004";
 
-        Analysis_CMS_SUS_20_004():
-        _cutflow("CMS_SUS_20_004", {
-          "Filters",
-          "N_vl=N_tk=0",
-          "4<=N_jet<=5",
-          "N_b>=2",
-          "P_T^miss_quality",
-          "Dmbb<40,mbb<200",
-          "DRmax<2.2",
-          "100<m<140",
-          "Nb>=3",
-          "Nb==4",
-          "PT^miss>200",
-          "PT^miss>300",
-          "PT^miss>400",
-          "------", // 14
-          "HadronicBaseline", 
-          "NAK8>=2",
-          "mJ1&2[60,260]",
-          "ResolvedEventVeto",
-          "mJ1&2[95,145]",
-          "DbbJ1xor2>0.7",
-          "DbbJ1&2>0.7"
-          })
+        Analysis_CMS_SUS_20_004()
         {
+          #ifdef CHECK_CUTFLOW
+            _cutflows.addCutflow(CUTFLOW_NAME, {
+              "Filters",
+              "N_vl=N_tk=0",
+              "4<=N_jet<=5",
+              "N_b>=2",
+              "P_T^miss_quality",
+              "Dmbb<40,mbb<200",
+              "DRmax<2.2",
+              "100<m<140",
+              "Nb>=3",
+              "Nb==4",
+              "PT^miss>200",
+              "PT^miss>300",
+              "PT^miss>400",
+              "------", // 14
+              "HadronicBaseline", 
+              "NAK8>=2",
+              "mJ1&2[60,260]",
+              "ResolvedEventVeto",
+              "mJ1&2[95,145]",
+              "DbbJ1xor2>0.7",
+              "DbbJ1&2>0.7"
+          });
+          #endif
+
             set_analysis_name("CMS_SUS_20_004");
             set_luminosity(137);
 
@@ -107,7 +108,9 @@ namespace Gambit {
         } comparePt;
 
         void run(const HEPUtils::Event* event) {
-            _cutflow.fillinit();
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fillinit();
+            #endif
 
             // Missing energy
             double met = event->met();
@@ -142,7 +145,9 @@ namespace Gambit {
             SIGNAL_JETS(baselineBJets_AK8, signalBJets_AK8)
 
             // for the boosted signature
-            _cutflow.fill(14);
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(14);
+            #endif
             if (met > 300. 
                 and baselineElectrons.size() == 0 and baselineMuons.size() == 0 
                 and signalJets_AK4.size()>=4){
@@ -152,19 +157,31 @@ namespace Gambit {
                 DeltaPhiVeto = deltaR_eta(ptot, signalJets_AK4.at(ii)->mom()) < deltaPhi_cut;
               }
               if (not DeltaPhiVeto) {
-                _cutflow.fill(15); 
+                #ifdef CHECK_CUTFLOW
+                _cutflows[CUTFLOW_NAME].fill(15); 
+                #endif
                 if ( signalJets_AK8.size()>=2 ) { // N_AK8>=2
-                  _cutflow.fill(16);
+                  #ifdef CHECK_CUTFLOW
+                  _cutflows[CUTFLOW_NAME].fill(16);
+                  #endif
                   double mj1 = (signalJets_AK8.at(0)->mom()).m();
                   double mj2 = (signalJets_AK8.at(1)->mom()).m();
                   if ( min(mj1,mj2)>60 and max(mj1,mj2)<260){// m_J1&J2 [60,260] GeV
-                    _cutflow.fill(17);
+                    #ifdef CHECK_CUTFLOW
+                    _cutflows[CUTFLOW_NAME].fill(17);
+                    #endif
                     // TODO reseolved event veto?
-                    _cutflow.fill(18);
+                    #ifdef CHECK_CUTFLOW
+                    _cutflows[CUTFLOW_NAME].fill(18);
+                    #endif
                     if (min(mj1,mj2)>95 and max(mj1,mj2)<145){
-                      _cutflow.fill(19);
+                      #ifdef CHECK_CUTFLOW
+                      _cutflows[CUTFLOW_NAME].fill(19);
+                      #endif
                       if (signalBJets_AK8.size()==1){ // N_H=1
-                        _cutflow.fill(20);
+                        #ifdef CHECK_CUTFLOW
+                        _cutflows[CUTFLOW_NAME].fill(20);
+                        #endif
                         if (met < 500.) {
                           _counters.at("SR17").add_event(event);
                         } else if (met < 700.) {
@@ -173,7 +190,9 @@ namespace Gambit {
                           _counters.at("SR19").add_event(event);
                         }
                       }else if (signalBJets_AK8.size()==2) { // N_H=2
-                        _cutflow.fill(21);
+                        #ifdef CHECK_CUTFLOW
+                        _cutflows[CUTFLOW_NAME].fill(21);
+                        #endif
                         if (met < 500.) {
                           _counters.at("SR20").add_event(event);
                         } else if (met < 700.) {
@@ -190,20 +209,30 @@ namespace Gambit {
 
             // the resolved signature
             if(met < 150.) return;
-            _cutflow.fill(1); // MET>150
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(1); // MET>150
+            #endif
             if (baselineElectrons.size()>0 or baselineMuons.size()>0 ) return;
-            _cutflow.fill(2); // N_vl=N_tk=0
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(2); // N_vl=N_tk=0
+            #endif
             if (signalJets_AK4.size()<4 or signalJets_AK4.size()>5) return;
-            _cutflow.fill(3); // 4<=N_jet<=5
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(3); // 4<=N_jet<=5
+            #endif
             if (signalBJets_T.size()<2 or signalBJets_M.size()<2) return;
-            _cutflow.fill(4); // N_b>=2
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(4); // N_b>=2
+            #endif
 
             for (int ii=0; ii<4; ii++)
             {
               double deltaPhi_cut =  ii<2 ? 0.5 : 0.3;
               if ( deltaR_eta(ptot, signalJets_AK4.at(ii)->mom()) < deltaPhi_cut) return;
             }
-            _cutflow.fill(5); // DeltaPhi cuts
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(5); // DeltaPhi cuts
+            #endif
 
             // Instead of using four jets with the highest b-tag
             // discriminator values, we use the four hardest jets.
@@ -226,26 +255,42 @@ namespace Gambit {
               }
             }
             if (mbb_delta_smallest>40 or mbb_average>200) return;
-            _cutflow.fill(6); // Delta_m_bb < 40 GeV, <m_bb> < 200 GeV
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(6); // Delta_m_bb < 40 GeV, <m_bb> < 200 GeV
+            #endif
 
             double Delta_R_max = max(deltaR_eta(signalJets_AK4.at(pair1[i_smallest][0])->mom(), signalJets_AK4.at(pair1[i_smallest][1])->mom()),
                                      deltaR_eta(signalJets_AK4.at(pair2[i_smallest][0])->mom(), signalJets_AK4.at(pair2[i_smallest][1])->mom()));
             if (Delta_R_max > 2.2) return;
-            _cutflow.fill(7); // Delta_R_max< 2.2
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(7); // Delta_R_max< 2.2
+            #endif
 
             if (mbb_average>140 or mbb_average<100) return;
-            _cutflow.fill(8); // 100 < <m_bb> < 140 GeV
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(8); // 100 < <m_bb> < 140 GeV
+            #endif
 
             if (signalBJets_M.size() >= 3 and signalBJets_L.size() >= 3 ) { // Nb>=3
-              _cutflow.fill(9); // Nb>=3
+              #ifdef CHECK_CUTFLOW
+              _cutflows[CUTFLOW_NAME].fill(9); // Nb>=3
+              #endif
               if (signalBJets_M.size() >= 3 and signalBJets_L.size() >= 4 ) { // Nb==4
-                _cutflow.fill(10); // Nb==4
+                #ifdef CHECK_CUTFLOW
+                _cutflows[CUTFLOW_NAME].fill(10); // Nb==4
+                #endif
                 if (met > 200.) {
-                  _cutflow.fill(11); 
+                  #ifdef CHECK_CUTFLOW
+                  _cutflows[CUTFLOW_NAME].fill(11); 
+                  #endif
                   if (met > 300.) {
-                    _cutflow.fill(12);
+                    #ifdef CHECK_CUTFLOW
+                    _cutflows[CUTFLOW_NAME].fill(12);
+                    #endif
                     if (met > 400.) {
-                      _cutflow.fill(13); 
+                      #ifdef CHECK_CUTFLOW
+                      _cutflows[CUTFLOW_NAME].fill(13); 
+                      #endif
                     }
                   }
                 }
@@ -309,9 +354,7 @@ namespace Gambit {
 
 
         void collect_results() {
-        
-            //cout << _cutflow << endl;
-        
+
             add_result(SignalRegionData(_counters.at("SR1"), 138, {149.74,8.8574}));
             add_result(SignalRegionData(_counters.at("SR2"), 91,  {91.536,6.8599}));
             add_result(SignalRegionData(_counters.at("SR3"), 14,  {12.757,2.5972}));
@@ -341,6 +384,10 @@ namespace Gambit {
             // };
 
             // set_covariance(BKGCOV);
+
+            #ifdef CHECK_CUTFLOW
+            add_cutflows(_cutflows);
+            #endif
 
             return;
         }

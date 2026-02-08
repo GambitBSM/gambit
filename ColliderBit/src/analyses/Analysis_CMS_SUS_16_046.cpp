@@ -21,7 +21,6 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
-#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 
 // #define CHECK_CUTFLOW
 
@@ -38,13 +37,13 @@ namespace Gambit {
     public:
 
       static constexpr const char* detector = "CMS";
+      static constexpr const char* CUTFLOW_NAME = "CMS-SUS-16-046";
 
-
-      Cutflow _cutflow;
-
-      Analysis_CMS_SUS_16_046():
-      _cutflow("CMS 1-photon GMSB 13 TeV", {"preselection", "MET>300GeV", "MT(g,MET)>300GeV", "S_T^g>600GeV"})
+      Analysis_CMS_SUS_16_046()
       {
+        #ifdef CHECK_CUTFLOW
+        _cutflows.addCutflow(CUTFLOW_NAME, {"preselection", "MET>300GeV", "MT(g,MET)>300GeV", "S_T^g>600GeV"});
+        #endif
 
         // Counters for the number of accepted events for each signal region
         _counters["SR-600-800"] = EventCounter("SR-600-800");
@@ -63,7 +62,9 @@ namespace Gambit {
         // Baseline objects
         HEPUtils::P4 ptot = event->missingmom();
         double met = event->met();
-        _cutflow.fillinit();
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fillinit();
+        #endif
 
         // Apply photon efficiency and collect baseline photon
         //@note Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/PhotonEfficiencies_ForPublic_Moriond2017_LoosePixelVeto.pdf
@@ -115,17 +116,23 @@ namespace Gambit {
             if (jet->pT()>100. && jet->mom().deltaPhi(ptot) < 0.3 ) delta_phi_j_MET=true;
         }
         if (delta_phi_j_MET) return;
-        _cutflow.fill(1);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(1);
+        #endif
 
 
         // MET > 300 GeV
         if (met<300)return;
-        _cutflow.fill(2);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(2);
+        #endif
 
         // MT(photon,MET) > 300 GeV
         double MT = sqrt(2.*Photons[0]->pT()*met*(1. - std::cos(Photons[0]->mom().deltaPhi(ptot)) ));
         if (MT<300)return;
-        _cutflow.fill(3);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(3);
+        #endif
 
         // S_T^gamma > 600 GeV
         double STgamma = met;
@@ -133,7 +140,9 @@ namespace Gambit {
             STgamma += photon->pT();
         }
         if (STgamma<600) return;
-        _cutflow.fill(4);
+        #ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(4);
+        #endif
 
         // Signal regions
         if      (STgamma<800)  _counters.at("SR-600-800").add_event(event);
@@ -146,19 +155,14 @@ namespace Gambit {
 
       virtual void collect_results()
       {
-        #ifdef CHECK_CUTFLOW
-          cout << _cutflow << endl;
-          // Note: The EventCount::sum() call below gives the raw MC event count.
-          //       Use weight_sum() to get the sum of event weights.
-          for (auto& pair : _counters) {
-              cout << pair.first << "\t" << pair.second.sum() << endl;
-          }
-        #endif
-
         add_result(SignalRegionData(_counters.at("SR-600-800")  , 281., {267,  27.2}));
         add_result(SignalRegionData(_counters.at("SR-800-1000") , 101., {100.2,10.8}));
         add_result(SignalRegionData(_counters.at("SR-1000-1300"),  65., {52.8, 6.16}));
         add_result(SignalRegionData(_counters.at("SR-1300")     ,  24., {17.6, 2.76}));
+
+        #ifdef CHECK_CUTFLOW
+          add_cutflows(_cutflows);
+        #endif
 
       }
 

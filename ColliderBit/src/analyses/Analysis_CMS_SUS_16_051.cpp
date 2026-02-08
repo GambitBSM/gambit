@@ -2,7 +2,6 @@
 #include "gambit/ColliderBit/topness.h"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
-#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 
 using namespace std;
 
@@ -34,8 +33,7 @@ namespace Gambit {
 
         static const size_t NUM_aggregateSR = 6;
 
-        // Cut Flow
-        Cutflow _cutflow;
+        static constexpr const char* CUTFLOW_NAME = "CMS-SUS-16-051";
 
         // Jet overlap removal
         void JetLeptonOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, vector<const HEPUtils::Particle*> &lepvec, double DeltaRMax) {
@@ -68,20 +66,22 @@ namespace Gambit {
         // Required detector sim
         static constexpr const char* detector = "CMS";
 
-        Analysis_CMS_SUS_16_051():
-            _cutflow("CMS 0-lep stop 13 TeV", {
-            "Trigger",
-            "M_{T}>150",
-            "N_b>=1",
-            "N_l<2",
-            "N_tau==0",
-            "deltaPhi_j12>0.8",
-            "MET>250",
-            "**t_mod>0",
-            "**t_mod>10",
-            "**Mlb<175",
-            "**Mlb>175"})
+        Analysis_CMS_SUS_16_051()
         {
+            #ifdef CHECK_CUTFLOW
+                _cutflows.addCutflow(CUTFLOW_NAME, {
+                    "Trigger",
+                    "M_{T}>150",
+                    "N_b>=1",
+                    "N_l<2",
+                    "N_tau==0",
+                    "deltaPhi_j12>0.8",
+                    "MET>250",
+                    "**t_mod>0",
+                    "**t_mod>10",
+                    "**Mlb<175",
+                    "**Mlb>175"});
+            #endif
 
           // Numbers passing cuts
           // Aggregate SRs
@@ -131,7 +131,9 @@ namespace Gambit {
 
         void run(const HEPUtils::Event* event) {
 
-            _cutflow.fillinit();
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fillinit();
+            #endif
 
             // Missing energy
             double met = event->met();
@@ -215,12 +217,16 @@ namespace Gambit {
                 if (mu->pT() > 22. && mu->abseta() < 2.4 ) lep_trigger=true;
             }
             if(!lep_trigger) return;
-            _cutflow.fill(1); //"Trigger"
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(1); //"Trigger"
+            #endif
 
             // MT of lepton-MET system
             double MT=sqrt( 2.*Leptons.at(0)->pT()*met*(1.-std::cos(Leptons.at(0)->mom().deltaPhi(ptot))) );
             if(MT<150) return;
-            _cutflow.fill(2); //"M_{T}>150"
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(2); //"M_{T}>150"
+            #endif
 
             // b-tagged jets
             vector<const HEPUtils::Jet*> bJets;
@@ -250,23 +256,33 @@ namespace Gambit {
             }
 
             if(mediumbJets.size()<1) return;
-            _cutflow.fill(3); //"N_b>=1"
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(3); //"N_b>=1"
+            #endif
 
             if(Electrons.size()+Muons.size()>1) return;
-            _cutflow.fill(4); //"N_l<2"
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(4); //"N_l<2"
+            #endif
 
             if(event->taus().size()>0) return;
-            _cutflow.fill(5); //"N_tau==0"
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(5); //"N_tau==0"
+            #endif
 
             // Azimuthal angle between MET and two leading jets
             double deltaPhi_j1=baselineJets.at(0)->mom().deltaPhi(ptot);
             double deltaPhi_j2=baselineJets.at(1)->mom().deltaPhi(ptot);
             double deltaPhi_j12 = deltaPhi_j1<deltaPhi_j2 ? deltaPhi_j1:deltaPhi_j2;
             if (deltaPhi_j12<0.8) return;
-            _cutflow.fill(6); //"deltaPhi_j12>0.8"
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(6); //"deltaPhi_j12>0.8"
+            #endif
 
             if (met<250) return;
-            _cutflow.fill(7); //"MET>250"
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(7); //"MET>250"
+            #endif
 
             // *MODIFIED* topness
             // 1612.03877 & 1212.4495
@@ -293,8 +309,10 @@ namespace Gambit {
                 if(tmod>tmod_tem) tmod=tmod_tem;
             }
 
-            if (tmod>0 ) _cutflow.fill(8); //"**t_mod>0"
-            if (tmod>10) _cutflow.fill(9); //"**t_mod>10"
+            #ifdef CHECK_CUTFLOW
+            if (tmod>0 ) _cutflows[CUTFLOW_NAME].fill(8); //"**t_mod>0"
+            if (tmod>10) _cutflows[CUTFLOW_NAME].fill(9); //"**t_mod>10"
+            #endif
 
 
             // Mlb
@@ -307,8 +325,10 @@ namespace Gambit {
                 }
             }
 
-            if (Mlb<175) _cutflow.fill(10); //"**Mlb<175"
-            if (Mlb>175 and N_tight_bJets>0) _cutflow.fill(11); //"**Mlb>175"
+            #ifdef CHECK_CUTFLOW
+            if (Mlb<175) _cutflows[CUTFLOW_NAME].fill(10); //"**Mlb<175"
+            if (Mlb>175 and N_tight_bJets>0) _cutflows[CUTFLOW_NAME].fill(11); //"**Mlb>175"
+            #endif
 
             /*********************************************************/
             /*                                                       */
@@ -410,8 +430,6 @@ namespace Gambit {
 
         void collect_results() {
 
-            // cout << _cutflow << endl;
-
             // aggregate signal regions
             add_result(SignalRegionData(_counters.at("aggregateSR0"), 4., {3.4, 0.9}));
             add_result(SignalRegionData(_counters.at("aggregateSR1"), 8., {10.7, 3.2}));
@@ -452,6 +470,10 @@ namespace Gambit {
             // add_result(SignalRegionData(_counters.at("SR28"), 30., {18.9, 3.7}));
             // add_result(SignalRegionData(_counters.at("SR29"), 2., {3.7, 1.4}));
             // add_result(SignalRegionData(_counters.at("SR30"), 2., {4.8, 2.0}));
+
+            #ifdef CHECK_CUTFLOW
+            add_cutflows(_cutflows);
+            #endif
 
             return;
         }

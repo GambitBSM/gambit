@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -32,11 +33,7 @@ namespace Gambit {
 
         static const size_t _SR_size = 13;
         static const size_t _SRA_size = 3;
-
-        // Cut Flow
-        vector<int> cutFlowVector;
-        vector<string> cutFlowVector_str;
-        int NCUTS;
+        static constexpr const char* CUTFLOW_NAME = "CMS-SUS-17-001";
 
 
         // Jet overlap removal
@@ -150,11 +147,20 @@ namespace Gambit {
             set_analysis_name("CMS_SUS_17_001");
             set_luminosity(35.9);
 
-            NCUTS= 11;
-            for(int i=0;i<NCUTS;i++){
-                cutFlowVector.push_back(0);
-                cutFlowVector_str.push_back("");
-            }
+            #ifdef CHECK_CUTFLOW
+            _cutflows.addCutflow(CUTFLOW_NAME, {
+                "2 OS lepton",
+                "m(ll)>20 GeV",
+                "|m(ll)-mZ|>15 GeV",
+                "Njets>2",
+                "Nbjets>1",
+                "MET>80 GeV",
+                "S>5 GeV^{1/2}",
+                "cosPhi(MET,j1)<0.80",
+                "cosPhi(MET,j2)<0.96",
+                "MT2(ll)>140"
+            });
+            #endif
 
         }
 
@@ -348,38 +354,23 @@ namespace Gambit {
                 }
 
             }
-            /*********************************************************/
-            /*                                                       */
-            /* Cut Flow                                              */
-            /*                                                       */
-            /*********************************************************/
-            cutFlowVector_str[0] = "Total ";
-            cutFlowVector_str[1] = "2 OS lepton";
-            cutFlowVector_str[2] = "m(ll)>20 GeV";
-            cutFlowVector_str[3] = "|m(ll)-mZ|>15 GeV";
-            cutFlowVector_str[4] = "Njets>2";
-            cutFlowVector_str[5] = "Nbjets>1";
-            cutFlowVector_str[6] = "MET>80 GeV";
-            cutFlowVector_str[7] = "S>5 GeV^{1/2}";
-            cutFlowVector_str[8] = "cosPhi(MET,j1)<0.80";
-            cutFlowVector_str[9] = "cosPhi(MET,j2)<0.96";
-            cutFlowVector_str[10] = "MT2(ll)>140";
+            #ifdef CHECK_CUTFLOW
+            const double w = event->weight();
+            _cutflows[CUTFLOW_NAME].fillinit(w);
+            _cutflows[CUTFLOW_NAME].fillnext({
+                cut_2OSLep,
+                cut_mllGt20,
+                cut_mllMZ,
+                cut_Njet,
+                cut_Nbjet,
+                cut_PTmis,
+                cut_SGt5,
+                cut_csj1,
+                cut_csj2,
+                cut_MT2ll140
+            }, w);
+            #endif
 
-            for(int j=0;j<NCUTS;j++){
-                if(
-                   (j==0) ||
-                   (j==1  && cut_2OSLep)||
-                   (j==2  && cut_2OSLep && cut_mllGt20)||
-                   (j==3  && cut_2OSLep && cut_mllGt20 && cut_mllMZ)||
-                   (j==4  && cut_2OSLep && cut_mllGt20 && cut_mllMZ && cut_Njet)||
-                   (j==5  && cut_2OSLep && cut_mllGt20 && cut_mllMZ && cut_Njet && cut_Nbjet)||
-                   (j==6  && cut_2OSLep && cut_mllGt20 && cut_mllMZ && cut_Njet && cut_Nbjet && cut_PTmis)||
-                   (j==7  && cut_2OSLep && cut_mllGt20 && cut_mllMZ && cut_Njet && cut_Nbjet && cut_PTmis && cut_SGt5)||
-                   (j==8  && cut_2OSLep && cut_mllGt20 && cut_mllMZ && cut_Njet && cut_Nbjet && cut_PTmis && cut_SGt5 && cut_csj1) ||
-                   (j==9  && cut_2OSLep && cut_mllGt20 && cut_mllMZ && cut_Njet && cut_Nbjet && cut_PTmis && cut_SGt5 && cut_csj1 && cut_csj2) ||
-                   (j==10 && cut_2OSLep && cut_mllGt20 && cut_mllMZ && cut_Njet && cut_Nbjet && cut_PTmis && cut_SGt5 && cut_csj1 && cut_csj2 && cut_MT2ll140)
-                   )cutFlowVector[j]++;
-            }
             bool pre_cut= cut_2OSLep && cut_mllGt20 && cut_mllMZ && cut_Njet && cut_Nbjet && cut_PTmis && cut_SGt5 && cut_csj1 && cut_csj2 ;
             // signal region
             for(size_t j=0;j<_SR_size;j++){
@@ -463,45 +454,6 @@ namespace Gambit {
 
         void collect_results() {
 
-           //  double scale_by=1./10000*41.8*35.9;
-           //  cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-           //  cout << "CUT FLOW: CMS 13 TeV 2 lep stop paper "<<endl;
-           //  cout << "------------------------------------------------------------------------------------------------------------------------------"<<endl;
-           //  cout<< right << setw(40) << "CUT" <<  "," << setw(20) << "RAW" <<  "," << setw(20) << "SCALED"
-           //  <<  "," << setw(20) << "%" <<  "," << setw(20) << "clean adj RAW"<<  "," << setw(20) << "clean adj %" << endl;
-           //  for (int j=0; j<NCUTS; j++) {
-           //      cout << right <<  setw(40) << cutFlowVector_str[j].c_str() <<  "," << setw(20)
-           //      << cutFlowVector[j] <<  "," << setw(20) << cutFlowVector[j]*scale_by <<  "," << setw(20)
-           //      << 100.*cutFlowVector[j]/cutFlowVector[0] << "%" <<  "," << setw(20)
-           //      << cutFlowVector[j]*scale_by <<  "," << setw(20) << 100.*cutFlowVector[j]/cutFlowVector[0]<< "%" << endl;
-           //  }
-           //  for (size_t j=0; j<_SR_size; j++) {
-           //      cout << right <<  setw(40) << "SR_SF_"<<j <<  "," << setw(20)
-           //      << _SRSF[j] <<  "," << setw(20) << _SRSF[j]*scale_by <<  "," << setw(20)
-           //      << 100.*_SRSF[j]/cutFlowVector[0] << "%" <<  "," << setw(20)
-           //      << _SRSF[j]*scale_by <<  "," << setw(20) << 100.*_SRSF[j]/cutFlowVector[0]<< "%" << endl;
-           //  }
-           // for (size_t j=0; j<_SR_size; j++) {
-           //      cout << right <<  setw(40) << "SR_DF_"<<j <<  "," << setw(20)
-           //      << _SRDF[j] <<  "," << setw(20) << _SRDF[j]*scale_by <<  "," << setw(20)
-           //      << 100.*_SRDF[j]/cutFlowVector[0] << "%" <<  "," << setw(20)
-           //      << _SRDF[j]*scale_by <<  "," << setw(20) << 100.*_SRDF[j]/cutFlowVector[0]<< "%" << endl;
-           //  }
-           // for (size_t j=0; j<_SR_size; j++) {
-           //      cout << right <<  setw(40) << "SR_ALL_"<<j <<  "," << setw(20)
-           //      << _SRALL[j] <<  "," << setw(20) << _SRALL[j]*scale_by <<  "," << setw(20)
-           //      << 100.*_SRALL[j]/cutFlowVector[0] << "%" <<  "," << setw(20)
-           //      << _SRALL[j]*scale_by <<  "," << setw(20) << 100.*_SRALL[j]/cutFlowVector[0]<< "%" << endl;
-           //  }
-           // for (size_t j=0; j<_SRA_size; j++) {
-           //      cout << right <<  setw(40) << "SR_A_"<<j <<  "," << setw(20)
-           //      << _SRA[j] <<  "," << setw(20) << _SRA[j]*scale_by <<  "," << setw(20)
-           //      << 100.*_SRA[j]/cutFlowVector[0] << "%" <<  "," << setw(20)
-           //      << _SRA[j]*scale_by <<  "," << setw(20) << 100.*_SRA[j]/cutFlowVector[0]<< "%" << endl;
-           //  }
-           //  cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-
-
             // The ordering here is important! (Must match the ordering in the covariance matrix.)
 
             add_result(SignalRegionData(_counters.at("SF-SR-0"), 112., {131., 30.}));
@@ -562,6 +514,9 @@ namespace Gambit {
             };
 
             set_covariance(BKGCOV);
+            #ifdef CHECK_CUTFLOW
+            COMMIT_CUTFLOWS;
+            #endif
 
             return;
         }
@@ -571,8 +526,6 @@ namespace Gambit {
       void analysis_specific_reset() {
 
         for (auto& pair : _counters) { pair.second.reset(); }
-
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
 
       }
 

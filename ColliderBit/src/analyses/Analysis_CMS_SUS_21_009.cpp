@@ -42,17 +42,26 @@ Old Analysis Name: CMS_13TeV_Photon_GMSB_137invfb
 #include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
-#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "SoftDrop.hh"
 
 // #define CHECK_CUTFLOW
 
 // Shortcut for logging all cuts at once
-#define LOG_ALL_CUTS()                                                                     \
-  LOG_CUT("SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR9", "SR10", "SR11", "SR12");        \
-  LOG_CUT("SR13", "SR15", "SR16", "SR17", "SR18", "SR20", "SR21", "SR22", "SR23","SR25");  \
-  LOG_CUT("SR26", "SR27", "SR28", "SR30", "SR31", "SR32", "SR33", "SR35", "SR36", "SR37"); \
-  LOG_CUT("SR38", "SR39", "SR41", "SR42", "SR43", "SR44", "SR45");
+#ifdef CHECK_CUTFLOW
+  #define LOG_ALL_CUTS()                                                                      \
+    LOG_CUT("SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR9", "SR10", "SR11", "SR12");       \
+    LOG_CUT("SR13", "SR15", "SR16", "SR17", "SR18", "SR20", "SR21", "SR22", "SR23","SR25"); \
+    LOG_CUT("SR26", "SR27", "SR28", "SR30", "SR31", "SR32", "SR33", "SR35", "SR36", "SR37");\
+    LOG_CUT("SR38", "SR39", "SR41", "SR42", "SR43", "SR44", "SR45");
+#else
+  #define LOG_ALL_CUTS() do {} while(false)
+#endif
+
+#ifdef CHECK_CUTFLOW
+  #define FILL_SR(NAME) FILL_SIGNAL_REGION(NAME)
+#else
+  #define FILL_SR(NAME) _counters.at(NAME).add_event(event)
+#endif
 
 using namespace std;
 using namespace HEPUtils;
@@ -68,8 +77,6 @@ namespace Gambit {
     public:
 
       static constexpr const char* detector = "CMS";
-
-      Cutflow _cutflow;
 
       Analysis_CMS_SUS_21_009()
       {
@@ -188,8 +195,10 @@ namespace Gambit {
         }
 
         // Perform all pre-selection cuts (No cuts put in preselection)
+#ifdef CHECK_CUTFLOW
         BEGIN_PRESELECTION
         END_PRESELECTION
+#endif
 
         // Veto the event if there are any remaining baseline leptons
         if (!muons.empty()) return;
@@ -310,54 +319,54 @@ namespace Gambit {
         // Signal regions
         if (isVtag)
         {
-          if (met < 370) { FILL_SIGNAL_REGION("SR35"); }
-          else if (met < 450) { FILL_SIGNAL_REGION("SR36"); }
-          else if (met < 600) { FILL_SIGNAL_REGION("SR37"); }
-          else if (met < 750) { FILL_SIGNAL_REGION("SR38"); }
-          else                { FILL_SIGNAL_REGION("SR39"); }
+          if (met < 370) { FILL_SR("SR35"); }
+          else if (met < 450) { FILL_SR("SR36"); }
+          else if (met < 600) { FILL_SR("SR37"); }
+          else if (met < 750) { FILL_SR("SR38"); }
+          else                { FILL_SR("SR39"); }
         }
         else if (isHtag)
         {
-          if (met < 370) { FILL_SIGNAL_REGION("SR41"); }
-          else if (met < 450) { FILL_SIGNAL_REGION("SR42"); }
-          else if (met < 600) { FILL_SIGNAL_REGION("SR43"); }
-          else if (met < 750) { FILL_SIGNAL_REGION("SR44"); }
-          else                { FILL_SIGNAL_REGION("SR45"); }
+          if (met < 370) { FILL_SR("SR41"); }
+          else if (met < 450) { FILL_SR("SR42"); }
+          else if (met < 600) { FILL_SR("SR43"); }
+          else if (met < 750) { FILL_SR("SR44"); }
+          else                { FILL_SR("SR45"); }
         }
         else
         {
-          if (nbjets == 0 && njets_ak4 >=2 && njets_ak4 <=4 && met < 370) { FILL_SIGNAL_REGION("SR2"); }
-          else if (nbjets == 0 && njets_ak4 >=2 && njets_ak4 <=4 && met < 450) { FILL_SIGNAL_REGION("SR3"); }
-          else if (nbjets == 0 && njets_ak4 >=2 && njets_ak4 <=4 && met < 600) { FILL_SIGNAL_REGION("SR4"); }
-          else if (nbjets == 0 && njets_ak4 >=2 && njets_ak4 <=4 && met < 750) { FILL_SIGNAL_REGION("SR5"); }
-          else if (nbjets == 0 && njets_ak4 >=2 && njets_ak4 <=4 && met < 900) { FILL_SIGNAL_REGION("SR6"); }
-          else if (nbjets == 0 && njets_ak4 >=2 && njets_ak4 <=4 && met >=900) { FILL_SIGNAL_REGION("SR7"); }
+          if (nbjets == 0 && njets_ak4 >=2 && njets_ak4 <=4 && met < 370) { FILL_SR("SR2"); }
+          else if (nbjets == 0 && njets_ak4 >=2 && njets_ak4 <=4 && met < 450) { FILL_SR("SR3"); }
+          else if (nbjets == 0 && njets_ak4 >=2 && njets_ak4 <=4 && met < 600) { FILL_SR("SR4"); }
+          else if (nbjets == 0 && njets_ak4 >=2 && njets_ak4 <=4 && met < 750) { FILL_SR("SR5"); }
+          else if (nbjets == 0 && njets_ak4 >=2 && njets_ak4 <=4 && met < 900) { FILL_SR("SR6"); }
+          else if (nbjets == 0 && njets_ak4 >=2 && njets_ak4 <=4 && met >=900) { FILL_SR("SR7"); }
 
-          else if (nbjets == 0 && njets_ak4 >=5 && njets_ak4 <=6 && met < 370) { FILL_SIGNAL_REGION("SR9"); }
-          else if (nbjets == 0 && njets_ak4 >=5 && njets_ak4 <=6 && met < 450) { FILL_SIGNAL_REGION("SR10"); }
-          else if (nbjets == 0 && njets_ak4 >=5 && njets_ak4 <=6 && met < 600) { FILL_SIGNAL_REGION("SR11"); }
-          else if (nbjets == 0 && njets_ak4 >=5 && njets_ak4 <=6 && met < 750) { FILL_SIGNAL_REGION("SR12"); }
-          else if (nbjets == 0 && njets_ak4 >=5 && njets_ak4 <=6 && met >=750) { FILL_SIGNAL_REGION("SR13"); }
+          else if (nbjets == 0 && njets_ak4 >=5 && njets_ak4 <=6 && met < 370) { FILL_SR("SR9"); }
+          else if (nbjets == 0 && njets_ak4 >=5 && njets_ak4 <=6 && met < 450) { FILL_SR("SR10"); }
+          else if (nbjets == 0 && njets_ak4 >=5 && njets_ak4 <=6 && met < 600) { FILL_SR("SR11"); }
+          else if (nbjets == 0 && njets_ak4 >=5 && njets_ak4 <=6 && met < 750) { FILL_SR("SR12"); }
+          else if (nbjets == 0 && njets_ak4 >=5 && njets_ak4 <=6 && met >=750) { FILL_SR("SR13"); }
 
-          else if (nbjets == 0 && njets_ak4 >=7 && met < 370) { FILL_SIGNAL_REGION("SR15"); }
-          else if (nbjets == 0 && njets_ak4 >=7 && met < 450) { FILL_SIGNAL_REGION("SR16"); }
-          else if (nbjets == 0 && njets_ak4 >=7 && met < 600) { FILL_SIGNAL_REGION("SR17"); }
-          else if (nbjets == 0 && njets_ak4 >=7 && met >=600) { FILL_SIGNAL_REGION("SR18"); }
+          else if (nbjets == 0 && njets_ak4 >=7 && met < 370) { FILL_SR("SR15"); }
+          else if (nbjets == 0 && njets_ak4 >=7 && met < 450) { FILL_SR("SR16"); }
+          else if (nbjets == 0 && njets_ak4 >=7 && met < 600) { FILL_SR("SR17"); }
+          else if (nbjets == 0 && njets_ak4 >=7 && met >=600) { FILL_SR("SR18"); }
 
-          else if (nbjets >= 1 && njets_ak4 >=2 && njets_ak4 <=4 && met < 370) { FILL_SIGNAL_REGION("SR20"); }
-          else if (nbjets >= 1 && njets_ak4 >=2 && njets_ak4 <=4 && met < 450) { FILL_SIGNAL_REGION("SR21"); }
-          else if (nbjets >= 1 && njets_ak4 >=2 && njets_ak4 <=4 && met < 600) { FILL_SIGNAL_REGION("SR22"); }
-          else if (nbjets >= 1 && njets_ak4 >=2 && njets_ak4 <=4 && met >=600) { FILL_SIGNAL_REGION("SR23"); }
+          else if (nbjets >= 1 && njets_ak4 >=2 && njets_ak4 <=4 && met < 370) { FILL_SR("SR20"); }
+          else if (nbjets >= 1 && njets_ak4 >=2 && njets_ak4 <=4 && met < 450) { FILL_SR("SR21"); }
+          else if (nbjets >= 1 && njets_ak4 >=2 && njets_ak4 <=4 && met < 600) { FILL_SR("SR22"); }
+          else if (nbjets >= 1 && njets_ak4 >=2 && njets_ak4 <=4 && met >=600) { FILL_SR("SR23"); }
 
-          else if (nbjets >= 1 && njets_ak4 >=5 && njets_ak4 <=6 && met < 370) { FILL_SIGNAL_REGION("SR25"); }
-          else if (nbjets >= 1 && njets_ak4 >=5 && njets_ak4 <=6 && met < 450) { FILL_SIGNAL_REGION("SR26"); }
-          else if (nbjets >= 1 && njets_ak4 >=5 && njets_ak4 <=6 && met < 600) { FILL_SIGNAL_REGION("SR27"); }
-          else if (nbjets >= 1 && njets_ak4 >=5 && njets_ak4 <=6 && met >=600) { FILL_SIGNAL_REGION("SR28"); }
+          else if (nbjets >= 1 && njets_ak4 >=5 && njets_ak4 <=6 && met < 370) { FILL_SR("SR25"); }
+          else if (nbjets >= 1 && njets_ak4 >=5 && njets_ak4 <=6 && met < 450) { FILL_SR("SR26"); }
+          else if (nbjets >= 1 && njets_ak4 >=5 && njets_ak4 <=6 && met < 600) { FILL_SR("SR27"); }
+          else if (nbjets >= 1 && njets_ak4 >=5 && njets_ak4 <=6 && met >=600) { FILL_SR("SR28"); }
 
-          else if (nbjets >= 1 && njets_ak4 >=7 && met < 370) { FILL_SIGNAL_REGION("SR30"); }
-          else if (nbjets >= 1 && njets_ak4 >=7 && met < 450) { FILL_SIGNAL_REGION("SR31"); }
-          else if (nbjets >= 1 && njets_ak4 >=7 && met < 600) { FILL_SIGNAL_REGION("SR32"); }
-          else if (nbjets >= 1 && njets_ak4 >=7 && met >=600) { FILL_SIGNAL_REGION("SR33"); }
+          else if (nbjets >= 1 && njets_ak4 >=7 && met < 370) { FILL_SR("SR30"); }
+          else if (nbjets >= 1 && njets_ak4 >=7 && met < 450) { FILL_SR("SR31"); }
+          else if (nbjets >= 1 && njets_ak4 >=7 && met < 600) { FILL_SR("SR32"); }
+          else if (nbjets >= 1 && njets_ak4 >=7 && met >=600) { FILL_SR("SR33"); }
         }
 
       }
@@ -410,7 +419,9 @@ namespace Gambit {
         COMMIT_SIGNAL_REGION("SR44", 2., 7.30, 2.28)
         COMMIT_SIGNAL_REGION("SR45", 2., 3.72, 1.66)
 
+#ifdef CHECK_CUTFLOW
         COMMIT_CUTFLOWS
+#endif
       }
 
 

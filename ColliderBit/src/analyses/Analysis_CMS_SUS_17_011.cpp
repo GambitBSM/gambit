@@ -56,7 +56,6 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
-#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 
 // #define CHECK_CUTFLOW
 
@@ -73,13 +72,20 @@ namespace Gambit {
     public:
 
       static constexpr const char* detector = "CMS";
+      static constexpr const char* CUTFLOW_NAME = "CMS-SUS-17-011";
 
-     // Cutflow _cutflow;
-
-      // Analysis_CMS_SUS_17_011():
-      // _cutflow("CMS 2-photon GMSB 13 TeV", {"preselection", "MET>300GeV", "MT(g,MET)>300GeV", "S_T^g>600GeV"})
       Analysis_CMS_SUS_17_011()
       {
+        #ifdef CHECK_CUTFLOW
+          _cutflows.addCutflow(CUTFLOW_NAME,
+                               {"Trigger",
+                                ">=2EMObjects",
+                                "Diphoton",
+                                "DeltaR_gt_0p6",
+                                "mgg_gt_105",
+                                "MuonVeto",
+                                "ElectronVeto"});
+        #endif
 
         // Counters for the number of accepted events for each signal region
         _counters["SR_MET_100-115"] = EventCounter("SR_MET_100-115");
@@ -100,8 +106,6 @@ namespace Gambit {
         // Baseline objects
         // HEPUtils::P4 pTmissVector = event->missingmom();
         double met = event->met();
-
-        // _cutflow.fillinit();
 
         // Photons
         // NOTE:
@@ -247,6 +251,7 @@ namespace Gambit {
         bool isDiphoton = false;
         bool DeltaR_gt_06 = false;
         bool mgg_gt_105 = false;
+        bool atLeastTwoSignalEM = signalEMobjects.size() >= 2;
         if (signalEMobjects.size() >= 2) {
 
           const HEPUtils::Particle* obj1 = signalEMobjects.at(0);
@@ -270,14 +275,29 @@ namespace Gambit {
 
         // Veto on electrons not part of the two signalEMobjects
         bool elVeto = false;
-        for (const HEPUtils::Particle* electron : electrons) {
-          if (electron->pT() > 25. && electron->abseta() < 2.5) {
-            if (electron != signalEMobjects.at(0) && electron != signalEMobjects.at(1)) {
-              elVeto = true;
-              break;
+        if (atLeastTwoSignalEM) {
+          for (const HEPUtils::Particle* electron : electrons) {
+            if (electron->pT() > 25. && electron->abseta() < 2.5) {
+              if (electron != signalEMobjects.at(0) && electron != signalEMobjects.at(1)) {
+                elVeto = true;
+                break;
+              }
             }
           }
+        } else {
+          elVeto = true;
         }
+
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fillinit();
+        if (trigger) _cutflows[CUTFLOW_NAME].fill(1);
+        if (trigger && atLeastTwoSignalEM) _cutflows[CUTFLOW_NAME].fill(2);
+        if (trigger && atLeastTwoSignalEM && isDiphoton) _cutflows[CUTFLOW_NAME].fill(3);
+        if (trigger && atLeastTwoSignalEM && isDiphoton && DeltaR_gt_06) _cutflows[CUTFLOW_NAME].fill(4);
+        if (trigger && atLeastTwoSignalEM && isDiphoton && DeltaR_gt_06 && mgg_gt_105) _cutflows[CUTFLOW_NAME].fill(5);
+        if (trigger && atLeastTwoSignalEM && isDiphoton && DeltaR_gt_06 && mgg_gt_105 && !muVeto) _cutflows[CUTFLOW_NAME].fill(6);
+        if (trigger && atLeastTwoSignalEM && isDiphoton && DeltaR_gt_06 && mgg_gt_105 && !muVeto && !elVeto) _cutflows[CUTFLOW_NAME].fill(7);
+#endif
 
         // Fill signal region
         if (trigger && isDiphoton && DeltaR_gt_06 && mgg_gt_105 && !muVeto && !elVeto) {
@@ -300,6 +320,9 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SR_MET_150-185"), 21, {17.4, 4.1}));
         add_result(SignalRegionData(_counters.at("SR_MET_185-250"), 11, {10.2, 2.7}));
         add_result(SignalRegionData(_counters.at("SR_MET_>250"), 12, {5.4, 1.6}));
+#ifdef CHECK_CUTFLOW
+        add_cutflows(_cutflows);
+#endif
       }
 
 

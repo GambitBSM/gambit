@@ -18,7 +18,6 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
-#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 
 using namespace std;
 
@@ -39,17 +38,18 @@ namespace Gambit {
     protected:
       static const size_t NUMSR_stop = 84;
       static const size_t NUMSR_chargino = 70;
-
-      Cutflow _cutflow;
+      static constexpr const char* CUTFLOW_NAME = "CMS-SUS-17-010";
 
     public:
 
       // Required detector sim
       static constexpr const char* detector = "CMS";
 
-      Analysis_CMS_SUS_17_010():
-      _cutflow("CMS 2-lep stop 13 TeV", {"Two_OC_leptons", "Third_lepton_veto", "mll_20", "mll_mZ_15", "PTmiss_140"})
+      Analysis_CMS_SUS_17_010()
       {
+#ifdef CHECK_CUTFLOW
+        _cutflows.addCutflow(CUTFLOW_NAME, {"Two_OC_leptons", "Third_lepton_veto", "mll_20", "mll_mZ_15", "PTmiss_140"});
+#endif
 
         // Counters for the number of accepted events for each signal region
 
@@ -224,7 +224,9 @@ namespace Gambit {
         // Baseline objects
         HEPUtils::P4 ptot = event->missingmom();
         double met = event->met();
-        _cutflow.fillinit();
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fillinit();
+#endif
 
         // Apply electron efficiency and collect baseline electrons
         //@note Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/2d_full_pteta_el_17010_ttbar.pdf
@@ -313,25 +315,35 @@ namespace Gambit {
         if (signalLeptons.size()<2) return;
         if (signalLeptons[0]->pid()*signalLeptons[1]->pid()>0) return;
         if (signalLeptons[0]->pT()<25. or signalLeptons[1]->pT()<20.) return;
-        _cutflow.fill(1);
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(1);
+#endif
 
         // Third lepton veto
         if (signalLeptons.size()>2) return;
-        _cutflow.fill(2);
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(2);
+#endif
 
         // m_{ll} > 20 GeV
         double mll=(signalLeptons[0]->mom()+signalLeptons[1]->mom()).m();
         if (mll<20) return;
-        _cutflow.fill(3);
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(3);
+#endif
 
         // |m_{ll}-m_Z| >15 GeV for ee and mumu events
         bool same_flavor = signalLeptons[0]->abspid() == signalLeptons[1]->abspid();
         if (same_flavor and fabs(mll-91.2)<15 ) return;
-        _cutflow.fill(4);
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(4);
+#endif
 
         // MET>140 GeV
         if (met<140) return;
-        _cutflow.fill(5);
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(5);
+#endif
 
         // Mt2
         double pLep1[3] = {signalLeptons[0]->mass(), signalLeptons[0]->mom().px(), signalLeptons[0]->mom().py()};
@@ -585,8 +597,6 @@ namespace Gambit {
 
       virtual void collect_results()
       {
-        //cout << _cutflow << endl;
-
         // Chargino SRs
         add_result(SignalRegionData(_counters.at("SR-chargino-0"), 39, {41.9, 5}));
         add_result(SignalRegionData(_counters.at("SR-chargino-1"), 24, {27.4, 3.8}));
@@ -745,6 +755,9 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SR-stop-82"), 1, {0.78, 0.36}));
         add_result(SignalRegionData(_counters.at("SR-stop-83"), 2, {1.63, 0.42}));
 
+#ifdef CHECK_CUTFLOW
+        add_cutflows(_cutflows);
+#endif
       }
 
     protected:
@@ -918,6 +931,9 @@ namespace Gambit {
 
         set_covariance(BKGCOV);
 
+#ifdef CHECK_CUTFLOW
+        add_cutflows(_cutflows);
+#endif
       }
 
     };
@@ -1114,6 +1130,9 @@ namespace Gambit {
 
         set_covariance(BKGCOV);
 
+#ifdef CHECK_CUTFLOW
+        add_cutflows(_cutflows);
+#endif
       }
 
     };

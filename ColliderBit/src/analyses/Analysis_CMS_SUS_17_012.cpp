@@ -132,10 +132,18 @@ namespace Gambit {
     public:
 
       static constexpr const char* detector = "CMS";
+      static constexpr const char* CUTFLOW_NAME = "CMS 1-photon 1-lepton 13 TeV";
 
-      // Analysis_CMS_SUS_17_012():
       Analysis_CMS_SUS_17_012()
       {
+#ifdef CHECK_CUTFLOW
+        _cutflows.addCutflow(CUTFLOW_NAME,
+                             {">=1 photon and >=1 lepton",
+                              "e-gamma mass veto",
+                              "DeltaR(l,gamma)>0.8",
+                              "mT>100 and pTmiss>120",
+                              "Baseline selection"});
+#endif
         // Counters for the number of accepted events for each signal region
         _counters["SR1"] = EventCounter("SR1");
         _counters["SR2"] = EventCounter("SR2");
@@ -300,8 +308,14 @@ namespace Gambit {
         sortByPt(signalPhotons);
         size_t n_photons = signalPhotons.size();
 
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fillinit();
+#endif
         // Require at least one signal photon and one signal lepton
         if (n_photons < 1 || n_leptons < 1) return;
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(1);
+#endif
 
         // Get leadning lepton and leading photon
         const HEPUtils::Particle* lepton1 = signalLeptons.at(0);
@@ -317,15 +331,25 @@ namespace Gambit {
           double m_egamma = (lepton1->mom() + photon1->mom()).m();
           if (m_egamma < 101.2) return;
         }
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(2);
+#endif
 
 
         // Require DeltaR(lepton1,photon1) > 0.8
         double dR = deltaR_eta(lepton1->mom(), photon1->mom());
         if (dR < 0.8) return;
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(3);
+#endif
 
         // Require mT > 100 and pTmiss > 120
         double mT = sqrt(2. * lepton1->pT() * pTmiss * ( 1. - std::cos( deltaPhi(lepton1->mom(), pTmissVector) ) ) );
         if (!(mT > 100. && pTmiss > 120.)) return;
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(4);
+        _cutflows[CUTFLOW_NAME].fill(5);
+#endif
 
         // SR selection variable: HT
         double HT = 0;
@@ -444,6 +468,9 @@ namespace Gambit {
         add_result(SignalRegionData( _counters.at("SR34"),   1, { 0.7688, 0.39 } ));
         add_result(SignalRegionData( _counters.at("SR35"),   1, { 0.6560, 0.23 } ));
         add_result(SignalRegionData( _counters.at("SR36"),   0, { 0.5598, 0.21 } ));
+#ifdef CHECK_CUTFLOW
+        add_cutflows(_cutflows);
+#endif
       }
 
 
@@ -493,7 +520,9 @@ namespace Gambit {
         add_result(SignalRegionData( _counters.at("SR16").combine(_counters.at("SR34")), 0 + 1,     { 0.4169 + 0.7688 , sqrt(pow(0.19,2) + pow(0.39,2)) } ));
         add_result(SignalRegionData( _counters.at("SR17").combine(_counters.at("SR35")), 1 + 1,     { 0.5598 + 0.6560 , sqrt(pow(0.21,2) + pow(0.23,2)) } ));
         add_result(SignalRegionData( _counters.at("SR18").combine(_counters.at("SR36")), 3 + 0,     { 0.9010 + 0.5598 , sqrt(pow(0.49,2) + pow(0.21,2)) } ));
-
+#ifdef CHECK_CUTFLOW
+        add_cutflows(_cutflows);
+#endif
       }
 
     };

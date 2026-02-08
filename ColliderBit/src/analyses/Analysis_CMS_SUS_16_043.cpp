@@ -20,6 +20,7 @@
 #include <fstream>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 
 using namespace std;
@@ -33,21 +34,7 @@ namespace Gambit
     {
     private:
 
-      vector<int> cutFlowVector;
-      vector<string> cutFlowVector_str;
-      // vector<double> cutFlowVectorCMS_225_75;
-      // vector<double> cutFlowVectorCMS_250_1;
-      // vector<double> cutFlowVectorCMS_350_100;
-      // vector<double> cutFlowVectorCMS_500_1;
-      // vector<double> cutFlowVectorCMS_500_125;
-      // double xsecCMS_225_75;
-      // double xsecCMS_250_1;
-      // double xsecCMS_350_100;
-      // double xsecCMS_500_1;
-      // double xsecCMS_500_125;
-      size_t NCUTS;
-
-      // ofstream cutflowFile;
+      static constexpr const char* CUTFLOW_NAME = "CMS-SUS-16-043";
 
     public:
 
@@ -62,22 +49,20 @@ namespace Gambit
         set_analysis_name("CMS_SUS_16_043");
         set_luminosity(35.9);
 
-        NCUTS=10;
-
-        // xsecCMS_225_75=1165;
-        // xsecCMS_250_1=782.5;
-        // xsecCMS_350_100=209.4;
-        // xsecCMS_500_1=46.35;
-        // xsecCMS_500_125=46.35;
-        for (size_t i=0;i<NCUTS;i++){
-          cutFlowVector.push_back(0);
-          // cutFlowVectorCMS_225_75.push_back(0);
-          // cutFlowVectorCMS_250_1.push_back(0);
-          // cutFlowVectorCMS_350_100.push_back(0);
-          // cutFlowVectorCMS_500_1.push_back(0);
-          // cutFlowVectorCMS_500_125.push_back(0);
-          cutFlowVector_str.push_back("");
-        }
+        #ifdef CHECK_CUTFLOW
+          _cutflows.addCutflow(CUTFLOW_NAME, {
+            "All events",
+            "$\\geq$ 1 signal lepton; $E_{T}^{miss} > 50 GeV$",
+            "2nd lepton veto",
+            "Tau veto",
+            "2 jets",
+            "2 bjets",
+            "$90 < m_{bb} < 150 GeV$",
+            "$m_{CT} > 170 GeV$",
+            "$E_{T}^{miss} > 125 GeV$",
+            "$m_{T} > 150 GeV$"
+          });
+        #endif
 
       }
 
@@ -216,97 +201,24 @@ namespace Gambit
           if (met>200.) _counters.at("SRB").add_event(event);
         }
 
-        cutFlowVector_str[0] = "All events";
-        cutFlowVector_str[1] = "$\\geq$ 1 signal lepton; $E_{T}^{miss} > 50 GeV$";
-        cutFlowVector_str[2] = "2nd lepton veto";
-        cutFlowVector_str[3] = "Tau veto";
-        cutFlowVector_str[4] = "2 jets";
-        cutFlowVector_str[5] = "2 bjets";
-        cutFlowVector_str[6] = "$90 < m_{bb} < 150 GeV$";
-        cutFlowVector_str[7] = "$m_{CT} > 170 GeV$";
-        cutFlowVector_str[8] = "$E_{T}^{miss} > 125 GeV$";
-        cutFlowVector_str[9] = "$m_{T} > 150 GeV$";
+        #ifdef CHECK_CUTFLOW
+          const double w = event->weight();
+          const bool cf1 = (nSignalLeptons >= 1 && met > 50.);
+          const bool cf2 = (cf1 && lepton2_veto);
+          const bool cf3 = (cf2 && tau_veto);
+          const bool cf4 = (cf3 && nSignalJets == 2);
+          const bool cf5 = preselection;
+          const bool cf6 = (cf5 && mbb > 90. && mbb < 150.);
+          const bool cf7 = (cf6 && mCT > 170.);
+          const bool cf8 = (cf7 && met > 125.);
+          const bool cf9 = (cf8 && mT > 150.);
 
-        // cutFlowVectorCMS_225_75[0]=7297.6;
-        // cutFlowVectorCMS_225_75[1]=1320.5;
-        // cutFlowVectorCMS_225_75[2]=1265.3;
-        // cutFlowVectorCMS_225_75[3]=1259.0;
-        // cutFlowVectorCMS_225_75[4]=680.8;
-        // cutFlowVectorCMS_225_75[5]=299.0;
-        // cutFlowVectorCMS_225_75[6]=258.4;
-        // cutFlowVectorCMS_225_75[7]=50.9;
-        // cutFlowVectorCMS_225_75[8]=38.4;
-        // cutFlowVectorCMS_225_75[9]=4.7;
-
-        // cutFlowVectorCMS_250_1[0]=4901.0;
-        // cutFlowVectorCMS_250_1[1]=1035.1;
-        // cutFlowVectorCMS_250_1[2]=994.3;
-        // cutFlowVectorCMS_250_1[3]=989.6;
-        // cutFlowVectorCMS_250_1[4]=542.3;
-        // cutFlowVectorCMS_250_1[5]=242.6;
-        // cutFlowVectorCMS_250_1[6]=214.4;
-        // cutFlowVectorCMS_250_1[7]=67.2;
-        // cutFlowVectorCMS_250_1[8]=54.8;
-        // cutFlowVectorCMS_250_1[9]=17.6;
-
-        // cutFlowVectorCMS_350_100[0]=1309.1;
-        // cutFlowVectorCMS_350_100[1]=328.1;
-        // cutFlowVectorCMS_350_100[2]=316.6;
-        // cutFlowVectorCMS_350_100[3]=315.3;
-        // cutFlowVectorCMS_350_100[4]=162.9;
-        // cutFlowVectorCMS_350_100[5]=74.9;
-        // cutFlowVectorCMS_350_100[6]=65.6;
-        // cutFlowVectorCMS_350_100[7]=26.7;
-        // cutFlowVectorCMS_350_100[8]=22.9;
-        // cutFlowVectorCMS_350_100[9]=10.7;
-
-        // cutFlowVectorCMS_500_1[0]=290.2;
-        // cutFlowVectorCMS_500_1[1]=89;
-        // cutFlowVectorCMS_500_1[2]=85.8;
-        // cutFlowVectorCMS_500_1[3]=85.5;
-        // cutFlowVectorCMS_500_1[4]=42.3;
-        // cutFlowVectorCMS_500_1[5]=19.7;
-        // cutFlowVectorCMS_500_1[6]=17.5;
-        // cutFlowVectorCMS_500_1[7]=11.9;
-        // cutFlowVectorCMS_500_1[8]=10.9;
-        // cutFlowVectorCMS_500_1[9]=7.1;
-
-        // cutFlowVectorCMS_500_125[0]=290.3;
-        // cutFlowVectorCMS_500_125[1]=86.9;
-        // cutFlowVectorCMS_500_125[2]=84.1;
-        // cutFlowVectorCMS_500_125[3]=83.9;
-        // cutFlowVectorCMS_500_125[4]=41.1;
-        // cutFlowVectorCMS_500_125[5]=19.5;
-        // cutFlowVectorCMS_500_125[6]=17.6;
-        // cutFlowVectorCMS_500_125[7]=10.9;
-        // cutFlowVectorCMS_500_125[8]=9.9;
-        // cutFlowVectorCMS_500_125[9]=6.5;
-
-        for (size_t j=0;j<NCUTS;j++)
-        {
-          if(
-             (j==0) ||
-
-             (j==1 && nSignalLeptons>=1 && met>50) ||
-
-             (j==2 && nSignalLeptons>=1 && met>50 && lepton2_veto) ||
-
-             (j==3 && nSignalLeptons>=1 && met>50 && lepton2_veto && tau_veto) ||
-
-             (j==4 && nSignalLeptons>=1 && met>50 && lepton2_veto && tau_veto && nSignalJets==2) ||
-
-             (j==5 && preselection) ||
-
-             (j==6 && preselection && mbb>90 && mbb<150) ||
-
-             (j==7 && preselection && mbb>90 && mbb<150 && mCT>170.) ||
-
-             (j==8 && preselection && mbb>90 && mbb<150 && mCT>170. && met>125.) ||
-
-             (j==9 && preselection && mbb>90 && mbb<150 && mCT>170. && met>125. && mT>150.) )
-
-            cutFlowVector[j]++;
-        }
+          _cutflows[CUTFLOW_NAME].fillinit(w);
+          _cutflows[CUTFLOW_NAME].fillnext(
+            std::vector<bool>{true, cf1, cf2, cf3, cf4, cf5, cf6, cf7, cf8, cf9},
+            w
+          );
+        #endif
 
       }
 
@@ -324,6 +236,10 @@ namespace Gambit
         };
         set_covariance(BKGCOV);
 
+        #ifdef CHECK_CUTFLOW
+          COMMIT_CUTFLOWS
+        #endif
+
       }
 
 
@@ -331,8 +247,6 @@ namespace Gambit
       void analysis_specific_reset()
       {
         for (auto& pair : _counters) { pair.second.reset(); }
-
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     };

@@ -387,17 +387,6 @@ namespace Gambit
 
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results() {
-
-        #ifdef CHECK_CUTFLOW
-        cout << _cutflows[CUTFLOW_NAME] << endl;
-        for (auto& el : _counters) {
-            cout << el.first << "\t" << _counters.at(el.first).sum() << endl;
-        }
-        for (auto& el : _counters_bin) {
-            cout << el.first << "\t" << _counters_bin.at(el.first).sum() << endl;
-        }
-        #endif
-
         add_result(SignalRegionData(_counters.at("SR-SF-0J-100")    , 131., {119.67, 9.0}));
         add_result(SignalRegionData(_counters.at("SR-SF-0J-160")    ,  31., {27.1  , 2.7}));
         add_result(SignalRegionData(_counters.at("SR-SF-0J-100-120"),  65., {50.9  , 5.7}));

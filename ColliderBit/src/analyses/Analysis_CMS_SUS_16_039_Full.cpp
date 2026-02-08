@@ -13,10 +13,9 @@
 #include <vector>
 #include <cmath>
 #include <memory>
-#include <iomanip>
-#include <fstream>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -26,6 +25,14 @@
 // @todo Validation!
 
 using namespace std;
+
+// #define CHECK_CUTFLOW
+
+#ifdef CHECK_CUTFLOW
+  #define FILL_SR(NAME) FILL_SIGNAL_REGION(NAME)
+#else
+  #define FILL_SR(NAME) _counters.at(NAME).add_event(event)
+#endif
 
 // Renamed from: 
 //        Analysis_CMS_13TeV_MultiLEP_Full_36invfb
@@ -51,14 +58,6 @@ namespace Gambit
 
     private:
 
-      vector<int> cutFlowVector1, cutFlowVector2, cutFlowVector3, cutFlowVector4;
-      vector<string> cutFlowVector_str1, cutFlowVector_str2, cutFlowVector_str3, cutFlowVector_str4;
-      // double xsec2CMS_200_100, xsec2CMS_500_150, xsec3CMS_250_150, xsec3CMS_600_1, xsec1CMS_500_350_05,xsec1CMS_500_350_5, xsec4CMS_100_1, xsec4CMS_800_1;
-      // vector<double> cutFlowVector2CMS_200_100, cutFlowVector2CMS_500_150, cutFlowVector3CMS_250_150, cutFlowVector3CMS_600_1, cutFlowVector1CMS_500_350_05, cutFlowVector1CMS_500_350_5, cutFlowVector4CMS_100_1, cutFlowVector4CMS_800_1;
-      size_t NCUTS1, NCUTS2, NCUTS3, NCUTS4;
-
-      // ofstream cutflowFile;
-
     public:
 
       // Required detector sim
@@ -73,186 +72,146 @@ namespace Gambit
 
         // Counters for the number of accepted events for each signal region
         // 2SSLep SRs
-        _counters["SS01"] = EventCounter("SS01");
-        _counters["SS02"] = EventCounter("SS02");
-        _counters["SS03"] = EventCounter("SS03");
-        _counters["SS04"] = EventCounter("SS04");
-        _counters["SS05"] = EventCounter("SS05");
-        _counters["SS06"] = EventCounter("SS06");
-        _counters["SS07"] = EventCounter("SS07");
-        _counters["SS08"] = EventCounter("SS08");
-        _counters["SS09"] = EventCounter("SS09");
-        _counters["SS10"] = EventCounter("SS10");
-        _counters["SS11"] = EventCounter("SS11");
-        _counters["SS12"] = EventCounter("SS12");
-        _counters["SS13"] = EventCounter("SS13");
-        _counters["SS14"] = EventCounter("SS14");
-        _counters["SS15"] = EventCounter("SS15");
-        _counters["SS16"] = EventCounter("SS16");
-        _counters["SS17"] = EventCounter("SS17");
-        _counters["SS18"] = EventCounter("SS18");
-        _counters["SS19"] = EventCounter("SS19");
-        _counters["SS20"] = EventCounter("SS20");
-        _counters["SS21"] = EventCounter("SS21");
-        _counters["SS22"] = EventCounter("SS22");
-        _counters["SS23"] = EventCounter("SS23");
-        _counters["SS24"] = EventCounter("SS24");
-        _counters["SS25"] = EventCounter("SS25");
-        _counters["SS26"] = EventCounter("SS26");
-        _counters["SS27"] = EventCounter("SS27");
-        _counters["SS28"] = EventCounter("SS28");
-        _counters["SS29"] = EventCounter("SS29");
-        _counters["SS30"] = EventCounter("SS30");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS01");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS02");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS03");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS04");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS05");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS06");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS07");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS08");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS09");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS10");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS11");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS12");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS13");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS14");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS15");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS16");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS17");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS18");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS19");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS20");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS21");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS22");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS23");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS24");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS25");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS26");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS27");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS28");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS29");
+        DEFINE_SIGNAL_REGION_NOCUTS("SS30");
         // 3Lep SRs
-        _counters["A01"] = EventCounter("A01");
-        _counters["A02"] = EventCounter("A02");
-        _counters["A03"] = EventCounter("A03");
-        _counters["A04"] = EventCounter("A04");
-        _counters["A05"] = EventCounter("A05");
-        _counters["A06"] = EventCounter("A06");
-        _counters["A07"] = EventCounter("A07");
-        _counters["A08"] = EventCounter("A08");
-        _counters["A09"] = EventCounter("A09");
-        _counters["A10"] = EventCounter("A10");
-        _counters["A11"] = EventCounter("A11");
-        _counters["A12"] = EventCounter("A12");
-        _counters["A13"] = EventCounter("A13");
-        _counters["A14"] = EventCounter("A14");
+        DEFINE_SIGNAL_REGION_NOCUTS("A01");
+        DEFINE_SIGNAL_REGION_NOCUTS("A02");
+        DEFINE_SIGNAL_REGION_NOCUTS("A03");
+        DEFINE_SIGNAL_REGION_NOCUTS("A04");
+        DEFINE_SIGNAL_REGION_NOCUTS("A05");
+        DEFINE_SIGNAL_REGION_NOCUTS("A06");
+        DEFINE_SIGNAL_REGION_NOCUTS("A07");
+        DEFINE_SIGNAL_REGION_NOCUTS("A08");
+        DEFINE_SIGNAL_REGION_NOCUTS("A09");
+        DEFINE_SIGNAL_REGION_NOCUTS("A10");
+        DEFINE_SIGNAL_REGION_NOCUTS("A11");
+        DEFINE_SIGNAL_REGION_NOCUTS("A12");
+        DEFINE_SIGNAL_REGION_NOCUTS("A13");
+        DEFINE_SIGNAL_REGION_NOCUTS("A14");
         // SR A15 overlaps with a CR and is not used for the results in arxiv:1709.05406
-        // _counters["A15"] = EventCounter("A16");
-        _counters["A16"] = EventCounter("A16");
-        _counters["A17"] = EventCounter("A17");
-        _counters["A18"] = EventCounter("A18");
-        _counters["A19"] = EventCounter("A19");
-        _counters["A20"] = EventCounter("A20");
-        _counters["A21"] = EventCounter("A21");
-        _counters["A22"] = EventCounter("A22");
-        _counters["A23"] = EventCounter("A23");
-        _counters["A24"] = EventCounter("A24");
-        _counters["A25"] = EventCounter("A25");
-        _counters["A26"] = EventCounter("A26");
-        _counters["A27"] = EventCounter("A27");
-        _counters["A28"] = EventCounter("A28");
-        _counters["A29"] = EventCounter("A29");
-        _counters["A30"] = EventCounter("A30");
-        _counters["A31"] = EventCounter("A31");
-        _counters["A32"] = EventCounter("A32");
-        _counters["A33"] = EventCounter("A33");
-        _counters["A34"] = EventCounter("A34");
-        _counters["A35"] = EventCounter("A35");
-        _counters["A36"] = EventCounter("A36");
-        _counters["A37"] = EventCounter("A37");
-        _counters["A38"] = EventCounter("A38");
-        _counters["A39"] = EventCounter("A39");
-        _counters["A40"] = EventCounter("A40");
-        _counters["A41"] = EventCounter("A41");
-        _counters["A42"] = EventCounter("A42");
-        _counters["A43"] = EventCounter("A43");
-        _counters["A44"] = EventCounter("A44");
+        // DEFINE_SIGNAL_REGION_NOCUTS("A15");
+        DEFINE_SIGNAL_REGION_NOCUTS("A16");
+        DEFINE_SIGNAL_REGION_NOCUTS("A17");
+        DEFINE_SIGNAL_REGION_NOCUTS("A18");
+        DEFINE_SIGNAL_REGION_NOCUTS("A19");
+        DEFINE_SIGNAL_REGION_NOCUTS("A20");
+        DEFINE_SIGNAL_REGION_NOCUTS("A21");
+        DEFINE_SIGNAL_REGION_NOCUTS("A22");
+        DEFINE_SIGNAL_REGION_NOCUTS("A23");
+        DEFINE_SIGNAL_REGION_NOCUTS("A24");
+        DEFINE_SIGNAL_REGION_NOCUTS("A25");
+        DEFINE_SIGNAL_REGION_NOCUTS("A26");
+        DEFINE_SIGNAL_REGION_NOCUTS("A27");
+        DEFINE_SIGNAL_REGION_NOCUTS("A28");
+        DEFINE_SIGNAL_REGION_NOCUTS("A29");
+        DEFINE_SIGNAL_REGION_NOCUTS("A30");
+        DEFINE_SIGNAL_REGION_NOCUTS("A31");
+        DEFINE_SIGNAL_REGION_NOCUTS("A32");
+        DEFINE_SIGNAL_REGION_NOCUTS("A33");
+        DEFINE_SIGNAL_REGION_NOCUTS("A34");
+        DEFINE_SIGNAL_REGION_NOCUTS("A35");
+        DEFINE_SIGNAL_REGION_NOCUTS("A36");
+        DEFINE_SIGNAL_REGION_NOCUTS("A37");
+        DEFINE_SIGNAL_REGION_NOCUTS("A38");
+        DEFINE_SIGNAL_REGION_NOCUTS("A39");
+        DEFINE_SIGNAL_REGION_NOCUTS("A40");
+        DEFINE_SIGNAL_REGION_NOCUTS("A41");
+        DEFINE_SIGNAL_REGION_NOCUTS("A42");
+        DEFINE_SIGNAL_REGION_NOCUTS("A43");
+        DEFINE_SIGNAL_REGION_NOCUTS("A44");
         // 3Lep_rebinned SRs
-        _counters["SR01"] = EventCounter("SR01");
-        _counters["SR02"] = EventCounter("SR02");
-        _counters["SR03"] = EventCounter("SR03");
-        _counters["SR04"] = EventCounter("SR04");
-        _counters["SR05"] = EventCounter("SR05");
-        _counters["SR06"] = EventCounter("SR06");
-        _counters["SR07"] = EventCounter("SR07");
-        _counters["SR08"] = EventCounter("SR08");
-        _counters["SR09"] = EventCounter("SR09");
-        _counters["SR10"] = EventCounter("SR10");
-        _counters["SR11"] = EventCounter("SR11");
-        _counters["SR12"] = EventCounter("SR12");
-        _counters["SR13"] = EventCounter("SR13");
-        _counters["SR14"] = EventCounter("SR14");
-        _counters["SR15"] = EventCounter("SR15");
-        _counters["SR16"] = EventCounter("SR16");
-        _counters["SR17"] = EventCounter("SR17");
-        _counters["SR18"] = EventCounter("SR18");
-        _counters["SR19"] = EventCounter("SR19");
-        _counters["SR20"] = EventCounter("SR20");
-        _counters["SR21"] = EventCounter("SR21");
-        _counters["SR22"] = EventCounter("SR22");
-        _counters["SR23"] = EventCounter("SR23");
-        _counters["SR24"] = EventCounter("SR24");
-        _counters["SR25"] = EventCounter("SR25");
-        _counters["SR26"] = EventCounter("SR26");
-        _counters["SR27"] = EventCounter("SR27");
-        _counters["SR28"] = EventCounter("SR28");
-        _counters["SR29"] = EventCounter("SR29");
-        _counters["SR30"] = EventCounter("SR30");
-        _counters["SR31"] = EventCounter("SR31");
-        _counters["SR32"] = EventCounter("SR32");
-        _counters["SR33"] = EventCounter("SR33");
-        _counters["SR34"] = EventCounter("SR34");
-        _counters["SR35"] = EventCounter("SR35");
-        _counters["SR36"] = EventCounter("SR36");
-        _counters["SR37"] = EventCounter("SR37");
-        _counters["SR38"] = EventCounter("SR38");
-        _counters["SR39"] = EventCounter("SR39");
-        _counters["SR40"] = EventCounter("SR40");
-        _counters["SR41"] = EventCounter("SR41");
-        _counters["SR42"] = EventCounter("SR42");
-        _counters["SR43"] = EventCounter("SR43");
-        _counters["SR44"] = EventCounter("SR44");
-        _counters["SR45"] = EventCounter("SR45");
-        _counters["SR46"] = EventCounter("SR46");
-        _counters["SR47"] = EventCounter("SR47");
-        _counters["SR48"] = EventCounter("SR48");
-        _counters["SR49"] = EventCounter("SR49");
-        _counters["SR50"] = EventCounter("SR50");
-        _counters["SR51"] = EventCounter("SR51");
-        _counters["SR52"] = EventCounter("SR52");
-        _counters["SR53"] = EventCounter("SR53");
-        _counters["SR54"] = EventCounter("SR54");
-        _counters["SR55"] = EventCounter("SR55");
-        _counters["SR56"] = EventCounter("SR56");
-        _counters["SR57"] = EventCounter("SR57");
-        _counters["SR58"] = EventCounter("SR58");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR01");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR02");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR03");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR04");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR05");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR06");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR07");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR08");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR09");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR10");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR11");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR12");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR13");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR14");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR15");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR16");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR17");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR18");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR19");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR20");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR21");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR22");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR23");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR24");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR25");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR26");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR27");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR28");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR29");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR30");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR31");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR32");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR33");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR34");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR35");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR36");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR37");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR38");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR39");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR40");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR41");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR42");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR43");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR44");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR45");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR46");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR47");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR48");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR49");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR50");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR51");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR52");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR53");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR54");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR55");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR56");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR57");
+        DEFINE_SIGNAL_REGION_NOCUTS("SR58");
 
 
 
         set_analysis_name("CMS_SUS_16_039_Full");
         set_luminosity(35.9);
-
-        NCUTS1=10;
-        NCUTS2=7;
-        NCUTS3=7;
-        NCUTS4=5;
-
-       // xsec2CMS_200_100=1800.;
-       // xsec2CMS_500_150=46.;
-       // xsec3CMS_250_150=780.;
-       // xsec3CMS_600_1=20.;
-       // xsec1CMS_500_350_05=46.;
-       // xsec1CMS_500_350_5=46.;
-       // xsec4CMS_100_1=16800.;
-       // xsec4CMS_800_1=3.5;
-
-        for (size_t i=0;i<NCUTS1;i++){
-          cutFlowVector1.push_back(0);
-          // cutFlowVector1CMS_500_350_05.push_back(0);
-          // cutFlowVector1CMS_500_350_5.push_back(0);
-          cutFlowVector_str1.push_back("");
-        }
-        for (size_t i=0;i<NCUTS2;i++){
-          cutFlowVector2.push_back(0);
-          // cutFlowVector2CMS_200_100.push_back(0);
-          // cutFlowVector2CMS_500_150.push_back(0);
-          cutFlowVector_str2.push_back("");
-        }
-        for (size_t i=0;i<NCUTS3;i++){
-          cutFlowVector3.push_back(0);
-          // cutFlowVector3CMS_600_1.push_back(0);
-          // cutFlowVector3CMS_250_150.push_back(0);
-          cutFlowVector_str3.push_back("");
-        }
-        for (size_t i=0;i<NCUTS4;i++){
-          cutFlowVector4.push_back(0);
-          // cutFlowVector4CMS_100_1.push_back(0);
-          // cutFlowVector4CMS_800_1.push_back(0);
-          cutFlowVector_str4.push_back("");
-        }
-
       }
 
 
@@ -422,6 +381,11 @@ namespace Gambit
         }
         if (bjet_veto && low_mass_veto)preselection=true;
 
+#ifdef CHECK_CUTFLOW
+        BEGIN_PRESELECTION
+        if (preselection) END_PRESELECTION
+#endif
+
 
         // Increment signal region counters: 2 same-sign leptons
         if (preselection && nSignalLeptons==2 && nSignalTaus==0 && met>60 && conversion_veto) {
@@ -436,42 +400,42 @@ namespace Gambit
               if (num_ISRjets==0) {
 
                 // The 0 jet regions
-                if(mT < 100 && pT_ll < 50 && met < 100) _counters.at("SS01").add_event(event);
-                if(mT < 100 && pT_ll < 50 && met >= 100 && met < 150 && pp) _counters.at("SS02").add_event(event);
-                if(mT < 100 && pT_ll < 50 && met >= 100 && met < 150 && mm) _counters.at("SS03").add_event(event);
-                if(mT < 100 && pT_ll < 50 && met >= 150 && met < 200) _counters.at("SS04").add_event(event);
-                if(mT < 100 && pT_ll < 50 && met > 200) _counters.at("SS05").add_event(event);
-                if(mT < 100 && pT_ll > 50 && met < 100) _counters.at("SS06").add_event(event);
-                if(mT < 100 && pT_ll > 50 && met >= 100 && met < 150 && pp) _counters.at("SS07").add_event(event);
-                if(mT < 100 && pT_ll > 50 && met >= 100 && met < 150 && mm) _counters.at("SS08").add_event(event);
-                if(mT < 100 && pT_ll > 50 && met >= 150 && met < 200) _counters.at("SS09").add_event(event);
-                if(mT < 100 && pT_ll > 50 && met > 200) _counters.at("SS10").add_event(event);
-                if(mT > 100 && met < 100) _counters.at("SS11").add_event(event);
-                if(mT > 100 && met >= 100 && met < 150 && pp) _counters.at("SS12").add_event(event);
-                if(mT > 100 && met >= 100 && met < 150 && mm) _counters.at("SS13").add_event(event);
-                if(mT > 100 && met >= 150 && met < 200) _counters.at("SS14").add_event(event);
-                if(mT > 100 && met > 200) _counters.at("SS15").add_event(event);
+                if(mT < 100 && pT_ll < 50 && met < 100) FILL_SR("SS01");
+                if(mT < 100 && pT_ll < 50 && met >= 100 && met < 150 && pp) FILL_SR("SS02");
+                if(mT < 100 && pT_ll < 50 && met >= 100 && met < 150 && mm) FILL_SR("SS03");
+                if(mT < 100 && pT_ll < 50 && met >= 150 && met < 200) FILL_SR("SS04");
+                if(mT < 100 && pT_ll < 50 && met > 200) FILL_SR("SS05");
+                if(mT < 100 && pT_ll > 50 && met < 100) FILL_SR("SS06");
+                if(mT < 100 && pT_ll > 50 && met >= 100 && met < 150 && pp) FILL_SR("SS07");
+                if(mT < 100 && pT_ll > 50 && met >= 100 && met < 150 && mm) FILL_SR("SS08");
+                if(mT < 100 && pT_ll > 50 && met >= 150 && met < 200) FILL_SR("SS09");
+                if(mT < 100 && pT_ll > 50 && met > 200) FILL_SR("SS10");
+                if(mT > 100 && met < 100) FILL_SR("SS11");
+                if(mT > 100 && met >= 100 && met < 150 && pp) FILL_SR("SS12");
+                if(mT > 100 && met >= 100 && met < 150 && mm) FILL_SR("SS13");
+                if(mT > 100 && met >= 150 && met < 200) FILL_SR("SS14");
+                if(mT > 100 && met > 200) FILL_SR("SS15");
 
               }
 
               if (num_ISRjets==1){
 
                 // The 1 jet regions
-                if(mT < 100 && pT_ll < 50 && met < 100) _counters.at("SS16").add_event(event);
-                if(mT < 100 && pT_ll < 50 && met >= 100 && met < 150 && pp) _counters.at("SS17").add_event(event);
-                if(mT < 100 && pT_ll < 50 && met >= 100 && met < 150 && mm) _counters.at("SS18").add_event(event);
-                if(mT < 100 && pT_ll < 50 && met >= 150 && met < 200) _counters.at("SS19").add_event(event);
-                if(mT < 100 && pT_ll < 50 && met > 200) _counters.at("SS20").add_event(event);
-                if(mT < 100 && pT_ll > 50 && met < 100) _counters.at("SS21").add_event(event);
-                if(mT < 100 && pT_ll > 50 && met >= 100 && met < 150 && pp) _counters.at("SS22").add_event(event);
-                if(mT < 100 && pT_ll > 50 && met >= 100 && met < 150 && mm) _counters.at("SS23").add_event(event);
-                if(mT < 100 && pT_ll > 50 && met >= 150 && met < 200) _counters.at("SS24").add_event(event);
-                if(mT < 100 && pT_ll > 50 && met > 200) _counters.at("SS25").add_event(event);
-                if(mT > 100 && met < 100) _counters.at("SS26").add_event(event);
-                if(mT > 100 && met >= 100 && met < 150 && pp) _counters.at("SS27").add_event(event);
-                if(mT > 100 && met >= 100 && met < 150 && mm) _counters.at("SS28").add_event(event);
-                if(mT > 100 && met >= 150 && met < 200) _counters.at("SS29").add_event(event);
-                if(mT > 100 && met > 200) _counters.at("SS30").add_event(event);
+                if(mT < 100 && pT_ll < 50 && met < 100) FILL_SR("SS16");
+                if(mT < 100 && pT_ll < 50 && met >= 100 && met < 150 && pp) FILL_SR("SS17");
+                if(mT < 100 && pT_ll < 50 && met >= 100 && met < 150 && mm) FILL_SR("SS18");
+                if(mT < 100 && pT_ll < 50 && met >= 150 && met < 200) FILL_SR("SS19");
+                if(mT < 100 && pT_ll < 50 && met > 200) FILL_SR("SS20");
+                if(mT < 100 && pT_ll > 50 && met < 100) FILL_SR("SS21");
+                if(mT < 100 && pT_ll > 50 && met >= 100 && met < 150 && pp) FILL_SR("SS22");
+                if(mT < 100 && pT_ll > 50 && met >= 100 && met < 150 && mm) FILL_SR("SS23");
+                if(mT < 100 && pT_ll > 50 && met >= 150 && met < 200) FILL_SR("SS24");
+                if(mT < 100 && pT_ll > 50 && met > 200) FILL_SR("SS25");
+                if(mT > 100 && met < 100) FILL_SR("SS26");
+                if(mT > 100 && met >= 100 && met < 150 && pp) FILL_SR("SS27");
+                if(mT > 100 && met >= 100 && met < 150 && mm) FILL_SR("SS28");
+                if(mT > 100 && met >= 150 && met < 200) FILL_SR("SS29");
+                if(mT > 100 && met > 200) FILL_SR("SS30");
 
               }
 
@@ -488,56 +452,56 @@ namespace Gambit
 
                 // The three light lepton signal regions
 
-                if(mT < 100 && met >=50 && met < 100 && mll < 75) _counters.at("A01").add_event(event);
-                if(mT < 100 && met >=100 && met < 150 && mll < 75) _counters.at("A02").add_event(event);
-                if(mT < 100 && met >=150 && met < 200 && mll < 75) _counters.at("A03").add_event(event);
-                if(mT < 100 && met >=200 && met < 250 && mll < 75) _counters.at("A04").add_event(event);
-                if(mT < 100 && met >=250 && mll < 75) _counters.at("A05").add_event(event);
+                if(mT < 100 && met >=50 && met < 100 && mll < 75) FILL_SR("A01");
+                if(mT < 100 && met >=100 && met < 150 && mll < 75) FILL_SR("A02");
+                if(mT < 100 && met >=150 && met < 200 && mll < 75) FILL_SR("A03");
+                if(mT < 100 && met >=200 && met < 250 && mll < 75) FILL_SR("A04");
+                if(mT < 100 && met >=250 && mll < 75) FILL_SR("A05");
 
-                if(mT >= 100 && mT < 160 && met >=50 && met < 100 && mll < 75) _counters.at("A06").add_event(event);
-                if(mT >= 100 && mT < 160 && met >=100 && met < 150 && mll < 75) _counters.at("A07").add_event(event);
-                if(mT >= 100 && mT < 160 && met >=150 && met < 200 && mll < 75) _counters.at("A08").add_event(event);
-                if(mT >= 100 && mT < 160 && met >=200 && mll < 75) _counters.at("A09").add_event(event);
-                if(mT >= 160 && met >=50 && met < 100 && mll < 75) _counters.at("A10").add_event(event);
-                if(mT >= 160 && met >=100 && met < 150 && mll < 75) _counters.at("A11").add_event(event);
-                if(mT >= 160 && met >=150 && met < 200 && mll < 75) _counters.at("A12").add_event(event);
-                if(mT >= 160 && met >=200 && met < 250 && mll < 75) _counters.at("A13").add_event(event);
-                if(mT >= 160 && met >=250 && mll < 75) _counters.at("A14").add_event(event);
+                if(mT >= 100 && mT < 160 && met >=50 && met < 100 && mll < 75) FILL_SR("A06");
+                if(mT >= 100 && mT < 160 && met >=100 && met < 150 && mll < 75) FILL_SR("A07");
+                if(mT >= 100 && mT < 160 && met >=150 && met < 200 && mll < 75) FILL_SR("A08");
+                if(mT >= 100 && mT < 160 && met >=200 && mll < 75) FILL_SR("A09");
+                if(mT >= 160 && met >=50 && met < 100 && mll < 75) FILL_SR("A10");
+                if(mT >= 160 && met >=100 && met < 150 && mll < 75) FILL_SR("A11");
+                if(mT >= 160 && met >=150 && met < 200 && mll < 75) FILL_SR("A12");
+                if(mT >= 160 && met >=200 && met < 250 && mll < 75) FILL_SR("A13");
+                if(mT >= 160 && met >=250 && mll < 75) FILL_SR("A14");
 
                 // SR A15 overlaps with a CR and is not used for the results in arxiv:1709.05406
-                // if(mT < 100 && met >=50 && met < 100 && mll >= 75 && mll < 105) _counters.at("A15").add_event(event);
-                if(mT < 100 && met >=100 && met < 150 && mll >= 75 && mll < 105) _counters.at("A16").add_event(event);
-                if(mT < 100 && met >=150 && met < 200 && mll >= 75 && mll < 105) _counters.at("A17").add_event(event);
-                if(mT < 100 && met >=200 && met < 250 && mll >= 75 && mll < 105) _counters.at("A18").add_event(event);
-                if(mT < 100 && met >=250 && met < 400 && mll >= 75 && mll < 105) _counters.at("A19").add_event(event);
-                if(mT < 100 && met >=400 && met < 550 && mll >= 75 && mll < 105) _counters.at("A20").add_event(event);
-                if(mT < 100 && met >=550 && mll >= 75 && mll < 105) _counters.at("A21").add_event(event);
-                if(mT >= 100 && mT < 160 && met >=50 && met < 100 && mll >= 75 && mll < 105) _counters.at("A22").add_event(event);
-                if(mT >= 100 && mT < 160 && met >=100 && met < 150 && mll >= 75 && mll < 105) _counters.at("A23").add_event(event);
-                if(mT >= 100 && mT < 160 && met >=150 && met < 200 && mll >= 75 && mll < 105) _counters.at("A24").add_event(event);
-                if(mT >= 100 && mT < 160 && met >=200 && mll >= 75 && mll < 105) _counters.at("A25").add_event(event);
+                // if(mT < 100 && met >=50 && met < 100 && mll >= 75 && mll < 105) FILL_SR("A15");
+                if(mT < 100 && met >=100 && met < 150 && mll >= 75 && mll < 105) FILL_SR("A16");
+                if(mT < 100 && met >=150 && met < 200 && mll >= 75 && mll < 105) FILL_SR("A17");
+                if(mT < 100 && met >=200 && met < 250 && mll >= 75 && mll < 105) FILL_SR("A18");
+                if(mT < 100 && met >=250 && met < 400 && mll >= 75 && mll < 105) FILL_SR("A19");
+                if(mT < 100 && met >=400 && met < 550 && mll >= 75 && mll < 105) FILL_SR("A20");
+                if(mT < 100 && met >=550 && mll >= 75 && mll < 105) FILL_SR("A21");
+                if(mT >= 100 && mT < 160 && met >=50 && met < 100 && mll >= 75 && mll < 105) FILL_SR("A22");
+                if(mT >= 100 && mT < 160 && met >=100 && met < 150 && mll >= 75 && mll < 105) FILL_SR("A23");
+                if(mT >= 100 && mT < 160 && met >=150 && met < 200 && mll >= 75 && mll < 105) FILL_SR("A24");
+                if(mT >= 100 && mT < 160 && met >=200 && mll >= 75 && mll < 105) FILL_SR("A25");
 
-                if(mT >= 160 && met >=50 && met < 100 && mll >= 75 && mll < 105) _counters.at("A26").add_event(event);
-                if(mT >= 160 && met >=100 && met < 150 && mll >= 75 && mll < 105) _counters.at("A27").add_event(event);
-                if(mT >= 160 && met >=150 && met < 200 && mll >= 75 && mll < 105) _counters.at("A28").add_event(event);
-                if(mT >= 160 && met >=200 && met < 250 && mll >= 75 && mll < 105) _counters.at("A29").add_event(event);
-                if(mT >= 160 && met >=250 && met < 400 && mll >= 75 && mll < 105) _counters.at("A30").add_event(event);
-                if(mT >= 160 && met >= 400 && mll >= 75 && mll < 105) _counters.at("A31").add_event(event);
+                if(mT >= 160 && met >=50 && met < 100 && mll >= 75 && mll < 105) FILL_SR("A26");
+                if(mT >= 160 && met >=100 && met < 150 && mll >= 75 && mll < 105) FILL_SR("A27");
+                if(mT >= 160 && met >=150 && met < 200 && mll >= 75 && mll < 105) FILL_SR("A28");
+                if(mT >= 160 && met >=200 && met < 250 && mll >= 75 && mll < 105) FILL_SR("A29");
+                if(mT >= 160 && met >=250 && met < 400 && mll >= 75 && mll < 105) FILL_SR("A30");
+                if(mT >= 160 && met >= 400 && mll >= 75 && mll < 105) FILL_SR("A31");
 
-                if(mT < 100 && met >=50 && met < 100 && mll >= 105) _counters.at("A32").add_event(event);
-                if(mT < 100 && met >=100 && met < 150 && mll >= 105) _counters.at("A33").add_event(event);
-                if(mT < 100 && met >=150 && met < 200 && mll >= 105) _counters.at("A34").add_event(event);
-                if(mT < 100 && met >=200 && met < 250 && mll >= 105) _counters.at("A35").add_event(event);
-                if(mT < 100 && met >=250 && mll >= 105) _counters.at("A36").add_event(event);
+                if(mT < 100 && met >=50 && met < 100 && mll >= 105) FILL_SR("A32");
+                if(mT < 100 && met >=100 && met < 150 && mll >= 105) FILL_SR("A33");
+                if(mT < 100 && met >=150 && met < 200 && mll >= 105) FILL_SR("A34");
+                if(mT < 100 && met >=200 && met < 250 && mll >= 105) FILL_SR("A35");
+                if(mT < 100 && met >=250 && mll >= 105) FILL_SR("A36");
 
-                if(mT >= 100 && mT < 160 && met >=50 && met < 100 && mll >= 105) _counters.at("A37").add_event(event);
-                if(mT >= 100 && mT < 160 && met >=100 && met < 150 && mll >= 105) _counters.at("A38").add_event(event);
-                if(mT >= 100 && mT < 160 && met >=150 && met < 200 && mll >= 105) _counters.at("A39").add_event(event);
-                if(mT >= 100 && mT < 160 && met >=200 && mll >= 105) _counters.at("A40").add_event(event);
-                if(mT >= 160 && met >=50 && met < 100 && mll >= 105) _counters.at("A41").add_event(event);
-                if(mT >= 160 && met >=100 && met < 150 && mll >= 105) _counters.at("A42").add_event(event);
-                if(mT >= 160 && met >=150 && met < 200 && mll >= 105) _counters.at("A43").add_event(event);
-                if(mT >= 160 && met >=200 && mll >= 105) _counters.at("A44").add_event(event);
+                if(mT >= 100 && mT < 160 && met >=50 && met < 100 && mll >= 105) FILL_SR("A37");
+                if(mT >= 100 && mT < 160 && met >=100 && met < 150 && mll >= 105) FILL_SR("A38");
+                if(mT >= 100 && mT < 160 && met >=150 && met < 200 && mll >= 105) FILL_SR("A39");
+                if(mT >= 100 && mT < 160 && met >=200 && mll >= 105) FILL_SR("A40");
+                if(mT >= 160 && met >=50 && met < 100 && mll >= 105) FILL_SR("A41");
+                if(mT >= 160 && met >=100 && met < 150 && mll >= 105) FILL_SR("A42");
+                if(mT >= 160 && met >=150 && met < 200 && mll >= 105) FILL_SR("A43");
+                if(mT >= 160 && met >=200 && mll >= 105) FILL_SR("A44");
 
               }
             }
@@ -553,77 +517,77 @@ namespace Gambit
               if (nSignalLightLeptons==3 && nSignalTaus==0) {
 
                 // The three light lepton signal regions
-                if(mll < 75 && mT < 100 && HT < 200 && met > 50 && met < 100) _counters.at("SR01").add_event(event);
-                if(mll < 75 && mT < 100 && HT < 200 && met > 100 && met < 150) _counters.at("SR02").add_event(event);
-                if(mll < 75 && mT < 100 && HT < 200 && met > 150 && met < 200) _counters.at("SR03").add_event(event);
-                if(mll < 75 && mT < 100 && HT < 200 && met > 200) _counters.at("SR04").add_event(event);
+                if(mll < 75 && mT < 100 && HT < 200 && met > 50 && met < 100) FILL_SR("SR01");
+                if(mll < 75 && mT < 100 && HT < 200 && met > 100 && met < 150) FILL_SR("SR02");
+                if(mll < 75 && mT < 100 && HT < 200 && met > 150 && met < 200) FILL_SR("SR03");
+                if(mll < 75 && mT < 100 && HT < 200 && met > 200) FILL_SR("SR04");
 
-                if(mll < 75 && mT > 100 && mT < 160 && HT < 200 && met > 50 && met < 100) _counters.at("SR05").add_event(event);
-                if(mll < 75 && mT > 100 && mT < 160 && HT < 200 && met > 100 && met < 150) _counters.at("SR06").add_event(event);
-                if(mll < 75 && mT > 100 && mT < 160 && HT < 200 && met > 150) _counters.at("SR07").add_event(event);
+                if(mll < 75 && mT > 100 && mT < 160 && HT < 200 && met > 50 && met < 100) FILL_SR("SR05");
+                if(mll < 75 && mT > 100 && mT < 160 && HT < 200 && met > 100 && met < 150) FILL_SR("SR06");
+                if(mll < 75 && mT > 100 && mT < 160 && HT < 200 && met > 150) FILL_SR("SR07");
 
-                if(mll < 75 && mT > 160 && HT < 200 && met > 50 && met < 100) _counters.at("SR08").add_event(event);
-                if(mll < 75 && mT > 160 && HT < 200 && met > 100 && met < 150) _counters.at("SR09").add_event(event);
-                if(mll < 75 && mT > 160 && HT < 200 && met > 150 && met < 200) _counters.at("SR10").add_event(event);
-                if(mll < 75 && mT > 160 && HT < 200 && met > 200) _counters.at("SR11").add_event(event);
+                if(mll < 75 && mT > 160 && HT < 200 && met > 50 && met < 100) FILL_SR("SR08");
+                if(mll < 75 && mT > 160 && HT < 200 && met > 100 && met < 150) FILL_SR("SR09");
+                if(mll < 75 && mT > 160 && HT < 200 && met > 150 && met < 200) FILL_SR("SR10");
+                if(mll < 75 && mT > 160 && HT < 200 && met > 200) FILL_SR("SR11");
 
-                if(mll < 75 && mT < 100 && HT > 200 && met > 50) _counters.at("SR12").add_event(event);
-                if(mll < 75 && mT > 100 && mT < 160 && HT > 200 && met > 50) _counters.at("SR13").add_event(event);
-                if(mll < 75 && mT > 160 && HT > 200 && met > 50) _counters.at("SR14").add_event(event);
+                if(mll < 75 && mT < 100 && HT > 200 && met > 50) FILL_SR("SR12");
+                if(mll < 75 && mT > 100 && mT < 160 && HT > 200 && met > 50) FILL_SR("SR13");
+                if(mll < 75 && mT > 160 && HT > 200 && met > 50) FILL_SR("SR14");
 
-                if(mll > 75 && mll < 105 && mT < 100 && HT < 100 && met > 100 && met < 150) _counters.at("SR15").add_event(event);
-                if(mll > 75 && mll < 105 && mT < 100 && HT < 100 && met > 150 && met < 200) _counters.at("SR16").add_event(event);
-                if(mll > 75 && mll < 105 && mT < 100 && HT < 100 && met > 200 && met < 250) _counters.at("SR17").add_event(event);
-                if(mll > 75 && mll < 105 && mT < 100 && HT < 100 && met > 250) _counters.at("SR18").add_event(event);
+                if(mll > 75 && mll < 105 && mT < 100 && HT < 100 && met > 100 && met < 150) FILL_SR("SR15");
+                if(mll > 75 && mll < 105 && mT < 100 && HT < 100 && met > 150 && met < 200) FILL_SR("SR16");
+                if(mll > 75 && mll < 105 && mT < 100 && HT < 100 && met > 200 && met < 250) FILL_SR("SR17");
+                if(mll > 75 && mll < 105 && mT < 100 && HT < 100 && met > 250) FILL_SR("SR18");
 
-                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT < 100 && met > 50 && met < 100) _counters.at("SR19").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT < 100 && met > 100 && met < 150) _counters.at("SR20").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT < 100 && met > 150 && met < 200) _counters.at("SR21").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT < 100 && met > 200) _counters.at("SR22").add_event(event);
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT < 100 && met > 50 && met < 100) FILL_SR("SR19");
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT < 100 && met > 100 && met < 150) FILL_SR("SR20");
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT < 100 && met > 150 && met < 200) FILL_SR("SR21");
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT < 100 && met > 200) FILL_SR("SR22");
 
-                if(mll > 75 && mll < 105 && mT > 160 && HT < 100 && met > 50 && met < 100) _counters.at("SR23").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 160 && HT < 100 && met > 100 && met < 150) _counters.at("SR24").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 160 && HT < 100 && met > 150 && met < 200) _counters.at("SR25").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 160 && HT < 100 && met > 200) _counters.at("SR26").add_event(event);
+                if(mll > 75 && mll < 105 && mT > 160 && HT < 100 && met > 50 && met < 100) FILL_SR("SR23");
+                if(mll > 75 && mll < 105 && mT > 160 && HT < 100 && met > 100 && met < 150) FILL_SR("SR24");
+                if(mll > 75 && mll < 105 && mT > 160 && HT < 100 && met > 150 && met < 200) FILL_SR("SR25");
+                if(mll > 75 && mll < 105 && mT > 160 && HT < 100 && met > 200) FILL_SR("SR26");
 
-                if(mll > 75 && mll < 105 && mT < 100 && HT > 100 && HT < 200 && met > 50 && met < 100) _counters.at("SR27").add_event(event);
-                if(mll > 75 && mll < 105 && mT < 100 && HT > 100 && HT < 200 && met > 100 && met < 150) _counters.at("SR28").add_event(event);
-                if(mll > 75 && mll < 105 && mT < 100 && HT > 100 && HT < 200 && met > 150 && met < 200) _counters.at("SR29").add_event(event);
-                if(mll > 75 && mll < 105 && mT < 100 && HT > 100 && HT < 200 && met > 200 && met < 250) _counters.at("SR30").add_event(event);
-                if(mll > 75 && mll < 105 && mT < 100 && HT > 100 && HT < 200 && met > 250) _counters.at("SR31").add_event(event);
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 100 && HT < 200 && met > 50 && met < 100) FILL_SR("SR27");
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 100 && HT < 200 && met > 100 && met < 150) FILL_SR("SR28");
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 100 && HT < 200 && met > 150 && met < 200) FILL_SR("SR29");
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 100 && HT < 200 && met > 200 && met < 250) FILL_SR("SR30");
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 100 && HT < 200 && met > 250) FILL_SR("SR31");
 
-                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 100 && HT < 200 && met > 50 && met < 100) _counters.at("SR32").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 100 && HT < 200 && met > 100 && met < 150) _counters.at("SR33").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 100 && HT < 200 && met > 150 && met < 200) _counters.at("SR34").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 100 && HT < 200 && met > 200) _counters.at("SR35").add_event(event);
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 100 && HT < 200 && met > 50 && met < 100) FILL_SR("SR32");
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 100 && HT < 200 && met > 100 && met < 150) FILL_SR("SR33");
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 100 && HT < 200 && met > 150 && met < 200) FILL_SR("SR34");
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 100 && HT < 200 && met > 200) FILL_SR("SR35");
 
-                if(mll > 75 && mll < 105 && mT > 160 && HT > 100 && HT < 200 && met > 50 && met < 100) _counters.at("SR36").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 160 && HT > 100 && HT < 200 && met > 100 && met < 150) _counters.at("SR37").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 160 && HT > 100 && HT < 200 && met > 150 && met < 200) _counters.at("SR38").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 160 && HT > 100 && HT < 200 && met > 200) _counters.at("SR39").add_event(event);
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 100 && HT < 200 && met > 50 && met < 100) FILL_SR("SR36");
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 100 && HT < 200 && met > 100 && met < 150) FILL_SR("SR37");
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 100 && HT < 200 && met > 150 && met < 200) FILL_SR("SR38");
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 100 && HT < 200 && met > 200) FILL_SR("SR39");
 
-                if(mll > 75 && mll < 105 && mT < 100 && HT > 200 && met > 50 && met < 150) _counters.at("SR40").add_event(event);
-                if(mll > 75 && mll < 105 && mT < 100 && HT > 200 && met > 150 && met < 250) _counters.at("SR41").add_event(event);
-                if(mll > 75 && mll < 105 && mT < 100 && HT > 200 && met > 250 && met < 350) _counters.at("SR42").add_event(event);
-                if(mll > 75 && mll < 105 && mT < 100 && HT > 200 && met > 350) _counters.at("SR43").add_event(event);
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 200 && met > 50 && met < 150) FILL_SR("SR40");
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 200 && met > 150 && met < 250) FILL_SR("SR41");
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 200 && met > 250 && met < 350) FILL_SR("SR42");
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 200 && met > 350) FILL_SR("SR43");
 
-                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 50 && met < 100) _counters.at("SR44").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 100 && met < 150) _counters.at("SR45").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 150 && met < 200) _counters.at("SR46").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 200 && met < 250) _counters.at("SR47").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 250 && met < 300) _counters.at("SR48").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 300) _counters.at("SR49").add_event(event);
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 50 && met < 100) FILL_SR("SR44");
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 100 && met < 150) FILL_SR("SR45");
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 150 && met < 200) FILL_SR("SR46");
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 200 && met < 250) FILL_SR("SR47");
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 250 && met < 300) FILL_SR("SR48");
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 300) FILL_SR("SR49");
 
-                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 50 && met < 100) _counters.at("SR50").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 100 && met < 150) _counters.at("SR51").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 150 && met < 200) _counters.at("SR52").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 200 && met < 250) _counters.at("SR53").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 250 && met < 300) _counters.at("SR54").add_event(event);
-                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 300) _counters.at("SR55").add_event(event);
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 50 && met < 100) FILL_SR("SR50");
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 100 && met < 150) FILL_SR("SR51");
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 150 && met < 200) FILL_SR("SR52");
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 200 && met < 250) FILL_SR("SR53");
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 250 && met < 300) FILL_SR("SR54");
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 300) FILL_SR("SR55");
 
-                if(mll > 105 && mT < 100 && met > 50) _counters.at("SR56").add_event(event);
-                if(mll > 105 && mT > 100 && mT < 160 && met > 50) _counters.at("SR57").add_event(event);
-                if(mll > 105 && mT > 160 && met > 50) _counters.at("SR58").add_event(event);
+                if(mll > 105 && mT < 100 && met > 50) FILL_SR("SR56");
+                if(mll > 105 && mT > 100 && mT < 160 && met > 50) FILL_SR("SR57");
+                if(mll > 105 && mT > 160 && met > 50) FILL_SR("SR58");
 
               }
             }
@@ -636,6 +600,10 @@ namespace Gambit
 
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results() {
+#ifdef CHECK_CUTFLOW
+        COMMIT_CUTFLOWS
+#endif
+
 
         //Now fill a results object with the results for each SR
 
@@ -829,11 +797,6 @@ namespace Gambit
       void analysis_specific_reset() {
 
         for (auto& pair : _counters) { pair.second.reset(); }
-
-        std::fill(cutFlowVector1.begin(), cutFlowVector1.end(), 0);
-        std::fill(cutFlowVector2.begin(), cutFlowVector2.end(), 0);
-        std::fill(cutFlowVector3.begin(), cutFlowVector3.end(), 0);
-        std::fill(cutFlowVector4.begin(), cutFlowVector4.end(), 0);
       }
 
     };
@@ -855,6 +818,10 @@ namespace Gambit
       }
 
       virtual void collect_results() {
+#ifdef CHECK_CUTFLOW
+        COMMIT_CUTFLOWS
+#endif
+
 
         add_result(SignalRegionData(_counters.at("SS01"), 1193., {1430., 180.}));
         add_result(SignalRegionData(_counters.at("SS02"), 50., {56., 9.}));
@@ -907,6 +874,10 @@ namespace Gambit
       }
 
       virtual void collect_results() {
+#ifdef CHECK_CUTFLOW
+        COMMIT_CUTFLOWS
+#endif
+
 
         add_result(SignalRegionData(_counters.at("A01"), 186., {185., 22.}));
         add_result(SignalRegionData(_counters.at("A02"), 34., {35., 6.}));
@@ -1024,6 +995,10 @@ namespace Gambit
       }
 
       virtual void collect_results() {
+#ifdef CHECK_CUTFLOW
+        COMMIT_CUTFLOWS
+#endif
+
 
         add_result(SignalRegionData(_counters.at("SR01"), 166., {175., 20.}));
         add_result(SignalRegionData(_counters.at("SR02"), 23., {27., 4.}));

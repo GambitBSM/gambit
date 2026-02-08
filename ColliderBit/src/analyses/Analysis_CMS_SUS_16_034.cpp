@@ -15,6 +15,7 @@
 #include <fstream>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -29,13 +30,7 @@ namespace Gambit {
     class Analysis_CMS_SUS_16_034 : public Analysis {
     private:
 
-      vector<int> cutFlowVector;
-      vector<string> cutFlowVector_str;
-      size_t NCUTS;
-      // vector<double> cutFlowVectorCMS_550_200;
-      // double xsecCMS_550_200;
-
-      // ofstream cutflowFile;
+      static constexpr const char* CUTFLOW_NAME = "CMS-SUS-16-034";
 
     public:
 
@@ -68,14 +63,23 @@ namespace Gambit {
         set_analysis_name("CMS_SUS_16_034");
         set_luminosity(35.9);
 
-        NCUTS=13;
-        // xsecCMS_550_200=30.2;
-
-        for (size_t i=0;i<NCUTS;i++){
-          cutFlowVector.push_back(0);
-          // cutFlowVectorCMS_550_200.push_back(0);
-          cutFlowVector_str.push_back("");
-        }
+        #ifdef CHECK_CUTFLOW
+          _cutflows.addCutflow(CUTFLOW_NAME, {
+            "All events",
+            "$\\geq$ 2 SFOS leptons with (sub)leading $p_{T} > 25(20) GeV$",
+            "Extra lepton vetos",
+            "$86 < m_{ll} < 96 GeV$",
+            "2-3 Jets",
+            "$\\Delta\\Phi(E^{miss}_{T},j_{0}),\\Delta\\Phi(E^{miss}_{T},j_{1}) > 0.4$",
+            "Btag veto",
+            "$M_{T2}(ll) > 80 GeV$",
+            "$M_{jj}$ for min $\\Delta\\Phi$ jets $< 150 GeV$",
+            "$E^{miss}_{T} > 100 GeV$",
+            "$E^{miss}_{T} > 150 GeV$",
+            "$E^{miss}_{T} > 250 GeV$",
+            "$E^{miss}_{T} > 350 GeV$"
+          });
+        #endif
       }
 
 
@@ -208,88 +212,46 @@ namespace Gambit {
           }
         }
 
-        cutFlowVector_str[0] = "All events";
-        cutFlowVector_str[1] = "$\\geq$ 2 SFOS leptons with (sub)leading $p_{T} > 25(20) GeV$";
-        cutFlowVector_str[2] = "Extra lepton vetos";
-        cutFlowVector_str[3] = "$86 < m_{ll} < 96 GeV$";
-        cutFlowVector_str[4] = "2-3 Jets";
-        cutFlowVector_str[5] = "$\\Delta\\Phi(E^{miss}_{T},j_{0}),\\Delta\\Phi(E^{miss}_{T},j_{1}) > 0.4$";
-        cutFlowVector_str[6] = "Btag veto";
-        cutFlowVector_str[7] = "$M_{T2}(ll) > 80 GeV$";
-        cutFlowVector_str[8] = "$M_{jj}$ for min $\\Delta\\Phi$ jets $< 150 GeV$";
-        cutFlowVector_str[9] = "$E^{miss}_{T} > 100 GeV$";
-        cutFlowVector_str[10] = "$E^{miss}_{T} > 150 GeV$";
-        cutFlowVector_str[11] = "$E^{miss}_{T} > 250 GeV$";
-        cutFlowVector_str[12] = "$E^{miss}_{T} > 350 GeV$";
+        #ifdef CHECK_CUTFLOW
+          const double w = event->weight();
+          const int nBaselineLeptons = baselineMuons.size() + baselineElectrons.size();
+          const bool passLeptonVeto = (nBaselineLeptons == 2);
+          const bool passMllWindow = (mll > 86. && mll < 96.);
+          const bool passJetSelection = ((nSignalJets == 2 || nSignalJets == 3) && pT_j1 > 35.);
+          const bool passDeltaPhi = (deltaPhi_met_j0 > 0.4 && deltaPhi_met_j1 > 0.4);
+          const bool passBtagVeto = (nSignalBJets == 0);
+          const bool passMT2 = (mT2 > 80.);
+          const bool passMjj = (mjj < 150.);
+          const bool passMet100 = (met > 100.);
+          const bool passMet150 = (met > 150.);
+          const bool passMet250 = (met > 250.);
+          const bool passMet350 = (met > 350.);
 
-        // cutFlowVectorCMS_550_200[0] = 109.35;
-        // cutFlowVectorCMS_550_200[1] = 24.21;
-        // cutFlowVectorCMS_550_200[2] = 18.37;
-        // cutFlowVectorCMS_550_200[3] = 14.13;
-        // cutFlowVectorCMS_550_200[4] = 11.98;
-        // cutFlowVectorCMS_550_200[5] = 10.95;
-        // cutFlowVectorCMS_550_200[6] = 9.92;
-        // cutFlowVectorCMS_550_200[7] = 8.04;
-        // cutFlowVectorCMS_550_200[8] = 5.62;
-        // cutFlowVectorCMS_550_200[9] = 5.41;
-        // cutFlowVectorCMS_550_200[10] = 4.96;
-        // cutFlowVectorCMS_550_200[11] = 3.59;
-        // cutFlowVectorCMS_550_200[12] = 1.94;
-
-        for (size_t j=0;j<NCUTS;j++){
-          if(
-             (j==0) ||
-
-             (j==1 && preselection) ||
-
-             (j==2 && preselection && (baselineMuons.size()+baselineElectrons.size())==2) ||
-
-             (j==3 && preselection && (baselineMuons.size()+baselineElectrons.size())==2 &&  mll>86. && mll<96.) ||
-
-             (j==4 && preselection && (baselineMuons.size()+baselineElectrons.size())==2 &&  mll>86. && mll<96. && (nSignalJets==2 || nSignalJets==3) && pT_j1>35.) ||
-
-             (j==5 && preselection && (baselineMuons.size()+baselineElectrons.size())==2 &&  mll>86. && mll<96. && (nSignalJets==2 || nSignalJets==3) && pT_j1>35. && deltaPhi_met_j0>0.4 && deltaPhi_met_j1>0.4) ||
-
-             (j==6 && preselection && (baselineMuons.size()+baselineElectrons.size())==2 &&  mll>86. && mll<96. && (nSignalJets==2 || nSignalJets==3) && pT_j1>35. && deltaPhi_met_j0>0.4 && deltaPhi_met_j1>0.4 && nSignalBJets==0) ||
-             (j==7 && preselection && (baselineMuons.size()+baselineElectrons.size())==2 &&  mll>86. && mll<96. && (nSignalJets==2 || nSignalJets==3) && pT_j1>35. && deltaPhi_met_j0>0.4 && deltaPhi_met_j1>0.4 && nSignalBJets==0 && mT2>80.) ||
-
-             (j==8 && preselection && (baselineMuons.size()+baselineElectrons.size())==2 &&  mll>86. && mll<96. && (nSignalJets==2 || nSignalJets==3) && pT_j1>35. && deltaPhi_met_j0>0.4 && deltaPhi_met_j1>0.4 && nSignalBJets==0 && mT2>80. && mjj<150.) ||
-
-             (j==9 && preselection && (baselineMuons.size()+baselineElectrons.size())==2 &&  mll>86. && mll<96. && (nSignalJets==2 || nSignalJets==3) && pT_j1>35. && deltaPhi_met_j0>0.4 && deltaPhi_met_j1>0.4 && nSignalBJets==0 && mT2>80. && mjj<150. && met>100.) ||
-
-             (j==10 && preselection && (baselineMuons.size()+baselineElectrons.size())==2 &&  mll>86. && mll<96. && (nSignalJets==2 || nSignalJets==3) && pT_j1>35. && deltaPhi_met_j0>0.4 && deltaPhi_met_j1>0.4 && nSignalBJets==0 && mT2>80. && mjj<150. && met>150.) ||
-
-             (j==11 && preselection && (baselineMuons.size()+baselineElectrons.size())==2 &&  mll>86. && mll<96. && (nSignalJets==2 || nSignalJets==3) && pT_j1>35. && deltaPhi_met_j0>0.4 && deltaPhi_met_j1>0.4 && nSignalBJets==0 && mT2>80. && mjj<150. && met>250.) ||
-
-             (j==12 && preselection && (baselineMuons.size()+baselineElectrons.size())==2 &&  mll>86. && mll<96. && (nSignalJets==2 || nSignalJets==3) && pT_j1>35. && deltaPhi_met_j0>0.4 && deltaPhi_met_j1>0.4 && nSignalBJets==0 && mT2>80. && mjj<150. && met>350.) )
-
-          cutFlowVector[j]++;
-        }
+          _cutflows[CUTFLOW_NAME].fillinit(w);
+          _cutflows[CUTFLOW_NAME].fillnext(
+            std::vector<bool>{
+              true,
+              preselection,
+              passLeptonVeto,
+              passMllWindow,
+              passJetSelection,
+              passDeltaPhi,
+              passBtagVeto,
+              passMT2,
+              passMjj,
+              passMet100,
+              passMet150,
+              passMet250,
+              passMet350
+            },
+            w
+          );
+        #endif
 
       }
 
 
       void collect_results() {
-
-        // string path = "ColliderBit/results/cutflow_";
-        // path.append(analysis_name());
-        // path.append(".txt");
-        // cutflowFile.open(path.c_str());
-
-       //  cutflowFile<<"\\begin{table}[H] \n\\caption{$\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0}$ decay via $W/Z, [\\tilde{\\chi}_{2}^{0}\\tilde{\\chi}_{1}^{\\pm},\\tilde{\\chi}_{1}^{0}]: [550,200] [GeV]$} \n\\makebox[\\linewidth]{ \n\\renewcommand{\\arraystretch}{0.4} \n\\begin{tabular}{c c c c c} \n\\hline"<<endl;
-       //  cutflowFile<<"& CMS & GAMBIT & GAMBIT/CMS & $\\sigma$-corrected GAMBIT/CMS \\\\ \\hline"<<endl;
-       //  cutflowFile<<"$\\sigma (pp\\to \\tilde{\\chi}_{1}^{\\pm}, \\tilde{\\chi}_{2}^{0})$ &"<<setprecision(4)<<xsecCMS_550_200<<" $fb$ &"<<setprecision(4)<<xsec()<<"$fb$ &"<<setprecision(4)<<xsec()/xsecCMS_550_200<<" & 1\\\\ \\hline"<<endl;
-       //  cutflowFile<<"\\multicolumn{5}{c}{Expected events at 35.9 $fb^{-1}$} \\\\ \\hline"<<endl;
-       //  for (size_t i=0; i<NCUTS; i++) {
-       //    cutflowFile<<cutFlowVector_str[i]<<"&"<<setprecision(4)<<cutFlowVectorCMS_550_200[i]<<"&"<<setprecision(4)<<cutFlowVector[i]*xsec_per_event()*luminosity()<<"&"<<setprecision(4)<<cutFlowVector[i]*xsec_per_event()*luminosity()/cutFlowVectorCMS_550_200[i]<<"&"<<setprecision(4)<<(xsecCMS_550_200/xsec())*cutFlowVector[i]*xsec_per_event()*luminosity()/cutFlowVectorCMS_550_200[i]<<"\\\\"<< endl;
-       //  }
-       //  cutflowFile<<"\\hline \\multicolumn{5}{c}{Percentage (\\%)} \\\\ \\hline"<<endl;
-       //  for (size_t i=0; i<NCUTS; i++) {
-       //    cutflowFile<<cutFlowVector_str[i]<<"&"<<setprecision(4)<<cutFlowVectorCMS_550_200[i]*100./cutFlowVectorCMS_550_200[1]<<"&"<<setprecision(4)<<cutFlowVector[i]*100./cutFlowVector[1]<<"& - & -\\\\"<< endl;
-       //  }
-       //  cutflowFile<<"\\end{tabular} \n} \n\\end{table}"<<endl;
-       // cutflowFile.close();
-
         // Only 7 of the 9 signal regions are included in the covariance matrix (SR1 and SR6 are left out)
 
         add_result(SignalRegionData(_counters.at("SR2"), 57., {54.9, 7.}));
@@ -312,6 +274,10 @@ namespace Gambit {
         };
 
         set_covariance(BKGCOV);
+
+        #ifdef CHECK_CUTFLOW
+          COMMIT_CUTFLOWS
+        #endif
 
       }
 
@@ -371,8 +337,6 @@ namespace Gambit {
       void analysis_specific_reset() {
 
         for (auto& pair : _counters) { pair.second.reset(); }
-
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     };

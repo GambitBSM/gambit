@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 //#include "gambit/ColliderBit/mt2w.h"
 
@@ -29,10 +30,7 @@ namespace Gambit {
 
     class Analysis_CMS_EXO_12_048 : public Analysis {
     private:
-
-      vector<int> cutFlowVector;
-      vector<string> cutFlowVector_str;
-      int NCUTS; //=24;
+      static constexpr const char* CUTFLOW_NAME = "CMS-EXO-12-048";
 
       // Debug histos
 
@@ -42,7 +40,6 @@ namespace Gambit {
       static constexpr const char* detector = "CMS";
 
       Analysis_CMS_EXO_12_048()
-        : NCUTS(12)
       {
 
         // Numbers passing cuts
@@ -57,10 +54,21 @@ namespace Gambit {
         set_analysis_name("CMS_EXO_12_048");
         set_luminosity(19.7);
 
-        for (int i=0; i<NCUTS; i++) {
-          cutFlowVector.push_back(0);
-          cutFlowVector_str.push_back("");
-        }
+        #ifdef CHECK_CUTFLOW
+        _cutflows.addCutflow(CUTFLOW_NAME, {
+          "pT(j1) > 110 GeV and |eta(j1)| < 2.4",
+          "njets <=2",
+          "dPhi(j1,j2) < 2.5",
+          "nLeptons = 0",
+          "met > 250",
+          "met > 300",
+          "met > 350",
+          "met > 400",
+          "met > 450",
+          "met > 500",
+          "met > 550"
+        });
+        #endif
       }
 
       double SmallestdPhi(std::vector<HEPUtils::Jet *> jets,double phi_met)
@@ -133,73 +141,46 @@ namespace Gambit {
         int nJets = baselineJets.size();
         int nLeptons = baselineElectrons.size()+baselineMuons.size()+baselineTaus.size();
 
-        // CUTS
-        // pT(j1) > 110 GeV & eta < 2.4
-        // njets <=2
-        // dPhi(j1,j2) < 2.5
-        // nLeptons = 0
-        // met > 250
-        // met > 300
-        // met > 350
-        // met > 400
-        // met > 450
-        // met > 500
-        // met > 550
-
-        cutFlowVector_str[0] = "No cuts ";
-        cutFlowVector_str[1] = "pT(j1) > 110 GeV and |eta(j1)| < 2.4 ";
-        cutFlowVector_str[2] = "njets <=2 ";
-        cutFlowVector_str[3] = "dPhi(j1,j2) < 2.5 ";
-        cutFlowVector_str[4] = "nLeptons = 0 ";
-        cutFlowVector_str[5] = "met > 250 ";
-        cutFlowVector_str[6] = "met > 300 ";
-        cutFlowVector_str[7] = "met > 350 ";
-        cutFlowVector_str[8] = "met > 400 ";
-        cutFlowVector_str[9] = "met > 450 ";
-        cutFlowVector_str[10] = "met > 500 ";
-        cutFlowVector_str[11] = "met > 550 ";
-
         double dPhiJ1J2 = 5.;
         if(nJets>=2)dPhiJ1J2=acos(cos((baselineJets[0]->phi() - baselineJets[1]->phi())));
+        const bool cut_j1 = nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4;
+        const bool cut_njets = cut_j1 && nJets <= 2;
+        const bool cut_dphi = cut_njets && dPhiJ1J2 < 2.5;
+        const bool cut_nleptons = cut_dphi && nLeptons == 0;
+        const bool cut_met250 = cut_nleptons && met > 250.;
+        const bool cut_met300 = cut_nleptons && met > 300.;
+        const bool cut_met350 = cut_nleptons && met > 350.;
+        const bool cut_met400 = cut_nleptons && met > 400.;
+        const bool cut_met450 = cut_nleptons && met > 450.;
+        const bool cut_met500 = cut_nleptons && met > 500.;
+        const bool cut_met550 = cut_nleptons && met > 550.;
 
-
-        for(int j=0;j<NCUTS;j++){
-          if(
-             (j==0) ||
-
-             (j==1 && nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4) ||
-
-             (j==2 && nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2) ||
-
-             (j==3 && nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5) ||
-
-             (j==4 && nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0) ||
-
-             (j==5 && nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 250.) ||
-
-             (j==6 && nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 300.) ||
-
-             (j==7 && nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 350.) ||
-
-             (j==8 && nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 400.) ||
-
-             (j==9 && nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 450.) ||
-
-             (j==10 && nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 500.) ||
-
-             (j==11 && nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 550.))
-
-            cutFlowVector[j]++;
-        }
+        #ifdef CHECK_CUTFLOW
+        const double w = event->weight();
+        _cutflows[CUTFLOW_NAME].fillinit(w);
+        _cutflows[CUTFLOW_NAME].fillnext({
+          cut_j1,
+          cut_njets,
+          cut_dphi,
+          cut_nleptons,
+          cut_met250,
+          cut_met300,
+          cut_met350,
+          cut_met400,
+          cut_met450,
+          cut_met500,
+          cut_met550
+        }, w);
+        #endif
 
         //We're now ready to apply the cuts for each signal region
 
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 250.) _counters["250"].add_event(event);
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 350.) _counters["350"].add_event(event);
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 400.) _counters["400"].add_event(event);
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 450.) _counters["450"].add_event(event);
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 500.) _counters["500"].add_event(event);
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 550.) _counters["550"].add_event(event);
+        if(cut_met250) _counters["250"].add_event(event);
+        if(cut_met350) _counters["350"].add_event(event);
+        if(cut_met400) _counters["400"].add_event(event);
+        if(cut_met450) _counters["450"].add_event(event);
+        if(cut_met500) _counters["500"].add_event(event);
+        if(cut_met550) _counters["550"].add_event(event);
 
         return;
 
@@ -217,6 +198,10 @@ namespace Gambit {
         add_result(SignalRegionData(_counters["500"], 934., { 1040.,  100.}));
         add_result(SignalRegionData(_counters["550"], 519., { 509.,  66.}));
 
+        #ifdef CHECK_CUTFLOW
+        COMMIT_CUTFLOWS;
+        #endif
+
         return;
       }
 
@@ -225,8 +210,6 @@ namespace Gambit {
       void analysis_specific_reset()
       {
         for (auto& pair : _counters) { pair.second.reset(); }
-
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     };

@@ -10,7 +10,7 @@
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/Utils.hpp"
-#include "gambit/ColliderBit/analyses/Cutflow.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 
 //#define CHECK_CUTFLOW
@@ -57,74 +57,62 @@ namespace Gambit
           // 2SSLep (2lSS)
           for(size_t i=1; i<=20; ++i)
           {
-            _counters[SR("SS",i)] =  EventCounter(SR("SS",i));
-            _cutflows.addCutflow(SR("SS",i), {"Preselection", "Final"});
+            DEFINE_SIGNAL_REGION(SR("SS",i))
           }
           // 3Lep, OSSF pair (3lA)
           for(size_t i=1; i<=64; ++i)
           {
-            _counters[SR("A",i)] = EventCounter(SR("A",i));
-            _cutflows.addCutflow(SR("A",i), {"Preselection", "Final"});
+            DEFINE_SIGNAL_REGION(SR("A",i))
           }
           // 3Lep, no OSSF pair (3lB)
           for(size_t i=1; i<=3; ++i)
           {
-            _counters[SR("B",i)] = EventCounter(SR("B",i));
-            _cutflows.addCutflow(SR("B",i), {"Preselection", "Final"});
+            DEFINE_SIGNAL_REGION(SR("B",i))
           }
           // 3Lep, OSSF pair + tau (3lC)
           for(size_t i=1; i<=9; ++i)
           {
-            _counters[SR("C",i)] = EventCounter(SR("C",i));
-            _cutflows.addCutflow(SR("C",i), {"Preselection", "Final"});
+            DEFINE_SIGNAL_REGION(SR("C",i))
           }
           // 3Lep, no OSSF pair, 2 OS light leptons + tau (3lD)
           for(size_t i=1; i<=16; ++i)
           {
-            _counters[SR("D",i)] = EventCounter(SR("D",i));
-            _cutflows.addCutflow(SR("D",i), {"Preselection", "Final"});
+            DEFINE_SIGNAL_REGION(SR("D",i))
           }
           // 3Lep, no OSSF pair, 2 SS light leptons + tau (3lE)
           for(size_t i=1; i<=9; ++i)
           {
-            _counters[SR("E",i)] = EventCounter(SR("E",i));
-            _cutflows.addCutflow(SR("E",i), {"Preselection", "Final"});
+            DEFINE_SIGNAL_REGION(SR("E",i))
           }
           // 3Lep, 2 tau (3lF)
           for(size_t i=1; i<=12; ++i)
           {
-            _counters[SR("F",i)] = EventCounter(SR("F",i));
-            _cutflows.addCutflow(SR("F",i), {"Preselection", "Final"});
+            DEFINE_SIGNAL_REGION(SR("F",i))
           }
           // 4Lep, 2 OSSF pairs (4lG)
           for(size_t i=1; i<=5; ++i)
           {
-            _counters[SR("G",i)] = EventCounter(SR("G",i));
-            _cutflows.addCutflow(SR("G",i), {"Preselection", "Final"});
+            DEFINE_SIGNAL_REGION(SR("G",i))
           }
           // 4Lep, 1 or fewer OSSF pairs (4lH)
           for(size_t i=1; i<=3; ++i)
           {
-            _counters[SR("H",i)] = EventCounter(SR("H",i));
-            _cutflows.addCutflow(SR("H",i), {"Preselection", "Final"});
+            DEFINE_SIGNAL_REGION(SR("H",i))
           }
           // 4Lep, tau + 3 light leptons (4lI)
           for(size_t i=1; i<=3; ++i)
           {
-            _counters[SR("I",i)] = EventCounter(SR("I",i));
-            _cutflows.addCutflow(SR("I",i), {"Preselection", "Final"});
+            DEFINE_SIGNAL_REGION(SR("I",i))
           }
           // 4Lep, 2 tau + 2 light leptons, 2 OSSF pairs (4lJ)
           for(size_t i=1; i<=3; ++i)
           {
-            _counters[SR("J",i)] = EventCounter(SR("J",i));
-            _cutflows.addCutflow(SR("J",i), {"Preselection", "Final"});
+            DEFINE_SIGNAL_REGION(SR("J",i))
           }
           // 4Lep, 2 tau + 2 light leptons, 1 or fewer OSSF pairs (4lK)
           for(size_t i=1; i<=3; ++i)
           {
-            _counters[SR("K",i)] = EventCounter(SR("K",i));
-            _cutflows.addCutflow(SR("K",i), {"Preselection", "Final"});
+            DEFINE_SIGNAL_REGION(SR("K",i))
           }
 
 
@@ -133,10 +121,9 @@ namespace Gambit
 
         }
 
-        void counter_cutflow(str SR, const HEPUtils::Event *event, double weight)
+        void counter_cutflow(str SR, const HEPUtils::Event *event, double /*weight*/)
         {
-          _cutflows[SR].fillnext(weight);
-          _counters.at(SR).add_event(event);
+          FILL_SIGNAL_REGION(SR)
         }
 
         void run(const HEPUtils::Event* event)
@@ -337,14 +324,18 @@ namespace Gambit
 
           // Cuflow initialization
           const double w = event->weight();
-          _cutflows.fillinit(w);
+#ifdef CHECK_CUTFLOW
+          BEGIN_PRESELECTION
+#endif
 
           //////////////////
           // Preselection //
           if(nLeptons < 3 and (nLightLeptons < 2 or nSSpairs == 0) ) return;
           if(nBJets > 0) return;
           if(nOSSFpairs > 0 and mossf.at(0) < 12.0) return;
-          _cutflows.fillnext(w);
+#ifdef CHECK_CUTFLOW
+          END_PRESELECTION
+#endif
 
           ////////////////////
           // Signal regions //
@@ -493,7 +484,7 @@ namespace Gambit
             if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >=  50. and met < 100.) counter_cutflow("A59",event,w);
             if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >= 100. and met < 150.) counter_cutflow("A60",event,w);
             if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >= 150. and met < 200.) counter_cutflow("A61",event,w);
-            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >= 200. and met < 250.) counter_cutflow("A61",event,w);
+            if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >= 200. and met < 250.) counter_cutflow("A62",event,w); // Pengxuan Zhu: Fixed bug for wrong SR name
             if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >= 250. and met < 300.) counter_cutflow("A63",event,w);
             if(mll >= 75. and mll < 105. and HT >= 200. and mT >= 160. and met >= 300.) counter_cutflow("A64",event,w);
           }
@@ -890,7 +881,9 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("K03"), 1., {0.61, 0.61}));
 
           // Add cutflow data to the analysis results
-          add_cutflows(_cutflows);
+          #ifdef CHECK_CUTFLOW
+          COMMIT_CUTFLOWS
+          #endif
 
         }
 
@@ -943,7 +936,9 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("SS20"), 5.8, {3.9, 1.6}));
 
           // Add cutflow data to the analysis results
-          add_cutflows(_cutflows);
+          #ifdef CHECK_CUTFLOW
+          COMMIT_CUTFLOWS
+          #endif
         }
 
     };
@@ -1036,7 +1031,9 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("B03"), 327, {322., 83.}));
 
           // Add cutflow data to the analysis results
-          add_cutflows(_cutflows);
+          #ifdef CHECK_CUTFLOW
+          COMMIT_CUTFLOWS
+          #endif
         }
 
     };
@@ -1112,7 +1109,9 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("F12"), 2., {3.5, 1.4}));
 
           // Add cutflow data to the analysis results
-          add_cutflows(_cutflows);
+          #ifdef CHECK_CUTFLOW
+          COMMIT_CUTFLOWS
+          #endif
         }
 
     };
@@ -1146,7 +1145,9 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("H03"), 3., {4.3, 0.9}));
 
           // Add cutflow data to the analysis results
-          add_cutflows(_cutflows);
+          #ifdef CHECK_CUTFLOW
+          COMMIT_CUTFLOWS
+          #endif
         }
 
     };
@@ -1183,7 +1184,9 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("K03"), 1., {0.61, 0.61}));
 
           // Add cutflow data to the analysis results
-          add_cutflows(_cutflows);
+          #ifdef CHECK_CUTFLOW
+          COMMIT_CUTFLOWS
+          #endif
         }
 
     };

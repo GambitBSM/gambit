@@ -1,6 +1,5 @@
 // -*- C++ -*-
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
-#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 
 // #define CHECK_CUTFLOW
@@ -28,17 +27,18 @@ namespace Gambit
         // Required detector sim
         static constexpr const char* detector = "CMS";
         static const size_t NUMSR = 12;
+        static constexpr const char* CUTFLOW_NAME = "CMS-SUS-19-006";
 
-        Cutflow _cutflow;
 
-
-        Analysis_CMS_SUS_19_006() :
-          _cutflow("CMS 0-lep 13 TeV",
-                   {"Njet >= 2", "HT > 300", "HTmiss > 300", "HTmiss/HT < 1",
-                       "Nmuon = 0", "Nelectron = 0", "Nphoton = 0",
-                       "Dphi_htmiss_j1", "Dphi_htmiss_j2", "Dphi_htmiss_j3", "Dphi_htmiss_j4",
-                       "Evt quality"}) //, "SR HTmiss", "SR HT", "SR Njet", "SR Nbjet"}
+        Analysis_CMS_SUS_19_006()
         {
+          #ifdef CHECK_CUTFLOW
+          _cutflows.addCutflow(CUTFLOW_NAME,
+                   {"Njet >= 2", "HT > 300", "HTmiss > 300", "HTmiss/HT < 1",
+                    "Nmuon = 0", "Nelectron = 0", "Nphoton = 0",
+                    "Dphi_htmiss_j1", "Dphi_htmiss_j2", "Dphi_htmiss_j3", "Dphi_htmiss_j4",
+                    "Evt quality"});
+          #endif
 
 
           // Numbers passing cuts
@@ -64,7 +64,9 @@ namespace Gambit
         void run(const Event* event)
         {
 
-          _cutflow.fillinit();
+          #ifdef CHECK_CUTFLOW
+          _cutflows[CUTFLOW_NAME].fillinit();
+          #endif
 
           // Get jets
           vector<const Jet*> jets24, jets50;
@@ -76,7 +78,9 @@ namespace Gambit
           }
           const size_t njets = jets24.size();
           if (njets < 2) return;
-          _cutflow.fill(1);
+          #ifdef CHECK_CUTFLOW
+          _cutflows[CUTFLOW_NAME].fill(1);
+          #endif
 
           // Count b-jets
           size_t nbjets = 0;
@@ -90,18 +94,24 @@ namespace Gambit
           for (const Jet* j : jets24) sumptj += j->pT();
           const double ht = sumptj;
           if (ht < 300) return;
-          _cutflow.fill(2);
+          #ifdef CHECK_CUTFLOW
+          _cutflows[CUTFLOW_NAME].fill(2);
+          #endif
 
           // HTmiss cut, from full set of jets
           P4 htvec;
           for (const Jet* jet : jets50) htvec += jet->mom();
           const double htmiss = htvec.pT();
           if (htmiss < 300) return;
-          _cutflow.fill(3);
+          #ifdef CHECK_CUTFLOW
+          _cutflows[CUTFLOW_NAME].fill(3);
+          #endif
 
           // HTmiss/HT cut
           if (htmiss/ht >= 1) return;
-          _cutflow.fill(4);
+          #ifdef CHECK_CUTFLOW
+          _cutflows[CUTFLOW_NAME].fill(4);
+          #endif
 
 
           // Get baseline photons
@@ -164,30 +174,46 @@ namespace Gambit
 
           // Veto the event if there are any remaining baseline leptons
           if (!muons.empty()) return;
-          _cutflow.fill(5);
+          #ifdef CHECK_CUTFLOW
+          _cutflows[CUTFLOW_NAME].fill(5);
+          #endif
           if (!elecs.empty()) return;
-          _cutflow.fill(6);
+          #ifdef CHECK_CUTFLOW
+          _cutflows[CUTFLOW_NAME].fill(6);
+          #endif
 
           // Veto high-pT photons (should have negligible effect)
           if (!photons.empty() && photons[0]->pT() > 100) return;
-          _cutflow.fill(7);
+          #ifdef CHECK_CUTFLOW
+          _cutflows[CUTFLOW_NAME].fill(7);
+          #endif
 
 
           // Lead jets isolation from Htmiss
           if (deltaPhi(-htvec, jets24[0]->mom()) < 0.5) return;
-          _cutflow.fill(8);
+          #ifdef CHECK_CUTFLOW
+          _cutflows[CUTFLOW_NAME].fill(8);
+          #endif
           if (deltaPhi(-htvec, jets24[1]->mom()) < 0.5) return;
-          _cutflow.fill(9);
+          #ifdef CHECK_CUTFLOW
+          _cutflows[CUTFLOW_NAME].fill(9);
+          #endif
           if (jets24.size() >= 3 && deltaPhi(-htvec, jets24[2]->mom()) < 0.3) return;
-          _cutflow.fill(10);
+          #ifdef CHECK_CUTFLOW
+          _cutflows[CUTFLOW_NAME].fill(10);
+          #endif
           if (jets24.size() >= 4 && deltaPhi(-htvec, jets24[3]->mom()) < 0.3) return;
-          _cutflow.fill(11);
+          #ifdef CHECK_CUTFLOW
+          _cutflows[CUTFLOW_NAME].fill(11);
+          #endif
 
 
           // Downweight for event quality inefficiency
           const double w = 0.95 * event->weight();
           const double werr = 0.95 * event->weight_err();
-          if (random_bool(0.95)) _cutflow.fill(12);
+          #ifdef CHECK_CUTFLOW
+          if (random_bool(0.95)) _cutflows[CUTFLOW_NAME].fill(12);
+          #endif
 
 
           // Fill aggregate SR bins
@@ -226,15 +252,8 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("SR12"), 0., {0.1, add_quad(1.2, 0.1)} ));
 
 
-          // Cutflow printout
           #ifdef CHECK_CUTFLOW
-            // const double sf = 137*crossSection()/femtobarn/sumOfWeights();
-            // _cutflows.scale(sf);
-            cout << "\nCUTFLOWS:\n" << _cutflow << "\n" << endl;
-            cout << "\nSRCOUNTS:\n";
-            // Note: The sum() call below gives the raw event count. Use weight_sum() for the sum of event weights.
-            for (auto& pair : _counters) cout << pair.second.sum() << "  ";
-            cout << "\n" << endl;
+            add_cutflows(_cutflows);
           #endif
         }
 

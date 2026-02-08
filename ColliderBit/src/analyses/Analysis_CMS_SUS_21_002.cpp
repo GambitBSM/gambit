@@ -21,7 +21,6 @@
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
-#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 
 // #define CHECK_CUTFLOW
 
@@ -80,13 +79,13 @@ namespace Gambit
     public:
       // Required detector sim
       static constexpr const char *detector = "CMS";
+      static constexpr const char* CUTFLOW_NAME = "CMS-SUS-21-002";
 
-      Cutflow _cutflow;
-
-      Analysis_CMS_SUS_21_002():
-      _cutflow("CMS 0 lepton charginos 13 TeV NEW", {"Electron veto", "Muon veto", "MET>300 GeV", "HT > 300 GeV", "Njets > 2", "Photon veto", "NAK8 > 0", "Delta phi", "NAK8 > 1", "b-veto", "WH SR", "W SR", "H SR"})
-
+      Analysis_CMS_SUS_21_002()
       {
+#ifdef CHECK_CUTFLOW
+        _cutflows.addCutflow(CUTFLOW_NAME, {"Electron veto", "Muon veto", "MET>300 GeV", "HT > 300 GeV", "Njets > 2", "Photon veto", "NAK8 > 0", "Delta phi", "NAK8 > 1", "b-veto", "WH SR", "W SR", "H SR"});
+#endif
         set_analysis_name("CMS_SUS_21_002");
         set_luminosity(137.0);
       }
@@ -186,27 +185,43 @@ namespace Gambit
         sortByPt(baselineAK8Jets);
 
         // Initial events
-        _cutflow.fillinit();
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fillinit();
+#endif
         if ( nElectrons > 0 ) return;
-        _cutflow.fill(1);
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(1);
+#endif
 
         if ( nMuons > 0 ) return;
-        _cutflow.fill(2);
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(2);
+#endif
 
         if ( met <= 200. ) return;
-        _cutflow.fill(3);
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(3);
+#endif
 
         if ( HT <= 300. ) return;
-        _cutflow.fill(4);
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(4);
+#endif
 
         if ( nJets < 2 || nJets > 6 ) return;
-        _cutflow.fill(5);
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(5);
+#endif
 
         if ( nPhotons > 0 ) return;
-        _cutflow.fill(6);
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(6);
+#endif
 
         if ( nAK8Jets == 0 ) return;
-        _cutflow.fill(7);
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(7);
+#endif
 
         // Now deltaphi cuts
         // CMS require deltaphi(pmiss, j1) > 1.5, deltaphi(pmiss, j2) > 0.5, deltaphi(pmiss, j3, j4) > 3
@@ -230,10 +245,14 @@ namespace Gambit
         }
 
         if ( !deltaphi_cuts ) return;
-        _cutflow.fill(8);
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(8);
+#endif
 
         if ( nAK8Jets < 2 ) return;
-        _cutflow.fill(9);
+#ifdef CHECK_CUTFLOW
+        _cutflows[CUTFLOW_NAME].fill(9);
+#endif
 
 
         // Defining the signal regions
@@ -363,10 +382,12 @@ namespace Gambit
 
 
 
-        if (ZeroB_SR) _cutflow.fill(10);
-        if (WH_SR)    _cutflow.fill(11);
-        if (W_SR)     _cutflow.fill(12);
-        if (H_SR)     _cutflow.fill(13);
+#ifdef CHECK_CUTFLOW
+        if (ZeroB_SR) _cutflows[CUTFLOW_NAME].fill(10);
+        if (WH_SR)    _cutflows[CUTFLOW_NAME].fill(11);
+        if (W_SR)     _cutflows[CUTFLOW_NAME].fill(12);
+        if (H_SR)     _cutflows[CUTFLOW_NAME].fill(13);
+#endif
 
         if ( ZeroB_SR ) {
           if  ( met > 200. && met <= 250. )   _counters.at("0b-MET-200-250").add_event(event);
@@ -418,16 +439,6 @@ namespace Gambit
 
       virtual void collect_results()
       {
-
-        #ifdef CHECK_CUTFLOW  
-          cout << _cutflow << endl;
-          // Note: The EventCount::sum() call below gives the raw MC event count.
-          //       Use weight_sum() to get the sum of event weights.
-          // for (auto& pair : _counters) {
-          //     cout << pair.first << "\t" << pair.second.sum() << endl;
-          // }
-        #endif
-
         // Note that order in which the SR results are added must match the order in the covariance matrix below.
         add_result(SignalRegionData(_counters.at("0b-MET-200-250"),  82.0, {88.139, 9.2357}));
         add_result(SignalRegionData(_counters.at("0b-MET-250-300"),  48.0, {48.165, 6.7386}));
@@ -509,6 +520,9 @@ namespace Gambit
         };
 
         set_covariance(BKGCOV);
+#ifdef CHECK_CUTFLOW
+        add_cutflows(_cutflows);
+#endif
 
       }
 

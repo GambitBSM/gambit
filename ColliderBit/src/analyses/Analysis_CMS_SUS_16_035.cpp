@@ -21,7 +21,6 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
-#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 
 // #define CHECK_CUTFLOW
 
@@ -37,8 +36,6 @@ namespace Gambit {
 
     class Analysis_CMS_SUS_16_035 : public Analysis {
     protected:
-
-        Cutflow _cutflow;
 
       // The following section copied from Analysis_ATLAS_1LEPStop_20invfb.cpp
       void JetLeptonOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, vector<const HEPUtils::Particle*> &lepvec, double DeltaRMax) {
@@ -96,10 +93,14 @@ namespace Gambit {
 
         // Required detector sim
         static constexpr const char* detector = "CMS";
+        static constexpr const char* CUTFLOW_NAME = "CMS_SUS_16_035";
 
-        Analysis_CMS_SUS_16_035():
-        _cutflow("CMS_SUS_16_035", {"Trigger_and_2leptons", "At_least_one_SS_lepton_pair", "Baseline"})
+        Analysis_CMS_SUS_16_035()
         {
+            #ifdef CHECK_CUTFLOW
+            _cutflows.addCutflow(CUTFLOW_NAME, {"Trigger_and_2leptons", "At_least_one_SS_lepton_pair", "Baseline"});
+            #endif
+
             // Counters for the number of accepted events for each signal region
             // HH
             _counters["SRHH-0"] = EventCounter("SRHH-0");
@@ -247,7 +248,9 @@ namespace Gambit {
         } comparePt;
 
         void run(const HEPUtils::Event* event) {
-            _cutflow.fillinit();
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fillinit();
+            #endif
 
             // Missing energy
             double met = event->met();
@@ -352,7 +355,9 @@ namespace Gambit {
                 pure_dilepton_trigger = true;
             }
             if ( not pure_dilepton_trigger and HT<300 ) return;
-            _cutflow.fill(1); // Trigger and >=2 leptons
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(1); // Trigger and >=2 leptons
+            #endif
 
             // Find pair same sign (SS) leptons
             vector<size_t> SS_1,SS_2;
@@ -367,7 +372,9 @@ namespace Gambit {
 
             // At least one SS lepton pair ( with an invari-ant mass above 8 GeV )
             if (SS_1.size()==0) return;
-            _cutflow.fill(2); // At least one SS lepton pair
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(2); // At least one SS lepton pair
+            #endif
 
             // An additional loose lepton forms an opposite-sign same-flavor pair
             // withone of the two SS leptons, with an invariant mass less than 12 GeV
@@ -392,7 +399,9 @@ namespace Gambit {
 
             // At least two jets and MET>50
             if ( nonbJets.size()<2 or  met<50) return;
-            _cutflow.fill(3); // Baseline (two jets and MET>50 GeV)
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(3); // Baseline (two jets and MET>50 GeV)
+            #endif
 
             // M_T^{miss}
             // The smallest of the transverse masses constructed between p^miss_T and each of the leptons.
@@ -615,11 +624,6 @@ namespace Gambit {
 
 
         void collect_results() {
-
-            #ifdef CHECK_CUTFLOW
-            cout << _cutflow << endl;
-            #endif
-
             // HH
             add_result(SignalRegionData(_counters.at("SRHH-0"), 435, {468, 98}));
             add_result(SignalRegionData(_counters.at("SRHH-1"), 166, {162, 25}));
@@ -726,6 +730,10 @@ namespace Gambit {
             add_result(SignalRegionData(_counters.at("SRLL-6"), 0, {0.95, 0.52}));
             add_result(SignalRegionData(_counters.at("SRLL-7"), 0, {0.09, 0.07}));
 
+            #ifdef CHECK_CUTFLOW
+            add_cutflows(_cutflows);
+            #endif
+
             return;
         }
 
@@ -768,6 +776,9 @@ namespace Gambit {
             add_result(SignalRegionData(_counters.at("SRinc-13"), 6, {7.3, 5.5}));
             add_result(SignalRegionData(_counters.at("SRinc-14"), 0, {1.06, 0.99}));
 
+            #ifdef CHECK_CUTFLOW
+            add_cutflows(_cutflows);
+            #endif
         }
 
     };
@@ -824,6 +835,9 @@ namespace Gambit {
 
             set_covariance(BKGCOV);
 
+            #ifdef CHECK_CUTFLOW
+            add_cutflows(_cutflows);
+            #endif
         }
 
     };

@@ -23,7 +23,7 @@ namespace Gambit {
       static constexpr const char* detector = "CMS";
 
       static const size_t NUMSR = 12; //160;
-      static constexpr const char* CUTFLOW_NAME = "CMS 0-lep 13 TeV";
+      static constexpr const char* CUTFLOW_NAME = "CMS-SUS-16-033";
 
       Analysis_CMS_SUS_16_033()
       {
@@ -256,17 +256,17 @@ namespace Gambit {
 
         // The bkg errors are quad sums of upper limits
         add_result(SignalRegionData(_counters.at("SR1"), 7838., {7584., sqrt(63*63+370*370)} ));
-        add_result(SignalRegionData(_counters.at("SR2"), 71., {55.2, sqrt(6.2*6.2+5.3*5.3)} ));
-        add_result(SignalRegionData(_counters.at("SR3"), 819., {806., sqrt(19*19+38*38)} ));
-        add_result(SignalRegionData(_counters.at("SR4"), 25., {23.0, sqrt(3.8*3.8+2.7*2.7)} ));
-        add_result(SignalRegionData(_counters.at("SR5"), 1., {0.6, sqrt(1.1*1.1+0.2*0.2)} ));
-        add_result(SignalRegionData(_counters.at("SR6"), 216., {196., sqrt(13*13+15*15)} ));
-        add_result(SignalRegionData(_counters.at("SR7"), 123., {113., sqrt(8*8+10*10)} ));
-        add_result(SignalRegionData(_counters.at("SR8"), 17., {19.5, sqrt(5.2*5.2+3.2*3.2)} ));
-        add_result(SignalRegionData(_counters.at("SR9"), 6., {4.4, sqrt(2.8*2.8+0.6*0.6)} ));
-        add_result(SignalRegionData(_counters.at("SR10"), 0., {0., sqrt(1.3*1.3+0.*0.)} ));
+        add_result(SignalRegionData(_counters.at("SR2"), 71.,   {55.2, sqrt(6.2*6.2+5.3*5.3)} ));
+        add_result(SignalRegionData(_counters.at("SR3"), 819.,  {806., sqrt(19*19+38*38)} ));
+        add_result(SignalRegionData(_counters.at("SR4"), 25.,   {23.0, sqrt(3.8*3.8+2.7*2.7)} ));
+        add_result(SignalRegionData(_counters.at("SR5"), 1.,    {0.6, sqrt(1.1*1.1+0.2*0.2)} ));
+        add_result(SignalRegionData(_counters.at("SR6"), 216.,  {196., sqrt(13*13+15*15)} ));
+        add_result(SignalRegionData(_counters.at("SR7"), 123.,  {113., sqrt(8*8+10*10)} ));
+        add_result(SignalRegionData(_counters.at("SR8"), 17.,   {19.5, sqrt(5.2*5.2+3.2*3.2)} ));
+        add_result(SignalRegionData(_counters.at("SR9"), 6.,    {4.4, sqrt(2.8*2.8+0.6*0.6)} ));
+        add_result(SignalRegionData(_counters.at("SR10"), 0.,   {0., sqrt(1.3*1.3+0.*0.)} ));
         add_result(SignalRegionData(_counters.at("SR11"), 890., {969., sqrt(23*23+57*57)} ));
-        add_result(SignalRegionData(_counters.at("SR12"), 48., {42.2, sqrt(5.7*5.7+4.0*4.0)} ));
+        add_result(SignalRegionData(_counters.at("SR12"), 48.,  {42.2, sqrt(5.7*5.7+4.0*4.0)} ));
 
         #ifdef CHECK_CUTFLOW
         add_cutflows(_cutflows);

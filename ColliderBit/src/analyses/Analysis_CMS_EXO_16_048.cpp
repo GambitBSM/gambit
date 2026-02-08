@@ -1,6 +1,7 @@
 // -*- C++ -*-
+#include <algorithm>
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
-#include "gambit/ColliderBit/analyses/Cutflow.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 
 // Based on http://cms-results.web.cern.ch/cms-results/public-results/publications/EXO-16-048/index.html
@@ -13,6 +14,8 @@ namespace Gambit {
 
     using namespace std;
     using namespace HEPUtils;
+
+    // #define CHECK_CUTFLOW
 
 
     /// @brief CMS Run 2 monojet analysis (no W/Z region) with 36/fb of data
@@ -27,35 +30,13 @@ namespace Gambit {
 
       static const size_t NUMSR = 22;
 
-      Cutflow _cutflow;
-
       Analysis_CMS_EXO_16_048()
-      // : _cutflow("CMS monojet 13 TeV", {"Njet >= 3", "HT > 300", "HTmiss > 300", "Nmuon = 0", "Nelectron = 0", "Nhadron = 0 (no-op)", "Dphi_htmiss_j1", "Dphi_htmiss_j2", "Dphi_htmiss_j3", "Dphi_htmiss_j4"})
       {
-
-        _counters["SR-0"] = EventCounter("SR-0");
-        _counters["SR-1"] = EventCounter("SR-1");
-        _counters["SR-2"] = EventCounter("SR-2");
-        _counters["SR-3"] = EventCounter("SR-3");
-        _counters["SR-4"] = EventCounter("SR-4");
-        _counters["SR-5"] = EventCounter("SR-5");
-        _counters["SR-6"] = EventCounter("SR-6");
-        _counters["SR-7"] = EventCounter("SR-7");
-        _counters["SR-8"] = EventCounter("SR-8");
-        _counters["SR-9"] = EventCounter("SR-9");
-        _counters["SR-10"] = EventCounter("SR-10");
-        _counters["SR-11"] = EventCounter("SR-11");
-        _counters["SR-12"] = EventCounter("SR-12");
-        _counters["SR-13"] = EventCounter("SR-13");
-        _counters["SR-14"] = EventCounter("SR-14");
-        _counters["SR-15"] = EventCounter("SR-15");
-        _counters["SR-16"] = EventCounter("SR-16");
-        _counters["SR-17"] = EventCounter("SR-17");
-        _counters["SR-18"] = EventCounter("SR-18");
-        _counters["SR-19"] = EventCounter("SR-19");
-        _counters["SR-20"] = EventCounter("SR-20");
-        _counters["SR-21"] = EventCounter("SR-21");
-
+        for (size_t i = 0; i < NUMSR; ++i)
+        {
+          const std::string sr_name = "SR-" + std::to_string(i);
+          DEFINE_SIGNAL_REGION(sr_name)
+        }
 
         analysis_specific_reset();
         set_analysis_name("CMS_EXO_16_048");
@@ -64,7 +45,9 @@ namespace Gambit {
 
       void run(const Event* event) {
 
-        // _cutflow.fillinit();
+#ifdef CHECK_CUTFLOW
+        BEGIN_PRESELECTION
+#endif
 
         // Require large MET
         const P4 pmiss = event->missingmom();
@@ -115,20 +98,41 @@ namespace Gambit {
         if (jets4.empty()) return;
         if (jets4[0]->pT() < 100*GeV || jets4[0]->abseta() > 2.4) return;
 
+#ifdef CHECK_CUTFLOW
+        END_PRESELECTION
+#endif
+
         // Identify the ptmiss bin and fill the counter
         const static vector<double> metedges = {250, 280, 310, 340, 370, 400, 430, 470, 510, 550, 590,
                                                 640, 690, 740, 790, 840, 900, 960, 1020, 1090, 1160, 1250};
         const int i_sr = binIndex(met, metedges, true);
         if (i_sr >= 0)
         {
-          std::stringstream sr_key; sr_key << "SR-" << i_sr;
-          _counters.at(sr_key.str()).add_event(event->weight() * trigweight, event->weight_err() * trigweight);
+          const std::string sr_name = "SR-" + std::to_string(i_sr);
+          FILL_SIGNAL_REGION(sr_name);
+
+          // Preserve the original trigger-weighted normalization while still using FILL_SIGNAL_REGION.
+          auto& sr_counter = _counters.at(sr_name);
+          const double w_raw = event->weight();
+          const double werr_raw = event->weight_err();
+          const double delta_w = (trigweight - 1.0) * w_raw;
+
+          sr_counter.set_weight_sum(sr_counter.weight_sum() + delta_w);
+          const double prev_err_sq = sr_counter.weight_sum_err() * sr_counter.weight_sum_err() - werr_raw * werr_raw;
+          const double new_err_sq = std::max(0.0, prev_err_sq + trigweight * trigweight * werr_raw * werr_raw);
+          sr_counter.set_weight_sum_err(std::sqrt(new_err_sq));
+
+#ifdef CHECK_CUTFLOW
+          _cutflows[sr_name].fill(1, delta_w);
+#endif
         }
       }
 
       /// Register results objects with the results for each SR; obs & bkg numbers from the CONF note
       void collect_results() {
-        //cout << _cutflow << endl;
+#ifdef CHECK_CUTFLOW
+        COMMIT_CUTFLOWS
+#endif
 
         add_result(SignalRegionData(_counters.at("SR-0"), 136865, {134500, 3700}));
         add_result(SignalRegionData(_counters.at("SR-1"), 74340, {73400, 2000}));

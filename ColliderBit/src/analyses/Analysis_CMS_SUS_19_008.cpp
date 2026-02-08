@@ -22,7 +22,6 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
-#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 
 // #define CHECK_CUTFLOW
 
@@ -36,18 +35,17 @@ namespace Gambit {
 
     class Analysis_CMS_SUS_19_008 : public Analysis
     {
-    protected:
-        Cutflow _cutflow;
-
-
     public:
 
         // Required detector sim
         static constexpr const char* detector = "CMS";
+        static constexpr const char* CUTFLOW_NAME = "CMS-SUS-19-008";
 
-        Analysis_CMS_SUS_19_008():
-        _cutflow("CMS_SUS_19_008", {"Trigger_and_2leptons", "At_least_one_SS_lepton_pair", "Baseline"})
+        Analysis_CMS_SUS_19_008()
         {
+            #ifdef CHECK_CUTFLOW
+            _cutflows.addCutflow(CUTFLOW_NAME, {"Trigger_and_2leptons", "At_least_one_SS_lepton_pair", "Baseline"});
+            #endif
 
             // Counters for the number of accepted events for each signal region
             // HH
@@ -252,7 +250,9 @@ namespace Gambit {
         } comparePt;
 
         void run(const HEPUtils::Event* event) {
-            _cutflow.fillinit();
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fillinit();
+            #endif
 
             // Missing energy
             double met = event->met();
@@ -359,15 +359,21 @@ namespace Gambit {
                     if ((leptons[i]->mom()+leptons[j]->mom()).m()<8) return;
                 }
             }
-            _cutflow.fill(1);
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(1);
+            #endif
 
             // One SS lepton pair
             if (SS_1.size()==0) return;
-            _cutflow.fill(2);
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(2);
+            #endif
 
             // At least two jets and MET>50
             if (Nj<2 or  met<50) return;
-            _cutflow.fill(3);
+            #ifdef CHECK_CUTFLOW
+            _cutflows[CUTFLOW_NAME].fill(3);
+            #endif
 
             // Find the only SS lepton pair
             size_t SS1 = SS_1[0];
@@ -898,6 +904,7 @@ namespace Gambit {
 //            add_result(SignalRegionData(_counters.at("SRHL-38"), 0, {0.41, 0.25}));
 //            add_result(SignalRegionData(_counters.at("SRHL-39"), 7, {3.1, 0.7}));
 //            add_result(SignalRegionData(_counters.at("SRHL-40"), 0, {4, 4}));
+
 //            add_result(SignalRegionData(_counters.at("SRHL-41"), 8, {4.7, 0.9}));
 //            add_result(SignalRegionData(_counters.at("SRHL-42"), 6, {1.71, 0.35}));
 
@@ -976,6 +983,10 @@ namespace Gambit {
             // };
 
             // set_covariance(BKGCOV);
+
+            #ifdef CHECK_CUTFLOW
+            add_cutflows(_cutflows);
+            #endif
 
             return;
         }
