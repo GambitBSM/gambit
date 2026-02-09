@@ -45,9 +45,6 @@ namespace Gambit
         class Analysis_ATLAS_SUSY_2018_12_RJR : public Analysis
         {
         protected:
-#ifdef CHECK_CUTFLOW
-            Cutflows _cutflows;
-#endif
 
         private:
             // Recursive Jigsaw Objects (using RestFrames)
@@ -110,11 +107,11 @@ namespace Gambit
 
             Analysis_ATLAS_SUSY_2018_12_RJR()
             {
-                DEFINE_SIGNAL_REGION_NOCUTS("SRC1");
-                DEFINE_SIGNAL_REGION_NOCUTS("SRC2");
-                DEFINE_SIGNAL_REGION_NOCUTS("SRC3");
-                DEFINE_SIGNAL_REGION_NOCUTS("SRC4");
-                DEFINE_SIGNAL_REGION_NOCUTS("SRC5");
+                DEFINE_SIGNAL_REGION("SRC1");
+                DEFINE_SIGNAL_REGION("SRC2");
+                DEFINE_SIGNAL_REGION("SRC3");
+                DEFINE_SIGNAL_REGION("SRC4");
+                DEFINE_SIGNAL_REGION("SRC5");
 
                 set_analysis_name("ATLAS_SUSY_2018_12_RJR");
                 set_luminosity(139);
@@ -122,8 +119,6 @@ namespace Gambit
                 // enable_progress_tracking(1000);
 
 #ifdef CHECK_CUTFLOW
-                cout << "Starting run Analysis \n booking Cutflows" << endl;
-
                 _cutflows.addCutflow("SRC",
                                      {
                                          "MET > 250",
@@ -560,13 +555,7 @@ namespace Gambit
                 add_result(SignalRegionData(_counters.at("SRC4"), 9., {11.8, 3.1}));
                 add_result(SignalRegionData(_counters.at("SRC5"), 4., {2.5, 0.7}));
 
-                // COMMIT_CUTFLOWS;
-#ifdef CHECK_CUTFLOW
-                // _cutflows.combine();
-                cout << "\n ===== CUTFLOWS ====== \n"
-                     << _cutflows << endl;
-                add_cutflows(_cutflows);
-#endif
+                COMMIT_CUTFLOWS;
                 return;
             }
 

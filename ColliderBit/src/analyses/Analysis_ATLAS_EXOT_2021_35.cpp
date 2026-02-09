@@ -111,17 +111,15 @@ namespace Gambit
             /* data */
         public:
             #ifdef CHECK_CUTFLOW
-                Cutflows _cutflows;
                 YODA::Histo1D *_histo_mVLQ_sr1; 
                 YODA::Histo1D *_histo_mVLQ_sr2; 
-                int Nevent = 0;
             #endif
 
             static constexpr const char *detector = "ATLAS";
             Analysis_ATLAS_EXOT_2021_035()
             {
-                DEFINE_SIGNAL_REGION_NOCUTS("SR1");
-                DEFINE_SIGNAL_REGION_NOCUTS("SR2");
+                DEFINE_SIGNAL_REGION("SR1");
+                DEFINE_SIGNAL_REGION("SR2");
 
                 set_analysis_name("ATLAS_EXOT_2021_035");
                 set_luminosity(140.0);
@@ -134,16 +132,6 @@ namespace Gambit
 
             void run(const HEPUtils::Event *event)
             {
-                #ifdef CHECK_CUTFLOW
-                    // BEGIN_PRESELECTION
-                    cout << Nevent << "Events" << endl; 
-                    if (Nevent % 200 == 0)
-                    {
-                        cout << "Complete " << Nevent << " Events" << endl;
-                    }
-                    Nevent += 1; 
-                #endif
-
                 double met = event->met();
                 HEPUtils::P4 pmiss = event->missingmom();
 
@@ -300,8 +288,8 @@ namespace Gambit
 
                     bool sr1 = (nbjets == 0) && (WJets.size() >= 1) && (dRWW > 0.8) && (dPhilmet < 0.5) && (ST >= 2000.) && (dPhiJ0met < 2.75); 
                     bool sr2 = (nbjets == 0) && (WJets.size() >= 1) && (dRWW > 0.8) && (dPhilmet < 0.5) && (ST >= 2000.) && (dPhiJ0met >= 2.75); 
-                    if (sr1) FILL_SIGNAL_REGION("SR1") 
-                    if (sr2) FILL_SIGNAL_REGION("SR2") 
+                    if (sr1) { FILL_SIGNAL_REGION("SR1") }
+                    if (sr2) { FILL_SIGNAL_REGION("SR2") }
 
                     #ifdef CHECK_CUTFLOW
                         if (sr1) _histo_mVLQ_sr1->fill(p4VLQlep.m()); 

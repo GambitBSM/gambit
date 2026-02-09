@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 //#include "gambit/ColliderBit/analyses/Perf_Plot.hpp"
@@ -44,10 +45,8 @@ namespace Gambit
     class Analysis_ATLAS_SUSY_2013_11 : public Analysis
     {
       private:
-
-        vector<double> cutFlowVector;
         vector<double> cutFlowIncrements;
-        vector<string> cutFlowVector_str;
+        vector<string> legacyCutNames;
         const static int NCUTS=90;
 
         // Debug histos
@@ -86,8 +85,7 @@ namespace Gambit
 
           for(int i=0;i<NCUTS;i++)
           {
-            cutFlowVector.push_back(0);
-            cutFlowVector_str.push_back("");
+            legacyCutNames.push_back("");
             cutFlowIncrements.push_back(0.);
 
   //        vector<const char*> variablesNames = {"mll","met","mt2"};
@@ -631,90 +629,95 @@ namespace Gambit
   //        if(tauVeto && leptonPTCut && mllCut && isOS && ((numElectrons==0 && numMuons==2) || (numElectrons==2 && numMuons==0)) && numCentralNonBJets==0 && numCentralBJets==0 && numForwardJets==0 && passZVeto_WWa && passPTll_WWa)plots_WWa_NOmllORmet_SF->fill(&variables);
   //        if(tauVeto && leptonPTCut && mllCut && isOS && (numElectrons==1 && numMuons==1) && numCentralNonBJets==0 && numCentralBJets==0 && numForwardJets==0 && passPTll_WWa)plots_WWa_NOmllORmet_DF->fill(&variables);
 
-          cutFlowVector_str[0] = "No cuts ";
-          cutFlowVector_str[1] = "2 electrons ";
-          cutFlowVector_str[2] = "Lepton pT cuts (trigger) ";
-          cutFlowVector_str[3] = "mll cuts ";
-          cutFlowVector_str[4] = "OS leptons ";
-          cutFlowVector_str[5] = "tau veto ";
-          cutFlowVector_str[6] = "e+e-: Jet veto ";
-          cutFlowVector_str[7] = "e+e-: Z veto ";
-          cutFlowVector_str[8] = "e+e-: SR-MT290 ";
-          cutFlowVector_str[9] = "e+e-: SR-MT2120 ";
-          cutFlowVector_str[10] = "e+e-: SR-MT2150 ";
-          cutFlowVector_str[11] = "mu+mu-: 2 signal leptons ";
-          cutFlowVector_str[12] = "mu+mu-: Jet veto ";
-          cutFlowVector_str[13] = "mu+mu-: Z veto ";
-          cutFlowVector_str[14] = "mu+mu-: SR-MT290 ";
-          cutFlowVector_str[15] = "mu+mu-: SR-MT2120 ";
-          cutFlowVector_str[16] = "mu+mu-: SR-MT2150 ";
-          cutFlowVector_str[17] = "e+-mu-+: 2 signal leptons ";
-          cutFlowVector_str[18] = "e+-mu-+: Jet veto ";
-          cutFlowVector_str[19] = "e+-mu-+: SR-MT290 ";
-          cutFlowVector_str[20] = "e+-mu-+: SR-MT2120 ";
-          cutFlowVector_str[21] = "e+-mu-+: SR-MT2150 ";
-          cutFlowVector_str[22] = "SRZjets e+e-: 2 signal leptons ";
-          cutFlowVector_str[23] = "SRZjets e+e-: >=2 light jets ";
-          cutFlowVector_str[24] = "SRZjets e+e-: No b and forward jets ";
-          cutFlowVector_str[25] = "SRZjets e+e-: Z window ";
-          cutFlowVector_str[26] = "SRZjets e+e-: pTll > 80 ";
-          cutFlowVector_str[27] = "SRZjets e+e-: ETmissrel ";
-          cutFlowVector_str[28] = "SRZjets e+e-: dRll ";
-          cutFlowVector_str[29] = "SRZjets e+e-: mjj ";
-          cutFlowVector_str[30] = "SRZjets e+e-: jet pT ";
-          cutFlowVector_str[31] = "SRZjets mu+mu-: 2 signal leptons ";
-          cutFlowVector_str[32] = "SRZjets mu+mu-: >=2 light jets ";
-          cutFlowVector_str[33] = "SRZjets mu+mu-: No b and forward jets ";
-          cutFlowVector_str[34] = "SRZjets mu+mu-: Z window ";
-          cutFlowVector_str[35] = "SRZjets mu+mu-: pTll > 80 ";
-          cutFlowVector_str[36] = "SRZjets mu+mu-: ETmissrel ";
-          cutFlowVector_str[37] = "SRZjets mu+mu-: dRll ";
-          cutFlowVector_str[38] = "SRZjets mu+mu-: mjj ";
-          cutFlowVector_str[39] = "SRZjets mu+mu-: jet pT ";
-          cutFlowVector_str[40] = "SRWWa e+e-: 2 leptons ";
-          cutFlowVector_str[41] = "SRWWa e+e-: Jet veto ";
-          cutFlowVector_str[42] = "SRWWa e+e-: Z veto ";
-          cutFlowVector_str[43] = "SRWWa e+e-: pTll ";
-          cutFlowVector_str[44] = "SRWWa e+e-: ETmissrel ";
-          cutFlowVector_str[45] = "SRWWa e+e-: mll ";
-          cutFlowVector_str[46] = "SRWWa mu+mu-: 2 leptons ";
-          cutFlowVector_str[47] = "SRWWa mu+mu-: Jet veto ";
-          cutFlowVector_str[48] = "SRWWa mu+mu-: Z veto ";
-          cutFlowVector_str[49] = "SRWWa mu+mu-: pTll ";
-          cutFlowVector_str[50] = "SRWWa mu+mu-: ETmissrel ";
-          cutFlowVector_str[51] = "SRWWa mu+mu-: mll ";
-          cutFlowVector_str[52] = "SRWWa e+mu-: 2 leptons ";
-          cutFlowVector_str[53] = "SRWWa e+mu-: Jet veto ";
-          cutFlowVector_str[54] = "SRWWa e+mu-: pTll ";
-          cutFlowVector_str[55] = "SRWWa e+mu-: ETmissrel ";
-          cutFlowVector_str[56] = "SRWWa e+mu-: mll ";
-          cutFlowVector_str[57] = "SRWWb e+e-: 2 leptons ";
-          cutFlowVector_str[58] = "SRWWb e+e-: Jet veto ";
-          cutFlowVector_str[59] = "SRWWb e+e-: Z veto ";
-          cutFlowVector_str[60] = "SRWWb e+e-: mT2 > 90 ";
-          cutFlowVector_str[61] = "SRWWb e+e-: mll < 170 ";
-          cutFlowVector_str[62] = "SRWWb mu+mu-: 2 leptons ";
-          cutFlowVector_str[63] = "SRWWb mu+mu-: Jet veto ";
-          cutFlowVector_str[64] = "SRWWb mu+mu-: Z veto ";
-          cutFlowVector_str[65] = "SRWWb mu+mu-: mT2 > 90 ";
-          cutFlowVector_str[66] = "SRWWb mu+mu-: mll < 170 ";
-          cutFlowVector_str[67] = "SRWWb e+mu-: 2 leptons ";
-          cutFlowVector_str[68] = "SRWWb e+mu-: Jet veto ";
-          cutFlowVector_str[69] = "SRWWb e+mu-: mT2 > 90 ";
-          cutFlowVector_str[70] = "SRWWb e+mu-: mll < 170 ";
-          cutFlowVector_str[71] = "SRWWc e+e-: 2 leptons ";
-          cutFlowVector_str[72] = "SRWWc e+e-: Jet veto ";
-          cutFlowVector_str[73] = "SRWWc e+e-: Z veto ";
-          cutFlowVector_str[74] = "SRWWc e+e-: mT2 > 100 ";
-          cutFlowVector_str[75] = "SRWWc mu+mu-: 2 leptons ";
-          cutFlowVector_str[76] = "SRWWc mu+mu-: Jet veto ";
-          cutFlowVector_str[77] = "SRWWc mu+mu-: Z veto ";
-          cutFlowVector_str[78] = "SRWWc mu+mu-: mT2 > 100 ";
-          cutFlowVector_str[79] = "SRWWc e+mu-: 2 leptons ";
-          cutFlowVector_str[80] = "SRWWc e+mu-: Jet veto ";
-          cutFlowVector_str[81] = "SRWWc e+mu-: mT2 > 100 ";
+          legacyCutNames[0] = "No cuts ";
+          legacyCutNames[1] = "2 electrons ";
+          legacyCutNames[2] = "Lepton pT cuts (trigger) ";
+          legacyCutNames[3] = "mll cuts ";
+          legacyCutNames[4] = "OS leptons ";
+          legacyCutNames[5] = "tau veto ";
+          legacyCutNames[6] = "e+e-: Jet veto ";
+          legacyCutNames[7] = "e+e-: Z veto ";
+          legacyCutNames[8] = "e+e-: SR-MT290 ";
+          legacyCutNames[9] = "e+e-: SR-MT2120 ";
+          legacyCutNames[10] = "e+e-: SR-MT2150 ";
+          legacyCutNames[11] = "mu+mu-: 2 signal leptons ";
+          legacyCutNames[12] = "mu+mu-: Jet veto ";
+          legacyCutNames[13] = "mu+mu-: Z veto ";
+          legacyCutNames[14] = "mu+mu-: SR-MT290 ";
+          legacyCutNames[15] = "mu+mu-: SR-MT2120 ";
+          legacyCutNames[16] = "mu+mu-: SR-MT2150 ";
+          legacyCutNames[17] = "e+-mu-+: 2 signal leptons ";
+          legacyCutNames[18] = "e+-mu-+: Jet veto ";
+          legacyCutNames[19] = "e+-mu-+: SR-MT290 ";
+          legacyCutNames[20] = "e+-mu-+: SR-MT2120 ";
+          legacyCutNames[21] = "e+-mu-+: SR-MT2150 ";
+          legacyCutNames[22] = "SRZjets e+e-: 2 signal leptons ";
+          legacyCutNames[23] = "SRZjets e+e-: >=2 light jets ";
+          legacyCutNames[24] = "SRZjets e+e-: No b and forward jets ";
+          legacyCutNames[25] = "SRZjets e+e-: Z window ";
+          legacyCutNames[26] = "SRZjets e+e-: pTll > 80 ";
+          legacyCutNames[27] = "SRZjets e+e-: ETmissrel ";
+          legacyCutNames[28] = "SRZjets e+e-: dRll ";
+          legacyCutNames[29] = "SRZjets e+e-: mjj ";
+          legacyCutNames[30] = "SRZjets e+e-: jet pT ";
+          legacyCutNames[31] = "SRZjets mu+mu-: 2 signal leptons ";
+          legacyCutNames[32] = "SRZjets mu+mu-: >=2 light jets ";
+          legacyCutNames[33] = "SRZjets mu+mu-: No b and forward jets ";
+          legacyCutNames[34] = "SRZjets mu+mu-: Z window ";
+          legacyCutNames[35] = "SRZjets mu+mu-: pTll > 80 ";
+          legacyCutNames[36] = "SRZjets mu+mu-: ETmissrel ";
+          legacyCutNames[37] = "SRZjets mu+mu-: dRll ";
+          legacyCutNames[38] = "SRZjets mu+mu-: mjj ";
+          legacyCutNames[39] = "SRZjets mu+mu-: jet pT ";
+          legacyCutNames[40] = "SRWWa e+e-: 2 leptons ";
+          legacyCutNames[41] = "SRWWa e+e-: Jet veto ";
+          legacyCutNames[42] = "SRWWa e+e-: Z veto ";
+          legacyCutNames[43] = "SRWWa e+e-: pTll ";
+          legacyCutNames[44] = "SRWWa e+e-: ETmissrel ";
+          legacyCutNames[45] = "SRWWa e+e-: mll ";
+          legacyCutNames[46] = "SRWWa mu+mu-: 2 leptons ";
+          legacyCutNames[47] = "SRWWa mu+mu-: Jet veto ";
+          legacyCutNames[48] = "SRWWa mu+mu-: Z veto ";
+          legacyCutNames[49] = "SRWWa mu+mu-: pTll ";
+          legacyCutNames[50] = "SRWWa mu+mu-: ETmissrel ";
+          legacyCutNames[51] = "SRWWa mu+mu-: mll ";
+          legacyCutNames[52] = "SRWWa e+mu-: 2 leptons ";
+          legacyCutNames[53] = "SRWWa e+mu-: Jet veto ";
+          legacyCutNames[54] = "SRWWa e+mu-: pTll ";
+          legacyCutNames[55] = "SRWWa e+mu-: ETmissrel ";
+          legacyCutNames[56] = "SRWWa e+mu-: mll ";
+          legacyCutNames[57] = "SRWWb e+e-: 2 leptons ";
+          legacyCutNames[58] = "SRWWb e+e-: Jet veto ";
+          legacyCutNames[59] = "SRWWb e+e-: Z veto ";
+          legacyCutNames[60] = "SRWWb e+e-: mT2 > 90 ";
+          legacyCutNames[61] = "SRWWb e+e-: mll < 170 ";
+          legacyCutNames[62] = "SRWWb mu+mu-: 2 leptons ";
+          legacyCutNames[63] = "SRWWb mu+mu-: Jet veto ";
+          legacyCutNames[64] = "SRWWb mu+mu-: Z veto ";
+          legacyCutNames[65] = "SRWWb mu+mu-: mT2 > 90 ";
+          legacyCutNames[66] = "SRWWb mu+mu-: mll < 170 ";
+          legacyCutNames[67] = "SRWWb e+mu-: 2 leptons ";
+          legacyCutNames[68] = "SRWWb e+mu-: Jet veto ";
+          legacyCutNames[69] = "SRWWb e+mu-: mT2 > 90 ";
+          legacyCutNames[70] = "SRWWb e+mu-: mll < 170 ";
+          legacyCutNames[71] = "SRWWc e+e-: 2 leptons ";
+          legacyCutNames[72] = "SRWWc e+e-: Jet veto ";
+          legacyCutNames[73] = "SRWWc e+e-: Z veto ";
+          legacyCutNames[74] = "SRWWc e+e-: mT2 > 100 ";
+          legacyCutNames[75] = "SRWWc mu+mu-: 2 leptons ";
+          legacyCutNames[76] = "SRWWc mu+mu-: Jet veto ";
+          legacyCutNames[77] = "SRWWc mu+mu-: Z veto ";
+          legacyCutNames[78] = "SRWWc mu+mu-: mT2 > 100 ";
+          legacyCutNames[79] = "SRWWc e+mu-: 2 leptons ";
+          legacyCutNames[80] = "SRWWc e+mu-: Jet veto ";
+          legacyCutNames[81] = "SRWWc e+mu-: mT2 > 100 ";
 
-          for(int j=0;j<NCUTS;j++)
+          #ifdef CHECK_CUTFLOW
+        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+        _cutflows[analysis_name()].fillinit(event->weight());
+#endif
+
+for(int j=0;j<NCUTS;j++)
           {
             if(j>=0 && j<=10)cutFlowIncrements[j]=0.97;
             if(j>=11 && j<=16)cutFlowIncrements[j]=0.75;
@@ -920,7 +923,10 @@ namespace Gambit
 
                 (j==81 && tauVeto && leptonPTCut && mllCut && isOS && (numElectrons==1 && numMuons==1) && numCentralNonBJets==0 && numCentralBJets==0 && numForwardJets==0 && passMT2_WWc)
 
-                )cutFlowVector[j]=cutFlowVector[j]+cutFlowIncrements[j];
+                )
+#ifdef CHECK_CUTFLOW
+                if (cutFlowIncrements[j] > 0) _cutflows[analysis_name()].fill(j+1, true, cutFlowIncrements[j]*event->weight());
+#endif
 
           }
           return;
@@ -929,21 +935,7 @@ namespace Gambit
         void collect_results()
         {
 
-          #ifdef CUTFLOW
-            double scale_by=1.;
-            cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-            cout << "CUT FLOW: ATLAS 8 TeV 2-lepton EW paper SUSY-2013-11"<<endl;
-            cout << "------------------------------------------------------------------------------------------------------------------------------"<<endl;
-            cout<< right << setw(40) << "CUT" <<  "," << setw(20) << "RAW" <<  "," << setw(20) << "SCALED"
-            <<  "," << setw(20) << "%" <<  "," << setw(20) << endl;
-            for (int j=0; j<NCUTS; j++)
-            {
-                cout << right <<  setw(40) << cutFlowVector_str[j].c_str() <<  "," << setw(20)
-                << cutFlowVector[j] <<  "," << setw(20) << cutFlowVector[j]*scale_by <<  "," << setw(20)
-                << 100.*cutFlowVector[j]/cutFlowVector[0] << "%" << endl;
-            }
-            cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-          #endif
+COMMIT_CUTFLOWS;
 
           // add_result(SignalRegionData(_counters.at("SR label"), n_obs, {n_bkg, n_bkg_err}));
 
@@ -977,9 +969,6 @@ namespace Gambit
         void analysis_specific_reset()
         {
           for (auto& pair : _counters) { pair.second.reset(); }
-
-
-          std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
         }
 
     };

@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -39,10 +40,7 @@ namespace Gambit {
 
     class Analysis_ATLAS_SUSY_2013_19 : public Analysis {
     private:
-
-
-      vector<int> cutFlowVector;
-      vector<string> cutFlowVector_str;
+      vector<string> legacyCutNames;
       int NCUTS; //=24;
 
       // Debug histos
@@ -71,8 +69,7 @@ namespace Gambit {
         set_luminosity(20.3);
 
         for (int i=0; i<NCUTS; i++) {
-          cutFlowVector.push_back(0);
-          cutFlowVector_str.push_back("");
+          legacyCutNames.push_back("");
         }
       }
 
@@ -278,31 +275,36 @@ namespace Gambit {
 
         if(passJetCut)cut_2jets=true;
 
-        cutFlowVector_str[0] = "No cuts ";
-        cutFlowVector_str[1] = "2 Baseline Leptons ";
-        cutFlowVector_str[2] = "2 SF Signal Leptons";
-        cutFlowVector_str[3] = "2 OS SF Signal Leptons ";
-        cutFlowVector_str[4] = "mll > 20 GeV ";
-        cutFlowVector_str[5] = "leading lepton pT ";
-        cutFlowVector_str[6] = "|mll-mZ|>20 GeV ";
-        cutFlowVector_str[7] = "dphi_min > 1.0 ";
-        cutFlowVector_str[8] = "dphib < 1.5  ";
-        cutFlowVector_str[9] = "SR M90 [SF] ";
-        cutFlowVector_str[10] = "SR M120 [SF] ";
-        cutFlowVector_str[11] = "SR M100 + 2 jets [SF] ";
-        cutFlowVector_str[12] = "SR M110 + 2 jets [SF] ";
-        cutFlowVector_str[13] = "2 DF Signal Leptons";
-        cutFlowVector_str[14] = "2 OS DF Signal Leptons ";
-        cutFlowVector_str[15] = "mll > 20 GeV ";
-        cutFlowVector_str[16] = "leading lepton pT ";
-        cutFlowVector_str[17] = "dphi_min > 1.0 ";
-        cutFlowVector_str[18] = "dphib < 1.5  ";
-        cutFlowVector_str[19] = "SR M90 [DF] ";
-        cutFlowVector_str[20] = "SR M120 [DF] ";
-        cutFlowVector_str[21] = "SR M100 + 2 jets[DF] ";
-        cutFlowVector_str[22] = "SR M110 + 2 jets[DF] ";
+        legacyCutNames[0] = "No cuts ";
+        legacyCutNames[1] = "2 Baseline Leptons ";
+        legacyCutNames[2] = "2 SF Signal Leptons";
+        legacyCutNames[3] = "2 OS SF Signal Leptons ";
+        legacyCutNames[4] = "mll > 20 GeV ";
+        legacyCutNames[5] = "leading lepton pT ";
+        legacyCutNames[6] = "|mll-mZ|>20 GeV ";
+        legacyCutNames[7] = "dphi_min > 1.0 ";
+        legacyCutNames[8] = "dphib < 1.5  ";
+        legacyCutNames[9] = "SR M90 [SF] ";
+        legacyCutNames[10] = "SR M120 [SF] ";
+        legacyCutNames[11] = "SR M100 + 2 jets [SF] ";
+        legacyCutNames[12] = "SR M110 + 2 jets [SF] ";
+        legacyCutNames[13] = "2 DF Signal Leptons";
+        legacyCutNames[14] = "2 OS DF Signal Leptons ";
+        legacyCutNames[15] = "mll > 20 GeV ";
+        legacyCutNames[16] = "leading lepton pT ";
+        legacyCutNames[17] = "dphi_min > 1.0 ";
+        legacyCutNames[18] = "dphib < 1.5  ";
+        legacyCutNames[19] = "SR M90 [DF] ";
+        legacyCutNames[20] = "SR M120 [DF] ";
+        legacyCutNames[21] = "SR M100 + 2 jets[DF] ";
+        legacyCutNames[22] = "SR M110 + 2 jets[DF] ";
 
-        for(int j=0;j<NCUTS;j++){
+        #ifdef CHECK_CUTFLOW
+        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+        _cutflows[analysis_name()].fillinit(event->weight());
+#endif
+
+for(int j=0;j<NCUTS;j++){
           if(
              (j==0) ||
 
@@ -350,7 +352,9 @@ namespace Gambit {
 
              (j==22 && cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2120 && nJets>=2) )
 
-            cutFlowVector[j]++;
+            #ifdef CHECK_CUTFLOW
+            _cutflows[analysis_name()].fill(j+1, true, event->weight());
+#endif
         }
 
         //We're now ready to apply the cuts for each signal region
@@ -371,6 +375,8 @@ namespace Gambit {
 
       void collect_results() {
 
+COMMIT_CUTFLOWS;
+
         add_result(SignalRegionData(_counters["SRM90SF"].combine(_counters["SRM90DF"]), 274., {300., 50.}));
         add_result(SignalRegionData(_counters["SRM100SF"].combine(_counters["SRM100DF"]), 3., {5.2, 2.2}));
         add_result(SignalRegionData(_counters["SRM110SF"].combine(_counters["SRM110DF"]), 8., {9.3, 3.5}));
@@ -385,8 +391,6 @@ namespace Gambit {
       {
 
         for (auto& pair : _counters) { pair.second.reset(); }
-
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     };

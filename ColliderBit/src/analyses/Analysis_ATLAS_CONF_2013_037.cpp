@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -47,9 +48,7 @@ namespace Gambit {
     class Analysis_ATLAS_CONF_2013_037 : public Analysis {
     private:
 
-      vector<int> cutFlowVector_alt;
-      vector<int> cutFlowVector;
-      vector<string> cutFlowVector_str;
+      vector<string> legacyCutNames;
       int NCUTS;
 
     public:
@@ -77,9 +76,7 @@ namespace Gambit {
         set_luminosity(20.7);
 
         for(int i=0;i<NCUTS;i++){
-          cutFlowVector.push_back(0);
-          cutFlowVector_str.push_back("");
-          cutFlowVector_alt.push_back(0);
+          legacyCutNames.push_back("");
         }
 
       }
@@ -481,76 +478,59 @@ namespace Gambit {
 
         //std::cout<<amt2<<" "<<mt2tau<<std::endl;
 
-        if(cut_1SignalElectron && cut_4jets && cut_Btag) {
-          cutFlowVector_alt[0]++;
-          if(mHadTop<205.) {
-            cutFlowVector_alt[1]++;
-            if(cut_dPhiJet1) {
-              cutFlowVector_alt[2]++;
-              if(cut_mTGt180) {
-                cutFlowVector_alt[3]++;
-                if(cut_sigGt11) {
-                  cutFlowVector_alt[4]++;
-                  if(amt2>200.) {
-                    cutFlowVector_alt[5]++;
-                    if(mt2tau>120.) {
-                      cutFlowVector_alt[6]++;
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-
         //double amt2=0;
         //double mt2tau=0;
 
-        cutFlowVector_str[0] = "No cuts ";
-        cutFlowVector_str[1] = "Electron (=1 signal) ";
-        cutFlowVector_str[2] = "4 jets (80, 60, 40, 25) ";
-        cutFlowVector_str[3] = ">=1 b. tag ";
-        cutFlowVector_str[4] = "ETmiss > 100 GeV [all SRs] ";
-        cutFlowVector_str[5] = "ETmiss / sqrt(HT) > 5 [all SRs] ";
-        cutFlowVector_str[6] = "dPhi(jet2,MET) > 0.8 [all SRs] ";
-        cutFlowVector_str[7] = "dPhi(jet1,MET) > 0.8 [not SRtN2] ";
-        cutFlowVector_str[8] = "ETmiss > 200 GeV (SRtN2) ";
-        cutFlowVector_str[9] = "ETmiss / sqrt(HT) > 13 (SRtN2) ";
-        cutFlowVector_str[10] = "mT > 140 GeV (SRtN2) ";
-        cutFlowVector_str[11] = "ETmiss > 275 GeV (SRtN3) ";
-        cutFlowVector_str[12] = "ETmiss / sqrt(HT) > 11 (SRtN3) ";
-        cutFlowVector_str[13] = "mT > 200 GeV (SRtN3) ";
-        cutFlowVector_str[14] = "ETmiss > 150 GeV (SRbC1-SRbC3) ";
-        cutFlowVector_str[15] = "ETmiss / sqrt(HT) > 7 (SRbC1-SRbC3) ";
-        cutFlowVector_str[16] = "mT > 120 GeV (SRbC1-SRbC3) ";
-        cutFlowVector_str[17] = "ETmiss > 160 GeV (SRbC2,SRbC3) ";
-        cutFlowVector_str[18] = "ETmiss / sqrt(HT) > 8 (SRbC2,SRbC3) ";
-        cutFlowVector_str[19] = "meff > 550 GeV (SRbC2) ";
-        cutFlowVector_str[20] = "meff > 700 GeV (SRbC3) ";
+        legacyCutNames[0] = "No cuts ";
+        legacyCutNames[1] = "Electron (=1 signal) ";
+        legacyCutNames[2] = "4 jets (80, 60, 40, 25) ";
+        legacyCutNames[3] = ">=1 b. tag ";
+        legacyCutNames[4] = "ETmiss > 100 GeV [all SRs] ";
+        legacyCutNames[5] = "ETmiss / sqrt(HT) > 5 [all SRs] ";
+        legacyCutNames[6] = "dPhi(jet2,MET) > 0.8 [all SRs] ";
+        legacyCutNames[7] = "dPhi(jet1,MET) > 0.8 [not SRtN2] ";
+        legacyCutNames[8] = "ETmiss > 200 GeV (SRtN2) ";
+        legacyCutNames[9] = "ETmiss / sqrt(HT) > 13 (SRtN2) ";
+        legacyCutNames[10] = "mT > 140 GeV (SRtN2) ";
+        legacyCutNames[11] = "ETmiss > 275 GeV (SRtN3) ";
+        legacyCutNames[12] = "ETmiss / sqrt(HT) > 11 (SRtN3) ";
+        legacyCutNames[13] = "mT > 200 GeV (SRtN3) ";
+        legacyCutNames[14] = "ETmiss > 150 GeV (SRbC1-SRbC3) ";
+        legacyCutNames[15] = "ETmiss / sqrt(HT) > 7 (SRbC1-SRbC3) ";
+        legacyCutNames[16] = "mT > 120 GeV (SRbC1-SRbC3) ";
+        legacyCutNames[17] = "ETmiss > 160 GeV (SRbC2,SRbC3) ";
+        legacyCutNames[18] = "ETmiss / sqrt(HT) > 8 (SRbC2,SRbC3) ";
+        legacyCutNames[19] = "meff > 550 GeV (SRbC2) ";
+        legacyCutNames[20] = "meff > 700 GeV (SRbC3) ";
 
-        cutFlowVector_str[21] = "Muon (=1 signal) ";
-        cutFlowVector_str[22] = "4 jets (80, 60, 40, 25) ";
-        cutFlowVector_str[23] = ">=1 b. tag ";
-        cutFlowVector_str[24] = "ETmiss > 100 GeV [all SRs] ";
-        cutFlowVector_str[25] = "ETmiss / sqrt(HT) > 5 [all SRs] ";
-        cutFlowVector_str[26] = "dPhi(jet2,MET) > 0.8 [all SRs] ";
-        cutFlowVector_str[27] = "dPhi(jet1,MET) > 0.8 [not SRtN2] ";
-        cutFlowVector_str[28] = "ETmiss > 200 GeV (SRtN2) ";
-        cutFlowVector_str[29] = "ETmiss / sqrt(HT) > 13 (SRtN2) ";
-        cutFlowVector_str[30] = "mT > 140 GeV (SRtN2) ";
-        cutFlowVector_str[31] = "ETmiss > 275 GeV (SRtN3) ";
-        cutFlowVector_str[32] = "ETmiss / sqrt(HT) > 11 (SRtN3) ";
-        cutFlowVector_str[33] = "mT > 200 GeV (SRtN3) ";
-        cutFlowVector_str[34] = "ETmiss > 150 GeV (SRbC1-SRbC3) ";
-        cutFlowVector_str[35] = "ETmiss / sqrt(HT) > 7 (SRbC1-SRbC3) ";
-        cutFlowVector_str[36] = "mT > 120 GeV (SRbC1-SRbC3) ";
-        cutFlowVector_str[37] = "ETmiss > 160 GeV (SRbC2,SRbC3) ";
-        cutFlowVector_str[38] = "ETmiss / sqrt(HT) > 8 (SRbC2,SRbC3) ";
-        cutFlowVector_str[39] = "meff > 550 GeV (SRbC2) ";
-        cutFlowVector_str[40] = "meff > 700 GeV (SRbC3) ";
+        legacyCutNames[21] = "Muon (=1 signal) ";
+        legacyCutNames[22] = "4 jets (80, 60, 40, 25) ";
+        legacyCutNames[23] = ">=1 b. tag ";
+        legacyCutNames[24] = "ETmiss > 100 GeV [all SRs] ";
+        legacyCutNames[25] = "ETmiss / sqrt(HT) > 5 [all SRs] ";
+        legacyCutNames[26] = "dPhi(jet2,MET) > 0.8 [all SRs] ";
+        legacyCutNames[27] = "dPhi(jet1,MET) > 0.8 [not SRtN2] ";
+        legacyCutNames[28] = "ETmiss > 200 GeV (SRtN2) ";
+        legacyCutNames[29] = "ETmiss / sqrt(HT) > 13 (SRtN2) ";
+        legacyCutNames[30] = "mT > 140 GeV (SRtN2) ";
+        legacyCutNames[31] = "ETmiss > 275 GeV (SRtN3) ";
+        legacyCutNames[32] = "ETmiss / sqrt(HT) > 11 (SRtN3) ";
+        legacyCutNames[33] = "mT > 200 GeV (SRtN3) ";
+        legacyCutNames[34] = "ETmiss > 150 GeV (SRbC1-SRbC3) ";
+        legacyCutNames[35] = "ETmiss / sqrt(HT) > 7 (SRbC1-SRbC3) ";
+        legacyCutNames[36] = "mT > 120 GeV (SRbC1-SRbC3) ";
+        legacyCutNames[37] = "ETmiss > 160 GeV (SRbC2,SRbC3) ";
+        legacyCutNames[38] = "ETmiss / sqrt(HT) > 8 (SRbC2,SRbC3) ";
+        legacyCutNames[39] = "meff > 550 GeV (SRbC2) ";
+        legacyCutNames[40] = "meff > 700 GeV (SRbC3) ";
 
 
-        for(int j=0;j<NCUTS;j++){
+        #ifdef CHECK_CUTFLOW
+        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+        _cutflows[analysis_name()].fillinit(event->weight());
+#endif
+
+for(int j=0;j<NCUTS;j++){
           if(
              (j==0) ||
 
@@ -650,7 +630,9 @@ namespace Gambit {
              (j==40 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160 && cut_sigGt8 && cut_meffGt700) )
 
 
-            cutFlowVector[j]++;
+            #ifdef CHECK_CUTFLOW
+            _cutflows[analysis_name()].fill(j+1, true, event->weight());
+#endif
         }
 
         //We're now ready to apply the cuts for each signal region
@@ -753,6 +735,8 @@ namespace Gambit {
 
 
       void collect_results() {
+
+COMMIT_CUTFLOWS;
         //Note: am not using shape fit bins
         //They need to be added (but will probably update to paper result)
 
@@ -772,7 +756,6 @@ namespace Gambit {
       void analysis_specific_reset()
       {
         for (auto& pair : _counters) { pair.second.reset(); }
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     };

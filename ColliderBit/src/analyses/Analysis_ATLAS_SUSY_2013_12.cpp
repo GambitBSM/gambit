@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -33,9 +34,7 @@ namespace Gambit {
 
     class Analysis_ATLAS_SUSY_2013_12 : public Analysis {
     private:
-
-      vector<int> cutFlowVector;
-      vector<string> cutFlowVector_str;
+      vector<string> legacyCutNames;
       const static int NCUTS=55;
 
     public:
@@ -75,8 +74,7 @@ namespace Gambit {
         _counters["SR2tau_b"] = EventCounter("SR2tau_b");
 
         for(int i=0;i<NCUTS;i++){
-          cutFlowVector.push_back(0);
-          cutFlowVector_str.push_back("");
+          legacyCutNames.push_back("");
         }
 
       }
@@ -614,61 +612,66 @@ namespace Gambit {
 
         //Now do cutflow (for debugging)
 
-        cutFlowVector_str[0] = "No cuts ";
-        cutFlowVector_str[1] = "3 signal leptons ";
-        cutFlowVector_str[2] = "Trigger ";
-        cutFlowVector_str[3] = "At least one e or mu ";
-        cutFlowVector_str[4] = "Separation of leptons ";
-        cutFlowVector_str[5] = "mSFOS > 12 cut ";
-        cutFlowVector_str[6] = "Lepton requirement (no taus) ";
-        cutFlowVector_str[7] = "SFOS ";
-        cutFlowVector_str[8] = "b-tagged jet veto ";
-        cutFlowVector_str[9] = "ETmiss ";
-        cutFlowVector_str[10] = "mT ";
-        cutFlowVector_str[11] = "SR0tau_a_bin_1 ";
-        cutFlowVector_str[12] = "SR0tau_a_bin_2 ";
-        cutFlowVector_str[13] = "SR0tau_a_bin_3 ";
-        cutFlowVector_str[14] = "SR0tau_a_bin_4 ";
-        cutFlowVector_str[15] = "SR0tau_a_bin_5 ";
-        cutFlowVector_str[16] = "SR0tau_a_bin_6 ";
-        cutFlowVector_str[17] = "SR0tau_a_bin_7 ";
-        cutFlowVector_str[18] = "SR0tau_a_bin_8 ";
-        cutFlowVector_str[19] = "SR0tau_a_bin_9 ";
-        cutFlowVector_str[20] = "SR0tau_a_bin_10 ";
-        cutFlowVector_str[21] = "SR0tau_a_bin_11 ";
-        cutFlowVector_str[22] = "SR0tau_a_bin_12 ";
-        cutFlowVector_str[23] = "SR0tau_a_bin_13 ";
-        cutFlowVector_str[24] = "SR0tau_a_bin_14 ";
-        cutFlowVector_str[25] = "SR0tau_a_bin_15 ";
-        cutFlowVector_str[26] = "SR0tau_a_bin_16 ";
-        cutFlowVector_str[27] = "SR0tau_a_bin_17 ";
-        cutFlowVector_str[28] = "SR0tau_a_bin_18 ";
-        cutFlowVector_str[29] = "SR0tau_a_bin_19 ";
-        cutFlowVector_str[30] = "SR0tau_a_bin_20 ";
-        cutFlowVector_str[31] = "SR0taub: Lepton multiplicity ";
-        cutFlowVector_str[32] = "SR0taub: b veto ";
-        cutFlowVector_str[33] = "SR0taub: met ";
-        cutFlowVector_str[34] = "SR0taub: pT 3rd lepton ";
-        cutFlowVector_str[35] = "SR0taub: dPhiLL ";
-        cutFlowVector_str[36] = "SR1tau: Lepton multiplicity ";
-        cutFlowVector_str[37] = "SR1tau: Z veto ";
-        cutFlowVector_str[38] = "SR1tau: b-tagged veto ";
-        cutFlowVector_str[39] = "SR1tau: MET ";
-        cutFlowVector_str[40] = "SR1tau: Lepton pT cuts ";
-        cutFlowVector_str[41] = "SR1tau: mltau ";
-        cutFlowVector_str[42] = "SR2taua: Lepton multiplicity ";
-        cutFlowVector_str[43] = "SR2taua: b veto ";
-        cutFlowVector_str[44] = "SR2taua: MET ";
-        cutFlowVector_str[45] = "SR2taua: MT2max ";
-        cutFlowVector_str[46] = "SR2taub: Lepton multiplicity ";
-        cutFlowVector_str[47] = "SR2taub: b jet veto ";
-        cutFlowVector_str[48] = "SR2taub: met ";
-        cutFlowVector_str[49] = "SR2taub: mtautau ";
-        cutFlowVector_str[50] = "SR2taub: Sum of tau pT ";
+        legacyCutNames[0] = "No cuts ";
+        legacyCutNames[1] = "3 signal leptons ";
+        legacyCutNames[2] = "Trigger ";
+        legacyCutNames[3] = "At least one e or mu ";
+        legacyCutNames[4] = "Separation of leptons ";
+        legacyCutNames[5] = "mSFOS > 12 cut ";
+        legacyCutNames[6] = "Lepton requirement (no taus) ";
+        legacyCutNames[7] = "SFOS ";
+        legacyCutNames[8] = "b-tagged jet veto ";
+        legacyCutNames[9] = "ETmiss ";
+        legacyCutNames[10] = "mT ";
+        legacyCutNames[11] = "SR0tau_a_bin_1 ";
+        legacyCutNames[12] = "SR0tau_a_bin_2 ";
+        legacyCutNames[13] = "SR0tau_a_bin_3 ";
+        legacyCutNames[14] = "SR0tau_a_bin_4 ";
+        legacyCutNames[15] = "SR0tau_a_bin_5 ";
+        legacyCutNames[16] = "SR0tau_a_bin_6 ";
+        legacyCutNames[17] = "SR0tau_a_bin_7 ";
+        legacyCutNames[18] = "SR0tau_a_bin_8 ";
+        legacyCutNames[19] = "SR0tau_a_bin_9 ";
+        legacyCutNames[20] = "SR0tau_a_bin_10 ";
+        legacyCutNames[21] = "SR0tau_a_bin_11 ";
+        legacyCutNames[22] = "SR0tau_a_bin_12 ";
+        legacyCutNames[23] = "SR0tau_a_bin_13 ";
+        legacyCutNames[24] = "SR0tau_a_bin_14 ";
+        legacyCutNames[25] = "SR0tau_a_bin_15 ";
+        legacyCutNames[26] = "SR0tau_a_bin_16 ";
+        legacyCutNames[27] = "SR0tau_a_bin_17 ";
+        legacyCutNames[28] = "SR0tau_a_bin_18 ";
+        legacyCutNames[29] = "SR0tau_a_bin_19 ";
+        legacyCutNames[30] = "SR0tau_a_bin_20 ";
+        legacyCutNames[31] = "SR0taub: Lepton multiplicity ";
+        legacyCutNames[32] = "SR0taub: b veto ";
+        legacyCutNames[33] = "SR0taub: met ";
+        legacyCutNames[34] = "SR0taub: pT 3rd lepton ";
+        legacyCutNames[35] = "SR0taub: dPhiLL ";
+        legacyCutNames[36] = "SR1tau: Lepton multiplicity ";
+        legacyCutNames[37] = "SR1tau: Z veto ";
+        legacyCutNames[38] = "SR1tau: b-tagged veto ";
+        legacyCutNames[39] = "SR1tau: MET ";
+        legacyCutNames[40] = "SR1tau: Lepton pT cuts ";
+        legacyCutNames[41] = "SR1tau: mltau ";
+        legacyCutNames[42] = "SR2taua: Lepton multiplicity ";
+        legacyCutNames[43] = "SR2taua: b veto ";
+        legacyCutNames[44] = "SR2taua: MET ";
+        legacyCutNames[45] = "SR2taua: MT2max ";
+        legacyCutNames[46] = "SR2taub: Lepton multiplicity ";
+        legacyCutNames[47] = "SR2taub: b jet veto ";
+        legacyCutNames[48] = "SR2taub: met ";
+        legacyCutNames[49] = "SR2taub: mtautau ";
+        legacyCutNames[50] = "SR2taub: Sum of tau pT ";
 
         //if(signalLeptons.size()==3 && trigger && atLeastOneEorMu)std::cout << "LEPTONID " << signalLeptons[0]->pid() << " " << signalLeptons[1]->pid() << " " << signalLeptons[2]->pid() << " mSFOS12Cut " << mSFOS12Cut << " LEPTONTYPE " << leptonTypeCut_SR0taub << std::endl;
 
-        for(int j=0;j<NCUTS;j++){
+        #ifdef CHECK_CUTFLOW
+        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+        _cutflows[analysis_name()].fillinit(event->weight());
+#endif
+
+for(int j=0;j<NCUTS;j++){
           if( (j==0) ||
 
               (j==1 && signalLeptons.size()==3) ||
@@ -779,12 +782,17 @@ namespace Gambit {
               (j==50 && numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && (signalTaus[0]->pid() == -1*signalTaus[1]->pid()) && bJets.size()==0 && met > 60 && mtautau>70. && mtautau < 120. && (signalTaus[0]->mom().pT() + signalTaus[1]->mom().pT())>110.)
 
 
-              )cutFlowVector[j]++;
+              )
+#ifdef CHECK_CUTFLOW
+            _cutflows[analysis_name()].fill(j+1, true, event->weight());
+#endif
         }
         return;
       }
 
       void collect_results() {
+
+COMMIT_CUTFLOWS;
 
         // add_result(SignalRegionData(_counters["SR label"], n_obs, {n_bkg, n_bkg_err}));
 
@@ -820,9 +828,6 @@ namespace Gambit {
       void analysis_specific_reset()
       {
         for (auto& pair : _counters) { pair.second.reset(); }
-
-
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     };

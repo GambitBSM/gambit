@@ -7,6 +7,7 @@
 // Old Analysis Name: ATLAS_13TeV_MultiLEP_strong_139invfb
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 
@@ -106,11 +107,6 @@ namespace Gambit
 
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
-
-      #ifdef CHECK_CUTFLOW
-        Cutflows _cutflows;
-      #endif
-
 
       Analysis_ATLAS_SUSY_2018_09()
       {
@@ -427,15 +423,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("Rpc2L2b"),   12., {7.8, 2.2}));
         add_result(SignalRegionData(_counters.at("Rpc3LSS1b"),  4., {3.5, 1.45}));
 
-        #ifdef CHECK_CUTFLOW
-          // Cutflow printout
-          _cutflows["Rpc2L1b"].normalize(21.6 * 139., 0);
-          cout << "\nCUTFLOWS:\n" << _cutflows << endl;
-          cout << "\nSRCOUNTS:\n";
-          // for (double x : _srnums) cout << x << "  ";
-          for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
-          cout << "\n" << endl;
-        #endif
+        COMMIT_CUTFLOWS;
       }
 
 

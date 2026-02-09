@@ -255,26 +255,28 @@ namespace Gambit
 
         // Increment cutflows for debugging
 
+        #ifdef CHECK_CUTFLOW
         const double w = event->weight();
         _cutflows.fillinit(w);
 
-        if (_cutflows["SRL"].fillnext({
+        _cutflows["SRL"].fillnext({
                   nPhotons>=1 && pTLeadingPhoton > 140.,
                   nPhotons>=1, nLep==0,
                   pTLeadingPhoton>145., met>250., nJets>=5,
-                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 2000., RT4<0.9}, w)) _counters.at("SRL").add_event(event);
+                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 2000., RT4<0.9}, w);
 
-        if (_cutflows["SRM"].fillnext({
+        _cutflows["SRM"].fillnext({
                   nPhotons>=1 && pTLeadingPhoton > 140.,
                   nPhotons>=1, nLep==0,
                   pTLeadingPhoton>300., met>300., nJets>=5,
-                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600., RT4<0.9}, w)) _counters.at("SRL").add_event(event);
+                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600., RT4<0.9}, w);
 
-        if (_cutflows["SRH"].fillnext({
+        _cutflows["SRH"].fillnext({
                   nPhotons>=1 && pTLeadingPhoton > 140.,
                   nPhotons>=1, nLep==0,
                   pTLeadingPhoton>400., met>600., nJets>=3,
-                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600.}, w)) _counters.at("SRL").add_event(event);
+                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600.}, w);
+        #endif
         return;
 
       }
@@ -287,20 +289,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SRM"), 0., { 2.55, 0.64}));
         add_result(SignalRegionData(_counters.at("SRH"), 5., { 2.55, 0.44}));
 
-        COMMIT_CUTFLOWS
-
-        // Cutflow printout
-        #ifdef CHECK_CUTFLOW
-          _cutflows["SRL"].normalize(47.26, 1);
-          _cutflows["SRM"].normalize(79.60, 1);
-          _cutflows["SRH"].normalize(92.73, 1);
-          cout << "\nCUTFLOWS:\n" << _cutflows << endl;
-          cout << "\nSRCOUNTS:\n";
-          // for (double x : _srnums) cout << x << "  ";
-          for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
-          cout << "\n" << endl;
-        #endif
-
+COMMIT_CUTFLOWS
 
         return;
       }

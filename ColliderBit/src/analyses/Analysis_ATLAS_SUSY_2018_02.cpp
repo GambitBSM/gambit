@@ -22,6 +22,7 @@
 #include <fstream>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -44,11 +45,10 @@ namespace Gambit
     private:
 
       #ifdef CHECK_CUTFLOW
-        vector<int> cutFlowVector;
-        vector<string> cutFlowVector_str;
+        vector<string> legacyCutNames;
         size_t NCUTS;
-        vector<double> cutFlowVectorATLAS_200_50;
-        vector<double> cutFlowVectorATLAS_300_100;
+        vector<double> legacyCutATLAS_200_50;
+        vector<double> legacyCutATLAS_300_100;
       #endif
 
       struct ptComparison
@@ -252,10 +252,9 @@ namespace Gambit
           NCUTS = 12;
           for (size_t i=0;i<NCUTS;i++)
           {
-            cutFlowVector.push_back(0);
-            cutFlowVectorATLAS_200_50.push_back(0);
-            cutFlowVectorATLAS_300_100.push_back(0);
-            cutFlowVector_str.push_back("");
+            legacyCutATLAS_200_50.push_back(0);
+            legacyCutATLAS_300_100.push_back(0);
+            legacyCutNames.push_back("");
           }
         #endif
 
@@ -519,46 +518,51 @@ namespace Gambit
 
 
         #ifdef CHECK_CUTFLOW
-          cutFlowVector_str[0] = "Initial";
-          cutFlowVector_str[1] = "Good Event";
-          cutFlowVector_str[2] = "N_e_mu >= 2";
-          cutFlowVector_str[3] = "Trigger";
-          cutFlowVector_str[4] = "N_e_mu >= 4";
-          cutFlowVector_str[5] = "ZZ";
-          cutFlowVector_str[6] = "met > 50 (SR0-ZZ-loose)";
-          cutFlowVector_str[7] = "met > 100 (SR0-ZZ-tight)";
-          cutFlowVector_str[8] = "b-veto";
-          cutFlowVector_str[9] = "met > 100 (SR0-ZZ-loose-bveto)";
-          cutFlowVector_str[10] = "met > 200 (SR0-ZZ-tight-bveto)";
-          cutFlowVector_str[11] = "SR5L";
+          legacyCutNames[0] = "Initial";
+          legacyCutNames[1] = "Good Event";
+          legacyCutNames[2] = "N_e_mu >= 2";
+          legacyCutNames[3] = "Trigger";
+          legacyCutNames[4] = "N_e_mu >= 4";
+          legacyCutNames[5] = "ZZ";
+          legacyCutNames[6] = "met > 50 (SR0-ZZ-loose)";
+          legacyCutNames[7] = "met > 100 (SR0-ZZ-tight)";
+          legacyCutNames[8] = "b-veto";
+          legacyCutNames[9] = "met > 100 (SR0-ZZ-loose-bveto)";
+          legacyCutNames[10] = "met > 200 (SR0-ZZ-tight-bveto)";
+          legacyCutNames[11] = "SR5L";
 
-          cutFlowVectorATLAS_200_50[0] = -1;
-          cutFlowVectorATLAS_200_50[1] = 2716.37;
-          cutFlowVectorATLAS_200_50[2] = 1041.64;
-          cutFlowVectorATLAS_200_50[3] = 951.78;
-          cutFlowVectorATLAS_200_50[4] = 116.87;
-          cutFlowVectorATLAS_200_50[5] = 71.53;
-          cutFlowVectorATLAS_200_50[6] = 55.88;
-          cutFlowVectorATLAS_200_50[7] = 28.47;
-          cutFlowVectorATLAS_200_50[8] = 66.21;
-          cutFlowVectorATLAS_200_50[9] = 26.41;
-          cutFlowVectorATLAS_200_50[10] = 2.96;
-          cutFlowVectorATLAS_200_50[11] = 0.79;
+          legacyCutATLAS_200_50[0] = -1;
+          legacyCutATLAS_200_50[1] = 2716.37;
+          legacyCutATLAS_200_50[2] = 1041.64;
+          legacyCutATLAS_200_50[3] = 951.78;
+          legacyCutATLAS_200_50[4] = 116.87;
+          legacyCutATLAS_200_50[5] = 71.53;
+          legacyCutATLAS_200_50[6] = 55.88;
+          legacyCutATLAS_200_50[7] = 28.47;
+          legacyCutATLAS_200_50[8] = 66.21;
+          legacyCutATLAS_200_50[9] = 26.41;
+          legacyCutATLAS_200_50[10] = 2.96;
+          legacyCutATLAS_200_50[11] = 0.79;
 
-          cutFlowVectorATLAS_300_100[0] = -1;
-          cutFlowVectorATLAS_300_100[1] = 493.16;
-          cutFlowVectorATLAS_300_100[2] = 319.87;
-          cutFlowVectorATLAS_300_100[3] = 308.22;
-          cutFlowVectorATLAS_300_100[4] = 74.92;
-          cutFlowVectorATLAS_300_100[5] = 61.14;
-          cutFlowVectorATLAS_300_100[6] = 56.74;
-          cutFlowVectorATLAS_300_100[7] = 46.76;
-          cutFlowVectorATLAS_300_100[8] = 55.42;
-          cutFlowVectorATLAS_300_100[9] = 42.77;
-          cutFlowVectorATLAS_300_100[10] = 19.46;
-          cutFlowVectorATLAS_300_100[11] = 0.06;
+          legacyCutATLAS_300_100[0] = -1;
+          legacyCutATLAS_300_100[1] = 493.16;
+          legacyCutATLAS_300_100[2] = 319.87;
+          legacyCutATLAS_300_100[3] = 308.22;
+          legacyCutATLAS_300_100[4] = 74.92;
+          legacyCutATLAS_300_100[5] = 61.14;
+          legacyCutATLAS_300_100[6] = 56.74;
+          legacyCutATLAS_300_100[7] = 46.76;
+          legacyCutATLAS_300_100[8] = 55.42;
+          legacyCutATLAS_300_100[9] = 42.77;
+          legacyCutATLAS_300_100[10] = 19.46;
+          legacyCutATLAS_300_100[11] = 0.06;
 
-          for (size_t j=0;j<NCUTS;j++)
+          #ifdef CHECK_CUTFLOW
+        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+        _cutflows[analysis_name()].fillinit(event->weight());
+#endif
+
+for (size_t j=0;j<NCUTS;j++)
           {
             if(
               (j==0) ||
@@ -587,7 +591,9 @@ namespace Gambit
 
               )
 
-            cutFlowVector[j]++;
+            #ifdef CHECK_CUTFLOW
+            _cutflows[analysis_name()].fill(j+1, true, event->weight());
+#endif
           }
         #endif
       }
@@ -595,6 +601,8 @@ namespace Gambit
 
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results() {
+
+COMMIT_CUTFLOWS;
         add_result(SignalRegionData(_counters.at("SR0-ZZ-loose"), 157., {161., 42.}));
         add_result(SignalRegionData(_counters.at("SR0-ZZ-tight"), 17., {18.4, 3.3}));
         add_result(SignalRegionData(_counters.at("SR0-ZZ-loose-bveto"), 5., {7.3, 2.15}));
@@ -604,91 +612,6 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR0-breq"), 3., {1.16, 0.26}));
         add_result(SignalRegionData(_counters.at("SR5L"), 21., {12.4, 2.3}));
 
-
-        #ifdef CHECK_CUTFLOW
-          size_t scale_to_row = 4;
-          vector<double> cutFlowVector_scaled_row;
-          vector<double> cutFlowVector_scaled_xs;
-          string scaled_prefix;
-          double scale_factor_row;
-          double scale_factor_xs;
-
-          // Working point: (200, 50%)
-          scale_factor_row = cutFlowVectorATLAS_200_50[scale_to_row]/cutFlowVector[scale_to_row];
-          scale_factor_xs = 1335.62 * 139. / cutFlowVector[0];  // https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVhino
-          // scale_factor_xs = 284.855 * 139. / cutFlowVector[0];  // https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVhino
-          for (size_t i=0 ; i < cutFlowVector.size() ; i++)
-          {
-            cutFlowVector_scaled_row.push_back(cutFlowVector[i] * scale_factor_row);
-            cutFlowVector_scaled_xs.push_back(cutFlowVector[i] * scale_factor_xs);
-          }
-          cout << "DEBUG CUTFLOW:   Working point 200, 50%" << endl;
-          cout << "DEBUG CUTFLOW:   ATLAS    GAMBIT(raw)    GAMBIT(scaled row)    GAMBIT(scaled xs*L) " << endl;
-          cout << "DEBUG CUTFLOW:   ----------------------------------------------------------------- " << endl;
-
-          for (size_t j = 0; j < NCUTS; j++)
-          {
-            scaled_prefix = j == scale_to_row ? "*" : "";
-            cout << setprecision(4) << "DEBUG CUTFLOW:   " << scaled_prefix << cutFlowVectorATLAS_200_50[j] << "\t"
-                                        << cutFlowVector[j] << "\t\t"
-                                        << scaled_prefix << cutFlowVector_scaled_row[j] << "\t\t"
-                                        << cutFlowVector_scaled_xs[j] << "\t\t"
-                                        << cutFlowVector_str[j]
-                                        << endl;
-          }
-
-          // Working point: (300, 100%)
-          cutFlowVector_scaled_row.clear();
-          cutFlowVector_scaled_xs.clear();
-          scale_factor_row = cutFlowVectorATLAS_300_100[scale_to_row]/cutFlowVector[scale_to_row];
-          scale_factor_xs = 284.855 * 139. / cutFlowVector[0];  // https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVhino
-          for (size_t i=0 ; i < cutFlowVector.size() ; i++)
-          {
-            cutFlowVector_scaled_row.push_back(cutFlowVector[i] * scale_factor_row);
-            cutFlowVector_scaled_xs.push_back(cutFlowVector[i] * scale_factor_xs);
-          }
-          cout << "DEBUG CUTFLOW:   Working point 300, 100%" << endl;
-          cout << "DEBUG CUTFLOW:   ATLAS    GAMBIT(raw)    GAMBIT(scaled row)    GAMBIT(scaled xs*L) " << endl;
-          cout << "DEBUG CUTFLOW:   ----------------------------------------------------------------- " << endl;
-
-          for (size_t j = 0; j < NCUTS; j++)
-          {
-            scaled_prefix = j == scale_to_row ? "*" : "";
-            cout << setprecision(4) << "DEBUG CUTFLOW:   " << scaled_prefix << cutFlowVectorATLAS_300_100[j] << "\t"
-                                        << cutFlowVector[j] << "\t\t"
-                                        << scaled_prefix << cutFlowVector_scaled_row[j] << "\t\t"
-                                        << cutFlowVector_scaled_xs[j] << "\t\t"
-                                        << cutFlowVector_str[j]
-                                        << endl;
-          }
-
-
-          // // Working point: (300, 100%)
-          // cutFlowVector_scaled.clear();
-          // cutFlowVector_scaled_2.clear();
-          // scale_factor = cutFlowVectorATLAS_300_100[scale_to_row]/cutFlowVector[scale_to_row];
-          // scale_factor_xs = cutFlowVectorATLAS_300_100[scale_to_row_2]/cutFlowVector[scale_to_row_2];
-          // for (size_t i=0 ; i < cutFlowVector.size() ; i++)
-          // {
-          //   cutFlowVector_scaled.push_back(cutFlowVector[i] * scale_factor);
-          //   cutFlowVector_scaled_2.push_back(cutFlowVector[i] * scale_factor_xs);
-          // }
-          // cout << "DEBUG CUTFLOW:   Working point 300, 100%" << endl;
-          // cout << "DEBUG CUTFLOW:   ATLAS    GAMBIT(raw)    GAMBIT(scaled)    GAMBIT(scaled) " << endl;
-          // cout << "DEBUG CUTFLOW:   -------------------------------------------------------- " << endl;
-
-          // for (size_t j = 0; j < NCUTS; j++)
-          // {
-          //   scaled_prefix = j == scale_to_row ? "*" : "";
-          //   scaled_prefix = j == scale_to_row_2 ? "**" : "";
-          //   cout << setprecision(4) << "DEBUG CUTFLOW:   " << scaled_prefix << cutFlowVectorATLAS_300_100[j] << "\t\t"
-          //                               << cutFlowVector[j] << "\t\t"
-          //                               << scaled_prefix << cutFlowVector_scaled[j] << "\t\t"
-          //                               << scaled_prefix << cutFlowVector_scaled_2[j] << "\t\t"
-          //                               << cutFlowVector_str[j]
-          //                               << endl;
-          // }
-        #endif
       }
 
 
@@ -696,7 +619,6 @@ namespace Gambit
       void analysis_specific_reset() {
         for (auto& pair : _counters) { pair.second.reset(); }
         #ifdef CHECK_CUTFLOW
-          std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
         #endif
       }
 

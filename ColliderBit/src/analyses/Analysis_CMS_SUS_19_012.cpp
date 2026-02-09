@@ -881,10 +881,7 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("K03"), 1., {0.61, 0.61}));
 
           // Add cutflow data to the analysis results
-          #ifdef CHECK_CUTFLOW
-          COMMIT_CUTFLOWS
-          #endif
-
+COMMIT_CUTFLOWS
         }
 
       protected:
@@ -936,10 +933,8 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("SS20"), 5.8, {3.9, 1.6}));
 
           // Add cutflow data to the analysis results
-          #ifdef CHECK_CUTFLOW
-          COMMIT_CUTFLOWS
-          #endif
-        }
+COMMIT_CUTFLOWS
+         }
 
     };
 
@@ -1031,10 +1026,8 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("B03"), 327, {322., 83.}));
 
           // Add cutflow data to the analysis results
-          #ifdef CHECK_CUTFLOW
-          COMMIT_CUTFLOWS
-          #endif
-        }
+COMMIT_CUTFLOWS
+         }
 
     };
 
@@ -1109,10 +1102,8 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("F12"), 2., {3.5, 1.4}));
 
           // Add cutflow data to the analysis results
-          #ifdef CHECK_CUTFLOW
-          COMMIT_CUTFLOWS
-          #endif
-        }
+COMMIT_CUTFLOWS
+         }
 
     };
 
@@ -1145,10 +1136,8 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("H03"), 3., {4.3, 0.9}));
 
           // Add cutflow data to the analysis results
-          #ifdef CHECK_CUTFLOW
-          COMMIT_CUTFLOWS
-          #endif
-        }
+COMMIT_CUTFLOWS
+         }
 
     };
 
@@ -1184,10 +1173,8 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("K03"), 1., {0.61, 0.61}));
 
           // Add cutflow data to the analysis results
-          #ifdef CHECK_CUTFLOW
-          COMMIT_CUTFLOWS
-          #endif
-        }
+COMMIT_CUTFLOWS
+         }
 
     };
 

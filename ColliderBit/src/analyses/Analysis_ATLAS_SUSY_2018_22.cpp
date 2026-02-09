@@ -1,5 +1,6 @@
 // -*- C++ -*-
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 
@@ -238,7 +239,9 @@ namespace Gambit
           // Fill signal regions and cutflows
 
           const double w = event->weight();
+          #ifdef CHECK_CUTFLOW
           _cutflows.fillinit(w);
+          #endif
 
           // Preselection
           if (nElectrons + nMuons != 0) return;
@@ -246,85 +249,165 @@ namespace Gambit
           if (met < 300) return;
           if (meff < 800) return;
           if (dphimin_123 < 0.2) return;
+          #ifdef CHECK_CUTFLOW
           _cutflows.fillnext(w);
+          #endif
 
           // Njet >= 2
           if (nJets50 < 2) return;
+          #ifdef CHECK_CUTFLOW
           _cutflows.fillnext(w);
+          #endif
 
           // Cleaning emulation
           /// @todo Use weighting instead
           if (random_bool(0.02)) return;
+          #ifdef CHECK_CUTFLOW
           _cutflows.fillnext(w);
+          #endif
 
           // 2 jet regions
           if (nJets50 >= 2)
           {
-            if (_cutflows["2j-1600"].fillnext({
-                  signalJets[0]->pT() > 250,
-                  dphimin_123 > 0.8, dphimin_more > 0.4,
-                  signalJets[1]->pT() > 250, etamax_2 < 2.0,
-                  true, met_sqrtHT > 16, meff > 1600}, w)) _counters.at("2j-1600").add_event(event);
+            const bool pass_2j_1600 = signalJets[0]->pT() > 250 &&
+                                      dphimin_123 > 0.8 && dphimin_more > 0.4 &&
+                                      signalJets[1]->pT() > 250 && etamax_2 < 2.0 &&
+                                      met_sqrtHT > 16 && meff > 1600;
+            if (pass_2j_1600) _counters.at("2j-1600").add_event(event);
+            #ifdef CHECK_CUTFLOW
+            _cutflows["2j-1600"].fillnext({
+              signalJets[0]->pT() > 250,
+              dphimin_123 > 0.8, dphimin_more > 0.4,
+              signalJets[1]->pT() > 250, etamax_2 < 2.0,
+              true, met_sqrtHT > 16, meff > 1600}, w);
+            #endif
 
-            if (_cutflows["2j-2200"].fillnext({
-                  dphimin_123 > 0.4, dphimin_more > 0.2,
-                  signalJets[0]->pT() > 600, etamax_2 < 2.8,
-                  met_sqrtHT > 16, meff > 2200}, w)) _counters.at("2j-2200").add_event(event);
-            if (_cutflows["2j-2800"].fillnext({
-                  signalJets[0]->pT() > 250,
-                  dphimin_123 > 0.8, dphimin_more > 0.4,
-                  signalJets[1]->pT() > 250, etamax_2 < 1.2,
-                  true, met_sqrtHT > 16, meff > 2800}, w)) _counters.at("2j-2800").add_event(event);
+            const bool pass_2j_2200 = dphimin_123 > 0.4 && dphimin_more > 0.2 &&
+                                      signalJets[0]->pT() > 600 && etamax_2 < 2.8 &&
+                                      met_sqrtHT > 16 && meff > 2200;
+            if (pass_2j_2200) _counters.at("2j-2200").add_event(event);
+            #ifdef CHECK_CUTFLOW
+            _cutflows["2j-2200"].fillnext({
+              dphimin_123 > 0.4, dphimin_more > 0.2,
+              signalJets[0]->pT() > 600, etamax_2 < 2.8,
+              met_sqrtHT > 16, meff > 2200}, w);
+            #endif
+
+            const bool pass_2j_2800 = signalJets[0]->pT() > 250 &&
+                                      dphimin_123 > 0.8 && dphimin_more > 0.4 &&
+                                      signalJets[1]->pT() > 250 && etamax_2 < 1.2 &&
+                                      met_sqrtHT > 16 && meff > 2800;
+            if (pass_2j_2800) _counters.at("2j-2800").add_event(event);
+            #ifdef CHECK_CUTFLOW
+            _cutflows["2j-2800"].fillnext({
+              signalJets[0]->pT() > 250,
+              dphimin_123 > 0.8, dphimin_more > 0.4,
+              signalJets[1]->pT() > 250, etamax_2 < 1.2,
+              true, met_sqrtHT > 16, meff > 2800}, w);
+            #endif
           }
 
           // 4 jet regions
           if (nJets50 >= 4)
           {
-            if (_cutflows["4j-1000"].fillnext({
-                  signalJets.at(0)->pT() > 200,
-                  dphimin_123 > 0.4, dphimin_more > 0.2,
-                  signalJets.at(3)->pT() > 100, etamax_4 < 2.0,
-                  aplanarity > 0.04, met_sqrtHT > 16, meff > 1000}, w)) _counters.at("4j-1000").add_event(event);
-            if (_cutflows["4j-2200"].fillnext({
-                  signalJets[0]->pT() > 200,
-                  dphimin_123 > 0.4, dphimin_more > 0.2,
-                  signalJets[3]->pT() > 100, etamax_4 < 2.0,
-                  aplanarity > 0.04, met_sqrtHT > 16, meff > 2200}, w)) _counters.at("4j-2200").add_event(event);
-            if (_cutflows["4j-3400"].fillnext({
-                  signalJets[0]->pT() > 200,
-                  dphimin_123 > 0.4, dphimin_more > 0.2,
-                  signalJets[3]->pT() > 100, etamax_4 < 2.0,
-                  aplanarity > 0.04, met_sqrtHT > 10, meff > 3400}, w)) _counters.at("4j-3400").add_event(event);
+            const bool pass_4j_1000 = signalJets.at(0)->pT() > 200 &&
+                                      dphimin_123 > 0.4 && dphimin_more > 0.2 &&
+                                      signalJets.at(3)->pT() > 100 && etamax_4 < 2.0 &&
+                                      aplanarity > 0.04 && met_sqrtHT > 16 && meff > 1000;
+            if (pass_4j_1000) _counters.at("4j-1000").add_event(event);
+            #ifdef CHECK_CUTFLOW
+            _cutflows["4j-1000"].fillnext({
+              signalJets.at(0)->pT() > 200,
+              dphimin_123 > 0.4, dphimin_more > 0.2,
+              signalJets.at(3)->pT() > 100, etamax_4 < 2.0,
+              aplanarity > 0.04, met_sqrtHT > 16, meff > 1000}, w);
+            #endif
+
+            const bool pass_4j_2200 = signalJets[0]->pT() > 200 &&
+                                      dphimin_123 > 0.4 && dphimin_more > 0.2 &&
+                                      signalJets[3]->pT() > 100 && etamax_4 < 2.0 &&
+                                      aplanarity > 0.04 && met_sqrtHT > 16 && meff > 2200;
+            if (pass_4j_2200) _counters.at("4j-2200").add_event(event);
+            #ifdef CHECK_CUTFLOW
+            _cutflows["4j-2200"].fillnext({
+              signalJets[0]->pT() > 200,
+              dphimin_123 > 0.4, dphimin_more > 0.2,
+              signalJets[3]->pT() > 100, etamax_4 < 2.0,
+              aplanarity > 0.04, met_sqrtHT > 16, meff > 2200}, w);
+            #endif
+
+            const bool pass_4j_3400 = signalJets[0]->pT() > 200 &&
+                                      dphimin_123 > 0.4 && dphimin_more > 0.2 &&
+                                      signalJets[3]->pT() > 100 && etamax_4 < 2.0 &&
+                                      aplanarity > 0.04 && met_sqrtHT > 10 && meff > 3400;
+            if (pass_4j_3400) _counters.at("4j-3400").add_event(event);
+            #ifdef CHECK_CUTFLOW
+            _cutflows["4j-3400"].fillnext({
+              signalJets[0]->pT() > 200,
+              dphimin_123 > 0.4, dphimin_more > 0.2,
+              signalJets[3]->pT() > 100, etamax_4 < 2.0,
+              aplanarity > 0.04, met_sqrtHT > 10, meff > 3400}, w);
+            #endif
           }
 
           // 5 jet region
           if (nJets50 >= 5)
           {
-            if (_cutflows["5j-1600"].fillnext({
-                  signalJets[0]->pT() > 600,
-                  dphimin_123 > 0.4, dphimin_more > 0.2,
-                  signalJets[4]->pT() > 50, etamax_5 < 2.8,
-                  true, met_sqrtHT > 16, meff > 1600}, w)) _counters.at("5j-1600").add_event(event);
+            const bool pass_5j_1600 = signalJets[0]->pT() > 600 &&
+                                      dphimin_123 > 0.4 && dphimin_more > 0.2 &&
+                                      signalJets[4]->pT() > 50 && etamax_5 < 2.8 &&
+                                      met_sqrtHT > 16 && meff > 1600;
+            if (pass_5j_1600) _counters.at("5j-1600").add_event(event);
+            #ifdef CHECK_CUTFLOW
+            _cutflows["5j-1600"].fillnext({
+              signalJets[0]->pT() > 600,
+              dphimin_123 > 0.4, dphimin_more > 0.2,
+              signalJets[4]->pT() > 50, etamax_5 < 2.8,
+              true, met_sqrtHT > 16, meff > 1600}, w);
+            #endif
           }
 
           // 6 jet regions
           if (nJets50 >= 6)
           {
-            if (_cutflows["6j-1000"].fillnext({
-                  signalJets[0]->pT() > 200,
-                  dphimin_123 > 0.4, dphimin_more > 0.2,
-                  signalJets[5]->pT() > 75, etamax_6 < 2.0,
-                  aplanarity > 0.08, met_sqrtHT > 16, meff > 1000}, w)) _counters.at("6j-1000").add_event(event);
-            if (_cutflows["6j-2200"].fillnext({
-                  signalJets[0]->pT() > 200,
-                  dphimin_123 > 0.4, dphimin_more > 0.2,
-                  signalJets[5]->pT() > 75, etamax_6 < 2.0,
-                  aplanarity > 0.08, met_sqrtHT > 16, meff > 2200}, w)) _counters.at("6j-2200").add_event(event);
-            if (_cutflows["6j-3400"].fillnext({
-                  signalJets[0]->pT() > 200,
-                  dphimin_123 > 0.4, dphimin_more > 0.2,
-                  signalJets[5]->pT() > 75, etamax_6 < 2.0,
-                  aplanarity > 0.08, met_sqrtHT > 10, meff > 3400}, w)) _counters.at("6j-3400").add_event(event);
+            const bool pass_6j_1000 = signalJets[0]->pT() > 200 &&
+                                      dphimin_123 > 0.4 && dphimin_more > 0.2 &&
+                                      signalJets[5]->pT() > 75 && etamax_6 < 2.0 &&
+                                      aplanarity > 0.08 && met_sqrtHT > 16 && meff > 1000;
+            if (pass_6j_1000) _counters.at("6j-1000").add_event(event);
+            #ifdef CHECK_CUTFLOW
+            _cutflows["6j-1000"].fillnext({
+              signalJets[0]->pT() > 200,
+              dphimin_123 > 0.4, dphimin_more > 0.2,
+              signalJets[5]->pT() > 75, etamax_6 < 2.0,
+              aplanarity > 0.08, met_sqrtHT > 16, meff > 1000}, w);
+            #endif
+
+            const bool pass_6j_2200 = signalJets[0]->pT() > 200 &&
+                                      dphimin_123 > 0.4 && dphimin_more > 0.2 &&
+                                      signalJets[5]->pT() > 75 && etamax_6 < 2.0 &&
+                                      aplanarity > 0.08 && met_sqrtHT > 16 && meff > 2200;
+            if (pass_6j_2200) _counters.at("6j-2200").add_event(event);
+            #ifdef CHECK_CUTFLOW
+            _cutflows["6j-2200"].fillnext({
+              signalJets[0]->pT() > 200,
+              dphimin_123 > 0.4, dphimin_more > 0.2,
+              signalJets[5]->pT() > 75, etamax_6 < 2.0,
+              aplanarity > 0.08, met_sqrtHT > 16, meff > 2200}, w);
+            #endif
+
+            const bool pass_6j_3400 = signalJets[0]->pT() > 200 &&
+                                      dphimin_123 > 0.4 && dphimin_more > 0.2 &&
+                                      signalJets[5]->pT() > 75 && etamax_6 < 2.0 &&
+                                      aplanarity > 0.08 && met_sqrtHT > 10 && meff > 3400;
+            if (pass_6j_3400) _counters.at("6j-3400").add_event(event);
+            #ifdef CHECK_CUTFLOW
+            _cutflows["6j-3400"].fillnext({
+              signalJets[0]->pT() > 200,
+              dphimin_123 > 0.4, dphimin_more > 0.2,
+              signalJets[5]->pT() > 75, etamax_6 < 2.0,
+              aplanarity > 0.08, met_sqrtHT > 10, meff > 3400}, w);
+            #endif
           }
 
         }
@@ -361,6 +444,7 @@ namespace Gambit
           // _cutflows["6j-3400"].normalize(6101, 1);
 
           // Paper cutflows:
+          #ifdef CHECK_CUTFLOW
           _cutflows["2j-1600"].normalize(1423, 1);  // m_sq = 1200, m_N1 = 600, direct decay
           _cutflows["2j-2200"].normalize(1423, 1);  // m_sq = 1200, m_N1 = 600, direct decay
           _cutflows["2j-2800"].normalize(1423, 1);  // m_sq = 1200, m_N1 = 600, direct decay
@@ -373,7 +457,8 @@ namespace Gambit
           _cutflows["6j-3400"].normalize(2651, 1);  // m_q = 800, m_C1 = 600, m_N1 = 400, one-step decay
 
 
-          add_cutflows(_cutflows);
+          COMMIT_CUTFLOWS;
+          #endif
         }
 
 

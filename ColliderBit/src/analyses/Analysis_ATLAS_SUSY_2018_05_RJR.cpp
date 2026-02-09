@@ -654,6 +654,7 @@ namespace Gambit
 
             // Now fill the low mass cutflow
             // Note: pre-selection is already applied so first cut won't match
+            #ifdef CHECK_CUTFLOW
             const double w = event->weight();
             _cutflows.fillinit(w);
 
@@ -667,6 +668,7 @@ namespace Gambit
                                             RPT_HT5PP<0.05,
                                             mindphi>2.4,
                                             H5PP>400.}, w);
+            #endif
 
             // Intermediate
             //Not used in paper, despite being in ATLAS code snippet!
@@ -804,6 +806,7 @@ namespace Gambit
               // Note the cutflow table has a mistake in the last cut
               // (< 30 GeV instead of < 20 GeV)
 
+              #ifdef CHECK_CUTFLOW
               _cutflows["SR2L_ISR"].fillnext({cut_preselISR,
                                               MZ>80. && MZ<100.,
                                               MJ>50. && MJ<110.,
@@ -812,6 +815,7 @@ namespace Gambit
                                               PTISR>180.,
                                               PTI>100.,
                                               PTCM<20.}, w);
+              #endif
 
             }
 
@@ -829,15 +833,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR2L_Low"), 39., {42., 9}));
         add_result(SignalRegionData(_counters.at("SR2L_ISR"), 30., {31., 9}));
 
-        COMMIT_CUTFLOWS
-
-        #ifdef CHECK_CUTFLOW
-          cout << _cutflows << endl;
-          //cout << "n signal leptons before = " << _test2 << endl;
-          //cout << "n signal leptons = " << _test[0] << endl;
-          //cout << "n baseline leptons = " << _test[1] << endl;
-        #endif
-
+COMMIT_CUTFLOWS
 
       }
 

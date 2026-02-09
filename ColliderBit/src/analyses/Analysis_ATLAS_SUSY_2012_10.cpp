@@ -7,6 +7,7 @@
 //#include <gambit/ColliderBit/colliders/SpecializablePythia.hpp>
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include <gambit/ColliderBit/ATLASEfficiencies.hpp>
 #include "gambit/ColliderBit/analyses/AnalysisUtil.hpp"
 
@@ -68,8 +69,6 @@ namespace Gambit
       #undef VARMAP
 
       std::map<std::string, std::vector<double>> varResults;
-
-      std::map<std::string, int> cutflows;
 
       std::vector<double> calcNuPz(double Mw, P4 metMom, P4 lepMom)
       {
@@ -204,6 +203,10 @@ namespace Gambit
 
         set_analysis_name("ATLAS_SUSY_2012_10");
         set_luminosity(4.7);
+
+#ifdef CHECK_CUTFLOW
+        _cutflows.addCutflow(analysis_name(), cutflowNames);
+#endif
       }
 
       /**
@@ -212,10 +215,11 @@ namespace Gambit
        */
       void run(const HEPUtils::Event* event)
       {
+        const double weight = event->weight();
         // TODO: take log of plots and constrain the plot range
         //HEPUtilsAnalysis::analyze(event);
         //cout << "Event number: " << num_events() << endl;
-        incrementCut(Total_events);
+        incrementCut(Total_events, weight);
         std::vector<const Particle*> electrons = event->electrons();
         std::vector<const Particle*> muons = event->muons();
         std::vector<const Jet*> jets = event->jets("antikt_R04");
@@ -263,14 +267,14 @@ namespace Gambit
           if (muons.size() == 1) a = muon_eq_4_jets, b = muon_met_gt_40, c = muon_eq_2_bjets;
           if (nJets == 4)
           {
-            incrementCut(a);
+            incrementCut(a, weight);
             {
               if (Met > 40)
               {
-                incrementCut(b);
+                incrementCut(b, weight);
                 if (nBJets == 2)
                 {
-                  incrementCut(c);
+                  incrementCut(c, weight);
                 }
               }
             }
@@ -321,8 +325,8 @@ namespace Gambit
             if (isOneLep && validTop && sqrtSsubMin < 250)
             {
               _counters["1LSR"].add_event(event);
-              if (electrons.size() == 1) incrementCut(electron_sr);
-              if (muons.size() == 1) incrementCut(muon_sr);
+              if (electrons.size() == 1) incrementCut(electron_sr, weight);
+              if (muons.size() == 1) incrementCut(muon_sr, weight);
             }
           }
         }
@@ -331,18 +335,18 @@ namespace Gambit
         {
           P4 ll = *leptons[0] + *leptons[1];
           double mll = ll.m();
-          incrementCut(twoLep_met_gt_40);
+          incrementCut(twoLep_met_gt_40, weight);
           {
             if (nBJets >= 1)
             {
-              incrementCut(twoLep_gt_1_bjet);
+              incrementCut(twoLep_gt_1_bjet, weight);
               if (mll < 81)
               {
-                incrementCut(mll_lt_81);
+                incrementCut(mll_lt_81, weight);
               }
               if (mll < 81 && mll > 30)
               {
-                incrementCut(mll_gt_30_lt_81);
+                incrementCut(mll_gt_30_lt_81, weight);
               }
             }
           }
@@ -388,12 +392,12 @@ namespace Gambit
               if (sqrtSsubMin < 225)
               {
                 _counters["2LSR1"].add_event(event);
-                incrementCut(num_2lsr1);
+                incrementCut(num_2lsr1, weight);
               }
               if (sqrtSsubMin < 235 && mlljj < 140)
               {
                 _counters["2LSR2"].add_event(event);
-                incrementCut(num_2lsr2);
+                incrementCut(num_2lsr2, weight);
               }
             }
           }
@@ -407,16 +411,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters["1LSR"], 50, {38., 7.}));
         add_result(SignalRegionData(_counters["2LSR1"], 123, {115., 15.}));
         add_result(SignalRegionData(_counters["2LSR2"], 47, {46., 7.}));
-
-        /*for (std::pair<std::string, std::vector<double>> entry : varResults)
-          {
-            cout << "SAVE_START:" << entry.first << endl;
-            for (double value : entry.second)
-              {
-          cout << value << endl;
-              }
-            cout << "SAVE_END" << endl;
-            }*/
+COMMIT_CUTFLOWS
       }
 
     protected:
@@ -431,31 +426,14 @@ namespace Gambit
         }
       }
 
-      void incrementCut(int cutIndex)
+      void incrementCut(int cutIndex, double weight)
       {
-        cutflows[cutflowNames[cutIndex]]++;
-      }
-
-      void saveCutFlow()
-      {
-        double scale_by = 1.0;
-        cout << "SAVE_START:cuts" << endl;
-        cout << "CUT;RAW;SCALED;%" << endl;
-        double initialCut = cutflows[cutflowNames[Total_events]];
-        double thisCut;
-        for (std::string name : cutflowNames) {
-          thisCut = cutflows[name];
-          cout << name.c_str() << ";"
-         << thisCut << ";"
-         << thisCut * scale_by << ";"
-         << 100. * thisCut / initialCut
-         << endl;
-        }
-        cout << "SAVE_END" << endl;
+#ifdef CHECK_CUTFLOW
+        _cutflows[analysis_name()].fill(cutIndex + 1, true, weight);
+#endif
       }
     };
 
     DEFINE_ANALYSIS_FACTORY(ATLAS_SUSY_2012_10)
   }
 }
-

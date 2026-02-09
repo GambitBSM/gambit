@@ -5,6 +5,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "gambit/ColliderBit/lester_mt2_bisect.h"
@@ -48,9 +49,7 @@ namespace Gambit
       private:
 
         // Variables that hold the number of events passing signal region cuts
-
-        vector<int> cutFlowVector;
-        vector<string> cutFlowVector_str;
+        vector<string> legacyCutNames;
         int NCUTS;
 
       public:
@@ -81,8 +80,7 @@ namespace Gambit
 
           for(int i=0;i<NCUTS;i++)
           {
-            cutFlowVector.push_back(0);
-            cutFlowVector_str.push_back("");
+            legacyCutNames.push_back("");
           }
 
         }
@@ -708,73 +706,78 @@ namespace Gambit
           double mbb_35 = 0.;
           if(nBjets35>=2)mbb_35=(signalBJets35[0]->mom()+signalBJets35[1]->mom()).m();
 
-          // Increment cutFlowVector elements
-          cutFlowVector_str[0]  = "No cuts ";
-          cutFlowVector_str[1]  = "b0L-SRA: MET > 250 GeV";
-          cutFlowVector_str[2]  = "b0L-SRA: dPhiMin4 > 0.4";
-          cutFlowVector_str[3]  = "b0L-SRA: MET/meff > 0.25 ";
-          cutFlowVector_str[4]  = "b0L-SRA: 2-4 jets (pT > 25 GeV)";
-          cutFlowVector_str[5]  = "b0L-SRA: pT j0 > 130 GeV";
-          cutFlowVector_str[6]  = "b0L-SRA: pT j1 > 50 GeV";
-          cutFlowVector_str[7]  = "b0L-SRA: pT j3 < 50 GeV";
-          cutFlowVector_str[8]  = "b0L-SRA: 0 leptons";
-          cutFlowVector_str[9]  = "b0L-SRA: 2 b jets ";
-          cutFlowVector_str[10] = "b0L-SRA: 2 leading b jets ";
-          cutFlowVector_str[11] = "b0L-SRA: mbb > 200 GeV ";
-          cutFlowVector_str[12] = "b0L-SRA: mCT > 350 GeV ";
-          cutFlowVector_str[13] = "b0L-SRA: mCT > 450 GeV ";
-          cutFlowVector_str[14] = "b0L-SRA: mCT > 550 GeV ";
+          // Increment legacyCutCounts elements
+          legacyCutNames[0]  = "No cuts ";
+          legacyCutNames[1]  = "b0L-SRA: MET > 250 GeV";
+          legacyCutNames[2]  = "b0L-SRA: dPhiMin4 > 0.4";
+          legacyCutNames[3]  = "b0L-SRA: MET/meff > 0.25 ";
+          legacyCutNames[4]  = "b0L-SRA: 2-4 jets (pT > 25 GeV)";
+          legacyCutNames[5]  = "b0L-SRA: pT j0 > 130 GeV";
+          legacyCutNames[6]  = "b0L-SRA: pT j1 > 50 GeV";
+          legacyCutNames[7]  = "b0L-SRA: pT j3 < 50 GeV";
+          legacyCutNames[8]  = "b0L-SRA: 0 leptons";
+          legacyCutNames[9]  = "b0L-SRA: 2 b jets ";
+          legacyCutNames[10] = "b0L-SRA: 2 leading b jets ";
+          legacyCutNames[11] = "b0L-SRA: mbb > 200 GeV ";
+          legacyCutNames[12] = "b0L-SRA: mCT > 350 GeV ";
+          legacyCutNames[13] = "b0L-SRA: mCT > 450 GeV ";
+          legacyCutNames[14] = "b0L-SRA: mCT > 550 GeV ";
 
-          cutFlowVector_str[15] = "b0L-SRB: pT j1 > 50 GeV ";
-          cutFlowVector_str[16] = "b0L-SRB: 0 leptons ";
-          cutFlowVector_str[17] = "b0L-SRB: 2 bjets ";
-          cutFlowVector_str[18] = "b0L-SRB: dphi(b1,met) < 2.0 ";
-          cutFlowVector_str[19] = "b0L-SRB: dphi(b2,met) < 2.5 ";
-          cutFlowVector_str[20] = "b0L-SRB: mTmin(j1-4,met)>250 GeV ";
-          cutFlowVector_str[21] = "b0L-SRC: Zero leptons ";
-          cutFlowVector_str[22] = "b0L-SRC: 2-5 jets (pT > 20 GeV) ";
-          cutFlowVector_str[23] = "b0L-SRC: Leading light jet ";
-          cutFlowVector_str[24] = "b0L-SRC: dPhi(j1,met) > 2.5";
-          cutFlowVector_str[25] = "b0L-SRC: dPhi(j2,met) > 0.2";
-          cutFlowVector_str[26] = "b0L-SRC: Subleading jet b-tagged ";
-          cutFlowVector_str[27] = "b0L-SRC: 2 b jets ";
-          cutFlowVector_str[28] = "b0L-SRC: HT4 < 70 ";
-          cutFlowVector_str[29] = "b0L-SRC: met > 500 GeV ";
-          cutFlowVector_str[30] = "b0L-SRC: pT(j1) > 500 GeV ";
-          cutFlowVector_str[31] = "b0L-SRC: meff > 1300 GeV ";
-          cutFlowVector_str[32] = "b0L-SRC: A > 0.8 ";
-          cutFlowVector_str[33] = "b0L-SRC: mjj > 200 GeV ";
-          cutFlowVector_str[34] = "b1L-SRA: 1 lepton ";
-          cutFlowVector_str[35] = "b1L-SRA: pT(l1) > 27 GeV ";
-          cutFlowVector_str[36] = "b1L-SRA: >= 2 jets (pT > 35 GeV) ";
-          cutFlowVector_str[37] = "b1L-SRA: dphi j min > 0.4 ";
-          cutFlowVector_str[38] = "b1L-SRA: 2 b jets ";
-          cutFlowVector_str[39] = "b1L-SRA: met > 200 GeV ";
-          cutFlowVector_str[40] = "b1L-SRA: met/sqrt(HT) ";
-          cutFlowVector_str[41] = "b1L-SRA: mT > 140 GeV ";
-          cutFlowVector_str[42] = "b1L-SRA: mblmin < 170 GeV ";
-          cutFlowVector_str[43] = "b1L-SRA: amT2 > 250 GeV ";
-          cutFlowVector_str[44] = "b1L-SRA: mbb > 200 GeV ";
-          cutFlowVector_str[45] = "b1L-SRA: meff > 450 GeV ";
-          cutFlowVector_str[46] = "b1L-SRA: meff > 600 GeV ";
-          cutFlowVector_str[47] = "b1L-SRA: meff > 750 GeV ";
-          cutFlowVector_str[48] = "b1L-SRA300-2j: met/sqrt(HT) ";
-          cutFlowVector_str[49] = "b1L-SRA300-2j: mT  > 140 GeV ";
-          cutFlowVector_str[50] = "b1L-SRA300-2j: mblmin < 170 GeV ";
-          cutFlowVector_str[51] = "b1L-SRA300-2j: amt2 > 250 GeV ";
-          cutFlowVector_str[52] = "b1L-SRA300-2j: mbb > 200 GeV ";
-          cutFlowVector_str[53] = "b1L-SRA300-2j: meff > 300 GeV ";
-          cutFlowVector_str[54] = "b1L-SRA300-2j: < 3 jets (pT > 35 GeV) ";
-          cutFlowVector_str[55] = "b1L-SRB: mT > 120 GeV ";
-          cutFlowVector_str[56] = "b1L-SRB: mblmin < 170 GeV ";
-          cutFlowVector_str[57] = "b1L-SRB: amt2 > 200 GeV ";
-          cutFlowVector_str[58] = "b1L-SRB: mbb < 200 GeV ";
-          cutFlowVector_str[59] = "b1L-SRB: dphi(b1,met) > 2.0 ";
-          cutFlowVector_str[60] = "b1L-SRB: mTmin(b1-2,met) > 200 GeV ";
+          legacyCutNames[15] = "b0L-SRB: pT j1 > 50 GeV ";
+          legacyCutNames[16] = "b0L-SRB: 0 leptons ";
+          legacyCutNames[17] = "b0L-SRB: 2 bjets ";
+          legacyCutNames[18] = "b0L-SRB: dphi(b1,met) < 2.0 ";
+          legacyCutNames[19] = "b0L-SRB: dphi(b2,met) < 2.5 ";
+          legacyCutNames[20] = "b0L-SRB: mTmin(j1-4,met)>250 GeV ";
+          legacyCutNames[21] = "b0L-SRC: Zero leptons ";
+          legacyCutNames[22] = "b0L-SRC: 2-5 jets (pT > 20 GeV) ";
+          legacyCutNames[23] = "b0L-SRC: Leading light jet ";
+          legacyCutNames[24] = "b0L-SRC: dPhi(j1,met) > 2.5";
+          legacyCutNames[25] = "b0L-SRC: dPhi(j2,met) > 0.2";
+          legacyCutNames[26] = "b0L-SRC: Subleading jet b-tagged ";
+          legacyCutNames[27] = "b0L-SRC: 2 b jets ";
+          legacyCutNames[28] = "b0L-SRC: HT4 < 70 ";
+          legacyCutNames[29] = "b0L-SRC: met > 500 GeV ";
+          legacyCutNames[30] = "b0L-SRC: pT(j1) > 500 GeV ";
+          legacyCutNames[31] = "b0L-SRC: meff > 1300 GeV ";
+          legacyCutNames[32] = "b0L-SRC: A > 0.8 ";
+          legacyCutNames[33] = "b0L-SRC: mjj > 200 GeV ";
+          legacyCutNames[34] = "b1L-SRA: 1 lepton ";
+          legacyCutNames[35] = "b1L-SRA: pT(l1) > 27 GeV ";
+          legacyCutNames[36] = "b1L-SRA: >= 2 jets (pT > 35 GeV) ";
+          legacyCutNames[37] = "b1L-SRA: dphi j min > 0.4 ";
+          legacyCutNames[38] = "b1L-SRA: 2 b jets ";
+          legacyCutNames[39] = "b1L-SRA: met > 200 GeV ";
+          legacyCutNames[40] = "b1L-SRA: met/sqrt(HT) ";
+          legacyCutNames[41] = "b1L-SRA: mT > 140 GeV ";
+          legacyCutNames[42] = "b1L-SRA: mblmin < 170 GeV ";
+          legacyCutNames[43] = "b1L-SRA: amT2 > 250 GeV ";
+          legacyCutNames[44] = "b1L-SRA: mbb > 200 GeV ";
+          legacyCutNames[45] = "b1L-SRA: meff > 450 GeV ";
+          legacyCutNames[46] = "b1L-SRA: meff > 600 GeV ";
+          legacyCutNames[47] = "b1L-SRA: meff > 750 GeV ";
+          legacyCutNames[48] = "b1L-SRA300-2j: met/sqrt(HT) ";
+          legacyCutNames[49] = "b1L-SRA300-2j: mT  > 140 GeV ";
+          legacyCutNames[50] = "b1L-SRA300-2j: mblmin < 170 GeV ";
+          legacyCutNames[51] = "b1L-SRA300-2j: amt2 > 250 GeV ";
+          legacyCutNames[52] = "b1L-SRA300-2j: mbb > 200 GeV ";
+          legacyCutNames[53] = "b1L-SRA300-2j: meff > 300 GeV ";
+          legacyCutNames[54] = "b1L-SRA300-2j: < 3 jets (pT > 35 GeV) ";
+          legacyCutNames[55] = "b1L-SRB: mT > 120 GeV ";
+          legacyCutNames[56] = "b1L-SRB: mblmin < 170 GeV ";
+          legacyCutNames[57] = "b1L-SRB: amt2 > 200 GeV ";
+          legacyCutNames[58] = "b1L-SRB: mbb < 200 GeV ";
+          legacyCutNames[59] = "b1L-SRB: dphi(b1,met) > 2.0 ";
+          legacyCutNames[60] = "b1L-SRB: mTmin(b1-2,met) > 200 GeV ";
 
           // Apply cuts to each signal region
 
-          for(int j=0;j<NCUTS;j++)
+          #ifdef CHECK_CUTFLOW
+        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+        _cutflows[analysis_name()].fillinit(event->weight());
+#endif
+
+for(int j=0;j<NCUTS;j++)
           {
             if(
                (j==0) ||
@@ -907,7 +910,10 @@ namespace Gambit
 
                (j==60 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120. && mblmin < 170. && amt2 > 200. && mbb_35 < 200. && fabs(signalBJets35[0]->mom().deltaPhi(metVec)) > 2.0 && mtminb > 200.)
 
-               )cutFlowVector[j]++;
+               )
+#ifdef CHECK_CUTFLOW
+            _cutflows[analysis_name()].fill(j+1, true, event->weight());
+#endif
           }
 
 
@@ -941,6 +947,8 @@ namespace Gambit
         void collect_results()
         {
 
+COMMIT_CUTFLOWS;
+
           // double scale_by=1.;
 
           // cout << "-------------------------------------------------------------------------------------------------------------------------------------------------"<<endl;
@@ -949,7 +957,7 @@ namespace Gambit
 
           // cout << left << setw(45) << "CUT" << right << setw(20) << "RAW" << setw(20) << "SCALED" << setw(20) << "%" << setw(20) << "clean adj RAW"<< setw(20) << "clean adj %" << std::endl;
           // for (int j=0; j<NCUTS; j++) {
-          //   cout << left << setw(45) << right << cutFlowVector_str[j].c_str() << setw(20) << cutFlowVector[j] << setw(20) << cutFlowVector[j]*scale_by << setw(20) << 100.*cutFlowVector[j]/cutFlowVector[0] << "%" << setw(20) << cutFlowVector[j]*scale_by << setw(20) << 100.*cutFlowVector[j]/cutFlowVector[0]<< "%" << std::endl;
+          //   cout << left << setw(45) << right << legacyCutNames[j].c_str() << setw(20) << legacyCutCounts[j] << setw(20) << legacyCutCounts[j]*scale_by << setw(20) << 100.*legacyCutCounts[j]/legacyCutCounts[0] << "%" << setw(20) << legacyCutCounts[j]*scale_by << setw(20) << 100.*legacyCutCounts[j]/legacyCutCounts[0]<< "%" << std::endl;
           // }
           // cout << "-------------------------------------------------------------------------------------------------------------------------------------------------"<<endl;
 
@@ -975,7 +983,6 @@ namespace Gambit
         void analysis_specific_reset()
         {
           for (auto& pair : _counters) { pair.second.reset(); }
-          std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
         }
 
 

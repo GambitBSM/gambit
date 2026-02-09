@@ -47,9 +47,6 @@ namespace Gambit
       double mZ = 91.1876; // [GeV]
 
     public:
-#ifdef CHECK_CUTFLOW
-      Cutflows _cutflows;
-#endif
 
       // Required detector sim
       static constexpr const char *detector = "ATLAS";
@@ -849,82 +846,7 @@ namespace Gambit
       //        add_result(SignalRegionData(_counters.at("SR-Wh-DFOS-2"),  10., {  7.0,  2.3}));
       // WZ off-shell
 
-#ifdef CHECK_CUTFLOW
-      COMMIT_CUTFLOWS(_cutflows);
-
-      const std::vector<double> ATLAS_WZ_300_200 = {53784, 1760, 1322, 227,  226,  222,  209,  209, 203,  196,  186,  76.4, 26.7, 20.9, 4.86, 0.78, 0.14, 5.8,  4.64, 0.16, 0,
-                                                    0,     31.4, 97.5, 29.6, 8.75, 3.46, 0.54, 0,   9.50, 7.19, 1.53, 0.09, 0,    22.2, 20.9, 10.8, 2.53, 3.12, 1.09, 1.13, 29.4};
-      const std::vector<double> ATLAS_WZ_600_100 = {2799, 92,   69,   23.9, 23.7, 23.3, 21.9, 21.9, 21.7, 20.1, 19.2, 7.72, 0.90, 0.09, 0.11, 0.16, 0.54, 5.11, 0.37, 0.49, 2.21,
-                                                    2.14, 6.11, 9.90, 1.19, 0.17, 0.32, 0.15, 0.38, 6.80, 0.49, 1.37, 2.77, 1.69, 2.40, 0.65, 0.47, 0.02, 0.11, 0.12, 0.13, 7.8};
-      const std::vector<double> ATLAS_Wh_190_60 = {303527, 10927, 1174, 192,  186,  171,  137,  133,  110,  104,  56.2, 22.3, 8.26, 1.57, 0.50, 5.97,
-                                                   1.64,   2.67,  2.75, 26.5, 2.95, 5.28, 1.59, 0.63, 5.55, 2.91, 0.68, 5.48, 1.39, 1.73, 1.37, 0.08};
-      const double XSect_WZ_300_200 = 386.9;
-      const double XSect_WZ_600_100 = 20.1372;
-      const double XSect_WH_190_60 = 2183.65;
-
-      cout << "\nCUTFLOWS:\n" << endl;
-
-      // Helper lambdas (local, no new function)
-      auto safe_ratio = [](double num, double den)
-      {
-        if (den == 0.0) return std::numeric_limits<double>::infinity();
-        return num / den;
-      };
-
-      auto print_bm = [&](const std::string &name, const std::vector<double> &atlas, double xsec_pb, double br_leptonic)
-      {
-        const auto &cf = _cutflows[name];
-        const auto &cuts = cf.cuts;     // size = NCUTS
-        const auto &counts = cf.counts; // size = NCUTS+1, counts[0]=Preselection
-
-        const double Nmc = counts.size() ? counts[0] : 0.0;
-        cout << "------------------------------------------------------------\n";
-        cout << "Cut flow for " << name.substr(4) << "\n"; // strip "BM::"
-
-        if (Nmc <= 0.0)
-        {
-          cout << "WARNING: Nmc (Preselection count) <= 0, cannot scale.\n\n";
-          return;
-        }
-
-        const double scale = xsec_pb * luminosity() / Nmc;
-        const double scale_BR = scale * br_leptonic;
-
-        cout << "Event scaling factor (no BR): " << scale << "   |  (with BR): " << scale_BR << "\n";
-
-        cout << fixed << setprecision(2);
-        cout << "    GAMBIT\t\tMC error\tATLAS\t\tRatio\t\tCut\n";
-
-        // atlas[i] corresponds to cuts[i] and counts[i+1] (because counts[0] is Preselection)
-        const size_t n = std::min(cuts.size(), atlas.size());
-
-        for (size_t i = 0; i < n; ++i)
-        {
-          const double N = counts.at(i + 1); // +1 offset vs cuts/atlas
-          const bool useBR = (i >= 1);       // legacy convention: cut0 no BR, cut1+ with BR
-          const double sc = useBR ? scale_BR : scale;
-
-          const double g = N * sc;
-          const double err = (i >= 2) ? std::sqrt(std::max(0.0, N)) * sc : 0.0; // legacy: i<2 -> 0
-          const double a = atlas.at(i);
-          const double r = safe_ratio(g, a);
-
-          cout << i << ":  " << g << "\t\t" << err << "\t\t" << a << "\t\t" << r << "\t\t" << cuts.at(i) << "\n";
-        }
-
-        cout << "\n";
-      };
-
-      // WZ leptonic BR (incl tau->l) as you used in legacy outputs
-      constexpr double BR_WZ = 0.0327;
-      // Wh leptonic BR (as you used): 0.0278
-      constexpr double BR_Wh = 0.0278;
-
-      print_bm("BM::WZ_300_200", ATLAS_WZ_300_200, XSect_WZ_300_200, BR_WZ);
-      print_bm("BM::WZ_600_100", ATLAS_WZ_600_100, XSect_WZ_600_100, BR_WZ);
-      print_bm("BM::Wh_190_60", ATLAS_Wh_190_60, XSect_WH_190_60, BR_Wh);
-
-#endif
+      COMMIT_CUTFLOWS;
     }
 
     void analysis_specific_reset()

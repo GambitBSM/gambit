@@ -2,6 +2,7 @@
 #include "gambit/ColliderBit/topness.h"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 
 using namespace std;
 
@@ -471,10 +472,7 @@ namespace Gambit {
             // add_result(SignalRegionData(_counters.at("SR29"), 2., {3.7, 1.4}));
             // add_result(SignalRegionData(_counters.at("SR30"), 2., {4.8, 2.0}));
 
-            #ifdef CHECK_CUTFLOW
-            add_cutflows(_cutflows);
-            #endif
-
+COMMIT_CUTFLOWS;
             return;
         }
 

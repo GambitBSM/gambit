@@ -1,5 +1,6 @@
 // -*- C++ -*-
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 
 // #define CHECK_CUTFLOW
@@ -252,10 +253,8 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("SR12"), 0., {0.1, add_quad(1.2, 0.1)} ));
 
 
-          #ifdef CHECK_CUTFLOW
-            add_cutflows(_cutflows);
-          #endif
-        }
+COMMIT_CUTFLOWS;
+         }
 
 
       protected:

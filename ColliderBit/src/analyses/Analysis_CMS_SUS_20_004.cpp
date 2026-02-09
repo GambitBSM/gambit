@@ -385,10 +385,7 @@ namespace Gambit {
 
             // set_covariance(BKGCOV);
 
-            #ifdef CHECK_CUTFLOW
-            add_cutflows(_cutflows);
-            #endif
-
+COMMIT_CUTFLOWS;
             return;
         }
 

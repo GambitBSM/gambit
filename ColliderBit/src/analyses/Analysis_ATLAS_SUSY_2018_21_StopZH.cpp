@@ -50,8 +50,6 @@ namespace Gambit
 
     public:
 
-      bool doCutflow = false;
-
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
@@ -66,61 +64,60 @@ namespace Gambit
 //      1l preselection = Trigger, 1 signal lepton, Veto events with >=2 baseline leptons. njets(pt>30GeV)>=4, nbjets(pt>30GeV)>=3
 
 
-        if (doCutflow)
-        {
-            DEFINE_SIGNAL_REGION_NOCUTS("Total");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AZ_3L_presel");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AZ_3L_presel_pTl3");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AZ_3L_presel_pTl3_mZ");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AZ_3L_presel_pTl3_mZ_nbjets");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AZ_3L_presel_pTl3_mZ_nbjets_njets");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AZ_3L_presel_pTl3_mZ_nbjets_njets_MET");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BZ_3L_presel");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BZ_3L_presel_pTl3");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BZ_3L_presel_pTl3_mZ");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BZ_3L_presel_pTl3_mZ_nbjets");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets_MET");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets_MET_pTll");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2AZ_3L_presel");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2AZ_3L_presel_pTl3");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2AZ_3L_presel_pTl3_mZ");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2AZ_3L_presel_pTl3_mZ_pTj1");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2AZ_3L_presel_pTl3_mZ_pTj1_MET");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2BZ_3L_presel");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2BZ_3L_presel_pTl3");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2BZ_3L_presel_pTl3_mZ");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2BZ_3L_presel_pTl3_mZ_nbjets");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2BZ_3L_presel_pTl3_mZ_nbjets_MET");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AH_1L_presel");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AH_1L_presel_nbjets");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AH_1L_presel_nbjets_nh");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AH_1L_presel_nbjets_nh_mT");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AH_1L_presel_nbjets_nh_mT_njets");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BH_1L_presel");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BH_1L_presel_nbjets");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BH_1L_presel_nbjets_nh");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BH_1L_presel_nbjets_nh_mT");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BH_1L_presel_nbjets_nh_mT_njets");
-        }
+        #ifdef CHECK_CUTFLOW
+            _cutflows.addCutflow("Total", {"Final"});
+            _cutflows.addCutflow("SR1AZ_3L_presel", {"Final"});
+            _cutflows.addCutflow("SR1AZ_3L_presel_pTl3", {"Final"});
+            _cutflows.addCutflow("SR1AZ_3L_presel_pTl3_mZ", {"Final"});
+            _cutflows.addCutflow("SR1AZ_3L_presel_pTl3_mZ_nbjets", {"Final"});
+            _cutflows.addCutflow("SR1AZ_3L_presel_pTl3_mZ_nbjets_njets", {"Final"});
+            _cutflows.addCutflow("SR1AZ_3L_presel_pTl3_mZ_nbjets_njets_MET", {"Final"});
+            _cutflows.addCutflow("SR1BZ_3L_presel", {"Final"});
+            _cutflows.addCutflow("SR1BZ_3L_presel_pTl3", {"Final"});
+            _cutflows.addCutflow("SR1BZ_3L_presel_pTl3_mZ", {"Final"});
+            _cutflows.addCutflow("SR1BZ_3L_presel_pTl3_mZ_nbjets", {"Final"});
+            _cutflows.addCutflow("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets", {"Final"});
+            _cutflows.addCutflow("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets_MET", {"Final"});
+            _cutflows.addCutflow("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets_MET_pTll", {"Final"});
+            _cutflows.addCutflow("SR2AZ_3L_presel", {"Final"});
+            _cutflows.addCutflow("SR2AZ_3L_presel_pTl3", {"Final"});
+            _cutflows.addCutflow("SR2AZ_3L_presel_pTl3_mZ", {"Final"});
+            _cutflows.addCutflow("SR2AZ_3L_presel_pTl3_mZ_pTj1", {"Final"});
+            _cutflows.addCutflow("SR2AZ_3L_presel_pTl3_mZ_pTj1_MET", {"Final"});
+            _cutflows.addCutflow("SR2BZ_3L_presel", {"Final"});
+            _cutflows.addCutflow("SR2BZ_3L_presel_pTl3", {"Final"});
+            _cutflows.addCutflow("SR2BZ_3L_presel_pTl3_mZ", {"Final"});
+            _cutflows.addCutflow("SR2BZ_3L_presel_pTl3_mZ_nbjets", {"Final"});
+            _cutflows.addCutflow("SR2BZ_3L_presel_pTl3_mZ_nbjets_MET", {"Final"});
+            _cutflows.addCutflow("SR1AH_1L_presel", {"Final"});
+            _cutflows.addCutflow("SR1AH_1L_presel_nbjets", {"Final"});
+            _cutflows.addCutflow("SR1AH_1L_presel_nbjets_nh", {"Final"});
+            _cutflows.addCutflow("SR1AH_1L_presel_nbjets_nh_mT", {"Final"});
+            _cutflows.addCutflow("SR1AH_1L_presel_nbjets_nh_mT_njets", {"Final"});
+            _cutflows.addCutflow("SR1BH_1L_presel", {"Final"});
+            _cutflows.addCutflow("SR1BH_1L_presel_nbjets", {"Final"});
+            _cutflows.addCutflow("SR1BH_1L_presel_nbjets_nh", {"Final"});
+            _cutflows.addCutflow("SR1BH_1L_presel_nbjets_nh_mT", {"Final"});
+            _cutflows.addCutflow("SR1BH_1L_presel_nbjets_nh_mT_njets", {"Final"});
+        #endif
 
 //      SR1AZ_3L =  "3l preselection", "pTl3 > 20 GeV", "|mSFOS-mZ| < 15 GeV", "nbjets >= 1", "njets >= 4", "MET > 250 GeV", "mT2(3l) > 100 GeV"
-        DEFINE_SIGNAL_REGION_NOCUTS("SR1AZ_3L"); // MT2(3L)
+        DEFINE_SIGNAL_REGION("SR1AZ_3L"); // MT2(3L)
 
 //      SR1BZ_3L = "3l preselection", "pTl3 > 20 GeV", "|mSFOS-mZ| < 15 GeV", "nbjets >= 1", "njets >= 5", "MET > 150 GeV", "pTll > 150 GeV", "pTb1 > 100 GeV"
-        DEFINE_SIGNAL_REGION_NOCUTS("SR1BZ_3L"); //, "pTb1 > 100 GeV");
+        DEFINE_SIGNAL_REGION("SR1BZ_3L"); //, "pTb1 > 100 GeV");
 
 //      SR2AZ_3L = "3l preselection", "pTl3 < 20 GeV", "|mSFOS-mZ| < 15 GeV", "pTj1 > 150 GeV", "MET > 200 GeV", "pTll < 50 GeV"
-        DEFINE_SIGNAL_REGION_NOCUTS("SR2AZ_3L"); //, "pTll < 50 GeV");
+        DEFINE_SIGNAL_REGION("SR2AZ_3L"); //, "pTll < 50 GeV");
 
 //      SR2BZ_3L = "3l preselection", "pTl3 < 60 GeV", "|mSFOS-mZ| < 15 GeV", "nbjets >= 1", "MET > 350 GeV", "pTll > 150 GeV"
-        DEFINE_SIGNAL_REGION_NOCUTS("SR2BZ_3L"); //, "pTll > 150 GeV");
+        DEFINE_SIGNAL_REGION("SR2BZ_3L"); //, "pTll > 150 GeV");
 
 //      SR1AH_1L = "1l Preselection", "nbjets >= 3", "nh >= 1", "mT > 150 GeV", "njets >= 4", "METSig > 12"
-        DEFINE_SIGNAL_REGION_NOCUTS("SR1AH_1L"); //, "METSig > 12");
+        DEFINE_SIGNAL_REGION("SR1AH_1L"); //, "METSig > 12");
 
 //      SR1BH_1L", "1l Preselection", "nbjets >= 4", "nh >= 1", "mT > 150 GeV", "njets >= 6", "METSig > 7"
-        DEFINE_SIGNAL_REGION_NOCUTS("SR1BH_1L"); //, "METSig > 7");
+        DEFINE_SIGNAL_REGION("SR1BH_1L"); //, "METSig > 7");
 //
       }
 
@@ -248,7 +245,9 @@ namespace Gambit
         bool oneLep_presel = false; // 1 Lepton Pre-selection cut
         bool threeLep_presel = false; // 3 Lepton Pre-selection cut
 
-        if (doCutflow){ FILL_SIGNAL_REGION("Total");}
+#ifdef CHECK_CUTFLOW
+        _cutflows["Total"].fillnext(event->weight());
+#endif
 
         // Perform all pre-selection cuts
         BEGIN_PRESELECTION
@@ -373,22 +372,34 @@ namespace Gambit
         {
           if (threeLep_presel)
           {
-            if (doCutflow){ FILL_SIGNAL_REGION("SR1AZ_3L_presel")};
+            #ifdef CHECK_CUTFLOW
+            _cutflows["SR1AZ_3L_presel"].fillnext(event->weight());
+#endif
             if (pTl3 > 20.)
             {
-              if (doCutflow){ FILL_SIGNAL_REGION("SR1AZ_3L_presel_pTl3")};
+              #ifdef CHECK_CUTFLOW
+            _cutflows["SR1AZ_3L_presel_pTl3"].fillnext(event->weight());
+#endif
               if (abs(mSFOS_Z - 91.2) < 15.)
               {
-                if (doCutflow){ FILL_SIGNAL_REGION("SR1AZ_3L_presel_pTl3_mZ")};
+                #ifdef CHECK_CUTFLOW
+            _cutflows["SR1AZ_3L_presel_pTl3_mZ"].fillnext(event->weight());
+#endif
                 if (n_bjets >= 1)
                 {
-                  if (doCutflow){ FILL_SIGNAL_REGION("SR1AZ_3L_presel_pTl3_mZ_nbjets")};
+                  #ifdef CHECK_CUTFLOW
+            _cutflows["SR1AZ_3L_presel_pTl3_mZ_nbjets"].fillnext(event->weight());
+#endif
                   if (n_jets >= 4)
                   {
-                    if (doCutflow){ FILL_SIGNAL_REGION("SR1AZ_3L_presel_pTl3_mZ_nbjets_njets")};
+                    #ifdef CHECK_CUTFLOW
+            _cutflows["SR1AZ_3L_presel_pTl3_mZ_nbjets_njets"].fillnext(event->weight());
+#endif
                     if (met > 250.)
                     {
-                      if (doCutflow){ FILL_SIGNAL_REGION("SR1AZ_3L_presel_pTl3_mZ_nbjets_njets_MET")};
+                      #ifdef CHECK_CUTFLOW
+            _cutflows["SR1AZ_3L_presel_pTl3_mZ_nbjets_njets_MET"].fillnext(event->weight());
+#endif
                       if (mT2_3l > 100.)
                       {
                         FILL_SIGNAL_REGION("SR1AZ_3L");
@@ -415,25 +426,39 @@ namespace Gambit
 
           if (threeLep_presel)
           {
-            if (doCutflow){ FILL_SIGNAL_REGION("SR1BZ_3L_presel")};
+            #ifdef CHECK_CUTFLOW
+            _cutflows["SR1BZ_3L_presel"].fillnext(event->weight());
+#endif
             if (pTl3 > 20.)
             {
-              if (doCutflow){ FILL_SIGNAL_REGION("SR1BZ_3L_presel_pTl3")};
+              #ifdef CHECK_CUTFLOW
+            _cutflows["SR1BZ_3L_presel_pTl3"].fillnext(event->weight());
+#endif
               if (abs(mSFOS_Z - 91.2) < 15.)
               {
-                if (doCutflow){ FILL_SIGNAL_REGION("SR1BZ_3L_presel_pTl3_mZ")};
+                #ifdef CHECK_CUTFLOW
+            _cutflows["SR1BZ_3L_presel_pTl3_mZ"].fillnext(event->weight());
+#endif
                 if (n_bjets >= 1)
                 {
-                  if (doCutflow){ FILL_SIGNAL_REGION("SR1BZ_3L_presel_pTl3_mZ_nbjets")};
+                  #ifdef CHECK_CUTFLOW
+            _cutflows["SR1BZ_3L_presel_pTl3_mZ_nbjets"].fillnext(event->weight());
+#endif
                   if (n_jets >= 5)
                   {
-                    if (doCutflow){ FILL_SIGNAL_REGION("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets")};
+                    #ifdef CHECK_CUTFLOW
+            _cutflows["SR1BZ_3L_presel_pTl3_mZ_nbjets_njets"].fillnext(event->weight());
+#endif
                     if (met > 150.)
                     {
-                      if (doCutflow){ FILL_SIGNAL_REGION("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets_MET")};
+                      #ifdef CHECK_CUTFLOW
+            _cutflows["SR1BZ_3L_presel_pTl3_mZ_nbjets_njets_MET"].fillnext(event->weight());
+#endif
                       if (pTSFOS_Z > 150.)
                       {
-                        if (doCutflow){ FILL_SIGNAL_REGION("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets_MET_pTll")};
+                        #ifdef CHECK_CUTFLOW
+            _cutflows["SR1BZ_3L_presel_pTl3_mZ_nbjets_njets_MET_pTll"].fillnext(event->weight());
+#endif
                         if (signalBJets.at(0)->pT() > 100.)
                         {
                           FILL_SIGNAL_REGION("SR1BZ_3L");
@@ -461,19 +486,29 @@ namespace Gambit
           // SR2AZ 3lepton
           if (threeLep_presel)
           {
-            if (doCutflow){ FILL_SIGNAL_REGION("SR2AZ_3L_presel")};
+            #ifdef CHECK_CUTFLOW
+            _cutflows["SR2AZ_3L_presel"].fillnext(event->weight());
+#endif
             if (pTl3 < 20.)
             {
-              if (doCutflow){ FILL_SIGNAL_REGION("SR2AZ_3L_presel_pTl3")};
+              #ifdef CHECK_CUTFLOW
+            _cutflows["SR2AZ_3L_presel_pTl3"].fillnext(event->weight());
+#endif
               if (abs(mSFOS_Z - 91.2) < 15.)
               {
-                if (doCutflow){ FILL_SIGNAL_REGION("SR2AZ_3L_presel_pTl3_mZ")};
+                #ifdef CHECK_CUTFLOW
+            _cutflows["SR2AZ_3L_presel_pTl3_mZ"].fillnext(event->weight());
+#endif
                 if (signalJets.at(0)->pT() > 150.)
                 {
-                  if (doCutflow){ FILL_SIGNAL_REGION("SR2AZ_3L_presel_pTl3_mZ_pTj1")};
+                  #ifdef CHECK_CUTFLOW
+            _cutflows["SR2AZ_3L_presel_pTl3_mZ_pTj1"].fillnext(event->weight());
+#endif
                   if (met > 200.)
                   {
-                    if (doCutflow){ FILL_SIGNAL_REGION("SR2AZ_3L_presel_pTl3_mZ_pTj1_MET")};
+                    #ifdef CHECK_CUTFLOW
+            _cutflows["SR2AZ_3L_presel_pTl3_mZ_pTj1_MET"].fillnext(event->weight());
+#endif
                     if (pTSFOS_Z < 50.)
                     {
                       FILL_SIGNAL_REGION("SR2AZ_3L");
@@ -497,19 +532,29 @@ namespace Gambit
           // SR2BZ 3lepton
           if (threeLep_presel)
           {
-            if (doCutflow){ FILL_SIGNAL_REGION("SR2BZ_3L_presel")};
+            #ifdef CHECK_CUTFLOW
+            _cutflows["SR2BZ_3L_presel"].fillnext(event->weight());
+#endif
             if (pTl3 < 60.)
             {
-              if (doCutflow){ FILL_SIGNAL_REGION("SR2BZ_3L_presel_pTl3")};
+              #ifdef CHECK_CUTFLOW
+            _cutflows["SR2BZ_3L_presel_pTl3"].fillnext(event->weight());
+#endif
               if (abs(mSFOS_Z - 91.2) < 15.)
               {
-                if (doCutflow){ FILL_SIGNAL_REGION("SR2BZ_3L_presel_pTl3_mZ")};
+                #ifdef CHECK_CUTFLOW
+            _cutflows["SR2BZ_3L_presel_pTl3_mZ"].fillnext(event->weight());
+#endif
                 if (n_bjets >= 1)
                 {
-                  if (doCutflow){ FILL_SIGNAL_REGION("SR2BZ_3L_presel_pTl3_mZ_nbjets")};
+                  #ifdef CHECK_CUTFLOW
+            _cutflows["SR2BZ_3L_presel_pTl3_mZ_nbjets"].fillnext(event->weight());
+#endif
                   if (met > 350.)
                   {
-                    if (doCutflow){ FILL_SIGNAL_REGION("SR2BZ_3L_presel_pTl3_mZ_nbjets_MET")};
+                    #ifdef CHECK_CUTFLOW
+            _cutflows["SR2BZ_3L_presel_pTl3_mZ_nbjets_MET"].fillnext(event->weight());
+#endif
                     if (pTSFOS_Z > 150.)
                     {
                       FILL_SIGNAL_REGION("SR2BZ_3L");
@@ -533,19 +578,29 @@ namespace Gambit
           // SR1AH 1lepton
           if (oneLep_presel)
           {
-            if (doCutflow){ FILL_SIGNAL_REGION("SR1AH_1L_presel")};
+            #ifdef CHECK_CUTFLOW
+            _cutflows["SR1AH_1L_presel"].fillnext(event->weight());
+#endif
             if (n_bjets >= 4)
             {
-              if (doCutflow){ FILL_SIGNAL_REGION("SR1AH_1L_presel_nbjets")};
+              #ifdef CHECK_CUTFLOW
+            _cutflows["SR1AH_1L_presel_nbjets"].fillnext(event->weight());
+#endif
               if (n_higgs >= 1)
               {
-                if (doCutflow){ FILL_SIGNAL_REGION("SR1AH_1L_presel_nbjets_nh")};
+                #ifdef CHECK_CUTFLOW
+            _cutflows["SR1AH_1L_presel_nbjets_nh"].fillnext(event->weight());
+#endif
                 if (mT > 150.)
                 {
-                  if (doCutflow){ FILL_SIGNAL_REGION("SR1AH_1L_presel_nbjets_nh_mT")};
+                  #ifdef CHECK_CUTFLOW
+            _cutflows["SR1AH_1L_presel_nbjets_nh_mT"].fillnext(event->weight());
+#endif
                   if (n_jets_sixty >= 4)
                   {
-                    if (doCutflow){ FILL_SIGNAL_REGION("SR1AH_1L_presel_nbjets_nh_mT_njets")};
+                    #ifdef CHECK_CUTFLOW
+            _cutflows["SR1AH_1L_presel_nbjets_nh_mT_njets"].fillnext(event->weight());
+#endif
                     if (metsig > 12.)
                     {
                       FILL_SIGNAL_REGION("SR1AH_1L");
@@ -569,19 +624,29 @@ namespace Gambit
           // SR1BH 1lepton
           if (oneLep_presel)
           {
-            if (doCutflow){ FILL_SIGNAL_REGION("SR1BH_1L_presel")};
+            #ifdef CHECK_CUTFLOW
+            _cutflows["SR1BH_1L_presel"].fillnext(event->weight());
+#endif
             if (n_bjets >= 4)
             {
-              if (doCutflow){ FILL_SIGNAL_REGION("SR1BH_1L_presel_nbjets")};
+              #ifdef CHECK_CUTFLOW
+            _cutflows["SR1BH_1L_presel_nbjets"].fillnext(event->weight());
+#endif
               if (n_higgs >= 1)
               {
-                if (doCutflow){ FILL_SIGNAL_REGION("SR1BH_1L_presel_nbjets_nh")};
+                #ifdef CHECK_CUTFLOW
+            _cutflows["SR1BH_1L_presel_nbjets_nh"].fillnext(event->weight());
+#endif
                 if (mT > 150.)
                 {
-                  if (doCutflow){ FILL_SIGNAL_REGION("SR1BH_1L_presel_nbjets_nh_mT")};
+                  #ifdef CHECK_CUTFLOW
+            _cutflows["SR1BH_1L_presel_nbjets_nh_mT"].fillnext(event->weight());
+#endif
                   if (n_jets_sixty >= 6)
                   {
-                    if (doCutflow){ FILL_SIGNAL_REGION("SR1BH_1L_presel_nbjets_nh_mT_njets")};
+                    #ifdef CHECK_CUTFLOW
+            _cutflows["SR1BH_1L_presel_nbjets_nh_mT_njets"].fillnext(event->weight());
+#endif
                     if (metsig > 7.)
                     {
                       FILL_SIGNAL_REGION("SR1BH_1L");
@@ -606,44 +671,6 @@ namespace Gambit
       virtual void collect_results()
       {
         // Obs. Exp. Err.
-
-        if (doCutflow)
-        {
-            COMMIT_SIGNAL_REGION("Total", 3.,  5.7,  1.0);
-            COMMIT_SIGNAL_REGION("SR1AZ_3L_presel_pTl3_mZ_nbjets_njets_MET", 3.,  5.7,  1.0);
-            COMMIT_SIGNAL_REGION("SR1AZ_3L_presel_pTl3_mZ_nbjets_njets", 3.,  5.7,  1.0);
-            COMMIT_SIGNAL_REGION("SR1AZ_3L_presel_pTl3_mZ_nbjets", 3.,  5.7,  1.0);
-            COMMIT_SIGNAL_REGION("SR1AZ_3L_presel_pTl3_mZ", 3.,  5.7,  1.0);
-            COMMIT_SIGNAL_REGION("SR1AZ_3L_presel_pTl3", 3.,  5.7,  1.0);
-            COMMIT_SIGNAL_REGION("SR1AZ_3L_presel", 3.,  5.7,  1.0);
-            COMMIT_SIGNAL_REGION("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets_MET_pTll", 14., 12.1, 2.0);
-            COMMIT_SIGNAL_REGION("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets_MET", 14., 12.1, 2.0);
-            COMMIT_SIGNAL_REGION("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets", 14., 12.1, 2.0);
-            COMMIT_SIGNAL_REGION("SR1BZ_3L_presel_pTl3_mZ_nbjets", 14., 12.1, 2.0);
-            COMMIT_SIGNAL_REGION("SR1BZ_3L_presel_pTl3_mZ", 14., 12.1, 2.0);
-            COMMIT_SIGNAL_REGION("SR1BZ_3L_presel_pTl3", 14., 12.1, 2.0);
-            COMMIT_SIGNAL_REGION("SR1BZ_3L_presel", 14., 12.1, 2.0);
-            COMMIT_SIGNAL_REGION("SR2AZ_3L_presel_pTl3_mZ_pTj1_MET", 3.,  5.6,  1.6);
-            COMMIT_SIGNAL_REGION("SR2AZ_3L_presel_pTl3_mZ_pTj1", 3.,  5.6,  1.6);
-            COMMIT_SIGNAL_REGION("SR2AZ_3L_presel_pTl3_mZ", 3.,  5.6,  1.6);
-            COMMIT_SIGNAL_REGION("SR2AZ_3L_presel_pTl3", 3.,  5.6,  1.6);
-            COMMIT_SIGNAL_REGION("SR2AZ_3L_presel", 3.,  5.6,  1.6);
-            COMMIT_SIGNAL_REGION("SR2BZ_3L_presel_pTl3_mZ_nbjets_MET", 6.,  5.5,  0.9);
-            COMMIT_SIGNAL_REGION("SR2BZ_3L_presel_pTl3_mZ_nbjets", 6.,  5.5,  0.9);
-            COMMIT_SIGNAL_REGION("SR2BZ_3L_presel_pTl3_mZ", 6.,  5.5,  0.9);
-            COMMIT_SIGNAL_REGION("SR2BZ_3L_presel_pTl3", 6.,  5.5,  0.9);
-            COMMIT_SIGNAL_REGION("SR2BZ_3L_presel", 6.,  5.5,  0.9);
-            COMMIT_SIGNAL_REGION("SR1AH_1L_presel_nbjets_nh_mT_njets", 11., 17.0, 3.0);
-            COMMIT_SIGNAL_REGION("SR1AH_1L_presel_nbjets_nh_mT", 11., 17.0, 3.0);
-            COMMIT_SIGNAL_REGION("SR1AH_1L_presel_nbjets_nh", 11., 17.0, 3.0);
-            COMMIT_SIGNAL_REGION("SR1AH_1L_presel_nbjets", 11., 17.0, 3.0);
-            COMMIT_SIGNAL_REGION("SR1AH_1L_presel", 11., 17.0, 3.0);
-            COMMIT_SIGNAL_REGION("SR1BH_1L_presel_nbjets_nh_mT_njets", 24., 3.0,  5.0);
-            COMMIT_SIGNAL_REGION("SR1BH_1L_presel_nbjets_nh_mT", 24., 3.0,  5.0);
-            COMMIT_SIGNAL_REGION("SR1BH_1L_presel_nbjets_nh", 24., 3.0,  5.0);
-            COMMIT_SIGNAL_REGION("SR1BH_1L_presel_nbjets", 24., 3.0,  5.0);
-            COMMIT_SIGNAL_REGION("SR1BH_1L_presel", 24., 3.0,  5.0);
-        }
 
         COMMIT_SIGNAL_REGION("SR1AZ_3L", 3.,  5.7,  1.0);
         COMMIT_SIGNAL_REGION("SR1BZ_3L", 14., 12.1, 2.0);

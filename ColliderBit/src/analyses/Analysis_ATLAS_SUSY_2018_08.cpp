@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
@@ -49,10 +50,6 @@ namespace Gambit
     class Analysis_ATLAS_SUSY_2018_08 : public Analysis
     {
     public:
-
-        #ifdef CHECK_CUTFLOW
-            Cutflows _cutflows;
-        #endif
 
         // Required detector sim
         static constexpr const char* detector = "ATLAS";
@@ -491,15 +488,7 @@ namespace Gambit
             add_result(SignalRegionData(_counters.at("SR2bDF180"),  1., { 3.25, 0.45}));
             add_result(SignalRegionData(_counters.at("SR2bDF220"),  3., { 3.11, 0.67}));
 
-            #ifdef CHECK_CUTFLOW
-                // Cutflow printout
-                _cutflows["SR2b"].normalize(37499., 0);
-                cout << "\nCUTFLOWS:\n" << _cutflows << endl;
-                cout << "\nSRCOUNTS:\n";
-                // for (double x : _srnums) cout << x << "  ";
-                for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
-                cout << "\n" << endl;
-            #endif
+            COMMIT_CUTFLOWS;
         }
 
 
@@ -539,15 +528,7 @@ namespace Gambit
             add_result(SignalRegionData(_counters.at("SR2bInc200"), 10., { 11.3, 1.7}));
             add_result(SignalRegionData(_counters.at("SR2bInc220"),  8., {  8.0, 1.4}));
 
-            #ifdef CHECK_CUTFLOW
-                // Cutflow printout
-                _cutflows["SR2b"].normalize(37499., 0);
-                cout << "\nCUTFLOWS:\n" << _cutflows << endl;
-                cout << "\nSRCOUNTS:\n";
-                // for (double x : _srnums) cout << x << "  ";
-                for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
-                cout << "\n" << endl;
-            #endif
+            COMMIT_CUTFLOWS;
 
         }
 
@@ -587,15 +568,7 @@ namespace Gambit
             add_result(SignalRegionData(_counters.at("SR2bDF180"),  1., { 3.25, 0.45}));
             add_result(SignalRegionData(_counters.at("SR2bDF220"),  3., { 3.11, 0.67}));
 
-            #ifdef CHECK_CUTFLOW
-                // Cutflow printout
-                _cutflows["SR2b"].normalize(37499., 0);
-                cout << "\nCUTFLOWS:\n" << _cutflows << endl;
-                cout << "\nSRCOUNTS:\n";
-                // for (double x : _srnums) cout << x << "  ";
-                for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
-                cout << "\n" << endl;
-            #endif
+            COMMIT_CUTFLOWS;
 
         }
 

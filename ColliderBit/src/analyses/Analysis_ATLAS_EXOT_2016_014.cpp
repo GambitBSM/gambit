@@ -94,9 +94,6 @@ namespace Gambit
             //     };
 
         public:
-            #ifdef CHECK_CUTFLOW
-                Cutflows _cutflows;
-            #endif
 
             static constexpr const char *detector = "ATLAS";
 
@@ -113,13 +110,12 @@ namespace Gambit
 
             Analysis_ATLAS_EXOT_2016_014()
             {
-                DEFINE_SIGNAL_REGION_NOCUTS("SR");
+                DEFINE_SIGNAL_REGION("SR");
 
                 set_analysis_name("ATLAS_EXOT_2016_014");
                 set_luminosity(36.1);
 
                 #ifdef CHECK_CUTFLOW
-                    cout << "Starting run Analysis \n booking Cutflows" << endl;
                     // Booking Cutflows
                     const vector<string> cutnames = {
                         "No Cut",
@@ -131,9 +127,8 @@ namespace Gambit
                         "DeltaR(lep, v) <= 0.7",
                         "DeltaM < 300 GeV"};
 
-                    _cutflows.addCutflow("ATLAS_EXOT_2016_014", cutnames);
+                    _cutflows.addCutflow("ATLAS-EXOT-2016-014", cutnames);
 
-                    cout << _cutflows << endl;
                 #endif
             }
 
@@ -143,8 +138,8 @@ namespace Gambit
                 #ifdef CHECK_CUTFLOW
                     const double w = event->weight();
                     // cout << "Event weight ->" << w << endl;
-                    _cutflows["ATLAS_EXOT_2016_014"].fillinit(w);
-                    _cutflows["ATLAS_EXOT_2016_014"].fillnext(w);
+                    _cutflows["ATLAS-EXOT-2016-014"].fillinit(w);
+                    _cutflows["ATLAS-EXOT-2016-014"].fillnext(w);
                 #endif
 
                 // cout << "0. pass cutflow init" << endl;
@@ -327,22 +322,22 @@ namespace Gambit
                 if (n_leptons == 1 && n_jets >= 3)
                 {
 #ifdef CHECK_CUTFLOW
-                    _cutflows["ATLAS_EXOT_2016_014"].fill(2, true, event->weight());
+                    _cutflows["ATLAS-EXOT-2016-014"].fill(2, true, event->weight());
 #endif
                     if (n_Whad >= 1)
                     {
 #ifdef CHECK_CUTFLOW
-                        _cutflows["ATLAS_EXOT_2016_014"].fill(3, true, event->weight());
+                        _cutflows["ATLAS-EXOT-2016-014"].fill(3, true, event->weight());
 #endif
                         if (met >= 60)
                         {
 #ifdef CHECK_CUTFLOW
-                            _cutflows["ATLAS_EXOT_2016_014"].fill(4, true, event->weight());
+                            _cutflows["ATLAS-EXOT-2016-014"].fill(4, true, event->weight());
 #endif
                             if (n_bjets >= 1)
                             {
 #ifdef CHECK_CUTFLOW
-                                _cutflows["ATLAS_EXOT_2016_014"].fill(5, true, event->weight());
+                                _cutflows["ATLAS-EXOT-2016-014"].fill(5, true, event->weight());
 #endif
                                 presel = true;
                             }
@@ -452,19 +447,19 @@ namespace Gambit
                 // Define the Signal Region
                 if (dRvlep < 0.7 && ST > 1800 && abs(mTlep - mThad) < 300)
                 {
-                    _counters.at("SR").add_event(event);
+                    FILL_SIGNAL_REGION("SR")
                 }
 
 #ifdef CHECK_CUTFLOW
                 if (ST > 1800)
                 {
-                    _cutflows["ATLAS_EXOT_2016_014"].fill(6, true, event->weight());
+                    _cutflows["ATLAS-EXOT-2016-014"].fill(6, true, event->weight());
                     if (dRvlep < 0.7)
                     {
-                        _cutflows["ATLAS_EXOT_2016_014"].fill(7, true, event->weight());
+                        _cutflows["ATLAS-EXOT-2016-014"].fill(7, true, event->weight());
                         if (abs(mTlep - mThad) < 300)
                         {
-                            _cutflows["ATLAS_EXOT_2016_014"].fill(8, true, event->weight());
+                            _cutflows["ATLAS-EXOT-2016-014"].fill(8, true, event->weight());
                         }
                     }
                 }

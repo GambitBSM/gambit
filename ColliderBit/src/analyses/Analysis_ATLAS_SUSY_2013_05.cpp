@@ -5,6 +5,7 @@
 
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 //#include "gambit/ColliderBit/analyses/Perf_Plot.hpp"
 
@@ -37,9 +38,7 @@ namespace Gambit
     class Analysis_ATLAS_SUSY_2013_05 : public Analysis
     {
       private:
-
-        vector<int> cutFlowVector;
-        vector<string> cutFlowVector_str;
+        vector<string> legacyCutNames;
         int NCUTS; //=2;
 
         // Debug histos
@@ -77,8 +76,7 @@ namespace Gambit
 
           for(int i=0;i<NCUTS;i++)
           {
-            cutFlowVector.push_back(0);
-            cutFlowVector_str.push_back("");
+            legacyCutNames.push_back("");
           }
 
   //        vector<const char*> variablesNames = {"met","mct","mbb","ht3"};
@@ -376,30 +374,35 @@ namespace Gambit
   //        if(met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.)plots_allBcuts->fill(&variables);
 
 
-          cutFlowVector_str[0] = "No cuts ";
-          cutFlowVector_str[1] = "MET > 80 ";
-          cutFlowVector_str[2] = "SRA: Lepton veto ";
-          cutFlowVector_str[3] = "SRA: MET > 150 ";
-          cutFlowVector_str[4] = "SRA: Jet selection  ";
-          cutFlowVector_str[5] = "SRA: B jet selection  ";
-          cutFlowVector_str[6] = "SRA: dPhi_min > 0.4 ";
-          cutFlowVector_str[7] = "SRA: MET/meff(2) > 0.25 ";
-          cutFlowVector_str[8] = "SRA: mbb > 200 ";
-          cutFlowVector_str[9] = "SRA: mCT > 150 ";
-          cutFlowVector_str[10] = "SRA: mCT > 200 ";
-          cutFlowVector_str[11] = "SRA: mCT > 250 ";
-          cutFlowVector_str[12] = "SRA: mCT > 300 ";
-          cutFlowVector_str[13] = "SRB: lepton veto ";
-          cutFlowVector_str[14] = "SRB: MET > 250 ";
-          cutFlowVector_str[15] = "SRB: Jet selection ";
-          cutFlowVector_str[16] = "SRB: dPhi(pTmiss,j1) > 2.5 ";
-          cutFlowVector_str[17] = "SRB: B jet selection ";
-          cutFlowVector_str[18] = "SRB: dPhi_min > 0.4 ";
-          cutFlowVector_str[19] = "SRB: MET/meff(3) > 0.25 ";
-          cutFlowVector_str[20] = "SRB: HT3 < 50  ";
+          legacyCutNames[0] = "No cuts ";
+          legacyCutNames[1] = "MET > 80 ";
+          legacyCutNames[2] = "SRA: Lepton veto ";
+          legacyCutNames[3] = "SRA: MET > 150 ";
+          legacyCutNames[4] = "SRA: Jet selection  ";
+          legacyCutNames[5] = "SRA: B jet selection  ";
+          legacyCutNames[6] = "SRA: dPhi_min > 0.4 ";
+          legacyCutNames[7] = "SRA: MET/meff(2) > 0.25 ";
+          legacyCutNames[8] = "SRA: mbb > 200 ";
+          legacyCutNames[9] = "SRA: mCT > 150 ";
+          legacyCutNames[10] = "SRA: mCT > 200 ";
+          legacyCutNames[11] = "SRA: mCT > 250 ";
+          legacyCutNames[12] = "SRA: mCT > 300 ";
+          legacyCutNames[13] = "SRB: lepton veto ";
+          legacyCutNames[14] = "SRB: MET > 250 ";
+          legacyCutNames[15] = "SRB: Jet selection ";
+          legacyCutNames[16] = "SRB: dPhi(pTmiss,j1) > 2.5 ";
+          legacyCutNames[17] = "SRB: B jet selection ";
+          legacyCutNames[18] = "SRB: dPhi_min > 0.4 ";
+          legacyCutNames[19] = "SRB: MET/meff(3) > 0.25 ";
+          legacyCutNames[20] = "SRB: HT3 < 50  ";
 
 
-          for(int j=0;j<NCUTS;j++)
+          #ifdef CHECK_CUTFLOW
+        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+        _cutflows[analysis_name()].fillinit(event->weight());
+#endif
+
+for(int j=0;j<NCUTS;j++)
           {
             if(
                (j==0) ||
@@ -444,7 +447,10 @@ namespace Gambit
 
                (j==20 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.)
 
-               )cutFlowVector[j]++;
+               )
+#ifdef CHECK_CUTFLOW
+            _cutflows[analysis_name()].fill(j+1, true, event->weight());
+#endif
           }
 
           //We're now ready to apply the cuts for each signal region
@@ -470,20 +476,7 @@ namespace Gambit
         void collect_results()
         {
 
-          #ifdef CHECK_CUTFLOW
-          double scale_by=1.;
-          cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-          cout << "CUT FLOW: ATLAS 8 TeV 2b stop paper SUSY-2013-05"<<endl;
-          cout << "------------------------------------------------------------------------------------------------------------------------------"<<endl;
-          cout<< right << setw(40) << "CUT" <<  "," << setw(20) << "RAW" <<  "," << setw(20) << "SCALED"
-          <<  "," << setw(20) << "%" <<  "," << setw(20) << endl;
-          for (int j=0; j<NCUTS; j++) {
-              cout << right <<  setw(40) << cutFlowVector_str[j].c_str() <<  "," << setw(20)
-              << cutFlowVector[j] <<  "," << setw(20) << cutFlowVector[j]*scale_by <<  "," << setw(20)
-              << 100.*cutFlowVector[j]/cutFlowVector[0] << "%" << endl;
-          }
-          cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-          #endif
+COMMIT_CUTFLOWS;
 
           add_result(SignalRegionData(_counters.at("SRA15"), 102., { 94., 13.}));
           add_result(SignalRegionData(_counters.at("SRA20"), 48., { 39., 6.}));
@@ -508,8 +501,6 @@ namespace Gambit
         {
 
           for (auto& pair : _counters) { pair.second.reset(); }
-
-          std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
         }
 
     };

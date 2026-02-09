@@ -130,10 +130,7 @@ namespace Gambit {
 
       /// Register results objects with the results for each SR; obs & bkg numbers from the CONF note
       void collect_results() {
-#ifdef CHECK_CUTFLOW
-        COMMIT_CUTFLOWS
-#endif
-
+COMMIT_CUTFLOWS
         add_result(SignalRegionData(_counters.at("SR-0"), 136865, {134500, 3700}));
         add_result(SignalRegionData(_counters.at("SR-1"), 74340, {73400, 2000}));
         add_result(SignalRegionData(_counters.at("SR-2"), 42540, {42320, 810}));

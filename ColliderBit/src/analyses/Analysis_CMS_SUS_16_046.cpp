@@ -19,6 +19,7 @@
 #include <fstream>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -160,10 +161,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SR-1000-1300"),  65., {52.8, 6.16}));
         add_result(SignalRegionData(_counters.at("SR-1300")     ,  24., {17.6, 2.76}));
 
-        #ifdef CHECK_CUTFLOW
-          add_cutflows(_cutflows);
-        #endif
-
+COMMIT_CUTFLOWS;
       }
 
 

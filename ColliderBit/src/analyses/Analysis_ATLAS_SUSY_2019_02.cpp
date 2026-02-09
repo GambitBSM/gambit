@@ -583,13 +583,6 @@ namespace Gambit
     {
       private:
 
-      #ifdef CHECK_CUTFLOW
-        // Cut Flow
-        vector<int> cutFlowVector;
-        vector<string> cutFlowVector_str;
-        int NCUTS;
-      #endif
-      
         std::map<std::string, MVA *> m_MVAs;
       
       public:
@@ -664,17 +657,6 @@ namespace Gambit
           _counters["SR_SF_78_inc"] = EventCounter("SR_SF_78_inc");
           _counters["SR_SF_79_inc"] = EventCounter("SR_SF_79_inc");
           _counters["SR_SF_80_inc"] = EventCounter("SR_SF_80_inc");
-
-          #ifdef CHECK_CUTFLOW
-          // Cut flows
-          NCUTS = 54;
-
-          for(int i = 0; i < NCUTS; i++)
-          {
-            cutFlowVector.push_back(0);
-            cutFlowVector_str.push_back("");
-          }
-          #endif
 
           // Instances for BDT
           #pragma omp critical (init_ATLAS_SUSY_2019_02)
@@ -1181,7 +1163,7 @@ namespace Gambit
           //int njet50  = countObjects(candJets, 50, 2.4);
           //int njet60  = countObjects(candJets, 60, 2.4);
 
-          //cutFlowVector[0]++;
+          //legacyCutCounts[0]++;
 
           // Preselection
           if(nlep != 2) return;

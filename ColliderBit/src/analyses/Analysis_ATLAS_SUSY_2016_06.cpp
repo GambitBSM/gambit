@@ -8,6 +8,7 @@
 
 #include "gambit/Utils/threadsafe_rng.hpp"
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "TLorentzVector.h"
@@ -59,10 +60,6 @@ namespace Gambit {
     class Analysis_ATLAS_SUSY_2016_06 : public Analysis
     {
     private:
-
-      vector<int> cutFlowVector;
-      vector<string> cutFlowVector_str;
-      int NCUTS; //=16;
 
 
       void LeptonLeptonOverlapRemoval(vector<const HEPUtils::Particle*> &lep1vec, vector<const HEPUtils::Particle*> &lep2vec, double DeltaRMax)
@@ -179,14 +176,6 @@ namespace Gambit {
 
         set_analysis_name("ATLAS_SUSY_2016_06");
         set_luminosity(36.);
-
-        NCUTS=150;
-
-        for(int i=0;i<NCUTS;i++)
-        {
-          cutFlowVector.push_back(0);
-          cutFlowVector_str.push_back("");
-        }
 
       }
 
@@ -949,127 +938,135 @@ namespace Gambit {
 
         //bool isSRD_high=false;
 
-        cutFlowVector_str[0] = "No cuts ";
-        cutFlowVector_str[1] = "Derivation skim";
-        cutFlowVector_str[2] = ">=1 baseline lepton ";
-        cutFlowVector_str[3] = ">=1 signal lepton ";
-        cutFlowVector_str[4] = "==1 signal lepton ";
-        cutFlowVector_str[5] = "==1 baseline lepton ";
-        cutFlowVector_str[6] = "XE trigger, >=4 jets, met > 230 GeV ";
-        cutFlowVector_str[7] = "deltaPhi(j1,met) > 0.4 ";
-        cutFlowVector_str[8] = "deltaPhi(j2,met) > 0.4 ";
-        cutFlowVector_str[9] = "mT2tau > 80 GeV ";
-        cutFlowVector_str[10] = "tN_med: j0 pT > 60 GeV";
-        cutFlowVector_str[11] = "tN_med: j1 pT > 50 GeV";
-        cutFlowVector_str[12] = "tN_med: j2 pT > 40 GeV ";
-        cutFlowVector_str[13] = "tN_med: j3 pT > 40 GeV ";
-        cutFlowVector_str[14] = "tN_med: met > 250 GeV ";
-        cutFlowVector_str[15] = "tN_med: metPerp > 230 GeV";
-        cutFlowVector_str[16] = "tN_med: HTmissSig > 14 ";
-        cutFlowVector_str[17] = "tN_med: mT > 160 GeV";
-        cutFlowVector_str[18] = "tN_med: amt2 > 175 GeV";
-        cutFlowVector_str[19] = "tN_med: >=1 b jet ";
-        cutFlowVector_str[20] = "tN_med: deltaR(b,l) < 2.0";
-        cutFlowVector_str[21] = "tN_med: mtop_recl > 150 GeV";
-        cutFlowVector_str[22] = "tN_high: j0 pT > 100 GeV ";
-        cutFlowVector_str[23] = "tN_high: j1 pT > 80 GeV ";
-        cutFlowVector_str[24] = "tN_high: j2 pT > 50 GeV";
-        cutFlowVector_str[25] = "tN_high: j3 pT > 30 GeV";
-        cutFlowVector_str[26] = "tN_high: met > 550 GeV ";
-        cutFlowVector_str[27] = "tN_high: HTmissSig > 27";
-        cutFlowVector_str[28] = "tN_high: mT > 160 GeV ";
-        cutFlowVector_str[29] = "tN_high: amT2 > 175 GeV ";
-        cutFlowVector_str[30] = "tN_high: >= 1 b jet";
-        cutFlowVector_str[31] = "tN_high: deltaR(b,l) < 2.0";
-        cutFlowVector_str[32] = "tN_high: mtop_recl > 130 GeV";
-        cutFlowVector_str[33] = "bWN: jet0 pT > 50 GeV";
-        cutFlowVector_str[34] = "bWN: Met > 300 GeV ";
-        cutFlowVector_str[35] = "bWN: mT > 130 GeV";
-        cutFlowVector_str[36] = "bWN: amT2 < 110 GeV";
-        cutFlowVector_str[37] = "bWN: >=1 b jet";
-        cutFlowVector_str[38] = "bWN: deltaPhi(l,ptmiss) < 2.5";
-        cutFlowVector_str[39] = "bffN: Soft lepton preselection";
-        cutFlowVector_str[40] = "bffN: Met > 300 GeV";
-        cutFlowVector_str[41] = "bffN: jet0 pT > 400 GeV";
-        cutFlowVector_str[42] = "bffN: mT < 160 GeV";
-        cutFlowVector_str[43] = "bffN: leading jet not b-tagged";
-        cutFlowVector_str[44] = "bffN: min(DPhi(ptmiss, b-jet)) < 1.5";
-        cutFlowVector_str[45] = "bffN: pTl/Met < 0.05 ";
-        cutFlowVector_str[46] = "bffN: top veto (or mtop_recl < 150 GeV) ";
-        cutFlowVector_str[47] = "bffN: pTl/met < 0.02 ";
-        cutFlowVector_str[48] = "bC2x_diag: jet0 pT > 75 GeV";
-        cutFlowVector_str[49] = "bC2x_diag: jet2 pT > 75 GeV ";
-        cutFlowVector_str[50] = "bC2x_diag: jet3 pT > 75 GeV ";
-        cutFlowVector_str[51] = "bC2x_diag: jet4 pT > 30 GeC ";
-        cutFlowVector_str[52] = "bC2x_diag: >=2 b jet ";
-        cutFlowVector_str[53] = "bC2x_diag: bjet1 pT > 30 GeV ";
-        cutFlowVector_str[54] = "bC2x_diag: dPhi(j1,ptmiss) > 0.7 ";
-        cutFlowVector_str[55] = "bC2x_diag: dPhi(j2,ptmiss) > 0.7 ";
-        cutFlowVector_str[56] = "bC2x_diag: HTmissSig > 13 ";
-        cutFlowVector_str[57] = "bC2x_diag: mT > 180 GeV ";
-        cutFlowVector_str[58] = "bC2x_diag: amT2 > 175 GeV ";
-        cutFlowVector_str[59] = "bC2x_diag: mWrecl > 50 GeV ";
-        cutFlowVector_str[60] = "bC2x_med: jet0 pT > 200 GeV ";
-        cutFlowVector_str[61] = "bC2x_med: jet1 pT > 140 GeV ";
-        cutFlowVector_str[62] = "bC2x_med: >=2 b jet ";
-        cutFlowVector_str[63] = "bC2x_med: bjet0 pT > 140 GeV ";
-        cutFlowVector_str[64] = "bC2x_med: bjet1 pT > 140 GeV";
-        cutFlowVector_str[65] = "bC2x_med: dPhi(j1,ptmiss) > 0.9 ";
-        cutFlowVector_str[66] = "bC2x_med: dPhi(j2,ptmiss) > 0.9 " ;
-        cutFlowVector_str[67] = "bC2x_med: HTmissSig > 10";
-        cutFlowVector_str[68] = "bC2x_med: mT > 120 GeV";
-        cutFlowVector_str[69] = "bC2x_med: amT2 > 300 GeV ";
-        cutFlowVector_str[70] = "bC2x_med: mWrecl > 50 GeV ";
-        cutFlowVector_str[71] = "bCbv: jet0 pT > 120 GeV";
-        cutFlowVector_str[72] = "bCbv: jet1 pT > 80 GeV ";
-        cutFlowVector_str[73] = "bCbv: ==0 b jets ";
-        cutFlowVector_str[74] = "bCbv: lepton pt > 60 GeV ";
-        cutFlowVector_str[75] = "bCbv: dPhi(j1,ptmiss) > 2.0 ";
-        cutFlowVector_str[76] = "bCbv: dPhi(j2,ptmiss) > 0.8 ";
-        cutFlowVector_str[77] = "bCbv: Met > 360 GeV ";
-        cutFlowVector_str[78] = "bCbv: HtmissSig > 16";
-        cutFlowVector_str[79] = "bCbv: mT > 200 GeV";
-        cutFlowVector_str[80] = "bCbv: mWrecl in [70,100] GeV";
-        cutFlowVector_str[81] = "bCbv: dPhi(l,ptmiss) > 1.2";
-        cutFlowVector_str[82] = "bCsoft_diag: Soft lepton preselection";
-        cutFlowVector_str[83] = "bCsoft_diag: Met > 300 GeV";
-        cutFlowVector_str[84] = "bCsoft_diag: jet0 pT > 400 GeV ";
-        cutFlowVector_str[85] = "bCsoft_diag: mT < 160 GeV ";
-        cutFlowVector_str[86] = "bCsoft_diag: leading jet not b-tagged ";
-        cutFlowVector_str[87] = "bCsoft_diag: mT < 50 GeV ";
-        cutFlowVector_str[88] = "bCsoft_diag: min(dPhi(ptmiss, b-jet)) < 1.5 ";
-        cutFlowVector_str[89] = "bCsoft_diag: pTl/Met < 0.05 ";
-        cutFlowVector_str[90] = "bCsoft_diag: top veto (or mtop_recl < 150 GeV) ";
-        cutFlowVector_str[91] = "bCsoft_diag: pTl/Met < 0.02";
-        cutFlowVector_str[92] = "bCsoft_med: Soft lepton preselection ";
-        cutFlowVector_str[93] = "bCsoft_med: >=3 jets";
-        cutFlowVector_str[94] = "bCsoft_med: pTW > 400 GeV";
-        cutFlowVector_str[95] = "bCsoft_med: jet0 pT > 120 GeV";
-        cutFlowVector_str[96] = "bCsoft_med: jet1 pT > 60 GeV";
-        cutFlowVector_str[97] = "bCsoft_med: jet2 pT > 40 GeV";
-        cutFlowVector_str[98] = "bCsoft_med: mT < 160 GeV";
-        cutFlowVector_str[99] = "bCsoft_med: amT2 > 200 GeV";
-        cutFlowVector_str[100] = "bCsoft_med: >=2 b jet";
-        cutFlowVector_str[101] = "bCsoft_med: bjet0 pT > 120 GeV ";
-        cutFlowVector_str[102] = "bCsoft_med: bjet1 pT > 60 GeV";
-        cutFlowVector_str[103] = "bCsoft_med: min(dPhi(ptmiss, b-jet)) > 0.8 ";
-        cutFlowVector_str[104] = "bCsoft_med: pTl/Met < 0.1";
-        cutFlowVector_str[105] = "bCsoft_med: pTl/Met < 0.03";
-        cutFlowVector_str[106] = "bCsoft_high: XE trigger, >=2 jets, Met > 230 GeV";
-        cutFlowVector_str[107] = "bCsoft_high: dPhi(j1,ptmiss) > 0.4";
-        cutFlowVector_str[108] = "bCsoft_high: dPhi(j2,ptmiss) > 0.4";
-        cutFlowVector_str[109] = "bCsoft_high: jet0 pt > 100 GeV";
-        cutFlowVector_str[110] = "bCsoft_high: jet1 pt > 100 GeV";
-        cutFlowVector_str[111] = "bCsoft_high: mT < 160 GeV";
-        cutFlowVector_str[112] = "bCsoft_high: pTW > 500 GeV";
-        cutFlowVector_str[113] = "bCsoft_high: dRbb > 0.8";
-        cutFlowVector_str[114] = "bCsoft_high: min(dPhi(ptmiss, b-jet))";
-        cutFlowVector_str[115] = "bCsoft_high: >=2 b jet";
-        cutFlowVector_str[116] = "bCsoft_high: bjet0 pT > 100 GeV";
-        cutFlowVector_str[117] = "bCsoft_high: bjet1 pT > 100 GeV";
-        cutFlowVector_str[118] = "bCsoft_high: amT2 > 300 GeV";
+#ifdef CHECK_CUTFLOW
+        vector<string> cutflow_labels(119);
+        cutflow_labels[0] = "No cuts ";
+        cutflow_labels[1] = "Derivation skim";
+        cutflow_labels[2] = ">=1 baseline lepton ";
+        cutflow_labels[3] = ">=1 signal lepton ";
+        cutflow_labels[4] = "==1 signal lepton ";
+        cutflow_labels[5] = "==1 baseline lepton ";
+        cutflow_labels[6] = "XE trigger, >=4 jets, met > 230 GeV ";
+        cutflow_labels[7] = "deltaPhi(j1,met) > 0.4 ";
+        cutflow_labels[8] = "deltaPhi(j2,met) > 0.4 ";
+        cutflow_labels[9] = "mT2tau > 80 GeV ";
+        cutflow_labels[10] = "tN_med: j0 pT > 60 GeV";
+        cutflow_labels[11] = "tN_med: j1 pT > 50 GeV";
+        cutflow_labels[12] = "tN_med: j2 pT > 40 GeV ";
+        cutflow_labels[13] = "tN_med: j3 pT > 40 GeV ";
+        cutflow_labels[14] = "tN_med: met > 250 GeV ";
+        cutflow_labels[15] = "tN_med: metPerp > 230 GeV";
+        cutflow_labels[16] = "tN_med: HTmissSig > 14 ";
+        cutflow_labels[17] = "tN_med: mT > 160 GeV";
+        cutflow_labels[18] = "tN_med: amt2 > 175 GeV";
+        cutflow_labels[19] = "tN_med: >=1 b jet ";
+        cutflow_labels[20] = "tN_med: deltaR(b,l) < 2.0";
+        cutflow_labels[21] = "tN_med: mtop_recl > 150 GeV";
+        cutflow_labels[22] = "tN_high: j0 pT > 100 GeV ";
+        cutflow_labels[23] = "tN_high: j1 pT > 80 GeV ";
+        cutflow_labels[24] = "tN_high: j2 pT > 50 GeV";
+        cutflow_labels[25] = "tN_high: j3 pT > 30 GeV";
+        cutflow_labels[26] = "tN_high: met > 550 GeV ";
+        cutflow_labels[27] = "tN_high: HTmissSig > 27";
+        cutflow_labels[28] = "tN_high: mT > 160 GeV ";
+        cutflow_labels[29] = "tN_high: amT2 > 175 GeV ";
+        cutflow_labels[30] = "tN_high: >= 1 b jet";
+        cutflow_labels[31] = "tN_high: deltaR(b,l) < 2.0";
+        cutflow_labels[32] = "tN_high: mtop_recl > 130 GeV";
+        cutflow_labels[33] = "bWN: jet0 pT > 50 GeV";
+        cutflow_labels[34] = "bWN: Met > 300 GeV ";
+        cutflow_labels[35] = "bWN: mT > 130 GeV";
+        cutflow_labels[36] = "bWN: amT2 < 110 GeV";
+        cutflow_labels[37] = "bWN: >=1 b jet";
+        cutflow_labels[38] = "bWN: deltaPhi(l,ptmiss) < 2.5";
+        cutflow_labels[39] = "bffN: Soft lepton preselection";
+        cutflow_labels[40] = "bffN: Met > 300 GeV";
+        cutflow_labels[41] = "bffN: jet0 pT > 400 GeV";
+        cutflow_labels[42] = "bffN: mT < 160 GeV";
+        cutflow_labels[43] = "bffN: leading jet not b-tagged";
+        cutflow_labels[44] = "bffN: min(DPhi(ptmiss, b-jet)) < 1.5";
+        cutflow_labels[45] = "bffN: pTl/Met < 0.05 ";
+        cutflow_labels[46] = "bffN: top veto (or mtop_recl < 150 GeV) ";
+        cutflow_labels[47] = "bffN: pTl/met < 0.02 ";
+        cutflow_labels[48] = "bC2x_diag: jet0 pT > 75 GeV";
+        cutflow_labels[49] = "bC2x_diag: jet2 pT > 75 GeV ";
+        cutflow_labels[50] = "bC2x_diag: jet3 pT > 75 GeV ";
+        cutflow_labels[51] = "bC2x_diag: jet4 pT > 30 GeC ";
+        cutflow_labels[52] = "bC2x_diag: >=2 b jet ";
+        cutflow_labels[53] = "bC2x_diag: bjet1 pT > 30 GeV ";
+        cutflow_labels[54] = "bC2x_diag: dPhi(j1,ptmiss) > 0.7 ";
+        cutflow_labels[55] = "bC2x_diag: dPhi(j2,ptmiss) > 0.7 ";
+        cutflow_labels[56] = "bC2x_diag: HTmissSig > 13 ";
+        cutflow_labels[57] = "bC2x_diag: mT > 180 GeV ";
+        cutflow_labels[58] = "bC2x_diag: amT2 > 175 GeV ";
+        cutflow_labels[59] = "bC2x_diag: mWrecl > 50 GeV ";
+        cutflow_labels[60] = "bC2x_med: jet0 pT > 200 GeV ";
+        cutflow_labels[61] = "bC2x_med: jet1 pT > 140 GeV ";
+        cutflow_labels[62] = "bC2x_med: >=2 b jet ";
+        cutflow_labels[63] = "bC2x_med: bjet0 pT > 140 GeV ";
+        cutflow_labels[64] = "bC2x_med: bjet1 pT > 140 GeV";
+        cutflow_labels[65] = "bC2x_med: dPhi(j1,ptmiss) > 0.9 ";
+        cutflow_labels[66] = "bC2x_med: dPhi(j2,ptmiss) > 0.9 " ;
+        cutflow_labels[67] = "bC2x_med: HTmissSig > 10";
+        cutflow_labels[68] = "bC2x_med: mT > 120 GeV";
+        cutflow_labels[69] = "bC2x_med: amT2 > 300 GeV ";
+        cutflow_labels[70] = "bC2x_med: mWrecl > 50 GeV ";
+        cutflow_labels[71] = "bCbv: jet0 pT > 120 GeV";
+        cutflow_labels[72] = "bCbv: jet1 pT > 80 GeV ";
+        cutflow_labels[73] = "bCbv: ==0 b jets ";
+        cutflow_labels[74] = "bCbv: lepton pt > 60 GeV ";
+        cutflow_labels[75] = "bCbv: dPhi(j1,ptmiss) > 2.0 ";
+        cutflow_labels[76] = "bCbv: dPhi(j2,ptmiss) > 0.8 ";
+        cutflow_labels[77] = "bCbv: Met > 360 GeV ";
+        cutflow_labels[78] = "bCbv: HtmissSig > 16";
+        cutflow_labels[79] = "bCbv: mT > 200 GeV";
+        cutflow_labels[80] = "bCbv: mWrecl in [70,100] GeV";
+        cutflow_labels[81] = "bCbv: dPhi(l,ptmiss) > 1.2";
+        cutflow_labels[82] = "bCsoft_diag: Soft lepton preselection";
+        cutflow_labels[83] = "bCsoft_diag: Met > 300 GeV";
+        cutflow_labels[84] = "bCsoft_diag: jet0 pT > 400 GeV ";
+        cutflow_labels[85] = "bCsoft_diag: mT < 160 GeV ";
+        cutflow_labels[86] = "bCsoft_diag: leading jet not b-tagged ";
+        cutflow_labels[87] = "bCsoft_diag: mT < 50 GeV ";
+        cutflow_labels[88] = "bCsoft_diag: min(dPhi(ptmiss, b-jet)) < 1.5 ";
+        cutflow_labels[89] = "bCsoft_diag: pTl/Met < 0.05 ";
+        cutflow_labels[90] = "bCsoft_diag: top veto (or mtop_recl < 150 GeV) ";
+        cutflow_labels[91] = "bCsoft_diag: pTl/Met < 0.02";
+        cutflow_labels[92] = "bCsoft_med: Soft lepton preselection ";
+        cutflow_labels[93] = "bCsoft_med: >=3 jets";
+        cutflow_labels[94] = "bCsoft_med: pTW > 400 GeV";
+        cutflow_labels[95] = "bCsoft_med: jet0 pT > 120 GeV";
+        cutflow_labels[96] = "bCsoft_med: jet1 pT > 60 GeV";
+        cutflow_labels[97] = "bCsoft_med: jet2 pT > 40 GeV";
+        cutflow_labels[98] = "bCsoft_med: mT < 160 GeV";
+        cutflow_labels[99] = "bCsoft_med: amT2 > 200 GeV";
+        cutflow_labels[100] = "bCsoft_med: >=2 b jet";
+        cutflow_labels[101] = "bCsoft_med: bjet0 pT > 120 GeV ";
+        cutflow_labels[102] = "bCsoft_med: bjet1 pT > 60 GeV";
+        cutflow_labels[103] = "bCsoft_med: min(dPhi(ptmiss, b-jet)) > 0.8 ";
+        cutflow_labels[104] = "bCsoft_med: pTl/Met < 0.1";
+        cutflow_labels[105] = "bCsoft_med: pTl/Met < 0.03";
+        cutflow_labels[106] = "bCsoft_high: XE trigger, >=2 jets, Met > 230 GeV";
+        cutflow_labels[107] = "bCsoft_high: dPhi(j1,ptmiss) > 0.4";
+        cutflow_labels[108] = "bCsoft_high: dPhi(j2,ptmiss) > 0.4";
+        cutflow_labels[109] = "bCsoft_high: jet0 pt > 100 GeV";
+        cutflow_labels[110] = "bCsoft_high: jet1 pt > 100 GeV";
+        cutflow_labels[111] = "bCsoft_high: mT < 160 GeV";
+        cutflow_labels[112] = "bCsoft_high: pTW > 500 GeV";
+        cutflow_labels[113] = "bCsoft_high: dRbb > 0.8";
+        cutflow_labels[114] = "bCsoft_high: min(dPhi(ptmiss, b-jet))";
+        cutflow_labels[115] = "bCsoft_high: >=2 b jet";
+        cutflow_labels[116] = "bCsoft_high: bjet0 pT > 100 GeV";
+        cutflow_labels[117] = "bCsoft_high: bjet1 pT > 100 GeV";
+        cutflow_labels[118] = "bCsoft_high: amT2 > 300 GeV";
 
-        for(int j=0;j<NCUTS;j++)
+        if (_cutflows.cfs.empty())
+        {
+          _cutflows.addCutflow(analysis_name(), cutflow_labels);
+        }
+        _cutflows[analysis_name()].fillinit(event->weight());
+
+        for (size_t j = 0; j < cutflow_labels.size(); ++j)
         {
           if(
              (j==0) ||
@@ -1329,10 +1326,11 @@ namespace Gambit {
              (j==118 && baselineLeptons.size()>0 && baselineLeptons.size()==1 && nJets >=2 && Met > 230. && absDPhiJMet0 > 0.4 && absDPhiJMet1 > 0.4 && signalJets[0]->pT() > 100 && signalJets[1]->pT() > 100 && mT < 160 && Wpt > 500 && dRbb > 0.8 && minDPhiMetBJet > 0.4 && nBJets>=2 && signalBJets[0]->pT() > 100 && signalBJets[1]->pT() > 100 && amT2 > 300)
              )
           {
-            cutFlowVector[j]++;
+            _cutflows[analysis_name()].fill(j + 1, true, event->weight());
           }
 
         }
+#endif
 
         if(is_tN_med) _counters.at("tN_med").add_event(event);
         if(is_tN_high) _counters.at("tN_high").add_event(event);
@@ -1366,7 +1364,7 @@ namespace Gambit {
         //     << setw(20) << "%" << setw(20) << "clean adj RAW"<< setw(20) << "clean adj %" << endl;
         // for (int j=0; j<NCUTS; j++)
         // {
-        //   cout << right << setw(40) << cutFlowVector_str[j].c_str() << setw(20)
+        //   cout << right << setw(40) << cutflow_labels[j].c_str() << setw(20)
         //        << cutFlowVector[j] << setw(20) << cutFlowVector[j]*scale_by << setw(20)
         //        << 100.*cutFlowVector[j]/cutFlowVector[0] << "%" << setw(20)
         //        << cutFlowVector[j]*scale_by << setw(20) << 100.*cutFlowVector[j]/cutFlowVector[0]<< "%" << endl;
@@ -1388,7 +1386,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("bCsoft_diag"), 33., { 24.7, 3.1}));
         add_result(SignalRegionData(_counters.at("bCsoft_med"), 19., { 13.7, 2.1}));
         add_result(SignalRegionData(_counters.at("bCsoft_high"), 2., { 1.8, 0.3}));
-
+COMMIT_CUTFLOWS
         return;
       }
 
@@ -1397,8 +1395,6 @@ namespace Gambit {
       void analysis_specific_reset()
       {
         for (auto& pair : _counters) { pair.second.reset(); }
-
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     };

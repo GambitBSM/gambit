@@ -25,13 +25,8 @@ using namespace std;
 
 // #define CHECK_CUTFLOW
 
-#ifdef CHECK_CUTFLOW
-  #define FILL_SR(NAME) FILL_SIGNAL_REGION(NAME)
-  #define LOG_SR(...) LOG_CUT(__VA_ARGS__)
-#else
-  #define FILL_SR(NAME) _counters.at(NAME).add_event(event)
-  #define LOG_SR(...) do {} while(false)
-#endif
+#define FILL_SR(NAME) FILL_SIGNAL_REGION(NAME)
+#define LOG_SR(...) LOG_CUT(__VA_ARGS__)
 
 // Renamed from: 
 //        Analysis_CMS_13TeV_MultiLEP_36invfb
@@ -354,10 +349,7 @@ namespace Gambit
         // This function can be overridden by the derived SR-specific classes
         virtual void collect_results()
         {
-#ifdef CHECK_CUTFLOW
-          COMMIT_CUTFLOWS
-#endif
-
+COMMIT_CUTFLOWS
           //Now fill a results object with the results for each SR
 
           add_result(SignalRegionData(_counters.at("SR1"), 13., {12., 3.}));
@@ -451,10 +443,7 @@ namespace Gambit
 
         virtual void collect_results()
         {
-#ifdef CHECK_CUTFLOW
-          COMMIT_CUTFLOWS
-#endif
-
+COMMIT_CUTFLOWS
           add_result(SignalRegionData(_counters.at("SR1"), 13., {12., 3.}));
           add_result(SignalRegionData(_counters.at("SR2"), 18., {18., 4.}));
         }
@@ -480,10 +469,7 @@ namespace Gambit
 
         virtual void collect_results()
         {
-#ifdef CHECK_CUTFLOW
-          COMMIT_CUTFLOWS
-#endif
-
+COMMIT_CUTFLOWS
           add_result(SignalRegionData(_counters.at("SR3"), 19., {19., 4.}));
           add_result(SignalRegionData(_counters.at("SR4"), 128., {142, 34.}));
           add_result(SignalRegionData(_counters.at("SR5"), 18., {22, 5.}));

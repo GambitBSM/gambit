@@ -351,9 +351,7 @@ namespace Gambit {
 
         set_covariance(BKGCOV);
 
-        #ifdef CHECK_CUTFLOW
-          COMMIT_CUTFLOWS
-        #endif
+        COMMIT_CUTFLOWS
       }
 
 
@@ -405,10 +403,7 @@ namespace Gambit {
 
         set_covariance(BKGCOV);
 
-        #ifdef CHECK_CUTFLOW
-          COMMIT_CUTFLOWS
-        #endif
-
+COMMIT_CUTFLOWS
       }
 
     };
@@ -443,10 +438,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SREW11"), 2.,  {1.5, 0.8}));
         add_result(SignalRegionData(_counters.at("SREW12"), 0.,  {1.2, 0.6}));
 
-        #ifdef CHECK_CUTFLOW
-          COMMIT_CUTFLOWS
-        #endif
-
+COMMIT_CUTFLOWS
       }
 
     };
@@ -477,10 +469,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SRST8"),  11., {10.0,1.9}));
         add_result(SignalRegionData(_counters.at("SRST9"),  9.,  {10.0,2.5}));
 
-        #ifdef CHECK_CUTFLOW
-          COMMIT_CUTFLOWS
-        #endif
-
+COMMIT_CUTFLOWS
       }
 
     };

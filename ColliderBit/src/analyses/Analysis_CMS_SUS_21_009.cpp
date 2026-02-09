@@ -47,21 +47,13 @@ Old Analysis Name: CMS_13TeV_Photon_GMSB_137invfb
 // #define CHECK_CUTFLOW
 
 // Shortcut for logging all cuts at once
-#ifdef CHECK_CUTFLOW
-  #define LOG_ALL_CUTS()                                                                      \
-    LOG_CUT("SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR9", "SR10", "SR11", "SR12");       \
-    LOG_CUT("SR13", "SR15", "SR16", "SR17", "SR18", "SR20", "SR21", "SR22", "SR23","SR25"); \
-    LOG_CUT("SR26", "SR27", "SR28", "SR30", "SR31", "SR32", "SR33", "SR35", "SR36", "SR37");\
-    LOG_CUT("SR38", "SR39", "SR41", "SR42", "SR43", "SR44", "SR45");
-#else
-  #define LOG_ALL_CUTS() do {} while(false)
-#endif
+#define LOG_ALL_CUTS()                                                                      \
+  LOG_CUT("SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR9", "SR10", "SR11", "SR12");       \
+  LOG_CUT("SR13", "SR15", "SR16", "SR17", "SR18", "SR20", "SR21", "SR22", "SR23","SR25"); \
+  LOG_CUT("SR26", "SR27", "SR28", "SR30", "SR31", "SR32", "SR33", "SR35", "SR36", "SR37");\
+  LOG_CUT("SR38", "SR39", "SR41", "SR42", "SR43", "SR44", "SR45");
 
-#ifdef CHECK_CUTFLOW
-  #define FILL_SR(NAME) FILL_SIGNAL_REGION(NAME)
-#else
-  #define FILL_SR(NAME) _counters.at(NAME).add_event(event)
-#endif
+#define FILL_SR(NAME) FILL_SIGNAL_REGION(NAME)
 
 using namespace std;
 using namespace HEPUtils;
@@ -419,9 +411,7 @@ namespace Gambit {
         COMMIT_SIGNAL_REGION("SR44", 2., 7.30, 2.28)
         COMMIT_SIGNAL_REGION("SR45", 2., 3.72, 1.66)
 
-#ifdef CHECK_CUTFLOW
-        COMMIT_CUTFLOWS
-#endif
+COMMIT_CUTFLOWS
       }
 
 

@@ -198,10 +198,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters["500"], 934., { 1040.,  100.}));
         add_result(SignalRegionData(_counters["550"], 519., { 509.,  66.}));
 
-        #ifdef CHECK_CUTFLOW
-        COMMIT_CUTFLOWS;
-        #endif
-
+COMMIT_CUTFLOWS;
         return;
       }
 

@@ -63,8 +63,6 @@ namespace Gambit
     public:
 #ifdef CHECK_CUTFLOW
       // Cutflow diagnostics (migrated to Cutflows)
-      Cutflows _cutflows;
-
       // SR yields {4Q-WW, 4Q-WZ, 4Q-ZZ, 4Q-VV, 2B2Q-WZ, 2B2Q-Wh, 2B2Q-ZZ, 2B2Q-Zh, 2B2Q-VZ, 2B2Q-Vh}
       std::vector<double> _yield_model{std::vector<double>(10)};
 
@@ -316,87 +314,7 @@ namespace Gambit
         //        add_result(SignalRegionData(_counters.at("Disc-SR-2B2Q"), 3., {4.7, 1.0})); // Union of SR-2B2Q-VZ and SR-2B2Q-Vh
         //        add_result(SignalRegionData(_counters.at("Disc-SR-Incl"), 6., {8.6, 1.3})); // Union of SR-4Q-VV and Disc-SR-2B2Q
 
-#ifdef CHECK_CUTFLOW
-        cout << "Cut flow comparisons (WW/WZ/Wh/HG)" << endl;
-
-        const double _lumi = luminosity();
-        const std::vector<std::string> cuts = {"Initial events",
-                                               "E_T^miss > 200 GeV",
-                                               "Event cleaning",
-                                               "Lepton veto",
-                                               "n_jets > 1",
-                                               "n_bjets = 0",
-                                               "min Delta phi > 1.0",
-                                               "n_bjets < 2",
-                                               "E_T^miss > 300 GeV",
-                                               "m_eff > 1300 GeV",
-                                               "n_V = 2",
-                                               "MC to data efficiency weight for SR-4Q-VV",
-                                               "n_H = 1"};
-
-        // Finalise Cutflows before reading counts
         COMMIT_CUTFLOWS;
-
-        // Read Cutflows once
-        const auto& counts = _cutflows["BM::ATLAS_SUSY_2018_41"].counts;
-
-        auto print_one = [&](const std::string &tag, const std::vector<double> &yield_model_in, const std::vector<double> &meff_model_in,
-                             const std::vector<double> &cutflow_atlas_in, double xsec_model)
-        {
-          _yield_model = yield_model_in;
-          _meff_4QVV_model = meff_model_in;
-          const std::vector<double> cutflow_ATLAS = cutflow_atlas_in;
-
-          const double _scale = xsec_model * _lumi / 50000.0;
-
-          cout << "\n==== Benchmark: " << tag << " ====" << endl;
-          cout << "Event scaling factor: " << _scale << endl;
-
-          cout << "SR\t\t" << "GAMBIT\t" << "ATLAS" << endl;
-          cout << "SR-4Q-WW\t" << _counters.at("SR-4Q-WW").sum() * _scale << "\t" << _yield_model[0] << endl;
-          cout << "SR-4Q-WZ\t" << _counters.at("SR-4Q-WZ").sum() * _scale << "\t" << _yield_model[1] << endl;
-          cout << "SR-4Q-ZZ\t" << _counters.at("SR-4Q-ZZ").sum() * _scale << "\t" << _yield_model[2] << endl;
-          cout << "SR-4Q-VV\t" << _counters.at("SR-4Q-VV").sum() * _scale << "\t" << _yield_model[3] << endl;
-          cout << endl;
-
-          cout << "Meff SR-4Q-VV\t" << "GAMBIT\t" << "ATLAS " << endl;
-          for (size_t j = 0; j < _meff_4QVV.size(); j++)
-          {
-            cout << "[" << _meff_bins[j] << ", " << _meff_bins[j + 1] << "]\t" << _meff_4QVV[j] * _scale << "\t" << _meff_4QVV_model[j] << endl;
-          }
-
-          cout << fixed << setprecision(2);
-          cout << "    GAMBIT\tMC error\tATLAS\t\tRatio\t\tCut" << endl;
-
-          for (size_t i = 0; i < cuts.size(); ++i)
-          {
-            const double n = counts[i + 1];
-            const double mc = n * _scale;
-            const double err = sqrt(n) * _scale;
-            const double atlas = cutflow_ATLAS[i];
-            const double ratio = (atlas > 0.0) ? (mc / atlas) : std::numeric_limits<double>::infinity();
-            cout << i << ":  " << mc << "\t\t" << err << "\t\t" << atlas << "\t\t" << ratio << "\t\t" << cuts[i] << endl;
-          }
-        };
-
-        // WZ
-        print_one("WZ", {3.5967, 6.3812, 4.1271, 6.7624, 2.0387, 0.3481, 1.8895, 0.2818, 2.3702, 0.3812},
-                  {0.0, 0.30543, 0.62458, 1.264, 1.4178, 1.493, 1.2082, 0.9881, 0.65451, 0.35119, 0.29642, 0.0},
-                  {348.29, 287.73, 245.63, 172.60, 68.52, 64.64, 44.91, 35.02, 31.90, 23.74, 8.00, 6.76, 7.65, 6.60, 6.35, 3.61, 2.65, 2.34, 0.39, 0.36}, 2.52);
-
-        // WW
-        print_one("WW", {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0.15911, 1.1519, 2.1652, 2.3533, 2.302, 1.3157, 0.70599, 0.39097, 0.22347, 0.12507, 0.0, 0.0},
-                  {619.20, 466.99, 395.78, 241.87, 85.18, 81.22, 58.13, 52.01, 42.78, 20.11, 6.21, 5.28, 2.06, 1.60, 1.57, 0.68, 0.40, 0.34, 0.02, 0.02}, 4.42);
-
-        // Wh
-        print_one("Wh", {0.3812, 0.6961, 0.4475, 0.7459, 1.1934, 5.2044, 0.8287, 3.6961, 1.2597, 5.5359}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                  {348.29, 244.06, 207.07, 156.57, 67.95, 62.74, 42.83, 19.83, 17.67, 12.66, 0.78, 0.73, 19.23, 16.67, 16.08, 8.80, 1.40, 1.27, 6.03, 5.54}, 2.52);
-
-        // HG
-        print_one("HG", {0.8122, 1.5746, 1.2597, 1.8398, 1.5083, 2.0552, 1.9558, 3.0000, 2.1878, 3.2818},
-                  {0.0, 0.1461, 0.56213, 0.43614, 0.4357, 0.66339, 0.40393, 0.1648, 0.0, 0.0, 0.0, 0.0},
-                  {482.87, 395.66, 336.46, 259.61, 85.00, 76.52, 53.05, 22.99, 19.99, 12.20, 2.08, 1.85, 26.28, 21.97, 20.47, 8.10, 2.55, 2.21, 3.75, 3.29}, 3.47);
-#endif
       }
 
       void analysis_specific_reset()

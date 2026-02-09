@@ -14,6 +14,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 
 // #define CHECK_CUTFLOW
@@ -38,9 +39,8 @@ namespace Gambit {
       #ifdef CHECK_CUTFLOW
         // Cut-flow variables
         size_t NCUTS;
-        vector<int> cutFlowVector;
-        vector<string> cutFlowVector_str;
-        vector<double> cutFlowVectorATLAS;
+        vector<string> legacyCutNames;
+        vector<double> legacyCutATLAS;
       #endif
 
     public:
@@ -109,9 +109,8 @@ namespace Gambit {
         #ifdef CHECK_CUTFLOW
           NCUTS=9;
           for(size_t i=0;i<NCUTS;i++){
-            cutFlowVector.push_back(0);
-            cutFlowVectorATLAS.push_back(0);
-            cutFlowVector_str.push_back("");
+            legacyCutATLAS.push_back(0);
+            legacyCutNames.push_back("");
           }
         #endif
       }
@@ -343,101 +342,106 @@ namespace Gambit {
 
         #ifdef CHECK_CUTFLOW
 
-          // Increment cutFlowVector elements
-          cutFlowVector_str[0]  = "No cuts ";
-          cutFlowVector_str[1]  = "Trigger, 4 jets ($p_T > 40$ GeV, 2 b-tags)";
-          cutFlowVector_str[2]  = "$\\ge 4$ b-tags";
-          cutFlowVector_str[3]  = "$\\ge 2$ Higgses ";
-          cutFlowVector_str[4]  = "Lepton veto";
-          cutFlowVector_str[5]  = "$X_{Wt} > 1.8$";
-          cutFlowVector_str[6]  = "$X_{hh}^{SR} < 1.6$";
-          cutFlowVector_str[7]  = "low-SR-MET0meff440";
-          cutFlowVector_str[8]  = "low-SR-MET150meff440";
+          // Increment legacyCutCounts elements
+          legacyCutNames[0]  = "No cuts ";
+          legacyCutNames[1]  = "Trigger, 4 jets ($p_T > 40$ GeV, 2 b-tags)";
+          legacyCutNames[2]  = "$\\ge 4$ b-tags";
+          legacyCutNames[3]  = "$\\ge 2$ Higgses ";
+          legacyCutNames[4]  = "Lepton veto";
+          legacyCutNames[5]  = "$X_{Wt} > 1.8$";
+          legacyCutNames[6]  = "$X_{hh}^{SR} < 1.6$";
+          legacyCutNames[7]  = "low-SR-MET0meff440";
+          legacyCutNames[8]  = "low-SR-MET150meff440";
 
           // Cut flow from paper
           // Higgsino 130 GeV
-          // cutFlowVectorATLAS[0] = 169015.8;
-          // cutFlowVectorATLAS[1] =  11206.7;
-          // cutFlowVectorATLAS[2] =   1250.8;
-          // cutFlowVectorATLAS[3] =   1015.9;
-          // cutFlowVectorATLAS[4] =   1015.9;
-          // cutFlowVectorATLAS[5] =    961.9;
-          // cutFlowVectorATLAS[6] =    559.8;
-          // cutFlowVectorATLAS[7] =    217.4;
-          // cutFlowVectorATLAS[8] =      0.0;
+          // legacyCutATLAS[0] = 169015.8;
+          // legacyCutATLAS[1] =  11206.7;
+          // legacyCutATLAS[2] =   1250.8;
+          // legacyCutATLAS[3] =   1015.9;
+          // legacyCutATLAS[4] =   1015.9;
+          // legacyCutATLAS[5] =    961.9;
+          // legacyCutATLAS[6] =    559.8;
+          // legacyCutATLAS[7] =    217.4;
+          // legacyCutATLAS[8] =      0.0;
           // // Higgsino 150 GeV
-          // cutFlowVectorATLAS[0] = 93125.1;
-          // cutFlowVectorATLAS[1] =  6630.9;
-          // cutFlowVectorATLAS[2] =   687.8;
-          // cutFlowVectorATLAS[3] =   558.6;
-          // cutFlowVectorATLAS[4] =   558.6;
-          // cutFlowVectorATLAS[5] =   489.4;
-          // cutFlowVectorATLAS[6] =   266.5;
-          // cutFlowVectorATLAS[7] =   112.5;
-          // cutFlowVectorATLAS[8] =     1.8;
+          // legacyCutATLAS[0] = 93125.1;
+          // legacyCutATLAS[1] =  6630.9;
+          // legacyCutATLAS[2] =   687.8;
+          // legacyCutATLAS[3] =   558.6;
+          // legacyCutATLAS[4] =   558.6;
+          // legacyCutATLAS[5] =   489.4;
+          // legacyCutATLAS[6] =   266.5;
+          // legacyCutATLAS[7] =   112.5;
+          // legacyCutATLAS[8] =     1.8;
           // // Higgsino 200 GeV
-          // cutFlowVectorATLAS[0] = 32455.5;
-          // cutFlowVectorATLAS[1] =  2895.6;
-          // cutFlowVectorATLAS[2] =   300.4;
-          // cutFlowVectorATLAS[3] =   240.9;
-          // cutFlowVectorATLAS[4] =   240.9;
-          // cutFlowVectorATLAS[5] =   212.6;
-          // cutFlowVectorATLAS[6] =   116.9;
-          // cutFlowVectorATLAS[7] =    62.5;
-          // cutFlowVectorATLAS[8] =     8.7;
+          // legacyCutATLAS[0] = 32455.5;
+          // legacyCutATLAS[1] =  2895.6;
+          // legacyCutATLAS[2] =   300.4;
+          // legacyCutATLAS[3] =   240.9;
+          // legacyCutATLAS[4] =   240.9;
+          // legacyCutATLAS[5] =   212.6;
+          // legacyCutATLAS[6] =   116.9;
+          // legacyCutATLAS[7] =    62.5;
+          // legacyCutATLAS[8] =     8.7;
           // // Higgsino 250 GeV
-          cutFlowVectorATLAS[0] = 14028.7;
-          cutFlowVectorATLAS[1] =  1454.7;
-          cutFlowVectorATLAS[2] =   163.0;
-          cutFlowVectorATLAS[3] =   126.4;
-          cutFlowVectorATLAS[4] =   126.1;
-          cutFlowVectorATLAS[5] =   108.4;
-          cutFlowVectorATLAS[6] =    53.4;
-          cutFlowVectorATLAS[7] =    37.0;
-          cutFlowVectorATLAS[8] =    14.2;
+          legacyCutATLAS[0] = 14028.7;
+          legacyCutATLAS[1] =  1454.7;
+          legacyCutATLAS[2] =   163.0;
+          legacyCutATLAS[3] =   126.4;
+          legacyCutATLAS[4] =   126.1;
+          legacyCutATLAS[5] =   108.4;
+          legacyCutATLAS[6] =    53.4;
+          legacyCutATLAS[7] =    37.0;
+          legacyCutATLAS[8] =    14.2;
           // // Higgsino 300 GeV
-          // cutFlowVectorATLAS[0] = 6922.0;
-          // cutFlowVectorATLAS[1] =  877.3;
-          // cutFlowVectorATLAS[2] =   90.6;
-          // cutFlowVectorATLAS[3] =   70.1;
-          // cutFlowVectorATLAS[4] =   70.0;
-          // cutFlowVectorATLAS[5] =   63.3;
-          // cutFlowVectorATLAS[6] =   34.0;
-          // cutFlowVectorATLAS[7] =   26.7;
-          // cutFlowVectorATLAS[8] =   14.6;
+          // legacyCutATLAS[0] = 6922.0;
+          // legacyCutATLAS[1] =  877.3;
+          // legacyCutATLAS[2] =   90.6;
+          // legacyCutATLAS[3] =   70.1;
+          // legacyCutATLAS[4] =   70.0;
+          // legacyCutATLAS[5] =   63.3;
+          // legacyCutATLAS[6] =   34.0;
+          // legacyCutATLAS[7] =   26.7;
+          // legacyCutATLAS[8] =   14.6;
           // // Higgsino 400 GeV
-          // cutFlowVectorATLAS[0] = 2156.2;
-          // cutFlowVectorATLAS[1] =  366.2;
-          // cutFlowVectorATLAS[2] =   41.7;
-          // cutFlowVectorATLAS[3] =   32.3;
-          // cutFlowVectorATLAS[4] =   31.9;
-          // cutFlowVectorATLAS[5] =   28.1;
-          // cutFlowVectorATLAS[6] =   14.4;
-          // cutFlowVectorATLAS[7] =   13.6;
-          // cutFlowVectorATLAS[8] =    9.6;
+          // legacyCutATLAS[0] = 2156.2;
+          // legacyCutATLAS[1] =  366.2;
+          // legacyCutATLAS[2] =   41.7;
+          // legacyCutATLAS[3] =   32.3;
+          // legacyCutATLAS[4] =   31.9;
+          // legacyCutATLAS[5] =   28.1;
+          // legacyCutATLAS[6] =   14.4;
+          // legacyCutATLAS[7] =   13.6;
+          // legacyCutATLAS[8] =    9.6;
           // // Higgsino 600 GeV
-          // cutFlowVectorATLAS[0] = 356.4;
-          // cutFlowVectorATLAS[1] =  82.2;
-          // cutFlowVectorATLAS[2] =   9.0;
-          // cutFlowVectorATLAS[3] =   6.5;
-          // cutFlowVectorATLAS[4] =   6.4;
-          // cutFlowVectorATLAS[5] =   5.9;
-          // cutFlowVectorATLAS[6] =   3.2;
-          // cutFlowVectorATLAS[7] =   3.2;
-          // cutFlowVectorATLAS[8] =   2.6;
+          // legacyCutATLAS[0] = 356.4;
+          // legacyCutATLAS[1] =  82.2;
+          // legacyCutATLAS[2] =   9.0;
+          // legacyCutATLAS[3] =   6.5;
+          // legacyCutATLAS[4] =   6.4;
+          // legacyCutATLAS[5] =   5.9;
+          // legacyCutATLAS[6] =   3.2;
+          // legacyCutATLAS[7] =   3.2;
+          // legacyCutATLAS[8] =   2.6;
           // // Higgsino 800 GeV
-          // cutFlowVectorATLAS[0] =  84.1;
-          // cutFlowVectorATLAS[1] =  22.4;
-          // cutFlowVectorATLAS[2] =   2.2;
-          // cutFlowVectorATLAS[3] =   1.6;
-          // cutFlowVectorATLAS[4] =   1.6;
-          // cutFlowVectorATLAS[5] =   1.5;
-          // cutFlowVectorATLAS[6] =   0.8;
-          // cutFlowVectorATLAS[7] =   0.8;
-          // cutFlowVectorATLAS[8] =   0.7;
+          // legacyCutATLAS[0] =  84.1;
+          // legacyCutATLAS[1] =  22.4;
+          // legacyCutATLAS[2] =   2.2;
+          // legacyCutATLAS[3] =   1.6;
+          // legacyCutATLAS[4] =   1.6;
+          // legacyCutATLAS[5] =   1.5;
+          // legacyCutATLAS[6] =   0.8;
+          // legacyCutATLAS[7] =   0.8;
+          // legacyCutATLAS[8] =   0.7;
 
           // Apply cutflow
-          for(size_t j=0;j<NCUTS;j++){
+          #ifdef CHECK_CUTFLOW
+        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+        _cutflows[analysis_name()].fillinit(event->weight());
+#endif
+
+for(size_t j=0;j<NCUTS;j++){
             if(
               (j==0) ||
 
@@ -457,7 +461,10 @@ namespace Gambit {
 
               (j==8 && nbJets > 3 && higgs && nLeptons == 0 && notop && Xhh < 1.6 && meff > 440. && met > 150.)
 
-              ) cutFlowVector[j]++;
+              ) 
+#ifdef CHECK_CUTFLOW
+            _cutflows[analysis_name()].fill(j+1, true, event->weight());
+#endif
           }
 
         #endif
@@ -529,33 +536,7 @@ namespace Gambit {
 
       virtual void collect_results() {
 
-        #ifdef CHECK_CUTFLOW
-          double L = 24.3;
-          // double xsec = 6955.; // 130 GeV
-          // double xsec = 3830.; // 150 GeV
-          // double xsec = 1336.; // 200 GeV
-          double xsec =  577.3; // 250 GeV
-          // double xsec =  284.9; // 300 GeV
-          // double xsec =   88.73; // 400 GeV
-          // double xsec = 14.67; // 600 GeV
-          // double xsec = 3.461; // 800 GeV
-
-          cout << "DEBUG:" << endl;
-          for (size_t i=0; i<NCUTS; i++)
-          {
-            double ATLAS_abs = cutFlowVectorATLAS[i];
-
-            double eff = (double)cutFlowVector[i] / (double)cutFlowVector[0];
-            //if(i > 0) eff *= 0.90; // Lower trigger efficiency for 130 GeV
-
-            double GAMBIT_scaled = eff * xsec * L;
-
-            double ratio = GAMBIT_scaled/ATLAS_abs;
-            cout << "DEBUG 1: i: " << i << ":   " << setprecision(4) << ATLAS_abs << "\t\t\t" << GAMBIT_scaled << "\t\t\t" << ratio << "\t\t\t" << cutFlowVector[i] << "\t\t\t" << cutFlowVector_str[i] << endl;
-          }
-          cout << "DEBUG:" << endl;
-        #endif
-
+COMMIT_CUTFLOWS;
 
         // Now fill a results object with the results for each SR
         // Only exclusion regions here
@@ -623,7 +604,6 @@ namespace Gambit {
 
         #ifdef CHECK_CUTFLOW
           // Clear cut flow vector
-          std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
         #endif
       }
 
@@ -646,6 +626,8 @@ namespace Gambit {
       }
 
       virtual void collect_results() {
+
+COMMIT_CUTFLOWS;
         add_result(SignalRegionData(_counters.at("low-SR-MET0meff440"), 1063., {1100., 25.}));
         add_result(SignalRegionData(_counters.at("low-SR-MET150meff440"), 17., {12., 8.}));
       }

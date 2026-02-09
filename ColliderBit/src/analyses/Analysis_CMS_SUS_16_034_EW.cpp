@@ -322,9 +322,7 @@ namespace Gambit {
 
         set_covariance(BKGCOV);
 
-        #ifdef CHECK_CUTFLOW
-          COMMIT_CUTFLOWS
-        #endif
+COMMIT_CUTFLOWS
       }
 
 
@@ -413,10 +411,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SR6"), 5.,  {5.6, 1.6}));
         add_result(SignalRegionData(_counters.at("SR7"), 1.,  {1.3, 0.4}));
 
-        #ifdef CHECK_CUTFLOW
-          COMMIT_CUTFLOWS
-        #endif
-
+COMMIT_CUTFLOWS
       }
 
     };

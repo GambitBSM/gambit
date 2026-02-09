@@ -438,12 +438,13 @@ namespace Gambit
 
           // Increment cutflows for debugging
 
+          #ifdef CHECK_CUTFLOW
           const double w = event->weight();
           _cutflows.fillinit(w);
 
           bool cut_trigger=true;
 
-          if (_cutflows["SR-ISR"].fillnext({
+          _cutflows["SR-ISR"].fillnext({
                         cut_3lep && cut_SFOS,
             cut_trigger,
             cut_bjet,
@@ -457,9 +458,9 @@ namespace Gambit
             pTjets>100.,
             met > 80.,
             mTW > 100.,
-            pTsoft < 25.}, w))_counters.at("SR-ISR").add_event(event);
+            pTsoft < 25.}, w);
 
-          if (_cutflows["SR-low"].fillnext({
+          _cutflows["SR-low"].fillnext({
                         cut_3lep && cut_SFOS,
             cut_trigger,
                         cut_bjet,
@@ -470,7 +471,8 @@ namespace Gambit
             H_boost>250.,
             pTratio<0.05,
             HTratio>0.9,
-            mTW > 100.}, w))_counters.at("SR-low").add_event(event);
+            mTW > 100.}, w);
+          #endif
 
           return;
         } // End of event analysis
@@ -484,19 +486,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR-low"), 51., {46. , 5.}));
         add_result(SignalRegionData(_counters.at("SR-ISR"),  30., { 23.4 ,  2.1}));
 
-        COMMIT_CUTFLOWS
-
-        // Cutflow printout
-        #ifdef CHECK_CUTFLOW
-         _cutflows["SR-ISR"].normalize(1370, 1);
-         _cutflows["SR-low"].normalize(1370, 1);
-         cout << "\nCUTFLOWS:\n" << _cutflows << endl;
-         cout << "\nSRCOUNTS:\n";
-         // for (double x : _srnums) cout << x << "  ";
-         for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
-         cout << "\n" << endl;
-        #endif
-
+COMMIT_CUTFLOWS
 
       }
 
@@ -514,5 +504,3 @@ namespace Gambit
 
   }
 }
-
-

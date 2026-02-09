@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 
 using namespace std;
@@ -20,9 +21,7 @@ namespace Gambit {
 
     class Analysis_ATLAS_SUSY_2013_02 : public Analysis {
     private:
-
-      vector<int> cutFlowVector;
-      vector<string> cutFlowVector_str;
+      vector<string> legacyCutNames;
       size_t NCUTS; //=16;
 
 
@@ -54,8 +53,7 @@ namespace Gambit {
         NCUTS=60;
 
         for (size_t i=0;i<NCUTS;i++){
-          cutFlowVector.push_back(0);
-          cutFlowVector_str.push_back("");
+          legacyCutNames.push_back("");
         }
 
 
@@ -227,38 +225,43 @@ namespace Gambit {
           }
         }
 
-        cutFlowVector_str[0] = "No cuts ";
-        cutFlowVector_str[1] = "2j: MET > 160 GeV and jet pT ";
-        cutFlowVector_str[2] = "2j: dPhiMin > 0.4 ";
-        cutFlowVector_str[3] = "2j: met/sqrt(HT) > 15 ";
-        cutFlowVector_str[4] = "2j: meff_incl > 1200 ";
-        cutFlowVector_str[5] = "2j: meff_incl > 1600 ";
-        cutFlowVector_str[6] = "3j: MET > 160 and jet pT ";
-        cutFlowVector_str[7] = "3j: dPhiMin > 0.4 ";
-        cutFlowVector_str[8] = "3j: met/meff3j > 0.3 ";
-        cutFlowVector_str[9] = "3j: met/meff_incl > 2200. ";
-        cutFlowVector_str[10] = "4jlm: MET > 160 and jet pT ";
-        cutFlowVector_str[11] = "4jlm: dPhiMin > 0.4 ";
-        cutFlowVector_str[12] = "4jlm: dPhiMin2 > 0.2 ";
-        cutFlowVector_str[13] = "4jlm: met/sqrt(HT) > 10 ";
-        cutFlowVector_str[14] = "4jlm: meff incl > 700 ";
-        cutFlowVector_str[15] = "4jl: meff incl > 1000 ";
-        cutFlowVector_str[16] = "4jt: met/meff4j > 0.25 ";
-        cutFlowVector_str[17] = "4jt: meff incl > 2200 ";
-        cutFlowVector_str[18] = "5j: MET > 160 and jet pT ";
-        cutFlowVector_str[19] = "5j: dPhiMin > 0.4 ";
-        cutFlowVector_str[20] = "5j: dPhiMin2 > 0.2 ";
-        cutFlowVector_str[21] = "5j: met/meff5j > 0.2 ";
-        cutFlowVector_str[22] = "5j: meff incl > 1200. ";
-        cutFlowVector_str[23] = "6jl: MET >  160 and jet pT  ";
-        cutFlowVector_str[24] = "6jl: dPhiMin > 0.4 ";
-        cutFlowVector_str[25] = "6jl: dPhiMin2 > 0.2 ";
-        cutFlowVector_str[26] = "6jl: met/meff6j > 0.2 ";
-        cutFlowVector_str[27] = "6jl: meff incl > 900. ";
-        cutFlowVector_str[28] = "6jt: met/meff6j > 0.25 ";
-        cutFlowVector_str[29] = "6jt: meff incl > 1500. ";
+        legacyCutNames[0] = "No cuts ";
+        legacyCutNames[1] = "2j: MET > 160 GeV and jet pT ";
+        legacyCutNames[2] = "2j: dPhiMin > 0.4 ";
+        legacyCutNames[3] = "2j: met/sqrt(HT) > 15 ";
+        legacyCutNames[4] = "2j: meff_incl > 1200 ";
+        legacyCutNames[5] = "2j: meff_incl > 1600 ";
+        legacyCutNames[6] = "3j: MET > 160 and jet pT ";
+        legacyCutNames[7] = "3j: dPhiMin > 0.4 ";
+        legacyCutNames[8] = "3j: met/meff3j > 0.3 ";
+        legacyCutNames[9] = "3j: met/meff_incl > 2200. ";
+        legacyCutNames[10] = "4jlm: MET > 160 and jet pT ";
+        legacyCutNames[11] = "4jlm: dPhiMin > 0.4 ";
+        legacyCutNames[12] = "4jlm: dPhiMin2 > 0.2 ";
+        legacyCutNames[13] = "4jlm: met/sqrt(HT) > 10 ";
+        legacyCutNames[14] = "4jlm: meff incl > 700 ";
+        legacyCutNames[15] = "4jl: meff incl > 1000 ";
+        legacyCutNames[16] = "4jt: met/meff4j > 0.25 ";
+        legacyCutNames[17] = "4jt: meff incl > 2200 ";
+        legacyCutNames[18] = "5j: MET > 160 and jet pT ";
+        legacyCutNames[19] = "5j: dPhiMin > 0.4 ";
+        legacyCutNames[20] = "5j: dPhiMin2 > 0.2 ";
+        legacyCutNames[21] = "5j: met/meff5j > 0.2 ";
+        legacyCutNames[22] = "5j: meff incl > 1200. ";
+        legacyCutNames[23] = "6jl: MET >  160 and jet pT  ";
+        legacyCutNames[24] = "6jl: dPhiMin > 0.4 ";
+        legacyCutNames[25] = "6jl: dPhiMin2 > 0.2 ";
+        legacyCutNames[26] = "6jl: met/meff6j > 0.2 ";
+        legacyCutNames[27] = "6jl: meff incl > 900. ";
+        legacyCutNames[28] = "6jt: met/meff6j > 0.25 ";
+        legacyCutNames[29] = "6jt: meff incl > 1500. ";
 
-        for (size_t j=0;j<NCUTS;j++){
+        #ifdef CHECK_CUTFLOW
+        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+        _cutflows[analysis_name()].fillinit(event->weight());
+#endif
+
+for (size_t j=0;j<NCUTS;j++){
           if(
              (j==0) ||
 
@@ -326,7 +329,9 @@ namespace Gambit {
 
              ){
 
-            cutFlowVector[j]++;
+            #ifdef CHECK_CUTFLOW
+            _cutflows[analysis_name()].fill(j+1, true, event->weight());
+#endif
 
           }
         }
@@ -334,6 +339,8 @@ namespace Gambit {
       }
 
       void collect_results() {
+
+COMMIT_CUTFLOWS;
         // double scale_by=1.;
         // cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
         // cout << "CUT FLOW: ATLAS 0 lepton paper "<<endl;
@@ -341,10 +348,10 @@ namespace Gambit {
         // cout<< right << setw(40) << "CUT" << setw(20) << "RAW" << setw(20) << "SCALED"
         //     << setw(20) << "%" << setw(20) << "clean adj RAW"<< setw(20) << "clean adj %" << endl;
         // for (size_t j=0; j<NCUTS; j++) {
-        //   cout << right << setw(40) << cutFlowVector_str[j].c_str() << setw(20)
-        //        << cutFlowVector[j] << setw(20) << cutFlowVector[j]*scale_by << setw(20)
-        //        << 100.*cutFlowVector[j]/cutFlowVector[0] << "%" << setw(20)
-        //        << cutFlowVector[j]*scale_by << setw(20) << 100.*cutFlowVector[j]/cutFlowVector[0]<< "%" << endl;
+        //   cout << right << setw(40) << legacyCutNames[j].c_str() << setw(20)
+        //        << legacyCutCounts[j] << setw(20) << legacyCutCounts[j]*scale_by << setw(20)
+        //        << 100.*legacyCutCounts[j]/legacyCutCounts[0] << "%" << setw(20)
+        //        << legacyCutCounts[j]*scale_by << setw(20) << 100.*legacyCutCounts[j]/legacyCutCounts[0]<< "%" << endl;
         // }
         // cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
 
@@ -401,8 +408,6 @@ namespace Gambit {
       void analysis_specific_reset()
       {
         for (auto& pair : _counters) { pair.second.reset(); }
-
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     };

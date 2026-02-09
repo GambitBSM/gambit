@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -34,9 +35,7 @@ namespace Gambit {
 
     class Analysis_ATLAS_SUSY_2013_16 : public Analysis {
     private:
-
-      vector<int> cutFlowVector;
-      vector<string> cutFlowVector_str;
+      vector<string> legacyCutNames;
       int NCUTS; //=16;
 
       // Debug histos
@@ -114,8 +113,7 @@ namespace Gambit {
         NCUTS=23;
 
         for(int i=0;i<NCUTS;i++){
-          cutFlowVector.push_back(0);
-          cutFlowVector_str.push_back("");
+          legacyCutNames.push_back("");
         }
 
       }
@@ -536,29 +534,34 @@ namespace Gambit {
 
         }
 
-        cutFlowVector_str[0] = "No cuts ";
-        cutFlowVector_str[1] = "MET > 130 GeV ";
-        cutFlowVector_str[2] = "Lepton veto ";
-        cutFlowVector_str[3] = "MET > 150 GeV ";
-        cutFlowVector_str[4] = "Jet multiplicity and pT ";
-        cutFlowVector_str[5] = "dPhi(jet,MET) > pi/5 ";
-        cutFlowVector_str[6] = ">=2 b jets ";
-        cutFlowVector_str[7] = "tau veto ";
-        cutFlowVector_str[8] = "mT(b,MET) > 175 ";
-        cutFlowVector_str[9] = "SRA1 ";
-        cutFlowVector_str[10] = "SRA2 ";
-        cutFlowVector_str[11] = "SRA3 ";
-        cutFlowVector_str[12] = "SRA4 ";
-        cutFlowVector_str[13] = "SRC: exactly 5 jets ";
-        cutFlowVector_str[14] = "SRC: dPhi(jet,MET) ";
-        cutFlowVector_str[15] = "SRC: >=2 b jets ";
-        cutFlowVector_str[16] = "SRC: tau veto ";
-        cutFlowVector_str[17] = "SRC: dPhi(b,b) ";
-        cutFlowVector_str[18] = "SRC1";
-        cutFlowVector_str[19] = "SRC2";
-        cutFlowVector_str[20] = "SRC3";
+        legacyCutNames[0] = "No cuts ";
+        legacyCutNames[1] = "MET > 130 GeV ";
+        legacyCutNames[2] = "Lepton veto ";
+        legacyCutNames[3] = "MET > 150 GeV ";
+        legacyCutNames[4] = "Jet multiplicity and pT ";
+        legacyCutNames[5] = "dPhi(jet,MET) > pi/5 ";
+        legacyCutNames[6] = ">=2 b jets ";
+        legacyCutNames[7] = "tau veto ";
+        legacyCutNames[8] = "mT(b,MET) > 175 ";
+        legacyCutNames[9] = "SRA1 ";
+        legacyCutNames[10] = "SRA2 ";
+        legacyCutNames[11] = "SRA3 ";
+        legacyCutNames[12] = "SRA4 ";
+        legacyCutNames[13] = "SRC: exactly 5 jets ";
+        legacyCutNames[14] = "SRC: dPhi(jet,MET) ";
+        legacyCutNames[15] = "SRC: >=2 b jets ";
+        legacyCutNames[16] = "SRC: tau veto ";
+        legacyCutNames[17] = "SRC: dPhi(b,b) ";
+        legacyCutNames[18] = "SRC1";
+        legacyCutNames[19] = "SRC2";
+        legacyCutNames[20] = "SRC3";
 
-        for(int j=0;j<NCUTS;j++){
+        #ifdef CHECK_CUTFLOW
+        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+        _cutflows[analysis_name()].fillinit(event->weight());
+#endif
+
+for(int j=0;j<NCUTS;j++){
           if(
              (j==0) ||
 
@@ -604,7 +607,9 @@ namespace Gambit {
 
              ){
 
-            cutFlowVector[j]++;
+            #ifdef CHECK_CUTFLOW
+            _cutflows[analysis_name()].fill(j+1, true, event->weight());
+#endif
 
           }
         }
@@ -645,7 +650,9 @@ namespace Gambit {
           (j==15 && cut_ElectronVeto && cut_MuonVeto && cut_METGt130 && cut_6jets && cut_dPhiJets && cut_tau && cut_Btag && cut_mTbjetmetGt175 && cut_mjjj0 && cut_mjjj1 && cut_METGt350) )
 
 
-          cutFlowVector[j]++;
+          #ifdef CHECK_CUTFLOW
+            _cutflows[analysis_name()].fill(j+1, true, event->weight());
+#endif
           }*/
 
         //We're now ready to apply the cuts for each signal region
@@ -665,6 +672,8 @@ namespace Gambit {
 
       void collect_results() {
 
+COMMIT_CUTFLOWS;
+
         add_result(SignalRegionData(_counters["SRA1"], 11., {15.8, 1.9}));
         add_result(SignalRegionData(_counters["SRA2"], 4., {4.1, 0.8}));
         add_result(SignalRegionData(_counters["SRA3"], 5., {4.1, 0.9}));
@@ -681,8 +690,6 @@ namespace Gambit {
       void analysis_specific_reset()
       {
         for (auto& pair : _counters) { pair.second.reset(); }
-
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     };

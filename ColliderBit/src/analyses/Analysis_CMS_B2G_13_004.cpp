@@ -200,10 +200,7 @@ namespace Gambit {
       void collect_results() {
 
         COMMIT_SIGNAL_REGION("SR", 1., 1.89, 0.66)
-        #ifdef CHECK_CUTFLOW
-          COMMIT_CUTFLOWS
-        #endif
-
+COMMIT_CUTFLOWS
         return;
       }
 

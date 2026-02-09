@@ -1,5 +1,6 @@
 // -*- C++ -*-
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "Eigen/Eigen"
@@ -29,10 +30,6 @@ namespace Gambit
 
         // Required detector sim
         static constexpr const char* detector = "ATLAS";
-
-        #ifdef CHECK_CUTFLOW
-          Cutflows _cutflows;
-        #endif
 
         static const size_t NUMSR = 13;
 
@@ -296,13 +293,7 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("EM11"), 187, {182., 6.}));
           add_result(SignalRegionData(_counters.at("EM12"), 207, {218., 9.}));
 
-          #ifdef CHECK_CUTFLOW
-            // Cutflow printout
-            cout << "\nCUTFLOWS:\n" << _cutflows << endl;
-            cout << "\nSRCOUNTS:\n";
-            for (auto& pair : _counters) cout << pair.first << ": " << pair.second.weight_sum() << "\n";
-            cout << "\n" << endl;
-          #endif
+          COMMIT_CUTFLOWS;
 
         }
 

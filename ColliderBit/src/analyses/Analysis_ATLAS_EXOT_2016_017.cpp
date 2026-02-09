@@ -23,10 +23,10 @@ using namespace std;
 
 // #define CHECK_CUTFLOW
 
-#ifdef CHECK_CUTFLOW
-    #include "YODA/Histo1D.h"
-    #include "YODA/WriterYODA.h"
-#endif
+// #ifdef CHECK_CUTFLOW
+//     #include "YODA/Histo1D.h"
+//     #include "YODA/WriterYODA.h"
+// #endif
 
 namespace Gambit
 {
@@ -38,23 +38,21 @@ namespace Gambit
             /* data */
         public:
             #ifdef CHECK_CUTFLOW
-                Cutflows _cutflows;
-                YODA::Histo1D *_histo_mVLQ; 
+                // YODA::Histo1D *_histo_mVLQ; 
                 int Nevent = 0;
             #endif
 
             static constexpr const char *detector = "ATLAS";
             Analysis_ATLAS_EXOT_2016_017()
             {
-                DEFINE_SIGNAL_REGION_NOCUTS("SR");
+                DEFINE_SIGNAL_REGION("SR");
 
                 set_analysis_name("ATLAS_EXOT_2016_017");
                 set_luminosity(36.1);
 
                 #ifdef CHECK_CUTFLOW
-                    _histo_mVLQ = new YODA::Histo1D(17, 0., 2550., "SR/mVLQ"); 
-                    cout << "====== Cutflows ======" << endl; 
-                    _cutflows.addCutflow("Signal Region", {
+                    // _histo_mVLQ = new YODA::Histo1D(17, 0., 2550., "SR/mVLQ"); 
+                    _cutflows.addCutflow("ATLAS-EXOT-2016-017", {
                         "No Cut", 
                         "Preselection",
                         "Leading Jet is b-tagged",
@@ -70,12 +68,8 @@ namespace Gambit
             void run(const HEPUtils::Event *event)
             {
                 #ifdef CHECK_CUTFLOW
-                    _cutflows["Signal Region"].fillinit(event->weight());
-                    _cutflows["Signal Region"].fill(1, true, event->weight()); 
-                    if (Nevent % 200 == 0)
-                    {
-                        cout << "Complete " << Nevent << " Events" << endl;
-                    }
+                    _cutflows["ATLAS-EXOT-2016-017"].fillinit(event->weight());
+                    _cutflows["ATLAS-EXOT-2016-017"].fill(1, true, event->weight()); 
                     Nevent += 1; 
                 #endif
 
@@ -147,7 +141,7 @@ namespace Gambit
                     bool leadbjet = leadbjet01 || leadbjet02; 
 
                     #ifdef CHECK_CUTFLOW
-                        _cutflows["Signal Region"].fill(2, true, event->weight());
+                        _cutflows["ATLAS-EXOT-2016-017"].fill(2, true, event->weight());
                     #endif
                     int Jetincone = false;
                     if (leadbjet)
@@ -175,7 +169,7 @@ namespace Gambit
                         int nfwdJet = signalfwdJets.size(); 
 
                         #ifdef CHECK_CUTFLOW
-                            _cutflows["Signal Region"].fillnext({
+                            _cutflows["ATLAS-EXOT-2016-017"].fillnext({
                                 leadbjet,
                                 signalctrBJets.at(0)->pT() > 350., 
                                 !Jetincone, 
@@ -186,23 +180,23 @@ namespace Gambit
                         #endif
                         if (signalctrBJets.at(0)->pT() > 350. && !Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)                    
                         {
-                            _counters.at("SR").add_event(event);
+                            FILL_SIGNAL_REGION("SR")
                         }
 
 
                         // Reconstructing mVLQ 
-                        #ifdef CHECK_CUTFLOW
-                            double nv_px = pmiss.px();
-                            double nv_py = pmiss.py();
-                            std::vector<double> pz_nus = calculate_pvz(signalLeptons.at(0)->mom(), nv_px, nv_py); 
-                            double nv_pz = solute_pvZ(pz_nus); 
-                            double nv_E  = std::sqrt(nv_px * nv_px + nv_py * nv_py + nv_pz * nv_pz ); 
-                            HEPUtils::P4 pv4(nv_px, nv_py, nv_pz, nv_E);
-                            HEPUtils::P4 pVLQ4 = pv4 + signalLeptons.at(0)->mom() + Bjet0mom; 
-                            double mVLQ = pVLQ4.m(); 
-                            if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)
-                                _histo_mVLQ->fill(mVLQ, 1.); 
-                        #endif
+                        // #ifdef CHECK_CUTFLOW
+                        //     double nv_px = pmiss.px();
+                        //     double nv_py = pmiss.py();
+                        //     std::vector<double> pz_nus = calculate_pvz(signalLeptons.at(0)->mom(), nv_px, nv_py); 
+                        //     double nv_pz = solute_pvZ(pz_nus); 
+                        //     double nv_E  = std::sqrt(nv_px * nv_px + nv_py * nv_py + nv_pz * nv_pz ); 
+                        //     HEPUtils::P4 pv4(nv_px, nv_py, nv_pz, nv_E);
+                        //     HEPUtils::P4 pVLQ4 = pv4 + signalLeptons.at(0)->mom() + Bjet0mom; 
+                        //     double mVLQ = pVLQ4.m(); 
+                        //     if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)
+                        //         _histo_mVLQ->fill(mVLQ, 1.); 
+                        // #endif
                     }
                 }
                 return; 
@@ -214,12 +208,12 @@ namespace Gambit
                 add_result(SignalRegionData(_counters.at("SR"), 497, {500, 30}));
 
                 COMMIT_CUTFLOWS;
-                #ifdef CHECK_CUTFLOW
-                    std::vector<YODA::AnalysisObject *> histos; 
-                    histos.push_back(_histo_mVLQ);
-                    YODA::WriterYODA::write("ATLAS_EXOT_2016_017.yoda", histos.begin(), histos.end()); 
-                    delete _histo_mVLQ; 
-                #endif
+                // #ifdef CHECK_CUTFLOW
+                    // std::vector<YODA::AnalysisObject *> histos; 
+                    // histos.push_back(_histo_mVLQ);
+                    // YODA::WriterYODA::write("ATLAS_EXOT_2016_017.yoda", histos.begin(), histos.end()); 
+                    // delete _histo_mVLQ; 
+                // #endif
                 return;
             }
 

@@ -16,6 +16,7 @@
 #include <fstream>
 #include "SoftDrop.hh"
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 
 // #define CHECK_CUTFLOW
@@ -432,10 +433,7 @@ namespace Gambit
         };
 
         set_covariance(BKGCOV);
-#ifdef CHECK_CUTFLOW
-        add_cutflows(_cutflows);
-#endif
-
+COMMIT_CUTFLOWS;
       }
 
     protected:

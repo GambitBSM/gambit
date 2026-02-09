@@ -10,6 +10,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -63,10 +64,6 @@ namespace Gambit {
     protected:
 
     private:
-
-      vector<int> cutFlowVector;
-      vector<string> cutFlowVector_str;
-      int NCUTS; //=16;
 
       // Recursive jigsaw objects (using RestFrames)
 
@@ -258,13 +255,6 @@ namespace Gambit {
 
         set_analysis_name("ATLAS_SUSY_2017_03_RJR_Lowmass");
         set_luminosity(36.);
-
-        NCUTS=70;
-
-        for(int i=0;i<NCUTS;i++){
-          cutFlowVector.push_back(0);
-          cutFlowVector_str.push_back("");
-        }
 
 
         // Recursive jigsaw stuff
@@ -1840,70 +1830,78 @@ namespace Gambit {
 
         // Cutflow check
 
-        cutFlowVector_str[0] = "No cuts ";
-        cutFlowVector_str[1] = "3LLOW: Preselection ";
-        cutFlowVector_str[2] = "3LLOW: 75 GeV < mll < 105 GeV ";
-        cutFlowVector_str[3] = "3LLOW: mTW > 100 GeV ";
-        cutFlowVector_str[4] = "3LLOW: m_HT4PP/m_H4PP > 0.9 ";
-        cutFlowVector_str[5] = "3LLOW: m_H4PP > 250 GeV ";
-        cutFlowVector_str[6] = "3LLOW: pT_PP/(pT_PP + HT_PP(3,1)) ";
-        cutFlowVector_str[7] = "2L2JLOW: Preselection ";
-        cutFlowVector_str[8] = "2L2JLOW: mll ";
-        cutFlowVector_str[9] = "2L2JLOW: mjj ";
-        cutFlowVector_str[10] = "2L2JLOW: HT_PP(1,1)/HT_PP(4,1) ";
-        cutFlowVector_str[11] = "2L2JLOW: pT_PP/(pT_PP + HT_PP(4,1)) ";
-        cutFlowVector_str[12] = "2L2JLOW: minDPhi ";
-        cutFlowVector_str[13] = "2L2JLOW: HPP(4,1) ";
-        cutFlowVector_str[14] = "2L2JINT: Preselection ";
-        cutFlowVector_str[15] = "2L2JINT: mll ";
-        cutFlowVector_str[16] = "2L2JINT: mjj ";
-        cutFlowVector_str[17] = "2L2JINT: HT_PP(1,1)/HT_PP(4,1) ";
-        cutFlowVector_str[18] = "2L2JINT: pT_PP/(pT_PP + HT_PP(4,1)) ";
-        cutFlowVector_str[19] = "2L2JINT: minDPhi ";
-        cutFlowVector_str[20] = "2L2JINT: HPP(4,1) ";
-        cutFlowVector_str[21] = "2L2JHIGH: Preselection ";
-        cutFlowVector_str[22] = "2L2JHIGH: mll ";
-        cutFlowVector_str[23] = "2L2JHIGH: mjj ";
-        cutFlowVector_str[24] = "2L2JHIGH: m_R_minH2P_minH3P>0.8";
-        cutFlowVector_str[25] = "2L2JHIGH: m_RPT_HT5PP < 0.05 ";
-        cutFlowVector_str[26] = "2L2JHIGH: 0.3 < minDPhiVP > 2.8 ";
-        cutFlowVector_str[27] = "2L2JHIGH: m_H5PP>800. ";
-        cutFlowVector_str[28] = "2L2JCOMP: Preselection ";
-        cutFlowVector_str[29] = "2L2JCOMP: mZ ";
-        cutFlowVector_str[30] = "2L2JCOMP: mJ ";
-        cutFlowVector_str[31] = "2L2JCOMP: dPhi_ISR_I ";
-        cutFlowVector_str[32] = "2L2JCOMP: R_ISR ";
-        cutFlowVector_str[33] = "2L2JCOMP: p_ISRT ";
-        cutFlowVector_str[34] = "2L2JCOMP: p_IT ";
-        cutFlowVector_str[35] = "2L2JCOMP: pT_CM ";
-        cutFlowVector_str[36] = "3LHIGH: Preselection ";
-        cutFlowVector_str[37] = "3LHIGH: mll  ";
-        cutFlowVector_str[38] = "3LHIGH: mTW  ";
-        cutFlowVector_str[39] = "3LHIGH: m_HT4PP/m_H4PP  ";
-        cutFlowVector_str[40] = "3LHIGH: HPb(1,1)/HPb(2,1) ";
-        cutFlowVector_str[41] = "3LHIGH: m_H4PP  ";
-        cutFlowVector_str[42] = "3LHIGH: pT_PP/(pT_PP + HT_PP(3,1)) ";
-        cutFlowVector_str[43] = "3LCOMP: Preselection ";
-        cutFlowVector_str[44] = "3LCOMP: mll ";
-        cutFlowVector_str[45] = "3LCOMP: mTW  ";
-        cutFlowVector_str[46] = "3LCOMP: dPhi_ISRI ";
-        cutFlowVector_str[47] = "3LCOMP: R_ISR ";
-        cutFlowVector_str[48] = "3LCOMP: p_ISRT ";
-        cutFlowVector_str[49] = "3LCOMP: p_IT ";
-        cutFlowVector_str[50] = "3LCOMP: pT_CM ";
-        cutFlowVector_str[51] = "3LINT: Preselection ";
-        cutFlowVector_str[52] = "3LINT: mll ";
-        cutFlowVector_str[53] = "3LINT: mTW  ";
-        cutFlowVector_str[54] = "3LINT: m_HT4PP/m_H4PP  ";
-        cutFlowVector_str[55] = "3LINT: HPb(1,1)/HPb(2,1) ";
-        cutFlowVector_str[56] = "3LINT: m_H4PP ";
-        cutFlowVector_str[57] = "3LINT: pT_PP/(pT_PP + HT_PP(3,1)) ";
+#ifdef CHECK_CUTFLOW
+        vector<string> cutflow_labels(58);
+        cutflow_labels[0] = "No cuts ";
+        cutflow_labels[1] = "3LLOW: Preselection ";
+        cutflow_labels[2] = "3LLOW: 75 GeV < mll < 105 GeV ";
+        cutflow_labels[3] = "3LLOW: mTW > 100 GeV ";
+        cutflow_labels[4] = "3LLOW: m_HT4PP/m_H4PP > 0.9 ";
+        cutflow_labels[5] = "3LLOW: m_H4PP > 250 GeV ";
+        cutflow_labels[6] = "3LLOW: pT_PP/(pT_PP + HT_PP(3,1)) ";
+        cutflow_labels[7] = "2L2JLOW: Preselection ";
+        cutflow_labels[8] = "2L2JLOW: mll ";
+        cutflow_labels[9] = "2L2JLOW: mjj ";
+        cutflow_labels[10] = "2L2JLOW: HT_PP(1,1)/HT_PP(4,1) ";
+        cutflow_labels[11] = "2L2JLOW: pT_PP/(pT_PP + HT_PP(4,1)) ";
+        cutflow_labels[12] = "2L2JLOW: minDPhi ";
+        cutflow_labels[13] = "2L2JLOW: HPP(4,1) ";
+        cutflow_labels[14] = "2L2JINT: Preselection ";
+        cutflow_labels[15] = "2L2JINT: mll ";
+        cutflow_labels[16] = "2L2JINT: mjj ";
+        cutflow_labels[17] = "2L2JINT: HT_PP(1,1)/HT_PP(4,1) ";
+        cutflow_labels[18] = "2L2JINT: pT_PP/(pT_PP + HT_PP(4,1)) ";
+        cutflow_labels[19] = "2L2JINT: minDPhi ";
+        cutflow_labels[20] = "2L2JINT: HPP(4,1) ";
+        cutflow_labels[21] = "2L2JHIGH: Preselection ";
+        cutflow_labels[22] = "2L2JHIGH: mll ";
+        cutflow_labels[23] = "2L2JHIGH: mjj ";
+        cutflow_labels[24] = "2L2JHIGH: m_R_minH2P_minH3P>0.8";
+        cutflow_labels[25] = "2L2JHIGH: m_RPT_HT5PP < 0.05 ";
+        cutflow_labels[26] = "2L2JHIGH: 0.3 < minDPhiVP > 2.8 ";
+        cutflow_labels[27] = "2L2JHIGH: m_H5PP>800. ";
+        cutflow_labels[28] = "2L2JCOMP: Preselection ";
+        cutflow_labels[29] = "2L2JCOMP: mZ ";
+        cutflow_labels[30] = "2L2JCOMP: mJ ";
+        cutflow_labels[31] = "2L2JCOMP: dPhi_ISR_I ";
+        cutflow_labels[32] = "2L2JCOMP: R_ISR ";
+        cutflow_labels[33] = "2L2JCOMP: p_ISRT ";
+        cutflow_labels[34] = "2L2JCOMP: p_IT ";
+        cutflow_labels[35] = "2L2JCOMP: pT_CM ";
+        cutflow_labels[36] = "3LHIGH: Preselection ";
+        cutflow_labels[37] = "3LHIGH: mll  ";
+        cutflow_labels[38] = "3LHIGH: mTW  ";
+        cutflow_labels[39] = "3LHIGH: m_HT4PP/m_H4PP  ";
+        cutflow_labels[40] = "3LHIGH: HPb(1,1)/HPb(2,1) ";
+        cutflow_labels[41] = "3LHIGH: m_H4PP  ";
+        cutflow_labels[42] = "3LHIGH: pT_PP/(pT_PP + HT_PP(3,1)) ";
+        cutflow_labels[43] = "3LCOMP: Preselection ";
+        cutflow_labels[44] = "3LCOMP: mll ";
+        cutflow_labels[45] = "3LCOMP: mTW  ";
+        cutflow_labels[46] = "3LCOMP: dPhi_ISRI ";
+        cutflow_labels[47] = "3LCOMP: R_ISR ";
+        cutflow_labels[48] = "3LCOMP: p_ISRT ";
+        cutflow_labels[49] = "3LCOMP: p_IT ";
+        cutflow_labels[50] = "3LCOMP: pT_CM ";
+        cutflow_labels[51] = "3LINT: Preselection ";
+        cutflow_labels[52] = "3LINT: mll ";
+        cutflow_labels[53] = "3LINT: mTW  ";
+        cutflow_labels[54] = "3LINT: m_HT4PP/m_H4PP  ";
+        cutflow_labels[55] = "3LINT: HPb(1,1)/HPb(2,1) ";
+        cutflow_labels[56] = "3LINT: m_H4PP ";
+        cutflow_labels[57] = "3LINT: pT_PP/(pT_PP + HT_PP(3,1)) ";
 
         //std::cout << " m_is3Lep " << m_is3Lep <<  " m_is2Lep2Jet " << m_is2Lep2Jet << " m_is2L2JInt " << m_is2L2JInt << " m_is3LInt " << m_is3LInt << " m_is3Lep2Jet " << m_is3Lep2Jet << " m_is3Lep3Jet " << m_is3Lep3Jet << " m_is4Lep2Jet " << m_is4Lep2Jet << " m_is4Lep3Jet " << m_is4Lep3Jet << std::endl;
 
         //if(m_is3Lep)std::cout << " m_is3Lep " << m_is3Lep << " m_lept1sign " << m_lept1sign << " m_lept2sign " << m_lept2sign << " m_lept1Pt " << m_lept1Pt << " m_lept2Pt " << m_lept2Pt << " m_lept3Pt " << m_lept3Pt << " signalBJets.size() " << signalBJets.size() << " signalJets.size() " << signalJets.size() << std::endl;
 
-        for(int j=0;j<NCUTS;j++){
+        if (_cutflows.cfs.empty())
+        {
+          _cutflows.addCutflow(analysis_name(), cutflow_labels);
+        }
+        _cutflows[analysis_name()].fillinit(event->weight());
+
+        for (size_t j = 0; j < cutflow_labels.size(); ++j){
 
           if( (j==0) ||
 
@@ -1919,13 +1917,13 @@ namespace Gambit {
 
           (j==6 && m_is3Lep && (((m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign)) || (m_lept1sign*m_lept3sign<0 && abs(m_lept1sign)==abs(m_lept3sign)) || (m_lept2sign*m_lept3sign<0 && abs(m_lept2sign)==abs(m_lept3sign)))) && m_lept1Pt>60. && m_lept2Pt>40. && m_lept3Pt>30. && signalBJets.size()==0 && signalJets.size()==0 && m_mll>75. && m_mll<105. && m_mTW>100. && m_HT4PP/m_H4PP > 0.9 && m_H4PP > 250. && m_RPT_HT4PP < 0.05) ||
 
-          /*cutFlowVector_str[7] = "2L2JLOW: Preselection ";
-          cutFlowVector_str[8] = "2L2JLOW: 80 GeV < mll < 100 GeV";
-          cutFlowVector_str[9] = "2L2JLOW: 70 GeV < mjj < 90 GeV ";
-          cutFlowVector_str[10] = "2L2JLOW: HT_PP(1,1)/HT_PP(4,1) ";
-          cutFlowVector_str[11] = "2L2JLOW: pT_PP/(pT_PP + HT_PP(4,1)) ";
-          cutFlowVector_str[12] = "2L2JLOW: minDPhi ";
-          cutFlowVector_str[13] = "2L2JLOW: HPP(4,1) ";*/
+          /*cutflow_labels[7] = "2L2JLOW: Preselection ";
+          cutflow_labels[8] = "2L2JLOW: 80 GeV < mll < 100 GeV";
+          cutflow_labels[9] = "2L2JLOW: 70 GeV < mjj < 90 GeV ";
+          cutflow_labels[10] = "2L2JLOW: HT_PP(1,1)/HT_PP(4,1) ";
+          cutflow_labels[11] = "2L2JLOW: pT_PP/(pT_PP + HT_PP(4,1)) ";
+          cutflow_labels[12] = "2L2JLOW: minDPhi ";
+          cutflow_labels[13] = "2L2JLOW: HPP(4,1) ";*/
 
           (j==7 && m_is2Lep2Jet && m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign) && m_lept1Pt>25. && m_lept2Pt>25. && m_jet1Pt>30. && m_jet2Pt>30. && signalBJets.size()==0 && signalJets.size()==2) ||
 
@@ -1941,13 +1939,13 @@ namespace Gambit {
 
           (j==13 && m_is2Lep2Jet && m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign) && m_lept1Pt>25. && m_lept2Pt>25. && m_jet1Pt>30. && m_jet2Pt>30. && signalBJets.size()==0 && signalJets.size()==2 && m_mll>80. && m_mll<100. && m_mjj>70. && m_mjj<90. && m_H2PP/m_H5PP>0.35 && m_H2PP/m_H5PP<0.6 && m_RPT_HT5PP<0.05 && m_minDphi>2.4 && m_H5PP>400.) ||
 
-          /*cutFlowVector_str[14] = "2L2JINT: Preselection ";
-          cutFlowVector_str[15] = "2L2JINT: mll ";
-          cutFlowVector_str[16] = "2L2JINT: mjj ";
-          cutFlowVector_str[17] = "2L2JINT: HT_PP(1,1)/HT_PP(4,1) ";
-          cutFlowVector_str[18] = "2L2JINT: pT_PP/(pT_PP + HT_PP(4,1)) ";
-          cutFlowVector_str[19] = "2L2JINT: minDPhi ";
-          cutFlowVector_str[20] = "2L2JINT: HPP(4,1) ";*/
+          /*cutflow_labels[14] = "2L2JINT: Preselection ";
+          cutflow_labels[15] = "2L2JINT: mll ";
+          cutflow_labels[16] = "2L2JINT: mjj ";
+          cutflow_labels[17] = "2L2JINT: HT_PP(1,1)/HT_PP(4,1) ";
+          cutflow_labels[18] = "2L2JINT: pT_PP/(pT_PP + HT_PP(4,1)) ";
+          cutflow_labels[19] = "2L2JINT: minDPhi ";
+          cutflow_labels[20] = "2L2JINT: HPP(4,1) ";*/
 
           (j==14 && m_is2Lep2Jet && m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign) && m_lept1Pt>25. && m_lept2Pt>25. && m_jet1Pt>30. && m_jet2Pt>30. && signalBJets.size()==0 && signalJets.size()>=2) ||
 
@@ -1963,13 +1961,13 @@ namespace Gambit {
 
           (j==20 && m_is2Lep2Jet && m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign) && m_lept1Pt>25. && m_lept2Pt>25. && m_jet1Pt>30. && m_jet2Pt>30. && signalBJets.size()==0 && signalJets.size()>=2 && m_mll>80. && m_mll<100. &&  m_mjj>60. && m_mjj<100. && m_R_minH2P_minH3P>0.8 && m_RPT_HT5PP<0.05 && m_dphiVP>0.6 && m_H5PP>600.) ||
 
-          /* cutFlowVector_str[21] = "2L2JHIGH: Preselection ";
-          cutFlowVector_str[22] = "2L2JHIGH: mll ";
-          cutFlowVector_str[23] = "2L2JHIGH: mjj ";
-          cutFlowVector_str[24] = "2L2JHIGH: m_R_minH2P_minH3P>0.8";
-          cutFlowVector_str[25] = "2L2JHIGH: m_RPT_HT5PP < 0.05 ";
-          cutFlowVector_str[26] = "2L2JHIGH: 0.3 < minDPhiVP > 2.8 ";
-          cutFlowVector_str[27] = "2L2JHIGH: m_H5PP>800. ";*/
+          /* cutflow_labels[21] = "2L2JHIGH: Preselection ";
+          cutflow_labels[22] = "2L2JHIGH: mll ";
+          cutflow_labels[23] = "2L2JHIGH: mjj ";
+          cutflow_labels[24] = "2L2JHIGH: m_R_minH2P_minH3P>0.8";
+          cutflow_labels[25] = "2L2JHIGH: m_RPT_HT5PP < 0.05 ";
+          cutflow_labels[26] = "2L2JHIGH: 0.3 < minDPhiVP > 2.8 ";
+          cutflow_labels[27] = "2L2JHIGH: m_H5PP>800. ";*/
 
           (j==21 && m_is2Lep2Jet && m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign) && m_lept1Pt>25. && m_lept2Pt>25. && m_jet1Pt>30. && m_jet2Pt>30. && signalBJets.size()==0 && signalJets.size()>=2) ||
 
@@ -1985,14 +1983,14 @@ namespace Gambit {
 
           (j==27 && m_is2Lep2Jet && m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign) && m_lept1Pt>25. && m_lept2Pt>25. && m_jet1Pt>30. && m_jet2Pt>30. && signalBJets.size()==0 && signalJets.size()>=2 && m_mll>80. && m_mll<100. && m_mjj>60. && m_mjj<100. && m_R_minH2P_minH3P>0.8 && m_RPT_HT5PP< 0.05 && m_dphiVP>0.3 && m_dphiVP<2.8 && m_H5PP>800.) ||
 
-          /*cutFlowVector_str[28] = "2L2JCOMP: Preselection ";
-          cutFlowVector_str[29] = "2L2JCOMP: mZ ";
-          cutFlowVector_str[30] = "2L2JCOMP: mJ ";
-          cutFlowVector_str[31] = "2L2JCOMP: dPhi_ISR_I ";
-          cutFlowVector_str[32] = "2L2JCOMP: R_ISR ";
-          cutFlowVector_str[33] = "2L2JCOMP: p_ISRT ";
-          cutFlowVector_str[34] = "2L2JCOMP: p_IT ";
-          cutFlowVector_str[35] = "2L2JCOMP: pT_CM ";*/
+          /*cutflow_labels[28] = "2L2JCOMP: Preselection ";
+          cutflow_labels[29] = "2L2JCOMP: mZ ";
+          cutflow_labels[30] = "2L2JCOMP: mJ ";
+          cutflow_labels[31] = "2L2JCOMP: dPhi_ISR_I ";
+          cutflow_labels[32] = "2L2JCOMP: R_ISR ";
+          cutflow_labels[33] = "2L2JCOMP: p_ISRT ";
+          cutflow_labels[34] = "2L2JCOMP: p_IT ";
+          cutflow_labels[35] = "2L2JCOMP: pT_CM ";*/
 
           (j==28 && m_is2L2JInt && m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign) && m_lept1Pt>25. && m_lept2Pt>25. && m_jet1Pt>30. && m_jet2Pt>30. && signalBJets.size()==0 && m_NjS==2 && m_NjISR>0) ||
 
@@ -2011,13 +2009,13 @@ namespace Gambit {
           (j==35 && m_is2L2JInt && m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign) && m_lept1Pt>25. && m_lept2Pt>25. && m_jet1Pt>30. && m_jet2Pt>30. && signalBJets.size()==0 && m_NjS==2 && m_NjISR>0 && m_MZ>80. && m_MZ<100. && m_MJ>50. && m_MJ<110. && m_dphiISRI>2.8 && m_RISR > 0.40 && m_RISR < 0.75  &&  m_PTISR > 180. && m_PTI > 100. && m_PTCM < 20.) ||
 
 
-          /* cutFlowVector_str[36] = "3LHIGH: Preselection ";
-          cutFlowVector_str[37] = "3LHIGH: 75 GeV < mll < 105 GeV ";
-          cutFlowVector_str[38] = "3LHIGH: mTW  ";
-          cutFlowVector_str[39] = "3LHIGH: m_HT4PP/m_H4PP  ";
-          cutFlowVector_str[40] = "3LHIGH: HPb(1,1)/HPb(2,1) ";
-          cutFlowVector_str[41] = "3LHIGH: m_H4PP ";
-          cutFlowVector_str[42] = "3LHIGH: pT_PP/(pT_PP + HT_PP(3,1)) ";*/
+          /* cutflow_labels[36] = "3LHIGH: Preselection ";
+          cutflow_labels[37] = "3LHIGH: 75 GeV < mll < 105 GeV ";
+          cutflow_labels[38] = "3LHIGH: mTW  ";
+          cutflow_labels[39] = "3LHIGH: m_HT4PP/m_H4PP  ";
+          cutflow_labels[40] = "3LHIGH: HPb(1,1)/HPb(2,1) ";
+          cutflow_labels[41] = "3LHIGH: m_H4PP ";
+          cutflow_labels[42] = "3LHIGH: pT_PP/(pT_PP + HT_PP(3,1)) ";*/
 
 
           (j==36 && m_is3Lep && (((m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign)) || (m_lept1sign*m_lept3sign<0 && abs(m_lept1sign)==abs(m_lept3sign)) || (m_lept2sign*m_lept3sign<0 && abs(m_lept2sign)==abs(m_lept3sign)))) && m_lept1Pt>60. && m_lept2Pt>60. && m_lept3Pt>40. && signalBJets.size()==0 && signalJets.size()<3) ||
@@ -2034,14 +2032,14 @@ namespace Gambit {
 
           (j==42 && m_is3Lep && (((m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign)) || (m_lept1sign*m_lept3sign<0 && abs(m_lept1sign)==abs(m_lept3sign)) || (m_lept2sign*m_lept3sign<0 && abs(m_lept2sign)==abs(m_lept3sign)))) && m_lept1Pt>60. && m_lept2Pt>60. && m_lept3Pt>40. && signalBJets.size()==0 && signalJets.size()<3 && m_mll>75. && m_mll<105. && m_mTW>150. && m_R_minH2P_minH3P>0.8 && m_HT4PP/m_H4PP > 0.75 && m_H4PP > 550. && m_RPT_HT4PP < 0.2) ||
 
-          /*cutFlowVector_str[43] = "3LCOMP: Preselection ";
-          cutFlowVector_str[44] = "3LCOMP: mll ";
-          cutFlowVector_str[45] = "3LCOMP: mTW  ";
-          cutFlowVector_str[46] = "3LCOMP: dPhi_ISRI ";
-          cutFlowVector_str[47] = "3LCOMP: R_ISR ";
-          cutFlowVector_str[48] = "3LCOMP: p_ISRT ";
-          cutFlowVector_str[49] = "3LCOMP: p_IT ";
-          cutFlowVector_str[50] = "3LCOMP: pT_CM ";*/
+          /*cutflow_labels[43] = "3LCOMP: Preselection ";
+          cutflow_labels[44] = "3LCOMP: mll ";
+          cutflow_labels[45] = "3LCOMP: mTW  ";
+          cutflow_labels[46] = "3LCOMP: dPhi_ISRI ";
+          cutflow_labels[47] = "3LCOMP: R_ISR ";
+          cutflow_labels[48] = "3LCOMP: p_ISRT ";
+          cutflow_labels[49] = "3LCOMP: p_IT ";
+          cutflow_labels[50] = "3LCOMP: pT_CM ";*/
 
           (j==43 && m_is3LInt && ((m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign)) || (m_lept1sign*m_lept3sign<0 && abs(m_lept1sign)==abs(m_lept3sign)) || (m_lept2sign*m_lept3sign<0 && abs(m_lept2sign)==abs(m_lept3sign))) && m_lept1Pt>25. && m_lept2Pt>25. && m_lept3Pt>20. && signalBJets.size()==0 && signalJets.size()<4) ||
 
@@ -2059,13 +2057,13 @@ namespace Gambit {
 
           (j==50 && m_is3LInt && (((m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign)) || (m_lept1sign*m_lept3sign<0 && abs(m_lept1sign)==abs(m_lept3sign)) || (m_lept2sign*m_lept3sign<0 && abs(m_lept2sign)==abs(m_lept3sign)))) && m_lept1Pt>25. && m_lept2Pt>25. && m_lept3Pt>20. && signalBJets.size()==0 && signalJets.size()<4 && m_mll>75. && m_mll<105. && m_mTW>100. && m_dphiISRI>2.0 && m_RISR>0.55 && m_RISR<1.0 &&  m_PTISR>100. && m_PTI>80. && m_PTCM<25.) ||
 
-          /* cutFlowVector_str[51] = "3LINT: Preselection ";
-          cutFlowVector_str[52] = "3LINT: mll ";
-          cutFlowVector_str[53] = "3LINT: mTW  ";
-          cutFlowVector_str[54] = "3LINT: m_HT4PP/m_H4PP  ";
-          cutFlowVector_str[55] = "3LINT: HPb(1,1)/HPb(2,1) ";
-          cutFlowVector_str[56] = "3LINT: m_H4PP ";
-          cutFlowVector_str[57] = "3LINT: pT_PP/(pT_PP + HT_PP(3,1)) ";*/
+          /* cutflow_labels[51] = "3LINT: Preselection ";
+          cutflow_labels[52] = "3LINT: mll ";
+          cutflow_labels[53] = "3LINT: mTW  ";
+          cutflow_labels[54] = "3LINT: m_HT4PP/m_H4PP  ";
+          cutflow_labels[55] = "3LINT: HPb(1,1)/HPb(2,1) ";
+          cutflow_labels[56] = "3LINT: m_H4PP ";
+          cutflow_labels[57] = "3LINT: pT_PP/(pT_PP + HT_PP(3,1)) ";*/
 
           (j==51 && m_is3Lep && (((m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign)) || (m_lept1sign*m_lept3sign<0 && abs(m_lept1sign)==abs(m_lept3sign)) || (m_lept2sign*m_lept3sign<0 && abs(m_lept2sign)==abs(m_lept3sign)))) && m_lept1Pt>60. && m_lept2Pt>50. && m_lept3Pt>30. && signalBJets.size()==0 && signalJets.size()<3) ||
 
@@ -2081,8 +2079,9 @@ namespace Gambit {
 
           (j==57 && m_is3Lep && (((m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign)) || (m_lept1sign*m_lept3sign<0 && abs(m_lept1sign)==abs(m_lept3sign)) || (m_lept2sign*m_lept3sign<0 && abs(m_lept2sign)==abs(m_lept3sign)))) && m_lept1Pt>60. && m_lept2Pt>50. && m_lept3Pt>30. && signalBJets.size()==0 && signalJets.size()<3 && m_mll>75. && m_mll<105. && m_mTW>130. && m_HT4PP/m_H4PP > 0.8 && m_R_minH2P_minH3P>0.75 && m_H4PP > 450. && m_RPT_HT4PP < 0.15)
 
-          )cutFlowVector[j]++;
+          ) _cutflows[analysis_name()].fill(j + 1, true, event->weight());
         }
+#endif
 
         // Now apply the signal region cuts
 
@@ -2109,22 +2108,6 @@ namespace Gambit {
 
 
       virtual void collect_results() {
-/*
-          double scale_by=1.;
-          cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-          cout << "CUT FLOW: ATLAS 13 TeV 3 lep low mass RJ signal region "<<endl;
-          cout << "------------------------------------------------------------------------------------------------------------------------------"<<endl;
-          cout << right << setw(40) << "CUT" << setw(20) << "RAW" << setw(20) << "SCALED"
-               << setw(20) << "%" << setw(20) << "clean adj RAW"<< setw(20) << "clean adj %" << endl;
-          for (int j=0; j<NCUTS; j++) {
-            cout << right << setw(40) << cutFlowVector_str[j].c_str() << setw(20)
-                 << cutFlowVector[j] << setw(20) << cutFlowVector[j]*scale_by << setw(20)
-                 << 100.*cutFlowVector[j]/cutFlowVector[0] << "%" << setw(20)
-                 << cutFlowVector[j]*scale_by << setw(20) << 100.*cutFlowVector[j]/cutFlowVector[0]<< "%" << endl;
-          }
-          cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
-*/
-
         add_result(SignalRegionData(_counters.at("2L2JHIGH"), 0,  {1.9, 0.8}));
         add_result(SignalRegionData(_counters.at("2L2JINT"),  1,  {2.4, 0.9}));
         add_result(SignalRegionData(_counters.at("2L2JLOW"),  19, {8.4, 5.8}));
@@ -2133,7 +2116,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("3LINT"),    1,  {2.3, 0.5}));
         add_result(SignalRegionData(_counters.at("3LLOW"),    20, {10., 2.0}));
         add_result(SignalRegionData(_counters.at("3LCOMP"),   12, {3.9, 1.0}));
-
+COMMIT_CUTFLOWS
         return;
       }
 
@@ -2142,8 +2125,6 @@ namespace Gambit {
       void analysis_specific_reset() {
 
         for (auto& pair : _counters) { pair.second.reset(); }
-
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     }; // end class Analysis_ATLAS_SUSY_2017_03_RJR_Lowmass
@@ -2164,6 +2145,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("2L2JINT"),  1,  {2.4, 0.9}));
         add_result(SignalRegionData(_counters.at("2L2JLOW"),  19, {8.4, 5.8}));
         add_result(SignalRegionData(_counters.at("2L2JCOMP"), 11, {2.7, 2.7}));
+COMMIT_CUTFLOWS
       }
 
     };
@@ -2180,6 +2162,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("3LINT"),    1,  {2.3, 0.5}));
         add_result(SignalRegionData(_counters.at("3LLOW"),    20, {10., 2.0}));
         add_result(SignalRegionData(_counters.at("3LCOMP"),   12, {3.9, 1.0}));
+COMMIT_CUTFLOWS
       }
 
     };

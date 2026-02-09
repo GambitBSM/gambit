@@ -1,6 +1,7 @@
 #include "gambit/cmake/cmake_variables.hpp"
 #include "gambit/Utils/threadsafe_rng.hpp"
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "METSignificance/METSignificance.hpp"
@@ -255,9 +256,6 @@ namespace Gambit
            "pT1b < 175", 
            "pT1b > 0", 
            "|eta2b| < 1.2", });
-
-        std::cout << "======= CutFlow ========" 
-            << _cutflows["SRATT"] << std::endl; 
         
         #endif
 
@@ -907,25 +905,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SRD1"), 4., { 3.1, 1.0}));
         add_result(SignalRegionData(_counters.at("SRD2"), 10., { 12.2, 1.5}));
         
-        #ifdef CHECK_CUTFLOW
-          std::cout << "\n ===== CUTFLOWS ====== \n"
-               << _cutflows["SRATT"] << std::endl;        
-          std::cout << "\n ===== CUTFLOWS ====== \n"
-               << _cutflows["SRATW"] << std::endl;    
-          std::cout << "\n ===== CUTFLOWS ====== \n"
-               << _cutflows["SRAT0"] << std::endl;    
-          std::cout << "\n ===== CUTFLOWS ====== \n"
-               << _cutflows["SRB"] << std::endl;      
-          std::cout << "\n ===== CUTFLOWS ====== \n"
-               << _cutflows["SRD0"] << std::endl;  
-          std::cout << "\n ===== CUTFLOWS ====== \n"
-               << _cutflows["SRD1"] << std::endl;  
-          std::cout << "\n ===== CUTFLOWS ====== \n"
-               << _cutflows["SRD2"] << std::endl;  
-
-          add_cutflows(_cutflows);
-        #endif
-        
+COMMIT_CUTFLOWS;
         return;
       }
 
@@ -942,5 +922,4 @@ namespace Gambit
 
   }
 }
-
 

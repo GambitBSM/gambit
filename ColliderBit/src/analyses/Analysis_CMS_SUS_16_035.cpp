@@ -19,6 +19,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 
@@ -730,10 +731,7 @@ namespace Gambit {
             add_result(SignalRegionData(_counters.at("SRLL-6"), 0, {0.95, 0.52}));
             add_result(SignalRegionData(_counters.at("SRLL-7"), 0, {0.09, 0.07}));
 
-            #ifdef CHECK_CUTFLOW
-            add_cutflows(_cutflows);
-            #endif
-
+COMMIT_CUTFLOWS;
             return;
         }
 
@@ -776,10 +774,8 @@ namespace Gambit {
             add_result(SignalRegionData(_counters.at("SRinc-13"), 6, {7.3, 5.5}));
             add_result(SignalRegionData(_counters.at("SRinc-14"), 0, {1.06, 0.99}));
 
-            #ifdef CHECK_CUTFLOW
-            add_cutflows(_cutflows);
-            #endif
-        }
+COMMIT_CUTFLOWS;
+         }
 
     };
 
@@ -835,10 +831,8 @@ namespace Gambit {
 
             set_covariance(BKGCOV);
 
-            #ifdef CHECK_CUTFLOW
-            add_cutflows(_cutflows);
-            #endif
-        }
+COMMIT_CUTFLOWS;
+         }
 
     };
 

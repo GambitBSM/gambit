@@ -31,6 +31,7 @@
 #include <fstream>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -405,16 +406,6 @@ namespace Gambit
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results() {
 
-        #ifdef CHECK_CUTFLOW
-        cout << _cutflows[CUTFLOW_NAME] << endl;
-        for (auto& el : _counters) {
-            cout << el.first << "\t" << _counters.at(el.first).sum() << endl;
-        }
-        for (auto& el : _counters_bin) {
-            cout << el.first << "\t" << _counters_bin.at(el.first).sum() << endl;
-        }
-        #endif
-
         add_result(SignalRegionData(_counters.at("SR-SF-0J-100"), 147., {144., 12.}));
         add_result(SignalRegionData(_counters.at("SR-SF-0J-160"), 37., {37.3, 3.}));
         add_result(SignalRegionData(_counters.at("SR-SF-0J-100-120"), 53., {56., 6.}));
@@ -435,9 +426,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR-DF-1J-100-120"), 38., {39., 6.}));
         add_result(SignalRegionData(_counters.at("SR-DF-1J-120-160"), 22., {21.3, 2.8 }));
 
-        #ifdef CHECK_CUTFLOW
-        add_cutflows(_cutflows);
-        #endif
+COMMIT_CUTFLOWS;
       }
 
 
@@ -485,9 +474,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR-DF-1J-100-120"), 38., {39., 6.}));
         add_result(SignalRegionData(_counters.at("SR-DF-1J-120-160"), 22., {21.3, 2.8 }));
 
-        #ifdef CHECK_CUTFLOW
-        add_cutflows(_cutflows);
-        #endif
+COMMIT_CUTFLOWS;
       }
 
     };
@@ -543,9 +530,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-220-260"), 5. , { 6.488174 , 1.576985 }));
         add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-260"), 5. , { 7.986618 , 2.808563 }));
 
-        #ifdef CHECK_CUTFLOW
-        add_cutflows(_cutflows);
-        #endif
+COMMIT_CUTFLOWS;
       }
 
     };

@@ -18,6 +18,7 @@
 #include <fstream>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -407,9 +408,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR-DF-1J-100-120"),  39., {50.6 , 10.7}));
         add_result(SignalRegionData(_counters.at("SR-DF-1J-120-160"),  25., {21.2 , 4.0 }));
 
-        #ifdef CHECK_CUTFLOW
-        add_cutflows(_cutflows);
-        #endif
+COMMIT_CUTFLOWS;
       }
 
 
@@ -457,9 +456,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR-DF-1J-100-120"),  39., {50.6 , 10.7}));
         add_result(SignalRegionData(_counters.at("SR-DF-1J-120-160"),  25., {21.2 , 4.0 }));
 
-        #ifdef CHECK_CUTFLOW
-        add_cutflows(_cutflows);
-        #endif
+COMMIT_CUTFLOWS;
       }
 
     };
@@ -512,9 +509,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-180-220"), 7   ,  {   8.888386    ,   2.181206    }));
         add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-220"    ), 10  ,  {   13.481506   ,   2.867035    }));
 
-        #ifdef CHECK_CUTFLOW
-        add_cutflows(_cutflows);
-        #endif
+COMMIT_CUTFLOWS;
       }
 
     };

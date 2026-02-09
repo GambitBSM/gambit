@@ -1,4 +1,5 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 using namespace std;
@@ -38,11 +39,26 @@ namespace Gambit {
 
         set_analysis_name("ATLAS_CONF_2018_019");
         set_luminosity(79.8);
+
+#ifdef CHECK_CUTFLOW
+        _cutflows.addCutflow(analysis_name(), {
+          "mll near mZ",
+          "y1 > 25 GeV",
+          "MET > 95 GeV",
+          "ZH pT balance",
+          "ZH dphi",
+          "ll dphi"
+        });
+#endif
         analysis_specific_reset();
       }
 
 
       void run(const Event* event) {
+
+#ifdef CHECK_CUTFLOW
+        _cutflows[analysis_name()].fillinit(event->weight());
+#endif
 
         // Electrons
         ParticlePtrs electrons;
@@ -112,7 +128,9 @@ namespace Gambit {
 
         /////////////////
 
+#ifdef CHECK_CUTFLOW
         size_t ncut = 0;
+#endif
 
         // Find the Z system
         if (electrons.size() + muons.size() != 2) return; //< must be exactly two leptons
@@ -122,30 +140,42 @@ namespace Gambit {
         // The dilepton mass must be within 10 GeV of the Z mass
         const P4 pZ = leps[0]->mom() + leps[1]->mom();
         if (fabs(pZ.m() - 91.2) > 10.) return;
-        cutflow[ncut++] += 1;
+#ifdef CHECK_CUTFLOW
+        _cutflows[analysis_name()].fill(++ncut, true, event->weight());
+#endif
 
         // There must be a prompt photon with pT > 25 GeV
         if (photons.empty()) return;
         if (photons[0]->pT() < 25) return;
-        cutflow[ncut++] += 1;
+#ifdef CHECK_CUTFLOW
+        _cutflows[analysis_name()].fill(++ncut, true, event->weight());
+#endif
 
         // MET and jet requirements
         if (met < 95) return;
         if (!jets.empty() && jets[0]->pT() > 30) return;
-        cutflow[ncut++] += 1;
+#ifdef CHECK_CUTFLOW
+        _cutflows[analysis_name()].fill(++ncut, true, event->weight());
+#endif
 
         // Require separation of the Z and the MET+photon(s) systems
         const P4 pYMET = pmiss + photons[0]->mom() +
           (photons.size() > 1 ? photons[1]->mom() : P4());
         if (fabs(pZ.pT()-pYMET.pT())/pYMET.pT() > 0.2) return;
-        cutflow[ncut++] += 1;
+#ifdef CHECK_CUTFLOW
+        _cutflows[analysis_name()].fill(++ncut, true, event->weight());
+#endif
         if (deltaPhi(pZ, pYMET) < 2.8) return;
-        cutflow[ncut++] += 1;
+#ifdef CHECK_CUTFLOW
+        _cutflows[analysis_name()].fill(++ncut, true, event->weight());
+#endif
 
         // Check lepton pTs and require small delta_phi
         if (leps[0]->pT() < 25 || leps[1]->pT() < 20) return;
         if (deltaPhi(leps[0]->mom(), leps[1]->mom()) > 1.4) return;
-        cutflow[ncut++] += 1;
+#ifdef CHECK_CUTFLOW
+        _cutflows[analysis_name()].fill(++ncut, true, event->weight());
+#endif
 
         // Signal count
         _counters.at("SR").add_event(event);
@@ -157,26 +187,16 @@ namespace Gambit {
 
         add_result(SignalRegionData(_counters.at("SR"), 3., {2.1, 0.5}));
 
-        // cout << "\nCUTFLOW" << endl;
-        // const string cutnames[NCUTS] = {"mll near mZ", "y1 > 25 GeV", "MET > 95 GeV", "ZH pT balance", "ZH dphi", "ll dphi"};
-        // const double sf_cutflow = 85.92 / cutflow[0];
-        // for (size_t i = 0; i < NCUTS; ++i) cout << i+1 << ". " << cutflow[i] * sf_cutflow << " (" << cutnames[i] << ")" << endl;
-
+COMMIT_CUTFLOWS
       }
 
 
       void analysis_specific_reset() {
         for (auto& pair : _counters) { pair.second.reset(); }
-        for (size_t i = 0; i < NCUTS; ++i) cutflow[i] = 0;
       }
 
 
     private:
-
-      // Cut flow
-      const static int NCUTS = 6;
-      double cutflow[NCUTS];
-      // vector<string> cutFlowVector_str;
 
     };
 

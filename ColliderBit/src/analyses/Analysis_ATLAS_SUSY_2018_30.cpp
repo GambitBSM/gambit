@@ -26,6 +26,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/onnx_rt_wrapper.hpp"
@@ -49,8 +50,6 @@ using namespace std;
 
 // Renamed from: 
 //        Analysis_ATLAS_13TeV_3b_NN_139invfb
-
-#define CHECK_CUTFLOWS
 
 namespace Gambit {
 
@@ -172,7 +171,7 @@ namespace Gambit {
         //TODO: We really want to be as sure as possible this is called the minimal number of times.
         _nn = std::make_unique<onnx_rt_wrapper>(GAMBIT_DIR"/ColliderBit/data/analyses_ML/Analysis_ATLAS_SUSY_2018_30.onnx");
 
-        #ifdef CHECK_CUTFLOWS
+        #ifdef CHECK_CUTFLOW
         // C&C regions
         _cutflows.addCutflow("SR_Gtt_0l_B", {"Nsiglep=0","dPhi4jmin>0.4","NJet>=5","ETMiss>=600","Meff>=2900","mbjets_Tmin>120","TotJetMass>=300"}); //TODO: bjets????
         _cutflows.addCutflow("SR_Gtt_0l_M1", {"Nsiglep=0","dPhi4jmin>0.4","NJet>=9&&Nbs>=3","ETMiss>=600","Meff>=1700","mbjets_Tmin>120","TotJetMass>=300"});
@@ -207,7 +206,7 @@ namespace Gambit {
         _cutflows.addCutflow("SR_Gbb_2100_1600",NN_Gbb_cuts);
         _cutflows.addCutflow("SR_Gbb_2000_1800",NN_Gbb_cuts);
 
-        #endif //CHECK_CUTFLOWS
+        #endif //CHECK_CUTFLOW
 
       }
 
@@ -493,7 +492,7 @@ namespace Gambit {
         }
 
         // NN region cutflows
-        #ifdef CHECK_CUTFLOWS
+        #ifdef CHECK_CUTFLOW
         if ((nBaseLeptons == 0 && dPhi4jmin >= 0.4) || nSigLeptons >= 1){
           _cutflows["SR_Gtt_2100_1"].fill(1, {(nBaseLeptons == 0 && dPhi4jmin >= 0.4) || nSigLeptons == 1, nn_outputs["Gtt_2100_1"][0] > 0.9997}, event->weight());
           _cutflows["SR_Gtt_1800_1"].fill(1, {(nBaseLeptons == 0 && dPhi4jmin >= 0.4) || nSigLeptons == 1, nn_outputs["Gtt_1800_1"][0] > 0.9997}, event->weight());
@@ -514,7 +513,7 @@ namespace Gambit {
             _cutflows["SR_Gbb_2300_1000"].fill(2, {dPhi4jmin >= 0.6, nn_outputs["Gbb_2300_1000"][1] > 0.9994}, event->weight());
           }
         }
-        #endif //CHECK_CUTFLOWS
+        #endif //CHECK_CUTFLOW
         ///////////////////////////////////////////////////////////////////////
         // Cut 'n' Count analysis
 
@@ -557,7 +556,7 @@ namespace Gambit {
               _counters["SR_Gtt_0l_C"].add_event(event);
             }
           }
-          #ifdef CHECK_CUTFLOWS
+          #ifdef CHECK_CUTFLOW
           _cutflows["SR_Gbb_B"].fill(1, {true, dPhi4jmin>=0.4, m_transverse_B_min>=130, met>=550, smallJets[0].pT() >= 65, meff >= 2600}, event->weight());
           _cutflows["SR_Gbb_M"].fill(1, {true, dPhi4jmin>=0.4, m_transverse_B_min>=130, met>=550, meff >= 2000}, event->weight());
           _cutflows["SR_Gbb_C"].fill(1, {true, dPhi4jmin>=0.4, m_transverse_B_min>=130, met>=550, meff >= 1600}, event->weight());
@@ -570,7 +569,7 @@ namespace Gambit {
           _cutflows["SR_Gtt_0l_M1"].fill(1, {true, dPhi4jmin>=0.4, nJets>=9, met>=600, meff>=1700, m_transverse_B_min>=120, totJetMass >= 300}, event->weight());
           _cutflows["SR_Gtt_0l_M2"].fill(1, {true, dPhi4jmin>=0.4, nJets>=10, met>=600, meff>=1100, m_transverse_B_min>=120, totJetMass >= 200}, event->weight());
           _cutflows["SR_Gtt_0l_C"].fill(1, {true, dPhi4jmin>=0.4, nJets>=10, nbJets>=4, met>=400, meff>=800, m_transverse_B_min>=180, totJetMass >= 100}, event->weight());
-          #endif //CHECK_CUTFLOWS
+          #endif //CHECK_CUTFLOW
         }
         // 1 lepton channel
         else if (nSigLeptons >= 1){
@@ -588,7 +587,7 @@ namespace Gambit {
           if (nJets >= 9 && met >= 300 && meff >= 800 && m_transverse >= 150 && m_transverse_B_min >= 120){
             _counters["SR_Gtt_1l_C"].add_event(event);
           }
-          #ifdef CHECK_CUTFLOWS
+          #ifdef CHECK_CUTFLOW
             _cutflows["SR_Gtt_1l_B"].fill(1,{true, nJets >= 4 && nbJets>=3, met >= 600, meff >= 2300, m_transverse >= 150, m_transverse_B_min >= 120, totJetMass >= 200}, event->weight());
             _cutflows["SR_Gtt_1l_M1"].fill(1,{true, nJets >= 5 && nbJets>=3, met >= 600, meff >= 2000, m_transverse >= 200, m_transverse_B_min >= 120, totJetMass >= 200}, event->weight());
             _cutflows["SR_Gtt_1l_M2"].fill(1,{true, nJets >= 8 && nbJets>=3, met >= 500, meff >= 1100, m_transverse >= 200, m_transverse_B_min >= 120, totJetMass >= 200}, event->weight());
@@ -645,10 +644,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SR_Gtt_1l_M2"), 0., {1.0, 0.4}));
         add_result(SignalRegionData(_counters.at("SR_Gtt_1l_C"), 2., {3.7, 2.0}));
 
-        #ifdef CHECK_CUTFLOWS
-          _cutflows.print(std::cout);
-        #endif //CHECK_CUTFLOWS
-
+COMMIT_CUTFLOWS;
         return;
 
       }
@@ -677,6 +673,6 @@ namespace Gambit {
 
 }
 
-//#undef CHECK_CUTFLOWS
+//#undef CHECK_CUTFLOW
 
 #endif

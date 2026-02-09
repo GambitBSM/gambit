@@ -114,7 +114,6 @@ namespace Gambit
 
     public:
 #ifdef CHECK_CUTFLOW
-      Cutflows _cutflows;
       int Nents = 0;
 #endif
 
@@ -123,12 +122,11 @@ namespace Gambit
 
       Analysis_ATLAS_EXOT_2019_07()
       {
-        DEFINE_SIGNAL_REGION_NOCUTS("SR");
+        DEFINE_SIGNAL_REGION("SR");
         set_analysis_name("ATLAS_EXOT_2019_07");
         set_luminosity(140.);
 
 #ifdef CHECK_CUTFLOW
-        cout << "====== Cutflows ======" << endl;
         _cutflows.addCutflow("Signal Region", {"Initial signal event", "Large-R jet pT and eta cuts", "Lepton veto", "Leading large-R jet mass in (100, 225) GeV",
                                                "Second-leading large-R jet mass in (100, 225) GeV", "SR tagging requirements", "m_Ht > 1 TeV"});
 #endif
@@ -189,7 +187,6 @@ namespace Gambit
 #ifdef CHECK_CUTFLOW
         _cutflows["Signal Region"].fillinit(event->weight());
         _cutflows["Signal Region"].fill(1, true, event->weight());
-        if (Nents % 200 == 0) { cout << "Complete " << Nents << " Events" << endl; }
         Nents += 1;
 #endif
 
@@ -380,12 +377,6 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR"), 471., {494., 22.}));
 
         COMMIT_CUTFLOWS;
-#ifdef CHECK_CUTFLOW
-        // cout << "\nCUTFLOWS:\n" << _cutflows << endl;
-        // cout << "\nSRCOUNTS:\n";
-        for (auto &pair : _counters) cout << pair.first << ": " << pair.second.weight_sum() << "\n";
-        // cout << "\n" << endl;
-#endif
         return;
       }
 

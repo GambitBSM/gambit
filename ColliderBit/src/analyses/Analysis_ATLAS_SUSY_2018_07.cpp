@@ -245,14 +245,14 @@ namespace Gambit
       {
         _hist_Topness = std::make_shared<YODA::Histo1D>(10, 0.0, 100.0, "Topness", "My Topness");
         // Signal region counter
-        DEFINE_SIGNAL_REGION_NOCUTS("SR-tN_med");
-        DEFINE_SIGNAL_REGION_NOCUTS("SR-tN_high");
-        DEFINE_SIGNAL_REGION_NOCUTS("SR-tN_diag_low");
-        DEFINE_SIGNAL_REGION_NOCUTS("SR-tN_diag_high");
-        DEFINE_SIGNAL_REGION_NOCUTS("SR-bWN");
-        DEFINE_SIGNAL_REGION_NOCUTS("SR-bffN_btag");
-        DEFINE_SIGNAL_REGION_NOCUTS("SR-bffN_softb");
-        DEFINE_SIGNAL_REGION_NOCUTS("SR-DM");
+        DEFINE_SIGNAL_REGION("SR-tN_med");
+        DEFINE_SIGNAL_REGION("SR-tN_high");
+        DEFINE_SIGNAL_REGION("SR-tN_diag_low");
+        DEFINE_SIGNAL_REGION("SR-tN_diag_high");
+        DEFINE_SIGNAL_REGION("SR-bWN");
+        DEFINE_SIGNAL_REGION("SR-bffN_btag");
+        DEFINE_SIGNAL_REGION("SR-bffN_softb");
+        DEFINE_SIGNAL_REGION("SR-DM");
 
         // Set the analysis name
         set_analysis_name("ATLAS_SUSY_2018_07");

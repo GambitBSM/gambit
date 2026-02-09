@@ -1,5 +1,6 @@
 // -*- C++ -*-
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 
 // Renamed from: 
@@ -267,9 +268,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SR11"), 316., {385., 33.0} ));
         add_result(SignalRegionData(_counters.at("SR12"), 17., {15.9, 5.47} ));
 
-        #ifdef CHECK_CUTFLOW
-        add_cutflows(_cutflows);
-        #endif
+COMMIT_CUTFLOWS;
       }
 
 

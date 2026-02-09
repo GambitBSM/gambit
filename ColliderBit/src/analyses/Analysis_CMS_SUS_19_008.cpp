@@ -20,6 +20,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 
@@ -984,10 +985,7 @@ namespace Gambit {
 
             // set_covariance(BKGCOV);
 
-            #ifdef CHECK_CUTFLOW
-            add_cutflows(_cutflows);
-            #endif
-
+COMMIT_CUTFLOWS;
             return;
         }
 

@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -33,8 +34,7 @@ namespace Gambit {
     private:
 
         // Cut Flow
-        vector<int> cutFlowVector;
-        vector<string> cutFlowVector_str;
+        vector<string> legacyCutNames;
         int NCUTS;
 
         // // debug
@@ -131,8 +131,7 @@ namespace Gambit {
             // Savelep2.open("lep2.txt");
 
             for(int i=0;i<NCUTS;i++){
-                cutFlowVector.push_back(0);
-                cutFlowVector_str.push_back("");
+                legacyCutNames.push_back("");
             }
 
         }
@@ -420,68 +419,73 @@ namespace Gambit {
             /* Cut Flow                                              */
             /*                                                       */
             /*********************************************************/
-            cutFlowVector_str[0] = "Total ";
+            legacyCutNames[0] = "Total ";
             /*---------------------------------------*/
-            cutFlowVector_str[1] = "SR2A--trigger && 2 OS lepton";
-            cutFlowVector_str[2] = "SR2ASF--Same flavour";
-            cutFlowVector_str[3] = "SR2ASF--mll>111GeV";
-            cutFlowVector_str[4] = "SR2ASF--n_{b-jets}=0";
-            cutFlowVector_str[5] = "SR2ASF--R_{2l2j}>0.3";
-            cutFlowVector_str[6] = "SR2ASF--Delta x<0.07";
-            cutFlowVector_str[7] = "SR2ASF--120<MT2<140";
-            cutFlowVector_str[8] = "SR2ASF--140<MT2<160";
-            cutFlowVector_str[9] = "SR2ASF--160<MT2<180";
-            cutFlowVector_str[10] = "SR2ASF--180<MT2";
+            legacyCutNames[1] = "SR2A--trigger && 2 OS lepton";
+            legacyCutNames[2] = "SR2ASF--Same flavour";
+            legacyCutNames[3] = "SR2ASF--mll>111GeV";
+            legacyCutNames[4] = "SR2ASF--n_{b-jets}=0";
+            legacyCutNames[5] = "SR2ASF--R_{2l2j}>0.3";
+            legacyCutNames[6] = "SR2ASF--Delta x<0.07";
+            legacyCutNames[7] = "SR2ASF--120<MT2<140";
+            legacyCutNames[8] = "SR2ASF--140<MT2<160";
+            legacyCutNames[9] = "SR2ASF--160<MT2<180";
+            legacyCutNames[10] = "SR2ASF--180<MT2";
 
-            cutFlowVector_str[11] = "SR2ADF--Different falvour";
-            cutFlowVector_str[12] = "SR2ADF--mll>111GeV(only SF)";
-            cutFlowVector_str[13] = "SR2ADF--n_{b-jets}=0";
-            cutFlowVector_str[14] = "SR2ADF--R_{2l2j}>0.3(only SF)";
-            cutFlowVector_str[15] = "SR2ADF--Delta x<0.07";
-            cutFlowVector_str[16] = "SR2ADF--120<MT2<140";
-            cutFlowVector_str[17] = "SR2ADF--140<MT2<160";
-            cutFlowVector_str[18] = "SR2ADF--160<MT2<180";
-            cutFlowVector_str[19] = "SR2ADF--180<MT2";
+            legacyCutNames[11] = "SR2ADF--Different falvour";
+            legacyCutNames[12] = "SR2ADF--mll>111GeV(only SF)";
+            legacyCutNames[13] = "SR2ADF--n_{b-jets}=0";
+            legacyCutNames[14] = "SR2ADF--R_{2l2j}>0.3(only SF)";
+            legacyCutNames[15] = "SR2ADF--Delta x<0.07";
+            legacyCutNames[16] = "SR2ADF--120<MT2<140";
+            legacyCutNames[17] = "SR2ADF--140<MT2<160";
+            legacyCutNames[18] = "SR2ADF--160<MT2<180";
+            legacyCutNames[19] = "SR2ADF--180<MT2";
             /*---------------------------------------*/
-            cutFlowVector_str[20] = "SR2BC--trigger && 2 OS lepton";
-            cutFlowVector_str[21] = "SR2BSF--Same flavour";
-            cutFlowVector_str[22] = "SR2BSF--mll>111GeV or mll<71GeV";
-            cutFlowVector_str[23] = "SR2BSF--n_{b-jets}>0 && n_{jets}>1";
-            cutFlowVector_str[24] = "SR2BSF--Delta phi_{boost}<1.5";
-            cutFlowVector_str[25] = "SR2BSF--120<MT2<140";
-            cutFlowVector_str[26] = "SR2BSF--140<MT2";
+            legacyCutNames[20] = "SR2BC--trigger && 2 OS lepton";
+            legacyCutNames[21] = "SR2BSF--Same flavour";
+            legacyCutNames[22] = "SR2BSF--mll>111GeV or mll<71GeV";
+            legacyCutNames[23] = "SR2BSF--n_{b-jets}>0 && n_{jets}>1";
+            legacyCutNames[24] = "SR2BSF--Delta phi_{boost}<1.5";
+            legacyCutNames[25] = "SR2BSF--120<MT2<140";
+            legacyCutNames[26] = "SR2BSF--140<MT2";
 
-            cutFlowVector_str[27] = "SR2BDF--Different flavour";
-            cutFlowVector_str[28] = "SR2BDF--mll>111GeV or mll<71GeV(only SF)";
-            cutFlowVector_str[29] = "SR2BDF--n_{b-jets}>0 && n_{jets}>1";
-            cutFlowVector_str[30] = "SR2BDF--Delta phi_{boost}<1.5";
-            cutFlowVector_str[31] = "SR2BDF--120<MT2<140";
-            cutFlowVector_str[32] = "SR2BDF--140<MT2";
+            legacyCutNames[27] = "SR2BDF--Different flavour";
+            legacyCutNames[28] = "SR2BDF--mll>111GeV or mll<71GeV(only SF)";
+            legacyCutNames[29] = "SR2BDF--n_{b-jets}>0 && n_{jets}>1";
+            legacyCutNames[30] = "SR2BDF--Delta phi_{boost}<1.5";
+            legacyCutNames[31] = "SR2BDF--120<MT2<140";
+            legacyCutNames[32] = "SR2BDF--140<MT2";
 
-            cutFlowVector_str[33] = "SR2CSF--n_{b-jets}>0 && n_{jets}>1";
-            cutFlowVector_str[34] = "SR2CSF--n_{jets}>2";
-            cutFlowVector_str[35] = "SR2CSF--R_{2l}>1.2";
-            cutFlowVector_str[36] = "SR2CSF--E_T^{miss}>200GeV";
-            cutFlowVector_str[37] = "SR2CSF--110<MT2";
+            legacyCutNames[33] = "SR2CSF--n_{b-jets}>0 && n_{jets}>1";
+            legacyCutNames[34] = "SR2CSF--n_{jets}>2";
+            legacyCutNames[35] = "SR2CSF--R_{2l}>1.2";
+            legacyCutNames[36] = "SR2CSF--E_T^{miss}>200GeV";
+            legacyCutNames[37] = "SR2CSF--110<MT2";
 
-            cutFlowVector_str[38] = "SR2CDF--n_{b-jets}>0 && n_{jets}>1";
-            cutFlowVector_str[39] = "SR2CDF--n_{jets}>2";
-            cutFlowVector_str[40] = "SR2CDF--R_{2l}>1.2";
-            cutFlowVector_str[41] = "SR2CDF--E_T^{miss}>200GeV";
-            cutFlowVector_str[42] = "SR2CDF--110<MT2";
+            legacyCutNames[38] = "SR2CDF--n_{b-jets}>0 && n_{jets}>1";
+            legacyCutNames[39] = "SR2CDF--n_{jets}>2";
+            legacyCutNames[40] = "SR2CDF--R_{2l}>1.2";
+            legacyCutNames[41] = "SR2CDF--E_T^{miss}>200GeV";
+            legacyCutNames[42] = "SR2CDF--110<MT2";
 
             /*---------------------------------------*/
-            cutFlowVector_str[57] = "SR4b--MET trigger && 2 OS Leptons ";
-            cutFlowVector_str[58] = "SR4b--m_{ll}>10GeV ";
-            cutFlowVector_str[59] = "SR4b--PT(l1)<80GeV && PT(l1)<35GeV ";
-            cutFlowVector_str[60] = "SR4b--n_{jets}>2 ";
-            cutFlowVector_str[61] = "SR4b--PT(j1)>150GeV ";
-            cutFlowVector_str[62] = "SR4b--PT(j3)/MET<0.14 ";
-            cutFlowVector_str[63] = "SR4b--R_{2l4j}>0.35 ";
-            cutFlowVector_str[64] = "SR4b--R_{2l}>12 ";
-            cutFlowVector_str[65] = "SR4b--veto on j1 and j2 ";
+            legacyCutNames[57] = "SR4b--MET trigger && 2 OS Leptons ";
+            legacyCutNames[58] = "SR4b--m_{ll}>10GeV ";
+            legacyCutNames[59] = "SR4b--PT(l1)<80GeV && PT(l1)<35GeV ";
+            legacyCutNames[60] = "SR4b--n_{jets}>2 ";
+            legacyCutNames[61] = "SR4b--PT(j1)>150GeV ";
+            legacyCutNames[62] = "SR4b--PT(j3)/MET<0.14 ";
+            legacyCutNames[63] = "SR4b--R_{2l4j}>0.35 ";
+            legacyCutNames[64] = "SR4b--R_{2l}>12 ";
+            legacyCutNames[65] = "SR4b--veto on j1 and j2 ";
 
-            for(int j=0;j<NCUTS;j++){
+            #ifdef CHECK_CUTFLOW
+        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+        _cutflows[analysis_name()].fillinit(event->weight());
+#endif
+
+for(int j=0;j<NCUTS;j++){
                 if(
                    (j==0) ||
                    /********* SRA-2body *********/
@@ -545,7 +549,10 @@ namespace Gambit {
                    (j==63 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150 && c4_Jet3PtMET && c4_R2l4j) ||
                    (j==64 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150 && c4_Jet3PtMET && c4_R2l4j && c4_R2l) ||
                    (j==65 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150 && c4_Jet3PtMET && c4_R2l4j && c4_R2l && c4_2bjetveto)
-                   )cutFlowVector[j]++;
+                   )
+#ifdef CHECK_CUTFLOW
+            _cutflows[analysis_name()].fill(j+1, true, event->weight());
+#endif
 
             }
             // signal region
@@ -576,6 +583,8 @@ namespace Gambit {
 
         void collect_results() {
 
+COMMIT_CUTFLOWS;
+
             // double scale_by=1.;
             // cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
             // cout << "CUT FLOW: ATLAS 13 TeV 2 lep stop paper "<<endl;
@@ -583,10 +592,10 @@ namespace Gambit {
             // cout<< right << setw(40) << "CUT" <<  "," << setw(20) << "RAW" <<  "," << setw(20) << "SCALED"
             // <<  "," << setw(20) << "%" <<  "," << setw(20) << "clean adj RAW"<<  "," << setw(20) << "clean adj %" << endl;
             // for (int j=0; j<NCUTS; j++) {
-            //     cout << right <<  setw(40) << cutFlowVector_str[j].c_str() <<  "," << setw(20)
-            //     << cutFlowVector[j] <<  "," << setw(20) << cutFlowVector[j]*scale_by <<  "," << setw(20)
-            //     << 100.*cutFlowVector[j]/cutFlowVector[0] << "%" <<  "," << setw(20)
-            //     << cutFlowVector[j]*scale_by <<  "," << setw(20) << 100.*cutFlowVector[j]/cutFlowVector[0]<< "%" << endl;
+            //     cout << right <<  setw(40) << legacyCutNames[j].c_str() <<  "," << setw(20)
+            //     << legacyCutCounts[j] <<  "," << setw(20) << legacyCutCounts[j]*scale_by <<  "," << setw(20)
+            //     << 100.*legacyCutCounts[j]/legacyCutCounts[0] << "%" <<  "," << setw(20)
+            //     << legacyCutCounts[j]*scale_by <<  "," << setw(20) << 100.*legacyCutCounts[j]/legacyCutCounts[0]<< "%" << endl;
             // }
             // cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
 
@@ -617,7 +626,6 @@ namespace Gambit {
     protected:
       void analysis_specific_reset() {
         for (auto& pair : _counters) { pair.second.reset(); }
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     };

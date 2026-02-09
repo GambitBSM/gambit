@@ -40,10 +40,10 @@ namespace Gambit
 
       Analysis_CMS_SUS_20_003()
       {
-        DEFINE_SIGNAL_REGIONS_NOCUTS("SR2J-0H-", 4);
-        DEFINE_SIGNAL_REGIONS_NOCUTS("SR2J-1H-", 2);
-        DEFINE_SIGNAL_REGIONS_NOCUTS("SR3J-0H-", 4);
-        DEFINE_SIGNAL_REGIONS_NOCUTS("SR3J-1H-", 2);
+        DEFINE_SIGNAL_REGIONS("SR2J-0H-", 4);
+        DEFINE_SIGNAL_REGIONS("SR2J-1H-", 2);
+        DEFINE_SIGNAL_REGIONS("SR3J-0H-", 4);
+        DEFINE_SIGNAL_REGIONS("SR3J-1H-", 2);
 
         set_analysis_name("CMS_SUS_20_003");
         set_luminosity(137.0);
@@ -397,9 +397,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR3J-1H-1"), 10., {5.9,  2.1}));
         add_result(SignalRegionData(_counters.at("SR3J-1H-2"), 0.,  {2.1,  0.6}));
 
-        #ifdef CHECK_CUTFLOW
-        COMMIT_CUTFLOWS;
-        #endif
+COMMIT_CUTFLOWS;
       }
 
       double mT(const HEPUtils::P4 &pV, const HEPUtils::P4 &pI)
