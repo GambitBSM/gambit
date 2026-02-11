@@ -144,6 +144,7 @@ namespace Gambit
     }
 
     RUN_ANALYSES(runATLASAnalyses, ATLAS, ATLASSmearedEvent)
+    RUN_ANALYSES(runFCChhAnalyses, FCChh, FCChhSmearedEvent)
     RUN_ANALYSES(runCMSAnalyses, CMS, CMSSmearedEvent)
     RUN_ANALYSES(runIdentityAnalyses, Identity, CopiedEvent)
 

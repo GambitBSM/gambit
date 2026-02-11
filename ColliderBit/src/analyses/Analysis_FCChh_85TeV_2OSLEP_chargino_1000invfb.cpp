@@ -5,20 +5,16 @@
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date 2021 Sep
+///  \author Tore Klungland
+///  \date 2026 Feb
 ///
 ///  *********************************************
 
-// Originally based on confnote: http://cdsweb.cern.ch/record/2668387/files/ATLAS-CONF-2019-008.pdf
-// Updated to paper version: 
-// - https://arxiv.org/abs/1908.08215
-// - https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-32/
+// Based on https://arxiv.org/abs/1908.08215 and corresponding ATLAS analysis: Analysis_ATLAS_13TeV_2OSLEP_chargino_139invfb
+// Search for electroweak production of charginos and sleptons decaying in final states with two leptons and missing transverse momentum in √s = 85 TeV p p collisions at FCC-hh
 
-// Search for electroweak production of charginos and sleptons decaying in final states with two leptons and missing transverse momentum in √s = 13 TeV p p collisions using the ATLAS detector
-
-// Note:
-// 1. Not validated!!!!
-//    The excluding abilities in low mass region are much weaker than experimental report.
-// 2. Use event-based MET significance instead of object-based significance
+// NB: 
+// Signal regions, background estimates, jet mistagging, overlap removal are not finished, currently just copied from the ATLAS version
 
 #include <vector>
 #include <cmath>
@@ -28,7 +24,7 @@
 #include <fstream>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
-#include "gambit/ColliderBit/ATLASEfficiencies.hpp"
+#include "gambit/ColliderBit/FCChhEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 
@@ -114,7 +110,7 @@ namespace Gambit
     public:
 
       // Required detector sim
-      static constexpr const char* detector = "ATLAS";
+      static constexpr const char* detector = "FCChh";
 
       Analysis_FCChh_85TeV_2OSLEP_chargino_1000invfb():
       _cutflow("ATLAS 2-lep chargino-W 13 TeV", {"Two_OS_leptons", "mll_25", "b_jet_veto", "MET_110", "MET_significance_10", "n_j<=1", "m_ll_m_Z"})
@@ -187,8 +183,6 @@ namespace Gambit
         _cutflow.fillinit();
 
         // Baseline objects
-        double met = event->met();
-
         // Electrons
         vector<const HEPUtils::Particle*> electrons;
         for (const HEPUtils::Particle* electron : event->electrons()) {
@@ -198,7 +192,7 @@ namespace Gambit
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(electrons);
+        FCChh::applyElectronEff(electrons);
 
         // Muons
         vector<const HEPUtils::Particle*> muons;
@@ -209,7 +203,21 @@ namespace Gambit
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(muons);
+        FCChh::applyMuonEff(muons);
+
+        // Calculate missing energy with smeared momenta
+        const std::vector<Particle*> visibles = event.visible_particles();
+        HEPUtils::P4 pvis;
+        for (size_t i = 0; i < visibles.size(); ++i)
+        {
+          pvis += visibles[i]->mom();
+        }
+        for (size_t i = 0; i < event.jets.size(); ++i)
+        {
+          pvis += result.jets[i]->mom();
+        }
+        set_missingmom(-pvis);
+        double met = event->met();
 
         // Jets
         vector<const HEPUtils::Jet*> candJets;
@@ -217,12 +225,6 @@ namespace Gambit
           if (jet->pT() > 20. && fabs(jet->eta()) < 2.4)
             candJets.push_back(jet);
         }
-
-        // Scalar sum of the transverse momenta from all the reconstructed hard objects
-        //double HT = 0.0; (Unused)
-        //for (const HEPUtils::Jet* j : candJets) HT += j->pT(); (Unused)
-        //for (const HEPUtils::Particle* e : electrons) HT += e->pT(); (Unused)
-        //for (const HEPUtils::Particle* mu : muons) HT += mu->pT(); (Unused)
 
         // Overlap removal
         JetLeptonOverlapRemoval(candJets,electrons,0.2);

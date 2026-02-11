@@ -39,6 +39,7 @@
 
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
+#include "gambit/ColliderBit/FCChhEfficiencies.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/detectors/BuckFast.hpp"
 
@@ -62,6 +63,21 @@ namespace Gambit
         bucky.smearMuonMomentum   = &ATLAS::smearMuonMomentum;
         bucky.smearTaus           = &ATLAS::smearTaus;
         bucky.smearJets           = &ATLAS::smearJets;
+        result = &bucky;
+      }
+    }
+
+    /// Retrieve a BuckFast sim of FCC-hh
+    void getBuckFastFCChh(BaseDetector* &result)
+    {
+      using namespace Pipes::getBuckFastFCChh;
+      thread_local BuckFast bucky;
+      if (*Loop::iteration == START_SUBPROCESS)
+      {
+        bucky.smearElectronEnergy = &FCChh::smearElectronEnergy;
+        bucky.smearMuonMomentum   = &FCChh::smearMuonMomentum;
+        bucky.smearTaus           = &FCChh::smearTaus; // NB: Simply copied from ATLAS
+        bucky.smearJets           = &FCChh::smearJets;
         result = &bucky;
       }
     }

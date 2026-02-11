@@ -121,6 +121,7 @@ namespace Gambit
     }
 
     GET_ANALYSIS_CONTAINER(getATLASAnalysisContainer, ATLAS)
+    GET_ANALYSIS_CONTAINER(getFCChhAnalysisContainer, FCChh)
     GET_ANALYSIS_CONTAINER(getCMSAnalysisContainer, CMS)
     GET_ANALYSIS_CONTAINER(getIdentityAnalysisContainer, Identity)
 

@@ -517,6 +517,9 @@ CrossSection: |
 ATLASDetectorSim: |
    Provides a detector simulation of ATLAS.
 
+FCChhDetectorSim: |
+   Provides a detector simulation of FCC-hh.
+
 CMSDetectorSim: |
    Provides a detector simulation of CMS.
 
@@ -525,6 +528,9 @@ IdentityDetectorSim: |
 
 ATLASSmearedEvent: |
    Uses an ATLASDetectorSim to smear a HardScatteringEvent.
+
+FCChhSmearedEvent: |
+   Uses an FCChhDetectorSim to smear a HardScatteringEvent.
 
 CMSSmearedEvent: |
    Uses a CMSDetectorSim to smear a HardScatteringEvent.
@@ -535,6 +541,9 @@ CopiedEvent: |
 ATLASAnalysisContainer: |
    Provides a container of ATLAS analyses to be applied to an ATLASSmearedEvent.
 
+FCChhAnalysisContainer: |
+   Provides a container of FCC-hh analyses to be applied to an FCChhSmearedEvent.
+
 CMSAnalysisContainer: |
    Provides a container of CMS analyses to be applied to an ATLASSmearedEvent.
 
@@ -544,6 +553,10 @@ IdentityAnalysisContainer: |
 ATLASAnalysisNumbers: |
    Uses an ATLASAnalysisContainer to perform all its
    analyses upon a given ATLASSmearedEvent.
+
+FCChhAnalysisNumbers: |
+   Uses an FCChhAnalysisContainer to perform all its
+   analyses upon a given FCChhSmearedEvent.
 
 CMSAnalysisNumbers: |
    Uses a CMSAnalysisContainer to perform all its

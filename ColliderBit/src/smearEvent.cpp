@@ -67,6 +67,7 @@ namespace Gambit
     }
 
     SMEAR_EVENT(smearEventATLAS, ATLAS)
+    SMEAR_EVENT(smearEventFCChh, FCChh)
     SMEAR_EVENT(smearEventCMS, CMS)
     SMEAR_EVENT(copyEvent, Identity)
 

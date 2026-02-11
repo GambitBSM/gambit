@@ -30,7 +30,7 @@ namespace Gambit
       // Electron smearing
       /// @todo Run-dependence?
       if (smearElectronEnergy != NULL) smearElectronEnergy(event.electrons());
-
+      else std::cout << "PANIC!!" << std::endl;
       // Muon smearing
       /// @todo Run-dependence?
       if (smearMuonMomentum != NULL) smearMuonMomentum(event.muons());

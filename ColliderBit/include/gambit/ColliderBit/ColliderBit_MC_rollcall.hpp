@@ -273,6 +273,15 @@
     #undef FUNCTION
   #undef CAPABILITY
 
+  #define CAPABILITY FCChhAnalysisContainer
+  START_CAPABILITY
+    #define FUNCTION getFCChhAnalysisContainer
+    START_FUNCTION(AnalysisContainer)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    DEPENDENCY(InitialTotalCrossSection, map_str_xsec_container)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   #define CAPABILITY CMSAnalysisContainer
   START_CAPABILITY
     #define FUNCTION getCMSAnalysisContainer
@@ -301,6 +310,16 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(ATLASSmearedEvent, HEPUtils::Event)
     DEPENDENCY(ATLASAnalysisContainer, AnalysisContainer)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY FCChhAnalysisNumbers
+  START_CAPABILITY
+    #define FUNCTION runFCChhAnalyses
+    START_FUNCTION(AnalysisDataPointers)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    DEPENDENCY(FCChhSmearedEvent, HEPUtils::Event)
+    DEPENDENCY(FCChhAnalysisContainer, AnalysisContainer)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -333,6 +352,7 @@
     DEPENDENCY(CrossSectionConsistencyCheck, bool)
     DEPENDENCY(TotalCrossSection, xsec_container)
     DEPENDENCY(ATLASAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(FCChhAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(CMSAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(IdentityAnalysisNumbers, AnalysisDataPointers)
     #undef FUNCTION
@@ -546,6 +566,14 @@
     #undef FUNCTION
   #undef CAPABILITY
 
+  #define CAPABILITY FCChhDetectorSim
+  START_CAPABILITY
+    #define FUNCTION getBuckFastFCChh
+    START_FUNCTION(BaseDetector*)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   #define CAPABILITY CMSDetectorSim
   START_CAPABILITY
     #define FUNCTION getBuckFastCMS
@@ -572,6 +600,16 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(HardScatteringEvent, HEPUtils::Event)
     DEPENDENCY(ATLASDetectorSim, BaseDetector*)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY FCChhSmearedEvent
+  START_CAPABILITY
+    #define FUNCTION smearEventFCChh
+    START_FUNCTION(HEPUtils::Event)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    DEPENDENCY(HardScatteringEvent, HEPUtils::Event)
+    DEPENDENCY(FCChhDetectorSim, BaseDetector*)
     #undef FUNCTION
   #undef CAPABILITY
 
