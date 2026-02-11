@@ -206,18 +206,17 @@ namespace Gambit
         FCChh::applyMuonEff(muons);
 
         // Calculate missing energy with smeared momenta
-        const std::vector<Particle*> visibles = event.visible_particles();
-        HEPUtils::P4 pvis;
-        for (size_t i = 0; i < visibles.size(); ++i)
+        const std::vector<const HEPUtils::Particle*> visibles = event->visible_particles();
+        HEPUtils::P4 pmiss;
+        for (const HEPUtils::Particle* visible : visibles)
         {
-          pvis += visibles[i]->mom();
+          pmiss -= visible->mom();
         }
-        for (size_t i = 0; i < event.jets.size(); ++i)
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
-          pvis += result.jets[i]->mom();
+          pmiss -= jet->mom();
         }
-        set_missingmom(-pvis);
-        double met = event->met();
+        double met = pmiss.pT();
 
         // Jets
         vector<const HEPUtils::Jet*> candJets;
