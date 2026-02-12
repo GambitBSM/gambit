@@ -329,7 +329,7 @@ namespace Gambit
         // Mt2
         double pLep1[3] = {signalLeptons[0]->mass(), signalLeptons[0]->mom().px(), signalLeptons[0]->mom().py()};
         double pLep2[3] = {signalLeptons[1]->mass(), signalLeptons[1]->mom().px(), signalLeptons[1]->mom().py()};
-        double pMiss[3] = {0., event->missingmom().px(), event->missingmom().py() };
+        double pMiss[3] = {0., pmiss.px(), pmiss.py() };
         mt2_bisect::mt2 mt2_calc;
         mt2_calc.set_momenta(pLep1,pLep2,pMiss);
         mt2_calc.set_mn(0.0);
