@@ -177,6 +177,23 @@ namespace Gambit
         bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
       } comparePt;
 
+      double btag_eff(double pT,double abseta) {
+        // b tagging efficiency, from https://cds.cern.ch/record/2717698/files/CERN-FCC-PHYS-2020-0003.pdf
+        return (pT > 30 && pT < 15000) * ((abseta < 2.5) * 0.85 * (1. - pT/15.)
+          + (abseta >= 2.5 && abseta < 4) * 0.64 * (1.-pT/15.));
+      }
+
+      double cmistag_eff(double pT, double abseta) {
+        // c mistagging efficiency, from https://cds.cern.ch/record/2717698/files/CERN-FCC-PHYS-2020-0003.pdf
+        return (pT > 30 && pT < 15000) * ((abseta < 2.5) * 0.05 * (1. - pT/15.)
+          + (abseta >= 2.5 && abseta < 4) * 0.03 * (1.-pT/15.));
+      }
+
+      double lmistag_eff(double pT, double abseta) {
+        // Light-quark mistagging efficiency, from https://cds.cern.ch/record/2717698/files/CERN-FCC-PHYS-2020-0003.pdf
+        return (pT > 30 && pT < 15000) * ((abseta < 2.5) * 0.01 * (1. - pT/15.)
+          + (abseta >= 2.5 && abseta < 4) * 0.0075 * (1.-pT/15.));
+      }
 
       void run(const HEPUtils::Event* event)
       {
@@ -236,15 +253,20 @@ namespace Gambit
         vector<const HEPUtils::Jet*> nonbJets;
 
         // Find b-jets
-        // Copied from ATLAS_13TeV_3b_24invfb
-        double btag = 0.85; double cmisstag = 1/12.; double misstag = 1./381.;
+        double btag; double cmistag; double lmistag;
+        double jetpT, jetabseta;
         for (const HEPUtils::Jet* jet : candJets) {
+          jetpT = jet->pT();
+          jetabseta = fabs(jet->eta());
+          btag = btag_eff(jetpT, jetabseta);
+          cmistag = cmistag_eff(jetpT, jetabseta);
+          lmistag = lmistag_eff(jetpT, jetabseta);
           // Tag
           if( jet->btag() && random_bool(btag) ) bJets.push_back(jet);
           // Misstag c-jet
-          else if( jet->ctag() && random_bool(cmisstag) ) bJets.push_back(jet);
+          else if( jet->ctag() && random_bool(cmistag) ) bJets.push_back(jet);
           // Misstag light jet
-          else if( random_bool(misstag) ) bJets.push_back(jet);
+          else if( random_bool(lmistag) ) bJets.push_back(jet);
           // Non b-jet
           else nonbJets.push_back(jet);
         }
