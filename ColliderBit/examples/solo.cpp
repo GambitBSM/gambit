@@ -385,19 +385,25 @@ int main(int argc, char* argv[])
     calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_ReadIn);
     calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_Evaluate);
     CollectAnalyses.resolveDependency(&runATLASAnalyses);
+    CollectAnalyses.resolveDependency(&runFCChhAnalyses);
     CollectAnalyses.resolveDependency(&runCMSAnalyses);
     CollectAnalyses.resolveDependency(&runIdentityAnalyses);
     runATLASAnalyses.resolveDependency(&getATLASAnalysisContainer);
     runATLASAnalyses.resolveDependency(&smearEventATLAS);
+    runFCChhAnalyses.resolveDependency(&getFCChhAnalysisContainer);
+    runFCChhAnalyses.resolveDependency(&smearEventFCChh);
     runCMSAnalyses.resolveDependency(&getCMSAnalysisContainer);
     runCMSAnalyses.resolveDependency(&smearEventCMS);
     runIdentityAnalyses.resolveDependency(&getIdentityAnalysisContainer);
     runIdentityAnalyses.resolveDependency(&copyEvent);
     getATLASAnalysisContainer.resolveDependency(&getYAMLCrossSection);
+    getFCChhAnalysisContainer.resolveDependency(&getYAMLCrossSection);
     getCMSAnalysisContainer.resolveDependency(&getYAMLCrossSection);
     getIdentityAnalysisContainer.resolveDependency(&getYAMLCrossSection);
     smearEventATLAS.resolveDependency(&getBuckFastATLAS);
     smearEventATLAS.resolveDependency(&convertEvent);
+    smearEventFCChh.resolveDependency(&getBuckFastFCChh);
+    smearEventFCChh.resolveDependency(&convertEvent);
     smearEventCMS.resolveDependency(&getBuckFastCMS);
     smearEventCMS.resolveDependency(&convertEvent);
     copyEvent.resolveDependency(&getBuckFastIdentity);
@@ -419,31 +425,39 @@ int main(int argc, char* argv[])
     getEvent.resolveLoopManager(&operateLHCLoop);
     convertEvent.resolveLoopManager(&operateLHCLoop);
     getBuckFastATLAS.resolveLoopManager(&operateLHCLoop);
+    getBuckFastFCChh.resolveLoopManager(&operateLHCLoop);
     getBuckFastCMS.resolveLoopManager(&operateLHCLoop);
     getBuckFastIdentity.resolveLoopManager(&operateLHCLoop);
     getATLASAnalysisContainer.resolveLoopManager(&operateLHCLoop);
+    getFCChhAnalysisContainer.resolveLoopManager(&operateLHCLoop);
     getCMSAnalysisContainer.resolveLoopManager(&operateLHCLoop);
     getIdentityAnalysisContainer.resolveLoopManager(&operateLHCLoop);
     smearEventATLAS.resolveLoopManager(&operateLHCLoop);
+    smearEventFCChh.resolveLoopManager(&operateLHCLoop);
     smearEventCMS.resolveLoopManager(&operateLHCLoop);
     copyEvent.resolveLoopManager(&operateLHCLoop);
     getYAMLCrossSection.resolveLoopManager(&operateLHCLoop);
     runATLASAnalyses.resolveLoopManager(&operateLHCLoop);
+    runFCChhAnalyses.resolveLoopManager(&operateLHCLoop);
     runCMSAnalyses.resolveLoopManager(&operateLHCLoop);
     runIdentityAnalyses.resolveLoopManager(&operateLHCLoop);
     std::vector<functor*> nested_functions = initVector<functor*>(&getEvent,
                                                                   &convertEvent,
                                                                   &getBuckFastATLAS,
+                                                                  &getBuckFastFCChh,
                                                                   &getBuckFastCMS,
                                                                   &getBuckFastIdentity,
                                                                   &getYAMLCrossSection,
                                                                   &getATLASAnalysisContainer,
+                                                                  &getFCChhAnalysisContainer,
                                                                   &getCMSAnalysisContainer,
                                                                   &getIdentityAnalysisContainer,
                                                                   &smearEventATLAS,
+                                                                  &smearEventFCChh,
                                                                   &smearEventCMS,
                                                                   &copyEvent,
                                                                   &runATLASAnalyses,
+                                                                  &runFCChhAnalyses,
                                                                   &runCMSAnalyses,
                                                                   &runIdentityAnalyses);
     // If using contur and rivet:
