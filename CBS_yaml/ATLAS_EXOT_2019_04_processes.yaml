@@ -9,8 +9,7 @@ analyses:
 
 settings:
   debug: true
-  cutflow: false
-  # normalized_cutflows: false
+  check_cutflow: false
   seed: 1337
 
   # Physical-process based inputs
