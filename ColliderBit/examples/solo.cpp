@@ -25,6 +25,8 @@
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/cats.hpp"
+#include "solo_batch.hpp"
+#include "solo_input.hpp"
 #include "solo_output.hpp"
 // #include "gambit/Backends/backend_rollcall.hpp"
 
@@ -96,25 +98,16 @@ int main(int argc, char* argv[])
     // Read input file name
     const std::string filename_in = argv[1];
 
-    // Read the settings in the input file
+    // Read and prepare the settings in the input file
+    ColliderBit::SoloInput::PreparedInput prepared_input;
+    prepared_input = ColliderBit::SoloInput::parse_and_prepare_input(filename_in);
+
     YAML::Node infile;
     std::vector<str> analyses;
     Options settings;
-    try
-    {
-      // Load up the file
-      infile = YAML::LoadFile(filename_in);
-      // Retrieve the analyses
-      if (infile["analyses"]) analyses = infile["analyses"].as<std::vector<str>>();
-      else throw std::runtime_error("Analyses list not found in "+filename_in+".  Quitting...");
-      // Retrieve the other settings
-      if (infile["settings"]) settings = Options(infile["settings"]);
-      else throw std::runtime_error("Settings section not found in "+filename_in+".  Quitting...");
-    }
-    catch (YAML::Exception &e)
-    {
-      throw std::runtime_error("YAML error in "+filename_in+".\n(yaml-cpp error: "+std::string(e.what())+" )");
-    }
+    infile = prepared_input.infile;
+    analyses = prepared_input.analyses;
+    settings = prepared_input.settings;
 
 
     // Translate relevant settings into appropriate variables
@@ -122,13 +115,13 @@ int main(int argc, char* argv[])
     // TODO: Use the use_FullLikes setting to allow CBS runs without having ATLAS_FullLikes installed
     // bool use_FullLikes = settings.getValueOrDef<bool>(false, "use_FullLikes"); 
     bool use_lnpiln = settings.getValueOrDef<bool>(false, "use_lognormal_distribution_for_1d_systematic");
+    // CBS-only runtime cutflow control:
+    // - `cutflow` is the simple user-facing switch.
+    // - `print_cutflows` is kept for compatibility with existing ColliderBit naming.
+    const bool cutflow = settings.getValueOrDef<bool>(false, "cutflow");
+    const bool print_cutflows = settings.getValueOrDef<bool>(cutflow, "print_cutflows");
+    const bool normalized_cutflows = settings.getValueOrDef<bool>(false, "normalized_cutflows");
     double jet_pt_min = settings.getValueOrDef<double>(10.0, "jet_pt_min");
-    str event_filename = settings.getValue<str>("event_file");
-    bool event_file_is_HepMC = (   Gambit::Utils::endsWith(event_filename, ".hepmc")
-                                || Gambit::Utils::endsWith(event_filename, ".hepmc2")
-                                || Gambit::Utils::endsWith(event_filename, ".hepmc3") );
-    if (not event_file_is_HepMC)
-      throw std::runtime_error("Unrecognised event file format in "+event_filename+"; must be .hepmc.");
 
     // Extract the jet collections yaml node
     YAML::Node jet_collections = settings.getValue<YAML::Node>("jet_collections");
@@ -194,12 +187,80 @@ int main(int argc, char* argv[])
       throw std::runtime_error("YAML error in "+filename_in+".\n(yaml-cpp error: "+std::string(e.what())+" )");
     }
 
+    ColliderBit::SoloOutput::OutputConfig output_config;
+    output_config.screen_output = settings.getValueOrDef<bool>(true, "screen_output");
+    output_config.write_file = settings.hasKey("output");
+    if (output_config.write_file)
+    {
+      output_config.output_file = settings.getValueOrDef<std::string>("CBS_output.json", "output");
+    }
+    output_config.output_format = settings.getValueOrDef<std::string>("json", "output_format");
+    output_config.schema_version = settings.getValueOrDef<std::string>("cbs-solo-loglike-v1", "output_schema");
+    output_config.json_indent = settings.getValueOrDef<int>(2, "output_json_indent");
+    ColliderBit::SoloOutput::validate_output_config(output_config);
+
+    // Process-mode batch running: run one standard CBS pass per file, then merge.
+    if (!prepared_input.processes.empty())
+    {
+      if (withRivet || withContur)
+      {
+        throw std::runtime_error("settings.processes batch mode does not support rivet-settings/contur-settings.");
+      }
+
+      CAT_3(nulike_,NULIKE_SAFE_VERSION,_init).reset_and_calculate();
+
+      double (*marginaliser)(const int&, const double&, const double&, const double&) =
+        use_lnpiln
+          ? nulike_lnpiln.handoutFunctionPointer()
+          : nulike_lnpin.handoutFunctionPointer();
+
+      bool (*fullLikesFileExists)(const str&) = FullLikes_FileExists.handoutFunctionPointer();
+      int (*fullLikesReadIn)(const str&, const str&, const str&) = FullLikes_ReadIn.handoutFunctionPointer();
+      double (*fullLikesEvaluate)(std::map<str,double>&, const str&) = FullLikes_Evaluate.handoutFunctionPointer();
+
+      ColliderBit::SoloBatch::MergedRunResult merged = ColliderBit::SoloBatch::run_and_merge(
+        argv[0],
+        prepared_input,
+        settings,
+        marginaliser,
+        fullLikesFileExists,
+        fullLikesReadIn,
+        fullLikesEvaluate
+      );
+
+      std::map<std::string, double> empty_contur_pool_loglikes;
+      std::map<std::string, std::string> empty_contur_pool_info;
+      ColliderBit::SoloOutput::emit_outputs(
+        output_config,
+        merged.total_events,
+        merged.combined_loglike,
+        merged.analyses,
+        merged.analysis_loglikes,
+        false,
+        0.0,
+        empty_contur_pool_loglikes,
+        empty_contur_pool_info
+      );
+      return 0;
+    }
+
     // Choose the event file reader according to file format
-    if (debug) cout << "Reading HepMC" << " file: " << event_filename << endl;
+    if (debug)
+    {
+      if (prepared_input.hepmc_filenames.size() == 1)
+      {
+        cout << "Reading HepMC file: " << prepared_input.hepmc_filenames.front() << endl;
+      }
+      else
+      {
+        cout << "Reading " << prepared_input.hepmc_filenames.size() << " HepMC files." << endl;
+      }
+    }
     auto& getEvent = getHepMCEvent;
     auto& convertEvent = convertHepMCEvent_HEPUtils;
     auto& AnalysisNumbers = CollectAnalyses;
-    AnalysisNumbers.setOption<bool>("print_cutflows", true);
+    AnalysisNumbers.setOption<bool>("print_cutflows", print_cutflows);
+    AnalysisNumbers.setOption<bool>("normalized_cutflows", normalized_cutflows);
 
     // Initialise logs
     logger().set_log_debug_messages(debug);
@@ -227,8 +288,8 @@ int main(int argc, char* argv[])
     std::vector<std::string> use_colliders = {"CBS"};
     operateLHCLoop.setOption<std::vector<std::string>>("use_colliders", use_colliders);
 
-    // Pass the filename and the jet pt cutoff to the HepMC reader/HEPUtils converter function
-    getEvent.setOption<str>("hepmc_filename", event_filename);
+    // Pass the event filename and the jet pt cutoff to the HepMC reader/HEPUtils converter function
+    getEvent.setOption<str>("hepmc_filename", prepared_input.hepmc_filenames.front());
     convertEvent.setOption<double>("jet_pt_min", jet_pt_min);
 
     // Pass the jet collections yaml node to the hepMC reader/HEPUtils converter function
@@ -246,30 +307,9 @@ int main(int argc, char* argv[])
 
     // Pass options to the cross-section function
     getYAMLCrossSection.setOption<std::string>("collider", "CBS");
-    if (settings.hasKey("cross_section_pb"))
-    {
-      getYAMLCrossSection.setOption<double>("cross_section_pb", settings.getValue<double>("cross_section_pb"));
-      if (settings.hasKey("cross_section_fractional_uncert")) { getYAMLCrossSection.setOption<double>("cross_section_fractional_uncert", settings.getValue<double>("cross_section_fractional_uncert")); }
-      else {getYAMLCrossSection.setOption<double>("cross_section_uncert_pb", settings.getValue<double>("cross_section_uncert_pb")); }
-    }
-    else // <-- must have option "cross_section_fb"
-    {
-      getYAMLCrossSection.setOption<double>("cross_section_fb", settings.getValue<double>("cross_section_fb"));
-      if (settings.hasKey("cross_section_fractional_uncert")) { getYAMLCrossSection.setOption<double>("cross_section_fractional_uncert", settings.getValue<double>("cross_section_fractional_uncert")); }
-      else { getYAMLCrossSection.setOption<double>("cross_section_uncert_fb", settings.getValue<double>("cross_section_uncert_fb")); }
-    }
+    getYAMLCrossSection.setOption<double>("cross_section_fb", prepared_input.total_cross_section_fb);
+    getYAMLCrossSection.setOption<double>("cross_section_uncert_fb", prepared_input.total_cross_section_uncert_fb);
 
-    ColliderBit::SoloOutput::OutputConfig output_config;
-    output_config.screen_output = settings.getValueOrDef<bool>(true, "screen_output");
-    output_config.write_file = settings.hasKey("output");
-    if (output_config.write_file)
-    {
-      output_config.output_file = settings.getValueOrDef<std::string>("CBS_output.json", "output");
-    }
-    output_config.output_format = settings.getValueOrDef<std::string>("json", "output_format");
-    output_config.schema_version = settings.getValueOrDef<std::string>("cbs-solo-loglike-v1", "output_schema");
-    output_config.json_indent = settings.getValueOrDef<int>(2, "output_json_indent");
-    ColliderBit::SoloOutput::validate_output_config(output_config);
     // Pass options to the likelihood function
     // TODO: I'm not specifying the defaults here. I'll add the argument only if the user supplies it.
     // ColliderBit can then fall back to its defaults if nothing is supplied.

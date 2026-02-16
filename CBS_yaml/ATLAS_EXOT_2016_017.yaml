@@ -12,6 +12,8 @@ analyses:
 
 settings:
   debug: true
+  cutflow: false
+  # normalized_cutflows: false
   seed: -1
   event_file: /home/pzhu/gambitWS/CBS_yaml/ATLAS_EXOT_2016_017/VLQ_mY_1600_1k.hepmc
   max_nEvent: 50000
@@ -41,4 +43,3 @@ settings:
       recombination_scheme: "E_scheme"
       strategy: "Best"
   output: ./runs/CBS_output.yaml
-

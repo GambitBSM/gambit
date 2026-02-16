@@ -227,7 +227,7 @@ namespace Gambit
           }
 
           std::cout << '\n';
-          std::cout << "Read and analysed " << n_events << " events from HepMC file.\n\n";
+          std::cout << "Read and analysed " << n_events << " events from HepMC file(s).\n\n";
           std::cout << "Analysis details:\n\n" << summary_line.str() << '\n';
           std::cout << std::scientific
                     << "Total combined ATLAS+CMS"
@@ -324,6 +324,23 @@ namespace Gambit
           const AnalysisLogLikes& ll = ll_it->second;
           nlohmann::json analysis_obj;
           analysis_obj["n_signal_regions"] = analysis.size();
+          analysis_obj["luminosity"] = analysis.luminosity;
+          analysis_obj["bkgjson_path"] = analysis.bkgjson_path;
+
+          if (analysis.srcov.rows() > 0 && analysis.srcov.cols() > 0)
+          {
+            nlohmann::json covariance = nlohmann::json::array();
+            for (int i = 0; i < analysis.srcov.rows(); ++i)
+            {
+              nlohmann::json row = nlohmann::json::array();
+              for (int j = 0; j < analysis.srcov.cols(); ++j)
+              {
+                row.push_back(analysis.srcov(i, j));
+              }
+              covariance.push_back(row);
+            }
+            analysis_obj["covariance"] = covariance;
+          }
 
           nlohmann::json combination;
           combination["selected_sr_label"] = ll.combination_sr_label;
