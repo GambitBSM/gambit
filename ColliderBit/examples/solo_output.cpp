@@ -9,6 +9,7 @@
 #include "solo_output.hpp"
 
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <set>
 #include <sstream>
@@ -233,17 +234,30 @@ namespace Gambit
             for (const SamplingAdviceEntry& entry : sampling_advice)
             {
               summary_line << "  " << entry.analysis_name << " / " << entry.sr_label
-                           << " (SR index " << entry.sr_index << "): "
-                           << "S = " << entry.n_sig_scaled
+                          //  << " (SR index " << entry.sr_index << "): "
+                           << "\n\tS = " << entry.n_sig_scaled
                            << ", sigma_MC = " << entry.n_sig_scaled_err
                            << ", frac = " << entry.fractional_uncert
                            << ", N_eff = " << entry.effective_events << '\n';
               for (const SamplingAdviceTargetEntry& target : entry.targets)
               {
-                summary_line << "    target " << target.target_fractional_uncert
-                             << ": need_more_mc=" << (target.need_more_mc ? "true" : "false")
-                             << ", add_events_total=" << target.recommended_additional_events
-                             << ", scale_factor=" << target.scale_factor << '\n';
+                std::ostringstream target_percent_ss;
+                target_percent_ss
+                  << std::fixed << std::setprecision(1)
+                  << (target.target_fractional_uncert * 100.0);
+
+                if (!target.need_more_mc)
+                {
+                  summary_line << "    target " << target_percent_ss.str()
+                               << "%:\trequirement met\n";
+                }
+                else
+                {
+                  summary_line << "    target " << target_percent_ss.str()
+                               << "%:\trequirement not met, need\n\t ->\t"
+                               << target.recommended_additional_events
+                               << " additional MC events\n";
+                }
               }
             }
           }

@@ -274,6 +274,75 @@ namespace Gambit
           return payloads;
         }
 
+        Cutflows parse_cutflows_or_empty(const nlohmann::json& analysis_json)
+        {
+          Cutflows cutflows;
+          if (!analysis_json.contains("cutflows"))
+          {
+            return cutflows;
+          }
+
+          const nlohmann::json& cutflows_json = analysis_json.at("cutflows");
+          if (!cutflows_json.is_array())
+          {
+            throw std::runtime_error("cutflows entry in JSON output must be an array.");
+          }
+
+          for (const nlohmann::json& cf_json : cutflows_json)
+          {
+            if (!cf_json.is_object())
+            {
+              throw std::runtime_error("Each cutflow entry in JSON output must be an object.");
+            }
+
+            const std::string cf_name = cf_json.value("name", std::string());
+            if (cf_name.empty())
+            {
+              throw std::runtime_error("Cutflow entry in JSON output is missing a non-empty name.");
+            }
+
+            if (!cf_json.contains("cuts") || !cf_json.at("cuts").is_array())
+            {
+              throw std::runtime_error("Cutflow '" + cf_name + "' has invalid/missing cuts array in JSON output.");
+            }
+
+            const nlohmann::json& cuts_json = cf_json.at("cuts");
+            if (cuts_json.empty())
+            {
+              throw std::runtime_error("Cutflow '" + cf_name + "' has an empty cuts array in JSON output.");
+            }
+
+            std::vector<std::string> cut_names;
+            cut_names.reserve(cuts_json.size() - 1);
+            std::vector<double> counts;
+            counts.reserve(cuts_json.size());
+
+            for (std::size_t i = 0; i < cuts_json.size(); ++i)
+            {
+              const nlohmann::json& cut_json = cuts_json.at(i);
+              if (!cut_json.is_object() || !cut_json.contains("count"))
+              {
+                throw std::runtime_error(
+                  "Cutflow '" + cf_name + "' has invalid cut entry in JSON output.");
+              }
+
+              counts.push_back(cut_json.at("count").get<double>());
+
+              if (i > 0)
+              {
+                const std::string cut_name = cut_json.value("cut_name", std::string());
+                cut_names.push_back(cut_name.empty() ? ("cut_" + std::to_string(i)) : cut_name);
+              }
+            }
+
+            Cutflow cf(cf_name, cut_names);
+            cf.counts = counts;
+            cutflows.addCutflow(cf);
+          }
+
+          return cutflows;
+        }
+
         bool is_consistent(double a, double b, double tol = 1e-8)
         {
           const double scale = std::max({1.0, std::fabs(a), std::fabs(b)});
@@ -314,13 +383,15 @@ namespace Gambit
           AnalysisAccumulator& acc,
           const std::string& analysis_name,
           const nlohmann::json& analysis_json,
-          const std::vector<SRPayload>& sr_payloads)
+          const std::vector<SRPayload>& sr_payloads,
+          const Cutflows& cutflows)
         {
           acc.data.analysis_name = analysis_name;
           acc.data.collider_name = "CBS";
           acc.data.luminosity = analysis_json.value("luminosity", 0.0);
           acc.data.bkgjson_path = analysis_json.value("bkgjson_path", std::string());
           acc.data.srcov = parse_covariance_matrix_or_empty(analysis_json);
+          acc.data.cutflows = cutflows;
 
           acc.data.srdata.clear();
           acc.data.srdata_identifiers.clear();
@@ -381,6 +452,43 @@ namespace Gambit
                 || !is_consistent(target.n_bkg_err, payload.n_bkg_err))
             {
               throw std::runtime_error("Observed/background data mismatch across runs in analysis " + analysis_name + ".");
+            }
+          }
+        }
+
+        void accumulate_cutflows(
+          Cutflows& target,
+          const Cutflows& incoming,
+          const std::string& analysis_name)
+        {
+          if (incoming.cfs.empty()) return;
+
+          if (target.cfs.empty())
+          {
+            target = incoming;
+            return;
+          }
+
+          if (target.cfs.size() != incoming.cfs.size())
+          {
+            throw std::runtime_error(
+              "Inconsistent number of cutflows across batch runs for analysis " + analysis_name + ".");
+          }
+
+          for (std::size_t i = 0; i < target.cfs.size(); ++i)
+          {
+            Cutflow& dst = target.cfs[i];
+            const Cutflow& src = incoming.cfs[i];
+
+            if (dst.name != src.name || dst.cuts != src.cuts || dst.counts.size() != src.counts.size())
+            {
+              throw std::runtime_error(
+                "Inconsistent cutflow structure across batch runs for analysis " + analysis_name + ".");
+            }
+
+            for (std::size_t j = 0; j < dst.counts.size(); ++j)
+            {
+              dst.counts[j] += src.counts[j];
             }
           }
         }
@@ -516,15 +624,17 @@ namespace Gambit
             const std::string analysis_name = analysis_item.key();
             const nlohmann::json& analysis_json = analysis_item.value();
             const std::vector<SRPayload> sr_payloads = parse_sorted_sr_payloads(analysis_json);
+            const Cutflows file_cutflows = parse_cutflows_or_empty(analysis_json);
 
             AnalysisAccumulator& acc = accumulators[analysis_name];
             if (acc.data.srdata.empty())
             {
-              initialize_accumulator(acc, analysis_name, analysis_json, sr_payloads);
+              initialize_accumulator(acc, analysis_name, analysis_json, sr_payloads, file_cutflows);
             }
             else
             {
               validate_payload_consistency(acc, analysis_name, sr_payloads, analysis_json);
+              accumulate_cutflows(acc.data.cutflows, file_cutflows, analysis_name);
             }
 
             for (std::size_t i = 0; i < sr_payloads.size(); ++i)
