@@ -17,6 +17,9 @@ settings:
   # Basic run controls
   debug: true
   seed: 1337
+  # Optional: hide FastJet startup banner entirely (default false).
+  # In settings.processes batch mode, sub-runs are already auto-suppressed.
+  suppress_fastjet_banner: false
 
   # Runtime cutflow control (effective when compiled with CHECK_CUTFLOW)
   check_cutflow: true

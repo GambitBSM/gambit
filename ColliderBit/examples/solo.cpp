@@ -26,10 +26,13 @@
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/cats.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
+#include "fastjet/ClusterSequence.hh"
 #include "solo_batch.hpp"
 #include "solo_input.hpp"
 #include "solo_output.hpp"
 // #include "gambit/Backends/backend_rollcall.hpp"
+#include <cstdlib>
+#include <cstring>
 #include <limits>
 #include <utility>
 
@@ -68,6 +71,19 @@ int main(int argc, char* argv[])
 {
   try
   {
+    const auto env_flag_enabled = [](const char* value) -> bool
+    {
+      if (value == nullptr) return false;
+      if (std::strcmp(value, "1") == 0) return true;
+      if (std::strcmp(value, "true") == 0) return true;
+      if (std::strcmp(value, "TRUE") == 0) return true;
+      if (std::strcmp(value, "yes") == 0) return true;
+      if (std::strcmp(value, "YES") == 0) return true;
+      if (std::strcmp(value, "on") == 0) return true;
+      if (std::strcmp(value, "ON") == 0) return true;
+      return false;
+    };
+
     // Check the number of command line arguments
     if (argc < 2)
     {
@@ -88,15 +104,19 @@ int main(int argc, char* argv[])
     // Make sure that ATLAS FullLikes is present.
     if (not Backends::backendInfo().works[str("ATLAS_FullLikes") + FULLLIKES_VERSION]) backend_error().raise(LOCAL_INFO, str("ATLAS_FullLikes ")+FULLLIKES_VERSION" is missing!");
 
-    // Print the banner (if you could call it that)
-    cout << endl;
-    cout << "==================================" << endl;
-    cout << "||                              ||" << endl;
-    cout << "||    CBS: ColliderBit Solo     ||" << endl;
-    cout << "||  GAMBIT Collider Workgroup   ||" << endl;
-    cout << "||                              ||" << endl;
-    cout << "==================================" << endl;
-    cout << endl;
+    // Print the CBS startup banner once, unless suppressed for subprocess runs.
+    const bool suppress_startup_banner = env_flag_enabled(std::getenv("CBS_SUPPRESS_BANNER"));
+    if (!suppress_startup_banner)
+    {
+      cout << endl;
+      cout << "==================================" << endl;
+      cout << "||                              ||" << endl;
+      cout << "||    CBS: ColliderBit Solo     ||" << endl;
+      cout << "||  GAMBIT Collider Workgroup   ||" << endl;
+      cout << "||                              ||" << endl;
+      cout << "==================================" << endl;
+      cout << endl;
+    }
 
     // Read input file name
     const std::string filename_in = argv[1];
@@ -115,6 +135,12 @@ int main(int argc, char* argv[])
 
     // Translate relevant settings into appropriate variables
     bool debug = settings.getValueOrDef<bool>(false, "debug");
+    const bool suppress_fastjet_banner =
+      settings.getValueOrDef<bool>(false, "suppress_fastjet_banner");
+    if (suppress_fastjet_banner)
+    {
+      fastjet::ClusterSequence::set_fastjet_banner_stream(nullptr);
+    }
     // TODO: Use the use_FullLikes setting to allow CBS runs without having ATLAS_FullLikes installed
     // bool use_FullLikes = settings.getValueOrDef<bool>(false, "use_FullLikes"); 
     bool use_lnpiln = settings.getValueOrDef<bool>(false, "use_lognormal_distribution_for_1d_systematic");
@@ -203,6 +229,12 @@ int main(int argc, char* argv[])
       if (withRivet || withContur)
       {
         throw std::runtime_error("settings.processes batch mode does not support rivet-settings/contur-settings.");
+      }
+
+      // In batch mode each file is run in a subprocess; print FastJet banner only once here.
+      if (!suppress_fastjet_banner)
+      {
+        fastjet::ClusterSequence::print_banner();
       }
 
       CAT_3(nulike_,NULIKE_SAFE_VERSION,_init).reset_and_calculate();

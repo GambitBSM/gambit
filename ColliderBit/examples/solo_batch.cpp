@@ -202,6 +202,8 @@ namespace Gambit
 
           settings_node["screen_output"] = false;
           settings_node["output"] = job.output_json_file.string();
+          // Suppress repeated FastJet banners from per-file subprocesses.
+          settings_node["suppress_fastjet_banner"] = true;
 
           root["settings"] = settings_node;
 
@@ -217,7 +219,8 @@ namespace Gambit
         void run_single_job(const std::string& cbs_executable, const fs::path& yaml_file)
         {
           const std::string cmd =
-            shell_quote(cbs_executable) + " " + shell_quote(yaml_file.string());
+            "GAMBIT_SUPPRESS_BANNER=1 CBS_SUPPRESS_BANNER=1 "
+            + shell_quote(cbs_executable) + " " + shell_quote(yaml_file.string());
           const int rc = std::system(cmd.c_str());
           if (rc != 0)
           {
