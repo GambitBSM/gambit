@@ -114,6 +114,7 @@ namespace Gambit
       static std::map<str,int> min_nEvents;
       static std::map<str,int> max_nEvents;
       static std::map<str,int> stoppingres;
+      static std::map<str,bool> run_convergence_checks;
       static bool fixed_nEvents = true;
       if (first)
       {
@@ -188,7 +189,18 @@ namespace Gambit
 
           result.mean_nEvents                                             = mean_nEvents;
           result.desired_nEvents[collider]                                = calc_N_MC(result.estimator, mean_nEvents);
-          result.convergence_options[collider].target_stat                = colOptions.getValue<double>("target_fractional_uncert");
+          run_convergence_checks[collider]                                = colOptions.getValueOrDef<bool>(true, "run_convergence_checks");
+          if (run_convergence_checks.at(collider))
+          {
+            // Preserve legacy behaviour when convergence checks are enabled:
+            // target_fractional_uncert must be explicitly provided.
+            result.convergence_options[collider].target_stat              = colOptions.getValue<double>("target_fractional_uncert");
+          }
+          else
+          {
+            // For explicit no-convergence runs (CBS policy), this value is unused.
+            result.convergence_options[collider].target_stat              = colOptions.getValueOrDef<double>(0.30, "target_fractional_uncert");
+          }
           result.convergence_options[collider].stop_at_sys                = colOptions.getValueOrDef<bool>(true, "halt_when_systematic_dominated");
           result.convergence_options[collider].all_analyses_must_converge = colOptions.getValueOrDef<bool>(false, "all_analyses_must_converge");
           result.convergence_options[collider].all_SR_must_converge       = colOptions.getValueOrDef<bool>(false, "all_SR_must_converge");
@@ -366,7 +378,7 @@ namespace Gambit
 
           // Don't bother with convergence stuff if we haven't passed the minimum number of events yet.
           // Only do this if we are using a fixed number of events.
-          if (fixed_nEvents and result.current_event_count() >= min_nEvents.at(collider))
+          if (run_convergence_checks.at(collider) and fixed_nEvents and result.current_event_count() >= min_nEvents.at(collider))
           {
             #pragma omp parallel
             {
@@ -461,8 +473,13 @@ namespace Gambit
       // When first called, check that all analyses contain at least one signal region.
       if (first)
       {
-        // Print cutflow at the end of the run
-        print_cutflows = runOptions->getValueOrDef<bool>(false, "print_cutflows");
+        // Print cutflow at the end of the run.
+        // `check_cutflow` is the CBS-facing single switch; keep `print_cutflows`
+        // as a fallback for compatibility with broader ColliderBit usage.
+        const bool print_cutflows_legacy =
+          runOptions->getValueOrDef<bool>(false, "print_cutflows");
+        print_cutflows =
+          runOptions->getValueOrDef<bool>(print_cutflows_legacy, "check_cutflow");
         normalized_cutflows = runOptions->getValueOrDef<bool>(false, "normalized_cutflows");
 
         // Loop over all AnalysisData pointers

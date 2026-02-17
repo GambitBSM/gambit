@@ -29,16 +29,11 @@ settings:
     #   files:
     #     - /path/to/another_process.hepmc
 
-  max_nEvent: 50000
   use_lognormal_distribution_for_1d_systematic: true
-  events_between_convergence_checks: 50000
+
+  # CBS always processes all events in provided HepMC files.
+  # target_fractional_uncert is used for post-run sampling advice only.
   target_fractional_uncert: 0.3
-  halt_when_systematic_dominated: true
-  all_analyses_must_converge: false
-  all_SR_must_converge: false
-  covariance_marg_convthres_abs: 0.05
-  covariance_marg_convthres_rel: 0.05
-  covariance_nsamples_start: 1000
 
   jet_collections:
     antikt_R04:
@@ -60,5 +55,4 @@ settings:
       pt_min: 5.0
 
   output: ./runs/CBS_result.json
-  output_json_indent: 4
   screen_output: true

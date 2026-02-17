@@ -32,8 +32,8 @@ namespace Gambit
     {
       namespace
       {
-        const std::string kSupportedOutputFormat = "json";
-        const std::string kSupportedSchemaVersion = "cbs-solo-loglike-v1";
+        const std::string kSchemaVersion = "cbs-solo-loglike-v1";
+        const int kJsonIndent = 2;
 
         void ensure_parent_directory_exists(const std::string& output_file)
         {
@@ -152,7 +152,8 @@ namespace Gambit
           bool with_contur,
           double contur_total_loglike,
           const std::map<std::string, double>& contur_pool_loglikes,
-          const std::map<std::string, std::string>& contur_pool_info
+          const std::map<std::string, std::string>& contur_pool_info,
+          const std::vector<SamplingAdviceEntry>& sampling_advice
         )
         {
           std::stringstream summary_line;
@@ -226,6 +227,27 @@ namespace Gambit
             }
           }
 
+          if (!sampling_advice.empty())
+          {
+            summary_line << "\nMC sampling advice (selected SR per analysis):\n";
+            for (const SamplingAdviceEntry& entry : sampling_advice)
+            {
+              summary_line << "  " << entry.analysis_name << " / " << entry.sr_label
+                           << " (SR index " << entry.sr_index << "): "
+                           << "S = " << entry.n_sig_scaled
+                           << ", sigma_MC = " << entry.n_sig_scaled_err
+                           << ", frac = " << entry.fractional_uncert
+                           << ", N_eff = " << entry.effective_events << '\n';
+              for (const SamplingAdviceTargetEntry& target : entry.targets)
+              {
+                summary_line << "    target " << target.target_fractional_uncert
+                             << ": need_more_mc=" << (target.need_more_mc ? "true" : "false")
+                             << ", add_events_total=" << target.recommended_additional_events
+                             << ", scale_factor=" << target.scale_factor << '\n';
+              }
+            }
+          }
+
           std::cout << '\n';
           std::cout << "Read and analysed " << n_events << " events from HepMC file(s).\n\n";
           std::cout << "Analysis details:\n\n" << summary_line.str() << '\n';
@@ -240,27 +262,6 @@ namespace Gambit
 
       void validate_output_config(const OutputConfig& config)
       {
-        if (config.output_format != kSupportedOutputFormat)
-        {
-          throw std::runtime_error(
-            "Unsupported output_format '" + config.output_format +
-            "'. Only '" + kSupportedOutputFormat + "' is supported."
-          );
-        }
-
-        if (config.schema_version != kSupportedSchemaVersion)
-        {
-          throw std::runtime_error(
-            "Unsupported output_schema '" + config.schema_version +
-            "'. Only '" + kSupportedSchemaVersion + "' is supported."
-          );
-        }
-
-        if (config.json_indent < 0)
-        {
-          throw std::runtime_error("output_json_indent must be >= 0.");
-        }
-
         if (config.write_file && config.output_file.empty())
         {
           throw std::runtime_error("File output requested, but output path is empty.");
@@ -276,7 +277,8 @@ namespace Gambit
         bool with_contur,
         double contur_total_loglike,
         const std::map<std::string, double>& contur_pool_loglikes,
-        const std::map<std::string, std::string>& contur_pool_info
+        const std::map<std::string, std::string>& contur_pool_info,
+        const std::vector<SamplingAdviceEntry>& sampling_advice
       )
       {
         if (config.screen_output)
@@ -289,19 +291,18 @@ namespace Gambit
             with_contur,
             contur_total_loglike,
             contur_pool_loglikes,
-            contur_pool_info
+            contur_pool_info,
+            sampling_advice
           );
         }
 
         if (!config.write_file) return;
 
         nlohmann::json root;
-        root["schema_version"] = config.schema_version;
+        root["schema_version"] = kSchemaVersion;
         root["run"] = {
           {"n_events", n_events},
-          {"with_contur", with_contur},
-          {"output_format", config.output_format},
-          {"output_json_indent", config.json_indent}
+          {"with_contur", with_contur}
         };
 
         nlohmann::json analyses_json = nlohmann::json::object();
@@ -465,6 +466,55 @@ namespace Gambit
         if (with_contur) summary["contur_loglike"] = contur_total_loglike;
         root["summary"] = summary;
 
+        if (!sampling_advice.empty())
+        {
+          nlohmann::json advice_json;
+          advice_json["allocation_rule"] = "cross_section_proportional";
+          advice_json["analyses"] = nlohmann::json::array();
+
+          for (const SamplingAdviceEntry& entry : sampling_advice)
+          {
+            nlohmann::json analysis_advice_json;
+            analysis_advice_json["analysis_name"] = entry.analysis_name;
+            analysis_advice_json["selected_sr_label"] = entry.sr_label;
+            analysis_advice_json["selected_sr_index"] = entry.sr_index;
+            analysis_advice_json["n_sig_scaled"] = entry.n_sig_scaled;
+            analysis_advice_json["n_sig_scaled_err"] = entry.n_sig_scaled_err;
+            analysis_advice_json["fractional_uncert"] = entry.fractional_uncert;
+            analysis_advice_json["effective_events"] = entry.effective_events;
+            analysis_advice_json["targets"] = nlohmann::json::array();
+
+            for (const SamplingAdviceTargetEntry& target : entry.targets)
+            {
+              nlohmann::json target_json;
+              target_json["target_fractional_uncert"] = target.target_fractional_uncert;
+              target_json["current_fractional_uncert"] = target.current_fractional_uncert;
+              target_json["need_more_mc"] = target.need_more_mc;
+              target_json["scale_factor"] = target.scale_factor;
+              target_json["current_total_events"] = target.current_total_events;
+              target_json["recommended_total_events"] = target.recommended_total_events;
+              target_json["recommended_additional_events"] = target.recommended_additional_events;
+              target_json["process_recommendations"] = nlohmann::json::array();
+
+              for (const SamplingAdviceProcessEntry& process : target.process_recommendations)
+              {
+                nlohmann::json process_json;
+                process_json["process_name"] = process.process_name;
+                process_json["cross_section_fb"] = process.cross_section_fb;
+                process_json["processed_events"] = process.processed_events;
+                process_json["recommended_additional_events"] = process.recommended_additional_events;
+                target_json["process_recommendations"].push_back(process_json);
+              }
+
+              analysis_advice_json["targets"].push_back(target_json);
+            }
+
+            advice_json["analyses"].push_back(analysis_advice_json);
+          }
+
+          root["sampling_advice"] = advice_json;
+        }
+
         nlohmann::json predefined_sets = nlohmann::json::object();
         predefined_sets["default_total"] = default_total_terms;
         root["predefined_sets"] = predefined_sets;
@@ -526,7 +576,7 @@ namespace Gambit
           root["contur"] = contur_json;
         }
 
-        write_json_to_file(root, config.output_file, config.json_indent);
+        write_json_to_file(root, config.output_file, kJsonIndent);
       }
     }
   }

@@ -1,11 +1,16 @@
-# Complete CBS YAML template (multi-process mode)
-# - Supports multiple physical processes
-# - Supports multiple HepMC files per process
-# - Supports runtime cutflow control
+# Complete CBS YAML template (updated for current solo.cpp / solo_input.cpp)
+# Date: 2026-02-16
+#
+# IMPORTANT:
+# 1. Choose exactly one input mode:
+#    - Mode A: settings.processes (recommended for multi-file / multi-process runs)
+#    - Mode B: settings.event_file (legacy single-file mode)
+# 2. Do NOT mix settings.processes with settings.event_file.
+# 3. CBS always processes all events in user-provided HepMC files (no convergence-based early stop).
 
 analyses:
   - ATLAS_EXOT_2019_04
-  # - ATLAS_EXOT_2016_017
+  - ATLAS_EXOT_2016_017
   # - ATLAS_CONF_2019_008
 
 settings:
@@ -13,47 +18,62 @@ settings:
   debug: true
   seed: 1337
 
-  # Runtime cutflow control (single CBS switch)
-  # Requires compile-time CHECK_CUTFLOW to be enabled.
-  check_cutflow: false
+  # Runtime cutflow control (effective when compiled with CHECK_CUTFLOW)
+  check_cutflow: true
 
-  # Event input mode: process-based (do not mix with event_file mode)
+  # --------------------------------------------------------------------------
+  # Input Mode A (recommended): process-based multi-file input
+  # --------------------------------------------------------------------------
   processes:
-    # Process A: one physical process, multiple HepMC chunks
     - name: EWino
       cross_section_fb: 1841.0
       cross_section_uncert_fb: 3.46
       files:
-        - file: /Users/p.zhu/Workshop/GambitWS/CBS/events/ewino_01.hepmc
-          generated_events: 10000
-        - file: /Users/p.zhu/Workshop/GambitWS/CBS/events/ewino_02.hepmc
-          generated_events: 10000
+        - /Users/p.zhu/Workshop/GambitWS/CBS/events/ewino_01.hepmc
+        - /Users/p.zhu/Workshop/GambitWS/CBS/events/ewino_02.hepmc
 
-    # Process B: another independent physical process contribution
     - name: slepton
       cross_section_fb: 75.49
-      cross_section_uncert_fb: 0.0001
+      cross_section_uncert_fb: 0.10
       files:
-        - file: /Users/p.zhu/Workshop/GambitWS/CBS/events/slepton_01.hepmc
-          generated_events: 10000
-        - file: /Users/p.zhu/Workshop/GambitWS/CBS/events/slepton_02.hepmc
-          generated_events: 10000
+        - /Users/p.zhu/Workshop/GambitWS/CBS/events/slepton_01.hepmc
+        - /Users/p.zhu/Workshop/GambitWS/CBS/events/slepton_02.hepmc
 
-  # Loop / likelihood options (optional but commonly used)
-  use_lognormal_distribution_for_1d_systematic: true
-  events_between_convergence_checks: 50000
+  # files may be given as plain strings or as mappings with file/filename keys.
+  # Event counts are always read from the HepMC files directly.
+
+  # --------------------------------------------------------------------------
+  # Input Mode B (legacy single-file mode): uncomment and disable Mode A
+  # --------------------------------------------------------------------------
+  # event_file: /path/to/sample.hepmc
+  # cross_section_fb: 10.0
+  # cross_section_uncert_fb: 1.0
+  # Alternative xsec styles are also supported:
+  # cross_section_pb + cross_section_uncert_pb
+  # cross_section_fb + cross_section_fractional_uncert
+  # cross_section_pb + cross_section_fractional_uncert
+
+
+  # --------------------------------------------------------------------------
+  # Batch-mode extras (used when settings.processes is active)
+  # --------------------------------------------------------------------------
+  # If omitted, CBS uses [target_fractional_uncert, 0.10, 0.05]
+  # Here target_fractional_uncert is only used for post-run sampling advice.
   target_fractional_uncert: 0.30
-  # Optional: explicit targets for post-run MC top-up advice in process mode.
-  # If omitted, CBS uses [target_fractional_uncert, 0.10, 0.05].
-  # sampling_advice_targets: [0.30, 0.10, 0.05]
-  halt_when_systematic_dominated: true
-  all_analyses_must_converge: false
-  all_SR_must_converge: false
-  covariance_marg_convthres_abs: 0.05
-  covariance_marg_convthres_rel: 0.05
-  covariance_nsamples_start: 1000
+  sampling_advice_targets: [0.30, 0.10, 0.05]
 
-  # Jet collections (required by current CBS workflow)
+  # Keep temporary per-file YAML/JSON artifacts from batch runner
+  keep_batch_tmp: true
+
+  # Optional combined-loglike controls (mainly relevant for merged/batch result)
+  # alt_loglike: marginalised
+  # skip_analyses: [ATLAS_EXOT_2019_04]
+  # cap_loglike_individual_analyses: false
+  # cap_loglike: false
+
+  # --------------------------------------------------------------------------
+  # Jet definitions (required)
+  # --------------------------------------------------------------------------
   jet_collections:
     antikt_R04:
       algorithm: "antikt"
@@ -66,10 +86,10 @@ settings:
       recombination_scheme: "E_scheme"
       strategy: "Best"
 
-  # Optional: name of jet collection used for hadronic taus
+  # Jet collection used for hadronic tau association
   jet_collection_taus: antikt_R04
 
-  # Optional VR jets (only needed for analyses that use VR track jets)
+  # Optional VR jets (needed only for analyses that use event->vrjets("<key>"))
   VRJet_collections:
     VRTrackJets:
       rho: 30.0
@@ -77,9 +97,8 @@ settings:
       Rmax: 0.40
       pt_min: 5.0
 
-  # Output
+  # --------------------------------------------------------------------------
+  # Output controls
+  # --------------------------------------------------------------------------
   screen_output: true
-  output: /Users/p.zhu/Workshop/GambitWS/YourCase/runs/CBS_result.json
-  output_format: json
-  output_schema: cbs-solo-loglike-v1
-  output_json_indent: 2
+  output: ./runs/CBS_result.json

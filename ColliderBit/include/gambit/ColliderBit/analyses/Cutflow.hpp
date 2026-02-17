@@ -38,6 +38,18 @@ namespace Gambit
     struct Cutflow
     {
 
+      /// Runtime switch for enabling/disabling cutflow filling.
+      /// This allows standalone CBS to control cutflow checks via YAML.
+      static void set_check_cutflow(bool enabled)
+      {
+        check_cutflow_flag() = enabled;
+      }
+
+      static bool check_cutflow()
+      {
+        return check_cutflow_flag();
+      }
+
       /// @brief Default constructor
       ///
       /// Does nothing! Just to allow storage in STL containers and use as a member variable without using the init list
@@ -56,6 +68,11 @@ namespace Gambit
       /// @brief Fill the pre-cut counter
       void fillinit(double weight=1.)
       {
+        if (!check_cutflow())
+        {
+          icurr[omp_get_thread_num()] = 1;
+          return;
+        }
         counts[0] += weight;
         icurr[omp_get_thread_num()] = 1;
       }
@@ -65,6 +82,11 @@ namespace Gambit
       /// @note Returns the cut result to allow 'side-effect' cut-flow filling in an if-statement
       bool fill(size_t icut, bool cutresult=true, double weight=1.)
       {
+        if (!check_cutflow())
+        {
+          icurr[omp_get_thread_num()] = icut + 1;
+          return cutresult;
+        }
         // if (icut == 0)
         //   throw RangeError("Cut number must be greater than 0");
         if (cutresult) counts.at(icut) += weight;
@@ -150,18 +172,21 @@ namespace Gambit
       /// Scale the cutflow weights by the given factor
       void scale(double factor)
       {
+        if (!check_cutflow()) return;
         for (double& x : counts) x *= factor;
       }
 
       /// Scale the cutflow weights so that the weight count after cut @a icut is @a norm
       void normalize(double norm, size_t icut=0)
       {
+        if (!check_cutflow()) return;
         scale(norm/counts.at(icut));
       }
 
       /// Combine two cutflows
       void combine(const Cutflow& othercf)
       {
+        if (!check_cutflow()) return;
         for(size_t i=0; i<=ncuts; i++)
           counts[i] += othercf.counts[i];
       }
@@ -213,6 +238,14 @@ namespace Gambit
       vector<string> cuts;
       vector<double> counts;
       vector<size_t> icurr;
+
+      private:
+
+      static bool& check_cutflow_flag()
+      {
+        static bool enabled = true;
+        return enabled;
+      }
 
     };
 

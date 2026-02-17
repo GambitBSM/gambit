@@ -15,6 +15,7 @@
 #include <fstream>
 #include <limits>
 #include <map>
+#include <numeric>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
@@ -82,6 +83,13 @@ namespace Gambit
           std::vector<double> n_sig_scaled_err2;
         };
 
+        struct CompletedRun
+        {
+          RunJob job;
+          int n_events = 0;
+          nlohmann::json analyses_json;
+        };
+
         std::string shell_quote(const std::string& input)
         {
           std::string result = "'";
@@ -141,25 +149,15 @@ namespace Gambit
 
           for (const SoloInput::ProcessInput& process : prepared_input.processes)
           {
-            long long process_generated_events = 0;
-            for (const SoloInput::HepMCFileInput& file : process.files)
-            {
-              process_generated_events += file.generated_events;
-            }
-            if (process_generated_events <= 0)
-            {
-              throw std::runtime_error("Invalid generated-events total for process " + process.name + ".");
-            }
-
             for (const SoloInput::HepMCFileInput& file : process.files)
             {
               RunJob job;
               job.process_name = process.name;
               job.hepmc_file = file.filename;
-              const double fraction =
-                static_cast<double>(file.generated_events) / static_cast<double>(process_generated_events);
-              job.cross_section_fb = process.cross_section_fb * fraction;
-              job.cross_section_uncert_fb = process.cross_section_uncert_fb * fraction;
+              // Use full process cross section for each file, then combine files
+              // for the same process with event-count weighting after runs finish.
+              job.cross_section_fb = process.cross_section_fb;
+              job.cross_section_uncert_fb = process.cross_section_uncert_fb;
 
               std::ostringstream stem;
               stem << "run_" << run_index;
@@ -204,9 +202,6 @@ namespace Gambit
 
           settings_node["screen_output"] = false;
           settings_node["output"] = job.output_json_file.string();
-          settings_node["output_format"] = "json";
-          settings_node["output_schema"] = "cbs-solo-loglike-v1";
-          settings_node["output_json_indent"] = 0;
 
           root["settings"] = settings_node;
 
@@ -469,6 +464,9 @@ namespace Gambit
 
         std::vector<RunJob> jobs = build_run_jobs(prepared_input, temp_dir);
         std::map<std::string, AnalysisAccumulator> accumulators;
+        std::map<std::string, long long> process_event_totals;
+        std::vector<CompletedRun> completed_runs;
+        completed_runs.reserve(jobs.size());
         int total_events = 0;
 
         for (const RunJob& job : jobs)
@@ -479,10 +477,38 @@ namespace Gambit
 
           const nlohmann::json run_json = read_json_file(job.output_json_file);
           const int n_events = run_json.at("run").at("n_events").get<int>();
+          if (n_events <= 0)
+          {
+            throw std::runtime_error("A per-file CBS run produced zero events for " + job.hepmc_file + ".");
+          }
           total_events += n_events;
+          process_event_totals[job.process_name] += n_events;
 
-          const nlohmann::json& analyses_json = run_json.at("analyses");
-          for (const auto& analysis_item : analyses_json.items())
+          CompletedRun completed;
+          completed.job = job;
+          completed.n_events = n_events;
+          completed.analyses_json = run_json.at("analyses");
+          completed_runs.push_back(std::move(completed));
+        }
+
+        if (total_events <= 0)
+        {
+          throw std::runtime_error("Batch mode produced zero processed events.");
+        }
+
+        // Process-file combination rule:
+        // for files belonging to the same process, combine with event-count weights.
+        for (const CompletedRun& completed : completed_runs)
+        {
+          auto it_total = process_event_totals.find(completed.job.process_name);
+          if (it_total == process_event_totals.end() || it_total->second <= 0)
+          {
+            throw std::runtime_error("Missing process event total for process " + completed.job.process_name + ".");
+          }
+          const double process_weight =
+            static_cast<double>(completed.n_events) / static_cast<double>(it_total->second);
+
+          for (const auto& analysis_item : completed.analyses_json.items())
           {
             const std::string analysis_name = analysis_item.key();
             const nlohmann::json& analysis_json = analysis_item.value();
@@ -501,19 +527,16 @@ namespace Gambit
             for (std::size_t i = 0; i < sr_payloads.size(); ++i)
             {
               const SRPayload& payload = sr_payloads[i];
-              acc.data.srdata[i].n_sig_scaled += payload.n_sig_scaled;
-              acc.n_sig_scaled_err2[i] += payload.n_sig_scaled_err * payload.n_sig_scaled_err;
+              acc.data.srdata[i].n_sig_scaled += process_weight * payload.n_sig_scaled;
+              acc.n_sig_scaled_err2[i] += std::pow(process_weight * payload.n_sig_scaled_err, 2);
             }
           }
         }
 
-        if (total_events <= 0)
-        {
-          throw std::runtime_error("Batch mode produced zero processed events.");
-        }
-
         MergedRunResult merged;
         merged.total_events = total_events;
+        merged.total_process_events = total_events;
+        merged.process_event_counts = process_event_totals;
 
         // Preserve user-requested analysis ordering where possible.
         std::vector<std::string> analysis_order;
@@ -595,7 +618,232 @@ namespace Gambit
 
         return merged;
       }
+
+      std::vector<AnalysisSamplingAdvice> build_sampling_advice(
+        const MergedRunResult& merged,
+        const SoloInput::PreparedInput& prepared_input,
+        const Options& settings
+      )
+      {
+        std::vector<AnalysisSamplingAdvice> advice;
+        if (prepared_input.processes.empty()) return advice;
+
+        std::vector<double> targets;
+        if (settings.hasKey("sampling_advice_targets"))
+        {
+          targets = settings.getValue<std::vector<double>>("sampling_advice_targets");
+        }
+        else
+        {
+          targets.push_back(settings.getValueOrDef<double>(0.30, "target_fractional_uncert"));
+          targets.push_back(0.10);
+          targets.push_back(0.05);
+        }
+
+        std::vector<double> clean_targets;
+        for (double target : targets)
+        {
+          if (!(target > 0.0) || !std::isfinite(target)) continue;
+          bool duplicate = false;
+          for (double existing : clean_targets)
+          {
+            if (std::fabs(existing - target) <= 1e-12 * std::max(1.0, std::fabs(existing)))
+            {
+              duplicate = true;
+              break;
+            }
+          }
+          if (!duplicate) clean_targets.push_back(target);
+        }
+        if (clean_targets.empty())
+        {
+          clean_targets.push_back(0.30);
+        }
+
+        std::vector<ProcessSamplingAdvice> process_templates;
+        process_templates.reserve(prepared_input.processes.size());
+        long long total_processed_events = merged.total_process_events;
+        double total_cross_section_fb = 0.0;
+
+        for (const SoloInput::ProcessInput& process : prepared_input.processes)
+        {
+          ProcessSamplingAdvice process_info;
+          process_info.process_name = process.name;
+          process_info.cross_section_fb = process.cross_section_fb;
+          const auto it = merged.process_event_counts.find(process.name);
+          process_info.processed_events = (it == merged.process_event_counts.end() ? 0 : it->second);
+          process_info.recommended_additional_events = 0;
+          total_cross_section_fb += std::max(0.0, process_info.cross_section_fb);
+          process_templates.push_back(process_info);
+        }
+
+        if (total_processed_events <= 0)
+        {
+          return advice;
+        }
+
+        for (const AnalysisData* analysis_ptr : merged.analyses)
+        {
+          if (analysis_ptr == nullptr) continue;
+          const AnalysisData& analysis = *analysis_ptr;
+
+          const auto ll_it = merged.analysis_loglikes.find(analysis.analysis_name);
+          if (ll_it == merged.analysis_loglikes.end()) continue;
+
+          const AnalysisLogLikes& loglikes = ll_it->second;
+          const int sr_index = loglikes.combination_sr_index;
+          if (sr_index < 0 || sr_index >= static_cast<int>(analysis.size())) continue;
+
+          const SignalRegionData& sr_data = analysis[sr_index];
+          const double signal = sr_data.n_sig_scaled;
+          const double signal_err = sr_data.calc_n_sig_scaled_err();
+
+          AnalysisSamplingAdvice analysis_advice;
+          analysis_advice.analysis_name = analysis.analysis_name;
+          analysis_advice.sr_label = sr_data.sr_label;
+          analysis_advice.sr_index = sr_index;
+          analysis_advice.n_sig_scaled = signal;
+          analysis_advice.n_sig_scaled_err = signal_err;
+
+          if (signal > 0.0 && signal_err > 0.0 && std::isfinite(signal_err))
+          {
+            analysis_advice.fractional_uncert = signal_err / signal;
+            analysis_advice.effective_events = std::pow(signal / signal_err, 2);
+          }
+          else if (signal > 0.0 && signal_err == 0.0)
+          {
+            analysis_advice.fractional_uncert = 0.0;
+            analysis_advice.effective_events = std::numeric_limits<double>::infinity();
+          }
+          else
+          {
+            analysis_advice.fractional_uncert = std::numeric_limits<double>::infinity();
+            analysis_advice.effective_events = 0.0;
+          }
+
+          for (double target : clean_targets)
+          {
+            SamplingTargetAdvice target_advice;
+            target_advice.target_fractional_uncert = target;
+            target_advice.current_fractional_uncert = analysis_advice.fractional_uncert;
+            target_advice.current_total_events = total_processed_events;
+            target_advice.recommended_total_events = total_processed_events;
+            target_advice.scale_factor = 1.0;
+            target_advice.need_more_mc = false;
+            target_advice.recommended_additional_events = 0;
+            target_advice.process_recommendations = process_templates;
+
+            if (signal > 0.0 && signal_err > 0.0 && std::isfinite(analysis_advice.fractional_uncert))
+            {
+              const double factor =
+                std::pow(analysis_advice.fractional_uncert / target, 2);
+              target_advice.scale_factor = std::max(1.0, factor);
+
+              const double rec_total_events_real =
+                static_cast<double>(total_processed_events) * target_advice.scale_factor;
+              const double rec_total_events_ceiled = std::ceil(rec_total_events_real);
+
+              if (rec_total_events_ceiled > static_cast<double>(std::numeric_limits<long long>::max()))
+              {
+                target_advice.recommended_total_events = std::numeric_limits<long long>::max();
+              }
+              else
+              {
+                target_advice.recommended_total_events =
+                  static_cast<long long>(rec_total_events_ceiled);
+              }
+
+              target_advice.recommended_additional_events =
+                std::max<long long>(0, target_advice.recommended_total_events - total_processed_events);
+              target_advice.need_more_mc = (target_advice.recommended_additional_events > 0);
+            }
+
+            if (target_advice.recommended_additional_events > 0
+                && !target_advice.process_recommendations.empty())
+            {
+              std::vector<long long> base_alloc(
+                target_advice.process_recommendations.size(), 0);
+              std::vector<double> fractional_part(
+                target_advice.process_recommendations.size(), 0.0);
+              std::vector<double> share(
+                target_advice.process_recommendations.size(), 0.0);
+
+              if (total_cross_section_fb > 0.0)
+              {
+                for (std::size_t ip = 0; ip < target_advice.process_recommendations.size(); ++ip)
+                {
+                  share[ip] =
+                    std::max(0.0, target_advice.process_recommendations[ip].cross_section_fb)
+                    / total_cross_section_fb;
+                }
+              }
+              else
+              {
+                for (std::size_t ip = 0; ip < target_advice.process_recommendations.size(); ++ip)
+                {
+                  share[ip] =
+                    static_cast<double>(target_advice.process_recommendations[ip].processed_events)
+                    / static_cast<double>(total_processed_events);
+                }
+              }
+
+              const double share_sum =
+                std::accumulate(share.begin(), share.end(), 0.0);
+              if (share_sum > 0.0)
+              {
+                for (double& x : share) x /= share_sum;
+              }
+              else
+              {
+                const double uniform_share =
+                  1.0 / static_cast<double>(share.size());
+                for (double& x : share) x = uniform_share;
+              }
+
+              long long allocated = 0;
+              for (std::size_t ip = 0; ip < target_advice.process_recommendations.size(); ++ip)
+              {
+                const double exact =
+                  static_cast<double>(target_advice.recommended_additional_events) * share[ip];
+                const long long rounded_down = static_cast<long long>(std::floor(exact));
+                base_alloc[ip] = rounded_down;
+                fractional_part[ip] = exact - rounded_down;
+                allocated += rounded_down;
+              }
+
+              long long remainder = target_advice.recommended_additional_events - allocated;
+              std::vector<std::size_t> order(target_advice.process_recommendations.size());
+              std::iota(order.begin(), order.end(), 0);
+              std::sort(
+                order.begin(),
+                order.end(),
+                [&](std::size_t a, std::size_t b)
+                {
+                  return fractional_part[a] > fractional_part[b];
+                });
+
+              for (long long k = 0; k < remainder; ++k)
+              {
+                const std::size_t idx =
+                  order[static_cast<std::size_t>(k) % order.size()];
+                base_alloc[idx] += 1;
+              }
+
+              for (std::size_t ip = 0; ip < target_advice.process_recommendations.size(); ++ip)
+              {
+                target_advice.process_recommendations[ip].recommended_additional_events =
+                  base_alloc[ip];
+              }
+            }
+
+            analysis_advice.targets.push_back(std::move(target_advice));
+          }
+
+          advice.push_back(std::move(analysis_advice));
+        }
+
+        return advice;
+      }
     } // namespace SoloBatch
   }   // namespace ColliderBit
 } // namespace Gambit
-

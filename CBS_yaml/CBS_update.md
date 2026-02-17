@@ -167,14 +167,12 @@ settings:
       cross_section_uncert_fb: 0.6
       files:
         - file: /path/A_1.hepmc
-          generated_events: 50000
         - file: /path/A_2.hepmc
-          generated_events: 50000
 ```
 
 Notes:
-1. `generated_events` can be provided explicitly.
-2. If omitted, CBS can count events from HepMC files during input preparation.
+1. `generated_events` is no longer accepted in CBS YAML.
+2. CBS uses the actual processed event count from each run output (`run.n_events`) when combining files.
 
 ### Files modified for this item
 1. `/Users/p.zhu/Workshop/gambit/ColliderBit/examples/solo_input.hpp`

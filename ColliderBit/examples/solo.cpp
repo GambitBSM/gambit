@@ -25,10 +25,13 @@
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/cats.hpp"
+#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "solo_batch.hpp"
 #include "solo_input.hpp"
 #include "solo_output.hpp"
 // #include "gambit/Backends/backend_rollcall.hpp"
+#include <limits>
+#include <utility>
 
 #define NULIKE_VERSION "1.0.9"
 #define NULIKE_SAFE_VERSION 1_0_9
@@ -115,12 +118,10 @@ int main(int argc, char* argv[])
     // TODO: Use the use_FullLikes setting to allow CBS runs without having ATLAS_FullLikes installed
     // bool use_FullLikes = settings.getValueOrDef<bool>(false, "use_FullLikes"); 
     bool use_lnpiln = settings.getValueOrDef<bool>(false, "use_lognormal_distribution_for_1d_systematic");
-    // CBS-only runtime cutflow control:
-    // - `cutflow` is the simple user-facing switch.
-    // - `print_cutflows` is kept for compatibility with existing ColliderBit naming.
-    const bool cutflow = settings.getValueOrDef<bool>(false, "cutflow");
-    const bool print_cutflows = settings.getValueOrDef<bool>(cutflow, "print_cutflows");
-    const bool normalized_cutflows = settings.getValueOrDef<bool>(false, "normalized_cutflows");
+    // Single runtime cutflow switch for CBS.
+    // NOTE: This is runtime control and requires compiling with CHECK_CUTFLOW enabled.
+    const bool check_cutflow = settings.getValueOrDef<bool>(false, "check_cutflow");
+    ColliderBit::Cutflow::set_check_cutflow(check_cutflow);
     double jet_pt_min = settings.getValueOrDef<double>(10.0, "jet_pt_min");
 
     // Extract the jet collections yaml node
@@ -194,9 +195,6 @@ int main(int argc, char* argv[])
     {
       output_config.output_file = settings.getValueOrDef<std::string>("CBS_output.json", "output");
     }
-    output_config.output_format = settings.getValueOrDef<std::string>("json", "output_format");
-    output_config.schema_version = settings.getValueOrDef<std::string>("cbs-solo-loglike-v1", "output_schema");
-    output_config.json_indent = settings.getValueOrDef<int>(2, "output_json_indent");
     ColliderBit::SoloOutput::validate_output_config(output_config);
 
     // Process-mode batch running: run one standard CBS pass per file, then merge.
@@ -228,6 +226,52 @@ int main(int argc, char* argv[])
         fullLikesEvaluate
       );
 
+      const std::vector<ColliderBit::SoloBatch::AnalysisSamplingAdvice> batch_sampling_advice =
+        ColliderBit::SoloBatch::build_sampling_advice(merged, prepared_input, settings);
+
+      std::vector<ColliderBit::SoloOutput::SamplingAdviceEntry> output_sampling_advice;
+      output_sampling_advice.reserve(batch_sampling_advice.size());
+      for (const ColliderBit::SoloBatch::AnalysisSamplingAdvice& in_analysis : batch_sampling_advice)
+      {
+        ColliderBit::SoloOutput::SamplingAdviceEntry out_analysis;
+        out_analysis.analysis_name = in_analysis.analysis_name;
+        out_analysis.sr_label = in_analysis.sr_label;
+        out_analysis.sr_index = in_analysis.sr_index;
+        out_analysis.n_sig_scaled = in_analysis.n_sig_scaled;
+        out_analysis.n_sig_scaled_err = in_analysis.n_sig_scaled_err;
+        out_analysis.fractional_uncert = in_analysis.fractional_uncert;
+        out_analysis.effective_events = in_analysis.effective_events;
+        out_analysis.targets.reserve(in_analysis.targets.size());
+
+        for (const ColliderBit::SoloBatch::SamplingTargetAdvice& in_target : in_analysis.targets)
+        {
+          ColliderBit::SoloOutput::SamplingAdviceTargetEntry out_target;
+          out_target.target_fractional_uncert = in_target.target_fractional_uncert;
+          out_target.need_more_mc = in_target.need_more_mc;
+          out_target.current_fractional_uncert = in_target.current_fractional_uncert;
+          out_target.scale_factor = in_target.scale_factor;
+          out_target.current_total_events = in_target.current_total_events;
+          out_target.recommended_total_events = in_target.recommended_total_events;
+          out_target.recommended_additional_events = in_target.recommended_additional_events;
+          out_target.process_recommendations.reserve(in_target.process_recommendations.size());
+
+          for (const ColliderBit::SoloBatch::ProcessSamplingAdvice& in_process :
+               in_target.process_recommendations)
+          {
+            ColliderBit::SoloOutput::SamplingAdviceProcessEntry out_process;
+            out_process.process_name = in_process.process_name;
+            out_process.cross_section_fb = in_process.cross_section_fb;
+            out_process.processed_events = in_process.processed_events;
+            out_process.recommended_additional_events = in_process.recommended_additional_events;
+            out_target.process_recommendations.push_back(std::move(out_process));
+          }
+
+          out_analysis.targets.push_back(std::move(out_target));
+        }
+
+        output_sampling_advice.push_back(std::move(out_analysis));
+      }
+
       std::map<std::string, double> empty_contur_pool_loglikes;
       std::map<std::string, std::string> empty_contur_pool_info;
       ColliderBit::SoloOutput::emit_outputs(
@@ -239,7 +283,8 @@ int main(int argc, char* argv[])
         false,
         0.0,
         empty_contur_pool_loglikes,
-        empty_contur_pool_info
+        empty_contur_pool_info,
+        output_sampling_advice
       );
       return 0;
     }
@@ -259,8 +304,9 @@ int main(int argc, char* argv[])
     auto& getEvent = getHepMCEvent;
     auto& convertEvent = convertHepMCEvent_HEPUtils;
     auto& AnalysisNumbers = CollectAnalyses;
-    AnalysisNumbers.setOption<bool>("print_cutflows", print_cutflows);
-    AnalysisNumbers.setOption<bool>("normalized_cutflows", normalized_cutflows);
+    AnalysisNumbers.setOption<bool>("check_cutflow", check_cutflow);
+    AnalysisNumbers.setOption<bool>("print_cutflows", check_cutflow);
+    AnalysisNumbers.setOption<bool>("normalized_cutflows", false);
 
     // Initialise logs
     logger().set_log_debug_messages(debug);
@@ -280,7 +326,9 @@ int main(int argc, char* argv[])
     YAML::Node CBS(infile["settings"]);
     CBS["analyses"] = analyses;
     CBS["min_nEvents"] = (long long)(1000);
-    CBS["max_nEvents"] = (long long)(1000000000);
+    CBS["max_nEvents"] = (long long)(std::numeric_limits<int>::max());
+    // CBS policy: always process all events provided by the user (no convergence-based early stop).
+    CBS["run_convergence_checks"] = false;
     operateLHCLoop.setOption<YAML::Node>("CBS", CBS);
     operateLHCLoop.setOption<bool>("silenceLoop", not debug);
 

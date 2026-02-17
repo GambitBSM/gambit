@@ -9,14 +9,8 @@
 #include "solo_input.hpp"
 
 #include <cmath>
-#include <fstream>
-#include <memory>
 #include <sstream>
 #include <stdexcept>
-
-#include "HepMC3/GenEvent.h"
-#include "HepMC3/ReaderAscii.h"
-#include "HepMC3/ReaderAsciiHepMC2.h"
 
 #include "gambit/Utils/util_functions.hpp"
 
@@ -39,94 +33,6 @@ namespace Gambit
           return Gambit::Utils::endsWith(filename, ".hepmc")
                  || Gambit::Utils::endsWith(filename, ".hepmc2")
                  || Gambit::Utils::endsWith(filename, ".hepmc3");
-        }
-
-        int determine_hepmc_file_version(const str& hepmc_filename)
-        {
-          std::ifstream infile(hepmc_filename);
-          if (!infile.good())
-          {
-            throw std::runtime_error("HepMC event file " + hepmc_filename + " not found.");
-          }
-
-          std::string line;
-          while (std::getline(infile, line))
-          {
-            if (line.empty()) continue;
-
-            const std::string short_line = line.substr(0, 16);
-            if (short_line == "HepMC::Version 2")
-            {
-              return 2;
-            }
-            else if (short_line == "HepMC::Version 3")
-            {
-              if (!std::getline(infile, line))
-              {
-                throw std::runtime_error("Failed to determine HepMC format in file " + hepmc_filename + ".");
-              }
-
-              const std::string text_format = line.substr(0, 14);
-              if (text_format == "HepMC::Asciiv3")
-              {
-                return 3;
-              }
-              else if (text_format == "HepMC::IO_GenE")
-              {
-                return 2;
-              }
-
-              std::stringstream msg;
-              msg << "Could not determine HepMC version for file " << hepmc_filename
-                  << " from line: " << line;
-              throw std::runtime_error(msg.str());
-            }
-            else
-            {
-              std::stringstream msg;
-              msg << "Could not determine HepMC version for file " << hepmc_filename
-                  << " from line: " << line;
-              throw std::runtime_error(msg.str());
-            }
-          }
-
-          throw std::runtime_error("Failed to determine HepMC version for input file " + hepmc_filename + ".");
-        }
-
-        std::unique_ptr<HepMC3::Reader> make_hepmc_reader(const str& hepmc_filename, int hepmc_version)
-        {
-          if (hepmc_version == 2)
-          {
-            return std::unique_ptr<HepMC3::Reader>(new HepMC3::ReaderAsciiHepMC2(hepmc_filename));
-          }
-          if (hepmc_version == 3)
-          {
-            return std::unique_ptr<HepMC3::Reader>(new HepMC3::ReaderAscii(hepmc_filename));
-          }
-
-          throw std::runtime_error("Unsupported HepMC version for file " + hepmc_filename + ".");
-        }
-
-        long long count_hepmc_events(const str& hepmc_filename)
-        {
-          const int hepmc_version = determine_hepmc_file_version(hepmc_filename);
-          std::unique_ptr<HepMC3::Reader> reader = make_hepmc_reader(hepmc_filename, hepmc_version);
-
-          HepMC3::GenEvent event;
-          long long event_count = 0;
-          while (true)
-          {
-            event.clear();
-            const bool event_retrieved = reader->read_event(event);
-            if (!event_retrieved) break;
-
-            // Workaround for empty events when reader reached EOF.
-            if (event.particles().empty() && event.vertices().empty()) break;
-
-            ++event_count;
-          }
-
-          return event_count;
         }
 
         CrossSectionInput parse_cross_section_fb(const Options& opts, const std::string& context)
@@ -229,9 +135,14 @@ namespace Gambit
               throw std::runtime_error("Missing file/filename key in " + context + ".");
             }
 
+            // CBS now always derives file statistics from the HepMC file itself.
+            // Keep YAML strict to avoid stale/manual event counts.
             if (file_node["generated_events"])
             {
-              file_input.generated_events = file_node["generated_events"].as<long long>();
+              throw std::runtime_error(
+                "The generated_events option is no longer supported in " + context +
+                ". Please remove it; CBS will count events directly from the HepMC file."
+              );
             }
           }
           else
@@ -250,14 +161,6 @@ namespace Gambit
           if (!Gambit::Utils::file_exists(file_input.filename))
           {
             throw std::runtime_error("HepMC event file " + file_input.filename + " not found.");
-          }
-          if (file_input.generated_events == 0)
-          {
-            throw std::runtime_error("generated_events must be > 0 in " + context + ".");
-          }
-          if (file_input.generated_events < -1)
-          {
-            throw std::runtime_error("generated_events must be positive when specified in " + context + ".");
           }
 
           return file_input;
@@ -320,10 +223,6 @@ namespace Gambit
             throw std::runtime_error("settings.processes must be a non-empty sequence.");
           }
 
-          std::vector<long long> process_generated_events;
-          process_generated_events.reserve(processes_node.size());
-
-          long long total_generated_events = 0;
           double total_uncert_sq = 0.0;
 
           for (std::size_t ip = 0; ip < processes_node.size(); ++ip)
@@ -354,34 +253,14 @@ namespace Gambit
               throw std::runtime_error("files must be a non-empty sequence in " + process_context + ".");
             }
 
-            long long this_process_generated_events = 0;
             for (std::size_t jf = 0; jf < files_node.size(); ++jf)
             {
               const std::string file_context = process_context + ".files[" + std::to_string(jf) + "]";
               HepMCFileInput file_input = parse_hepmc_file_input(files_node[jf], file_context);
-
-              if (file_input.generated_events < 0)
-              {
-                file_input.generated_events = count_hepmc_events(file_input.filename);
-              }
-              if (file_input.generated_events <= 0)
-              {
-                throw std::runtime_error("No events found in " + file_input.filename + ".");
-              }
-
-              this_process_generated_events += file_input.generated_events;
               process_input.files.push_back(file_input);
             }
 
-            if (this_process_generated_events <= 0)
-            {
-              throw std::runtime_error("Total generated events must be > 0 for " + process_context + ".");
-            }
-
             prepared.processes.push_back(process_input);
-            process_generated_events.push_back(this_process_generated_events);
-
-            total_generated_events += this_process_generated_events;
             prepared.total_cross_section_fb += process_input.cross_section_fb;
             total_uncert_sq += process_input.cross_section_uncert_fb * process_input.cross_section_uncert_fb;
           }
@@ -390,26 +269,13 @@ namespace Gambit
           {
             throw std::runtime_error("Total cross section from settings.processes must be > 0.");
           }
-          if (total_generated_events <= 0)
-          {
-            throw std::runtime_error("Total generated events from settings.processes must be > 0.");
-          }
-
           prepared.total_cross_section_uncert_fb = std::sqrt(total_uncert_sq);
 
-          for (std::size_t ip = 0; ip < prepared.processes.size(); ++ip)
+          for (const ProcessInput& process : prepared.processes)
           {
-            const ProcessInput& process = prepared.processes[ip];
-            const long long process_events = process_generated_events[ip];
-
-            const double process_weight =
-              (process.cross_section_fb / prepared.total_cross_section_fb)
-              * (static_cast<double>(total_generated_events) / static_cast<double>(process_events));
-
             for (const HepMCFileInput& file : process.files)
             {
               prepared.hepmc_filenames.push_back(file.filename);
-              prepared.hepmc_file_weights.push_back(process_weight);
             }
           }
         }
@@ -435,16 +301,11 @@ namespace Gambit
           prepared.total_cross_section_uncert_fb = xs.xsec_uncert_fb;
 
           prepared.hepmc_filenames.push_back(event_filename);
-          prepared.hepmc_file_weights.push_back(1.0);
         }
 
         if (prepared.hepmc_filenames.empty())
         {
           throw std::runtime_error("No HepMC files were prepared from input YAML.");
-        }
-        if (prepared.hepmc_filenames.size() != prepared.hepmc_file_weights.size())
-        {
-          throw std::runtime_error("Internal error: mismatch between HepMC filenames and weights.");
         }
 
         return prepared;

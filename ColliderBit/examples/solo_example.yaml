@@ -18,6 +18,7 @@ analyses:
 
 settings:
   debug: true
+  check_cutflow: false
   seed: -1
   event_file: susy10.hepmc
   cross_section_pb: 1.0
@@ -32,9 +33,6 @@ settings:
   covariance_marg_convthres_rel: 0.05
   covariance_nsamples_start: 100000 
   output: ./runs/CBS_result.json
-  output_format: json
-  output_schema: cbs-solo-loglike-v1
-  output_json_indent: 2
   screen_output: true
   jet_collections:
     antikt_R04:

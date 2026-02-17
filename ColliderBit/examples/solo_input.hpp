@@ -25,7 +25,6 @@ namespace Gambit
       struct HepMCFileInput
       {
         str filename;
-        long long generated_events = -1;
       };
 
       struct ProcessInput
@@ -45,15 +44,13 @@ namespace Gambit
         std::vector<ProcessInput> processes;
 
         std::vector<str> hepmc_filenames;
-        std::vector<double> hepmc_file_weights;
 
         double total_cross_section_fb = 0.0;
         double total_cross_section_uncert_fb = 0.0;
       };
 
-      /// Parse CBS YAML and prepare a flat list of HepMC files + per-file weights.
+      /// Parse CBS YAML and prepare a flat list of HepMC files.
       PreparedInput parse_and_prepare_input(const std::string& filename_in);
     }
   }
 }
-
