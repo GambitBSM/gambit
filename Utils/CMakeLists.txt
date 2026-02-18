@@ -62,6 +62,7 @@ set(header_files include/gambit/Utils/ascii_table_reader.hpp
                  include/gambit/Utils/boost_fallbacks.hpp
                  include/gambit/Utils/cats.hpp
                  include/gambit/Utils/citation_keys.hpp
+                 include/gambit/Utils/emulator_module_functions.hpp
                  include/gambit/Utils/exceptions.hpp
                  include/gambit/Utils/factory_registry.hpp
                  include/gambit/Utils/file_lock.hpp

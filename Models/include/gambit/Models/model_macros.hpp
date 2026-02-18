@@ -47,8 +47,8 @@
   // (Note: MODULE left as MODULE where it is just a function argument)
   #define START_CAPABILITY                                  CORE_START_CAPABILITY(MODEL, CAPABILITY, IS_MODEL)
   #define LONG_START_CAPABILITY(MODULE, CAPABILITY)         CORE_START_CAPABILITY(MODULE, CAPABILITY, IS_MODEL)
-  #define DECLARE_FUNCTION(TYPE, FLAG)                      CORE_DECLARE_FUNCTION(MODEL, CAPABILITY, FUNCTION, TYPE, FLAG, IS_MODEL)
-  #define LONG_DECLARE_FUNCTION(MODULE, CAPABILITY, FUNCTION, TYPE, FLAG) CORE_DECLARE_FUNCTION(MODULE, CAPABILITY, FUNCTION, TYPE, FLAG, IS_MODEL)
+  #define DECLARE_FUNCTION(TYPE, FLAG)                      CORE_DECLARE_FUNCTION(MODEL, CAPABILITY, FUNCTION, TYPE, FLAG, IS_MODEL, 0)
+  #define LONG_DECLARE_FUNCTION(MODULE, CAPABILITY, FUNCTION, TYPE, FLAG) CORE_DECLARE_FUNCTION(MODULE, CAPABILITY, FUNCTION, TYPE, FLAG, IS_MODEL, 0)
   #define NEEDS_MANAGER(...)                                CORE_NEEDS_MANAGER(__VA_ARGS__)
   #define DEPENDENCY(DEP, TYPE)                             CORE_DEPENDENCY(DEP, TYPE, MODEL, FUNCTION, IS_MODEL)
   #define LONG_DEPENDENCY(MODULE, FUNCTION, DEP, TYPE)      CORE_DEPENDENCY(DEP, TYPE, MODULE, FUNCTION, IS_MODEL)
@@ -239,7 +239,7 @@
         void PARAMETER (double &);                                             \
                                                                                \
         /* Wrap it up in a functor (macro from module_macros_incore.hpp) */    \
-        MAKE_FUNCTOR(PARAMETER,double,CAPABILITY,MODEL,0)                      \
+        MAKE_FUNCTOR(PARAMETER,double,CAPABILITY,MODEL,0, 0)                   \
                                                                                \
       }                                                                        \
                                                                                \
@@ -337,7 +337,7 @@
                                                                                \
         /* Wrap it up in a functor (macro from module_macros_incore.hpp) */    \
         MAKE_FUNCTOR(CAT(MODEL_X,_parameters),ModelParameters,                 \
-         CAT(MODEL_X,_parameters),MODEL,0)                                     \
+         CAT(MODEL_X,_parameters),MODEL,0, 0)                                  \
                                                                                \
         /* Call a function that tells the functor to take its parameter        \
            definition from MODEL_X's primary_parameters functor, and           \

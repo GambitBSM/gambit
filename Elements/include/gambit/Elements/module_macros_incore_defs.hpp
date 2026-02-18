@@ -71,6 +71,7 @@
 #include "gambit/Utils/static_members.hpp"
 #include "gambit/Utils/exceptions.hpp"
 #include "gambit/Utils/python_interpreter.hpp"
+#include "gambit/Utils/emulator_module_functions.hpp"
 #include "gambit/Backends/backend_singleton.hpp"
 #include "gambit/Models/claw_singleton.hpp"
 #include "gambit/Models/safe_param_map.hpp"
@@ -231,7 +232,7 @@
 
 /// Redirection of \link START_FUNCTION() START_FUNCTION\endlink when invoked
 /// from within the core.
-#define CORE_DECLARE_FUNCTION(MODULE, CAPABILITY, FUNCTION, TYPE, FLAG, IS_MODEL)\
+#define CORE_DECLARE_FUNCTION(MODULE, CAPABILITY, FUNCTION, TYPE, FLAG, IS_MODEL, CAN_EMULATE)\
                                                                                \
   IF_TOKEN_UNDEFINED(MODULE,FAIL("You must define MODULE before calling "      \
    "START_FUNCTION."))                                                         \
@@ -277,8 +278,9 @@
         void FUNCTION (TYPE &);                                                \
       )                                                                        \
                                                                                \
+                                                                               \
       /* Wrap it in a functor */                                               \
-      MAKE_FUNCTOR(FUNCTION,TYPE,CAPABILITY,MODULE,BOOST_PP_EQUAL(FLAG, 1))    \
+      MAKE_FUNCTOR(FUNCTION,TYPE,CAPABILITY,MODULE,BOOST_PP_EQUAL(FLAG, 1), CAN_EMULATE)    \
     }                                                                          \
                                                                                \
     /* End Models namespace */                                                 \
@@ -290,29 +292,49 @@
 // Determine whether to make registration calls to the Core in the MAKE_FUNCTOR
 // macro, depending on STANDALONE flag
 #ifdef STANDALONE
-  #define MAKE_FUNCTOR(FUNCTION,TYPE,CAPABILITY,ORIGIN,CAN_MANAGE)             \
-          MAKE_FUNCTOR_MAIN(FUNCTION,TYPE,CAPABILITY,ORIGIN,CAN_MANAGE)
+  #define MAKE_FUNCTOR(FUNCTION,TYPE,CAPABILITY,ORIGIN,CAN_MANAGE, CAN_EMULATE)             \
+          MAKE_FUNCTOR_MAIN(FUNCTION,TYPE,CAPABILITY,ORIGIN,CAN_MANAGE, CAN_EMULATE)
 #else
-  #define MAKE_FUNCTOR(FUNCTION,TYPE,CAPABILITY,ORIGIN,CAN_MANAGE)             \
-          MAKE_FUNCTOR_MAIN(FUNCTION,TYPE,CAPABILITY,ORIGIN,CAN_MANAGE)        \
+  #define MAKE_FUNCTOR(FUNCTION,TYPE,CAPABILITY,ORIGIN,CAN_MANAGE, CAN_EMULATE)             \
+          MAKE_FUNCTOR_MAIN(FUNCTION,TYPE,CAPABILITY,ORIGIN,CAN_MANAGE, CAN_EMULATE)        \
           const int CAT(FUNCTION,_registered2) =                               \
            register_module_functor_core(Functown::FUNCTION);
 #endif
 
 
+/// Helper macros to conditionally declare emulator functions using token pasting
+/// (avoids BOOST_PP_IIF which can't handle commas in the macro expansion)
+/// @{
+#define DECLARE_EMULATOR_FUNCS_0(FUNCTION, TYPE) /* nothing when CAN_EMULATE is 0 */
+#define DECLARE_EMULATOR_FUNCS_1(FUNCTION, TYPE) DECLARE_EMULATOR_MODULE_FUNCTIONS(FUNCTION, TYPE)
+#define DECLARE_EMULATOR_FUNCS(CAN_EMULATE, FUNCTION, TYPE) CAT(DECLARE_EMULATOR_FUNCS_,CAN_EMULATE)(FUNCTION, TYPE)
+/// @}
+
 /// Main parts of the functor creation
-#define MAKE_FUNCTOR_MAIN(FUNCTION,TYPE,CAPABILITY,ORIGIN,CAN_MANAGE)          \
+#define MAKE_FUNCTOR_MAIN(FUNCTION,TYPE,CAPABILITY,ORIGIN,CAN_MANAGE, CAN_EMULATE)          \
+                                                                               \
+  DECLARE_EMULATOR_FUNCS(CAN_EMULATE, FUNCTION, TYPE)                          \
+                                                                               \
                                                                                \
   namespace Functown                                                           \
   {                                                                            \
+                                                                                \
+                                                                                \
+                                                                                \
     /* Create the function wrapper object (functor) */                         \
     BOOST_PP_IIF(IS_TYPE(ModelParameters,TYPE),                                \
-      model_functor                                                            \
-    ,                                                                          \
-      module_functor<TYPE>                                                     \
-    )                                                                          \
-    FUNCTION (&ORIGIN::FUNCTION, STRINGIFY(FUNCTION), STRINGIFY(CAPABILITY),   \
+      model_functor FUNCTION (&ORIGIN::FUNCTION, STRINGIFY(FUNCTION), STRINGIFY(CAPABILITY),   \
      STRINGIFY(TYPE), STRINGIFY(ORIGIN), Models::ModelDB());                   \
+    ,                                                                          \
+      BOOST_PP_IIF(CAN_EMULATE,                                          \
+      module_functor<TYPE> FUNCTION (&ORIGIN::FUNCTION, STRINGIFY(FUNCTION), STRINGIFY(CAPABILITY),   \
+     STRINGIFY(TYPE), STRINGIFY(ORIGIN), Models::ModelDB(), &CAT(FUNCTION,emu_ptrs));                   \
+     ,                                                                               \
+      module_functor<TYPE> FUNCTION (&ORIGIN::FUNCTION, STRINGIFY(FUNCTION), STRINGIFY(CAPABILITY),   \
+     STRINGIFY(TYPE), STRINGIFY(ORIGIN), Models::ModelDB());                   \
+    ))                                                                          \
+                                                                               \
+                                                                               \
     /* Set up a helper function to call the iterate method if the functor is   \
     able to manage loops. */                                                   \
     BOOST_PP_IIF(BOOST_PP_EQUAL(CAN_MANAGE, 1),                                \

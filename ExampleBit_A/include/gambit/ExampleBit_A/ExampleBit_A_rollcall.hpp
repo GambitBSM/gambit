@@ -40,7 +40,7 @@ START_MODULE
   START_CAPABILITY                          // functions in this module that can calculate this particular thing in different ways.
 
     #define FUNCTION nevents_pred           // Name of an observable function: floating-point number of events in some hypothetical process
-    START_FUNCTION(double)                  // Declare that this function calculates the nevents observable as a double precision variable
+    START_FUNCTION_EMULATABLE(double)       // Declare that this function calculates the nevents observable as a double precision variable
     DEPENDENCY(xsection, double)            // Dependencies: Number of events depends on cross-section
     #undef FUNCTION
 

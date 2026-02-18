@@ -49,6 +49,7 @@
 
 #include "gambit/Elements/functors.hpp"
 #include "gambit/Utils/standalone_error_handlers.hpp"
+#include "gambit/Utils/emulator_module_functions.hpp"
 #include "gambit/Models/models.hpp"
 #include "gambit/Logs/logger.hpp"
 #ifndef NO_PRINTERS
@@ -70,11 +71,13 @@ namespace Gambit
                                    str func_capability,
                                    str result_type,
                                    str origin_name,
-                                   Models::ModelFunctorClaw &claw)
+                                   Models::ModelFunctorClaw &claw,
+                                   emulator_required_function_ptrs<TYPE>* emu_ptrs)
     : module_functor_common(func_name, func_capability, result_type, origin_name, claw),
       myFunction        (inputFunction),
       myValue           (NULL),
-      myPrintFlag       (false)
+      myPrintFlag       (false),
+      myEmulatorPointers  (emu_ptrs)
     {}
 
     /// Destructor
@@ -145,10 +148,26 @@ namespace Gambit
 //             this->myFunction(myValue[thread_num]);   //Run and place result in the appropriate slot in myValue
 //           }
 // #else
+            // TODO: Debugging checks
+            // This block just calls each emulator function once, so that they can print out and can confirm they are being passed correctly
+            // They will want to be put into the correct function flow such as the pseudocode above
+            if (myEmulatorPointers != nullptr)
+            {
+              str mytest = "QUICK DEBUGGING TEST";
+              std::vector<double> mytest_vec = {0.0};
+              
+              this->myEmulatorPointers->TranslateInput(mytest_vec);
+              bool mycheck = this->myEmulatorPointers->CheckThreshold(mytest, mytest_vec);
+              if (mycheck) {std::cout << "mycheck is true!\n";} // Just to silence warnings when testing
+              this->myEmulatorPointers->Predict(mytest, mytest_vec, mytest_vec, mytest_vec);
+              this->myEmulatorPointers->TranslateTarget(mytest_vec, myValue[thread_num]);
+              this->myEmulatorPointers->Train(mytest, mytest_vec, mytest_vec, mytest_vec);
+              this->myEmulatorPointers->TranslatePrediction(mytest_vec, myValue[thread_num]);
+            }
             this->myFunction(myValue[thread_num]);
 // #endif
-          std::cout << origin() << "::" << name() << std::endl;
-          std::cout << "DEBUG: functor " << __LINE__ << std::endl;
+          // std::cout << origin() << "::" << name() << std::endl;
+          // std::cout << "DEBUG: functor " << __LINE__ << std::endl;
         }
         catch (invalid_point_exception& e)
         {

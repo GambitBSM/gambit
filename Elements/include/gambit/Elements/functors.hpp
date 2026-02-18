@@ -58,6 +58,7 @@
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/yaml_options.hpp"
 #include "gambit/Utils/model_parameters.hpp"
+#include "gambit/Utils/emulator_module_functions.hpp"
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Logs/logmaster.hpp" // Need full declaration of LogMaster class
 
@@ -854,7 +855,7 @@ namespace Gambit
     public:
 
       /// Constructor
-      module_functor(void(*)(TYPE &), str, str, str, str, Models::ModelFunctorClaw&);
+      module_functor(void(*)(TYPE &), str, str, str, str, Models::ModelFunctorClaw&, emulator_required_function_ptrs<TYPE>* emu_ptrs = nullptr);
 
       /// Destructor
       virtual ~module_functor();
@@ -887,7 +888,7 @@ namespace Gambit
 
       /// Internal storage of function pointer
       void (*myFunction)(TYPE &);
-
+      
       /// Internal pointer to storage location of function value
       TYPE* myValue;
 
@@ -896,7 +897,12 @@ namespace Gambit
 
       /// Initialise the memory of this functor.
       virtual void init_memory();
-
+      
+    public:
+    
+      /// Internal storage of emulator module function pointers with pointer to struct
+      emulator_required_function_ptrs<TYPE>* myEmulatorPointers;
+    
   };
 
 

@@ -174,7 +174,7 @@ CORE_START_CAPABILITY(BackendIniBit,                                        \
 CORE_DECLARE_FUNCTION(BackendIniBit,                                        \
  CAT_4(BACKENDNAME,_,SAFE_VERSION,_init),                                   \
  CAT_4(BACKENDNAME,_,SAFE_VERSION,_init),                                   \
- void,2, NOT_MODEL)                                                         \
+ void,2, NOT_MODEL, 0)                                                         \
                                                                             \
 namespace Gambit                                                            \
 {                                                                           \
