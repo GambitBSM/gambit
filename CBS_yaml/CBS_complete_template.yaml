@@ -9,8 +9,9 @@
 # 3. CBS always processes all events in user-provided HepMC files (no convergence-based early stop).
 
 analyses:
+  - CMS_SUS_16_039_3Lep
   - ATLAS_EXOT_2019_04
-  - ATLAS_EXOT_2016_017
+  # - ATLAS_EXOT_2016_017
   # - ATLAS_CONF_2019_008
 
 settings:
@@ -32,16 +33,24 @@ settings:
       cross_section_fb: 1841.0
       cross_section_uncert_fb: 3.46
       files:
-        - /Users/p.zhu/Workshop/GambitWS/CBS/events/ewino_01.hepmc
-        - /Users/p.zhu/Workshop/GambitWS/CBS/events/ewino_02.hepmc
+        - /Users/p.zhu/Workshop/GambitWS/CBS/events/testNC_01.hepmc
+        - /Users/p.zhu/Workshop/GambitWS/CBS/events/testNC_02.hepmc
 
     - name: slepton
       cross_section_fb: 75.49
       cross_section_uncert_fb: 0.10
       files:
-        - /Users/p.zhu/Workshop/GambitWS/CBS/events/slepton_01.hepmc
-        - /Users/p.zhu/Workshop/GambitWS/CBS/events/slepton_02.hepmc
+        - /Users/p.zhu/Workshop/GambitWS/CBS/events/testLL_01.hepmc
+        - /Users/p.zhu/Workshop/GambitWS/CBS/events/testLL_02.hepmc
 
+    - name: singletVLB
+      cross_section_fb: 37.38
+      cross_section_uncert_fb: 0.001
+      files:
+        - /Users/p.zhu/Workshop/GambitWS/ATLAS_EXOT_2019_04/Events/singleB_1200_10K_01.hepmc
+        - /Users/p.zhu/Workshop/GambitWS/ATLAS_EXOT_2019_04/Events/singleB_1200_10K_02.hepmc
+        - /Users/p.zhu/Workshop/GambitWS/ATLAS_EXOT_2019_04/Events/singleB_1200_10K_03.hepmc
+  
   # files may be given as plain strings or as mappings with file/filename keys.
   # Event counts are always read from the HepMC files directly.
 
@@ -66,7 +75,7 @@ settings:
   sampling_advice_targets: [0.30, 0.10, 0.05]
 
   # Keep temporary per-file YAML/JSON artifacts from batch runner
-  keep_batch_tmp: true
+  # keep_batch_tmp: true
 
   # Optional combined-loglike controls (mainly relevant for merged/batch result)
   # alt_loglike: marginalised
