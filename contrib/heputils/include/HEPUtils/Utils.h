@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of HEPUtils -- https://gitlab.com/hepcedar/heputils/
-// Copyright (C) 2013-2022 Andy Buckley <andy.buckley@cern.ch>
+// Copyright (C) 2013-2023 Andy Buckley <andy.buckley@cern.ch>
 //
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.

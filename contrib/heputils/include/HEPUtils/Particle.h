@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of HEPUtils -- https://gitlab.com/hepcedar/heputils/
-// Copyright (C) 2013-2022 Andy Buckley <andy.buckley@cern.ch>
+// Copyright (C) 2013-2026 Andy Buckley <andy.buckley@cern.ch>
 //
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.
@@ -30,6 +30,9 @@ namespace HEPUtils {
     int _pid;
 
     /// Promptness flag
+    ///
+    /// @note This really means directness, i.e. connection to the hard process.
+    /// Promptness in the sense of non-LLP is assumed, see the LLParticle class.
     bool _prompt;
 
     /// @}
@@ -126,6 +129,9 @@ namespace HEPUtils {
 
 
     /// @name Promptness
+    ///
+    /// @note Really meaning directness. See LLParticle for long-lived info.
+    ///
     /// @{
 
     /// Is this particle connected to the hard process or from a hadron/tau decay?
@@ -174,26 +180,99 @@ namespace HEPUtils {
   };
 
 
-  /// @defgroup particle_const Particle constness conversion
+
+  /// @brief Extension of the Particle class to contain displacement information
+  class LLParticle : public Particle {
+  private:
+
+    /// Production vertex info
+    V4 _vprod;
+    /// Decay vertex info
+    V4 _vdec;
+
+  public:
+
+    /// @name Constructors
+    /// @{
+
+    // Import from base
+    //using Particle::Particle;
+
+    /// 4-mom + 4-vec + PDG ID constructor
+    LLParticle(const P4& mom, int pdgid, const V4& dec, const V4& prod=V4())
+      : Particle(mom, pdgid), _vdec(dec), _vprod(prod)
+    {    }
+
+    /// Copy constructor
+    LLParticle(const LLParticle& p)
+      : Particle(p), _vdec(p._vdec), _vprod(p._vprod)
+    {    }
+
+    /// Copy constructor from a pointer
+    LLParticle(const LLParticle* p)
+      : Particle(p), _vdec(p->_vdec), _vprod(p->_vprod)
+    {    }
+
+    /// Copy assignment operator
+    LLParticle& operator = (const LLParticle& p) {
+      Particle::operator=(p);
+      _vdec = p._vdec;
+      _vprod = p._vprod;
+      return *this;
+    }
+
+    /// @}
+
+
+    /// @name Vertices
+    /// @{
+
+    /// Access the production vertex
+    const V4& vprod() { return _vprod; }
+
+    /// Set the production vertex
+    void setVprod(const V4& vprod) { _vprod = vprod; }
+
+    /// Access the decay vertex
+    const V4& vdec() { return _vdec; }
+
+    /// Set the decay vertex
+    void setVdec(const V4& vdec) { _vdec = vdec; }
+
+    /// @}
+
+  };
+
+
+
+  /// @defgroup particle_const Particle constness conversions
   /// @{
 
   /// Convenience Particle cast to const
-  inline const Particle* mkconst(Particle* particle) {
-    return const_cast<const Particle*>(particle);
+  template <typename P> //, typename std::enable_if<std::is_base_of<Particle, P>::value>::type*=nullptr>
+  inline const P* mkconst(P* particle) {
+    static_assert(std::is_base_of<Particle, P>::value, "P not derived from Particle");
+    return const_cast<const P*>(particle);
   }
 
   /// Convenience Particle cast to non-const
-  inline Particle* mkunconst(const Particle* cparticle) {
-    return const_cast<Particle*>(cparticle);
+  template <typename P> //, typename std::enable_if<std::is_base_of<Particle, P>::value>::type*=nullptr>
+  inline P* mkunconst(const P* cparticle) {
+    static_assert(std::is_base_of<Particle, P>::value, "P not derived from Particle");
+    return const_cast<P*>(cparticle);
   }
 
   /// Get a reference to a vector of Particles, with each member const
-  inline std::vector<const Particle*>& mkconst(const std::vector<Particle*>& particles) {
-    return * (std::vector<const Particle*>*)(void*) (&particles);
+  template <typename P> //, typename std::enable_if<std::is_base_of<Particle, P>::value>::type*=nullptr>
+  inline std::vector<const P*>& mkconst(const std::vector<P*>& particles) {
+    static_assert(std::is_base_of<Particle, P>::value, "P not derived from Particle");
+    return * (std::vector<const P*>*)(void*) (&particles);
   }
 
   /// Get a reference to a vector of Particles, with each member non-const
-  inline std::vector<Particle*>& mkunconst(const std::vector<const Particle*>& cparticles) {
+  template <typename P> //, typename std::enable_if<std::is_base_of<Particle, P>::value>::type*=nullptr>
+  inline std::vector<P*>& mkunconst(const std::vector<const P*>& cparticles) {
+    static_assert(std::is_base_of<Particle, P>::value, "P not derived from Particle");
     return * (std::vector<Particle*>*) (void*) (&cparticles);
   }
 

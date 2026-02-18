@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of HEPUtils -- https://gitlab.com/hepcedar/heputils/
-// Copyright (C) 2013-2023 Andy Buckley <andy.buckley@cern.ch>
+// Copyright (C) 2013-2026 Andy Buckley <andy.buckley@cern.ch>
 //
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.
@@ -21,6 +21,209 @@
 namespace HEPUtils {
 
 
+  /// @brief A robust 4-vector class.
+  class V4 {
+  protected:
+
+    /// @name Storage
+    /// @{
+    double _x, _y, _z, _s;
+    /// @}
+
+
+  public:
+
+    /// Default constructor of a null vector
+    V4()
+      : _x(0), _y(0), _z(0), _s(0) {  }
+
+    /// Copy constructor
+    V4(const V4& v)
+      : _x(v._x), _y(v._y), _z(v._z), _s(v._s) {  }
+
+    /// Copy assignment operator
+    V4& operator = (const V4& v) {
+      _x = v._x;
+      _y = v._y;
+      _z = v._z;
+      _s = v._s;
+      return *this;
+    }
+
+    /// Set the components to zero
+    void clear() {
+      _x = 0;
+      _y = 0;
+      _z = 0;
+      _s = 0;
+    }
+
+
+    /// @name Static methods for vector making
+    /// @{
+
+    /// Make a vector from (x,y,z,t) coordinates
+    static V4 mkXYZT(double x, double y, double z, double t) {
+      return V4().setXYZT(x, y, z, t);
+    }
+
+    /// @}
+
+
+    /// @name Coordinate setters
+    /// @{
+
+    /// Set the x coordinate
+    V4& setX(double x) {
+      _x = x;
+      return *this;
+    }
+
+    /// Set the y coordinate
+    V4& setY(double y) {
+      _y = y;
+      return *this;
+    }
+
+    /// Set the z coordinate
+    V4& setZ(double z) {
+      _z = z;
+      return *this;
+    }
+
+    /// Set the invariant
+    V4& setInv(double s) {
+      _s = s;
+      return *this;
+    }
+
+
+    /// Set the 3-vector coordinates and time
+    V4& setXYZT(double x, double y, double z, double t) {
+      setX(x); setY(y); setZ(z);
+      const double inv = sqrt( sqr(t) - sqr(v()) );
+      setInv(inv);
+      return *this;
+    }
+
+    /// @todo Add factories from (eta, phi, rho, t) and (eta, phi, z, t)
+
+    /// @}
+
+
+    /// @name Coordinate getters
+    /// @{
+
+    /// Get x^2
+    double x2() const { return sqr(_x); }
+    /// Get x
+    double x() const { return _x; }
+    /// Get y^2
+    double y2() const { return sqr(_y); }
+    /// Get y
+    double y() const { return _y; }
+    /// Get z^2
+    double z2() const { return sqr(_z); }
+    /// Get z
+    double z() const { return _z; }
+    /// Get m^2
+    double inv2() const { return sqr(_s); }
+    /// Get m
+    double inv() const { return _s; }
+
+    /// Get t^2
+    double t2() const { return v2() + sqr(_s); }
+    /// Get t
+    double t() const { return sqrt(t2()); }
+    /// Get the spatial 3-vector magnitude |v|^2
+    double v2() const { return sqr(x()) + sqr(y()) + sqr(z()); }
+    /// Get the spatial 3-vector magnitude |v|
+    double v() const { return sqrt(v2()); }
+    /// Get the spatial 3-vector |x^2 + y^2|
+    double rho2() const { return sqr(x()) + sqr(y()); }
+    /// Get the spatial 3-vector sqrt|px^2 + py^2|
+    double rho() const { return sqrt(rho2()); }
+
+    /// Get the spatial phi (in the range -pi .. pi)
+    double phi() const { if (rho2() == 0) return 0; else return atan2(y(), x()); }
+    /// Get the spatial phi (in the range 0 .. 2pi)
+    double phi_02pi() const { if (rho2() == 0) return 0; else return phi() + M_PI; }
+
+    /// Get the spatial theta (in the range 0 .. pi)
+    double theta() const { if (v2() == 0) return 0; else
+	if (z() == 0) return M_PI/2; else return atan2(rho(), z()); } //< atan2(+ve, z) is +ve
+    /// Get the spatial-vector pseudorapidity
+    double eta() const {
+      if ( v2() == 0.0 ) [[unlikely]] return 0.0;
+      if ( rho2() == 0.0 ) [[unlikely]] return std::copysign(HUGE_VAL, z());
+      return std::copysign(log((v() + fabs(z())) / rho()), z());
+    }
+    /// Get the spatial-vector absolute pseudorapidity
+    double abseta() const { return fabs(eta()); }
+
+    /// @}
+
+
+    /// @name Calculations w.r.t. other V4 vectors
+    /// @{
+
+    /// Spatial dot product
+    double dot3(const V4& v) const { return x()*v.x() + y()*v.y() + z()*v.z(); }
+    /// Lorentz dot product with the positive metric term on t
+    double dot(const V4& v) const { return t()*v.t() - dot3(v); }
+    /// Spatial angle to another V4 vector
+    double angleTo(const V4& v) const { return acos( dot3(v) / this->v() / v.v() ); }
+    /// Difference in phi between two vectors
+    double deltaPhi(const V4& v) const { return deltaphi(phi(), v.phi()); }
+    /// Difference in pseudorapidity between two vectors
+    double deltaEta(const V4& v) const { return fabs(eta() - v.eta()); }
+    /// Difference in pseudorapidity-based R^2 between two vectors
+    double deltaR2_eta(const V4& v) const { return sqr(deltaEta(v)) + sqr(deltaPhi(v)); }
+    /// Difference in pseudorapidity-based R between two vectors
+    double deltaR_eta(const V4& v) const { return sqrt(deltaR2_eta(v)); }
+
+    /// @}
+
+    /// @name Self-modifying operators
+    /// @{
+    V4  operator - () const { V4 rtn; return rtn.setXYZT(-_x, -_y, -_z, _s); } //< Not self-modifying...
+    V4& operator += (const V4& v) { _x += v.x(); _y += v.y(); _z += v.z(); _s = sqrt( sqr(t() + v.t()) - v2() ); return *this; }
+    V4& operator -= (const V4& v) { _x -= v.x(); _y -= v.y(); _z -= v.z(); _s = sqrt( sqr(t() - v.t()) - v2() ); return *this; }
+    V4& operator *= (double a) { _x *= a; _y *= a; _z *= a; _s *= a; return *this; }
+    V4& operator /= (double a) { _x /= a; _y /= a; _z /= a; _s /= a; return *this; }
+    /// @}
+
+  };
+
+
+  /// @name Operators taking two vectors
+  /// @{
+  inline V4 operator + (const V4& a, const V4& b) { V4 rtn = a; return rtn += b; }
+  inline V4 operator - (const V4& a, const V4& b) { V4 rtn = a; return rtn -= b; }
+  inline V4 operator * (const V4& a, double f) { V4 rtn = a; return rtn *= f; }
+  inline V4 operator * (double f, const V4& a) { V4 rtn = a; return rtn *= f; }
+  inline V4 operator / (const V4& a, double f) { V4 rtn = a; return rtn /= f; }
+  /// @}
+
+
+  /// @name String representations
+  /// @{
+
+  /// Make a string representation of the vector
+  inline std::string to_str(const V4& v4) {
+    std::stringstream ss;
+    ss << "(" << v4.x() << ", " << v4.y() << ", " << v4.z() << "; " << v4.t() << ")";
+    return ss.str();
+  }
+
+  /// Write a string representation of the vector to the provided stream
+  inline std::ostream& operator <<(std::ostream& ostr, const V4& v4) {
+    ostr << to_str(v4);
+    return ostr;
+  }
+
+
+
   /// @brief A robust 4-momentum class for on-shell vectors.
   ///
   /// P4 is a typical 4-momentum class, cf. HepLorentzVector or TLorentzVector
@@ -37,55 +240,41 @@ namespace HEPUtils {
   /// 5th component so the spatial and time components can be inconsistent with
   /// the mass.)
   ///
-  class P4 {
-  private:
-
-    /// @name Storage
-    //@{
-    double _x, _y, _z, _m;
-    //@}
-
-
+  class P4 : public V4 {
   public:
 
     /// @name Constructors etc.
-    //@{
-
-    /// Default constructor of a null vector
-    P4()
-      : _x(0), _y(0), _z(0), _m(0) {  }
+    /// @{
 
     /// Constructor from Cartesian/Minkowski coordinates
     P4(double px, double py, double pz, double E) {
       setPE(px, py, pz, E);
     }
 
+    /// Default constructor of a null vector
+    P4()
+      : V4()
+    {    }
+
     /// Copy constructor
     P4(const P4& v)
-      : _x(v._x), _y(v._y), _z(v._z), _m(v._m) {  }
+      : V4(v)
+    {    }
 
     /// Copy assignment operator
     P4& operator = (const P4& v) {
-      _x = v._x;
-      _y = v._y;
-      _z = v._z;
-      _m = v._m;
+      _x = v.x();
+      _y = v.y();
+      _z = v.z();
+      _s = v.inv();
       return *this;
     }
 
-    /// Set the components to zero
-    void clear() {
-      _x = 0;
-      _y = 0;
-      _z = 0;
-      _m = 0;
-    }
-
-    //@}
+    /// @}
 
 
     /// @name Static methods for vector making
-    //@{
+    /// @{
 
     /// Make a vector from (px,py,pz,E) coordinates
     static P4 mkXYZE(double px, double py, double pz, double E) {
@@ -132,11 +321,11 @@ namespace HEPUtils {
       return P4().setPtPhiME(pt, phi, mass, E);
     }
 
-    //@}
+    /// @}
 
 
     /// @name Coordinate setters
-    //@{
+    /// @{
 
     /// Set the px coordinate
     P4& setPx(double px) {
@@ -160,7 +349,7 @@ namespace HEPUtils {
     P4& setM(double mass) {
       if (mass < 0)
         throw std::invalid_argument("Negative mass given as argument");
-      _m = mass;
+      _s = mass;
       return *this;
     }
 
@@ -327,11 +516,11 @@ namespace HEPUtils {
       return *this;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Coordinate getters
-    //@{
+    /// @{
 
     /// Get px^2
     double px2() const { return sqr(_x); }
@@ -346,92 +535,78 @@ namespace HEPUtils {
     /// Get pz
     double pz() const { return _z; }
     /// Get m^2
-    double m2() const { return sqr(_m); }
+    double m2() const { return sqr(_s); }
     /// Get m
-    double m() const { return _m; }
+    double m() const { return _s; }
 
     /// Get E^2
-    double E2() const { return p2() + sqr(_m); }
+    double E2() const { return p2() + m2(); }
     /// Get E
     double E() const { return sqrt(E2()); }
     /// Get the spatial 3-vector |p|^2
     double p2() const { return sqr(px()) + sqr(py()) + sqr(pz()); }
     /// Get the spatial 3-vector |p|
     double p() const { return sqrt(p2()); }
-    /// Get the spatial 3-vector |px^2 + py^2|
-    double rho2() const { return sqr(px()) + sqr(py()); }
-    /// Get the spatial 3-vector sqrt|px^2 + py^2|
-    double rho() const { return sqrt(rho2()); }
     /// Get the transverse momentum squared (same as rho2)
     double pT2() const { return rho2(); }
     /// Get the transverse momentum (same as rho)
     double pT() const { return rho(); }
 
-    /// Get the spatial phi (in the range -pi .. pi)
-    double phi() const { if (rho2() == 0) return 0; else return atan2(py(), px()); }
-    /// Get the spatial phi (in the range 0 .. 2pi)
-    double phi_02pi() const { if (rho2() == 0) return 0; else return phi() + M_PI; }
-
-    /// Get the spatial theta (in the range 0 .. pi)
-    double theta() const { if (p2() == 0) return 0; else
-	if (pz() == 0) return M_PI/2; else return atan2(rho(), pz()); } //< atan2(+ve, z) is +ve
-    /// Get the spatial-vector pseudorapidity
-    double eta() const { return std::copysign(log((p() + fabs(pz())) / pT()), pz()); }
-    /// Get the spatial-vector absolute pseudorapidity
-    double abseta() const { return fabs(eta()); }
     /// Get the 4-momentum rapidity
-    double rap() const { return 0.5 * log((E() + pz()) / (E() - pz())); }
+    double rap() const {
+      if ( p() == 0.0 ) [[unlikely]] return 0.0;
+      if ( E() == fabs(pz()) ) [[unlikely]] return std::copysign(HUGE_VAL, pz());
+      return 0.5 * log((E() + pz()) / (E() - pz()));
+    }
     /// Get the 4-momentum absolute rapidity
     double absrap() const { return fabs(rap()); }
 
-    //@}
+    /// @}
 
 
     /// @name Calculations w.r.t. other P4 vectors
-    //@{
+    /// @{
 
-    /// Spatial dot product
-    double dot3(const P4& v) const { return px()*v.px() + py()*v.py() + pz()*v.pz(); }
-    /// Lorentz dot product with the positive metric term on E
-    double dot(const P4& v) const { return E()*v.E() - dot3(v); }
-    /// Spatial angle to another P4 vector
-    double angleTo(const P4& v) const { return acos( dot3(v) /p()/v.p() ); }
-    /// Difference in phi between two vectors
-    double deltaPhi(const P4& v) const { return deltaphi(phi(), v.phi()); }
-    /// Difference in pseudorapidity between two vectors
-    double deltaEta(const P4& v) const { return fabs(eta() - v.eta()); }
     /// Difference in rapidity between two vectors
     double deltaRap(const P4& v) const { return fabs(rap() - v.rap()); }
-    /// Difference in pseudorapidity-based R^2 between two vectors
-    double deltaR2_eta(const P4& v) const { return sqr(deltaEta(v)) + sqr(deltaPhi(v)); }
-    /// Difference in pseudorapidity-based R between two vectors
-    double deltaR_eta(const P4& v) const { return sqrt(deltaR2_eta(v)); }
     /// Difference in rapidity-based R^2 between two vectors
     double deltaR2_rap(const P4& v) const { return sqr(deltaRap(v)) + sqr(deltaPhi(v)); }
     /// Difference in rapidity-based R between two vectors
     double deltaR_rap(const P4& v) const { return sqrt(deltaR2_rap(v)); }
 
-    //@}
+    /// @}
 
     /// @name Self-modifying operators
-    //@{
-    P4  operator - () const { P4 rtn; return rtn.setPM(-_x, -_y, -_z, _m); } //< Not self-modifying...
-    P4& operator += (const P4& v) { double e = E() + v.E(); _x += v.px(); _y += v.py(); _z += v.pz(); _m = sqrt( sqr(e) - p2() ); return *this; }
-    P4& operator -= (const P4& v) { double e = E() - v.E(); _x -= v.px(); _y -= v.py(); _z -= v.pz(); _m = sqrt( sqr(e) - p2() ); return *this; }
-    P4& operator *= (double a) { _x *= a; _y *= a; _z *= a; _m *= a; return *this; }
-    P4& operator /= (double a) { _x /= a; _y /= a; _z /= a; _m /= a; return *this; }
-    //@}
+    ///
+    /// @todo Reduce duplication
+    /// @{
+    P4  operator - () const { P4 rtn; return rtn.setPM(-_x, -_y, -_z, _s); } //< Not self-modifying...
+    P4& operator += (const P4& v) { double e = E() + v.E(); _x += v.px(); _y += v.py(); _z += v.pz(); _s = sqrt( sqr(e) - p2() ); return *this; }
+    P4& operator -= (const P4& v) { double e = E() - v.E(); _x -= v.px(); _y -= v.py(); _z -= v.pz(); _s = sqrt( sqr(e) - p2() ); return *this; }
+    P4& operator *= (double a) { _x *= a; _y *= a; _z *= a; _s *= a; return *this; }
+    P4& operator /= (double a) { _x /= a; _y /= a; _z /= a; _s /= a; return *this; }
+    /// @}
 
   };
 
 
+  /// @name Operators taking two momentum vectors
+  /// @{
+  inline P4 operator + (const P4& a, const P4& b) { P4 rtn = a; return rtn += b; }
+  inline P4 operator - (const P4& a, const P4& b) { P4 rtn = a; return rtn -= b; }
+  inline P4 operator * (const P4& a, double f) { P4 rtn = a; return rtn *= f; }
+  inline P4 operator * (double f, const P4& a) { P4 rtn = a; return rtn *= f; }
+  inline P4 operator / (const P4& a, double f) { P4 rtn = a; return rtn /= f; }
+  /// @}
+
+
   /// @name String representations
-  //@{
+  /// @{
 
   /// Make a string representation of the vector
   inline std::string to_str(const P4& p4) {
     std::stringstream ss;
-    ss << "(" << p4.px() << ", " << p4.py() << ", " << p4.pz() << "; " << p4.E() << ")";
+    ss << "[" << p4.px() << ", " << p4.py() << ", " << p4.pz() << "; " << p4.E() << "]";
     return ss.str();
   }
 
@@ -441,51 +616,41 @@ namespace HEPUtils {
     return ostr;
   }
 
-  //@}
+  /// @}
+
 
 
   /// Convenience "external" functions
-  //@{
+  /// @{
 
   /// Lorentz inner product between two vectors
-  inline double dot(const P4& a, const P4& b) {
+  inline double dot(const V4& a, const V4& b) {
     return a.dot(b);
   }
 
-
   /// Angle between two vectors
-  inline double angle(const P4& a, const P4& b) {
+  inline double angle(const V4& a, const V4& b) {
     return a.angleTo(b);
   }
 
-
   /// Difference in phi between two vectors
-  inline double deltaPhi(const P4& a, const P4& b) {
+  inline double deltaPhi(const V4& a, const V4& b) {
     return a.deltaPhi(b);
   }
 
-
   /// Difference in pseudorapidity between two vectors
-  inline double deltaEta(const P4& a, const P4& b) {
+  inline double deltaEta(const V4& a, const V4& b) {
     return a.deltaEta(b);
   }
 
-
-  /// Difference in rapidity between two vectors
-  inline double deltaRap(const P4& a, const P4& b) {
-    return a.deltaRap(b);
-  }
-
-
   /// Difference in pseudorapidity-based R^2 between two vectors
-  inline double deltaR2_eta(const P4& a, const P4& b) {
+  inline double deltaR2_eta(const V4& a, const V4& b) {
     return a.deltaR2_eta(b);
   }
   /// Difference in pseudorapidity-based R between two vectors
-  inline double deltaR_eta(const P4& a, const P4& b) {
+  inline double deltaR_eta(const V4& a, const V4& b) {
     return a.deltaR_eta(b);
   }
-
 
   /// Difference in rapidity-based R^2 between two vectors
   inline double deltaR2_rap(const P4& a, const P4& b) {
@@ -496,17 +661,8 @@ namespace HEPUtils {
     return a.deltaR_rap(b);
   }
 
-  //@}
+  /// @}
 
-
-  /// @name Operators taking two vectors
-  //@{
-  inline P4 operator + (const P4& a, const P4& b) { P4 rtn = a; return rtn += b; }
-  inline P4 operator - (const P4& a, const P4& b) { P4 rtn = a; return rtn -= b; }
-  inline P4 operator * (const P4& a, double f) { P4 rtn = a; return rtn *= f; }
-  inline P4 operator * (double f, const P4& a) { P4 rtn = a; return rtn *= f; }
-  inline P4 operator / (const P4& a, double f) { P4 rtn = a; return rtn /= f; }
-  //@}
 
 
   /// Function/functor for container<const P4> sorting (cf. std::less)
