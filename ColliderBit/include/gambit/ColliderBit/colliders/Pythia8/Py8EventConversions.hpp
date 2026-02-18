@@ -35,6 +35,7 @@ namespace Gambit
     using namespace EventConversion;
 
     /// Convert a hadron-level EventT into an unsmeared HEPUtils::Event
+    ///
     /// @todo Overlap between jets and prompt containers: need some isolation in MET calculation
     template<typename EventT>
     void convertParticleEvent(const EventT& pevt, HEPUtils::Event& result, std::vector<jet_collection_settings> all_jet_collection_settings, str jetcollection_taus, double jet_pt_min)
@@ -53,7 +54,7 @@ namespace Gambit
         const int apid = abs(pid);
         const HEPUtils::P4 p4 = get_unified_momentum(p);
 
-        //b, c and tau idenitification:
+        // b, c and tau identification:
 
         // Find last b-hadrons in b decay chains as the best proxy for b-tagging
         /// @todo Temporarily using quark-based tagging instead -- fix
@@ -149,10 +150,10 @@ namespace Gambit
           }
         }
 
-        //We only want final state particles:
+        // We only want final state particles:
         if (!get_unified_isFinal(p)) continue;
 
-        //Check there's no partons.
+        // Check there's no partons.
         if (pid == 21 || abs(pid) <= 6)
         {
           std::ostringstream sid;
