@@ -238,7 +238,7 @@ namespace Gambit
         std::vector<double> parameters;
         for (auto key : in) { parameters.push_back(key.second); }
 
-        vector<double> predictions, uncertainty;
+        std::vector<double> predictions, uncertainty;
         emulatorPredict("LogLike",parameters, predictions, uncertainty);
 
         // log result

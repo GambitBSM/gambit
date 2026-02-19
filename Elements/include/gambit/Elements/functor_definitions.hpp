@@ -59,6 +59,9 @@
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/io/ios_state.hpp>
 
+// To get global emulator train/predict functions
+#include "gambit/Elements/emulator_functions.hpp"
+
 namespace Gambit
 {
   using namespace LogTags;
@@ -154,17 +157,28 @@ namespace Gambit
             if (myEmulatorPointers != nullptr)
             {
               str mytest = "QUICK DEBUGGING TEST";
-              std::vector<double> mytest_vec = {0.0};
-              
+              std::vector<double> mytest_vec = {3.14};
+              std::vector<double> mytest_pred;
+              std::vector<double> mytest_unc;
+              std::cout << "in emu: " << name() << std::endl;
+
               this->myEmulatorPointers->TranslateInput(mytest_vec);
-              bool mycheck = this->myEmulatorPointers->CheckThreshold(mytest, mytest_vec);
-              if (mycheck) {std::cout << "mycheck is true!\n";} // Just to silence warnings when testing
-              this->myEmulatorPointers->Predict(mytest, mytest_vec, mytest_vec, mytest_vec);
-              this->myEmulatorPointers->TranslateTarget(mytest_vec, myValue[thread_num]);
-              this->myEmulatorPointers->Train(mytest, mytest_vec, mytest_vec, mytest_vec);
-              this->myEmulatorPointers->TranslatePrediction(mytest_vec, myValue[thread_num]);
+              emulatorPredict(name(), mytest_vec, mytest_pred, mytest_unc);
+              bool mycheck = this->myEmulatorPointers->CheckThreshold(mytest, mytest_unc);
+              if (mycheck) 
+              {
+                std::cout << "mycheck is true!\n";
+                this->myEmulatorPointers->TranslatePrediction(mytest_pred, myValue[thread_num]);
+                // this->myFunction(myValue[thread_num],was_emulated=true);// Do we need this?
+              } 
+              else
+              {
+                this->myFunction(myValue[thread_num]);
+                this->myEmulatorPointers->TranslateTarget(mytest_vec, myValue[thread_num]);
+                emulatorTrain(name(), mytest_vec, mytest_vec, mytest_vec);
+              }
             }
-            this->myFunction(myValue[thread_num]);
+            else { this->myFunction(myValue[thread_num]); }
 // #endif
           // std::cout << origin() << "::" << name() << std::endl;
           // std::cout << "DEBUG: functor " << __LINE__ << std::endl;

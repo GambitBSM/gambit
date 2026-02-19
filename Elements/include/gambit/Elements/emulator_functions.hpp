@@ -3,6 +3,7 @@
 
 #include <mpi.h>
 #include "gambit/Core/emu_map.hpp"
+#include "gambit/ScannerBit/emulator_utils.hpp"
 // #include "gambit/ScannerBit/emulator_utils.hpp"
 
 using namespace Gambit;
@@ -11,7 +12,7 @@ using Gambit::Scanner::map_vector;
 using Gambit::Scanner::vector;
 
 
-void emulatorPredict(str capability_name, std::vector<double> input, vector<double>& prediction, vector<double>& uncertainty)
+inline void emulatorPredict(str capability_name, std::vector<double> input, std::vector<double>& prediction, std::vector<double>& uncertainty)
 {
     // get message size
     unsigned int n = input.size();
@@ -45,16 +46,19 @@ void emulatorPredict(str capability_name, std::vector<double> input, vector<doub
     // recieve buffer
     MPI_Recv(predict_results.buffer.data(), size_result, MPI_CHAR, MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-    // results
-    prediction = predict_results.prediction();
-    uncertainty = predict_results.prediction_uncertainty();
+    // results, translate from eigenvector to vector
+    Gambit::Scanner::vector<double> prediction_eigen = predict_results.prediction();
+    Gambit::Scanner::vector<double> uncertainty_eigen = predict_results.prediction_uncertainty();
+
+    prediction = std::vector<double>(prediction_eigen.data(), prediction_eigen.data() + prediction_eigen.size());
+    uncertainty = std::vector<double>(uncertainty_eigen.data(), uncertainty_eigen.data() + uncertainty_eigen.size());
 
     if (predict_results.if_not_valid()) {std::cout << "Emulator NOT VALID POINT: " << prediction[0] << ", " << uncertainty[0] << std::endl;}
 
 }
 
 
-void emulatorTrain(str capability_name, std::vector<double> input, std::vector<double> target, std::vector<double> target_uncertainty)
+inline void emulatorTrain(str capability_name, std::vector<double> input, std::vector<double> target, std::vector<double> target_uncertainty)
 {
     // size of message
     unsigned int n = input.size();
@@ -77,11 +81,11 @@ void emulatorTrain(str capability_name, std::vector<double> input, std::vector<d
     // done
 }
 
-bool checkThreshold(str capability_name, vector<double> uncertainty)
+inline bool checkThreshold(str capability_name, std::vector<double> uncertainty)
 {
     std::vector<double> threshold = EmulatorMap::mapping_uncertainty[capability_name];
     bool valid_prediction = true;
-    for (int j = 0; j<uncertainty.size(); ++j)
+    for (size_t j = 0; j<uncertainty.size(); ++j)
     {
         if ((uncertainty[j] >= threshold.at(j)) || (uncertainty[j]==0))
         {
