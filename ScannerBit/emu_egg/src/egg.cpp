@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
             {
                 // extract parameters
                 auto params = receiver.params();
-                unsigned short int flag = 0;
+                unsigned short int flag = receiver.flag();
                 auto pred = plugin_interface(params, flag);
 
                 // make new buffer with size 0 for the input parameters
