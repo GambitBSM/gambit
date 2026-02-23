@@ -54,6 +54,8 @@ BE_INI_FUNCTION
   char cdmName[10];
   
   const Spectrum& spec = *Dep::Inert_spectrum;
+  if (!spec.is_initialised())
+    invalid_point().raise("Inert spectrum is not initialised (SPheno likely failed).");
   const SMInputs& sminputs = spec.get_SMInputs();
   
   // YAML options for 3-body final states

@@ -108,7 +108,11 @@ namespace Gambit
       else if(ModelInUse("DMsimpVectorMedVectorDM"))
         props.mass = Dep::DMsimpVectorMedVectorDM_spectrum->get(Par::Pole_Mass, props.name);
       else if(ModelInUse("Inert"))
+      {
+        if (!Dep::Inert_spectrum->is_initialised())
+          invalid_point().raise("Inert spectrum is not initialised (SPheno likely failed).");
         props.mass = Dep::Inert_spectrum->get(Par::Pole_Mass, props.name);
+      }
       else if(ModelInUse("DMEFT"))
         props.mass = Dep::DMEFT_spectrum->get(Par::Pole_Mass, props.name);
       else if(ModelInUse("SubGeVDM_scalar"))

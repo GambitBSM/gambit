@@ -136,7 +136,7 @@ BE_NAMESPACE
     {
       for(int j=1; j<=2; j++)
       {
-        (*ZP)(i, j) = spectrum.get(Par::Pole_Mixing, "H+", i, j);
+        (*ZP)(i, j) = spectrum.get(Par::Pole_Mixing, "ZP", i, j);
       }
     }
     *Lam1 = spectrum.get(Par::dimensionless, "Lam1");

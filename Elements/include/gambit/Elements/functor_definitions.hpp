@@ -141,7 +141,7 @@ namespace Gambit
         #pragma omp critical(module_functor_init_memory)
         {
           // Reserve enough space to hold as many results as there are slots (threads) allowed
-          if(myValue==NULL) myValue = new TYPE[(iRunNested ? globlMaxThreads : 1)];
+          if(myValue==NULL) myValue = new TYPE[(iRunNested ? globlMaxThreads : 1)]();
         }
       }
     }

@@ -143,6 +143,9 @@ namespace Gambit
 
       public:
 
+         /// Return true if the Spectrum has been fully initialised (i.e. not default-constructed)
+         bool is_initialised() const { return initialised; }
+
          /// @{ Constructors/Destructors
          /// Need custom copy and move constructors plus copy-assignment operator
          /// in order to manage the unique_ptrs properly.

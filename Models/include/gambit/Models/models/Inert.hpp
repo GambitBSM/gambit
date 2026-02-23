@@ -18,7 +18,7 @@
 #define MODEL Inert
   START_MODEL
 
-  DEFINEPARS(Lam1, Lam2, Lam3, Lam4, Lam5)
+  DEFINEPARS(Lam1, Lam2, Lam3, Lam4, Lam5, mHu2)
 
 #undef MODEL
 
