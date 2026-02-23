@@ -1630,7 +1630,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
     for i, particle in enumerate(decaying_particles) :
         name = re.sub(r"\d","",particle.alt_name)
         index = re.sub(r"[A-Za-z]","",particle.alt_name)
-        brace = "(i-" + str(i-( int(index) if index != "" else 0 )+1) + " ,j)"
+        brace = "(i-" + str(i-( int(index) if index != "" else 1 )+1) + " ,j)"
         # If there is no gPxx symbol in the signature of CalculateBR_2, 
         # the particle does not decay
         if "gP" + name not in function_signatures["CalculateBR_2"]:
