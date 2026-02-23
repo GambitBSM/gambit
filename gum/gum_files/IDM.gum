@@ -1,0 +1,20 @@
+math:
+  package: sarah
+  model: Inert
+
+wimp_candidate: 35
+
+
+invisibles: [35, -35]   # DM and anti-DM
+
+output:
+  spheno:      true
+  calchep:     true
+  micromegas:  true
+  pythia:      false
+  vevacious:   false
+
+output_options:
+  spheno: {}
+  calchep: {}
+  micromegas: {}

@@ -112,6 +112,21 @@ BE_INI_FUNCTION
     }
 
     else
+    if (ModelInUse("Inert"))
+    {
+      BEpath = backendDir + "/../models/Inert";
+      path = BEpath.c_str();
+      modeltoset = (char*)malloc(strlen(path)+11);
+      sprintf(modeltoset, "%s", path);
+      decays["~H0"] = std::vector< std::vector<str> >{ {"Hp2","hp2"}, {"~A0","h"}, {"~A0","Z"}, {"Wp","hp2"}, {"Wm","Hp2"} };
+      decays["~A0"] = std::vector< std::vector<str> >{ {"Hp2","hp2"}, {"h","~H0"}, {"Z","~H0"}, {"Wp","hp2"}, {"Wm","Hp2"} };
+      decays["h"] = std::vector< std::vector<str> >{ {"~A0","~A0"}, {"~H0","~H0"}, {"Hp2","hp2"}, {"~H0","~A0"}, {"Wp","hp2"}, {"Wm","Hp2"} };
+      decays["Hp2"] = std::vector< std::vector<str> >{ {"~A0","Wp"}, {"~H0","Wp"}, {"h","Wp"}, {"A","Wp"}, {"Z","Wp"}, {"D1","u1"}, {"D2","u1"}, {"D3","u1"}, {"D1","u2"}, {"D2","u2"}, {"D3","u2"}, {"D1","u3"}, {"D2","u3"}, {"D3","u3"}, {"E1","nu1"}, {"E2","nu1"}, {"E3","nu1"}, {"E1","nu2"}, {"E2","nu2"}, {"E3","nu2"}, {"E1","nu3"}, {"E2","nu3"}, {"E3","nu3"} };
+      decays["hp2"] = std::vector< std::vector<str> >{ {"~A0","Wm"}, {"~H0","Wm"}, {"h","Wm"}, {"Wm","A"}, {"Z","Wm"}, {"U1","d1"}, {"U2","d1"}, {"U3","d1"}, {"U1","d2"}, {"U2","d2"}, {"U3","d2"}, {"U1","d3"}, {"U2","d3"}, {"U3","d3"}, {"Nu1","e1"}, {"Nu2","e1"}, {"Nu3","e1"}, {"Nu1","e2"}, {"Nu2","e2"}, {"Nu3","e2"}, {"Nu1","e3"}, {"Nu2","e3"}, {"Nu3","e3"} };
+      xsecs[std::vector<str>{"~H0", "~H0"}] = std::vector< std::vector<str> >{ {"E2","e1"}, {"E3","e1"}, {"E1","e1"}, {"~H0","~A0"}, {"U3","u2"}, {"D3","d2"}, {"D2","d2"}, {"Z","h"}, {"U2","u2"}, {"U1","u2"}, {"D1","d1"}, {"h","h"}, {"E3","e2"}, {"E2","e2"}, {"g","g"}, {"U3","u3"}, {"D3","d3"}, {"E1","e2"}, {"D2","d3"}, {"A","A"}, {"hp2","Hp2"}, {"Wm","Hp2"}, {"~A0","~A0"}, {"U2","u3"}, {"D1","d2"}, {"E3","e3"}, {"U1","u3"}, {"hp2","Wp"}, {"E2","e3"}, {"U3","u1"}, {"Wm","Wp"}, {"D3","d1"}, {"Z","Z"}, {"E1","e3"}, {"D2","d1"}, {"U2","u1"}, {"U1","u1"}, {"D1","d3"} };
+      model = "Inert";
+    }
+    
     {
       int error = setModel(modeltoset, 1);
       if (error != 0) backend_error().raise(LOCAL_INFO, "Unable to set model" + std::string(modeltoset) +
@@ -231,6 +246,20 @@ BE_INI_FUNCTION
     Assign_All_Values(spec, DMsimpVectorMedVectorDM_params);
   }
 
+  if (ModelInUse("Inert"))
+  {
+    // Obtain spectrum information to pass to CalcHEP
+    const Spectrum& spec = *Dep::Inert_spectrum;
+    
+    // Obtain model contents
+    static const SpectrumContents::Inert Inert_contents;
+    
+    // Obtain list of all parameters within model
+    static const std::vector<SpectrumParameter> Inert_params = Inert_contents.all_parameters();
+    
+    Assign_All_Values(spec, Inert_params);
+  }
+  
 }
 END_BE_INI_FUNCTION
 

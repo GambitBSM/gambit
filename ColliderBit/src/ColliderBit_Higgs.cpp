@@ -241,6 +241,11 @@ namespace Gambit
         spectrum_dependency = &Dep::MSSM_spectrum;
         Higgses = initVector<str>("h0_1", "h0_2", "A0");
       }
+      else if (ModelInUse("Inert"))
+      {
+        spectrum_dependency = &Dep::Inert_spectrum;
+        Higgses = initVector<str>("h0_1","h0_2","A0");
+      }
       else ColliderBit_error().raise(LOCAL_INFO, "No valid model for MSSMLikeHiggs_ModelParameters.");
 
 

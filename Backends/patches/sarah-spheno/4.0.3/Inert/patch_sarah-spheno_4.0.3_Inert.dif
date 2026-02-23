@@ -1,0 +1,443 @@
+diff -rupN SPheno/Inert/AddLoopFunctions.f90 /home/chris-chang/WORK/GAMBIT/CoreWork/GUMIDMHelp/gambit/gum/Outputs/Inert/SPheno_patched/Inert/AddLoopFunctions.f90
+--- SPheno/Inert/AddLoopFunctions.f90	2018-08-09 14:12:17.000000000 +0100
++++ /home/chris-chang/WORK/GAMBIT/CoreWork/GUMIDMHelp/gambit/gum/Outputs/Inert/SPheno_patched/Inert/AddLoopFunctions.f90	2026-02-18 15:33:43.849857274 +0000
+@@ -1407,12 +1407,16 @@ End Function DerVVVloop
+   VB0 = B0(xp,xm1,xm2)
+   VDerB0 = SA_DerB0(xp,xm1,xm2)
+ 
++  If ((xm1.Eq.0._dp).And.(xm2.Eq.0._dp)) Then
++    SA_DerB00 = -2._dp * xp * xp - 3._dp * xp * xp * VB0 - 3._dp * xp * xp * xp * VDerB0
++  Else
+   SA_DerB00 = 3._dp * (xm1 * xm1 - 2._dp * xm1 * xm2 &
+    & + xm2 * xm2 - xp * xp) * VB0 &
+    & - 3._dp * (xm1 - xm2) * (xm1 - xm2) * B0(0._dp,xm1,xm2) &
+    & - 3._dp * xp * (xm1 * xm1 + xm2 * xm2 + xp * xp)* VDerB0 &
+    & + 6._dp * (xm1 + xm2) * xp * xp * VDerB0 &
+    & + 6._dp * xm1 * xm2 * xp * VDerB0 - 2._dp * xp * xp
++  Endif
+   SA_DerB00 = SA_DerB00 / (36._dp * xp * xp)
+ 
+   End If
+diff -rupN SPheno/Inert/BranchingRatios_Inert.f90 /home/chris-chang/WORK/GAMBIT/CoreWork/GUMIDMHelp/gambit/gum/Outputs/Inert/SPheno_patched/Inert/BranchingRatios_Inert.f90
+--- SPheno/Inert/BranchingRatios_Inert.f90	2026-02-18 15:33:39.000000000 +0000
++++ /home/chris-chang/WORK/GAMBIT/CoreWork/GUMIDMHelp/gambit/gum/Outputs/Inert/SPheno_patched/Inert/BranchingRatios_Inert.f90	2026-02-18 15:33:43.849743963 +0000
+@@ -23,7 +23,7 @@ Use OneLoopDecays_Inert
+ 
+  Contains 
+  
+-Subroutine CalculateBR(CTBD,fac3,epsI,deltaM,kont,MA0,MA02,MFd,MFd2,MFe,              & 
++Subroutine CalculateBR_2(CTBD,fac3,epsI,deltaM,kont,MA0,MA02,MFd,MFd2,MFe,              & 
+ & MFe2,MFu,MFu2,MG0,MG02,MH0,MH02,Mhh,Mhh2,MHp,MHp2,MVWp,MVWp2,MVZ,MVZ2,TW,              & 
+ & ZDL,ZDR,ZEL,ZER,ZP,ZUL,ZUR,ZW,ZZ,betaH,v,g1,g2,g3,Lam5,Lam1,Lam4,Lam3,Lam2,            & 
+ & Ye,Yd,Yu,mHd2,mHu2,gPFu,gTFu,BRFu,gPFe,gTFe,BRFe,gPFd,gTFd,BRFd,gPhh,gThh,             & 
+@@ -61,7 +61,14 @@ Real(dp) :: vev
+ Real(dp) :: gTVZ,gTVWp
+ 
+ Iname = Iname + 1 
+-NameOfUnit(Iname) = 'CalculateBR'
++NameOfUnit(Iname) = 'CalculateBR_2'
++
++! Added by GAMBIT
++If (SilenceOutput) Then
++ close(unit=6)
++Else
++ open(unit=6, file="/dev/stdout")
++Endif
+  
+ Write(*,*) "Calculating branching ratios and decay widths" 
+ gTVWp = gamW 
+@@ -311,6 +318,6 @@ End Do
+ ! No 3-body decays for Hp  
+ Iname = Iname - 1 
+  
+-End Subroutine CalculateBR 
++End Subroutine CalculateBR_2
+ End Module BranchingRatios_Inert 
+  
+\ No newline at end of file
+diff -rupN SPheno/Inert/Makefile /home/chris-chang/WORK/GAMBIT/CoreWork/GUMIDMHelp/gambit/gum/Outputs/Inert/SPheno_patched/Inert/Makefile
+--- SPheno/Inert/Makefile	2026-02-18 15:33:43.000000000 +0000
++++ /home/chris-chang/WORK/GAMBIT/CoreWork/GUMIDMHelp/gambit/gum/Outputs/Inert/SPheno_patched/Inert/Makefile	2026-02-18 15:33:43.849088228 +0000
+@@ -5,6 +5,7 @@ InDir = ../include
+ Mdir = ${InDir}
+ VPATH = 3-Body-Decays:LoopDecays:TwoLoopMasses:Observables:SM 
+ name = ../lib/libSPhenoInert.a
++shared = lib/libSPhenoInert.so
+  
+ # check if SARAH module and SPheno are compatibel  
+ minV=330.00 
+@@ -14,43 +15,49 @@ cVersion =$(shell expr $(version) \>= $(
+ #  
+ # Default Compiler  
+ F90=gfortran
+-comp= -c -O -module ${Mdir} -I${InDir}  
+-LFlagsB= -O  
+-# Intels ifort,debug modus  
+-ifeq (${F90},ifortg)  
+-F90=ifort  
+-comp= -c -g -module ${Mdir} -I${InDir}  
+-LFlagsB= -g  
+-endif  
+-# gfortran  
+-ifeq (${F90},gfortran)  
+-comp= -c -g -ffree-line-length-none -J${Mdir} -I${InDir}  
+-LFlagsB= -g  
+-endif  
+-# g95  
+-ifeq (${F90},g95)  
+-comp= -c -O -fmod=${Mdir} -I${InDir}  
+-LFlagsB= -O  
+-endif  
+-# Lahey F95 compiler  
+-ifeq (${F90},lf95)  
+-comp=-c -O -M ${Mdir} -I${InDir}  
+-LFlagsB=-O  
+-endif  
+-# NAG f95/2003  
+-ifeq (${F90},nagfor)  
+-comp= -c -O -mdir ${Mdir} -I${InDir}  
+-LFlagsB= -O -DONLYDOUBLE -mdir ${MDir} -I${InDir}  
+-endif   
+-.SUFFIXES : .o .ps .f90 .F90 .a 
++comp= -c -O -fPIC -module ${Mdir} -I${InDir}
++LFlagsB= -O
++# Intels ifort,debug modus
++ifeq (${F90},ifort)
++F90=ifort
++comp= -c -g -fPIC -module ${Mdir} -I${InDir}
++LFlagsB= -g -fPIC
++endif
++# gfortran
++ifeq (${F90},gfortran)
++comp= -c -g -fPIC --free-line-length-none -J${Mdir} -I${InDir}
++LFlagsB= -g -fPIC
++endif
++# g95
++ifeq (${F90},g95)
++comp= -c -O -fPIC -fmod=${Mdir} -I${InDir}
++LFlagsB= -O -fPIC
++endif
++# Lahey F95 compiler
++ifeq (${F90},lf95)
++comp=-c -O -fPIC -M ${Mdir} -I${InDir}
++LFlagsB=-O -fPIC
++endif
++# NAG f95/2003
++ifeq (${F90},nagfor)
++comp= -c -O -fPIC -mdir ${Mdir} -I${InDir}
++LFlagsB= -O -fPIC -DONLYDOUBLE -mdir ${MDir} -I${InDir}
++endif
++.SUFFIXES : .o .ps .f90 .F90 .a
++${shared}:
++	cd ../src ; ${MAKE} F90=${F90}
++	${MAKE} F90=${F90} ${name}
++	${MAKE} F90=${F90} SPhenoInert.o
++	${F90} -shared -fPIC -o ../${shared} ${LFlagsB} SPhenoInert.o ../lib/libSPhenoInert.a ../lib/libSPheno.a
+ bin/SPhenoInert:
+ ifeq (${cVersion},1)
+-	 cd ../src ; ${MAKE} F90=${F90} 
+-	 ${MAKE} F90=${F90} ${name} 
+-	 ${MAKE} F90=${F90} SPhenoInert.o 
+-	 ${F90} -o SPhenoInert ${LFlagsB} SPhenoInert.o ../lib/libSPhenoInert.a ../lib/libSPheno.a
+-	 mv SPhenoInert ../bin
+-	 rm SPhenoInert.o  
++	cd ../src ; ${MAKE} F90=${F90}
++	${MAKE} F90=${F90} ${name}
++	${MAKE} F90=${F90} SPhenoInert.o
++	${F90} -c -fPIC TwoLoopMasses/effpotasat.f
++	${F90} -o -fPIC SPhenoInert ${LFlagsB} SPhenoInert.o effpotasat.o ../lib/libSPhenoInert.a ../lib/libSPheno.a
++	mv SPhenoInert../bin
++	rm SPhenoInert.o
+ ${name}:  ${name}(Settings.o) ${name}(Model_Data_Inert.o)  \
+  ${name}(RGEs_Inert.o)   \
+  ${name}(Couplings_Inert.o) ${name}(TreeLevelMasses_Inert.o) ${name}(TadpoleEquations_Inert.o) \
+@@ -81,7 +88,7 @@ endif
+ clean: 
+ 	 rm -f *.o *~ */*.o */*~
+ cleanall: 
+-	 rm -f bin/SPheno3 lib/*.a *~ */*.o */*~ include/*
++	rm -f bin/SPheno3 lib/*.a lib/*.so *~ */*.o */*~ include/*
+ #
+ # Suffix rules
+ #
+diff -rupN SPheno/Inert/SPhenoInert.f90 /home/chris-chang/WORK/GAMBIT/CoreWork/GUMIDMHelp/gambit/gum/Outputs/Inert/SPheno_patched/Inert/SPhenoInert.f90
+--- SPheno/Inert/SPhenoInert.f90	2026-02-18 15:33:42.000000000 +0000
++++ /home/chris-chang/WORK/GAMBIT/CoreWork/GUMIDMHelp/gambit/gum/Outputs/Inert/SPheno_patched/Inert/SPhenoInert.f90	2026-02-18 15:33:43.849529202 +0000
+@@ -7,7 +7,8 @@
+ ! ----------------------------------------------------------------------  
+  
+  
+-Program SPhenoInert 
++!Program SPhenoInert ! Commented by GAMBIT
++Module SPhenoInert ! Added by GAMBIT
+  
+ Use Control
+ Use InputOutput_Inert
+@@ -42,6 +43,10 @@ Logical :: ISR(p_max)=.False.
+ Logical :: CalcTBD
+ Real(dp) :: Tpar,Spar,Upar,ae,amu,atau,EDMe,EDMmu,EDMtau,dRho
+ 
++
++Contains ! Added by GAMBIT
++
++Subroutine SPheno_Main() ! Added by GAMBIT
+ Tpar = 0._dp 
+ Spar = 0._dp 
+ Upar = 0._dp 
+@@ -71,13 +76,13 @@ YdSM = 0._dp
+ YeSM = 0._dp 
+ YuSM = 0._dp 
+ vSM = 0._dp 
+-Call Set_All_Parameters_0() 
+- 
+-Qin = SetRenormalizationScale(1.6E2_dp**2)  
+-kont = 0 
+-delta_Mass = 0.0001_dp 
+-CalcTBD = .false. 
+-Call ReadingData(kont) 
++!Call Set_All_Parameters_0() ! Commented by GAMBIT
++
++!Qin = SetRenormalizationScale(1.0E3_dp**2)  ! Commented by GAMBIT
++!kont = 0 ! Commented by GAMBIT
++!delta_Mass = 0.0001_dp ! Commented by GAMBIT
++!CalcTBD = .false. ! Commented by GAMBIT
++!Call ReadingData(kont) ! Commented by GAMBIT
+  
+  HighScaleModel = "LOW" 
+ If ((MatchingOrder.lt.-1).or.(MatchingOrder.gt.2)) Then 
+@@ -251,7 +256,7 @@ MAh2L = MAhL**2
+ betaH = ASin(Abs(ZP(1,2)))
+ TW = ACos(Abs(ZZ(1,1)))
+ If ((L_BR).And.(kont.Eq.0)) Then 
+- Call CalculateBR(CalcTBD,ratioWoM,epsI,deltaM,kont,MA0,MA02,MFd,MFd2,MFe,             & 
++ Call CalculateBR_2(CalcTBD,ratioWoM,epsI,deltaM,kont,MA0,MA02,MFd,MFd2,MFe,             & 
+ & MFe2,MFu,MFu2,MG0,MG02,MH0,MH02,Mhh,Mhh2,MHp,MHp2,MVWp,MVWp2,MVZ,MVZ2,TW,              & 
+ & ZDL,ZDR,ZEL,ZER,ZP,ZUL,ZUR,ZW,ZZ,betaH,v,g1,g2,g3,Lam5,Lam1,Lam4,Lam3,Lam2,            & 
+ & Ye,Yd,Yu,mHd2,mHu2,gPFu,gTFu,BRFu,gPFe,gTFe,BRFe,gPFd,gTFd,BRFd,gPhh,gThh,             & 
+@@ -297,12 +302,15 @@ Call ScatteringEigenvaluesWithTrilinears
+ 
+ End if 
+ Write(*,*) "Writing output files" 
+-Call LesHouches_Out(67,11,kont,MGUT,Tpar,Spar,Upar,ae,amu,atau,EDMe,EDMmu,            & 
+-& EDMtau,dRho,GenerationMixing)
++!Call LesHouches_Out(67,11,kont,MGUT,Tpar,Spar,Upar,ae,amu,atau,EDMe,EDMmu,            & 
++!& EDMtau,dRho,GenerationMixing)
+ 
+ End if 
+ Write(*,*) "Finished!" 
+-Contains 
++
++End Subroutine SPheno_Main ! Added by GAMBIT
++
++!Contains ! Commented by GAMBIT
+  
+ Subroutine CalculateSpectrum(n_run,delta,WriteOut,kont,MA0,MA02,MFd,MFd2,             & 
+ & MFe,MFe2,MFu,MFu2,MG0,MG02,MH0,MH02,Mhh,Mhh2,MHp,MHp2,MVWp,MVWp2,MVZ,MVZ2,             & 
+@@ -326,12 +334,19 @@ Complex(dp),Intent(inout) :: ZDL(3,3),ZD
+ 
+ Real(dp),Intent(inout) :: v
+ 
+-kont = 0 
++! Added by GAMBIT
++If (SilenceOutput) Then
++ close(unit=6)
++Else
++ open(unit=6, file="/dev/stdout")
++Endif
++
++kont = 0
+ Call FirstGuess(MA0,MA02,MFd,MFd2,MFe,MFe2,MFu,MFu2,MG0,MG02,MH0,MH02,Mhh,            & 
+ & Mhh2,MHp,MHp2,MVWp,MVWp2,MVZ,MVZ2,TW,ZDL,ZDR,ZEL,ZER,ZP,ZUL,ZUR,ZW,ZZ,betaH,           & 
+ & v,g1,g2,g3,Lam5,Lam1,Lam4,Lam3,Lam2,Ye,Yd,Yu,mHd2,mHu2,kont)
+ 
+-!If (kont.ne.0) Call TerminateProgram 
++If (kont.ne.0) Call TerminateProgram
+  
+ If (SPA_Convention) Call SetRGEScale(1.e3_dp**2) 
+  
+@@ -413,8 +428,6 @@ Complex(dp) :: ZDL(3,3),ZDR(3,3),ZEL(3,3
+ 
+ Real(dp) :: v
+ 
+-kont = 0 
+-Write(*,*) "Check scale uncertainty" 
+ n_tot =1
+ mass_in(n_tot:n_tot+1) = MHpinput
+ n_tot = n_tot + 2 
+@@ -522,4 +535,5 @@ End Subroutine GetScaleUncertainty
+  
+ 
+  
+-End Program SPhenoInert 
++!End Program SPhenoInert ! Commented by GAMBIT
++End Module SPhenoInert ! Added by GAMBIT
+diff -rupN SPheno/Makefile /home/chris-chang/WORK/GAMBIT/CoreWork/GUMIDMHelp/gambit/gum/Outputs/Inert/SPheno_patched/Makefile
+--- SPheno/Makefile	2017-05-22 16:02:41.000000000 +0100
++++ /home/chris-chang/WORK/GAMBIT/CoreWork/GUMIDMHelp/gambit/gum/Outputs/Inert/SPheno_patched/Makefile	2026-02-18 15:33:43.848991692 +0000
+@@ -3,16 +3,21 @@
+ # cases NAG's nagfor, gfortran, g95, Lahey's lf95 and Intels ifort
+ # Please uncomment the corresponding line
+ # F90 = nagfor
+-# F90 = gfortran
++F90 = gfortran
+ # F90 = g95
+ # F90 = lf95
+-F90 = ifort
++# F90 = ifort
++F90_temp := ${F90} # Added by GAMBIT
++override F90 = ${notdir ${F90_temp}} # Added by GAMBIT
+ Model = src
+ version = 400.00
++all: bin/SPheno lib/libSPhenoInert.so
+ bin/SPheno:
+ 	cd ${Model} ; ${MAKE} F90=${F90} version=${version}
++lib/libSPhenoInert.so:
++	cd ${Model} ; ${MAKE} $@ F90=${F90} version=${version}
+ clean:
+ 	rm -f *.o *~ */*.o */*~
+ cleanall:
+-	rm -f bin/SPheno lib/*.a *.o *~ */*.o */*~ include/*
+-.PHONY: bin/SPheno clean cleanall
++	rm -f bin/SPheno lib/*.a lib/*.so *.o *~ */*.o */*~ include/*
++.PHONY: bin/SPheno lib/libSPhenoInert clean cleanall
+\ No newline at end of file
+diff -rupN SPheno/src/Control.F90 /home/chris-chang/WORK/GAMBIT/CoreWork/GUMIDMHelp/gambit/gum/Outputs/Inert/SPheno_patched/src/Control.F90
+--- SPheno/src/Control.F90	2017-05-22 16:02:41.000000000 +0100
++++ /home/chris-chang/WORK/GAMBIT/CoreWork/GUMIDMHelp/gambit/gum/Outputs/Inert/SPheno_patched/src/Control.F90	2026-02-18 15:33:43.849231544 +0000
+@@ -26,6 +26,25 @@ Module Control
+ !            and to write the corresponding numbers 
+ !-------------------------------------------------------------------
+ 
++! Added by GAMBIT
++Use, Intrinsic :: iso_c_binding
++Implicit none
++
++Type(c_funptr) :: ErrorHandler_cptr
++
++! Define interface of call-back routine.
++
++Abstract Interface
++  Subroutine callback ()
++    Use, Intrinsic :: iso_c_binding
++  End Subroutine callback
++End Interface
++
++! Variable to swith off screen output
++Logical :: SilenceOutput = .False.
++
++! GAMBIT addition end
++
+  Interface Is_NaN
+   Module Procedure IsNaN_r, IsNaN_v, IsNaN_m
+  End Interface
+@@ -608,6 +627,7 @@ Contains
+  End Subroutine ModelNotIncluded
+ 
+ 
++ ! Subroutine modified by GAMBIT
+  Subroutine TerminateProgram
+  !-----------------------------------------------------------------------
+  ! This subroutine terminates a program if a fatal error occurs.
+@@ -615,10 +635,12 @@ Contains
+  ! the file which is connected to the channel ErrCan
+  ! written by Werner Porod, 20.9.2000
+  !-----------------------------------------------------------------------
++ Use, Intrinsic :: iso_c_binding
+  Implicit None
+-
++ 
++  Procedure(callback), Pointer :: ErrorHandler_fptr
+   Integer :: i1
+-
++ 
+   Write (ErrCan,*) "  "
+   Write (ErrCan,*) "ErrorLevel, Iname:",ErrorLevel, Iname
+   Write (ErrCan,*) &
+@@ -631,11 +653,21 @@ Contains
+   Do i1=ErrCan,ErrCan+NumberOfOpenFiles-1
+    Close(i1)
+   End Do
++ 
++  ! Reset Iname
++  Iname = 0
++  ! Convert C to Fortran procedure pointer.
++  Call c_f_procpointer(ErrorHandler_cptr, ErrorHandler_fptr)
++ 
++  ! Call the ErrorHandler
++  Call ErrorHandler_fptr()
++ 
++  ! This should never happen
++  Write(*,*) "DEBUG: SPheno has continued past the ErrorHandler call. This should never happen..."
+   Stop "Subroutine TerminateProgram"
+-
++ 
+  End Subroutine TerminateProgram
+ 
+-
+  Subroutine WriteNumberOfErrors(io)
+  Implicit None
+   Integer, Intent(in) :: io
+diff -rupN SPheno/src/Makefile /home/chris-chang/WORK/GAMBIT/CoreWork/GUMIDMHelp/gambit/gum/Outputs/Inert/SPheno_patched/src/Makefile
+--- SPheno/src/Makefile	2017-05-22 16:02:41.000000000 +0100
++++ /home/chris-chang/WORK/GAMBIT/CoreWork/GUMIDMHelp/gambit/gum/Outputs/Inert/SPheno_patched/src/Makefile	2026-02-18 15:33:43.849155371 +0000
+@@ -11,40 +11,46 @@ name = ../lib/libSPheno.a
+ 
+ # Intels ifort, default in optimized mode
+ F90 = ifort
+-comp = -c -O -module ${Mdir} -I${InDir} 
+-LFlagsB = -O  
++comp = -c -fPIC -O -module ${Mdir} -I${InDir}
++LFlagsB = -O -fPIC
+ 
+ # Intels ifort, debug modus
+ ifeq (${F90},ifortg)
+  F90 = ifort
+- comp = -c -g -module ${Mdir} -I${InDir} 
+- LFlagsB = -g  
++ comp = -c -g -fPIC -module ${Mdir} -I${InDir}
++ LFlagsB = -g -fPIC
+ endif
+ 
+ # gfortran
+ ifeq (${F90},gfortran)
+- comp = -c -O -J${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fPIC -J${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC
++endif
++
++# gfortran, any version (Added by GAMBIT)
++ifneq (,$(findstring gfortran,${F90}))
++ comp = -c -O -fPIC -J${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC
+ endif
+ 
+ # g95 
+ ifeq (${F90},g95)
+- comp = -c -O -fmod=${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fPIC -fmod=${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC
+ endif
+ 
+ # Lahey F95 compiler
+ ifeq (${F90},lf95)
+- comp = -c -O -M ${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fPIC -M ${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC
+ endif
+- 
++
+ # NAG f95/2003
+ ifeq (${F90},nagfor)
+- comp = -c -O  -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
+- LFlagsB = -O
++ comp = -c -O -fPIC -DONLYDOUBLE -mdir ${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC
+ endif
+- 
++
+ .SUFFIXES : .o .ps .f90 .F90 .a
+ bin/SPheno: ${name} SPheno4.o
+ 	${F90} -o SPheno ${LFlagsB} SPheno4.o ../lib/${name}

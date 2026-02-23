@@ -183,6 +183,12 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
+    #define FUNCTION CH_Inert_Higgs_decays
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(Inert)
+    #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY h0_2_decay_rates
@@ -205,6 +211,11 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
+    #define FUNCTION CH_Inert_h0_2_decays
+    START_FUNCTION(DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(Inert)
+    #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY A0_decay_rates
@@ -226,6 +237,11 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
+    #define FUNCTION CH_Inert_A0_decays
+    START_FUNCTION(DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(Inert)
+    #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY H_plus_decay_rates
@@ -248,6 +264,11 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
+    #define FUNCTION CH_Inert_H_plus_decays
+    START_FUNCTION(DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(Inert)
+    #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY gluino_decay_rates
@@ -947,10 +968,31 @@ START_MODULE
     DEPENDENCY(dark_photon_decay_rates, DecayTable::Entry)
     #undef FUNCTION
   #undef CAPABILITY  
+  #define CAPABILITY H_minus_decay_rates
+  START_CAPABILITY
+
+    #define FUNCTION CH_Inert_H_minus_decays
+    START_FUNCTION(DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(Inert)
+    #undef FUNCTION
+
+  #undef CAPABILITY
   
   #define CAPABILITY decay_rates
   START_CAPABILITY
 
+    #define FUNCTION all_Inert_decays_from_SPheno
+    START_FUNCTION(DecayTable)
+    DEPENDENCY(W_minus_decay_rates, DecayTable::Entry)
+    DEPENDENCY(W_plus_decay_rates, DecayTable::Entry)
+    DEPENDENCY(Z_decay_rates, DecayTable::Entry)
+    DEPENDENCY(Inert_spectrum, Spectrum)
+    BACKEND_REQ(SARAHSPheno_Inert_decays, (libSPhenoInert), int, (const Spectrum&, DecayTable&, const Finputs&) )
+    BACKEND_OPTION((SARAHSPheno_Inert, 4.0.3), (libSPhenoInert))
+    ALLOW_MODELS(Inert)
+    #undef FUNCTION
+    
     #define FUNCTION all_decays_from_SLHA
     START_FUNCTION(DecayTable)
     #undef FUNCTION
@@ -977,12 +1019,13 @@ START_MODULE
     DEPENDENCY(omega_decay_rates, DecayTable::Entry)
     DEPENDENCY(rho1450_decay_rates, DecayTable::Entry)
     MODEL_CONDITIONAL_DEPENDENCY(Y1_decay_rates, DecayTable::Entry, DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM, DMsimpVectorMedVectorDM)
+
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     MODEL_CONDITIONAL_DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     MODEL_CONDITIONAL_DEPENDENCY(h0_2_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     MODEL_CONDITIONAL_DEPENDENCY(A0_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     MODEL_CONDITIONAL_DEPENDENCY(H_plus_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
-    MODEL_CONDITIONAL_DEPENDENCY(H_minus_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
+    MODEL_CONDITIONAL_DEPENDENCY(H_minus_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG, Inert)
     MODEL_CONDITIONAL_DEPENDENCY(gluino_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     MODEL_CONDITIONAL_DEPENDENCY(stop_1_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     MODEL_CONDITIONAL_DEPENDENCY(stop_2_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)

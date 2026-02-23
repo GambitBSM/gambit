@@ -107,6 +107,8 @@ namespace Gambit
         props.mass = Dep::DMsimpVectorMedScalarDM_spectrum->get(Par::Pole_Mass, props.name);
       else if(ModelInUse("DMsimpVectorMedVectorDM"))
         props.mass = Dep::DMsimpVectorMedVectorDM_spectrum->get(Par::Pole_Mass, props.name);
+      else if(ModelInUse("Inert"))
+        props.mass = Dep::Inert_spectrum->get(Par::Pole_Mass, props.name);
       else if(ModelInUse("DMEFT"))
         props.mass = Dep::DMEFT_spectrum->get(Par::Pole_Mass, props.name);
       else if(ModelInUse("SubGeVDM_scalar"))

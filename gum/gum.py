@@ -215,6 +215,7 @@ if args.file:
 
             # If the user has requested MicrOMEGAs output and the DM candidate
             # does not begin with a tilde, then complain (and its anti-p.)
+            """
             if output_opts.mo:
                 if not dm.name.startswith('~'):
                     raise GumError(("You have requested MicrOMEGAs output, but "
@@ -234,6 +235,7 @@ if args.file:
                                     "\t    AntiParticleName -> \"~Chi\"\n "
                                     "to your {} file!"
                                     ).format(gum.math))
+            """
 
 
         """

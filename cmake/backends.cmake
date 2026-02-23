@@ -1061,6 +1061,26 @@ if(NOT ditched_${name}_${model}_${ver})
   set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
+
+# MicrOmegas Inert model
+set(model "Inert")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/Inert/patch_${name}_${ver}_${model}.dif")
+set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/Inert")
+check_ditch_status(${name}_${model} ${ver} ${dir})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND ./newProject ${model} && patch -p0 < ${patch}
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy_directory ${patchdir}/mdlfiles ${dir}/${model}/work/models/
+    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${CMAKE_MAKE_PROGRAM} sharedlib main=main.c
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
+  set_as_default_version("backend model" ${name} ${ver} ${model})
+endif()
+
 # MontePythonLike
 set(name "montepythonlike")
 set(ver "3.3.0")
@@ -1706,6 +1726,37 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
+# SARAH-SPheno Inert model
+set(name "sarah-spheno")
+set(model "Inert")
+set(cleanmodel "Inert")
+set(ver "4.0.3")
+set(lib "lib/libSPheno${cleanmodel}.so")
+set(dl "http://www.hepforge.org/archive/spheno/SPheno-${ver}.tar.gz")
+set(md5 "64787d6c8ce03cac38aec53d34ac46ad")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/${model}")
+set(sarahdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/${model}/unpatched/")
+file(GLOB sarahfiles  "${sarahdir}/[a-zA-Z0-9]*")
+string(REGEX REPLACE "(-cpp)|(-fpp)" "" SPheno_FLAGS "${BACKEND_Fortran_FLAGS}") #SPheno hates the preprocessor
+set(SPheno_FLAGS "-c ${SPheno_FLAGS} -${FMODULE} ${dir}/include -I${dir}/include")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/${model}/patch_${name}_${ver}_${model}.dif")
+check_ditch_status(${name}_${model} ${ver} ${dir})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+             COMMAND ${CMAKE_COMMAND} -E make_directory "${dir}/${cleanmodel}"
+             COMMAND cp -r "${sarahfiles}" "${dir}/${cleanmodel}"
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} Model=${cleanmodel} F90=${CMAKE_Fortran_COMPILER} FFLAGS="${SPheno_FLAGS}" ${lib}
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name}_${model} ${ver} ${dir} ${dl} cleanall)
+  set_as_default_version("backend" ${name}_${model} ${ver})
+endif()
+
 # gm2calc
 set(name "gm2calc")
 set(ver "1.2.0")
@@ -1924,8 +1975,9 @@ endif()
 # CalcHEP
 set(name "calchep")
 set(ver "3.6.27")
-set(dl "http://theory.sinp.msu.ru/~pukhov/CALCHEP/calchep_3.6.27.tgz")
-set(md5 "7914181e15791fe03373bd37819ef638")
+set(dl "https://theory.sinp.msu.ru/~pukhov/CALCHEP/calchep_3.6.27.tgz")
+#https://theory.sinp.msu.ru/~pukhov/CALCHEP/calchep_3.6.27.tgz
+set(md5 "7914181e15791fe03373bd37819ef638") #"7914181e15791fe03373bd37819ef638")
 set(lib "libcalchep")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/")

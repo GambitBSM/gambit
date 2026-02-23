@@ -1,0 +1,63 @@
+Parameters:
+
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  Inert:
+    Lam1: {prior_type: flat, range: [0.01, 0.5]}
+    Lam2: {prior_type: flat, range: [0.01, 0.5]}
+    Lam3: {prior_type: flat, range: [-1.0, 1.0]}
+    Lam4: {prior_type: flat, range: [-1.0, 0.0]}
+    Lam5: {prior_type: flat, range: [-1.0, 1.0]}
+
+Printer:
+  printer: cout
+
+  #printer: hdf5
+  #options:
+  #  output_file: "Inert_RD_scan.hdf5"
+  #  group: "Inert_RD_scan"
+  #  delete_file_on_restart: true
+
+Scanner:
+  use_scanner: random
+  scanners:
+    random:
+      plugin: random
+      point_number: 1
+      like: LogLike
+
+ObsLikes:
+  - purpose:    Observable
+    capability: RD_oh2
+    type:       double
+    
+  - purpose:    Observable
+    capability: mwimp
+    type:       double
+    
+  # - purpose:    Observable
+  #   capability: Inert_spectrum
+
+Rules:
+
+  - capability: Inert_spectrum
+    function:   get_Inert_spectrum_SPheno
+
+  - capability: RD_oh2
+    function:   RD_oh2_MicrOmegas
+
+Logger:
+  redirection:
+    [Dependency Resolver]: "dep_resolver.log"
+    [Error]              : "errors.log"
+    [Warning]            : "warnings.log"
+    [SpecBit]            : "SpecBit.log"
+    [DarkBit]            : "DarkBit.log"
+    [Backends]           : "backends.log"
+    [Default]            : "default.log"
+
+KeyValues:
+  dependency_resolution:
+    prefer_model_specific_functions: true
+  default_output_path: "runs/Inert_RD_scan/"
+  debug: true

@@ -1396,3 +1396,7 @@ DMsimpVectorMedScalarDM: |
 DMsimpVectorMedVectorDM: |
     DMsimpVectorMedVectorDM model, created by GUM, with parameters: gVXv, gVq, mXv, MY1
 
+
+Inert: |
+    Inert model, created by GUM, with parameters: Lam1, Lam2, Lam3, Lam4, Lam5
+

@@ -661,6 +661,7 @@ def parse_sarah_model_file(model_name, outputs):
         paramlines = f.readlines()
 
     with open(partfile, 'r') as f:
+        # print("DEBUG: partfile: ", partfile)
         partlines = f.readlines()
 
     # The hard-coded/protected descriptions for particles
@@ -920,9 +921,13 @@ def parse_sarah_model_file(model_name, outputs):
 
     # Flatten the string
     contents = "".join(partlines).replace("\n","")
+    
+    # print("DEBUG: contents: ", contents)
 
     # Remove all the stuff before the EWSB particle defs. All we need I think...
     s1 = contents[contents.find('ParticleDefinitions[EWSB]'):]
+    
+    # print("DEBUG, s1: ", s1)
 
     # Search through the string and count the number of curly braces. 
     # When we get to zero then we're done.
@@ -947,6 +952,8 @@ def parse_sarah_model_file(model_name, outputs):
     # {particlename, {...} }
     particles = {}
     pat = r'{\s*(.*?)\s*,\s*{(.*?)}\s*}\s*(,|$)'
+    
+    # print("DEBUG: s2: ", s2)
 
     # Get all particle names + definitions 
     for match in re.findall(pat, s2):
@@ -958,7 +965,9 @@ def parse_sarah_model_file(model_name, outputs):
     for particle, entry in iteritems(particles):
 
         # The particle description
+        # print("DEBUG. entry: ", entry)
         desc = re.search(r'Description\s*->\s*"(.*?)"', entry)
+        # print("  DEBUG. desc: ", desc)
 
         if not desc:
             raise GumError(("No description for particle {0}.\n"

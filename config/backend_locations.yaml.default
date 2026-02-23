@@ -171,6 +171,14 @@ MultiModeCode:
   2.0.0:       ./Backends/installed/multimodecode/2.0.0/lib/libmodecode.so
 
 
+# Added by GUM
+MicrOmegas_Inert:
+  3.6.9.2:     ./Backends/installed/micromegas/3.6.9.2/Inert/libmicromegas.so
+
+# Added by GUM
+SARAHSPheno_Inert:
+  4.0.3:       ./Backends/installed/sarah-spheno/4.0.3/Inert/lib/libSPhenoInert.so
+
 # Example/debug backends
 
 LibFirst:

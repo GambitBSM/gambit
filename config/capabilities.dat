@@ -6709,3 +6709,30 @@ simplexs_init: |
 
 simplexs_get_xsection: |
   simple_xs backend function that returns the cross-section for a given process.
+
+#####  Inert model #####
+
+Inert_parameters: |
+    Parameters for the model Inert (see ./gambit Inert).
+
+SARAHSPheno_Inert_internal: |
+    Exclusively used for internal variables and functions for the SARAH-SPheno backend.
+
+SARAHSPheno_Inert_spectrum: |
+    Calculates and returns a Inert spectrum object using SARAH-SPheno.
+
+SARAHSPheno_Inert_decays: |
+    Calculates and returns all decays for the Inert model using SARAH-SPheno.
+
+SARAHSPheno_Inert_HiggsCouplingsTable: |
+    Fills the Higgs couplings table using SARAH-SPheno.
+
+SARAHSPheno_Inert_4_0_3_init: |
+    Initialisation of backend SARAH-SPheno v4.0.3 for model Inert.
+
+MicrOmegas_Inert_3_6_9_2_init: |
+    Initialise MicrOmegas Inert backend.
+
+Inert_spectrum: |
+    Create spectrum object for Inert model.
+

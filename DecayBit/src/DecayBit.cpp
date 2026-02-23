@@ -4092,6 +4092,216 @@ namespace Gambit
     }
 
     //////////// Everything ///////////////////
+    void CH_Inert_h0_2_decays(DecayTable::Entry& result)
+    {
+      using namespace Pipes::CH_Inert_h0_2_decays;
+      // Clear previous decays
+      result = DecayTable::Entry();
+      
+      str model = "Inert";
+      str in = "~H0"; // In state: CalcHEP particle name
+      std::vector<std::vector<str>> out_calchep = {{"Hp2", "hp2"}, {"~A0", "h"}, {"~A0", "Z"}, {"Wp", "hp2"}, {"Wm", "Hp2"}}; // Out states: CalcHEP particle names
+      std::vector<std::vector<str>> out_gambit = {{"H+", "H-"}, {"A0", "h0_1"}, {"A0", "Z0"}, {"W+", "H-"}, {"W-", "H+"}}; // Out states: GAMBIT particle names
+      
+      for (unsigned int i=0; i<out_calchep.size(); i++)
+      {
+        
+        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        double newwidth = result.width_in_GeV + gamma;  // Adjust total width
+        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
+        result.width_in_GeV = newwidth;
+        
+        for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+        {
+          it->second.first  *= wscaling; // rescale BF 
+          it->second.second *= wscaling; // rescale error on BF 
+        }
+        
+        // Avoid NaNs!
+        double BF = ( gamma == 0. ) ? 0. : gamma/result.width_in_GeV;
+        
+        result.set_BF(BF, 0.0, out_gambit[i][0], out_gambit[i][1]);
+        
+      }
+      
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+    
+    void CH_Inert_A0_decays(DecayTable::Entry& result)
+    {
+      using namespace Pipes::CH_Inert_A0_decays;
+      // Clear previous decays
+      result = DecayTable::Entry();
+      
+      str model = "Inert";
+      str in = "~A0"; // In state: CalcHEP particle name
+      std::vector<std::vector<str>> out_calchep = {{"Hp2", "hp2"}, {"h", "~H0"}, {"Z", "~H0"}, {"Wp", "hp2"}, {"Wm", "Hp2"}}; // Out states: CalcHEP particle names
+      std::vector<std::vector<str>> out_gambit = {{"H+", "H-"}, {"h0_1", "h0_2"}, {"Z0", "h0_2"}, {"W+", "H-"}, {"W-", "H+"}}; // Out states: GAMBIT particle names
+      
+      for (unsigned int i=0; i<out_calchep.size(); i++)
+      {
+        
+        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        double newwidth = result.width_in_GeV + gamma;  // Adjust total width
+        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
+        result.width_in_GeV = newwidth;
+        
+        for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+        {
+          it->second.first  *= wscaling; // rescale BF 
+          it->second.second *= wscaling; // rescale error on BF 
+        }
+        
+        // Avoid NaNs!
+        double BF = ( gamma == 0. ) ? 0. : gamma/result.width_in_GeV;
+        
+        result.set_BF(BF, 0.0, out_gambit[i][0], out_gambit[i][1]);
+        
+      }
+      
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+    
+    void CH_Inert_Higgs_decays(DecayTable::Entry& result)
+    {
+      using namespace Pipes::CH_Inert_Higgs_decays;
+      // Clear previous decays
+      result = DecayTable::Entry();
+      
+      result = *Dep::Reference_SM_Higgs_decay_rates;
+      
+      str model = "Inert";
+      str in = "h"; // In state: CalcHEP particle name
+      std::vector<std::vector<str>> out_calchep = {{"~A0", "~A0"}, {"~H0", "~H0"}, {"Hp2", "hp2"}, {"~H0", "~A0"}, {"Wp", "hp2"}, {"Wm", "Hp2"}}; // Out states: CalcHEP particle names
+      std::vector<std::vector<str>> out_gambit = {{"A0", "A0"}, {"h0_2", "h0_2"}, {"H+", "H-"}, {"h0_2", "A0"}, {"W+", "H-"}, {"W-", "H+"}}; // Out states: GAMBIT particle names
+      
+      for (unsigned int i=0; i<out_calchep.size(); i++)
+      {
+        
+        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        double newwidth = result.width_in_GeV + gamma;  // Adjust total width
+        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
+        result.width_in_GeV = newwidth;
+        
+        for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+        {
+          it->second.first  *= wscaling; // rescale BF 
+          it->second.second *= wscaling; // rescale error on BF 
+        }
+        
+        // Avoid NaNs!
+        double BF = ( gamma == 0. ) ? 0. : gamma/result.width_in_GeV;
+        
+        result.set_BF(BF, 0.0, out_gambit[i][0], out_gambit[i][1]);
+        
+      }
+      
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+    
+    void CH_Inert_H_plus_decays(DecayTable::Entry& result)
+    {
+      using namespace Pipes::CH_Inert_H_plus_decays;
+      // Clear previous decays
+      result = DecayTable::Entry();
+      
+      str model = "Inert";
+      str in = "Hp2"; // In state: CalcHEP particle name
+      std::vector<std::vector<str>> out_calchep = {{"~A0", "Wp"}, {"~H0", "Wp"}, {"h", "Wp"}, {"A", "Wp"}, {"Z", "Wp"}, {"D1", "u1"}, {"D2", "u1"}, {"D3", "u1"}, {"D1", "u2"}, {"D2", "u2"}, {"D3", "u2"}, {"D1", "u3"}, {"D2", "u3"}, {"D3", "u3"}, {"E1", "nu1"}, {"E2", "nu1"}, {"E3", "nu1"}, {"E1", "nu2"}, {"E2", "nu2"}, {"E3", "nu2"}, {"E1", "nu3"}, {"E2", "nu3"}, {"E3", "nu3"}}; // Out states: CalcHEP particle names
+      std::vector<std::vector<str>> out_gambit = {{"A0", "W+"}, {"h0_2", "W+"}, {"h0_1", "W+"}, {"gamma", "W+"}, {"Z0", "W+"}, {"dbar_1", "u_1"}, {"dbar_2", "u_1"}, {"dbar_3", "u_1"}, {"dbar_1", "u_2"}, {"dbar_2", "u_2"}, {"dbar_3", "u_2"}, {"dbar_1", "u_3"}, {"dbar_2", "u_3"}, {"dbar_3", "u_3"}, {"e+_1", "nu_1"}, {"e+_2", "nu_1"}, {"e+_3", "nu_1"}, {"e+_1", "nu_2"}, {"e+_2", "nu_2"}, {"e+_3", "nu_2"}, {"e+_1", "nu_3"}, {"e+_2", "nu_3"}, {"e+_3", "nu_3"}}; // Out states: GAMBIT particle names
+      
+      for (unsigned int i=0; i<out_calchep.size(); i++)
+      {
+        
+        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        double newwidth = result.width_in_GeV + gamma;  // Adjust total width
+        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
+        result.width_in_GeV = newwidth;
+        
+        for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+        {
+          it->second.first  *= wscaling; // rescale BF 
+          it->second.second *= wscaling; // rescale error on BF 
+        }
+        
+        // Avoid NaNs!
+        double BF = ( gamma == 0. ) ? 0. : gamma/result.width_in_GeV;
+        
+        result.set_BF(BF, 0.0, out_gambit[i][0], out_gambit[i][1]);
+        
+      }
+      
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+    
+    void CH_Inert_H_minus_decays(DecayTable::Entry& result)
+    {
+      using namespace Pipes::CH_Inert_H_minus_decays;
+      // Clear previous decays
+      result = DecayTable::Entry();
+      
+      str model = "Inert";
+      str in = "hp2"; // In state: CalcHEP particle name
+      std::vector<std::vector<str>> out_calchep = {{"~A0", "Wm"}, {"~H0", "Wm"}, {"h", "Wm"}, {"Wm", "A"}, {"Z", "Wm"}, {"U1", "d1"}, {"U2", "d1"}, {"U3", "d1"}, {"U1", "d2"}, {"U2", "d2"}, {"U3", "d2"}, {"U1", "d3"}, {"U2", "d3"}, {"U3", "d3"}, {"Nu1", "e1"}, {"Nu2", "e1"}, {"Nu3", "e1"}, {"Nu1", "e2"}, {"Nu2", "e2"}, {"Nu3", "e2"}, {"Nu1", "e3"}, {"Nu2", "e3"}, {"Nu3", "e3"}}; // Out states: CalcHEP particle names
+      std::vector<std::vector<str>> out_gambit = {{"A0", "W-"}, {"h0_2", "W-"}, {"h0_1", "W-"}, {"W-", "gamma"}, {"Z0", "W-"}, {"ubar_1", "d_1"}, {"ubar_2", "d_1"}, {"ubar_3", "d_1"}, {"ubar_1", "d_2"}, {"ubar_2", "d_2"}, {"ubar_3", "d_2"}, {"ubar_1", "d_3"}, {"ubar_2", "d_3"}, {"ubar_3", "d_3"}, {"nubar_1", "e-_1"}, {"nubar_2", "e-_1"}, {"nubar_3", "e-_1"}, {"nubar_1", "e-_2"}, {"nubar_2", "e-_2"}, {"nubar_3", "e-_2"}, {"nubar_1", "e-_3"}, {"nubar_2", "e-_3"}, {"nubar_3", "e-_3"}}; // Out states: GAMBIT particle names
+      
+      for (unsigned int i=0; i<out_calchep.size(); i++)
+      {
+        
+        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]); // Partial width
+        double newwidth = result.width_in_GeV + gamma;  // Adjust total width
+        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs
+        result.width_in_GeV = newwidth;
+        
+        for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+        {
+          it->second.first  *= wscaling; // rescale BF 
+          it->second.second *= wscaling; // rescale error on BF 
+        }
+        
+        // Avoid NaNs!
+        double BF = ( gamma == 0. ) ? 0. : gamma/result.width_in_GeV;
+        
+        result.set_BF(BF, 0.0, out_gambit[i][0], out_gambit[i][1]);
+        
+      }
+      
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+    
+    
+    /// Get all the decays from SPheno (for the Inert model).
+    void all_Inert_decays_from_SPheno(DecayTable& decays)
+    {
+      namespace myPipe = Pipes::all_Inert_decays_from_SPheno;
+      
+      // Get the spectrum object
+      Spectrum spectrum = *myPipe::Dep::Inert_spectrum;
+      
+      // Set up the input structure
+      Finputs inputs;
+      inputs.param = myPipe::Param;
+      inputs.options = myPipe::runOptions;
+      
+      // Use SPheno to fill the decay table
+      myPipe::BEreq::SARAHSPheno_Inert_decays(spectrum, decays, inputs);
+      
+      // Add some SM decays
+      decays("Z0") = *myPipe::Dep::Z_decay_rates;           // Add the Z decays
+      decays("W+") = *myPipe::Dep::W_plus_decay_rates;      // Add the W decays for W+.
+      decays("W-") = *myPipe::Dep::W_minus_decay_rates;     // Add the W decays for W-
+      
+      /// Spit out the full decay table as an SLHA2 file.
+      /// We do not provide SLHA1 as that requires knowledge of the pseudonyms, which we do not have in general.
+      if (myPipe::runOptions->getValueOrDef<bool>(false, "drop_SLHA_file"))
+      {
+        str prefix   = myPipe::runOptions->getValueOrDef<str>("", "SLHA_output_prefix");
+        str filename = myPipe::runOptions->getValueOrDef<str>("GAMBIT_decays", "SLHA_output_filename");
+        decays.writeSLHAfile(2,prefix+filename+".slha2",false);
+      }
+      
+    }
+    
 
     /// Collect all the DecayTable entries into an actual DecayTable
     void all_decays (DecayTable &decays)
@@ -4126,6 +4336,12 @@ namespace Gambit
       decays("rho+") = *Dep::rho_plus_decay_rates;  // Add the rho+ decays.
       decays("rho-") = *Dep::rho_minus_decay_rates; // Add the rho- decays.
       decays("omega") = *Dep::omega_decay_rates;    // Add the omega meson decays.
+      
+      // Inert-specific
+      if (ModelInUse("Inert"))
+      {
+        decays("H-") = *Dep::H_minus_decay_rates;
+      }
 
       if (ModelInUse("SubGeVDM_scalar") or ModelInUse("SubGeVDM_fermion"))
       {
