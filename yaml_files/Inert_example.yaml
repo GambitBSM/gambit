@@ -8,6 +8,7 @@ Parameters:
     Lam3: {prior_type: flat, range: [-1.0, 1.0]}
     Lam4: {prior_type: flat, range: [-1.0, 0.0]}
     Lam5: {prior_type: flat, range: [-1.0, 1.0]}
+    mHu2: {prior_type: flat, range: [0, 500000]}
 
 Printer:
   printer: cout
