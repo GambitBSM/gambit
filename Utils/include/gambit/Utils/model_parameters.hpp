@@ -25,7 +25,7 @@
 ///                   from this class at the moment; 
 ///                   incorporated the proper error 
 ///                   handling system; put class 
-///                   definitions into a seperate source file.
+///                   definitions into a separate source file.
 ///  \date 2015 Aug:  Added copy_parameters_from function
 ///  \date 2019 Jul:  
 ///

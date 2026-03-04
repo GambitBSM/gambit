@@ -180,7 +180,7 @@ namespace Gambit
       }
       if (debug) print_matrix(M_cor_cov,"Covariance Matrix:");
 
-      // Construct the the measurement vector
+      // Construct the measurement vector
       M_measurements= boost::numeric::ublas::matrix<double> (number_measurements,1);
       for(int i=0; i<number_measurements;++i)
       {

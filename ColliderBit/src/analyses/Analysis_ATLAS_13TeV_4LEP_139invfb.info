@@ -1,0 +1,11 @@
+Summary: ATLAS >4-lepton SUSY search at 13 TeV with 139/fb
+InspireID: 1852821
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: [">=4L + 0B + 2Z + MET", ">=4L + 2Z + MET", ">=4L + 0B + 0Z", ">=4L + >=1B + 0Z",
+            "3L + >=1TL + 0B", "3L + >=1TL + >=1B",
+            "2L + >=2TL + 0B + 0Z", "2L + >=2TL + >=1B + 0Z",
+            ">=5L"]
+Keywords: ["leptons"]
+Authors: ["Anders Kvellestad", "Victor Ananyev"]
