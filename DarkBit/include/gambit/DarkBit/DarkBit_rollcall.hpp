@@ -280,7 +280,7 @@ START_MODULE
 
     /// General Boltzmann solver from DarkSUSY, using arbitrary Weff
     #define FUNCTION RD_oh2_DS_general
-      START_FUNCTION(double)
+      START_FUNCTION_EMULATABLE(double)
       DEPENDENCY(RD_spectrum_ordered, RD_spectrum_type)
       DEPENDENCY(RD_eff_annrate, fptr_dd)
       //#ifdef DARKBIT_RD_DEBUG
@@ -296,6 +296,29 @@ START_MODULE
         ACTIVATE_FOR_BACKEND(dsrdens, DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5)
         ACTIVATE_FOR_BACKEND(dsrdens, DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5)
       #undef CONDITIONAL_DEPENDENCY
+      #define CONDITIONAL_DEPENDENCY RD_oh2_DS6_ini
+        START_CONDITIONAL_DEPENDENCY(int)
+        ACTIVATE_FOR_BACKEND(dsrdens, DarkSUSY_MSSM, 6.4.0)
+        ACTIVATE_FOR_BACKEND(dsrdens, DarkSUSY_generic_wimp, 6.4.0)
+      #undef CONDITIONAL_DEPENDENCY
+      #define CONDITIONAL_DEPENDENCY ScalarSingletDM_Z2_spectrum
+        START_CONDITIONAL_DEPENDENCY(Spectrum)
+        ACTIVATE_FOR_MODEL(ScalarSingletDM_Z2)
+      #undef CONDITIONAL_DEPENDENCY
+    #undef FUNCTION
+
+    /// Emulatable version of RD_oh2_DS_general for ScalarSingletDM_Z2
+    #define FUNCTION RD_oh2_ScalarSingletDM_Z2_emulatable
+      START_FUNCTION_EMULATABLE(double)
+      ALLOW_MODEL(ScalarSingletDM_Z2)
+      DEPENDENCY(ScalarSingletDM_Z2_spectrum, Spectrum)
+      DEPENDENCY(RD_spectrum_ordered, RD_spectrum_type)
+      DEPENDENCY(RD_eff_annrate, fptr_dd)
+      BACKEND_REQ(dsrdstart, (ds6), void, (int&, double(&)[1000], double(&)[1000], int&, double(&)[1000], double(&)[1000], int&, double(&)[1000]))
+      BACKEND_REQ(dsrdens, (ds6), void, (double(*)(double&), double&, double&, int&, int&, int&))
+      BACKEND_OPTION((DarkSUSY_MSSM), (ds6))
+      BACKEND_OPTION((DarkSUSY_generic_wimp), (ds6))
+      FORCE_SAME_BACKEND(ds6)
       #define CONDITIONAL_DEPENDENCY RD_oh2_DS6_ini
         START_CONDITIONAL_DEPENDENCY(int)
         ACTIVATE_FOR_BACKEND(dsrdens, DarkSUSY_MSSM, 6.4.0)

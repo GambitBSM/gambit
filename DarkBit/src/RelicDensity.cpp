@@ -26,6 +26,9 @@
 #include "gambit/DarkBit/DarkBit_utils.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/interp_collection.hpp"
+#include "gambit/ScannerBit/emulator_utils.hpp"
+#include "gambit/Core/emu_map.hpp"
+#include "gambit/Elements/emulator_functions.hpp"
 
 
 namespace Gambit
@@ -851,6 +854,50 @@ namespace Gambit
 
 
 
+
+    // =========================================================================
+    // Emulator translate functions for RD_oh2_DS_general
+    // =========================================================================
+
+    /// TranslateInput: extract model parameters into the emulator input vector.
+    /// For ScalarSingletDM_Z2 uses (mS, lambda_hS); falls back to DM mass only
+    /// for other models.
+    void RD_oh2_DS_general_EmulatorTranslateInput(std::vector<double>& input)
+    {
+      using namespace Pipes::RD_oh2_DS_general;
+      if (Dep::ScalarSingletDM_Z2_spectrum.active())
+      {
+        const Spectrum& spec = *Dep::ScalarSingletDM_Z2_spectrum;
+        double mS        = spec.get(Par::Pole_Mass, "S");
+        double lambda_hS = spec.get_HE().get(Par::dimensionless, "lambda_hS");
+        input = {mS, lambda_hS};
+      }
+      else
+      {
+        // Generic fallback: use only the DM mass from the RD spectrum
+        double mwimp = (*Dep::RD_spectrum_ordered).coannihilatingParticles[0].mass;
+        input = {mwimp};
+      }
+    }
+
+    /// CheckThreshold: decide if emulator uncertainty is within acceptable limits.
+    bool RD_oh2_DS_general_EmulatorCheckThreshold(str& name, std::vector<double>& uncertainty)
+    {
+      return checkThreshold(name, uncertainty);
+    }
+
+    /// TranslateTarget: pack the actual Omega h^2 result into the training target vector.
+    void RD_oh2_DS_general_EmulatorTranslateTarget(std::vector<double>& target, double& result, std::vector<double>& uncertainty)
+    {
+      target = {result};
+      uncertainty = {0.01};
+    }
+
+    /// TranslatePrediction: unpack emulator prediction back to Omega h^2.
+    void RD_oh2_DS_general_EmulatorTranslatePrediction(std::vector<double>& prediction, double& result)
+    {
+      result = prediction[0];
+    }
 
     /*! \brief General routine for calculation of relic density, using DarkSUSY 6+
      *         Boltzmann solver

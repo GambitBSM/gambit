@@ -36,9 +36,9 @@ namespace Gambit
     void (*TranslateInput)(std::vector<double> &);
     bool (*CheckThreshold)(std::string &, std::vector<double> &);
     // void (*Predict)(std::string &, std::vector<double> &, std::vector<double> &, std::vector<double> &);
-    void (*TranslateTarget)(std::vector<double> &, TYPE &);
+    void (*TranslateTarget)(std::vector<double> &, TYPE &, std::vector<double> &);
     // void (*Train)(std::string &, std::vector<double> &, std::vector<double> &, std::vector<double> &);
-    void (*TranslatePrediction)(std::vector<double> &, TYPE);
+    void (*TranslatePrediction)(std::vector<double> &, TYPE &);
   };
 
 }
@@ -50,8 +50,8 @@ namespace Gambit
 #define DECLARE_EMULATOR_MODULE_FUNCTIONS(FUNCTION, TYPE)                                                                \
   void CAT(FUNCTION,_EmulatorTranslateInput)(std::vector<double> &);                                                     \
   bool CAT(FUNCTION,_EmulatorCheckThreshold)(str &, std::vector<double> &);                                              \
-  void CAT(FUNCTION,_EmulatorTranslateTarget)(std::vector<double> &, TYPE &);                                            \
-  void CAT(FUNCTION,_EmulatorTranslatePrediction)(std::vector<double> &, TYPE);                                          \
+  void CAT(FUNCTION,_EmulatorTranslateTarget)(std::vector<double> &, TYPE &, std::vector<double> &);                     \
+  void CAT(FUNCTION,_EmulatorTranslatePrediction)(std::vector<double> &, TYPE &);                                          \
                                                                                                                          \
   Gambit::emulator_required_function_ptrs<TYPE> CAT(FUNCTION,emu_ptrs) = {                                               \
     &CAT(FUNCTION,_EmulatorTranslateInput),                                                                              \

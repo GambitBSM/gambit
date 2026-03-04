@@ -384,15 +384,15 @@ Scanner:
 
 ObsLikes:
 
-  - purpose:      LogLike
-    capability:   normaldist_loglike
-    module:       ExampleBit_A
-    type:         double
-
   # - purpose:      LogLike
-  #   capability:   Example_lnL_A
+  #   capability:   normaldist_loglike
   #   module:       ExampleBit_A
   #   type:         double
+
+  - purpose:      LogLike
+    capability:   Example_lnL_A
+    module:       ExampleBit_A
+    type:         double
 
   #- purpose:      Observable
   #  capability:   normaldist_loglike
@@ -403,8 +403,8 @@ ObsLikes:
 Emulation:
 
   use_emulator: 
-  - LogLike
-  # - nevents
+  # - LogLike
+  - nevents_pred
 
   emulators:
     LogLike: 
@@ -426,7 +426,7 @@ Emulation:
       pre_trained_path: /home/ida-marie-johansson/Physics/gambit_emu/runs/spartan/emulator_plugins/pygptreeo_model1.joblib
 
 
-    nevents: 
+    nevents_pred: 
       plugin: emutest
       train: true
       predict: true
@@ -458,19 +458,19 @@ Emulation:
 
 Rules:
 
-  - if:
-      capability: normaldist_loglike
-    then:
-      options:
-        probability_of_validity: 1.0
-        use_emulator: plugin_1
-
   # - if:
-  #     capability: xsection
-  #     type: double
+  #     capability: normaldist_loglike
   #   then:
-  #     module: ExampleBit_A
-  #     function: test_sigma
+  #     options:
+  #       probability_of_validity: 1.0
+  #       use_emulator: plugin_1
+
+  - if:
+      capability: xsection
+      type: double
+    then:
+      module: ExampleBit_A
+      function: test_sigma
 
 Logger:
 

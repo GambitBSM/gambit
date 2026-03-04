@@ -147,6 +147,7 @@ Ander's awesome gp emulator
     
     # predict for x
     def predict(self, x, flag):
+        print("predict: ", x)
         if self.prediction_enabled:
             if self.mpi_size == 1 or self.mpi_rank == 0:
                 flag.result = True
@@ -162,7 +163,8 @@ Ander's awesome gp emulator
                 X_test = x.reshape(1,-1)
                 try:
                     y_pred, y_std = self.gpt.predict(X_test)
-                    return (y_pred[0], y_std[0])
+                    print("output: ",y_pred[0], y_std[0])
+                    return ( y_pred[0], y_std[0])
                 except FloatingPointError as e:
                     print("Caught numerical issue:", e)
                     flag.notvalid = True

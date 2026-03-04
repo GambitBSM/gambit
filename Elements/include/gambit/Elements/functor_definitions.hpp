@@ -157,25 +157,26 @@ namespace Gambit
             if (myEmulatorPointers != nullptr)
             {
               str mytest = "QUICK DEBUGGING TEST";
-              std::vector<double> mytest_vec = {3.14};
-              std::vector<double> mytest_pred;
-              std::vector<double> mytest_unc;
+              std::vector<double> input_vector;
+              std::vector<double> prediction_vector;
+              std::vector<double> prediction_uncertainty_vector;
+              std::vector<double> target_vector, target_uncertainty_vector;
               std::cout << "in emu: " << name() << std::endl;
 
-              this->myEmulatorPointers->TranslateInput(mytest_vec);
-              emulatorPredict(name(), mytest_vec, mytest_pred, mytest_unc);
-              bool mycheck = this->myEmulatorPointers->CheckThreshold(mytest, mytest_unc);
+              this->myEmulatorPointers->TranslateInput(input_vector);
+              emulatorPredict(name(), input_vector, prediction_vector, prediction_uncertainty_vector);
+              str myname = name();
+              bool mycheck = this->myEmulatorPointers->CheckThreshold(myname, prediction_uncertainty_vector);
               if (mycheck) 
               {
                 std::cout << "mycheck is true!\n";
-                this->myEmulatorPointers->TranslatePrediction(mytest_pred, myValue[thread_num]);
-                // this->myFunction(myValue[thread_num],was_emulated=true);// Do we need this?
+                this->myEmulatorPointers->TranslatePrediction(prediction_vector, myValue[thread_num]);
               } 
               else
               {
                 this->myFunction(myValue[thread_num]);
-                this->myEmulatorPointers->TranslateTarget(mytest_vec, myValue[thread_num]);
-                emulatorTrain(name(), mytest_vec, mytest_vec, mytest_vec);
+                this->myEmulatorPointers->TranslateTarget(target_vector, myValue[thread_num], target_uncertainty_vector);
+                emulatorTrain(name(), input_vector, target_vector, target_uncertainty_vector);
               }
             }
             else { this->myFunction(myValue[thread_num]); }

@@ -27,6 +27,10 @@
 #include "gambit/Utils/ascii_table_reader.hpp"
 #include "boost/make_shared.hpp"
 #include "gambit/DarkBit/DarkBit_utils.hpp"
+#include "gambit/Utils/mpiwrapper.hpp"
+#include "gambit/ScannerBit/emulator_utils.hpp"
+#include "gambit/Core/emu_map.hpp"
+#include "gambit/Elements/emulator_functions.hpp"
 
 namespace Gambit
 {
@@ -672,6 +676,109 @@ namespace Gambit
       result = catalog;
     } // function TH_ProcessCatalog_ScalarSingletDM_Z3
 
+
+    // =========================================================================
+    // Emulatable relic density calculation for ScalarSingletDM_Z2
+    // =========================================================================
+
+    /// TranslateInput: extract (mS, lambda_hS) into the emulator input vector
+    void RD_oh2_ScalarSingletDM_Z2_emulatable_EmulatorTranslateInput(std::vector<double>& input)
+    {
+      std::cout << "In emulator translate input "  << std::endl;
+      using namespace Pipes::RD_oh2_ScalarSingletDM_Z2_emulatable;
+      const Spectrum& spec = *Dep::ScalarSingletDM_Z2_spectrum;
+      const SubSpectrum& he = spec.get_HE();
+      double mS        = spec.get(Par::Pole_Mass, "S");
+      double lambda_hS = he.get(Par::dimensionless, "lambda_hS");
+      input = {mS, lambda_hS};
+      std::cout << "Out emulator translate input "  << std::endl;
+    }
+
+    /// CheckThreshold: decide if emulator uncertainty is within acceptable limits
+    bool RD_oh2_ScalarSingletDM_Z2_emulatable_EmulatorCheckThreshold(str& name, std::vector<double>& uncertainty)
+    {
+      std::cout << "In check treshold "  << std::endl;
+      return checkThreshold(name, uncertainty);
+    }
+
+    /// TranslateTarget: pack the actual Omega h^2 result into the training target vector
+    void RD_oh2_ScalarSingletDM_Z2_emulatable_EmulatorTranslateTarget(std::vector<double>& target, double& result, std::vector<double>& uncertainty)
+    {
+      std::cout << "In emulator translate output "  << std::endl;
+      target = {result};
+      uncertainty = {0.01};
+    }
+
+    /// TranslatePrediction: unpack emulator prediction back to Omega h^2
+    void RD_oh2_ScalarSingletDM_Z2_emulatable_EmulatorTranslatePrediction(std::vector<double>& prediction, double& result)
+    {
+      std::cout << "In emulator translate prediction "  << std::endl;
+      result = prediction[0];
+    }
+
+    /// Emulatable Boltzmann solver for ScalarSingletDM_Z2 relic density.
+    /// Function body is identical to RD_oh2_DS_general; the emulator intercepts
+    /// before this runs (via TranslateInput / CheckThreshold in functor_definitions.hpp).
+    void RD_oh2_ScalarSingletDM_Z2_emulatable(double& result)
+    {
+      using namespace Pipes::RD_oh2_ScalarSingletDM_Z2_emulatable;
+
+      // Retrieve ordered list of resonances and thresholds
+      RD_spectrum_type myRDspec = *Dep::RD_spectrum_ordered;
+      if (myRDspec.coannihilatingParticles.empty())
+      {
+        DarkBit_error().raise(LOCAL_INFO, "RD_oh2_ScalarSingletDM_Z2_emulatable: No DM particle!");
+      }
+      double mwimp = myRDspec.coannihilatingParticles[0].mass;
+
+      // Transfer RD spectrum info to DarkSUSY common blocks
+      int tnco  = myRDspec.coannihilatingParticles.size();
+      int tnrs  = myRDspec.resonances.size();
+      int tnthr = myRDspec.threshold_energy.size();
+      double tmco[1000], tdof[1000], trm[1000], trw[1000], ttm[1000];
+      for (std::size_t i = 0; i < (unsigned int)tnco; i++)
+      {
+        tmco[i] = myRDspec.coannihilatingParticles[i].mass;
+        tdof[i] = myRDspec.coannihilatingParticles[i].degreesOfFreedom;
+      }
+      for (std::size_t i = 0; i < (unsigned int)tnrs; i++)
+      {
+        trm[i] = myRDspec.resonances[i].energy;
+        trw[i] = myRDspec.resonances[i].width;
+      }
+      // DS does not count 2*mwimp as a threshold, so start at i=1
+      tnthr -= tnthr;
+      for (std::size_t i = 1; i < (unsigned int)tnthr + 1; i++)
+      {
+        ttm[i] = myRDspec.threshold_energy[i];
+      }
+      BEreq::dsrdstart(tnco, tmco, tdof, tnrs, trm, trw, tnthr, ttm);
+
+      // Sanity check: invariant rate must be non-NaN at least one point
+      double peff = mwimp / 100;
+      double weff = (*Dep::RD_eff_annrate)(peff);
+      if (Utils::isnan(weff))
+        DarkBit_error().raise(LOCAL_INFO, "Weff is NaN in RD_oh2_ScalarSingletDM_Z2_emulatable.");
+
+      // Run DarkSUSY Boltzmann solver
+      double oh2, xf;
+      int ierr = 0, iwar = 0, fast = 20;
+      if (Dep::RD_oh2_DS6_ini.active()) fast = *Dep::RD_oh2_DS6_ini;
+
+      BEreq::dsrdens(byVal(*Dep::RD_eff_annrate), oh2, xf, fast, ierr, iwar);
+
+      if (Utils::isnan(oh2))
+        DarkBit_error().raise(LOCAL_INFO, "DarkSUSY returned NaN for relic density!");
+      if (ierr == 1024)
+        invalid_point().raise("DarkSUSY invariant rate tabulation timed out.");
+      else if (ierr != 0)
+        DarkBit_error().raise(LOCAL_INFO, "DarkSUSY Boltzmann solver failed.");
+
+      result = (myRDspec.isSelfConj) ? oh2 : 2 * oh2;
+
+      logger() << LogTags::debug << "RD_oh2_ScalarSingletDM_Z2_emulatable: oh2 = " << result << EOM;
+
+    } // function RD_oh2_ScalarSingletDM_Z2_emulatable
 
 
   }

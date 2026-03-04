@@ -91,12 +91,14 @@ namespace Gambit
       return false;
     }
 
-    void nevents_pred_EmulatorTranslateTarget(std::vector<double> & target, double & result)
+    void nevents_pred_EmulatorTranslateTarget(std::vector<double> & target, double & result, std::vector<double> & uncertainty)
     {
       std::cout << "HEY DEBUGGER. Inside nevents_pred_EmulatorTranslateTarget function..." << std::endl;
+      target = {result};
+      uncertainty = {0.01};
     }
 
-    void nevents_pred_EmulatorTranslatePrediction(std::vector<double> & prediction, double result)
+    void nevents_pred_EmulatorTranslatePrediction(std::vector<double> & prediction, double & result)
     {
       std::cout << "HEY DEBUGGER. Inside nevents_pred_EmulatorTranslatePrediction function..." << std::endl;
     }
