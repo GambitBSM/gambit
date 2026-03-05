@@ -193,6 +193,11 @@ int main(int argc, char* argv[])
       rank = scanComm.Get_rank();
       size = scanComm.Get_size();
 
+      // Expose the GAMBIT-only communicator so that printers can use it
+      // instead of MPI_COMM_WORLD for their collective operations, avoiding
+      // deadlocks when EGG emulator processes are present.
+      GMPI::gambit_printer_comm = &scanComm;
+
      #else
       int rank = 0;
       //int size = 0; // Unused if not WITH_MPI

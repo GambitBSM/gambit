@@ -1449,8 +1449,21 @@ namespace Gambit
         else
         {
 #ifdef WITH_MPI
-            // Create a new MPI context for use by this printer
-            myComm.dup(MPI_COMM_WORLD,"HDF5Printer2Comm"); // duplicates MPI_COMM_WORLD
+            // Create a new MPI context for use by this printer.
+            // If a GAMBIT-only communicator has been registered (i.e. we are running
+            // alongside EGG emulator processes), dup from that instead of MPI_COMM_WORLD.
+            // MPI_Comm_dup is collective on its source communicator; dupping from
+            // MPI_COMM_WORLD would deadlock because EGG ranks never call it.
+            if (GMPI::gambit_printer_comm != nullptr)
+              myComm.dup(*GMPI::gambit_printer_comm->get_boundcomm(), "HDF5Printer2Comm");
+            else
+              myComm.dup(MPI_COMM_WORLD,"HDF5Printer2Comm"); // duplicates MPI_COMM_WORLD
+            // Update rank and size to reflect the dup'd communicator.
+            // (They were initialised from MPI_COMM_WORLD above, which includes EGG
+            // emulator processes and therefore gives the wrong size/rank.)
+            myRank  = myComm.Get_rank();
+            mpiSize = myComm.Get_size();
+            this->setRank(myRank);
 #endif
             // This is the primary printer. Need to determine resume status
             set_resume(options.getValue<bool>("resume"));
@@ -2496,10 +2509,14 @@ namespace Gambit
 
         for(std::size_t i=0; i<groups.size(); i++)
         {
-            // Create new communicator group for the Gather
+            // Create new communicator group for the Gather.
+            // Use myComm (the printer's GAMBIT-only communicator) as the parent so
+            // that only GAMBIT processes need to participate in MPI_Comm_create.
+            // Using MPI_COMM_WORLD as parent would require EGG emulator processes to
+            // also call MPI_Comm_create, which they never do, causing a deadlock.
             std::stringstream ss;
             ss<<"Gather group "<<i;
-            GMPI::Comm subComm(groups.at(i),ss.str());
+            GMPI::Comm subComm(groups.at(i),ss.str(),*myComm.get_boundcomm());
 
             // Gather the buffer data from this group of processes to rank 0
 

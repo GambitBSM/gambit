@@ -92,6 +92,29 @@ namespace Gambit
          }
       }
 
+      /// Create a subgroup communicator from a given parent communicator.
+      /// Only the processes belonging to parent need to call this — unlike the
+      /// WORLD-based constructor which requires every MPI_COMM_WORLD rank to participate.
+      Comm::Comm(std::vector<int> processes, const std::string& name, const MPI_Comm& parent)
+         : boundcomm(), myname(name)
+      {
+         // Create group from the parent communicator (not WORLD)
+         MPI_Group group_parent, new_group;
+         MPI_Comm_group(parent, &group_parent);
+         MPI_Group_incl(group_parent, processes.size(), &processes[0], &new_group);
+
+         // Create new communicator — collective only on 'parent' processes
+         int errflag = MPI_Comm_create(parent, new_group, &boundcomm);
+
+         // Check for error
+         if(errflag!=0)
+         {
+           std::ostringstream errmsg;
+           errmsg << "Error performing MPI_Comm_create (parent-based) while attempting to create a new communicator group! Received error flag: "<<errflag;
+           utils_error().raise(LOCAL_INFO, errmsg.str());
+         }
+      }
+
       /// Duplicate input communicator into boundcomm
       /// (creates new context)
       /// NOTE! MPI_Comm_dup is a COLLECTIVE call, so all processes

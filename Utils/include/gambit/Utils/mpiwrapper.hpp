@@ -181,6 +181,12 @@ namespace Gambit
             /// only the specified processes
             Comm(std::vector<int> processes, const std::string& name);
 
+            /// Constructor which creates a communicator subgroup from a given parent
+            /// communicator containing only the specified processes.
+            /// Only processes in the parent communicator need to call this (unlike the
+            /// WORLD-based version which requires all WORLD processes to participate).
+            Comm(std::vector<int> processes, const std::string& name, const MPI_Comm& parent);
+
             /// Destructor
             ~Comm();
 
@@ -693,6 +699,12 @@ namespace Gambit
             /// The process ID of the master process (rank 0)
             static long int pid;
       };
+
+      /// Pointer to a GAMBIT-only communicator (excludes emulator/EGG processes).
+      /// Set in gambit.cpp after scanComm is constructed, before printer initialisation.
+      /// Printers should dup from this instead of MPI_COMM_WORLD when it is non-null,
+      /// so that their collective operations do not require the EGG ranks to participate.
+      inline Comm* gambit_printer_comm = nullptr;
 
       /// Check if MPI_Init has been called (it is an error to call it twice)
       EXPORT_SYMBOLS bool Is_initialized();

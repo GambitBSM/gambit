@@ -359,7 +359,14 @@ namespace Gambit
 
         // Set up communicator context for HDF5 printer system
 #ifdef WITH_MPI
-        myComm.dup(MPI_COMM_WORLD,"HDF5printerComm"); // duplicates MPI_COMM_WORLD
+        // If a GAMBIT-only communicator has been registered (i.e. we are running
+        // alongside EGG emulator processes), dup from that instead of MPI_COMM_WORLD.
+        // MPI_Comm_dup is collective on its source communicator; dupping from
+        // MPI_COMM_WORLD would deadlock because EGG ranks never call it.
+        if (GMPI::gambit_printer_comm != nullptr)
+          myComm.dup(*GMPI::gambit_printer_comm->get_boundcomm(), "HDF5printerComm");
+        else
+          myComm.dup(MPI_COMM_WORLD,"HDF5printerComm"); // duplicates MPI_COMM_WORLD
         mpiSize = myComm.Get_size();
 #endif
 
