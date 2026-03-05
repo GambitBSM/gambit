@@ -172,6 +172,8 @@ namespace Gambit
       void setVertexID(int);
       /// Set ID for timing 'vertex' (used in printer system)
       void setTimingVertexID(int);
+      /// Set ID for emulator 'vertex' (used in printer system)
+      void setEmulatorVertexID(int);
       /// Getter for the wrapped function's name
       str name() const;
       /// Getter for the wrapped function's reported capability
@@ -208,10 +210,14 @@ namespace Gambit
       int vertexID() const;
       /// Getter for timing vertex ID
       int timingVertexID() const;
+      /// Getter for emulator vertex ID
+      int emulatorVertexID() const;
       /// Getter for string label
       str label() const;
       /// Getter for the printer timing label
       str timingLabel() const;
+      /// Getter for the printer emulator label
+      str emulatorLabel() const;
       /// Getter indicating if the wrapped function's result should to be printed
       virtual bool requiresPrinting() const;
 
@@ -220,6 +226,12 @@ namespace Gambit
 
       /// Setter for indicating if the wrapped function's result should to be printed
       virtual void setPrintRequirement(bool);
+
+      /// Setter for indicating whether to print which points were emulated
+      virtual void setEmulatorPrintRequirement(bool flag);
+
+      /// Getter indicating whether to print which points were emulated
+      virtual bool EmulatorrequiresPrinting() const;
 
       /// Setter for indicating if the timing data for this function's execution should be printed
       virtual void setTimingPrintRequirement(bool);
@@ -426,6 +438,8 @@ namespace Gambit
       const str myLabel;
       /// String label, used to label functor timing data for printer system
       const str myTimingLabel;
+      /// String label, used to label emulator isemulated data for printer system
+      const str myEmulatorLabel;
       /// Status:
       FunctorStatus myStatus;
 
@@ -433,6 +447,8 @@ namespace Gambit
       int myVertexID;
       /// ID assigned by printers to the timing data output stream
       int myTimingVertexID;
+      /// ID assigned by printers to the emulator isemulated output stream
+      int myEmulatorVertexID;
       /// Debug flag
       bool verbose;
 
@@ -866,6 +882,12 @@ namespace Gambit
       /// Getter indicating if the wrapped function's result should to be printed
       virtual bool requiresPrinting() const;
 
+      /// Setter for indicating whether to print which points were emulated
+      virtual void setEmulatorPrintRequirement(bool flag);
+
+      /// Getter indicating whether to print which points were emulated
+      virtual bool EmulatorrequiresPrinting() const;
+
       /// Calculate method
       void calculate();
 
@@ -894,6 +916,10 @@ namespace Gambit
 
       /// Flag to select whether or not the results of this functor should be sent to the printer object.
       bool myPrintFlag;
+      
+      /// Flags to select whether or not a point was emulated or not, and whether to print this
+      bool emulated_pt;
+      bool myEmulatorPrintFlag;
 
       /// Initialise the memory of this functor.
       virtual void init_memory();

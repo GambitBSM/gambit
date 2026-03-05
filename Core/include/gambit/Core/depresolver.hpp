@@ -84,11 +84,12 @@ namespace Gambit
     struct QueueEntry
     {
       QueueEntry();
-      QueueEntry(sspair a, VertexID b, int c, bool d);
+      QueueEntry(sspair a, VertexID b, int c, bool d, bool e);
       sspair quantity;
       VertexID toVertex;
       int dependency_type;
       bool printme;
+      bool printisemulated;
       bool critical;
       const Observable* obslike;
     };

@@ -93,11 +93,12 @@ namespace Gambit
     {}
 
     /// Alternative constructor for QueueEntry
-    QueueEntry::QueueEntry(sspair a, VertexID b, int c, bool d)
+    QueueEntry::QueueEntry(sspair a, VertexID b, int c, bool d, bool e)
     : quantity(a),
       toVertex(b),
       dependency_type(c),
       printme(d),
+      printisemulated(e),
       obslike(NULL)
     {}
 
@@ -262,6 +263,7 @@ namespace Gambit
         target.quantity.second = obslike.type;
         target.obslike = &obslike;
         target.printme = obslike.printme;
+        target.printisemulated = obslike.printisemulated;
         target.critical = obslike.critical;
         resolutionQueue.push(target);
       }
@@ -908,6 +910,9 @@ namespace Gambit
         // Same for timing output ID, but get ID number from printer system
         std::string timing_label = masterGraph[*vi]->timingLabel();
         masterGraph[*vi]->setTimingVertexID(Printers::get_param_id(timing_label));
+        // Same for emulator isemulated output ID
+        std::string emulator_label = masterGraph[*vi]->emulatorLabel();
+        masterGraph[*vi]->setEmulatorVertexID(Printers::get_param_id(emulator_label));
 
         // Check for non-void type and whether functor is active (after the dependency resolution) to print only active, printable functors.
         // TODO: this doesn't currently check for non-void type; that is done at the time of printing in calcObsLike.
@@ -1465,7 +1470,12 @@ namespace Gambit
           #endif
 
           // Check if we wanted to output this observable to the printer system.
-          if (entry.obslike != NULL) masterGraph[fromVertex]->setPrintRequirement(entry.printme);
+          if (entry.obslike != NULL)
+          {
+            masterGraph[fromVertex]->setPrintRequirement(entry.printme);
+            // Check if we wanted to output whether a given point was emulated to the printer system.
+            masterGraph[fromVertex]->setEmulatorPrintRequirement(entry.printisemulated);
+          }
           // Check if the flag to output timing data is set
           if(print_timing) masterGraph[fromVertex]->setTimingPrintRequirement(true);
 
@@ -1621,6 +1631,7 @@ namespace Gambit
     {
       // Set the default printing flag for functors to pass to the resolutionQueue constructor.
       bool printme_default = false;
+      bool printisemulated_default = false;
 
       // Tell the logger what the following messages are about.
       logger() << LogTags::dependency_resolver;
@@ -1632,7 +1643,7 @@ namespace Gambit
       {
         logger() << "Adding module function loop manager to resolution queue:" << endl;
         logger() << lmcap << " ()" << endl;
-        resolutionQueue.push(QueueEntry(sspair(lmcap, lmtype), vertex, LOOP_MANAGER_DEPENDENCY, printme_default));
+        resolutionQueue.push(QueueEntry(sspair(lmcap, lmtype), vertex, LOOP_MANAGER_DEPENDENCY, printme_default, printisemulated_default));
       }
 
       // Digest regular dependencies
@@ -1646,7 +1657,7 @@ namespace Gambit
         if (lmcap == "none" or lmtype == "any" or lmcap != ss.first or lmtype != ss.second)
         {
           logger() << ss.first << " (" << ss.second << ")" << endl;
-          resolutionQueue.push(QueueEntry(ss, vertex, NORMAL_DEPENDENCY, printme_default));
+          resolutionQueue.push(QueueEntry(ss, vertex, NORMAL_DEPENDENCY, printme_default, printisemulated_default));
         }
       }
 

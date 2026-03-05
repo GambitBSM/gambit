@@ -31,6 +31,21 @@ Priors:
 
 Printer:
   printer: cout
+  
+  # printer: hdf5_v1
+  # options:
+  #   output_file: "results.hdf5"
+  #   group: "/data"
+  #   delete_file_on_restart: true
+  #   # buffer_length: 1000
+  #   # disable_autorepair: true
+  
+  # printer: ascii
+  # options:
+  #   output_file: "results.dat"
+  #   buffer_length: 10
+  #   delete_file_on_restart: true
+  #   print_debug_data: true
 
 
 Scanner:
@@ -50,6 +65,7 @@ ObsLikes:
 
   - purpose: Observable
     capability: RD_oh2
+    printisemulated: true
 
 
 Emulation:
@@ -118,4 +134,4 @@ Logger:
 
 KeyValues:
   default_output_path: "runs/DarkBit_emulator_example"
-  debug: false
+  debug: true #false

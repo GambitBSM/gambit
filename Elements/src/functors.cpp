@@ -74,9 +74,11 @@ namespace Gambit
      myClaw          (&claw),
      myLabel         ("#"+func_capability+" @"+origin_name+"::"+func_name),
      myTimingLabel   ("Runtime(ns) for "+myLabel),
+     myEmulatorLabel (myLabel+"_isemulated"),
      myStatus        (FunctorStatus::Model_incompatible),
      myVertexID      (-1),       // (Note: myVertexID = -1 is intended to mean that no vertexID has been assigned)
      myTimingVertexID(-1),       // Not actually a graph vertex; ID assigned by "get_main_param_id" function.
+     myEmulatorVertexID(-1),     // Not actually a graph vertex; ID assigned by "get_main_param_id" function.
      verbose         (false)     // For debugging.
     {}
 
@@ -108,6 +110,9 @@ namespace Gambit
 
     /// Acquire ID for timing 'vertex' (used in printer system)
     void functor::setTimingVertexID(int ID) { myTimingVertexID = ID; }
+
+    /// Acquire ID for emulator 'vertex' (used in printer system)
+    void functor::setEmulatorVertexID(int ID) { myEmulatorVertexID = ID; }
 
     /// Setter for status
     void functor::setStatus(FunctorStatus stat)
@@ -152,14 +157,20 @@ namespace Gambit
     int functor::vertexID()    const { return myVertexID; }
     /// Getter for timing vertex ID
     int functor::timingVertexID() const { return myTimingVertexID; }
+    /// Getter for emulator vertex ID
+    int functor::emulatorVertexID() const { return myEmulatorVertexID; }
     /// Getter indicating if the wrapped function's result should to be printed
     bool functor::requiresPrinting() const { return false; }
+    /// Getter indicating whether to print which points were emulated
+    bool functor::EmulatorrequiresPrinting() const { return false; }
     /// Getter indicating if the timing data for this function's execution should be printed
     bool functor::requiresTimingPrinting() const { return false; }
     /// Getter for the printer label
     str functor::label()       const { return myLabel; }
     /// Getter for the printer timing label
     str functor::timingLabel() const { return myTimingLabel; }
+    /// Getter for the printer emulator label
+    str functor::emulatorLabel() const { return myEmulatorLabel; }
 
     /// Setter for indicating if the wrapped function's result should to be printed
     void functor::setPrintRequirement(bool flag)
@@ -167,6 +178,15 @@ namespace Gambit
       if (flag)
       {
         utils_error().raise(LOCAL_INFO,"The setPrintRequirement method has not been defined in this class.");
+      }
+    }
+
+    /// Setter for indicating if the wrapped function's result should to be printed
+    void functor::setEmulatorPrintRequirement(bool flag)
+    {
+      if (flag)
+      {
+        utils_error().raise(LOCAL_INFO,"The setEmulatorPrintRequirement method has not been defined in this class.");
       }
     }
 

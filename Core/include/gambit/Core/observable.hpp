@@ -65,6 +65,9 @@ namespace Gambit
       /// Instruction to printer as to whether to write result to disk.
       bool printme;
 
+      /// Instruction to printer as to whether whether a given param pt is emulated.
+      bool printisemulated;
+
       /// Allowed to invalidate a point.
       bool critical;
 
@@ -103,6 +106,7 @@ namespace Gambit
         functionChain(),
         subcaps(),
         printme(true),
+        printisemulated(false),
         critical(false),
         log_matches(true),
         include_all(false)

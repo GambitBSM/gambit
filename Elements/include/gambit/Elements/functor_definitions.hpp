@@ -77,9 +77,11 @@ namespace Gambit
                                    Models::ModelFunctorClaw &claw,
                                    emulator_required_function_ptrs<TYPE>* emu_ptrs)
     : module_functor_common(func_name, func_capability, result_type, origin_name, claw),
-      myFunction        (inputFunction),
-      myValue           (NULL),
-      myPrintFlag       (false),
+      myFunction          (inputFunction),
+      myValue             (NULL),
+      myPrintFlag         (false),
+      emulated_pt         (false),
+      myEmulatorPrintFlag (false),
       myEmulatorPointers  (emu_ptrs)
     {}
 
@@ -97,6 +99,14 @@ namespace Gambit
     /// Getter indicating if the wrapped function's result should be printed
     template <typename TYPE>
     bool module_functor<TYPE>::requiresPrinting() const { return myPrintFlag; }
+
+    /// Setter for indicating whether to print which points were emulated
+    template <typename TYPE>
+    void module_functor<TYPE>::setEmulatorPrintRequirement(bool flag) { myEmulatorPrintFlag = flag;}
+
+    /// Getter indicating whether to print which points were emulated
+    template <typename TYPE>
+    bool module_functor<TYPE>::EmulatorrequiresPrinting() const { return myEmulatorPrintFlag; }
 
     /// Calculate method
     /// (no loop-manager stuff here because only void specialisation can manage loops)
@@ -166,8 +176,8 @@ namespace Gambit
               this->myEmulatorPointers->TranslateInput(input_vector);
               emulatorPredict(name(), input_vector, prediction_vector, prediction_uncertainty_vector);
               str myname = name();
-              bool mycheck = this->myEmulatorPointers->CheckThreshold(myname, prediction_uncertainty_vector);
-              if (mycheck) 
+              emulated_pt = this->myEmulatorPointers->CheckThreshold(myname, prediction_uncertainty_vector);
+              if (emulated_pt) 
               {
                 std::cout << "mycheck is true!\n";
                 this->myEmulatorPointers->TranslatePrediction(prediction_vector, myValue[thread_num]);
@@ -179,7 +189,11 @@ namespace Gambit
                 emulatorTrain(name(), input_vector, target_vector, target_uncertainty_vector);
               }
             }
-            else { this->myFunction(myValue[thread_num]); }
+            else
+            {
+              emulated_pt = false;
+              this->myFunction(myValue[thread_num]);
+            }
 // #endif
           // std::cout << origin() << "::" << name() << std::endl;
           // std::cout << "DEBUG: functor " << __LINE__ << std::endl;
@@ -247,6 +261,13 @@ namespace Gambit
                                               // the output of other ranks.
           logger() << LogTags::debug << "Printing "<<myLabel<<" (vID="<<myVertexID<<", rank="<<rank<<", pID="<<pointID<<", type="<<myType<<")" << EOM;
           printer->print(myValue[thread_num],myLabel,myVertexID,rank,pointID);
+          
+          // Print whether a point was emulated
+          if (myEmulatorPrintFlag)
+          {
+            printer->print(emulated_pt, myLabel + std::string("_isemulated"), myEmulatorVertexID, rank, pointID);
+          }
+          
           already_printed[thread_num] = true;
         }
 

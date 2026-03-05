@@ -184,15 +184,16 @@ namespace YAML
     for(auto& entry : node)
     {
       const std::string key = entry.first.as<std::string>(); 
-      if      (key == "purpose")          rhs.purpose        = entry.second.as<std::string>();
-      else if (key == "capability")       rhs.capability     = entry.second.as<std::string>();
-      else if (key == "critical")         rhs.critical       = entry.second.as<bool>();
-      else if (key == "type")             rhs.type           = entry.second.as<std::string>();
-      else if (key == "function")         rhs.function       = entry.second.as<std::string>();
-      else if (key == "module")           rhs.module         = entry.second.as<std::string>();
-      else if (key == "functionChain")    rhs.functionChain  = entry.second.as<std::vector<std::string>>();
-      else if (key == "sub_capabilities") rhs.subcaps        = entry.second;
-      else if (key == "printme")          rhs.printme        = entry.second.as<bool>();
+      if      (key == "purpose")          rhs.purpose          = entry.second.as<std::string>();
+      else if (key == "capability")       rhs.capability       = entry.second.as<std::string>();
+      else if (key == "critical")         rhs.critical         = entry.second.as<bool>();
+      else if (key == "type")             rhs.type             = entry.second.as<std::string>();
+      else if (key == "function")         rhs.function         = entry.second.as<std::string>();
+      else if (key == "module")           rhs.module           = entry.second.as<std::string>();
+      else if (key == "functionChain")    rhs.functionChain    = entry.second.as<std::vector<std::string>>();
+      else if (key == "sub_capabilities") rhs.subcaps          = entry.second;
+      else if (key == "printme")          rhs.printme          = entry.second.as<bool>();
+      else if (key == "printisemulated")  rhs.printisemulated  = entry.second.as<bool>();
       else if (key == "dependencies") for (auto& de : entry.second) convert_to_module_rule(de, rhs.dependencies);
       else if (key == "backends")     for (auto& be : entry.second) convert_to_backend_rule(be, rhs.backends);
       else
