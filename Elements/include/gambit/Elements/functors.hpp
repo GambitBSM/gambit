@@ -740,6 +740,9 @@ namespace Gambit
       /// Has result already been sent to the printer?
       bool* already_printed;
 
+      /// Has isemulated already been sent to the printer?
+      bool* already_printed_isemulated;
+
       /// Has timing data already been sent to the printer?
       bool* already_printed_timing;
 

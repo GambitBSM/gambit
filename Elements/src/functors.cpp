@@ -752,25 +752,26 @@ namespace Gambit
                                                  str result_type,
                                                  str origin_name,
                                                  Models::ModelFunctorClaw &claw)
-    : functor                  (func_name, func_capability, result_type, origin_name, claw),
-      myTimingPrintFlag        (false),
-      start                    (NULL),
-      end                      (NULL),
-      point_exception_raised   (false),
-      runtime_average          (FUNCTORS_RUNTIME_INIT),           // default 1 micro second
-      fadeRate                 (FUNCTORS_FADE_RATE),              // can be set individually for each functor
-      pInvalidation            (FUNCTORS_BASE_INVALIDATION_RATE),
-      needs_recalculating      (NULL),
-      already_printed          (NULL),
-      already_printed_timing   (NULL),
-      iCanManageLoops          (false),
-      iRunNested               (false),
-      myLoopManagerCapability  ("none"),
-      myLoopManagerType        ("none"),
-      myLoopManager            (NULL),
-      myCurrentIteration       (NULL),
-      globlMaxThreads          (omp_get_max_threads()),
-      myLogTag                 (-1)
+    : functor                      (func_name, func_capability, result_type, origin_name, claw),
+      myTimingPrintFlag            (false),
+      start                        (NULL),
+      end                          (NULL),
+      point_exception_raised       (false),
+      runtime_average              (FUNCTORS_RUNTIME_INIT),           // default 1 micro second
+      fadeRate                     (FUNCTORS_FADE_RATE),              // can be set individually for each functor
+      pInvalidation                (FUNCTORS_BASE_INVALIDATION_RATE),
+      needs_recalculating          (NULL),
+      already_printed              (NULL),
+      already_printed_isemulated   (NULL),
+      already_printed_timing       (NULL),
+      iCanManageLoops              (false),
+      iRunNested                   (false),
+      myLoopManagerCapability      ("none"),
+      myLoopManagerType            ("none"),
+      myLoopManager                (NULL),
+      myCurrentIteration           (NULL),
+      globlMaxThreads              (omp_get_max_threads()),
+      myLogTag                     (-1)
     {
       if (globlMaxThreads == 0) utils_error().raise(LOCAL_INFO,"Cannot determine number of hardware threads available on this system.");
       // Determine LogTag number
@@ -781,12 +782,13 @@ namespace Gambit
     /// Destructor
     module_functor_common::~module_functor_common()
     {
-      if (start != NULL)                  delete [] start;
-      if (end != NULL)                    delete [] end;
-      if (needs_recalculating != NULL)    delete [] needs_recalculating;
-      if (already_printed != NULL)        delete [] already_printed;
-      if (already_printed_timing != NULL) delete [] already_printed_timing;
-      if (myCurrentIteration != NULL)     delete [] myCurrentIteration;
+      if (start != NULL)                      delete [] start;
+      if (end != NULL)                        delete [] end;
+      if (needs_recalculating != NULL)        delete [] needs_recalculating;
+      if (already_printed != NULL)            delete [] already_printed;
+      if (already_printed_isemulated != NULL) delete [] already_printed_isemulated;
+      if (already_printed_timing != NULL)     delete [] already_printed_timing;
+      if (myCurrentIteration != NULL)         delete [] myCurrentIteration;
     }
 
     /// Check if an appropriate LogTag for this functor is missing from the logging system.
@@ -828,6 +830,7 @@ namespace Gambit
       int n = (iRunNested ? globlMaxThreads : 1);
       std::fill(needs_recalculating, needs_recalculating+n, true);
       std::fill(already_printed, already_printed+n, false);
+      std::fill(already_printed_isemulated, already_printed_isemulated+n, false);
       std::fill(already_printed_timing, already_printed_timing+n, false);
       if (iCanManageLoops) resetLoop();
       point_exception_raised = false;
@@ -839,6 +842,7 @@ namespace Gambit
       init_memory();
       needs_recalculating[thread_num] = true;
       already_printed[thread_num] = false;
+      already_printed_isemulated[thread_num] = false;
       already_printed_timing[thread_num] = false;
       if (iCanManageLoops) resetLoop();
     }
@@ -1805,6 +1809,17 @@ namespace Gambit
           {
             already_printed = new bool[n];
             std::fill(already_printed, already_printed+n, false);
+          }
+        }
+      }
+      if(already_printed_isemulated==NULL)
+      {
+        #pragma omp critical(module_functor_common_init_memory_already_printed_isemulated)
+        {
+          if(already_printed_isemulated==NULL)
+          {
+            already_printed_isemulated = new bool[n];
+            std::fill(already_printed_isemulated, already_printed_isemulated+n, false);
           }
         }
       }

@@ -261,14 +261,17 @@ namespace Gambit
                                               // the output of other ranks.
           logger() << LogTags::debug << "Printing "<<myLabel<<" (vID="<<myVertexID<<", rank="<<rank<<", pID="<<pointID<<", type="<<myType<<")" << EOM;
           printer->print(myValue[thread_num],myLabel,myVertexID,rank,pointID);
-          
-          // Print whether a point was emulated
-          if (myEmulatorPrintFlag)
-          {
-            printer->print(emulated_pt, myLabel + std::string("_isemulated"), myEmulatorVertexID, rank, pointID);
-          }
-          
           already_printed[thread_num] = true;
+        }
+
+        // Print whether a point was emulated
+        if (myEmulatorPrintFlag and not already_printed_isemulated[thread_num])
+        {
+          if (not iRunNested) thread_num = 0; // Force printing of thread_num=0 if this functor cannot run nested.
+          int rank = printer->getRank();
+          logger() << LogTags::debug << "Printing "<<myLabel + std::string("_isemulated")<<" (vID="<<myEmulatorVertexID<<", rank="<<rank<<", pID="<<pointID<<")" << EOM;
+          printer->print(emulated_pt, myLabel + std::string("_isemulated"), myEmulatorVertexID, rank, pointID);
+          already_printed_isemulated[thread_num] = true;
         }
 
         // Print timing info if requested (independent of whether printing actual result)
