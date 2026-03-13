@@ -211,7 +211,7 @@ namespace Gambit
           if (e->pT() > 0.5 && e->pT() < 4.5 && e->abseta() < 2.5) preselectedTracks.push_back(e);
         }
 
-        for (const HEPUtils::Particle* mu : event->electrons())
+        for (const HEPUtils::Particle* mu : event->muons())
         {
           if (mu->pT() > 0.5 && mu->pT() < 3.0 && mu->abseta() < 2.5) preselectedTracks.push_back(mu);
         }
@@ -968,17 +968,17 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SR-E-low-combined-8", 9.+44., 18.8+35.9, sqrt(2.2*2.2 + 3.3*3.3))
 
         // SR-E-med observed and background events, from Table 11 of 1911.12606
-        COMMIT_SIGNAL_REGION("SR-E-med-ee-1", 6., 6.2, 1.9)
-        COMMIT_SIGNAL_REGION("SR-E-med-ee-2", 41., 34., 4.)
-        COMMIT_SIGNAL_REGION("SR-E-med-ee-3", 59., 52., 6.)
-        COMMIT_SIGNAL_REGION("SR-E-med-ee-4", 21., 18.5, 3.2)
+        COMMIT_SIGNAL_REGION("SR-E-med-ee-1", 0., 0.11, 0.08)
+        COMMIT_SIGNAL_REGION("SR-E-med-ee-2", 4., 5.1., 1.6.)
+        COMMIT_SIGNAL_REGION("SR-E-med-ee-3", 11., 7.3, 1.9)
+        COMMIT_SIGNAL_REGION("SR-E-med-ee-4", 4., 2.2, 0.9)
 
         COMMIT_SIGNAL_REGION("SR-E-med-mumu-1", 16., 14.6, 2.9)
         COMMIT_SIGNAL_REGION("SR-E-med-mumu-2", 8., 6.9, 2.1)
-        COMMIT_SIGNAL_REGION("SR-E-med-mumu-3", 0., 0.11, 0.08)
-        COMMIT_SIGNAL_REGION("SR-E-med-mumu-4", 4., 5.1, 1.6)
-        COMMIT_SIGNAL_REGION("SR-E-med-mumu-5", 11., 7.3, 1.9)
-        COMMIT_SIGNAL_REGION("SR-E-med-mumu-6", 4., 2.2, 0.9)
+        COMMIT_SIGNAL_REGION("SR-E-med-mumu-3", 6., 6.2, 1.9)
+        COMMIT_SIGNAL_REGION("SR-E-med-mumu-4", 41., 34., 4.)
+        COMMIT_SIGNAL_REGION("SR-E-med-mumu-5", 59., 52., 6.)
+        COMMIT_SIGNAL_REGION("SR-E-med-mumu-6", 21., 18.5, 3.2)
 
         COMMIT_SIGNAL_REGION("SR-E-med-combined-1", 16., 14.6, 2.9)
         COMMIT_SIGNAL_REGION("SR-E-med-combined-2", 8., 6.9, 2.1)
@@ -988,21 +988,21 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SR-E-med-combined-6", 21.+4., 18.5+2.2, sqrt(3.2*3.2 + 0.9*0.9))
 
         // SR-E-high observed and background events, from Table 11 of 1911.12606
-        COMMIT_SIGNAL_REGION("SR-E-high-ee-1", 0., 3.9, 1.3 )
-        COMMIT_SIGNAL_REGION("SR-E-high-ee-2", 9., 11.0, 2.0)
-        COMMIT_SIGNAL_REGION("SR-E-high-ee-3", 23., 17.8, 2.7)
-        COMMIT_SIGNAL_REGION("SR-E-high-ee-4", 3., 8.3, 1.4)
-        COMMIT_SIGNAL_REGION("SR-E-high-ee-5", 5., 10.1, 1.5)
-        COMMIT_SIGNAL_REGION("SR-E-high-ee-6", 20., 19.6, 2.3)
+	COMMIT_SIGNAL_REGION("SR-E-high-ee-1", 1., 0.7, 0.4)
+        COMMIT_SIGNAL_REGION("SR-E-high-ee-2", 16., 10.3, 2.5)
+        COMMIT_SIGNAL_REGION("SR-E-high-ee-3", 13., 12.1, 2.2)
+        COMMIT_SIGNAL_REGION("SR-E-high-ee-4", 8., 10.1, 1.7)
+        COMMIT_SIGNAL_REGION("SR-E-high-ee-5", 8., 10.4, 1.7)
+        COMMIT_SIGNAL_REGION("SR-E-high-ee-6", 18, 19.3, 2.5)
 
         COMMIT_SIGNAL_REGION("SR-E-high-mumu-1", 5., 3.4, 1.2)
         COMMIT_SIGNAL_REGION("SR-E-high-mumu-2", 5., 3.5, 1.3)
-        COMMIT_SIGNAL_REGION("SR-E-high-mumu-3", 1., 0.7, 0.4)
-        COMMIT_SIGNAL_REGION("SR-E-high-mumu-4", 16., 10.3, 2.5)
-        COMMIT_SIGNAL_REGION("SR-E-high-mumu-5", 13., 12.1, 2.2)
-        COMMIT_SIGNAL_REGION("SR-E-high-mumu-6", 8., 10.1, 1.7)
-        COMMIT_SIGNAL_REGION("SR-E-high-mumu-7", 8., 10.4, 1.7)
-        COMMIT_SIGNAL_REGION("SR-E-high-mumu-8", 18, 19.3, 2.5)
+        COMMIT_SIGNAL_REGION("SR-E-high-mumu-3", 0., 3.9, 1.3)
+        COMMIT_SIGNAL_REGION("SR-E-high-mumu-4", 9., 11.0, 2.0)
+        COMMIT_SIGNAL_REGION("SR-E-high-mumu-5", 23., 17.8, 2.7)
+        COMMIT_SIGNAL_REGION("SR-E-high-mumu-6", 3., 8.3, 1.4)
+        COMMIT_SIGNAL_REGION("SR-E-high-mumu-7", 5., 10.1, 1.5)
+        COMMIT_SIGNAL_REGION("SR-E-high-mumu-8", 20., 19.6, 2.3)
 
         COMMIT_SIGNAL_REGION("SR-E-high-combined-1", 5., 3.4, 1.2)
         COMMIT_SIGNAL_REGION("SR-E-high-combined-2", 5., 3.5, 1.3)
@@ -1076,7 +1076,7 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SR-S-high-ee-4", 13., 13.2, 2.1 )
         COMMIT_SIGNAL_REGION("SR-S-high-ee-5", 9., 8.6, 1.4 )
         COMMIT_SIGNAL_REGION("SR-S-high-ee-6", 6., 5.7, 1.0 )
-        COMMIT_SIGNAL_REGION("SR-S-high-ee-7", 8., 7.0, .2 )
+        COMMIT_SIGNAL_REGION("SR-S-high-ee-7", 8., 7.0, 1.2 )
         COMMIT_SIGNAL_REGION("SR-S-high-ee-8", 6., 6.8, 1.1 )
 
         COMMIT_SIGNAL_REGION("SR-S-high-mumu-1", 10., 11.0, 2.2)
@@ -1144,34 +1144,34 @@ namespace Gambit
           COMMIT_SIGNAL_REGION("SR-E-low-mumu-8", 44., 35.9, 3.3)
 
           // SR-E-med observed and background events, from Table 11 of 1911.12606
-          COMMIT_SIGNAL_REGION("SR-E-med-ee-1", 6., 6.2, 1.9)
-          COMMIT_SIGNAL_REGION("SR-E-med-ee-2", 41., 34., 4.)
-          COMMIT_SIGNAL_REGION("SR-E-med-ee-3", 59., 52., 6.)
-          COMMIT_SIGNAL_REGION("SR-E-med-ee-4", 21., 18.5, 3.2)
+	  COMMIT_SIGNAL_REGION("SR-E-med-ee-1", 0., 0.11, 0.08)
+          COMMIT_SIGNAL_REGION("SR-E-med-ee-2", 4., 5.1., 1.6.)
+          COMMIT_SIGNAL_REGION("SR-E-med-ee-3", 11., 7.3, 1.9)
+          COMMIT_SIGNAL_REGION("SR-E-med-ee-4", 4., 2.2, 0.9)
 
           COMMIT_SIGNAL_REGION("SR-E-med-mumu-1", 16., 14.6, 2.9)
           COMMIT_SIGNAL_REGION("SR-E-med-mumu-2", 8., 6.9, 2.1)
-          COMMIT_SIGNAL_REGION("SR-E-med-mumu-3", 0., 0.11, 0.08)
-          COMMIT_SIGNAL_REGION("SR-E-med-mumu-4", 4., 5.1, 1.6)
-          COMMIT_SIGNAL_REGION("SR-E-med-mumu-5", 11., 7.3, 1.9)
-          COMMIT_SIGNAL_REGION("SR-E-med-mumu-6", 4., 2.2, 0.9)
+          COMMIT_SIGNAL_REGION("SR-E-med-mumu-3", 6., 6.2, 1.9)
+          COMMIT_SIGNAL_REGION("SR-E-med-mumu-4", 41., 34., 4.)
+          COMMIT_SIGNAL_REGION("SR-E-med-mumu-5", 59., 52., 6.)
+          COMMIT_SIGNAL_REGION("SR-E-med-mumu-6", 21., 18.5, 3.2)
 
           // SR-E-high observed and background events, from Table 11 of 1911.12606
-          COMMIT_SIGNAL_REGION("SR-E-high-ee-1", 0., 3.9, 1.3 )
-          COMMIT_SIGNAL_REGION("SR-E-high-ee-2", 9., 11.0, 2.0)
-          COMMIT_SIGNAL_REGION("SR-E-high-ee-3", 23., 17.8, 2.7)
-          COMMIT_SIGNAL_REGION("SR-E-high-ee-4", 3., 8.3, 1.4)
-          COMMIT_SIGNAL_REGION("SR-E-high-ee-5", 5., 10.1, 1.5)
-          COMMIT_SIGNAL_REGION("SR-E-high-ee-6", 20., 19.6, 2.3)
+	  COMMIT_SIGNAL_REGION("SR-E-high-ee-1", 1., 0.7, 0.4)
+          COMMIT_SIGNAL_REGION("SR-E-high-ee-2", 16., 10.3, 2.5)
+          COMMIT_SIGNAL_REGION("SR-E-high-ee-3", 13., 12.1, 2.2)
+          COMMIT_SIGNAL_REGION("SR-E-high-ee-4", 8., 10.1, 1.7)
+          COMMIT_SIGNAL_REGION("SR-E-high-ee-5", 8., 10.4, 1.7)
+          COMMIT_SIGNAL_REGION("SR-E-high-ee-6", 18, 19.3, 2.5)
 
           COMMIT_SIGNAL_REGION("SR-E-high-mumu-1", 5., 3.4, 1.2)
           COMMIT_SIGNAL_REGION("SR-E-high-mumu-2", 5., 3.5, 1.3)
-          COMMIT_SIGNAL_REGION("SR-E-high-mumu-3", 1., 0.7, 0.4)
-          COMMIT_SIGNAL_REGION("SR-E-high-mumu-4", 16., 10.3, 2.5)
-          COMMIT_SIGNAL_REGION("SR-E-high-mumu-5", 13., 12.1, 2.2)
-          COMMIT_SIGNAL_REGION("SR-E-high-mumu-6", 8., 10.1, 1.7)
-          COMMIT_SIGNAL_REGION("SR-E-high-mumu-7", 8., 10.4, 1.7)
-          COMMIT_SIGNAL_REGION("SR-E-high-mumu-8", 18, 19.3, 2.5)
+          COMMIT_SIGNAL_REGION("SR-E-high-mumu-3", 0., 3.9, 1.3)
+          COMMIT_SIGNAL_REGION("SR-E-high-mumu-4", 9., 11.0, 2.0)
+          COMMIT_SIGNAL_REGION("SR-E-high-mumu-5", 23., 17.8, 2.7)
+          COMMIT_SIGNAL_REGION("SR-E-high-mumu-6", 3., 8.3, 1.4)
+          COMMIT_SIGNAL_REGION("SR-E-high-mumu-7", 5., 10.1, 1.5)
+          COMMIT_SIGNAL_REGION("SR-E-high-mumu-8", 20., 19.6, 2.3)
 
           // SR-E-1l1T observed and background events, from Table 12 of 1911.12606
           COMMIT_SIGNAL_REGION("SR-E-1l1T-1", 0., 0.5, 0.5)
@@ -1227,7 +1227,7 @@ namespace Gambit
           COMMIT_SIGNAL_REGION("SR-S-high-ee-4", 13., 13.2, 2.1 )
           COMMIT_SIGNAL_REGION("SR-S-high-ee-5", 9., 8.6, 1.4 )
           COMMIT_SIGNAL_REGION("SR-S-high-ee-6", 6., 5.7, 1.0 )
-          COMMIT_SIGNAL_REGION("SR-S-high-ee-7", 8., 7.0, .2 )
+          COMMIT_SIGNAL_REGION("SR-S-high-ee-7", 8., 7.0, 1.2 )
           COMMIT_SIGNAL_REGION("SR-S-high-ee-8", 6., 6.8, 1.1 )
 
           COMMIT_SIGNAL_REGION("SR-S-high-mumu-1", 10., 11.0, 2.2)
