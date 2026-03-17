@@ -179,7 +179,7 @@ namespace Gambit
           // Overlap removal
           //
 
-          int tmp_nlep = baselineElectrons.size()+baselineMuons.size();
+          // int tmp_nlep = baselineElectrons.size()+baselineMuons.size();
           removeOverlap(baselineElectrons, baselineMuons, 0.01);
           removeOverlap(baselineJets, baselineElectrons, 0.2);
           removeOverlap(baselineJets, baselineMuons, 0.2);
@@ -245,8 +245,8 @@ namespace Gambit
 
           int nbaselineleptons = baselineLeptons.size();
           int nleptons   = signalLeptons.size();
-          int nelectrons = signalElectrons.size();
-          int nmuons     = signalMuons.size();
+          // int nelectrons = signalElectrons.size();
+          // int nmuons     = signalMuons.size();
           int njets      = signalJets.size();
           int nbjets     = signalBJets.size();
 
@@ -284,7 +284,8 @@ namespace Gambit
             double mll = -999.;
             double mdiff = 1e6;
             int nSFOS = 0;
-            int iZ1(-1), iZ2(-1), iW(-1);
+            // int iZ1(-1), iZ2(-1), iW(-1);
+	    int iW(-1);
 
             for (int ilep=0; ilep<nleptons-1; ilep++)
             {
@@ -304,8 +305,8 @@ namespace Gambit
                   {
                     mdiff = imdiff;
                     mll   = imll;
-                    iZ1   = ilep;
-                    iZ2   = jlep;
+                    // iZ1   = ilep;
+                    // iZ2   = jlep;
                     iW    = klep;
                   }
                 }

@@ -1019,7 +1019,7 @@ namespace Gambit
           // This is a default overlap removal
           if (applyOverlapRemoval)
           {
-            auto radiusCalcLepton = [](const Particle* lepton, const Jet* jet) {return std::min(0.4, 0.04 + 10 / lepton->pT());};
+            auto radiusCalcLepton = [](const Particle* lepton, const Jet* /*jet*/) {return std::min(0.4, 0.04 + 10 / lepton->pT());};
 
             auto muJetSpecial = [](const Jet* jet, const Particle* muon)
             {
