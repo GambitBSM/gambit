@@ -181,7 +181,10 @@ Rules:
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates
     function: all_decays
-    
+
+  - capability: InitialTotalCrossSection
+    function: InitialTotalCrossSection_Pythia
+
   - capability: PerformInitialCrossSection
     function: PerformInitialCrossSection_Pythia
     options:
