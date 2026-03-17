@@ -969,7 +969,7 @@ namespace Gambit
 
         // SR-E-med observed and background events, from Table 11 of 1911.12606
         COMMIT_SIGNAL_REGION("SR-E-med-ee-1", 0., 0.11, 0.08)
-        COMMIT_SIGNAL_REGION("SR-E-med-ee-2", 4., 5.1., 1.6.)
+        COMMIT_SIGNAL_REGION("SR-E-med-ee-2", 4., 5.1, 1.6)
         COMMIT_SIGNAL_REGION("SR-E-med-ee-3", 11., 7.3, 1.9)
         COMMIT_SIGNAL_REGION("SR-E-med-ee-4", 4., 2.2, 0.9)
 
@@ -1145,7 +1145,7 @@ namespace Gambit
 
           // SR-E-med observed and background events, from Table 11 of 1911.12606
 	  COMMIT_SIGNAL_REGION("SR-E-med-ee-1", 0., 0.11, 0.08)
-          COMMIT_SIGNAL_REGION("SR-E-med-ee-2", 4., 5.1., 1.6.)
+          COMMIT_SIGNAL_REGION("SR-E-med-ee-2", 4., 5.1, 1.6)
           COMMIT_SIGNAL_REGION("SR-E-med-ee-3", 11., 7.3, 1.9)
           COMMIT_SIGNAL_REGION("SR-E-med-ee-4", 4., 2.2, 0.9)
 
