@@ -253,8 +253,24 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERS
     set(PERMIT_CXX17_CHECK FALSE)
 endif()
 
-# Check for C++11, C++14 and C++17 support.
+# Prevent using C++20 on compilers with incomplete C++20 support
+if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0) OR
+   ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0) OR
+   ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13.0))
+  set(PERMIT_CXX20_CHECK FALSE)
+else()
+  set(PERMIT_CXX20_CHECK TRUE)
+endif()
+
+# Check for C++11, C++14, C++17 and C++20 support.
 include(CheckCXXCompilerFlag)
+if(PERMIT_CXX20_CHECK)
+  CHECK_CXX_COMPILER_FLAG("-std=c++20" COMPILER_SUPPORTS_CXX20)
+endif()
+if(COMPILER_SUPPORTS_CXX20)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
+  set(GAMBIT_SUPPORTS_CXX20 TRUE)
+else()
 if(PERMIT_CXX17_CHECK)
   CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
 endif()
@@ -285,6 +301,7 @@ else()
       endif()
     endif()
   endif()
+endif()
 endif()
 
 # Check for C99, C11 and C18 support

@@ -52,6 +52,9 @@
 /// Compiler supports C++17 features
 #cmakedefine COMPILER_SUPPORTS_CXX17 1
 
+/// Compiler supports C++20 features
+#cmakedefine COMPILER_SUPPORTS_CXX20 1
+
 /// Found link.h in system paths
 #cmakedefine HAVE_LINK_H 1
 
