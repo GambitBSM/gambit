@@ -166,6 +166,26 @@
     DEPENDENCY(TotalCrossSection, xsec_container)
     #undef FUNCTION
   #undef CAPABILITY
+
+  /// Extract total cross-section from PerformInitialCrossSection as a
+  /// printable double (value for "LHC_13TeV" in fb)
+  #define CAPABILITY InitialCrossSection_Pythia_value
+  START_CAPABILITY
+    #define FUNCTION getInitialCrossSection_Pythia_value
+    START_FUNCTION(double)
+    DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// Extract cross-section relative error from PerformInitialCrossSection as a
+  /// printable double (relative error for "LHC_13TeV")
+  #define CAPABILITY InitialCrossSection_Pythia_relerr
+  START_CAPABILITY
+    #define FUNCTION getInitialCrossSection_Pythia_relerr
+    START_FUNCTION(double)
+    DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
+    #undef FUNCTION
+  #undef CAPABILITY
   /// @}
 
 

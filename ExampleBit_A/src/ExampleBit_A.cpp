@@ -98,7 +98,7 @@ namespace Gambit
       uncertainty = {0.01};
     }
 
-    void nevents_pred_EmulatorTranslatePrediction(std::vector<double> & prediction, double & result)
+    void nevents_pred_EmulatorTranslatePrediction(std::vector<double> & prediction, std::vector<double> & uncertainty, double & result)
     {
       std::cout << "HEY DEBUGGER. Inside nevents_pred_EmulatorTranslatePrediction function..." << std::endl;
     }

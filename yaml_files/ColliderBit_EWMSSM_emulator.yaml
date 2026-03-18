@@ -41,28 +41,27 @@ Priors:
 Printer:
 
   # Choose hdf5, cout or ascii printer
-  printer: cout
+  # printer: cout
 
-  # printer: hdf5_v1
-  # options:
-  #   output_file: "SUSYRun2_MSSMEW.hdf5"
-  #   group: "/data"
-  #   delete_file_on_restart: true
-  #   # buffer_length: 10
-  #   disable_combine_routines: true
+  printer: hdf5_v1
+  options:
+    output_file: "SUSYRun2_MSSMEW.hdf5"
+    group: "/data"
+    delete_file_on_restart: true
+    buffer_length: 2
 
   # printer: cout
 
 
 Scanner:
 
-  use_scanner: random
+  use_scanner: scipy_differential_evolution
 
   scanners:
 
     random:
       plugin: random
-      point_number: 100
+      point_number: 1000
       output_file:  output
       like:  LogLike
       files:
@@ -74,6 +73,25 @@ Scanner:
       NP: 800
       convthresh: 1e-12
       verbosity: 1
+
+    scipy_differential_evolution:
+      like: LogLike
+      plugin: scipy_differential_evolution
+      # The run arguments below have been tested with scipy v1.9.
+      # Other versions might expect different arguments.
+      run:
+        # n_runs: 4
+        strategy: 'best1bin'
+        maxiter: 1000
+        popsize: 15
+        tol: 0.01
+        mutation: [0.5, 1]
+        recombination: 0.7
+        disp: false
+        polish: true
+        init: 'latinhypercube'
+        atol: 0
+        updating: 'immediate'
 
 Emulation:
 
@@ -103,6 +121,7 @@ Emulation:
       use_calibrated_sigma: true
       splitting_strategy: gradual
       pre_trained: false
+      log_emulator_data: true
 
 
 ObsLikes:
@@ -110,6 +129,12 @@ ObsLikes:
     # Combined likelihood for LHC searches
     - purpose:    LogLike
       capability: LHC_Combined_LogLike
+
+    - purpose:    Observable
+      capability: InitialCrossSection_Pythia_value
+
+    - purpose:    Observable
+      capability: InitialCrossSection_Pythia_relerr
 
     - purpose:    Observable
       capability: TotalCrossSectionAsMap
@@ -124,6 +149,11 @@ ObsLikes:
       capability: MSSM_spectrum
       type:       map_str_dbl
 
+    - purpose:    Observable
+      capability: PerformInitialCrossSection
+      printme: false
+      printisemulated: true
+
 
 Rules:
 
@@ -135,9 +165,9 @@ Rules:
   - capability: PerformInitialCrossSection
     function: PerformInitialCrossSection_Pythia
     options:
-      silenceLoop: false
+      silenceLoop: true
       LHC_13TeV:
-        nEvents: 1000
+        nEvents: 100
         maxFailedEvents: 10
         pythia_settings:
           - Beams:eCM = 13000
@@ -254,7 +284,7 @@ Rules:
     options:
       use_colliders:
         - LHC_13TeV
-      silenceLoop: false
+      silenceLoop: true
       LHC_13TeV:
         min_nEvents: 10
         max_nEvents: 10

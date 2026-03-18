@@ -710,7 +710,7 @@ namespace Gambit
     }
 
     /// TranslatePrediction: unpack emulator prediction back to Omega h^2
-    void RD_oh2_ScalarSingletDM_Z2_emulatable_EmulatorTranslatePrediction(std::vector<double>& prediction, double& result)
+    void RD_oh2_ScalarSingletDM_Z2_emulatable_EmulatorTranslatePrediction(std::vector<double>& prediction, std::vector<double>& uncertainty, double& result)
     {
       std::cout << "In emulator translate prediction "  << std::endl;
       result = prediction[0];

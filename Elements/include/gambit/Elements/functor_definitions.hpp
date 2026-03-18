@@ -177,11 +177,11 @@ namespace Gambit
               emulatorPredict(name(), input_vector, prediction_vector, prediction_uncertainty_vector);
               str myname = name();
               emulated_pt = this->myEmulatorPointers->CheckThreshold(myname, prediction_uncertainty_vector);
-              if (emulated_pt) 
+              if (emulated_pt)
               {
                 std::cout << "mycheck is true!\n";
-                this->myEmulatorPointers->TranslatePrediction(prediction_vector, myValue[thread_num]);
-              } 
+                this->myEmulatorPointers->TranslatePrediction(prediction_vector, prediction_uncertainty_vector, myValue[thread_num]);
+              }
               else
               {
                 this->myFunction(myValue[thread_num]);

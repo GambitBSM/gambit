@@ -1692,6 +1692,20 @@ namespace Gambit
       }
     }  // end getXsecInfoMap
 
+    /// Extract total cross-section from PerformInitialCrossSection as a printable double
+    void getInitialCrossSection_Pythia_value(double& result)
+    {
+      using namespace Pipes::getInitialCrossSection_Pythia_value;
+      result = Dep::PerformInitialCrossSection->first.at("LHC_13TeV").xsec();
+    }
+
+    /// Extract cross-section relative error from PerformInitialCrossSection as a printable double
+    void getInitialCrossSection_Pythia_relerr(double& result)
+    {
+      using namespace Pipes::getInitialCrossSection_Pythia_relerr;
+      result = Dep::PerformInitialCrossSection->first.at("LHC_13TeV").xsec_relerr();
+    }
+
 
     /// Output PID pair cross-sections as a str-dbl map, for easy printing
     void getPIDPairCrossSectionsInfo(map_str_dbl& result)

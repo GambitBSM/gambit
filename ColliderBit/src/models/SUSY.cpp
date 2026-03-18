@@ -47,6 +47,7 @@ namespace Gambit
     void PerformInitialCrossSection_Pythia_EmulatorTranslateInput(std::vector<double>& input)
     {
       using namespace Pipes::PerformInitialCrossSection_Pythia;
+      
       input = {*Param["M2"], *Param["mu"]};
     }
 
@@ -72,12 +73,14 @@ namespace Gambit
     // Prediction: reconstruct initialxsec_container from emulator output.
     // Note: hardcoded collider name "LHC_13TeV" for this example.
     void PerformInitialCrossSection_Pythia_EmulatorTranslatePrediction(
-        std::vector<double>& prediction, initialxsec_container& result)
+        std::vector<double>& prediction, std::vector<double>& uncertainty, initialxsec_container& result)
     {
       result.first.clear();
       result.second.clear();
       xsec_container xsec;
-      xsec.set_xsec(prediction[0], 0.0);
+      double xsec_val = prediction[0];
+      double xsec_err = uncertainty.empty() ? 0.0 : uncertainty[0] * xsec_val;
+      xsec.set_xsec(xsec_val, xsec_err);
       result.first["LHC_13TeV"] = xsec;
     }
 

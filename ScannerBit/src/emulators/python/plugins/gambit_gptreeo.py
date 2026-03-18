@@ -6,6 +6,7 @@ from mpi4py import MPI
 import time
 import tempfile
 import sys
+import csv
 
 try:
     import joblib
@@ -57,8 +58,11 @@ YAML options:
     splitting_strategy: Strategy for splitting nodes.
         'standard' or 'gradual'. Defaults to 'standard'.
     pre_trained: Boolean option to load a pre-trained model
-    pre_trained_path: Path to pre-trained model file. OBS: new model file 
+    pre_trained_path: Path to pre-trained model file. OBS: new model file
         will be written and stored in run folder.
+    log_emulator_data: If True, writes emu_predictions.csv and emu_training.csv
+        to the output path for post-run comparison of emulated vs actual values.
+        Defaults to False.
 """
 
     __version__ = "1.0.0"
@@ -108,6 +112,20 @@ Ander's awesome gp emulator
 
         self.training_enabled = kwargs.get('train', True)
         self.prediction_enabled = kwargs.get('predict', True)
+        self.logging_enabled = kwargs.get('log_emulator_data', False)
+
+        # CSV logging: predictions written by rank 0, training data written by rank 1
+        if self.logging_enabled:
+            output_path = kwargs['default_output_path']
+            if self.mpi_size == 1 or self.mpi_rank == 0:
+                self._pred_csv_file = open(output_path + 'emu_predictions.csv', 'w', newline='')
+                self._pred_csv_writer = csv.writer(self._pred_csv_file)
+                self._pred_header_written = False
+
+            if self.mpi_size == 1 or self.mpi_rank == 1:
+                self._train_csv_file = open(output_path + 'emu_training.csv', 'w', newline='')
+                self._train_csv_writer = csv.writer(self._train_csv_file)
+                self._train_header_written = False
 
     # update tree with buffer values
     def train(self, x, y, z, flag):
@@ -115,6 +133,18 @@ Ander's awesome gp emulator
             if self.mpi_size == 1  or self.mpi_rank == 1:
                 X_train = x.reshape(1, -1)
                 y_train = y.reshape(1, -1)
+
+                # Log actual values for later comparison with emulator predictions
+                if self.logging_enabled:
+                    if not self._train_header_written:
+                        n_inputs = len(x)
+                        header = ([f'x_{i}' for i in range(n_inputs)]
+                                  + [f'y_{i}' for i in range(len(y))]
+                                  + [f'z_{i}' for i in range(len(z))])
+                        self._train_csv_writer.writerow(header)
+                        self._train_header_written = True
+                    self._train_csv_writer.writerow(list(x) + list(y) + list(z))
+                    self._train_csv_file.flush()
 
                 self.gpt.update_tree(X_train, y_train)
 
@@ -164,6 +194,20 @@ Ander's awesome gp emulator
                 try:
                     y_pred, y_std = self.gpt.predict(X_test)
                     print("output: ",y_pred[0], y_std[0])
+
+                    # Log prediction and uncertainty for comparison with actual values
+                    if self.logging_enabled:
+                        if not self._pred_header_written:
+                            n_inputs = len(x)
+                            n_outputs = len(y_pred[0])
+                            header = ([f'x_{i}' for i in range(n_inputs)]
+                                      + [f'y_pred_{i}' for i in range(n_outputs)]
+                                      + [f'y_std_{i}' for i in range(n_outputs)])
+                            self._pred_csv_writer.writerow(header)
+                            self._pred_header_written = True
+                        self._pred_csv_writer.writerow(list(x) + list(y_pred[0]) + list(y_std[0]))
+                        self._pred_csv_file.flush()
+
                     return ( y_pred[0], y_std[0])
                 except FloatingPointError as e:
                     print("Caught numerical issue:", e)

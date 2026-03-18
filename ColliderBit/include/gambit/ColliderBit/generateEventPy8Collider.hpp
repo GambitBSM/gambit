@@ -303,16 +303,16 @@ namespace Gambit
     void NAME(initialxsec_container& result)                                                                                                  \
     {                                                                                                                                         \
       using namespace Pipes::NAME;                                                                                                            \
-      static SLHAstruct slha = *Dep::SpectrumAndDecaysForPythia;                                                                              \
+      SLHAstruct slha = *Dep::SpectrumAndDecaysForPythia;                                                                                     \
                                                                                                                                               \
       PerformInitialCrossSection_Pythia<PYTHIA_COLLIDER, PYTHIA_NS::Pythia8::Event>(result, slha, "", *runOptions);                           \
     }
-    
+
     #define GET_SPECIFIC_INITIAL_XSEC_PYTHIA(NAME, PYTHIA_COLLIDER, PYTHIA_NS, MODEL_EXTENSION)                                               \
     void NAME(initialxsec_container& result)                                                                                                  \
     {                                                                                                                                         \
       using namespace Pipes::NAME;                                                                                                            \
-      static SLHAstruct slha = *Dep::SpectrumAndDecaysForPythia;                                                                              \
+      SLHAstruct slha = *Dep::SpectrumAndDecaysForPythia;                                                                                     \
                                                                                                                                               \
       PerformInitialCrossSection_Pythia<PYTHIA_COLLIDER, PYTHIA_NS::Pythia8::Event>(result, slha, #MODEL_EXTENSION, *runOptions);             \
     }

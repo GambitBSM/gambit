@@ -894,7 +894,7 @@ namespace Gambit
     }
 
     /// TranslatePrediction: unpack emulator prediction back to Omega h^2.
-    void RD_oh2_DS_general_EmulatorTranslatePrediction(std::vector<double>& prediction, double& result)
+    void RD_oh2_DS_general_EmulatorTranslatePrediction(std::vector<double>& prediction, std::vector<double>& uncertainty, double& result)
     {
       result = prediction[0];
     }
