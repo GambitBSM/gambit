@@ -64,59 +64,59 @@ namespace Gambit
 
         if (doCutflow)
         {
-            DEFINE_SIGNAL_REGION_NOCUTS("Total");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AZ_3L_presel");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AZ_3L_presel_pTl3");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AZ_3L_presel_pTl3_mZ");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AZ_3L_presel_pTl3_mZ_nbjets");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AZ_3L_presel_pTl3_mZ_nbjets_njets");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AZ_3L_presel_pTl3_mZ_nbjets_njets_MET");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BZ_3L_presel");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BZ_3L_presel_pTl3");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BZ_3L_presel_pTl3_mZ");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BZ_3L_presel_pTl3_mZ_nbjets");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets_MET");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets_MET_pTll");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2AZ_3L_presel");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2AZ_3L_presel_pTl3");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2AZ_3L_presel_pTl3_mZ");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2AZ_3L_presel_pTl3_mZ_pTj1");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2AZ_3L_presel_pTl3_mZ_pTj1_MET");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2BZ_3L_presel");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2BZ_3L_presel_pTl3");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2BZ_3L_presel_pTl3_mZ");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2BZ_3L_presel_pTl3_mZ_nbjets");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR2BZ_3L_presel_pTl3_mZ_nbjets_MET");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AH_1L_presel");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AH_1L_presel_nbjets");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AH_1L_presel_nbjets_nh");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AH_1L_presel_nbjets_nh_mT");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1AH_1L_presel_nbjets_nh_mT_njets");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BH_1L_presel");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BH_1L_presel_nbjets");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BH_1L_presel_nbjets_nh");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BH_1L_presel_nbjets_nh_mT");
-            DEFINE_SIGNAL_REGION_NOCUTS("SR1BH_1L_presel_nbjets_nh_mT_njets");
+            defineSignalRegion("Total");
+            defineSignalRegion("SR1AZ_3L_presel");
+            defineSignalRegion("SR1AZ_3L_presel_pTl3");
+            defineSignalRegion("SR1AZ_3L_presel_pTl3_mZ");
+            defineSignalRegion("SR1AZ_3L_presel_pTl3_mZ_nbjets");
+            defineSignalRegion("SR1AZ_3L_presel_pTl3_mZ_nbjets_njets");
+            defineSignalRegion("SR1AZ_3L_presel_pTl3_mZ_nbjets_njets_MET");
+            defineSignalRegion("SR1BZ_3L_presel");
+            defineSignalRegion("SR1BZ_3L_presel_pTl3");
+            defineSignalRegion("SR1BZ_3L_presel_pTl3_mZ");
+            defineSignalRegion("SR1BZ_3L_presel_pTl3_mZ_nbjets");
+            defineSignalRegion("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets");
+            defineSignalRegion("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets_MET");
+            defineSignalRegion("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets_MET_pTll");
+            defineSignalRegion("SR2AZ_3L_presel");
+            defineSignalRegion("SR2AZ_3L_presel_pTl3");
+            defineSignalRegion("SR2AZ_3L_presel_pTl3_mZ");
+            defineSignalRegion("SR2AZ_3L_presel_pTl3_mZ_pTj1");
+            defineSignalRegion("SR2AZ_3L_presel_pTl3_mZ_pTj1_MET");
+            defineSignalRegion("SR2BZ_3L_presel");
+            defineSignalRegion("SR2BZ_3L_presel_pTl3");
+            defineSignalRegion("SR2BZ_3L_presel_pTl3_mZ");
+            defineSignalRegion("SR2BZ_3L_presel_pTl3_mZ_nbjets");
+            defineSignalRegion("SR2BZ_3L_presel_pTl3_mZ_nbjets_MET");
+            defineSignalRegion("SR1AH_1L_presel");
+            defineSignalRegion("SR1AH_1L_presel_nbjets");
+            defineSignalRegion("SR1AH_1L_presel_nbjets_nh");
+            defineSignalRegion("SR1AH_1L_presel_nbjets_nh_mT");
+            defineSignalRegion("SR1AH_1L_presel_nbjets_nh_mT_njets");
+            defineSignalRegion("SR1BH_1L_presel");
+            defineSignalRegion("SR1BH_1L_presel_nbjets");
+            defineSignalRegion("SR1BH_1L_presel_nbjets_nh");
+            defineSignalRegion("SR1BH_1L_presel_nbjets_nh_mT");
+            defineSignalRegion("SR1BH_1L_presel_nbjets_nh_mT_njets");
         }
 
 //      SR1AZ_3L =  "3l preselection", "pTl3 > 20 GeV", "|mSFOS-mZ| < 15 GeV", "nbjets >= 1", "njets >= 4", "MET > 250 GeV", "mT2(3l) > 100 GeV"
-        DEFINE_SIGNAL_REGION_NOCUTS("SR1AZ_3L"); // MT2(3L)
+        defineSignalRegion("SR1AZ_3L"); // MT2(3L)
 
 //      SR1BZ_3L = "3l preselection", "pTl3 > 20 GeV", "|mSFOS-mZ| < 15 GeV", "nbjets >= 1", "njets >= 5", "MET > 150 GeV", "pTll > 150 GeV", "pTb1 > 100 GeV"
-        DEFINE_SIGNAL_REGION_NOCUTS("SR1BZ_3L"); //, "pTb1 > 100 GeV");
+        defineSignalRegion("SR1BZ_3L"); //, "pTb1 > 100 GeV");
 
 //      SR2AZ_3L = "3l preselection", "pTl3 < 20 GeV", "|mSFOS-mZ| < 15 GeV", "pTj1 > 150 GeV", "MET > 200 GeV", "pTll < 50 GeV"
-        DEFINE_SIGNAL_REGION_NOCUTS("SR2AZ_3L"); //, "pTll < 50 GeV");
+        defineSignalRegion("SR2AZ_3L"); //, "pTll < 50 GeV");
 
 //      SR2BZ_3L = "3l preselection", "pTl3 < 60 GeV", "|mSFOS-mZ| < 15 GeV", "nbjets >= 1", "MET > 350 GeV", "pTll > 150 GeV"
-        DEFINE_SIGNAL_REGION_NOCUTS("SR2BZ_3L"); //, "pTll > 150 GeV");
+        defineSignalRegion("SR2BZ_3L"); //, "pTll > 150 GeV");
 
 //      SR1AH_1L = "1l Preselection", "nbjets >= 3", "nh >= 1", "mT > 150 GeV", "njets >= 4", "METSig > 12"
-        DEFINE_SIGNAL_REGION_NOCUTS("SR1AH_1L"); //, "METSig > 12");
+        defineSignalRegion("SR1AH_1L"); //, "METSig > 12");
 
 //      SR1BH_1L", "1l Preselection", "nbjets >= 4", "nh >= 1", "mT > 150 GeV", "njets >= 6", "METSig > 7"
-        DEFINE_SIGNAL_REGION_NOCUTS("SR1BH_1L"); //, "METSig > 7");
+        defineSignalRegion("SR1BH_1L"); //, "METSig > 7");
 //
       }
 

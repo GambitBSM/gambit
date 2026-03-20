@@ -44,10 +44,10 @@ namespace Gambit
 
       Analysis_CMS_13TeV_1LEPbb_137invfb()
       {
-        DEFINE_SIGNAL_REGIONS_NOCUTS("SR2J-0H-", 4);
-        DEFINE_SIGNAL_REGIONS_NOCUTS("SR2J-1H-", 2);
-        DEFINE_SIGNAL_REGIONS_NOCUTS("SR3J-0H-", 4);
-        DEFINE_SIGNAL_REGIONS_NOCUTS("SR3J-1H-", 2);
+        defineSignalRegions("SR2J-0H-", 4);
+        defineSignalRegions("SR2J-1H-", 2);
+        defineSignalRegions("SR3J-0H-", 4);
+        defineSignalRegions("SR3J-1H-", 2);
 
         set_analysis_name("CMS_13TeV_1LEPbb_137invfb");
         set_detector_name(detector);

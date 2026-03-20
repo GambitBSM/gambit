@@ -107,6 +107,38 @@ namespace Gambit
 
         /// Set the store_accepted_event_IDs bool for the EventCounter instances in this analysis
         void set_store_accepted_event_IDs(bool setting);
+        
+        // Add a cutflow to the list of cutflows
+        void addCuts(std::vector<std::string>&) {}  // base case
+
+        template<typename First, typename... Rest>
+        void addCuts(std::vector<std::string>& v, First&& first, Rest&&... rest)
+        {
+          v.push_back(std::forward<First>(first));
+          addCuts(v, std::forward<Rest>(rest)...);
+        }
+
+        // Define a signal region by initializing the counter and cutflow
+        template<typename... Cuts>
+        void defineSignalRegion(const std::string& name, Cuts&&... cuts)
+        {
+          _counters[name] = EventCounter(name);
+          std::vector<std::string> all = {"Preselection"};
+          addCuts(all, std::forward<Cuts>(cuts)...);
+          all.push_back("Final");
+          _cutflows.addCutflow(name, all);
+        }
+
+        /// Define multiple signal regions that share a common name and
+        /// only vary on sequential numbering
+        template<typename... Cuts>
+        void defineSignalRegions(const std::string& baseName, int count, const Cuts&... cuts)
+        {
+          for (int i = 0; i < count; ++i)
+          {
+            defineSignalRegion(baseName + std::to_string(i), cuts...);
+          }
+        }
 
 
 

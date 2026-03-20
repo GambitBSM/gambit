@@ -63,7 +63,7 @@ namespace Gambit
 
             Analysis_ATLAS_13TeV_EXOT_TT_WbWb_36invfb()
             {
-                DEFINE_SIGNAL_REGION_NOCUTS("SR");
+                defineSignalRegion("SR");
 
                 set_analysis_name("ATLAS_13TeV_EXOT_TT_WbWb_36invfb");
                 set_detector_name(detector);
