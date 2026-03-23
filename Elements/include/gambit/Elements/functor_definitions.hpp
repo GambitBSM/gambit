@@ -164,7 +164,9 @@ namespace Gambit
             // TODO: Debugging checks
             // This block just calls each emulator function once, so that they can print out and can confirm they are being passed correctly
             // They will want to be put into the correct function flow such as the pseudocode above
-            if (myEmulatorPointers != nullptr)
+            if (myEmulatorPointers != nullptr
+                && EmulatorMap::useEmulator
+                && EmulatorMap::mapping_ranks.find(name()) != EmulatorMap::mapping_ranks.end())
             {
               str mytest = "QUICK DEBUGGING TEST";
               std::vector<double> input_vector;
