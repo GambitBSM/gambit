@@ -69,7 +69,7 @@ namespace Gambit
 
       static bool first = true;
       static str pythia_doc_path;
-      PythiaT pythia;
+      static PythiaT pythia;
 
       // Setup the Pythia documentation path and print the banner once
       if (first)
@@ -129,7 +129,7 @@ namespace Gambit
         std::map<int, double> combined_process_xsec;
         std::map<int, double> combined_process_xsecErr;
 
-        #pragma omp parallel firstprivate(pythia, pythiaOptions)
+        #pragma omp parallel firstprivate(pythiaOptions)
         {
           // Add a thread-specific seed to this thread's copy of the Pythia options
           str seed = std::to_string(int(Random::draw() * 899990000.));
@@ -137,6 +137,7 @@ namespace Gambit
 
           try
           {
+            pythia.clear();
             pythia.init(pythia_doc_path, pythiaOptions, &slha);
           }
           catch (...)
@@ -146,6 +147,7 @@ namespace Gambit
             pythiaOptions.push_back("Random:seed = " + std::to_string(newSeedBase));
             try
             {
+              pythia.clear();
               pythia.init(pythia_doc_path, pythiaOptions, &slha);
             }
             catch (...)
