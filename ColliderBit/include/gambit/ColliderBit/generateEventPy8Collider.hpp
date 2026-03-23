@@ -69,7 +69,7 @@ namespace Gambit
 
       static bool first = true;
       static str pythia_doc_path;
-      static PythiaT pythia;
+      thread_local PythiaT pythia;
 
       // Setup the Pythia documentation path and print the banner once
       if (first)
