@@ -386,6 +386,8 @@ KeyValues:
   dependency_resolution:
     prefer_model_specific_functions: true
     unused_rule_is_an_error: false
+  
+  print_timing_data: true
 
   likelihood:
     model_invalid_for_lnlike_below: -5e5

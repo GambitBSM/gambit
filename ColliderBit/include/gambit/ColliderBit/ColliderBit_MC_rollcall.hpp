@@ -186,6 +186,15 @@
     DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
     #undef FUNCTION
   #undef CAPABILITY
+
+  /// Gaussian log-likelihood on the Pythia initial cross-section (for scan guidance / emulator testing)
+  #define CAPABILITY InitialCrossSection_Pythia_LogLike
+  START_CAPABILITY
+    #define FUNCTION lnL_InitialCrossSection_Pythia_gaussian
+    START_FUNCTION(double)
+    DEPENDENCY(InitialCrossSection_Pythia_value, double)
+    #undef FUNCTION
+  #undef CAPABILITY
   /// @}
 
 

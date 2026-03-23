@@ -1706,6 +1706,17 @@ namespace Gambit
       result = Dep::PerformInitialCrossSection->first.at("LHC_13TeV").xsec_relerr();
     }
 
+    /// Simple Gaussian log-likelihood on the Pythia initial cross-section.
+    /// True value and sigma configurable via yaml options (defaults: mu=100 fb, sigma=10 fb).
+    void lnL_InitialCrossSection_Pythia_gaussian(double& result)
+    {
+      using namespace Pipes::lnL_InitialCrossSection_Pythia_gaussian;
+      const double xsec  = *Dep::InitialCrossSection_Pythia_value;
+      const double mu    = runOptions->getValueOrDef<double>(100.0, "xsec_true_fb");
+      const double sigma = runOptions->getValueOrDef<double>(10.0,  "xsec_sigma_fb");
+      result = -0.5 * pow(xsec - mu, 2) / (sigma * sigma);
+    }
+
 
     /// Output PID pair cross-sections as a str-dbl map, for easy printing
     void getPIDPairCrossSectionsInfo(map_str_dbl& result)
