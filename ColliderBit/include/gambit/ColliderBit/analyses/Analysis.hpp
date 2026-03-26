@@ -134,7 +134,7 @@ namespace Gambit
         template<typename... Cuts>
         void defineSignalRegions(const std::string& baseName, int count, const Cuts&... cuts)
         {
-          for (int i = 0; i < count; ++i)
+          for (int i = 1; i <= count; ++i)
           {
             defineSignalRegion(baseName + std::to_string(i), cuts...);
           }
