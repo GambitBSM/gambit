@@ -49,9 +49,9 @@ set(backend_download "${PROJECT_SOURCE_DIR}/Backends/downloaded")
 set(scanner_download "${PROJECT_SOURCE_DIR}/ScannerBit/downloaded")
 
 # Safer download function than what is in cmake (avoid buggy libcurl vs https issue)
-set(DL_BACKEND "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${backend_download}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
-set(DL_SCANNER "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${scanner_download}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
-set(DL_CONTRIB "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${CMAKE_BUILD_DIR}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
+set(DL_BACKEND "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${PROJECT_SOURCE_DIR}" "${backend_download}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
+set(DL_SCANNER "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${PROJECT_SOURCE_DIR}" "${scanner_download}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
+set(DL_CONTRIB "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${PROJECT_SOURCE_DIR}" "${CMAKE_BUILD_DIR}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
 
 # Define the module location switch differently depending on compiler
 if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel")
