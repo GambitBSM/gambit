@@ -1099,7 +1099,7 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SR-E-1l1T-2", 8., 6.0, 1.9)
         COMMIT_SIGNAL_REGION("SR-E-1l1T-3", 8., 7.6, 2.1)
         COMMIT_SIGNAL_REGION("SR-E-1l1T-4", 24., 20.7, 3.4)
-        COMMIT_SIGNAL_REGION("SR-E-1l1T-5", 24., 14, 4)
+        COMMIT_SIGNAL_REGION("SR-E-1l1T-5", 24., 24, 4)
         COMMIT_SIGNAL_REGION("SR-E-1l1T-6", 16., 18.1, 3.1)
 
         // SR-VBF-low observed and background events, from Table 13 of 1911.12606
@@ -1259,7 +1259,7 @@ namespace Gambit
           COMMIT_SIGNAL_REGION("SR-E-1l1T-2", 8., 6.0, 1.9)
           COMMIT_SIGNAL_REGION("SR-E-1l1T-3", 8., 7.6, 2.1)
           COMMIT_SIGNAL_REGION("SR-E-1l1T-4", 24., 20.7, 3.4)
-          COMMIT_SIGNAL_REGION("SR-E-1l1T-5", 24., 14, 4)
+          COMMIT_SIGNAL_REGION("SR-E-1l1T-5", 24., 24, 4)
           COMMIT_SIGNAL_REGION("SR-E-1l1T-6", 16., 18.1, 3.1)
 
           // SR-VBF-low observed and background events, from Table 13 of 1911.12606
