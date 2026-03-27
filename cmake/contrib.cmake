@@ -102,10 +102,10 @@ set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECT
 add_dependencies(contrib mkpath)
 
 #contrib/yaml-cpp-0.6.2
-set(yaml_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.6.2/include)
+set(yaml_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.8.0/include)
 include_directories("${yaml_INCLUDE_DIR}")
 add_definitions(-DYAML_CPP_DLL)
-add_subdirectory(${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.6.2 EXCLUDE_FROM_ALL)
+add_subdirectory(${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.8.0 EXCLUDE_FROM_ALL)
 
 #contrib/RestFrames; include only if ColliderBit is in use, ROOT is found and WITH_RESTFRAMES=ON.
 option(WITH_RESTFRAMES "Compile with RestFrames enabled" OFF)

@@ -70,7 +70,7 @@ namespace Gambit
       template <typename... args>
       bool hasKey(const args&... keys) const
       {
-        return getVariadicNode(options, keys...);
+        return bool(getVariadicNode(options, keys...));
       }
 
       template<typename TYPE, typename... args>
