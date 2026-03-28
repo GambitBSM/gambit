@@ -549,11 +549,12 @@ for(int j=0;j<NCUTS;j++){
                    (j==63 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150 && c4_Jet3PtMET && c4_R2l4j) ||
                    (j==64 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150 && c4_Jet3PtMET && c4_R2l4j && c4_R2l) ||
                    (j==65 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150 && c4_Jet3PtMET && c4_R2l4j && c4_R2l && c4_2bjetveto)
-                   )
+                   ) {
 #ifdef CHECK_CUTFLOW
             _cutflows[analysis_name()].fill(j+1, true, event->weight());
 #endif
 
+            }
             }
             // signal region
 

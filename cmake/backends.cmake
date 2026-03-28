@@ -2271,7 +2271,7 @@ set(Rivet_dirs "${dir}/src/Core" "${dir}/src/Projections" "${dir}/src/Tools" "${
 
 # For MacOS we need to specify the (weird) root directory for headers (isysroot)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(Rivet_CPP_FLAGS "-isysroot${CMAKE_OSX_SYSROOT}")
+  set(Rivet_CPP_FLAGS "-isysroot ${CMAKE_OSX_SYSROOT}")
 else()
   set(Rivet_CPP_FLAGS "")
 endif()

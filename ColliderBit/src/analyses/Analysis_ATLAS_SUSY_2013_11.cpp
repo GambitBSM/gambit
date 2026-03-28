@@ -923,11 +923,12 @@ for(int j=0;j<NCUTS;j++)
 
                 (j==81 && tauVeto && leptonPTCut && mllCut && isOS && (numElectrons==1 && numMuons==1) && numCentralNonBJets==0 && numCentralBJets==0 && numForwardJets==0 && passMT2_WWc)
 
-                )
+                ) {
 #ifdef CHECK_CUTFLOW
                 if (cutFlowIncrements[j] > 0) _cutflows[analysis_name()].fill(j+1, true, cutFlowIncrements[j]*event->weight());
 #endif
 
+          }
           }
           return;
         }

@@ -910,11 +910,12 @@ for(int j=0;j<NCUTS;j++)
 
                (j==60 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120. && mblmin < 170. && amt2 > 200. && mbb_35 < 200. && fabs(signalBJets35[0]->mom().deltaPhi(metVec)) > 2.0 && mtminb > 200.)
 
-               )
+               ) {
 #ifdef CHECK_CUTFLOW
             _cutflows[analysis_name()].fill(j+1, true, event->weight());
 #endif
           }
+        }
 
 
           // Now increment signal region variables

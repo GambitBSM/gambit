@@ -782,10 +782,11 @@ for(int j=0;j<NCUTS;j++){
               (j==50 && numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && (signalTaus[0]->pid() == -1*signalTaus[1]->pid()) && bJets.size()==0 && met > 60 && mtautau>70. && mtautau < 120. && (signalTaus[0]->mom().pT() + signalTaus[1]->mom().pT())>110.)
 
 
-              )
+              ) {
 #ifdef CHECK_CUTFLOW
             _cutflows[analysis_name()].fill(j+1, true, event->weight());
 #endif
+        }
         }
         return;
       }

@@ -627,13 +627,14 @@ for(int j=0;j<NCUTS;j++){
 
              (j==39 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160 && cut_sigGt8 && cut_meffGt550) ||
 
-             (j==40 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160 && cut_sigGt8 && cut_meffGt700) )
+             (j==40 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160 && cut_sigGt8 && cut_meffGt700) ) {
 
 
-            #ifdef CHECK_CUTFLOW
+#ifdef CHECK_CUTFLOW
             _cutflows[analysis_name()].fill(j+1, true, event->weight());
 #endif
         }
+      }
 
         //We're now ready to apply the cuts for each signal region
 

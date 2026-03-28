@@ -447,11 +447,12 @@ for(int j=0;j<NCUTS;j++)
 
                (j==20 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.)
 
-               )
+               ) {
 #ifdef CHECK_CUTFLOW
             _cutflows[analysis_name()].fill(j+1, true, event->weight());
 #endif
           }
+        }
 
           //We're now ready to apply the cuts for each signal region
           //SRA, SRB, SRA15, SRA20, SRA25, SRA30, SRA35;

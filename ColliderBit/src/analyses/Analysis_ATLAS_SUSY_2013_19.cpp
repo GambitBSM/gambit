@@ -350,12 +350,13 @@ for(int j=0;j<NCUTS;j++){
 
              (j==21 && cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2110 && nJets>=2) ||
 
-             (j==22 && cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2120 && nJets>=2) )
+             (j==22 && cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2120 && nJets>=2) ) {
 
-            #ifdef CHECK_CUTFLOW
+#ifdef CHECK_CUTFLOW
             _cutflows[analysis_name()].fill(j+1, true, event->weight());
 #endif
         }
+      }
 
         //We're now ready to apply the cuts for each signal region
 
