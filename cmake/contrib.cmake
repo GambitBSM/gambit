@@ -419,7 +419,7 @@ else()
   set(EXCLUDE_FASTJET TRUE)
 endif()
 
-#contrib/fjcontrib-1.049; include only if Colliderbit is in use.
+# contrib/fjcontrib-1.049; active ColliderBit path.
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   message("   ColliderBit included, include fjcontrib too")
   set(EXCLUDE_FJCONTRIB FALSE)
@@ -427,11 +427,11 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(fjcontrib_dl "http://fastjet.hepforge.org/contrib/downloads/fjcontrib-1.049.tar.gz")
   set(fjcontrib_md5 "bfea8bfd311d958a40e445f76668bd32")
   set(fjcontrib_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.049")
-  #include_directories("${fjcontrib_dir}/RecursiveTools")
-  include_directories("${fastjet_dir}/local/include" "${fastjet_dir}/local/include/fastjet/contrib" "${fjcontrib_dir}/RecursiveTools" "${fjcontrib_dir}/EnergyCorrelator" "${fjcontrib_dir}/VariableR")
+  include_directories("${fastjet_dir}/local/include" "${fastjet_dir}/local/include/fastjet/contrib")
+  # Legacy fjcontrib module source directories are not added to the global
+  # include path.
 
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fjcontrib_dir}/local/lib")
-  # set(fjcontrib_LDFLAGS "-L${fastjet_dir}/local/lib -lRecursiveTools")
   set(fjcontrib_LDFLAGS "-L${fastjet_dir}/local/lib -lRecursiveTools -lEnergyCorrelator -lVariableR")
 
   string(REGEX REPLACE "-Xclang -fopenmp" "" FJCONTRIB_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
@@ -457,6 +457,18 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   # Add clean and nuke
   add_contrib_clean_and_nuke(fjcontrib ${fjcontrib_dir} clean)
   set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} fjcontrib)
+
+  # Nsubjettiness now lives in the fjcontrib-1.049 tree.
+  set(fjcontrib_nsubjettiness_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.049/Nsubjettiness")
+  add_gambit_library(fjcontrib_nsubjettiness OPTION OBJECT
+                            SOURCES ${fjcontrib_nsubjettiness_dir}/AxesDefinition.cc
+                                    ${fjcontrib_nsubjettiness_dir}/MeasureDefinition.cc
+                                    ${fjcontrib_nsubjettiness_dir}/ExtraRecombiners.cc
+                                    ${fjcontrib_nsubjettiness_dir}/TauComponents.cc
+                                    ${fjcontrib_nsubjettiness_dir}/Njettiness.cc
+                                    ${fjcontrib_nsubjettiness_dir}/Nsubjettiness.cc)
+  add_dependencies(fjcontrib_nsubjettiness fastjet)
+  set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcontrib_nsubjettiness>)
 
 else()
   message("${BoldCyan} X ColliderBit is not in use: excluding fastjet from GAMBIT configuration.${ColourReset}")

@@ -238,6 +238,8 @@ namespace Gambit
         const bool jet1_med1 = b0 && find(csvv2_medium.begin(), csvv2_medium.end(), b0) != csvv2_medium.end();
         const bool jet1_med2 = b1 && find(csvv2_medium.begin(), csvv2_medium.end(), b1) != csvv2_medium.end();
 
+        const bool jet0_has_proxy_subjet = (a0 || a1);
+        const bool jet1_has_proxy_subjet = (b0 || b1);
         const bool jet0_has_two = (a0 && a1);
         const bool jet1_has_two = (b0 && b1);
         const bool jet0_subjet1_loose = jet0_loose1 || jet0_med1;
@@ -298,13 +300,15 @@ namespace Gambit
         // This is a public recast approximation, not a faithful soft-drop-subjet
         // CSVv2 implementation.
         // Top-tag proxy: the true highest-CSVv2 soft-drop subjet is unavailable,
-        // so we approximate it by requiring at least one proxy subjet to be medium.
-        const bool jet0_t       = pass_tau32_0 && ak8jets[0]->pT() > 400. && msoftdrop0 > 105. && msoftdrop0 < 220. && jet0_proxy_top_b;
+        // so we approximate it by requiring at least one matched proxy subjet to
+        // be medium-tagged.
+        const bool jet0_t       = pass_tau32_0 && jet0_has_proxy_subjet && ak8jets[0]->pT() > 400. && msoftdrop0 > 105. && msoftdrop0 < 220. && jet0_proxy_top_b;
         // Reversed-top proxy: the unavailable highest-CSVv2 soft-drop subjet would
-        // fail medium, approximated here by requiring no proxy subjet to be medium.
-        const bool jet0_rev_t   = pass_tau32_0 && ak8jets[0]->pT() > 400. && msoftdrop0 > 105. && msoftdrop0 < 220. && !jet0_proxy_top_b;
-        const bool jet1_t       = pass_tau32_1 && ak8jets[1]->pT() > 400. && msoftdrop1 > 105. && msoftdrop1 < 220. && jet1_proxy_top_b;
-        const bool jet1_rev_t   = pass_tau32_1 && ak8jets[1]->pT() > 400. && msoftdrop1 > 105. && msoftdrop1 < 220. && !jet1_proxy_top_b;
+        // fail medium. Require at least one matched proxy subjet and no matched
+        // proxy subjet to be medium-tagged.
+        const bool jet0_rev_t   = pass_tau32_0 && jet0_has_proxy_subjet && ak8jets[0]->pT() > 400. && msoftdrop0 > 105. && msoftdrop0 < 220. && !jet0_proxy_top_b;
+        const bool jet1_t       = pass_tau32_1 && jet1_has_proxy_subjet && ak8jets[1]->pT() > 400. && msoftdrop1 > 105. && msoftdrop1 < 220. && jet1_proxy_top_b;
+        const bool jet1_rev_t   = pass_tau32_1 && jet1_has_proxy_subjet && ak8jets[1]->pT() > 400. && msoftdrop1 > 105. && msoftdrop1 < 220. && !jet1_proxy_top_b;
 
         const bool jet0_h       = pass_tau21_0 && jet0_has_two && ak8jets[0]->pT() > 300. && mpruned0 > 105. && mpruned0 < 135. && ((jet0_med1 && jet0_subjet2_loose) || (jet0_med2 && jet0_subjet1_loose));
         const bool jet0_rev_h   = pass_tau21_0 && jet0_has_two && ak8jets[0]->pT() > 300. && mpruned0 > 105. && mpruned0 < 135. && ((jet0_med1 && !jet0_subjet2_loose) || (jet0_med2 && !jet0_subjet1_loose));

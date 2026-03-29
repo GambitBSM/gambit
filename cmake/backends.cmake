@@ -2161,7 +2161,6 @@ if(NOT FJ_BACKEND_REUSE_CONTRIB)
   endif()
 
   # Fjcontrib
-  # 07 Aug 2024, Modified by Pengxuan: set version from 1.041 to 1.045 for supporting Energy Correlator function
   set(name "fjcontrib")
   set(ver "1.049")
   set(dl "http://fastjet.hepforge.org/contrib/downloads/${name}-${ver}.tar.gz")
@@ -2194,43 +2193,6 @@ if(NOT FJ_BACKEND_REUSE_CONTRIB)
   endif()
 endif()
 
-
-# # Fjcontrib
-# # 07 Aug 2024, Modified by Pengxuan: set version from 1.041 to 1.045 for supporting Enenrycorrelator function 
-# set(name "fjcontrib")
-# set(ver "1.045")
-# set(dl "http://fastjet.hepforge.org/contrib/downloads/${name}-${ver}.tar.gz")
-# set(md5 "99b347b9eedc5a91e7bd7f7725427367")
-# set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-# set(fastjet_name "fastjet")
-# set(fastjet_ver "3.4.2")
-# set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}")
-# set(FJCONTRIB_CXX_FLAGS "${FJ_CXX_FLAGS} -I${dir}/RecursiveTools")
-# set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-# set(FJCONTRIB_LD_FLAGS "${FJ_LINKER_FLAGS} -L${fastjet_dir}/local/lib -Wl,-rpath,${fastjet_dir}/local/lib")
-
-# #set(FJCONTRIB_CXX_FLAGS ${BACKEND_CXX_FLAGS})
-# set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
-# set_compiler_warning("no-unused-parameter" FJCONTRIB_CXX_FLAGS)
-# set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
-# set_compiler_warning("no-catch-value" FJCONTRIB_CXX_FLAGS)
-# check_ditch_status(${name} ${ver} ${dir})
-# if(NOT ditched_${name}_${ver})
-#   ExternalProject_Add(${name}_${ver}
-#     DEPENDS ${fastjet_name}_${fastjet_ver}
-#     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-#     SOURCE_DIR ${dir}
-#     BUILD_IN_SOURCE 1
-#     PATCH_COMMAND ""
-#     #PATCH_COMMAND patch -p1 < ${patch}
-#     CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local #--only=RecursiveTools
-#     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
-#     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
-#   )
-# #  BOSS_backend(${name} ${ver})
-#   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-# #  set_as_default_version("backend" ${name} ${ver})
-# endif()
 
 # Rivet
 set(name "rivet")
