@@ -428,7 +428,7 @@ namespace Gambit
 
 
     //
-    // Derived analysis class for the 2Lep0Jets SRs
+    // Derived analysis class for the inclusive SRs
     //
     class Analysis_ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb : public Analysis_ATLAS_13TeV_2OSLEP_chargino_139invfb {
 
@@ -467,7 +467,7 @@ namespace Gambit
     DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb)
 
     //
-    // Derived analysis class for the 3Lep SRs
+    // Derived analysis class for the binned SRs
     //
     class Analysis_ATLAS_13TeV_2OSLEP_chargino_binned_139invfb : public Analysis_ATLAS_13TeV_2OSLEP_chargino_139invfb {
 
