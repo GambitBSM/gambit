@@ -40,6 +40,11 @@ namespace Gambit {
 
       Cutflow _cutflow;
 
+      // Reusable per-event selection vectors: declared as members so their
+      // heap-allocated storage is reused across the 1M+ calls to run().
+      std::vector<const Jet*> _jets24, _jets50;
+      std::vector<const Particle*> _baseelecs, _basemuons, _elecs, _muons;
+
       Analysis_CMS_13TeV_0LEP_36invfb() :
         _cutflow("CMS 0-lep 13 TeV", {"Njet >= 3", "HT > 300", "HTmiss > 300", "Nmuon = 0", "Nelectron = 0", "Nhadron = 0 (no-op)", "Dphi_htmiss_j1", "Dphi_htmiss_j2", "Dphi_htmiss_j3", "Dphi_htmiss_j4"})
       {
@@ -50,80 +55,80 @@ namespace Gambit {
 
       void run(const Event* event) {
 
+        // Clear member vectors to reuse their allocated capacity.
+        _jets24.clear(); _jets50.clear();
+        _baseelecs.clear(); _basemuons.clear();
+        _elecs.clear(); _muons.clear();
+
         _cutflow.fillinit();
 
         // FinalState isofs(Cuts::abseta < 3.0 && Cuts::abspid != PID::ELECTRON && Cuts::abspid != PID::MUON);
         // FinalState cfs(Cuts::abseta < 2.5 && Cuts::abscharge != 0);
 
         // Get baseline jets
-        vector<const Jet*> jets24, jets50;
         for (const Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT() < 30) continue;
-          if (jet->abseta() < 2.4) jets24.push_back(jet);
-          if (jet->abseta() < 5.0) jets50.push_back(jet);
+          if (jet->abseta() < 2.4) _jets24.push_back(jet);
+          if (jet->abseta() < 5.0) _jets50.push_back(jet);
         }
-        if (jets24.size() < 2) return;
+        if (_jets24.size() < 2) return;
         _cutflow.fill(1);
 
         // HT cut
         double sumptj = 0;
-        for (const Jet* j : jets24) sumptj += j->pT();
+        for (const Jet* j : _jets24) sumptj += j->pT();
         const double ht = sumptj;
         if (ht < 300) return;
         _cutflow.fill(2);
 
         // HTmiss cut, from full set of jets
         P4 htvec;
-        for (const Jet* jet : jets50) htvec += jet->mom();
+        for (const Jet* jet : _jets50) htvec += jet->mom();
         const double htmiss = htvec.pT();
         if (htmiss < 300) return;
         _cutflow.fill(3);
 
 
         // Get baseline electrons
-        vector<const Particle*> baseelecs;
         for (const Particle* electron : event->electrons())
           if (electron->pT() > 10. && electron->abseta() < 2.5)
-            baseelecs.push_back(electron);
+            _baseelecs.push_back(electron);
 
         // Apply electron efficiency
-        CMS::applyElectronEff(baseelecs);
+        CMS::applyElectronEff(_baseelecs);
 
         // Get baseline muons
-        vector<const Particle*> basemuons;
         for (const Particle* muon : event->muons())
           if (muon->pT() > 10. && muon->abseta() < 2.4)
-            basemuons.push_back(muon);
+            _basemuons.push_back(muon);
 
         // Apply muon efficiency
-        CMS::applyMuonEff(basemuons);
+        CMS::applyMuonEff(_basemuons);
 
         // Electron isolation
         /// @todo Sum should actually be over all non-e/mu calo particles
-        vector<const Particle*> elecs;
-        for (const Particle* e : baseelecs) {
+        for (const Particle* e : _baseelecs) {
           const double R = max(0.05, min(0.2, 10/e->pT()));
           double sumpt = -e->pT();
-          for (const Jet* j : jets50)
+          for (const Jet* j : _jets50)
             if (e->mom().deltaR_eta(j->mom()) < R) sumpt += j->pT();
-          if (sumpt/e->pT() < 0.1) elecs.push_back(e);
+          if (sumpt/e->pT() < 0.1) _elecs.push_back(e);
         }
 
         // Muon isolation
         /// @todo Sum should actually be over all non-e/mu calo particles
-        vector<const Particle*> muons;
-        for (const Particle* m : basemuons) {
+        for (const Particle* m : _basemuons) {
           const double R = max(0.05, min(0.2, 10/m->pT()));
           double sumpt = -m->pT();
-          for (const Jet* j : jets50)
+          for (const Jet* j : _jets50)
             if (m->mom().deltaR_eta(j->mom()) < R) sumpt += j->pT();
-          if (sumpt/m->pT() < 0.2) muons.push_back(m);
+          if (sumpt/m->pT() < 0.2) _muons.push_back(m);
         }
 
         // Veto the event if there are any remaining baseline leptons
-        if (!muons.empty()) return;
+        if (!_muons.empty()) return;
         _cutflow.fill(4);
-        if (!elecs.empty()) return;
+        if (!_elecs.empty()) return;
         _cutflow.fill(5);
 
 
@@ -152,13 +157,13 @@ namespace Gambit {
 
 
         // Lead jets isolation from Htmiss
-        if (deltaPhi(-htvec, jets24[0]->mom()) < 0.5) return;
+        if (deltaPhi(-htvec, _jets24[0]->mom()) < 0.5) return;
         _cutflow.fill(7);
-        if (deltaPhi(-htvec, jets24[1]->mom()) < 0.5) return;
+        if (deltaPhi(-htvec, _jets24[1]->mom()) < 0.5) return;
         _cutflow.fill(8);
-        if (jets24.size() >= 3 && deltaPhi(-htvec, jets24[2]->mom()) < 0.3) return;
+        if (_jets24.size() >= 3 && deltaPhi(-htvec, _jets24[2]->mom()) < 0.3) return;
         _cutflow.fill(9);
-        if (jets24.size() >= 4 && deltaPhi(-htvec, jets24[3]->mom()) < 0.3) return;
+        if (_jets24.size() >= 4 && deltaPhi(-htvec, _jets24[3]->mom()) < 0.3) return;
         _cutflow.fill(10);
 
 
@@ -201,10 +206,10 @@ namespace Gambit {
 
 
         // Fill aggregate SR bins
-        const size_t njets = jets24.size();
+        const size_t njets = _jets24.size();
 
         size_t nbjets = 0;
-        for (const Jet* j : jets24) {
+        for (const Jet* j : _jets24) {
           // b-tag effs: b: 0.55, c: 0.12, l: 0.016
           const bool btagged = Random::draw() < (j->btag() ? 0.55 : j->ctag() ? 0.12 : 0.016);
           if (btagged) nbjets += 1;
@@ -256,6 +261,9 @@ namespace Gambit {
     protected:
       void analysis_specific_reset() {
         for (auto& pair : _counters) { pair.second.reset(); }
+        _jets24.clear(); _jets50.clear();
+        _baseelecs.clear(); _basemuons.clear();
+        _elecs.clear(); _muons.clear();
       }
 
     };

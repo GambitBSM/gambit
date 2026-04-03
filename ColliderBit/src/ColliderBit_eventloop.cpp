@@ -34,6 +34,8 @@
 ///
 ///  *********************************************
 
+#include <algorithm>
+
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 #include "gambit/ColliderBit/PoissonCalculators.hpp"
@@ -290,10 +292,14 @@ namespace Gambit
         const int stoppingres_collider = stoppingres.at(collider);
         const int desired_nEvents_collider = result.desired_nEvents[collider];
 
+        // Number of events each thread claims per critical-section acquisition.
+        // Amortises lock overhead without adding significant load imbalance.
+        static constexpr int EVENT_BATCH_SIZE = 64;
+
         // Convergence loop
         while(((fixed_nEvents && result.current_event_count() < max_nEvents_collider) or (!fixed_nEvents && result.current_event_count() < desired_nEvents_collider)) and not *Loop::done)
         {
-          
+
           int eventCountBetweenConvergenceChecks = 0;
           #ifdef COLLIDERBIT_DEBUG
             cout << DEBUG_PREFIX << "Starting main event loop.  Will do " << stoppingres_collider << " events before testing convergence." << endl;
@@ -311,32 +317,37 @@ namespace Gambit
                   not piped_errors.inquire()
                   )
             {
-              bool thread_do_iteration = true;
-              int thread_my_iteration;
-
-              // Increment counters before executing the corresponding event loop iteration,
-              // to stop other threads from starting any event iterations beyond max_nEvents.
+              // Claim a batch of events under a single critical-section acquisition,
+              // rather than one event at a time, to reduce OMP lock contention.
+              int thread_batch_start = 0;
+              int thread_batch_size = 0;
               #pragma omp critical
               {
-                if (   (fixed_nEvents && result.current_event_count() < max_nEvents_collider)
-                    or (!fixed_nEvents && result.current_event_count() < desired_nEvents_collider))
+                const int limit_total = fixed_nEvents ? max_nEvents_collider : desired_nEvents_collider;
+                const int remaining_total = limit_total - result.current_event_count();
+                const int remaining_convergence = stoppingres_collider - eventCountBetweenConvergenceChecks;
+                const int claim = std::min({EVENT_BATCH_SIZE, remaining_total, remaining_convergence});
+                if (claim > 0)
                 {
-                  result.current_event_count()++;
-                  thread_my_iteration = result.current_event_count();
-                  eventCountBetweenConvergenceChecks++;
-                }
-                else
-                {
-                  thread_do_iteration = false;
+                  thread_batch_start = result.current_event_count() + 1;
+                  thread_batch_size = claim;
+                  result.current_event_count() += claim;
+                  eventCountBetweenConvergenceChecks += claim;
                 }
               }
 
-              if(thread_do_iteration)
+              // Process the claimed batch without holding the lock.
+              for (int b = 0; b < thread_batch_size; ++b)
               {
+                // Abort remaining batch if a termination condition fires mid-batch.
+                if (result.exceeded_maxFailedEvents or result.end_of_event_file or
+                    *Loop::done or piped_errors.inquire())
+                  break;
+
                 try
                 {
                   // Execute event loop iteration
-                  Loop::executeIteration(thread_my_iteration);
+                  Loop::executeIteration(thread_batch_start + b);
                 }
                 catch (std::domain_error& e)
                 {

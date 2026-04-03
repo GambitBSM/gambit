@@ -37,25 +37,34 @@ namespace Gambit
     /// Convert a hadron-level EventT into an unsmeared HEPUtils::Event
     /// @todo Overlap between jets and prompt containers: need some isolation in MET calculation
     template<typename EventT>
-    void convertParticleEvent(const EventT& pevt, HEPUtils::Event& result, std::vector<jet_collection_settings> all_jet_collection_settings, str jetcollection_taus, double jet_pt_min)
+    void convertParticleEvent(const EventT& pevt, HEPUtils::Event& result,
+                              const std::vector<jet_collection_settings>& all_jet_collection_settings,
+                              const str& jetcollection_taus, double jet_pt_min)
     {
       result.clear();
 
-      std::vector<FJNS::PseudoJet> bhadrons; //< for input to FastJet b-tagging
-      std::vector<HEPUtils::Particle> bpartons, cpartons, tauCandidates, WCandidates, ZCandidates, hCandidates;
-      HEPUtils::P4 pout; //< Sum of momenta outside acceptance
-      std::vector<FJNS::PseudoJet> jetparticles;
+      // Thread-local scratch buffers: allocated once per thread and reused across events
+      // to avoid per-event heap allocation (significant cost at 1M+ events per run).
+      thread_local std::vector<HEPUtils::Particle> bpartons, cpartons, tauCandidates, WCandidates, ZCandidates, hCandidates;
+      thread_local std::vector<FJNS::PseudoJet> jetparticles;
+      thread_local std::vector<uint8_t> isFromHadron;
+      thread_local std::vector<int> childIDs;
+
+      bpartons.clear(); cpartons.clear(); tauCandidates.clear();
+      WCandidates.clear(); ZCandidates.clear(); hCandidates.clear();
+      jetparticles.clear();
 
       // isFromHadron[i] = 1 if particle i is a hadron or descends from one.
       // uint8_t instead of bool: std::vector<bool> is a bitfield with slower element access.
       // The flag is propagated inline in the single forward pass below — valid because
       // Pythia8 guarantees mother index < daughter index, so isFromHadron[m] for any
       // mother m of particle i is already finalised before we reach i.
-      std::vector<uint8_t> isFromHadron(pevt.size(), 0);
+      isFromHadron.assign(pevt.size(), 0);
 
-      // Hoisted outside the loop and reused each iteration to avoid repeated heap allocation.
-      std::vector<int> childIDs;
-      childIDs.reserve(16);
+      // Reserve childIDs once on first use for this thread (16 covers all common cases).
+      if (childIDs.capacity() < 16) childIDs.reserve(16);
+
+      HEPUtils::P4 pout; //< Sum of momenta outside acceptance
 
       // Single forward pass: propagate isFromHadron flags AND classify/collect particles.
       // Particle 0 is Pythia8's system/vacuum entry (pid=90); it is never final and has
@@ -354,7 +363,9 @@ namespace Gambit
 
     /// Convert a partonic (no hadrons) EventT into an unsmeared HEPUtils::Event
     template<typename EventT>
-    void convertPartonEvent(const EventT& pevt, HEPUtils::Event& result, std::vector<jet_collection_settings> all_jet_collection_settings, str jetcollection_taus, double jet_pt_min)
+    void convertPartonEvent(const EventT& pevt, HEPUtils::Event& result,
+                            const std::vector<jet_collection_settings>& all_jet_collection_settings,
+                            const str& jetcollection_taus, double jet_pt_min)
     {
       result.clear();
 
