@@ -109,8 +109,10 @@ namespace Gambit
 
         /// Add a command to the list of settings used by "init".
         void addToSettings(const std::string& command) { _pythiaSettings.push_back(command); }
-        /// Create a useless Pythia instance just to print the banner.
-        void banner(const std::string pythiaDocPath) { PythiaT myPythia(pythiaDocPath); }
+        /// No-op: previously created a throwaway Pythia instance just to print the
+        /// banner, costing a full XML load per call.  The banner now appears via
+        /// the _pythiaInstance->init() output that follows shortly after.
+        void banner(const std::string /*pythiaDocPath*/) {}
         /// Initialize with no settings (error): override version.
         void init() { std::cout<<"No settings given to Pythia!\n\n"; throw InitializationError(); }
 
@@ -142,11 +144,12 @@ namespace Gambit
           // Pass all settings to _pythiaBase
           for(const str& command : _pythiaSettings) _pythiaBase->readString(command);
 
-          // Create new _pythiaInstance from _pythiaBase
+          // Create new _pythiaInstance from _pythiaBase (false = suppress banner;
+          // init_user_model already does this — keep both consistent).
           if (_pythiaInstance) delete _pythiaInstance;
-          _pythiaInstance = new PythiaT(_pythiaBase->settings, _pythiaBase->particleData);
+          _pythiaInstance = new PythiaT(_pythiaBase->settings, _pythiaBase->particleData, false);
 
-          // Send along the SLHAea::Coll pointer, if it exists          
+          // Send along the SLHAea::Coll pointer, if it exists
           if (slhaea) _pythiaInstance->slhaInterface.slha.setSLHAea(slhaea);
 
           // Read command again to get SM decay table change from yaml file

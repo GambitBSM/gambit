@@ -46,11 +46,33 @@ namespace Gambit
       HEPUtils::P4 pout; //< Sum of momenta outside acceptance
       std::vector<FJNS::PseudoJet> jetparticles;
 
-      for (decltype(pevt.size()) i = 0; i < pevt.size(); i++)
+      // isFromHadron[i] = 1 if particle i is a hadron or descends from one.
+      // uint8_t instead of bool: std::vector<bool> is a bitfield with slower element access.
+      // The flag is propagated inline in the single forward pass below — valid because
+      // Pythia8 guarantees mother index < daughter index, so isFromHadron[m] for any
+      // mother m of particle i is already finalised before we reach i.
+      std::vector<uint8_t> isFromHadron(pevt.size(), 0);
+
+      // Hoisted outside the loop and reused each iteration to avoid repeated heap allocation.
+      std::vector<int> childIDs;
+      childIDs.reserve(16);
+
+      // Single forward pass: propagate isFromHadron flags AND classify/collect particles.
+      // Particle 0 is Pythia8's system/vacuum entry (pid=90); it is never final and has
+      // no mothers, so we safely start at i=1.
+      for (size_t i = 1; i < pevt.size(); i++)
       {
         const auto &p = pevt[i];
         const int pid = get_unified_pid(p);
         const int apid = abs(pid);
+
+        // Propagate isFromHadron flag using Pythia8 native methods (avoids MCUtils
+        // digit-extraction chains).  Pythia8's isParton() includes diquarks.
+        if (get_unified_isHadron(p))
+          isFromHadron[i] = 1;
+        else if (!get_unified_isPartonOrDiquark(p))
+          if (get_unified_anyMotherFlagged(p, isFromHadron)) isFromHadron[i] = 1;
+
         const HEPUtils::P4 p4 = get_unified_momentum(p);
 
         //b, c and tau idenitification:
@@ -60,7 +82,7 @@ namespace Gambit
         if (apid == 5)
         {
           bool isGoodB = true;
-          std::vector<int> childIDs;
+          childIDs.clear();
           get_unified_child_ids(p, pevt, childIDs);
           for (int childID : childIDs)
           {
@@ -74,7 +96,7 @@ namespace Gambit
         if (apid == 4)
         {
           bool isGoodC = true;
-          std::vector<int> childIDs;
+          childIDs.clear();
           get_unified_child_ids(p, pevt, childIDs);
           for (int childID : childIDs)
           {
@@ -87,7 +109,7 @@ namespace Gambit
         if (apid == MCUtils::PID::TAU)
         {
           bool isGoodTau=true;
-          std::vector<int> childIDs;
+          childIDs.clear();
           get_unified_child_ids(p, pevt, childIDs);
           int abschildID;
           for (int childID : childIDs)
@@ -108,7 +130,7 @@ namespace Gambit
         if (apid == MCUtils::PID::Z0 || apid == MCUtils::PID::WPLUS || apid == MCUtils::PID::HIGGS)
         {
           bool isGoodBoson = true;
-          std::vector<int> childIDs;
+          childIDs.clear();
           get_unified_child_ids(p, pevt, childIDs);
           int abschildID;
           for (int childID : childIDs)
@@ -176,7 +198,7 @@ namespace Gambit
         }
 
         // Promptness: for leptons and photons we're only interested if they don't come from hadron/tau decays
-        const bool prompt = !get_unified_fromHadron(p, pevt, i);
+        const bool prompt = !isFromHadron[i];
         const bool visible = MCUtils::PID::isStrongInteracting(pid) || MCUtils::PID::isEMInteracting(pid);
 
         // Add prompt and invisible particles as individual particles
