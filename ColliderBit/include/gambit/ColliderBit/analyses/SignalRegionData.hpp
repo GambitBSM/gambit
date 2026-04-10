@@ -22,6 +22,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Feb
 ///
+///  \author Chris Chang
+///          (c.j.chang@fys.uio.no)
+///  \date 2026 Apr
+///
 ///  *********************************************
 
 #pragma once
@@ -78,11 +82,12 @@ namespace Gambit
                        double nobs, double nsigMC, double nbkg,
                        double nsigMCsys, double nbkgerr, double nsigscaled=0) :
         sr_label(sr),
-        n_obs(nobs), 
-        n_sig_MC(nsigMC), 
-        n_sig_MC_sys(nsigMCsys), 
-        n_sig_MC_stat(sqrt(nsigMC)), 
-        n_sig_scaled(nsigscaled), 
+        n_obs(nobs),
+        n_sig_MC(nsigMC),
+        n_sig_MC_sys(nsigMCsys),
+        n_sig_MC_stat(sqrt(nsigMC)),
+        n_sig_scaled(nsigscaled),
+        n_sig_xsec_uncert(0.0),
         n_bkg(nbkg),
         n_bkg_err(nbkgerr)
       { }
@@ -106,7 +111,11 @@ namespace Gambit
         return sqrt( n_sig_MC_stat * n_sig_MC_stat + n_sig_MC_sys * n_sig_MC_sys ); 
       }
 
-      double calc_n_sig_scaled_err() const { return scalefactor() * calc_n_sig_MC_err(); }
+      double calc_n_sig_scaled_err() const
+      {
+        double mc_err = scalefactor() * calc_n_sig_MC_err();
+        return sqrt( mc_err * mc_err + n_sig_xsec_uncert * n_sig_xsec_uncert );
+      }
 
       double calc_n_sigbkg_err() const 
       { 
@@ -118,6 +127,7 @@ namespace Gambit
       {
         n_sig_MC += other.n_sig_MC;
         n_sig_MC_stat = sqrt(n_sig_MC);
+        n_sig_xsec_uncert = 0.0; // Reset: will be set correctly by the subsequent scale() call
       }
 
       /// @todo Set up a more complete system of getters/setters and make the member variables private
@@ -134,6 +144,7 @@ namespace Gambit
       double n_sig_MC_sys; ///< The absolute systematic error of n_sig_MC
       double n_sig_MC_stat; ///< The absolute statistical (MC) error of n_sig_MC
       double n_sig_scaled; ///< n_sig_MC, scaled to luminosity * cross-section
+      double n_sig_xsec_uncert; ///< Absolute uncertainty on n_sig_scaled from cross-section uncertainty
       double n_bkg; ///< The number of standard model events expected to pass the selection for this signal region, as reported by the experiment.
       double n_bkg_err; ///< The absolute error of n_bkg
       //@}

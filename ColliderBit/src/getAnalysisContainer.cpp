@@ -91,6 +91,7 @@ namespace Gambit
         result.collect_and_add_signal();
         int ntot = RunMC.current_event_count();
         double xs = TotalCrossSection.xsec();
+        double xs_relerr = TotalCrossSection.xsec_relerr();
         double xs_per_event = 0;
         if (xs >= 0 && ntot > 0)
         {
@@ -100,10 +101,12 @@ namespace Gambit
           cout << DEBUG_PREFIX << "getAnalysisContainer: "
                << "ntot = " << ntot << ",  "
                << "xs = " << xs << ",  "
+               << "xs_relerr = " << xs_relerr << ",  "
                << "xs_per_event = " << xs_per_event << endl;
         #endif
-        // Scale all analysis results with the total cross-section per event
-        result.scale(xs_per_event);
+        // Scale all analysis results with the total cross-section per event,
+        // and propagate the cross-section relative uncertainty to each signal region
+        result.scale(xs_per_event, xs_relerr);
       }
 
     }

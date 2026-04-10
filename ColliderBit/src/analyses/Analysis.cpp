@@ -146,14 +146,18 @@ namespace Gambit
       set_covariance(cov);
     }
 
-    /// Scale by xsec per event.
-    void Analysis::scale(double xsec_per_event)
+    /// Scale by xsec per event, and propagate the cross-section relative uncertainty.
+    void Analysis::scale(double xsec_per_event, double xsec_relerr)
     {
       double factor = luminosity() * xsec_per_event;
       assert(factor >= 0);
       for (SignalRegionData& sr : _results)
       {
         sr.n_sig_scaled = factor * sr.n_sig_MC;
+        sr.n_sig_xsec_uncert = xsec_relerr * sr.n_sig_scaled;
+        // @todo For per-process xsec uncertainties, replace the line above with:
+        //   sr.n_sig_xsec_uncert = sqrt( sum_i( (xsec_relerr_i * n_sig_scaled_i(SR))^2 ) )
+        // where i indexes processes. This requires per-process EventCounters in each analysis.
       }
       _is_scaled = true;
     }

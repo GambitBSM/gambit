@@ -79,7 +79,7 @@ namespace Gambit
         ///@}
 
         /// Scale by xsec per event.
-        void scale(double);
+        void scale(double xsec_per_event, double xsec_relerr = 0.0);
 
         /// @name Analysis combination operations
         ///@{

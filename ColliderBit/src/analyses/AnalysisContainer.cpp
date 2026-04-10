@@ -446,34 +446,34 @@ namespace Gambit
     }
 
     /// Scale results for specific analysis
-    void AnalysisContainer::scale(str collider_name, str analysis_name, double xsec_per_event)
+    void AnalysisContainer::scale(str collider_name, str analysis_name, double xsec_per_event, double xsec_relerr)
     {
-      analyses_map[collider_name][analysis_name]->scale(xsec_per_event);
+      analyses_map[collider_name][analysis_name]->scale(xsec_per_event, xsec_relerr);
     }
 
     /// Scale results for all analyses for given collider
-    void AnalysisContainer::scale(str collider_name, double xsec_per_event)
+    void AnalysisContainer::scale(str collider_name, double xsec_per_event, double xsec_relerr)
     {
       for (auto& analysis_pointer_pair : analyses_map[collider_name])
       {
         str analysis_name = analysis_pointer_pair.first;
-        scale(collider_name, analysis_name, xsec_per_event);
+        scale(collider_name, analysis_name, xsec_per_event, xsec_relerr);
       }
     }
 
     /// Scale results for all analyses for the current collider
-    void AnalysisContainer::scale(double xsec_per_event)
+    void AnalysisContainer::scale(double xsec_per_event, double xsec_relerr)
     {
-      scale(current_collider, xsec_per_event);
+      scale(current_collider, xsec_per_event, xsec_relerr);
     }
 
     /// Scale results for all analyses across all colliders
-    void AnalysisContainer::scale_all(double xsec_per_event)
+    void AnalysisContainer::scale_all(double xsec_per_event, double xsec_relerr)
     {
       for (auto& collider_map_pair : analyses_map)
       {
         str collider_name = collider_map_pair.first;
-        scale(collider_name, xsec_per_event);
+        scale(collider_name, xsec_per_event, xsec_relerr);
       }
     }
 
