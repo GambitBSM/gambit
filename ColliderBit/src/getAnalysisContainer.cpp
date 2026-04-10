@@ -52,7 +52,8 @@ namespace Gambit
                               const str& detname,
                               const MCLoopInfo& RunMC,
                               const xsec_container& TotalCrossSection,
-                              int iteration)
+                              int iteration,
+                              bool use_xsec_uncert)
     {
       if (RunMC.analyses.empty() or iteration == BASE_INIT) return;
 
@@ -106,21 +107,23 @@ namespace Gambit
         #endif
         // Scale all analysis results with the total cross-section per event,
         // and propagate the cross-section relative uncertainty to each signal region
-        result.scale(xs_per_event, xs_relerr);
+        // if enabled by the "propagate_xsec_uncertainty" run option (off by default).
+        result.scale(xs_per_event, use_xsec_uncert ? xs_relerr : 0.0);
       }
 
     }
 
     /// Retrieve a container for analyses with EXPERIMENT
-    #define GET_ANALYSIS_CONTAINER(NAME, EXPERIMENT)               \
-    void NAME(AnalysisContainer& result)                           \
-    {                                                              \
-      using namespace Pipes::NAME;                                 \
-                                                                    \
-      map_str_xsec_container Totalxsec = *Dep::InitialTotalCrossSection; \
-                                       \
-      getAnalysisContainer(result, #EXPERIMENT, *Dep::RunMC,       \
-       Totalxsec[Dep::RunMC->current_collider()], *Loop::iteration);                 \
+    #define GET_ANALYSIS_CONTAINER(NAME, EXPERIMENT)                                                                                    \
+    void NAME(AnalysisContainer& result)                                                                                                \
+    {                                                                                                                                   \
+      using namespace Pipes::NAME;                                                                                                      \
+                                                                                                                                        \
+      static const bool use_xsec_uncert = runOptions->getValueOrDef<bool>(false, "propagate_xsec_uncertainty");                        \
+      map_str_xsec_container Totalxsec = *Dep::InitialTotalCrossSection;                                                               \
+                                                                                                                                        \
+      getAnalysisContainer(result, #EXPERIMENT, *Dep::RunMC,                                                                           \
+       Totalxsec[Dep::RunMC->current_collider()], *Loop::iteration, use_xsec_uncert);                                                  \
     }
 
     GET_ANALYSIS_CONTAINER(getATLASAnalysisContainer, ATLAS)
