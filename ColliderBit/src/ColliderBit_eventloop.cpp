@@ -449,12 +449,14 @@ namespace Gambit
 
       #ifdef COLLIDERBIT_DEBUG
         cout << DEBUG_PREFIX << "CollectAnalyses: Dep::ATLASAnalysisNumbers->size()    = " << Dep::ATLASAnalysisNumbers->size() << endl;
+        cout << DEBUG_PREFIX << "CollectAnalyses: Dep::FCChhAnalysisNumbers->size()    = " << Dep::FCChhAnalysisNumbers->size() << endl;
         cout << DEBUG_PREFIX << "CollectAnalyses: Dep::CMSAnalysisNumbers->size()      = " << Dep::CMSAnalysisNumbers->size() << endl;
         cout << DEBUG_PREFIX << "CollectAnalyses: Dep::IdentityAnalysisNumbers->size() = " << Dep::IdentityAnalysisNumbers->size() << endl;
       #endif
 
       // Add results
       if (Dep::ATLASAnalysisNumbers->size() != 0) result.insert(result.end(), Dep::ATLASAnalysisNumbers->begin(), Dep::ATLASAnalysisNumbers->end());
+      if (Dep::FCChhAnalysisNumbers->size() != 0) result.insert(result.end(), Dep::FCChhAnalysisNumbers->begin(), Dep::FCChhAnalysisNumbers->end());
       if (Dep::CMSAnalysisNumbers->size() != 0) result.insert(result.end(), Dep::CMSAnalysisNumbers->begin(), Dep::CMSAnalysisNumbers->end());
       if (Dep::IdentityAnalysisNumbers->size() != 0) result.insert(result.end(), Dep::IdentityAnalysisNumbers->begin(), Dep::IdentityAnalysisNumbers->end());
 

@@ -137,6 +137,8 @@ namespace Gambit
       F(ATLAS_SUSY_2012_10)                          \
       F(ATLAS_SUSY_2012_04)                          \
       F(FCChh_85TeV_2OSLEP_chargino_1000invfb)       \
+      F(FCChh_85TeV_2OSLEP_chargino_inclusive_1000invfb)       \
+      F(FCChh_85TeV_2OSLEP_chargino_binned_1000invfb)       \
       F(CMS_SUS_16_014)                              \
       F(CMS_SUS_16_033)                              \
       F(CMS_SUS_19_006)                              \
