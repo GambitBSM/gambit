@@ -328,33 +328,6 @@ namespace Gambit
                 if (mT2>570 and mT2<670) _counters_bin.at("SR-SF-0J-570-670").add_event(event);
                 if (mT2>670            ) _counters_bin.at("SR-SF-0J-670").add_event(event);
             } else {
-                ofstream SF1J_met("kinematics_plots/FCChhcutsv1/3000_1000/SF1J/met.txt", ios::app);
-                ofstream SF1J_mt2("kinematics_plots/FCChhcutsv1/3000_1000/SF1J/mt2.txt", ios::app);
-                ofstream SF1J_mll("kinematics_plots/FCChhcutsv1/3000_1000/SF1J/mll.txt", ios::app);
-                ofstream SF1J_lpT("kinematics_plots/FCChhcutsv1/3000_1000/SF1J/lpT.txt", ios::app);
-                ofstream SF1J_leta("kinematics_plots/FCChhcutsv1/3000_1000/SF1J/leta.txt", ios::app);
-                ofstream SF1J_jpT("kinematics_plots/FCChhcutsv1/3000_1000/SF1J/jpT.txt", ios::app);
-                ofstream SF1J_jeta("kinematics_plots/FCChhcutsv1/3000_1000/SF1J/jeta.txt", ios::app);
-
-                SF1J_met << met << endl;
-                SF1J_mt2 << mT2 << endl;
-                SF1J_mll << mll << endl;
-                for(const HEPUtils::Particle* lepton : signalLeptons){
-                  SF1J_lpT << lepton->pT() << " ";
-                  SF1J_leta << fabs(lepton->eta()) << " ";
-                }
-                SF1J_lpT << endl;
-                SF1J_leta << endl;
-                SF1J_jpT << nonbJets[0]->pT() << endl;
-                SF1J_jeta << fabs(nonbJets[0]->eta()) << endl;
-
-                SF1J_met.close();
-                SF1J_mt2.close();
-                SF1J_mll.close();
-                SF1J_lpT.close();
-                SF1J_leta.close();
-                SF1J_jpT.close();
-                SF1J_jeta.close();
 
                 if (mT2>150)             _counters.at("SR-SF-1J-150").add_event(event);
                 if (mT2>350)             _counters.at("SR-SF-1J-350").add_event(event);
