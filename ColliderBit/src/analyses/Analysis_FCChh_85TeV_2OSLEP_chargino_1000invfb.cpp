@@ -61,22 +61,20 @@ namespace Gambit
       std::map<string, EventCounter> _counters_bin = {
         {"SR-SF-0J-150-180", EventCounter("SR-SF-0J-150-180")},
         {"SR-SF-0J-180-220", EventCounter("SR-SF-0J-180-220")},
-        {"SR-SF-0J-220-270", EventCounter("SR-SF-0J-220-270")},
-        {"SR-SF-0J-270-330", EventCounter("SR-SF-0J-270-330")},
-        {"SR-SF-0J-330-400", EventCounter("SR-SF-0J-330-400")},
-        {"SR-SF-0J-400-480", EventCounter("SR-SF-0J-400-480")},
-        {"SR-SF-0J-480-570", EventCounter("SR-SF-0J-480-570")},
-        {"SR-SF-0J-570-670", EventCounter("SR-SF-0J-570-670")},
-        {"SR-SF-0J-670", EventCounter("SR-SF-0J-670")},
+        {"SR-SF-0J-220-260", EventCounter("SR-SF-0J-220-260")},
+        {"SR-SF-0J-260-310", EventCounter("SR-SF-0J-260-310")},
+        {"SR-SF-0J-310-360", EventCounter("SR-SF-0J-310-360")},
+        {"SR-SF-0J-360-420", EventCounter("SR-SF-0J-360-420")},
+        {"SR-SF-0J-420-480", EventCounter("SR-SF-0J-420-480")},
+        {"SR-SF-0J-480", EventCounter("SR-SF-0J-480")},
         {"SR-SF-1J-150-180", EventCounter("SR-SF-1J-150-180")},
         {"SR-SF-1J-180-220", EventCounter("SR-SF-1J-180-220")},
-        {"SR-SF-1J-220-270", EventCounter("SR-SF-1J-220-270")},
-        {"SR-SF-1J-270-330", EventCounter("SR-SF-1J-270-330")},
-        {"SR-SF-1J-330-400", EventCounter("SR-SF-1J-330-400")},
-        {"SR-SF-1J-400-480", EventCounter("SR-SF-1J-400-480")},
-        {"SR-SF-1J-480-570", EventCounter("SR-SF-1J-480-570")},
-        {"SR-SF-1J-570-670", EventCounter("SR-SF-1J-570-670")},
-        {"SR-SF-1J-670", EventCounter("SR-SF-1J-670")},
+        {"SR-SF-1J-220-260", EventCounter("SR-SF-1J-220-260")},
+        {"SR-SF-1J-260-310", EventCounter("SR-SF-1J-260-310")},
+        {"SR-SF-1J-310-360", EventCounter("SR-SF-1J-310-360")},
+        {"SR-SF-1J-360-420", EventCounter("SR-SF-1J-360-420")},
+        {"SR-SF-1J-420-480", EventCounter("SR-SF-1J-420-480")},
+        {"SR-SF-1J-480", EventCounter("SR-SF-1J-480")},
       };
 
       Cutflow _cutflow;
@@ -178,7 +176,7 @@ namespace Gambit
         vector<const HEPUtils::Particle*> electrons;
         for (const HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT() > 10.
-              && fabs(electron->eta()) < 3.)
+              && fabs(electron->eta()) < 2.5)
             electrons.push_back(electron);
         }
 
@@ -189,7 +187,7 @@ namespace Gambit
         vector<const HEPUtils::Particle*> muons;
         for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 10.
-              && fabs(muon->eta()) < 3.)
+              && fabs(muon->eta()) < 2.5)
             muons.push_back(muon);
         }
 
@@ -212,7 +210,7 @@ namespace Gambit
         // Jets
         vector<const HEPUtils::Jet*> candJets;
         for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
-          if (jet->pT() > 20. && fabs(jet->eta()) < 3.)
+          if (jet->pT() > 50. && fabs(jet->eta()) < 2.5)
             candJets.push_back(jet);
         }
 
@@ -320,13 +318,12 @@ namespace Gambit
                 // binned SRs
                 if (mT2>150 and mT2<180) _counters_bin.at("SR-SF-0J-150-180").add_event(event);
                 if (mT2>180 and mT2<220) _counters_bin.at("SR-SF-0J-180-220").add_event(event);
-                if (mT2>220 and mT2<270) _counters_bin.at("SR-SF-0J-220-270").add_event(event);
-                if (mT2>270 and mT2<330) _counters_bin.at("SR-SF-0J-270-330").add_event(event);
-                if (mT2>330 and mT2<400) _counters_bin.at("SR-SF-0J-330-400").add_event(event);
-                if (mT2>400 and mT2<480) _counters_bin.at("SR-SF-0J-400-480").add_event(event);
-                if (mT2>480 and mT2<570) _counters_bin.at("SR-SF-0J-480-570").add_event(event);
-                if (mT2>570 and mT2<670) _counters_bin.at("SR-SF-0J-570-670").add_event(event);
-                if (mT2>670            ) _counters_bin.at("SR-SF-0J-670").add_event(event);
+                if (mT2>220 and mT2<260) _counters_bin.at("SR-SF-0J-220-260").add_event(event);
+                if (mT2>260 and mT2<310) _counters_bin.at("SR-SF-0J-260-310").add_event(event);
+                if (mT2>310 and mT2<360) _counters_bin.at("SR-SF-0J-310-360").add_event(event);
+                if (mT2>360 and mT2<420) _counters_bin.at("SR-SF-0J-360-420").add_event(event);
+                if (mT2>420 and mT2<480) _counters_bin.at("SR-SF-0J-420-480").add_event(event);
+                if (mT2>480            ) _counters_bin.at("SR-SF-0J-480").add_event(event);
             } else {
 
                 if (mT2>150)             _counters.at("SR-SF-1J-150").add_event(event);
@@ -336,13 +333,12 @@ namespace Gambit
                 // binned SRs
                 if (mT2>150 and mT2<180) _counters_bin.at("SR-SF-1J-150-180").add_event(event);
                 if (mT2>180 and mT2<220) _counters_bin.at("SR-SF-1J-180-220").add_event(event);
-                if (mT2>220 and mT2<270) _counters_bin.at("SR-SF-1J-220-270").add_event(event);
-                if (mT2>270 and mT2<330) _counters_bin.at("SR-SF-1J-270-330").add_event(event);
-                if (mT2>330 and mT2<400) _counters_bin.at("SR-SF-1J-330-400").add_event(event);
-                if (mT2>400 and mT2<480) _counters_bin.at("SR-SF-1J-400-480").add_event(event);
-                if (mT2>480 and mT2<570) _counters_bin.at("SR-SF-1J-480-570").add_event(event);
-                if (mT2>570 and mT2<670) _counters_bin.at("SR-SF-1J-570-670").add_event(event);
-                if (mT2>670            ) _counters_bin.at("SR-SF-1J-670").add_event(event);
+                if (mT2>220 and mT2<260) _counters_bin.at("SR-SF-1J-220-260").add_event(event);
+                if (mT2>260 and mT2<310) _counters_bin.at("SR-SF-1J-260-310").add_event(event);
+                if (mT2>310 and mT2<360) _counters_bin.at("SR-SF-1J-310-360").add_event(event);
+                if (mT2>360 and mT2<420) _counters_bin.at("SR-SF-1J-360-420").add_event(event);
+                if (mT2>420 and mT2<480) _counters_bin.at("SR-SF-1J-420-480").add_event(event);
+                if (mT2>480            ) _counters_bin.at("SR-SF-1J-480").add_event(event);
             }
         } else {
             //
@@ -375,35 +371,33 @@ namespace Gambit
         }
         #endif
 
-        add_result(SignalRegionData(_counters.at("SR-SF-0J-150"), 449., {449., 228.}));
-        add_result(SignalRegionData(_counters.at("SR-SF-0J-350"), 15., {15., 10.}));
-        add_result(SignalRegionData(_counters.at("SR-SF-0J-150-250"), 392., {392., 227.}));
-        add_result(SignalRegionData(_counters.at("SR-SF-0J-250-350"), 42., {42., 20.}));
+        add_result(SignalRegionData(_counters.at("SR-SF-0J-150"), 1345., {1344.6, 452.}));
+        add_result(SignalRegionData(_counters.at("SR-SF-0J-350"), 40., {39.8, 17.3}));
+        add_result(SignalRegionData(_counters.at("SR-SF-0J-150-250"), 1224., {1223.8, 450.8}));
+        add_result(SignalRegionData(_counters.at("SR-SF-0J-250-350"), 81., {80.99, 27.98}));
 
-        add_result(SignalRegionData(_counters.at("SR-SF-1J-150"), 5573., {5573., 905.}));
-        add_result(SignalRegionData(_counters.at("SR-SF-1J-350"), 100., {100., 27.}));
-        add_result(SignalRegionData(_counters.at("SR-SF-1J-150-250"), 5107., {5107., 903.}));
-        add_result(SignalRegionData(_counters.at("SR-SF-1J-250-350"), 365., {365., 59.}));
+        add_result(SignalRegionData(_counters.at("SR-SF-1J-150"), 6798., {6796.8, 1034.3}));
+        add_result(SignalRegionData(_counters.at("SR-SF-1J-350"), 142., {142.3, 31.7}));
+        add_result(SignalRegionData(_counters.at("SR-SF-1J-150-250"), 6251., {6251.3, 1032.}));
+        add_result(SignalRegionData(_counters.at("SR-SF-1J-250-350"), 403., {403.1, 61.1}));
 
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-150-180"), 310. , { 310. , 225. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-180-220"), 61. , { 61. , 24. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-220-270"), 40. , { 40. , 20. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-270-330"), 11. , { 11. , 10. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-330-400"), 22. , { 22. , 14. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-400-480"), 3. , { 3.1 , 1.5 }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-480-570"), 1. , { 0.90 , 0.75 }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-570-670"), 0. , { 0.08 , 0.08 }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-670"), 0. , { 0.20 , 0.12 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-150-180"),1080. , { 1080.2 , 449.3 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-180-220"), 112. , { 112.28 , 32.82 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-220-260"), 41. , { 41.18 , 19.80 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-260-310"), 31. , { 30.79 , 17.14 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-310-360"), 40. , { 40.48 , 19.78 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-360-420"), 12. , { 12.35 , 9.97 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-420-480"), 14. , { 13.99 , 10.02 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-480"), 13. , { 13.33 , 9.97 }));
 
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-150-180"), 2802. , { 2802. , 677. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-180-220"), 1840. , { 1840. , 552. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-220-270"), 571. , { 571. , 231. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-270-330"), 218. , { 218. , 45. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-330-400"), 86. , { 85.8 , 28. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-400-480"), 30. , { 30. , 14.2 }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-480-570"), 15. , { 15.08 , 10.05 }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-570-670"), 4. , { 4.43 , 1.67 }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-670"), 6. , { 5.68 , 1.84 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-150-180"), 4092. , { 4092.3 , 870.3 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-180-220"), 1707. , { 1707.3 , 505.6 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-220-260"), 527. , { 526.5 , 229.8 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-260-310"), 231. , { 231.4 , 46.5 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-310-360"), 110. , { 110.0 , 31.4 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-360-420"), 66. , { 66.22 , 24.31 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-420-480"), 19. , { 19.42 , 10.22 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-480"), 44. , { 43.67 , 14.53 }));
       }
 
 
@@ -463,23 +457,21 @@ namespace Gambit
         // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
         add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-150-180"), 310. , { 310. , 225. }));
         add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-180-220"), 61. , { 61. , 24. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-220-270"), 40. , { 40. , 20. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-270-330"), 11. , { 11. , 10. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-330-400"), 22. , { 22. , 14. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-400-480"), 3. , { 3.1 , 1.5 }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-480-570"), 1. , { 0.90 , 0.75 }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-570-670"), 0. , { 0.08 , 0.08 }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-670"), 0. , { 0.20 , 0.12 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-220-260"), 40. , { 40. , 20. }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-260-310"), 11. , { 11. , 10. }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-310-360"), 22. , { 22. , 14. }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-360-420"), 3. , { 3.1 , 1.5 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-420-480"), 1. , { 0.90 , 0.75 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-0J-480"), 0. , { 0.20 , 0.12 }));
 
         add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-150-180"), 2802. , { 2802. , 677. }));
         add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-180-220"), 1840. , { 1840. , 552. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-220-270"), 571. , { 571. , 231. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-270-330"), 218. , { 218. , 45. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-330-400"), 86. , { 85.8 , 28. }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-400-480"), 30. , { 30. , 14.2 }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-480-570"), 15. , { 15.08 , 10.05 }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-570-670"), 4. , { 4.43 , 1.67 }));
-        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-670"), 6. , { 5.68 , 1.84 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-220-260"), 571. , { 571. , 231. }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-260-310"), 218. , { 218. , 45. }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-310-360"), 86. , { 85.8 , 28. }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-360-420"), 30. , { 30. , 14.2 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-420-480"), 15. , { 15.08 , 10.05 }));
+        add_result(SignalRegionData(_counters_bin.at("SR-SF-1J-480"), 6. , { 5.68 , 1.84 }));
 
       }
 
