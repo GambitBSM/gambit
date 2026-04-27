@@ -261,6 +261,6 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e5
     print_invalid_points: false
 
-  default_output_path: "runs/EWMSSM_xsec_lnL/"
+  default_output_path: "runs/EWMSSM_xsec_lnL_1/"
 
   debug: false
