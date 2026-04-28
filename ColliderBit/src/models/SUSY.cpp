@@ -53,7 +53,11 @@ namespace Gambit
 
     bool PerformInitialCrossSection_Pythia_EmulatorCheckThreshold(str& name, std::vector<double>& uncertainty)
     {
+      #ifdef WITH_MPI
       return checkThreshold(name, uncertainty);
+      #else
+      return false;
+      #endif
     }
 
     // Target: the total cross-section for each collider (one entry per collider).

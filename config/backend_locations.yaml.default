@@ -152,6 +152,9 @@ libMathematicaTest:
 SUSYHD:
   1.0.2:       ./Backends/installed/susyhd/1.0.2/SUSYHD.m
 
+SusHi:
+  1.7.0:       ./Backends/installed/sushi/1.7.0/SusHi-1.7.0/lib/libsushi.so
+
 DirectDM:
   2.2.0:       ./Backends/installed/directdm/2.2.0/directdm
 

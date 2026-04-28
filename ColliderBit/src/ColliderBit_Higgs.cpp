@@ -604,6 +604,20 @@ namespace Gambit
 
     }
 
+    /// gg->h production cross section at NNLO [pb], LHC 13 TeV, from SusHi
+    void getSusHi_ggh_xsec(double& result)
+    {
+      using namespace Pipes::getSusHi_ggh_xsec;
+      result = BEreq::SusHi_ggh_xsec();
+    }
+
+    /// bb->h production cross section at NNLO [pb], LHC 13 TeV, from SusHi
+    void getSusHi_bbh_xsec(double& result)
+    {
+      using namespace Pipes::getSusHi_bbh_xsec;
+      result = BEreq::SusHi_bbh_xsec();
+    }
 
   }
+
 }

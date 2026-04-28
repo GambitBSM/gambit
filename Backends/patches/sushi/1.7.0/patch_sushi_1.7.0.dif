@@ -1,0 +1,110 @@
+--- a/Makefile	2026-04-10 16:11:43.784801681 +0200
++++ b/Makefile	2026-04-27 14:21:08.481469678 +0200
+@@ -35,6 +35,6 @@
+ # Specify the path to standard C++ libraries (libstdc) 
+ # (only needed when linked to 2HDMC, might be found automatically):
+ STDLIB = 
+-# =============================================================================
+-include compilerissues
++# =============================================================================
++-include compilerissues
+ -include compilerissues.local
+@@ -95,7 +95,7 @@
+   $(shell echo "#define FHVERSION \"${FHVERSION}\"" > src/sushi/tmp.h)
+ endif
+ 
+-FLAGS=
++FLAGS=-fPIC
+ ADDRUNCPPSRC=
+ ifeq (${predef},FH)
+   ifeq ($(FHPRECQUAD),YES)
+@@ -169,7 +169,7 @@
+ SUSHISRC=libsushi.f slhablocks.f cite.f inputoutput.f readslha.f real.f \
+          evalcsusy.f integration.f renscheme.f sigma.f virtual.f runalpha.f \
+          elw_lf.f functions.f tostring.f rensca_as.f sushicore.f runcmdfeynhiggs.f \
+-         runcmdfsh.f runcmdthdmc.f concatenatefiles.f
++         runcmdfsh.f runcmdthdmc.f concatenatefiles.f sushi_gambit_interface.f
+ RUNCPPSRC=${ADDRUNCPPSRC} src/sushi/integrals.f src/sushi/init.f \
+           src/sushi/virtsqqgluino.f
+ 
+@@ -209,6 +209,14 @@
+ 	ar -ruc lib/libshare.a ${GGHNNLOOBJ} ${BBHNNLOOBJ} \
+              ${BBHDIFFOBJ} ${SHAREOBJ} src/pdfspec/lhapdf.o
+ 
++lib/libsushi.so: lib/libsushiPLAIN.a lib/libshare.a
++	mkdir -p tmp_gambit_objs_sushi tmp_gambit_objs_share
++	cd tmp_gambit_objs_sushi && ar x ../lib/libsushiPLAIN.a
++	cd tmp_gambit_objs_share && ar x ../lib/libshare.a
++	${fort} -shared -o lib/libsushi.so tmp_gambit_objs_sushi/*.o \
++	  tmp_gambit_objs_share/*.o -L${LHAPATH} -lLHAPDF ${LDFLAGS}
++	rm -rf tmp_gambit_objs_sushi tmp_gambit_objs_share
++
+ gghnnlo: ${GGHNNLOOBJ}
+ bbhnnlo: ${BBHNNLOOBJ}
+ bbhdiff: ${BBHDIFFOBJ}
+--- /dev/null	2026-04-24 11:39:11.973366589 +0200
++++ b/src/sushi/sushi_gambit_interface.f	2026-04-27 14:22:21.010116515 +0200
+@@ -0,0 +1,63 @@
++C     GAMBIT interface subroutines for SusHi 1.7.0
++C     Sets jfilein in SusHi common block and runs cross-section computation.
++
++C-{{{ gambit_sushi_setfile
++      subroutine gambit_sushi_setfile(fn, n)
++C     Sets jfilein in SusHi common /fileinfileout/ from a C char* buffer.
++C     fn: character*1 array of length n (no hidden Fortran length argument)
++C     n:  length of fn buffer
++      implicit none
++      integer n
++      character*1 fn(n)
++      character*60 jfilein, jfnameact
++      common /fileinfileout/ jfilein, jfnameact
++      integer i
++      jfilein = ' '
++      do i = 1, min(n, 60)
++        jfilein(i:i) = fn(i)
++      end do
++      jfnameact = '/dev/null'
++      return
++      end
++C-}}}
++
++C-{{{ gambit_sushi_compute
++      subroutine gambit_sushi_compute(ggh_result, bbh_result)
++C     Runs SusHi ggh+bbh cross-section computation.
++C     Assumes jfilein has already been set via gambit_sushi_setfile.
++C     Returns xeff (ggh NNLO effective, pb) and SUbbh(3) (bbh NNLO, pb).
++      implicit none
++      double precision ggh_result, bbh_result
++      double precision SUggh(4,4,-1:5), SUggherr(4,4,-1:5)
++      double precision SUbbh(4), SUbbherr(4)
++      double precision ggchan, qgchan, qqchan
++      double precision ggchanerr, qgchanerr, qqchanerr
++      double precision xsec(2), xsecerr(2), xeff, xefferr, elw
++      double precision xeffvar(2), gghXSvar(2)
++      double complex gb13o, gbh123o, gbh213o, gb23o
++      double complex gt13o, gth123o, gth213o, gt23o
++      double complex gb3o, gt3o
++      include '../commons/common-inputoutput.f'
++      include '../commons/common-flags.f'
++      include '../commons/common-vars.f'
++      include '../commons/common-keys.f'
++      include '../commons/common-quark.f'
++      include '../commons/common-int.f'
++      include '../commons/common-ren.f'
++      extflag = .true.
++      call initsushi(0)
++      call cutssushi()
++      call coresushi(0,
++     & SUggh, SUggherr, SUbbh, SUbbherr,
++     & ggchan, qgchan, qqchan,
++     & ggchanerr, qgchanerr, qqchanerr,
++     & xsec, xeff, xsecerr, xefferr,
++     & xeffvar, gghXSvar, elw,
++     & gb13o, gbh123o, gbh213o, gb23o,
++     & gt13o, gth123o, gth213o, gt23o,
++     & gb3o, gt3o)
++      ggh_result = xeff
++      bbh_result = SUbbh(3)
++      return
++      end
++C-}}}

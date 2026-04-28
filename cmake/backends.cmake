@@ -1426,6 +1426,36 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
+# SusHi
+set(name "sushi")
+set(ver "1.7.0")
+set(lib "lib/libsushi.so")
+set(dl "https://sushi.hepforge.org/downloads/SusHi-${ver}.tar.gz")
+set(md5 "8cbb780ea1a4d1ca8e5412bb90df9c8c")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/SusHi-${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+
+
+set(sushi_Fortran_FLAGS "${BACKEND_Fortran_FLAGS} -fallow-argument-mismatch")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND IGNORE_HTTP_CERTIFICATE=1 ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ""        # no configure step
+    BUILD_COMMAND ${MAKE_PARALLEL} predef=PLAIN F77=${CMAKE_Fortran_COMPILER}
+          F77FLAGS=${sushi_Fortran_FLAGS} lib/libsushiPLAIN.a lib/libshare.a
+          COMMAND ${MAKE_PARALLEL} predef=PLAIN F77=${CMAKE_Fortran_COMPILER}
+          F77FLAGS=${sushi_Fortran_FLAGS} ${lib}
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
+
+
 # Ditch all FeynHiggs if using gfortran 10 or later, as it won't compile
 if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
   set(itch "${itch}" "feynhiggs")
