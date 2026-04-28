@@ -131,44 +131,11 @@ namespace Gambit
         this->startTiming(thread_num);             //Begin timing function evaluation
         try
         {
-// #ifdef WITH_MPI
-//           if (EmulatorMap::useEmulator && EmulatorMap::mapping_ranks.find(name()) != EmulatorMap::mapping_ranks.end())
-//           {
-//             // predict
-//             this-> translateInput(input);
-//             vector<double> prediction, uncertainty;
-//             emulatorPredict(name, input, prediction, uncertainty );
-
-//             // check if prediction is valid
-//             bool prediction_valid = checkThreshold(name, uncertainty)
-
-//             if (!prediction_valid)
-//             {
-//               // evaluate function and train
-//               this->myFunction(myValue[thread_num]);
-//               this->translateTarget(target, myValue[thread_num]);
-//               emulatorTrain(name, input, target, target_uncertainty);
-//             }
-//             else
-//             {
-//               // translate and store predictions
-//               this-> translatePrediction(prediction, myValue[thread_num])
-//             }
-//           }
-//           else 
-//           {
-//             // just evaluate function
-//             this->myFunction(myValue[thread_num]);   //Run and place result in the appropriate slot in myValue
-//           }
-// #else
-            // TODO: Debugging checks
-            // This block just calls each emulator function once, so that they can print out and can confirm they are being passed correctly
-            // They will want to be put into the correct function flow such as the pseudocode above
+#ifdef WITH_MPI
             if (myEmulatorPointers != nullptr
                 && EmulatorMap::useEmulator
                 && EmulatorMap::mapping_ranks.find(name()) != EmulatorMap::mapping_ranks.end())
             {
-              str mytest = "QUICK DEBUGGING TEST";
               std::vector<double> input_vector;
               std::vector<double> prediction_vector;
               std::vector<double> prediction_uncertainty_vector;
@@ -196,7 +163,10 @@ namespace Gambit
               emulated_pt = false;
               this->myFunction(myValue[thread_num]);
             }
-// #endif
+#else
+            emulated_pt = false;
+            this->myFunction(myValue[thread_num]);
+#endif // WITH_MPI
           // std::cout << origin() << "::" << name() << std::endl;
           // std::cout << "DEBUG: functor " << __LINE__ << std::endl;
         }

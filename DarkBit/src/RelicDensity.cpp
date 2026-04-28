@@ -883,7 +883,11 @@ namespace Gambit
     /// CheckThreshold: decide if emulator uncertainty is within acceptable limits.
     bool RD_oh2_DS_general_EmulatorCheckThreshold(str& name, std::vector<double>& uncertainty)
     {
+      #ifdef WITH_MPI
       return checkThreshold(name, uncertainty);
+      #else
+      return false;
+      #endif
     }
 
     /// TranslateTarget: pack the actual Omega h^2 result into the training target vector.

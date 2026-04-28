@@ -698,7 +698,11 @@ namespace Gambit
     bool RD_oh2_ScalarSingletDM_Z2_emulatable_EmulatorCheckThreshold(str& name, std::vector<double>& uncertainty)
     {
       std::cout << "In check treshold "  << std::endl;
+      #ifdef WITH_MPI
       return checkThreshold(name, uncertainty);
+      #else
+      return false;
+      #endif
     }
 
     /// TranslateTarget: pack the actual Omega h^2 result into the training target vector

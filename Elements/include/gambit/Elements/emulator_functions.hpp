@@ -1,10 +1,11 @@
 #ifndef __emulator_functions_hpp__
 #define __emulator_fynctions_hpp__
 
+#ifdef WITH_MPI
+
 #include <mpi.h>
 #include "gambit/Core/emu_map.hpp"
 #include "gambit/ScannerBit/emulator_utils.hpp"
-// #include "gambit/ScannerBit/emulator_utils.hpp"
 
 using namespace Gambit;
 using namespace Gambit::Scanner;
@@ -95,5 +96,7 @@ inline bool checkThreshold(str capability_name, std::vector<double> uncertainty)
    
     return valid_prediction;
 }
+
+#endif // WITH_MPI
 
 #endif
