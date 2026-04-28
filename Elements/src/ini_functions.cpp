@@ -84,6 +84,17 @@ namespace Gambit
     return 0;
   }
 
+  /// Set the validation function for a primary model functor
+  int set_model_validation_function(model_functor &primary_parameters, modelValidator f)
+  {
+    try
+    {
+      primary_parameters.setModelValidationFunction(std::move(f));
+    }
+    catch (std::exception& e) { ini_catch(e); }
+    return 0;
+  }
+
   /// Set model name string in a primary model functor
   int set_model_name(model_functor& primary_parameters, str model_name)
   {

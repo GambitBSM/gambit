@@ -1917,6 +1917,12 @@ namespace Gambit
       myValue->setModelName(model_name);
     }
 
+    /// Function to set the model validation function
+    void model_functor::setModelValidationFunction(modelValidator f)
+    {
+      myValue->_register_validation_function(std::move(f));
+    }
+
     /// Function for handing over parameter identities to another model_functor
     void model_functor::donateParameters(model_functor &receiver)
     {

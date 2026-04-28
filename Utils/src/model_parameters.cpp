@@ -194,10 +194,23 @@ namespace Gambit
      }
    }
 
+   /// Register model validation function
+   void ModelParameters::_register_validation_function(modelValidator f)
+   {
+     if (_validation_function)
+     {
+       model_error().raise(LOCAL_INFO, "Attempt to register model validation function for model " + modelname + " failed. A model validation function has already been registered.");
+     }
+     _validation_function = std::make_unique<modelValidator>(f);
+   }
+
    /// Getters/setters for model and output names
    std::string ModelParameters::getModelName() const  { return modelname; }
    std::string ModelParameters::getOutputName() const { return outputname; }
    void ModelParameters::setModelName (const std::string& in) { modelname = in; }
    void ModelParameters::setOutputName(const std::string& in) { outputname = in; }
+
+   /// Validity check of the model parameters
+   bool ModelParameters::isValid() const { return !_validation_function ? true : (*_validation_function)(_values); }
 
 } //end Gambit namespace

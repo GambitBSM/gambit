@@ -70,6 +70,7 @@
 #include "gambit/Elements/terminator.hpp"
 #include "gambit/Utils/static_members.hpp"
 #include "gambit/Utils/exceptions.hpp"
+#include "gambit/Utils/model_validation.hpp"
 #include "gambit/Utils/python_interpreter.hpp"
 #include "gambit/Backends/backend_singleton.hpp"
 #include "gambit/Models/claw_singleton.hpp"

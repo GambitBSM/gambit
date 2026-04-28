@@ -1097,6 +1097,9 @@ namespace Gambit
       /// Function for setting the model name for a ModelParameters object. Mainly for better error messages.
       void setModelName(str model_name);
 
+      /// Function to set the model validation function.
+      void setModelValidationFunction(modelValidator f);
+
       /// Function for adding a new parameter to the map inside the ModelParameters object
       void addParameter(str parname);
 

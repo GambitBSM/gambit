@@ -139,20 +139,7 @@
       namespace MODEL                                                          \
       {                                                                        \
         /* Declare the user-defined function as defined elsewhere */           \
-        extern bool FUNC (const ModelParameters&);                             \
-                                                                               \
-        /* Let the module source know that this functor is declared*/          \
-        namespace Functown { extern module_functor<void>                       \
-                                           CAT(MODEL,_consistency_check); }    \
-                                                                               \
-        namespace Pipes                                                        \
-        {                                                                      \
-          namespace CAT(MODEL,_consistency_check)                              \
-          {                                                                    \
-            /* Declare the safe pointer to the run options as external. */     \
-            extern safe_ptr<Options> runOptions;                               \
-          }                                                                    \
-        }                                                                      \
+        extern bool FUNC (const parameterMap&);                                \
       }                                                                        \
     }                                                                          \
   }                                                                            \
@@ -215,8 +202,15 @@
         /* Add the model to GAMBIT model database */                           \
         int model_rego = add_model(STRINGIFY(MODEL), STRINGIFY(PARENT));       \
                                                                                \
-        /* Functor's actual "calculate" function.  Doesn't do anything. */     \
-        void primary_parameters (ModelParameters&) {}                          \
+        /* Functor's actual "calculate" function. Performs model validation */ \
+        void primary_parameters (ModelParameters& params)                      \
+        {                                                                      \
+          if (!params.isValid())                                               \
+          {                                                                    \
+            const auto& handler = ModelValidationHandler::getInstance();       \
+            handler.handleInvalidModel(STRINGIFY(MODEL));                      \
+          }                                                                    \
+        }                                                                      \
                                                                                \
         /* Wrap it up in a primary_model_functor */                            \
         MAKE_PRIMARY_MODEL_FUNCTOR(primary_parameters, CAT(MODEL,_parameters), \
@@ -336,64 +330,19 @@
 #define CORE_MODEL_CONSISTENCY_CHECK(MODEL,FUNC)                               \
   namespace Gambit                                                             \
   {                                                                            \
-                                                                               \
     namespace Models                                                           \
     {                                                                          \
-                                                                               \
-      namespace MODEL                                                          \
-      {                                                                        \
-                                                                               \
-        ADD_TAG_IN_CURRENT_NAMESPACE(CAT(MODEL,_consistency_check))            \
-        ADD_TAG_IN_CURRENT_NAMESPACE(FUNC)                                     \
-                                                                               \
-        /* Register (prototype) the function */                                \
-        void CAT(MODEL,_consistency_check) (bool&);                            \
-                                                                               \
-        /* Register the Functor */                                             \
-        MAKE_FUNCTOR(                                                          \
-          CAT(MODEL,_consistency_check),bool,CAT(MODEL,_consistency_check),    \
-          MODEL,0                                                              \
-        )                                                                      \
-      }                                                                        \
-                                                                               \
-      /* Make the functor exclusive to this model and its descendants */       \
-      CORE_ALLOW_MODEL(MODEL,CAT(MODEL,_consistency_check),MODEL)              \
-    }                                                                          \
-                                                                               \
-  }                                                                            \
-                                                                               \
-  /* Declare a dependence on the model parameters */                           \
-  CORE_DEPENDENCY(                                                             \
-    CAT(MODEL,_parameters), ModelParameters, MODEL,                            \
-    CAT(MODEL,_consistency_check), 1                                           \
-  )                                                                            \
-                                                                               \
-  namespace Gambit                                                             \
-  {                                                                            \
-                                                                               \
-    namespace Models                                                           \
-    {                                                                          \
-                                                                               \
       namespace MODEL                                                          \
       {                                                                        \
         /* Prototype the user-defined function */                              \
-        bool FUNC (const ModelParameters&);                                    \
+        bool FUNC (const parameterMap&);                                       \
                                                                                \
-        /* The actual definition of the consistency:check "module" function */ \
-        void CAT(MODEL,_consistency_check) (bool& model_is_valid)              \
-        {                                                                      \
-          /* Collect MODEL's parameters via dependency system */               \
-          using namespace Pipes::CAT(MODEL,_consistency_check);                \
-          const ModelParameters& modelparams = *Dep::CAT(MODEL,_parameters);   \
-                                                                               \
-          /* Run user-supplied code */                                         \
-          /* Code returns false, if model parameters are inconsistent) */      \
-          model_is_valid = FUNC (modelparams);                                 \
-        }                                                                      \
+        int model_validation_registerd = set_model_validation_function(        \
+          Functown::primary_parameters,                                        \
+          modelValidator(FUNC)                                                 \
+        );                                                                     \
       }                                                                        \
-                                                                               \
     }                                                                          \
-                                                                               \
   }                                                                            \
 
 /// Real declaration macro for INTERPRET_AS_X functions.

@@ -44,12 +44,18 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <functional>
+#include <memory>
+
 #include "gambit/Utils/export_symbols.hpp"
 
 namespace Gambit {
 
   // Model parameter map type; used by all models
   typedef std::map<std::string, double> parameterMap;
+
+  // Model validation functor type
+  typedef std::function<bool(const parameterMap&)> modelValidator;
 
   class EXPORT_SYMBOLS ModelParameters
   {
@@ -129,11 +135,17 @@ namespace Gambit {
       /// Define many new parameters at once via an array of char arrays
       void _definePars(const char** array);
 
+      /// Register model validation function
+      void _register_validation_function(modelValidator f);
+
       /// Getters/setters for model and output names
       std::string getModelName() const;
       std::string getOutputName() const;
       void setModelName (const std::string&);
       void setOutputName(const std::string&);
+
+      /// Validity check of the model parameters
+      bool isValid() const;
  
     private:
 
@@ -147,6 +159,8 @@ namespace Gambit {
       /// Currently used only by the postprocessor ScannerBit plugin and reader plugins.
       std::string outputname;
 
+      /// Unique pointer to the model parameter validation function
+      std::unique_ptr<modelValidator> _validation_function;
   };
 
 }

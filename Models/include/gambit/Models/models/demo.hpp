@@ -18,7 +18,7 @@
 ///
 ///  \author Patrick Stöcker
 ///          (stoecker@physik.rwth-aachen.de)
-///  \date 2025 June
+///  \date 2026 Mar
 ///
 ///  *********************************************
 
