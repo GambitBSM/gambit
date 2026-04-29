@@ -207,8 +207,27 @@
         {                                                                      \
           if (!params.isValid())                                               \
           {                                                                    \
-            const auto& handler = ModelValidationHandler::getInstance();       \
-            handler.handleInvalidModel(STRINGIFY(MODEL));                      \
+            const auto& model_validation_handling =                            \
+             ModelValidationHandler::getInstance().getModelValidationHandling();\
+                                                                               \
+            if (model_validation_handling == ModelValidationHandling::pass)    \
+            {                                                                  \
+              return;                                                          \
+            }                                                                  \
+                                                                               \
+            std::stringstream ss;                                              \
+            ss << "Parameters of model "  << STRINGIFY(MODEL);                 \
+            ss << " are invalid.";                                             \
+                                                                               \
+            if (model_validation_handling == ModelValidationHandling::invalidate)\
+            {                                                                  \
+              invalid_point().raise(ss.str());                                 \
+            }                                                                  \
+                                                                               \
+            if (model_validation_handling == ModelValidationHandling::raise)   \
+            {                                                                  \
+              model_error().raise(LOCAL_INFO, ss.str());                       \
+            }                                                                  \
           }                                                                    \
         }                                                                      \
                                                                                \

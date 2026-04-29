@@ -44,8 +44,8 @@ namespace Gambit {
     /// Set the handling strategy for model validation (pass, warning, or error)
     void setModelValidationHandling(const ModelValidationHandling& h);
 
-    /// React to invalid model parameters according to the current handling strategy
-    void handleInvalidModel(const std::string& model_name) const;
+    /// Get the current handling strategy for model validation
+    [[nodiscard]] const ModelValidationHandling& getModelValidationHandling() const;
 
     // Delete all (copy + move) constructors and assignment operators
     ModelValidationHandler& operator=(const ModelValidationHandler&) = delete;

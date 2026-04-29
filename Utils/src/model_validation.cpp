@@ -34,24 +34,9 @@ namespace Gambit
     _model_validation_handling = h;
   }
 
-  void ModelValidationHandler::handleInvalidModel(const std::string& model_name) const
+  const ModelValidationHandling &ModelValidationHandler::getModelValidationHandling() const
   {
-    if (_model_validation_handling == ModelValidationHandling::pass) {
-      return;
-    }
-
-    if (_model_validation_handling == ModelValidationHandling::invalidate)
-    {
-      std::stringstream ss;
-      ss << "Parameters of model " << model_name << " are invalid. Invalidate this point";
-      invalid_point().raise(ss.str());
-    }
-
-    if (_model_validation_handling == ModelValidationHandling::raise)
-    {
-      std::stringstream ss;
-      ss << "Parameters of model " << model_name << " are invalid. Stop the scan";
-      model_error().raise(LOCAL_INFO, ss.str());
-    }
+    return _model_validation_handling;
   }
+
 } // namespace Gambit
