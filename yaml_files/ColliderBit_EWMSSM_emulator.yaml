@@ -3,6 +3,8 @@
 ## A GAMBIT configuration file for running a SUSYRun2 scan.
 ## This is based off the Zenodo yaml file for the EWMSSM+gravitino project
 ##
+## To run: 
+##    OMP_NUM_THREADS=1 mpirun -np 4 ./gambit -f yaml_files/ColliderBit_EWMSSM_emulator.yaml : -np 2 ./egg -c PerformInitialCrossSection_Pythia
 ##########################################################################
 
 # This scan will use FlexibleSUSY for the spectrum generation. 
