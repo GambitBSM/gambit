@@ -28,6 +28,25 @@ Why each:
 - `libblas-dev liblapack-dev` — without LAPACK, cmake's optional.cmake
   errors out with "LAPACK shared library not found".
 
+### Optional: MPI
+
+To build GAMBIT with MPI support (required to run multi-process scans
+with `mpiexec -np N ./gambit ...`, and to exercise any printer / scanner
+code paths gated on `#ifdef WITH_MPI`), additionally install OpenMPI:
+
+```
+sudo apt-get install -y libopenmpi-dev openmpi-bin
+```
+
+This provides `mpiexec`, `mpicc`, `mpic++`, and the headers/libs that
+cmake's MPI detection picks up. Then add `-DWITH_MPI=True` to the cmake
+invocation in step 3. Verify the install with:
+
+```
+mpiexec --version    # should report Open MPI 4.x
+which mpic++         # /usr/bin/mpic++
+```
+
 ## 2. Python packages
 
 By default cmake picks a different interpreter (e.g. `/usr/local/bin/python3`,
@@ -76,7 +95,10 @@ Notes:
   (likely because `CMakeCache.txt` from a previous run is sticky — wipe
   the build dir and rerun).
 - `itch` lists modules to **exclude** from the build.
-- `WITH_MPI=False` and `WITH_ROOT=False` keep the build minimal.
+- `WITH_MPI=False` and `WITH_ROOT=False` keep the build minimal. Set
+  `-DWITH_MPI=True` instead if you installed OpenMPI per the optional
+  step in section 1; cmake will then pick up `mpic++` automatically and
+  compile the `#ifdef WITH_MPI` branches in the printer / scanner code.
 - This first cmake call takes ~75 seconds (it clones pybind11, runs many
   feature checks).
 
@@ -135,6 +157,18 @@ Without MPI:
 OMP_NUM_THREADS=1 ./gambit -rf yaml_files/spartan.yaml
 ```
 
-(The original `mpiexec -np N ./gambit ...` form requires `WITH_MPI=True`
-at configure time — re-run cmake with that flag if needed.)
+With MPI (build configured with `-DWITH_MPI=True`):
+
+```
+OMP_NUM_THREADS=1 mpiexec -np 2 ./gambit -rf yaml_files/spartan.yaml
+```
+
+If `mpiexec` complains about running as root in a container, add
+`--allow-run-as-root` (and, if you hit "not enough slots", also
+`--oversubscribe`):
+
+```
+OMP_NUM_THREADS=1 mpiexec --allow-run-as-root --oversubscribe -np 2 \
+    ./gambit -rf yaml_files/spartan.yaml
+```
 
