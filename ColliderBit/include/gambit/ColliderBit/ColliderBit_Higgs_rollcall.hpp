@@ -119,24 +119,25 @@
   #undef CAPABILITY
 
   // gg->h cross section at NNLO [pb], LHC 13 TeV, from SusHi
-  #define CAPABILITY SusHi_ggh_xsec
+  #define CAPABILITY SusHi_ggh_xsec_cap
   START_CAPABILITY
     #define FUNCTION getSusHi_ggh_xsec
     START_FUNCTION(double)
     DEPENDENCY(MSSM_spectrum, Spectrum)
     BACKEND_REQ(SusHi_ggh_xsec, (libsushi), double, ())
-    BACKEND_OPTION( (SusHi, 1.7.0), (libsushi) )
+    ALLOW_MODELS( MSSM9batQ_mA, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG )
+    // BACKEND_OPTION( (SusHi, 1.7.0), (libsushi) )
     #undef FUNCTION
   #undef CAPABILITY
 
   // bb->h cross section at NNLO [pb], LHC 13 TeV, from SusHi
-  #define CAPABILITY SusHi_bbh_xsec
+  #define CAPABILITY SusHi_bbh_xsec_cap
   START_CAPABILITY
     #define FUNCTION getSusHi_bbh_xsec
     START_FUNCTION(double)
     DEPENDENCY(MSSM_spectrum, Spectrum)
     BACKEND_REQ(SusHi_bbh_xsec, (libsushi), double, ())
-    BACKEND_OPTION( (SusHi, 1.7.0), (libsushi) )
+    // BACKEND_OPTION( (SusHi, 1.7.0), (libsushi) )
     #undef FUNCTION
   #undef CAPABILITY
 

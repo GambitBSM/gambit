@@ -52,14 +52,10 @@ Scanner:
 ObsLikes:
 
     - purpose:    Observable
-      capability: SusHi_ggh_xsec
+      capability: SusHi_ggh_xsec_cap
 
     - purpose:    Observable
-      capability: SusHi_bbh_xsec
-
-    - purpose:    Observable
-      capability: MSSM_spectrum
-      type:       map_str_dbl
+      capability: SusHi_bbh_xsec_cap
 
 
 Rules:
@@ -83,10 +79,10 @@ Rules:
   - capability: MSSM_spectrum
     function: make_MSSM_precision_spectrum_none
 
-  - capability: SusHi_ggh_xsec
+  - capability: SusHi_ggh_xsec_cap
     function: getSusHi_ggh_xsec
 
-  - capability: SusHi_bbh_xsec
+  - capability: SusHi_bbh_xsec_cap
     function: getSusHi_bbh_xsec
 
 
