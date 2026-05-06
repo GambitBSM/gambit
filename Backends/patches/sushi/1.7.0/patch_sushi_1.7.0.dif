@@ -44,7 +44,7 @@
  bbhdiff: ${BBHDIFFOBJ}
 --- /dev/null	2026-04-24 11:39:11.973366589 +0200
 +++ b/src/sushi/sushi_gambit_interface.f	2026-05-06 00:00:00.000000000 +0200
-@@ -0,0 +1,70 @@
+@@ -0,0 +1,73 @@
 +C     GAMBIT interface subroutines for SusHi 1.7.0
 +C     Sets jfilein in SusHi common block and runs cross-section computation.
 +
