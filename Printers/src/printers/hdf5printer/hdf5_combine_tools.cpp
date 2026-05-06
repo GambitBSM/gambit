@@ -104,17 +104,17 @@ namespace Gambit
 
 
 
-            inline herr_t op_func (hid_t loc_id, const char *name_in, const H5L_info_t *,
+            inline herr_t op_func (hid_t loc_id, const char *name_in, const GAMBIT_H5L_INFO_T *,
                     void *operator_data)
             {
                 //herr_t          status;
                 herr_t          return_val = 0;
-                H5O_info_t      infobuf;
+                GAMBIT_H5O_INFO_T infobuf;
                 std::vector<std::string> &od = *static_cast<std::vector<std::string> *> (operator_data);
                 std::string name(name_in);
 
-                //status = H5Oget_info_by_name (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
-                H5Oget_info_by_name (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
+                //status = GAMBIT_H5OGET_INFO_BY_NAME (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
+                GAMBIT_H5OGET_INFO_BY_NAME (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
 
                 switch (infobuf.type)
                 {
@@ -144,17 +144,17 @@ namespace Gambit
                 return return_val;
             }
 
-            inline herr_t op_func_aux (hid_t loc_id, const char *name_in, const H5L_info_t *,
+            inline herr_t op_func_aux (hid_t loc_id, const char *name_in, const GAMBIT_H5L_INFO_T *,
                     void *operator_data)
             {
                 //herr_t          status;
                 herr_t          return_val = 0;
-                H5O_info_t      infobuf;
+                GAMBIT_H5O_INFO_T infobuf;
                 std::vector<std::string> &od = *static_cast<std::vector<std::string> *> (operator_data);
                 std::string name(name_in);
 
-                //status = H5Oget_info_by_name (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
-                H5Oget_info_by_name (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
+                //status = GAMBIT_H5OGET_INFO_BY_NAME (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
+                GAMBIT_H5OGET_INFO_BY_NAME (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
 
                 switch (infobuf.type)
                 {

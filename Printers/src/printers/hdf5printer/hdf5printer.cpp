@@ -1377,8 +1377,11 @@ namespace Gambit
         printer_error().raise(LOCAL_INFO, errmsg.str());
       }
 
-      // Tell the HDF5 library to flush everything to disk
-      herr_t err = H5Fflush(file_id, H5F_SCOPE_GLOBAL);
+      // Tell the HDF5 library to flush everything to disk.
+      // Auxiliary printers don't own a file handle (only the primary opens
+      // the HDF5 file in its constructor), so always flush via the primary's
+      // file_id. For the primary itself, primary_printer == this.
+      herr_t err = H5Fflush(primary_printer->file_id, H5F_SCOPE_GLOBAL);
       if(err<0)
       {
         std::ostringstream errmsg;

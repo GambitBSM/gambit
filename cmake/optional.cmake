@@ -324,25 +324,59 @@ else()
   set (EXCLUDE_ROOT TRUE)
 endif()
 
-# Check for HDF5 libraries
+# Check for HDF5 libraries.
 option(WITH_HDF5 "Compile with HDF5 enabled" ON)
 if(WITH_HDF5)
+  # GAMBIT's HDF5 printers use serial HDF5 only; MPI coordination happens at
+  # the GAMBIT level rather than through parallel HDF5 collective I/O. Force
+  # the finder to pick the serial build even when a parallel build is also
+  # present, which avoids accidentally pulling in MPI symbols/headers from
+  # libhdf5 (a common source of breakage on macOS with mixed Homebrew/Anaconda
+  # installs and on HPC modules).
+  set(HDF5_PREFER_PARALLEL FALSE)
   find_package(HDF5 QUIET COMPONENTS C)
   if(HDF5_FOUND)
-    include_directories(${HDF5_INCLUDE_DIR})  # for older versions of cmake
-    include_directories(${HDF5_INCLUDE_DIRS}) # for newer cmake
+    # Mark HDF5 includes as SYSTEM so they don't generate warnings in
+    # downstream code and stay out of the way of GAMBIT's own headers.
+    include_directories(SYSTEM ${HDF5_INCLUDE_DIR})  # for older versions of cmake
+    include_directories(SYSTEM ${HDF5_INCLUDE_DIRS}) # for newer cmake
     message("-- Found HDF5 version: ${HDF5_VERSION}")
-    if (HDF5_VERSION VERSION_GREATER 1.12 OR HDF5_VERSION VERSION_EQUAL 1.12)
-        message("   Enforcing API macro mapping to HDF5 version 1.10.")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DH5_USE_110_API")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DH5_USE_110_API")
-    endif()
     message("   Found HDF5 libraries: ${HDF5_LIBRARIES}")
     if(VERBOSE)
       message(STATUS ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR})
     endif()
+
+    # Sanity check: try to compile a small program that includes hdf5.h and
+    # links against the discovered libraries. This catches the common case
+    # where find_package mixes headers from one HDF5 install with libraries
+    # from another (e.g. Homebrew + Anaconda on macOS) before the user hits a
+    # cryptic compile or link error deep into the GAMBIT build.
+    include(CheckCSourceCompiles)
+    include(CMakePushCheckState)
+    cmake_push_check_state()
+    set(CMAKE_REQUIRED_INCLUDES  ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR})
+    set(CMAKE_REQUIRED_LIBRARIES ${HDF5_LIBRARIES})
+    set(CMAKE_REQUIRED_QUIET TRUE)
+    check_c_source_compiles(
+      "#include <hdf5.h>
+       int main(void) {
+         hid_t plist = H5Pcreate(H5P_FILE_ACCESS);
+         H5Pclose(plist);
+         return 0;
+       }"
+      GAMBIT_HDF5_USABLE)
+    cmake_pop_check_state()
+    if(NOT GAMBIT_HDF5_USABLE)
+      message("${BoldCyan} X HDF5 was found by CMake (version ${HDF5_VERSION}) but a basic compile/link test failed.${ColourReset}")
+      message("    This often means the discovered headers and libraries come from different HDF5 installs")
+      message("    (e.g. Homebrew + Anaconda on macOS). Excluding hdf5printer and hdf5reader from this configuration.")
+      message("    To force a specific install, configure with -DHDF5_ROOT=/path/to/hdf5/prefix.")
+      set(HDF5_FOUND FALSE)
+      set(itch "${itch}" "hdf5printer" "hdf5reader")
+    endif()
   else()
     message("${BoldCyan} X No HDF5 C libraries found. Excluding hdf5printer and hdf5reader from GAMBIT configuration.${ColourReset}")
+    message("    To point to a specific HDF5 install, configure with -DHDF5_ROOT=/path/to/hdf5/prefix.")
     set(itch "${itch}" "hdf5printer" "hdf5reader")
   endif()
 else()
