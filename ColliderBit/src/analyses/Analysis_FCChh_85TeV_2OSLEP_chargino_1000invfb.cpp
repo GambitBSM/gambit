@@ -199,11 +199,15 @@ namespace Gambit
         HEPUtils::P4 pmiss;
         for (const HEPUtils::Particle* visible : visibles)
         {
-          pmiss -= visible->mom();
+          if (visible->pT() > 10.) {
+            pmiss -= visible->mom();
+          }
         }
         for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
-          pmiss -= jet->mom();
+          if (jet->pT() > 30.) {
+            pmiss -= jet->mom();
+          }
         }
         double met = pmiss.pT();
 
