@@ -11,7 +11,6 @@
 ///  *********************************************
 
 
-
 #include <vector>
 #include <cmath>
 #include <memory>
@@ -129,7 +128,7 @@ namespace Gambit
           
         // TODO: Trigger for track
 
-        // TODO: Count up tight and loose
+        // TODO: Count up tight and loose once we have enough info
 
         // If it has reached this point, it has passed pre-selection
         if (trigger) presel = true;
