@@ -1,0 +1,71 @@
+##########################################################################
+## Single-point smoke test for the HiggsTools backend integration.
+##
+## Trimmed down from CMSSM.yaml so that it only exercises the new
+## LHC_Higgs_LogLike capability via SMLikeHiggs_ModelParameters and the
+## HiggsTools backend.  Useful as a fast end-to-end test that the
+## HiggsTools install + Python wrapper + ColliderBit bridge are all wired
+## up correctly; not intended as a physics scan template.
+##########################################################################
+
+
+Parameters:
+
+  # SM parameters at fixed defaults.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  # SM-Higgs sector: a single scalar at the measured Higgs mass.
+  StandardModel_Higgs:
+    mH: 125.09
+
+
+Priors:
+  # No free parameters, so no priors are needed.
+
+
+Printer:
+  printer: cout
+
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      point_number: 1
+      output_file: output
+      like:  LogLike
+
+
+ObsLikes:
+
+  # The capability under test.
+  - capability: LHC_Higgs_LogLike
+    purpose:    LogLike
+
+
+Rules:
+
+  # Use the SM-side Higgs_Couplings provider.
+  - if:
+      capability: Higgs_Couplings
+    then:
+      function: SM_higgs_couplings
+
+
+Logger:
+  redirection:
+    [Default] : "default.log"
+
+
+KeyValues:
+
+  default_output_path: "runs/HiggsTools_test/"
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+
+  debug: false

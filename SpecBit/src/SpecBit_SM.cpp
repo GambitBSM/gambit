@@ -121,7 +121,10 @@ namespace Gambit
       // Set the decays
       result.set_neutral_decays_SM(0, "h0_1", *Dep::Higgs_decay_rates);
       result.set_neutral_decays(0, "h0_1", *Dep::Higgs_decay_rates);
-      // Leave all the effective couplings for all neutral higgses set to unity (done at construction).
+      // Effective couplings are SM-like (= unity) for the SM Higgs.  Note that
+      // set_n_neutral_higgs zero-initialises these vectors, so we must call
+      // set_effective_couplings_to_unity explicitly here.
+      result.set_effective_couplings_to_unity();
     }
 
     /// @} End Gambit module functions
