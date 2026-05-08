@@ -1533,12 +1533,16 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(target_dir "${dir}/python_install")
 set(init_file "${dir}/init_by_GAMBIT.py")
 set(init_template "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/init_by_GAMBIT.py")
-set(hb_data_dir "${dir}/hbdataset")
-set(hs_data_dir "${dir}/hsdataset")
-set(hb_data_dl "https://gitlab.com/higgsbounds/hbdataset/-/archive/main/hbdataset-main.tar.gz")
+# Data sets live in dedicated parallel directories so that they do not
+# clutter the HiggsTools source dir at extraction time.
+set(hb_data_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}_hbdataset/${ver}")
+set(hs_data_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}_hsdataset/${ver}")
+set(hb_data_dl "https://gitlab.com/higgsbounds/hbdataset/-/archive/master/hbdataset-master.tar.gz")
 set(hs_data_dl "https://gitlab.com/higgsbounds/hsdataset/-/archive/main/hsdataset-main.tar.gz")
 set(ditch_if_absent "Python")
-set(required_modules "scikit-build-core,pybind11")
+# scikit_build_core and pybind11 are pulled in automatically by pip in an
+# isolated build environment, so we only check that pip itself is available.
+set(required_modules "pip")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
@@ -1572,7 +1576,7 @@ if(NOT ditched_${name}_${ver})
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy ${init_template} ${init_file}
-      BUILD_COMMAND ${PYTHON_EXECUTABLE} -m pip install --upgrade --no-deps --no-build-isolation --target=${target_dir} .
+      BUILD_COMMAND ${PYTHON_EXECUTABLE} -m pip install --upgrade --no-deps --target=${target_dir} .
       INSTALL_COMMAND ""
     )
   endif()

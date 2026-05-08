@@ -5,8 +5,8 @@ This file is copied into the HiggsTools install directory at configure time
 and is the single entry point that GAMBIT's HiggsTools frontend imports.
 It exposes two convenience functions, lhc_chisq and run_bounds, that build
 a Higgs.predictions.Predictions object from a plain Python dict and return
-the LHC HiggsSignals chi^2 (and the HiggsBounds applied-limits result),
-respectively.
+the LHC HiggsSignals chi^2 (and the maximum HiggsBounds applied-limit
+obs/exp ratio), respectively.
 
 Note: HiggsTools 1.2 has no dedicated LEP chi^2 likelihood; only the
 LHC HiggsSignals likelihood is wrapped here.
@@ -40,8 +40,11 @@ import Higgs.predictions as HP
 import Higgs.bounds as HB
 import Higgs.signals as HS
 
-hb_data_path = os.path.join(_here, "hbdataset")
-hs_data_path = os.path.join(_here, "hsdataset")
+# Data sets are installed in sibling backend directories (see
+# cmake/backends.cmake) and named by the GAMBIT convention.
+_installed = os.path.dirname(os.path.dirname(_here))
+hb_data_path = os.path.join(_installed, "higgstools_hbdataset", "1.2")
+hs_data_path = os.path.join(_installed, "higgstools_hsdataset", "1.2")
 
 # Cache the heavy Bounds/Signals objects so we only load the JSON limit
 # and measurement files once per process.
@@ -72,68 +75,101 @@ def _build_predictions(d):
 
     neutral_ids = []
     for i in range(n_neutral):
-        # CP = +1 for scalar, -1 for pseudoscalar; HiggsTools uses an enum.
-        cp = d["CP"][i]
-        cp_label = HP.ECharge.neutral
-        ref_model = HP.ReferenceModel.SMHiggsEW
+        cp = HP.CP.even if d["CP"][i] >= 0 else HP.CP.odd
         h_id = "h{0}".format(i + 1)
         neutral_ids.append(h_id)
-        h = pred.addParticle(HP.BsmParticle(h_id, cp_label,
-                                            HP.CP.even if cp >= 0 else HP.CP.odd))
+        h = pred.addParticle(HP.BsmParticle(h_id, HP.ECharge.neutral, cp))
         h.setMass(d["Mh"][i])
         h.setTotalWidth(d["hGammaTot"][i])
-        # Branching ratios to SM final states.
-        h.setBr("ss", d["BR_hjss"][i])
-        h.setBr("cc", d["BR_hjcc"][i])
-        h.setBr("bb", d["BR_hjbb"][i])
-        h.setBr("mumu", d["BR_hjmumu"][i])
-        h.setBr("tautau", d["BR_hjtautau"][i])
-        h.setBr("WW", d["BR_hjWW"][i])
-        h.setBr("ZZ", d["BR_hjZZ"][i])
-        h.setBr("Zgam", d["BR_hjZga"][i])
-        h.setBr("gamgam", d["BR_hjgaga"][i])
-        h.setBr("gg", d["BR_hjgg"][i])
-        h.setBrInv(d["BR_hjinvisible"][i])
-        # Effective coupling input is HiggsTools' canonical way of getting
-        # production cross-section ratios for free.
-        ec = HP.EffectiveCouplings()
-        ec.tt = d["g2hjtt"][i] ** 0.5
-        ec.bb = d["g2hjbb"][i] ** 0.5
-        ec.cc = d["g2hjcc"][i] ** 0.5
-        ec.ss = d["g2hjss"][i] ** 0.5
-        ec.tautau = d["g2hjtautau"][i] ** 0.5
-        ec.mumu = d["g2hjmumu"][i] ** 0.5
-        ec.WW = d["g2hjWW"][i] ** 0.5
-        ec.ZZ = d["g2hjZZ"][i] ** 0.5
-        ec.gamgam = d["g2hjgaga"][i] ** 0.5
-        ec.Zgam = d["g2hjZga"][i] ** 0.5
-        ec.gg = d["g2hjgg"][i] ** 0.5
-        HP.effectiveCouplingInput(h, ec, reference=ref_model)
 
-    # Higgs-to-Higgs cascades (h_i -> h_j h_j).
+        # SM-like decay channels.  HiggsTools rejects setBr if the cumulative
+        # BR sum would exceed 1; GAMBIT's DecayTable BRs can sum to slightly
+        # above unity due to floating-point round-off, so renormalise here.
+        sm_brs = [
+            (HP.Decay.ss, d["BR_hjss"][i]),
+            (HP.Decay.cc, d["BR_hjcc"][i]),
+            (HP.Decay.bb, d["BR_hjbb"][i]),
+            (HP.Decay.mumu, d["BR_hjmumu"][i]),
+            (HP.Decay.tautau, d["BR_hjtautau"][i]),
+            (HP.Decay.WW, d["BR_hjWW"][i]),
+            (HP.Decay.ZZ, d["BR_hjZZ"][i]),
+            (HP.Decay.Zgam, d["BR_hjZga"][i]),
+            (HP.Decay.gamgam, d["BR_hjgaga"][i]),
+            (HP.Decay.gg, d["BR_hjgg"][i]),
+            (HP.Decay.directInv, d["BR_hjinvisible"][i]),
+        ]
+        # Include h_i -> h_j h_j cascades in the normalisation budget.
+        cascade_brs = [d["BR_hjhihi"][i][j] for j in range(n_neutral)
+                       if d["BR_hjhihi"][i][j] > 0.0]
+        total_br = sum(br for _, br in sm_brs) + sum(cascade_brs)
+        norm = total_br if total_br > 1.0 else 1.0
+        for decay, br in sm_brs:
+            h.setBr(decay, br / norm)
+
+        # Effective couplings -> production cross-section ratios for free.
+        # Square-rooted because GAMBIT stores g^2 while HiggsTools wants g.
+        def s(x):
+            return x ** 0.5
+        ec = HP.NeutralEffectiveCouplings(
+            cc=s(d["g2hjcc"][i]),
+            ss=s(d["g2hjss"][i]),
+            tt=s(d["g2hjtt"][i]),
+            bb=s(d["g2hjbb"][i]),
+            mumu=s(d["g2hjmumu"][i]),
+            tautau=s(d["g2hjtautau"][i]),
+            WW=s(d["g2hjWW"][i]),
+            ZZ=s(d["g2hjZZ"][i]),
+            Zgam=s(d["g2hjZga"][i]),
+            gamgam=s(d["g2hjgaga"][i]),
+            gg=s(d["g2hjgg"][i]),
+        )
+        HP.effectiveCouplingInput(h, ec, reference=HP.ReferenceModel.SMHiggsEW)
+
+    # Higgs-to-Higgs cascades (h_i -> h_j h_j) via the (id1, id2, value)
+    # overload of setBr.  Normalise against the same budget as the SM BRs.
     BR_hjhihi = d["BR_hjhihi"]
     for i in range(n_neutral):
+        sm_total = (d["BR_hjss"][i] + d["BR_hjcc"][i] + d["BR_hjbb"][i]
+                    + d["BR_hjmumu"][i] + d["BR_hjtautau"][i]
+                    + d["BR_hjWW"][i] + d["BR_hjZZ"][i] + d["BR_hjZga"][i]
+                    + d["BR_hjgaga"][i] + d["BR_hjgg"][i]
+                    + d["BR_hjinvisible"][i])
+        cascade_total = sum(BR_hjhihi[i][j] for j in range(n_neutral)
+                            if BR_hjhihi[i][j] > 0.0)
+        norm = sm_total + cascade_total
+        if norm <= 1.0:
+            norm = 1.0
         for j in range(n_neutral):
             br = BR_hjhihi[i][j]
-            if br > 0.0 and i != j:
-                pred.particle(neutral_ids[i]).setDecayWidth(neutral_ids[j],
-                                                            neutral_ids[j], br)
+            if br > 0.0:
+                pred.particle(neutral_ids[i]).setBr(
+                    neutral_ids[j], neutral_ids[j], br / norm
+                )
 
-    # Charged Higgs sector
+    # Charged Higgs sector.
     for k in range(n_charged):
-        hp = pred.addParticle(HP.BsmParticle("Hp{0}".format(k + 1),
-                                             HP.ECharge.single))
+        hp = pred.addParticle(
+            HP.BsmParticle("Hp{0}".format(k + 1), HP.ECharge.single, HP.CP.undefined)
+        )
         hp.setMass(d["MHplus"][k])
         hp.setTotalWidth(d["HpGammaTot"][k])
-        hp.setBr("cs", d["BR_Hpjcs"][k])
-        hp.setBr("cb", d["BR_Hpjcb"][k])
-        hp.setBr("taunu", d["BR_Hptaunu"][k])
+        ch_brs = [
+            (HP.Decay.cs, d["BR_Hpjcs"][k]),
+            (HP.Decay.cb, d["BR_Hpjcb"][k]),
+            (HP.Decay.taunu, d["BR_Hptaunu"][k]),
+        ]
+        ch_total = sum(br for _, br in ch_brs)
+        ch_norm = ch_total if ch_total > 1.0 else 1.0
+        for decay, br in ch_brs:
+            hp.setBr(decay, br / ch_norm)
 
-    # Top quark BRs (only if a charged Higgs is present).
+        # t -> H+ b is modelled as a "production" rate of the charged Higgs.
+        # Apply at all colliders HiggsTools is aware of.
+        for coll in (HP.Collider.LHC8, HP.Collider.LHC13):
+            hp.setCxn(coll, HP.Production.brtHpb, d["BR_tHpjb"][k])
+
     if n_charged > 0:
         pred.setBrTopWb(d["BR_tWpb"])
-        for k in range(n_charged):
-            pred.setBrTopHpjb(k, d["BR_tHpjb"][k])
 
     return pred
 
@@ -142,8 +178,8 @@ def lhc_chisq(d):
     """Return the HiggsSignals chi^2 (LHC Higgs measurements)."""
     pred = _build_predictions(d)
     res = _signals()(pred)
-    # HSResult.chisq holds the total chi^2 in HiggsTools 1.2.
-    return float(getattr(res, "chisq", res))
+    # Signals(pred) returns a plain float in HiggsTools 1.2.
+    return float(res)
 
 
 def run_bounds(d):
