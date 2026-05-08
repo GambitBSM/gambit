@@ -85,6 +85,7 @@ Backends/installed/**
 ScannerBit/downloaded/**
 ScannerBit/installed/**
 ScannerBit/lib/plugin_libraries.list
+downloaded_tarball_paths.txt
 
 # GUM files
 *.mug

@@ -667,9 +667,15 @@ namespace Gambit {
       /// Close hdf5 group
       SIMPLE_CALL(hid_t, closeGroup,  hid_t, H5Gclose, "close", "group", "group")
 
-      /// global error variables (handler)
-      H5E_auto2_t old_func;
-      void *old_client_data;
+      /// State for errorsOff() / errorsOn(). The bool guard errors_are_off 
+      /// ensures that a redundant errorsOff() called while errors are already 
+      /// off does NOT overwrite the saved handler with the NULL handler.
+      namespace
+      {
+         bool errors_are_off = false;
+         H5E_auto2_t saved_func = nullptr;
+         void *saved_client_data = nullptr;
+      }
 
       // FIXME: This caused compile problems on LISA cluster (CW)
       /// Silence error report (e.g. while probing for file existence)
@@ -683,18 +689,21 @@ namespace Gambit {
       /// and let me know if it works :)
       void errorsOff()
       {
+         if (errors_are_off) return; // already off; don't clobber saved state
          /* Save old error handler */
-         H5Eget_auto2(H5E_DEFAULT, &old_func, &old_client_data);
-
+         H5Eget_auto2(H5E_DEFAULT, &saved_func, &saved_client_data);
          /* Turn off error handling */
          H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
+         errors_are_off = true;
       }
 
       /// Restore error report
       void errorsOn()
       {
+         if (!errors_are_off) return; // unbalanced / already on; no-op
          /* Restore previous error handler */
-         H5Eset_auto2(H5E_DEFAULT, old_func, old_client_data);
+         H5Eset_auto2(H5E_DEFAULT, saved_func, saved_client_data);
+         errors_are_off = false;
       }
 
       /// @{ Dataset manipulations

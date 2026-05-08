@@ -68,8 +68,9 @@ Printer:
   # options:
   #   output_file: "results.dat"
   #   buffer_length: 10
+  #   precision: 10
+  #   write_header: true
   #   delete_file_on_restart: true
-  #   print_debug_data: true
 
   # printer: none
 
@@ -423,7 +424,7 @@ KeyValues:
     generator: ranlux48
     seed: -1
 
-  print_timing_data: true
+  print_timing_data: false
 
   print_unitcube: true
 
