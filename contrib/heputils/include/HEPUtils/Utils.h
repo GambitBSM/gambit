@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of HEPUtils -- https://gitlab.com/hepcedar/heputils/
-// Copyright (C) 2013-2023 Andy Buckley <andy.buckley@cern.ch>
+// Copyright (C) 2013-2026 Andy Buckley <andy.buckley@cern.ch>
 //
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.
@@ -11,6 +11,8 @@
 #if  __cplusplus < 201103L
 #pragma message "This library needs at least a C++11 compliant compiler"
 #endif
+
+#include <vector>
 
 
 /// @file Utility functions
@@ -49,6 +51,26 @@ namespace HEPUtils {
     return false;
   }
 
+
+  /// @brief Deep-copy each element of the from vector into the to vector, via new
+  ///
+  /// The to vector doesn't have to be empty; if already populated, new clones will be appended.
+  template <typename T>
+  void deepcopy(const std::vector<T*>& from, std::vector<T*>& to) {
+    //from.clear();
+    to.reserve(from.size()+to.size()); //< allow appending
+    for (const T* t : from) to.push_back(new T(*t));
+  }
+
+  /// @brief Deep-copy each element of the from vector into a returned vector, via new
+  ///
+  /// The to vector doesn't have to be empty; if already populated, new clones will be appended.
+  template <typename T>
+  std::vector<T*> deepcopy(const std::vector<T*>& from) {
+    std::vector<T*> rtn;
+    deepcopy(from, rtn);
+    return rtn;
+  }
 
   /// @}
 
