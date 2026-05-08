@@ -162,8 +162,22 @@ def _build_predictions(d):
     return pred
 
 
+def _maybe_dump_input(label, d):
+    """If GAMBIT_HIGGSTOOLS_DUMP is set, JSON-dump the input dict for offline
+    replay/comparison.  GAMBIT_HIGGSTOOLS_DUMP is the path of a file the
+    record is appended to (one record per line, label + dict)."""
+    path = os.environ.get("GAMBIT_HIGGSTOOLS_DUMP")
+    if not path:
+        return
+    import json
+    with open(path, "a") as f:
+        json.dump({"label": label, "input": d}, f)
+        f.write("\n")
+
+
 def lhc_chisq(d):
     """Return the HiggsSignals chi^2 (LHC Higgs measurements)."""
+    _maybe_dump_input("lhc_chisq", d)
     pred = _build_predictions(d)
     return float(_signals()(pred))
 
@@ -175,6 +189,7 @@ def run_bounds(d):
     bounds result into a likelihood; we keep this hook available so that
     individual analyses can be queried in the future.
     """
+    _maybe_dump_input("run_bounds", d)
     pred = _build_predictions(d)
     res = _bounds()(pred)
     if not res.appliedLimits:

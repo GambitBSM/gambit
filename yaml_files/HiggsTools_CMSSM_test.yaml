@@ -1,0 +1,149 @@
+##########################################################################
+## Single-point CMSSM smoke test for the HiggsTools backend.
+##
+## Trimmed down from CMSSM.yaml so that it only exercises the new
+## LHC_Higgs_LogLike capability through the MSSMLikeHiggs_ModelParameters
+## branch (h0_1, h0_2, A0 + H+).  Verifies that the full chain
+##
+##   CMSSM -> get_CMSSM_spectrum_FS  (FlexibleSUSY)
+##         -> SUSY-HIT decay chain   (h0_1, h0_2, A0, H+)
+##         -> MSSM_higgs_couplings_pwid   (HiggsCouplingsTable)
+##         -> MSSMLikeHiggs_ModelParameters (HiggsTools_input)
+##         -> calc_HiggsTools_LHC_LogLike (HiggsTools backend)
+##
+## resolves and runs end-to-end on a fixed benchmark point.  Not
+## intended as a physics scan template.
+##
+## Required backends: flexiblesusy (with -DBUILD_FS_MODELS=CMSSM),
+## SUSY-HIT, HiggsTools (with HBDataSet + HSDataSet).
+##########################################################################
+
+
+Parameters:
+
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  CMSSM:
+    M0: 300
+    M12: 400
+    A0: 0
+    TanBeta: 10
+    SignMu: -1
+
+
+Priors:
+  # No free parameters, so no priors are needed.
+
+
+Printer:
+  printer: cout
+
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      point_number: 1
+      output_file: output
+      like:  LogLike
+
+
+ObsLikes:
+
+  - capability: LHC_Higgs_LogLike
+    purpose:    LogLike
+
+
+Rules:
+
+  # Use SUSY-HIT (via partial widths) for Higgs couplings.
+  - if:
+      capability: Higgs_Couplings
+    then:
+      function: MSSM_higgs_couplings_pwid
+
+  # Use the table-based reference SM Higgs decays (no FeynHiggs).
+  - if:
+      capability: Reference_SM_Higgs_decay_rates
+    then:
+      function: Ref_SM_Higgs_decays_table
+  - if:
+      capability: Reference_SM_other_Higgs_decay_rates
+    then:
+      function: Ref_SM_other_Higgs_decays_table
+  - if:
+      capability: Reference_SM_A0_decay_rates
+    then:
+      function: Ref_SM_A0_decays_table
+
+  # Use SUSY-HIT for MSSM Higgs decays (h0_1, h0_2, A0, H+).
+  - if:
+      capability: Higgs_decay_rates
+    then:
+      function: MSSM_h0_1_decays
+  - if:
+      capability: h0_2_decay_rates
+    then:
+      function: h0_2_decays
+  - if:
+      capability: A0_decay_rates
+    then:
+      function: A0_decays
+  - if:
+      capability: H_plus_decay_rates
+    then:
+      function: H_plus_decays
+
+  # Use the DecayBit-native top decays (no FeynHiggs).
+  - if:
+      capability: t_decay_rates
+    then:
+      function: t_decays
+
+  # Spectrum-generation options for FlexibleSUSY CMSSM.
+  - if:
+      capability: unimproved_MSSM_spectrum
+    then:
+      function: get_CMSSM_spectrum_FS
+      options:
+        precision_goal:        1.0e-4
+        max_iterations:        0
+        calculate_sm_masses:   false
+        pole_mass_loop_order:  2
+        ewsb_loop_order:       2
+        beta_loop_order:       2
+        threshold_corrections_loop_order: 2
+        use_higgs_2loop_at_as: true
+        use_higgs_2loop_ab_as: true
+        use_higgs_2loop_at_at: true
+        use_higgs_2loop_atau_atau: true
+        invalid_point_fatal: false
+
+  - if:
+      capability: MSSM_spectrum
+      type: Spectrum
+    then:
+      function: make_MSSM_precision_spectrum_none
+
+
+Logger:
+  redirection:
+    [Default]      : "default.log"
+    [SpecBit]      : "SpecBit.log"
+    [DecayBit]     : "DecayBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
+    [ColliderBit]  : "ColliderBit.log"
+
+
+KeyValues:
+
+  default_output_path: "runs/HiggsTools_CMSSM_test/"
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+
+  debug: false
