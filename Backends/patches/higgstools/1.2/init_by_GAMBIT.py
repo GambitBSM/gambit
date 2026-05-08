@@ -26,6 +26,13 @@ HiggsTools.hpp).  Required keys:
         list[float] of length n_charged
     BR_tWpb : float
     BR_tHpjb : list[float] of length n_charged
+
+API design note: HiggsTools enforces sum(BR) <= 1 internally, and
+``effectiveCouplingInput`` populates SM-channel BRs proportionally to the
+effective couplings.  We use that as the primary input (production xsecs +
+SM BRs come for free) and only override BRs explicitly for non-SM channels
+that effectiveCouplingInput does not touch: invisible decays and
+Higgs-to-Higgs cascade decays h_i -> h_j h_j.
 """
 
 import os
@@ -80,34 +87,9 @@ def _build_predictions(d):
         neutral_ids.append(h_id)
         h = pred.addParticle(HP.BsmParticle(h_id, HP.ECharge.neutral, cp))
         h.setMass(d["Mh"][i])
-        h.setTotalWidth(d["hGammaTot"][i])
 
-        # SM-like decay channels.  HiggsTools rejects setBr if the cumulative
-        # BR sum would exceed 1; GAMBIT's DecayTable BRs can sum to slightly
-        # above unity due to floating-point round-off, so renormalise here.
-        sm_brs = [
-            (HP.Decay.ss, d["BR_hjss"][i]),
-            (HP.Decay.cc, d["BR_hjcc"][i]),
-            (HP.Decay.bb, d["BR_hjbb"][i]),
-            (HP.Decay.mumu, d["BR_hjmumu"][i]),
-            (HP.Decay.tautau, d["BR_hjtautau"][i]),
-            (HP.Decay.WW, d["BR_hjWW"][i]),
-            (HP.Decay.ZZ, d["BR_hjZZ"][i]),
-            (HP.Decay.Zgam, d["BR_hjZga"][i]),
-            (HP.Decay.gamgam, d["BR_hjgaga"][i]),
-            (HP.Decay.gg, d["BR_hjgg"][i]),
-            (HP.Decay.directInv, d["BR_hjinvisible"][i]),
-        ]
-        # Include h_i -> h_j h_j cascades in the normalisation budget.
-        cascade_brs = [d["BR_hjhihi"][i][j] for j in range(n_neutral)
-                       if d["BR_hjhihi"][i][j] > 0.0]
-        total_br = sum(br for _, br in sm_brs) + sum(cascade_brs)
-        norm = total_br if total_br > 1.0 else 1.0
-        for decay, br in sm_brs:
-            h.setBr(decay, br / norm)
-
-        # Effective couplings -> production cross-section ratios for free.
-        # Square-rooted because GAMBIT stores g^2 while HiggsTools wants g.
+        # Effective couplings -> production xsecs and SM-channel BRs.  GAMBIT
+        # passes squared-coupling ratios; HiggsTools wants the coupling itself.
         def s(x):
             return x ** 0.5
         ec = HP.NeutralEffectiveCouplings(
@@ -125,26 +107,31 @@ def _build_predictions(d):
         )
         HP.effectiveCouplingInput(h, ec, reference=HP.ReferenceModel.SMHiggsEW)
 
-    # Higgs-to-Higgs cascades (h_i -> h_j h_j) via the (id1, id2, value)
-    # overload of setBr.  Normalise against the same budget as the SM BRs.
-    BR_hjhihi = d["BR_hjhihi"]
+    # Override BRs for non-SM channels (invisibles + h_i -> h_j h_j cascades).
+    # ``effectiveCouplingInput`` already filled the SM channels with BRs that
+    # sum to 1; we cannot set further BRs directly without violating that
+    # constraint.  Instead we add partial decay widths via setDecayWidth: if
+    # the SM-derived total width is W and we want target BR B in a new
+    # channel, the required partial width is W * B / (1 - B).
+    def _add_channel(particle, target_br, set_width):
+        if target_br <= 0.0:
+            return
+        # Cap the target slightly below 1 to keep the formula well-defined.
+        target_br = min(target_br, 0.9999)
+        old_w = particle.totalWidth()
+        new_partial = old_w * target_br / (1.0 - target_br)
+        set_width(new_partial)
+
     for i in range(n_neutral):
-        sm_total = (d["BR_hjss"][i] + d["BR_hjcc"][i] + d["BR_hjbb"][i]
-                    + d["BR_hjmumu"][i] + d["BR_hjtautau"][i]
-                    + d["BR_hjWW"][i] + d["BR_hjZZ"][i] + d["BR_hjZga"][i]
-                    + d["BR_hjgaga"][i] + d["BR_hjgg"][i]
-                    + d["BR_hjinvisible"][i])
-        cascade_total = sum(BR_hjhihi[i][j] for j in range(n_neutral)
-                            if BR_hjhihi[i][j] > 0.0)
-        norm = sm_total + cascade_total
-        if norm <= 1.0:
-            norm = 1.0
+        h = pred.particle(neutral_ids[i])
+        _add_channel(h, d["BR_hjinvisible"][i],
+                     lambda w, h=h: h.setDecayWidth(HP.Decay.directInv, w))
         for j in range(n_neutral):
-            br = BR_hjhihi[i][j]
+            br = d["BR_hjhihi"][i][j]
             if br > 0.0:
-                pred.particle(neutral_ids[i]).setBr(
-                    neutral_ids[j], neutral_ids[j], br / norm
-                )
+                jname = neutral_ids[j]
+                _add_channel(h, br,
+                             lambda w, h=h, jn=jname: h.setDecayWidth(jn, jn, w))
 
     # Charged Higgs sector.
     for k in range(n_charged):
@@ -153,6 +140,7 @@ def _build_predictions(d):
         )
         hp.setMass(d["MHplus"][k])
         hp.setTotalWidth(d["HpGammaTot"][k])
+        # Charged Higgs BRs renormalised to <=1 to absorb GAMBIT round-off.
         ch_brs = [
             (HP.Decay.cs, d["BR_Hpjcs"][k]),
             (HP.Decay.cb, d["BR_Hpjcb"][k]),
@@ -163,8 +151,8 @@ def _build_predictions(d):
         for decay, br in ch_brs:
             hp.setBr(decay, br / ch_norm)
 
-        # t -> H+ b is modelled as a "production" rate of the charged Higgs.
-        # Apply at all colliders HiggsTools is aware of.
+        # t -> H+ b is modelled as a "production" rate of the charged Higgs
+        # at the LHC, applied at all colliders HiggsTools is aware of.
         for coll in (HP.Collider.LHC8, HP.Collider.LHC13):
             hp.setCxn(coll, HP.Production.brtHpb, d["BR_tHpjb"][k])
 
@@ -177,9 +165,7 @@ def _build_predictions(d):
 def lhc_chisq(d):
     """Return the HiggsSignals chi^2 (LHC Higgs measurements)."""
     pred = _build_predictions(d)
-    res = _signals()(pred)
-    # Signals(pred) returns a plain float in HiggsTools 1.2.
-    return float(res)
+    return float(_signals()(pred))
 
 
 def run_bounds(d):
