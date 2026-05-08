@@ -4,11 +4,6 @@
 ///
 ///  Frontend source for the HiggsTools backend.
 ///
-///  HiggsTools replaces the older HiggsBounds and HiggsSignals Fortran
-///  backends.  This file converts a HiggsTools_input struct into a Python
-///  dict and dispatches to the wrapper functions defined in
-///  Backends/patches/higgstools/1.2/init_by_GAMBIT.py.
-///
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
@@ -24,8 +19,7 @@
   {
     using namespace pybind11::literals;
 
-    // Convert a HiggsTools_input struct into a pybind11::dict matching the
-    // schema documented in init_by_GAMBIT.py.
+    // Convert a HiggsTools_input struct into a pybind11::dict.
     static pybind11::dict input_to_dict(const HiggsTools_input& in)
     {
       pybind11::dict d;
@@ -69,7 +63,7 @@
       return d;
     }
 
-    /// LHC Higgs measurements log-likelihood from HiggsSignals (chi^2 / -2).
+    /// LHC HiggsSignals log-likelihood (= -0.5 * chi^2).
     double HiggsTools_LHC_LogLike(const HiggsTools_input& in)
     {
       double chisq;
@@ -81,9 +75,7 @@
       return -0.5 * chisq;
     }
 
-    /// Maximum observed/expected ratio of any HiggsBounds limit applicable
-    /// to the input.  Returned as a raw number (not a likelihood) so that
-    /// downstream module functions can decide how to use it.
+    /// Strongest HiggsBounds applied-limit obs/exp ratio (raw, not a likelihood).
     double HiggsTools_run_bounds(const HiggsTools_input& in)
     {
       double obsRatio;

@@ -48,8 +48,7 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    /// Resize all per-particle vectors in a HiggsTools_input to the given sizes
-    /// and zero them.  Two-index containers are sized as n_neutral x n_neutral.
+    /// Resize and zero all per-particle vectors in a HiggsTools_input.
     static void resize_HiggsTools_input(HiggsTools_input& d, int n_neutral, int n_charged)
     {
       d.n_neutral = n_neutral;
@@ -95,8 +94,7 @@ namespace Gambit
       d.BR_tWpb = 0.0;
     }
 
-    /// Copy effective couplings squared from a HiggsCouplingsTable into the
-    /// input DTO for the requested neutral Higgs index.
+    /// Copy squared effective couplings into the i-th neutral Higgs slot.
     static void set_eff_couplings(HiggsTools_input& d, int i, const HiggsCouplingsTable& c)
     {
       d.g2hjWW[i]      = c.C_WW2[i];
@@ -179,17 +177,8 @@ namespace Gambit
       const DecayTable::Entry& H_plus_widths = Dep::Higgs_Couplings->get_charged_decays(0);
       const DecayTable::Entry& t_widths = Dep::Higgs_Couplings->get_t_decays();
 
-      dep_bucket<Spectrum>* spectrum_dependency = nullptr;
-      std::vector<str> Higgses;
-      if (ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ"))
-      {
-        spectrum_dependency = &Dep::MSSM_spectrum;
-        Higgses = initVector<str>("h0_1", "h0_2", "A0");
-      }
-      else ColliderBit_error().raise(LOCAL_INFO, "No valid model for MSSMLikeHiggs_ModelParameters.");
-
-      const SubSpectrum& spec = (*spectrum_dependency)->get_HE();
-      static const std::vector<str> sHneut(Higgses);
+      const SubSpectrum& spec = Dep::MSSM_spectrum->get_HE();
+      static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
 
       for (int i = 0; i < n_neutral; ++i)
       {

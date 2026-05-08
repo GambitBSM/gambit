@@ -1,11 +1,6 @@
 ##########################################################################
-## Single-point smoke test for the HiggsTools backend integration.
-##
-## Trimmed down from CMSSM.yaml so that it only exercises the new
-## LHC_Higgs_LogLike capability via SMLikeHiggs_ModelParameters and the
-## HiggsTools backend.  Useful as a fast end-to-end test that the
-## HiggsTools install + Python wrapper + ColliderBit bridge are all wired
-## up correctly; not intended as a physics scan template.
+## Single-point HiggsTools smoke test (SM Higgs at mH = 125.09 GeV).
+## Reproduces HiggsTools' canonical SM benchmark (examples/SM.cpp).
 ##########################################################################
 
 

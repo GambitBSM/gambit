@@ -1,38 +1,14 @@
-"""
-GAMBIT wrapper around the HiggsTools Python interface.
+"""GAMBIT wrapper around the HiggsTools Python interface.
 
-This file is copied into the HiggsTools install directory at configure time
-and is the single entry point that GAMBIT's HiggsTools frontend imports.
-It exposes two convenience functions, lhc_chisq and run_bounds, that build
-a Higgs.predictions.Predictions object from a plain Python dict and return
-the LHC HiggsSignals chi^2 (and the maximum HiggsBounds applied-limit
-obs/exp ratio), respectively.
+Loaded by GAMBIT's HiggsTools_1_2 frontend.  Exposes lhc_chisq(d) (the
+LHC HiggsSignals chi^2) and run_bounds(d) (the strongest HiggsBounds
+applied-limit obs/exp ratio).  d is a plain dict matching the C++
+struct HiggsTools_input (see Backends/include/gambit/Backends/
+backend_types/HiggsTools.hpp).  HiggsTools 1.2 has no dedicated LEP
+chi^2.
 
-Note: HiggsTools 1.2 has no dedicated LEP chi^2 likelihood; only the
-LHC HiggsSignals likelihood is wrapped here.
-
-The input dict layout is documented in the GAMBIT C++ struct
-HiggsTools_input (see Backends/include/gambit/Backends/backend_types/
-HiggsTools.hpp).  Required keys:
-
-    n_neutral, n_charged: int
-    Mh, hGammaTot, CP, BR_hjss, BR_hjcc, BR_hjbb, BR_hjmumu, BR_hjtautau,
-    BR_hjWW, BR_hjZZ, BR_hjZga, BR_hjgaga, BR_hjgg, BR_hjinvisible,
-    g2hjWW, g2hjZZ, g2hjtt, g2hjbb, g2hjcc, g2hjss, g2hjtautau, g2hjmumu,
-    g2hjgaga, g2hjZga, g2hjgg :
-        list[float] of length n_neutral
-    BR_hjhihi : list[list[float]] of shape (n_neutral, n_neutral)
-    MHplus, HpGammaTot, BR_Hpjcs, BR_Hpjcb, BR_Hptaunu :
-        list[float] of length n_charged
-    BR_tWpb : float
-    BR_tHpjb : list[float] of length n_charged
-
-API design note: HiggsTools enforces sum(BR) <= 1 internally, and
-``effectiveCouplingInput`` populates SM-channel BRs proportionally to the
-effective couplings.  We use that as the primary input (production xsecs +
-SM BRs come for free) and only override BRs explicitly for non-SM channels
-that effectiveCouplingInput does not touch: invisible decays and
-Higgs-to-Higgs cascade decays h_i -> h_j h_j.
+Set GAMBIT_HIGGSTOOLS_DUMP=<path> to JSON-dump every input dict (one
+record per line) for offline replay/cross-checks.
 """
 
 import os
@@ -47,14 +23,12 @@ import Higgs.predictions as HP
 import Higgs.bounds as HB
 import Higgs.signals as HS
 
-# Data sets are installed in sibling backend directories (see
-# cmake/backends.cmake) and named by the GAMBIT convention.
+# Data sets installed in sibling backend dirs (see cmake/backends.cmake).
 _installed = os.path.dirname(os.path.dirname(_here))
 hb_data_path = os.path.join(_installed, "higgstools_hbdataset", "1.2")
 hs_data_path = os.path.join(_installed, "higgstools_hsdataset", "1.2")
 
-# Cache the heavy Bounds/Signals objects so we only load the JSON limit
-# and measurement files once per process.
+# Cache the heavy Bounds/Signals objects: loaded once per process.
 _bounds_cache = None
 _signals_cache = None
 
@@ -74,7 +48,15 @@ def _signals():
 
 
 def _build_predictions(d):
-    """Translate a GAMBIT HiggsTools_input dict into a HiggsTools Predictions."""
+    """Translate a GAMBIT HiggsTools_input dict into a HiggsTools Predictions.
+
+    Neutral SM-channel BRs and total widths are derived inside HiggsTools by
+    effectiveCouplingInput from the squared effective couplings; the
+    BR_hj* and hGammaTot fields in d are not currently pushed to HiggsTools
+    (deviations from coupling-squared scaling for SM channels are typically
+    sub-percent and below LHC sensitivity).  Non-SM neutral channels
+    (invisibles, h_i->h_j h_j) are added as partial widths below.
+    """
     pred = HP.Predictions()
 
     n_neutral = int(d["n_neutral"])
@@ -88,28 +70,12 @@ def _build_predictions(d):
         h = pred.addParticle(HP.BsmParticle(h_id, HP.ECharge.neutral, cp))
         h.setMass(d["Mh"][i])
 
-        # Effective couplings -> production xsecs and SM-channel BRs.  GAMBIT
-        # passes squared-coupling ratios; HiggsTools wants the coupling itself.
+        # GAMBIT's HiggsCouplingsTable lacks first-gen Yukawas and lam;
+        # default dd <- ss, uu <- cc, ee <- mumu, lam <- 1.0 (SM-aligned).
+        # See HiggsTools.hpp for the cleanup recipe if a future model needs
+        # non-MFV first-gen Yukawas or a non-SM Higgs trilinear.
         def s(x):
             return x ** 0.5
-        # GAMBIT's HiggsCouplingsTable does not carry first-generation (u, d,
-        # e) Yukawa couplings or the Higgs trilinear self-coupling, but
-        # HiggsTools' NeutralEffectiveCouplings has fields for all of them.
-        # Default them to the most reasonable SM-aligned choice so that an
-        # SM-like input reproduces HiggsTools' SMHiggsEW reference exactly:
-        #   dd <- sqrt(g2_ss)   (assume same Yukawa rescaling as strange)
-        #   uu <- sqrt(g2_cc)   (assume same Yukawa rescaling as charm)
-        #   ee <- sqrt(g2_mumu) (assume same Yukawa rescaling as muon)
-        #   lam <- 1.0          (SM-like trilinear; not provided by GAMBIT)
-        # These defaults are exact for the SM and harmless for all MFV-like
-        # BSM models GAMBIT currently supports (CMSSM, MSSM, NMSSM, scalar
-        # singlet, ...): the h->dd/uu/ee BRs are 1e-9..1e-12 and well below
-        # LHC sensitivity, and the SM-like lam reproduces HiggsTools'
-        # tree-level di-Higgs cross sections.  If/when a future GAMBIT model
-        # needs non-MFV first-generation Yukawas or a non-SM trilinear, see
-        # the matching note in
-        # Backends/include/gambit/Backends/backend_types/HiggsTools.hpp for
-        # the cleanup recipe.
         ec = HP.NeutralEffectiveCouplings(
             uu=s(d["g2hjcc"][i]),
             cc=s(d["g2hjcc"][i]),
@@ -129,31 +95,30 @@ def _build_predictions(d):
         )
         HP.effectiveCouplingInput(h, ec, reference=HP.ReferenceModel.SMHiggsEW)
 
-    # Override BRs for non-SM channels (invisibles + h_i -> h_j h_j cascades).
-    # ``effectiveCouplingInput`` already filled the SM channels with BRs that
-    # sum to 1; we cannot set further BRs directly without violating that
-    # constraint.  Instead we add partial decay widths via setDecayWidth: if
-    # the SM-derived total width is W and we want target BR B in a new
-    # channel, the required partial width is W * B / (1 - B).
-    def _add_channel(particle, target_br, set_width):
-        if target_br <= 0.0:
-            return
-        # Cap the target slightly below 1 to keep the formula well-defined.
-        target_br = min(target_br, 0.9999)
-        old_w = particle.totalWidth()
-        new_partial = old_w * target_br / (1.0 - target_br)
-        set_width(new_partial)
-
+    # Add invisibles + h_i -> h_j h_j cascades as partial widths
+    # (effectiveCouplingInput owns the SM channels). With S = sum(target BRs)
+    # and W_SM the original SM-derived total width, w_i = W_SM * b_i / (1 - S)
+    # makes the new BRs sum to S and rescales the SM channels to (1 - S).
     for i in range(n_neutral):
         h = pred.particle(neutral_ids[i])
-        _add_channel(h, d["BR_hjinvisible"][i],
-                     lambda w, h=h: h.setDecayWidth(HP.Decay.directInv, w))
+        target = [(HP.Decay.directInv, d["BR_hjinvisible"][i])]
         for j in range(n_neutral):
             br = d["BR_hjhihi"][i][j]
             if br > 0.0:
-                jname = neutral_ids[j]
-                _add_channel(h, br,
-                             lambda w, h=h, jn=jname: h.setDecayWidth(jn, jn, w))
+                target.append(((neutral_ids[j], neutral_ids[j]), br))
+        S = sum(b for _, b in target)
+        if S <= 0.0:
+            continue
+        S = min(S, 0.9999)  # keep the rescaling well-defined
+        W_SM = h.totalWidth()
+        for channel, b in target:
+            if b <= 0.0:
+                continue
+            w = W_SM * b / (1.0 - S)
+            if isinstance(channel, tuple):
+                h.setDecayWidth(channel[0], channel[1], w)
+            else:
+                h.setDecayWidth(channel, w)
 
     # Charged Higgs sector.
     for k in range(n_charged):
@@ -162,7 +127,7 @@ def _build_predictions(d):
         )
         hp.setMass(d["MHplus"][k])
         hp.setTotalWidth(d["HpGammaTot"][k])
-        # Charged Higgs BRs renormalised to <=1 to absorb GAMBIT round-off.
+        # Renormalise charged BRs only if they exceed 1 (round-off).
         ch_brs = [
             (HP.Decay.cs, d["BR_Hpjcs"][k]),
             (HP.Decay.cb, d["BR_Hpjcb"][k]),
@@ -173,8 +138,7 @@ def _build_predictions(d):
         for decay, br in ch_brs:
             hp.setBr(decay, br / ch_norm)
 
-        # t -> H+ b is modelled as a "production" rate of the charged Higgs
-        # at the LHC, applied at all colliders HiggsTools is aware of.
+        # t -> H+ b enters as charged-Higgs production at LHC8/13.
         for coll in (HP.Collider.LHC8, HP.Collider.LHC13):
             hp.setCxn(coll, HP.Production.brtHpb, d["BR_tHpjb"][k])
 
@@ -185,9 +149,7 @@ def _build_predictions(d):
 
 
 def _maybe_dump_input(label, d):
-    """If GAMBIT_HIGGSTOOLS_DUMP is set, JSON-dump the input dict for offline
-    replay/comparison.  GAMBIT_HIGGSTOOLS_DUMP is the path of a file the
-    record is appended to (one record per line, label + dict)."""
+    """JSON-dump d to GAMBIT_HIGGSTOOLS_DUMP (one record per line) if set."""
     path = os.environ.get("GAMBIT_HIGGSTOOLS_DUMP")
     if not path:
         return
@@ -205,11 +167,10 @@ def lhc_chisq(d):
 
 
 def run_bounds(d):
-    """Return the strongest applied-limit obs/exp ratio from HiggsBounds.
+    """Return the strongest HiggsBounds applied-limit obs/exp ratio (0 if none).
 
-    Returns 0.0 if no limit applies.  GAMBIT does not currently turn the
-    bounds result into a likelihood; we keep this hook available so that
-    individual analyses can be queried in the future.
+    Currently exposed via the HiggsTools backend but not wired into a
+    GAMBIT capability; available for future per-analysis queries.
     """
     _maybe_dump_input("run_bounds", d)
     pred = _build_predictions(d)

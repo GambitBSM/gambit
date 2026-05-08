@@ -4,10 +4,6 @@
 ///
 ///  Frontend header for the HiggsTools backend (Python interface).
 ///
-///  HiggsTools replaces the older HiggsBounds and HiggsSignals Fortran
-///  backends.  We expose its Python interface via pybind11 through a tiny
-///  init_by_GAMBIT.py wrapper installed alongside the HiggsTools package.
-///
 ///  *********************************************
 
 #define BACKENDNAME HiggsTools

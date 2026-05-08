@@ -55,10 +55,8 @@
   #undef CAPABILITY
 
 
-  // Get an LHC Higgs chisq from HiggsTools (HiggsSignals).
-  // HiggsTools 1.2 does not provide a dedicated LEP chi^2; the corresponding
-  // capability has therefore been removed entirely along with the older
-  // HiggsBounds/HiggsSignals Fortran backends.
+  // LHC Higgs chisq from HiggsTools (HiggsSignals).
+  // LEP_Higgs_LogLike removed: HiggsTools 1.2 has no dedicated LEP chi^2.
   #define CAPABILITY LHC_Higgs_LogLike
   START_CAPABILITY
 

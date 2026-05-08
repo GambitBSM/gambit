@@ -1518,13 +1518,7 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
-# HiggsTools (replaces the old HiggsBounds and HiggsSignals backends).
-# The HiggsTools Python module 'Higgs' is built and installed locally with pip;
-# the limit/measurement data is loaded at runtime from the HBDataSet and
-# HSDataSet repositories below.  GAMBIT's view of the backend is a single
-# init_by_GAMBIT.py wrapper that builds Higgs.predictions.Predictions objects
-# from a flat dict and returns the LHC chi^2 from Higgs.bounds.Bounds and
-# Higgs.signals.Signals.
+# HiggsTools (replaces HiggsBounds and HiggsSignals).
 set(name "higgstools")
 set(ver "1.2")
 set(dl "https://gitlab.com/higgsbounds/higgstools/-/archive/v${ver}/higgstools-v${ver}.tar.gz")
@@ -1533,15 +1527,11 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(target_dir "${dir}/python_install")
 set(init_file "${dir}/init_by_GAMBIT.py")
 set(init_template "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/init_by_GAMBIT.py")
-# Data sets live in dedicated parallel directories so that they do not
-# clutter the HiggsTools source dir at extraction time.
 set(hb_data_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}_hbdataset/${ver}")
 set(hs_data_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}_hsdataset/${ver}")
 set(hb_data_dl "https://gitlab.com/higgsbounds/hbdataset/-/archive/master/hbdataset-master.tar.gz")
 set(hs_data_dl "https://gitlab.com/higgsbounds/hsdataset/-/archive/main/hsdataset-main.tar.gz")
 set(ditch_if_absent "Python")
-# scikit_build_core and pybind11 are pulled in automatically by pip in an
-# isolated build environment, so we only check that pip itself is available.
 set(required_modules "pip")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
@@ -1549,7 +1539,6 @@ if(NOT ditched_${name}_${ver})
   if(modules_missing_${name}_${ver})
     inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
   else()
-    # HBDataSet
     ExternalProject_Add(${name}_hbdataset_${ver}
       DOWNLOAD_COMMAND ${DL_BACKEND} ${hb_data_dl} "none" ${hb_data_dir} ${name}_hbdataset ${ver}
       SOURCE_DIR ${hb_data_dir}
@@ -1558,7 +1547,6 @@ if(NOT ditched_${name}_${ver})
       BUILD_COMMAND ""
       INSTALL_COMMAND ""
     )
-    # HSDataSet
     ExternalProject_Add(${name}_hsdataset_${ver}
       DOWNLOAD_COMMAND ${DL_BACKEND} ${hs_data_dl} "none" ${hs_data_dir} ${name}_hsdataset ${ver}
       SOURCE_DIR ${hs_data_dir}
@@ -1567,9 +1555,6 @@ if(NOT ditched_${name}_${ver})
       BUILD_COMMAND ""
       INSTALL_COMMAND ""
     )
-    # HiggsTools itself: download the tarball, pip-install the Python package
-    # into a local target directory, and copy the init_by_GAMBIT.py wrapper
-    # into the install dir.
     ExternalProject_Add(${name}_${ver}
       DEPENDS ${name}_hbdataset_${ver} ${name}_hsdataset_${ver}
       DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}

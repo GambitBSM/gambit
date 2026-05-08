@@ -2,10 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Definitions of types for the HiggsTools backend.
-///
-///  Replaces the older HiggsBounds.hpp / hb_ModelParameters[_effC] structs
-///  used by the Fortran HiggsBounds and HiggsSignals backends.
+///  HiggsTools backend input container (replaces hb_ModelParameters).
 ///
 ///  *********************************************
 
@@ -18,10 +15,14 @@
 
 namespace Gambit
 {
-  /// Container for HiggsTools input (masses, widths, BRs, effective couplings).
-  /// All vectors of length n_neutral or n_charged; BR_hjhihi is n_neutral x
-  /// n_neutral (BR_hjhihi[i][j] = BF(h_i -> h_j h_j)).  The frontend converts
-  /// this struct to a Python dict and hands it to the HiggsTools wrapper.
+  /// Input dict for the HiggsTools Python wrapper.  Per-particle vectors have
+  /// length n_neutral or n_charged; BR_hjhihi[i][j] = BF(h_i -> h_j h_j).
+  ///
+  /// HiggsTools' NeutralEffectiveCouplings has 15 fields; we fill these 11.
+  /// The wrapper (init_by_GAMBIT.py) defaults dd/uu/ee from second-gen and
+  /// lam = 1 (SM-aligned).  If a future model needs non-MFV first-gen
+  /// Yukawas or a non-SM trilinear, extend HiggsCouplingsTable accordingly,
+  /// add fields here, and drop the wrapper defaults.
   struct HiggsTools_input
   {
     int n_neutral;
@@ -46,25 +47,6 @@ namespace Gambit
     std::vector<std::vector<double>> BR_hjhihi;
 
     // Effective couplings squared (relative to a SM Higgs of the same mass).
-    //
-    // Note: HiggsTools' NeutralEffectiveCouplings struct has 15 fields, but
-    // GAMBIT's HiggsCouplingsTable only computes these 11.  The Python
-    // wrapper (Backends/patches/higgstools/1.2/init_by_GAMBIT.py) defaults
-    // the four missing fields to SM-aligned values:
-    //   dd  <- sqrt(g2hjss)   (assume aligned-Yukawa rescaling, dd ~ ss)
-    //   uu  <- sqrt(g2hjcc)   (uu ~ cc)
-    //   ee  <- sqrt(g2hjmumu) (ee ~ mumu)
-    //   lam <- 1.0            (SM-like Higgs trilinear self-coupling)
-    // This is exact for the SM and harmless for all MFV-like BSM models
-    // GAMBIT currently supports (CMSSM, MSSM, NMSSM, scalar singlet, ...);
-    // the h -> dd/uu/ee BRs are 1e-9..1e-12 and well below LHC sensitivity.
-    // The lam = 1 default is also exact at tree level for these models, but
-    // would silently miss BSM modifications of the Higgs self-coupling that
-    // affect HiggsTools' di-Higgs production cross sections.  If a future
-    // GAMBIT model needs non-MFV first-generation Yukawas or a non-SM
-    // trilinear, extend HiggsCouplingsTable with C_dd2/C_uu2/C_ee2/C_lam,
-    // wire them through MSSMLikeHiggs_ModelParameters into this struct, and
-    // drop the corresponding defaults in the Python wrapper.
     std::vector<double> g2hjss;
     std::vector<double> g2hjcc;
     std::vector<double> g2hjbb;

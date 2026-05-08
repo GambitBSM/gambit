@@ -1,16 +1,7 @@
 ##########################################################################
-## 2D CMSSM scan exercising the HiggsTools backend.
-##
-## Sweeps M0 and M12 on a regular grid at fixed (A0=0, tan(beta)=10,
-## sign(mu)=+1).  Evaluates only the LHC HiggsSignals likelihood from
-## HiggsTools, to confirm that:
-##   - the scan completes for many points
-##   - LHC_Higgs_LogLike varies sensibly across (M0, M12)
-##   - no NaN or backend crash from the cached Python Higgs.signals
-##     and Higgs.bounds objects under repeated calls
-##
-## Output goes to runs/HiggsTools_CMSSM_2D_test/ as ASCII so the result
-## is straightforward to inspect.  Not a physics scan.
+## 2D CMSSM grid scan (M0, M12) at fixed (A0=0, tan(beta)=10, sign(mu)=+1).
+## Tests that HiggsTools' cached Bounds/Signals handle many points without
+## crashing or returning NaN, and that LHC_Higgs_LogLike varies sensibly.
 ##########################################################################
 
 

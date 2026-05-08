@@ -1,21 +1,7 @@
 ##########################################################################
-## Single-point CMSSM smoke test for the HiggsTools backend.
-##
-## Trimmed down from CMSSM.yaml so that it only exercises the new
-## LHC_Higgs_LogLike capability through the MSSMLikeHiggs_ModelParameters
-## branch (h0_1, h0_2, A0 + H+).  Verifies that the full chain
-##
-##   CMSSM -> get_CMSSM_spectrum_FS  (FlexibleSUSY)
-##         -> SUSY-HIT decay chain   (h0_1, h0_2, A0, H+)
-##         -> MSSM_higgs_couplings_pwid   (HiggsCouplingsTable)
-##         -> MSSMLikeHiggs_ModelParameters (HiggsTools_input)
-##         -> calc_HiggsTools_LHC_LogLike (HiggsTools backend)
-##
-## resolves and runs end-to-end on a fixed benchmark point.  Not
-## intended as a physics scan template.
-##
-## Required backends: flexiblesusy (with -DBUILD_FS_MODELS=CMSSM),
-## SUSY-HIT, HiggsTools (with HBDataSet + HSDataSet).
+## Single-point CMSSM smoke test for the HiggsTools backend (3 neutral
+## + 1 charged Higgs).  Requires flexiblesusy (-DBUILD_FS_MODELS=CMSSM),
+## SUSY-HIT, and HiggsTools (with HBDataSet + HSDataSet).
 ##########################################################################
 
 
