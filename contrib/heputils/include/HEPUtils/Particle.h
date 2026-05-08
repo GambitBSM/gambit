@@ -182,7 +182,7 @@ namespace HEPUtils {
 
 
   /// @brief Extension of the Particle class to contain displacement information
-  class LLParticle : public Particle {
+  class DisplacedParticle : public Particle {
   private:
 
     /// Production vertex info
@@ -198,23 +198,20 @@ namespace HEPUtils {
     // Import from base
     //using Particle::Particle;
 
-    /// 4-mom + 4-vec + PDG ID constructor
-    LLParticle(const P4& mom, int pdgid, const V4& dec, const V4& prod=V4())
-      : Particle(mom, pdgid), _vdec(dec), _vprod(prod)
-    {    }
+    /// 4-mom + PDG ID + 4-vecs constructor
+    DisplacedParticle(const P4& mom, int pdgid, const V4& prod, const V4& dec)
+      : Particle(mom, pdgid), _vdec(dec), _vprod(prod) { }
 
     /// Copy constructor
-    LLParticle(const LLParticle& p)
-      : Particle(p), _vdec(p._vdec), _vprod(p._vprod)
-    {    }
+    DisplacedParticle(const DisplacedParticle& p)
+      : Particle(p), _vdec(p._vdec), _vprod(p._vprod) { }
 
     /// Copy constructor from a pointer
-    LLParticle(const LLParticle* p)
-      : Particle(p), _vdec(p->_vdec), _vprod(p->_vprod)
-    {    }
+    DisplacedParticle(const DisplacedParticle* p)
+      : Particle(p), _vdec(p->_vdec), _vprod(p->_vprod) { }
 
     /// Copy assignment operator
-    LLParticle& operator = (const LLParticle& p) {
+    DisplacedParticle& operator = (const DisplacedParticle& p) {
       Particle::operator=(p);
       _vdec = p._vdec;
       _vprod = p._vprod;
@@ -243,6 +240,8 @@ namespace HEPUtils {
 
   };
 
+  /// Alias (not all displaced particles are themselves long-lived, but it's a common usage)
+  using LLParticle = DisplacedParticle;
 
 
   /// @defgroup particle_const Particle constness conversions

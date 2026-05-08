@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of HEPUtils -- https://gitlab.com/hepcedar/heputils/
-// Copyright (C) 2013-2023 Andy Buckley <andy.buckley@cern.ch>
+// Copyright (C) 2013-2026 Andy Buckley <andy.buckley@cern.ch>
 //
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.
@@ -12,6 +12,7 @@
 #include "HEPUtils/Jet.h"
 #include <algorithm>
 #include <memory>
+#include <vector>
 #include <map>
 
 namespace HEPUtils {
@@ -28,14 +29,33 @@ namespace HEPUtils {
     std::vector<double> _weights;
     std::vector<double> _weight_errs;
 
-    /// @name Separate particle collections
+    /// @name Particle collections
     /// @{
-    std::vector<const Particle*> _allparticles;
-    mutable std::vector<const Particle*> _visibles, _invisibles, _photons, _electrons, _muons, _taus;
+
+    /// Typedef for multiple particle objects
+    /// @todo Convert to unique/shared_ptr... but impacts API via vectors. Views?
+    using Particles = std::vector<const Particle*>;
+
+    /// Containers for various ~final-state particle-class collections
+    mutable Particles _allparticles, _visibles, _invisibles, _photons, _electrons, _muons, _taus;
+    mutable bool _stdparticles_sorted = true;
+
+    /// Extensible map for non-standard particle collections
+    std::map<std::string, Particles> _customparticles;
+    mutable bool _customparticles_sorted = true;
+
     /// @}
 
+
+    /// @name Jet collections
+    /// @{
+
+    /// Typedef for multiple jet objects
+    /// @todo Convert to unique/shared_ptr... but impacts API via vectors. Views?
+    using Jets = std::vector<const Jet*>;
+
     /// Jets collection(s) (mutable to allow sorting)
-    mutable std::map<std::string, std::vector<const Jet*>> _jets;
+    mutable std::map<std::string, Jets> _jets;
 
     /// Typedef for the generic cluster-sequence type
     using CSeqBase = FJNS::ClusterSequence;
@@ -44,8 +64,11 @@ namespace HEPUtils {
     
     /// Hold the cluster sequences corresponding to jets, to keep them alive
     std::map<std::string, CSeqBasePtr> _cseqs;
-    
-    /// Missing momentum vector
+
+    /// @}
+
+
+    /// Missing-momentum vector
     P4 _pmiss;
 
     /// @}
@@ -55,23 +78,16 @@ namespace HEPUtils {
 
     /// Hide copy assignment, since shallow copies of Particle & Jet pointers create ownership/deletion problems
     /// @todo Reinstate as a deep copy uing cloneTo?
-    void operator = (const Event& e) {
-      clear(); //< Delete current particles
-      _weights = e._weights;
-      _weight_errs = e._weight_errs;
-      //
-      _allparticles = e._allparticles;
-      _visibles = e._visibles;
-      _invisibles = e._invisibles;
-      _photons = e._photons;
-      _electrons = e._electrons;
-      _muons = e._muons;
-      _taus = e._taus;
-      //
-      _jets = e._jets;
-      _cseqs = e._cseqs;
-      _pmiss = e._pmiss;
-    }
+    void operator = (const Event& e) = delete;
+    // {
+    //   clear(); //< Delete current particles
+    //   _weights = e._weights;
+    //   _weight_errs = e._weight_errs;
+    //   _stdparticles = e._stdparticles;
+    //   _jets = e._jets;
+    //   _cseqs = e._cseqs;
+    //   _pmiss = e._pmiss;
+    // }
 
 
   public:
@@ -107,26 +123,31 @@ namespace HEPUtils {
 
     /// Clone a deep copy (new Particles and Jets allocated) into the provided event pointer
     void cloneTo(Event* e) const {
-      assert(e != NULL);
+      assert(e != nullptr);
       cloneTo(*e);
     }
+
 
     /// Clone a deep copy (new Particles and Jets allocated) into the provided event object
     void cloneTo(Event& e) const {
       e.set_weights(_weights);
       e.set_weight_errs(_weight_errs);
-      const std::vector<const Particle*> ps = particles();
-      for (size_t i = 0; i < ps.size(); ++i) {
-        e.add_particle(new Particle(*ps[i]));
+
+      // Visibles+invisibles is the full set of std particles (avoids double-counting)
+      e.add_particles(mkunconst(deepcopy(_visibles)));
+      e.add_particles(mkunconst(deepcopy(_invisibles)));
+      // The custom collections need to be cloned by name, and
+      for (const auto& kv : _customparticles) {
+        e.add_particles(mkunconst(deepcopy(particles(kv.first))), kv.first);
       }
-      for (const auto& kv : _jets ) {
-        const std::vector<const Jet*> js = jets(kv.first);
-        for (size_t i = 0; i < js.size(); ++i) {
-          e.add_jet(new Jet(*js[i]), kv.first);
-        }
+
+      // Clone the jets, per-name
+      for (const auto& kv : _jets) {
+        e.set_jets(deepcopy(jets(kv.first)), kv.first);
       }
+
       e._pmiss = _pmiss;
-      e._cseqs = _cseqs;
+      e._cseqs = _cseqs; ///< @todo Cloneable?
     }
 
     /// @}
@@ -138,16 +159,16 @@ namespace HEPUtils {
       _weights.clear();
       _weight_errs.clear();
 
-      // Particles, first the canonical collection
+      // Particles: first the canonical collections, then the custom
       for (const Particle* p : _allparticles) delete p;
       _allparticles.clear();
-      // Then the caches
-      _visibles.clear();
-      _invisibles.clear();
+      _visibles.clear(); _invisibles.clear();
       _photons.clear();
-      _electrons.clear();
-      _muons.clear();
-      _taus.clear();
+      _electrons.clear(); _muons.clear(); _taus.clear();
+      // for (auto& kv : _customparticles) {
+      //   for (const Particle* p : kv.second) delete p;
+      // }
+      _customparticles.clear();
 
       // Jets
       for (const std::string& jc : jet_collections()) clear_jets(jc);
@@ -226,7 +247,20 @@ namespace HEPUtils {
     /// @name Particles
     /// @{
 
-    /// @brief Add a particle to the event
+    /// Check if a custom-particle name is available
+    bool has_custom_particle(const std::string& key) const {
+      return _customparticles.find(key) != _customparticles.end();
+    }
+
+    /// Get the list of custom particle-collection names
+    std::vector<std::string> custom_particle_names() const {
+      std::vector<std::string> rtn;
+      for (const auto& kv : _customparticles) rtn.push_back(kv.first);
+      return rtn;
+    }
+
+
+    /// @brief Add a standard particle to the event
     ///
     /// Supplied particle should be new'd, and Event will take ownership.
     ///
@@ -235,12 +269,16 @@ namespace HEPUtils {
     /// immediately deleted. Accordingly, the pointer passed by user code
     /// must be considered potentially invalid from the moment this function is called.
     ///
-    /// @note pT-sorting can be disabled, so
+    /// @note pT-sorting has been primarily moved to lazy sorting of the
+    /// mutable containers upon retrieval
     ///
     /// @todo "Lock" at some point so that jet finding etc. only get done once
-    void add_particle(Particle* p, bool ptsort=true) {
+    void add_particle(Particle* p, bool ptsort=false) {
+
+      _stdparticles_sorted = false;
 
       // All particles (canonical collection)
+      /// @todo Remove, replace with C++20 range view and shared ptrs
       _allparticles.push_back(p);
 
       // Caching collections
@@ -257,56 +295,151 @@ namespace HEPUtils {
       }
 
       // Sort the collections
-      if (ptsort) _sort_particles();
+      if (ptsort) sort_particles();
     }
 
 
-    /// Add a collection of final state particles to the event
+    /// @todo Add an emplace_particle
+
+
+    /// Add a set of standard particles to the event
+    ///
+    /// @note See add_particle for details.
     ///
     /// @warning Supplied particles should be new'd, and Event will take ownership.
     void add_particles(const std::vector<Particle*>& ps, bool ptsort=true) {
       // Add each particle, without sorting each time
-      for (const Particle* p : ps) add_particle(new Particle(*p), false);
+      /// @todo This is not taking ownership!
+      // for (const Particle* p : ps) add_particle(new Particle(*p), false);
+      for (const Particle* p : ps) add_particle(p, false);
 
       // Finally sort the collections, once all new particles are in place
-      if (ptsort) _sort_particles();
+      if (ptsort) sort_particles();
+    }
+
+
+    /// @brief Add a custom particle of type `key` to the event
+    ///
+    /// Supplied particle should be new'd, and Event will take ownership.
+    ///
+    /// @warning The event takes ownership of all supplied Particles -- even
+    /// those it chooses not to add to its collections, which will be
+    /// immediately deleted. Accordingly, the pointer passed by user code
+    /// must be considered potentially invalid from the moment this function is called.
+    ///
+    /// @note pT-sorting has been primarily moved to lazy sorting of the
+    /// mutable containers upon retrieval
+    ///
+    /// @todo "Lock" at some point so that jet finding etc. only get done once
+    void add_particle(Particle* p, const std::string& key, bool ptsort=false) {
+      _customparticles_sorted = false;
+
+      // Insert into both the canonical list and the custom
+      _allparticles.push_back(p);
+      _customparticles[key].push_back(p);
+
+      // Sort if requested
+      if (ptsort) sort_particles();
+    }
+
+    /// Alias for backward-compatibility
+    /// @deprecated ptsort will be removed eventually
+    void add_particle(Particle* p, bool ptsort, const std::string& key) {
+      add_particle(p, key, ptsort);
+    }
+
+
+    /// Add a set of custom particles of type `key` to the event
+    ///
+    /// @note See add_particle for details.
+    ///
+    /// @warning Supplied particles should be new'd, and Event will take ownership.
+    void add_particles(const std::vector<Particle*>& ps, const std::string& key, bool ptsort=true) {
+      // Add each particle, without sorting each time
+      /// @todo This is not taking ownership!
+      // for (const Particle* p : ps) add_particle(new Particle(*p), key, false);
+      for (const Particle* p : ps) add_particle(p, key, false);
+
+      // Finally sort the collections, once all new particles are in place
+      if (ptsort) sort_particles();
+    }
+
+    /// Alias for backward-compatibility
+    /// @deprecated ptsort will be removed eventually
+    void add_particles(const std::vector<Particle*>& ps, bool ptsort, const std::string& key) {
+      add_particles(ps, key, ptsort);
     }
 
 
     /// A mostly-internal function to sort the particle-vector caches
-    void _sort_particles() {
+    void sort_particles() {
+      if (_stdparticles_sorted && _customparticles_sorted) return;
       std::sort(_allparticles.begin(), _allparticles.end(), _cmpPtDescPtr<Particle>);
-      std::sort(_invisibles.begin(), _invisibles.end(), _cmpPtDescPtr<Particle>);
-      std::sort(_photons.begin(), _photons.end(), _cmpPtDescPtr<Particle>);
-      std::sort(_electrons.begin(), _electrons.end(), _cmpPtDescPtr<Particle>);
-      std::sort(_muons.begin(), _muons.end(), _cmpPtDescPtr<Particle>);
-      std::sort(_taus.begin(), _taus.end(), _cmpPtDescPtr<Particle>);
+
+      if (!_stdparticles_sorted) {
+        std::sort(_invisibles.begin(), _invisibles.end(), _cmpPtDescPtr<Particle>);
+        std::sort(_photons.begin(), _photons.end(), _cmpPtDescPtr<Particle>);
+        std::sort(_electrons.begin(), _electrons.end(), _cmpPtDescPtr<Particle>);
+        std::sort(_muons.begin(), _muons.end(), _cmpPtDescPtr<Particle>);
+        std::sort(_taus.begin(), _taus.end(), _cmpPtDescPtr<Particle>);
+        _stdparticles_sorted = true;
+      }
+
+      if (!_customparticles_sorted) {
+        for (auto& kv : _customparticles) {
+          std::sort(kv.second.begin(), kv.second.end(), _cmpPtDescPtr<Particle>);
+          _customparticles_sorted = true;
+        }
+      }
+
     }
 
 
-    /// @brief Get all final state particles
+    /// @brief Get all known particles
     ///
-    /// @note Small overlap of taus and e/mu?
+    /// @note Particles may overlap via parentage
     const std::vector<const Particle*>& particles() const {
       return _allparticles;
     }
 
 
-    /// @brief Get visible state particles
+    /// @brief Get named custom particles
+    const std::vector<const Particle*>& particles(const std::string& key) const {
+      return _customparticles.at(key);
+    }
+    /// @brief Get named custom particles (non-const)
+    std::vector<Particle*>& particles(const std::string& key) {
+      return mkunconst(_customparticles[key]);
+    }
+
+
+    // /// @brief Get all final state particles (requires C++20 range concat)
+    // ///
+    // /// @note Small overlap of taus and e/mu?
+    // const std::vector<const Particle*> fsparticles() const {
+    //   return ...;
+    // }
+
+
+    /// @brief Get visible final-state particles
     ///
     /// @note Small overlap of taus and e/mu?
     const std::vector<const Particle*>& visible_particles() const {
       return _visibles;
     }
+    /// Get visible final-state particles (non-const)
+    std::vector<Particle*>& visible_particles() {
+      return mkunconst(_visibles);
+    }
 
 
-    /// @brief Get invisible final state particles
+    /// @brief Get invisible final-state particles
     ///
     /// @note Both prompt and non-prompt... correct?
     const std::vector<const Particle*>& invisible_particles() const {
       return _invisibles;
     }
-    /// Get invisible final state particles (non-const)
+    /// Get invisible final-state particles (non-const)
     std::vector<Particle*>& invisible_particles() {
       return mkunconst(_invisibles);
     }
@@ -322,11 +455,11 @@ namespace HEPUtils {
     }
 
 
-    /// Get prompt muons
+    /// Get muons
     const std::vector<const Particle*>& muons() const {
       return _muons;
     }
-    /// Get prompt muons (non-const)
+    /// Get muons (non-const)
     std::vector<Particle*>& muons() {
       return mkunconst(_muons);
     }
@@ -358,6 +491,23 @@ namespace HEPUtils {
     ///
     /// @{
 
+    /// Get the list of jet-collection names
+    std::vector<std::string> jet_collections() const {
+      std::vector<std::string> rtn;
+      for (const auto& kv : _jets) rtn.push_back(kv.first);
+      return rtn;
+    }
+    /// Alias
+    std::vector<std::string> jet_names() const {
+      return jet_collections();
+    }
+
+    /// Check if a jet-collection name is available
+    bool has_jets(const std::string& key) const {
+      return _jets.find(key) != _jets.end();
+    }
+
+
     // Implementation function, to avoid const/non-const duplication below
     std::vector<const Jet*>& _get_jets(const std::string& key) const {
       std::vector<const Jet*>& rtn = _jets[key];
@@ -373,14 +523,6 @@ namespace HEPUtils {
     /// @brief Get a jet collection (not including charged leptons or photons) (non-const)
     std::vector<Jet*>& jets(const std::string& key) {
       return mkunconst(_get_jets(key));
-    }
-
-
-    /// Get the list of jet-collection names
-    std::vector<std::string> jet_collections() {
-      std::vector<std::string> rtn;
-      for (const auto& kv : _jets) rtn.push_back(kv.first);
-      return rtn;
     }
 
     
