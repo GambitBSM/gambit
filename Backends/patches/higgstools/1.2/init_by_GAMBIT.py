@@ -101,6 +101,15 @@ def _build_predictions(d):
         #   uu <- sqrt(g2_cc)   (assume same Yukawa rescaling as charm)
         #   ee <- sqrt(g2_mumu) (assume same Yukawa rescaling as muon)
         #   lam <- 1.0          (SM-like trilinear; not provided by GAMBIT)
+        # These defaults are exact for the SM and harmless for all MFV-like
+        # BSM models GAMBIT currently supports (CMSSM, MSSM, NMSSM, scalar
+        # singlet, ...): the h->dd/uu/ee BRs are 1e-9..1e-12 and well below
+        # LHC sensitivity, and the SM-like lam reproduces HiggsTools'
+        # tree-level di-Higgs cross sections.  If/when a future GAMBIT model
+        # needs non-MFV first-generation Yukawas or a non-SM trilinear, see
+        # the matching note in
+        # Backends/include/gambit/Backends/backend_types/HiggsTools.hpp for
+        # the cleanup recipe.
         ec = HP.NeutralEffectiveCouplings(
             uu=s(d["g2hjcc"][i]),
             cc=s(d["g2hjcc"][i]),
