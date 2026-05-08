@@ -92,11 +92,23 @@ def _build_predictions(d):
         # passes squared-coupling ratios; HiggsTools wants the coupling itself.
         def s(x):
             return x ** 0.5
+        # GAMBIT's HiggsCouplingsTable does not carry first-generation (u, d,
+        # e) Yukawa couplings or the Higgs trilinear self-coupling, but
+        # HiggsTools' NeutralEffectiveCouplings has fields for all of them.
+        # Default them to the most reasonable SM-aligned choice so that an
+        # SM-like input reproduces HiggsTools' SMHiggsEW reference exactly:
+        #   dd <- sqrt(g2_ss)   (assume same Yukawa rescaling as strange)
+        #   uu <- sqrt(g2_cc)   (assume same Yukawa rescaling as charm)
+        #   ee <- sqrt(g2_mumu) (assume same Yukawa rescaling as muon)
+        #   lam <- 1.0          (SM-like trilinear; not provided by GAMBIT)
         ec = HP.NeutralEffectiveCouplings(
+            uu=s(d["g2hjcc"][i]),
             cc=s(d["g2hjcc"][i]),
-            ss=s(d["g2hjss"][i]),
             tt=s(d["g2hjtt"][i]),
+            dd=s(d["g2hjss"][i]),
+            ss=s(d["g2hjss"][i]),
             bb=s(d["g2hjbb"][i]),
+            ee=s(d["g2hjmumu"][i]),
             mumu=s(d["g2hjmumu"][i]),
             tautau=s(d["g2hjtautau"][i]),
             WW=s(d["g2hjWW"][i]),
@@ -104,6 +116,7 @@ def _build_predictions(d):
             Zgam=s(d["g2hjZga"][i]),
             gamgam=s(d["g2hjgaga"][i]),
             gg=s(d["g2hjgg"][i]),
+            lam=1.0,
         )
         HP.effectiveCouplingInput(h, ec, reference=HP.ReferenceModel.SMHiggsEW)
 
