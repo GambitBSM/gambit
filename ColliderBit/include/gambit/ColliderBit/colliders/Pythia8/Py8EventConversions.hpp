@@ -126,31 +126,48 @@ namespace Gambit
             }
           }
           // Check for reasonable on-shellness (only low masses discarded on purpose)
-          if(apid == MCUtils::PID::Z0 && (mz_central_observed-p4.m() > 20.))
+          if (apid == MCUtils::PID::Z0 && (mz_central_observed-p4.m() > 20.))
           {
             isGoodBoson = false;
           }
-          if(apid == MCUtils::PID::WPLUS && (mw_central_observed-p4.m() > 20.))
+          if (apid == MCUtils::PID::WPLUS && (mw_central_observed-p4.m() > 20.))
           {
             isGoodBoson = false;
           }
           // Check that the vector bosons do not come from a Higgs boson or top quark
           // (in which case the tagging efficiency would be different)
           int absmotherID = abs(get_unified_mother1_pid(p, pevt));
-          if(absmotherID == MCUtils::PID::HIGGS || absmotherID == MCUtils::PID::TQUARK)
+          if (absmotherID == MCUtils::PID::HIGGS || absmotherID == MCUtils::PID::TQUARK)
           {
             isGoodBoson = false;
           }
           // Store candidate
           if (isGoodBoson)
           {
-            if(apid == MCUtils::PID::Z0) ZCandidates.push_back(HEPUtils::Particle(p4,pid));
-            if(apid == MCUtils::PID::WPLUS) WCandidates.push_back(HEPUtils::Particle(p4,pid));
-            if(apid == MCUtils::PID::HIGGS) hCandidates.push_back(HEPUtils::Particle(p4,pid));
+            if (apid == MCUtils::PID::Z0) ZCandidates.push_back(HEPUtils::Particle(p4,pid));
+            if (apid == MCUtils::PID::WPLUS) WCandidates.push_back(HEPUtils::Particle(p4,pid));
+            if (apid == MCUtils::PID::HIGGS) hCandidates.push_back(HEPUtils::Particle(p4,pid));
           }
         }
 
-        // We only want final state particles:
+        // Record non-SM displaced-production and (unstable) displaced-decay particles.
+        // Probably good to combine with 'if (MCUtils::PID::isBSM(pid) ...' in user code
+        /// @todo Make distance cut configurable in YAML
+        if (get_unified_vprod(p).rho() > 10) { // mm
+        {
+          auto gp = new HEPUtils::DisplacedParticle(p4, pid, get_unified_vprod(p), get_unified_vdec(p));
+          if (prompt) gp->set_prompt();
+          result.add_particle(gp, "LLprod");
+        }
+        /// @todo Make distance cut configurable in YAML
+        if (!get_unified_isFinal(p) && get_unified_vdec(p).rho() > 10) { // mm
+        {
+          auto gp = new HEPUtils::DisplacedParticle(p4, pid, get_unified_vprod(p), get_unified_vdec(p));
+          if (prompt) gp->set_prompt();
+          result.add_particle(gp, "LLdec");
+        }
+
+        // From now on we only want final state particles...
         if (!get_unified_isFinal(p)) continue;
 
         // Check there's no partons.
@@ -176,6 +193,8 @@ namespace Gambit
           continue;
         }
 
+        /// @todo Exclude displaced-production particles?
+
         // Promptness: for leptons and photons we're only interested if they don't come from hadron/tau decays
         const bool prompt = !get_unified_fromHadron(p, pevt, i);
         const bool visible = MCUtils::PID::isStrongInteracting(pid) || MCUtils::PID::isEMInteracting(pid);
@@ -183,7 +202,7 @@ namespace Gambit
         // Add prompt and invisible particles as individual particles
         if (prompt || !visible)
         {
-          HEPUtils::Particle* gp = new HEPUtils::Particle(p4, pid);
+          auto gp = new HEPUtils::Particle(p4, pid);
           gp->set_prompt();
           result.add_particle(gp);
         }

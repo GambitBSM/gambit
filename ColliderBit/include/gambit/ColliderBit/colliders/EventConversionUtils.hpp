@@ -85,6 +85,14 @@ namespace Gambit
         }
       }
 
+      template <typename ParticleP>
+      inline HEPUtils::V4 get_unified_vprod(ParticleP &p) {
+        return p.hasVertex() ? V4(p.xProd(), p.yProd(), p.zProd(), p.tProd()) : V4(0.0, 0.0, 0.0, 0.0);
+      }
+      template <typename ParticleP>
+      inline HEPUtils::V4 get_unified_vdec(ParticleP &p) {
+        return p.hasVertex() ? V4(p.xDec(), p.yDec(), p.zDec(), p.tDec()) : get_unified_vprod(p);
+      }
 
       #ifndef EXCLUDE_HEPMC
 
@@ -144,6 +152,15 @@ namespace Gambit
             unified_child_id_results.push_back(child->pid());
           }
         }
+
+      inline HEPUtils::V4 get_unified_vprod(const HepMC3::GenParticlePtr& gp) {
+        const GenVertexPtr vp = gp->production_vertex();
+        return vp ? V4(vp.x(), vp.y(), vp.z(), vp.t()) : V4(0.0, 0.0, 0.0, 0.0);
+      }
+      inline HEPUtils::V4 get_unified_vdec(const HepMC3::GenParticlePtr& gp) {
+        const GenVertexPtr vd = gp->decay_vertex();
+        return vd ? V4(vd.x(), vd.y(), vd.z(), vd.t()) : get_unified_vprod(gp);
+      }
 
       #endif
 
