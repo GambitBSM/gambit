@@ -1518,139 +1518,64 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
-# HiggsBounds tables
-set(name "higgsbounds_tables")
-set(ver "0.0")
-set(dl "https://higgsbounds.hepforge.org/downloads/csboutput_trans_binary.tar.gz")
-set(md5 "004decca30335ddad95654a04dd034a6")
+# HiggsTools (replaces the old HiggsBounds and HiggsSignals backends).
+# The HiggsTools Python module 'Higgs' is built and installed locally with pip;
+# the limit/measurement data is loaded at runtime from the HBDataSet and
+# HSDataSet repositories below.  GAMBIT's view of the backend is a single
+# init_by_GAMBIT.py wrapper that builds Higgs.predictions.Predictions objects
+# from a flat dict and returns the LHC chi^2 from Higgs.bounds.Bounds and
+# Higgs.signals.Signals.
+set(name "higgstools")
+set(ver "1.2")
+set(dl "https://gitlab.com/higgsbounds/higgstools/-/archive/v${ver}/higgstools-v${ver}.tar.gz")
+set(md5 "none")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-check_ditch_status(${name} ${ver} ${dir})
+set(target_dir "${dir}/python_install")
+set(init_file "${dir}/init_by_GAMBIT.py")
+set(init_template "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/init_by_GAMBIT.py")
+set(hb_data_dir "${dir}/hbdataset")
+set(hs_data_dir "${dir}/hsdataset")
+set(hb_data_dl "https://gitlab.com/higgsbounds/hbdataset/-/archive/main/hbdataset-main.tar.gz")
+set(hs_data_dl "https://gitlab.com/higgsbounds/hsdataset/-/archive/main/hsdataset-main.tar.gz")
+set(ditch_if_absent "Python")
+set(required_modules "scikit-build-core,pybind11")
+check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver} "retain container folder"
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-  )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
-endif()
-
-# HiggsBounds
-set(name "higgsbounds")
-set(ver "4.2.1")
-set(lib "libhiggsbounds")
-set(dl "https://${name}.hepforge.org/downloads/HiggsBounds-${ver}.tar.gz")
-set(md5 "47b93330d4e0fddcc23b381548db355b")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(hb_tab_name "higgsbounds_tables")
-set(hb_tab_ver "0.0")
-set(hb_tab_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${hb_tab_name}/${hb_tab_ver}")
-check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DEPENDS ${hb_tab_name}_${hb_tab_ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy configure-with-chisq my_configure
-              COMMAND sed ${dashi} -e "s|clsbtablesdir=.*|clsbtablesdir=\"${hb_tab_dir}/\"|" my_configure
-              COMMAND sed ${dashi} -e "s|F90C =.*|F90C = ${CMAKE_Fortran_COMPILER}|" my_configure
-              COMMAND sed ${dashi} -e "s|F77C =.*|F77C = ${CMAKE_Fortran_COMPILER}|" my_configure
-              COMMAND sed ${dashi} -e "s|F90FLAGS =.*|F90FLAGS = ${BACKEND_Fortran_FLAGS}|" my_configure
-              COMMAND sed ${dashi} -e "s|\\.SUFFIXES|.NOTPARALLEL:${nl}${nl}.SUFFIXES|" makefile.in
-              COMMAND ${CMAKE_COMMAND} -E copy makefile.in makefile.in.tmp
-              COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" makefile.in.tmp > makefile.in
-              COMMAND ${CMAKE_COMMAND} -E remove makefile.in.tmp
-              COMMAND ./my_configure
-    BUILD_COMMAND ${MAKE_PARALLEL}
-          COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so *.o" > make_so.sh
-          COMMAND chmod u+x make_so.sh
-          COMMAND ./make_so.sh
-    INSTALL_COMMAND ""
-  )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-endif()
-
-set(name "higgsbounds")
-set(ver "4.3.1")
-set(lib "libhiggsbounds")
-set(dl "https://${name}.hepforge.org/downloads/HiggsBounds-${ver}.tar.gz")
-set(md5 "c1667613f814a9f0297d1f11a8b3ef34")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-set(hb_tab_name "higgsbounds_tables")
-set(hb_tab_ver "0.0")
-set(hb_tab_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${hb_tab_name}/${hb_tab_ver}")
-check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DEPENDS ${hb_tab_name}_${hb_tab_ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    SOURCE_DIR ${dir}
-    PATCH_COMMAND patch -p1 < ${patch}
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy configure-with-chisq my_configure
-              COMMAND sed ${dashi} -e "s|clsbtablesdir=.*|clsbtablesdir=\"${hb_tab_dir}/\"|" my_configure
-              COMMAND sed ${dashi} -e "s|F90C =.*|F90C = ${CMAKE_Fortran_COMPILER}|" my_configure
-              COMMAND sed ${dashi} -e "s|F77C =.*|F77C = ${CMAKE_Fortran_COMPILER}|" my_configure
-              COMMAND sed ${dashi} -e "s|F90FLAGS =.*|F90FLAGS = ${BACKEND_Fortran_FLAGS}|" my_configure
-              COMMAND sed ${dashi} -e "s|\\.SUFFIXES|.NOTPARALLEL:${nl}${nl}.SUFFIXES|" makefile.in
-              COMMAND ${CMAKE_COMMAND} -E copy makefile.in makefile.in.tmp
-              COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" makefile.in.tmp > makefile.in
-              COMMAND ${CMAKE_COMMAND} -E remove makefile.in.tmp
-              COMMAND ./my_configure
-    BUILD_COMMAND ${MAKE_PARALLEL}
-          COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so *.o" > make_so.sh
-          COMMAND chmod u+x make_so.sh
-          COMMAND ./make_so.sh
-    INSTALL_COMMAND ""
-  )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
-endif()
-
-# HiggsSignals
-set(name "higgssignals")
-set(ver "1.4.0")
-set(lib "libhiggssignals")
-set(dl "https://higgsbounds.hepforge.org/downloads/HiggsSignals-${ver}.tar.gz")
-set(md5 "537d3885b1cbddbe1163dbc843ec2beb")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-set(hb_name "higgsbounds")
-set(hb_ver "4.3.1")
-check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DEPENDS higgsbounds_${hb_ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    SOURCE_DIR ${dir}
-    PATCH_COMMAND patch -p1 < ${patch}
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy configure my_configure
-              COMMAND sed ${dashi} -e "s|HBLIBS =.*|HBLIBS =-L../../${hb_name}/${hb_ver}|" my_configure
-              COMMAND sed ${dashi} -e "s|HBINCLUDE =.*|HBINCLUDE =-I../../${hb_name}/${hb_ver}|" my_configure
-              COMMAND sed ${dashi} -e "s|F90C =.*|F90C = ${CMAKE_Fortran_COMPILER}|" my_configure
-              COMMAND sed ${dashi} -e "s|F77C =.*|F77C = ${CMAKE_Fortran_COMPILER}|" my_configure
-              COMMAND sed ${dashi} -e "s|F90FLAGS =.*|F90FLAGS = ${BACKEND_Fortran_FLAGS}|" my_configure
-              COMMAND sed ${dashi} -e "s|\\.SUFFIXES|.NOTPARALLEL:${nl}${nl}.SUFFIXES|" makefile.in
-              COMMAND ${CMAKE_COMMAND} -E copy makefile.in makefile.in.tmp
-              COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" makefile.in.tmp > makefile.in
-              COMMAND ${CMAKE_COMMAND} -E remove makefile.in.tmp
-              COMMAND ./my_configure
-    BUILD_COMMAND ${MAKE_PARALLEL}
-          COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E remove HiggsSignals.o
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so ./*.o ../../${hb_name}/${hb_ver}/*.o" > make_so.sh
-          COMMAND chmod u+x make_so.sh
-          COMMAND ./make_so.sh
-    INSTALL_COMMAND ""
-  )
+  check_python_modules(${name} ${ver} ${required_modules})
+  if(modules_missing_${name}_${ver})
+    inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
+  else()
+    # HBDataSet
+    ExternalProject_Add(${name}_hbdataset_${ver}
+      DOWNLOAD_COMMAND ${DL_BACKEND} ${hb_data_dl} "none" ${hb_data_dir} ${name}_hbdataset ${ver}
+      SOURCE_DIR ${hb_data_dir}
+      BUILD_IN_SOURCE 1
+      CONFIGURE_COMMAND ""
+      BUILD_COMMAND ""
+      INSTALL_COMMAND ""
+    )
+    # HSDataSet
+    ExternalProject_Add(${name}_hsdataset_${ver}
+      DOWNLOAD_COMMAND ${DL_BACKEND} ${hs_data_dl} "none" ${hs_data_dir} ${name}_hsdataset ${ver}
+      SOURCE_DIR ${hs_data_dir}
+      BUILD_IN_SOURCE 1
+      CONFIGURE_COMMAND ""
+      BUILD_COMMAND ""
+      INSTALL_COMMAND ""
+    )
+    # HiggsTools itself: download the tarball, pip-install the Python package
+    # into a local target directory, and copy the init_by_GAMBIT.py wrapper
+    # into the install dir.
+    ExternalProject_Add(${name}_${ver}
+      DEPENDS ${name}_hbdataset_${ver} ${name}_hsdataset_${ver}
+      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+      SOURCE_DIR ${dir}
+      BUILD_IN_SOURCE 1
+      CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy ${init_template} ${init_file}
+      BUILD_COMMAND ${PYTHON_EXECUTABLE} -m pip install --upgrade --no-deps --no-build-isolation --target=${target_dir} .
+      INSTALL_COMMAND ""
+    )
+  endif()
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()

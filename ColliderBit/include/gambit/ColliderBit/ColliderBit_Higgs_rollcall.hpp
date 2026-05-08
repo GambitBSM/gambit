@@ -30,13 +30,13 @@
 
 #define MODULE ColliderBit
 
-  // HiggsBounds input model parameters
-  #define CAPABILITY HB_ModelParameters
+  // HiggsTools input model parameters
+  #define CAPABILITY HiggsTools_ModelParameters
   START_CAPABILITY
 
     // SM-like Higgs model parameters, for SM and BSM models with only one Higgs.
     #define FUNCTION SMLikeHiggs_ModelParameters
-    START_FUNCTION(hb_ModelParameters)
+    START_FUNCTION(HiggsTools_input)
     MODEL_CONDITIONAL_DEPENDENCY(SM_spectrum, Spectrum, StandardModel_Higgs, StandardModel_Higgs_running)
     MODEL_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z2_spectrum, Spectrum, ScalarSingletDM_Z2, ScalarSingletDM_Z2_running)
     MODEL_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z3_spectrum, Spectrum, ScalarSingletDM_Z3, ScalarSingletDM_Z3_running)
@@ -46,7 +46,7 @@
 
     // MSSM-like Higgs model parameters, for BSM models with MSSM-like sectors (MSSM, NMSSM, ...)
     #define FUNCTION MSSMLikeHiggs_ModelParameters
-    START_FUNCTION(hb_ModelParameters)
+    START_FUNCTION(HiggsTools_input)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
@@ -55,53 +55,18 @@
   #undef CAPABILITY
 
 
-  // Get a LEP Higgs chisq
-  #define CAPABILITY LEP_Higgs_LogLike
-  START_CAPABILITY
-
-    #define FUNCTION calc_HB_LEP_LogLike
-    START_FUNCTION(double)
-    DEPENDENCY(HB_ModelParameters, hb_ModelParameters)
-    BACKEND_REQ(HiggsBounds_neutral_input_part, (libhiggsbounds), void,
-    (double*, double*, int*, double*, double*, double*, double*,
-    double*, double*, double*, double*, double*, double*, double*,
-    double*, double*, double*, double*, double*, double*, double*,
-    double*, double*, double*, double*, double*, double*, double*,
-    double*, double*, double*, double*, double*, double*, double*,
-    double*, double*, double*))
-    BACKEND_REQ(HiggsBounds_charged_input, (libhiggsbounds), void,
-    (double*, double*, double*, double*,
-    double*, double*, double*, double*))
-    BACKEND_REQ(HiggsBounds_set_mass_uncertainties, (libhiggsbounds), void, (double*, double*))
-    BACKEND_REQ(run_HiggsBounds_classic, (libhiggsbounds), void, (int&, int&, double&, int&))
-    BACKEND_REQ(HB_calc_stats, (libhiggsbounds), void, (double&, double&, double&, int&))
-    BACKEND_OPTION( (HiggsBounds), (libhiggsbounds) )
-    #undef FUNCTION
-
-  #undef CAPABILITY
-
-
-  // Get an LHC Higgs chisq
+  // Get an LHC Higgs chisq from HiggsTools (HiggsSignals).
+  // HiggsTools 1.2 does not provide a dedicated LEP chi^2; the corresponding
+  // capability has therefore been removed entirely along with the older
+  // HiggsBounds/HiggsSignals Fortran backends.
   #define CAPABILITY LHC_Higgs_LogLike
   START_CAPABILITY
 
-    #define FUNCTION calc_HS_LHC_LogLike
+    #define FUNCTION calc_HiggsTools_LHC_LogLike
     START_FUNCTION(double)
-    DEPENDENCY(HB_ModelParameters, hb_ModelParameters)
-    BACKEND_REQ(HiggsBounds_neutral_input_part_HS, (libhiggssignals), void,
-    (double*, double*, int*, double*, double*, double*, double*,
-    double*, double*, double*, double*, double*, double*, double*,
-    double*, double*, double*, double*, double*, double*, double*,
-    double*, double*, double*, double*, double*, double*, double*,
-    double*, double*, double*, double*, double*, double*, double*,
-    double*, double*, double*))
-    BACKEND_REQ(HiggsBounds_charged_input_HS, (libhiggssignals), void,
-    (double*, double*, double*, double*,
-     double*, double*, double*, double*))
-    BACKEND_REQ(run_HiggsSignals, (libhiggssignals), void, (int&, double&, double&, double&, int&, double&))
-    BACKEND_REQ(HiggsSignals_neutral_input_MassUncertainty, (libhiggssignals), void, (double*))
-    BACKEND_REQ(setup_rate_uncertainties, (libhiggssignals), void, (double*, double*))
-    BACKEND_OPTION( (HiggsSignals, 1.4), (libhiggssignals) )
+    DEPENDENCY(HiggsTools_ModelParameters, HiggsTools_input)
+    BACKEND_REQ(HiggsTools_LHC_LogLike, (libhiggstools), double, (const HiggsTools_input&))
+    BACKEND_OPTION( (HiggsTools, 1.2), (libhiggstools) )
     #undef FUNCTION
 
   #undef CAPABILITY

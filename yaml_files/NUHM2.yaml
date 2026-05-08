@@ -114,9 +114,6 @@ ObsLikes:
     purpose:    LogLike
 
   # LEP likelihoods
-  - capability: LEP_Higgs_LogLike
-    purpose:    LogLike
-
   - capability: ALEPH_Selectron_LLike
     purpose:    LogLike
 

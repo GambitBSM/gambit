@@ -71,12 +71,8 @@ DDCalc:
   2.2.0:       ./Backends/installed/ddcalc/2.2.0/lib/libDDCalc.so
   2.3.0:       ./Backends/installed/ddcalc/2.3.0/lib/libDDCalc.so
 
-HiggsBounds:
-  4.2.1:       ./Backends/installed/higgsbounds/4.2.1/lib/libhiggsbounds.so
-  4.3.1:       ./Backends/installed/higgsbounds/4.3.1/lib/libhiggsbounds.so
-
-HiggsSignals:
-  1.4:         ./Backends/installed/higgssignals/1.4.0/lib/libhiggssignals.so
+HiggsTools:
+  1.2:         ./Backends/installed/higgstools/1.2/init_by_GAMBIT.py
 
 FeynHiggs:
   2.11.2:      ./Backends/installed/feynhiggs/2.11.2/lib/libFH.so
