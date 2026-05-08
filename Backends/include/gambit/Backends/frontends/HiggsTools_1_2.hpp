@@ -20,8 +20,8 @@ LOAD_LIBRARY
 
 #ifdef HAVE_PYBIND11
 
-  BE_CONV_FUNCTION(HiggsTools_LHC_LogLike, double, (const HiggsTools_input&), "LHC_Higgs_LogLike")
-  BE_CONV_FUNCTION(HiggsTools_run_bounds,  double, (const HiggsTools_input&), "HiggsTools_bounds_obsRatio")
+  BE_CONV_FUNCTION(HiggsTools_LHC_LogLike, double, (const HiggsTools_input&), "HiggsTools_LHC_LogLike")
+  BE_CONV_FUNCTION(HiggsTools_run_bounds,  double, (const HiggsTools_input&), "HiggsTools_run_bounds")
 
 #endif
 
