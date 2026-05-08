@@ -294,7 +294,7 @@ namespace Gambit
 
     // We are going to have to combine this data with information from the
     // scanners (using the auxilliary printers). In order to do this efficiently,
-    // we will store the pointIDs and ranks in a dataset seperate from the
+    // we will store the pointIDs and ranks in a dataset separate from the
     // bulk of the data (but correlated with it) so that we can quickly search
     // for records by their pointID and rank, and then write new data to them.
     //

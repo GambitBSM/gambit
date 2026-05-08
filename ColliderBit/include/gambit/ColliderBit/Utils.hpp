@@ -403,16 +403,16 @@ namespace Gambit
 
 
     /// Utility function for returning a collection of same-flavour, oppsosite-sign particle pairs
-    std::vector<std::vector<const HEPUtils::Particle*>> getSFOSpairs(std::vector<const HEPUtils::Particle*> particles);
+    std::vector<std::vector<const HEPUtils::Particle*>> getSFOSpairs(const std::vector<const HEPUtils::Particle*>& particles);
 
     /// Utility function for returning a collection of oppsosite-sign particle pairs
-    std::vector<std::vector<const HEPUtils::Particle*>> getOSpairs(std::vector<const HEPUtils::Particle*> particles);
+    std::vector<std::vector<const HEPUtils::Particle*>> getOSpairs(const std::vector<const HEPUtils::Particle*>& particles);
 
     /// Utility function for returning a collection of same-sign particle pairs
-    std::vector<std::vector<const HEPUtils::Particle*>> getSSpairs(std::vector<const HEPUtils::Particle*> particles);
+    std::vector<std::vector<const HEPUtils::Particle*>> getSSpairs(const std::vector<const HEPUtils::Particle*>& particles);
 
     /// Utility function for returning a collection of b-tagged jets
-    std::vector<std::vector<const HEPUtils::Jet*>> getBJetPairs(std::vector<const HEPUtils::Jet*> bjets);
+    std::vector<std::vector<const HEPUtils::Jet*>> getBJetPairs(const std::vector<const HEPUtils::Jet*>& bjets);
 
 
     /// @name Sorting

@@ -1,0 +1,8 @@
+Summary: CMS 2-lepton + jets + MET search at 13 TeV with 36/fb
+InspireID: 1625745
+ExptRun: CMS-R2
+Lumi_ifb: 35.9
+Ecm_TeV: 13.0
+Note: Only the EW on-Z signal regions are included
+Signatures: ["OSSF + >=1J + MET"]
+Notes: Uses m_ll spectrum for kinematic edges.

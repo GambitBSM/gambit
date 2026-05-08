@@ -40,7 +40,7 @@ namespace Gambit {
     // There also the derived classes
     // - Analysis_CMS_13TeV_2LEPsoft_36invfb_nocovar
     // - Analysis_CMS_13TeV_2LEPsoft_stop_36invfb_nocovar
-    // that don't make use of the the covariance matrices
+    // that don't make use of the covariance matrices
 
     class Analysis_CMS_13TeV_2LEPsoft_36invfb : public Analysis {
 

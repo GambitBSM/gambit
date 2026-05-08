@@ -80,7 +80,7 @@ namespace Gambit
       /// Force a throw of the exception.
       /// These should only be used inside a try block, i.e. if you plan to catch the exception.
       /// @{
-      /// Log the exception and throw it regardless of whether is is fatal or not.
+      /// Log the exception and throw it regardless of whether it is fatal or not.
       void forced_throw(const std::string&, const std::string&);
       /// As per forced_throw but without logging.
       void silent_forced_throw();

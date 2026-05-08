@@ -94,7 +94,7 @@
 #define USING_PYTHON IF_ELSE_TOKEN_DEFINED(BACKENDLANG,                                         \
         BOOST_PP_EQUAL(CAT(BACKENDLANG,_LANG), PYTHON_LANG), 0)
 
-/// Macro that determines whether the the backend is purely data
+/// Macro that determines whether the backend is purely data
 #define DATA_ONLY IF_ELSE_TOKEN_DEFINED(BACKENDLANG,                                            \
         BOOST_PP_EQUAL(CAT(BACKENDLANG,_LANG), DATA_LANG), 0)
 

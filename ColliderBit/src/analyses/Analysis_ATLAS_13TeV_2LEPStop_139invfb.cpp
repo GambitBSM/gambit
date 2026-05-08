@@ -17,7 +17,7 @@ using namespace std;
 
   Based on: 
   - ATLAS analysis arXiv:2102.01444, and the GAMBIT implenmen
-  - The code in Analysis_ATLAS_13TeV_2LEPStop_139invfb.cpp (by Yang Zhang)
+  - The code in Analysis_ATLAS_13TeV_2LEPStop_36invfb.cpp (by Yang Zhang)
 
   Author: Anders Kvellestad
 

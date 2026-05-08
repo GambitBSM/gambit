@@ -1,0 +1,8 @@
+Summary: CMS >=2-SS-lepton / >=3 lepton (incl <=2 hadronic tau) search at 13 TeV with 36/fb
+InspireID: 1624165
+ExptRun: CMS-R2
+Lumi_ifb: 35.9
+Ecm_TeV: 13.0
+Note: also 3-lepton rebinning in 1647947
+Signatures: ["2SSL + MET + 0DY", "MET + >=3LT + <=2TH + 0DY"]
+Notes: The 0DY is really no OSSF near the Z mass _or_ at low mass.

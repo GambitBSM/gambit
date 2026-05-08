@@ -634,7 +634,7 @@ namespace Gambit {
           }
           double mll_withtau = (pair_withtau.at(0)->mom() + pair_withtau.at(1)->mom()).m();
 
-          // Use the invariant mass that is closest to the the expected mass resulting from
+          // Use the invariant mass that is closest to the expected mass resulting from
           // Z -> tautau events (50 GeV for emu pair, 60 GeV for etau/mutau pair).
           // Then calculate mT using the remaining e/mu/tau.
           if (fabs(mll_emu - 50.) < fabs(mll_withtau - 60.)) {
