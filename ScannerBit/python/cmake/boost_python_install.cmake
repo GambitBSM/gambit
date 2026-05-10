@@ -1,7 +1,6 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.10 FATAL_ERROR)
- 
-FIND_PACKAGE(PythonInterp REQUIRED)
-FIND_PACKAGE(PythonLibs)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.12 FATAL_ERROR)
+
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 FIND_PACKAGE(NumPy) 
 FIND_PACKAGE(Boost 1.41)
 
@@ -52,19 +51,19 @@ SET(BOOST_PYTHON_FLAGS
 SET(BOOST_PYTHON_INCLUDE_DIRS
                 ${CMAKE_CURRENT_SOURCE_DIR}/include
                 ${Boost_INCLUDE_DIRS}
-                ${PYTHON_INCLUDE_DIRS}
+                ${Python3_INCLUDE_DIRS}
 )
 
 SET(BOOST_NUMPY_INCLUDE_DIRS
                 ${CMAKE_CURRENT_SOURCE_DIR}/include
                 ${Boost_INCLUDE_DIRS}
-                ${PYTHON_INCLUDE_DIRS}
+                ${Python3_INCLUDE_DIRS}
                 ${NUMPY_INCLUDE_DIRS}
 )
 
 ADD_LIBRARY(boost_python SHARED ${BOOST_PYTHON_SRCS})
 
-TARGET_LINK_LIBRARIES(boost_python pthread ${PYTHON_LIBRARIES})
+TARGET_LINK_LIBRARIES(boost_python pthread ${Python3_LIBRARIES})
 
 SET_TARGET_PROPERTIES( boost_python
                        PROPERTIES
@@ -72,12 +71,12 @@ SET_TARGET_PROPERTIES( boost_python
                        INCLUDE_DIRECTORIES "${BOOST_PYTHON_INCLUDE_DIRS}"
                        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib"
                        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib"
-                       LIBRARY_OUTPUT_NAME "boost_python${PYTHON_VERSION_STRING}"
+                       LIBRARY_OUTPUT_NAME "boost_python${Python3_VERSION}"
                        SUFFIX .so)
                        
 ADD_LIBRARY(boost_numpy SHARED ${BOOST_NUMPY_SRCS})
 
-TARGET_LINK_LIBRARIES(boost_numpy pthread ${PYTHON_LIBRARIES})
+TARGET_LINK_LIBRARIES(boost_numpy pthread ${Python3_LIBRARIES})
 
 SET_TARGET_PROPERTIES( boost_numpy
                        PROPERTIES
@@ -85,6 +84,6 @@ SET_TARGET_PROPERTIES( boost_numpy
                        INCLUDE_DIRECTORIES "${BOOST_NUMPY_INCLUDE_DIRS}"
                        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib"
                        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib"
-                       LIBRARY_OUTPUT_NAME "boost_numpy${PYTHON_VERSION_STRING}"
+                       LIBRARY_OUTPUT_NAME "boost_numpy${Python3_VERSION}"
                        SUFFIX .so)
                        

@@ -159,7 +159,7 @@ macro(add_external_clean package dir dl target)
   set(reset_file "${CMAKE_BINARY_DIR}/BOSS_reset_info/reset_info.${safe_package}.boss")
   add_custom_target(clean-${package} COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring1}-BOSS ${rmstring1}-configure ${rmstring1}-build ${rmstring1}-install ${rmstring1}-done
                                      COMMAND [ -e ${dir} ] && cd ${dir} && ([ -e makefile ] || [ -e Makefile ] && (${target})) || true
-                                     COMMAND [ -e ${reset_file} ] && ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py -r ${reset_file} || true)
+                                     COMMAND [ -e ${reset_file} ] && ${Python3_EXECUTABLE} ${BOSS_dir}/boss.py -r ${reset_file} || true)
   add_custom_target(nuke-${package} DEPENDS clean-${package}
                                     COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring1}-download ${rmstring1}-download-failed ${rmstring1}-mkdir ${rmstring1}-patch ${rmstring1}-update ${rmstring1}-gitclone-lastrun.txt ${dl} || true
                                     COMMAND ${CMAKE_COMMAND} -E remove_directory ${dir} || true
@@ -272,7 +272,7 @@ macro(add_gambit_custom target filename HARVESTER DEPS)
     set(ditch_string "-x __not_a_real_name__,${ARGN}")
   endif()
   add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${filename}
-                     COMMAND ${PYTHON_EXECUTABLE} ${${HARVESTER}} ${ditch_string}
+                     COMMAND ${Python3_EXECUTABLE} ${${HARVESTER}} ${ditch_string}
                      COMMAND touch ${CMAKE_BINARY_DIR}/${filename}
                      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                      DEPENDS ${${HARVESTER}}
@@ -308,7 +308,15 @@ function(add_gambit_executable executablename LIBRARIES)
   cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;" ${ARGN})
 
   add_executable(${executablename} ${ARG_SOURCES} ${ARG_HEADERS})
-  set_target_properties(${executablename} PROPERTIES EXCLUDE_FROM_ALL 1)
+  # ENABLE_EXPORTS adds -rdynamic/-export_dynamic to the linker so that dlopen'd backends
+  # and scanner plugins can resolve symbols from statically linked contrib libraries (e.g.
+  # yaml-cpp exception typeinfo). Setting this via a target property rather than
+  # CMAKE_CXX_FLAGS keeps GAMBIT's own code compiled with -fvisibility=hidden, so only
+  # contrib symbols built with default visibility are exported, not GAMBIT internals.
+  set_target_properties(${executablename} PROPERTIES
+    EXCLUDE_FROM_ALL 1
+    ENABLE_EXPORTS TRUE
+  )
 
   if(${CMAKE_VERSION} VERSION_GREATER 2.8.10)
     foreach (dir ${GAMBIT_INCDIRS})
@@ -363,7 +371,7 @@ function(add_gambit_executable executablename LIBRARIES)
     set(LIBRARIES ${LIBRARIES} ${Mathematica_WSTP_LIBRARIES})
   endif()
   if(pybind11_FOUND)
-    set(LIBRARIES ${LIBRARIES} ${PYTHON_LIBRARIES})
+    set(LIBRARIES ${LIBRARIES} ${Python3_LIBRARIES})
   endif()
   if(SQLite3_FOUND)
       set(LIBRARIES ${LIBRARIES} ${SQLite3_LIBRARIES})
@@ -443,7 +451,7 @@ function(add_standalone executablename)
 
     # Set up the target to call the facilitator script to make the functors source file for this standalone.
     add_custom_command(OUTPUT ${STANDALONE_FUNCTORS}
-                       COMMAND ${PYTHON_EXECUTABLE} ${STANDALONE_FACILITATOR} ${executablename} -m __not_a_real_name__,${COMMA_SEPARATED_MODULES}
+                       COMMAND ${Python3_EXECUTABLE} ${STANDALONE_FACILITATOR} ${executablename} -m __not_a_real_name__,${COMMA_SEPARATED_MODULES}
                        COMMAND touch ${STANDALONE_FUNCTORS}
                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                        DEPENDS modules_harvested
@@ -632,13 +640,13 @@ endfunction()
 
 # Simple function to find specific Python modules
 macro(gambit_find_python_module module)
-  execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import ${module}" RESULT_VARIABLE return_value ERROR_QUIET)
+  execute_process(COMMAND ${Python3_EXECUTABLE} -c "import ${module}" RESULT_VARIABLE return_value ERROR_QUIET)
   if (NOT return_value)
     message(STATUS "Found Python module ${module}.")
     set(PY_${module}_FOUND TRUE)
     # If module is h5py and hdf5 is present, make sure they are built with the same version
     if(HDF5_FOUND AND module STREQUAL "h5py")
-      execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import h5py; import re; print(re.search(\"HDF5[ ]+(.*)\",h5py.version.info).group(1))" OUTPUT_VARIABLE hdf5_ver RESULT_VARIABLE hdf5_res ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+      execute_process(COMMAND ${Python3_EXECUTABLE} -c "import h5py; import re; print(re.search(\"HDF5[ ]+(.*)\",h5py.version.info).group(1))" OUTPUT_VARIABLE hdf5_ver RESULT_VARIABLE hdf5_res ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
       if(${hdf5_res})
         message(FATAL_ERROR "-- Module h5py is corrupted")
       elseif(NOT ${hdf5_ver} AND NOT ${hdf5_ver} STREQUAL ${HDF5_VERSION})
@@ -719,7 +727,7 @@ macro(BOSS_backend_full name backend_version ${ARGN})
     add_dependencies(${name}_${ver} castxml)
     ExternalProject_Add_Step(${name}_${ver} BOSS
       # Run BOSS
-      COMMAND ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py --no-instructions ${BOSS_castxml_cc} ${BOSS_command_line_options} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${name}_${backend_version_safe}
+      COMMAND ${Python3_EXECUTABLE} ${BOSS_dir}/boss.py --no-instructions ${BOSS_castxml_cc} ${BOSS_command_line_options} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${name}_${backend_version_safe}
       # Copy BOSS-generated files to correct folders within Backends/include
       COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/${name_in_frontend}_${backend_version_safe} || true
       COMMAND cp -r BOSS_output/${name_in_frontend}_${backend_version_safe}/for_gambit/backend_types/${name_in_frontend}_${backend_version_safe} ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/

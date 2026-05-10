@@ -43,7 +43,7 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 4)
 endif()
 
 # Define minimum cmake version
-cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 
 # Define minimum compiler versions
@@ -124,51 +124,32 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # Check if pybind11 is to be ditched
 string(REGEX MATCH ";pybind;|;pybind11;|;Pybind;|;Pybind11;" DITCH_PYBIND ";${itch};")
 
-# Check for Python interpreter.
-# We also need to search for PythonLibs before letting pybind11 look for them,
-# otherwise it seems to get it wrong.  Also, we need to add versions of python
-# greater than 3.3 manually, for compatibility with CMake 2.8.12.
-# If pybind11 is ditched, do not worry about PythonLibs
-set(Python_ADDITIONAL_VERSIONS 3.4 3.5 3.6 3.7 3.8 3.9 3.10 3.11 3.12 3.13)
-find_package(PythonInterp 3)  # We require Python 3.
-if(PYTHONINTERP_FOUND)
-  if(NOT DITCH_PYBIND)
-    find_package(PythonLibs 3) # We require Python 3.
-  endif()
+# Check for Python 3 interpreter and (optionally) development libraries.
+# If pybind11 is ditched, do not worry about Python Development libraries.
+if(DITCH_PYBIND)
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
 else()
+  find_package(Python3 COMPONENTS Interpreter Development)
+endif()
+if(NOT Python3_Interpreter_FOUND)
   message(FATAL_ERROR "\nPython 3 was not found, but it is required by GAMBIT.  \nIf you need to set the path to the Python interpreter manually, "
-                      "please use -D PYTHON_EXECUTABLE=path/to/preferred/python.")
+                      "please use -DPython3_EXECUTABLE=path/to/preferred/python.")
 endif()
-message("${BoldYellow}   Using Python interpreter version ${PYTHON_VERSION_STRING} for build.${ColourReset}")
+message("${BoldYellow}   Using Python interpreter version ${Python3_VERSION} for build.${ColourReset}")
 
-if(PYTHONLIBS_FOUND)
-  message("${BoldYellow}   Using Python libraries version ${PYTHONLIBS_VERSION_STRING} for Python backend support.${ColourReset}")
-  # Remove trailing non-numeric characters from version
-  string(REGEX REPLACE "[a-zA-Z]" "" PYTHONLIBS_VERSION_STRING_CLEAN ${PYTHONLIBS_VERSION_STRING})
-  if (NOT "${PYTHON_VERSION_STRING}" STREQUAL "${PYTHONLIBS_VERSION_STRING_CLEAN}")
-    message("${BoldRed}   NOTE: You are using different Python versions for the interpreter and the libraries!${ColourReset}\n"
-            "   In principle this should be fine, as the interpreter is only used for building GAMBIT, and the\n"
-            "   libraries are only used for providing support for Python backends at runtime.  However, if you\n"
-            "   have matching versions installed, you can make this message go away by manually setting the \n"
-            "   following variables when you invoke cmake:\n"
-            "     PYTHON_LIBRARY\n"
-            "     PYTHON_INCLUDE_DIR\n"
-            "     PYTHON_EXECUTABLE\n"
-            "   Make sure to clean out your build dir before reconfiguring with these variables set.")
-  endif()
+if(Python3_Development_FOUND)
+  message("${BoldYellow}   Using Python libraries version ${Python3_VERSION} for Python backend support.${ColourReset}")
 endif()
 
-# Check for pybind11 if PythonLibs were found and not ditched
-if(NOT PYTHONLIBS_FOUND AND NOT NO_PYTHON_LIBS)
+# Check for pybind11 if Python Development libraries were found and not ditched
+if(NOT Python3_Development_FOUND AND NOT NO_PYTHON_LIBS)
   if(DITCH_PYBIND)
     message("${BoldCyan} X Excluding pybind11 from GAMBIT configuration. Ditching support for Python backends.${ColourReset}")
   else()
-    message("${BoldRed}   PythonLibs NOT found, so pybind11 cannot be used. Ditching support for Python backends.${ColourReset}\n"
-            "   If you *do* have the Python libraries installed, you can manually set the following\n"
-            "   variables when invoking cmake (also making sure to clean out your build dir):\n"
-            "     PYTHON_LIBRARY\n"
-            "     PYTHON_INCLUDE_DIR\n"
-            "     PYTHON_EXECUTABLE")
+    message("${BoldRed}   Python3 Development libraries NOT found, so pybind11 cannot be used. Ditching support for Python backends.${ColourReset}\n"
+            "   If you *do* have the Python libraries installed, you can manually set\n"
+            "   -DPython3_ROOT_DIR=path/to/python or -DPython3_EXECUTABLE=path/to/python\n"
+            "   when invoking cmake (also making sure to clean out your build dir).")
   set(itch "${itch};pybind11")
   endif()
 
@@ -176,7 +157,7 @@ else()
   set(MIN_pybind11_VERSION "2.13.6")
   set(PREFERRED_pybind11_VERSION "2.13.6")
   set(pybind11_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/pybind11")
-  include_directories("${PYTHON_INCLUDE_DIRS}")
+  include_directories("${Python3_INCLUDE_DIRS}")
   unset(PYBIND11_CPP_STANDARD CACHE)
   find_package(pybind11 QUIET)
   if(pybind11_FOUND)
@@ -599,7 +580,7 @@ endif()
 if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   message("${Yellow}-- Updating GAMBIT scanner cmake and related files${ColourReset}")
   set(scanner_harvester ${PROJECT_SOURCE_DIR}/ScannerBit/scripts/scanner+_harvester.py ${PROJECT_BINARY_DIR} -x __not_a_real_name__,${itch_with_commas})
-  execute_process(RESULT_VARIABLE result COMMAND ${PYTHON_EXECUTABLE} ${scanner_harvester} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  execute_process(RESULT_VARIABLE result COMMAND ${Python3_EXECUTABLE} ${scanner_harvester} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
   check_result(${result} ${scanner_harvester})
   message("${Yellow}-- Updating GAMBIT scanner cmake and related files - done.${ColourReset}")
 endif()
@@ -610,7 +591,7 @@ include(cmake/preprocessor.cmake)
 # Generate particle_database.cpp from particle_database.yaml.
 if(EXISTS "${PROJECT_SOURCE_DIR}/Models/")
   set(particle_harvester ${PROJECT_SOURCE_DIR}/Models/scripts/particle_harvester.py ${PROJECT_BINARY_DIR} -x __not_a_real_name__,${itch_with_commas})
-  execute_process(COMMAND ${PYTHON_EXECUTABLE} ${particle_harvester} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  execute_process(COMMAND ${Python3_EXECUTABLE} ${particle_harvester} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
   message("${Yellow}-- Generated particle_database.cpp from particle_database.yaml.${ColourReset}")
 endif()
 
@@ -672,7 +653,7 @@ endif()
 # Generate the CMakeLists.txt files for GAMBIT modules, Backends, Models and Printers)
 message("${Yellow}-- Updating GAMBIT module, model, backend, and printer CMake files.${ColourReset}")
 set(update_cmakelists ${PROJECT_SOURCE_DIR}/cmake/scripts/update_cmakelists.py -x __not_a_real_name__,${itch_with_commas})
-execute_process(RESULT_VARIABLE result COMMAND ${PYTHON_EXECUTABLE} ${update_cmakelists} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+execute_process(RESULT_VARIABLE result COMMAND ${Python3_EXECUTABLE} ${update_cmakelists} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 check_result(${result} ${update_cmakelists})
 message("${Yellow}-- Updating GAMBIT module, backend, and printer CMake files - done.${ColourReset}")
 

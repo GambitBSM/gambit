@@ -20,7 +20,7 @@
 #
 #  **************************************
 
-cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 project(GUM)
 message("   Building GUM in ${CMAKE_CURRENT_SOURCE_DIR}")
 include(ExternalProject)
@@ -74,43 +74,28 @@ endif()
 # Contrib packages
 include(cmake/contrib.cmake)
 
-# Check for Python interpreter
-# Also, we need to add versions of python greater than 3.3 manually,
-# for compatibility with CMake 2.8.12.
-set(Python_ADDITIONAL_VERSIONS 3.4 3.5 3.6 3.7 3.8 3.9 3.10 3.11)
-find_package(PythonInterp 3)  # We require Python 3.
-if(PYTHONINTERP_FOUND) 
-  if(NOT DITCH_PYBIND)
-    find_package(PythonLibs 3) # We require Python 3.
-  endif()
-else()
+# Check for Python 3 interpreter and development libraries
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+if(NOT Python3_Interpreter_FOUND)
   message(FATAL_ERROR "\nPython 3 was not found, but it is required by GUM.  \nIf you need to set the path to the Python interpreter manually, "
-                      "please use -D PYTHON_EXECUTABLE=path/to/preferred/python.")
+                      "please use -DPython3_EXECUTABLE=path/to/preferred/python.")
 endif()
-include_directories(${PYTHON_INCLUDE_DIRS})
-message("   Using Python interpreter version ${PYTHON_VERSION_STRING} for build.")
+include_directories(${Python3_INCLUDE_DIRS})
+message("   Using Python interpreter version ${Python3_VERSION} for build.")
 
-if(PYTHONLIBS_FOUND)
-  message("   Using Python libraries version ${PYTHONLIBS_VERSION_STRING}.")
-  # Remove trailing non-numeric characters from version
-  string(REGEX REPLACE "[a-zA-Z]" "" PYTHONLIBS_VERSION_STRING_CLEAN ${PYTHONLIBS_VERSION_STRING})
-  if (NOT "${PYTHON_VERSION_STRING}" STREQUAL "${PYTHONLIBS_VERSION_STRING_CLEAN}")
-    message("  You are using different Python versions for the interpreter and the libraries! GUM might not work, please make sure to have matching versions installed.")
-  endif()
+if(Python3_Development_FOUND)
+  message("   Using Python libraries version ${Python3_VERSION}.")
 else()
-  message(FATAL_ERROR "  PythonLibs for Python version ${PYTHON_VERSION_STRING} NOT found! Plase make sure to install them to work with GUM.\n"
-          "   If you *do* have the Python libraries installed, you can try manually setting the \n"
-          "   following variables when you invoke cmake:\n"
-          "     PYTHON_LIBRARY\n"
-          "     PYTHON_INCLUDE_DIR\n"
-          "     PYTHON_EXECUTABLE\n"
-          "   Make sure to clean out your build dir before reconfiguring with these variables set.")
+  message(FATAL_ERROR "  Python3 Development libraries NOT found! Please make sure to install them to work with GUM.\n"
+          "   If you *do* have the Python libraries installed, you can try manually setting\n"
+          "   -DPython3_ROOT_DIR=path/to/python or -DPython3_EXECUTABLE=path/to/python\n"
+          "   when invoking cmake (also making sure to clean out your build dir).")
 endif()
 
 
 # Simple function to find specific Python modules
 macro(find_python_module module)
-  execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import ${module}" RESULT_VARIABLE return_value ERROR_QUIET)
+  execute_process(COMMAND ${Python3_EXECUTABLE} -c "import ${module}" RESULT_VARIABLE return_value ERROR_QUIET)
   if (NOT return_value)
     message(STATUS "Found Python module ${module}.")
     set(PY_${module}_FOUND TRUE)
@@ -159,14 +144,12 @@ endif()
 set(Boost_NO_BOOST_CMAKE ON)
 find_package(Boost 1.41.0 QUIET)
 if(Boost_FOUND)
-  if(PYTHON_VERSION_MAJOR EQUAL 2)
-    set(python_component python)
-  elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND Boost_VERSION LESS 105800)
+  if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND Boost_VERSION LESS 105800)
     set(python_component python3)
   elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND Boost_VERSION LESS 106700)
-    set(python_component python-py${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
+    set(python_component python-py${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR})
   else()
-    set(python_component python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR} )
+    set(python_component python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR} )
   endif()
   if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined,dynamic_lookup")
@@ -177,9 +160,9 @@ if(Boost_FOUND)
   find_package(Boost 1.41.0 REQUIRED COMPONENTS ${python_component} filesystem system)
   include_directories("${Boost_INCLUDE_DIR}")
   add_library(fr SHARED src/feynrules.cpp src/math_package.cpp)
-  target_link_libraries(fr ${LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES})
+  target_link_libraries(fr ${LIBRARIES} ${Python3_LIBRARIES} ${Boost_LIBRARIES})
   add_library(sarah SHARED src/sarah.cpp src/math_package.cpp)
-  target_link_libraries(sarah ${LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES})
+  target_link_libraries(sarah ${LIBRARIES} ${Python3_LIBRARIES} ${Boost_LIBRARIES})
 else()
   message(FATAL_ERROR "\nGUM requires Boost v1.41 or greater, including the compiled libraries Boost.Python, Boost.System and Boost.Filesystem.\nPlease install suitable Boost components and rerun cmake.")
 endif()
@@ -205,7 +188,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
 add_executable(mathematica ${SRC_GUM} ${HEADER_FILES})
 
-TARGET_LINK_LIBRARIES(mathematica ${LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} ${GUM_LIBS})
+TARGET_LINK_LIBRARIES(mathematica ${LIBRARIES} ${Python3_LIBRARIES} ${Boost_LIBRARIES} ${GUM_LIBS})
 
 if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") OR
     ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel") OR

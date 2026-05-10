@@ -51,18 +51,18 @@ For a more complete list of cmake variables, take a look in the file `CMakeCache
 -DEIGEN3_INCLUDE_DIR=your/path/to/eigen
 
 
-# Set the Python executable: PYTHON_EXECUTABLE
+# Set the Python executable: Python3_EXECUTABLE
 # If working from a virtual environment, cmake will automatically set this as
 # the executable in the environment's directory. It may, however, have trouble
 # finding the system Python library and include directory of the same version, so
-# setting PYTHON_LIBRARY and PYTHON_INCLUDE_DIR manually is encouraged.
--DPYTHON_EXECUTABLE=/usr/bin/python3
+# setting Python3_LIBRARY and Python3_INCLUDE_DIR manually is encouraged.
+-DPython3_EXECUTABLE=/usr/bin/python3
 
-# Set the Python include directory: PYTHON_INCLUDE_DIR
--DPYTHON_INCLUDE_DIR=/usr/include/python3.7m
+# Set the Python include directory: Python3_INCLUDE_DIR
+-DPython3_INCLUDE_DIR=/usr/include/python3.10
 
-# Set the Python library: PYTHON_LIBRARY
--DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.7m.so
+# Set the Python library: Python3_LIBRARY
+-DPython3_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.10.so
 
 
 # Switch HepMC on/off: WITH_HEPMC (On|Off)

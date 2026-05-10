@@ -407,7 +407,7 @@ endif()
 # Check for Cython
 set(FPHSA_NAME_MISMATCHED TRUE)
 find_package(Cython)
-if(CYTHON_FOUND OR CYTHON${PYTHON_VERSION_STRING}_FOUND)
+if(CYTHON_FOUND OR CYTHON${Python3_VERSION}_FOUND)
   include_directories(${CYTHON_INCLUDE_DIRS})
   message("-- Found Cython libraries: ${CYTHON_EXECUTABLE}")
 endif()
