@@ -1,0 +1,60 @@
+--- a/external/CMakeLists.txt
++++ b/external/CMakeLists.txt
+@@ -5,27 +5,32 @@
+ set(BUILD_SHARED_LIBS OFF)
+ 
+ FetchContent_Declare(rangev3
+-                     GIT_REPOSITORY https://github.com/ericniebler/range-v3.git)
++                     GIT_REPOSITORY https://github.com/ericniebler/range-v3.git
++                     GIT_SHALLOW TRUE)
+ FetchContent_Declare(
+   magic_enum
+   GIT_REPOSITORY https://github.com/Neargye/magic_enum.git
+-  GIT_TAG v0.7.3)
++  GIT_TAG v0.7.3
++  GIT_SHALLOW TRUE)
+ 
+ FetchContent_Declare(
+   fmt
+   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+-  GIT_TAG 8.0.1)
++  GIT_TAG 8.0.1
++  GIT_SHALLOW TRUE)
+ 
+ FetchContent_Declare(
+   spdlog
+   GIT_REPOSITORY https://github.com/gabime/spdlog.git
+-  GIT_TAG v1.9.2)
++  GIT_TAG v1.9.2
++  GIT_SHALLOW TRUE)
+ set(SPDLOG_FMT_EXTERNAL ON)
+ 
+ FetchContent_Declare(
+   json
+   GIT_REPOSITORY https://github.com/nlohmann/json.git
+-  GIT_TAG v3.10.5)
++  GIT_TAG v3.10.5
++  GIT_SHALLOW TRUE)
+ set(JSON_BuildTests OFF)
+ set(JSON_Install OFF)
+ set(JSON_ImplicitConversions OFF)
+@@ -34,7 +39,8 @@
+ FetchContent_Declare(
+   eigen3
+   GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+-  GIT_TAG 3.4.0)
++  GIT_TAG 3.4.0
++  GIT_SHALLOW TRUE)
+ set(EIGEN_BUILD_DOC OFF)
+ set(EIGEN_BUILD_PKGCONFIG OFF)
+ 
+@@ -42,7 +48,8 @@
+   FetchContent_Declare(
+     pybind11
+     GIT_REPOSITORY https://github.com/pybind/pybind11.git
+-    GIT_TAG master)
++    GIT_TAG master
++    GIT_SHALLOW TRUE)
+   set(FETCH_PYBIND11 pybind11)
+ endif()
+ 

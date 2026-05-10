@@ -1527,6 +1527,7 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(target_dir "${dir}/python_install")
 set(init_file "${dir}/init_by_GAMBIT.py")
 set(init_template "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/init_by_GAMBIT.py")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 set(hb_data_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}_hbdataset/${ver}")
 set(hs_data_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}_hsdataset/${ver}")
 set(hb_data_dl "https://gitlab.com/higgsbounds/hbdataset/-/archive/master/hbdataset-master.tar.gz")
@@ -1559,6 +1560,9 @@ if(NOT ditched_${name}_${ver})
       DEPENDS ${name}_hbdataset_${ver} ${name}_hsdataset_${ver}
       DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
+      # Patch: shallow-clone HiggsTools' FetchContent deps (json/eigen/...)
+      # to avoid pulling tens of MB of git history per dep at build time.
+      PATCH_COMMAND patch -p1 < ${patch}
       BUILD_IN_SOURCE 1
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy ${init_template} ${init_file}
       BUILD_COMMAND ${PYTHON_EXECUTABLE} -m pip install --upgrade --no-deps --target=${target_dir} .
