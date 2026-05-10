@@ -1562,6 +1562,8 @@ if(NOT ditched_${name}_${ver})
       BUILD_IN_SOURCE 1
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy ${init_template} ${init_file}
       BUILD_COMMAND ${PYTHON_EXECUTABLE} -m pip install --upgrade --no-deps --target=${target_dir} .
+            # Drop pip/scikit-build-core scratch and bundled 2HDM CSVs (saves ~800 MB).
+            COMMAND ${CMAKE_COMMAND} -E rm -rf ${dir}/_skbuild ${dir}/examples/example_data
       INSTALL_COMMAND ""
     )
   endif()
