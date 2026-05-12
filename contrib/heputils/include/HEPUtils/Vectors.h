@@ -154,8 +154,11 @@ namespace HEPUtils {
 	if (z() == 0) return M_PI/2; else return atan2(rho(), z()); } //< atan2(+ve, z) is +ve
     /// Get the spatial-vector pseudorapidity
     double eta() const {
-      if ( v2() == 0.0 ) [[unlikely]] return 0.0;
-      if ( rho2() == 0.0 ) [[unlikely]] return std::copysign(HUGE_VAL, z());
+// Needs C++20
+//      if ( v2() == 0.0 ) [[unlikely]] return 0.0;
+//      if ( rho2() == 0.0 ) [[unlikely]] return std::copysign(HUGE_VAL, z());
+      if ( v2() == 0.0 ) return 0.0;
+      if ( rho2() == 0.0 ) return std::copysign(HUGE_VAL, z());
       return std::copysign(log((v() + fabs(z())) / rho()), z());
     }
     /// Get the spatial-vector absolute pseudorapidity
@@ -554,8 +557,11 @@ namespace HEPUtils {
 
     /// Get the 4-momentum rapidity
     double rap() const {
-      if ( p() == 0.0 ) [[unlikely]] return 0.0;
-      if ( E() == fabs(pz()) ) [[unlikely]] return std::copysign(HUGE_VAL, pz());
+// Needs C++20
+//      if ( p() == 0.0 ) [[unlikely]] return 0.0;
+//      if ( E() == fabs(pz()) ) [[unlikely]] return std::copysign(HUGE_VAL, pz());
+      if ( p() == 0.0 ) return 0.0;
+      if ( E() == fabs(pz()) ) return std::copysign(HUGE_VAL, pz());
       return 0.5 * log((E() + pz()) / (E() - pz()));
     }
     /// Get the 4-momentum absolute rapidity

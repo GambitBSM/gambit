@@ -87,7 +87,7 @@ namespace Gambit
 
       template <typename ParticleP>
       inline HEPUtils::V4 get_unified_vprod(ParticleP &p) {
-        return p.hasVertex() ? V4(p.xProd(), p.yProd(), p.zProd(), p.tProd()) : V4(0.0, 0.0, 0.0, 0.0);
+        return p.hasVertex() ? V4(p.xProd(), p.yProd(), p.zProd(), p.tProd()) : HEPUtils::V4(); // Default constructor makes a null vector
       }
       template <typename ParticleP>
       inline HEPUtils::V4 get_unified_vdec(ParticleP &p) {
@@ -154,11 +154,11 @@ namespace Gambit
         }
 
       inline HEPUtils::V4 get_unified_vprod(const HepMC3::GenParticlePtr& gp) {
-        const GenVertexPtr vp = gp->production_vertex();
-        return vp ? V4(vp.x(), vp.y(), vp.z(), vp.t()) : V4(0.0, 0.0, 0.0, 0.0);
+        const HepMC3::GenVertexPtr vp = gp->production_vertex();
+        return vp ? V4(vp.x(), vp.y(), vp.z(), vp.t()) : HEPUtils::V4(); // Default constructor makes a null vector
       }
       inline HEPUtils::V4 get_unified_vdec(const HepMC3::GenParticlePtr& gp) {
-        const GenVertexPtr vd = gp->decay_vertex();
+        const HepMC3::GenVertexPtr vd = gp->decay_vertex();
         return vd ? V4(vd.x(), vd.y(), vd.z(), vd.t()) : get_unified_vprod(gp);
       }
 
