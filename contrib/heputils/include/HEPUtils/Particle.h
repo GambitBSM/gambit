@@ -153,7 +153,7 @@ namespace HEPUtils {
     void set_pid(int pdgid) { _pid = pdgid; }
 
     /// Is this particle usually visible in a detector?
-    bool is_visible() {
+    bool is_visible() const {
       if (abspid() == 12 || abspid() == 14 || abspid() == 16) return false;
       if (pid() == 1000022 || pid() == 1000039) return false;
       if (in_range(abspid(), 50, 60)) return false; //< abspid zealousness since some -ve DM PIDs seen
@@ -161,7 +161,7 @@ namespace HEPUtils {
     }
 
     /// Is this particle usually invisible in a detector?
-    bool is_invisible() {
+    bool is_invisible() const {
       return !is_visible();
     }
     /// @}
@@ -200,21 +200,21 @@ namespace HEPUtils {
 
     /// 4-mom + PDG ID + 4-vecs constructor
     DisplacedParticle(const P4& mom, int pdgid, const V4& prod, const V4& dec)
-      : Particle(mom, pdgid), _vdec(dec), _vprod(prod) { }
+      : Particle(mom, pdgid), _vprod(prod), _vdec(dec) { }
 
     /// Copy constructor
     DisplacedParticle(const DisplacedParticle& p)
-      : Particle(p), _vdec(p._vdec), _vprod(p._vprod) { }
+      : Particle(p), _vprod(p._vprod), _vdec(p._vdec) { }
 
     /// Copy constructor from a pointer
     DisplacedParticle(const DisplacedParticle* p)
-      : Particle(p), _vdec(p->_vdec), _vprod(p->_vprod) { }
+      : Particle(p), _vprod(p->_vprod), _vdec(p->_vdec) { }
 
     /// Copy assignment operator
     DisplacedParticle& operator = (const DisplacedParticle& p) {
       Particle::operator=(p);
-      _vdec = p._vdec;
       _vprod = p._vprod;
+      _vdec = p._vdec;
       return *this;
     }
 
@@ -225,13 +225,13 @@ namespace HEPUtils {
     /// @{
 
     /// Access the production vertex
-    const V4& vprod() { return _vprod; }
+    const V4& vprod() const { return _vprod; }
 
     /// Set the production vertex
     void setVprod(const V4& vprod) { _vprod = vprod; }
 
     /// Access the decay vertex
-    const V4& vdec() { return _vdec; }
+    const V4& vdec() const { return _vdec; }
 
     /// Set the decay vertex
     void setVdec(const V4& vdec) { _vdec = vdec; }

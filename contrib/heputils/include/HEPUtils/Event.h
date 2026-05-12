@@ -273,7 +273,7 @@ namespace HEPUtils {
     /// mutable containers upon retrieval
     ///
     /// @todo "Lock" at some point so that jet finding etc. only get done once
-    void add_particle(Particle* p, bool ptsort=false) {
+    void add_particle(const Particle* p, bool ptsort=false) {
 
       _stdparticles_sorted = false;
 
@@ -331,7 +331,7 @@ namespace HEPUtils {
     /// mutable containers upon retrieval
     ///
     /// @todo "Lock" at some point so that jet finding etc. only get done once
-    void add_particle(Particle* p, const std::string& key, bool ptsort=false) {
+    void add_particle(const Particle* p, const std::string& key, bool ptsort=false) {
       _customparticles_sorted = false;
 
       // Insert into both the canonical list and the custom
@@ -344,7 +344,7 @@ namespace HEPUtils {
 
     /// Alias for backward-compatibility
     /// @deprecated ptsort will be removed eventually
-    void add_particle(Particle* p, bool ptsort, const std::string& key) {
+    void add_particle(const Particle* p, bool ptsort, const std::string& key) {
       add_particle(p, key, ptsort);
     }
 
