@@ -10,11 +10,11 @@
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Andy Buckley
+///  \author Chris Chang
 ///  \author Anders Kvellestad
+///  \author Are Raklev
 ///  \author Pat Scott
 ///  \author Martin White
-///  \author Are Raklev  June 2021
-///  \author Chris Chang Nov 2023
 ///
 ///  *********************************************
 

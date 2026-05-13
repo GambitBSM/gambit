@@ -11,6 +11,7 @@
 ///
 ///  \author Andy Buckley
 ///  \author Anders Kvellestad
+///  \author Are Raklev
 ///  \author Pat Scott
 ///  \author Martin White
 ///
