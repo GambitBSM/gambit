@@ -155,11 +155,15 @@ namespace Gambit
 
       inline HEPUtils::V4 get_unified_vprod(const HepMC3::GenParticlePtr& gp) {
         const HepMC3::GenVertexPtr vp = gp->production_vertex();
-        return vp ? V4(vp.x(), vp.y(), vp.z(), vp.t()) : HEPUtils::V4(); // Default constructor makes a null vector
+        if (!vp) return HEPUtils::V4(); //< null/origin vector; better to throw?
+        const HepMC3::FourVector& pos = vp->position();
+        return HEPUtils::V4(pos.x(), pos.y(), pos.z(), pos.t());
       }
       inline HEPUtils::V4 get_unified_vdec(const HepMC3::GenParticlePtr& gp) {
         const HepMC3::GenVertexPtr vd = gp->decay_vertex();
-        return vd ? V4(vd.x(), vd.y(), vd.z(), vd.t()) : get_unified_vprod(gp);
+        if (!vd) return get_unified_vprod(gp); //< prod vector; better to throw?
+        const HepMC3::FourVector& pos = vd->position();
+        return HEPUtils::V4(pos.x(), pos.y(), pos.z(), pos.t());
       }
 
       #endif
