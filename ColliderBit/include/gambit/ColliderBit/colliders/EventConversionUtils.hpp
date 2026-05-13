@@ -29,6 +29,7 @@
 #ifndef EXCLUDE_HEPMC
   #include "HepMC3/GenEvent.h"
   #include "HepMC3/GenParticle.h"
+  #include "HepMC3/GenVertex.h"
   #include "MCUtils/HepMCVectors.h"
 #endif
 
@@ -87,11 +88,11 @@ namespace Gambit
 
       template <typename ParticleP>
       inline HEPUtils::V4 get_unified_vprod(ParticleP &p) {
-        return p.hasVertex() ? V4(p.xProd(), p.yProd(), p.zProd(), p.tProd()) : HEPUtils::V4(); // Default constructor makes a null vector
+        return p.hasVertex() ? HEPUtils::V4::mkXYZT(p.xProd(), p.yProd(), p.zProd(), p.tProd()) : HEPUtils::V4(); // Default constructor makes a null vector
       }
       template <typename ParticleP>
       inline HEPUtils::V4 get_unified_vdec(ParticleP &p) {
-        return p.hasVertex() ? V4(p.xDec(), p.yDec(), p.zDec(), p.tDec()) : get_unified_vprod(p);
+        return p.hasVertex() ? HEPUtils::V4::mkXYZT(p.xDec(), p.yDec(), p.zDec(), p.tDec()) : get_unified_vprod(p);
       }
 
       #ifndef EXCLUDE_HEPMC
@@ -153,17 +154,19 @@ namespace Gambit
           }
         }
 
+      /// Find production vertex of particle
       inline HEPUtils::V4 get_unified_vprod(const HepMC3::GenParticlePtr& gp) {
         const HepMC3::GenVertexPtr vp = gp->production_vertex();
         if (!vp) return HEPUtils::V4(); //< null/origin vector; better to throw?
         const HepMC3::FourVector& pos = vp->position();
-        return HEPUtils::V4(pos.x(), pos.y(), pos.z(), pos.t());
+        return HEPUtils::V4::mkXYZT(pos.x(), pos.y(), pos.z(), pos.t());
       }
+      /// Find decay vertex of particle
       inline HEPUtils::V4 get_unified_vdec(const HepMC3::GenParticlePtr& gp) {
-        const HepMC3::GenVertexPtr vd = gp->decay_vertex();
+        const HepMC3::GenVertexPtr vd = gp->end_vertex();
         if (!vd) return get_unified_vprod(gp); //< prod vector; better to throw?
         const HepMC3::FourVector& pos = vd->position();
-        return HEPUtils::V4(pos.x(), pos.y(), pos.z(), pos.t());
+        return HEPUtils::V4::mkXYZT(pos.x(), pos.y(), pos.z(), pos.t());
       }
 
       #endif

@@ -150,17 +150,23 @@ namespace Gambit
           }
         }
 
+        
+        // Promptness: for leptons and photons we're only interested if they don't come from hadron/tau decays
+        const bool prompt = !get_unified_fromHadron(p, pevt, i);
+        const bool visible = MCUtils::PID::isStrongInteracting(pid) || MCUtils::PID::isEMInteracting(pid);
+
+        
         // Record non-SM displaced-production and (unstable) displaced-decay particles.
         // Probably good to combine with 'if (MCUtils::PID::isBSM(pid) ...' in user code
         /// @todo Make distance cut configurable in YAML
-        if (get_unified_vprod(p).rho() > 10) { // mm
+        if (get_unified_vprod(p).rho() > 10) // mm
         {
           auto gp = new HEPUtils::DisplacedParticle(p4, pid, get_unified_vprod(p), get_unified_vdec(p));
           if (prompt) gp->set_prompt();
           result.add_particle(gp, "LLprod");
         }
         /// @todo Make distance cut configurable in YAML
-        if (!get_unified_isFinal(p) && get_unified_vdec(p).rho() > 10) { // mm
+        if (!get_unified_isFinal(p) && get_unified_vdec(p).rho() > 10) // mm
         {
           auto gp = new HEPUtils::DisplacedParticle(p4, pid, get_unified_vprod(p), get_unified_vdec(p));
           if (prompt) gp->set_prompt();
@@ -194,10 +200,6 @@ namespace Gambit
         }
 
         /// @todo Exclude displaced-production particles?
-
-        // Promptness: for leptons and photons we're only interested if they don't come from hadron/tau decays
-        const bool prompt = !get_unified_fromHadron(p, pevt, i);
-        const bool visible = MCUtils::PID::isStrongInteracting(pid) || MCUtils::PID::isEMInteracting(pid);
 
         // Add prompt and invisible particles as individual particles
         if (prompt || !visible)
