@@ -38,14 +38,26 @@ endif(NOT Eigen3_FIND_VERSION)
 macro(_eigen3_check_version)
   file(READ "${EIGEN3_INCLUDE_DIR}/Eigen/src/Core/util/Macros.h" _eigen3_version_header)
 
+  # Eigen 3.x exposes EIGEN_WORLD_VERSION / EIGEN_MAJOR_VERSION / EIGEN_MINOR_VERSION.
+  # Eigen >= 5.0 dropped EIGEN_WORLD_VERSION (the leading "3" became part of the package
+  # name) and instead exposes EIGEN_MAJOR_VERSION / EIGEN_MINOR_VERSION / EIGEN_PATCH_VERSION.
+  # Detect which scheme the installed Eigen uses so we report the correct version string.
   string(REGEX MATCH "define[ \t]+EIGEN_WORLD_VERSION[ \t]+([0-9]+)" _eigen3_world_version_match "${_eigen3_version_header}")
   set(EIGEN3_WORLD_VERSION "${CMAKE_MATCH_1}")
   string(REGEX MATCH "define[ \t]+EIGEN_MAJOR_VERSION[ \t]+([0-9]+)" _eigen3_major_version_match "${_eigen3_version_header}")
   set(EIGEN3_MAJOR_VERSION "${CMAKE_MATCH_1}")
   string(REGEX MATCH "define[ \t]+EIGEN_MINOR_VERSION[ \t]+([0-9]+)" _eigen3_minor_version_match "${_eigen3_version_header}")
   set(EIGEN3_MINOR_VERSION "${CMAKE_MATCH_1}")
+  string(REGEX MATCH "define[ \t]+EIGEN_PATCH_VERSION[ \t]+([0-9]+)" _eigen3_patch_version_match "${_eigen3_version_header}")
+  set(EIGEN3_PATCH_VERSION "${CMAKE_MATCH_1}")
 
-  set(EIGEN3_VERSION ${EIGEN3_WORLD_VERSION}.${EIGEN3_MAJOR_VERSION}.${EIGEN3_MINOR_VERSION})
+  if(EIGEN3_WORLD_VERSION STREQUAL "")
+    # New (>= 5.0) naming scheme.
+    set(EIGEN3_VERSION ${EIGEN3_MAJOR_VERSION}.${EIGEN3_MINOR_VERSION}.${EIGEN3_PATCH_VERSION})
+  else()
+    # Legacy 3.x naming scheme.
+    set(EIGEN3_VERSION ${EIGEN3_WORLD_VERSION}.${EIGEN3_MAJOR_VERSION}.${EIGEN3_MINOR_VERSION})
+  endif()
   if(${EIGEN3_VERSION} VERSION_LESS ${Eigen3_FIND_VERSION})
     set(EIGEN3_VERSION_OK FALSE)
   else(${EIGEN3_VERSION} VERSION_LESS ${Eigen3_FIND_VERSION})
