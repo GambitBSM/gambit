@@ -508,71 +508,68 @@ Rules:
       drop_YODA_file: false
       LHC_13TeV:
         analyses:
-          # Pool ATLAS_13_4L
-          - ATLAS_2017_I1625109
-          - ATLAS_2019_I1720442
-          - ATLAS_2021_I1849535
-          # Pool ATLAS_13_EEJET
-          - ATLAS_2017_I1514251:LMODE=EL
-          - ATLAS_2020_I1788444:LMODE=EL
-          - ATLAS_2019_I1718132:LMODE=ELEL
-          # Pool ATLAS_13_GAMMA
-          - ATLAS_2017_I1645627
-          # Pool ATLAS_13_JETS
-          - ATLAS_2018_I1634970
-          - ATLAS_2019_I1724098
-          - ATLAS_2017_I1637587
-          - ATLAS_2020_I1808726
-          # Pool ATLAS_13_L1L2MET
-          - ATLAS_2019_I1734263
-          # Pool ATLAS_13_L1L2METJET
-          - ATLAS_2021_I1852328
-          - ATLAS_2019_I1759875
-          - ATLAS_2019_I1718132:LMODE=ELMU
-          # Pool ATLAS_13_L1L2MET_GAMMA
-          - ATLAS_2018_I1707015:LMODE=DILEPTON          
-          # Pool ATLAS_13_LLJET
-          - ATLAS_2020_I1803608
-          # Pool ATLAS_13_LL_GAMMA
-          - ATLAS_2019_I1764342
-          # Pool ATLAS_13_LMETJET
-          - ATLAS_2017_I1614149
-          - ATLAS_2019_I1750330:TYPE=BOTH
-          - ATLAS_2018_I1656578
-          - ATLAS_2018_I1705857
-          # Pool ATLAS_13_LMET_GAMMA
-          - ATLAS_2018_I1707015:LMODE=SINGLE
-          # Pool ATLAS_13_METJET
+          - ATLAS_2016_I1419652
+          - ATLAS_2016_I1467230
+          - ATLAS_2017_I1514251:LMODE=EMU
           - ATLAS_2017_I1609448
-          - ATLAS_2016_I1458270
-          # Pool ATLAS_13_MMJET
-          - ATLAS_2017_I1514251:LMODE=MU
-          - ATLAS_2020_I1788444:LMODE=MU
-          - ATLAS_2019_I1718132:LMODE=MUMU
-          # Pool ATLAS_13_TTHAD
+          - ATLAS_2017_I1614149
+          - ATLAS_2017_I1625109
+          - ATLAS_2017_I1627873
+          - ATLAS_2017_I1637587
+          - ATLAS_2017_I1645627
+          - ATLAS_2018_I1634970
           - ATLAS_2018_I1646686
-          # Pool CMS_13_EEJET
-          - CMS_2018_I1667854:LMODE=EL
-          - CMS_2019_I1753680:LMODE=EL
-          # Pool CMS_13_HMDY
-          - CMS_2018_I1711625
-          # Pool CMS_13_JETS
+          - ATLAS_2018_I1656578
+          - ATLAS_2018_I1698006:LVETO=ON
+          - ATLAS_2018_I1705857
+          - ATLAS_2018_I1707015:LMODE=DILEPTON
+          - ATLAS_2018_I1707015:LMODE=SINGLE
+          - ATLAS_2019_I1718132:LMODE=ELEL
+          - ATLAS_2019_I1718132:LMODE=ELMU
+          - ATLAS_2019_I1718132:LMODE=MUMU
+          - ATLAS_2019_I1720442
+          - ATLAS_2019_I1724098
+          - ATLAS_2019_I1734263
+          - ATLAS_2019_I1738841
+          - ATLAS_2019_I1740909
+          - ATLAS_2019_I1750330:TYPE=BOTH
+          - ATLAS_2019_I1759875
+          - ATLAS_2019_I1764342
+          - ATLAS_2019_I1768911
+          - ATLAS_2019_I1772071
+          - ATLAS_2020_I1788444
+          - ATLAS_2020_I1790256
+          - ATLAS_2020_I1801434
+          - ATLAS_2020_I1803608
+          - ATLAS_2020_I1808726
+          - ATLAS_2021_I1849535
+          - ATLAS_2021_I1852328
+          - ATLAS_2021_I1887997
+          - ATLAS_2022_I2023464
+          - ATLAS_2022_I2037744
+          - ATLAS_2022_I2077570
+          - ATLAS_2022_I2077575
+          - ATLAS_2022_I2593322
+          - ATLAS_2022_I2614196
+          - ATLAS_2023_I2628732
+          - ATLAS_2023_I2648096
           - CMS_2016_I1459051
-          - CMS_2018_I1682495
-          # Pool CMS_13_LMETJET
           - CMS_2016_I1491950
           - CMS_2018_I1662081
           - CMS_2018_I1663958
-          - CMS_2019_I1744604
-          # Pool CMS_13_MMETJET
-          - CMS_2017_I1610623
+          - CMS_2018_I1667854:LMODE=EMU
+          - CMS_2018_I1682495
+          - CMS_2018_I1711625
           - CMS_2019_I1705068
-          # Pool CMS_13_MMJET
-          - CMS_2018_I1667854:LMODE=MU
-          - CMS_2019_I1753680:LMODE=MU
-          # Pool CMS_13_TTHAD
+          - CMS_2019_I1744604
+          - CMS_2019_I1753680:LMODE=EMU
+          - CMS_2019_I1753720
           - CMS_2019_I1764472
-          # Pool LHCB_13_L1L2B
+          - CMS_2020_I1814328
+          - CMS_2021_I1847230:MODE=QCD13TeV
+          - CMS_2021_I1866118
+          - CMS_2021_I1932460
+          - CMS_2022_I2079374
           - LHCB_2018_I1662483
 
 
