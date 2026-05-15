@@ -2108,14 +2108,13 @@ string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FJ_C_FLAGS "${FJ_C_FLAGS}")
 set_compiler_warning("no-deprecated-declarations" FJ_CXX_FLAGS)
 set_compiler_warning("no-deprecated-copy" FJ_CXX_FLAGS)
 set(FJ_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
-set(fastjet_patch_dir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND patch -p1 < ${fastjet_patch_dir}/patch_${name}_${ver}.dif
+    PATCH_COMMAND ""
     CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${dir}/local --enable-allcxxplugins --enable-silent-rules --enable-shared
     BUILD_COMMAND ${MAKE_PARALLEL} install
     INSTALL_COMMAND ""
