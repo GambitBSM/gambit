@@ -18,9 +18,34 @@
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Elements/sminputs.hpp"
 #include "gambit/Elements/mssm_slhahelp.hpp"
+#include <cmath>
+#include <complex>
 
 namespace Gambit
 {
+
+   std::array<std::array<std::complex<double>,3>,3> SMInputs::PMNSdef::get_matrix() const
+   {
+      using std::sin; using std::cos; using std::polar;
+      const double s12 = sin(theta12), c12 = cos(theta12);
+      const double s13 = sin(theta13), c13 = cos(theta13);
+      const double s23 = sin(theta23), c23 = cos(theta23);
+      const std::complex<double> eid   = polar(1.0,  delta13);
+      const std::complex<double> eia1  = polar(1.0,  0.5 * alpha1);
+      const std::complex<double> eia2  = polar(1.0,  0.5 * alpha2);
+
+      std::array<std::array<std::complex<double>,3>,3> U;
+      U[0][0] =  c12 * c13 * eia1;
+      U[0][1] =  s12 * c13;
+      U[0][2] =  s13 / eid;
+      U[1][0] = (-s12 * c23 - c12 * s23 * s13 * eid) * eia1;
+      U[1][1] = ( c12 * c23 - s12 * s23 * s13 * eid) * eia2;
+      U[1][2] =  s23 * c13;
+      U[2][0] = ( s12 * s23 - c12 * c23 * s13 * eid) * eia1;
+      U[2][1] = (-c12 * s23 - s12 * c23 * s13 * eid);
+      U[2][2] =  c23 * c13;
+      return U;
+   }
 
    // Create an SMInputs struct from an SLHAea object
    SMInputs::SMInputs(SLHAea::Coll& data)
@@ -127,6 +152,17 @@ namespace Gambit
       SLHAea_add(data,"UPMNSIN",4, PMNS.delta13, "delta13 (Dirac CP-violating phase)");
       SLHAea_add(data,"UPMNSIN",5, PMNS.alpha1 , "alpha1 (first Majorana CP-violating phase)" );
       SLHAea_add(data,"UPMNSIN",6, PMNS.alpha2 , "alpha2 (second CP-violating Majorana phase)");
+
+      // UPMNS and IMUPMNS blocks (real and imaginary parts of the full mixing matrix)
+      SLHAea_add_block(data,"UPMNS");
+      SLHAea_add_block(data,"IMUPMNS");
+      auto U = PMNS.get_matrix();
+      for (int i = 1; i <= 3; i++)
+        for (int j = 1; j <= 3; j++)
+        {
+          SLHAea_add(data,"UPMNS",  i, j,  U[i-1][j-1].real(), "Re(UPMNS_"+std::to_string(i)+std::to_string(j)+")");
+          SLHAea_add(data,"IMUPMNS",i, j,  U[i-1][j-1].imag(), "Im(UPMNS_"+std::to_string(i)+std::to_string(j)+")");
+        }
 
       // MASS block
       SLHAea_add(data,"MASS", 24, mW, "mW(pole)");
