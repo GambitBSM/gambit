@@ -36,13 +36,13 @@ namespace Gambit
 
       std::array<std::array<std::complex<double>,3>,3> U;
       U[0][0] =  c12 * c13 * eia1;
-      U[0][1] =  s12 * c13;
+      U[0][1] =  s12 * c13 * eia2;
       U[0][2] =  s13 / eid;
       U[1][0] = (-s12 * c23 - c12 * s23 * s13 * eid) * eia1;
       U[1][1] = ( c12 * c23 - s12 * s23 * s13 * eid) * eia2;
       U[1][2] =  s23 * c13;
       U[2][0] = ( s12 * s23 - c12 * c23 * s13 * eid) * eia1;
-      U[2][1] = (-c12 * s23 - s12 * c23 * s13 * eid);
+      U[2][1] = (-c12 * s23 - s12 * c23 * s13 * eid) * eia2;
       U[2][2] =  c23 * c13;
       return U;
    }
