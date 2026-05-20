@@ -259,22 +259,32 @@ namespace Gambit
         }
 
         // Signal leptons = electrons + muons
+        vector<const HEPUtils::Particle*> cand_signalLeptons;
+        cand_signalLeptons=signalElectrons;
+        cand_signalLeptons.insert(cand_signalLeptons.end(),signalMuons.begin(),signalMuons.end());
+        sort(cand_signalLeptons.begin(),cand_signalLeptons.end(),comparePt);
+
+
+        // At least one pair of exactly opposite-sign, same-flavor leptons
+        if (cand_signalLeptons.size() < 2) return;
+
+        // Find highest-pT OSSF lepton pair
         vector<const HEPUtils::Particle*> signalLeptons;
-        signalLeptons=signalElectrons;
-        signalLeptons.insert(signalLeptons.end(),signalMuons.begin(),signalMuons.end());
-        sort(signalLeptons.begin(),signalLeptons.end(),comparePt);
+        for(int i = 0; i < cand_signalLeptons.size()-1; i++) {
+          for(int j = i+1; j < cand_signalLeptons.size(); j++) {
+            if(cand_signalLeptons[i]->pid()+cand_signalLeptons[j]->pid() == 0) {
+              signalLeptons = {cand_signalLeptons[i],cand_signalLeptons[j]};
+              break;
+            }
+          }
+          if(signalLeptons.size() == 2) break;
+        }
 
-
-        // Two exactly opposite-sign, same-flavor leptons
-        if (signalLeptons.size() != 2) return;
-        if (signalLeptons[0]->pid()*signalLeptons[1]->pid()>0) return;
-        bool flag_SF = signalLeptons[0]->pid() + signalLeptons[1]->pid() == 0;
-        if(!flag_SF) return;
+        if(signalLeptons.size() != 2) return;
         _cutflow.fill(1);
 
-
         // Hardest lepton pT >= 100 GeV
-        if(signalLeptons[0]->pT() < 100. && signalLeptons[1]->pT() < 100.) return;
+        if(signalLeptons[0]->pT() < 100.) return;
         _cutflow.fill(2);
 
         // b-jet veto
@@ -298,9 +308,7 @@ namespace Gambit
 
         // Same flavour; mll >= mZ+20GeV
         double mll=(signalLeptons[0]->mom()+signalLeptons[1]->mom()).m();
-        if (flag_SF) {
-            if (mll<111.2) return ;
-        }
+        if (mll<111.2) return ;
         _cutflow.fill(7);
 
         // Mt2
@@ -312,41 +320,38 @@ namespace Gambit
         mt2_calc.set_mn(0.0);
         double mT2 = mt2_calc.get_mt2();
 
-        if (flag_SF) {
-            if (nonbJets.size()==0){
+        if (nonbJets.size()==0){
 
-                if (mT2>150)             _counters.at("SR-SF-0J-150").add_event(event);
-                if (mT2>350)             _counters.at("SR-SF-0J-350").add_event(event);
-                if (mT2>150 and mT2<250) _counters.at("SR-SF-0J-150-250").add_event(event);
-                if (mT2>250 and mT2<350) _counters.at("SR-SF-0J-250-350").add_event(event);
-                // binned SRs
-                if (mT2>150 and mT2<180) _counters_bin.at("SR-SF-0J-150-180").add_event(event);
-                if (mT2>180 and mT2<220) _counters_bin.at("SR-SF-0J-180-220").add_event(event);
-                if (mT2>220 and mT2<260) _counters_bin.at("SR-SF-0J-220-260").add_event(event);
-                if (mT2>260 and mT2<310) _counters_bin.at("SR-SF-0J-260-310").add_event(event);
-                if (mT2>310 and mT2<360) _counters_bin.at("SR-SF-0J-310-360").add_event(event);
-                if (mT2>360 and mT2<420) _counters_bin.at("SR-SF-0J-360-420").add_event(event);
-                if (mT2>420 and mT2<480) _counters_bin.at("SR-SF-0J-420-480").add_event(event);
-                if (mT2>480            ) _counters_bin.at("SR-SF-0J-480").add_event(event);
-            } else {
-
-                if (mT2>150)             _counters.at("SR-SF-1J-150").add_event(event);
-                if (mT2>350)             _counters.at("SR-SF-1J-350").add_event(event);
-                if (mT2>150 and mT2<250) _counters.at("SR-SF-1J-150-250").add_event(event);
-                if (mT2>250 and mT2<350) _counters.at("SR-SF-1J-250-350").add_event(event);
-                // binned SRs
-                if (mT2>150 and mT2<180) _counters_bin.at("SR-SF-1J-150-180").add_event(event);
-                if (mT2>180 and mT2<220) _counters_bin.at("SR-SF-1J-180-220").add_event(event);
-                if (mT2>220 and mT2<260) _counters_bin.at("SR-SF-1J-220-260").add_event(event);
-                if (mT2>260 and mT2<310) _counters_bin.at("SR-SF-1J-260-310").add_event(event);
-                if (mT2>310 and mT2<360) _counters_bin.at("SR-SF-1J-310-360").add_event(event);
-                if (mT2>360 and mT2<420) _counters_bin.at("SR-SF-1J-360-420").add_event(event);
-                if (mT2>420 and mT2<480) _counters_bin.at("SR-SF-1J-420-480").add_event(event);
-                if (mT2>480            ) _counters_bin.at("SR-SF-1J-480").add_event(event);
-            }
+            if (mT2>150)             _counters.at("SR-SF-0J-150").add_event(event);
+            if (mT2>350)             _counters.at("SR-SF-0J-350").add_event(event);
+            if (mT2>150 and mT2<250) _counters.at("SR-SF-0J-150-250").add_event(event);
+            if (mT2>250 and mT2<350) _counters.at("SR-SF-0J-250-350").add_event(event);
+            // binned SRs
+            if (mT2>150 and mT2<180) _counters_bin.at("SR-SF-0J-150-180").add_event(event);
+            if (mT2>180 and mT2<220) _counters_bin.at("SR-SF-0J-180-220").add_event(event);
+            if (mT2>220 and mT2<260) _counters_bin.at("SR-SF-0J-220-260").add_event(event);
+            if (mT2>260 and mT2<310) _counters_bin.at("SR-SF-0J-260-310").add_event(event);
+            if (mT2>310 and mT2<360) _counters_bin.at("SR-SF-0J-310-360").add_event(event);
+            if (mT2>360 and mT2<420) _counters_bin.at("SR-SF-0J-360-420").add_event(event);
+            if (mT2>420 and mT2<480) _counters_bin.at("SR-SF-0J-420-480").add_event(event);
+            if (mT2>480            ) _counters_bin.at("SR-SF-0J-480").add_event(event);
         } else {
-            //
+
+            if (mT2>150)             _counters.at("SR-SF-1J-150").add_event(event);
+            if (mT2>350)             _counters.at("SR-SF-1J-350").add_event(event);
+            if (mT2>150 and mT2<250) _counters.at("SR-SF-1J-150-250").add_event(event);
+            if (mT2>250 and mT2<350) _counters.at("SR-SF-1J-250-350").add_event(event);
+            // binned SRs
+            if (mT2>150 and mT2<180) _counters_bin.at("SR-SF-1J-150-180").add_event(event);
+            if (mT2>180 and mT2<220) _counters_bin.at("SR-SF-1J-180-220").add_event(event);
+            if (mT2>220 and mT2<260) _counters_bin.at("SR-SF-1J-220-260").add_event(event);
+            if (mT2>260 and mT2<310) _counters_bin.at("SR-SF-1J-260-310").add_event(event);
+            if (mT2>310 and mT2<360) _counters_bin.at("SR-SF-1J-310-360").add_event(event);
+            if (mT2>360 and mT2<420) _counters_bin.at("SR-SF-1J-360-420").add_event(event);
+            if (mT2>420 and mT2<480) _counters_bin.at("SR-SF-1J-420-480").add_event(event);
+            if (mT2>480            ) _counters_bin.at("SR-SF-1J-480").add_event(event);
         }
+        
 
       }
 
