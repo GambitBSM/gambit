@@ -130,6 +130,7 @@ namespace HEPUtils {
 
     /// Clone a deep copy (new Particles and Jets allocated) into the provided event object
     void cloneTo(Event& e) const {
+      
       e.set_weights(_weights);
       e.set_weight_errs(_weight_errs);
 
@@ -143,11 +144,15 @@ namespace HEPUtils {
 
       // Clone the jets, per-name
       for (const auto& kv : _jets) {
-        e.set_jets(deepcopy(jets(kv.first)), kv.first);
+        const std::vector<const Jet*> js = jets(kv.first);
+        for(size_t i = 0; i < js.size(); i++){
+          e.add_jet(new Jet(*js[i]), kv.first);
+        }
       }
 
       e._pmiss = _pmiss;
       e._cseqs = _cseqs; ///< @todo Cloneable?
+      
     }
 
     /// @}
@@ -155,6 +160,7 @@ namespace HEPUtils {
 
     /// Empty the event's weight, particle, jet, and MET collections
     void clear() {
+
       // Weights
       _weights.clear();
       _weight_errs.clear();
@@ -177,6 +183,7 @@ namespace HEPUtils {
 
       // MET
       _pmiss.clear();
+      
     }
 
 

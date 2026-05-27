@@ -39,7 +39,7 @@
 #include "gambit/ColliderBit/PoissonCalculators.hpp"
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 
-// #define COLLIDERBIT_DEBUG
+//#define COLLIDERBIT_DEBUG
 #define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  " << __FILE__ << ":" << __LINE__ << ":  "
 
 namespace Gambit

@@ -159,6 +159,7 @@ namespace Gambit
         // Record non-SM displaced-production and (unstable) displaced-decay particles.
         // Probably good to combine with 'if (MCUtils::PID::isBSM(pid) ...' in user code
         /// @todo Make distance cut configurable in YAML
+        //cout << i << " " << get_unified_vprod(p).rho() << endl;
         if (get_unified_vprod(p).rho() > 10) // mm
         {
           auto gp = new HEPUtils::DisplacedParticle(p4, pid, get_unified_vprod(p), get_unified_vdec(p));
@@ -176,7 +177,7 @@ namespace Gambit
         // From now on we only want final state particles...
         if (!get_unified_isFinal(p)) continue;
 
-        // Check there's no partons.
+        // Check this is not a parton. This should not happen here since this is Particle function.
         if (pid == 21 || abs(pid) <= 6)
         {
           std::ostringstream sid;
@@ -340,15 +341,20 @@ namespace Gambit
 
       #ifdef COLLIDERBIT_DEBUG
         // Print event summary
-        cout << "For jet Collection:  " << jetcollection.key << endl;
         cout << "  MET  = " << result.met() << " GeV" << endl;
         cout << "  #e   = " << result.electrons().size() << endl;
         cout << "  #mu  = " << result.muons().size() << endl;
         cout << "  #tau = " << result.taus().size() << endl;
-        cout << "  #jet = " << result.jets(jetcollection.key).size() << endl;
         cout << "  #pho  = " << result.photons().size() << endl;
+        std::vector<std::string> jet_collections = result.jet_collections();
+        for(auto jetcollection : jet_collections) {
+          cout << "For jet Collection:  " << jetcollection << endl;
+          cout << "  #jet = " << result.jets(jetcollection).size() << endl;
+        }
         cout << endl;
+        cout << "convertParticleEvent in Py8EventConversion.cpp finished" << endl;
       #endif
+      
     }
 
 

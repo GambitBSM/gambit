@@ -49,7 +49,6 @@ namespace Gambit
 
       Analysis_ATLAS_13TeV_HCP_36invfb()
       {
-
         set_analysis_name("ATLAS_13TeV_HCP_36invfb");
         set_luminosity(36.1);
         
@@ -59,7 +58,6 @@ namespace Gambit
           cutFlowVectorATLAS.push_back(0);
           cutFlowVector_str.push_back("");
         }
-
       }
 
     protected:
@@ -80,6 +78,8 @@ namespace Gambit
       
       void run(const HEPUtils::Event* event)
       {
+        cout << "Running anaylys for ATLAS_13TeV_HCP_36invfb called!" << endl;
+
         //
         // Define objects
         //

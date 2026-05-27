@@ -96,6 +96,8 @@ namespace Gambit
         return p.hasVertex() ? HEPUtils::V4::mkXYZT(p.xDec(), p.yDec(), p.zDec(), p.tDec()) : get_unified_vprod(p);
       }
 
+    
+      // Below are the corresponding functions for HepMC3 particles
       #ifndef EXCLUDE_HEPMC
 
         ///The MCUtils isParton function only checks for quarks/gluons, whereas the Pythia function used in Gambit
