@@ -66,6 +66,8 @@
 #ifndef __ExampleBit_B_rollcall_hpp__
 #define __ExampleBit_B_rollcall_hpp__
 
+#include "gambit/Backends/python_variable.hpp"
+
 #define MODULE ExampleBit_B
 START_MODULE
 

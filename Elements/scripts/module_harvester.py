@@ -280,11 +280,12 @@ def main(argv):
 ///                                               
 ///  *********************************************
                                                   
-#ifndef __backend_functor_types_hpp__             
-#define __backend_functor_types_hpp__             
-                                                  
-#include \"gambit/Elements/types_rollcall.hpp\"   
+#ifndef __backend_functor_types_hpp__
+#define __backend_functor_types_hpp__
+
+#include \"gambit/Elements/types_rollcall.hpp\"
 #include \"gambit/Elements/functor_definitions.hpp\"
+#include \"gambit/Backends/python_variable.hpp\"
                                                   
 namespace Gambit                                  
 {                                                 
