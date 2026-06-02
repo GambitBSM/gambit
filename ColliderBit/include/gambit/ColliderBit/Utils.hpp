@@ -515,8 +515,8 @@ namespace Gambit
 
 
     /// Utility function for returning a collection of same-flavour, oppsosite-sign particle pairs
-    std::vector<std::vector<const HEPUtils::Particle*>> getSFOSpairs(std::vector<const HEPUtils::Particle*> particles);
-    std::vector<std::vector<const HEPUtils::Particle*>> getOSSFpairs(std::vector<const HEPUtils::Particle*> particles);
+    std::vector<std::vector<const HEPUtils::Particle*>> getSFOSpairs(const std::vector<const HEPUtils::Particle*>& particles);
+    std::vector<std::vector<const HEPUtils::Particle*>> getOSSFpairs(const std::vector<const HEPUtils::Particle*>& particles);
 
     /// Utility function for returning a collection of oppsosite-sign particle pairs
     std::vector<std::vector<const HEPUtils::Particle*>> getOSpairs(std::vector<const HEPUtils::Particle*> particles);

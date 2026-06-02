@@ -113,7 +113,7 @@ namespace Gambit
       return SFOSpair_container;
     }
 
-    std::vector<std::vector<const HEPUtils::Particle*>> getOSSFpairs(std::vector<const HEPUtils::Particle*> particles)
+    std::vector<std::vector<const HEPUtils::Particle*>> getOSSFpairs(const std::vector<const HEPUtils::Particle*>& particles)
     {
       return getSFOSpairs(particles);
     }
