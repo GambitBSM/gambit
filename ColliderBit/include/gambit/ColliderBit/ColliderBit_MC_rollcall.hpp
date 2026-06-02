@@ -88,7 +88,18 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     ALLOW_MODELS(ColliderBit_SLHA_scan_model)
     #undef FUNCTION
-    
+
+    #define FUNCTION InitialTotalCrossSection_YAMLparam
+    START_FUNCTION(map_str_xsec_container)
+    ALLOW_MODELS(ColliderBit_SLHA_scan_model)
+    #undef FUNCTION
+
+    #define FUNCTION InitialTotalCrossSection_YAMLSLHA
+    START_FUNCTION(map_str_xsec_container)
+    ALLOW_MODELS(ColliderBit_SLHA_file_model)
+    DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct)
+    #undef FUNCTION
+
   #undef CAPABILITY
   
   #define CAPABILITY InitialProcessCrossSections
