@@ -224,6 +224,8 @@ Rules:
   #- capability: classy_final_input
   #  function: set_classy_input
 
+  - capability: N_ur
+    function: get_N_ur
 
   # ----------- 7.c) "Global" (CossmoBit-wide) settings ------------
 

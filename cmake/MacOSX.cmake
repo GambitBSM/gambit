@@ -31,33 +31,24 @@ if(NOT DEFINED CMAKE_MACOSX_RPATH)
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
-  message("Compiling on Darwin with SDK ${CMAKE_OSX_SYSROOT} for MacOSX min version ${CMAKE_OSX_DEPLOYMENT_TARGET}")
-
-  if(CMAKE_OSX_DEPLOYMENT_TARGET)
-    set(OSX_MIN "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
-  endif()
-  
   # Tell the OSX linker not to whinge about missing symbols when just making a library.
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
   # Strip leading whitespace in case this was first definition of CMAKE_SHARED_LINKER_FLAGS
   string(STRIP ${CMAKE_SHARED_LINKER_FLAGS} CMAKE_SHARED_LINKER_FLAGS)
   # Pass on the sysroot and minimum OSX version (for backend builds; this gets added automatically by cmake for others)
-  if(CMAKE_OSX_SYSROOT)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isysroot ${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
-    string(STRIP ${CMAKE_CXX_FLAGS} CMAKE_CXX_FLAGS)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -isysroot ${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
-    string(STRIP ${CMAKE_C_FLAGS} CMAKE_C_FLAGS)
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -isysroot ${CMAKE_OSX_SYSROOT} -L${CMAKE_OSX_SYSROOT}/usr/lib ${OSX_MIN}")
-    string(STRIP ${CMAKE_SHARED_LINKER_FLAGS} CMAKE_SHARED_LINKER_FLAGS)
-  elseif(OSX_MIN)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OSX_MIN}")
-    string(STRIP ${CMAKE_CXX_FLAGS} CMAKE_CXX_FLAGS)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OSX_MIN}")
-    string(STRIP ${CMAKE_C_FLAGS} CMAKE_C_FLAGS)
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${OSX_MIN}")
-    string(STRIP ${CMAKE_SHARED_LINKER_FLAGS} CMAKE_SHARED_LINKER_FLAGS)
+  if(CMAKE_OSX_DEPLOYMENT_TARGET)
+    set(OSX_MIN "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   endif()
+  if ("${CMAKE_CXX_SYSROOT}" STREQUAL "")
+    execute_process(COMMAND xcrun --sdk macosx --show-sdk-path OUTPUT_VARIABLE CMAKE_OSX_SYSROOT OUTPUT_STRIP_TRAILING_WHITESPACE)
+  endif()
+  message("Using this MacOS SDK ${CMAKE_OSX_SYSROOT}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
+  string(STRIP ${CMAKE_CXX_FLAGS} CMAKE_CXX_FLAGS)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
+  string(STRIP ${CMAKE_C_FLAGS} CMAKE_C_FLAGS)
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} -L${CMAKE_OSX_SYSROOT}/usr/lib ${OSX_MIN}")
+  string(STRIP ${CMAKE_SHARED_LINKER_FLAGS} CMAKE_SHARED_LINKER_FLAGS)
 endif()
 
 # Settings specific to using the clang compiler on MacOS
@@ -67,3 +58,4 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
   # https://github.com/python/cpython/issues/97524
   set(NO_FIXUP_CHAINS "-Xlinker -no_fixup_chains")
 endif()
+

@@ -165,6 +165,8 @@ namespace Gambit
       virtual void setInUse(bool){};
       /// Setter for purpose (relevant only for next-to-output functors)
       void setPurpose(str);
+      /// Setter for critical (relevant only for next-to-output functors)
+      void setCritical(bool);
       /// Setter for vertex ID (used in printer system)
       void setVertexID(int);
       /// Set ID for timing 'vertex' (used in printer system)
@@ -197,6 +199,8 @@ namespace Gambit
       sspair quantity() const;
       /// Getter for purpose (relevant for output nodes, aka helper structures for the dep. resolution)
       str purpose() const;
+      /// Getter for critical (relevant for output nodes, aka helper structures for the dep. resolution)
+      bool critical() const;
       /// Getter for the citation key
       str citationKey() const;
       /// Getter for vertex ID
@@ -410,6 +414,8 @@ namespace Gambit
       str myOrigin;
       /// Purpose of the function (relevant for output and next-to-output functors)
       str myPurpose;
+      /// critical flag of the function (relevant for output and next-to-output functors)
+      bool myCritical;
       /// Citation key: BibTex key of the reference.
       str myCitationKey;
       /// Bound model functor claw, for checking relationships between models
@@ -600,7 +606,7 @@ namespace Gambit
       virtual std::set<sspair> model_conditional_backend_reqs_exact (str model);
 
       /// Add and activate unconditional dependencies.
-      void setDependency(str, str, void(*)(functor*, module_functor_common*), str purpose= "");
+      void setDependency(str, str, void(*)(functor*, module_functor_common*), str purpose= "", bool critical=false);
 
       /// Add conditional dependency-type pairs in advance of later conditions.
       void setConditionalDependency(str, str);

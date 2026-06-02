@@ -1,0 +1,8 @@
+Summary: ATLAS 2/3-lepton SUSY search at 13 TeV with 36/fb
+InspireID: -1
+ExptRun: ATLAS-R2
+Lumi_ifb: 36.1
+Ecm_TeV: 13.0
+Superseded: true
+Authors: ["Rose Kudzman-Blais"]
+Note: superseded by Inspire 1658902

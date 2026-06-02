@@ -75,7 +75,7 @@ namespace Gambit
       /// Failure message invoked when the user tries to access the object before it is initialized.
       void dieGracefully() const
       {
-        str errmsg = "You just just tried to access the dependency or backend requirement\n"
+        str errmsg = "You just tried to access the dependency or backend requirement\n"
                      + whoami + "\n"
                      "Unfortunately this does not yet point to anything, because the dependency\n"
                      "or backend requirement has not been satistified yet.  If using GAMBIT in \n"

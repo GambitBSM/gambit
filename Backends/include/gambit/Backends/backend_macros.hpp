@@ -284,7 +284,9 @@ namespace Gambit                                                                
             << "which is supposed to contain the factory for class " << std::endl               \
             << fixns(STRINGIFY(BARENAME) STRINGIFY(CONVERT_VARIADIC_ARG(ARGS)))<<", "<<std::endl\
             << "is missing or catastrophically broken." << std::endl                            \
-            << "Fix or find that backend yo -- or don't use the type." << std::endl;            \
+            << "If running gambit with the -b flag, this backend is required to " << std::endl  \
+            << "run this yaml file or check what other backends are also required." << std::endl\
+            << "Otherwise, fix or find that backend -- or don't use the type." << std::endl;    \
         backend_error().raise(LOCAL_INFO BOOST_PP_COMMA() err.str());                           \
         return NULL;                                                                            \
       }                                                                                         \

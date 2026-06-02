@@ -12,7 +12,7 @@
 ///          (a.m.b.krislock@fys.uio.no)
 ///
 ///  \author Andy Buckley
-///          (mostlikelytobefound@facebook.com)
+///          (andy.buckley@glasgow.ac.uk)
 ///
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)

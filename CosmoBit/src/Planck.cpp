@@ -260,7 +260,7 @@ namespace Gambit
 
     }
 
-    /// Combined low-l TT and and E-mode polarisation likelihood (PR3 - 2018)
+    /// Combined low-l TT and E-mode polarisation likelihood (PR3 - 2018)
     void function_Planck_lowl_TTEE_2018_loglike(double& result)
     {
       using namespace Pipes::function_Planck_lowl_TTEE_2018_loglike;

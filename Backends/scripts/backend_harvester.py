@@ -66,16 +66,23 @@ def main(argv):
     backend_type_headers = set([])
     bossed_backend_type_headers = set([])
     exclude_backends=set([])
+    enabled_bits=set([])
+    force_keep_backends=set([])
 
     # Handle command line options
     verbose = False
+    verbose_build = False    
     try:
-        opts, args = getopt.getopt(argv,"vx:",["verbose","exclude-backends="])
+        opts, args = getopt.getopt(argv,"vx:",
+            ["verbose","exclude-backends=","bits=","force-backends=","verbose-build"])
     except getopt.GetoptError:
         print('Usage: backend_harvestor.py [flags]')
         print(' flags:')
         print('        -v                       : More verbose output')
         print('        -x backend1,backend2,... : Exclude backend1, backend2, etc.')
+        print('        --bits=B1,B2,...         : Restrict the build to dependencies of these Bits.')
+        print('        --force-backends=A,B,... : Keep these backends, even if no enabled Bit needs them.')
+        print('        --verbose-build          : Print which frontends were auto-excluded.')
         sys.exit(2)
     for opt, arg in opts:
       if opt in ('-v','--verbose'):
@@ -83,17 +90,39 @@ def main(argv):
         print('backend_harvester.py: verbose=True')
       elif opt in ('-x','--exclude-backends'):
         exclude_backends.update(neatsplit(",",arg))
+      elif opt == '--bits':
+        enabled_bits.update(b for b in neatsplit(",",arg) if b)
+      elif opt == '--force-backends':
+        force_keep_backends.update(b for b in neatsplit(",",arg) if b)
+      elif opt == '--verbose-build':
+        verbose_build = True
 
-    # Get list of frontend header files to include in backend_rollcall.hpp
-    frontend_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/frontends","frontend",exclude_backends))
-    frontend_headers_excluded.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/frontends","frontend",exclude_backends, retrieve_excluded=True))
-    # Get list of backend type header files
+    # If --bits is given, drop frontends that no enabled Bit references.
+    auto_excluded = set()
+    if enabled_bits:
+        auto_excluded, used_backends, all_backends = derive_optin_backend_excludes(
+            enabled_bits, ".",
+            "./Backends/include/gambit/Backends/frontends",
+            force_keep_backends)
+        exclude_backends.update(auto_excluded)
+        if verbose_build or verbose:
+            print("backend_harvester.py: enabled Bits = {0}".format(sorted(enabled_bits)))
+            if force_keep_backends:
+                print("backend_harvester.py: force-kept backends = {0}".format(sorted(force_keep_backends)))
+            print("backend_harvester.py: auto-excluded {0} backend(s) (no enabled Bit references them):".format(len(auto_excluded)))
+            for be in sorted(auto_excluded):
+                print("  - {0}".format(be))
+
+    # Discover backend type headers up front. Backends with BOSSed type
+    # headers must remain available so their type definitions stay in the
+    # rollcall, even if the user (or the auto-trim) tried to exclude them.
     backend_type_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/backend_types","backend type",set([])))
     bossed_backend_type_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/backend_types","BOSSed type",set([])))
-    # Remove bossed backends from list of excluded backends
     exclude_backends = set([be for be in exclude_backends if not any([excluded(bossed_be, [be]) for bossed_be in bossed_backend_type_headers])])
-    # Get list of frontend header files to include in backend_rollcall.hpp
+
+    # Partition the frontend headers using the final exclude set.
     frontend_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/frontends","frontend",exclude_backends))
+    frontend_headers_excluded.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/frontends","frontend",exclude_backends, retrieve_excluded=True))
 
     if verbose:
         print("Frontend headers identified:")
@@ -210,7 +239,7 @@ def main(argv):
         print("Generated backend_types_rollcall.hpp.\n")
 
     import yaml
-    with open("./config/gambit_backends.yaml", "w+") as f:
+    with open("./config/gambit_backend_interfaces.yaml", "w+") as f:
         yaml.dump({
             "enabled": extract_yaml_for_diagnostic(frontend_headers),
             "disabled": extract_yaml_for_diagnostic(frontend_headers_excluded)

@@ -4,9 +4,7 @@
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 
-#include "gambit/Utils/begin_ignore_warnings_eigen.hpp"
 #include "Eigen/Eigen"
-#include "gambit/Utils/end_ignore_warnings.hpp"
 
 // Renamed from: Analysis_ATLAS_13TeV_0LEP_13invfb
 

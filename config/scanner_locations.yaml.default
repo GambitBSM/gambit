@@ -36,6 +36,8 @@ diver:
     - lib: ./ScannerBit/installed/diver/1.0.4/lib/libdiver.so
   1.0.5:
     - lib: ./ScannerBit/installed/diver/1.0.5/lib/libdiver.so
+  1.3.0:
+    - lib: ./ScannerBit/installed/diver/1.3.0/lib/libdiver.so
 
 great:
   1.0.0:

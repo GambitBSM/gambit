@@ -73,7 +73,13 @@ BE_NAMESPACE
 
     Freal8 Q;
     try{ Q = sqrt(GetRenormalizationScale()); }
-    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e)
+    {
+      invalid_point().raise(e.what());
+      // Just silence a warning with an empty return statement. Should never hit this.
+      Spectrum spectrum_empty;
+      return spectrum_empty;
+    }
 
     // TODO: Chi masses are not rotated, I think. Check
 

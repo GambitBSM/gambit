@@ -1,0 +1,8 @@
+Summary: CMS 0-lepton jet+MET SUSY analysis at 13 TeV with 13/fb
+InspireID: 1479641
+ExptRun: CMS-R2
+Lumi_ifb: 12.9
+Ecm_TeV: 13.0
+Superseded: true
+Signatures: [">=3J + HT + MET + 0L + 0TH"]
+Notes: PAS note, not paper. Binned in N_J and N_b.

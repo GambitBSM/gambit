@@ -862,6 +862,12 @@ PYBIND11_EMBEDDED_MODULE(scanner_plugin, m)
         
         return names;
     })
+    .def_property_readonly_static("set_parameter_names", [](py::object)
+    {
+        static py::list names = scanner_base::to_list<std::string>(get_prior().getSetParameters());
+        
+        return names;
+    })
     .def_property_readonly_static("mpi_rank", [](py::object)
     {
         static int my_rank = scanner_base::rank();

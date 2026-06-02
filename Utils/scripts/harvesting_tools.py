@@ -686,6 +686,176 @@ def retrieve_generic_headers(verbose, starting_dir, kind, excludes, exclude_list
     return headers
 
 
+# Helpers for the opt-in build path (-Dbits / GAMBIT_AUTO_TRIM_BACKENDS).
+_SOURCE_EXTS = (".cpp", ".cc", ".c", ".hpp", ".hh", ".h")
+
+def derive_backendname_from_filename(stem):
+    """Derive a backend name from a frontend filename stem by dropping version-number tokens (e.g. DarkSUSY_MSSM_6_4_0 -> DarkSUSY_MSSM)."""
+    return "_".join(p for p in stem.split("_") if p and not p[0].isdigit())
+
+
+def get_all_backendnames(frontend_dir):
+    """Return the set of distinct BACKENDNAMEs declared by frontend headers, with a filename fallback for BOSSed frontends."""
+    backends = set()
+    if not os.path.isdir(frontend_dir):
+        return backends
+    define_re = re.compile(r'^\s*#\s*define\s+BACKENDNAME\s+(\S+)', re.MULTILINE)
+    for fn in os.listdir(frontend_dir):
+        if not fn.endswith(".hpp"): continue
+        path = os.path.join(frontend_dir, fn)
+        try:
+            with io.open(path, "r", encoding="utf-8", errors="replace") as f:
+                text = f.read()
+        except (IOError, OSError):
+            continue
+        m = define_re.search(text)
+        if m:
+            backends.add(m.group(1))
+        else:
+            backends.add(derive_backendname_from_filename(fn[:-len(".hpp")]))
+    return backends
+
+
+def derive_used_backends(enabled_bits, project_root, frontend_dir):
+    """Return the backends used by any enabled Bit, derived from the same
+    rollcall-macro analysis that compute_bits_per_backend uses (no
+    token-sweeping over comments / string literals)."""
+    if not enabled_bits:
+        return set()
+    bits_per_backend = compute_bits_per_backend(project_root, frontend_dir)
+    enabled = set(enabled_bits)
+    return {b for b, bits in bits_per_backend.items() if any(bit in enabled for bit in bits)}
+
+
+def derive_optin_backend_excludes(enabled_bits, project_root,
+                                  frontend_dir, force_keep_backends=None):
+    """Return (auto_excluded, used_backends, all_backends) for the opt-in build path."""
+    force_keep = set(force_keep_backends or [])
+    all_backends = get_all_backendnames(frontend_dir)
+    used = derive_used_backends(enabled_bits, project_root, frontend_dir)
+    used |= force_keep
+    auto_excluded = all_backends - used
+    return auto_excluded, used, all_backends
+
+
+# Bit attribution that can't be derived statically from rollcall macros:
+#   DDCalc       — DarkBit references its capabilities via LONG_BACKEND_REQ
+#                  with names assembled by C-preprocessor token pasting.
+#   HepLikeData  — pure-data backend, no rollcall-macro reference at all.
+_KNOWN_BIT_USES_OVERRIDES = {
+    "DDCalc":      ["DarkBit"],
+    "HepLikeData": ["FlavBit"],
+}
+
+_FRONTEND_SHARED_INCLUDE_RE = re.compile(
+    r'^\s*#\s*include\s+"(gambit/Backends/frontends/shared_includes/[^"]+)"',
+    re.MULTILINE)
+
+def _read_frontend_recursive(path, backends_inc_dir, _seen=None):
+    """Read a frontend .hpp with comments stripped, inlining any
+    shared_includes/ headers it pulls in (e.g. MicrOmegas singlet variants
+    share BE_* declarations through a common file)."""
+    if _seen is None: _seen = set()
+    if path in _seen or not os.path.exists(path):
+        return ""
+    _seen.add(path)
+    try:
+        with io.open(path, "r", encoding="utf-8", errors="replace") as f:
+            text = comment_remover(f.read())
+    except (IOError, OSError):
+        return ""
+    out = text
+    for m in _FRONTEND_SHARED_INCLUDE_RE.finditer(text):
+        sub_path = os.path.join(backends_inc_dir, m.group(1))
+        out += "\n" + _read_frontend_recursive(sub_path, backends_inc_dir, _seen)
+    return out
+
+_BE_MACRO_RE = re.compile(r'\bBE_(?:FUNCTION|VARIABLE|CONV_FUNCTION)\s*\(')
+
+def _extract_be_capabilities(text):
+    # Capability is the last quoted-string arg of each BE_* macro; nested
+    # parens (e.g. C++ argument-type lists) preclude a flat regex.
+    caps = set()
+    for m in _BE_MACRO_RE.finditer(text):
+        depth, i = 1, m.end()
+        while i < len(text) and depth > 0:
+            if   text[i] == '(': depth += 1
+            elif text[i] == ')': depth -= 1
+            i += 1
+        quotes = re.findall(r'"([^"]+)"', text[m.end():i-1])
+        if quotes:
+            caps.add(quotes[-1])
+    return caps
+
+_BIT_REQ_RE = re.compile(r'\b(?:LONG_)?BACKEND_REQ(?:_FROM_GROUP)?\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)')
+_BIT_NCF_RE = re.compile(r'\bNEEDS_CLASSES_FROM\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)')
+
+
+def compute_bits_per_backend(project_root, frontend_dir):
+    """Return {canonical BACKENDNAME -> sorted list of Bit names that depend
+    on it}, derived from rollcall macros: a Bit is attributed to a backend
+    if the Bit's rollcall headers contain (LONG_)BACKEND_REQ for any
+    capability the backend's frontend declares via BE_FUNCTION/VARIABLE/
+    CONV_FUNCTION (following shared_includes), or NEEDS_CLASSES_FROM(<be>).
+    _KNOWN_BIT_USES_OVERRIDES patches in cases the macros can't express."""
+    all_backends = get_all_backendnames(frontend_dir)
+    if not all_backends:
+        return {}
+
+    # Frontend headers can pull in shared includes via paths rooted at
+    # Backends/include — derive that root rather than assuming a layout.
+    backends_inc_dir = frontend_dir
+    while backends_inc_dir and os.path.basename(backends_inc_dir) != "include":
+        parent = os.path.dirname(backends_inc_dir)
+        if parent == backends_inc_dir:
+            break
+        backends_inc_dir = parent
+
+    caps_by_backend = {b: set() for b in all_backends}
+    if os.path.isdir(frontend_dir):
+        for fn in sorted(os.listdir(frontend_dir)):
+            if not fn.endswith(".hpp"):
+                continue
+            backend = derive_backendname_from_filename(fn[:-len(".hpp")])
+            if backend not in all_backends:
+                continue
+            text = _read_frontend_recursive(
+                os.path.join(frontend_dir, fn), backends_inc_dir)
+            caps_by_backend[backend] |= _extract_be_capabilities(text)
+
+    # Substring match on 'Bit' is loose but harmless: only Bit dirs ever
+    # carry rollcall headers with the macros we look for.
+    bit_dirs = sorted(d for d in os.listdir(project_root)
+                      if 'Bit' in d and os.path.isdir(os.path.join(project_root, d)))
+    result = {b: set() for b in all_backends}
+    for bit in bit_dirs:
+        inc_dir = os.path.join(project_root, bit, "include")
+        if not os.path.isdir(inc_dir):
+            continue
+        bit_caps, bit_ncfs = set(), set()
+        for root, _dirs, files in os.walk(inc_dir):
+            for fn in files:
+                if not fn.endswith((".hpp", ".h", ".hh")):
+                    continue
+                try:
+                    with io.open(os.path.join(root, fn), "r",
+                                 encoding="utf-8", errors="replace") as f:
+                        text = comment_remover(f.read())
+                except (IOError, OSError):
+                    continue
+                for m in _BIT_REQ_RE.finditer(text): bit_caps.add(m.group(1))
+                for m in _BIT_NCF_RE.finditer(text): bit_ncfs.add(m.group(1))
+        for be in all_backends:
+            if (caps_by_backend[be] & bit_caps) or (be in bit_ncfs):
+                result[be].add(bit)
+
+    for be, bits in _KNOWN_BIT_USES_OVERRIDES.items():
+        if be in result:
+            result[be].update(bits)
+
+    return {b: sorted(s) for b, s in result.items()}
+
+
 def same(f1, f2):
     """Check whether or not two files differ in their contents except for the date line"""
     file1 = open(f1, "r")

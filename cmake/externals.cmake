@@ -49,9 +49,9 @@ set(backend_download "${PROJECT_SOURCE_DIR}/Backends/downloaded")
 set(scanner_download "${PROJECT_SOURCE_DIR}/ScannerBit/downloaded")
 
 # Safer download function than what is in cmake (avoid buggy libcurl vs https issue)
-set(DL_BACKEND "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${backend_download}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
-set(DL_SCANNER "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${scanner_download}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
-set(DL_CONTRIB "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${CMAKE_BUILD_DIR}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
+set(DL_BACKEND "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${PROJECT_SOURCE_DIR}" "${backend_download}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
+set(DL_SCANNER "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${PROJECT_SOURCE_DIR}" "${scanner_download}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
+set(DL_CONTRIB "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${PROJECT_SOURCE_DIR}" "${CMAKE_BUILD_DIR}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
 
 # Define the module location switch differently depending on compiler
 if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel")
@@ -158,6 +158,20 @@ macro(add_extra_targets type package ver dir dl target)
 
   endif()
 
+  # Track available backend make targets for the list-backends helper.
+  if (${type} STREQUAL "backend")
+    list(APPEND GAMBIT_AVAILABLE_BACKEND_TARGETS "${package}_${ver}")
+  elseif (${type} STREQUAL "backend model")
+    list(APPEND GAMBIT_AVAILABLE_BACKEND_TARGETS "${package}_${model}_${ver}")
+  elseif (${type} STREQUAL "backend base (functional alone)")
+    list(APPEND GAMBIT_AVAILABLE_BACKEND_TARGETS "${package}_${ver}")
+  endif()
+
+  # Track available scanner make targets for the list-scanners helper.
+  if (${type} STREQUAL "scanner")
+    list(APPEND GAMBIT_AVAILABLE_SCANNER_TARGETS "${package}_${ver}")
+  endif()
+
   #Add extra targets common to everything.
   enable_auto_rebuild(${pname})
   set_target_properties(${pname} PROPERTIES EXCLUDE_FROM_ALL 1)
@@ -168,7 +182,6 @@ macro(add_extra_targets type package ver dir dl target)
     DEPENDERS patch configure build)
 
 endmacro()
-
 
 # Function to check whether or not a given scanner or backend has been ditched
 function(check_ditch_status name version dir)
@@ -190,19 +203,17 @@ function(check_ditch_status name version dir)
     elseif ((arg STREQUAL "x11") AND NOT X11_FOUND)
       set (itch "${itch}" "${name}_${version}")
     elseif ((arg STREQUAL "c++14") AND NOT GAMBIT_SUPPORTS_CXX14 AND NOT GAMBIT_SUPPORTS_CXX17)
-      message(STATUS "${Yellow}-- Buding-Tag: Using C++ standard: C++-14 -> ${GAMBIT_SUPPORTS_CXX14} and C++-17 -> ${GAMBIT_SUPPORTS_CXX17}")
-      message("${BoldRed}   ${name} (${version}) needs to be compiled with c++14/17 but GAMBIT is compiled with a lower version. ${name} will be ditched.${ColourReset}")
+      message("${BoldCyan} X ${name} (${version}) needs c++14/17 but GAMBIT is compiled with a lower version. ${name} will be excluded.${ColourReset}")
       set (itch "${itch}" "${name}_${version}")
     elseif ((arg STREQUAL "rivet") AND ditched_rivet_${Rivet_ver})
       set (itch "${itch}" "${name}_${version}")
     endif()
   endforeach()
+  string(TOLOWER "${name}_${version}" _nv_lower)  
   foreach(ditch_command ${itch})
-    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "print(\"${name}_${version}\".lower().startswith(\"${ditch_command}\".lower()))"
-                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-                    RESULT_VARIABLE result
-                    OUTPUT_VARIABLE output)
-    if (output STREQUAL "True\n")
+    string(TOLOWER "${ditch_command}" _dc_lower)
+    string(FIND "${_nv_lower}" "${_dc_lower}" _loc)
+    if (_loc EQUAL 0)
       if(NOT ditched_${name}_${ver})
         set(ditched_${name}_${version} TRUE)
         set(ditched_${name}_${version} TRUE PARENT_SCOPE)
