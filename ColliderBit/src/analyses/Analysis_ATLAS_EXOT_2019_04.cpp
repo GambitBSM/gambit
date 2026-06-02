@@ -57,6 +57,10 @@ namespace Gambit
       {
         DEFINE_SIGNAL_REGION("SR");
 
+        // Histograms for kinematic distributions (filled when check_histogram is enabled)
+        DEFINE_HISTOGRAM_1D_UNIFORM("m_HC", 30, 50.0, 350.0, "m_{HC} [GeV]")
+        DEFINE_HISTOGRAM_1D_UNIFORM("m_VLB", 25, 500.0, 3000.0, "m_{VLB} [GeV]")
+
         set_analysis_name("ATLAS_EXOT_2019_04");
         set_luminosity(139.0);
       }
@@ -316,6 +320,10 @@ namespace Gambit
         const bool in_H_window = (mHC >= 105. && mHC <= 135.);
         const bool is_H2T2B = true; // HC selection enforces H2T2B
 
+        // Fill kinematic distribution histograms (before the mass-window cut)
+        FILL_HISTOGRAM_1D("m_HC", mHC)
+        FILL_HISTOGRAM_1D("m_VLB", best.mB)
+
         if (in_H_window && is_H2T2B)
         {
           FILL_SIGNAL_REGION("SR");
@@ -326,6 +334,7 @@ namespace Gambit
       {
         COMMIT_SIGNAL_REGION("SR", 262, 260, 17)
         COMMIT_CUTFLOWS;
+        COMMIT_HISTOGRAMS;
         return;
       }
 

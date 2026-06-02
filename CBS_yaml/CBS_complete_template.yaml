@@ -25,6 +25,10 @@ settings:
   # Runtime cutflow control (effective when compiled with CHECK_CUTFLOW)
   check_cutflow: true
 
+  # Runtime histogram control: when true, analyses fill 1D/2D histograms
+  # and include them in the JSON output. No performance overhead when false.
+  check_histogram: true
+
   # --------------------------------------------------------------------------
   # Input Mode A (recommended): process-based multi-file input
   # --------------------------------------------------------------------------

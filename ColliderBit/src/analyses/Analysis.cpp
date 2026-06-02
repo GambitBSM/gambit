@@ -140,6 +140,12 @@ namespace Gambit
     /// Add cutflows to the internal results list
     void Analysis::add_cutflows(const Cutflows &cf) { _results.add_cutflows(cf); }
 
+    /// Get the histograms
+    const Histograms &Analysis::get_histograms() { return _results.histograms; }
+
+    /// Add histograms to the internal results list
+    void Analysis::add_histograms(const Histograms &h) { _results.add_histograms(h); }
+
     /// Set the path to the FullLikes BKG file
     void Analysis::set_bkgjson(const std::string &bkgpath) { _results.bkgjson_path = bkgpath; }
 
@@ -163,6 +169,7 @@ namespace Gambit
       double factor = luminosity() * xsec_per_event;
       assert(factor >= 0);
       for (SignalRegionData &sr : _results) { sr.n_sig_scaled = factor * sr.n_sig_MC; }
+      _results.histograms.scale(factor);
       _is_scaled = true;
     }
 
@@ -174,6 +181,7 @@ namespace Gambit
       {
         // _cutflows.combine(other->get_cutflows());
         _results.add_cutflows(_cutflows);
+        _results.add_histograms(_histograms);
         return;
       }
 
@@ -186,6 +194,9 @@ namespace Gambit
 
       _cutflows.combine(other->get_cutflows());
       _results.add_cutflows(_cutflows);
+
+      _histograms.combine(other->get_histograms());
+      _results.add_histograms(_histograms);
     }
   } // namespace ColliderBit
 } // namespace Gambit

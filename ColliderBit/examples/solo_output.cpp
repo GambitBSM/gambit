@@ -145,6 +145,83 @@ namespace Gambit
           return cutflows_json;
         }
 
+        nlohmann::json build_histograms_json(const Histograms& histograms)
+        {
+          nlohmann::json result;
+
+          // 1D histograms
+          nlohmann::json h1d_arr = nlohmann::json::array();
+          for (const Histogram1D& h : histograms.histos1d)
+          {
+            nlohmann::json hobj;
+            hobj["name"] = h.name;
+            hobj["x_label"] = h.x_label;
+            hobj["edges"] = h.edges;
+            hobj["nbins"] = h.nbins();
+
+            nlohmann::json bins_arr = nlohmann::json::array();
+            for (size_t i = 0; i < h.nbins(); ++i)
+            {
+              nlohmann::json bin;
+              bin["bin_index"] = i;
+              bin["x_low"] = h.edges[i];
+              bin["x_high"] = h.edges[i + 1];
+              bin["count"] = h.counts[i];
+              bin["error"] = h.bin_error(i);
+              bin["sumw2"] = h.sumw2[i];
+              bins_arr.push_back(bin);
+            }
+            hobj["bins"] = bins_arr;
+            hobj["underflow"] = h.underflow;
+            hobj["overflow"] = h.overflow;
+            hobj["underflow_error"] = std::sqrt(h.underflow_sumw2);
+            hobj["overflow_error"] = std::sqrt(h.overflow_sumw2);
+            hobj["integral"] = h.integral();
+            h1d_arr.push_back(hobj);
+          }
+          result["1d"] = h1d_arr;
+
+          // 2D histograms
+          nlohmann::json h2d_arr = nlohmann::json::array();
+          for (const Histogram2D& h : histograms.histos2d)
+          {
+            nlohmann::json hobj;
+            hobj["name"] = h.name;
+            hobj["x_label"] = h.x_label;
+            hobj["y_label"] = h.y_label;
+            hobj["x_edges"] = h.x_edges;
+            hobj["y_edges"] = h.y_edges;
+            hobj["nx_bins"] = h.nx_bins();
+            hobj["ny_bins"] = h.ny_bins();
+
+            nlohmann::json counts_2d = nlohmann::json::array();
+            nlohmann::json errors_2d = nlohmann::json::array();
+            nlohmann::json sumw2_2d = nlohmann::json::array();
+            for (size_t ix = 0; ix < h.nx_bins(); ++ix)
+            {
+              counts_2d.push_back(h.counts[ix]);
+              nlohmann::json err_row = nlohmann::json::array();
+              nlohmann::json sw2_row = nlohmann::json::array();
+              for (size_t iy = 0; iy < h.ny_bins(); ++iy)
+              {
+                err_row.push_back(h.bin_error(ix, iy));
+                sw2_row.push_back(h.sumw2[ix][iy]);
+              }
+              errors_2d.push_back(err_row);
+              sumw2_2d.push_back(sw2_row);
+            }
+            hobj["counts"] = counts_2d;
+            hobj["errors"] = errors_2d;
+            hobj["sumw2"] = sumw2_2d;
+            hobj["overflow_total"] = h.overflow_total;
+            hobj["integral"] = h.integral();
+            h2d_arr.push_back(hobj);
+          }
+          result["2d"] = h2d_arr;
+
+          return result;
+        }
+
         void print_screen_summary(
           int n_events,
           double combined_loglike,
@@ -369,6 +446,7 @@ namespace Gambit
           }
           analysis_obj["combination"] = combination;
           analysis_obj["cutflows"] = build_cutflows_json(analysis.cutflows);
+          analysis_obj["histograms"] = build_histograms_json(analysis.histograms);
 
           nlohmann::json signal_regions = nlohmann::json::object();
           for (std::size_t sr_index = 0; sr_index < analysis.size(); ++sr_index)

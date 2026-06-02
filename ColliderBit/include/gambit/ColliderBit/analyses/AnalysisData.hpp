@@ -48,6 +48,7 @@
 
 #include "gambit/ColliderBit/analyses/SignalRegionData.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
+#include "gambit/ColliderBit/analyses/Histogram.hpp"
 
 namespace Gambit
 {
@@ -147,6 +148,12 @@ namespace Gambit
         cutflows = cf;
       }
 
+      /// Add histograms
+      void add_histograms(const Histograms &h)
+      {
+        histograms = h;
+      }
+
       /// Check that the SRData list and the covariance matrix are consistent
       bool check() const
       {
@@ -196,6 +203,9 @@ namespace Gambit
 
       /// Collection of cutflows
       Cutflows cutflows;
+
+      /// Collection of histograms
+      Histograms histograms;
 
     };
 

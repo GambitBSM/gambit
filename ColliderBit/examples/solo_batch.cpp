@@ -493,6 +493,96 @@ namespace Gambit
           }
         }
 
+        Histograms parse_histograms_or_empty(const nlohmann::json& analysis_json)
+        {
+          Histograms histograms;
+          if (!analysis_json.contains("histograms")) return histograms;
+
+          const nlohmann::json& histo_json = analysis_json.at("histograms");
+
+          // Parse 1D histograms
+          if (histo_json.contains("1d") && histo_json.at("1d").is_array())
+          {
+            for (const auto& h_json : histo_json.at("1d"))
+            {
+              std::string hname = h_json.at("name").get<std::string>();
+              std::vector<double> hedges = h_json.at("edges").get<std::vector<double>>();
+              std::string xlabel = h_json.value("x_label", std::string());
+
+              Histogram1D h(hname, hedges, xlabel);
+              const auto& bins = h_json.at("bins");
+              for (std::size_t i = 0; i < bins.size() && i < h.nbins(); ++i)
+              {
+                h.counts[i] = bins[i].at("count").get<double>();
+                h.sumw2[i] = bins[i].at("sumw2").get<double>();
+              }
+              h.underflow = h_json.value("underflow", 0.0);
+              h.overflow = h_json.value("overflow", 0.0);
+              double uf_err = h_json.value("underflow_error", 0.0);
+              double of_err = h_json.value("overflow_error", 0.0);
+              h.underflow_sumw2 = uf_err * uf_err;
+              h.overflow_sumw2 = of_err * of_err;
+
+              histograms.addHistogram(h);
+            }
+          }
+
+          // Parse 2D histograms
+          if (histo_json.contains("2d") && histo_json.at("2d").is_array())
+          {
+            for (const auto& h_json : histo_json.at("2d"))
+            {
+              std::string hname = h_json.at("name").get<std::string>();
+              auto xedges = h_json.at("x_edges").get<std::vector<double>>();
+              auto yedges = h_json.at("y_edges").get<std::vector<double>>();
+              std::string xlabel = h_json.value("x_label", std::string());
+              std::string ylabel = h_json.value("y_label", std::string());
+
+              Histogram2D h(hname, xedges, yedges, xlabel, ylabel);
+              const auto& counts_2d = h_json.at("counts");
+              const auto& sumw2_2d = h_json.at("sumw2");
+              for (std::size_t ix = 0; ix < h.nx_bins() && ix < counts_2d.size(); ++ix)
+              {
+                for (std::size_t iy = 0; iy < h.ny_bins() && iy < counts_2d[ix].size(); ++iy)
+                {
+                  h.counts[ix][iy] = counts_2d[ix][iy].get<double>();
+                  h.sumw2[ix][iy] = sumw2_2d[ix][iy].get<double>();
+                }
+              }
+              h.overflow_total = h_json.value("overflow_total", 0.0);
+              double of_err = h_json.value("overflow_total_error", 0.0);
+              h.overflow_total_sumw2 = of_err * of_err;
+
+              histograms.addHistogram(h);
+            }
+          }
+
+          return histograms;
+        }
+
+        void accumulate_histograms(
+          Histograms& target,
+          const Histograms& incoming,
+          const std::string& analysis_name)
+        {
+          if (incoming.histos1d.empty() && incoming.histos2d.empty()) return;
+
+          if (target.histos1d.empty() && target.histos2d.empty())
+          {
+            target = incoming;
+            return;
+          }
+
+          if (target.histos1d.size() != incoming.histos1d.size() ||
+              target.histos2d.size() != incoming.histos2d.size())
+          {
+            throw std::runtime_error(
+              "Inconsistent number of histograms across batch runs for analysis " + analysis_name + ".");
+          }
+
+          target.combine(incoming);
+        }
+
         double compute_combined_loglike(
           const map_str_AnalysisLogLikes& analysis_loglikes,
           const Options& settings)
@@ -625,16 +715,19 @@ namespace Gambit
             const nlohmann::json& analysis_json = analysis_item.value();
             const std::vector<SRPayload> sr_payloads = parse_sorted_sr_payloads(analysis_json);
             const Cutflows file_cutflows = parse_cutflows_or_empty(analysis_json);
+            const Histograms file_histograms = parse_histograms_or_empty(analysis_json);
 
             AnalysisAccumulator& acc = accumulators[analysis_name];
             if (acc.data.srdata.empty())
             {
               initialize_accumulator(acc, analysis_name, analysis_json, sr_payloads, file_cutflows);
+              acc.data.histograms = file_histograms;
             }
             else
             {
               validate_payload_consistency(acc, analysis_name, sr_payloads, analysis_json);
               accumulate_cutflows(acc.data.cutflows, file_cutflows, analysis_name);
+              accumulate_histograms(acc.data.histograms, file_histograms, analysis_name);
             }
 
             for (std::size_t i = 0; i < sr_payloads.size(); ++i)

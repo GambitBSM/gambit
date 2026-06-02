@@ -364,7 +364,7 @@ if(NOT EXCLUDE_YODA)
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ${YODA_PATH}/configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${YODA_CXX_FLAGS} LDFLAGS=${YODA_CONFIG_LDFLAGS} PYTHON=${PYTHON_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
+    CONFIGURE_COMMAND ${YODA_PATH}/configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${YODA_CXX_FLAGS} LDFLAGS=${YODA_CONFIG_LDFLAGS} PYTHON=${PYTHON_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
@@ -420,6 +420,7 @@ else()
 endif()
 
 # contrib/fjcontrib-1.049; active ColliderBit path.
+# Pengxuan Zhu: Update fjcontrib-1.045 to 1.049 
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   message("   ColliderBit included, include fjcontrib too")
   set(EXCLUDE_FJCONTRIB FALSE)
@@ -428,8 +429,6 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(fjcontrib_md5 "bfea8bfd311d958a40e445f76668bd32")
   set(fjcontrib_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.049")
   include_directories("${fastjet_dir}/local/include" "${fastjet_dir}/local/include/fastjet/contrib")
-  # Legacy fjcontrib module source directories are not added to the global
-  # include path.
 
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fjcontrib_dir}/local/lib")
   set(fjcontrib_LDFLAGS "-L${fastjet_dir}/local/lib -lRecursiveTools -lEnergyCorrelator -lVariableR")

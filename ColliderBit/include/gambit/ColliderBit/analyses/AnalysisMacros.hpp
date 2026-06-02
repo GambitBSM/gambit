@@ -464,6 +464,34 @@
 #define COMMIT_CUTFLOWS                                                           \
   add_cutflows(_cutflows);
 
+/// Commit histograms
+#define COMMIT_HISTOGRAMS                                                         \
+  add_histograms(_histograms);
+
+/// Define a 1D histogram with variable-width bins
+#define DEFINE_HISTOGRAM_1D(NAME, EDGES, ...)                                     \
+  _histograms.addHistogram(Histogram1D(NAME, EDGES, ##__VA_ARGS__));
+
+/// Define a 1D histogram with uniform bins
+#define DEFINE_HISTOGRAM_1D_UNIFORM(NAME, NBINS, XLO, XHI, ...)                   \
+  _histograms.addHistogram(Histogram1D(NAME, NBINS, XLO, XHI, ##__VA_ARGS__));
+
+/// Fill a 1D histogram
+#define FILL_HISTOGRAM_1D(NAME, VALUE)                                            \
+  if (Histogram1D::check_histogram()) _histograms.h1d(NAME).fill(VALUE, event->weight());
+
+/// Define a 2D histogram with variable-width bins
+#define DEFINE_HISTOGRAM_2D(NAME, XEDGES, YEDGES, ...)                            \
+  _histograms.addHistogram(Histogram2D(NAME, XEDGES, YEDGES, ##__VA_ARGS__));
+
+/// Define a 2D histogram with uniform bins
+#define DEFINE_HISTOGRAM_2D_UNIFORM(NAME, NX, XLO, XHI, NY, YLO, YHI, ...)       \
+  _histograms.addHistogram(Histogram2D(NAME, NX, XLO, XHI, NY, YLO, YHI, ##__VA_ARGS__));
+
+/// Fill a 2D histogram
+#define FILL_HISTOGRAM_2D(NAME, XVAL, YVAL)                                       \
+  if (Histogram1D::check_histogram()) _histograms.h2d(NAME).fill(XVAL, YVAL, event->weight());
+
 #if defined(__clang__)
   #pragma clang diagnostic pop
 #endif
