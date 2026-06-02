@@ -242,7 +242,7 @@ else()
 endif()
 
 set(name "yoda")
-set(ver "1.9.7")
+set(ver "2.1.0")
 set(dir "${PROJECT_SOURCE_DIR}/contrib/YODA-${ver}")
 if(WITH_YODA)
   message("-- YODA-dependent functions in ColliderBit will be activated.")
