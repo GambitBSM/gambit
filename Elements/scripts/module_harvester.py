@@ -286,9 +286,10 @@ def main(argv):
 #include \"gambit/Elements/types_rollcall.hpp\"
 #include \"gambit/Elements/functor_definitions.hpp\"
 #include \"gambit/Backends/python_variable.hpp\"
-                                                  
-namespace Gambit                                  
-{                                                 
+#include \"gambit/Backends/backend_types_rollcall.hpp\"
+
+namespace Gambit
+{
 """
     for tp in type_packs:
         towrite+="""
@@ -334,11 +335,12 @@ namespace Gambit
 #ifndef __module_functor_types_hpp__              
 #define __module_functor_types_hpp__              
                                                   
-#include \"gambit/Elements/types_rollcall.hpp\"   
+#include \"gambit/Elements/types_rollcall.hpp\"
 #include \"gambit/Elements/functor_definitions.hpp\"
-                                                  
-namespace Gambit                                  
-{                                                 
+#include \"gambit/Backends/backend_types_rollcall.hpp\"
+
+namespace Gambit
+{
 """
     for t in types:
         towrite+="  template class module_functor<{0}>;\n".format(t)
