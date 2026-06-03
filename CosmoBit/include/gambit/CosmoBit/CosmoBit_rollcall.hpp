@@ -62,7 +62,7 @@
 #define __CosmoBit_rollcall_hpp__
 
 #include "gambit/CosmoBit/CosmoBit_types.hpp"
-
+#include "gambit/Backends/backend_types_rollcall_CosmoBit.hpp"
 
 #define MODULE CosmoBit
 #define REFERENCE GAMBITCosmologyWorkgroup:2020htv

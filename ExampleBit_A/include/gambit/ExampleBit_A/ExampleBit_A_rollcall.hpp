@@ -32,6 +32,8 @@
 #ifndef __ExampleBit_A_rollcall_hpp__
 #define __ExampleBit_A_rollcall_hpp__
 
+#include "gambit/Backends/backend_types_rollcall_ExampleBit_A.hpp"
+
 #define MODULE ExampleBit_A
 START_MODULE
 

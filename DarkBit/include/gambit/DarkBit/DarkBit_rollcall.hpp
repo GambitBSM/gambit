@@ -110,6 +110,7 @@
 #pragma once
 
 #include "gambit/DarkBit/DarkBit_types.hpp"
+#include "gambit/Backends/backend_types_rollcall_DarkBit.hpp"
 
 #define MODULE DarkBit
 #define REFERENCE GAMBITDarkMatterWorkgroup:2017fax

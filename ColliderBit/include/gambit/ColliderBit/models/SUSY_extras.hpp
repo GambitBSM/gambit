@@ -18,6 +18,10 @@
 
 #pragma once
 
+#ifdef HAVE_PYBIND11
+  #include "gambit/Backends/python_helpers.hpp"
+#endif
+
 #define MODULE ColliderBit
 
   // Get Monte Carlo event generator based on SLHA file input

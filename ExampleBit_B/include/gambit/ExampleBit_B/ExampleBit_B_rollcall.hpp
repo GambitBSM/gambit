@@ -67,6 +67,7 @@
 #define __ExampleBit_B_rollcall_hpp__
 
 #include "gambit/Backends/python_variable.hpp"
+#include "gambit/Backends/backend_types_rollcall_ExampleBit_B.hpp"
 
 #define MODULE ExampleBit_B
 START_MODULE

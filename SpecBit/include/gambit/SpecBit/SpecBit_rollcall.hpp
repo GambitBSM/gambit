@@ -25,6 +25,7 @@
 #define __SpecBit_rollcall_hpp__
 
 #include "gambit/SpecBit/SpecBit_types.hpp"
+#include "gambit/Backends/backend_types_rollcall_SpecBit.hpp"
 
 #define MODULE SpecBit
 #define REFERENCE GAMBITModelsWorkgroup:2017ilg

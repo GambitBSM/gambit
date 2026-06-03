@@ -641,6 +641,11 @@ message("${Yellow}-- Updating GAMBIT module, backend, and printer CMake files - 
 # Add GAMBIT subdirectories.
 add_subdirectory(Logs)
 add_subdirectory(Utils)
+# Utils includes YODA headers transitively via baseprinter.hpp -> printable_types.hpp ->
+# backend_types_rollcall.hpp -> Rivet BOSS types. Ensure YODA is built first.
+if(NOT EXCLUDE_YODA)
+  add_dependencies(Utils yoda)
+endif()
 add_subdirectory_if_present(Core)
 add_subdirectory_if_present(Models)
 add_subdirectory_if_present(Backends)

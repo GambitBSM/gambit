@@ -24,6 +24,7 @@
 
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Elements/types_rollcall.hpp"
+#include "gambit/Backends/backend_types_rollcall.hpp"
 
 #include <boost/preprocessor/control/iif.hpp>
 #include <boost/preprocessor/seq/transform.hpp>

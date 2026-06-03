@@ -47,6 +47,7 @@
 #include "gambit/ColliderBit/MCLoopInfo.hpp"
 #include "gambit/ColliderBit/MC_convergence.hpp"
 #include "gambit/ColliderBit/xsec.hpp"
+#include "gambit/Backends/backend_types_rollcall_ColliderBit.hpp"
 #include "gambit/ColliderBit/colliders/Pythia8/Py8Collider.hpp"
 #include "gambit/ColliderBit/colliders/Pythia8/Py8Collider_typedefs.hpp"
 #include "gambit/ColliderBit/detectors/BuckFast.hpp"

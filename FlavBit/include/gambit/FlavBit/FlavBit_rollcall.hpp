@@ -51,6 +51,7 @@
 #define __FlavBit_rollcall_hpp__
 
 #include "gambit/FlavBit/FlavBit_types.hpp"
+#include "gambit/Backends/backend_types_rollcall_FlavBit.hpp"
 
 #define MODULE FlavBit
 #define REFERENCE GAMBITFlavourWorkgroup:2017dbx,Bhom:2020lmk

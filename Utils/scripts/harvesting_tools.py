@@ -745,6 +745,11 @@ def derive_optin_backend_excludes(enabled_bits, project_root,
 _KNOWN_BIT_USES_OVERRIDES = {
     "DDCalc":      ["DarkBit"],
     "HepLikeData": ["FlavBit"],
+    # DarkBit uses DarkAges::Energy_injection_spectrum as a START_FUNCTION return type,
+    # which is not a BACKEND_REQ and therefore not caught by the static analysis.
+    "DarkAges":    ["DarkBit"],
+    # DecayBit uses fh_Couplings_container (defined in FeynHiggs.hpp) as a DEPENDENCY type.
+    "FeynHiggs":   ["DecayBit"],
 }
 
 _FRONTEND_SHARED_INCLUDE_RE = re.compile(
@@ -854,6 +859,65 @@ def compute_bits_per_backend(project_root, frontend_dir):
             result[be].update(bits)
 
     return {b: sorted(s) for b, s in result.items()}
+
+
+# Canonical backend name (lowercase) → expected type-header file stem (lowercase).
+# Needed for cases where the frontend naming convention differs from the type-header filename.
+_TYPE_HEADER_NAME_OVERRIDES = {
+    "susy_hit":      "susy-hit",      # SUSY_HIT frontend  →  SUSY-HIT.hpp
+    "libfarraytest": "libfarraytest", # LibFarrayTest frontend  →  libFarrayTest.hpp
+    "libfirst":      "libfirst",      # LibFirst frontend  →  libfirst.hpp
+}
+
+
+def build_type_headers_for_backends(canonical_names, type_headers, bossed_type_headers):
+    """Return {canonical_backend_name -> set_of_type_header_paths} for each given name.
+
+    type_headers        — iterable of regular header paths like "DarkSUSY.hpp"
+    bossed_type_headers — iterable of BOSSed header paths like "gm2calc_1_3_0/loaded_types.hpp"
+
+    Matching rules
+    ~~~~~~~~~~~~~~
+    Regular:  the file stem (case-insensitive) equals the canonical name, OR the canonical
+              name starts with the stem followed by "_"  (e.g. "MicrOmegas_MSSM" → "MicrOmegas.hpp").
+    BOSSed:   derive_backendname_from_filename of the directory name must equal the canonical
+              name (case-insensitive).
+    Overrides: _TYPE_HEADER_NAME_OVERRIDES patches known stem mismatches.
+    """
+    # Build lowercase-stem → header lookup for regular headers.
+    regular_by_stem = {}
+    for h in type_headers:
+        stem = h.split('.')[0].lower()
+        regular_by_stem.setdefault(stem, []).append(h)
+
+    # Build lowercase-canonical → header lookup for BOSSed headers.
+    bossed_by_canonical = {}
+    for h in bossed_type_headers:
+        dir_name = h.split('/')[0]
+        bossed_canonical = derive_backendname_from_filename(dir_name).lower()
+        bossed_by_canonical.setdefault(bossed_canonical, []).append(h)
+
+    result = {}
+    for canonical in canonical_names:
+        headers = set()
+        canonical_lower = canonical.lower()
+        # Allow overriding the stem used for prefix matching.
+        lookup_stem = _TYPE_HEADER_NAME_OVERRIDES.get(canonical_lower, canonical_lower)
+
+        # Regular headers: stem equals canonical, or canonical starts with stem+"_".
+        for stem_lower, h_list in regular_by_stem.items():
+            if (canonical_lower == stem_lower
+                    or canonical_lower.startswith(stem_lower + "_")
+                    or lookup_stem == stem_lower):
+                headers.update(h_list)
+
+        # BOSSed headers: exact canonical name match after stripping version numbers.
+        if canonical_lower in bossed_by_canonical:
+            headers.update(bossed_by_canonical[canonical_lower])
+
+        result[canonical] = headers
+
+    return result
 
 
 def same(f1, f2):

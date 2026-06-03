@@ -20,6 +20,7 @@
 #define __printable_types_hpp__
 
 #include "gambit/Elements/types_rollcall.hpp"
+#include "gambit/Backends/backend_types_rollcall.hpp"
 #include "gambit/ScannerBit/printable_types.hpp"
 
 // Types that Gambit printers can output (if printer plugin is properly equipped)
