@@ -352,29 +352,34 @@ Scanner:
         min_num_live_points: 1000
         dlogz: 0.5
 
-    binminpy:
+    paraprof:
       like: LogLike
-      plugin: binminpy
+      plugin: paraprof
       run:
-        n_bins:
-          # For any parameters not listed under 'n_bins' binminpy will assume a single bin
-          NormalDist::mu: 100
-          NormalDist::sigma: 100
-        # sampled_parameters: ["NormalDist::mu", "NormalDist::sigma"]  # By default parameters are optimized within each bin
-        sampler: "latinhypercube"
-        optimizer: "minimize"
-        optimizer_kwargs:
-          method: "L-BFGS-B"
-          tol: 1e-4
-        n_initial_points: 10
-        n_sampler_points_per_bin: 10
-        # accept_loglike_above: -30.0
-        accept_delta_loglike: 6.5
-        neighborhood_distance: 2
-        inherit_best_init_point_within_bin: False
-        n_optim_restarts_per_bin: 1
-        n_tasks_per_batch: 1
-        print_progress_every_n_batch: 100
+        # List of profile likelihood projections to compute.
+        projections:
+          - dims: ["NormalDist::mu", "NormalDist::sigma"]
+            grid_points: [60, 60]
+            optimization_method: de
+            grid_refinement_factor: 2
+            patch_refined_grid: true
+          - dims: ["NormalDist::mu"]
+            grid_points: [50]
+        roi_threshold: 4.0
+        pop_per_grid_point: 3
+        n_initial_optimizations: 40
+        max_patching_waves: 10
+        lbfgsb_max_iter: 20
+        lbfgsb_polish: true
+        use_clustering: true
+        refinement_direct_eval: false
+        # samples_output_file: paraprof_samples.csv
+        # Paraprof-side diagnostic plots.
+        save_plots: true
+        plot_settings:
+          dpi: 300
+          filetype: png
+          contour_levels: [-3.09, -1.15]
 
 
 ObsLikes:
