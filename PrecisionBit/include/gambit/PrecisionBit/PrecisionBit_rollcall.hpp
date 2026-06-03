@@ -44,6 +44,7 @@
 #ifndef __PrecisionBit_rollcall_hpp__
 #define __PrecisionBit_rollcall_hpp__
 
+#include <Eigen/Dense>
 #include "gambit/Backends/backend_types_rollcall_PrecisionBit.hpp"
 
 #define MODULE PrecisionBit

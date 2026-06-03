@@ -50,6 +50,7 @@
 #ifndef __FlavBit_rollcall_hpp__
 #define __FlavBit_rollcall_hpp__
 
+#include <Eigen/Dense>
 #include "gambit/FlavBit/FlavBit_types.hpp"
 #include "gambit/Backends/backend_types_rollcall_FlavBit.hpp"
 
