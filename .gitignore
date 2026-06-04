@@ -47,6 +47,8 @@ build/*
 *_standalone
 CBS 
 
+CBS_yaml/*
+
 # Generated cmake files
 cmake/linkedout.cmake
 cmake/include
