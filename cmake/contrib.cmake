@@ -298,16 +298,48 @@ if(NOT EXCLUDE_YODA)
   add_contrib_clean_and_nuke(${name} ${dir} clean)
 endif()
 
+#contrib/fastjet-3.4.2 and fjcontrib
+set(fastjet_DIR "${PROJECT_SOURCE_DIR}/contrib/fastjet-3.4.2/local")
+if(EXISTS "${fastjet_DIR}/include/fastjet/ClusterSequence.hh")
+  include_directories("${fastjet_DIR}/include")
+  include_directories("${fastjet_DIR}/include/fastjet/contrib")
+  set(fastjet_LDFLAGS "-L${fastjet_DIR}/lib -Wl,-rpath,${fastjet_DIR}/lib -lfastjettools -lfastjet -lfastjetplugins -lsiscone_spherical -lsiscone")
+  set(fjcontrib_LDFLAGS "-L${fastjet_DIR}/lib -Wl,-rpath,${fastjet_DIR}/lib -lfastjetcontribfragile -lRecursiveTools -lEnergyCorrelator -lVariableR")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fastjet_DIR}/lib")
+  set(WITH_FASTJET_CONTRIB TRUE)
+else()
+  set(EXCLUDE_FASTJET TRUE)
+  set(EXCLUDE_FJCONTRIB TRUE)
+  set(WITH_FASTJET_CONTRIB FALSE)
+endif()
+
 #contrib/fjcore-3.2.0
 set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
 include_directories("${fjcore_INCLUDE_DIR}")
-add_definitions(-DFJCORE)
-add_definitions(-DFJNS=gambit::fjcore)
+if(WITH_FASTJET_CONTRIB)
+  add_definitions(-DFJNS=fastjet)
+else()
+  add_definitions(-DFJCORE)
+  add_definitions(-DFJNS=gambit::fjcore)
+endif()
 add_gambit_library(fjcore OPTION OBJECT
                           SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.cc
                           HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
 add_dependencies(contrib fjcore)
+
+if(WITH_FASTJET_CONTRIB)
+  set(fjcontrib_nsubjettiness_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.049/Nsubjettiness")
+  add_gambit_library(fjcontrib_nsubjettiness OPTION OBJECT
+                            SOURCES ${fjcontrib_nsubjettiness_dir}/AxesDefinition.cc
+                                    ${fjcontrib_nsubjettiness_dir}/MeasureDefinition.cc
+                                    ${fjcontrib_nsubjettiness_dir}/ExtraRecombiners.cc
+                                    ${fjcontrib_nsubjettiness_dir}/TauComponents.cc
+                                    ${fjcontrib_nsubjettiness_dir}/Njettiness.cc
+                                    ${fjcontrib_nsubjettiness_dir}/Nsubjettiness.cc)
+  set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcontrib_nsubjettiness>)
+  add_dependencies(contrib fjcontrib_nsubjettiness)
+endif()
 
 #contrib/multimin
 set(multimin_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/multimin/include")
@@ -318,6 +350,14 @@ add_gambit_library(multimin OPTION OBJECT
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:multimin>)
 add_dependencies(contrib multimin)
 
+#contrib/METSignificance
+set(METSignificance_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/METSignificance/include")
+include_directories("${METSignificance_INCLUDE_DIR}")
+add_gambit_library(METSignificance OPTION OBJECT
+                          SOURCES ${PROJECT_SOURCE_DIR}/contrib/METSignificance/src/METSignificance.cpp
+                          HEADERS ${PROJECT_SOURCE_DIR}/contrib/METSignificance/include/METSignificance/METSignificance.hpp)
+set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:METSignificance>)
+add_dependencies(contrib METSignificance)
 
 #contrib/MassSpectra; include only if SpecBit is in use and if
 #BUILD_FS_MODELS is set to something other than "" or "None" or "none"
