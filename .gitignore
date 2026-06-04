@@ -48,6 +48,7 @@ build/*
 CBS 
 
 CBS_yaml/*
+plots/*
 
 # Generated cmake files
 cmake/linkedout.cmake
