@@ -47,10 +47,10 @@ namespace Gambit
     private:
       /* data */
     public:
-// #ifdef CHECK_CUTFLOW
-//       Cutflows _cutflows;
-//       int Nevent = 0;
-// #endif
+      #ifdef CHECK_CUTFLOW
+            Cutflows _cutflows;
+            int Nevent = 0;
+      #endif
 
       static constexpr const char *detector = "ATLAS";
       Analysis_ATLAS_EXOT_2019_04()
@@ -58,8 +58,10 @@ namespace Gambit
         DEFINE_SIGNAL_REGION("SR");
 
         // Histograms for kinematic distributions (filled when check_histogram is enabled)
-        DEFINE_HISTOGRAM_1D_UNIFORM("m_HC", 30, 50.0, 350.0, "m_{HC} [GeV]")
-        DEFINE_HISTOGRAM_1D_UNIFORM("m_VLB", 25, 500.0, 3000.0, "m_{VLB} [GeV]")
+        // DEFINE_HISTOGRAM_1D_UNIFORM("m_VLB", 25, 500.0, 3000.0, "m_{VLB} [GeV]")
+
+        const std::vector<double> mVLB_bins = {900, 1050, 1150, 1250, 1400, 1600, 1900, 2300};
+        DEFINE_HISTOGRAM_1D("m_VLB", mVLB_bins, "$m_{\\rm VLB}$ [GeV]")
 
         set_analysis_name("ATLAS_EXOT_2019_04");
         set_luminosity(139.0);
@@ -69,8 +71,8 @@ namespace Gambit
       {
 #ifdef CHECK_CUTFLOW
         BEGIN_PRESELECTION
-        // Nevent += 1;
-        // if (Nevent % 200 == 0) { cout << "Complete " << Nevent << " Events" << endl; }
+        Nevent += 1;
+        if (Nevent % 200 == 0) { cout << "Complete " << Nevent << " Events" << endl; }
         END_PRESELECTION
 #endif
 
@@ -321,13 +323,10 @@ namespace Gambit
         const bool is_H2T2B = true; // HC selection enforces H2T2B
 
         // Fill kinematic distribution histograms (before the mass-window cut)
-        FILL_HISTOGRAM_1D("m_HC", mHC)
+        // FILL_HISTOGRAM_1D("m_HC", mHC)
         FILL_HISTOGRAM_1D("m_VLB", best.mB)
 
-        if (in_H_window && is_H2T2B)
-        {
-          FILL_SIGNAL_REGION("SR");
-        }
+        if (in_H_window && is_H2T2B) { FILL_SIGNAL_REGION("SR"); }
       }
 
       virtual void collect_results()

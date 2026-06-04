@@ -19,6 +19,10 @@
 //   - no data-driven background fit machinery
 // TODO: add the remaining low-mass control regions and background model in a later patch.
 
+#if 0
+// Disabled while this in-progress analysis is being completed.
+// It currently does not compile when CUTFLOW is enabled.
+
 #include <algorithm>
 #include <cmath>
 #include <cfloat>
@@ -781,3 +785,4 @@ namespace Gambit
 // Bar20, 13.053613053613052
 // Bar21, 11.188811188811187
 // Bar22, 7.459207459207458
+#endif

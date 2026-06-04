@@ -152,9 +152,21 @@ int main(int argc, char* argv[])
     }
 
     bool use_lnpiln = settings.getValueOrDef<bool>(false, "use_lognormal_distribution_for_1d_systematic");
-    // Single runtime cutflow switch for CBS.
-    // NOTE: This is runtime control and requires compiling with CHECK_CUTFLOW enabled.
-    const bool check_cutflow = settings.getValueOrDef<bool>(false, "check_cutflow");
+    // Single runtime cutflow switch for CBS. Cutflow filling relies on extra
+    // per-event bookkeeping compiled only when CMake CUTFLOW is enabled.
+    const bool requested_check_cutflow = settings.getValueOrDef<bool>(false, "check_cutflow");
+#ifdef CHECK_CUTFLOW
+    const bool check_cutflow = requested_check_cutflow;
+#else
+    const bool check_cutflow = false;
+    if (requested_check_cutflow)
+    {
+      std::cerr
+        << "WARNING: check_cutflow was requested, but this CBS binary was built "
+        << "without CUTFLOW support. Reconfigure with -DCUTFLOW=ON to enable it."
+        << std::endl;
+    }
+#endif
     ColliderBit::Cutflow::set_check_cutflow(check_cutflow);
 
     // Runtime histogram switch for CBS.

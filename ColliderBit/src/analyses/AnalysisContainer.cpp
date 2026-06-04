@@ -194,7 +194,6 @@ namespace Gambit
       F(CMS_SUS_13_006_3Lep)                         \
       F(CMS_SUS_13_006_4Lep)                         \
       F(CMS_EXO_12_048)                              \
-      F(CMS_B2G_18_003)                              \
       
       ///// F(ATLAS_EXOT_2019_04)                    
     /// For analysis factory function declaration

@@ -389,14 +389,12 @@ namespace Gambit
       /// Combine two cutflows
       void combine(const Cutflows &othercfs)
       {
-        // If this object's cutflow container is empty, initialize it from the other object's structure.
+        if (othercfs.cfs.empty()) return;
+
         if (cfs.empty())
         {
-          std::cout << "DEBUG: Local cutflow container empty. Booking cutflows from other object." << std::endl;
-          for (const auto &other_cf : othercfs.cfs)
-          {
-            addCutflow(other_cf.name, other_cf.cuts);
-          }
+          cfs = othercfs.cfs;
+          return;
         }
         else if (cfs.size() != othercfs.cfs.size())
         {

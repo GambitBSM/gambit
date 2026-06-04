@@ -46,6 +46,8 @@ namespace Gambit
       _is_scaled = false;
       _needs_collection = true;
       _results.clear();
+      _cutflows = Cutflows();
+      _histograms = Histograms();
       analysis_specific_reset();
     }
 
@@ -176,12 +178,13 @@ namespace Gambit
     /// Add the results of another analysis to this one. Argument is not const, because the other needs to be able to gather its results if necessary.
     void Analysis::add(Analysis *other)
     {
-      if (_results.empty()) collect_results();
+      if (_needs_collection || _results.empty())
+      {
+        collect_results();
+        _needs_collection = false;
+      }
       if (this == other)
       {
-        // _cutflows.combine(other->get_cutflows());
-        _results.add_cutflows(_cutflows);
-        _results.add_histograms(_histograms);
         return;
       }
 
@@ -192,11 +195,9 @@ namespace Gambit
       for (size_t i = 0; i < _results.size(); ++i) { _results[i].combine_SR_MC_signal(otherResults[i]); }
       for (auto &pair : _counters) { pair.second += other->_counters.at(pair.first); }
 
-      _cutflows.combine(other->get_cutflows());
-      _results.add_cutflows(_cutflows);
-
-      _histograms.combine(other->get_histograms());
-      _results.add_histograms(_histograms);
+      _results.cutflows.combine(otherResults.cutflows);
+      _results.histograms.combine(otherResults.histograms);
+      _needs_collection = false;
     }
   } // namespace ColliderBit
 } // namespace Gambit

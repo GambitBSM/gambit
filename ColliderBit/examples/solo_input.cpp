@@ -9,6 +9,7 @@
 #include "solo_input.hpp"
 
 #include <cmath>
+#include <cstdlib>
 #include <sstream>
 #include <stdexcept>
 
@@ -33,6 +34,146 @@ namespace Gambit
           return Gambit::Utils::endsWith(filename, ".hepmc")
                  || Gambit::Utils::endsWith(filename, ".hepmc2")
                  || Gambit::Utils::endsWith(filename, ".hepmc3");
+        }
+
+        std::string dirname(const std::string& path)
+        {
+          const std::size_t slash = path.find_last_of("/\\");
+          if (slash == std::string::npos) return ".";
+          if (slash == 0) return path.substr(0, 1);
+          return path.substr(0, slash);
+        }
+
+        std::string source_root_from_this_file()
+        {
+          const std::string file = __FILE__;
+          const std::string marker = "ColliderBit/examples/solo_input.cpp";
+          const std::size_t pos = file.rfind(marker);
+          if (pos == std::string::npos) return ".";
+
+          std::string root = file.substr(0, pos);
+          if (!root.empty() && (root.back() == '/' || root.back() == '\\'))
+          {
+            root.pop_back();
+          }
+          return root.empty() ? "." : root;
+        }
+
+        YAML::Node merge_yaml_nodes(const YAML::Node& defaults, const YAML::Node& overrides)
+        {
+          if (!defaults) return YAML::Clone(overrides);
+          if (!overrides) return YAML::Clone(defaults);
+
+          if (defaults.IsMap() && overrides.IsMap())
+          {
+            YAML::Node result = YAML::Clone(defaults);
+            for (YAML::const_iterator it = overrides.begin(); it != overrides.end(); ++it)
+            {
+              const std::string key = it->first.as<std::string>();
+              result[key] = merge_yaml_nodes(result[key], it->second);
+            }
+            return result;
+          }
+
+          // Scalars and sequences are replaced as a whole by the user value.
+          return YAML::Clone(overrides);
+        }
+
+        std::string find_default_settings_file(
+          const std::string& input_filename,
+          const YAML::Node& user_settings,
+          bool& explicit_default_file)
+        {
+          explicit_default_file = false;
+
+          if (user_settings && user_settings["cbs_defaults_file"])
+          {
+            explicit_default_file = true;
+            return user_settings["cbs_defaults_file"].as<std::string>();
+          }
+
+          const char* env_default_file = std::getenv("CBS_DEFAULTS_FILE");
+          if (env_default_file != nullptr && std::string(env_default_file).size() > 0)
+          {
+            explicit_default_file = true;
+            return std::string(env_default_file);
+          }
+
+          std::vector<std::string> candidates;
+          candidates.push_back(dirname(input_filename) + "/CBS_defaults.yaml");
+          candidates.push_back(source_root_from_this_file() + "/CBS_yaml/CBS_defaults.yaml");
+          candidates.push_back("CBS_yaml/CBS_defaults.yaml");
+
+          for (const std::string& candidate : candidates)
+          {
+            if (Gambit::Utils::file_exists(candidate)) return candidate;
+          }
+
+          return "";
+        }
+
+        YAML::Node apply_default_settings(
+          const std::string& filename_in,
+          const std::vector<str>& analyses,
+          const YAML::Node& user_settings)
+        {
+          if (user_settings && user_settings["use_cbs_defaults"] &&
+              !user_settings["use_cbs_defaults"].as<bool>())
+          {
+            return YAML::Clone(user_settings);
+          }
+
+          bool explicit_default_file = false;
+          const std::string defaults_file =
+            find_default_settings_file(filename_in, user_settings, explicit_default_file);
+
+          if (defaults_file.empty())
+          {
+            return YAML::Clone(user_settings);
+          }
+
+          if (!Gambit::Utils::file_exists(defaults_file))
+          {
+            if (explicit_default_file)
+            {
+              throw std::runtime_error("CBS defaults file " + defaults_file + " not found.");
+            }
+            return YAML::Clone(user_settings);
+          }
+
+          YAML::Node defaults_root;
+          try
+          {
+            defaults_root = YAML::LoadFile(defaults_file);
+          }
+          catch (YAML::Exception& e)
+          {
+            throw std::runtime_error(
+              "YAML error in CBS defaults file " + defaults_file +
+              ".\n(yaml-cpp error: " + std::string(e.what()) + " )");
+          }
+
+          YAML::Node merged_settings;
+          if (defaults_root["settings"])
+          {
+            merged_settings = merge_yaml_nodes(merged_settings, defaults_root["settings"]);
+          }
+
+          if (defaults_root["analysis_defaults"])
+          {
+            const YAML::Node analysis_defaults = defaults_root["analysis_defaults"];
+            for (const str& analysis : analyses)
+            {
+              if (!analysis_defaults[analysis]) continue;
+
+              const YAML::Node analysis_node = analysis_defaults[analysis];
+              const YAML::Node settings_node =
+                analysis_node["settings"] ? analysis_node["settings"] : analysis_node;
+              merged_settings = merge_yaml_nodes(merged_settings, settings_node);
+            }
+          }
+
+          return merge_yaml_nodes(merged_settings, user_settings);
         }
 
         CrossSectionInput parse_cross_section_fb(const Options& opts, const std::string& context)
@@ -191,6 +332,8 @@ namespace Gambit
 
         if (prepared.infile["settings"])
         {
+          prepared.infile["settings"] =
+            apply_default_settings(filename_in, prepared.analyses, prepared.infile["settings"]);
           prepared.settings = Options(prepared.infile["settings"]);
         }
         else

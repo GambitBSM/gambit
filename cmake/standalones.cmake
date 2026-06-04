@@ -41,6 +41,6 @@ add_standalone(CBS SOURCES ColliderBit/examples/solo.cpp ColliderBit/examples/so
 if(EXISTS CBS AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "Release" AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo")
   add_custom_command(
     TARGET CBS POST_BUILD
-    COMMENT "\n${BoldYellow}-- You have built CBS with CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}. For best performance we recommend building CBS in 'Release' mode. You can do this by rerunning cmake with the option -DCMAKE_BUILD_TYPE=Release and then rebuild CBS. ${ColourReset}\n\n"
+    COMMAND ${CMAKE_COMMAND} -E echo "-- You have built CBS with CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}. For best performance we recommend building CBS in Release mode. You can do this by rerunning cmake with the option -DCMAKE_BUILD_TYPE=Release and then rebuild CBS."
   )
 endif()
