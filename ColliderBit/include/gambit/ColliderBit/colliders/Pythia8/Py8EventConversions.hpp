@@ -159,19 +159,25 @@ namespace Gambit
         // Record non-SM displaced-production and (unstable) displaced-decay particles.
         // Probably good to combine with 'if (MCUtils::PID::isBSM(pid) ...' in user code
         /// @todo Make distance cut configurable in YAML
-        //cout << i << " " << get_unified_vprod(p).rho() << endl;
+        cout << i << " " << get_unified_vprod(p).rho() << endl;
         if (get_unified_vprod(p).rho() > 10) // mm
         {
           auto gp = new HEPUtils::DisplacedParticle(p4, pid, get_unified_vprod(p), get_unified_vdec(p));
           if (prompt) gp->set_prompt();
-          result.add_particle(gp, "LLprod");
+          cout << "Adding particle to LLprod" << endl;
+          string LL = "LLprod";
+          result.add_particle(gp, LL);
+          //result.add_particle(gp, "LLprod");
         }
         /// @todo Make distance cut configurable in YAML
         if (!get_unified_isFinal(p) && get_unified_vdec(p).rho() > 10) // mm
         {
           auto gp = new HEPUtils::DisplacedParticle(p4, pid, get_unified_vprod(p), get_unified_vdec(p));
           if (prompt) gp->set_prompt();
-          result.add_particle(gp, "LLdec");
+          
+          string LL = "LLdec";
+          result.add_particle(gp, LL);
+          //result.add_particle(gp, "LLdec");
         }
 
         // From now on we only want final state particles...
@@ -351,9 +357,13 @@ namespace Gambit
           cout << "For jet Collection:  " << jetcollection << endl;
           cout << "  #jet = " << result.jets(jetcollection).size() << endl;
         }
+        std::vector<std::string> custom_names = result.custom_particle_names();
+        std::cout << "Custom particle names: " << endl;
+        for(auto name: custom_names ) std::cout << name << std::endl;
         cout << endl;
         cout << "convertParticleEvent in Py8EventConversion.cpp finished" << endl;
       #endif
+      
       
     }
 

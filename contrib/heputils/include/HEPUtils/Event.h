@@ -281,7 +281,7 @@ namespace HEPUtils {
     ///
     /// @todo "Lock" at some point so that jet finding etc. only get done once
     void add_particle(const Particle* p, bool ptsort=false) {
-
+      std::cout << "Called add_particle line 283 "  << std::endl;
       _stdparticles_sorted = false;
 
       // All particles (canonical collection)
@@ -339,6 +339,7 @@ namespace HEPUtils {
     ///
     /// @todo "Lock" at some point so that jet finding etc. only get done once
     void add_particle(const Particle* p, const std::string& key, bool ptsort=false) {
+      std::cout << "Called add_particle line 341 with key " << key << std::endl;
       _customparticles_sorted = false;
 
       // Insert into both the canonical list and the custom
@@ -352,6 +353,7 @@ namespace HEPUtils {
     /// Alias for backward-compatibility
     /// @deprecated ptsort will be removed eventually
     void add_particle(const Particle* p, bool ptsort, const std::string& key) {
+      std::cout << "Called add_particle line 355 with key " << key << std::endl;
       add_particle(p, key, ptsort);
     }
 

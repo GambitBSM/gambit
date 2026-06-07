@@ -94,8 +94,29 @@ namespace Gambit
              baselineJets.push_back(jet);
           }
         }
-
-        // TODO: Put basline HCP candidates here
+        
+        // Basline HCP candidates here
+        vector<const HEPUtils::Particle*> displacedParticles;
+        
+        // TODO: We have a fix for function overloading in Event.h
+        vector<string> custom_names = event->custom_particle_names();
+        cout << "Custom names: ";
+        for(auto name: custom_names ) cout << name << endl;
+        
+        int nHCP= 0;
+        // Check if we have HCP candidates
+        if( event->has_custom_particle("LLprod") ){
+          for (const HEPUtils::Particle* HCP : event->particles("LLprod") ) {
+            if (HCP->pT() > 4.5 && fabs(HCP->eta()) < 2.47) {
+              nHCP++;
+              const HEPUtils::LLParticle* HCP_test = static_cast<const HEPUtils::LLParticle*>(HCP);
+              displacedParticles.push_back(HCP);
+              cout << "HCP candidate: " << HCP->pT() << " " <<  endl;
+              cout << "HCP candidate: " << HCP_test->pT() << " " << HCP_test->vprod() << endl;
+              exit(0);
+            }
+          }
+        }
         
         // Missing momentum and energy
         HEPUtils::P4 metVec = event->missingmom();
