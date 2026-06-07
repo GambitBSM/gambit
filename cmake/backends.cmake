@@ -2093,14 +2093,6 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
-# FastJet/FJContrib
-# Prefer reusing contrib targets (ColliderBit path) to avoid duplicate builds.
-set(FJ_BACKEND_REUSE_CONTRIB FALSE)
-if(TARGET fastjet AND TARGET fjcontrib)
-  set(FJ_BACKEND_REUSE_CONTRIB TRUE)
-  message("   Reusing contrib fastjet/fjcontrib for backend dependencies")
-endif()
-
 # OpenMP flags don't play nicely with clang and FastJet's antiquated libtoolized build system.
 string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_C_FLAGS "${BACKEND_C_FLAGS}")
 string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
@@ -2109,62 +2101,6 @@ string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FJ_CXX_FLAGS "${FJ_CXX_FLAGS}
 string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FJ_C_FLAGS "${FJ_C_FLAGS}")
 set_compiler_warning("no-deprecated-declarations" FJ_CXX_FLAGS)
 set_compiler_warning("no-deprecated-copy" FJ_CXX_FLAGS)
-set(FJ_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
-
-if(NOT FJ_BACKEND_REUSE_CONTRIB)
-  # Fastjet
-  set(name "fastjet")
-  set(ver "3.4.2")
-  set(dl "http://fastjet.fr/repo/fastjet-3.4.2.tar.gz")
-  set(md5 "d8aede1539f478547f8be5412ab6869c")
-  set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-  check_ditch_status(${name} ${ver} ${dir})
-  if(NOT ditched_${name}_${ver})
-    ExternalProject_Add(${name}_${ver}
-      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-      SOURCE_DIR ${dir}
-      BUILD_IN_SOURCE 1
-      PATCH_COMMAND ""
-      CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${dir}/local --enable-allcxxplugins --enable-silent-rules --enable-shared
-      BUILD_COMMAND ${MAKE_PARALLEL} install
-      INSTALL_COMMAND ""
-    )
-    add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-    #set_as_default_version("backend" ${name} ${ver})
-  endif()
-
-  # Fjcontrib
-  set(name "fjcontrib")
-  set(ver "1.049")
-  set(dl "http://fastjet.hepforge.org/contrib/downloads/${name}-${ver}.tar.gz")
-  set(md5 "bfea8bfd311d958a40e445f76668bd32")
-  set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-  set(fastjet_name "fastjet")
-  set(fastjet_ver "3.4.2")
-  set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}")
-  set(FJCONTRIB_CXX_FLAGS "${FJ_CXX_FLAGS} -std=c++17 -I${dir}/RecursiveTools")
-  set(FJCONTRIB_LD_FLAGS "${FJ_LINKER_FLAGS} -L${fastjet_dir}/local/lib -Wl,-rpath,${fastjet_dir}/local/lib")
-  #set(FJCONTRIB_CXX_FLAGS ${BACKEND_CXX_FLAGS})
-  set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
-  set_compiler_warning("no-unused-parameter" FJCONTRIB_CXX_FLAGS)
-  set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
-  set_compiler_warning("no-catch-value" FJCONTRIB_CXX_FLAGS)
-  check_ditch_status(${name} ${ver} ${dir})
-  if(NOT ditched_${name}_${ver})
-    ExternalProject_Add(${name}_${ver}
-      DEPENDS ${fastjet_name}_${fastjet_ver}
-      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-      SOURCE_DIR ${dir}
-      BUILD_IN_SOURCE 1
-      PATCH_COMMAND ""
-      CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/local/bin/fastjet-config --prefix=${fastjet_dir}/local
-      BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
-      INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
-    )
-    add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-    #set_as_default_version("backend" ${name} ${ver})
-  endif()
-endif()
 
 # Rivet
 set(name "rivet")
@@ -2177,17 +2113,7 @@ set(yoda_name "yoda")
 set(yoda_dir "${YODA_PATH}/local")
 set(hepmc_name "hepmc")
 set(hepmc_dir "${HEPMC_PATH}/local")
-set(fastjet_name "fastjet")
-set(fastjet_ver "3.4.2")
-if(FJ_BACKEND_REUSE_CONTRIB)
-  set(fastjet_dir "${PROJECT_SOURCE_DIR}/contrib/fastjet-3.4.2/local")
-  set(fjcontrib_dependency_target "fjcontrib")
-else()
-  set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}/local")
-  set(fjcontrib_name "fjcontrib")
-  set(fjcontrib_ver "1.049")
-  set(fjcontrib_dependency_target "${fjcontrib_name}_${fjcontrib_ver}")
-endif()
+set(fastjet_dir "${PROJECT_SOURCE_DIR}/contrib/fastjet-3.4.2/local")
 #set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet -faligned-new -O3")
 # TODO TP Oct 24: Atm this means CXX flags contains both -std=c++14 and -std=c++17, would be good to simplify
 set(Rivet_CXX_FLAGS "${FJ_CXX_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR} -O3 -std=c++17")
@@ -2228,12 +2154,15 @@ else()
 endif()
 
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
+if(EXCLUDE_FASTJET)
+  set(ditched_${name}_${ver} TRUE)
+  message("${BoldCyan} X Rivet (${ver}) needs contrib FastJet but FastJet is excluded. Rivet will be excluded.${ColourReset}")
+endif()
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DEPENDS castxml
     DEPENDS ${yoda_name}
     DEPENDS ${hepmc_name}
-    DEPENDS ${fjcontrib_dependency_target}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
