@@ -21,8 +21,6 @@
 #include "HEPUtils/Jet.h"
 // #include "fastjet/Filter.hh"
 #include <random>
-#include "YODA/Histo1D.h"
-#include "YODA/WriterYODA.h"
 
 // Similar to ATLAS_13_TeV_3b_NN_139invfb (define structure copied from heputils/FastJet.h)
 #ifndef FJCORE
@@ -43,7 +41,6 @@
 
 using namespace std;
 // #define CHECK_CUTFLOW
-// #define CHECK_PLOT
 
 namespace Gambit
 {
@@ -53,18 +50,6 @@ namespace Gambit
 
         class Analysis_ATLAS_EXOT_2016_013 : public Analysis
         {
-
-        private:
-
-        #ifdef CHECK_PLOT
-            YODA::Histo1D *_histo_NHiggs;
-            YODA::Histo1D *_histo_Ntop;
-            YODA::Histo1D *_histo_Njet;
-            YODA::Histo1D *_histo_Nbjet;
-            YODA::Histo1D *_histo_meff_SR1L_03;
-            YODA::Histo1D *_histo_meff_SR0L_01; 
-            YODA::Histo1D *_histo_mTBmin; 
-        #endif
 
         public:
             static constexpr const char *detector = "ATLAS";
@@ -88,16 +73,13 @@ namespace Gambit
                 set_analysis_name("ATLAS_EXOT_2016_013");
                 set_luminosity(36.1);
 
-
-                #ifdef CHECK_PLOT
-                    _histo_NHiggs           = new YODA::Histo1D(5, 0., 5., "/ATLAS_EXOT_2016_013-1L/Higgs-tagged_jet_multiplicity");
-                    _histo_Ntop             = new YODA::Histo1D(5, 0., 5., "/ATLAS_EXOT_2016_013-0L/Top-tagged_jet_multiplicity");
-                    _histo_Njet             = new YODA::Histo1D(10, 5., 15., "/ATLAS_EXOT_2016_013-1L/Jet_multiplicity");
-                    _histo_Nbjet            = new YODA::Histo1D(6, 2., 8., "/ATLAS_EXOT_2016_013-0L/B-tagged_jet_multiplicity");
-                    _histo_meff_SR1L_03     = new YODA::Histo1D(12, 500., 3500., "/ATLAS_EXOT_2016_013-1L/meff_SR1L_03");
-                    _histo_meff_SR0L_01     = new YODA::Histo1D(12, 500., 3500., "/ATLAS_EXOT_2016_013-0L/meff_SR0L_01");
-                    _histo_mTBmin           = new YODA::Histo1D(20, 0., 500., "ATLAS_EXOT_2016_013-0L/mTBmin_SR0L_01"); 
-                #endif
+                DEFINE_HISTOGRAM_1D_UNIFORM("NHiggs", 5, 0., 5., "Higgs-tagged jet multiplicity")
+                DEFINE_HISTOGRAM_1D_UNIFORM("Ntop", 5, 0., 5., "Top-tagged jet multiplicity")
+                DEFINE_HISTOGRAM_1D_UNIFORM("Njet", 10, 5., 15., "Jet multiplicity")
+                DEFINE_HISTOGRAM_1D_UNIFORM("Nbjet", 6, 2., 8., "B-tagged jet multiplicity")
+                DEFINE_HISTOGRAM_1D_UNIFORM("meff_SR1L_03", 12, 500., 3500., "m_eff [GeV]")
+                DEFINE_HISTOGRAM_1D_UNIFORM("meff_SR0L_01", 12, 500., 3500., "m_eff [GeV]")
+                DEFINE_HISTOGRAM_1D_UNIFORM("mTBmin", 20, 0., 500., "m_T^{b,min} [GeV]")
             }
 
             void run(const HEPUtils::Event *event)
@@ -263,10 +245,8 @@ namespace Gambit
                 bool presel0L = (n_leptons == 0) && (njets >= 6) && (nbjets >= 2) && (met > 200.) && (mindPhijetMet > 0.4);
 
                 // cout << "After preselection" << endl;
-                #ifdef CHECK_PLOT
-                    if (presel0L) _histo_Nbjet->fill(nbjets + 0.5, 1.);
-                    if (presel1L) _histo_Njet->fill(njets + 0.5, 1.);
-                #endif
+                if (presel0L) FILL_HISTOGRAM_1D("Nbjet", nbjets + 0.5)
+                if (presel1L) FILL_HISTOGRAM_1D("Njet", njets + 0.5)
 
                 if (presel1L && njets >= 6)
                 {
@@ -274,9 +254,7 @@ namespace Gambit
                     int Ntop = topJets.size();
                     int NHiggs = higgsJets.size();
                 
-                    #ifdef CHECK_PLOT
-                        _histo_NHiggs->fill(NHiggs + 0.5, 1.);
-                    #endif
+                    FILL_HISTOGRAM_1D("NHiggs", NHiggs + 0.5)
 
                     double meff = signalLeptons[0]->pT() + met;
                     for (const HEPUtils::Jet *jet : signalJets)
@@ -300,9 +278,7 @@ namespace Gambit
                     if (sr1l05)
                         _counters.at("SR1L-05").add_event(event);
                 
-                    #ifdef CHECK_PLOT
-                        if (sr1l03) _histo_meff_SR1L_03->fill(meff, 1.); 
-                    #endif
+                    if (sr1l03) FILL_HISTOGRAM_1D("meff_SR1L_03", meff)
 
                     // cout << "17. After SR1L event counting" << endl;
                 }
@@ -313,9 +289,7 @@ namespace Gambit
                     int NHiggs = higgsJets.size();
                     int NtH = Ntop + NHiggs;
 
-                    #ifdef CHECK_PLOT
-                        _histo_Ntop->fill(Ntop + 0.5, 1.);
-                    #endif
+                    FILL_HISTOGRAM_1D("Ntop", Ntop + 0.5)
 
                     double meff = met;
                     for (const HEPUtils::Jet *jet : signalJets)
@@ -327,11 +301,9 @@ namespace Gambit
                     double mTBmin = (nbjets >= 3) ? min(get_mT(signalBjets[2]->mom(), pmiss), mTb12) : mTb12;
 
                     // cout << "27. Calculated mTb12 and mTBmin" << endl;
-                    #ifdef CHECK_PLOT
-                        if ((NtH >= 2) && (nbjets == 2)) _histo_meff_SR0L_01->fill(meff, 1.); 
-                        if ((NtH >= 2) && (nbjets == 2) && (mTBmin <= 500.)) _histo_mTBmin->fill(mTBmin, 1.); 
-                        if ((NtH >= 2) && (nbjets == 2) && (mTBmin > 500.)) _histo_mTBmin->fill(490., 1.); 
-                    #endif 
+                    if ((NtH >= 2) && (nbjets == 2)) FILL_HISTOGRAM_1D("meff_SR0L_01", meff)
+                    if ((NtH >= 2) && (nbjets == 2) && (mTBmin <= 500.)) FILL_HISTOGRAM_1D("mTBmin", mTBmin)
+                    if ((NtH >= 2) && (nbjets == 2) && (mTBmin > 500.)) FILL_HISTOGRAM_1D("mTBmin", 490.)
 
                     bool sr0l01 = (NtH >= 2) && (nbjets == 2) && (mTBmin > 160.) && (meff > 1000.);
                     bool sr0l02 = (Ntop == 1) && (NHiggs == 1) && (nbjets == 3) && (mTBmin > 160.) && (meff > 1000.);
@@ -373,35 +345,7 @@ namespace Gambit
                 add_result(SignalRegionData(_counters.at("SR0L-05"), 29., {28.8, 3.1}));
 
                 COMMIT_CUTFLOWS;
-                // Add cutflow data to the analysis results
-                #ifdef CHECK_PLOT
-                    double intgnt = _histo_Ntop->integral(); 
-                    if (intgnt > 0) _histo_Ntop->scaleW(1.0 / intgnt); 
-                    double intgnb = _histo_Nbjet->integral();
-                    if (intgnb > 0) _histo_Nbjet->scaleW(1.0 / intgnb); 
-                    double intgnh = _histo_NHiggs->integral(); 
-                    if (intgnh > 0) _histo_NHiggs->scaleW(1.0 / intgnh); 
-                    double intgnj = _histo_Njet->integral();
-                    if (intgnj > 0) _histo_Njet->scaleW(1.0 / intgnj); 
-                    double intmtb = _histo_mTBmin->integral();
-                    if (intmtb > 0) _histo_mTBmin->scaleW(1.0 / intmtb);
-                    double intme0 = _histo_meff_SR0L_01->integral();
-                    if (intme0 > 0) _histo_meff_SR0L_01->scaleW(1.0 / intme0); 
-                    double intme1 = _histo_meff_SR1L_03->integral();
-                    if (intme1 > 0) _histo_meff_SR1L_03->scaleW(1.0 / intme1); 
-
-                    std::vector<YODA::AnalysisObject *> histos;
-                    histos.push_back(_histo_NHiggs);
-                    histos.push_back(_histo_Njet);
-                    histos.push_back(_histo_meff_SR1L_03);
-                    histos.push_back(_histo_Nbjet);
-                    histos.push_back(_histo_Ntop);
-                    histos.push_back(_histo_meff_SR0L_01);
-                    histos.push_back(_histo_mTBmin);
-
-                    // del _histo_mTBmin;
-                    YODA::WriterYODA::write("ATLAS_EXOT_2016_013.yoda", histos.begin(), histos.end());
-                #endif
+                COMMIT_HISTOGRAMS;
                 return;
             }
 

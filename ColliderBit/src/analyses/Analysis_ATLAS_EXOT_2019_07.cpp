@@ -40,11 +40,6 @@
 
 // #define CHECK_CUTFLOW
 
-#ifdef CHECK_CUTFLOW
-#include "YODA/Histo1D.h"
-#include "YODA/WriterYODA.h"
-#endif
-
 using namespace std;
 
 namespace Gambit

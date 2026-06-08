@@ -16,11 +16,8 @@
 #include "fastjet/contrib/VariableR.hh"
 
 #include <memory> // Required for std::shared_ptr
-#include <YODA/Histo1D.h>
-#include <YODA/WriterYODA.h>
 #include <vector>
 #include <cmath>
-#include <memory>
 #include <iomanip>
 #include <algorithm>
 #include <fstream>
@@ -56,10 +53,6 @@ namespace Gambit
     /// Basic analysis code for copying
     class Analysis_ATLAS_SUSY_2018_07 : public Analysis
     {
-    private:
-      // YODA::Histo1DPtr _hist_Topness;
-      std::shared_ptr<YODA::Histo1D> _hist_Topness;
-
     public:
       // Required detector sim
       static constexpr const char *detector = "ATLAS";
@@ -243,7 +236,6 @@ namespace Gambit
 
       Analysis_ATLAS_SUSY_2018_07()
       {
-        _hist_Topness = std::make_shared<YODA::Histo1D>(10, 0.0, 100.0, "Topness", "My Topness");
         // Signal region counter
         DEFINE_SIGNAL_REGION("SR-tN_med");
         DEFINE_SIGNAL_REGION("SR-tN_high");
@@ -608,10 +600,6 @@ namespace Gambit
         add_result(SignalRegionData(_counters["SR-bffN_btag"], 14., {11.3, 1.4}));
         add_result(SignalRegionData(_counters["SR-bffN_softb"], 10., {8.7, 2.3}));
         add_result(SignalRegionData(_counters["SR-DM"], 56., {56.0, 8.0}));
-
-        std::vector<YODA::AnalysisObject *> ao_list;
-        ao_list.push_back(_hist_Topness.get());
-        YODA::WriterYODA::write("ATLAS-SUSY-2018-007.yoda", ao_list);
       }
 
     protected:

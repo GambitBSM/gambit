@@ -296,6 +296,26 @@ macro(use_contributed_pybind11)
 endmacro()
 
 # Function to add GAMBIT executable
+function(normalise_gambit_link_libraries output_var)
+  set(normalised_libraries)
+  foreach(link_item ${ARGN})
+    if("${link_item}" STREQUAL "-L")
+      continue()
+    endif()
+    if("${link_item}" MATCHES "^-L(.+)$")
+      set(link_dir "${CMAKE_MATCH_1}")
+      if(EXISTS "${link_dir}" AND NOT IS_DIRECTORY "${link_dir}")
+        continue()
+      endif()
+    endif()
+    list(FIND normalised_libraries "${link_item}" existing_item)
+    if(existing_item EQUAL -1)
+      list(APPEND normalised_libraries "${link_item}")
+    endif()
+  endforeach()
+  set(${output_var} ${normalised_libraries} PARENT_SCOPE)
+endfunction()
+
 function(add_gambit_executable executablename LIBRARIES)
   cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;" ${ARGN})
 
@@ -332,7 +352,7 @@ function(add_gambit_executable executablename LIBRARIES)
         set_target_properties(${executablename} PROPERTIES LINK_FLAGS ${MPI_Fortran_LINK_FLAGS})
     endif()
   endif()
-  if (OpenMP_omp_LIBRARY)
+  if (OpenMP_omp_LIBRARY AND "${OpenMP_CXX_FLAGS}" MATCHES "-Xclang[ ]+-fopenmp")
     set(LIBRARIES ${LIBRARIES} ${OpenMP_omp_LIBRARY})
   endif()
   if (LIBDL_FOUND)
@@ -362,6 +382,8 @@ function(add_gambit_executable executablename LIBRARIES)
   if(SQLite3_FOUND)
       set(LIBRARIES ${LIBRARIES} ${SQLite3_LIBRARIES})
   endif()
+
+  normalise_gambit_link_libraries(LIBRARIES ${LIBRARIES})
 
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     target_link_libraries(${executablename} PRIVATE ${gambit_preload_LDFLAGS} ${LIBRARIES} yaml-cpp)
@@ -445,9 +467,9 @@ function(add_standalone executablename)
                                ${HARVEST_TOOLS}
                                ${CMAKE_BINARY_DIR}/CMakeCache.txt) #CMAKE_CACHEFILE_DIR is the same as CMAKE_BINARY_DIR
 
-    # All the standalones need linking to HepMC, if HepMC is not excluced.
+    # All the standalones need linking to HepMC, if HepMC is not excluded.
     # TODO: Avoid this if possible.
-    if (NOT EXCLUDE_HEPMC)
+    if (NOT EXCLUDE_HEPMC AND NOT USES_COLLIDERBIT)
       set(ARG_LIBRARIES ${ARG_LIBRARIES} ${HEPMC_LDFLAGS})
     endif()
 

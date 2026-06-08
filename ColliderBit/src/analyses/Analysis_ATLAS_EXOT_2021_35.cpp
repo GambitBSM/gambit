@@ -30,7 +30,6 @@
 #include "fastjet/tools/Pruner.hh"
 #include "fastjet/Selector.hh"
 #include "fastjet/contrib/EnergyCorrelator.hh"
-// #include "gambit/contrib/fjcontrib-1.045/EnergyCorrelator/EnergyCorrelator.hh"
 #else
 #include "fjcore.hh"
 #ifndef FJNS
@@ -42,11 +41,6 @@ using namespace std;
 
 
 // #define CHECK_CUTFLOW
-
-#ifdef CHECK_CUTFLOW
-    #include "YODA/Histo1D.h"
-    #include "YODA/WriterYODA.h"
-#endif
 
 
 class WJetTagger
@@ -110,11 +104,6 @@ namespace Gambit
         private:
             /* data */
         public:
-            #ifdef CHECK_CUTFLOW
-                YODA::Histo1D *_histo_mVLQ_sr1; 
-                YODA::Histo1D *_histo_mVLQ_sr2; 
-            #endif
-
             static constexpr const char *detector = "ATLAS";
             Analysis_ATLAS_EXOT_2021_035()
             {
@@ -124,10 +113,8 @@ namespace Gambit
                 set_analysis_name("ATLAS_EXOT_2021_035");
                 set_luminosity(140.0);
 
-                #ifdef CHECK_CUTFLOW
-                    _histo_mVLQ_sr1 = new YODA::Histo1D(10, 0., 2000., "SR1/mVLQlep");
-                    _histo_mVLQ_sr2 = new YODA::Histo1D(10, 0., 2000., "SR2/mVLQlep");
-                #endif
+                DEFINE_HISTOGRAM_1D_UNIFORM("mVLQlep_sr1", 10, 0., 2000., "m_{VLQ}^{lep} [GeV]")
+                DEFINE_HISTOGRAM_1D_UNIFORM("mVLQlep_sr2", 10, 0., 2000., "m_{VLQ}^{lep} [GeV]")
             }
 
             void run(const HEPUtils::Event *event)
@@ -291,10 +278,8 @@ namespace Gambit
                     if (sr1) { FILL_SIGNAL_REGION("SR1") }
                     if (sr2) { FILL_SIGNAL_REGION("SR2") }
 
-                    #ifdef CHECK_CUTFLOW
-                        if (sr1) _histo_mVLQ_sr1->fill(p4VLQlep.m()); 
-                        if (sr2) _histo_mVLQ_sr2->fill(p4VLQlep.m()); 
-                    #endif
+                    if (sr1) FILL_HISTOGRAM_1D("mVLQlep_sr1", p4VLQlep.m())
+                    if (sr2) FILL_HISTOGRAM_1D("mVLQlep_sr2", p4VLQlep.m())
                 }
                 return; 
 
@@ -308,14 +293,7 @@ namespace Gambit
                 COMMIT_SIGNAL_REGION("SR2", 186, 192, 12)
 
                 COMMIT_CUTFLOWS;
-                #ifdef CHECK_CUTFLOW
-                    std::vector<YODA::AnalysisObject *> histos; 
-                    histos.push_back(_histo_mVLQ_sr1);
-                    histos.push_back(_histo_mVLQ_sr2);
-                    YODA::WriterYODA::write("ATLAS_EXOT_2021_035.yoda", histos.begin(), histos.end()); 
-                    delete _histo_mVLQ_sr1; 
-                    delete _histo_mVLQ_sr2; 
-                #endif
+                COMMIT_HISTOGRAMS;
                 return;
             }
 

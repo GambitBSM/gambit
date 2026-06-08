@@ -23,11 +23,6 @@ using namespace std;
 
 // #define CHECK_CUTFLOW
 
-// #ifdef CHECK_CUTFLOW
-//     #include "YODA/Histo1D.h"
-//     #include "YODA/WriterYODA.h"
-// #endif
-
 namespace Gambit
 {
     namespace ColliderBit
@@ -38,7 +33,6 @@ namespace Gambit
             /* data */
         public:
             #ifdef CHECK_CUTFLOW
-                // YODA::Histo1D *_histo_mVLQ; 
                 int Nevent = 0;
             #endif
 
@@ -51,7 +45,6 @@ namespace Gambit
                 set_luminosity(36.1);
 
                 #ifdef CHECK_CUTFLOW
-                    // _histo_mVLQ = new YODA::Histo1D(17, 0., 2550., "SR/mVLQ"); 
                     _cutflows.addCutflow("ATLAS-EXOT-2016-017", {
                         "No Cut", 
                         "Preselection",
@@ -74,8 +67,6 @@ namespace Gambit
                 #endif
 
                 double met = event->met();
-                HEPUtils::P4 pmiss = event->missingmom();
-
                 BASELINE_PARTICLES(event->electrons(), baselineEl1, 25, 0, DBL_MAX, 1.37);
                 BASELINE_PARTICLES(event->electrons(), baselineEl2, 25, 1.52, DBL_MAX, 2.47);
                 BASELINE_PARTICLES(event->muons(), baselineMuons, 25, 0, DBL_MAX, 2.5);
@@ -182,21 +173,6 @@ namespace Gambit
                         {
                             FILL_SIGNAL_REGION("SR")
                         }
-
-
-                        // Reconstructing mVLQ 
-                        // #ifdef CHECK_CUTFLOW
-                        //     double nv_px = pmiss.px();
-                        //     double nv_py = pmiss.py();
-                        //     std::vector<double> pz_nus = calculate_pvz(signalLeptons.at(0)->mom(), nv_px, nv_py); 
-                        //     double nv_pz = solute_pvZ(pz_nus); 
-                        //     double nv_E  = std::sqrt(nv_px * nv_px + nv_py * nv_py + nv_pz * nv_pz ); 
-                        //     HEPUtils::P4 pv4(nv_px, nv_py, nv_pz, nv_E);
-                        //     HEPUtils::P4 pVLQ4 = pv4 + signalLeptons.at(0)->mom() + Bjet0mom; 
-                        //     double mVLQ = pVLQ4.m(); 
-                        //     if (!Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)
-                        //         _histo_mVLQ->fill(mVLQ, 1.); 
-                        // #endif
                     }
                 }
                 return; 
@@ -208,12 +184,6 @@ namespace Gambit
                 add_result(SignalRegionData(_counters.at("SR"), 497, {500, 30}));
 
                 COMMIT_CUTFLOWS;
-                // #ifdef CHECK_CUTFLOW
-                    // std::vector<YODA::AnalysisObject *> histos; 
-                    // histos.push_back(_histo_mVLQ);
-                    // YODA::WriterYODA::write("ATLAS_EXOT_2016_017.yoda", histos.begin(), histos.end()); 
-                    // delete _histo_mVLQ; 
-                // #endif
                 return;
             }
 
@@ -226,45 +196,6 @@ namespace Gambit
                 }
             }
         
-        private: 
-            const double mW = 80.4; 
-
-            std::vector<double> calculate_pvz(const HEPUtils::P4 &lep, double met_px, double met_py)
-            {
-                double px_l = lep.px();
-                double py_l = lep.py();
-                double pz_l = lep.pz();
-                double E_l = lep.E();
-                double ETM2 = met_px * met_px + met_py * met_py; 
-
-                double m_l = lep.m(); 
-
-                double A = mW * mW - m_l * m_l + 2.0 * px_l * met_px + 2.0 * met_py * py_l; 
-                double B = 2.0 * pz_l; 
-                double C = -2.0 * E_l; 
-
-                double discriminant = (A * A) * (C * C) + (B * B) * (C * C) * ETM2 - (C * C * C * C) * ETM2; 
-                double denominator = (C * C) - (B * B); 
-
-                std::vector<double> solutions;
-
-                if (discriminant >= 0)
-                {
-                    double sqrt_discriminant = std::sqrt(discriminant);
-                    solutions.push_back((A * B + sqrt_discriminant)/denominator);
-                    solutions.push_back((A * B - sqrt_discriminant)/denominator);
-                }
-
-                return solutions;
-            }
-
-            double solute_pvZ(const std::vector<double> &solutions)
-            {
-                if (solutions.empty())
-                    return 0.0;
-                return (std::abs(solutions[0]) < std::abs(solutions[1])) ? solutions[0] : solutions[1];
-            }
-
         };
         DEFINE_ANALYSIS_FACTORY(ATLAS_EXOT_2016_017)
     } // namespace ColliderBit

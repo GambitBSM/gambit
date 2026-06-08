@@ -24,6 +24,7 @@
 #include "HEPUtils/Event.h"
 #include "HEPUtils/Jet.h"
 // #include "fastjet/Filter.hh"
+#include <cmath>
 #include <random>
 
 // Similar to ATLAS_13_TeV_3b_NN_139invfb (define structure copied from heputils/FastJet.h)
@@ -37,7 +38,6 @@
 #include "fastjet/tools/Pruner.hh"
 #include "fastjet/Selector.hh"
 #include "fastjet/contrib/EnergyCorrelator.hh"
-// #include "gambit/contrib/fjcontrib-1.045/EnergyCorrelator/EnergyCorrelator.hh"
 #else
 #include "fjcore.hh"
 #ifndef FJNS
@@ -248,7 +248,7 @@ namespace Gambit
                     fastjet::PseudoJet trimmedJet = trimmer(pseudojet);
                     HEPUtils::Jet* hepUtilsJet = new HEPUtils::Jet(trimmedJet);
 
-                    if (trimmedJet.pt() > 200 &&  abs(trimmedJet.eta() < 2.0)) { // Setting The pT lower limit
+                    if (trimmedJet.pt() > 200 && std::abs(trimmedJet.eta()) < 2.0) { // Setting The pT lower limit
                         // Applying The W-jet Grooming
 
 

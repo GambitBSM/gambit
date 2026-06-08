@@ -330,7 +330,7 @@ namespace Gambit
         FJNS::Strategy jet_strategy = FJstrategy_map(jetcollection.strategy);
         FJNS::RecombinationScheme jet_recomscheme = FJRecomScheme_map(jetcollection.recombination_scheme);
         
-        const FJNS::JetDefinition jet_def(jet_algorithm, jetcollection.R, jet_strategy, jet_recomscheme);        
+        const FJNS::JetDefinition jet_def(jet_algorithm, jetcollection.R, jet_recomscheme, jet_strategy);
         /// Create and run a new cluster sequence for the given jet collection.
         /// The HEPUtils::Event instance ('result') takes ownership of the
         /// cluster sequence and a shared_ptr is returned here.
@@ -544,7 +544,7 @@ namespace Gambit
         FJNS::JetAlgorithm jet_algorithm = FJalgorithm_map(jetcollection.algorithm);
         FJNS::Strategy jet_strategy = FJstrategy_map(jetcollection.strategy);
         FJNS::RecombinationScheme jet_recomscheme = FJRecomScheme_map(jetcollection.recombination_scheme);
-        const FJNS::JetDefinition jet_def(jet_algorithm, jetcollection.R, jet_strategy, jet_recomscheme);
+        const FJNS::JetDefinition jet_def(jet_algorithm, jetcollection.R, jet_recomscheme, jet_strategy);
         std::shared_ptr<const FJNS::ClusterSequence> CSeqBasePtr = result.emplace_clusterseq(jetparticles, jet_def, jetcollection.key);
         std::vector<FJNS::PseudoJet> pjets = sorted_by_pt(CSeqBasePtr->inclusive_jets(jet_pt_min));
 

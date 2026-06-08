@@ -35,12 +35,12 @@ namespace Gambit
   namespace ColliderBit 
   {
     static bool SSLeptons(vector<const HEPUtils::Particle*> leptons){
-      bool samesign;
+      bool samesign = false;
       if (leptons.size()< 2){samesign=false;}
       else if (leptons.size() == 2){
         samesign = (leptons.at(0)->pid()*leptons.at(1)->pid()) > 0;
       }
-      else if (leptons.size()>3){samesign=true;}
+      else if (leptons.size()>=3){samesign=true;}
       return samesign;
     }
 
