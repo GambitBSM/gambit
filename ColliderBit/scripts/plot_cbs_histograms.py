@@ -28,8 +28,25 @@ except ImportError as e:
     sys.exit(1)
 
 
-def plot_histogram_1d(h_data, analysis_name, outdir, fmt, dpi):
-    """Plot a single 1D histogram."""
+def _safe_histogram_name(name):
+    return name.replace("/", "_").replace(" ", "_")
+
+
+def _step_values(values):
+    if len(values) == 0:
+        return values
+    return np.r_[values, values[-1]]
+
+
+def _bin_array(h_data, key, top_level_key=None):
+    top_level_key = top_level_key or key
+    if top_level_key in h_data:
+        return np.array(h_data[top_level_key], dtype=float)
+    return np.array([b[key] for b in h_data["bins"]], dtype=float)
+
+
+def plot_histogram_1d_signal_only(h_data, analysis_name, outdir, fmt, dpi):
+    """Plot a single plain 1D histogram."""
     edges = np.array(h_data["edges"])
     nbins = len(edges) - 1
 
@@ -70,11 +87,102 @@ def plot_histogram_1d(h_data, analysis_name, outdir, fmt, dpi):
     ax.set_ylim(bottom=0)
     ax.legend(loc="upper left", fontsize=10)
 
-    safe_name = h_data["name"].replace("/", "_").replace(" ", "_")
+    safe_name = _safe_histogram_name(h_data["name"])
     outpath = os.path.join(outdir, f"{analysis_name}_{safe_name}.{fmt}")
     fig.savefig(outpath, dpi=dpi, bbox_inches="tight")
     plt.close(fig)
     return outpath
+
+
+def plot_histogram_1d_signal_region(h_data, analysis_name, outdir, fmt, dpi):
+    """Plot a 1D histogram that also carries per-bin SR data."""
+    edges = np.array(h_data["edges"], dtype=float)
+    nbins = len(edges) - 1
+
+    bins = h_data["bins"][:nbins]
+    counts = np.array([b["count"] for b in bins], dtype=float)
+    obs = _bin_array(h_data, "n_obs", "obs")[:nbins]
+    bkg = _bin_array(h_data, "n_bkg", "bkg")[:nbins]
+    bkg_err = _bin_array(h_data, "n_bkg_err", "bkg_err")[:nbins]
+
+    centers = 0.5 * (edges[:-1] + edges[1:])
+    obs_err = np.sqrt(np.clip(obs, 0.0, None))
+
+    fig, (ax, rax) = plt.subplots(
+        2, 1, figsize=(8, 7), sharex=True,
+        gridspec_kw={"height_ratios": [3, 1], "hspace": 0.05}
+    )
+
+    bkg_low = np.clip(bkg - bkg_err, 0.0, None)
+    bkg_high = bkg + bkg_err
+    ax.fill_between(
+        edges, _step_values(bkg_low), _step_values(bkg_high),
+        step="post", facecolor="lightgray", edgecolor="gray",
+        alpha=0.45, hatch="///", label="Uncertainty"
+    )
+    ax.step(edges, _step_values(bkg), where="post",
+            color="tab:blue", linewidth=1.6, label="Background")
+    ax.step(edges, _step_values(counts), where="post",
+            color="tab:red", linestyle="--", linewidth=1.6, label="Signal")
+    ax.errorbar(centers, obs, yerr=obs_err, fmt="o",
+                color="black", ecolor="black", elinewidth=1,
+                capsize=2, markersize=4, label="Data")
+
+    ax.set_ylabel("Events", fontsize=13)
+    ax.set_title(f"{analysis_name}: {h_data['name']}", fontsize=14)
+    ax.set_xlim(edges[0], edges[-1])
+    ymax = np.max(np.r_[obs + obs_err, bkg_high, counts, 1.0])
+    ax.set_ylim(bottom=0, top=1.25 * ymax)
+    ax.legend(loc="upper right", fontsize=10)
+
+    valid = bkg > 0.0
+    rax.axhline(1.0, color="black", linestyle="--", linewidth=1)
+    if np.any(valid):
+        ratio_unc = np.full(nbins, np.nan)
+        ratio_unc[valid] = bkg_err[valid] / bkg[valid]
+        ratio_low = np.clip(1.0 - ratio_unc, 0.0, None)
+        ratio_high = 1.0 + ratio_unc
+        rax.fill_between(
+            edges, _step_values(ratio_low), _step_values(ratio_high),
+            step="post", facecolor="lightgray", edgecolor="gray",
+            alpha=0.45, hatch="///"
+        )
+
+        data_ratio = obs[valid] / bkg[valid]
+        data_ratio_err = obs_err[valid] / bkg[valid]
+        signal_ratio = np.full(nbins, np.nan)
+        signal_ratio[valid] = counts[valid] / bkg[valid]
+
+        rax.errorbar(centers[valid], data_ratio, yerr=data_ratio_err,
+                     fmt="o", color="black", ecolor="black",
+                     elinewidth=1, capsize=2, markersize=4)
+        rax.step(edges, _step_values(signal_ratio), where="post",
+                 color="tab:red", linestyle="--", linewidth=1.4)
+
+        ratio_values = np.r_[data_ratio + data_ratio_err, signal_ratio[valid], ratio_high[valid], 1.0]
+        ratio_values = ratio_values[np.isfinite(ratio_values)]
+        ratio_top = max(1.6, np.max(ratio_values) * 1.15) if ratio_values.size else 1.6
+        rax.set_ylim(0.0, ratio_top)
+    else:
+        rax.set_ylim(0.0, 1.6)
+
+    x_label = h_data.get("x_label", "")
+    rax.set_xlabel(x_label if x_label else h_data["name"], fontsize=13)
+    rax.set_ylabel("Data / Bkg", fontsize=12)
+    rax.set_xlim(edges[0], edges[-1])
+
+    safe_name = _safe_histogram_name(h_data["name"])
+    outpath = os.path.join(outdir, f"{analysis_name}_{safe_name}.{fmt}")
+    fig.savefig(outpath, dpi=dpi, bbox_inches="tight")
+    plt.close(fig)
+    return outpath
+
+
+def plot_histogram_1d(h_data, analysis_name, outdir, fmt, dpi):
+    """Plot a single 1D histogram."""
+    if h_data.get("is_signal_region", False):
+        return plot_histogram_1d_signal_region(h_data, analysis_name, outdir, fmt, dpi)
+    return plot_histogram_1d_signal_only(h_data, analysis_name, outdir, fmt, dpi)
 
 
 def plot_histogram_2d(h_data, analysis_name, outdir, fmt, dpi):
@@ -99,7 +207,7 @@ def plot_histogram_2d(h_data, analysis_name, outdir, fmt, dpi):
             verticalalignment="top", horizontalalignment="right",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="wheat", alpha=0.5))
 
-    safe_name = h_data["name"].replace("/", "_").replace(" ", "_")
+    safe_name = _safe_histogram_name(h_data["name"])
     outpath = os.path.join(outdir, f"{analysis_name}_{safe_name}_2d.{fmt}")
     fig.savefig(outpath, dpi=dpi, bbox_inches="tight")
     plt.close(fig)

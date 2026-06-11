@@ -158,6 +158,13 @@ namespace Gambit
             hobj["x_label"] = h.x_label;
             hobj["edges"] = h.edges;
             hobj["nbins"] = h.nbins();
+            hobj["is_signal_region"] = h.is_signal_region();
+            if (h.is_signal_region())
+            {
+              hobj["obs"] = h.obs;
+              hobj["bkg"] = h.bkg;
+              hobj["bkg_err"] = h.bkg_err;
+            }
 
             nlohmann::json bins_arr = nlohmann::json::array();
             for (size_t i = 0; i < h.nbins(); ++i)
@@ -169,6 +176,13 @@ namespace Gambit
               bin["count"] = h.counts[i];
               bin["error"] = h.bin_error(i);
               bin["sumw2"] = h.sumw2[i];
+              if (h.is_signal_region())
+              {
+                bin["n_obs"] = h.obs[i];
+                bin["n_bkg"] = h.bkg[i];
+                bin["n_bkg_err"] = h.bkg_err[i];
+                bin["sr_label"] = h.name + "_bin" + std::to_string(i);
+              }
               bins_arr.push_back(bin);
             }
             hobj["bins"] = bins_arr;

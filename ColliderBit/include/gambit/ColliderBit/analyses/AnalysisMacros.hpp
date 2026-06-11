@@ -468,9 +468,20 @@
 #define COMMIT_HISTOGRAMS                                                         \
   add_histograms(_histograms);
 
+/// Commit each bin of a histogram-backed signal-region set
+#define COMMIT_HISTOGRAM_SRS(NAME)                                                \
+  for (const SignalRegionData& _sr : _histograms.h1d(NAME).to_signal_regions())    \
+  {                                                                                \
+    add_result(_sr);                                                               \
+  }
+
 /// Define a 1D histogram with variable-width bins
 #define DEFINE_HISTOGRAM_1D(NAME, EDGES, ...)                                     \
   _histograms.addHistogram(Histogram1D(NAME, EDGES, ##__VA_ARGS__));
+
+/// Define a 1D histogram that also maps one signal region to each bin
+#define DEFINE_HISTOGRAM_SR_1D(NAME, EDGES, OBS, BKG, BKG_ERR, ...)               \
+  _histograms.addHistogram(Histogram1D(NAME, EDGES, OBS, BKG, BKG_ERR, ##__VA_ARGS__));
 
 /// Define a 1D histogram with uniform bins
 #define DEFINE_HISTOGRAM_1D_UNIFORM(NAME, NBINS, XLO, XHI, ...)                   \
@@ -495,5 +506,4 @@
 #if defined(__clang__)
   #pragma clang diagnostic pop
 #endif
-
 

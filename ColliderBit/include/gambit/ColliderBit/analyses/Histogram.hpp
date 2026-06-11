@@ -26,8 +26,11 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
+
+#include "gambit/ColliderBit/analyses/SignalRegionData.hpp"
 
 namespace Gambit
 {
@@ -65,6 +68,10 @@ namespace Gambit
       std::vector<double> counts;  ///< N bin contents (sum of weights)
       std::vector<double> sumw2;   ///< N sum-of-weights-squared per bin
 
+      std::vector<double> obs;     ///< Optional observed counts per bin
+      std::vector<double> bkg;     ///< Optional background central values per bin
+      std::vector<double> bkg_err; ///< Optional background errors per bin
+
       double underflow;
       double overflow;
       double underflow_sumw2;
@@ -93,6 +100,18 @@ namespace Gambit
           assert(edges[i] > edges[i - 1]);
       }
 
+      /// Variable-width-bin constructor with per-bin experimental data.
+      Histogram1D(const std::string& hname,
+                  const std::vector<double>& bin_edges,
+                  const std::vector<double>& observed,
+                  const std::vector<double>& background,
+                  const std::vector<double>& background_error,
+                  const std::string& xlabel = "")
+        : Histogram1D(hname, bin_edges, xlabel)
+      {
+        set_signal_region_data(observed, background, background_error);
+      }
+
       /// Uniform-bin convenience constructor
       Histogram1D(const std::string& hname,
                   size_t nbins, double xlo, double xhi,
@@ -107,6 +126,18 @@ namespace Gambit
         const double width = (xhi - xlo) / static_cast<double>(nbins);
         for (size_t i = 0; i <= nbins; ++i)
           edges[i] = xlo + static_cast<double>(i) * width;
+      }
+
+      /// Uniform-bin convenience constructor with per-bin experimental data.
+      Histogram1D(const std::string& hname,
+                  size_t nbins, double xlo, double xhi,
+                  const std::vector<double>& observed,
+                  const std::vector<double>& background,
+                  const std::vector<double>& background_error,
+                  const std::string& xlabel = "")
+        : Histogram1D(hname, nbins, xlo, xhi, xlabel)
+      {
+        set_signal_region_data(observed, background, background_error);
       }
 
       // ----- Fill -----
@@ -159,6 +190,11 @@ namespace Gambit
       void combine(const Histogram1D& other)
       {
         assert(counts.size() == other.counts.size());
+        if (!has_compatible_signal_region_data(other))
+        {
+          throw std::runtime_error(
+            "Cannot combine Histogram1D '" + name + "' with inconsistent signal-region data.");
+        }
         for (size_t i = 0; i < counts.size(); ++i)
         {
           counts[i] += other.counts[i];
@@ -173,6 +209,41 @@ namespace Gambit
       // ----- Accessors -----
 
       size_t nbins() const { return counts.size(); }
+
+      bool is_signal_region() const { return !obs.empty(); }
+
+      void set_signal_region_data(
+        const std::vector<double>& observed,
+        const std::vector<double>& background,
+        const std::vector<double>& background_error)
+      {
+        obs = observed;
+        bkg = background;
+        bkg_err = background_error;
+        validate_signal_region_data();
+      }
+
+      std::vector<SignalRegionData> to_signal_regions() const
+      {
+        std::vector<SignalRegionData> srs;
+        if (!is_signal_region()) return srs;
+
+        validate_signal_region_data();
+        srs.reserve(nbins());
+        for (size_t i = 0; i < nbins(); ++i)
+        {
+          SignalRegionData sr(
+            name + "_bin" + std::to_string(i),
+            obs[i],
+            counts[i],
+            bkg[i],
+            0.0,
+            bkg_err[i]);
+          sr.n_sig_MC_stat = std::sqrt(sumw2[i]);
+          srs.push_back(sr);
+        }
+        return srs;
+      }
 
       double bin_center(size_t i) const
       {
@@ -251,6 +322,21 @@ namespace Gambit
       {
         static bool enabled = true;
         return enabled;
+      }
+
+      void validate_signal_region_data() const
+      {
+        if (obs.empty() && bkg.empty() && bkg_err.empty()) return;
+        if (obs.size() != nbins() || bkg.size() != nbins() || bkg_err.size() != nbins())
+        {
+          throw std::runtime_error(
+            "Histogram1D '" + name + "' signal-region data must have one obs/bkg/bkg_err value per bin.");
+        }
+      }
+
+      bool has_compatible_signal_region_data(const Histogram1D& other) const
+      {
+        return obs == other.obs && bkg == other.bkg && bkg_err == other.bkg_err;
       }
     };
 

@@ -516,6 +516,32 @@ namespace Gambit
                 h.counts[i] = bins[i].at("count").get<double>();
                 h.sumw2[i] = bins[i].at("sumw2").get<double>();
               }
+              if (h_json.value("is_signal_region", false))
+              {
+                if (h_json.contains("obs") && h_json.contains("bkg") && h_json.contains("bkg_err"))
+                {
+                  h.set_signal_region_data(
+                    h_json.at("obs").get<std::vector<double>>(),
+                    h_json.at("bkg").get<std::vector<double>>(),
+                    h_json.at("bkg_err").get<std::vector<double>>());
+                }
+                else
+                {
+                  std::vector<double> obs;
+                  std::vector<double> bkg;
+                  std::vector<double> bkg_err;
+                  obs.reserve(h.nbins());
+                  bkg.reserve(h.nbins());
+                  bkg_err.reserve(h.nbins());
+                  for (std::size_t i = 0; i < bins.size() && i < h.nbins(); ++i)
+                  {
+                    obs.push_back(bins[i].at("n_obs").get<double>());
+                    bkg.push_back(bins[i].at("n_bkg").get<double>());
+                    bkg_err.push_back(bins[i].at("n_bkg_err").get<double>());
+                  }
+                  h.set_signal_region_data(obs, bkg, bkg_err);
+                }
+              }
               h.underflow = h_json.value("underflow", 0.0);
               h.overflow = h_json.value("overflow", 0.0);
               double uf_err = h_json.value("underflow_error", 0.0);
@@ -716,18 +742,20 @@ namespace Gambit
             const std::vector<SRPayload> sr_payloads = parse_sorted_sr_payloads(analysis_json);
             const Cutflows file_cutflows = parse_cutflows_or_empty(analysis_json);
             const Histograms file_histograms = parse_histograms_or_empty(analysis_json);
+            Histograms weighted_histograms = file_histograms;
+            weighted_histograms.scale(process_weight);
 
             AnalysisAccumulator& acc = accumulators[analysis_name];
             if (acc.data.srdata.empty())
             {
               initialize_accumulator(acc, analysis_name, analysis_json, sr_payloads, file_cutflows);
-              acc.data.histograms = file_histograms;
+              acc.data.histograms = weighted_histograms;
             }
             else
             {
               validate_payload_consistency(acc, analysis_name, sr_payloads, analysis_json);
               accumulate_cutflows(acc.data.cutflows, file_cutflows, analysis_name);
-              accumulate_histograms(acc.data.histograms, file_histograms, analysis_name);
+              accumulate_histograms(acc.data.histograms, weighted_histograms, analysis_name);
             }
 
             for (std::size_t i = 0; i < sr_payloads.size(); ++i)

@@ -59,10 +59,13 @@ namespace Gambit
 
         // Histograms for kinematic distributions (filled when check_histogram is enabled)
         // DEFINE_HISTOGRAM_1D_UNIFORM("m_VLB", 25, 500.0, 3000.0, "m_{VLB} [GeV]")
-
+        // 1D histogram in Fig. 7 of arXiv:2308.02595
         const std::vector<double> mVLB_bins = {900, 1050, 1150, 1250, 1400, 1600, 1900, 2300};
-        DEFINE_HISTOGRAM_1D("m_VLB", mVLB_bins, "$m_{\\rm VLB}$ [GeV]")
-
+        const std::vector<double> mVLB_obs = {41.0, 62, 54., 67., 24., 13., 4.};
+        const std::vector<double> mVLB_bkg = {45.5, 61.2, 47.9, 51.0, 28.5, 14.8, 7.4};
+        const std::vector<double> mVLB_bkg_err = {4.6, 5.6, 5.4, 6.2, 4.3, 2.8, 2.0};
+        DEFINE_HISTOGRAM_SR_1D("m_VLB", mVLB_bins, mVLB_obs, mVLB_bkg, mVLB_bkg_err, "$m_{\\rm VLB}$ [GeV]")
+        // End of definition of histograms
         set_analysis_name("ATLAS_EXOT_2019_04");
         set_luminosity(139.0);
       }
@@ -334,6 +337,7 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SR", 262, 260, 17)
         COMMIT_CUTFLOWS;
         COMMIT_HISTOGRAMS;
+        COMMIT_HISTOGRAM_SRS("m_VLB");
         return;
       }
 
