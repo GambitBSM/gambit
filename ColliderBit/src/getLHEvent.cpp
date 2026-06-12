@@ -58,10 +58,50 @@ namespace Gambit
       // Get all jet collection settings
       str jetcollection_taus;
       std::vector<jet_collection_settings> all_jet_collection_settings = {};
+
+      // Optional: VR jet collection settings (only parsed/used if provided in YAML)
+      bool use_vrjets = false;
+      std::vector<vrjet_collection_settings> all_vrjet_collection_settings = {};
+
       if (runOptions->hasKey((*Dep::RunMC).current_collider()))
       {
         YAML::Node colNode = runOptions->getValue<YAML::Node>((*Dep::RunMC).current_collider());
         Options colOptions(colNode);
+
+        // Fill the VR jet collection settings (optional)
+        if (colOptions.hasKey("VRJet_collections"))
+        {
+          YAML::Node all_vrjetcollections_node = colOptions.getValue<YAML::Node>("VRJet_collections");
+          Options all_vrjetcollection_options(all_vrjetcollections_node);
+          std::vector<str> vrjetcollection_names = all_vrjetcollection_options.getNames();
+
+          if (vrjetcollection_names.empty())
+          {
+            ColliderBit_error().raise(LOCAL_INFO, "VRJet_collections is present but empty. Please define at least one VR jet collection under VRJet_collections.");
+          }
+
+          for (const str& key : vrjetcollection_names)
+          {
+            YAML::Node current_vrjc_node = all_vrjetcollection_options.getValue<YAML::Node>(key);
+            Options current_vrjc_options(current_vrjc_node);
+
+            // Expected YAML structure:
+            // VRJet_collections:
+            //   <name>:
+            //     rho: <double>
+            //     Rmin: <double>
+            //     Rmax: <double>
+            //     pt_min: <double>
+            const double rho    = current_vrjc_options.getValue<double>("rho");
+            const double Rmin   = current_vrjc_options.getValue<double>("Rmin");
+            const double Rmax   = current_vrjc_options.getValue<double>("Rmax");
+            const double pt_min = current_vrjc_options.getValue<double>("pt_min");
+
+            all_vrjet_collection_settings.push_back({key, rho, Rmin, Rmax, pt_min});
+          }
+
+          use_vrjets = true;
+        }
 
         // Fill the jet collection settings
         if (colOptions.hasKey("jet_collections"))
@@ -110,7 +150,7 @@ namespace Gambit
       bool event_retrieved = true;
       #pragma omp critical (reading_LHEvent)
       {
-        if (lhe.readEvent()) get_HEPUtils_event(lhe, result, jet_pt_min, all_jet_collection_settings);
+        if (lhe.readEvent()) get_HEPUtils_event(lhe, result, jet_pt_min, all_jet_collection_settings, use_vrjets, all_vrjet_collection_settings);
         else event_retrieved = false;
       }
       if (not event_retrieved)

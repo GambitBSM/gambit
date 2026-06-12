@@ -35,7 +35,7 @@ namespace Gambit
       public:
 
         /// Constructor
-        BaseCollider() : partonOnly(false), all_jet_collection_settings({}), jetcollection_taus("") {}
+        BaseCollider() : partonOnly(false), all_jet_collection_settings({}), all_vrjet_collection_settings({}), use_vrjets(false), jetcollection_taus("") {}
         /// Destructor
         virtual ~BaseCollider() {}
         /// Reset this instance for reuse, avoiding the need for "new" or "delete".
@@ -72,6 +72,12 @@ namespace Gambit
 
         /// Vector of different jet collection settings
         std::vector<jet_collection_settings> all_jet_collection_settings;
+
+        /// Vector of different VR jet collection settings
+        std::vector<vrjet_collection_settings> all_vrjet_collection_settings;
+
+        /// Flag indicating whether VR jets should be constructed/used
+        bool use_vrjets;
 
         /// Key for jet collection used in adding taus
         std::string jetcollection_taus;

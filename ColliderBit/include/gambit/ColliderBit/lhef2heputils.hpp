@@ -42,6 +42,10 @@ namespace Gambit
     /// Extract an LHE event as a HEPUtils::Event
     void get_HEPUtils_event(const LHEF::Reader&, HEPUtils::Event&, double, std::vector<Gambit::ColliderBit::jet_collection_settings>);
 
+    void get_HEPUtils_event(const LHEF::Reader&, HEPUtils::Event&, double,
+                        std::vector<Gambit::ColliderBit::jet_collection_settings>,
+                        bool use_vrjets,
+                        std::vector<Gambit::ColliderBit::vrjet_collection_settings> vr_collections);
   }
 
 }

@@ -25,8 +25,8 @@
 ///  \date 2020 Jan
 ///
 ///  \author Tomas Gonzalo
-///          (gonzalo@physk.rwth-aachen.de)
-///  \date 2021 Jul
+///          (tomas.gonzalo@kit.edu)
+///  \date 2021 Jul, 2023 Aug
 ///
 ///  *********************************************
 
@@ -93,65 +93,6 @@ namespace Gambit
     }
 
 
-    void filtereff(std::vector<const HEPUtils::Particle*>& particles, double eff, bool do_delete)
-    {
-      if (particles.empty()) return;
-      auto keptParticlesEnd = std::remove_if(particles.begin(), particles.end(),
-                                             [&](const HEPUtils::Particle* p) {
-                                               const bool rm = !random_bool(eff);
-                                               if (do_delete && rm) delete p;
-                                               return rm;
-                                             } );
-      particles.erase(keptParticlesEnd, particles.end());
-    }
-
-
-    /// Utility function for filtering a supplied particle vector by sampling wrt a binned 1D efficiency map in pT
-    void filtereff(std::vector<const HEPUtils::Particle*>& particles, std::function<double(const HEPUtils::Particle*)> eff_fn, bool do_delete)
-    {
-      if (particles.empty()) return;
-      auto keptParticlesEnd = std::remove_if(particles.begin(), particles.end(),
-                                             [&](const HEPUtils::Particle* p)
-                                             {
-                                               const double eff = eff_fn(p);
-                                               const bool rm = !random_bool(eff);
-                                               if (do_delete && rm) delete p;
-                                               return rm;
-                                             } );
-      particles.erase(keptParticlesEnd, particles.end());
-    }
-
-
-    // Utility function for filtering a supplied particle vector by sampling wrt a binned 1D efficiency map in pT
-    void filtereff_pt(std::vector<const HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn1D<double>& eff_pt, bool do_delete)
-    {
-      if (particles.empty()) return;
-      auto keptParticlesEnd = std::remove_if(particles.begin(), particles.end(),
-                                             [&](const HEPUtils::Particle* p)
-                                             {
-                                               const bool rm = !random_bool(eff_pt, p->pT());
-                                               if (do_delete && rm) delete p;
-                                               return rm;
-                                             } );
-      particles.erase(keptParticlesEnd, particles.end());
-    }
-
-
-    // Utility function for filtering a supplied particle vector by sampling wrt a binned 2D efficiency map in |eta| and pT
-    void filtereff_etapt(std::vector<const HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn2D<double>& eff_etapt, bool do_delete)
-    {
-      if (particles.empty()) return;
-      auto keptParticlesEnd = std::remove_if(particles.begin(), particles.end(),
-                                             [&](const HEPUtils::Particle* p)
-                                             {
-                                               const bool rm = !random_bool(eff_etapt, p->abseta(), p->pT());
-                                               if (do_delete && rm) delete p;
-                                               return rm;
-                                             } );
-      particles.erase(keptParticlesEnd, particles.end());
-    }
-
-
     // Utility function for returning a collection of same-flavour, oppsosite-sign particle pairs
     std::vector<std::vector<const HEPUtils::Particle*>> getSFOSpairs(const std::vector<const HEPUtils::Particle*>& particles)
     {
@@ -172,9 +113,13 @@ namespace Gambit
       return SFOSpair_container;
     }
 
+    std::vector<std::vector<const HEPUtils::Particle*>> getOSSFpairs(const std::vector<const HEPUtils::Particle*>& particles)
+    {
+      return getSFOSpairs(particles);
+    }
 
     // Utility function for returning a collection of oppsosite-sign particle pairs
-    std::vector<std::vector<const HEPUtils::Particle*>> getOSpairs(const std::vector<const HEPUtils::Particle*>& particles)
+    std::vector<std::vector<const HEPUtils::Particle*>> getOSpairs(std::vector<const HEPUtils::Particle*> particles)
     {
       std::vector<std::vector<const HEPUtils::Particle*>> OSpair_container;
       for (size_t ip1=0;ip1<particles.size();ip1++)
@@ -195,7 +140,7 @@ namespace Gambit
 
 
     // Utility function for returning a collection of same-sign particle pairs
-    std::vector<std::vector<const HEPUtils::Particle*>> getSSpairs(const std::vector<const HEPUtils::Particle*>& particles)
+    std::vector<std::vector<const HEPUtils::Particle*>> getSSpairs(std::vector<const HEPUtils::Particle*> particles)
     {
       std::vector<std::vector<const HEPUtils::Particle*>> SSpair_container;
       for (size_t ip1=0;ip1<particles.size();ip1++)
@@ -214,8 +159,28 @@ namespace Gambit
       return SSpair_container;
     }
 
+    // Utility function for returning a collection of same-flavour particle pairs
+    std::vector<std::vector<const HEPUtils::Particle*>> getSFpairs(std::vector<const HEPUtils::Particle*> particles)
+    {
+      std::vector<std::vector<const HEPUtils::Particle*>> SFpair_container;
+      for (size_t ip1=0; ip1<particles.size(); ip1++)
+      {
+        for (size_t ip2=ip1+1; ip2<particles.size(); ip2++)
+        {
+          if (particles[ip1]->abspid()==particles[ip2]->abspid())
+          {
+            std::vector<const HEPUtils::Particle*> SFpair;
+            SFpair.push_back(particles[ip1]);
+            SFpair.push_back(particles[ip2]);
+            SFpair_container.push_back(SFpair);
+          }
+        }
+      }
+      return SFpair_container;
+    }
+
     // Utility function for returning a collection of b-tagged jet pairs
-    std::vector<std::vector<const HEPUtils::Jet*>> getBJetPairs(const std::vector<const HEPUtils::Jet*>& bjets)
+    std::vector<std::vector<const HEPUtils::Jet*>> getBJetPairs(std::vector<const HEPUtils::Jet*> bjets)
     {
       std::vector<std::vector<const HEPUtils::Jet*>> BJetpair_container;
       for (size_t ibj1=0; ibj1<bjets.size(); ++ibj1)

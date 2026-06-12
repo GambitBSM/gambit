@@ -137,6 +137,42 @@ namespace Gambit
           {
             ColliderBit_error().raise(LOCAL_INFO,"Could not find jet_collections option for collider " + RunMC.current_collider() + ". Please provide this in the YAML file.");
           }
+
+          // Fill the VR jet collection settings (optional).
+          // If VRJet_collections is not provided in YAML, do not enable VR jets.
+          result.all_vrjet_collection_settings.clear();
+          result.use_vrjets = false;
+
+          if (colOptions.hasKey("VRJet_collections"))
+          {
+            YAML::Node all_vrjetcollections_node = colOptions.getValue<YAML::Node>("VRJet_collections");
+            Options all_vrjetcollection_options(all_vrjetcollections_node);
+            std::vector<str> vrjetcollection_names = all_vrjetcollection_options.getNames();
+
+            // If the user provided VRJet_collections but it's empty, treat that as an error.
+            if (vrjetcollection_names.empty())
+            {
+              ColliderBit_error().raise(LOCAL_INFO,
+                "Found VRJet_collections option for collider " + RunMC.current_collider() + " but it contains no collections. "
+                "Either remove VRJet_collections entirely to disable VR jets, or define at least one VR jet collection under it.");
+            }
+
+            for (const str& key : vrjetcollection_names)
+            {
+              YAML::Node current_vrjc_node = all_vrjetcollection_options.getValue<YAML::Node>(key);
+              Options current_vrjc_options(current_vrjc_node);
+
+              const double rho   = current_vrjc_options.getValue<double>("rho");
+              const double Rmin  = current_vrjc_options.getValue<double>("Rmin");
+              const double Rmax  = current_vrjc_options.getValue<double>("Rmax");
+              const double ptmin = current_vrjc_options.getValue<double>("pt_min");
+
+              // Expect aggregate-initialisable settings struct: {name, rho, Rmin, Rmax, pt_min}
+              result.all_vrjet_collection_settings.push_back({key, rho, Rmin, Rmax, ptmin});
+            }
+
+            result.use_vrjets = true;
+          }
           if (colOptions.hasKey("pythia_settings"))
           {
             std::vector<str> addPythiaOptions = colNode["pythia_settings"].as<std::vector<str> >();
@@ -154,7 +190,7 @@ namespace Gambit
         // We need "SLHA:file = slhaea" for the SLHAea interface.
         pythiaOptions.push_back("SLHA:file = slhaea");
 
-        // Make sure the user has selected a collider energy in their Pythia settings by searching 
+        // Make sure the user has selected a collider energy in their Pythia settings by searching
         // for the substring "Beams:e", to match Pythia options "Beams:eCM", "Beams:eA" or "Beams:eB".
         bool has_beam_energy_option = std::any_of(pythiaOptions.begin(), pythiaOptions.end(), [](const str& s){ return s.find("Beams:e") != str::npos; });
         if (!has_beam_energy_option)

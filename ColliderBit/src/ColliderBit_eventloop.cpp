@@ -32,6 +32,10 @@
 ///  \date   2018 Jan
 ///  \date   2018 May
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 Aug
+///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -110,6 +114,7 @@ namespace Gambit
       static std::map<str,int> min_nEvents;
       static std::map<str,int> max_nEvents;
       static std::map<str,int> stoppingres;
+      static std::map<str,bool> run_convergence_checks;
       static bool fixed_nEvents = true;
       if (first)
       {
@@ -123,7 +128,7 @@ namespace Gambit
           ColliderBit_error().set_fatal(true); // This one must regarded fatal since there is something wrong in the user input
           ColliderBit_error().raise(LOCAL_INFO,"Cannot find any collider names in use_colliders option for operateLHCLoop. Please correct your YAML file.");
         }
-        
+
 
         // Retrieve the options for each collider.
         for (auto& collider : result.collider_names)
@@ -168,9 +173,9 @@ namespace Gambit
           if (colOptions.hasKey("mean_relative_nEvents"))
           {
             double max_lumi = GetMaxLumi(result.analyses.at(collider));
-
             std::map<std::string, xsec_container> xsec_map = *Dep::InitialTotalCrossSection;
             double xsec = xsec_map[collider].xsec();
+            // Update the collider
             mean_nEvents = max_lumi * xsec * result.ratio_MC_expected[collider];
 
             #ifdef COLLIDERBIT_DEBUG
@@ -184,7 +189,18 @@ namespace Gambit
 
           result.mean_nEvents                                             = mean_nEvents;
           result.desired_nEvents[collider]                                = calc_N_MC(result.estimator, mean_nEvents);
-          result.convergence_options[collider].target_stat                = colOptions.getValue<double>("target_fractional_uncert");
+          run_convergence_checks[collider]                                = colOptions.getValueOrDef<bool>(true, "run_convergence_checks");
+          if (run_convergence_checks.at(collider))
+          {
+            // Preserve legacy behaviour when convergence checks are enabled:
+            // target_fractional_uncert must be explicitly provided.
+            result.convergence_options[collider].target_stat              = colOptions.getValue<double>("target_fractional_uncert");
+          }
+          else
+          {
+            // For explicit no-convergence runs (CBS policy), this value is unused.
+            result.convergence_options[collider].target_stat              = colOptions.getValueOrDef<double>(0.30, "target_fractional_uncert");
+          }
           result.convergence_options[collider].stop_at_sys                = colOptions.getValueOrDef<bool>(true, "halt_when_systematic_dominated");
           result.convergence_options[collider].all_analyses_must_converge = colOptions.getValueOrDef<bool>(false, "all_analyses_must_converge");
           result.convergence_options[collider].all_SR_must_converge       = colOptions.getValueOrDef<bool>(false, "all_SR_must_converge");
@@ -202,7 +218,7 @@ namespace Gambit
               ColliderBit_error().raise(LOCAL_INFO,"Options min_nEvents and max_nEvents should not be used for the UMVUE estimator for collider "
                                                    +collider+". Please correct your YAML file.");
             }
-          
+
             // Avoid convergence checks by setting the number of events higher than are actually generated
             stoppingres[collider] = result.desired_nEvents[collider]*2;
           }
@@ -259,7 +275,7 @@ namespace Gambit
         piped_errors.check(ColliderBit_error());
         piped_invalid_point.check();
 
-        // Execute the sigle-thread iteration XSEC_CALCULATION 
+        // Execute the sigle-thread iteration XSEC_CALCULATION
         #ifdef COLLIDERBIT_DEBUG
           cout << DEBUG_PREFIX << "operateLHCLoop: Will execute XSEC_CALCULATION" << endl;
         #endif
@@ -285,26 +301,20 @@ namespace Gambit
         piped_errors.check(ColliderBit_error());
         piped_invalid_point.check();
 
-        const int max_nEvents_collider = max_nEvents.at(collider);
-        const int min_nEvents_collider = min_nEvents.at(collider);
-        const int stoppingres_collider = stoppingres.at(collider);
-        const int desired_nEvents_collider = result.desired_nEvents[collider];
-
         // Convergence loop
-        while(((fixed_nEvents && result.current_event_count() < max_nEvents_collider) or (!fixed_nEvents && result.current_event_count() < desired_nEvents_collider)) and not *Loop::done)
+        while(((fixed_nEvents && result.current_event_count() < max_nEvents.at(collider)) or (!fixed_nEvents && result.current_event_count() < result.desired_nEvents[collider])) and not *Loop::done)
         {
-          
           int eventCountBetweenConvergenceChecks = 0;
           #ifdef COLLIDERBIT_DEBUG
-            cout << DEBUG_PREFIX << "Starting main event loop.  Will do " << stoppingres_collider << " events before testing convergence." << endl;
+            cout << DEBUG_PREFIX << "Starting main event loop.  Will do " << stoppingres.at(collider) << " events before testing convergence." << endl;
           #endif
 
           // Main event loop
           result.event_generation_began = true;
           #pragma omp parallel
           {
-            while(eventCountBetweenConvergenceChecks < stoppingres_collider and
-                  ((fixed_nEvents && result.current_event_count() < max_nEvents_collider) or (!fixed_nEvents && result.current_event_count() < desired_nEvents_collider)) and
+            while(eventCountBetweenConvergenceChecks < stoppingres.at(collider) and
+                  ((fixed_nEvents && result.current_event_count() < max_nEvents.at(collider)) or (!fixed_nEvents && result.current_event_count() < result.desired_nEvents[collider])) and
                   not *Loop::done and
                   not result.end_of_event_file and
                   not result.exceeded_maxFailedEvents and
@@ -318,8 +328,8 @@ namespace Gambit
               // to stop other threads from starting any event iterations beyond max_nEvents.
               #pragma omp critical
               {
-                if (   (fixed_nEvents && result.current_event_count() < max_nEvents_collider)
-                    or (!fixed_nEvents && result.current_event_count() < desired_nEvents_collider))
+                if (   (fixed_nEvents && result.current_event_count() < max_nEvents.at(collider))
+                    or (!fixed_nEvents && result.current_event_count() < result.desired_nEvents[collider]))
                 {
                   result.current_event_count()++;
                   thread_my_iteration = result.current_event_count();
@@ -368,7 +378,7 @@ namespace Gambit
 
           // Don't bother with convergence stuff if we haven't passed the minimum number of events yet.
           // Only do this if we are using a fixed number of events.
-          if (fixed_nEvents and result.current_event_count() >= min_nEvents_collider)
+          if (run_convergence_checks.at(collider) and fixed_nEvents and result.current_event_count() >= min_nEvents.at(collider))
           {
             #pragma omp parallel
             {
@@ -443,6 +453,8 @@ namespace Gambit
     {
       using namespace Pipes::CollectAnalyses;
       static bool first = true;
+      static bool print_cutflows;
+      static bool normalized_cutflows;
 
       // Start with an empty vector
       result.clear();
@@ -461,6 +473,15 @@ namespace Gambit
       // When first called, check that all analyses contain at least one signal region.
       if (first)
       {
+        // Print cutflow at the end of the run.
+        // `check_cutflow` is the CBS-facing single switch; keep `print_cutflows`
+        // as a fallback for compatibility with broader ColliderBit usage.
+        const bool print_cutflows_legacy =
+          runOptions->getValueOrDef<bool>(false, "print_cutflows");
+        print_cutflows =
+          runOptions->getValueOrDef<bool>(print_cutflows_legacy, "check_cutflow");
+        normalized_cutflows = runOptions->getValueOrDef<bool>(false, "normalized_cutflows");
+
         // Loop over all AnalysisData pointers
         for (auto& adp : result)
         {
@@ -474,6 +495,23 @@ namespace Gambit
         first = false;
       }
 
+      // Print cutflows of analyses
+      if(print_cutflows)
+      {
+        std::cout << "Cutflows" << std::endl;
+        std::cout << "========" << std::endl;
+        for(auto& adp : result)
+        {
+          std::cout << adp->analysis_name << std::endl;
+          std::cout << "-----------------" << std::endl;
+
+          if(normalized_cutflows)
+          {
+            adp->cutflows.normalize(Dep::TotalCrossSection->xsec() * adp->luminosity);
+          }
+          std::cout << adp->cutflows << std::endl;
+        }
+      }
 
       // #ifdef COLLIDERBIT_DEBUG
       //   cout << DEBUG_PREFIX << "CollectAnalyses: Current size of 'result': " << result.size() << endl;
@@ -494,7 +532,7 @@ namespace Gambit
       //   }
       // #endif
     }
-    
+
 
   }
 

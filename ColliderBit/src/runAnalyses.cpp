@@ -120,7 +120,7 @@ namespace Gambit
           cout << DEBUG_PREFIX << "run"+detname+"Analyses: 'result' contains " << result.size() << " results:" << endl;
           for (const AnalysisData* a: result)
           {
-            cout << DEBUG_PREFIX << "run"+detname+"Analyses: - " << a->analysis_name << endl;            
+            cout << DEBUG_PREFIX << "run"+detname+"Analyses: - " << a->analysis_name << endl;
           }
         #endif
         return;

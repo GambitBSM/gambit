@@ -86,7 +86,7 @@ namespace Gambit
         else result.reset();
       }
 
-      if (iteration == COLLIDER_FINALIZE)
+      if (iteration == END_SUBPROCESS && omp_get_thread_num() == 0)
       {
         result.collect_and_add_signal();
         int ntot = RunMC.current_event_count();

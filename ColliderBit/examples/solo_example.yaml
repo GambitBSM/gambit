@@ -2,22 +2,23 @@
 # Pat Scott May 2019
 
 analyses:
-  - CMS_13TeV_0LEP_36invfb
-  - CMS_13TeV_1LEPbb_36invfb
-  - CMS_13TeV_2OSLEP_36invfb
-  - CMS_13TeV_2LEPsoft_36invfb
-  - CMS_13TeV_1LEPStop_36invfb
-  - CMS_13TeV_2LEPStop_36invfb
-  - CMS_13TeV_MultiLEP_36invfb
-  - CMS_13TeV_MONOJET_36invfb
-  - ATLAS_13TeV_0LEP_36invfb
-  - ATLAS_13TeV_MultiLEP_36invfb
-  - ATLAS_13TeV_0LEPStop_36invfb
-  - ATLAS_13TeV_2LEPStop_36invfb
-  - ATLAS_13TeV_2bMET_36invfb
+  - CMS_SUS_16_033
+  - CMS_SUS_16_043
+  - CMS_SUS_16_034_EW
+  - CMS_SUS_16_048
+  - CMS_SUS_16_051
+  - CMS_SUS_17_001
+  - CMS_SUS_16_039
+  - CMS_SUS_16_048
+  - ATLAS_SUSY_2016_07
+  - ATLAS_SUSY_2016_24
+  - ATLAS_SUSY_2016_15
+  - ATLAS_SUSY_2017_01
+  - ATLAS_SUSY_2016_28
 
 settings:
   debug: true
+  check_cutflow: false
   seed: -1
   event_file: susy10.hepmc
   cross_section_pb: 1.0
@@ -31,3 +32,12 @@ settings:
   covariance_marg_convthres_abs: 0.05
   covariance_marg_convthres_rel: 0.05
   covariance_nsamples_start: 100000
+  output: ./runs/CBS_result.json
+  screen_output: true
+  jet_collections:
+    antikt_R04:
+      algorithm: antikt
+      R: 0.4
+      recombination_scheme: E_scheme
+      strategy: Best
+  jet_collection_taus: antikt_R04

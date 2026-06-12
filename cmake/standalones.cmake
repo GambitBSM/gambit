@@ -26,7 +26,6 @@
 
 # Add some programs that use the GAMBIT physics libraries but not GAMBIT itself.
 add_standalone(ExampleBit_A_standalone SOURCES ExampleBit_A/examples/ExampleBit_A_standalone_example.cpp MODULES ExampleBit_A)
-add_standalone(CBS SOURCES ColliderBit/examples/solo.cpp MODULES ColliderBit DEPENDENCIES hepmc pybind11)
 add_standalone(DarkBit_standalone_MSSM SOURCES DarkBit/examples/DarkBit_standalone_MSSM.cpp MODULES DarkBit)
 add_standalone(DarkBit_standalone_ScalarSingletDM_Z2 SOURCES DarkBit/examples/DarkBit_standalone_ScalarSingletDM_Z2.cpp MODULES DarkBit)
 add_standalone(DarkBit_standalone_WIMP SOURCES DarkBit/examples/DarkBit_standalone_WIMP.cpp MODULES DarkBit DEPENDENCIES pybind11)
@@ -34,12 +33,18 @@ add_standalone(3bithit SOURCES DecayBit/examples/3bithit.cpp MODULES DecayBit Sp
 add_standalone(FlavBit_standalone SOURCES FlavBit/examples/FlavBit_standalone_example.cpp MODULES FlavBit)
 add_standalone(NeutrinoBit_standalone SOURCES NeutrinoBit/examples/NeutrinoBit_standalone.cpp MODULES NeutrinoBit)
 add_standalone(NeutrinoBit_standalone_RHN SOURCES NeutrinoBit/examples/NeutrinoBit_standalone_RHN.cpp MODULES NeutrinoBit)
+add_standalone(CBS SOURCES ColliderBit/examples/solo.cpp ColliderBit/examples/solo_input.cpp ColliderBit/examples/solo_batch.cpp ColliderBit/examples/solo_output.cpp MODULES ColliderBit DEPENDENCIES hepmc pybind11)
+
+option(GAMBIT_USE_LLD_FOR_CBS "Use lld when linking the CBS standalone executable." OFF)
+if(TARGET CBS AND GAMBIT_USE_LLD_FOR_CBS)
+  target_link_options(CBS PRIVATE -fuse-ld=lld)
+endif()
 
 # Add a message that is only shown if CBS is built
 # and -O3 level compiler optimisations are not activated.
 if(EXISTS CBS AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "Release" AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo")
   add_custom_command(
     TARGET CBS POST_BUILD
-    COMMENT "\n${BoldYellow}-- You have built CBS with CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}. For best performance we recommend building CBS in 'Release' mode. You can do this by rerunning cmake with the option -DCMAKE_BUILD_TYPE=Release and then rebuild CBS. ${ColourReset}\n\n"
+    COMMAND ${CMAKE_COMMAND} -E echo "-- You have built CBS with CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}. For best performance we recommend building CBS in Release mode. You can do this by rerunning cmake with the option -DCMAKE_BUILD_TYPE=Release and then rebuild CBS."
   )
 endif()
