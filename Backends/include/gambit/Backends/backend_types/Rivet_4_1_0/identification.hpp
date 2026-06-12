@@ -4,8 +4,8 @@
 
 #define BACKENDNAME Rivet
 #define BACKENDLANG CXX
-#define VERSION 3.1.5
-#define SAFE_VERSION 3_1_5
+#define VERSION 4.1.0
+#define SAFE_VERSION 4_1_0
 #define REFERENCE Bierlich:2019rhm
 
 #undef DO_CLASSLOADING

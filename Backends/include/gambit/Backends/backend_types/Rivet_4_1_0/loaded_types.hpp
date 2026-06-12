@@ -1,5 +1,5 @@
-#ifndef __loaded_types_Rivet_3_1_5_hpp__
-#define __loaded_types_Rivet_3_1_5_hpp__ 1
+#ifndef __loaded_types_Rivet_4_1_0_hpp__
+#define __loaded_types_Rivet_4_1_0_hpp__ 1
 
 #ifndef EXCLUDE_YODA
 #ifndef EXCLUDE_HEPMC
@@ -10,8 +10,8 @@
 #include "gambit/Utils/end_ignore_warnings.hpp"
 
 // Indicate which types are provided by this backend, and what the symbols of their factories are.
-#define Rivet_3_1_5_all_data \
-  (( /*class*/(Rivet)(AnalysisHandler),    /*constructors*/((("Factory_AnalysisHandler_0__BOSS_1","_Factory_AnalysisHandler_0__BOSS_1"),(const std::string&))) ((("Factory_AnalysisHandler_1__BOSS_2","_Factory_AnalysisHandler_1__BOSS_2"),())) )) \
+#define Rivet_4_1_0_all_data \
+  (( /*class*/(Rivet)(AnalysisHandler),    /*constructors*/((("Factory_AnalysisHandler_0__BOSS_1","_Factory_AnalysisHandler_0__BOSS_1"),())) )) \
 
 // If the default version has been loaded, set it as default.
 #if ALREADY_LOADED(CAT_3(BACKENDNAME,_,CAT(Default_,BACKENDNAME)))
@@ -24,4 +24,4 @@
 #endif
 #endif
 
-#endif /* __loaded_types_Rivet_3_1_5_hpp__ */
+#endif /* __loaded_types_Rivet_4_1_0_hpp__ */
