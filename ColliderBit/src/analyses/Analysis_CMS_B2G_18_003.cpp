@@ -20,8 +20,13 @@
 // TODO: add the remaining low-mass control regions and background model in a later patch.
 
 #if 0
-// Disabled while this in-progress analysis is being completed.
-// It currently does not compile when CUTFLOW is enabled.
+// Intentionally dormant: disabled while this in-progress analysis is completed
+// (it does not yet compile when CUTFLOW is enabled), and deliberately left
+// unregistered in AnalysisContainer.cpp -- the DEFINE_ANALYSIS_FACTORY below is
+// inside this #if 0, so adding F(CMS_B2G_18_003) to MAP_ANALYSES would fail to link.
+// To activate: fix the CUTFLOW build, remove this #if 0/#endif, register the
+// analysis in MAP_ANALYSES, add an Analysis_CMS_B2G_18_003.info file, and
+// re-run P.Zhu/docs/analyses/harvest_analyses.py.
 
 #include <algorithm>
 #include <cmath>

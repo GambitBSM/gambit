@@ -35,6 +35,10 @@ add_standalone(NeutrinoBit_standalone SOURCES NeutrinoBit/examples/NeutrinoBit_s
 add_standalone(NeutrinoBit_standalone_RHN SOURCES NeutrinoBit/examples/NeutrinoBit_standalone_RHN.cpp MODULES NeutrinoBit)
 add_standalone(CBS SOURCES ColliderBit/examples/solo.cpp ColliderBit/examples/solo_input.cpp ColliderBit/examples/solo_batch.cpp ColliderBit/examples/solo_output.cpp MODULES ColliderBit DEPENDENCIES hepmc pybind11)
 
+option(GAMBIT_USE_LLD_FOR_CBS "Use lld when linking the CBS standalone executable." OFF)
+if(TARGET CBS AND GAMBIT_USE_LLD_FOR_CBS)
+  target_link_options(CBS PRIVATE -fuse-ld=lld)
+endif()
 
 # Add a message that is only shown if CBS is built 
 # and -O3 level compiler optimisations are not activated.
