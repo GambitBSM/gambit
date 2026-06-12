@@ -2182,16 +2182,15 @@ endif()
 
 # Contur
 set(name "contur")
-set(ver "2.1.1")
+set(ver "3.0.0")
 set(dl "https://gitlab.com/hepcedar/${name}/-/archive/${name}-${ver}/${name}-${name}-${ver}.tar.gz")
-set(md5 "ecb91229775b62e5d71c8089d78b2ff6")
+set(md5 "aee676621c6a2f4b66a94e456a96dac8")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(contur_dir "${dir}/contur")
 set(init_file ${contur_dir}/init_by_GAMBIT.py)
 set(Rivet_name "rivet")
 set(ditch_if_absent "Python;SQLITE3;YODA;HepMC;Rivet")
 set(required_modules "cython;configobj;pandas;matplotlib;")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
@@ -2203,7 +2202,7 @@ if(NOT ditched_${name}_${ver})
       DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
-      PATCH_COMMAND patch -p1 < ${patch}
+      PATCH_COMMAND ""
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "import os" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${init_file}
@@ -2212,9 +2211,9 @@ if(NOT ditched_${name}_${ver})
                 COMMAND ${CMAKE_COMMAND} -E echo "os.environ[\"CONTUR_ROOT\"]='${dir}'" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from ctypes import *" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "cdll.LoadLibrary(\"${Rivet_LIB}\")" >> ${init_file}
-                COMMAND ${CMAKE_COMMAND} -E echo "from run import run_analysis" >> ${init_file}
-                COMMAND ${CMAKE_COMMAND} -E echo "from run import arg_utils" >> ${init_file}
-                COMMAND ${CMAKE_COMMAND} -E echo "from data import static_db" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from contur.run import run_analysis" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from contur.run import arg_utils" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from contur.data import static_db" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from io import StringIO" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from rivet import addAnalysisLibPath, addAnalysisDataPath" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisLibPath(\"${dir}/data/Rivet\")" >> ${init_file}

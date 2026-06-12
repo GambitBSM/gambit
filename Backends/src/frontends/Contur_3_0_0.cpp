@@ -93,7 +93,7 @@
       {
         beams = Contur.attr("static_db").attr("get_beams")();
       }
-      for (size_t  i = 0; i <= pybind11::len(beams); ++i){
+      for (size_t i = 0; i < pybind11::len(beams); ++i){
         if (beams[i].attr("id").cast<std::string>() == beamString){
           theBeam = beams[i];
           beamFound = true;
