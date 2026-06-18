@@ -1,0 +1,23 @@
+# Input GUM file for a MSSM Marty test
+
+math:
+    package: marty
+    model: MSSM
+    # base_model: SM
+    # lagrangian: LDM + LSM
+
+# invisibles: [99901]
+
+# PDG code of the DM candidate.
+# wimp_candidate: 99901
+
+output:
+  # calchep: true
+  pythia: true  
+  # micromegas: true
+ 
+output_options:
+  pythia:
+    collider_processes:
+      - e+ e- > sleptons
+      - e+ e- > u u~

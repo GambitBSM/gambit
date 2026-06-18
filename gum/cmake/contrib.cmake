@@ -184,7 +184,7 @@ set(ver "1.6-beta")
 #set(ver "1.5")
 set(dl https://github.com/docbrown1955/marty-public/archive/refs/heads/master.zip)
 #set(dl https://github.com/docbrown1955/marty-public/archive/refs/tags/v${ver}.tar.gz)
-set(md5 "3e4d6753d7db8c84f34a0ff69f181994")
+set(md5 "1491ce8bb92550ae28e4506f9bd4a92c")
 #set(md5 "18aa0347f56aacafbd8eb4db701d4a04")
 set(MARTY_DIR ${dir})
 set(MARTY_VERSION ${ver})
@@ -208,6 +208,7 @@ add_custom_command(
   COMMAND cp ${CMAKE_SOURCE_DIR}/src/marty_test.cpp ${CMAKE_SOURCE_DIR}/src/marty_test_patched.cpp
   COMMAND sed -i s%MARTY_INSTALL_PATH%${install_dir}%g ${CMAKE_SOURCE_DIR}/src/marty_test_patched.cpp
   DEPENDS ${CMAKE_SOURCE_DIR}/src/marty_test.cpp
+  DEPENDS MARTY
   VERBATIM)
 add_executable(marty_test src/marty_test_patched.cpp)
 set_property(TARGET marty_test PROPERTY CXX_STANDARD 17)

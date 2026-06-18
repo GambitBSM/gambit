@@ -68,10 +68,11 @@ if args.file:
 
     try:
         # Parse the .gum file
-        inputs = check_gum_file(args.file)
-        gum, output_opts = fill_gum_object(inputs)
+        inputs = check_gum_file_marty(args.file)
+        gum, output_opts = fill_gum_object_marty(inputs)
 
         # SARAH removes hyphens and underscores for .f90 files...
+        # TODO: Necessary here?
         clean_model_name = gum.name.replace('-','').replace('_','')
 
         # Create the output directory for all generated files for this model
@@ -81,8 +82,9 @@ if args.file:
         # Check to see if any of the proposed new files will
         # clash with any existing files.
         # for either the model name or clean model name
-        check_for_existing_entries(gum.name, darkbit, colliderbit, output_opts)
-        check_for_existing_entries(clean_model_name, darkbit, colliderbit, output_opts)
+        # TODO: I guess in our case, we want to let le write for an existing model
+        #check_for_existing_entries(gum.name, darkbit, colliderbit, output_opts)
+        #check_for_existing_entries(clean_model_name, darkbit, colliderbit, output_opts)
 
         print("Finished extracting parameters from " + gum.math + ".")
 
@@ -96,7 +98,7 @@ if args.file:
         # Dictionaries with capability and model definitions to add to the list
         capability_definitions = {}
         model_definitions = {}
-
+        
         # Stop now if we're just doing a dry run
         if args.dryrun:
             print("")
@@ -118,8 +120,8 @@ if args.file:
 
 
         # Write capability and model definitions
-        write_capability_definitions("capabilities.dat", gum.name, capability_definitions, reset_contents)
-        write_model_definitions("models.dat", gum.name, model_definitions, reset_contents)
+        #write_capability_definitions("capabilities.dat", gum.name, capability_definitions, reset_contents)
+        #write_model_definitions("models.dat", gum.name, model_definitions, reset_contents)
 
         # Generate a file containing all of the bib tags for the backends used.
         bibtags = generate_bib_tags(output_opts,gum.math)

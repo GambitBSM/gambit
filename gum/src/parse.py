@@ -117,6 +117,57 @@ class Outputs:
         if self.ufo: backends.append('ufo')
         return backends
 
+# TODO: Could be merged into the single check_gum_file function once the interface is more polished
+def check_gum_file_marty(inputfile):
+    """
+    Checks the input .GUM file for all necessary inputs.
+    """
+
+    print("Attempting to parse {0}...".format(inputfile))
+
+    if inputfile.endswith(".gum"):
+        pass
+    else:
+        if inputfile.endswith(".mug"):
+            raise GumError(("\n\nGUM called with a .mug file in normal mode --"
+                            " you probably want to call gum with the -r flag:"
+                            "\n\n  ./gum -r " + inputfile + "\n"))
+        else:
+            raise GumError("\n\nInput filetype must be .gum.")
+
+    with open(inputfile, "r") as f:
+        try:
+            data = yaml.safe_load(f)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+        if not 'math' in data:
+            raise GumError(("\n\n'math' node needed in .gum file."))
+
+        if not 'package' in data['math']:
+        # Don't know what to run...!
+            raise GumError(("\n\nNo mathpackage input - what do you expect "
+                            "GUM to do? Please check your .gum file. "
+                            "Supported entries: marty."))
+
+        if data['math']['package'] not in ["marty"]:
+            raise GumError(("\n\nYou must specify which mathpackage you want "
+                            "GUM to use. Please check your .gum file. "
+                            "Supported entries: marty."))
+
+        if not 'model' in data['math']:
+            raise GumError(("\n\nNo model file specified. "
+                            "Please check your .gum file."))
+
+        if not 'output' in data:
+        # Don't know what to generate!
+            raise GumError(("\n\nNo output specified! You need to tell GUM "
+                            "what it is you'd like it to do!\n"
+                            "Please change your .gum file!"))
+
+    print("All required YAML nodes present...")
+
+    return data
 
 def check_gum_file(inputfile):
     """
@@ -168,6 +219,75 @@ def check_gum_file(inputfile):
     print("All required YAML nodes present...")
 
     return data
+
+# TODO: Could be combined with standard fill_gum_object function once interface is polished
+def fill_gum_object_marty(data):
+    """
+    Returns a model of type Inputs for GUM to work with. 'data' is the
+    parsed data from check_gum_file.
+    """
+
+    math = data['math']
+    mathpackage = math['package']
+    gambit_model = math['model']
+
+    # Overwrite the GAMBIT model if specified
+    mathname = ""
+    if 'gambit_opts' in data:
+        if 'model_name' in data['gambit_opts']:
+            mathname = gambit_model
+            gambit_model = data['gambit_opts']['model_name']
+
+    if 'wimp_candidate' in data:
+        wimp_candidate = data['wimp_candidate']
+    else:
+        wimp_candidate = None
+
+    if 'invisibles' in data:
+        invisibles = data['invisibles']
+    else:
+        invisibles = []
+
+    backends = ['pythia']
+
+    opts = {}
+    # The outputs GUM should hook up to GAMBIT, if specified
+    if 'output' in data:
+        for i in backends:
+            if i in data['output']:
+                opts[i] = data['output'][i]
+            else:
+                opts[i] = False
+        if all(value == False for value in list(opts.values())):
+            raise GumError(("\n\nAll backend output set to false in your .gum "
+                            "file.\nGive GUM something to do!\n"
+                            "Please change your .gum file."))
+
+    options = {}
+    # Options for the outputs declared
+    if 'output_options' in data:
+        for output in data['output_options']:
+            if output not in opts.keys():
+                raise GumError(("\n\nOptions given to output " + output + " "
+                                "which is not declared as gum output.\n"
+                                "Please change your .gum file."))
+            options[output] = data['output_options'][output]
+            
+    print("HEY CHRIS. options: ", options)
+
+    outputs = Outputs(mathpackage, options=options, **opts)
+
+    base_model = ""
+    decaying_dm = None
+    lagrangian = ""
+    restriction_str = ""
+    gum_info = Inputs(gambit_model, base_model, mathpackage, 
+                      wimp_candidate, invisibles, decaying_dm,
+                      mathname, lagrangian, restriction_str)
+
+    print("Parse successful.")
+
+    return gum_info, outputs
 
 def fill_gum_object(data):
     """
