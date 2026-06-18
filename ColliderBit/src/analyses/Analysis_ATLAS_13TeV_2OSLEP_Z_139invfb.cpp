@@ -274,12 +274,12 @@ namespace Gambit
             Zlike = true;
         }
 
-        // h candidate
-        vector<vector<const HEPUtils::Jet*>> BJetPairs = getBJetPairs(signalBJets);
-        double h_id_eff = 0.52; // Paper claims an efficiency between 50% and 54% but, depending on the mass of stop1
-        int nhcand = 0;
-        for(size_t i=0; i<BJetPairs.size(); ++i)
-          if(random_bool(h_id_eff)) nhcand++;
+        // h candidate // Curently not used
+        // vector<vector<const HEPUtils::Jet*>> BJetPairs = getBJetPairs(signalBJets);
+        // double h_id_eff = 0.52; // Paper claims an efficiency between 50% and 54% but, depending on the mass of stop1
+        // int nhcand = 0;
+        // for(size_t i=0; i<BJetPairs.size(); ++i)
+        //   if(random_bool(h_id_eff)) nhcand++;
    
         // Transverse mass from leading lepton with pT
         // double mT = nSignalLeptons > 0 and get_mT(signalLeptons.at(0)->mom(), ptot);  // currently not used

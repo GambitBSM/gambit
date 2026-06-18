@@ -34,7 +34,7 @@ macro(set_compiler_warning warning current_flags)
 endmacro()
 
 if(${WERROR})
-  set_compiler_warning("error")
+  set_compiler_warning("error" CMAKE_CXX_FLAGS)
 else()
   message(STATUS "Werror is disabled")
 endif()

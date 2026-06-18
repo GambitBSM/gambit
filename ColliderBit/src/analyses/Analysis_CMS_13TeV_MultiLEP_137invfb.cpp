@@ -382,11 +382,11 @@ namespace Gambit
           }
 
           // Selection conditon for 3 lepton events
-          if(nLeptons == 3 and nLightLeptons >0)
-          {
-            static int n3lepevents = 0;
-            n3lepevents++;
-          }
+          // if(nLeptons == 3 and nLightLeptons >0)
+          // {
+          //   static int n3lepevents = 0;
+          //   n3lepevents++;
+          // }
           bool _3Lep = nLeptons == 3 and 
                       nLightLeptons > 0 and 
                       ( (amIanElectron(signalLightLeptons.at(0)) and signalLightLeptons.at(0)->pT() > 25.) or 

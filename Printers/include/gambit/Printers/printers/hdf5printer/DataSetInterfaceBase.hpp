@@ -184,23 +184,20 @@ namespace Gambit {
         for(std::size_t i=0; i<DSETRANK; i++) { record_dims[i] = rdims[i]; }
       }
 
-      /// Do cleanup (close dataset)
+      /// Destructor.
+      /// Deliberately does NOT close the underlying HDF5 dataset.
+      ///
+      /// DataSetInterfaceBase (and its derived classes) are stored by value
+      /// and assigned-from-temporary in several places. In such cases a 
+      /// temporary is constructed, then copy-/move-assigned into a member or 
+      /// container slot, then destroyed. Closing here in the destructor would 
+      /// invalidate the handle held by the surviving copy. The actual close 
+      /// therefore lives in the explicit closeDataSet() method below, used by
+      /// VertexBufferNumeric1D_HDF5::finalise() during the printer's
+      /// finalise() pass.
       template<class T, std::size_t RR, std::size_t CL>
       DataSetInterfaceBase<T,RR,CL>::~DataSetInterfaceBase()
       {
-         // TODO: Having problems with copied objects sharing dataset identifiers, and closing datasets prematurely on each other.
-         // To fix, will probably need to have a fancy copy constructor or something. Or wrap datasets in an
-         // object which itself has a fancy copy constructor. For now, just leave dataset resources lying around,
-         // probably won't cause any issues.
-         // Or could explicity tell interface to close datasets before the objects are destroyed.
-         //if(this->dset_id>=0)
-         //{
-         //  herr_t status = H5Dclose(this->dset_id);
-         //  if(status<0)
-         //  {
-         //     logger() << LogTags::printers << LogTags::err <<LogTags::repeat_to_cerr<< LOCAL_INFO << ": Error destructing DataSetInterfaceBase! Failed to close wrapped dataset! (H5Dclose failed). No exception thrown because this will behave badly when throw from a destructor. (dataset name: "<<myname<<")"<<EOM;
-         //  }
-         //}
       }
 
       /// Release resources associated with the underlying dataset

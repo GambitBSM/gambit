@@ -204,11 +204,11 @@ namespace Gambit {
 
 
         // DEBUG: Get number of true baseline b-jets
-        int nBaseBjetsTrue = 0;
-        for (const Jet* j : baselineJets)
-        {
-          if (j->btag()) { nBaseBjetsTrue++; }
-        }
+        // int nBaseBjetsTrue = 0;
+        // for (const Jet* j : baselineJets)
+        // {
+        //   if (j->btag()) { nBaseBjetsTrue++; }
+        // }
 
 
         // Get map<Jet*,bool> with generated btags for this analysis.
@@ -348,10 +348,10 @@ namespace Gambit {
 
         // Count number of b-tagged jets in signalJets
         int nBJets20 = 0;
-        int nBJets20true = 0;
+        // int nBJets20true = 0;
         for (const Jet* j : signalJets)
         {
-          if (j->btag()) { nBJets20true++; }
+          // if (j->btag()) { nBJets20true++; }
           if (analysisBtags.at(j)) { nBJets20++; }
         }
 
