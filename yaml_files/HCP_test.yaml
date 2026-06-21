@@ -199,6 +199,7 @@ Rules:
           - SUSY:idVecB = 1000023,1000024
           - TauDecays:mode = 0
           - TimeShower:pTmin = 2
+          - Next:showScaleAndVertex = on
 
   # Choose ATLAS detector simulation and options.
   - capability: ATLASDetectorSim

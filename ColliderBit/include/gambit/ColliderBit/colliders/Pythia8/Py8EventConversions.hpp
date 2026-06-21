@@ -159,25 +159,23 @@ namespace Gambit
         // Record non-SM displaced-production and (unstable) displaced-decay particles.
         // Probably good to combine with 'if (MCUtils::PID::isBSM(pid) ...' in user code
         /// @todo Make distance cut configurable in YAML
-        cout << i << " " << get_unified_vprod(p).rho() << endl;
         if (get_unified_vprod(p).rho() > 10) // mm
         {
           auto gp = new HEPUtils::DisplacedParticle(p4, pid, get_unified_vprod(p), get_unified_vdec(p));
           if (prompt) gp->set_prompt();
-          cout << "Adding particle to LLprod" << endl;
-          string LL = "LLprod";
-          result.add_particle(gp, LL);
-          //result.add_particle(gp, "LLprod");
+          //string LL = "LLprod";
+          //result.add_particle(gp, LL);
+          result.add_particle(gp, (string)"LLprod");
         }
         /// @todo Make distance cut configurable in YAML
         if (!get_unified_isFinal(p) && get_unified_vdec(p).rho() > 10) // mm
         {
           auto gp = new HEPUtils::DisplacedParticle(p4, pid, get_unified_vprod(p), get_unified_vdec(p));
           if (prompt) gp->set_prompt();
-          
-          string LL = "LLdec";
-          result.add_particle(gp, LL);
-          //result.add_particle(gp, "LLdec");
+          //string LL = "LLdec";
+          //result.add_particle(gp, LL);
+          result.add_particle(gp, (string)"LLdec");
+          cout << gp->pid() << " " << gp->pT() << " " << gp->vprod() << " " << gp->vdec() << endl;
         }
 
         // From now on we only want final state particles...

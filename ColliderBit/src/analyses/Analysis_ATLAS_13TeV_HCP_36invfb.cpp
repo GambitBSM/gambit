@@ -100,23 +100,35 @@ namespace Gambit
         
         // TODO: We have a fix for function overloading in Event.h
         vector<string> custom_names = event->custom_particle_names();
-        cout << "Custom names: ";
+        cout << "Custom names in particle collections: ";
         for(auto name: custom_names ) cout << name << endl;
         
         int nHCP= 0;
         // Check if we have HCP candidates
+        cout << "Particles produced > 10 mm from interaction:" << endl;
         if( event->has_custom_particle("LLprod") ){
           for (const HEPUtils::Particle* HCP : event->particles("LLprod") ) {
-            if (HCP->pT() > 4.5 && fabs(HCP->eta()) < 2.47) {
+            //if (HCP->pT() > 4.5 && fabs(HCP->eta()) < 2.47) {
               nHCP++;
-              const HEPUtils::LLParticle* HCP_test = static_cast<const HEPUtils::LLParticle*>(HCP);
+              const HEPUtils::LLParticle* LLprod = static_cast<const HEPUtils::LLParticle*>(HCP);
               displacedParticles.push_back(HCP);
-              cout << "HCP candidate: " << HCP->pT() << " " <<  endl;
-              cout << "HCP candidate: " << HCP_test->pT() << " " << HCP_test->vprod() << endl;
-              exit(0);
-            }
+              cout << LLprod->pid() << " " << LLprod->pT() << " " << LLprod->vprod() << " " << LLprod->vdec() << endl;
+            //}
           }
         }
+        cout << "Particles decaying > 10 mm from interaction:" << endl;
+        if( event->has_custom_particle("LLdec") ){
+          for (const HEPUtils::Particle* HCP : event->particles("LLdec") ) {
+            //if (HCP->pT() > 4.5 && fabs(HCP->eta()) < 2.47) {
+              nHCP++;
+              const HEPUtils::LLParticle* LLdec = static_cast<const HEPUtils::LLParticle*>(HCP);
+              displacedParticles.push_back(HCP);
+              cout << LLdec->pid() << " " << LLdec->pT() << " " << LLdec->vprod() << " " << LLdec->vdec() << endl;
+            //}
+          }
+        }
+        exit(0);
+  
         
         // Missing momentum and energy
         HEPUtils::P4 metVec = event->missingmom();
