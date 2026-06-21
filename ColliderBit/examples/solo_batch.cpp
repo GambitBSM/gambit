@@ -9,9 +9,11 @@
 #include "solo_batch.hpp"
 
 #include <algorithm>
+#include <cerrno>
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <limits>
 #include <map>
@@ -20,6 +22,7 @@
 #include <stdexcept>
 #include <utility>
 
+#include <sys/wait.h>
 #include <unistd.h>
 
 #include "gambit/Utils/json.hpp"
@@ -90,22 +93,53 @@ namespace Gambit
           nlohmann::json analyses_json;
         };
 
-        std::string shell_quote(const std::string& input)
+        std::string describe_child_status(int status)
         {
-          std::string result = "'";
-          for (char c : input)
+          std::ostringstream msg;
+          if (WIFEXITED(status))
           {
-            if (c == '\'')
+            msg << "exit status " << WEXITSTATUS(status);
+          }
+          else if (WIFSIGNALED(status))
+          {
+            const int signal_number = WTERMSIG(status);
+            msg << "signal " << signal_number;
+#ifdef WCOREDUMP
+            if (WCOREDUMP(status)) msg << " (core dumped)";
+#endif
+          }
+          else if (WIFSTOPPED(status))
+          {
+            msg << "stopped by signal " << WSTOPSIG(status);
+          }
+          else
+          {
+            msg << "unrecognised wait status " << status;
+          }
+          return msg.str();
+        }
+
+        std::string describe_output_json(const fs::path& output_json_file)
+        {
+          std::ostringstream msg;
+          msg << output_json_file.string() << " (";
+          try
+          {
+            if (fs::exists(output_json_file))
             {
-              result += "'\"'\"'";
+              msg << "exists, " << fs::file_size(output_json_file) << " bytes";
             }
             else
             {
-              result.push_back(c);
+              msg << "missing";
             }
           }
-          result += "'";
-          return result;
+          catch (const std::exception& e)
+          {
+            msg << "status unavailable: " << e.what();
+          }
+          msg << ")";
+          return msg.str();
         }
 
         void write_yaml_file(const YAML::Node& root, const fs::path& yaml_path)
@@ -216,17 +250,71 @@ namespace Gambit
           return root;
         }
 
-        void run_single_job(const std::string& cbs_executable, const fs::path& yaml_file)
+        void run_single_job(const std::string& cbs_executable, const RunJob& job)
         {
-          const std::string cmd =
-            "GAMBIT_SUPPRESS_BANNER=1 CBS_SUPPRESS_BANNER=1 "
-            + shell_quote(cbs_executable) + " " + shell_quote(yaml_file.string());
-          const int rc = std::system(cmd.c_str());
-          if (rc != 0)
+          const fs::path& yaml_file = job.yaml_file;
+          std::string executable = cbs_executable;
+          try
+          {
+            const fs::path executable_path(cbs_executable);
+            if (executable_path.has_parent_path())
+            {
+              executable = fs::absolute(executable_path).string();
+            }
+          }
+          catch (const std::exception&)
+          {
+            // Fall back to argv[0]; execvp below will report any real failure.
+          }
+
+          const std::string yaml_filename = yaml_file.string();
+          const pid_t pid = fork();
+          if (pid < 0)
+          {
+            throw std::runtime_error("Failed to fork CBS batch subprocess: " + std::string(std::strerror(errno)));
+          }
+
+          if (pid == 0)
+          {
+            setenv("GAMBIT_SUPPRESS_BANNER", "1", 1);
+            setenv("CBS_SUPPRESS_BANNER", "1", 1);
+
+            char* const argv[] = {
+              const_cast<char*>(executable.c_str()),
+              const_cast<char*>(yaml_filename.c_str()),
+              nullptr
+            };
+            execvp(executable.c_str(), argv);
+
+            std::ostringstream msg;
+            msg << "Failed to exec CBS batch subprocess '" << executable
+                << "' for YAML file " << yaml_filename << ": "
+                << std::strerror(errno) << '\n';
+            const std::string text = msg.str();
+            (void) write(STDERR_FILENO, text.c_str(), text.size());
+            _exit(127);
+          }
+
+          int status = 0;
+          pid_t wait_result = 0;
+          do
+          {
+            wait_result = waitpid(pid, &status, 0);
+          } while (wait_result < 0 && errno == EINTR);
+
+          if (wait_result < 0)
+          {
+            throw std::runtime_error("Failed to wait for CBS batch subprocess: " + std::string(std::strerror(errno)));
+          }
+
+          if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
           {
             std::ostringstream msg;
-            msg << "Batch run command failed with exit code " << rc
-                << " for YAML file " << yaml_file.string() << ".";
+            msg << "Batch run command failed with " << describe_child_status(status)
+                << " for YAML file " << yaml_filename
+                << ". Output JSON: " << describe_output_json(job.output_json_file)
+                << ". Command: GAMBIT_SUPPRESS_BANNER=1 CBS_SUPPRESS_BANNER=1 "
+                << executable << " " << yaml_filename << ".";
             throw std::runtime_error(msg.str());
           }
         }
@@ -700,7 +788,7 @@ namespace Gambit
         {
           YAML::Node run_yaml = build_single_run_yaml(prepared_input, settings, job);
           write_yaml_file(run_yaml, job.yaml_file);
-          run_single_job(cbs_executable, job.yaml_file);
+          run_single_job(cbs_executable, job);
 
           const nlohmann::json run_json = read_json_file(job.output_json_file);
           const int n_events = run_json.at("run").at("n_events").get<int>();

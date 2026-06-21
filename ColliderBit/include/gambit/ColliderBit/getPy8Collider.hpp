@@ -107,72 +107,10 @@ namespace Gambit
           // Fill the jet collection settings.
           result.all_jet_collection_settings.clear();
           result.jetcollection_taus = "";
-          if (colOptions.hasKey("jet_collections"))
-          {
-            YAML::Node all_jetcollections_node = colOptions.getValue<YAML::Node>("jet_collections");
-            Options all_jetcollection_options(all_jetcollections_node);
-            std::vector<str> jetcollection_names = all_jetcollection_options.getNames();
+          const parsed_jet_collection_settings parsed_collections = read_jet_collection_settings_from_options(colOptions);
+          result.all_jet_collection_settings = parsed_collections.collections;
+          result.jetcollection_taus = parsed_collections.jetcollection_taus;
 
-            for (str key : jetcollection_names)
-            {
-              YAML::Node current_jc_node = all_jetcollection_options.getValue<YAML::Node>(key);
-              Options current_jc_options(current_jc_node);
-
-              str algorithm = current_jc_options.getValue<str>("algorithm");
-              double R = current_jc_options.getValue<double>("R");
-              str recombination_scheme = current_jc_options.getValue<str>("recombination_scheme");
-              str strategy = current_jc_options.getValue<str>("strategy");
-
-              (result.all_jet_collection_settings).push_back({key, algorithm, R, recombination_scheme, strategy});
-            }
-
-            result.jetcollection_taus = colOptions.getValue<str>("jet_collection_taus");
-            // Throw an error if the "jet_collection_taus" setting does not match an entry in "jet_collections".
-            if (std::find(jetcollection_names.begin(), jetcollection_names.end(), result.jetcollection_taus) == jetcollection_names.end())
-            {
-              ColliderBit_error().raise(LOCAL_INFO,"Please provide the jet_collection_taus setting for jet collections.");
-            }
-          }
-          else
-          {
-            ColliderBit_error().raise(LOCAL_INFO,"Could not find jet_collections option for collider " + RunMC.current_collider() + ". Please provide this in the YAML file.");
-          }
-
-          // Fill the VR jet collection settings (optional).
-          // If VRJet_collections is not provided in YAML, do not enable VR jets.
-          result.all_vrjet_collection_settings.clear();
-          result.use_vrjets = false;
-
-          if (colOptions.hasKey("VRJet_collections"))
-          {
-            YAML::Node all_vrjetcollections_node = colOptions.getValue<YAML::Node>("VRJet_collections");
-            Options all_vrjetcollection_options(all_vrjetcollections_node);
-            std::vector<str> vrjetcollection_names = all_vrjetcollection_options.getNames();
-
-            // If the user provided VRJet_collections but it's empty, treat that as an error.
-            if (vrjetcollection_names.empty())
-            {
-              ColliderBit_error().raise(LOCAL_INFO,
-                "Found VRJet_collections option for collider " + RunMC.current_collider() + " but it contains no collections. "
-                "Either remove VRJet_collections entirely to disable VR jets, or define at least one VR jet collection under it.");
-            }
-
-            for (const str& key : vrjetcollection_names)
-            {
-              YAML::Node current_vrjc_node = all_vrjetcollection_options.getValue<YAML::Node>(key);
-              Options current_vrjc_options(current_vrjc_node);
-
-              const double rho   = current_vrjc_options.getValue<double>("rho");
-              const double Rmin  = current_vrjc_options.getValue<double>("Rmin");
-              const double Rmax  = current_vrjc_options.getValue<double>("Rmax");
-              const double ptmin = current_vrjc_options.getValue<double>("pt_min");
-
-              // Expect aggregate-initialisable settings struct: {name, rho, Rmin, Rmax, pt_min}
-              result.all_vrjet_collection_settings.push_back({key, rho, Rmin, Rmax, ptmin});
-            }
-
-            result.use_vrjets = true;
-          }
           if (colOptions.hasKey("pythia_settings"))
           {
             std::vector<str> addPythiaOptions = colNode["pythia_settings"].as<std::vector<str> >();

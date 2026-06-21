@@ -36,28 +36,10 @@ namespace Gambit
 
     using namespace EventConversion;
 
-
-
-    /// Vector of VR jet collection settings.
-    using vr_jet_collection_settings = std::vector<vrjet_collection_settings>;
-
-    /// Backwards-compatible overload: no VR jets unless explicitly requested.
     template <typename EventT>
     void convertParticleEvent(const EventT &pevt, HEPUtils::Event &result,
                               std::vector<jet_collection_settings> all_jet_collection_settings,
                               str jetcollection_taus, double jet_pt_min)
-    {
-      vr_jet_collection_settings vr_collections; // empty => no VR jets
-      convertParticleEvent(pevt, result, all_jet_collection_settings, jetcollection_taus, jet_pt_min, vr_collections);
-    }
-
-    /// Overload with explicit VR jet collection configurations.
-    /// VR jets are only built if `vr_collections` is non-empty.
-    template <typename EventT>
-    void convertParticleEvent(const EventT &pevt, HEPUtils::Event &result,
-                              std::vector<jet_collection_settings> all_jet_collection_settings,
-                              str jetcollection_taus, double jet_pt_min,
-                              const vr_jet_collection_settings& vr_collections)
     {
       result.clear();
 
@@ -233,30 +215,25 @@ namespace Gambit
       }
 
       /// Jet finding
-      // Optional: Variable-R (VR) track jets
-      // Build VR jets only if VRJet_collections was provided upstream (i.e. map is non-empty)
-      if (!vr_collections.empty())
+      for (jet_collection_settings jetcollection : all_jet_collection_settings)
       {
-        for (const auto &vr_cfg : vr_collections)
+        if (is_vr_algorithm(jetcollection.algorithm))
         {
-          const str &vr_key = vr_cfg.key;
+          const double rho = jetcollection.rho;
+          const double Rmin = jetcollection.Rmin;
+          const double Rmax = jetcollection.Rmax;
+          const double pt_min_vr = jetcollection.pt_min < 0.0 ? jet_pt_min : jetcollection.pt_min;
 
-          const double rho  = vr_cfg.rho;
-          const double Rmin = vr_cfg.Rmin;
-          const double Rmax = vr_cfg.Rmax;
-          const double pt_min_vr = vr_cfg.pt_min;
+          auto* vr_plugin = new fastjet::contrib::VariableRPlugin(rho, Rmin, Rmax, fastjet::contrib::VariableRPlugin::AKTLIKE);
+          fastjet::JetDefinition vr_jet_def(vr_plugin);
+          vr_jet_def.delete_plugin_when_unused();
+          std::shared_ptr<const FJNS::ClusterSequence> CSeqBasePtr = result.emplace_clusterseq(jetparticles, vr_jet_def, jetcollection.key);
+          std::vector<fastjet::PseudoJet> pjets = fastjet::sorted_by_pt(CSeqBasePtr->inclusive_jets(pt_min_vr));
 
-          fastjet::contrib::VariableRPlugin vr_plugin(rho, Rmin, Rmax, fastjet::contrib::VariableRPlugin::AKTLIKE);
-          fastjet::JetDefinition vr_jet_def(&vr_plugin);
-          fastjet::ClusterSequence vr_cseq(jetparticles, vr_jet_def);
-          std::vector<fastjet::PseudoJet> vr_pseudojets = fastjet::sorted_by_pt(vr_cseq.inclusive_jets(pt_min_vr));
-
-          for (const auto &ps : vr_pseudojets)
+          for (const auto &pj : pjets)
           {
-            HEPUtils::P4 jetMom = HEPUtils::mk_p4(ps);
-
-            // Effective radius used for tagging proximity checks
-            const double effectiveR = std::min(Rmax, std::max(Rmin, rho / ps.pt()));
+            HEPUtils::P4 jetMom = HEPUtils::mk_p4(pj);
+            const double effectiveR = std::min(Rmax, std::max(Rmin, rho / pj.pt()));
 
             bool isB = false;
             for (const auto &pb : bpartons)
@@ -318,14 +295,12 @@ namespace Gambit
               }
             }
 
-            HEPUtils::Jet::TagCounts vr_tags{{5, int(isB)}, {4, int(isC)}, {15, int(isTau)}, {23, int(isZ)}, {24, int(isW)}, {25, int(ish)}};
-            result.add_vrjet(new HEPUtils::Jet(ps, vr_tags), vr_key);
+            HEPUtils::Jet::TagCounts tags{{5, int(isB)}, {4, int(isC)}, {15, int(isTau)}, {23, int(isZ)}, {24, int(isW)}, {25, int(ish)}};
+            result.add_jet(new HEPUtils::Jet(pj, tags), jetcollection.key);
           }
+          continue;
         }
-      }
 
-      for (jet_collection_settings jetcollection : all_jet_collection_settings)
-      {
         FJNS::JetAlgorithm jet_algorithm = FJalgorithm_map(jetcollection.algorithm);
         FJNS::Strategy jet_strategy = FJstrategy_map(jetcollection.strategy);
         FJNS::RecombinationScheme jet_recomscheme = FJRecomScheme_map(jetcollection.recombination_scheme);
@@ -541,6 +516,8 @@ namespace Gambit
       /// Jet finding
       for (jet_collection_settings jetcollection : all_jet_collection_settings)
       {
+        if (is_vr_algorithm(jetcollection.algorithm)) continue;
+
         FJNS::JetAlgorithm jet_algorithm = FJalgorithm_map(jetcollection.algorithm);
         FJNS::Strategy jet_strategy = FJstrategy_map(jetcollection.strategy);
         FJNS::RecombinationScheme jet_recomscheme = FJRecomScheme_map(jetcollection.recombination_scheme);

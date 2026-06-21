@@ -20,7 +20,6 @@
 #include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
-#include "fastjet/contrib/VariableRPlugin.hh"
 
 #ifndef FJCORE
 #ifndef FJNS
@@ -229,7 +228,7 @@ namespace Gambit
         sort(largeR_Jets.begin(), largeR_Jets.end(), compareJetPt);
 
         vector<const HEPUtils::Jet *> VR_jets;
-        for (auto &pj : event->vrjets("VRTrackJets"))
+        for (auto &pj : event->jets("VRTrackJets"))
         {
           if (pj->pT() > 25.0 && pj->abseta() < 2.5) VR_jets.push_back(pj);
         }

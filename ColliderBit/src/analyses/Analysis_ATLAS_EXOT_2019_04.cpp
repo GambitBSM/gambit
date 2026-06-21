@@ -103,7 +103,7 @@ namespace Gambit
         SIGNAL_PARTICLE_COMBINATION(signalLep, signalEl, signalMu)
 
         std::vector<const HEPUtils::Jet *> VR_jets;
-        for (const HEPUtils::Jet *j : event->vrjets("VRTrackJets"))
+        for (const HEPUtils::Jet *j : event->jets("VRTrackJets"))
         {
           if (j->pT() > 10. && j->abseta() < 2.5) VR_jets.push_back(j);
         }

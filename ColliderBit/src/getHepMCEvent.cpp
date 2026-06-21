@@ -190,73 +190,6 @@ namespace Gambit
 
     }
 
-
-    /// A helper function for collecting the jet_collections yaml settings. 
-    /// Used by functions getHepMCEvent_HEPUtils and convertHepMCEvent_HEPUtils.
-    void read_jet_collections_settings(const Options& runOptions, std::vector<jet_collection_settings>& all_jet_collection_settings, str& jetcollection_taus)
-    {
-      if (runOptions.hasKey("jet_collections"))
-      {
-        YAML::Node all_jetcollections_node = runOptions.getValue<YAML::Node>("jet_collections");
-        Options all_jetcollection_options(all_jetcollections_node);
-        std::vector<str> jetcollection_names = all_jetcollection_options.getNames();
-
-        for (str key : jetcollection_names)
-        {
-          YAML::Node current_jc_node = all_jetcollection_options.getValue<YAML::Node>(key);
-          Options current_jc_options(current_jc_node);
-
-          str algorithm = current_jc_options.getValue<str>("algorithm");
-          double R = current_jc_options.getValue<double>("R");
-          str recombination_scheme = current_jc_options.getValue<str>("recombination_scheme");
-          str strategy = current_jc_options.getValue<str>("strategy");
-
-          all_jet_collection_settings.push_back({key, algorithm, R, recombination_scheme, strategy});
-        }
-
-        jetcollection_taus = runOptions.getValue<str>("jet_collection_taus");
-        // Throw an error if the "jet_collection_taus" setting does not match an entry in "jet_collections".
-        if (std::find(jetcollection_names.begin(), jetcollection_names.end(), jetcollection_taus) == jetcollection_names.end())
-        {
-          ColliderBit_error().raise(LOCAL_INFO,"Please provide the jet_collection_taus setting for jet collections.");
-        }
-      }
-      else
-      {
-        ColliderBit_error().raise(LOCAL_INFO,"Could not find jet_collections options. Please provide this in the YAML file.");
-      }
-    }
-
-
-    /// A helper function for collecting the VRJet_collections yaml settings.
-    /// If VRJet_collections is not provided, vr_jet_collection_settings is left empty.
-    void read_vrjet_collections_settings(const Options& runOptions, vr_jet_collection_settings& vr_collections)
-    {
-      vr_collections.clear();
-
-      // VR jets are optional: only parse if the user provided VRJet_collections
-      if (!runOptions.hasKey("VRJet_collections")) return;
-
-      YAML::Node all_vrjets_node = runOptions.getValue<YAML::Node>("VRJet_collections");
-      Options all_vrjet_options(all_vrjets_node);
-      std::vector<str> vrjet_names = all_vrjet_options.getNames();
-
-      for (const str& key : vrjet_names)
-      {
-        YAML::Node current_vrj_node = all_vrjet_options.getValue<YAML::Node>(key);
-        Options current_vrj_options(current_vrj_node);
-
-        // Require all fields for each collection
-        const double rho    = current_vrj_options.getValue<double>("rho");
-        const double Rmin   = current_vrj_options.getValue<double>("Rmin");
-        const double Rmax   = current_vrj_options.getValue<double>("Rmax");
-        const double pt_min = current_vrj_options.getValue<double>("pt_min");
-
-        vr_collections.push_back({key, rho, Rmin, Rmax, pt_min});
-      }
-    }
-
-
     /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
     void getHepMCEvent_HEPUtils(HEPUtils::Event &result)
     {
@@ -265,12 +198,9 @@ namespace Gambit
       // Get yaml options
       const static str HepMC_filename = runOptions->getValueOrDef<str>("", "hepmc_filename");
       const static double jet_pt_min = runOptions->getValueOrDef<double>(10.0, "jet_pt_min");
-      std::vector<jet_collection_settings> all_jet_collection_settings = {};
-      str jetcollection_taus;
-      read_jet_collections_settings(*runOptions, all_jet_collection_settings, jetcollection_taus);
-
-      vr_jet_collection_settings vr_collections;
-      read_vrjet_collections_settings(*runOptions, vr_collections);
+      const parsed_jet_collection_settings parsed_collections = read_jet_collection_settings_from_options(*runOptions);
+      const std::vector<jet_collection_settings>& all_jet_collection_settings = parsed_collections.collections;
+      const str& jetcollection_taus = parsed_collections.jetcollection_taus;
 
       // Get the HepMC event
       //HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
@@ -284,7 +214,7 @@ namespace Gambit
       result.set_weight(ge.weight());
 
       //Translate to HEPUtils event by calling the unified HEPMC/Pythia event converter:
-      Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, all_jet_collection_settings, jetcollection_taus, jet_pt_min, vr_collections);
+      Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, all_jet_collection_settings, jetcollection_taus, jet_pt_min);
 
     }
 
@@ -300,18 +230,15 @@ namespace Gambit
 
       //Get yaml options required for conversion
       const static double jet_pt_min = runOptions->getValueOrDef<double>(10.0, "jet_pt_min");
-      std::vector<jet_collection_settings> all_jet_collection_settings = {};
-      str jetcollection_taus;
-      read_jet_collections_settings(*runOptions, all_jet_collection_settings, jetcollection_taus);
-
-      vr_jet_collection_settings vr_collections;
-      read_vrjet_collections_settings(*runOptions, vr_collections);
+      const parsed_jet_collection_settings parsed_collections = read_jet_collection_settings_from_options(*runOptions);
+      const std::vector<jet_collection_settings>& all_jet_collection_settings = parsed_collections.collections;
+      const str& jetcollection_taus = parsed_collections.jetcollection_taus;
 
       //Set the weight
       result.set_weight(ge.weight());
 
       //Translate to HEPUtils event by calling the unified HEPMC/Pythia event converter:
-      Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, all_jet_collection_settings, jetcollection_taus, jet_pt_min, vr_collections);
+      Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, all_jet_collection_settings, jetcollection_taus, jet_pt_min);
     }
 
   }

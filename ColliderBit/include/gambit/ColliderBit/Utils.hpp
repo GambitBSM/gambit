@@ -32,8 +32,12 @@
 
 #pragma once
 
+#include <algorithm>
 #include <functional>
 #include <memory>
+#include <stdexcept>
+#include <string>
+#include <vector>
 #include <cfloat>
 
 #include "HEPUtils/MathUtils.h"
@@ -43,6 +47,7 @@
 
 #include "gambit/Utils/util_types.hpp"
 #include "gambit/Utils/standalone_error_handlers.hpp"
+#include "gambit/Utils/yaml_options.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
 namespace Gambit
@@ -59,29 +64,87 @@ namespace Gambit
     {
       std::string key;
       std::string algorithm;
-      double R;
-      std::string recombination_scheme;
-      std::string strategy;
-    };
-    /// Settings for Variable-R (VR) track jets.
-    ///
-    /// YAML shape expected upstream:
-    ///   VRJet_collections:
-    ///     <collection_name>:
-    ///       rho: 30.0
-    ///       Rmin: 0.02
-    ///       Rmax: 0.4
-    ///       pt_min: 5.0
-    ///
-    /// If VRJet_collections is absent or empty, VR jets are not built.
-    struct vrjet_collection_settings
-    {
-      std::string key;
+      double R = 0.4;
+      std::string recombination_scheme = "E_scheme";
+      std::string strategy = "Best";
       double rho = 30.0;
       double Rmin = 0.02;
       double Rmax = 0.4;
-      double pt_min = 5.0;
+      double pt_min = -1.0;
     };
+    inline bool is_vr_algorithm(const std::string& algorithm) { return algorithm == "VariableR"; }
+
+    struct parsed_jet_collection_settings
+    {
+      std::vector<jet_collection_settings> collections;
+      str jetcollection_taus;
+    };
+
+    inline parsed_jet_collection_settings read_jet_collection_settings_from_options(const Options& options)
+    {
+      if (!options.hasKey("jet_collections"))
+      {
+        throw std::runtime_error("Could not find jet_collections option. Please provide this in the YAML file.");
+      }
+
+      parsed_jet_collection_settings parsed;
+      YAML::Node all_jetcollections_node = options.getValue<YAML::Node>("jet_collections");
+      Options all_jetcollection_options(all_jetcollections_node);
+      std::vector<str> jetcollection_names = all_jetcollection_options.getNames();
+
+      for (str key : jetcollection_names)
+      {
+        YAML::Node current_jc_node = all_jetcollection_options.getValue<YAML::Node>(key);
+        Options current_jc_options(current_jc_node);
+
+        str algorithm = current_jc_options.getValue<str>("algorithm");
+        jet_collection_settings settings;
+        settings.key = key;
+        settings.algorithm = algorithm;
+        if (is_vr_algorithm(algorithm))
+        {
+          settings.rho = current_jc_options.getValue<double>("rho");
+          settings.Rmin = current_jc_options.getValue<double>("Rmin");
+          settings.Rmax = current_jc_options.getValue<double>("Rmax");
+          settings.pt_min = current_jc_options.getValue<double>("pt_min");
+        }
+        else
+        {
+          settings.R = current_jc_options.getValue<double>("R");
+          settings.recombination_scheme = current_jc_options.getValue<str>("recombination_scheme");
+          settings.strategy = current_jc_options.getValue<str>("strategy");
+        }
+
+        parsed.collections.push_back(settings);
+      }
+
+      parsed.jetcollection_taus = options.getValue<str>("jet_collection_taus");
+      if (std::find(jetcollection_names.begin(), jetcollection_names.end(), parsed.jetcollection_taus) == jetcollection_names.end())
+      {
+        throw std::runtime_error("Please provide the jet_collection_taus setting for jet collections.");
+      }
+
+      for (const jet_collection_settings& settings : parsed.collections)
+      {
+        if (settings.key == parsed.jetcollection_taus && is_vr_algorithm(settings.algorithm))
+        {
+          throw std::runtime_error("jet_collection_taus must refer to a non-VariableR jet collection.");
+        }
+      }
+
+      return parsed;
+    }
+
+    inline std::vector<std::string> vr_jetcollection_keys(const std::vector<jet_collection_settings>& collections)
+    {
+      std::vector<std::string> keys;
+      for (const jet_collection_settings& settings : collections)
+      {
+        if (is_vr_algorithm(settings.algorithm)) keys.push_back(settings.key);
+      }
+      return keys;
+    }
+
     /// Storage of different FastJet methods
     FJNS::JetAlgorithm FJalgorithm_map(std::string);
     FJNS::Strategy FJstrategy_map(std::string);

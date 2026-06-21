@@ -6,7 +6,6 @@
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.
 //
-// \author Pengxuan Zhu  March 2025: Adding Variable radius track Jets
 #pragma once
 
 #include "HEPUtils/Particle.h"
@@ -37,7 +36,6 @@ namespace HEPUtils {
 
     /// Jets collection(s) (mutable to allow sorting)
     mutable std::map<std::string, std::vector<const Jet*>> _jets;
-    mutable std::map<std::string, std::vector<const Jet*>> _vrjets; 
 
     /// Typedef for the generic cluster-sequence type
     using CSeqBase = FJNS::ClusterSequence;
@@ -73,7 +71,6 @@ namespace HEPUtils {
       _jets = e._jets;
       _cseqs = e._cseqs;
       _pmiss = e._pmiss;
-      _vrjets = e._vrjets; 
     }
 
 
@@ -128,12 +125,6 @@ namespace HEPUtils {
           e.add_jet(new Jet(*js[i]), kv.first);
         }
       }
-      for (const auto& kv : _vrjets ) {
-        const std::vector<const Jet*> js = vrjets(kv.first);  
-        for (size_t i = 0; i < js.size(); ++i) {
-          e.add_vrjet(new Jet(*js[i]), kv.first); 
-        }
-      }
       e._pmiss = _pmiss;
       e._cseqs = _cseqs;
     }
@@ -160,9 +151,7 @@ namespace HEPUtils {
 
       // Jets
       for (const std::string& jc : jet_collections()) clear_jets(jc);
-      for (const std::string& vjc : vrjet_collections()) clear_vrjets(vjc);
       _jets.clear();
-      _vrjets.clear();
       _cseqs.clear();
 
       // MET
@@ -381,37 +370,6 @@ namespace HEPUtils {
       return _get_jets(key);
     }
 
-    // /// @brief Get a VR jet collection (const version)
-    // const std::vector<const Jet*>& vrjets(const std::string& key) const {
-    //   return _vrjets.at(key);
-    // }
-
-    /// @brief Get a VR jet collection (const version)
-    const std::vector<const Jet*>& vrjets(const std::string& key) const {
-      auto it = _vrjets.find(key);
-      if(it == _vrjets.end()){
-          static const std::vector<const Jet*> empty;
-          return empty;
-      }
-      return it->second;
-    }
-
-    /// @brief Get a VR jet collection (non-const version)
-    std::vector<Jet*>& vrjets(const std::string& key) {
-      return mkunconst(_vrjets[key]);
-    }
-
-    // /// @brief Get a VR jet collection (non-const version)
-    // std::vector<Jet*>& vrjets(const std::string& key) {
-    //   return mkunconst(_vrjets.at(key));
-    // }
-
-    /// @brief Add a VR jet to the VR jet collection with the specified key
-    void add_vrjet(const Jet* j, const std::string& key) {
-      _vrjets[key].push_back(j);
-    }
-
-
     /// @brief Get a jet collection (not including charged leptons or photons) (non-const)
     std::vector<Jet*>& jets(const std::string& key) {
       return mkunconst(_get_jets(key));
@@ -425,14 +383,6 @@ namespace HEPUtils {
       return rtn;
     }
 
-    /// Get the list of VR jet-collection names
-    std::vector<std::string> vrjet_collections() {
-      std::vector<std::string> rtn;
-      for (const auto& kv : _vrjets) rtn.push_back(kv.first);
-      return rtn;
-    }
-
-    
     /// @brief Set a jet collection
     ///
     /// @warning The Jets should be new'd; Event will take ownership.
@@ -461,14 +411,6 @@ namespace HEPUtils {
       _jets.erase(key);
       _cseqs.erase(key);
     }
-
-    /// @brief Clear a VR jet collection
-    void clear_vrjets(const std::string& key) {
-      for (const Jet* j : vrjets(key)) delete j;
-      _vrjets.erase(key);
-      // Note: VR jets do not currently have their own cluster-seq storage.
-    }
-    
 
     /// @brief Add a jet to a jet collection
     ///

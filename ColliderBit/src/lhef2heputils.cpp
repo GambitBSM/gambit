@@ -108,6 +108,7 @@ namespace Gambit
       // Jet Finding
       for (jet_collection_settings jetcollection : all_jet_collection_settings)
       {
+        if (is_vr_algorithm(jetcollection.algorithm)) continue;
 
         // @todo get_jets function could accept a more general jet definition
         vector<PseudoJet> jets = HEPUtils::get_jets(jetparticles, 0.4, jet_pt_min, FJalgorithm_map(jetcollection.algorithm));
@@ -135,21 +136,6 @@ namespace Gambit
         #endif
       }
 
-    }
-
-    /// Extract an LHE event as a HEPUtils::Event (overload supporting optional VR jet settings)
-    void get_HEPUtils_event(const LHEF::Reader& lhe, Event& evt, double jet_pt_min,
-                            std::vector<jet_collection_settings> all_jet_collection_settings,
-                            bool use_vrjets,
-                            std::vector<vrjet_collection_settings> all_vrjet_collection_settings)
-    {
-      // VR jet reconstruction is not currently supported in the LHE -> HEPUtils conversion path.
-      // Keep the arguments to preserve API compatibility with callers.
-      (void)use_vrjets;
-      (void)all_vrjet_collection_settings;
-
-      // Reuse the existing implementation.
-      get_HEPUtils_event(lhe, evt, jet_pt_min, std::move(all_jet_collection_settings));
     }
 
   }
