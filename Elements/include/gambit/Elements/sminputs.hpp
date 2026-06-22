@@ -21,6 +21,8 @@
 
 #include "gambit/Utils/slhaea_helpers.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
+#include <array>
+#include <complex>
 
 namespace Gambit
 {
@@ -87,6 +89,10 @@ namespace Gambit
         double delta13; // the Dirac CP-violating phase
         double alpha1;  // the first Majorana CP-violating phase
         double alpha2;  // the second CP-violating Majorana phase
+
+        // Returns the full 3x3 complex UPMNS matrix using the standard PDG parameterisation.
+        // Indices are zero-based: U[i][j].
+        std::array<std::array<std::complex<double>,3>,3> get_matrix() const;
       };
       PMNSdef PMNS;
 

@@ -1912,5 +1912,26 @@ namespace Gambit
     }  // end InitialTotalCrossSection_YAMLSLHA
 
 
+  /// Copy the Initial CrossSection estimate into the Final as the Total CrossSection
+  /// This is useful when evalutating both using e.g. NLO xsec calculators
+  void useInitialCrossSectionasFinalTotalCrossSection(xsec_container& result)
+  {
+    using namespace Pipes::useInitialCrossSectionasFinalTotalCrossSection;
+    std::string collider = Dep::RunMC->current_collider();
+
+    initialxsec_container initial_xsec = *Dep::PerformInitialCrossSection;
+    result = initial_xsec.first[collider]; 
+  }
+
+  // Same but for process xsecs
+  void useInitialProcessCrossSectionsMapasFinal(map_int_process_xsec& result)
+  {
+    using namespace Pipes::useInitialProcessCrossSectionsMapasFinal;
+    std::string collider = Dep::RunMC->current_collider();
+
+    map_str_map_int_process_xsec initial_process_xsecs = *Dep::InitialProcessCrossSections;
+    result = initial_process_xsecs[collider]; 
+  }
+  
   }
 }

@@ -62,7 +62,20 @@ namespace Gambit
       #endif
 
       // Get the process_xsec_container instance that holds the externally provided cross-section for this process
-      process_xsec_container xs = ProcessCrossSectionsMap.at(process_code);
+      auto it = ProcessCrossSectionsMap.find(process_code);
+      if (it == ProcessCrossSectionsMap.end())
+      {
+        std::stringstream errmsg_ss;
+        errmsg_ss << "setEventWeight_fromCrossSection: Pythia generated an event with process code "
+                  << process_code << ", but no external cross-section is available for this process. "
+                  << "Your collider settings are generating processes that your cross-section provider "
+                  << "does not cover. Either restrict the Pythia process settings to only the processes "
+                  << "your cross-section provider computes (e.g. replace 'SUSY:all = on' with explicit "
+                  << "process switches), or use setEventWeight_unity instead.";
+        piped_errors.request(LOCAL_INFO, errmsg_ss.str());
+        return;
+      }
+      process_xsec_container xs = it->second;
 
       // Get the generator cross-section for this process
       double process_xsec_generator = HardScatteringSim_ptr->xsec_fb(process_code);

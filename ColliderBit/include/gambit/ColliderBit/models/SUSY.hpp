@@ -41,6 +41,7 @@
 #pragma once
 
 #include "gambit/ColliderBit/models/SUSY_extras.hpp"
+#include "gambit/Backends/backend_types/smoking.hpp"
 
 #define MODULE ColliderBit
 
@@ -50,6 +51,14 @@
     #define FUNCTION PerformInitialCrossSection_Pythia
     START_FUNCTION(initialxsec_container)
     DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct)
+    #undef FUNCTION
+
+    #define FUNCTION PerformInitialCrossSection_smoking
+    START_FUNCTION(initialxsec_container)
+    DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct)
+    BACKEND_REQ(smoking_init,     (), int,  (smoking_variables&))
+    BACKEND_REQ(smoking_calc,     (), std::vector<Result>, (smoking_variables&))
+    BACKEND_REQ(smoking_finalise, (), int,  ())
     #undef FUNCTION
 
   #undef CAPABILITY
