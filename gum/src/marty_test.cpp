@@ -103,7 +103,7 @@ int main ()
   myLib.addLPath("MARTY_INSTALL_PATH/lib");
   myLib.addLPath("MARTY_INSTALL_PATH/lib");
   
-  myLib.build();
+  myLib.print();
   
   return 0;
 }
