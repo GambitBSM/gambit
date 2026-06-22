@@ -3,7 +3,8 @@
 ///  \file
 ///
 ///  MET Significance functions, based on those provided at
-///  https://gitlab.cern.ch/atlas-sa/framework
+///  https://gitlab.cern.ch/atlas-sa/framework, and modified
+///  to meet our needs.
 ///
 ///  *********************************************
 ///
