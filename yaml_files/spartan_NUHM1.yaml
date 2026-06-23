@@ -60,16 +60,6 @@ Scanner:
       like:  LogLike
       point_number: 20
 
-    square_grid:
-      plugin: square_grid
-      like: LogLike
-      grid_pts: 3
-
-    grid:
-      plugin: grid
-      like: LogLike
-      grid_pts: [2, 2, 3]
-
 
 ObsLikes:
 
