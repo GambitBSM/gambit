@@ -461,6 +461,10 @@ if (NOT EXCLUDE_FASTJET)
   add_gambit_library(METSignificance OPTION OBJECT
                             SOURCES ${PROJECT_SOURCE_DIR}/contrib/METSignificance/src/METSignificance.cpp
                             HEADERS ${PROJECT_SOURCE_DIR}/contrib/METSignificance/include/METSignificance/METSignificance.hpp)
+  add_dependencies(METSignificance fastjet)
+  if (NOT EXCLUDE_FJCONTRIB)
+    add_dependencies(METSignificance fjcontrib)
+  endif()
   set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:METSignificance>)
   add_dependencies(contrib METSignificance)
 endif()
