@@ -263,6 +263,14 @@ macro(add_gambit_custom target filename HARVESTER DEPS)
   if (NOT "${ARGN}" STREQUAL "")
     set(ditch_string "-x __not_a_real_name__,${ARGN}")
   endif()
+  # Record the full harvester command in a stamp file that is only touched when the
+  # command changes, so that the harvesters rerun when e.g. the -Ditch list changes,
+  # but not after every reconfiguration (as a dependency on CMakeCache.txt would cause).
+  set(harvester_options_stamp ${CMAKE_BINARY_DIR}/${target}_options.stamp)
+  file(WRITE ${harvester_options_stamp}.candidate "${PYTHON_EXECUTABLE} ${${HARVESTER}} ${ditch_string}\n")
+  execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                  ${harvester_options_stamp}.candidate ${harvester_options_stamp})
+  file(REMOVE ${harvester_options_stamp}.candidate)
   add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${filename}
                      COMMAND ${Python3_EXECUTABLE} ${${HARVESTER}} ${ditch_string} ${${HARVESTER}_EXTRA_ARGS}
                      COMMAND touch ${CMAKE_BINARY_DIR}/${filename}
@@ -270,7 +278,7 @@ macro(add_gambit_custom target filename HARVESTER DEPS)
                      DEPENDS ${${HARVESTER}}
                              ${HARVEST_TOOLS}
                              ${${DEPS}}
-                             ${CMAKE_BINARY_DIR}/CMakeCache.txt) #CMAKE_CACHEFILE_DIR is the same as CMAKE_BINARY_DIR
+                             ${harvester_options_stamp})
   add_custom_target(${target} DEPENDS ${CMAKE_BINARY_DIR}/${filename})
 endmacro()
 
@@ -435,6 +443,15 @@ function(add_standalone executablename)
     endforeach()
     list(APPEND STANDALONE_SOURCES ${STANDALONE_FUNCTORS})
 
+    # Record the full facilitator command in a stamp file that is only touched when the
+    # command changes, so that the functors source is regenerated when e.g. the module list
+    # changes, but not after every reconfiguration (as a dependency on CMakeCache.txt would cause).
+    set(facilitator_options_stamp ${CMAKE_BINARY_DIR}/functors_for_${executablename}_options.stamp)
+    file(WRITE ${facilitator_options_stamp}.candidate "${PYTHON_EXECUTABLE} ${STANDALONE_FACILITATOR} ${executablename} -m __not_a_real_name__,${COMMA_SEPARATED_MODULES}\n")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    ${facilitator_options_stamp}.candidate ${facilitator_options_stamp})
+    file(REMOVE ${facilitator_options_stamp}.candidate)
+
     # Set up the target to call the facilitator script to make the functors source file for this standalone.
     add_custom_command(OUTPUT ${STANDALONE_FUNCTORS}
                        COMMAND ${Python3_EXECUTABLE} ${STANDALONE_FACILITATOR} ${executablename} -m __not_a_real_name__,${COMMA_SEPARATED_MODULES}
@@ -443,7 +460,7 @@ function(add_standalone executablename)
                        DEPENDS modules_harvested
                                ${STANDALONE_FACILITATOR}
                                ${HARVEST_TOOLS}
-                               ${CMAKE_BINARY_DIR}/CMakeCache.txt) #CMAKE_CACHEFILE_DIR is the same as CMAKE_BINARY_DIR
+                               ${facilitator_options_stamp})
 
     # All the standalones need linking to HepMC, if HepMC is not excluced.
     # TODO: Avoid this if possible.
