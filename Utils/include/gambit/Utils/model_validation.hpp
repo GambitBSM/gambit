@@ -47,6 +47,15 @@ namespace Gambit {
     /// Get the current handling strategy for model validation
     [[nodiscard]] const ModelValidationHandling& getModelValidationHandling() const;
 
+    /// Activate the model validation handler
+    void activate();
+
+    /// Deactivate the model validation handler
+    void deactivate();
+
+    /// Check whether the validation handler is armed
+    [[nodiscard]] const bool& isActive() const;
+
     // Delete all (copy + move) constructors and assignment operators
     ModelValidationHandler& operator=(const ModelValidationHandler&) = delete;
     ModelValidationHandler& operator=(ModelValidationHandler&&) = delete;
@@ -55,8 +64,9 @@ namespace Gambit {
 
   private:
     ModelValidationHandling _model_validation_handling;
+    bool _model_validation_active;
 
-    ModelValidationHandler() : _model_validation_handling(ModelValidationHandling::pass) {}
+    ModelValidationHandler() : _model_validation_handling(ModelValidationHandling::pass), _model_validation_active(false) {}
   };
 
 }

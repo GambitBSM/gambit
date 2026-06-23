@@ -39,4 +39,19 @@ namespace Gambit
     return _model_validation_handling;
   }
 
+  void ModelValidationHandler::activate()
+  {
+    _model_validation_active = true;
+  }
+
+  void ModelValidationHandler::deactivate()
+  {
+    _model_validation_active = false;
+  }
+
+  const bool& ModelValidationHandler::isActive() const
+  {
+    return _model_validation_active;
+  }
+
 } // namespace Gambit

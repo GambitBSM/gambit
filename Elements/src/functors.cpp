@@ -1958,8 +1958,9 @@ namespace Gambit
       const auto& params = *this->getcontentsPtr();
       if (!params.isValid())
       {
+        const auto& model_validation_active = ModelValidationHandler::getInstance().isActive();
         const auto& model_validation_handling = ModelValidationHandler::getInstance().getModelValidationHandling();
-        if (model_validation_handling == ModelValidationHandling::pass)
+        if (!model_validation_active || model_validation_handling == ModelValidationHandling::pass)
         {
           return;
         }
