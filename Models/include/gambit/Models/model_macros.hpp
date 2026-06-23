@@ -202,34 +202,8 @@
         /* Add the model to GAMBIT model database */                           \
         int model_rego = add_model(STRINGIFY(MODEL), STRINGIFY(PARENT));       \
                                                                                \
-        /* Functor's actual "calculate" function. Performs model validation */ \
-        void primary_parameters (ModelParameters& params)                      \
-        {                                                                      \
-          if (!params.isValid())                                               \
-          {                                                                    \
-            const auto& model_validation_handling =                            \
-             ModelValidationHandler::getInstance().getModelValidationHandling();\
-                                                                               \
-            if (model_validation_handling == ModelValidationHandling::pass)    \
-            {                                                                  \
-              return;                                                          \
-            }                                                                  \
-                                                                               \
-            std::stringstream ss;                                              \
-            ss << "Parameters of model "  << STRINGIFY(MODEL);                 \
-            ss << " are invalid.";                                             \
-                                                                               \
-            if (model_validation_handling == ModelValidationHandling::invalidate)\
-            {                                                                  \
-              invalid_point().raise(ss.str());                                 \
-            }                                                                  \
-                                                                               \
-            if (model_validation_handling == ModelValidationHandling::raise)   \
-            {                                                                  \
-              model_error().raise(LOCAL_INFO, ss.str());                       \
-            }                                                                  \
-          }                                                                    \
-        }                                                                      \
+        /* Functor's actual "calculate" function.  Doesn't do anything. */     \
+        void primary_parameters (ModelParameters& params) {}                   \
                                                                                \
         /* Wrap it up in a primary_model_functor */                            \
         MAKE_PRIMARY_MODEL_FUNCTOR(primary_parameters, CAT(MODEL,_parameters), \
