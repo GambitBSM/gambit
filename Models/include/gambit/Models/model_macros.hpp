@@ -203,7 +203,7 @@
         int model_rego = add_model(STRINGIFY(MODEL), STRINGIFY(PARENT));       \
                                                                                \
         /* Functor's actual "calculate" function.  Doesn't do anything. */     \
-        void primary_parameters (ModelParameters& params) {}                   \
+        void primary_parameters (ModelParameters&) {}                          \
                                                                                \
         /* Wrap it up in a primary_model_functor */                            \
         MAKE_PRIMARY_MODEL_FUNCTOR(primary_parameters, CAT(MODEL,_parameters), \
