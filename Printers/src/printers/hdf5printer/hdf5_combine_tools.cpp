@@ -104,17 +104,17 @@ namespace Gambit
 
 
 
-            inline herr_t op_func (hid_t loc_id, const char *name_in, const H5L_info_t *,
+            inline herr_t op_func (hid_t loc_id, const char *name_in, const GAMBIT_H5L_INFO_T *,
                     void *operator_data)
             {
                 //herr_t          status;
                 herr_t          return_val = 0;
-                H5O_info_t      infobuf;
+                GAMBIT_H5O_INFO_T infobuf;
                 std::vector<std::string> &od = *static_cast<std::vector<std::string> *> (operator_data);
                 std::string name(name_in);
 
-                //status = H5Oget_info_by_name (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
-                H5Oget_info_by_name (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
+                //status = GAMBIT_H5OGET_INFO_BY_NAME (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
+                GAMBIT_H5OGET_INFO_BY_NAME (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
 
                 switch (infobuf.type)
                 {
@@ -144,17 +144,17 @@ namespace Gambit
                 return return_val;
             }
 
-            inline herr_t op_func_aux (hid_t loc_id, const char *name_in, const H5L_info_t *,
+            inline herr_t op_func_aux (hid_t loc_id, const char *name_in, const GAMBIT_H5L_INFO_T *,
                     void *operator_data)
             {
                 //herr_t          status;
                 herr_t          return_val = 0;
-                H5O_info_t      infobuf;
+                GAMBIT_H5O_INFO_T infobuf;
                 std::vector<std::string> &od = *static_cast<std::vector<std::string> *> (operator_data);
                 std::string name(name_in);
 
-                //status = H5Oget_info_by_name (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
-                H5Oget_info_by_name (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
+                //status = GAMBIT_H5OGET_INFO_BY_NAME (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
+                GAMBIT_H5OGET_INFO_BY_NAME (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
 
                 switch (infobuf.type)
                 {
@@ -536,13 +536,9 @@ namespace Gambit
                                size_tot_l = size_tot + size; // Last?
                            //}
 
-                           for (auto it = valids.end()-1; size > 0; --it)
-                           {
-                               if (*it)
-                                   break;
-                               else
-                                   --size;
-                           }
+                           // Trim any trailing invalid points (size <= valids.size() ensured above)
+                           while (size > 0 && !valids[size-1])
+                               --size;
 
                            HDF5::closeSpace(dataspace);
                            HDF5::closeSpace(dataspace2);
@@ -804,13 +800,9 @@ namespace Gambit
                        ranks.push_back(valid_rank);
                        ptids.push_back(valid_ptid);
 
-                       for (auto it = valids.end()-1; size > 0; --it)
-                       {
-                           if (*it)
-                               break;
-                           else
-                               --size;
-                       }
+                       // Trim any trailing invalid points (size <= valids.size() ensured above)
+                       while (size > 0 && !valids[size-1])
+                           --size;
                        aux_sizes.push_back(size);
 
                        HDF5::closeSpace(dataspace);
@@ -992,6 +984,8 @@ namespace Gambit
                             // Close resources
                             HDF5::closeDataset(dataset_out);
                             HDF5::closeDataset(dataset2_out);
+                            H5Tclose(type);
+                            H5Tclose(type2);
 
                             // Move offset so that next batch is written to correct place in output file
                             offset += batch_size_tot + pc_offset;
@@ -1152,6 +1146,8 @@ namespace Gambit
                              }
                              // Create new dataset
                              setup_hdf5_points(new_group, type, type2, size_tot, *it);
+                             if(type>=0)  H5Tclose(type);
+                             if(type2>=0) H5Tclose(type2);
                           }
                           // Reopen output datasets for copying
                           hid_t dataset_out  = HDF5::openDataset(new_group, *it);
@@ -1307,6 +1303,7 @@ namespace Gambit
 
                             // Close resources
                             HDF5::closeDataset(dataset_out);
+                            H5Tclose(type);
 
                             // Move offset so that next batch is written to correct place in output file
                             offset += batch_size_tot + pc_offset;

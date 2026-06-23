@@ -39,6 +39,7 @@
 
 // Gambit headers
 #include "gambit/Core/core.hpp"
+#include "gambit/Core/cli_help_text.hpp"
 #include "gambit/Core/error_handlers.hpp"
 #include "gambit/Core/yaml_description_database.hpp"
 #include "gambit/ScannerBit/plugin_loader.hpp"
@@ -81,50 +82,7 @@ namespace Gambit
   void gambit_core::bail(int mpirank)
   {
     if (mpirank < 0) mpirank = GET_RANK;
-    if (mpirank == 0)
-    {
-      cout << "\nusage: gambit [options] [<command>]                                        "
-              "\n                                                                           "
-              "\nRun scan:                                                                  "
-              "\n   gambit -f <inifile>   Start a scan using instructions from inifile      "
-              "\n                           e.g.: gambit -f gambit.yaml                     "
-              "\n                                                                           "
-              "\nAvailable commands:                                                        "
-              "\n   modules               List registered modules                           "
-              "\n   backends              List registered backends and their status         "
-              "\n   models                List registered models and output model graph     "
-              "\n   capabilities          List all registered function capabilities         "
-              "\n   scanners              List registered scanners                          "
-              "\n   test-functions        List registered scanner test objective functions  "
-              "\n   <name>                Give info on a specific module, module function,  "
-              "\n                           backend, backend function, model, capability,   "
-              "\n                           scanner or scanner test objective function      "
-              "\n                           e.g.: gambit DarkBit                            "
-              "\n                                 gambit GA_SimYieldTable_DarkSUSY          "
-              "\n                                 gambit Pythia                             "
-              "\n                                 gambit get_abund_map_AlterBBN             "
-              "\n                                 gambit MSSM                               "
-              "\n                                 gambit IC79WL_loglike                     "
-              "\n                                 gambit MultiNest                          "
-              "\n                                                                           "
-              "\nBasic options:                                                             "
-              "\n   --version             Display GAMBIT version information                "
-              "\n   -h/--help             Display this usage information                    "
-              "\n   -f <inifile>          Start scan using <inifile>                        "
-              "\n   -v/--verbose          Turn on verbose mode                              "
-              "\n   -d/--dryrun           List the function evaluation order computed based "
-              "\n                           on inifile                                      "
-              "\n   -b/--backends         List the backends required to fulfil dependencies "
-              "\n                           based on inifile                                "
-              "\n   -r/--restart          Restart the scan defined by <inifile>. Existing   "
-              "\n                         output files for the run will be overwritten.     "
-              "\n                         Default behaviour in the absence of this option is"
-              "\n                         to attempt to resume the scan from any existing   "
-              "\n                         output.                                           "
-              "\n"
-           << endl
-           << endl;
-    }
+    if (mpirank == 0) cout << cli_help_text;  // from cli_help_text.hpp
     logger().disable();
     throw SilentShutdownException();
   }
@@ -633,6 +591,18 @@ namespace Gambit
           break;
         }
       }
+    }
+
+    // Fast track for the options "--help", "-h", "--version" or no arguments 
+    // at all. These all end in process_primary_options bailing out with usage
+    // or version text via SilentShutdownException, so we can skip the database
+    // build (check_databases) and the scanner-plugin enumeration done further down.
+    if (command == "--help" || command == "-h" || command == "--version" || command == "none")
+    {
+      if (not processed_options) (void) process_primary_options(argc, argv);
+      // process_primary_options is expected to bail() / throw for these
+      // inputs. If for some reason it returns, fall through to the existing
+      // logic below.
     }
 
     // Initial list of valid diagnostic commands

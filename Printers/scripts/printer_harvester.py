@@ -89,7 +89,7 @@ def main(argv):
 // Automatically-generated list of printers.      
 """
 
-    for h in printer_headers:
+    for h in sorted(printer_headers):
         towrite+='#include \"gambit/Printers/printers/{0}\"\n'.format(h)
     towrite+="\n#endif // defined __printer_rollcall_hpp__\n"
 

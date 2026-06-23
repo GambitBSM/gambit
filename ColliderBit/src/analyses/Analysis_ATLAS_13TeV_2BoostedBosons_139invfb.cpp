@@ -180,7 +180,10 @@ namespace Gambit
           size_t nfat = fatJets.size();
 
           // Tag the large jets (only look at two hardest jets)
-          int nW = 0; int nZ = 0; int nH = 0; int ntest = 0;
+          int nW = 0; int nZ = 0; int ntest = 0;
+          #ifdef CHECK_CUTFLOW
+            int nH = 0;
+          #endif
           const vector<double> bpT = {200., 300., 500., 700., 900., DBL_MAX}; // pT bin edges
           const vector<double> pW = {0.469, 0.475, 0.481, 0.496, 0.522}; // W tag prob
           const vector<double> pWmiss = {1/10.2574, 1/20.2997, 1/33.4745, 1/36.0622, 1/29.1341}; // W misstag prob
@@ -199,7 +202,9 @@ namespace Gambit
             // Tag Z
             if( jet->tagged(23) && random_bool( _eff1dZ.get_at( jet->pT() ) ) ) nZ++;
             // Tag SM Higgs
-            if( jet->tagged(25) && random_bool( _eff1dH.get_at( jet->pT() )  ) ) nH++;
+            #ifdef CHECK_CUTFLOW
+              if( jet->tagged(25) && random_bool( _eff1dH.get_at( jet->pT() )  ) ) nH++;
+            #endif
             // Misstag as Z or W
             if( !jet->tagged(23) && !jet->tagged(24) )
             {

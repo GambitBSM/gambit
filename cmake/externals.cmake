@@ -158,6 +158,20 @@ macro(add_extra_targets type package ver dir dl target)
 
   endif()
 
+  # Track available backend make targets for the list-backends helper.
+  if (${type} STREQUAL "backend")
+    list(APPEND GAMBIT_AVAILABLE_BACKEND_TARGETS "${package}_${ver}")
+  elseif (${type} STREQUAL "backend model")
+    list(APPEND GAMBIT_AVAILABLE_BACKEND_TARGETS "${package}_${model}_${ver}")
+  elseif (${type} STREQUAL "backend base (functional alone)")
+    list(APPEND GAMBIT_AVAILABLE_BACKEND_TARGETS "${package}_${ver}")
+  endif()
+
+  # Track available scanner make targets for the list-scanners helper.
+  if (${type} STREQUAL "scanner")
+    list(APPEND GAMBIT_AVAILABLE_SCANNER_TARGETS "${package}_${ver}")
+  endif()
+
   #Add extra targets common to everything.
   enable_auto_rebuild(${pname})
   set_target_properties(${pname} PROPERTIES EXCLUDE_FROM_ALL 1)
@@ -195,12 +209,11 @@ function(check_ditch_status name version dir)
       set (itch "${itch}" "${name}_${version}")
     endif()
   endforeach()
+  string(TOLOWER "${name}_${version}" _nv_lower)  
   foreach(ditch_command ${itch})
-    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "print(\"${name}_${version}\".lower().startswith(\"${ditch_command}\".lower()))"
-                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-                    RESULT_VARIABLE result
-                    OUTPUT_VARIABLE output)
-    if (output STREQUAL "True\n")
+    string(TOLOWER "${ditch_command}" _dc_lower)
+    string(FIND "${_nv_lower}" "${_dc_lower}" _loc)
+    if (_loc EQUAL 0)
       if(NOT ditched_${name}_${ver})
         set(ditched_${name}_${version} TRUE)
         set(ditched_${name}_${version} TRUE PARENT_SCOPE)

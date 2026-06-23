@@ -53,6 +53,14 @@ macro(check_python_scanner_modules name modules packages)
   if(packages_missing_${name})
     string (REPLACE "," " " missing "${packages_missing_${name}}")
     message("   To enable the scanner ${name}, please install the following Python packages:${missing}")
+    # Record the missing-package status for the list-scanners helper. Strip the
+    # leading comma left by the accumulator and re-encode "," as "+" to keep
+    # the per-scanner record self-contained inside our ";"-separated list.
+    string(REGEX REPLACE "^," "" _missing_csv "${packages_missing_${name}}")
+    string(REPLACE "," "+" _missing_csv "${_missing_csv}")
+    list(APPEND GAMBIT_PYTHON_SCANNER_STATUS "${name}|missing|${_missing_csv}")
+  else()
+    list(APPEND GAMBIT_PYTHON_SCANNER_STATUS "${name}|enabled|")
   endif()
 
 endmacro()
@@ -74,5 +82,5 @@ check_python_scanner_modules(scipy_shgo "scipy,numpy" "scipy,numpy")
 check_python_scanner_modules(scipy_minimize "scipy,numpy" "scipy,numpy")
 check_python_scanner_modules(reactive_ultranest "ultranest,numpy,packaging" "ultranest,numpy,packaging")
 check_python_scanner_modules(zeus "zeus,numpy" "zeus-mcmc,numpy")
-check_python_scanner_modules(binminpy "binminpy,numpy,scipy,mpi4py" "binminpy,numpy,scipy,mpi4py")
+check_python_scanner_modules(paraprof "paraprof,numpy,scipy,mpi4py" "paraprof,numpy,scipy,mpi4py")
 

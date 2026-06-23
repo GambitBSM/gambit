@@ -42,9 +42,7 @@
 #include <iomanip>
 #include <algorithm>
 
-#include "gambit/Utils/begin_ignore_warnings_eigen.hpp"
 #include "Eigen/Core"
-#include "gambit/Utils/end_ignore_warnings.hpp"
 
 #include "gambit/ColliderBit/analyses/SignalRegionData.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"

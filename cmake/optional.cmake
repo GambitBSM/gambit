@@ -71,7 +71,7 @@ if(WITH_MPI)
       list(APPEND MPI_C_LIBRARIES "-L${GCC_LIB_DIR}")
       if (NOT MPI_CXX_FOUND)
         message("${Red}-- Warning: C MPI libraries found, but not C++ MPI libraries.  Usually that's OK, but")
-        message("   if you experience MPI linking errors, please install C++ MPI libraries as well.${CoulourReset}")
+        message("   if you experience MPI linking errors, please install C++ MPI libraries as well.${ColourReset}")
       endif()
     endif()
 
@@ -208,7 +208,6 @@ endif()
 if(NOT LAPACK_LINKLIBS AND NOT LAPACK_FOUND)
   # In future MN and FS need to be ditched if lapack cannot be found, and the build allowed to continue.
   message(FATAL_ERROR "${BoldRed}LAPACK shared library not found.${ColourReset}")
-  message("${BoldCyan} X LAPACK shared library not found. Excluding FlexibleSUSY and MultiNest from GAMBIT configuration.${ColourReset}")
 endif()
 
 # Helper function to check if ROOT has been compiled with the same standard as we are using here.  If not, downgrade to the standard that ROOT was compiled with.
@@ -314,11 +313,12 @@ if(WITH_ROOT)
     if (ROOT_VERSION VERSION_LESS 6)
       set (ROOT_FOUND FALSE)
     endif()
+    if(NOT ROOT_FOUND)
+      message("${BoldCyan} X ROOT 6 not found at ROOTSYS=$ENV{ROOTSYS}. ROOT support will be disabled.${ColourReset}")
+    endif()
   else()
     set (ROOT_FOUND FALSE)
-  endif()
-  if(NOT ROOT_FOUND)
-    message("${BoldCyan} X ROOT 6 not found. ROOT support will be disabled.${ColourReset}")
+    message("${BoldCyan} X ROOTSYS environment variable is not set. Please source ROOT's thisroot.sh setup script before running cmake. ROOT support will be disabled.${ColourReset}")
   endif()
 else()
   message("${BoldCyan} X ROOT support is deactivated. Set -DWITH_ROOT=ON to activate ROOT support in GAMBIT.${ColourReset}")
@@ -353,44 +353,90 @@ else()
   set (EXCLUDE_ROOT TRUE)
 endif()
 
-# Check for HDF5 libraries
-find_package(HDF5 QUIET COMPONENTS C)
-if(HDF5_FOUND)
-  include_directories(${HDF5_INCLUDE_DIR})  # for older versions of cmake
-  include_directories(${HDF5_INCLUDE_DIRS}) # for newer cmake
-  message("-- Found HDF5 version: ${HDF5_VERSION}")
-  if (HDF5_VERSION VERSION_GREATER 1.12 OR HDF5_VERSION VERSION_EQUAL 1.12)
-      message("   Enforcing API macro mapping to HDF5 version 1.10.")
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DH5_USE_110_API")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DH5_USE_110_API")
-  endif()
-  message("   Found HDF5 libraries: ${HDF5_LIBRARIES}")
-  if(VERBOSE)
-    message(STATUS ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR})
+# Check for HDF5 libraries.
+option(WITH_HDF5 "Compile with HDF5 enabled" ON)
+if(WITH_HDF5)
+  # GAMBIT's HDF5 printers use serial HDF5 only; MPI coordination happens at
+  # the GAMBIT level rather than through parallel HDF5 collective I/O. Force
+  # the finder to pick the serial build even when a parallel build is also
+  # present, which avoids accidentally pulling in MPI symbols/headers from
+  # libhdf5 (a common source of breakage on macOS with mixed Homebrew/Anaconda
+  # installs and on HPC modules).
+  set(HDF5_PREFER_PARALLEL FALSE)
+  find_package(HDF5 QUIET COMPONENTS C)
+  if(HDF5_FOUND)
+    # Mark HDF5 includes as SYSTEM so they don't generate warnings in
+    # downstream code and stay out of the way of GAMBIT's own headers.
+    include_directories(SYSTEM ${HDF5_INCLUDE_DIR})  # for older versions of cmake
+    include_directories(SYSTEM ${HDF5_INCLUDE_DIRS}) # for newer cmake
+    message("-- Found HDF5 version: ${HDF5_VERSION}")
+    message("   Found HDF5 libraries: ${HDF5_LIBRARIES}")
+    if(VERBOSE)
+      message(STATUS ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR})
+    endif()
+
+    # Sanity check: try to compile a small program that includes hdf5.h and
+    # links against the discovered libraries. This catches the common case
+    # where find_package mixes headers from one HDF5 install with libraries
+    # from another (e.g. Homebrew + Anaconda on macOS) before the user hits a
+    # cryptic compile or link error deep into the GAMBIT build.
+    include(CheckCSourceCompiles)
+    include(CMakePushCheckState)
+    cmake_push_check_state()
+    set(CMAKE_REQUIRED_INCLUDES  ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR})
+    set(CMAKE_REQUIRED_LIBRARIES ${HDF5_LIBRARIES})
+    set(CMAKE_REQUIRED_QUIET TRUE)
+    check_c_source_compiles(
+      "#include <hdf5.h>
+       int main(void) {
+         hid_t plist = H5Pcreate(H5P_FILE_ACCESS);
+         H5Pclose(plist);
+         return 0;
+       }"
+      GAMBIT_HDF5_USABLE)
+    cmake_pop_check_state()
+    if(NOT GAMBIT_HDF5_USABLE)
+      message("${BoldCyan} X HDF5 was found by CMake (version ${HDF5_VERSION}) but a basic compile/link test failed.${ColourReset}")
+      message("    This often means the discovered headers and libraries come from different HDF5 installs")
+      message("    (e.g. Homebrew + Anaconda on macOS). Excluding hdf5printer and hdf5reader from this configuration.")
+      message("    To force a specific install, configure with -DHDF5_ROOT=/path/to/hdf5/prefix.")
+      set(HDF5_FOUND FALSE)
+      set(itch "${itch}" "hdf5printer" "hdf5reader")
+    endif()
+  else()
+    message("${BoldCyan} X No HDF5 C libraries found. Excluding hdf5printer and hdf5reader from GAMBIT configuration.${ColourReset}")
+    message("    To point to a specific HDF5 install, configure with -DHDF5_ROOT=/path/to/hdf5/prefix.")
+    set(itch "${itch}" "hdf5printer" "hdf5reader")
   endif()
 else()
-  message("${BoldCyan} X No HDF5 C libraries found. Excluding hdf5printer and hdf5reader from GAMBIT configuration.${ColourReset}")
+  message("${BoldCyan} X HDF5 is disabled. Excluding hdf5printer and hdf5reader from GAMBIT configuration. Use -DWITH_HDF5=ON to enable HDF5. ${ColourReset}")
   set(itch "${itch}" "hdf5printer" "hdf5reader")
 endif()
 
 # Check for SQLite libraries
-find_package(SQLite3 QUIET COMPONENTS C)
-if(SQLite3_FOUND)
-  include_directories(${SQLite3_INCLUDE_DIRS})
-  message("-- Found SQLite3 libraries: ${SQLite3_LIBRARIES}")
-  if(VERBOSE)
-      message(STATUS ${SQLite3_INCLUDE_DIRS})
+option(WITH_SQLite3 "Compile with SQLite3 enabled" ON)
+if(WITH_SQLite3)
+  find_package(SQLite3 QUIET COMPONENTS C)
+  if(SQLite3_FOUND)
+    include_directories(${SQLite3_INCLUDE_DIRS})
+    message("-- Found SQLite3 libraries: ${SQLite3_LIBRARIES}")
+    if(VERBOSE)
+        message(STATUS ${SQLite3_INCLUDE_DIRS})
+    endif()
+  else()
+    message("${BoldCyan} X No SQLite C libraries found. Excluding sqliteprinter and sqlitereader from GAMBIT configuration.${ColourReset}")
+    message("   Backends depending on SQLite3 (e.g. Contur) will be deactivated.")
+    set(itch "${itch}" "sqliteprinter" "sqlitereader")
   endif()
 else()
-  message("${BoldCyan} X No SQLite C libraries found. Excluding sqliteprinter and sqlitereader from GAMBIT configuration.${ColourReset}")
-  message("   Backends depending on SQLite3 (e.g. Contur) will be deactivated.")
+  message("${BoldCyan} X SQLite3 is disabled. Excluding sqliteprinter and sqlitereader from GAMBIT configuration. Use -DWITH_SQLite3=ON to enable SQLite3. ${ColourReset}")
   set(itch "${itch}" "sqliteprinter" "sqlitereader")
 endif()
 
 # Check for Cython
 set(FPHSA_NAME_MISMATCHED TRUE)
 find_package(Cython)
-if(CYTHON_FOUND OR CYTHON${PYTHON_VERSION_STRING}_FOUND)
+if(CYTHON_FOUND OR CYTHON${Python3_VERSION}_FOUND)
   include_directories(${CYTHON_INCLUDE_DIRS})
   message("-- Found Cython libraries: ${CYTHON_EXECUTABLE}")
 endif()
