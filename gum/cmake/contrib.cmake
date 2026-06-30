@@ -25,7 +25,7 @@ function(add_contrib_clean_and_nuke package dir)
   set(stamp_path "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-stamp/${package}")
   set(build_path "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-build")
   set(clean_stamps ${stamp_path}-configure ${stamp_path}-build ${stamp_path}-install ${stamp_path}-done)
-  set(nuke_stamps ${stamp_path}-download ${stamp_path}-mkdir ${stamp_path}-patch ${stamp_path}-update)
+  set(nuke_stamps ${stamp_path}-download ${stamp_path}-mkdir ${stamp_path}-patch ${stamp_path}-update ${stamp_path}-gitclone-lastrun.txt)
   add_custom_target(clean-${package} COMMAND ${CMAKE_COMMAND} -E remove -f ${clean_stamps}
                                      COMMAND [ -e ${dir} ] && cd ${dir} && ([ -e makefile ] || [ -e Makefile ] && ${CMAKE_MAKE_PROGRAM} clean) || true
                                    COMMAND [ -e ${build_path} ] && cd ${build_path} && ([ -e makefile ] || [ -e Makefile ] && ${CMAKE_MAKE_PROGRAM} clean) || true)
@@ -186,17 +186,23 @@ ExternalProject_Add(
   MARTY
   GIT_REPOSITORY https://github.com/docbrown1955/marty-public.git
   GIT_TAG master           # always get latest commit on master
+  GIT_SHALLOW TRUE
+  UPDATE_COMMAND ""
   SOURCE_DIR ${dir}
   PATCH_COMMAND ""
   COMMAND mkdir -p ${install_dir}
-  CMAKE_ARGS 
+  CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX=${install_dir}
+    -DCMAKE_INSTALL_RPATH=${install_dir}/lib
   # BUILD_COMMAND ${CMAKE_COMMAND} --build ${dir}/build
   # INSTALL_COMMAND ${CMAKE_COMMAND} --install ${dir}/build
 )
 add_extra_targets(${name} ${dir})
 
-
+add_custom_target(nuke-marty_test
+  COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/marty_test
+  COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_SOURCE_DIR}/src/marty_test_patched.cpp)
+add_dependencies(nuke-all nuke-marty_test)
 
 # Add a MARTY test script
 add_custom_command(
@@ -209,9 +215,16 @@ add_custom_command(
 add_executable(marty_test src/marty_test_patched.cpp)
 set_property(TARGET marty_test PROPERTY CXX_STANDARD 23)
 target_include_directories(marty_test PUBLIC ${install_dir}/include)
-#target_link_directories(marty_test PUBLIC ${install_dir}/lib/)
-target_link_libraries(marty_test PUBLIC ${install_dir}/lib/libmarty.so)
-target_link_libraries(marty_test PUBLIC ${install_dir}/lib/libooptools.so)
-#target_link_libraries(marty_test PUBLIC ${install_dir}/lib/libcsl.so)
+target_link_directories(marty_test PUBLIC ${install_dir}/lib)
+target_link_libraries(marty_test PUBLIC marty ooptools)
+set_target_properties(marty_test PROPERTIES
+  BUILD_RPATH "${install_dir}/lib"
+  INSTALL_RPATH "${install_dir}/lib"
+)
+
+# #target_link_directories(marty_test PUBLIC ${install_dir}/lib/)
+# target_link_libraries(marty_test PUBLIC ${install_dir}/lib/libmarty.so)
+# target_link_libraries(marty_test PUBLIC ${install_dir}/lib/libooptools.so)
+# #target_link_libraries(marty_test PUBLIC ${install_dir}/lib/libcsl.so)
 
 
