@@ -205,51 +205,48 @@ endif()
 # Do OSX checks
 include(cmake/MacOSX.cmake)
 
-# Check if we are using 2019 intel compilers or gcc 6.1 or 6.2 together with pybind11, and forbid the use of C++17 if so.
+# Check if we are using 2019 intel compilers or gcc 6.1 or 6.2 together with pybind11, and forbid the use of C++17 or later if so.
+set(PERMIT_CXX17_PLUS_CHECK TRUE)
 if(HAVE_PYBIND11)
   if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 18.0.6) OR
      ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.6 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.3))
-    set(PERMIT_CXX17_CHECK FALSE)
-  else()
-    set(PERMIT_CXX17_CHECK TRUE)
+    set(PERMIT_CXX17_PLUS_CHECK FALSE)
   endif()
 endif()
 
-# Prevent using C++17 if using gnu version 7.2
+# Prevent using C++17 or later if using gnu version 7.2
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 7.1 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.3)
-    set(PERMIT_CXX17_CHECK FALSE)
+    set(PERMIT_CXX17_PLUS_CHECK FALSE)
 endif()
 
-# Check for C++11, C++14 and C++17 support.
+# GAMBIT requires at least C++17 (C++11 and C++14 are no longer supported). Use the newest
+# standard the compiler supports, up to C++23.
 include(CheckCXXCompilerFlag)
-if(PERMIT_CXX17_CHECK)
-  CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+if(PERMIT_CXX17_PLUS_CHECK)
+  CHECK_CXX_COMPILER_FLAG("-std=c++23" COMPILER_SUPPORTS_CXX23)
 endif()
-if(COMPILER_SUPPORTS_CXX17)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-  set(GAMBIT_SUPPORTS_CXX17 TRUE)
+if(COMPILER_SUPPORTS_CXX23)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++23")
+  set(GAMBIT_SUPPORTS_CXX23 TRUE)
 else()
-  if(PERMIT_CXX17_CHECK)
-    CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX1z)
+  if(PERMIT_CXX17_PLUS_CHECK)
+    CHECK_CXX_COMPILER_FLAG("-std=c++20" COMPILER_SUPPORTS_CXX20)
   endif()
-  CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
-  if(COMPILER_SUPPORTS_CXX14)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-    set(GAMBIT_SUPPORTS_CXX14 TRUE)
+  if(COMPILER_SUPPORTS_CXX20)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
+    set(GAMBIT_SUPPORTS_CXX20 TRUE)
   else()
-    CHECK_CXX_COMPILER_FLAG("-std=c++1y" COMPILER_SUPPORTS_CXX1y)
-    CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-    if(COMPILER_SUPPORTS_CXX11)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-      set(GAMBIT_SUPPORTS_CXX11 TRUE)
+    if(PERMIT_CXX17_PLUS_CHECK)
+      CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+    endif()
+    if(COMPILER_SUPPORTS_CXX17)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+      set(GAMBIT_SUPPORTS_CXX17 TRUE)
     else()
-      CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-      if(COMPILER_SUPPORTS_CXX0X)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-        set(GAMBIT_SUPPORTS_CXX0X TRUE)
-      else()
-        message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-      endif()
+      message(FATAL_ERROR "${BoldRed}The compiler ${CMAKE_CXX_COMPILER} does not support C++17. GAMBIT requires a "
+                          "compiler with at least C++17 support (C++11 and C++14 are no longer supported). Please "
+                          "use a newer compiler, or if a known pybind11/compiler incompatibility is blocking the "
+                          "check above, retry with -DWITH_PYBIND11=OFF.${ColourReset}")
     endif()
   endif()
 endif()
@@ -321,12 +318,15 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STR
 endif()
 
 # Check for Eigen
-find_package(Eigen3 3.1.0)
+# Note: a minimum of 3.3.7 (rather than the older 3.1.0) is required because Eigen releases
+# prior to that use several STL idioms (std::unary_function/std::binary_function, std::result_of,
+# etc.) in their own headers that are deprecated or removed under C++17/C++20/C++23.
+find_package(Eigen3 3.3.7)
 if(EIGEN3_FOUND)
   include_directories(SYSTEM "${EIGEN3_INCLUDE_DIR}")
   message("-- Eigen version: ${EIGEN3_VERSION}")
 else()
-  message("${BoldRed}   Eigen v3.1.0 or greater not found.  FlexibleSUSY and GM2Calc interfaces will be excluded.${ColourReset}")
+  message("${BoldRed}   Eigen v3.3.7 or greater not found.  FlexibleSUSY and GM2Calc interfaces will be excluded.${ColourReset}")
   set(itch "${itch};gm2calc;flexiblesusy")
   message(FATAL_ERROR "\nFlexibleSUSY is currently included in the GAMBIT distribution, so in fact it cannot be ditched.  Please install Eigen3.\nIf Eigen3 is already installed in a non-standard location, you can point CMake to it by passing -DEIGEN3_INCLUDE_DIR=/path/to/eigen on the command line, or by setting the environment variable EIGEN3_ROOT (or EIGEN3_ROOT_DIR).\n(Note that this will change in future GAMBIT versions, where FlexibleSUSY will be a 'true' backend.)")
 endif()

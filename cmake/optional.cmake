@@ -211,9 +211,14 @@ if(NOT LAPACK_LINKLIBS AND NOT LAPACK_FOUND)
 endif()
 
 # Helper function to check if ROOT has been compiled with the same standard as we are using here.  If not, downgrade to the standard that ROOT was compiled with.
+# Note: GAMBIT no longer actively supports C++11 or C++14, so a ROOT installation built with
+# either of those (or anything pre-C++17) will not be matched here and will trigger the
+# "unable to detect" error below, prompting the user to rebuild ROOT with at least C++17.
 function(check_root_std_flag)
-  # Loop over C++ standards
-  set(std_list "17;1z;14;1y;11;0x")
+  # Loop over C++ standards, newest first. "2b"/"2a"/"1z" are the pre-standardisation aliases
+  # that some compilers historically used for C++23/C++20/C++17 respectively, and are included
+  # here purely so that older ROOT builds using those flag spellings are still detected.
+  set(std_list "23;2b;20;2a;17;1z")
   foreach(std ${std_list})
     set(CXX_FLAG "-std=c++${std}")
     set(CXX_FLAG_RE "-std=c\\+\\+${std}")
@@ -257,7 +262,8 @@ function(check_root_std_flag)
   # Did we figure out the std used by ROOT?
   if(NOT ROOT_USES_STD)
     message(FATAL_ERROR "${BoldRed}Unable to detect what flavour of C++ your installation of ROOT has "
-                        "been compiled with; please set -DWITH_ROOT=OFF.${ColourReset}")
+                        "been compiled with, or it was compiled with C++14, C++11 or older, which GAMBIT "
+                        "no longer supports. Please rebuild ROOT with at least C++17, or set -DWITH_ROOT=OFF.${ColourReset}")
   endif()
   # Check that the std used by ROOT is OK
   CHECK_CXX_COMPILER_FLAG(${ROOT_CXX_FLAG} COMPILER_SUPPORTS_CXX${ROOT_STD})

@@ -43,12 +43,6 @@ set_compiler_warning("all" CMAKE_CXX_FLAGS)
 set_compiler_warning("extra" CMAKE_CXX_FLAGS)
 set_compiler_warning("no-misleading-indentation" CMAKE_CXX_FLAGS)
 
-if(EIGEN3_FOUND AND EIGEN3_VERSION VERSION_LESS 3.3.0)
-  set_compiler_warning("no-ignored-attributes" CMAKE_CXX_FLAGS)
-  set_compiler_warning("no-deprecated-register" CMAKE_CXX_FLAGS)
-  set_compiler_warning("no-deprecated-declarations" CMAKE_CXX_FLAGS)
-endif()
-
 # set intel warnings
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   # "remark #981: operands are evaluated in unspecified order"
