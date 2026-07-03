@@ -219,8 +219,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERS
     set(PERMIT_CXX17_PLUS_CHECK FALSE)
 endif()
 
-# GAMBIT requires at least C++17 (C++11 and C++14 are no longer supported). Use the newest
-# standard the compiler supports, up to C++23.
+# GAMBIT requires at least C++17. Use the newest standard the compiler supports, up to C++23.
 include(CheckCXXCompilerFlag)
 if(PERMIT_CXX17_PLUS_CHECK)
   CHECK_CXX_COMPILER_FLAG("-std=c++23" COMPILER_SUPPORTS_CXX23)
@@ -244,9 +243,9 @@ else()
       set(GAMBIT_SUPPORTS_CXX17 TRUE)
     else()
       message(FATAL_ERROR "${BoldRed}The compiler ${CMAKE_CXX_COMPILER} does not support C++17. GAMBIT requires a "
-                          "compiler with at least C++17 support (C++11 and C++14 are no longer supported). Please "
-                          "use a newer compiler, or if a known pybind11/compiler incompatibility is blocking the "
-                          "check above, retry with -DWITH_PYBIND11=OFF.${ColourReset}")
+                          "compiler with at least C++17 support. Please use a newer compiler, or if a known "
+                          "pybind11/compiler incompatibility is blocking the check above, retry with "
+                          "-DWITH_PYBIND11=OFF.${ColourReset}")
     endif()
   endif()
 endif()

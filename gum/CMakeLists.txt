@@ -111,8 +111,7 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif()
 
-# GUM requires at least C++17 (C++11 and C++14 are no longer supported). Use the newest
-# standard the compiler supports, up to C++23.
+# GUM requires at least C++17. Use the newest standard the compiler supports, up to C++23.
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++23" COMPILER_SUPPORTS_CXX23)
 if(COMPILER_SUPPORTS_CXX23)
@@ -127,8 +126,7 @@ else()
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
     else()
       message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} does not support C++17. GUM requires a compiler "
-                          "with at least C++17 support (C++11 and C++14 are no longer supported). Please use a "
-                          "newer compiler.")
+                          "with at least C++17 support. Please use a newer compiler.")
     endif()
   endif()
 endif()
