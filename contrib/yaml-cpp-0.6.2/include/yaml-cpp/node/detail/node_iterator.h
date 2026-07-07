@@ -57,11 +57,11 @@ struct node_iterator_type<const V> {
   typedef node_map::const_iterator map;
 };
 
+// GAMBIT: node_iterator_base used to derive from std::iterator<...> to pick up the standard
+// iterator typedefs, but that base class template was deprecated in C++17 and removed
+// altogether in C++20, so we provide the required typedefs directly instead.
 template <typename V>
-class node_iterator_base
-    : public std::iterator<std::forward_iterator_tag, node_iterator_value<V>,
-                           std::ptrdiff_t, node_iterator_value<V>*,
-                           node_iterator_value<V>> {
+class node_iterator_base {
  private:
   struct enabler {};
 
@@ -76,7 +76,11 @@ class node_iterator_base
  public:
   typedef typename node_iterator_type<V>::seq SeqIter;
   typedef typename node_iterator_type<V>::map MapIter;
+  typedef std::forward_iterator_tag iterator_category;
   typedef node_iterator_value<V> value_type;
+  typedef std::ptrdiff_t difference_type;
+  typedef node_iterator_value<V>* pointer;
+  typedef node_iterator_value<V> reference;
 
   node_iterator_base()
       : m_type(iterator_type::NoneType), m_seqIt(), m_mapIt(), m_mapEnd() {}

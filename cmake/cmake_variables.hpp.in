@@ -46,11 +46,14 @@
 /// Name of the gambit executable
 #define GAMBIT_EXECUTABLE "@PROJECT_NAME@"
 
-/// Compiler supports C++14 features
-#cmakedefine COMPILER_SUPPORTS_CXX14 1
-
 /// Compiler supports C++17 features
 #cmakedefine COMPILER_SUPPORTS_CXX17 1
+
+/// Compiler supports C++20 features
+#cmakedefine COMPILER_SUPPORTS_CXX20 1
+
+/// Compiler supports C++23 features
+#cmakedefine COMPILER_SUPPORTS_CXX23 1
 
 /// Found link.h in system paths
 #cmakedefine HAVE_LINK_H 1

@@ -183,7 +183,7 @@ namespace Gambit
     }
 
     /// Retrieve the identity of the exception.
-    const char* exception::what() const throw()
+    const char* exception::what() const noexcept
     {
       return myWhat.c_str();
     }
@@ -365,7 +365,7 @@ namespace Gambit
     special_exception::special_exception(const char* what) : myWhat(what), myMessage("") {}
 
     /// Retrieve the identity of the exception.
-    const char* special_exception::what() const throw()
+    const char* special_exception::what() const noexcept
     {
       const char* temp;
       temp = myWhat;
@@ -524,22 +524,22 @@ namespace Gambit
     /// @{ SilentShutdownException member functions
     SilentShutdownException::SilentShutdownException() {}
     SilentShutdownException::SilentShutdownException(const std::string& message) : myWhat(message) {}
-    const char* SilentShutdownException::what() const throw() { return myWhat.c_str(); }
+    const char* SilentShutdownException::what() const noexcept { return myWhat.c_str(); }
     /// @}
 
     /// @{ SoftShutdownException member functions
     SoftShutdownException::SoftShutdownException(const std::string& message) : myWhat(message) {}
-    const char* SoftShutdownException::what() const throw() { return myWhat.c_str(); }
+    const char* SoftShutdownException::what() const noexcept { return myWhat.c_str(); }
     /// @}
 
     /// @{ HardShutdownException member functions
     HardShutdownException::HardShutdownException(const std::string& message) : myWhat(message) {}
-    const char* HardShutdownException::what() const throw() { return myWhat.c_str(); }
+    const char* HardShutdownException::what() const noexcept { return myWhat.c_str(); }
     /// @}
 
     /// @{ MPIShutdownException member functions
     MPIShutdownException::MPIShutdownException(const std::string& message) : myWhat(message) {}
-    const char* MPIShutdownException::what() const throw() { return myWhat.c_str(); }
+    const char* MPIShutdownException::what() const noexcept { return myWhat.c_str(); }
     /// @}
 
     /// Global instance of piped invalid point class.
