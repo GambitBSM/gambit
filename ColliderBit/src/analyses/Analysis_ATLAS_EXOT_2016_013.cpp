@@ -20,6 +20,7 @@
 #include "HEPUtils/Event.h"
 #include "HEPUtils/Jet.h"
 // #include "fastjet/Filter.hh"
+#include <memory>
 #include <random>
 
 // Similar to ATLAS_13_TeV_3b_NN_139invfb (define structure copied from heputils/FastJet.h)
@@ -51,27 +52,14 @@ namespace Gambit
         class Analysis_ATLAS_EXOT_2016_013 : public Analysis
         {
 
-        public:
-            static constexpr const char *detector = "ATLAS";
-
-            int Nevent = 0;
-
-            Analysis_ATLAS_EXOT_2016_013()
+#ifdef CHECK_CUTFLOW
+        private:
+            void book_diagnostics()
             {
-                DEFINE_SIGNAL_REGION("SR1L-01"); // >=2t, 0-1H, >=6j, 3b
-                DEFINE_SIGNAL_REGION("SR1L-02"); // 1t, 0H, >=6j, >=4b
-                DEFINE_SIGNAL_REGION("SR1L-03"); // 1t, 1H, >=6j, >=4b
-                DEFINE_SIGNAL_REGION("SR1L-04"); // >=2t, 0-1H,>=6j,>=4b
-                DEFINE_SIGNAL_REGION("SR1L-05"); // >=0t, >=2H, >=6j, >=4b
-
-                DEFINE_SIGNAL_REGION("SR0L-01"); // >=2tH, >=7j, 2b, HM
-                DEFINE_SIGNAL_REGION("SR0L-02"); // 1t, 1H, >=7j, 3b, HM
-                DEFINE_SIGNAL_REGION("SR0L-03"); // >=2t, 0-1H, >=7j, 3b, HM
-                DEFINE_SIGNAL_REGION("SR0L-04"); // 1t, 0H, >=7j, >=4b, HM
-                DEFINE_SIGNAL_REGION("SR0L-05"); // >=2tH, >=7j, >=4b
-
-                set_analysis_name("ATLAS_EXOT_2016_013");
-                set_luminosity(36.1);
+                for (const auto &counter : _counters)
+                {
+                    ADD_CUTFLOW_NOCUTS(counter.first)
+                }
 
                 DEFINE_HISTOGRAM_1D_UNIFORM("NHiggs", 5, 0., 5., "Higgs-tagged jet multiplicity")
                 DEFINE_HISTOGRAM_1D_UNIFORM("Ntop", 5, 0., 5., "Top-tagged jet multiplicity")
@@ -80,6 +68,34 @@ namespace Gambit
                 DEFINE_HISTOGRAM_1D_UNIFORM("meff_SR1L_03", 12, 500., 3500., "m_eff [GeV]")
                 DEFINE_HISTOGRAM_1D_UNIFORM("meff_SR0L_01", 12, 500., 3500., "m_eff [GeV]")
                 DEFINE_HISTOGRAM_1D_UNIFORM("mTBmin", 20, 0., 500., "m_T^{b,min} [GeV]")
+            }
+#endif
+
+        public:
+            static constexpr const char *detector = "ATLAS";
+
+            int Nevent = 0;
+
+            Analysis_ATLAS_EXOT_2016_013()
+            {
+                _counters["SR1L-01"] = EventCounter("SR1L-01"); // >=2t, 0-1H, >=6j, 3b
+                _counters["SR1L-02"] = EventCounter("SR1L-02"); // 1t, 0H, >=6j, >=4b
+                _counters["SR1L-03"] = EventCounter("SR1L-03"); // 1t, 1H, >=6j, >=4b
+                _counters["SR1L-04"] = EventCounter("SR1L-04"); // >=2t, 0-1H,>=6j,>=4b
+                _counters["SR1L-05"] = EventCounter("SR1L-05"); // >=0t, >=2H, >=6j, >=4b
+
+                _counters["SR0L-01"] = EventCounter("SR0L-01"); // >=2tH, >=7j, 2b, HM
+                _counters["SR0L-02"] = EventCounter("SR0L-02"); // 1t, 1H, >=7j, 3b, HM
+                _counters["SR0L-03"] = EventCounter("SR0L-03"); // >=2t, 0-1H, >=7j, 3b, HM
+                _counters["SR0L-04"] = EventCounter("SR0L-04"); // 1t, 0H, >=7j, >=4b, HM
+                _counters["SR0L-05"] = EventCounter("SR0L-05"); // >=2tH, >=7j, >=4b
+
+#ifdef CHECK_CUTFLOW
+                book_diagnostics();
+#endif
+
+                set_analysis_name("ATLAS_EXOT_2016_013");
+                set_luminosity(36.1);
             }
 
             void run(const HEPUtils::Event *event)
@@ -123,7 +139,7 @@ namespace Gambit
                 // cout << "1. Define Lepton candidates" << endl;
                 vector<const HEPUtils::Jet *> baselineSmallRJets;
                 vector<const HEPUtils::Jet *> baselineLargeRJets;
-                vector<fastjet::PseudoJet> trimmedJets;
+                vector<unique_ptr<HEPUtils::Jet>> taggedJetsOwned;
                 vector<HEPUtils::Jet *> higgsJets;
                 vector<HEPUtils::Jet *> topJets;
                 vector<const HEPUtils::Jet *> bJets;
@@ -189,11 +205,15 @@ namespace Gambit
                     bool higgstag1 = (Nsub == 2) && (trimmedJet.pt() > 200.) && (trimmedJet.pt() < 500.) && (trimmedJet.m() >= 105.) && (trimmedJet.m() <= 140.);
                     bool higgstag2 = (Nsub == 1 || Nsub == 2) && (trimmedJet.pt() >= 500.) && (trimmedJet.m() >= 105.) && (trimmedJet.m() <= 140.);
 
-                    HEPUtils::Jet *hepUtilsJet = new HEPUtils::Jet(trimmedJet);
-                    if (toptag)
-                        topJets.push_back(hepUtilsJet);
-                    else if (higgstag1 || higgstag2)
-                        higgsJets.push_back(hepUtilsJet);
+                    if (toptag || higgstag1 || higgstag2)
+                    {
+                        taggedJetsOwned.emplace_back(make_unique<HEPUtils::Jet>(trimmedJet));
+                        HEPUtils::Jet *hepUtilsJet = taggedJetsOwned.back().get();
+                        if (toptag)
+                            topJets.push_back(hepUtilsJet);
+                        else
+                            higgsJets.push_back(hepUtilsJet);
+                    }
                 }
 
                 // Define the Energy Correlation Function of W-tagging
@@ -245,16 +265,20 @@ namespace Gambit
                 bool presel0L = (n_leptons == 0) && (njets >= 6) && (nbjets >= 2) && (met > 200.) && (mindPhijetMet > 0.4);
 
                 // cout << "After preselection" << endl;
+#ifdef CHECK_CUTFLOW
                 if (presel0L) FILL_HISTOGRAM_1D("Nbjet", nbjets + 0.5)
                 if (presel1L) FILL_HISTOGRAM_1D("Njet", njets + 0.5)
+#endif
 
                 if (presel1L && njets >= 6)
                 {
                     // cout << "15. 1 lepton signal region" << endl;
                     int Ntop = topJets.size();
                     int NHiggs = higgsJets.size();
-                
+
+#ifdef CHECK_CUTFLOW
                     FILL_HISTOGRAM_1D("NHiggs", NHiggs + 0.5)
+#endif
 
                     double meff = signalLeptons[0]->pT() + met;
                     for (const HEPUtils::Jet *jet : signalJets)
@@ -277,8 +301,10 @@ namespace Gambit
                         _counters.at("SR1L-04").add_event(event);
                     if (sr1l05)
                         _counters.at("SR1L-05").add_event(event);
-                
+
+#ifdef CHECK_CUTFLOW
                     if (sr1l03) FILL_HISTOGRAM_1D("meff_SR1L_03", meff)
+#endif
 
                     // cout << "17. After SR1L event counting" << endl;
                 }
@@ -289,7 +315,9 @@ namespace Gambit
                     int NHiggs = higgsJets.size();
                     int NtH = Ntop + NHiggs;
 
+#ifdef CHECK_CUTFLOW
                     FILL_HISTOGRAM_1D("Ntop", Ntop + 0.5)
+#endif
 
                     double meff = met;
                     for (const HEPUtils::Jet *jet : signalJets)
@@ -301,9 +329,11 @@ namespace Gambit
                     double mTBmin = (nbjets >= 3) ? min(get_mT(signalBjets[2]->mom(), pmiss), mTb12) : mTb12;
 
                     // cout << "27. Calculated mTb12 and mTBmin" << endl;
+#ifdef CHECK_CUTFLOW
                     if ((NtH >= 2) && (nbjets == 2)) FILL_HISTOGRAM_1D("meff_SR0L_01", meff)
                     if ((NtH >= 2) && (nbjets == 2) && (mTBmin <= 500.)) FILL_HISTOGRAM_1D("mTBmin", mTBmin)
                     if ((NtH >= 2) && (nbjets == 2) && (mTBmin > 500.)) FILL_HISTOGRAM_1D("mTBmin", 490.)
+#endif
 
                     bool sr0l01 = (NtH >= 2) && (nbjets == 2) && (mTBmin > 160.) && (meff > 1000.);
                     bool sr0l02 = (Ntop == 1) && (NHiggs == 1) && (nbjets == 3) && (mTBmin > 160.) && (meff > 1000.);
@@ -344,8 +374,10 @@ namespace Gambit
                 add_result(SignalRegionData(_counters.at("SR0L-04"), 18., {21.6, 1.4}));
                 add_result(SignalRegionData(_counters.at("SR0L-05"), 29., {28.8, 3.1}));
 
+#ifdef CHECK_CUTFLOW
                 COMMIT_CUTFLOWS;
                 COMMIT_HISTOGRAMS;
+#endif
                 return;
             }
 
@@ -356,6 +388,10 @@ namespace Gambit
                 {
                     pair.second.reset();
                 }
+
+#ifdef CHECK_CUTFLOW
+                book_diagnostics();
+#endif
             }
         };
         DEFINE_ANALYSIS_FACTORY(ATLAS_EXOT_2016_013)
