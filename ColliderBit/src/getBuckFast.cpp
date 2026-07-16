@@ -50,6 +50,8 @@ namespace Gambit
     {
       std::vector<std::string> get_vr_jetcollections_no_smear(const Options& runOptions, const str& current_collider)
       {
+        std::lock_guard<std::recursive_mutex> lock(jet_collection_options_mutex());
+
         if (runOptions.hasKey("jet_collections"))
         {
           return vr_jetcollection_keys(read_jet_collection_settings_from_options(runOptions).collections);

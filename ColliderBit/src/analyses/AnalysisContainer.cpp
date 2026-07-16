@@ -190,6 +190,7 @@ namespace Gambit
       F(CMS_SUS_19_010)                              \
       F(CMS_B2G_14_004)                              \
       F(CMS_B2G_13_004)                              \
+      F(CMS_B2G_18_003)                              \
       F(CMS_SUS_13_006)                              \
       F(CMS_SUS_13_006_3Lep)                         \
       F(CMS_SUS_13_006_4Lep)                         \

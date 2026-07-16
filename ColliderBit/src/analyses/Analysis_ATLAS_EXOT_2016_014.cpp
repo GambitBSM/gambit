@@ -23,19 +23,15 @@
 #include "HEPUtils/FastJet.h"
 #include "HEPUtils/Event.h"
 #include "HEPUtils/Jet.h"
-// #include "fastjet/Filter.hh"
 #include <cmath>
-#include <random>
 
 // Similar to ATLAS_13_TeV_3b_NN_139invfb (define structure copied from heputils/FastJet.h)
 #ifndef FJCORE
 #ifndef FJNS
 #define FJNS fastjet
 #endif
-#include "fastjet/ClusterSequence.hh"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/tools/Filter.hh"
-#include "fastjet/tools/Pruner.hh"
 #include "fastjet/Selector.hh"
 #include "fastjet/contrib/EnergyCorrelator.hh"
 #else
@@ -44,6 +40,8 @@
 #define FJNS fjcore
 #endif
 #endif
+
+#include <memory>
 
 using namespace std;
 // #define CHECK_CUTFLOW
@@ -87,36 +85,18 @@ namespace Gambit
 
         class Analysis_ATLAS_EXOT_2016_014 : public Analysis
         {
-            // protected:
-            //     // Counters for the number of accepted events for each signal region
-            //     std::map<string, EventCounter> _counters = {
-            //         {"SR", EventCounter("SR")},
-            //     };
-
         public:
 
             static constexpr const char *detector = "ATLAS";
 
-
-            
-            double getThreshold(double jet_pt) {
-                for (const auto& threshold : thresholds) {
-                    if (jet_pt < threshold.first) {
-                        return threshold.second;
-                    }
-                }
-                return thresholds.back().second; // 如果 p_T 超过最高限制，使用最高阈值
-            }
-
             Analysis_ATLAS_EXOT_2016_014()
             {
-                DEFINE_SIGNAL_REGION("SR");
+                _counters["SR"] = EventCounter("SR");
 
                 set_analysis_name("ATLAS_EXOT_2016_014");
                 set_luminosity(36.1);
 
                 #ifdef CHECK_CUTFLOW
-                    // Booking Cutflows
                     const vector<string> cutnames = {
                         "No Cut",
                         "Base Selection",
@@ -128,8 +108,7 @@ namespace Gambit
                         "DeltaM < 300 GeV"};
 
                     _cutflows.addCutflow("ATLAS-EXOT-2016-014", cutnames);
-
-                #endif
+#endif
             }
 
             void run(const HEPUtils::Event *event)
@@ -162,7 +141,7 @@ namespace Gambit
                 }
                 for (const HEPUtils::Particle *muon : event->muons())
                 {
-                    if (muon->pT() > 30 && muon->abseta() < 2.5 && (muon->abseta() < 1.37 || muon->abseta() > 1.52))
+                    if (muon->pT() > 30 && muon->abseta() < 2.5)
                     {
                         // bool passIsolation = LeptonIsolation(muon, event);
                         // if (passIsolation)
@@ -187,8 +166,8 @@ namespace Gambit
                 // cout << "1. Define Lepton candidates" << endl;
                 vector<const HEPUtils::Jet *> baselineSmallRJets;
                 vector<const HEPUtils::Jet *> baselineLargeRJets;
+                vector<unique_ptr<HEPUtils::Jet>> trimmedLargeRJetsOwned;
                 vector<const HEPUtils::Jet *> trimmedLargeRJets;
-                vector<fastjet::PseudoJet> trimmedJets;
                 vector<const HEPUtils::Jet *> bJets;
                 vector<const HEPUtils::Jet *> nonbJets;
 
@@ -233,20 +212,13 @@ namespace Gambit
                 FJNS::contrib::EnergyCorrelator C2(2, beta, fastjet::contrib::EnergyCorrelator::pt_R);
                 FJNS::contrib::EnergyCorrelator C3(3, beta, fastjet::contrib::EnergyCorrelator::pt_R);  
 
-                std::random_device rd;
-                std::mt19937 gen(rd()); 
-                std::uniform_real_distribution<> dis(0.0, 1.0);
-
-
                 // W-tagging from https://cds.cern.ch/record/2041461/files/ATL-PHYS-PUB-2015-033.pdf
                 for (size_t i = 0; i < baselineLargeRJets.size(); ++i)
                 {
                     // Obtain the FastJet PseudoJet objects;
                     const fastjet::PseudoJet &pseudojet = baselineLargeRJets.at(i)->pseudojet();
-                    // Make sure there is constituents inside the jets
                     if (pseudojet.constituents().empty()) continue;
                     fastjet::PseudoJet trimmedJet = trimmer(pseudojet);
-                    HEPUtils::Jet* hepUtilsJet = new HEPUtils::Jet(trimmedJet);
 
                     if (trimmedJet.pt() > 200 && std::abs(trimmedJet.eta()) < 2.0) { // Setting The pT lower limit
                         // Applying The W-jet Grooming
@@ -256,9 +228,8 @@ namespace Gambit
                         double jet_mass = trimmedJet.m();
                         if (jet_mass < 0) continue; // filter the negative mass situation 
 
-                        // Calculate the Energy correlator function 
-                        double C2_value = C2(trimmedJet);
-                        double C3_value = C3(trimmedJet);
+                        const double C2_value = C2(trimmedJet);
+                        const double C3_value = C3(trimmedJet);
                         double D2_value = (C2_value > 0) ? C3_value / std::pow(C2_value, 3) : 0.0;
                         
                         JetD2Threshold d2Threshold;
@@ -266,11 +237,8 @@ namespace Gambit
 
                         // W tagging 
                         if (std::abs(jet_mass - 80.4) < 15 && D2_value < D2_upper) {
-                            
-                            double randomNumber = dis(gen);
-                            if (randomNumber < 0.5) {
-                                trimmedLargeRJets.push_back(hepUtilsJet);
-                            }
+                            trimmedLargeRJetsOwned.emplace_back(make_unique<HEPUtils::Jet>(trimmedJet));
+                            trimmedLargeRJets.push_back(trimmedLargeRJetsOwned.back().get());
                         }
                     }
                 }
@@ -375,8 +343,7 @@ namespace Gambit
                 double met_pz = solute_pvZ(pz_nu_values);
                 double met_e = std::sqrt(met_px * met_px + met_py * met_py + met_pz * met_pz);
                 HEPUtils::P4 pv4(met_px, met_py, met_pz, met_e);
-                // HEPUtils::Particle Wlep(pv4 + signalLeptons.at(0)->mom(), 23);
-                HEPUtils::Particle *Wlep = new HEPUtils::Particle(pv4 + signalLeptons.at(0)->mom(), 23);
+                HEPUtils::Particle Wlep(pv4 + signalLeptons.at(0)->mom(), 23);
 
                 // Define combination of WbWb
                 HEPUtils::P4 p4bJethad;
@@ -384,9 +351,9 @@ namespace Gambit
                 if (n_bjets >= 2)
                 {
                     double mTcand11 = (signalBjets.at(0)->mom() + signal_Whad->mom()).m();
-                    double mTcand12 = (signalBjets.at(0)->mom() + Wlep->mom()).m();
+                    double mTcand12 = (signalBjets.at(0)->mom() + Wlep.mom()).m();
                     double mTcand21 = (signalBjets.at(1)->mom() + signal_Whad->mom()).m();
-                    double mTcand22 = (signalBjets.at(1)->mom() + Wlep->mom()).m();
+                    double mTcand22 = (signalBjets.at(1)->mom() + Wlep.mom()).m();
 
                     if (abs(mTcand11 - mTcand22) < abs(mTcand12 - mTcand21))
                     {
@@ -405,7 +372,7 @@ namespace Gambit
                     // bjet paired with Wlep
                     for (const HEPUtils::Jet *bjet : signalJets)
                     {
-                        double mTl = (signalBjets.at(0)->mom() + Wlep->mom()).m();
+                        double mTl = (signalBjets.at(0)->mom() + Wlep.mom()).m();
                         double mTh = (bjet->mom() + signal_Whad->mom()).m();
                         if (abs(mTl - mTh) < dm)
                         {
@@ -417,7 +384,7 @@ namespace Gambit
                     // bjet paired with Whad
                     for (const HEPUtils::Jet *bjet : signalJets)
                     {
-                        double mTl = (bjet->mom() + Wlep->mom()).m();
+                        double mTl = (bjet->mom() + Wlep.mom()).m();
                         double mTh = (signalBjets.at(0)->mom() + signal_Whad->mom()).m();
                         if (abs(mTl - mTh) < dm)
                         {
@@ -429,7 +396,7 @@ namespace Gambit
                 }
                 // cout << "7. After pairing WbWb" << endl; 
                 // Define statistical variables
-                const double mTlep = (p4bJetlep + Wlep->mom()).m();
+                const double mTlep = (p4bJetlep + Wlep.mom()).m();
                 const double mThad = (p4bJethad + signal_Whad->mom()).m();
                 double ST = met + signalLeptons.at(0)->pT();
                 // for (vector<const HEPUtils::Jet *> jet : signalBjets)
@@ -447,7 +414,7 @@ namespace Gambit
                 // Define the Signal Region
                 if (dRvlep < 0.7 && ST > 1800 && abs(mTlep - mThad) < 300)
                 {
-                    FILL_SIGNAL_REGION("SR")
+                    _counters.at("SR").add_event(event);
                 }
 
 #ifdef CHECK_CUTFLOW
@@ -465,7 +432,7 @@ namespace Gambit
                 }
 #endif
                 // cout << "8. Fill the signal region" << endl; 
-                return; 
+                return;
 
             } // End run function
 
@@ -475,7 +442,9 @@ namespace Gambit
                 // This data is used if not running ATLAS_FullLikes.
                 add_result(SignalRegionData(_counters.at("SR"), 58, {64.0, 9.0}));
 
+#ifdef CHECK_CUTFLOW
                 COMMIT_CUTFLOWS;
+#endif
 
                 return;
             }
@@ -487,14 +456,24 @@ namespace Gambit
                 {
                     pair.second.reset();
                 }
+
+#ifdef CHECK_CUTFLOW
+                const vector<string> cutnames = {
+                    "No Cut",
+                    "Base Selection",
+                    ">= 1 Whad cand.",
+                    "ETmiss >= 60 GeV",
+                    ">= 1 b-tagged jet",
+                    "S_T >= 1800 GeV",
+                    "DeltaR(lep, v) <= 0.7",
+                    "DeltaM < 300 GeV"};
+
+                _cutflows.addCutflow("ATLAS-EXOT-2016-014", cutnames);
+#endif
             }
 
         private:
             const double mW = 80.4;
-
-            std::vector<std::pair<double, double>> thresholds; // Save D2 thresHolds; Using the LookUP table method to get D2 upper limit; 
-
-
 
             // electron isolation requirement
             // bool LeptonIsolation(const HEPUtils::Particle &lepton, const HEPUtils::Event *event)
@@ -530,6 +509,10 @@ namespace Gambit
                 double denominator = (C * C) - (B * B); 
 
                 std::vector<double> solutions;
+                if (std::abs(denominator) < 1e-12)
+                {
+                    return solutions;
+                }
 
                 if (discriminant >= 0)
                 {
@@ -545,6 +528,8 @@ namespace Gambit
             {
                 if (solutions.empty())
                     return 0.0;
+                if (solutions.size() == 1)
+                    return solutions[0];
                 return (std::abs(solutions[0]) < std::abs(solutions[1])) ? solutions[0] : solutions[1];
             }
         };

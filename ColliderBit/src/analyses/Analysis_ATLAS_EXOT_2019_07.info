@@ -1,0 +1,8 @@
+Summary: ATLAS single vector-like T-quark production search in the fully hadronic T->Ht channel at 13 TeV with 139/fb
+InspireID: 2013051
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["0L + H(bb) + Top + >=3B"]
+Keywords: ["vectorlikequark", "singleproduction", "fullyhadronic"]
+Authors: ["Holly Pacey", "Pengxuan Zhu"]

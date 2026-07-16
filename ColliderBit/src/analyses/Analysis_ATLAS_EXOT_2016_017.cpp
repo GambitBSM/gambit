@@ -15,7 +15,6 @@
 #include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/Utils.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
-#include "HEPUtils/FastJet.h"
 #include "HEPUtils/Event.h"
 #include "HEPUtils/Jet.h"
 
@@ -29,13 +28,7 @@ namespace Gambit
     {
         class Analysis_ATLAS_EXOT_2016_017 : public Analysis
         {
-        private:
-            /* data */
         public:
-            #ifdef CHECK_CUTFLOW
-                int Nevent = 0;
-            #endif
-
             static constexpr const char *detector = "ATLAS";
             Analysis_ATLAS_EXOT_2016_017()
             {
@@ -63,7 +56,6 @@ namespace Gambit
                 #ifdef CHECK_CUTFLOW
                     _cutflows["ATLAS-EXOT-2016-017"].fillinit(event->weight());
                     _cutflows["ATLAS-EXOT-2016-017"].fill(1, true, event->weight()); 
-                    Nevent += 1; 
                 #endif
 
                 double met = event->met();
@@ -73,7 +65,7 @@ namespace Gambit
                 
                 BASELINE_PARTICLE_COMBINATION(baselineElectrons, baselineEl1, baselineEl2)
                 applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Tight")); 
-                applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Tight")); 
+                applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Medium"));
                 
                 BASELINE_PARTICLE_COMBINATION(baselineLeptons, baselineElectrons, baselineMuons);
 
@@ -87,7 +79,6 @@ namespace Gambit
                 vector<const HEPUtils::Jet *> signalctrJets;
                 vector<const HEPUtils::Jet *> signalctrBJets;
                 vector<const HEPUtils::Particle *> signalLeptons;
-                vector<const HEPUtils::Jet *> signalfwdJets;
 
                 for (const HEPUtils::Particle *lep : baselineLeptons)
                 {
@@ -114,12 +105,6 @@ namespace Gambit
                 const int nctrBJet = signalctrBJets.size();
                 const int nctrJet = signalctrJets.size();
 
-                for (const HEPUtils::Jet *jet : basefwdJets)
-                {
-                    if (jet->pT() > 40.)
-                        signalfwdJets.push_back(jet);
-                }
-                SIGNAL_JET_COMBINATION(signalJets, basectrJets, signalfwdJets);
                 SIGNAL_JET_COMBINATION(ctrJets, signalctrBJets, signalctrJets); 
 
                 bool preselection = (signalLeptons.size() == 1) && (met > 120.) && (nctrBJet + nctrJet >= 1);
@@ -134,7 +119,7 @@ namespace Gambit
                     #ifdef CHECK_CUTFLOW
                         _cutflows["ATLAS-EXOT-2016-017"].fill(2, true, event->weight());
                     #endif
-                    int Jetincone = false;
+                    bool Jetincone = false;
                     if (leadbjet)
                     {
                         HEPUtils::P4 Bjet0mom = signalctrBJets.at(0)->mom(); 
@@ -157,7 +142,7 @@ namespace Gambit
                         for (unsigned int ii = 0; ii < signalctrJets.size(); ii ++) {
                             dRLepj = std::min(dRLepj, signalLeptons.at(0)->mom().deltaR_eta(signalctrJets.at(ii)->mom())); 
                         }
-                        int nfwdJet = signalfwdJets.size(); 
+                        const size_t nfwdJet = basefwdJets.size();
 
                         #ifdef CHECK_CUTFLOW
                             _cutflows["ATLAS-EXOT-2016-017"].fillnext({
@@ -171,7 +156,7 @@ namespace Gambit
                         #endif
                         if (signalctrBJets.at(0)->pT() > 350. && !Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)                    
                         {
-                            FILL_SIGNAL_REGION("SR")
+                            _counters.at("SR").add_event(event);
                         }
                     }
                 }
@@ -183,7 +168,9 @@ namespace Gambit
             {
                 add_result(SignalRegionData(_counters.at("SR"), 497, {500, 30}));
 
-                COMMIT_CUTFLOWS;
+                #ifdef CHECK_CUTFLOW
+                    COMMIT_CUTFLOWS;
+                #endif
                 return;
             }
 

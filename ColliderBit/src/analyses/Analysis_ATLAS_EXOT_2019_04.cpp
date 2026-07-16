@@ -36,49 +36,32 @@
 
 using namespace std;
 
-// #define CHECK_CUTFLOW
-
 namespace Gambit
 {
   namespace ColliderBit
   {
     class Analysis_ATLAS_EXOT_2019_04 : public Analysis
     {
-    private:
-      /* data */
     public:
-      #ifdef CHECK_CUTFLOW
-            Cutflows _cutflows;
-            int Nevent = 0;
-      #endif
-
       static constexpr const char *detector = "ATLAS";
       Analysis_ATLAS_EXOT_2019_04()
       {
         DEFINE_SIGNAL_REGION("SR");
 
-        // Histograms for kinematic distributions (filled when check_histogram is enabled)
-        // DEFINE_HISTOGRAM_1D_UNIFORM("m_VLB", 25, 500.0, 3000.0, "m_{VLB} [GeV]")
-        // 1D histogram in Fig. 7 of arXiv:2308.02595
-        const std::vector<double> mVLB_bins = {900, 1050, 1150, 1250, 1400, 1600, 1900, 2300};
-        const std::vector<double> mVLB_obs = {41.0, 62, 54., 67., 24., 13., 4.};
-        const std::vector<double> mVLB_bkg = {45.5, 61.2, 47.9, 51.0, 28.5, 14.8, 7.4};
-        const std::vector<double> mVLB_bkg_err = {4.6, 5.6, 5.4, 6.2, 4.3, 2.8, 2.0};
-        DEFINE_HISTOGRAM_SR_1D("m_VLB", mVLB_bins, mVLB_obs, mVLB_bkg, mVLB_bkg_err, "$m_{\\rm VLB}$ [GeV]")
-        // End of definition of histograms
+        if (Histogram1D::check_histogram())
+        {
+          const std::vector<double> mVLB_bins = {900, 1050, 1150, 1250, 1400, 1600, 1900, 2300};
+          const std::vector<double> mVLB_obs = {41.0, 62, 54., 67., 24., 13., 4.};
+          const std::vector<double> mVLB_bkg = {45.5, 61.2, 47.9, 51.0, 28.5, 14.8, 7.4};
+          const std::vector<double> mVLB_bkg_err = {4.6, 5.6, 5.4, 6.2, 4.3, 2.8, 2.0};
+          DEFINE_HISTOGRAM_SR_1D("m_VLB", mVLB_bins, mVLB_obs, mVLB_bkg, mVLB_bkg_err, "$m_{\\rm VLB}$ [GeV]")
+        }
         set_analysis_name("ATLAS_EXOT_2019_04");
         set_luminosity(139.0);
       }
 
       void run(const HEPUtils::Event *event)
       {
-#ifdef CHECK_CUTFLOW
-        BEGIN_PRESELECTION
-        Nevent += 1;
-        if (Nevent % 200 == 0) { cout << "Complete " << Nevent << " Events" << endl; }
-        END_PRESELECTION
-#endif
-
         BASELINE_PARTICLES(event->electrons(), baselineEl1, 25., 0, DBL_MAX, 1.37)
         BASELINE_PARTICLES(event->electrons(), baselineEl2, 25., 1.52, DBL_MAX, 2.47)
         BASELINE_PARTICLES(event->muons(), baselineMuons, 25., 0, DBL_MAX, 2.5)
@@ -325,19 +308,19 @@ namespace Gambit
         const bool in_H_window = (mHC >= 105. && mHC <= 135.);
         const bool is_H2T2B = true; // HC selection enforces H2T2B
 
-        // Fill kinematic distribution histograms (before the mass-window cut)
-        // FILL_HISTOGRAM_1D("m_HC", mHC)
         FILL_HISTOGRAM_1D("m_VLB", best.mB)
 
-        if (in_H_window && is_H2T2B) { FILL_SIGNAL_REGION("SR"); }
+        if (in_H_window && is_H2T2B) { _counters.at("SR").add_event(event); }
       }
 
       virtual void collect_results()
       {
         COMMIT_SIGNAL_REGION("SR", 262, 260, 17)
-        COMMIT_CUTFLOWS;
-        COMMIT_HISTOGRAMS;
-        COMMIT_HISTOGRAM_SRS("m_VLB");
+        if (Histogram1D::check_histogram())
+        {
+          COMMIT_HISTOGRAMS;
+          COMMIT_HISTOGRAM_SRS("m_VLB");
+        }
         return;
       }
 
@@ -345,6 +328,14 @@ namespace Gambit
       void analysis_specific_reset()
       {
         for (auto &pair : _counters) { pair.second.reset(); }
+        if (Histogram1D::check_histogram())
+        {
+          const std::vector<double> mVLB_bins = {900, 1050, 1150, 1250, 1400, 1600, 1900, 2300};
+          const std::vector<double> mVLB_obs = {41.0, 62, 54., 67., 24., 13., 4.};
+          const std::vector<double> mVLB_bkg = {45.5, 61.2, 47.9, 51.0, 28.5, 14.8, 7.4};
+          const std::vector<double> mVLB_bkg_err = {4.6, 5.6, 5.4, 6.2, 4.3, 2.8, 2.0};
+          DEFINE_HISTOGRAM_SR_1D("m_VLB", mVLB_bins, mVLB_obs, mVLB_bkg, mVLB_bkg_err, "$m_{\\rm VLB}$ [GeV]")
+        }
       }
 
     private:

@@ -35,6 +35,7 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -80,8 +81,16 @@ namespace Gambit
       str jetcollection_taus;
     };
 
+    inline std::recursive_mutex& jet_collection_options_mutex()
+    {
+      static std::recursive_mutex mutex;
+      return mutex;
+    }
+
     inline parsed_jet_collection_settings read_jet_collection_settings_from_options(const Options& options)
     {
+      std::lock_guard<std::recursive_mutex> lock(jet_collection_options_mutex());
+
       if (!options.hasKey("jet_collections"))
       {
         throw std::runtime_error("Could not find jet_collections option. Please provide this in the YAML file.");

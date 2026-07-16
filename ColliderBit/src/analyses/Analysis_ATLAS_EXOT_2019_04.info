@@ -1,0 +1,8 @@
+Summary: ATLAS single vector-like B-quark production search in the B->bH(bb) channel at 13 TeV with 139/fb
+InspireID: 2686498
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["0L + >=3B + >=1FJ + H(bb)"]
+Keywords: ["vectorlikequark", "singleproduction", "boostedhiggs"]
+Authors: ["Pengxuan Zhu"]

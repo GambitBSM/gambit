@@ -21,17 +21,14 @@
 #include "HEPUtils/Jet.h"
 // #include "fastjet/Filter.hh"
 #include <memory>
-#include <random>
 
 // Similar to ATLAS_13_TeV_3b_NN_139invfb (define structure copied from heputils/FastJet.h)
 #ifndef FJCORE
 #ifndef FJNS
 #define FJNS fastjet
 #endif
-#include "fastjet/ClusterSequence.hh"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/tools/Filter.hh"
-#include "fastjet/tools/Pruner.hh"
 #include "fastjet/Selector.hh"
 #else
 #include "fjcore.hh"
@@ -52,29 +49,8 @@ namespace Gambit
         class Analysis_ATLAS_EXOT_2016_013 : public Analysis
         {
 
-#ifdef CHECK_CUTFLOW
-        private:
-            void book_diagnostics()
-            {
-                for (const auto &counter : _counters)
-                {
-                    ADD_CUTFLOW_NOCUTS(counter.first)
-                }
-
-                DEFINE_HISTOGRAM_1D_UNIFORM("NHiggs", 5, 0., 5., "Higgs-tagged jet multiplicity")
-                DEFINE_HISTOGRAM_1D_UNIFORM("Ntop", 5, 0., 5., "Top-tagged jet multiplicity")
-                DEFINE_HISTOGRAM_1D_UNIFORM("Njet", 10, 5., 15., "Jet multiplicity")
-                DEFINE_HISTOGRAM_1D_UNIFORM("Nbjet", 6, 2., 8., "B-tagged jet multiplicity")
-                DEFINE_HISTOGRAM_1D_UNIFORM("meff_SR1L_03", 12, 500., 3500., "m_eff [GeV]")
-                DEFINE_HISTOGRAM_1D_UNIFORM("meff_SR0L_01", 12, 500., 3500., "m_eff [GeV]")
-                DEFINE_HISTOGRAM_1D_UNIFORM("mTBmin", 20, 0., 500., "m_T^{b,min} [GeV]")
-            }
-#endif
-
         public:
             static constexpr const char *detector = "ATLAS";
-
-            int Nevent = 0;
 
             Analysis_ATLAS_EXOT_2016_013()
             {
@@ -91,7 +67,13 @@ namespace Gambit
                 _counters["SR0L-05"] = EventCounter("SR0L-05"); // >=2tH, >=7j, >=4b
 
 #ifdef CHECK_CUTFLOW
-                book_diagnostics();
+                DEFINE_HISTOGRAM_1D_UNIFORM("NHiggs", 5, 0., 5., "Higgs-tagged jet multiplicity")
+                DEFINE_HISTOGRAM_1D_UNIFORM("Ntop", 5, 0., 5., "Top-tagged jet multiplicity")
+                DEFINE_HISTOGRAM_1D_UNIFORM("Njet", 10, 5., 15., "Jet multiplicity")
+                DEFINE_HISTOGRAM_1D_UNIFORM("Nbjet", 6, 2., 8., "B-tagged jet multiplicity")
+                DEFINE_HISTOGRAM_1D_UNIFORM("meff_SR1L_03", 12, 500., 3500., "m_eff [GeV]")
+                DEFINE_HISTOGRAM_1D_UNIFORM("meff_SR0L_01", 12, 500., 3500., "m_eff [GeV]")
+                DEFINE_HISTOGRAM_1D_UNIFORM("mTBmin", 20, 0., 500., "m_T^{b,min} [GeV]")
 #endif
 
                 set_analysis_name("ATLAS_EXOT_2016_013");
@@ -100,10 +82,6 @@ namespace Gambit
 
             void run(const HEPUtils::Event *event)
             {
-                if (Nevent % 200 == 0)
-                {
-                    cout << "Complete " << Nevent << " Events" << endl;
-                }
                 HEPUtils::P4 pmiss = event->missingmom();
                 const double met = event->met();
 
@@ -137,7 +115,6 @@ namespace Gambit
                 // Jets
 
                 // cout << "1. Define Lepton candidates" << endl;
-                vector<const HEPUtils::Jet *> baselineSmallRJets;
                 vector<const HEPUtils::Jet *> baselineLargeRJets;
                 vector<unique_ptr<HEPUtils::Jet>> taggedJetsOwned;
                 vector<HEPUtils::Jet *> higgsJets;
@@ -153,7 +130,6 @@ namespace Gambit
                 {
                     if (jet->pT() > 25.0 && jet->abseta() < 2.5)
                     {
-                        baselineSmallRJets.push_back(jet);
                         if (random_bool(btageff) && jet->btag())
                         {
                             bJets.push_back(jet);
@@ -184,10 +160,6 @@ namespace Gambit
                 FJNS::Filter trimmer(fastjet::JetDefinition(fastjet::kt_algorithm, Rsub), fastjet::SelectorPtFractionMin(ptfrac));
                 // FJNS::contrib::EnergyCorrelator C2(2, beta, fastjet::contrib::EnergyCorrelator::pt_R);
                 // FJNS::contrib::EnergyCorrelator C3(3, beta, fastjet::contrib::EnergyCorrelator::pt_R);
-
-                std::random_device rd;
-                std::mt19937 gen(rd());
-                std::uniform_real_distribution<> dis(0.0, 1.0);
 
                 for (size_t i = 0; i < baselineLargeRJets.size(); ++i)
                 {
@@ -353,7 +325,6 @@ namespace Gambit
 
                     // cout << "28. After the o lepton Signal Counting " << endl;
                 }
-                Nevent += 1;
                 return;
 
             } // End run function
@@ -375,7 +346,6 @@ namespace Gambit
                 add_result(SignalRegionData(_counters.at("SR0L-05"), 29., {28.8, 3.1}));
 
 #ifdef CHECK_CUTFLOW
-                COMMIT_CUTFLOWS;
                 COMMIT_HISTOGRAMS;
 #endif
                 return;
@@ -390,7 +360,13 @@ namespace Gambit
                 }
 
 #ifdef CHECK_CUTFLOW
-                book_diagnostics();
+                DEFINE_HISTOGRAM_1D_UNIFORM("NHiggs", 5, 0., 5., "Higgs-tagged jet multiplicity")
+                DEFINE_HISTOGRAM_1D_UNIFORM("Ntop", 5, 0., 5., "Top-tagged jet multiplicity")
+                DEFINE_HISTOGRAM_1D_UNIFORM("Njet", 10, 5., 15., "Jet multiplicity")
+                DEFINE_HISTOGRAM_1D_UNIFORM("Nbjet", 6, 2., 8., "B-tagged jet multiplicity")
+                DEFINE_HISTOGRAM_1D_UNIFORM("meff_SR1L_03", 12, 500., 3500., "m_eff [GeV]")
+                DEFINE_HISTOGRAM_1D_UNIFORM("meff_SR0L_01", 12, 500., 3500., "m_eff [GeV]")
+                DEFINE_HISTOGRAM_1D_UNIFORM("mTBmin", 20, 0., 500., "m_T^{b,min} [GeV]")
 #endif
             }
         };

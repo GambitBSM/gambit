@@ -19,15 +19,15 @@
 #include "HEPUtils/Event.h"
 #include "HEPUtils/Jet.h"
 
+#include <memory>
+
 // Similar to ATLAS_13_TeV_3b_NN_139invfb (define structure copied from heputils/FastJet.h)
 #ifndef FJCORE
 #ifndef FJNS
 #define FJNS fastjet
 #endif
-#include "fastjet/ClusterSequence.hh"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/tools/Filter.hh"
-#include "fastjet/tools/Pruner.hh"
 #include "fastjet/Selector.hh"
 #include "fastjet/contrib/EnergyCorrelator.hh"
 #else
@@ -107,14 +107,17 @@ namespace Gambit
             static constexpr const char *detector = "ATLAS";
             Analysis_ATLAS_EXOT_2021_035()
             {
-                DEFINE_SIGNAL_REGION("SR1");
-                DEFINE_SIGNAL_REGION("SR2");
+                _counters["SR1"] = EventCounter("SR1");
+                _counters["SR2"] = EventCounter("SR2");
 
                 set_analysis_name("ATLAS_EXOT_2021_035");
                 set_luminosity(140.0);
 
-                DEFINE_HISTOGRAM_1D_UNIFORM("mVLQlep_sr1", 10, 0., 2000., "m_{VLQ}^{lep} [GeV]")
-                DEFINE_HISTOGRAM_1D_UNIFORM("mVLQlep_sr2", 10, 0., 2000., "m_{VLQ}^{lep} [GeV]")
+                if (Histogram1D::check_histogram())
+                {
+                    DEFINE_HISTOGRAM_1D_UNIFORM("mVLQlep_sr1", 10, 0., 2000., "m_{VLQ}^{lep} [GeV]")
+                    DEFINE_HISTOGRAM_1D_UNIFORM("mVLQlep_sr2", 10, 0., 2000., "m_{VLQ}^{lep} [GeV]")
+                }
             }
 
             void run(const HEPUtils::Event *event)
@@ -134,7 +137,7 @@ namespace Gambit
                 BASELINE_JETS(event->jets("antikt_R10"), baseLargeRJets, 200., 0, DBL_MAX, 2.0)
 
                 removeOverlap(baselineJets, baselineElectrons, 0.2);
-                removeOverlap(baselineJets, baselineElectrons, 0.2);
+                removeOverlap(baselineJets, baselineMuons, 0.2);
                 
                 removeOverlap(baselineElectrons, baselineJets, 0.4);
 
@@ -150,8 +153,6 @@ namespace Gambit
                     }
                     if (ovtag) sgmuons.push_back(mu); 
                 }
-                removeOverlap(sgmuons, baselineJets, 0.4); 
-
                 SIGNAL_PARTICLES(baselineElectrons, signalEl)
                 SIGNAL_PARTICLES(sgmuons, signalMu)
                 SIGNAL_PARTICLE_COMBINATION(signalLep, signalEl, signalMu)
@@ -167,7 +168,8 @@ namespace Gambit
                 FJNS::contrib::EnergyCorrelator C3(3, beta, fastjet::contrib::EnergyCorrelator::pt_R);  
 
                 
-                vector<const HEPUtils::Jet *> trimmedJets; 
+                static const WJetTagger wjet_tagger;
+                vector<unique_ptr<HEPUtils::Jet>> trimmedJetStorage;
                 vector<const HEPUtils::Jet *> WJets; 
                 for (size_t i = 0; i < baseLargeRJets.size(); ++i)
                 {
@@ -176,41 +178,23 @@ namespace Gambit
                     // Make sure there is constituents inside the jets
                     if (pseudojet.constituents().empty()) continue;
                     fastjet::PseudoJet trimmedJet = trimmer(pseudojet);
-                    HEPUtils::Jet* hepUtilsJet = new HEPUtils::Jet(trimmedJet);
+                    if (trimmedJet.pt() <= 200 || fabs(trimmedJet.eta()) >= 2.0) continue;
+                    if (trimmedJet.m() < 0) continue; // filter the negative mass situation
 
-                    if (trimmedJet.pt() > 200 &&  fabs(trimmedJet.eta() < 2.0)) { 
-                        double jet_mass = trimmedJet.m();
-                        if (jet_mass < 0) continue; // filter the negative mass situation 
-                        // Calculate the Energy correlator function 
-                        double C2_value = C2(trimmedJet);
-                        double C3_value = C3(trimmedJet);
-                        double D2_value = (C2_value > 0) ? C3_value / std::pow(C2_value, 3) : 0.0;
+                    // Calculate the Energy correlator function
+                    double C2_value = C2(trimmedJet);
+                    double C3_value = C3(trimmedJet);
+                    double D2_value = (C2_value > 0) ? C3_value / std::pow(C2_value, 3) : 0.0;
+                    bool wtag = wjet_tagger.passTag(trimmedJet.pt(), trimmedJet.m(), D2_value);
 
-                        WJetTagger Threshold;
-                        bool wtag = Threshold.passTag(trimmedJet.pt(), trimmedJet.m(), D2_value);
-                        // if (wtag && random_bool(0.8))
-                        if (wtag)
-                        {
-                            WJets.push_back(hepUtilsJet);
-                        }
-                        trimmedJets.push_back(hepUtilsJet);
-                    }
+                    trimmedJetStorage.emplace_back(new HEPUtils::Jet(trimmedJet));
+                    const HEPUtils::Jet* hepUtilsJet = trimmedJetStorage.back().get();
+                    if (wtag) WJets.push_back(hepUtilsJet);
                 }
 
-                const HEPUtils::Jet* Whad = nullptr;
-                if (WJets.size() >= 1)  Whad = WJets.at(0);
-                else if (trimmedJets.size() >= 1) {
-                    double dmw = 999999.0; 
-                    for (const HEPUtils::Jet *jet : trimmedJets )
-                    {
-                        if (jet->mom().m() - mW < dmw) 
-                        {
-                            dmw = jet->mom().m() - mW ; 
-                            Whad = jet; 
-                        }
-                    }
-                }
-                if (Whad == nullptr) return; 
+                if (WJets.empty()) return;
+                sortByPt(WJets);
+                const HEPUtils::Jet* Whad = WJets.at(0);
                 vector<const HEPUtils::Jet *> sgJets; 
                 vector<const HEPUtils::Jet *> bJets; 
                 std::map<const Jet *, bool> analysisBtags = generateBTagsMap(baselineJets, 0.70, 0.106, 0.00256);
@@ -226,11 +210,10 @@ namespace Gambit
                 SIGNAL_JETS(sgJets, signalJets)
 
                 bool lep_pre = (signalLep.size() == 1) ? signalLep.at(0)->pT() > 60. : false;
-                bool lRj_pre = (trimmedJets.size() >= 1) ? trimmedJets.at(0)->pT() > 200. : false; 
                 bool sRj_pre1 = signalJets.size() >= 3; 
                 bool sRj_pre2 = (sRj_pre1) ? signalJets.at(1)->pT() > 25. : false; 
                 // bool sRj_pre3 = (sRj_pre1) ? signalJets.at(0)->pT() > 200. : false; 
-                bool preselection = lep_pre && lRj_pre && sRj_pre1 && sRj_pre2; 
+                bool preselection = lep_pre && sRj_pre1 && sRj_pre2;
                 if (preselection)
                 {
                     // #ifdef CHECK_CUTFLOW
@@ -275,8 +258,8 @@ namespace Gambit
 
                     bool sr1 = (nbjets == 0) && (WJets.size() >= 1) && (dRWW > 0.8) && (dPhilmet < 0.5) && (ST >= 2000.) && (dPhiJ0met < 2.75); 
                     bool sr2 = (nbjets == 0) && (WJets.size() >= 1) && (dRWW > 0.8) && (dPhilmet < 0.5) && (ST >= 2000.) && (dPhiJ0met >= 2.75); 
-                    if (sr1) { FILL_SIGNAL_REGION("SR1") }
-                    if (sr2) { FILL_SIGNAL_REGION("SR2") }
+                    if (sr1) { _counters.at("SR1").add_event(event); }
+                    if (sr2) { _counters.at("SR2").add_event(event); }
 
                     if (sr1) FILL_HISTOGRAM_1D("mVLQlep_sr1", p4VLQlep.m())
                     if (sr2) FILL_HISTOGRAM_1D("mVLQlep_sr2", p4VLQlep.m())
@@ -292,8 +275,7 @@ namespace Gambit
                 COMMIT_SIGNAL_REGION("SR1", 156, 150, 10)
                 COMMIT_SIGNAL_REGION("SR2", 186, 192, 12)
 
-                COMMIT_CUTFLOWS;
-                COMMIT_HISTOGRAMS;
+                if (Histogram1D::check_histogram()) COMMIT_HISTOGRAMS;
                 return;
             }
 
@@ -303,6 +285,11 @@ namespace Gambit
                 for (auto &pair : _counters)
                 {
                     pair.second.reset();
+                }
+                if (Histogram1D::check_histogram())
+                {
+                    DEFINE_HISTOGRAM_1D_UNIFORM("mVLQlep_sr1", 10, 0., 2000., "m_{VLQ}^{lep} [GeV]")
+                    DEFINE_HISTOGRAM_1D_UNIFORM("mVLQlep_sr2", 10, 0., 2000., "m_{VLQ}^{lep} [GeV]")
                 }
             }
         

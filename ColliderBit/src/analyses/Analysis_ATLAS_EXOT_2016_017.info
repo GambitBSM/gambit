@@ -1,0 +1,8 @@
+Summary: ATLAS single vector-like T/Y-quark production search in the Wb channel at 13 TeV with 36.1/fb
+InspireID: 1709842
+ExptRun: ATLAS-R2
+Lumi_ifb: 36.1
+Ecm_TeV: 13.0
+Signatures: ["1L + >=1B + >=1FJ + MET"]
+Keywords: ["vectorlikequark", "singleproduction", "forwardjet"]
+Authors: ["Pengxuan Zhu"]
