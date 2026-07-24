@@ -1,5 +1,5 @@
 #ifndef __emulator_functions_hpp__
-#define __emulator_fynctions_hpp__
+#define __emulator_functions_hpp__
 
 #ifdef WITH_MPI
 
