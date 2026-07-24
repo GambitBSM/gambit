@@ -244,7 +244,7 @@ namespace Gambit
         // log result
         std::cout << "results from emu " << predictions[0] << " # " << uncertainty[0]  << std::endl;
         if (debug) logger() << LogTags::core << "Results from emulator for lnLike: " << predictions[0] << ", " << uncertainty[0] << EOM;
-        logger() << "Emulator results for lnlike: " << predictions[0] << ", " << uncertainty[0] << ", " << uncertainty[0] << EOM;
+        logger() << "Emulator results for lnlike: " << predictions[0] << ", " << uncertainty[0] << EOM;
         
         // threshold to use this prediction and skip the rest
         emulatorValidPrediction = checkThreshold("LogLike", uncertainty);
