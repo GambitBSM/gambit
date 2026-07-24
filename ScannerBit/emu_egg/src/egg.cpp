@@ -45,7 +45,12 @@ int main(int argc, char *argv[])
             argsMap[key] = value;
         }
     }
-    else { std::cout << "Too few arguments: " << argc << " inputs, but 3 required" << std::endl; }
+    else
+    {
+        std::cerr << "egg: too few arguments (" << argc << " given, need at least "
+                     "'-c <CapabilityName>'). Aborting the whole MPI job." << std::endl;
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
 
     // Get plugin capability
     str capability = argsMap["-c"];
