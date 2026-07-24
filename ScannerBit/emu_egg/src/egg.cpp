@@ -156,8 +156,9 @@ int main(int argc, char *argv[])
             // resize receiver
             receiver.resize(receiver_size);
 
-            // recieve data
-            MPI_Recv(receiver.buffer.data(), receiver_size, MPI_CHAR, MPI_ANY_SOURCE, 3, MPI_COMM_WORLD, &status_recv); 
+            // recieve data (pinned to status.MPI_SOURCE, not MPI_ANY_SOURCE, so we
+            // can't accidentally match a differently-sized message from another sender)
+            MPI_Recv(receiver.buffer.data(), receiver_size, MPI_CHAR, status.MPI_SOURCE, 3, MPI_COMM_WORLD, &status_recv);
 
             // std::cout << " rank " << world_rank << " recieved: " << receiver.if_train() << " from " << status_recv.MPI_SOURCE << std::endl;
 

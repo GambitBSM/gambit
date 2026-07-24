@@ -46,8 +46,9 @@ inline bool emulatorPredict(str capability_name, std::vector<double> input, std:
     MPI_Get_count(&status_parent, MPI_CHAR, &size_result);
     predict_results.resize(size_result);
 
-    // recieve buffer
-    MPI_Recv(predict_results.buffer.data(), size_result, MPI_CHAR, MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    // recieve buffer (pinned to status_parent.MPI_SOURCE, not MPI_ANY_SOURCE, so we
+    // can't accidentally match a differently-sized message from another sender)
+    MPI_Recv(predict_results.buffer.data(), size_result, MPI_CHAR, status_parent.MPI_SOURCE, 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     // results, translate from eigenvector to vector
     Gambit::Scanner::vector<double> prediction_eigen = predict_results.prediction();
