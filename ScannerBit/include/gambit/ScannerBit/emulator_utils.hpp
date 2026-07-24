@@ -68,8 +68,8 @@ namespace Gambit
                     pos += sizeof(unsigned short int);
 
                     // store the total size of the vectors first sizes
-                    (size_t &)(buffer[pos]) = (size_t )sizes.size();
-                    pos += sizeof(unsigned short int);
+                    dim() = (usint)sizes.size();
+                    pos += sizeof(usint);
     
                     // store the sizes of the vectors
                     for (auto &&s : sizes)
