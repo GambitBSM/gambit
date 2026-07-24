@@ -178,12 +178,10 @@ int main(int argc, char *argv[])
                 std::vector<unsigned int> sizes = {0, (unsigned int)pred.first.size(), (unsigned int)pred.second.size()};
                 Scanner::Emulator::feed_def answer_buffer(sizes);
                 answer_buffer.flag() = flag;
-
-                if (!answer_buffer.if_result()) {continue;} 
+                answer_buffer.set_result(); // always reply, even if the plugin declined to predict (NOT_VALID may also be set)
 
                 // populate answer_buffer
                 answer_buffer.add_for_result(pred.first, pred.second);
-
 
                 // send to process it arrived from ( tag 4 = results )
                 MPI_Send(answer_buffer.buffer.data(), answer_buffer.buffer.size(), MPI_CHAR, status_recv.MPI_SOURCE, 4, MPI_COMM_WORLD);

@@ -143,9 +143,9 @@ namespace Gambit
               std::cout << "in emu: " << name() << std::endl;
 
               this->myEmulatorPointers->TranslateInput(input_vector);
-              emulatorPredict(name(), input_vector, prediction_vector, prediction_uncertainty_vector);
+              bool emulator_not_valid = emulatorPredict(name(), input_vector, prediction_vector, prediction_uncertainty_vector);
               str myname = name();
-              emulated_pt = this->myEmulatorPointers->CheckThreshold(myname, prediction_uncertainty_vector);
+              emulated_pt = !emulator_not_valid && this->myEmulatorPointers->CheckThreshold(myname, prediction_uncertainty_vector);
               if (emulated_pt)
               {
                 std::cout << "mycheck is true!\n";

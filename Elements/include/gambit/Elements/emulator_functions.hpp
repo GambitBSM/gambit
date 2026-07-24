@@ -13,7 +13,9 @@ using Gambit::Scanner::map_vector;
 using Gambit::Scanner::vector;
 
 
-inline void emulatorPredict(str capability_name, std::vector<double> input, std::vector<double>& prediction, std::vector<double>& uncertainty)
+// Returns true if the emulator declined to give a valid prediction for this point
+// (in which case 'prediction'/'uncertainty' should not be trusted).
+inline bool emulatorPredict(str capability_name, std::vector<double> input, std::vector<double>& prediction, std::vector<double>& uncertainty)
 {
     // get message size
     unsigned int n = input.size();
@@ -54,8 +56,10 @@ inline void emulatorPredict(str capability_name, std::vector<double> input, std:
     prediction = std::vector<double>(prediction_eigen.data(), prediction_eigen.data() + prediction_eigen.size());
     uncertainty = std::vector<double>(uncertainty_eigen.data(), uncertainty_eigen.data() + uncertainty_eigen.size());
 
-    if (predict_results.if_not_valid()) {std::cout << "Emulator NOT VALID POINT: " << prediction[0] << ", " << uncertainty[0] << std::endl;}
+    bool not_valid = predict_results.if_not_valid();
+    if (not_valid) {std::cout << "Emulator NOT VALID POINT: " << prediction[0] << ", " << uncertainty[0] << std::endl;}
 
+    return not_valid;
 }
 
 

@@ -239,15 +239,15 @@ namespace Gambit
         for (auto key : in) { parameters.push_back(key.second); }
 
         std::vector<double> predictions, uncertainty;
-        emulatorPredict("LogLike",parameters, predictions, uncertainty);
+        bool emulator_not_valid = emulatorPredict("LogLike",parameters, predictions, uncertainty);
 
         // log result
         std::cout << "results from emu " << predictions[0] << " # " << uncertainty[0]  << std::endl;
         if (debug) logger() << LogTags::core << "Results from emulator for lnLike: " << predictions[0] << ", " << uncertainty[0] << EOM;
         logger() << "Emulator results for lnlike: " << predictions[0] << ", " << uncertainty[0] << EOM;
-        
+
         // threshold to use this prediction and skip the rest
-        emulatorValidPrediction = checkThreshold("LogLike", uncertainty);
+        emulatorValidPrediction = !emulator_not_valid && checkThreshold("LogLike", uncertainty);
         if (emulatorValidPrediction)
         {
             lnlike = predictions[0];
