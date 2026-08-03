@@ -4,8 +4,15 @@
 #ifdef WITH_MPI
 
 #include <mpi.h>
+#include <time.h>
 #include "gambit/Core/emu_map.hpp"
 #include "gambit/ScannerBit/emulator_utils.hpp"
+
+// How long (in seconds) to wait for a prediction reply from an EGG rank before
+// concluding it has died/stalled and aborting the whole MPI job. Without this,
+// a crashed EGG rank (e.g. an uncaught exception in a plugin's train()) leaves
+// the requesting GAMBIT rank blocked forever on MPI_Probe with no diagnostic.
+static const double EMULATOR_PREDICT_TIMEOUT_SECONDS = 300.0;
 
 using namespace Gambit;
 using namespace Gambit::Scanner;
@@ -39,10 +46,30 @@ inline bool emulatorPredict(str capability_name, std::vector<double> input, std:
     // prepare to get result from egg
     Scanner::Emulator::feed_def predict_results;
 
-    // probe size of result buffer
+    // probe size of result buffer, polling with a timeout instead of blocking
+    // forever: if the EGG rank handling this capability has died or stalled,
+    // abort the whole job with a clear diagnostic instead of hanging silently.
     int size_result;
     MPI_Status status_parent;
-    MPI_Probe(MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, &status_parent);
+    int probe_flag = 0;
+    double wait_start = MPI_Wtime();
+    struct timespec poll_interval = {0, 10000000L}; // 10 ms
+    while (!probe_flag)
+    {
+        MPI_Iprobe(MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, &probe_flag, &status_parent);
+        if (!probe_flag)
+        {
+            if (MPI_Wtime() - wait_start > EMULATOR_PREDICT_TIMEOUT_SECONDS)
+            {
+                std::cerr << "GAMBIT: no prediction response for capability '" << capability_name
+                          << "' after " << EMULATOR_PREDICT_TIMEOUT_SECONDS << "s. The EGG rank(s) "
+                             "handling this capability may have crashed or stalled. Aborting the "
+                             "whole MPI job." << std::endl;
+                MPI_Abort(MPI_COMM_WORLD, 1);
+            }
+            nanosleep(&poll_interval, NULL);
+        }
+    }
     MPI_Get_count(&status_parent, MPI_CHAR, &size_result);
     predict_results.resize(size_result);
 
