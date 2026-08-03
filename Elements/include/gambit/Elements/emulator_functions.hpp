@@ -77,6 +77,39 @@ inline bool emulatorPredict(str capability_name, std::vector<double> input, std:
     // can't accidentally match a differently-sized message from another sender)
     MPI_Recv(predict_results.buffer.data(), size_result, MPI_CHAR, status_parent.MPI_SOURCE, 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
+    // Malformed/truncated reply: too small to safely hold its own header, let
+    // alone the prediction/uncertainty vectors it claims to have. Reading
+    // .prediction()/.prediction_uncertainty() below would be out-of-bounds.
+    if (!predict_results.has_valid_header())
+    {
+        std::cerr << "GAMBIT: *** PROTOCOL ERROR *** received a malformed/truncated "
+                     "prediction reply (" << size_result << " bytes) from EGG rank "
+                  << status_parent.MPI_SOURCE << " for capability '" << capability_name
+                  << "'. This indicates a bug in the wire protocol, not a normal "
+                     "emulator decline -- treating as not-valid and falling back to "
+                     "the true function." << std::endl;
+        prediction.clear();
+        uncertainty.clear();
+        return true;
+    }
+
+    // A PROTOCOL_ERROR reply means EGG itself received a malformed *request* from
+    // us (see egg.cpp) -- distinct from NOT_VALID, which is the emulator
+    // legitimately declining to predict this point. Both fall back to the true
+    // function the same way, but PROTOCOL_ERROR gets a loud, distinctly-labeled
+    // message so repeated occurrences are diagnosable instead of blending into
+    // routine emulator-uncertainty logging. Its reply carries no prediction/
+    // uncertainty values, so don't index into them.
+    if (predict_results.if_protocol_error())
+    {
+        std::cerr << "GAMBIT: *** PROTOCOL ERROR *** EGG rank " << status_parent.MPI_SOURCE
+                  << " reported that our request for capability '" << capability_name
+                  << "' was malformed. This indicates a bug in the wire protocol, not a "
+                     "normal emulator decline -- falling back to the true function."
+                  << std::endl;
+        return true;
+    }
+
     // results, translate from eigenvector to vector
     Gambit::Scanner::vector<double> prediction_eigen = predict_results.prediction();
     Gambit::Scanner::vector<double> uncertainty_eigen = predict_results.prediction_uncertainty();
@@ -85,7 +118,10 @@ inline bool emulatorPredict(str capability_name, std::vector<double> input, std:
     uncertainty = std::vector<double>(uncertainty_eigen.data(), uncertainty_eigen.data() + uncertainty_eigen.size());
 
     bool not_valid = predict_results.if_not_valid();
-    if (not_valid) {std::cout << "Emulator NOT VALID POINT: " << prediction[0] << ", " << uncertainty[0] << std::endl;}
+    if (not_valid && !prediction.empty() && !uncertainty.empty())
+    {
+        std::cout << "Emulator NOT VALID POINT: " << prediction[0] << ", " << uncertainty[0] << std::endl;
+    }
 
     return not_valid;
 }

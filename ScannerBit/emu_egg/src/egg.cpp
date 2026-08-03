@@ -168,10 +168,43 @@ int main(int argc, char *argv[])
             // can't accidentally match a differently-sized message from another sender)
             MPI_Recv(receiver.buffer.data(), receiver_size, MPI_CHAR, status.MPI_SOURCE, 3, MPI_COMM_WORLD, &status_recv);
 
-            // std::cout << " rank " << world_rank << " recieved: " << receiver.if_train() << " from " << status_recv.MPI_SOURCE << std::endl;
+            // Malformed/truncated message: too small to safely read even the
+            // flag+dim header, let alone the sizes[] array it claims to have.
+            // Reading dim()/get_sizes()/params() below would be out-of-bounds.
+            if (!receiver.has_valid_header())
+            {
+                std::cerr << "egg: received a malformed/truncated message (" << receiver_size
+                          << " bytes) from rank " << status_recv.MPI_SOURCE
+                          << " -- too small to hold its own header." << std::endl;
+
+                // We can still tell train from predict as long as at least the flag
+                // itself is readable (2 bytes); a predict request must always get a
+                // reply (see bug #5: silently dropping one hangs the sender forever
+                // in a blocking receive), tagged PROTOCOL_ERROR so the sender can
+                // distinguish "your request was corrupt" from a routine NOT_VALID
+                // decline. A malformed train request has no reply channel to signal
+                // on (train is fire-and-forget by design) -- logging here is the best
+                // we can do.
+                if (receiver.buffer.size() >= sizeof(unsigned short int) && receiver.if_predict())
+                {
+                    std::vector<unsigned int> error_sizes = {0, 0, 0};
+                    Scanner::Emulator::feed_def error_buffer(error_sizes);
+                    error_buffer.set_result();
+                    error_buffer.set_not_valid();
+                    error_buffer.set_protocol_error();
+                    MPI_Send(error_buffer.buffer.data(), error_buffer.buffer.size(), MPI_CHAR, status_recv.MPI_SOURCE, 4, MPI_COMM_WORLD);
+                    std::cerr << "egg: sent a PROTOCOL_ERROR reply to rank " << status_recv.MPI_SOURCE << "." << std::endl;
+                }
+                else
+                {
+                    std::cerr << "egg: message too small to even determine train vs. predict -- dropping it." << std::endl;
+                }
+
+                continue;
+            }
 
             // Train, add point to buffer
-            if (receiver.if_train()) 
+            if (receiver.if_train())
             {
                 // extract parameters
                 auto params = receiver.params();

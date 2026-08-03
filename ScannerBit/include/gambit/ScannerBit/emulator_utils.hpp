@@ -22,6 +22,13 @@ namespace Gambit
                 static const unsigned short int PREDICT = 0x0002;
                 static const unsigned short int RESULT = 0x0004;
                 static const unsigned short int NOT_VALID = 0x0008;
+                // Set on a RESULT reply when the request egg received was malformed/
+                // truncated (failed has_valid_header()), as opposed to NOT_VALID, which
+                // means the emulator legitimately declined to predict this point. Keeping
+                // these distinct means repeated protocol corruption shows up as its own
+                // loud, diagnosable condition instead of blending into routine
+                // emulator-uncertainty fallback.
+                static const unsigned short int PROTOCOL_ERROR = 0x0010;
 
                 typedef unsigned short int usint;
                 typedef unsigned int uint;
@@ -34,6 +41,19 @@ namespace Gambit
                 usint &dim()
                 {
                     return (usint &)buffer[sizeof(usint)];
+                }
+
+                // True if the buffer is large enough to safely read the flag+dim header,
+                // and (once dim() is known) large enough to hold the full dim-length
+                // sizes[] array the header declares. Must be checked before touching
+                // dim()/get_sizes()/data()/buffer_vector() on any buffer that came from
+                // the wire (MPI_Recv), since a truncated or malformed message would
+                // otherwise read out of bounds.
+                bool has_valid_header()
+                {
+                    if (buffer.size() < 2*sizeof(usint))
+                        return false;
+                    return buffer.size() >= 2*sizeof(usint) + (size_t)dim()*sizeof(uint);
                 }
 
                 uint &get_sizes(int i) // changed name of function
@@ -178,10 +198,12 @@ namespace Gambit
                 bool if_predict() {return PREDICT & flag();}
                 bool if_result() {return RESULT & flag();}
                 bool if_not_valid() {return NOT_VALID & flag();}
+                bool if_protocol_error() {return PROTOCOL_ERROR & flag();}
                 void set_train() { flag() = flag() | TRAIN;}
                 void set_predict() { flag() = flag() | PREDICT;}
                 void set_result() { flag() = flag() | RESULT;}
                 void set_not_valid() { flag() = flag() | NOT_VALID;}
+                void set_protocol_error() { flag() = flag() | PROTOCOL_ERROR;}
 
             };
 
