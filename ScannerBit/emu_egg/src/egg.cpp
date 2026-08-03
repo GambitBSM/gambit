@@ -58,6 +58,14 @@ int main(int argc, char *argv[])
     int* appnum;
     int flag;
     MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_APPNUM, &appnum, &flag);
+    if (!flag)
+    {
+        std::cerr << "egg: MPI_APPNUM is not set on this communicator. "
+                     "egg must be launched as part of an MPMD job (colon "
+                     "syntax, e.g. 'mpirun -n N gambit ... : -n M egg ...'). "
+                     "Aborting the whole MPI job." << std::endl;
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
     int my_process_color = 1+*appnum;
     
 
