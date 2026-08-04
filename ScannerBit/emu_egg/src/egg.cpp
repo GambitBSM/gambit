@@ -124,6 +124,11 @@ int main(int argc, char *argv[])
     IniParser::Parser iniFile;
     iniFile.readFile(filename);
 
+    // Check if user wants to disable use of MPI_Abort (mirrors gambit.cpp's
+    // reading of the same yaml key, so egg behaves consistently with the rest
+    // of the MPMD job on an emergency shutdown)
+    bool use_mpi_abort = iniFile.getValueOrDef<bool>(true, "use_mpi_abort");
+
     // get emulator node
     YAML::Node emulator_node = iniFile.getEmulationNode();
     str plugin_name = emulator_node["emulators"][capability]["plugin"].as<str>();
@@ -143,6 +148,9 @@ int main(int argc, char *argv[])
 
     // keep going until shutdown
     bool finished = false;
+    bool allow_finalize = true;
+    try
+    {
     while (!finished)
     {
         // Probe for incomming message with tag 3 ( 3 = train/predict )
@@ -164,13 +172,10 @@ int main(int argc, char *argv[])
             // resize receiver
             receiver.resize(receiver_size);
 
-            // recieve data (pinned to status.MPI_SOURCE, not MPI_ANY_SOURCE, so we
-            // can't accidentally match a differently-sized message from another sender)
+            // recieve data
             MPI_Recv(receiver.buffer.data(), receiver_size, MPI_CHAR, status.MPI_SOURCE, 3, MPI_COMM_WORLD, &status_recv);
 
-            // Malformed/truncated message: too small to safely read even the
-            // flag+dim header, let alone the sizes[] array it claims to have.
-            // Reading dim()/get_sizes()/params() below would be out-of-bounds.
+            // Malformed/truncated message:
             if (!receiver.has_valid_header())
             {
                 std::cerr << "egg: received a malformed/truncated message (" << receiver_size
@@ -178,13 +183,7 @@ int main(int argc, char *argv[])
                           << " -- too small to hold its own header." << std::endl;
 
                 // We can still tell train from predict as long as at least the flag
-                // itself is readable (2 bytes); a predict request must always get a
-                // reply (see bug #5: silently dropping one hangs the sender forever
-                // in a blocking receive), tagged PROTOCOL_ERROR so the sender can
-                // distinguish "your request was corrupt" from a routine NOT_VALID
-                // decline. A malformed train request has no reply channel to signal
-                // on (train is fire-and-forget by design) -- logging here is the best
-                // we can do.
+                // itself is readable (2 bytes); a predict request must always get a reply 
                 if (receiver.buffer.size() >= sizeof(unsigned short int) && receiver.if_predict())
                 {
                     std::vector<unsigned int> error_sizes = {0, 0, 0};
@@ -246,8 +245,15 @@ int main(int argc, char *argv[])
     ////// Shut down egg
     std::cout << "rank " << local_rank <<" got shut down" << std::endl;
     signaldata().broadcast_shutdown_signal(SignalData::NO_MORE_MESSAGES);
+    }
+    catch (const MPIShutdownException& e)
+    {
+        std::cerr << "egg: shutting down due to an emergency shutdown signal "
+                     "from another process: " << e.what() << std::endl;
+        allow_finalize = GMPI::PrepareForFinalizeWithTimeout(use_mpi_abort);
+    }
 
-    GMPI::Finalize();
+    if (allow_finalize) GMPI::Finalize();
 
     return 0;
 }
