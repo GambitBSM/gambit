@@ -136,6 +136,19 @@ namespace Gambit
                 && EmulatorMap::useEmulator
                 && EmulatorMap::mapping_ranks.find(name()) != EmulatorMap::mapping_ranks.end())
             {
+              // capabilities that needs loop managers and use threading cannot use the emulator system
+              if (this->needsLoopManager())
+              {
+                std::cerr << "GAMBIT: capability '" << name() << "' is both emulatable "
+                             "(START_FUNCTION_EMULATABLE) and requires a loop manager "
+                             "(NEEDS_MANAGER). Functions that need a loop manager cannot "
+                             "use the emulator system: the emulator's MPI calls are not "
+                             "safe under the concurrent OpenMP execution loop managers use "
+                             "to invoke their nested functors. Aborting the whole MPI job."
+                          << std::endl;
+                MPI_Abort(MPI_COMM_WORLD, 1);
+              }
+
               std::vector<double> input_vector;
               std::vector<double> prediction_vector;
               std::vector<double> prediction_uncertainty_vector;
