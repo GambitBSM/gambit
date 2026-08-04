@@ -329,15 +329,25 @@ int main(int argc, char* argv[])
         // _emu
         scanner_node["Emulator"] = iniFile.getEmulationNode();
 
-        // _emu make uncertainty map
+        // _emu make uncertainty and predict-timeout maps
         std::map<std::string, std::vector<double>> uncertainty_map;
+        std::map<std::string, double> timeout_map;
         for (const auto& pair : EmulatorMap::mapping_ranks)
         {
             str key = pair.first;
             std::vector<double> uncertainty = scanner_node["Emulator"]["emulators"][key]["uncertainty"].as<std::vector<double>>();
             uncertainty_map[key] = uncertainty;
+
+            // Optional per-capability override for how long to wait for a
+            // prediction reply before assuming the EGG rank has died/stalled;
+            // falls back to DEFAULT_PREDICT_TIMEOUT_SECONDS if not set in the
+            // YAML (e.g. for capabilities with a long prediction queue, where
+            // the default might otherwise fire on a merely-slow response).
+            YAML::Node timeout_node = scanner_node["Emulator"]["emulators"][key]["timeout"];
+            timeout_map[key] = timeout_node.IsDefined() ? timeout_node.as<double>() : EmulatorMap::DEFAULT_PREDICT_TIMEOUT_SECONDS;
         }
         EmulatorMap::mapping_uncertainty = uncertainty_map;
+        EmulatorMap::mapping_timeout = timeout_map;
 
         // Print scan metadata from rank 0
         if (iniFile.getValueOrDef<bool>(true, "print_metadata_info"))

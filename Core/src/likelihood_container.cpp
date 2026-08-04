@@ -241,10 +241,16 @@ namespace Gambit
         std::vector<double> predictions, uncertainty;
         bool emulator_not_valid = emulatorPredict("LogLike",parameters, predictions, uncertainty);
 
-        // log result
-        std::cout << "results from emu " << predictions[0] << " # " << uncertainty[0]  << std::endl;
-        if (debug) logger() << LogTags::core << "Results from emulator for lnLike: " << predictions[0] << ", " << uncertainty[0] << EOM;
-        logger() << "Emulator results for lnlike: " << predictions[0] << ", " << uncertainty[0] << EOM;
+        // log result. predictions/uncertainty are only guaranteed non-empty when
+        // emulator_not_valid is false -- see emulatorPredict's contract in
+        // emulator_functions.hpp -- so guard every access on that flag rather
+        // than indexing unconditionally.
+        if (!emulator_not_valid)
+        {
+          std::cout << "results from emu " << predictions[0] << " # " << uncertainty[0]  << std::endl;
+          if (debug) logger() << LogTags::core << "Results from emulator for lnLike: " << predictions[0] << ", " << uncertainty[0] << EOM;
+          logger() << "Emulator results for lnlike: " << predictions[0] << ", " << uncertainty[0] << EOM;
+        }
 
         // threshold to use this prediction and skip the rest
         emulatorValidPrediction = !emulator_not_valid && checkThreshold("LogLike", uncertainty);
@@ -253,7 +259,10 @@ namespace Gambit
             lnlike = predictions[0];
         }
         // print result
-        std::cout << "results from emu "<< predictions[0] << " # " <<  emulatorValidPrediction << std::endl;
+        if (!emulator_not_valid)
+        {
+          std::cout << "results from emu "<< predictions[0] << " # " <<  emulatorValidPrediction << std::endl;
+        }
 
         // logger stuff
         if (debug) logger() << LogTags::core << "Emulator evaluation done for lnlike. Accepted? " << emulatorValidPrediction << EOM;

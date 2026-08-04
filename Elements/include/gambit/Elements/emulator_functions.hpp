@@ -6,13 +6,8 @@
 #include <mpi.h>
 #include <time.h>
 #include "gambit/Core/emu_map.hpp"
+#include "gambit/Logs/logger.hpp"
 #include "gambit/ScannerBit/emulator_utils.hpp"
-
-// How long (in seconds) to wait for a prediction reply from an EGG rank before
-// concluding it has died/stalled and aborting the whole MPI job. Without this,
-// a crashed EGG rank (e.g. an uncaught exception in a plugin's train()) leaves
-// the requesting GAMBIT rank blocked forever on MPI_Probe with no diagnostic.
-static const double EMULATOR_PREDICT_TIMEOUT_SECONDS = 300.0;
 
 using namespace Gambit;
 using namespace Gambit::Scanner;
@@ -49,6 +44,14 @@ inline bool emulatorPredict(str capability_name, std::vector<double> input, std:
     // probe size of result buffer, polling with a timeout instead of blocking
     // forever: if the EGG rank handling this capability has died or stalled,
     // abort the whole job with a clear diagnostic instead of hanging silently.
+    // The timeout is per-capability (Emulation.emulators.<capability>.timeout
+    // in the YAML), since a capability with a long prediction queue may
+    // legitimately need far longer than the default before a reply arrives.
+    auto timeout_it = EmulatorMap::mapping_timeout.find(capability_name);
+    double predict_timeout_seconds = (timeout_it != EmulatorMap::mapping_timeout.end())
+                                          ? timeout_it->second
+                                          : EmulatorMap::DEFAULT_PREDICT_TIMEOUT_SECONDS;
+
     int size_result;
     MPI_Status status_parent;
     int probe_flag = 0;
@@ -59,17 +62,26 @@ inline bool emulatorPredict(str capability_name, std::vector<double> input, std:
         MPI_Iprobe(MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, &probe_flag, &status_parent);
         if (!probe_flag)
         {
-            if (MPI_Wtime() - wait_start > EMULATOR_PREDICT_TIMEOUT_SECONDS)
+            if (MPI_Wtime() - wait_start > predict_timeout_seconds)
             {
                 std::cerr << "GAMBIT: no prediction response for capability '" << capability_name
-                          << "' after " << EMULATOR_PREDICT_TIMEOUT_SECONDS << "s. The EGG rank(s) "
+                          << "' after " << predict_timeout_seconds << "s. The EGG rank(s) "
                              "handling this capability may have crashed or stalled. Aborting the "
-                             "whole MPI job." << std::endl;
+                             "whole MPI job. One can change the timeout limit in the emulator settings for the specific capability in the yaml file." << std::endl;
                 MPI_Abort(MPI_COMM_WORLD, 1);
             }
             nanosleep(&poll_interval, NULL);
         }
     }
+
+    // Store the wait time in the logs for diagnostics -- e.g. tuning a
+    // capability's 'timeout' setting, or spotting a capability that's
+    // consistently slow well before it ever gets close to timing out.
+    double predict_wait_seconds = MPI_Wtime() - wait_start;
+    logger() << LogTags::core << LogTags::debug << "Emulator prediction wait time for "
+                "capability '" << capability_name << "': " << predict_wait_seconds
+             << "s (reply from rank " << status_parent.MPI_SOURCE << ")." << EOM;
+
     MPI_Get_count(&status_parent, MPI_CHAR, &size_result);
     predict_results.resize(size_result);
 
@@ -80,34 +92,33 @@ inline bool emulatorPredict(str capability_name, std::vector<double> input, std:
     // Malformed/truncated reply: too small to safely hold its own header, let
     // alone the prediction/uncertainty vectors it claims to have. Reading
     // .prediction()/.prediction_uncertainty() below would be out-of-bounds.
+    // This means the wire protocol itself is broken (version skew, transport
+    // corruption) -- not something it's safe to silently fall back from, so
+    // abort the whole job rather than continue on possibly-corrupted state.
     if (!predict_results.has_valid_header())
     {
         std::cerr << "GAMBIT: *** PROTOCOL ERROR *** received a malformed/truncated "
                      "prediction reply (" << size_result << " bytes) from EGG rank "
                   << status_parent.MPI_SOURCE << " for capability '" << capability_name
                   << "'. This indicates a bug in the wire protocol, not a normal "
-                     "emulator decline -- treating as not-valid and falling back to "
-                     "the true function." << std::endl;
-        prediction.clear();
-        uncertainty.clear();
-        return true;
+                     "emulator decline -- aborting the whole MPI job." << std::endl;
+        MPI_Abort(MPI_COMM_WORLD, 1);
+        return true; // unreachable: MPI_Abort doesn't return, but isn't declared noreturn
     }
 
     // A PROTOCOL_ERROR reply means EGG itself received a malformed *request* from
     // us (see egg.cpp) -- distinct from NOT_VALID, which is the emulator
-    // legitimately declining to predict this point. Both fall back to the true
-    // function the same way, but PROTOCOL_ERROR gets a loud, distinctly-labeled
-    // message so repeated occurrences are diagnosable instead of blending into
-    // routine emulator-uncertainty logging. Its reply carries no prediction/
-    // uncertainty values, so don't index into them.
+    // legitimately declining to predict this point. Same reasoning as above:
+    // this is a wire-protocol bug, not a normal decline, so abort rather than
+    // silently fall back to the true function.
     if (predict_results.if_protocol_error())
     {
         std::cerr << "GAMBIT: *** PROTOCOL ERROR *** EGG rank " << status_parent.MPI_SOURCE
                   << " reported that our request for capability '" << capability_name
                   << "' was malformed. This indicates a bug in the wire protocol, not a "
-                     "normal emulator decline -- falling back to the true function."
-                  << std::endl;
-        return true;
+                     "normal emulator decline -- aborting the whole MPI job." << std::endl;
+        MPI_Abort(MPI_COMM_WORLD, 1);
+        return true; // unreachable: MPI_Abort doesn't return, but isn't declared noreturn
     }
 
     // results, translate from eigenvector to vector
@@ -123,6 +134,22 @@ inline bool emulatorPredict(str capability_name, std::vector<double> input, std:
         std::cout << "Emulator NOT VALID POINT: " << prediction[0] << ", " << uncertainty[0] << std::endl;
     }
 
+    // prediction/uncertainty can legitimately be empty here (e.g. a not_valid
+    // reply where the plugin/EGG didn't populate them) -- don't index into
+    // them unconditionally.
+    if (!prediction.empty() && !uncertainty.empty())
+    {
+        logger() << LogTags::core << LogTags::debug << "Emulator prediction for "
+                    "capability '" << capability_name << "': " << prediction[0] << ", with uncertainty "
+                 << uncertainty[0] << ", not_valid=" << not_valid << " (reply from rank "
+                 << status_parent.MPI_SOURCE << ")." << EOM;
+    }
+    else
+    {
+        logger() << LogTags::core << LogTags::debug << "Emulator prediction for "
+                    "capability '" << capability_name << "': <empty>, not_valid=" << not_valid
+                 << " (reply from rank " << status_parent.MPI_SOURCE << ")." << EOM;
+    }
     return not_valid;
 }
 
