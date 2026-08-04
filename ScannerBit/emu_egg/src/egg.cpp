@@ -221,17 +221,21 @@ int main(int argc, char *argv[])
                 unsigned short int flag = receiver.flag();
                 auto pred = plugin_interface(params, flag);
 
-                // make new buffer with size 0 for the input parameters
-                std::vector<unsigned int> sizes = {0, (unsigned int)pred.first.size(), (unsigned int)pred.second.size()};
-                Scanner::Emulator::feed_def answer_buffer(sizes);
-                answer_buffer.flag() = flag;
-                answer_buffer.set_result(); // always reply, even if the plugin declined to predict (NOT_VALID may also be set)
+                // if result is returned, send reply
+                if (flag & Scanner::Emulator::feed_def::RESULT)
+                {
+                    // make new buffer with size 0 for the input parameters
+                    std::vector<unsigned int> sizes = {0, (unsigned int)pred.first.size(), (unsigned int)pred.second.size()};
+                    Scanner::Emulator::feed_def answer_buffer(sizes);
+                    answer_buffer.flag() = flag;
+                    answer_buffer.set_result(); // always reply, even if the result is invalid
 
-                // populate answer_buffer
-                answer_buffer.add_for_result(pred.first, pred.second);
+                    // populate answer_buffer
+                    answer_buffer.add_for_result(pred.first, pred.second);
 
-                // send to process it arrived from ( tag 4 = results )
-                MPI_Send(answer_buffer.buffer.data(), answer_buffer.buffer.size(), MPI_CHAR, status_recv.MPI_SOURCE, 4, MPI_COMM_WORLD);
+                    // send to process it arrived from ( tag 4 = results )
+                    MPI_Send(answer_buffer.buffer.data(), answer_buffer.buffer.size(), MPI_CHAR, status_recv.MPI_SOURCE, 4, MPI_COMM_WORLD);
+                }
             }
         }
         
