@@ -241,13 +241,9 @@ namespace Gambit
         std::vector<double> predictions, uncertainty;
         bool emulator_not_valid = emulatorPredict("LogLike",parameters, predictions, uncertainty);
 
-        // log result. predictions/uncertainty are only guaranteed non-empty when
-        // emulator_not_valid is false -- see emulatorPredict's contract in
-        // emulator_functions.hpp -- so guard every access on that flag rather
-        // than indexing unconditionally.
+        // log emulator results if valid
         if (!emulator_not_valid)
         {
-          std::cout << "results from emu " << predictions[0] << " # " << uncertainty[0]  << std::endl;
           if (debug) logger() << LogTags::core << "Results from emulator for lnLike: " << predictions[0] << ", " << uncertainty[0] << EOM;
           logger() << "Emulator results for lnlike: " << predictions[0] << ", " << uncertainty[0] << EOM;
         }
@@ -257,11 +253,6 @@ namespace Gambit
         if (emulatorValidPrediction)
         {
             lnlike = predictions[0];
-        }
-        // print result
-        if (!emulator_not_valid)
-        {
-          std::cout << "results from emu "<< predictions[0] << " # " <<  emulatorValidPrediction << std::endl;
         }
 
         // logger stuff
