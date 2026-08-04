@@ -5,6 +5,7 @@
 
 #include <mpi.h>
 #include <time.h>
+#include <stdexcept>
 #include "gambit/Core/emu_map.hpp"
 #include "gambit/Logs/logger.hpp"
 #include "gambit/ScannerBit/emulator_utils.hpp"
@@ -14,6 +15,31 @@ using namespace Gambit::Scanner;
 using Gambit::Scanner::map_vector;
 using Gambit::Scanner::vector;
 
+
+// Looks up a capability's settings, aborting the whole MPI job with a clear,
+// capability-named diagnostic if it was never registered by any EGG rank
+// during the startup handshake (gambit.cpp's EGG rank-exchange loop). Every
+// current caller (functor_definitions.hpp, likelihood_container.cpp) already
+// guards on 'capabilities.find(name) != end()' before reaching here, so this
+// should never actually fire on the happy path -- it exists to fail loudly,
+// not silently default-insert an empty CapabilitySettings, if that guard is
+// ever missing on some future call path.
+inline EmulatorMap::CapabilitySettings& getCapabilitySettings(const str& capability_name)
+{
+    try
+    {
+        return EmulatorMap::capabilities.at(capability_name);
+    }
+    catch (const std::out_of_range&)
+    {
+        std::cerr << "GAMBIT: no emulator settings found for capability '" << capability_name
+                  << "'. This capability was never registered by any EGG rank during the "
+                     "startup handshake -- check the Emulation block in the yaml file and the "
+                     "EGG launch command line. Aborting the whole MPI job." << std::endl;
+        MPI_Abort(MPI_COMM_WORLD, 1);
+        throw; // unreachable: MPI_Abort doesn't return, but isn't declared noreturn
+    }
+}
 
 // Returns true if the emulator declined to give a valid prediction for this point
 // (in which case 'prediction'/'uncertainty' should not be trusted).
@@ -29,7 +55,7 @@ inline bool emulatorPredict(str capability_name, std::vector<double> input, std:
     fd_predict.set_predict();
 
     // find this capability's settings
-    EmulatorMap::CapabilitySettings& settings = EmulatorMap::capabilities[capability_name];
+    EmulatorMap::CapabilitySettings& settings = getCapabilitySettings(capability_name);
 
     // send to egg
     for ( auto rank : settings.ranks)
@@ -147,7 +173,7 @@ inline void emulatorTrain(str capability_name, std::vector<double> input, std::v
     fd.set_train();
 
     // find ranks to send to
-    const std::vector<int>& send_rank = EmulatorMap::capabilities[capability_name].ranks;
+    const std::vector<int>& send_rank = getCapabilitySettings(capability_name).ranks;
 
     // send to egg
     for ( auto rank : send_rank)
@@ -160,16 +186,27 @@ inline void emulatorTrain(str capability_name, std::vector<double> input, std::v
 
 inline bool checkThreshold(str capability_name, std::vector<double> uncertainty)
 {
-    const std::vector<double>& threshold = EmulatorMap::capabilities[capability_name].uncertainty;
+    const std::vector<double>& threshold = getCapabilitySettings(capability_name).uncertainty;
+
+    if (threshold.size() < uncertainty.size())
+    {
+        std::cerr << "GAMBIT: emulator uncertainty threshold for capability '" << capability_name
+                  << "' has " << threshold.size() << " entries configured in the yaml, but the "
+                     "prediction returned " << uncertainty.size() << " uncertainty value(s). "
+                     "Check the 'uncertainty' list under this capability's Emulation settings. "
+                     "Aborting the whole MPI job." << std::endl;
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
+
     bool valid_prediction = true;
     for (size_t j = 0; j<uncertainty.size(); ++j)
     {
-        if ((uncertainty[j] >= threshold.at(j)) || (uncertainty[j]==0))
+        if ((uncertainty[j] >= threshold[j]) || (uncertainty[j]==0))
         {
             valid_prediction = false;
         }
     }
-   
+
     return valid_prediction;
 }
 
