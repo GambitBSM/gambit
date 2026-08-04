@@ -150,10 +150,8 @@ int main(int argc, char* argv[])
         rank = scanComm.Get_rank();
         size = scanComm.Get_size();
 
-        //////// create map of plugins and their world ranks
-        std::map<std::string, std::vector<int>> rank_map;
-
-        // loop over all processes not belonging to gambit
+        // loop over all processes not belonging to gambit, collecting which
+        // EGG rank(s) handle which capability directly into EmulatorMap
         for ( int j = world_size-numberOfProcessesNotInGambit; j < world_size; ++j)
         {
             // get size of message
@@ -170,16 +168,14 @@ int main(int argc, char* argv[])
             auto [plugin_rank, plugin_name] = splitChar(my_string);
             delete [] my_string;
 
-            // add capability and ranks to map
-            rank_map[plugin_name].push_back(plugin_rank);
+            // add capability and rank to the emulator namespace
+            EmulatorMap::capabilities[plugin_name].ranks.push_back(plugin_rank);
             // std::cerr << "gambit rank " << rank << " recieved: plugin name " << plugin_name << ", and plugin master world rank " << plugin_rank << std::endl;
-            
+
             // set boolean when emulating LogLike
             if (plugin_name == "LogLike") { EmulatorMap::emulateLikelihood = true; }
         }
 
-        // add finished map to emulator namespace
-        EmulatorMap::mapping_ranks = rank_map;
         EmulatorMap::useEmulator = true;
       }
       // not use emulators
@@ -329,25 +325,20 @@ int main(int argc, char* argv[])
         // _emu
         scanner_node["Emulator"] = iniFile.getEmulationNode();
 
-        // _emu make uncertainty and predict-timeout maps
-        std::map<std::string, std::vector<double>> uncertainty_map;
-        std::map<std::string, double> timeout_map;
-        for (const auto& pair : EmulatorMap::mapping_ranks)
+        // _emu fill in the uncertainty threshold and predict-timeout for each
+        // capability whose ranks we already collected above
+        for (auto& pair : EmulatorMap::capabilities)
         {
-            str key = pair.first;
-            std::vector<double> uncertainty = scanner_node["Emulator"]["emulators"][key]["uncertainty"].as<std::vector<double>>();
-            uncertainty_map[key] = uncertainty;
+            const str& key = pair.first;
+            EmulatorMap::CapabilitySettings& settings = pair.second;
 
-            // Optional per-capability override for how long to wait for a
-            // prediction reply before assuming the EGG rank has died/stalled;
-            // falls back to DEFAULT_PREDICT_TIMEOUT_SECONDS if not set in the
-            // YAML (e.g. for capabilities with a long prediction queue, where
-            // the default might otherwise fire on a merely-slow response).
+            // uncertainty
+            settings.uncertainty = scanner_node["Emulator"]["emulators"][key]["uncertainty"].as<std::vector<double>>();
+
+            // timeout
             YAML::Node timeout_node = scanner_node["Emulator"]["emulators"][key]["timeout"];
-            timeout_map[key] = timeout_node.IsDefined() ? timeout_node.as<double>() : EmulatorMap::DEFAULT_PREDICT_TIMEOUT_SECONDS;
+            settings.timeout = timeout_node.IsDefined() ? timeout_node.as<double>() : EmulatorMap::DEFAULT_PREDICT_TIMEOUT_SECONDS;
         }
-        EmulatorMap::mapping_uncertainty = uncertainty_map;
-        EmulatorMap::mapping_timeout = timeout_map;
 
         // Print scan metadata from rank 0
         if (iniFile.getValueOrDef<bool>(true, "print_metadata_info"))

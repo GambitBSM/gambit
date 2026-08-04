@@ -134,7 +134,7 @@ namespace Gambit
 #ifdef WITH_MPI
             if (myEmulatorPointers != nullptr
                 && EmulatorMap::useEmulator
-                && EmulatorMap::mapping_ranks.find(name()) != EmulatorMap::mapping_ranks.end())
+                && EmulatorMap::capabilities.find(name()) != EmulatorMap::capabilities.end())
             {
               // capabilities that needs loop managers and use threading cannot use the emulator system
               if (this->needsLoopManager())
