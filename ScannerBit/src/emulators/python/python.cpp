@@ -156,6 +156,15 @@ emulator_plugin(python, version(1, 0, 0))
         Gambit::Scanner::Emulator::flag_wrapper in_flag(flag);
         py::tuple ret = predict_func(x, in_flag);
 
+        // The plugin must explicitly set flag.result = True to vouch for the values
+        // it returned. If it didn't (e.g. it declined to predict), don't trust or
+        // even try to cast whatever it handed back -- default to not_valid instead.
+        if (!in_flag.result())
+        {
+            in_flag.set_not_valid(true);
+            return std::make_pair(vector<double>::Zero(1), vector<double>::Zero(1));
+        }
+
         return std::make_pair(ret[0].cast<vector<double>>(), ret[1].cast<vector<double>>());
     }
 

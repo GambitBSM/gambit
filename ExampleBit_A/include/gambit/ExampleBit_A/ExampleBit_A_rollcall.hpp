@@ -164,7 +164,7 @@ START_MODULE
   #define CAPABILITY normaldist_loglike
   START_CAPABILITY
     #define FUNCTION lnL_gaussian
-    START_FUNCTION(double)
+    START_FUNCTION_EMULATABLE(double)
     ALLOW_MODELS(NormalDist)
     #undef FUNCTION
   #undef CAPABILITY

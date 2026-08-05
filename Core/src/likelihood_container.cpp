@@ -230,7 +230,7 @@ namespace Gambit
       //_emu predict
       bool emulatorValidPrediction = false;
       #ifdef WITH_MPI
-      if (EmulatorMap::useEmulator && EmulatorMap::mapping_ranks.find("LogLike") != EmulatorMap::mapping_ranks.end()) 
+      if (EmulatorMap::useEmulator && EmulatorMap::capabilities.find("LogLike") != EmulatorMap::capabilities.end()) 
       {
         if (debug) logger() << LogTags::core << "Prediction from emulator for lnlike started." << EOM;
         
@@ -239,21 +239,21 @@ namespace Gambit
         for (auto key : in) { parameters.push_back(key.second); }
 
         std::vector<double> predictions, uncertainty;
-        emulatorPredict("LogLike",parameters, predictions, uncertainty);
+        bool emulator_not_valid = emulatorPredict("LogLike",parameters, predictions, uncertainty);
 
-        // log result
-        std::cout << "results from emu " << predictions[0] << " # " << uncertainty[0]  << std::endl;
-        if (debug) logger() << LogTags::core << "Results from emulator for lnLike: " << predictions[0] << ", " << uncertainty[0] << EOM;
-        logger() << "Emulator results for lnlike: " << predictions[0] << ", " << uncertainty[0] << ", " << uncertainty[0] << EOM;
-        
+        // log emulator results if valid
+        if (!emulator_not_valid)
+        {
+          if (debug) logger() << LogTags::core << "Results from emulator for lnLike: " << predictions[0] << ", " << uncertainty[0] << EOM;
+          logger() << "Emulator results for lnlike: " << predictions[0] << ", " << uncertainty[0] << EOM;
+        }
+
         // threshold to use this prediction and skip the rest
-        emulatorValidPrediction = checkThreshold("LogLike", uncertainty);
+        emulatorValidPrediction = !emulator_not_valid && checkThreshold("LogLike", uncertainty);
         if (emulatorValidPrediction)
         {
             lnlike = predictions[0];
         }
-        // print result
-        std::cout << "results from emu "<< predictions[0] << " # " <<  emulatorValidPrediction << std::endl;
 
         // logger stuff
         if (debug) logger() << LogTags::core << "Emulator evaluation done for lnlike. Accepted? " << emulatorValidPrediction << EOM;
@@ -441,7 +441,7 @@ namespace Gambit
         
         //_emu train
         #ifdef WITH_MPI
-        if (EmulatorMap::useEmulator && EmulatorMap::mapping_ranks.find("LogLike") != EmulatorMap::mapping_ranks.end())
+        if (EmulatorMap::useEmulator && EmulatorMap::capabilities.find("LogLike") != EmulatorMap::capabilities.end())
         {
             if (debug) logger() << LogTags::core << "Sending training point to emulator for lnlike started " << EOM;
 

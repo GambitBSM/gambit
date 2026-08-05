@@ -43,6 +43,7 @@
 #include "gambit/Utils/mpiwrapper.hpp"
 #include "gambit/ScannerBit/emulator_utils.hpp"
 #include "gambit/Core/emu_map.hpp"
+#include "gambit/Elements/emulator_functions.hpp"
 namespace Gambit
 {
 
@@ -77,30 +78,68 @@ namespace Gambit
 
     //************************************************************
 
-    // TODO: Example emulator functions. For now they just print
-    //       Could avoid having to redefine for every emulatable module functor, but for now we just define them all
-    void nevents_pred_EmulatorTranslateInput(std::vector<double> & input)
+    void nevents_pred_EmulatorTranslateInput(std::vector<double>& input)
     {
-      std::cout << "HEY DEBUGGER. Inside nevents_pred_EmulatorTranslateInput function..." << std::endl;
       input = {*Pipes::nevents_pred::Dep::xsection};
+      std::cout << "[Emulator: nevents_pred] TranslateInput: xsection = " << input[0] << std::endl;
     }
 
-    bool nevents_pred_EmulatorCheckThreshold(str & name, std::vector<double> & uncertainty)
+    bool nevents_pred_EmulatorCheckThreshold(str& name, std::vector<double>& uncertainty)
     {
-      std::cout << "HEY DEBUGGER. Inside nevents_pred_EmulatorCheckThreshold function..." << std::endl;
+      #ifdef WITH_MPI
+      bool accept = checkThreshold(name, uncertainty);
+      std::cout << "[Emulator: " << name << "] CheckThreshold: uncertainty = " << uncertainty[0]
+                << " -> " << (accept ? "PREDICT" : "TRAIN") << std::endl;
+      return accept;
+      #else
       return false;
+      #endif
     }
 
-    void nevents_pred_EmulatorTranslateTarget(std::vector<double> & target, double & result, std::vector<double> & uncertainty)
+    void nevents_pred_EmulatorTranslateTarget(std::vector<double>& target, double& result, std::vector<double>& uncertainty)
     {
-      std::cout << "HEY DEBUGGER. Inside nevents_pred_EmulatorTranslateTarget function..." << std::endl;
       target = {result};
       uncertainty = {0.01};
+      std::cout << "[Emulator: nevents_pred] TrainPoint: result = " << result << std::endl;
     }
 
-    void nevents_pred_EmulatorTranslatePrediction(std::vector<double> & prediction, std::vector<double> & uncertainty, double & result)
+    void nevents_pred_EmulatorTranslatePrediction(std::vector<double>& prediction, std::vector<double>& uncertainty, double& result)
     {
-      std::cout << "HEY DEBUGGER. Inside nevents_pred_EmulatorTranslatePrediction function..." << std::endl;
+      result = prediction[0];
+      std::cout << "[Emulator: nevents_pred] Prediction: result = " << result << std::endl;
+    }
+
+    void lnL_gaussian_EmulatorTranslateInput(std::vector<double>& input)
+    {
+      double mu    = *Pipes::lnL_gaussian::Param["mu"];
+      double sigma = *Pipes::lnL_gaussian::Param["sigma"];
+      input = {mu, sigma};
+      std::cout << "[Emulator: lnL_gaussian] TranslateInput: mu = " << mu << ", sigma = " << sigma << std::endl;
+    }
+
+    bool lnL_gaussian_EmulatorCheckThreshold(str& name, std::vector<double>& uncertainty)
+    {
+      #ifdef WITH_MPI
+      bool accept = checkThreshold(name, uncertainty);
+      std::cout << "[Emulator: " << name << "] CheckThreshold: uncertainty = " << uncertainty[0]
+                << " -> " << (accept ? "PREDICT" : "TRAIN") << std::endl;
+      return accept;
+      #else
+      return false;
+      #endif
+    }
+
+    void lnL_gaussian_EmulatorTranslateTarget(std::vector<double>& target, double& result, std::vector<double>& uncertainty)
+    {
+      target = {result};
+      uncertainty = {0.01};
+      std::cout << "[Emulator: lnL_gaussian] TrainPoint: lnL = " << result << std::endl;
+    }
+
+    void lnL_gaussian_EmulatorTranslatePrediction(std::vector<double>& prediction, std::vector<double>& uncertainty, double& result)
+    {
+      result = prediction[0];
+      std::cout << "[Emulator: lnL_gaussian] Prediction: lnL = " << result << std::endl;
     }
 
 
@@ -112,79 +151,9 @@ namespace Gambit
       emu_args.push_back(*Pipes::nevents_pred::Dep::xsection);
     }
     void nevents_pred(double &result)
-    { 
-      std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << std::endl;
-
-      // _Anders
-      // This is mostly copied from the example in likelihood_container.cpp.
-      // Most of this should be hidden inside the module_functor class eventually.
-      // One thing we will need is a function that converts dependencies to emulator arguments.
-// #ifdef WITH_MPI
-//       if (EmulatorMap::useEmulator && EmulatorMap::mapping_ranks.find("nevents") != EmulatorMap::mapping_ranks.end())
-//       {
-//         // Convert dependencies to vector of emulator arguments
-//         // std::vector<double> emu_args;
-//         // emu_args_nevents_pred(emu_args);
-
-//         if (debug) logger() << LogTags::core << "Sending training point to emulator for lnlike started " << EOM;
-
-
-//         std::vector<double> emu_args;
-//         emu_args.push_back(3.14);
-//         // emu_args.push_back(0.14);
-
-//         // Set message size
-//         unsigned int n = emu_args.size();
-//         std::vector<unsigned int> sizes = {n, 1, 1};
-
-//         // make send-buffer
-//         Scanner::Emulator::feed_def fd_predict(sizes);
-//         fd_predict.add_for_evaluation(emu_args);
-//         fd_predict.set_predict();
-
-//         // send message
-//         std::cerr << "DEBUG: emu_args[0]: " << emu_args[0] << std::endl;
-//         std::cerr << "DEBUG: fd_predict.params()[0]: " << fd_predict.params()[0] << std::endl;
-//         // std::cerr << "DEBUG: fd_predict.params()[1]: " << fd_predict.params()[1] << std::endl;
-
-//         // find ranks to send to
-//         std::vector<int> send_rank = EmulatorMap::mapping_ranks["nevents"];
-
-//         // send to egg
-//         //
-//         for ( auto rank : send_rank)
-//         {
-//             MPI_Send(fd_predict.buffer.data(), fd_predict.buffer.size(), MPI_CHAR, rank, 3, MPI_COMM_WORLD);
-//         }
-
-//         if (debug) logger() << LogTags::core << "Sending training point to emulator for lnlike done." << EOM;
-
-//         // wait for prediction
-//         // prepare to get result from egg
-//         Scanner::Emulator::feed_def predict_results;
-
-//         // probe size of result buffer
-//         int size_result;
-//         MPI_Status status_parent;
-//         MPI_Probe(MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, &status_parent);
-//         MPI_Get_count(&status_parent, MPI_CHAR, &size_result);
-//         predict_results.resize(size_result);
-
-//         // recieve buffer
-//         MPI_Recv(predict_results.buffer.data(), size_result, MPI_CHAR, MPI_ANY_SOURCE, 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-//         // print result
-//         std::cout << "results from x "<< predict_results.prediction() << std::endl;
-//       }
-// #endif
-
-
-      static double count = 3.5; 
-      result = count++; 
-      cout << "My xsection dep: " << *Pipes::nevents_pred::Dep::xsection << endl;
+    {
+      result = 2.0 * (*Pipes::nevents_pred::Dep::xsection);
     }
-
-    // void nevents_pred      (double &result)    { static double count = 3.5; result = count++; cout << "My xsection dep: " << *Pipes::nevents_pred::Dep::xsection << endl;}
     void nevents_like      (double &result)    { result = 2.0 * (*Pipes::nevents_like::Dep::eventAccumulation); }
     void particle_identity (str    &result)    { result = "fakion"; }
 
@@ -212,7 +181,7 @@ namespace Gambit
 
     void test_sigma(double &result)
     {
-      result = 1.; //trivial test
+      result = *Pipes::test_sigma::Param["mu"];
     }
 
     void function_pointer_retriever( double(*&result)(int&) )

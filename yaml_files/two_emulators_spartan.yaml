@@ -1,0 +1,542 @@
+##########################################################################
+## GAMBIT configuration for an ultra-minimal scan of a toy model.
+##
+## Only needs ExampleBit_A and a scanner (either one of the built-ins like
+## the random sampler or TWalk, or an external like Diver, MultiNest,
+## GreAT or Polychord).
+## To run:
+## OMP_NUM_THREADS=1 mpirun -np 4 ./gambit -f yaml_files/two_emulators_spartan.yaml : -np 2 ./egg -c nevents_pred : -np 2 ./egg -c lnL_gaussian
+##########################################################################
+
+
+Parameters:
+  # In this example we will simply be fitting the mean and standard deviation of a normal distribution.
+  NormalDist:
+    # Example of using simple priors:
+    mu:
+      prior_type: flat
+      range: [15, 30]
+    sigma:
+      prior_type: flat
+      range: [0, 5]
+
+    # If using a more complicated prior specified in the 'Priors' section below,
+    # use the 'in_priors' keyword in this section:
+    # mu: in_priors
+    # sigma: in_priors
+
+
+Priors:
+
+  # None needed: simple priors are already specified in the 'Parameters' section above.
+
+  # If defining a more complicated prior, make sure to tag the relevant parameters with the
+  # keyword 'in_priors' in the 'Parameters' section above. Below is an example of a
+  # 2D gaussian prior for the two parameters 'mu' and 'sigma':
+  #
+  # my_prior:
+  #   parameters: ["NormalDist::mu", "NormalDist::sigma"]
+  #   prior_type: gaussian
+  #   mu: [18, 5]
+  #   cov_matrix: [[9.0, 0.0], [0.0, 1.0]]
+  #   # sigma: [3.0, 1]
+
+
+Printer:
+
+  # printer: sqlite
+  # options:
+  #   output_file: "results.sql"
+  #   table_name: "data"
+  #   buffer_length: 1000
+  #   delete_file_on_restart: true
+
+  # printer: hdf5
+  # options:
+  #   output_file: "results.hdf5"
+  #   group: "/data"
+  #   delete_file_on_restart: true
+  #   buffer_length: 1000
+  #   # disable_autorepair: true
+
+  # printer: hdf5_v1
+  # options:
+  #   output_file: "gambit_output.hdf5"
+  #   group: "/data"
+  #   delete_file_on_restart: true
+  #   disable_combine_routines: true
+
+  # printer: ascii
+  # options:
+  #   output_file: "results.dat"
+  #   buffer_length: 10
+  #   delete_file_on_restart: true
+  #   print_debug_data: true
+
+  printer: cout
+
+  # printer: none
+
+
+Scanner:
+
+  use_scanner: scipy_differential_evolution
+
+
+
+  scanners:
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1000
+
+    grid:
+      # plugin: pygrid
+      plugin: grid
+      #version: ">=1.0"
+      like: LogLike
+      grid_pts: [5, 3]
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 500
+      initial_guesses:
+        parameters: [NormalDist::sigma, NormalDist::mu]
+        values:
+        - [2.5, 25]
+        - [2, 24]
+        - [1.5, 22]
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 2000
+      #tol: 0.0001
+      tol: 0.1
+
+    mcmc:
+      plugin: great
+      like: LogLike
+      nTrialLists: 5
+      nTrials: 10000
+
+    twalk:
+      plugin: twalk
+      like: LogLike
+      sqrtR: 1.001
+
+    polychord:
+      plugin: polychord
+      like:  LogLike
+      print_parameters_in_native_output: true
+      tol: 0.1
+
+    pso:
+      plugin: jswarm
+      like:  LogLike
+      NP: 400
+      adaptive_phi: true
+      adaptive_omega: true
+      verbosity: 2
+
+    minuit2:
+      plugin: minuit2
+      like: LogLike
+      tolerance: 0.0001
+      precision: 0.0001
+      max_loglike_calls: 100000
+      max_iterations: 100000
+      algorithm: combined # simplex, combined, scan, fumili, bfgs, migrad
+      print_level: 1
+      strategy: 2
+      start:
+        NormalDist::mu: 25.
+        NormalDist::sigma: 2.5
+      step:
+        NormalDist::mu: 5.
+        NormalDist::sigma: 1.
+
+    scipy_basin_hopping:
+      like: LogLike
+      plugin: scipy_basin_hopping
+      # The run arguments below have been tested with scipy v1.9.
+      # Other versions might expect different arguments.
+      run:
+        # n_runs: 4
+        x0:
+          NormalDist::mu: 25.
+          NormalDist::sigma: 2.5
+        niter: 100
+        T: 1.0
+        stepsize: 0.5
+        minimizer_kwargs:
+          method: "L-BFGS-B"
+        interval: 50
+        disp: true
+        target_accept_rate: 0.5
+        stepwise_factor: 0.9
+
+    scipy_differential_evolution:
+      like: LogLike
+      plugin: scipy_differential_evolution
+      # The run arguments below have been tested with scipy v1.9.
+      # Other versions might expect different arguments.
+      run:
+        # n_runs: 4
+        strategy: 'best1bin'
+        maxiter: 1000
+        popsize: 15
+        tol: 0.01
+        mutation: [0.5, 1]
+        recombination: 0.7
+        disp: false
+        polish: true
+        init: 'latinhypercube'
+        atol: 0
+        updating: 'immediate'
+        x0:
+          NormalDist::mu: 25.
+          NormalDist::sigma: 2.5
+
+    scipy_direct:
+      like: LogLike
+      plugin: scipy_direct
+      # The run arguments below have been tested with scipy v1.9.
+      # Other versions might expect different arguments.
+      run:
+        # n_runs: 4
+        eps: 0.0001
+        # maxfun: 2000
+        maxiter: 1000
+        locally_biased: true
+        vol_tol: 1e-16
+        len_tol: 1e-6
+
+    scipy_dual_annealing:
+      like: LogLike
+      plugin: scipy_dual_annealing
+      # The run arguments below have been tested with scipy v1.9.
+      # Other versions might expect different arguments.
+      run:
+        # n_runs: 4
+        maxiter: 1000
+        initial_temp: 5230.0
+        restart_temp_ratio: 2.0e-5
+        visit: 2.62
+        accept: -5.0
+        maxfun: 10000000.0
+        no_local_search: false
+        x0:
+          NormalDist::mu: 25.
+          NormalDist::sigma: 2.5
+
+    scipy_shgo:
+      like: LogLike
+      plugin: scipy_shgo
+      # The run arguments below have been tested with scipy v1.9.
+      # Other versions might expect different arguments.
+      run:
+        split_param_space:
+          NormalDist::mu: 2
+          NormalDist::sigma: 2
+        n: 100
+        iters: 1
+        sampling_method: "sobol"  # "simplicial", "halton", "sobol"
+        minimizer_kwargs:
+          method: "SLSQP" # "SLSQP" "L-BFGS-B"
+          options:
+            ftol: 1e-12
+        options:
+          # maxfev:
+          # f_min:
+          # f_tol:
+          # maxiter:
+          # maxev:
+          # maxtime:
+          # minhgrd:
+          # jac: false  # Buggy in some scipy versions: https://github.com/scipy/scipy/issues/14533
+          minimize_every_iter: true
+          local_iter: false
+          infty_constraints: true
+          disp: false
+
+    scipy_minimize:
+      like: LogLike
+      plugin: scipy_minimize
+      # The run arguments below have been tested with scipy v1.9.
+      # Other versions might expect different arguments.
+      run:
+        # n_runs: 5
+        x0:
+          NormalDist::mu: 25.
+          NormalDist::sigma: 2.5
+        method: "L-BFGS-B"  # "Nelder-Mead", "Powell", "CG", "BFGS", "L-BFGS-B", "TNC", "COBYLA", "SLSQP", "trust-constr",
+        # jac: "2-point"      # "2-point", "3-point", "cs"
+        # hess: "2-point"     # "2-point", "3-point", "cs"
+        tol: 1e-6
+        options:
+          maxiter: 15000
+          disp: false
+
+    static_dynesty:
+      like: LogLike
+      pkg: gambit_dynesty
+      plugin: static_dynesty
+      pkl_name: "static_dynesty.pkl"
+      init:
+        nlive: 1000
+      run:
+        dlogz: 0.5
+        checkpoint_every: 60
+
+    dynamic_dynesty:
+      like: LogLike
+      plugin: dynamic_dynesty
+      pkg: gambit_dynesty
+      pkl_name: "dynamic_dynesty.pkl"
+      init:
+        nlive: 1000
+      run:
+        dlogz_init: 0.5
+        n_effective: 10000
+        checkpoint_every: 60
+
+    nessai:
+      like: LogLike
+      plugin: nessai_flow_sampler
+      pkg: gambit_nessai
+      #init:
+        #output: "nessai_log_dir"
+        #logger: true
+
+    nautilus:
+      like: LogLike
+      plugin: nautilus
+      #pkg: gambit_nautilus
+      run:
+        verbose: true
+
+    zeus:
+      like: LogLike
+      pkg: gambit_zeus
+      plugin: zeus
+      init:
+        nwalkers: 8
+      #run:
+        #nsteps: 20000
+        #filename: "zeus.h5"
+      SaveProgressCallback:
+        filename: zeus.h5
+        ncheck: 100
+
+    emcee:
+      like: LogLike
+      plugin: emcee
+      pkg: gambit_emcee
+      init:
+        nwalkers: 8
+      run:
+        nsteps: 20000
+        #filename: "emcee.h5"
+
+    pocomc:
+      like: LogLike
+      plugin: pocomc
+      #pkg: gambit_pocomc
+      #init:
+      #    nparticles: 1000
+
+    ultranest:
+      like: LogLike
+      pkg: gambit_ultranest
+      plugin: reactive_ultranest
+      #init:
+      run:
+        min_num_live_points: 1000
+        dlogz: 0.5
+
+    binminpy:
+      like: LogLike
+      plugin: binminpy
+      run:
+        n_bins:
+          # For any parameters not listed under 'n_bins' binminpy will assume a single bin
+          NormalDist::mu: 100
+          NormalDist::sigma: 100
+        # sampled_parameters: ["NormalDist::mu", "NormalDist::sigma"]  # By default parameters are optimized within each bin
+        sampler: "latinhypercube"
+        optimizer: "minimize"
+        optimizer_kwargs:
+          method: "L-BFGS-B"
+          tol: 1e-4
+        n_initial_points: 10
+        n_sampler_points_per_bin: 10
+        # accept_loglike_above: -30.0
+        accept_delta_loglike: 6.5
+        neighborhood_distance: 2
+        inherit_best_init_point_within_bin: False
+        n_optim_restarts_per_bin: 1
+        n_tasks_per_batch: 1
+        print_progress_every_n_batch: 100
+
+  
+
+
+ObsLikes:
+
+  - purpose:      LogLike
+    capability:   Example_lnL_A
+    module:       ExampleBit_A
+    type:         double
+
+  - purpose:      Observable
+    capability:   nevents
+    function:     nevents_pred
+    printisemulated: true
+
+  - purpose:      Observable
+    capability:   normaldist_loglike
+    function:     lnL_gaussian
+    printisemulated: true
+
+Emulation:
+
+  use_emulator:
+  - nevents_pred
+  - lnL_gaussian
+
+  emulators:
+    # 1D input (mu -> 2*mu). Splits quickly: small Nbar, retrain every 10.
+    nevents_pred:
+      plugin: pygptreeo
+      model_filename: nevents_pred_model.joblib
+      train: true
+      predict: true
+      uncertainty:
+        - 0.01
+      max_cache_size: 50
+      Nbar: 30
+      theta: 1e-4
+      split_position_method: median
+      split_dimension_criteria: max_variance
+      retrain_every_n_points: 10
+      use_calibrated_sigma: true
+      splitting_strategy: gradual
+      pre_trained: false
+
+    # 2D input (mu, sigma -> lnL). Larger Nbar, less frequent retraining.
+    lnL_gaussian:
+      plugin: pygptreeo
+      model_filename: lnL_gaussian_model.joblib 
+      train: true
+      predict: true
+      uncertainty:
+        - 0.01
+      max_cache_size: 50
+      Nbar: 50
+      theta: 1e-4
+      split_position_method: median
+      split_dimension_criteria: max_variance
+      retrain_every_n_points: 20
+      use_calibrated_sigma: true
+      splitting_strategy: gradual
+      pre_trained: false
+
+
+
+
+  # - capability:      LogLike
+  #   emulator_plugin: plugin_1
+  #   train:           true
+  #   predict:         true
+  #   plugin_options: # gambit bryr seg ikke om dette, bare sender det videre til emulatoren
+  #     ktrain: 200
+  #     pretrained: path
+  #     # ...
+  # # add more capabilities with different plugins
+  # # burde gå fint å starte flere ulike plugins i emu_egg
+  # - capability:      LogLike_A
+  #   emulator_plugin: plugin_2
+  #   train:           true
+  #   predict:         true
+  #   plugin_options: # gambit bryr seg ikke om dette, bare sender det videre til emulatoren
+  #     ktrain: 100
+  #     pretrained: path
+  #     # ...
+
+
+Rules:
+
+  # - if:
+  #     capability: normaldist_loglike
+  #   then:
+  #     options:
+  #       probability_of_validity: 1.0
+  #       use_emulator: plugin_1
+
+  - if:
+      capability: xsection
+      type: double
+    then:
+      module: ExampleBit_A
+      function: test_sigma
+
+Logger:
+
+  redirection:
+    [Default]      : "default.log"
+    #[ExampleBit_A] : "ExampleBit_A.log"
+    [Scanner]      : "Scanner.log"
+  debug: true
+
+KeyValues:
+
+  debug: false #true
+
+  default_output_path: "${PWD}/runs/spartan"
+
+  # An additional entry in the dataset and metadata, useful for identifying which
+  # points correspond to a given scan in combined datasets.
+  # The default is for print_scanID: true,
+  # and for it to print the date and time as an int of the form
+  # scanID: HourMinuteSecondMillisecond. This can be overwritten to any integer.
+  print_scanID: true
+  scanID: 1
+
+  rng:
+    generator: ranlux48
+    seed: -1
+
+  print_timing_data: true
+
+  print_unitcube: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+
+    # A 'likelihood modifier function' recieves as input the total
+    # log-likelihood value and outputs a modified log-likelihood which
+    # is then passed to the scanner. This can be used to make an adaptive
+    # scanner explore specific ranges of the total log-likelihood, e.g.
+    # log-likelihood values corresponding to a given 1D/2D confidence region.
+    # The default is to use the 'identity' modifier, which does nothing.
+    use_lnlike_modifier: identity
+    lnlike_modifiers:
+      # Assuming that the best-fit log-likelihood value is 0.0,
+      # the 'gaussian' or 'gaussian_plateau' settings below
+      # will encourage the scanner to explore parameter regions
+      # at the border of the 2-sigma confidence region in 2D
+      # (Delta lnlike = -3.09).
+      gaussian:
+        mu: -3.1
+        sigma: 0.5
+        # use_limit: lower
+        use_delta_lnlike: false
+      gaussian_plateau:
+        mu_dn: -3.2
+        sigma_dn: 0.5
+        mu_up: -3.0
+        sigma_up: 3.0
+        use_delta_lnlike: false

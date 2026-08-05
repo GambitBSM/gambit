@@ -45,7 +45,12 @@ int main(int argc, char *argv[])
             argsMap[key] = value;
         }
     }
-    else { std::cout << "Too few arguments: " << argc << " inputs, but 3 required" << std::endl; }
+    else
+    {
+        std::cerr << "egg: too few arguments (" << argc << " given, need at least "
+                     "'-c <CapabilityName>'). Aborting the whole MPI job." << std::endl;
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
 
     // Get plugin capability
     str capability = argsMap["-c"];
@@ -53,6 +58,14 @@ int main(int argc, char *argv[])
     int* appnum;
     int flag;
     MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_APPNUM, &appnum, &flag);
+    if (!flag)
+    {
+        std::cerr << "egg: MPI_APPNUM is not set on this communicator. "
+                     "egg must be launched as part of an MPMD job (colon "
+                     "syntax, e.g. 'mpirun -n N gambit ... : -n M egg ...'). "
+                     "Aborting the whole MPI job." << std::endl;
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
     int my_process_color = 1+*appnum;
     
 
@@ -111,6 +124,11 @@ int main(int argc, char *argv[])
     IniParser::Parser iniFile;
     iniFile.readFile(filename);
 
+    // Check if user wants to disable use of MPI_Abort (mirrors gambit.cpp's
+    // reading of the same yaml key, so egg behaves consistently with the rest
+    // of the MPMD job on an emergency shutdown)
+    bool use_mpi_abort = iniFile.getValueOrDef<bool>(true, "use_mpi_abort");
+
     // get emulator node
     YAML::Node emulator_node = iniFile.getEmulationNode();
     str plugin_name = emulator_node["emulators"][capability]["plugin"].as<str>();
@@ -130,6 +148,9 @@ int main(int argc, char *argv[])
 
     // keep going until shutdown
     bool finished = false;
+    bool allow_finalize = true;
+    try
+    {
     while (!finished)
     {
         // Probe for incomming message with tag 3 ( 3 = train/predict )
@@ -152,12 +173,37 @@ int main(int argc, char *argv[])
             receiver.resize(receiver_size);
 
             // recieve data
-            MPI_Recv(receiver.buffer.data(), receiver_size, MPI_CHAR, MPI_ANY_SOURCE, 3, MPI_COMM_WORLD, &status_recv); 
+            MPI_Recv(receiver.buffer.data(), receiver_size, MPI_CHAR, status.MPI_SOURCE, 3, MPI_COMM_WORLD, &status_recv);
 
-            // std::cout << " rank " << world_rank << " recieved: " << receiver.if_train() << " from " << status_recv.MPI_SOURCE << std::endl;
+            // Malformed/truncated message:
+            if (!receiver.has_valid_header())
+            {
+                std::cerr << "egg: received a malformed/truncated message (" << receiver_size
+                          << " bytes) from rank " << status_recv.MPI_SOURCE
+                          << " -- too small to hold its own header." << std::endl;
+
+                // We can still tell train from predict as long as at least the flag
+                // itself is readable (2 bytes); a predict request must always get a reply 
+                if (receiver.buffer.size() >= sizeof(unsigned short int) && receiver.if_predict())
+                {
+                    std::vector<unsigned int> error_sizes = {0, 0, 0};
+                    Scanner::Emulator::feed_def error_buffer(error_sizes);
+                    error_buffer.set_result();
+                    error_buffer.set_not_valid();
+                    error_buffer.set_protocol_error();
+                    MPI_Send(error_buffer.buffer.data(), error_buffer.buffer.size(), MPI_CHAR, status_recv.MPI_SOURCE, 4, MPI_COMM_WORLD);
+                    std::cerr << "egg: sent a PROTOCOL_ERROR reply to rank " << status_recv.MPI_SOURCE << "." << std::endl;
+                }
+                else
+                {
+                    std::cerr << "egg: message too small to even determine train vs. predict -- dropping it." << std::endl;
+                }
+
+                continue;
+            }
 
             // Train, add point to buffer
-            if (receiver.if_train()) 
+            if (receiver.if_train())
             {
                 // extract parameters
                 auto params = receiver.params();
@@ -174,19 +220,21 @@ int main(int argc, char *argv[])
                 unsigned short int flag = receiver.flag();
                 auto pred = plugin_interface(params, flag);
 
-                // make new buffer with size 0 for the input parameters
-                std::vector<unsigned int> sizes = {0, (unsigned int)pred.first.size(), (unsigned int)pred.second.size()};
-                Scanner::Emulator::feed_def answer_buffer(sizes);
-                answer_buffer.flag() = flag;
+                // if result is returned, send reply
+                if (flag & Scanner::Emulator::feed_def::RESULT)
+                {
+                    // make new buffer with size 0 for the input parameters
+                    std::vector<unsigned int> sizes = {0, (unsigned int)pred.first.size(), (unsigned int)pred.second.size()};
+                    Scanner::Emulator::feed_def answer_buffer(sizes);
+                    answer_buffer.flag() = flag;
+                    answer_buffer.set_result(); // always reply, even if the result is invalid
 
-                if (!answer_buffer.if_result()) {continue;} 
+                    // populate answer_buffer
+                    answer_buffer.add_for_result(pred.first, pred.second);
 
-                // populate answer_buffer
-                answer_buffer.add_for_result(pred.first, pred.second);
-
-
-                // send to process it arrived from ( tag 4 = results )
-                MPI_Send(answer_buffer.buffer.data(), answer_buffer.buffer.size(), MPI_CHAR, status_recv.MPI_SOURCE, 4, MPI_COMM_WORLD);
+                    // send to process it arrived from ( tag 4 = results )
+                    MPI_Send(answer_buffer.buffer.data(), answer_buffer.buffer.size(), MPI_CHAR, status_recv.MPI_SOURCE, 4, MPI_COMM_WORLD);
+                }
             }
         }
         
@@ -197,8 +245,15 @@ int main(int argc, char *argv[])
     ////// Shut down egg
     std::cout << "rank " << local_rank <<" got shut down" << std::endl;
     signaldata().broadcast_shutdown_signal(SignalData::NO_MORE_MESSAGES);
+    }
+    catch (const MPIShutdownException& e)
+    {
+        std::cerr << "egg: shutting down due to an emergency shutdown signal "
+                     "from another process: " << e.what() << std::endl;
+        allow_finalize = GMPI::PrepareForFinalizeWithTimeout(use_mpi_abort);
+    }
 
-    GMPI::Finalize();
+    if (allow_finalize) GMPI::Finalize();
 
     return 0;
 }

@@ -73,7 +73,8 @@ Ander's awesome gp emulator
         super().__init__()
 
         # Get filename and max cache size from kwargs
-        self.tree_filename = kwargs['default_output_path']+'pygptreeo_model.joblib'
+        model_filename = kwargs.get('model_filename', 'pygptreeo_model.joblib')
+        self.tree_filename = kwargs['default_output_path'] + model_filename
         self.max_cache_size = kwargs['max_cache_size']  # maximum number of points to cache before training
 
         # Read all GPT parameters from kwargs
@@ -211,11 +212,11 @@ Ander's awesome gp emulator
                     return ( y_pred[0], y_std[0])
                 except FloatingPointError as e:
                     print("Caught numerical issue:", e)
-                    flag.notvalid = True
+                    flag.not_valid = True
                     return (np.array([0]), np.array([0]))
                 except RuntimeWarning as e:
                     print("Caught RuntimeWarning as exception:", e)
-                    flag.notvalid = True
+                    flag.not_valid = True
                     return (np.array([0]), np.array([0]))
             else:
                 return (np.array([None]), np.array([None]))

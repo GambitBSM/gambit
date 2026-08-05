@@ -134,8 +134,21 @@ namespace Gambit
 #ifdef WITH_MPI
             if (myEmulatorPointers != nullptr
                 && EmulatorMap::useEmulator
-                && EmulatorMap::mapping_ranks.find(name()) != EmulatorMap::mapping_ranks.end())
+                && EmulatorMap::capabilities.find(name()) != EmulatorMap::capabilities.end())
             {
+              // capabilities that needs loop managers and use threading cannot use the emulator system
+              if (this->needsLoopManager())
+              {
+                std::cerr << "GAMBIT: capability '" << name() << "' is both emulatable "
+                             "(START_FUNCTION_EMULATABLE) and requires a loop manager "
+                             "(NEEDS_MANAGER). Functions that need a loop manager cannot "
+                             "use the emulator system: the emulator's MPI calls are not "
+                             "safe under the concurrent OpenMP execution loop managers use "
+                             "to invoke their nested functors. Aborting the whole MPI job."
+                          << std::endl;
+                MPI_Abort(MPI_COMM_WORLD, 1);
+              }
+
               std::vector<double> input_vector;
               std::vector<double> prediction_vector;
               std::vector<double> prediction_uncertainty_vector;
@@ -143,9 +156,9 @@ namespace Gambit
               std::cout << "in emu: " << name() << std::endl;
 
               this->myEmulatorPointers->TranslateInput(input_vector);
-              emulatorPredict(name(), input_vector, prediction_vector, prediction_uncertainty_vector);
+              bool emulator_not_valid = emulatorPredict(name(), input_vector, prediction_vector, prediction_uncertainty_vector);
               str myname = name();
-              emulated_pt = this->myEmulatorPointers->CheckThreshold(myname, prediction_uncertainty_vector);
+              emulated_pt = !emulator_not_valid && this->myEmulatorPointers->CheckThreshold(myname, prediction_uncertainty_vector);
               if (emulated_pt)
               {
                 std::cout << "mycheck is true!\n";

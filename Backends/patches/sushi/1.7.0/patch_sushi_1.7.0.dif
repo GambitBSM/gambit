@@ -43,8 +43,8 @@
  bbhnnlo: ${BBHNNLOOBJ}
  bbhdiff: ${BBHDIFFOBJ}
 --- /dev/null	2026-04-24 11:39:11.973366589 +0200
-+++ b/src/sushi/sushi_gambit_interface.f	2026-04-27 14:22:21.010116515 +0200
-@@ -0,0 +1,63 @@
++++ b/src/sushi/sushi_gambit_interface.f	2026-05-06 00:00:00.000000000 +0200
+@@ -0,0 +1,73 @@
 +C     GAMBIT interface subroutines for SusHi 1.7.0
 +C     Sets jfilein in SusHi common block and runs cross-section computation.
 +
@@ -63,7 +63,13 @@
 +      do i = 1, min(n, 60)
 +        jfilein(i:i) = fn(i)
 +      end do
-+      jfnameact = '/dev/null'
++C     Derive jfnameact from the input filename by stripping .slha extension.
++C     SusHi appends _murdep to jfnameact when muranalytic is true; the result
++C     must be a writable path.  '/dev/null' would produce '/dev/null_murdep'
++C     which does not exist and causes a runtime error.
++      jfnameact = jfilein
++      i = index(jfnameact, '.slha')
++      if (i .gt. 0) jfnameact(i:60) = ' '
 +      return
 +      end
 +C-}}}
@@ -91,7 +97,11 @@
 +      include '../commons/common-quark.f'
 +      include '../commons/common-int.f'
 +      include '../commons/common-ren.f'
-+      extflag = .true.
++C     Use extflag=.false. so initsushi reads the full SLHA file including
++C     the SUSHI block (energy, order, scale factors).  extflag=.true. is
++C     for FeynHiggs/2HDMC external-program mode and skips those reads,
++C     leaving murfacggh uninitialised (=0), which causes runalpha(mu=0).
++      extflag = .false.
 +      call initsushi(0)
 +      call cutssushi()
 +      call coresushi(0,
