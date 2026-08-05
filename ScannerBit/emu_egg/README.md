@@ -1,12 +1,13 @@
 
 # Introduction
 The emulator system in GAMBIT provides on-the-go training of machine learning models for expensive GAMBIT functions, in order to replace the real calculations with emulator predictions once the emulator is confident enough. 
-The emulator system runs alongside GAMBIT on separate MPI processes, and are launched at start up using MPMD (Multiple Program, Multiple Data). Each emulated capability launches a separate emulator executable called EGG, that runs python emulator plugins. 
+The system runs alongside GAMBIT on separate MPI processes, and are launched at startup using MPMD (Multiple Program, Multiple Data). Each emulated capability launches a separate emulator executable called EGG, that runs python emulator plugins. 
 
 The user can create new emulatable capabilities or make existing capabilities emulatable, as long as the capability does not require a loop manager (or can be run on several openMP threads). New emulators can be created by designing a python emulator plugin, as described below. 
 
 # Quick start examples
-### Full Likelihood emulation
+
+### Full likelihood emulation
 Emulating the full likelihood. Regardless of what module one uses, the likelihood as a whole can be emulated. This requires no additional functions, but is built into the framework, so any example inifile can be used in this example (most simple is the emulator_test_likelihood.yaml). To emulate the likelihood, we only needs to activate emulation by adding the emulator section in the inifile and running the correct commandline arguments.
 
 A minimal example of the yaml settings with the existing pygptreeo plugin is:
@@ -124,7 +125,7 @@ Each capability has to specify the plugin, whether its training, predicting or h
 It is also possible to specify a timeout, where the default is 300s, where the run shuts down if there is no reply from the emulator side. This is to ensure that freezes in the emulator framework or miscommunication with the main processes causes the entire run to abort.
 
 
-# Making capabilties emu-able
+# Making capabilties emulatable
 
 To declare a gambit function as emulatable for a given capability, the macro START_FUNCTION_EMULATABLE(return type) within the rollcall header entry is required (as opposed to the standard START_FUNCTION(return type) declaratation).
 
@@ -135,15 +136,15 @@ To declare a gambit function as emulatable for a given capability, the macro STA
 ```
 This will expand to declare functions for translating between emulator and capability inputs, and to threshold functions used to determine whether the emulator prediction satisfies uncertainty requirements.
 
-## Defining Translation functions
+## Defining translation functions
 The emulators only accept input in the form of vectors of doubles. If the input to the capability is of a different form, for example a set of different values, the user needs to define a translation function for converting from whichever format into a vector of doubles. This should be defined in the module namespace as ```capability_EmulatorTranslateInput(std::vector<double> &input)```. 
 
 The predicted output for the capability is also a vector of doubles, and requires a translation function to the capability's output format. This is defined in the module namespace as a function called ```capability_EmulatorTranslatePrediction(std::vector<double>& prediction, std::vector<double>& uncertainty, type& result)```, which takes the prediction and prediction uncertainty, and insert the values into the correct format in ```results```.  
 
 During training both the input and the target value (with uncertainty) needs to be translated before sending it to the emulator training function. The function ``` capability_EmulatorTranslateTarget(std::vector<double>& target, type& result, std::vector<double>& uncertainty)```, takes the result from the capability evaluation (with uncertainty if possible), and insert it into a target vector of doubles. 
 
-## Defining Threshold function (optional)
-The function for accepting or rejecting the emulator prediction can also be user specified, but there is a default threshold function which automatically checks the uncertainty of the prediction to the uncertainty threshold specified in the yaml file. 
+## Defining a threshold function (optional)
+The function for accepting or rejecting the emulator prediction can also be user specified, but there is a default threshold function which automatically compares the uncertainty of the prediction to the uncertainty threshold specified in the yaml file. 
 
 To create a threshold function for a capabilty, the module namespace must include a function called ```capability_EmulatorCheckThreshold(str& name, std::vector<double>& uncertainty)```. The name of the capability has to be taken as an input in order to access the correct uncertainty threshold from the inifile, as well as the prediction uncertainty.
 
@@ -156,7 +157,7 @@ The internal usage of the allocated MPI processes for EGG is determined mainly b
 
 **On the GAMBIT side, exactly one prediction is expected.** If none arrive, then the process wait for a timeout period before shutting down the entire run. If two arrives, then the second prediction will be queued until that same GAMBIT rank requests a prediction next time, and will cause failure/desyncronization. A flag that has to be set in the emulator plugin to determine which rank should send the message back to GAMBIT, which is checked in EGG. If the flag is set for more than one process, this will double-stack the predictions silently since there are currently no checks to avoid this. 
 
-## Python Plugin
+## Python plugin
 When designing a python emulator plugin, the plugin needs to include two main functions: *train* and *predict*.
 
 The ```train``` function has to receive the input parameters, the training target (evaluated function output), the uncertainty of the training target and a flag. The function does not return anything, and GAMBIT is not expecting any reply. 
