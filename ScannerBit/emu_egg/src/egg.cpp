@@ -1,5 +1,6 @@
 #include <mpi.h>
 #include <csignal>
+#include <getopt.h>
 // #include "egg.hpp"
 #include "gambit/ScannerBit/py_module.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
@@ -21,6 +22,25 @@ using namespace Gambit::Scanner;
 using Gambit::Scanner::map_vector;
 using Gambit::Scanner::vector;
 
+/// Print egg's usage information (mirrors gambit's own -h/--help output in Core/src/core.cpp)
+void egg_bail(int rank)
+{
+    if (rank == 0)
+    {
+        std::cout << "\nusage: egg -c <CapabilityName> [options]                                   "
+                     "\n                                                                           "
+                     "\negg is the emulator-side MPI process launched alongside the gambit          "
+                     "\nexecutable as part of an MPMD job (colon syntax), e.g.:                     "
+                     "\n   mpirun -n N gambit -f <inifile> : -n M egg -c <CapabilityName>           "
+                     "\n                                                                           "
+                     "\nOptions:                                                                   "
+                     "\n   -c/--capability <name>   Name of the capability this egg instance        "
+                     "\n                              trains/predicts for (required)                "
+                     "\n   -h/--help                Display this usage information                 "
+                     "\n" << std::endl;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     //////////// Initializing ///////////////////
@@ -34,26 +54,44 @@ int main(int argc, char *argv[])
     errorComm.mytag = ERROR_TAG;
     signaldata().set_MPI_comm(&errorComm);
 
-    /////// Read yaml file and capability
-    // read terminal input and extract capability and yaml file
-    std::unordered_map<str, str> argsMap;
-    if ( argc >= 3) {
-        for (int i = 1; i < argc; i += 2) 
+    /////// Parse command line options (mirrors gambit's own getopt_long usage in Core/src/core.cpp)
+    str capability;
+    bool found_capability = false;
+
+    const struct option egg_options[] = {
+        {"capability", required_argument, 0, 'c'},
+        {"help",       no_argument,       0, 'h'},
+        {0, 0, 0, 0},
+    };
+
+    int egg_rank = GMPI::Comm().Get_rank();
+    int iarg = 0;
+    int index;
+    while (iarg != -1)
+    {
+        iarg = getopt_long(argc, argv, "c:h", egg_options, &index);
+        switch (iarg)
         {
-            str key = argv[i];
-            str value = argv[i + 1];
-            argsMap[key] = value;
+        case 'c':
+            capability = optarg;
+            found_capability = true;
+            break;
+        case 'h':
+            egg_bail(egg_rank);
+            GMPI::Finalize();
+            return 0;
+        case '?':
+            egg_bail(egg_rank);
+            MPI_Abort(MPI_COMM_WORLD, 1);
         }
     }
-    else
+
+    if (!found_capability)
     {
-        std::cerr << "egg: too few arguments (" << argc << " given, need at least "
-                     "'-c <CapabilityName>'). Aborting the whole MPI job." << std::endl;
+        std::cerr << "egg: missing required argument '-c <CapabilityName>'. Aborting the whole MPI job." << std::endl;
+        egg_bail(egg_rank);
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
-
-    // Get plugin capability
-    str capability = argsMap["-c"];
 
     int* appnum;
     int flag;
