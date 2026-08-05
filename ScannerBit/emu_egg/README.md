@@ -4,7 +4,7 @@ short
 
 # Quick start examples
 ### Full Likelihood emulation
-Emulating the full likelihood. Regardless of what module one uses, the likelihood as a whole can be emulated. This requires no additional functions, but is built into the framework, so any example inifile can be used in this example (most simple is the spartant.yaml). To emulate the likelihood, we only needs to activate emulation by adding the emulator section in the inifile and running the correct commandline arguments.
+Emulating the full likelihood. Regardless of what module one uses, the likelihood as a whole can be emulated. This requires no additional functions, but is built into the framework, so any example inifile can be used in this example (most simple is the emulator_test_likelihood.yaml). To emulate the likelihood, we only needs to activate emulation by adding the emulator section in the inifile and running the correct commandline arguments.
 
 A minimal example of the yaml settings with the existing pygptreeo plugin is:
 ```yaml
@@ -16,11 +16,13 @@ Emulation:
   emulators:
     LogLike:
       plugin: pygptreeo
-      model_filename: loglike_pred_model.joblib
       train: true
       predict: true
       uncertainty:
         - 0.01
+      pre_trained: false
+      timeout: 300
+      # plugin settings:
       max_cache_size: 50
       Nbar: 30
       theta: 1e-4
@@ -29,17 +31,17 @@ Emulation:
       retrain_every_n_points: 10
       use_calibrated_sigma: true
       splitting_strategy: gradual
-      pre_trained: false
-      timeout: 300
+      model_filename: loglike_pred_model.joblib
+      
 ```
 
 To run the spartan example with only emulating the likelihood, one can use the following command:
 ``` bash
-mpirun -np 4 ./gambit -f yaml_files/emulation_test_likelihood.yaml : -np 2 ./egg -c LogLike
+mpirun -np 4 ./gambit -f yaml_files/emulator_test_likelihood.yaml : -np 2 ./egg -c LogLike
 ```
 
 ### Two emulated capabilities example
-Emulation of one or more physics capabilities require the implementation of [emulation functions](#Makeing-capabilities-emu-able). A simple example using the ExampleBit_A module to emulate two capabilities is already implemented in the module. 
+Emulation of one or more physics capabilities requires the implementation of [emulation functions](#Makeing-capabilities-emu-able). A simple example using the ExampleBit_A module to emulate two capabilities is already implemented in the module. 
 The two capabilities *nevents_pred* and *lnL_gaussian* are implemented, and in this example they both use the same example pygptreeo emulator plugin as in the likelihood example. Each emulatable capability needs its own block with emulator settings, and can be specified in the following way:
 
 ```yaml
@@ -99,7 +101,7 @@ Emulation:
       predict: true/false
       uncertainty:
         - 0.01
-      timeout: 300s
+      timeout: 300
       plugin_settings: ...
 
     capability2: 
@@ -109,7 +111,7 @@ Emulation:
       predict: true/false
       uncertainty:
         - 0.01
-      timeout: 300s
+      timeout: 300 
       plugin_settings: ...
 
 ```
@@ -128,7 +130,7 @@ To declare a gambit function as emulatable for a given capability, the macro STA
     START_FUNCTION_EMULATABLE(double)      // This function calculates a double precision variable
   #undef FUNCTION
 ```
-This will expand to declare functions for translating between emulator and capability inputs, and to threshold functions used to determine whther the emulator prediction is satisfies uncertainty requirements.
+This will expand to declare functions for translating between emulator and capability inputs, and to threshold functions used to determine whether the emulator prediction satisfies uncertainty requirements.
 
 ## Defining Translation functions
 The emulators only accept input in the form of vectors of doubles. If the input to the capability is of a different form, for example a set of different values, the user needs to define a translation function for converting from whichever format into a vector of doubles. This should be defined in the module namespace as ```capability_EmulatorTranslateInput(std::vector<double> &input)```. 
