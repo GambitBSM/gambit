@@ -45,7 +45,7 @@ mpirun -np 4 ./gambit -f yaml_files/emulator_test_likelihood.yaml : -np 2 ./egg 
 ```
 
 ### Two emulated capabilities example
-Emulation of one or more physics capabilities requires the implementation of [emulation functions](#Makeing-capabilities-emu-able). A simple example using the ExampleBit_A module to emulate two capabilities is already implemented in the module. 
+Emulation of one or more physics capabilities requires the implementation of *translation functions*, as described [below](#Makeing-capabilities-emu-able). A simple example using the ExampleBit_A module to emulate two capabilities is already implemented in the module. 
 The two capabilities *nevents_pred* and *lnL_gaussian* are implemented, and in this example they both use the same example pygptreeo emulator plugin as in the likelihood example. Each emulatable capability needs its own block with emulator settings, and can be specified in the following way:
 
 ```yaml
