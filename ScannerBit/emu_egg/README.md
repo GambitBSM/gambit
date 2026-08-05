@@ -3,7 +3,7 @@
 short
 
 # quick start example
-### Full Likelihood
+### Full Likelihood emulation
 Emulating the full likelihood. Regardless of what module one uses, the likelihood as a whole can be emulated. This requires no additional functions, but is built into the framework, so any example inifile can be used in this example (most simple is the spartant.yaml). To emulate the likelihood, we only needs to activate emulation by adding the emulator section in the inifile and running the correct commandline arguments.
 
 A minimal example of the yaml settings with the existing pygptreeo plugin is:
@@ -36,6 +36,33 @@ Emulation:
 To run the spartan example with only emulating the likelihood, one can use the following command:
 ``` bash
 mpirun -np 4 ./gambit -f yaml_files/emulation_test_likelihood.yaml : -np 2 ./egg -c LogLike
+```
+
+### Two emulated capabilities example
+Emulation of one or more physics capabilities require the implementation of [emulation functions](#Makeing-capabilities-emu-able). A simple example using the ExampleBit_A module to emulate two capabilities is already implemented in the module. 
+The two capabilities *nevents_pred* and *lnL_gaussian* are implemented, and in this example they both use the same example pygptreeo emulator plugin as in the likelihood example. Each emulatable capability needs its own block with emulator settings, and can be specified in the following way:
+
+```yaml
+
+Emulation:
+
+  use_emulator:
+  - nevents_pred
+  - lnL_gaussian
+
+  emulators:
+    nevents_pred:
+      plugin: pygptreeo
+      ...
+    lnL_gaussian:
+      plugin: pygptreeo
+      ...
+
+```
+
+To run the example with two capabilities emulated at the same time, one can use the following command:
+```bash
+mpirun -np 4 ./gambit -f yaml_files/two_emulators_spartan.yaml : -np 2 ./egg -c nevents_pred : -np 2 ./egg -c lnL_gaussian
 ```
 
 # Running emus
