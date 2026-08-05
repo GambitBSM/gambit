@@ -131,7 +131,17 @@ To declare a gambit function as emulatable for a given capability, the macro STA
 This will expand to declare functions for translating between emulator and capability inputs, and to threshold functions used to determine whther the emulator prediction is satisfies uncertainty requirements.
 
 ## Defining Translation functions
+The emulators only accept input in the form of vectors of doubles. If the input to the capability is of a different form, for example a set of different values, the user needs to define a translation function for converting from whichever format into a vector of doubles. This should be defined in the module namespace as ```capability_EmulatorTranslateInput(std::vector<double> &input)```. 
+
+The predicted output for the capability is also a vector of doubles, and requires a translation function to the capability's output format. This is defined in the module namespace as a function called ```capability_EmulatorTranslatePrediction(std::vector<double>& prediction, std::vector<double>& uncertainty, type& result)```, which takes the prediction and prediction uncertainty, and insert the values into the correct format in ```results```.  
+
+During training both the input and the target value (with uncertainty) needs to be translated before sending it to the emulator training function. The function ``` capability_EmulatorTranslateTarget(std::vector<double>& target, type& result, std::vector<double>& uncertainty)```, takes the result from the capability evaluation (with uncertainty if possible), and insert it into a target vector of doubles. 
+
 ## Defining Threshold function (optional)
+The function for accepting or rejecting the emulator prediction can also be user specified, but there is a default threshold function which automatically checks the uncertainty of the prediction to the uncertainty threshold specified in the yaml file. 
+
+To create a threshold function for a capabilty, the module namespace must include a function called ```capability_EmulatorCheckThreshold(str& name, std::vector<double>& uncertainty)```. The name of the capability has to be taken as an input in order to access the correct uncertainty threshold from the inifile, as well as the prediction uncertainty.
+
 
 # making emu
 ## overview
