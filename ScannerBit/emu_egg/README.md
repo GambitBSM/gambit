@@ -154,11 +154,11 @@ The internal usage of the allocated MPI processes for EGG is determined mainly b
 ## Python Plugin
 When designing a python emulator plugin, the plugin needs to include two main functions: *train* and *predict*.
 
-The ```train`` function has to receive the input parameters, the training target (evaluated function output), the uncertainty of the training target and a flag. The function does not return anything, and GAMBIT is not expecting any reply. 
+The ```train``` function has to receive the input parameters, the training target (evaluated function output), the uncertainty of the training target and a flag. The function does not return anything, and GAMBIT is not expecting any reply. 
 
 The ```predict``` function has to receive the input parameters only and a flag. If the specified rank does perform the prediction, then the flag has to be set to true in order to trigger a prediction reply in the EGG. The ```predict``` function has to return a vector of doubles for the prediction results and one vector of doubles for the uncertainty. If the prediction is invalid or NaN, a flag is returned to GAMBIT identifying the invalidity, and that flag can be set inside the plugin, but will automatically be added to the MPI message if the resulting prediction is NaN/inf. 
 
-In both the ```train`` and ```predict`` functions, the plugin designer can decide how the MPI processes are utilized. In the example ```pygptreeo```plugin, the rank 0 is used for prediction and rank 1 for training, if the emulator is run with 2 processes for the EGG. If the EGG only has one process, then that process will do both training and prediction. Future work includes making a emulator plugin with master-worker patterns, but it should be possible without too much hassle. 
+In both the ```train``` and ```predict``` functions, the plugin designer can decide how the MPI processes are utilized. In the example ```pygptreeo```plugin, the rank 0 is used for prediction and rank 1 for training, if the emulator is run with 2 processes for the EGG. If the EGG only has one process, then that process will do both training and prediction. Future work includes making a emulator plugin with master-worker patterns, but it should be possible without too much hassle. 
 
 Examples of a minimal plugin set-up:
 ```py
