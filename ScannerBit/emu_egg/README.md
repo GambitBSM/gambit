@@ -2,7 +2,7 @@
 # Introduce
 short
 
-# quick start example
+# Quick start examples
 ### Full Likelihood emulation
 Emulating the full likelihood. Regardless of what module one uses, the likelihood as a whole can be emulated. This requires no additional functions, but is built into the framework, so any example inifile can be used in this example (most simple is the spartant.yaml). To emulate the likelihood, we only needs to activate emulation by adding the emulator section in the inifile and running the correct commandline arguments.
 
@@ -66,9 +66,23 @@ mpirun -np 4 ./gambit -f yaml_files/two_emulators_spartan.yaml : -np 2 ./egg -c 
 ```
 
 # Running emus
-## comandline
-## MPI commdline
-## inifile
+In order to use emulation on already emulatable capabilities, one needs to construct the commandline arguments including specifying MPI configuration and constructing the emulator section of the yaml/inifile.
+
+## Commandline arguments
+
+The emulator system is MPI parallelized using MPMD (Multiple Program, Multiple Data) launch syntax, using the colon syntax ```mpirun -np N1 ./executable1 : -np N2 ./executable2```. This means that the executables are launched separately with a specified number of MPI processes for each of the executables. No new processes are spawned for the emulators, they are allocated at start-up. 
+
+The emulator system is designed to work with 1 or more MPI processes, regardless of the number of MPI processes of the main GAMBIT exectutable. The design of the emulator plugin decides how the MPI processes of the emulator is utilized, but a typical setup is one MPI process for training the emulator and one for prediction. 
+
+One executable has to be launched for each different capability one wish to emulate. In order for the emulator executables to know which capability they are emulating the capability has to be specified in the commandline in the following way:
+```bash
+mpirun -np N ./gambit ... : -np N1 ./egg -c <capability_name1> : -np N2 ./egg -c <capability_name2>
+```
+
+Help can be found by running ```./egg -h```.
+
+## Inifile (yaml setup)
+The inifile has to include emulator specific setting. 
 
 # Making capabilties emu-able
 
