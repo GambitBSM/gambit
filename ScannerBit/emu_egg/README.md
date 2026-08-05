@@ -82,7 +82,42 @@ mpirun -np N ./gambit ... : -np N1 ./egg -c <capability_name1> : -np N2 ./egg -c
 Help can be found by running ```./egg -h```.
 
 ## Inifile (yaml setup)
-The inifile has to include emulator specific setting. 
+The inifile has to include emulator specific setting for each capability. A separate *Emulator* block in the yaml file specifies which capabilities are to be emulated and the settings of the emulator plugin specifically for that capability. 
+
+The general set-up of such a inifile section is as follows:
+```yaml
+Emulation:
+  use_emulator:
+  - capability1
+  - capability2
+
+  emulators:
+    capability1:
+      plugin: plugin_name
+      train: true/false
+      pre_trained: true/false
+      predict: true/false
+      uncertainty:
+        - 0.01
+      timeout: 300s
+      plugin_settings: ...
+
+    capability2: 
+      plugin: plugin_name
+      train: true/false
+      pre_trained: true/false
+      predict: true/false
+      uncertainty:
+        - 0.01
+      timeout: 300s
+      plugin_settings: ...
+
+```
+
+Each capability has to specify the plugin, whether its training, predicting or has a pre-trained emulator. One also has to specify the uncertainty threshold for the capability, with one uncertainty for each value emulated. For capabilities with more than one output, one has to specify the uncertainty for both values. **OBS: what do we do if only one output is accepted?**
+
+It is also possible to specify a timeout, where the default is 300s, where the run shuts down if there is no reply from the emulator side. This is to ensure that freezes in the emulator framework or miscommunication with the main processes causes the entire run to abort.
+
 
 # Making capabilties emu-able
 
