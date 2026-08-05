@@ -1,6 +1,9 @@
 
-# Introduce
-short
+# Introduction
+The emulator system in GAMBIT provides on-the-go training of machine learning models for expensive GAMBIT functions, in order to replace the real calculations with emulator predictions once the emulator is confident enough. 
+The emulator system runs alongside GAMBIT on separate MPI processes, and are launched at start up using MPMD (Multiple Program, Multiple Data). Each emulated capability launches a separate emulator executable called EGG, that runs python emulator plugins. 
+
+The user can create new emulatable capabilities or make existing capabilities emulatable, as long as the capability does not require a loop manager (or can be run on several openMP threads). New emulators can be created by designing a python emulator plugin, as described below. 
 
 # Quick start examples
 ### Full Likelihood emulation
