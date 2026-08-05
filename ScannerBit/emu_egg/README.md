@@ -143,7 +143,13 @@ The function for accepting or rejecting the emulator prediction can also be user
 To create a threshold function for a capabilty, the module namespace must include a function called ```capability_EmulatorCheckThreshold(str& name, std::vector<double>& uncertainty)```. The name of the capability has to be taken as an input in order to access the correct uncertainty threshold from the inifile, as well as the prediction uncertainty.
 
 
-# making emu
-## overview
+# Making emulators
+## Overview
+The emulator executable is called EGG (full name), and is the interface between GAMBIT and the emulator system. EGG receives messages from the GAMBIT MPI processes, evaluates the requests using the emulator plugins and sends the predictions from the emulators back to the same process. The plugin is connected to the EGG through a C interface, since the plugins are Python based.
+
+The internal usage of the allocated MPI processes for EGG is determined mainly by the plugins. The emulator system is designed so that all MPI processes corresponding to one capability's EGG receives the predict/train message, and the plugin decides what those MPI processes do internally. The most simple system is a 2 process EGG, with one process dedicated to training and one to prediction, but this is coded into the python emulator plugin. The most important part is that only one MPI processes from the EGG sends the prediction back to the waiting GAMBIT process. 
+
+**On the GAMBIT side, exactly one prediction is expected.** If none arrive, then the process wait for a timeout period before shutting down the entire run. If two arrives, then the second prediction will be queued until that same GAMBIT rank requests a prediction next time, and will cause failure/desyncronization. A flag that has to be set in the emulator plugin to determine which rank should send the message back to GAMBIT, which is checked in EGG. If the flag is set for more than one process, this will double-stack the predictions silently since there are currently no checks to avoid this. 
+
 ## Python Plugin
 ## c interface (enter at own risk)
