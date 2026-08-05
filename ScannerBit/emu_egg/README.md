@@ -152,4 +152,45 @@ The internal usage of the allocated MPI processes for EGG is determined mainly b
 **On the GAMBIT side, exactly one prediction is expected.** If none arrive, then the process wait for a timeout period before shutting down the entire run. If two arrives, then the second prediction will be queued until that same GAMBIT rank requests a prediction next time, and will cause failure/desyncronization. A flag that has to be set in the emulator plugin to determine which rank should send the message back to GAMBIT, which is checked in EGG. If the flag is set for more than one process, this will double-stack the predictions silently since there are currently no checks to avoid this. 
 
 ## Python Plugin
+When designing a python emulator plugin, the plugin needs to include two main functions: *train* and *predict*.
+
+The ```train`` function has to receive the input parameters, the training target (evaluated function output), the uncertainty of the training target and a flag. The function does not return anything, and GAMBIT is not expecting any reply. 
+
+The ```predict``` function has to receive the input parameters only and a flag. If the specified rank does perform the prediction, then the flag has to be set to true in order to trigger a prediction reply in the EGG. The ```predict``` function has to return a vector of doubles for the prediction results and one vector of doubles for the uncertainty. If the prediction is invalid or NaN, a flag is returned to GAMBIT identifying the invalidity, and that flag can be set inside the plugin, but will automatically be added to the MPI message if the resulting prediction is NaN/inf. 
+
+In both the ```train`` and ```predict`` functions, the plugin designer can decide how the MPI processes are utilized. In the example ```pygptreeo```plugin, the rank 0 is used for prediction and rank 1 for training, if the emulator is run with 2 processes for the EGG. If the EGG only has one process, then that process will do both training and prediction. Future work includes making a emulator plugin with master-worker patterns, but it should be possible without too much hassle. 
+
+Examples of a minimal plugin set-up:
+```py
+import emulator_plugin as eplug
+import numpy as np
+
+
+class Test(eplug.emulator):
+
+    __version__="1.0.0"
+
+    def __init__(self, **options):
+
+        super().__init__()
+        print("starting test emulator plugin x")
+
+    def train(self, x, y, sigs, flag):
+
+        print(f"training inputed points, x: {x}; y: {y}; sigs: {sigs}, train: {flag.train}, predict: {flag.predict}")
+
+        return
+
+    def predict(self, x, flag):
+
+        print(f"predicted input, x: {x}, train: {flag.train}, predict: {flag.predict}")
+
+        flag.result = True
+        
+        return (np.array([3.5]), np.array([0.2]))
+
+__plugins__={"emutest": Test}
+```
+
 ## c interface (enter at own risk)
+TODO: Greg
