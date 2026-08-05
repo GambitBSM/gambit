@@ -11,7 +11,7 @@ short
 
 # Making capabilties emu-able
 ## Defining Transation functions
-## Defining Threshod function (optional)
+## Defining Threshold function (optional)
 
 # making emu
 ## overview
