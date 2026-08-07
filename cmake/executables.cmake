@@ -50,8 +50,19 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/Core/")
   if (NOT EXCLUDE_YODA)
     set(gambit_XTRA ${gambit_XTRA} ${YODA_LDFLAGS})
   endif()
+  # Registration translation units for components using link-time registration
+  # (the Bits, and the backends as a whole).  These compile the in-core
+  # expansion of each component's rollcall header(s), and are linked only into
+  # the gambit executable: standalone executables get equivalent functor
+  # definitions from their own main translation unit (via standalone_module.hpp),
+  # so these sources must not be added to the components' own object libraries.
+  set(GAMBIT_LTR_SOURCES "")
+  foreach(component ${LINK_TIME_REGISTRATION_COMPONENTS})
+    list(APPEND GAMBIT_LTR_SOURCES ${PROJECT_SOURCE_DIR}/${component}/registration/${component}_registration.cpp)
+  endforeach()
   add_gambit_executable(${PROJECT_NAME} "${gambit_XTRA}"
                         SOURCES ${PROJECT_SOURCE_DIR}/Core/src/gambit.cpp
+                                ${GAMBIT_LTR_SOURCES}
                                 ${GAMBIT_ALL_COMMON_OBJECTS}
                                 ${GAMBIT_BIT_OBJECTS}
                                 $<TARGET_OBJECTS:Core>

@@ -610,6 +610,43 @@ include(cmake/externals.cmake)
 
 string (REPLACE ";" "," itch_with_commas "${itch}")
 
+# Link-time (self-registering) module registration.  Bits compile their own
+# in-core rollcall macro expansions into a per-Bit registration translation
+# unit (<Bit>/registration/<Bit>_registration.cpp) that is linked only into the gambit
+# executable, instead of having their rollcall headers #included into the Core via the
+# generated module_rollcall.hpp.  Editing a Bit's rollcall header then
+# recompiles only that Bit's objects (plus a relink), not the Core.
+option(LINK_TIME_REGISTRATION "Register Bits' module functors and the backend functors with the Core at link time instead of compiling their rollcall headers into the Core" OFF)
+set(LINK_TIME_REGISTRATION_BITS "")
+set(LINK_TIME_REGISTRATION_COMPONENTS "")
+if(LINK_TIME_REGISTRATION)
+  # Bits using link-time registration.  A Bit can only be listed here if it has
+  # a registration translation unit at
+  # <Bit>/registration/<Bit>_registration.cpp.
+  foreach(bit ColliderBit CosmoBit DarkBit DecayBit ExampleBit_A ExampleBit_B FlavBit NeutrinoBit ObjectivesBit PrecisionBit SpecBit)
+    if(";${GAMBIT_BITS};" MATCHES ";${bit};")
+      list(APPEND LINK_TIME_REGISTRATION_BITS ${bit})
+    endif()
+  endforeach()
+  set(LINK_TIME_REGISTRATION_COMPONENTS ${LINK_TIME_REGISTRATION_BITS})
+  # The backends follow the same pattern, but are not a Bit: the generated
+  # backend_rollcall.hpp (all frontend headers) is expanded in a single
+  # registration TU instead of being #included into the Core by gambit.hpp.
+  # The harvesters are unaffected; gambit.hpp skips the include via the
+  # LINK_TIME_REGISTRATION compile definition.
+  if(EXISTS "${PROJECT_SOURCE_DIR}/Backends/")
+    list(APPEND LINK_TIME_REGISTRATION_COMPONENTS Backends)
+  endif()
+endif()
+if(LINK_TIME_REGISTRATION_COMPONENTS)
+  message("${BoldYellow}-- Link-time registration enabled for: ${LINK_TIME_REGISTRATION_COMPONENTS}${ColourReset}")
+  add_definitions(-DLINK_TIME_REGISTRATION=1)
+endif()
+if(LINK_TIME_REGISTRATION_BITS)
+  string(REPLACE ";" "," ltr_bits_with_commas "${LINK_TIME_REGISTRATION_BITS}")
+  set(MODULE_HARVESTER_EXTRA_ARGS -r ${ltr_bits_with_commas})
+endif()
+
 if(EXISTS "${PROJECT_SOURCE_DIR}/Elements/")
   add_gambit_custom(module_harvest modules_harvested MODULE_HARVESTER MODULE_HARVESTER_FILES ${itch_with_commas})
 endif()

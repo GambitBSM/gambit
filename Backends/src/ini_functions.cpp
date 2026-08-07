@@ -372,26 +372,108 @@ namespace Gambit
   }
 
 
+  /// A classloading requirement that could not be applied immediately, because
+  /// the backend it refers to had not yet registered its versions.  This happens
+  /// with link-time registration, where the static-initialisation order of the
+  /// module and backend registration translation units is unspecified.
+  struct deferred_classload_request
+  {
+    module_functor_common* f;
+    str be;
+    str verstr;
+    str default_ver;
+  };
+
+  /// Pending classloading requirements (function-local static so that it is
+  /// safe to access during static initialisation).
+  std::vector<deferred_classload_request>& deferred_classload_requests()
+  {
+    static std::vector<deferred_classload_request> requests;
+    return requests;
+  }
+
+  /// Try to apply a classloading requirement to a functor.  Returns false
+  /// (without side effects on the functor) if the backend has not yet
+  /// registered all the version information that the requirement refers to.
+  bool try_set_classload_requirements(module_functor_common& f, const str& be, const str& verstr, const str& default_ver)
+  {
+    // Split up the passed version string into individual versions
+    std::vector<str> versions = Utils::delimiterSplit(verstr, ",");
+    // First make sure every needed version is known, so that the requirement
+    // is applied either completely or not at all.
+    for (const str& v : versions)
+    {
+      if (v == "default")
+      {
+        if (not Backends::backendInfo().has_safe_version(be, default_ver)) return false;
+      }
+      else
+      {
+        if (not Backends::backendInfo().has_version(be, v)) return false;
+      }
+    }
+    // Add each version individually as required for classloading
+    for (str v : versions)
+    {
+      // Retrieve the version corresponding to the default if needed
+      if (v == "default") v = Backends::backendInfo().version_from_safe_version(be, default_ver);
+      // Retrieve the safe version corresponding to this version
+      str sv = Backends::backendInfo().safe_version_from_version(be, v);
+      // Set the requirement in the functor
+      f.setRequiredClassloader(be,v,sv);
+    }
+    return true;
+  }
+
   /// Set the classloading requirements of a given functor.
   int set_classload_requirements(module_functor_common& f, str be, str verstr, str default_ver)
   {
     try
     {
-      // Split up the passed version string into individual versions
-      std::vector<str> versions = Utils::delimiterSplit(verstr, ",");
-      // Add each version individually as required for classloading
-      for (auto it = versions.begin() ; it != versions.end(); ++it)
+      // If the backend's versions are not all registered yet, record the
+      // requirement passively; backend_info::link_versions retries the queue
+      // every time a backend registers a new version.
+      if (not try_set_classload_requirements(f, be, verstr, default_ver))
       {
-        // Retrieve the version corresponding to the default if needed
-        if (*it == "default") *it = Backends::backendInfo().version_from_safe_version(be, default_ver);
-        // Retrieve the safe version corresponding to this version
-        str sv = Backends::backendInfo().safe_version_from_version(be, *it);
-        // Set the requirement in the functor
-        f.setRequiredClassloader(be,*it,sv);
+        deferred_classload_requests().push_back({&f, be, verstr, default_ver});
       }
     }
     catch (std::exception& e) { ini_catch(e); }
     return 0;
+  }
+
+  /// Apply any deferred classloading requirements whose backend version
+  /// information has become available.  Called from
+  /// backend_info::link_versions whenever a backend registers a version.
+  void process_deferred_classload_requirements()
+  {
+    auto& requests = deferred_classload_requests();
+    for (auto it = requests.begin(); it != requests.end(); )
+    {
+      if (try_set_classload_requirements(*(it->f), it->be, it->verstr, it->default_ver))
+      {
+        it = requests.erase(it);
+      }
+      else ++it;
+    }
+  }
+
+  /// Raise an error for any classloading requirement that is still unfulfilled
+  /// once all backends have had the chance to register (i.e. once static
+  /// initialisation is over).  Called from the Core before functor activation.
+  void check_deferred_classload_requirements()
+  {
+    for (const auto& request : deferred_classload_requests())
+    {
+      std::ostringstream msg;
+      msg << "The classloading requirement NEEDS_CLASSES_FROM(" << request.be
+          << ", " << request.verstr << ") of module function "
+          << request.f->origin() << "::" << request.f->name()
+          << " refers to a backend version that never registered itself."
+          << "\nEither the backend \"" << request.be << "\" is not known to"
+          << "\nGAMBIT at all, or the requested versions do not exist.";
+      backend_error().raise(LOCAL_INFO, msg.str());
+    }
   }
 
 }

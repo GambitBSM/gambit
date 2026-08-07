@@ -567,11 +567,17 @@ def find_and_harvest_headers(header_set, fullheadlist, exclude_set, dir_exclude_
             new_headers, fullheadlist, new_exclude_set, dir_exclude_set, verbose=verbose)
 
 
-def retrieve_rollcall_headers(verbose, install_dir, excludes, retrieve_excluded=False):
+def retrieve_rollcall_headers(verbose, install_dir, excludes, retrieve_excluded=False, link_time_modules=set()):
     """Search the source tree to determine which modules are present, and write a module_rollcall header if the GAMBIT Core exists.
 
     If the option `retrieve_excluded` is set to true, it will search for excluded modules.
     This feature is used for the diagnostic system.
+
+    Modules listed in `link_time_modules` are still harvested (for functor types,
+    diagnostics, printers, etc.), but their rollcall headers are omitted from the
+    include list in module_rollcall.hpp: such modules register their functors with
+    the Core at link time, from their own registration translation unit, rather
+    than being compiled into the Core.
     """
     rollcall_headers = []
     core_exists = False
@@ -605,7 +611,7 @@ def retrieve_rollcall_headers(verbose, install_dir, excludes, retrieve_excluded=
                         ".*?/include/", "", os.path.relpath(os.path.join(root, name), install_dir))
                     rollcall_headers += [rel_name]
     if core_exists and not retrieve_excluded:
-        make_module_rollcall(rollcall_headers, verbose)
+        make_module_rollcall(rollcall_headers, verbose, link_time_modules)
     return rollcall_headers
 
 
@@ -900,8 +906,13 @@ def update_only_if_different(existing, candidate, verbose=True):
          if verbose:
              print( "\033[1;33m   Updated "+re.sub("\\.\\/","",existing)+"\033[0m" )
 
-def make_module_rollcall(rollcall_headers, verbose):
-    """Create the module_rollcall header in the Core directory"""
+def make_module_rollcall(rollcall_headers, verbose, link_time_modules=set()):
+    """Create the module_rollcall header in the Core directory.
+
+    Rollcall headers of modules in `link_time_modules` are not included; those
+    modules compile their own in-core macro expansions into a registration
+    translation unit that self-registers with the Core at static-init time.
+    """
     towrite = """//   GAMBIT: Global and Modular BSM Inference Tool
 //   *********************************************
 ///  \\file                                       
@@ -938,15 +949,20 @@ def make_module_rollcall(rollcall_headers, verbose):
 """
 
     for h in sorted(rollcall_headers):
-        towrite += '#include \"{0}\"\n'.format(h)
+        h_module = neatsplit('\\/',h)[1]
+        if h_module in link_time_modules:
+            towrite += '// {0} registers at link time; its rollcall header is not compiled into the Core.\n'.format(h_module)
+        else:
+            towrite += '#include \"{0}\"\n'.format(h)
     towrite += "\n#endif // defined __module_rollcall_hpp__\n"
 
-    # Don't touch any existing file unless it is actually different from what we will create
+    # Don't touch any existing file unless it is actually different from what we will create,
+    # so that the Core is not needlessly recompiled.
     if not os.path.isdir("./scratch/build_time"): os.makedirs("./scratch/build_time")
     header = "./Core/include/gambit/Core/module_rollcall.hpp"
     candidate = "./scratch/build_time/module_rollcall.hpp.candidate"
     with open(candidate,"w") as f: f.write(towrite)
-    update_only_if_different(header, candidate)
+    update_only_if_different(header, candidate, verbose=False)
 
     if verbose:
         print("Found GAMBIT Core.  Generated module_rollcall.hpp.\n")

@@ -42,6 +42,7 @@
 #include "gambit/Core/cli_help_text.hpp"
 #include "gambit/Core/error_handlers.hpp"
 #include "gambit/Core/yaml_description_database.hpp"
+#include "gambit/Backends/ini_functions.hpp"
 #include "gambit/ScannerBit/plugin_loader.hpp"
 #include "gambit/Utils/stream_overloads.hpp"
 #include "gambit/Utils/util_functions.hpp"
@@ -241,6 +242,9 @@ namespace Gambit
   /// that is supposed to be provided by a backend that is AWOL.
   void gambit_core::accountForMissingClasses() const
   {
+    // First raise an error for any classloading requirement that referred to a
+    // backend version that never registered itself during static initialisation.
+    check_deferred_classload_requirements();
     // Create a map of all the registered backends that are connected and fully functional (including factories for classloading)
     std::map<str, std::set<str>> working_bes;
     // Start by looping over all registered backends

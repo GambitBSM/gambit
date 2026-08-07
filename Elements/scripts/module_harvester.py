@@ -58,15 +58,24 @@ def main(argv):
     # Lists of modules to exclude; anything starting with one of these strings is excluded.
     exclude_modules=set([])
 
+    # Modules that register their functors with the Core at link time, from their own
+    # registration translation unit.  These are harvested as normal (types, diagnostics,
+    # standalone pickles, etc.), but their rollcall headers are not included in
+    # module_rollcall.hpp, so they are not compiled into the Core.
+    link_time_modules=set([])
+
     # Handle command line options
     verbose = False
     try:
-        opts, args = getopt.getopt(argv,"vx:",["verbose","exclude-modules="])
+        opts, args = getopt.getopt(argv,"vx:r:",["verbose","exclude-modules=","link-time-registration="])
     except getopt.GetoptError:
         print('Usage: module_harvestor.py [flags]')
         print(' flags:')
         print('        -v                     : More verbose output')
         print('        -x module1,module2,... : Exclude module1, module2, etc.')
+        print('        -r module1,module2,... : Omit rollcall headers of module1, module2, etc.')
+        print('                                 from module_rollcall.hpp; these modules register')
+        print('                                 their functors with the Core at link time.')
         sys.exit(2)
     for opt, arg in opts:
       if opt in ('-v','--verbose'):
@@ -74,6 +83,8 @@ def main(argv):
         print('module_harvester.py: verbose=True')
       elif opt in ('-x','--exclude-modules'):
         exclude_modules.update(neatsplit(",",arg))
+      elif opt in ('-r','--link-time-registration'):
+        link_time_modules.update(neatsplit(",",arg))
     exclude_header = exclude_modules
     module_rollcall_headers=set([])
     module_type_headers=set([])
@@ -112,7 +123,7 @@ def main(argv):
     equiv_classes = get_type_equivalencies(equiv_ns)
 
     # Get list of rollcall header files to search
-    module_rollcall_headers.update(retrieve_rollcall_headers(verbose,".",exclude_header))
+    module_rollcall_headers.update(retrieve_rollcall_headers(verbose,".",exclude_header,link_time_modules=link_time_modules))
     rollcall_headers.update(module_rollcall_headers)
     # Get list of module type header files to search
     module_type_headers.update(retrieve_module_type_headers(verbose,".",exclude_header))

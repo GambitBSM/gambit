@@ -25,7 +25,12 @@
 #include "gambit/Utils/stream_overloads.hpp"
 #include "gambit/Models/model_rollcall.hpp"
 #include "gambit/Elements/equivalency_singleton.hpp"
-#include "gambit/Backends/backend_rollcall.hpp"
+#ifndef LINK_TIME_REGISTRATION
+  /* With link-time registration, the backend functors are registered from
+     Backends/registration/Backends_registration.cpp instead of being compiled
+     into the Core here. */
+  #include "gambit/Backends/backend_rollcall.hpp"
+#endif
 #include "gambit/Core/depresolver.hpp"
 #include "gambit/Core/yaml_parser.hpp"
 #include "gambit/Core/likelihood_container.hpp"

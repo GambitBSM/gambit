@@ -24,6 +24,7 @@
 
 #include "gambit/cmake/cmake_variables.hpp"
 #include "gambit/Backends/backend_info.hpp"
+#include "gambit/Backends/ini_functions.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/python_interpreter.hpp"
 #include "gambit/Logs/logger.hpp"
@@ -226,11 +227,32 @@ namespace Gambit
     return safe_version_map.at(be).second.at(v);
   }
 
+  /// Check whether a backend safe version (no periods) has been registered yet
+  bool Backends::backend_info::has_safe_version (const str& be, const str& sv) const
+  {
+    auto it = safe_version_map.find(be);
+    return it != safe_version_map.end() and it->second.first.find(sv) != it->second.first.end();
+  }
+
+  /// Check whether a backend true version (with periods) has been registered yet
+  bool Backends::backend_info::has_version (const str& be, const str& v) const
+  {
+    auto it = safe_version_map.find(be);
+    return it != safe_version_map.end() and it->second.second.find(v) != it->second.second.end();
+  }
+
   /// Link a backend's version and safe version
   void Backends::backend_info::link_versions(str be, str v, str sv)
   {
     safe_version_map[be].first[sv] = v;
     safe_version_map[be].second[v] = sv;
+    // A new backend version is available, so try to fulfil any classloading
+    // requirements that were deferred because this backend had not yet been
+    // registered.  (With link-time registration, the static-initialisation
+    // order of module and backend registration translation units is
+    // unspecified, so a module's NEEDS_CLASSES_FROM may run before the
+    // backend it refers to has registered its versions.)
+    process_deferred_classload_requirements();
   }
 
   /// Override a backend's config file location

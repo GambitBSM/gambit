@@ -21,6 +21,13 @@
 #include "gambit/Utils/threadsafe_rng.hpp"
 #include "gambit/Utils/exceptions.hpp"
 
+// This header *defines* static members, so it must contribute them from exactly
+// one translation unit per executable (the main program TU).  Translation units
+// that need the in-core rollcall macros but must not define the static members
+// (e.g. the per-Bit link-time registration TUs, which link alongside the main
+// gambit TU) define GAMBIT_NO_STATIC_MEMBER_DEFINITIONS before including this.
+#ifndef GAMBIT_NO_STATIC_MEMBER_DEFINITIONS
+
 namespace Gambit
 {
 
@@ -31,6 +38,8 @@ namespace Gambit
   str exception::parameters = "";
 
 }
+
+#endif //#ifndef GAMBIT_NO_STATIC_MEMBER_DEFINITIONS
 
 #endif //#ifndef __static_members_hpp__
 

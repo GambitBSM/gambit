@@ -72,6 +72,12 @@
 #include "gambit/Utils/exceptions.hpp"
 #include "gambit/Utils/python_interpreter.hpp"
 #include "gambit/Backends/backend_singleton.hpp"
+/* Declares set_classload_requirements and set_backend_rule_for_model, used by the
+   CORE_CLASSLOAD_NEEDED and CORE_BE_MODEL_RULE macros below.  In the legacy path this
+   header arrives implicitly because gambit.hpp includes backend_rollcall.hpp before
+   module_rollcall.hpp; link-time registration TUs include nothing beforehand, so the
+   in-core macro machinery must be self-contained. */
+#include "gambit/Backends/ini_functions.hpp"
 #include "gambit/Models/claw_singleton.hpp"
 #include "gambit/Models/safe_param_map.hpp"
 #ifndef STANDALONE
