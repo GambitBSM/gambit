@@ -103,6 +103,9 @@ namespace Gambit
     /// Setter for critical flag (relevant only for next-to-output functors)
     void functor::setCritical(bool critical) { myCritical = critical; }
 
+    /// Setter for exclude-from-dependency-resolution flag (relevant only for next-to-output functors)
+    void functor::setExcludeFromDependencyResolution(bool exclude) { myExcludeFromDependencyResolution = exclude; }
+
     /// Setter for vertex ID (used in printer system)
     void functor::setVertexID(int ID) { myVertexID = ID; }
 
@@ -146,6 +149,8 @@ namespace Gambit
     str functor::purpose()     const { return myPurpose; }
     /// Getter for critical (relevant for output nodes, aka helper structures for the dep. resolution)
     bool functor::critical()   const { return myCritical; }
+    /// Getter for exclude-from-dependency-resolution (relevant for output nodes, aka helper structures for the dep. resolution)
+    bool functor::excludedFromDependencyResolution() const { return myExcludeFromDependencyResolution; }
     /// Getter for citation key
     str functor::citationKey() const { return myCitationKey; }
     /// Getter for vertex ID

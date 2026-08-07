@@ -1149,8 +1149,10 @@ namespace Gambit
         for (unsigned int i = 0; i < vertexCandidates.size(); ++i)
         {
           const VertexID& v = vertexCandidates[i];
-          // Require match to quantity, and forbid self-resolution
-          bool match = (v != entry.toVertex and dep_rule.allows(masterGraph[v], *boundTEs));
+          // Require match to quantity, forbid self-resolution, and exclude functors flagged (via
+          // their own ObsLikes entry) as ineligible to resolve anyone else's dependency.
+          bool match = (v != entry.toVertex and dep_rule.allows(masterGraph[v], *boundTEs)
+                         and not masterGraph[v]->excludedFromDependencyResolution());
           updateCandidates(match, v, i, allowedVertexCandidates, disabledVertexCandidates);
         }
       }
@@ -1476,6 +1478,12 @@ namespace Gambit
 
           // Check if we wanted to output this observable to the printer system.
           if (entry.obslike != NULL) masterGraph[fromVertex]->setPrintRequirement(entry.printme);
+          // Check if this ObsLikes entry should be computed and printed, but never used to
+          // resolve anyone else's dependency on the same capability.
+          if (entry.obslike != NULL and entry.obslike->exclude_from_dependency_resolution)
+          {
+            masterGraph[fromVertex]->setExcludeFromDependencyResolution(true);
+          }
           // Check if the flag to output timing data is set
           if(print_timing) masterGraph[fromVertex]->setTimingPrintRequirement(true);
 

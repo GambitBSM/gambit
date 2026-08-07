@@ -167,6 +167,8 @@ namespace Gambit
       void setPurpose(str);
       /// Setter for critical (relevant only for next-to-output functors)
       void setCritical(bool);
+      /// Setter for exclusion from dependency resolution (relevant only for next-to-output functors)
+      void setExcludeFromDependencyResolution(bool);
       /// Setter for vertex ID (used in printer system)
       void setVertexID(int);
       /// Set ID for timing 'vertex' (used in printer system)
@@ -201,6 +203,10 @@ namespace Gambit
       str purpose() const;
       /// Getter for critical (relevant for output nodes, aka helper structures for the dep. resolution)
       bool critical() const;
+      /// Getter for exclusion from dependency resolution: true if this functor may not be used to
+      /// resolve anyone else's dependency on its capability (it is still computed and printed if
+      /// it is itself an ObsLikes target).
+      bool excludedFromDependencyResolution() const;
       /// Getter for the citation key
       str citationKey() const;
       /// Getter for vertex ID
@@ -416,6 +422,8 @@ namespace Gambit
       str myPurpose;
       /// critical flag of the function (relevant for output and next-to-output functors)
       bool myCritical;
+      /// exclude-from-dependency-resolution flag of the function (relevant for output and next-to-output functors)
+      bool myExcludeFromDependencyResolution = false;
       /// Citation key: BibTex key of the reference.
       str myCitationKey;
       /// Bound model functor claw, for checking relationships between models
