@@ -181,10 +181,10 @@ START_MODULE
     #define FUNCTION testdependency_2
     START_FUNCTION(double)
     ALLOW_MODELS(NormalDist)
+    DEPENDENCY(DELETEME, double)
     #undef FUNCTION
   #undef CAPABILITY
-
-
+  
   // Tester that shows how to retrieve pointers to backend functions
   #define CAPABILITY function_pointer
   START_CAPABILITY

@@ -148,7 +148,6 @@ namespace Gambit
 
     /// Example of using dependencies.
     /// These do nothing but set a simple result
-    ///
     void testdependency_1(double &result)
     {
       using namespace Pipes::testdependency_1;
