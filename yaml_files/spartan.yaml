@@ -394,6 +394,15 @@ ObsLikes:
   #  module:       ExampleBit_A
   #  type:         double
   #  critical:     true
+  
+  - capability: TestDependency
+    function: testdependency_1
+    purpose: Observable
+  
+  - capability: TestDependency
+    function: testdependency_2
+    purpose: Observable
+    exclude_from_dependency_resolution: true
 
 Rules:
 
@@ -402,11 +411,12 @@ Rules:
     then:
       options:
         probability_of_validity: 1.0
-
+  
 Logger:
 
   redirection:
     [Default]      : "default.log"
+    [Dependency Resolver] : "dep_resolver.log"
     [ExampleBit_A] : "ExampleBit_A.log"
     [Scanner]      : "Scanner.log"
   debug: true

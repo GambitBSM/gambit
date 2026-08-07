@@ -146,6 +146,21 @@ namespace Gambit
       result = *Param["p1"] * *Param["p2"];
     }
 
+    /// Example of using dependencies.
+    /// These do nothing but set a simple result
+    ///
+    void testdependency_1(double &result)
+    {
+      using namespace Pipes::testdependency_1;
+      result = 1.0;
+    }
+
+    void testdependency_2(double &result)
+    {
+      using namespace Pipes::testdependency_2;
+      result = 2.0;
+    }
+
     /// Likelihood function for fitting the population parameters of a
     /// normal distribution (with hard-coded "observations")
     /// Mainly used for testing scanning algorthims

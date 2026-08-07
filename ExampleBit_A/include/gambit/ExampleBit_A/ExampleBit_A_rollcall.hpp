@@ -166,6 +166,21 @@ START_MODULE
     #define FUNCTION lnL_gaussian
     START_FUNCTION(double)
     ALLOW_MODELS(NormalDist)
+    DEPENDENCY(TestDependency, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
+  // Example of using dependencies with multiple options
+  #define CAPABILITY TestDependency
+  START_CAPABILITY
+    #define FUNCTION testdependency_1
+    START_FUNCTION(double)
+    ALLOW_MODELS(NormalDist)
+    #undef FUNCTION
+    
+    #define FUNCTION testdependency_2
+    START_FUNCTION(double)
+    ALLOW_MODELS(NormalDist)
     #undef FUNCTION
   #undef CAPABILITY
 
