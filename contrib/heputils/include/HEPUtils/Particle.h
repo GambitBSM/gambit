@@ -71,6 +71,9 @@ namespace HEPUtils {
       return *this;
     }
 
+    /// Virtual destructor to enable dynamic casts
+    virtual ~Particle() = default;
+
     /// @}
 
 
