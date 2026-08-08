@@ -281,7 +281,7 @@ namespace HEPUtils {
     ///
     /// @todo "Lock" at some point so that jet finding etc. only get done once
     void add_particle(const Particle* p, bool ptsort=false) {
-      std::cout << "Called add_particle line 283 "  << std::endl;
+      std::cout << "Called add_particle line 284 "  << std::endl;
       _stdparticles_sorted = false;
 
       // All particles (canonical collection)
@@ -305,7 +305,13 @@ namespace HEPUtils {
       if (ptsort) sort_particles();
     }
 
+    // Force no implicit conversions to bool in the method above
+    //
+    /// @todo Can remove when the bool arguments are removed.
+    template <typename T>
+    void add_particle(const Particle* p, T) = delete;
 
+    
     /// @todo Add an emplace_particle
 
 
@@ -339,7 +345,7 @@ namespace HEPUtils {
     ///
     /// @todo "Lock" at some point so that jet finding etc. only get done once
     void add_particle(const Particle* p, const std::string& key, bool ptsort=false) {
-      std::cout << "Called add_particle line 341 with key " << key << std::endl;
+      std::cout << "Called add_particle line 348 with key " << key << std::endl;
       _customparticles_sorted = false;
 
       // Insert into both the canonical list and the custom
@@ -350,10 +356,20 @@ namespace HEPUtils {
       if (ptsort) sort_particles();
     }
 
+    // Make sure that a char* key directs here rather than converting to bool!
+    //
+    /// @todo Can remove when the bool arguments are removed.
+    void add_particle(const Particle* p, const char* key, bool ptsort=false) {
+      std::cout << "Called add_particle line 363 with key " << key << std::endl;
+      add_particle(p, string(key), ptsort);
+    }
+
     /// Alias for backward-compatibility
+    ///
     /// @deprecated ptsort will be removed eventually
+    /// @todo Can remove when the bool arguments are removed.
     void add_particle(const Particle* p, bool ptsort, const std::string& key) {
-      std::cout << "Called add_particle line 355 with key " << key << std::endl;
+      std::cout << "Called add_particle line 372 with key " << key << std::endl;
       add_particle(p, key, ptsort);
     }
 
@@ -374,7 +390,9 @@ namespace HEPUtils {
     }
 
     /// Alias for backward-compatibility
+    ///
     /// @deprecated ptsort will be removed eventually
+    /// @todo Can remove when the bool arguments are removed.
     void add_particles(const std::vector<Particle*>& ps, bool ptsort, const std::string& key) {
       add_particles(ps, key, ptsort);
     }
@@ -416,9 +434,32 @@ namespace HEPUtils {
     const std::vector<const Particle*>& particles(const std::string& key) const {
       return _customparticles.at(key);
     }
+    /// @brief Get named custom particles as a more specific templated ptr type
+    ///
+    /// @note Returns as a copy, due to need to rewrite the vector type.
+    /// @todo Surely not necessary, it's the same ptrs? But you can't dynamic_cast a vector...
+    template <typename P>
+    std::vector<const P*> particles(const std::string& key) const {
+      const std::vector<const Particle*>& ps = particles(key);
+      std::vector<const P*> rtn;  rtn.reserve(ps.size());
+      for (const Particle* p : ps) rtn.push_back( dynamic_cast<const P*>(p) );
+      return rtn;
+    }
+
     /// @brief Get named custom particles (non-const)
     std::vector<Particle*>& particles(const std::string& key) {
       return mkunconst(_customparticles[key]);
+    }
+    /// @brief Get named custom particles as a more specific templated ptr type (non-const)
+    ///
+    /// @note Returns as a copy, due to need to rewrite the vector type.
+    /// @todo Surely not necessary, it's the same ptrs? But you can't dynamic_cast a vector...
+    template <typename P>
+    std::vector<P*> particles(const std::string& key) {
+      std::vector<Particle*>& ps = mkunconst(_customparticles[key]);
+      std::vector<P*> rtn;  rtn.reserve(ps.size());
+      for (Particle* p : ps) rtn.push_back( dynamic_cast<P*>(p) );
+      return rtn;
     }
 
 
