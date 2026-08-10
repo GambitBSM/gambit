@@ -163,7 +163,6 @@ namespace Gambit
       scannerNode = root["Scanner"];
       logNode = root["Logger"];
       keyValuePairNode = root["KeyValues"];
-      modelSpeedsNode = root["ModelSpeeds"];
 
       // Set default output path
       std::string defpath;
@@ -326,7 +325,6 @@ namespace Gambit
     YAML::Node Parser::getScannerNode()      const {return scannerNode;}
     YAML::Node Parser::getLoggerNode()       const {return logNode;}
     YAML::Node Parser::getKeyValuePairNode() const {return keyValuePairNode;}
-    YAML::Node Parser::getModelSpeedsNode() const {return modelSpeedsNode;}
     /// @}
 
     /// Getters for model/parameter section
@@ -359,40 +357,6 @@ namespace Gambit
         }
       }
       return result;
-    }
-
-    /// Getters for fast-slow "speed" metadata
-    /// @{
-    bool Parser::hasModelSpeed(std::string model) const
-    {
-      return bool(modelSpeedsNode[model]);
-    }
-
-    int Parser::getModelSpeed(std::string model) const
-    {
-      if (not hasModelSpeed(model)) inifile_error().raise(LOCAL_INFO, "ModelSpeeds." + model + " not found in inifile.");
-      return modelSpeedsNode[model].as<int>();
-    }
-
-    bool Parser::hasParameterSpeed(std::string model, std::string param) const
-    {
-      return hasModelParameterEntry(model, param, "speed");
-    }
-
-    int Parser::getParameterSpeed(std::string model, std::string param) const
-    {
-      return getModelParameterEntry<int>(model, param, "speed");
-    }
-
-    bool Parser::hasEffectiveSpeed(std::string model, std::string param) const
-    {
-      return hasParameterSpeed(model, param) or hasModelSpeed(model);
-    }
-
-    int Parser::getEffectiveSpeed(std::string model, std::string param) const
-    {
-      if (hasParameterSpeed(model, param)) return getParameterSpeed(model, param);
-      return getModelSpeed(model);
     }
 
     /// Getter for options

@@ -858,7 +858,7 @@ namespace Gambit
                     {
                         std::string plug_type = it->first.as<std::string>();
 
-                        if (it->second.IsMap() && plug_type[plug_type.length()-1] == 's' && plug_type != "priors" && plug_type != "parameters" && plug_type != "ModelSpeeds")
+                        if (it->second.IsMap() && plug_type[plug_type.length()-1] == 's' && plug_type != "priors" && plug_type != "parameters")
                         {
                             for (auto it_p = it->second.begin(), end = it->second.end(); it_p != end; it_p++)
                             {
@@ -913,9 +913,6 @@ namespace Gambit
 
                     plugin_options["default_output_path"] = options.getValue<std::string>("default_output_path");
                     plugin_options["print_timing_data"] = options.getValue<std::string>("print_timing_data");
-
-                    if (!plugin_options["ModelSpeeds"] and options.hasKey("ModelSpeeds"))
-                        plugin_options["ModelSpeeds"] = options.getNode("ModelSpeeds");
 
                     if (!plugin_options["likelihood: model_invalid_for_lnlike_below"])
                         plugin_options["likelihood: model_invalid_for_lnlike_below"] = options.getValue<double>("model_invalid_for_lnlike_below");

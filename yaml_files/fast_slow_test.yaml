@@ -46,6 +46,9 @@ Scanner:
       point_number: 30
       fast_repeats: 100
       slow_speed_threshold: 5
+      ModelSpeeds:
+        Fast_Slow_Test_One: 1
+        Fast_Slow_Test_Two: 10
 
 
 ObsLikes:

@@ -209,7 +209,6 @@ int main(int argc, char* argv[])
         scanner_node["Scanner"] = iniFile.getScannerNode();
         scanner_node["Parameters"] = iniFile.getParametersNode();
         scanner_node["Priors"] = iniFile.getPriorsNode();
-        scanner_node["ModelSpeeds"] = iniFile.getModelSpeedsNode();
 
         // Print scan metadata from rank 0
         if (iniFile.getValueOrDef<bool>(true, "print_metadata_info"))

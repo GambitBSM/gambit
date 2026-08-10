@@ -52,8 +52,6 @@ namespace Gambit
         {
             options = main_node["Scanner"];
 
-            options.setValue("ModelSpeeds", main_node["ModelSpeeds"]);
-            
             Plugins::plugin_info.iniFile(options);
             
             if (options.hasKey("use_objectives"))
