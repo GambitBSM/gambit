@@ -98,7 +98,7 @@ namespace Gambit
     bool functor::getAlwaysRecalculate() const { return false; }
     bool functor::hasDeclaredModelParameters(str) { return false; }
     std::set<str> functor::getDeclaredModelParameters(str) { return std::set<str>();}
-    void functor::setDeclaredModelparameters(str, str) {}
+    void functor::setDeclaredModelParameters(str, str) {}
     /// @}
 
     /// Reset-then-recalculate method
@@ -1202,7 +1202,7 @@ namespace Gambit
     }
 
     /// Whether this functor has declared that it only depends on a subset of the given model's parameters
-    bool module_functor_common::hasDeclaredModelparameters(str model)
+    bool module_functor_common::hasDeclaredModelParameters(str model)
     {
       return find_friend_or_parent_model_in_map(model, myDeclaredModelParams) != "";
     }

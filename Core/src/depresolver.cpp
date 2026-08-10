@@ -787,7 +787,7 @@ namespace Gambit
       {
         const str& model_name = model_and_functor.first;
         primary_model_functor* model_functor_pts = model_and_functor.second;
-        modelAllParams[model_name] = model_functor_ptr->getcontentsPts()->getKeys();
+        modelAllparams[model_name] = model_functor_pts->getcontentsPtr()->getKeys();
 
         graph_traits<MasterGraphType>::vertex_iterator vi, vi_end;
         for (std::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
@@ -805,17 +805,17 @@ namespace Gambit
       {
         std::set<std::pair<str,str>> sensitivity;
 
-        auto model_it = modelVertexNames.find(v)
+        auto model_it = modelVertexNames.find(v);
         if (model_it != modelVertexNames.end())
         {
           // This vertex is itself a primary model functor: sensitive to all its own parameters
           const str& model_name = model_it->second;
-          for (const str& p : modelAllParams[model_name]) sensitivity.insert({model_name, p});
+          for (const str& p : modelAllparams[model_name]) sensitivity.insert({model_name, p});
         }
         else
         {
           graph_traits<MasterGraphType>::in_edge_iterator ei, ei_end;
-          for (std::tie(ei, ei_end) = in_edges(v, masterGraph);ei != ei-end; ++ei)
+          for (std::tie(ei, ei_end) = in_edges(v, masterGraph); ei != ei_end; ++ei)
           {
             VertexID provider = source(*ei, masterGraph);
             auto prov_model_it = modelVertexNames.find(provider);
@@ -823,13 +823,13 @@ namespace Gambit
             {
               // Fed directly by a model's primary model functor (implicit ALLOW_MODELS dep)
               const str& model_name = prov_model_it->second;
-              if (mastergraph[v]->hasDeclaredModelParameters(model_name))
+              if (masterGraph[v]->hasDeclaredModelParameters(model_name))
               {
-                for (const str& p : masterGraph[v]->getDeclaredModelparameters(model_name)) sensitivity.insert({model_name, p});
+                for (const str& p : masterGraph[v]->getDeclaredModelParameters(model_name)) sensitivity.insert({model_name, p});
               }
               else
               {
-                for (const str& p : modelAllParams[model_name]) sensitivity.insert({model_name, p});
+                for (const str& p : modelAllparams[model_name]) sensitivity.insert({model_name, p});
               }
             }
             else

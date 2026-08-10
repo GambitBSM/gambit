@@ -294,6 +294,16 @@ namespace Gambit
       /// Getter for listing model-specific conditional backend requirements (matches on the exact model)
       virtual std::set<sspair> model_conditional_backend_reqs_exact (str model);
 
+      /// Whether this functor has declared (via ALLOW_MODEL_PARAMETERS) that it only depends on a
+      /// subset of the given model's parameters
+      virtual bool hasDeclaredModelParameters(str model);
+
+      /// Getter for the declared parameter subset for a model
+      virtual std::set<str> getDeclaredModelParameters(str model);
+
+      /// Setter for the declared parameter subset for a model, parsed from a comma-separated string.
+      virtual void setDeclaredModelParameters(str model, str comma_separated_params);
+
       /// Resolve a dependency using a pointer to another functor object
       virtual void resolveDependency (functor*);
 
@@ -494,9 +504,6 @@ namespace Gambit
       template<typename ValueType>
       str find_friend_or_parent_model_in_map(str model, std::map<str, ValueType> karta);
 
-      /// Try to find a parent or friend model in some user-supplied map from models to sspair vectors
-      str find_friend_or_parent_model_in_map(str model, std::map< str, std::set<sspair> > karta);
-
       /// Reset functor for one thread only
       virtual void reset(int);
 
@@ -630,23 +637,13 @@ namespace Gambit
       virtual std::set<sspair> model_conditional_backend_reqs_exact (str model);
 
       /// Wether this functor has declared that it only depends on a subset of a given model's parameters
-      bool hasDeclaredModelParameters(str model, str comma_separated_params);
+      bool hasDeclaredModelParameters(str model);
 
       /// Getter for the declared parameter subset for a model
-      std::set<str> getDeclaredModelparameters(str model);
+      std::set<str> getDeclaredModelParameters(str model);
 
       /// Setter for the declared parameter subset for a model
-      void setDeclaredModelparameters(str model);
-
-      /// Whether this functor has declared that it only depends on a sugset of the given model's parameters
-      /// For fast-slow caching
-      virtual bool hasDeclaredModelParameters(str model);
-
-      /// Getter for the declared parameter subset for a model
-      virtual std::set<str> getDeclaredModelParameters(str model);
-
-      /// Setter for the declared parameter subset for a model
-      virtual setDeclaredModelparameters(str model, str comma_separated_params);
+      void setDeclaredModelParameters(str model, str comma_separated_params);
 
       /// Add and activate unconditional dependencies.
       void setDependency(str, str, void(*)(functor*, module_functor_common*), str purpose= "", bool critical=false);
