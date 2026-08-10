@@ -96,6 +96,9 @@ namespace Gambit
     void functor::resetForRecalculation() {}
     void functor::setAlwaysRecalculate(bool) {}
     bool functor::getAlwaysRecalculate() const { return false; }
+    bool functor::hasDeclaredModelParameters(str) { return false; }
+    std::set<str> functor::getDeclaredModelParameters(str) { return std::set<str>();}
+    void functor::setDeclaredModelparameters(str, str) {}
     /// @}
 
     /// Reset-then-recalculate method
@@ -699,12 +702,13 @@ namespace Gambit
       return false;
     }
 
-    /// Try to find a parent or friend model in some user-supplied map from models to sspair vectors
+    /// Try to find a parent or friend model in some user-supplied map from models to arbitrary values
     /// Preferentially returns the 'least removed' parent or friend, i.e. less steps back in the model lineage.
-    str functor::find_friend_or_parent_model_in_map(str model, std::map< str, std::set<sspair> > karta)
+    template<typename ValueType>
+    str functor::find_friend_or_parent_model_in_map(str model, std::map< str, ValueType > karta)
     {
       std::vector<str> candidates;
-      for (std::map< str, std::set<sspair> >::reverse_iterator it = karta.rbegin() ; it != karta.rend(); ++it)
+      for (typename std::map< str, ValueType >::reverse_iterator it = karta.rbegin() ; it != karta.rend(); ++it)
       {
         if (myClaw->model_exists(it->first))
         {
@@ -1195,6 +1199,27 @@ namespace Gambit
       if (myModelConditionalBackendReqs.count(model) != 0) return myModelConditionalBackendReqs[model];
       std::set<sspair> empty;
       return empty;
+    }
+
+    /// Whether this functor has declared that it only depends on a subset of the given model's parameters
+    bool module_functor_common::hasDeclaredModelparameters(str model)
+    {
+      return find_friend_or_parent_model_in_map(model, myDeclaredModelParams) != "";
+    }
+
+    /// Getter for the declared parameter subset for a model
+    std::set<str> module_functor_common::getDeclaredModelParameters(str model)
+    {
+      str parent = find_friend_or_parent_model_in_map(model, myDeclaredModelParams);
+      if (parent != "") return myDeclaredModelParams.at(parent);
+      return std::set<str>();
+    }
+
+    /// Setter for the decalred parameters subset for a model
+    void module_functor_common::setDeclaredModelParameters(str model, str comma_separated_params)
+    {
+      std::vector<str> params = Utils::delimiterSplit(comma_separated_params, ",");
+      myDeclaredModelParams[model].insert(params.begin(), params.end());
     }
 
     /// Add and activate unconditional dependencies.

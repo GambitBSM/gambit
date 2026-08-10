@@ -164,6 +164,17 @@ namespace Gambit
     return 0;
   }
 
+  /// Register that a module function only depends on a subset of a model's parameters
+  int register_model_parameter_subset(module_functor_common& f, const str& model, const str& comma_separated_params)
+  {
+    try
+    {
+      f.setDeclaredModelParameters(model, comma_separated_params);
+    }
+    catch (std::exception& e) {ini_catch(e);}
+    return 0;
+  }
+
   /// Register a backend requirement for a module function
   int register_backend_requirement(module_functor_common& f, const str& group,
    const str& req, const str& tags, bool is_variable, const str& req_type1,

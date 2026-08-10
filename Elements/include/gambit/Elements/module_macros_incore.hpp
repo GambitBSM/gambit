@@ -130,6 +130,12 @@
 /// model parameters will not generally be accessible from within the module funtion.
 #define ALLOWED_MODEL(MODULE,FUNCTION,MODEL)              CORE_ALLOWED_MODEL(MODULE,FUNCTION,MODEL,NOT_MODEL)
 
+/// Indicate that the current \link FUNCTION() FUNCTION\endlink only depends on the listed
+/// subset of \em MODEL's parameters (used for fast-slow)
+/// If never called for a model that this function otherwise depends on,
+/// the function is assumed to depend on all of that models' parameters
+#define ALLOW_MODEL_PARAMETERS(MODEL,...) CORE_ALLOW_MODEL_PARAMETERS(MODULE,FUNCTION,MODEL,STRINGIFY(__VA_ARGS__))
+
 /// Indicate that the current \link FUNCTION() FUNCTION\endlink may be used with a
 /// specific model \em MODEL, but only in combination with others given via ALLOW_MODEL_COMBINATION.
 #define ALLOWED_MODEL_DEPENDENCE(MODULE,FUNCTION,MODEL)   CORE_ALLOW_MODEL_DEPENDENCE(MODULE,FUNCTION,MODEL,NOT_MODEL)

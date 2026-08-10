@@ -73,6 +73,9 @@ namespace Gambit
   /// Register that a module function is compatible with a single model
   int register_model_singly(module_functor_common&, const str&);
 
+  /// Register that a module function only depends on a subset of a model's parameters (for fast-slow)
+  int register_model_parameter_subset(module_functor_common&, const str&, const str&);
+
   /// Register a model group with a functor
   int register_model_group(module_functor_common&, const str&, const str&);
 
