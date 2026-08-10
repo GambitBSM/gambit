@@ -198,6 +198,27 @@ START_MODULE
     DEPENDENCY(fast_slow_test_one, double)
     #undef FUNCTION
   #undef CAPABILITY
+  
+  // Testers for per-parameter (not just per-model) fast-slow capabilities. Both use
+  // Fast_Slow_Test_Three (parameters "a" and "b"), but only fast_slow_test_three_a
+  // declares (via ALLOW_MODEL_PARAMETERS) that it only actually depends on "a" --
+  // fast_slow_test_three_b declares no subset, so it conservatively depends on both.
+  #define CAPABILITY fast_slow_test_three_a
+  START_CAPABILITY
+    #define FUNCTION fast_slow_test_three_a
+    START_FUNCTION(double)
+    ALLOW_MODELS(Fast_Slow_Test_Three)
+    ALLOW_MODEL_PARAMETERS(Fast_Slow_Test_Three, a)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY fast_slow_test_three_b
+  START_CAPABILITY
+    #define FUNCTION fast_slow_test_three_b
+    START_FUNCTION(double)
+    ALLOW_MODELS(Fast_Slow_Test_Three)
+    #undef FUNCTION
+  #undef CAPABILITY
 
 
   // Tester for Fortran array overlay classes

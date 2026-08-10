@@ -80,6 +80,13 @@
   DEFINEPARS(y)
 #undef MODEL
 
+// A two-parameter model for testing per-parameter (not just per-model) fast-slow
+// invalidation: "a" is intended to be scanned slow, "b" fast.
+#define MODEL Fast_Slow_Test_Three
+  START_MODEL
+  DEFINEPARS(a, b)
+#undef MODEL
+
 // The following are some examples that demonstrate the available ways to declare
 // models and their relationships.  These are commented out as they are not necessary for
 // any of the module examples, but you can uncomment and experiment with them in order to

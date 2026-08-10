@@ -5,12 +5,20 @@
 ///  A minimal fast-slow sampler, for verifying that Core's fast-slow
 ///  caching
 ///
-///  Classifies each scanned model as "slow" or "fast" by comparing its
-///  ModelSpeeds: entry against the "slow_speed_threshold" option (models
-///  with no assigned speed are treated as slow). For each of "point_number"
-///  outer points, the slow models' parameters are drawn once uniformly at
-///  random; the point is then re-evaluated "fast_repeats" times, with only
-///  the fast models' parameters redrawn each repeat.
+///  Classifies each scanned parameter as "slow" or "fast" from this plugin's own
+///  "ModelSpeeds" option, set directly under this scanner's own yaml block. Each model entry can be either a plain
+///  integer (a whole-model default, applied to all of that model's parameters) or a map
+///  with a "default" entry plus per-parameter overrides, e.g.
+///    ModelSpeeds:
+///      CMSSM: 0
+///      Fast_Slow_Test_Three: {default: 0, b: 5}
+///  A parameter is "fast" if its effective speed is greater than "slow_speed_threshold";
+///  parameters with no assigned speed at all are treated as slow. For each of "point_number"
+///  outer points, the slow parameters are drawn once uniformly at random; the point is then
+///  re-evaluated "fast_repeats" times, with only the fast parameters redrawn each repeat.
+///  Comparing printer output for the same outer point should then show slow-only
+///  observables reused (identical) across the repeats, and fast-dependent observables
+///  varying.
 ///
 ///  *********************************************
 ///
@@ -55,9 +63,24 @@ scanner_plugin(fast_slow_test, version(1, 0, 0))
     is_fast.assign(dim, false);
     for (int i = 0; i < dim; i++)
     {
-      std::string model = params[i].substr(0, params[i].find("::"));
+      std::string::size_type pos = params[i].find("::");
+      std::string model = params[i].substr(0, pos);
+      std::string param = params[i].substr(pos + 2);
+      
       int speed = slow_speed_threshold;
-      if (model_speeds[model]) speed = model_speeds[model].as<int>();
+      YAML::Node model_node = model_speeds[model];
+      if (model_node)
+      {
+        if (model_node.IsMap())
+        {
+          if (model_node[param]) speed = model_node[param].as<int>();
+          else if (model_node["default"]) speed = model_node["default"].as<int>();
+        }
+        else
+        {
+          speed = model_node.as<int>();
+        }
+      }
       is_fast[i] = (speed > slow_speed_threshold);
     }
 

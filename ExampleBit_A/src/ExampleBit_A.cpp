@@ -564,6 +564,27 @@ namespace Gambit
       std::cout << "HEY CHRIS. I am in the second function\n";
     }
 
+    /// Declares (via ALLOW_MODEL_PARAMETERS) that it only depends on "a", so it should be
+    /// cached whenever only "b" changes.
+    void fast_slow_test_three_a(double &result)
+    {
+      using namespace Pipes::fast_slow_test_three_a;
+      double a = *Param["a"];
+      result = a;
+      std::cout << "HEY CHRIS. I am in the third function (a only)\n";
+    }
+
+    /// Declares no parameter subset, so it conservatively depends on all of
+    /// Fast_Slow_Test_Three's parameters and should recompute whenever either changes.
+    void fast_slow_test_three_b(double &result)
+    {
+      using namespace Pipes::fast_slow_test_three_b;
+      double a = *Param["a"];
+      double b = *Param["b"];
+      result = a + b;
+      std::cout << "HEY CHRIS. I am in the third function (a and b)\n";
+    }
+
     /// @}
   }
 

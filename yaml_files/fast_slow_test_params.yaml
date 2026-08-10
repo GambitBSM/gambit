@@ -1,0 +1,140 @@
+##########################################################################
+## GAMBIT configuration for exercising and verifying fast-slow selective
+## caching, using the
+## fast_slow_test scanner and ExampleBit_A's fast_slow_test_* capabilities.
+##
+## Only needs ExampleBit_A and the built-in fast_slow_test scanner plugin.
+##
+## What to look for in the output:
+##   - fast_slow_test_one only depends on Fast_Slow_Test_One::x (slow), so it
+##     should be IDENTICAL across all fast_repeats of a given outer point.
+##   - fast_slow_test_two depends on both Fast_Slow_Test_Two::y (fast) and,
+##     transitively, Fast_Slow_Test_One::x, so it should CHANGE on every repeat.
+##   - fast_slow_test_three_a declares (via ALLOW_MODEL_PARAMETERS) that it only
+##     depends on Fast_Slow_Test_Three::a (slow), so it should stay IDENTICAL
+##     across repeats even though ::b (fast, same model) changes every time --
+##     this is the per-parameter (not just per-model) case.
+##   - fast_slow_test_three_b declares no subset, so it conservatively depends
+##     on both a and b, and should CHANGE on every repeat.
+##########################################################################
+
+Parameters:
+
+  Fast_Slow_Test_One:
+    x:
+      prior_type: flat
+      range: [0, 1]
+
+  Fast_Slow_Test_Two:
+    y:
+      prior_type: flat
+      range: [0, 1]
+
+  Fast_Slow_Test_Three:
+    a:
+      prior_type: flat
+      range: [0, 1]
+    b:
+      prior_type: flat
+      range: [0, 1]
+
+
+Priors:
+
+  # None needed: simple priors are already specified in the 'Parameters' section above.
+
+
+Printer:
+
+  printer: ascii
+  options:
+    output_file: "results.dat"
+    buffer_length: 10
+    precision: 10
+    write_header: true
+    delete_file_on_restart: true
+
+
+Scanner:
+
+  use_scanner: fast_slow_demo
+
+  scanners:
+
+    fast_slow_demo:
+      plugin: fast_slow_test
+      like: LogLike
+      # Number of independently-drawn "slow" points.
+      point_number: 5
+      # Number of times each slow point is re-evaluated, redrawing only the
+      # fast parameters each time (the first evaluation counts as repeat 1).
+      fast_repeats: 4
+      # Parameters with effective speed > this are "fast"; everything else
+      # (including parameters with no assigned speed at all) is "slow".
+      slow_speed_threshold: 0
+      ModelSpeeds:
+        Fast_Slow_Test_One: 0   # x: slow
+        Fast_Slow_Test_Two: 5   # y: fast
+        Fast_Slow_Test_Three:
+          default: 0            # a: slow (uses the model default)
+          b: 5                  # b: fast (per-parameter override)
+
+
+ObsLikes:
+
+  - purpose:      LogLike
+    capability:   fast_slow_test_two
+    module:       ExampleBit_A
+    type:         double
+
+  - purpose:      Observable
+    capability:   fast_slow_test_one
+    module:       ExampleBit_A
+    type:         double
+
+  - purpose:      Observable
+    capability:   fast_slow_test_three_a
+    module:       ExampleBit_A
+    type:         double
+
+  - purpose:      Observable
+    capability:   fast_slow_test_three_b
+    module:       ExampleBit_A
+    type:         double
+
+
+Logger:
+
+  redirection:
+    [Default]      : "default.log"
+    [Dependency Resolver] : "dep_resolver.log"
+    [ExampleBit_A] : "ExampleBit_A.log"
+    [Scanner]      : "Scanner.log"
+  debug: true
+
+
+KeyValues:
+
+  debug: false
+
+  default_output_path: "${PWD}/runs/fast_slow_test_demo"
+
+  print_scanID: true
+  scanID: 1
+
+  rng:
+    generator: ranlux48
+    seed: -1
+
+  print_timing_data: false
+
+  print_unitcube: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+
+  dependency_resolution:
+    # The whole point of this yaml file: turn on fast-slow selective staleness
+    # marking. Set to false to fall back to always-recalculate-everything, as
+    # a regression check that printer output is otherwise identical.
+    fast_slow_caching: true
