@@ -180,6 +180,24 @@ START_MODULE
     BACKEND_REQ_FROM_GROUP(external_funcs, externalComplicatedFunction, (), double, (int&, const double&))
     #undef FUNCTION
   #undef CAPABILITY
+  
+  // Testers for basic fast-slow capabilities
+  #define CAPABILITY fast_slow_test_one
+  START_CAPABILITY
+    #define FUNCTION fast_slow_test_one
+    START_FUNCTION(double)
+    ALLOW_MODELS(Fast_Slow_Test_One)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
+  #define CAPABILITY fast_slow_test_two
+  START_CAPABILITY
+    #define FUNCTION fast_slow_test_two
+    START_FUNCTION(double)
+    ALLOW_MODELS(Fast_Slow_Test_Two)
+    DEPENDENCY(fast_slow_test_one, double)
+    #undef FUNCTION
+  #undef CAPABILITY
 
 
   // Tester for Fortran array overlay classes

@@ -545,6 +545,25 @@ namespace Gambit
     /// Chained addition function that adds 4
     void recursive_add_4(int& result){ result = 4 + *Pipes::recursive_add_4::Dep::recursive_sum; }
 
+    /// Test functions for testing fast-slow
+    void fast_slow_test_one(double &result)
+    {
+      using namespace Pipes::fast_slow_test_one;
+      double x = *Param["x"];
+      result = x;
+      std::cout << "HEY CHRIS. I am in the first function\n";
+    }
+
+    void fast_slow_test_two(double &result)
+    {
+      using namespace Pipes::fast_slow_test_two;
+      double y_0 = 0.12;
+      double y = *Param["y"];
+      double x_dep = *Dep::fast_slow_test_one;
+      result = -1.0*x_dep*pow(y-y_0,2.0);
+      std::cout << "HEY CHRIS. I am in the second function\n";
+    }
+
     /// @}
   }
 

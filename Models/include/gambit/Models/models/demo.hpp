@@ -69,6 +69,17 @@
   DEFINEPARS(x)
 #undef MODEL
 
+// Two one-parameter models for testing fast-slow
+#define MODEL Fast_Slow_Test_One
+  START_MODEL
+  DEFINEPARS(x)
+#undef MODEL
+
+#define MODEL Fast_Slow_Test_Two
+  START_MODEL
+  DEFINEPARS(y)
+#undef MODEL
+
 // The following are some examples that demonstrate the available ways to declare
 // models and their relationships.  These are commented out as they are not necessary for
 // any of the module examples, but you can uncomment and experiment with them in order to
