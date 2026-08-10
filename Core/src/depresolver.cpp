@@ -131,20 +131,6 @@ namespace Gambit
       }
     }
 
-    /// Collect descendant vertices recursively (excluding root vertex)
-    void getChildVertices(const VertexID & vertex, const MasterGraphType & graph, std::set<VertexID> & myVertexList)
-    {
-      graph_traits<MasterGraphType>::out_edge_iterator it, iend;
-
-      for (std::tie(it, iend) = out_edges(vertex, graph); it != iend; ++it)
-      {
-        const VertexID child = target(*it, graph);
-        if (myVertexList.insert(child).second)
-        {
-          getChildVertices(child, graph, myVertexList);
-        }
-      }
-    }
 
     /// Sort given list of vertices (according to topological sort result)
     std::vector<VertexID> sortVertices(const std::set<VertexID> & set,
@@ -319,8 +305,8 @@ namespace Gambit
       // Initialise the printer object with a list of functors that are set to print
       initialisePrinter();
 
-      // Precompute which vertices are affected by which model, for fast-slow caching
-      computeModelStaleSets();
+      // Precompute which vertices are affected by which model parameters, for fast-slow caching
+      computeParameterStaleSets();
 
       #ifdef HAVE_GRAPHVIZ
         // Generate graphviz plot if running in dry-run mode.
@@ -788,32 +774,81 @@ namespace Gambit
     }
     
     /// Precompute, for each active primary model functor, the set of vertices that transitively depend on it.
-    void DependencyResolver::computeModelStaleSets()
+    void DependencyResolver::computeParameterStaleSets()
     {
-      modelStaleSets.clear();
+      vertexSensitivity.clear();
+      paramStaleSets.clear();
+
+      // Itendity which vertex is which model's primary model functor, and the full parameter
+      // list of each active model (used when ALLOW_MODEL_PARAMETERS is not declared)
+      std::map<VertexID, str> modelVertexNames;
+      std::map<str, std::vector<str>> modelAllparams;
       for (const auto& model_and_functor : boundCore->getActiveModelFunctors())
       {
         const str& model_name = model_and_functor.first;
         primary_model_functor* model_functor_pts = model_and_functor.second;
+        modelAllParams[model_name] = model_functor_ptr->getcontentsPts()->getKeys();
 
         graph_traits<MasterGraphType>::vertex_iterator vi, vi_end;
         for (std::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
         {
           if (masterGraph[*vi] == model_functor_pts)
           {
-            std::set<VertexID> affected;
-            getChildVertices(*vi, masterGraph, affected);
-            affected.insert(*vi);
-            modelStaleSets[model_name] = affected;
+            modelVertexNames[*vi] = model_name;
             break;
           }
         }
       }
+
+      // Single forward pass over the sorted graph so that every sensitiity is already known by the time we reach a vertex.
+      for (const VertexID& v : function_order)
+      {
+        std::set<std::pair<str,str>> sensitivity;
+
+        auto model_it = modelVertexNames.find(v)
+        if (model_it != modelVertexNames.end())
+        {
+          // This vertex is itself a primary model functor: sensitive to all its own parameters
+          const str& model_name = model_it->second;
+          for (const str& p : modelAllParams[model_name]) sensitivity.insert({model_name, p});
+        }
+        else
+        {
+          graph_traits<MasterGraphType>::in_edge_iterator ei, ei_end;
+          for (std::tie(ei, ei_end) = in_edges(v, masterGraph);ei != ei-end; ++ei)
+          {
+            VertexID provider = source(*ei, masterGraph);
+            auto prov_model_it = modelVertexNames.find(provider);
+            if (prov_model_it != modelVertexNames.end())
+            {
+              // Fed directly by a model's primary model functor (implicit ALLOW_MODELS dep)
+              const str& model_name = prov_model_it->second;
+              if (mastergraph[v]->hasDeclaredModelParameters(model_name))
+              {
+                for (const str& p : masterGraph[v]->getDeclaredModelparameters(model_name)) sensitivity.insert({model_name, p});
+              }
+              else
+              {
+                for (const str& p : modelAllParams[model_name]) sensitivity.insert({model_name, p});
+              }
+            }
+            else
+            {
+              // Ordinary dependency: inherit the provider's sensitivity set verbatim
+              auto sit = vertexSensitivity.find(provider);
+              if (sit != vertexSensitivity.end()) sensitivity.insert(sit->second.begin(), sit->second.end());
+            }
+          }
+        }
+
+        vertexSensitivity[v] = sensitivity;
+        for (const auto& model_param : sensitivity) paramStaleSets[model_param].insert(v);
+      }
     }
 
-    /// Mark for recalculation active functors that transitively depend on one of the changed models
+    /// Mark for recalculation active functors that sensitive to one of the changed model, parameter pairs
     /// + any functor that always requires recalculation
-    void DependencyResolver::markStaleForChangedModels(const std::set<str>& changed_models)
+    void DependencyResolver::markStaleForChangedParameters(const std::set<std::pair<str,str>>& changed_params)
     {
       graph_traits<MasterGraphType>::vertex_iterator vi, vi_end;
       
@@ -828,10 +863,10 @@ namespace Gambit
       }
 
       std::set<VertexID> staleVertices;
-      for (const str& model_name : changed_models)
+      for (const std::pair<str,str>& model_param : changed_params)
       {
-        auto it = modelStaleSets.find(model_name);
-        if (it != modelStaleSets.end()) staleVertices.insert(it->second.begin(), it->second.end());
+        auto it = paramStaleSets.find(model_param);
+        if (it != paramStaleSets.end()) staleVertices.insert(it->second.begin(), it->second.end());
       }
       for (const VertexID& v : staleVertices)
       {

@@ -174,9 +174,9 @@ namespace Gambit
         /// Reset only the print-related flags of all active functors
         void resetPrintFlagsAll();
 
-        /// Mark for recalculation active functors that depend on a changed model
+        /// Mark for recalculation active functors that depend on a changed model parameter
         /// + any not using fast-slow
-        void markStaleForChangedModels(const std::set<str>& changed_models);
+        void markStaleForChangedParameters(const std::set<std::pair<str,str>>& changed_params);
 
         /// Check for unused rules and options
         void checkForUnusedRules();
@@ -246,8 +246,8 @@ namespace Gambit
         std::vector<std::pair<VertexID,bool>> closestCandidateForModel(std::vector<std::pair<VertexID,bool>> candidates);
 
         /// Precompute, for each active primary model functor, the set of vertices that transtitively depend on it.
-        /// Used by markStaleForChangedModels to know which vertices need recalculating.
-        void computeModelStaleSets();
+        /// Used by markStaleForChangedParameters to know which vertices need recalculating.
+        void computeParameterStaleSets();
 
         //
         // Private data members
@@ -323,8 +323,14 @@ namespace Gambit
         /// Whether fast-slow caching of results is enabled
         bool fast_slow_caching_enabled = false;
 
-        /// Map from model name to the set of vertices that must be recalculated when that model's parameters change
-        std::map<str, std::set<VertexID>> modelStaleSets;
+        /// Per-vertex sensitivity sets computed by computeParameterStaleSets()
+        /// For each vertex: the set of (model, parameter) pairs whose change could affect its cached result
+        std::map<VertexID, std::set<std::pair<str, str>>> vertexSensitivity;
+
+        /// Invertex index built from vertexSensitivity
+        /// For each (model, parameter) pair, the set of vertices sensitive to it
+        std::map<std::pair<str,str>, std::set<VertexID>> paramStaleSets;
+        
 
   };
   }
