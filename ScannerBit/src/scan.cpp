@@ -51,6 +51,8 @@ namespace Gambit
         : printerInterface(printerInterface), has_local_factory(false)
         {
             options = main_node["Scanner"];
+
+            options.setValue("ModelSpeeds", main_node["ModelSpeeds"]);
             
             Plugins::plugin_info.iniFile(options);
             

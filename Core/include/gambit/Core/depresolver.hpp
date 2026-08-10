@@ -171,6 +171,13 @@ namespace Gambit
         /// Reset all active functors and delete existing results.
         void resetAll();
 
+        /// Reset only the print-related flags of all active functors
+        void resetPrintFlagsAll();
+
+        /// Mark for recalculation active functors that depend on a changed model
+        /// + any not using fast-slow
+        void markStaleForChangedModels(const std::set<str>& changed_models);
+
         /// Check for unused rules and options
         void checkForUnusedRules();
 
@@ -237,6 +244,10 @@ namespace Gambit
         /// Find candidate functions that are tailor made for models that are
         /// scanned over.
         std::vector<std::pair<VertexID,bool>> closestCandidateForModel(std::vector<std::pair<VertexID,bool>> candidates);
+
+        /// Precompute, for each active primary model functor, the set of vertices that transtitively depend on it.
+        /// Used by markStaleForChangedModels to know which vertices need recalculating.
+        void computeModelStaleSets();
 
         //
         // Private data members
@@ -308,6 +319,12 @@ namespace Gambit
 
         /// Global flag for triggering printing of unitCubeParameters
         bool print_unitcube = false;
+
+        /// Whether fast-slow caching of results is enabled
+        bool fast_slow_caching_enabled = false;
+
+        /// Map from model name to the set of vertices that must be recalculated when that model's parameters change
+        std::map<str, std::set<VertexID>> modelStaleSets;
 
   };
   }

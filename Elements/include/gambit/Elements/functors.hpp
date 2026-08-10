@@ -156,6 +156,16 @@ namespace Gambit
       virtual void reset();
       /// @}
 
+      /// Reset only the flags that control re-printing of the result
+      virtual void resetPrintFlags();
+
+      // Mark this functor as needing recalculation on all threads (not touching print-related flags)
+      virtual void resetForRecalculation();
+
+      // Set/get whether to opt out of fast-slow
+      virtual void setAlwaysRecalculate(bool);
+      virtual bool getAlwaysRecalculate() const;
+
       /// Reset-then-recalculate method
       virtual void reset_and_calculate();
 
@@ -509,6 +519,16 @@ namespace Gambit
       /// Reset functor
       void reset();
 
+      /// Reset only the flags that control re-printing of the result
+      void resetPrintFlags();
+
+      /// Mark this functor as needing recalculation
+      void resetForRecalculation();
+
+      /// Set/get whether to opt out of fast-slow
+      void setAlwaysRecalculate(bool);
+      bool getAlwaysRecalculate() const;
+
       /// Tell the functor that it invalidated the current point in model space, pass a message explaining why, and throw an exception.
       void notifyOfInvalidation(const str&);
 
@@ -725,6 +745,9 @@ namespace Gambit
 
       /// Has timing data already been sent to the printer?
       bool* already_printed_timing;
+
+      /// Flag for opting out of fast-slow
+      bool iAlwaysRecalculate;
 
       /// Flag indicating whether this function can manage a loop over other functions
       bool iCanManageLoops;

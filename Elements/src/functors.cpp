@@ -92,6 +92,10 @@ namespace Gambit
     void functor::notifyOfInvalidation(const str&) {}
     void functor::reset() {}
     void functor::reset(int) {}
+    void functor::resetPrintFlags() {}
+    void functor::resetForRecalculation() {}
+    void functor::setAlwaysRecalculate(bool) {}
+    bool functor::getAlwaysRecalculate() const { return false; }
     /// @}
 
     /// Reset-then-recalculate method
@@ -743,6 +747,7 @@ namespace Gambit
       needs_recalculating      (NULL),
       already_printed          (NULL),
       already_printed_timing   (NULL),
+      iAlwaysRecalculate       (false),
       iCanManageLoops          (false),
       iRunNested               (false),
       myLoopManagerCapability  ("none"),
@@ -804,13 +809,39 @@ namespace Gambit
     /// Reset functor for all threads
     void module_functor_common::reset()
     {
+      resetPrintFlags();
+      resetForRecalculation();
+    }
+
+    /// Reset only the flags that control re-printing
+    void module_functor_common::resetPrintFlags()
+    {
+      init_memory();
+      int n = (iRunNested ? globlMaxThreads : 1);
+      std::fill(already_printed, already_printed+n, false);
+      std::fill(already_printed_timing, already_printed_timing+n, false);
+      point_exception_raised = false;
+    }
+
+    /// Mark this functor as needing recalculation on all threads
+    void module_functor_common::resetForRecalculation()
+    {
       init_memory();
       int n = (iRunNested ? globlMaxThreads : 1);
       std::fill(needs_recalculating, needs_recalculating+n, true);
-      std::fill(already_printed, already_printed+n, false);
-      std::fill(already_printed_timing, already_printed_timing+n, false);
       if (iCanManageLoops) resetLoop();
-      point_exception_raised = false;
+    }
+
+    /// Setter for whether to opt out of fast-slow
+    void module_functor_common::setAlwaysRecalculate(bool flag)
+    {
+      iAlwaysRecalculate = flag;
+    }
+
+    /// Getter for whether to opt out of fast-slow
+    bool module_functor_common::getAlwaysRecalculate() const
+    {
+      return iAlwaysRecalculate;
     }
 
     /// Reset functor for one thread only

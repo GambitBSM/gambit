@@ -68,6 +68,7 @@ namespace Gambit
         YAML::Node getScannerNode() const;
         YAML::Node getLoggerNode() const;
         YAML::Node getKeyValuePairNode() const;
+        YAML::Node getModelSpeedsNode() const;
         
         template <typename... args>
         bool hasKey(args... keys) const
@@ -106,6 +107,20 @@ namespace Gambit
         const std::vector<str> getModelParameters(str model) const;
         /// @}
 
+        /// Getters for fast-slow "speed" metadata
+        /// @{
+        /// Whether a model-wide default speed has been assigned
+        bool hasModelSpeed(str model) const;
+        int getModelSpeed(str model) const;
+        /// Whether a give parameter has its own speed override
+        bool hasParameterSpeed(str model, str param) const;
+        int getParameterSpeed(str model, str param) const;
+        /// Whether an effective speed is avaiable for a parameter
+        bool hasEffectiveSpeed(str model, str param) const;
+        int getEffectiveSpeed(str model, str param) const;
+        /// @}
+        
+
         /// Getter for options
         const Options getOptions(str key) const;
 
@@ -129,6 +144,7 @@ namespace Gambit
         YAML::Node printerNode;
         YAML::Node scannerNode;
         YAML::Node logNode;
+        YAML::Node modelSpeedsNode;
     };
 
 

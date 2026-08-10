@@ -131,6 +131,21 @@ namespace Gambit
       }
     }
 
+    /// Collect descendant vertices recursively (excluding root vertex)
+    void getChildVertices(const VertexID & vertex, const MasterGraphType & graph, std::set<VertexID> & myVertexList)
+    {
+      graph_traits<MasterGraphType>::out_edge_iterator it, iend;
+
+      for (std::tie(it, iend) = out_edges(vertex, graph); it != iend; ++it)
+      {
+        const VertexID child = target(*it, graph);
+        if (myVertexList.insert(child).second)
+        {
+          getChildVertices(child, graph, myVertexList);
+        }
+      }
+    }
+
     /// Sort given list of vertices (according to topological sort result)
     std::vector<VertexID> sortVertices(const std::set<VertexID> & set,
         const std::list<VertexID> & topoOrder)
@@ -237,6 +252,10 @@ namespace Gambit
       logger() << "#######################################";
       for (const auto& equiv_class : boundTEs->equivalency_classes) logger() << endl << equiv_class;
       logger() << EOM;
+
+      // Whethre to enable fast-slow caching
+      fast_slow_caching_enabled = boundIniFile->getValueOrDef<bool>(false, "dependency_resolution", "fast_slow_caching");
+      if (fast_slow_caching_enabled) logger() << LogTags::dependency_resolver << "Fast-slow caching is enabled." << EOM;
     }
 
 
@@ -299,6 +318,9 @@ namespace Gambit
 
       // Initialise the printer object with a list of functors that are set to print
       initialisePrinter();
+
+      // Precompute which vertices are affected by which model, for fast-slow caching
+      computeModelStaleSets();
 
       #ifdef HAVE_GRAPHVIZ
         // Generate graphviz plot if running in dry-run mode.
@@ -754,6 +776,75 @@ namespace Gambit
         if (masterGraph[*vi]->isActive()) masterGraph[*vi]->reset();
       }
     }
+
+    /// Reset only the print-related flags of all active functors.
+    void DependencyResolver::resetPrintFlagsAll()
+    {
+      graph_traits<MasterGraphType>::vertex_iterator vi, vi_end;
+      for (std::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
+      {
+        if (masterGraph[*vi]->isActive()) masterGraph[*vi]->resetPrintFlags();
+      }
+    }
+    
+    /// Precompute, for each active primary model functor, the set of vertices that transitively depend on it.
+    void DependencyResolver::computeModelStaleSets()
+    {
+      modelStaleSets.clear();
+      for (const auto& model_and_functor : boundCore->getActiveModelFunctors())
+      {
+        const str& model_name = model_and_functor.first;
+        primary_model_functor* model_functor_pts = model_and_functor.second;
+
+        graph_traits<MasterGraphType>::vertex_iterator vi, vi_end;
+        for (std::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
+        {
+          if (masterGraph[*vi] == model_functor_pts)
+          {
+            std::set<VertexID> affected;
+            getChildVertices(*vi, masterGraph, affected);
+            affected.insert(*vi);
+            modelStaleSets[model_name] = affected;
+            break;
+          }
+        }
+      }
+    }
+
+    /// Mark for recalculation active functors that transitively depend on one of the changed models
+    /// + any functor that always requires recalculation
+    void DependencyResolver::markStaleForChangedModels(const std::set<str>& changed_models)
+    {
+      graph_traits<MasterGraphType>::vertex_iterator vi, vi_end;
+      
+      if (not fast_slow_caching_enabled)
+      {
+        // Fast-slow caching disabled: fall back to always recalculating everything
+        for (std::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
+        {
+          if (masterGraph[*vi]->isActive()) masterGraph[*vi]->resetForRecalculation();
+          return;
+        }
+      }
+
+      std::set<VertexID> staleVertices;
+      for (const str& model_name : changed_models)
+      {
+        auto it = modelStaleSets.find(model_name);
+        if (it != modelStaleSets.end()) staleVertices.insert(it->second.begin(), it->second.end());
+      }
+      for (const VertexID& v : staleVertices)
+      {
+        if (masterGraph[v]->isActive()) masterGraph[v]->resetForRecalculation();
+      }
+
+      // Functors that have opted out of fast-slow caching must always be recalculated
+      for (std::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
+      {
+        if (masterGraph[*vi]->isActive() and masterGraph[*vi]->getAlwaysRecalculate()) masterGraph[*vi]->resetForRecalculation();
+      }
+    }
+
 
 
     ////////////////////////////////////////////////////

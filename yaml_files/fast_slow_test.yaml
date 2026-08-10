@@ -1,0 +1,101 @@
+##########################################################################
+## GAMBIT configuration for fast-slow test.
+## Uses two models, each with a speed parameter
+##########################################################################
+
+
+Parameters:
+
+  Fast_Slow_Test_One:
+    x:
+      prior_type: flat
+      range: [-1.0, 1.0]
+
+  Fast_Slow_Test_Two:
+    y:
+      prior_type: flat
+      range: [-1.0, 1.0]
+
+ModelSpeeds:
+  Fast_Slow_Test_One: 1
+  Fast_Slow_Test_Two: 10
+
+Priors:
+
+Printer:
+
+  printer: ascii
+  options:
+    output_file: "results.dat"
+    buffer_length: 10
+    precision: 10
+    write_header: true
+    delete_file_on_restart: true
+
+  # printer: cout
+
+Scanner:
+
+  use_scanner: fast_slow_test
+
+  scanners:
+
+    fast_slow_test:
+      plugin: fast_slow_test
+      like: LogLike
+      point_number: 30
+      fast_repeats: 100
+      slow_speed_threshold: 5
+
+
+ObsLikes:
+
+  - purpose:      ObsLike
+    capability:   fast_slow_test_one
+    module:       ExampleBit_A
+    type:         double
+
+  - purpose:      LogLike
+    capability:   fast_slow_test_two
+    module:       ExampleBit_A
+    type:         double
+
+
+Rules:
+
+
+Logger:
+
+  redirection:
+    [Default]      : "default.log"
+    [ExampleBit_A] : "ExampleBit_A.log"
+    [Scanner]      : "Scanner.log"
+  debug: true
+
+KeyValues:
+
+  debug: true
+
+  default_output_path: "${PWD}/runs/test_fast_slow"
+
+  # An additional entry in the dataset and metadata, useful for identifying which
+  # points correspond to a given scan in combined datasets.
+  # The default is for print_scanID: true,
+  # and for it to print the date and time as an int of the form
+  # scanID: HourMinuteSecondMillisecond. This can be overwritten to any integer.
+  print_scanID: true
+  scanID: 1
+
+  rng:
+    generator: ranlux48
+    seed: -1
+
+  print_timing_data: false
+
+  print_unitcube: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+
+  dependency_resolution:
+    fast_slow_caching: true
