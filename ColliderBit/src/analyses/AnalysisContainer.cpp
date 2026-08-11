@@ -79,6 +79,7 @@ namespace Gambit
       F(ATLAS_EXOT_2016_014)                            \
       F(ATLAS_EXOT_2016_017)                            \
       F(ATLAS_EXOT_2018_06)                             \
+      F(ATLAS_EXOT_2018_60)                             \
       F(ATLAS_EXOT_2019_04)                             \
       F(ATLAS_EXOT_2019_07)                             \
       F(ATLAS_EXOT_2021_035)                            \
