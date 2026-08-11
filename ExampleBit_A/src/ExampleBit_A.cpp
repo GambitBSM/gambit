@@ -160,6 +160,15 @@ namespace Gambit
       result = 2.0;
     }
 
+    /// Example of depending on two different functions that both provide the same upstream
+    /// capability (TestDependency), pinned via DEPENDENCY_ON_FUNCTION so that both testdependency_1
+    /// and testdependency_2 can be dependencies of this function without a Rules: entry.
+    void testdependency_variation(double &result)
+    {
+      using namespace Pipes::testdependency_variation;
+      result = *Dep::calc1 - *Dep::calc2;
+    }
+
     /// Likelihood function for fitting the population parameters of a
     /// normal distribution (with hard-coded "observations")
     /// Mainly used for testing scanning algorthims

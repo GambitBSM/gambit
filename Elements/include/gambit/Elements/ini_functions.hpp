@@ -87,6 +87,14 @@ namespace Gambit
   int register_dependency(module_functor_common&, const str&, const str&,
    void(*)(functor*, module_functor_common*));
 
+  /// Register a tagged, pinned dependency slot of a module function: a dependency on a
+  /// capability that is resolved directly to a named function (and, optionally, module),
+  /// rather than left for the dependency resolver to disambiguate. Lets a module function
+  /// depend on more than one provider of the same capability.
+  int register_pinned_dependency(module_functor_common&, const str& tag, const str& dep,
+   const str& dep_type, const str& target_function, const str& target_module,
+   void(*)(functor*, module_functor_common*));
+
   /// Register a conditional dependency of a module function
   int register_conditional_dependency(module_functor_common&, const str&, const str&);
 

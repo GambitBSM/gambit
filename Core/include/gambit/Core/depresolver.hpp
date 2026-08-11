@@ -86,12 +86,22 @@ namespace Gambit
     {
       QueueEntry();
       QueueEntry(sspair a, VertexID b, int c, bool d);
+      /// Constructor for a tagged, pinned dependency slot (see DependencySlot / DEPENDENCY_ON_FUNCTION).
+      QueueEntry(sspair a, VertexID b, int c, bool d, str tag, str pinned_function, str pinned_module);
       sspair quantity;
       VertexID toVertex;
       int dependency_type;
       bool printme;
       bool critical;
       const Observable* obslike;
+      /// Local tag identifying this dependency slot. Empty for ordinary dependencies and
+      /// ObsLikes entries; non-empty only for slots declared via DEPENDENCY_ON_FUNCTION.
+      str tag;
+      /// Function this slot is pinned to resolve to. Empty means this is an ordinary,
+      /// openly-resolved dependency (i.e. entry.tag is also empty).
+      str pinned_function;
+      /// Module the pinned function must come from. Empty means any module.
+      str pinned_module;
     };
 
     /// Main dependency resolver

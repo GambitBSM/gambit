@@ -245,6 +245,13 @@ namespace Gambit
       std::set<sspair> empty;
       return empty;
     }
+
+    /// Getter for listing currently activated pinned dependency slots
+    std::vector<DependencySlot> functor::pinnedDependencies()
+    {
+      std::vector<DependencySlot> empty;
+      return empty;
+    }
     /// Getter for listing backends that require class loading
     std::set<sspair> functor::backendclassloading()
     {
@@ -358,6 +365,12 @@ namespace Gambit
     void functor::resolveDependency (functor*)
     {
       utils_error().raise(LOCAL_INFO,"The resolveDependency method has not been defined in this class.");
+    }
+
+    /// Resolve a tagged, pinned dependency slot using a pointer to another functor object
+    void functor::resolvePinnedDependency (functor*, str)
+    {
+      utils_error().raise(LOCAL_INFO,"The resolvePinnedDependency method has not been defined in this class.");
     }
 
     /// Set this functor's loop manager (if it has one)
@@ -1028,6 +1041,8 @@ namespace Gambit
 
     /// Getter for listing currently activated dependencies
     std::set<sspair> module_functor_common::dependencies() { return myDependencies; }
+    /// Getter for listing currently activated pinned dependency slots
+    std::vector<DependencySlot> module_functor_common::pinnedDependencies() { return myDependencySlots; }
     /// Getter for listing backends that require class loading
     std::set<sspair> module_functor_common::backendclassloading()
     {
@@ -1177,6 +1192,22 @@ namespace Gambit
       sspair key (dep, Utils::fix_type(dep_type));
       myDependencies.insert(key);
       dependency_map[key] = resolver;
+      this->myPurpose = purpose; // only relevant for output nodes
+      this->myCritical = critical; // only relevant for output nodes
+    }
+
+    /// Add and activate a tagged, pinned dependency slot.
+    void module_functor_common::setPinnedDependency(str tag, str dep, str dep_type, str pinned_function, str pinned_module,
+     void(*resolver)(functor*, module_functor_common*), str purpose, bool critical)
+    {
+      DependencySlot slot;
+      slot.tag = tag;
+      slot.capability = dep;
+      slot.type = Utils::fix_type(dep_type);
+      slot.pinned_function = pinned_function;
+      slot.pinned_module = pinned_module;
+      myDependencySlots.push_back(slot);
+      tagged_dependency_map[tag] = resolver;
       this->myPurpose = purpose; // only relevant for output nodes
       this->myCritical = critical; // only relevant for output nodes
     }
@@ -1545,6 +1576,59 @@ namespace Gambit
       }
     }
 
+    /// Resolve a tagged, pinned dependency slot using a pointer to another functor object
+    void module_functor_common::resolvePinnedDependency (functor* dep_functor, str tag)
+    {
+      auto it = std::find_if(myDependencySlots.begin(), myDependencySlots.end(),
+       [&tag](const DependencySlot& s){ return s.tag == tag; });
+      if (it == myDependencySlots.end())
+      {
+        str errmsg = "Cannot resolve pinned dependency:";
+        errmsg += "\nFunction " + myName + " in " + myOrigin + " declares no dependency slot"
+                  "\ntagged " + tag + ".";
+        utils_error().raise(LOCAL_INFO,errmsg);
+        return;
+      }
+      sspair key (dep_functor->quantity());
+      if (key.first != it->capability or key.second != it->type)
+      {
+        str errmsg = "Cannot resolve pinned dependency:";
+        errmsg += "\nDependency slot " + tag + " of function " + myName + " in " + myOrigin +
+                  "\nexpects capability " + it->capability + " with type = " + it->type + ", but was"
+                  "\noffered " + dep_functor->capability() + " with type = " + dep_functor->type() + ".";
+        utils_error().raise(LOCAL_INFO,errmsg);
+        return;
+      }
+      if (not it->pinned_function.empty() and dep_functor->name() != it->pinned_function)
+      {
+        str errmsg = "Cannot resolve pinned dependency:";
+        errmsg += "\nDependency slot " + tag + " of function " + myName + " in " + myOrigin +
+                  "\nis pinned to function " + it->pinned_function + ", but was offered " +
+                  dep_functor->name() + ".";
+        utils_error().raise(LOCAL_INFO,errmsg);
+        return;
+      }
+      if (not it->pinned_module.empty() and dep_functor->origin() != it->pinned_module)
+      {
+        str errmsg = "Cannot resolve pinned dependency:";
+        errmsg += "\nDependency slot " + tag + " of function " + myName + " in " + myOrigin +
+                  "\nis pinned to module " + it->pinned_module + ", but " + dep_functor->name() +
+                  " comes from " + dep_functor->origin() + ".";
+        utils_error().raise(LOCAL_INFO,errmsg);
+        return;
+      }
+      // resolve the dependency
+      if (tagged_dependency_map.find(tag) != tagged_dependency_map.end()) (*tagged_dependency_map[tag])(dep_functor,this);
+      // propagate purpose from next to next-to-output nodes
+      dep_functor->setPurpose(this->myPurpose);
+      // propagate critical from next to next-to-output nodes
+      dep_functor->setCritical(this->myCritical);
+      // propagate this functor's dependees and subcaps on to the resolving functor
+      dep_functor->notifyOfDependee(this);
+      // save the pointer to the resolving functor to allow this functor to notify it of future dependees
+      tagged_dependency_functor_map[tag] = dep_functor;
+    }
+
     /// Notify the functor that another functor depends on it
     void module_functor_common::notifyOfDependee (functor* dependent_functor)
     {
@@ -1556,6 +1640,7 @@ namespace Gambit
       notifyOfSubCaps(*(dependent_functor->getSubCaps()));
       // Notify all functors on which this one depends that they also now have a new dependent
       for (auto entry : dependency_functor_map) entry.second->notifyOfDependee(dependent_functor);
+      for (auto entry : tagged_dependency_functor_map) entry.second->notifyOfDependee(dependent_functor);
     }
 
     /// Set this functor's loop manager (if it has one)

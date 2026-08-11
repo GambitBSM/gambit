@@ -404,6 +404,13 @@ ObsLikes:
     purpose: Observable
     exclude_from_dependency_resolution: true
 
+  # TestDependencyVariation depends on both testdependency_1 and testdependency_2 (both
+  # providers of TestDependency) at once, pinned via DEPENDENCY_ON_FUNCTION in the rollcall
+  # header. No Rules: entry is needed (or consulted) to disambiguate which function fills
+  # which dependency slot -- that's already fully determined in the C++ declaration.
+  - capability: TestDependencyVariation
+    purpose: Observable
+
 Rules:
 
   - if:

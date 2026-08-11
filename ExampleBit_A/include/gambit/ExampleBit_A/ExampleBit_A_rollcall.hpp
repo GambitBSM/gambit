@@ -177,14 +177,29 @@ START_MODULE
     START_FUNCTION(double)
     ALLOW_MODELS(NormalDist)
     #undef FUNCTION
-    
+
     #define FUNCTION testdependency_2
     START_FUNCTION(double)
     ALLOW_MODELS(NormalDist)
-    DEPENDENCY(DELETEME, double)
     #undef FUNCTION
   #undef CAPABILITY
-  
+
+  // Example of a capability that needs the results of two different functions that both
+  // provide the same upstream capability (TestDependency), e.g. to compare two calculators
+  // of the same quantity. Each dependency is pinned to its target function directly here via
+  // DEPENDENCY_ON_FUNCTION, so (unlike an ordinary DEPENDENCY) both can target TestDependency
+  // on the same FUNCTION without colliding, and no Rules: entry is needed or consulted to
+  // disambiguate them.
+  #define CAPABILITY TestDependencyVariation
+  START_CAPABILITY
+    #define FUNCTION testdependency_variation
+    START_FUNCTION(double)
+    ALLOW_MODELS(NormalDist)
+    DEPENDENCY_ON_FUNCTION(calc1, TestDependency, double, testdependency_1)
+    DEPENDENCY_ON_FUNCTION(calc2, TestDependency, double, testdependency_2)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   // Tester that shows how to retrieve pointers to backend functions
   #define CAPABILITY function_pointer
   START_CAPABILITY

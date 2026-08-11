@@ -190,6 +190,22 @@ namespace Gambit
     return 0;
   }
 
+  /// Register a tagged, pinned dependency slot of a module function
+  int register_pinned_dependency(module_functor_common& f, const str& tag, const str& dep,
+   const str& dep_type, const str& target_function, const str& target_module,
+   void(*resolver)(functor*, module_functor_common*))
+  {
+    try
+    {
+      // "ANY_MODULE" is the sentinel used by DEPENDENCY_ON_FUNCTION (as opposed to
+      // DEPENDENCY_ON_FUNCTION_IN_MODULE) to indicate that no module is pinned.
+      str module = (target_module == "ANY_MODULE" ? "" : target_module);
+      f.setPinnedDependency(tag, dep, dep_type, target_function, module, resolver);
+    }
+    catch (std::exception& e) { ini_catch(e); }
+    return 0;
+  }
+
   /// Register a conditional dependency of a module function
   int register_conditional_dependency(module_functor_common& f, const str& dep, const str& dep_type)
   {
