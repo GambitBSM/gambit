@@ -161,8 +161,7 @@ namespace Gambit
     }
 
     /// Example of depending on two different functions that both provide the same upstream
-    /// capability (TestDependency), pinned via DEPENDENCY_ON_FUNCTION so that both testdependency_1
-    /// and testdependency_2 can be dependencies of this function without a Rules: entry.
+    /// capability
     void testdependency_variation(double &result)
     {
       using namespace Pipes::testdependency_variation;

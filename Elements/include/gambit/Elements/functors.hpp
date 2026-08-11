@@ -125,14 +125,6 @@ namespace Gambit
   };
 
   /// Specification of a single tagged, individually-resolved dependency slot.
-  ///
-  /// An ordinary DEPENDENCY(capability, type) declaration lets the resolver pick freely among
-  /// all active providers of (capability, type), and only one such dependency can exist per
-  /// (capability, type) pair on a given functor. A DependencySlot instead pins resolution to a
-  /// specific function (and optionally module) directly in the rollcall declaration, identified
-  /// by its own local tag rather than by capability -- so a function can declare more than one
-  /// dependency on the same capability (e.g. two different calculators of the same quantity),
-  /// each accessed via its own Dep::tag, with no YAML input required to disambiguate them.
   struct DependencySlot
   {
     str tag;
@@ -273,7 +265,6 @@ namespace Gambit
       /// Getter for listing currently activated dependencies
       virtual std::set<sspair> dependencies();
       /// Getter for listing currently activated pinned dependency slots (see DependencySlot).
-      /// Empty by default; overridden only by functor types that can declare them.
       virtual std::vector<DependencySlot> pinnedDependencies();
       /// Getter for listing backends that require class loading
       virtual std::set<sspair> backendclassloading();
@@ -644,11 +635,11 @@ namespace Gambit
       void setDependency(str, str, void(*)(functor*, module_functor_common*), str purpose= "", bool critical=false);
 
       /// Add and activate a tagged, pinned dependency slot: a dependency on (dep, dep_type) that
-      /// is resolved directly to the named function (and, if non-empty, module) rather than left
+      /// is resolved directly to the named function rather than left
       /// for the dependency resolver to disambiguate. Used to let a functor depend on more than
       /// one provider of the same capability.
       void setPinnedDependency(str tag, str dep, str dep_type, str pinned_function, str pinned_module,
-       void(*)(functor*, module_functor_common*), str purpose= "", bool critical=false);
+                               void(*)(functor*, module_functor_common*), str purpose= "", bool critical=false);
 
       /// Add conditional dependency-type pairs in advance of later conditions.
       void setConditionalDependency(str, str);
@@ -814,10 +805,7 @@ namespace Gambit
       /// Vector of dependency-type string pairs
       std::set<sspair> myDependencies;
 
-      /// Tagged, pinned dependency slots declared via DEPENDENCY_ON_FUNCTION, kept separate from
-      /// myDependencies/dependency_map (which are keyed by (capability,type) and so cannot hold
-      /// more than one dependency per capability) so that a functor can depend on more than one
-      /// provider of the same capability.
+      /// Tagged, pinned dependency slots declared via DEPENDENCY_ON_FUNCTION
       std::vector<DependencySlot> myDependencySlots;
 
       /// Map of conditional dependencies to their types
@@ -843,13 +831,13 @@ namespace Gambit
       /// that set dependency functor pointers)
       std::map<sspair, functor*> dependency_functor_map;
 
-      /// Map from tag (of a pinned dependency slot) to pointer to the templated void function
+      /// Map from tag to pointer to the templated void function
       /// that sets the corresponding dependency functor pointer. Analogous to dependency_map,
       /// but keyed by tag rather than (capability,type), so that more than one entry can target
       /// the same capability.
       std::map<str, void(*)(functor*, module_functor_common*)> tagged_dependency_map;
 
-      /// Map from tag (of a pinned dependency slot) to pointer to the functor used to resolve it.
+      /// Map from tag to pointer to the functor used to resolve it.
       /// Analogous to dependency_functor_map, but keyed by tag.
       std::map<str, functor*> tagged_dependency_functor_map;
 

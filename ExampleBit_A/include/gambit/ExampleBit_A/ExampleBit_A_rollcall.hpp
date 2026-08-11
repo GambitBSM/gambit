@@ -188,8 +188,7 @@ START_MODULE
   // provide the same upstream capability (TestDependency), e.g. to compare two calculators
   // of the same quantity. Each dependency is pinned to its target function directly here via
   // DEPENDENCY_ON_FUNCTION, so (unlike an ordinary DEPENDENCY) both can target TestDependency
-  // on the same FUNCTION without colliding, and no Rules: entry is needed or consulted to
-  // disambiguate them.
+  // on the same FUNCTION without colliding.
   #define CAPABILITY TestDependencyVariation
   START_CAPABILITY
     #define FUNCTION testdependency_variation

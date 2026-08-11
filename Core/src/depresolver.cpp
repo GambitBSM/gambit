@@ -101,7 +101,7 @@ namespace Gambit
       obslike(NULL)
     {}
 
-    /// Constructor for a tagged, pinned dependency slot
+    /// Alternative constructor for a tagged, pinned dependency slot
     QueueEntry::QueueEntry(sspair a, VertexID b, int c, bool d, str tag_in, str pinned_function_in, str pinned_module_in)
     : quantity(a),
       toVertex(b),
@@ -1122,14 +1122,7 @@ namespace Gambit
     /// As non-subjugate rules have global applicability, all (strong) instances are assumed to have already been applied before this function is called.
     std::vector<VertexID> DependencyResolver::resolveDependencyFromRules(const QueueEntry& entry, const std::vector<VertexID>& vertexCandidates)
     {
-      // If this queue entry is a pinned dependency slot (declared via DEPENDENCY_ON_FUNCTION in
-      // the rollcall header), its target function -- and optionally its module -- is already
-      // fully known from the C++ declaration alone. Resolve it directly here, without consulting
-      // YAML Rules, the model-specificity preference, or the exclude_from_dependency_resolution
-      // flag: a pin is a deliberate, explicit request for one specific functor, not an ambiguous
-      // dependency that needs help being narrowed down. (excludedFromDependencyResolution() is
-      // bypassed deliberately here, since that flag exists precisely to stop a functor being
-      // picked up by *open* dependency resolution -- a pin naming it explicitly is the opposite.)
+      // If this queue entry is a pinned dependency slot, its target function is already fully known from the rollcall declaration alone.
       if (not entry.pinned_function.empty())
       {
         std::vector<VertexID> matches;
@@ -1154,7 +1147,7 @@ namespace Gambit
           if (not entry.pinned_module.empty()) errmsg += " in module '" + entry.pinned_module + "'";
           errmsg += " providing " + entry.quantity.first + " (" + entry.quantity.second + ") was found.";
           errmsg += "\nThis dependency is pinned directly in the rollcall header via";
-          errmsg += "\nDEPENDENCY_ON_FUNCTION, not via the YAML file, so check that the pinned";
+          errmsg += "\nDEPENDENCY_ON_FUNCTION, so check that the pinned";
           errmsg += "\nfunction exists, actually provides the expected capability/type, and is";
           errmsg += "\nactive for the model(s) being scanned (it may have been deactivated by an";
           errmsg += "\nALLOW_MODELS declaration incompatible with the models selected for scanning).";
@@ -1736,9 +1729,7 @@ namespace Gambit
         }
       }
 
-      // Digest pinned dependency slots (declared via DEPENDENCY_ON_FUNCTION). Each gets its own
-      // queue entry -- even if several target the same capability as each other, or as an
-      // ordinary dependency above -- because they are disambiguated by tag, not by capability.
+      // Digest pinned dependency slots (declared via DEPENDENCY_ON_FUNCTION). Each gets its own queue entry.
       std::vector<DependencySlot> pinned = masterGraph[vertex]->pinnedDependencies();
       if (pinned.size() > 0) logger() << "Add pinned dependencies of new module function to queue" << endl;
       for (const DependencySlot& slot : pinned)

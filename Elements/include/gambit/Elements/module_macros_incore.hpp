@@ -130,10 +130,7 @@
 /// The dependency is accessed within the function via \c Dep::TAG rather than \c Dep::DEP,
 /// which is what allows \em TAG to be distinct from \em DEP: unlike plain \link DEPENDENCY()
 /// DEPENDENCY\endlink, more than one \c DEPENDENCY_ON_FUNCTION may target the same \em DEP on
-/// the same \link FUNCTION() FUNCTION\endlink (each with its own \em TAG), which is exactly
-/// what is needed to depend on two different functions that both provide the same capability
-/// (e.g. to compare two calculators of the same quantity). Because the target is pinned here,
-/// in the rollcall header, no \c Rules: entry is needed (or consulted) to resolve it.
+/// the same \link FUNCTION() FUNCTION\endlink (each with its own \em TAG).
 #define DEPENDENCY_ON_FUNCTION(TAG, DEP, TYPE, TARGET_FUNCTION) \
                                                            CORE_DEPENDENCY_ON_FUNCTION(TAG, DEP, TYPE, TARGET_FUNCTION, ANY_MODULE, MODULE, FUNCTION, NOT_MODEL)
 /// Version of \link DEPENDENCY_ON_FUNCTION() DEPENDENCY_ON_FUNCTION\endlink that also pins the

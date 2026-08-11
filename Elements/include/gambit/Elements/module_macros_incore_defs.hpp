@@ -523,14 +523,11 @@
 
 /// Common components of CORE_DEPENDENCY_ON_FUNCTION(TAG, DEP, TYPE, TARGET_FUNCTION,
 /// TARGET_MODULE, MODULE, FUNCTION). Identical in structure to DEPENDENCY_COMMON, except
-/// everything is filed under the local TAG rather than DEP, which is what allows more than
-/// one of these to target the same DEP on the same FUNCTION.
+/// everything is filed under the local TAG rather than DEP.
 #define DEPENDENCY_ON_FUNCTION_COMMON(TAG, TYPE, MODULE, FUNCTION)             \
                                                                                \
-      /* Given that TYPE is not void, create a safety_bucket for the           \
-      dependency result, filed under Dep::TAG (not Dep::DEP), so that more     \
-      than one dependency slot can target the same capability. To be           \
-      initialized automatically at runtime when the dependency is resolved. */ \
+      /* Create a safety_bucket for the dependency result, so that more        \
+      than one dependency slot can target the same capability */               \
       namespace Pipes                                                          \
       {                                                                        \
         namespace FUNCTION                                                     \
@@ -572,9 +569,7 @@
 
 /// Redirection of DEPENDENCY_ON_FUNCTION(TAG, DEP, TYPE, TARGET_FUNCTION) [via
 /// DEPENDENCY_ON_FUNCTION_IN_MODULE(TAG, DEP, TYPE, TARGET_FUNCTION, TARGET_MODULE)] when
-/// invoked from within the core. TARGET_MODULE is the literal token ANY_MODULE when no module
-/// is pinned (see DEPENDENCY_ON_FUNCTION); register_pinned_dependency() maps that sentinel back
-/// to "no module constraint" at the point where the pin is stored on the functor.
+/// invoked from within the core.
 #define CORE_DEPENDENCY_ON_FUNCTION(TAG, DEP, TYPE, TARGET_FUNCTION, TARGET_MODULE, MODULE, FUNCTION, IS_MODEL_DEP) \
                                                                                \
   namespace Gambit                                                            \
