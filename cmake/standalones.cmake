@@ -33,7 +33,7 @@ add_standalone(3bithit SOURCES DecayBit/examples/3bithit.cpp MODULES DecayBit Sp
 add_standalone(FlavBit_standalone SOURCES FlavBit/examples/FlavBit_standalone_example.cpp MODULES FlavBit)
 add_standalone(NeutrinoBit_standalone SOURCES NeutrinoBit/examples/NeutrinoBit_standalone.cpp MODULES NeutrinoBit)
 add_standalone(NeutrinoBit_standalone_RHN SOURCES NeutrinoBit/examples/NeutrinoBit_standalone_RHN.cpp MODULES NeutrinoBit)
-add_standalone(CBS SOURCES ColliderBit/examples/solo.cpp ColliderBit/examples/solo_input.cpp ColliderBit/examples/solo_batch.cpp ColliderBit/examples/solo_output.cpp MODULES ColliderBit DEPENDENCIES hepmc pybind11)
+add_standalone(CBS SOURCES ColliderBit/examples/solo.cpp ColliderBit/examples/solo_cli.cpp ColliderBit/examples/solo_input.cpp ColliderBit/examples/solo_batch.cpp ColliderBit/examples/solo_output.cpp MODULES ColliderBit DEPENDENCIES hepmc pybind11)
 
 option(GAMBIT_USE_LLD_FOR_CBS "Use lld when linking the CBS standalone executable." OFF)
 if(TARGET CBS AND GAMBIT_USE_LLD_FOR_CBS)

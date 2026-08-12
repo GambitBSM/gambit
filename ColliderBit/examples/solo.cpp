@@ -28,6 +28,7 @@
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "fastjet/ClusterSequence.hh"
 #include "solo_batch.hpp"
+#include "solo_cli.hpp"
 #include "solo_input.hpp"
 #include "solo_output.hpp"
 // #include "gambit/Backends/backend_rollcall.hpp"
@@ -71,6 +72,19 @@ int main(int argc, char* argv[])
 {
   try
   {
+    ColliderBit::SoloCLI::CommandLineOptions command_line_options;
+    const ColliderBit::SoloCLI::CommandLineStatus command_line_status =
+      ColliderBit::SoloCLI::parse_command_line(argc, argv, command_line_options);
+
+    if (command_line_status == ColliderBit::SoloCLI::CommandLineStatus::help)
+    {
+      return 0;
+    }
+    if (command_line_status == ColliderBit::SoloCLI::CommandLineStatus::error)
+    {
+      return 1;
+    }
+
     const auto env_flag_enabled = [](const char* value) -> bool
     {
       if (value == nullptr) return false;
@@ -83,14 +97,6 @@ int main(int argc, char* argv[])
       if (std::strcmp(value, "ON") == 0) return true;
       return false;
     };
-
-    // Check the number of command line arguments
-    if (argc < 2)
-    {
-      // Tell the user how to run the program and exit
-      cerr << endl << "Usage: " << argv[0] << " <your CBS yaml file>" << endl << endl;
-      return 1;
-    }
 
     // Initialise required backends (static loadLibrary calls may be optimised
     // away at -O2, so we must trigger loading via the init functors explicitly).
@@ -120,7 +126,7 @@ int main(int argc, char* argv[])
     }
 
     // Read input file name
-    const std::string filename_in = argv[1];
+    const std::string& filename_in = command_line_options.filename;
 
     // Read and prepare the settings in the input file
     ColliderBit::SoloInput::PreparedInput prepared_input;
