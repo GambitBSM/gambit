@@ -169,12 +169,16 @@ def main(argv):
 // Automatically-generated list of frontends.     
 """
 
-    for h in frontend_headers:
+    for h in sorted(frontend_headers):
         towrite+='#include \"gambit/Backends/frontends/{0}\"\n'.format(h)
     towrite+="\n#endif // defined __backend_rollcall_hpp__\n"
 
-    with open("./Backends/include/gambit/Backends/backend_rollcall.hpp","w") as f:
-        f.write(towrite)
+    # Don't touch any existing file unless it is actually different from what we will create
+    if not os.path.isdir("./scratch/build_time"): os.makedirs("./scratch/build_time")
+    header = "./Backends/include/gambit/Backends/backend_rollcall.hpp"
+    candidate = "./scratch/build_time/backend_rollcall.hpp.candidate"
+    with open(candidate,"w") as f: f.write(towrite)
+    update_only_if_different(header, candidate)
 
     # Generate a c++ header containing all the frontend headers we have just harvested.
     towrite = """//   GAMBIT: Global and Modular BSM Inference Tool
@@ -222,17 +226,20 @@ def main(argv):
                                                   
 // Regular backend type definitions.              
 """
-    for h in backend_type_headers:
+    for h in sorted(backend_type_headers):
         towrite+='#include \"gambit/Backends/backend_types/{0}\"\n'.format(h)
 
     towrite += "\n// BOSSed backend type definitions.\n"
-    for h in bossed_backend_type_headers:
+    for h in sorted(bossed_backend_type_headers):
         towrite+='#include \"gambit/Backends/backend_types/{0}\"\n'.format(h)
 
     towrite+="\n#endif // defined __backend_types_rollcall_hpp__\n"
 
-    with open("./Backends/include/gambit/Backends/backend_types_rollcall.hpp","w") as f:
-        f.write(towrite)
+    # Don't touch any existing file unless it is actually different from what we will create
+    header = "./Backends/include/gambit/Backends/backend_types_rollcall.hpp"
+    candidate = "./scratch/build_time/backend_types_rollcall.hpp.candidate"
+    with open(candidate,"w") as f: f.write(towrite)
+    update_only_if_different(header, candidate)
 
     if verbose:
         print("Generated backend_rollcall.hpp.")

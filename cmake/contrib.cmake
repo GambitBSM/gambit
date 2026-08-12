@@ -70,7 +70,7 @@ endfunction()
 set(name "gambit_preload")
 set(dir "${CMAKE_BINARY_DIR}/contrib")
 add_library(${name} SHARED "${PROJECT_SOURCE_DIR}/contrib/preload/gambit_preload.cpp")
-target_include_directories(${name} PRIVATE "${PROJECT_SOURCE_DIR}/cmake/include" "${PROJECT_SOURCE_DIR}/Utils/include")
+target_include_directories(${name} PRIVATE "${PROJECT_SOURCE_DIR}/cmake/include" "${PROJECT_SOURCE_DIR}/Core/include" "${PROJECT_SOURCE_DIR}/Utils/include")
 set_target_properties(${name} PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY "${dir}"
   LIBRARY_OUTPUT_DIRECTORY "${dir}"

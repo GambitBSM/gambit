@@ -81,6 +81,7 @@ contrib/fjcontrib-*/
 # Local configuration files
 config/*_locations.yaml
 config/gambit_bits.yaml
+config/gambit_backend_interfaces.yaml
 config/gambit_backends.yaml
 
 # Scratch files
