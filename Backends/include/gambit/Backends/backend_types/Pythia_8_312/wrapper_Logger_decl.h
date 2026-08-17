@@ -92,13 +92,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 ::std::ostream& errorStream();
         
-                ::std::__map_iterator<std::__tree_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> begin();
+                ::std::map<std::string, int>::iterator begin();
         
-                ::std::__map_iterator<std::__tree_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> end();
+                ::std::map<std::string, int>::iterator end();
         
-                ::std::__map_const_iterator<std::__tree_const_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> begin() const;
+                ::std::map<std::string, int>::const_iterator begin() const;
         
-                ::std::__map_const_iterator<std::__tree_const_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> end() const;
+                ::std::map<std::string, int>::const_iterator end() const;
         
         
                 // Wrappers for original constructors: 

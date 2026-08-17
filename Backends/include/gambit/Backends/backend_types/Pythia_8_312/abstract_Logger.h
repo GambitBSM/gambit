@@ -84,13 +84,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual ::std::ostream& errorStream() =0;
     
-                virtual ::std::__map_iterator<std::__tree_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> begin() =0;
+                virtual ::std::map<std::string, int>::iterator begin() =0;
     
-                virtual ::std::__map_iterator<std::__tree_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> end() =0;
+                virtual ::std::map<std::string, int>::iterator end() =0;
     
-                virtual ::std::__map_const_iterator<std::__tree_const_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> begin() const =0;
+                virtual ::std::map<std::string, int>::const_iterator begin() const =0;
     
-                virtual ::std::__map_const_iterator<std::__tree_const_iterator<std::__value_type<std::string, int>, std::__tree_node<std::__value_type<std::string, int>, void *> *, long>> end() const =0;
+                virtual ::std::map<std::string, int>::const_iterator end() const =0;
     
                 virtual const int& ABORT_ref__BOSS() =0;
     
