@@ -51,11 +51,11 @@
 
 namespace Gambit {
 
-  // Model parameter map type; used by all models
-  typedef std::map<std::string, double> parameterMap;
+  // Forward declaration of ModelParameters class
+  class ModelParameters;
 
   // Model validation functor type
-  typedef std::function<bool(const parameterMap&)> modelValidator;
+  typedef std::function<bool(const ModelParameters&)> modelValidator;
 
   class EXPORT_SYMBOLS ModelParameters
   {

@@ -211,6 +211,6 @@ namespace Gambit
    void ModelParameters::setOutputName(const std::string& in) { outputname = in; }
 
    /// Validity check of the model parameters
-   bool ModelParameters::isValid() const { return !_validation_function ? true : (*_validation_function)(_values); }
+   bool ModelParameters::isValid() const { return !_validation_function ? true : (*_validation_function)(*this); }
 
 } //end Gambit namespace

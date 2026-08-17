@@ -139,7 +139,7 @@
       namespace MODEL                                                          \
       {                                                                        \
         /* Declare the user-defined function as defined elsewhere */           \
-        extern bool FUNC (const parameterMap&);                                \
+        extern bool FUNC (const ModelParameters&);                             \
       }                                                                        \
     }                                                                          \
   }                                                                            \
@@ -332,7 +332,7 @@
       namespace MODEL                                                          \
       {                                                                        \
         /* Prototype the user-defined function */                              \
-        bool FUNC (const parameterMap&);                                       \
+        bool FUNC (const ModelParameters&);                                    \
                                                                                \
         int model_validation_registerd = set_model_validation_function(        \
           Functown::primary_parameters,                                        \
