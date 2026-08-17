@@ -19,6 +19,7 @@
 #define __model_validation_hpp__
 
 #include "gambit/Utils/export_symbols.hpp"
+#include "gambit/Utils/model_parameters.hpp"
 
 namespace Gambit {
 
@@ -53,8 +54,8 @@ namespace Gambit {
     /// Deactivate the model validation handler
     void deactivate();
 
-    /// Check whether the validation handler is armed
-    [[nodiscard]] const bool& isActive() const;
+    /// Run model validation
+    void runModelValidation(const ModelParameters& model_parameters) const;
 
     // Delete all (copy + move) constructors and assignment operators
     ModelValidationHandler& operator=(const ModelValidationHandler&) = delete;

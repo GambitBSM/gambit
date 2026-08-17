@@ -1124,9 +1124,6 @@ namespace Gambit
       /// Destructor
       virtual ~primary_model_functor() {}
 
-      /// Override functor calculation to include model parameter validation
-      void calculate() override;
-
       /// Functor contents raw pointer "get" function
       /// Returns a raw pointer to myValue, so that the contents may be
       /// modified (intended for setting parameter values in primary

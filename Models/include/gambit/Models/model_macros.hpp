@@ -202,8 +202,12 @@
         /* Add the model to GAMBIT model database */                           \
         int model_rego = add_model(STRINGIFY(MODEL), STRINGIFY(PARENT));       \
                                                                                \
-        /* Functor's actual "calculate" function.  Doesn't do anything. */     \
-        void primary_parameters (ModelParameters&) {}                          \
+        /* Functor's actual "calculate" function. */                           \
+        void primary_parameters (ModelParameters& model_parameters)            \
+        {                                                                      \
+          const auto& mvh = ModelValidationHandler::getInstance();             \
+          mvh.runModelValidation(model_parameters);                            \
+        }                                                                      \
                                                                                \
         /* Wrap it up in a primary_model_functor */                            \
         MAKE_PRIMARY_MODEL_FUNCTOR(primary_parameters, CAT(MODEL,_parameters), \

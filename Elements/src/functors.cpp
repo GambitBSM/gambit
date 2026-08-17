@@ -47,7 +47,6 @@
 #include "gambit/Elements/functors.hpp"
 #include "gambit/Elements/functor_definitions.hpp"
 #include "gambit/Elements/type_equivalency.hpp"
-#include "gambit/Utils/model_validation.hpp"
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Models/models.hpp"
 #include "gambit/Logs/logger.hpp"
@@ -1949,37 +1948,6 @@ namespace Gambit
                                                  str origin_name,
                                                  Models::ModelFunctorClaw &claw)
     : model_functor(inputFunction, func_name, func_capability, result_type, origin_name, claw) {}
-
-    void primary_model_functor::calculate()
-    {
-      // Dispatch functor calculation to the base class (module_functor<ModelParameters>)
-      module_functor::calculate();
-
-      const auto& params = *this->getcontentsPtr();
-      if (!params.isValid())
-      {
-        const auto& model_validation_active = ModelValidationHandler::getInstance().isActive();
-        const auto& model_validation_handling = ModelValidationHandler::getInstance().getModelValidationHandling();
-        if (!model_validation_active || model_validation_handling == ModelValidationHandling::pass)
-        {
-          return;
-        }
-
-        std::stringstream ss;
-        ss << "Parameters of model " << params.getModelName() << " are invalid.";
-
-        if (model_validation_handling == ModelValidationHandling::invalidate)
-        {
-          this->notifyOfInvalidation(ss.str());
-          return;
-        }
-
-        if (model_validation_handling == ModelValidationHandling::raise)
-        {
-          model_error().raise(LOCAL_INFO, ss.str());
-        }
-      }
-    }
 
     /// Functor contents raw pointer "get" function
     /// Returns a raw pointer to myValue, so that the contents may be
