@@ -115,6 +115,13 @@ if(NOT Python3_Interpreter_FOUND)
   message(FATAL_ERROR "\nPython 3 was not found, but it is required by GAMBIT.  \nIf you need to set the path to the Python interpreter manually, "
                       "please use -DPython3_EXECUTABLE=path/to/preferred/python.")
 endif()
+
+# Keep GAMBIT's historical Python version variables in sync with CMake's
+# FindPython3 module. Several generated headers and backend helpers still
+# use the uppercase names below.
+set(PYTHON_VERSION_MAJOR "${Python3_VERSION_MAJOR}")
+set(PYTHON_VERSION_MINOR "${Python3_VERSION_MINOR}")
+
 message("${BoldYellow}   Using Python interpreter version ${Python3_VERSION} for build.${ColourReset}")
 
 if(Python3_Development_FOUND)

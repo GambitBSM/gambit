@@ -15,7 +15,7 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "gambit/Utils/json.hpp"
+#include <nlohmann/json.hpp>
 
 #ifdef __cpp_lib_filesystem
   #include <filesystem>

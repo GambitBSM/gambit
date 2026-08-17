@@ -25,7 +25,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "gambit/Utils/json.hpp"
+#include <nlohmann/json.hpp>
 #include "yaml-cpp/yaml.h"
 
 #ifdef __cpp_lib_filesystem
