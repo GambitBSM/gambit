@@ -49,6 +49,7 @@
 #include "gambit/Utils/version.hpp"
 #include "gambit/Utils/bibtex_functions.hpp"
 #include "gambit/Utils/citation_keys.hpp"
+#include "gambit/Utils/model_validation.hpp"
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Backends/backend_singleton.hpp"
 #include "gambit/cmake/cmake_variables.hpp"
@@ -327,6 +328,9 @@ namespace Gambit
 
       // Get the scanID
       set_scanID();
+
+      // Set the model invalidation handling
+      setModelValidationHandling();
 
       // Build the vertex ID -> OutputVertex* map used by getPurpose() and
       // getCritical(). outputVertices is finalised by this point and is never
@@ -2414,6 +2418,35 @@ namespace Gambit
         }
 
       }
+    }
+
+    void DependencyResolver::setModelValidationHandling() const
+    {
+      const str& model_validation_handling_str = boundIniFile->getValueOrDef<str>("pass", "model_validation");
+
+      auto& model_validation_handler = ModelValidationHandler::getInstance();
+
+      if (model_validation_handling_str == "pass")
+      {
+        model_validation_handler.setModelValidationHandling(ModelValidationHandling::pass);
+      }
+      else if (model_validation_handling_str == "invalidate")
+      {
+        model_validation_handler.setModelValidationHandling(ModelValidationHandling::invalidate);
+      }
+      else if (model_validation_handling_str == "raise")
+      {
+        model_validation_handler.setModelValidationHandling(ModelValidationHandling::raise);
+      }
+      else
+      {
+        std::ostringstream errmsg;
+        errmsg << "Invalid model_validation_handling value: " << model_validation_handling_str << "." << endl;
+        errmsg << "Valid values are: pass, invalidate, raise." << endl;
+        dependency_resolver_error().raise(LOCAL_INFO,errmsg.str());
+      }
+
+      logger() << LogTags::dependency_resolver << "Model validation handling set to \"" << model_validation_handling_str << "\"." << EOM;
     }
 
   }
