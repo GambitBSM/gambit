@@ -338,16 +338,104 @@ if(NOT EXCLUDE_YODA)
   add_contrib_clean_and_nuke(${name} ${dir} clean)
 endif()
 
-#contrib/fastjet-3.4.2 and fjcontrib
-set(fastjet_DIR "${PROJECT_SOURCE_DIR}/contrib/fastjet-3.4.2/local")
-if(EXISTS "${fastjet_DIR}/include/fastjet/ClusterSequence.hh")
+#contrib/fastjet-3.4.2 and fjcontrib-1.049; include only if ColliderBit is in use.
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  set(fastjet_name "fastjet")
+  set(fastjet_ver "3.4.2")
+  set(fastjet_dl "https://fastjet.fr/repo/fastjet-${fastjet_ver}.tar.gz")
+  set(fastjet_md5 "d8aede1539f478547f8be5412ab6869c")
+  set(fastjet_path "${PROJECT_SOURCE_DIR}/contrib/fastjet-${fastjet_ver}")
+  set(fastjet_DIR "${fastjet_path}/local")
+
+  set(fjcontrib_name "fjcontrib")
+  set(fjcontrib_ver "1.049")
+  set(fjcontrib_dl "https://fastjet.fr/contrib/downloads/fjcontrib-${fjcontrib_ver}.tar.gz")
+  set(fjcontrib_md5 "bfea8bfd311d958a40e445f76668bd32")
+  set(fjcontrib_path "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-${fjcontrib_ver}")
+
   include_directories("${fastjet_DIR}/include")
   include_directories("${fastjet_DIR}/include/fastjet/contrib")
   set(fastjet_LDFLAGS "-L${fastjet_DIR}/lib" "-lfastjettools" "-lfastjet" "-lfastjetplugins" "-lsiscone_spherical" "-lsiscone")
   set(fjcontrib_LDFLAGS "-L${fastjet_DIR}/lib" "-lfastjetcontribfragile" "-lRecursiveTools" "-lEnergyCorrelator" "-lVariableR")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fastjet_DIR}/lib")
   set(WITH_FASTJET_CONTRIB TRUE)
+  set(EXCLUDE_FASTJET FALSE)
+  set(EXCLUDE_FJCONTRIB FALSE)
+
+  # FastJet 3.4.x depends on std::auto_ptr, which was removed in C++17.
+  # Its autotools build also cannot handle the AppleClang OpenMP spelling.
+  string(REGEX REPLACE "-Xclang -fopenmp" "" FASTJET_C_FLAGS "${BACKEND_C_FLAGS}")
+  string(REGEX REPLACE "-Xclang -fopenmp" "" FASTJET_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FASTJET_C_FLAGS "${FASTJET_C_FLAGS}")
+  string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FASTJET_CXX_FLAGS "${FASTJET_CXX_FLAGS}")
+  set_compiler_warning("no-deprecated-declarations" FASTJET_CXX_FLAGS)
+  set_compiler_warning("no-deprecated-copy" FASTJET_CXX_FLAGS)
+  set(FJCONTRIB_FRAGILE_CXX_FLAGS "${FASTJET_CXX_FLAGS}")
+  if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    # fjcontrib rewrites the install name of its fragile shared library.
+    set(FJCONTRIB_FRAGILE_CXX_FLAGS "${FJCONTRIB_FRAGILE_CXX_FLAGS} -Wl,-headerpad_max_install_names")
+  endif()
+
+  set(FASTJET_INSTALLED TRUE)
+  if(NOT EXISTS "${fastjet_DIR}/include/fastjet/ClusterSequence.hh")
+    set(FASTJET_INSTALLED FALSE)
+  endif()
+  foreach(fastjet_library fastjet fastjettools fastjetplugins siscone_spherical siscone)
+    find_library(FASTJET_${fastjet_library}_LIBRARY NAMES ${fastjet_library} PATHS "${fastjet_DIR}/lib" NO_DEFAULT_PATH)
+    if(NOT FASTJET_${fastjet_library}_LIBRARY)
+      set(FASTJET_INSTALLED FALSE)
+    endif()
+  endforeach()
+
+  if(FASTJET_INSTALLED)
+    message("   Using existing FastJet ${fastjet_ver} installation at ${fastjet_DIR}.")
+    add_custom_target(${fastjet_name})
+  else()
+    message("   ColliderBit included, so FastJet ${fastjet_ver} will be downloaded and built when building GAMBIT.")
+    ExternalProject_Add(${fastjet_name}
+      DOWNLOAD_COMMAND ${DL_CONTRIB} ${fastjet_dl} ${fastjet_md5} ${fastjet_path} ${fastjet_name} ${fastjet_ver}
+      SOURCE_DIR ${fastjet_path}
+      BUILD_IN_SOURCE 1
+      CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FASTJET_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} --prefix=${fastjet_DIR} --enable-silent-rules --enable-shared
+      BUILD_COMMAND ${MAKE_PARALLEL} install
+      INSTALL_COMMAND ""
+    )
+    add_contrib_clean_and_nuke(${fastjet_name} ${fastjet_path} clean)
+  endif()
+
+  # GAMBIT compiles Nsubjettiness itself, but its public headers and the other
+  # ColliderBit FastJet-contrib libraries must be installed beside FastJet.
+  set(FJCONTRIB_INSTALLED TRUE)
+  if(NOT EXISTS "${fjcontrib_path}/Nsubjettiness/Nsubjettiness.cc" OR
+     NOT EXISTS "${fastjet_DIR}/include/fastjet/contrib/Nsubjettiness.hh")
+    set(FJCONTRIB_INSTALLED FALSE)
+  endif()
+  foreach(fjcontrib_library fastjetcontribfragile RecursiveTools EnergyCorrelator VariableR)
+    find_library(FJCONTRIB_${fjcontrib_library}_LIBRARY NAMES ${fjcontrib_library} PATHS "${fastjet_DIR}/lib" NO_DEFAULT_PATH)
+    if(NOT FJCONTRIB_${fjcontrib_library}_LIBRARY)
+      set(FJCONTRIB_INSTALLED FALSE)
+    endif()
+  endforeach()
+
+  if(FJCONTRIB_INSTALLED)
+    message("   Using existing FastJet Contrib ${fjcontrib_ver} installation.")
+    add_custom_target(${fjcontrib_name})
+  else()
+    message("   ColliderBit included, so FastJet Contrib ${fjcontrib_ver} will be downloaded and built when building GAMBIT.")
+    ExternalProject_Add(${fjcontrib_name}
+      DEPENDS ${fastjet_name}
+      DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_path} ${fjcontrib_name} ${fjcontrib_ver}
+      SOURCE_DIR ${fjcontrib_path}
+      BUILD_IN_SOURCE 1
+      CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} --fastjet-config=${fastjet_DIR}/bin/fastjet-config --prefix=${fastjet_DIR} --only=Nsubjettiness,RecursiveTools,EnergyCorrelator,VariableR
+      BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
+      INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
+                      COMMAND ${MAKE_PARALLEL} fragile-shared-install CXX="${CMAKE_CXX_COMPILER}" CXXFLAGS=${FJCONTRIB_FRAGILE_CXX_FLAGS}
+    )
+    add_contrib_clean_and_nuke(${fjcontrib_name} ${fjcontrib_path} clean)
+  endif()
 else()
+  message("${BoldCyan} X ColliderBit is not in use: excluding FastJet and FastJet Contrib from GAMBIT configuration.${ColourReset}")
   set(EXCLUDE_FASTJET TRUE)
   set(EXCLUDE_FJCONTRIB TRUE)
   set(WITH_FASTJET_CONTRIB FALSE)
@@ -369,14 +457,19 @@ set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECT
 add_dependencies(contrib fjcore)
 
 if(WITH_FASTJET_CONTRIB)
-  set(fjcontrib_nsubjettiness_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.049/Nsubjettiness")
+  set(fjcontrib_nsubjettiness_dir "${fjcontrib_path}/Nsubjettiness")
+  set(fjcontrib_nsubjettiness_sources
+      ${fjcontrib_nsubjettiness_dir}/AxesDefinition.cc
+      ${fjcontrib_nsubjettiness_dir}/MeasureDefinition.cc
+      ${fjcontrib_nsubjettiness_dir}/ExtraRecombiners.cc
+      ${fjcontrib_nsubjettiness_dir}/TauComponents.cc
+      ${fjcontrib_nsubjettiness_dir}/Njettiness.cc
+      ${fjcontrib_nsubjettiness_dir}/Nsubjettiness.cc)
+  # Sources are fetched and installed at build time by the fjcontrib external project.
+  set_source_files_properties(${fjcontrib_nsubjettiness_sources} PROPERTIES GENERATED TRUE)
   add_gambit_library(fjcontrib_nsubjettiness OPTION OBJECT
-                            SOURCES ${fjcontrib_nsubjettiness_dir}/AxesDefinition.cc
-                                    ${fjcontrib_nsubjettiness_dir}/MeasureDefinition.cc
-                                    ${fjcontrib_nsubjettiness_dir}/ExtraRecombiners.cc
-                                    ${fjcontrib_nsubjettiness_dir}/TauComponents.cc
-                                    ${fjcontrib_nsubjettiness_dir}/Njettiness.cc
-                                    ${fjcontrib_nsubjettiness_dir}/Nsubjettiness.cc)
+                            SOURCES ${fjcontrib_nsubjettiness_sources})
+  add_dependencies(fjcontrib_nsubjettiness fastjet fjcontrib)
   set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcontrib_nsubjettiness>)
   add_dependencies(contrib fjcontrib_nsubjettiness)
 endif()
@@ -418,22 +511,27 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
 
   # Determine compiler libraries needed by flexiblesusy.
   if(CMAKE_Fortran_COMPILER MATCHES "gfortran*")
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-      find_library(GFORTRAN_LIBRARY NAMES gfortran)
-      if(GFORTRAN_LIBRARY STREQUAL "GFORTRAN_LIBRARY-NOTFOUND")
-        execute_process(COMMAND "${CMAKE_Fortran_COMPILER}" "-v" ERROR_VARIABLE GFORTRAN_V_OUTPUT)
-        string(REGEX MATCH "--libdir=[^\t\n ]+" GFORTRAN_LIB_DIR_STR "${GFORTRAN_V_OUTPUT}")
-        string(REGEX REPLACE "--libdir=([^\t\n ]+)" "\\1" GFORTRAN_LIB_DIR_STR "${GFORTRAN_LIB_DIR_STR}")
-        find_library(GFORTRAN_LIBRARY NAMES gfortran PATHS "${GFORTRAN_LIB_DIR_STR}")
-        if(GFORTRAN_LIBRARY STREQUAL "GFORTRAN_LIBRARY-NOTFOUND")
-          message(FATAL_ERROR "Could not find libgfortran.")
-        endif()
-      endif()
-      message(STATUS "Found libgfortran at ${GFORTRAN_LIBRARY}.")
-      set(flexiblesusy_compilerlibs "${GFORTRAN_LIBRARY} -lm")
-    else()
-      set(flexiblesusy_compilerlibs "-lgfortran -lm")
+    # Native CMake targets get the GNU Fortran runtime automatically. GAMBIT
+    # also has external link steps that invoke the C++ compiler directly, so
+    # query gfortran for its exact runtime path instead of requiring a global
+    # -L... -lgfortran linker setting in a user preset.
+    execute_process(
+      COMMAND "${CMAKE_Fortran_COMPILER}" "-print-file-name=libgfortran.dylib"
+      OUTPUT_VARIABLE GFORTRAN_LIBRARY
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    if(NOT EXISTS "${GFORTRAN_LIBRARY}")
+      execute_process(
+        COMMAND "${CMAKE_Fortran_COMPILER}" "-print-file-name=libgfortran.so"
+        OUTPUT_VARIABLE GFORTRAN_LIBRARY
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+      )
     endif()
+    if(NOT EXISTS "${GFORTRAN_LIBRARY}")
+      message(FATAL_ERROR "Could not find libgfortran reported by ${CMAKE_Fortran_COMPILER}.")
+    endif()
+    message(STATUS "Found libgfortran at ${GFORTRAN_LIBRARY}.")
+    set(flexiblesusy_compilerlibs "${GFORTRAN_LIBRARY} -lm")
   elseif(CMAKE_Fortran_COMPILER MATCHES "g77" OR CMAKE_Fortran_COMPILER MATCHES "f77")
     set(flexiblesusy_compilerlibs "-lg2c -lm")
   elseif(CMAKE_Fortran_COMPILER MATCHES "ifort")

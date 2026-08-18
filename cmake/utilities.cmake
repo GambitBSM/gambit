@@ -360,7 +360,13 @@ function(add_gambit_executable executablename LIBRARIES)
         set_target_properties(${executablename} PROPERTIES LINK_FLAGS ${MPI_Fortran_LINK_FLAGS})
     endif()
   endif()
-  if (OpenMP_omp_LIBRARY AND "${OpenMP_CXX_FLAGS}" MATCHES "-Xclang[ ]+-fopenmp")
+  # Let FindOpenMP provide both the compiler options and runtime library. This
+  # covers Homebrew LLVM on macOS, which uses -fopenmp=libomp rather than the
+  # AppleClang-specific -Xclang -fopenmp spelling.
+  if(TARGET OpenMP::OpenMP_CXX)
+    set(LIBRARIES ${LIBRARIES} OpenMP::OpenMP_CXX)
+  elseif(OpenMP_omp_LIBRARY)
+    # Preserve the manual AppleClang/Homebrew fallback for older CMake.
     set(LIBRARIES ${LIBRARIES} ${OpenMP_omp_LIBRARY})
   endif()
   if (LIBDL_FOUND)
