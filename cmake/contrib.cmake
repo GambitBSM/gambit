@@ -25,9 +25,33 @@
 #         (t.procter.1@research.gla.ac.uk)
 # \date June 2021
 #
+# \author Pengxuan Zhu
+#         (pengxuan.zhu@adelaide.edu.au)
+# \date 2026 Aug
+#
 #************************************************
 
 include(ExternalProject)
+
+function(gambit_openmp_runtime_mismatch library result)
+  set(${result} FALSE PARENT_SCOPE)
+  if(NOT GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP OR NOT EXISTS "${library}")
+    return()
+  endif()
+  find_program(_GAMBIT_OTOOL_EXECUTABLE NAMES otool)
+  if(NOT _GAMBIT_OTOOL_EXECUTABLE)
+    return()
+  endif()
+  execute_process(
+    COMMAND "${_GAMBIT_OTOOL_EXECUTABLE}" -L "${library}"
+    OUTPUT_VARIABLE _GAMBIT_LIBRARY_DEPENDENCIES
+    ERROR_QUIET
+  )
+  string(FIND "${_GAMBIT_LIBRARY_DEPENDENCIES}" "${OpenMP_omp_LIBRARY}" _GAMBIT_OPENMP_MATCH)
+  if(_GAMBIT_LIBRARY_DEPENDENCIES MATCHES "libomp[.]dylib" AND _GAMBIT_OPENMP_MATCH EQUAL -1)
+    set(${result} TRUE PARENT_SCOPE)
+  endif()
+endfunction()
 
 # Define the newline strings to use for OSX-safe substitution.
 # This can be moved into externals.cmake if ever it is no longer used in this file.
@@ -324,6 +348,16 @@ if(NOT EXCLUDE_YODA)
   set_compiler_warning("no-implicit-fallthrough" YODA_CXX_FLAGS)
   set(YODA_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
+  set(YODA_OPENMP_RUNTIME_MISMATCH FALSE)
+  gambit_openmp_runtime_mismatch("${YODA_LIB}/lib${lib}.dylib" YODA_OPENMP_RUNTIME_MISMATCH)
+  if(YODA_OPENMP_RUNTIME_MISMATCH)
+    message("   YODA links a different OpenMP runtime and will be rebuilt.")
+  endif()
+  set(YODA_BUILD_COMMAND ${MAKE_PARALLEL} CC="${CMAKE_C_COMPILER}" CXX="${CMAKE_CXX_COMPILER}")
+  if(YODA_OPENMP_RUNTIME_MISMATCH)
+    set(YODA_BUILD_COMMAND ${MAKE_SERIAL} clean
+                           COMMAND ${MAKE_PARALLEL} CC="${CMAKE_C_COMPILER}" CXX="${CMAKE_CXX_COMPILER}")
+  endif()
   # If cython is not installed disable the python extension
   gambit_find_python_module(cython)
   if(PY_cython_FOUND)
@@ -339,12 +373,16 @@ if(NOT EXCLUDE_YODA)
   else()
     set(YODA_CONFIG_LDFLAGS "")
   endif()
+  if(GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP)
+    # Keep libtool's OpenMP link step on the same runtime as GAMBIT itself.
+    set(YODA_CONFIG_LDFLAGS "${YODA_CONFIG_LDFLAGS} ${GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP_LDFLAGS}")
+  endif()
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ${YODA_PATH}/configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} CFLAGS=${BACKEND_C_FLAGS} CXXFLAGS=${YODA_CXX_FLAGS} LDFLAGS=${YODA_CONFIG_LDFLAGS} PYTHON=${Python3_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
-    BUILD_COMMAND ${MAKE_PARALLEL} CC="${CMAKE_C_COMPILER}" CXX="${CMAKE_CXX_COMPILER}"
+    BUILD_COMMAND ${YODA_BUILD_COMMAND}
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
   add_contrib_clean_and_nuke(${name} ${dir} clean)
@@ -422,12 +460,32 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
      NOT EXISTS "${fastjet_DIR}/include/fastjet/contrib/Nsubjettiness.hh")
     set(FJCONTRIB_INSTALLED FALSE)
   endif()
+  set(FJCONTRIB_OPENMP_RUNTIME_MISMATCH FALSE)
   foreach(fjcontrib_library fastjetcontribfragile RecursiveTools EnergyCorrelator VariableR)
     find_library(FJCONTRIB_${fjcontrib_library}_LIBRARY NAMES ${fjcontrib_library} PATHS "${fastjet_DIR}/lib" NO_DEFAULT_PATH)
     if(NOT FJCONTRIB_${fjcontrib_library}_LIBRARY)
       set(FJCONTRIB_INSTALLED FALSE)
+    else()
+      gambit_openmp_runtime_mismatch("${FJCONTRIB_${fjcontrib_library}_LIBRARY}" FJCONTRIB_OPENMP_RUNTIME_MISMATCH)
+      if(FJCONTRIB_OPENMP_RUNTIME_MISMATCH)
+        set(FJCONTRIB_INSTALLED FALSE)
+        message("   FastJet Contrib links a different OpenMP runtime and will be rebuilt.")
+        break()
+      endif()
     endif()
   endforeach()
+  if(NOT FASTJET_INSTALLED)
+    set(FJCONTRIB_INSTALLED FALSE)
+  endif()
+  set(FJCONTRIB_BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}")
+  if(FJCONTRIB_OPENMP_RUNTIME_MISMATCH)
+    # This target is not removed by fjcontrib's ordinary clean rule.
+    set(FJCONTRIB_BUILD_COMMAND ${CMAKE_COMMAND} -E remove -f
+                               "${fjcontrib_path}/libfastjetcontribfragile.dylib"
+                               "${fastjet_DIR}/lib/libfastjetcontribfragile.dylib"
+                               COMMAND ${MAKE_SERIAL} clean
+                               COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}")
+  endif()
 
   if(FJCONTRIB_INSTALLED)
     message("   Using existing FastJet Contrib ${fjcontrib_ver} installation.")
@@ -440,7 +498,7 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
       SOURCE_DIR ${fjcontrib_path}
       BUILD_IN_SOURCE 1
       CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} --fastjet-config=${fastjet_DIR}/bin/fastjet-config --prefix=${fastjet_DIR} --only=Nsubjettiness,RecursiveTools,EnergyCorrelator,VariableR
-      BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
+      BUILD_COMMAND ${FJCONTRIB_BUILD_COMMAND}
       INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
                       COMMAND ${MAKE_PARALLEL} fragile-shared-install CXX="${CMAKE_CXX_COMPILER}" CXXFLAGS=${FJCONTRIB_FRAGILE_CXX_FLAGS}
     )

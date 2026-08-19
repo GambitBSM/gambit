@@ -35,6 +35,10 @@
 #  \date 2021 Jul, Aug
 #  \date 2023 Jun
 #
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Aug
+#
 #************************************************
 
 # Set CMAKE_POLICY_VERSION_MINIMUM to 3.5 if CMAKE version >= 4
@@ -51,6 +55,31 @@ set(MIN_GCC_VERSION 9.1)
 set(MIN_ICC_VERSION 15.0.2)
 set(MIN_CLANG_VERSION 10.0.0)
 set(MIN_APPLECLANG_VERSION 13.0.0)
+
+# On macOS, use the active SDK version as the default deployment target when
+# the user has not selected one explicitly. This keeps the main build and
+# external projects on the same SDK/deployment target without relying on the
+# MACOSX_DEPLOYMENT_TARGET environment variable.
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin"
+   AND (NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET OR CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "")
+   AND "$ENV{MACOSX_DEPLOYMENT_TARGET}" STREQUAL "")
+  find_program(_GAMBIT_XCRUN_EXECUTABLE xcrun)
+  if(_GAMBIT_XCRUN_EXECUTABLE)
+    execute_process(
+      COMMAND "${_GAMBIT_XCRUN_EXECUTABLE}" --sdk macosx --show-sdk-version
+      OUTPUT_VARIABLE _GAMBIT_MACOS_SDK_VERSION
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+    if(_GAMBIT_MACOS_SDK_VERSION MATCHES "^[0-9]+\\.[0-9]+")
+      string(REGEX MATCH "^[0-9]+\\.[0-9]+" _GAMBIT_MACOS_DEPLOYMENT_TARGET
+             "${_GAMBIT_MACOS_SDK_VERSION}")
+      set(CMAKE_OSX_DEPLOYMENT_TARGET "${_GAMBIT_MACOS_DEPLOYMENT_TARGET}"
+          CACHE STRING "Minimum macOS deployment target" FORCE)
+      message(STATUS "Auto-detected macOS deployment target: ${CMAKE_OSX_DEPLOYMENT_TARGET}")
+    endif()
+  endif()
+endif()
 
 SET(CMAKE_BUILD_TYPE_STRING "Choose the type of build, options are: None Debug Release Release_O3 RelWithDebInfo MinSizeRel.")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)

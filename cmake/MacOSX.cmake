@@ -22,6 +22,10 @@
 #          (ahye@fys.uio.no)
 #  \date 2023 Feb
 #
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Aug
+#
 #************************************************
 
 # Set a consistent MACOSX_RPATH default across all CMake versions.
@@ -51,6 +55,42 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(STRIP ${CMAKE_SHARED_LINKER_FLAGS} CMAKE_SHARED_LINKER_FLAGS)
 endif()
 
+# Detect Homebrew libomp for macOS LLVM builds.
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  find_program(_GAMBIT_BREW_EXECUTABLE NAMES brew)
+  if(_GAMBIT_BREW_EXECUTABLE)
+    execute_process(
+      COMMAND "${_GAMBIT_BREW_EXECUTABLE}" --prefix llvm
+      RESULT_VARIABLE _GAMBIT_BREW_LLVM_RESULT
+      OUTPUT_VARIABLE _GAMBIT_BREW_LLVM_PREFIX
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+    execute_process(
+      COMMAND "${_GAMBIT_BREW_EXECUTABLE}" --prefix libomp
+      RESULT_VARIABLE _GAMBIT_BREW_LIBOMP_RESULT
+      OUTPUT_VARIABLE BREW_LIBOMP_PREFIX
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+    if(_GAMBIT_BREW_LLVM_RESULT EQUAL 0 AND _GAMBIT_BREW_LIBOMP_RESULT EQUAL 0)
+      get_filename_component(_GAMBIT_CXX_COMPILER_REALPATH "${CMAKE_CXX_COMPILER}" REALPATH)
+      get_filename_component(_GAMBIT_BREW_LLVM_CXX_REALPATH "${_GAMBIT_BREW_LLVM_PREFIX}/bin/clang++" REALPATH)
+      if("${_GAMBIT_CXX_COMPILER_REALPATH}" STREQUAL "${_GAMBIT_BREW_LLVM_CXX_REALPATH}"
+         AND EXISTS "${BREW_LIBOMP_PREFIX}/lib/libomp.dylib")
+        set(OpenMP_C_FLAGS "-Xclang -fopenmp -I${BREW_LIBOMP_PREFIX}/include" CACHE STRING "C compiler flags for OpenMP parallelization" FORCE)
+        set(OpenMP_CXX_FLAGS "-Xclang -fopenmp -I${BREW_LIBOMP_PREFIX}/include" CACHE STRING "CXX compiler flags for OpenMP parallelization" FORCE)
+        set(OpenMP_C_LIB_NAMES "omp" CACHE STRING "C compiler libraries for OpenMP parallelization" FORCE)
+        set(OpenMP_CXX_LIB_NAMES "omp" CACHE STRING "CXX compiler libraries for OpenMP parallelization" FORCE)
+        set(OpenMP_omp_LIBRARY "${BREW_LIBOMP_PREFIX}/lib/libomp.dylib" CACHE FILEPATH "Path to the omp library for OpenMP" FORCE)
+        set(GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP_LDFLAGS "-L${BREW_LIBOMP_PREFIX}/lib")
+        set(GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP TRUE)
+        message(STATUS "Using Homebrew libomp for Homebrew LLVM from ${BREW_LIBOMP_PREFIX}")
+      endif()
+    endif()
+  endif()
+endif()
+
 # Settings specific to using the clang compiler on MacOS
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
   # The ${NO_FIXUP_CHAINS} -Xlinker -no_fixup_chains had to be added Feb 2023 due to MacOS clang changes that leads to linking problems
@@ -58,4 +98,3 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
   # https://github.com/python/cpython/issues/97524
   set(NO_FIXUP_CHAINS "-Xlinker -no_fixup_chains")
 endif()
-
