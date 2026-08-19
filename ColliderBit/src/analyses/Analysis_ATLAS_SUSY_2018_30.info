@@ -1,9 +1,9 @@
-Summary: TBD
-InspireID: -1
+Summary: ATLAS search for SUSY in final states with missing momentum and at least three b-jets at 13 TeV with 139/fb
+InspireID: 2182381
 ExptRun: ATLAS-R2
 Lumi_ifb: 139.0
 Ecm_TeV: 13.0
-Signatures: []
-Keywords: []
-Authors: []
+Signatures: ["0L + >=3B + >=4J + MET", "1L + >=3B + >=4J + MET"]
+Keywords: ["bjets", "multijet", "met", "bdt"]
+Authors: ["Tomasz Procter"]
 OldName: ATLAS_13TeV_3b_NN_139invfb

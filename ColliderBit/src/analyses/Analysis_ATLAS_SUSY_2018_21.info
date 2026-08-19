@@ -7,4 +7,5 @@ Signatures: [">=3L + >=1OSSF + >=4J + >=1B + MET", ">=3L + >=1OSSF + >=5J + >=1B
             "1L + >=1H + >=4J + >=4B", "1L + >=1H + >=6J + >=4B"]
 Keywords: ["leptons", "higgs", "mT2"]
 Authors: ["Tomas Gonzalo", "Anders Kvellestad"]
+Note: The StopZH implementation in Analysis_ATLAS_SUSY_2018_21_StopZH.cpp uses the same publication record.
 OldName: ATLAS_13TeV_2OSLEP_Z_139invfb

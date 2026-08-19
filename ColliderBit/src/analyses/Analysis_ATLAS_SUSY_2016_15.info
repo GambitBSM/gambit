@@ -3,9 +3,9 @@ InspireID: 1623207
 ExptRun: ATLAS-R2
 Lumi_ifb: 36.0
 Ecm_TeV: 13.0
-Signatures: ["0L + 0TL + >=4J + >=1B + MET + 2T", "0L + 0TL + >=4J + >=1B + MET + 1T + 1W", "0L + 0TL + >=4J + >=1B + MET + 1T",
-             "0L + 0TL + >=5J + >=1B + MET"]
+Signatures: ["0L + >=4J + >=1B + MET + 2T", "0L + >=4J + >=1B + MET + 1T + 1W", "0L + >=4J + >=1B + MET + 1T",
+             "0L + >=5J + >=1B + MET"]
 Keywords: ["0lepton", "top reco", "ISR", "hemispheres"]
 Authors: ["Martin White"]
-Note: Signal regions based on recursive jigsaw are not used as validation fails.
+Note: No explicit tau veto is applied in this implementation; signal regions based on recursive jigsaw are also not used as validation fails.
 OldName: ATLAS_13TeV_0LEPStop_36invfb

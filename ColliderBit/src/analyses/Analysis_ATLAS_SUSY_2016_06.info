@@ -7,6 +7,6 @@ Signatures: ["1L + >=4J + >=1B + MET", "1L + >=4J + >=1B + MET", "1L + >=5J + >=
              "1L + >=2J + >=1B + MET", "1L + >=4J + >=2B + MET", "1L + >=2J + 0B + MET",
              "1L + >=3J + >=3B + MET", "1L + >=2J + >=2B + MET"]
 Keywords: ["bdt", "soft lepton", "mT2"]
-Aurthors: ["Martin White"]
+Authors: ["Martin White"]
 Note: 3rd signal region uses >4/5 GeV leptons. Various BDTs and shape fits involved. Not used.
 OldName: ATLAS_13TeV_1LEPStop_36invfb

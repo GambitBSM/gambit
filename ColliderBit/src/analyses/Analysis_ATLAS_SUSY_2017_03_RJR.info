@@ -6,4 +6,5 @@ Ecm_TeV: 13.0
 Signatures: ["2L + >=2J + 0B", "2L + >=3J + 0B"]
 Keywords: ["jigsaw", "isr", "leptons"]
 Authors: ["Martin White"]
+Note: The source uses a rounded 36.0/fb value; the ATLAS Run-2 dataset metadata is retained as 36.1/fb here.
 OldName: ATLAS_13TeV_RJ3L_lowmass_36invfb

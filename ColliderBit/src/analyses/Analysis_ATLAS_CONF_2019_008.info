@@ -1,10 +1,13 @@
-Summary: ATLAS 2-lepton + MET chargino and slepton search at 13 TeV with 139/fb
+Summary: ATLAS 2-lepton + MET chargino and slepton search, including EW signal regions, at 13 TeV with 139/fb
 InspireID: 1750597
 ExptRun: ATLAS-R2
 Lumi_ifb: 139.0
 Ecm_TeV: 13.0
 Signatures: ["2L + 1OSSF + 0J + MET", "2L + 1OSSF + 1J + 0B + MET",
-             "2L + 1OSDF + 0J + MET", "2L + 1OSDF + 1J + 0B + MET"]
-Keywords: ["leptons", "mT2"]
-Authors: ["Yang Zhang", "Anders Kvellestad"]
+             "2L + 1OSOF + 0J + MET", "2L + 1OSOF + 1J + 0B + MET",
+             "=2L + OSSF + 0J + MET + MT2", "=2L + OSOF + 0J + MET + MT2",
+             "=2L + >=1J + MET + MT2"]
+Keywords: ["dilepton", "electroweakinos", "sleptons", "met", "mt2", "bdt"]
+Authors: ["Yang Zhang", "Anders Kvellestad", "Roberto Ruiz"]
+Note: Analysis_ATLAS_CONF_2019_008.cpp contains the inclusive/binned chargino implementations, while Analysis_ATLAS_SUSY_2019_02.cpp implements the electroweak subset; both use INSPIRE 1750597. The original CONF record is INSPIRE 1726185.
 OldName: ATLAS_13TeV_2OSLEP_chargino_139invfb

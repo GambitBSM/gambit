@@ -5,5 +5,7 @@ Lumi_ifb: 12.9
 Ecm_TeV: 13.0
 Superseded: true
 Signatures: [">=3J + HT + MET + 0L + 0TH"]
-Notes: PAS note, not paper. Binned in N_J and N_b.
+Keywords: ["0lepton", "jets", "ht", "met"]
+Note: PAS note, not paper. Binned in N_J and N_b.
+Authors: ["Andy Buckley"]
 OldName: CMS_13TeV_0LEP_13invfb

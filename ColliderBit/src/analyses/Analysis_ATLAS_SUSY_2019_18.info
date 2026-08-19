@@ -1,9 +1,9 @@
-Summary: TBD
-InspireID: -1
+Summary: ATLAS search for new phenomena with tau leptons, b-jets and MET at 13 TeV with 139/fb
+InspireID: 1907601
 ExptRun: ATLAS-R2
 Lumi_ifb: 139.0
 Ecm_TeV: 13.0
-Signatures: []
-Keywords: []
-Authors: []
+Signatures: ["2TH + >=1B + MET", "1TH + >=1B + MET"]
+Keywords: ["taus", "bjets", "top-squark", "sbottom", "met"]
+Authors: ["Holly Pacey"]
 OldName: ATLAS_13TeV_bTaus_StopStau_139invfb

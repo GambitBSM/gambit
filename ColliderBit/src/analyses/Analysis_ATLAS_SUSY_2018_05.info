@@ -1,9 +1,10 @@
-Summary: TBD
-InspireID: -1
+Summary: ATLAS search for new phenomena in two-lepton, jets and MET final states at 13 TeV with 139/fb
+InspireID: 2072870
 ExptRun: ATLAS-R2
 Lumi_ifb: 139.0
 Ecm_TeV: 13.0
-Signatures: []
-Keywords: []
-Authors: []
+Signatures: ["=2L + OSL + >=2J + MET + MT2", "=2L + OSSF + >=2J + MET + MT2"]
+Keywords: ["dilepton", "electroweakinos", "top-squark", "met", "mt2", "recursive-jigsaw"]
+Authors: ["Martin White", "Chris Chang"]
+Note: The EW and recursive-jigsaw implementations in Analysis_ATLAS_SUSY_2018_05.cpp and Analysis_ATLAS_SUSY_2018_05_RJR.cpp share this publication record.
 OldName: ATLAS_13TeV_2LEPJETS_EW_139invfb

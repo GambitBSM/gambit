@@ -3,6 +3,7 @@ InspireID: 1709842
 ExptRun: ATLAS-R2
 Lumi_ifb: 36.1
 Ecm_TeV: 13.0
-Signatures: ["1L + >=1B + >=1FJ + MET"]
-Keywords: ["vectorlikequark", "singleproduction", "forwardjet"]
+Signatures: ["1L + >=1B + >=1J + MET"]
+Keywords: ["vectorlikequark", "singleproduction", "forward-jet"]
 Authors: ["Pengxuan Zhu"]
+Note: In addition to the central b-jet and missing-momentum selection, the analysis requires at least one forward jet with pT > 40 GeV and 2.5 < |eta| < 4.5.

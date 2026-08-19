@@ -4,9 +4,10 @@ ExptRun: CMS-R2
 Lumi_ifb: 35.9
 Ecm_TeV: 13.0
 #Superseded: true
-Note: Inspire ID given for superseding paper
 Signatures: ["=2L + OSSF + 1DY + >=2J + MET + MT2",
              "=2L + OSSF + 1DY + >=2J + MET + MT2 + 0B",
              "=2L + OSSF + 1DY + >=2J + MET + MT2 + 2B"]
-Notes: The experimental analysis also includes a shape-fit on a kinematic edge.
+Keywords: ["dilepton", "ossf", "jets", "met", "mt2"]
+Note: Inspire ID given for the superseding paper; the electroweak and no-covariance implementation in Analysis_CMS_SUS_16_034_EW.cpp uses this same publication record. The experimental analysis also includes a shape-fit on a kinematic edge.
+Authors: ["Rose Kudzman-Blais", "Martin White"]
 OldName: CMS_13TeV_2OSLEP_confnote_36invfb

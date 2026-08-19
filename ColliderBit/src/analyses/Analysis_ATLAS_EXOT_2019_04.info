@@ -3,6 +3,7 @@ InspireID: 2686498
 ExptRun: ATLAS-R2
 Lumi_ifb: 139.0
 Ecm_TeV: 13.0
-Signatures: ["0L + >=3B + >=1FJ + H(bb)"]
-Keywords: ["vectorlikequark", "singleproduction", "boostedhiggs"]
+Signatures: ["0L + >=3B + >=1J + >=1H"]
+Keywords: ["vectorlikequark", "singleproduction", "boosted-higgs", "forward-jet", "Higgs-tag"]
 Authors: ["Pengxuan Zhu"]
+Note: The signal topology contains a boosted Higgs-tagged large-R jet reconstructed in H->bb, at least three b-tagged jets, and at least one forward jet; the forward-jet requirement is pT > 40 GeV with 2.5 < |eta| < 4.5.

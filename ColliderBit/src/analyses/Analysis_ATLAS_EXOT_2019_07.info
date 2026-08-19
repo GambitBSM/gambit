@@ -3,6 +3,7 @@ InspireID: 2013051
 ExptRun: ATLAS-R2
 Lumi_ifb: 139.0
 Ecm_TeV: 13.0
-Signatures: ["0L + H(bb) + Top + >=3B"]
-Keywords: ["vectorlikequark", "singleproduction", "fullyhadronic"]
+Signatures: ["0L + >=1H + >=1T + >=3B"]
+Keywords: ["vectorlikequark", "singleproduction", "fully-hadronic", "Higgs-tag", "top-tag", "large-R-jet"]
 Authors: ["Holly Pacey", "Pengxuan Zhu"]
+Note: The fully hadronic signal region requires one Higgs-tagged large-R jet consistent with H->bb and one top-tagged large-R jet, together with at least three associated b-tagged jets. The source sets a rounded luminosity of 140/fb; the publication metadata and analysis description use 139/fb.

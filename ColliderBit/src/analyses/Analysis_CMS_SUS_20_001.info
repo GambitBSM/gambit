@@ -4,6 +4,6 @@ ExptRun: CMS-R2
 Lumi_ifb: 137.0
 Ecm_TeV: 13.0
 Signatures: ["OSSF + MET"]
-Notes:
+Keywords: ["dilepton", "ossf", "met", "mt2"]
 Authors: ["Yang Zhang"]
 OldName: CMS_13TeV_2OSLEP_137invfb

@@ -3,6 +3,7 @@ InspireID: 1664317
 ExptRun: ATLAS-R2
 Lumi_ifb: 36.1
 Ecm_TeV: 13.0
-Signatures: ["0L + >=7J + >=2B + >=1H/Top", "1L + >=6J + >=3B + >=1H/Top"]
-Keywords: ["vectorlikequark", "multibjet"]
+Signatures: ["0L + >=7J + >=2B", "1L + >=6J + >=3B"]
+Keywords: ["vectorlikequark", "multibjet", "Higgs-tag", "top-tag", "large-R-jet"]
 Authors: ["Pengxuan Zhu"]
+Note: The signal regions require at least one large-R Higgs/Top tagged jet, with the tag category inclusive over Higgs-tagged and top-tagged jets; the formal signature records the lepton, jet and b-jet content.

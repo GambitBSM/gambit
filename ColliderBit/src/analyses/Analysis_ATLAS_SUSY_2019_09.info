@@ -6,5 +6,5 @@ Ecm_TeV: 13.0
 Signatures: ["3L + 0J + 0Z + MET", "3L + >=1J + 0B + 0Z + MET", "3L + >=1E + >=1M + 0J", "3L + >=1E + >=1M + >=1J + <=2J"]
 Keywords: ["leptons", "sfos", "dfos"]
 Authors: ["Are Raklev"]
-Note: The recursive jigsaw and the DFOS SRs for the Wh search are not included.
+Note: The recursive jigsaw and the DFOS SRs for the Wh search are not included; the related RJR-emulation implementation in Analysis_ATLAS_SUSY_2018_06.cpp uses this same three-lepton publication record.
 OldName: ATLAS_13TeV_3LEP_139invfb

@@ -1,9 +1,10 @@
-Summary: TBD
-InspireID: -1
+Summary: CMS electroweakino search with hadronic WW, WZ or WH decays and MET at 13 TeV with 137/fb
+InspireID: 2085373
 ExptRun: CMS-R2
 Lumi_ifb: 137.0
 Ecm_TeV: 13.0
-Signatures: []
-Keywords: []
-Authors: []
+Signatures: ["0L + >=1W + MET", "0L + >=1H + MET", "0L + >=2J + MET"]
+Keywords: ["electroweakinos", "W", "H", "boosted", "met"]
+Authors: ["Adil Jueid", "Anders Kvellestad"]
+Note: The old and current implementations in Analysis_CMS_SUS_21_002.cpp and Analysis_CMS_SUS_21_002_OLD.cpp share this publication record.
 OldName: CMS_13TeV_0LEP_chargino_VV_VH_137invfb

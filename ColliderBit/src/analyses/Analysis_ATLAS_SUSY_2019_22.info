@@ -1,9 +1,9 @@
-Summary: TBD
-InspireID: -1
+Summary: ATLAS direct wino and higgsino search in same-sign dilepton or trilepton final states at 13 TeV with 139/fb
+InspireID: 2660233
 ExptRun: ATLAS-R2
 Lumi_ifb: 139.0
 Ecm_TeV: 13.0
-Signatures: []
-Keywords: []
-Authors: []
+Signatures: ["2SSL + MET", "3L + MET"]
+Keywords: ["same-sign", "trilepton", "electroweakinos", "met"]
+Authors: ["Ida-Marie Johansson"]
 OldName: ATLAS_13TeV_2OR3LEP_139invfb

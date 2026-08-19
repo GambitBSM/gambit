@@ -7,7 +7,8 @@ Signatures: ["2SSL + !DY + >=2J + <5J + MET + !MT + !HT", "2SSL + !DY + >=2J + <
              "2SSL + !DY + >=2J + MET + HT", "2SSL + !DY + >=5J + MET + !MT + HT",
              "2SSL + !DY + >=2J + MET + !MT + HT", "2SSL + !DY + >=2J + MET + MT + HT",
              "2SSL + !DY + >=2J + <5J + MET + !MT + HT"]
+Keywords: ["same-sign", "dilepton", "jets", "met"]
 Superseded: true
-Notes: This SR structure repeats in bins of Nb, and several special bins in > 1.1 TeV HT.
+Note: This SR structure repeats in bins of Nb, and several special bins in > 1.1 TeV HT. The source uses a rounded 36/fb value; the publication metadata is 35.9/fb.
 Authors: ["Yang Zhang"]
 OldName: CMS_13TeV_2SSLEP_Stop_36invfb

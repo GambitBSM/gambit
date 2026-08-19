@@ -1,9 +1,11 @@
 Summary: ATLAS 2/3-lepton SUSY search at 13 TeV with 36/fb
-InspireID: -1
+InspireID: 1602531
 ExptRun: ATLAS-R2
 Lumi_ifb: 36.1
 Ecm_TeV: 13.0
 Superseded: true
+Signatures: ["2L + OSSF + MET", "2L + OSOF + MET", "3L + OSSF + MET"]
+Keywords: ["multilepton", "electroweakinos", "met"]
 Authors: ["Rose Kudzman-Blais"]
-Note: superseded by Inspire 1658902
+Note: Superseded by the published analysis, INSPIRE 1658902.
 OldName: ATLAS_13TeV_MultiLEP_confnote_36invfb

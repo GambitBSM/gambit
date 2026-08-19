@@ -4,6 +4,8 @@ ExptRun: CMS-R2
 Lumi_ifb: 35.9
 Ecm_TeV: 13.0
 Signatures: [OSL + !DY + >=2J + >=1B + MET]
-Superseded: ???
-Notes: Also MET significance ~ MET/sqrt{HT} and angular-separations requirements.
+Keywords: ["dilepton", "top-squark", "dark-matter", "met"]
+Superseded: true
+Note: Also MET significance ~ MET/sqrt{HT} and angular-separations requirements.
+Authors: ["Yang Zhang"]
 OldName: CMS_13TeV_2LEPStop_36invfb

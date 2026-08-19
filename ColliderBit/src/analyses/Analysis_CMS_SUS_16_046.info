@@ -4,6 +4,7 @@ ExptRun: CMS-R2
 Lumi_ifb: 35.9
 Ecm_TeV: 13.0
 Signatures: ["1P + MET + MT"]
-Notes: Also dphi_miss cuts on jets. SRs binned in ST=pTmiss+HT.
+Keywords: ["photon", "gauge-mediation", "met"]
+Note: Also dphi_miss cuts on jets. SRs binned in ST=pTmiss+HT.
 Authors: ["Yang Zhang"]
 OldName: CMS_13TeV_Photon_GMSB_36invfb
