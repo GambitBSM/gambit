@@ -36,7 +36,10 @@ endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   # Tell the OSX linker not to whinge about missing symbols when just making a library.
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
+  # Use the single-token -Wl, spelling: AppleClang and LLVM clang both accept it,
+  # and tools that sort linker flags token-by-token (e.g. rivet-build) cannot
+  # split it.  Equivalent to ld64's "-undefined dynamic_lookup".
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined,dynamic_lookup")
   # Strip leading whitespace in case this was first definition of CMAKE_SHARED_LINKER_FLAGS
   string(STRIP ${CMAKE_SHARED_LINKER_FLAGS} CMAKE_SHARED_LINKER_FLAGS)
   # Pass on the sysroot and minimum OSX version (for backend builds; this gets added automatically by cmake for others)
@@ -93,8 +96,10 @@ endif()
 
 # Settings specific to using the clang compiler on MacOS
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-  # The ${NO_FIXUP_CHAINS} -Xlinker -no_fixup_chains had to be added Feb 2023 due to MacOS clang changes that leads to linking problems
+  # Added Feb 2023 due to MacOS clang/ld chained-fixup linking problems.
   # See discussion in CPython forums and bug report to apple:
   # https://github.com/python/cpython/issues/97524
-  set(NO_FIXUP_CHAINS "-Xlinker -no_fixup_chains")
+  # Same ld option as "-Xlinker -no_fixup_chains", written as one token so
+  # rivet-build's flag sort cannot split it.
+  set(NO_FIXUP_CHAINS "-Wl,-no_fixup_chains")
 endif()

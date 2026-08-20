@@ -357,8 +357,20 @@ if(NOT EXCLUDE_YODA)
   set(YODA_LIB "${dir}/local/lib")
   set(YODA_LDFLAGS "-L${YODA_LIB}" "-l${lib}")
 
-  # OpenMP flags does not play nicely with clang and Yoda's use of libtools
-  string(REGEX REPLACE "-Xclang -fopenmp" "" YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3")
+  # OpenMP flags do not play nicely with clang and YODA's libtool link step.
+  # Match RestFrames/FastJet: drop the two-token form from YODA's private
+  # C/C++ flags only.  OpenMP stays enabled for GAMBIT itself.
+  set(YODA_C_FLAGS "${BACKEND_C_FLAGS}")
+  set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3")
+  string(REGEX REPLACE "-Xclang -fopenmp" "" YODA_C_FLAGS "${YODA_C_FLAGS}")
+  string(REGEX REPLACE "-Xclang -fopenmp" "" YODA_CXX_FLAGS "${YODA_CXX_FLAGS}")
+  # AppleClang (cbs on macOS): libtool can leak a bare -fopenmp after it
+  # splits the pair.  Do not strip -fopenmp on LLVM (cbs-llvm); that would
+  # mangle -fopenmp=libomp.
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    string(REGEX REPLACE "(^| )-fopenmp( |$)" "\\1" YODA_C_FLAGS "${YODA_C_FLAGS}")
+    string(REGEX REPLACE "(^| )-fopenmp( |$)" "\\1" YODA_CXX_FLAGS "${YODA_CXX_FLAGS}")
+  endif()
   #set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3" )
   set_compiler_warning("no-unused-parameter" YODA_CXX_FLAGS)
   set_compiler_warning("no-deprecated-copy" YODA_CXX_FLAGS)
@@ -369,6 +381,25 @@ if(NOT EXCLUDE_YODA)
   gambit_openmp_runtime_mismatch("${YODA_LIB}/lib${lib}.dylib" YODA_OPENMP_RUNTIME_MISMATCH)
   if(YODA_OPENMP_RUNTIME_MISMATCH)
     message("   YODA links a different OpenMP runtime and will be rebuilt.")
+  endif()
+  # contrib/YODA is in-source.  A tree configured under cbs-llvm can leave
+  # -fopenmp in .la files that make clean will not regenerate.  Drop the
+  # ExternalProject configure stamp so the next build re-runs configure.
+  set(YODA_STALE_OPENMP_METADATA FALSE)
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    file(GLOB_RECURSE YODA_LA_FILES "${dir}/*.la")
+    foreach(YODA_LA_FILE IN LISTS YODA_LA_FILES)
+      file(READ "${YODA_LA_FILE}" YODA_LA_CONTENT)
+      if(YODA_LA_CONTENT MATCHES "inherited_linker_flags=.*-fopenmp")
+        set(YODA_STALE_OPENMP_METADATA TRUE)
+        break()
+      endif()
+    endforeach()
+  endif()
+  if(YODA_STALE_OPENMP_METADATA)
+    get_paths(${name} _yoda_build_path _yoda_clean_stamps _yoda_nuke_stamps)
+    execute_process(COMMAND ${CMAKE_COMMAND} -E remove -f ${_yoda_clean_stamps})
+    message("   YODA contains stale AppleClang OpenMP libtool metadata; it will be reconfigured.")
   endif()
   set(YODA_BUILD_COMMAND ${MAKE_PARALLEL} CC="${CMAKE_C_COMPILER}" CXX="${CMAKE_CXX_COMPILER}")
   if(YODA_OPENMP_RUNTIME_MISMATCH)
@@ -402,7 +433,7 @@ if(NOT EXCLUDE_YODA)
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ${YODA_PATH}/configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} CFLAGS=${BACKEND_C_FLAGS} CXXFLAGS=${YODA_CXX_FLAGS} LDFLAGS=${YODA_CONFIG_LDFLAGS} PYTHON=${Python3_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
+    CONFIGURE_COMMAND ${YODA_PATH}/configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} CFLAGS=${YODA_C_FLAGS} CXXFLAGS=${YODA_CXX_FLAGS} LDFLAGS=${YODA_CONFIG_LDFLAGS} PYTHON=${Python3_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
     BUILD_COMMAND ${YODA_BUILD_COMMAND}
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
@@ -410,23 +441,18 @@ if(NOT EXCLUDE_YODA)
 endif()
 
 # FastJet / fjcontrib; include only if ColliderBit is in use.
-# CBS presets need 3.5.1 with C++ plugins for Rivet 4. Ordinary GAMBIT
-# configures keep 3.4.2 so a CBS preset does not rebuild contrib for everyone.
+# FastJet 3.5.1 + fjcontrib 1.101 are required for Rivet 4 (C++ plugins,
+# SoftDrop/LundPlane). CBS and ordinary GAMBIT cmake .. share this pair.
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(fastjet_name "fastjet")
   set(fjcontrib_name "fjcontrib")
+  set(fastjet_ver "3.5.1")
+  set(fastjet_md5 "bfefd2ce16232cbd571b6d9d68f702d6")
+  set(fjcontrib_ver "1.101")
+  set(fjcontrib_md5 "7397da82cf31a719e56cec0035d8072b")
   if(CBS_PRESET_BUILD)
-    set(fastjet_ver "3.5.1")
-    set(fastjet_md5 "bfefd2ce16232cbd571b6d9d68f702d6")
-    set(fjcontrib_ver "1.101")
-    set(fjcontrib_md5 "7397da82cf31a719e56cec0035d8072b")
     set(CBS_FASTJET_VERSION "${fastjet_ver}")
     set(CBS_FJCONTRIB_VERSION "${fjcontrib_ver}")
-  else()
-    set(fastjet_ver "3.4.2")
-    set(fastjet_md5 "d8aede1539f478547f8be5412ab6869c")
-    set(fjcontrib_ver "1.049")
-    set(fjcontrib_md5 "bfea8bfd311d958a40e445f76668bd32")
   endif()
   set(fastjet_dl "https://fastjet.fr/repo/fastjet-${fastjet_ver}.tar.gz")
   set(fastjet_path "${PROJECT_SOURCE_DIR}/contrib/fastjet-${fastjet_ver}")
@@ -446,11 +472,6 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   # FastJet's autotools build cannot handle the AppleClang OpenMP spelling.
   string(REGEX REPLACE "-Xclang -fopenmp" "" FASTJET_C_FLAGS "${BACKEND_C_FLAGS}")
   string(REGEX REPLACE "-Xclang -fopenmp" "" FASTJET_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
-  if(NOT CBS_PRESET_BUILD)
-    # FastJet 3.4.x depends on std::auto_ptr, which was removed in C++17.
-    string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FASTJET_C_FLAGS "${FASTJET_C_FLAGS}")
-    string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FASTJET_CXX_FLAGS "${FASTJET_CXX_FLAGS}")
-  endif()
   set_compiler_warning("no-deprecated-declarations" FASTJET_CXX_FLAGS)
   set_compiler_warning("no-deprecated-copy" FASTJET_CXX_FLAGS)
   set(FJCONTRIB_FRAGILE_CXX_FLAGS "${FASTJET_CXX_FLAGS}")
@@ -459,26 +480,22 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
     set(FJCONTRIB_FRAGILE_CXX_FLAGS "${FJCONTRIB_FRAGILE_CXX_FLAGS} -Wl,-headerpad_max_install_names")
   endif()
 
-  set(_fastjet_required_headers fastjet/ClusterSequence.hh)
-  set(_fjcontrib_required_headers fastjet/contrib/Nsubjettiness.hh)
+  # Rivet 4 needs the C++ plugins plus SoftDrop/LundPlane headers.
+  set(_fastjet_required_headers
+      fastjet/ClusterSequence.hh
+      fastjet/D0RunIIConePlugin.hh
+      fastjet/TrackJetPlugin.hh)
+  set(_fjcontrib_required_headers
+      fastjet/contrib/Nsubjettiness.hh
+      fastjet/contrib/SoftDrop.hh
+      fastjet/contrib/LundGenerator.hh)
   set(_fastjet_configure_options
       --prefix=${fastjet_DIR}
       --enable-silent-rules
-      --enable-shared)
-  set(_fjcontrib_only Nsubjettiness,RecursiveTools,EnergyCorrelator,VariableR)
-  if(CBS_PRESET_BUILD)
-    # Rivet 4 needs the C++ plugins plus SoftDrop/LundPlane headers.
-    list(APPEND _fastjet_required_headers
-         fastjet/D0RunIIConePlugin.hh
-         fastjet/TrackJetPlugin.hh)
-    list(APPEND _fjcontrib_required_headers
-         fastjet/contrib/SoftDrop.hh
-         fastjet/contrib/LundGenerator.hh)
-    list(APPEND _fastjet_configure_options
-         --disable-auto-ptr
-         --enable-allcxxplugins)
-    set(_fjcontrib_only Nsubjettiness,RecursiveTools,LundPlane,EnergyCorrelator,VariableR)
-  endif()
+      --enable-shared
+      --disable-auto-ptr
+      --enable-allcxxplugins)
+  set(_fjcontrib_only Nsubjettiness,RecursiveTools,LundPlane,EnergyCorrelator,VariableR)
 
   set(FASTJET_INSTALLED TRUE)
   foreach(_fastjet_header IN LISTS _fastjet_required_headers)

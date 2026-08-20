@@ -130,7 +130,6 @@ if(CBS_BUILD_PRESET)
   option(CBS_AUTO_DETECT_PYTHON "CBS: pin python3 on PATH before FindPython3" ON)
   option(CBS_AUTO_DETECT_ROOT "CBS: enable ROOT when a C++17 root-config is found" ON)
   option(CBS_WITH_RIVET_CONTUR "CBS: enable Rivet/Contur when their prerequisites exist" ON)
-  option(CBS_RIVET_USE_LLVM_LINKER_DRIVER "CBS: use -Wl,-undefined,dynamic_lookup on Darwin LLVM" OFF)
   # cbs and cbs-llvm share GAMBIT's build/ tree. Changing preset (or compiler)
   # in that cache is not a supported incremental reconfigure.
   if(DEFINED CACHE{CBS_CONFIGURED_PRESET} AND

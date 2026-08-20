@@ -73,10 +73,6 @@
         "CBS_BUILD_PRESET": {
           "type": "STRING",
           "value": "cbs"
-        },
-        "CBS_RIVET_USE_LLVM_LINKER_DRIVER": {
-          "type": "BOOL",
-          "value": "OFF"
         }
       }
     },
@@ -90,10 +86,6 @@
         "CBS_BUILD_PRESET": {
           "type": "STRING",
           "value": "cbs-llvm"
-        },
-        "CBS_RIVET_USE_LLVM_LINKER_DRIVER": {
-          "type": "BOOL",
-          "value": "ON"
         }
       }
     }

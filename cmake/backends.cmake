@@ -2100,11 +2100,6 @@ endif()
 # OpenMP flags don't play nicely with clang and FastJet's libtoolized build system.
 string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_C_FLAGS "${BACKEND_C_FLAGS}")
 string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
-if(NOT CBS_PRESET_BUILD)
-  # FastJet 3.4.x depends on std::auto_ptr which is removed in c++17.
-  string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FJ_CXX_FLAGS "${FJ_CXX_FLAGS}")
-  string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FJ_C_FLAGS "${FJ_C_FLAGS}")
-endif()
 set_compiler_warning("no-deprecated-declarations" FJ_CXX_FLAGS)
 set_compiler_warning("no-deprecated-copy" FJ_CXX_FLAGS)
 
@@ -2131,13 +2126,6 @@ set_compiler_warning("no-ignored-qualifiers" Rivet_CXX_FLAGS)
 set(Rivet_C_FLAGS "${FJ_C_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR}")
 # TODO: Separate the library and linker flags to avoid compiler complaints
 set(Rivet_LD_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} -L${dir}/include/Rivet -L${HEPMC_PATH}/local/lib -Wl,-rpath,${HEPMC_PATH}/local/lib")
-# Upstream LLVM clang on macOS does not forward the two-token Mach-O option
-# "-undefined dynamic_lookup" as AppleClang does.  The cbs-llvm preset opts
-# into the driver-safe spelling without changing ordinary GAMBIT or cbs builds.
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CBS_RIVET_USE_LLVM_LINKER_DRIVER)
-  string(REPLACE "-undefined dynamic_lookup" "-Wl,-undefined,dynamic_lookup"
-         Rivet_LD_FLAGS "${Rivet_LD_FLAGS}")
-endif()
 set(Rivet_dirs "${dir}/src/Core" "${dir}/src/Projections" "${dir}/src/Tools" "${dir}/src/AnalysisTools" "${dir}/src")
 
 # For MacOS we need to specify the (weird) root directory for headers (isysroot)
@@ -2209,23 +2197,15 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 # Contur
+# Frontend is Contur_3_0_0 only. 3.0.0 keeps the database rule in
+# data/DB/Makefile rather than exporting analyses.db from the top level.
 set(name "contur")
-if(CBS_PRESET_BUILD AND CBS_WITH_RIVET_CONTUR)
-  # ColliderBit Solo's frontend requests Contur 3.0.0. Keep the historical
-  # 2.1.1 definition for ordinary GAMBIT configurations unchanged.
-  set(ver "3.0.0")
-  set(md5 "aee676621c6a2f4b66a94e456a96dac8")
+set(ver "3.0.0")
+set(md5 "aee676621c6a2f4b66a94e456a96dac8")
+if(CBS_PRESET_BUILD)
   set(CBS_RESOLVED_CONTUR_VERSION "${ver}")
-  set(_contur_patch_command PATCH_COMMAND "")
-  # Contur 3 keeps the database rule in data/DB/Makefile, rather than
-  # exporting data/DB/analyses.db as a target of the top-level Makefile.
-  set(_contur_build_command ${MAKE_PARALLEL} -C data/DB analyses.db)
-else()
-  set(ver "2.1.1")
-  set(md5 "ecb91229775b62e5d71c8089d78b2ff6")
-  set(_contur_patch_command PATCH_COMMAND patch -p1 < "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-  set(_contur_build_command ${MAKE_PARALLEL} "data/DB/analyses.db")
 endif()
+set(_contur_build_command ${MAKE_PARALLEL} -C data/DB analyses.db)
 set(dl "https://gitlab.com/hepcedar/${name}/-/archive/${name}-${ver}/${name}-${name}-${ver}.tar.gz")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(contur_dir "${dir}/contur")
@@ -2244,7 +2224,6 @@ if(NOT ditched_${name}_${ver})
       DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
-      ${_contur_patch_command}
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "import os" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${init_file}
@@ -2269,7 +2248,6 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("backend" ${name} ${ver})
 endif()
 unset(_contur_build_command)
-unset(_contur_patch_command)
 
 
 # Linker flags used in the class makefile when linking executables

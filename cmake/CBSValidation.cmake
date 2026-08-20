@@ -58,7 +58,7 @@ end program cbs_fortran_validation
   endif()
 
   set(CBS_VALIDATION_DYNAMIC_LOOKUP_REQUIRED FALSE)
-  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CBS_RIVET_USE_LLVM_LINKER_DRIVER)
+  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(CBS_VALIDATION_DYNAMIC_LOOKUP_REQUIRED TRUE)
     check_linker_flag(CXX "-Wl,-undefined,dynamic_lookup"
                       _cbs_dynamic_lookup)
