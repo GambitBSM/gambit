@@ -34,6 +34,7 @@
 // #include "gambit/Backends/backend_rollcall.hpp"
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 #include <limits>
 #include <utility>
 
@@ -78,10 +79,18 @@ int main(int argc, char* argv[])
 
     if (command_line_status == ColliderBit::SoloCLI::CommandLineStatus::help)
     {
+      logger().disable();
       return 0;
+    }
+    if (command_line_status == ColliderBit::SoloCLI::CommandLineStatus::list_analyses)
+    {
+      logger().disable();
+      return ColliderBit::SoloCLI::print_analysis_list(
+               std::cout, std::cerr, command_line_options.analysis_query) ? 0 : 1;
     }
     if (command_line_status == ColliderBit::SoloCLI::CommandLineStatus::error)
     {
+      logger().disable();
       return 1;
     }
 

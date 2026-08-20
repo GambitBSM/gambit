@@ -63,6 +63,24 @@ if(TARGET CBS AND GAMBIT_USE_LLD_FOR_CBS)
   target_link_options(CBS PRIVATE -fuse-ld=lld)
 endif()
 
+# CBS --help / --list-analyses should not print RestFrames' load-time banner.
+# The patch is idempotent; the library is rebuilt only if RFBase.cc is newer.
+if(TARGET CBS AND NOT EXCLUDE_RESTFRAMES AND DEFINED RESTFRAMES_DIR)
+  find_program(_CBS_RESTFRAMES_MAKE NAMES make gmake)
+  if(_CBS_RESTFRAMES_MAKE)
+    add_custom_command(
+      TARGET CBS PRE_LINK
+      COMMAND ${CMAKE_COMMAND}
+        -DRFBASE_CC=${RESTFRAMES_DIR}/src/RFBase.cc
+        -DRF_DIR=${RESTFRAMES_DIR}
+        -DMAKE_PROGRAM=${_CBS_RESTFRAMES_MAKE}
+        -DREBUILD=ON
+        -P ${PROJECT_SOURCE_DIR}/cmake/scripts/patch_restframes_quiet.cmake
+      COMMENT "Ensuring RestFrames RESTFRAMES_QUIET banner patch is built"
+    )
+  endif()
+endif()
+
 # Add a message that is only shown if CBS is built 
 # and -O3 level compiler optimisations are not activated.
 if(EXISTS CBS AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "Release" AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo")
