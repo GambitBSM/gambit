@@ -17,21 +17,9 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
-
-#ifndef FJCORE
-#ifndef FJNS
-#define FJNS fastjet
-#endif
-#include "fastjet/ClusterSequence.hh"
-#include "fastjet/PseudoJet.hh"
+#include "HEPUtils/FastJet.h"
 #include "fastjet/tools/Filter.hh"
 #include "fastjet/Selector.hh"
-#else
-#include "fjcore.hh"
-#ifndef FJNS
-#define FJNS fjcore
-#endif
-#endif
 
 // #define CHECK_CUTFLOW
 

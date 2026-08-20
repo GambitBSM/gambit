@@ -30,21 +30,7 @@
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/onnx_rt_wrapper.hpp"
-
-// Let's be flexible about fjcore/fastjet
-// (define structure copied from heputils/FastJet.h)
-#ifndef FJCORE
-#ifndef FJNS
-#define FJNS fastjet
-#endif
-#include "fastjet/PseudoJet.hh"
-#include "fastjet/ClusterSequence.hh"
-#else 
-#include "fjcore.hh"
-#ifndef FJNS
-#define FJNS fjcore
-#endif
-#endif
+#include "HEPUtils/FastJet.h"
 
 using namespace std;
 

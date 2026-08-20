@@ -23,23 +23,10 @@
 #include "HEPUtils/FastJet.h"
 #include "HEPUtils/Event.h"
 #include "HEPUtils/Jet.h"
-#include <cmath>
-
-// Similar to ATLAS_13_TeV_3b_NN_139invfb (define structure copied from heputils/FastJet.h)
-#ifndef FJCORE
-#ifndef FJNS
-#define FJNS fastjet
-#endif
-#include "fastjet/PseudoJet.hh"
 #include "fastjet/tools/Filter.hh"
 #include "fastjet/Selector.hh"
 #include "fastjet/contrib/EnergyCorrelator.hh"
-#else
-#include "fjcore.hh"
-#ifndef FJNS
-#define FJNS fjcore
-#endif
-#endif
+#include <cmath>
 
 #include <memory>
 

@@ -596,19 +596,21 @@ else()
 endif()
 
 #contrib/fjcore-3.2.0
-set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
-include_directories("${fjcore_INCLUDE_DIR}")
+# ColliderBit builds full FastJet, so FJNS is fastjet and fjcore is unused.
+# Keep the object library only when FastJet is not in the build.
 if(WITH_FASTJET_CONTRIB)
   add_definitions(-DFJNS=fastjet)
 else()
+  set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
+  include_directories("${fjcore_INCLUDE_DIR}")
   add_definitions(-DFJCORE)
   add_definitions(-DFJNS=gambit::fjcore)
+  add_gambit_library(fjcore OPTION OBJECT
+                            SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.cc
+                            HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
+  set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
+  add_dependencies(contrib fjcore)
 endif()
-add_gambit_library(fjcore OPTION OBJECT
-                          SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.cc
-                          HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
-set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
-add_dependencies(contrib fjcore)
 
 if(WITH_FASTJET_CONTRIB)
   set(fjcontrib_nsubjettiness_dir "${fjcontrib_path}/Nsubjettiness")
