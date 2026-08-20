@@ -74,7 +74,7 @@ namespace Gambit
 
       Analysis_ATLAS_EXOT_2019_07()
       {
-        DEFINE_SIGNAL_REGION("SR");
+        defineSignalRegion("SR");
 
         if (Histogram1D::check_histogram())
         {

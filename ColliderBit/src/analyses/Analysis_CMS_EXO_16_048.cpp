@@ -35,7 +35,7 @@ namespace Gambit {
         for (size_t i = 0; i < NUMSR; ++i)
         {
           const std::string sr_name = "SR-" + std::to_string(i);
-          DEFINE_SIGNAL_REGION(sr_name)
+          defineSignalRegion(sr_name);
         }
 
         analysis_specific_reset();

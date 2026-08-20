@@ -60,14 +60,14 @@ namespace Gambit
 
         Analysis_CMS_SUS_16_039()
         {
-          DEFINE_SIGNAL_REGION("SR1", "2 leptons and 0 taus", "MET > 60 GeV", "conversion veto", "same-sign pair", "leading lepton pT", "N_ISRjets = 0 and MET > 140 GeV and mT > 100 GeV");
-          DEFINE_SIGNAL_REGION("SR2", "2 leptons and 0 taus", "MET > 60 GeV", "conversion veto", "same-sign pair", "leading lepton pT", "N_ISRjets = 1 and MET > 200 GeV and mT < 100 GeV and pT_ll < 100 GeV");
-          DEFINE_SIGNAL_REGION("SR3", "MET > 50 GeV and conversion veto and Nlep > 2", "Ntau < 2", "leading light lepton pT", "3 light leptons and 0 taus", "mT > 120 GeV and MET > 200 GeV");
-          DEFINE_SIGNAL_REGION("SR4", "MET > 50 GeV and conversion veto and Nlep > 2", "Ntau < 2", "leading light lepton pT", "3 light leptons and 0 taus", "MET > 250 GeV");
-          DEFINE_SIGNAL_REGION("SR5", "MET > 50 GeV and conversion veto and Nlep > 2", "Ntau < 2", "leading light lepton pT", "2 light leptons and 1 tau", "mT2 > 50 GeV and MET > 200 GeV");
-          DEFINE_SIGNAL_REGION("SR6", "MET > 50 GeV and conversion veto and Nlep > 2", "1 light lepton and 2 taus", "leading light lepton pT", "all lepton |eta| < 2.1", "mT2 > 50 GeV and MET > 200 GeV");
-          DEFINE_SIGNAL_REGION("SR7", "MET > 50 GeV and conversion veto and Nlep > 2", "1 light lepton and 2 taus", "leading light lepton pT", "all lepton |eta| < 2.1", "MET > 75 GeV");
-          DEFINE_SIGNAL_REGION("SR8", "MET > 50 GeV and conversion veto and Nlep > 2", "Ntau < 2", "leading light lepton pT", "Nlep > 3", "MET > 200 GeV");
+          defineSignalRegion("SR1", "2 leptons and 0 taus", "MET > 60 GeV", "conversion veto", "same-sign pair", "leading lepton pT", "N_ISRjets = 0 and MET > 140 GeV and mT > 100 GeV");
+          defineSignalRegion("SR2", "2 leptons and 0 taus", "MET > 60 GeV", "conversion veto", "same-sign pair", "leading lepton pT", "N_ISRjets = 1 and MET > 200 GeV and mT < 100 GeV and pT_ll < 100 GeV");
+          defineSignalRegion("SR3", "MET > 50 GeV and conversion veto and Nlep > 2", "Ntau < 2", "leading light lepton pT", "3 light leptons and 0 taus", "mT > 120 GeV and MET > 200 GeV");
+          defineSignalRegion("SR4", "MET > 50 GeV and conversion veto and Nlep > 2", "Ntau < 2", "leading light lepton pT", "3 light leptons and 0 taus", "MET > 250 GeV");
+          defineSignalRegion("SR5", "MET > 50 GeV and conversion veto and Nlep > 2", "Ntau < 2", "leading light lepton pT", "2 light leptons and 1 tau", "mT2 > 50 GeV and MET > 200 GeV");
+          defineSignalRegion("SR6", "MET > 50 GeV and conversion veto and Nlep > 2", "1 light lepton and 2 taus", "leading light lepton pT", "all lepton |eta| < 2.1", "mT2 > 50 GeV and MET > 200 GeV");
+          defineSignalRegion("SR7", "MET > 50 GeV and conversion veto and Nlep > 2", "1 light lepton and 2 taus", "leading light lepton pT", "all lepton |eta| < 2.1", "MET > 75 GeV");
+          defineSignalRegion("SR8", "MET > 50 GeV and conversion veto and Nlep > 2", "Ntau < 2", "leading light lepton pT", "Nlep > 3", "MET > 200 GeV");
 
           set_analysis_name("CMS_SUS_16_039_200_100");
           set_luminosity(35.9);

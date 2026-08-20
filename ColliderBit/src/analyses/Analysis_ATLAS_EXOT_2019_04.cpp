@@ -46,7 +46,7 @@ namespace Gambit
       static constexpr const char *detector = "ATLAS";
       Analysis_ATLAS_EXOT_2019_04()
       {
-        DEFINE_SIGNAL_REGION("SR");
+        defineSignalRegion("SR");
 
         if (Histogram1D::check_histogram())
         {

@@ -40,10 +40,10 @@ namespace Gambit
 
       Analysis_CMS_SUS_20_003()
       {
-        DEFINE_SIGNAL_REGIONS("SR2J-0H-", 4);
-        DEFINE_SIGNAL_REGIONS("SR2J-1H-", 2);
-        DEFINE_SIGNAL_REGIONS("SR3J-0H-", 4);
-        DEFINE_SIGNAL_REGIONS("SR3J-1H-", 2);
+        defineSignalRegions("SR2J-0H-", 4);
+        defineSignalRegions("SR2J-1H-", 2);
+        defineSignalRegions("SR3J-0H-", 4);
+        defineSignalRegions("SR3J-1H-", 2);
 
         set_analysis_name("CMS_SUS_20_003");
         set_luminosity(137.0);

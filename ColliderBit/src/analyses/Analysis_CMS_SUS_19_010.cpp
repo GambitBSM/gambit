@@ -87,253 +87,253 @@ namespace Gambit
         #endif
 
         // low dM 53 bins
-        DEFINE_SIGNAL_REGION("lowDM-0_2Nj5_Nb0_Nsv0_500ISR_450MET550");
-        DEFINE_SIGNAL_REGION("lowDM-1_2Nj5_Nb0_Nsv0_500ISR_550MET650");
-        DEFINE_SIGNAL_REGION("lowDM-2_2Nj5_Nb0_Nsv0_500ISR_650MET750");
-        DEFINE_SIGNAL_REGION("lowDM-3_2Nj5_Nb0_Nsv0_500ISR_750MET");
+        defineSignalRegion("lowDM-0_2Nj5_Nb0_Nsv0_500ISR_450MET550");
+        defineSignalRegion("lowDM-1_2Nj5_Nb0_Nsv0_500ISR_550MET650");
+        defineSignalRegion("lowDM-2_2Nj5_Nb0_Nsv0_500ISR_650MET750");
+        defineSignalRegion("lowDM-3_2Nj5_Nb0_Nsv0_500ISR_750MET");
 
-        DEFINE_SIGNAL_REGION("lowDM-4_6Nj_Nb0_Nsv0_500ISR_450MET550");
-        DEFINE_SIGNAL_REGION("lowDM-5_6Nj_Nb0_Nsv0_500ISR_550MET650");
-        DEFINE_SIGNAL_REGION("lowDM-6_6Nj_Nb0_Nsv0_500ISR_650MET750");
-        DEFINE_SIGNAL_REGION("lowDM-7_6Nj_Nb0_Nsv0_500ISR_750MET");
+        defineSignalRegion("lowDM-4_6Nj_Nb0_Nsv0_500ISR_450MET550");
+        defineSignalRegion("lowDM-5_6Nj_Nb0_Nsv0_500ISR_550MET650");
+        defineSignalRegion("lowDM-6_6Nj_Nb0_Nsv0_500ISR_650MET750");
+        defineSignalRegion("lowDM-7_6Nj_Nb0_Nsv0_500ISR_750MET");
 
-        DEFINE_SIGNAL_REGION("lowDM-8_2Nj5_Nb0_1Nsv_500ISR_450MET550");
-        DEFINE_SIGNAL_REGION("lowDM-9_2Nj5_Nb0_1Nsv_500ISR_550MET650");
-        DEFINE_SIGNAL_REGION("lowDM-10_2Nj5_Nb0_1Nsv_500ISR_650MET750");
-        DEFINE_SIGNAL_REGION("lowDM-11_2Nj5_Nb0_1Nsv_500ISR_750MET");
+        defineSignalRegion("lowDM-8_2Nj5_Nb0_1Nsv_500ISR_450MET550");
+        defineSignalRegion("lowDM-9_2Nj5_Nb0_1Nsv_500ISR_550MET650");
+        defineSignalRegion("lowDM-10_2Nj5_Nb0_1Nsv_500ISR_650MET750");
+        defineSignalRegion("lowDM-11_2Nj5_Nb0_1Nsv_500ISR_750MET");
 
-        DEFINE_SIGNAL_REGION("lowDM-12_6Nj_Nb0_1Nsv_500ISR_450MET550");
-        DEFINE_SIGNAL_REGION("lowDM-13_6Nj_Nb0_1Nsv_500ISR_550MET650");
-        DEFINE_SIGNAL_REGION("lowDM-14_6Nj_Nb0_1Nsv_500ISR_650MET750");
-        DEFINE_SIGNAL_REGION("lowDM-15_6Nj_Nb0_1Nsv_500ISR_750MET");
+        defineSignalRegion("lowDM-12_6Nj_Nb0_1Nsv_500ISR_450MET550");
+        defineSignalRegion("lowDM-13_6Nj_Nb0_1Nsv_500ISR_550MET650");
+        defineSignalRegion("lowDM-14_6Nj_Nb0_1Nsv_500ISR_650MET750");
+        defineSignalRegion("lowDM-15_6Nj_Nb0_1Nsv_500ISR_750MET");
 
-        DEFINE_SIGNAL_REGION("lowDM-16_2Nj_Nb1_Nsv0_mTb175_300ISR500_20pTb40_300MET400");
-        DEFINE_SIGNAL_REGION("lowDM-17_2Nj_Nb1_Nsv0_mTb175_300ISR500_20pTb40_400MET500");
-        DEFINE_SIGNAL_REGION("lowDM-18_2Nj_Nb1_Nsv0_mTb175_300ISR500_20pTb40_500MET600");
-        DEFINE_SIGNAL_REGION("lowDM-19_2Nj_Nb1_Nsv0_mTb175_300ISR500_20pTb40_600MET");
+        defineSignalRegion("lowDM-16_2Nj_Nb1_Nsv0_mTb175_300ISR500_20pTb40_300MET400");
+        defineSignalRegion("lowDM-17_2Nj_Nb1_Nsv0_mTb175_300ISR500_20pTb40_400MET500");
+        defineSignalRegion("lowDM-18_2Nj_Nb1_Nsv0_mTb175_300ISR500_20pTb40_500MET600");
+        defineSignalRegion("lowDM-19_2Nj_Nb1_Nsv0_mTb175_300ISR500_20pTb40_600MET");
 
-        DEFINE_SIGNAL_REGION("lowDM-20_2Nj_Nb1_Nsv0_mTb175_300ISR500_40pTb70_300MET400");
-        DEFINE_SIGNAL_REGION("lowDM-21_2Nj_Nb1_Nsv0_mTb175_300ISR500_40pTb70_400MET500");
-        DEFINE_SIGNAL_REGION("lowDM-22_2Nj_Nb1_Nsv0_mTb175_300ISR500_40pTb70_500MET600");
-        DEFINE_SIGNAL_REGION("lowDM-23_2Nj_Nb1_Nsv0_mTb175_300ISR500_40pTb70_600MET");
+        defineSignalRegion("lowDM-20_2Nj_Nb1_Nsv0_mTb175_300ISR500_40pTb70_300MET400");
+        defineSignalRegion("lowDM-21_2Nj_Nb1_Nsv0_mTb175_300ISR500_40pTb70_400MET500");
+        defineSignalRegion("lowDM-22_2Nj_Nb1_Nsv0_mTb175_300ISR500_40pTb70_500MET600");
+        defineSignalRegion("lowDM-23_2Nj_Nb1_Nsv0_mTb175_300ISR500_40pTb70_600MET");
 
-        DEFINE_SIGNAL_REGION("lowDM-24_2Nj_Nb1_Nsv0_mTb175_500ISR_20pTb40_450MET550");
-        DEFINE_SIGNAL_REGION("lowDM-25_2Nj_Nb1_Nsv0_mTb175_500ISR_20pTb40_550MET650");
-        DEFINE_SIGNAL_REGION("lowDM-26_2Nj_Nb1_Nsv0_mTb175_500ISR_20pTb40_650MET750");
-        DEFINE_SIGNAL_REGION("lowDM-27_2Nj_Nb1_Nsv0_mTb175_500ISR_20pTb40_750MET");
+        defineSignalRegion("lowDM-24_2Nj_Nb1_Nsv0_mTb175_500ISR_20pTb40_450MET550");
+        defineSignalRegion("lowDM-25_2Nj_Nb1_Nsv0_mTb175_500ISR_20pTb40_550MET650");
+        defineSignalRegion("lowDM-26_2Nj_Nb1_Nsv0_mTb175_500ISR_20pTb40_650MET750");
+        defineSignalRegion("lowDM-27_2Nj_Nb1_Nsv0_mTb175_500ISR_20pTb40_750MET");
 
-        DEFINE_SIGNAL_REGION("lowDM-28_2Nj_Nb1_Nsv0_mTb175_500ISR_40pTb70_450MET550");
-        DEFINE_SIGNAL_REGION("lowDM-29_2Nj_Nb1_Nsv0_mTb175_500ISR_40pTb70_550MET650");
-        DEFINE_SIGNAL_REGION("lowDM-30_2Nj_Nb1_Nsv0_mTb175_500ISR_40pTb70_650MET750");
-        DEFINE_SIGNAL_REGION("lowDM-31_2Nj_Nb1_Nsv0_mTb175_500ISR_40pTb70_750MET");
+        defineSignalRegion("lowDM-28_2Nj_Nb1_Nsv0_mTb175_500ISR_40pTb70_450MET550");
+        defineSignalRegion("lowDM-29_2Nj_Nb1_Nsv0_mTb175_500ISR_40pTb70_550MET650");
+        defineSignalRegion("lowDM-30_2Nj_Nb1_Nsv0_mTb175_500ISR_40pTb70_650MET750");
+        defineSignalRegion("lowDM-31_2Nj_Nb1_Nsv0_mTb175_500ISR_40pTb70_750MET");
 
-        DEFINE_SIGNAL_REGION("lowDM-32_2Nj_Nb1_1Nsv_mTb175_300ISR_20pTb40_300MET400");
-        DEFINE_SIGNAL_REGION("lowDM-33_2Nj_Nb1_1Nsv_mTb175_300ISR_20pTb40_400MET500");
-        DEFINE_SIGNAL_REGION("lowDM-34_2Nj_Nb1_1Nsv_mTb175_300ISR_20pTb40_500MET");
+        defineSignalRegion("lowDM-32_2Nj_Nb1_1Nsv_mTb175_300ISR_20pTb40_300MET400");
+        defineSignalRegion("lowDM-33_2Nj_Nb1_1Nsv_mTb175_300ISR_20pTb40_400MET500");
+        defineSignalRegion("lowDM-34_2Nj_Nb1_1Nsv_mTb175_300ISR_20pTb40_500MET");
 
-        DEFINE_SIGNAL_REGION("lowDM-35_2Nj_2Nb_mTb175_300ISR500_40pTb80_300MET400");
-        DEFINE_SIGNAL_REGION("lowDM-36_2Nj_2Nb_mTb175_300ISR500_40pTb80_400MET500");
-        DEFINE_SIGNAL_REGION("lowDM-37_2Nj_2Nb_mTb175_300ISR500_40pTb80_500MET");
+        defineSignalRegion("lowDM-35_2Nj_2Nb_mTb175_300ISR500_40pTb80_300MET400");
+        defineSignalRegion("lowDM-36_2Nj_2Nb_mTb175_300ISR500_40pTb80_400MET500");
+        defineSignalRegion("lowDM-37_2Nj_2Nb_mTb175_300ISR500_40pTb80_500MET");
 
-        DEFINE_SIGNAL_REGION("lowDM-38_2Nj_2Nb_mTb175_300ISR500_80pTb140_300MET400");
-        DEFINE_SIGNAL_REGION("lowDM-39_2Nj_2Nb_mTb175_300ISR500_80pTb140_400MET500");
-        DEFINE_SIGNAL_REGION("lowDM-40_2Nj_2Nb_mTb175_300ISR500_80pTb140_500MET");
+        defineSignalRegion("lowDM-38_2Nj_2Nb_mTb175_300ISR500_80pTb140_300MET400");
+        defineSignalRegion("lowDM-39_2Nj_2Nb_mTb175_300ISR500_80pTb140_400MET500");
+        defineSignalRegion("lowDM-40_2Nj_2Nb_mTb175_300ISR500_80pTb140_500MET");
 
-        DEFINE_SIGNAL_REGION("lowDM-41_7Nj_2Nb_mTb175_300ISR500_140pTb_300MET400");
-        DEFINE_SIGNAL_REGION("lowDM-42_7Nj_2Nb_mTb175_300ISR500_140pTb_400MET500");
-        DEFINE_SIGNAL_REGION("lowDM-43_7Nj_2Nb_mTb175_300ISR500_140pTb_500MET");
+        defineSignalRegion("lowDM-41_7Nj_2Nb_mTb175_300ISR500_140pTb_300MET400");
+        defineSignalRegion("lowDM-42_7Nj_2Nb_mTb175_300ISR500_140pTb_400MET500");
+        defineSignalRegion("lowDM-43_7Nj_2Nb_mTb175_300ISR500_140pTb_500MET");
 
-        DEFINE_SIGNAL_REGION("lowDM-44_2Nj_2Nb_mTb175_500ISR_40pTb80_450MET550");
-        DEFINE_SIGNAL_REGION("lowDM-45_2Nj_2Nb_mTb175_500ISR_40pTb80_550MET650");
-        DEFINE_SIGNAL_REGION("lowDM-46_2Nj_2Nb_mTb175_500ISR_40pTb80_650MET");
+        defineSignalRegion("lowDM-44_2Nj_2Nb_mTb175_500ISR_40pTb80_450MET550");
+        defineSignalRegion("lowDM-45_2Nj_2Nb_mTb175_500ISR_40pTb80_550MET650");
+        defineSignalRegion("lowDM-46_2Nj_2Nb_mTb175_500ISR_40pTb80_650MET");
 
-        DEFINE_SIGNAL_REGION("lowDM-47_2Nj_2Nb_mTb175_500ISR_80pTb140_450MET550");
-        DEFINE_SIGNAL_REGION("lowDM-48_2Nj_2Nb_mTb175_500ISR_80pTb140_550MET650");
-        DEFINE_SIGNAL_REGION("lowDM-49_2Nj_2Nb_mTb175_500ISR_80pTb140_650MET");
+        defineSignalRegion("lowDM-47_2Nj_2Nb_mTb175_500ISR_80pTb140_450MET550");
+        defineSignalRegion("lowDM-48_2Nj_2Nb_mTb175_500ISR_80pTb140_550MET650");
+        defineSignalRegion("lowDM-49_2Nj_2Nb_mTb175_500ISR_80pTb140_650MET");
 
-        DEFINE_SIGNAL_REGION("lowDM-50_7Nj_2Nb_mTb175_300ISR_140pTb_450MET550");
-        DEFINE_SIGNAL_REGION("lowDM-51_7Nj_2Nb_mTb175_300ISR_140pTb_550MET650");
-        DEFINE_SIGNAL_REGION("lowDM-52_7Nj_2Nb_mTb175_300ISR_140pTb_650MET");
+        defineSignalRegion("lowDM-50_7Nj_2Nb_mTb175_300ISR_140pTb_450MET550");
+        defineSignalRegion("lowDM-51_7Nj_2Nb_mTb175_300ISR_140pTb_550MET650");
+        defineSignalRegion("lowDM-52_7Nj_2Nb_mTb175_300ISR_140pTb_650MET");
 
         // high dM 53 bins
-        DEFINE_SIGNAL_REGION("highDM-53_mTb175_7Nj_Nb1_0Nt_0Nw_1Nres_300Ht_250MET300");
-        DEFINE_SIGNAL_REGION("highDM-54_mTb175_7Nj_Nb1_0Nt_0Nw_1Nres_300Ht_300MET400");
-        DEFINE_SIGNAL_REGION("highDM-55_mTb175_7Nj_Nb1_0Nt_0Nw_1Nres_300Ht_400MET500");
-        DEFINE_SIGNAL_REGION("highDM-56_mTb175_7Nj_Nb1_0Nt_0Nw_1Nres_300Ht_500MET");
+        defineSignalRegion("highDM-53_mTb175_7Nj_Nb1_0Nt_0Nw_1Nres_300Ht_250MET300");
+        defineSignalRegion("highDM-54_mTb175_7Nj_Nb1_0Nt_0Nw_1Nres_300Ht_300MET400");
+        defineSignalRegion("highDM-55_mTb175_7Nj_Nb1_0Nt_0Nw_1Nres_300Ht_400MET500");
+        defineSignalRegion("highDM-56_mTb175_7Nj_Nb1_0Nt_0Nw_1Nres_300Ht_500MET");
 
-        DEFINE_SIGNAL_REGION("highDM-57_mTb175_7Nj_Nb2_0Nt_0Nw_1Nres_300Ht_250MET300");
-        DEFINE_SIGNAL_REGION("highDM-58_mTb175_7Nj_Nb2_0Nt_0Nw_1Nres_300Ht_300MET400");
-        DEFINE_SIGNAL_REGION("highDM-59_mTb175_7Nj_Nb2_0Nt_0Nw_1Nres_300Ht_400MET500");
-        DEFINE_SIGNAL_REGION("highDM-60_mTb175_7Nj_Nb2_0Nt_0Nw_1Nres_300Ht_500MET");
+        defineSignalRegion("highDM-57_mTb175_7Nj_Nb2_0Nt_0Nw_1Nres_300Ht_250MET300");
+        defineSignalRegion("highDM-58_mTb175_7Nj_Nb2_0Nt_0Nw_1Nres_300Ht_300MET400");
+        defineSignalRegion("highDM-59_mTb175_7Nj_Nb2_0Nt_0Nw_1Nres_300Ht_400MET500");
+        defineSignalRegion("highDM-60_mTb175_7Nj_Nb2_0Nt_0Nw_1Nres_300Ht_500MET");
 
-        DEFINE_SIGNAL_REGION("highDM-61_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_1000Ht_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-62_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_1000Ht_350MET450");
-        DEFINE_SIGNAL_REGION("highDM-63_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_1000Ht_450MET550");
-        DEFINE_SIGNAL_REGION("highDM-64_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_1000Ht_550MET");
+        defineSignalRegion("highDM-61_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_1000Ht_250MET350");
+        defineSignalRegion("highDM-62_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_1000Ht_350MET450");
+        defineSignalRegion("highDM-63_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_1000Ht_450MET550");
+        defineSignalRegion("highDM-64_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_1000Ht_550MET");
 
-        DEFINE_SIGNAL_REGION("highDM-65_175mTb_5Nj_Nb2_0Nt_0Nw_0Nres_1000Ht_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-66_175mTb_5Nj_Nb2_0Nt_0Nw_0Nres_1000Ht_350MET450");
-        DEFINE_SIGNAL_REGION("highDM-67_175mTb_5Nj_Nb2_0Nt_0Nw_0Nres_1000Ht_450MET550");
-        DEFINE_SIGNAL_REGION("highDM-68_175mTb_5Nj_Nb2_0Nt_0Nw_0Nres_1000Ht_550MET");
+        defineSignalRegion("highDM-65_175mTb_5Nj_Nb2_0Nt_0Nw_0Nres_1000Ht_250MET350");
+        defineSignalRegion("highDM-66_175mTb_5Nj_Nb2_0Nt_0Nw_0Nres_1000Ht_350MET450");
+        defineSignalRegion("highDM-67_175mTb_5Nj_Nb2_0Nt_0Nw_0Nres_1000Ht_450MET550");
+        defineSignalRegion("highDM-68_175mTb_5Nj_Nb2_0Nt_0Nw_0Nres_1000Ht_550MET");
 
-        DEFINE_SIGNAL_REGION("highDM-69_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_300Ht1000_250MET550");
-        DEFINE_SIGNAL_REGION("highDM-70_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_300Ht1000_550MET650");
-        DEFINE_SIGNAL_REGION("highDM-71_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_300Ht1000_650MET");
+        defineSignalRegion("highDM-69_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_300Ht1000_250MET550");
+        defineSignalRegion("highDM-70_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_300Ht1000_550MET650");
+        defineSignalRegion("highDM-71_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_300Ht1000_650MET");
 
-        DEFINE_SIGNAL_REGION("highDM-72_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_1000Ht1500_250MET550");
-        DEFINE_SIGNAL_REGION("highDM-73_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_1000Ht1500_550MET650");
-        DEFINE_SIGNAL_REGION("highDM-74_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_1000Ht1500_650MET");
+        defineSignalRegion("highDM-72_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_1000Ht1500_250MET550");
+        defineSignalRegion("highDM-73_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_1000Ht1500_550MET650");
+        defineSignalRegion("highDM-74_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_1000Ht1500_650MET");
 
-        DEFINE_SIGNAL_REGION("highDM-75_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_1500Ht_250MET550");
-        DEFINE_SIGNAL_REGION("highDM-76_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_1500Ht_550MET650");
-        DEFINE_SIGNAL_REGION("highDM-77_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_1500Ht_650MET");
+        defineSignalRegion("highDM-75_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_1500Ht_250MET550");
+        defineSignalRegion("highDM-76_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_1500Ht_550MET650");
+        defineSignalRegion("highDM-77_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_1500Ht_650MET");
 
-        DEFINE_SIGNAL_REGION("highDM-78_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_300Ht1300_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-79_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_300Ht1300_350MET450");
-        DEFINE_SIGNAL_REGION("highDM-80_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_300Ht1300_450MET");
+        defineSignalRegion("highDM-78_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_300Ht1300_250MET350");
+        defineSignalRegion("highDM-79_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_300Ht1300_350MET450");
+        defineSignalRegion("highDM-80_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_300Ht1300_450MET");
 
-        DEFINE_SIGNAL_REGION("highDM-81_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_1300Ht_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-82_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_1300Ht_350MET450");
-        DEFINE_SIGNAL_REGION("highDM-83_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_1300Ht_450MET");
+        defineSignalRegion("highDM-81_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_1300Ht_250MET350");
+        defineSignalRegion("highDM-82_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_1300Ht_350MET450");
+        defineSignalRegion("highDM-83_175mTb_5Nj_Nb1_0Nt_0Nw_0Nres_1300Ht_450MET");
 
-        DEFINE_SIGNAL_REGION("highDM-84_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_300Ht1000_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-85_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_300Ht1000_350MET450");
-        DEFINE_SIGNAL_REGION("highDM-86_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_300Ht1000_450MET550");
-        DEFINE_SIGNAL_REGION("highDM-87_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_300Ht1000_550MET650");
-        DEFINE_SIGNAL_REGION("highDM-88_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_300Ht1000_650MET");
+        defineSignalRegion("highDM-84_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_300Ht1000_250MET350");
+        defineSignalRegion("highDM-85_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_300Ht1000_350MET450");
+        defineSignalRegion("highDM-86_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_300Ht1000_450MET550");
+        defineSignalRegion("highDM-87_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_300Ht1000_550MET650");
+        defineSignalRegion("highDM-88_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_300Ht1000_650MET");
 
-        DEFINE_SIGNAL_REGION("highDM-89_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1000Ht1500_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-90_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1000Ht1500_350MET450");
-        DEFINE_SIGNAL_REGION("highDM-91_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1000Ht1500_450MET550");
-        DEFINE_SIGNAL_REGION("highDM-92_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1000Ht1500_550MET650");
-        DEFINE_SIGNAL_REGION("highDM-93_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1000Ht1500_650MET");
+        defineSignalRegion("highDM-89_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1000Ht1500_250MET350");
+        defineSignalRegion("highDM-90_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1000Ht1500_350MET450");
+        defineSignalRegion("highDM-91_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1000Ht1500_450MET550");
+        defineSignalRegion("highDM-92_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1000Ht1500_550MET650");
+        defineSignalRegion("highDM-93_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1000Ht1500_650MET");
 
-        DEFINE_SIGNAL_REGION("highDM-94_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1500Ht_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-95_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1500Ht_350MET450");
-        DEFINE_SIGNAL_REGION("highDM-96_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1500Ht_450MET550");
-        DEFINE_SIGNAL_REGION("highDM-97_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1500Ht_550MET650");
-        DEFINE_SIGNAL_REGION("highDM-98_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1500Ht_650MET");
+        defineSignalRegion("highDM-94_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1500Ht_250MET350");
+        defineSignalRegion("highDM-95_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1500Ht_350MET450");
+        defineSignalRegion("highDM-96_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1500Ht_450MET550");
+        defineSignalRegion("highDM-97_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1500Ht_550MET650");
+        defineSignalRegion("highDM-98_175mTb_5Nj_Nb1_0Nt_0Nw_1Nres_1500Ht_650MET");
 
-        DEFINE_SIGNAL_REGION("highDM-99_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_300Ht_250MET550");
-        DEFINE_SIGNAL_REGION("highDM-100_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_300Ht_550MET");
+        defineSignalRegion("highDM-99_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_300Ht_250MET550");
+        defineSignalRegion("highDM-100_175mTb_5Nj_Nb1_1Nt_1Nw_0Nres_300Ht_550MET");
 
-        DEFINE_SIGNAL_REGION("highDM-101_175mTb_5Nj_Nb1_1Nt_0Nw_1Nres_300Ht_250MET550");
-        DEFINE_SIGNAL_REGION("highDM-102_175mTb_5Nj_Nb1_1Nt_0Nw_1Nres_300Ht_550MET");
+        defineSignalRegion("highDM-101_175mTb_5Nj_Nb1_1Nt_0Nw_1Nres_300Ht_250MET550");
+        defineSignalRegion("highDM-102_175mTb_5Nj_Nb1_1Nt_0Nw_1Nres_300Ht_550MET");
 
-        DEFINE_SIGNAL_REGION("highDM-103_175mTb_5Nj_Nb1_0Nt_1Nw_1Nres_300Ht_250MET550");
-        DEFINE_SIGNAL_REGION("highDM-104_175mTb_5Nj_Nb1_0Nt_1Nw_1Nres_300Ht_550MET");
+        defineSignalRegion("highDM-103_175mTb_5Nj_Nb1_0Nt_1Nw_1Nres_300Ht_250MET550");
+        defineSignalRegion("highDM-104_175mTb_5Nj_Nb1_0Nt_1Nw_1Nres_300Ht_550MET");
 
-        DEFINE_SIGNAL_REGION("highDM-105_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_300Ht1000_250MET550");
-        DEFINE_SIGNAL_REGION("highDM-106_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_300Ht1000_550MET650");
-        DEFINE_SIGNAL_REGION("highDM-107_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_300Ht1000_650MET");
+        defineSignalRegion("highDM-105_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_300Ht1000_250MET550");
+        defineSignalRegion("highDM-106_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_300Ht1000_550MET650");
+        defineSignalRegion("highDM-107_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_300Ht1000_650MET");
 
-        DEFINE_SIGNAL_REGION("highDM-108_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_1000Ht1500_250MET550");
-        DEFINE_SIGNAL_REGION("highDM-109_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_1000Ht1500_550MET650");
-        DEFINE_SIGNAL_REGION("highDM-110_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_1000Ht1500_650MET");
+        defineSignalRegion("highDM-108_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_1000Ht1500_250MET550");
+        defineSignalRegion("highDM-109_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_1000Ht1500_550MET650");
+        defineSignalRegion("highDM-110_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_1000Ht1500_650MET");
 
-        DEFINE_SIGNAL_REGION("highDM-111_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_1500Ht_250MET550");
-        DEFINE_SIGNAL_REGION("highDM-112_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_1500Ht_550MET650");
-        DEFINE_SIGNAL_REGION("highDM-113_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_1500Ht_650MET");
+        defineSignalRegion("highDM-111_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_1500Ht_250MET550");
+        defineSignalRegion("highDM-112_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_1500Ht_550MET650");
+        defineSignalRegion("highDM-113_175mTb_5Nj_2Nb_1Nt_0Nw_0Nres_1500Ht_650MET");
 
-        DEFINE_SIGNAL_REGION("highDM-114_175mTb_5Nj_2Nb_0Nt_1Nw_0Nres_300Ht1300_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-115_175mTb_5Nj_2Nb_0Nt_1Nw_0Nres_300Ht1300_350MET450");
-        DEFINE_SIGNAL_REGION("highDM-116_175mTb_5Nj_2Nb_0Nt_1Nw_0Nres_300Ht1300_450MET");
+        defineSignalRegion("highDM-114_175mTb_5Nj_2Nb_0Nt_1Nw_0Nres_300Ht1300_250MET350");
+        defineSignalRegion("highDM-115_175mTb_5Nj_2Nb_0Nt_1Nw_0Nres_300Ht1300_350MET450");
+        defineSignalRegion("highDM-116_175mTb_5Nj_2Nb_0Nt_1Nw_0Nres_300Ht1300_450MET");
 
-        DEFINE_SIGNAL_REGION("highDM-117_175mTb_5Nj_2Nb_0Nt_1Nw_0Nres_1300Ht_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-118_175mTb_5Nj_2Nb_0Nt_1Nw_0Nres_1300Ht_350MET450");
-        DEFINE_SIGNAL_REGION("highDM-119_175mTb_5Nj_2Nb_0Nt_1Nw_0Nres_1300Ht_450MET");
+        defineSignalRegion("highDM-117_175mTb_5Nj_2Nb_0Nt_1Nw_0Nres_1300Ht_250MET350");
+        defineSignalRegion("highDM-118_175mTb_5Nj_2Nb_0Nt_1Nw_0Nres_1300Ht_350MET450");
+        defineSignalRegion("highDM-119_175mTb_5Nj_2Nb_0Nt_1Nw_0Nres_1300Ht_450MET");
 
-        DEFINE_SIGNAL_REGION("highDM-120_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_300Ht1000_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-121_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_300Ht1000_350MET450");
-        DEFINE_SIGNAL_REGION("highDM-122_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_300Ht1000_450MET550");
-        DEFINE_SIGNAL_REGION("highDM-123_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_300Ht1000_550MET650");
-        DEFINE_SIGNAL_REGION("highDM-124_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_300Ht1000_650MET");
+        defineSignalRegion("highDM-120_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_300Ht1000_250MET350");
+        defineSignalRegion("highDM-121_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_300Ht1000_350MET450");
+        defineSignalRegion("highDM-122_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_300Ht1000_450MET550");
+        defineSignalRegion("highDM-123_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_300Ht1000_550MET650");
+        defineSignalRegion("highDM-124_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_300Ht1000_650MET");
 
-        DEFINE_SIGNAL_REGION("highDM-125_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1000Ht1500_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-126_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1000Ht1500_350MET450");
-        DEFINE_SIGNAL_REGION("highDM-127_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1000Ht1500_450MET550");
-        DEFINE_SIGNAL_REGION("highDM-128_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1000Ht1500_550MET650");
-        DEFINE_SIGNAL_REGION("highDM-129_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1000Ht1500_650MET");
+        defineSignalRegion("highDM-125_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1000Ht1500_250MET350");
+        defineSignalRegion("highDM-126_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1000Ht1500_350MET450");
+        defineSignalRegion("highDM-127_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1000Ht1500_450MET550");
+        defineSignalRegion("highDM-128_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1000Ht1500_550MET650");
+        defineSignalRegion("highDM-129_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1000Ht1500_650MET");
 
-        DEFINE_SIGNAL_REGION("highDM-130_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1500Ht_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-131_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1500Ht_350MET450");
-        DEFINE_SIGNAL_REGION("highDM-132_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1500Ht_450MET550");
-        DEFINE_SIGNAL_REGION("highDM-133_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1500Ht_550MET650");
-        DEFINE_SIGNAL_REGION("highDM-134_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1500Ht_650MET");
+        defineSignalRegion("highDM-130_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1500Ht_250MET350");
+        defineSignalRegion("highDM-131_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1500Ht_350MET450");
+        defineSignalRegion("highDM-132_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1500Ht_450MET550");
+        defineSignalRegion("highDM-133_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1500Ht_550MET650");
+        defineSignalRegion("highDM-134_175mTb_5Nj_2Nb_0Nt_0Nw_1Nres_1500Ht_650MET");
 
-        DEFINE_SIGNAL_REGION("highDM-135_175mTb_5Nj_2Nb_1Nt_1Nw_0Nres_300Ht_250MET550");
-        DEFINE_SIGNAL_REGION("highDM-136_175mTb_5Nj_2Nb_1Nt_1Nw_0Nres_300Ht_550MET");
+        defineSignalRegion("highDM-135_175mTb_5Nj_2Nb_1Nt_1Nw_0Nres_300Ht_250MET550");
+        defineSignalRegion("highDM-136_175mTb_5Nj_2Nb_1Nt_1Nw_0Nres_300Ht_550MET");
 
-        DEFINE_SIGNAL_REGION("highDM-137_175mTb_5Nj_2Nb_1Nt_0Nw_1Nres_300Ht1300_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-138_175mTb_5Nj_2Nb_1Nt_0Nw_1Nres_300Ht1300_350MET450");
-        DEFINE_SIGNAL_REGION("highDM-139_175mTb_5Nj_2Nb_1Nt_0Nw_1Nres_300Ht1300_450MET");
+        defineSignalRegion("highDM-137_175mTb_5Nj_2Nb_1Nt_0Nw_1Nres_300Ht1300_250MET350");
+        defineSignalRegion("highDM-138_175mTb_5Nj_2Nb_1Nt_0Nw_1Nres_300Ht1300_350MET450");
+        defineSignalRegion("highDM-139_175mTb_5Nj_2Nb_1Nt_0Nw_1Nres_300Ht1300_450MET");
 
-        DEFINE_SIGNAL_REGION("highDM-140_175mTb_5Nj_2Nb_1Nt_0Nw_1Nres_1300Ht_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-141_175mTb_5Nj_2Nb_1Nt_0Nw_1Nres_1300Ht_350MET450");
-        DEFINE_SIGNAL_REGION("highDM-142_175mTb_5Nj_2Nb_1Nt_0Nw_1Nres_1300Ht_450MET");
+        defineSignalRegion("highDM-140_175mTb_5Nj_2Nb_1Nt_0Nw_1Nres_1300Ht_250MET350");
+        defineSignalRegion("highDM-141_175mTb_5Nj_2Nb_1Nt_0Nw_1Nres_1300Ht_350MET450");
+        defineSignalRegion("highDM-142_175mTb_5Nj_2Nb_1Nt_0Nw_1Nres_1300Ht_450MET");
 
-        DEFINE_SIGNAL_REGION("highDM-143_175mTb_5Nj_2Nb_0Nt_1Nw_1Nres_300Ht_250MET550");
-        DEFINE_SIGNAL_REGION("highDM-144_175mTb_5Nj_2Nb_0Nt_1Nw_1Nres_300Ht_550MET");
+        defineSignalRegion("highDM-143_175mTb_5Nj_2Nb_0Nt_1Nw_1Nres_300Ht_250MET550");
+        defineSignalRegion("highDM-144_175mTb_5Nj_2Nb_0Nt_1Nw_1Nres_300Ht_550MET");
 
-        DEFINE_SIGNAL_REGION("highDM-145_175mTb_5Nj_2Nb_2Nt_0Nw_0Nres_300Ht_250MET450");
-        DEFINE_SIGNAL_REGION("highDM-146_175mTb_5Nj_2Nb_2Nt_0Nw_0Nres_300Ht_450MET");
+        defineSignalRegion("highDM-145_175mTb_5Nj_2Nb_2Nt_0Nw_0Nres_300Ht_250MET450");
+        defineSignalRegion("highDM-146_175mTb_5Nj_2Nb_2Nt_0Nw_0Nres_300Ht_450MET");
 
-        DEFINE_SIGNAL_REGION("highDM-147_175mTb_5Nj_2Nb_0Nt_2Nw_0Nres_300Ht_250MET");
+        defineSignalRegion("highDM-147_175mTb_5Nj_2Nb_0Nt_2Nw_0Nres_300Ht_250MET");
 
-        DEFINE_SIGNAL_REGION("highDM-148_175mTb_5Nj_2Nb_0Nt_0Nw_2Nres_300Ht1300_250MET450");
-        DEFINE_SIGNAL_REGION("highDM-149_175mTb_5Nj_2Nb_0Nt_0Nw_2Nres_300Ht1300_450MET");
+        defineSignalRegion("highDM-148_175mTb_5Nj_2Nb_0Nt_0Nw_2Nres_300Ht1300_250MET450");
+        defineSignalRegion("highDM-149_175mTb_5Nj_2Nb_0Nt_0Nw_2Nres_300Ht1300_450MET");
 
-        DEFINE_SIGNAL_REGION("highDM-150_175mTb_5Nj_2Nb_0Nt_0Nw_2Nres_1300Ht_250MET450");
-        DEFINE_SIGNAL_REGION("highDM-151_175mTb_5Nj_2Nb_0Nt_0Nw_2Nres_1300Ht_450MET");
+        defineSignalRegion("highDM-150_175mTb_5Nj_2Nb_0Nt_0Nw_2Nres_1300Ht_250MET450");
+        defineSignalRegion("highDM-151_175mTb_5Nj_2Nb_0Nt_0Nw_2Nres_1300Ht_450MET");
 
-        DEFINE_SIGNAL_REGION("highDM-152_175mTb_5Nj_2Nb_3NtNwNres_300Ht_250MET");
+        defineSignalRegion("highDM-152_175mTb_5Nj_2Nb_3NtNwNres_300Ht_250MET");
 
-        DEFINE_SIGNAL_REGION("highDM-153_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_300Ht1000_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-154_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_300Ht1000_350MET550");
-        DEFINE_SIGNAL_REGION("highDM-155_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_300Ht1000_550MET");
+        defineSignalRegion("highDM-153_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_300Ht1000_250MET350");
+        defineSignalRegion("highDM-154_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_300Ht1000_350MET550");
+        defineSignalRegion("highDM-155_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_300Ht1000_550MET");
 
-        DEFINE_SIGNAL_REGION("highDM-156_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_1000Ht1500_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-157_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_1000Ht1500_350MET550");
-        DEFINE_SIGNAL_REGION("highDM-158_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_1000Ht1500_550MET");
+        defineSignalRegion("highDM-156_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_1000Ht1500_250MET350");
+        defineSignalRegion("highDM-157_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_1000Ht1500_350MET550");
+        defineSignalRegion("highDM-158_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_1000Ht1500_550MET");
 
-        DEFINE_SIGNAL_REGION("highDM-159_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_1500Ht_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-160_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_1500Ht_350MET550");
-        DEFINE_SIGNAL_REGION("highDM-161_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_1500Ht_550MET");
+        defineSignalRegion("highDM-159_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_1500Ht_250MET350");
+        defineSignalRegion("highDM-160_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_1500Ht_350MET550");
+        defineSignalRegion("highDM-161_175mTb_5Nj_3Nb_1Nt_0Nw_0Nres_1500Ht_550MET");
 
-        DEFINE_SIGNAL_REGION("highDM-162_175mTb_5Nj_3Nb_0Nt_1Nw_0Nres_300Ht_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-163_175mTb_5Nj_3Nb_0Nt_1Nw_0Nres_300Ht_350MET550");
-        DEFINE_SIGNAL_REGION("highDM-164_175mTb_5Nj_3Nb_0Nt_1Nw_0Nres_300Ht_550MET");
+        defineSignalRegion("highDM-162_175mTb_5Nj_3Nb_0Nt_1Nw_0Nres_300Ht_250MET350");
+        defineSignalRegion("highDM-163_175mTb_5Nj_3Nb_0Nt_1Nw_0Nres_300Ht_350MET550");
+        defineSignalRegion("highDM-164_175mTb_5Nj_3Nb_0Nt_1Nw_0Nres_300Ht_550MET");
 
-        DEFINE_SIGNAL_REGION("highDM-165_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_300Ht1000_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-166_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_300Ht1000_350MET550");
-        DEFINE_SIGNAL_REGION("highDM-167_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_300Ht1000_550MET");
+        defineSignalRegion("highDM-165_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_300Ht1000_250MET350");
+        defineSignalRegion("highDM-166_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_300Ht1000_350MET550");
+        defineSignalRegion("highDM-167_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_300Ht1000_550MET");
 
-        DEFINE_SIGNAL_REGION("highDM-168_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_1000Ht1500_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-169_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_1000Ht1500_350MET550");
-        DEFINE_SIGNAL_REGION("highDM-170_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_1000Ht1500_550MET");
+        defineSignalRegion("highDM-168_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_1000Ht1500_250MET350");
+        defineSignalRegion("highDM-169_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_1000Ht1500_350MET550");
+        defineSignalRegion("highDM-170_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_1000Ht1500_550MET");
 
-        DEFINE_SIGNAL_REGION("highDM-171_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_1500Ht_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-172_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_1500Ht_350MET550");
-        DEFINE_SIGNAL_REGION("highDM-173_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_1500Ht_550MET");
+        defineSignalRegion("highDM-171_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_1500Ht_250MET350");
+        defineSignalRegion("highDM-172_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_1500Ht_350MET550");
+        defineSignalRegion("highDM-173_175mTb_5Nj_3Nb_0Nt_0Nw_1Nres_1500Ht_550MET");
 
-        DEFINE_SIGNAL_REGION("highDM-174_175mTb_5Nj_3Nb_1Nt_1Nw_0Nres_300Ht_250MET");
+        defineSignalRegion("highDM-174_175mTb_5Nj_3Nb_1Nt_1Nw_0Nres_300Ht_250MET");
 
-        DEFINE_SIGNAL_REGION("highDM-175_175mTb_5Nj_3Nb_1Nt_0Nw_1Nres_300Ht_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-176_175mTb_5Nj_3Nb_1Nt_0Nw_1Nres_300Ht_350MET");
+        defineSignalRegion("highDM-175_175mTb_5Nj_3Nb_1Nt_0Nw_1Nres_300Ht_250MET350");
+        defineSignalRegion("highDM-176_175mTb_5Nj_3Nb_1Nt_0Nw_1Nres_300Ht_350MET");
 
-        DEFINE_SIGNAL_REGION("highDM-177_175mTb_5Nj_3Nb_0Nt_1Nw_1Nres_300Ht_250MET");
+        defineSignalRegion("highDM-177_175mTb_5Nj_3Nb_0Nt_1Nw_1Nres_300Ht_250MET");
 
-        DEFINE_SIGNAL_REGION("highDM-178_175mTb_5Nj_3Nb_2Nt_0Nw_0Nres_300Ht_250MET");
+        defineSignalRegion("highDM-178_175mTb_5Nj_3Nb_2Nt_0Nw_0Nres_300Ht_250MET");
 
-        DEFINE_SIGNAL_REGION("highDM-179_175mTb_5Nj_3Nb_0Nt_2Nw_0Nres_300Ht_250MET");
+        defineSignalRegion("highDM-179_175mTb_5Nj_3Nb_0Nt_2Nw_0Nres_300Ht_250MET");
 
-        DEFINE_SIGNAL_REGION("highDM-180_175mTb_5Nj_3Nb_0Nt_0Nw_2Nres_300Ht_250MET350");
-        DEFINE_SIGNAL_REGION("highDM-181_175mTb_5Nj_3Nb_0Nt_0Nw_2Nres_300Ht_350MET");
+        defineSignalRegion("highDM-180_175mTb_5Nj_3Nb_0Nt_0Nw_2Nres_300Ht_250MET350");
+        defineSignalRegion("highDM-181_175mTb_5Nj_3Nb_0Nt_0Nw_2Nres_300Ht_350MET");
 
-        DEFINE_SIGNAL_REGION("highDM-182_175mTb_5Nj_3Nb_3NtNwNres_300Ht_250MET");
+        defineSignalRegion("highDM-182_175mTb_5Nj_3Nb_3NtNwNres_300Ht_250MET");
 
 
-//        DEFINE_SIGNAL_REGION("SR1BH_1L"); //, "METSig > 7");
+//        defineSignalRegion("SR1BH_1L"); //, "METSig > 7");
 //
       }
 

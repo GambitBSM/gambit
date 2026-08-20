@@ -497,14 +497,14 @@ namespace Gambit
       void book_regions()
       {
         // High-mass cut-and-count signal regions.
-        DEFINE_SIGNAL_REGION("SRHM-QH");
-        DEFINE_SIGNAL_REGION("SRHM-TH");
-        DEFINE_SIGNAL_REGION("SRHM-RH");
-        DEFINE_SIGNAL_REGION("SRHM-SH");
-        DEFINE_SIGNAL_REGION("SRHM-QZ");
-        DEFINE_SIGNAL_REGION("SRHM-LZ");
-        DEFINE_SIGNAL_REGION("SRHM-RZ");
-        DEFINE_SIGNAL_REGION("SRHM-SZ");
+        defineSignalRegion("SRHM-QH");
+        defineSignalRegion("SRHM-TH");
+        defineSignalRegion("SRHM-RH");
+        defineSignalRegion("SRHM-SH");
+        defineSignalRegion("SRHM-QZ");
+        defineSignalRegion("SRHM-LZ");
+        defineSignalRegion("SRHM-RZ");
+        defineSignalRegion("SRHM-SZ");
 
         // Low-mass five-jet-mass histograms: 40 GeV bins, 300-1300 GeV (25 bins).
         // Events above 1.3 TeV fall in the overflow and are dropped (default).

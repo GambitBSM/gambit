@@ -66,33 +66,33 @@ namespace Gambit
 
         // Counters for the number of accepted events for each signal region
         // 1/2 is used to represent the first or second bin of the met significance
-        DEFINE_SIGNAL_REGION("SRHigh8_1_cuts_0", "n bjets <= 1", "mll: [71,111] GeV", "MET sig > 18",
-                                               "mt2 > 80 GeV", "njets >=2", "mjj: [60,110] GeV", "delta Rjj < 0.8")
-        DEFINE_SIGNAL_REGION("SRHigh8_2_cuts_0", "n bjets <= 1", "mll: [71,111] GeV", "MET sig > 18", "mt2 > 80 GeV",
-                                               "njets >=2", "mjj: [60,110] GeV", "delta Rjj < 0.8")
-        DEFINE_SIGNAL_REGION("SRHigh16_1_cuts_0", "n bjets <= 1", "mll: [71,111] GeV", "MET sig > 18", "mt2 > 80 GeV",
-                                                "njets >=2", "mjj: [60,110] GeV", "delta Rjj: [0.8,1.6]")
-        DEFINE_SIGNAL_REGION("SRHigh16_2_cuts_0", "n bjets <= 1", "mll: [71,111] GeV", "MET sig > 18", "mt2 > 80 GeV",
-                                                "njets >=2", "mjj: [60,110] GeV", "delta Rjj: [0.8,1.6]")
-        DEFINE_SIGNAL_REGION("SRHigh4_cuts_0", "n bjets <= 1", "mll: [71,111] GeV", "MET sig > 12", "mt2 > 80 GeV", "njets ==1")
-        DEFINE_SIGNAL_REGION("SRllbb_cuts_0", "mll: [71,111] GeV", "MET sig > 18", "mt2 > 80 GeV", "nbets >=2", "njets >=2")
+        defineSignalRegion("SRHigh8_1_cuts_0", "n bjets <= 1", "mll: [71,111] GeV", "MET sig > 18",
+                                               "mt2 > 80 GeV", "njets >=2", "mjj: [60,110] GeV", "delta Rjj < 0.8");
+        defineSignalRegion("SRHigh8_2_cuts_0", "n bjets <= 1", "mll: [71,111] GeV", "MET sig > 18", "mt2 > 80 GeV",
+                                               "njets >=2", "mjj: [60,110] GeV", "delta Rjj < 0.8");
+        defineSignalRegion("SRHigh16_1_cuts_0", "n bjets <= 1", "mll: [71,111] GeV", "MET sig > 18", "mt2 > 80 GeV",
+                                                "njets >=2", "mjj: [60,110] GeV", "delta Rjj: [0.8,1.6]");
+        defineSignalRegion("SRHigh16_2_cuts_0", "n bjets <= 1", "mll: [71,111] GeV", "MET sig > 18", "mt2 > 80 GeV",
+                                                "njets >=2", "mjj: [60,110] GeV", "delta Rjj: [0.8,1.6]");
+        defineSignalRegion("SRHigh4_cuts_0", "n bjets <= 1", "mll: [71,111] GeV", "MET sig > 12", "mt2 > 80 GeV", "njets ==1");
+        defineSignalRegion("SRllbb_cuts_0", "mll: [71,111] GeV", "MET sig > 18", "mt2 > 80 GeV", "nbets >=2", "njets >=2");
 
-        DEFINE_SIGNAL_REGION("SRInt_1_cuts_0", "n bjets == 0", "mll: [81,101] GeV", "MET sig: [12,18]", "mt2 > 80 GeV",
-                                             "jet pt1 > 60 GeV", "njets >=2", "mjj: [60,110] GeV")
-        DEFINE_SIGNAL_REGION("SRInt_2_cuts_0", "n bjets == 0", "mll: [81,101] GeV", "MET sig: [12,18]", "mt2 > 80 GeV",
-                                             "jet pt1 > 60 GeV", "njets >=2", "mjj: [60,110] GeV")
+        defineSignalRegion("SRInt_1_cuts_0", "n bjets == 0", "mll: [81,101] GeV", "MET sig: [12,18]", "mt2 > 80 GeV",
+                                             "jet pt1 > 60 GeV", "njets >=2", "mjj: [60,110] GeV");
+        defineSignalRegion("SRInt_2_cuts_0", "n bjets == 0", "mll: [81,101] GeV", "MET sig: [12,18]", "mt2 > 80 GeV",
+                                             "jet pt1 > 60 GeV", "njets >=2", "mjj: [60,110] GeV");
 
-        DEFINE_SIGNAL_REGION("SRLow_1_cuts_0", "n bjets == 0", "mll: [81,101] GeV", "MET sig: [6,12]", "mt2 > 80 GeV",
-                                             "njets ==2", "mjj: [60,110] GeV", "Rll < 1")
-        DEFINE_SIGNAL_REGION("SRLow_2_cuts_0", "n bjets == 0", "mll: [81,101] GeV", "MET sig: [6,12]", "mt2 > 80 GeV",
-                                             "njets ==2", "mjj: [60,110] GeV", "Rll < 1")
-        DEFINE_SIGNAL_REGION("SRLow2_cuts_0", "n bjets == 0", "mll: [81,101] GeV", "MET sig: [6,9]", "mt2 < 80 GeV",
-                                            "njets ==2", "mjj: [60,110] GeV", "Rll < 1.6")
+        defineSignalRegion("SRLow_1_cuts_0", "n bjets == 0", "mll: [81,101] GeV", "MET sig: [6,12]", "mt2 > 80 GeV",
+                                             "njets ==2", "mjj: [60,110] GeV", "Rll < 1");
+        defineSignalRegion("SRLow_2_cuts_0", "n bjets == 0", "mll: [81,101] GeV", "MET sig: [6,12]", "mt2 > 80 GeV",
+                                             "njets ==2", "mjj: [60,110] GeV", "Rll < 1");
+        defineSignalRegion("SRLow2_cuts_0", "n bjets == 0", "mll: [81,101] GeV", "MET sig: [6,9]", "mt2 < 80 GeV",
+                                            "njets ==2", "mjj: [60,110] GeV", "Rll < 1.6");
 
-        DEFINE_SIGNAL_REGION("SROffShell_1_cuts_0", "n bjets == 0", "mll: [12,71] GeV", "MET sig > 9", "mt2 > 100 GeV",
-                                                 "njets >=2", "jet pt1 > 100", "Rll < 1.6", "dphiJ1met > 2")
-        DEFINE_SIGNAL_REGION("SROffShell_2_cuts_0", "n bjets == 0", "mll: [12,71] GeV", "MET sig > 9", "mt2 > 100 GeV",
-                                                 "njets >=2", "jet pt1 > 100", "Rll < 1.6", "dphiJ1met > 2")
+        defineSignalRegion("SROffShell_1_cuts_0", "n bjets == 0", "mll: [12,71] GeV", "MET sig > 9", "mt2 > 100 GeV",
+                                                 "njets >=2", "jet pt1 > 100", "Rll < 1.6", "dphiJ1met > 2");
+        defineSignalRegion("SROffShell_2_cuts_0", "n bjets == 0", "mll: [12,71] GeV", "MET sig > 9", "mt2 > 100 GeV",
+                                                 "njets >=2", "jet pt1 > 100", "Rll < 1.6", "dphiJ1met > 2");
 
       }
 

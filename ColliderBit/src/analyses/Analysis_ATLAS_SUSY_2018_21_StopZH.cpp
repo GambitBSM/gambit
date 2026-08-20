@@ -102,22 +102,22 @@ namespace Gambit
         #endif
 
 //      SR1AZ_3L =  "3l preselection", "pTl3 > 20 GeV", "|mSFOS-mZ| < 15 GeV", "nbjets >= 1", "njets >= 4", "MET > 250 GeV", "mT2(3l) > 100 GeV"
-        DEFINE_SIGNAL_REGION("SR1AZ_3L"); // MT2(3L)
+        defineSignalRegion("SR1AZ_3L"); // MT2(3L)
 
 //      SR1BZ_3L = "3l preselection", "pTl3 > 20 GeV", "|mSFOS-mZ| < 15 GeV", "nbjets >= 1", "njets >= 5", "MET > 150 GeV", "pTll > 150 GeV", "pTb1 > 100 GeV"
-        DEFINE_SIGNAL_REGION("SR1BZ_3L"); //, "pTb1 > 100 GeV");
+        defineSignalRegion("SR1BZ_3L"); //, "pTb1 > 100 GeV");
 
 //      SR2AZ_3L = "3l preselection", "pTl3 < 20 GeV", "|mSFOS-mZ| < 15 GeV", "pTj1 > 150 GeV", "MET > 200 GeV", "pTll < 50 GeV"
-        DEFINE_SIGNAL_REGION("SR2AZ_3L"); //, "pTll < 50 GeV");
+        defineSignalRegion("SR2AZ_3L"); //, "pTll < 50 GeV");
 
 //      SR2BZ_3L = "3l preselection", "pTl3 < 60 GeV", "|mSFOS-mZ| < 15 GeV", "nbjets >= 1", "MET > 350 GeV", "pTll > 150 GeV"
-        DEFINE_SIGNAL_REGION("SR2BZ_3L"); //, "pTll > 150 GeV");
+        defineSignalRegion("SR2BZ_3L"); //, "pTll > 150 GeV");
 
 //      SR1AH_1L = "1l Preselection", "nbjets >= 3", "nh >= 1", "mT > 150 GeV", "njets >= 4", "METSig > 12"
-        DEFINE_SIGNAL_REGION("SR1AH_1L"); //, "METSig > 12");
+        defineSignalRegion("SR1AH_1L"); //, "METSig > 12");
 
 //      SR1BH_1L", "1l Preselection", "nbjets >= 4", "nh >= 1", "mT > 150 GeV", "njets >= 6", "METSig > 7"
-        DEFINE_SIGNAL_REGION("SR1BH_1L"); //, "METSig > 7");
+        defineSignalRegion("SR1BH_1L"); //, "METSig > 7");
 //
       }
 

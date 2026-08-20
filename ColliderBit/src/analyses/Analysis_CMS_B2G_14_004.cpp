@@ -44,7 +44,7 @@ namespace Gambit {
 
       Analysis_CMS_B2G_14_004()
       {
-        DEFINE_SIGNAL_REGION("SR",
+        defineSignalRegion("SR",
                              "MET > 320 GeV",
                              "MT > 160 GeV",
                              "MT2W > 300 GeV",
@@ -190,7 +190,7 @@ namespace Gambit {
 
         if (passSR)
         {
-          FILL_SIGNAL_REGION("SR")
+          FILL_SIGNAL_REGION("SR");
         }
 
         return;

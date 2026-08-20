@@ -57,62 +57,62 @@ namespace Gambit
           // 2SSLep (2lSS)
           for(size_t i=1; i<=20; ++i)
           {
-            DEFINE_SIGNAL_REGION(SR("SS",i))
+            defineSignalRegion(SR("SS",i));
           }
           // 3Lep, OSSF pair (3lA)
           for(size_t i=1; i<=64; ++i)
           {
-            DEFINE_SIGNAL_REGION(SR("A",i))
+            defineSignalRegion(SR("A",i));
           }
           // 3Lep, no OSSF pair (3lB)
           for(size_t i=1; i<=3; ++i)
           {
-            DEFINE_SIGNAL_REGION(SR("B",i))
+            defineSignalRegion(SR("B",i));
           }
           // 3Lep, OSSF pair + tau (3lC)
           for(size_t i=1; i<=9; ++i)
           {
-            DEFINE_SIGNAL_REGION(SR("C",i))
+            defineSignalRegion(SR("C",i));
           }
           // 3Lep, no OSSF pair, 2 OS light leptons + tau (3lD)
           for(size_t i=1; i<=16; ++i)
           {
-            DEFINE_SIGNAL_REGION(SR("D",i))
+            defineSignalRegion(SR("D",i));
           }
           // 3Lep, no OSSF pair, 2 SS light leptons + tau (3lE)
           for(size_t i=1; i<=9; ++i)
           {
-            DEFINE_SIGNAL_REGION(SR("E",i))
+            defineSignalRegion(SR("E",i));
           }
           // 3Lep, 2 tau (3lF)
           for(size_t i=1; i<=12; ++i)
           {
-            DEFINE_SIGNAL_REGION(SR("F",i))
+            defineSignalRegion(SR("F",i));
           }
           // 4Lep, 2 OSSF pairs (4lG)
           for(size_t i=1; i<=5; ++i)
           {
-            DEFINE_SIGNAL_REGION(SR("G",i))
+            defineSignalRegion(SR("G",i));
           }
           // 4Lep, 1 or fewer OSSF pairs (4lH)
           for(size_t i=1; i<=3; ++i)
           {
-            DEFINE_SIGNAL_REGION(SR("H",i))
+            defineSignalRegion(SR("H",i));
           }
           // 4Lep, tau + 3 light leptons (4lI)
           for(size_t i=1; i<=3; ++i)
           {
-            DEFINE_SIGNAL_REGION(SR("I",i))
+            defineSignalRegion(SR("I",i));
           }
           // 4Lep, 2 tau + 2 light leptons, 2 OSSF pairs (4lJ)
           for(size_t i=1; i<=3; ++i)
           {
-            DEFINE_SIGNAL_REGION(SR("J",i))
+            defineSignalRegion(SR("J",i));
           }
           // 4Lep, 2 tau + 2 light leptons, 1 or fewer OSSF pairs (4lK)
           for(size_t i=1; i<=3; ++i)
           {
-            DEFINE_SIGNAL_REGION(SR("K",i))
+            defineSignalRegion(SR("K",i));
           }
 
 
@@ -123,7 +123,7 @@ namespace Gambit
 
         void counter_cutflow(str SR, const HEPUtils::Event *event, double /*weight*/)
         {
-          FILL_SIGNAL_REGION(SR)
+          FILL_SIGNAL_REGION(SR);
         }
 
         void run(const HEPUtils::Event* event)

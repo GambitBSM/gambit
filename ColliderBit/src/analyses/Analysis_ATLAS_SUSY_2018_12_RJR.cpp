@@ -107,11 +107,11 @@ namespace Gambit
 
             Analysis_ATLAS_SUSY_2018_12_RJR()
             {
-                DEFINE_SIGNAL_REGION("SRC1");
-                DEFINE_SIGNAL_REGION("SRC2");
-                DEFINE_SIGNAL_REGION("SRC3");
-                DEFINE_SIGNAL_REGION("SRC4");
-                DEFINE_SIGNAL_REGION("SRC5");
+                defineSignalRegion("SRC1");
+                defineSignalRegion("SRC2");
+                defineSignalRegion("SRC3");
+                defineSignalRegion("SRC4");
+                defineSignalRegion("SRC5");
 
                 set_analysis_name("ATLAS_SUSY_2018_12_RJR");
                 set_luminosity(139);

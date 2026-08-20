@@ -237,14 +237,14 @@ namespace Gambit
       Analysis_ATLAS_SUSY_2018_07()
       {
         // Signal region counter
-        DEFINE_SIGNAL_REGION("SR-tN_med");
-        DEFINE_SIGNAL_REGION("SR-tN_high");
-        DEFINE_SIGNAL_REGION("SR-tN_diag_low");
-        DEFINE_SIGNAL_REGION("SR-tN_diag_high");
-        DEFINE_SIGNAL_REGION("SR-bWN");
-        DEFINE_SIGNAL_REGION("SR-bffN_btag");
-        DEFINE_SIGNAL_REGION("SR-bffN_softb");
-        DEFINE_SIGNAL_REGION("SR-DM");
+        defineSignalRegion("SR-tN_med");
+        defineSignalRegion("SR-tN_high");
+        defineSignalRegion("SR-tN_diag_low");
+        defineSignalRegion("SR-tN_diag_high");
+        defineSignalRegion("SR-bWN");
+        defineSignalRegion("SR-bffN_btag");
+        defineSignalRegion("SR-bffN_softb");
+        defineSignalRegion("SR-DM");
 
         // Set the analysis name
         set_analysis_name("ATLAS_SUSY_2018_07");

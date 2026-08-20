@@ -67,7 +67,7 @@ namespace Gambit
 
       Analysis_ATLAS_SUSY_2018_21()
       {
-        DEFINE_SIGNAL_REGION("SRZ1A",
+        defineSignalRegion("SRZ1A",
           "Trigger",
           "Third leading lepton pT > 20 GeV",
           "|mll - mZ| < 15 GeV",
@@ -76,7 +76,7 @@ namespace Gambit
           "MET > 250 GeV",
           "mT23l > 100 GeV");
 
-        DEFINE_SIGNAL_REGION("SRZ1B",
+        defineSignalRegion("SRZ1B",
           "Trigger",
           "Third leading lepton pT > 20 GeV",
           "|mll - mZ| < 15 GeV",
@@ -86,7 +86,7 @@ namespace Gambit
           "pTll > 150 GeV",
           "Leading b-tagged jet pT > 100 GeV");
 
-        DEFINE_SIGNAL_REGION("SRZ2A",
+        defineSignalRegion("SRZ2A",
           "Trigger",
           "Third leading lepton pT < 20 GeV",
           "|mll - mZ| < 15 GeV",
@@ -94,7 +94,7 @@ namespace Gambit
           "MET > 200 GeV",
           "pTll < 50 GeV");
 
-        DEFINE_SIGNAL_REGION("SRZ2B",
+        defineSignalRegion("SRZ2B",
           "Trigger",
           "Third leading lepton pT < 60 GeV",
           "|mll - mZ| < 15 GeV",
@@ -395,10 +395,10 @@ namespace Gambit
           pTll > 150.
         );
 
-        if (srz1a) { FILL_SIGNAL_REGION("SRZ1A") }
-        if (srz1b) { FILL_SIGNAL_REGION("SRZ1B") }
-        if (srz2a) { FILL_SIGNAL_REGION("SRZ2A") }
-        if (srz2b) { FILL_SIGNAL_REGION("SRZ2B") }
+        if (srz1a) { FILL_SIGNAL_REGION("SRZ1A"); }
+        if (srz1b) { FILL_SIGNAL_REGION("SRZ1B"); }
+        if (srz2a) { FILL_SIGNAL_REGION("SRZ2A"); }
+        if (srz2b) { FILL_SIGNAL_REGION("SRZ2B"); }
 
         // 1l
         // Requirement                      SRh1A    SRh1B

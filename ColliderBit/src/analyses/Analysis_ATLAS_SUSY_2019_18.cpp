@@ -59,10 +59,10 @@ namespace Gambit
         set_luminosity(139);
 //
 //        // Counters for the number of accepted events for each signal region
-        DEFINE_SIGNAL_REGION("SRdiTau_cuts_0", "di-tau preselection", "OS(tau1,tau2) == 1", "MET > 280 GeV")//, "mT2 > 70 GeV");
-        DEFINE_SIGNAL_REGION("SRsingleTau_pT50-100_cuts_0", "single-tau Preselection", "MET > 280 GeV", "mTtau > 150 GeV", "summTb > 700 GeV", "sT > 600 GeV")//, "pTtau1: [50, 100] GeV");
-        DEFINE_SIGNAL_REGION("SRsingleTau_pT100-200_cuts_0", "single-tau Preselection", "MET > 280 GeV", "mTtau > 150 GeV", "summTb > 700 GeV", "sT > 600 GeV")//, "pTtau1: [100, 200] GeV");
-        DEFINE_SIGNAL_REGION("SRsingleTau_pT200_cuts_0", "single-tau Preselection", "MET > 280 GeV", "mTtau > 150 GeV", "summTb > 700 GeV", "sT > 600 GeV")//, "pTtau1 > 200 GeV");
+        defineSignalRegion("SRdiTau_cuts_0", "di-tau preselection", "OS(tau1,tau2) == 1", "MET > 280 GeV");//, "mT2 > 70 GeV");
+        defineSignalRegion("SRsingleTau_pT50-100_cuts_0", "single-tau Preselection", "MET > 280 GeV", "mTtau > 150 GeV", "summTb > 700 GeV", "sT > 600 GeV");//, "pTtau1: [50, 100] GeV");
+        defineSignalRegion("SRsingleTau_pT100-200_cuts_0", "single-tau Preselection", "MET > 280 GeV", "mTtau > 150 GeV", "summTb > 700 GeV", "sT > 600 GeV");//, "pTtau1: [100, 200] GeV");
+        defineSignalRegion("SRsingleTau_pT200_cuts_0", "single-tau Preselection", "MET > 280 GeV", "mTtau > 150 GeV", "summTb > 700 GeV", "sT > 600 GeV");//, "pTtau1 > 200 GeV");
 //
       }
 //
