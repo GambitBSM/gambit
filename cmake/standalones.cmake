@@ -22,6 +22,10 @@
 #          (anders.kvellestad@fys.uio.no)
 #  \date 2023
 #
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Aug
+#
 #************************************************
 
 # Add some programs that use the GAMBIT physics libraries but not GAMBIT itself.
@@ -34,6 +38,25 @@ add_standalone(FlavBit_standalone SOURCES FlavBit/examples/FlavBit_standalone_ex
 add_standalone(NeutrinoBit_standalone SOURCES NeutrinoBit/examples/NeutrinoBit_standalone.cpp MODULES NeutrinoBit)
 add_standalone(NeutrinoBit_standalone_RHN SOURCES NeutrinoBit/examples/NeutrinoBit_standalone_RHN.cpp MODULES NeutrinoBit)
 add_standalone(CBS SOURCES ColliderBit/examples/solo.cpp ColliderBit/examples/solo_cli.cpp ColliderBit/examples/solo_input.cpp ColliderBit/examples/solo_batch.cpp ColliderBit/examples/solo_output.cpp MODULES ColliderBit DEPENDENCIES hepmc pybind11)
+
+# Public CBS presets build the compatible Rivet/Contur pair by default. The
+# prerequisite gate is CBS-only: a normal GAMBIT build retains its backend
+# selection and CBS itself remains usable without these optional backends.
+set(CBS_RIVET_CONTUR_ENABLED FALSE)
+if(TARGET CBS AND CBS_PRESET_BUILD AND CBS_WITH_RIVET_CONTUR)
+  if(CBS_RIVET_CONTUR_PREREQUISITES_FOUND AND TARGET rivet AND TARGET contur)
+    if(TARGET rivet_4.1.0 AND TARGET fastjet)
+      add_dependencies(rivet_4.1.0 fastjet)
+      if(TARGET fjcontrib)
+        add_dependencies(rivet_4.1.0 fjcontrib)
+      endif()
+    endif()
+    add_dependencies(CBS rivet contur)
+    set(CBS_RIVET_CONTUR_ENABLED TRUE)
+  elseif(NOT CBS_RIVET_CONTUR_PREREQUISITES_REASON)
+    set(CBS_RIVET_CONTUR_PREREQUISITES_REASON "the Rivet/Contur backend targets could not be configured")
+  endif()
+endif()
 
 option(GAMBIT_USE_LLD_FOR_CBS "Use lld when linking the CBS standalone executable." OFF)
 if(TARGET CBS AND GAMBIT_USE_LLD_FOR_CBS)

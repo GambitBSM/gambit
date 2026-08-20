@@ -77,6 +77,8 @@ contrib/HepMC3-*/
 contrib/YODA-*/
 contrib/fastjet-*/
 contrib/fjcontrib-*/
+contrib/RestFrames-*/
+contrib/onnxruntime-*/
 
 # Local configuration files
 config/*_locations.yaml

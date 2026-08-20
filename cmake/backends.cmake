@@ -111,6 +111,10 @@
 #          (qhuy0003@student.monash.edu)
 #  \date 2022 Apr
 #
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Aug
+#
 #************************************************
 
 
@@ -2093,12 +2097,14 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
-# OpenMP flags don't play nicely with clang and FastJet's antiquated libtoolized build system.
+# OpenMP flags don't play nicely with clang and FastJet's libtoolized build system.
 string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_C_FLAGS "${BACKEND_C_FLAGS}")
 string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
-# FastJet 3.4.x depends on std::auto_ptr which is removed in c++17, so we need to fall back to c++14 (or c++11)
-string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FJ_CXX_FLAGS "${FJ_CXX_FLAGS}")
-string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FJ_C_FLAGS "${FJ_C_FLAGS}")
+if(NOT CBS_PRESET_BUILD)
+  # FastJet 3.4.x depends on std::auto_ptr which is removed in c++17.
+  string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FJ_CXX_FLAGS "${FJ_CXX_FLAGS}")
+  string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FJ_C_FLAGS "${FJ_C_FLAGS}")
+endif()
 set_compiler_warning("no-deprecated-declarations" FJ_CXX_FLAGS)
 set_compiler_warning("no-deprecated-copy" FJ_CXX_FLAGS)
 
@@ -2113,9 +2119,8 @@ set(yoda_name "yoda")
 set(yoda_dir "${YODA_PATH}/local")
 set(hepmc_name "hepmc")
 set(hepmc_dir "${HEPMC_PATH}/local")
-set(fastjet_dir "${PROJECT_SOURCE_DIR}/contrib/fastjet-3.4.2/local")
+set(fastjet_dir "${fastjet_DIR}")
 #set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet -faligned-new -O3")
-# TODO TP Oct 24: Atm this means CXX flags contains both -std=c++14 and -std=c++17, would be good to simplify
 set(Rivet_CXX_FLAGS "${FJ_CXX_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR} -O3 -std=c++17")
 set_compiler_warning("no-deprecated-declarations" Rivet_CXX_FLAGS)
 set_compiler_warning("no-deprecated-copy" Rivet_CXX_FLAGS)
@@ -2126,6 +2131,13 @@ set_compiler_warning("no-ignored-qualifiers" Rivet_CXX_FLAGS)
 set(Rivet_C_FLAGS "${FJ_C_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR}")
 # TODO: Separate the library and linker flags to avoid compiler complaints
 set(Rivet_LD_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} -L${dir}/include/Rivet -L${HEPMC_PATH}/local/lib -Wl,-rpath,${HEPMC_PATH}/local/lib")
+# Upstream LLVM clang on macOS does not forward the two-token Mach-O option
+# "-undefined dynamic_lookup" as AppleClang does.  The cbs-llvm preset opts
+# into the driver-safe spelling without changing ordinary GAMBIT or cbs builds.
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CBS_RIVET_USE_LLVM_LINKER_DRIVER)
+  string(REPLACE "-undefined dynamic_lookup" "-Wl,-undefined,dynamic_lookup"
+         Rivet_LD_FLAGS "${Rivet_LD_FLAGS}")
+endif()
 set(Rivet_dirs "${dir}/src/Core" "${dir}/src/Projections" "${dir}/src/Tools" "${dir}/src/AnalysisTools" "${dir}/src")
 
 # For MacOS we need to specify the (weird) root directory for headers (isysroot)
@@ -2139,8 +2151,12 @@ set(patch_dir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 set(patch "${patch_dir}/patch_${name}_${ver}.dif")
 ## Rivet needs to be compiled c++17, otherwise it will fail to compile
 set(ditch_if_absent "HepMC;YODA;c++17")
-## If cython is not installed disable the python extension
-gambit_find_python_module(cython)
+## CBS preset discovery may already have validated Cython for the selected
+## interpreter. Reuse that result only in a CBS configuration; ordinary
+## GAMBIT configurations retain their historical direct module probe.
+if(NOT (CBS_PRESET_BUILD AND DEFINED PY_cython_FOUND))
+  gambit_find_python_module(cython)
+endif()
 if(PY_cython_FOUND)
   set(pyext yes)
   #Note weird extra pypath due to weird behaviour of 3.1.8 on some operating systems.
@@ -2175,23 +2191,48 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} libRivet.so
     INSTALL_COMMAND ""
   )
-  BOSS_backend(${name} ${ver} "-I${HDF5_INCLUDE_DIR} -I${HDF5_INCLUDE_DIRS}")
+  # FindHDF5 may return more than one include directory (for example HDF5 and
+  # libaec with Homebrew). Pass each directory as its own BOSS option so none
+  # of the paths can be mistaken for the positional BOSS config-module name.
+  set(_rivet_boss_include_options "")
+  foreach(_rivet_include_dir IN LISTS HDF5_INCLUDE_DIR HDF5_INCLUDE_DIRS)
+    if(NOT "${_rivet_include_dir}" STREQUAL "")
+      list(APPEND _rivet_boss_include_options "-I${_rivet_include_dir}")
+    endif()
+  endforeach()
+  list(REMOVE_DUPLICATES _rivet_boss_include_options)
+  BOSS_backend(${name} ${ver} ${_rivet_boss_include_options})
+  unset(_rivet_boss_include_options)
+  unset(_rivet_include_dir)
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
 # Contur
 set(name "contur")
-set(ver "2.1.1")
+if(CBS_PRESET_BUILD AND CBS_WITH_RIVET_CONTUR)
+  # ColliderBit Solo's frontend requests Contur 3.0.0. Keep the historical
+  # 2.1.1 definition for ordinary GAMBIT configurations unchanged.
+  set(ver "3.0.0")
+  set(md5 "aee676621c6a2f4b66a94e456a96dac8")
+  set(CBS_RESOLVED_CONTUR_VERSION "${ver}")
+  set(_contur_patch_command PATCH_COMMAND "")
+  # Contur 3 keeps the database rule in data/DB/Makefile, rather than
+  # exporting data/DB/analyses.db as a target of the top-level Makefile.
+  set(_contur_build_command ${MAKE_PARALLEL} -C data/DB analyses.db)
+else()
+  set(ver "2.1.1")
+  set(md5 "ecb91229775b62e5d71c8089d78b2ff6")
+  set(_contur_patch_command PATCH_COMMAND patch -p1 < "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+  set(_contur_build_command ${MAKE_PARALLEL} "data/DB/analyses.db")
+endif()
 set(dl "https://gitlab.com/hepcedar/${name}/-/archive/${name}-${ver}/${name}-${name}-${ver}.tar.gz")
-set(md5 "ecb91229775b62e5d71c8089d78b2ff6")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(contur_dir "${dir}/contur")
 set(init_file ${contur_dir}/init_by_GAMBIT.py)
 set(Rivet_name "rivet")
 set(ditch_if_absent "Python;SQLITE3;YODA;HepMC;Rivet")
 set(required_modules "cython;configobj;pandas;matplotlib;")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
@@ -2203,7 +2244,7 @@ if(NOT ditched_${name}_${ver})
       DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
-      PATCH_COMMAND patch -p1 < ${patch}
+      ${_contur_patch_command}
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "import os" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${init_file}
@@ -2220,13 +2261,15 @@ if(NOT ditched_${name}_${ver})
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisLibPath(\"${dir}/data/Rivet\")" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisDataPath(\"${dir}/data/Rivet\")" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisDataPath(\"${dir}/data/Theory\")" >> ${init_file}
-      BUILD_COMMAND ${MAKE_PARALLEL} "data/DB/analyses.db"
+      BUILD_COMMAND ${_contur_build_command}
       INSTALL_COMMAND ""
     )
   endif()
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
+unset(_contur_build_command)
+unset(_contur_patch_command)
 
 
 # Linker flags used in the class makefile when linking executables

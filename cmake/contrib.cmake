@@ -145,6 +145,9 @@ endif()
 
 set(name "restframes")
 set(ver "1.0.2")
+if(CBS_PRESET_BUILD)
+  set(CBS_RESTFRAMES_VERSION "${ver}")
+endif()
 set(dir "${PROJECT_SOURCE_DIR}/contrib/RestFrames-${ver}")
 if(WITH_RESTFRAMES)
   message("-- RestFrames-dependent analyses in ColliderBit will be activated.")
@@ -173,8 +176,11 @@ if(NOT EXCLUDE_RESTFRAMES)
     set(RESTFRAMES_CONFIG_LIBS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-as-needed -lgambit_preload")
   endif()
   ExternalProject_Add(${name}
-    DOWNLOAD_COMMAND git clone https://github.com/crogan/RestFrames ${dir}
-             COMMAND ${CMAKE_COMMAND} -E chdir ${dir} git checkout -q v${ver}
+    DOWNLOAD_COMMAND ${CMAKE_COMMAND}
+      -DDIR=${dir}
+      -DURL=https://github.com/crogan/RestFrames
+      -DTAG=v${ver}
+      -P ${PROJECT_SOURCE_DIR}/cmake/scripts/ensure_git_clone.cmake
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ./configure -prefix=${dir} CC=${CMAKE_C_COMPILER} CFLAGS=${RESTFRAMES_C_FLAGS} CPP=${RESTFRAMES_CPP} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${RESTFRAMES_CXX_FLAGS} CXXCPP=${RESTFRAMES_CXXCPP} LDFLAGS=${RESTFRAMES_CONFIG_LDFLAGS} LIBS=${RESTFRAMES_CONFIG_LIBS}
@@ -205,6 +211,9 @@ endif()
 
 set(name "hepmc")
 set(ver "3.2.5")
+if(CBS_PRESET_BUILD)
+  set(CBS_HEPMC_VERSION "${ver}")
+endif()
 set(HEPMC_PATH "${PROJECT_SOURCE_DIR}/contrib/HepMC3-${ver}")
 if(WITH_HEPMC)
   message("-- HepMC-dependent functions in ColliderBit will be activated.")
@@ -279,6 +288,9 @@ endif()
 
 set(name onnxruntime)
 set(ver 1.14.1)
+if(CBS_PRESET_BUILD)
+  set(CBS_ONNXRUNTIME_VERSION "${ver}")
+endif()
 set(dir ${PROJECT_SOURCE_DIR}/contrib/${name}-${ver})
 if (NOT EXCLUDE_ONNXRUNTIME)
   set(lib onnxruntime)
@@ -319,6 +331,9 @@ endif()
 
 set(name "yoda")
 set(ver "2.1.0")
+if(CBS_PRESET_BUILD)
+  set(CBS_YODA_VERSION "${ver}")
+endif()
 set(dir "${PROJECT_SOURCE_DIR}/contrib/YODA-${ver}")
 if(WITH_YODA)
   message("-- YODA-dependent functions in ColliderBit will be activated.")
@@ -358,8 +373,12 @@ if(NOT EXCLUDE_YODA)
     set(YODA_BUILD_COMMAND ${MAKE_SERIAL} clean
                            COMMAND ${MAKE_PARALLEL} CC="${CMAKE_C_COMPILER}" CXX="${CMAKE_CXX_COMPILER}")
   endif()
-  # If cython is not installed disable the python extension
-  gambit_find_python_module(cython)
+  # CBS preset discovery may already have validated Cython for the selected
+  # interpreter. Reuse that result only in a CBS configuration; ordinary
+  # GAMBIT configurations retain their historical direct module probe.
+  if(NOT (CBS_PRESET_BUILD AND DEFINED PY_cython_FOUND))
+    gambit_find_python_module(cython)
+  endif()
   if(PY_cython_FOUND)
     set(pyext yes)
     message("   Backends depending on YODA's python extension will be enabled.")
@@ -388,19 +407,29 @@ if(NOT EXCLUDE_YODA)
   add_contrib_clean_and_nuke(${name} ${dir} clean)
 endif()
 
-#contrib/fastjet-3.4.2 and fjcontrib-1.049; include only if ColliderBit is in use.
+# FastJet / fjcontrib; include only if ColliderBit is in use.
+# CBS presets need 3.5.1 with C++ plugins for Rivet 4. Ordinary GAMBIT
+# configures keep 3.4.2 so a CBS preset does not rebuild contrib for everyone.
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(fastjet_name "fastjet")
-  set(fastjet_ver "3.4.2")
+  set(fjcontrib_name "fjcontrib")
+  if(CBS_PRESET_BUILD)
+    set(fastjet_ver "3.5.1")
+    set(fastjet_md5 "bfefd2ce16232cbd571b6d9d68f702d6")
+    set(fjcontrib_ver "1.101")
+    set(fjcontrib_md5 "7397da82cf31a719e56cec0035d8072b")
+    set(CBS_FASTJET_VERSION "${fastjet_ver}")
+    set(CBS_FJCONTRIB_VERSION "${fjcontrib_ver}")
+  else()
+    set(fastjet_ver "3.4.2")
+    set(fastjet_md5 "d8aede1539f478547f8be5412ab6869c")
+    set(fjcontrib_ver "1.049")
+    set(fjcontrib_md5 "bfea8bfd311d958a40e445f76668bd32")
+  endif()
   set(fastjet_dl "https://fastjet.fr/repo/fastjet-${fastjet_ver}.tar.gz")
-  set(fastjet_md5 "d8aede1539f478547f8be5412ab6869c")
   set(fastjet_path "${PROJECT_SOURCE_DIR}/contrib/fastjet-${fastjet_ver}")
   set(fastjet_DIR "${fastjet_path}/local")
-
-  set(fjcontrib_name "fjcontrib")
-  set(fjcontrib_ver "1.049")
   set(fjcontrib_dl "https://fastjet.fr/contrib/downloads/fjcontrib-${fjcontrib_ver}.tar.gz")
-  set(fjcontrib_md5 "bfea8bfd311d958a40e445f76668bd32")
   set(fjcontrib_path "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-${fjcontrib_ver}")
 
   include_directories("${fastjet_DIR}/include")
@@ -412,12 +441,14 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(EXCLUDE_FASTJET FALSE)
   set(EXCLUDE_FJCONTRIB FALSE)
 
-  # FastJet 3.4.x depends on std::auto_ptr, which was removed in C++17.
-  # Its autotools build also cannot handle the AppleClang OpenMP spelling.
+  # FastJet's autotools build cannot handle the AppleClang OpenMP spelling.
   string(REGEX REPLACE "-Xclang -fopenmp" "" FASTJET_C_FLAGS "${BACKEND_C_FLAGS}")
   string(REGEX REPLACE "-Xclang -fopenmp" "" FASTJET_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
-  string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FASTJET_C_FLAGS "${FASTJET_C_FLAGS}")
-  string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FASTJET_CXX_FLAGS "${FASTJET_CXX_FLAGS}")
+  if(NOT CBS_PRESET_BUILD)
+    # FastJet 3.4.x depends on std::auto_ptr, which was removed in C++17.
+    string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FASTJET_C_FLAGS "${FASTJET_C_FLAGS}")
+    string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FASTJET_CXX_FLAGS "${FASTJET_CXX_FLAGS}")
+  endif()
   set_compiler_warning("no-deprecated-declarations" FASTJET_CXX_FLAGS)
   set_compiler_warning("no-deprecated-copy" FASTJET_CXX_FLAGS)
   set(FJCONTRIB_FRAGILE_CXX_FLAGS "${FASTJET_CXX_FLAGS}")
@@ -426,10 +457,33 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
     set(FJCONTRIB_FRAGILE_CXX_FLAGS "${FJCONTRIB_FRAGILE_CXX_FLAGS} -Wl,-headerpad_max_install_names")
   endif()
 
-  set(FASTJET_INSTALLED TRUE)
-  if(NOT EXISTS "${fastjet_DIR}/include/fastjet/ClusterSequence.hh")
-    set(FASTJET_INSTALLED FALSE)
+  set(_fastjet_required_headers fastjet/ClusterSequence.hh)
+  set(_fjcontrib_required_headers fastjet/contrib/Nsubjettiness.hh)
+  set(_fastjet_configure_options
+      --prefix=${fastjet_DIR}
+      --enable-silent-rules
+      --enable-shared)
+  set(_fjcontrib_only Nsubjettiness,RecursiveTools,EnergyCorrelator,VariableR)
+  if(CBS_PRESET_BUILD)
+    # Rivet 4 needs the C++ plugins plus SoftDrop/LundPlane headers.
+    list(APPEND _fastjet_required_headers
+         fastjet/D0RunIIConePlugin.hh
+         fastjet/TrackJetPlugin.hh)
+    list(APPEND _fjcontrib_required_headers
+         fastjet/contrib/SoftDrop.hh
+         fastjet/contrib/LundGenerator.hh)
+    list(APPEND _fastjet_configure_options
+         --disable-auto-ptr
+         --enable-allcxxplugins)
+    set(_fjcontrib_only Nsubjettiness,RecursiveTools,LundPlane,EnergyCorrelator,VariableR)
   endif()
+
+  set(FASTJET_INSTALLED TRUE)
+  foreach(_fastjet_header IN LISTS _fastjet_required_headers)
+    if(NOT EXISTS "${fastjet_DIR}/include/${_fastjet_header}")
+      set(FASTJET_INSTALLED FALSE)
+    endif()
+  endforeach()
   foreach(fastjet_library fastjet fastjettools fastjetplugins siscone_spherical siscone)
     find_library(FASTJET_${fastjet_library}_LIBRARY NAMES ${fastjet_library} PATHS "${fastjet_DIR}/lib" NO_DEFAULT_PATH)
     if(NOT FASTJET_${fastjet_library}_LIBRARY)
@@ -446,7 +500,7 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
       DOWNLOAD_COMMAND ${DL_CONTRIB} ${fastjet_dl} ${fastjet_md5} ${fastjet_path} ${fastjet_name} ${fastjet_ver}
       SOURCE_DIR ${fastjet_path}
       BUILD_IN_SOURCE 1
-      CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FASTJET_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} --prefix=${fastjet_DIR} --enable-silent-rules --enable-shared
+      CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FASTJET_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} ${_fastjet_configure_options}
       BUILD_COMMAND ${MAKE_PARALLEL} install
       INSTALL_COMMAND ""
     )
@@ -456,10 +510,14 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   # GAMBIT compiles Nsubjettiness itself, but its public headers and the other
   # ColliderBit FastJet-contrib libraries must be installed beside FastJet.
   set(FJCONTRIB_INSTALLED TRUE)
-  if(NOT EXISTS "${fjcontrib_path}/Nsubjettiness/Nsubjettiness.cc" OR
-     NOT EXISTS "${fastjet_DIR}/include/fastjet/contrib/Nsubjettiness.hh")
+  if(NOT EXISTS "${fjcontrib_path}/Nsubjettiness/Nsubjettiness.cc")
     set(FJCONTRIB_INSTALLED FALSE)
   endif()
+  foreach(_fjcontrib_header IN LISTS _fjcontrib_required_headers)
+    if(NOT EXISTS "${fastjet_DIR}/include/${_fjcontrib_header}")
+      set(FJCONTRIB_INSTALLED FALSE)
+    endif()
+  endforeach()
   set(FJCONTRIB_OPENMP_RUNTIME_MISMATCH FALSE)
   foreach(fjcontrib_library fastjetcontribfragile RecursiveTools EnergyCorrelator VariableR)
     find_library(FJCONTRIB_${fjcontrib_library}_LIBRARY NAMES ${fjcontrib_library} PATHS "${fastjet_DIR}/lib" NO_DEFAULT_PATH)
@@ -498,13 +556,19 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
       DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_path} ${fjcontrib_name} ${fjcontrib_ver}
       SOURCE_DIR ${fjcontrib_path}
       BUILD_IN_SOURCE 1
-      CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} --fastjet-config=${fastjet_DIR}/bin/fastjet-config --prefix=${fastjet_DIR} --only=Nsubjettiness,RecursiveTools,EnergyCorrelator,VariableR
+      CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} --fastjet-config=${fastjet_DIR}/bin/fastjet-config --prefix=${fastjet_DIR} --only=${_fjcontrib_only}
       BUILD_COMMAND ${FJCONTRIB_BUILD_COMMAND}
       INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
                       COMMAND ${MAKE_PARALLEL} fragile-shared-install CXX="${CMAKE_CXX_COMPILER}" CXXFLAGS=${FJCONTRIB_FRAGILE_CXX_FLAGS}
     )
     add_contrib_clean_and_nuke(${fjcontrib_name} ${fjcontrib_path} clean)
   endif()
+  unset(_fastjet_configure_options)
+  unset(_fastjet_required_headers)
+  unset(_fjcontrib_required_headers)
+  unset(_fjcontrib_only)
+  unset(_fastjet_header)
+  unset(_fjcontrib_header)
 else()
   message("${BoldCyan} X ColliderBit is not in use: excluding FastJet and FastJet Contrib from GAMBIT configuration.${ColourReset}")
   set(EXCLUDE_FASTJET TRUE)
@@ -769,6 +833,10 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   # If RestFrames is in use, make it a dependency of contrib
   if(NOT EXCLUDE_RESTFRAMES)
     add_dependencies(contrib restframes)
+  endif()
+  # ONNX headers are fetched at build time; ColliderBit must not compile first.
+  if(NOT EXCLUDE_ONNXRUNTIME)
+    add_dependencies(contrib onnxruntime)
   endif()
   # contrib depends on HepMC
   if(EXCLUDE_HEPMC)

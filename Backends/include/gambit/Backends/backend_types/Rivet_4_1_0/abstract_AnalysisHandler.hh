@@ -169,7 +169,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   
         virtual void setBootstrapFilename(const std::string&) =0;
   
-        virtual ::std::vector<std::pair<std::basic_string<char>, unsigned long>> fillLayout() const =0;
+        virtual ::std::vector<std::pair<std::string, unsigned long>> fillLayout() const =0;
   
         virtual ::std::vector<bool> fillOutcomes() const =0;
   

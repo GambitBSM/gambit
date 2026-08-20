@@ -120,6 +120,39 @@ set(CMAKE_LINK_DEPENDS_NO_SHARED 1)
 # Include ./cmake in search path for projects
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
+# Public CMake presets set CBS_BUILD_PRESET. Ordinary `cmake ..` leaves it
+# empty, so none of the CBS-only options or discovery below run.
+if(NOT DEFINED CBS_BUILD_PRESET)
+  set(CBS_BUILD_PRESET "")
+endif()
+if(CBS_BUILD_PRESET)
+  set(CBS_PRESET_BUILD TRUE)
+  option(CBS_AUTO_DETECT_PYTHON "CBS: pin python3 on PATH before FindPython3" ON)
+  option(CBS_AUTO_DETECT_ROOT "CBS: enable ROOT when a C++17 root-config is found" ON)
+  option(CBS_WITH_RIVET_CONTUR "CBS: enable Rivet/Contur when their prerequisites exist" ON)
+  option(CBS_RIVET_USE_LLVM_LINKER_DRIVER "CBS: use -Wl,-undefined,dynamic_lookup on Darwin LLVM" OFF)
+  # cbs and cbs-llvm share GAMBIT's build/ tree. Changing preset (or compiler)
+  # in that cache is not a supported incremental reconfigure.
+  if(DEFINED CACHE{CBS_CONFIGURED_PRESET} AND
+     NOT "${CBS_CONFIGURED_PRESET}" STREQUAL "" AND
+     NOT "${CBS_CONFIGURED_PRESET}" STREQUAL "${CBS_BUILD_PRESET}")
+    message(FATAL_ERROR
+      "This build/ directory was configured with CBS preset '${CBS_CONFIGURED_PRESET}', "
+      "but the current request is '${CBS_BUILD_PRESET}'.\n"
+      "Rerun 'cmake --preset ${CBS_BUILD_PRESET} --fresh'.")
+  endif()
+  set(CBS_CONFIGURED_PRESET "${CBS_BUILD_PRESET}" CACHE INTERNAL
+      "CBS preset last used in this build directory")
+else()
+  set(CBS_PRESET_BUILD FALSE)
+endif()
+
+# Pin only the interpreter. FindPython3 resolves headers and libpython.
+if(CBS_PRESET_BUILD AND CBS_AUTO_DETECT_PYTHON)
+  include(cmake/presets/CBSPythonDiscovery.cmake)
+  cbs_configure_python_for_cbs_preset()
+endif()
+
 # Add common system library search variables to cmake library search variable, used by find_library
 set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} $ENV{LIBRARY_PATH})
 string(REPLACE ":" ";" CMAKE_LIBRARY_PATH "${CMAKE_LIBRARY_PATH}")
@@ -145,11 +178,23 @@ if(NOT Python3_Interpreter_FOUND)
                       "please use -DPython3_EXECUTABLE=path/to/preferred/python.")
 endif()
 
+if(CBS_PRESET_BUILD)
+  include(cmake/presets/CBSPythonDiscovery.cmake)
+  cbs_validate_python_for_cbs_preset()
+  if(NOT DITCH_PYBIND AND NOT Python3_Development_FOUND)
+    message(FATAL_ERROR
+      "CBS requires Python development headers and libpython.\n"
+      "Install python3-dev / python3-devel for ${Python3_EXECUTABLE}, or set -DPython3_EXECUTABLE to an interpreter that has them.")
+  endif()
+endif()
+
 # Keep GAMBIT's historical Python version variables in sync with CMake's
 # FindPython3 module. Several generated headers and backend helpers still
 # use the uppercase names below.
 set(PYTHON_VERSION_MAJOR "${Python3_VERSION_MAJOR}")
 set(PYTHON_VERSION_MINOR "${Python3_VERSION_MINOR}")
+set(PYTHON_VERSION_PATCH "${Python3_VERSION_PATCH}")
+set(PYTHON_VERSION "${Python3_VERSION}")
 
 message("${BoldYellow}   Using Python interpreter version ${Python3_VERSION} for build.${ColourReset}")
 
@@ -344,7 +389,18 @@ endforeach()
 
 # Check for Boost
 set(Boost_NO_BOOST_CMAKE ON)
+# GAMBIT consumes FindBoost variables below.  Preserve that established
+# behaviour explicitly with CMake >= 3.30, where CMP0167 otherwise emits a
+# warning before selecting the same legacy module implicitly.  Scope this to
+# this one lookup so it cannot alter package discovery elsewhere.
+if(POLICY CMP0167)
+  cmake_policy(PUSH)
+  cmake_policy(SET CMP0167 OLD)
+endif()
 find_package(Boost 1.48)
+if(POLICY CMP0167)
+  cmake_policy(POP)
+endif()
 if(Boost_FOUND)
   include_directories("${Boost_INCLUDE_DIR}")
 else()
@@ -540,7 +596,37 @@ if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_C_COMPILER_ID}" STREQUAL 
 endif()
 
 # Check for optional packages and disable sections of GAMBIT accordingly
+if(CBS_PRESET_BUILD AND CBS_AUTO_DETECT_ROOT)
+  include(cmake/presets/CBSRootDiscovery.cmake)
+  cbs_configure_root_for_cbs_preset()
+endif()
 include(cmake/optional.cmake)
+
+# ROOT may rewrite CMAKE_CXX_FLAGS down from C++17. CBS does not accept that.
+if(CBS_PRESET_BUILD AND NOT EXCLUDE_ROOT)
+  if(NOT CMAKE_CXX_FLAGS MATCHES "-std=c\\+\\+17" AND NOT CMAKE_CXX_FLAGS MATCHES "-std=c\\+\\+1z")
+    message(FATAL_ERROR
+      "ROOT at $ENV{ROOTSYS} is not C++17, so CBS cannot keep the required language standard.\n"
+      "Reconfigure with -DCBS_AUTO_DETECT_ROOT=OFF or -DWITH_ROOT=OFF, or use a C++17 ROOT.")
+  endif()
+endif()
+
+# cmake/externals.cmake uses GAMBIT's historical SQLITE3_FOUND spelling when
+# deciding whether Contur can be configured. Missing SQLite only disables
+# Rivet/Contur; CBS itself still configures.
+if(CBS_PRESET_BUILD AND CBS_WITH_RIVET_CONTUR)
+  if(SQLite3_FOUND)
+    set(SQLITE3_FOUND TRUE)
+  else()
+    set(CBS_RIVET_CONTUR_PREREQUISITES_FOUND FALSE)
+    if(CBS_RIVET_CONTUR_PREREQUISITES_REASON)
+      string(APPEND CBS_RIVET_CONTUR_PREREQUISITES_REASON "; SQLite3 development libraries were not found")
+    else()
+      set(CBS_RIVET_CONTUR_PREREQUISITES_REASON "SQLite3 development libraries were not found")
+    endif()
+    message(STATUS "CBS Rivet/Contur: unavailable (SQLite3 development libraries were not found)")
+  endif()
+endif()
 
 # Look for the latest tag and use it to set the version number.  If there is no such tag, use the tarball info file.
 find_package(Git)
@@ -561,7 +647,11 @@ add_custom_target(docs WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} COMMAND doxygen d
 
 # Work out which modules to include in the compile
 gambit_translate_bits_into_itch()
-retrieve_bits(GAMBIT_BITS ${PROJECT_SOURCE_DIR} "${itch}" "Loud")
+if(CBS_PRESET_BUILD)
+  retrieve_bits(GAMBIT_BITS ${PROJECT_SOURCE_DIR} "${itch}" "Quiet")
+else()
+  retrieve_bits(GAMBIT_BITS ${PROJECT_SOURCE_DIR} "${itch}" "Loud")
+endif()
 gambit_configure_optin_build()
 
 # Set up targets to make standalone tarballs of the different modules
@@ -731,5 +821,17 @@ add_custom_target(list-scanners
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
   USES_TERMINAL)
 
-message("${BoldYellow}-- Run `make list-backends` to see the available backend make targets.${ColourReset}")
-message("${BoldYellow}-- Run `make list-scanners` to see the available scanner make targets.${ColourReset}")
+if(NOT CBS_PRESET_BUILD)
+  message("${BoldYellow}-- Run `make list-backends` to see the available backend make targets.${ColourReset}")
+  message("${BoldYellow}-- Run `make list-scanners` to see the available scanner make targets.${ColourReset}")
+endif()
+
+# Public CBS presets print their resolved configuration as the final project
+# message, after all optional dependencies and targets have been evaluated.
+if(CBS_PRESET_BUILD)
+  include(cmake/CBSValidation.cmake)
+  cbs_validate_environment()
+  include(cmake/CBSCompilerSummary.cmake)
+  cbs_print_compiler_summary()
+  cbs_require_validated_environment()
+endif()
