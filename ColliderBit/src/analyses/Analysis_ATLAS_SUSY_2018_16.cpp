@@ -77,31 +77,31 @@ namespace Gambit
       Analysis_ATLAS_SUSY_2018_16()
       {
 
-        defineSignalRegions("SR-E-low-ee-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > 5+mll/4", "10 < mTl1 < 60 GeV")
-        defineSignalRegions("SR-E-low-mumu-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > 5+mll/4", "10 < mTl1 < 60 GeV")
-        defineSignalRegions("SR-E-low-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > 5+mll/4", "10 < mTl1 < 60 GeV")
+        defineSignalRegions("SR-E-low-ee-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > 5+mll/4", "10 < mTl1 < 60 GeV");
+        defineSignalRegions("SR-E-low-mumu-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > 5+mll/4", "10 < mTl1 < 60 GeV");
+        defineSignalRegions("SR-E-low-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > 5+mll/4", "10 < mTl1 < 60 GeV");
 
 
-        defineSignalRegions("SR-E-med-ee-", 4, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV")
-        defineSignalRegions("SR-E-med-mumu-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV")
-        defineSignalRegions("SR-E-med-combined-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV")
+        defineSignalRegions("SR-E-med-ee-", 4, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV");
+        defineSignalRegions("SR-E-med-mumu-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV");
+        defineSignalRegions("SR-E-med-combined-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV");
 
-        defineSignalRegions("SR-E-high-ee-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)")
-        defineSignalRegions("SR-E-high-mumu-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)")
-        defineSignalRegions("SR-E-high-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)")
+        defineSignalRegions("SR-E-high-ee-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)");
+        defineSignalRegions("SR-E-high-mumu-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)");
+        defineSignalRegions("SR-E-high-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)");
 
-        defineSignalRegions("SR-E-1l1T-", 6, "njets > 0", "MET trigger", "1 lepton and >=1 track", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "MET > 200GeV", "min(DeltaPhi(any jet,MET) > 0.4", "Delta(j1) > 2.0", "0.5 < mltrack < 5GeV", "DeltaRltrack > 0.05", "number of jets >= 1", "leading jet pT > 100 GeV", "MET/HTlep > 30", "Deltaltrack < 1.5", "Lepton pT < 10 GeV", "Track pT < 5 GeV", "DeltaPhi(l,MET) < 1.0", "SF lepton-track pair", "OS lepton-track pair")
+        defineSignalRegions("SR-E-1l1T-", 6, "njets > 0", "MET trigger", "1 lepton and >=1 track", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "MET > 200GeV", "min(DeltaPhi(any jet,MET) > 0.4", "Delta(j1) > 2.0", "0.5 < mltrack < 5GeV", "DeltaRltrack > 0.05", "number of jets >= 1", "leading jet pT > 100 GeV", "MET/HTlep > 30", "Deltaltrack < 1.5", "Lepton pT < 10 GeV", "Track pT < 5 GeV", "DeltaPhi(l,MET) < 1.0", "SF lepton-track pair", "OS lepton-track pair");
 
-        defineSignalRegions("SR-VBF-low-", 7, "pTl1 > 5", "2 baseline leptons", "2 signal leptons", "MET trigger", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "SF", "OS", "1 < mll < 60 GeV", "veto 3 GeV < mll < 3.2 GeV", "mtautau < 0 or > 160 GeV", "number of b-tagged jets = 0", "leading jet pT > 100 GeV", "pT(j2) > 40 GeV", "met > 200 GeV", "met/HTlep > 2.0", "subleading lepton pT > min(10,2+mll/3)", "mTl1 < 60 GeV", "RVBF < 1.0", "RVBF > max(0.6,0.92-mll/2 GeV)", "etaj1*etaj2 < 0", "mjj > 400 GeV", "Deltaetajj > 2")
-        defineSignalRegions("SR-VBF-high-", 7, "pTl1 > 5", "2 baseline leptons", "2 signal leptons", "MET trigger", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "SF", "OS", "1 < mll < 60 GeV", "veto 3 GeV < mll < 3.2 GeV", "mtautau < 0 or > 160 GeV", "number of b-tagged jets = 0", "leading jet pT > 100 GeV", "pT(j2) > 40 GeV", "met > 200 GeV", "met/HTlep > 2.0", "subleading lepton pT > min(10,2+mll/3)", "mTl1 < 60 GeV", "RVBF < 1.0", "RVBF > max(0.6,0.92-mll/2 GeV)", "etaj1*etaj2 < 0", "mjj > 400 GeV", "Deltaetajj > 2")
+        defineSignalRegions("SR-VBF-low-", 7, "pTl1 > 5", "2 baseline leptons", "2 signal leptons", "MET trigger", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "SF", "OS", "1 < mll < 60 GeV", "veto 3 GeV < mll < 3.2 GeV", "mtautau < 0 or > 160 GeV", "number of b-tagged jets = 0", "leading jet pT > 100 GeV", "pT(j2) > 40 GeV", "met > 200 GeV", "met/HTlep > 2.0", "subleading lepton pT > min(10,2+mll/3)", "mTl1 < 60 GeV", "RVBF < 1.0", "RVBF > max(0.6,0.92-mll/2 GeV)", "etaj1*etaj2 < 0", "mjj > 400 GeV", "Deltaetajj > 2");
+        defineSignalRegions("SR-VBF-high-", 7, "pTl1 > 5", "2 baseline leptons", "2 signal leptons", "MET trigger", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "SF", "OS", "1 < mll < 60 GeV", "veto 3 GeV < mll < 3.2 GeV", "mtautau < 0 or > 160 GeV", "number of b-tagged jets = 0", "leading jet pT > 100 GeV", "pT(j2) > 40 GeV", "met > 200 GeV", "met/HTlep > 2.0", "subleading lepton pT > min(10,2+mll/3)", "mTl1 < 60 GeV", "RVBF < 1.0", "RVBF > max(0.6,0.92-mll/2 GeV)", "etaj1*etaj2 < 0", "mjj > 400 GeV", "Deltaetajj > 2");
 
-        defineSignalRegions("SR-S-low-ee-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "150 < met < 200 GeV", "0.8 < RISR < 1.0", "subleading lepton pT > min(15,7.5+0.75*(mT2100-100))")
-        defineSignalRegions("SR-S-low-mumu-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "150 < met < 200 GeV", "0.8 < RISR < 1.0", "subleading lepton pT > min(15,7.5+0.75*(mT2100-100))")
-        defineSignalRegions("SR-S-low-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "150 < met < 200 GeV", "0.8 < RISR < 1.0", "subleading lepton pT > min(15,7.5+0.75*(mT2100-100))")
+        defineSignalRegions("SR-S-low-ee-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "150 < met < 200 GeV", "0.8 < RISR < 1.0", "subleading lepton pT > min(15,7.5+0.75*(mT2100-100))");
+        defineSignalRegions("SR-S-low-mumu-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "150 < met < 200 GeV", "0.8 < RISR < 1.0", "subleading lepton pT > min(15,7.5+0.75*(mT2100-100))");
+        defineSignalRegions("SR-S-low-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "150 < met < 200 GeV", "0.8 < RISR < 1.0", "subleading lepton pT > min(15,7.5+0.75*(mT2100-100))");
 
-        defineSignalRegions("SR-S-high-ee-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))")
-        defineSignalRegions("SR-S-high-mumu-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))")
-        defineSignalRegions("SR-S-high-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))")
+        defineSignalRegions("SR-S-high-ee-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))");
+        defineSignalRegions("SR-S-high-mumu-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))");
+        defineSignalRegions("SR-S-high-combined-", 8, "njets > 0", "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))");
 
         set_analysis_name("ATLAS_SUSY_2018_16");
         set_luminosity(139);
@@ -630,33 +630,33 @@ namespace Gambit
         {
           if (electron_pair)
           {
-            if (mll > 3.2 && mll <= 5)      { FILL_SIGNAL_REGION("SR-E-low-ee-1") }
-            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-low-ee-2") }
-            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-low-ee-3") }
-            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-low-ee-4") }
-            else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-low-ee-5") }
-            else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-low-ee-6") }
+            if (mll > 3.2 && mll <= 5)      { FILL_SIGNAL_REGION("SR-E-low-ee-1"); }
+            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-low-ee-2"); }
+            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-low-ee-3"); }
+            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-low-ee-4"); }
+            else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-low-ee-5"); }
+            else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-low-ee-6"); }
           }
           else if (muon_pair)
           {
-            if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-low-mumu-1") }
-            else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-low-mumu-2") }
-            else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-low-mumu-3") }
-            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-low-mumu-4") }
-            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-low-mumu-5") }
-            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-low-mumu-6") }
-            else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-low-mumu-7") }
-            else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-low-mumu-8") }
+            if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-low-mumu-1"); }
+            else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-low-mumu-2"); }
+            else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-low-mumu-3"); }
+            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-low-mumu-4"); }
+            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-low-mumu-5"); }
+            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-low-mumu-6"); }
+            else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-low-mumu-7"); }
+            else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-low-mumu-8"); }
           }
           
-          if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-low-combined-1") }
-          else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-low-combined-2") }
-          else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-low-combined-3") }
-          else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-low-combined-4") }
-          else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-low-combined-5") }
-          else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-low-combined-6") }
-          else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-low-combined-7") }
-          else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-low-combined-8") }
+          if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-low-combined-1"); }
+          else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-low-combined-2"); }
+          else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-low-combined-3"); }
+          else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-low-combined-4"); }
+          else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-low-combined-5"); }
+          else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-low-combined-6"); }
+          else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-low-combined-7"); }
+          else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-low-combined-8"); }
         }
 
         // SR-E-med
@@ -674,26 +674,26 @@ namespace Gambit
         {
           if (electron_pair)
           {
-            if (mll > 3.2 && mll <= 5)      { FILL_SIGNAL_REGION("SR-E-med-ee-1") }
-            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-med-ee-2") }
-            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-med-ee-3") }
-            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-med-ee-4") }
+            if (mll > 3.2 && mll <= 5)      { FILL_SIGNAL_REGION("SR-E-med-ee-1"); }
+            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-med-ee-2"); }
+            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-med-ee-3"); }
+            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-med-ee-4"); }
           }
           else if (muon_pair)
           {
-            if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-med-mumu-1") }
-            else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-med-mumu-2") }
-            else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-med-mumu-3") }
-            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-med-mumu-4") }
-            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-med-mumu-5") }
-            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-med-mumu-6") }
+            if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-med-mumu-1"); }
+            else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-med-mumu-2"); }
+            else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-med-mumu-3"); }
+            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-med-mumu-4"); }
+            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-med-mumu-5"); }
+            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-med-mumu-6"); }
           }
-          if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-med-combined-1") }
-          else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-med-combined-2") }
-          else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-med-combined-3") }
-          else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-med-combined-4") }
-          else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-med-combined-5") }
-          else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-med-combined-6") }
+          if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-med-combined-1"); }
+          else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-med-combined-2"); }
+          else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-med-combined-3"); }
+          else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-med-combined-4"); }
+          else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-med-combined-5"); }
+          else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-med-combined-6"); }
         }
 
         // SR-E-high
@@ -712,32 +712,32 @@ namespace Gambit
         {
           if (electron_pair)
           {
-            if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-high-ee-1") }
-            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-high-ee-2") }
-            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-high-ee-3") }
-            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-high-ee-4") }
-            else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-high-ee-5") }
-            else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-high-ee-6") }
+            if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-high-ee-1"); }
+            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-high-ee-2"); }
+            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-high-ee-3"); }
+            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-high-ee-4"); }
+            else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-high-ee-5"); }
+            else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-high-ee-6"); }
           }
           else if (muon_pair)
           {
-            if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-high-mumu-1") }
-            else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-high-mumu-2") }
-            else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-high-mumu-3") }
-            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-high-mumu-4") }
-            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-high-mumu-5") }
-            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-high-mumu-6") }
-            else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-high-mumu-7") }
-            else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-high-mumu-8") }
+            if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-high-mumu-1"); }
+            else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-high-mumu-2"); }
+            else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-high-mumu-3"); }
+            else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-high-mumu-4"); }
+            else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-high-mumu-5"); }
+            else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-high-mumu-6"); }
+            else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-high-mumu-7"); }
+            else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-high-mumu-8"); }
           }
-          if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-high-combined-1") }
-          else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-high-combined-2") }
-          else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-high-combined-3") }
-          else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-high-combined-4") }
-          else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-high-combined-5") }
-          else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-high-combined-6") }
-          else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-high-combined-7") }
-          else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-high-combined-8") }
+          if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-high-combined-1"); }
+          else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-high-combined-2"); }
+          else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-high-combined-3"); }
+          else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-high-combined-4"); }
+          else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-high-combined-5"); }
+          else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-high-combined-6"); }
+          else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-high-combined-7"); }
+          else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-high-combined-8"); }
         }
 
         // SR-E-1l1T
@@ -749,12 +749,12 @@ namespace Gambit
         if (Utils::all_of(preselection_1l1T)) { LOG_CUTS_N(cuts_1l1T, "SR-E-1l1T-", 6) }
         if (Utils::all_of(preselection_1l1T) && Utils::all_of(cuts_1l1T))
         {
-           if(mll >= 0.5 && mll <= 1.0)        { FILL_SIGNAL_REGION("SR-E-1l1T-1") }
-           else if (mll > 1.0 && mll <= 1.5)   { FILL_SIGNAL_REGION("SR-E-1l1T-2") }
-           else if (mll > 1.5 && mll <= 2.0)   { FILL_SIGNAL_REGION("SR-E-1l1T-3") }
-           else if (mll > 2.0 && mll <= 3.0)   { FILL_SIGNAL_REGION("SR-E-1l1T-4") }
-           else if (mll > 3.2 && mll <= 4.0)   { FILL_SIGNAL_REGION("SR-E-1l1T-5") }
-           else if (mll > 4.0 && mll <= 5.0)   { FILL_SIGNAL_REGION("SR-E-1l1T-6") }
+           if(mll >= 0.5 && mll <= 1.0)        { FILL_SIGNAL_REGION("SR-E-1l1T-1"); }
+           else if (mll > 1.0 && mll <= 1.5)   { FILL_SIGNAL_REGION("SR-E-1l1T-2"); }
+           else if (mll > 1.5 && mll <= 2.0)   { FILL_SIGNAL_REGION("SR-E-1l1T-3"); }
+           else if (mll > 2.0 && mll <= 3.0)   { FILL_SIGNAL_REGION("SR-E-1l1T-4"); }
+           else if (mll > 3.2 && mll <= 4.0)   { FILL_SIGNAL_REGION("SR-E-1l1T-5"); }
+           else if (mll > 4.0 && mll <= 5.0)   { FILL_SIGNAL_REGION("SR-E-1l1T-6"); }
         }
 
         // VBF Signal regions
@@ -803,26 +803,26 @@ namespace Gambit
         if (Utils::all_of(preselection_2l_VBF)) { LOG_CUTS_N(cuts_2l_VBF, "SR-VBF-low-", 7) }
         if (Utils::all_of(preselection_2l_VBF) && Utils::all_of(cuts_2l_VBF) && mll < 40. && Deltaetajj <= 4)
          {
-           if(mll >= 1 && mll <= 2)         { FILL_SIGNAL_REGION("SR-VBF-low-1") }
-           else if(mll >= 2 && mll <= 3)    { FILL_SIGNAL_REGION("SR-VBF-low-2") }
-           else if(mll >= 3.2 && mll <= 5)  { FILL_SIGNAL_REGION("SR-VBF-low-3") }
-           else if(mll >= 5 && mll <= 10)   { FILL_SIGNAL_REGION("SR-VBF-low-4") }
-           else if(mll >= 10 && mll <= 20)  { FILL_SIGNAL_REGION("SR-VBF-low-5") }
-           else if(mll >= 20 && mll <= 30)  { FILL_SIGNAL_REGION("SR-VBF-low-6") }
-           else if(mll >= 30 && mll <= 40)  { FILL_SIGNAL_REGION("SR-VBF-low-7") }
+           if(mll >= 1 && mll <= 2)         { FILL_SIGNAL_REGION("SR-VBF-low-1"); }
+           else if(mll >= 2 && mll <= 3)    { FILL_SIGNAL_REGION("SR-VBF-low-2"); }
+           else if(mll >= 3.2 && mll <= 5)  { FILL_SIGNAL_REGION("SR-VBF-low-3"); }
+           else if(mll >= 5 && mll <= 10)   { FILL_SIGNAL_REGION("SR-VBF-low-4"); }
+           else if(mll >= 10 && mll <= 20)  { FILL_SIGNAL_REGION("SR-VBF-low-5"); }
+           else if(mll >= 20 && mll <= 30)  { FILL_SIGNAL_REGION("SR-VBF-low-6"); }
+           else if(mll >= 30 && mll <= 40)  { FILL_SIGNAL_REGION("SR-VBF-low-7"); }
          }
 
         // SR-VBF-high
         if (Utils::all_of(preselection_2l_VBF)) { LOG_CUTS_N(cuts_2l_VBF, "SR-VBF-high-", 7) }
         if (Utils::all_of(preselection_2l_VBF) && Utils::all_of(cuts_2l_VBF) && mll < 40. && Deltaetajj > 4.)
          {
-           if(mll >= 1 && mll <= 2)         { FILL_SIGNAL_REGION("SR-VBF-high-1") }
-           else if(mll >= 2 && mll <= 3)    { FILL_SIGNAL_REGION("SR-VBF-high-2") }
-           else if(mll >= 3.2 && mll <= 5)  { FILL_SIGNAL_REGION("SR-VBF-high-3") }
-           else if(mll >= 5 && mll <= 10)   { FILL_SIGNAL_REGION("SR-VBF-high-4") }
-           else if(mll >= 10 && mll <= 20)  { FILL_SIGNAL_REGION("SR-VBF-high-5") }
-           else if(mll >= 20 && mll <= 30)  { FILL_SIGNAL_REGION("SR-VBF-high-6") }
-           else if(mll >= 30 && mll <= 40)  { FILL_SIGNAL_REGION("SR-VBF-high-7") }
+           if(mll >= 1 && mll <= 2)         { FILL_SIGNAL_REGION("SR-VBF-high-1"); }
+           else if(mll >= 2 && mll <= 3)    { FILL_SIGNAL_REGION("SR-VBF-high-2"); }
+           else if(mll >= 3.2 && mll <= 5)  { FILL_SIGNAL_REGION("SR-VBF-high-3"); }
+           else if(mll >= 5 && mll <= 10)   { FILL_SIGNAL_REGION("SR-VBF-high-4"); }
+           else if(mll >= 10 && mll <= 20)  { FILL_SIGNAL_REGION("SR-VBF-high-5"); }
+           else if(mll >= 20 && mll <= 30)  { FILL_SIGNAL_REGION("SR-VBF-high-6"); }
+           else if(mll >= 30 && mll <= 40)  { FILL_SIGNAL_REGION("SR-VBF-high-7"); }
          }
 
 
@@ -865,35 +865,35 @@ namespace Gambit
         {
           if (electron_pair)
           {
-            if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-low-ee-1") }
-            else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-low-ee-2") }
-            else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-low-ee-3") }
-            else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-low-ee-4") }
-            else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-low-ee-5") }
-            else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-low-ee-6") }
-            else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-low-ee-7") }
-            else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-low-ee-8") }
+            if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-low-ee-1"); }
+            else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-low-ee-2"); }
+            else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-low-ee-3"); }
+            else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-low-ee-4"); }
+            else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-low-ee-5"); }
+            else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-low-ee-6"); }
+            else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-low-ee-7"); }
+            else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-low-ee-8"); }
           }
           else if (muon_pair)
           {
-            if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-low-mumu-1") }
-            else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-low-mumu-2") }
-            else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-low-mumu-3") }
-            else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-low-mumu-4") }
-            else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-low-mumu-5") }
-            else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-low-mumu-6") }
-            else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-low-mumu-7") }
-            else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-low-mumu-8") }
+            if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-low-mumu-1"); }
+            else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-low-mumu-2"); }
+            else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-low-mumu-3"); }
+            else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-low-mumu-4"); }
+            else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-low-mumu-5"); }
+            else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-low-mumu-6"); }
+            else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-low-mumu-7"); }
+            else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-low-mumu-8"); }
           }
           
-          if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-low-combined-1") }
-          else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-low-combined-2") }
-          else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-low-combined-3") }
-          else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-low-combined-4") }
-          else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-low-combined-5") }
-          else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-low-combined-6") }
-          else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-low-combined-7") }
-          else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-low-combined-8") }
+          if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-low-combined-1"); }
+          else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-low-combined-2"); }
+          else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-low-combined-3"); }
+          else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-low-combined-4"); }
+          else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-low-combined-5"); }
+          else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-low-combined-6"); }
+          else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-low-combined-7"); }
+          else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-low-combined-8"); }
         }
 
         // SR-S-high
@@ -911,34 +911,34 @@ namespace Gambit
         {
           if (electron_pair)
           {
-            if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-high-ee-1") }
-            else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-high-ee-2") }
-            else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-high-ee-3") }
-            else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-high-ee-4") }
-            else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-high-ee-5") }
-            else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-high-ee-6") }
-            else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-high-ee-7") }
-            else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-high-ee-8") }
+            if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-high-ee-1"); }
+            else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-high-ee-2"); }
+            else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-high-ee-3"); }
+            else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-high-ee-4"); }
+            else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-high-ee-5"); }
+            else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-high-ee-6"); }
+            else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-high-ee-7"); }
+            else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-high-ee-8"); }
           }
           else if (muon_pair)
           {
-            if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-high-mumu-1") }
-            else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-high-mumu-2") }
-            else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-high-mumu-3") }
-            else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-high-mumu-4") }
-            else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-high-mumu-5") }
-            else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-high-mumu-6") }
-            else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-high-mumu-7") }
-            else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-high-mumu-8") }
+            if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-high-mumu-1"); }
+            else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-high-mumu-2"); }
+            else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-high-mumu-3"); }
+            else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-high-mumu-4"); }
+            else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-high-mumu-5"); }
+            else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-high-mumu-6"); }
+            else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-high-mumu-7"); }
+            else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-high-mumu-8"); }
           }
-          if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-high-combined-1") }
-          else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-high-combined-2") }
-          else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-high-combined-3") }
-          else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-high-combined-4") }
-          else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-high-combined-5") }
-          else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-high-combined-6") }
-          else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-high-combined-7") }
-          else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-high-combined-8") }
+          if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-high-combined-1"); }
+          else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-high-combined-2"); }
+          else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-high-combined-3"); }
+          else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-high-combined-4"); }
+          else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-high-combined-5"); }
+          else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-high-combined-6"); }
+          else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-high-combined-7"); }
+          else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-high-combined-8"); }
         }
       }
 

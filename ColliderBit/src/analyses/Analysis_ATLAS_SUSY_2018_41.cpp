@@ -99,8 +99,8 @@ namespace Gambit
 
 #ifdef CHECK_CUTFLOW
         // Book a single benchmark cutflow (the benchmark choice is controlled by BENCHMARK, defaulting to "WW")
-        ADD_CUTFLOW("BM::ATLAS_SUSY_2018_41", "Initial events", "E_T^miss > 200 GeV", "Event cleaning", "Lepton veto", "n_jets > 1", "n_bjets = 0", "min Delta phi > 1.0",
-                    "n_bjets < 2", "E_T^miss > 300 GeV", "m_eff > 1300 GeV", "n_V = 2", "MC to data efficiency weight for SR-4Q-VV", "n_H = 1");
+        _cutflows.addCutflow("BM::ATLAS_SUSY_2018_41", {"Preselection", "Initial events", "E_T^miss > 200 GeV", "Event cleaning", "Lepton veto", "n_jets > 1", "n_bjets = 0", "min Delta phi > 1.0",
+                                                        "n_bjets < 2", "E_T^miss > 300 GeV", "m_eff > 1300 GeV", "n_V = 2", "MC to data efficiency weight for SR-4Q-VV", "n_H = 1", "Final"});
 #endif
       }
 

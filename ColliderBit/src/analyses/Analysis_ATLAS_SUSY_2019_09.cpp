@@ -180,9 +180,9 @@ namespace Gambit
               "\t\tSR^Wh-18", \
               "\t\tSR^Wh-19"
 
-        ADD_CUTFLOW("BM::WZ_300_200", ATLAS_SUSY_2019_09_BM_CUTS_WZ);
-        ADD_CUTFLOW("BM::WZ_600_100", ATLAS_SUSY_2019_09_BM_CUTS_WZ);
-        ADD_CUTFLOW("BM::Wh_190_60", ATLAS_SUSY_2019_09_BM_CUTS_Wh);
+        _cutflows.addCutflow("BM::WZ_300_200", {"Preselection", ATLAS_SUSY_2019_09_BM_CUTS_WZ, "Final"});
+        _cutflows.addCutflow("BM::WZ_600_100", {"Preselection", ATLAS_SUSY_2019_09_BM_CUTS_WZ, "Final"});
+        _cutflows.addCutflow("BM::Wh_190_60", {"Preselection", ATLAS_SUSY_2019_09_BM_CUTS_Wh, "Final"});
 
 #undef ATLAS_SUSY_2019_09_BM_CUTS_WZ
 #undef ATLAS_SUSY_2019_09_BM_CUTS_Wh
@@ -574,7 +574,7 @@ namespace Gambit
         // This cutflow is a tree (0-jet vs n-jet branches), so we use:
         //   - fillinit + fillnext(vector<bool>) for the linear prefix
         //   - fill(icut, ...) for the branching section
-        // NOTE: ADD_CUTFLOW prepends "Preselection" at index 0, so user cuts are at icut = j+1.
+        // NOTE: cutflows have "Preselection" at index 0, so user cuts are at icut = j+1.
 
         // Base counting is in "number of events" units (as in the legacy _cutflow_GAMBIT implementation)
         constexpr double one = 1.0;
