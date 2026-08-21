@@ -151,6 +151,24 @@ int main(int argc, char* argv[])
 
     // Translate relevant settings into appropriate variables
     bool debug = settings.getValueOrDef<bool>(false, "debug");
+
+    // Initialise logs before reporting input validation results.  This is also
+    // before batch-mode dispatch, so both CBS execution paths report them.
+    logger().set_log_debug_messages(debug);
+    initialise_standalone_logs("CBS_logs/");
+    logger()<<"Running CBS"<<LogTags::info<<EOM;
+    for (const str& warning : prepared_input.analysis_warnings)
+    {
+      std::cerr << "WARNING: " << warning << std::endl;
+      logger()<<warning<<LogTags::info<<EOM;
+    }
+    if (analyses.empty())
+    {
+      throw std::runtime_error(
+        "No requested analyses remain after CBS validation filtering. "
+        "Select analyses marked Validation: passed.");
+    }
+
     const bool suppress_fastjet_banner =
       settings.getValueOrDef<bool>(false, "suppress_fastjet_banner");
     if (suppress_fastjet_banner)
@@ -372,11 +390,6 @@ int main(int argc, char* argv[])
     AnalysisNumbers.setOption<bool>("print_cutflows", check_cutflow);
     AnalysisNumbers.setOption<bool>("normalized_cutflows", false);
 
-    // Initialise logs
-    logger().set_log_debug_messages(debug);
-    initialise_standalone_logs("CBS_logs/");
-    logger()<<"Running CBS"<<LogTags::info<<EOM;
-    
     // Initialise settings for printer (required)
     YAML::Node printerNode = get_standalone_printer("cout", "CBS_logs/", "");
     Printers::PrinterManager printerManager(printerNode, false);

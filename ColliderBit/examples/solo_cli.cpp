@@ -105,6 +105,12 @@ namespace Gambit
           return it->second;
         }
 
+        bool passes_validation_policy(const AnalysisRecord& record)
+        {
+          const std::string validation = field(record, "Validation");
+          return validation.empty() || to_lower(validation) == "passed";
+        }
+
         bool matches_query(const std::string& query, const AnalysisRecord& record)
         {
           if (query.empty()) return true;
@@ -115,7 +121,7 @@ namespace Gambit
           if (contains(record.name)) return true;
           static const char* searchable[] = {
             "Summary", "OldName", "ExptRun", "Keywords", "Signatures",
-            "Authors", "Note", "InspireID"
+            "Authors", "Note", "Validation", "InspireID"
           };
           for (const char* key : searchable)
           {
@@ -232,7 +238,7 @@ namespace Gambit
           << "       " << program_name << " --list-analyses [query]\n"
           << "\nOptions:\n"
           << "  -h, --help                   Display this usage information\n"
-          << "  -l, --list-analyses [query]  List ColliderBit analyses from .info metadata\n"
+          << "  -l, --list-analyses [query]  List validation-approved ColliderBit analyses from .info metadata\n"
           << std::endl;
       }
 
@@ -245,7 +251,7 @@ namespace Gambit
         matched.reserve(records.size());
         for (AnalysisRecord& record : records)
         {
-          if (matches_query(query, record))
+          if (passes_validation_policy(record) && matches_query(query, record))
           {
             matched.push_back(std::move(record));
           }
@@ -253,7 +259,12 @@ namespace Gambit
 
         if (matched.empty())
         {
-          errors << "No ColliderBit analyses matched";
+          if (query.empty())
+          {
+            output << "No ColliderBit analyses pass the validation policy.\n";
+            return true;
+          }
+          errors << "No validation-approved ColliderBit analyses matched";
           if (!query.empty()) errors << " '" << query << "'";
           errors << ".\n";
           return false;

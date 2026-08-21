@@ -8,6 +8,11 @@
 
 #include "solo_input.hpp"
 
+#include "gambit/ColliderBit/analyses/AnalysisContainer.hpp"
+#include "gambit/cmake/cmake_variables.hpp"
+
+#include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <cstdlib>
 #include <sstream>
@@ -34,6 +39,85 @@ namespace Gambit
           return Gambit::Utils::endsWith(filename, ".hepmc")
                  || Gambit::Utils::endsWith(filename, ".hepmc2")
                  || Gambit::Utils::endsWith(filename, ".hepmc3");
+        }
+
+        std::string to_lower(std::string value)
+        {
+          std::transform(value.begin(), value.end(), value.begin(),
+                         [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+          return value;
+        }
+
+        bool passes_validation_policy(const str& analysis, str& reason)
+        {
+          const std::string info_file =
+            std::string(GAMBIT_DIR) + "/ColliderBit/src/analyses/Analysis_" + analysis + ".info";
+          if (!Gambit::Utils::file_exists(info_file))
+          {
+            return true;
+          }
+
+          try
+          {
+            const YAML::Node metadata = YAML::LoadFile(info_file);
+            const YAML::Node validation = metadata["Validation"];
+            if (!validation || !validation.IsScalar())
+            {
+              return true;
+            }
+            if (to_lower(validation.Scalar()) != "passed")
+            {
+              reason = "its Validation metadata is '" + validation.Scalar() + "'";
+              return false;
+            }
+          }
+          catch (const YAML::Exception& e)
+          {
+            reason = "its .info metadata could not be read (yaml-cpp error: "
+                     + std::string(e.what()) + ")";
+            return false;
+          }
+
+          return true;
+        }
+
+        void retain_validated_analyses(PreparedInput& prepared, bool debug_mode)
+        {
+          std::vector<str> retained_analyses;
+          retained_analyses.reserve(prepared.analyses.size());
+
+          for (const str& analysis : prepared.analyses)
+          {
+            if (!isAnalysisRegistered(analysis))
+            {
+              prepared.analysis_warnings.push_back(
+                "CBS input: ignoring analysis '" + analysis
+                + "' because it is not registered in this CBS build.");
+              continue;
+            }
+
+            str reason;
+            if (!passes_validation_policy(analysis, reason))
+            {
+              if (debug_mode)
+              {
+                prepared.analysis_warnings.push_back(
+                  "CBS input: retaining analysis '" + analysis
+                  + "' despite validation status because settings.debug is true; " + reason + ".");
+              }
+              else
+              {
+                prepared.analysis_warnings.push_back(
+                  "CBS input: ignoring analysis '" + analysis
+                  + "' because Validation: passed is required; " + reason + ".");
+                continue;
+              }
+            }
+
+            retained_analyses.push_back(analysis);
+          }
+
+          prepared.analyses.swap(retained_analyses);
         }
 
         std::string dirname(const std::string& path)
@@ -321,25 +405,32 @@ namespace Gambit
           throw std::runtime_error("YAML error in " + filename_in + ".\n(yaml-cpp error: " + std::string(e.what()) + " )");
         }
 
+        if (!prepared.infile["settings"])
+        {
+          throw std::runtime_error("Settings section not found in " + filename_in + ". Quitting...");
+        }
+
+        const YAML::Node settings_for_validation = apply_default_settings(
+          filename_in, std::vector<str>(), prepared.infile["settings"]);
+        const bool debug_mode =
+          settings_for_validation["debug"]
+            ? settings_for_validation["debug"].as<bool>()
+            : false;
+
         if (prepared.infile["analyses"])
         {
           prepared.analyses = prepared.infile["analyses"].as<std::vector<str>>();
+          retain_validated_analyses(prepared, debug_mode);
+          prepared.infile["analyses"] = prepared.analyses;
         }
         else
         {
           throw std::runtime_error("Analyses list not found in " + filename_in + ". Quitting...");
         }
 
-        if (prepared.infile["settings"])
-        {
-          prepared.infile["settings"] =
-            apply_default_settings(filename_in, prepared.analyses, prepared.infile["settings"]);
-          prepared.settings = Options(prepared.infile["settings"]);
-        }
-        else
-        {
-          throw std::runtime_error("Settings section not found in " + filename_in + ". Quitting...");
-        }
+        prepared.infile["settings"] =
+          apply_default_settings(filename_in, prepared.analyses, prepared.infile["settings"]);
+        prepared.settings = Options(prepared.infile["settings"]);
 
         const bool has_processes = prepared.settings.hasKey("processes");
         const bool has_event_file = prepared.settings.hasKey("event_file");

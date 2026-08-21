@@ -17,7 +17,8 @@ analyses:
   - ATLAS_SUSY_2016_28
 
 settings:
-  debug: true
+  # Allow explicitly unvalidated analyses only when debugging an analysis.
+  debug: false
   check_cutflow: false
   seed: -1
   event_file: susy10.hepmc

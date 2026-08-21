@@ -39,6 +39,7 @@ namespace Gambit
       {
         YAML::Node infile;
         std::vector<str> analyses;
+        std::vector<str> analysis_warnings;
         Options settings;
 
         std::vector<ProcessInput> processes;

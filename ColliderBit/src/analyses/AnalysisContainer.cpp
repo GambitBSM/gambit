@@ -238,6 +238,27 @@ namespace Gambit
       return nullptr;
     }
 
+    /// For the string-based analysis checker isAnalysisRegistered
+    #define IF_X_RTN_ANALYSIS_REGISTERED(A)                                   \
+      if (name == #A) return true;
+
+    /// Check whether an analysis is available in this ColliderBit build.
+    bool isAnalysisRegistered(const str& name)
+    {
+      #ifndef EXCLUDE_ROOT
+        #ifndef EXCLUDE_RESTFRAMES
+          MAP_ANALYSES_WITH_ROOT_RESTFRAMES(IF_X_RTN_ANALYSIS_REGISTERED)
+        #endif
+        MAP_ANALYSES_WITH_ROOT(IF_X_RTN_ANALYSIS_REGISTERED)
+      #endif
+      #ifndef EXCLUDE_ONNXRUNTIME
+        MAP_ANALYSES_WITH_ONNX(IF_X_RTN_ANALYSIS_REGISTERED)
+      #endif
+      MAP_ANALYSES(IF_X_RTN_ANALYSIS_REGISTERED)
+
+      return false;
+    }
+
     /// For the string-based analysis checker and detector retriever getDetector
     #define IF_X_RTN_DETECTOR(A)                                               \
       if (name == #A) return getDetector_ ## A();
