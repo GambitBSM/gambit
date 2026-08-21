@@ -594,7 +594,7 @@ namespace Gambit {
         for(unsigned int i = 0; i < signalJets.size(); ++i)signalJER.push_back(_resJets2D.get_at(signalJets[i]->abseta(), signalJets[i]->pT()));
 
         float sigmaAbsHtMiss = 0;
-        float Ht = 0;
+        // float Ht = 0;
         /* calculate vecHtMiss */
         HEPUtils::P4 vecHtMiss;
         HEPUtils::P4 leptonHtMiss;
@@ -628,7 +628,7 @@ namespace Gambit {
             vecHtMiss -= signalJets[i]->mom();
 
           /* calculate Ht and HtSig */
-          for (const HEPUtils::Jet* jet : signalJets) Ht += jet->pT();
+          // for (const HEPUtils::Jet* jet : signalJets) Ht += jet->pT();
 
           TRandom3 myRandom;
           myRandom.SetSeed(signalJets[0]->pT());

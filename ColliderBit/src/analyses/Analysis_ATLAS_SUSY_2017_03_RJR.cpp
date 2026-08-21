@@ -975,8 +975,8 @@ namespace Gambit {
         // double m_cosJ = -999.;
         int m_NjS   = 0;
         int m_NjISR = 0;
-        int m_NbS   = 0;
-        int m_NbISR = 0;
+        // int m_NbS   = 0;
+        // int m_NbISR = 0;
 
         // double m_MZ_VR = -999;
         // double m_MJ_VR = -999;
@@ -1631,10 +1631,10 @@ namespace Gambit {
           for(int i = 0; i < int(signalJets.size()); i++){
             if(JETS_comb->GetFrame(jetID[i]) == *J_comb){
               m_NjS++;
-              if( analysisBtags.at(signalJets[i]) ) m_NbS++;
+              // if( analysisBtags.at(signalJets[i]) ) m_NbS++;
             } else {
               m_NjISR++;
-              if( analysisBtags.at(signalJets[i]) ) m_NbISR++;
+              // if( analysisBtags.at(signalJets[i]) ) m_NbISR++;
             }
           }
 

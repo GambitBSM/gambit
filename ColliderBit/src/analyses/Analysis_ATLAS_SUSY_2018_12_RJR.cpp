@@ -39,8 +39,8 @@ namespace Gambit
 {
     namespace ColliderBit
     {
-        static bool sortByPT0l(const HEPUtils::Jet *jet1, const HEPUtils::Jet *jet2) { return (jet1->pT() > jet2->pT()); }
-        static bool sortByPT0l_sharedptr(std::shared_ptr<HEPUtils::Jet> jet1, std::shared_ptr<HEPUtils::Jet> jet2) { return sortByPT0l(jet1.get(), jet2.get()); }
+        // static bool sortByPT0l(const HEPUtils::Jet *jet1, const HEPUtils::Jet *jet2) { return (jet1->pT() > jet2->pT()); }
+        // static bool sortByPT0l_sharedptr(std::shared_ptr<HEPUtils::Jet> jet1, std::shared_ptr<HEPUtils::Jet> jet2) { return sortByPT0l(jet1.get(), jet2.get()); }
 
         class Analysis_ATLAS_SUSY_2018_12_RJR : public Analysis
         {
@@ -406,7 +406,7 @@ namespace Gambit
 
                 int m_NjV(0);
                 int m_NbV(0);
-                int m_NbISR(0);
+                // int m_NbISR(0);
                 double m_pTjV4(0.);
                 double m_pTbV1(0);
                 double m_PTISR(0.);
@@ -415,19 +415,19 @@ namespace Gambit
                 double m_dphiISRI(0.);
 
                 double dPhiJetMetMin2 = 0;
-                double dPhiJetMetMin3 = 0;
-                double dPhiJetMetMin4 = 0;
+                // double dPhiJetMetMin3 = 0;
+                // double dPhiJetMetMin4 = 0;
                 if (nSignalJets >= 2)
                 {
                     dPhiJetMetMin2 = std::min(fabs(metVec.deltaPhi(signalJets[0]->mom())), fabs(metVec.deltaPhi(signalJets[1]->mom())));
-                    if (nSignalJets >= 3)
+                    /* if (nSignalJets >= 3)
                     {
                         dPhiJetMetMin3 = std::min(dPhiJetMetMin2, fabs(metVec.deltaPhi(signalJets[2]->mom())));
                         if (nSignalJets >= 4)
                         {
                             dPhiJetMetMin4 = std::min(dPhiJetMetMin3, fabs(metVec.deltaPhi(signalJets[3]->mom())));
                         }
-                    }
+                    } */
                 }
 
                 if (nSignalJets > 0)
@@ -456,8 +456,7 @@ namespace Gambit
                         }
                         else
                         {
-                            if (analysisBtags.at(signalJets[i]) && fabs(signalJets[i]->eta()) < 2.5)
-                                m_NbISR++;
+                            // if (analysisBtags.at(signalJets[i]) && fabs(signalJets[i]->eta()) < 2.5) m_NbISR++;
                         }
                     }
 
@@ -483,11 +482,11 @@ namespace Gambit
                     }
                 }
 
-                double Ht = 0.;
+                /* double Ht = 0.;
                 for (size_t jet = 0; jet < signalJets.size(); jet++)
                 {
                     Ht += signalJets[jet]->pT();
-                }
+                } */
                 // double HtSig = Met / sqrt(Ht);
 
                 bool pre1B4J0L = Met > 250 && nLep == 0 && nSignalJets >= 4 && nBJets >= 1 && signalJets[1]->pT() > 80 && signalJets[3]->pT() > 40 && dPhiJetMetMin2 > 0.4;

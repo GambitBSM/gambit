@@ -229,11 +229,11 @@ namespace Gambit
         bool trigger_path_3 = nBaselineMuons >= 2 and baselineMuons.at(0)->pT() > 17 and baselineMuons.at(1)->pT() > 8;
         //if(not trigger_path_1 and not trigger_path_2/* and not trigger_path_3*/) return;
 
-        static int count = 0;
+        /* static int count = 0;
         static int twosl, threesl = 0;
         count++;
         if(nSignalLeptons == 2) twosl++;
-        if(nSignalLeptons == 3) threesl++;
+        if(nSignalLeptons == 3) threesl++; */
         //if(!(count%1000)) std::cout << "events with 2 signal leptons = " << twosl << std::endl;
         //if(!(count%1000)) std::cout << "events with 3 signal leptons = " << threesl << std::endl;
 

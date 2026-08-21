@@ -361,7 +361,7 @@ namespace Gambit {
         bool cut_sigGt7=false;
         bool cut_mTGt120=false;
         bool cut_mTGt140=false;
-        bool cut_mTGt180=false;
+        // bool cut_mTGt180=false;
         bool cut_mTGt200=false;
         //bool cut_PassHadTop=false;
         bool cut_meffGt550=false;
@@ -386,7 +386,7 @@ namespace Gambit {
         if(metOverSqrtHT>5.)cut_sigGt5=true;
         if(mT>120.)cut_mTGt120=true;
         if(mT>140.)cut_mTGt140=true;
-        if(mT>180.)cut_mTGt180=true;
+        // if(mT>180.)cut_mTGt180=true;
         if(mT>200.)cut_mTGt200=true;
         if(meff>500.)cut_meffGt550=true;
         if(meff>700.)cut_meffGt700=true;

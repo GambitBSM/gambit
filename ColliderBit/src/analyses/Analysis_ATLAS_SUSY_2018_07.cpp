@@ -441,8 +441,8 @@ namespace Gambit
 
 
         // Preselection Criteria
-        bool pre_hardlep = false;
-        bool pre_softlep = false;
+        // bool pre_hardlep = false;
+        // bool pre_softlep = false;
 
         // hard-lepton preselection
         const int nlephard = signalLeptons4Hard.size();
@@ -456,20 +456,20 @@ namespace Gambit
 
         bool pre_hard = nlephard == 1 && njet >= 4 && l1PT_hard > 25. && met > 230. && dPhijet1ET > 0.4 && dPhijet2ET > 0.4 && nbjet >= 1 && mT > 30. && mT2tau > 80.;
 
-        const int nlepsoft = signalLeptons4Soft.size();
-        const bool softJet1 = njet >= 1 ? signalJets[0]->pT() > 200. : false;
-        const bool softJet2 = njet >= 2 ? signalJets[1]->pT() > 20. : false;
-        const double dPhijet2ET_soft = njet >= 2 ? signalJets[1]->mom().deltaPhi(metVec) : 0.5;
+        // const int nlepsoft = signalLeptons4Soft.size();
+        // const bool softJet1 = njet >= 1 ? signalJets[0]->pT() > 200. : false;
+        // const bool softJet2 = njet >= 2 ? signalJets[1]->pT() > 20. : false;
+        // const double dPhijet2ET_soft = njet >= 2 ? signalJets[1]->mom().deltaPhi(metVec) : 0.5;
 
         // All soft lepton pass the pT requirement
-        bool pre_soft = nlepsoft == 1 && (softJet1 || softJet2) && met > 230. && dPhijet1ET > 0.4 && dPhijet2ET_soft > 0.4;
+        // bool pre_soft = nlepsoft == 1 && (softJet1 || softJet2) && met > 230. && dPhijet1ET > 0.4 && dPhijet2ET_soft > 0.4;
 
         // Define signal region for stop -> t N1
         if (pre_hard)
         {
           const double mW   = 80.4; 
           const double mTop = 172.0; 
-          // Topness
+          /* Topness calculation is disabled below.
           const double sigmaW = 5.0;
           const double sigmat = 15.;
           const double sigmas = 1000.;
@@ -488,24 +488,25 @@ namespace Gambit
               0., 0.};
           double topness = exp(9999.);
           double dRbl = 0.;
+          */
 
           int b2idx = -1;
 
           if (nbjet == 1)
           {
-            dRbl = bJets.at(0)->mom().deltaR_eta(signalLeptons4Hard.at(0)->mom());
-            double pb1[] = {
+            // dRbl = bJets.at(0)->mom().deltaR_eta(signalLeptons4Hard.at(0)->mom());
+            /* double pb1[] = {
                 bJets.at(0)->mom().px(),
                 bJets.at(0)->mom().py(),
                 bJets.at(0)->mom().pz(),
-                bJets.at(0)->mom().E()};
+                bJets.at(0)->mom().E()}; */
             for (unsigned int i = 0; i < 2; i++)
             {
-              double pb2[] = {
+              /* double pb2[] = {
                   nonbJets.at(i)->mom().px(),
                   nonbJets.at(i)->mom().py(),
                   nonbJets.at(i)->mom().pz(),
-                  nonbJets.at(i)->mom().E()};
+                  nonbJets.at(i)->mom().E()}; */
 
               /* // TODO: Chris Chang: turning this off while I compile test the rest of gambit
               double tmod_temp = log(topnesscompute(pb1, pb2, pl, pTmiss, sigmat, sigmaW, sigmas, xbest));
@@ -517,17 +518,17 @@ namespace Gambit
           }
           else if (nbjet == 2)
           {
-            dRbl = max(bJets.at(0)->mom().deltaR_eta(signalLeptons4Hard.at(0)->mom()), bJets.at(1)->mom().deltaR_eta(signalLeptons4Hard.at(0)->mom()));
-            double pb1[] = {
+            // dRbl = max(bJets.at(0)->mom().deltaR_eta(signalLeptons4Hard.at(0)->mom()), bJets.at(1)->mom().deltaR_eta(signalLeptons4Hard.at(0)->mom()));
+            /* double pb1[] = {
                 bJets.at(0)->mom().px(),
                 bJets.at(0)->mom().py(),
                 bJets.at(0)->mom().pz(),
-                bJets.at(0)->mom().E()};
-            double pb2[] = {
+                bJets.at(0)->mom().E()}; */
+            /* double pb2[] = {
                 bJets.at(1)->mom().px(),
                 bJets.at(1)->mom().py(),
                 bJets.at(1)->mom().pz(),
-                bJets.at(1)->mom().E()};
+                bJets.at(1)->mom().E()}; */
             /* // TODO: Chris Chang: turning this off while I compile test the rest of gambit
             topness = log(topnesscompute(pb1, pb2, pl, pTmiss, sigmat, sigmaW, sigmas, xbest));
             */
@@ -544,11 +545,12 @@ namespace Gambit
           int JetComb[2] = {0, 0};
           if (nbjet == 1)
           {
-            for (int i = 0; i < nonbJets.size(); i++)
+            const int nNonBJets = static_cast<int>(nonbJets.size());
+            for (int i = 0; i < nNonBJets; i++)
             {
               if (i != b2idx)
               {
-                for (int j = i + 1; j < nonbJets.size(); j++)
+                for (int j = i + 1; j < nNonBJets; j++)
                 {
                   if (j != b2idx) {
                     double chi2temp1 = pow((bJets.at(0)->mom() + nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m() - mTop, 2) / 
@@ -581,9 +583,9 @@ namespace Gambit
             }
           }
 
-          HEPUtils::P4 topRecl = reclusteredParticle(nonbJets, bJets, mTop, true);
+          // HEPUtils::P4 topRecl = reclusteredParticle(nonbJets, bJets, mTop, true);
 
-          bool SR_tN_med = (njet >= 4) && (nbjet >= 1) && (signalJets[0]->pT() > 100.) && (signalJets[1]->pT() > 90.) && (signalJets[2]->pT() > 70.) && (signalJets[3]->pT() > 50.);
+          // bool SR_tN_med = (njet >= 4) && (nbjet >= 1) && (signalJets[0]->pT() > 100.) && (signalJets[1]->pT() > 90.) && (signalJets[2]->pT() > 70.) && (signalJets[3]->pT() > 50.);
         }
 
         return;

@@ -38,10 +38,10 @@ namespace Gambit
 
     private:
 
-      struct ptComparison
+      /* struct ptComparison
       {
         bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
-      } comparePt;
+      } comparePt; */
 
       struct ptJetComparison
       {
