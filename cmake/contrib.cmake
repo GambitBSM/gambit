@@ -614,6 +614,17 @@ if(WITH_FASTJET_CONTRIB)
   add_dependencies(fjcontrib_nsubjettiness fastjet fjcontrib)
   set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcontrib_nsubjettiness>)
   add_dependencies(contrib fjcontrib_nsubjettiness)
+
+  # METSignificance is ColliderBit-only and includes HEPUtils::Jet, which
+  # needs FastJet headers. Do not declare it when the fastjet target is absent.
+  set(METSignificance_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/METSignificance/include")
+  include_directories("${METSignificance_INCLUDE_DIR}")
+  add_gambit_library(METSignificance OPTION OBJECT
+                            SOURCES ${PROJECT_SOURCE_DIR}/contrib/METSignificance/src/METSignificance.cpp
+                            HEADERS ${PROJECT_SOURCE_DIR}/contrib/METSignificance/include/METSignificance/METSignificance.hpp)
+  set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:METSignificance>)
+  add_dependencies(contrib METSignificance)
+  add_dependencies(METSignificance fastjet)
 endif()
 
 #contrib/multimin
@@ -624,16 +635,6 @@ add_gambit_library(multimin OPTION OBJECT
                           HEADERS ${PROJECT_SOURCE_DIR}/contrib/multimin/include/multimin/multimin.hpp)
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:multimin>)
 add_dependencies(contrib multimin)
-
-#contrib/METSignificance
-set(METSignificance_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/METSignificance/include")
-include_directories("${METSignificance_INCLUDE_DIR}")
-add_gambit_library(METSignificance OPTION OBJECT
-                          SOURCES ${PROJECT_SOURCE_DIR}/contrib/METSignificance/src/METSignificance.cpp
-                          HEADERS ${PROJECT_SOURCE_DIR}/contrib/METSignificance/include/METSignificance/METSignificance.hpp)
-set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:METSignificance>)
-add_dependencies(contrib METSignificance)
-add_dependencies(METSignificance fastjet)
 
 #contrib/MassSpectra; include only if SpecBit is in use and if
 #BUILD_FS_MODELS is set to something other than "" or "None" or "none"
