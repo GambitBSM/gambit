@@ -28,13 +28,8 @@
 #include <nlohmann/json.hpp>
 #include "yaml-cpp/yaml.h"
 
-#ifdef __cpp_lib_filesystem
-  #include <filesystem>
-  namespace fs = std::filesystem;
-#else
-  #include <boost/filesystem.hpp>
-  namespace fs = boost::filesystem;
-#endif
+#include <filesystem>
+namespace fs = std::filesystem;
 
 namespace Gambit
 {
@@ -276,7 +271,6 @@ namespace Gambit
 
           if (pid == 0)
           {
-            setenv("GAMBIT_SUPPRESS_BANNER", "1", 1);
             setenv("CBS_SUPPRESS_BANNER", "1", 1);
 
             char* const argv[] = {
@@ -313,7 +307,7 @@ namespace Gambit
             msg << "Batch run command failed with " << describe_child_status(status)
                 << " for YAML file " << yaml_filename
                 << ". Output JSON: " << describe_output_json(job.output_json_file)
-                << ". Command: GAMBIT_SUPPRESS_BANNER=1 CBS_SUPPRESS_BANNER=1 "
+                << ". Command: CBS_SUPPRESS_BANNER=1 "
                 << executable << " " << yaml_filename << ".";
             throw std::runtime_error(msg.str());
           }

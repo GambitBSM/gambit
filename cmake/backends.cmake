@@ -626,7 +626,7 @@ if(NOT ditched_${name}_${ver})
     PATCH_COMMAND patch -p1 < ${patch}
     UPDATE_COMMAND ${CMAKE_COMMAND} -E echo "set_target_properties(HEPLike_shared PROPERTIES OUTPUT_NAME HEPLike SUFFIX \".so\")" >> ${dir}/CMakeLists.txt
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HL_CXXFLAGS} -DCMAKE_MODULE_PATH=${PROJECT_SOURCE_DIR}/cmake -DUSE_ROOT=false -DBoost_INCLUDE_DIRS=${Boost_INCLUDE_DIR} -DBoost_LIBRARIES=${Boost_LIBRARIES} -DGSL_INCLUDE_DIR=${GSL_INCLUDE_DIR} -DGSL_LIBRARIES=${GSL_LIBRARIES}
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HL_CXXFLAGS} ${GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG} -DCMAKE_MODULE_PATH=${PROJECT_SOURCE_DIR}/cmake -DUSE_ROOT=false -DBoost_INCLUDE_DIRS=${Boost_INCLUDE_DIR} -DBoost_LIBRARIES=${Boost_LIBRARIES} -DGSL_INCLUDE_DIR=${GSL_INCLUDE_DIR} -DGSL_LIBRARIES=${GSL_LIBRARIES}
     BUILD_COMMAND ${MAKE_PARALLEL} HEPLike_shared
     INSTALL_COMMAND ""
     )
@@ -1163,7 +1163,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${libphysica_dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
-    CMAKE_ARGS -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_C_FLAGS=${BACKEND_C_FLAGS} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCODE_COVERAGE=OFF -DCMAKE_BUILD_TYPE=Release
+    CMAKE_ARGS -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_C_FLAGS=${BACKEND_C_FLAGS} ${GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCODE_COVERAGE=OFF -DCMAKE_BUILD_TYPE=Release
     BUILD_COMMAND ${MAKE_PARALLEL} ${dir}
     INSTALL_COMMAND ""
   )
@@ -1199,7 +1199,7 @@ if(NOT ditched_${name}_${ver})
     PATCH_COMMAND patch -p1 < ${patch}
           COMMAND  ${CMAKE_COMMAND} -E make_directory "${dir}/generated/"
           COMMAND ${CMAKE_COMMAND} -E echo "" > "${dir}/generated/version.hpp"
-    CMAKE_ARGS -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${obscura_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_C_FLAGS=${obscura_C_FLAGS} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCODE_COVERAGE=OFF -DCMAKE_BUILD_TYPE=Release ${dir} -Dlibphysica_SOURCE_DIR=${libphysica_dir}
+    CMAKE_ARGS -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${obscura_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_C_FLAGS=${obscura_C_FLAGS} ${GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCODE_COVERAGE=OFF -DCMAKE_BUILD_TYPE=Release ${dir} -Dlibphysica_SOURCE_DIR=${libphysica_dir}
     BUILD_COMMAND ${MAKE_PARALLEL} libobscura
     INSTALL_COMMAND ""
   )
@@ -1853,7 +1853,7 @@ set_compiler_warning("no-reorder" VPP_CXX_FLAGS)
 set_compiler_warning("no-deprecated-copy" VPP_CXX_FLAGS)
 set_compiler_warning("no-unused-variable" VPP_CXX_FLAGS)
 set_compiler_warning("no-pessimizing-move" VPP_CXX_FLAGS)
-set(VPP_CMAKE_FLAGS -DCMAKE_C_FLAGS=${BACKEND_C_FLAGS} -DCMAKE_CXX_FLAGS=${VPP_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_SHARED_LINKER_FLAGS=${VPP_SHARED_LINKER_FLAGS} -DEIGEN3_INCLUDE_DIR=${EIGEN3_INCLUDE_DIR} -DBoost_INCLUDE_DIR=${Boost_INCLUDE_DIR} -DWITHIN_GAMBIT=True -DSILENT_MODE=TRUE -DMinuit_include=${Minuit_include} -DMinuit_lib=${Minuit_lib})
+set(VPP_CMAKE_FLAGS -DCMAKE_C_FLAGS=${BACKEND_C_FLAGS} -DCMAKE_CXX_FLAGS=${VPP_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_SHARED_LINKER_FLAGS=${VPP_SHARED_LINKER_FLAGS} ${GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG} -DEIGEN3_INCLUDE_DIR=${EIGEN3_INCLUDE_DIR} -DBoost_INCLUDE_DIR=${Boost_INCLUDE_DIR} -DWITHIN_GAMBIT=True -DSILENT_MODE=TRUE -DMinuit_include=${Minuit_include} -DMinuit_lib=${Minuit_lib})
 set(BOSSregex "s#cpp)#cpp   source/BOSS_factory_VevaciousPlusPlus.cpp       source/BOSS_wrapperutils.cpp        source/BOSS_VevaciousPlusPlus.cpp)#g")
 set(FLAGSregex1 "s#_FLAGS} -O3 -fPIC#_FLAGS}#g")
 set(FLAGSregex2 "s#_FLAGS} -Wall -Wno-unused-local-typedefs -O3 -fPIC -fopenmp#_FLAGS}#g")
@@ -2098,8 +2098,10 @@ endif()
 
 
 # OpenMP flags don't play nicely with clang and FastJet's libtoolized build system.
-string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_C_FLAGS "${BACKEND_C_FLAGS}")
-string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+set(FJ_C_FLAGS "${BACKEND_C_FLAGS}")
+set(FJ_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+gambit_strip_openmp_from_flags(FJ_C_FLAGS)
+gambit_strip_openmp_from_flags(FJ_CXX_FLAGS)
 set_compiler_warning("no-deprecated-declarations" FJ_CXX_FLAGS)
 set_compiler_warning("no-deprecated-copy" FJ_CXX_FLAGS)
 
@@ -2139,7 +2141,6 @@ set(patch_dir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 set(patch "${patch_dir}/patch_${name}_${ver}.dif")
 ## Rivet needs to be compiled c++17, otherwise it will fail to compile
 set(ditch_if_absent "HepMC;YODA;c++17")
-## If cython is not installed disable the python extension
 gambit_find_python_module(cython)
 if(PY_cython_FOUND)
   set(pyext yes)
@@ -2190,6 +2191,12 @@ if(NOT ditched_${name}_${ver})
   unset(_rivet_include_dir)
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
+  if(TARGET ${name}_${ver} AND TARGET fastjet)
+    add_dependencies(${name}_${ver} fastjet)
+    if(TARGET fjcontrib)
+      add_dependencies(${name}_${ver} fjcontrib)
+    endif()
+  endif()
 endif()
 
 # Contur
@@ -2197,6 +2204,7 @@ endif()
 # data/DB/Makefile rather than exporting analyses.db from the top level.
 set(name "contur")
 set(ver "3.0.0")
+set(CONTUR_VERSION "${ver}")
 set(md5 "aee676621c6a2f4b66a94e456a96dac8")
 set(_contur_build_command ${MAKE_PARALLEL} -C data/DB analyses.db)
 set(dl "https://gitlab.com/hepcedar/${name}/-/archive/${name}-${ver}/${name}-${name}-${ver}.tar.gz")

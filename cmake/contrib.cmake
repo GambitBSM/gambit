@@ -33,26 +33,6 @@
 
 include(ExternalProject)
 
-function(gambit_openmp_runtime_mismatch library result)
-  set(${result} FALSE PARENT_SCOPE)
-  if(NOT GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP OR NOT EXISTS "${library}")
-    return()
-  endif()
-  find_program(_GAMBIT_OTOOL_EXECUTABLE NAMES otool)
-  if(NOT _GAMBIT_OTOOL_EXECUTABLE)
-    return()
-  endif()
-  execute_process(
-    COMMAND "${_GAMBIT_OTOOL_EXECUTABLE}" -L "${library}"
-    OUTPUT_VARIABLE _GAMBIT_LIBRARY_DEPENDENCIES
-    ERROR_QUIET
-  )
-  string(FIND "${_GAMBIT_LIBRARY_DEPENDENCIES}" "${OpenMP_omp_LIBRARY}" _GAMBIT_OPENMP_MATCH)
-  if(_GAMBIT_LIBRARY_DEPENDENCIES MATCHES "libomp[.]dylib" AND _GAMBIT_OPENMP_MATCH EQUAL -1)
-    set(${result} TRUE PARENT_SCOPE)
-  endif()
-endfunction()
-
 # Define the newline strings to use for OSX-safe substitution.
 # This can be moved into externals.cmake if ever it is no longer used in this file.
 set(nl "___totally_unlikely_to_occur_naturally___")
@@ -145,6 +125,7 @@ endif()
 
 set(name "restframes")
 set(ver "1.0.2")
+set(RESTFRAMES_VERSION "${ver}")
 set(dir "${PROJECT_SOURCE_DIR}/contrib/RestFrames-${ver}")
 if(WITH_RESTFRAMES)
   message("-- RestFrames-dependent analyses in ColliderBit will be activated.")
@@ -166,8 +147,10 @@ if(NOT EXCLUDE_RESTFRAMES)
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${dir}/lib")
   set(RESTFRAMES_CONFIG_LDFLAGS "-L${CMAKE_BINARY_DIR}/contrib -Wl,-rpath,${CMAKE_BINARY_DIR}/contrib")
   # OpenMP flags don't play nicely with clang and RestFrames' antiquated libtoolized build system.
-  string(REGEX REPLACE "-Xclang -fopenmp" "" RESTFRAMES_C_FLAGS "${BACKEND_C_FLAGS}")
-  string(REGEX REPLACE "-Xclang -fopenmp" "" RESTFRAMES_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  set(RESTFRAMES_C_FLAGS "${BACKEND_C_FLAGS}")
+  set(RESTFRAMES_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  gambit_strip_openmp_from_flags(RESTFRAMES_C_FLAGS)
+  gambit_strip_openmp_from_flags(RESTFRAMES_CXX_FLAGS)
   if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(RESTFRAMES_CONFIG_LIBS "${CMAKE_SHARED_LINKER_FLAGS} -lgambit_preload")
   else()
@@ -181,8 +164,8 @@ if(NOT EXCLUDE_RESTFRAMES)
       -P ${PROJECT_SOURCE_DIR}/cmake/scripts/ensure_git_clone.cmake
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ${CMAKE_COMMAND} -DRFBASE_CC=${dir}/src/RFBase.cc -P ${PROJECT_SOURCE_DIR}/cmake/scripts/patch_restframes_quiet.cmake
-              COMMAND ./configure -prefix=${dir} CC=${CMAKE_C_COMPILER} CFLAGS=${RESTFRAMES_C_FLAGS} CPP=${RESTFRAMES_CPP} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${RESTFRAMES_CXX_FLAGS} CXXCPP=${RESTFRAMES_CXXCPP} LDFLAGS=${RESTFRAMES_CONFIG_LDFLAGS} LIBS=${RESTFRAMES_CONFIG_LIBS}
+    PATCH_COMMAND ${CMAKE_COMMAND} -DRFBASE_CC=${dir}/src/RFBase.cc -P ${PROJECT_SOURCE_DIR}/cmake/scripts/patch_restframes_quiet.cmake
+    CONFIGURE_COMMAND ./configure -prefix=${dir} CC=${CMAKE_C_COMPILER} CFLAGS=${RESTFRAMES_C_FLAGS} CPP=${RESTFRAMES_CPP} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${RESTFRAMES_CXX_FLAGS} CXXCPP=${RESTFRAMES_CXXCPP} LDFLAGS=${RESTFRAMES_CONFIG_LDFLAGS} LIBS=${RESTFRAMES_CONFIG_LIBS}
               COMMAND sed ${dashi} -e "s|.(ROOTAUXCXXFLAGS) .(ROOTCXXFLAGS)||" src/Makefile
     BUILD_COMMAND ${MAKE_PARALLEL}
     INSTALL_COMMAND ${MAKE_PARALLEL} install
@@ -210,6 +193,7 @@ endif()
 
 set(name "hepmc")
 set(ver "3.2.5")
+set(HEPMC_VERSION "${ver}")
 set(HEPMC_PATH "${PROJECT_SOURCE_DIR}/contrib/HepMC3-${ver}")
 if(WITH_HEPMC)
   message("-- HepMC-dependent functions in ColliderBit will be activated.")
@@ -264,7 +248,7 @@ if(NOT EXCLUDE_HEPMC)
     # HepMC3 enables both C and CXX in its project(). Pass both compilers
     # explicitly so a stale CC environment variable cannot select another
     # local toolchain for the external configure step.
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HEPMC_CXX_FLAGS} ${HEPMC_CXX_STANDARD_ARG} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${HEPMC_PATH}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_PATH}/local/lib -DHEPMC3_ENABLE_PYTHON=OFF -DHEPMC3_ENABLE_SEARCH=ON -DHEPMC3_BUILD_STATIC_LIBS=OFF -DCMAKE_POLICY_VERSION_MINIMUM=${CMAKE_POLICY_VERSION_MINIMUM}
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HEPMC_CXX_FLAGS} ${GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG} ${HEPMC_CXX_STANDARD_ARG} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${HEPMC_PATH}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_PATH}/local/lib -DHEPMC3_ENABLE_PYTHON=OFF -DHEPMC3_ENABLE_SEARCH=ON -DHEPMC3_BUILD_STATIC_LIBS=OFF -DCMAKE_POLICY_VERSION_MINIMUM=${CMAKE_POLICY_VERSION_MINIMUM}
     BUILD_COMMAND ${MAKE_PARALLEL} ${lib}
     INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
     )
@@ -274,6 +258,7 @@ if(NOT EXCLUDE_HEPMC)
 endif()
 
 # contrib/onnxruntime
+option(WITH_ONNXRUNTIME "Compile with ONNX Runtime enabled" OFF)
 if (WITH_ONNXRUNTIME)
   message("   Using ONNX Runtime - Onnx dependent colliderbit analyses will be included")
   set (EXCLUDE_ONNXRUNTIME FALSE)
@@ -284,11 +269,11 @@ endif()
 
 set(name onnxruntime)
 set(ver 1.14.1)
+set(ONNXRUNTIME_VERSION "${ver}")
 set(dir ${PROJECT_SOURCE_DIR}/contrib/${name}-${ver})
 if (NOT EXCLUDE_ONNXRUNTIME)
   set(lib onnxruntime)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  #TODO: Mac stuff untested
     set(dl "https://github.com/microsoft/onnxruntime/releases/download/v1.14.1/onnxruntime-osx-universal2-${ver}.tgz")
     set(md5 9725836c49deb09fc352a57dc8a1b806)
   else ()
@@ -298,8 +283,8 @@ if (NOT EXCLUDE_ONNXRUNTIME)
   include_directories(${dir}/include)
   set(ONNXRUNTIME_PATH "${dir}")
   set(ONNXRUNTIME_LIB "${dir}/lib")
-  set(ONNXRUNTIME_LDFLAGS "-L${ONNXRUNTIME_LIB} -l${lib}")
-  
+  set(ONNXRUNTIME_LDFLAGS "-L${ONNXRUNTIME_LIB}" "-l${lib}")
+
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
@@ -324,6 +309,7 @@ endif()
 
 set(name "yoda")
 set(ver "2.1.0")
+set(YODA_VERSION "${ver}")
 set(dir "${PROJECT_SOURCE_DIR}/contrib/YODA-${ver}")
 if(WITH_YODA)
   message("-- YODA-dependent functions in ColliderBit will be activated.")
@@ -346,17 +332,11 @@ if(NOT EXCLUDE_YODA)
   set(YODA_LDFLAGS "-L${YODA_LIB}" "-l${lib}")
 
   # OpenMP flags do not play nicely with clang and YODA's libtool link step.
-  # Match RestFrames/FastJet: drop the two-token form from YODA's private
-  # C/C++ flags only.  OpenMP stays enabled for GAMBIT itself.
+  # Strip only from YODA's private flags; OpenMP stays enabled for GAMBIT.
   set(YODA_C_FLAGS "${BACKEND_C_FLAGS}")
   set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3")
-  string(REGEX REPLACE "-Xclang -fopenmp" "" YODA_C_FLAGS "${YODA_C_FLAGS}")
-  string(REGEX REPLACE "-Xclang -fopenmp" "" YODA_CXX_FLAGS "${YODA_CXX_FLAGS}")
-  # AppleClang's libtool can leak a bare -fopenmp after it splits the pair.
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-    string(REGEX REPLACE "(^| )-fopenmp( |$)" "\\1" YODA_C_FLAGS "${YODA_C_FLAGS}")
-    string(REGEX REPLACE "(^| )-fopenmp( |$)" "\\1" YODA_CXX_FLAGS "${YODA_CXX_FLAGS}")
-  endif()
+  gambit_strip_openmp_from_flags(YODA_C_FLAGS)
+  gambit_strip_openmp_from_flags(YODA_CXX_FLAGS)
   #set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3" )
   set_compiler_warning("no-unused-parameter" YODA_CXX_FLAGS)
   set_compiler_warning("no-deprecated-copy" YODA_CXX_FLAGS)
@@ -368,18 +348,32 @@ if(NOT EXCLUDE_YODA)
   if(YODA_OPENMP_RUNTIME_MISMATCH)
     message("   YODA links a different OpenMP runtime and will be rebuilt.")
   endif()
-  # contrib/YODA is in-source.  Stale .la metadata can retain -fopenmp after
-  # a toolchain change; make clean does not regenerate the configure stamp.
+  # contrib/YODA is in-source.  AppleClang libtool can leave -fopenmp in the
+  # installed/build .la files; make clean does not rewrite them.  Check those
+  # known paths only — do not walk the whole YODA tree on every configure.
   set(YODA_STALE_OPENMP_METADATA FALSE)
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-    file(GLOB_RECURSE YODA_LA_FILES "${dir}/*.la")
-    foreach(YODA_LA_FILE IN LISTS YODA_LA_FILES)
-      file(READ "${YODA_LA_FILE}" YODA_LA_CONTENT)
-      if(YODA_LA_CONTENT MATCHES "inherited_linker_flags=.*-fopenmp")
-        set(YODA_STALE_OPENMP_METADATA TRUE)
-        break()
+    set(_yoda_la_files
+        "${dir}/src/libYODA.la"
+        "${dir}/src/.libs/libYODA.la"
+        "${dir}/local/lib/libYODA.la")
+    file(GLOB _yoda_extra_la
+         "${dir}/local/lib/*.la"
+         "${dir}/src/.libs/*.la")
+    list(APPEND _yoda_la_files ${_yoda_extra_la})
+    list(REMOVE_DUPLICATES _yoda_la_files)
+    foreach(_yoda_la IN LISTS _yoda_la_files)
+      if(EXISTS "${_yoda_la}")
+        file(READ "${_yoda_la}" _yoda_la_content)
+        if(_yoda_la_content MATCHES "inherited_linker_flags=.*-fopenmp")
+          set(YODA_STALE_OPENMP_METADATA TRUE)
+          break()
+        endif()
       endif()
     endforeach()
+    unset(_yoda_la_files)
+    unset(_yoda_extra_la)
+    unset(_yoda_la_content)
   endif()
   if(YODA_STALE_OPENMP_METADATA)
     get_paths(${name} _yoda_build_path _yoda_clean_stamps _yoda_nuke_stamps)
@@ -430,6 +424,8 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(fastjet_md5 "bfefd2ce16232cbd571b6d9d68f702d6")
   set(fjcontrib_ver "1.101")
   set(fjcontrib_md5 "7397da82cf31a719e56cec0035d8072b")
+  set(FASTJET_VERSION "${fastjet_ver}")
+  set(FJCONTRIB_VERSION "${fjcontrib_ver}")
   set(fastjet_dl "https://fastjet.fr/repo/fastjet-${fastjet_ver}.tar.gz")
   set(fastjet_path "${PROJECT_SOURCE_DIR}/contrib/fastjet-${fastjet_ver}")
   set(fastjet_DIR "${fastjet_path}/local")
@@ -446,8 +442,10 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(EXCLUDE_FJCONTRIB FALSE)
 
   # FastJet's autotools build cannot handle the AppleClang OpenMP spelling.
-  string(REGEX REPLACE "-Xclang -fopenmp" "" FASTJET_C_FLAGS "${BACKEND_C_FLAGS}")
-  string(REGEX REPLACE "-Xclang -fopenmp" "" FASTJET_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  set(FASTJET_C_FLAGS "${BACKEND_C_FLAGS}")
+  set(FASTJET_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  gambit_strip_openmp_from_flags(FASTJET_C_FLAGS)
+  gambit_strip_openmp_from_flags(FASTJET_CXX_FLAGS)
   set_compiler_warning("no-deprecated-declarations" FASTJET_CXX_FLAGS)
   set_compiler_warning("no-deprecated-copy" FASTJET_CXX_FLAGS)
   set(FJCONTRIB_FRAGILE_CXX_FLAGS "${FASTJET_CXX_FLAGS}")
@@ -571,8 +569,7 @@ else()
   set(WITH_FASTJET_CONTRIB FALSE)
 endif()
 
-# FastJet namespace used by HEPUtils and ColliderBit. There is no fjcore
-# fallback: jet clustering requires the full FastJet contrib build above.
+# Jet clustering requires the FastJet contrib build above.
 if(WITH_FASTJET_CONTRIB)
   add_definitions(-DFJNS=fastjet)
   set(fjcontrib_nsubjettiness_dir "${fjcontrib_path}/Nsubjettiness")
@@ -631,10 +628,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
 
   # Determine compiler libraries needed by flexiblesusy.
   if(CMAKE_Fortran_COMPILER MATCHES "gfortran*")
-    # Native CMake targets get the GNU Fortran runtime automatically. GAMBIT
-    # also has external link steps that invoke the C++ compiler directly, so
-    # query gfortran for its exact runtime path instead of requiring a global
-    # -L... -lgfortran linker setting in a user preset.
+    # External C++ link steps need the gfortran runtime path.
     execute_process(
       COMMAND "${CMAKE_Fortran_COMPILER}" "-print-file-name=libgfortran.dylib"
       OUTPUT_VARIABLE GFORTRAN_LIBRARY

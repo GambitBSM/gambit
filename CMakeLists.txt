@@ -50,36 +50,13 @@ endif()
 cmake_minimum_required(VERSION 3.16.3 FATAL_ERROR)
 
 
-# Define minimum compiler versions
-set(MIN_GCC_VERSION 9.1)
-set(MIN_ICC_VERSION 15.0.2)
-set(MIN_CLANG_VERSION 10.0.0)
-set(MIN_APPLECLANG_VERSION 13.0.0)
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/compiler_mins.cmake")
 
-# On macOS, use the active SDK version as the default deployment target when
-# the user has not selected one explicitly. This keeps the main build and
-# external projects on the same SDK/deployment target without relying on the
-# MACOSX_DEPLOYMENT_TARGET environment variable.
-if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin"
-   AND (NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET OR CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "")
-   AND "$ENV{MACOSX_DEPLOYMENT_TARGET}" STREQUAL "")
-  find_program(_GAMBIT_XCRUN_EXECUTABLE xcrun)
-  if(_GAMBIT_XCRUN_EXECUTABLE)
-    execute_process(
-      COMMAND "${_GAMBIT_XCRUN_EXECUTABLE}" --sdk macosx --show-sdk-version
-      OUTPUT_VARIABLE _GAMBIT_MACOS_SDK_VERSION
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
-    )
-    if(_GAMBIT_MACOS_SDK_VERSION MATCHES "^[0-9]+\\.[0-9]+")
-      string(REGEX MATCH "^[0-9]+\\.[0-9]+" _GAMBIT_MACOS_DEPLOYMENT_TARGET
-             "${_GAMBIT_MACOS_SDK_VERSION}")
-      set(CMAKE_OSX_DEPLOYMENT_TARGET "${_GAMBIT_MACOS_DEPLOYMENT_TARGET}"
-          CACHE STRING "Minimum macOS deployment target" FORCE)
-      message(STATUS "Auto-detected macOS deployment target: ${CMAKE_OSX_DEPLOYMENT_TARGET}")
-    endif()
-  endif()
-endif()
+# Resolve the single macOS deployment target before project() enables the
+# languages.  The policy itself lives in cmake/MacOSX.cmake and applies to
+# GAMBIT, CBS, and every CMake-based external project alike.
+include(cmake/MacOSX.cmake)
+gambit_initialise_macos_deployment_target()
 
 SET(CMAKE_BUILD_TYPE_STRING "Choose the type of build, options are: None Debug Release Release_O3 RelWithDebInfo MinSizeRel.")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -120,6 +97,17 @@ set(CMAKE_LINK_DEPENDS_NO_SHARED 1)
 # Include ./cmake in search path for projects
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
+# cmake --preset cbs sets CBS_BUILD_PRESET; ordinary cmake .. does not.
+if(NOT DEFINED CBS_BUILD_PRESET)
+  set(CBS_BUILD_PRESET "")
+endif()
+if(CBS_BUILD_PRESET)
+  include(cmake/CBS.cmake)
+  cbs_preset_begin()
+else()
+  set(CBS_PRESET_BUILD FALSE)
+endif()
+
 # Add common system library search variables to cmake library search variable, used by find_library
 set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} $ENV{LIBRARY_PATH})
 string(REPLACE ":" ";" CMAKE_LIBRARY_PATH "${CMAKE_LIBRARY_PATH}")
@@ -143,6 +131,10 @@ endif()
 if(NOT Python3_Interpreter_FOUND)
   message(FATAL_ERROR "\nPython 3 was not found, but it is required by GAMBIT.  \nIf you need to set the path to the Python interpreter manually, "
                       "please use -DPython3_EXECUTABLE=path/to/preferred/python.")
+endif()
+
+if(CBS_PRESET_BUILD)
+  cbs_preset_after_python()
 endif()
 
 # Keep GAMBIT's historical Python version variables in sync with CMake's
@@ -346,15 +338,12 @@ endforeach()
 
 # Check for Boost
 set(Boost_NO_BOOST_CMAKE ON)
-# GAMBIT consumes FindBoost variables below.  Preserve that established
-# behaviour explicitly with CMake >= 3.30, where CMP0167 otherwise emits a
-# warning before selecting the same legacy module implicitly.  Scope this to
-# this one lookup so it cannot alter package discovery elsewhere.
+# CMake 3.30+ CMP0167; keep GAMBIT on FindBoost for this lookup only.
 if(POLICY CMP0167)
   cmake_policy(PUSH)
   cmake_policy(SET CMP0167 OLD)
 endif()
-find_package(Boost 1.48 COMPONENTS filesystem)
+find_package(Boost 1.48)
 if(POLICY CMP0167)
   cmake_policy(POP)
 endif()
@@ -423,7 +412,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     endif()
   endif()
 endif()
-if (OPENMP_FOUND OR FOUND_BREW_OPENMP)
+if (OPENMP_FOUND OR FOUND_BREW_OPENMP OR GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP)
   message("-- OpenMP found successfully")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -438,6 +427,8 @@ else()
     endif()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_CXX_FLAGS}")
+  elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    message(FATAL_ERROR "\nOpenMP libraries not found. On macOS with LLVM, install libomp (brew install libomp) or set -DOpenMP_CXX_FLAGS -DOpenMP_CXX_LIB_NAMES -DOpenMP_C_FLAGS -DOpenMP_C_LIB_NAMES -DOpenMP_omp_LIBRARY.")
   else()
     message(FATAL_ERROR "\nOpenMP libraries not found.  Your compiler installation seems to be broken.")
   endif()
@@ -553,7 +544,13 @@ if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_C_COMPILER_ID}" STREQUAL 
 endif()
 
 # Check for optional packages and disable sections of GAMBIT accordingly
+if(CBS_PRESET_BUILD)
+  cbs_preset_before_optional()
+endif()
 include(cmake/optional.cmake)
+if(CBS_PRESET_BUILD)
+  cbs_preset_after_optional()
+endif()
 
 # Look for the latest tag and use it to set the version number.  If there is no such tag, use the tarball info file.
 find_package(Git)
@@ -746,3 +743,7 @@ add_custom_target(list-scanners
 
 message("${BoldYellow}-- Run `make list-backends` to see the available backend make targets.${ColourReset}")
 message("${BoldYellow}-- Run `make list-scanners` to see the available scanner make targets.${ColourReset}")
+
+if(CBS_PRESET_BUILD)
+  cbs_preset_finish()
+endif()

@@ -1,0 +1,109 @@
+{
+  "version": 3,
+  "vendor": {
+    "gambit": {
+      "author": {
+        "name": "Pengxuan Zhu",
+        "email": "pengxuan.zhu@adelaide.edu.au"
+      }
+    }
+  },
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "cbs-base",
+      "hidden": true,
+      "description": "Shared CBS cache. Enable every CBS feature that can be turned on; skip those whose prerequisites are missing. Ordinary GAMBIT cmake .. does not inherit this.",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "Bits": "ColliderBit",
+        "CBS_AUTO_DETECT_PYTHON": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "CBS_AUTO_DETECT_ROOT": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "CBS_WITH_RIVET_CONTUR": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "CMAKE_BUILD_TYPE": "Release",
+        "CUTFLOW": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "MPI_DETERMINE_LIBRARY_VERSION": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "WITH_HDF5": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "WITH_MPI": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "WITH_ONNXRUNTIME": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "WITH_RESTFRAMES": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "WITH_SQLite3": {
+          "type": "BOOL",
+          "value": "ON"
+        }
+      }
+    },
+    {
+      "name": "cbs",
+      "inherits": "cbs-base",
+      "displayName": "CBS - System toolchain",
+      "description": "Release CBS build using the system or user-selected compiler. Uses GAMBIT's default build/ directory.",
+      "cacheVariables": {
+        "CBS_BUILD_PRESET": {
+          "type": "STRING",
+          "value": "cbs"
+        }
+      }
+    },
+    {
+      "name": "cbs-llvm",
+      "inherits": "cbs-base",
+      "displayName": "CBS - Upstream LLVM",
+      "description": "Release CBS build using a supported upstream LLVM clang/clang++ pair. Uses GAMBIT's default build/ directory.",
+      "toolchainFile": "${sourceDir}/cmake/toolchains/llvm-native.cmake",
+      "cacheVariables": {
+        "CBS_BUILD_PRESET": {
+          "type": "STRING",
+          "value": "cbs-llvm"
+        }
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "cbs",
+      "configurePreset": "cbs",
+      "targets": [
+        "CBS"
+      ]
+    },
+    {
+      "name": "cbs-llvm",
+      "configurePreset": "cbs-llvm",
+      "targets": [
+        "CBS"
+      ]
+    }
+  ]
+}

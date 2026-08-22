@@ -37,34 +37,30 @@ add_standalone(3bithit SOURCES DecayBit/examples/3bithit.cpp MODULES DecayBit Sp
 add_standalone(FlavBit_standalone SOURCES FlavBit/examples/FlavBit_standalone_example.cpp MODULES FlavBit)
 add_standalone(NeutrinoBit_standalone SOURCES NeutrinoBit/examples/NeutrinoBit_standalone.cpp MODULES NeutrinoBit)
 add_standalone(NeutrinoBit_standalone_RHN SOURCES NeutrinoBit/examples/NeutrinoBit_standalone_RHN.cpp MODULES NeutrinoBit)
-add_standalone(CBS SOURCES ColliderBit/examples/solo.cpp ColliderBit/examples/solo_cli.cpp ColliderBit/examples/solo_input.cpp ColliderBit/examples/solo_batch.cpp ColliderBit/examples/solo_output.cpp MODULES ColliderBit DEPENDENCIES hepmc pybind11)
 
-option(GAMBIT_USE_LLD_FOR_CBS "Use lld when linking the CBS standalone executable." OFF)
-if(TARGET CBS AND GAMBIT_USE_LLD_FOR_CBS)
-  target_link_options(CBS PRIVATE -fuse-ld=lld)
-endif()
-
-# CBS --help / --list-analyses should not print RestFrames' load-time banner.
-# The patch is idempotent; the library is rebuilt only if RFBase.cc is newer.
-if(TARGET CBS AND NOT EXCLUDE_RESTFRAMES AND DEFINED RESTFRAMES_DIR)
-  find_program(_CBS_RESTFRAMES_MAKE NAMES make gmake)
-  if(_CBS_RESTFRAMES_MAKE)
-    add_custom_command(
-      TARGET CBS PRE_LINK
-      COMMAND ${CMAKE_COMMAND}
-        -DRFBASE_CC=${RESTFRAMES_DIR}/src/RFBase.cc
-        -DRF_DIR=${RESTFRAMES_DIR}
-        -DMAKE_PROGRAM=${_CBS_RESTFRAMES_MAKE}
-        -DREBUILD=ON
-        -P ${PROJECT_SOURCE_DIR}/cmake/scripts/patch_restframes_quiet.cmake
-      COMMENT "Ensuring RestFrames RESTFRAMES_QUIET banner patch is built"
-    )
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  # This library is intentionally CBS-specific. It must precede RestFrames in
+  # the link order so its constructor can quiet RestFrames for CBS CLI paths.
+  add_library(cbs_preload SHARED
+    "${PROJECT_SOURCE_DIR}/ColliderBit/examples/cbs_preload.cpp")
+  add_standalone(CBS
+    SOURCES ColliderBit/examples/solo.cpp ColliderBit/examples/solo_cli.cpp
+            ColliderBit/examples/solo_input.cpp ColliderBit/examples/solo_batch.cpp
+            ColliderBit/examples/solo_output.cpp
+    LIBRARIES cbs_preload
+    MODULES ColliderBit
+    DEPENDENCIES hepmc pybind11)
+  if(TARGET CBS AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # Retain the constructor-only shared library under GNU ld's --as-needed.
+    target_link_options(CBS PRIVATE "-Wl,--no-as-needed")
   endif()
 endif()
 
-# Add a message that is only shown if CBS is built 
-# and -O3 level compiler optimisations are not activated.
-if(EXISTS CBS AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "Release" AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo")
+if(TARGET CBS AND CBS_USE_LLD)
+  target_link_options(CBS PRIVATE -fuse-ld=lld)
+endif()
+
+if(TARGET CBS AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "Release" AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo")
   add_custom_command(
     TARGET CBS POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E echo "-- You have built CBS with CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}. For best performance we recommend building CBS in Release mode. You can do this by rerunning cmake with the option -DCMAKE_BUILD_TYPE=Release and then rebuild CBS."

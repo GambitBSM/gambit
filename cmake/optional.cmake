@@ -31,7 +31,7 @@
 #
 #************************************************
 # Print cutflow in ColliderBit
-option(CUTFLOW "Enable cut-flow ouput" OFF)
+option(CUTFLOW "Enable cut-flow output" OFF)
 if(CUTFLOW)
   add_definitions(-DCHECK_CUTFLOW)
   message("${Yellow}-- Print cutflow in ColliderBit.")
@@ -223,11 +223,23 @@ if(NOT LAPACK_LINKLIBS AND NOT LAPACK_FOUND)
   message(FATAL_ERROR "${BoldRed}LAPACK shared library not found.${ColourReset}")
 endif()
 
+# Map c++1z/1y/0x aliases to comparable numeric ranks.
+function(gambit_cxx_std_rank std out_var)
+  set(_s "${std}")
+  if(_s STREQUAL "1z")
+    set(_s 17)
+  elseif(_s STREQUAL "1y")
+    set(_s 14)
+  elseif(_s STREQUAL "0x")
+    set(_s 11)
+  endif()
+  set(${out_var} "${_s}" PARENT_SCOPE)
+endfunction()
+
 # Helper function to check if ROOT has been compiled with the same standard as we are using here.  If not, downgrade to the standard that ROOT was compiled with.
 function(check_root_std_flag)
-  # Modern ROOT package configurations expose the standard as
-  # ROOT_CXX_STANDARD, while older configurations only included -std=c++XX
-  # in ROOT_CXX_FLAGS.  Prefer the explicit package variable when available.
+  # Prefer ROOT_CXX_STANDARD from modern ROOT configs; older installs only
+  # put -std=c++XX in ROOT_CXX_FLAGS.
   if(DEFINED ROOT_CXX_STANDARD AND NOT "${ROOT_CXX_STANDARD}" STREQUAL "")
     set(ROOT_STD "${ROOT_CXX_STANDARD}")
     set(ROOT_CXX_FLAG "-std=c++${ROOT_CXX_STANDARD}")
@@ -236,12 +248,10 @@ function(check_root_std_flag)
     message("${BoldYellow}   This ROOT was compiled with C++${ROOT_CXX_STANDARD}.${ColourReset}")
   endif()
 
-  # Loop over C++ standards
   set(std_list "17;1z;14;1y;11;0x")
   foreach(std ${std_list})
     set(CXX_FLAG "-std=c++${std}")
     set(CXX_FLAG_RE "-std=c\\+\\+${std}")
-    # Check in ROOT_CXX_FLAGS
     if (NOT ROOT_USES_STD)
       string(REGEX MATCH ${CXX_FLAG_RE} ROOT_USES_STD ${ROOT_CXX_FLAGS})
       if (ROOT_USES_STD)
@@ -251,7 +261,6 @@ function(check_root_std_flag)
         set(ROOT_CXX_FLAG_RE "${CXX_FLAG_RE}")
       endif()
     endif()
-    # Check in CMAKE_CXX_FLAGS
     if(NOT CMAKE_USES_STD)
       string(REGEX MATCH ${CXX_FLAG_RE} CMAKE_USES_STD ${CMAKE_CXX_FLAGS})
       if (CMAKE_USES_STD)
@@ -260,7 +269,6 @@ function(check_root_std_flag)
         set(CMAKE_CXX_FLAG_RE "${CXX_FLAG_RE}")
       endif()
     endif()
-    # Check in BACKEND_CXX_FLAGS
     if(NOT BACKEND_USES_STD)
       string(REGEX MATCH ${CXX_FLAG_RE} BACKEND_USES_STD ${BACKEND_CXX_FLAGS})
       if (BACKEND_USES_STD)
@@ -269,40 +277,46 @@ function(check_root_std_flag)
         set(BACKEND_CXX_FLAG_RE "${CXX_FLAG_RE}")
       endif()
     endif()
-    # Should we downgrade the -std flag used in CMAKE_CXX_FLAGS?
-    if ((CMAKE_USES_STD) AND (NOT ROOT_USES_STD))
-      set(DOWNGRADE_CMAKE_STD "True")
-    endif()
-    # Should we downgrade the -std flag used in BACKEND_CXX_FLAGS?
-    if ((BACKEND_USES_STD) AND (NOT ROOT_USES_STD))
-      set(DOWNGRADE_BACKEND_STD "True")
-    endif()
   endforeach()
-  # Did we figure out the std used by ROOT?
   if(NOT ROOT_USES_STD)
     message(FATAL_ERROR "${BoldRed}Unable to detect what flavour of C++ your installation of ROOT has "
                         "been compiled with; please set -DWITH_ROOT=OFF.${ColourReset}")
   endif()
-  # Check that the std used by ROOT is OK
   CHECK_CXX_COMPILER_FLAG(${ROOT_CXX_FLAG} COMPILER_SUPPORTS_CXX${ROOT_STD})
   if(NOT COMPILER_SUPPORTS_CXX${ROOT_STD})
-    message(FATAL_ERROR "${BoldRed}This installation of ROOT has been compiled with C++${std} support, "
-                        "but your chosen compiler does not support C++${std}.  Please change compiler "
+    message(FATAL_ERROR "${BoldRed}This installation of ROOT has been compiled with C++${ROOT_STD} support, "
+                        "but your chosen compiler does not support C++${ROOT_STD}.  Please change compiler "
                         "or set -DWITH_ROOT=OFF.${ColourReset}")
   endif()
-  # Downgrade -std flag in CMAKE_CXX_FLAGS
-  if(DOWNGRADE_CMAKE_STD)
-    string(REGEX REPLACE ${CMAKE_CXX_FLAG_RE} ${ROOT_CXX_FLAG} CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} PARENT_SCOPE)
-    set(GAMBIT_SUPPORTS_CXX${CMAKE_STD} FALSE PARENT_SCOPE)
-    set(GAMBIT_SUPPORTS_CXX${ROOT_STD} TRUE PARENT_SCOPE)
+
+  gambit_cxx_std_rank("${ROOT_STD}" _root_rank)
+  gambit_cxx_std_rank("${CMAKE_STD}" _cmake_rank)
+  gambit_cxx_std_rank("${BACKEND_STD}" _backend_rank)
+  # Rewrite GAMBIT's -std= flag when ROOT is an older language, or the same
+  # language with a different spelling (c++17 vs c++1z).  Never upgrade.
+  if(CMAKE_USES_STD AND NOT "${CMAKE_CXX_FLAG}" STREQUAL "${ROOT_CXX_FLAG}")
+    if(_cmake_rank GREATER _root_rank)
+      string(REGEX REPLACE ${CMAKE_CXX_FLAG_RE} ${ROOT_CXX_FLAG} CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+      set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} PARENT_SCOPE)
+      set(GAMBIT_SUPPORTS_CXX${CMAKE_STD} FALSE PARENT_SCOPE)
+      set(GAMBIT_SUPPORTS_CXX${ROOT_STD} TRUE PARENT_SCOPE)
+    elseif(_cmake_rank EQUAL _root_rank)
+      string(REGEX REPLACE ${CMAKE_CXX_FLAG_RE} ${ROOT_CXX_FLAG} CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+      set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} PARENT_SCOPE)
+      set(GAMBIT_SUPPORTS_CXX${ROOT_STD} TRUE PARENT_SCOPE)
+      if(_root_rank EQUAL 17)
+        set(GAMBIT_SUPPORTS_CXX17 TRUE PARENT_SCOPE)
+        set(GAMBIT_SUPPORTS_CXX1z TRUE PARENT_SCOPE)
+      endif()
+    endif()
   endif()
-  # Downgrade -std flag in BACKEND_CXX_FLAGS
-  if(DOWNGRADE_BACKEND_STD)
-    string(REGEX REPLACE ${BACKEND_CXX_FLAG_RE} ${ROOT_CXX_FLAG} BACKEND_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
-    set(BACKEND_CXX_FLAGS ${BACKEND_CXX_FLAGS} PARENT_SCOPE)
+  if(BACKEND_USES_STD AND NOT "${BACKEND_CXX_FLAG}" STREQUAL "${ROOT_CXX_FLAG}")
+    if(_backend_rank GREATER _root_rank OR _backend_rank EQUAL _root_rank)
+      string(REGEX REPLACE ${BACKEND_CXX_FLAG_RE} ${ROOT_CXX_FLAG} BACKEND_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+      set(BACKEND_CXX_FLAGS ${BACKEND_CXX_FLAGS} PARENT_SCOPE)
+    endif()
   endif()
-  # Make the detected ROOT_CXX_FLAG available to all who need it
+  set(ROOT_STD ${ROOT_STD} PARENT_SCOPE)
   set(ROOT_CXX_FLAG ${ROOT_CXX_FLAG} PARENT_SCOPE)
 endfunction()
 
@@ -420,6 +434,8 @@ option(WITH_SQLite3 "Compile with SQLite3 enabled" ON)
 if(WITH_SQLite3)
   find_package(SQLite3 QUIET COMPONENTS C)
   if(SQLite3_FOUND)
+    # GAMBIT's backend ditch logic historically looks for SQLITE3_FOUND.
+    set(SQLITE3_FOUND TRUE)
     include_directories(${SQLite3_INCLUDE_DIRS})
     message("-- Found SQLite3 libraries: ${SQLite3_LIBRARIES}")
     if(VERBOSE)

@@ -34,7 +34,37 @@ if(NOT DEFINED CMAKE_MACOSX_RPATH)
   set(CMAKE_MACOSX_RPATH 1)
 endif()
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+function(gambit_initialise_macos_deployment_target)
+  if(NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+    return()
+  endif()
+
+  # Keep one project-level deployment target.  Honour CMake's standard value
+  # on a fresh configure, otherwise use the active SDK as the local default.
+  set(MACOS_DEPLOYMENT_TARGET "${CMAKE_OSX_DEPLOYMENT_TARGET}" CACHE STRING
+      "Minimum macOS version for GAMBIT and all external packages")
+  if("${MACOS_DEPLOYMENT_TARGET}" STREQUAL "")
+    execute_process(
+      COMMAND xcrun --sdk macosx --show-sdk-version
+      OUTPUT_VARIABLE MACOS_DEPLOYMENT_TARGET
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET)
+    if("${MACOS_DEPLOYMENT_TARGET}" STREQUAL "")
+      message(FATAL_ERROR
+        "Cannot determine the macOS deployment target from the active SDK. "
+        "Set -DMACOS_DEPLOYMENT_TARGET=<version> explicitly.")
+    endif()
+    set(MACOS_DEPLOYMENT_TARGET "${MACOS_DEPLOYMENT_TARGET}" CACHE STRING
+        "Minimum macOS version for GAMBIT and all external packages" FORCE)
+  endif()
+
+  # CMake consumes this standard cache entry while project() enables languages.
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "${MACOS_DEPLOYMENT_TARGET}" CACHE STRING
+      "Minimum macOS version" FORCE)
+  message(STATUS "macOS deployment target: ${MACOS_DEPLOYMENT_TARGET}")
+endfunction()
+
+if(DEFINED PROJECT_NAME AND CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   # Tell the OSX linker not to whinge about missing symbols when just making a library.
   # Use the single-token -Wl, spelling: AppleClang and LLVM clang both accept it,
   # and tools that sort linker flags token-by-token (e.g. rivet-build) cannot
@@ -42,20 +72,22 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined,dynamic_lookup")
   # Strip leading whitespace in case this was first definition of CMAKE_SHARED_LINKER_FLAGS
   string(STRIP ${CMAKE_SHARED_LINKER_FLAGS} CMAKE_SHARED_LINKER_FLAGS)
-  # Pass on the sysroot and minimum OSX version (for backend builds; this gets added automatically by cmake for others)
-  if(CMAKE_OSX_DEPLOYMENT_TARGET)
-    set(OSX_MIN "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
-  endif()
+  # Pass the same sysroot and deployment target to Autotools and hand-written
+  # backend commands. CMake-native external projects receive the CMake argument
+  # below, so they use the same Darwin platform settings as GAMBIT itself.
+  set(OSX_MIN "-mmacosx-version-min=${MACOS_DEPLOYMENT_TARGET}")
   if ("${CMAKE_CXX_SYSROOT}" STREQUAL "")
     execute_process(COMMAND xcrun --sdk macosx --show-sdk-path OUTPUT_VARIABLE CMAKE_OSX_SYSROOT OUTPUT_STRIP_TRAILING_WHITESPACE)
   endif()
-  message("Using this MacOS SDK ${CMAKE_OSX_SYSROOT}")
+  message(STATUS "Using this macOS SDK ${CMAKE_OSX_SYSROOT}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
   string(STRIP ${CMAKE_CXX_FLAGS} CMAKE_CXX_FLAGS)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
   string(STRIP ${CMAKE_C_FLAGS} CMAKE_C_FLAGS)
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} -L${CMAKE_OSX_SYSROOT}/usr/lib ${OSX_MIN}")
   string(STRIP ${CMAKE_SHARED_LINKER_FLAGS} CMAKE_SHARED_LINKER_FLAGS)
+  set(GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG
+      "-DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOS_DEPLOYMENT_TARGET}")
 endif()
 
 # Detect Homebrew libomp for macOS LLVM builds.
@@ -81,25 +113,24 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang
       get_filename_component(_GAMBIT_BREW_LLVM_CXX_REALPATH "${_GAMBIT_BREW_LLVM_PREFIX}/bin/clang++" REALPATH)
       if("${_GAMBIT_CXX_COMPILER_REALPATH}" STREQUAL "${_GAMBIT_BREW_LLVM_CXX_REALPATH}"
          AND EXISTS "${BREW_LIBOMP_PREFIX}/lib/libomp.dylib")
-        set(OpenMP_C_FLAGS "-Xclang -fopenmp -I${BREW_LIBOMP_PREFIX}/include" CACHE STRING "C compiler flags for OpenMP parallelization" FORCE)
-        set(OpenMP_CXX_FLAGS "-Xclang -fopenmp -I${BREW_LIBOMP_PREFIX}/include" CACHE STRING "CXX compiler flags for OpenMP parallelization" FORCE)
+        set(OpenMP_C_FLAGS "-fopenmp=libomp -I${BREW_LIBOMP_PREFIX}/include" CACHE STRING "C compiler flags for OpenMP parallelization" FORCE)
+        set(OpenMP_CXX_FLAGS "-fopenmp=libomp -I${BREW_LIBOMP_PREFIX}/include" CACHE STRING "CXX compiler flags for OpenMP parallelization" FORCE)
         set(OpenMP_C_LIB_NAMES "omp" CACHE STRING "C compiler libraries for OpenMP parallelization" FORCE)
         set(OpenMP_CXX_LIB_NAMES "omp" CACHE STRING "CXX compiler libraries for OpenMP parallelization" FORCE)
         set(OpenMP_omp_LIBRARY "${BREW_LIBOMP_PREFIX}/lib/libomp.dylib" CACHE FILEPATH "Path to the omp library for OpenMP" FORCE)
         set(GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP_LDFLAGS "-L${BREW_LIBOMP_PREFIX}/lib")
         set(GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP TRUE)
+        include_directories("${BREW_LIBOMP_PREFIX}/include")
         message(STATUS "Using Homebrew libomp for Homebrew LLVM from ${BREW_LIBOMP_PREFIX}")
       endif()
     endif()
   endif()
 endif()
 
-# Settings specific to using the clang compiler on MacOS
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-  # Added Feb 2023 due to MacOS clang/ld chained-fixup linking problems.
-  # See discussion in CPython forums and bug report to apple:
-  # https://github.com/python/cpython/issues/97524
-  # Same ld option as "-Xlinker -no_fixup_chains", written as one token so
-  # rivet-build's flag sort cannot split it.
-  set(NO_FIXUP_CHAINS "-Wl,-no_fixup_chains")
+# ld64 chained-fixup workaround; AppleClang and upstream LLVM share this linker.
+# Single-token -Wl, form so rivet-build cannot split it.
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set(NO_FIXUP_CHAINS "-Wl,-no_fixup_chains")
+  endif()
 endif()

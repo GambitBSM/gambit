@@ -41,6 +41,10 @@
 #          (anders.kvellestad@fys.uio.no)
 #  \date 2023 Mar
 #
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Aug
+#
 #************************************************
 
 include(CMakeParseArguments)
@@ -303,22 +307,59 @@ macro(use_contributed_pybind11)
   add_dependencies(nuke-contrib nuke-pybind11)
 endmacro()
 
+# Drop OpenMP flags that autotools/libtool backends cannot consume.
+# GAMBIT itself keeps OpenMP via CMAKE_<LANG>_FLAGS.  Do not strip a bare
+# -fopenmp on GNU/Linux; only AppleClang splits -Xclang -fopenmp that way.
+function(gambit_strip_openmp_from_flags flags_var)
+  set(_flags "${${flags_var}}")
+  string(REGEX REPLACE "-Xclang -fopenmp|-fopenmp=libomp" "" _flags "${_flags}")
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    string(REGEX REPLACE "(^| )-fopenmp( |$)" "\\1" _flags "${_flags}")
+  endif()
+  string(STRIP "${_flags}" _flags)
+  set(${flags_var} "${_flags}" PARENT_SCOPE)
+endfunction()
+
+# Homebrew LLVM on macOS: true when a contrib dylib is linked to a different
+# libomp than GAMBIT.  No-op on Linux and AppleClang.
+function(gambit_openmp_runtime_mismatch library result)
+  set(${result} FALSE PARENT_SCOPE)
+  if(NOT GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP OR NOT EXISTS "${library}")
+    return()
+  endif()
+  find_program(_GAMBIT_OTOOL_EXECUTABLE NAMES otool)
+  if(NOT _GAMBIT_OTOOL_EXECUTABLE)
+    return()
+  endif()
+  execute_process(
+    COMMAND "${_GAMBIT_OTOOL_EXECUTABLE}" -L "${library}"
+    OUTPUT_VARIABLE _GAMBIT_LIBRARY_DEPENDENCIES
+    ERROR_QUIET
+  )
+  string(FIND "${_GAMBIT_LIBRARY_DEPENDENCIES}" "${OpenMP_omp_LIBRARY}" _GAMBIT_OPENMP_MATCH)
+  if(_GAMBIT_LIBRARY_DEPENDENCIES MATCHES "libomp[.]dylib" AND _GAMBIT_OPENMP_MATCH EQUAL -1)
+    set(${result} TRUE PARENT_SCOPE)
+  endif()
+endfunction()
+
 # Function to add GAMBIT executable
 function(normalise_gambit_link_libraries output_var)
   set(normalised_libraries)
   foreach(link_item ${ARGN})
+    set(_keep_link_item TRUE)
     if("${link_item}" STREQUAL "-L")
-      continue()
-    endif()
-    if("${link_item}" MATCHES "^-L(.+)$")
+      set(_keep_link_item FALSE)
+    elseif("${link_item}" MATCHES "^-L(.+)$")
       set(link_dir "${CMAKE_MATCH_1}")
       if(EXISTS "${link_dir}" AND NOT IS_DIRECTORY "${link_dir}")
-        continue()
+        set(_keep_link_item FALSE)
       endif()
     endif()
-    list(FIND normalised_libraries "${link_item}" existing_item)
-    if(existing_item EQUAL -1)
-      list(APPEND normalised_libraries "${link_item}")
+    if(_keep_link_item)
+      list(FIND normalised_libraries "${link_item}" existing_item)
+      if(existing_item EQUAL -1)
+        list(APPEND normalised_libraries "${link_item}")
+      endif()
     endif()
   endforeach()
   set(${output_var} ${normalised_libraries} PARENT_SCOPE)
@@ -360,9 +401,7 @@ function(add_gambit_executable executablename LIBRARIES)
         set_target_properties(${executablename} PROPERTIES LINK_FLAGS ${MPI_Fortran_LINK_FLAGS})
     endif()
   endif()
-  # Let FindOpenMP provide both the compiler options and runtime library. This
-  # covers Homebrew LLVM on macOS, which uses -fopenmp=libomp rather than the
-  # AppleClang-specific -Xclang -fopenmp spelling.
+  # Homebrew LLVM uses -fopenmp=libomp; AppleClang still uses -Xclang -fopenmp.
   if(TARGET OpenMP::OpenMP_CXX)
     set(LIBRARIES ${LIBRARIES} OpenMP::OpenMP_CXX)
   elseif(OpenMP_omp_LIBRARY)
@@ -701,6 +740,7 @@ macro(gambit_find_python_module module)
       endif()
     endif()
     message(STATUS "FAILED to find Python module ${module}.")
+    set(PY_${module}_FOUND FALSE)
   endif()
 endmacro()
 
