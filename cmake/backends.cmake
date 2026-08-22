@@ -2139,12 +2139,8 @@ set(patch_dir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 set(patch "${patch_dir}/patch_${name}_${ver}.dif")
 ## Rivet needs to be compiled c++17, otherwise it will fail to compile
 set(ditch_if_absent "HepMC;YODA;c++17")
-## CBS preset discovery may already have validated Cython for the selected
-## interpreter. Reuse that result only in a CBS configuration; ordinary
-## GAMBIT configurations retain their historical direct module probe.
-if(NOT (CBS_PRESET_BUILD AND DEFINED PY_cython_FOUND))
-  gambit_find_python_module(cython)
-endif()
+## If cython is not installed disable the python extension
+gambit_find_python_module(cython)
 if(PY_cython_FOUND)
   set(pyext yes)
   #Note weird extra pypath due to weird behaviour of 3.1.8 on some operating systems.
@@ -2202,9 +2198,6 @@ endif()
 set(name "contur")
 set(ver "3.0.0")
 set(md5 "aee676621c6a2f4b66a94e456a96dac8")
-if(CBS_PRESET_BUILD)
-  set(CBS_RESOLVED_CONTUR_VERSION "${ver}")
-endif()
 set(_contur_build_command ${MAKE_PARALLEL} -C data/DB analyses.db)
 set(dl "https://gitlab.com/hepcedar/${name}/-/archive/${name}-${ver}/${name}-${name}-${ver}.tar.gz")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")

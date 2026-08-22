@@ -145,9 +145,6 @@ endif()
 
 set(name "restframes")
 set(ver "1.0.2")
-if(CBS_PRESET_BUILD)
-  set(CBS_RESTFRAMES_VERSION "${ver}")
-endif()
 set(dir "${PROJECT_SOURCE_DIR}/contrib/RestFrames-${ver}")
 if(WITH_RESTFRAMES)
   message("-- RestFrames-dependent analyses in ColliderBit will be activated.")
@@ -213,9 +210,6 @@ endif()
 
 set(name "hepmc")
 set(ver "3.2.5")
-if(CBS_PRESET_BUILD)
-  set(CBS_HEPMC_VERSION "${ver}")
-endif()
 set(HEPMC_PATH "${PROJECT_SOURCE_DIR}/contrib/HepMC3-${ver}")
 if(WITH_HEPMC)
   message("-- HepMC-dependent functions in ColliderBit will be activated.")
@@ -290,9 +284,6 @@ endif()
 
 set(name onnxruntime)
 set(ver 1.14.1)
-if(CBS_PRESET_BUILD)
-  set(CBS_ONNXRUNTIME_VERSION "${ver}")
-endif()
 set(dir ${PROJECT_SOURCE_DIR}/contrib/${name}-${ver})
 if (NOT EXCLUDE_ONNXRUNTIME)
   set(lib onnxruntime)
@@ -333,9 +324,6 @@ endif()
 
 set(name "yoda")
 set(ver "2.1.0")
-if(CBS_PRESET_BUILD)
-  set(CBS_YODA_VERSION "${ver}")
-endif()
 set(dir "${PROJECT_SOURCE_DIR}/contrib/YODA-${ver}")
 if(WITH_YODA)
   message("-- YODA-dependent functions in ColliderBit will be activated.")
@@ -364,9 +352,7 @@ if(NOT EXCLUDE_YODA)
   set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3")
   string(REGEX REPLACE "-Xclang -fopenmp" "" YODA_C_FLAGS "${YODA_C_FLAGS}")
   string(REGEX REPLACE "-Xclang -fopenmp" "" YODA_CXX_FLAGS "${YODA_CXX_FLAGS}")
-  # AppleClang (cbs on macOS): libtool can leak a bare -fopenmp after it
-  # splits the pair.  Do not strip -fopenmp on LLVM (cbs-llvm); that would
-  # mangle -fopenmp=libomp.
+  # AppleClang's libtool can leak a bare -fopenmp after it splits the pair.
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     string(REGEX REPLACE "(^| )-fopenmp( |$)" "\\1" YODA_C_FLAGS "${YODA_C_FLAGS}")
     string(REGEX REPLACE "(^| )-fopenmp( |$)" "\\1" YODA_CXX_FLAGS "${YODA_CXX_FLAGS}")
@@ -382,9 +368,8 @@ if(NOT EXCLUDE_YODA)
   if(YODA_OPENMP_RUNTIME_MISMATCH)
     message("   YODA links a different OpenMP runtime and will be rebuilt.")
   endif()
-  # contrib/YODA is in-source.  A tree configured under cbs-llvm can leave
-  # -fopenmp in .la files that make clean will not regenerate.  Drop the
-  # ExternalProject configure stamp so the next build re-runs configure.
+  # contrib/YODA is in-source.  Stale .la metadata can retain -fopenmp after
+  # a toolchain change; make clean does not regenerate the configure stamp.
   set(YODA_STALE_OPENMP_METADATA FALSE)
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     file(GLOB_RECURSE YODA_LA_FILES "${dir}/*.la")
@@ -406,12 +391,7 @@ if(NOT EXCLUDE_YODA)
     set(YODA_BUILD_COMMAND ${MAKE_SERIAL} clean
                            COMMAND ${MAKE_PARALLEL} CC="${CMAKE_C_COMPILER}" CXX="${CMAKE_CXX_COMPILER}")
   endif()
-  # CBS preset discovery may already have validated Cython for the selected
-  # interpreter. Reuse that result only in a CBS configuration; ordinary
-  # GAMBIT configurations retain their historical direct module probe.
-  if(NOT (CBS_PRESET_BUILD AND DEFINED PY_cython_FOUND))
-    gambit_find_python_module(cython)
-  endif()
+  gambit_find_python_module(cython)
   if(PY_cython_FOUND)
     set(pyext yes)
     message("   Backends depending on YODA's python extension will be enabled.")
@@ -442,7 +422,7 @@ endif()
 
 # FastJet / fjcontrib; include only if ColliderBit is in use.
 # FastJet 3.5.1 + fjcontrib 1.101 are required for Rivet 4 (C++ plugins,
-# SoftDrop/LundPlane). CBS and ordinary GAMBIT cmake .. share this pair.
+# SoftDrop/LundPlane).
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(fastjet_name "fastjet")
   set(fjcontrib_name "fjcontrib")
@@ -450,10 +430,6 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(fastjet_md5 "bfefd2ce16232cbd571b6d9d68f702d6")
   set(fjcontrib_ver "1.101")
   set(fjcontrib_md5 "7397da82cf31a719e56cec0035d8072b")
-  if(CBS_PRESET_BUILD)
-    set(CBS_FASTJET_VERSION "${fastjet_ver}")
-    set(CBS_FJCONTRIB_VERSION "${fjcontrib_ver}")
-  endif()
   set(fastjet_dl "https://fastjet.fr/repo/fastjet-${fastjet_ver}.tar.gz")
   set(fastjet_path "${PROJECT_SOURCE_DIR}/contrib/fastjet-${fastjet_ver}")
   set(fastjet_DIR "${fastjet_path}/local")
