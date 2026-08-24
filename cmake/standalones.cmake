@@ -43,6 +43,10 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   # the link order so its constructor can quiet RestFrames for CBS CLI paths.
   add_library(cbs_preload SHARED
     "${PROJECT_SOURCE_DIR}/ColliderBit/examples/cbs_preload.cpp")
+  set_target_properties(cbs_preload PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/contrib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/contrib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/contrib")
   add_standalone(CBS
     SOURCES ColliderBit/examples/solo.cpp ColliderBit/examples/solo_cli.cpp
             ColliderBit/examples/solo_input.cpp ColliderBit/examples/solo_batch.cpp
