@@ -101,6 +101,12 @@ macro(cbs_preset_attach_optional_backends)
   set(CBS_RIVET_CONTUR_ENABLED FALSE)
   if(TARGET CBS AND CBS_WITH_RIVET_CONTUR)
     if(CBS_RIVET_CONTUR_PREREQUISITES_FOUND AND TARGET rivet AND TARGET contur)
+      # BOSS writes Rivet's frontend headers.  Make the normal GAMBIT header
+      # harvest wait for that write, otherwise a parallel first CBS build can
+      # compile against the old headers and need a full second compilation.
+      if(TARGET cbs_rivet_boss_headers AND TARGET backend_harvest)
+        add_dependencies(backend_harvest cbs_rivet_boss_headers)
+      endif()
       add_dependencies(CBS rivet contur)
       set(CBS_RIVET_CONTUR_ENABLED TRUE)
     elseif(NOT CBS_RIVET_CONTUR_PREREQUISITES_REASON)

@@ -2167,10 +2167,7 @@ if(NOT ditched_${name}_${ver})
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND ${CMAKE_COMMAND}
-      -DPATCH_FILE=${patch}
-      -DPATCH_WORKING_DIRECTORY=${dir}
-      -P ${PROJECT_SOURCE_DIR}/cmake/scripts/apply_patch_if_needed.cmake
+    PATCH_COMMAND patch --batch --forward -p1 -i "${patch}"
     CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} CPPFLAGS=${Rivet_CPP_FLAGS} PYTHON=${Python3_EXECUTABLE} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} --with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
           COMMAND ${CMAKE_COMMAND} -E echo "Rivet_dirs=\"${Rivet_dirs}\"" > touch_files.sh
           COMMAND sh -c "cat ${patch_dir}/touch_files.sh" >> touch_files.sh
@@ -2179,6 +2176,24 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} libRivet.so
     INSTALL_COMMAND ""
   )
+  # Rivet sources live outside ExternalProject's stamp tree.  Reconstruct the
+  # source directory whenever this patch input changes, so PATCH_COMMAND always
+  # runs on an unmodified tarball extraction.
+  set(_rivet_reset_input "${PROJECT_BINARY_DIR}/rivet_4.1.0-reset-input.txt")
+  file(GENERATE
+    OUTPUT "${_rivet_reset_input}"
+    CONTENT "url=${dl}\nmd5=${md5}\npatch=${patch}\npatch_command=patch --batch --forward -p1 -i ${patch}\n")
+  ExternalProject_Add_Step(${name}_${ver} reset_source
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "${dir}"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${dir}"
+    COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DEPENDEES update
+    DEPENDERS patch
+    DEPENDS "${_rivet_reset_input}" "${patch}"
+    INDEPENDENT TRUE
+    WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
+  )
+  unset(_rivet_reset_input)
   # FindHDF5 may return more than one include directory (for example HDF5 and
   # libaec with Homebrew). Pass each directory as its own BOSS option so none
   # of the paths can be mistaken for the positional BOSS config-module name.
@@ -2190,6 +2205,16 @@ if(NOT ditched_${name}_${ver})
   endforeach()
   list(REMOVE_DUPLICATES _rivet_boss_include_options)
   BOSS_backend(${name} ${ver} ${_rivet_boss_include_options})
+  # CBS compiles against Rivet's BOSS-generated frontend.  Export the BOSS
+  # step as a target so the CBS preset can order backend harvesting after the
+  # generated headers are final.
+  if(CBS_PRESET_BUILD)
+    set(_cbs_rivet_boss_stamp
+        "${CMAKE_BINARY_DIR}/${name}_${ver}-prefix/src/${name}_${ver}-stamp/${name}_${ver}-BOSS")
+    add_custom_target(cbs_rivet_boss_headers DEPENDS "${_cbs_rivet_boss_stamp}")
+    add_dependencies(${name}_${ver} cbs_rivet_boss_headers)
+    unset(_cbs_rivet_boss_stamp)
+  endif()
   unset(_rivet_boss_include_options)
   unset(_rivet_include_dir)
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)

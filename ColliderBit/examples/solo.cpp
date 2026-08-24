@@ -36,6 +36,7 @@
 #include <cstring>
 #include <iostream>
 #include <limits>
+#include <sstream>
 #include <utility>
 
 #define NULIKE_VERSION "1.0.9"
@@ -56,6 +57,22 @@ using namespace CAT(Backends::ATLAS_FullLikes_,FULLLIKES_SAFE_VERSION)::Functown
 using namespace CAT(Backends::Contur_,CONTUR_SAFE_VERSION)::Functown;
 using namespace CAT(Backends::Rivet_,RIVET_SAFE_VERSION)::Functown;
 
+namespace
+{
+  std::string format_analysis_list(const std::vector<std::string>& analyses)
+  {
+    if (analyses.empty()) return "(none)";
+
+    std::ostringstream formatted;
+    for (std::size_t index = 0; index < analyses.size(); ++index)
+    {
+      if (index != 0) formatted << ", ";
+      formatted << analyses[index];
+    }
+    return formatted.str();
+  }
+}
+
 // Helper function to check if setting in CBS yaml and then set it
 // TODO: It would be nice also to template final arg as Gambit::module_functor<typename T>. I think this breaks setOption is itself a templated function?
 template <typename Tsetting>
@@ -71,6 +88,7 @@ bool apply_setting_if_present(const std::string &setting, Options& settings, Gam
 /// ColliderBit Solo main program
 int main(int argc, char* argv[])
 {
+  bool cbs_logs_initialised = false;
   try
   {
     ColliderBit::SoloCLI::CommandLineOptions command_line_options;
@@ -137,6 +155,11 @@ int main(int argc, char* argv[])
     // Read input file name
     const std::string& filename_in = command_line_options.filename;
 
+    // Input preparation reads the first HepMC event, so initialise logs before
+    // it in order to retain any run-condition failure in CBS_logs.
+    initialise_standalone_logs("CBS_logs/");
+    cbs_logs_initialised = true;
+
     // Read and prepare the settings in the input file
     ColliderBit::SoloInput::PreparedInput prepared_input;
     prepared_input = ColliderBit::SoloInput::parse_and_prepare_input(filename_in);
@@ -155,25 +178,63 @@ int main(int argc, char* argv[])
     // Initialise logs before reporting input validation results.  This is also
     // before batch-mode dispatch, so both CBS execution paths report them.
     logger().set_log_debug_messages(debug);
-    initialise_standalone_logs("CBS_logs/");
     logger()<<"Running CBS"<<LogTags::info<<EOM;
+    for (std::size_t index = 0; index < prepared_input.hepmc_filenames.size(); ++index)
+    {
+      const ColliderBit::SoloInput::HepMCRunInfo& run_info =
+        prepared_input.hepmc_run_infos.at(index);
+      std::ostringstream message;
+      message<<"CBS HepMC file "<<(index + 1)<<"/"<<prepared_input.hepmc_filenames.size()
+             <<": "<<prepared_input.hepmc_filenames[index]
+             <<"; beams ("<<run_info.beam_pid_1<<", "<<run_info.beam_pid_2<<") at ("
+             <<run_info.beam_energy_1_GeV<<", "<<run_info.beam_energy_2_GeV
+             <<") GeV; sqrt(s) = "<<run_info.collision_energy_TeV<<" TeV; verified.";
+      if (!suppress_startup_banner)
+      {
+        logger()<<LogTags::repeat_to_cout<<LogTags::info<<message.str()<<EOM;
+      }
+      else
+      {
+        logger()<<LogTags::info<<message.str()<<EOM;
+      }
+    }
+    logger()<<LogTags::info<<"CBS run-condition tolerances: sqrt(s) "
+            <<settings.getValueOrDef<double>(1.0, "collision_energy_tolerance_GeV")
+            <<" GeV; beam energies "
+            <<settings.getValueOrDef<double>(1.0, "beam_energy_tolerance_GeV")
+            <<" GeV or "
+            <<settings.getValueOrDef<double>(1.0e-3, "beam_energy_relative_tolerance")
+            <<" relative."<<EOM;
+    logger()<<LogTags::info<<"CBS native analyses requested ("
+            <<prepared_input.requested_analyses.size()<<"): "
+            <<format_analysis_list(prepared_input.requested_analyses)<<EOM;
+    logger()<<LogTags::info<<"CBS native analyses enabled after run-condition matching ("
+            <<analyses.size()<<"): "<<format_analysis_list(analyses)<<EOM;
     if (!suppress_startup_banner)
     {
-      logger()<<"CBS collision energy: sqrt(s) = "
-              <<prepared_input.collision_energy_TeV<<" TeV"<<LogTags::info<<EOM;
-      logger()<<"CBS analyses enabled after energy matching: "
-              <<analyses.size()<<LogTags::info<<EOM;
+      logger()<<LogTags::repeat_to_cout<<LogTags::info
+              <<"CBS native analyses: "<<prepared_input.requested_analyses.size()
+              <<" requested, "<<analyses.size()<<" enabled after matching all "
+              <<prepared_input.hepmc_filenames.size()<<" HepMC input file"
+              <<(prepared_input.hepmc_filenames.size() == 1 ? "" : "s")<<"."
+              <<EOM;
     }
     for (const str& warning : prepared_input.analysis_warnings)
     {
-      std::cerr << "WARNING: " << warning << std::endl;
-      logger()<<warning<<LogTags::info<<EOM;
+      if (!suppress_startup_banner)
+      {
+        logger()<<LogTags::repeat_to_cerr<<LogTags::warn<<warning<<EOM;
+      }
+      else
+      {
+        logger()<<LogTags::warn<<warning<<EOM;
+      }
     }
     if (analyses.empty())
     {
       throw std::runtime_error(
-        "No requested analyses remain after CBS validation and collision-energy filtering. "
-        "Select analyses marked Validation: passed whose Ecm_TeV matches the HepMC input.");
+        "No requested analyses remain after CBS validation and run-condition filtering. "
+        "Select analyses marked Validation: passed whose beam/run metadata matches the HepMC input.");
     }
 
     // CBS provides its own concise startup output.
@@ -264,6 +325,21 @@ int main(int argc, char* argv[])
     catch (YAML::Exception &e)
     {
       throw std::runtime_error("YAML error in "+filename_in+".\n(yaml-cpp error: "+std::string(e.what())+" )");
+    }
+
+    if (withRivet)
+    {
+      const std::vector<std::string> rivet_analyses =
+        rivet_settings.getValue<std::vector<std::string>>("analyses");
+      logger()<<LogTags::info<<"CBS Rivet analyses requested ("<<rivet_analyses.size()<<"): "
+              <<format_analysis_list(rivet_analyses)<<EOM;
+      if (!suppress_startup_banner)
+      {
+        logger()<<LogTags::repeat_to_cout<<LogTags::info
+                <<"CBS Rivet: "<<rivet_analyses.size()
+                <<" requested analyses; Rivet will apply first-event beam matching."
+                <<EOM;
+      }
     }
 
     ColliderBit::SoloOutput::OutputConfig output_config;
@@ -368,20 +444,6 @@ int main(int argc, char* argv[])
       return 0;
     }
 
-    // Choose the event file reader according to file format
-    if (debug)
-    {
-      if (prepared_input.hepmc_filenames.size() == 1)
-      {
-        cout << "Reading HepMC file: " << prepared_input.hepmc_filenames.front() << endl;
-        cout << "HepMC collision energy: sqrt(s) = "
-             << prepared_input.collision_energy_TeV << " TeV" << endl;
-      }
-      else
-      {
-        cout << "Reading " << prepared_input.hepmc_filenames.size() << " HepMC files." << endl;
-      }
-    }
     auto& getEvent = getHepMCEvent;
     auto& convertEvent = convertHepMCEvent_HEPUtils;
     auto& AnalysisNumbers = CollectAnalyses;
@@ -415,6 +477,33 @@ int main(int argc, char* argv[])
     // Pass the event filename and the jet pt cutoff to the HepMC reader/HEPUtils converter function
     getEvent.setOption<str>("hepmc_filename", prepared_input.hepmc_filenames.front());
     convertEvent.setOption<double>("jet_pt_min", jet_pt_min);
+
+    // CBS follows Rivet's run-condition convention: the first physical event
+    // defines the run, and every later event must keep the same beams and sqrt(s).
+    getEvent.setOption<bool>("cbs_normalize_hepmc_units", true);
+    getEvent.setOption<bool>("cbs_check_hepmc_run", true);
+    getEvent.setOption<std::vector<int>>(
+      "cbs_reference_beam_ids",
+      {prepared_input.run_info.beam_pid_1, prepared_input.run_info.beam_pid_2}
+    );
+    getEvent.setOption<std::vector<double>>(
+      "cbs_reference_beam_energies_GeV",
+      {prepared_input.run_info.beam_energy_1_GeV, prepared_input.run_info.beam_energy_2_GeV}
+    );
+    getEvent.setOption<double>("cbs_reference_collision_energy_TeV",
+                               prepared_input.run_info.collision_energy_TeV);
+    getEvent.setOption<double>(
+      "cbs_collision_energy_tolerance_TeV",
+      settings.getValueOrDef<double>(1.0, "collision_energy_tolerance_GeV") / 1000.0
+    );
+    getEvent.setOption<double>(
+      "cbs_beam_energy_tolerance_GeV",
+      settings.getValueOrDef<double>(1.0, "beam_energy_tolerance_GeV")
+    );
+    getEvent.setOption<double>(
+      "cbs_beam_energy_relative_tolerance",
+      settings.getValueOrDef<double>(1.0e-3, "beam_energy_relative_tolerance")
+    );
 
     // Pass the jet collections yaml node to the hepMC reader/HEPUtils converter function
     getEvent.setOption<std::string>("jet_collection_taus", jet_collection_taus);
@@ -610,7 +699,15 @@ int main(int argc, char* argv[])
 
   catch (std::exception& e)
   {
-    cerr << "CBS has exited with fatal exception: " << e.what() << endl;
+    if (cbs_logs_initialised)
+    {
+      logger()<<LogTags::repeat_to_cerr<<LogTags::err
+              <<"CBS has exited with fatal exception: "<<e.what()<<EOM;
+    }
+    else
+    {
+      cerr << "CBS has exited with fatal exception: " << e.what() << endl;
+    }
   }
 
   // Finished, but an exception was raised.
