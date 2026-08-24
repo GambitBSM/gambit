@@ -11,10 +11,17 @@
 #include "gambit/ColliderBit/analyses/AnalysisContainer.hpp"
 #include "gambit/cmake/cmake_variables.hpp"
 
+#include "HepMC3/GenEvent.h"
+#include "HepMC3/GenParticle.h"
+#include "HepMC3/ReaderAscii.h"
+#include "HepMC3/ReaderAsciiHepMC2.h"
+
 #include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <cstdlib>
+#include <fstream>
+#include <iomanip>
 #include <sstream>
 #include <stdexcept>
 
@@ -34,6 +41,18 @@ namespace Gambit
           double xsec_uncert_fb = 0.0;
         };
 
+        struct HepMCFileInspection
+        {
+          str filename;
+          double collision_energy_TeV = 0.0;
+        };
+
+        enum class HepMCFileFormat
+        {
+          HepMC2,
+          HepMC3
+        };
+
         bool is_supported_hepmc_file(const str& filename)
         {
           return Gambit::Utils::endsWith(filename, ".hepmc")
@@ -48,10 +67,257 @@ namespace Gambit
           return value;
         }
 
+        std::string analysis_info_file(const str& analysis)
+        {
+          return std::string(GAMBIT_DIR) + "/ColliderBit/src/analyses/Analysis_" + analysis + ".info";
+        }
+
+        std::string format_energy_TeV(double energy_TeV)
+        {
+          std::ostringstream formatted;
+          formatted << std::fixed << std::setprecision(6) << energy_TeV << " TeV";
+          return formatted.str();
+        }
+
+        HepMCFileFormat get_hepmc_file_format(const str& filename)
+        {
+          std::ifstream infile(filename);
+          if (!infile)
+          {
+            throw std::runtime_error("Could not open HepMC event file " + filename + " for collision-energy inspection.");
+          }
+
+          std::string line;
+          while (std::getline(infile, line))
+          {
+            if (line.empty()) continue;
+
+            const std::string short_line = line.substr(0, 16);
+            if (short_line == "HepMC::Version 2")
+            {
+              return HepMCFileFormat::HepMC2;
+            }
+            if (short_line == "HepMC::Version 3")
+            {
+              if (!std::getline(infile, line))
+              {
+                throw std::runtime_error("Could not determine HepMC text format in " + filename + ".");
+              }
+
+              const std::string text_format = line.substr(0, 14);
+              if (text_format == "HepMC::Asciiv3")
+              {
+                return HepMCFileFormat::HepMC3;
+              }
+              if (text_format == "HepMC::IO_GenE")
+              {
+                return HepMCFileFormat::HepMC2;
+              }
+
+              throw std::runtime_error(
+                "Could not determine HepMC text format from '" + text_format
+                + "' in " + filename + "."
+              );
+            }
+
+            throw std::runtime_error(
+              "Could not determine HepMC version from '" + short_line
+              + "' in " + filename + "."
+            );
+          }
+
+          throw std::runtime_error("HepMC event file " + filename + " is empty.");
+        }
+
+        double collision_energy_TeV(const HepMC3::GenEvent& event, const str& filename)
+        {
+          const std::vector<HepMC3::ConstGenParticlePtr> beams = event.beams();
+          if (beams.size() != 2 || !beams[0] || !beams[1])
+          {
+            throw std::runtime_error(
+              "HepMC event file " + filename
+              + " does not provide exactly two valid beam particles in its first event; "
+                "CBS cannot determine the collision energy."
+            );
+          }
+
+          HepMC3::FourVector beam_sum = beams[0]->momentum() + beams[1]->momentum();
+          if (event.momentum_unit() == HepMC3::Units::MEV)
+          {
+            beam_sum *= 0.001;
+          }
+
+          const double s_GeV2 = beam_sum.m2();
+          if (!std::isfinite(s_GeV2) || s_GeV2 <= 0.0)
+          {
+            throw std::runtime_error(
+              "HepMC event file " + filename
+              + " has a non-positive beam invariant mass squared; CBS cannot determine the collision energy."
+            );
+          }
+
+          const double result = std::sqrt(s_GeV2) / 1000.0;
+          if (!std::isfinite(result) || result <= 0.0)
+          {
+            throw std::runtime_error(
+              "HepMC event file " + filename
+              + " has an invalid collision energy derived from its beam particles."
+            );
+          }
+          return result;
+        }
+
+        HepMCFileInspection inspect_hepmc_file(const str& filename)
+        {
+          HepMC3::GenEvent event;
+          bool event_retrieved = false;
+
+          switch (get_hepmc_file_format(filename))
+          {
+            case HepMCFileFormat::HepMC2:
+            {
+              HepMC3::ReaderAsciiHepMC2 reader(filename);
+              event_retrieved = reader.read_event(event);
+              break;
+            }
+            case HepMCFileFormat::HepMC3:
+            {
+              HepMC3::ReaderAscii reader(filename);
+              event_retrieved = reader.read_event(event);
+              break;
+            }
+          }
+
+          if (!event_retrieved || (event.particles().empty() && event.vertices().empty()))
+          {
+            throw std::runtime_error(
+              "Could not read a physical first event from HepMC event file " + filename
+              + " while determining its collision energy."
+            );
+          }
+
+          HepMCFileInspection inspection;
+          inspection.filename = filename;
+          inspection.collision_energy_TeV = collision_energy_TeV(event, filename);
+          return inspection;
+        }
+
+        double get_collision_energy_tolerance_TeV(const Options& settings)
+        {
+          const double tolerance_GeV =
+            settings.getValueOrDef<double>(1.0, "collision_energy_tolerance_GeV");
+          if (!std::isfinite(tolerance_GeV) || tolerance_GeV < 0.0)
+          {
+            throw std::runtime_error("collision_energy_tolerance_GeV must be finite and >= 0.");
+          }
+          return tolerance_GeV / 1000.0;
+        }
+
+        bool collision_energies_match(double lhs_TeV, double rhs_TeV, double tolerance_TeV)
+        {
+          return std::abs(lhs_TeV - rhs_TeV) <= tolerance_TeV;
+        }
+
+        bool expected_collision_energy_TeV(const str& analysis, double& result, str& reason)
+        {
+          const std::string info_file = analysis_info_file(analysis);
+          if (!Gambit::Utils::file_exists(info_file))
+          {
+            reason = "its .info metadata file is missing";
+            return false;
+          }
+
+          try
+          {
+            const YAML::Node metadata = YAML::LoadFile(info_file);
+            const YAML::Node energy = metadata["Ecm_TeV"];
+            if (!energy || !energy.IsScalar())
+            {
+              reason = "its .info metadata has no scalar Ecm_TeV";
+              return false;
+            }
+
+            result = energy.as<double>();
+            if (!std::isfinite(result) || result <= 0.0)
+            {
+              reason = "its .info metadata has an invalid Ecm_TeV";
+              return false;
+            }
+          }
+          catch (const YAML::Exception& e)
+          {
+            reason = "its .info metadata could not provide Ecm_TeV (yaml-cpp error: "
+                     + std::string(e.what()) + ")";
+            return false;
+          }
+
+          return true;
+        }
+
+        void retain_energy_matched_analyses(PreparedInput& prepared,
+                                            const HepMCFileInspection& input,
+                                            double tolerance_TeV)
+        {
+          std::vector<str> retained_analyses;
+          retained_analyses.reserve(prepared.analyses.size());
+
+          for (const str& analysis : prepared.analyses)
+          {
+            double expected_energy_TeV = 0.0;
+            str reason;
+            if (!expected_collision_energy_TeV(analysis, expected_energy_TeV, reason))
+            {
+              prepared.analysis_warnings.push_back(
+                "CBS input: ignoring analysis '" + analysis
+                + "' because CBS cannot verify its collision energy; " + reason + "."
+              );
+              continue;
+            }
+
+            if (!collision_energies_match(input.collision_energy_TeV, expected_energy_TeV,
+                                           tolerance_TeV))
+            {
+              prepared.analysis_warnings.push_back(
+                "CBS input: ignoring analysis '" + analysis + "' because its Ecm_TeV is "
+                + format_energy_TeV(expected_energy_TeV) + " but HepMC file " + input.filename
+                + " is " + format_energy_TeV(input.collision_energy_TeV) + "."
+              );
+              continue;
+            }
+
+            retained_analyses.push_back(analysis);
+          }
+
+          prepared.analyses.swap(retained_analyses);
+        }
+
+        void validate_collision_energy(PreparedInput& prepared)
+        {
+          const double tolerance_TeV = get_collision_energy_tolerance_TeV(prepared.settings);
+          const HepMCFileInspection reference = inspect_hepmc_file(prepared.hepmc_filenames.front());
+          prepared.collision_energy_TeV = reference.collision_energy_TeV;
+
+          for (std::size_t index = 1; index < prepared.hepmc_filenames.size(); ++index)
+          {
+            const HepMCFileInspection inspected = inspect_hepmc_file(prepared.hepmc_filenames[index]);
+            if (!collision_energies_match(reference.collision_energy_TeV,
+                                          inspected.collision_energy_TeV, tolerance_TeV))
+            {
+              throw std::runtime_error(
+                "CBS input mixes HepMC collision energies: " + reference.filename + " is "
+                + format_energy_TeV(reference.collision_energy_TeV) + ", while " + inspected.filename
+                + " is " + format_energy_TeV(inspected.collision_energy_TeV) + "."
+              );
+            }
+          }
+
+          retain_energy_matched_analyses(prepared, reference, tolerance_TeV);
+          prepared.infile["analyses"] = prepared.analyses;
+        }
+
         bool passes_validation_policy(const str& analysis, str& reason)
         {
-          const std::string info_file =
-            std::string(GAMBIT_DIR) + "/ColliderBit/src/analyses/Analysis_" + analysis + ".info";
+          const std::string info_file = analysis_info_file(analysis);
           if (!Gambit::Utils::file_exists(info_file))
           {
             return true;
@@ -541,6 +807,8 @@ namespace Gambit
         {
           throw std::runtime_error("No HepMC files were prepared from input YAML.");
         }
+
+        validate_collision_energy(prepared);
 
         return prepared;
       }

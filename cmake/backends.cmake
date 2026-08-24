@@ -2167,7 +2167,10 @@ if(NOT ditched_${name}_${ver})
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND patch -p1 < ${patch}
+    PATCH_COMMAND ${CMAKE_COMMAND}
+      -DPATCH_FILE=${patch}
+      -DPATCH_WORKING_DIRECTORY=${dir}
+      -P ${PROJECT_SOURCE_DIR}/cmake/scripts/apply_patch_if_needed.cmake
     CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} CPPFLAGS=${Rivet_CPP_FLAGS} PYTHON=${Python3_EXECUTABLE} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} --with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
           COMMAND ${CMAKE_COMMAND} -E echo "Rivet_dirs=\"${Rivet_dirs}\"" > touch_files.sh
           COMMAND sh -c "cat ${patch_dir}/touch_files.sh" >> touch_files.sh

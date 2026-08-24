@@ -22,6 +22,9 @@ settings:
   check_cutflow: false
   seed: -1
   event_file: susy10.hepmc
+  # CBS reads sqrt(s) from the two HepMC beam particles and runs only analyses
+  # whose .info Ecm_TeV matches it. Input files must therefore record two beams.
+  collision_energy_tolerance_GeV: 1.0
   cross_section_pb: 1.0
   cross_section_fractional_uncert: 0.2
   use_lognormal_distribution_for_1d_systematic: true

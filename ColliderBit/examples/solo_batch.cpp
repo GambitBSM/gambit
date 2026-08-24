@@ -231,9 +231,6 @@ namespace Gambit
 
           settings_node["screen_output"] = false;
           settings_node["output"] = job.output_json_file.string();
-          // Suppress repeated FastJet banners from per-file subprocesses.
-          settings_node["suppress_fastjet_banner"] = true;
-
           root["settings"] = settings_node;
 
           if (prepared_input.infile["rivet-settings"] || prepared_input.infile["contur-settings"])

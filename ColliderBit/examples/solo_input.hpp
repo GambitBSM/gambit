@@ -46,6 +46,7 @@ namespace Gambit
 
         std::vector<str> hepmc_filenames;
 
+        double collision_energy_TeV = 0.0;
         double total_cross_section_fb = 0.0;
         double total_cross_section_uncert_fb = 0.0;
       };

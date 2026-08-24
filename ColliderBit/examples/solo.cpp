@@ -157,6 +157,13 @@ int main(int argc, char* argv[])
     logger().set_log_debug_messages(debug);
     initialise_standalone_logs("CBS_logs/");
     logger()<<"Running CBS"<<LogTags::info<<EOM;
+    if (!suppress_startup_banner)
+    {
+      logger()<<"CBS collision energy: sqrt(s) = "
+              <<prepared_input.collision_energy_TeV<<" TeV"<<LogTags::info<<EOM;
+      logger()<<"CBS analyses enabled after energy matching: "
+              <<analyses.size()<<LogTags::info<<EOM;
+    }
     for (const str& warning : prepared_input.analysis_warnings)
     {
       std::cerr << "WARNING: " << warning << std::endl;
@@ -165,16 +172,12 @@ int main(int argc, char* argv[])
     if (analyses.empty())
     {
       throw std::runtime_error(
-        "No requested analyses remain after CBS validation filtering. "
-        "Select analyses marked Validation: passed.");
+        "No requested analyses remain after CBS validation and collision-energy filtering. "
+        "Select analyses marked Validation: passed whose Ecm_TeV matches the HepMC input.");
     }
 
-    const bool suppress_fastjet_banner =
-      settings.getValueOrDef<bool>(false, "suppress_fastjet_banner");
-    if (suppress_fastjet_banner)
-    {
-      fastjet::ClusterSequence::set_fastjet_banner_stream(nullptr);
-    }
+    // CBS provides its own concise startup output.
+    fastjet::ClusterSequence::set_fastjet_banner_stream(nullptr);
     bool use_FullLikes = settings.getValueOrDef<bool>(false, "use_FullLikes");
     module_functor<ColliderBit::map_str_AnalysisLogLikes>* calcLogLikes =
       use_FullLikes ? &calc_LHC_LogLikes_full : &calc_LHC_LogLikes;
@@ -280,12 +283,6 @@ int main(int argc, char* argv[])
         throw std::runtime_error("settings.processes batch mode does not support rivet-settings/contur-settings.");
       }
 
-      // In batch mode each file is run in a subprocess; print FastJet banner only once here.
-      if (!suppress_fastjet_banner)
-      {
-        fastjet::ClusterSequence::print_banner();
-      }
-
       double (*marginaliser)(const int&, const double&, const double&, const double&) =
         use_lnpiln
           ? nulike_lnpiln.handoutFunctionPointer()
@@ -377,6 +374,8 @@ int main(int argc, char* argv[])
       if (prepared_input.hepmc_filenames.size() == 1)
       {
         cout << "Reading HepMC file: " << prepared_input.hepmc_filenames.front() << endl;
+        cout << "HepMC collision energy: sqrt(s) = "
+             << prepared_input.collision_energy_TeV << " TeV" << endl;
       }
       else
       {
