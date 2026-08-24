@@ -113,6 +113,9 @@ include_directories("${PROJECT_SOURCE_DIR}/contrib/slhaea/include")
 #contrib/mcutils
 include_directories("${PROJECT_SOURCE_DIR}/contrib/mcutils/include")
 
+#contrib/mvautils
+include_directories("${PROJECT_SOURCE_DIR}/contrib/mvautils/include/")
+
 #contrib/heputils
 include_directories("${PROJECT_SOURCE_DIR}/contrib/heputils/include")
 
