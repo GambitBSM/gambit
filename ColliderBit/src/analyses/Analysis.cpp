@@ -52,10 +52,10 @@ namespace Gambit
     }
 
     /// Analyze the event (accessed by reference).
-    void Analysis::analyze(const HEPUtils::Event &e) { analyze(&e); }
+    void Analysis::analyze(const HEPUtils::Event& e) { analyze(&e); }
 
     /// Analyze the event (accessed by pointer).
-    void Analysis::analyze(const HEPUtils::Event *e)
+    void Analysis::analyze(const HEPUtils::Event* e)
     {
       _needs_collection = true;
       run(e);
@@ -94,7 +94,7 @@ namespace Gambit
     str Analysis::collider_name() { return _collider_name; }
 
     /// Get the collection of SignalRegionData for likelihood computation.
-    const AnalysisData &Analysis::get_results()
+    const AnalysisData& Analysis::get_results()
     {
       if (_needs_collection)
       {
@@ -106,7 +106,7 @@ namespace Gambit
     }
 
     /// An overload of get_results() with some additional consistency checks.
-    const AnalysisData &Analysis::get_results(str &warning)
+    const AnalysisData& Analysis::get_results(str& warning)
     {
       warning = "";
       if (not _luminosity_is_set) warning += "Luminosity has not been set for analysis " + _analysis_name + ".";
@@ -116,7 +116,7 @@ namespace Gambit
     }
 
     /// Get a (non-const!) pointer to _results.
-    AnalysisData *Analysis::get_results_ptr()
+    AnalysisData* Analysis::get_results_ptr()
     {
       // Call get_results() to make sure everything has been collected properly, but ignore the return value
       get_results();
@@ -125,7 +125,7 @@ namespace Gambit
     }
 
     /// An overload of get_results_ptr() with some additional consistency checks.
-    AnalysisData *Analysis::get_results_ptr(str &warning)
+    AnalysisData* Analysis::get_results_ptr(str& warning)
     {
       // Call get_results() to make sure everything has been collected properly, but ignore the return value
       get_results(warning);
@@ -134,28 +134,28 @@ namespace Gambit
     }
 
     /// Add the given result to the internal results list.
-    void Analysis::add_result(const SignalRegionData &sr) { _results.add(sr); }
+    void Analysis::add_result(const SignalRegionData& sr) { _results.add(sr); }
 
     /// Get the cutflows
-    const Cutflows &Analysis::get_cutflows() { return _results.cutflows; }
+    const Cutflows& Analysis::get_cutflows() { return _results.cutflows; }
 
     /// Add cutflows to the internal results list
-    void Analysis::add_cutflows(const Cutflows &cf) { _results.add_cutflows(cf); }
+    void Analysis::add_cutflows(const Cutflows& cf) { _results.add_cutflows(cf); }
 
     /// Get the histograms
-    const Histograms &Analysis::get_histograms() { return _results.histograms; }
+    const Histograms& Analysis::get_histograms() { return _results.histograms; }
 
     /// Add histograms to the internal results list
-    void Analysis::add_histograms(const Histograms &h) { _results.add_histograms(h); }
+    void Analysis::add_histograms(const Histograms& h) { _results.add_histograms(h); }
 
     /// Set the path to the FullLikes BKG file
-    void Analysis::set_bkgjson(const std::string &bkgpath) { _results.bkgjson_path = bkgpath; }
+    void Analysis::set_bkgjson(const std::string& bkgpath) { _results.bkgjson_path = bkgpath; }
 
     /// Set the covariance matrix, expressing SR correlations
-    void Analysis::set_covariance(const Eigen::MatrixXd &srcov) { _results.srcov = srcov; }
+    void Analysis::set_covariance(const Eigen::MatrixXd& srcov) { _results.srcov = srcov; }
 
     /// A convenience function for setting the SR covariance from a nested vector/initialiser list
-    void Analysis::set_covariance(const std::vector<std::vector<double>> &srcov)
+    void Analysis::set_covariance(const std::vector<std::vector<double>>& srcov)
     {
       Eigen::MatrixXd cov(srcov.size(), srcov.front().size());
       for (size_t i = 0; i < srcov.size(); ++i)
@@ -170,13 +170,13 @@ namespace Gambit
     {
       double factor = luminosity() * xsec_per_event;
       assert(factor >= 0);
-      for (SignalRegionData &sr : _results) { sr.n_sig_scaled = factor * sr.n_sig_MC; }
+      for (SignalRegionData& sr : _results) { sr.n_sig_scaled = factor * sr.n_sig_MC; }
       _results.histograms.scale(factor);
       _is_scaled = true;
     }
 
     /// Add the results of another analysis to this one. Argument is not const, because the other needs to be able to gather its results if necessary.
-    void Analysis::add(Analysis *other)
+    void Analysis::add(Analysis* other)
     {
       if (_needs_collection || _results.empty())
       {
@@ -193,7 +193,7 @@ namespace Gambit
       assert(otherResults.size() == _results.size());
 
       for (size_t i = 0; i < _results.size(); ++i) { _results[i].combine_SR_MC_signal(otherResults[i]); }
-      for (auto &pair : _counters) { pair.second += other->_counters.at(pair.first); }
+      for (auto& pair : _counters) { pair.second += other->_counters.at(pair.first); }
 
       _results.cutflows.combine(otherResults.cutflows);
       _results.histograms.combine(otherResults.histograms);
