@@ -7,6 +7,11 @@
 // Based on https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-21/
 // Luminosity: 139 fb^-1
 
+//
+// NOTE: This implementation supercedes ATLAS_SUSY_2018_21.cpp (also referred to as ATLAS_13TeV_2OSLEP_Z_139invfb),
+// which has now been deleted. To see this old analysis, checkout git hash 324d8adb9fc48e8aa7992eaa116d0da5aabd6846
+//
+
 // Old Analysis Name: ATLAS_13TeV_1OR3LEP_StopHZ_139invfb
 
 #include <vector>
