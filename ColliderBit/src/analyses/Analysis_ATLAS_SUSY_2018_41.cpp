@@ -228,11 +228,9 @@ namespace Gambit
           // Tag b-jet
           if (jet->btag()) nb++;
           // Misstag c-jet
-          else if (!jet->btag() && jet->ctag() && random_bool(cmisstag))
-            nb++;
+          else if (!jet->btag() && jet->ctag() && random_bool(cmisstag)) nb++;
           // Misstag light jet
-          else if (!jet->btag() && !jet->ctag() && random_bool(misstag))
-            nb++;
+          else if (!jet->btag() && !jet->ctag() && random_bool(misstag)) nb++;
         }
 
         // Check separation of jets and ETmiss
