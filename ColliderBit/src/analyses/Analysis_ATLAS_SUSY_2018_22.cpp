@@ -45,7 +45,6 @@ namespace Gambit
 
         Analysis_ATLAS_SUSY_2018_22()
         {
-
           // Numbers passing cuts
           _counters["2j-1600"] = EventCounter("2j-1600");
           _counters["2j-2200"] = EventCounter("2j-2200");
@@ -57,8 +56,6 @@ namespace Gambit
           _counters["6j-1000"] = EventCounter("6j-1000");
           _counters["6j-2200"] = EventCounter("6j-2200");
           _counters["6j-3400"] = EventCounter("6j-3400");
-
-
 
           set_analysis_name("ATLAS_SUSY_2018_22");
           set_luminosity(139.0);
@@ -115,8 +112,7 @@ namespace Gambit
           vector<const Particle*> baselineElectrons;
           for (const Particle* electron : event->electrons())
           {
-            if (electron->pT() > 7. && electron->abseta() < 2.47)
-              baselineElectrons.push_back(electron);
+            if (electron->pT() > 7. && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
           }
           applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
@@ -124,22 +120,23 @@ namespace Gambit
           vector<const Particle*> baselineMuons;
           for (const Particle* muon : event->muons())
           {
-            if (muon->pT() > 6. && muon->abseta() < 2.7)
-              baselineMuons.push_back(muon);
+            if (muon->pT() > 6. && muon->abseta() < 2.7) baselineMuons.push_back(muon);
           }
           applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
           // Remove any |eta| < 2.8 jet within dR = 0.2 of an electron
           vector<const Jet*> signalJets;
           for (const Jet* j : baselineJets)
-            if (all_of(baselineElectrons, [&](const Particle* e){ return deltaR_rap(*e, *j) > 0.2; }))
-              signalJets.push_back(j);
+          {
+            if (all_of(baselineElectrons, [&](const Particle* e){ return deltaR_rap(*e, *j) > 0.2; })) signalJets.push_back(j);
+          }
 
           // Remove electrons with dR = shrinking cone of surviving |eta| < 2.8 jets
           vector<const Particle*> signalElectrons;
           for (const Particle* e : baselineElectrons)
-            if (all_of(signalJets, [&](const Jet* j){ return deltaR_rap(*e, *j) > min(0.4, 0.04+10/e->pT()); }))
-              signalElectrons.push_back(e);
+          {
+            if (all_of(signalJets, [&](const Jet* j){ return deltaR_rap(*e, *j) > min(0.4, 0.04+10/e->pT()); })) signalElectrons.push_back(e);
+          }
           // Apply electron ID selection
           applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
           /// @todo And tight ID for high purity... used where?
@@ -148,15 +145,17 @@ namespace Gambit
           /// @note Within 0.2, discard the *jet* based on jet track vs. muon criteria... can't be done yet
           vector<const Particle*> signalMuons;
           for (const Particle* m : baselineMuons)
-            if (all_of(signalJets, [&](const Jet* j){ return deltaR_rap(*m, *j) > min(0.4, 0.04+10/m->pT()); }))
-              signalMuons.push_back(m);
+          {
+            if (all_of(signalJets, [&](const Jet* j){ return deltaR_rap(*m, *j) > min(0.4, 0.04+10/m->pT()); })) signalMuons.push_back(m);
+          }
           /// @todo And tight ID for high purity... used where?
 
           // The subset of jets with pT > 50 GeV is used for several calculations
           vector<const Jet*> signalJets50;
           for (const Jet* j : signalJets)
+          {
             if (j->pT() > 50) signalJets50.push_back(j);
-
+          }
 
           ////////////////////////////////
           // Calculate common variables and cuts
@@ -206,10 +205,8 @@ namespace Gambit
 
           // Jet--MET dphis
           double dphimin_123 = DBL_MAX, dphimin_more = DBL_MAX;
-          for (size_t i = 0; i < min(3lu,signalJets50.size()); ++i)
-            dphimin_123 = min(dphimin_123, acos(cos(signalJets50[i]->phi() - pmiss.phi())));
-          for (size_t i = 3; i < signalJets50.size(); ++i)
-            dphimin_more = min(dphimin_more, acos(cos(signalJets50[i]->phi() - pmiss.phi())));
+          for (size_t i = 0; i < min(3lu,signalJets50.size()); ++i) dphimin_123 = min(dphimin_123, acos(cos(signalJets50[i]->phi() - pmiss.phi())));
+          for (size_t i = 3; i < signalJets50.size(); ++i) dphimin_more = min(dphimin_more, acos(cos(signalJets50[i]->phi() - pmiss.phi())));
 
           // Jet aplanarity (on 50 GeV jets only, cf. paper)
           Eigen::Matrix3d momtensor = Eigen::Matrix3d::Zero();
