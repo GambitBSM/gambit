@@ -129,7 +129,9 @@ namespace Gambit
                             bJets.push_back(jet);
                         }
                         else
+                        {
                             nonbJets.push_back(jet);
+                        }
                     }
                 }
                 // Define largeR-jets
@@ -153,7 +155,9 @@ namespace Gambit
                     const fastjet::PseudoJet &pseudojet = baselineLargeRJets.at(i)->pseudojet();
                     // Make sure there is constituents inside the jets
                     if (pseudojet.constituents().empty())
+                    {
                         continue;
+                    }
                     fastjet::PseudoJet trimmedJet = trimmer(pseudojet);
                     vector<fastjet::PseudoJet> subjets = trimmedJet.pieces();
 
@@ -168,9 +172,13 @@ namespace Gambit
                         taggedJetsOwned.emplace_back(make_unique<HEPUtils::Jet>(trimmedJet));
                         HEPUtils::Jet *hepUtilsJet = taggedJetsOwned.back().get();
                         if (toptag)
+                        {
                             topJets.push_back(hepUtilsJet);
+                        }
                         else
+                        {
                             higgsJets.push_back(hepUtilsJet);
+                        }
                     }
                 }
 
@@ -215,8 +223,12 @@ namespace Gambit
                 if (njets >= 4)
                 {
                     for (unsigned int i = 0; i < 4; i++)
+                    {
                         if (signalJets[i]->mom().deltaPhi(pmiss) <= mindPhijetMet)
+                        {
                             mindPhijetMet = signalJets[i]->mom().deltaPhi(pmiss);
+                        }
+                    }
                 }
 
                 bool presel1L = (n_leptons == 1) && (njets >= 5) && (nbjets >= 2) && (met > 20.) && (met + mTW > 60.);
@@ -249,16 +261,11 @@ namespace Gambit
                     bool sr1l03 = (Ntop == 1) && (NHiggs == 1) && (nbjets >= 4);
                     bool sr1l04 = (Ntop >= 2) && (NHiggs == 0 || NHiggs == 1) && (nbjets >= 4);
                     bool sr1l05 = (Ntop >= 0) && (NHiggs >= 2) && (nbjets >= 4);
-                    if (sr1l01)
-                        _counters.at("SR1L-01").add_event(event);
-                    if (sr1l02)
-                        _counters.at("SR1L-02").add_event(event);
-                    if (sr1l03)
-                        _counters.at("SR1L-03").add_event(event);
-                    if (sr1l04)
-                        _counters.at("SR1L-04").add_event(event);
-                    if (sr1l05)
-                        _counters.at("SR1L-05").add_event(event);
+                    if (sr1l01) _counters.at("SR1L-01").add_event(event);
+                    if (sr1l02) _counters.at("SR1L-02").add_event(event);
+                    if (sr1l03) _counters.at("SR1L-03").add_event(event);
+                    if (sr1l04) _counters.at("SR1L-04").add_event(event);
+                    if (sr1l05) _counters.at("SR1L-05").add_event(event);
 
 #ifdef CHECK_CUTFLOW
                     if (sr1l03) FILL_HISTOGRAM_1D("meff_SR1L_03", meff)
@@ -298,16 +305,11 @@ namespace Gambit
                     bool sr0l03 = (Ntop >= 2) && (NHiggs == 0 || NHiggs == 1) && (nbjets == 3) && (mTBmin > 160.) && (meff > 1000.);
                     bool sr0l04 = (Ntop == 1) && (NHiggs == 0) && (nbjets >= 4) && (mTBmin > 160.) && (meff > 1000.);
                     bool sr0l05 = (NtH >= 2) && (nbjets >= 4) && (meff > 1000.);
-                    if (sr0l01)
-                        _counters.at("SR0L-01").add_event(event);
-                    if (sr0l02)
-                        _counters.at("SR0L-02").add_event(event);
-                    if (sr0l03)
-                        _counters.at("SR0L-03").add_event(event);
-                    if (sr0l04)
-                        _counters.at("SR0L-04").add_event(event);
-                    if (sr0l05)
-                        _counters.at("SR0L-05").add_event(event);
+                    if (sr0l01) _counters.at("SR0L-01").add_event(event);
+                    if (sr0l02) _counters.at("SR0L-02").add_event(event);
+                    if (sr0l03) _counters.at("SR0L-03").add_event(event);
+                    if (sr0l04) _counters.at("SR0L-04").add_event(event);
+                    if (sr0l05) _counters.at("SR0L-05").add_event(event);
 
                     // cout << "28. After the o lepton Signal Counting " << endl;
                 }
@@ -315,8 +317,7 @@ namespace Gambit
 
             } // End run function
 
-            virtual void
-            collect_results()
+            virtual void collect_results()
             {
                 // This data is used if not running ATLAS_FullLikes.
                 add_result(SignalRegionData(_counters.at("SR1L-01"), 353., {349., 20.}));
