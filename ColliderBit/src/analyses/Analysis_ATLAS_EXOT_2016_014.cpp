@@ -33,30 +33,35 @@
 using namespace std;
 // #define CHECK_CUTFLOW
 
-class JetD2Threshold {
+class JetD2Threshold
+{
     private:
-        std::vector<std::pair<double, double>> thresholds; // 存储 (p_T 上限, D2 阈值) 对
+        std::vector<std::pair<double, double>> thresholds; // Storage (p_T upper limit, D2 threshold) pairs
 
     public:
-        JetD2Threshold() {
-                    thresholds.emplace_back(300, 1.03);   // pT   < 300
-                    thresholds.emplace_back(400, 1.10);   // 300  < pT <= 400
-                    thresholds.emplace_back(500, 1.15);   // 400  < pT <= 500 
-                    thresholds.emplace_back(600, 1.23);   // 500  < pT <= 600 
-                    thresholds.emplace_back(700, 1.30);   // 600  < pT <= 700
-                    thresholds.emplace_back(800, 1.38);   // 700  < pT <= 800
-                    thresholds.emplace_back(900, 1.45);   // 800  < pT <= 900
-                    thresholds.emplace_back(1000, 1.50);  // 900  < pT <= 1000
-                    thresholds.emplace_back(1100, 1.58);  // 1000 < pT <= 1100
-                    thresholds.emplace_back(1250, 1.70);  // 1100 < pT <= 1250
-                    thresholds.emplace_back(1500, 1.80);  // 1250 < pT <= 1500
-                    thresholds.emplace_back(1750, 2.00);  // 1500 < pT <= 1750
-                    thresholds.emplace_back(2000, 2.57);  // 1750 < pT <= 2000
-            }
+        JetD2Threshold()
+        {
+            thresholds.emplace_back(300, 1.03);   // pT   < 300
+            thresholds.emplace_back(400, 1.10);   // 300  < pT <= 400
+            thresholds.emplace_back(500, 1.15);   // 400  < pT <= 500 
+            thresholds.emplace_back(600, 1.23);   // 500  < pT <= 600 
+            thresholds.emplace_back(700, 1.30);   // 600  < pT <= 700
+            thresholds.emplace_back(800, 1.38);   // 700  < pT <= 800
+            thresholds.emplace_back(900, 1.45);   // 800  < pT <= 900
+            thresholds.emplace_back(1000, 1.50);  // 900  < pT <= 1000
+            thresholds.emplace_back(1100, 1.58);  // 1000 < pT <= 1100
+            thresholds.emplace_back(1250, 1.70);  // 1100 < pT <= 1250
+            thresholds.emplace_back(1500, 1.80);  // 1250 < pT <= 1500
+            thresholds.emplace_back(1750, 2.00);  // 1500 < pT <= 1750
+            thresholds.emplace_back(2000, 2.57);  // 1750 < pT <= 2000
+        }
 
-    double getThreshold(double jet_pt) {
-        for (const auto& threshold : thresholds) {
-            if (jet_pt < threshold.first) {
+    double getThreshold(double jet_pt)
+    {
+        for (const auto& threshold : thresholds)
+        {
+            if (jet_pt < threshold.first)
+            {
                 return threshold.second;
             }
         }
@@ -95,7 +100,7 @@ namespace Gambit
                         "DeltaM < 300 GeV"};
 
                     _cutflows.addCutflow("ATLAS-EXOT-2016-014", cutnames);
-#endif
+                #endif
             }
 
             void run(const HEPUtils::Event *event)
@@ -180,7 +185,9 @@ namespace Gambit
                             bJets.push_back(jet);
                         }
                         else
+                        {
                             nonbJets.push_back(jet);
+                        }
                     }
                 }
                 // Define largeR-jets
@@ -207,7 +214,9 @@ namespace Gambit
                     if (pseudojet.constituents().empty()) continue;
                     fastjet::PseudoJet trimmedJet = trimmer(pseudojet);
 
-                    if (trimmedJet.pt() > 200 && std::abs(trimmedJet.eta()) < 2.0) { // Setting The pT lower limit
+                    // Setting The pT lower limit
+                    if (trimmedJet.pt() > 200 && std::abs(trimmedJet.eta()) < 2.0)
+                    {
                         // Applying The W-jet Grooming
 
 
@@ -223,7 +232,8 @@ namespace Gambit
                         double D2_upper = d2Threshold.getThreshold(trimmedJet.pt()); 
 
                         // W tagging 
-                        if (std::abs(jet_mass - 80.4) < 15 && D2_value < D2_upper) {
+                        if (std::abs(jet_mass - 80.4) < 15 && D2_value < D2_upper)
+                        {
                             trimmedLargeRJetsOwned.emplace_back(make_unique<HEPUtils::Jet>(trimmedJet));
                             trimmedLargeRJets.push_back(trimmedLargeRJetsOwned.back().get());
                         }
@@ -276,32 +286,31 @@ namespace Gambit
 
                 if (n_leptons == 1 && n_jets >= 3)
                 {
-#ifdef CHECK_CUTFLOW
-                    _cutflows["ATLAS-EXOT-2016-014"].fill(2, true, event->weight());
-#endif
+                    #ifdef CHECK_CUTFLOW
+                      _cutflows["ATLAS-EXOT-2016-014"].fill(2, true, event->weight());
+                    #endif
                     if (n_Whad >= 1)
                     {
-#ifdef CHECK_CUTFLOW
-                        _cutflows["ATLAS-EXOT-2016-014"].fill(3, true, event->weight());
-#endif
+                        #ifdef CHECK_CUTFLOW
+                          _cutflows["ATLAS-EXOT-2016-014"].fill(3, true, event->weight());
+                        #endif
                         if (met >= 60)
                         {
-#ifdef CHECK_CUTFLOW
-                            _cutflows["ATLAS-EXOT-2016-014"].fill(4, true, event->weight());
-#endif
+                            #ifdef CHECK_CUTFLOW
+                              _cutflows["ATLAS-EXOT-2016-014"].fill(4, true, event->weight());
+                            #endif
                             if (n_bjets >= 1)
                             {
-#ifdef CHECK_CUTFLOW
-                                _cutflows["ATLAS-EXOT-2016-014"].fill(5, true, event->weight());
-#endif
+                                #ifdef CHECK_CUTFLOW
+                                  _cutflows["ATLAS-EXOT-2016-014"].fill(5, true, event->weight());
+                                #endif
                                 presel = true;
                             }
                         }
                     }
                 }
 
-                if (!presel)
-                    return;
+                if (!presel) return;
                 // cout << "5. Pass preselection " << endl; 
                 // TT reconstraction
                 // Define Whad
@@ -404,34 +413,33 @@ namespace Gambit
                     _counters.at("SR").add_event(event);
                 }
 
-#ifdef CHECK_CUTFLOW
-                if (ST > 1800)
-                {
-                    _cutflows["ATLAS-EXOT-2016-014"].fill(6, true, event->weight());
-                    if (dRvlep < 0.7)
-                    {
-                        _cutflows["ATLAS-EXOT-2016-014"].fill(7, true, event->weight());
-                        if (abs(mTlep - mThad) < 300)
-                        {
-                            _cutflows["ATLAS-EXOT-2016-014"].fill(8, true, event->weight());
-                        }
-                    }
-                }
-#endif
+                #ifdef CHECK_CUTFLOW
+                  if (ST > 1800)
+                  {
+                      _cutflows["ATLAS-EXOT-2016-014"].fill(6, true, event->weight());
+                      if (dRvlep < 0.7)
+                      {
+                          _cutflows["ATLAS-EXOT-2016-014"].fill(7, true, event->weight());
+                          if (abs(mTlep - mThad) < 300)
+                          {
+                              _cutflows["ATLAS-EXOT-2016-014"].fill(8, true, event->weight());
+                          }
+                      }
+                  }
+                #endif
                 // cout << "8. Fill the signal region" << endl; 
                 return;
 
             } // End run function
 
-            virtual void
-            collect_results()
+            virtual void collect_results()
             {
                 // This data is used if not running ATLAS_FullLikes.
                 add_result(SignalRegionData(_counters.at("SR"), 58, {64.0, 9.0}));
 
-#ifdef CHECK_CUTFLOW
-                COMMIT_CUTFLOWS;
-#endif
+                #ifdef CHECK_CUTFLOW
+                  COMMIT_CUTFLOWS;
+                #endif
 
                 return;
             }
@@ -444,19 +452,19 @@ namespace Gambit
                     pair.second.reset();
                 }
 
-#ifdef CHECK_CUTFLOW
-                const vector<string> cutnames = {
-                    "No Cut",
-                    "Base Selection",
-                    ">= 1 Whad cand.",
-                    "ETmiss >= 60 GeV",
-                    ">= 1 b-tagged jet",
-                    "S_T >= 1800 GeV",
-                    "DeltaR(lep, v) <= 0.7",
-                    "DeltaM < 300 GeV"};
+                #ifdef CHECK_CUTFLOW
+                  const vector<string> cutnames = {
+                      "No Cut",
+                      "Base Selection",
+                      ">= 1 Whad cand.",
+                      "ETmiss >= 60 GeV",
+                      ">= 1 b-tagged jet",
+                      "S_T >= 1800 GeV",
+                      "DeltaR(lep, v) <= 0.7",
+                      "DeltaM < 300 GeV"};
 
-                _cutflows.addCutflow("ATLAS-EXOT-2016-014", cutnames);
-#endif
+                  _cutflows.addCutflow("ATLAS-EXOT-2016-014", cutnames);
+                #endif
             }
 
         private:
@@ -513,10 +521,8 @@ namespace Gambit
 
             double solute_pvZ(const std::vector<double> &solutions)
             {
-                if (solutions.empty())
-                    return 0.0;
-                if (solutions.size() == 1)
-                    return solutions[0];
+                if (solutions.empty()) return 0.0;
+                if (solutions.size() == 1) return solutions[0];
                 return (std::abs(solutions[0]) < std::abs(solutions[1])) ? solutions[0] : solutions[1];
             }
         };
