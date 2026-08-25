@@ -147,7 +147,6 @@ namespace Gambit
         // Overlap removal
         // Inspire by ATLAS code snippet on HEPData
         // Doesn't exactly match the earlier paper decsription
-
         removeOverlap(baselineElectrons, baselineMuons, 0.01);
         removeOverlap(baselinePhotons, baselineElectrons, 0.4);
         removeOverlap(baselinePhotons, baselineMuons, 0.4);
@@ -284,13 +283,11 @@ namespace Gambit
 
       virtual void collect_results()
       {
-
         add_result(SignalRegionData(_counters.at("SRL"), 2., { 2.67, 0.75}));
         add_result(SignalRegionData(_counters.at("SRM"), 0., { 2.55, 0.64}));
         add_result(SignalRegionData(_counters.at("SRH"), 5., { 2.55, 0.44}));
 
-COMMIT_CUTFLOWS
-
+        COMMIT_CUTFLOWS
         return;
       }
 

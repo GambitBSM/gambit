@@ -128,7 +128,8 @@ namespace Gambit
                             HEPUtils::P4 jetmom = ctrJets.at(ii)->mom();
                             double jetpt = ctrJets.at(ii)->pT();
                             double jeteta = ctrJets.at(ii)->abseta();
-                            if (jetpt > 75. && jeteta < 2.5) {
+                            if (jetpt > 75. && jeteta < 2.5)
+                            {
                                 double dRjj = Bjet0mom.deltaR_eta(jetmom); 
                                 if ((dRjj < 1.2) || (dRjj > 2.7)) Jetincone = true; 
                             }
@@ -136,10 +137,12 @@ namespace Gambit
 
                         double dPhiLepBjet0 = signalLeptons.at(0)->mom().deltaPhi(Bjet0mom); 
                         double dRLepj = 999.; 
-                        for (unsigned int ii = 1; ii < signalctrBJets.size(); ii ++) {
+                        for (unsigned int ii = 1; ii < signalctrBJets.size(); ii ++)
+                        {
                             dRLepj = std::min(dRLepj, signalLeptons.at(0)->mom().deltaR_eta(signalctrBJets.at(ii)->mom())); 
                         }
-                        for (unsigned int ii = 0; ii < signalctrJets.size(); ii ++) {
+                        for (unsigned int ii = 0; ii < signalctrJets.size(); ii ++)
+                        {
                             dRLepj = std::min(dRLepj, signalLeptons.at(0)->mom().deltaR_eta(signalctrJets.at(ii)->mom())); 
                         }
                         const size_t nfwdJet = basefwdJets.size();
@@ -163,8 +166,7 @@ namespace Gambit
                 return; 
             }
 
-            virtual void
-            collect_results()
+            virtual void collect_results()
             {
                 add_result(SignalRegionData(_counters.at("SR"), 497, {500, 30}));
 
@@ -186,4 +188,4 @@ namespace Gambit
         };
         DEFINE_ANALYSIS_FACTORY(ATLAS_EXOT_2016_017)
     } // namespace ColliderBit
-} // namespace Gambi
+} // namespace Gambit

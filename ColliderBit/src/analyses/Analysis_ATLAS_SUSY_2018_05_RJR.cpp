@@ -391,7 +391,9 @@ namespace Gambit
         for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->pT()>20. && jet->abseta()<4.5)
-            if( (jet->pT() >= 120. || jet->abseta() >= 2.5) || random_bool(jet_eff) ) baselineJets.push_back(jet);
+          {
+            if ( (jet->pT() >= 120. || jet->abseta() >= 2.5) || random_bool(jet_eff) ) baselineJets.push_back(jet);
+          }
         }
 
         // Overlap removal
@@ -445,11 +447,11 @@ namespace Gambit
         for (const HEPUtils::Jet* jet : signalJets)
         {
           // Tag
-          if( jet->btag() && random_bool(btag) ) signalBJets.push_back(jet);
+          if ( jet->btag() && random_bool(btag) ) signalBJets.push_back(jet);
           // Misstag c-jet
-          else if( jet->ctag() && random_bool(cmisstag) ) signalBJets.push_back(jet);
+          else if ( jet->ctag() && random_bool(cmisstag) ) signalBJets.push_back(jet);
           // Misstag light jet
-          else if( random_bool(misstag) ) signalBJets.push_back(jet);
+          else if ( random_bool(misstag) ) signalBJets.push_back(jet);
           // Non b-jet
           else signalNonBJets.push_back(jet);
         }
@@ -480,10 +482,10 @@ namespace Gambit
         size_t nbjets = signalBJets.size();
 
         bool cut_2lep=true;
-        if (nleptons < 2)cut_2lep=false;
+        if (nleptons < 2) cut_2lep=false;
 
         bool cut_2jets=true;
-        if(njets<2)cut_2jets=false;
+        if (njets<2) cut_2jets=false;
 
         // Taken from previous RJ GAMBIT analysis
         // Presumably TLorentzVector stuff is needed for RestFrames
@@ -493,7 +495,7 @@ namespace Gambit
 
         //Put the Jets in a more useful form
         vector<TLorentzVector> myJets;
-        for(unsigned int ijet=0; ijet<signalJets.size();ijet++)
+        for (unsigned int ijet = 0; ijet < signalJets.size(); ijet++)
         {
           TLorentzVector tmp;
           tmp.SetPtEtaPhiM(signalJets[ijet]->pT(),signalJets[ijet]->eta(),signalJets[ijet]->phi(),signalJets[ijet]->mass());
@@ -504,7 +506,7 @@ namespace Gambit
         //Put the Leptons in a more useful form
         vector<pair<TLorentzVector,int> > myLeptons;
         //vector<lep> myLeptons;
-        for(unsigned int ilep=0; ilep<signalLeptons.size(); ilep++)
+        for (unsigned int ilep=0; ilep<signalLeptons.size(); ilep++)
         {
           pair<TLorentzVector,int> temp;
           TLorentzVector tlv_temp;
@@ -512,8 +514,8 @@ namespace Gambit
           tlv_temp.SetPtEtaPhiM(signalLeptons[ilep]->pT(),signalLeptons[ilep]->eta(),signalLeptons[ilep]->phi(),0.0);
           temp.first = tlv_temp;
           int lepton_charge=0;
-          if(signalLeptons[ilep]->pid()<0)lepton_charge=-1;
-          if(signalLeptons[ilep]->pid()>0)lepton_charge=1;
+          if (signalLeptons[ilep]->pid()<0) lepton_charge=-1;
+          if (signalLeptons[ilep]->pid()>0) lepton_charge=1;
           temp.second = lepton_charge;
           myLeptons.push_back(temp);
         }
@@ -522,7 +524,7 @@ namespace Gambit
         sort(myLeptons.begin(), myLeptons.end(), SortLeptons2LJ);
 
         //Only proceed if there are 2 leptons and 2 jets
-        if(cut_2lep && cut_2jets)
+        if (cut_2lep && cut_2jets)
         {
 
           bool iscomp = false;
@@ -535,19 +537,19 @@ namespace Gambit
           double Zmass = -999.0;
           bool foundSFOS = false;
 
-          for(unsigned int i=0; i<myLeptons.size(); i++)
+          for (unsigned int i=0; i<myLeptons.size(); i++)
           {
-            for(unsigned int j=i+1; j<myLeptons.size(); j++)
+            for (unsigned int j=i+1; j<myLeptons.size(); j++)
             {
               //Opposite-Sign
-              if(myLeptons[i].second*myLeptons[j].second<0)
+              if (myLeptons[i].second*myLeptons[j].second<0)
               {
                 //Same-Flavor
-                if(abs(myLeptons[i].second)==abs(myLeptons[j].second))
+                if (abs(myLeptons[i].second)==abs(myLeptons[j].second))
                 {
                   double mass = (myLeptons[i].first+myLeptons[j].first).M();
                   double massdiff = fabs(mass-91.1876);
-                  if(massdiff<diff)
+                  if (massdiff<diff)
                   {
                     diff=massdiff;
                     Zmass=mass;
@@ -560,7 +562,7 @@ namespace Gambit
             }
           }
 
-          if(!foundSFOS)
+          if (!foundSFOS)
           {
             m_foundSFOS=false;
           }
@@ -569,7 +571,7 @@ namespace Gambit
             m_foundSFOS=true;
           }
 
-          if(m_foundSFOS)
+          if (m_foundSFOS)
           {
 
             // Use first and second jets
@@ -578,11 +580,11 @@ namespace Gambit
             double mindphi=100000.;
             double dphi=0;
             TLorentzVector tempjet;
-            for(unsigned int ijet=0; ijet<signalJets.size();ijet++)
+            for (unsigned int ijet = 0; ijet < signalJets.size(); ijet++)
             {
               tempjet.SetPtEtaPhiM(signalJets[ijet]->pT(),signalJets[ijet]->eta(),signalJets[ijet]->phi(),signalJets[ijet]->mass());
               dphi = fabs(metLV.DeltaPhi(tempjet));
-              if(dphi<mindphi) mindphi=dphi;
+              if (dphi<mindphi) mindphi=dphi;
             }
 
 
@@ -596,7 +598,7 @@ namespace Gambit
             INV_2L2J->SetLabFrameThreeVector(MET);                  // Set the MET in reco tree
 
             // Analyze the event
-            if(!LAB_2L2J->AnalyzeEvent())
+            if (!LAB_2L2J->AnalyzeEvent())
             {
               str errmsg;
               errmsg  = "Some problem occurred when calling LAB_2L2J->AnalyzeEvent() from the Analysis_ATLAS_SUSY_2018_05_RJR analysis class.\n";
@@ -650,24 +652,24 @@ namespace Gambit
             // we are ready to go
 
             // Low mass
-            if (njets==2 && nbjets==0 && signalJets[0]->pT()>30. && signalJets[1]->pT()>30. && Zmass>80. && Zmass<100. && mjj>70. && mjj<90. && H5PP>400. && RPT_HT5PP<0.05 && R_H2PP_H5PP>0.35 && R_H2PP_H5PP<0.65 && mindphi>2.4)_counters.at("SR2L_Low").add_event(event);
+            if (njets==2 && nbjets==0 && signalJets[0]->pT()>30. && signalJets[1]->pT()>30. && Zmass>80. && Zmass<100. && mjj>70. && mjj<90. && H5PP>400. && RPT_HT5PP<0.05 && R_H2PP_H5PP>0.35 && R_H2PP_H5PP<0.65 && mindphi>2.4) _counters.at("SR2L_Low").add_event(event);
 
             // Now fill the low mass cutflow
             // Note: pre-selection is already applied so first cut won't match
             #ifdef CHECK_CUTFLOW
-            const double w = event->weight();
-            _cutflows.fillinit(w);
+              const double w = event->weight();
+              _cutflows.fillinit(w);
 
-            vector<str> SR2L_low = {"Trigger and 2 signal leptons", "Preselection", "0.35 < HPP11/HPP41 < 0.60", "pTlabPP/(pTlabPP+HTPP11) < 0.05", "min(dPhi(j1/j2,ptmiss))>2.4", "HPP41 > 400 GeV"};
+              vector<str> SR2L_low = {"Trigger and 2 signal leptons", "Preselection", "0.35 < HPP11/HPP41 < 0.60", "pTlabPP/(pTlabPP+HTPP11) < 0.05", "min(dPhi(j1/j2,ptmiss))>2.4", "HPP41 > 400 GeV"};
 
-            bool cut_presel = cut_2lep && cut_2jets && m_foundSFOS && nbjets==0 && signalJets[0]->pT()>30. && signalJets[1]->pT()>30. && Zmass>80. && Zmass<100.  && mjj>70. && mjj<90.;
+              bool cut_presel = cut_2lep && cut_2jets && m_foundSFOS && nbjets==0 && signalJets[0]->pT()>30. && signalJets[1]->pT()>30. && Zmass>80. && Zmass<100.  && mjj>70. && mjj<90.;
 
-            _cutflows["SR2L_low"].fillnext({cut_2lep,
-                                            cut_presel,
-                                            R_H2PP_H5PP>0.35 && R_H2PP_H5PP<0.6,
-                                            RPT_HT5PP<0.05,
-                                            mindphi>2.4,
-                                            H5PP>400.}, w);
+              _cutflows["SR2L_low"].fillnext({cut_2lep,
+                                              cut_presel,
+                                              R_H2PP_H5PP>0.35 && R_H2PP_H5PP<0.6,
+                                              RPT_HT5PP<0.05,
+                                              mindphi>2.4,
+                                              H5PP>400.}, w);
             #endif
 
             // Intermediate
@@ -679,17 +681,15 @@ namespace Gambit
             //if (leptons[0].Pt()>25. && leptons[1].Pt()>25. && jets[0].Pt()>30. && jets[1].Pt()>30. && Zmass>80. && Zmass<100. && mjj>60. && mjj<100. && H5PP>800. && RPT_HT5PP<0.05 && dphiVP>0.3 && dphiVP<2.8 && R_minH2P_minH3P>0.8)_counters.at("SR2L_High").add_event(event);
 
             // Compressed time
-            if(iscomp)
+            if (iscomp)
             {
-
               double NjS = 0;
               double NjISR = 0;
 
               vector<RestFrames::RFKey> jetID;
 
-              for(int i = 0; i < int(myJets.size()); i++)
+              for (int i = 0; i < int(myJets.size()); i++)
               {
-
                 TLorentzVector jet = myJets[i];
 
                 // transverse view of jet 4-vectors
@@ -698,7 +698,7 @@ namespace Gambit
               }
 
               TLorentzVector lepSys(0.,0.,0.,0.);
-              for(int i = 0; i < int(myLeptons.size()); i++)
+              for (int i = 0; i < int(myLeptons.size()); i++)
               {
                 TLorentzVector lep1;
                 // transverse view of mu 4-vectors
@@ -709,17 +709,17 @@ namespace Gambit
 
               INV_comb->SetLabFrameThreeVector(ETMiss);
 
-              if(!LAB_comb->AnalyzeEvent())
+              if (!LAB_comb->AnalyzeEvent())
               {
                 str errmsg;
                 errmsg  = "Some problem occurred when calling LAB_comb->AnalyzeEvent() from the Analysis_ATLAS_SUSY_2018_05_RJR analysis class.\n";
                 piped_warnings.request(LOCAL_INFO, errmsg);
-                  return;
+                return;
               }
 
-              for(int i = 0; i < int(signalJets.size()); i++)
+              for (int i = 0; i < int(signalJets.size()); i++)
               {
-                if(JETS_comb->GetFrame(jetID[i]) == *J_comb)
+                if (JETS_comb->GetFrame(jetID[i]) == *J_comb)
                 {
                   NjS++;
                 }
@@ -732,9 +732,9 @@ namespace Gambit
               // put jets in their place
               int NJ = jetID.size();
               TLorentzVector vISR(0.,0.,0.,0.);
-              for(int i = 0; i < NJ; i++)
+              for (int i = 0; i < NJ; i++)
               {
-                if(JETS_comb->GetFrame(jetID[i]) == *J_comb)
+                if (JETS_comb->GetFrame(jetID[i]) == *J_comb)
                 {
                   JETS_2LNJ->AddLabFrameFourVector(myJets[i]);
                 }
@@ -751,7 +751,7 @@ namespace Gambit
 
               INV_2LNJ->SetLabFrameThreeVector(ETMiss);
 
-              if(!LAB_2LNJ->AnalyzeEvent())
+              if (!LAB_2LNJ->AnalyzeEvent())
               {
                 str errmsg;
                 errmsg  = "Some problem occurred when calling LAB_2LNJ->AnalyzeEvent() from the Analysis_ATLAS_SUSY_2018_05_RJR analysis class.\n";
@@ -807,14 +807,14 @@ namespace Gambit
               // (< 30 GeV instead of < 20 GeV)
 
               #ifdef CHECK_CUTFLOW
-              _cutflows["SR2L_ISR"].fillnext({cut_preselISR,
-                                              MZ>80. && MZ<100.,
-                                              MJ>50. && MJ<110.,
-                                              dphiISRI>2.8,
-                                              RISR>0.4 && RISR<0.75,
-                                              PTISR>180.,
-                                              PTI>100.,
-                                              PTCM<20.}, w);
+                _cutflows["SR2L_ISR"].fillnext({cut_preselISR,
+                                                MZ>80. && MZ<100.,
+                                                MJ>50. && MJ<110.,
+                                                dphiISRI>2.8,
+                                                RISR>0.4 && RISR<0.75,
+                                                PTISR>180.,
+                                                PTI>100.,
+                                                PTCM<20.}, w);
               #endif
 
             }
@@ -829,12 +829,10 @@ namespace Gambit
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results()
       {
-
         add_result(SignalRegionData(_counters.at("SR2L_Low"), 39., {42., 9}));
         add_result(SignalRegionData(_counters.at("SR2L_ISR"), 30., {31., 9}));
 
-COMMIT_CUTFLOWS
-
+        COMMIT_CUTFLOWS
       }
 
 

@@ -296,7 +296,10 @@ namespace Gambit
 
         FILL_HISTOGRAM_1D("m_VLB", best.mB)
 
-        if (in_H_window && is_H2T2B) { _counters.at("SR").add_event(event); }
+        if (in_H_window && is_H2T2B)
+        {
+          _counters.at("SR").add_event(event);
+        }
       }
 
       virtual void collect_results()

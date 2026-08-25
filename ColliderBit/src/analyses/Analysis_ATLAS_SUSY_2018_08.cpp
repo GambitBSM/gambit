@@ -536,8 +536,6 @@ namespace Gambit
 
     DEFINE_ANALYSIS_FACTORY(ATLAS_SUSY_2018_08_inclusive)
 
-
-
     //
     // Derived analysis class using the SR2b exclusive SRs
     //

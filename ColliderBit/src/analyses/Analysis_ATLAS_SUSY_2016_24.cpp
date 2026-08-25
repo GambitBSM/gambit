@@ -26,15 +26,18 @@ using namespace std;
 //               Analysis_ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb
 //               Analysis_ATLAS_13TeV_MultiLEP_3Lep_36invfb
 
-namespace Gambit {
-  namespace ColliderBit {
+namespace Gambit
+{
+  namespace ColliderBit
+  {
 
     // This analysis class is a base class for three SR-specific analysis classes
     // defined further down:
     // - Analysis_ATLAS_SUSY_2016_24_2Lep0Jets
     // - Analysis_ATLAS_SUSY_2016_24_2LepPlusJets
     // - Analysis_ATLAS_SUSY_2016_24_3Lep
-    class Analysis_ATLAS_SUSY_2016_24 : public Analysis {
+    class Analysis_ATLAS_SUSY_2016_24 : public Analysis
+    {
 
     protected:
 
@@ -77,22 +80,26 @@ namespace Gambit {
 
       }
 
-      struct ptComparison {
+      struct ptComparison
+      {
         bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
       } comparePt;
 
-      struct ptJetComparison {
+      struct ptJetComparison
+      {
         bool operator() (const HEPUtils::Jet* i,const HEPUtils::Jet* j) {return (i->pT()>j->pT());}
       } compareJetPt;
 
-      void run(const HEPUtils::Event* event) {
+      void run(const HEPUtils::Event* event)
+      {
 
         double met = event->met();
 
         // Baseline objects
         vector<const HEPUtils::Particle*> baselineElectrons;
-        for (const HEPUtils::Particle* electron : event->electrons()) {
-          if (electron->pT()>10. && electron->abseta()<2.47)baselineElectrons.push_back(electron);
+        for (const HEPUtils::Particle* electron : event->electrons())
+        {
+          if (electron->pT() > 10. && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
         }
 
         // Apply electron efficiency
@@ -102,16 +109,18 @@ namespace Gambit {
         applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
         vector<const HEPUtils::Particle*> baselineMuons;
-        for (const HEPUtils::Particle* muon : event->muons()) {
-          if (muon->pT()>10. && muon->abseta()<2.7)baselineMuons.push_back(muon);
+        for (const HEPUtils::Particle* muon : event->muons())
+        {
+          if (muon->pT() > 10. && muon->abseta() < 2.7) baselineMuons.push_back(muon);
         }
 
         // Apply muon efficiency
         applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         vector<const HEPUtils::Jet*> baselineJets;
-        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
-          if (jet->pT()>20. && jet->abseta()<4.5)baselineJets.push_back(jet);
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
+        {
+          if (jet->pT() > 20. && jet->abseta() < 4.5) baselineJets.push_back(jet);
         }
 
         //Overlap Removal + Signal Objects
@@ -121,111 +130,125 @@ namespace Gambit {
         vector<const HEPUtils::Jet*> signalJets;
         vector<const HEPUtils::Jet*> signalBJets;
 
-        const vector<double> aBJet={0,10.};
-        const vector<double> bBJet={0,30., 40., 50., 70., 80., 90., 100.,150., 200., 10000.};
-        const vector<double> cBJet={0.63, 0.705, 0.745, 0.76, 0.775, 0.79,0.795, 0.805, 0.795, 0.76};
+        const vector<double> aBJet = {0,10.};
+        const vector<double> bBJet = {0,30., 40., 50., 70., 80., 90., 100.,150., 200., 10000.};
+        const vector<double> cBJet = {0.63, 0.705, 0.745, 0.76, 0.775, 0.79,0.795, 0.805, 0.795, 0.76};
         HEPUtils::BinnedFn2D<double> _eff2d(aBJet,bBJet,cBJet);
 
         vector<const HEPUtils::Jet*> overlapJet;
-        for (size_t iJet=0;iJet<baselineJets.size();iJet++) {
+        for (size_t iJet = 0; iJet < baselineJets.size(); iJet++)
+        {
           vector<const HEPUtils::Particle*> overlapEl;
-          bool hasTag=has_tag(_eff2d, baselineJets.at(iJet)->abseta(), baselineJets.at(iJet)->pT());
-          for (size_t iEl=0;iEl<baselineElectrons.size();iEl++) {
-            if (baselineElectrons.at(iEl)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.2)overlapEl.push_back(baselineElectrons.at(iEl));
+          bool hasTag = has_tag(_eff2d, baselineJets.at(iJet)->abseta(), baselineJets.at(iJet)->pT());
+          for (size_t iEl=0;iEl<baselineElectrons.size();iEl++)
+          {
+            if (baselineElectrons.at(iEl)->mom().deltaR_eta(baselineJets.at(iJet)->mom()) < 0.2) overlapEl.push_back(baselineElectrons.at(iEl));
           }
-          if (overlapEl.size()>0 && (baselineJets.at(iJet)->btag() && hasTag)) {
-            for (size_t iO=0;iO<overlapEl.size();iO++) {
+          if (overlapEl.size() > 0 && (baselineJets.at(iJet)->btag() && hasTag))
+          {
+            for (size_t iO = 0; iO < overlapEl.size(); iO++)
+            {
               baselineElectrons.erase(remove(baselineElectrons.begin(), baselineElectrons.end(), overlapEl.at(iO)), baselineElectrons.end());
             }
           }
-          if (overlapEl.size()>0 && !(baselineJets.at(iJet)->btag() && hasTag))overlapJet.push_back(baselineJets.at(iJet));
+          if (overlapEl.size() > 0 && !(baselineJets.at(iJet)->btag() && hasTag)) overlapJet.push_back(baselineJets.at(iJet));
         }
-        for (size_t iO=0;iO<overlapJet.size();iO++) {
+        for (size_t iO = 0; iO < overlapJet.size(); iO++)
+        {
           baselineJets.erase(remove(baselineJets.begin(), baselineJets.end(), overlapJet.at(iO)), baselineJets.end());
         }
 
-        for (size_t iEl=0;iEl<baselineElectrons.size();iEl++) {
+        for (size_t iEl = 0; iEl < baselineElectrons.size(); iEl++)
+        {
           bool overlap=false;
-          for (size_t iJet=0;iJet<baselineJets.size();iJet++) {
-            if (baselineElectrons.at(iEl)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.4)overlap=true;
+          for (size_t iJet = 0; iJet < baselineJets.size(); iJet++)
+          {
+            if (baselineElectrons.at(iEl)->mom().deltaR_eta(baselineJets.at(iJet)->mom()) < 0.4) overlap=true;
           }
-          if (!overlap)signalElectrons.push_back(baselineElectrons.at(iEl));
+          if (!overlap) signalElectrons.push_back(baselineElectrons.at(iEl));
         }
         applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
 
-        for (size_t iJet=0;iJet<baselineJets.size();iJet++) {
+        for (size_t iJet = 0; iJet < baselineJets.size(); iJet++)
+        {
           bool overlap=false;
-          for (size_t iMu=0;iMu<baselineMuons.size();iMu++) {
-            if (baselineMuons.at(iMu)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.2 && baselineMuons.at(iMu)->pT()>0.7*baselineJets.at(iJet)->pT())overlap=true;
+          for (size_t iMu = 0; iMu < baselineMuons.size(); iMu++)
+          {
+            if (baselineMuons.at(iMu)->mom().deltaR_eta(baselineJets.at(iJet)->mom()) < 0.2 && baselineMuons.at(iMu)->pT() > 0.7 * baselineJets.at(iJet)->pT()) overlap=true;
           }
-          if (!overlap) {
-            bool hasTag=has_tag(_eff2d, baselineJets.at(iJet)->abseta(), baselineJets.at(iJet)->pT());
-            if(baselineJets.at(iJet)->abseta()<2.4)signalJets.push_back(baselineJets.at(iJet));
-            if (baselineJets.at(iJet)->btag() && hasTag && baselineJets.at(iJet)->abseta()<2.4)signalBJets.push_back(baselineJets.at(iJet));
+          if (!overlap)
+          {
+            bool hasTag = has_tag(_eff2d, baselineJets.at(iJet)->abseta(), baselineJets.at(iJet)->pT());
+            if (baselineJets.at(iJet)->abseta() < 2.4) signalJets.push_back(baselineJets.at(iJet));
+            if (baselineJets.at(iJet)->btag() && hasTag && baselineJets.at(iJet)->abseta() < 2.4) signalBJets.push_back(baselineJets.at(iJet));
           }
         }
 
-        for (size_t iMu=0;iMu<baselineMuons.size();iMu++) {
+        for (size_t iMu = 0; iMu < baselineMuons.size(); iMu++)
+        {
           bool overlap=false;
-          for (size_t iJet=0;iJet<signalJets.size();iJet++) {
-            if (baselineMuons.at(iMu)->mom().deltaR_eta(signalJets.at(iJet)->mom())<0.4)overlap=true;
+          for (size_t iJet = 0; iJet < signalJets.size(); iJet++)
+          {
+            if (baselineMuons.at(iMu)->mom().deltaR_eta(signalJets.at(iJet)->mom()) < 0.4) overlap=true;
           }
-          if (!overlap)signalMuons.push_back(baselineMuons.at(iMu));
+          if (!overlap) signalMuons.push_back(baselineMuons.at(iMu));
         }
 
-        signalLeptons=signalElectrons;
-        signalLeptons.insert(signalLeptons.end(),signalMuons.begin(),signalMuons.end());
-        sort(signalJets.begin(),signalJets.end(),compareJetPt);
-        sort(signalLeptons.begin(),signalLeptons.end(),comparePt);
-        size_t nBaselineLeptons=baselineElectrons.size()+baselineMuons.size();
-        size_t nSignalLeptons=signalLeptons.size();
-        size_t nSignalJets=signalJets.size();
-        size_t nSignalBJets=signalBJets.size();
+        signalLeptons = signalElectrons;
+        signalLeptons.insert(signalLeptons.end(), signalMuons.begin(), signalMuons.end());
+        sort(signalJets.begin(), signalJets.end(), compareJetPt);
+        sort(signalLeptons.begin(), signalLeptons.end(), comparePt);
+        size_t nBaselineLeptons = baselineElectrons.size() + baselineMuons.size();
+        size_t nSignalLeptons = signalLeptons.size();
+        size_t nSignalJets = signalJets.size();
+        size_t nSignalBJets = signalBJets.size();
 
-        vector<vector<const HEPUtils::Particle*>> SFOSpairs=getSFOSpairs(signalLeptons);
-        vector<vector<const HEPUtils::Particle*>> OSpairs=getOSpairs(signalLeptons);
+        vector<vector<const HEPUtils::Particle*>> SFOSpairs = getSFOSpairs(signalLeptons);
+        vector<vector<const HEPUtils::Particle*>> OSpairs = getOSpairs(signalLeptons);
 
         //Variables
-        double pT_l0=0.;
-        double pT_l1=0.;
-        double pT_l2=0.;
-        // double mlll=0.;
-        double pTlll=999.;
-        double mll=999.;
-        double mT2=0;
-        double deltaR_ll=999.;
+        double pT_l0 = 0.;
+        double pT_l1 = 0.;
+        double pT_l2 = 0.;
+        // double mlll = 0.;
+        double pTlll = 999.;
+        double mll = 999.;
+        double mT2 = 0;
+        double deltaR_ll = 999.;
 
-        double pT_j0=0.;
-        double pT_j1=0.;
-        double pT_j2=0.;
-        double mjj=0;
-        double deltaR_jj=999.;
+        double pT_j0 = 0.;
+        double pT_j1 = 0.;
+        double pT_j2 = 0.;
+        double mjj = 0;
+        double deltaR_jj = 999.;
 
         HEPUtils::P4 Z;
-        double deltaPhi_met_Z=999.;
+        double deltaPhi_met_Z = 999.;
 
         HEPUtils::P4 W;
         vector<HEPUtils::P4> W_ISR;
-        double deltaPhi_met_W=0.;
-        double deltaPhi_met_ISR=0.;
-        double deltaPhi_met_jet0=0.;
+        double deltaPhi_met_W = 0.;
+        double deltaPhi_met_ISR = 0.;
+        double deltaPhi_met_jet0 = 0.;
 
-        double mTmin=999;
-        double mSFOS=999;
+        double mTmin = 999;
+        double mSFOS = 999;
 
-        bool central_jet_veto=true;
-        bool bjet_veto=false;
+        bool central_jet_veto = true;
+        bool bjet_veto = false;
 
-        for (size_t iJet=0;iJet<nSignalJets;iJet++) {
-          if (signalJets.at(iJet)->pT()>60 && signalJets.at(iJet)->abseta()<2.4)central_jet_veto=false;
+        for (size_t iJet = 0; iJet < nSignalJets; iJet++)
+        {
+          if (signalJets.at(iJet)->pT() > 60 && signalJets.at(iJet)->abseta() < 2.4) central_jet_veto=false;
         }
-        if (nSignalBJets==0)bjet_veto=true;
+        if (nSignalBJets == 0) bjet_veto = true;
 
-        if (nSignalLeptons>0)pT_l0=signalLeptons.at(0)->pT();
-        if (nSignalLeptons>1) {
-          pT_l1=signalLeptons.at(1)->pT();
-          mll=(signalLeptons.at(0)->mom()+signalLeptons.at(1)->mom()).m();
-          deltaR_ll=signalLeptons.at(0)->mom().deltaR_eta(signalLeptons.at(1)->mom());
+        if (nSignalLeptons > 0) pT_l0 = signalLeptons.at(0)->pT();
+        if (nSignalLeptons > 1)
+        {
+          pT_l1 = signalLeptons.at(1)->pT();
+          mll = (signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom()).m();
+          deltaR_ll = signalLeptons.at(0)->mom().deltaR_eta(signalLeptons.at(1)->mom());
 
           double pLep1[3] = {signalLeptons.at(0)->mass(), signalLeptons.at(0)->mom().px(), signalLeptons.at(0)->mom().py()};
           double pLep2[3] = {signalLeptons.at(1)->mass(), signalLeptons.at(1)->mom().px(), signalLeptons.at(1)->mom().py()};
@@ -233,111 +256,173 @@ namespace Gambit {
           double mn = 0.;
 
           mt2_bisect::mt2 mt2_calc;
-          mt2_calc.set_momenta(pLep1,pLep2,pMiss);
+          mt2_calc.set_momenta(pLep1, pLep2, pMiss);
           mt2_calc.set_mn(mn);
           mT2 = mt2_calc.get_mt2();
 
-          Z=signalLeptons.at(0)->mom()+signalLeptons.at(1)->mom();
-          deltaPhi_met_Z=Z.deltaPhi(event->missingmom());
-          for (size_t iPa=0;iPa<SFOSpairs.size();iPa++) {
-            for (size_t iLep=0;iLep<signalLeptons.size();iLep++) {
-              if (signalLeptons.at(iLep)!=SFOSpairs.at(iPa).at(0) && signalLeptons.at(iLep)!=SFOSpairs.at(iPa).at(1)) {
-                double mT=sqrt(2*signalLeptons.at(iLep)->pT()*met*(1-cos(signalLeptons.at(iLep)->mom().deltaPhi(event->missingmom()))));
-                if (mT<mTmin) {
-                  mTmin=mT;
-                  mSFOS=(SFOSpairs.at(iPa).at(0)->mom()+SFOSpairs.at(iPa).at(1)->mom()).m();
+          Z=signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom();
+          deltaPhi_met_Z = Z.deltaPhi(event->missingmom());
+          for (size_t iPa = 0; iPa < SFOSpairs.size(); iPa++)
+          {
+            for (size_t iLep = 0; iLep < signalLeptons.size(); iLep++)
+            {
+              if (signalLeptons.at(iLep) != SFOSpairs.at(iPa).at(0) && signalLeptons.at(iLep) != SFOSpairs.at(iPa).at(1))
+              {
+                double mT = sqrt(2 * signalLeptons.at(iLep)->pT() * met * (1 - cos(signalLeptons.at(iLep)->mom().deltaPhi(event->missingmom()))));
+                if (mT < mTmin)
+                {
+                  mTmin = mT;
+                  mSFOS = (SFOSpairs.at(iPa).at(0)->mom() + SFOSpairs.at(iPa).at(1)->mom()).m();
                 }
               }
             }
           }
         }
 
-        if (nSignalLeptons>2) {
-          pT_l2=signalLeptons.at(2)->pT();
-          // mlll=(signalLeptons.at(0)->mom()+signalLeptons.at(1)->mom()+signalLeptons.at(2)->mom()).m();
-          pTlll=(signalLeptons.at(0)->mom()+signalLeptons.at(1)->mom()+signalLeptons.at(2)->mom()).pT();
+        if (nSignalLeptons > 2)
+        {
+          pT_l2 = signalLeptons.at(2)->pT();
+          // mlll = (signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom() + signalLeptons.at(2)->mom()).m();
+          pTlll = (signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom() + signalLeptons.at(2)->mom()).pT();
         }
 
-        if (nSignalJets>0) {
-          pT_j0=signalJets.at(0)->pT();
-          deltaPhi_met_jet0=signalJets.at(0)->mom().deltaPhi(event->missingmom());
+        if (nSignalJets > 0)
+        {
+          pT_j0 = signalJets.at(0)->pT();
+          deltaPhi_met_jet0 = signalJets.at(0)->mom().deltaPhi(event->missingmom());
         }
-        if (nSignalJets>1) {
-          pT_j1=signalJets.at(1)->pT();
-          if (nSignalJets<3 && bjet_veto) {
-            W=signalJets.at(0)->mom()+signalJets.at(1)->mom();
-            mjj=W.m();
-            deltaR_jj=signalJets.at(0)->mom().deltaR_eta(signalJets.at(1)->mom());
-            deltaPhi_met_W=W.deltaPhi(event->missingmom());
+        if (nSignalJets > 1)
+        {
+          pT_j1 = signalJets.at(1)->pT();
+          if (nSignalJets < 3 && bjet_veto)
+          {
+            W = signalJets.at(0)->mom() + signalJets.at(1)->mom();
+            mjj = W.m();
+            deltaR_jj = signalJets.at(0)->mom().deltaR_eta(signalJets.at(1)->mom());
+            deltaPhi_met_W = W.deltaPhi(event->missingmom());
           }
-          if (nSignalJets>2 && nSignalJets<6 && nSignalLeptons>1 && bjet_veto) {
-            W_ISR=get_W_ISR(signalJets,Z,event->missingmom());
-            W=W_ISR.at(0);
-            mjj=W.m();
-            deltaR_jj=W_ISR.at(3).deltaR_eta(W_ISR.at(2));
-            deltaPhi_met_W=W.deltaPhi(event->missingmom());
-            deltaPhi_met_ISR=W_ISR.at(1).deltaPhi(event->missingmom());
+          if (nSignalJets>2 && nSignalJets<6 && nSignalLeptons>1 && bjet_veto)
+          {
+            W_ISR = get_W_ISR(signalJets, Z, event->missingmom());
+            W = W_ISR.at(0);
+            mjj = W.m();
+            deltaR_jj = W_ISR.at(3).deltaR_eta(W_ISR.at(2));
+            deltaPhi_met_W = W.deltaPhi(event->missingmom());
+            deltaPhi_met_ISR = W_ISR.at(1).deltaPhi(event->missingmom());
           }
         }
-        if (nSignalJets>2)pT_j2=signalJets.at(2)->pT();
+        if (nSignalJets > 2) pT_j2 = signalJets.at(2)->pT();
 
-        bool preselection=false;
-        if ((nSignalLeptons==2 || nSignalLeptons==3) && nBaselineLeptons==nSignalLeptons && pT_l0>25 && pT_l1>20)preselection=true;
+        bool preselection = false;
+        if ((nSignalLeptons == 2 || nSignalLeptons == 3) && nBaselineLeptons == nSignalLeptons && pT_l0 > 25 && pT_l1 > 20) preselection=true;
 
 
         // Signal Regions
 
         //2lep+0jet
-        if (preselection && nSignalLeptons==2 && OSpairs.size()==1 && mll>40 && central_jet_veto && bjet_veto) {
-          if (SFOSpairs.size()==1) {
-            if (mT2>100 && mll>111) _counters.at("SR2_SF_loose").add_event(event);
-            if (mT2>130 && mll>300) _counters.at("SR2_SF_tight").add_event(event);
+        if (preselection && nSignalLeptons == 2 && OSpairs.size() == 1 && mll > 40 && central_jet_veto && bjet_veto)
+        {
+          if (SFOSpairs.size() == 1)
+          {
+            if (mT2 > 100 && mll > 111) _counters.at("SR2_SF_loose").add_event(event);
+            if (mT2 > 130 && mll > 300) _counters.at("SR2_SF_tight").add_event(event);
           }
-          if (SFOSpairs.size()==0) {
-            if (mT2>100 && mll>111) _counters.at("SR2_DF_100").add_event(event);
-            if (mT2>150 && mll>111) _counters.at("SR2_DF_150").add_event(event);
-            if (mT2>200 && mll>111) _counters.at("SR2_DF_200").add_event(event);
-            if (mT2>300 && mll>111) _counters.at("SR2_DF_300").add_event(event);
+          if (SFOSpairs.size()==0)
+          {
+            if (mT2 > 100 && mll > 111) _counters.at("SR2_DF_100").add_event(event);
+            if (mT2 > 150 && mll > 111) _counters.at("SR2_DF_150").add_event(event);
+            if (mT2 > 200 && mll > 111) _counters.at("SR2_DF_200").add_event(event);
+            if (mT2 > 300 && mll > 111) _counters.at("SR2_DF_300").add_event(event);
           }
         }
 
         //2lep+jets
-        if (preselection && nSignalLeptons==2 && SFOSpairs.size()==1 && bjet_veto && nSignalJets>1 && pT_j0>30 && pT_j1>30 && pT_l1>25) {
+        if (preselection && nSignalLeptons == 2 && SFOSpairs.size() == 1 && bjet_veto && nSignalJets > 1 && pT_j0 > 30 && pT_j1 > 30 && pT_l1 > 25)
+        {
           //SR2_int + SR2_high
-          if (mll>81. && mll<101. && mjj>70. && mjj<100. && Z.pT()>80. && W.pT()>100. && mT2>100. && deltaR_jj<1.5 && deltaR_ll<1.8 && deltaPhi_met_W>0.5 && deltaPhi_met_W<3.0) {
-            if (met>150) _counters.at("SR2_int").add_event(event);
-            if (met>250) _counters.at("SR2_high").add_event(event);
+          if (mll > 81. &&
+              mll < 101. &&
+              mjj > 70. &&
+              mjj < 100. &&
+              Z.pT() > 80. &&
+              W.pT() > 100. &&
+              mT2 > 100. &&
+              deltaR_jj < 1.5 &&
+              deltaR_ll < 1.8 &&
+              deltaPhi_met_W > 0.5 &&
+              deltaPhi_met_W < 3.0)
+          {
+            if (met > 150) _counters.at("SR2_int").add_event(event);
+            if (met > 250) _counters.at("SR2_high").add_event(event);
           }
           //SR2_low_2J
-          if (nSignalJets==2 && mll>81. && mll<101. && mjj>70. && mjj<90. && met>100. && Z.pT()>60. && deltaPhi_met_Z<0.8 && deltaPhi_met_W>1.5 && (met/Z.pT())>0.6 && (met/Z.pT())<1.6 && (met/W.pT())<0.8) _counters.at("SR2_low").add_event(event);
+          if (nSignalJets == 2 &&
+              mll > 81. &&
+              mll < 101. &&
+              mjj > 70. &&
+              mjj < 90. &&
+              met > 100. &&
+              Z.pT() > 60. &&
+              deltaPhi_met_Z < 0.8 &&
+              deltaPhi_met_W > 1.5 &&
+              (met/Z.pT()) > 0.6 &&
+              (met/Z.pT()) < 1.6 &&
+              (met/W.pT()) < 0.8)
+          {
+            _counters.at("SR2_low").add_event(event);
+          }
           //SR2_low_3J
-          if (nSignalJets>2 && nSignalJets<6 && mll>86 && mll<96 && mjj>70. && mjj<90. && met>100 && Z.pT()>40 && deltaR_jj<2.2 && deltaPhi_met_W<2.2 && deltaPhi_met_ISR>2.4 && deltaPhi_met_jet0>2.6 && (met/W_ISR.at(1).pT())>0.4 && (met/W_ISR.at(1).pT())<0.8 && Z.abseta()<1.6 && pT_j2>30.) _counters.at("SR2_low").add_event(event);
+          if (nSignalJets > 2 &&
+              nSignalJets < 6 &&
+              mll > 86 &&
+              mll < 96 &&
+              mjj > 70. &&
+              mjj < 90. &&
+              met > 100 &&
+              Z.pT() > 40 &&
+              deltaR_jj < 2.2 &&
+              deltaPhi_met_W < 2.2 &&
+              deltaPhi_met_ISR > 2.4 &&
+              deltaPhi_met_jet0 > 2.6 &&
+              (met/W_ISR.at(1).pT()) > 0.4 &&
+              (met/W_ISR.at(1).pT()) < 0.8 &&
+              Z.abseta() < 1.6 &&
+              pT_j2 > 30.) 
+          {
+            _counters.at("SR2_low").add_event(event);
+          }
         }
 
         //3lep
-        if (preselection && nSignalLeptons==3 && bjet_veto && SFOSpairs.size()) {
-          if (mSFOS<81.2 && met>130. && mTmin>110.) {
-            if (pT_l2>20. && pT_l2<30.) _counters.at("SR3_slep_a").add_event(event);
-            if (pT_l2>30.) _counters.at("SR3_slep_b").add_event(event);
+        if (preselection && nSignalLeptons == 3 && bjet_veto && SFOSpairs.size())
+        {
+          if (mSFOS < 81.2 && met > 130. && mTmin > 110.)
+          {
+            if (pT_l2 > 20. && pT_l2 < 30.) _counters.at("SR3_slep_a").add_event(event);
+            if (pT_l2 > 30.) _counters.at("SR3_slep_b").add_event(event);
           }
-          if (mSFOS>101.2 && met>130. && mTmin>110.) {
-            if (pT_l2>20. && pT_l2<50.) _counters.at("SR3_slep_c").add_event(event);
-            if (pT_l2>50. && pT_l2<80.) _counters.at("SR3_slep_d").add_event(event);
-            if (pT_l2>80.) _counters.at("SR3_slep_e").add_event(event);
+          if (mSFOS > 101.2 && met > 130. && mTmin > 110.)
+          {
+            if (pT_l2 > 20. && pT_l2 < 50.) _counters.at("SR3_slep_c").add_event(event);
+            if (pT_l2 > 50. && pT_l2 < 80.) _counters.at("SR3_slep_d").add_event(event);
+            if (pT_l2 > 80.) _counters.at("SR3_slep_e").add_event(event);
           }
-          if (mSFOS>81.2 && mSFOS<101.2 && nSignalJets==0 && mTmin>110.) {
-            if (met>60. && met<120.) _counters.at("SR3_WZ_0Ja").add_event(event);
-            if (met>120. && met<170.) _counters.at("SR3_WZ_0Jb").add_event(event);
-            if (met>170.) _counters.at("SR3_WZ_0Jc").add_event(event);
+          if (mSFOS > 81.2 && mSFOS < 101.2 && nSignalJets == 0 && mTmin > 110.)
+          {
+            if (met > 60. && met < 120.) _counters.at("SR3_WZ_0Ja").add_event(event);
+            if (met > 120. && met < 170.) _counters.at("SR3_WZ_0Jb").add_event(event);
+            if (met > 170.) _counters.at("SR3_WZ_0Jc").add_event(event);
           }
-          if (mSFOS>81.2 && mSFOS<101.2 && nSignalJets>0) {
-            if (met>120. && met<200. && mTmin>110. && pTlll<120. && pT_j1>70.) _counters.at("SR3_WZ_1Ja").add_event(event);
-            if (met>200. && mTmin>110. && mTmin<160.) _counters.at("SR3_WZ_1Jb").add_event(event);
-            if (met>200. && pT_l2>35. && mTmin>160.) _counters.at("SR3_WZ_1Jc").add_event(event);
+          if (mSFOS > 81.2 && mSFOS < 101.2 && nSignalJets > 0)
+          {
+            if (met > 120. && met < 200. && mTmin > 110. && pTlll < 120. && pT_j1 > 70.) _counters.at("SR3_WZ_1Ja").add_event(event);
+            if (met > 200. && mTmin > 110. && mTmin < 160.) _counters.at("SR3_WZ_1Jb").add_event(event);
+            if (met > 200. && pT_l2 > 35. && mTmin > 160.) _counters.at("SR3_WZ_1Jc").add_event(event);
           }
         }
 
-        // if (analysis_name().find("200_100") != string::npos) {
+        // if (analysis_name().find("200_100") != string::npos)
+        // {
 
  //       cutFlowVector1_str[0] = "All events";
  //          cutFlowVector1_str[1] = "$\\geq$ 2 signal leptons \\& SFOS";
@@ -745,7 +830,8 @@ namespace Gambit {
 
 
       // This function can be overridden by the derived SR-specific classes
-      virtual void collect_results() {
+      virtual void collect_results()
+      {
 
         add_result(SignalRegionData(_counters.at("SR2_SF_loose"), 153., {133., 22.}));
         add_result(SignalRegionData(_counters.at("SR2_SF_tight"), 9., {9.8, 2.9}));
@@ -770,30 +856,36 @@ namespace Gambit {
       }
 
 
-      vector<HEPUtils::P4> get_W_ISR(vector<const HEPUtils::Jet*> jets, HEPUtils::P4 Z, HEPUtils::P4 met) {
-        HEPUtils::P4 Z_met_sys=Z+met;
-        double deltaR_min=999;
+      vector<HEPUtils::P4> get_W_ISR(vector<const HEPUtils::Jet*> jets, HEPUtils::P4 Z, HEPUtils::P4 met)
+      {
+        HEPUtils::P4 Z_met_sys = Z + met;
+        double deltaR_min = 999;
         size_t Wjets_id1;
         size_t Wjets_id2;
-        for (size_t i=0;i<jets.size();i++) {
-          for (size_t j=0;j<jets.size();j++) {
-            if (i!=j) {
-              HEPUtils::P4 jj_sys=jets.at(i)->mom()+jets.at(j)->mom();
-              double deltaR=fabs(jj_sys.deltaR_eta(Z_met_sys));
-              if (deltaR<deltaR_min) {
-                deltaR_min=deltaR;
-                Wjets_id1=i;
-                Wjets_id2=j;
+        for (size_t i = 0; i < jets.size(); i++)
+        {
+          for (size_t j = 0; j < jets.size(); j++)
+          {
+            if (i != j)
+            {
+              HEPUtils::P4 jj_sys = jets.at(i)->mom() + jets.at(j)->mom();
+              double deltaR = fabs(jj_sys.deltaR_eta(Z_met_sys));
+              if (deltaR < deltaR_min)
+              {
+                deltaR_min = deltaR;
+                Wjets_id1 = i;
+                Wjets_id2 = j;
               }
             }
           }
         }
-        HEPUtils::P4 W=jets.at(Wjets_id2)->mom()+jets.at(Wjets_id1)->mom();
+        HEPUtils::P4 W = jets.at(Wjets_id2)->mom() + jets.at(Wjets_id1)->mom();
         HEPUtils::P4 ISR;
-        HEPUtils::P4 j0=jets.at(Wjets_id2)->mom();
-        HEPUtils::P4 j1=jets.at(Wjets_id1)->mom();
-        for (size_t k=0;k<jets.size();k++) {
-          if ((k!=Wjets_id1) && (k!=Wjets_id2))ISR+=(jets.at(k)->mom());
+        HEPUtils::P4 j0 = jets.at(Wjets_id2)->mom();
+        HEPUtils::P4 j1 = jets.at(Wjets_id1)->mom();
+        for (size_t k = 0; k < jets.size(); k++)
+        {
+          if ((k != Wjets_id1) && (k != Wjets_id2)) ISR += (jets.at(k)->mom());
         }
         vector<HEPUtils::P4> W_ISR;
         W_ISR.push_back(W);
@@ -805,7 +897,8 @@ namespace Gambit {
 
 
     protected:
-      void analysis_specific_reset() {
+      void analysis_specific_reset()
+      {
 
         for (auto& pair : _counters) { pair.second.reset(); }
       }
@@ -820,14 +913,17 @@ namespace Gambit {
     //
     // Derived analysis class for the 2Lep0Jets SRs
     //
-    class Analysis_ATLAS_SUSY_2016_24_2Lep0Jets : public Analysis_ATLAS_SUSY_2016_24 {
+    class Analysis_ATLAS_SUSY_2016_24_2Lep0Jets : public Analysis_ATLAS_SUSY_2016_24
+    {
 
     public:
-      Analysis_ATLAS_SUSY_2016_24_2Lep0Jets() {
+      Analysis_ATLAS_SUSY_2016_24_2Lep0Jets()
+      {
         set_analysis_name("ATLAS_SUSY_2016_24_2Lep0Jets");
       }
 
-      virtual void collect_results() {
+      virtual void collect_results()
+      {
 
         add_result(SignalRegionData(_counters.at("SR2_SF_loose"), 153., {133., 22.}));
         add_result(SignalRegionData(_counters.at("SR2_SF_tight"), 9., {9.8, 2.9}));
@@ -845,14 +941,17 @@ namespace Gambit {
 
 
     // Derived analysis class for the 2LepPlusJets SRs
-    class Analysis_ATLAS_SUSY_2016_24_2LepPlusJets : public Analysis_ATLAS_SUSY_2016_24 {
+    class Analysis_ATLAS_SUSY_2016_24_2LepPlusJets : public Analysis_ATLAS_SUSY_2016_24
+    {
 
     public:
-      Analysis_ATLAS_SUSY_2016_24_2LepPlusJets() {
+      Analysis_ATLAS_SUSY_2016_24_2LepPlusJets()
+      {
         set_analysis_name("ATLAS_SUSY_2016_24_2LepPlusJets");
       }
 
-      virtual void collect_results() {
+      virtual void collect_results()
+      {
 
         add_result(SignalRegionData(_counters.at("SR2_int"), 2., {4.1, 2.6}));
         add_result(SignalRegionData(_counters.at("SR2_high"), 0., {1.6, 1.6}));
@@ -867,14 +966,17 @@ namespace Gambit {
 
 
     // Derived analysis class for the 3Lep SRs
-    class Analysis_ATLAS_SUSY_2016_24_3Lep : public Analysis_ATLAS_SUSY_2016_24 {
+    class Analysis_ATLAS_SUSY_2016_24_3Lep : public Analysis_ATLAS_SUSY_2016_24
+    {
 
     public:
-      Analysis_ATLAS_SUSY_2016_24_3Lep() {
+      Analysis_ATLAS_SUSY_2016_24_3Lep()
+      {
         set_analysis_name("ATLAS_SUSY_2016_24_3Lep");
       }
 
-      virtual void collect_results() {
+      virtual void collect_results()
+      {
 
         add_result(SignalRegionData(_counters.at("SR3_slep_a"), 4., {2.2, 0.8}));
         add_result(SignalRegionData(_counters.at("SR3_slep_b"), 3., {2.8, 0.4}));

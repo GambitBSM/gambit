@@ -80,11 +80,11 @@ namespace Gambit
         double delta = a2 - b;
         if (delta < 0)
         {
-            return {a};
+          return {a};
         }
         else
         {
-            return {a + std::sqrt(delta), a - std::sqrt(delta)};
+          return {a + std::sqrt(delta), a - std::sqrt(delta)};
         }
       }
 
@@ -411,7 +411,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters["1LSR"], 50, {38., 7.}));
         add_result(SignalRegionData(_counters["2LSR1"], 123, {115., 15.}));
         add_result(SignalRegionData(_counters["2LSR2"], 47, {46., 7.}));
-COMMIT_CUTFLOWS
+        COMMIT_CUTFLOWS
       }
 
     protected:

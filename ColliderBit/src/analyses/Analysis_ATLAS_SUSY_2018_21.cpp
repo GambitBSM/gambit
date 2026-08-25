@@ -51,12 +51,12 @@ namespace Gambit
 
       struct ptComparison
       {
-        bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
+        bool operator() (const HEPUtils::Particle* i, const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
       } comparePt;
 
       struct ptJetComparison
       {
-        bool operator() (const HEPUtils::Jet* i,const HEPUtils::Jet* j) {return (i->pT()>j->pT());}
+        bool operator() (const HEPUtils::Jet* i, const HEPUtils::Jet* j) {return (i->pT()>j->pT());}
       } compareJetPt;
 
 
@@ -128,7 +128,7 @@ namespace Gambit
 
         // Initialize cutflows
         #ifdef CHECK_CUTFLOW
-        _cutflows.fillinit(event->weight());
+          _cutflows.fillinit(event->weight());
         #endif
 
         // Electron candidates are reconstructed from isolated electromagnetic calorimeter energy deposits matched to ID tracks and are required to have |η| < 2.47, a transverse momentum pT > 4.5 GeV, and to pass the “LooseAndBLayer” requirement in arXiv: 1902.04655 [hep-ex].
@@ -161,7 +161,9 @@ namespace Gambit
         for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->pT()>20. && jet->abseta()<2.8)
+          {
             if( (jet->pT() >= 120. || jet->abseta() >= 2.5) || random_bool(jet_eff) ) baselineJets.push_back(jet);
+          }
         }
 
         // Overlap removal
@@ -280,8 +282,7 @@ namespace Gambit
         double mZ = 91.2;
         for(double m : SFOSpair_masses)
         {
-          if (abs(m - mZ) < 15)
-            Zlike = true;
+          if (abs(m - mZ) < 15) Zlike = true;
         }
 
         // h candidate
@@ -289,8 +290,7 @@ namespace Gambit
         double h_id_eff = 0.52; // Paper claims an efficiency between 50% and 54% but, depending on the mass of stop1
         // int nhcand = 0;  // Used only by the disabled SRh preselection below.
         // Preserve the legacy random-number consumption while SRh is disabled.
-        for(size_t i=0; i<BJetPairs.size(); ++i)
-          static_cast<void>(random_bool(h_id_eff));
+        for(size_t i=0; i<BJetPairs.size(); ++i) static_cast<void>(random_bool(h_id_eff));
 
         // Transverse mass from leading lepton with pT
         // double mT = nSignalLeptons > 0 and get_mT(signalLeptons.at(0)->mom(), ptot);  // currently not used
@@ -315,8 +315,7 @@ namespace Gambit
 
         // Construct the pTll variable
         double pTll = 0.0;
-        if(SFOSpairClosestToMZ.size() == 2)
-          pTll = ( SFOSpairClosestToMZ.at(0)->mom() + SFOSpairClosestToMZ.at(1)->mom() ).pT();
+        if(SFOSpairClosestToMZ.size() == 2) pTll = ( SFOSpairClosestToMZ.at(0)->mom() + SFOSpairClosestToMZ.at(1)->mom() ).pT();
 
         // Find the highest pT lepton not in the pair, but make sure there are at least 3 leptons
         double mT23l = 0.0;
@@ -324,11 +323,17 @@ namespace Gambit
         {
           const HEPUtils::Particle* thirdLepton;
           if(signalLeptons.at(0) != SFOSpairClosestToMZ.at(0) && signalLeptons.at(0) != SFOSpairClosestToMZ.at(1))
+          {
             thirdLepton = signalLeptons.at(0);
+          }
           else if(signalLeptons.at(1) != SFOSpairClosestToMZ.at(0) && signalLeptons.at(1) != SFOSpairClosestToMZ.at(1))
+          {
             thirdLepton = signalLeptons.at(1);
+          }
           else
+          {
             thirdLepton = signalLeptons.at(2);
+          }
 
           double pa[3] = { mll, (SFOSpairClosestToMZ.at(0)->mom() + SFOSpairClosestToMZ.at(1)->mom()).px(), (SFOSpairClosestToMZ.at(0)->mom() + SFOSpairClosestToMZ.at(1)->mom()).py() };
           double pb[3] = { 0, thirdLepton->mom().px(), thirdLepton->mom().py() };
@@ -433,94 +438,80 @@ namespace Gambit
           Cutflow* cfs[] = {&_cutflows["SRZ1A"], &_cutflows["SRZ1B"], &_cutflows["SRZ2A"], &_cutflows["SRZ2B"]};
 
           // Preselection
-          for(int i=0; i<4; i++)
-            cfs[i]->fill(1, w);
+          for(int i=0; i<4; i++) cfs[i]->fill(1, w);
 
           // 1
-          for(int i=0; i<4; i++)
-            cfs[i]->fill(2, w);
+          for(int i=0; i<4; i++) cfs[i]->fill(2, w);
 
           bool SR[] ={true, true, true, true};
 
           // 2
           // Third leading lepton pT
           for(int i=0; i<2; i++)
-            if(signalLeptons.at(2)->pT() > 20)
-              cfs[i]->fill(3, w);
-            else
-              SR[i] = false;
-          if(signalLeptons.at(2)->pT() < 20)
-            cfs[2]->fill(3, w);
+          {
+            if(signalLeptons.at(2)->pT() > 20) cfs[i]->fill(3, w);
+            else SR[i] = false;
+          }
+
+          if(signalLeptons.at(2)->pT() < 20) cfs[2]->fill(3, w);
           else SR[2] = false;
-          if(signalLeptons.at(2)->pT() < 60)
-            cfs[3]->fill(3, w);
+          if(signalLeptons.at(2)->pT() < 60) cfs[3]->fill(3, w);
           else SR[3] = false;
 
           // 3
           // Z peak
           for(int i=0; i<4; i++)
-            if(Zlike)
-             cfs[i]->fill(4, SR[i], w);
+          {
+            if(Zlike) cfs[i]->fill(4, SR[i], w);
             else SR[i] = false;
+          }
 
           // 4
           // nbtagged jets (pT > 30 GeV)
           for(int i=0; i<4; i++)
-            if(nSignalBJets >= 1 && signalBJets.at(0)->pT() > 30. && i != 2)
-              cfs[i]->fill(5, SR[i], w);
-            else if (i != 2)
-              SR[i] = false;
+          {
+            if(nSignalBJets >= 1 && signalBJets.at(0)->pT() > 30. && i != 2) cfs[i]->fill(5, SR[i], w);
+            else if (i != 2) SR[i] = false;
+          }
           // Leading jet pT > 150 GeV
-          if(signalJets.at(0)->pT() > 150.)
-            cfs[2]->fill(5, SR[2], w);
+          if(signalJets.at(0)->pT() > 150.) cfs[2]->fill(5, SR[2], w);
           else SR[2] = false;
 
           // 5
           // n jets (pT > 30 GeV)
-          if(nSignalJets >= 4 && signalJets.at(3)->pT() > 30.)
-            cfs[0]->fill(6, SR[0], w);
+          if(nSignalJets >= 4 && signalJets.at(3)->pT() > 30.) cfs[0]->fill(6, SR[0], w);
           else SR[0] = false;
-          if(nSignalJets >= 5 && signalJets.at(4)->pT() > 30.)
-            cfs[1]->fill(6, SR[1], w);
+          if(nSignalJets >= 5 && signalJets.at(4)->pT() > 30.) cfs[1]->fill(6, SR[1], w);
           else SR[1] = false;
           // MET
-          if(met > 200.)
-            cfs[2]->fill(6, SR[2], w);
+          if(met > 200.) cfs[2]->fill(6, SR[2], w);
           else SR[2] = false;
-          if(met > 350.)
-            cfs[3]->fill(6, SR[3], w);
+          if(met > 350.) cfs[3]->fill(6, SR[3], w);
           else SR[3] = false;
 
           // 6
           // MET
-          if(met > 250.)
-            cfs[0]->fill(7, SR[0], w);
+          if(met > 250.) cfs[0]->fill(7, SR[0], w);
           else SR[0] = false;
-          if(met > 150.)
-            cfs[1]->fill(7, SR[1], w);
+          if(met > 150.) cfs[1]->fill(7, SR[1], w);
           else SR[1] = false;
           // pTll
-          if(pTll < 50.)
-            cfs[2]->fill(7, SR[2], w);
+          if(pTll < 50.) cfs[2]->fill(7, SR[2], w);
           else SR[2] = false;
-          if(pTll > 150.)
-            cfs[3]->fill(7, SR[3], w);
+          if(pTll > 150.) cfs[3]->fill(7, SR[3], w);
           else SR[3] = false;
 
           // 7
           // mT23l
-          if(mT23l > 100.)
-            cfs[0]->fill(8, SR[0], w);
+          if(mT23l > 100.) cfs[0]->fill(8, SR[0], w);
           else SR[0] = false;
           // pTll
-          if(pTll > 150.)
-            cfs[1]->fill(8, SR[1], w);
+          if(pTll > 150.) cfs[1]->fill(8, SR[1], w);
           else SR[1] = false;
 
           // 8
           // Leading b-tagget jet pT > 100 GeV
-          if(nSignalBJets >= 1 && signalBJets.at(0)->pT() > 100.)
-            cfs[1]->fill(9, SR[1], w);
+          if(nSignalBJets >= 1 && signalBJets.at(0)->pT() > 100.) cfs[1]->fill(9, SR[1], w);
           else SR[1] = false;
         }
         #endif
@@ -578,7 +569,6 @@ namespace Gambit
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results()
       {
-
         add_result(SignalRegionData(_counters.at("SRZ1A"), 3., {5.7, 1.0}));
         add_result(SignalRegionData(_counters.at("SRZ1B"), 14., {12.1, 2.0}));
         add_result(SignalRegionData(_counters.at("SRZ2A"), 3., {5.6, 1.6}));
@@ -586,8 +576,7 @@ namespace Gambit
         // add_result(SignalRegionData(_counters.at("SRh1A"), 11., {17., 3.}));
         // add_result(SignalRegionData(_counters.at("SRh1B"), 24., {19., 5.}));
 
-COMMIT_CUTFLOWS;
-
+        COMMIT_CUTFLOWS;
       }
 
 
