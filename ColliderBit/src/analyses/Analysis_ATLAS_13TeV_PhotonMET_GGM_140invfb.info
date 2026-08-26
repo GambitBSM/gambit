@@ -1,0 +1,9 @@
+Summary: ATLAS search for electroweakinos in final states with photons, jets and large missing transverse momentum at 13 TeV with 140/fb
+InspireID: 3086706
+ExptRun: ATLAS-R2
+Lumi_ifb: 140.0
+Ecm_TeV: 13.0
+Signatures: [">=1P + >=1J + MET"]
+Keywords: ["photon", "GGM", "GMSB", "electroweakino", "gravitino"]
+Authors: ["Chris Chang"]
+Notes: ATLAS-SUSY-2021-07, JHEP 04 (2026) 150, arXiv 2511.21240. Implements the five signal regions (SRL, SRM, SRH, SRLe, SRMe) of Table 2, with observed/background yields from Table 5. No public SR correlation matrix was available, so regions are treated as independent.

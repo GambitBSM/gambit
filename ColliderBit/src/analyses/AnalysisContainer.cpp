@@ -112,6 +112,7 @@ namespace Gambit
       F(ATLAS_13TeV_PhotonGGM_1Photon_36invfb)       \
       F(ATLAS_13TeV_PhotonGGM_2Photon_36invfb)       \
       F(ATLAS_13TeV_PhotonGGM_1Photon_139invfb)      \
+      F(ATLAS_13TeV_PhotonMET_GGM_140invfb)          \
       F(ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb)     \
       F(ATLAS_13TeV_2OSLEP_Z_139invfb)               \
       F(ATLAS_13TeV_bTaus_StopStau_139invfb)         \
