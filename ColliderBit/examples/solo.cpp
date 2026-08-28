@@ -467,6 +467,12 @@ int main(int argc, char* argv[])
     CBS["max_nEvents"] = (long long)(std::numeric_limits<int>::max());
     // CBS policy: always process all events provided by the user (no convergence-based early stop).
     CBS["run_convergence_checks"] = false;
+    // Emit a compact progress indicator after each completed event block.
+    // The event loop itself remains quiet; this is the only intentional live output.
+    CBS["show_event_progress"] = settings.getValueOrDef<bool>(
+      output_config.screen_output, "hepmc_progress"
+    );
+    CBS["event_progress_label"] = "CBS HepMC";
     operateLHCLoop.setOption<YAML::Node>("CBS", CBS);
     operateLHCLoop.setOption<bool>("silenceLoop", not debug);
 

@@ -43,6 +43,8 @@
 #include "gambit/ColliderBit/PoissonCalculators.hpp"
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 
+#include <unistd.h>
+
 // #define COLLIDERBIT_DEBUG
 #define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  " << __FILE__ << ":" << __LINE__ << ":  "
 
@@ -115,6 +117,8 @@ namespace Gambit
       static std::map<str,int> max_nEvents;
       static std::map<str,int> stoppingres;
       static std::map<str,bool> run_convergence_checks;
+      static std::map<str,bool> show_event_progress;
+      static std::map<str,str> event_progress_label;
       static bool fixed_nEvents = true;
       if (first)
       {
@@ -207,6 +211,8 @@ namespace Gambit
           result.maxFailedEvents[collider]                                = colOptions.getValueOrDef<int>(1, "maxFailedEvents");
           result.invalidate_failed_points[collider]                       = colOptions.getValueOrDef<bool>(false, "invalidate_failed_points");
           stoppingres[collider]                                           = colOptions.getValueOrDef<int>(200, "events_between_convergence_checks");
+          show_event_progress[collider]                                   = colOptions.getValueOrDef<bool>(false, "show_event_progress");
+          event_progress_label[collider]                                  = colOptions.getValueOrDef<str>(collider, "event_progress_label");
           result.event_count[collider]                                    = 0;
 
           // In the case of using the UMVUE estimator, override some options
@@ -235,6 +241,10 @@ namespace Gambit
       // For every collider requested in the yaml file:
       for (auto& collider : result.collider_names)
       {
+
+        const bool use_live_progress = show_event_progress.at(collider);
+        const bool progress_is_interactive = use_live_progress && ::isatty(STDOUT_FILENO);
+        bool progress_line_active = false;
 
         // Reset the event_generation_began and exceeded_maxFailedEvents flags
         result.reset_flags();
@@ -369,6 +379,27 @@ namespace Gambit
           piped_errors.check(ColliderBit_error());
           piped_invalid_point.check();
 
+          // This point is outside the OMP event loop: each scheduled event
+          // has completed all nested functions, and EOF/error corrections to
+          // the event counter have already been applied.
+          if (use_live_progress)
+          {
+            if (silenceLoop) std::cout.rdbuf(coutbuf);
+            cout << (progress_is_interactive ? "\r" : "")
+                 << event_progress_label.at(collider) << ": analysed "
+                 << result.current_event_count() << " events";
+            if (progress_is_interactive)
+            {
+              cout << std::flush;
+              progress_line_active = true;
+            }
+            else
+            {
+              cout << endl;
+            }
+            if (silenceLoop) std::cout.rdbuf(0);
+          }
+
           #ifdef COLLIDERBIT_DEBUG
             cout << DEBUG_PREFIX << "Did " << eventCountBetweenConvergenceChecks << " events of " << result.current_event_count() << " simulated so far." << endl;
           #endif
@@ -419,6 +450,13 @@ namespace Gambit
         piped_warnings.check(ColliderBit_warning());
         piped_errors.check(ColliderBit_error());
         piped_invalid_point.check();
+
+        if (progress_line_active)
+        {
+          if (silenceLoop) std::cout.rdbuf(coutbuf);
+          cout << endl;
+          if (silenceLoop) std::cout.rdbuf(0);
+        }
       }
 
       // Nicely thank the loop for being quiet, and restore everyone's vocal chords
