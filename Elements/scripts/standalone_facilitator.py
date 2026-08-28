@@ -98,7 +98,7 @@ def main(argv):
 namespace Gambit                                  \n\
 {                                                 \n\
   // Non-module types                             \n\
-  template class module_functor<void>;            \n"
+"
     for t in returned_types["non_module"]:
         towrite += "  template class module_functor<"+t+">;\n"
     if all_types:
