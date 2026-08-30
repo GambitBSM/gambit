@@ -48,7 +48,6 @@ build/*
 CBS 
 
 CBS_yaml/*
-!CBS_yaml/CBS_defaults.yaml
 plots/*
 
 # Generated cmake files
