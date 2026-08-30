@@ -70,18 +70,31 @@ macro(cbs_preset_after_optional)
     endif()
   endif()
 
+  set(_cbs_sqlite_prerequisites_reason "")
   if(CBS_WITH_RIVET_CONTUR AND NOT SQLite3_FOUND)
+    list(APPEND _cbs_sqlite_prerequisites_reason
+         "SQLite3 development libraries were not found")
+  endif()
+  if(CBS_WITH_RIVET_CONTUR AND NOT SQLITE3_CLI_FOUND)
+    list(APPEND _cbs_sqlite_prerequisites_reason
+         "the sqlite3 command-line client was not found")
+  endif()
+  if(_cbs_sqlite_prerequisites_reason)
+    string(REPLACE ";" "; " _cbs_sqlite_prerequisites_text
+           "${_cbs_sqlite_prerequisites_reason}")
     set(CBS_RIVET_CONTUR_PREREQUISITES_FOUND FALSE)
     if(CBS_RIVET_CONTUR_PREREQUISITES_REASON)
       string(APPEND CBS_RIVET_CONTUR_PREREQUISITES_REASON
-             "; SQLite3 development libraries were not found")
+             "; ${_cbs_sqlite_prerequisites_text}")
     else()
       set(CBS_RIVET_CONTUR_PREREQUISITES_REASON
-          "SQLite3 development libraries were not found")
+          "${_cbs_sqlite_prerequisites_text}")
     endif()
     message(STATUS
-      "CBS Rivet/Contur: unavailable (SQLite3 development libraries were not found)")
+      "CBS Rivet/Contur: unavailable (${_cbs_sqlite_prerequisites_text})")
   endif()
+  unset(_cbs_sqlite_prerequisites_reason)
+  unset(_cbs_sqlite_prerequisites_text)
 endmacro()
 
 macro(cbs_preset_attach_optional_backends)

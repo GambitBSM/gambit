@@ -122,6 +122,7 @@ int main(void) { return sqlite3_libversion_number() == 0; }
     set(_cbs_sqlite3 FALSE)
   endif()
   set(CBS_VALIDATION_SQLITE3 "${_cbs_sqlite3}")
+  set(CBS_VALIDATION_SQLITE3_CLI "${SQLITE3_CLI_FOUND}")
 
   set(CMAKE_REQUIRED_FLAGS "${_cbs_saved_required_flags}")
   set(CMAKE_REQUIRED_INCLUDES "${_cbs_saved_required_includes}")
@@ -209,6 +210,7 @@ int main(void) { return sqlite3_libversion_number() == 0; }
       CBS_VALIDATION_BOOST
       CBS_VALIDATION_HDF5
       CBS_VALIDATION_SQLITE3
+      CBS_VALIDATION_SQLITE3_CLI
       CBS_VALIDATION_CYTHON
       CBS_VALIDATION_CONFIGOBJ
       CBS_VALIDATION_PANDAS
@@ -260,6 +262,8 @@ function(cbs_print_validation_summary)
   cbs_validation_status("${CBS_VALIDATION_OPENMP}" _cbs_openmp_status)
   cbs_validation_status("${CBS_VALIDATION_PYTHON_DEVELOPMENT}" _cbs_python_status)
   cbs_validation_status("${CBS_VALIDATION_BOOST}" _cbs_boost_status)
+  cbs_validation_status("${CBS_VALIDATION_SQLITE3}" _cbs_sqlite3_status)
+  cbs_validation_status("${CBS_VALIDATION_SQLITE3_CLI}" _cbs_sqlite3_cli_status)
   cbs_validation_status("${CBS_VALIDATION_CBS_TARGET}" _cbs_target_status)
 
   if(CBS_VALIDATION_DYNAMIC_LOOKUP_REQUIRED)
@@ -275,6 +279,8 @@ function(cbs_print_validation_summary)
   cbs_summary_line("dynamic_lookup" "${_cbs_dynamic_lookup_status}")
   cbs_summary_line("Python development" "${_cbs_python_status}")
   cbs_summary_line("Boost" "${_cbs_boost_status}")
+  cbs_summary_line("SQLite3 development" "${_cbs_sqlite3_status}")
+  cbs_summary_line("sqlite3 client" "${_cbs_sqlite3_cli_status}")
   cbs_summary_line("CBS target" "${_cbs_target_status}")
   if(CBS_ENVIRONMENT_READY)
     cbs_summary_line("CBS environment" "READY")

@@ -429,8 +429,14 @@ else()
   set(itch "${itch}" "hdf5printer" "hdf5reader")
 endif()
 
-# Check for SQLite libraries
+# Check for SQLite libraries and the command-line client.
+#
+# GAMBIT's SQLite printers only need the C library, whereas Contur also runs
+# `sqlite3` to create its analyses database.  Keep these checks separate so a
+# missing command-line client disables Contur without disabling the printers.
 option(WITH_SQLite3 "Compile with SQLite3 enabled" ON)
+set(SQLITE3_CLI_FOUND FALSE)
+set(SQLITE3_CLI_VERSION "")
 if(WITH_SQLite3)
   find_package(SQLite3 QUIET COMPONENTS C)
   if(SQLite3_FOUND)
@@ -438,6 +444,27 @@ if(WITH_SQLite3)
     set(SQLITE3_FOUND TRUE)
     include_directories(${SQLite3_INCLUDE_DIRS})
     message("-- Found SQLite3 libraries: ${SQLite3_LIBRARIES}")
+    find_program(SQLITE3_EXECUTABLE NAMES sqlite3)
+    if(SQLITE3_EXECUTABLE)
+      execute_process(
+        COMMAND "${SQLITE3_EXECUTABLE}" --version
+        RESULT_VARIABLE _sqlite3_cli_result
+        OUTPUT_VARIABLE _sqlite3_cli_version_text
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET)
+      if(_sqlite3_cli_result EQUAL 0)
+        string(REGEX MATCH "^[^ \\t]+" SQLITE3_CLI_VERSION
+               "${_sqlite3_cli_version_text}")
+        set(SQLITE3_CLI_FOUND TRUE)
+        message("-- Found sqlite3 command-line client: ${SQLITE3_CLI_VERSION} (${SQLITE3_EXECUTABLE})")
+      else()
+        set(SQLITE3_CLI_VERSION "")
+        message("${BoldCyan} X The sqlite3 command-line client at ${SQLITE3_EXECUTABLE} could not be run. Contur will be excluded.${ColourReset}")
+      endif()
+    else()
+      message("${BoldCyan} X sqlite3 command-line client not found. Contur will be excluded.${ColourReset}")
+      message("   Install sqlite3 and ensure it is on PATH (Ubuntu/Debian: sudo apt install sqlite3).")
+    endif()
     if(VERBOSE)
         message(STATUS ${SQLite3_INCLUDE_DIRS})
     endif()
