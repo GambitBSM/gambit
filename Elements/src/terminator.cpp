@@ -19,6 +19,8 @@
 #include "gambit/Elements/terminator.hpp"
 #include "gambit/Utils/file_lock.hpp"
 
+#include <exception>
+
 void Gambit::terminator()
 {
   std::cout << std::endl << "Gambit has encountered an uncaught error during initialisation." << std::endl;
@@ -43,4 +45,3 @@ void Gambit::terminator()
 
   exit(1);
 }
-

@@ -145,6 +145,10 @@ Note that CMake will fail to find some dependencies on some systems without guid
 
 More information about the GAMBIT CMake system is provided in the Core paper. Configuration examples for specific computing clusters are available via gambit.hepforge.org.
 
+Maintainer-facing requirements for public CMake presets, dependency modelling,
+external packages, BOSS integration and build traceability are defined in
+[doc/CMAKE_PRESET_STANDARD.md](doc/CMAKE_PRESET_STANDARD.md).
+
 
 
 Assuming that you have retrieved the git repository or the tarball and unpacked it:
