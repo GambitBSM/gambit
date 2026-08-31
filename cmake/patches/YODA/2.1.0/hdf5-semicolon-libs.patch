@@ -1,0 +1,12 @@
+diff --git a/configure b/configure
+--- a/configure
++++ b/configure
+@@ -20468,6 +20468,6 @@ fi
+ 
+ 
+   ## remove duplicate flags
+-  HDF5_LIBS=$(echo "$HDF5_LIBS" | tr ' ' '\n' | sort -u | tr '\n' ' ')
++  HDF5_LIBS=$(echo "$HDF5_LIBS" | tr ';' ' ' | tr ' ' '\n' | sort -u | tr '\n' ' ')
+   if test x$HDF5_TYPE == xparallel; then
+ 
+ 

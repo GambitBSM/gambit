@@ -403,10 +403,21 @@ if(NOT EXCLUDE_YODA)
     # Keep libtool's OpenMP link step on the same runtime as GAMBIT itself.
     set(YODA_CONFIG_LDFLAGS "${YODA_CONFIG_LDFLAGS} ${GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP_LDFLAGS}")
   endif()
+  # HDF5 2.x h5cc can report extra libraries as a semicolon-separated list.
+  # YODA 2.1.0 expects whitespace-separated linker flags, so patch its
+  # pre-generated configure script before its configure output is used by
+  # libtool. Do not patch configure.ac here: the old YODA Automake files then
+  # try to regenerate aclocal.m4 with a version-specific aclocal binary.
+  set(YODA_HDF5_PATCH "${PROJECT_SOURCE_DIR}/cmake/patches/YODA/2.1.0/hdf5-semicolon-libs.patch")
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
+    PATCH_COMMAND ${CMAKE_COMMAND}
+      -DYODA_SOURCE_DIR=${dir}
+      -DYODA_CONFIGURE=${dir}/configure
+      -DYODA_PATCH=${YODA_HDF5_PATCH}
+      -P ${PROJECT_SOURCE_DIR}/cmake/scripts/patch_yoda_hdf5.cmake
     CONFIGURE_COMMAND ${YODA_PATH}/configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} CFLAGS=${YODA_C_FLAGS} CXXFLAGS=${YODA_CXX_FLAGS} LDFLAGS=${YODA_CONFIG_LDFLAGS} PYTHON=${Python3_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
     BUILD_COMMAND ${YODA_BUILD_COMMAND}
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
