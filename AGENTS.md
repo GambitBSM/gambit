@@ -16,6 +16,18 @@
   behaviour unchanged unless a change is independently correct for GAMBIT;
   avoid CBS-only workarounds in shared GAMBIT targets or build phases.
 
+## Non-interactive external projects
+
+- Every CMake and `ExternalProject` operation must be safe for unattended
+  builds: it must never wait for stdin or present an interactive prompt.
+- Do not re-apply a patch to an existing external source tree and then infer
+  whether it was already applied.  If a patch input changes, add a CMake build
+  step that reconstructs the clean source tree before the normal patch step.
+- Patch commands must be non-interactive (for example, `patch --batch
+  --forward`) and must fail with a clear non-zero status rather than waiting
+  for a user response.  An unchanged incremental build must not redo the
+  source reset or patch step.
+
 ## macOS deployment target
 
 - `MACOS_DEPLOYMENT_TARGET` is the single macOS minimum-version policy for

@@ -35,9 +35,20 @@ namespace Gambit
         std::vector<HepMCFileInput> files;
       };
 
+      /// Run conditions extracted from the first physical HepMC event.
+      struct HepMCRunInfo
+      {
+        int beam_pid_1 = 0;
+        int beam_pid_2 = 0;
+        double beam_energy_1_GeV = 0.0;
+        double beam_energy_2_GeV = 0.0;
+        double collision_energy_TeV = 0.0;
+      };
+
       struct PreparedInput
       {
         YAML::Node infile;
+        std::vector<str> requested_analyses;
         std::vector<str> analyses;
         std::vector<str> analysis_warnings;
         Options settings;
@@ -45,7 +56,10 @@ namespace Gambit
         std::vector<ProcessInput> processes;
 
         std::vector<str> hepmc_filenames;
+        std::vector<HepMCRunInfo> hepmc_run_infos;
 
+        HepMCRunInfo run_info;
+        double collision_energy_TeV = 0.0;
         double total_cross_section_fb = 0.0;
         double total_cross_section_uncert_fb = 0.0;
       };

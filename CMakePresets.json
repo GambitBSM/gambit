@@ -17,7 +17,7 @@
     {
       "name": "cbs-base",
       "hidden": true,
-      "description": "Shared CBS cache. Enable every CBS feature that can be turned on; skip those whose prerequisites are missing. Ordinary GAMBIT cmake .. does not inherit this.",
+      "description": "Shared CBS cache. Enable CBS analysis capabilities; output-only HDF5 support is intentionally disabled. The selected preset and compiler persist in build/; use --fresh before switching compiler families.",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "Bits": "ColliderBit",
@@ -38,17 +38,13 @@
           "type": "BOOL",
           "value": "ON"
         },
-        "MPI_DETERMINE_LIBRARY_VERSION": {
-          "type": "BOOL",
-          "value": "ON"
-        },
         "WITH_HDF5": {
           "type": "BOOL",
-          "value": "ON"
+          "value": "OFF"
         },
         "WITH_MPI": {
           "type": "BOOL",
-          "value": "ON"
+          "value": "OFF"
         },
         "WITH_ONNXRUNTIME": {
           "type": "BOOL",
@@ -68,7 +64,7 @@
       "name": "cbs",
       "inherits": "cbs-base",
       "displayName": "CBS - System toolchain",
-      "description": "Release CBS build using the system or user-selected compiler. Uses GAMBIT's default build/ directory.",
+      "description": "Release CBS build using the system or user-selected compiler. Uses GAMBIT's default build/ directory; rerun with --fresh after cbs-llvm.",
       "cacheVariables": {
         "CBS_BUILD_PRESET": {
           "type": "STRING",
@@ -80,7 +76,7 @@
       "name": "cbs-llvm",
       "inherits": "cbs-base",
       "displayName": "CBS - Upstream LLVM",
-      "description": "Release CBS build using a supported upstream LLVM clang/clang++ pair. Uses GAMBIT's default build/ directory.",
+      "description": "Release CBS build using a supported upstream LLVM clang/clang++ pair. Uses GAMBIT's default build/ directory; rerun with --fresh after cbs.",
       "toolchainFile": "${sourceDir}/cmake/toolchains/llvm-native.cmake",
       "cacheVariables": {
         "CBS_BUILD_PRESET": {

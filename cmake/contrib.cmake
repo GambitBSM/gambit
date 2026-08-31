@@ -399,6 +399,9 @@ if(NOT EXCLUDE_YODA)
   else()
     set(YODA_CONFIG_LDFLAGS "")
   endif()
+  # WITH_HDF5 controls GAMBIT's HDF5 printer/reader, not YODA.  YODA's
+  # Python extension always exposes its HDF5 bindings, so retain YODA's
+  # upstream HDF5 auto-detection even in the lean CBS preset.
   if(GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP)
     # Keep libtool's OpenMP link step on the same runtime as GAMBIT itself.
     set(YODA_CONFIG_LDFLAGS "${YODA_CONFIG_LDFLAGS} ${GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP_LDFLAGS}")

@@ -28,6 +28,17 @@ macro(cbs_preset_begin)
   option(CBS_USE_LLD
          "CBS: use lld when linking the standalone executable" OFF)
 
+  # cbs and cbs-llvm deliberately share build/.  A normal cbs configure
+  # cannot replace a cached cbs-llvm toolchain, so fail rather than report a
+  # misleading system-toolchain configuration.
+  if("${CBS_BUILD_PRESET}" STREQUAL "cbs"
+     AND "${CBS_RESOLVED_TOOLCHAIN}" STREQUAL "upstream-llvm")
+    message(FATAL_ERROR
+      "The cbs preset found the cbs-llvm toolchain in the shared build/ cache.\n"
+      "Switching compiler families requires a clean cache; rerun "
+      "'cmake --preset cbs --fresh'.")
+  endif()
+
   if(CBS_AUTO_DETECT_PYTHON)
     include("${CBS_CMAKE_DIR}/presets/CBSPythonDiscovery.cmake")
     cbs_configure_python_for_cbs_preset()
@@ -101,6 +112,12 @@ macro(cbs_preset_attach_optional_backends)
   set(CBS_RIVET_CONTUR_ENABLED FALSE)
   if(TARGET CBS AND CBS_WITH_RIVET_CONTUR)
     if(CBS_RIVET_CONTUR_PREREQUISITES_FOUND AND TARGET rivet AND TARGET contur)
+      # BOSS writes Rivet's frontend headers.  Make the normal GAMBIT header
+      # harvest wait for that write, otherwise a parallel first CBS build can
+      # compile against the old headers and need a full second compilation.
+      if(TARGET cbs_rivet_boss_headers AND TARGET backend_harvest)
+        add_dependencies(backend_harvest cbs_rivet_boss_headers)
+      endif()
       add_dependencies(CBS rivet contur)
       set(CBS_RIVET_CONTUR_ENABLED TRUE)
     elseif(NOT CBS_RIVET_CONTUR_PREREQUISITES_REASON)

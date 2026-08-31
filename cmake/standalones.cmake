@@ -53,7 +53,7 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
             ColliderBit/examples/solo_output.cpp
     LIBRARIES cbs_preload
     MODULES ColliderBit
-    DEPENDENCIES hepmc pybind11)
+    DEPENDENCIES hepmc pybind11 nulike_1.0.9)
   if(TARGET CBS AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # Retain the constructor-only shared library under GNU ld's --as-needed.
     target_link_options(CBS PRIVATE "-Wl,--no-as-needed")

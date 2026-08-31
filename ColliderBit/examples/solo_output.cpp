@@ -8,12 +8,14 @@
 
 #include "solo_output.hpp"
 
+#include <algorithm>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <set>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 #include <nlohmann/json.hpp>
 
@@ -231,6 +233,320 @@ namespace Gambit
           return result;
         }
 
+        constexpr std::size_t screen_rule_width = 100;
+
+        std::string format_screen_number(double value)
+        {
+          std::ostringstream formatted;
+          formatted << std::setprecision(6) << std::defaultfloat << value;
+          return formatted.str();
+        }
+
+        std::string format_screen_uncertainty(double value, double uncertainty)
+        {
+          return format_screen_number(value) + " +/- " + format_screen_number(uncertainty);
+        }
+
+        std::string format_screen_percent(double fraction)
+        {
+          std::ostringstream formatted;
+          formatted << std::fixed << std::setprecision(1) << (fraction * 100.0) << '%';
+          return formatted.str();
+        }
+
+        void print_screen_rule(std::ostream& output, char character = '-')
+        {
+          output << std::string(screen_rule_width, character) << '\n';
+        }
+
+        struct ScreenSignalRegionRow
+        {
+          bool selected = false;
+          std::string label;
+          std::string observed;
+          std::string background;
+          std::string signal_mc;
+          std::string signal;
+          std::string loglike;
+        };
+
+        void print_signal_region_table(
+          std::ostream& output,
+          const AnalysisData& analysis,
+          const AnalysisLogLikes& loglikes)
+        {
+          std::vector<ScreenSignalRegionRow> rows;
+          rows.reserve(analysis.size());
+
+          std::size_t label_width = std::string("Signal region").size();
+          std::size_t observed_width = std::string("Obs.").size();
+          std::size_t background_width = std::string("Background").size();
+          std::size_t signal_mc_width = std::string("Signal (MC)").size();
+          std::size_t signal_width = std::string("Signal").size();
+          std::size_t loglike_width = std::string("log L").size();
+
+          for (std::size_t sr_index = 0; sr_index < analysis.size(); ++sr_index)
+          {
+            const SignalRegionData& sr_data = analysis[sr_index];
+            ScreenSignalRegionRow row;
+            row.selected =
+              loglikes.combination_sr_index == static_cast<int>(sr_index)
+              || (loglikes.combination_sr_index < 0
+                  && loglikes.combination_sr_label == sr_data.sr_label);
+            row.label = sr_data.sr_label;
+            row.observed = format_screen_number(sr_data.n_obs);
+            row.background = format_screen_uncertainty(sr_data.n_bkg, sr_data.n_bkg_err);
+            row.signal_mc = format_screen_uncertainty(sr_data.n_sig_MC, sr_data.n_sig_MC_stat);
+            row.signal = format_screen_uncertainty(
+              sr_data.n_sig_scaled, sr_data.calc_n_sig_scaled_err());
+            row.loglike = format_screen_number(loglikes.sr_loglikes.at(sr_index));
+
+            label_width = std::max(label_width, row.label.size());
+            observed_width = std::max(observed_width, row.observed.size());
+            background_width = std::max(background_width, row.background.size());
+            signal_mc_width = std::max(signal_mc_width, row.signal_mc.size());
+            signal_width = std::max(signal_width, row.signal.size());
+            loglike_width = std::max(loglike_width, row.loglike.size());
+            rows.push_back(std::move(row));
+          }
+
+          output << "  * marks the selected signal region.\n\n";
+          output << "  " << ' ' << ' ' << std::left << std::setw(label_width) << "Signal region"
+                 << "  " << std::right << std::setw(observed_width) << "Obs."
+                 << "  " << std::setw(background_width) << "Background"
+                 << "  " << std::setw(signal_mc_width) << "Signal (MC)"
+                 << "  " << std::setw(signal_width) << "Signal"
+                 << "  " << std::setw(loglike_width) << "log L" << '\n';
+          output << "  " << '-' << ' ' << std::string(label_width, '-')
+                 << "  " << std::string(observed_width, '-')
+                 << "  " << std::string(background_width, '-')
+                 << "  " << std::string(signal_mc_width, '-')
+                 << "  " << std::string(signal_width, '-')
+                 << "  " << std::string(loglike_width, '-') << '\n';
+
+          for (const ScreenSignalRegionRow& row : rows)
+          {
+            output << "  " << (row.selected ? '*' : ' ') << ' '
+                   << std::left << std::setw(label_width) << row.label
+                   << "  " << std::right << std::setw(observed_width) << row.observed
+                   << "  " << std::setw(background_width) << row.background
+                   << "  " << std::setw(signal_mc_width) << row.signal_mc
+                   << "  " << std::setw(signal_width) << row.signal
+                   << "  " << std::setw(loglike_width) << row.loglike << '\n';
+          }
+        }
+
+        void print_alternative_loglikes(
+          std::ostream& output,
+          const AnalysisData& analysis,
+          const AnalysisLogLikes& loglikes)
+        {
+          if (loglikes.alt_sr_loglikes.empty() && loglikes.alt_combination_loglikes.empty()) return;
+
+          output << "\n  Alternative log-likelihoods\n";
+          if (!loglikes.alt_combination_loglikes.empty())
+          {
+            std::size_t variant_width = std::string("Variant").size();
+            std::size_t loglike_width = std::string("Combined log L").size();
+            for (const auto& entry : loglikes.alt_combination_loglikes)
+            {
+              variant_width = std::max(variant_width, entry.first.size());
+              loglike_width = std::max(loglike_width, format_screen_number(entry.second).size());
+            }
+
+            output << "    " << std::left << std::setw(variant_width) << "Variant"
+                   << "  " << std::right << std::setw(loglike_width) << "Combined log L" << '\n'
+                   << "    " << std::string(variant_width, '-')
+                   << "  " << std::string(loglike_width, '-') << '\n';
+            for (const auto& entry : loglikes.alt_combination_loglikes)
+            {
+              output << "    " << std::left << std::setw(variant_width) << entry.first
+                     << "  " << std::right << std::setw(loglike_width)
+                     << format_screen_number(entry.second) << '\n';
+            }
+          }
+
+          if (!loglikes.alt_sr_loglikes.empty())
+          {
+            std::size_t label_width = std::string("Signal region").size();
+            std::size_t variant_width = std::string("Variant").size();
+            std::size_t loglike_width = std::string("log L").size();
+            for (const auto& entry : loglikes.alt_sr_loglikes)
+            {
+              variant_width = std::max(variant_width, entry.first.size());
+              for (std::size_t sr_index = 0; sr_index < analysis.size(); ++sr_index)
+              {
+                label_width = std::max(label_width, analysis[sr_index].sr_label.size());
+                if (sr_index < entry.second.size())
+                {
+                  loglike_width = std::max(
+                    loglike_width, format_screen_number(entry.second[sr_index]).size());
+                }
+              }
+            }
+
+            output << "\n    " << std::left << std::setw(label_width) << "Signal region"
+                   << "  " << std::setw(variant_width) << "Variant"
+                   << "  " << std::right << std::setw(loglike_width) << "log L" << '\n'
+                   << "    " << std::string(label_width, '-')
+                   << "  " << std::string(variant_width, '-')
+                   << "  " << std::string(loglike_width, '-') << '\n';
+            for (const auto& entry : loglikes.alt_sr_loglikes)
+            {
+              for (std::size_t sr_index = 0; sr_index < analysis.size(); ++sr_index)
+              {
+                if (sr_index >= entry.second.size()) continue;
+                output << "    " << std::left << std::setw(label_width)
+                       << analysis[sr_index].sr_label
+                       << "  " << std::setw(variant_width) << entry.first
+                       << "  " << std::right << std::setw(loglike_width)
+                       << format_screen_number(entry.second[sr_index]) << '\n';
+              }
+            }
+          }
+        }
+
+        void print_cutflow_summary(std::ostream& output, const AnalysisData& analysis)
+        {
+          if (analysis.cutflows.cfs.empty()) return;
+
+          output << "\n  Cutflow diagnostics\n"
+                 << "  " << std::string(80, '-') << '\n'
+                 << analysis.cutflows;
+        }
+
+        void print_contur_summary(
+          std::ostream& output,
+          double contur_total_loglike,
+          const std::map<std::string, double>& contur_pool_loglikes,
+          const std::map<std::string, std::string>& contur_pool_info)
+        {
+          output << "\n[Contur]\n"
+                 << "  Total log L : " << format_screen_number(contur_total_loglike) << '\n';
+          if (contur_pool_loglikes.empty()) return;
+
+          std::size_t pool_width = std::string("Pool").size();
+          std::size_t loglike_width = std::string("log L").size();
+          std::size_t measurement_width = std::string("Dominant measurement").size();
+          for (const auto& pool : contur_pool_loglikes)
+          {
+            pool_width = std::max(pool_width, pool.first.size());
+            loglike_width = std::max(loglike_width, format_screen_number(pool.second).size());
+            const auto info_it = contur_pool_info.find(pool.first);
+            if (info_it != contur_pool_info.end())
+            {
+              measurement_width = std::max(measurement_width, info_it->second.size());
+            }
+          }
+
+          output << "\n  " << std::left << std::setw(pool_width) << "Pool"
+                 << "  " << std::right << std::setw(loglike_width) << "log L"
+                 << "  " << std::left << std::setw(measurement_width) << "Dominant measurement" << '\n'
+                 << "  " << std::string(pool_width, '-')
+                 << "  " << std::string(loglike_width, '-')
+                 << "  " << std::string(measurement_width, '-') << '\n';
+          for (const auto& pool : contur_pool_loglikes)
+          {
+            const auto info_it = contur_pool_info.find(pool.first);
+            const std::string dominant_measurement =
+              (info_it != contur_pool_info.end()) ? info_it->second : "-";
+            output << "  " << std::left << std::setw(pool_width) << pool.first
+                   << "  " << std::right << std::setw(loglike_width)
+                   << format_screen_number(pool.second)
+                   << "  " << std::left << std::setw(measurement_width)
+                   << dominant_measurement << '\n';
+          }
+        }
+
+        void print_sampling_advice(
+          std::ostream& output,
+          const std::vector<SamplingAdviceEntry>& sampling_advice)
+        {
+          if (sampling_advice.empty()) return;
+
+          struct SamplingRow
+          {
+            std::string analysis;
+            std::string signal_region;
+            std::string signal;
+            std::string fractional_uncertainty;
+            std::string effective_events;
+            std::string target;
+            std::string status;
+            std::string additional_events;
+          };
+
+          std::vector<SamplingRow> rows;
+          for (const SamplingAdviceEntry& entry : sampling_advice)
+          {
+            for (const SamplingAdviceTargetEntry& target : entry.targets)
+            {
+              SamplingRow row;
+              row.analysis = entry.analysis_name;
+              row.signal_region = entry.sr_label;
+              row.signal = format_screen_uncertainty(entry.n_sig_scaled, entry.n_sig_scaled_err);
+              row.fractional_uncertainty = format_screen_percent(entry.fractional_uncert);
+              row.effective_events = format_screen_number(entry.effective_events);
+              row.target = format_screen_percent(target.target_fractional_uncert);
+              row.status = target.need_more_mc ? "need more MC" : "met";
+              row.additional_events = target.need_more_mc
+                ? std::to_string(target.recommended_additional_events) : "-";
+              rows.push_back(std::move(row));
+            }
+          }
+          if (rows.empty()) return;
+
+          std::size_t analysis_width = std::string("Analysis").size();
+          std::size_t sr_width = std::string("Selected SR").size();
+          std::size_t signal_width = std::string("Signal +/- MC").size();
+          std::size_t frac_width = std::string("MC frac.").size();
+          std::size_t neff_width = std::string("N_eff").size();
+          std::size_t target_width = std::string("Target").size();
+          std::size_t status_width = std::string("Status").size();
+          std::size_t extra_width = std::string("Extra MC events").size();
+          for (const SamplingRow& row : rows)
+          {
+            analysis_width = std::max(analysis_width, row.analysis.size());
+            sr_width = std::max(sr_width, row.signal_region.size());
+            signal_width = std::max(signal_width, row.signal.size());
+            frac_width = std::max(frac_width, row.fractional_uncertainty.size());
+            neff_width = std::max(neff_width, row.effective_events.size());
+            target_width = std::max(target_width, row.target.size());
+            status_width = std::max(status_width, row.status.size());
+            extra_width = std::max(extra_width, row.additional_events.size());
+          }
+
+          output << "\nMC sampling advice\n";
+          print_screen_rule(output);
+          output << "  " << std::left << std::setw(analysis_width) << "Analysis"
+                 << "  " << std::setw(sr_width) << "Selected SR"
+                 << "  " << std::setw(signal_width) << "Signal +/- MC"
+                 << "  " << std::right << std::setw(frac_width) << "MC frac."
+                 << "  " << std::setw(neff_width) << "N_eff"
+                 << "  " << std::setw(target_width) << "Target"
+                 << "  " << std::left << std::setw(status_width) << "Status"
+                 << "  " << std::right << std::setw(extra_width) << "Extra MC events" << '\n';
+          output << "  " << std::string(analysis_width, '-')
+                 << "  " << std::string(sr_width, '-')
+                 << "  " << std::string(signal_width, '-')
+                 << "  " << std::string(frac_width, '-')
+                 << "  " << std::string(neff_width, '-')
+                 << "  " << std::string(target_width, '-')
+                 << "  " << std::string(status_width, '-')
+                 << "  " << std::string(extra_width, '-') << '\n';
+          for (const SamplingRow& row : rows)
+          {
+            output << "  " << std::left << std::setw(analysis_width) << row.analysis
+                   << "  " << std::setw(sr_width) << row.signal_region
+                   << "  " << std::setw(signal_width) << row.signal
+                   << "  " << std::right << std::setw(frac_width) << row.fractional_uncertainty
+                   << "  " << std::setw(neff_width) << row.effective_events
+                   << "  " << std::setw(target_width) << row.target
+                   << "  " << std::left << std::setw(status_width) << row.status
+                   << "  " << std::right << std::setw(extra_width) << row.additional_events << '\n';
+          }
+        }
+
         void print_screen_summary(
           int n_events,
           double combined_loglike,
@@ -243,9 +559,18 @@ namespace Gambit
           const std::vector<SamplingAdviceEntry>& sampling_advice
         )
         {
-          std::stringstream summary_line;
-
-          std::cout.precision(5);
+          std::cout << '\n';
+          print_screen_rule(std::cout, '=');
+          std::cout << "CBS result summary\n";
+          print_screen_rule(std::cout);
+          std::cout << "  Events analysed : " << n_events << '\n'
+                    << "  Native analyses : " << analyses.size() << '\n'
+                    << "  Combined log L  : " << format_screen_number(combined_loglike) << '\n';
+          if (with_contur)
+          {
+            std::cout << "  Contur          : included\n";
+          }
+          print_screen_rule(std::cout, '=');
 
           for (const AnalysisData* analysis_ptr : analyses)
           {
@@ -259,103 +584,27 @@ namespace Gambit
               throw std::runtime_error("Missing AnalysisLogLikes entry for analysis " + analysis_name);
             }
 
-            const AnalysisLogLikes& ll = ll_it->second;
-            summary_line << "  " << analysis_name << ":\n";
-
-            std::cout << "Combined Cutflows for analysis " << analysis_name << ":\n";
-            std::cout << analysis.cutflows << std::endl;
-
-            for (std::size_t sr_index = 0; sr_index < analysis.size(); ++sr_index)
+            const AnalysisLogLikes& loglikes = ll_it->second;
+            std::cout << "\n[" << analysis_name << "]\n"
+                      << "  Selected result : " << loglikes.combination_sr_label;
+            if (loglikes.combination_sr_index >= 0)
             {
-              const SignalRegionData& sr_data = analysis[sr_index];
-              const double combined_s_uncertainty = sr_data.calc_n_sig_scaled_err();
-              const double combined_bg_uncertainty = sr_data.n_bkg_err;
-
-              summary_line << "    Signal region " << sr_data.sr_label
-                           << " (SR index " << sr_index << "):\n";
-              summary_line << "      Observed events:        " << sr_data.n_obs << '\n';
-              summary_line << "      SM prediction:          " << sr_data.n_bkg
-                           << " +/- " << combined_bg_uncertainty << '\n';
-              summary_line << "      Signal prediction (MC): " << sr_data.n_sig_MC
-                           << " +/- " << sr_data.n_sig_MC_stat << '\n';
-              summary_line << "      Signal prediction:      " << sr_data.n_sig_scaled
-                           << " +/- " << combined_s_uncertainty << '\n';
-              summary_line << "      Log-likelihood:         " << ll.sr_loglikes.at(sr_index) << '\n';
-
-              for (const auto& alt_pair : ll.alt_sr_loglikes)
-              {
-                const std::string& alt_key = alt_pair.first;
-                const std::vector<double>& alt_values = alt_pair.second;
-                if (sr_index < alt_values.size())
-                {
-                  summary_line << "      " << alt_key
-                               << " Log-Likelihood: " << alt_values[sr_index] << '\n';
-                }
-              }
+              std::cout << " (SR index " << loglikes.combination_sr_index << ')';
             }
-
-            summary_line << "    Selected signal region: " << ll.combination_sr_label << '\n';
-            summary_line << "    Total log-likelihood for analysis: "
-                         << ll.combination_loglike << "\n\n";
+            std::cout << '\n'
+                      << "  Analysis log L  : " << format_screen_number(loglikes.combination_loglike)
+                      << "\n\n";
+            print_signal_region_table(std::cout, analysis, loglikes);
+            print_alternative_loglikes(std::cout, analysis, loglikes);
+            print_cutflow_summary(std::cout, analysis);
           }
 
           if (with_contur)
           {
-            summary_line << "\nContur results:\n";
-            summary_line << "Total Contur Log-Likelihood: " << contur_total_loglike << '\n';
-            for (const auto& pool : contur_pool_loglikes)
-            {
-              const auto info_it = contur_pool_info.find(pool.first);
-              const std::string dominant_measurement =
-                (info_it != contur_pool_info.end()) ? info_it->second : "";
-              summary_line << "\tPool " << pool.first
-                           << ":\n\t\tLog-likelihood: " << pool.second
-                           << "\n\t\tDominant measurement: " << dominant_measurement << '\n';
-            }
+            print_contur_summary(
+              std::cout, contur_total_loglike, contur_pool_loglikes, contur_pool_info);
           }
-
-          if (!sampling_advice.empty())
-          {
-            summary_line << "\nMC sampling advice (selected SR per analysis):\n";
-            for (const SamplingAdviceEntry& entry : sampling_advice)
-            {
-              summary_line << "  " << entry.analysis_name << " / " << entry.sr_label
-                          //  << " (SR index " << entry.sr_index << "): "
-                           << "\n\tS = " << entry.n_sig_scaled
-                           << ", sigma_MC = " << entry.n_sig_scaled_err
-                           << ", frac = " << entry.fractional_uncert
-                           << ", N_eff = " << entry.effective_events << '\n';
-              for (const SamplingAdviceTargetEntry& target : entry.targets)
-              {
-                std::ostringstream target_percent_ss;
-                target_percent_ss
-                  << std::fixed << std::setprecision(1)
-                  << (target.target_fractional_uncert * 100.0);
-
-                if (!target.need_more_mc)
-                {
-                  summary_line << "    target " << target_percent_ss.str()
-                               << "%:\trequirement met\n";
-                }
-                else
-                {
-                  summary_line << "    target " << target_percent_ss.str()
-                               << "%:\trequirement not met, need\n\t ->\t"
-                               << target.recommended_additional_events
-                               << " additional MC events\n";
-                }
-              }
-            }
-          }
-
-          std::cout << '\n';
-          std::cout << "Read and analysed " << n_events << " events from HepMC file(s).\n\n";
-          std::cout << "Analysis details:\n\n" << summary_line.str() << '\n';
-          std::cout << std::scientific
-                    << "Total combined ATLAS+CMS"
-                    << (with_contur ? " analysis and searches " : " ")
-                    << "log-likelihood: " << combined_loglike
-                    << '\n';
+          print_sampling_advice(std::cout, sampling_advice);
           std::cout << '\n';
         }
       }

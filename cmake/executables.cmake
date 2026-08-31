@@ -101,4 +101,3 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   endif()
   add_dependencies(standalones ScannerBit_standalone)
 endif()
-

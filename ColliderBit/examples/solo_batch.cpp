@@ -229,11 +229,13 @@ namespace Gambit
           // Keep per-run xsec uncertainty off and combine MC errors externally.
           settings_node["cross_section_uncert_fb"] = 0.0;
 
+          // Keep the parent run's live HepMC progress setting even though the
+          // child suppresses its normal summary output.
+          settings_node["hepmc_progress"] = settings.getValueOrDef<bool>(
+            settings.getValueOrDef<bool>(true, "screen_output"), "hepmc_progress"
+          );
           settings_node["screen_output"] = false;
           settings_node["output"] = job.output_json_file.string();
-          // Suppress repeated FastJet banners from per-file subprocesses.
-          settings_node["suppress_fastjet_banner"] = true;
-
           root["settings"] = settings_node;
 
           if (prepared_input.infile["rivet-settings"] || prepared_input.infile["contur-settings"])

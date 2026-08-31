@@ -471,7 +471,9 @@ function(add_standalone executablename)
 
   # Exclude standalones that need pybind11 if it has been excluded.
   if (";${ARG_DEPENDENCIES};" MATCHES ";pybind11;")
-    string(REPLACE "pybind11" "" ARG_DEPENDENCIES ${ARG_DEPENDENCIES})
+    # Keep this as a CMake list: string(REPLACE) concatenates separate list
+    # elements, corrupting dependencies such as "hepmc;pybind11;nulike_1.0.9".
+    list(REMOVE_ITEM ARG_DEPENDENCIES pybind11)
     if (NOT HAVE_PYBIND11)
       message("${BoldCyan} X Excluding ${executablename} from GAMBIT configuration due to absence of pybind11.${ColourReset}")
       set(standalone_permitted 0)
