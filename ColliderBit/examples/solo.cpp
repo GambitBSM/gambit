@@ -32,6 +32,7 @@
 #include "solo_input.hpp"
 #include "solo_output.hpp"
 // #include "gambit/Backends/backend_rollcall.hpp"
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <iomanip>
@@ -60,6 +61,8 @@ using namespace CAT(Backends::Rivet_,RIVET_SAFE_VERSION)::Functown;
 
 namespace
 {
+  constexpr std::size_t cbs_screen_width = 80;
+
   class ScopedCoutSilencer
   {
     public:
@@ -100,18 +103,27 @@ namespace
     return "..." + value.substr(value.size() - maximum_width + 3);
   }
 
+  std::string shorten_reason_for_screen(const std::string& value, std::size_t maximum_width)
+  {
+    if (value.size() <= maximum_width) return value;
+    if (maximum_width <= 3) return value.substr(0, maximum_width);
+
+    const std::size_t suffix_width = (maximum_width - 3) / 2;
+    const std::size_t prefix_width = maximum_width - 3 - suffix_width;
+    return value.substr(0, prefix_width) + "..."
+           + value.substr(value.size() - suffix_width);
+  }
+
   std::string format_cbs_startup_summary(
     const ColliderBit::SoloInput::PreparedInput& prepared_input,
-    const std::vector<std::string>& enabled_analyses,
-    double collision_energy_tolerance_GeV,
-    double beam_energy_tolerance_GeV,
-    double beam_energy_relative_tolerance)
+    const std::vector<std::string>& enabled_analyses)
   {
     std::ostringstream summary;
     const std::size_t label_width = 20;
+    const std::size_t value_width = cbs_screen_width - 2 - label_width - 2;
 
     summary << "\nCBS HepMC verification\n"
-            << std::string(80, '-') << '\n';
+            << std::string(cbs_screen_width, '-') << '\n';
 
     for (std::size_t index = 0; index < prepared_input.hepmc_filenames.size(); ++index)
     {
@@ -126,7 +138,7 @@ namespace
       summary << "  " << std::left << std::setw(label_width)
               << ("File " + std::to_string(index + 1) + "/"
                   + std::to_string(prepared_input.hepmc_filenames.size()))
-              << ": " << shorten_for_screen(prepared_input.hepmc_filenames.at(index), 86) << '\n'
+              << ": " << shorten_for_screen(prepared_input.hepmc_filenames.at(index), value_width) << '\n'
               << "  " << std::left << std::setw(label_width) << "Beam IDs"
               << ": " << beams.str() << '\n'
               << "  " << std::left << std::setw(label_width) << "Beam energies"
@@ -139,21 +151,54 @@ namespace
       if (index + 1 != prepared_input.hepmc_filenames.size()) summary << '\n';
     }
 
+    const std::size_t settings_indent_width = 2;
+    const std::size_t analysis_width = 25;
+    const std::size_t status_width = 10;
+    const std::size_t reason_width = 39;
+    const std::size_t settings_gap_width = 2;
+    static_assert(
+      settings_indent_width + analysis_width + settings_gap_width + status_width
+        + settings_gap_width + reason_width == cbs_screen_width,
+      "CBS settings table must be 80 columns wide.");
+
     summary << "\nCBS settings validation\n"
-            << std::string(80, '-') << '\n'
+            << std::string(cbs_screen_width, '-') << '\n'
             << "  " << std::left << std::setw(label_width) << "Analyses"
             << ": " << prepared_input.requested_analyses.size() << " requested, "
-            << enabled_analyses.size() << " enabled\n"
-            << "  " << std::left << std::setw(label_width) << "Requested"
-            << ": " << format_analysis_list(prepared_input.requested_analyses) << '\n'
-            << "  " << std::left << std::setw(label_width) << "Enabled"
-            << ": " << format_analysis_list(enabled_analyses) << '\n'
-            << "  " << std::left << std::setw(label_width) << "sqrt(s) tolerance"
-            << ": " << collision_energy_tolerance_GeV << " GeV\n"
-            << "  " << std::left << std::setw(label_width) << "Beam tolerance"
-            << ": " << beam_energy_tolerance_GeV << " GeV or "
-            << beam_energy_relative_tolerance << " relative\n"
-            << std::string(80, '-') << '\n';
+            << enabled_analyses.size() << " enabled, "
+            << prepared_input.requested_analyses.size() - enabled_analyses.size()
+            << " disabled\n"
+            << "  " << std::left << std::setw(analysis_width) << "Analysis"
+            << std::string(settings_gap_width, ' ')
+            << std::setw(status_width) << "Status"
+            << std::string(settings_gap_width, ' ')
+            << "Reason\n"
+            << "  " << std::string(analysis_width, '-')
+            << std::string(settings_gap_width, ' ')
+            << std::string(status_width, '-')
+            << std::string(settings_gap_width, ' ')
+            << std::string(reason_width, '-') << '\n';
+
+    for (const std::string& requested_analysis : prepared_input.requested_analyses)
+    {
+      const bool enabled = std::find(
+        enabled_analyses.begin(), enabled_analyses.end(), requested_analysis)
+        != enabled_analyses.end();
+      const auto reason_it = prepared_input.analysis_disable_reasons.find(requested_analysis);
+      const std::string reason =
+        (reason_it == prepared_input.analysis_disable_reasons.end())
+          ? (enabled ? "-" : "reason unavailable")
+          : reason_it->second;
+
+      summary << "  " << std::left << std::setw(analysis_width)
+              << shorten_for_screen(requested_analysis, analysis_width)
+              << std::string(settings_gap_width, ' ')
+              << std::setw(status_width) << (enabled ? "enabled" : "disabled")
+              << std::string(settings_gap_width, ' ')
+              << shorten_reason_for_screen(enabled ? "-" : reason, reason_width) << '\n';
+    }
+
+    summary << std::string(cbs_screen_width, '-') << '\n';
     return summary.str();
   }
 }
@@ -298,10 +343,7 @@ int main(int argc, char* argv[])
       logger()<<LogTags::repeat_to_cout<<LogTags::info
               <<format_cbs_startup_summary(
                   prepared_input,
-                  analyses,
-                  settings.getValueOrDef<double>(1.0, "collision_energy_tolerance_GeV"),
-                  settings.getValueOrDef<double>(1.0, "beam_energy_tolerance_GeV"),
-                  settings.getValueOrDef<double>(1.0e-3, "beam_energy_relative_tolerance"))
+                  analyses)
               <<EOM;
     }
     for (const str& warning : prepared_input.analysis_warnings)
@@ -560,7 +602,10 @@ int main(int argc, char* argv[])
     CBS["show_event_progress"] = settings.getValueOrDef<bool>(
       output_config.screen_output, "hepmc_progress"
     );
-    CBS["event_progress_label"] = "CBS HepMC";
+    const std::string default_event_progress_label =
+      "CBS HepMC File 1/" + std::to_string(prepared_input.hepmc_filenames.size());
+    CBS["event_progress_label"] = settings.getValueOrDef<std::string>(
+      default_event_progress_label, "event_progress_label");
     operateLHCLoop.setOption<YAML::Node>("CBS", CBS);
     operateLHCLoop.setOption<bool>("silenceLoop", not debug);
 

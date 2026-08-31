@@ -607,6 +607,7 @@ namespace Gambit
             str reason;
             if (!get_analysis_requirements(analysis, requirements, reason))
             {
+              prepared.analysis_disable_reasons[analysis] = reason;
               prepared.analysis_warnings.push_back(
                 "CBS input: ignoring analysis '" + analysis
                 + "' because CBS cannot verify its beam/run requirements; " + reason + "."
@@ -625,6 +626,7 @@ namespace Gambit
                                         beam_energy_relative_tolerance,
                                         reason))
               {
+                prepared.analysis_disable_reasons[analysis] = reason;
                 prepared.analysis_warnings.push_back(
                   "CBS input: ignoring analysis '" + analysis
                   + "' because its beam/run requirements do not match HepMC file "
@@ -732,6 +734,8 @@ namespace Gambit
           {
             if (!isAnalysisRegistered(analysis))
             {
+              prepared.analysis_disable_reasons[analysis] =
+                "it is not registered in this CBS build";
               prepared.analysis_warnings.push_back(
                 "CBS input: ignoring analysis '" + analysis
                 + "' because it is not registered in this CBS build.");
@@ -749,6 +753,8 @@ namespace Gambit
               }
               else
               {
+                prepared.analysis_disable_reasons[analysis] =
+                  "Validation: passed is required; " + reason;
                 prepared.analysis_warnings.push_back(
                   "CBS input: ignoring analysis '" + analysis
                   + "' because Validation: passed is required; " + reason + ".");

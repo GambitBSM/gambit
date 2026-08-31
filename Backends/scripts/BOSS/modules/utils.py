@@ -2275,7 +2275,7 @@ def castxmlRunner(input_file_path, include_paths_list, xml_output_path, use_cast
 
     # - Add standard include paths
     for std_incl_path in gb.std_include_paths:
-        castxml_cmd += ' -I' + std_incl_path
+        castxml_cmd += ' -isystem ' + std_incl_path
 
     # - Add the input file path (full path)
     castxml_cmd += ' ' + input_file_path
@@ -2922,22 +2922,36 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
 def identifyStdIncludePaths():
 
-    # Shell command: Pipe an include statement to the compiler and use
-    # verbose mode to print the header search paths.
-    command = 'echo "#include <iostream>" | ' + cfg.castxml_cc + ' -v -x c++ -c -'
+    # Feed a small translation unit to the compiler and read its verbose
+    # include-path report directly.
+    compiler_command = shlex.split(cfg.castxml_cc)
+    compiler_options = shlex.split(cfg.castxml_cc_opt) if cfg.castxml_cc_opt else []
+    command_args = compiler_command + compiler_options + ['-v', '-x', 'c++', '-E', '-']
 
     # Run command
-    print('  Running command: ' + command)
+    print('  Running command: ' + ' '.join(command_args))
 
     did_fail = False
     error_message = ''
+    temp_env_vars = {}
+    if 'gnu' in cfg.castxml_cc_id:
+        for var_name in ['CPATH', 'C_INCLUDE_PATH', 'CPLUS_INCLUDE_PATH']:
+            try:
+                if 'intel' in os.environ[var_name].lower():
+                    temp_env_vars[var_name] = str(os.environ[var_name])
+                    os.environ[var_name] = ''
+            except KeyError:
+                pass
+
     output_tmpfile = tempfile.TemporaryFile()
+    p = None
     try:
-        p = subprocess.Popen(shlex.split(command), stdout=output_tmpfile, stderr=output_tmpfile)
-        p.wait()
-    except subprocess.CalledProcessError as e:
+        p = subprocess.Popen(command_args, stdin=subprocess.PIPE,
+                             stdout=output_tmpfile, stderr=output_tmpfile)
+        p.communicate(b'#include <iostream>\n')
+    except (OSError, ValueError, IndexError) as e:
         did_fail = True
-        error_message = e.message
+        error_message = str(e)
 
     # Reset environment variables
     if 'gnu' in cfg.castxml_cc_id:
@@ -2946,11 +2960,11 @@ def identifyStdIncludePaths():
 
     # Get output from tempfile
     output_tmpfile.seek(0)
-    output = output_tmpfile.read()
+    output = output_tmpfile.read().decode('utf-8', errors='replace')
     output_tmpfile.close()
 
-    # Any error that did not result in a CalledProcessError?
-    if p.returncode != 0:
+    # Check the compiler exit status.
+    if p is None or p.returncode != 0:
         did_fail = True
 
     if did_fail:
@@ -2963,7 +2977,7 @@ def identifyStdIncludePaths():
         print(modifyText('END SHELL COMMAND OUTPUT','red'))
         print()
         if error_message != '':
-            print("CalledProcessError.message:", error_message)
+            print("Compiler probe error:", error_message)
             print()
         raise Exception('Shell command failed')
 
@@ -2973,17 +2987,18 @@ def identifyStdIncludePaths():
 
 
     std_include_paths = []
-    output_lines = output.split('\n')
+    output_lines = output.splitlines()
 
     try:
         start_i = output_lines.index("#include <...> search starts here:")
         end_i   = output_lines.index("End of search list.")
     except ValueError:
-        print('  ' + modifyText('WARNING: Could not identify standard include paths.\n  Add them manually in the config file if necessary.','yellow'))
-        print()
+        raise Exception('Could not identify standard include paths from the selected C++ compiler.')
     else:
         for line in output_lines[start_i+1:end_i]:
-            std_include_paths.append( line.strip().split()[0] )
+            path = line.strip()
+            if path:
+                std_include_paths.append(path.split()[0])
 
         # Filter out Intel-specific paths to avoid conflict with gnu headers
         if (cfg.castxml_cc_id == 'gnu') or (cfg.castxml_cc_id == 'gnu-c'):

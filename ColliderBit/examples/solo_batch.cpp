@@ -58,6 +58,8 @@ namespace Gambit
         {
           str process_name;
           str hepmc_file;
+          std::size_t file_index = 0;
+          std::size_t file_count = 0;
           double cross_section_fb = 0.0;
           double cross_section_uncert_fb = 0.0;
           fs::path yaml_file;
@@ -175,6 +177,8 @@ namespace Gambit
         {
           std::vector<RunJob> jobs;
           std::size_t run_index = 0;
+          const std::size_t file_count = prepared_input.hepmc_filenames.size();
+          std::size_t file_index = 0;
 
           for (const SoloInput::ProcessInput& process : prepared_input.processes)
           {
@@ -183,6 +187,8 @@ namespace Gambit
               RunJob job;
               job.process_name = process.name;
               job.hepmc_file = file.filename;
+              job.file_index = ++file_index;
+              job.file_count = file_count;
               // Use full process cross section for each file, then combine files
               // for the same process with event-count weighting after runs finish.
               job.cross_section_fb = process.cross_section_fb;
@@ -234,6 +240,9 @@ namespace Gambit
           settings_node["hepmc_progress"] = settings.getValueOrDef<bool>(
             settings.getValueOrDef<bool>(true, "screen_output"), "hepmc_progress"
           );
+          std::ostringstream progress_label;
+          progress_label << "CBS HepMC File " << job.file_index << "/" << job.file_count;
+          settings_node["event_progress_label"] = progress_label.str();
           settings_node["screen_output"] = false;
           settings_node["output"] = job.output_json_file.string();
           root["settings"] = settings_node;

@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -50,6 +51,7 @@ namespace Gambit
         YAML::Node infile;
         std::vector<str> requested_analyses;
         std::vector<str> analyses;
+        std::map<str, str> analysis_disable_reasons;
         std::vector<str> analysis_warnings;
         Options settings;
 

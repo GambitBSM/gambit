@@ -2214,9 +2214,6 @@ if(NOT ditched_${name}_${ver})
     endif()
   endforeach()
   list(REMOVE_DUPLICATES _rivet_boss_include_options)
-  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    list(APPEND _rivet_boss_include_options "--castxml-cc-opt=-include algorithm")
-  endif()
   BOSS_backend(${name} ${ver} ${_rivet_boss_include_options})
   # BOSS is an ExternalProject step, so the project-level dependencies above
   # do not prevent a directly requested BOSS stamp from running before the

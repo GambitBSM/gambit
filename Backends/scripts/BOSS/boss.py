@@ -180,7 +180,7 @@ def main():
         has_castxml_local = False
 
     # Quit if no version of CastXML is found
-    if (not has_castxml_system) and (not has_castxml_local): sys.exit()
+    if (not has_castxml_system) and (not has_castxml_local): sys.exit(1)
 
 
     # Get the config file name from command line. Import the correct config module.
@@ -886,4 +886,3 @@ def main():
 # ====== END: main ========
 
 if  __name__ =='__main__':main()
-
