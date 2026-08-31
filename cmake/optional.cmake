@@ -426,6 +426,10 @@ if(WITH_HDF5)
   endif()
 else()
   message("${BoldCyan} X HDF5 is disabled. Excluding hdf5printer and hdf5reader from GAMBIT configuration. Use -DWITH_HDF5=ON to enable HDF5. ${ColourReset}")
+  # A prior configure may have found HDF5.  Clear its active status so an
+  # ordinary reconfigure after disabling it does not retain HDF5 on generic
+  # executable link lines.
+  set(HDF5_FOUND FALSE)
   set(itch "${itch}" "hdf5printer" "hdf5reader")
 endif()
 

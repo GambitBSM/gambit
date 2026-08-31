@@ -511,13 +511,17 @@ namespace Gambit
       // When first called, check that all analyses contain at least one signal region.
       if (first)
       {
-        // Print cutflow at the end of the run.
-        // `check_cutflow` is the CBS-facing single switch; keep `print_cutflows`
-        // as a fallback for compatibility with broader ColliderBit usage.
-        const bool print_cutflows_legacy =
-          runOptions->getValueOrDef<bool>(false, "print_cutflows");
-        print_cutflows =
-          runOptions->getValueOrDef<bool>(print_cutflows_legacy, "check_cutflow");
+        // Print cutflows at the end of the run.  An explicit print_cutflows
+        // option controls presentation; otherwise retain the historical
+        // check_cutflow fallback for ordinary GAMBIT input files.
+        if (runOptions->hasKey("print_cutflows"))
+        {
+          print_cutflows = runOptions->getValue<bool>("print_cutflows");
+        }
+        else
+        {
+          print_cutflows = runOptions->getValueOrDef<bool>(false, "check_cutflow");
+        }
         normalized_cutflows = runOptions->getValueOrDef<bool>(false, "normalized_cutflows");
 
         // Loop over all AnalysisData pointers

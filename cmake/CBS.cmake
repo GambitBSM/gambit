@@ -28,6 +28,17 @@ macro(cbs_preset_begin)
   option(CBS_USE_LLD
          "CBS: use lld when linking the standalone executable" OFF)
 
+  # cbs and cbs-llvm deliberately share build/.  A normal cbs configure
+  # cannot replace a cached cbs-llvm toolchain, so fail rather than report a
+  # misleading system-toolchain configuration.
+  if("${CBS_BUILD_PRESET}" STREQUAL "cbs"
+     AND "${CBS_RESOLVED_TOOLCHAIN}" STREQUAL "upstream-llvm")
+    message(FATAL_ERROR
+      "The cbs preset found the cbs-llvm toolchain in the shared build/ cache.\n"
+      "Switching compiler families requires a clean cache; rerun "
+      "'cmake --preset cbs --fresh'.")
+  endif()
+
   if(CBS_AUTO_DETECT_PYTHON)
     include("${CBS_CMAKE_DIR}/presets/CBSPythonDiscovery.cmake")
     cbs_configure_python_for_cbs_preset()

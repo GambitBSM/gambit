@@ -34,6 +34,7 @@
 // #include "gambit/Backends/backend_rollcall.hpp"
 #include <cstdlib>
 #include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <sstream>
@@ -59,6 +60,26 @@ using namespace CAT(Backends::Rivet_,RIVET_SAFE_VERSION)::Functown;
 
 namespace
 {
+  class ScopedCoutSilencer
+  {
+    public:
+      ScopedCoutSilencer()
+        : saved_buffer(std::cout.rdbuf(discarded_output.rdbuf()))
+      { }
+
+      ~ScopedCoutSilencer()
+      {
+        std::cout.rdbuf(saved_buffer);
+      }
+
+      ScopedCoutSilencer(const ScopedCoutSilencer&) = delete;
+      ScopedCoutSilencer& operator=(const ScopedCoutSilencer&) = delete;
+
+    private:
+      std::ostringstream discarded_output;
+      std::streambuf* saved_buffer;
+  };
+
   std::string format_analysis_list(const std::vector<std::string>& analyses)
   {
     if (analyses.empty()) return "(none)";
@@ -70,6 +91,70 @@ namespace
       formatted << analyses[index];
     }
     return formatted.str();
+  }
+
+  std::string shorten_for_screen(const std::string& value, std::size_t maximum_width)
+  {
+    if (value.size() <= maximum_width) return value;
+    if (maximum_width <= 3) return value.substr(0, maximum_width);
+    return "..." + value.substr(value.size() - maximum_width + 3);
+  }
+
+  std::string format_cbs_startup_summary(
+    const ColliderBit::SoloInput::PreparedInput& prepared_input,
+    const std::vector<std::string>& enabled_analyses,
+    double collision_energy_tolerance_GeV,
+    double beam_energy_tolerance_GeV,
+    double beam_energy_relative_tolerance)
+  {
+    std::ostringstream summary;
+    const std::size_t label_width = 20;
+
+    summary << "\nCBS HepMC verification\n"
+            << std::string(80, '-') << '\n';
+
+    for (std::size_t index = 0; index < prepared_input.hepmc_filenames.size(); ++index)
+    {
+      const ColliderBit::SoloInput::HepMCRunInfo& run_info =
+        prepared_input.hepmc_run_infos.at(index);
+      std::ostringstream beams;
+      beams << '(' << run_info.beam_pid_1 << ", " << run_info.beam_pid_2 << ')';
+      std::ostringstream energy;
+      energy << std::setprecision(6) << std::defaultfloat
+             << run_info.collision_energy_TeV << " TeV";
+
+      summary << "  " << std::left << std::setw(label_width)
+              << ("File " + std::to_string(index + 1) + "/"
+                  + std::to_string(prepared_input.hepmc_filenames.size()))
+              << ": " << shorten_for_screen(prepared_input.hepmc_filenames.at(index), 86) << '\n'
+              << "  " << std::left << std::setw(label_width) << "Beam IDs"
+              << ": " << beams.str() << '\n'
+              << "  " << std::left << std::setw(label_width) << "Beam energies"
+              << ": (" << run_info.beam_energy_1_GeV << ", "
+              << run_info.beam_energy_2_GeV << ") GeV\n"
+              << "  " << std::left << std::setw(label_width) << "sqrt(s)"
+              << ": " << energy.str() << '\n'
+              << "  " << std::left << std::setw(label_width) << "Status"
+              << ": verified\n";
+      if (index + 1 != prepared_input.hepmc_filenames.size()) summary << '\n';
+    }
+
+    summary << "\nCBS settings validation\n"
+            << std::string(80, '-') << '\n'
+            << "  " << std::left << std::setw(label_width) << "Analyses"
+            << ": " << prepared_input.requested_analyses.size() << " requested, "
+            << enabled_analyses.size() << " enabled\n"
+            << "  " << std::left << std::setw(label_width) << "Requested"
+            << ": " << format_analysis_list(prepared_input.requested_analyses) << '\n'
+            << "  " << std::left << std::setw(label_width) << "Enabled"
+            << ": " << format_analysis_list(enabled_analyses) << '\n'
+            << "  " << std::left << std::setw(label_width) << "sqrt(s) tolerance"
+            << ": " << collision_energy_tolerance_GeV << " GeV\n"
+            << "  " << std::left << std::setw(label_width) << "Beam tolerance"
+            << ": " << beam_energy_tolerance_GeV << " GeV or "
+            << beam_energy_relative_tolerance << " relative\n"
+            << std::string(80, '-') << '\n';
+    return summary.str();
   }
 }
 
@@ -157,7 +242,12 @@ int main(int argc, char* argv[])
 
     // Input preparation reads the first HepMC event, so initialise logs before
     // it in order to retain any run-condition failure in CBS_logs.
-    initialise_standalone_logs("CBS_logs/");
+    // GAMBIT's generic logger prints an implementation-status line directly
+    // to stdout.  CBS reports its own structured run summary below instead.
+    {
+      ScopedCoutSilencer silence_logger_initialisation;
+      initialise_standalone_logs("CBS_logs/");
+    }
     cbs_logs_initialised = true;
 
     // Read and prepare the settings in the input file
@@ -189,14 +279,7 @@ int main(int argc, char* argv[])
              <<"; beams ("<<run_info.beam_pid_1<<", "<<run_info.beam_pid_2<<") at ("
              <<run_info.beam_energy_1_GeV<<", "<<run_info.beam_energy_2_GeV
              <<") GeV; sqrt(s) = "<<run_info.collision_energy_TeV<<" TeV; verified.";
-      if (!suppress_startup_banner)
-      {
-        logger()<<LogTags::repeat_to_cout<<LogTags::info<<message.str()<<EOM;
-      }
-      else
-      {
-        logger()<<LogTags::info<<message.str()<<EOM;
-      }
+      logger()<<LogTags::info<<message.str()<<EOM;
     }
     logger()<<LogTags::info<<"CBS run-condition tolerances: sqrt(s) "
             <<settings.getValueOrDef<double>(1.0, "collision_energy_tolerance_GeV")
@@ -213,10 +296,12 @@ int main(int argc, char* argv[])
     if (!suppress_startup_banner)
     {
       logger()<<LogTags::repeat_to_cout<<LogTags::info
-              <<"CBS native analyses: "<<prepared_input.requested_analyses.size()
-              <<" requested, "<<analyses.size()<<" enabled after matching all "
-              <<prepared_input.hepmc_filenames.size()<<" HepMC input file"
-              <<(prepared_input.hepmc_filenames.size() == 1 ? "" : "s")<<"."
+              <<format_cbs_startup_summary(
+                  prepared_input,
+                  analyses,
+                  settings.getValueOrDef<double>(1.0, "collision_energy_tolerance_GeV"),
+                  settings.getValueOrDef<double>(1.0, "beam_energy_tolerance_GeV"),
+                  settings.getValueOrDef<double>(1.0e-3, "beam_energy_relative_tolerance"))
               <<EOM;
     }
     for (const str& warning : prepared_input.analysis_warnings)
@@ -448,7 +533,10 @@ int main(int argc, char* argv[])
     auto& convertEvent = convertHepMCEvent_HEPUtils;
     auto& AnalysisNumbers = CollectAnalyses;
     AnalysisNumbers.setOption<bool>("check_cutflow", check_cutflow);
-    AnalysisNumbers.setOption<bool>("print_cutflows", check_cutflow);
+    // CBS renders the retained cutflows once, as part of its final formatted
+    // summary.  Keep collection enabled above, but suppress the raw eventloop
+    // copy (and therefore every batch subprocess copy).
+    AnalysisNumbers.setOption<bool>("print_cutflows", false);
     AnalysisNumbers.setOption<bool>("normalized_cutflows", false);
 
     // Initialise settings for printer (required)
