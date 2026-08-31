@@ -240,6 +240,77 @@ function(cbs_probe_find_gsl output_found output_path)
   set(${output_path} "" PARENT_SCOPE)
 endfunction()
 
+function(cbs_probe_find_hdf5 output_found output_description)
+  # Keep this probe read-only. Prefer the HDF5 metadata installed with its
+  # development package, then fall back to known header/library layouts.
+  cbs_resolve_command(_cbs_pkg_config "pkg-config")
+  if(_cbs_pkg_config)
+    foreach(_cbs_hdf5_package hdf5 hdf5-serial)
+      execute_process(
+        COMMAND "${_cbs_pkg_config}" --modversion "${_cbs_hdf5_package}"
+        RESULT_VARIABLE _cbs_hdf5_pkg_result
+        OUTPUT_VARIABLE _cbs_hdf5_pkg_version
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET)
+      if(_cbs_hdf5_pkg_result EQUAL 0)
+        set(${output_found} TRUE PARENT_SCOPE)
+        set(${output_description}
+            "${_cbs_hdf5_package} ${_cbs_hdf5_pkg_version} (pkg-config)"
+            PARENT_SCOPE)
+        return()
+      endif()
+    endforeach()
+  endif()
+
+  cbs_resolve_command(_cbs_h5cc "h5cc")
+  if(_cbs_h5cc)
+    set(${output_found} TRUE PARENT_SCOPE)
+    set(${output_description} "${_cbs_h5cc}" PARENT_SCOPE)
+    return()
+  endif()
+
+  set(_cbs_hdf5_headers "")
+  set(_cbs_hdf5_libraries "")
+  if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+    cbs_resolve_command(_cbs_brew "brew")
+    if(_cbs_brew)
+      execute_process(
+        COMMAND "${_cbs_brew}" --prefix hdf5
+        RESULT_VARIABLE _cbs_brew_hdf5_result
+        OUTPUT_VARIABLE _cbs_brew_hdf5_prefix
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET)
+      if(_cbs_brew_hdf5_result EQUAL 0)
+        list(APPEND _cbs_hdf5_headers
+             "${_cbs_brew_hdf5_prefix}/include/H5Ipublic.h")
+        list(APPEND _cbs_hdf5_libraries
+             "${_cbs_brew_hdf5_prefix}/lib/libhdf5.dylib")
+      endif()
+    endif()
+  endif()
+  list(APPEND _cbs_hdf5_headers
+       /usr/include/hdf5/serial/H5Ipublic.h
+       /usr/include/H5Ipublic.h
+       /usr/local/include/H5Ipublic.h
+       /opt/local/include/H5Ipublic.h)
+  file(GLOB _cbs_hdf5_system_libraries
+       /usr/lib/*/hdf5/serial/libhdf5.so*
+       /usr/lib/*/libhdf5_serial.so*
+       /usr/lib/libhdf5.so*
+       /usr/local/lib/libhdf5.*
+       /opt/local/lib/libhdf5.*)
+  list(APPEND _cbs_hdf5_libraries ${_cbs_hdf5_system_libraries})
+  cbs_probe_first_existing(_cbs_hdf5_header ${_cbs_hdf5_headers})
+  cbs_probe_first_existing(_cbs_hdf5_library ${_cbs_hdf5_libraries})
+  if(_cbs_hdf5_header AND _cbs_hdf5_library)
+    set(${output_found} TRUE PARENT_SCOPE)
+    set(${output_description} "${_cbs_hdf5_header}" PARENT_SCOPE)
+  else()
+    set(${output_found} FALSE PARENT_SCOPE)
+    set(${output_description} "" PARENT_SCOPE)
+  endif()
+endfunction()
+
 function(cbs_probe_print_optional_environment openmp_description root_found root_prefix root_version root_reason)
   message("  OpenMP       : ${openmp_description}")
   if(root_found)
@@ -255,7 +326,7 @@ function(cbs_probe_print_optional_environment openmp_description root_found root
   endif()
 endfunction()
 
-function(cbs_probe_print_core_deps boost_found eigen_found gsl_found)
+function(cbs_probe_print_core_deps boost_found eigen_found gsl_found hdf5_found hdf5_description)
   if(boost_found)
     message("  Boost        : found")
   else()
@@ -270,6 +341,11 @@ function(cbs_probe_print_core_deps boost_found eigen_found gsl_found)
     message("  GSL          : found")
   else()
     message("  GSL          : missing (need GSL >= 2.1)")
+  endif()
+  if(hdf5_found)
+    message("  HDF5 C       : ${hdf5_description}")
+  else()
+    message("  HDF5 C       : missing (need HDF5 development headers and libraries)")
   endif()
 endfunction()
 
@@ -290,7 +366,7 @@ function(cbs_probe_print_sqlite3 libraries_found executable version)
   endif()
 endfunction()
 
-function(cbs_probe_print_rivet_contur python_found python_executable sqlite_libraries_found sqlite_executable)
+function(cbs_probe_print_rivet_contur python_found python_executable hdf5_found sqlite_libraries_found sqlite_executable)
   set(_cbs_backend_reasons "")
   if(NOT python_found)
     list(APPEND _cbs_backend_reasons "Python is unavailable")
@@ -303,6 +379,9 @@ function(cbs_probe_print_rivet_contur python_found python_executable sqlite_libr
   endif()
   if(NOT sqlite_libraries_found)
     list(APPEND _cbs_backend_reasons "SQLite3 development libraries were not found")
+  endif()
+  if(NOT hdf5_found)
+    list(APPEND _cbs_backend_reasons "HDF5 C development headers/libraries were not found")
   endif()
   if(NOT sqlite_executable)
     list(APPEND _cbs_backend_reasons "sqlite3 command-line client was not found")
@@ -398,9 +477,10 @@ cbs_probe_find_sqlite3(_cbs_sqlite_libraries_found _cbs_sqlite_executable _cbs_s
 cbs_probe_find_boost(_cbs_boost_found _cbs_boost_path)
 cbs_probe_find_eigen(_cbs_eigen_found _cbs_eigen_path)
 cbs_probe_find_gsl(_cbs_gsl_found _cbs_gsl_path)
+cbs_probe_find_hdf5(_cbs_hdf5_found _cbs_hdf5_description)
 
 set(_cbs_core_ok FALSE)
-if(_cbs_presets_supported AND _cbs_python_found AND _cbs_python_has_yaml AND _cbs_openmp_found AND _cbs_boost_found AND _cbs_eigen_found AND _cbs_gsl_found)
+if(_cbs_presets_supported AND _cbs_python_found AND _cbs_python_has_yaml AND _cbs_openmp_found AND _cbs_boost_found AND _cbs_eigen_found AND _cbs_gsl_found AND _cbs_hdf5_found)
   set(_cbs_core_ok TRUE)
 endif()
 set(_cbs_system_ok FALSE)
@@ -414,10 +494,10 @@ if(_cbs_system_ok)
   cbs_probe_print_compilers("${_cbs_system_c}" "${_cbs_system_cxx}")
   cbs_probe_print_fortran("${_cbs_system_fortran}")
   cbs_probe_print_python("${_cbs_python_executable}" "${_cbs_python_version}")
-  cbs_probe_print_core_deps("${_cbs_boost_found}" "${_cbs_eigen_found}" "${_cbs_gsl_found}")
+  cbs_probe_print_core_deps("${_cbs_boost_found}" "${_cbs_eigen_found}" "${_cbs_gsl_found}" "${_cbs_hdf5_found}" "${_cbs_hdf5_description}")
   cbs_probe_print_optional_environment("${_cbs_openmp_description}" "${_cbs_root_found}" "${_cbs_root_prefix}" "${_cbs_root_version}" "${_cbs_root_reason}")
   cbs_probe_print_sqlite3("${_cbs_sqlite_libraries_found}" "${_cbs_sqlite_executable}" "${_cbs_sqlite_version}")
-  cbs_probe_print_rivet_contur("${_cbs_python_has_yaml}" "${_cbs_python_executable}" "${_cbs_sqlite_libraries_found}" "${_cbs_sqlite_executable}")
+  cbs_probe_print_rivet_contur("${_cbs_python_has_yaml}" "${_cbs_python_executable}" "${_cbs_hdf5_found}" "${_cbs_sqlite_libraries_found}" "${_cbs_sqlite_executable}")
 else()
   message("")
   message("[UNAVAILABLE] cbs — System toolchain")
@@ -433,6 +513,8 @@ else()
     message("  Reason         Eigen >= 3.1 was not found")
   elseif(NOT _cbs_gsl_found)
     message("  Reason         GSL >= 2.1 was not found")
+  elseif(NOT _cbs_hdf5_found)
+    message("  Reason         HDF5 C development headers/libraries were not found")
   else()
     message("  Reason         ${_cbs_system_reason}")
   endif()
@@ -452,10 +534,10 @@ if(_cbs_llvm_ok)
   cbs_probe_print_python("${_cbs_python_executable}" "${_cbs_python_version}")
   get_filename_component(_cbs_llvm_root "${_cbs_llvm_origin}" DIRECTORY)
   message("  LLVM root    : ${_cbs_llvm_root}")
-  cbs_probe_print_core_deps("${_cbs_boost_found}" "${_cbs_eigen_found}" "${_cbs_gsl_found}")
+  cbs_probe_print_core_deps("${_cbs_boost_found}" "${_cbs_eigen_found}" "${_cbs_gsl_found}" "${_cbs_hdf5_found}" "${_cbs_hdf5_description}")
   cbs_probe_print_optional_environment("${_cbs_openmp_description}" "${_cbs_root_found}" "${_cbs_root_prefix}" "${_cbs_root_version}" "${_cbs_root_reason}")
   cbs_probe_print_sqlite3("${_cbs_sqlite_libraries_found}" "${_cbs_sqlite_executable}" "${_cbs_sqlite_version}")
-  cbs_probe_print_rivet_contur("${_cbs_python_has_yaml}" "${_cbs_python_executable}" "${_cbs_sqlite_libraries_found}" "${_cbs_sqlite_executable}")
+  cbs_probe_print_rivet_contur("${_cbs_python_has_yaml}" "${_cbs_python_executable}" "${_cbs_hdf5_found}" "${_cbs_sqlite_libraries_found}" "${_cbs_sqlite_executable}")
 else()
   message("")
   message("[UNAVAILABLE] cbs-llvm — Upstream LLVM")
@@ -471,6 +553,8 @@ else()
     message("  Reason         Eigen >= 3.1 was not found")
   elseif(NOT _cbs_gsl_found)
     message("  Reason         GSL >= 2.1 was not found")
+  elseif(NOT _cbs_hdf5_found)
+    message("  Reason         HDF5 C development headers/libraries were not found")
   elseif(NOT _cbs_llvm_found)
     message("  Reason         ${_cbs_llvm_reason}")
   else()

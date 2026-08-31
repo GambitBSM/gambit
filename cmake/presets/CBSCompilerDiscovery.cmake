@@ -4,12 +4,13 @@
 #
 # Shared compiler discovery and validation for CBS presets and toolchains.
 # Keep this file compatible with the project's legacy CMake requirement; presets
-# themselves require CMake 3.21 because they use the schema-3 toolchainFile field.
+# themselves require CMake 3.24 because their documented cache-reset command
+# uses `cmake --fresh`.
 
 include_guard(GLOBAL)
 include("${CMAKE_CURRENT_LIST_DIR}/../compiler_mins.cmake")
 
-set(CBS_PRESET_MIN_CMAKE_VERSION "3.21")
+set(CBS_PRESET_MIN_CMAKE_VERSION "3.24.0")
 set(CBS_MIN_GNU_VERSION "${MIN_GCC_VERSION}")
 set(CBS_MIN_INTEL_VERSION "${MIN_ICC_VERSION}")
 set(CBS_MIN_CLANG_VERSION "${MIN_CLANG_VERSION}")

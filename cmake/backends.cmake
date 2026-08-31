@@ -2119,6 +2119,12 @@ set(hepmc_dir "${HEPMC_PATH}/local")
 set(fastjet_dir "${fastjet_DIR}")
 #set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet -faligned-new -O3")
 set(Rivet_CXX_FLAGS "${FJ_CXX_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR} -O3 -std=c++17")
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  # Rivet 4.1.0 relies on transitive inclusion of <algorithm> in several
+  # public headers.  Supply it through the build flags rather than changing
+  # the downloaded backend sources.
+  set(Rivet_CXX_FLAGS "${Rivet_CXX_FLAGS} -include algorithm")
+endif()
 set_compiler_warning("no-deprecated-declarations" Rivet_CXX_FLAGS)
 set_compiler_warning("no-deprecated-copy" Rivet_CXX_FLAGS)
 set_compiler_warning("no-type-limits" Rivet_CXX_FLAGS)
@@ -2196,35 +2202,40 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} ANASOURCES= libRivet.so
     INSTALL_COMMAND ""
   )
-  # Rivet sources live outside ExternalProject's stamp tree.  Reconstruct the
-  # source directory whenever this patch input changes, so PATCH_COMMAND always
-  # runs on an unmodified tarball extraction.
-  set(_rivet_reset_input "${PROJECT_BINARY_DIR}/rivet_4.1.0-reset-input.txt")
-  file(GENERATE
-    OUTPUT "${_rivet_reset_input}"
-    CONTENT "url=${dl}\nmd5=${md5}\npatch=${patch}\npatch_command=patch --batch --forward -p1 -i ${patch}\n")
-  ExternalProject_Add_Step(${name}_${ver} reset_source
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "${dir}"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${dir}"
-    COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    DEPENDEES update
-    DEPENDERS patch
-    DEPENDS "${_rivet_reset_input}" "${patch}"
-    INDEPENDENT TRUE
-    WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
-  )
-  unset(_rivet_reset_input)
-  # FindHDF5 may return more than one include directory (for example HDF5 and
-  # libaec with Homebrew). Pass each directory as its own BOSS option so none
-  # of the paths can be mistaken for the positional BOSS config-module name.
+  # FindHDF5 may return generic and component-specific include directories
+  # (for example /usr/include and /usr/include/hdf5/serial on Ubuntu). Pass
+  # each directory as its own BOSS option so none of the paths can be
+  # mistaken for the positional BOSS config-module name.
   set(_rivet_boss_include_options "")
-  foreach(_rivet_include_dir IN LISTS HDF5_INCLUDE_DIR HDF5_INCLUDE_DIRS)
+  foreach(_rivet_include_dir IN LISTS
+      HDF5_INCLUDE_DIR HDF5_INCLUDE_DIRS HDF5_C_INCLUDE_DIRS)
     if(NOT "${_rivet_include_dir}" STREQUAL "")
       list(APPEND _rivet_boss_include_options "-I${_rivet_include_dir}")
     endif()
   endforeach()
   list(REMOVE_DUPLICATES _rivet_boss_include_options)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    list(APPEND _rivet_boss_include_options "--castxml-cc-opt=-include algorithm")
+  endif()
   BOSS_backend(${name} ${ver} ${_rivet_boss_include_options})
+  # BOSS is an ExternalProject step, so the project-level dependencies above
+  # do not prevent a directly requested BOSS stamp from running before the
+  # headers it parses have been installed.  Attach the prerequisites to the
+  # step itself; this creates both target- and file-level ordering suitable
+  # for parallel builds.
+  set(_rivet_boss_step_dependencies "")
+  foreach(_rivet_boss_dependency
+      castxml ${yoda_name} ${hepmc_name} fastjet fjcontrib)
+    if(TARGET ${_rivet_boss_dependency})
+      list(APPEND _rivet_boss_step_dependencies ${_rivet_boss_dependency})
+    endif()
+  endforeach()
+  if(_rivet_boss_step_dependencies)
+    ExternalProject_Add_StepDependencies(${name}_${ver} BOSS
+      ${_rivet_boss_step_dependencies})
+  endif()
+  unset(_rivet_boss_step_dependencies)
+  unset(_rivet_boss_dependency)
   # CBS compiles against Rivet's BOSS-generated frontend.  Export the BOSS
   # step as a target so the CBS preset can order backend harvesting after the
   # generated headers are final.

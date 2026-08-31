@@ -10,14 +10,14 @@
   },
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 21,
+    "minor": 24,
     "patch": 0
   },
   "configurePresets": [
     {
       "name": "cbs-base",
       "hidden": true,
-      "description": "Shared CBS cache. Enable CBS analysis capabilities; output-only HDF5 support is intentionally disabled. The selected preset and compiler persist in build/; use --fresh before switching compiler families.",
+      "description": "Shared CBS cache. Enable CBS analysis capabilities, including HDF5. The selected preset and compiler persist in build/; use --fresh before switching compiler families.",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "Bits": "ColliderBit",
@@ -40,7 +40,7 @@
         },
         "WITH_HDF5": {
           "type": "BOOL",
-          "value": "OFF"
+          "value": "ON"
         },
         "WITH_MPI": {
           "type": "BOOL",

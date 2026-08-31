@@ -337,6 +337,12 @@ if(NOT EXCLUDE_YODA)
   set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3")
   gambit_strip_openmp_from_flags(YODA_C_FLAGS)
   gambit_strip_openmp_from_flags(YODA_CXX_FLAGS)
+  # YODA 2.1.0's bundled HighFive uses std::back_inserter without directly
+  # including <iterator>.  Supply the standard header through the compiler,
+  # leaving the downloaded YODA source tree unmodified.
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    set(YODA_CXX_FLAGS "${YODA_CXX_FLAGS} -include iterator")
+  endif()
   #set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3" )
   set_compiler_warning("no-unused-parameter" YODA_CXX_FLAGS)
   set_compiler_warning("no-deprecated-copy" YODA_CXX_FLAGS)
@@ -406,25 +412,42 @@ if(NOT EXCLUDE_YODA)
     # Keep libtool's OpenMP link step on the same runtime as GAMBIT itself.
     set(YODA_CONFIG_LDFLAGS "${YODA_CONFIG_LDFLAGS} ${GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP_LDFLAGS}")
   endif()
-  # HDF5 2.x h5cc can report extra libraries as a semicolon-separated list.
-  # YODA 2.1.0 expects whitespace-separated linker flags, so patch its
-  # pre-generated configure script before its configure output is used by
-  # libtool. Do not patch configure.ac here: the old YODA Automake files then
-  # try to regenerate aclocal.m4 with a version-specific aclocal binary.
-  set(YODA_HDF5_PATCH "${PROJECT_SOURCE_DIR}/cmake/patches/YODA/2.1.0/hdf5-semicolon-libs.patch")
+  # HDF5 2.x can report its extra libraries as a semicolon-separated list in
+  # `h5cc -showconfig`.  YODA 2.1.0 parses that output as shell words.  Give
+  # configure a build-tree wrapper that normalises only that query, without
+  # modifying the downloaded external source.
+  set(_yoda_h5cc_environment "")
+  if(UNIX)
+    find_program(_yoda_h5cc NAMES h5cc h5pcc)
+    if(_yoda_h5cc)
+      set(_yoda_h5cc_wrapper "${PROJECT_BINARY_DIR}/yoda-h5cc")
+      file(WRITE "${_yoda_h5cc_wrapper}"
+        "#!/bin/sh\n"
+        "if [ \"$1\" = \"-showconfig\" ]; then\n"
+        "  \"${_yoda_h5cc}\" \"$@\" | tr ';' ' '\n"
+        "else\n"
+        "  exec \"${_yoda_h5cc}\" \"$@\"\n"
+        "fi\n")
+      file(CHMOD "${_yoda_h5cc_wrapper}"
+        PERMISSIONS
+          OWNER_READ OWNER_WRITE OWNER_EXECUTE
+          GROUP_READ GROUP_EXECUTE
+          WORLD_READ WORLD_EXECUTE)
+      list(APPEND _yoda_h5cc_environment "H5CC=${_yoda_h5cc_wrapper}")
+    endif()
+  endif()
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND ${CMAKE_COMMAND}
-      -DYODA_SOURCE_DIR=${dir}
-      -DYODA_CONFIGURE=${dir}/configure
-      -DYODA_PATCH=${YODA_HDF5_PATCH}
-      -P ${PROJECT_SOURCE_DIR}/cmake/scripts/patch_yoda_hdf5.cmake
-    CONFIGURE_COMMAND ${YODA_PATH}/configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} CFLAGS=${YODA_C_FLAGS} CXXFLAGS=${YODA_CXX_FLAGS} LDFLAGS=${YODA_CONFIG_LDFLAGS} PYTHON=${Python3_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env ${_yoda_h5cc_environment}
+      ${YODA_PATH}/configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} CFLAGS=${YODA_C_FLAGS} CXXFLAGS=${YODA_CXX_FLAGS} LDFLAGS=${YODA_CONFIG_LDFLAGS} PYTHON=${Python3_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
     BUILD_COMMAND ${YODA_BUILD_COMMAND}
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
+  unset(_yoda_h5cc_environment)
+  unset(_yoda_h5cc)
+  unset(_yoda_h5cc_wrapper)
   add_contrib_clean_and_nuke(${name} ${dir} clean)
 endif()
 
@@ -460,6 +483,11 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(FASTJET_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
   gambit_strip_openmp_from_flags(FASTJET_C_FLAGS)
   gambit_strip_openmp_from_flags(FASTJET_CXX_FLAGS)
+  # FastJet Contrib 1.101 uses std::prev_permutation from a header that does
+  # not include <algorithm> itself.  Keep the downloaded source pristine.
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    set(FASTJET_CXX_FLAGS "${FASTJET_CXX_FLAGS} -include algorithm")
+  endif()
   set_compiler_warning("no-deprecated-declarations" FASTJET_CXX_FLAGS)
   set_compiler_warning("no-deprecated-copy" FASTJET_CXX_FLAGS)
   set(FJCONTRIB_FRAGILE_CXX_FLAGS "${FASTJET_CXX_FLAGS}")
@@ -598,6 +626,9 @@ if(WITH_FASTJET_CONTRIB)
   set_source_files_properties(${fjcontrib_nsubjettiness_sources} PROPERTIES GENERATED TRUE)
   add_gambit_library(fjcontrib_nsubjettiness OPTION OBJECT
                             SOURCES ${fjcontrib_nsubjettiness_sources})
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(fjcontrib_nsubjettiness PRIVATE -include algorithm)
+  endif()
   add_dependencies(fjcontrib_nsubjettiness fastjet fjcontrib)
   set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcontrib_nsubjettiness>)
   add_dependencies(contrib fjcontrib_nsubjettiness)

@@ -97,7 +97,8 @@ int main() { return 0; }
   set(CBS_VALIDATION_BOOST "${_cbs_boost}")
 
   if(HDF5_FOUND)
-    set(CMAKE_REQUIRED_INCLUDES "${HDF5_INCLUDE_DIR};${HDF5_INCLUDE_DIRS}")
+    set(CMAKE_REQUIRED_INCLUDES
+        "${HDF5_INCLUDE_DIR};${HDF5_INCLUDE_DIRS};${HDF5_C_INCLUDE_DIRS}")
     list(REMOVE_DUPLICATES CMAKE_REQUIRED_INCLUDES)
     set(CMAKE_REQUIRED_LIBRARIES "${HDF5_LIBRARIES}")
     set(_cbs_hdf5_source [=[
@@ -182,6 +183,7 @@ int main(void) { return sqlite3_libversion_number() == 0; }
       OPENMP
       PYTHON_DEVELOPMENT
       BOOST
+      HDF5
       CBS_TARGET)
     if(NOT CBS_VALIDATION_${_cbs_required_check})
       string(REPLACE "_" " " _cbs_required_name "${_cbs_required_check}")
@@ -262,6 +264,7 @@ function(cbs_print_validation_summary)
   cbs_validation_status("${CBS_VALIDATION_OPENMP}" _cbs_openmp_status)
   cbs_validation_status("${CBS_VALIDATION_PYTHON_DEVELOPMENT}" _cbs_python_status)
   cbs_validation_status("${CBS_VALIDATION_BOOST}" _cbs_boost_status)
+  cbs_validation_status("${CBS_VALIDATION_HDF5}" _cbs_hdf5_status)
   cbs_validation_status("${CBS_VALIDATION_SQLITE3}" _cbs_sqlite3_status)
   cbs_validation_status("${CBS_VALIDATION_SQLITE3_CLI}" _cbs_sqlite3_cli_status)
   cbs_validation_status("${CBS_VALIDATION_CBS_TARGET}" _cbs_target_status)
@@ -279,6 +282,7 @@ function(cbs_print_validation_summary)
   cbs_summary_line("dynamic_lookup" "${_cbs_dynamic_lookup_status}")
   cbs_summary_line("Python development" "${_cbs_python_status}")
   cbs_summary_line("Boost" "${_cbs_boost_status}")
+  cbs_summary_line("HDF5 C development" "${_cbs_hdf5_status}")
   cbs_summary_line("SQLite3 development" "${_cbs_sqlite3_status}")
   cbs_summary_line("sqlite3 client" "${_cbs_sqlite3_cli_status}")
   cbs_summary_line("CBS target" "${_cbs_target_status}")
