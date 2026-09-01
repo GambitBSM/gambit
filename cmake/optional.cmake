@@ -225,19 +225,18 @@ endif()
 
 # Helper function to check if ROOT has been compiled with the same standard as we are using here.  If not, downgrade to the standard that ROOT was compiled with.
 function(check_root_std_flag)
-  # Modern ROOT package configurations expose the standard as
-  # ROOT_CXX_STANDARD, while older configurations only included -std=c++XX
-  # in ROOT_CXX_FLAGS.  Prefer the explicit package variable when available.
-  if(DEFINED ROOT_CXX_STANDARD AND NOT "${ROOT_CXX_STANDARD}" STREQUAL "")
+  # Modern ROOT (CMake config) versions expose the standard they were built
+  # with directly via ROOT_CXX_STANDARD, rather than embedding a -std=c++NN
+  # flag in ROOT_CXX_FLAGS. Prefer that when present.
+  if (NOT ROOT_USES_STD AND DEFINED ROOT_CXX_STANDARD AND NOT "${ROOT_CXX_STANDARD}" STREQUAL "")
+    set(ROOT_USES_STD TRUE)
     set(ROOT_STD "${ROOT_CXX_STANDARD}")
     set(ROOT_CXX_FLAG "-std=c++${ROOT_CXX_STANDARD}")
     set(ROOT_CXX_FLAG_RE "-std=c\\+\\+${ROOT_CXX_STANDARD}")
-    set(ROOT_USES_STD TRUE)
-    message("${BoldYellow}   This ROOT was compiled with C++${ROOT_CXX_STANDARD}.${ColourReset}")
+    message("${BoldYellow}   This ROOT was compiled with ${ROOT_CXX_FLAG} (from ROOT_CXX_STANDARD).${ColourReset}")
   endif()
-
   # Loop over C++ standards
-  set(std_list "17;1z;14;1y;11;0x")
+  set(std_list "23;20;2a;17;1z;14;1y;11;0x")
   foreach(std ${std_list})
     set(CXX_FLAG "-std=c++${std}")
     set(CXX_FLAG_RE "-std=c\\+\\+${std}")
