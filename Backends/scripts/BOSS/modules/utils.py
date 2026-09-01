@@ -2323,12 +2323,12 @@ def castxmlRunner(input_file_path, include_paths_list, xml_output_path, use_cast
             print("CalledProcessError.message:", error_message)
             print()
 
-    # If it fails with the syste-wide castxml binary, try again with the local one
+    # If it fails with the system-wide castxml binary, try again with the local one.
+    # Return on success so the original failed attempt is not reported afterwards.
     if (did_fail and use_castxml_path==castxml_system_path and gb.has_castxml_local):
         print('  ' + modifyText('Will retry with castxml binary in ' + castxml_local_path,'yellow') )
-        did_fail = False
-        use_castxml_path = castxml_local_path
-        castxmlRunner(input_file_path, include_paths_list, xml_output_path, use_castxml_path=use_castxml_path)
+        return castxmlRunner(input_file_path, include_paths_list, xml_output_path,
+                              use_castxml_path=castxml_local_path)
 
 
     # If it fails with icpc, try again with g++.
@@ -2918,6 +2918,26 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
 
 
+# ====== isGccPrivateIncludePath ========
+
+def isGccPrivateIncludePath(path):
+
+    # GCC reports its implementation-specific intrinsic headers together with
+    # the C++ standard-library search paths.  CastXML parses with its internal
+    # Clang, so forwarding these headers causes GCC intrinsics to be selected.
+    # Match the directory structure rather than a distro, target, or version.
+    components = [component for component in os.path.normpath(path).split(os.sep) if component]
+    for index, component in enumerate(components):
+        if component == 'gcc':
+            suffix = components[index + 1:]
+            return len(suffix) == 3 and suffix[-1] in ('include', 'include-fixed')
+    return False
+
+# ====== END: isGccPrivateIncludePath ========
+
+
+
+
 # ====== identifyStdIncludePaths ========
 
 def identifyStdIncludePaths():
@@ -3000,15 +3020,29 @@ def identifyStdIncludePaths():
             if path:
                 std_include_paths.append(path.split()[0])
 
-        # Filter out Intel-specific paths to avoid conflict with gnu headers
-        if (cfg.castxml_cc_id == 'gnu') or (cfg.castxml_cc_id == 'gnu-c'):
+        # Filter compiler-private headers that conflict with CastXML's internal
+        # Clang, while retaining libstdc++ and ordinary system header paths.
+        if cfg.castxml_cc_id.strip() in ('gnu', 'gnu-c'):
 
-            len_before_filter = len(std_include_paths)
-            std_include_paths = [path for path in std_include_paths if 'intel' not in path]
-            len_after_filter = len(std_include_paths)
+            retained_paths = []
+            dropped_intel_paths = []
+            dropped_gcc_paths = []
+            for path in std_include_paths:
+                if 'intel' in path.lower():
+                    dropped_intel_paths.append(path)
+                elif isGccPrivateIncludePath(path):
+                    dropped_gcc_paths.append(path)
+                elif path not in retained_paths:
+                    retained_paths.append(path)
+            std_include_paths = retained_paths
 
-            if len_after_filter < len_before_filter:
-                print('  (Filtered out Intel paths to avoid conflicts with gcc headers.)')
+            if dropped_intel_paths:
+                print('  (Filtered out Intel paths to avoid conflicts with GCC headers.)')
+                print()
+            if dropped_gcc_paths:
+                print('  (Filtered out GCC private intrinsic-header paths for CastXML.)')
+                for path in dropped_gcc_paths:
+                    print('  - ' + path)
                 print()
 
         print('  Identified %i standard include paths:' % len(std_include_paths))

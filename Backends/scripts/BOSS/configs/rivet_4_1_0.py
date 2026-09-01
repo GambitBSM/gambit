@@ -66,8 +66,8 @@ ditch = [
 ]
 
 
-# Let BOSS pass the selected compiler's complete standard include path to
-# CastXML; this is needed for GCC multiarch installations.
+# Let BOSS pass the selected compiler's standard-library include paths to
+# CastXML; BOSS excludes compiler-private GCC intrinsic-header paths.
 auto_detect_stdlib_paths = True
 
 
