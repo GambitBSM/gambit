@@ -14,7 +14,7 @@ The emulator system can be used in two ways:
 # Quick start examples
 
 ### Emulating the full likelihood
-Regardless of what module one uses, the likelihood as a whole can be emulated. This requires no additional functions, but is built into the framework, so any example inifile can be used in this example (most simple is the `emulator_test_likelihood.yaml`). To emulate the likelihood, we only need to activate emulation by adding the emulator section in the inifile and running the correct commandline arguments.
+Regardless of what GAMBIT modules and capabilities we use in a run, the likelihood function as a whole can be emulated. This requires no additional functions, but is built into the framework, so any example inifile can be used in this example (most simple is the `emulator_test_likelihood.yaml`). To emulate the likelihood, we only need to activate emulation by adding the emulator section in the inifile and running the correct commandline arguments.
 
 A minimal example of the yaml settings with the existing **pygptreeo** plugin is:
 ```yaml
