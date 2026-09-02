@@ -82,9 +82,9 @@ In order to use emulation on already emulatable capabilities, one needs to const
 
 ## Commandline arguments
 
-The emulator system is MPI parallelized through a MPMD (Multiple Program, Multiple Data) design, and can be launched using a colon syntax `mpirun -np N1 ./executable1 : -np N2 ./executable2`. This means that the executables are launched separately with a specified number of MPI processes for each of the executables. No new processes are spawned for the emulators; they are allocated at start-up. 
+The emulator system is MPI parallelized through a MPMD (Multiple Program, Multiple Data) design, and can be launched using a colon syntax `mpirun -np N1 ./executable1 : -np N2 ./executable2`. Here the executables are launched separately, each with its specified number of MPI processes (`N1` and `N2`). No new processes are spawned for the emulators; they are allocated at start-up. 
 
-The emulator system is designed to work with 1 or more MPI processes, regardless of the number of MPI processes of the main GAMBIT executable. The design of the emulator plugin decides how the MPI processes of the emulator are utilized, but a typical setup is one MPI process for training the emulator and one for prediction. 
+The emulator system is designed to work with one or more MPI processes, regardless of the number of MPI processes used for the main GAMBIT executable. The design of the emulator plugin decides how the MPI processes of the emulator are utilized, but a typical setup is one MPI process for training the emulator and one for prediction. 
 
 One executable has to be launched for each different capability one wishes to emulate. In order for the emulator executables to know which capability they are emulating, the capability has to be specified in the commandline in the following way:
 ```bash
