@@ -157,7 +157,7 @@ To create a threshold function for a capability, the module namespace must inclu
 
 # Making emulators
 ## Overview
-The emulator executable is called EGG (full name), and is the interface between GAMBIT and the emulator system. EGG receives messages from the GAMBIT MPI processes, evaluates the requests using the emulator plugins and sends the predictions from the emulators back to the same process. The plugin is connected to the EGG through a C interface, since the plugins are Python based.
+The emulator executable is called EGG (full name), and is the interface between GAMBIT and the emulator system. EGG receives messages from the GAMBIT MPI processes, evaluates the requests using the emulator plugins and sends the predictions from the emulators back to the same process. The plugin is connected to the EGG through ScannerBit's usual dlopen-based plugin interface, so a plugin may be written either in Python (via the `python` plugin) or directly in C++.
 
 The internal usage of the allocated MPI processes for EGG is determined mainly by the plugins. The emulator system is designed so that all MPI processes corresponding to one capability's EGG receive the predict/train message, and the plugin decides what those MPI processes do internally. The most simple system is a 2 process EGG, with one process dedicated to training and one to prediction, but this is coded into the Python emulator plugin. The most important part is that only one MPI process from the EGG sends the prediction back to the waiting GAMBIT process. 
 
@@ -204,5 +204,166 @@ class Test(eplug.emulator):
 __plugins__={"emutest": Test}
 ```
 
-## C interface (enter at own risk)
-TODO: Greg
+## C++ plugin
+
+An emulator plugin does not have to be written in Python. The `python` plugin used in the examples
+above is itself just a C++ emulator plugin that happens to forward every call on to a Python class;
+a native C++ emulator is written the same way, and implements the same two operations — `train` and
+`predict` — as two overloads of `plugin_main`.
+
+Writing the emulator in C++ removes the Python layer entirely (no interpreter, no pybind11
+conversions), so it is the right choice for an emulator that is already a C/C++ library, or one
+where the per-prediction overhead matters.
+
+### Where the file goes
+
+Put the plugin in its own subdirectory of `ScannerBit/src/emulators/`, for example
+`ScannerBit/src/emulators/mine/mine.cpp`. Any headers of your own belong in
+`ScannerBit/include/gambit/ScannerBit/emulators/mine/`. This is the directory the plugin harvester
+scans, so a plugin outside it will never be registered.
+
+### Skeleton
+
+```cpp
+#include "gambit/ScannerBit/emulator_plugin.hpp"
+#include "gambit/ScannerBit/emulator_utils.hpp"
+
+emulator_plugin(mine, version(1, 0, 0))
+{
+    // Anything declared here is the plugin's own state, and persists for the
+    // lifetime of the egg process.
+    MyEmulator emu;
+    bool i_predict;
+
+    plugin_constructor
+    {
+        // Settings come from this capability's yaml block (see below).
+        double length_scale = get_inifile_value<double>("length_scale", 1.0);
+        emu.setup(length_scale);
+
+        // Decide, once, which rank of this egg answers predictions.
+        int rank = 0;
+        #ifdef WITH_MPI
+            MPI_Comm_rank(*Gambit::Scanner::Plugins::plugin_info.scanComm().get_boundcomm(), &rank);
+        #endif
+        i_predict = (rank == 0);
+    }
+
+    // ---- training. No reply is ever sent to GAMBIT. ----
+    void plugin_main(map_vector<double> x, map_vector<double> y, map_vector<double> sigs,
+                     unsigned short int &flag)
+    {
+        Gambit::Scanner::Emulator::flag_wrapper in_flag(flag);
+
+        emu.add_training_point(x, y, sigs);
+    }
+
+    // ---- prediction. Returns (prediction, uncertainty). ----
+    std::pair<vector<double>, vector<double>> plugin_main(map_vector<double> x,
+                                                          unsigned short int &flag)
+    {
+        Gambit::Scanner::Emulator::flag_wrapper in_flag(flag);
+
+        // Ranks that are not answering return without setting RESULT; whatever
+        // they return is discarded.
+        if (!i_predict)
+            return std::make_pair(vector<double>::Zero(1), vector<double>::Zero(1));
+
+        vector<double> pred, unc;
+        emu.predict(x, pred, unc);
+
+        in_flag.set_result(true);        // "I am the rank that answers this request."
+        // in_flag.set_not_valid(true);  // optional: answer, but tell GAMBIT not to use it.
+
+        return std::make_pair(pred, unc);
+    }
+
+    plugin_deconstructor
+    {
+    }
+}
+```
+
+### The rules
+
+**The two signatures are the ABI.** `emulator_plugin(...)` expands into the same registration
+machinery scanner, prior and objective plugins use, and the egg looks up the two `plugin_main`
+overloads *by signature*. A `plugin_main` declared with anything else will compile happily and then
+fail at load with *"Plugin interface requires the plugin_main function ... to be of the form ..."*.
+There is no name or enum distinguishing train from predict — the four-argument overload is training,
+the two-argument overload is prediction.
+
+**Exactly one rank per egg may set `RESULT`.** The egg sends a reply to the waiting GAMBIT rank if
+and only if the plugin set the `RESULT` bit, so `in_flag.set_result(true)` is the plugin's
+declaration of "I am the rank that answers." Set it on no rank and the requesting GAMBIT process
+waits for its `timeout` and then takes the whole run down; set it on two ranks and the extra reply
+sits in the MPI queue and is picked up as the answer to that rank's *next* prediction, silently
+pairing every later request with a stale answer. Nothing checks for this.
+
+**Return, don't refuse.** If the emulator cannot give a usable answer for a point, still return from
+the answering rank with `set_result(true)`, and add `set_not_valid(true)`. GAMBIT then falls back to
+the real calculation for that point. NaN/inf predictions are marked invalid automatically.
+
+**`map_vector<double>` is a view, not a copy.** It is
+`Eigen::Map<Eigen::Matrix<double, Dynamic, 1>>` pointing straight into the MPI receive buffer, which
+is reused for the next message. Read it freely inside the call, but anything the plugin keeps across
+calls must be copied into storage of its own. The return type `vector<double>` is a plain
+`Eigen::Matrix<double, Dynamic, 1>` and is copied out normally.
+
+**Settings and MPI.** `get_inifile_value<T>("key")` and `get_inifile_value<T>("key", default)` read
+this capability's `Emulation:emulators:<capability>:` block, and `get_inifile_node()` gives the whole
+block. `Gambit::Scanner::Plugins::plugin_info.scanComm()` is the egg's *own* communicator: rank 0
+there means rank 0 of this capability's egg, not of `MPI_COMM_WORLD`. If your plugin needs an
+external header or library to be present, declare it with `reqd_headers("NAME")` so the build can
+report the plugin as unavailable instead of failing to compile.
+
+### Building it
+
+The emulator plugin build is written out per plugin in `ScannerBit/CMakeLists.txt` — there is no
+glob. Copy the `#### libemulator_python.so ####` block, rename `python` to your plugin's name
+throughout, drop the pybind11/PYTHONLIBS checks (or replace them with your own dependency checks),
+and point the sources variable at your `.cpp`:
+
+```cmake
+set( emulator_plugin_sources_mine
+                src/emulators/mine/mine.cpp
+)
+```
+
+Then **re-run cmake**: `ScannerBit/scripts/scanner+_harvester.py` scans
+`ScannerBit/src/emulators` for `emulator_plugin(...)`/`EMULATOR_PLUGIN(...)` at configure time and
+generates the registration code, so a new plugin is invisible until it runs again.
+
+```bash
+cd build && cmake .. && make -j4 scanners
+```
+
+The result is `ScannerBit/lib/libemulator_mine.so`. Check it was picked up with
+`./gambit scanners`, which lists emulator plugins alongside the scanners.
+
+### Using it
+
+Name it in the yaml exactly like any other emulator plugin — the `plugin:` key is what the egg
+looks up when it loads the shared library for that capability:
+
+```yaml
+Emulation:
+  use_emulator:
+  - LogLike
+
+  emulators:
+    LogLike:
+      plugin: mine
+      train: true
+      predict: true
+      uncertainty:
+        - 0.01
+      timeout: 300
+      length_scale: 1.0   # passed to get_inifile_value<double>("length_scale")
+```
+
+and launch it the same way:
+
+```bash
+mpirun -np 4 ./gambit -f yaml_files/emulator_test_likelihood.yaml : -np 2 ./egg -c LogLike
+```
