@@ -45,7 +45,7 @@ Emulation:
       
 ```
 
-To run the spartan example with only emulating the likelihood, one can use the following command:
+To run the spartan example with only emulating the likelihood, we can use the following command:
 ```bash
 mpirun -np 4 ./gambit -f yaml_files/emulator_test_likelihood.yaml : -np 2 ./egg -c LogLike
 ```
