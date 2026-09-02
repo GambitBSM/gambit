@@ -101,6 +101,18 @@ namespace Gambit
       obslike(NULL)
     {}
 
+    /// Alternative constructor for a tagged, pinned dependency slot
+    QueueEntry::QueueEntry(sspair a, VertexID b, int c, bool d, str tag_in, str pinned_function_in, str pinned_module_in)
+    : quantity(a),
+      toVertex(b),
+      dependency_type(c),
+      printme(d),
+      obslike(NULL),
+      tag(tag_in),
+      pinned_function(pinned_function_in),
+      pinned_module(pinned_module_in)
+    {}
+
 
     ///////////////////////
     // Auxiliary functions
@@ -1110,6 +1122,48 @@ namespace Gambit
     /// As non-subjugate rules have global applicability, all (strong) instances are assumed to have already been applied before this function is called.
     std::vector<VertexID> DependencyResolver::resolveDependencyFromRules(const QueueEntry& entry, const std::vector<VertexID>& vertexCandidates)
     {
+      // If this queue entry is a pinned dependency slot, its target function is already fully known from the rollcall declaration alone.
+      if (not entry.pinned_function.empty())
+      {
+        std::vector<VertexID> matches;
+        for (const VertexID& v : vertexCandidates)
+        {
+          const functor* f = masterGraph[v];
+          if (v != entry.toVertex
+              and f->capability() == entry.quantity.first
+              and f->type() == entry.quantity.second
+              and f->name() == entry.pinned_function
+              and (entry.pinned_module.empty() or f->origin() == entry.pinned_module))
+          {
+            matches.push_back(v);
+          }
+        }
+
+        if (matches.empty())
+        {
+          str errmsg = "Cannot resolve pinned dependency slot '" + entry.tag + "' of";
+          errmsg += "\n" + printQuantityToBeResolved(entry) + ":";
+          errmsg += "\nno active function named '" + entry.pinned_function + "'";
+          if (not entry.pinned_module.empty()) errmsg += " in module '" + entry.pinned_module + "'";
+          errmsg += " providing " + entry.quantity.first + " (" + entry.quantity.second + ") was found.";
+          errmsg += "\nThis dependency is pinned directly in the rollcall header via";
+          errmsg += "\nDEPENDENCY_ON_FUNCTION, so check that the pinned";
+          errmsg += "\nfunction exists, actually provides the expected capability/type, and is";
+          errmsg += "\nactive for the model(s) being scanned (it may have been deactivated by an";
+          errmsg += "\nALLOW_MODELS declaration incompatible with the models selected for scanning).";
+          dependency_resolver_error().raise(LOCAL_INFO,errmsg);
+        }
+        if (matches.size() > 1)
+        {
+          str errmsg = "Pinned dependency slot '" + entry.tag + "' of";
+          errmsg += "\n" + printQuantityToBeResolved(entry);
+          errmsg += "\nmatches more than one active function named '" + entry.pinned_function + "'.";
+          errmsg += "\nUse DEPENDENCY_ON_FUNCTION_IN_MODULE to also pin the target module.";
+          dependency_resolver_error().raise(LOCAL_INFO,errmsg);
+        }
+        return matches;
+      }
+
       // Candidate vertices after applying rules
       std::vector<std::pair<VertexID, bool>> allowedVertexCandidates(vertexCandidates.size());
       std::vector<std::pair<VertexID, bool>> disabledVertexCandidates(vertexCandidates.size());
@@ -1149,8 +1203,10 @@ namespace Gambit
         for (unsigned int i = 0; i < vertexCandidates.size(); ++i)
         {
           const VertexID& v = vertexCandidates[i];
-          // Require match to quantity, and forbid self-resolution
-          bool match = (v != entry.toVertex and dep_rule.allows(masterGraph[v], *boundTEs));
+          // Require match to quantity, forbid self-resolution, and exclude functors flagged (via
+          // their own ObsLikes entry) as ineligible to resolve anyone else's dependency.
+          bool match = (v != entry.toVertex and dep_rule.allows(masterGraph[v], *boundTEs)
+                         and not masterGraph[v]->excludedFromDependencyResolution());
           updateCandidates(match, v, i, allowedVertexCandidates, disabledVertexCandidates);
         }
       }
@@ -1476,6 +1532,12 @@ namespace Gambit
 
           // Check if we wanted to output this observable to the printer system.
           if (entry.obslike != NULL) masterGraph[fromVertex]->setPrintRequirement(entry.printme);
+          // Check if this ObsLikes entry should be computed and printed, but never used to
+          // resolve anyone else's dependency on the same capability.
+          if (entry.obslike != NULL and entry.obslike->exclude_from_dependency_resolution)
+          {
+            masterGraph[fromVertex]->setExcludeFromDependencyResolution(true);
+          }
           // Check if the flag to output timing data is set
           if(print_timing) masterGraph[fromVertex]->setTimingPrintRequirement(true);
 
@@ -1486,7 +1548,14 @@ namespace Gambit
             // Default is to resolve dependency at functor level for entry.toVertex.
             if (entry.dependency_type != LOOP_MANAGER_DEPENDENCY)
             {
-              (*masterGraph[entry.toVertex]).resolveDependency(masterGraph[fromVertex]);
+              if (entry.tag.empty())
+              {
+                (*masterGraph[entry.toVertex]).resolveDependency(masterGraph[fromVertex]);
+              }
+              else
+              {
+                (*masterGraph[entry.toVertex]).resolvePinnedDependency(masterGraph[fromVertex], entry.tag);
+              }
             }
             // In case the fromVertex is a loop manager, store nested function
             // temporarily in loopManagerMap (they have to be sorted later)
@@ -1658,6 +1727,18 @@ namespace Gambit
           logger() << ss.first << " (" << ss.second << ")" << endl;
           resolutionQueue.push(QueueEntry(ss, vertex, NORMAL_DEPENDENCY, printme_default));
         }
+      }
+
+      // Digest pinned dependency slots (declared via DEPENDENCY_ON_FUNCTION). Each gets its own queue entry.
+      std::vector<DependencySlot> pinned = masterGraph[vertex]->pinnedDependencies();
+      if (pinned.size() > 0) logger() << "Add pinned dependencies of new module function to queue" << endl;
+      for (const DependencySlot& slot : pinned)
+      {
+        logger() << slot.tag << ": " << slot.capability << " (" << slot.type << "), pinned to "
+                  << slot.pinned_function
+                  << (slot.pinned_module.empty() ? "" : " in " + slot.pinned_module) << endl;
+        resolutionQueue.push(QueueEntry(sspair(slot.capability, slot.type), vertex, NORMAL_DEPENDENCY,
+         printme_default, slot.tag, slot.pinned_function, slot.pinned_module));
       }
 
       // Tell the logger we're done here.

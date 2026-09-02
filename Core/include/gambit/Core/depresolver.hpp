@@ -86,12 +86,16 @@ namespace Gambit
     {
       QueueEntry();
       QueueEntry(sspair a, VertexID b, int c, bool d);
+      QueueEntry(sspair a, VertexID b, int c, bool d, str tag, str pinned_function, str pinned_module);
       sspair quantity;
       VertexID toVertex;
       int dependency_type;
       bool printme;
       bool critical;
       const Observable* obslike;
+      str tag;
+      str pinned_function;
+      str pinned_module;
     };
 
     /// Main dependency resolver

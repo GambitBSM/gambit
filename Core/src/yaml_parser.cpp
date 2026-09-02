@@ -193,6 +193,7 @@ namespace YAML
       else if (key == "functionChain")    rhs.functionChain  = entry.second.as<std::vector<std::string>>();
       else if (key == "sub_capabilities") rhs.subcaps        = entry.second;
       else if (key == "printme")          rhs.printme        = entry.second.as<bool>();
+      else if (key == "exclude_from_dependency_resolution") rhs.exclude_from_dependency_resolution = entry.second.as<bool>();
       else if (key == "dependencies") for (auto& de : entry.second) convert_to_module_rule(de, rhs.dependencies);
       else if (key == "backends")     for (auto& be : entry.second) convert_to_backend_rule(be, rhs.backends);
       else
