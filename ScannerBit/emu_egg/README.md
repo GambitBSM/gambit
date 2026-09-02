@@ -86,15 +86,14 @@ The emulator system is MPI parallelized through a MPMD (Multiple Program, Multip
 
 The emulator system is designed to work with one or more MPI processes, regardless of the number of MPI processes used for the main GAMBIT executable. The design of the emulator plugin decides how the MPI processes of the emulator are utilized, but a typical setup is one MPI process for training the emulator and one for prediction. 
 
-One executable has to be launched for each different capability one wishes to emulate. In order for the emulator executables to know which capability they are emulating, the capability has to be specified in the commandline in the following way:
+We must launch one instance of the `egg` executable for each capability we want to emulate. The syntax `./egg -c <capability_name>` is used to tell each instance of `egg` which capability it is emulating, e.g.:
 ```bash
-mpirun -np N ./gambit ... : -np N1 ./egg -c <capability_name1> : -np N2 ./egg -c <capability_name2>
+mpirun -np N ./gambit ... : -np N1 ./egg -c <capability_name_1> : -np N2 ./egg -c <capability_name_2>
 ```
-
-Help can be found by running `./egg -h`.
+Run `./egg -h` for a complete overview of options.
 
 ## Inifile (yaml setup)
-The inifile has to include emulator-specific settings for each capability. A separate `Emulation` block in the yaml file specifies which capabilities are to be emulated and the settings of the emulator plugin specifically for that capability. 
+The inifile has to include emulator-specific settings for each capability. In a dedicated `Emulation` block in the yaml file we list the capabilities we want to emulate, and specify the emulator plugin settings for each one.
 
 The general set-up of such an inifile section is as follows:
 ```yaml
@@ -126,7 +125,7 @@ Emulation:
 
 ```
 
-Each capability has to specify the plugin, and whether it is training, predicting, or has a pre-trained emulator. One also has to specify the uncertainty threshold for the capability, with one uncertainty for each value emulated. For capabilities with more than one output, one has to specify the uncertainty for both values. All emulator outputs must be within their uncertainty threshold for the emulator result to be accepted by GAMBIT.
+For each capability we must specify the plugin, and whether it will be used for training, predicting, and whether we are using a pre-trained emulator. We must also specify the uncertainty threshold for the capability. In cases where a capability involves multiple emulator outputs, an uncertainty threshold must be specificed for each emulator output. All emulator outputs must be within their uncertainty threshold for the emulator result to be accepted by GAMBIT.
 
 It is also possible to specify a timeout (the default is 300s), after which the run shuts down if there is no reply from the emulator side. This is to ensure that freezes in the emulator framework or miscommunication with the main processes cause the entire run to abort.
 
