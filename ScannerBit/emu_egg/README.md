@@ -126,7 +126,7 @@ Emulation:
 
 ```
 
-Each capability has to specify the plugin, and whether it is training, predicting, or has a pre-trained emulator. One also has to specify the uncertainty threshold for the capability, with one uncertainty for each value emulated. For capabilities with more than one output, one has to specify the uncertainty for both values. **OBS: what do we do if only one output is accepted?**
+Each capability has to specify the plugin, and whether it is training, predicting, or has a pre-trained emulator. One also has to specify the uncertainty threshold for the capability, with one uncertainty for each value emulated. For capabilities with more than one output, one has to specify the uncertainty for both values. All emulator outputs must be within their uncertainty threshold for the emulator result to be accepted by GAMBIT.
 
 It is also possible to specify a timeout (the default is 300s), after which the run shuts down if there is no reply from the emulator side. This is to ensure that freezes in the emulator framework or miscommunication with the main processes cause the entire run to abort.
 
