@@ -5,6 +5,12 @@ The system runs alongside GAMBIT on separate MPI processes, and is launched at s
 
 The user can create new emulatable capabilities or make existing capabilities emulatable, as long as the capability does not require a loop manager (or can be run on several OpenMP threads). New emulators can be created by designing a Python emulator plugin, as described below. 
 
+The emulator system can be used in two ways:
+
+1. Emulation of the full likelihood function.
+2. Emulation of individual capabilities.
+
+
 # Quick start examples
 
 ### Full likelihood emulation
