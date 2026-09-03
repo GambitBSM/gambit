@@ -96,35 +96,34 @@ namespace Gambit
         }
         
         // Basline HCP candidates here
-        vector<const HEPUtils::Particle*> displacedParticles;
-        
-        // TODO: We have a fix for function overloading in Event.h
+        vector<const HEPUtils::DisplacedParticle*> displacedParticles;
+      
         vector<string> custom_names = event->custom_particle_names();
-        cout << "Custom names in particle collections: ";
+        cout << "Custom names in particle collections: " << endl;
         for(auto name: custom_names ) cout << name << endl;
         
         int nHCP= 0;
         // Check if we have HCP candidates
         cout << "Particles produced > 10 mm from interaction:" << endl;
         if( event->has_custom_particle("LLprod") ){
-          for (const HEPUtils::Particle* HCP : event->particles("LLprod") ) {
-            //if (HCP->pT() > 4.5 && fabs(HCP->eta()) < 2.47) {
+          cout << "Hello!" << endl;
+          for (const HEPUtils::DisplacedParticle* LLprod : event->particles<HEPUtils::DisplacedParticle>("LLprod") ) {
+            cout << "Hello!" << endl;
+            cout << LLprod->pid() << " " << LLprod->pT() << " " << LLprod->vprod() << " " << LLprod->vdec() << endl;
+            if (LLprod->pT() > 4.5 && fabs(LLprod->eta()) < 2.47) {
               nHCP++;
-              const HEPUtils::LLParticle* LLprod = static_cast<const HEPUtils::LLParticle*>(HCP);
-              displacedParticles.push_back(HCP);
-              cout << LLprod->pid() << " " << LLprod->pT() << " " << LLprod->vprod() << " " << LLprod->vdec() << endl;
-            //}
+              displacedParticles.push_back(LLprod);
+            }
           }
         }
         cout << "Particles decaying > 10 mm from interaction:" << endl;
         if( event->has_custom_particle("LLdec") ){
-          for (const HEPUtils::Particle* HCP : event->particles("LLdec") ) {
-            //if (HCP->pT() > 4.5 && fabs(HCP->eta()) < 2.47) {
+          for (const HEPUtils::DisplacedParticle* LLdec : event->particles<HEPUtils::DisplacedParticle>("LLdec") ) {
+            cout << LLdec->pid() << " " << LLdec->pT() << " " << LLdec->vprod() << " " << LLdec->vdec() << endl;
+            if (LLdec->pT() > 4.5 && fabs(LLdec->eta()) < 2.47) {
               nHCP++;
-              const HEPUtils::LLParticle* LLdec = static_cast<const HEPUtils::LLParticle*>(HCP);
-              displacedParticles.push_back(HCP);
-              cout << LLdec->pid() << " " << LLdec->pT() << " " << LLdec->vprod() << " " << LLdec->vdec() << endl;
-            //}
+              displacedParticles.push_back(LLdec);
+            }
           }
         }
         exit(0);

@@ -361,7 +361,7 @@ namespace HEPUtils {
     /// @todo Can remove when the bool arguments are removed.
     void add_particle(const Particle* p, const char* key, bool ptsort=false) {
       std::cout << "Called add_particle line 363 with key " << key << std::endl;
-      add_particle(p, string(key), ptsort);
+      add_particle(p, std::string(key), ptsort);
     }
 
     /// Alias for backward-compatibility
