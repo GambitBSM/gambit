@@ -324,6 +324,12 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(CMSSmearedEvent, HEPUtils::Event)
     DEPENDENCY(CMSAnalysisContainer, AnalysisContainer)
+    #ifndef EXCLUDE_HEPMC
+      // DEBUG ONLY: pulls in the full HepMC event alongside the HEPUtils one, so
+      // Analysis_ATLAS_13TeV_0LEP_139invfb can dump matching events to file.
+      // Remove once the debugging is done.
+      DEPENDENCY(HardScatteringEvent, HepMC3::GenEvent)
+    #endif
     #undef FUNCTION
   #undef CAPABILITY
 

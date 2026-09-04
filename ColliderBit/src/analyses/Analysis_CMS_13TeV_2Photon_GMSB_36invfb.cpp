@@ -56,6 +56,13 @@
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 
+// DEBUG ONLY: used below to dump the full HepMC event for events passing a
+// trivial criterion. Remove this include and the block using it once done.
+#ifndef EXCLUDE_HEPMC
+  #include "gambit/ColliderBit/DebugEventDump.hpp"
+  #include "HepMC3/WriterAscii.h"
+#endif
+
 // #define CHECK_CUTFLOW
 
 using namespace std;
@@ -282,8 +289,33 @@ namespace Gambit {
           else if (met > 130. && met < 150) _counters.at("SR_MET_130-150").add_event(event);
           else if (met > 150. && met < 185) _counters.at("SR_MET_150-185").add_event(event);
           else if (met > 185. && met < 250) _counters.at("SR_MET_185-250").add_event(event);
-          else if (met > 250.) _counters.at("SR_MET_>250").add_event(event);
+          else if (met > 250.)
+          {
+            _counters.at("SR_MET_>250").add_event(event);
+            // DEBUG ONLY: dump the full HepMC event (not just the HEPUtils::Event
+            // seen above) to a uniquely-named file for events passing a trivial
+            // criterion, so it can be inspected outside of ColliderBit. Remove
+            // this block once done debugging.
+            #ifndef EXCLUDE_HEPMC
+              # pragma omp critical
+              {
+                const HepMC3::GenEvent* ge = DebugEventDump::get_current_event();
+                if (ge)
+                {
+                  static std::map<int,int> dump_counter;
+                  const int n = dump_counter[omp_get_thread_num()]++;
+                  const std::string filename = "debug_event_thread" + std::to_string(omp_get_thread_num())
+                                              + "_" + std::to_string(n) + ".hepmc";
+                  HepMC3::WriterAscii writer(filename);
+                  writer.write_event(*ge);
+                  writer.close();
+                }
+              }
+            #endif
+          }
         }
+
+
 
       }
 
