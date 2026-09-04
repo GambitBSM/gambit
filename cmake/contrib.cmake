@@ -467,6 +467,7 @@ if (NOT EXCLUDE_FASTJET)
   endif()
   set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:METSignificance>)
   add_dependencies(contrib METSignificance)
+  add_dependencies(METSignificance fastjet)
 endif()
 
 #contrib/MassSpectra; include only if SpecBit is in use and if
