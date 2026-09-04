@@ -143,7 +143,7 @@ namespace Gambit
     {
       using namespace Pipes::getIdentityAnalysisContainer;
 
-      map_str_xsec_container Totalxsec = *Dep::InitialTotalCrossSection;
+      map_str_xsec_container Totalxsec = *Dep::TotalCrossSection;
 
       getAnalysisContainer(result, "Identity", *Dep::RunMC, Totalxsec[Dep::RunMC->current_collider()], *Loop::iteration);
 
