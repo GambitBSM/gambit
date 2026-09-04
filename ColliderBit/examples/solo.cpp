@@ -27,10 +27,10 @@
 #define NULIKE_VERSION "1.0.9"
 #define NULIKE_SAFE_VERSION 1_0_9
 
-#define RIVET_VERSION "3.1.5"
-#define RIVET_SAFE_VERSION 3_1_5
-#define CONTUR_VERSION "2.1.1"
-#define CONTUR_SAFE_VERSION 2_1_1
+#define RIVET_VERSION "4.1.0"
+#define RIVET_SAFE_VERSION 4_1_0
+#define CONTUR_VERSION "3.0.0"
+#define CONTUR_SAFE_VERSION 3_0_0
 
 #define FULLLIKES_VERSION "1.0"
 #define FULLLIKES_SAFE_VERSION 1_0
@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
     // Translate relevant settings into appropriate variables
     bool debug = settings.getValueOrDef<bool>(false, "debug");
     // TODO: Use the use_FullLikes setting to allow CBS runs without having ATLAS_FullLikes installed
-    // bool use_FullLikes = settings.getValueOrDef<bool>(false, "use_FullLikes"); 
+    // bool use_FullLikes = settings.getValueOrDef<bool>(false, "use_FullLikes");
     bool use_lnpiln = settings.getValueOrDef<bool>(false, "use_lognormal_distribution_for_1d_systematic");
     double jet_pt_min = settings.getValueOrDef<double>(10.0, "jet_pt_min");
     str event_filename = settings.getValue<str>("event_file");
@@ -126,6 +126,10 @@ int main(int argc, char* argv[])
                                 || Gambit::Utils::endsWith(event_filename, ".hepmc3") );
     if (not event_file_is_HepMC)
       throw std::runtime_error("Unrecognised event file format in "+event_filename+"; must be .hepmc.");
+
+    // Extract the jet collections yaml node
+    YAML::Node jet_collections = settings.getValue<YAML::Node>("jet_collections");
+    std::string jet_collection_taus = settings.getValueOrDef<std::string>("antikt_R04", "jet_collection_taus");
 
     // Check if Rivet & Contur requested and/or enabled then extract options from yaml
     bool withRivet;
@@ -183,12 +187,14 @@ int main(int argc, char* argv[])
     if (debug) cout << "Reading HepMC" << " file: " << event_filename << endl;
     auto& getEvent = getHepMCEvent;
     auto& convertEvent = convertHepMCEvent_HEPUtils;
+    auto& AnalysisNumbers = CollectAnalyses;
+    AnalysisNumbers.setOption<bool>("print_cutflows", true);
 
     // Initialise logs
     logger().set_log_debug_messages(debug);
     initialise_standalone_logs("CBS_logs/");
     logger()<<"Running CBS"<<LogTags::info<<EOM;
-    
+
     // Initialise settings for printer (required)
     YAML::Node printerNode = get_standalone_printer("cout", "CBS_logs/", "");
     Printers::PrinterManager printerManager(printerNode, false);
@@ -198,6 +204,8 @@ int main(int argc, char* argv[])
     int seed = settings.getValueOrDef<int>(-1, "seed");
     Random::create_rng_engine("default", seed);
 
+    std::vector<std::string> use_colliders = {"CBS"};
+
     // Pass options to the main event loop
     YAML::Node CBS(infile["settings"]);
     CBS["analyses"] = analyses;
@@ -205,23 +213,31 @@ int main(int argc, char* argv[])
     CBS["max_nEvents"] = (long long)(1000000000);
     operateLHCLoop.setOption<YAML::Node>("CBS", CBS);
     operateLHCLoop.setOption<bool>("silenceLoop", not debug);
+    operateLHCLoop.setOption<std::vector<std::string>>("use_colliders", use_colliders);
 
     // Pass the filename and the jet pt cutoff to the HepMC reader/HEPUtils converter function
     getEvent.setOption<str>("hepmc_filename", event_filename);
     convertEvent.setOption<double>("jet_pt_min", jet_pt_min);
 
+    // Pass the jet collections yaml node to the hepMC reader/HEPUtils converter function
+    getEvent.setOption<std::string>("jet_collection_taus", jet_collection_taus);
+    getEvent.setOption<YAML::Node>("jet_collections", jet_collections);
+    convertEvent.setOption<std::string>("jet_collection_taus", jet_collection_taus);
+    convertEvent.setOption<YAML::Node>("jet_collections", jet_collections);
+
     // Pass options to the cross-section function
+    InitialTotalCrossSection_YAMLCBS.setOption<std::vector<std::string>>("use_colliders", use_colliders);
     if (settings.hasKey("cross_section_pb"))
     {
-      getYAMLCrossSection.setOption<double>("cross_section_pb", settings.getValue<double>("cross_section_pb"));
-      if (settings.hasKey("cross_section_fractional_uncert")) { getYAMLCrossSection.setOption<double>("cross_section_fractional_uncert", settings.getValue<double>("cross_section_fractional_uncert")); }
-      else {getYAMLCrossSection.setOption<double>("cross_section_uncert_pb", settings.getValue<double>("cross_section_uncert_pb")); }
+      InitialTotalCrossSection_YAMLCBS.setOption<double>("cross_section_pb", settings.getValue<double>("cross_section_pb"));
+      if (settings.hasKey("cross_section_fractional_uncert")) { InitialTotalCrossSection_YAMLCBS.setOption<double>("cross_section_fractional_uncert", settings.getValue<double>("cross_section_fractional_uncert")); }
+      else {InitialTotalCrossSection_YAMLCBS.setOption<double>("cross_section_uncert_pb", settings.getValue<double>("cross_section_uncert_pb")); }
     }
     else // <-- must have option "cross_section_fb"
     {
-      getYAMLCrossSection.setOption<double>("cross_section_fb", settings.getValue<double>("cross_section_fb"));
-      if (settings.hasKey("cross_section_fractional_uncert")) { getYAMLCrossSection.setOption<double>("cross_section_fractional_uncert", settings.getValue<double>("cross_section_fractional_uncert")); }
-      else { getYAMLCrossSection.setOption<double>("cross_section_uncert_fb", settings.getValue<double>("cross_section_uncert_fb")); }
+      InitialTotalCrossSection_YAMLCBS.setOption<double>("cross_section_fb", settings.getValue<double>("cross_section_fb"));
+      if (settings.hasKey("cross_section_fractional_uncert")) { InitialTotalCrossSection_YAMLCBS.setOption<double>("cross_section_fractional_uncert", settings.getValue<double>("cross_section_fractional_uncert")); }
+      else { InitialTotalCrossSection_YAMLCBS.setOption<double>("cross_section_uncert_fb", settings.getValue<double>("cross_section_uncert_fb")); }
     }
 
     // Pass options to the likelihood function
@@ -270,6 +286,7 @@ int main(int argc, char* argv[])
     get_LHC_LogLike_per_analysis.resolveDependency(&calc_LHC_LogLikes_full);
     calc_LHC_LogLikes_full.resolveDependency(&CollectAnalyses);
     calc_LHC_LogLikes_full.resolveDependency(&operateLHCLoop);
+    calc_LHC_LogLikes_full.resolveDependency(&InitialTotalCrossSection_YAMLCBS);
     calc_LHC_LogLikes_full.resolveBackendReq(use_lnpiln ? &nulike_lnpiln : &nulike_lnpin);
     calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_FileExists);
     calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_ReadIn);
@@ -283,9 +300,9 @@ int main(int argc, char* argv[])
     runCMSAnalyses.resolveDependency(&smearEventCMS);
     runIdentityAnalyses.resolveDependency(&getIdentityAnalysisContainer);
     runIdentityAnalyses.resolveDependency(&copyEvent);
-    getATLASAnalysisContainer.resolveDependency(&getYAMLCrossSection);
-    getCMSAnalysisContainer.resolveDependency(&getYAMLCrossSection);
-    getIdentityAnalysisContainer.resolveDependency(&getYAMLCrossSection);
+    getATLASAnalysisContainer.resolveDependency(&InitialTotalCrossSection_YAMLCBS);
+    getCMSAnalysisContainer.resolveDependency(&InitialTotalCrossSection_YAMLCBS);
+    getIdentityAnalysisContainer.resolveDependency(&InitialTotalCrossSection_YAMLCBS);
     smearEventATLAS.resolveDependency(&getBuckFastATLAS);
     smearEventATLAS.resolveDependency(&convertEvent);
     smearEventCMS.resolveDependency(&getBuckFastCMS);
@@ -317,7 +334,6 @@ int main(int argc, char* argv[])
     smearEventATLAS.resolveLoopManager(&operateLHCLoop);
     smearEventCMS.resolveLoopManager(&operateLHCLoop);
     copyEvent.resolveLoopManager(&operateLHCLoop);
-    getYAMLCrossSection.resolveLoopManager(&operateLHCLoop);
     runATLASAnalyses.resolveLoopManager(&operateLHCLoop);
     runCMSAnalyses.resolveLoopManager(&operateLHCLoop);
     runIdentityAnalyses.resolveLoopManager(&operateLHCLoop);
@@ -326,7 +342,6 @@ int main(int argc, char* argv[])
                                                                   &getBuckFastATLAS,
                                                                   &getBuckFastCMS,
                                                                   &getBuckFastIdentity,
-                                                                  &getYAMLCrossSection,
                                                                   &getATLASAnalysisContainer,
                                                                   &getCMSAnalysisContainer,
                                                                   &getIdentityAnalysisContainer,
@@ -357,6 +372,7 @@ int main(int argc, char* argv[])
     }
 
     // Run the detector sim and selected analyses on all the events read in.
+    InitialTotalCrossSection_YAMLCBS.reset_and_calculate();
     operateLHCLoop.reset_and_calculate();
     CollectAnalyses.reset_and_calculate();
     calc_LHC_LogLikes_full.reset_and_calculate();
@@ -414,7 +430,7 @@ int main(int argc, char* argv[])
     cout << "Read and analysed " << n_events << " events from HepMC file." << endl << endl;
     cout << "Analysis details:" << endl << endl << summary_line.str() << endl;
     // TODO: Mention LHCb as contur can include an LHCb pool?
-    cout << std::scientific << "Total combined ATLAS+CMS" << (withContur?" analysis and searches ":" ") 
+    cout << std::scientific << "Total combined ATLAS+CMS" << (withContur?" analysis and searches ":" ")
          << "log-likelihood: " << loglike << endl;
     cout << endl;
 

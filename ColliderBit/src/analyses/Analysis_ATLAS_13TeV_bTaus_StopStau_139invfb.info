@@ -1,0 +1,7 @@
+Summary: ATLAS search for final states with taus, b-jets, and MET
+InspireID: 1907601
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["taus + B + MET"]
+Authors: ["Holly Pacey"]

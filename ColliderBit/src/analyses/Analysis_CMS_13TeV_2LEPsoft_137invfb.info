@@ -1,0 +1,8 @@
+Summary: Search for supersymmetry in final states with two or three soft leptons and missing transverse momentum in proton-proton collisions at 13 TeV 
+InspireID: 1966342
+ExptRun: CMS-R2
+Lumi_ifb: 137.0
+Ecm_TeV: 13.0
+Signatures: ["2L", "3L"]
+Keywords: ["soft"]
+Authors: ["Tomas Gonzalo"]

@@ -92,13 +92,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 ::std::ostream& errorStream();
         
-                ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> begin();
+                ::std::map<std::string, int>::iterator begin();
         
-                ::std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>> end();
+                ::std::map<std::string, int>::iterator end();
         
-                ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> begin() const;
+                ::std::map<std::string, int>::const_iterator begin() const;
         
-                ::std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>> end() const;
+                ::std::map<std::string, int>::const_iterator end() const;
         
         
                 // Wrappers for original constructors: 

@@ -223,11 +223,12 @@ namespace Gambit
       std::vector<str> skip_analyses;
       bool use_covar;
       bool use_marg;
+      bool always_compute_all_SR_loglikes;
       bool combine_nocovar_SRs;
       bool use_fulllikes;
       Options runOptions;
       bool (*FullLikes_FileExists)(const str&);
-      int (*FullLikes_ReadIn)(const str&, const str&);
+      int (*FullLikes_ReadIn)(const str&, const str&, const str&);
       double (*FullLikes_Evaluate)(std::map<str,double>&,const str&);
       double (*marginaliser)(const int&, const double&, const double&, const double&);
     };
@@ -242,7 +243,7 @@ namespace Gambit
     // =========== Forward declarations ===========
 
     /// Forward declaration of function in LHC_likelihoods
-    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, double (*)(const int&, const double&, const double&, const double&), bool, bool, const Options&, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), double, int, const std::string);
+    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, bool, double (*)(const int&, const double&, const double&, const double&), bool, bool, const Options&, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), double, int, const std::string);
 
     /// Forward declarations of functions in this file
     void DMEFT_fill_analysis_info_map();
@@ -533,7 +534,7 @@ namespace Gambit
         current_ainfo->name = current_analysis_name;
 
         current_ainfo->obsnum = {242}; // not entirely sure about this number
-        current_ainfo->bkgnum = {229}; 
+        current_ainfo->bkgnum = {229};
         current_ainfo->bkgerr = {28};
 
         assert(current_ainfo->obsnum.size() == current_ainfo->bkgnum.size());
@@ -1157,7 +1158,7 @@ namespace Gambit
         // Compute the combined analysis loglike and add it to total_loglike
         AnalysisLogLikes analoglikes;
         analoglikes.initialize(adata);
-        
+
         // For now, throw an error if trying to use Collider Interpolated likelihoods with the umbue poisson like.
         // This would require careful checking of what total cross-section to pass on a case-by-case basis.
         // Setting xsec/n_mc to zero as they are not used
@@ -1166,7 +1167,7 @@ namespace Gambit
         {
           ColliderBit_error().raise(LOCAL_INFO,"Error: umvue poisson estimator cannot currently be run with collider interpolated likelihoods.");
         }
-        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->marginaliser, fpars->use_covar && has_covar, fpars->combine_nocovar_SRs, fpars->runOptions, fpars->use_fulllikes, fpars->FullLikes_FileExists, fpars->FullLikes_ReadIn, fpars->FullLikes_Evaluate, 0.0, 0, "");
+        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->always_compute_all_SR_loglikes, fpars->marginaliser, fpars->use_covar && has_covar, fpars->combine_nocovar_SRs, fpars->runOptions, fpars->use_fulllikes, fpars->FullLikes_FileExists, fpars->FullLikes_ReadIn, fpars->FullLikes_Evaluate, 0.0, 0, "");
         total_loglike += analoglikes.combination_loglike;
       }
 
@@ -1214,7 +1215,7 @@ namespace Gambit
       // This also pulls the function pointers for the fulllikes backend from the stolen pipe
       Options calc_LHC_LogLikes_runOptions;
       bool (*FullLikes_FileExists)(const str&);
-      int (*FullLikes_ReadIn)(const str&, const str&);
+      int (*FullLikes_ReadIn)(const str&, const str&, const str&);
       double (*FullLikes_Evaluate)(std::map<str,double>&,const str&);
       double (*marginaliser)(const int&, const double&, const double&, const double&);
       if (use_fulllikes)
@@ -1238,6 +1239,8 @@ namespace Gambit
       // Use marginalisation rather than profiling (probably less stable)?
       static const bool use_marg = calc_LHC_LogLikes_runOptions.getValueOrDef<bool>(false, "use_marginalising");
       // Use the naive sum of SR loglikes for analyses without known correlations?
+      // Always compute all individual SR loglikes (even if not used for the combined loglike)?
+      static const bool always_compute_all_SR_loglikes = calc_LHC_LogLikes_runOptions.getValueOrDef<bool>(true, "always_compute_all_SR_loglikes");
       static const bool combine_nocovar_SRs = calc_LHC_LogLikes_runOptions.getValueOrDef<bool>(false, "combine_SRs_without_covariances");
 
       // Clear previous result map
@@ -1272,6 +1275,7 @@ namespace Gambit
       fpars.skip_analyses = skip_analyses;
       fpars.use_covar = use_covar;
       fpars.use_marg = use_marg;
+      fpars.always_compute_all_SR_loglikes = always_compute_all_SR_loglikes;
       fpars.combine_nocovar_SRs = combine_nocovar_SRs;
       fpars.use_fulllikes = use_fulllikes;
       fpars.runOptions = calc_LHC_LogLikes_runOptions;
@@ -2272,7 +2276,7 @@ namespace Gambit
       {
         std::vector<str> default_skip_analyses;  // The default is empty lists of analyses to skip
         static const std::vector<str> skip_analyses = Downstream::subcaps->getValueOrDef<std::vector<str> >(default_skip_analyses, "skip_analyses");
-      
+
         SubGeVDM_fill_analysis_info_map(Analysis_data_path,Interpolation_columns, skip_analyses);
 
         for (const std::pair<const str, Model_analysis_info>& aname_ainfo_pair : analysis_info_map)

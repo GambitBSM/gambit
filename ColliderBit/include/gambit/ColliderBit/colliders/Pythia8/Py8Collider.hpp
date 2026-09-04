@@ -146,7 +146,7 @@ namespace Gambit
           if (_pythiaInstance) delete _pythiaInstance;
           _pythiaInstance = new PythiaT(_pythiaBase->settings, _pythiaBase->particleData);
 
-          // Send along the SLHAea::Coll pointer, if it exists          
+          // Send along the SLHAea::Coll pointer, if it exists
           if (slhaea) _pythiaInstance->slhaInterface.slha.setSLHAea(slhaea);
 
           // Read command again to get SM decay table change from yaml file

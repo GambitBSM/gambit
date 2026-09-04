@@ -108,22 +108,51 @@ namespace Gambit
 
     }
 
-    /// Retrieve a container for analyses with EXPERIMENT
-    #define GET_ANALYSIS_CONTAINER(NAME, EXPERIMENT)               \
-    void NAME(AnalysisContainer& result)                           \
-    {                                                              \
-      using namespace Pipes::NAME;                                 \
-                                                                    \
-      map_str_xsec_container Totalxsec = *Dep::TotalCrossSection; \
-                                       \
-      getAnalysisContainer(result, #EXPERIMENT, *Dep::RunMC,       \
-       Totalxsec[Dep::RunMC->current_collider()], *Loop::iteration);                 \
+    /// Retrieve a container for analyses with a given experiment
+    void getATLASAnalysisContainer(AnalysisContainer& result)
+    {
+      using namespace Pipes::getATLASAnalysisContainer;
+
+      xsec_container Totalxsec = *Dep::TotalCrossSection;
+
+      getAnalysisContainer(result, "ATLAS", *Dep::RunMC, Totalxsec, *Loop::iteration);
+
+      if (*Loop::iteration == COLLIDER_INIT_OMP)
+      {
+        static bool drop_accepted_events_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_events_file");
+        result.set_store_accepted_event_IDs(drop_accepted_events_file);
+      }
     }
 
-    GET_ANALYSIS_CONTAINER(getATLASAnalysisContainer, ATLAS)
-    GET_ANALYSIS_CONTAINER(getCMSAnalysisContainer, CMS)
-    GET_ANALYSIS_CONTAINER(getIdentityAnalysisContainer, Identity)
+    void getCMSAnalysisContainer(AnalysisContainer& result)
+    {
+      using namespace Pipes::getCMSAnalysisContainer;
 
+      xsec_container Totalxsec = *Dep::TotalCrossSection;
+
+      getAnalysisContainer(result, "CMS", *Dep::RunMC, Totalxsec, *Loop::iteration);
+
+      if (*Loop::iteration == COLLIDER_INIT_OMP)
+      {
+        static bool drop_accepted_events_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_events_file");
+        result.set_store_accepted_event_IDs(drop_accepted_events_file);
+      }
+    }
+
+    void getIdentityAnalysisContainer(AnalysisContainer& result)
+    {
+      using namespace Pipes::getIdentityAnalysisContainer;
+
+      xsec_container Totalxsec = *Dep::TotalCrossSection;
+
+      getAnalysisContainer(result, "Identity", *Dep::RunMC, Totalxsec, *Loop::iteration);
+
+      if (*Loop::iteration == COLLIDER_INIT_OMP)
+      {
+        static bool drop_accepted_events_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_events_file");
+        result.set_store_accepted_event_IDs(drop_accepted_events_file);
+      }
+    }
 
   }
 }

@@ -198,6 +198,19 @@ namespace Gambit {
       template<class T, std::size_t RR, std::size_t CL>
       DataSetInterfaceBase<T,RR,CL>::~DataSetInterfaceBase()
       {
+         // TODO: Having problems with copied objects sharing dataset identifiers, and closing datasets prematurely on each other.
+         // To fix, will probably need to have a fancy copy constructor or something. Or wrap datasets in an
+         // object which itself has a fancy copy constructor. For now, just leave dataset resources lying around,
+         // probably won't cause any issues.
+         // Or could explicitly tell interface to close datasets before the objects are destroyed.
+         //if(this->dset_id>=0)
+         //{
+         //  herr_t status = H5Dclose(this->dset_id);
+         //  if(status<0)
+         //  {
+         //     logger() << LogTags::printers << LogTags::err <<LogTags::repeat_to_cerr<< LOCAL_INFO << ": Error destructing DataSetInterfaceBase! Failed to close wrapped dataset! (H5Dclose failed). No exception thrown because this will behave badly when throw from a destructor. (dataset name: "<<myname<<")"<<EOM;
+         //  }
+         //}
       }
 
       /// Release resources associated with the underlying dataset

@@ -144,7 +144,11 @@ namespace HEPUtils {
     /// Get abs PDG ID code
     int abspid() const { return abs(_pid); }
     /// Set PDG ID code
-    void set_pid(int pdgid) { _pid = pdgid; }
+    void set_pid(int pid) { _pid = pid; }
+    /// Electron check
+    bool isElectron() const { return abspid() == 11; }
+    /// Muon check
+    bool isMuon() const { return abspid() == 13; }
 
     /// Is this particle usually visible in a detector?
     bool is_visible() {
