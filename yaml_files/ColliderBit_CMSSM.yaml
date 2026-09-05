@@ -155,7 +155,17 @@ ObsLikes:
     - purpose:    LogLike
       capability: OPAL_Neutralino_Hadronic_LLike
 
+    # Dummy likelihood that can be used to guide the scanner towards
+    # parameter regions with interesting collider cross-sections.
+    # If used, remember to subtract this loglike contribution from 
+    # the total loglike when analysing the scan results.
+    # - purpose:    LogLike
+    #   capability: TotalCrossSection_LogLike
+
     # Other observables
+    - purpose:    Observable
+      capability: TotalCrossSectionAsMap
+
     - purpose:    Observable
       capability: LHC_LogLike_per_analysis
 
@@ -174,6 +184,7 @@ ObsLikes:
     - purpose:    Observable
       capability: MSSM_spectrum
       type:       map_str_dbl
+
 
 
 Rules:
@@ -199,6 +210,22 @@ Rules:
           - TimeShower:pTmin = 2
           - 23:mMin = 0.1
           - 24:mMin = 0.1
+
+  - if:
+      capability: InitialTotalCrossSection
+      type: map_str_xsec_container
+    then:
+      module: ColliderBit
+      function: InitialTotalCrossSection_Pythia
+  
+  # Choose to where to get cross-sections from
+  - if:
+      capability: TotalCrossSection
+      type: xsec_container
+    then:
+      module: ColliderBit
+      function: getEvGenCrossSection_as_base
+
 
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates
@@ -257,10 +284,6 @@ Rules:
       slha_version: 2
       write_summary_to_log: false
 
-  # Choose to where to get cross-sections from
-  - capability: TotalCrossSection
-    function: getEvGenCrossSection_as_base
-
   # Just use unweighted cross-sections
   - capability: EventWeighterFunction
     function: setEventWeight_unity
@@ -302,8 +325,8 @@ Rules:
         all_SR_must_converge: false
         maxFailedEvents: 10
         analyses:
-          - ATLAS_8TeV_2LEPEW_20invfb
-          - ATLAS_8TeV_3LEPEW_20invfb
+          - ATLAS_SUSY_2013_11
+          - ATLAS_SUSY_2013_12
       LHC_13TeV:
         poisson_estimator: "MLE" # "MLE" (default), "UMVUE"
         min_nEvents: 1000
@@ -317,22 +340,22 @@ Rules:
         all_SR_must_converge: false
         maxFailedEvents: 10
         analyses:
-          - CMS_13TeV_0LEP_36invfb
-          - CMS_13TeV_1LEPbb_36invfb
-          - CMS_13TeV_2OSLEP_36invfb
-          - CMS_13TeV_2LEPsoft_36invfb
-          - CMS_13TeV_1LEPStop_36invfb
-          - CMS_13TeV_2LEPStop_36invfb
-          - CMS_13TeV_MultiLEP_36invfb
-          - CMS_13TeV_MONOJET_36invfb
-          - ATLAS_13TeV_0LEP_36invfb
-          - ATLAS_13TeV_MultiLEP_36invfb
-          - ATLAS_13TeV_0LEPStop_36invfb
-          - ATLAS_13TeV_2LEPStop_36invfb
-          - ATLAS_13TeV_2bMET_36invfb
-          - ATLAS_13TeV_1Lep2b_139invfb
-        # - ATLAS_13TeV_RJ3L_lowmass_36invfb
-        # - ATLAS_13TeV_1LEPStop_36invfb
+          - CMS_SUS_16_033
+          - CMS_SUS_16_043
+          - CMS_SUS_16_034_EW
+          - CMS_SUS_16_048
+          - CMS_SUS_16_051
+          - CMS_SUS_17_001
+          - CMS_SUS_16_039
+          - CMS_SUS_16_048
+          - ATLAS_SUSY_2016_07
+          - ATLAS_SUSY_2016_24
+          - ATLAS_SUSY_2016_15
+          - ATLAS_SUSY_2017_01
+          - ATLAS_SUSY_2016_28
+          - CMS_SUS_20_003
+        # - ATLAS_SUSY_2017_03_RJR_Lowmass
+        # - ATLAS_SUSY_2016_06
         # The last two analyses depend on ROOT.
 
   # Choose Monte Carlo event simulator and options.
@@ -374,11 +397,11 @@ Rules:
             R: 0.4
             recombination_scheme: E_scheme   # E_scheme, pt_scheme, pt2_scheme 
             strategy: Best     # Best, NlnN
-          # antikt_R08:
-          #   algorithm: antikt
-          #   R: 0.8
-          #   recombination_scheme: E_scheme
-          #   strategy: Best
+          antikt_R08:
+            algorithm: antikt
+            R: 0.8
+            recombination_scheme: E_scheme
+            strategy: Best
         jet_collection_taus: antikt_R04
         pythia_settings:
           - Beams:eCM = 13000
@@ -407,6 +430,7 @@ Rules:
       use_covariances: true
       use_marginalising: false
       combine_SRs_without_covariances: false
+      always_compute_all_SR_loglikes: true
       nuisance_prof_initstep: 0.1
       nuisance_prof_convtol: 0.01
       nuisance_prof_maxsteps: 10000
@@ -443,12 +467,9 @@ Rules:
           - ATLAS_2015_I1408516:LMODE=MU
       LHC_13TeV:
         analyses:
-          # - 13TeV
-          - ATLAS_2016_I1458270
-          - ATLAS_2017_I1514251:LMODE=EL
-          - ATLAS_2017_I1514251:LMODE=MU
+          - 13TeV
         exclude_analyses:
-          - ATLAS_2016_I1469071 # This analysis causes crashes if run on BSM outside of rivet.
+          - ATLAS_2016_I1469071 # This analysis no longer crashes if run on BSM outside of rivet, but is still not useful.
 
 
 
@@ -467,6 +488,19 @@ Rules:
 
   - capability: LHC_measurements_LogLike_perPool
     function: Contur_LHC_measurements_LogLike_perPool
+
+
+  # # Dummy likelihood that can be used to guide the scanner.
+  # # (If used, remember subtract this loglike contribution from the
+  # # total loglike again when analysing the scan results.)
+  # - capability: TotalCrossSection_LogLike
+  #   function: calc_TotalCrossSection_LogLike
+  #   options:
+  #     cross_section_lowerlim_fb: 1.0
+  #     cross_section_lowerlim_width_fb: 0.5 
+  #     # cross_section_upperlim_fb: 1.0e5
+  #     # cross_section_upperlim_width_fb: 0.5e5 
+  #     # max_random_loglike_increase: 0.01
 
 Logger:
 

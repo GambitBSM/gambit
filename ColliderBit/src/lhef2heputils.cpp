@@ -108,6 +108,7 @@ namespace Gambit
       // Jet Finding
       for (jet_collection_settings jetcollection : all_jet_collection_settings)
       {
+        if (is_vr_algorithm(jetcollection.algorithm)) continue;
 
         // @todo get_jets function could accept a more general jet definition
         vector<PseudoJet> jets = HEPUtils::get_jets(jetparticles, 0.4, jet_pt_min, FJalgorithm_map(jetcollection.algorithm));

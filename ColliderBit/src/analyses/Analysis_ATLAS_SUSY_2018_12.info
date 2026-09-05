@@ -1,0 +1,10 @@
+Summary: ATLAS all-hadronic top-squark search in the ttbar plus MET final state at 13 TeV with 139/fb
+InspireID: 1793461
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["0L + MET + >=2J + MT2 + T", "0L + MET + >=4J + >=1B"]
+Keywords: ["top-squark", "0lepton", "all-hadronic", "met", "recursive-jigsaw"]
+Authors: ["Martin White", "Pengxuan Zhu"]
+Note: The cut-based and recursive-jigsaw implementations in Analysis_ATLAS_SUSY_2018_12.cpp and Analysis_ATLAS_SUSY_2018_12_RJR.cpp share this publication record.
+OldName: ATLAS_13TeV_0LEPStop_139invfb

@@ -144,7 +144,7 @@ ObsLikes:
     sub_capabilities:
       # Choose to use the CMS 137 invfb search rather than CMS36invfb
       skip_analyses:
-        - CMS_13TeV_MONOJET_36invfb_interpolated
+        - CMS_SUS_16_048_interpolated
 
   - purpose:    Observable
     capability: LHC_signals

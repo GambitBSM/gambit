@@ -100,3 +100,10 @@ set(header_files include/gambit/Utils/ascii_table_reader.hpp
 )
 
 add_gambit_library(Utils OPTION OBJECT SOURCES ${source_files} HEADERS ${header_files})
+
+# The generated backend type rollcall is included through GAMBIT's common
+# headers and can contain HepMC3 types (e.g. Pythia's HepMC writer wrapper).
+# Ensure the external HepMC3 project is installed before compiling Utils.
+if(TARGET hepmc)
+  add_dependencies(Utils hepmc)
+endif()

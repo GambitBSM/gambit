@@ -48,6 +48,9 @@ namespace Gambit
     /// @todo Move to a separate file
     Analysis* mkAnalysis(const str& name);
 
+    /// Check whether an analysis name is registered in this ColliderBit build.
+    bool isAnalysisRegistered(const str& name);
+
     /// Return the detector to be used for a given analysis name, checking that the analysis exists.
     str getDetector(const str& name);
 

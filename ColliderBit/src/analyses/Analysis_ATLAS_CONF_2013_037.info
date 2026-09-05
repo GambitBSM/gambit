@@ -1,0 +1,10 @@
+Summary: ATLAS one-lepton direct top-squark search at 8 TeV with 20.7/fb
+InspireID: 1229945
+ExptRun: ATLAS-R1.5
+Lumi_ifb: 20.7
+Ecm_TeV: 8.0
+Signatures: ["1L + >=4J + >=1B + MET + MT"]
+Keywords: ["top-squark", "1lepton", "bjets", "met"]
+Authors: ["Martin White", "Sky French"]
+Note: The published companion paper is INSPIRE 1304456; this implementation follows ATLAS-CONF-2013-037.
+OldName: ATLAS_8TeV_1LEPStop_20invfb

@@ -1,0 +1,220 @@
+#include <iomanip>
+
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
+#include "gambit/ColliderBit/mt2w.h"
+#include "gambit/ColliderBit/CMSEfficiencies.hpp"
+
+using namespace std;
+
+// Renamed from: 
+//        Analysis_CMS_8TeV_1LEPDMTOP_20invfb
+
+
+// The CMS 1 lepton DM + top pair analysis (20fb^-1)
+
+// based on: https://twiki.cern.ch/twiki/bin/view/CMSPublic/PhysicsResultsB2G14004
+
+//    Code by Martin White, Guy Pitman
+//    Known issues:
+//    a) Impossible to test results against CMS due to the impossibility of reproducing their model information (even after contacting CMS). Note that the variables used have been debugged in other contexts however.
+//    b) Overlap removal is not applied (CMS do not use it, but we don't exactly use their particle flow technique either)
+//    c) Jets here need kT radius of 0.5 not 0.4
+
+namespace Gambit {
+  namespace ColliderBit {
+
+
+
+    //Puts dphi in the range -pi to pi
+    double _Phi_mpi_pi(double x){
+      while (x >= M_PI) x -= 2*M_PI;
+      while (x < -M_PI) x += 2*M_PI;
+      return x;
+    }
+
+
+    class Analysis_CMS_B2G_14_004 : public Analysis {
+    private:
+
+    public:
+
+      // Required detector sim
+      static constexpr const char* detector = "CMS";
+
+      Analysis_CMS_B2G_14_004()
+      {
+        defineSignalRegion("SR",
+                             "MET > 320 GeV",
+                             "MT > 160 GeV",
+                             "MT2W > 300 GeV",
+                             "dPhiMin12 > 1.2");
+
+        set_analysis_name("CMS_B2G_14_004");
+        set_luminosity(19.7);
+      }
+
+      double SmallestdPhi(std::vector<const HEPUtils::Jet*> jets,double phi_met)
+      {
+        if (jets.size()<2) return(999);
+        double dphi1 = std::acos(std::cos(jets.at(0)->phi()-phi_met));
+        double dphi2 = std::acos(std::cos(jets.at(1)->phi()-phi_met));
+        // double dphi3 = 999;
+        //if (jets.size() > 2 && jets[2]->pT() > 40.)
+        //  dphi3 = std::acos(std::cos(jets[2]->phi() - phi_met));
+        double min1 = std::min(dphi1, dphi2);
+
+        return min1;
+
+      }
+
+      void run(const HEPUtils::Event* event) {
+
+        // Missing energy
+        HEPUtils::P4 ptot = event->missingmom();
+        double met = event->met();
+
+        // Baseline electrons
+        vector<const HEPUtils::Particle*> baselineElectrons;
+        for (const HEPUtils::Particle* electron : event->electrons()) {
+          if (electron->pT() > 30. && fabs(electron->eta()) < 2.5) {
+            baselineElectrons.push_back(electron);
+          }
+        }
+
+        // Apply electron efficiency
+        applyEfficiency(baselineElectrons, CMS::eff2DEl.at("Generic"));
+
+        // Baseline muons
+        vector<const HEPUtils::Particle*> baselineMuons;
+        for (const HEPUtils::Particle* muon : event->muons()) {
+          if (muon->pT() > 30. && fabs(muon->eta()) < 2.1) {
+            baselineMuons.push_back(muon);
+          }
+        }
+
+        // Apply muon efficiency
+        applyEfficiency(baselineMuons, CMS::eff2DMu.at("Generic"));
+
+        // All baseline leptons
+        vector<const HEPUtils::Particle*> baselineLeptons = baselineElectrons;
+        baselineLeptons.insert(baselineLeptons.end(), baselineMuons.begin(), baselineMuons.end() );
+
+        vector<const HEPUtils::Jet*> baselineJets;
+        //vector<LorentzVector> jets;
+        vector<HEPUtils::P4> jets;
+        vector<const HEPUtils::Jet*> bJets;
+        vector<bool> btag;
+
+        const std::vector<double>  a = {0,10.};
+        const std::vector<double>  b = {0,10000.};
+        const std::vector<double> c = {0.60};
+        HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
+
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
+          if (jet->pT() > 30. && fabs(jet->eta()) < 4.0) {
+            baselineJets.push_back(jet);
+            //LorentzVector j1 (jet->mom().px(),jet->mom().py(),jet->mom().pz(),jet->mom().E()) ;
+            //jets.push_back(j1);
+            jets.push_back(jet->mom());
+            bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
+            bool isB=false;
+
+            if(jet->btag() && hasTag && fabs(jet->eta()) < 2.4 && jet->pT() > 30.) {
+              isB=true;
+              bJets.push_back(jet);
+            }
+            btag.push_back(isB);
+          }
+        }
+
+        // Calculate common variables and cuts first
+        //applyTightIDElectronSelection(signalElectrons);
+
+        //int nElectrons = signalElectrons.size();
+        //int nMuons = signalMuons.size();
+        int nJets = baselineJets.size();
+        int nLeptons = baselineLeptons.size();
+        int nBJets = bJets.size();
+
+        //Preselection cuts
+        bool passPresel=false;
+        if(nLeptons==1 &&
+           nJets>=3 &&
+           nBJets>=1 &&
+           met > 160.)passPresel=true;
+
+        //Calculate mT
+        HEPUtils::P4 lepVec;
+        double mT=0;
+        if(nLeptons==1){
+          lepVec=baselineLeptons[0]->mom();
+          mT=sqrt(2.*lepVec.pT()*met*(1. - cos(_Phi_mpi_pi(lepVec.phi()-ptot.phi()))));
+        }
+
+        //Calculate MT2W
+        double MT2W=0;
+        // double MT2W_HU=0;
+        if (nJets > 1 && nLeptons==1) {
+          HEPUtils::P4 lepVec;
+          lepVec=baselineLeptons[0]->mom();
+          //LorentzVector lep (lepVec.px(),lepVec.py(),lepVec.pz(),lepVec.E());
+          float phi=float (ptot.phi());
+          //MT2W=calculateMT2w(jets, btag, lep, met, phi);
+          MT2W=calculateMT2wHepUtils(jets,btag,lepVec,met,phi);
+        }
+
+        //Calculate dPhi variable
+        float  phi=float (ptot.phi());
+        double dPhiMin12=SmallestdPhi(baselineJets,phi);
+
+        //Cuts
+        //MET > 320
+        //MT > 160
+        //MT2W > 300
+        //dPhiMin12 > 1.2
+
+        const bool passMet = met > 320.;
+        const bool passMT = mT > 160.;
+        const bool passMT2W = MT2W > 300.;
+        const bool passDPhiMin12 = dPhiMin12 > 1.2;
+        const bool passSR = passPresel && passMet && passMT && passMT2W && passDPhiMin12;
+
+        #ifdef CHECK_CUTFLOW
+          const double w = event->weight();
+          _cutflows["SR"].fillinit(w);
+          _cutflows["SR"].fillnext(std::vector<bool>{passPresel, passMet, passMT, passMT2W, passDPhiMin12}, w);
+        #endif
+
+        //We're now ready to apply the cuts for each signal region
+
+        if (passSR)
+        {
+          FILL_SIGNAL_REGION("SR");
+        }
+
+        return;
+      }
+
+      void collect_results()
+      {
+        COMMIT_SIGNAL_REGION("SR", 18., 16.4, 3.48)
+COMMIT_CUTFLOWS
+        return;
+      }
+
+
+    protected:
+      void analysis_specific_reset()
+      {
+        for (auto& pair : _counters) { pair.second.reset(); }
+      }
+
+    };
+
+
+    DEFINE_ANALYSIS_FACTORY(CMS_B2G_14_004)
+
+
+  }
+}

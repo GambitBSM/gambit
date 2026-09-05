@@ -35,6 +35,10 @@
 #  \date 2021 Jul, Aug
 #  \date 2023 Jun
 #
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Aug
+#
 #************************************************
 
 # Set CMAKE_POLICY_VERSION_MINIMUM to 3.5 if CMAKE version >= 4
@@ -51,6 +55,31 @@ set(MIN_GCC_VERSION 9.1)
 set(MIN_ICC_VERSION 15.0.2)
 set(MIN_CLANG_VERSION 10.0.0)
 set(MIN_APPLECLANG_VERSION 13.0.0)
+
+# On macOS, use the active SDK version as the default deployment target when
+# the user has not selected one explicitly. This keeps the main build and
+# external projects on the same SDK/deployment target without relying on the
+# MACOSX_DEPLOYMENT_TARGET environment variable.
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin"
+   AND (NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET OR CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "")
+   AND "$ENV{MACOSX_DEPLOYMENT_TARGET}" STREQUAL "")
+  find_program(_GAMBIT_XCRUN_EXECUTABLE xcrun)
+  if(_GAMBIT_XCRUN_EXECUTABLE)
+    execute_process(
+      COMMAND "${_GAMBIT_XCRUN_EXECUTABLE}" --sdk macosx --show-sdk-version
+      OUTPUT_VARIABLE _GAMBIT_MACOS_SDK_VERSION
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+    if(_GAMBIT_MACOS_SDK_VERSION MATCHES "^[0-9]+\\.[0-9]+")
+      string(REGEX MATCH "^[0-9]+\\.[0-9]+" _GAMBIT_MACOS_DEPLOYMENT_TARGET
+             "${_GAMBIT_MACOS_SDK_VERSION}")
+      set(CMAKE_OSX_DEPLOYMENT_TARGET "${_GAMBIT_MACOS_DEPLOYMENT_TARGET}"
+          CACHE STRING "Minimum macOS deployment target" FORCE)
+      message(STATUS "Auto-detected macOS deployment target: ${CMAKE_OSX_DEPLOYMENT_TARGET}")
+    endif()
+  endif()
+endif()
 
 SET(CMAKE_BUILD_TYPE_STRING "Choose the type of build, options are: None Debug Release Release_O3 RelWithDebInfo MinSizeRel.")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -115,6 +144,15 @@ if(NOT Python3_Interpreter_FOUND)
   message(FATAL_ERROR "\nPython 3 was not found, but it is required by GAMBIT.  \nIf you need to set the path to the Python interpreter manually, "
                       "please use -DPython3_EXECUTABLE=path/to/preferred/python.")
 endif()
+
+# Keep GAMBIT's historical Python version variables in sync with CMake's
+# FindPython3 module. Several generated headers and backend helpers still
+# use the uppercase names below.
+set(PYTHON_VERSION_MAJOR "${Python3_VERSION_MAJOR}")
+set(PYTHON_VERSION_MINOR "${Python3_VERSION_MINOR}")
+set(PYTHON_VERSION_PATCH "${Python3_VERSION_PATCH}")
+set(PYTHON_VERSION "${Python3_VERSION}")
+
 message("${BoldYellow}   Using Python interpreter version ${Python3_VERSION} for build.${ColourReset}")
 
 if(Python3_Development_FOUND)
@@ -308,7 +346,18 @@ endforeach()
 
 # Check for Boost
 set(Boost_NO_BOOST_CMAKE ON)
-find_package(Boost 1.48)
+# GAMBIT consumes FindBoost variables below.  Preserve that established
+# behaviour explicitly with CMake >= 3.30, where CMP0167 otherwise emits a
+# warning before selecting the same legacy module implicitly.  Scope this to
+# this one lookup so it cannot alter package discovery elsewhere.
+if(POLICY CMP0167)
+  cmake_policy(PUSH)
+  cmake_policy(SET CMP0167 OLD)
+endif()
+find_package(Boost 1.48 COMPONENTS filesystem)
+if(POLICY CMP0167)
+  cmake_policy(POP)
+endif()
 if(Boost_FOUND)
   include_directories("${Boost_INCLUDE_DIR}")
 else()

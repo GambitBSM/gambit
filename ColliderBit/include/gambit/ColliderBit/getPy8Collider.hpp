@@ -107,36 +107,10 @@ namespace Gambit
           // Fill the jet collection settings.
           result.all_jet_collection_settings.clear();
           result.jetcollection_taus = "";
-          if (colOptions.hasKey("jet_collections"))
-          {
-            YAML::Node all_jetcollections_node = colOptions.getValue<YAML::Node>("jet_collections");
-            Options all_jetcollection_options(all_jetcollections_node);
-            std::vector<str> jetcollection_names = all_jetcollection_options.getNames();
+          const parsed_jet_collection_settings parsed_collections = read_jet_collection_settings_from_options(colOptions);
+          result.all_jet_collection_settings = parsed_collections.collections;
+          result.jetcollection_taus = parsed_collections.jetcollection_taus;
 
-            for (str key : jetcollection_names)
-            {
-              YAML::Node current_jc_node = all_jetcollection_options.getValue<YAML::Node>(key);
-              Options current_jc_options(current_jc_node);
-
-              str algorithm = current_jc_options.getValue<str>("algorithm");
-              double R = current_jc_options.getValue<double>("R");
-              str recombination_scheme = current_jc_options.getValue<str>("recombination_scheme");
-              str strategy = current_jc_options.getValue<str>("strategy");
-
-              (result.all_jet_collection_settings).push_back({key, algorithm, R, recombination_scheme, strategy});
-            }
-
-            result.jetcollection_taus = colOptions.getValue<str>("jet_collection_taus");
-            // Throw an error if the "jet_collection_taus" setting does not match an entry in "jet_collections".
-            if (std::find(jetcollection_names.begin(), jetcollection_names.end(), result.jetcollection_taus) == jetcollection_names.end())
-            {
-              ColliderBit_error().raise(LOCAL_INFO,"Please provide the jet_collection_taus setting for jet collections.");
-            }
-          }
-          else
-          {
-            ColliderBit_error().raise(LOCAL_INFO,"Could not find jet_collections option for collider " + RunMC.current_collider() + ". Please provide this in the YAML file.");
-          }
           if (colOptions.hasKey("pythia_settings"))
           {
             std::vector<str> addPythiaOptions = colNode["pythia_settings"].as<std::vector<str> >();

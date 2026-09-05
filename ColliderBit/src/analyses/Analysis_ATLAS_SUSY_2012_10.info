@@ -1,0 +1,9 @@
+Summary: ATLAS direct top-squark search in one/two-lepton plus b-jet final states at 7 TeV with 4.7/fb
+InspireID: 1184952
+ExptRun: ATLAS-R1
+Lumi_ifb: 4.7
+Ecm_TeV: 7.0
+Signatures: ["1L + >=1B + MET + MT", "=2L + OSL + >=1B + MET"]
+Keywords: ["top-squark", "leptons", "bjets", "met"]
+Authors: ["D. Steiner", "Martin White"]
+OldName: ATLAS_7TeV_1OR2LEPStop_4_7invfb

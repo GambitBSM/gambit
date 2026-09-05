@@ -35,21 +35,41 @@
 ///
 ///  *********************************************
 
-#include <memory>
-
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
+#include "gambit/ColliderBit/Utils.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/detectors/BuckFast.hpp"
-
-#include "HEPUtils/FastJet.h"
-
 
 namespace Gambit
 {
 
   namespace ColliderBit
   {
+    namespace
+    {
+      std::vector<std::string> get_vr_jetcollections_no_smear(const Options& runOptions, const str& current_collider)
+      {
+        std::lock_guard<std::recursive_mutex> lock(jet_collection_options_mutex());
+
+        if (runOptions.hasKey("jet_collections"))
+        {
+          return vr_jetcollection_keys(read_jet_collection_settings_from_options(runOptions).collections);
+        }
+
+        if (runOptions.hasKey(current_collider))
+        {
+          YAML::Node colNode = runOptions.getValue<YAML::Node>(current_collider);
+          Options colOptions(colNode);
+          if (colOptions.hasKey("jet_collections"))
+          {
+            return vr_jetcollection_keys(read_jet_collection_settings_from_options(colOptions).collections);
+          }
+        }
+
+        return {};
+      }
+    }
 
     /// Retrieve a BuckFast sim of ATLAS
     void getBuckFastATLAS(BaseDetector* &result)
@@ -62,6 +82,7 @@ namespace Gambit
         bucky.smearMuonMomentum   = &ATLAS::smearMuonMomentum;
         bucky.smearTaus           = &ATLAS::smearTaus;
         bucky.smearJets           = &ATLAS::smearJets;
+        bucky.jetcollections_no_smear = get_vr_jetcollections_no_smear(*runOptions, (*Dep::RunMC).current_collider());
         result = &bucky;
       }
     }
@@ -77,6 +98,7 @@ namespace Gambit
         bucky.smearMuonMomentum   = &CMS::smearMuonMomentum;
         bucky.smearTaus           = &CMS::smearTaus;
         bucky.smearJets           = &CMS::smearJets;
+        bucky.jetcollections_no_smear = get_vr_jetcollections_no_smear(*runOptions, (*Dep::RunMC).current_collider());
         result = &bucky;
       }
     }
@@ -86,6 +108,10 @@ namespace Gambit
     {
       using namespace Pipes::getBuckFastIdentity;
       thread_local BuckFast bucky;
+      if (*Loop::iteration == START_SUBPROCESS)
+      {
+        bucky.jetcollections_no_smear = get_vr_jetcollections_no_smear(*runOptions, (*Dep::RunMC).current_collider());
+      }
       result = &bucky;
     }
 

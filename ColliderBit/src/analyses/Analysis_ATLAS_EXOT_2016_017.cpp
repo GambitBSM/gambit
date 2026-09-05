@@ -1,0 +1,191 @@
+///
+///  \author Pengxuan Zhu (zhupx99@icloud.com, pengxuan.zhu@adelaide.edu.au)
+///  \date 2025 Feb
+///
+///  *********************************************
+
+// Based on
+//  - https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/EXOT-2016-17/
+//  - https://cds.cern.ch/record/2652224
+//  - https://arxiv.org/abs/1812.07343
+// Search for the single production of heavy vector-like T and/or Y in pp collisions at s√= 13 TeV
+//   primarily targeting the events of final a W boson + b-quark
+
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
+#include "gambit/ColliderBit/Utils.hpp"
+#include "gambit/ColliderBit/ATLASEfficiencies.hpp"
+#include "HEPUtils/Event.h"
+#include "HEPUtils/Jet.h"
+
+using namespace std;
+
+// #define CHECK_CUTFLOW
+
+namespace Gambit
+{
+    namespace ColliderBit
+    {
+        class Analysis_ATLAS_EXOT_2016_017 : public Analysis
+        {
+        public:
+            static constexpr const char *detector = "ATLAS";
+            Analysis_ATLAS_EXOT_2016_017()
+            {
+                defineSignalRegion("SR");
+
+                set_analysis_name("ATLAS_EXOT_2016_017");
+                set_luminosity(36.1);
+
+                #ifdef CHECK_CUTFLOW
+                    _cutflows.addCutflow("ATLAS-EXOT-2016-017", {
+                        "No Cut", 
+                        "Preselection",
+                        "Leading Jet is b-tagged",
+                        "Leading Jet pT > 350 GeV",
+                        "Veto event with jet with dR(jet, b-tagged jet) < 1.2 or > 2.7",
+                        "dPhi(l, b-tagged jet) > 2.5",
+                        "Forward jets > 0",
+                        "dR(l, jets) > 2.0"
+                    });
+                #endif
+            }
+
+            void run(const HEPUtils::Event *event)
+            {
+                #ifdef CHECK_CUTFLOW
+                    _cutflows["ATLAS-EXOT-2016-017"].fillinit(event->weight());
+                    _cutflows["ATLAS-EXOT-2016-017"].fill(1, true, event->weight()); 
+                #endif
+
+                double met = event->met();
+                BASELINE_PARTICLES(event->electrons(), baselineEl1, 25, 0, DBL_MAX, 1.37);
+                BASELINE_PARTICLES(event->electrons(), baselineEl2, 25, 1.52, DBL_MAX, 2.47);
+                BASELINE_PARTICLES(event->muons(), baselineMuons, 25, 0, DBL_MAX, 2.5);
+                
+                BASELINE_PARTICLE_COMBINATION(baselineElectrons, baselineEl1, baselineEl2)
+                applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Tight")); 
+                applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Medium"));
+                
+                BASELINE_PARTICLE_COMBINATION(baselineLeptons, baselineElectrons, baselineMuons);
+
+                BASELINE_JETS(event->jets("antikt_R04"), basectrJets, 25, 0, DBL_MAX, 2.5);
+                BASELINE_JETS(event->jets("antikt_R04"), basefwdJets, 40., 2.5, DBL_MAX, 4.5);
+
+                removeOverlap(basectrJets, baselineLeptons, 0.2);
+                removeOverlap(baselineLeptons, basectrJets, 0.4);
+
+                // define Signal Objects;
+                vector<const HEPUtils::Jet *> signalctrJets;
+                vector<const HEPUtils::Jet *> signalctrBJets;
+                vector<const HEPUtils::Particle *> signalLeptons;
+
+                for (const HEPUtils::Particle *lep : baselineLeptons)
+                {
+                    if (lep->pT() > 28.)
+                    {
+                        signalLeptons.push_back(lep);
+                    }
+                }
+                // B-tag efficiency
+                std::map<const Jet *, bool> analysisBtags = generateBTagsMap(basectrJets, 0.85, 0.334, 0.0294);
+                for (const HEPUtils::Jet *jet : basectrJets)
+                {
+                    bool isbtag = analysisBtags.at(jet);
+                    if (isbtag && jet->abseta() < 2.5 && jet->pT() > 25.)
+                    {
+                        signalctrBJets.push_back(jet);
+                    }
+                    else
+                    {
+                        signalctrJets.push_back(jet);
+                    }
+                }
+
+                const int nctrBJet = signalctrBJets.size();
+                const int nctrJet = signalctrJets.size();
+
+                SIGNAL_JET_COMBINATION(ctrJets, signalctrBJets, signalctrJets); 
+
+                bool preselection = (signalLeptons.size() == 1) && (met > 120.) && (nctrBJet + nctrJet >= 1);
+
+                if (preselection)
+                {
+
+                    bool leadbjet01 = (nctrBJet > 0 && nctrJet == 0);
+                    bool leadbjet02 = (nctrBJet > 0 && nctrJet > 0) ? (signalctrBJets.at(0)->pT() > signalctrJets.at(0)->pT()) : false;
+                    bool leadbjet = leadbjet01 || leadbjet02; 
+
+                    #ifdef CHECK_CUTFLOW
+                        _cutflows["ATLAS-EXOT-2016-017"].fill(2, true, event->weight());
+                    #endif
+                    bool Jetincone = false;
+                    if (leadbjet)
+                    {
+                        HEPUtils::P4 Bjet0mom = signalctrBJets.at(0)->mom(); 
+                        for (unsigned int ii = 1; ii < ctrJets.size(); ii++)
+                        {
+                            HEPUtils::P4 jetmom = ctrJets.at(ii)->mom();
+                            double jetpt = ctrJets.at(ii)->pT();
+                            double jeteta = ctrJets.at(ii)->abseta();
+                            if (jetpt > 75. && jeteta < 2.5)
+                            {
+                                double dRjj = Bjet0mom.deltaR_eta(jetmom); 
+                                if ((dRjj < 1.2) || (dRjj > 2.7)) Jetincone = true; 
+                            }
+                        }
+
+                        double dPhiLepBjet0 = signalLeptons.at(0)->mom().deltaPhi(Bjet0mom); 
+                        double dRLepj = 999.; 
+                        for (unsigned int ii = 1; ii < signalctrBJets.size(); ii ++)
+                        {
+                            dRLepj = std::min(dRLepj, signalLeptons.at(0)->mom().deltaR_eta(signalctrBJets.at(ii)->mom())); 
+                        }
+                        for (unsigned int ii = 0; ii < signalctrJets.size(); ii ++)
+                        {
+                            dRLepj = std::min(dRLepj, signalLeptons.at(0)->mom().deltaR_eta(signalctrJets.at(ii)->mom())); 
+                        }
+                        const size_t nfwdJet = basefwdJets.size();
+
+                        #ifdef CHECK_CUTFLOW
+                            _cutflows["ATLAS-EXOT-2016-017"].fillnext({
+                                leadbjet,
+                                signalctrBJets.at(0)->pT() > 350., 
+                                !Jetincone, 
+                                dPhiLepBjet0 > 2.5, 
+                                nfwdJet >= 1, 
+                                dRLepj > 2.0
+                            }, event->weight());
+                        #endif
+                        if (signalctrBJets.at(0)->pT() > 350. && !Jetincone && dPhiLepBjet0 > 2.5  && dRLepj >= 2.0 && nfwdJet >= 1)                    
+                        {
+                            _counters.at("SR").add_event(event);
+                        }
+                    }
+                }
+                return; 
+            }
+
+            virtual void collect_results()
+            {
+                add_result(SignalRegionData(_counters.at("SR"), 497, {500, 30}));
+
+                #ifdef CHECK_CUTFLOW
+                    COMMIT_CUTFLOWS;
+                #endif
+                return;
+            }
+
+        protected:
+            void analysis_specific_reset()
+            {
+                for (auto &pair : _counters)
+                {
+                    pair.second.reset();
+                }
+            }
+        
+        };
+        DEFINE_ANALYSIS_FACTORY(ATLAS_EXOT_2016_017)
+    } // namespace ColliderBit
+} // namespace Gambit

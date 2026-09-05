@@ -1,0 +1,10 @@
+Summary: CMS electroweak chargino, neutralino and slepton search in multilepton final states at 8 TeV with 19.5/fb
+InspireID: 1298508
+ExptRun: CMS-R1.5
+Lumi_ifb: 19.5
+Ecm_TeV: 8.0
+Signatures: ["3L + <=1TH + MET", ">=4L + MET"]
+Keywords: ["multilepton", "electroweakinos", "sleptons", "met"]
+Authors: ["Martin White", "Daniel Murnane", "Anders Kvellestad"]
+Note: The implementation originated from CMS-PAS-SUS-13-006 (INSPIRE 1260847); the published paper is INSPIRE 1298508.
+OldName: CMS_8TeV_MultiLEP_20invfb
