@@ -43,16 +43,16 @@ namespace Gambit
         static constexpr const char* detector = "ATLAS";
 
         // Discards leptons overlapping with jets, following the description in the paper
-        void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, vector<const HEPUtils::Jet*> &jetvec)
+        void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*>& lepvec, vector<const HEPUtils::Jet*>& jetvec)
         {
 
           vector<const HEPUtils::Particle*> Survivors;
 
-          for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++)
+          for (unsigned int itlep = 0; itlep < lepvec.size(); itlep++)
           {
             bool overlap = false;
             HEPUtils::P4 lepmom=lepvec.at(itlep)->mom();
-            for(unsigned int itjet= 0; itjet < jetvec.size(); itjet++)
+            for (unsigned int itjet= 0; itjet < jetvec.size(); itjet++)
             {
               HEPUtils::P4 jetmom=jetvec.at(itjet)->mom();
               double dR;
@@ -62,12 +62,12 @@ namespace Gambit
               // Need to define DeltaRMax based on pT of lepton
               double DeltaRMax = 0.;
               double pt = lepvec.at(itlep)->pT();
-              if(pt<=25.)DeltaRMax = 0.4;
-              if(pt>25. && pt<=50.)DeltaRMax = 0.6-(0.2/25.)*pt;
+              if (pt<=25.) DeltaRMax = 0.4;
+              if (pt>25. && pt<=50.) DeltaRMax = 0.6-(0.2/25.)*pt;
 
-              if(fabs(dR) <= DeltaRMax) overlap=true;
+              if (fabs(dR) <= DeltaRMax) overlap=true;
             }
-            if(overlap) continue;
+            if (overlap) continue;
             Survivors.push_back(lepvec.at(itlep));
           }
           lepvec=Survivors;
@@ -176,8 +176,7 @@ namespace Gambit
           vector<const HEPUtils::Jet*> baselineJets;
           for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
           {
-            if (jet->pT() > 20. && fabs(jet->eta()) < 4.5 )
-              baselineJets.push_back(jet);
+            if (jet->pT() > 20. && fabs(jet->eta()) < 4.5 ) baselineJets.push_back(jet);
           }
 
           //
@@ -231,11 +230,11 @@ namespace Gambit
           for (const HEPUtils::Jet* jet : signalJets)
           {
             // Tag
-            if( jet->btag() && random_bool(btag) ) signalBJets.push_back(jet);
+            if (jet->btag() && random_bool(btag) ) signalBJets.push_back(jet);
             // Misstag c-jet
-            else if( jet->ctag() && random_bool(cmisstag) ) signalBJets.push_back(jet);
+            else if (jet->ctag() && random_bool(cmisstag) ) signalBJets.push_back(jet);
             // Misstag light jet
-            else if( random_bool(misstag) ) signalBJets.push_back(jet);
+            else if (random_bool(misstag) ) signalBJets.push_back(jet);
             // Non b-jet
             else signalNonBJets.push_back(jet);
           }
@@ -257,20 +256,20 @@ namespace Gambit
 
           // exactly 3 baseline and signal leptons
           bool cut_3lep=true;
-          if (nbaselineleptons != 3)cut_3lep=false;
-          if (nleptons != 3)cut_3lep=false;
+          if (nbaselineleptons != 3) cut_3lep=false;
+          if (nleptons != 3) cut_3lep=false;
 
           // b-jet veto
           bool cut_bjet=true;
-          if (nbjets>0)cut_bjet=false;
+          if (nbjets>0) cut_bjet=false;
 
           //lepton pT cuts
           bool cut_leppt = false;
           bool cut_leppt_high = false;
-          if(cut_3lep)
+          if (cut_3lep)
           {
-            if ( (signalLeptons.at(0)->pT()>25.) && (signalLeptons.at(1)->pT()>25.) && (signalLeptons.at(2)->pT()>20.) )cut_leppt=true;
-            if ( (signalLeptons.at(0)->pT()>60.) && (signalLeptons.at(1)->pT()>40.) && (signalLeptons.at(2)->pT()>30.) )cut_leppt_high=true;
+            if ((signalLeptons.at(0)->pT()>25.) && (signalLeptons.at(1)->pT()>25.) && (signalLeptons.at(2)->pT()>20.)) cut_leppt=true;
+            if ((signalLeptons.at(0)->pT()>60.) && (signalLeptons.at(1)->pT()>40.) && (signalLeptons.at(2)->pT()>30.)) cut_leppt_high=true;
           }
 
           // Calculate variables if pre-selection cuts are passed
@@ -281,7 +280,7 @@ namespace Gambit
           double mTW = 0.;
           double H_boost(-999), HTratio(-999), pTratio(-999);
 
-          if(cut_3lep && cut_bjet && cut_leppt)
+          if (cut_3lep && cut_bjet && cut_leppt)
           {
 
             //do assignment by closest to mZ
@@ -298,7 +297,7 @@ namespace Gambit
               {
                 int klep = nleptons - ilep - jlep;
 
-                if ( (signalLeptons.at(ilep)->abspid() == signalLeptons.at(jlep)->abspid()) && (signalLeptons.at(ilep)->pid() != signalLeptons.at(jlep)->pid()) )
+                if ((signalLeptons.at(ilep)->abspid() == signalLeptons.at(jlep)->abspid()) && (signalLeptons.at(ilep)->pid() != signalLeptons.at(jlep)->pid()))
                 {
                   nSFOS++;
                   //
@@ -318,18 +317,18 @@ namespace Gambit
               }
             }
 
-            if (nSFOS==0)cut_SFOS=false;
+            if (nSFOS==0) cut_SFOS=false;
 
             // mlll > 105 GeV
             double mlll = (signalLeptons.at(0)->mom()+signalLeptons.at(1)->mom()+signalLeptons.at(2)->mom()).m();
-            if (mlll < 105.)cut_mlll=false;
+            if (mlll < 105.) cut_mlll=false;
 
             // require the Zpeak [75,105]
-            if ( mll < 75. || mll > 105. )cut_Zpeak=false;
+            if (mll < 75. || mll > 105.) cut_Zpeak=false;
 
             //====================================================================================================
             // require mTW
-            if(cut_SFOS)mTW = sqrt( 2*metVec.pT()*signalLeptons.at(iW)->pT()*(1 - cos(signalLeptons.at(iW)->phi() - metVec.phi())) );
+            if (cut_SFOS) mTW = sqrt( 2*metVec.pT()*signalLeptons.at(iW)->pT()*(1 - cos(signalLeptons.at(iW)->phi() - metVec.phi())) );
 
             //====================================================================================================
             // additional variables:
@@ -431,8 +430,8 @@ namespace Gambit
             pTratio = pTsoftPP / (pTsoftPP + meff3l);
 
             // Signal regions
-            if (signalLeptons.at(0)->pT()>60. && signalLeptons.at(1)->pT()>40. && signalLeptons.at(2)->pT()>30. && njets==0 && mTW>100. && H_boost>250. && pTratio<0.05 && HTratio>0.9)_counters.at("SR-low").add_event(event);
-            if (signalLeptons.at(0)->pT()>25. && signalLeptons.at(1)->pT()>25. && signalLeptons.at(2)->pT()>20. && njets>0 && njets<4 && mTW>100. && fabs(dphijetsinv)>2.0 && Rjetsinv>0.55 && Rjetsinv<1.0  && pTjets>100. && met>80. && pTsoft<25.)_counters.at("SR-ISR").add_event(event);
+            if (signalLeptons.at(0)->pT()>60. && signalLeptons.at(1)->pT()>40. && signalLeptons.at(2)->pT()>30. && njets==0 && mTW>100. && H_boost>250. && pTratio<0.05 && HTratio>0.9) _counters.at("SR-low").add_event(event);
+            if (signalLeptons.at(0)->pT()>25. && signalLeptons.at(1)->pT()>25. && signalLeptons.at(2)->pT()>20. && njets>0 && njets<4 && mTW>100. && fabs(dphijetsinv)>2.0 && Rjetsinv>0.55 && Rjetsinv<1.0  && pTjets>100. && met>80. && pTsoft<25.) _counters.at("SR-ISR").add_event(event);
 
 
           }
@@ -440,39 +439,39 @@ namespace Gambit
           // Increment cutflows for debugging
 
           #ifdef CHECK_CUTFLOW
-          const double w = event->weight();
-          _cutflows.fillinit(w);
+            const double w = event->weight();
+            _cutflows.fillinit(w);
 
-          bool cut_trigger=true;
+            bool cut_trigger=true;
 
-          _cutflows["SR-ISR"].fillnext({
-                        cut_3lep && cut_SFOS,
-            cut_trigger,
-            cut_bjet,
-            cut_mlll,
-            cut_leppt,
-            cut_Zpeak,
-            njets > 0,
-            njets < 4,
-            fabs(dphijetsinv)>2.0,
-            Rjetsinv>0.55 && Rjetsinv<1.0,
-            pTjets>100.,
-            met > 80.,
-            mTW > 100.,
-            pTsoft < 25.}, w);
+            _cutflows["SR-ISR"].fillnext({
+                          cut_3lep && cut_SFOS,
+                          cut_trigger,
+                          cut_bjet,
+                          cut_mlll,
+                          cut_leppt,
+                          cut_Zpeak,
+                          njets > 0,
+                          njets < 4,
+                          fabs(dphijetsinv)>2.0,
+                          Rjetsinv>0.55 && Rjetsinv<1.0,
+                          pTjets>100.,
+                          met > 80.,
+                          mTW > 100.,
+                          pTsoft < 25.}, w);
 
-          _cutflows["SR-low"].fillnext({
-                        cut_3lep && cut_SFOS,
-            cut_trigger,
-                        cut_bjet,
-            cut_mlll,
-                        cut_leppt_high,
-            cut_Zpeak,
-            njets == 0,
-            H_boost>250.,
-            pTratio<0.05,
-            HTratio>0.9,
-            mTW > 100.}, w);
+            _cutflows["SR-low"].fillnext({
+                          cut_3lep && cut_SFOS,
+                          cut_trigger,
+                          cut_bjet,
+                          cut_mlll,
+                          cut_leppt_high,
+                          cut_Zpeak,
+                          njets == 0,
+                          H_boost>250.,
+                          pTratio<0.05,
+                          HTratio>0.9,
+                          mTW > 100.}, w);
           #endif
 
           return;
@@ -487,8 +486,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR-low"), 51., {46. , 5.}));
         add_result(SignalRegionData(_counters.at("SR-ISR"),  30., { 23.4 ,  2.1}));
 
-COMMIT_CUTFLOWS
-
+        COMMIT_CUTFLOWS
       }
 
       void analysis_specific_reset()

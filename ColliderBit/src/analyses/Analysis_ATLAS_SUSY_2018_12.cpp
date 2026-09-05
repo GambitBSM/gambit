@@ -9,12 +9,10 @@
 #include <random>
 #include <cmath> 
 
-
 using namespace std;
 
 // Renamed from: 
 //        Analysis_ATLAS_13TeV_0LEPStop_139invfb
-
 
 // #define CHECK_CUTFLOW
 
@@ -95,7 +93,6 @@ namespace Gambit
         jetvec=Survivors;
 
         return;
-
       }
 
 
@@ -112,150 +109,149 @@ namespace Gambit
 
       Analysis_ATLAS_SUSY_2018_12()
       {
-
         set_analysis_name("ATLAS_SUSY_2018_12");
         set_luminosity(139.);
 
         #ifdef CHECK_CUTFLOW
-        _cutflows.addCutflow("SRATT",
-          {"MET > 250.",
-           "njets >= 4",
-           "nbjets >=2",
-           "Lepton veto",
-           "pT j4 > 40 GeV",
-           "pT j2 > 80 GeV",
-           "|dPhi(pT1-4, MET)| > 0.4",
-           "Pass MET trigger",
-           "S > 5",
-           "mTbmin > 50 GeV",
-           "tau veto",
-           "mTbmin > 200 GeV",
-           "m1(R=1.2) > 120 GeV",
-           "m2(R=1.2) > 120 GeV",
-           "mT2, chi^2 > 450 GeV",
-           "m1(R=0.8) > 60 GeV",
-           "S > 25",
-           "j1(R=1.2)",
-           "j2(R=1.2)",
-           "deltaR(b1.b2) > 1",});
+          _cutflows.addCutflow("SRATT",
+            {"MET > 250.",
+             "njets >= 4",
+             "nbjets >=2",
+             "Lepton veto",
+             "pT j4 > 40 GeV",
+             "pT j2 > 80 GeV",
+             "|dPhi(pT1-4, MET)| > 0.4",
+             "Pass MET trigger",
+             "S > 5",
+             "mTbmin > 50 GeV",
+             "tau veto",
+             "mTbmin > 200 GeV",
+             "m1(R=1.2) > 120 GeV",
+             "m2(R=1.2) > 120 GeV",
+             "mT2, chi^2 > 450 GeV",
+             "m1(R=0.8) > 60 GeV",
+             "S > 25",
+             "j1(R=1.2)",
+             "j2(R=1.2)",
+             "deltaR(b1.b2) > 1",});
 
-        _cutflows.addCutflow("SRATW",
-          {"MET > 250.",
-           "njets >= 4",
-           "nbjets >=2",
-           "Lepton veto",
-           "pT j4 > 40 GeV",
-           "pT j2 > 80 GeV",
-           "|dPhi(pT1-4, MET)| > 0.4",
-           "Pass MET trigger",
-           "S > 5",
-           "mTbmin > 50 GeV",
-           "tau veto",
-           "mTbmin > 200 GeV",
-           "m1(R=1.2) > 120 GeV",
-           "m2(R=1.2) > 60 GeV",
-           "m2(R=1.2) < 120 GeV",
-           "mT2, chi^2 > 450 GeV",
-           "m1(R=0.8) > 60 GeV",
-           "S > 25",
-           "j1(R=1.2)",});
+          _cutflows.addCutflow("SRATW",
+            {"MET > 250.",
+             "njets >= 4",
+             "nbjets >=2",
+             "Lepton veto",
+             "pT j4 > 40 GeV",
+             "pT j2 > 80 GeV",
+             "|dPhi(pT1-4, MET)| > 0.4",
+             "Pass MET trigger",
+             "S > 5",
+             "mTbmin > 50 GeV",
+             "tau veto",
+             "mTbmin > 200 GeV",
+             "m1(R=1.2) > 120 GeV",
+             "m2(R=1.2) > 60 GeV",
+             "m2(R=1.2) < 120 GeV",
+             "mT2, chi^2 > 450 GeV",
+             "m1(R=0.8) > 60 GeV",
+             "S > 25",
+             "j1(R=1.2)",});
 
-        _cutflows.addCutflow("SRAT0", 
-          {"MET > 250.",
-           "njets >= 4",
-           "nbjets >=2",
-           "Lepton veto",
-           "pT j4 > 40 GeV",
-           "pT j2 > 80 GeV",
-           "|dPhi(pT1-4, MET)| > 0.4",
-           "Pass MET trigger",
-           "S > 5",
-           "mTbmin > 50 GeV",
-           "tau veto",
-           "mTbmin > 200 GeV",
-           "m1(R=1.2) > 120 GeV",
-           "m2(R=1.2) < 60 GeV",
-           "mT2, chi^2 > 450 GeV",
-           "m1(R=0.8) > 60 GeV",
-           "S > 25",
-           "j1(R=1.2)",});
+          _cutflows.addCutflow("SRAT0", 
+            {"MET > 250.",
+             "njets >= 4",
+             "nbjets >=2",
+             "Lepton veto",
+             "pT j4 > 40 GeV",
+             "pT j2 > 80 GeV",
+             "|dPhi(pT1-4, MET)| > 0.4",
+             "Pass MET trigger",
+             "S > 5",
+             "mTbmin > 50 GeV",
+             "tau veto",
+             "mTbmin > 200 GeV",
+             "m1(R=1.2) > 120 GeV",
+             "m2(R=1.2) < 60 GeV",
+             "mT2, chi^2 > 450 GeV",
+             "m1(R=0.8) > 60 GeV",
+             "S > 25",
+             "j1(R=1.2)",});
         
-        _cutflows.addCutflow("SRB", 
-          {"MET > 250.",
-           "njets >= 4",
-           "nbjets >=2",
-           "Lepton veto",
-           "pT j4 > 40 GeV",
-           "pT j2 > 80 GeV",
-           "|dPhi(pT1-4, MET)| > 0.4",
-           "Pass MET trigger",
-           "S > 5",
-           "mTbmin > 50 GeV",
-           "tau veto",
-           "mTbmin > 200 GeV",
-           "mTbmax > 200 GeV",
-           "deltaR(b1.b2) > 1.4",
-           "m1(R=1.2) > 120 GeV",
-           "mT2, chi^2 < 450 GeV",
-           "S > 14",
-           "m2(R=1.2) > 120 GeV (SRB-TT)",
-           "60 <= m2(R=1.2) <= 120 GeV (SRB-TW)",
-           "m2(R=1.2) <60 GeV (SRB-T0)",});
+          _cutflows.addCutflow("SRB", 
+            {"MET > 250.",
+             "njets >= 4",
+             "nbjets >=2",
+             "Lepton veto",
+             "pT j4 > 40 GeV",
+             "pT j2 > 80 GeV",
+             "|dPhi(pT1-4, MET)| > 0.4",
+             "Pass MET trigger",
+             "S > 5",
+             "mTbmin > 50 GeV",
+             "tau veto",
+             "mTbmin > 200 GeV",
+             "mTbmax > 200 GeV",
+             "deltaR(b1.b2) > 1.4",
+             "m1(R=1.2) > 120 GeV",
+             "mT2, chi^2 < 450 GeV",
+             "S > 14",
+             "m2(R=1.2) > 120 GeV (SRB-TT)",
+             "60 <= m2(R=1.2) <= 120 GeV (SRB-TW)",
+             "m2(R=1.2) <60 GeV (SRB-T0)",});
 
-        _cutflows.addCutflow("SRD0", 
-          {"Leading jet tight cleaning",
-           "Pass MET trigger",
-           "MET > 250.",
-           "Lepton veto",
-           "pT jISR >= 250 GeV",
-           "|dPhi(pTjISR, MET)| > 2.4",
-           "|dPhi(MET,pTmissTrack)| < Pi/3",
-           "ETmissTrack > 30 GeV", 
-           "MET/Sqrt(HT) >= 26 Sqrt(GeV)", 
-           "Nbtrack > 0", 
-           "Nb == 0",
-           "|dPhi(pT1btrack, pT2btrack)| < 2.5", 
-           "pT1btrack < 50", 
-           "|dPhi(pT1,1-4, pTjISR)| < 1.2", 
-           "|dPhimin(pT1-4, MET)| > 0.4",
-           "max|dPhi(pTjISR, pTbtrack)| > 2.2", 
-           "No track jet and jet overlap",});
+          _cutflows.addCutflow("SRD0", 
+            {"Leading jet tight cleaning",
+             "Pass MET trigger",
+             "MET > 250.",
+             "Lepton veto",
+             "pT jISR >= 250 GeV",
+             "|dPhi(pTjISR, MET)| > 2.4",
+             "|dPhi(MET,pTmissTrack)| < Pi/3",
+             "ETmissTrack > 30 GeV", 
+             "MET/Sqrt(HT) >= 26 Sqrt(GeV)", 
+             "Nbtrack > 0", 
+             "Nb == 0",
+             "|dPhi(pT1btrack, pT2btrack)| < 2.5", 
+             "pT1btrack < 50", 
+             "|dPhi(pT1,1-4, pTjISR)| < 1.2", 
+             "|dPhimin(pT1-4, MET)| > 0.4",
+             "max|dPhi(pTjISR, pTbtrack)| > 2.2", 
+             "No track jet and jet overlap",});
 
-        _cutflows.addCutflow("SRD1", 
-          {"Leading jet tight cleaning",
-           "Pass MET trigger",
-           "MET > 250.",
-           "Lepton veto",
-           "pT jISR >= 250 GeV",
-           "|dPhi(pTjISR, MET)| > 2.4",
-           "|dPhi(MET,pTmissTrack)| < Pi/3",
-           "ETmissTrack > 30 GeV", 
-           "pT1btrack > 10",
-           "MET/Sqrt(HT) >= 22 Sqrt(GeV)", 
-           "Nbtrack > 0", 
-           "Nb == 1",
-           "pT1btrack < 40", 
-           "|dPhi(pTjISR, pT1b)| > 2.2", 
-           "|eta1b| < 1.6",
-           "|dPhi(pT1,1-4, pTjISR)| > 1.2",
-           "No track jet and jet overlap",});
+          _cutflows.addCutflow("SRD1", 
+            {"Leading jet tight cleaning",
+             "Pass MET trigger",
+             "MET > 250.",
+             "Lepton veto",
+             "pT jISR >= 250 GeV",
+             "|dPhi(pTjISR, MET)| > 2.4",
+             "|dPhi(MET,pTmissTrack)| < Pi/3",
+             "ETmissTrack > 30 GeV", 
+             "pT1btrack > 10",
+             "MET/Sqrt(HT) >= 22 Sqrt(GeV)", 
+             "Nbtrack > 0", 
+             "Nb == 1",
+             "pT1btrack < 40", 
+             "|dPhi(pTjISR, pT1b)| > 2.2", 
+             "|eta1b| < 1.6",
+             "|dPhi(pT1,1-4, pTjISR)| > 1.2",
+             "No track jet and jet overlap",});
 
-        _cutflows.addCutflow("SRD2", 
-          {"Leading jet tight cleaning",
-           "Pass MET trigger",
-           "MET > 250.",
-           "Lepton veto",
-           "pT jISR >= 250 GeV",
-           "|dPhi(pTjISR, MET)| > 2.4",
-           "|dPhi(MET,pTmissTrack)| < Pi/3",
-           "ETmissTrack > 30 GeV", 
-           "MET/Sqrt(HT) >= 22 Sqrt(GeV)", 
-           "Nb >= 2",
-           "|dPhi(pTjISR, pT1btrack)| > 2.2", 
-           "|dPhi(pTjISR, pT2btrack)| > 1.6", 
-           "pT1b < 175", 
-           "pT1b > 0", 
-           "|eta2b| < 1.2", });
+          _cutflows.addCutflow("SRD2", 
+            {"Leading jet tight cleaning",
+             "Pass MET trigger",
+             "MET > 250.",
+             "Lepton veto",
+             "pT jISR >= 250 GeV",
+             "|dPhi(pTjISR, MET)| > 2.4",
+             "|dPhi(MET,pTmissTrack)| < Pi/3",
+             "ETmissTrack > 30 GeV", 
+             "MET/Sqrt(HT) >= 22 Sqrt(GeV)", 
+             "Nb >= 2",
+             "|dPhi(pTjISR, pT1btrack)| > 2.2", 
+             "|dPhi(pTjISR, pT2btrack)| > 1.6", 
+             "pT1b < 175", 
+             "pT1b > 0", 
+             "|eta2b| < 1.2", });
         
         #endif
 
@@ -298,8 +294,7 @@ namespace Gambit
         vector<const HEPUtils::Jet*> baselineJets;
         for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
-          if (jet->pT() > 20. && fabs(jet->eta()) < 2.8 )
-            baselineJets.push_back(jet);
+          if (jet->pT() > 20. && fabs(jet->eta()) < 2.8 ) baselineJets.push_back(jet);
         }
 
         // Jets
@@ -312,15 +307,14 @@ namespace Gambit
         vector<const HEPUtils::Particle*> tauCands;
         for (const HEPUtils::Particle* tau : event->taus())
         {
-          if (tau->pT() > 20. && tau->abseta() < 2.47) {
+          if (tau->pT() > 20. && tau->abseta() < 2.47)
+          {
             tauCands.push_back(tau); 
             // HEPUtils::Jet* newJet = new HEPUtils::Jet(tau->mom());
             // nonBJets.push_back(newJet);
-            }
+          }
         }
         applyEfficiency(tauCands, ATLAS::effTau.at("R1"));
-
-
 
         // B-tag efficiencies 
         std::map<const Jet*, bool> analysisBtags = generateBTagsMap(baselineJets, 0.77, 0.10, 0.005);
@@ -375,10 +369,12 @@ namespace Gambit
         // // Fill a jet-pointer-to-bool map to make it easy to check
         // // if a given jet is treated as a b-jet in this analysis
         // map<const HEPUtils::Jet*,bool> analysisBtags;
-        for (const HEPUtils::Jet* jet : bJets) {
+        for (const HEPUtils::Jet* jet : bJets)
+        {
           analysisBtags[jet] = true;
         }
-        for (const HEPUtils::Jet* jet : nonBJets) {
+        for (const HEPUtils::Jet* jet : nonBJets)
+        {
           analysisBtags[jet] = false;
         }
 
@@ -474,11 +470,14 @@ namespace Gambit
         double dPhiJetMetMin2 = 0;
         double dPhiJetMetMin3 = 0;
         double dPhiJetMetMin4 = 0;
-        if (nSignalJets >= 2) {
+        if (nSignalJets >= 2)
+        {
           dPhiJetMetMin2 = std::min(fabs(metVec.deltaPhi(signalJets[0]->mom())), fabs(metVec.deltaPhi(signalJets[1]->mom())));
-          if (nSignalJets>=3) {
+          if (nSignalJets>=3)
+          {
             dPhiJetMetMin3 = std::min(dPhiJetMetMin2, fabs(metVec.deltaPhi(signalJets[2]->mom())));
-            if (nSignalJets>=4) {
+            if (nSignalJets>=4)
+            {
               dPhiJetMetMin4 = std::min(dPhiJetMetMin3, fabs(metVec.deltaPhi(signalJets[3]->mom())));
             }
           }
@@ -496,9 +495,11 @@ namespace Gambit
 
 
         bool hasTaus = false;
-        for (const HEPUtils::Particle* tau : tauCands) {
+        for (const HEPUtils::Particle* tau : tauCands)
+        {
           // cout << tau->mom().deltaPhi(metVec) << endl; 
-          if (tau->mom().deltaPhi(metVec) < M_PI/5.) {
+          if (tau->mom().deltaPhi(metVec) < M_PI/5.)
+          {
             hasTaus = true; 
           }
           MtTauCand = get_mT(tau->mom(), metVec);
@@ -512,21 +513,23 @@ namespace Gambit
         float MtBMax = 0;
         double dPhi_min = 1000.;
         double dPhi_max = 0.;
-        if (nBJets >= 2) {
-          for (const HEPUtils::Jet* jet : signalBJets) {
+        if (nBJets >= 2)
+        {
+          for (const HEPUtils::Jet* jet : signalBJets)
+          {
             double dphi = fabs(metVec.deltaPhi(jet->mom()));
-            if (dphi < dPhi_min) {
+            if (dphi < dPhi_min)
+            {
               dPhi_min = dphi;
               MtBMin = get_mT(jet->mom(), metVec);
             }
-            if (dphi > dPhi_max) {
+            if (dphi > dPhi_max)
+            {
               dPhi_max = dphi;
               MtBMax = get_mT(jet->mom(), metVec);
             }
-            if (nFatJetsR12 > 0 && jet->mom().deltaR_eta(fatJetsR12[0]->mom()) <= 1.2)
-              NCloseByBJets12Leading++;
-            if (nFatJetsR12 > 1 && jet->mom().deltaR_eta(fatJetsR12[1]->mom()) <= 1.2)
-              NCloseByBJets12Subleading++;
+            if (nFatJetsR12 > 0 && jet->mom().deltaR_eta(fatJetsR12[0]->mom()) <= 1.2) NCloseByBJets12Leading++;
+            if (nFatJetsR12 > 1 && jet->mom().deltaR_eta(fatJetsR12[1]->mom()) <= 1.2) NCloseByBJets12Subleading++;
           }
         }
 
@@ -582,8 +585,7 @@ namespace Gambit
                       }
                     }
                   }
-                  if (nNonBJets < 3)
-                  continue;
+                  if (nNonBJets < 3) continue;
                   for (int W1j2 = W1j1 + 1; W1j2 < nNonBJets; W1j2++)
                   {
                     if (W1j2 == W2j1) continue;
@@ -687,10 +689,9 @@ namespace Gambit
 
         double Ht=0;
 
-        for(size_t jet=0;jet<signalJets.size();jet++)Ht+=signalJets[jet]->pT();
+        for(size_t jet=0;jet<signalJets.size();jet++) Ht+=signalJets[jet]->pT();
 
         double HtSig = Met/sqrt(Ht);
-
         int nBadJets=0;
 
         //////////////////////////////////////
@@ -712,12 +713,12 @@ namespace Gambit
         bool SRBTW = SRB && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>60 && AntiKt12M_1<120;
         bool SRBT0 = SRB && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>0 && AntiKt12M_1<60;
 
-        if (SRATT)_counters.at("SRATT").add_event(event);
-        if (SRATW)_counters.at("SRATW").add_event(event);
-        if (SRAT0)_counters.at("SRAT0").add_event(event);
-        if (SRBTT)_counters.at("SRBTT").add_event(event);
-        if (SRBTW)_counters.at("SRBTW").add_event(event);
-        if (SRBT0)_counters.at("SRBT0").add_event(event);
+        if (SRATT) _counters.at("SRATT").add_event(event);
+        if (SRATW) _counters.at("SRATW").add_event(event);
+        if (SRAT0) _counters.at("SRAT0").add_event(event);
+        if (SRBTT) _counters.at("SRBTT").add_event(event);
+        if (SRBTW) _counters.at("SRBTW").add_event(event);
+        if (SRBT0) _counters.at("SRBT0").add_event(event);
 
         // SRC missing (these are the RJR regions)
         bool SRDLoose = nLep == 0 && nBadJets == 0 && Met > 250 && nonBJets.size() > 0 && nonBJets.size() > 0 && nonBJets[0]->pT()>250 && nonBJets[0]->mom().deltaR_eta(metVec) > 2.4 && HtSig > 22;
@@ -726,9 +727,9 @@ namespace Gambit
         bool SRD2 = SRDLoose && nBJets >= 2 && signalBJets[0]->pT()<175 && fabs(signalBJets[1]->eta())<1.2 && signalBJets[0]->mom().deltaPhi(nonBJets[0]->mom())>2.2 && signalBJets[1]->mom().deltaPhi(nonBJets[0]->mom())>1.6;
         //bool SRD = SRD0 || SRD1 || SRD2;
 
-        if ( SRD0 )_counters.at("SRD0").add_event(event);
-        if ( SRD1 )_counters.at("SRD1").add_event(event);
-        if ( SRD2 )_counters.at("SRD2").add_event(event);
+        if ( SRD0 ) _counters.at("SRD0").add_event(event);
+        if ( SRD1 ) _counters.at("SRD1").add_event(event);
+        if ( SRD2 ) _counters.at("SRD2").add_event(event);
 
 
         // Now fill the cutflows
@@ -819,13 +820,11 @@ namespace Gambit
             AntiKt12M_0>120.,
             MT2Chi2 < 450,
             MetSig > 14.,}, w);
-            if (SRB){
-              if (AntiKt12M_1 > 120.) 
-                _cutflows["SRB"].fill(18, true, w);
-              if (AntiKt12M_1 > 60. && AntiKt12M_1 <= 120.) 
-                _cutflows["SRB"].fill(19, true, w);
-              if (AntiKt12M_1 <= 60.) 
-                _cutflows["SRB"].fill(20, true, w);
+            if (SRB)
+            {
+              if (AntiKt12M_1 > 120.) _cutflows["SRB"].fill(18, true, w);
+              if (AntiKt12M_1 > 60. && AntiKt12M_1 <= 120.) _cutflows["SRB"].fill(19, true, w);
+              if (AntiKt12M_1 <= 60.) _cutflows["SRB"].fill(20, true, w);
             }
           
           _cutflows["SRD0"].fillnext({
@@ -883,18 +882,13 @@ namespace Gambit
             signalBJets.size() >=2 && signalBJets[0]->pT()<175.,
             signalBJets.size() >=2 && signalBJets[0]->pT() > 0.,
             signalBJets.size() >=2 && fabs(signalBJets[1]->eta())<1.2,}, w); 
-
-
-
         #endif
 
         return;
-
       }
 
       void collect_results()
       {
-
         add_result(SignalRegionData(_counters.at("SRATT"), 4.0, { 3.2, 0.5}));
         add_result(SignalRegionData(_counters.at("SRATW"), 8.0, { 5.6, 0.7}));
         add_result(SignalRegionData(_counters.at("SRAT0"), 11., { 17.3, 1.7}));
@@ -905,7 +899,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SRD1"), 4., { 3.1, 1.0}));
         add_result(SignalRegionData(_counters.at("SRD2"), 10., { 12.2, 1.5}));
         
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
         return;
       }
 

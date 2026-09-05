@@ -432,11 +432,11 @@ namespace Gambit
           legacyCutATLAS_400_0[10] = 4.84;
 
           #ifdef CHECK_CUTFLOW
-        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-        _cutflows[analysis_name()].fillinit(event->weight());
-#endif
+            if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+            _cutflows[analysis_name()].fillinit(event->weight());
+          #endif
 
-for (size_t j=0;j<NCUTS;j++)
+          for (size_t j=0;j<NCUTS;j++)
           {
             if(
               (j==0) ||
@@ -464,8 +464,8 @@ for (size_t j=0;j<NCUTS;j++)
               )
 
             #ifdef CHECK_CUTFLOW
-            _cutflows[analysis_name()].fill(j+1, true, event->weight());
-#endif
+              _cutflows[analysis_name()].fill(j+1, true, event->weight());
+            #endif
           }
         #endif
       }
@@ -474,19 +474,19 @@ for (size_t j=0;j<NCUTS;j++)
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results() {
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
 
         add_result(SignalRegionData(_counters.at("SR0A"), 13., {10.2, 2.1}));
         add_result(SignalRegionData(_counters.at("SR0B"),  2., {1.31, 0.24}));
         add_result(SignalRegionData(_counters.at("SR0C"), 47., {37., 9.}));
         add_result(SignalRegionData(_counters.at("SR0D"), 10., {4.1, 0.7}));
 
-
       }
 
 
     protected:
-      void analysis_specific_reset() {
+      void analysis_specific_reset()
+      {
         for (auto& pair : _counters) { pair.second.reset(); }
         #ifdef CHECK_CUTFLOW
         #endif

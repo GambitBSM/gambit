@@ -64,10 +64,10 @@ namespace Gambit
             // Requrired detector sim
             static constexpr const char *detector = "ATLAS";
 
-            void muJetSpecialOverlapRemoval(vector<const HEPUtils::Jet *> &jetvec, vector<const HEPUtils::Particle *> &lepvec)
+            void muJetSpecialOverlapRemoval(vector<const HEPUtils::Jet*>& jetvec, vector<const HEPUtils::Particle*>& lepvec)
             {
 
-                vector<const HEPUtils::Jet *> Survivors;
+                vector<const HEPUtils::Jet*> Survivors;
 
                 for (unsigned int itjet = 0; itjet < jetvec.size(); itjet++)
                 {
@@ -81,13 +81,10 @@ namespace Gambit
                         dR = jetmom.deltaR_eta(lepmom);
 
                         double DeltaRMax = 0.;
-                        if (lepmom.pT() / jetmom.pT() > 0.5)
-                            DeltaRMax = 0.2;
-                        if (fabs(dR) <= DeltaRMax)
-                            overlap = true;
+                        if (lepmom.pT() / jetmom.pT() > 0.5) DeltaRMax = 0.2;
+                        if (fabs(dR) <= DeltaRMax) overlap = true;
                     }
-                    if (overlap)
-                        continue;
+                    if (overlap) continue;
                     Survivors.push_back(jetvec.at(itjet));
                 }
                 jetvec = Survivors;
@@ -215,8 +212,7 @@ namespace Gambit
                 vector<const HEPUtils::Particle *> baselineElectrons;
                 for (const HEPUtils::Particle *electron : event->electrons())
                 {
-                    if (electron->pT() > 4.5 && electron->abseta() < 2.47)
-                        baselineElectrons.push_back(electron);
+                    if (electron->pT() > 4.5 && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
                 }
                 // Loose electron ID selection
                 applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Recon"));
@@ -225,8 +221,7 @@ namespace Gambit
                 vector<const HEPUtils::Particle *> baselineMuons;
                 for (const HEPUtils::Particle *muon : event->muons())
                 {
-                    if (muon->pT() > 4.0 && muon->abseta() < 2.7)
-                        baselineMuons.push_back(muon);
+                    if (muon->pT() > 4.0 && muon->abseta() < 2.7) baselineMuons.push_back(muon);
                 }
 
                 // Apply muon efficiency
@@ -235,8 +230,7 @@ namespace Gambit
                 vector<const HEPUtils::Particle *> baselinePhotons;
                 for (const HEPUtils::Particle *photon : event->photons())
                 {
-                    if (photon->pT() > 25. && photon->abseta() < 2.37)
-                        baselinePhotons.push_back(photon);
+                    if (photon->pT() > 25. && photon->abseta() < 2.37) baselinePhotons.push_back(photon);
                 }
                 // Apply photon efficiency
                 applyEfficiency(baselinePhotons, ATLAS::eff2DPhoton.at("R2"));
@@ -245,8 +239,7 @@ namespace Gambit
                 vector<const HEPUtils::Jet *> baselineJets;
                 for (const HEPUtils::Jet *jet : event->jets("antikt_R04"))
                 {
-                    if (jet->pT() > 20. && fabs(jet->eta()) < 2.8)
-                        baselineJets.push_back(jet);
+                    if (jet->pT() > 20. && fabs(jet->eta()) < 2.8) baselineJets.push_back(jet);
                 }
 
                 // Jets
@@ -347,7 +340,9 @@ namespace Gambit
                         signalBJets.push_back(jet);
                     }
                     if (jet->pT() > 20. && fabs(jet->eta()) < 2.8)
+                    {
                         signalJets.push_back(jet);
+                    }
                 }
 
                 for (const HEPUtils::Jet *jet : nonBJets)
@@ -390,7 +385,6 @@ namespace Gambit
                 vector<RestFrames::RFKey> jetID;
                 for (const HEPUtils::Jet *jet : signalJets)
                 {
-
                     TLorentzVector jetT4;
                     jetT4.SetPtEtaPhiM(jet->pT(), 0.0, jet->phi(), jet->mass());
                     jetID.push_back(VIS->AddLabFrameFourVector(jetT4));
@@ -445,13 +439,11 @@ namespace Gambit
                         if (VIS->GetFrame(jetID[i]) == *V)
                         {
                             m_NjV++;
-                            if (m_NjV == 4)
-                                m_pTjV4 = signalJets[i]->pT();
+                            if (m_NjV == 4) m_pTjV4 = signalJets[i]->pT();
                             if (analysisBtags.at(signalJets[i]) && fabs(signalJets[i]->eta()) < 2.5)
                             {
                                 m_NbV++;
-                                if (m_NbV == 1)
-                                    m_pTbV1 = signalJets[i]->pT();
+                                if (m_NbV == 1) m_pTbV1 = signalJets[i]->pT();
                             }
                         }
                         else
@@ -492,16 +484,11 @@ namespace Gambit
                 bool pre1B4J0L = Met > 250 && nLep == 0 && nSignalJets >= 4 && nBJets >= 1 && signalJets[1]->pT() > 80 && signalJets[3]->pT() > 40 && dPhiJetMetMin2 > 0.4;
                 bool SRC = pre1B4J0L && CA_NbV >= 2 && MetSig > 5 && CA_NjV >= 4 && CA_pTbV1 > 40 && CA_MS > 400 && CA_dphiISRI > 3.00 && CA_PTISR > 400 && CA_pTjV4 > 50;
 
-                if (SRC && CA_RISR >= 0.3 && CA_RISR < 0.4)
-                    _counters.at("SRC1").add_event(event);
-                if (SRC && CA_RISR >= 0.4 && CA_RISR < 0.5)
-                    _counters.at("SRC2").add_event(event);
-                if (SRC && CA_RISR >= 0.5 && CA_RISR < 0.6)
-                    _counters.at("SRC3").add_event(event);
-                if (SRC && CA_RISR >= 0.6 && CA_RISR < 0.7)
-                    _counters.at("SRC4").add_event(event);
-                if (SRC && CA_RISR >= 0.7)
-                    _counters.at("SRC5").add_event(event);
+                if (SRC && CA_RISR >= 0.3 && CA_RISR < 0.4) _counters.at("SRC1").add_event(event);
+                if (SRC && CA_RISR >= 0.4 && CA_RISR < 0.5) _counters.at("SRC2").add_event(event);
+                if (SRC && CA_RISR >= 0.5 && CA_RISR < 0.6) _counters.at("SRC3").add_event(event);
+                if (SRC && CA_RISR >= 0.6 && CA_RISR < 0.7) _counters.at("SRC4").add_event(event);
+                if (SRC && CA_RISR >= 0.7) _counters.at("SRC5").add_event(event);
 
 #ifdef CHECK_CUTFLOW
                 const double w = event->weight();
@@ -530,16 +517,11 @@ namespace Gambit
 
                 if (SRC)
                 {
-                    if (CA_RISR >= 0.3 && CA_RISR < 0.4)
-                        _cutflows["SRC"].fill(20, true, w);
-                    if (CA_RISR >= 0.4 && CA_RISR < 0.5)
-                        _cutflows["SRC"].fill(21, true, w);
-                    if (CA_RISR >= 0.5 && CA_RISR < 0.6)
-                        _cutflows["SRC"].fill(22, true, w);
-                    if (CA_RISR >= 0.6 && CA_RISR < 0.7)
-                        _cutflows["SRC"].fill(23, true, w);
-                    if (CA_RISR >= 0.7)
-                        _cutflows["SRC"].fill(24, true, w);
+                    if (CA_RISR >= 0.3 && CA_RISR < 0.4) _cutflows["SRC"].fill(20, true, w);
+                    if (CA_RISR >= 0.4 && CA_RISR < 0.5) _cutflows["SRC"].fill(21, true, w);
+                    if (CA_RISR >= 0.5 && CA_RISR < 0.6) _cutflows["SRC"].fill(22, true, w);
+                    if (CA_RISR >= 0.6 && CA_RISR < 0.7) _cutflows["SRC"].fill(23, true, w);
+                    if (CA_RISR >= 0.7) _cutflows["SRC"].fill(24, true, w);
                 }
 #endif
 

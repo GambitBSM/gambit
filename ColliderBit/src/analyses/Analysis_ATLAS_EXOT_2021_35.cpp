@@ -63,8 +63,7 @@ public:
     {
         for (const auto& bin : bins)
         {
-            if (jet_pt < bin.ptUpper)
-                return bin;
+            if (jet_pt < bin.ptUpper) return bin;
         }
         return bins.back();
     }
@@ -73,10 +72,8 @@ public:
     {
        const TaggerBin& threshold = getThreshold(jet_pt);
 
-        if (jet_mass < threshold.massMin || jet_mass > threshold.massMax)
-            return false;
-        if (jet_d2 > threshold.d2Cut)
-            return false;
+        if (jet_mass < threshold.massMin || jet_mass > threshold.massMax) return false;
+        if (jet_d2 > threshold.d2Cut) return false;
         return true;
     }
 };
@@ -189,10 +186,8 @@ namespace Gambit
                 for (const HEPUtils::Jet *jet : baselineJets)
                 {
                     bool isbtag = analysisBtags.at(jet);
-                    if (isbtag && jet->abseta() < 2.5 && jet->pT() > 25.)
-                        bJets.push_back(jet);
-                    if (jet->mom().deltaR_eta(Whad->mom()) > 1.0)
-                        sgJets.push_back(jet);
+                    if (isbtag && jet->abseta() < 2.5 && jet->pT() > 25.) bJets.push_back(jet);
+                    if (jet->mom().deltaR_eta(Whad->mom()) > 1.0) sgJets.push_back(jet);
                 }
                 SIGNAL_JETS(sgJets, signalJets)
 
@@ -216,15 +211,16 @@ namespace Gambit
                     HEPUtils::P4 WLepp4 = vp4 + signalLep.at(0)->mom();
 
                     const int nbjets    = bJets.size(); 
-                    const double dRWW      = WLepp4.deltaR_eta(Whad->mom()); 
+                    const double dRWW   = WLepp4.deltaR_eta(Whad->mom()); 
 
                     HEPUtils::P4 p4VLQlep; 
                     HEPUtils::P4 p4VLQhad; 
-                    double dmVLQ = 99999.; 
+                    double dmVLQ    = 99999.; 
                     double dPhilmet = signalLep.at(0)->mom().deltaPhi(pmiss); 
-                    double ST = met + signalLep.at(0)->pT(); 
+                    double ST       = met + signalLep.at(0)->pT(); 
 
-                    for (const HEPUtils::Jet * jet:signalJets){
+                    for (const HEPUtils::Jet * jet:signalJets)
+                    {
                         ST += jet->pT(); 
                     }
                     double dPhiJ0met = signalJets.at(0)->mom().deltaPhi(pmiss); 
@@ -232,10 +228,12 @@ namespace Gambit
                     // VLQ pairring VLQ-lep VLQ-had 
                     for (size_t ii = 0; ii < 3; ii++) for(size_t jj = 0; jj < 3; jj++)
                     {
-                        if (ii != jj) {
+                        if (ii != jj)
+                        {
                             double mVLQlep = (WLepp4 + signalJets.at(ii)->mom()).m(); 
                             double mVLQhad = (Whad->mom() + signalJets.at(jj)->mom()).m(); 
-                            if (fabs(mVLQlep - mVLQhad) < dmVLQ){
+                            if (fabs(mVLQlep - mVLQhad) < dmVLQ)
+                            {
                                 dmVLQ = fabs(mVLQlep - mVLQhad); 
                                 p4VLQhad = Whad->mom() + signalJets.at(jj)->mom(); 
                                 p4VLQlep = WLepp4 + signalJets.at(ii)->mom(); 
@@ -256,8 +254,7 @@ namespace Gambit
             
             }
 
-            virtual void
-            collect_results()
+            virtual void collect_results()
             {
                 COMMIT_SIGNAL_REGION("SR1", 156, 150, 10)
                 COMMIT_SIGNAL_REGION("SR2", 186, 192, 12)
@@ -313,12 +310,11 @@ namespace Gambit
 
             double solute_pvZ(const std::vector<double> &solutions)
             {
-                if (solutions.empty())
-                    return 0.0;
+                if (solutions.empty()) return 0.0;
                 return (std::abs(solutions[0]) < std::abs(solutions[1])) ? solutions[0] : solutions[1];
             }
 
         };
         DEFINE_ANALYSIS_FACTORY(ATLAS_EXOT_2021_035)
     } // namespace ColliderBit
-} // namespace Gambi
+} // namespace Gambit

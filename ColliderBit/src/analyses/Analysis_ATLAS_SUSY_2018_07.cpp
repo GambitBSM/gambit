@@ -4,7 +4,7 @@
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
-//#include "gambit/ColliderBit/warppertopness.h" // TODO: Chris Chang: turning this off temporarily to compile test the rest of gambit
+//#include "gambit/ColliderBit/warppertopness.h"
 
 // #include "gambit/ColliderBit/topness.h"
 
@@ -213,10 +213,8 @@ namespace Gambit
 
           std::tie(selected, jet) = RecursiveRecluster(cand, r0, mass, 0);
 
-          if (selected)
-            selectedJets.push_back(jet);
-          else
-            badJets.push_back(jet);
+          if (selected) selectedJets.push_back(jet);
+          else badJets.push_back(jet);
         }
 
         if (selectedJets.size() < 1)
@@ -226,7 +224,9 @@ namespace Gambit
 
         vector<std::shared_ptr<HEPUtils::Jet>> aoSelectedJets;
         for (const FJNS::PseudoJet &j : selectedJets)
+        {
           aoSelectedJets.push_back(std::make_shared<HEPUtils::Jet>(HEPUtils::mk_p4(j)));
+        }
 
         std::sort(aoSelectedJets.begin(), aoSelectedJets.end(), sortByPT_1l_sharedptr);
         p = aoSelectedJets[0]->mom();
@@ -268,8 +268,7 @@ namespace Gambit
         vector<const HEPUtils::Particle *> baselineElectrons4Soft;
         for (const HEPUtils::Particle *electron : event->electrons())
         {
-          if (electron->pT() > 4.5 && fabs(electron->eta()) < 2.47)
-            baselineElectrons4Hard.push_back(electron);
+          if (electron->pT() > 4.5 && fabs(electron->eta()) < 2.47) baselineElectrons4Hard.push_back(electron);
           baselineElectrons4Soft.push_back(electron);
         }
         applyEfficiency(baselineElectrons4Hard, ATLAS::eff2DEl.at("PERF_2017_01_ID_Loose"));
@@ -280,8 +279,7 @@ namespace Gambit
         vector<const HEPUtils::Particle *> baselineMuons4Soft;
         for (const HEPUtils::Particle *muon : event->muons())
         {
-          if (muon->pT() > 4.0 && fabs(muon->eta()) < 2.7)
-            baselineMuons4Hard.push_back(muon);
+          if (muon->pT() > 4.0 && fabs(muon->eta()) < 2.7) baselineMuons4Hard.push_back(muon);
           baselineMuons4Soft.push_back(muon);
         }
         applyEfficiency(baselineMuons4Hard, ATLAS::eff1DMu.at("MUON_2018_03_ID_Loose"));
@@ -291,15 +289,13 @@ namespace Gambit
         vector<const HEPUtils::Jet *> baselineJets;
         for (const HEPUtils::Jet *jet : event->jets("antikt_R04"))
         {
-          if (jet->pT() > 20. && fabs(jet->eta()) < 4.5)
-            baselineJets.push_back(jet);
+          if (jet->pT() > 20. && fabs(jet->eta()) < 4.5) baselineJets.push_back(jet);
         }
 
         vector<const HEPUtils::Particle *> signalTaus;
         for (const HEPUtils::Particle *tau : event->taus())
         {
-          if (tau->pT() > 20. && fabs(tau->eta()) < 2.5)
-            signalTaus.push_back(tau);
+          if (tau->pT() > 20. && fabs(tau->eta()) < 2.5) signalTaus.push_back(tau);
         }
         applyEfficiency(signalTaus, ATLAS::effTau.at("R2_RNN_Loose"));
 
@@ -355,14 +351,10 @@ namespace Gambit
 
         for (const HEPUtils::Jet *jet : trackJets)
         {
-          if (jet->pT() > 5. && jet->pT() < 7.)
-            softB01.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
-          else if (jet->pT() > 7. && jet->pT() < 10.)
-            softB02.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
-          else if (jet->pT() > 10. && jet->pT() < 15.)
-            softB03.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
-          else if (jet->pT() > 15. && jet->pT() < 20.)
-            softB04.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
+          if (jet->pT() > 5. && jet->pT() < 7.) softB01.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
+          else if (jet->pT() > 7. && jet->pT() < 10.) softB02.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
+          else if (jet->pT() > 10. && jet->pT() < 15.) softB03.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
+          else if (jet->pT() > 15. && jet->pT() < 20.) softB04.at(jet) ? bVRJets.push_back(jet) : nonbVRJets.push_back(jet);
         }
 
         // Continue to Analysis Coding: remove overlaping objects
@@ -383,13 +375,10 @@ namespace Gambit
         std::map<const Jet *, bool> analysisBtags = generateBTagsMap(baselineJets, 0.77, 1.0 / 6.0, 1.0 / 130.);
         for (const HEPUtils::Jet *jet : baselineJets)
         {
-          if (jet->pT() > 25. && jet->abseta() < 2.5)
-            signalJets.push_back(jet);
+          if (jet->pT() > 25. && jet->abseta() < 2.5) signalJets.push_back(jet);
           bool isBTag = analysisBtags.at(jet);
-          if (isBTag && jet->pT() > 20.)
-            bJets.push_back(jet);
-          else
-            nonbJets.push_back(jet);
+          if (isBTag && jet->pT() > 20.) bJets.push_back(jet);
+          else nonbJets.push_back(jet);
         }
 
         vector<const HEPUtils::Particle *> signalElectron4Hard, signalElectron4Soft;
@@ -552,7 +541,8 @@ namespace Gambit
               {
                 for (int j = i + 1; j < nNonBJets; j++)
                 {
-                  if (j != b2idx) {
+                  if (j != b2idx)
+                  {
                     double chi2temp1 = pow((bJets.at(0)->mom() + nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m() - mTop, 2) / 
                                         pow((bJets.at(0)->mom() + nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m(), 2) * 
                                         (pow(bJER[0], 2) + pow(nonbJER[i], 2) + pow(nonbJER[j], 2)) 
@@ -565,13 +555,15 @@ namespace Gambit
                                       + pow((nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m() - mW, 2) / 
                                         pow((nonbJets.at(i)->mom() + nonbJets.at(j)->mom()).m(), 2) * 
                                         (pow(nonbJER[i], 2) + pow(nonbJER[j], 2)); 
-                    if ((chi2temp1 < chi2temp2) && (chi2temp1 < chi2min)) {
+                    if ((chi2temp1 < chi2temp2) && (chi2temp1 < chi2min))
+                    {
                       JetComb[0] = i; 
                       JetComb[1] = j; 
                       bjet_Had = bJets[0]->mom(); 
                       bjet_Lep = nonbJets[b2idx]->mom(); 
                     }
-                    else if ((chi2temp2 < chi2temp1) && (chi2temp2 < chi2min)) {
+                    else if ((chi2temp2 < chi2temp1) && (chi2temp2 < chi2min))
+                    {
                       JetComb[0] = i; 
                       JetComb[1] = j; 
                       bjet_Had = nonbJets[b2idx]->mom(); 

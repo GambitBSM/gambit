@@ -175,17 +175,20 @@ namespace Gambit
           {
             auto p2 = *p2_it;
             double dR = p1->mom().deltaR_eta(p2->mom());
-            if(fabs(dR) <= DeltaRMax) {
-                overlap = true;
+            if (fabs(dR) <= DeltaRMax)
+            {
+              overlap = true;
+              lowpt = true;
+              if (p1->pT() < pTMax || p2->pT() < pTMax)
+              {
+                todrop.push_back(p2);
                 lowpt = true;
-                if (p1->pT() < pTMax || p2->pT() < pTMax) {
-                    todrop.push_back(p2);
-                    lowpt = true;
-                    break;
-                }
+                break;
+              }
             }
           }
-          if (!(overlap && lowpt)) {
+          if (!(overlap && lowpt))
+          {
             survivors.push_back(p1);
           }
         }
@@ -202,12 +205,12 @@ namespace Gambit
       void removeOSPairsInMassRange(vector<const HEPUtils::Particle*>& leptons1, vector<const HEPUtils::Particle*>& leptons2, double m_low, double m_high)
       {
         vector<const HEPUtils::Particle*> l1_survivors;
-        for(const HEPUtils::Particle* l1 : leptons1)
+        for (const HEPUtils::Particle* l1 : leptons1)
         {
           bool survived = true;
-          for(const HEPUtils::Particle* l2 : leptons2)
+          for (const HEPUtils::Particle* l2 : leptons2)
           {
-            if(l2 == l1) continue;
+            if (l2 == l1) continue;
             if (l1->pid()*l2->pid() < 0.)
             {
               double m = (l1->mom() + l2->mom()).m();
@@ -218,7 +221,7 @@ namespace Gambit
               }
             }
           }
-          if(survived) l1_survivors.push_back(l1);
+          if (survived) l1_survivors.push_back(l1);
         }
         leptons1 = l1_survivors;
         return;
@@ -232,8 +235,6 @@ namespace Gambit
 
       Analysis_ATLAS_SUSY_2018_02()
       {
-
-
         // Counters for the number of accepted events for each signal region
         _counters["SR0-ZZ-loose-bveto"] = EventCounter("SR0-ZZ-loose-bveto");
         _counters["SR0-ZZ-tight-bveto"] = EventCounter("SR0-ZZ-tight-bveto");
@@ -243,7 +244,6 @@ namespace Gambit
         _counters["SR0-tight-bveto"] = EventCounter("SR0-tight-bveto");
         _counters["SR0-breq"] = EventCounter("SR0-breq");
         _counters["SR5L"] = EventCounter("SR5L");
-
 
         set_analysis_name("ATLAS_SUSY_2018_02");
         set_luminosity(139.);
@@ -283,9 +283,10 @@ namespace Gambit
         {
           if (electron->pT()>4.5 && electron->abseta()<2.47) baselineElectrons.push_back(electron);
           #ifdef  CHECK_CUTFLOW
-              if (!generator_filter && electron->pT() > 4 && electron->abseta()<2.8) {
-                  ++gen_filter_cnt;
-              }
+            if (!generator_filter && electron->pT() > 4 && electron->abseta()<2.8)
+            {
+              ++gen_filter_cnt;
+            }
           #endif
         }
 
@@ -299,8 +300,9 @@ namespace Gambit
         {
           if (muon->pT()>3. && muon->abseta()<2.7) baselineMuons.push_back(muon);
           #ifdef  CHECK_CUTFLOW
-            if (!generator_filter && muon->pT() > 4 && muon->abseta()<2.8) {
-                ++gen_filter_cnt;
+            if (!generator_filter && muon->pT() > 4 && muon->abseta() < 2.8)
+            {
+              ++gen_filter_cnt;
             }
           #endif
         }
@@ -314,15 +316,17 @@ namespace Gambit
         {
           if (tau->pT()>20. && (tau->abseta()<1.37 || (tau->abseta()>1.51 && tau->abseta()<2.47))) baselineTaus.push_back(tau);
           #ifdef  CHECK_CUTFLOW
-            if (!generator_filter && tau->pT() > 15 && tau->abseta()<2.8) {
-                ++gen_filter_cnt;
+            if (!generator_filter && tau->pT() > 15 && tau->abseta() < 2.8)
+            {
+              ++gen_filter_cnt;
             }
           #endif
         }
         #ifdef  CHECK_CUTFLOW
-            if (!generator_filter && gen_filter_cnt >= 4) {
-                generator_filter = true;
-            }
+          if (!generator_filter && gen_filter_cnt >= 4)
+          {
+            generator_filter = true;
+          }
         #endif
 
         // Since tau efficiencies are not applied as part of the BuckFast ATLAS sim we apply it here
@@ -558,11 +562,11 @@ namespace Gambit
           legacyCutATLAS_300_100[11] = 0.06;
 
           #ifdef CHECK_CUTFLOW
-        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-        _cutflows[analysis_name()].fillinit(event->weight());
-#endif
+            if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+            _cutflows[analysis_name()].fillinit(event->weight());
+          #endif
 
-for (size_t j=0;j<NCUTS;j++)
+          for (size_t j=0;j<NCUTS;j++)
           {
             if(
               (j==0) ||
@@ -592,17 +596,18 @@ for (size_t j=0;j<NCUTS;j++)
               )
 
             #ifdef CHECK_CUTFLOW
-            _cutflows[analysis_name()].fill(j+1, true, event->weight());
-#endif
+              _cutflows[analysis_name()].fill(j+1, true, event->weight());
+            #endif
           }
         #endif
       }
 
 
       // This function can be overridden by the derived SR-specific classes
-      virtual void collect_results() {
+      virtual void collect_results()
+      {
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
         add_result(SignalRegionData(_counters.at("SR0-ZZ-loose"), 157., {161., 42.}));
         add_result(SignalRegionData(_counters.at("SR0-ZZ-tight"), 17., {18.4, 3.3}));
         add_result(SignalRegionData(_counters.at("SR0-ZZ-loose-bveto"), 5., {7.3, 2.15}));
@@ -616,7 +621,8 @@ COMMIT_CUTFLOWS;
 
 
     protected:
-      void analysis_specific_reset() {
+      void analysis_specific_reset()
+      {
         for (auto& pair : _counters) { pair.second.reset(); }
         #ifdef CHECK_CUTFLOW
         #endif

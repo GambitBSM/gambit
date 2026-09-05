@@ -37,7 +37,7 @@ namespace Gambit
     using namespace EventConversion;
 
     template <typename EventT>
-    void convertParticleEvent(const EventT &pevt, HEPUtils::Event &result,
+    void convertParticleEvent(const EventT& pevt, HEPUtils::Event& result,
                               std::vector<jet_collection_settings> all_jet_collection_settings,
                               str jetcollection_taus, double jet_pt_min)
     {
@@ -50,7 +50,7 @@ namespace Gambit
 
       for (decltype(pevt.size()) i = 0; i < pevt.size(); i++)
       {
-        const auto &p = pevt[i];
+        const auto& p = pevt[i];
         const int pid = get_unified_pid(p);
         const int apid = abs(pid);
         const HEPUtils::P4 p4 = get_unified_momentum(p);
@@ -66,11 +66,9 @@ namespace Gambit
           get_unified_child_ids(p, pevt, childIDs);
           for (int childID : childIDs)
           {
-            if (abs(childID) == 5)
-              isGoodB = false;
+            if (abs(childID) == 5) isGoodB = false;
           }
-          if (isGoodB)
-            bpartons.push_back(HEPUtils::Particle(p4, pid));
+          if (isGoodB) bpartons.push_back(HEPUtils::Particle(p4, pid));
         }
 
         // Find last c-hadrons in decay chains as the best proxy for c-tagging
@@ -82,11 +80,9 @@ namespace Gambit
           get_unified_child_ids(p, pevt, childIDs);
           for (int childID : childIDs)
           {
-            if (abs(childID) == 4)
-              isGoodC = false;
+            if (abs(childID) == 4) isGoodC = false;
           }
-          if (isGoodC)
-            cpartons.push_back(HEPUtils::Particle(p4, pid));
+          if (isGoodC) cpartons.push_back(HEPUtils::Particle(p4, pid));
         }
 
         // Find tau candidates
@@ -107,8 +103,7 @@ namespace Gambit
               isGoodTau = false;
             }
           }
-          if (isGoodTau)
-            tauCandidates.push_back(HEPUtils::Particle(p4, pid));
+          if (isGoodTau) tauCandidates.push_back(HEPUtils::Particle(p4, pid));
         }
 
         // Find candidates for hadronically decaying bosons for fat jet searches
@@ -160,8 +155,7 @@ namespace Gambit
         }
 
         // We only want final state particles:
-        if (!get_unified_isFinal(p))
-          continue;
+        if (!get_unified_isFinal(p)) continue;
 
         // Check there's no partons.
         if (pid == 21 || abs(pid) <= 6)
@@ -230,13 +224,13 @@ namespace Gambit
           std::shared_ptr<const FJNS::ClusterSequence> CSeqBasePtr = result.emplace_clusterseq(jetparticles, vr_jet_def, jetcollection.key);
           std::vector<fastjet::PseudoJet> pjets = fastjet::sorted_by_pt(CSeqBasePtr->inclusive_jets(pt_min_vr));
 
-          for (const auto &pj : pjets)
+          for (const auto& pj : pjets)
           {
             HEPUtils::P4 jetMom = HEPUtils::mk_p4(pj);
             const double effectiveR = std::min(Rmax, std::max(Rmin, rho / pj.pt()));
 
             bool isB = false;
-            for (const auto &pb : bpartons)
+            for (const auto& pb : bpartons)
             {
               if (jetMom.deltaR_eta(pb.mom()) < effectiveR)
               {
@@ -246,7 +240,7 @@ namespace Gambit
             }
 
             bool isC = false;
-            for (const auto &pc : cpartons)
+            for (const auto& pc : cpartons)
             {
               if (jetMom.deltaR_eta(pc.mom()) < effectiveR)
               {
@@ -256,7 +250,7 @@ namespace Gambit
             }
 
             bool isTau = false;
-            for (HEPUtils::Particle &ptau : tauCandidates)
+            for (HEPUtils::Particle& ptau : tauCandidates)
             {
               if (jetMom.deltaR_eta(ptau.mom()) < effectiveR)
               {
@@ -266,7 +260,7 @@ namespace Gambit
             }
 
             bool isW = false;
-            for (HEPUtils::Particle &pW : WCandidates)
+            for (HEPUtils::Particle& pW : WCandidates)
             {
               if (jetMom.deltaR_eta(pW.mom()) < 1.0) ///< @todo Make selectable?
               {
@@ -276,7 +270,7 @@ namespace Gambit
             }
 
             bool isZ = false;
-            for (HEPUtils::Particle &pZ : ZCandidates)
+            for (HEPUtils::Particle& pZ : ZCandidates)
             {
               if (jetMom.deltaR_eta(pZ.mom()) < 1.0) ///< @todo Make selectable?
               {
@@ -286,7 +280,7 @@ namespace Gambit
             }
 
             bool ish = false;
-            for (HEPUtils::Particle &ph : hCandidates)
+            for (HEPUtils::Particle& ph : hCandidates)
             {
               if (jetMom.deltaR_eta(ph.mom()) < 1.0) ///< @todo Make selectable?
               {
@@ -316,12 +310,12 @@ namespace Gambit
         /// Do jet b-tagging, etc. and add to the Event
         /// @todo Use ghost tagging?
         /// @note We need to _remove_ this b-tag in the detector sim if outside the tracker acceptance!
-        for (auto &pj : pjets)
+        for (auto& pj : pjets)
         {
           HEPUtils::P4 jetMom = HEPUtils::mk_p4(pj);
           /// @todo Replace with HEPUtils::any(bhadrons, [&](const auto& pb){ pj.delta_R(pb) < 0.4 })
           bool isB = false;
-          for (HEPUtils::Particle &pb : bpartons)
+          for (HEPUtils::Particle& pb : bpartons)
           {
             if (jetMom.deltaR_eta(pb.mom()) < 0.4) ///< @todo Hard-coded radius!!!
             {
@@ -331,7 +325,7 @@ namespace Gambit
           }
 
           bool isC = false;
-          for (HEPUtils::Particle &pc : cpartons)
+          for (HEPUtils::Particle& pc : cpartons)
           {
             if (jetMom.deltaR_eta(pc.mom()) < 0.4) ///< @todo Hard-coded radius!!!
             {
@@ -342,7 +336,7 @@ namespace Gambit
 
           bool isTau = false;
           int signedTauPID = MCUtils::PID::TAU;
-          for (HEPUtils::Particle &ptau : tauCandidates)
+          for (HEPUtils::Particle& ptau : tauCandidates)
           {
             if (jetMom.deltaR_eta(ptau.mom()) < 0.5) ///< @todo Hard-coded radius!!!
             {
@@ -353,7 +347,7 @@ namespace Gambit
           }
 
           bool isW = false;
-          for (HEPUtils::Particle &pW : WCandidates)
+          for (HEPUtils::Particle& pW : WCandidates)
           {
             if (jetMom.deltaR_eta(pW.mom()) < 1.0) ///< @todo Hard-coded radius from ATLAS-CONF-2021-022, make selectable?
             {
@@ -363,7 +357,7 @@ namespace Gambit
           }
 
           bool isZ = false;
-          for (HEPUtils::Particle &pZ : ZCandidates)
+          for (HEPUtils::Particle& pZ : ZCandidates)
           {
             if (jetMom.deltaR_eta(pZ.mom()) < 1.0) ///< @todo Hard-coded radius from ATLAS-CONF-2021-022, make selectable?
             {
@@ -373,7 +367,7 @@ namespace Gambit
           }
 
           bool ish = false;
-          for (HEPUtils::Particle &ph : hCandidates)
+          for (HEPUtils::Particle& ph : hCandidates)
           {
             if (jetMom.deltaR_eta(ph.mom()) < 1.0) ///< @todo Hard-coded radius from ATLAS-CONF-2021-022, make selectable?
             {
@@ -434,7 +428,7 @@ namespace Gambit
 
     /// Convert a partonic (no hadrons) EventT into an unsmeared HEPUtils::Event
     template <typename EventT>
-    void convertPartonEvent(const EventT &pevt, HEPUtils::Event &result, std::vector<jet_collection_settings> all_jet_collection_settings, str jetcollection_taus, double jet_pt_min)
+    void convertPartonEvent(const EventT& pevt, HEPUtils::Event& result, std::vector<jet_collection_settings> all_jet_collection_settings, str jetcollection_taus, double jet_pt_min)
     {
       result.clear();
 
@@ -443,7 +437,7 @@ namespace Gambit
       // Make a first pass of non-final particles to gather taus
       for (int i = 0; i < pevt.size(); ++i)
       {
-        const auto &p = pevt[i];
+        const auto& p = pevt[i];
 
         // Find last tau in prompt tau replica chains as a proxy for tau-tagging
         if (p.idAbs() == MCUtils::PID::TAU)
@@ -454,13 +448,14 @@ namespace Gambit
 
           for (size_t daughter = 0; daughter < tauDaughterList.size(); daughter++)
           {
-            const auto &pDaughter = pevt[tauDaughterList[daughter]];
+            const auto& pDaughter = pevt[tauDaughterList[daughter]];
             int daughterID = pDaughter.idAbs();
             if (daughterID == MCUtils::PID::ELECTRON || daughterID == MCUtils::PID::MUON ||
                 daughterID == MCUtils::PID::WPLUSBOSON || daughterID == MCUtils::PID::TAU)
+            {
               isGoodTau = false;
-            if (daughterID != MCUtils::PID::TAU)
-              tmpMomentum += mk_p4(pDaughter.p());
+            }
+            if (daughterID != MCUtils::PID::TAU) tmpMomentum += mk_p4(pDaughter.p());
           }
 
           if (isGoodTau)
@@ -476,11 +471,10 @@ namespace Gambit
       // Make a single pass over the event to gather final leptons, partons, and photons
       for (int i = 0; i < pevt.size(); ++i)
       {
-        const auto &p = pevt[i];
+        const auto& p = pevt[i];
 
         // We only use "final" partons, i.e. those with no children. So Py8 must have hadronization disabled
-        if (!p.isFinal())
-          continue;
+        if (!p.isFinal()) continue;
 
         // Only consider partons within ATLAS/CMS acceptance
         /// @todo We should leave this for the detector sim / analysis to deal with
@@ -526,21 +520,21 @@ namespace Gambit
         std::vector<FJNS::PseudoJet> pjets = sorted_by_pt(CSeqBasePtr->inclusive_jets(jet_pt_min));
 
         // Add to the event, with b-tagging info"
-        for (const FJNS::PseudoJet &pj : pjets)
+        for (const FJNS::PseudoJet& pj : pjets)
         {
           // Do jet b-tagging, etc. by looking for b quark constituents (i.e. user index = |parton ID| = 5)
           /// @note This b-tag is removed in the detector sim if outside the tracker acceptance!
           const bool isB = HEPUtils::any(pj.constituents(),
-                                         [](const FJNS::PseudoJet &c)
+                                         [](const FJNS::PseudoJet& c)
                                          { return c.user_index() == MCUtils::PID::BQUARK; });
           const bool isC = HEPUtils::any(pj.constituents(),
-                                         [](const FJNS::PseudoJet &c)
+                                         [](const FJNS::PseudoJet& c)
                                          { return c.user_index() == MCUtils::PID::CQUARK; });
           result.add_jet(new HEPUtils::Jet(HEPUtils::mk_p4(pj), isB, isC), jetcollection.key); // This does not currently deal with boson tagging
 
           bool isTau = false;
           int signedTauPID = MCUtils::PID::TAU;
-          for (auto &ptau : tauCandidates)
+          for (auto& ptau : tauCandidates)
           {
             HEPUtils::P4 jetMom = HEPUtils::mk_p4(pj);
             if (jetMom.deltaR_eta(ptau.mom()) < 0.5)
@@ -576,7 +570,9 @@ namespace Gambit
       //
       // From sum of invisibles, including those out of range
       for (const HEPUtils::Particle *p : result.invisible_particles())
+      {
         pout += p->mom();
+      }
       result.set_missingmom(pout);
     }
 

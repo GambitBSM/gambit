@@ -124,8 +124,6 @@ namespace Gambit
           _counters["SRaj_L200"] = EventCounter("SRaj_L200");
           _counters["SRaj_H"] = EventCounter("SRaj_H");
 
-
-
           set_analysis_name("ATLAS_SUSY_2016_27");
           set_luminosity(36.1);
 
@@ -242,7 +240,7 @@ namespace Gambit
 
           for (const HEPUtils::Jet* jet : jets28)
           {
-            bool hasTag=has_tag(_eff2d, jet->abseta(), jet->pT());
+            bool hasTag = has_tag(_eff2d, jet->abseta(), jet->pT());
             if(jet->btag() && hasTag) bJets28.push_back(jet);
           }
 
@@ -343,7 +341,7 @@ namespace Gambit
           if(jets25.size() > 3)
           {
             RT4 = jets25[0]->pT() + jets25[1]->pT() + jets25[2]->pT() + jets25[3]->pT();
-            double denom=0.;
+            double denom = 0.;
             for(const HEPUtils::Jet* jet : jets25)
             {
               denom += jet->pT();
@@ -442,11 +440,11 @@ namespace Gambit
             legacyCutNames[50] = "SRH: meff";
 
             #ifdef CHECK_CUTFLOW
-        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-        _cutflows[analysis_name()].fillinit(event->weight());
-#endif
+              if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+              _cutflows[analysis_name()].fillinit(event->weight());
+            #endif
 
-for(int j=0;j<NCUTS;j++)
+            for(int j = 0; j < NCUTS; j++)
             {
               if(
                 (j==0) ||
@@ -589,16 +587,15 @@ for(int j=0;j<NCUTS;j++)
                 (j==50 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400. && met > 400. && nJets25 >= 3 && dphimin_j25met > 0.4 && dphimin_amet > 0.4 && meff > 2400.)
 
               )
-#ifdef CHECK_CUTFLOW
-            _cutflows[analysis_name()].fill(j+1, true, event->weight());
-#endif
+              #ifdef CHECK_CUTFLOW
+                _cutflows[analysis_name()].fill(j+1, true, event->weight());
+              #endif
 
             }
 
           #endif // end #ifdef CHECK_CUTFLOW
-
+          
           return;
-
         }
 
 
@@ -606,7 +603,7 @@ for(int j=0;j<NCUTS;j++)
         virtual void collect_results()
         {
 
-COMMIT_CUTFLOWS;
+            COMMIT_CUTFLOWS;
 
             add_result(SignalRegionData(_counters.at("SRaa_SL"), 0., { 0.50, 0.30}));
             add_result(SignalRegionData(_counters.at("SRaa_SH"), 0., { 0.48, 0.30}));
@@ -651,7 +648,7 @@ COMMIT_CUTFLOWS;
         virtual void collect_results()
         {
 
-COMMIT_CUTFLOWS;
+          COMMIT_CUTFLOWS;
 
           add_result(SignalRegionData(_counters.at("SRaj_L"), 4., { 1.33, 0.54}));
           add_result(SignalRegionData(_counters.at("SRaj_L200"), 8., { 2.68, 0.64}));
@@ -680,7 +677,7 @@ COMMIT_CUTFLOWS;
         virtual void collect_results()
         {
 
-COMMIT_CUTFLOWS;
+          COMMIT_CUTFLOWS;
 
           add_result(SignalRegionData(_counters.at("SRaa_SL"), 0., { 0.50, 0.30}));
           add_result(SignalRegionData(_counters.at("SRaa_SH"), 0., { 0.48, 0.30}));

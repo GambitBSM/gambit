@@ -35,9 +35,10 @@ namespace Gambit
     class MT2
     {
       public:
-        MT2(){
-          MT2tauB=0;
-          aMT2_BM=0;
+        MT2()
+        {
+          MT2tauB = 0;
+          aMT2_BM = 0;
         }
 
         double MT2tauB;
@@ -66,19 +67,18 @@ namespace Gambit
           _counters["0L_SRA550"] = EventCounter("0L_SRA550");
           _counters["0L_SRB"] = EventCounter("0L_SRB");
           _counters["0L_SRC"] = EventCounter("0L_SRC");
-            // MJW removes these regions for the Feb 2018 MareNostrum scans, since the aMT2 variable is not well-described.
-            //_counters["1L_SRA600"] = EventCounter("1L_SRA600");
-            //_counters["1L_SRA750"] = EventCounter("1L_SRA750");
-            //_counters["1L_SRA300_2j"] = EventCounter("1L_SRA300_2j");
-            //_counters["1L_SRB"] = EventCounter("1L_SRB");
-
+          // MJW removes these regions for the Feb 2018 MareNostrum scans, since the aMT2 variable is not well-described.
+          // _counters["1L_SRA600"] = EventCounter("1L_SRA600");
+          // _counters["1L_SRA750"] = EventCounter("1L_SRA750");
+          // _counters["1L_SRA300_2j"] = EventCounter("1L_SRA300_2j");
+          // _counters["1L_SRB"] = EventCounter("1L_SRB");
 
           set_analysis_name("ATLAS_SUSY_2016_28");
           set_luminosity(36.1);
 
           NCUTS=70;
 
-          for(int i=0;i<NCUTS;i++)
+          for(int i = 0; i < NCUTS; i++)
           {
             legacyCutNames.push_back("");
           }
@@ -124,20 +124,20 @@ namespace Gambit
           for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++)
           {
             bool overlap = false;
-            HEPUtils::P4 lepmom=lepvec.at(itlep)->mom();
+            HEPUtils::P4 lepmom = lepvec.at(itlep)->mom();
             for(unsigned int itjet= 0; itjet < jetvec.size(); itjet++)
             {
-              HEPUtils::P4 jetmom=jetvec.at(itjet)->mom();
+              HEPUtils::P4 jetmom = jetvec.at(itjet)->mom();
               double dR;
               double DeltaRMax = std::max(0.1,std::min(0.4, 0.04 + 10 / lepmom.pT()));
-              dR=jetmom.deltaR_eta(lepmom);
+              dR = jetmom.deltaR_eta(lepmom);
 
-              if(fabs(dR) <= DeltaRMax) overlap=true;
+              if(fabs(dR) <= DeltaRMax) overlap = true;
             }
             if(overlap) continue;
             Survivors.push_back(lepvec.at(itlep));
           }
-          lepvec=Survivors;
+          lepvec = Survivors;
 
           return;
         }
@@ -152,20 +152,20 @@ namespace Gambit
           for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++)
           {
             bool overlap = false;
-            HEPUtils::P4 lepmom=lepvec.at(itlep)->mom();
-            for(unsigned int itjet= 0; itjet < jetvec.size(); itjet++)
+            HEPUtils::P4 lepmom = lepvec.at(itlep)->mom();
+            for(unsigned int itjet = 0; itjet < jetvec.size(); itjet++)
             {
-              HEPUtils::P4 jetmom=jetvec.at(itjet)->mom();
+              HEPUtils::P4 jetmom = jetvec.at(itjet)->mom();
               double dR;
               double DeltaRMax = std::min(0.4, 0.04 + 10/lepvec[itlep]->pT());
-              dR=jetmom.deltaR_eta(lepmom);
+              dR = jetmom.deltaR_eta(lepmom);
 
-              if(fabs(dR) <= DeltaRMax) overlap=true;
+              if(fabs(dR) <= DeltaRMax) overlap = true;
             }
             if(overlap) continue;
             Survivors.push_back(lepvec.at(itlep));
           }
-          lepvec=Survivors;
+          lepvec = Survivors;
 
           return;
         }
@@ -177,13 +177,13 @@ namespace Gambit
           MT2 results;
 
           bool passmu = false;
-          if(muons.size()==1)passmu=true;
+          if (muons.size() == 1) passmu = true;
 
           bool passel = false;
-          if(electrons.size()==1)passel=true;
+          if (electrons.size() == 1) passel=true;
 
           int nJet = jets.size();
-          if(nJet < 2)return results;
+          if (nJet < 2) return results;
 
           //ATLAS use the two jets with highest MV1 weights
           //DELPHES does not have a continuous b weight
@@ -197,9 +197,9 @@ namespace Gambit
           int nTrueBJets=0;
           for(const HEPUtils::Jet* tmpJet: jets)
           {
-            if(tmpJet->btag())
+            if (tmpJet->btag())
             {
-              trueBjet1=tmpJet;
+              trueBjet1 = tmpJet;
               nTrueBJets++;
               break;
             }
@@ -207,15 +207,15 @@ namespace Gambit
 
           for(const HEPUtils::Jet* tmpJet: jets)
           {
-            if(tmpJet->btag() && tmpJet!=trueBjet1)
+            if (tmpJet->btag() && tmpJet != trueBjet1)
             {
-              trueBjet2=tmpJet;
+              trueBjet2 = tmpJet;
               nTrueBJets++;
               break;
             }
           }
 
-          if(nTrueBJets<2)return results;
+          if (nTrueBJets < 2) return results;
 
 
           HEPUtils::P4 jet1B, jet2B;
@@ -225,12 +225,12 @@ namespace Gambit
 
           HEPUtils::P4 leptontmp;
           // double leptonmass = 0;
-          if(passel)
+          if (passel)
           {
             // leptonmass = 0.510998910; //MeV
             leptontmp = electrons[0]->mom();
           }
-          else if(passmu)
+          else if (passmu)
           {
             // leptonmass =  105.658367; // MeV
             leptontmp = muons[0]->mom();
@@ -275,11 +275,11 @@ namespace Gambit
 
           if (nJet > 3)
           {
-            const HEPUtils::Jet* jet3=0;
+            const HEPUtils::Jet* jet3 = 0;
             for(const HEPUtils::Jet* current: jets)
             {
-              if (current == trueBjet1)continue;
-              if (current == trueBjet2)continue;
+              if (current == trueBjet1) continue;
+              if (current == trueBjet2) continue;
               jet3 = current;
               break;
             }
@@ -301,7 +301,7 @@ namespace Gambit
             //ComputeMT2 stuff3(jet3B,lepton,MET,0.,0.);
             //double MT2tauB = stuff3.ComputeNumeric();
             double MT2tauB = mt2_event_tau.get_mt2();//calcMT2(0,jet3B.Pt(),jet3B.Eta(),jet3B.Phi(),jet3B.E(),0,lepton.Pt(),lepton.Eta(),lepton.Phi(),lepton.E(),MET.Px(),MET.Py(),0);
-            results.MT2tauB=MT2tauB;
+            results.MT2tauB = MT2tauB;
           }
           return results;
         }
@@ -320,9 +320,7 @@ namespace Gambit
           vector<const HEPUtils::Particle*> electrons;
           for (const HEPUtils::Particle* electron : event->electrons())
           {
-            if (electron->pT() > 10.
-                && fabs(electron->eta()) < 2.47)
-              electrons.push_back(electron);
+            if (electron->pT() > 10. && fabs(electron->eta()) < 2.47) electrons.push_back(electron);
           }
 
           // Apply electron efficiency
@@ -331,9 +329,7 @@ namespace Gambit
           vector<const HEPUtils::Particle*> muons;
           for (const HEPUtils::Particle* muon : event->muons())
           {
-            if (muon->pT() > 10.
-                && fabs(muon->eta()) < 2.7)
-              muons.push_back(muon);
+            if (muon->pT() > 10. && fabs(muon->eta()) < 2.7) muons.push_back(muon);
           }
 
           // Apply muon efficiency
@@ -405,28 +401,28 @@ namespace Gambit
           // Now apply signal jet cuts
           for (const HEPUtils::Jet* jet : bJets)
           {
-            if(jet->pT() > 20. && fabs(jet->eta())<2.8)
+            if (jet->pT() > 20. && fabs(jet->eta()) < 2.8)
             {
               signalJets20.push_back(jet);
-              if(fabs(jet->eta())<2.5)signalBJets20.push_back(jet);
+              if (fabs(jet->eta()) < 2.5) signalBJets20.push_back(jet);
             }
 
-            if(jet->pT() > 35. && fabs(jet->eta())<2.8)
+            if (jet->pT() > 35. && fabs(jet->eta()) < 2.8)
             {
               signalJets35.push_back(jet);
-              if(fabs(jet->eta())<2.5)signalBJets35.push_back(jet);
+              if (fabs(jet->eta()) < 2.5) signalBJets35.push_back(jet);
             }
 
           }
 
           for (const HEPUtils::Jet* jet : nonBJets)
           {
-            if(jet->pT() > 20. && fabs(jet->eta())<2.8)
+            if (jet->pT() > 20. && fabs(jet->eta()) < 2.8)
             {
               signalJets20.push_back(jet);
             }
 
-            if(jet->pT() > 35. && fabs(jet->eta())<2.8)
+            if (jet->pT() > 35. && fabs(jet->eta()) < 2.8)
             {
               signalJets35.push_back(jet);
             }
@@ -443,7 +439,7 @@ namespace Gambit
 
           for (const HEPUtils::Particle* electron : electrons)
           {
-            if(electron->pT() > 20. && fabs(electron->eta()) < 2.47)
+            if (electron->pT() > 20. && fabs(electron->eta()) < 2.47)
             {
               signalElectrons.push_back(electron);
               signalLeptons.push_back(electron);
@@ -452,7 +448,7 @@ namespace Gambit
 
           for (const HEPUtils::Particle* muon : muons)
           {
-            if(muon->pT() > 20. && fabs(muon->eta()) < 2.5)
+            if (muon->pT() > 20. && fabs(muon->eta()) < 2.5)
             {
               signalMuons.push_back(muon);
               signalLeptons.push_back(muon);
@@ -463,7 +459,7 @@ namespace Gambit
 
           for(const HEPUtils::Particle* lep : signalLeptons)
           {
-            metVecCorr+=lep->mom();
+            metVecCorr += lep->mom();
           }
 
           // double metCorr = metVecCorr.pT();
@@ -475,17 +471,17 @@ namespace Gambit
           int nJets35  = signalJets35.size();
           int nBjets35 = signalBJets35.size();
 
-          bool zeroLep = (signalLeptons.size()==0);
-          bool oneLep  = (signalLeptons.size()==1);
+          bool zeroLep = (signalLeptons.size() == 0);
+          bool oneLep  = (signalLeptons.size() == 1);
           // bool twoLep  = ((signalElectrons.size()==2 && muons.size()==0) || (signalMuons.size()==2 && electrons.size()==0)); //DF
 
           double meff2j = met;
           double meff = met;
-          double ht=0;
+          double ht = 0;
 
-          for(int jet=0;jet<nJets35;jet++)
+          for (int jet = 0; jet < nJets35; jet++)
           {
-            if(jet<2) meff2j += signalJets35[jet]->pT();
+            if (jet < 2) meff2j += signalJets35[jet]->pT();
             meff += signalJets35[jet]->pT();
             ht +=  signalJets35[jet]->pT();
           }
@@ -493,15 +489,15 @@ namespace Gambit
           double dphib1 = -99.;
           double dphib2 = -99.;
 
-          if(signalBJets35.size()>0)dphib1=signalBJets35[0]->mom().deltaPhi(metVec);
-          if(signalBJets35.size()>1)dphib2=signalBJets35[1]->mom().deltaPhi(metVec);
+          if (signalBJets35.size() > 0) dphib1 = signalBJets35[0]->mom().deltaPhi(metVec);
+          if (signalBJets35.size() > 1) dphib2 = signalBJets35[1]->mom().deltaPhi(metVec);
 
-          double dphiMin4=9999.;
+          double dphiMin4 = 9999.;
 
-          for(int j=0; j<nJets35; j++)
+          for(int j = 0; j < nJets35; j++)
           {
-            double dPhij=fabs(signalJets35[j]->mom().deltaPhi(metVec));
-            if(j<=3)dphiMin4= min(dphiMin4, dPhij);
+            double dPhij = fabs(signalJets35[j]->mom().deltaPhi(metVec));
+            if (j <= 3) dphiMin4 = min(dphiMin4, dPhij);
           }
 
           double mjj_35 = 0;
@@ -510,23 +506,23 @@ namespace Gambit
           bool  bjetsLeading = false;
 
 
-          if(nJets35>=2)
+          if (nJets35 >= 2)
           {
             mjj_35 = (signalJets35[0]->mom() + signalJets35[1]->mom()).m();   // = mbb for leading-bjets events
 
-            double jet1_ET = sqrt(signalJets35[0]->mom().pT()*signalJets35[0]->mom().pT()+signalJets35[0]->mom().m()*signalJets35[0]->mom().m());
-            double jet2_ET = sqrt(signalJets35[1]->mom().pT()*signalJets35[1]->mom().pT()+signalJets35[1]->mom().m()*signalJets35[1]->mom().m());
+            double jet1_ET = sqrt(signalJets35[0]->mom().pT() * signalJets35[0]->mom().pT() + signalJets35[0]->mom().m() * signalJets35[0]->mom().m());
+            double jet2_ET = sqrt(signalJets35[1]->mom().pT() * signalJets35[1]->mom().pT() + signalJets35[1]->mom().m() * signalJets35[1]->mom().m());
 
-            double modPTdiff_squared=(signalJets35[0]->mom().px()-signalJets35[1]->mom().px())*(signalJets35[0]->mom().px()-signalJets35[1]->mom().px())
-              +            (signalJets35[0]->mom().py()-signalJets35[1]->mom().py())*(signalJets35[0]->mom().py()-signalJets35[1]->mom().py());
+            double modPTdiff_squared = (signalJets35[0]->mom().px() - signalJets35[1]->mom().px()) * (signalJets35[0]->mom().px() - signalJets35[1]->mom().px())
+              +            (signalJets35[0]->mom().py() - signalJets35[1]->mom().py()) * (signalJets35[0]->mom().py() - signalJets35[1]->mom().py());
 
-            double mct_squared = pow(jet1_ET+jet2_ET,2)-modPTdiff_squared;
+            double mct_squared = pow(jet1_ET + jet2_ET, 2) - modPTdiff_squared;
             mCT = sqrt(mct_squared);
 
             if(oneLep)
             {
-              if(nBjets35>1) mblmin = std::min( (signalLeptons[0]->mom() + signalBJets35[0]->mom()).m(), (signalLeptons[0]->mom() + signalBJets35[1]->mom()).m());
-              else if(nBjets35>0) mblmin = (signalLeptons[0]->mom() + signalBJets35[0]->mom()).m();
+              if (nBjets35 > 1) mblmin = std::min( (signalLeptons[0]->mom() + signalBJets35[0]->mom()).m(), (signalLeptons[0]->mom() + signalBJets35[1]->mom()).m());
+              else if (nBjets35 > 0) mblmin = (signalLeptons[0]->mom() + signalBJets35[0]->mom()).m();
             }
 
             // Check if the two leading jets in signalJets35 have been b-tagged
@@ -541,18 +537,18 @@ namespace Gambit
 
           double mtmin = 9999.;
 
-          for(unsigned int jet=0;jet<signalJets35.size();jet++)
+          for(unsigned int jet = 0; jet < signalJets35.size(); jet++)
           {
             double mt_tmp = sqrt(2.*signalJets35[jet]->pT()*met*(1. - cos(signalJets35[jet]->mom().deltaPhi(metVec))));
-            if(mt_tmp<mtmin && jet<=3)mtmin=mt_tmp;
+            if (mt_tmp < mtmin && jet <= 3) mtmin = mt_tmp;
           }
 
           double mtminb = 9999.;
 
-          for(unsigned int jet=0;jet<signalBJets35.size();jet++)
+          for(unsigned int jet = 0; jet < signalBJets35.size(); jet++)
           {
             double mt_tmp = sqrt(2.*signalBJets35[jet]->pT()*met*(1. - cos(signalBJets35[jet]->mom().deltaPhi(metVec))));
-            if(mt_tmp<mtminb && jet<=1)mtminb=mt_tmp;
+            if (mt_tmp < mtminb && jet <= 1) mtminb = mt_tmp;
           }
 
 
@@ -582,22 +578,22 @@ namespace Gambit
 
           //cout << "nBjets35 " << nBjets35 << " bj2 " << bj2 << endl;
 
-          if(nBjets35==2)
+          if (nBjets35 == 2)
           {
             // mbb = (signalBJets35[0]->mom() + signalBJets35[1]->mom()).m();
-            int bj1=0;
-            int bj2=1;
-            if(oneLep)
+            int bj1 = 0;
+            int bj2 = 1;
+            if (oneLep)
             {
-              float mbl1 = (signalLeptons[0]->mom()+signalBJets35[bj1]->mom()).m();
-              float mbl2 = (signalLeptons[0]->mom()+signalBJets35[bj2]->mom()).m();
+              float mbl1 = (signalLeptons[0]->mom() + signalBJets35[bj1]->mom()).m();
+              float mbl2 = (signalLeptons[0]->mom() + signalBJets35[bj2]->mom()).m();
 
-              if(mbl1 >= 170. && mbl2 < 170.)
+              if (mbl1 >= 170. && mbl2 < 170.)
               {
                 // The ATLAS code snippet looks obviously wrong here (doesn't match the paper)
                 // Have corrected it
                 // Question: Is the first entry correct?
-                double pa_a[3] = { (signalLeptons[0]->mom()+signalBJets35[bj2]->mom()).m(), (signalLeptons[0]->mom()+signalBJets35[bj2]->mom()).px(), (signalLeptons[0]->mom()+signalJets35[bj2]->mom()).py() };
+                double pa_a[3] = { (signalLeptons[0]->mom() + signalBJets35[bj2]->mom()).m(), (signalLeptons[0]->mom() + signalBJets35[bj2]->mom()).px(), (signalLeptons[0]->mom() + signalJets35[bj2]->mom()).py() };
                 double pb_a[3] = { signalJets35[bj1]->mom().m(), signalJets35[bj1]->mom().px(), signalJets35[bj1]->mom().py() };
                 double pmiss_a[3] = { 0, metVec.px(), metVec.py() };
                 double mn_a = 0.;
@@ -618,7 +614,7 @@ namespace Gambit
                 //amt2 = calcMT2(signalLeptons[0]+myjets[bj1], myjets[bj1], metVec);
 
               }
-              else if(mbl1 < 170. && mbl2 >= 170.)
+              else if (mbl1 < 170. && mbl2 >= 170.)
               {
 
                 double pa_a[3] = { (signalLeptons[0]->mom()+signalJets35[bj1]->mom()).m(), (signalLeptons[0]->mom()+signalJets35[bj1]->mom()).px(), (signalLeptons[0]->mom()+signalJets35[bj1]->mom()).py() };
@@ -635,7 +631,7 @@ namespace Gambit
 
               }
               //amt2 = calcMT2(myjets[bj1], signalLeptons[0]+myjets[bj1], metVec);
-              else if(mbl1 < 170. && mbl2 < 170.)
+              else if (mbl1 < 170. && mbl2 < 170.)
               {
 
                 double pa_a[3] = {(signalLeptons[0]->mom()+signalJets35[bj1]->mom()).m() , (signalLeptons[0]->mom()+signalJets35[bj1]->mom()).px(), (signalLeptons[0]->mom()+signalJets35[bj1]->mom()).py() };
@@ -663,12 +659,11 @@ namespace Gambit
 
 
           // Define variables using 20 GeV jets
-
-          double ht4=0;
+          double ht4 = 0;
           double meff4j = met;
-          for(size_t jet=0;jet<signalJets20.size();jet++)
+          for (size_t jet = 0; jet < signalJets20.size(); jet++)
           {
-            if(jet<3)continue;
+            if (jet < 3) continue;
             ht4 += signalJets20[jet]->pT();
             meff4j += signalJets20[jet]->pT();
           }
@@ -685,26 +680,26 @@ namespace Gambit
 
 
           double  dphiMin1  = 0;
-          if(nJets20>0)dphiMin1 = fabs(signalJets20[0]->mom().deltaPhi(metVec));
+          if (nJets20 > 0) dphiMin1 = fabs(signalJets20[0]->mom().deltaPhi(metVec));
 
           double dphiMin2 = 9999.;
-          for(int jet=0;jet < nJets20;jet++)
+          for (int jet = 0; jet < nJets20; jet++)
           {
-            if(jet>1)continue;
+            if (jet > 1) continue;
             double dphi_tmp = fabs(signalJets20[jet]->mom().deltaPhi(metVec));
-            if(dphi_tmp < dphiMin2)dphiMin2=dphi_tmp;
+            if (dphi_tmp < dphiMin2) dphiMin2 = dphi_tmp;
           }
 
           double mjj_20 = 0.;
           double asym = 0.;
-          if(nJets20 > 1)
+          if (nJets20 > 1)
           {
             mjj_20 = (signalJets20[0]->mom() + signalJets20[1]->mom()).m();
-            asym = (signalJets20[0]->pT()-signalJets20[1]->pT()) / (signalJets20[0]->pT()+signalJets20[1]->pT());
+            asym = (signalJets20[0]->pT()-signalJets20[1]->pT()) / (signalJets20[0]->pT() + signalJets20[1]->pT());
           }
 
           double mbb_35 = 0.;
-          if(nBjets35>=2)mbb_35=(signalBJets35[0]->mom()+signalBJets35[1]->mom()).m();
+          if (nBjets35 >= 2) mbb_35 = (signalBJets35[0]->mom() + signalBJets35[1]->mom()).m();
 
           // Increment legacyCutCounts elements
           legacyCutNames[0]  = "No cuts ";
@@ -773,11 +768,11 @@ namespace Gambit
           // Apply cuts to each signal region
 
           #ifdef CHECK_CUTFLOW
-        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-        _cutflows[analysis_name()].fillinit(event->weight());
-#endif
+            if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+            _cutflows[analysis_name()].fillinit(event->weight());
+          #endif
 
-for(int j=0;j<NCUTS;j++)
+          for(int j = 0; j < NCUTS; j++)
           {
             if(
                (j==0) ||
@@ -910,10 +905,11 @@ for(int j=0;j<NCUTS;j++)
 
                (j==60 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120. && mblmin < 170. && amt2 > 200. && mbb_35 < 200. && fabs(signalBJets35[0]->mom().deltaPhi(metVec)) > 2.0 && mtminb > 200.)
 
-               ) {
-#ifdef CHECK_CUTFLOW
-            _cutflows[analysis_name()].fill(j+1, true, event->weight());
-#endif
+               )
+          {
+            #ifdef CHECK_CUTFLOW
+              _cutflows[analysis_name()].fill(j+1, true, event->weight());
+            #endif
           }
         }
 
@@ -948,7 +944,7 @@ for(int j=0;j<NCUTS;j++)
         void collect_results()
         {
 
-COMMIT_CUTFLOWS;
+          COMMIT_CUTFLOWS;
 
           // double scale_by=1.;
 

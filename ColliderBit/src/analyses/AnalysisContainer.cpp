@@ -126,7 +126,6 @@ namespace Gambit
       F(ATLAS_SUSY_2018_11)                          \
       F(ATLAS_CONF_2018_019)                         \
       F(ATLAS_SUSY_2018_21_StopZH)                   \
-      F(ATLAS_SUSY_2018_21)                          \
       F(ATLAS_SUSY_2019_18)                          \
       F(ATLAS_SUSY_2019_22)                          \
       F(ATLAS_SUSY_2013_02)                          \

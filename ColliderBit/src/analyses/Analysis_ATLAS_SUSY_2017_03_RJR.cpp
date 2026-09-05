@@ -40,8 +40,10 @@ using namespace std;
 
 */
 
-namespace Gambit {
-  namespace ColliderBit {
+namespace Gambit
+{
+  namespace ColliderBit
+  {
 
     bool sortByPT_RJ3L(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
     bool sortLepByPT_RJ3L(const HEPUtils::Particle* lep1, const HEPUtils::Particle* lep2) { return (lep1->pT() > lep2->pT());}
@@ -59,7 +61,8 @@ namespace Gambit {
     }
 
 
-    class Analysis_ATLAS_SUSY_2017_03_RJR_Lowmass : public Analysis {
+    class Analysis_ATLAS_SUSY_2017_03_RJR_Lowmass : public Analysis
+    {
 
     protected:
 
@@ -182,20 +185,23 @@ namespace Gambit {
 
       // Debug histos
 
-      void JetLeptonOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, vector<const HEPUtils::Particle*> &lepvec, double DeltaRMax) {
+      void JetLeptonOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, vector<const HEPUtils::Particle*> &lepvec, double DeltaRMax)
+      {
         //Routine to do jet-lepton check
         //Discards jets if they are within DeltaRMax of a lepton
 
         vector<const HEPUtils::Jet*> Survivors;
 
-        for(unsigned int itjet = 0; itjet < jetvec.size(); itjet++) {
+        for (unsigned int itjet = 0; itjet < jetvec.size(); itjet++)
+        {
           bool overlap = false;
           HEPUtils::P4 jetmom=jetvec.at(itjet)->mom();
-          for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++) {
+          for (unsigned int itlep = 0; itlep < lepvec.size(); itlep++)
+          {
             HEPUtils::P4 lepmom=lepvec.at(itlep)->mom();
             double dR;
 
-            dR=jetmom.deltaR_eta(lepmom);
+            dR = jetmom.deltaR_eta(lepmom);
 
             if(fabs(dR) <= DeltaRMax) overlap=true;
           }
@@ -207,27 +213,30 @@ namespace Gambit {
         return;
       }
 
-      void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, vector<const HEPUtils::Jet*> &jetvec, double DeltaRMax) {
+      void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, vector<const HEPUtils::Jet*> &jetvec, double DeltaRMax)
+      {
         //Routine to do lepton-jet check
         //Discards leptons if they are within DeltaRMax of a jet
 
         vector<const HEPUtils::Particle*> Survivors;
 
-        for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++) {
+        for (unsigned int itlep = 0; itlep < lepvec.size(); itlep++)
+        {
           bool overlap = false;
-          HEPUtils::P4 lepmom=lepvec.at(itlep)->mom();
-          for(unsigned int itjet= 0; itjet < jetvec.size(); itjet++) {
-            HEPUtils::P4 jetmom=jetvec.at(itjet)->mom();
+          HEPUtils::P4 lepmom = lepvec.at(itlep)->mom();
+          for (unsigned int itjet = 0; itjet < jetvec.size(); itjet++)
+          {
+            HEPUtils::P4 jetmom = jetvec.at(itjet)->mom();
             double dR;
 
-            dR=jetmom.deltaR_eta(lepmom);
+            dR = jetmom.deltaR_eta(lepmom);
 
             if(fabs(dR) <= DeltaRMax) overlap=true;
           }
           if(overlap) continue;
           Survivors.push_back(lepvec.at(itlep));
         }
-        lepvec=Survivors;
+        lepvec = Survivors;
 
         return;
       }
@@ -587,7 +596,8 @@ namespace Gambit {
       }
 
 
-      void run(const HEPUtils::Event* event) {
+      void run(const HEPUtils::Event* event)
+      {
 
         // Clear
         LAB_2L2J->ClearEvent();
@@ -604,14 +614,16 @@ namespace Gambit {
         // Baseline lepton objects
         vector<const HEPUtils::Particle*> baselineElectrons, baselineMuons, baselineTaus;
 
-        for (const HEPUtils::Particle* electron : event->electrons()) {
+        for (const HEPUtils::Particle* electron : event->electrons())
+        {
           if (electron->pT() > 10. && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
         }
 
         // Apply electron efficiency
         applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
-        for (const HEPUtils::Particle* muon : event->muons()) {
+        for (const HEPUtils::Particle* muon : event->muons())
+        {
           if (muon->pT() > 10. && muon->abseta() < 2.4) baselineMuons.push_back(muon);
         }
 
@@ -620,7 +632,8 @@ namespace Gambit {
 
         // Photons
         vector<const HEPUtils::Particle*> signalPhotons;
-        for (const HEPUtils::Particle* photon : event->photons()) {
+        for (const HEPUtils::Particle* photon : event->photons())
+        {
           signalPhotons.push_back(photon);
         }
 
@@ -642,10 +655,13 @@ namespace Gambit {
         const std::vector<double>  b = {0,10000.};
         const std::vector<double> c = {0.77}; // set b-tag efficiency to 77%
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
-        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
+        {
           bool hasTag=has_tag(_eff2d, jet->abseta(), jet->pT());
-          if (jet->pT() > 20. && fabs(jet->eta()) < 2.4) {
-            if(jet->btag() && hasTag){
+          if (jet->pT() > 20. && fabs(jet->eta()) < 2.4)
+          {
+            if(jet->btag() && hasTag)
+            {
               bJets.push_back(jet);
             } else {
               nonBJets.push_back(jet);
@@ -663,10 +679,12 @@ namespace Gambit {
         // Fill a jet-pointer-to-bool map to make it easy to check
         // if a given jet is treated as a b-jet in this analysis
         map<const HEPUtils::Jet*,bool> analysisBtags;
-        for (const HEPUtils::Jet* jet : bJets) {
+        for (const HEPUtils::Jet* jet : bJets)
+        {
           analysisBtags[jet] = true;
         }
-        for (const HEPUtils::Jet* jet : nonBJets) {
+        for (const HEPUtils::Jet* jet : nonBJets)
+        {
           analysisBtags[jet] = false;
         }
 
@@ -681,13 +699,15 @@ namespace Gambit {
         vector<const HEPUtils::Jet*> signalBJets;
         vector<const HEPUtils::Jet*> signalNonBJets;
 
-        for (const HEPUtils::Jet* jet : bJets) {
+        for (const HEPUtils::Jet* jet : bJets)
+        {
           // pT > 20 and |eta| < 2.4 already required for jets in bJets
           signalJets.push_back(jet);
           signalBJets.push_back(jet);
         }
 
-        for (const HEPUtils::Jet* jet : nonBJets) {
+        for (const HEPUtils::Jet* jet : nonBJets)
+        {
           // pT > 20 and |eta| < 2.4 already required for jets in nonBJets
           signalJets.push_back(jet);
           signalNonBJets.push_back(jet);
@@ -698,12 +718,14 @@ namespace Gambit {
         std::sort(signalBJets.begin(), signalBJets.end(), sortByPT_RJ3L);
         std::sort(signalNonBJets.begin(), signalNonBJets.end(), sortByPT_RJ3L);
 
-        for (const HEPUtils::Particle* electron : baselineElectrons) {
+        for (const HEPUtils::Particle* electron : baselineElectrons)
+        {
           signalElectrons.push_back(electron);
           signalLeptons.push_back(electron);
         }
 
-        for (const HEPUtils::Particle* muon : baselineMuons) {
+        for (const HEPUtils::Particle* muon : baselineMuons)
+        {
           signalMuons.push_back(muon);
           signalLeptons.push_back(muon);
         }
@@ -1023,8 +1045,7 @@ namespace Gambit {
         //if(signalLeptons.size()==2)std::cout << "m_nJets " << m_nJets << " signalLeptons.size() " << signalLeptons.size() << " pt1 " << signalLeptons[0]->pT() << " pt2 " << signalLeptons[1]->pT() <<  std::endl;
 
         if (signalLeptons.size()==2) m_is2Lep = true;
-        else if (signalLeptons.size()==3) {m_is3Lep = true; //cout << "3L here" << endl;
-        }
+        else if (signalLeptons.size()==3) {m_is3Lep = true;} //cout << "3L here" << endl;
         // else if (signalLeptons.size()==4) m_is4Lep = true;
         //else return;
 
@@ -1223,7 +1244,8 @@ namespace Gambit {
 
 
           //cout << L1_2L2J->GetFourVector(*LAB_2L2J).Pt() << endl;
-          if (L1_2L2J->GetFourVector(*LAB_2L2J).Pt() > L2_2L2J->GetFourVector(*LAB_2L2J).Pt()){
+          if (L1_2L2J->GetFourVector(*LAB_2L2J).Pt() > L2_2L2J->GetFourVector(*LAB_2L2J).Pt())
+          {
             // m_Zlep1Pt = L1_2L2J->GetFourVector(*LAB_2L2J).Pt();
             // m_Zlep1sign = myLeptons[0].second;
             // m_Zlep1No = 0;
@@ -1233,7 +1255,8 @@ namespace Gambit {
             lep1 = L1_2L2J->GetFourVector(*LAB_2L2J);
             lep2 = L2_2L2J->GetFourVector(*LAB_2L2J);
           }
-          else {
+          else
+          {
             // m_Zlep1Pt = L2_2L2J->GetFourVector(*LAB_2L2J).Pt();
             // m_Zlep1sign = myLeptons[1].second;
             // m_Zlep1No = 1;
@@ -1370,7 +1393,8 @@ namespace Gambit {
           // m_dangle =(m_cosPa-(m_dphiVP-acos(-1.)/2.)/(acos(-1.)/2.))/2.;
         }//end is 2L2J event
 
-        if(m_is3Lep){
+        if(m_is3Lep)
+        {
 
           // bool m_pass3L_presel;
 
@@ -1400,14 +1424,14 @@ namespace Gambit {
             for(unsigned int j=i+1; j<myLeptons.size(); j++)
             {
               //Opposite-Sign
-              if(myLeptons[i].second*myLeptons[j].second<0)
+              if (myLeptons[i].second*myLeptons[j].second<0)
               {
                 //Same-Flavor
-                if(abs(myLeptons[i].second)==abs(myLeptons[j].second))
+                if (abs(myLeptons[i].second)==abs(myLeptons[j].second))
                 {
                   double mass = (myLeptons[i].first+myLeptons[j].first).M();
                   double massdiff = fabs(mass-91.1876);
-                  if(massdiff<diff)
+                  if (massdiff<diff)
                   {
                     diff=massdiff;
                     Zmass=mass;
@@ -1420,14 +1444,17 @@ namespace Gambit {
             }
           }
 
-          if(!foundSFOS) {
+          if (!foundSFOS)
+          {
             m_foundSFOS=false;
           }
-          else {
+          else
+          {
             m_foundSFOS=true;
           }
 
-          if(m_foundSFOS){
+          if (m_foundSFOS)
+          {
 
             int Wlep1 = -999;
             if( (Zlep1==0 && Zlep2==1) || (Zlep1==1 && Zlep2==0) ) Wlep1=2;
@@ -1478,11 +1505,13 @@ namespace Gambit {
             TLorentzVector l3 = L1a_3L->GetFourVector(*LAB_3L);
 
             //if(DEBUG) cout << "WlepPt: " << m_WlepPt << " Wlepsign: " << m_Wlepsign << endl;
-            if (L1b_3L->GetFourVector(*LAB_3L).Pt() > L2b_3L->GetFourVector(*LAB_3L).Pt()){
+            if (L1b_3L->GetFourVector(*LAB_3L).Pt() > L2b_3L->GetFourVector(*LAB_3L).Pt())
+            {
               l1 = L1b_3L->GetFourVector(*LAB_3L);
               l2 = L2b_3L->GetFourVector(*LAB_3L);
             }
-            else {
+            else
+            {
               l2 = L1b_3L->GetFourVector(*LAB_3L);
               l1 = L2b_3L->GetFourVector(*LAB_3L);
             }
@@ -1579,18 +1608,17 @@ namespace Gambit {
           } // end of if(m_foundSFOS)
         } // end of m_is3Lep
 
-        if(m_is3LInt || m_is2L2JInt) {
+        if (m_is3LInt || m_is2L2JInt)
+        {
 
           //min{d#phi}
           double mindphi=100000;
           double dphi=0;
           TLorentzVector tempjet;
-          for(unsigned int ijet=0; ijet<signalJets.size();ijet++)
+          for(unsigned int ijet=0; ijet<signalJets.size(); ijet++)
           {
             tempjet.SetPtEtaPhiM(signalJets[ijet]->pT(),signalJets[ijet]->eta(),signalJets[ijet]->phi(),signalJets[ijet]->mass());
-
             dphi = fabs(metLV.DeltaPhi(tempjet));
-
             if(dphi<mindphi) mindphi=dphi;
           }
 
@@ -1600,21 +1628,23 @@ namespace Gambit {
 
 
           vector<RestFrames::RFKey> jetID;
-          for(int i = 0; i < int(myJets.size()); i++){
+          for (int i = 0; i < int(myJets.size()); i++)
+          {
 
-                  TLorentzVector jet = myJets[i];
+            TLorentzVector jet = myJets[i];
 
-                  // transverse view of jet 4-vectors
-                  jet.SetPtEtaPhiM(jet.Pt(),0.0,jet.Phi(),jet.M());
-                  jetID.push_back(JETS_comb->AddLabFrameFourVector(jet));
+            // transverse view of jet 4-vectors
+            jet.SetPtEtaPhiM(jet.Pt(),0.0,jet.Phi(),jet.M());
+            jetID.push_back(JETS_comb->AddLabFrameFourVector(jet));
           }
 
           TLorentzVector lepSys(0.,0.,0.,0.);
-          for(int i = 0; i < int(myLeptons.size()); i++){
-                  TLorentzVector lep1;
-                  // transverse view of mu 4-vectors
-                  lep1.SetPtEtaPhiM(myLeptons[i].first.Pt(),0.0,myLeptons[i].first.Phi(),myLeptons[i].first.M());
-                  lepSys = lepSys + lep1;
+          for (int i = 0; i < int(myLeptons.size()); i++)
+          {
+            TLorentzVector lep1;
+            // transverse view of mu 4-vectors
+            lep1.SetPtEtaPhiM(myLeptons[i].first.Pt(),0.0,myLeptons[i].first.Phi(),myLeptons[i].first.M());
+            lepSys = lepSys + lep1;
           }
           L_comb->SetLabFrameFourVector(lepSys);
 
@@ -1628,26 +1658,35 @@ namespace Gambit {
             return;
           }
 
-          for(int i = 0; i < int(signalJets.size()); i++){
-            if(JETS_comb->GetFrame(jetID[i]) == *J_comb){
+          for (int i = 0; i < int(signalJets.size()); i++)
+          {
+            if (JETS_comb->GetFrame(jetID[i]) == *J_comb)
+            {
               m_NjS++;
               // if( analysisBtags.at(signalJets[i]) ) m_NbS++;
-            } else {
+            }
+            else
+            {
               m_NjISR++;
               // if( analysisBtags.at(signalJets[i]) ) m_NbISR++;
             }
           }
 
           // 2LNJ analysis
-          if(m_is2L2JInt){
+          if (m_is2L2JInt)
+          {
 
             // put jets in their place
             int NJ = jetID.size();
             TLorentzVector vISR(0.,0.,0.,0.);
-            for(int i = 0; i < NJ; i++){
-              if(JETS_comb->GetFrame(jetID[i]) == *J_comb){
+            for (int i = 0; i < NJ; i++)
+            {
+              if (JETS_comb->GetFrame(jetID[i]) == *J_comb)
+              {
                 JETS_2LNJ->AddLabFrameFourVector(myJets[i]);
-              } else {
+              }
+              else
+              {
                 vISR += myJets[i];
               }
             }
@@ -1660,7 +1699,7 @@ namespace Gambit {
 
             INV_2LNJ->SetLabFrameThreeVector(ETMiss);
 
-            if(!LAB_2LNJ->AnalyzeEvent())
+            if (!LAB_2LNJ->AnalyzeEvent())
             {
               str errmsg;
               errmsg  = "Some problem occurred when calling LAB_2LNJ->AnalyzeEvent() from the Analysis_ATLAS_SUSY_2017_03_RJR_Lowmass analysis class.\n";
@@ -1671,13 +1710,15 @@ namespace Gambit {
           }
 
           // 2L1L analysis
-          if(m_is3LInt){
+          if (m_is3LInt)
+          {
 
             // put jets in their place
             int NJ = jetID.size();
             TLorentzVector vISR(0.,0.,0.,0.);
-            for(int i = 0; i < NJ; i++){
-              if(JETS_comb->GetFrame(jetID[i]) != *J_comb) vISR += myJets[i];
+            for (int i = 0; i < NJ; i++)
+            {
+              if (JETS_comb->GetFrame(jetID[i]) != *J_comb) vISR += myJets[i];
             }
 
             ISR_2L1L->SetLabFrameFourVector(vISR);
@@ -1686,11 +1727,14 @@ namespace Gambit {
             // find min mass OS pair
             pair<int,int> iSFOS;
             double        mSFOS = -1.;
-            for(int i = 0; i < 2; i++){
-              for(int j = i+1; j < 3; j++){
-                if((signbit(myLeptons[i].second) && !signbit(myLeptons[j].second)) || (!signbit(myLeptons[i].second) && signbit(myLeptons[j].second))){
-                  if(mSFOS < 0. ||
-                  (myLeptons[i].first+myLeptons[j].first).M() < mSFOS){
+            for (int i = 0; i < 2; i++)
+            {
+              for (int j = i+1; j < 3; j++)
+              {
+                if ((signbit(myLeptons[i].second) && !signbit(myLeptons[j].second)) || (!signbit(myLeptons[i].second) && signbit(myLeptons[j].second)))
+                {
+                  if (mSFOS < 0. || (myLeptons[i].first+myLeptons[j].first).M() < mSFOS)
+                  {
                     mSFOS = (myLeptons[i].first+myLeptons[j].first).M();
                     iSFOS.first  = i;
                     iSFOS.second = j;
@@ -1699,12 +1743,12 @@ namespace Gambit {
               }
             }
 
-            for(int i = 0; i < 3; i++){
-              if(i == iSFOS.first)
-                L1_2L1L->SetLabFrameFourVector(myLeptons[i].first);
-              if(i == iSFOS.second)
-                L2_2L1L->SetLabFrameFourVector(myLeptons[i].first);
-              if(i != iSFOS.first && i != iSFOS.second) {
+            for (int i = 0; i < 3; i++)
+            {
+              if (i == iSFOS.first) L1_2L1L->SetLabFrameFourVector(myLeptons[i].first);
+              if (i == iSFOS.second) L2_2L1L->SetLabFrameFourVector(myLeptons[i].first);
+              if (i != iSFOS.first && i != iSFOS.second)
+              {
                 Lb_2L1L->SetLabFrameFourVector(myLeptons[i].first);
                 //calculate the mTWComp with the remaining lepton
                 TLorentzVector themetLV;
@@ -1730,8 +1774,8 @@ namespace Gambit {
           TLorentzVector vP_ISR;
           TLorentzVector vP_I;
 
-          if(m_is2L2JInt){
-
+          if (m_is2L2JInt)
+          {
             vP_CM  = CM_2LNJ->GetFourVector();
             vP_ISR = ISR_2LNJ->GetFourVector();
             vP_I   = (*Ia_2LNJ+*Ib_2LNJ).GetFourVector();
@@ -1768,8 +1812,8 @@ namespace Gambit {
             // m_dphiJMET = fabs(J_2LNJ->GetFourVector(*LAB_2LNJ).DeltaPhi(metLV));
           }
 
-          if(m_is3LInt){
-
+          if (m_is3LInt)
+          {
             vP_CM  = CM_2L1L->GetFourVector();
             vP_ISR = ISR_2L1L->GetFourVector();
             vP_I   = (*Ia_2L1L+*Ib_2L1L).GetFourVector();
@@ -1901,9 +1945,10 @@ namespace Gambit {
         }
         _cutflows[analysis_name()].fillinit(event->weight());
 
-        for (size_t j = 0; j < cutflow_labels.size(); ++j){
+        for (size_t j = 0; j < cutflow_labels.size(); ++j)
+        {
 
-          if( (j==0) ||
+          if ( (j==0) ||
 
           (j==1 && m_is3Lep && (((m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign)) || (m_lept1sign*m_lept3sign<0 && abs(m_lept1sign)==abs(m_lept3sign)) || (m_lept2sign*m_lept3sign<0 && abs(m_lept2sign)==abs(m_lept3sign)))) && m_lept1Pt>60. && m_lept2Pt>40. && m_lept3Pt>30. && signalBJets.size()==0 && signalJets.size()==0) ||
 
@@ -2107,7 +2152,8 @@ namespace Gambit {
       } // end analyze method
 
 
-      virtual void collect_results() {
+      virtual void collect_results()
+      {
         add_result(SignalRegionData(_counters.at("2L2JHIGH"), 0,  {1.9, 0.8}));
         add_result(SignalRegionData(_counters.at("2L2JINT"),  1,  {2.4, 0.9}));
         add_result(SignalRegionData(_counters.at("2L2JLOW"),  19, {8.4, 5.8}));
@@ -2116,13 +2162,14 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("3LINT"),    1,  {2.3, 0.5}));
         add_result(SignalRegionData(_counters.at("3LLOW"),    20, {10., 2.0}));
         add_result(SignalRegionData(_counters.at("3LCOMP"),   12, {3.9, 1.0}));
-COMMIT_CUTFLOWS
+        COMMIT_CUTFLOWS
         return;
       }
 
 
     protected:
-      void analysis_specific_reset() {
+      void analysis_specific_reset()
+      {
 
         for (auto& pair : _counters) { pair.second.reset(); }
       }
@@ -2135,34 +2182,42 @@ COMMIT_CUTFLOWS
     //
     // Derived analysis class for the RJ3L_lowmass SRs
     //
-    class Analysis_ATLAS_SUSY_2017_03_RJR_2L2J : public Analysis_ATLAS_SUSY_2017_03_RJR_Lowmass {
+    class Analysis_ATLAS_SUSY_2017_03_RJR_2L2J : public Analysis_ATLAS_SUSY_2017_03_RJR_Lowmass
+    {
     public:
-      Analysis_ATLAS_SUSY_2017_03_RJR_2L2J() {
+      Analysis_ATLAS_SUSY_2017_03_RJR_2L2J()
+      {
         set_analysis_name("ATLAS_SUSY_2017_03_RJR_2L2J");
       }
-      virtual void collect_results() {
+
+      virtual void collect_results()
+      {
         add_result(SignalRegionData(_counters.at("2L2JHIGH"), 0,  {1.9, 0.8}));
         add_result(SignalRegionData(_counters.at("2L2JINT"),  1,  {2.4, 0.9}));
         add_result(SignalRegionData(_counters.at("2L2JLOW"),  19, {8.4, 5.8}));
         add_result(SignalRegionData(_counters.at("2L2JCOMP"), 11, {2.7, 2.7}));
-COMMIT_CUTFLOWS
+        COMMIT_CUTFLOWS
       }
 
     };
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(ATLAS_SUSY_2017_03_RJR_2L2J)
 
-    class Analysis_ATLAS_SUSY_2017_03_RJR_3L : public Analysis_ATLAS_SUSY_2017_03_RJR_Lowmass {
+    class Analysis_ATLAS_SUSY_2017_03_RJR_3L : public Analysis_ATLAS_SUSY_2017_03_RJR_Lowmass
+    {
     public:
-      Analysis_ATLAS_SUSY_2017_03_RJR_3L() {
+      Analysis_ATLAS_SUSY_2017_03_RJR_3L()
+      {
         set_analysis_name("ATLAS_SUSY_2017_03_RJR_3L");
       }
-      virtual void collect_results() {
+
+      virtual void collect_results()
+      {
         add_result(SignalRegionData(_counters.at("3LHIGH"),   2,  {1.1, 0.5}));
         add_result(SignalRegionData(_counters.at("3LINT"),    1,  {2.3, 0.5}));
         add_result(SignalRegionData(_counters.at("3LLOW"),    20, {10., 2.0}));
         add_result(SignalRegionData(_counters.at("3LCOMP"),   12, {3.9, 1.0}));
-COMMIT_CUTFLOWS
+        COMMIT_CUTFLOWS
       }
 
     };

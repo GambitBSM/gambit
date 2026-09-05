@@ -53,9 +53,9 @@ namespace Gambit
       // };
 
     public:
-#ifdef CHECK_CUTFLOW
-      int Nents = 0;
-#endif
+      #ifdef CHECK_CUTFLOW
+        int Nents = 0;
+      #endif
 
       // Required detector sim
       static constexpr const char *detector = "ATLAS";
@@ -79,10 +79,10 @@ namespace Gambit
         set_analysis_name("ATLAS_EXOT_2019_07");
         set_luminosity(140.);
 
-#ifdef CHECK_CUTFLOW
-        _cutflows.addCutflow("Signal Region", {"Initial signal event", "Large-R jet pT and eta cuts", "Lepton veto", "Leading large-R jet mass in (100, 225) GeV",
-                                               "Second-leading large-R jet mass in (100, 225) GeV", "SR tagging requirements", "m_Ht > 1 TeV"});
-#endif
+        #ifdef CHECK_CUTFLOW
+          _cutflows.addCutflow("Signal Region", {"Initial signal event", "Large-R jet pT and eta cuts", "Lepton veto", "Leading large-R jet mass in (100, 225) GeV",
+                                                 "Second-leading large-R jet mass in (100, 225) GeV", "SR tagging requirements", "m_Ht > 1 TeV"});
+        #endif
 
         // Legacy cutflow definitions for the binned mJJ reconstruction.
         // _cutflows.addCutflow( "SR_binAll", {"JetpTEta", "0LEP", "massJ1", "massJ2", "htTagging", "massHt",});
@@ -135,11 +135,11 @@ namespace Gambit
 
       void run(const HEPUtils::Event *event)
       {
-#ifdef CHECK_CUTFLOW
-        _cutflows["Signal Region"].fillinit(event->weight());
-        _cutflows["Signal Region"].fill(1, true, event->weight());
-        Nents += 1;
-#endif
+        #ifdef CHECK_CUTFLOW
+          _cutflows["Signal Region"].fillinit(event->weight());
+          _cutflows["Signal Region"].fill(1, true, event->weight());
+          Nents += 1;
+        #endif
 
         // Baseline objects
         vector<const HEPUtils::Particle *> Electrons;
@@ -284,11 +284,11 @@ namespace Gambit
           FILL_HISTOGRAM_1D("m_JJ", mHt)
         }
 
-#ifdef CHECK_CUTFLOW
-        _cutflows["Signal Region"].fillnext({pass_JetpTEta, pass_JetpTEta_0LEP, pass_JetpTEta_0LEP_massJ1, pass_JetpTEta_0LEP_massJ1_massJ2,
-                                             pass_JetpTEta_0LEP_massJ1_massJ2_htTagging, pass_JetpTEta_0LEP_massJ1_massJ2_htTagging_massht},
-                                            event->weight());
-#endif
+        #ifdef CHECK_CUTFLOW
+          _cutflows["Signal Region"].fillnext({pass_JetpTEta, pass_JetpTEta_0LEP, pass_JetpTEta_0LEP_massJ1, pass_JetpTEta_0LEP_massJ1_massJ2,
+                                               pass_JetpTEta_0LEP_massJ1_massJ2_htTagging, pass_JetpTEta_0LEP_massJ1_massJ2_htTagging_massht},
+                                               event->weight());
+        #endif
 
         return;
 

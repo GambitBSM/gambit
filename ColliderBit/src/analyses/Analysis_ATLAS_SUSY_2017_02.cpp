@@ -437,11 +437,11 @@ namespace Gambit {
 
           // Apply cutflow
           #ifdef CHECK_CUTFLOW
-        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-        _cutflows[analysis_name()].fillinit(event->weight());
-#endif
+            if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+            _cutflows[analysis_name()].fillinit(event->weight());
+          #endif
 
-for(size_t j=0;j<NCUTS;j++){
+          for(size_t j=0;j<NCUTS;j++){
             if(
               (j==0) ||
 
@@ -462,9 +462,9 @@ for(size_t j=0;j<NCUTS;j++){
               (j==8 && nbJets > 3 && higgs && nLeptons == 0 && notop && Xhh < 1.6 && meff > 440. && met > 150.)
 
               ) 
-#ifdef CHECK_CUTFLOW
-            _cutflows[analysis_name()].fill(j+1, true, event->weight());
-#endif
+            #ifdef CHECK_CUTFLOW
+              _cutflows[analysis_name()].fill(j+1, true, event->weight());
+            #endif
           }
 
         #endif
@@ -536,7 +536,7 @@ for(size_t j=0;j<NCUTS;j++){
 
       virtual void collect_results() {
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
 
         // Now fill a results object with the results for each SR
         // Only exclusion regions here
@@ -627,7 +627,7 @@ COMMIT_CUTFLOWS;
 
       virtual void collect_results() {
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
         add_result(SignalRegionData(_counters.at("low-SR-MET0meff440"), 1063., {1100., 25.}));
         add_result(SignalRegionData(_counters.at("low-SR-MET150meff440"), 17., {12., 8.}));
       }
