@@ -21,6 +21,9 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date   2018 Feb
 ///
+///  \author Chris Chang
+///  \date   2026 Jun
+///
 ///  *********************************************
 
 #include <cmath>
@@ -86,7 +89,8 @@ namespace Gambit
 
 
     /// LEP limit likelihood function
-    double limit_LLike(double x, double x95, double sigma) {
+    double limit_LLike(double x, double x95, double sigma)
+    {
       /**
          @brief Incorporate theoretical uncertainty in a 95% limit
          @param x Predicted cross section
@@ -144,2584 +148,832 @@ namespace Gambit
     }
 
 
+    // *** Limits from e+e- colliders ***
 
-    /// ee --> selectron pair production cross-sections at 208 GeV
+
+    // The LEP slepton and gaugino likelihoods are all computed by the single
+    // module function calc_LEP_LogLikes (further below), which returns a map of
+    // the individual per-analysis log-likelihoods. The cross sections needed by
+    // the likelihoods are computed on the fly via the helpers below, rather than
+    // being provided as separate capabilities.
+
+
+    /// @name Thin wrappers around the LEP cross-section helpers in lep_mssm_xsecs.hpp.
+    /// Each returns the cross section (with theory uncertainty) and raises an
+    /// error if the result is non-physical.
     /// @{
-    void LEP208_SLHA1_convention_xsec_selselbar(triplet<double>& result)
+    triplet<double> LEP_xsec_ll(double sqrts, int generation, int l_chirality, int lbar_chirality,
+                                double gtol, double ftol, bool gpt_error, bool fpt_error,
+                                const Spectrum& spec, double gammaZ, bool l_are_gauge_es)
     {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_selselbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 1, 1, 1, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
+      triplet<double> result;
+      get_sigma_ee_ll(result, sqrts, generation, l_chirality, lbar_chirality,
+                      gtol, ftol, gpt_error, fpt_error, spec, gammaZ, l_are_gauge_es);
       if (!is_xsec_sane(result))
         ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_selserbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_selserbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 1, 1, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_serserbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_serserbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 1, 2, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_serselbar(triplet<double>& result)
-    {
-      result = *Pipes::LEP208_SLHA1_convention_xsec_serselbar::Dep::LEP208_xsec_selserbar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_se1se1bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_se1se1bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 1, 1, 1, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_se1se2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_se1se2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 1, 1, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_se2se2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_se2se2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 1, 2, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_se2se1bar(triplet<double>& result)
-    {
-      result = *Pipes::LEP208_SLHA1_convention_xsec_se2se1bar::Dep::LEP208_xsec_se1se2bar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    /// @}
-
-    /// ee --> smuon pair production cross-sections at 208 GeV
-    /// @{
-    void LEP208_SLHA1_convention_xsec_smulsmulbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_smulsmulbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 2, 1, 1, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_smulsmurbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_smulsmurbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 2, 1, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_smursmurbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_smursmurbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 2, 2, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_smursmulbar(triplet<double>& result)
-    {
-      result = *Pipes::LEP208_SLHA1_convention_xsec_smursmulbar::Dep::LEP208_xsec_smulsmurbar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_smu1smu1bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_smu1smu1bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 2, 1, 1, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_smu1smu2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_smu1smu2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 2, 1, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_smu2smu2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_smu2smu2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 2, 2, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_smu2smu1bar(triplet<double>& result)
-    {
-      result = *Pipes::LEP208_SLHA1_convention_xsec_smu2smu1bar::Dep::LEP208_xsec_smu1smu2bar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    /// @}
-
-    /// ee --> stau pair production cross-sections at 208 GeV
-    /// @{
-    void LEP208_SLHA1_convention_xsec_staulstaulbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_staulstaulbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 3, 1, 1, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_staulstaurbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_staulstaurbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 3, 1, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_staurstaurbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_staurstaurbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 3, 2, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_staurstaulbar(triplet<double>& result)
-    {
-      result = *Pipes::LEP208_SLHA1_convention_xsec_staurstaulbar::Dep::LEP208_xsec_staulstaurbar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_stau1stau1bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_stau1stau1bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 3, 1, 1, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_stau1stau2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_stau1stau2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 3, 1, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_stau2stau2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_stau2stau2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 208.0, 3, 2, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_stau2stau1bar(triplet<double>& result)
-    {
-      result = *Pipes::LEP208_SLHA1_convention_xsec_stau2stau1bar::Dep::LEP208_xsec_stau1stau2bar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    /// @}
-
-    // @brief \f[ee \to \chi_1\chi_1\f] pair production cross-section at 207 GeV
-    void LEP207_SLHA1_convention_xsec_chi00_11(triplet<double>& result) {
-      using namespace Pipes::LEP207_SLHA1_convention_xsec_chi00_11;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 207.0, 1, 1, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result)) {
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-      }
+      return result;
     }
 
-    /// ee --> neutralino pair production cross-sections at 208 GeV
-    /// @{
-    void LEP208_SLHA1_convention_xsec_chi00_11(triplet<double>& result)
+    triplet<double> LEP_xsec_chi00(double sqrts, int chi_first, int chi_second,
+                                   double tol, bool pt_error, const Spectrum& spec, double gammaZ)
     {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_chi00_11;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 208.0, 1, 1, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
+      triplet<double> result;
+      get_sigma_ee_chi00(result, sqrts, chi_first, chi_second, tol, pt_error, spec, gammaZ);
       if (!is_xsec_sane(result))
         ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
+      return result;
     }
-    void LEP208_SLHA1_convention_xsec_chi00_12(triplet<double>& result)
+
+    triplet<double> LEP_xsec_chipm(double sqrts, int chi_plus, int chi_minus,
+                                   double tol, bool pt_error, const Spectrum& spec, double gammaZ)
     {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_chi00_12;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 208.0, 1, 2, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
+      triplet<double> result;
+      get_sigma_ee_chipm(result, sqrts, chi_plus, chi_minus, tol, pt_error, spec, gammaZ);
       if (!is_xsec_sane(result))
         ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_chi00_13(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_chi00_13;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 208.0, 1, 3, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_chi00_14(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_chi00_14;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 208.0, 1, 4, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_chi00_22(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_chi00_22;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 208.0, 2, 2, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_chi00_23(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_chi00_23;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 208.0, 2, 3, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_chi00_24(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_chi00_24;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 208.0, 2, 4, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_chi00_33(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_chi00_33;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 208.0, 3, 3, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_chi00_34(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_chi00_34;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 208.0, 3, 4, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_chi00_44(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_chi00_44;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 208.0, 4, 4, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
+      return result;
     }
     /// @}
 
 
-    /// ee --> chargino pair production cross-sections at 208 GeV
+    /// @name Per-analysis LEP log-likelihood helpers.
+    /// These are plain (non-module) functions, each computing the conservative
+    /// log-likelihood for one LEP analysis. They are dispatched from
+    /// calc_LEP_LogLikes. The cross sections are computed internally using the
+    /// LEP_xsec_* wrappers above.
     /// @{
-    void LEP208_SLHA1_convention_xsec_chipm_11(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_chipm_11;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chipm(result, 208.0, 1, 1, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_chipm_12(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_chipm_12;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chipm(result, 208.0, 1, 2, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_chipm_22(triplet<double>& result)
-    {
-      using namespace Pipes::LEP208_SLHA1_convention_xsec_chipm_22;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chipm(result, 208.0, 2, 2, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP208_SLHA1_convention_xsec_chipm_21(triplet<double>& result)
-    {
-      result = *Pipes::LEP208_SLHA1_convention_xsec_chipm_21::Dep::LEP208_xsec_chipm_12;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    /// @}
 
-
-    /// ee --> selectron pair production cross-sections at 205 GeV
-    /// @{
-    void LEP205_SLHA1_convention_xsec_selselbar(triplet<double>& result)
+    /// Selectron/smuon pair production (two same-chirality processes).
+    double LEP_slepton_pair_LLike(const Spectrum& spec, double gammaZ, double sqrts,
+                                  const BaseLimitContainer& limitContainer, int generation,
+                                  const str& gauge_es_L, const str& gauge_es_R,
+                                  const DecayTable::Entry& decays_L, const DecayTable::Entry& decays_R,
+                                  const str& lepton, double tol, bool pt_error)
     {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_selselbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 1, 1, 1, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_selserbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_selserbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 1, 1, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_serserbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_serserbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 1, 2, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_serselbar(triplet<double>& result)
-    {
-      result = *Pipes::LEP205_SLHA1_convention_xsec_serselbar::Dep::LEP205_xsec_selserbar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_se1se1bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_se1se1bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 1, 1, 1, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_se1se2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_se1se2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 1, 1, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_se2se2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_se2se2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 1, 2, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_se2se1bar(triplet<double>& result)
-    {
-      result = *Pipes::LEP205_SLHA1_convention_xsec_se2se1bar::Dep::LEP205_xsec_se1se2bar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    /// @}
-
-    /// ee --> smuon pair production cross-sections at 205 GeV
-    /// @{
-    void LEP205_SLHA1_convention_xsec_smulsmulbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_smulsmulbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 2, 1, 1, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_smulsmurbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_smulsmurbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 2, 1, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_smursmurbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_smursmurbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 2, 2, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_smursmulbar(triplet<double>& result)
-    {
-      result = *Pipes::LEP205_SLHA1_convention_xsec_smursmulbar::Dep::LEP205_xsec_smulsmurbar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_smu1smu1bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_smu1smu1bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 2, 1, 1, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_smu1smu2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_smu1smu2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 2, 1, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_smu2smu2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_smu2smu2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 2, 2, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_smu2smu1bar(triplet<double>& result)
-    {
-      result = *Pipes::LEP205_SLHA1_convention_xsec_smu2smu1bar::Dep::LEP205_xsec_smu1smu2bar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    /// @}
-
-    /// ee --> stau pair production cross-sections at 205 GeV
-    /// @{
-    void LEP205_SLHA1_convention_xsec_staulstaulbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_staulstaulbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 3, 1, 1, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_staulstaurbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_staulstaurbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 3, 1, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_staurstaurbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_staurstaurbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 3, 2, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_staurstaulbar(triplet<double>& result)
-    {
-      result = *Pipes::LEP205_SLHA1_convention_xsec_staurstaulbar::Dep::LEP205_xsec_staulstaurbar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_stau1stau1bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_stau1stau1bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 3, 1, 1, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_stau1stau2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_stau1stau2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 3, 1, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_stau2stau2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_stau2stau2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 205.0, 3, 2, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_stau2stau1bar(triplet<double>& result)
-    {
-      result = *Pipes::LEP205_SLHA1_convention_xsec_stau2stau1bar::Dep::LEP205_xsec_stau1stau2bar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    /// @}
-
-
-    /// ee --> neutralino pair production cross-sections at 205 GeV
-    /// @{
-    void LEP205_SLHA1_convention_xsec_chi00_11(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_chi00_11;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 205.0, 1, 1, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_chi00_12(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_chi00_12;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 205.0, 1, 2, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_chi00_13(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_chi00_13;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 205.0, 1, 3, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_chi00_14(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_chi00_14;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 205.0, 1, 4, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_chi00_22(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_chi00_22;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 205.0, 2, 2, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_chi00_23(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_chi00_23;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 205.0, 2, 3, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_chi00_24(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_chi00_24;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 205.0, 2, 4, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_chi00_33(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_chi00_33;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 205.0, 3, 3, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_chi00_34(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_chi00_34;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 205.0, 3, 4, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_chi00_44(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_chi00_44;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 205.0, 4, 4, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    /// @}
-
-
-    /// ee --> chargino pair production cross-sections at 205 GeV
-    /// @{
-    void LEP205_SLHA1_convention_xsec_chipm_11(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_chipm_11;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chipm(result, 205.0, 1, 1, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_chipm_12(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_chipm_12;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chipm(result, 205.0, 1, 2, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_chipm_22(triplet<double>& result)
-    {
-      using namespace Pipes::LEP205_SLHA1_convention_xsec_chipm_22;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chipm(result, 205.0, 2, 2, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP205_SLHA1_convention_xsec_chipm_21(triplet<double>& result)
-    {
-      result = *Pipes::LEP205_SLHA1_convention_xsec_chipm_21::Dep::LEP205_xsec_chipm_12;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-
-    /// ee --> selectron pair production cross-sections at 188.6 GeV
-    /// @{
-    void LEP188_SLHA1_convention_xsec_selselbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_selselbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 1, 1, 1, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_selserbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_selserbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 1, 1, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_serserbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_serserbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 1, 2, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_serselbar(triplet<double>& result)
-    {
-      result = *Pipes::LEP188_SLHA1_convention_xsec_serselbar::Dep::LEP188_xsec_selserbar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_se1se1bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_se1se1bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 1, 1, 1, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_se1se2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_se1se2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 1, 1, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_se2se2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_se2se2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 1, 2, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_se2se1bar(triplet<double>& result)
-    {
-      result = *Pipes::LEP188_SLHA1_convention_xsec_se2se1bar::Dep::LEP188_xsec_se1se2bar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    /// @}
-
-    /// ee --> smuon pair production cross-sections at 188.6 GeV
-    /// @{
-    void LEP188_SLHA1_convention_xsec_smulsmulbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_smulsmulbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 2, 1, 1, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_smulsmurbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_smulsmurbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 2, 1, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_smursmurbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_smursmurbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 2, 2, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_smursmulbar(triplet<double>& result)
-    {
-      result = *Pipes::LEP188_SLHA1_convention_xsec_smursmulbar::Dep::LEP188_xsec_smulsmurbar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_smu1smu1bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_smu1smu1bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 2, 1, 1, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_smu1smu2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_smu1smu2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 2, 1, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_smu2smu2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_smu2smu2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 2, 2, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_smu2smu1bar(triplet<double>& result)
-    {
-      result = *Pipes::LEP188_SLHA1_convention_xsec_smu2smu1bar::Dep::LEP188_xsec_smu1smu2bar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    /// @}
-
-    /// ee --> stau pair production cross-sections at 188.6 GeV
-    /// @{
-    void LEP188_SLHA1_convention_xsec_staulstaulbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_staulstaulbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 3, 1, 1, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_staulstaurbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_staulstaurbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 3, 1, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_staurstaurbar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_staurstaurbar;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 3, 2, 2, tol, tol, pt_error, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, true);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_staurstaulbar(triplet<double>& result)
-    {
-      result = *Pipes::LEP188_SLHA1_convention_xsec_staurstaulbar::Dep::LEP188_xsec_staulstaurbar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_stau1stau1bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_stau1stau1bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 3, 1, 1, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_stau1stau2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_stau1stau2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 3, 1, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_stau2stau2bar(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_stau2stau2bar;
-      const static double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      const static double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
-      const static bool fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_ll(result, 188.6, 3, 2, 2, gtol, ftol, gpt_error, fpt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV, false);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_stau2stau1bar(triplet<double>& result)
-    {
-      result = *Pipes::LEP188_SLHA1_convention_xsec_stau2stau1bar::Dep::LEP188_xsec_stau1stau2bar;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    /// @}
-
-
-    /// ee --> neutralino pair production cross-sections at 188.6 GeV
-    /// @{
-    void LEP188_SLHA1_convention_xsec_chi00_11(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_chi00_11;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 188.6, 1, 1, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_chi00_12(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_chi00_12;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 188.6, 1, 2, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_chi00_13(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_chi00_13;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 188.6, 1, 3, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_chi00_14(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_chi00_14;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 188.6, 1, 4, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_chi00_22(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_chi00_22;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 188.6, 2, 2, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_chi00_23(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_chi00_23;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 188.6, 2, 3, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_chi00_24(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_chi00_24;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 188.6, 2, 4, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_chi00_33(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_chi00_33;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 188.6, 3, 3, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_chi00_34(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_chi00_34;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 188.6, 3, 4, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_chi00_44(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_chi00_44;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chi00(result, 188.6, 4, 4, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    /// @}
-
-
-    /// ee --> chargino pair production cross-sections at 188.6 GeV
-    /// @{
-    void LEP188_SLHA1_convention_xsec_chipm_11(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_chipm_11;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chipm(result, 188.6, 1, 1, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_chipm_12(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_chipm_12;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chipm(result, 188.6, 1, 2, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_chipm_22(triplet<double>& result)
-    {
-      using namespace Pipes::LEP188_SLHA1_convention_xsec_chipm_22;
-      const static double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      const static bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-      get_sigma_ee_chipm(result, 188.6, 2, 2, tol, pt_error, *Dep::MSSM_spectrum, Dep::Z_decay_rates->width_in_GeV);
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    void LEP188_SLHA1_convention_xsec_chipm_21(triplet<double>& result)
-    {
-      result = *Pipes::LEP188_SLHA1_convention_xsec_chipm_21::Dep::LEP188_xsec_chipm_12;
-      if (!is_xsec_sane(result))
-        ColliderBit_error().raise(LOCAL_INFO, "Non-physical LEP cross section!");
-    }
-    /// @}
-
-
-    /// LEP Slepton Log-Likelihoods
-    /// @{
-    void ALEPH_Selectron_Conservative_LLike(double& result)
-    {
-      using namespace Pipes::ALEPH_Selectron_Conservative_LLike;
       using std::pow;
-      using std::log;
-
-      const Spectrum& spec = *Dep::MSSM_spectrum;
 
       double max_mixing;
       const SubSpectrum& mssm = spec.get_HE();
-      str sel_string = slhahelp::mass_es_from_gauge_es("~e_L", max_mixing, mssm);
-      str ser_string = slhahelp::mass_es_from_gauge_es("~e_R", max_mixing, mssm);
-      const double mass_seL=spec.get(Par::Pole_Mass,sel_string);
-      const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
-      const double mass_seR = spec.get(Par::Pole_Mass,ser_string);
-      const double mZ = spec.get(Par::Pole_Mass,23, 0);
+      const str sL_string = slhahelp::mass_es_from_gauge_es(gauge_es_L, max_mixing, mssm);
+      const str sR_string = slhahelp::mass_es_from_gauge_es(gauge_es_R, max_mixing, mssm);
+      const double mass_sL = spec.get(Par::Pole_Mass, sL_string);
+      const double mass_sR = spec.get(Par::Pole_Mass, sR_string);
+      const double mass_neut1 = spec.get(Par::Pole_Mass, 1000022, 0);
+      const double mZ = spec.get(Par::Pole_Mass, 23, 0);
       triplet<double> xsecWithError;
       double xsecLimit;
+      double result = 0;
 
-      static const ALEPHSelectronLimitAt208GeV limitContainer;
-      // #ifdef COLLIDERBIT_DEBUG
-      //static bool dumped=false;
-      //if(!dumped)
-      //{
-      //  limitContainer.dumpPlotData(45., 115., 0., 100., mZ, "lepLimitPlanev2/ALEPHSelectronLimitAt208GeV.dump");
-      //  dumped=true;
-      //}
-      // #endif
-
-      result = 0;
       // Due to the nature of the analysis details of the model independent limit in
       // the paper, the best we can do is to try these two processes individually:
 
-      // se_L, se_L
-      xsecLimit = limitContainer.limitAverage(mass_seL, mass_neut1, mZ);
-      xsecWithError = *Dep::LEP208_xsec_selselbar;
-      xsecWithError.upper *= pow(Dep::selectron_l_decay_rates->BF("~chi0_1", "e-"), 2);
-      xsecWithError.central *= pow(Dep::selectron_l_decay_rates->BF("~chi0_1", "e-"), 2);
-      xsecWithError.lower *= pow(Dep::selectron_l_decay_rates->BF("~chi0_1", "e-"), 2);
-
+      // l_L, l_L
+      xsecLimit = limitContainer.limitAverage(mass_sL, mass_neut1, mZ);
+      xsecWithError = LEP_xsec_ll(sqrts, generation, 1, 1, tol, tol, pt_error, pt_error, spec, gammaZ, true);
+      xsecWithError.upper   *= pow(decays_L.BF("~chi0_1", lepton), 2);
+      xsecWithError.central *= pow(decays_L.BF("~chi0_1", lepton), 2);
+      xsecWithError.lower   *= pow(decays_L.BF("~chi0_1", lepton), 2);
       if (xsecWithError.central < xsecLimit)
-      {
         result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
       else
-      {
         result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
 
-      // se_R, se_R
-      xsecLimit = limitContainer.limitAverage(mass_seR, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP208_xsec_serserbar;
-      xsecWithError.upper *= pow(Dep::selectron_r_decay_rates->BF("~chi0_1", "e-"), 2);
-      xsecWithError.central *= pow(Dep::selectron_r_decay_rates->BF("~chi0_1", "e-"), 2);
-      xsecWithError.lower *= pow(Dep::selectron_r_decay_rates->BF("~chi0_1", "e-"), 2);
-
+      // l_R, l_R
+      xsecLimit = limitContainer.limitAverage(mass_sR, mass_neut1, mZ);
+      xsecWithError = LEP_xsec_ll(sqrts, generation, 2, 2, tol, tol, pt_error, pt_error, spec, gammaZ, true);
+      xsecWithError.upper   *= pow(decays_R.BF("~chi0_1", lepton), 2);
+      xsecWithError.central *= pow(decays_R.BF("~chi0_1", lepton), 2);
+      xsecWithError.lower   *= pow(decays_R.BF("~chi0_1", lepton), 2);
       if (xsecWithError.central < xsecLimit)
-      {
         result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
       else
-      {
         result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
 
+      return result;
     }
 
-    void ALEPH_Smuon_Conservative_LLike(double& result)
+    /// Stau pair production (two mass-eigenstate processes).
+    double LEP_stau_pair_LLike(const Spectrum& spec, double gammaZ, double sqrts,
+                               const BaseLimitContainer& limitContainer,
+                               const DecayTable::Entry& decays_1, const DecayTable::Entry& decays_2,
+                               double gtol, double ftol, bool gpt_error, bool fpt_error,
+                               double id_tol, bool id_pterror)
     {
-      using namespace Pipes::ALEPH_Smuon_Conservative_LLike;
       using std::pow;
-      using std::log;
-
-      const Spectrum& spec = *Dep::MSSM_spectrum;
-
-      double max_mixing;
-      const SubSpectrum& mssm = spec.get_HE();
-      str smul_string = slhahelp::mass_es_from_gauge_es("~mu_L", max_mixing, mssm);
-      str smur_string = slhahelp::mass_es_from_gauge_es("~mu_R", max_mixing, mssm);
-      const double mass_smuL=spec.get(Par::Pole_Mass,smul_string);
-      const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
-      const double mass_smuR = spec.get(Par::Pole_Mass,smur_string);
-      const double mZ = spec.get(Par::Pole_Mass,23, 0);
-      triplet<double> xsecWithError;
-      double xsecLimit;
-
-      static const ALEPHSmuonLimitAt208GeV limitContainer;
-      // #ifdef COLLIDERBIT_DEBUG
-      //   static bool dumped=false;
-      //   if(!dumped)
-      //   {
-      //     limitContainer.dumpPlotData(45., 115., 0., 100., mZ, "lepLimitPlanev2/ALEPHSmuonLimitAt208GeV.dump");
-      //     dumped=true;
-      //   }
-      // #endif
-
-      result = 0;
-      // Due to the nature of the analysis details of the model independent limit in
-      // the paper, the best we can do is to try these two processes individually:
-
-      // smu_L, smu_L
-      xsecLimit = limitContainer.limitAverage(mass_smuL, mass_neut1, mZ);
-      xsecWithError = *Dep::LEP208_xsec_smulsmulbar;
-      xsecWithError.upper *= pow(Dep::smuon_l_decay_rates->BF("~chi0_1", "mu-"), 2);
-      xsecWithError.central *= pow(Dep::smuon_l_decay_rates->BF("~chi0_1", "mu-"), 2);
-      xsecWithError.lower *= pow(Dep::smuon_l_decay_rates->BF("~chi0_1", "mu-"), 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-      // smu_R, smu_R
-      xsecLimit = limitContainer.limitAverage(mass_smuR, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP208_xsec_smursmurbar;
-      xsecWithError.upper *= pow(Dep::smuon_r_decay_rates->BF("~chi0_1", "mu-"), 2);
-      xsecWithError.central *= pow(Dep::smuon_r_decay_rates->BF("~chi0_1", "mu-"), 2);
-      xsecWithError.lower *= pow(Dep::smuon_r_decay_rates->BF("~chi0_1", "mu-"), 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-    }
-
-    void ALEPH_Stau_Conservative_LLike(double& result)
-    {
-      using namespace Pipes::ALEPH_Stau_Conservative_LLike;
-      using std::pow;
-      using std::log;
-
-      const Spectrum& spec = *Dep::MSSM_spectrum;
 
       const SubSpectrum& mssm = spec.get_HE();
-      static const double tol = runOptions->getValueOrDef<double>(1e-5, "family_mixing_tolerance");
-      static const bool pterror = runOptions->getValueOrDef<bool>(false, "family_mixing_tolerance_invalidates_point_only");
-      str stau1_string = slhahelp::mass_es_closest_to_family("~tau_1", mssm,tol,LOCAL_INFO,pterror);
-      str stau2_string = slhahelp::mass_es_closest_to_family("~tau_2", mssm,tol,LOCAL_INFO,pterror);
-      const double mass_stau1=spec.get(Par::Pole_Mass,stau1_string);
-      const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
-      const double mass_stau2 = spec.get(Par::Pole_Mass,stau2_string);
-      const double mZ = spec.get(Par::Pole_Mass,23, 0);
+      const str stau1_string = slhahelp::mass_es_closest_to_family("~tau_1", mssm, id_tol, LOCAL_INFO, id_pterror);
+      const str stau2_string = slhahelp::mass_es_closest_to_family("~tau_2", mssm, id_tol, LOCAL_INFO, id_pterror);
+      const double mass_stau1 = spec.get(Par::Pole_Mass, stau1_string);
+      const double mass_stau2 = spec.get(Par::Pole_Mass, stau2_string);
+      const double mass_neut1 = spec.get(Par::Pole_Mass, 1000022, 0);
+      const double mZ = spec.get(Par::Pole_Mass, 23, 0);
       triplet<double> xsecWithError;
       double xsecLimit;
+      double result = 0;
 
-      static const ALEPHStauLimitAt208GeV limitContainer;
-      // #ifdef COLLIDERBIT_DEBUG
-      //   static bool dumped=false;
-      //   if(!dumped)
-      //   {
-      //     limitContainer.dumpPlotData(45., 115., 0., 100., mZ, "lepLimitPlanev2/ALEPHStauLimitAt208GeV.dump");
-      //     dumped=true;
-      //   }
-      // #endif
-
-      result = 0;
       // Due to the nature of the analysis details of the model independent limit in
       // the paper, the best we can do is to try these two processes individually:
 
       // stau_1, stau_1
       xsecLimit = limitContainer.limitAverage(mass_stau1, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP208_xsec_stau1stau1bar;
-      xsecWithError.upper *= pow(Dep::stau_1_decay_rates->BF("~chi0_1", "tau-"), 2);
-      xsecWithError.central *= pow(Dep::stau_1_decay_rates->BF("~chi0_1", "tau-"), 2);
-      xsecWithError.lower *= pow(Dep::stau_1_decay_rates->BF("~chi0_1", "tau-"), 2);
-
+      xsecWithError = LEP_xsec_ll(sqrts, 3, 1, 1, gtol, ftol, gpt_error, fpt_error, spec, gammaZ, false);
+      xsecWithError.upper   *= pow(decays_1.BF("~chi0_1", "tau-"), 2);
+      xsecWithError.central *= pow(decays_1.BF("~chi0_1", "tau-"), 2);
+      xsecWithError.lower   *= pow(decays_1.BF("~chi0_1", "tau-"), 2);
       if (xsecWithError.central < xsecLimit)
-      {
         result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
       else
-      {
         result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
 
       // stau_2, stau_2
       xsecLimit = limitContainer.limitAverage(mass_stau2, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP208_xsec_stau2stau2bar;
-      xsecWithError.upper *= pow(Dep::stau_2_decay_rates->BF("~chi0_1", "tau-"), 2);
-      xsecWithError.central *= pow(Dep::stau_2_decay_rates->BF("~chi0_1", "tau-"), 2);
-      xsecWithError.lower *= pow(Dep::stau_2_decay_rates->BF("~chi0_1", "tau-"), 2);
-
+      xsecWithError = LEP_xsec_ll(sqrts, 3, 2, 2, gtol, ftol, gpt_error, fpt_error, spec, gammaZ, false);
+      xsecWithError.upper   *= pow(decays_2.BF("~chi0_1", "tau-"), 2);
+      xsecWithError.central *= pow(decays_2.BF("~chi0_1", "tau-"), 2);
+      xsecWithError.lower   *= pow(decays_2.BF("~chi0_1", "tau-"), 2);
       if (xsecWithError.central < xsecLimit)
-      {
         result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
       else
-      {
         result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
 
+      return result;
     }
 
-    void L3_Selectron_Conservative_LLike(double& result)
+    /// L3 neutralino search, summing over all Z*-like decay channels.
+    double LEP_L3_Neutralino_All_Channels_LLike(const Spectrum& spec, double gammaZ, double sqrts,
+                                                const BaseLimitContainer& limitContainer,
+                                                const DecayTable& decays, double tol, bool pt_error)
     {
-      using namespace Pipes::L3_Selectron_Conservative_LLike;
-      using std::pow;
-      using std::log;
-
-      const Spectrum& spec = *Dep::MSSM_spectrum;
-
-      double max_mixing;
-      const SubSpectrum& mssm = spec.get_HE();
-      str sel_string = slhahelp::mass_es_from_gauge_es("~e_L", max_mixing, mssm);
-      str ser_string = slhahelp::mass_es_from_gauge_es("~e_R", max_mixing, mssm);
-      const double mass_seL=spec.get(Par::Pole_Mass,sel_string);
       const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
-      const double mass_seR = spec.get(Par::Pole_Mass,ser_string);
+      const double mass_neut2 = spec.get(Par::Pole_Mass,1000023, 0);
+      const double mass_neut3 = spec.get(Par::Pole_Mass,1000025, 0);
+      const double mass_neut4 = spec.get(Par::Pole_Mass,1000035, 0);
+      const double mZ = spec.get(Par::Pole_Mass,23, 0);
+      triplet<double> xsecWithError;
+      double xsecLimit, totalBR;
+      double result = 0;
+
+      const str neut_name[3] = {"~chi0_2", "~chi0_3", "~chi0_4"};
+      const double neut_mass[3] = {mass_neut2, mass_neut3, mass_neut4};
+
+      // Due to the nature of the analysis details of the model independent limit in
+      // the paper, the best we can do is to try these processes individually:
+      for (int i = 0; i < 3; ++i)
+      {
+        xsecLimit = limitContainer.limitAverage(neut_mass[i], mass_neut1, mZ);
+        xsecWithError = LEP_xsec_chi00(sqrts, 1, i+2, tol, pt_error, spec, gammaZ);
+        // Total up all channels which look like Z* decays
+        totalBR = 0;
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "Z0");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "ubar", "u");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "dbar", "d");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "cbar", "c");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "sbar", "s");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "bbar", "b");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "e+", "e-");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "mu+", "mu-");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "tau+", "tau-");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "nubar_e", "nu_e");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "nubar_mu", "nu_mu");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "nubar_tau", "nu_tau");
+        xsecWithError.upper   *= totalBR;
+        xsecWithError.central *= totalBR;
+        xsecWithError.lower   *= totalBR;
+        if (xsecWithError.central < xsecLimit)
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
+        else
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
+      }
+
+      return result;
+    }
+
+    /// L3 neutralino search, summing over leptonic Z*-like decay channels.
+    double LEP_L3_Neutralino_Leptonic_LLike(const Spectrum& spec, double gammaZ, double sqrts,
+                                            const BaseLimitContainer& limitContainer,
+                                            const DecayTable& decays, double tol, bool pt_error)
+    {
+      const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
+      const double mass_neut2 = spec.get(Par::Pole_Mass,1000023, 0);
+      const double mass_neut3 = spec.get(Par::Pole_Mass,1000025, 0);
+      const double mass_neut4 = spec.get(Par::Pole_Mass,1000035, 0);
+      const double mZ = spec.get(Par::Pole_Mass,23, 0);
+      triplet<double> xsecWithError;
+      double xsecLimit, totalBR;
+      double result = 0;
+
+      const str neut_name[3] = {"~chi0_2", "~chi0_3", "~chi0_4"};
+      const double neut_mass[3] = {mass_neut2, mass_neut3, mass_neut4};
+
+      // Due to the nature of the analysis details of the model independent limit in
+      // the paper, the best we can do is to try these processes individually:
+      for (int i = 0; i < 3; ++i)
+      {
+        xsecLimit = limitContainer.limitAverage(neut_mass[i], mass_neut1, mZ);
+        xsecWithError = LEP_xsec_chi00(sqrts, 1, i+2, tol, pt_error, spec, gammaZ);
+        // Total up all channels which look like leptonic Z* decays
+        // Total up the leptonic Z decays first...
+        totalBR = 0;
+        totalBR += decays.at("Z0").BF("e+", "e-");
+        totalBR += decays.at("Z0").BF("mu+", "mu-");
+        totalBR += decays.at("Z0").BF("tau+", "tau-");
+        totalBR = decays.at(neut_name[i]).BF("~chi0_1", "Z0") * totalBR;
+
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "e+", "e-");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "mu+", "mu-");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "tau+", "tau-");
+        xsecWithError.upper   *= totalBR;
+        xsecWithError.central *= totalBR;
+        xsecWithError.lower   *= totalBR;
+        if (xsecWithError.central < xsecLimit)
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
+        else
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
+      }
+
+      return result;
+    }
+
+    /// OPAL neutralino search, summing over hadronic Z*-like decay channels.
+    double LEP_OPAL_Neutralino_Hadronic_LLike(const Spectrum& spec, double gammaZ, double sqrts,
+                                              const BaseLimitContainer& limitContainer,
+                                              const DecayTable& decays, double tol, bool pt_error)
+    {
+      const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
+      const double mass_neut2 = spec.get(Par::Pole_Mass,1000023, 0);
+      const double mass_neut3 = spec.get(Par::Pole_Mass,1000025, 0);
+      const double mass_neut4 = spec.get(Par::Pole_Mass,1000035, 0);
+      const double mZ = spec.get(Par::Pole_Mass,23, 0);
+      triplet<double> xsecWithError;
+      double xsecLimit, totalBR;
+      double result = 0;
+
+      const str neut_name[3] = {"~chi0_2", "~chi0_3", "~chi0_4"};
+      const double neut_mass[3] = {mass_neut2, mass_neut3, mass_neut4};
+
+      // Due to the nature of the analysis details of the model independent limit in
+      // the paper, the best we can do is to try these processes individually:
+      for (int i = 0; i < 3; ++i)
+      {
+        xsecLimit = limitContainer.limitAverage(neut_mass[i], mass_neut1, mZ);
+        xsecWithError = LEP_xsec_chi00(sqrts, 1, i+2, tol, pt_error, spec, gammaZ);
+        // Total up all channels which look like Z* decays
+        totalBR = decays.at("Z0").BF("hadron", "hadron");
+        totalBR = decays.at(neut_name[i]).BF("~chi0_1", "Z0") * totalBR;
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "ubar", "u");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "dbar", "d");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "cbar", "c");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "sbar", "s");
+        totalBR += decays.at(neut_name[i]).BF("~chi0_1", "bbar", "b");
+        xsecWithError.upper   *= totalBR;
+        xsecWithError.central *= totalBR;
+        xsecWithError.lower   *= totalBR;
+        if (xsecWithError.central < xsecLimit)
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
+        else
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
+      }
+
+      return result;
+    }
+
+    /// L3 chargino search, summing over all W*-like decay channels.
+    double LEP_L3_Chargino_All_Channels_LLike(const Spectrum& spec, double gammaZ, double sqrts,
+                                              const BaseLimitContainer& limitContainer,
+                                              const DecayTable& decays, double tol, bool pt_error)
+    {
+      using std::pow;
+
+      const LSP lsp = get_LSP_for_LEP_limits(spec);
+      const SubSpectrum& mssm = spec.get_HE();
+      const double mass_neut1 = lsp.mass;
+      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol, LOCAL_INFO, pt_error);
+      const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
+      const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);
+      const double mZ = spec.get(Par::Pole_Mass,23, 0);
+      triplet<double> xsecWithError;
+      double xsecLimit, totalBR;
+      double result = 0;
+
+      const str char_name[2] = {"~chi+_1", "~chi+_2"};
+      const double char_mass[2] = {mass_char1, mass_char2};
+      const int char_idx[2] = {1, 2};
+
+      for (int i = 0; i < 2; ++i)
+      {
+        xsecLimit = limitContainer.limitAverage(char_mass[i], mass_neut1, mZ);
+        xsecWithError = LEP_xsec_chipm(sqrts, char_idx[i], char_idx[i], tol, pt_error, spec, gammaZ);
+        // Total up all channels which look like W* decays
+        totalBR = 0;
+        totalBR += decays.at(char_name[i]).BF("~chi0_1", "W+");
+        totalBR += decays.at(char_name[i]).BF("~chi0_1", "u", "dbar");
+        totalBR += decays.at(char_name[i]).BF("~chi0_1", "c", "sbar");
+        totalBR += decays.at(char_name[i]).BF("~chi0_1", "e+", "nu_e");
+        totalBR += decays.at(char_name[i]).BF("~chi0_1", "mu+", "nu_mu");
+        totalBR += decays.at(char_name[i]).BF("~chi0_1", "tau+", "nu_tau");
+        totalBR += decays.at(char_name[i]).BF(snue, "e+")
+                 * decays.at(snue).BF("~chi0_1", "nu_e");
+        totalBR += decays.at(char_name[i]).BF(snumu, "mu+")
+                 * decays.at(snumu).BF("~chi0_1", "nu_mu");
+        totalBR += decays.at(char_name[i]).BF(snutau, "tau+")
+                 * decays.at(snutau).BF("~chi0_1", "nu_tau");
+        xsecWithError.upper   *= pow(totalBR, 2);
+        xsecWithError.central *= pow(totalBR, 2);
+        xsecWithError.lower   *= pow(totalBR, 2);
+        if (xsecWithError.central < xsecLimit)
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
+        else
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
+      }
+
+      return result;
+    }
+
+    /// L3 chargino search, summing over leptonic W*-like decay channels.
+    double LEP_L3_Chargino_Leptonic_LLike(const Spectrum& spec, double gammaZ, double sqrts,
+                                          const BaseLimitContainer& limitContainer,
+                                          const DecayTable& decays, double tol, bool pt_error)
+    {
+      using std::pow;
+
+      const LSP lsp = get_LSP_for_LEP_limits(spec);
+      const SubSpectrum& mssm = spec.get_HE();
+      const double mass_neut1 = lsp.mass;
+      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol, LOCAL_INFO, pt_error);
+      const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
+      const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);
+      const double mZ = spec.get(Par::Pole_Mass,23, 0);
+      triplet<double> xsecWithError;
+      double xsecLimit, totalBR;
+      double result = 0;
+
+      const str char_name[2] = {"~chi+_1", "~chi+_2"};
+      const double char_mass[2] = {mass_char1, mass_char2};
+      const int char_idx[2] = {1, 2};
+
+      for (int i = 0; i < 2; ++i)
+      {
+        xsecLimit = limitContainer.limitAverage(char_mass[i], mass_neut1, mZ);
+        xsecWithError = LEP_xsec_chipm(sqrts, char_idx[i], char_idx[i], tol, pt_error, spec, gammaZ);
+        // Total up all channels which look like leptonic W* decays
+        // Total up the leptonic W decays first...
+        totalBR = 0;
+        totalBR += decays.at("W+").BF("e+", "nu_e");
+        totalBR += decays.at("W+").BF("mu+", "nu_mu");
+        totalBR += decays.at("W+").BF("tau+", "nu_tau");
+        totalBR = decays.at(char_name[i]).BF(lsp.name, "W+") * totalBR;
+
+        totalBR += decays.at(char_name[i]).BF("~chi0_1", "e+", "nu_e");
+        totalBR += decays.at(char_name[i]).BF("~chi0_1", "mu+", "nu_mu");
+        totalBR += decays.at(char_name[i]).BF("~chi0_1", "tau+", "nu_tau");
+
+        totalBR += decays.at(char_name[i]).BF(snue, "e+")
+                 * decays.at(snue).BF("~chi0_1", "nu_e");
+        totalBR += decays.at(char_name[i]).BF(snumu, "mu+")
+                 * decays.at(snumu).BF("~chi0_1", "nu_mu");
+        totalBR += decays.at(char_name[i]).BF(snutau, "tau+")
+                 * decays.at(snutau).BF("~chi0_1", "nu_tau");
+
+        xsecWithError.upper   *= pow(totalBR, 2);
+        xsecWithError.central *= pow(totalBR, 2);
+        xsecWithError.lower   *= pow(totalBR, 2);
+        if (xsecWithError.central < xsecLimit)
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
+        else
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
+      }
+
+      return result;
+    }
+
+    /// OPAL chargino search, hadronic channels.
+    double LEP_OPAL_Chargino_Hadronic_LLike(const Spectrum& spec, double gammaZ, double sqrts,
+                                            const BaseLimitContainer& limitContainer,
+                                            const DecayTable& decays, double tol, bool pt_error)
+    {
+      using std::pow;
+
+      const LSP lsp = get_LSP_for_LEP_limits(spec);
+      const double mass_neut1 = lsp.mass;
+      const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
+      const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);
+      const double mZ = spec.get(Par::Pole_Mass,23, 0);
+      triplet<double> xsecWithError;
+      double xsecLimit, totalBR;
+      double result = 0;
+
+      const str char_name[2] = {"~chi+_1", "~chi+_2"};
+      const double char_mass[2] = {mass_char1, mass_char2};
+      const int char_idx[2] = {1, 2};
+
+      for (int i = 0; i < 2; ++i)
+      {
+        xsecLimit = limitContainer.limitAverage(char_mass[i], mass_neut1, mZ);
+        xsecWithError = LEP_xsec_chipm(sqrts, char_idx[i], char_idx[i], tol, pt_error, spec, gammaZ);
+        // Total up all channels which look like hadronic W* decays
+        // Total up the hadronic W decays first...
+        totalBR = decays.at("W+").BF("hadron", "hadron");
+        totalBR = decays.at(char_name[i]).BF(lsp.name, "W+") * totalBR;
+
+        totalBR += decays.at(char_name[i]).BF(lsp.name, "u", "dbar");
+        totalBR += decays.at(char_name[i]).BF(lsp.name, "c", "sbar");
+        xsecWithError.upper   *= pow(totalBR, 2);
+        xsecWithError.central *= pow(totalBR, 2);
+        xsecWithError.lower   *= pow(totalBR, 2);
+        if (xsecWithError.central < xsecLimit)
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
+        else
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
+      }
+
+      return result;
+    }
+
+    /// OPAL chargino search, semi-leptonic channels.
+    double LEP_OPAL_Chargino_SemiLeptonic_LLike(const Spectrum& spec, double gammaZ, double sqrts,
+                                                const BaseLimitContainer& limitContainer,
+                                                const DecayTable& decays, double tol, bool pt_error)
+    {
+      const LSP lsp = get_LSP_for_LEP_limits(spec);
+      const SubSpectrum& mssm = spec.get_HE();
+      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol, LOCAL_INFO, pt_error);
+      const double mass_neut1 = lsp.mass;
+      const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
+      const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);
+      const double mZ = spec.get(Par::Pole_Mass,23, 0);
+      triplet<double> xsecWithError;
+      double xsecLimit, totalBR;
+      double result = 0;
+
+      const str char_name[2] = {"~chi+_1", "~chi+_2"};
+      const double char_mass[2] = {mass_char1, mass_char2};
+      const int char_idx[2] = {1, 2};
+
+      for (int i = 0; i < 2; ++i)
+      {
+        xsecLimit = limitContainer.limitAverage(char_mass[i], mass_neut1, mZ);
+        xsecWithError = LEP_xsec_chipm(sqrts, char_idx[i], char_idx[i], tol, pt_error, spec, gammaZ);
+        // Total up all channels which look like leptonic W* decays
+        // Total up the leptonic W decays first...
+        totalBR = 0;
+        totalBR += decays.at("W+").BF("e+", "nu_e");
+        totalBR += decays.at("W+").BF("mu+", "nu_mu");
+        totalBR += decays.at("W+").BF("tau+", "nu_tau");
+        totalBR = decays.at(char_name[i]).BF(lsp.name, "W+") * totalBR;
+
+        totalBR += decays.at(char_name[i]).BF(lsp.name, "e+", "nu_e");
+        totalBR += decays.at(char_name[i]).BF(lsp.name, "mu+", "nu_mu");
+        totalBR += decays.at(char_name[i]).BF(lsp.name, "tau+", "nu_tau");
+
+        // We don't have sneutrino --> gravitino + neutrino decays
+        if (lsp.pdg != 1000039)
+        {
+          totalBR += decays.at(char_name[i]).BF(snue, "e+")
+                   * decays.at(snue).BF(lsp.name, "nu_e");
+          totalBR += decays.at(char_name[i]).BF(snumu, "mu+")
+                   * decays.at(snumu).BF(lsp.name, "nu_mu");
+          totalBR += decays.at(char_name[i]).BF(snutau, "tau+")
+                   * decays.at(snutau).BF(lsp.name, "nu_tau");
+        }
+
+        xsecWithError.upper   *= totalBR;
+        xsecWithError.central *= totalBR;
+        xsecWithError.lower   *= totalBR;
+
+        // ALSO, total up all channels which look like hadronic W* decays
+        // Total up the hadronic W decays first...
+        totalBR = decays.at("W+").BF("hadron", "hadron");
+        totalBR = decays.at(char_name[i]).BF(lsp.name, "W+") * totalBR;
+
+        totalBR += decays.at(char_name[i]).BF(lsp.name, "u", "dbar");
+        totalBR += decays.at(char_name[i]).BF(lsp.name, "c", "sbar");
+        xsecWithError.upper   *= totalBR;
+        xsecWithError.central *= totalBR;
+        xsecWithError.lower   *= totalBR;
+
+        if (xsecWithError.central < xsecLimit)
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
+        else
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
+      }
+
+      return result;
+    }
+
+    /// OPAL chargino search, leptonic channels.
+    double LEP_OPAL_Chargino_Leptonic_LLike(const Spectrum& spec, double gammaZ, double sqrts,
+                                            const BaseLimitContainer& limitContainer,
+                                            const DecayTable& decays, double tol, bool pt_error)
+    {
+      using std::pow;
+
+      const LSP lsp = get_LSP_for_LEP_limits(spec);
+      const SubSpectrum& mssm = spec.get_HE();
+      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol, LOCAL_INFO, pt_error);
+      const double mass_neut1 = lsp.mass;
+      const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
+      const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);
+      const double mZ = spec.get(Par::Pole_Mass,23, 0);
+      triplet<double> xsecWithError;
+      double xsecLimit, totalBR;
+      double result = 0;
+
+      const str char_name[2] = {"~chi+_1", "~chi+_2"};
+      const double char_mass[2] = {mass_char1, mass_char2};
+      const int char_idx[2] = {1, 2};
+
+      for (int i = 0; i < 2; ++i)
+      {
+        xsecLimit = limitContainer.limitAverage(char_mass[i], mass_neut1, mZ);
+        xsecWithError = LEP_xsec_chipm(sqrts, char_idx[i], char_idx[i], tol, pt_error, spec, gammaZ);
+        // Total up all channels which look like leptonic W* decays
+        // Total up the leptonic W decays first...
+        totalBR = 0;
+        totalBR += decays.at("W+").BF("e+", "nu_e");
+        totalBR += decays.at("W+").BF("mu+", "nu_mu");
+        totalBR += decays.at("W+").BF("tau+", "nu_tau");
+        totalBR = decays.at(char_name[i]).BF(lsp.name, "W+") * totalBR;
+
+        totalBR += decays.at(char_name[i]).BF(lsp.name, "e+", "nu_e");
+        totalBR += decays.at(char_name[i]).BF(lsp.name, "mu+", "nu_mu");
+        totalBR += decays.at(char_name[i]).BF(lsp.name, "tau+", "nu_tau");
+
+        // We don't have sneutrino --> gravitino + neutrino decays
+        if (lsp.pdg != 1000039)
+        {
+          totalBR += decays.at(char_name[i]).BF(snue, "e+")
+                   * decays.at(snue).BF(lsp.name, "nu_e");
+          totalBR += decays.at(char_name[i]).BF(snumu, "mu+")
+                   * decays.at(snumu).BF(lsp.name, "nu_mu");
+          totalBR += decays.at(char_name[i]).BF(snutau, "tau+")
+                   * decays.at(snutau).BF(lsp.name, "nu_tau");
+        }
+
+        xsecWithError.upper   *= pow(totalBR, 2);
+        xsecWithError.central *= pow(totalBR, 2);
+        xsecWithError.lower   *= pow(totalBR, 2);
+        if (xsecWithError.central < xsecLimit)
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
+        else
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
+      }
+
+      return result;
+    }
+
+    /// OPAL chargino search, all channels.
+    double LEP_OPAL_Chargino_All_Channels_LLike(const Spectrum& spec, double gammaZ, double sqrts,
+                                                const BaseLimitContainer& limitContainer,
+                                                const DecayTable& decays, double tol, bool pt_error)
+    {
+      using std::pow;
+
+      const LSP lsp = get_LSP_for_LEP_limits(spec);
+      const SubSpectrum& mssm = spec.get_HE();
+      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol, LOCAL_INFO, pt_error);
+      const double mass_neut1 = lsp.mass;
+      const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
+      const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);
+      const double mZ = spec.get(Par::Pole_Mass,23, 0);
+      triplet<double> xsecWithError;
+      double xsecLimit, totalBR;
+      double result = 0;
+
+      const str char_name[2] = {"~chi+_1", "~chi+_2"};
+      const double char_mass[2] = {mass_char1, mass_char2};
+      const int char_idx[2] = {1, 2};
+
+      for (int i = 0; i < 2; ++i)
+      {
+        xsecLimit = limitContainer.limitAverage(char_mass[i], mass_neut1, mZ);
+        xsecWithError = LEP_xsec_chipm(sqrts, char_idx[i], char_idx[i], tol, pt_error, spec, gammaZ);
+        // Total up all channels which look like W* decays
+        totalBR = 0;
+        totalBR += decays.at(char_name[i]).BF(lsp.name, "W+");
+        totalBR += decays.at(char_name[i]).BF(lsp.name, "u", "dbar");
+        totalBR += decays.at(char_name[i]).BF(lsp.name, "c", "sbar");
+        totalBR += decays.at(char_name[i]).BF(lsp.name, "e+", "nu_e");
+        totalBR += decays.at(char_name[i]).BF(lsp.name, "mu+", "nu_mu");
+        totalBR += decays.at(char_name[i]).BF(lsp.name, "tau+", "nu_tau");
+
+        // We don't have sneutrino --> gravitino + neutrino decays
+        if (lsp.pdg != 1000039)
+        {
+          totalBR += decays.at(char_name[i]).BF(snue, "e+")
+                   * decays.at(snue).BF(lsp.name, "nu_e");
+          totalBR += decays.at(char_name[i]).BF(snumu, "mu+")
+                   * decays.at(snumu).BF(lsp.name, "nu_mu");
+          totalBR += decays.at(char_name[i]).BF(snutau, "tau+")
+                   * decays.at(snutau).BF(lsp.name, "nu_tau");
+        }
+
+        xsecWithError.upper   *= pow(totalBR, 2);
+        xsecWithError.central *= pow(totalBR, 2);
+        xsecWithError.lower   *= pow(totalBR, 2);
+        if (xsecWithError.central < xsecLimit)
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
+        else
+          result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
+      }
+
+      return result;
+    }
+
+    /// OPAL limit on degenerate chargino--neutralino scenario at 208 GeV.
+    /// Sensitive to mass differences between 320 MeV and 5 GeV.
+    /// Based on hep-ex/0210043.
+    double LEP_OPAL_Degenerate_Chargino_LLike(const Spectrum& spec, double gammaZ, double sqrts,
+                                              const BaseLimitContainer& limitContainer,
+                                              double tol, bool pt_error)
+    {
+      const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
+      const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
       const double mZ = spec.get(Par::Pole_Mass,23, 0);
       triplet<double> xsecWithError;
       double xsecLimit;
+      double result = 0;
 
-      static const L3SelectronLimitAt205GeV limitContainer;
-      // #ifdef COLLIDERBIT_DEBUG
-         static bool dumped=false;
-         if(!dumped)
-         {
-           limitContainer.dumpPlotData(45., 104., 0., 100., mZ, "lepLimitPlanev2/L3SelectronLimitAt205GeV.dump",200);
-           dumped=true;
-         }
-      // #endif
-
-      result = 0;
-      // Due to the nature of the analysis details of the model independent limit in
-      // the paper, the best we can do is to try these two processes individually:
-
-      // se_L, se_L
-      xsecLimit = limitContainer.limitAverage(mass_seL, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP205_xsec_selselbar;
-      xsecWithError.upper *= pow(Dep::selectron_l_decay_rates->BF("~chi0_1", "e-"), 2);
-      xsecWithError.central *= pow(Dep::selectron_l_decay_rates->BF("~chi0_1", "e-"), 2);
-      xsecWithError.lower *= pow(Dep::selectron_l_decay_rates->BF("~chi0_1", "e-"), 2);
+      // char1, neut1
+      xsecLimit = limitContainer.limitAverage(mass_char1, mass_char1-std::abs(mass_neut1), mZ);
+      xsecWithError = LEP_xsec_chipm(sqrts, 1, 1, tol, pt_error, spec, gammaZ);
 
       if (xsecWithError.central < xsecLimit)
-      {
         result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
       else
-      {
         result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
 
-      // se_R, se_R
-      xsecLimit = limitContainer.limitAverage(mass_seR, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP205_xsec_serserbar;
-      xsecWithError.upper *= pow(Dep::selectron_r_decay_rates->BF("~chi0_1", "e-"), 2);
-      xsecWithError.central *= pow(Dep::selectron_r_decay_rates->BF("~chi0_1", "e-"), 2);
-      xsecWithError.lower *= pow(Dep::selectron_r_decay_rates->BF("~chi0_1", "e-"), 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-    }
-
-    void L3_Smuon_Conservative_LLike(double& result)
-    {
-      using namespace Pipes::L3_Smuon_Conservative_LLike;
-      using std::pow;
-      using std::log;
-
-      const Spectrum& spec = *Dep::MSSM_spectrum;
-
-      double max_mixing;
-      const SubSpectrum& mssm = spec.get_HE();
-      str smul_string = slhahelp::mass_es_from_gauge_es("~mu_L", max_mixing, mssm);
-      str smur_string = slhahelp::mass_es_from_gauge_es("~mu_R", max_mixing, mssm);
-      const double mass_smuL=spec.get(Par::Pole_Mass,smul_string);
-      const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
-      const double mass_smuR = spec.get(Par::Pole_Mass,smur_string);
-      const double mZ = spec.get(Par::Pole_Mass,23, 0);
-      triplet<double> xsecWithError;
-      double xsecLimit;
-
-      static const L3SmuonLimitAt205GeV limitContainer;
-      // #ifdef COLLIDERBIT_DEBUG
-      // static bool dumped=false;
-      // if(!dumped)
-      // {
-      //   limitContainer.dumpPlotData(45., 115., 0., 100., mZ, "lepLimitPlanev2/L3SmuonLimitAt205GeV.dump");
-      //   dumped=true;
-      // }
-      // #endif
-
-      result = 0;
-      // Due to the nature of the analysis details of the model independent limit in
-      // the paper, the best we can do is to try these two processes individually:
-
-      // smu_L, smu_L
-      xsecLimit = limitContainer.limitAverage(mass_smuL, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP205_xsec_smulsmulbar;
-      xsecWithError.upper *= pow(Dep::smuon_l_decay_rates->BF("~chi0_1", "mu-"), 2);
-      xsecWithError.central *= pow(Dep::smuon_l_decay_rates->BF("~chi0_1", "mu-"), 2);
-      xsecWithError.lower *= pow(Dep::smuon_l_decay_rates->BF("~chi0_1", "mu-"), 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-      // smu_R, smu_R
-      xsecLimit = limitContainer.limitAverage(mass_smuR, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP205_xsec_smursmurbar;
-      xsecWithError.upper *= pow(Dep::smuon_r_decay_rates->BF("~chi0_1", "mu-"), 2);
-      xsecWithError.central *= pow(Dep::smuon_r_decay_rates->BF("~chi0_1", "mu-"), 2);
-      xsecWithError.lower *= pow(Dep::smuon_r_decay_rates->BF("~chi0_1", "mu-"), 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-    }
-
-    void L3_Stau_Conservative_LLike(double& result)
-    {
-      using namespace Pipes::L3_Stau_Conservative_LLike;
-      using std::pow;
-      using std::log;
-
-      const Spectrum& spec = *Dep::MSSM_spectrum;
-
-      const SubSpectrum& mssm = spec.get_HE();
-      static const double tol = runOptions->getValueOrDef<double>(1e-5, "family_mixing_tolerance");
-      static const bool pterror = runOptions->getValueOrDef<bool>(false, "family_mixing_tolerance_invalidates_point_only");
-      str stau1_string = slhahelp::mass_es_closest_to_family("~tau_1", mssm,tol,LOCAL_INFO,pterror);
-      str stau2_string = slhahelp::mass_es_closest_to_family("~tau_2", mssm,tol,LOCAL_INFO,pterror);
-      const double mass_stau1=spec.get(Par::Pole_Mass,stau1_string);
-      const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
-      const double mass_stau2 = spec.get(Par::Pole_Mass,stau2_string);
-      const double mZ = spec.get(Par::Pole_Mass,23, 0);
-      triplet<double> xsecWithError;
-      double xsecLimit;
-
-      static const L3StauLimitAt205GeV limitContainer;
-      // #ifdef COLLIDERBIT_DEBUG
-      //   static bool dumped=false;
-      //   if(!dumped)
-      //   {
-      //     limitContainer.dumpPlotData(45., 115., 0., 100., mZ, "lepLimitPlanev2/L3StauLimitAt205GeV.dump");
-      //     dumped=true;
-      //   }
-      // #endif
-
-      result = 0;
-      // Due to the nature of the analysis details of the model independent limit in
-      // the paper, the best we can do is to try these two processes individually:
-
-      // stau_1, stau_1
-      xsecLimit = limitContainer.limitAverage(mass_stau1, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP205_xsec_stau1stau1bar;
-      xsecWithError.upper *= pow(Dep::stau_1_decay_rates->BF("~chi0_1", "tau-"), 2);
-      xsecWithError.central *= pow(Dep::stau_1_decay_rates->BF("~chi0_1", "tau-"), 2);
-      xsecWithError.lower *= pow(Dep::stau_1_decay_rates->BF("~chi0_1", "tau-"), 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-      // stau_2, stau_2
-      xsecLimit = limitContainer.limitAverage(mass_stau2, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP205_xsec_stau2stau2bar;
-      xsecWithError.upper *= pow(Dep::stau_2_decay_rates->BF("~chi0_1", "tau-"), 2);
-      xsecWithError.central *= pow(Dep::stau_2_decay_rates->BF("~chi0_1", "tau-"), 2);
-      xsecWithError.lower *= pow(Dep::stau_2_decay_rates->BF("~chi0_1", "tau-"), 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
+      return result;
     }
     /// @}
 
-    /// LEP Gaugino Log-Likelihoods
-    /// @{
-    void L3_Neutralino_All_Channels_Conservative_LLike(double& result)
+
+    /// Compute the individual LEP slepton and gaugino log-likelihoods, returning
+    /// them as a map from analysis name to log-likelihood. The set of analyses
+    /// to include is controlled by the "analyses" option (default: the standard
+    /// non-overlapping set of LEP limits).
+    void calc_LEP_LogLikes(map_str_dbl& result)
     {
-      using namespace Pipes::L3_Neutralino_All_Channels_Conservative_LLike;
-      using std::pow;
-      using std::log;
+      using namespace Pipes::calc_LEP_LogLikes;
+      result.clear();
+
+      // The standard non-overlapping set of LEP analyses.
+      static const std::vector<str> default_analyses =
+      {
+        "ALEPH_Selectron", "ALEPH_Smuon", "ALEPH_Stau",
+        "L3_Selectron", "L3_Smuon", "L3_Stau",
+        "L3_Neutralino_Leptonic", "L3_Chargino_Leptonic",
+        "OPAL_Chargino_Hadronic", "OPAL_Chargino_SemiLeptonic", "OPAL_Chargino_Leptonic",
+        "OPAL_Neutralino_Hadronic"
+      };
+      const std::vector<str> analyses = runOptions->getValueOrDef<std::vector<str> >(default_analyses, "analyses");
+
+      // Mixing tolerances and point-invalidation flags, with the same option
+      // names and historical defaults as the original individual functions.
+      const double gtol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
+      const bool   gpt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
+      const double ftol = runOptions->getValueOrDef<double>(1e-2, "family_mixing_tolerance");
+      const bool   fpt_error = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
+      // The stau mass-eigenstate identification historically used different
+      // defaults for the family-mixing tolerance and point-invalidation flag.
+      const double stau_id_tol = runOptions->getValueOrDef<double>(1e-5, "family_mixing_tolerance");
+      const bool   stau_id_pterror = runOptions->getValueOrDef<bool>(false, "family_mixing_tolerance_invalidates_point_only");
 
       const Spectrum& spec = *Dep::MSSM_spectrum;
-
+      const double gammaZ = Dep::Z_decay_rates->width_in_GeV;
       const DecayTable& decays = *Dep::decay_rates;
-      const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
-      const double mass_neut2 = spec.get(Par::Pole_Mass,1000023, 0);
-      const double mass_neut3 = spec.get(Par::Pole_Mass,1000025, 0);
-      const double mass_neut4 = spec.get(Par::Pole_Mass,1000035, 0);
-      const double mZ = spec.get(Par::Pole_Mass,23, 0);
-      triplet<double> xsecWithError;
-      double xsecLimit, totalBR;
+      const DecayTable::Entry& sel_l = *Dep::selectron_l_decay_rates;
+      const DecayTable::Entry& sel_r = *Dep::selectron_r_decay_rates;
+      const DecayTable::Entry& smu_l = *Dep::smuon_l_decay_rates;
+      const DecayTable::Entry& smu_r = *Dep::smuon_r_decay_rates;
+      const DecayTable::Entry& stau_1 = *Dep::stau_1_decay_rates;
+      const DecayTable::Entry& stau_2 = *Dep::stau_2_decay_rates;
 
-      static const L3NeutralinoAllChannelsLimitAt188pt6GeV limitContainer;
-      // #ifdef COLLIDERBIT_DEBUG
-      //   static bool dumped=false;
-      //   if(!dumped)
-      //   {
-      //     limitContainer.dumpPlotData(0., 200., 0., 100., mZ, "lepLimitPlanev2/L3NeutralinoAllChannelsLimitAt188pt6GeV.dump");
-      //     dumped=true;
-      //   }
-      // #endif
+      std::stringstream summary_line;
+      summary_line << "LEP loglikes per analysis: ";
 
-      result = 0;
-      // Due to the nature of the analysis details of the model independent limit in
-      // the paper, the best we can do is to try these processes individually:
-
-      // neut2, neut1
-      xsecLimit = limitContainer.limitAverage(mass_neut2, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP188_xsec_chi00_12;
-      // Total up all channels which look like Z* decays
-      totalBR = 0;
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "Z0");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "ubar", "u");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "dbar", "d");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "cbar", "c");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "sbar", "s");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "bbar", "b");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "e+", "e-");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "mu+", "mu-");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "tau+", "tau-");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "nubar_e", "nu_e");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "nubar_mu", "nu_mu");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "nubar_tau", "nu_tau");
-      xsecWithError.upper *= totalBR;
-      xsecWithError.central *= totalBR;
-      xsecWithError.lower *= totalBR;
-
-      if (xsecWithError.central < xsecLimit)
+      for (const str& analysis : analyses)
       {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
+        double llike;
 
-      // neut3, neut1
-      xsecLimit = limitContainer.limitAverage(mass_neut3, mass_neut1, mZ);
+        if (analysis == "ALEPH_Selectron")
+        {
+          static const ALEPHSelectronLimitAt208GeV lc;
+          llike = LEP_slepton_pair_LLike(spec, gammaZ, 208.0, lc, 1, "~e_L", "~e_R", sel_l, sel_r, "e-", gtol, gpt_error);
+        }
+        else if (analysis == "ALEPH_Smuon")
+        {
+          static const ALEPHSmuonLimitAt208GeV lc;
+          llike = LEP_slepton_pair_LLike(spec, gammaZ, 208.0, lc, 2, "~mu_L", "~mu_R", smu_l, smu_r, "mu-", gtol, gpt_error);
+        }
+        else if (analysis == "ALEPH_Stau")
+        {
+          static const ALEPHStauLimitAt208GeV lc;
+          llike = LEP_stau_pair_LLike(spec, gammaZ, 208.0, lc, stau_1, stau_2, gtol, ftol, gpt_error, fpt_error, stau_id_tol, stau_id_pterror);
+        }
+        else if (analysis == "L3_Selectron")
+        {
+          static const L3SelectronLimitAt205GeV lc;
+          llike = LEP_slepton_pair_LLike(spec, gammaZ, 205.0, lc, 1, "~e_L", "~e_R", sel_l, sel_r, "e-", gtol, gpt_error);
+        }
+        else if (analysis == "L3_Smuon")
+        {
+          static const L3SmuonLimitAt205GeV lc;
+          llike = LEP_slepton_pair_LLike(spec, gammaZ, 205.0, lc, 2, "~mu_L", "~mu_R", smu_l, smu_r, "mu-", gtol, gpt_error);
+        }
+        else if (analysis == "L3_Stau")
+        {
+          static const L3StauLimitAt205GeV lc;
+          llike = LEP_stau_pair_LLike(spec, gammaZ, 205.0, lc, stau_1, stau_2, gtol, ftol, gpt_error, fpt_error, stau_id_tol, stau_id_pterror);
+        }
+        else if (analysis == "L3_Neutralino_All_Channels")
+        {
+          static const L3NeutralinoAllChannelsLimitAt188pt6GeV lc;
+          llike = LEP_L3_Neutralino_All_Channels_LLike(spec, gammaZ, 188.6, lc, decays, gtol, gpt_error);
+        }
+        else if (analysis == "L3_Neutralino_Leptonic")
+        {
+          static const L3NeutralinoLeptonicLimitAt188pt6GeV lc;
+          llike = LEP_L3_Neutralino_Leptonic_LLike(spec, gammaZ, 188.6, lc, decays, gtol, gpt_error);
+        }
+        else if (analysis == "L3_Chargino_All_Channels")
+        {
+          static const L3CharginoAllChannelsLimitAt188pt6GeV lc;
+          llike = LEP_L3_Chargino_All_Channels_LLike(spec, gammaZ, 188.6, lc, decays, gtol, gpt_error);
+        }
+        else if (analysis == "L3_Chargino_Leptonic")
+        {
+          static const L3CharginoLeptonicLimitAt188pt6GeV lc;
+          llike = LEP_L3_Chargino_Leptonic_LLike(spec, gammaZ, 188.6, lc, decays, gtol, gpt_error);
+        }
+        else if (analysis == "OPAL_Chargino_Hadronic")
+        {
+          static const OPALCharginoHadronicLimitAt208GeV lc;
+          llike = LEP_OPAL_Chargino_Hadronic_LLike(spec, gammaZ, 208.0, lc, decays, gtol, gpt_error);
+        }
+        else if (analysis == "OPAL_Chargino_SemiLeptonic")
+        {
+          static const OPALCharginoSemiLeptonicLimitAt208GeV lc;
+          llike = LEP_OPAL_Chargino_SemiLeptonic_LLike(spec, gammaZ, 208.0, lc, decays, gtol, gpt_error);
+        }
+        else if (analysis == "OPAL_Chargino_Leptonic")
+        {
+          static const OPALCharginoLeptonicLimitAt208GeV lc;
+          llike = LEP_OPAL_Chargino_Leptonic_LLike(spec, gammaZ, 208.0, lc, decays, gtol, gpt_error);
+        }
+        else if (analysis == "OPAL_Chargino_All_Channels")
+        {
+          static const OPALCharginoAllChannelsLimitAt208GeV lc;
+          llike = LEP_OPAL_Chargino_All_Channels_LLike(spec, gammaZ, 208.0, lc, decays, gtol, gpt_error);
+        }
+        else if (analysis == "OPAL_Degenerate_Chargino")
+        {
+          static const OPALDegenerateCharginoLimitAt208GeV lc;
+          llike = LEP_OPAL_Degenerate_Chargino_LLike(spec, gammaZ, 208.0, lc, gtol, gpt_error);
+        }
+        else if (analysis == "OPAL_Neutralino_Hadronic")
+        {
+          static const OPALNeutralinoHadronicLimitAt208GeV lc;
+          llike = LEP_OPAL_Neutralino_Hadronic_LLike(spec, gammaZ, 208.0, lc, decays, gtol, gpt_error);
+        }
+        else
+        {
+          ColliderBit_error().raise(LOCAL_INFO, "Unknown LEP analysis '" + analysis
+            + "' requested in the 'analyses' option of calc_LEP_LogLikes.");
+          continue;
+        }
 
-      xsecWithError = *Dep::LEP188_xsec_chi00_13;
-      // Total up all channels which look like Z* decays
-      totalBR = 0;
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "Z0");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "ubar", "u");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "dbar", "d");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "cbar", "c");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "sbar", "s");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "bbar", "b");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "e+", "e-");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "mu+", "mu-");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "tau+", "tau-");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "nubar_e", "nu_e");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "nubar_mu", "nu_mu");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "nubar_tau", "nu_tau");
-      xsecWithError.upper *= totalBR;
-      xsecWithError.central *= totalBR;
-      xsecWithError.lower *= totalBR;
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-      // neut4, neut1
-      xsecLimit = limitContainer.limitAverage(mass_neut4, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP188_xsec_chi00_14;
-      // Total up all channels which look like Z* decays
-      totalBR = 0;
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "Z0");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "ubar", "u");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "dbar", "d");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "cbar", "c");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "sbar", "s");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "bbar", "b");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "e+", "e-");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "mu+", "mu-");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "tau+", "tau-");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "nubar_e", "nu_e");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "nubar_mu", "nu_mu");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "nubar_tau", "nu_tau");
-      xsecWithError.upper *= totalBR;
-      xsecWithError.central *= totalBR;
-      xsecWithError.lower *= totalBR;
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
+        result[analysis] = llike;
+        summary_line << analysis << ":" << llike << ", ";
       }
 
+      logger() << LogTags::debug << summary_line.str() << EOM;
     }
 
-    void L3_Neutralino_Leptonic_Conservative_LLike(double& result)
+    /// Combine the individual LEP log-likelihoods (LEP_LogLikes) into a single
+    /// total LEP log-likelihood.
+    void calc_LEP_Combined_LogLike(double& result)
     {
-      using namespace Pipes::L3_Neutralino_Leptonic_Conservative_LLike;
-      using std::pow;
-      using std::log;
-
-      const Spectrum& spec = *Dep::MSSM_spectrum;
-
-      const DecayTable& decays = *Dep::decay_rates;
-      const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
-      const double mass_neut2 = spec.get(Par::Pole_Mass,1000023, 0);
-      const double mass_neut3 = spec.get(Par::Pole_Mass,1000025, 0);
-      const double mass_neut4 = spec.get(Par::Pole_Mass,1000035, 0);
-      const double mZ = spec.get(Par::Pole_Mass,23, 0);
-      triplet<double> xsecWithError;
-      double xsecLimit, totalBR;
-
-      static const L3NeutralinoLeptonicLimitAt188pt6GeV limitContainer;
-      // #ifdef COLLIDERBIT_DEBUG
-      // static bool dumped=false;
-      // if(!dumped)
-      // {
-      //   limitContainer.dumpPlotData(0., 200., 0., 100., mZ, "lepLimitPlanev2/L3NeutralinoLeptonicLimitAt188pt6GeV.dump");
-      //   dumped=true;
-      // }
-      // #endif
-
+      using namespace Pipes::calc_LEP_Combined_LogLike;
       result = 0;
-      // Due to the nature of the analysis details of the model independent limit in
-      // the paper, the best we can do is to try these processes individually:
-
-      // neut2, neut1
-      xsecLimit = limitContainer.limitAverage(mass_neut2, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP188_xsec_chi00_12;
-      // Total up all channels which look like leptonic Z* decays
-      // Total up the leptonic Z decays first...
-      totalBR = 0;
-      totalBR += decays.at("Z0").BF("e+", "e-");
-      totalBR += decays.at("Z0").BF("mu+", "mu-");
-      totalBR += decays.at("Z0").BF("tau+", "tau-");
-      totalBR = decays.at("~chi0_2").BF("~chi0_1", "Z0") * totalBR;
-
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "e+", "e-");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "mu+", "mu-");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "tau+", "tau-");
-      xsecWithError.upper *= totalBR;
-      xsecWithError.central *= totalBR;
-      xsecWithError.lower *= totalBR;
-
-      if (xsecWithError.central < xsecLimit)
+      for (const std::pair<const str, double>& pair : *Dep::LEP_LogLikes)
       {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
+        result += pair.second;
       }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-      // neut3, neut1
-      xsecLimit = limitContainer.limitAverage(mass_neut3, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP188_xsec_chi00_13;
-      // Total up all channels which look like leptonic Z* decays
-      // Total up the leptonic Z decays first...
-      totalBR = 0;
-      totalBR += decays.at("Z0").BF("e+", "e-");
-      totalBR += decays.at("Z0").BF("mu+", "mu-");
-      totalBR += decays.at("Z0").BF("tau+", "tau-");
-      totalBR = decays.at("~chi0_3").BF("~chi0_1", "Z0") * totalBR;
-
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "e+", "e-");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "mu+", "mu-");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "tau+", "tau-");
-      xsecWithError.upper *= totalBR;
-      xsecWithError.central *= totalBR;
-      xsecWithError.lower *= totalBR;
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-      // neut4, neut1
-      xsecLimit = limitContainer.limitAverage(mass_neut4, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP188_xsec_chi00_14;
-      // Total up all channels which look like leptonic Z* decays
-      // Total up the leptonic Z decays first...
-      totalBR = 0;
-      totalBR += decays.at("Z0").BF("e+", "e-");
-      totalBR += decays.at("Z0").BF("mu+", "mu-");
-      totalBR += decays.at("Z0").BF("tau+", "tau-");
-      totalBR = decays.at("~chi0_4").BF("~chi0_1", "Z0") * totalBR;
-
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "e+", "e-");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "mu+", "mu-");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "tau+", "tau-");
-      xsecWithError.upper *= totalBR;
-      xsecWithError.central *= totalBR;
-      xsecWithError.lower *= totalBR;
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
     }
 
-    void L3_Chargino_All_Channels_Conservative_LLike(double& result)
+    void L3_Gravitino_LLike(double& result)
     {
-      using namespace Pipes::L3_Chargino_All_Channels_Conservative_LLike;
-      using std::pow;
-      using std::log;
-      static const double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      static const bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-
-      const Spectrum& spec = *Dep::MSSM_spectrum;
-      const LSP lsp = get_LSP_for_LEP_limits(spec);
-
-      const SubSpectrum& mssm = spec.get_HE();
-      const DecayTable& decays = *Dep::decay_rates;
-
-      const double mass_neut1 = lsp.mass;
-      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol, LOCAL_INFO, pt_error);
-      const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
-      const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);
-      const double mZ = spec.get(Par::Pole_Mass,23, 0);
-      triplet<double> xsecWithError;
-      double xsecLimit, totalBR;
-
-      static const L3CharginoAllChannelsLimitAt188pt6GeV limitContainer;
-      // #ifdef COLLIDERBIT_DEBUG
-      //   static bool dumped=false;
-      //   if(!dumped)
-      //   {
-      //     limitContainer.dumpPlotData(45., 100., 0., 100., mZ, "lepLimitPlanev2/L3CharginoAllChannelsLimitAt188pt6GeV.dump");
-      //     dumped=true;
-      //   }
-      // #endif
-
-      result = 0;
-      // Due to the nature of the analysis details of the model independent limit in
-      // the paper, the best we can do is to try these processes individually:
-
-      // char1, neut1
-      xsecLimit = limitContainer.limitAverage(mass_char1, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP188_xsec_chipm_11;
-      // Total up all channels which look like W* decays
-      totalBR = 0;
-      totalBR += decays.at("~chi+_1").BF("~chi0_1", "W+");
-      totalBR += decays.at("~chi+_1").BF("~chi0_1", "u", "dbar");
-      totalBR += decays.at("~chi+_1").BF("~chi0_1", "c", "sbar");
-      totalBR += decays.at("~chi+_1").BF("~chi0_1", "e+", "nu_e");
-      totalBR += decays.at("~chi+_1").BF("~chi0_1", "mu+", "nu_mu");
-      totalBR += decays.at("~chi+_1").BF("~chi0_1", "tau+", "nu_tau");
-      totalBR += decays.at("~chi+_1").BF(snue, "e+")
-               * decays.at(snue).BF("~chi0_1", "nu_e");
-      totalBR += decays.at("~chi+_1").BF(snumu, "mu+")
-               * decays.at(snumu).BF("~chi0_1", "nu_mu");
-      totalBR += decays.at("~chi+_1").BF(snutau, "tau+")
-               * decays.at(snutau).BF("~chi0_1", "nu_tau");
-      xsecWithError.upper *= pow(totalBR, 2);
-      xsecWithError.central *= pow(totalBR, 2);
-      xsecWithError.lower *= pow(totalBR, 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-      // char2, neut1
-      xsecLimit = limitContainer.limitAverage(mass_char2, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP188_xsec_chipm_22;
-      // Total up all channels which look like W* decays
-      totalBR = 0;
-      totalBR += decays.at("~chi+_2").BF("~chi0_1", "W+");
-      totalBR += decays.at("~chi+_2").BF("~chi0_1", "u", "dbar");
-      totalBR += decays.at("~chi+_2").BF("~chi0_1", "c", "sbar");
-      totalBR += decays.at("~chi+_2").BF("~chi0_1", "e+", "nu_e");
-      totalBR += decays.at("~chi+_2").BF("~chi0_1", "mu+", "nu_mu");
-      totalBR += decays.at("~chi+_2").BF("~chi0_1", "tau+", "nu_tau");
-      totalBR += decays.at("~chi+_2").BF(snue, "e+")
-               * decays.at(snue).BF("~chi0_1", "nu_e");
-      totalBR += decays.at("~chi+_2").BF(snumu, "mu+")
-               * decays.at(snumu).BF("~chi0_1", "nu_mu");
-      totalBR += decays.at("~chi+_2").BF(snutau, "tau+")
-               * decays.at(snutau).BF("~chi0_1", "nu_tau");
-      xsecWithError.upper *= pow(totalBR, 2);
-      xsecWithError.central *= pow(totalBR, 2);
-      xsecWithError.lower *= pow(totalBR, 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-    }
-
-    void L3_Chargino_Leptonic_Conservative_LLike(double& result)
-    {
-      using namespace Pipes::L3_Chargino_Leptonic_Conservative_LLike;
-      using std::pow;
-      using std::log;
-      static const double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      static const bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-
-      const Spectrum& spec = *Dep::MSSM_spectrum;
-      const LSP lsp = get_LSP_for_LEP_limits(spec);
-
-      const SubSpectrum& mssm = spec.get_HE();
-      const DecayTable& decays = *Dep::decay_rates;
-
-      const double mass_neut1 = lsp.mass;
-      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol, LOCAL_INFO, pt_error);
-      const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
-      const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);
-      const double mZ = spec.get(Par::Pole_Mass,23, 0);
-      triplet<double> xsecWithError;
-      double xsecLimit, totalBR;
-
-      static const L3CharginoLeptonicLimitAt188pt6GeV limitContainer;
-      // #ifdef COLLIDERBIT_DEBUG
-      //   static bool dumped=false;
-      //   if(!dumped)
-      //   {
-      //     limitContainer.dumpPlotData(45., 100., 0., 100., mZ, "lepLimitPlanev2/L3CharginoLeptonicLimitAt188pt6GeV.dump");
-      //     dumped=true;
-      //   }
-      // #endif
-
-      result = 0;
-      // Due to the nature of the analysis details of the model independent limit in
-      // the paper, the best we can do is to try these processes individually:
-
-      // char1, neut1
-      xsecLimit = limitContainer.limitAverage(mass_char1, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP188_xsec_chipm_11;
-      // Total up all channels which look like leptonic W* decays
-      // Total up the leptonic W decays first...
-      totalBR = 0;
-      totalBR += decays.at("W+").BF("e+", "nu_e");
-      totalBR += decays.at("W+").BF("mu+", "nu_mu");
-      totalBR += decays.at("W+").BF("tau+", "nu_tau");
-      totalBR = decays.at("~chi+_1").BF(lsp.name, "W+") * totalBR;
-
-      totalBR += decays.at("~chi+_1").BF("~chi0_1", "e+", "nu_e");
-      totalBR += decays.at("~chi+_1").BF("~chi0_1", "mu+", "nu_mu");
-      totalBR += decays.at("~chi+_1").BF("~chi0_1", "tau+", "nu_tau");
-
-      totalBR += decays.at("~chi+_1").BF(snue, "e+")
-               * decays.at(snue).BF("~chi0_1", "nu_e");
-      totalBR += decays.at("~chi+_1").BF(snumu, "mu+")
-               * decays.at(snumu).BF("~chi0_1", "nu_mu");
-      totalBR += decays.at("~chi+_1").BF(snutau, "tau+")
-               * decays.at(snutau).BF("~chi0_1", "nu_tau");
-
-      xsecWithError.upper *= pow(totalBR, 2);
-      xsecWithError.central *= pow(totalBR, 2);
-      xsecWithError.lower *= pow(totalBR, 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-      // char2, neut1
-      xsecLimit = limitContainer.limitAverage(mass_char2, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP188_xsec_chipm_22;
-      // Total up all channels which look like leptonic W* decays
-      // Total up the leptonic W decays first...
-      totalBR = 0;
-      totalBR += decays.at("W+").BF("e+", "nu_e");
-      totalBR += decays.at("W+").BF("mu+", "nu_mu");
-      totalBR += decays.at("W+").BF("tau+", "nu_tau");
-      totalBR = decays.at("~chi+_2").BF(lsp.name, "W+") * totalBR;
-
-      totalBR += decays.at("~chi+_2").BF("~chi0_1", "e+", "nu_e");
-      totalBR += decays.at("~chi+_2").BF("~chi0_1", "mu+", "nu_mu");
-      totalBR += decays.at("~chi+_2").BF("~chi0_1", "tau+", "nu_tau");
-
-      totalBR += decays.at("~chi+_2").BF(snue, "e+")
-               * decays.at(snue).BF("~chi0_1", "nu_e");
-      totalBR += decays.at("~chi+_2").BF(snumu, "mu+")
-               * decays.at(snumu).BF("~chi0_1", "nu_mu");
-      totalBR += decays.at("~chi+_2").BF(snutau, "tau+")
-               * decays.at(snutau).BF("~chi0_1", "nu_tau");
-
-      xsecWithError.upper *= pow(totalBR, 2);
-      xsecWithError.central *= pow(totalBR, 2);
-      xsecWithError.lower *= pow(totalBR, 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-    }
-
-    void OPAL_Chargino_Hadronic_Conservative_LLike(double& result)
-    {
-      using namespace Pipes::OPAL_Chargino_Hadronic_Conservative_LLike;
-      using std::pow;
-      using std::log;
-
-      const Spectrum& spec = *Dep::MSSM_spectrum;
-      const LSP lsp = get_LSP_for_LEP_limits(spec);
-
-      const DecayTable& decays = *Dep::decay_rates;
-      const double mass_neut1 = lsp.mass;
-      const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
-      const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);
-      const double mZ = spec.get(Par::Pole_Mass,23, 0);
-      triplet<double> xsecWithError;
-      double xsecLimit, totalBR;
-
-      static const OPALCharginoHadronicLimitAt208GeV limitContainer;
-      // #ifdef COLLIDERBIT_DEBUG
-      //   static bool dumped=false;
-      //   if(!dumped)
-      //   {
-      //     limitContainer.dumpPlotData(75., 105., 0., 105., mZ, "lepLimitPlanev2/OPALCharginoHadronicLimitAt208GeV.dump");
-      //     dumped=true;
-      //   }
-      // #endif
-
-      result = 0;
-      // Due to the nature of the analysis details of the model independent limit in
-      // the paper, the best we can do is to try these processes individually:
-
-      // char1, neut1
-      xsecLimit = limitContainer.limitAverage(mass_char1, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP208_xsec_chipm_11;
-      // Total up all channels which look like hadronic W* decays
-      // Total up the hadronic W decays first...
-      totalBR = decays.at("W+").BF("hadron", "hadron");
-      totalBR = decays.at("~chi+_1").BF(lsp.name, "W+") * totalBR;
-
-      totalBR += decays.at("~chi+_1").BF(lsp.name, "u", "dbar");
-      totalBR += decays.at("~chi+_1").BF(lsp.name, "c", "sbar");
-      xsecWithError.upper *= pow(totalBR, 2);
-      xsecWithError.central *= pow(totalBR, 2);
-      xsecWithError.lower *= pow(totalBR, 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-      // char2, neut1
-      xsecLimit = limitContainer.limitAverage(mass_char2, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP208_xsec_chipm_22;
-      // Total up all channels which look like hadronic W* decays
-      // Total up the hadronic W decays first...
-      totalBR = decays.at("W+").BF("hadron", "hadron");
-      totalBR = decays.at("~chi+_2").BF(lsp.name, "W+") * totalBR;
-
-      totalBR += decays.at("~chi+_2").BF(lsp.name, "u", "dbar");
-      totalBR += decays.at("~chi+_2").BF(lsp.name, "c", "sbar");
-      xsecWithError.upper *= pow(totalBR, 2);
-      xsecWithError.central *= pow(totalBR, 2);
-      xsecWithError.lower *= pow(totalBR, 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-    }
-
-    void OPAL_Chargino_SemiLeptonic_Conservative_LLike(double& result)
-    {
-      using namespace Pipes::OPAL_Chargino_SemiLeptonic_Conservative_LLike;
-      using std::pow;
-      using std::log;
-      static const double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      static const bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-
-      const Spectrum& spec = *Dep::MSSM_spectrum;
-      const LSP lsp = get_LSP_for_LEP_limits(spec);
-
-      const SubSpectrum& mssm = spec.get_HE();
-      const DecayTable& decays = *Dep::decay_rates;
-      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol, LOCAL_INFO, pt_error);
-      const double mass_neut1 = lsp.mass;
-      const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
-      const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);
-      const double mZ = spec.get(Par::Pole_Mass,23, 0);
-      triplet<double> xsecWithError;
-      double xsecLimit, totalBR;
-
-      static const OPALCharginoSemiLeptonicLimitAt208GeV limitContainer;
-      // #ifdef COLLIDERBIT_DEBUG
-      //   static bool dumped=false;
-      //   if(!dumped)
-      //   {
-      //     limitContainer.dumpPlotData(75., 105., 0., 105., mZ, "lepLimitPlanev2/OPALCharginoSemiLeptonicLimitAt208GeV.dump");
-      //     dumped=true;
-      //   }
-      // #endif
-
-      result = 0;
-      // Due to the nature of the analysis details of the model independent limit in
-      // the paper, the best we can do is to try these processes individually:
-
-      // char1, neut1
-      xsecLimit = limitContainer.limitAverage(mass_char1, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP208_xsec_chipm_11;
-      // Total up all channels which look like leptonic W* decays
-      // Total up the leptonic W decays first...
-      totalBR = 0;
-      totalBR += decays.at("W+").BF("e+", "nu_e");
-      totalBR += decays.at("W+").BF("mu+", "nu_mu");
-      totalBR += decays.at("W+").BF("tau+", "nu_tau");
-      totalBR = decays.at("~chi+_1").BF(lsp.name, "W+") * totalBR;
-
-      totalBR += decays.at("~chi+_1").BF(lsp.name, "e+", "nu_e");
-      totalBR += decays.at("~chi+_1").BF(lsp.name, "mu+", "nu_mu");
-      totalBR += decays.at("~chi+_1").BF(lsp.name, "tau+", "nu_tau");
-
-      // We don't have sneutrino --> gravitino + neutrino decays
-      if (lsp.pdg != 1000039)
-      {
-        totalBR += decays.at("~chi+_1").BF(snue, "e+")
-                 * decays.at(snue).BF(lsp.name, "nu_e");
-        totalBR += decays.at("~chi+_1").BF(snumu, "mu+")
-                 * decays.at(snumu).BF(lsp.name, "nu_mu");
-        totalBR += decays.at("~chi+_1").BF(snutau, "tau+")
-                 * decays.at(snutau).BF(lsp.name, "nu_tau");
-      }
-
-      xsecWithError.upper *= totalBR;
-      xsecWithError.central *= totalBR;
-      xsecWithError.lower *= totalBR;
-
-      // ALSO, total up all channels which look like hadronic W* decays
-      // Total up the hadronic W decays first...
-      totalBR = decays.at("W+").BF("hadron", "hadron");
-      totalBR = decays.at("~chi+_1").BF(lsp.name, "W+") * totalBR;
-
-      totalBR += decays.at("~chi+_1").BF(lsp.name, "u", "dbar");
-      totalBR += decays.at("~chi+_1").BF(lsp.name, "c", "sbar");
-      xsecWithError.upper *= totalBR;
-      xsecWithError.central *= totalBR;
-      xsecWithError.lower *= totalBR;
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-      // char2, neut1
-      xsecLimit = limitContainer.limitAverage(mass_char2, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP208_xsec_chipm_22;
-      // Total up all channels which look like leptonic W* decays
-      // Total up the leptonic W decays first...
-      totalBR = 0;
-      totalBR += decays.at("W+").BF("e+", "nu_e");
-      totalBR += decays.at("W+").BF("mu+", "nu_mu");
-      totalBR += decays.at("W+").BF("tau+", "nu_tau");
-      totalBR = decays.at("~chi+_2").BF(lsp.name, "W+") * totalBR;
-
-      totalBR += decays.at("~chi+_2").BF(lsp.name, "e+", "nu_e");
-      totalBR += decays.at("~chi+_2").BF(lsp.name, "mu+", "nu_mu");
-      totalBR += decays.at("~chi+_2").BF(lsp.name, "tau+", "nu_tau");
-
-      // We don't have sneutrino --> gravitino + neutrino decays
-      if (lsp.pdg != 1000039)
-      {
-        totalBR += decays.at("~chi+_2").BF(snue, "e+")
-                 * decays.at(snue).BF(lsp.name, "nu_e");
-        totalBR += decays.at("~chi+_2").BF(snumu, "mu+")
-                 * decays.at(snumu).BF(lsp.name, "nu_mu");
-        totalBR += decays.at("~chi+_2").BF(snutau, "tau+")
-                 * decays.at(snutau).BF(lsp.name, "nu_tau");
-      }
-
-      xsecWithError.upper *= totalBR;
-      xsecWithError.central *= totalBR;
-      xsecWithError.lower *= totalBR;
-
-      // ALSO, total up all channels which look like hadronic W* decays
-      // Total up the hadronic W decays first...
-      totalBR = decays.at("W+").BF("hadron", "hadron");
-      totalBR = decays.at("~chi+_2").BF(lsp.name, "W+") * totalBR;
-
-      totalBR += decays.at("~chi+_2").BF(lsp.name, "u", "dbar");
-      totalBR += decays.at("~chi+_2").BF(lsp.name, "c", "sbar");
-      xsecWithError.upper *= totalBR;
-      xsecWithError.central *= totalBR;
-      xsecWithError.lower *= totalBR;
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-    }
-
-    void OPAL_Chargino_Leptonic_Conservative_LLike(double& result)
-    {
-      using namespace Pipes::OPAL_Chargino_Leptonic_Conservative_LLike;
-      static const double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      static const bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-
-      using std::pow;
-      using std::log;
-
-      const Spectrum& spec = *Dep::MSSM_spectrum;
-      const LSP lsp = get_LSP_for_LEP_limits(spec);
-
-      const SubSpectrum& mssm = spec.get_HE();
-      const DecayTable& decays = *Dep::decay_rates;
-      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol, LOCAL_INFO, pt_error);
-      const double mass_neut1 = lsp.mass;
-      const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
-      const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);
-      const double mZ = spec.get(Par::Pole_Mass,23, 0);
-      triplet<double> xsecWithError;
-      double xsecLimit, totalBR;
-
-      static const OPALCharginoLeptonicLimitAt208GeV limitContainer;
-      // #ifdef COLLIDERBIT_DEBUG
-      //   static bool dumped=false;
-      //   if(!dumped)
-      //   {
-      //     limitContainer.dumpPlotData(75., 105., 0., 105., mZ, "lepLimitPlanev2/OPALCharginoLeptonicLimitAt208GeV.dump");
-      //     dumped=true;
-      //   }
-      // #endif
-
-      result = 0;
-      // Due to the nature of the analysis details of the model independent limit in
-      // the paper, the best we can do is to try these processes individually:
-
-      // char1, neut1
-      xsecLimit = limitContainer.limitAverage(mass_char1, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP208_xsec_chipm_11;
-      // Total up all channels which look like leptonic W* decays
-      // Total up the leptonic W decays first...
-      totalBR = 0;
-      totalBR += decays.at("W+").BF("e+", "nu_e");
-      totalBR += decays.at("W+").BF("mu+", "nu_mu");
-      totalBR += decays.at("W+").BF("tau+", "nu_tau");
-      totalBR = decays.at("~chi+_1").BF(lsp.name, "W+") * totalBR;
-
-      totalBR += decays.at("~chi+_1").BF(lsp.name, "e+", "nu_e");
-      totalBR += decays.at("~chi+_1").BF(lsp.name, "mu+", "nu_mu");
-      totalBR += decays.at("~chi+_1").BF(lsp.name, "tau+", "nu_tau");
-
-      // We don't have sneutrino --> gravitino + neutrino decays
-      if (lsp.pdg != 1000039)
-      {
-        totalBR += decays.at("~chi+_1").BF(snue, "e+")
-                 * decays.at(snue).BF(lsp.name, "nu_e");
-        totalBR += decays.at("~chi+_1").BF(snumu, "mu+")
-                 * decays.at(snumu).BF(lsp.name, "nu_mu");
-        totalBR += decays.at("~chi+_1").BF(snutau, "tau+")
-                 * decays.at(snutau).BF(lsp.name, "nu_tau");
-      }
-
-      xsecWithError.upper *= pow(totalBR, 2);
-      xsecWithError.central *= pow(totalBR, 2);
-      xsecWithError.lower *= pow(totalBR, 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-      // char2, neut1
-      xsecLimit = limitContainer.limitAverage(mass_char2, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP208_xsec_chipm_22;
-      // Total up all channels which look like leptonic W* decays
-      // Total up the leptonic W decays first...
-      totalBR = 0;
-      totalBR += decays.at("W+").BF("e+", "nu_e");
-      totalBR += decays.at("W+").BF("mu+", "nu_mu");
-      totalBR += decays.at("W+").BF("tau+", "nu_tau");
-      totalBR = decays.at("~chi+_2").BF(lsp.name, "W+") * totalBR;
-
-      totalBR += decays.at("~chi+_2").BF(lsp.name, "e+", "nu_e");
-      totalBR += decays.at("~chi+_2").BF(lsp.name, "mu+", "nu_mu");
-      totalBR += decays.at("~chi+_2").BF(lsp.name, "tau+", "nu_tau");
-
-      // We don't have sneutrino --> gravitino + neutrino decays
-      if (lsp.pdg != 1000039)
-      {
-        totalBR += decays.at("~chi+_2").BF(snue, "e+")
-                 * decays.at(snue).BF(lsp.name, "nu_e");
-        totalBR += decays.at("~chi+_2").BF(snumu, "mu+")
-                 * decays.at(snumu).BF(lsp.name, "nu_mu");
-        totalBR += decays.at("~chi+_2").BF(snutau, "tau+")
-                 * decays.at(snutau).BF(lsp.name, "nu_tau");
-      }
-
-      xsecWithError.upper *= pow(totalBR, 2);
-      xsecWithError.central *= pow(totalBR, 2);
-      xsecWithError.lower *= pow(totalBR, 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-    }
-
-    // OPAL limit on degenerate chargino--neutralino scenario at 208 GeV
-    // Sensitive to mass differences between 320 MeV and 5 GeV
-    // Based on hep-ex/0210043
-    void OPAL_Degenerate_Chargino_Conservative_LLike(double& result)
-    {
-      using namespace Pipes::OPAL_Degenerate_Chargino_Conservative_LLike;
-
-      const Spectrum& spec = *Dep::MSSM_spectrum;
-      const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
-      const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
-      const double mZ = spec.get(Par::Pole_Mass,23, 0);
-      triplet<double> xsecWithError;
-      double xsecLimit;
-
-      static const OPALDegenerateCharginoLimitAt208GeV limitContainer;
-      // #ifdef COLLIDERBIT_DEBUG
-      //   static bool dumped=false;
-      //   if(!dumped)
-      //   {
-      //     limitContainer.dumpPlotData(45.0, 95., 0.320, 5., mZ, "lepLimitPlanev2/OPALDegenerateCharginoLimitAt208GeV.dump");
-      //
-      //     dumped=true;
-      //   }
-      // #endif
-
-      result = 0;
-
-      // char1, neut1
-      xsecLimit = limitContainer.limitAverage(mass_char1, mass_char1-abs(mass_neut1), mZ);
-      xsecWithError = *Dep::LEP208_xsec_chipm_11;
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-    }
-
-
-    void OPAL_Chargino_All_Channels_Conservative_LLike(double& result)
-    {
-      using namespace Pipes::OPAL_Chargino_All_Channels_Conservative_LLike;
-      static const double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
-      static const bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
-
-      const Spectrum& spec = *Dep::MSSM_spectrum;
-      const LSP lsp = get_LSP_for_LEP_limits(spec);
-
-      const SubSpectrum& mssm = spec.get_HE();
-      const DecayTable& decays = *Dep::decay_rates;
-      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol, LOCAL_INFO, pt_error);
-      const double mass_neut1 = lsp.mass;
-      const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
-      const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);
-      const double mZ = spec.get(Par::Pole_Mass,23, 0);
-      triplet<double> xsecWithError;
-      double xsecLimit, totalBR;
-
-      static const OPALCharginoAllChannelsLimitAt208GeV limitContainer;
-      // #ifdef COLLIDERBIT_DEBUG
-      //   static bool dumped=false;
-      //   if(!dumped)
-      //   {
-      //     limitContainer.dumpPlotData(75., 105., 0., 105., mZ, "lepLimitPlanev2/OPALCharginoAllChannelsLimitAt208GeV.dump");
-      //     dumped=true;
-      //   }
-      // #endif
-
-      result = 0;
-      // Due to the nature of the analysis details of the model independent limit in
-      // the paper, the best we can do is to try these processes individually:
-
-      // char1, neut1
-      xsecLimit = limitContainer.limitAverage(mass_char1, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP208_xsec_chipm_11;
-      // Total up all channels which look like W* decays
-      totalBR = 0;
-      totalBR += decays.at("~chi+_1").BF(lsp.name, "W+");
-      totalBR += decays.at("~chi+_1").BF(lsp.name, "u", "dbar");
-      totalBR += decays.at("~chi+_1").BF(lsp.name, "c", "sbar");
-      totalBR += decays.at("~chi+_1").BF(lsp.name, "e+", "nu_e");
-      totalBR += decays.at("~chi+_1").BF(lsp.name, "mu+", "nu_mu");
-      totalBR += decays.at("~chi+_1").BF(lsp.name, "tau+", "nu_tau");
-
-      // We don't have sneutrino --> gravitino + neutrino decays
-      if (lsp.pdg != 1000039)
-      {
-        totalBR += decays.at("~chi+_1").BF(snue, "e+")
-                 * decays.at(snue).BF(lsp.name, "nu_e");
-        totalBR += decays.at("~chi+_1").BF(snumu, "mu+")
-                 * decays.at(snumu).BF(lsp.name, "nu_mu");
-        totalBR += decays.at("~chi+_1").BF(snutau, "tau+")
-                 * decays.at(snutau).BF(lsp.name, "nu_tau");
-      }
-
-      xsecWithError.upper *= pow(totalBR, 2);
-      xsecWithError.central *= pow(totalBR, 2);
-      xsecWithError.lower *= pow(totalBR, 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-      // char2, neut1
-      xsecLimit = limitContainer.limitAverage(mass_char2, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP208_xsec_chipm_22;
-      // Total up all channels which look like W* decays
-      totalBR = 0;
-      totalBR += decays.at("~chi+_2").BF(lsp.name, "W+");
-      totalBR += decays.at("~chi+_2").BF(lsp.name, "u", "dbar");
-      totalBR += decays.at("~chi+_2").BF(lsp.name, "c", "sbar");
-      totalBR += decays.at("~chi+_2").BF(lsp.name, "e+", "nu_e");
-      totalBR += decays.at("~chi+_2").BF(lsp.name, "mu+", "nu_mu");
-      totalBR += decays.at("~chi+_2").BF(lsp.name, "tau+", "nu_tau");
-
-      // We don't have sneutrino --> gravitino + neutrino decays
-      if (lsp.pdg != 1000039)
-      {
-        totalBR += decays.at("~chi+_2").BF(snue, "e+")
-                 * decays.at(snue).BF(lsp.name, "nu_e");
-        totalBR += decays.at("~chi+_2").BF(snumu, "mu+")
-                 * decays.at(snumu).BF(lsp.name, "nu_mu");
-        totalBR += decays.at("~chi+_2").BF(snutau, "tau+")
-                 * decays.at(snutau).BF(lsp.name, "nu_tau");
-      }
-
-      xsecWithError.upper *= pow(totalBR, 2);
-      xsecWithError.central *= pow(totalBR, 2);
-      xsecWithError.lower *= pow(totalBR, 2);
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-    }
-
-    void OPAL_Neutralino_Hadronic_Conservative_LLike(double& result)
-    {
-      using namespace Pipes::OPAL_Neutralino_Hadronic_Conservative_LLike;
-      using std::pow;
-      using std::log;
-
-      const Spectrum& spec = *Dep::MSSM_spectrum;
-
-      const DecayTable& decays = *Dep::decay_rates;
-      const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
-      const double mass_neut2 = spec.get(Par::Pole_Mass,1000023, 0);
-      const double mass_neut3 = spec.get(Par::Pole_Mass,1000025, 0);
-      const double mass_neut4 = spec.get(Par::Pole_Mass,1000035, 0);
-      const double mZ = spec.get(Par::Pole_Mass,23, 0);
-      triplet<double> xsecWithError;
-      double xsecLimit, totalBR;
-
-      static const OPALNeutralinoHadronicLimitAt208GeV limitContainer;
-      // #ifdef COLLIDERBIT_DEBUG
-      //   static bool dumped=false;
-      //   if(!dumped)
-      //   {
-      //     limitContainer.dumpPlotData(0., 200., 0., 100., mZ, "lepLimitPlanev2/OPALNeutralinoHadronicLimitAt208GeV.dump");
-      //     dumped=true;
-      //   }
-      // #endif
-
-      result = 0;
-      // Due to the nature of the analysis details of the model independent limit in
-      // the paper, the best we can do is to try these processes individually:
-
-      // neut2, neut1
-      xsecLimit = limitContainer.limitAverage(mass_neut2, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP208_xsec_chi00_12;
-      // Total up all channels which look like Z* decays
-      totalBR = decays.at("Z0").BF("hadron", "hadron");
-      totalBR = decays.at("~chi0_2").BF("~chi0_1", "Z0") * totalBR;
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "ubar", "u");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "dbar", "d");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "cbar", "c");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "sbar", "s");
-      totalBR += decays.at("~chi0_2").BF("~chi0_1", "bbar", "b");
-      xsecWithError.upper *= totalBR;
-      xsecWithError.central *= totalBR;
-      xsecWithError.lower *= totalBR;
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-      // neut3, neut1
-      xsecLimit = limitContainer.limitAverage(mass_neut3, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP208_xsec_chi00_13;
-      // Total up all channels which look like Z* decays
-      totalBR = decays.at("Z0").BF("hadron", "hadron");
-      totalBR = decays.at("~chi0_3").BF("~chi0_1", "Z0") * totalBR;
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "ubar", "u");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "dbar", "d");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "cbar", "c");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "sbar", "s");
-      totalBR += decays.at("~chi0_3").BF("~chi0_1", "bbar", "b");
-      xsecWithError.upper *= totalBR;
-      xsecWithError.central *= totalBR;
-      xsecWithError.lower *= totalBR;
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-      // neut4, neut1
-      xsecLimit = limitContainer.limitAverage(mass_neut4, mass_neut1, mZ);
-
-      xsecWithError = *Dep::LEP208_xsec_chi00_14;
-      // Total up all channels which look like Z* decays
-      totalBR = decays.at("Z0").BF("hadron", "hadron");
-      totalBR = decays.at("~chi0_4").BF("~chi0_1", "Z0") * totalBR;
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "ubar", "u");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "dbar", "d");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "cbar", "c");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "sbar", "s");
-      totalBR += decays.at("~chi0_4").BF("~chi0_1", "bbar", "b");
-      xsecWithError.upper *= totalBR;
-      xsecWithError.central *= totalBR;
-      xsecWithError.lower *= totalBR;
-
-      if (xsecWithError.central < xsecLimit)
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.upper - xsecWithError.central);
-      }
-      else
-      {
-        result += limit_LLike(xsecWithError.central, xsecLimit, xsecWithError.central - xsecWithError.lower);
-      }
-
-    }
-
-    /// @}
-
-    void L3_Gravitino_LLike(double& result) {
       /**
          @brief L3 search for gravitinos at 207 GeV
 
@@ -2733,9 +985,12 @@ namespace Gambit
          \sigma(ee \to \chi^0_1\chi^0_1) \textrm{BR}(\chi^0_1 \to \tilde{G}\gamma)^2
          \f]
       */
+      using namespace Pipes::L3_Gravitino_LLike;
+      using std::pow;
+      static const double tol = runOptions->getValueOrDef<double>(1e-2, "gauge_mixing_tolerance");
+      static const bool pt_error = runOptions->getValueOrDef<bool>(true, "gauge_mixing_tolerance_invalidates_point_only");
 
       // Unpack neutralino & gravitino mass
-      using namespace Pipes::L3_Gravitino_LLike;
       const Spectrum& spectrum = *Dep::MSSM_spectrum;
       const double m_chi = spectrum.get(Par::Pole_Mass, 1000022, 0);
       const double m_gravitino = spectrum.get(Par::Pole_Mass, 1000039, 0);
@@ -2745,7 +1000,7 @@ namespace Gambit
       const auto BF = decay_rates.at("~chi0_1").BF("gamma", "~G");
 
       // Production cross section of two lightest neutralinos at 207 GeV
-      const auto production_xsec = *Dep::LEP207_xsec_chi00_11;
+      const triplet<double> production_xsec = LEP_xsec_chi00(207.0, 1, 1, tol, pt_error, spectrum, Dep::Z_decay_rates->width_in_GeV);
 
       // Make product of cross section and branching ratio squared
       triplet<double> xsec;

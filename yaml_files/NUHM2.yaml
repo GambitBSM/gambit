@@ -117,41 +117,14 @@ ObsLikes:
   - capability: LEP_Higgs_LogLike
     purpose:    LogLike
 
-  - capability: ALEPH_Selectron_LLike
+  # Combined LEP slepton and gaugino log-likelihood (uses the standard
+  # non-overlapping set of LEP analyses by default).
+  - capability: LEP_Combined_LogLike
     purpose:    LogLike
 
-  - capability: ALEPH_Smuon_LLike
-    purpose:    LogLike
-
-  - capability: ALEPH_Stau_LLike
-    purpose:    LogLike
-
-  - capability: L3_Selectron_LLike
-    purpose:    LogLike
-
-  - capability: L3_Smuon_LLike
-    purpose:    LogLike
-
-  - capability: L3_Stau_LLike
-    purpose:    LogLike
-
-  - capability: L3_Neutralino_Leptonic_LLike
-    purpose:    LogLike
-
-  - capability: L3_Chargino_Leptonic_LLike
-    purpose:    LogLike
-
-  - capability: OPAL_Chargino_Hadronic_LLike
-    purpose:    LogLike
-
-  - capability: OPAL_Chargino_SemiLeptonic_LLike
-    purpose:    LogLike
-
-  - capability: OPAL_Chargino_Leptonic_LLike
-    purpose:    LogLike
-
-  - capability: OPAL_Neutralino_Hadronic_LLike
-    purpose:    LogLike
+  # Per-analysis breakdown of the LEP log-likelihoods
+  - capability: LEP_LogLikes
+    purpose:    Observable
 
   # Flavour physics likelihoods
   - purpose:    LogLike
