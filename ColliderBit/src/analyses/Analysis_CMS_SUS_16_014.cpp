@@ -6,18 +6,19 @@
 // Renamed from: 
 //      Analysis_CMS_13TeV_0LEP_13invfb
 
-namespace Gambit {
-  namespace ColliderBit {
-
+namespace Gambit
+{
+  namespace ColliderBit
+  {
     using namespace std;
     using namespace HEPUtils;
-
 
     /// @brief CMS Run 2 0-lepton jet+MET SUSY analysis, with 13/fb of data
     ///
     /// Based on: CMS-SUS-16-014,  http://cms-results.web.cern.ch/cms-results/public-results/preliminary-results/SUS-16-014/index.html
     ///
-    class Analysis_CMS_SUS_16_014 : public Analysis {
+    class Analysis_CMS_SUS_16_014 : public Analysis
+    {
     public:
 
       // Required detector sim
@@ -52,10 +53,10 @@ namespace Gambit {
       }
 
 
-      void run(const Event* event) {
-
+      void run(const Event* event)
+      {
         #ifdef CHECK_CUTFLOW
-        _cutflows[CUTFLOW_NAME].fillinit();
+          _cutflows[CUTFLOW_NAME].fillinit();
         #endif
 
         // FinalState isofs(Cuts::abseta < 3.0 && Cuts::abspid != PID::ELECTRON && Cuts::abspid != PID::MUON);
@@ -63,14 +64,15 @@ namespace Gambit {
 
         // Get baseline jets
         vector<const Jet*> jets24, jets50;
-        for (const Jet* jet : event->jets("antikt_R04")) {
+        for (const Jet* jet : event->jets("antikt_R04"))
+        {
           if (jet->pT() < 30) continue;
           if (jet->abseta() < 2.4) jets24.push_back(jet);
           if (jet->abseta() < 5.0) jets50.push_back(jet);
         }
         if (jets24.size() < 3) return;
         #ifdef CHECK_CUTFLOW
-        _cutflows[CUTFLOW_NAME].fill(1);
+          _cutflows[CUTFLOW_NAME].fill(1);
         #endif
 
         // HT cut
@@ -79,7 +81,7 @@ namespace Gambit {
         const double ht = sumptj;
         if (ht < 300) return;
         #ifdef CHECK_CUTFLOW
-        _cutflows[CUTFLOW_NAME].fill(2);
+          _cutflows[CUTFLOW_NAME].fill(2);
         #endif
 
         // HTmiss cut, from full set of jets
@@ -88,15 +90,16 @@ namespace Gambit {
         const double htmiss = htvec.pT();
         if (htmiss < 300) return;
         #ifdef CHECK_CUTFLOW
-        _cutflows[CUTFLOW_NAME].fill(3);
+          _cutflows[CUTFLOW_NAME].fill(3);
         #endif
 
 
         // Get baseline electrons
         vector<const Particle*> baseelecs;
         for (const Particle* electron : event->electrons())
-          if (electron->pT() > 10. && electron->abseta() < 2.5)
-            baseelecs.push_back(electron);
+        {
+          if (electron->pT() > 10. && electron->abseta() < 2.5) baseelecs.push_back(electron);
+        }
 
         // Apply electron efficiency
         applyEfficiency(baseelecs, CMS::eff2DEl.at("Generic"));
@@ -104,8 +107,9 @@ namespace Gambit {
         // Get baseline muons
         vector<const Particle*> basemuons;
         for (const Particle* muon : event->muons())
-          if (muon->pT() > 10. && muon->abseta() < 2.4)
-            basemuons.push_back(muon);
+        {
+          if (muon->pT() > 10. && muon->abseta() < 2.4) basemuons.push_back(muon);
+        }
 
         // Apply electron efficiency
         applyEfficiency(basemuons, CMS::eff2DMu.at("Generic"));
@@ -113,33 +117,39 @@ namespace Gambit {
         // Electron isolation
         /// @todo Sum should actually be over all non-e/mu calo particles
         vector<const Particle*> elecs;
-        for (const Particle* e : baseelecs) {
+        for (const Particle* e : baseelecs)
+        {
           const double R = max(0.05, min(0.2, 10/e->pT()));
           double sumpt = -e->pT();
           for (const Jet* j : jets50)
+          {
             if (e->mom().deltaR_eta(j->mom()) < R) sumpt += j->pT();
+          }
           if (sumpt/e->pT() < 0.1) elecs.push_back(e);
         }
 
         // Muon isolation
         /// @todo Sum should actually be over all non-e/mu calo particles
         vector<const Particle*> muons;
-        for (const Particle* m : basemuons) {
+        for (const Particle* m : basemuons)
+        {
           const double R = max(0.05, min(0.2, 10/m->pT()));
           double sumpt = -m->pT();
           for (const Jet* j : jets50)
+          {
             if (m->mom().deltaR_eta(j->mom()) < R) sumpt += j->pT();
+          }
           if (sumpt/m->pT() < 0.2) muons.push_back(m);
         }
 
         // Veto the event if there are any remaining baseline leptons
         if (!muons.empty()) return;
         #ifdef CHECK_CUTFLOW
-        _cutflows[CUTFLOW_NAME].fill(4);
+          _cutflows[CUTFLOW_NAME].fill(4);
         #endif
         if (!elecs.empty()) return;
         #ifdef CHECK_CUTFLOW
-        _cutflows[CUTFLOW_NAME].fill(5);
+          _cutflows[CUTFLOW_NAME].fill(5);
         #endif
 
 
@@ -165,26 +175,26 @@ namespace Gambit {
         //   if (mT < 100 && t->pT() < ptcut) vetoEvent;
         // }
         #ifdef CHECK_CUTFLOW
-        _cutflows[CUTFLOW_NAME].fill(6);
+          _cutflows[CUTFLOW_NAME].fill(6);
         #endif
 
 
         // Lead jets isolation from Htmiss
         if (deltaPhi(-htvec, jets24[0]->mom()) < 0.5) return;
         #ifdef CHECK_CUTFLOW
-        _cutflows[CUTFLOW_NAME].fill(7);
+          _cutflows[CUTFLOW_NAME].fill(7);
         #endif
         if (deltaPhi(-htvec, jets24[1]->mom()) < 0.5) return;
         #ifdef CHECK_CUTFLOW
-        _cutflows[CUTFLOW_NAME].fill(8);
+          _cutflows[CUTFLOW_NAME].fill(8);
         #endif
         if (deltaPhi(-htvec, jets24[2]->mom()) < 0.3) return;
         #ifdef CHECK_CUTFLOW
-        _cutflows[CUTFLOW_NAME].fill(9);
+          _cutflows[CUTFLOW_NAME].fill(9);
         #endif
         if (jets24.size() >= 4 && deltaPhi(-htvec, jets24[3]->mom()) < 0.3) return;
         #ifdef CHECK_CUTFLOW
-        _cutflows[CUTFLOW_NAME].fill(10);
+          _cutflows[CUTFLOW_NAME].fill(10);
         #endif
 
 
@@ -229,7 +239,8 @@ namespace Gambit {
         // Fill aggregate SR bins
         const size_t nj = jets24.size();
         size_t nbj = 0;
-        for (const Jet* j : jets24) {
+        for (const Jet* j : jets24)
+        {
           if (j->pT() < 50 && j->abseta() > 2.5) continue;
           // b-tag effs: b: 0.55, c: 0.12, l: 0.016
           const bool btagged = Random::draw() < (j->btag() ? 0.55 : j->ctag() ? 0.12 : 0.016);
@@ -252,8 +263,8 @@ namespace Gambit {
 
 
       /// Register results objects with the results for each SR; obs & bkg numbers from the CONF note
-      void collect_results() {
-
+      void collect_results()
+      {
         // The bkg errors are the quad sums of upper limits
         add_result(SignalRegionData(_counters.at("SR1"), 1614., {1498., 99.7} ));
         add_result(SignalRegionData(_counters.at("SR2"), 18., {15.9, 3.91} ));
@@ -268,21 +279,20 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SR11"), 316., {385., 33.0} ));
         add_result(SignalRegionData(_counters.at("SR12"), 17., {15.9, 5.47} ));
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
       }
 
 
     protected:
-      void analysis_specific_reset() {
+      void analysis_specific_reset()
+      {
         for (auto& pair : _counters) { pair.second.reset(); }
       }
 
     };
 
-
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_014)
-
 
   }
 }
