@@ -308,7 +308,7 @@ namespace Gambit
         {
           for (size_t iJet2 = 0; iJet2 < jets.size(); iJet2++)
           {
-             if (iJet1! = iJet2)
+             if (iJet1 != iJet2)
              {
                double deltaPhi = fabs(jets.at(iJet1)->phi()-jets.at(iJet2)->phi());
                if (deltaPhi < deltaPhi_min)
