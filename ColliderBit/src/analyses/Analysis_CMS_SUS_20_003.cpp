@@ -397,7 +397,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR3J-1H-1"), 10., {5.9,  2.1}));
         add_result(SignalRegionData(_counters.at("SR3J-1H-2"), 0.,  {2.1,  0.6}));
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
       }
 
       double mT(const HEPUtils::P4 &pV, const HEPUtils::P4 &pI)

@@ -756,7 +756,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SR-stop-82"), 1, {0.78, 0.36}));
         add_result(SignalRegionData(_counters.at("SR-stop-83"), 2, {1.63, 0.42}));
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
       }
 
     protected:
@@ -930,7 +930,7 @@ COMMIT_CUTFLOWS;
 
         set_covariance(BKGCOV);
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
       }
 
     };
@@ -1127,7 +1127,7 @@ COMMIT_CUTFLOWS;
 
         set_covariance(BKGCOV);
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
       }
 
     };

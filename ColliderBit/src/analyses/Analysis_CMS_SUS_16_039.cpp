@@ -349,7 +349,7 @@ namespace Gambit
         // This function can be overridden by the derived SR-specific classes
         virtual void collect_results()
         {
-COMMIT_CUTFLOWS
+          COMMIT_CUTFLOWS
           //Now fill a results object with the results for each SR
 
           add_result(SignalRegionData(_counters.at("SR1"), 13., {12., 3.}));
@@ -374,7 +374,7 @@ COMMIT_CUTFLOWS
             double mT_temp=0;
             for (size_t iLe=0;iLe<leptons.size();iLe++)
             {
-              if (leptons.at(iLe)!=pair_cont.at(iPa).at(0) && leptons.at(iLe)!=pair_cont.at(iPa).at(1))mT_temp=sqrt(2*met.pT()*leptons.at(iLe)->pT()*(1-cos(leptons.at(iLe)->phi()-met.phi())));
+              if (leptons.at(iLe)!=pair_cont.at(iPa).at(0) && leptons.at(iLe)!=pair_cont.at(iPa).at(1)) mT_temp=sqrt(2*met.pT()*leptons.at(iLe)->pT()*(1-cos(leptons.at(iLe)->phi()-met.phi())));
             }
             double mass=0;
             if (type==0)mass=91.2;
@@ -443,7 +443,7 @@ COMMIT_CUTFLOWS
 
         virtual void collect_results()
         {
-COMMIT_CUTFLOWS
+          COMMIT_CUTFLOWS
           add_result(SignalRegionData(_counters.at("SR1"), 13., {12., 3.}));
           add_result(SignalRegionData(_counters.at("SR2"), 18., {18., 4.}));
         }
@@ -452,8 +452,6 @@ COMMIT_CUTFLOWS
 
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_039_2SSLep)
-
-
 
     //
     // Derived analysis class for the 3Lep SRs
@@ -469,7 +467,7 @@ COMMIT_CUTFLOWS
 
         virtual void collect_results()
         {
-COMMIT_CUTFLOWS
+          COMMIT_CUTFLOWS
           add_result(SignalRegionData(_counters.at("SR3"), 19., {19., 4.}));
           add_result(SignalRegionData(_counters.at("SR4"), 128., {142, 34.}));
           add_result(SignalRegionData(_counters.at("SR5"), 18., {22, 5.}));
@@ -482,7 +480,6 @@ COMMIT_CUTFLOWS
 
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_039_3Lep)
-
 
   }
 }

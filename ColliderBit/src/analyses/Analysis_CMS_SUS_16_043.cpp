@@ -236,7 +236,7 @@ namespace Gambit
         };
         set_covariance(BKGCOV);
 
-COMMIT_CUTFLOWS
+        COMMIT_CUTFLOWS
       }
 
 

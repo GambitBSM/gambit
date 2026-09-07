@@ -1435,7 +1435,7 @@ namespace Gambit
 
         COMMIT_SIGNAL_REGION("highDM-182_175mTb_5Nj_3Nb_3NtNwNres_300Ht_250MET", 0, 0.11, 0.03);
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
       }
 
     protected:
