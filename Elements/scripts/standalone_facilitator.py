@@ -87,7 +87,7 @@ def main(argv):
 ///  Authors:                                     \n\
 ///                                               \n\
 ///  \\author The GAMBIT Collaboration            \n\
-///  \date "+datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")+"\n\
+///  \\date "+datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")+"\n\
 ///                                               \n\
 ///  *********************************************\n\
                                                   \n\
@@ -132,4 +132,3 @@ namespace Gambit                                                      \n\
 # Handle command line arguments (verbosity)
 if __name__ == "__main__":
    main(sys.argv[1:])
-

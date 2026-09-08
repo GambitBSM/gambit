@@ -1,0 +1,11 @@
+Summary: ATLAS 2-lepton + MET chargino pair-production search at 13 TeV with 80/fb
+InspireID: 1684182
+ExptRun: ATLAS-R2
+Lumi_ifb: 80.5
+Ecm_TeV: 13.0
+Superseded: true
+Signatures: ["2L + OSOF + MET + MT2", "2L + OSSF + MET + MT2"]
+Keywords: ["dilepton", "chargino", "met", "mt2"]
+Authors: ["Yang Zhang"]
+Note: Based on CONF note, superseded by 139/fb paper
+OldName: ATLAS_13TeV_2OSLEP_chargino_80invfb

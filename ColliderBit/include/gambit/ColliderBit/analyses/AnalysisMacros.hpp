@@ -1,0 +1,477 @@
+//   GAMBIT: Global and Modular BSM Inference Tool
+//   *********************************************
+///  \file
+///
+///  Macros for ColliderBit analyses.
+///  These macros define an analysis language that
+///  simplify writing analyses and avoid code
+///  repetition.
+///
+///  *********************************************
+///
+///  Authors (add name and date if you modify):
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 July, Aug
+///
+///  \author Pengxuan Zhu 
+///          (pengxuan.zhu@adelaide.edu.au)
+///  \date 2025 Oct
+///  *********************************************
+
+#pragma once
+
+#include <cfloat>
+
+#if defined(__clang__)
+  // Silence GNU variadic macro extension warning for '##__VA_ARGS__'.
+  // This header intentionally uses '##__VA_ARGS__' to allow empty varargs.
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+
+
+
+/// Min and max values of eta and pT
+#define ETAMIN 0
+#define PTMIN 0
+#define ETAMAX DBL_MAX
+#define PTMAX DBL_MAX
+
+
+/// Define baseline objects without cuts
+#define BASELINE_OBJECTS_3(TYPE, OBJECTS, NAME)                                   \
+  std::vector<const HEPUtils::TYPE*> NAME;                                        \
+  for (const HEPUtils::TYPE* object : OBJECTS)                                    \
+  {                                                                               \
+    NAME.push_back(object);                                                       \
+  }
+
+/// Define baseline objects with min pT and min eta
+#define BASELINE_OBJECTS_5(TYPE, OBJECTS, NAME, MINPT, MINETA)                    \
+  std::vector<const HEPUtils::TYPE*> NAME;                                        \
+  for (const HEPUtils::TYPE* object : OBJECTS)                                    \
+  {                                                                               \
+    if (object->pT() > MINPT and                                                  \
+        fabs(object->eta()) > MINETA)                                             \
+    {                                                                             \
+      NAME.push_back(object);                                                     \
+    }                                                                             \
+  }
+
+/// Define baseline objects with min pT, min eta and selection efficiency
+#define BASELINE_OBJECTS_6(TYPE, OBJECTS, NAME, MINPT, MINETA, EFF)               \
+  std::vector<const HEPUtils::TYPE*> NAME;                                        \
+  for (const HEPUtils::TYPE* object : OBJECTS)                                    \
+  {                                                                               \
+    if (object->pT() > MINPT and                                                  \
+        fabs(object->eta()) > MINETA and                                          \
+        has_tag(EFF, fabs(object->eta()), object->pT()))                          \
+    {                                                                             \
+      NAME.push_back(object);                                                     \
+    }                                                                             \
+  }
+
+/// Define baseline objects with min pT, min eta, max pT and max eta
+#define BASELINE_OBJECTS_7(TYPE, OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA)     \
+  std::vector<const HEPUtils::TYPE*> NAME;                                        \
+  for (const HEPUtils::TYPE* object : OBJECTS)                                    \
+  {                                                                               \
+    if(object->pT() > MINPT and                                                   \
+       object->pT() < MAXPT and                                                   \
+       fabs(object->eta()) > MINETA and                                           \
+       fabs(object->eta()) < MAXETA)                                              \
+    {                                                                             \
+      NAME.push_back(object);                                                     \
+    }                                                                             \
+  }
+
+/// Define baseline objects with min pT, min eta, max pT, max eta and selection efficiency
+#define BASELINE_OBJECTS_8(TYPE, OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF) \
+  std::vector<const HEPUtils::TYPE*> NAME;                                        \
+  for (const HEPUtils::TYPE* object : OBJECTS)                                    \
+  {                                                                               \
+    if (object->pT() > MINPT and                                                  \
+        object->pT() < MAXPT and                                                  \
+        fabs(object->eta()) > MINETA and                                          \
+        fabs(object->eta()) < MAXETA and                                          \
+        has_tag(EFF, fabs(object->eta()), object->pT()))                          \
+    {                                                                             \
+      NAME.push_back(object);                                                     \
+    }                                                                             \
+  }
+
+/// Define baseline particles without cuts
+#define BASELINE_PARTICLES_2(OBJECTS, NAME)                                       \
+  BASELINE_OBJECTS_3(Particle, OBJECTS, NAME)
+
+/// Define baseline particles with min pT and min et
+#define BASELINE_PARTICLES_4(OBJECTS, NAME, MINPT, MINETA)                         \
+  BASELINE_OBJECTS_5(Particle, OBJECTS, NAME, MINPT, MINETA)
+
+/// Define baseline particles with min pT, min eta and selection efficiency
+#define BASELINE_PARTICLES_5(OBJECTS, NAME, MINPT, MINETA, EFF)                    \
+  BASELINE_OBJECTS_6(Particle, OBJECTS, NAME, MINPT, MINETA, EFF)
+
+/// Define baseline particles with min pT, min eta, max pT and max eta
+#define BASELINE_PARTICLES_6(OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA)          \
+  BASELINE_OBJECTS_7(Particle, OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA)
+
+/// Define baseline particles with min pT, min eta, max pT, max eta and selection efficiency
+#define BASELINE_PARTICLES_7(OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)     \
+  BASELINE_OBJECTS_8(Particle, OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)
+
+/// Define baseline jets without cuts
+#define BASELINE_JETS_2(OBJECTS, NAME)                                             \
+  BASELINE_OBJECTS_3(Jet, OBJECTS, NAME)
+
+/// Define baseline jets with a min pT and a min eta
+#define BASELINE_JETS_4(OBJECTS, NAME, MINPT, MINETA)                              \
+  BASELINE_OBJECTS_5(Jet, OBJECTS, NAME, MINPT, MINETA)
+
+/// Define baseline jets with a min pT, a min eta and selection efficiency
+#define BASELINE_JETS_5(OBJECTS, NAME, MINPT, MINETA, EFF)                         \
+  BASELINE_OBJECTS_6(Jet, OBJECTS, NAME, MINPT, MINETA, EFF)
+
+/// Define baseline jets with a min pT, a min eta, max pT and max eta
+#define BASELINE_JETS_6(OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA)               \
+  BASELINE_OBJECTS_7(Jet, OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA)
+
+/// Define baseline jets with a min pT, a min eta, max pT, max eta and selection efficiency
+#define BASELINE_JETS_7(OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)          \
+  BASELINE_OBJECTS_8(Jet, OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)
+
+/// Redirection macro
+#define BASELINE_PARTICLES(...)      VARARG(BASELINE_PARTICLES, __VA_ARGS__)
+#define BASELINE_JETS(...)           VARARG(BASELINE_JETS, __VA_ARGS__)
+#define BASELINE_OBJECTS(...)        VARARG(BASELINE_OBJECTS, __VA_ARGS__)
+
+/// Define baseline bjets with a min pT and a min eta
+#define BASELINE_BJETS_4(OBJECTS, NAME, MINPT, MINETA)                            \
+  std::vector<const HEPUtils::Jet*> NAME;                                         \
+  for (const HEPUtils::Jet* object : OBJECTS)                                     \
+  {                                                                               \
+    if (object->btag() and                                                        \
+        object->pT() > MINPT and                                                  \
+        fabs(object->eta()) > MINETA)                                             \
+    {                                                                             \
+      NAME.push_back(object);                                                     \
+    }                                                                             \
+  }
+
+/// Define baseline bjets with a min pT, a min eta and selection efficiency
+#define BASELINE_BJETS_5(OBJECTS, NAME, MINPT, MINETA, EFF)                       \
+  std::vector<const HEPUtils::Jet*> NAME;                                         \
+  for (const HEPUtils::Jet* object : OBJECTS)                                     \
+  {                                                                               \
+    if (object->btag() and                                                        \
+        object->pT() > MINPT and                                                  \
+        fabs(object->eta()) > MINETA and                                          \
+        has_tag(EFF, fabs(object->eta()), object->pT()))                          \
+    {                                                                             \
+      NAME.push_back(object);                                                     \
+    }                                                                             \
+  }
+
+/// Define baseline bjets with a min pT, a min eta, a max pT and a max eta
+#define BASELINE_BJETS_6(OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA)             \
+  std::vector<const HEPUtils::Jet*> NAME;                                         \
+  for (const HEPUtils::Jet* object : OBJECTS)                                     \
+  {                                                                               \
+    if (object->btag() and                                                        \
+        object->pT() > MINPT and                                                  \
+        object->pT() < MAXPT and                                                  \
+        fabs(object->eta()) > MINETA and                                          \
+        fabs(object->eta()) < MAXETA)                                             \
+    {                                                                             \
+      NAME.push_back(object);                                                     \
+    }                                                                             \
+  }
+
+/// Define baseline bjets with a min pT, a min eta, a max pT, a max eta and selection efficiency
+#define BASELINE_BJETS_7(OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)        \
+  std::vector<const HEPUtils::Jet*> NAME;                                         \
+  for (const HEPUtils::Jet* object : OBJECTS)                                     \
+  {                                                                               \
+    if (object->btag() and                                                        \
+        object->pT() > MINPT and                                                  \
+        object->pT() < MAXPT and                                                  \
+        fabs(object->eta()) > MINETA and                                          \
+        fabs(object->eta()) < MAXETA and                                          \
+        has_tag(EFF, fabs(object->eta()), object->pT()))                          \
+    {                                                                             \
+      NAME.push_back(object);                                                     \
+    }                                                                             \
+  }
+
+/// Define baseline bjets with a min pT, a min eta, a max pT, a max eta,
+/// a selection efficiency and a misidentification efficiency
+#define BASELINE_BJETS_8(OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF, MISID) \
+  std::vector<const HEPUtils::Jet*> NAME;                                         \
+  for (const HEPUtils::Jet* object : OBJECTS)                                     \
+  {                                                                               \
+    if ((object->btag() or has_tag(MISID)) and                                    \
+        object->pT() > MINPT and                                                  \
+        object->pT() < MAXPT and                                                  \
+        fabs(object->eta()) > MINETA and                                          \
+        fabs(object->eta()) < MAXETA and                                          \
+        has_tag(EFF, fabs(object->eta()), object->pT()))                          \
+    {                                                                             \
+      NAME.push_back(object);                                                     \
+    }                                                                             \
+  }
+
+
+#define BASELINE_BJETS(...)          VARARG(BASELINE_BJETS, __VA_ARGS__)
+
+
+/// Define a combination of baseline objects with pT and eta cuts
+#define BASELINE_OBJECT_COMBINATION_8(TYPE, TARGET, OBJECT1, OBJECT2, MINPT, MINETA, MAXPT, MAXETA)  \
+  std::vector<const HEPUtils::TYPE*> TARGET;                                      \
+  for(const HEPUtils::TYPE* obj1 : OBJECT1)                                       \
+  {                                                                               \
+    if(obj1->pT() > MINPT and                                                     \
+       obj1->pT() < MAXPT and                                                     \
+       fabs(obj1->eta()) > MINETA and                                             \
+       fabs(obj1->eta()) < MAXETA)                                                \
+    {                                                                             \
+      TARGET.push_back(obj1);                                                     \
+    }                                                                             \
+  }                                                                               \
+  for(const HEPUtils::TYPE* obj2 : OBJECT2)                                       \
+  {                                                                               \
+    if(obj2->pT() > MINPT and                                                     \
+       obj2->pT() < MAXPT and                                                     \
+       fabs(obj2->eta()) > MINETA and                                             \
+       fabs(obj2->eta()) < MAXETA)                                                \
+    {                                                                             \
+      TARGET.push_back(obj2);                                                     \
+    }                                                                             \
+  }
+
+/// Define a combination of baseline particles with pT and eta cuts
+#define BASELINE_PARTICLE_COMBINATION_7(TARGET, OBJECT1, OBJECT2, MINPT, MINETA, MAXPT, MAXETA)  \
+  BASELINE_OBJECT_COMBINATION_8(Particle, TARGET, OBJECT1, OBJECT2, MINPT, MINETA, MAXPT, MAXETA)  \
+
+/// Define a combination of baseline jets with pT and eta cuts
+#define BASELINE_JET_COMBINATION_7(TARGET, OBJECT1, OBJECT2, MINPT, MINETA, MAXPT, MAXETA)  \
+  BASELINE_OBJECT_COMBINATION_8(Jet, TARGET, OBJECT1, OBJECT2, MINPT, MINETA, MAXPT, MAXETA)  \
+
+/// Define a combination of baseline objects
+#define BASELINE_OBJECT_COMBINATION_4(TYPE, TARGET, OBJECT1, OBJECT2)             \
+  std::vector<const HEPUtils::TYPE*> TARGET;                                      \
+  for(const HEPUtils::TYPE* obj1 : OBJECT1)                                       \
+    TARGET.push_back(obj1);                                                       \
+  for(const HEPUtils::TYPE* obj2 : OBJECT2)                                       \
+    TARGET.push_back(obj2);
+
+/// Define a combination of baseline particles
+#define BASELINE_PARTICLE_COMBINATION_3(TARGET, OBJECT1, OBJECT2)                   \
+  BASELINE_OBJECT_COMBINATION_4(Particle, TARGET, OBJECT1, OBJECT2)
+
+/// Define a combination of baseline jets
+#define BASELINE_JET_COMBINATION_3(TARGET, OBJECT1, OBJECT2)                        \
+  BASELINE_OBJECT_COMBINATION_4(Jet, TARGET, OBJECT1, OBJECT2)
+
+/// Redirection macro
+#define BASELINE_PARTICLE_COMBINATION(...)     VARARG(BASELINE_PARTICLE_COMBINATION, __VA_ARGS__)
+#define BASELINE_JET_COMBINATION(...)          VARARG(BASELINE_JET_COMBINATION, __VA_ARGS__)
+#define BASELINE_OBJECT_COMBINATION(...)       VARARG(BASELINE_OBJECT_COMBINATION, __VA_ARGS__)
+
+/// Define (potentially sorted) signal objects from baseline objects with pT and eta cuts
+#define SIGNAL_OBJECTS_8(TYPE, BASELINE, SIGNAL, SORTED, MINPT, MINETA, MAXPT, MAXETA)   \
+  std::vector<const HEPUtils::TYPE*> SIGNAL;                                      \
+  for (const HEPUtils::TYPE* object : BASELINE)                                   \
+  {                                                                               \
+    if (object->pT() > MINPT and                                                  \
+        object->pT() < MAXPT and                                                  \
+        fabs(object->eta()) > MINETA and                                          \
+        fabs(object->eta()) < MAXETA)                                             \
+    {                                                                             \
+      SIGNAL.push_back(object);                                                   \
+    }                                                                             \
+  }                                                                               \
+  if(SORTED) sortByPt(SIGNAL);
+
+/// Define (potentially sorted) signal particles from baseline particles with pT and eta cuts
+#define SIGNAL_PARTICLES_7(BASELINE, SIGNAL, SORTED, MINPT, MINETA, MAXPT, MAXETA)     \
+  SIGNAL_OBJECTS_8(Particle, BASELINE, SIGNAL, SORTED, MINPT, MINETA, MAXPT, MAXETA)   \
+
+/// Define (potentially sorted) signal jets from baseline jets with pT and eta cuts
+#define SIGNAL_JETS_7(BASELINE, SIGNAL, SORTED, MINPT, MINETA, MAXPT, MAXETA)     \
+  SIGNAL_OBJECTS_8(Jet, BASELINE, SIGNAL, SORTED, MINPT, MINETA, MAXPT, MAXETA)   \
+
+/// Define (potentially sorted) signal objects from baseline objects
+#define SIGNAL_OBJECTS_4(TYPE, BASELINE, SIGNAL, SORTED)                          \
+  std::vector<const HEPUtils::TYPE*> SIGNAL(BASELINE);                            \
+  if(SORTED) sortByPt(SIGNAL);
+
+/// Define a (potentially sorted) signal particles from baseline particles
+#define SIGNAL_PARTICLES_3(BASELINE, SIGNAL, SORTED)                              \
+  SIGNAL_OBJECTS_4(Particle, BASELINE, SIGNAL, SORTED)                            \
+
+/// Define a (potentially sorted) signal jets from a baseline jets
+#define SIGNAL_JETS_3(BASELINE, SIGNAL, SORTED)                                   \
+  SIGNAL_OBJECTS_4(Jet, BASELINE, SIGNAL, SORTED)
+
+/// Define a sorted signal objects from a baseline objects
+#define SIGNAL_OBJECTS_3(TYPE, BASELINE, SIGNAL)                                  \
+  SIGNAL_OBJECTS_4(TYPE, BASELINE, SIGNAL, 1)
+
+/// Define sorted signal particles from baseline particles
+#define SIGNAL_PARTICLES_2(BASELINE, SIGNAL)                                      \
+  SIGNAL_OBJECTS_3(Particle, BASELINE, SIGNAL)
+
+/// Define a signal jets from a baseline jets
+#define SIGNAL_JETS_2(BASELINE, SIGNAL)                                           \
+  SIGNAL_OBJECTS_3(Jet, BASELINE, SIGNAL)
+
+/// Redirection macros
+#define SIGNAL_PARTICLES(...)    VARARG(SIGNAL_PARTICLES, __VA_ARGS__)
+#define SIGNAL_JETS(...)         VARARG(SIGNAL_JETS, __VA_ARGS__)
+#define SIGNAL_OBJECTS(...)      VARARG(SIGNAL_OBJECTS, __VA_ARGS__)
+
+/// Define a combination of signal objects
+#define SIGNAL_OBJECT_COMBINATION(TYPE, TARGET, OBJECT1, OBJECT2)                 \
+  std::vector<const HEPUtils::TYPE*> TARGET = OBJECT1;                            \
+  TARGET.insert(TARGET.end(), OBJECT2.begin(), OBJECT2.end());                    \
+  sortByPt(TARGET);
+
+/// Define a combination of signal particles
+#define SIGNAL_PARTICLE_COMBINATION(TARGET, OBJECT1, OBJECT2)                     \
+  SIGNAL_OBJECT_COMBINATION(Particle, TARGET, OBJECT1, OBJECT2)
+
+/// Define a combination of signal jets
+#define SIGNAL_JET_COMBINATION(TARGET, OBJECT1, OBJECT2)                          \
+  SIGNAL_OBJECT_COMBINATION(Jet, TARGET, OBJECT1, OBJECT2)
+
+/// Types of predefined pairs
+/*#define OS    1  // opposite sign
+#define SS    2  // same sign
+#define SF    3  // same flavour
+#define OSSF  4  // opposite sign, same flavour
+#define SSSF  5  // ssame sign, same flavour
+*/
+/// Create a container for pairs
+#define CREATE_PAIR(TYPE, SOURCE, CONTAINER, UNIQUE)                              \
+  typedef std::vector<std::vector<const HEPUtils::Particle*>> ParticleContainer;  \
+  ParticleContainer CONTAINER = CAT_3(get,TYPE,pairs)(SOURCE);                    \
+  if(UNIQUE)                                                                      \
+    uniquePairs(CONTAINER);
+
+/// Preselection, at the start initialize cutflows, at the end fill preselection cutflow
+#define BEGIN_PRESELECTION                                                        \
+  _cutflows.fillinit(event->weight());
+
+#define END_PRESELECTION                                                          \
+  _cutflows.fillnext(event->weight());
+
+/// Log current event for one or more signal regions
+#define LOG_CUT_1(A)                      _cutflows[A].fillnext(event->weight());
+#define LOG_CUT_2(A,B)                    LOG_CUT_1(A) LOG_CUT_1(B)
+#define LOG_CUT_3(A,B,C)                  LOG_CUT_1(A) LOG_CUT_2(B,C)
+#define LOG_CUT_4(A,B,C,D)                LOG_CUT_1(A) LOG_CUT_3(B,C,D)
+#define LOG_CUT_5(A,B,C,D,E)              LOG_CUT_1(A) LOG_CUT_4(B,C,D,E)
+#define LOG_CUT_6(A,B,C,D,E,F)            LOG_CUT_1(A) LOG_CUT_5(B,C,D,E,F)
+#define LOG_CUT_7(A,B,C,D,E,F,G)          LOG_CUT_1(A) LOG_CUT_6(B,C,D,E,F,G)
+#define LOG_CUT_8(A,B,C,D,E,F,G,H)        LOG_CUT_1(A) LOG_CUT_7(B,C,D,E,F,G,H)
+#define LOG_CUT_9(A,B,C,D,E,F,G,H,I)      LOG_CUT_1(A) LOG_CUT_8(B,C,D,E,F,G,H,I)
+#define LOG_CUT_10(A,B,C,D,E,F,G,H,I,J)   LOG_CUT_1(A) LOG_CUT_9(B,C,D,E,F,G,H,I,J)
+#define LOG_CUT(...)                      VARARG(LOG_CUT, __VA_ARGS__)
+
+// Log specific cuts for a sequential list of signal regions
+#define LOG_CUT_N(SR, N)                                                          \
+  for(size_t i=1; i<=N; ++i)                                                      \
+  {                                                                               \
+    str basename(SR);                                                             \
+    str name = basename + std::to_string(i);                                      \
+    _cutflows[name].fillnext(event->weight());                                    \
+  }
+
+
+// Log specific cuts for one or more signal region
+#define LOG_CUTS_2(CUTS,A)                     _cutflows[A].fillnext(CUTS,event->weight());
+#define LOG_CUTS_3(CUTS,A,B)                   LOG_CUTS_2(CUTS,A) LOG_CUTS_2(CUTS,B)
+#define LOG_CUTS_4(CUTS,A,B,C)                 LOG_CUTS_2(CUTS,A) LOG_CUTS_3(CUTS,B,C)
+#define LOG_CUTS_5(CUTS,A,B,C,D)               LOG_CUTS_2(CUTS,A) LOG_CUTS_4(CUTS,B,C,D)
+#define LOG_CUTS_6(CUTS,A,B,C,D,E)             LOG_CUTS_2(CUTS,A) LOG_CUTS_5(CUTS,B,C,D,E)
+#define LOG_CUTS_7(CUTS,A,B,C,D,E,F)           LOG_CUTS_2(CUTS,A) LOG_CUTS_6(CUTS,B,C,D,E,F)
+#define LOG_CUTS_8(CUTS,A,B,C,D,E,F,G)         LOG_CUTS_2(CUTS,A) LOG_CUTS_7(CUTS,B,C,D,E,F,G)
+#define LOG_CUTS_9(CUTS,A,B,C,D,E,F,G,H)       LOG_CUTS_2(CUTS,A) LOG_CUTS_8(CUTS,B,C,D,E,F,G,H)
+#define LOG_CUTS_10(CUTS,A,B,C,D,E,F,G,H,I)    LOG_CUTS_2(CUTS,A) LOG_CUTS_9(CUTS,B,C,D,E,F,G,H,I)
+#define LOG_CUTS_11(CUTS,A,B,C,D,E,F,G,H,I,J)  LOG_CUTS_2(CUTS,A) LOG_CUTS_10(CUTS,B,C,D,E,F,G,H,I,J)
+#define LOG_CUTS(...)                          VARARG(LOG_CUTS, __VA_ARGS__)
+
+// Log specific cuts for a sequential list of signal regions
+#define LOG_CUTS_N(CUTS, SR, N)                                                   \
+  for(size_t i=1; i<=N; ++i)                                                      \
+  {                                                                               \
+    str basename(SR);                                                             \
+    str name = basename + std::to_string(i);                                      \
+    _cutflows[name].fillnext(CUTS,event->weight());                               \
+  }
+
+
+/// Fill signal region and cutflow
+#define FILL_SIGNAL_REGION(NAME)                                                  \
+  do {                                                                               \
+    _cutflows[NAME].fillnext(event->weight());                                      \
+    _counters.at(NAME).add_event(event);                                            \
+  } while(0)
+
+/// Commit values for the signal region: predictions, observed and backgrounds
+#define COMMIT_SIGNAL_REGION(NAME, OBS, BKG_CENTRAL, BKG_ERR)                     \
+  add_result(SignalRegionData(_counters.at(NAME), OBS, {BKG_CENTRAL, BKG_ERR}));
+
+/// Commit a covariance matrix
+#define COMMIT_COVARIANCE_MATRIX(COV)                                             \
+  set_covariance(COV);
+
+/// Commit cutflows
+#define COMMIT_CUTFLOWS                                                           \
+  add_cutflows(_cutflows);
+
+/// Commit histograms
+#define COMMIT_HISTOGRAMS                                                         \
+  add_histograms(_histograms);
+
+/// Commit each bin of a histogram-backed signal-region set
+#define COMMIT_HISTOGRAM_SRS(NAME)                                                \
+  for (const SignalRegionData& _sr : _histograms.h1d(NAME).to_signal_regions())    \
+  {                                                                                \
+    add_result(_sr);                                                               \
+  }
+
+/// Define a 1D histogram with variable-width bins
+#define DEFINE_HISTOGRAM_1D(NAME, EDGES, ...)                                     \
+  _histograms.addHistogram(Histogram1D(NAME, EDGES, ##__VA_ARGS__));
+
+/// Define a 1D histogram that also maps one signal region to each bin
+#define DEFINE_HISTOGRAM_SR_1D(NAME, EDGES, OBS, BKG, BKG_ERR, ...)               \
+  _histograms.addHistogram(Histogram1D(NAME, EDGES, OBS, BKG, BKG_ERR, ##__VA_ARGS__));
+
+/// Define a 1D histogram with uniform bins
+#define DEFINE_HISTOGRAM_1D_UNIFORM(NAME, NBINS, XLO, XHI, ...)                   \
+  _histograms.addHistogram(Histogram1D(NAME, NBINS, XLO, XHI, ##__VA_ARGS__));
+
+/// Fill a 1D histogram
+#define FILL_HISTOGRAM_1D(NAME, VALUE)                                            \
+  if (Histogram1D::check_histogram()) _histograms.h1d(NAME).fill(VALUE, event->weight());
+
+/// Define a 2D histogram with variable-width bins
+#define DEFINE_HISTOGRAM_2D(NAME, XEDGES, YEDGES, ...)                            \
+  _histograms.addHistogram(Histogram2D(NAME, XEDGES, YEDGES, ##__VA_ARGS__));
+
+/// Define a 2D histogram with uniform bins
+#define DEFINE_HISTOGRAM_2D_UNIFORM(NAME, NX, XLO, XHI, NY, YLO, YHI, ...)       \
+  _histograms.addHistogram(Histogram2D(NAME, NX, XLO, XHI, NY, YLO, YHI, ##__VA_ARGS__));
+
+/// Fill a 2D histogram
+#define FILL_HISTOGRAM_2D(NAME, XVAL, YVAL)                                       \
+  if (Histogram1D::check_histogram()) _histograms.h2d(NAME).fill(XVAL, YVAL, event->weight());
+
+#if defined(__clang__)
+  #pragma clang diagnostic pop
+#endif
+

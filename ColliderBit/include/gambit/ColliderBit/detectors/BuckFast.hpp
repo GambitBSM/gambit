@@ -19,6 +19,9 @@
 
 #include "gambit/ColliderBit/detectors/BaseDetector.hpp"
 
+#include <string>
+#include <vector>
+
 #include "HEPUtils/Event.h"
 #include "HEPUtils/Particle.h"
 #include "HEPUtils/Jet.h"
@@ -43,6 +46,8 @@ namespace Gambit
         void(*smearJets)(std::vector<HEPUtils::Jet*>&);
         /// @}
 
+        std::vector<std::string> jetcollections_no_smear;
+
         /// Process an event with BuckFast
         void processEvent(HEPUtils::Event&) const;
 
@@ -53,6 +58,7 @@ namespace Gambit
                    , smearMuonMomentum(NULL)
                    , smearTaus(NULL)
                    , smearJets(NULL)
+                   , jetcollections_no_smear({})
         {}
 
         /// Destructor

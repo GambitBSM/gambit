@@ -22,22 +22,23 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 Aug
+///
 ///  *********************************************
 
 #include <vector>
 #include "HEPUtils/Event.h"
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include <iostream>
 
 namespace Gambit
 {
   namespace ColliderBit
   {
 
-    Analysis::Analysis() : _luminosity(0)
-                         , _luminosity_is_set(false)
-                         , _is_scaled(false)
-                         , _needs_collection(true)
-                         { }
+    Analysis::Analysis() : _luminosity(0), _luminosity_is_set(false), _is_scaled(false), _needs_collection(true), _collider_name("") {}
 
     /// Public method to reset this instance for reuse, avoiding the need for "new" or "delete".
     void Analysis::reset()
@@ -45,6 +46,8 @@ namespace Gambit
       _is_scaled = false;
       _needs_collection = true;
       _results.clear();
+      _cutflows = Cutflows();
+      _histograms = Histograms();
       analysis_specific_reset();
     }
 
@@ -56,6 +59,7 @@ namespace Gambit
     {
       _needs_collection = true;
       run(e);
+      // log_progress(); // Add this line to log progress after processing the event
     }
 
     /// Return the integrated luminosity.
@@ -79,6 +83,16 @@ namespace Gambit
     /// Get the analysis name
     str Analysis::analysis_name() { return _analysis_name; }
 
+    /// Set the collider name
+    void Analysis::set_collider_name(str collname)
+    {
+      _collider_name = collname;
+      _results.collider_name = _collider_name;
+    }
+
+    /// Get the collider name
+    str Analysis::collider_name() { return _collider_name; }
+
     /// Get the collection of SignalRegionData for likelihood computation.
     const AnalysisData& Analysis::get_results()
     {
@@ -87,6 +101,7 @@ namespace Gambit
         collect_results();
         _needs_collection = false;
       }
+
       return _results;
     }
 
@@ -94,10 +109,8 @@ namespace Gambit
     const AnalysisData& Analysis::get_results(str& warning)
     {
       warning = "";
-      if (not _luminosity_is_set)
-        warning += "Luminosity has not been set for analysis " + _analysis_name + ".";
-      if (not _is_scaled)
-        warning += "Results have not been scaled for analysis " + _analysis_name + ".";
+      if (not _luminosity_is_set) warning += "Luminosity has not been set for analysis " + _analysis_name + ".";
+      if (not _is_scaled) warning += "Results have not been scaled for analysis " + _analysis_name + ".";
 
       return get_results();
     }
@@ -123,11 +136,20 @@ namespace Gambit
     /// Add the given result to the internal results list.
     void Analysis::add_result(const SignalRegionData& sr) { _results.add(sr); }
 
+    /// Get the cutflows
+    const Cutflows& Analysis::get_cutflows() { return _results.cutflows; }
+
+    /// Add cutflows to the internal results list
+    void Analysis::add_cutflows(const Cutflows& cf) { _results.add_cutflows(cf); }
+
+    /// Get the histograms
+    const Histograms& Analysis::get_histograms() { return _results.histograms; }
+
+    /// Add histograms to the internal results list
+    void Analysis::add_histograms(const Histograms& h) { _results.add_histograms(h); }
+
     /// Set the path to the FullLikes BKG file
-    void Analysis::set_bkgjson(const std::string& bkgpath)
-    { 
-      _results.bkgjson_path = bkgpath;
-    }
+    void Analysis::set_bkgjson(const std::string& bkgpath) { _results.bkgjson_path = bkgpath; }
 
     /// Set the covariance matrix, expressing SR correlations
     void Analysis::set_covariance(const Eigen::MatrixXd& srcov) { _results.srcov = srcov; }
@@ -138,10 +160,7 @@ namespace Gambit
       Eigen::MatrixXd cov(srcov.size(), srcov.front().size());
       for (size_t i = 0; i < srcov.size(); ++i)
       {
-        for (size_t j = 0; j < srcov.front().size(); ++j)
-        {
-          cov(i,j) = srcov[i][j];
-        }
+        for (size_t j = 0; j < srcov.front().size(); ++j) { cov(i, j) = srcov[i][j]; }
       }
       set_covariance(cov);
     }
@@ -151,27 +170,34 @@ namespace Gambit
     {
       double factor = luminosity() * xsec_per_event;
       assert(factor >= 0);
-      for (SignalRegionData& sr : _results)
-      {
-        sr.n_sig_scaled = factor * sr.n_sig_MC;
-      }
+      for (SignalRegionData& sr : _results) { sr.n_sig_scaled = factor * sr.n_sig_MC; }
+      _results.histograms.scale(factor);
       _is_scaled = true;
     }
 
     /// Add the results of another analysis to this one. Argument is not const, because the other needs to be able to gather its results if necessary.
     void Analysis::add(Analysis* other)
     {
-      if (_results.empty()) collect_results();
-      if (this == other) return;
+      if (_needs_collection || _results.empty())
+      {
+        collect_results();
+        _needs_collection = false;
+      }
+      if (this == other)
+      {
+        return;
+      }
+
       const AnalysisData otherResults = other->get_results();
       /// @todo Access by name, including merging disjoint region sets?
       assert(otherResults.size() == _results.size());
-      for (size_t i = 0; i < _results.size(); ++i)
-      {
-        _results[i].combine_SR_MC_signal(otherResults[i]);
-      }
-      combine(other);
-    }
 
-  }
-}
+      for (size_t i = 0; i < _results.size(); ++i) { _results[i].combine_SR_MC_signal(otherResults[i]); }
+      for (auto& pair : _counters) { pair.second += other->_counters.at(pair.first); }
+
+      _results.cutflows.combine(otherResults.cutflows);
+      _results.histograms.combine(otherResults.histograms);
+      _needs_collection = false;
+    }
+  } // namespace ColliderBit
+} // namespace Gambit

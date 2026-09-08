@@ -1,0 +1,9 @@
+Summary: CMS chargino-neutralino production search in Higgs and W final states at 13 TeV with 137/fb
+InspireID: 1895525
+ExptRun: CMS-R2
+Lumi_ifb: 137.0
+Ecm_TeV: 13.0
+Signatures: ["1L + >=1H + MET", "2L + >=1H + MET", "0L + >=1H + MET"]
+Keywords: ["electroweakinos", "higgs", "W", "met"]
+Authors: ["Pengxuan Zhu"]
+OldName: CMS_13TeV_2Higgs_137invfb

@@ -28,11 +28,11 @@ set(GAMBIT_INCDIRS ${GAMBIT_INCDIRS} "${PROJECT_SOURCE_DIR}/Printers/include"
                                      "${PROJECT_SOURCE_DIR}/Elements/include"
                                      "${PROJECT_SOURCE_DIR}/Models/include"
                                      "${PROJECT_SOURCE_DIR}/cmake/include"
-                                     "${PROJECT_SOURCE_DIR}/Backends/include")
+                                     "${PROJECT_SOURCE_DIR}/Backends/include"
+                                     "${PROJECT_SOURCE_DIR}/contrib")
 
 #set include directores for GAMBIT modules
 retrieve_bits(GAMBIT_BITS ${PROJECT_SOURCE_DIR} "${itch}" "Quiet")
 foreach(bit ${GAMBIT_BITS})
   set(GAMBIT_INCDIRS ${GAMBIT_INCDIRS} "${PROJECT_SOURCE_DIR}/${bit}/include")
 endforeach()
-

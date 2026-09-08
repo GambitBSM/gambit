@@ -18,6 +18,8 @@
 
 #include "gambit/ColliderBit/detectors/BuckFast.hpp"
 
+#include <algorithm>
+
 namespace Gambit
 {
 
@@ -43,6 +45,7 @@ namespace Gambit
       {
         for (std::string jetcollection : event.jet_collections())
         {
+          if (std::find(jetcollections_no_smear.begin(), jetcollections_no_smear.end(), jetcollection) != jetcollections_no_smear.end()) continue;
           smearJets(event.jets(jetcollection));
         }
       }
@@ -50,6 +53,7 @@ namespace Gambit
       // Unset b-tags outside |eta|=2.5
       for (std::string jetcollection : event.jet_collections())
       {
+        if (std::find(jetcollections_no_smear.begin(), jetcollections_no_smear.end(), jetcollection) != jetcollections_no_smear.end()) continue;
         for (HEPUtils::Jet* j : event.jets(jetcollection))
         {
           if (j->abseta() > 2.5) j->set_btag(false);

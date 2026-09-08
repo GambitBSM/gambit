@@ -304,6 +304,26 @@ macro(use_contributed_pybind11)
 endmacro()
 
 # Function to add GAMBIT executable
+function(normalise_gambit_link_libraries output_var)
+  set(normalised_libraries)
+  foreach(link_item ${ARGN})
+    if("${link_item}" STREQUAL "-L")
+      continue()
+    endif()
+    if("${link_item}" MATCHES "^-L(.+)$")
+      set(link_dir "${CMAKE_MATCH_1}")
+      if(EXISTS "${link_dir}" AND NOT IS_DIRECTORY "${link_dir}")
+        continue()
+      endif()
+    endif()
+    list(FIND normalised_libraries "${link_item}" existing_item)
+    if(existing_item EQUAL -1)
+      list(APPEND normalised_libraries "${link_item}")
+    endif()
+  endforeach()
+  set(${output_var} ${normalised_libraries} PARENT_SCOPE)
+endfunction()
+
 function(add_gambit_executable executablename LIBRARIES)
   cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;" ${ARGN})
 
@@ -340,7 +360,13 @@ function(add_gambit_executable executablename LIBRARIES)
         set_target_properties(${executablename} PROPERTIES LINK_FLAGS ${MPI_Fortran_LINK_FLAGS})
     endif()
   endif()
-  if (OpenMP_omp_LIBRARY)
+  # Let FindOpenMP provide both the compiler options and runtime library. This
+  # covers Homebrew LLVM on macOS, which uses -fopenmp=libomp rather than the
+  # AppleClang-specific -Xclang -fopenmp spelling.
+  if(TARGET OpenMP::OpenMP_CXX)
+    set(LIBRARIES ${LIBRARIES} OpenMP::OpenMP_CXX)
+  elseif(OpenMP_omp_LIBRARY)
+    # Preserve the manual AppleClang/Homebrew fallback for older CMake.
     set(LIBRARIES ${LIBRARIES} ${OpenMP_omp_LIBRARY})
   endif()
   if (LIBDL_FOUND)
@@ -370,6 +396,8 @@ function(add_gambit_executable executablename LIBRARIES)
   if(SQLite3_FOUND)
       set(LIBRARIES ${LIBRARIES} ${SQLite3_LIBRARIES})
   endif()
+
+  normalise_gambit_link_libraries(LIBRARIES ${LIBRARIES})
 
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     target_link_libraries(${executablename} PRIVATE ${gambit_preload_LDFLAGS} ${LIBRARIES} yaml-cpp)
@@ -462,9 +490,9 @@ function(add_standalone executablename)
                                ${HARVEST_TOOLS}
                                ${facilitator_options_stamp})
 
-    # All the standalones need linking to HepMC, if HepMC is not excluced.
+    # All the standalones need linking to HepMC, if HepMC is not excluded.
     # TODO: Avoid this if possible.
-    if (NOT EXCLUDE_HEPMC)
+    if (NOT EXCLUDE_HEPMC AND NOT USES_COLLIDERBIT)
       set(ARG_LIBRARIES ${ARG_LIBRARIES} ${HEPMC_LDFLAGS})
     endif()
 
@@ -481,6 +509,13 @@ function(add_standalone executablename)
       endif()
       if (NOT EXCLUDE_YODA)
         set(ARG_LIBRARIES ${ARG_LIBRARIES} ${YODA_LDFLAGS})
+      endif()
+      if (NOT EXCLUDE_ONNXRUNTIME)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${ONNXRUNTIME_LDFLAGS})
+      endif()
+      if (NOT EXCLUDE_FASTJET)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${fastjet_LDFLAGS})
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${fjcontrib_LDFLAGS})
       endif()
     endif()
 
@@ -896,6 +931,10 @@ print('TOTAL:{0}'.format(len(all_be)))
     set(_skipped_list_sc "")
   endif()
 
+  set(GAMBIT_TRIM_USED_BACKENDS "${_used_list_sc}" PARENT_SCOPE)
+  set(GAMBIT_TRIM_USED_COUNT "${_used_count}" PARENT_SCOPE)
+  set(GAMBIT_TRIM_TOTAL_COUNT "${_total_count}" PARENT_SCOPE)
+
   message("${BoldYellow}-- GAMBIT_TRIM_BACKEND_INTERFACES is ON. Building ${_used_count} of ${_total_count} backend interfaces.${ColourReset}")
   if(NOT "${_unknown_force}" STREQUAL "")
     message("${BoldRed}   -DGAMBIT_FORCE_BACKEND_INTERFACE entries with no matching backend (ignored): ${_unknown_force}${ColourReset}")
@@ -951,6 +990,9 @@ function(gambit_configure_optin_build)
       list(APPEND itch "${_be}")
     endforeach()
     set(itch "${itch}" PARENT_SCOPE)
+    set(GAMBIT_TRIM_USED_BACKENDS "${GAMBIT_TRIM_USED_BACKENDS}" PARENT_SCOPE)
+    set(GAMBIT_TRIM_USED_COUNT "${GAMBIT_TRIM_USED_COUNT}" PARENT_SCOPE)
+    set(GAMBIT_TRIM_TOTAL_COUNT "${GAMBIT_TRIM_TOTAL_COUNT}" PARENT_SCOPE)
   endif()
 
   set(BACKEND_HARVESTER_EXTRA_ARGS "${_extra_args}" PARENT_SCOPE)

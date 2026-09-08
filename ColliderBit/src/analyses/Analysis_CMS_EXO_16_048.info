@@ -1,0 +1,10 @@
+Summary: CMS W/Z-monojet + MET search at 13 TeV with 36/fb
+InspireID: 1641762
+ExptRun: CMS-R2
+Lumi_ifb: 35.9
+Ecm_TeV: 13.0
+Signatures: ["MET + >=1J + 0L + 0TH + 0P + 0B"]
+Keywords: ["monojet", "W", "Z", "met"]
+Authors: ["Andy Buckley", "Anders Kvellestad", "Martin White"]
+Note: This implementation follows CMS-EXO-16-048; the published monojet/W/Z paper is INSPIRE 1641762 (arXiv:1712.02345). The trigger-level "HT" is unusually a vector sum rather than a scalar sum and is therefore not encoded in the signature; N-subjettiness 2/1 is used in V-jet pruning/tagging.
+OldName: CMS_13TeV_MONOJET_36invfb

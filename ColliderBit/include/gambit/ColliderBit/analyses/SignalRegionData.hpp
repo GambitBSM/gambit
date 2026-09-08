@@ -114,8 +114,10 @@ namespace Gambit
 
       void combine_SR_MC_signal(const SignalRegionData& other)
       {
+        const double stat2 =
+          n_sig_MC_stat * n_sig_MC_stat + other.n_sig_MC_stat * other.n_sig_MC_stat;
         n_sig_MC += other.n_sig_MC;
-        n_sig_MC_stat = sqrt(n_sig_MC);
+        n_sig_MC_stat = sqrt(stat2);
       }
 
       /// @todo Set up a more complete system of getters/setters and make the member variables private

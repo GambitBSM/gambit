@@ -12,10 +12,15 @@
 #include <ctime>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 //#include "gambit/ColliderBit/analyses/Perf_Plot.hpp"
 
 using namespace std;
+
+// Renamed from: 
+//      Analysis_ATLAS_8TeV_1LEPbb_20invfb
+//      :D unrenamed, can not find original exp report
 
 namespace Gambit {
   namespace ColliderBit {
@@ -23,16 +28,11 @@ namespace Gambit {
     class Analysis_ATLAS_8TeV_1LEPbb_20invfb : public Analysis {
     private:
 
-      // Numbers passing cuts
-      double _numSRA, _numSRB;
-      vector<int> cutFlowVector;
+      // Validation cutflow labels (counts are stored in _cutflows)
       // vector<double> cutFlowVectorATLAS_130_0;
       // vector<double> cutFlowVectorATLAS_250_0;
       // double xsecATLAS_130_0;
       // double xsecATLAS_250_0;
-      vector<string> cutFlowVector_str;
-      size_t NCUTS;
-
       // Perf_Plot* plots_2bjets;
       // Perf_Plot* plots_mbb;
       // Perf_Plot* plots_HEPmct;
@@ -59,19 +59,18 @@ namespace Gambit {
         set_luminosity(20.3);
         set_analysis_name("ATLAS_8TeV_1LEPbb_20invfb");
 
-        _numSRA=0;
-        _numSRB=0;
-
-        NCUTS=8;
-        // xsecATLAS_130_0=4240.;
-        // xsecATLAS_250_0=320.;
-
-        for (size_t i=0;i<NCUTS;i++){
-          cutFlowVector.push_back(0);
-          // cutFlowVectorATLAS_130_0.push_back(0);
-          // cutFlowVectorATLAS_250_0.push_back(0);
-          cutFlowVector_str.push_back("");
-        }
+        _counters["SRA"] = EventCounter("SRA");
+        _counters["SRB"] = EventCounter("SRB");
+#ifdef CHECK_CUTFLOW
+        _cutflows.addCutflow(analysis_name(),
+                             {"Lepton + 2 b-jets",
+                              "$E_{T}^{miss} > 100 GeV$",
+                              "$m_{CT} > 160 GeV$",
+                              "$m_{T} > 100 GeV$",
+                              "$45 GeV < m_{bb} < 195 GeV$",
+                              "SRA",
+                              "SRB"});
+#endif
 
         // vector<const char*> variablesNames = {"met","mct","mbb","mt","j0pt","lpt","nbj","j1pt","j0eta","j1eta","jjdeltaR"};
         // plots_2bjets = new Perf_Plot(analysis_name()+"_2bjets", &variablesNames);
@@ -95,10 +94,10 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(baselineElectrons);
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // Apply medium electron selection
-        ATLAS::applyMediumIDElectronSelection(baselineElectrons);
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Medium"));
 
         vector<const HEPUtils::Particle*> baselineMuons;
         for (const HEPUtils::Particle* muon : event->muons()) {
@@ -106,7 +105,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         vector<const HEPUtils::Jet*> baselineJets;
         for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
@@ -164,7 +163,7 @@ namespace Gambit {
         for (size_t iEl=0;iEl<overlapElectrons2.size();iEl++) {
           if (overlapElectrons2.at(iEl)->pT()>25.)signalElectrons.push_back(overlapElectrons2.at(iEl));
         }
-        ATLAS::applyTightIDElectronSelection(signalElectrons);
+        applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
 
         for (size_t iMu=0;iMu<overlapMuons.size();iMu++) {
           if (overlapMuons.at(iMu)->pT()>25.)signalMuons.push_back(overlapMuons.at(iMu));
@@ -243,11 +242,11 @@ namespace Gambit {
         bool SRB=false;
         if (preselection && nSignalBJets==2 && met>100. && mCT>160. && mbb>105. && mbb<135.) {
           if (mT>100. && mT<130.) {
-            _numSRA += event->weight();
+            _counters["SRA"].add_event(event);
             SRA=true;
           }
           if (mT>130.) {
-            _numSRB += event->weight();
+            _counters["SRB"].add_event(event);
             SRB=true;
           }
         }
@@ -262,78 +261,31 @@ namespace Gambit {
  //          if (met>100. && mCT>160. && mT>100. && mbb>105. && mbb<135.)plots_HEPnbj->fill(&variables);
         // }
 
-        cutFlowVector_str[1] = "Lepton + 2 b-jets";
-        cutFlowVector_str[2] = "$E_{T}^{miss} > 100 GeV$";
-        cutFlowVector_str[3] = "$m_{CT} > 160 GeV$";
-        cutFlowVector_str[4] = "$m_{T} > 100 GeV$";
-        cutFlowVector_str[5] = "$45 GeV < m_{bb} < 195 GeV$";
-        cutFlowVector_str[6] = "SRA";
-        cutFlowVector_str[7] = "SRB";
-
-        // cutFlowVectorATLAS_130_0[0] = 100000;
-        // cutFlowVectorATLAS_130_0[1] = 531.1;
- //        cutFlowVectorATLAS_130_0[2] = 163.7;
- //        cutFlowVectorATLAS_130_0[3] = 70.4;
- //        cutFlowVectorATLAS_130_0[4] = 9.7;
- //        cutFlowVectorATLAS_130_0[5] = 9.6;
- //        cutFlowVectorATLAS_130_0[6] = 7.2;
- //        cutFlowVectorATLAS_130_0[7] = 0.3;
-
-        // cutFlowVectorATLAS_250_0[0] = 99000;
-        // cutFlowVectorATLAS_250_0[1] = 71.3;
- //        cutFlowVectorATLAS_250_0[2] = 45.2;
- //        cutFlowVectorATLAS_250_0[3] = 15.0;
- //        cutFlowVectorATLAS_250_0[4] = 8.1;
- //        cutFlowVectorATLAS_250_0[5] = 8.0;
- //        cutFlowVectorATLAS_250_0[6] = 1.3;
- //        cutFlowVectorATLAS_250_0[7] = 4.4;
-
-        for (size_t j=0;j<NCUTS;j++){
-          if(
-             (j==0) ||
-
-             (j==1 && preselection && nSignalBJets==2) ||
-
-             (j==2 && preselection && nSignalBJets==2 && met>100.) ||
-
-             (j==3 && preselection && nSignalBJets==2 && met>100. && mCT>160.) ||
-
-             (j==4 && preselection && nSignalBJets==2 && met>100. && mCT>160. && mT>100.) ||
-
-             (j==5 && preselection && nSignalBJets==2 && met>100. && mCT>160. && mT>100. && mbb>45. && mbb<195.) ||
-
-             (j==6 && SRA) ||
-
-             (j==7 && SRB) ){
-
-            cutFlowVector[j]++;
-
-          }
-        }
+#ifdef CHECK_CUTFLOW
+        const double weight = event->weight();
+        _cutflows[analysis_name()].fillinit(weight);
+        if (preselection && nSignalBJets==2)
+          _cutflows[analysis_name()].fill(1, true, weight);
+        if (preselection && nSignalBJets==2 && met>100.)
+          _cutflows[analysis_name()].fill(2, true, weight);
+        if (preselection && nSignalBJets==2 && met>100. && mCT>160.)
+          _cutflows[analysis_name()].fill(3, true, weight);
+        if (preselection && nSignalBJets==2 && met>100. && mCT>160. && mT>100.)
+          _cutflows[analysis_name()].fill(4, true, weight);
+        if (preselection && nSignalBJets==2 && met>100. && mCT>160. && mT>100. && mbb>45. && mbb<195.)
+          _cutflows[analysis_name()].fill(5, true, weight);
+        if (SRA) _cutflows[analysis_name()].fill(6, true, weight);
+        if (SRB) _cutflows[analysis_name()].fill(7, true, weight);
+#endif
       }
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
+
+      void collect_results()
       {
-        const Analysis_ATLAS_8TeV_1LEPbb_20invfb* specificOther
-                = dynamic_cast<const Analysis_ATLAS_8TeV_1LEPbb_20invfb*>(other);
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (size_t j = 0; j < NCUTS; j++) {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
-        _numSRA += specificOther->_numSRA;
-        _numSRB += specificOther->_numSRB;
-      }
 
-
-      void collect_results() {
-
-        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
-
-        add_result(SignalRegionData("SRA", 4., {_numSRA, 0.}, {5.69, 1.10}));
-        add_result(SignalRegionData("SRB", 3., {_numSRB, 0.}, {2.67, 0.69}));
-
+        add_result(SignalRegionData(_counters["SRA"], 4., {5.69, 1.10}));
+        add_result(SignalRegionData(_counters["SRB"], 3., {2.67, 0.69}));
+COMMIT_CUTFLOWS
       }
 
       bool isLeadingBJets(vector<const HEPUtils::Jet*> jets, vector<const HEPUtils::Jet*> bjets) {
@@ -346,11 +298,10 @@ namespace Gambit {
 
 
     protected:
-      void analysis_specific_reset() {
-        _numSRA=0;
-        _numSRB=0;
+      void analysis_specific_reset()
+      {
+        for (auto& pair : _counters) { pair.second.reset(); }
 
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     };

@@ -1,0 +1,9 @@
+Summary: ATLAS compressed-spectrum electroweak SUSY search at 13 TeV with 139/fb
+InspireID: 1767649
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["2L + OSL + MET + MT2", "2L + OSSF + MET + MT2"]
+Keywords: ["compressed", "dilepton", "electroweakinos", "met", "mt2"]
+Authors: ["Tomas Gonzalo", "Chris Chang"]
+OldName: ATLAS_13TeV_2LEPsoft_139invfb

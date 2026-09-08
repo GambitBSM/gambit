@@ -1,0 +1,9 @@
+Summary: ATLAS higgsino pair-production search in two-Higgs plus MET final states at 13 TeV with 139/fb
+InspireID: 2751932
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["0L + >=4B + >=2H + MET"]
+Keywords: ["higgsino", "higgs", "bjets", "met"]
+Authors: ["Are Raklev"]
+OldName: ATLAS_13TeV_4b_139invfb

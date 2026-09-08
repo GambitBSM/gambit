@@ -11,6 +11,9 @@
 ///  \author Andy Buckley
 ///          (andy.buckley@cern.ch)
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///
 ///  *********************************************
 
 #pragma once
@@ -22,7 +25,6 @@
 #include <iomanip>
 
 #include "gambit/ColliderBit/Utils.hpp"
-
 
 namespace Gambit
 {
@@ -36,6 +38,18 @@ namespace Gambit
     struct Cutflow
     {
 
+      /// Runtime switch for enabling/disabling cutflow filling.
+      /// This allows standalone CBS to control cutflow checks via YAML.
+      static void set_check_cutflow(bool enabled)
+      {
+        check_cutflow_flag() = enabled;
+      }
+
+      static bool check_cutflow()
+      {
+        return check_cutflow_flag();
+      }
+
       /// @brief Default constructor
       ///
       /// Does nothing! Just to allow storage in STL containers and use as a member variable without using the init list
@@ -43,14 +57,24 @@ namespace Gambit
 
       /// Proper constructor
       Cutflow(const string& cfname, const vector<string>& cutnames)
-        : name(cfname), ncuts(cutnames.size()), cuts(cutnames), counts(ncuts+1, 0), icurr(0)
+        : name(cfname), ncuts(cutnames.size()), cuts(cutnames), counts(ncuts+1, 0), icurr(omp_get_max_threads(),0)
+      {  }
+
+      /// Copy constructor
+      Cutflow(const Cutflow& cf)
+        : name(cf.name), ncuts(cf.ncuts), cuts(cf.cuts), counts(cf.counts), icurr(omp_get_max_threads(),0)
       {  }
 
       /// @brief Fill the pre-cut counter
       void fillinit(double weight=1.)
       {
+        if (!check_cutflow())
+        {
+          icurr[omp_get_thread_num()] = 1;
+          return;
+        }
         counts[0] += weight;
-        icurr = 1;
+        icurr[omp_get_thread_num()] = 1;
       }
 
       /// @brief Fill the @a {icut}'th post-cut counter, starting at icut=1 for first cut
@@ -58,10 +82,15 @@ namespace Gambit
       /// @note Returns the cut result to allow 'side-effect' cut-flow filling in an if-statement
       bool fill(size_t icut, bool cutresult=true, double weight=1.)
       {
+        if (!check_cutflow())
+        {
+          icurr[omp_get_thread_num()] = icut + 1;
+          return cutresult;
+        }
         // if (icut == 0)
         //   throw RangeError("Cut number must be greater than 0");
         if (cutresult) counts.at(icut) += weight;
-        icurr = icut + 1;
+        icurr[omp_get_thread_num()] = icut + 1;
         return cutresult;
       }
 
@@ -87,7 +116,7 @@ namespace Gambit
         bool rtn = true;
         for (size_t i = 0; i < cutresults.size(); ++i)
           if (!fill(icut+i, cutresults[i], weight)) { rtn = false; break; }
-        icurr = icut + cutresults.size();
+        icurr[omp_get_thread_num()] = icut + cutresults.size();
         return rtn;
       }
 
@@ -106,7 +135,7 @@ namespace Gambit
       /// @note Returns the cut result to allow 'side-effect' cut-flow filling in an if-statement
       bool fillnext(bool cutresult, double weight=1.)
       {
-        return fill(icurr, cutresult, weight);
+        return fill(icurr[omp_get_thread_num()], cutresult, weight);
       }
 
       /// @brief Fill the next post-cut counter, assuming a true result
@@ -114,7 +143,7 @@ namespace Gambit
       /// @note Returns the cut result to allow 'side-effect' cut-flow filling in an if-statement
       bool fillnext(double weight=1.)
       {
-        return fill(icurr, true, weight);
+        return fill(icurr[omp_get_thread_num()], true, weight);
       }
 
       /// @brief Fill the next cut-state counters from an n-element results vector
@@ -122,7 +151,7 @@ namespace Gambit
       /// @note Returns the cut result to allow 'side-effect' cut-flow filling in an if-statement
       bool fillnext(const vector<bool>& cutresults, double weight=1.)
       {
-        return fill(icurr, cutresults, weight);
+        return fill(icurr[omp_get_thread_num()], cutresults, weight);
       }
 
 
@@ -143,13 +172,23 @@ namespace Gambit
       /// Scale the cutflow weights by the given factor
       void scale(double factor)
       {
+        if (!check_cutflow()) return;
         for (double& x : counts) x *= factor;
       }
 
       /// Scale the cutflow weights so that the weight count after cut @a icut is @a norm
       void normalize(double norm, size_t icut=0)
       {
+        if (!check_cutflow()) return;
         scale(norm/counts.at(icut));
+      }
+
+      /// Combine two cutflows
+      void combine(const Cutflow& othercf)
+      {
+        if (!check_cutflow()) return;
+        for(size_t i=0; i<=ncuts; i++)
+          counts[i] += othercf.counts[i];
       }
 
       /// Create a string representation
@@ -198,7 +237,15 @@ namespace Gambit
       size_t ncuts;
       vector<string> cuts;
       vector<double> counts;
-      size_t icurr;
+      vector<size_t> icurr;
+
+      private:
+
+      static bool& check_cutflow_flag()
+      {
+        static bool enabled = true;
+        return enabled;
+      }
 
     };
 
@@ -337,6 +384,28 @@ namespace Gambit
       void normalize(double norm, size_t icut=0)
       {
         for (Cutflow& cf : cfs) cf.normalize(norm, icut);
+      }
+
+      /// Combine two cutflows
+      void combine(const Cutflows &othercfs)
+      {
+        if (othercfs.cfs.empty()) return;
+
+        if (cfs.empty())
+        {
+          cfs = othercfs.cfs;
+          return;
+        }
+        else if (cfs.size() != othercfs.cfs.size())
+        {
+          utils_error().raise(LOCAL_INFO, "Cannot combine cutflows, they are of different sizes. Maybe you forgot to call `add_cutflows(_cutflows)` in the collect step of your analysis.");
+        }
+
+        // Now combine the cutflows with matching names.
+        for (Cutflow &cf : cfs)
+        {
+          cf.combine(othercfs[cf.name]);
+        }
       }
 
       /// Create a string representation

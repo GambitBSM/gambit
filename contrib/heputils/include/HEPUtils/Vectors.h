@@ -512,7 +512,7 @@ namespace HEPUtils {
   /// Function/functor for container<const P4> sorting (cf. std::less)
   template <typename T>
   inline bool _cmpPtDesc(const T& a, const T& b) {
-    return a.pT2() >= b.pT2();
+    return a.pT2() > b.pT2();
   }
 
   /// Function/functor for container<const P4*> sorting (cf. std::less)

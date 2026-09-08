@@ -22,6 +22,14 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2019 June
+///  \date 2023 Aug
+///
+///  \author Pengxuan Zhu 
+///          (pengxuan.zhu@adelaide.edu.au, zhupx99@icloud.com)
+///  \date 2025 Oct
 ///  *********************************************
 
 #include <stdexcept>
@@ -44,112 +52,151 @@ namespace Gambit
     // - If the analysis depends on RestFrames (which uses ROOT), add it to MAP_ANALYSES_WITH_ROOT_RESTFRAMES
     // - If the analysis only depends on ROOT, add it to MAP_ANALYSES_WITH_ROOT
     // - Else, add the analysis to MAP_ANALYSES
-    #define MAP_ANALYSES_WITH_ROOT_RESTFRAMES(F)     \
-      F(ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb)          \
-      F(ATLAS_13TeV_RJ3L_3Lep_36invfb)               \
-      F(ATLAS_13TeV_RJ3L_lowmass_36invfb)            \
+    #define MAP_ANALYSES_WITH_ROOT_RESTFRAMES(F)        \
+      F(ATLAS_SUSY_2017_03_RJR_2L2J)                    \
+      F(ATLAS_SUSY_2018_16)                             \
+      F(ATLAS_SUSY_2018_16_combined)                    \
+      F(ATLAS_SUSY_2018_16_exclusive)                   \
+      F(ATLAS_SUSY_2017_03_RJR_3L)                      \
+      F(ATLAS_SUSY_2017_03_RJR_Lowmass)                 \
+      F(ATLAS_SUSY_2018_05_RJR)                         \
+      F(ATLAS_SUSY_2018_12_RJR)                         \
+      
+    #define MAP_ANALYSES_WITH_ROOT(F)                   \
+      F(ATLAS_SUSY_2016_06)                             \
+      F(ATLAS_SUSY_2019_02)                             \
 
-    #define MAP_ANALYSES_WITH_ROOT(F)                \
-      F(ATLAS_13TeV_1LEPStop_36invfb)                \
+    #define MAP_ANALYSES_WITH_ONNX(F)                   \
+      F(ATLAS_SUSY_2018_30)                             \
 
-    #define MAP_ANALYSES(F)                          \
-      F(Minimum)                                     \
-      F(Covariance)                                  \
-      F(ATLAS_13TeV_2BoostedBosons_139invfb)         \
-      F(ATLAS_13TeV_0LEP_13invfb)                    \
-      F(ATLAS_13TeV_0LEP_36invfb)                    \
-      F(ATLAS_13TeV_0LEP_139invfb)                   \
-      F(ATLAS_13TeV_0LEPStop_36invfb)                \
-      F(ATLAS_13TeV_1Lep2b_139invfb)                 \
-      F(ATLAS_13TeV_2LEPStop_36invfb)                \
-      F(ATLAS_13TeV_2LEPStop_139invfb)               \
-      F(ATLAS_13TeV_2LEPStop_inclusive_139invfb)     \
-      F(ATLAS_13TeV_2LEPStop_exclusive_139invfb)     \
-      F(ATLAS_13TeV_MultiLEP_confnote_36invfb)       \
-      F(ATLAS_13TeV_MultiLEP_36invfb)                \
-      F(ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb)      \
-      F(ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb)   \
-      F(ATLAS_13TeV_MultiLEP_3Lep_36invfb)           \
-      F(ATLAS_13TeV_MultiLEP_strong_139invfb)        \
-      F(ATLAS_13TeV_MONOJET_139infb)                 \
-      F(ATLAS_13TeV_2OSLEP_chargino_80invfb)         \
-      F(ATLAS_13TeV_2OSLEP_chargino_binned_80invfb)  \
-      F(ATLAS_13TeV_2OSLEP_chargino_inclusive_80invfb)  \
-      F(ATLAS_13TeV_2OSLEP_chargino_139invfb)        \
-      F(ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb) \
-      F(ATLAS_13TeV_2OSLEP_chargino_binned_139invfb) \
-      F(ATLAS_13TeV_3LEP_139invfb)                   \
-      F(ATLAS_13TeV_4LEP_36invfb)                    \
-      F(ATLAS_13TeV_4LEP_139invfb)                   \
-      F(ATLAS_13TeV_2bMET_36invfb)                   \
-      F(ATLAS_13TeV_3b_24invfb)                      \
-      F(ATLAS_13TeV_3b_discoverySR_24invfb)          \
-      F(ATLAS_13TeV_3b_36invfb)                      \
-      F(ATLAS_13TeV_3b_discoverySR_36invfb)          \
-      F(ATLAS_13TeV_PhotonGGM_36invfb)               \
-      F(ATLAS_13TeV_PhotonGGM_1Photon_36invfb)       \
-      F(ATLAS_13TeV_PhotonGGM_2Photon_36invfb)       \
-      F(ATLAS_13TeV_PhotonGGM_1Photon_139invfb)      \
-      F(ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb)     \
-      F(ATLAS_13TeV_2OSLEP_Z_139invfb)               \
-      F(ATLAS_8TeV_0LEP_20invfb)                     \
-      F(ATLAS_8TeV_0LEPStop_20invfb)                 \
-      F(ATLAS_8TeV_1LEPStop_20invfb)                 \
-      F(ATLAS_8TeV_2bStop_20invfb)                   \
-      F(ATLAS_8TeV_2LEPEW_20invfb)                   \
-      F(ATLAS_8TeV_2LEPStop_20invfb)                 \
-      F(ATLAS_8TeV_3LEPEW_20invfb)                   \
-      F(ATLAS_8TeV_1LEPbb_20invfb)                   \
-      F(ATLAS_7TeV_1OR2LEPStop_4_7invfb)             \
-      F(ATLAS_7TeV_2LEPStop_4_7invfb)                \
-      F(CMS_13TeV_0LEP_13invfb)                      \
-      F(CMS_13TeV_0LEP_36invfb)                      \
-      F(CMS_13TeV_0LEP_137invfb)                     \
-      F(CMS_13TeV_1LEPbb_36invfb)                    \
-      F(CMS_13TeV_1LEPStop_36invfb)                  \
-      F(CMS_13TeV_2LEPStop_36invfb)                  \
-      F(CMS_13TeV_2LEPsoft_36invfb)                  \
-      F(CMS_13TeV_2LEPsoft_36invfb_nocovar)          \
-      F(CMS_13TeV_2LEPsoft_stop_36invfb)             \
-      F(CMS_13TeV_2LEPsoft_stop_36invfb_nocovar)     \
-      F(CMS_13TeV_2OSLEP_36invfb)                    \
-      F(CMS_13TeV_2OSLEP_137invfb)                   \
-      F(CMS_13TeV_2OSLEP_Strong_Production_137invfb) \
-      F(CMS_13TeV_2OSLEP_Slepton_137invfb) \
-      F(CMS_13TeV_2OSLEP_36invfb_nocovar)            \
-      F(CMS_13TeV_2OSLEP_confnote_36invfb)           \
-      F(CMS_13TeV_2OSLEP_chargino_stop_36invfb)      \
-      F(CMS_13TeV_2OSLEP_for_stop_36invfb)           \
-      F(CMS_13TeV_2OSLEP_for_chargino_36invfb)       \
-      F(CMS_13TeV_2SSLEP_Stop_36invfb)               \
-      F(CMS_13TeV_2SSLEP_Stop_inclusive_36invfb)     \
-      F(CMS_13TeV_2SSLEP_Stop_exclusive_36invfb)     \
-      F(CMS_13TeV_2SSLEP_Stop_137invfb)              \
-      F(CMS_13TeV_Photon_GMSB_36invfb)               \
-      F(CMS_13TeV_2Photon_GMSB_36invfb)              \
-      F(CMS_13TeV_1Photon1Lepton_36invfb)            \
-      F(CMS_13TeV_1Photon1Lepton_emu_combined_36invfb) \
-      F(CMS_13TeV_MultiLEP_36invfb)                  \
-      F(CMS_13TeV_MultiLEP_2SSLep_36invfb)           \
-      F(CMS_13TeV_MultiLEP_3Lep_36invfb)             \
-      F(CMS_13TeV_MultiLEP_Full_36invfb)             \
-      F(CMS_13TeV_MultiLEP_Full_2SSLep_36invfb)      \
-      F(CMS_13TeV_MultiLEP_Full_3Lep_36invfb)        \
-      F(CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb) \
-      F(CMS_13TeV_MONOJET_36invfb)                   \
-      F(CMS_13TeV_MultiLEP_137invfb)                 \
-      F(CMS_13TeV_MultiLEP_2LEP_137invfb)            \
-      F(CMS_13TeV_MultiLEP_3LEP_137invfb)            \
-      F(CMS_13TeV_MultiLEP_3LEPTau_137invfb)         \
-      F(CMS_13TeV_MultiLEP_4LEP_137invfb)            \
-      F(CMS_13TeV_MultiLEP_4LEPTau_137invfb)         \
-      F(CMS_8TeV_1LEPDMTOP_20invfb)                  \
-      F(CMS_8TeV_2LEPDMTOP_20invfb)                  \
-      F(CMS_8TeV_MultiLEP_20invfb)                   \
-      F(CMS_8TeV_MultiLEP_3Lep_20invfb)              \
-      F(CMS_8TeV_MultiLEP_4Lep_20invfb)              \
-      F(CMS_8TeV_MONOJET_20invfb)                    \
-
+    #define MAP_ANALYSES(F)                             \
+      F(Minimum)                                        \
+      F(Covariance)                                     \
+      F(Dummy)                                          \
+      F(Baselines)                                      \
+      F(ATLAS_8TeV_1LEPbb_20invfb)                      \
+      F(ATLAS_EXOT_2016_013)                            \
+      F(ATLAS_EXOT_2016_014)                            \
+      F(ATLAS_EXOT_2016_017)                            \
+      F(ATLAS_EXOT_2018_06)                             \
+      F(ATLAS_EXOT_2018_60)                             \
+      F(ATLAS_EXOT_2019_04)                             \
+      F(ATLAS_EXOT_2019_07)                             \
+      F(ATLAS_EXOT_2021_035)                            \
+      F(ATLAS_SUSY_2018_41)                             \
+      F(ATLAS_CONF_2016_078)                            \
+      F(ATLAS_SUSY_2016_07)                             \
+      F(ATLAS_SUSY_2018_22)                             \
+      F(ATLAS_SUSY_2016_15)                             \
+      F(ATLAS_SUSY_2018_12)                             \
+      F(ATLAS_SUSY_2019_08)                             \
+      F(ATLAS_SUSY_2018_07)                             \
+      F(ATLAS_SUSY_2017_01)                             \
+      F(ATLAS_SUSY_2018_05)                             \
+      F(ATLAS_SUSY_2018_08)                             \
+      F(ATLAS_SUSY_2018_08_inclusive)                   \
+      F(ATLAS_SUSY_2018_08_exclusive)                   \
+      F(ATLAS_CONF_2017_039)                            \
+      F(ATLAS_SUSY_2016_24)                             \
+      F(ATLAS_SUSY_2016_24_2Lep0Jets)                   \
+      F(ATLAS_SUSY_2016_24_2LepPlusJets)                \
+      F(ATLAS_SUSY_2016_24_3Lep)                     \
+      F(ATLAS_SUSY_2018_09)                          \
+      F(ATLAS_CONF_2018_042)                         \
+      F(ATLAS_CONF_2018_042_chargino_binned)         \
+      F(ATLAS_CONF_2018_042_chargino_inclusive)      \
+      F(ATLAS_CONF_2019_008)                         \
+      F(ATLAS_CONF_2019_008_chargino_inclusive)      \
+      F(ATLAS_CONF_2019_008_chargino_binned)         \
+      F(ATLAS_SUSY_2019_09)                          \
+      F(ATLAS_SUSY_2018_06)                          \
+      F(ATLAS_SUSY_2016_21)                          \
+      F(ATLAS_SUSY_2018_02)                          \
+      F(ATLAS_SUSY_2016_28)                          \
+      F(ATLAS_SUSY_2017_02)                          \
+      F(ATLAS_SUSY_2017_02_discoverySR)              \
+      F(ATLAS_SUSY_2017_02_36invfb)                  \
+      F(ATLAS_SUSY_2017_02_discoverySR_36invfb)      \
+      F(ATLAS_SUSY_2020_16)                          \
+      F(ATLAS_SUSY_2020_16_allyears)                 \
+      F(ATLAS_SUSY_2020_16_discoverySR)              \
+      F(ATLAS_SUSY_2016_27)                          \
+      F(ATLAS_SUSY_2016_27_1Photon)                  \
+      F(ATLAS_SUSY_2016_27_2Photon)                  \
+      F(ATLAS_SUSY_2018_11)                          \
+      F(ATLAS_CONF_2018_019)                         \
+      F(ATLAS_SUSY_2018_21_StopZH)                   \
+      F(ATLAS_SUSY_2019_18)                          \
+      F(ATLAS_SUSY_2019_22)                          \
+      F(ATLAS_SUSY_2013_02)                          \
+      F(ATLAS_SUSY_2013_16)                          \
+      F(ATLAS_CONF_2013_037)                         \
+      F(ATLAS_SUSY_2013_05)                          \
+      F(ATLAS_SUSY_2013_11)                          \
+      F(ATLAS_SUSY_2013_19)                          \
+      F(ATLAS_SUSY_2013_12)                          \
+      F(ATLAS_SUSY_2012_10)                          \
+      F(ATLAS_SUSY_2012_04)                          \
+      F(CMS_SUS_16_014)                              \
+      F(CMS_SUS_16_033)                              \
+      F(CMS_SUS_19_006)                              \
+      F(CMS_SUS_21_002_OLD)                          \
+      F(CMS_SUS_21_002)                              \
+      F(CMS_SUS_16_043)                              \
+      F(CMS_SUS_20_003)                              \
+      F(CMS_SUS_16_051)                              \
+      F(CMS_SUS_17_001)                              \
+      F(CMS_SUS_16_048)                              \
+      F(CMS_SUS_16_048_nocovar)                      \
+      F(CMS_SUS_16_048_stop)                         \
+      F(CMS_SUS_16_048_stop_nocovar)                 \
+      F(CMS_SUS_18_004)                              \
+      F(CMS_SUS_18_004_ewino)                        \
+      F(CMS_SUS_18_004_stop)                         \
+      F(CMS_SUS_16_034_EW)                           \
+      F(CMS_SUS_20_001)                              \
+      F(CMS_SUS_20_001_strong_production)            \
+      F(CMS_SUS_20_001_EW_production)                \
+      F(CMS_SUS_20_001_Slepton)                      \
+      F(CMS_SUS_16_034_EW_nocovar)                   \
+      F(CMS_SUS_16_034)                              \
+      F(CMS_SUS_17_010)                              \
+      F(CMS_SUS_17_010_stop)                         \
+      F(CMS_SUS_17_010_chargino)                     \
+      F(CMS_SUS_16_035)                              \
+      F(CMS_SUS_16_035_inclusive)                    \
+      F(CMS_SUS_16_035_exclusive)                    \
+      F(CMS_SUS_19_008)                              \
+      F(CMS_SUS_16_046)                              \
+      F(CMS_SUS_21_009)                              \
+      F(CMS_SUS_17_011)                              \
+      F(CMS_SUS_17_012)                              \
+      F(CMS_SUS_17_012_emu_combined)                 \
+      F(CMS_SUS_16_039)                              \
+      F(CMS_SUS_16_039_2SSLep)                       \
+      F(CMS_SUS_16_039_3Lep)                         \
+      F(CMS_SUS_16_039_Full)                         \
+      F(CMS_SUS_16_039_Full_2SSLep)                  \
+      F(CMS_SUS_16_039_Full_3Lep)                    \
+      F(CMS_SUS_16_039_Full_3Lep_rebinned)           \
+      F(CMS_EXO_16_048)                              \
+      F(CMS_SUS_19_012)                              \
+      F(CMS_SUS_19_012_2Lep)                         \
+      F(CMS_SUS_19_012_3Lep)                         \
+      F(CMS_SUS_19_012_3LEPTau)                      \
+      F(CMS_SUS_19_012_4LEP)                         \
+      F(CMS_SUS_19_012_4LEPTau)                      \
+      F(CMS_SUS_20_004)                              \
+      F(CMS_SUS_19_010)                              \
+      F(CMS_B2G_14_004)                              \
+      F(CMS_B2G_13_004)                              \
+      F(CMS_B2G_18_003)                              \
+      F(CMS_SUS_13_006)                              \
+      F(CMS_SUS_13_006_3Lep)                         \
+      F(CMS_SUS_13_006_4Lep)                         \
+      F(CMS_EXO_12_048)                              \
+      
+      ///// F(ATLAS_EXOT_2019_04)                    
     /// For analysis factory function declaration
     #define DECLARE_ANALYSIS_FACTORY(ANAME)          \
       Analysis* create_Analysis_ ## ANAME();         \
@@ -161,6 +208,9 @@ namespace Gambit
         MAP_ANALYSES_WITH_ROOT_RESTFRAMES(DECLARE_ANALYSIS_FACTORY)
       #endif
       MAP_ANALYSES_WITH_ROOT(DECLARE_ANALYSIS_FACTORY)
+    #endif
+    #ifndef EXCLUDE_ONNXRUNTIME
+      MAP_ANALYSES_WITH_ONNX(DECLARE_ANALYSIS_FACTORY)
     #endif
     MAP_ANALYSES(DECLARE_ANALYSIS_FACTORY)
 
@@ -177,11 +227,35 @@ namespace Gambit
         #endif
         MAP_ANALYSES_WITH_ROOT(IF_X_RTN_CREATE_ANA_X)
       #endif
+      #ifndef EXCLUDE_ONNXRUNTIME
+        MAP_ANALYSES_WITH_ONNX(IF_X_RTN_CREATE_ANA_X)
+      #endif
       MAP_ANALYSES(IF_X_RTN_CREATE_ANA_X)
 
       // If we end up here the analysis has not been found
       utils_error().raise(LOCAL_INFO, "The analysis " + name + " is not a known ColliderBit analysis.");
       return nullptr;
+    }
+
+    /// For the string-based analysis checker isAnalysisRegistered
+    #define IF_X_RTN_ANALYSIS_REGISTERED(A)                                   \
+      if (name == #A) return true;
+
+    /// Check whether an analysis is available in this ColliderBit build.
+    bool isAnalysisRegistered(const str& name)
+    {
+      #ifndef EXCLUDE_ROOT
+        #ifndef EXCLUDE_RESTFRAMES
+          MAP_ANALYSES_WITH_ROOT_RESTFRAMES(IF_X_RTN_ANALYSIS_REGISTERED)
+        #endif
+        MAP_ANALYSES_WITH_ROOT(IF_X_RTN_ANALYSIS_REGISTERED)
+      #endif
+      #ifndef EXCLUDE_ONNXRUNTIME
+        MAP_ANALYSES_WITH_ONNX(IF_X_RTN_ANALYSIS_REGISTERED)
+      #endif
+      MAP_ANALYSES(IF_X_RTN_ANALYSIS_REGISTERED)
+
+      return false;
     }
 
     /// For the string-based analysis checker and detector retriever getDetector
@@ -196,6 +270,9 @@ namespace Gambit
           MAP_ANALYSES_WITH_ROOT_RESTFRAMES(IF_X_RTN_DETECTOR)
         #endif
         MAP_ANALYSES_WITH_ROOT(IF_X_RTN_DETECTOR)
+      #endif
+      #ifndef EXCLUDE_ONNXRUNTIME
+        MAP_ANALYSES_WITH_ONNX(IF_X_RTN_DETECTOR)
       #endif
       MAP_ANALYSES(IF_X_RTN_DETECTOR)
 
@@ -329,6 +406,7 @@ namespace Gambit
       for (auto& aname : analysis_names)
       {
         analyses_map[collider_name][aname] = mkAnalysis(aname);
+        analyses_map[collider_name][aname]->set_collider_name(collider_name);
       }
     }
 
@@ -423,7 +501,7 @@ namespace Gambit
       {
         AnalysisContainer* other_container = thread_container_pair.second;
         Analysis* other_analysis = other_container->analyses_map.at(collider_name).at(analysis_name);
-        analyses_map.at(collider_name).at(analysis_name)->add(other_analysis);
+        analyses_map.at(collider_name).at(analysis_name)->add(other_analysis);      
       }
     }
 

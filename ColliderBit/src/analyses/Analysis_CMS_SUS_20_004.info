@@ -1,0 +1,9 @@
+Summary: CMS higgsino search in two-Higgs plus MET final states at 13 TeV with 137/fb
+InspireID: 2009652
+ExptRun: CMS-R2
+Lumi_ifb: 137.0
+Ecm_TeV: 13.0
+Signatures: ["0L + >=4B + 2H + MET"]
+Keywords: ["higgsino", "higgs", "bjets", "met"]
+Authors: ["Yang Zhang"]
+OldName: CMS_13TeV_2Higgs_4b_neutralino_137invfb

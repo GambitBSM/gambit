@@ -1,0 +1,9 @@
+Summary: ATLAS direct chargino and neutralino search in three-lepton plus MET final states at 8 TeV with 20.3/fb
+InspireID: 1282905
+ExptRun: ATLAS-R1.5
+Lumi_ifb: 20.3
+Ecm_TeV: 8.0
+Signatures: ["3L + OSSF + MET", "3L + MET"]
+Keywords: ["trilepton", "electroweakinos", "met"]
+Authors: ["Martin White"]
+OldName: ATLAS_8TeV_3LEPEW_20invfb

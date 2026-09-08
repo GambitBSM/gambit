@@ -1,0 +1,9 @@
+Summary: CMS search for SUSY with two or three soft leptons and MET at 13 TeV with 137/fb
+InspireID: 1966342
+ExptRun: CMS-R2
+Lumi_ifb: 137.0
+Ecm_TeV: 13.0
+Signatures: ["2L + MET", "3L + MET"]
+Keywords: ["soft-leptons", "compressed", "electroweakinos", "top-squark", "met"]
+Authors: ["Tomas Gonzalo"]
+OldName: CMS_13TeV_2LEPsoft_137invfb

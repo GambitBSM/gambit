@@ -1,0 +1,9 @@
+Summary: ATLAS direct light top-squark search in dilepton final states at 7 TeV with 4.7/fb
+InspireID: 1128464
+ExptRun: ATLAS-R1
+Lumi_ifb: 4.7
+Ecm_TeV: 7.0
+Signatures: ["2L + OSL + MET + MT2"]
+Keywords: ["top-squark", "dilepton", "met", "mt2"]
+Authors: ["D. Steiner", "Martin White"]
+OldName: ATLAS_7TeV_2LEPStop_4_7invfb

@@ -1,0 +1,9 @@
+Summary: CMS monojet search for dark matter, extra dimensions and unparticles at 8 TeV with 19.7/fb
+InspireID: 1311223
+ExptRun: CMS-R1.5
+Lumi_ifb: 19.7
+Ecm_TeV: 8.0
+Signatures: ["MET + >=1J + <3J + 0L"]
+Keywords: ["dark-matter", "monojet", "extra-dimensions", "unparticles", "met"]
+Authors: ["Martin White"]
+OldName: CMS_8TeV_MONOJET_20invfb

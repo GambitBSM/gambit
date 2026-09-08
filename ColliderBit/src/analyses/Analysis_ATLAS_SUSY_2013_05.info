@@ -1,0 +1,9 @@
+Summary: ATLAS direct third-generation squark search with two b-jets and MET at 8 TeV with 20.1/fb
+InspireID: 1247462
+ExptRun: ATLAS-R1.5
+Lumi_ifb: 20.1
+Ecm_TeV: 8.0
+Signatures: ["0L + MET + >=2B + >=2J", "0L + MET + >=2B + >=3J"]
+Keywords: ["sbottom", "top-squark", "bjets", "met", "mct"]
+Authors: ["Martin White", "Sky French"]
+OldName: ATLAS_8TeV_2bStop_20invfb

@@ -25,15 +25,20 @@
 ///  \date 2020 Jan
 ///
 ///  \author Tomas Gonzalo
-///          (gonzalo@physk.rwth-aachen.de)
-///  \date 2021 Jul
+///          (tomas.gonzalo@kit.edu)
+///  \date 2021 Jul, 2023 Aug
 ///
 ///  *********************************************
 
 #pragma once
 
+#include <algorithm>
 #include <functional>
 #include <memory>
+#include <mutex>
+#include <stdexcept>
+#include <string>
+#include <vector>
 #include <cfloat>
 
 #include "HEPUtils/MathUtils.h"
@@ -41,6 +46,9 @@
 #include "HEPUtils/Event.h"
 #include "HEPUtils/FastJet.h"
 
+#include "gambit/Utils/util_types.hpp"
+#include "gambit/Utils/standalone_error_handlers.hpp"
+#include "gambit/Utils/yaml_options.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
 namespace Gambit
@@ -57,10 +65,94 @@ namespace Gambit
     {
       std::string key;
       std::string algorithm;
-      double R;
-      std::string recombination_scheme;
-      std::string strategy;
+      double R = 0.4;
+      std::string recombination_scheme = "E_scheme";
+      std::string strategy = "Best";
+      double rho = 30.0;
+      double Rmin = 0.02;
+      double Rmax = 0.4;
+      double pt_min = -1.0;
     };
+    inline bool is_vr_algorithm(const std::string& algorithm) { return algorithm == "VariableR"; }
+
+    struct parsed_jet_collection_settings
+    {
+      std::vector<jet_collection_settings> collections;
+      str jetcollection_taus;
+    };
+
+    inline std::recursive_mutex& jet_collection_options_mutex()
+    {
+      static std::recursive_mutex mutex;
+      return mutex;
+    }
+
+    inline parsed_jet_collection_settings read_jet_collection_settings_from_options(const Options& options)
+    {
+      std::lock_guard<std::recursive_mutex> lock(jet_collection_options_mutex());
+
+      if (!options.hasKey("jet_collections"))
+      {
+        throw std::runtime_error("Could not find jet_collections option. Please provide this in the YAML file.");
+      }
+
+      parsed_jet_collection_settings parsed;
+      YAML::Node all_jetcollections_node = options.getValue<YAML::Node>("jet_collections");
+      Options all_jetcollection_options(all_jetcollections_node);
+      std::vector<str> jetcollection_names = all_jetcollection_options.getNames();
+
+      for (str key : jetcollection_names)
+      {
+        YAML::Node current_jc_node = all_jetcollection_options.getValue<YAML::Node>(key);
+        Options current_jc_options(current_jc_node);
+
+        str algorithm = current_jc_options.getValue<str>("algorithm");
+        jet_collection_settings settings;
+        settings.key = key;
+        settings.algorithm = algorithm;
+        if (is_vr_algorithm(algorithm))
+        {
+          settings.rho = current_jc_options.getValue<double>("rho");
+          settings.Rmin = current_jc_options.getValue<double>("Rmin");
+          settings.Rmax = current_jc_options.getValue<double>("Rmax");
+          settings.pt_min = current_jc_options.getValue<double>("pt_min");
+        }
+        else
+        {
+          settings.R = current_jc_options.getValue<double>("R");
+          settings.recombination_scheme = current_jc_options.getValue<str>("recombination_scheme");
+          settings.strategy = current_jc_options.getValue<str>("strategy");
+        }
+
+        parsed.collections.push_back(settings);
+      }
+
+      parsed.jetcollection_taus = options.getValue<str>("jet_collection_taus");
+      if (std::find(jetcollection_names.begin(), jetcollection_names.end(), parsed.jetcollection_taus) == jetcollection_names.end())
+      {
+        throw std::runtime_error("Please provide the jet_collection_taus setting for jet collections.");
+      }
+
+      for (const jet_collection_settings& settings : parsed.collections)
+      {
+        if (settings.key == parsed.jetcollection_taus && is_vr_algorithm(settings.algorithm))
+        {
+          throw std::runtime_error("jet_collection_taus must refer to a non-VariableR jet collection.");
+        }
+      }
+
+      return parsed;
+    }
+
+    inline std::vector<std::string> vr_jetcollection_keys(const std::vector<jet_collection_settings>& collections)
+    {
+      std::vector<std::string> keys;
+      for (const jet_collection_settings& settings : collections)
+      {
+        if (is_vr_algorithm(settings.algorithm)) keys.push_back(settings.key);
+      }
+      return keys;
+    }
 
     /// Storage of different FastJet methods
     FJNS::JetAlgorithm FJalgorithm_map(std::string);
@@ -207,12 +299,14 @@ namespace Gambit
     bool random_bool(double eff);
 
     /// Return a random true/false at a success rate given by a 1D efficiency map
-    inline bool random_bool(const HEPUtils::BinnedFn1D<double>& effmap, double x) {
+    inline bool random_bool(const HEPUtils::BinnedFn1D<double>& effmap, double x)
+    {
       return random_bool( effmap.get_at(x) );
     }
 
     /// Return a random true/false at a success rate given by a 2D efficiency map
-    inline bool random_bool(const HEPUtils::BinnedFn2D<double>& effmap, double x, double y) {
+    inline bool random_bool(const HEPUtils::BinnedFn2D<double>& effmap, double x, double y)
+    {
       return random_bool( effmap.get_at(x, y) );
     }
 
@@ -223,16 +317,83 @@ namespace Gambit
     //@{
 
     /// Utility function for filtering a supplied particle vector by sampling wrt an efficiency scalar
-    void filtereff(std::vector<const HEPUtils::Particle*>& particles, double eff, bool do_delete=false);
+    //void filtereff(std::vector<const HEPUtils::Particle*>& particles, double eff, bool do_delete=false);
+    template<class T>
+    void filtereff(std::vector<T*>& particlesOrJetss, double eff, bool do_delete=false)
+    {
+      if (particlesOrJetss.empty()) return;
+      auto keptParticlesOrJetsEnd = std::remove_if(particlesOrJetss.begin(), particlesOrJetss.end(),
+                                             [&](T* p) {
+                                               const bool rm = !random_bool(eff);
+                                               if (do_delete && rm) delete p;
+                                               return rm;
+                                             } );
+      particlesOrJetss.erase(keptParticlesOrJetsEnd, particlesOrJetss.end());
+    }
+
 
     /// Utility function for filtering a supplied particle vector by sampling an efficiency returned by a provided function object
-    void filtereff(std::vector<const HEPUtils::Particle*>& particles, std::function<double(const HEPUtils::Particle*)> eff_fn, bool do_delete=false);
+    template<class T>
+    void filtereff(std::vector<T*>& particlesOrJetss, std::function<double(T*)> eff_fn, bool do_delete=false)
+    {
+      if (particlesOrJetss.empty()) return;
+      auto keptParticlesOrJetsEnd = std::remove_if(particlesOrJetss.begin(), particlesOrJetss.end(),
+                                             [&](T* p)
+                                             {
+                                               const double eff = eff_fn(p);
+                                               const bool rm = !random_bool(eff);
+                                               if (do_delete && rm) delete p;
+                                               return rm;
+                                             } );
+      particlesOrJetss.erase(keptParticlesOrJetsEnd, particlesOrJetss.end());
+    }
+
 
     /// Utility function for filtering a supplied particle vector by sampling wrt a binned 1D efficiency map in pT
-    void filtereff_pt(std::vector<const HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn1D<double>& eff_pt, bool do_delete=false);
+    template<class T>
+    void filtereff_pt(std::vector<T*>& particlesOrJetss, const HEPUtils::BinnedFn1D<double>& eff_pt, bool do_delete=false)
+    {
+      if (particlesOrJetss.empty()) return;
+      auto keptParticlesOrJetsEnd = std::remove_if(particlesOrJetss.begin(), particlesOrJetss.end(),
+                                             [&](T* p)
+                                             {
+                                               const bool rm = !random_bool(eff_pt, p->pT());
+                                               if (do_delete && rm) delete p;
+                                               return rm;
+                                             } );
+      particlesOrJetss.erase(keptParticlesOrJetsEnd, particlesOrJetss.end());
+    }
+
+    /// Utility function for filtering a supplied particle vector by sampling wrt a binned 1D efficiency map in eta
+    template<class T>
+    void filtereff_eta(std::vector<T*>& particlesOrJetss, const HEPUtils::BinnedFn1D<double>& eff_eta, bool do_delete=false)
+    {
+      if (particlesOrJetss.empty()) return;
+      auto keptParticlesOrJetsEnd = std::remove_if(particlesOrJetss.begin(), particlesOrJetss.end(),
+                                             [&](T* p)
+                                             {
+                                               const bool rm = !random_bool(eff_eta, p->eta());
+                                               if (do_delete && rm) delete p;
+                                               return rm;
+                                             } );
+      particlesOrJetss.erase(keptParticlesOrJetsEnd, particlesOrJetss.end());
+    }
 
     /// Utility function for filtering a supplied particle vector by sampling wrt a binned 2D efficiency map in |eta| and pT
-    void filtereff_etapt(std::vector<const HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn2D<double>& eff_etapt, bool do_delete=false);
+    template<class T>
+    void filtereff_etapt(std::vector<T*>& particlesOrJetss, const HEPUtils::BinnedFn2D<double>& eff_etapt, bool do_delete=false)
+    {
+      if (particlesOrJetss.empty()) return;
+      auto keptParticlesOrJetsEnd = std::remove_if(particlesOrJetss.begin(), particlesOrJetss.end(),
+                                             [&](T* p)
+                                             {
+                                               const bool rm = !random_bool(eff_etapt, p->abseta(), p->pT());
+                                               if (do_delete && rm) delete p;
+                                               return rm;
+                                             } );
+      particlesOrJetss.erase(keptParticlesOrJetsEnd, particlesOrJetss.end());
+    }
+
 
     //@}
 
@@ -240,18 +401,41 @@ namespace Gambit
     /// @name Tagging
     //@{
 
+    /// Randomly get a tag result (can be anything) from a single number efficiency
+    inline bool has_tag(const double& eff)
+    {
+      return random_bool(eff);
+    }
+
+    /// Randomly get a tag result (can be anything) from a 1D pT efficiency map
+    inline bool has_tag(const HEPUtils::BinnedFn1D<double>& effmap, double pt)
+    {
+      try
+      {
+        return random_bool(effmap, pt);
+      }
+      catch(...)
+      {
+        return false; // No tag if outside lookup range... be careful!
+      }
+    }
+
     /// Randomly get a tag result (can be anything) from a 2D |eta|-pT efficiency map
     /// @todo Also need 1D? Sampling in what variable?
-    inline bool has_tag(const HEPUtils::BinnedFn2D<double>& effmap, double eta, double pt) {
-      try {
+    inline bool has_tag(const HEPUtils::BinnedFn2D<double>& effmap, double eta, double pt)
+    {
+      try
+      {
         return random_bool(effmap, fabs(eta), pt);
-      } catch (...) {
+      }
+      catch (...)
+      {
         return false; // No tag if outside lookup range... be careful!
       }
     }
 
     /// Return a map<Jet*,bool> containing a generated b-tag for every jet in the input vector
-    inline std::map<const HEPUtils::Jet*,bool> generateBTagsMap(const std::vector<const HEPUtils::Jet*>& jets, 
+    inline std::map<const HEPUtils::Jet*,bool> generateBTagsMap(const std::vector<const HEPUtils::Jet*>& jets,
                                                                 double bTagEff, double cMissTagEff, double otherMissTagEff,
                                                                 double pTmin = 0., double absEtaMax = DBL_MAX)
     {
@@ -261,16 +445,16 @@ namespace Gambit
         bool genBTag = false;
         if((j->pT() > pTmin) && (j->abseta() < absEtaMax))
         {
-          if(j->btag()) 
-          { 
+          if(j->btag())
+          {
             if(random_bool(bTagEff)) { genBTag = true; }
           }
-          else if(j->ctag()) 
-          { 
+          else if(j->ctag())
+          {
             if(random_bool(cMissTagEff)) { genBTag = true; }
           }
           else
-          { 
+          {
             if(random_bool(otherMissTagEff)) { genBTag = true; }
           }
         }
@@ -404,15 +588,19 @@ namespace Gambit
 
     /// Utility function for returning a collection of same-flavour, oppsosite-sign particle pairs
     std::vector<std::vector<const HEPUtils::Particle*>> getSFOSpairs(const std::vector<const HEPUtils::Particle*>& particles);
+    std::vector<std::vector<const HEPUtils::Particle*>> getOSSFpairs(const std::vector<const HEPUtils::Particle*>& particles);
 
     /// Utility function for returning a collection of oppsosite-sign particle pairs
-    std::vector<std::vector<const HEPUtils::Particle*>> getOSpairs(const std::vector<const HEPUtils::Particle*>& particles);
+    std::vector<std::vector<const HEPUtils::Particle*>> getOSpairs(std::vector<const HEPUtils::Particle*> particles);
 
     /// Utility function for returning a collection of same-sign particle pairs
-    std::vector<std::vector<const HEPUtils::Particle*>> getSSpairs(const std::vector<const HEPUtils::Particle*>& particles);
+    std::vector<std::vector<const HEPUtils::Particle*>> getSSpairs(std::vector<const HEPUtils::Particle*> particles);
+
+    // Utility function for returning a collection of same-flavour particle pairs
+    std::vector<std::vector<const HEPUtils::Particle*>> getSFpairs(std::vector<const HEPUtils::Particle*> particles);
 
     /// Utility function for returning a collection of b-tagged jets
-    std::vector<std::vector<const HEPUtils::Jet*>> getBJetPairs(const std::vector<const HEPUtils::Jet*>& bjets);
+    std::vector<std::vector<const HEPUtils::Jet*>> getBJetPairs(std::vector<const HEPUtils::Jet*> bjets);
 
 
     /// @name Sorting
@@ -449,6 +637,16 @@ namespace Gambit
         return std::abs((pair1.at(0)->mom() + pair1.at(1)->mom()).m() - mP) < std::abs((pair2.at(0)->mom() + pair2.at(1)->mom()).m() - mP);
       };
       std::sort(pairs.begin(), pairs.end(), compfn);
+    }
+
+    // Sort a list of pairs in order of highest invariant mass to lowest
+    inline void sortByInvariantMass(std::vector<std::vector<const Particle *> > &pairs)
+    {
+      auto compm = [&](std::vector<const Particle *> pair1, std::vector<const Particle *> pair2)
+      {
+        return (pair1.at(0)->mom() + pair1.at(1)->mom()).m() > (pair2.at(0)->mom() + pair2.at(1)->mom()).m();
+      }; 
+      std::sort(pairs.begin(), pairs.end(), compm);
     }
 
     //@}
@@ -498,7 +696,7 @@ namespace Gambit
         }
         return sum;
     }
-    
+
     //@}
 
 
@@ -510,8 +708,8 @@ namespace Gambit
     {
         double sum = 0.;
         for (const Particle* p : particles)
-        { 
-          if (p->pT() > pTlim) { sum += p->pT(); } 
+        {
+          if (p->pT() > pTlim) { sum += p->pT(); }
         }
         return sum;
     }
@@ -521,12 +719,12 @@ namespace Gambit
     {
         double sum = 0.;
         for (const Jet* j : jets)
-        { 
-          if (j->pT() > pTlim) { sum += j->pT(); } 
+        {
+          if (j->pT() > pTlim) { sum += j->pT(); }
         }
         return sum;
     }
-    
+
     //@}
 
     /// @name Transverse masses
@@ -596,7 +794,7 @@ namespace Gambit
 
     /// @name Particle sign helper functions
     //@{
-    
+
     /// Have two particles the same sign?
     inline bool sameSign(const Particle *P1, const Particle *P2)
     {
@@ -610,6 +808,74 @@ namespace Gambit
     }
 
     //@}
+
+    /// @name Efficiency map class and efficiency apply functions
+    //@{
+
+    template <typename T>
+    class efficiency_map
+    {
+      private:
+        std::map<str, T> _eff;
+
+      public:
+
+        efficiency_map(const std::map<str, T>& eff)
+        {
+          _eff = eff;
+        }
+
+
+        const T& at(str key) const
+        {
+          if(_eff.find(key) == _eff.end())
+          {
+            std::ostringstream err;
+            err << "Efficiency " << key << " not found.";
+            utils_error().raise(LOCAL_INFO, err.str());
+          }
+
+          return _eff.at(key);
+        }
+    };
+
+    /// Generic function to apply efficiencies on a list of particles or jets, provided as a scalar number
+    template <class T>
+    void applyEfficiency(std::vector<T*> &particlesOrJets, const double eff)
+    {
+      filtereff(particlesOrJets, eff);
+    }
+
+    /// Generic function to apply efficiencies on a list of particles or jets, provided as HEPUtils 1D binned efficiencies in pT or eta
+    template<class T>
+    void applyEfficiency(std::vector<T*>& particlesOrJets, const HEPUtils::BinnedFn1D<double>& eff, bool pTBins = true)
+    {
+      if(pTBins)
+        filtereff_pt(particlesOrJets, eff);
+      else
+        filtereff_eta(particlesOrJets, eff);
+    }
+
+    /// Generic function to apply efficiencies on a list of particles or jets, provided as HEPUtils 2D binned efficiencies in eta and pT
+    template<class T>
+    void applyEfficiency(std::vector<T*>& particlesOrJets, const HEPUtils::BinnedFn2D<double>& eff)
+    {
+      filtereff_etapt(particlesOrJets, eff);
+    }
+
+    ///Apply user-specified b-tag misidentification rate (flat)
+    inline void applyBtagMisId(std::vector<const HEPUtils::Jet*>& jets, std::vector<const HEPUtils::Jet*>& bjets, double mis_id_prob)
+    {
+      if (jets.empty()) return;
+      for (const HEPUtils::Jet* jet : jets)
+      {
+        // Only apply misidentification rate for non-b-jets
+        if (!jet->btag() && random_bool(mis_id_prob)) bjets.push_back(jet);
+      }
+    }
+
+    //@}
+
   }
 
 }

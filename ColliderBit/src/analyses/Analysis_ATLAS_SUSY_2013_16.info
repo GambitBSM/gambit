@@ -1,0 +1,9 @@
+Summary: ATLAS direct top-squark search in all-hadronic final states at 8 TeV with 20.1/fb
+InspireID: 1299143
+ExptRun: ATLAS-R1.5
+Lumi_ifb: 20.1
+Ecm_TeV: 8.0
+Signatures: ["0L + MET + >=2J + MT2", "0L + MET + >=4J + >=1B"]
+Keywords: ["top-squark", "0lepton", "all-hadronic", "met", "mt2"]
+Authors: ["Martin White", "Sky French"]
+OldName: ATLAS_8TeV_0LEPStop_20invfb

@@ -1,0 +1,9 @@
+Summary: ATLAS direct chargino, neutralino and slepton search in dilepton plus MET final states at 8 TeV with 20.3/fb
+InspireID: 1286761
+ExptRun: ATLAS-R1.5
+Lumi_ifb: 20.3
+Ecm_TeV: 8.0
+Signatures: ["2L + OSSF + MET + MT2", "2L + OSOF + MET + MT2"]
+Keywords: ["dilepton", "electroweakinos", "sleptons", "met", "mt2"]
+Authors: ["Martin White"]
+OldName: ATLAS_8TeV_2LEPEW_20invfb

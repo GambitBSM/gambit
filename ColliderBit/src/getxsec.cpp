@@ -18,6 +18,7 @@
 ///
 ///  *********************************************
 
+#include "gambit/Utils/threadsafe_rng.hpp"
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 #include "gambit/ColliderBit/complete_process_PID_pair_multimaps.hpp"
 
@@ -1353,9 +1354,10 @@ namespace Gambit
       valid_option_pairs_msg += "  cross_section_fb, cross_section_fractional_uncert\n";
       valid_option_pairs_msg += "  cross_section_pb, cross_section_uncert_pb\n";
       valid_option_pairs_msg += "  cross_section_pb, cross_section_fractional_uncert\n";
+      valid_option_pairs_msg += "Along with the option: collider\n";
 
       // Check that enough options are provided
-      if (runOptions.getNames().size() < 2)
+      if (runOptions.getNames().size() < 3)
       {
         errmsg = "Not enough YAML options provided for function " + calling_function + ".\n";
         errmsg += valid_option_pairs_msg;
@@ -1404,13 +1406,20 @@ namespace Gambit
 
 
     /// A function that reads the total cross-section from the input file, but builds up the number of events from the event loop
-    void getYAMLCrossSection(xsec_container& result)
+    void getYAMLCrossSection(map_str_xsec_container& result)
     {
       using namespace Pipes::getYAMLCrossSection;
 
+      // Retrieve the collider name
+      // @todo support multiple colliders and cross-section pairs
+      const static str collider = runOptions->getValue<str>("collider");
+
+      // Create the result xsec container if it has not been yet
+      result.emplace(collider, xsec_container());
+
       // Use a static variable to communicate the result calculated on thread 0 during 
       // iteration XSEC_CALCULATION to all threads during iteration START_SUBPROCESS
-      static xsec_container shared_result;
+      static map_str_xsec_container shared_result = {{collider, xsec_container()}};
 
       // Don't bother if there are no analyses that will use this.
       if (Dep::RunMC->analyses.empty()) return;
@@ -1441,10 +1450,10 @@ namespace Gambit
       const static double input_xsec_uncert = runOptions->getValue<double>(xsec_pnames.second);
 
       // Only thread 0
-      if(*Loop::iteration == COLLIDER_INIT) shared_result.reset();
+      if(*Loop::iteration == COLLIDER_INIT) shared_result[collider].reset();
       
       // All threads
-      if (*Loop::iteration == COLLIDER_INIT_OMP) result.reset();
+      if (*Loop::iteration == COLLIDER_INIT_OMP) result[collider].reset();
 
       // Set the xsec and its error
       // Only thread 0
@@ -1453,7 +1462,7 @@ namespace Gambit
         std::pair<double,double> temp = convert_xsecs_to_fb(input_xsec, input_xsec_uncert, input_unit, input_fractional_uncert);
         double xsec_fb = temp.first;
         double xsec_uncert_fb = temp.second;
-        shared_result.set_xsec(xsec_fb, xsec_uncert_fb);
+        shared_result[collider].set_xsec(xsec_fb, xsec_uncert_fb);
 
         // Let thread 0 return the correct result already after iteration XSEC_CALCULATION
         result = shared_result;
@@ -1470,13 +1479,20 @@ namespace Gambit
 
 
     /// A function that reads a list of (SLHA file, total cross-section) pairs from the input YAML file
-    void getYAMLCrossSection_SLHA(xsec_container& result)
+    void getYAMLCrossSection_SLHA(map_str_xsec_container& result)
     {
       using namespace Pipes::getYAMLCrossSection_SLHA;
 
+      // Retrieve the collider name
+      // @todo support multiple colliders and cross-section pairs
+      const static str collider = runOptions->getValue<str>("collider");
+
+      // Create the result xsec container if it has not been yet
+      result.emplace(collider, xsec_container());
+
       // Use a static variable to communicate the result calculated on thread 0 during 
       // iteration XSEC_CALCULATION to all threads during iteration START_SUBPROCESS
-      static xsec_container shared_result;
+      static map_str_xsec_container shared_result = {{collider, xsec_container()}};
 
       // Don't bother if there are no analyses that will use this.
       if (Dep::RunMC->analyses.empty()) return;
@@ -1519,10 +1535,10 @@ namespace Gambit
       }
 
       // Only thread 0
-      if(*Loop::iteration == COLLIDER_INIT) shared_result.reset();
+      if(*Loop::iteration == COLLIDER_INIT) shared_result[collider].reset();
       
       // All threads
-      if (*Loop::iteration == COLLIDER_INIT_OMP) result.reset();
+      if (*Loop::iteration == COLLIDER_INIT_OMP) result[collider].reset();
 
       // Set the xsec and its error
       if (*Loop::iteration == XSEC_CALCULATION)
@@ -1533,7 +1549,7 @@ namespace Gambit
         std::pair<double,double> temp = convert_xsecs_to_fb(input_xsec, input_xsec_uncert, input_unit, input_fractional_uncert);
         double xsec_fb = temp.first;
         double xsec_uncert_fb = temp.second;
-        shared_result.set_xsec(xsec_fb, xsec_uncert_fb);
+        shared_result[collider].set_xsec(xsec_fb, xsec_uncert_fb);
 
         // Let thread 0 return the correct result already after iteration XSEC_CALCULATION
         result = shared_result;
@@ -1552,13 +1568,20 @@ namespace Gambit
 
     /// A function that assigns a total cross-sections directly from the scan parameters
     /// (for model ColliderBit_SLHA_scan_model)
-    void getYAMLCrossSection_param(xsec_container& result)
+    void getYAMLCrossSection_param(map_str_xsec_container& result)
     {
       using namespace Pipes::getYAMLCrossSection_param;
 
+      // Retrieve the collider name
+      // @todo support multiple colliders and cross-section pairs
+      const static str collider = runOptions->getValue<str>("collider");
+
+      // Create the result xsec container if it has not been yet
+      result.emplace(collider, xsec_container());
+
       // Use a static variable to communicate the result calculated on thread 0 during 
       // iteration XSEC_CALCULATION to all threads during iteration START_SUBPROCESS
-      static xsec_container shared_result;
+      static map_str_xsec_container shared_result = {{collider, xsec_container()}};
 
       // Don't bother if there are no analyses that will use this.
       if (Dep::RunMC->analyses.empty()) return;
@@ -1632,10 +1655,10 @@ namespace Gambit
       }
 
       // Only thread 0
-      if(*Loop::iteration == COLLIDER_INIT) shared_result.reset();
+      if(*Loop::iteration == COLLIDER_INIT) shared_result[collider].reset();
       
       // All threads
-      if (*Loop::iteration == COLLIDER_INIT_OMP) result.reset();
+      if (*Loop::iteration == COLLIDER_INIT_OMP) result[collider].reset();
 
       // Set the xsec and its error
       // Only thread 0
@@ -1647,7 +1670,7 @@ namespace Gambit
         std::pair<double,double> temp = convert_xsecs_to_fb(input_xsec, input_xsec_uncert, input_unit, input_fractional_uncert);
         double xsec_fb = temp.first;
         double xsec_uncert_fb = temp.second;
-        shared_result.set_xsec(xsec_fb, xsec_uncert_fb);
+        shared_result[collider].set_xsec(xsec_fb, xsec_uncert_fb);
 
         // Let thread 0 return the correct result already after iteration XSEC_CALCULATION
         result = shared_result;
@@ -1691,6 +1714,59 @@ namespace Gambit
         }
       }
     }  // end getXsecInfoMap
+
+
+    /// A log-likelihood function based on the total collider cross-section.
+    /// Can e.g. be used as a dummy likelihood to guide the scanner towards 
+    /// interesting parameter regions, avoid going to the decoupling limit, etc.
+    void calc_TotalCrossSection_LogLike(double& result)
+    {
+      using namespace Pipes::calc_TotalCrossSection_LogLike;
+
+      // Read options
+      const static double xsec_lowerlim_fb = runOptions->getValueOrDef<double>(0.0, "cross_section_lowerlim_fb");
+      const static double xsec_lowerlim_width_fb = runOptions->getValueOrDef<double>(std::max(0.5 * xsec_lowerlim_fb, 1e-4), "cross_section_lowerlim_width_fb");
+
+      const static double xsec_upperlim_fb = runOptions->getValueOrDef<double>(DBL_MAX, "cross_section_upperlim_fb");
+      const static double xsec_upperlim_width_fb = runOptions->getValueOrDef<double>(std::max(0.5 * xsec_upperlim_fb, 1e-4), "cross_section_upperlim_width_fb");
+
+      const static double max_random_loglike_increase = runOptions->getValueOrDef<double>(0.0, "max_random_loglike_increase");
+      static double aggregated_random_loglike = 0.0;
+
+      // Initialise result at the beginning of a new point
+      if (*Loop::iteration == BASE_INIT)
+      {
+        result = 0.0;
+      }
+
+      // Add the loglike contributrion for the current collider
+      if (*Loop::iteration == COLLIDER_FINALIZE)
+      {
+        // Get the cross-section
+        double total_xsec_fb = Dep::TotalCrossSection->xsec();
+
+        // Add log-likelihood from lower/upper limit
+        if (total_xsec_fb < xsec_lowerlim_fb)
+        {
+          result += -0.5 * pow((total_xsec_fb - xsec_lowerlim_fb) / xsec_lowerlim_width_fb, 2);
+        }
+        else if (total_xsec_fb > xsec_upperlim_fb)
+        {
+          result += -0.5 * pow((total_xsec_fb - xsec_upperlim_fb) / xsec_upperlim_width_fb, 2);
+        }
+
+        // Add random, increasing loglike contribution? 
+        // (Useful for exploratory scans where we don't want convergence.)
+        if ((max_random_loglike_increase >= 0.0) && (result >= 0.0))
+        {
+          double r = Random::draw();
+          double random_loglike_contribution = max_random_loglike_increase * r;
+          aggregated_random_loglike += random_loglike_contribution;
+          result += aggregated_random_loglike;
+        }
+      }
+
+    }  // end calc_TotalCrossSection_LogLike
 
 
     /// Output PID pair cross-sections as a str-dbl map, for easy printing

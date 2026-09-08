@@ -1,0 +1,8 @@
+Summary: ATLAS single vector-like T/Y-quark production search in the W(lnu)b channel at 13 TeV with 140/fb
+InspireID: 2936806
+ExptRun: ATLAS-R2
+Lumi_ifb: 140.0
+Ecm_TeV: 13.0
+Signatures: ["1L + >=1B + >=3J + MET"]
+Keywords: ["vectorlikequark", "singleproduction", "Wb", "leptonjets"]
+Authors: ["Pengxuan Zhu"]
