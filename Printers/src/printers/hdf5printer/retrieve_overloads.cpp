@@ -548,13 +548,6 @@ namespace Gambit
             return is_valid;
          }
          
-         bool HDF5Reader::_retrieve(flav_prediction& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-         { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-         bool HDF5Reader::_retrieve(DM_nucleon_couplings& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-         { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-         bool HDF5Reader::_retrieve(BBN_container& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-         { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-
      #endif
 
      /// Helper function to parse a capability name to a dataset name

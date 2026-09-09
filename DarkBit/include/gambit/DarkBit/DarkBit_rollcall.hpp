@@ -1472,6 +1472,10 @@ START_MODULE
 
   #undef CAPABILITY
 
+  // Printable form of DD_couplings: converts DM_nucleon_couplings to map_str_dbl
+  QUICK_FUNCTION(DarkBit, printable_DD_couplings, NEW_CAPABILITY, printable_DD_couplings_impl, map_str_dbl, (),
+                 (DD_couplings, DM_nucleon_couplings))
+
 
   // Relativistic Wilson coefficients defined in the 5(or 4 or 3) flavscheme
   #define CAPABILITY DD_rel_WCs_flavscheme
