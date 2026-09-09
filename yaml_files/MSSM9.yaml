@@ -123,44 +123,15 @@ ObsLikes:
   - capability: LEP_Higgs_LogLike
     purpose:    LogLike
 
-  - capability: ALEPH_Selectron_LLike
+  # Combined LEP slepton and gaugino log-likelihood. The set of analyses is
+  # configured in the Rules section below (the standard non-overlapping set plus
+  # the OPAL degenerate-chargino limit).
+  - capability: LEP_Combined_LogLike
     purpose:    LogLike
 
-  - capability: ALEPH_Smuon_LLike
-    purpose:    LogLike
-
-  - capability: ALEPH_Stau_LLike
-    purpose:    LogLike
-
-  - capability: L3_Selectron_LLike
-    purpose:    LogLike
-
-  - capability: L3_Smuon_LLike
-    purpose:    LogLike
-
-  - capability: L3_Stau_LLike
-    purpose:    LogLike
-
-  - capability: L3_Neutralino_Leptonic_LLike
-    purpose:    LogLike
-
-  - capability: L3_Chargino_Leptonic_LLike
-    purpose:    LogLike
-
-  - capability: OPAL_Chargino_Hadronic_LLike
-    purpose:    LogLike
-
-  - capability: OPAL_Chargino_SemiLeptonic_LLike
-    purpose:    LogLike
-
-  - capability: OPAL_Chargino_Leptonic_LLike
-    purpose:    LogLike
-
-  - capability: OPAL_Neutralino_Hadronic_LLike
-    purpose:    LogLike
-
-  - capability: OPAL_Degenerate_Chargino_LLike
-    purpose:    LogLike
+  # Per-analysis breakdown of the LEP log-likelihoods
+  - capability: LEP_LogLikes
+    purpose:    Observable
 
   # Flavour physics likelihoods
   - purpose:    LogLike
@@ -349,6 +320,27 @@ ObsLikes:
 
 
 Rules:
+
+  # Select which LEP analyses enter the combined LEP log-likelihood. This is the
+  # standard non-overlapping set plus the OPAL degenerate-chargino limit.
+  - if:
+      function: calc_LEP_LogLikes
+    then:
+      options:
+        analyses:
+          - ALEPH_Selectron
+          - ALEPH_Smuon
+          - ALEPH_Stau
+          - L3_Selectron
+          - L3_Smuon
+          - L3_Stau
+          - L3_Neutralino_Leptonic
+          - L3_Chargino_Leptonic
+          - OPAL_Chargino_Hadronic
+          - OPAL_Chargino_SemiLeptonic
+          - OPAL_Chargino_Leptonic
+          - OPAL_Neutralino_Hadronic
+          - OPAL_Degenerate_Chargino
 
   # Tell all functions that are able to dump SLHA files to do so.
   #- if:

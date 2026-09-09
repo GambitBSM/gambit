@@ -110,50 +110,15 @@ ObsLikes:
     - purpose:    LogLike
       capability: LEP_Higgs_LogLike
 
+    # Combined LEP slepton and gaugino log-likelihood. This validation config
+    # uses the full set of LEP analyses (including overlapping channels); the
+    # exact list is set in the Rules section below.
     - purpose:    LogLike
-      capability: ALEPH_Selectron_LLike
+      capability: LEP_Combined_LogLike
 
-    - purpose:    LogLike
-      capability: ALEPH_Smuon_LLike
-
-    - purpose:    LogLike
-      capability: ALEPH_Stau_LLike
-
-    - purpose:    LogLike
-      capability: L3_Selectron_LLike
-
-    - purpose:    LogLike
-      capability: L3_Smuon_LLike
-
-    - purpose:    LogLike
-      capability: L3_Stau_LLike
-
-    - purpose:    LogLike
-      capability: L3_Neutralino_All_Channels_LLike
-
-    - purpose:    LogLike
-      capability: L3_Neutralino_Leptonic_LLike
-
-    - purpose:    LogLike
-      capability: L3_Chargino_All_Channels_LLike
-
-    - purpose:    LogLike
-      capability: L3_Chargino_Leptonic_LLike
-
-    - purpose:    LogLike
-      capability: OPAL_Chargino_Hadronic_LLike
-
-    - purpose:    LogLike
-      capability: OPAL_Chargino_SemiLeptonic_LLike
-
-    - purpose:    LogLike
-      capability: OPAL_Chargino_Leptonic_LLike
-
-    - purpose:    LogLike
-      capability: OPAL_Chargino_All_Channels_LLike
-
-    - purpose:    LogLike
-      capability: OPAL_Neutralino_Hadronic_LLike
+    # Per-analysis breakdown of the LEP log-likelihoods
+    - purpose:    Observable
+      capability: LEP_LogLikes
 
     # Other observables
     - purpose:    Observable
@@ -177,6 +142,28 @@ ObsLikes:
 
 
 Rules:
+
+  # Select which LEP analyses enter the combined LEP log-likelihood. This
+  # validation config uses the full set, including overlapping channels.
+  - capability: LEP_LogLikes
+    function: calc_LEP_LogLikes
+    options:
+      analyses:
+        - ALEPH_Selectron
+        - ALEPH_Smuon
+        - ALEPH_Stau
+        - L3_Selectron
+        - L3_Smuon
+        - L3_Stau
+        - L3_Neutralino_All_Channels
+        - L3_Neutralino_Leptonic
+        - L3_Chargino_All_Channels
+        - L3_Chargino_Leptonic
+        - OPAL_Chargino_Hadronic
+        - OPAL_Chargino_SemiLeptonic
+        - OPAL_Chargino_Leptonic
+        - OPAL_Chargino_All_Channels
+        - OPAL_Neutralino_Hadronic
 
   - capability: PerformInitialCrossSection
     function: PerformInitialCrossSection_Pythia
