@@ -221,6 +221,43 @@
   }                                                                            \
 
 
+/// Redirection of DEPENDENCY_ON_FUNCTION(TAG, DEP, TYPE, TARGET_FUNCTION) when invoked from
+/// within a module. Identical in structure to MODULE_DEPENDENCY, except the extern dep_bucket
+/// declaration is filed under TAG rather than DEP, matching the definition created on the core
+/// side by DEPENDENCY_ON_FUNCTION_COMMON. DEP, TARGET_FUNCTION and TARGET_MODULE are not needed
+/// here: they only affect how the dependency is *resolved*, which is the Core's job, whereas a
+/// module's own translation units just need a correctly-named extern to link against.
+#define MODULE_DEPENDENCY_ON_FUNCTION(TAG, TYPE, MODULE, FUNCTION, IS_MODEL_DEP) \
+                                                                               \
+  namespace Gambit                                                             \
+  {                                                                            \
+    /* Put everything inside the Models namespace if this is a model dep */    \
+    BOOST_PP_IIF(IS_MODEL_DEP, namespace Models {, )                           \
+                                                                               \
+    namespace MODULE                                                           \
+    {                                                                          \
+                                                                               \
+      /* Given that TYPE is not void, create a safety_bucket for the           \
+      dependency result, filed under Dep::TAG (not Dep::DEP). To be            \
+      initialized automatically at runtime when the dependency is resolved. */ \
+      namespace Pipes                                                          \
+      {                                                                        \
+        namespace FUNCTION                                                     \
+        {                                                                      \
+          BOOST_PP_IIF(IS_TYPE(void,TYPE),,                                    \
+            namespace Dep { extern dep_bucket<TYPE> TAG; } )                   \
+        }                                                                      \
+                                                                               \
+      }                                                                        \
+                                                                               \
+    }                                                                          \
+                                                                               \
+    /* Close the Models namespace if this is a model dep */                    \
+    BOOST_PP_IIF(IS_MODEL_DEP, }, )                                            \
+                                                                               \
+  }                                                                            \
+
+
 /// Redirection of ALLOW_MODEL when invoked from within a module.
 #define MODULE_ALLOWED_MODEL(MODULE,FUNCTION,MODEL,IS_MODEL)                   \
                                                                                \
