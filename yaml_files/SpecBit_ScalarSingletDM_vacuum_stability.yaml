@@ -71,7 +71,9 @@ Scanner:
       plugin: grid
       version: ">=1.0"
       like:  LogLike
-      grid_pts: [1,1]
+      grid_pts:
+        StandardModel_SLHA2::mT: 1
+        StandardModel_Higgs_running::mH: 1
 
 
 ObsLikes:
