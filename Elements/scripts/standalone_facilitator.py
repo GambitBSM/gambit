@@ -99,11 +99,11 @@ namespace Gambit                                  \n\
 {                                                 \n\
   // Non-module types                             \n\
   template class module_functor<void>;            \n"
-    for t in returned_types["non_module"]:
+    for t in sorted(returned_types["non_module"]):
         towrite += "  template class module_functor<"+t+">;\n"
     if all_types:
         towrite += "  // Module types\n"
-        for t in all_types: towrite += "  template class module_functor<"+t+">;\n"
+        for t in sorted(all_types): towrite += "  template class module_functor<"+t+">;\n"
     else:
         towrite += "  // No module-specific types required.\n"
     towrite += "}\n\n\

@@ -44,6 +44,7 @@ results/*
 # Executables and build files
 /gambit
 build/*
+build_*/
 *_standalone
 
 # Generated cmake files

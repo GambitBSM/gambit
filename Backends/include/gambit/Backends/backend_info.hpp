@@ -132,6 +132,12 @@ namespace Gambit
         /// Given a backend and a true version (with periods), return the safe version
         str safe_version_from_version (str, str) const;
 
+        /// Check whether a backend safe version (no periods) has been registered yet
+        bool has_safe_version (const str&, const str&) const;
+
+        /// Check whether a backend true version (with periods) has been registered yet
+        bool has_version (const str&, const str&) const;
+
         /// Link a backend's version and safe version
         void link_versions(str, str, str);
 

@@ -69,6 +69,14 @@ namespace Gambit
   /// Set the classloading requirements of a given functor.
   int set_classload_requirements(module_functor_common&, str, str, str);
 
+  /// Apply any deferred classloading requirements whose backend version
+  /// information has become available.
+  void process_deferred_classload_requirements();
+
+  /// Raise an error for any classloading requirement that is still unfulfilled
+  /// once static initialisation is over.
+  void check_deferred_classload_requirements();
+
   namespace Backends
   {
 
