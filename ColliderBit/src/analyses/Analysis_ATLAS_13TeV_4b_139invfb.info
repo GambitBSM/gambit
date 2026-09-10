@@ -1,0 +1,8 @@
+Summary: ATLAS Search for pair production of higgsinos in events with two Higgs bosons and MET
+InspireID: 2751932
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["4B + MET"]
+Authors: ["Are Raklev"]
+Notes: Only the low mass analysis is currently implemented here

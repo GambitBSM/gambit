@@ -271,7 +271,7 @@ def constrWrapperBody(return_type, func_name, args, return_is_loaded_class, keyw
     #   - Return type of original function
     #   - List of dicts for original arguments
     #   - Name of original function
-    #   - Boolean stating whether the orignal return type is native
+    #   - Boolean stating whether the original return type is native
 
     # Pointer and reference check
     pointerness, is_ref = utils.pointerAndRefCheck(return_type, byname=True)

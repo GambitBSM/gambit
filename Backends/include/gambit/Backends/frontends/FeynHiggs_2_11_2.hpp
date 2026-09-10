@@ -41,7 +41,7 @@ BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atQ_mG)
  * to the modules via the rollcall system */
 
 /* Syntax for BE_FUNCTION:
- * BE_FUNCTION([choose function name], [type], [arguement types], "[exact symbol name]", "[choose capability name]") */
+ * BE_FUNCTION([choose function name], [type], [argument types], "[exact symbol name]", "[choose capability name]") */
 
 
 BE_FUNCTION(FHSetFlags, void, (int&,int&,int&,int&,int&,int&,int&,int&,int&,int&), "fhsetflags_", "FHSetFlags")

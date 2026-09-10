@@ -46,31 +46,6 @@ namespace Gambit {
 
     protected:
 
-      // Counters for the number of accepted events for each signal region
-      std::map<string, EventCounter> _counters = {
-        {"SREW1", EventCounter("SREW1")},
-        {"SREW2", EventCounter("SREW2")},
-        {"SREW3", EventCounter("SREW3")},
-        {"SREW4", EventCounter("SREW4")},
-        {"SREW5", EventCounter("SREW5")},
-        {"SREW6", EventCounter("SREW6")},
-        {"SREW7", EventCounter("SREW7")},
-        {"SREW8", EventCounter("SREW8")},
-        {"SREW9", EventCounter("SREW9")},
-        {"SREW10", EventCounter("SREW10")},
-        {"SREW11", EventCounter("SREW11")},
-        {"SREW12", EventCounter("SREW12")},
-        {"SRST1", EventCounter("SRST1")},
-        {"SRST2", EventCounter("SRST2")},
-        {"SRST3", EventCounter("SRST3")},
-        {"SRST4", EventCounter("SRST4")},
-        {"SRST5", EventCounter("SRST5")},
-        {"SRST6", EventCounter("SRST6")},
-        {"SRST7", EventCounter("SRST7")},
-        {"SRST8", EventCounter("SRST8")},
-        {"SRST9", EventCounter("SRST9")},
-      };
-
       vector<double> cutFlowVector;
       vector<string> cutFlowVector_str;
       size_t NCUTS;
@@ -95,7 +70,32 @@ namespace Gambit {
 
       Analysis_CMS_13TeV_2LEPsoft_36invfb() {
 
+        // Counters for the number of accepted events for each signal region
+        _counters["SREW1"] = EventCounter("SREW1");
+        _counters["SREW2"] = EventCounter("SREW2");
+        _counters["SREW3"] = EventCounter("SREW3");
+        _counters["SREW4"] = EventCounter("SREW4");
+        _counters["SREW5"] = EventCounter("SREW5");
+        _counters["SREW6"] = EventCounter("SREW6");
+        _counters["SREW7"] = EventCounter("SREW7");
+        _counters["SREW8"] = EventCounter("SREW8");
+        _counters["SREW9"] = EventCounter("SREW9");
+        _counters["SREW10"] = EventCounter("SREW10");
+        _counters["SREW11"] = EventCounter("SREW11");
+        _counters["SREW12"] = EventCounter("SREW12");
+        _counters["SRST1"] = EventCounter("SRST1");
+        _counters["SRST2"] = EventCounter("SRST2");
+        _counters["SRST3"] = EventCounter("SRST3");
+        _counters["SRST4"] = EventCounter("SRST4");
+        _counters["SRST5"] = EventCounter("SRST5");
+        _counters["SRST6"] = EventCounter("SRST6");
+        _counters["SRST7"] = EventCounter("SRST7");
+        _counters["SRST8"] = EventCounter("SRST8");
+        _counters["SRST9"] = EventCounter("SRST9");
+
+
         set_analysis_name("CMS_13TeV_2LEPsoft_36invfb");
+        set_detector_name(detector);
         set_luminosity(35.9);
 
         NCUTS=14;
@@ -176,7 +176,8 @@ namespace Gambit {
         }
         // Apply b-tag efficiencies and b-tag misidentification rate
         // for the CSVv2Loose working point
-        CMS::applyCSVv2LooseBtagEffAndMisId(signalJets,signalBJets);
+        applyEfficiency(signalBJets, CMS::eff2DBJet.at("CSVv2Loose"));
+        applyBtagMisId(signalJets, signalBJets, CMS::misIDBJet.at("CSVv2Loose"));
 
         signalLeptons=signalElectrons;
         signalLeptons.insert(signalLeptons.end(),signalMuons.begin(),signalMuons.end());
@@ -256,10 +257,10 @@ namespace Gambit {
         // Signal Regions
         // In the low ETmiss region, for each passing event we add 0.65 due to trigger efficiency
         if (EWpreselection && met>125. && met<200. && nSignalMuons == 2) {
-          if (m_ll>4. && m_ll<9.) _counters.at("SREW1").add_event(event->weight() * 0.65, event->weight_err() * 0.65);
-          if (m_ll>10.5 && m_ll<20.) _counters.at("SREW2").add_event(event->weight() * 0.65, event->weight_err() * 0.65);
-          if (m_ll>20. && m_ll<30.) _counters.at("SREW3").add_event(event->weight() * 0.65, event->weight_err() * 0.65);
-          if (m_ll>30. && m_ll<50.) _counters.at("SREW4").add_event(event->weight() * 0.65, event->weight_err() * 0.65);
+          if (m_ll>4. && m_ll<9.) _counters.at("SREW1").add_event(event, event->weight() * 0.65, event->weight_err() * 0.65);
+          if (m_ll>10.5 && m_ll<20.) _counters.at("SREW2").add_event(event, event->weight() * 0.65, event->weight_err() * 0.65);
+          if (m_ll>20. && m_ll<30.) _counters.at("SREW3").add_event(event, event->weight() * 0.65, event->weight_err() * 0.65);
+          if (m_ll>30. && m_ll<50.) _counters.at("SREW4").add_event(event, event->weight() * 0.65, event->weight_err() * 0.65);
         }
         if (EWpreselection && met>200. && met<250.) {
           if (m_ll>4. && m_ll<9.) _counters.at("SREW5").add_event(event);
@@ -405,22 +406,6 @@ namespace Gambit {
             else cutFlowVector[j] += 0.65;  // trigger efficiency
           }
         }
-      }
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_CMS_13TeV_2LEPsoft_36invfb* specificOther
-                = dynamic_cast<const Analysis_CMS_13TeV_2LEPsoft_36invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (size_t j = 0; j < NCUTS; j++) {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
-
       }
 
 

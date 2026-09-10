@@ -1,6 +1,6 @@
 diff -rupN HiggsBounds-4.3.1/usefulbits.f90 ../installed/higgsbounds/4.3.1/usefulbits.f90
---- HiggsBounds-4.3.1/usefulbits.f90	2017-03-24 05:52:07.000000000 +1100
-+++ ../installed/higgsbounds/4.3.1/usefulbits.f90	2019-09-05 20:19:22.396325325 +1000
+--- HiggsBounds-4.3.1/usefulbits.f90	2017-03-23 19:52:07.000000000 +0100
++++ ../installed/higgsbounds/4.3.1/usefulbits.f90	2025-03-21 14:08:06.017576373 +0100
 @@ -15,7 +15,7 @@ module usefulbits
   integer :: using_likelihood = 0
  
@@ -11,8 +11,8 @@ diff -rupN HiggsBounds-4.3.1/usefulbits.f90 ../installed/higgsbounds/4.3.1/usefu
   character(LEN=5) :: whichanalyses
   character(LEN=4) :: whichinput 
 diff -rupN HiggsBounds-4.3.1/interpolate.f90 ../installed/higgsbounds/4.3.1/interpolate.f90
---- HiggsBounds-4.3.1/interpolate.f90	2017-03-24 05:47:53.000000000 +1100
-+++ ../installed/higgsbounds/4.3.1/interpolate.f90	2019-09-24 14:46:04.538021946 +1000
+--- HiggsBounds-4.3.1/interpolate.f90	2017-03-23 19:47:53.000000000 +0100
++++ ../installed/higgsbounds/4.3.1/interpolate.f90	2025-03-21 14:08:06.017576373 +0100
 @@ -524,9 +524,14 @@ module interpolate
     intable=.False.                 
    else                !#1
@@ -31,3 +31,28 @@ diff -rupN HiggsBounds-4.3.1/interpolate.f90 ../installed/higgsbounds/4.3.1/inte
  
     if(abs(z_below-z).lt.small)then !z is the same as z_below 
      c_z=z_below
+diff -rupN HiggsBounds-4.3.1/S95tables_type3.F90 ../installed/higgsbounds/4.3.1/S95tables_type3.F90
+--- HiggsBounds-4.3.1/S95tables_type3.F90	2017-03-23 19:48:54.000000000 +0100
++++ ../installed/higgsbounds/4.3.1/S95tables_type3.F90	2025-03-21 14:23:14.401112251 +0100
+@@ -31,10 +31,10 @@ module S95tables_type3
+ 
+  integer,parameter :: skip=3
+ #ifdef SETCLSBTABLEDIR
+- character(len=100),parameter :: pathtofolder&
++ character(len=300),parameter :: pathtofolder&
+ &=SETCLSBTABLEDIR
+ #else
+- character(len=100),parameter :: pathtofolder='/home/Karina/Work/HiggsBounds/clsb_tables/'
++ character(len=300),parameter :: pathtofolder='/home/Karina/Work/HiggsBounds/clsb_tables/'
+ #endif
+  double precision,parameter :: deltaMhinfilename=10.0D0 ! results split into sections of size deltaMhinfilename. check carefully if deltaMhinfilename is not a whole number
+  integer,parameter :: deltaMhinfilenamebits=5  !which is then split into 5 sections
+@@ -53,7 +53,7 @@ module S95tables_type3
+ #endif
+ 
+  character(len=300),allocatable :: filename(:) 
+- character(len=100) :: foldername
++ character(len=300) :: foldername
+ 
+  !----------------------------------
+  type(table3),allocatable :: clsb_t3(:) 

@@ -1,0 +1,7 @@
+Summary: CMS search for final states containing hadronic decays of WW, WZ, or WH and missing transverse momentum
+InspireID: 2085373
+ExptRun: CMS-R2
+Lumi_ifb: 137.0
+Ecm_TeV: 13.0
+Signatures: ["WW", "WH", WZ]
+Authors: ["Adil Jueid", "Anders Kvellestad"]

@@ -30,7 +30,7 @@
 #define  Default_Pythia 8_312
 #define  Default_HepLike 2_0
 #define  Default_vevacious 1_0
-#define  Default_Rivet 3_1_5
+#define  Default_Rivet 4_1_0
 #define  Default_obscura 1_1_0
 
 // Defaults added by GUM (do not remove this comment).

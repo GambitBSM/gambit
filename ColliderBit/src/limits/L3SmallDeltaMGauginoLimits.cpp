@@ -108,7 +108,7 @@ namespace Gambit {
       _limitContours.insert(LimitContourEntry(3, contoursPointer));
 
     }
-    
+
 
 
     P2 L3ChargedGauginoSmallDeltaMAnySneutrinoLimitAt188pt6GeV::convertPt(double x, double y) const

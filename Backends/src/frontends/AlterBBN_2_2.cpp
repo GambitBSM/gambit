@@ -140,7 +140,7 @@ BE_NAMESPACE
 
   /// create a map that translates element name to position of element in ratioH vector
   /// (holding the computed element abundances)
-  /// BE convinience function just in case it changes with a different version of AlterBBN
+  /// BE convenience function just in case it changes with a different version of AlterBBN
   map_str_int get_abund_map_AlterBBN()
   { return {{"Neff",0},{"H2",3},{"D",3},{"H3",4},{"He3",5},{"He4",6},{"Yp",6},{"Li6",7},{"Li7",8},{"Be7",9},{"Li8",10}}; }
 

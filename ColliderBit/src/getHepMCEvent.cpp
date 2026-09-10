@@ -191,7 +191,7 @@ namespace Gambit
     }
 
 
-    /// A helper function for collecting the jet_collections yaml settings. 
+    /// A helper function for collecting the jet_collections yaml settings.
     /// Used by functions getHepMCEvent_HEPUtils and convertHepMCEvent_HEPUtils.
     void read_jet_collections_settings(const Options& runOptions, std::vector<jet_collection_settings>& all_jet_collection_settings, str& jetcollection_taus)
     {

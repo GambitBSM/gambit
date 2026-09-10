@@ -1,0 +1,7 @@
+Summary: CMS Search for chargino-neutralino production with mass splittings near the electroweak scale in three-lepton final states
+InspireID: 1771533
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["3L"]
+Authors: ["Martin White"]

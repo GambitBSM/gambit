@@ -38,7 +38,7 @@ namespace Gambit
     {
       return std::numeric_limits<double>::infinity();
     }
-  
+
     double BaseLimitContainer::limitAverage(double x, double y, double mZ) const
     {
       if (!isWithinExclusionRegion(x, y, mZ)) return specialLimit(x, y);
@@ -49,10 +49,10 @@ namespace Gambit
       double r, rmin;
       double average, totalWeight, thisLimit, nextBestLimit;
       unsigned intersectCounter, index;
-  
+
       // First, find the inner-most contour in which lies point.
       for (index=0; index<_limitValuesSorted.size(); index++) {
-        intersectCounter = 0; 
+        intersectCounter = 0;
         thisLimit = _limitValuesSorted[index];
         for (auto segmentIter = _limitContours.at(index)->begin();
                   segmentIter != _limitContours.at(index)->end(); ++segmentIter)
@@ -61,7 +61,7 @@ namespace Gambit
         if (intersectCounter % 2) break;
         thisLimit = -1.;
       }
-  
+
       if (thisLimit <= 0.)
         // If no such contour is found, return infinity.
         return std::numeric_limits<double>::infinity();
@@ -71,7 +71,7 @@ namespace Gambit
       else
         // Otherwise, store the next best limit for the average.
         nextBestLimit = _limitValuesSorted[index-1];
-  
+
       // Scan over all the angles around the current point to perform the average.
       average = 0.;
       totalWeight = 0.;
@@ -79,7 +79,7 @@ namespace Gambit
         // Make a ray for each angle.
         rayMaker.setxy(1000. * cos(angle), 1000. * sin(angle));
         ray.init(point, point + rayMaker);
-  
+
         // For each ray, look for intersections with the next best limit.
         rmin = std::numeric_limits<double>::infinity();
         for (auto segmentIter = _limitContours.at(index-1)->begin();
@@ -96,7 +96,7 @@ namespace Gambit
           totalWeight += sqrt(1./rmin);
           average += sqrt(1./rmin) * nextBestLimit;
         }
-  
+
         // For each ray, also look for intersections with the current limit.
         rmin = std::numeric_limits<double>::infinity();
         for (auto segmentIter = _limitContours.at(index)->begin();
@@ -114,13 +114,13 @@ namespace Gambit
           average += sqrt(1./rmin) * thisLimit;
         }
       }
-  
+
       if (totalWeight > 0)
         return average / totalWeight;
       else
         return average;
     }
-  
+
     /// @brief Dump limit average data into a file for average debugging
     void BaseLimitContainer::dumpPlotData(double xlow, double xhigh, double ylow,
                                           double yhigh, double mZ,
@@ -137,7 +137,7 @@ namespace Gambit
       }
       outFile.close();
     }
-  
+
     /// @brief Dump input limit contour data into a file for limit debugging
     void BaseLimitContainer::dumpLightPlotData(std::string filename, int nperLine) const
     {

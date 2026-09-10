@@ -126,7 +126,7 @@ namespace Gambit
       /// Flag indicating if this exception should be considered fatal or not.
       bool isFatal;
 
-      /// Shared string indicating the current values of the paramters.
+      /// Shared string indicating the current values of the parameters.
       static std::string parameters;
 
   };

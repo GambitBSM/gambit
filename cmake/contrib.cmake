@@ -219,6 +219,15 @@ if(NOT EXCLUDE_HEPMC)
   set_compiler_warning("no-deprecated-copy" HEPMC_CXX_FLAGS)
   set_compiler_warning("no-sign-compare" HEPMC_CXX_FLAGS)
 
+  # Determine the C++ standard to use for HepMC3 (use ROOT's if available, otherwise default to 11)
+  if(DEFINED ROOT_CXX_STANDARD)
+    set(HEPMC3_STD ${ROOT_CXX_STANDARD})
+  elseif(DEFINED ROOT_STD)
+    set(HEPMC3_STD ${ROOT_STD})
+  else()
+    set(HEPMC3_STD 11)
+  endif()
+
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${HEPMC_PATH} ${name} ${ver}
     SOURCE_DIR ${HEPMC_PATH}
@@ -232,6 +241,45 @@ if(NOT EXCLUDE_HEPMC)
   add_contrib_clean_and_nuke(${name} ${HEPMC_PATH} clean)
 endif()
 
+# contrib/onnxruntime
+if (WITH_ONNXRUNTIME)
+  message("   Using ONNX Runtime - Onnx dependent colliderbit analyses will be included")
+  set (EXCLUDE_ONNXRUNTIME FALSE)
+else ()
+  message("   Not using ONNX Runtime - ONNX dependent colliderbit analyses will be excluded")
+  set(EXCLUDE_ONNXRUNTIME TRUE)
+endif()
+
+set(name onnxruntime)
+set(ver 1.14.1)
+set(dir ${PROJECT_SOURCE_DIR}/contrib/${name}-${ver})
+if (NOT EXCLUDE_ONNXRUNTIME)
+  set(lib onnxruntime)
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  #TODO: Mac stuff untested
+    set(dl "https://github.com/microsoft/onnxruntime/releases/download/v1.14.1/onnxruntime-osx-universal2-${ver}.tgz")
+    set(md5 9725836c49deb09fc352a57dc8a1b806)
+  else ()
+    set(dl "https://github.com/microsoft/onnxruntime/releases/download/v1.14.1/onnxruntime-linux-x64-${ver}.tgz")
+    set(md5 9a3b855e2b22ace4ab110cec10b38b74)
+  endif()
+  include_directories(${dir}/include)
+  set(ONNXRUNTIME_PATH "${dir}")
+  set(ONNXRUNTIME_LIB "${dir}/lib")
+  set(ONNXRUNTIME_LDFLAGS "-L${ONNXRUNTIME_LIB} -l${lib}")
+  
+  ExternalProject_Add(${name}
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+  )
+  add_contrib_clean_and_nuke(${name} ${dir} clean)
+  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${ONNXRUNTIME_LIB}")
+endif()
+
 #contrib/YODA; include if ColliderBit is in, don't otherwise
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   message("   ColliderBit included, so YODA is included too")
@@ -242,7 +290,7 @@ else()
 endif()
 
 set(name "yoda")
-set(ver "1.9.7")
+set(ver "2.1.0")
 set(dir "${PROJECT_SOURCE_DIR}/contrib/YODA-${ver}")
 if(WITH_YODA)
   message("-- YODA-dependent functions in ColliderBit will be activated.")
@@ -258,7 +306,7 @@ endif()
 if(NOT EXCLUDE_YODA)
   set(lib "YODA")
   set(dl "https://yoda.hepforge.org/downloads/?f=YODA-${ver}.tar.gz")
-  set(md5 "c5bc336d3caa3f357db484536c10dbc8")
+  set(md5 "87da674a8e8127b54c408d1b465bf5f7")
   include_directories("${dir}/include")
   set(YODA_PATH "${dir}")
   set(YODA_LIB "${dir}/local/lib")
@@ -271,6 +319,8 @@ if(NOT EXCLUDE_YODA)
   set_compiler_warning("no-deprecated-copy" YODA_CXX_FLAGS)
   set_compiler_warning("no-implicit-fallthrough" YODA_CXX_FLAGS)
   set(YODA_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
+  #TODO (TP Dec 23): Bodge to cover different forms of python install: would be good to be able to autodetect
+  set(YODA_ALT_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/dist-packages")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
   # If cython is not installed disable the python extension
   gambit_find_python_module(cython)
@@ -287,6 +337,10 @@ if(NOT EXCLUDE_YODA)
   else()
     set(YODA_CONFIG_LDFLAGS "")
   endif()
+  if(OpenMP_omp_LIBRARY)
+    get_filename_component(YODA_OPENMP_LIBDIR "${OpenMP_omp_LIBRARY}" DIRECTORY)
+    set(YODA_CONFIG_LDFLAGS "${YODA_CONFIG_LDFLAGS} -L${YODA_OPENMP_LIBDIR} -Wl,-rpath,${YODA_OPENMP_LIBDIR}")
+  endif()
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
@@ -299,15 +353,95 @@ if(NOT EXCLUDE_YODA)
 endif()
 
 #contrib/fjcore-3.2.0
-set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
-include_directories("${fjcore_INCLUDE_DIR}")
-add_definitions(-DFJCORE)
-add_definitions(-DFJNS=gambit::fjcore)
-add_gambit_library(fjcore OPTION OBJECT
-                          SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.cc
-                          HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
-set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
-add_dependencies(contrib fjcore)
+# TODO: Temporarily comment while fastjet is a contrib, as there are class name clashes. HEPUtils can automatically switch to use fastjet if the flag -DFJCORE is not set
+#set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
+#include_directories("${fjcore_INCLUDE_DIR}")
+#add_definitions(-DFJCORE)
+#add_definitions(-DFJNS=gambit::fjcore)
+#add_gambit_library(fjcore OPTION OBJECT
+#                          SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.cc
+#                          HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
+#set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
+
+#contrib/fastjet-3.4.2; include only if ColliderBit is in use.
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("   ColliderBit included, include fastjet too")
+  set(EXCLUDE_FASTJET FALSE)
+  # Fix currently needed for MacOS due to this not propegating to contrib flags
+  #set(CONTRIB_CXX_FLAGS "${CONTRIB_CXX_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
+  #set(CONTRIB_C_FLAGS "${CONTRIB_C_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
+  # _Anders
+  set(fastjet_dl "http://fastjet.fr/repo/fastjet-3.4.2.tar.gz")
+  set(fastjet_md5 "d8aede1539f478547f8be5412ab6869c")
+  set(fastjet_dir "${PROJECT_SOURCE_DIR}/contrib/fastjet-3.4.2")
+  include_directories("${fastjet_dir}/local/include")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fastjet_dir}/local/lib")
+  set(fastjet_LDFLAGS "-L${fastjet_dir}/local/lib -lfastjet -lfastjettools")
+  string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_C_FLAGS "${CONTRIB_C_FLAGS}")
+  string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_CXX_FLAGS "${CONTRIB_CXX_FLAGS}")
+  set_compiler_warning("no-deprecated-declarations" FJ_CXX_FLAGS)
+  set_compiler_warning("no-deprecated-copy" FJ_CXX_FLAGS)
+  set(FJ_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
+
+  ExternalProject_Add(fastjet
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${fastjet_dl} ${fastjet_md5} ${fastjet_dir} fastjet 3.4.2
+    SOURCE_DIR ${fastjet_dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${fastjet_dir}/local --enable-silent-rules --enable-shared
+    BUILD_COMMAND ${MAKE_PARALLEL} install
+    INSTALL_COMMAND ""
+    )
+
+  # Add clean and nuke
+  add_contrib_clean_and_nuke(fastjet ${fastjet_dir} clean)
+
+else()
+  message("${BoldCyan} X ColliderBit is not in use: excluding fastjet from GAMBIT configuration.${ColourReset}")
+  set(EXCLUDE_FASTJET TRUE)
+endif()
+
+#contrib/fjcontrib-1.049; include only if Colliderbit is in use.
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("   ColliderBit included, include fjcontrib too")
+  set(EXCLUDE_FJCONTRIB FALSE)
+
+  #set(fjcontrib_dl "https://github.com/fjcontrib/fjcontrib/archive/refs/tags/1.049.tar.gz")
+  #set(fjcontrib_md5 "c7b9803f7e37d44a9a7f3c09347c2043")
+  set(fjcontrib_dl "http://fastjet.hepforge.org/contrib/downloads/fjcontrib-1.049.tar.gz")
+  set(fjcontrib_md5 "bfea8bfd311d958a40e445f76668bd32")
+  set(fjcontrib_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.049")
+  include_directories("${fastjet_dir}/local/include")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fastjet_dir}/local/lib")
+  # Link the fjcontrib libraries needed by ColliderBit analyses
+  # RecursiveTools provides SoftDrop and related jet grooming tools
+  # Add other libraries here as needed (e.g., -lNsubjettiness -lConstituentSubtractor)
+  set(fjcontrib_LDFLAGS "-L${fastjet_dir}/local/lib -lRecursiveTools")
+
+  string(REGEX REPLACE "-Xclang -fopenmp" "" FJCONTRIB_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
+  set_compiler_warning("no-unused-parameter" FJCONTRIB_CXX_FLAGS)
+  set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
+  set_compiler_warning("no-catch-value" FJCONTRIB_CXX_FLAGS)
+
+  ExternalProject_Add(fjcontrib
+    DEPENDS fastjet
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_dir} fjcontrib 1.049
+    SOURCE_DIR ${fjcontrib_dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} LDFLAGS=${FJCONTRIB_LINKER_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
+    BUILD_COMMAND ${MAKE_PARALLEL}
+    INSTALL_COMMAND ${MAKE_PARALLEL} install
+  )
+
+
+  # Add clean and nuke
+  add_contrib_clean_and_nuke(fjcontrib ${fjcontrib_dir} clean)
+  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} fjcontrib)
+
+else()
+  message("${BoldCyan} X ColliderBit is not in use: excluding fastjet from GAMBIT configuration.${ColourReset}")
+  set(EXCLUDE_FJCONTRIB TRUE)
+endif()
 
 #contrib/multimin
 set(multimin_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/multimin/include")
@@ -318,6 +452,23 @@ add_gambit_library(multimin OPTION OBJECT
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:multimin>)
 add_dependencies(contrib multimin)
 
+
+#contrib/METSignificance
+# requires fastjet, and so should not be built without this
+if (NOT EXCLUDE_FASTJET)
+  set(METSignificance_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/METSignificance/include")
+  include_directories("${METSignificance_INCLUDE_DIR}")
+  add_gambit_library(METSignificance OPTION OBJECT
+                            SOURCES ${PROJECT_SOURCE_DIR}/contrib/METSignificance/src/METSignificance.cpp
+                            HEADERS ${PROJECT_SOURCE_DIR}/contrib/METSignificance/include/METSignificance/METSignificance.hpp)
+  add_dependencies(METSignificance fastjet)
+  if (NOT EXCLUDE_FJCONTRIB)
+    add_dependencies(METSignificance fjcontrib)
+  endif()
+  set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:METSignificance>)
+  add_dependencies(contrib METSignificance)
+  add_dependencies(METSignificance fastjet)
+endif()
 
 #contrib/MassSpectra; include only if SpecBit is in use and if
 #BUILD_FS_MODELS is set to something other than "" or "None" or "none"
@@ -531,4 +682,8 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
     message(FATAL_ERROR "\nColliderBit needs YODA. Either use -DWITH_YODA=ON or ditch ColliderBit with -Ditch=\"ColliderBit\".")
   endif()
   add_dependencies(contrib yoda)
+  
+  # fastjet and fjcontrib are dependencies of using ColliderBit
+  add_dependencies(contrib fastjet)
+  add_dependencies(contrib fjcontrib)
 endif()
