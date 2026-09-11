@@ -363,11 +363,11 @@ namespace Gambit {
         
           // Apply cutflow
           #ifdef CHECK_CUTFLOW
-        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-        _cutflows[analysis_name()].fillinit(event->weight());
-#endif
+            if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
+            _cutflows[analysis_name()].fillinit(event->weight());
+          #endif
 
-for(size_t j=0;j<NCUTS;j++){
+          for(size_t j=0;j<NCUTS;j++){
             if(
               (j==0) ||
 
@@ -392,9 +392,9 @@ for(size_t j=0;j<NCUTS;j++){
               (j==10 && btrigger && nbJets > 3 && nLeptons == 0 && XWt > 1.8 && Xhh < 1.6 && meff > 340. && met > 150.)
 
               ) 
-#ifdef CHECK_CUTFLOW
-            _cutflows[analysis_name()].fill(j+1, true, event->weight());
-#endif
+            #ifdef CHECK_CUTFLOW
+              _cutflows[analysis_name()].fill(j+1, true, event->weight());
+            #endif
           }
 
         #endif
@@ -433,11 +433,11 @@ for(size_t j=0;j<NCUTS;j++){
 
       virtual void collect_results() {
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
 
         // Now fill a results object with the results for each SR
         // Only exclusion regions here
-        
+
         add_result(SignalRegionData(_counters.at("2016_ETmiss0_meff160"),    7., {    6.26,  1.08 }));
         add_result(SignalRegionData(_counters.at("2016_ETmiss0_meff200"),  425., {  441.28,  7.47 }));
         add_result(SignalRegionData(_counters.at("2016_ETmiss0_meff260"),  818., {  842.96, 11.3  }));
@@ -737,7 +737,7 @@ COMMIT_CUTFLOWS;
 
       virtual void collect_results() {
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
 
         add_result(SignalRegionData( _counters.at(  "2016_ETmiss0_meff160").combine(_counters.at("2017_ETmiss0_meff160")  ).combine(_counters.at("2018_ETmiss0_meff160")  ) ,    6. +      7. +  10.     , {    3.85  +     6.26  +     8.13 , std::sqrt(  std::pow(0.30,2)  +  std::pow(1.08,2)  +  std::pow(0.38,2)) }));
         add_result(SignalRegionData( _counters.at(  "2016_ETmiss0_meff200").combine(_counters.at("2017_ETmiss0_meff200")  ).combine(_counters.at("2018_ETmiss0_meff200")  ) ,  395. +    425. +  755.    , {  405.80  +   441.28  +   775.39 , std::sqrt(  std::pow(8.44,2)  +  std::pow(7.47,2)  + std::pow(13.80,2)) }));
@@ -835,8 +835,6 @@ COMMIT_CUTFLOWS;
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(ATLAS_SUSY_2020_16_allyears)
 
-
-
     //
     // Class for collecting results for discovery regions as a derived class
     //
@@ -849,8 +847,7 @@ COMMIT_CUTFLOWS;
       }
 
       virtual void collect_results() {
-
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
         add_result(SignalRegionData(_counters.at("SR_LM_150"), 1790., {1860., 50.}));
         add_result(SignalRegionData(_counters.at("SR_LM_300"),   97., {  77.,  5.3}));
       }

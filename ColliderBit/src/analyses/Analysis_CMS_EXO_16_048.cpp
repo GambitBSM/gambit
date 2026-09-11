@@ -9,20 +9,21 @@
 // Renamed from: 
 //      Analysis_CMS_13TeV_MONOJET_36invfb
 
-namespace Gambit {
-  namespace ColliderBit {
-
+namespace Gambit
+{
+  namespace ColliderBit
+  {
     using namespace std;
     using namespace HEPUtils;
 
     // #define CHECK_CUTFLOW
 
-
     /// @brief CMS Run 2 monojet analysis (no W/Z region) with 36/fb of data
     ///
     /// @todo Add W/Z region with AKT8 jets and 2/1 n-subjettiness ratio cut
     ///
-    class Analysis_CMS_EXO_16_048 : public Analysis {
+    class Analysis_CMS_EXO_16_048 : public Analysis
+    {
     public:
 
       // Required detector sim
@@ -43,11 +44,12 @@ namespace Gambit {
         set_luminosity(35.9);
       }
 
-      void run(const Event* event) {
+      void run(const Event* event)
+      {
 
-#ifdef CHECK_CUTFLOW
+      #ifdef CHECK_CUTFLOW
         BEGIN_PRESELECTION
-#endif
+      #endif
 
         // Require large MET
         const P4 pmiss = event->missingmom();
@@ -78,17 +80,21 @@ namespace Gambit {
         // Get jets
         vector<const Jet*> jets4;
         for (const Jet* jet : event->jets("antikt_R04"))
+        {
           if (jet->pT() > 20) jets4.push_back(jet);
+        }
 
         // Veto if there are any b-tagged jets (reduce top background)
-        for (const Jet* jet : jets4) {
+        for (const Jet* jet : jets4)
+        {
           if (jet->abseta() > 2.4) continue;
           const double btag_rate = jet->btag() ? 0.8 : jet->ctag() ? 0.4 : 0.1;
           if (Random::draw() < btag_rate) return; //< VETO
         }
 
         // Get the 4 leading jets > 3 GeV, and veto if pTmiss is too close to them
-        for (size_t i = 0; i < 4; ++i) {
+        for (size_t i = 0; i < 4; ++i)
+        {
           if (i >= jets4.size()) break;
           if (jets4[i]->pT() < 30) break;
           if (fabs(deltaPhi(jets4[i]->mom(), pmiss))<0.5) return; //< VETO
@@ -98,9 +104,9 @@ namespace Gambit {
         if (jets4.empty()) return;
         if (jets4[0]->pT() < 100*GeV || jets4[0]->abseta() > 2.4) return;
 
-#ifdef CHECK_CUTFLOW
-        END_PRESELECTION
-#endif
+        #ifdef CHECK_CUTFLOW
+          END_PRESELECTION
+        #endif
 
         // Identify the ptmiss bin and fill the counter
         const static vector<double> metedges = {250, 280, 310, 340, 370, 400, 430, 470, 510, 550, 590,
@@ -122,15 +128,16 @@ namespace Gambit {
           const double new_err_sq = std::max(0.0, prev_err_sq + trigweight * trigweight * werr_raw * werr_raw);
           sr_counter.set_weight_sum_err(std::sqrt(new_err_sq));
 
-#ifdef CHECK_CUTFLOW
-          _cutflows[sr_name].fill(1, delta_w);
-#endif
+          #ifdef CHECK_CUTFLOW
+            _cutflows[sr_name].fill(1, delta_w);
+          #endif
         }
       }
 
       /// Register results objects with the results for each SR; obs & bkg numbers from the CONF note
-      void collect_results() {
-COMMIT_CUTFLOWS
+      void collect_results()
+      {
+        COMMIT_CUTFLOWS
         add_result(SignalRegionData(_counters.at("SR-0"), 136865, {134500, 3700}));
         add_result(SignalRegionData(_counters.at("SR-1"), 74340, {73400, 2000}));
         add_result(SignalRegionData(_counters.at("SR-2"), 42540, {42320, 810}));
@@ -184,17 +191,16 @@ COMMIT_CUTFLOWS
       }
 
     protected:
-      void analysis_specific_reset() {
+      void analysis_specific_reset()
+      {
         for (auto& pair : _counters) { pair.second.reset(); }
         /// @todo Need to also clear/reset cutflow, but it currently has no method for that
       }
 
     };
 
-
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(CMS_EXO_16_048)
-
 
   }
 }

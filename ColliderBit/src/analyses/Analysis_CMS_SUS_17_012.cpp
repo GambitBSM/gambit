@@ -469,7 +469,7 @@ namespace Gambit {
         add_result(SignalRegionData( _counters.at("SR34"),   1, { 0.7688, 0.39 } ));
         add_result(SignalRegionData( _counters.at("SR35"),   1, { 0.6560, 0.23 } ));
         add_result(SignalRegionData( _counters.at("SR36"),   0, { 0.5598, 0.21 } ));
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
       }
 
 
@@ -519,7 +519,7 @@ COMMIT_CUTFLOWS;
         add_result(SignalRegionData( _counters.at("SR16").combine(_counters.at("SR34")), 0 + 1,     { 0.4169 + 0.7688 , sqrt(pow(0.19,2) + pow(0.39,2)) } ));
         add_result(SignalRegionData( _counters.at("SR17").combine(_counters.at("SR35")), 1 + 1,     { 0.5598 + 0.6560 , sqrt(pow(0.21,2) + pow(0.23,2)) } ));
         add_result(SignalRegionData( _counters.at("SR18").combine(_counters.at("SR36")), 3 + 0,     { 0.9010 + 0.5598 , sqrt(pow(0.49,2) + pow(0.21,2)) } ));
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
       }
 
     };

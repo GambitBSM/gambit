@@ -26,11 +26,13 @@ using namespace std;
 //    c) Jets here need kT radius of 0.5 not 0.4
 //    d) Jets go out to eta of 5: need to make sure that sim does not cut these away
 
-namespace Gambit {
-  namespace ColliderBit {
+namespace Gambit
+{
+  namespace ColliderBit
+  {
 
-
-    class Analysis_CMS_B2G_13_004 : public Analysis {
+    class Analysis_CMS_B2G_13_004 : public Analysis
+    {
     private:
 
       // Debug histos
@@ -66,16 +68,18 @@ namespace Gambit {
 
       }
 
-      void run(const HEPUtils::Event* event) {
-
+      void run(const HEPUtils::Event* event)
+      {
         // Missing energy
         // HEPUtils::P4 ptot = event->missingmom();
         double met = event->met();
 
         // Baseline electrons
         vector<const HEPUtils::Particle*> baselineElectrons;
-        for (const HEPUtils::Particle* electron : event->electrons()) {
-          if (electron->pT() > 20. && fabs(electron->eta()) < 2.5) {
+        for (const HEPUtils::Particle* electron : event->electrons())
+        {
+          if (electron->pT() > 20. && fabs(electron->eta()) < 2.5)
+          {
             baselineElectrons.push_back(electron);
           }
         }
@@ -85,8 +89,10 @@ namespace Gambit {
 
         // Baseline muons
         vector<const HEPUtils::Particle*> baselineMuons;
-        for (const HEPUtils::Particle* muon : event->muons()) {
-          if (muon->pT() > 20. && fabs(muon->eta()) < 2.4) {
+        for (const HEPUtils::Particle* muon : event->muons())
+        {
+          if (muon->pT() > 20. && fabs(muon->eta()) < 2.4)
+          {
             baselineMuons.push_back(muon);
           }
         }
@@ -108,15 +114,18 @@ namespace Gambit {
         const std::vector<double> c = {0.60};
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
 
-        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
-          if (jet->pT() > 30. && fabs(jet->eta()) < 5.0) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
+        {
+          if (jet->pT() > 30. && fabs(jet->eta()) < 5.0)
+          {
             baselineJets.push_back(jet);
             //LorentzVector j1 (jet->mom().px(),jet->mom().py(),jet->mom().pz(),jet->mom().E()) ;
             jets.push_back(jet->mom());
             bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
             bool isB=false;
 
-            if(jet->btag() && hasTag && fabs(jet->eta()) < 2.4 && jet->pT() > 30.) {
+            if(jet->btag() && hasTag && fabs(jet->eta()) < 2.4 && jet->pT() > 30.)
+            {
               isB=true;
               bJets.push_back(jet);
             }
@@ -136,22 +145,22 @@ namespace Gambit {
         //Preselection cuts
 
         bool passMll=true;
-        if(baselineElectrons.size()==2 && baselineMuons.size()==0){
+        if(baselineElectrons.size()==2 && baselineMuons.size()==0)
+        {
           double mll=(baselineElectrons[0]->mom()+baselineElectrons[1]->mom()).m();
-          if(mll<=20.)passMll=false;
-          if(fabs(mll-91.)<=15.)passMll=false;
+          if(mll<=20.) passMll=false;
+          if(fabs(mll-91.)<=15.) passMll=false;
         }
 
-        if(baselineMuons.size()==2 && baselineElectrons.size()==0){
-          double mll=(baselineMuons[0]->mom()+baselineMuons[1]->mom()).m();
-          if(mll<=20.)passMll=false;
-          if(fabs(mll-91.)<=15.)passMll=false;
+        if(baselineMuons.size()==2 && baselineElectrons.size()==0)
+        {
+          double mll = (baselineMuons[0]->mom()+baselineMuons[1]->mom()).m();
+          if(mll<=20.) passMll=false;
+          if(fabs(mll-91.)<=15.) passMll=false;
         }
 
         bool passPresel=false;
-        if(nLeptons==2 &&
-           nJets>=2 &&
-           passMll)passPresel=true;
+        if(nLeptons==2 && nJets>=2 && passMll) passPresel=true;
 
         //Cuts
 
@@ -160,13 +169,13 @@ namespace Gambit {
         // Scalar sum of pT of leptons > 120 GeV
         // dPhi_ll < 2.
 
-        double jetPtSum=0;
-        if(nJets>=2)jetPtSum=baselineJets[0]->pT()+baselineJets[1]->pT();
-        double lepPtSum=0;
-        if(baselineLeptons.size()==2)lepPtSum=baselineLeptons[0]->pT()+baselineLeptons[1]->pT();
+        double jetPtSum = 0;
+        if(nJets>=2) jetPtSum = baselineJets[0]->pT() + baselineJets[1]->pT();
+        double lepPtSum = 0;
+        if(baselineLeptons.size()==2) lepPtSum = baselineLeptons[0]->pT() + baselineLeptons[1]->pT();
 
         double dPhiLL=99.;
-        if(baselineLeptons.size()==2)dPhiLL=acos(cos((baselineLeptons[0]->phi() - baselineLeptons[1]->phi())));
+        if(baselineLeptons.size()==2) dPhiLL = acos(cos((baselineLeptons[0]->phi() - baselineLeptons[1]->phi())));
 
         const bool passMet = met > 320.;
         const bool passJetPtSum = jetPtSum < 400.;
@@ -192,15 +201,16 @@ namespace Gambit {
 
 
 
-      double loglikelihood() {
+      double loglikelihood()
+      {
         /// @todo Implement!
         return 0;
       }
 
-      void collect_results() {
-
+      void collect_results()
+      {
         COMMIT_SIGNAL_REGION("SR", 1., 1.89, 0.66)
-COMMIT_CUTFLOWS
+        COMMIT_CUTFLOWS
         return;
       }
 
@@ -215,7 +225,6 @@ COMMIT_CUTFLOWS
 
 
     DEFINE_ANALYSIS_FACTORY(CMS_B2G_13_004)
-
 
   }
 }

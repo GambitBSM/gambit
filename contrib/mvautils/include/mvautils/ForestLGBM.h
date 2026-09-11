@@ -5,7 +5,7 @@
 #ifndef MVAUtils_ForestLGBM_H
 #define MVAUtils_ForestLGBM_H
 
-#include "gambit/ColliderBit/mvautils/Forest.h"
+#include "mvautils/Forest.h"
 #include <cmath>
 #include <algorithm>
 #include <numeric>

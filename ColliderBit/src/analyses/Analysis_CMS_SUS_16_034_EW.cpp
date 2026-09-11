@@ -26,14 +26,16 @@ using namespace std;
 //      Analysis_CMS_13TeV_2OSLEP_36invfb
 //      Analysis_CMS_13TeV_2OSLEP_36invfb_nocovar
 
-namespace Gambit {
-  namespace ColliderBit {
-
+namespace Gambit
+{
+  namespace ColliderBit
+  {
     // This analysis class is also a base class for the class
     // Analysis_CMS_SUS_16_034_EW_nocovar defined further down.
     // This is the same analysis, but it does not make use of the
     // SR covariance information.
-    class Analysis_CMS_SUS_16_034_EW : public Analysis {
+    class Analysis_CMS_SUS_16_034_EW : public Analysis
+    {
 
     protected:
 
@@ -46,11 +48,13 @@ namespace Gambit {
       // Required detector sim
       static constexpr const char* detector = "CMS";
 
-      struct ptComparison {
+      struct ptComparison
+      {
         bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
       } comparePt;
 
-      struct ptJetComparison {
+      struct ptJetComparison
+      {
         bool operator() (const HEPUtils::Jet* i,const HEPUtils::Jet* j) {return (i->pT()>j->pT());}
       } compareJetPt;
 
@@ -141,7 +145,7 @@ namespace Gambit {
         vector<const HEPUtils::Particle*> baselinePhotons;
         for (const HEPUtils::Particle* photon : event->photons())
         {
-          if (photon->pT()>25. && fabs(photon->eta())<2.4 && (fabs(photon->eta())<1.4 || fabs(photon->eta())>1.6) && fabs(photon->phi()-event->missingmom().phi())>0.4)baselinePhotons.push_back(photon);
+          if (photon->pT()>25. && fabs(photon->eta())<2.4 && (fabs(photon->eta())<1.4 || fabs(photon->eta())>1.6) && fabs(photon->phi()-event->missingmom().phi())>0.4) baselinePhotons.push_back(photon);
         }
 
         // Baseline jets
@@ -170,7 +174,7 @@ namespace Gambit {
         // Signal muons
         for (size_t iMu=0;iMu<baselineMuons.size();iMu++)
         {
-          if (baselineMuons.at(iMu)->pT()>20. && (fabs(baselineMuons.at(iMu)->eta())<1.4 || fabs(baselineMuons.at(iMu)->eta())>1.6))signalMuons.push_back(baselineMuons.at(iMu));
+          if (baselineMuons.at(iMu)->pT()>20. && (fabs(baselineMuons.at(iMu)->eta())<1.4 || fabs(baselineMuons.at(iMu)->eta())>1.6)) signalMuons.push_back(baselineMuons.at(iMu));
         }
 
         // Signal jets and b-jets
@@ -180,23 +184,24 @@ namespace Gambit {
           bool overlap=false;
           for (size_t iLe=0;iLe<baselineElectrons.size();iLe++)
           {
-            if (fabs(baselineElectrons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom()))<0.4)overlap=true;
+            if (fabs(baselineElectrons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom()))<0.4) overlap=true;
           }
           for (size_t iLe=0;iLe<baselineMuons.size();iLe++)
           {
-            if (fabs(baselineMuons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom()))<0.4)overlap=true;
+            if (fabs(baselineMuons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom()))<0.4) overlap=true;
           }
           if (baselinePhotons.size()!=0)
           {
-            if (fabs(baselinePhotons.at(0)->mom().deltaR_eta(baselineJets.at(iJet)->mom()))<0.4)overlap=true;
+            if (fabs(baselinePhotons.at(0)->mom().deltaR_eta(baselineJets.at(iJet)->mom()))<0.4) overlap=true;
           }
-          if (!overlap) {
+          if (!overlap)
+          {
             if (baselineJets.at(iJet)->pT() >= 35.)
             {
               signalJets.push_back(baselineJets.at(iJet));
             }
             // For the b-jets, jets down to pT > 25 should be considered
-            if (baselineJets.at(iJet)->btag())signalBJets.push_back(baselineJets.at(iJet));
+            if (baselineJets.at(iJet)->btag()) signalBJets.push_back(baselineJets.at(iJet));
           }
         }
         applyEfficiency(signalBJets, CMS::eff2DBJet.at("CSVv2Medium"));
@@ -225,30 +230,29 @@ namespace Gambit {
 
 
         vector<vector<const HEPUtils::Particle*>> SFOSpair_cont = getSFOSpairs(signalLeptons);
-        for (size_t iPa=0;iPa<SFOSpair_cont.size();iPa++)
+        for (size_t iPa=0; iPa < SFOSpair_cont.size(); iPa++)
         {
           vector<const HEPUtils::Particle*> pair = SFOSpair_cont.at(iPa);
           sort(pair.begin(),pair.end(),comparePt);
           if (pair.at(0)->pT()>25. && pair.at(1)->pT()>20. && fabs(pair.at(0)->mom().deltaR_eta(pair.at(1)->mom()))>0.1 && (pair.at(0)->mom()+pair.at(1)->mom()).pT()>25) preselection=true;
         }
 
-        if (nSignalBJets>1)mbb=(signalBJets.at(0)->mom()+signalBJets.at(1)->mom()).m();
-        if (nSignalJets>0)deltaPhi_met_j0=event->missingmom().deltaPhi(signalJets.at(0)->mom());
+        if (nSignalBJets>1) mbb = (signalBJets.at(0)->mom()+signalBJets.at(1)->mom()).m();
+        if (nSignalJets>0) deltaPhi_met_j0 = event->missingmom().deltaPhi(signalJets.at(0)->mom());
         if (nSignalJets>1)
         {
-          pT_j1=signalJets.at(1)->pT();
-          deltaPhi_met_j1=event->missingmom().deltaPhi(signalJets.at(1)->mom());
-          mjj=get_mjj(signalJets);
+          pT_j1 = signalJets.at(1)->pT();
+          deltaPhi_met_j1 = event->missingmom().deltaPhi(signalJets.at(1)->mom());
+          mjj = get_mjj(signalJets);
         }
-
 
         if (nSignalLeptons>1)
         {
-          mT2=get_mT2(signalLeptons,signalBJets,event->missingmom());
+          mT2 = get_mT2(signalLeptons,signalBJets,event->missingmom());
         }
         if (SFOSpair_cont.size() > 0)
         {
-          mll=(SFOSpair_cont.at(0).at(0)->mom()+SFOSpair_cont.at(0).at(1)->mom()).m();
+          mll = (SFOSpair_cont.at(0).at(0)->mom()+SFOSpair_cont.at(0).at(1)->mom()).m();
         }
 
         //Signal regions
@@ -296,11 +300,8 @@ namespace Gambit {
 
       }
 
-
-
       virtual void collect_results()
       {
-
         add_result(SignalRegionData(_counters.at("SR1"), 57., {54.9, 7.}));
         add_result(SignalRegionData(_counters.at("SR2"), 29., {21.6, 5.6}));
         add_result(SignalRegionData(_counters.at("SR3"), 2.,  {6., 1.9}));
@@ -322,21 +323,24 @@ namespace Gambit {
 
         set_covariance(BKGCOV);
 
-COMMIT_CUTFLOWS
+        COMMIT_CUTFLOWS
       }
 
-
-
-      double get_mjj(vector<const HEPUtils::Jet*> jets) {
+      double get_mjj(vector<const HEPUtils::Jet*> jets)
+      {
         double mjj=0;
         double deltaPhi_min=999;
-        for (size_t iJet1=0;iJet1<jets.size();iJet1++) {
-          for (size_t iJet2=0;iJet2<jets.size();iJet2++) {
-             if (iJet1!=iJet2) {
-               double deltaPhi=fabs(jets.at(iJet1)->phi()-jets.at(iJet2)->phi());
-               if (deltaPhi<deltaPhi_min) {
-                 mjj=(jets.at(iJet1)->mom()+jets.at(iJet2)->mom()).m();
-                 deltaPhi_min=deltaPhi;
+        for (size_t iJet1 = 0; iJet1 < jets.size(); iJet1++)
+        {
+          for (size_t iJet2 = 0; iJet2 < jets.size(); iJet2++)
+          {
+             if (iJet1 != iJet2)
+             {
+               double deltaPhi = fabs(jets.at(iJet1)->phi()-jets.at(iJet2)->phi());
+               if (deltaPhi < deltaPhi_min)
+               {
+                 mjj = (jets.at(iJet1)->mom()+jets.at(iJet2)->mom()).m();
+                 deltaPhi_min = deltaPhi;
                }
              }
            }
@@ -344,9 +348,11 @@ COMMIT_CUTFLOWS
         return mjj;
       }
 
-      double get_mT2(vector<const HEPUtils::Particle*> leptons, vector<const HEPUtils::Jet*> bjets, HEPUtils::P4 met) {
+      double get_mT2(vector<const HEPUtils::Particle*> leptons, vector<const HEPUtils::Jet*> bjets, HEPUtils::P4 met)
+      {
         double mT2=0;
-        if (bjets.size()<2) {
+        if (bjets.size()<2)
+        {
           double pLep0[3] = {leptons.at(0)->mass(), leptons.at(0)->mom().px(), leptons.at(0)->mom().py()};
           double pLep1[3] = {leptons.at(1)->mass(), leptons.at(1)->mom().px(), leptons.at(1)->mom().py()};
           double pMiss[3] = {0., met.px(), met.py() };
@@ -357,10 +363,13 @@ COMMIT_CUTFLOWS
           mt2_calc.set_mn(mn);
           mT2 = mt2_calc.get_mt2();
         }
-        if (bjets.size()>1) {
+        if (bjets.size()>1)
+        {
           mT2=999;
-          for (size_t iJet=0;iJet<bjets.size();iJet++) {
-            for (size_t iLep=0;iLep<leptons.size();iLep++) {
+          for (size_t iJet = 0; iJet < bjets.size(); iJet++)
+          {
+            for (size_t iLep = 0; iLep < leptons.size(); iLep++)
+            {
               double pLep[3] = {leptons.at(iLep)->mass(), leptons.at(iLep)->mom().px(), leptons.at(iLep)->mom().py()};
               double pJet[3] = {bjets.at(iJet)->mass(), bjets.at(iJet)->mom().px(), bjets.at(iJet)->mom().py()};
               double pMiss[3] = {0., met.px(), met.py() };
@@ -370,7 +379,7 @@ COMMIT_CUTFLOWS
               mt2_calc.set_momenta(pLep,pJet,pMiss);
               mt2_calc.set_mn(mn);
               double mT2_temp = mt2_calc.get_mt2();
-              if (mT2_temp<mT2)mT2=mT2_temp;
+              if (mT2_temp<mT2) mT2 = mT2_temp;
             }
           }
         }
@@ -379,8 +388,8 @@ COMMIT_CUTFLOWS
 
 
     protected:
-      void analysis_specific_reset() {
-
+      void analysis_specific_reset()
+      {
         for (auto& pair : _counters) { pair.second.reset(); }
       }
 
@@ -389,20 +398,19 @@ COMMIT_CUTFLOWS
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_034_EW)
 
-
-
     //
     // Derived analysis class that does not make use of the SR covariance matrix
     //
-    class Analysis_CMS_SUS_16_034_EW_nocovar : public Analysis_CMS_SUS_16_034_EW {
-
+    class Analysis_CMS_SUS_16_034_EW_nocovar : public Analysis_CMS_SUS_16_034_EW
+    {
     public:
-      Analysis_CMS_SUS_16_034_EW_nocovar() {
+      Analysis_CMS_SUS_16_034_EW_nocovar()
+      {
         set_analysis_name("CMS_SUS_16_034_EW_nocovar");
       }
 
-      virtual void collect_results() {
-
+      virtual void collect_results()
+      {
         add_result(SignalRegionData(_counters.at("SR1"), 57., {54.9, 7.}));
         add_result(SignalRegionData(_counters.at("SR2"), 29., {21.6, 5.6}));
         add_result(SignalRegionData(_counters.at("SR3"), 2.,  {6., 1.9}));
@@ -411,14 +419,13 @@ COMMIT_CUTFLOWS
         add_result(SignalRegionData(_counters.at("SR6"), 5.,  {5.6, 1.6}));
         add_result(SignalRegionData(_counters.at("SR7"), 1.,  {1.3, 0.4}));
 
-COMMIT_CUTFLOWS
+        COMMIT_CUTFLOWS
       }
 
     };
 
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(CMS_SUS_16_034_EW_nocovar)
-
 
   }
 }

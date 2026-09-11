@@ -5,7 +5,7 @@
 #ifndef MVAUtils_NodeImpl_H
 #define MVAUtils_NodeImpl_H
 
-#include "gambit/ColliderBit/mvautils/MVAUtilsDefs.h"
+#include "mvautils/MVAUtilsDefs.h"
 #include <vector>
 #include <cstdint>
 #include <cmath>

@@ -21,20 +21,21 @@ using namespace std;
 //    b) Overlap removal is not applied (CMS do not use it, but we don't exactly use their particle flow technique either)
 //    c) Jets here need kT radius of 0.5 not 0.4
 
-namespace Gambit {
-  namespace ColliderBit {
-
-
-
+namespace Gambit
+{
+  namespace ColliderBit
+  {
     //Puts dphi in the range -pi to pi
-    double _Phi_mpi_pi(double x){
+    double _Phi_mpi_pi(double x)
+    {
       while (x >= M_PI) x -= 2*M_PI;
       while (x < -M_PI) x += 2*M_PI;
       return x;
     }
 
 
-    class Analysis_CMS_B2G_14_004 : public Analysis {
+    class Analysis_CMS_B2G_14_004 : public Analysis
+    {
     private:
 
     public:
@@ -63,21 +64,21 @@ namespace Gambit {
         //if (jets.size() > 2 && jets[2]->pT() > 40.)
         //  dphi3 = std::acos(std::cos(jets[2]->phi() - phi_met));
         double min1 = std::min(dphi1, dphi2);
-
         return min1;
-
       }
 
-      void run(const HEPUtils::Event* event) {
-
+      void run(const HEPUtils::Event* event)
+      {
         // Missing energy
         HEPUtils::P4 ptot = event->missingmom();
         double met = event->met();
 
         // Baseline electrons
         vector<const HEPUtils::Particle*> baselineElectrons;
-        for (const HEPUtils::Particle* electron : event->electrons()) {
-          if (electron->pT() > 30. && fabs(electron->eta()) < 2.5) {
+        for (const HEPUtils::Particle* electron : event->electrons())
+        {
+          if (electron->pT() > 30. && fabs(electron->eta()) < 2.5)
+          {
             baselineElectrons.push_back(electron);
           }
         }
@@ -87,8 +88,10 @@ namespace Gambit {
 
         // Baseline muons
         vector<const HEPUtils::Particle*> baselineMuons;
-        for (const HEPUtils::Particle* muon : event->muons()) {
-          if (muon->pT() > 30. && fabs(muon->eta()) < 2.1) {
+        for (const HEPUtils::Particle* muon : event->muons())
+        {
+          if (muon->pT() > 30. && fabs(muon->eta()) < 2.1)
+          {
             baselineMuons.push_back(muon);
           }
         }
@@ -111,8 +114,10 @@ namespace Gambit {
         const std::vector<double> c = {0.60};
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
 
-        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
-          if (jet->pT() > 30. && fabs(jet->eta()) < 4.0) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
+        {
+          if (jet->pT() > 30. && fabs(jet->eta()) < 4.0)
+          {
             baselineJets.push_back(jet);
             //LorentzVector j1 (jet->mom().px(),jet->mom().py(),jet->mom().pz(),jet->mom().E()) ;
             //jets.push_back(j1);
@@ -120,7 +125,8 @@ namespace Gambit {
             bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
             bool isB=false;
 
-            if(jet->btag() && hasTag && fabs(jet->eta()) < 2.4 && jet->pT() > 30.) {
+            if(jet->btag() && hasTag && fabs(jet->eta()) < 2.4 && jet->pT() > 30.)
+            {
               isB=true;
               bJets.push_back(jet);
             }
@@ -139,15 +145,13 @@ namespace Gambit {
 
         //Preselection cuts
         bool passPresel=false;
-        if(nLeptons==1 &&
-           nJets>=3 &&
-           nBJets>=1 &&
-           met > 160.)passPresel=true;
+        if(nLeptons==1 && nJets>=3 && nBJets>=1 && met > 160.) passPresel=true;
 
         //Calculate mT
         HEPUtils::P4 lepVec;
         double mT=0;
-        if(nLeptons==1){
+        if(nLeptons==1)
+        {
           lepVec=baselineLeptons[0]->mom();
           mT=sqrt(2.*lepVec.pT()*met*(1. - cos(_Phi_mpi_pi(lepVec.phi()-ptot.phi()))));
         }
@@ -155,18 +159,19 @@ namespace Gambit {
         //Calculate MT2W
         double MT2W=0;
         // double MT2W_HU=0;
-        if (nJets > 1 && nLeptons==1) {
+        if (nJets > 1 && nLeptons==1)
+        {
           HEPUtils::P4 lepVec;
-          lepVec=baselineLeptons[0]->mom();
+          lepVec = baselineLeptons[0]->mom();
           //LorentzVector lep (lepVec.px(),lepVec.py(),lepVec.pz(),lepVec.E());
-          float phi=float (ptot.phi());
+          float phi = float (ptot.phi());
           //MT2W=calculateMT2w(jets, btag, lep, met, phi);
-          MT2W=calculateMT2wHepUtils(jets,btag,lepVec,met,phi);
+          MT2W = calculateMT2wHepUtils(jets,btag,lepVec,met,phi);
         }
 
         //Calculate dPhi variable
-        float  phi=float (ptot.phi());
-        double dPhiMin12=SmallestdPhi(baselineJets,phi);
+        float  phi = float (ptot.phi());
+        double dPhiMin12 = SmallestdPhi(baselineJets,phi);
 
         //Cuts
         //MET > 320
@@ -199,7 +204,7 @@ namespace Gambit {
       void collect_results()
       {
         COMMIT_SIGNAL_REGION("SR", 18., 16.4, 3.48)
-COMMIT_CUTFLOWS
+        COMMIT_CUTFLOWS
         return;
       }
 
@@ -211,7 +216,6 @@ COMMIT_CUTFLOWS
       }
 
     };
-
 
     DEFINE_ANALYSIS_FACTORY(CMS_B2G_14_004)
 

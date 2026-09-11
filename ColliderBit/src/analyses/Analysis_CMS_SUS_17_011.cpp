@@ -321,7 +321,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SR_MET_150-185"), 21, {17.4, 4.1}));
         add_result(SignalRegionData(_counters.at("SR_MET_185-250"), 11, {10.2, 2.7}));
         add_result(SignalRegionData(_counters.at("SR_MET_>250"), 12, {5.4, 1.6}));
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
       }
 
 

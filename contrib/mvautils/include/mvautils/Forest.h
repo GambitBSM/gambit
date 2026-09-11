@@ -5,8 +5,8 @@
 #ifndef MVAUtils_Forest_H
 #define MVAUtils_Forest_H
 
-#include "gambit/ColliderBit/mvautils/ForestBase.h"
-#include "gambit/ColliderBit/mvautils/NodeImpl.h"
+#include "mvautils/ForestBase.h"
+#include "mvautils/NodeImpl.h"
 #include <stack>
 #include <cmath>
 #include <algorithm>

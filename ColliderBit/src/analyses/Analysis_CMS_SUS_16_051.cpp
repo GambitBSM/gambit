@@ -472,7 +472,7 @@ namespace Gambit {
             // add_result(SignalRegionData(_counters.at("SR29"), 2., {3.7, 1.4}));
             // add_result(SignalRegionData(_counters.at("SR30"), 2., {4.8, 2.0}));
 
-COMMIT_CUTFLOWS;
+            COMMIT_CUTFLOWS;
             return;
         }
 

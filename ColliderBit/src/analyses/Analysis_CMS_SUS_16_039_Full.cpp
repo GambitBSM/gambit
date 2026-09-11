@@ -596,7 +596,7 @@ namespace Gambit
 
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results() {
-COMMIT_CUTFLOWS
+        COMMIT_CUTFLOWS
 
         //Now fill a results object with the results for each SR
 
@@ -811,7 +811,7 @@ COMMIT_CUTFLOWS
       }
 
       virtual void collect_results() {
-COMMIT_CUTFLOWS
+        COMMIT_CUTFLOWS
 
         add_result(SignalRegionData(_counters.at("SS01"), 1193., {1430., 180.}));
         add_result(SignalRegionData(_counters.at("SS02"), 50., {56., 9.}));
@@ -864,7 +864,7 @@ COMMIT_CUTFLOWS
       }
 
       virtual void collect_results() {
-COMMIT_CUTFLOWS
+        COMMIT_CUTFLOWS
 
         add_result(SignalRegionData(_counters.at("A01"), 186., {185., 22.}));
         add_result(SignalRegionData(_counters.at("A02"), 34., {35., 6.}));
@@ -982,7 +982,7 @@ COMMIT_CUTFLOWS
       }
 
       virtual void collect_results() {
-COMMIT_CUTFLOWS
+        COMMIT_CUTFLOWS
 
         add_result(SignalRegionData(_counters.at("SR01"), 166., {175., 20.}));
         add_result(SignalRegionData(_counters.at("SR02"), 23., {27., 4.}));

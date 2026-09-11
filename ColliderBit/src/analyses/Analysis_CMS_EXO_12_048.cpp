@@ -25,10 +25,12 @@ using namespace std;
 //    b) Overlap removal is not applied (CMS do not use it, but we don't exactly use their particle flow technique either)
 //    c) Jets here need kT radius of 0.5 not 0.4
 
-namespace Gambit {
-  namespace ColliderBit {
-
-    class Analysis_CMS_EXO_12_048 : public Analysis {
+namespace Gambit
+{
+  namespace ColliderBit
+  {
+    class Analysis_CMS_EXO_12_048 : public Analysis
+    {
     private:
       static constexpr const char* CUTFLOW_NAME = "CMS-EXO-12-048";
 
@@ -85,8 +87,8 @@ namespace Gambit {
 
       }
 
-      void run(const HEPUtils::Event* event) {
-
+      void run(const HEPUtils::Event* event)
+      {
         // Missing energy
         //HEPUtils::P4 ptot = event->missingmom();
         double met = event->met();
@@ -95,8 +97,10 @@ namespace Gambit {
 
         // Baseline electrons
         vector<const HEPUtils::Particle*> baselineElectrons;
-        for (const HEPUtils::Particle* electron : event->electrons()) {
-          if (electron->pT() > 10. && fabs(electron->eta()) < 2.5) {
+        for (const HEPUtils::Particle* electron : event->electrons())
+        {
+          if (electron->pT() > 10. && fabs(electron->eta()) < 2.5)
+          {
             baselineElectrons.push_back(electron);
           }
         }
@@ -106,8 +110,10 @@ namespace Gambit {
 
         // Baseline muons
         vector<const HEPUtils::Particle*> baselineMuons;
-        for (const HEPUtils::Particle* muon : event->muons()) {
-          if (muon->pT() > 10. && fabs(muon->eta()) < 2.5) {
+        for (const HEPUtils::Particle* muon : event->muons())
+        {
+          if (muon->pT() > 10. && fabs(muon->eta()) < 2.5)
+          {
             baselineMuons.push_back(muon);
           }
         }
@@ -117,8 +123,10 @@ namespace Gambit {
 
         // Baseline taus
         vector<const HEPUtils::Particle*> baselineTaus;
-        for (const HEPUtils::Particle* tau : event->taus()) {
-          if (tau->pT() > 20. && fabs(tau->eta()) < 2.3) {
+        for (const HEPUtils::Particle* tau : event->taus())
+        {
+          if (tau->pT() > 20. && fabs(tau->eta()) < 2.3)
+          {
             baselineTaus.push_back(tau);
           }
         }
@@ -127,8 +135,10 @@ namespace Gambit {
         vector<const HEPUtils::Jet*> baselineJets;
         vector<HEPUtils::P4> jets;
 
-        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
-          if (jet->pT() > 30. && fabs(jet->eta()) < 4.5) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
+        {
+          if (jet->pT() > 30. && fabs(jet->eta()) < 4.5)
+          {
             baselineJets.push_back(jet);
           }
         }
@@ -142,7 +152,7 @@ namespace Gambit {
         int nLeptons = baselineElectrons.size()+baselineMuons.size()+baselineTaus.size();
 
         double dPhiJ1J2 = 5.;
-        if(nJets>=2)dPhiJ1J2=acos(cos((baselineJets[0]->phi() - baselineJets[1]->phi())));
+        if(nJets >= 2) dPhiJ1J2 = acos(cos((baselineJets[0]->phi() - baselineJets[1]->phi())));
         const bool cut_j1 = nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4;
         const bool cut_njets = cut_j1 && nJets <= 2;
         const bool cut_dphi = cut_njets && dPhiJ1J2 < 2.5;
@@ -183,13 +193,11 @@ namespace Gambit {
         if(cut_met550) _counters["550"].add_event(event);
 
         return;
-
       }
 
 
       void collect_results()
       {
-
         add_result(SignalRegionData(_counters["250"], 52200., { 51800.,  2000.}));
         add_result(SignalRegionData(_counters["300"], 19800., { 19600.,  830.}));
         add_result(SignalRegionData(_counters["350"], 8320., { 8190.,  400.}));
@@ -198,7 +206,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters["500"], 934., { 1040.,  100.}));
         add_result(SignalRegionData(_counters["550"], 519., { 509.,  66.}));
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
         return;
       }
 
@@ -213,7 +221,6 @@ COMMIT_CUTFLOWS;
 
 
     DEFINE_ANALYSIS_FACTORY(CMS_EXO_12_048)
-
 
   }
 }

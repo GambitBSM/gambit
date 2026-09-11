@@ -411,7 +411,7 @@ namespace Gambit {
         COMMIT_SIGNAL_REGION("SR44", 2., 7.30, 2.28)
         COMMIT_SIGNAL_REGION("SR45", 2., 3.72, 1.66)
 
-COMMIT_CUTFLOWS
+        COMMIT_CUTFLOWS
       }
 
 

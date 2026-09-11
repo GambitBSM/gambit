@@ -238,7 +238,6 @@ namespace Gambit
         /// Register results objects with the results for each SR; obs & bkg numbers from the CONF note
         void collect_results()
         {
-
           add_result(SignalRegionData(_counters.at("SR1"), 11281., {12319., add_quad(85., 450.)} ));
           add_result(SignalRegionData(_counters.at("SR2"), 74., {65.8, add_quad(6.0, 4.9)} ));
           add_result(SignalRegionData(_counters.at("SR3"), 505., {489., add_quad(15., 18.)} ));
@@ -252,9 +251,8 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("SR11"), 282., {304., add_quad(14., 16.)} ));
           add_result(SignalRegionData(_counters.at("SR12"), 0., {0.1, add_quad(1.2, 0.1)} ));
 
-
-COMMIT_CUTFLOWS;
-         }
+          COMMIT_CUTFLOWS;
+        }
 
 
       protected:
@@ -264,14 +262,10 @@ COMMIT_CUTFLOWS;
           for (auto& pair : _counters) { pair.second.reset(); }
         }
 
-
-
     };
-
 
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(CMS_SUS_19_006)
-
 
   }
 }
