@@ -36,6 +36,7 @@ namespace Gambit
     {
       namespace
       {
+        /// Cross section and absolute uncertainty, both normalised to femtobarns.
         struct CrossSectionInput
         {
           double xsec_fb = 0.0;
@@ -62,6 +63,7 @@ namespace Gambit
           HepMC3
         };
 
+        /// Check the filename suffix against the supported HepMC input formats.
         bool is_supported_hepmc_file(const str& filename)
         {
           return Gambit::Utils::endsWith(filename, ".hepmc")
@@ -69,6 +71,7 @@ namespace Gambit
                  || Gambit::Utils::endsWith(filename, ".hepmc3");
         }
 
+        /// Return a lowercase copy for case-insensitive validation-status checks.
         std::string to_lower(std::string value)
         {
           std::transform(value.begin(), value.end(), value.begin(),
@@ -693,6 +696,8 @@ namespace Gambit
           prepared.infile["analyses"] = prepared.analyses;
         }
 
+        /// Read an analysis's validation status and describe any rejection in reason.
+        /// Missing metadata/status is accepted; an explicit status must be passed.
         bool passes_validation_policy(const str& analysis, str& reason)
         {
           const std::string info_file = analysis_info_file(analysis);
@@ -725,6 +730,8 @@ namespace Gambit
           return true;
         }
 
+        /// Keep registered analyses that pass validation, recording filtering warnings.
+        /// Debug mode permits validation failures but still requires registration.
         void retain_validated_analyses(PreparedInput& prepared, bool debug_mode)
         {
           std::vector<str> retained_analyses;
@@ -768,6 +775,7 @@ namespace Gambit
           prepared.analyses.swap(retained_analyses);
         }
 
+        /// Extract a parent directory, using . for a filename without a directory.
         std::string dirname(const std::string& path)
         {
           const std::size_t slash = path.find_last_of("/\\");
@@ -776,6 +784,7 @@ namespace Gambit
           return path.substr(0, slash);
         }
 
+        /// Infer a source-tree root from __FILE__ for defaults-file discovery.
         std::string source_root_from_this_file()
         {
           const std::string file = __FILE__;
@@ -791,6 +800,8 @@ namespace Gambit
           return root.empty() ? "." : root;
         }
 
+        /// Recursively merge maps into a clone, giving user overrides precedence.
+        /// Scalars and sequences replace the corresponding default value wholesale.
         YAML::Node merge_yaml_nodes(const YAML::Node& defaults, const YAML::Node& overrides)
         {
           if (!defaults) return YAML::Clone(overrides);
@@ -811,6 +822,8 @@ namespace Gambit
           return YAML::Clone(overrides);
         }
 
+        /// Prefer an explicit YAML path, then CBS_DEFAULTS_FILE, then nearby defaults.
+        /// Mark explicit paths so callers can report a missing requested file.
         std::string find_default_settings_file(
           const std::string& input_filename,
           const YAML::Node& user_settings,
@@ -844,6 +857,8 @@ namespace Gambit
           return "";
         }
 
+        /// Layer global defaults, analysis defaults in request order, and user settings.
+        /// Honour use_cbs_defaults and report missing or malformed explicit defaults.
         YAML::Node apply_default_settings(
           const std::string& filename_in,
           const std::vector<str>& analyses,
@@ -908,6 +923,8 @@ namespace Gambit
           return merge_yaml_nodes(merged_settings, user_settings);
         }
 
+        /// Validate one cross section and uncertainty specification and convert to fb.
+        /// Accept absolute or fractional uncertainty; reject mixed units and negatives.
         CrossSectionInput parse_cross_section_fb(const Options& opts, const std::string& context)
         {
           const bool has_fb = opts.hasKey("cross_section_fb");
@@ -985,6 +1002,8 @@ namespace Gambit
           return result;
         }
 
+        /// Parse a filename or file mapping and check its suffix and existence.
+        /// Reject manual generated_events counts; event statistics come from the file.
         HepMCFileInput parse_hepmc_file_input(const YAML::Node& file_node, const std::string& context)
         {
           HepMCFileInput file_input;
@@ -1040,6 +1059,9 @@ namespace Gambit
         }
       } // namespace
 
+      /// Load CBS YAML, apply defaults and filter analyses before preparing event inputs.
+      /// Support either one event_file or named physics processes with their own files
+      /// and cross sections, retaining process membership for the subsequent merge.
       PreparedInput parse_and_prepare_input(const std::string& filename_in)
       {
         PreparedInput prepared;
