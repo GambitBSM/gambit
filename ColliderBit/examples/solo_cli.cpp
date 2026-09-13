@@ -48,11 +48,13 @@ namespace Gambit
     {
       namespace
       {
+        /// Locate the analysis metadata in the source tree used for this build.
         const char* analysis_info_dir()
         {
           return GAMBIT_DIR "/ColliderBit/src/analyses";
         }
 
+        /// Return a lowercase copy for case-insensitive metadata comparisons.
         std::string to_lower(std::string value)
         {
           std::transform(value.begin(), value.end(), value.begin(),
@@ -60,6 +62,7 @@ namespace Gambit
           return value;
         }
 
+        /// Derive the analysis ID by removing the Analysis_ prefix and .info suffix.
         std::string analysis_name_from_info_path(const fs::path& path)
         {
           std::string stem = path.stem().string();
@@ -71,6 +74,7 @@ namespace Gambit
           return stem;
         }
 
+        /// Render a metadata scalar or sequence as text; omit unsupported node types.
         std::string format_yaml_value(const YAML::Node& node)
         {
           if (!node || node.IsNull()) return {};
@@ -91,6 +95,7 @@ namespace Gambit
           return {};
         }
 
+        /// Analysis ID, source path and printable metadata used by --list-analyses.
         struct AnalysisRecord
         {
           std::string name;
@@ -98,6 +103,7 @@ namespace Gambit
           std::map<std::string, std::string> fields;
         };
 
+        /// Look up a metadata field, returning empty text when it is absent.
         std::string field(const AnalysisRecord& record, const char* key)
         {
           const auto it = record.fields.find(key);
@@ -105,12 +111,15 @@ namespace Gambit
           return it->second;
         }
 
+        /// List records with Validation: passed or no explicit validation status.
         bool passes_validation_policy(const AnalysisRecord& record)
         {
           const std::string validation = field(record, "Validation");
           return validation.empty() || to_lower(validation) == "passed";
         }
 
+        /// Match a case-insensitive substring against the ID and searchable metadata.
+        /// An empty query selects every record.
         bool matches_query(const std::string& query, const AnalysisRecord& record)
         {
           if (query.empty()) return true;
@@ -130,6 +139,8 @@ namespace Gambit
           return false;
         }
 
+        /// Load .info records in name order, reporting and skipping unreadable files.
+        /// Return false if the metadata directory is unavailable.
         bool load_analysis_records(std::vector<AnalysisRecord>& records, std::ostream& errors)
         {
           const fs::path info_dir(analysis_info_dir());
@@ -179,6 +190,7 @@ namespace Gambit
           return true;
         }
 
+        /// Print one summary row per analysis for an unfiltered catalogue listing.
         void print_compact_table(std::ostream& output, const std::vector<AnalysisRecord>& records)
         {
           output << std::left
@@ -203,6 +215,7 @@ namespace Gambit
           }
         }
 
+        /// Print all nonempty metadata fields, with standard fields first.
         void print_full_record(std::ostream& output, const AnalysisRecord& record)
         {
           output << record.name << '\n';
@@ -231,6 +244,7 @@ namespace Gambit
         }
       }
 
+      /// Describe command-line options and the scope of local batch execution.
       void print_usage(std::ostream& output, const std::string& program_name)
       {
         output
@@ -239,9 +253,13 @@ namespace Gambit
           << "\nOptions:\n"
           << "  -h, --help                   Display this usage information\n"
           << "  -l, --list-analyses [query]  List validation-approved ColliderBit analyses from .info metadata\n"
+          << "\nCBS performs local, single-point recasting. With settings.processes,\n"
+          << "HepMC files are processed sequentially and their results are merged.\n"
           << std::endl;
       }
 
+      /// Filter the metadata catalogue and print a table or detailed query matches.
+      /// Return false on discovery failure or when a nonempty query has no matches.
       bool print_analysis_list(std::ostream& output, std::ostream& errors, const std::string& query)
       {
         std::vector<AnalysisRecord> records;
@@ -290,6 +308,8 @@ namespace Gambit
         return true;
       }
 
+      /// Parse help/list/run requests and validate their positional arguments.
+      /// Return the requested action, or an error after printing usage information.
       CommandLineStatus parse_command_line(
         int argc,
         char* argv[],

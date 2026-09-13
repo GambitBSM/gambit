@@ -22,11 +22,13 @@ namespace Gambit
   {
     namespace SoloInput
     {
+      /// A checked HepMC input path; event counts are read from the file at run time.
       struct HepMCFileInput
       {
         str filename;
       };
 
+      /// Files sampling one physics process, with cross section and absolute error in fb.
       struct ProcessInput
       {
         str name;
@@ -35,6 +37,8 @@ namespace Gambit
         std::vector<HepMCFileInput> files;
       };
 
+      /// Resolved settings, retained analyses and validated event-file specifications.
+      /// Preserve physics-process membership alongside the flat list of input paths.
       struct PreparedInput
       {
         YAML::Node infile;

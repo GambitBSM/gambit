@@ -117,8 +117,8 @@ namespace Gambit
       std::stringstream summary_line;
       summary_line << "LHC efficiencies per SR: ";
 
-      // Get the loop info for the number of events
-      static map_str_dbl loop_info = *Dep::LHCEventLoopInfo;
+      // Refresh event counts for the current scan point.
+      map_str_dbl loop_info = *Dep::LHCEventLoopInfo;
 
       // Loop over analyses and collect the predicted eventes into the map
       for (auto& ana_data : *Dep::AllAnalysisNumbers)
@@ -152,7 +152,7 @@ namespace Gambit
     // Loop over all analyses and compute efficiency x acceptance for each
     void calc_LHC_efficiencies_per_analysis(map_str_dbl& result)
     {
-      using namespace Pipes::calc_LHC_efficiencies_per_SR;
+      using namespace Pipes::calc_LHC_efficiencies_per_analysis;
 
       // Clear the result map
       result.clear();
@@ -160,8 +160,8 @@ namespace Gambit
       std::stringstream summary_line;
       summary_line << "LHC efficiencies per analysis: ";
 
-      // Get the loop info for the number of events
-      static map_str_dbl loop_info = *Dep::LHCEventLoopInfo;
+      // Refresh event counts for the current scan point.
+      map_str_dbl loop_info = *Dep::LHCEventLoopInfo;
 
       // Loop over analyses and collect the predicted eventes into the map
       for (auto& ana_data : *Dep::AllAnalysisNumbers)

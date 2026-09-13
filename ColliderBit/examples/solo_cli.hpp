@@ -25,6 +25,7 @@ namespace Gambit
   {
     namespace SoloCLI
     {
+      /// Action selected by the parser, including help/list requests and invalid input.
       enum class CommandLineStatus
       {
         run,
@@ -33,6 +34,7 @@ namespace Gambit
         error
       };
 
+      /// Positional input for a CBS run or an optional analysis-catalogue query.
       struct CommandLineOptions
       {
         std::string filename;

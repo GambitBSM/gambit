@@ -20,6 +20,7 @@ namespace Gambit
   {
     namespace SoloOutput
     {
+      /// Independently enable terminal output and JSON output to the specified path.
       struct OutputConfig
       {
         bool screen_output = true;
@@ -27,6 +28,7 @@ namespace Gambit
         std::string output_file;
       };
 
+      /// Printable sampling allocation for one physics process, with cross section in fb.
       struct SamplingAdviceProcessEntry
       {
         std::string process_name;
@@ -35,6 +37,7 @@ namespace Gambit
         long long recommended_additional_events = 0;
       };
 
+      /// Printable event budget and process allocations for one MC uncertainty target.
       struct SamplingAdviceTargetEntry
       {
         double target_fractional_uncert = 0.0;
@@ -47,6 +50,7 @@ namespace Gambit
         std::vector<SamplingAdviceProcessEntry> process_recommendations;
       };
 
+      /// Printable signal uncertainty and sampling targets for one selected signal region.
       struct SamplingAdviceEntry
       {
         std::string analysis_name;
@@ -59,8 +63,10 @@ namespace Gambit
         std::vector<SamplingAdviceTargetEntry> targets;
       };
 
+      /// Reject an empty path when JSON file output is requested.
       void validate_output_config(const OutputConfig& config);
 
+      /// Write the configured terminal and JSON results for a single or merged run.
       void emit_outputs(
         const OutputConfig& config,
         int n_events,

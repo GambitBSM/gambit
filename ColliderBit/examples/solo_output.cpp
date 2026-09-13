@@ -33,9 +33,11 @@ namespace Gambit
     {
       namespace
       {
+        // Identify the JSON format consumed by batch merging and downstream tools.
         const std::string kSchemaVersion = "cbs-solo-loglike-v1";
         const int kJsonIndent = 2;
 
+        /// Create missing parent directories before opening an output file.
         void ensure_parent_directory_exists(const std::string& output_file)
         {
           const std::size_t last_slash = output_file.find_last_of("/\\");
@@ -50,6 +52,7 @@ namespace Gambit
           }
         }
 
+        /// Write formatted JSON, creating parent directories and reporting open failures.
         void write_json_to_file(const nlohmann::json& root, const std::string& output_file, int indent)
         {
           ensure_parent_directory_exists(output_file);
@@ -63,6 +66,8 @@ namespace Gambit
           ofs << root.dump(indent) << '\n';
         }
 
+        /// Append a likelihood term with its identity, variant and combination metadata.
+        /// exclusive_group and selected_in_default identify alternatives and default use.
         void append_term(
           nlohmann::json& terms,
           const std::string& term_id,
@@ -91,6 +96,8 @@ namespace Gambit
           terms.push_back(term);
         }
 
+        /// Serialise raw cut counts and cumulative/incremental acceptances.
+        /// Use JSON null when an acceptance has no positive denominator.
         nlohmann::json build_cutflows_json(const Cutflows& cutflows)
         {
           nlohmann::json cutflows_json = nlohmann::json::array();
@@ -145,6 +152,8 @@ namespace Gambit
           return cutflows_json;
         }
 
+        /// Serialise 1D/2D binning, counts, errors and sumw2 for plots and batch merging.
+        /// Include observed/background data and SR labels for 1D signal-region histograms.
         nlohmann::json build_histograms_json(const Histograms& histograms)
         {
           nlohmann::json result;
@@ -236,6 +245,8 @@ namespace Gambit
           return result;
         }
 
+        /// Print cutflows, SR yields, nominal/alternative likelihoods and the total.
+        /// Include Contur results and sampling advice when supplied.
         void print_screen_summary(
           int n_events,
           double combined_loglike,
@@ -365,6 +376,7 @@ namespace Gambit
         }
       }
 
+      /// Require a nonempty path when file output is enabled.
       void validate_output_config(const OutputConfig& config)
       {
         if (config.write_file && config.output_file.empty())
@@ -373,6 +385,9 @@ namespace Gambit
         }
       }
 
+      /// Emit the requested screen summary and/or JSON result for a completed run.
+      /// JSON retains per-SR data, analysis combinations, likelihood-term alternatives,
+      /// histograms and optional Contur/sampling information for downstream consumers.
       void emit_outputs(
         const OutputConfig& config,
         int n_events,
@@ -491,6 +506,8 @@ namespace Gambit
             sr_obj["alt_loglikes"] = sr_alt_loglikes;
             signal_regions[sr_data.sr_label] = sr_obj;
 
+            // Individual SR terms are diagnostic: their combinations are represented
+            // separately below to avoid counting the same data again in the default set.
             const std::string sr_group = "analysis_sr::" + analysis_name + "::" + sr_data.sr_label;
             append_term(
               terms,
@@ -530,6 +547,7 @@ namespace Gambit
 
           analyses_json[analysis_name] = analysis_obj;
 
+          // Nominal and alternative combinations belong to one exclusive group.
           const std::string analysis_group = "analysis::" + analysis_name;
           const std::string nominal_term_id = analysis_name + "::combined::nominal";
           append_term(

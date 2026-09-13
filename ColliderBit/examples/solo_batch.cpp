@@ -3,6 +3,9 @@
 ///  \file
 ///
 ///  Batch execution and merge helpers for ColliderBit Solo (CBS).
+///  Local single-point recasting: run each HepMC file in a fresh CBS process,
+///  wait for it to finish, then merge the per-file results. This execution
+///  path does not provide scheduler-managed HPC batch support.
 ///
 ///  *********************************************
 
@@ -40,7 +43,8 @@ namespace Gambit
 {
   namespace ColliderBit
   {
-    // Implemented in ColliderBit/src/LHC_likelihoods.cpp.
+    /// Recalculate likelihoods from merged analysis yields using the shared
+    /// implementation in ColliderBit/src/LHC_likelihoods.cpp.
     void calc_LHC_LogLikes_common(
       map_str_AnalysisLogLikes& result,
       bool use_fulllikes,
@@ -59,6 +63,7 @@ namespace Gambit
     {
       namespace
       {
+        /// One HepMC file, its physics-process normalisation and temporary I/O paths.
         struct RunJob
         {
           str process_name;
@@ -69,6 +74,7 @@ namespace Gambit
           fs::path output_json_file;
         };
 
+        /// One signal region read from a child run, including its scaled signal error.
         struct SRPayload
         {
           int sr_index = -1;
@@ -80,12 +86,15 @@ namespace Gambit
           double n_sig_scaled_err = 0.0;
         };
 
+        /// Shared analysis metadata and merged yields, with signal variances kept
+        /// separately so independent per-file MC errors can be added in quadrature.
         struct AnalysisAccumulator
         {
           AnalysisData data;
           std::vector<double> n_sig_scaled_err2;
         };
 
+        /// A child's result retained until the total event count of its process is known.
         struct CompletedRun
         {
           RunJob job;
@@ -93,6 +102,7 @@ namespace Gambit
           nlohmann::json analyses_json;
         };
 
+        /// Translate a waitpid status into an exit-code or signal diagnostic.
         std::string describe_child_status(int status)
         {
           std::ostringstream msg;
@@ -119,6 +129,7 @@ namespace Gambit
           return msg.str();
         }
 
+        /// Describe a child's expected JSON file for a subprocess-failure message.
         std::string describe_output_json(const fs::path& output_json_file)
         {
           std::ostringstream msg;
@@ -142,6 +153,7 @@ namespace Gambit
           return msg.str();
         }
 
+        /// Serialise one child's temporary CBS input, reporting file-open failures.
         void write_yaml_file(const YAML::Node& root, const fs::path& yaml_path)
         {
           YAML::Emitter out;
@@ -154,6 +166,7 @@ namespace Gambit
           ofs << out.c_str() << '\n';
         }
 
+        /// Read a child's JSON result and include the path in I/O or parse errors.
         nlohmann::json read_json_file(const fs::path& json_path)
         {
           std::ifstream ifs(json_path.string());
@@ -174,6 +187,8 @@ namespace Gambit
           return root;
         }
 
+        /// Expand physics-process inputs into per-file jobs with distinct output paths.
+        /// Each job uses its full process cross section; file weights are applied later.
         std::vector<RunJob> build_run_jobs(
           const SoloInput::PreparedInput& prepared_input,
           const fs::path& temp_dir)
@@ -211,6 +226,9 @@ namespace Gambit
           return jobs;
         }
 
+        /// Clone resolved settings into one event_file input with private JSON output.
+        /// Remove batch settings to avoid recursion and disable per-run cross-section
+        /// uncertainty so the merge accumulates MC errors from the child results.
         YAML::Node build_single_run_yaml(
           const SoloInput::PreparedInput& prepared_input,
           const Options& settings,
@@ -250,6 +268,8 @@ namespace Gambit
           return root;
         }
 
+        /// Fork and exec one local CBS run, then wait for completion before returning.
+        /// The fresh process isolates per-file state; a failed child aborts the batch.
         void run_single_job(const std::string& cbs_executable, const RunJob& job)
         {
           const fs::path& yaml_file = job.yaml_file;
@@ -319,6 +339,7 @@ namespace Gambit
           }
         }
 
+        /// Restore signal regions in numeric index order and require contiguous indices.
         std::vector<SRPayload> parse_sorted_sr_payloads(const nlohmann::json& analysis_json)
         {
           if (!analysis_json.contains("signal_regions"))
@@ -362,6 +383,8 @@ namespace Gambit
           return payloads;
         }
 
+        /// Reconstruct optional cutflows, with the first count representing input events.
+        /// Missing cutflows give an empty collection; malformed entries are rejected.
         Cutflows parse_cutflows_or_empty(const nlohmann::json& analysis_json)
         {
           Cutflows cutflows;
@@ -431,12 +454,14 @@ namespace Gambit
           return cutflows;
         }
 
+        /// Compare metadata numbers using relative tolerance with a unit absolute floor.
         bool is_consistent(double a, double b, double tol = 1e-8)
         {
           const double scale = std::max({1.0, std::fabs(a), std::fabs(b)});
           return std::fabs(a - b) <= tol * scale;
         }
 
+        /// Restore a square covariance matrix, or return an empty matrix if absent.
         Eigen::MatrixXd parse_covariance_matrix_or_empty(const nlohmann::json& analysis_json)
         {
           if (!analysis_json.contains("covariance"))
@@ -467,6 +492,8 @@ namespace Gambit
           return cov;
         }
 
+        /// Seed metadata, background data and cutflows from the first file, and
+        /// initialise zero signal yields and variances for subsequent accumulation.
         void initialize_accumulator(
           AnalysisAccumulator& acc,
           const std::string& analysis_name,
@@ -503,6 +530,8 @@ namespace Gambit
           }
         }
 
+        /// Require subsequent files to match SR ordering, observed/background data,
+        /// luminosity and the background-likelihood path before adding their signals.
         void validate_payload_consistency(
           const AnalysisAccumulator& acc,
           const std::string& analysis_name,
@@ -544,6 +573,8 @@ namespace Gambit
           }
         }
 
+        /// Add raw cutflow counts after checking matching names and cut structure.
+        /// These diagnostic counts are not weighted by process cross sections.
         void accumulate_cutflows(
           Cutflows& target,
           const Cutflows& incoming,
@@ -581,6 +612,8 @@ namespace Gambit
           }
         }
 
+        /// Reconstruct optional 1D/2D histogram bins, sumw2 and overflow information.
+        /// For SR histograms, accept background data stored at histogram or bin level.
         Histograms parse_histograms_or_empty(const nlohmann::json& analysis_json)
         {
           Histograms histograms;
@@ -674,6 +707,8 @@ namespace Gambit
           return histograms;
         }
 
+        /// Combine histograms already scaled by their file's process weight.
+        /// Check collection sizes and delegate bin accumulation to Histograms::combine.
         void accumulate_histograms(
           Histograms& target,
           const Histograms& incoming,
@@ -697,6 +732,8 @@ namespace Gambit
           target.combine(incoming);
         }
 
+        /// Sum per-analysis likelihoods with the configured alternative, skip list
+        /// and individual/total capping options.
         double compute_combined_loglike(
           const map_str_AnalysisLogLikes& analysis_loglikes,
           const Options& settings)
@@ -746,6 +783,7 @@ namespace Gambit
           return result;
         }
 
+        /// Create a per-batch temporary directory for child YAML and JSON files.
         fs::path make_temp_dir()
         {
           const auto timestamp =
@@ -759,6 +797,10 @@ namespace Gambit
         }
       } // namespace
 
+      /// Execute per-file jobs sequentially for one parameter point and merge signals.
+      /// Within each physics process, weight files by their processed event counts;
+      /// add the resulting process yields and independent MC variances, then recompute
+      /// likelihoods from the merged data. Retain temporary files if requested.
       MergedRunResult run_and_merge(
         const std::string& cbs_executable,
         const SoloInput::PreparedInput& prepared_input,
@@ -941,6 +983,9 @@ namespace Gambit
         return merged;
       }
 
+      /// Estimate additional MC events for fractional-error targets in each selected SR.
+      /// For finite positive yields and errors, extrapolate using 1/sqrt(N) scaling
+      /// and distribute extra events by process cross section (event counts as fallback).
       std::vector<AnalysisSamplingAdvice> build_sampling_advice(
         const MergedRunResult& merged,
         const SoloInput::PreparedInput& prepared_input,
@@ -1083,6 +1128,8 @@ namespace Gambit
             if (target_advice.recommended_additional_events > 0
                 && !target_advice.process_recommendations.empty())
             {
+              // Allocate whole events by rounding down each process share, then give
+              // the remainder to the largest fractional parts to preserve the total.
               std::vector<long long> base_alloc(
                 target_advice.process_recommendations.size(), 0);
               std::vector<double> fractional_part(

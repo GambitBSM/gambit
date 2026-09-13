@@ -22,6 +22,7 @@ namespace Gambit
   {
     namespace SoloBatch
     {
+      /// Process-level event counts and suggested additional sampling.
       struct ProcessSamplingAdvice
       {
         std::string process_name;
@@ -30,6 +31,7 @@ namespace Gambit
         long long recommended_additional_events = 0;
       };
 
+      /// Event budget and process allocation for one fractional MC uncertainty target.
       struct SamplingTargetAdvice
       {
         double target_fractional_uncert = 0.0;
@@ -42,6 +44,7 @@ namespace Gambit
         std::vector<ProcessSamplingAdvice> process_recommendations;
       };
 
+      /// Signal uncertainty and sampling targets for an analysis's selected signal region.
       struct AnalysisSamplingAdvice
       {
         std::string analysis_name;
@@ -54,6 +57,8 @@ namespace Gambit
         std::vector<SamplingTargetAdvice> targets;
       };
 
+      /// Owned merged analysis data, non-owning pointers into analyses_storage,
+      /// event totals and recalculated likelihoods. Keep storage alive with the pointers.
       struct MergedRunResult
       {
         int total_events = 0;
@@ -65,6 +70,7 @@ namespace Gambit
         double combined_loglike = 0.0;
       };
 
+      /// Run files sequentially on the local machine and combine one parameter point.
       MergedRunResult run_and_merge(
         const std::string& cbs_executable,
         const SoloInput::PreparedInput& prepared_input,
@@ -75,6 +81,7 @@ namespace Gambit
         double (*FullLikes_Evaluate)(std::map<str,double>&, const str&)
       );
 
+      /// Estimate extra events and process allocations for the selected SRs' MC errors.
       std::vector<AnalysisSamplingAdvice> build_sampling_advice(
         const MergedRunResult& merged,
         const SoloInput::PreparedInput& prepared_input,
