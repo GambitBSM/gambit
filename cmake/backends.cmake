@@ -1216,6 +1216,11 @@ set(ditch_if_absent "hepmc")
 
 # - Add additional compiler-specific optimisation flags and suppress some warnings from -Wextra.
 set(pythia_CXXFLAGS "${BACKEND_CXX_FLAGS}")
+# Pythia's bundled FJcore uses a std::vector-of-incomplete-type pattern that macOS's libc++
+# rejects under C++20, so fall back to C++14 for Pythia's own compile on MacOS.
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  string(REGEX REPLACE "-std=c\\+\\+(17|1z|20|2a|23|2b)" "-std=c++14" pythia_CXXFLAGS "${pythia_CXXFLAGS}")
+endif()
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -fast") # -fast sometimes makes xsecs come out as NaN, but we catch that and invalidate those points.
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
