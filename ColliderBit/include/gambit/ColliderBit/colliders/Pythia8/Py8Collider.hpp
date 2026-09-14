@@ -62,7 +62,7 @@ namespace Gambit
         /// An exception for when Pythia fails to initialize.
         class InitializationError : public std::exception
         {
-          virtual const char* what() const throw()
+          virtual const char* what() const noexcept
           {
             return "Pythia could not initialize.";
           }
@@ -70,7 +70,7 @@ namespace Gambit
         /// An exception for when Pythia fails to generate events.
         class EventGenerationError : public std::exception
         {
-          virtual const char* what() const throw()
+          virtual const char* what() const noexcept
           {
             return "Pythia could not make the next event.";
           }

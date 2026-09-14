@@ -211,6 +211,9 @@ if(NOT LAPACK_LINKLIBS AND NOT LAPACK_FOUND)
 endif()
 
 # Helper function to check if ROOT has been compiled with the same standard as we are using here.  If not, downgrade to the standard that ROOT was compiled with.
+# Note: only C++17 and later are matched here, so a ROOT installation built with an older
+# standard will not be matched and will trigger the "unable to detect" error below, prompting
+# the user to rebuild ROOT with at least C++17.
 function(check_root_std_flag)
   # Modern ROOT (CMake config) versions expose the standard they were built
   # with directly via ROOT_CXX_STANDARD, rather than embedding a -std=c++NN
@@ -223,7 +226,7 @@ function(check_root_std_flag)
     message("${BoldYellow}   This ROOT was compiled with ${ROOT_CXX_FLAG} (from ROOT_CXX_STANDARD).${ColourReset}")
   endif()
   # Loop over C++ standards
-  set(std_list "23;20;2a;17;1z;14;1y;11;0x")
+  set(std_list "23;2b;20;2a;17;1z")
   foreach(std ${std_list})
     set(CXX_FLAG "-std=c++${std}")
     set(CXX_FLAG_RE "-std=c\\+\\+${std}")
@@ -275,7 +278,8 @@ function(check_root_std_flag)
   # Did we figure out the std used by ROOT?
   if(NOT ROOT_USES_STD)
     message(FATAL_ERROR "${BoldRed}Unable to detect what flavour of C++ your installation of ROOT has "
-                        "been compiled with; please set -DWITH_ROOT=OFF.${ColourReset}")
+                        "been compiled with, or it was compiled with an unsupported (pre-C++17) standard. "
+                        "Please rebuild ROOT with at least C++17, or set -DWITH_ROOT=OFF.${ColourReset}")
   endif()
   # Check that the std used by ROOT is OK
   CHECK_CXX_COMPILER_FLAG(${ROOT_CXX_FLAG} COMPILER_SUPPORTS_CXX${ROOT_STD})
