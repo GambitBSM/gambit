@@ -1,0 +1,8 @@
+Summary: Searches for new phenomena in events with two leptons, jets, and missing transverse momentum
+InspireID: 2072870
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["2L + 0B", "2L + 1B", "2L + 2B"]
+Authors: ["Chris Chang"]
+Notes: RJR regions are separated into a different analyses

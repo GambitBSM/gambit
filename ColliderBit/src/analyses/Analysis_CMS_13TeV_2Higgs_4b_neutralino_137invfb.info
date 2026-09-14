@@ -1,0 +1,8 @@
+Summary: Search for higgsinos decaying to two Higgs bosons and missing transverse momentum in proton-proton collisions at 13 TeV
+InspireID: 2009652
+ExptRun: CMS-R2
+Lumi_ifb: 137.0
+Ecm_TeV: 13.0
+Signatures: ["0L + 2B", "0L + 4B"]
+Keywords: ["0lepton", "boost", "Higgs"]
+Authors: ["Yang Zhang"]

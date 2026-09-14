@@ -215,7 +215,7 @@ namespace Gambit
        if(REMAINDER==0) { NCHUNKIT = NCHUNKS; }
        else             { NCHUNKIT = NCHUNKS+1; } // Need an extra iteration to deal with incomplete chunk
 
-       logger()<<"Begining iteration through existing HDF5 output for rank "<<getRank()<<", searching for previous highest pointID."<<EOM;
+       logger()<<"Beginning iteration through existing HDF5 output for rank "<<getRank()<<", searching for previous highest pointID."<<EOM;
 
        // Iterate through dataset in chunks
        for(std::size_t i=0; i<NCHUNKIT; ++i)

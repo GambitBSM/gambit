@@ -76,11 +76,11 @@ namespace Gambit
                        double nobs, double nsigMC, double nbkg,
                        double nsigMCsys, double nbkgerr, double nsigscaled=0) :
         sr_label(sr),
-        n_obs(nobs), 
-        n_sig_MC(nsigMC), 
-        n_sig_MC_sys(nsigMCsys), 
-        n_sig_MC_stat(sqrt(nsigMC)), 
-        n_sig_scaled(nsigscaled), 
+        n_obs(nobs),
+        n_sig_MC(nsigMC),
+        n_sig_MC_sys(nsigMCsys),
+        n_sig_MC_stat(sqrt(nsigMC)),
+        n_sig_scaled(nsigscaled),
         n_bkg(nbkg),
         n_bkg_err(nbkgerr)
       { }
@@ -99,17 +99,17 @@ namespace Gambit
       /// Uncertainty calculators
       double scalefactor() const { return n_sig_MC == 0 ? 1 : n_sig_scaled / n_sig_MC; }
 
-      double calc_n_sig_MC_err() const 
-      { 
-        return sqrt( n_sig_MC_stat * n_sig_MC_stat + n_sig_MC_sys * n_sig_MC_sys ); 
+      double calc_n_sig_MC_err() const
+      {
+        return sqrt( n_sig_MC_stat * n_sig_MC_stat + n_sig_MC_sys * n_sig_MC_sys );
       }
 
       double calc_n_sig_scaled_err() const { return scalefactor() * calc_n_sig_MC_err(); }
 
-      double calc_n_sigbkg_err() const 
-      { 
+      double calc_n_sigbkg_err() const
+      {
         double n_sig_scaled_err = calc_n_sig_scaled_err();
-        return sqrt( n_sig_scaled_err * n_sig_scaled_err + n_bkg_err * n_bkg_err );  
+        return sqrt( n_sig_scaled_err * n_sig_scaled_err + n_bkg_err * n_bkg_err );
       }
 
       void combine_SR_MC_signal(const SignalRegionData& other)

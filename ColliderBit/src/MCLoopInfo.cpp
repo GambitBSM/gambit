@@ -32,7 +32,7 @@ namespace Gambit
       {
         exceeded_maxFailedEvents = true;
         // Decrement event counter
-        _current_event_count_it->second--;        
+        _current_event_count_it->second--;
       }
     }
 
@@ -43,7 +43,7 @@ namespace Gambit
       {
         end_of_event_file = true;
         // Decrement event counter
-        _current_event_count_it->second--;        
+        _current_event_count_it->second--;
       }
     }
 
