@@ -22,13 +22,20 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 July, Aug
+///
 ///  *********************************************
 
 #pragma once
 
 #include <string>
+
 #include "HEPUtils/Event.h"
+
 #include "gambit/ColliderBit/analyses/AnalysisData.hpp"
+#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 
 namespace Gambit
 {
@@ -67,6 +74,14 @@ namespace Gambit
         void set_analysis_name(str);
         /// Get the analysis name
         str analysis_name();
+        /// Set the detector name
+        void set_detector_name(str);
+        /// Get the detector name
+        str detector_name();
+        /// Set the collider name
+        void set_collider_name(str);
+        // Get the collider name
+        str collider_name();
 
         /// Get the collection of SignalRegionData for likelihood computation.
         const AnalysisData& get_results();
@@ -78,6 +93,9 @@ namespace Gambit
         AnalysisData* get_results_ptr(str&);
         ///@}
 
+        // Get the collection of cutflows for the analysis
+        const Cutflows& get_cutflows();
+
         /// Scale by xsec per event.
         void scale(double);
 
@@ -85,9 +103,44 @@ namespace Gambit
         ///@{
         /// Add the results of another analysis to this one. Argument is not const, because the other needs to be able to gather its results if necessary.
         void add(Analysis* other);
-        /// Add the analysis-specific variables of another analysis to this one.
-        virtual void combine(const Analysis* other) = 0;
         ///@}
+
+        /// Set the store_accepted_event_IDs bool for the EventCounter instances in this analysis
+        void set_store_accepted_event_IDs(bool setting);
+        
+        // Add a cutflow to the list of cutflows
+        void addCuts(std::vector<std::string>&) {}  // base case
+
+        template<typename First, typename... Rest>
+        void addCuts(std::vector<std::string>& v, First&& first, Rest&&... rest)
+        {
+          v.push_back(std::forward<First>(first));
+          addCuts(v, std::forward<Rest>(rest)...);
+        }
+
+        // Define a signal region by initializing the counter and cutflow
+        template<typename... Cuts>
+        void defineSignalRegion(const std::string& name, Cuts&&... cuts)
+        {
+          _counters[name] = EventCounter(name);
+          std::vector<std::string> all = {"Preselection"};
+          addCuts(all, std::forward<Cuts>(cuts)...);
+          all.push_back("Final");
+          _cutflows.addCutflow(name, all);
+        }
+
+        /// Define multiple signal regions that share a common name and
+        /// only vary on sequential numbering
+        template<typename... Cuts>
+        void defineSignalRegions(const std::string& baseName, int count, const Cuts&... cuts)
+        {
+          for (int i = 1; i <= count; ++i)
+          {
+            defineSignalRegion(baseName + std::to_string(i), cuts...);
+          }
+        }
+
+
 
       protected:
 
@@ -100,6 +153,8 @@ namespace Gambit
         virtual void run(const HEPUtils::Event*) = 0;
         /// Add the given result to the internal results list.
         void add_result(const SignalRegionData& sr);
+        /// Add cutflows to the internal results list
+        void add_cutflows(const Cutflows& cf);
         /// Set the covariance matrix, expressing SR correlations
         void set_covariance(const Eigen::MatrixXd& srcov);
         /// A convenience function for setting the SR covariance from a nested vector/initialiser list
@@ -110,6 +165,9 @@ namespace Gambit
         virtual void collect_results() = 0;
         ///@}
 
+        // Every analysis should store its cutflows
+        Cutflows _cutflows;
+
       private:
 
         double _luminosity;
@@ -118,6 +176,15 @@ namespace Gambit
         bool _needs_collection;
         AnalysisData _results;
         std::string _analysis_name;
+        std::string _detector_name;
+        std::string _collider_name;
+
+      protected:
+
+        // A map of event counters for the number of accepted events for each signal region.
+        // This varible is just a shorthand reference to the actual map living
+        // in _results._counters. (The reference is initialized in the constructor.)
+        std::map<str, EventCounter>& _counters;
 
     };
 

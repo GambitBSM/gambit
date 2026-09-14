@@ -1,0 +1,7 @@
+Summary: CMS >=1 photon + MET GMSB search at 13 TeV with 137/fb
+InspireID: 2683599
+ExptRun: CMS-R2
+Lumi_ifb: 137.0
+Ecm_TeV: 13.0
+Signatures: ["1P + MET"]
+Authors: ["Vinay Hegde"]

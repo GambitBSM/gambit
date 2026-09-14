@@ -18,6 +18,7 @@
 ///
 ///  *********************************************
 
+#include "gambit/Utils/threadsafe_rng.hpp"
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 #include "gambit/ColliderBit/complete_process_PID_pair_multimaps.hpp"
 
@@ -33,8 +34,8 @@ namespace Gambit
     // ======= Utility functions =======
 
 
-    /// Helper function that takes a cross-section value in fb or pb, 
-    /// along with an absolute or relative uncertainty, and returns the 
+    /// Helper function that takes a cross-section value in fb or pb,
+    /// along with an absolute or relative uncertainty, and returns the
     /// xsec and absolute uncertainty in fb.
     std::pair<double,double> convert_xsecs_to_fb(double input_xsec, double input_xsec_uncert, str input_unit, bool input_fractional_uncert)
     {
@@ -64,7 +65,7 @@ namespace Gambit
       else
       {
         ColliderBit_error().raise(LOCAL_INFO, "Unknown combination of options for function convert_xsecs_to_fb.");
-      }      
+      }
 
       return std::make_pair(xsec_fb, xsec_uncert_fb);
     }
@@ -87,7 +88,7 @@ namespace Gambit
         if(*Loop::iteration == COLLIDER_INIT)
         {
           result.clear();
-        
+
           // Only read the YAML options the first time this is run
           if (first)
           {
@@ -97,12 +98,12 @@ namespace Gambit
             // Retrieve all the names of all entries in the yaml options node.
             std::vector<str> vec = yaml_options.getNames();
 
-            // Step though the entry names, and accept only those 
+            // Step though the entry names, and accept only those
             // with a "use_for_PID_pairs" sub-entry as new data table entries.
             for (str& name : vec)
             {
               YAML::Node node = yaml_options.getNode(name);
-              if (not node.IsScalar() and node["use_for_PID_pairs"]) 
+              if (not node.IsScalar() and node["use_for_PID_pairs"])
               {
                 // Now create a sub-dictionary with all the info for this particular data table
                 pybind11::dict data_table_options;
@@ -112,7 +113,7 @@ namespace Gambit
                 data_table_options["degeneracy_factor"] = data_table_yaml_options.getValue<double>("degeneracy_factor");
 
                 // Construct a semicolon-separated string of PID pairs, which will e.g. look like this:
-                //   "1000022_1000022;1000022_1000023;-1000024_1000022;1000024_1000022;" 
+                //   "1000022_1000022;1000022_1000023;-1000024_1000022;1000024_1000022;"
                 std::vector<str> PID_pair_str_vec = data_table_yaml_options.getValue< std::vector<str> >("use_for_PID_pairs");
                 std::string all_PID_pairs_str;
                 for (const str& ppstr : PID_pair_str_vec)
@@ -142,13 +143,13 @@ namespace Gambit
           const SLHAstruct& slha_spec = *Dep::SLHA1Spectrum;
 
           // Iterate through the SLHA MASS block and fill the masses_GeV dict
-          const SLHAea::Block& mass_block = slha_spec.at("MASS"); 
+          const SLHAea::Block& mass_block = slha_spec.at("MASS");
           for (const SLHAea::Line& line : mass_block)
           {
             if (!line.is_data_line()) continue;
 
-            // Here we take the absolute values of the SLHA mass entries. 
-            // This is because the EWino masses can appear with negative sign, 
+            // Here we take the absolute values of the SLHA mass entries.
+            // This is because the EWino masses can appear with negative sign,
             // due to the SLHA convention for storing information about
             // phases from the EWino mass matrices. We won't need that info
             // for the simplified cross-sections in simple_xs.
@@ -162,7 +163,7 @@ namespace Gambit
 
           // Create dict to pass parameters and flags to the backend
           pybind11::dict simplexs_pars;
-        
+
           // Then set the neceassary parameters and spectrum info:
           // @todo We will eventually get the collider energy from the future ColliderOptions cabability
           double comenergy = 13.0;
@@ -188,7 +189,7 @@ namespace Gambit
             double xs_pb = xs_pb_dict["central"].cast<double>();
             double xs_symm_err_pb = std::max(xs_pb_dict["tot_err_down"].cast<double>(), xs_pb_dict["tot_err_up"].cast<double>());
 
-            // Update the PID_pair_xsec_container instance 
+            // Update the PID_pair_xsec_container instance
             pp_xs.set_xsec(xs_pb, xs_symm_err_pb);
             pp_xs.set_info_string("simplexs_NLO");
 
@@ -208,12 +209,12 @@ namespace Gambit
       void getPIDPairCrossSectionsMap_xsecBE(map_PID_pair_PID_pair_xsec& result)
       {
         using namespace Pipes::getPIDPairCrossSectionsMap_xsecBE;
-  
+
         if(*Loop::iteration == COLLIDER_INIT)
         {
           result.clear();
         }
- 
+
         if(*Loop::iteration == XSEC_CALCULATION)
         {
           // Create dicts to pass parameters and flags to the backend
@@ -261,7 +262,7 @@ namespace Gambit
             // double xs_fb = xs_fb_dict["central"];
             // double xs_symm_err_fb = std::max(xs_fb_dict["tot_err_down"], xs_fb_dict["tot_err_up"]);
 
-            // Update the PID_pair_xsec_container instance 
+            // Update the PID_pair_xsec_container instance
             pp_xs.set_xsec(xs_fb, xs_symm_err_fb);
             pp_xs.set_info_string("xsecBE_NLO");
 
@@ -280,11 +281,11 @@ namespace Gambit
       void getPIDPairCrossSectionsMap_salami(map_PID_pair_PID_pair_xsec& result)
       {
         using namespace Pipes::getPIDPairCrossSectionsMap_salami;
-  
+
         // Read options from yaml file
         const static double fixed_xs_rel_err = runOptions->getValueOrDef<double>(-1.0, "fixed_relative_cross_section_uncertainty");
 
-        // Collider energy 
+        // Collider energy
         // @todo Need to get this from the collider options
         double energy = 13000.;
 
@@ -300,7 +301,7 @@ namespace Gambit
           SLHAstruct slha(*Dep::SLHA1Spectrum);
 
           // Contstruct EXTPAR block from the GAMBIT model parameters
-          // @todo Put this in a separate utils function 'contruct_extpar_block'. 
+          // @todo Put this in a separate utils function 'contruct_extpar_block'.
           SLHAea_add_block(slha, "EXTPAR");
           slha["EXTPAR"][""] << 0 << *Param.at("Qin") << "# scale Q where the parameters below are defined";
           slha["EXTPAR"][""] << 1 << *Param.at("M1") << "# M_1";
@@ -342,9 +343,9 @@ namespace Gambit
           // Create a SLHA string
           str slha_string = slha.str();
 
-          // 
+          //
           // Init Prospino
-          // 
+          //
 
           // We only want the LO cross-section from Prospino
           const static int inlo = 0;
@@ -355,11 +356,11 @@ namespace Gambit
           const static bool set_missing_cross_sections_to_zero = runOptions->getValueOrDef<bool>(false, "set_missing_cross_sections_to_zero");
 
           // Pass SLHA1 input to prospino
-          BEreq::prospino_read_slha1_input(slha);        
+          BEreq::prospino_read_slha1_input(slha);
 
           // Loop over each PID_pair in ActivePIDPairs
           // and calculate LO cross-sections
-          std::map<PID_pair, PID_pair_xsec_container> pp_LOxs_map; 
+          std::map<PID_pair, PID_pair_xsec_container> pp_LOxs_map;
           for (const PID_pair& pid_pair : *Dep::ActivePIDPairs)
           {
             // Create PID_pair_xsec_container instance and set the PIDs
@@ -430,7 +431,7 @@ namespace Gambit
               xs_err_fb = xs_fb * fixed_xs_rel_err;
             }
 
-            // Update the PID_pair_xsec_container instance 
+            // Update the PID_pair_xsec_container instance
             pp_xs.set_xsec(xs_fb, xs_err_fb);
             pp_xs.set_info_string("salami_NLO");
 
@@ -507,7 +508,7 @@ namespace Gambit
         slha["EXTPAR"][""] << 49 << sqrt(*Param.at("md2_33")) << "# M_(D,33)";
 
         // Pass SLHA1 input to prospino
-        BEreq::prospino_read_slha1_input(slha);        
+        BEreq::prospino_read_slha1_input(slha);
 
         // Loop over each PID_pair in ActivePIDPairs
         for (const PID_pair& pid_pair : *Dep::ActivePIDPairs)
@@ -1036,7 +1037,7 @@ namespace Gambit
     {
       using namespace Pipes::getProcessCrossSectionsMap;
 
-      // Use a static variable to communicate the result calculated on thread 0 during 
+      // Use a static variable to communicate the result calculated on thread 0 during
       // iteration XSEC_CALCULATION to all threads during iteration START_SUBPROCESS
       static map_int_process_xsec shared_result;
 
@@ -1096,7 +1097,7 @@ namespace Gambit
               }
             }
 
-            // Make sure the trust_level of the process_xsec_container proc_xs is set to 
+            // Make sure the trust_level of the process_xsec_container proc_xs is set to
             // the lowest trust_level of the contributing PID_pair_xsec_containers
             if (pids_xs.trust_level() < proc_xs.trust_level()) { proc_xs.set_trust_level(pids_xs.trust_level()); }
 
@@ -1123,7 +1124,7 @@ namespace Gambit
               if(other_proc_code == proc_code) continue;
 
               // Check that other_proc_code is itself in one of the active processes, i.e. listed in Dep::ActiveProcessCodes
-              if(std::find(Dep::ActiveProcessCodes->begin(), Dep::ActiveProcessCodes->end(), other_proc_code) != Dep::ActiveProcessCodes->end())  
+              if(std::find(Dep::ActiveProcessCodes->begin(), Dep::ActiveProcessCodes->end(), other_proc_code) != Dep::ActiveProcessCodes->end())
               {
                 // Add other_proc_code to the list of processes that share cross-section with proc_code
                 // (The process_xsec_container class makes sure we only register each process once.)
@@ -1219,7 +1220,7 @@ namespace Gambit
           //     double LO_proc_xsec = (*Dep::HardScatteringSim)->xsec_fb(pcode);
 
           //     cout << std::fixed << std::setprecision(7);
-          //     cout << DEBUG_PREFIX << "All xsecs:  " << pcode << ", [" 
+          //     cout << DEBUG_PREFIX << "All xsecs:  " << pcode << ", ["
           //                                            << pids.pid1() << "," << pids.pid2() << "], "
           //                                            << std::scientific << std::setprecision(5)
           //                                            << LO_proc_xsec << endl;
@@ -1265,14 +1266,14 @@ namespace Gambit
           //       //       cout << "DEBUG: pcode==1491: factor adjusted by 2: " << factor << endl;
           //       //     }
 
-          //       //   }                
+          //       //   }
           //       // }
 
           //       pids_xsec_val += (*Dep::HardScatteringSim)->xsec_fb(pcode) * factor;
           //     }
 
           //     cout << std::fixed << std::setprecision(7);
-          //     cout << DEBUG_PREFIX << "PIDs xsecs:  " << "[" 
+          //     cout << DEBUG_PREFIX << "PIDs xsecs:  " << "["
           //                                            << pids.pid1() << "," << pids.pid2() << "]: "
           //                                            << std::scientific << std::setprecision(5)
           //                                            << pids_xsec_val << endl;
@@ -1306,7 +1307,7 @@ namespace Gambit
     {
       using namespace Pipes::getNLLFastCrossSection;
 
-      // Use a static variable to communicate the result calculated on thread 0 during 
+      // Use a static variable to communicate the result calculated on thread 0 during
       // iteration XSEC_CALCULATION to all threads during iteration START_SUBPROCESS
       static xsec_container shared_result;
 
@@ -1315,7 +1316,7 @@ namespace Gambit
 
       // Only thread 0
       if(*Loop::iteration == COLLIDER_INIT) shared_result.reset();
-      
+
       // All threads
       if (*Loop::iteration == COLLIDER_INIT_OMP) result.reset();
 
@@ -1362,7 +1363,7 @@ namespace Gambit
         return false;
       }
 
-      // Check that a valid combination of options is provided, 
+      // Check that a valid combination of options is provided,
       // and set variable references accordingly
       if ((runOptions.hasKey("cross_section_fb")) && (runOptions.hasKey("cross_section_uncert_fb")))
       {
@@ -1408,7 +1409,7 @@ namespace Gambit
     {
       using namespace Pipes::getYAMLCrossSection;
 
-      // Use a static variable to communicate the result calculated on thread 0 during 
+      // Use a static variable to communicate the result calculated on thread 0 during
       // iteration XSEC_CALCULATION to all threads during iteration START_SUBPROCESS
       static xsec_container shared_result;
 
@@ -1416,7 +1417,7 @@ namespace Gambit
       if (Dep::RunMC->analyses.empty()) return;
 
       static std::pair<str,str> xsec_pnames;
-      static str input_unit; 
+      static str input_unit;
       static bool input_fractional_uncert = false;
 
       static bool first = true;
@@ -1442,7 +1443,7 @@ namespace Gambit
 
       // Only thread 0
       if(*Loop::iteration == COLLIDER_INIT) shared_result.reset();
-      
+
       // All threads
       if (*Loop::iteration == COLLIDER_INIT_OMP) result.reset();
 
@@ -1474,7 +1475,7 @@ namespace Gambit
     {
       using namespace Pipes::getYAMLCrossSection_SLHA;
 
-      // Use a static variable to communicate the result calculated on thread 0 during 
+      // Use a static variable to communicate the result calculated on thread 0 during
       // iteration XSEC_CALCULATION to all threads during iteration START_SUBPROCESS
       static xsec_container shared_result;
 
@@ -1482,7 +1483,7 @@ namespace Gambit
       if (Dep::RunMC->analyses.empty()) return;
 
       static std::pair<str,str> xsec_pnames;
-      static str input_unit; 
+      static str input_unit;
       static bool input_fractional_uncert = false;
 
       static bool first = true;
@@ -1520,7 +1521,7 @@ namespace Gambit
 
       // Only thread 0
       if(*Loop::iteration == COLLIDER_INIT) shared_result.reset();
-      
+
       // All threads
       if (*Loop::iteration == COLLIDER_INIT_OMP) result.reset();
 
@@ -1556,7 +1557,7 @@ namespace Gambit
     {
       using namespace Pipes::getYAMLCrossSection_param;
 
-      // Use a static variable to communicate the result calculated on thread 0 during 
+      // Use a static variable to communicate the result calculated on thread 0 during
       // iteration XSEC_CALCULATION to all threads during iteration START_SUBPROCESS
       static xsec_container shared_result;
 
@@ -1566,7 +1567,7 @@ namespace Gambit
       static std::vector<str> pnames;
       static std::pair<str,str> xsec_pnames;
 
-      static str input_unit; 
+      static str input_unit;
       static bool input_fractional_uncert = false;
 
       static bool first = true;
@@ -1583,7 +1584,7 @@ namespace Gambit
           }
 
           // Determine the correct combination of parameters
-          if ((std::find(pnames.begin(), pnames.end(), "cross_section_fb") != pnames.end()) 
+          if ((std::find(pnames.begin(), pnames.end(), "cross_section_fb") != pnames.end())
                && (std::find(pnames.begin(), pnames.end(), "cross_section_uncert_fb") != pnames.end()))
           {
             xsec_pnames.first = "cross_section_fb";
@@ -1591,7 +1592,7 @@ namespace Gambit
             input_unit = "fb";
             input_fractional_uncert = false;
           }
-          else if ((std::find(pnames.begin(), pnames.end(), "cross_section_fb") != pnames.end()) 
+          else if ((std::find(pnames.begin(), pnames.end(), "cross_section_fb") != pnames.end())
                     && (std::find(pnames.begin(), pnames.end(), "cross_section_fractional_uncert") != pnames.end()))
           {
             xsec_pnames.first = "cross_section_fb";
@@ -1599,7 +1600,7 @@ namespace Gambit
             input_unit = "fb";
             input_fractional_uncert = true;
           }
-          else if ((std::find(pnames.begin(), pnames.end(), "cross_section_pb") != pnames.end()) 
+          else if ((std::find(pnames.begin(), pnames.end(), "cross_section_pb") != pnames.end())
                     && (std::find(pnames.begin(), pnames.end(), "cross_section_uncert_pb") != pnames.end()))
           {
             xsec_pnames.first = "cross_section_pb";
@@ -1607,7 +1608,7 @@ namespace Gambit
             input_unit = "pb";
             input_fractional_uncert = false;
           }
-          else if ((std::find(pnames.begin(), pnames.end(), "cross_section_pb") != pnames.end()) 
+          else if ((std::find(pnames.begin(), pnames.end(), "cross_section_pb") != pnames.end())
                     && (std::find(pnames.begin(), pnames.end(), "cross_section_fractional_uncert") != pnames.end()))
           {
             xsec_pnames.first = "cross_section_pb";
@@ -1633,7 +1634,7 @@ namespace Gambit
 
       // Only thread 0
       if(*Loop::iteration == COLLIDER_INIT) shared_result.reset();
-      
+
       // All threads
       if (*Loop::iteration == COLLIDER_INIT_OMP) result.reset();
 
@@ -1642,7 +1643,7 @@ namespace Gambit
       if (*Loop::iteration == XSEC_CALCULATION)
       {
         double input_xsec = *Param.at(xsec_pnames.first);
-        double input_xsec_uncert = *Param.at(xsec_pnames.second); 
+        double input_xsec_uncert = *Param.at(xsec_pnames.second);
 
         std::pair<double,double> temp = convert_xsecs_to_fb(input_xsec, input_xsec_uncert, input_unit, input_fractional_uncert);
         double xsec_fb = temp.first;
@@ -1693,6 +1694,59 @@ namespace Gambit
     }  // end getXsecInfoMap
 
 
+    /// A log-likelihood function based on the total collider cross-section.
+    /// Can e.g. be used as a dummy likelihood to guide the scanner towards
+    /// interesting parameter regions, avoid going to the decoupling limit, etc.
+    void calc_TotalCrossSection_LogLike(double& result)
+    {
+      using namespace Pipes::calc_TotalCrossSection_LogLike;
+
+      // Read options
+      const static double xsec_lowerlim_fb = runOptions->getValueOrDef<double>(0.0, "cross_section_lowerlim_fb");
+      const static double xsec_lowerlim_width_fb = runOptions->getValueOrDef<double>(std::max(0.5 * xsec_lowerlim_fb, 1e-4), "cross_section_lowerlim_width_fb");
+
+      const static double xsec_upperlim_fb = runOptions->getValueOrDef<double>(DBL_MAX, "cross_section_upperlim_fb");
+      const static double xsec_upperlim_width_fb = runOptions->getValueOrDef<double>(std::max(0.5 * xsec_upperlim_fb, 1e-4), "cross_section_upperlim_width_fb");
+
+      const static double max_random_loglike_increase = runOptions->getValueOrDef<double>(0.0, "max_random_loglike_increase");
+      static double aggregated_random_loglike = 0.0;
+
+      // Initialise result at the beginning of a new point
+      if (*Loop::iteration == BASE_INIT)
+      {
+        result = 0.0;
+      }
+
+      // Add the loglike contributrion for the current collider
+      if (*Loop::iteration == COLLIDER_FINALIZE)
+      {
+        // Get the cross-section
+        double total_xsec_fb = Dep::TotalCrossSection->xsec();
+
+        // Add log-likelihood from lower/upper limit
+        if (total_xsec_fb < xsec_lowerlim_fb)
+        {
+          result += -0.5 * pow((total_xsec_fb - xsec_lowerlim_fb) / xsec_lowerlim_width_fb, 2);
+        }
+        else if (total_xsec_fb > xsec_upperlim_fb)
+        {
+          result += -0.5 * pow((total_xsec_fb - xsec_upperlim_fb) / xsec_upperlim_width_fb, 2);
+        }
+
+        // Add random, increasing loglike contribution?
+        // (Useful for exploratory scans where we don't want convergence.)
+        if ((max_random_loglike_increase >= 0.0) && (result >= 0.0))
+        {
+          double r = Random::draw();
+          double random_loglike_contribution = max_random_loglike_increase * r;
+          aggregated_random_loglike += random_loglike_contribution;
+          result += aggregated_random_loglike;
+        }
+      }
+
+    }  // end calc_TotalCrossSection_LogLike
+
+
     /// Output PID pair cross-sections as a str-dbl map, for easy printing
     void getPIDPairCrossSectionsInfo(map_str_dbl& result)
     {
@@ -1725,12 +1779,12 @@ namespace Gambit
     {
       using namespace Pipes::doCrossSectionConsistencyCheck;
 
-      if (Dep::EventWeighterFunction.name() == "setEventWeight_fromCrossSection" 
+      if (Dep::EventWeighterFunction.name() == "setEventWeight_fromCrossSection"
           && Dep::TotalCrossSection.name() != "getEvGenCrossSection_as_base")
       {
         std::stringstream errmsg_ss;
         errmsg_ss << "Inconsistent choice for how to scale the generated events. "
-                  << "If each event is weighted by a process-specific cross-section that is not from " 
+                  << "If each event is weighted by a process-specific cross-section that is not from "
                   << "the event generator (function 'setEventWeight_fromCrossSection' for capability "
                   << "'EventWeighterFunction'), you need to scale by the total cross-section "
                   << "calculated by the event generator. (Choose the function "
@@ -1748,7 +1802,7 @@ namespace Gambit
       using namespace Pipes::InitialTotalCrossSection_Pythia;
       result = Dep::PerformInitialCrossSection->first;
     }
-    
+
     /// Helper function for cross-section maps
     void InitialProcessCrossSections_Pythia(map_str_map_int_process_xsec& result)
     {
@@ -1756,6 +1810,81 @@ namespace Gambit
       result = Dep::PerformInitialCrossSection->second;
     }
 
+    /// A function that assigns an initial total cross-sections directly from the scan parameters
+    /// (for model ColliderBit_SLHA_scan_model)
+    void InitialTotalCrossSection_YAMLCBS(map_str_xsec_container& result)
+    {
+      using namespace Pipes::InitialTotalCrossSection_YAMLCBS;
+
+      // result.clear();
+
+      static str input_unit;
+      static bool input_fractional_uncert = false;
+
+      // Retrieve all the names of all colliders from the YAML node.
+      const Options& colliderOptions = *runOptions;
+
+      double input_xsec;
+      double input_xsec_uncert;
+
+      static bool first = true;
+
+      if (first)
+      {
+
+        // Determine the correct combination of parameters
+        if (colliderOptions.hasKey("cross_section_fb") && colliderOptions.hasKey("cross_section_uncert_fb"))
+        {
+          input_unit = "fb";
+          input_fractional_uncert = false;
+          input_xsec = colliderOptions.getValue<double>("cross_section_fb");
+          input_xsec_uncert = colliderOptions.getValue<double>("cross_section_uncert_fb");
+        }
+        else if (colliderOptions.hasKey("cross_section_fb") && colliderOptions.hasKey("cross_section_fractional_uncert"))
+        {
+          input_unit = "fb";
+          input_fractional_uncert = true;
+          input_xsec = colliderOptions.getValue<double>("cross_section_fb");
+          input_xsec_uncert = colliderOptions.getValue<double>("cross_section_fractional_uncert");
+        }
+        else if (colliderOptions.hasKey("cross_section_pb") && colliderOptions.hasKey("cross_section_uncert_pb"))
+        {
+          input_unit = "pb";
+          input_fractional_uncert = false;
+          input_xsec = colliderOptions.getValue<double>("cross_section_pb");
+          input_xsec_uncert = colliderOptions.getValue<double>("cross_section_uncert_pb");
+        }
+        else if (colliderOptions.hasKey("cross_section_pb") && colliderOptions.hasKey("cross_section_fractional_uncert"))
+        {
+          input_unit = "pb";
+          input_fractional_uncert = true;
+          input_xsec = colliderOptions.getValue<double>("cross_section_pb");
+          input_xsec_uncert = colliderOptions.getValue<double>("cross_section_fractional_uncert");
+        }
+        else
+        {
+          std::stringstream errmsg_ss;
+          errmsg_ss << "Unknown combination of parameters for function InitialTotalCrossSection_YAMLparam." << endl;
+          errmsg_ss << "Needs one of the following sets of parameter names:" << endl;
+          errmsg_ss << "  cross_section_fb, cross_section_uncert_fb" << endl;
+          errmsg_ss << "  cross_section_fb, cross_section_fractional_uncert" << endl;
+          errmsg_ss << "  cross_section_pb, cross_section_uncert_pb" << endl;
+          errmsg_ss << "  cross_section_pb, cross_section_fractional_uncert" << endl;
+          ColliderBit_error().raise(LOCAL_INFO, errmsg_ss.str());
+        }
+
+        first = false;
+      }
+
+      std::pair<double,double> temp = convert_xsecs_to_fb(input_xsec, input_xsec_uncert, input_unit, input_fractional_uncert);
+      double xsec_fb = temp.first;
+      double xsec_uncert_fb = temp.second;
+      xsec_container collider_xsec;
+      collider_xsec.set_xsec(xsec_fb, xsec_uncert_fb);
+
+      result["CBS"] = collider_xsec;
+
+    }
 
     /// A function that assigns an initial total cross-sections directly from the scan parameters
     /// (for model ColliderBit_SLHA_scan_model)
@@ -1766,7 +1895,7 @@ namespace Gambit
       static std::vector<str> pnames;
       static std::pair<str,str> xsec_pnames;
 
-      static str input_unit; 
+      static str input_unit;
       static bool input_fractional_uncert = false;
 
       static bool first = true;
@@ -1780,8 +1909,9 @@ namespace Gambit
           pnames.push_back(parname_parptr_pair.first);
         }
 
+
         // Determine the correct combination of parameters
-        if ((std::find(pnames.begin(), pnames.end(), "cross_section_fb") != pnames.end()) 
+        if ((std::find(pnames.begin(), pnames.end(), "cross_section_fb") != pnames.end())
               && (std::find(pnames.begin(), pnames.end(), "cross_section_uncert_fb") != pnames.end()))
         {
           xsec_pnames.first = "cross_section_fb";
@@ -1789,7 +1919,7 @@ namespace Gambit
           input_unit = "fb";
           input_fractional_uncert = false;
         }
-        else if ((std::find(pnames.begin(), pnames.end(), "cross_section_fb") != pnames.end()) 
+        else if ((std::find(pnames.begin(), pnames.end(), "cross_section_fb") != pnames.end())
                   && (std::find(pnames.begin(), pnames.end(), "cross_section_fractional_uncert") != pnames.end()))
         {
           xsec_pnames.first = "cross_section_fb";
@@ -1797,7 +1927,7 @@ namespace Gambit
           input_unit = "fb";
           input_fractional_uncert = true;
         }
-        else if ((std::find(pnames.begin(), pnames.end(), "cross_section_pb") != pnames.end()) 
+        else if ((std::find(pnames.begin(), pnames.end(), "cross_section_pb") != pnames.end())
                   && (std::find(pnames.begin(), pnames.end(), "cross_section_uncert_pb") != pnames.end()))
         {
           xsec_pnames.first = "cross_section_pb";
@@ -1805,7 +1935,7 @@ namespace Gambit
           input_unit = "pb";
           input_fractional_uncert = false;
         }
-        else if ((std::find(pnames.begin(), pnames.end(), "cross_section_pb") != pnames.end()) 
+        else if ((std::find(pnames.begin(), pnames.end(), "cross_section_pb") != pnames.end())
                   && (std::find(pnames.begin(), pnames.end(), "cross_section_fractional_uncert") != pnames.end()))
         {
           xsec_pnames.first = "cross_section_pb";
@@ -1830,7 +1960,7 @@ namespace Gambit
 
 
       double input_xsec = *Param.at(xsec_pnames.first);
-      double input_xsec_uncert = *Param.at(xsec_pnames.second); 
+      double input_xsec_uncert = *Param.at(xsec_pnames.second);
 
       std::pair<double,double> temp = convert_xsecs_to_fb(input_xsec, input_xsec_uncert, input_unit, input_fractional_uncert);
       double xsec_fb = temp.first;
@@ -1853,7 +1983,7 @@ namespace Gambit
     {
       using namespace Pipes::InitialTotalCrossSection_YAMLSLHA;
 
-      // Use a static variable to communicate the result calculated on thread 0 during 
+      // Use a static variable to communicate the result calculated on thread 0 during
       // iteration XSEC_CALCULATION to all threads during iteration START_SUBPROCESS
       // static xsec_container shared_result;
 
@@ -1861,7 +1991,7 @@ namespace Gambit
       // if (Dep::RunMC->analyses.empty()) return;
 
       static std::pair<str,str> xsec_pnames;
-      static str input_unit; 
+      static str input_unit;
       static bool input_fractional_uncert = false;
 
       static bool first = true;

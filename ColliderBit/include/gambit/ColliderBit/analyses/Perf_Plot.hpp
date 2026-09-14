@@ -20,7 +20,7 @@ namespace Gambit {
     private:
 
       string _outfilename;
-      size_t _numvariables;   
+      size_t _numvariables;
       vector<const char*> _variables;
       vector<vector<double>> _values;
       hid_t file;
@@ -40,7 +40,7 @@ namespace Gambit {
 	_outfilename = path;
 
 	_variables = *varNames;
-	_numvariables = _variables.size(); 
+	_numvariables = _variables.size();
       }
 
       void fill(vector<double>* varValues) {
@@ -56,7 +56,7 @@ namespace Gambit {
 	if (nvalues > 0) {
         file = H5Fcreate(_outfilename.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT);
 
-        for (size_t iVal=0;iVal<_numvariables;iVal++) { 
+        for (size_t iVal=0;iVal<_numvariables;iVal++) {
 
           hid_t dataset, dataspace;
           hsize_t dims[2];
@@ -66,8 +66,8 @@ namespace Gambit {
 	  dims[1] = nvalues;
           dataspace = H5Screate_simple(2, dims, NULL);
 
-          dataset = H5Dcreate2(file, _variables.at(iVal), H5T_NATIVE_DOUBLE, dataspace, H5S_ALL, H5S_ALL, H5P_DEFAULT); 
-          
+          dataset = H5Dcreate2(file, _variables.at(iVal), H5T_NATIVE_DOUBLE, dataspace, H5S_ALL, H5S_ALL, H5P_DEFAULT);
+
 	  double data[nvalues];
           for (size_t iVal2=0;iVal2<nvalues;iVal2++) {
 	    data[iVal2]=_values.at(iVal2).at(iVal);
@@ -99,7 +99,7 @@ namespace Gambit {
 
         H5Sclose(dataspace_lum);
         H5Dclose(dataset_lum);
-        
+
 	dims_xsec[0] = 1;
         dims_xsec[1] = 1;
         dataspace_xsec = H5Screate_simple(2, dims_xsec, NULL);

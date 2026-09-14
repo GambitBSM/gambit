@@ -347,7 +347,7 @@ def patch_control(model_name, patch_dir):
                           "  Write (ErrCan,*) \"  \"\n"\
                           "  Write (ErrCan,*) \"ErrorLevel, Iname:\",ErrorLevel, Iname\n"\
                           "  Write (ErrCan,*) &\n"\
-                          "    & \"The error has occured in the following chain of subroutines:\"\n"\
+                          "    & \"The error has occurred in the following chain of subroutines:\"\n"\
                           "  Do i1=1,Size(NameOfUnit)\n"\
                           "   Write (ErrCan,*) NameOfUnit(i1)\n"\
                           "  End Do\n"\

@@ -211,6 +211,9 @@ if(NOT LAPACK_LINKLIBS AND NOT LAPACK_FOUND)
 endif()
 
 # Helper function to check if ROOT has been compiled with the same standard as we are using here.  If not, downgrade to the standard that ROOT was compiled with.
+# Note: only C++17 and later are matched here, so a ROOT installation built with an older
+# standard will not be matched and will trigger the "unable to detect" error below, prompting
+# the user to rebuild ROOT with at least C++17.
 function(check_root_std_flag)
   # Modern ROOT (CMake config) versions expose the standard they were built
   # with directly via ROOT_CXX_STANDARD, rather than embedding a -std=c++NN
@@ -223,7 +226,7 @@ function(check_root_std_flag)
     message("${BoldYellow}   This ROOT was compiled with ${ROOT_CXX_FLAG} (from ROOT_CXX_STANDARD).${ColourReset}")
   endif()
   # Loop over C++ standards
-  set(std_list "23;20;2a;17;1z;14;1y;11;0x")
+  set(std_list "23;2b;20;2a;17;1z")
   foreach(std ${std_list})
     set(CXX_FLAG "-std=c++${std}")
     set(CXX_FLAG_RE "-std=c\\+\\+${std}")
@@ -264,10 +267,19 @@ function(check_root_std_flag)
       set(DOWNGRADE_BACKEND_STD "True")
     endif()
   endforeach()
+  # If ROOT_CXX_FLAGS doesn't have -std flag, check ROOT_CXX_STANDARD (used by newer ROOT versions)
+  if(NOT ROOT_USES_STD AND DEFINED ROOT_CXX_STANDARD)
+    set(ROOT_STD "${ROOT_CXX_STANDARD}")
+    set(ROOT_CXX_FLAG "-std=c++${ROOT_CXX_STANDARD}")
+    set(ROOT_CXX_FLAG_RE "-std=c\\+\\+${ROOT_CXX_STANDARD}")
+    set(ROOT_USES_STD TRUE)
+    message("${BoldYellow}   This ROOT was compiled with -std=c++${ROOT_CXX_STANDARD} (via ROOT_CXX_STANDARD).${ColourReset}")
+  endif()
   # Did we figure out the std used by ROOT?
   if(NOT ROOT_USES_STD)
     message(FATAL_ERROR "${BoldRed}Unable to detect what flavour of C++ your installation of ROOT has "
-                        "been compiled with; please set -DWITH_ROOT=OFF.${ColourReset}")
+                        "been compiled with, or it was compiled with an unsupported (pre-C++17) standard. "
+                        "Please rebuild ROOT with at least C++17, or set -DWITH_ROOT=OFF.${ColourReset}")
   endif()
   # Check that the std used by ROOT is OK
   CHECK_CXX_COMPILER_FLAG(${ROOT_CXX_FLAG} COMPILER_SUPPORTS_CXX${ROOT_STD})
@@ -288,6 +300,18 @@ function(check_root_std_flag)
     string(REGEX REPLACE ${BACKEND_CXX_FLAG_RE} ${ROOT_CXX_FLAG} BACKEND_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
     set(BACKEND_CXX_FLAGS ${BACKEND_CXX_FLAGS} PARENT_SCOPE)
   endif()
+  # If CMAKE_CXX_FLAGS has no -std flag, add the ROOT one
+  if(NOT CMAKE_USES_STD)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CXX_FLAG}")
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} PARENT_SCOPE)
+    message("${BoldYellow}   Adding ${ROOT_CXX_FLAG} to CMAKE_CXX_FLAGS for ROOT compatibility.${ColourReset}")
+  endif()
+  # If BACKEND_CXX_FLAGS has no -std flag, add the ROOT one
+  if(NOT BACKEND_USES_STD)
+    set(BACKEND_CXX_FLAGS "${BACKEND_CXX_FLAGS} ${ROOT_CXX_FLAG}")
+    set(BACKEND_CXX_FLAGS ${BACKEND_CXX_FLAGS} PARENT_SCOPE)
+    message("${BoldYellow}   Adding ${ROOT_CXX_FLAG} to BACKEND_CXX_FLAGS for ROOT compatibility.${ColourReset}")
+  endif()
   # Make the detected ROOT_CXX_FLAG available to all who need it
   set(ROOT_CXX_FLAG ${ROOT_CXX_FLAG} PARENT_SCOPE)
 endfunction()
@@ -296,7 +320,9 @@ endfunction()
 option(WITH_ROOT "Compile with ROOT enabled" OFF)
 if(WITH_ROOT)
   if (DEFINED ENV{ROOTSYS})
+    # Check both possible locations for ROOT cmake files (installed vs build directory)
     list(APPEND CMAKE_MODULE_PATH $ENV{ROOTSYS}/etc/cmake/)
+    list(APPEND CMAKE_MODULE_PATH $ENV{ROOTSYS}/)
     find_package(ROOT 6)
     if (ROOT_VERSION VERSION_LESS 6)
       set (ROOT_FOUND FALSE)
@@ -324,6 +350,13 @@ if (WITH_ROOT AND ROOT_FOUND)
   include_directories(${ROOT_INCLUDE_DIRS})
   add_definitions(${ROOT_DEFINITIONS})
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};$ENV{ROOTSYS}/lib")
+
+  # FindROOT does not add the libTMVA library to the ROOT_LIBRARIES variable,
+  # so we'll add it ourselves, if the library file exists
+  set(ROOT_TMVA_LIBRARY "${ROOT_LIBRARY_DIR}/libTMVA${CMAKE_SHARED_MODULE_SUFFIX}")
+  if(EXISTS "${ROOT_TMVA_LIBRARY}")
+    set(ROOT_LIBRARIES "${ROOT_LIBRARIES};${ROOT_TMVA_LIBRARY}")
+  endif()
 
   check_root_std_flag()
   set (EXCLUDE_ROOT FALSE)

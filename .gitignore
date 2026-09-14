@@ -70,6 +70,8 @@ contrib/MassSpectra/flexiblesusy/config/flexiblesusy-version
 contrib/pybind11/
 contrib/HepMC3-*/
 contrib/YODA-*/
+contrib/fastjet-*/
+contrib/fjcontrib-*/
 
 # Local configuration files
 config/*_locations.yaml
