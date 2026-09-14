@@ -250,7 +250,6 @@ else()
     endif()
   endif()
 endif()
-endif()
 
 # Check for C99, C11 and C18 support
 include(CheckCCompilerFlag)
