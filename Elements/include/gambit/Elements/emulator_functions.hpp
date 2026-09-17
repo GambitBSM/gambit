@@ -13,7 +13,6 @@
 using namespace Gambit;
 using namespace Gambit::Scanner;
 using Gambit::Scanner::map_vector;
-using Gambit::Scanner::vector;
 
 
 // Looks up a capability's settings, aborting the whole MPI job with a clear,
