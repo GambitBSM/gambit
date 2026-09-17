@@ -1,0 +1,127 @@
+##########################################################################
+## GAMBIT configuration for a 5D test scan of the Rosenbrock function
+## using the paraprof scanner.
+##
+## Uses the `trivial_5d` toy model and the `rosenbrock` log-likelihood
+## from ObjectivesBit -- no physics modules, no backends.
+##
+## Run with (rebuild GAMBIT with -DWITH_MPI=True first):
+##
+##     OMP_NUM_THREADS=1 mpiexec -np 3 ./gambit -rf yaml_files/spartan_5d.yaml
+##
+## The 2D paraprof projection over (x1, x2) profiles over (x3, x4, x5)
+## at every grid point, which is what makes this a real test of paraprof's
+## profiling machinery.
+##########################################################################
+
+
+Parameters:
+  trivial_5d:
+    x1:
+      range: [-3.0, 3.0]
+    x2:
+      range: [-3.0, 3.0]
+    x3:
+      range: [-3.0, 3.0]
+    x4:
+      range: [-3.0, 3.0]
+    x5:
+      range: [-3.0, 3.0]
+
+
+Priors:
+
+  # None needed: simple flat priors are specified in the 'Parameters' section above.
+
+
+Printer:
+
+  printer: hdf5
+  options:
+    output_file: "results.hdf5"
+    group: "/data"
+    delete_file_on_restart: true
+    buffer_length: 1000
+
+
+Scanner:
+
+  use_scanner: paraprof
+
+  scanners:
+
+    paraprof:
+      like: LogLike
+      plugin: paraprof
+      run:
+        # 2D (x1, x2) projection profiles over (x3, x4, x5).
+        # 1D (x1) projection profiles over (x2, x3, x4, x5).
+        projections:
+          - dims: ["trivial_5d::x1", "trivial_5d::x2"]
+            grid_points: [200, 200]
+            optimization_method: de
+            grid_refinement_factor: 1
+            patch_refined_grid: false
+          - dims: ["trivial_5d::x2", "trivial_5d::x3"]
+            grid_points: [200, 200]
+            optimization_method: de
+            grid_refinement_factor: 1
+            patch_refined_grid: false
+          # - dims: ["trivial_5d::x1"]
+          #   grid_points: [80]
+        # Rosenbrock's curved valley is deep; keep the ROI generous.
+        roi_threshold: 10.0
+        pop_per_grid_point: 3
+        n_initial_optimizations: 40
+        max_patching_waves: 15
+        lbfgsb_max_iter: 50
+        lbfgsb_polish: true
+        use_clustering: true
+        refinement_direct_eval: false
+        # Paraprof-side diagnostic plots.
+        save_plots: true
+        plot_settings:
+          dpi: 300
+          filetype: png
+          contour_levels: [-3.09, -1.15]
+
+
+ObsLikes:
+
+  - purpose:      LogLike
+    capability:   rosenbrock
+    module:       ObjectivesBit
+    type:         double
+
+
+Rules:
+
+
+Logger:
+
+  redirection:
+    [Default]      : "default.log"
+    [Scanner]      : "Scanner.log"
+  debug: false
+
+
+KeyValues:
+
+  debug: false
+
+  default_output_path: "${PWD}/runs/spartan_5d"
+
+  print_scanID: true
+  scanID: 1
+
+  rng:
+    generator: ranlux48
+    seed: -1
+
+  print_timing_data: false
+
+  print_unitcube: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+    use_lnlike_modifier: identity

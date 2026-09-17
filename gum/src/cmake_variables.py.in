@@ -20,7 +20,7 @@
 GUM_DIR = "@GUM_DIR@"
 
 # Python executable
-PYTHON_EXECUTABLE = "@PYTHON_EXECUTABLE@"
+Python3_EXECUTABLE = "@Python3_EXECUTABLE@"
 
 # Pythia version (No longer a constant)
 # base_pythia_version = "@BASE_PYTHIA_VERSION@"

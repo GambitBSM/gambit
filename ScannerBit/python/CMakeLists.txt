@@ -4,13 +4,13 @@ include(cmake/scannerbit_python_interface_utils.cmake)
 include(cmake/boost_python.cmake)
 #include(cmake/yaml.cmake)
 
-if(PYTHONINTERP_FOUND)
+if(Python3_Interpreter_FOUND)
 
     if(VERBOSE_SCANNERBIT_PYTHON_INTERFACE)
         message("${BoldYellow}Python extensive module Python deps:${ColourReset}")
-        message("-- Python version string: ${PYTHON_VERSION_STRING}")
-        message("-- Python include dirs: ${PYTHON_INCLUDE_DIRS}")
-        message("-- Python executable: ${PYTHON_EXECUTABLE}")
+        message("-- Python version string: ${Python3_VERSION}")
+        message("-- Python include dirs: ${Python3_INCLUDE_DIRS}")
+        message("-- Python executable: ${Python3_EXECUTABLE}")
     endif(VERBOSE_SCANNERBIT_PYTHON_INTERFACE)
     
     if(HDF5_FOUND)
@@ -20,7 +20,7 @@ if(PYTHONINTERP_FOUND)
     ################## ScannerBit_python_interface ##################
     
     set(scan_module_libraries
-        #${PYTHON_LIBRARIES}
+        #${Python3_LIBRARIES}
         yaml-cpp
         ${OpenMP_omp_LIBRARY}
     )
@@ -36,7 +36,7 @@ if(PYTHONINTERP_FOUND)
         ${HDF5_INCLUDE_DIRS}
         ${PROJECT_SOURCE_DIR}/contrib/pybind11/include
         ${yaml_INCLUDE_DIR}
-        ${PYTHON_INCLUDE_DIRS}
+        ${Python3_INCLUDE_DIRS}
         ${PROJECT_SOURCE_DIR}/ScannerBit/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     )
@@ -95,6 +95,6 @@ if(PYTHONINTERP_FOUND)
 else()
 
     message("${BoldRed}-- The ScannerBit python interface requires Python. ${ColourReset}")
-    message("${Red}-- PYTHONINTERP_FOUND=${PYTHONINTERP_FOUND} ${ColourReset}")
+    message("${Red}-- Python3_Interpreter_FOUND=${Python3_Interpreter_FOUND} ${ColourReset}")
 
 endif()

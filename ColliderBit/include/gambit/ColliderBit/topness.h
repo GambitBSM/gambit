@@ -183,7 +183,7 @@ class my_simplex{
   void find_min();
   void find_max();
   int imin,imax, inmax;
-  void my_SetUp(double xin[]);
+  void my_SetUp(double xin[DMAX*(DMAX+1)]);
   void set_y();
   void my_Centroid(int);
   void my_Reflection();

@@ -31,9 +31,13 @@
 ///          (a.kvellestad@imperial.ac.uk)
 ///  \date 2019 Sep
 ///
-/// \author Tomasz Procter
+///  \author Tomasz Procter
 ///          (t.procter.1@research.gla.ac.uk)
-/// \date 2021 November
+///  \date 2021 November
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 Aug
 ///
 ///  \author Taylor R. Gray
 ///          (gray@chalmers.se)
@@ -53,26 +57,30 @@
   #define CAPABILITY PerformInitialCrossSection
     START_CAPABILITY
   #undef CAPABILITY
-  
+
   #define CAPABILITY InitialTotalCrossSection
     START_CAPABILITY
     #define FUNCTION InitialTotalCrossSection_Pythia
     START_FUNCTION(map_str_xsec_container)
     DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
     #undef FUNCTION
-    
+
     #define FUNCTION InitialTotalCrossSection_YAMLparam
     START_FUNCTION(map_str_xsec_container)
     ALLOW_MODELS(ColliderBit_SLHA_scan_model)
     #undef FUNCTION
-    
+
+    #define FUNCTION InitialTotalCrossSection_YAMLCBS
+    START_FUNCTION(map_str_xsec_container)
+    #undef FUNCTION
+
     #define FUNCTION InitialTotalCrossSection_YAMLSLHA
     START_FUNCTION(map_str_xsec_container)
     ALLOW_MODELS(ColliderBit_SLHA_file_model)
     DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct)
     #undef FUNCTION
   #undef CAPABILITY
-  
+
   #define CAPABILITY InitialProcessCrossSections
     START_CAPABILITY
     #define FUNCTION InitialProcessCrossSections_Pythia
@@ -80,7 +88,7 @@
     DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
     #undef FUNCTION
   #undef CAPABILITY
-  
+
 
 
   /// Execute the main Monte Carlo event loop.
@@ -195,6 +203,18 @@
     DEPENDENCY(InitialCrossSection_Pythia_value, double)
     #undef FUNCTION
   #undef CAPABILITY
+
+  /// A log-likelihood function based on the total collider cross-section.
+  /// Can e.g. be used as a dummy likelihood to guide the scanner towards
+  /// interesting parameter regions, avoid going to the decoupling limit, etc.
+  #define CAPABILITY TotalCrossSection_LogLike
+  START_CAPABILITY
+    #define FUNCTION calc_TotalCrossSection_LogLike
+    START_FUNCTION(double)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    DEPENDENCY(TotalCrossSection, xsec_container)
+    #undef FUNCTION
+  #undef CAPABILITY
   /// @}
 
 
@@ -291,7 +311,7 @@
     #define FUNCTION getATLASAnalysisContainer
     START_FUNCTION(AnalysisContainer)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    DEPENDENCY(InitialTotalCrossSection, map_str_xsec_container)
+    DEPENDENCY(TotalCrossSection, xsec_container)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -300,7 +320,7 @@
     #define FUNCTION getCMSAnalysisContainer
     START_FUNCTION(AnalysisContainer)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    DEPENDENCY(InitialTotalCrossSection, map_str_xsec_container)
+    DEPENDENCY(TotalCrossSection, xsec_container)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -309,7 +329,7 @@
     #define FUNCTION getIdentityAnalysisContainer
     START_FUNCTION(AnalysisContainer)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    DEPENDENCY(InitialTotalCrossSection, map_str_xsec_container)
+    DEPENDENCY(TotalCrossSection, xsec_container)
     #undef FUNCTION
   #undef CAPABILITY
   /// @}
@@ -353,6 +373,7 @@
     #define FUNCTION CollectAnalyses
     START_FUNCTION(AnalysisDataPointers)
     DEPENDENCY(CrossSectionConsistencyCheck, bool)
+    DEPENDENCY(TotalCrossSection, xsec_container)
     DEPENDENCY(ATLASAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(CMSAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(IdentityAnalysisNumbers, AnalysisDataPointers)
@@ -428,6 +449,27 @@
     #define FUNCTION calc_LHC_signals
     START_FUNCTION(map_str_dbl)
     DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(LHCEventLoopInfo, map_str_dbl)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// Extract the efficiencies x acceptance predictions and uncertainties per signal region
+  #define CAPABILITY LHC_efficiencies_per_SR
+  START_CAPABILITY
+    #define FUNCTION calc_LHC_efficiencies_per_SR
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(LHCEventLoopInfo, map_str_dbl)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// Extract the efficiencies x acceptance predictions and uncertainties per analysis
+  #define CAPABILITY LHC_efficiencies_per_analysis
+  START_CAPABILITY
+    #define FUNCTION calc_LHC_efficiencies_per_analysis
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(LHCEventLoopInfo, map_str_dbl)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -444,7 +486,7 @@
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_gaussian_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_GROUP(lnlike_marg_poisson)
     BACKEND_REQ(FullLikes_Evaluate, (ATLAS_FullLikes), double, (std::map<str,double>&,const str&))
-    BACKEND_REQ(FullLikes_ReadIn, (ATLAS_FullLikes), int, (const str&,const str&))
+    BACKEND_REQ(FullLikes_ReadIn, (ATLAS_FullLikes), int, (const str&,const str&,const str&))
     BACKEND_REQ(FullLikes_FileExists, (ATLAS_FullLikes), bool, (const str&))
     #undef FUNCTION
 

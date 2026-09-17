@@ -174,8 +174,12 @@ namespace Gambit
 }                                                 \n"
 
 
-  with open("./Models/src/particle_database.cpp","w") as f:
-    f.write(towrite)
+  # Don't touch any existing file unless it is actually different from what we will create
+  if not os.path.isdir("./scratch/build_time"): os.makedirs("./scratch/build_time")
+  source = "./Models/src/particle_database.cpp"
+  candidate = "./scratch/build_time/particle_database.cpp.candidate"
+  with open(candidate,"w") as f: f.write(towrite)
+  update_only_if_different(source, candidate)
 
 # Handle command line arguments (verbosity)
 if __name__ == "__main__":

@@ -132,7 +132,7 @@ namespace Gambit
     /// Print a measurement previously read in from the database
     void Flav_reader::print(Measurement mes)
     {
-      std::cout<<"################### Mesurement"<<endl;
+      std::cout<<"################### Measurement"<<endl;
       std::cout<<"Name: "<<mes.name<<endl;
       std::cout<<(mes.is_limit ? "Limit" : "Value")<<": "<<mes.exp_value<<endl;
       std::cout<<"Stat/sys errror: "<< mes.exp_stat_error<<"/"<<mes.exp_sys_error<<endl;

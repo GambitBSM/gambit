@@ -247,7 +247,7 @@ namespace Gambit
       bool test_u[] = {false};
       bool test_l[] = {false};
 
-      //Loop over all interp_data, and match value to coresponding value.
+      //Loop over all interp_data, and match value to corresponding value.
       for (size_t k=0;k<fi_values.size();k++)
       {
         // Reset Values
@@ -542,7 +542,7 @@ namespace Gambit
       bool test_u[] = {false,false};
       bool test_l[] = {false,false};
 
-      //Loop over all interp_data, and match value to coresponding value.
+      //Loop over all interp_data, and match value to corresponding value.
       for (size_t k=0;k<fi_values.size();k++)
       {
         // Reset Values
@@ -789,7 +789,7 @@ namespace Gambit
       bool test_u[] = {false,false,false,false};
       bool test_l[] = {false,false,false,false};
 
-      //Loop over all interp_data, and match value to coresponding value.
+      //Loop over all interp_data, and match value to corresponding value.
       for (size_t k=0;k<fi_values.size();k++)
       {
         // Reset Values
@@ -1093,7 +1093,7 @@ namespace Gambit
       bool test_u[] = {false,false,false,false,false};
       bool test_l[] = {false,false,false,false,false};
 
-      //Loop over all interp_data, and match value to coresponding value.
+      //Loop over all interp_data, and match value to corresponding value.
       for (size_t k=0;k<fi_values.size();k++)
       {
         // Reset Values

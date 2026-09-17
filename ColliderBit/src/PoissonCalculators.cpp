@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Functions for working with an unbiased 
+///  Functions for working with an unbiased
 ///  Poisson likelihood estimator.
 ///
 ///  *********************************************
@@ -62,13 +62,13 @@ namespace Gambit
         std::mt19937 engine(rd());
         return umvue_draw_n_mc(n_mc, engine);
       }
-      
+
       int umvue_draw_n_mc_threadsafe(double n_mc)
       {
         std::poisson_distribution<> poisson(n_mc);
         return poisson(Random::rng());
       }
-      
+
       double umvue_poisson_like(int k, double b, int o, int n_mc, double n_exp)
       {
 
@@ -113,7 +113,7 @@ namespace Gambit
 
         const double ln_norm = o * std::log(b) - b - log_factorial(o);
         const double norm = std::exp(ln_norm);
-        
+
         return norm * std::pow(1. - f, k) * sum;
       }
 

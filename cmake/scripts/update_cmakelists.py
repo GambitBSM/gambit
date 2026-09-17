@@ -55,16 +55,23 @@ def main(argv):
     # List of backends to exclude; subdirectories within the Backends/frontends directories
     # that match these strings will be ignored.
     exclude_backends=set([]) # -Ditch'ed backends
+    enabled_bits=set([])
+    force_keep_backends=set([])
 
     # Handle command line options
     verbose = False
+    verbose_build = False
     try:
-        opts, args = getopt.getopt(argv,"vx:",["verbose","exclude-modules="])
+        opts, args = getopt.getopt(argv,"vx:",
+            ["verbose","exclude-modules=","bits=","force-backends=","verbose-build"])
     except getopt.GetoptError:
         print('Usage: update_cmakelists.py [flags]')
         print(' flags:')
         print('  -v                                      : More verbose output')
         print('  -x module1,backendA,printer2,modelX,... : Exclude module1, backendA, printer2, modelX, etc.')
+        print('  --bits=B1,B2,...                        : Restrict the build to dependencies of these Bits.')
+        print('  --force-backends=A,B,...                : Keep these backends, even if no enabled Bit needs them.')
+        print('  --verbose-build                         : Print which backend frontends were auto-excluded.')
         sys.exit(2)
     for opt, arg in opts:
         if opt in ('-v','--verbose'):
@@ -74,6 +81,22 @@ def main(argv):
             exclude_modules.update(neatsplit(",",arg))
             exclude_printers.update(neatsplit(",",arg))
             exclude_backends.update(neatsplit(",",arg))
+        elif opt == '--bits':
+            enabled_bits.update(b for b in neatsplit(",",arg) if b)
+        elif opt == '--force-backends':
+            force_keep_backends.update(b for b in neatsplit(",",arg) if b)
+        elif opt == '--verbose-build':
+            verbose_build = True
+
+    # If --bits is given, drop backend frontends that no enabled Bit references.
+    if enabled_bits:
+        auto_excluded, _used, _all = derive_optin_backend_excludes(
+            enabled_bits, ".",
+            "./Backends/include/gambit/Backends/frontends",
+            force_keep_backends)
+        exclude_backends.update(auto_excluded)
+        if verbose_build or verbose:
+            print("update_cmakelists.py: auto-excluded {0} backend(s) from Backends/CMakeLists.txt.".format(len(auto_excluded)))
 
     # Find all the modules.
     modules = module_census(verbose,".",exclude_modules)

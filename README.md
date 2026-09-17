@@ -62,7 +62,7 @@ GAMBIT is built using the [CMake](https://cmake.org/) system. GAMBIT depends on 
  - gfortran >= 9 / ifort >=15.0.2
  - CMake 3.2.3 or greater
  - Python 3
- - Python modules: yaml, future, os, re, datetime, sys, getopt, shutil and itertools.
+ - Python modules: yaml, os, re, datetime, sys, getopt, shutil and itertools.
  - git
  - Boost 1.48 or greater
  - GNU Scientific Library (GSL) 2.1 or greater
@@ -131,7 +131,7 @@ This will happen automatically if you install Python dependencies by our optiona
 Memory requirements
 --
 
-For building the entirety of GAMBIT without optimisation, at least 10 GB of RAM is required. The build can be completed with less RAM than this if enough modules are ditched when running CMake, with e.g. `cmake -Ditch="ColliderBit;DarkBit" ..`, etc. See the Core paper ("GAMBIT: The Global and Modular Beyond-the-Standard-Model Inference Tool", the first link at the top of this README file) for further details of how to ditch components. For a list of commonly used CMake options, see the file CMAKE_FLAGS.md.
+For building the entirety of GAMBIT without optimisation, at least 10 GB of RAM is required. The build can be completed with less RAM than this if enough modules are ditched when running CMake, with e.g. `cmake -Ditch="ColliderBit;DarkBit" ..`, etc. See the Core paper ("GAMBIT: The Global and Modular Beyond-the-Standard-Model Inference Tool", the first link at the top of this README file) for further details of how to ditch components. For a list of commonly used CMake options, see the file BUILD_OPTIONS.md.
 
 Building with optimisation enabled (e.g. using `-DCMAKE_BUILD_TYPE=Release`) may require more than 20 GB of RAM, depending on the compiler in use and precisely which optimisations it employs. Interprocedural optimisation in particular requires very large amounts of RAM. In general, Release mode is only intended for performance-critical applications, such as when running on supercomputer architectures.  It is not advised for laptops.
 
