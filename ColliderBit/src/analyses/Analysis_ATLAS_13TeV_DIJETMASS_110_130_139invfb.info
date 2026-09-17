@@ -1,0 +1,7 @@
+Summary: Basic toy ATLAS dijet mass + MET search at 13 TeV with 139/fb, SR requires 110 < mjj < 130 GeV
+InspireID: 0
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: [">=2J + MET + 0L + 0TL + 0P"]
+Keywords: ["0lepton", "jetmet", "dijet"]
