@@ -60,7 +60,7 @@ namespace Gambit
           // Signal region: dijet mass between 80 and 100 GeV
           if (mjj > 80. && mjj < 100.)
           {
-            _counterSR.add_event(event->weight(), event->weight_err());
+            _counterSR.add_event(event, event->weight(), event->weight_err());
           }
 
         }
