@@ -46,6 +46,9 @@ namespace Gambit
     str entry;
     while(getline(file, line))
     {
+      // Ignore empty lines
+      if(line.empty()) continue;
+
       // If it's a comment ignore it
       if(line[0] == '#') continue;
 
@@ -70,6 +73,14 @@ namespace Gambit
       if(entry != "")
       {
         std::vector<str> data = Utils::split(line,"=");
+        if(data.size() < 2)
+        {
+          std::ostringstream errmsg;
+          errmsg << "Error parsing bibtex file " << bibtex_file
+               << ". Malformed entry '" << entry << "': expected 'field = value' but got line '"
+               << line << "'. Please check that the entry is properly closed with '}'." << std::endl;
+          utils_error().raise(LOCAL_INFO,errmsg.str());
+        }
         str field = data[0];
         str val = data[1];
         if(Utils::endsWith(val,",")) val.pop_back();
