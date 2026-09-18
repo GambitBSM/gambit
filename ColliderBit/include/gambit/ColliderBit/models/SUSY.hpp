@@ -50,7 +50,7 @@
     #define FUNCTION PerformInitialCrossSection_Pythia
     START_FUNCTION_EMULATABLE(initialxsec_container)
     DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct)
-    ALLOW_MODEL(MSSM11atQ_mA)
+    ALLOW_MODEL(MSSM11atQ_mA, MSSM63atQ_mA, MSSM63atQ_mA_mG)
     #undef FUNCTION
 
   #undef CAPABILITY
