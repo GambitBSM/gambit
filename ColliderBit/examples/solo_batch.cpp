@@ -959,7 +959,9 @@ namespace Gambit
           settings.getValueOrDef<std::string>("MLE", "poisson_like_estimator"));
 
         const bool skip_calc = false;
-        const bool use_fulllikes = true;
+        const bool use_fulllikes = FullLikes_FileExists != nullptr
+                                && FullLikes_ReadIn != nullptr
+                                && FullLikes_Evaluate != nullptr;
         calc_LHC_LogLikes_common(
           merged.analysis_loglikes,
           use_fulllikes,
