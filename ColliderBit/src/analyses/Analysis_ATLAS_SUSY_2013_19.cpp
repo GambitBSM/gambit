@@ -68,9 +68,37 @@ namespace Gambit {
         set_analysis_name("ATLAS_SUSY_2013_19");
         set_luminosity(20.3);
 
-        for (int i=0; i<NCUTS; i++) {
-          legacyCutNames.push_back("");
-        }
+        #ifdef CHECK_CUTFLOW
+          for (int i = 0; i < NCUTS; i++) {
+            legacyCutNames.push_back("");
+          }
+
+          legacyCutNames[0] = "No cuts ";
+          legacyCutNames[1] = "2 Baseline Leptons ";
+          legacyCutNames[2] = "2 SF Signal Leptons";
+          legacyCutNames[3] = "2 OS SF Signal Leptons ";
+          legacyCutNames[4] = "mll > 20 GeV ";
+          legacyCutNames[5] = "leading lepton pT ";
+          legacyCutNames[6] = "|mll-mZ|>20 GeV ";
+          legacyCutNames[7] = "dphi_min > 1.0 ";
+          legacyCutNames[8] = "dphib < 1.5  ";
+          legacyCutNames[9] = "SR M90 [SF] ";
+          legacyCutNames[10] = "SR M120 [SF] ";
+          legacyCutNames[11] = "SR M100 + 2 jets [SF] ";
+          legacyCutNames[12] = "SR M110 + 2 jets [SF] ";
+          legacyCutNames[13] = "2 DF Signal Leptons";
+          legacyCutNames[14] = "2 OS DF Signal Leptons ";
+          legacyCutNames[15] = "mll > 20 GeV ";
+          legacyCutNames[16] = "leading lepton pT ";
+          legacyCutNames[17] = "dphi_min > 1.0 ";
+          legacyCutNames[18] = "dphib < 1.5  ";
+          legacyCutNames[19] = "SR M90 [DF] ";
+          legacyCutNames[20] = "SR M120 [DF] ";
+          legacyCutNames[21] = "SR M100 + 2 jets[DF] ";
+          legacyCutNames[22] = "SR M110 + 2 jets[DF] ";
+
+          _cutflows.addCutflow(analysis_name(), legacyCutNames);
+        #endif
       }
 
       void run(const HEPUtils::Event* event) {
@@ -275,91 +303,44 @@ namespace Gambit {
 
         if(passJetCut)cut_2jets=true;
 
-        legacyCutNames[0] = "No cuts ";
-        legacyCutNames[1] = "2 Baseline Leptons ";
-        legacyCutNames[2] = "2 SF Signal Leptons";
-        legacyCutNames[3] = "2 OS SF Signal Leptons ";
-        legacyCutNames[4] = "mll > 20 GeV ";
-        legacyCutNames[5] = "leading lepton pT ";
-        legacyCutNames[6] = "|mll-mZ|>20 GeV ";
-        legacyCutNames[7] = "dphi_min > 1.0 ";
-        legacyCutNames[8] = "dphib < 1.5  ";
-        legacyCutNames[9] = "SR M90 [SF] ";
-        legacyCutNames[10] = "SR M120 [SF] ";
-        legacyCutNames[11] = "SR M100 + 2 jets [SF] ";
-        legacyCutNames[12] = "SR M110 + 2 jets [SF] ";
-        legacyCutNames[13] = "2 DF Signal Leptons";
-        legacyCutNames[14] = "2 OS DF Signal Leptons ";
-        legacyCutNames[15] = "mll > 20 GeV ";
-        legacyCutNames[16] = "leading lepton pT ";
-        legacyCutNames[17] = "dphi_min > 1.0 ";
-        legacyCutNames[18] = "dphib < 1.5  ";
-        legacyCutNames[19] = "SR M90 [DF] ";
-        legacyCutNames[20] = "SR M120 [DF] ";
-        legacyCutNames[21] = "SR M100 + 2 jets[DF] ";
-        legacyCutNames[22] = "SR M110 + 2 jets[DF] ";
-
         #ifdef CHECK_CUTFLOW
-        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-        _cutflows[analysis_name()].fillinit(event->weight());
-#endif
+          _cutflows[analysis_name()].fillinit(event->weight());
 
-for(int j=0;j<NCUTS;j++){
-          if(
-             (j==0) ||
+          for(int j = 0; j < NCUTS; j++) {
+            if(
+              (j==0) ||
 
-             (j==1 && cut_2leptons_base) ||
+              (j==1 && cut_2leptons_base) ||
+              (j==2 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu)) ||
+              (j==3 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS) ||
+              (j==4 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL) ||
+              (j==5 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT) ||
+              (j==6 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe) ||
+              (j==7 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi) ||
+              (j==8 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib) ||
+              (j==9 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT290) ||
+              (j==10 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee ||cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2120) ||
+              (j==11 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee ||cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2100 && cut_2jets) ||
+              (j==12 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee ||cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2110 && nJets>=2) ||
 
-             (j==2 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu)) ||
+              (j==13 && cut_2leptons && cut_2leptons_emu) ||
+              (j==14 && cut_2leptons && cut_2leptons_emu && isOS) ||
+              (j==15 && cut_2leptons && cut_2leptons_emu && isOS && isMLL) ||
+              (j==16 && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT) ||
+              (j==17 && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi) ||
+              (j==18 && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib) ||
+              (j==19 && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT290) ||
 
-             (j==3 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS) ||
+              (j==20 && cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2100 && cut_2jets) ||
+              (j==21 && cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2110 && nJets>=2) ||
+              (j==22 && cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2120 && nJets>=2) )
+            {
+              _cutflows[analysis_name()].fill(j+1, true, event->weight());
+            }
+          }
+        #endif
 
-             (j==4 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL) ||
-
-             (j==5 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT) ||
-
-             (j==6 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe) ||
-
-             (j==7 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi) ||
-
-             (j==8 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib) ||
-
-             (j==9 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT290) ||
-
-             (j==10 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee ||cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2120) ||
-
-             (j==11 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee ||cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2100 && cut_2jets) ||
-
-             (j==12 && cut_2leptons_base && cut_2leptons && (cut_2leptons_ee ||cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2110 && nJets>=2) ||
-
-             (j==13 && cut_2leptons && cut_2leptons_emu) ||
-
-             (j==14 && cut_2leptons && cut_2leptons_emu && isOS) ||
-
-             (j==15 && cut_2leptons && cut_2leptons_emu && isOS && isMLL) ||
-
-             (j==16 && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT) ||
-
-             (j==17 && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi) ||
-
-             (j==18 && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib) ||
-
-             (j==19 && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT290) ||
-
-             (j==20 && cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2100 && cut_2jets) ||
-
-             (j==21 && cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2110 && nJets>=2) ||
-
-             (j==22 && cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2120 && nJets>=2) ) {
-
-#ifdef CHECK_CUTFLOW
-            _cutflows[analysis_name()].fill(j+1, true, event->weight());
-#endif
-        }
-      }
-
-        //We're now ready to apply the cuts for each signal region
-
+        // We're now ready to apply the cuts for each signal region
         if(cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT290) _counters["SRM90SF"].add_event(event);
         if(cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2100 && cut_2jets) _counters["SRM100SF"].add_event(event);
         if(cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2110 && nJets>=2) _counters["SRM110SF"].add_event(event);
@@ -376,7 +357,7 @@ for(int j=0;j<NCUTS;j++){
 
       void collect_results() {
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
 
         add_result(SignalRegionData(_counters["SRM90SF"].combine(_counters["SRM90DF"]), 274., {300., 50.}));
         add_result(SignalRegionData(_counters["SRM100SF"].combine(_counters["SRM100DF"]), 3., {5.2, 2.2}));
@@ -390,7 +371,6 @@ COMMIT_CUTFLOWS;
     protected:
       void analysis_specific_reset()
       {
-
         for (auto& pair : _counters) { pair.second.reset(); }
       }
 

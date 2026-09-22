@@ -73,9 +73,66 @@ namespace Gambit {
         _counters["SR2tau_a"] = EventCounter("SR2tau_a");
         _counters["SR2tau_b"] = EventCounter("SR2tau_b");
 
-        for(int i=0;i<NCUTS;i++){
-          legacyCutNames.push_back("");
-        }
+
+        #ifdef CHECK_CUTFLOW
+          for(int i = 0; i < NCUTS; i++) {
+            legacyCutNames.push_back("");
+          }
+
+          legacyCutNames[0] = "No cuts ";
+          legacyCutNames[1] = "3 signal leptons ";
+          legacyCutNames[2] = "Trigger ";
+          legacyCutNames[3] = "At least one e or mu ";
+          legacyCutNames[4] = "Separation of leptons ";
+          legacyCutNames[5] = "mSFOS > 12 cut ";
+          legacyCutNames[6] = "Lepton requirement (no taus) ";
+          legacyCutNames[7] = "SFOS ";
+          legacyCutNames[8] = "b-tagged jet veto ";
+          legacyCutNames[9] = "ETmiss ";
+          legacyCutNames[10] = "mT ";
+          legacyCutNames[11] = "SR0tau_a_bin_1 ";
+          legacyCutNames[12] = "SR0tau_a_bin_2 ";
+          legacyCutNames[13] = "SR0tau_a_bin_3 ";
+          legacyCutNames[14] = "SR0tau_a_bin_4 ";
+          legacyCutNames[15] = "SR0tau_a_bin_5 ";
+          legacyCutNames[16] = "SR0tau_a_bin_6 ";
+          legacyCutNames[17] = "SR0tau_a_bin_7 ";
+          legacyCutNames[18] = "SR0tau_a_bin_8 ";
+          legacyCutNames[19] = "SR0tau_a_bin_9 ";
+          legacyCutNames[20] = "SR0tau_a_bin_10 ";
+          legacyCutNames[21] = "SR0tau_a_bin_11 ";
+          legacyCutNames[22] = "SR0tau_a_bin_12 ";
+          legacyCutNames[23] = "SR0tau_a_bin_13 ";
+          legacyCutNames[24] = "SR0tau_a_bin_14 ";
+          legacyCutNames[25] = "SR0tau_a_bin_15 ";
+          legacyCutNames[26] = "SR0tau_a_bin_16 ";
+          legacyCutNames[27] = "SR0tau_a_bin_17 ";
+          legacyCutNames[28] = "SR0tau_a_bin_18 ";
+          legacyCutNames[29] = "SR0tau_a_bin_19 ";
+          legacyCutNames[30] = "SR0tau_a_bin_20 ";
+          legacyCutNames[31] = "SR0taub: Lepton multiplicity ";
+          legacyCutNames[32] = "SR0taub: b veto ";
+          legacyCutNames[33] = "SR0taub: met ";
+          legacyCutNames[34] = "SR0taub: pT 3rd lepton ";
+          legacyCutNames[35] = "SR0taub: dPhiLL ";
+          legacyCutNames[36] = "SR1tau: Lepton multiplicity ";
+          legacyCutNames[37] = "SR1tau: Z veto ";
+          legacyCutNames[38] = "SR1tau: b-tagged veto ";
+          legacyCutNames[39] = "SR1tau: MET ";
+          legacyCutNames[40] = "SR1tau: Lepton pT cuts ";
+          legacyCutNames[41] = "SR1tau: mltau ";
+          legacyCutNames[42] = "SR2taua: Lepton multiplicity ";
+          legacyCutNames[43] = "SR2taua: b veto ";
+          legacyCutNames[44] = "SR2taua: MET ";
+          legacyCutNames[45] = "SR2taua: MT2max ";
+          legacyCutNames[46] = "SR2taub: Lepton multiplicity ";
+          legacyCutNames[47] = "SR2taub: b jet veto ";
+          legacyCutNames[48] = "SR2taub: met ";
+          legacyCutNames[49] = "SR2taub: mtautau ";
+          legacyCutNames[50] = "SR2taub: Sum of tau pT ";
+
+          _cutflows.addCutflow(analysis_name(), legacyCutNames);
+        #endif
 
       }
 
@@ -612,188 +669,84 @@ namespace Gambit {
 
         //Now do cutflow (for debugging)
 
-        legacyCutNames[0] = "No cuts ";
-        legacyCutNames[1] = "3 signal leptons ";
-        legacyCutNames[2] = "Trigger ";
-        legacyCutNames[3] = "At least one e or mu ";
-        legacyCutNames[4] = "Separation of leptons ";
-        legacyCutNames[5] = "mSFOS > 12 cut ";
-        legacyCutNames[6] = "Lepton requirement (no taus) ";
-        legacyCutNames[7] = "SFOS ";
-        legacyCutNames[8] = "b-tagged jet veto ";
-        legacyCutNames[9] = "ETmiss ";
-        legacyCutNames[10] = "mT ";
-        legacyCutNames[11] = "SR0tau_a_bin_1 ";
-        legacyCutNames[12] = "SR0tau_a_bin_2 ";
-        legacyCutNames[13] = "SR0tau_a_bin_3 ";
-        legacyCutNames[14] = "SR0tau_a_bin_4 ";
-        legacyCutNames[15] = "SR0tau_a_bin_5 ";
-        legacyCutNames[16] = "SR0tau_a_bin_6 ";
-        legacyCutNames[17] = "SR0tau_a_bin_7 ";
-        legacyCutNames[18] = "SR0tau_a_bin_8 ";
-        legacyCutNames[19] = "SR0tau_a_bin_9 ";
-        legacyCutNames[20] = "SR0tau_a_bin_10 ";
-        legacyCutNames[21] = "SR0tau_a_bin_11 ";
-        legacyCutNames[22] = "SR0tau_a_bin_12 ";
-        legacyCutNames[23] = "SR0tau_a_bin_13 ";
-        legacyCutNames[24] = "SR0tau_a_bin_14 ";
-        legacyCutNames[25] = "SR0tau_a_bin_15 ";
-        legacyCutNames[26] = "SR0tau_a_bin_16 ";
-        legacyCutNames[27] = "SR0tau_a_bin_17 ";
-        legacyCutNames[28] = "SR0tau_a_bin_18 ";
-        legacyCutNames[29] = "SR0tau_a_bin_19 ";
-        legacyCutNames[30] = "SR0tau_a_bin_20 ";
-        legacyCutNames[31] = "SR0taub: Lepton multiplicity ";
-        legacyCutNames[32] = "SR0taub: b veto ";
-        legacyCutNames[33] = "SR0taub: met ";
-        legacyCutNames[34] = "SR0taub: pT 3rd lepton ";
-        legacyCutNames[35] = "SR0taub: dPhiLL ";
-        legacyCutNames[36] = "SR1tau: Lepton multiplicity ";
-        legacyCutNames[37] = "SR1tau: Z veto ";
-        legacyCutNames[38] = "SR1tau: b-tagged veto ";
-        legacyCutNames[39] = "SR1tau: MET ";
-        legacyCutNames[40] = "SR1tau: Lepton pT cuts ";
-        legacyCutNames[41] = "SR1tau: mltau ";
-        legacyCutNames[42] = "SR2taua: Lepton multiplicity ";
-        legacyCutNames[43] = "SR2taua: b veto ";
-        legacyCutNames[44] = "SR2taua: MET ";
-        legacyCutNames[45] = "SR2taua: MT2max ";
-        legacyCutNames[46] = "SR2taub: Lepton multiplicity ";
-        legacyCutNames[47] = "SR2taub: b jet veto ";
-        legacyCutNames[48] = "SR2taub: met ";
-        legacyCutNames[49] = "SR2taub: mtautau ";
-        legacyCutNames[50] = "SR2taub: Sum of tau pT ";
-
         //if(signalLeptons.size()==3 && trigger && atLeastOneEorMu)std::cout << "LEPTONID " << signalLeptons[0]->pid() << " " << signalLeptons[1]->pid() << " " << signalLeptons[2]->pid() << " mSFOS12Cut " << mSFOS12Cut << " LEPTONTYPE " << leptonTypeCut_SR0taub << std::endl;
 
         #ifdef CHECK_CUTFLOW
-        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-        _cutflows[analysis_name()].fillinit(event->weight());
-#endif
+          _cutflows[analysis_name()].fillinit(event->weight());
 
-for(int j=0;j<NCUTS;j++){
-          if( (j==0) ||
+          for(int j = 0; j < NCUTS; j++) {
+            if( (j==0) ||
 
               (j==1 && signalLeptons.size()==3) ||
-
               (j==2 && signalLeptons.size()==3 && trigger) ||
-
               (j==3 && signalLeptons.size()==3 && trigger && atLeastOneEorMu) ||
-
               (j==4 && signalLeptons.size()==3 && trigger && atLeastOneEorMu && separationCut) ||
-
               (j==5 && signalLeptons.size()==3 && trigger && atLeastOneEorMu && separationCut && mSFOS12Cut) ||
 
               (j==6 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0) || //lepton requirement
-
               (j==7 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0) || //SFOS
-
               (j==8 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0) || //b jet veto
-
               (j==9 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && met>50. && met<90.) || //MET
-
               (j==10 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && met>50. && met<90. && mT>0. && mT<80.) || //mT
-
               (j==11 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS>12. && mSFOS < 40. && mT>0. && mT<80. && met>50. && met<90.) ||
-
               (j==12 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS>12. && mSFOS < 40. && mT>0. && mT<80. && met>90.) ||
-
               (j==13 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS>12. && mSFOS < 40. && mT>80. && met>50. && met<75.) ||
-
               (j==14 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS>12. && mSFOS < 40. && mT>80. && met>75.) ||
-
               (j==15 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS>40. && mSFOS < 60. && mT>0. && mT<80. && met>50. && met<75. && !threelZVeto) ||
-
               (j==16 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS>40. && mSFOS < 60. && mT>0. && mT<80. && met>75.) ||
-
               (j==17 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS>40. && mSFOS < 60. && mT>80. && met>50. && met<135.) ||
-
               (j==18 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS>40. && mSFOS < 60. && mT>80. && met>135.) ||
-
               (j==19 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS>60. && mSFOS < 81.2 && mT>0. && mT<80. && met>50. && met<75. && !threelZVeto) ||
-
               (j==20 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS>60. && mSFOS < 81.2 && mT>80. && met>50. && met<75.) ||
-
               (j==21 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS>60. && mSFOS < 81.2 && mT>0. && mT<110. && met>75.) ||
-
               (j==22 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS>60. && mSFOS < 81.2 && mT>110. && met>75.) ||
-
               (j==23 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS>81.2 && mSFOS < 101.2 && mT>0. && mT<110. && met>50. && met<90. && !threelZVeto) ||
-
               (j==24 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS>81.2 && mSFOS < 101.2 && mT>0. && mT < 110. && met>90.) ||
-
               (j==25 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS>81.2 && mSFOS < 101.2 && mT>110. && met>50. && met < 135.) ||
-
               (j==26 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS>81.2 && mSFOS < 101.2 && mT>110. && met>135.) ||
-
               (j==27 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS > 101.2 && mT>0. && mT<180. && met>50. && met<210.) ||
-
               (j==28 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS > 101.2 && mT > 180. && met>50. && met<210.) ||
-
               (j==29 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS > 101.2 && mT>0. && mT<120. && met>210.) ||
-
               (j==30 && trigger && signalLeptons.size()==3 && atLeastOneEorMu && separationCut && mSFOS12Cut && signalTaus.size()==0 && massesOfSFOSPairs.size()>0 && bJets.size()==0 && mSFOS > 101.2 && mT>120. && met>210.) ||
 
               //Start SR0taub
-
               (j==31 && trigger && signalLeptons.size()==3 && mSFOS12Cut && atLeastOneEorMu && separationCut && leptonTypeCut_SR0taub && signalTaus.size()==0) ||
-
               (j==32 && trigger && signalLeptons.size()==3 && mSFOS12Cut && atLeastOneEorMu && separationCut && leptonTypeCut_SR0taub && signalTaus.size()==0 && bJets.size()==0) ||
-
               (j==33 && trigger && signalLeptons.size()==3 && mSFOS12Cut && atLeastOneEorMu && separationCut && leptonTypeCut_SR0taub && signalTaus.size()==0 && bJets.size()==0 && met > 50.) ||
-
               (j==34 && trigger && signalLeptons.size()==3 && mSFOS12Cut && atLeastOneEorMu && separationCut && leptonTypeCut_SR0taub && signalTaus.size()==0 && bJets.size()==0 && met > 50. && leptonPTCut_SR0taub) ||
-
               (j==35 && trigger && signalLeptons.size()==3 && mSFOS12Cut && atLeastOneEorMu && separationCut && leptonTypeCut_SR0taub && signalTaus.size()==0 && bJets.size()==0 && met > 50. && leptonPTCut_SR0taub && dPhiLLMin < 1.) ||
 
               //SR1tau
-
               (j==36 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && leptonTypeCut_SR1tau) ||
-
               (j==37 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && leptonTypeCut_SR1tau && !eePairVeto) ||
-
               (j==38 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && leptonTypeCut_SR1tau && !eePairVeto && bJets.size()==0) ||
-
               (j==39 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && leptonTypeCut_SR1tau && !eePairVeto && bJets.size()==0 && met>50.) ||
-
               (j==40 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && leptonTypeCut_SR1tau && !eePairVeto && bJets.size()==0 && met>50. && leptonPTCut_SR1tau) ||
-
               (j==41 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && leptonTypeCut_SR1tau && !eePairVeto && bJets.size()==0 && met>50. && leptonPTCut_SR1tau && mltau < 120.) ||
 
               //SR2taua
-
               (j==42 &&numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut) ||
-
               (j==43 &&numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && bJets.size()==0) ||
-
               (j==44 &&numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && bJets.size()==0 && met > 50.) ||
-
               (j==45 && numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && bJets.size()==0 && met > 50. && mT2max > 100.) ||
 
               //SR2taub
               (j==46 && numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && (signalTaus[0]->pid() == -1*signalTaus[1]->pid())) ||
-
               (j==47 && numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && (signalTaus[0]->pid() == -1*signalTaus[1]->pid()) && bJets.size()==0) ||
-
               (j==48 && numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && (signalTaus[0]->pid() == -1*signalTaus[1]->pid()) && bJets.size()==0 && met > 60) ||
-
               (j==49 && numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && (signalTaus[0]->pid() == -1*signalTaus[1]->pid()) && bJets.size()==0 && met > 60 && mtautau>70. && mtautau < 120.) ||
-
               (j==50 && numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && (signalTaus[0]->pid() == -1*signalTaus[1]->pid()) && bJets.size()==0 && met > 60 && mtautau>70. && mtautau < 120. && (signalTaus[0]->mom().pT() + signalTaus[1]->mom().pT())>110.)
-
-
-              ) {
-#ifdef CHECK_CUTFLOW
-            _cutflows[analysis_name()].fill(j+1, true, event->weight());
-#endif
-        }
-        }
+            ) {
+              _cutflows[analysis_name()].fill(j+1, true, event->weight());
+            }
+          }
+        #endif
         return;
       }
 
       void collect_results() {
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
 
         // add_result(SignalRegionData(_counters["SR label"], n_obs, {n_bkg, n_bkg_err}));
 

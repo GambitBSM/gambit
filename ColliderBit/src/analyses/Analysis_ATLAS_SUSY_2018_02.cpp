@@ -256,6 +256,47 @@ namespace Gambit
             legacyCutATLAS_300_100.push_back(0);
             legacyCutNames.push_back("");
           }
+
+          legacyCutNames[0] = "Initial";
+          legacyCutNames[1] = "Good Event";
+          legacyCutNames[2] = "N_e_mu >= 2";
+          legacyCutNames[3] = "Trigger";
+          legacyCutNames[4] = "N_e_mu >= 4";
+          legacyCutNames[5] = "ZZ";
+          legacyCutNames[6] = "met > 50 (SR0-ZZ-loose)";
+          legacyCutNames[7] = "met > 100 (SR0-ZZ-tight)";
+          legacyCutNames[8] = "b-veto";
+          legacyCutNames[9] = "met > 100 (SR0-ZZ-loose-bveto)";
+          legacyCutNames[10] = "met > 200 (SR0-ZZ-tight-bveto)";
+          legacyCutNames[11] = "SR5L";
+
+          legacyCutATLAS_200_50[0] = -1;
+          legacyCutATLAS_200_50[1] = 2716.37;
+          legacyCutATLAS_200_50[2] = 1041.64;
+          legacyCutATLAS_200_50[3] = 951.78;
+          legacyCutATLAS_200_50[4] = 116.87;
+          legacyCutATLAS_200_50[5] = 71.53;
+          legacyCutATLAS_200_50[6] = 55.88;
+          legacyCutATLAS_200_50[7] = 28.47;
+          legacyCutATLAS_200_50[8] = 66.21;
+          legacyCutATLAS_200_50[9] = 26.41;
+          legacyCutATLAS_200_50[10] = 2.96;
+          legacyCutATLAS_200_50[11] = 0.79;
+
+          legacyCutATLAS_300_100[0] = -1;
+          legacyCutATLAS_300_100[1] = 493.16;
+          legacyCutATLAS_300_100[2] = 319.87;
+          legacyCutATLAS_300_100[3] = 308.22;
+          legacyCutATLAS_300_100[4] = 74.92;
+          legacyCutATLAS_300_100[5] = 61.14;
+          legacyCutATLAS_300_100[6] = 56.74;
+          legacyCutATLAS_300_100[7] = 46.76;
+          legacyCutATLAS_300_100[8] = 55.42;
+          legacyCutATLAS_300_100[9] = 42.77;
+          legacyCutATLAS_300_100[10] = 19.46;
+          legacyCutATLAS_300_100[11] = 0.06;
+
+          _cutflows.addCutflow(analysis_name(), legacyCutNames);
         #endif
 
       }
@@ -522,82 +563,27 @@ namespace Gambit
 
 
         #ifdef CHECK_CUTFLOW
-          legacyCutNames[0] = "Initial";
-          legacyCutNames[1] = "Good Event";
-          legacyCutNames[2] = "N_e_mu >= 2";
-          legacyCutNames[3] = "Trigger";
-          legacyCutNames[4] = "N_e_mu >= 4";
-          legacyCutNames[5] = "ZZ";
-          legacyCutNames[6] = "met > 50 (SR0-ZZ-loose)";
-          legacyCutNames[7] = "met > 100 (SR0-ZZ-tight)";
-          legacyCutNames[8] = "b-veto";
-          legacyCutNames[9] = "met > 100 (SR0-ZZ-loose-bveto)";
-          legacyCutNames[10] = "met > 200 (SR0-ZZ-tight-bveto)";
-          legacyCutNames[11] = "SR5L";
-
-          legacyCutATLAS_200_50[0] = -1;
-          legacyCutATLAS_200_50[1] = 2716.37;
-          legacyCutATLAS_200_50[2] = 1041.64;
-          legacyCutATLAS_200_50[3] = 951.78;
-          legacyCutATLAS_200_50[4] = 116.87;
-          legacyCutATLAS_200_50[5] = 71.53;
-          legacyCutATLAS_200_50[6] = 55.88;
-          legacyCutATLAS_200_50[7] = 28.47;
-          legacyCutATLAS_200_50[8] = 66.21;
-          legacyCutATLAS_200_50[9] = 26.41;
-          legacyCutATLAS_200_50[10] = 2.96;
-          legacyCutATLAS_200_50[11] = 0.79;
-
-          legacyCutATLAS_300_100[0] = -1;
-          legacyCutATLAS_300_100[1] = 493.16;
-          legacyCutATLAS_300_100[2] = 319.87;
-          legacyCutATLAS_300_100[3] = 308.22;
-          legacyCutATLAS_300_100[4] = 74.92;
-          legacyCutATLAS_300_100[5] = 61.14;
-          legacyCutATLAS_300_100[6] = 56.74;
-          legacyCutATLAS_300_100[7] = 46.76;
-          legacyCutATLAS_300_100[8] = 55.42;
-          legacyCutATLAS_300_100[9] = 42.77;
-          legacyCutATLAS_300_100[10] = 19.46;
-          legacyCutATLAS_300_100[11] = 0.06;
-
-          #ifdef CHECK_CUTFLOW
-            if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-            _cutflows[analysis_name()].fillinit(event->weight());
-          #endif
+          _cutflows[analysis_name()].fillinit(event->weight());
 
           for (size_t j=0;j<NCUTS;j++)
           {
             if(
               (j==0) ||
-
               (j==1 && generator_filter) ||
-
               (j==2 && generator_filter && nSignalLeptons >= 2) ||
-
               (j==3 && generator_filter && nSignalLeptons >= 2 && trigger) ||
-
               (j==4 && generator_filter && nSignalLeptons >= 4 && trigger) ||
-
               (j==5 && generator_filter && nSignalLeptons >= 4 && trigger && Z1 && Z2) ||
-
               (j==6 && generator_filter && nSignalLeptons >= 4 && trigger && Z1 && Z2 && met > 50) ||
-
               (j==7 && generator_filter && nSignalLeptons >= 4 && trigger && Z1 && Z2 && met > 100) ||
-
               (j==8 && generator_filter && nSignalLeptons >= 4 && trigger && Z1 && Z2 && NbJets == 0) ||
-
               (j==9 && generator_filter && nSignalLeptons >= 4 && trigger && Z1 && Z2 && NbJets == 0 && met > 100) ||
-
               (j==10 && generator_filter && nSignalLeptons >= 4 && trigger && Z1 && Z2 && NbJets == 0 && met > 200) ||
-
               (j==11 && generator_filter && nSignalLeptons >= 5 && trigger)
-
               )
-
-            #ifdef CHECK_CUTFLOW
+            {
               _cutflows[analysis_name()].fill(j+1, true, event->weight());
-            #endif
+            }
           }
         #endif
       }

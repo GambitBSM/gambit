@@ -84,6 +84,71 @@ namespace Gambit {
             legacyCutATLAS.push_back(0);
             legacyCutNames.push_back("");
           }
+
+          // Increment legacyCutCounts elements
+          legacyCutNames[0]  = "Total";
+          legacyCutNames[1]  = "Pre-selection skim";
+          legacyCutNames[2]  = "$hh2$ evnets";
+          legacyCutNames[3]  = "$b$-jet trigger available";
+          legacyCutNames[4]  = "Trigger";
+          legacyCutNames[5]  = "$\\ge 4$ $b$-jets";
+          legacyCutNames[6]  = "Lepton veto";
+          legacyCutNames[7]  = "$X_{Wt} > 1.8$";
+          legacyCutNames[8]  = "$X_{hh}^{SR} < 1.6$";
+          legacyCutNames[9]  = "SR_LM_150";
+          legacyCutNames[10] = "SR_LM_300";
+
+          // Cut flow from paper
+          // Higgsino 130 GeV
+          legacyCutATLAS[0] = 966801;
+          legacyCutATLAS[1] = 160991;
+          legacyCutATLAS[2] =  70293.3;
+          legacyCutATLAS[3] =  63604.5;
+          legacyCutATLAS[4] =  38222.2;
+          legacyCutATLAS[5] =   5197.09;
+          legacyCutATLAS[6] =   4982.43;
+          legacyCutATLAS[7] =   4586.51;
+          legacyCutATLAS[8] =   1880.02;
+          legacyCutATLAS[9] =    422.866;
+          legacyCutATLAS[10] =     2.25276;
+          // // Higgsino 200 GeV
+          legacyCutATLAS[0] = 185651;
+          legacyCutATLAS[1] =  65105.87;
+          legacyCutATLAS[2] =  29148.68;
+          legacyCutATLAS[3] =  26471.40;
+          legacyCutATLAS[4] =  13170.29;
+          legacyCutATLAS[5] =   1609.17;
+          legacyCutATLAS[6] =   1535.25;
+          legacyCutATLAS[7] =   1378.63;
+          legacyCutATLAS[8] =    525.32;
+          legacyCutATLAS[9] =    200.97;
+          legacyCutATLAS[10] =    74.83;
+          // // Higgsino 500 GeV
+          legacyCutATLAS[0] =  4703.58;
+          legacyCutATLAS[1] =  4082.65;
+          legacyCutATLAS[2] =  1746.35;
+          legacyCutATLAS[3] =  1579.91;
+          legacyCutATLAS[4] =   677.12;
+          legacyCutATLAS[5] =   115.77;
+          legacyCutATLAS[6] =   107.67;
+          legacyCutATLAS[7] =    97.10;
+          legacyCutATLAS[8] =    43.02;
+          legacyCutATLAS[9] =    39.29;
+          legacyCutATLAS[10] =   32.83;
+          // // Higgsino 1100 GeV
+//          legacyCutATLAS[0] = 74.7827;
+//          legacyCutATLAS[1] = 59.2854;
+//          legacyCutATLAS[2] = 26.6107;
+//          legacyCutATLAS[3] = 24.1126;
+//          legacyCutATLAS[4] = 11.6798;
+//          legacyCutATLAS[5] =  1.96688;
+//          legacyCutATLAS[6] =  1.79592;
+//          legacyCutATLAS[7] =  1.67386;
+//          legacyCutATLAS[8] =  0.780557;
+//          legacyCutATLAS[9] =  0.775711;
+//          legacyCutATLAS[10] = 0.713743;
+
+          _cutflows.addCutflow(analysis_name(), legacyCutNames);
         #endif
       }
 
@@ -298,103 +363,26 @@ namespace Gambit {
         
         #ifdef CHECK_CUTFLOW
 
-          // Increment legacyCutCounts elements
-          legacyCutNames[0]  = "Total";
-          legacyCutNames[1]  = "Pre-selection skim";
-          legacyCutNames[2]  = "$hh2$ evnets";
-          legacyCutNames[3]  = "$b$-jet trigger available";
-          legacyCutNames[4]  = "Trigger";
-          legacyCutNames[5]  = "$\\ge 4$ $b$-jets";
-          legacyCutNames[6]  = "Lepton veto";
-          legacyCutNames[7]  = "$X_{Wt} > 1.8$";
-          legacyCutNames[8]  = "$X_{hh}^{SR} < 1.6$";
-          legacyCutNames[9]  = "SR_LM_150";
-          legacyCutNames[10] = "SR_LM_300";
-
-          // Cut flow from paper
-          // Higgsino 130 GeV
-          legacyCutATLAS[0] = 966801;
-          legacyCutATLAS[1] = 160991;
-          legacyCutATLAS[2] =  70293.3;
-          legacyCutATLAS[3] =  63604.5;
-          legacyCutATLAS[4] =  38222.2;
-          legacyCutATLAS[5] =   5197.09;
-          legacyCutATLAS[6] =   4982.43;
-          legacyCutATLAS[7] =   4586.51;
-          legacyCutATLAS[8] =   1880.02;
-          legacyCutATLAS[9] =    422.866;
-          legacyCutATLAS[10] =     2.25276;
-          // // Higgsino 200 GeV
-          legacyCutATLAS[0] = 185651;
-          legacyCutATLAS[1] =  65105.87;
-          legacyCutATLAS[2] =  29148.68;
-          legacyCutATLAS[3] =  26471.40;
-          legacyCutATLAS[4] =  13170.29;
-          legacyCutATLAS[5] =   1609.17;
-          legacyCutATLAS[6] =   1535.25;
-          legacyCutATLAS[7] =   1378.63;
-          legacyCutATLAS[8] =    525.32;
-          legacyCutATLAS[9] =    200.97;
-          legacyCutATLAS[10] =    74.83;
-          // // Higgsino 500 GeV
-          legacyCutATLAS[0] =  4703.58;
-          legacyCutATLAS[1] =  4082.65;
-          legacyCutATLAS[2] =  1746.35;
-          legacyCutATLAS[3] =  1579.91;
-          legacyCutATLAS[4] =   677.12;
-          legacyCutATLAS[5] =   115.77;
-          legacyCutATLAS[6] =   107.67;
-          legacyCutATLAS[7] =    97.10;
-          legacyCutATLAS[8] =    43.02;
-          legacyCutATLAS[9] =    39.29;
-          legacyCutATLAS[10] =   32.83;
-          // // Higgsino 1100 GeV
-//          legacyCutATLAS[0] = 74.7827;
-//          legacyCutATLAS[1] = 59.2854;
-//          legacyCutATLAS[2] = 26.6107;
-//          legacyCutATLAS[3] = 24.1126;
-//          legacyCutATLAS[4] = 11.6798;
-//          legacyCutATLAS[5] =  1.96688;
-//          legacyCutATLAS[6] =  1.79592;
-//          legacyCutATLAS[7] =  1.67386;
-//          legacyCutATLAS[8] =  0.780557;
-//          legacyCutATLAS[9] =  0.775711;
-//          legacyCutATLAS[10] = 0.713743;
-        
           // Apply cutflow
-          #ifdef CHECK_CUTFLOW
-            if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-            _cutflows[analysis_name()].fillinit(event->weight());
-          #endif
+          _cutflows[analysis_name()].fillinit(event->weight());
 
-          for(size_t j=0;j<NCUTS;j++){
+          for(size_t j = 0; j < NCUTS; j++) {
             if(
               (j==0) ||
-
               (j==1) ||
-
               (j==2) ||
-
               (j==3 && btrigger) ||
-
               (j==4 && btrigger) ||
-
               (j==5 && btrigger && nbJets > 3) ||
-
               (j==6 && btrigger && nbJets > 3 && nLeptons == 0) ||
-
               (j==7 && btrigger && nbJets > 3 && nLeptons == 0 && XWt > 1.8) ||
-
               (j==8 && btrigger && nbJets > 3 && nLeptons == 0 && XWt > 1.8 && Xhh < 1.6) ||
-               
               (j==9 && btrigger && nbJets > 3 && nLeptons == 0 && XWt > 1.8 && Xhh < 1.6 && meff > 560. && met > 20.) ||
-               
               (j==10 && btrigger && nbJets > 3 && nLeptons == 0 && XWt > 1.8 && Xhh < 1.6 && meff > 340. && met > 150.)
-
-              ) 
-            #ifdef CHECK_CUTFLOW
+              )
+            {
               _cutflows[analysis_name()].fill(j+1, true, event->weight());
-            #endif
+            }
           }
 
         #endif

@@ -160,11 +160,37 @@ namespace Gambit
 
         #ifdef CHECK_CUTFLOW
           NCUTS = 11;
-          for (size_t i=0;i<NCUTS;i++)
+          for (size_t i = 0; i < NCUTS; i++)
           {
             legacyCutATLAS_400_0.push_back(0);
             legacyCutNames.push_back("");
           }
+        
+          legacyCutNames[0] = "Initial";
+          legacyCutNames[1] = "Generator filter";
+          legacyCutNames[2] = "Trigger";
+          legacyCutNames[3] = "Event cleaning";
+          legacyCutNames[4] = "N_e_mu >= 1";
+          legacyCutNames[5] = "N_e_mu >= 2";
+          legacyCutNames[6] = "N_e_mu >= 3";
+          legacyCutNames[7] = "N_e_mu >= 4";
+          legacyCutNames[8] = "ZZ selection";
+          legacyCutNames[9] = "ETmiss > 50 (SRC)";
+          legacyCutNames[10] = "ETmiss > 100 (SRD)";
+
+          legacyCutATLAS_400_0[0] = 3203.45;
+          legacyCutATLAS_400_0[1] = 36.34;
+          legacyCutATLAS_400_0[2] = 28.77;
+          legacyCutATLAS_400_0[3] = 27.64;
+          legacyCutATLAS_400_0[4] = 26.14;
+          legacyCutATLAS_400_0[5] = 23.34;
+          legacyCutATLAS_400_0[6] = 14.19;
+          legacyCutATLAS_400_0[7] = 7.59;
+          legacyCutATLAS_400_0[8] = 5.71;
+          legacyCutATLAS_400_0[9] = 5.44;
+          legacyCutATLAS_400_0[10] = 4.84;
+
+          _cutflows.addCutflow(analysis_name(), legacyCutNames);
         #endif
 
       }
@@ -407,65 +433,26 @@ namespace Gambit
         // Missing: signal regions SR1 (3L1T) and SR2 (2L2T)
 
         #ifdef CHECK_CUTFLOW
-          legacyCutNames[0] = "Initial";
-          legacyCutNames[1] = "Generator filter";
-          legacyCutNames[2] = "Trigger";
-          legacyCutNames[3] = "Event cleaning";
-          legacyCutNames[4] = "N_e_mu >= 1";
-          legacyCutNames[5] = "N_e_mu >= 2";
-          legacyCutNames[6] = "N_e_mu >= 3";
-          legacyCutNames[7] = "N_e_mu >= 4";
-          legacyCutNames[8] = "ZZ selection";
-          legacyCutNames[9] = "ETmiss > 50 (SRC)";
-          legacyCutNames[10] = "ETmiss > 100 (SRD)";
-
-          legacyCutATLAS_400_0[0] = 3203.45;
-          legacyCutATLAS_400_0[1] = 36.34;
-          legacyCutATLAS_400_0[2] = 28.77;
-          legacyCutATLAS_400_0[3] = 27.64;
-          legacyCutATLAS_400_0[4] = 26.14;
-          legacyCutATLAS_400_0[5] = 23.34;
-          legacyCutATLAS_400_0[6] = 14.19;
-          legacyCutATLAS_400_0[7] = 7.59;
-          legacyCutATLAS_400_0[8] = 5.71;
-          legacyCutATLAS_400_0[9] = 5.44;
-          legacyCutATLAS_400_0[10] = 4.84;
-
-          #ifdef CHECK_CUTFLOW
-            if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-            _cutflows[analysis_name()].fillinit(event->weight());
-          #endif
+          _cutflows[analysis_name()].fillinit(event->weight());
 
           for (size_t j=0;j<NCUTS;j++)
           {
             if(
               (j==0) ||
-
               (j==1 && generator_filter) ||
-
               (j==2 && generator_filter && trigger) ||
-
               (j==3 && generator_filter && trigger && event_cleaning) ||
-
               (j==4 && generator_filter && trigger && event_cleaning && nSignalLeptons >= 1) ||
-
               (j==5 && generator_filter && trigger && event_cleaning && nSignalLeptons >= 2) ||
-
               (j==6 && generator_filter && trigger && event_cleaning && nSignalLeptons >= 3) ||
-
               (j==7 && generator_filter && trigger && event_cleaning && nSignalLeptons >= 4) ||
-
               (j==8 && generator_filter && trigger && event_cleaning && nSignalLeptons >= 4 && Z1 && Z2) ||
-
               (j==9 && generator_filter && trigger && event_cleaning && nSignalLeptons >= 4 && Z1 && Z2 && met > 50.) ||
-
               (j==10 && generator_filter && trigger && event_cleaning && nSignalLeptons >= 4 && Z1 && Z2 && met > 100.)
-
               )
-
-            #ifdef CHECK_CUTFLOW
+            {
               _cutflows[analysis_name()].fill(j+1, true, event->weight());
-            #endif
+            }
           }
         #endif
       }

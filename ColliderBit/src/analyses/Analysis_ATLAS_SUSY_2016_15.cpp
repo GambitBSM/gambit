@@ -178,11 +178,125 @@ namespace Gambit {
         set_analysis_name("ATLAS_SUSY_2016_15");
         set_luminosity(36.);
 
-        NCUTS=120;
+        #ifdef CHECK_CUTFLOW
+          NCUTS=120;
 
-        for(int i=0;i<NCUTS;i++){
-          legacyCutNames.push_back("");
-        }
+          for(int i = 0; i < NCUTS; i++) {
+            legacyCutNames.push_back("");
+          }
+
+          legacyCutNames[0] = "No cuts ";
+          legacyCutNames[1] = "Derivation skim";
+          legacyCutNames[2] = "Lepton veto ";
+          legacyCutNames[3] = "Njets >= 4 ";
+          legacyCutNames[4] = "Nbjets >= 1 ";
+          legacyCutNames[5] = "met > 250 GeV ";
+          legacyCutNames[6] = "dPhi(jet,MET) > 0.4 ";
+          legacyCutNames[7] = "pT jet 1 > 80 GeV ";
+          legacyCutNames[8] = "pT jet 3 > 40 GeV ";
+          legacyCutNames[9] = "m jet0, R=1.2 > 120 GeV ";
+          legacyCutNames[10] = "SRA-TT: m jet1, R=1.2 > 120 GeV";
+          legacyCutNames[11] = "SRA-TT: met > 400 GeV";
+          legacyCutNames[12] = "SRA-TT: m jet0, R=0.8 > 60 GeV ";
+          legacyCutNames[13] = "SRA-TT: mT(b,MET) min > 200 ";
+          legacyCutNames[14] = "SRA-TT: deltaR(b,b) > 1 ";
+          legacyCutNames[15] = "SRA-TT: mT2 > 400 GeV";
+          legacyCutNames[16] = "SRA-TT: Nbjets >=2 ";
+          legacyCutNames[17] = "SRA-TW: m jet1, R=1.2 < 120 GeV";
+          legacyCutNames[18] = "SRA-TW: m jet1, R=1.2 > 60 GeV";
+          legacyCutNames[19] = "SRA-TW: met > 500 GeV ";
+          legacyCutNames[20] = "SRA-TW: m jet0, R=0.8 > 60 GeV";
+          legacyCutNames[21] = "SRA-TW: mT(b,MET) min > 200 GeV";
+          legacyCutNames[22] = "SRA-TW: mT2 > 400 GeV ";
+          legacyCutNames[23] = "SRA-TW: Nbjets >=2 ";
+          legacyCutNames[24] = "SRA-T0: m jet1, R=1.2 < 60 GeV";
+          legacyCutNames[25] = "SRA-T0: m jet0, R=0.8 > 60 GeV";
+          legacyCutNames[26] = "SRA-T0: met > 550 GeV ";
+          legacyCutNames[27] = "SRA-T0: mT(b,MET) min > 200 GeV";
+          legacyCutNames[28] = "SRA-T0: mT2 > 500 GeV ";
+          legacyCutNames[29] = "SRA-T0: Nbjets >=2 ";
+          legacyCutNames[30] = "SRB-TT: m jet1, R=1.2 > 120 GeV";
+          legacyCutNames[31] = "SRB-TT: deltaR(b,b) > 1.2";
+          legacyCutNames[32] = "SRB-TT: mT(b,MET) max > 200 GeV";
+          legacyCutNames[33] = "SRB-TT: mT(b,MET) min > 200 GeV";
+          legacyCutNames[34] = "SRB-TT: Nbjets >=2 ";
+          legacyCutNames[35] = "SRB-TW: m jet1, R=1.2 < 120 GeV";
+          legacyCutNames[36] = "SRB-TW: m jet1, R=1.2 > 60 GeV";
+          legacyCutNames[37] = "SRB-TW: deltaR(b,b) > 1.2";
+          legacyCutNames[38] = "SRB-TW: mT(b,MET) max > 200 GeV";
+          legacyCutNames[39] = "SRB-TW: mT(b,MET) min > 200 GeV";
+          legacyCutNames[40] = "SRB-TW: Nbjets >=2 ";
+          legacyCutNames[41] = "SRB-T0: m jet1, R=1.2 < 60 GeV";
+          legacyCutNames[42] = "SRB-T0: mT(b,MET) min > 200 GeV";
+          legacyCutNames[43] = "SRB-T0: deltaR(b,b) > 1.2";
+          legacyCutNames[44] = "SRB-T0: mT(b,MET) max > 200 GeV";
+          legacyCutNames[45] = "SRB-T0: met > 250 GeV ";
+          legacyCutNames[46] = "SRB-T0: Nbjets >=2 ";
+
+          // Cutflow for SRD
+          legacyCutNames[47] = "SRD-high: No cuts ";
+          legacyCutNames[48] = "SRD-high: Derivation skim";
+          legacyCutNames[49] = "SRD-high: Lepton veto ";
+          legacyCutNames[50] = "SRD-high: Njets >= 4 ";
+          legacyCutNames[51] = "SRD-high: Nbjets >= 1 ";
+          legacyCutNames[52] = "SRD-high: met > 250 GeV ";
+          legacyCutNames[53] = "SRD-high: dPhi(jet,MET) > 0.4 ";
+          legacyCutNames[54] = "SRD-high: pT jet 1 > 80 GeV ";
+          legacyCutNames[55] = "SRD-high: pT jet 3 > 40 GeV ";
+          legacyCutNames[56] = "SRD-high: Njets >= 5 ";
+          legacyCutNames[57] = "SRD-high: pT jet 1 > 150 ";
+          legacyCutNames[58] = "SRD-high: pT jet 3 > 80 ";
+          legacyCutNames[59] = "SRD-high: pT jet 4 > 60 ";
+          legacyCutNames[60] = "SRD-high: mT(b,MET) min > 350 GeV ";
+          legacyCutNames[61] = "SRD-high: mT(b,MET) max > 450 GeV ";
+          legacyCutNames[62] = "SRD-high: Nbjets >=2 ";
+          legacyCutNames[63] = "SRD-high: met > 250 GeV ";
+          legacyCutNames[64] = "SRD-high: deltaR(b,b) > 0.8";
+          legacyCutNames[65] = "SRD-high: pT0b + pT1b > 400 GeV";
+          legacyCutNames[66] = "SRD-low: Njets >=5";
+          legacyCutNames[67] = "SRD-low: NBjets >=2";
+          legacyCutNames[68] = "SRD-low: met > 250 GeV";
+          legacyCutNames[69] = "SRD-low: mT(b,MET) min > 250 GeV ";
+          legacyCutNames[70] = "SRD-low: mT(b,MET) max > 300 GeV ";
+          legacyCutNames[71] = "SRD-low: deltaR(b,b) > 0.8";
+          legacyCutNames[72] = "SRD-low: pT jet 1 > 150 GeV ";
+          legacyCutNames[73] = "SRD-low: pT jet 3 > 100 GeV ";
+          legacyCutNames[74] = "SRD-low: pT jet 4 > 60 GeV ";
+          legacyCutNames[75] = "SRD-low: pT0b + pT1b > 300 GeV";
+
+          // Cutflow for SRE
+          legacyCutNames[76] = "SRE: met > 550 GeV";
+          legacyCutNames[77] = "SRE: m jet0, R = 0.8 > 120 GeV";
+          legacyCutNames[78] = "SRE: m jet1, R = 0.8 > 80 GeV";
+          legacyCutNames[79] = "SRE: HT > 800 GeV";
+          legacyCutNames[80] = "SRE: met/sqrt(HT) > 18 GeV^1/2";
+          legacyCutNames[81] = "SRE: mT(b,MET) min > 200 GeV";
+          legacyCutNames[82] = "SRE: NBjets >=2";
+
+          // Cutflow for SRC1
+          legacyCutNames[83] = "SRC: Derivation skim";
+          legacyCutNames[84] = "SRC: Lepton veto ";
+          legacyCutNames[85] = "SRC: Njets >= 4 ";
+          legacyCutNames[86] = "SRC: Nbjets >= 1 ";
+          legacyCutNames[87] = "SRC: met > 250 GeV ";
+          legacyCutNames[88] = "SRC: dPhi(jet,MET) > 0.4 ";
+          legacyCutNames[89] = "SRC: pT jet 1 > 80 GeV ";
+          legacyCutNames[90] = "SRC: pT jet 3 > 40 GeV ";
+          legacyCutNames[91] = "SRC: NSbjet >=1";
+          legacyCutNames[92] = "SRC: NSjet >=5";
+          legacyCutNames[93] = "SRC: pT0sb > 40";
+          legacyCutNames[94] = "SRC: mS > 300";
+          legacyCutNames[95] = "SRC: dPhi(ISR,met) > 3";
+          legacyCutNames[96] = "SRC: pTISR > 400";
+          legacyCutNames[97] = "SRC: pT4S > 50";
+          legacyCutNames[98] = "SRC1: 0.30 <= R_ISR <= 0.40";
+          legacyCutNames[99] = "SRC2: 0.40 <= R_ISR <= 0.50";
+          legacyCutNames[100] = "SRC3: 0.50 <= R_ISR <= 0.60";
+          legacyCutNames[101] = "SRC4: 0.60 <= R_ISR <= 0.70";
+          legacyCutNames[102] = "SRC5: 0.70 <= R_ISR <= 0.80";
+
+          _cutflows.addCutflow(analysis_name(), legacyCutNames);
+        #endif
 
         // RestFrames initialisation
 
@@ -634,117 +748,6 @@ namespace Gambit {
         bool isSRD_high=false;
         bool isSRE=false;
 
-        legacyCutNames[0] = "No cuts ";
-        legacyCutNames[1] = "Derivation skim";
-        legacyCutNames[2] = "Lepton veto ";
-        legacyCutNames[3] = "Njets >= 4 ";
-        legacyCutNames[4] = "Nbjets >= 1 ";
-        legacyCutNames[5] = "met > 250 GeV ";
-        legacyCutNames[6] = "dPhi(jet,MET) > 0.4 ";
-        legacyCutNames[7] = "pT jet 1 > 80 GeV ";
-        legacyCutNames[8] = "pT jet 3 > 40 GeV ";
-        legacyCutNames[9] = "m jet0, R=1.2 > 120 GeV ";
-        legacyCutNames[10] = "SRA-TT: m jet1, R=1.2 > 120 GeV";
-        legacyCutNames[11] = "SRA-TT: met > 400 GeV";
-        legacyCutNames[12] = "SRA-TT: m jet0, R=0.8 > 60 GeV ";
-        legacyCutNames[13] = "SRA-TT: mT(b,MET) min > 200 ";
-        legacyCutNames[14] = "SRA-TT: deltaR(b,b) > 1 ";
-        legacyCutNames[15] = "SRA-TT: mT2 > 400 GeV";
-        legacyCutNames[16] = "SRA-TT: Nbjets >=2 ";
-        legacyCutNames[17] = "SRA-TW: m jet1, R=1.2 < 120 GeV";
-        legacyCutNames[18] = "SRA-TW: m jet1, R=1.2 > 60 GeV";
-        legacyCutNames[19] = "SRA-TW: met > 500 GeV ";
-        legacyCutNames[20] = "SRA-TW: m jet0, R=0.8 > 60 GeV";
-        legacyCutNames[21] = "SRA-TW: mT(b,MET) min > 200 GeV";
-        legacyCutNames[22] = "SRA-TW: mT2 > 400 GeV ";
-        legacyCutNames[23] = "SRA-TW: Nbjets >=2 ";
-        legacyCutNames[24] = "SRA-T0: m jet1, R=1.2 < 60 GeV";
-        legacyCutNames[25] = "SRA-T0: m jet0, R=0.8 > 60 GeV";
-        legacyCutNames[26] = "SRA-T0: met > 550 GeV ";
-        legacyCutNames[27] = "SRA-T0: mT(b,MET) min > 200 GeV";
-        legacyCutNames[28] = "SRA-T0: mT2 > 500 GeV ";
-        legacyCutNames[29] = "SRA-T0: Nbjets >=2 ";
-        legacyCutNames[30] = "SRB-TT: m jet1, R=1.2 > 120 GeV";
-        legacyCutNames[31] = "SRB-TT: deltaR(b,b) > 1.2";
-        legacyCutNames[32] = "SRB-TT: mT(b,MET) max > 200 GeV";
-        legacyCutNames[33] = "SRB-TT: mT(b,MET) min > 200 GeV";
-        legacyCutNames[34] = "SRB-TT: Nbjets >=2 ";
-        legacyCutNames[35] = "SRB-TW: m jet1, R=1.2 < 120 GeV";
-        legacyCutNames[36] = "SRB-TW: m jet1, R=1.2 > 60 GeV";
-        legacyCutNames[37] = "SRB-TW: deltaR(b,b) > 1.2";
-        legacyCutNames[38] = "SRB-TW: mT(b,MET) max > 200 GeV";
-        legacyCutNames[39] = "SRB-TW: mT(b,MET) min > 200 GeV";
-        legacyCutNames[40] = "SRB-TW: Nbjets >=2 ";
-        legacyCutNames[41] = "SRB-T0: m jet1, R=1.2 < 60 GeV";
-        legacyCutNames[42] = "SRB-T0: mT(b,MET) min > 200 GeV";
-        legacyCutNames[43] = "SRB-T0: deltaR(b,b) > 1.2";
-        legacyCutNames[44] = "SRB-T0: mT(b,MET) max > 200 GeV";
-        legacyCutNames[45] = "SRB-T0: met > 250 GeV ";
-        legacyCutNames[46] = "SRB-T0: Nbjets >=2 ";
-
-        // Cutflow for SRD
-        legacyCutNames[47] = "SRD-high: No cuts ";
-        legacyCutNames[48] = "SRD-high: Derivation skim";
-        legacyCutNames[49] = "SRD-high: Lepton veto ";
-        legacyCutNames[50] = "SRD-high: Njets >= 4 ";
-        legacyCutNames[51] = "SRD-high: Nbjets >= 1 ";
-        legacyCutNames[52] = "SRD-high: met > 250 GeV ";
-        legacyCutNames[53] = "SRD-high: dPhi(jet,MET) > 0.4 ";
-        legacyCutNames[54] = "SRD-high: pT jet 1 > 80 GeV ";
-        legacyCutNames[55] = "SRD-high: pT jet 3 > 40 GeV ";
-        legacyCutNames[56] = "SRD-high: Njets >= 5 ";
-        legacyCutNames[57] = "SRD-high: pT jet 1 > 150 ";
-        legacyCutNames[58] = "SRD-high: pT jet 3 > 80 ";
-        legacyCutNames[59] = "SRD-high: pT jet 4 > 60 ";
-        legacyCutNames[60] = "SRD-high: mT(b,MET) min > 350 GeV ";
-        legacyCutNames[61] = "SRD-high: mT(b,MET) max > 450 GeV ";
-        legacyCutNames[62] = "SRD-high: Nbjets >=2 ";
-        legacyCutNames[63] = "SRD-high: met > 250 GeV ";
-        legacyCutNames[64] = "SRD-high: deltaR(b,b) > 0.8";
-        legacyCutNames[65] = "SRD-high: pT0b + pT1b > 400 GeV";
-        legacyCutNames[66] = "SRD-low: Njets >=5";
-        legacyCutNames[67] = "SRD-low: NBjets >=2";
-        legacyCutNames[68] = "SRD-low: met > 250 GeV";
-        legacyCutNames[69] = "SRD-low: mT(b,MET) min > 250 GeV ";
-        legacyCutNames[70] = "SRD-low: mT(b,MET) max > 300 GeV ";
-        legacyCutNames[71] = "SRD-low: deltaR(b,b) > 0.8";
-        legacyCutNames[72] = "SRD-low: pT jet 1 > 150 GeV ";
-        legacyCutNames[73] = "SRD-low: pT jet 3 > 100 GeV ";
-        legacyCutNames[74] = "SRD-low: pT jet 4 > 60 GeV ";
-        legacyCutNames[75] = "SRD-low: pT0b + pT1b > 300 GeV";
-
-        // Cutflow for SRE
-        legacyCutNames[76] = "SRE: met > 550 GeV";
-        legacyCutNames[77] = "SRE: m jet0, R = 0.8 > 120 GeV";
-        legacyCutNames[78] = "SRE: m jet1, R = 0.8 > 80 GeV";
-        legacyCutNames[79] = "SRE: HT > 800 GeV";
-        legacyCutNames[80] = "SRE: met/sqrt(HT) > 18 GeV^1/2";
-        legacyCutNames[81] = "SRE: mT(b,MET) min > 200 GeV";
-        legacyCutNames[82] = "SRE: NBjets >=2";
-
-        // Cutflow for SRC1
-
-        legacyCutNames[83] = "SRC: Derivation skim";
-        legacyCutNames[84] = "SRC: Lepton veto ";
-        legacyCutNames[85] = "SRC: Njets >= 4 ";
-        legacyCutNames[86] = "SRC: Nbjets >= 1 ";
-        legacyCutNames[87] = "SRC: met > 250 GeV ";
-        legacyCutNames[88] = "SRC: dPhi(jet,MET) > 0.4 ";
-        legacyCutNames[89] = "SRC: pT jet 1 > 80 GeV ";
-        legacyCutNames[90] = "SRC: pT jet 3 > 40 GeV ";
-        legacyCutNames[91] = "SRC: NSbjet >=1";
-        legacyCutNames[92] = "SRC: NSjet >=5";
-        legacyCutNames[93] = "SRC: pT0sb > 40";
-        legacyCutNames[94] = "SRC: mS > 300";
-        legacyCutNames[95] = "SRC: dPhi(ISR,met) > 3";
-        legacyCutNames[96] = "SRC: pTISR > 400";
-        legacyCutNames[97] = "SRC: pT4S > 50";
-        legacyCutNames[98] = "SRC1: 0.30 <= R_ISR <= 0.40";
-        legacyCutNames[99] = "SRC2: 0.40 <= R_ISR <= 0.50";
-        legacyCutNames[100] = "SRC3: 0.50 <= R_ISR <= 0.60";
-        legacyCutNames[101] = "SRC4: 0.60 <= R_ISR <= 0.70";
-        legacyCutNames[102] = "SRC5: 0.70 <= R_ISR <= 0.80";
-
         int nElectrons=signalElectrons.size();
         int nMuons=signalMuons.size();
         int nJets=signalJets.size();
@@ -784,328 +787,134 @@ namespace Gambit {
 
 
         #ifdef CHECK_CUTFLOW
-        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-        _cutflows[analysis_name()].fillinit(event->weight());
-#endif
+          _cutflows[analysis_name()].fillinit(event->weight());
 
-for(int j=0;j<NCUTS;j++){
-          if(
-             (j==0) ||
+          for(int j = 0; j < NCUTS; j++) {
+            if(
+              (j==0) ||
 
-             (j==1 && devSkim) ||
+              (j==1 && devSkim) ||
+              (j==2 && devSkim && cut_LeptonVeto) ||
+              (j==3 && devSkim && cut_LeptonVeto && signalJets.size()>3) ||
+              (j==4 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0) ||
+              (j==5 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250.) ||
+              (j==6 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB) ||
+              (j==7 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80.) ||
+              (j==8 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40.) ||
+              (j==9 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120.) ||
 
-             (j==2 && devSkim && cut_LeptonVeto) ||
+              // SRA-TT
+              (j==10 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120.) ||
+              (j==11 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 400. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120.) ||
+              (j==12 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 400. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && AntiKt8M_0>60.) ||
+              (j==13 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 400. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && AntiKt8M_0>60. && MtBMin > 200.) ||
+              (j==14 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 400. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && AntiKt8M_0>60. && MtBMin > 200. && DRBB > 1.) ||
+              (j==15 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 400. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && AntiKt8M_0>60. && MtBMin > 200. && DRBB > 1. &&  MT2Chi2>400.) ||
+              (j==16 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 400. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && AntiKt8M_0>60. && MtBMin > 200. && DRBB > 1. &&  MT2Chi2>400. && NBJets>=2) ||
 
-             (j==3 && devSkim && cut_LeptonVeto && signalJets.size()>3) ||
+              // SRA-TW
+              (j==17 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. &&  AntiKt12M_0>120. && AntiKt12M_1<120.)  ||
+              (j==18 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. && AntiKt12M_1>60.)  ||
+              (j==19 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. && AntiKt12M_1>60. && Met > 500.)  ||
+              (j==20 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. && AntiKt12M_1>60. && Met > 500. &&  AntiKt8M_0>60.)  ||
+              (j==21 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. && AntiKt12M_1>60. && Met > 500. &&  AntiKt8M_0>60. && MtBMin > 200.)  ||
+              (j==22 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. && AntiKt12M_1>60. && Met > 500. &&  AntiKt8M_0>60. && MtBMin > 200. && MT2Chi2>400.)  ||
+              (j==23 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. && AntiKt12M_1>60. && Met > 500. &&  AntiKt8M_0>60. && MtBMin > 200. && MT2Chi2>400.) ||
 
-             (j==4 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0) ||
+              (j==24 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0 > 120. && AntiKt12M_1<60.)  ||
+              (j==25 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0 > 120. && AntiKt12M_1<60. && AntiKt8M_0>60.)  ||
+              (j==26 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0 > 120. && AntiKt12M_1<60. && AntiKt8M_0>60. && Met > 550.)  ||
+              (j==27 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0 > 120. && AntiKt12M_1<60. && AntiKt8M_0>60. && Met > 550. &&  MtBMin > 200.)  ||
+              (j==28 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0 > 120. && AntiKt12M_1<60. && AntiKt8M_0>60. && Met > 550. &&  MtBMin > 200. && MT2Chi2 > 500.)  ||
+              (j==29 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0 > 120. && AntiKt12M_1<60. && AntiKt8M_0>60. && Met > 550. &&  MtBMin > 200. && MT2Chi2 > 500.) ||
 
-             (j==5 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250.) ||
+              (j==30 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120.)  ||
+              (j==31 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && DRBB > 1.2)  ||
+              (j==32 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && DRBB > 1.2 && MtBMax > 200.)  ||
+              (j==33 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && DRBB > 1.2 && MtBMax > 200. && MtBMin > 200.)  ||
+              (j==34 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && DRBB > 1.2 && MtBMax > 200. && MtBMin > 200.)  ||
 
-             (j==6 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB) ||
+              (j==35 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120.)  ||
+              (j==36 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. &&AntiKt12M_1>60.)  ||
+              (j==37 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. &&AntiKt12M_1>60. && DRBB > 1.2)  ||
+              (j==38 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. &&AntiKt12M_1>60. && DRBB > 1.2 &&  MtBMax > 200.)   ||
+              (j==39 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. &&AntiKt12M_1>60. && DRBB > 1.2 &&  MtBMax > 200. && MtBMin > 200.)   ||
+              (j==40 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. &&AntiKt12M_1>60. && DRBB > 1.2 &&  MtBMax > 200. && MtBMin > 200.)   ||
 
-             (j==7 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80.) ||
-
-             (j==8 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40.) ||
-
-             (j==9 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120.) ||
-
-             // SRA-TT
-
-             (j==10 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120.) ||
-
-             (j==11 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 400. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120.) ||
-
-             (j==12 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 400. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && AntiKt8M_0>60.) ||
-
-             (j==13 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 400. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && AntiKt8M_0>60. && MtBMin > 200.) ||
-
-             (j==14 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 400. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && AntiKt8M_0>60. && MtBMin > 200. && DRBB > 1.) ||
-
-             (j==15 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 400. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && AntiKt8M_0>60. && MtBMin > 200. && DRBB > 1. &&  MT2Chi2>400.) ||
-
-             (j==16 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 400. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && AntiKt8M_0>60. && MtBMin > 200. && DRBB > 1. &&  MT2Chi2>400. && NBJets>=2) ||
-
-             // SRA-TW
-
-             /* legacyCutNames[17] = "SRA-TW: m jet1, R=1.2 < 120 GeV";
-                legacyCutNames[18] = "SRA-TW: m jet1, R=1.2 > 60 GeV";
-                legacyCutNames[19] = "SRA-TW: met > 500 GeV ";
-                legacyCutNames[20] = "SRA-TW: m jet0, R=0.8 > 60 GeV";
-                legacyCutNames[21] = "SRA-TW: mT(b,MET) min > 200 GeV";
-                legacyCutNames[22] = "SRA-TW: mT2 > 400 GeV ";*/
-
-             (j==17 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. &&  AntiKt12M_0>120. && AntiKt12M_1<120.)  ||
-
-             (j==18 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. && AntiKt12M_1>60.)  ||
-
-             (j==19 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. && AntiKt12M_1>60. && Met > 500.)  ||
-
-             (j==20 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. && AntiKt12M_1>60. && Met > 500. &&  AntiKt8M_0>60.)  ||
-
-             (j==21 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. && AntiKt12M_1>60. && Met > 500. &&  AntiKt8M_0>60. && MtBMin > 200.)  ||
-
-             (j==22 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. && AntiKt12M_1>60. && Met > 500. &&  AntiKt8M_0>60. && MtBMin > 200. && MT2Chi2>400.)  ||
-
-             (j==23 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. && AntiKt12M_1>60. && Met > 500. &&  AntiKt8M_0>60. && MtBMin > 200. && MT2Chi2>400.) ||
-
-             /* legacyCutNames[24] = "SRA-T0: m jet1, R=1.2 < 60 GeV";
-                legacyCutNames[25] = "SRA-T0: m jet0, R=0.8 > 60 GeV";
-                legacyCutNames[26] = "SRA-T0: met > 550 GeV ";
-                legacyCutNames[27] = "SRA-T0: mT(b,MET) min > 200 GeV";
-                legacyCutNames[28] = "SRA-T0: mT2 > 500 GeV ";
-                legacyCutNames[29] = "SRA-T0: Nbjets >=2 "; */
-
-
-             (j==24 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0 > 120. && AntiKt12M_1<60.)  ||
-
-             (j==25 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0 > 120. && AntiKt12M_1<60. && AntiKt8M_0>60.)  ||
-
-             (j==26 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0 > 120. && AntiKt12M_1<60. && AntiKt8M_0>60. && Met > 550.)  ||
-
-             (j==27 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0 > 120. && AntiKt12M_1<60. && AntiKt8M_0>60. && Met > 550. &&  MtBMin > 200.)  ||
-
-             (j==28 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0 > 120. && AntiKt12M_1<60. && AntiKt8M_0>60. && Met > 550. &&  MtBMin > 200. && MT2Chi2 > 500.)  ||
-
-             (j==29 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0 > 120. && AntiKt12M_1<60. && AntiKt8M_0>60. && Met > 550. &&  MtBMin > 200. && MT2Chi2 > 500.) ||
-
-             /* legacyCutNames[30] = "SRB-TT: m jet1, R=1.2 > 120 GeV";
-             legacyCutNames[31] = "SRB-TT: deltaR(b,b) > 1.2";
-             legacyCutNames[32] = "SRB-TT: mT(b,MET) max > 200 GeV";
-             legacyCutNames[33] = "SRB-TT: mT(b,MET) min > 200 GeV";
-             legacyCutNames[34] = "SRB-TT: Nbjets >=2 ";*/
-
-             (j==30 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120.)  ||
-
-             (j==31 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && DRBB > 1.2)  ||
-
-             (j==32 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && DRBB > 1.2 && MtBMax > 200.)  ||
-
-             (j==33 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && DRBB > 1.2 && MtBMax > 200. && MtBMin > 200.)  ||
-
-             (j==34 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && DRBB > 1.2 && MtBMax > 200. && MtBMin > 200.)  ||
-
-             /* legacyCutNames[35] = "SRB-TW: m jet1, R=1.2 < 120 GeV";
-             legacyCutNames[36] = "SRB-TW: m jet1, R=1.2 > 60 GeV";
-             legacyCutNames[37] = "SRB-TW: deltaR(b,b) > 1.2";
-             legacyCutNames[38] = "SRB-TW: mT(b,MET) max > 200 GeV";
-             legacyCutNames[39] = "SRB-TW: mT(b,MET) min > 200 GeV";
-             legacyCutNames[40] = "SRB-TW: Nbjets >=2 ";*/
-
-             (j==35 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120.)  ||
-
-             (j==36 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. &&AntiKt12M_1>60.)  ||
-
-             (j==37 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. &&AntiKt12M_1>60. && DRBB > 1.2)  ||
-
-             (j==38 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. &&AntiKt12M_1>60. && DRBB > 1.2 &&  MtBMax > 200.)   ||
-
-             (j==39 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. &&AntiKt12M_1>60. && DRBB > 1.2 &&  MtBMax > 200. && MtBMin > 200.)   ||
-
-             (j==40 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<120. &&AntiKt12M_1>60. && DRBB > 1.2 &&  MtBMax > 200. && MtBMin > 200.)   ||
-
-             /* legacyCutNames[41] = "SRB-T0: m jet1, R=1.2 < 60 GeV";
-                legacyCutNames[42] = "SRB-T0: mT(b,MET) min > 200 GeV";
-                legacyCutNames[43] = "SRB-T0: deltaR(b,b) > 1.2";
-                legacyCutNames[44] = "SRB-T0: mT(b,MET) max > 200 GeV";
-                legacyCutNames[45] = "SRB-T0: met > 250 GeV ";
-                legacyCutNames[46] = "SRB-T0: Nbjets >=2 ";*/
-
-             (j==41 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<60.)  ||
-
-             (j==42 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<60. && MtBMin > 200.)  ||
-
-             (j==43 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<60. && MtBMin > 200. && DRBB > 1.2)  ||
-
-             (j==44 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<60. && MtBMin > 200. && DRBB > 1.2 && MtBMax > 200.)  ||
-
-             (j==45 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<60. && MtBMin > 200. && DRBB > 1.2 && MtBMax > 200.)  ||
-
-             (j==46 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<60. && MtBMin > 200. && DRBB > 1.2 && MtBMax > 200.) ||
+              (j==41 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<60.)  ||
+              (j==42 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<60. && MtBMin > 200.)  ||
+              (j==43 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<60. && MtBMin > 200. && DRBB > 1.2)  ||
+              (j==44 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<60. && MtBMin > 200. && DRBB > 1.2 && MtBMax > 200.)  ||
+              (j==45 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<60. && MtBMin > 200. && DRBB > 1.2 && MtBMax > 200.)  ||
+              (j==46 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1<60. && MtBMin > 200. && DRBB > 1.2 && MtBMax > 200.) ||
 
               // Cutflow for SRD
-             /*legacyCutNames[47] = "SRD-high: No cuts ";
-             legacyCutNames[48] = "SRD-high: Derivation skim";
-             legacyCutNames[49] = "SRD-high: Lepton veto ";
-             legacyCutNames[50] = "SRD-high: Njets >= 4 ";
-             legacyCutNames[51] = "SRD-high: Nbjets >= 1 ";
-             legacyCutNames[52] = "SRD-high: met > 250 GeV ";
-             legacyCutNames[53] = "SRD-high: dPhi(jet,MET) > 0.4 ";
-             legacyCutNames[54] = "SRD-high: pT jet 1 > 80 GeV ";
-             legacyCutNames[55] = "SRD-high: pT jet 3 > 40 GeV ";
-             legacyCutNames[56] = "SRD-high: Njets >= 5 ";
-             legacyCutNames[57] = "SRD-high: pT jet 1 > 150 ";
-             legacyCutNames[58] = "SRD-high: pT jet 3 > 80 ";
-             legacyCutNames[59] = "SRD-high: pT jet 4 > 60 ";
-             legacyCutNames[60] = "SRD-high: mT(b,MET) min > 350 GeV ";
-             legacyCutNames[61] = "SRD-high: mT(b,MET) max > 450 GeV ";
-             legacyCutNames[62] = "SRD-high: Nbjets >=2 ";
-             legacyCutNames[63] = "SRD-high: met > 250 GeV ";
-             legacyCutNames[64] = "SRD-high: deltaR(b,b) > 0.8";
-             legacyCutNames[65] = "SRD-high: pT0b + pT1b > 400 GeV";*/
+              (j==47) ||
+              (j==48 && devSkim) ||
+              (j==49 && devSkim && cut_LeptonVeto) ||
+              (j==50 && devSkim && cut_LeptonVeto && signalJets.size()>3) ||
+              (j==51 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0) ||
+              (j==52 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250.) ||
+              (j==53 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB) ||
+              (j==54 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80.) ||
+              (j==55 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. )  ||
+              (j==56 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. )  ||
+              (j==57 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>40. )  ||
+              (j==58 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>80. )  ||
+              (j==59 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>80. && signalJets[4]->pT()>60.)  ||
+              (j==60 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>80. && signalJets[4]->pT()>60. && MtBMin > 350.)  ||
+              (j==61 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>80. && signalJets[4]->pT()>60. && MtBMin > 350. && MtBMax > 450.)  ||
+              (j==62 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>80. && signalJets[4]->pT()>60. && MtBMin > 350. && MtBMax > 450.)  ||
+              (j==63 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>80. && signalJets[4]->pT()>60. && MtBMin > 350. && MtBMax > 450.)  ||
+              (j==64 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>80. && signalJets[4]->pT()>60. && MtBMin > 350. && MtBMax > 450. && DRBB > 0.8)  ||
+              (j==65 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>80. && signalJets[4]->pT()>60. && MtBMin > 350. && MtBMax > 450. && DRBB > 0.8 && ( (signalBJets[0]->pT() + signalBJets[1]->pT())>400.)) ||
 
-             (j==47) ||
+              (j==66 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40.)  ||
+              (j==67 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40.)  ||
+              (j==68 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40.)  ||
+              (j==69 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && MtBMin > 250.)  ||
+              (j==70 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && MtBMin > 250. && MtBMax > 300.)  ||
+              (j==71 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && MtBMin > 250. && MtBMax > 300. && DRBB > 0.8)  ||
+              (j==72 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>40. && MtBMin > 250. && MtBMax > 300. && DRBB > 0.8)  ||
+              (j==73 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>100. && MtBMin > 250. && MtBMax > 300. && DRBB > 0.8)  ||
+              (j==74 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>100. && signalJets[4]->pT()>60. && MtBMin > 250. && MtBMax > 300. && DRBB > 0.8)  ||
+              (j==75 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>100. && signalJets[4]->pT()>60. && MtBMin > 250. && MtBMax > 300. && DRBB > 0.8 &&  ( (signalBJets[0]->pT() + signalBJets[1]->pT())>300.))   ||
 
-             (j==48 && devSkim) ||
+              (j==76 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 550. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40.)  ||
+              (j==77 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 550. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt8M_0 > 120.)  ||
+              (j==78 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 550. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt8M_0 > 120. && AntiKt8M_1 > 80.)  ||
+              (j==79 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 550. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt8M_0 > 120. && AntiKt8M_1 > 80. && Ht > 800.)  ||
+              (j==80 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 550. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt8M_0 > 120. && AntiKt8M_1 > 80. && Ht > 800. && HtSig > 18.)  ||
+              (j==81 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 550. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt8M_0 > 120. && AntiKt8M_1 > 80. && Ht > 800. && HtSig > 18. && MtBMin > 200.)  ||
+              (j==82 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>1 && Met > 550. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt8M_0 > 120. && AntiKt8M_1 > 80. && Ht > 800. && HtSig > 18. && MtBMin > 200.)
 
-             (j==49 && devSkim && cut_LeptonVeto) ||
+              /*(j==83 && devSkim) ||
+              (j==84 && devSkim && cut_LeptonVeto) ||
+              (j==85 && devSkim && cut_LeptonVeto && signalJets.size()>3) ||
+              (j==86 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0) ||
+              (j==87 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250.) ||
+              (j==88 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB) ||
+              (j==89 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80.) ||
+              (j==90 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. )  ||
+              (j==91 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1)  ||
+              (j==92 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5)  ||
+              (j==93 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40)  ||
+              (j==94 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300)  ||
+              (j==95 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300 && CA_dphiISRI > 3.00)  ||
+              (j==96 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300 && CA_dphiISRI > 3.00 && CA_PTISR > 400)  ||
+              (j==97 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300 && CA_dphiISRI > 3.00 && CA_PTISR > 400 && CA_pTjV4 > 50)  ||
+              (j==98 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300 && CA_dphiISRI > 3.00 && CA_PTISR > 400 && CA_pTjV4 > 50 && CA_RISR >= 0.30 && CA_RISR <= 0.4)  ||
+              (j==99  && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300 && CA_dphiISRI > 3.00 && CA_PTISR > 400 && CA_pTjV4 > 50 && CA_RISR >= 0.40 && CA_RISR <= 0.5) ||
+              (j==100  && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300 && CA_dphiISRI > 3.00 && CA_PTISR > 400 && CA_pTjV4 > 50 && CA_RISR >= 0.50 && CA_RISR <= 0.6) ||
+              (j==101  && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300 && CA_dphiISRI > 3.00 && CA_PTISR > 400 && CA_pTjV4 > 50 && CA_RISR >= 0.60 && CA_RISR <= 0.7) ||
+              (j==102  && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300 && CA_dphiISRI > 3.00 && CA_PTISR > 400 && CA_pTjV4 > 50 && CA_RISR >= 0.70 && CA_RISR <= 0.8) */
 
-             (j==50 && devSkim && cut_LeptonVeto && signalJets.size()>3) ||
+            ){
+              _cutflows[analysis_name()].fill(j+1, true, event->weight());
+            }
 
-             (j==51 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0) ||
-
-             (j==52 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250.) ||
-
-             (j==53 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB) ||
-
-             (j==54 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80.) ||
-
-             (j==55 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. )  ||
-
-             (j==56 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. )  ||
-
-             (j==57 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>40. )  ||
-
-             (j==58 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>80. )  ||
-
-             (j==59 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>80. && signalJets[4]->pT()>60.)  ||
-
-             (j==60 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>80. && signalJets[4]->pT()>60. && MtBMin > 350.)  ||
-
-             (j==61 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>80. && signalJets[4]->pT()>60. && MtBMin > 350. && MtBMax > 450.)  ||
-
-             (j==62 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>80. && signalJets[4]->pT()>60. && MtBMin > 350. && MtBMax > 450.)  ||
-
-             (j==63 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>80. && signalJets[4]->pT()>60. && MtBMin > 350. && MtBMax > 450.)  ||
-
-             (j==64 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>80. && signalJets[4]->pT()>60. && MtBMin > 350. && MtBMax > 450. && DRBB > 0.8)  ||
-
-             (j==65 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>80. && signalJets[4]->pT()>60. && MtBMin > 350. && MtBMax > 450. && DRBB > 0.8 && ( (signalBJets[0]->pT() + signalBJets[1]->pT())>400.)) ||
-
-             /*legacyCutNames[66] = "SRD-low: Njets >=5";
-             legacyCutNames[67] = "SRD-low: NBjets >=2";
-             legacyCutNames[68] = "SRD-low: met > 250 GeV";
-             legacyCutNames[69] = "SRD-low: mT(b,MET) min > 250 GeV ";
-             legacyCutNames[70] = "SRD-low: mT(b,MET) max > 300 GeV ";
-             legacyCutNames[71] = "SRD-low: deltaR(b,b) > 0.8";
-             legacyCutNames[72] = "SRD-low: pT jet 1 > 150 GeV ";
-             legacyCutNames[73] = "SRD-low: pT jet 3 > 100 GeV ";
-             legacyCutNames[74] = "SRD-low: pT jet 4 > 60 GeV ";
-             legacyCutNames[75] = "SRD-low: pT0b + pT1b > 300 GeV";*/
-
-
-             (j==66 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40.)  ||
-
-             (j==67 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40.)  ||
-
-             (j==68 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40.)  ||
-
-             (j==69 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && MtBMin > 250.)  ||
-
-             (j==70 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && MtBMin > 250. && MtBMax > 300.)  ||
-
-             (j==71 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && MtBMin > 250. && MtBMax > 300. && DRBB > 0.8)  ||
-
-             (j==72 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>40. && MtBMin > 250. && MtBMax > 300. && DRBB > 0.8)  ||
-
-             (j==73 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>100. && MtBMin > 250. && MtBMax > 300. && DRBB > 0.8)  ||
-
-             (j==74 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>100. && signalJets[4]->pT()>60. && MtBMin > 250. && MtBMax > 300. && DRBB > 0.8)  ||
-
-             (j==75 && devSkim && cut_LeptonVeto && signalJets.size()>4 && signalBJets.size()>1 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>150. && signalJets[3]->pT()>100. && signalJets[4]->pT()>60. && MtBMin > 250. && MtBMax > 300. && DRBB > 0.8 &&  ( (signalBJets[0]->pT() + signalBJets[1]->pT())>300.))   ||
-
-             /* legacyCutNames[76] = "SRE: met > 550 GeV";
-                legacyCutNames[77] = "SRE: m jet0, R = 0.8 > 120 GeV";
-                legacyCutNames[78] = "SRE: m jet1, R = 0.8 > 80 GeV";
-                legacyCutNames[79] = "SRE: HT > 800 GeV";
-                legacyCutNames[80] = "SRE: met/sqrt(HT) > 18 GeV^1/2";
-                legacyCutNames[81] = "SRE: mT(b,MET) min > 200 GeV";
-                legacyCutNames[82] = "SRE: NBjets >=2";*/
-
-             (j==76 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 550. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40.)  ||
-
-             (j==77 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 550. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt8M_0 > 120.)  ||
-
-             (j==78 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 550. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt8M_0 > 120. && AntiKt8M_1 > 80.)  ||
-
-             (j==79 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 550. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt8M_0 > 120. && AntiKt8M_1 > 80. && Ht > 800.)  ||
-
-             (j==80 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 550. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt8M_0 > 120. && AntiKt8M_1 > 80. && Ht > 800. && HtSig > 18.)  ||
-
-             (j==81 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 550. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt8M_0 > 120. && AntiKt8M_1 > 80. && Ht > 800. && HtSig > 18. && MtBMin > 200.)  ||
-
-             (j==82 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>1 && Met > 550. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt8M_0 > 120. && AntiKt8M_1 > 80. && Ht > 800. && HtSig > 18. && MtBMin > 200.)
-
-             /*legacyCutNames[83] = "SRC: Derivation skim";
-               legacyCutNames[84] = "SRC: Lepton veto ";
-               legacyCutNames[85] = "SRC: Njets >= 4 ";
-               legacyCutNames[86] = "SRC: Nbjets >= 1 ";
-               legacyCutNames[87] = "SRC: met > 250 GeV ";
-               legacyCutNames[88] = "SRC: dPhi(jet,MET) > 0.4 ";
-               legacyCutNames[89] = "SRC: pT jet 1 > 80 GeV ";
-               legacyCutNames[90] = "SRC: pT jet 3 > 40 GeV ";
-               legacyCutNames[91] = "SRC: NSbjet >=1";
-               legacyCutNames[92] = "SRC: NSjet >=5";
-               legacyCutNames[93] = "SRC: pT0sb > 40";
-               legacyCutNames[94] = "SRC: mS > 300";
-               legacyCutNames[95] = "SRC: dPhi(ISR,met) > 3";
-               legacyCutNames[96] = "SRC: pTISR > 400";
-               legacyCutNames[97] = "SRC: pT4S > 50";
-               legacyCutNames[98] = "SRC1: 0.30 <= R_ISR <= 0.40";
-               legacyCutNames[99] = "SRC2: 0.40 <= R_ISR <= 0.50";
-               legacyCutNames[100] = "SRC3: 0.50 <= R_ISR <= 0.60";
-               legacyCutNames[101] = "SRC4: 0.60 <= R_ISR <= 0.70";
-               legacyCutNames[102] = "SRC5: 0.70 <= R_ISR <= 0.80";*/
-
-             /*(j==83 && devSkim) ||
-
-             (j==84 && devSkim && cut_LeptonVeto) ||
-
-             (j==85 && devSkim && cut_LeptonVeto && signalJets.size()>3) ||
-
-             (j==86 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0) ||
-
-             (j==87 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250.) ||
-
-             (j==88 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB) ||
-
-             (j==89 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80.) ||
-
-             (j==90 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. )  ||
-
-             (j==91 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1)  ||
-
-             (j==92 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5)  ||
-
-             (j==93 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40)  ||
-
-             (j==94 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300)  ||
-
-             (j==95 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300 && CA_dphiISRI > 3.00)  ||
-
-             (j==96 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300 && CA_dphiISRI > 3.00 && CA_PTISR > 400)  ||
-
-             (j==97 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300 && CA_dphiISRI > 3.00 && CA_PTISR > 400 && CA_pTjV4 > 50)  ||
-
-             (j==98 && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300 && CA_dphiISRI > 3.00 && CA_PTISR > 400 && CA_pTjV4 > 50 && CA_RISR >= 0.30 && CA_RISR <= 0.4)  ||
-
-             (j==99  && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300 && CA_dphiISRI > 3.00 && CA_PTISR > 400 && CA_pTjV4 > 50 && CA_RISR >= 0.40 && CA_RISR <= 0.5) ||
-
-             (j==100  && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300 && CA_dphiISRI > 3.00 && CA_PTISR > 400 && CA_pTjV4 > 50 && CA_RISR >= 0.50 && CA_RISR <= 0.6) ||
-
-             (j==101  && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300 && CA_dphiISRI > 3.00 && CA_PTISR > 400 && CA_pTjV4 > 50 && CA_RISR >= 0.60 && CA_RISR <= 0.7) ||
-
-             (j==102  && devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 250. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && CA_NbV >= 1 && CA_NjV >= 5 && CA_pTbV1 > 40 && CA_MS > 300 && CA_dphiISRI > 3.00 && CA_PTISR > 400 && CA_pTjV4 > 50 && CA_RISR >= 0.70 && CA_RISR <= 0.8) */
-
-
-             ){
-
-            #ifdef CHECK_CUTFLOW
-            _cutflows[analysis_name()].fill(j+1, true, event->weight());
-#endif
           }
-
-        }
+        #endif
 
 
         if(devSkim && cut_LeptonVeto && signalJets.size()>3 && signalBJets.size()>0 && Met > 400. && cut_dPhiJets_AB && signalJets[1]->pT()>80. && signalJets[3]->pT()>40. && AntiKt12M_0>120. && AntiKt12M_1>120. && AntiKt8M_0>60. && MtBMin > 200. && DRBB > 1. &&  MT2Chi2>400. && NBJets>=2)isSRA_TT=true;
@@ -1159,7 +968,7 @@ for(int j=0;j<NCUTS;j++){
 
       void collect_results() {
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
 
         // double scale_by=1.;
         // cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;

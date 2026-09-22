@@ -69,16 +69,61 @@ namespace Gambit {
         _counters["BC2"] = EventCounter("BC2");
         _counters["BC3"] = EventCounter("BC3");
 
-        NCUTS = 41;
-
-
         set_analysis_name("ATLAS_CONF_2013_037");
         set_luminosity(20.7);
 
-        for(int i=0;i<NCUTS;i++){
-          legacyCutNames.push_back("");
-        }
+        #ifdef CHECK_CUTFLOW
+          NCUTS = 41;
 
+          for(int  = 0; i < NCUTS; i++) {
+           legacyCutNames.push_back("");
+          } 
+
+          legacyCutNames[0] = "No cuts ";
+          legacyCutNames[1] = "Electron (=1 signal) ";
+          legacyCutNames[2] = "4 jets (80, 60, 40, 25) ";
+          legacyCutNames[3] = ">=1 b. tag ";
+          legacyCutNames[4] = "ETmiss > 100 GeV [all SRs] ";
+          legacyCutNames[5] = "ETmiss / sqrt(HT) > 5 [all SRs] ";
+          legacyCutNames[6] = "dPhi(jet2,MET) > 0.8 [all SRs] ";
+          legacyCutNames[7] = "dPhi(jet1,MET) > 0.8 [not SRtN2] ";
+          legacyCutNames[8] = "ETmiss > 200 GeV (SRtN2) ";
+          legacyCutNames[9] = "ETmiss / sqrt(HT) > 13 (SRtN2) ";
+          legacyCutNames[10] = "mT > 140 GeV (SRtN2) ";
+          legacyCutNames[11] = "ETmiss > 275 GeV (SRtN3) ";
+          legacyCutNames[12] = "ETmiss / sqrt(HT) > 11 (SRtN3) ";
+          legacyCutNames[13] = "mT > 200 GeV (SRtN3) ";
+          legacyCutNames[14] = "ETmiss > 150 GeV (SRbC1-SRbC3) ";
+          legacyCutNames[15] = "ETmiss / sqrt(HT) > 7 (SRbC1-SRbC3) ";
+          legacyCutNames[16] = "mT > 120 GeV (SRbC1-SRbC3) ";
+          legacyCutNames[17] = "ETmiss > 160 GeV (SRbC2,SRbC3) ";
+          legacyCutNames[18] = "ETmiss / sqrt(HT) > 8 (SRbC2,SRbC3) ";
+          legacyCutNames[19] = "meff > 550 GeV (SRbC2) ";
+          legacyCutNames[20] = "meff > 700 GeV (SRbC3) ";
+
+          legacyCutNames[21] = "Muon (=1 signal) ";
+          legacyCutNames[22] = "4 jets (80, 60, 40, 25) ";
+          legacyCutNames[23] = ">=1 b. tag ";
+          legacyCutNames[24] = "ETmiss > 100 GeV [all SRs] ";
+          legacyCutNames[25] = "ETmiss / sqrt(HT) > 5 [all SRs] ";
+          legacyCutNames[26] = "dPhi(jet2,MET) > 0.8 [all SRs] ";
+          legacyCutNames[27] = "dPhi(jet1,MET) > 0.8 [not SRtN2] ";
+          legacyCutNames[28] = "ETmiss > 200 GeV (SRtN2) ";
+          legacyCutNames[29] = "ETmiss / sqrt(HT) > 13 (SRtN2) ";
+          legacyCutNames[30] = "mT > 140 GeV (SRtN2) ";
+          legacyCutNames[31] = "ETmiss > 275 GeV (SRtN3) ";
+          legacyCutNames[32] = "ETmiss / sqrt(HT) > 11 (SRtN3) ";
+          legacyCutNames[33] = "mT > 200 GeV (SRtN3) ";
+          legacyCutNames[34] = "ETmiss > 150 GeV (SRbC1-SRbC3) ";
+          legacyCutNames[35] = "ETmiss / sqrt(HT) > 7 (SRbC1-SRbC3) ";
+          legacyCutNames[36] = "mT > 120 GeV (SRbC1-SRbC3) ";
+          legacyCutNames[37] = "ETmiss > 160 GeV (SRbC2,SRbC3) ";
+          legacyCutNames[38] = "ETmiss / sqrt(HT) > 8 (SRbC2,SRbC3) ";
+          legacyCutNames[39] = "meff > 550 GeV (SRbC2) ";
+          legacyCutNames[40] = "meff > 700 GeV (SRbC3) ";
+
+          _cutflows.addCutflow(analysis_name(), legacyCutNames);
+        #endif
       }
 
 
@@ -481,160 +526,73 @@ namespace Gambit {
         //double amt2=0;
         //double mt2tau=0;
 
-        legacyCutNames[0] = "No cuts ";
-        legacyCutNames[1] = "Electron (=1 signal) ";
-        legacyCutNames[2] = "4 jets (80, 60, 40, 25) ";
-        legacyCutNames[3] = ">=1 b. tag ";
-        legacyCutNames[4] = "ETmiss > 100 GeV [all SRs] ";
-        legacyCutNames[5] = "ETmiss / sqrt(HT) > 5 [all SRs] ";
-        legacyCutNames[6] = "dPhi(jet2,MET) > 0.8 [all SRs] ";
-        legacyCutNames[7] = "dPhi(jet1,MET) > 0.8 [not SRtN2] ";
-        legacyCutNames[8] = "ETmiss > 200 GeV (SRtN2) ";
-        legacyCutNames[9] = "ETmiss / sqrt(HT) > 13 (SRtN2) ";
-        legacyCutNames[10] = "mT > 140 GeV (SRtN2) ";
-        legacyCutNames[11] = "ETmiss > 275 GeV (SRtN3) ";
-        legacyCutNames[12] = "ETmiss / sqrt(HT) > 11 (SRtN3) ";
-        legacyCutNames[13] = "mT > 200 GeV (SRtN3) ";
-        legacyCutNames[14] = "ETmiss > 150 GeV (SRbC1-SRbC3) ";
-        legacyCutNames[15] = "ETmiss / sqrt(HT) > 7 (SRbC1-SRbC3) ";
-        legacyCutNames[16] = "mT > 120 GeV (SRbC1-SRbC3) ";
-        legacyCutNames[17] = "ETmiss > 160 GeV (SRbC2,SRbC3) ";
-        legacyCutNames[18] = "ETmiss / sqrt(HT) > 8 (SRbC2,SRbC3) ";
-        legacyCutNames[19] = "meff > 550 GeV (SRbC2) ";
-        legacyCutNames[20] = "meff > 700 GeV (SRbC3) ";
-
-        legacyCutNames[21] = "Muon (=1 signal) ";
-        legacyCutNames[22] = "4 jets (80, 60, 40, 25) ";
-        legacyCutNames[23] = ">=1 b. tag ";
-        legacyCutNames[24] = "ETmiss > 100 GeV [all SRs] ";
-        legacyCutNames[25] = "ETmiss / sqrt(HT) > 5 [all SRs] ";
-        legacyCutNames[26] = "dPhi(jet2,MET) > 0.8 [all SRs] ";
-        legacyCutNames[27] = "dPhi(jet1,MET) > 0.8 [not SRtN2] ";
-        legacyCutNames[28] = "ETmiss > 200 GeV (SRtN2) ";
-        legacyCutNames[29] = "ETmiss / sqrt(HT) > 13 (SRtN2) ";
-        legacyCutNames[30] = "mT > 140 GeV (SRtN2) ";
-        legacyCutNames[31] = "ETmiss > 275 GeV (SRtN3) ";
-        legacyCutNames[32] = "ETmiss / sqrt(HT) > 11 (SRtN3) ";
-        legacyCutNames[33] = "mT > 200 GeV (SRtN3) ";
-        legacyCutNames[34] = "ETmiss > 150 GeV (SRbC1-SRbC3) ";
-        legacyCutNames[35] = "ETmiss / sqrt(HT) > 7 (SRbC1-SRbC3) ";
-        legacyCutNames[36] = "mT > 120 GeV (SRbC1-SRbC3) ";
-        legacyCutNames[37] = "ETmiss > 160 GeV (SRbC2,SRbC3) ";
-        legacyCutNames[38] = "ETmiss / sqrt(HT) > 8 (SRbC2,SRbC3) ";
-        legacyCutNames[39] = "meff > 550 GeV (SRbC2) ";
-        legacyCutNames[40] = "meff > 700 GeV (SRbC3) ";
-
 
         #ifdef CHECK_CUTFLOW
-        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-        _cutflows[analysis_name()].fillinit(event->weight());
-#endif
+          _cutflows[analysis_name()].fillinit(event->weight());
 
-for(int j=0;j<NCUTS;j++){
-          if(
-             (j==0) ||
+          for(int j = 0; j < NCUTS; j++) {
+            if(
+              (j==0) ||
 
-             //Electron cutflow
-             (j==1 && cut_1SignalElectron) ||
+              //Electron cutflow
+              (j==1 && cut_1SignalElectron) ||
+              (j==2 && cut_1SignalElectron && cut_4jets) ||
+              (j==3 && cut_1SignalElectron && cut_4jets && cut_Btag) ||
+              (j==4 && cut_1SignalElectron && cut_4jets && cut_Btag && cut_METGt100) ||
+              (j==5 && cut_1SignalElectron && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5) ||
+              (j==6 && cut_1SignalElectron && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2) ||
+              (j==7 && cut_1SignalElectron && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1) ||
 
-             (j==2 && cut_1SignalElectron && cut_4jets) ||
+              //SRtN2 - no cut_dPhiJet1
+              (j==8 && cut_1SignalElectron && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2 && cut_METGt200) ||
+              (j==9 && cut_1SignalElectron && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2 && cut_METGt200 && cut_sigGt13) ||
+              (j==10 && cut_1SignalElectron && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2 && cut_METGt200 && cut_sigGt13 && cut_mTGt140) ||
 
-             (j==3 && cut_1SignalElectron && cut_4jets && cut_Btag) ||
+              //SRtN3
+              (j==11 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt275 ) ||
+              (j==12 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt275 && cut_sigGt11) ||
+              (j==13 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt275 && cut_sigGt11 && cut_mTGt200) ||
 
-             (j==4 && cut_1SignalElectron && cut_4jets && cut_Btag && cut_METGt100) ||
+              //SRbC1 - SRbC3
+              (j==14 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150) ||
+              (j==15 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7) ||
+              (j==16 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120) ||
+              (j==17 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160) ||
+              (j==18 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160 && cut_sigGt8) ||
+              (j==19 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160 && cut_sigGt8 && cut_meffGt550) ||
+              (j==20 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160 && cut_sigGt8 && cut_meffGt700) ||
 
-             (j==5 && cut_1SignalElectron && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5) ||
+              //Muon cutflow
+              (j==21 && cut_1SignalMuon) ||
+              (j==22 && cut_1SignalMuon && cut_4jets) ||
+              (j==23 && cut_1SignalMuon && cut_4jets && cut_Btag) ||
+              (j==24 && cut_1SignalMuon && cut_4jets && cut_Btag && cut_METGt100) ||
+              (j==25 && cut_1SignalMuon && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5) ||
+              (j==26 && cut_1SignalMuon && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2) ||
+              (j==27 && cut_1SignalMuon && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1) ||
 
-             (j==6 && cut_1SignalElectron && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2) ||
+              //SRtN2 - no cut_dPhiJet1
+              (j==28 && cut_1SignalMuon && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2 && cut_METGt200) ||
+              (j==29 && cut_1SignalMuon && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2 && cut_METGt200 && cut_sigGt13) ||
+              (j==30 && cut_1SignalMuon && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2 && cut_METGt200 && cut_sigGt13 && cut_mTGt140) ||
 
-             (j==7 && cut_1SignalElectron && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1) ||
+              //SRtN3
+              (j==31 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt275) ||
+              (j==32 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt275 && cut_sigGt11) ||
+              (j==33 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt275 && cut_sigGt11 && cut_mTGt200) ||
 
-             //SRtN2 - no cut_dPhiJet1
-
-             (j==8 && cut_1SignalElectron && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2 && cut_METGt200) ||
-
-             (j==9 && cut_1SignalElectron && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2 && cut_METGt200 && cut_sigGt13) ||
-
-             (j==10 && cut_1SignalElectron && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2 && cut_METGt200 && cut_sigGt13 && cut_mTGt140) ||
-
-             //SRtN3
-
-             (j==11 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt275 ) ||
-
-             (j==12 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt275 && cut_sigGt11) ||
-
-             (j==13 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt275 && cut_sigGt11 && cut_mTGt200) ||
-
-             //SRbC1 - SRbC3
-
-             (j==14 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150) ||
-
-             (j==15 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7) ||
-
-             (j==16 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120) ||
-
-             (j==17 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160) ||
-
-             (j==18 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160 && cut_sigGt8) ||
-
-             (j==19 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160 && cut_sigGt8 && cut_meffGt550) ||
-
-             (j==20 && cut_1SignalElectron && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160 && cut_sigGt8 && cut_meffGt700) ||
-
-             //Muon cutflow
-
-             (j==21 && cut_1SignalMuon) ||
-
-             (j==22 && cut_1SignalMuon && cut_4jets) ||
-
-             (j==23 && cut_1SignalMuon && cut_4jets && cut_Btag) ||
-
-             (j==24 && cut_1SignalMuon && cut_4jets && cut_Btag && cut_METGt100) ||
-
-             (j==25 && cut_1SignalMuon && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5) ||
-
-             (j==26 && cut_1SignalMuon && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2) ||
-
-             (j==27 && cut_1SignalMuon && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1) ||
-
-             //SRtN2 - no cut_dPhiJet1
-
-             (j==28 && cut_1SignalMuon && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2 && cut_METGt200) ||
-
-             (j==29 && cut_1SignalMuon && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2 && cut_METGt200 && cut_sigGt13) ||
-
-             (j==30 && cut_1SignalMuon && cut_4jets && cut_Btag && cut_METGt100 && cut_sigGt5 && cut_dPhiJet2 && cut_METGt200 && cut_sigGt13 && cut_mTGt140) ||
-
-             //SRtN3
-
-             (j==31 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt275) ||
-
-             (j==32 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt275 && cut_sigGt11) ||
-
-             (j==33 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt275 && cut_sigGt11 && cut_mTGt200) ||
-
-             //SRbC1 - SRbC3
-
-             (j==34 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150) ||
-
-             (j==35 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7) ||
-
-             (j==36 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120) ||
-
-             (j==37 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160) ||
-
-             (j==38 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160 && cut_sigGt8) ||
-
-             (j==39 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160 && cut_sigGt8 && cut_meffGt550) ||
-
-             (j==40 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160 && cut_sigGt8 && cut_meffGt700) ) {
-
-
-#ifdef CHECK_CUTFLOW
+              //SRbC1 - SRbC3
+              (j==34 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150) ||
+              (j==35 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7) ||
+              (j==36 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120) ||
+              (j==37 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160) ||
+              (j==38 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160 && cut_sigGt8) ||
+              (j==39 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160 && cut_sigGt8 && cut_meffGt550) ||
+              (j==40 && cut_1SignalMuon && cut_4jets && cut_sigGt5 && cut_dPhiJet2 && cut_dPhiJet1 && cut_Btag && cut_METGt150 && cut_sigGt7 && cut_mTGt120 && cut_METGt160 && cut_sigGt8 && cut_meffGt700) ) {
             _cutflows[analysis_name()].fill(j+1, true, event->weight());
-#endif
+          }
         }
-      }
+      #endif
 
         //We're now ready to apply the cuts for each signal region
 
@@ -737,7 +695,7 @@ for(int j=0;j<NCUTS;j++){
 
       void collect_results() {
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
         //Note: am not using shape fit bins
         //They need to be added (but will probably update to paper result)
 

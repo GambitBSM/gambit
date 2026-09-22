@@ -134,6 +134,81 @@ namespace Gambit
                 legacyCutATLAS.push_back(-1.0);
                 legacyCutNames.push_back("");
             }
+
+            /*                                                       */
+            /*********************************************************/
+            legacyCutNames[0] = "Total ";
+            /*---------------------------------------*/
+            legacyCutNames[1] = "SBL: trigger && 2 photons";
+            legacyCutNames[2] = "SBL: PhotonsPt";
+            legacyCutNames[3] = "SBL: MET";
+            legacyCutNames[4] = "SBL: HT";
+            legacyCutNames[5] = "SBL: dPhiMin(jet,met)";
+            legacyCutNames[6] = "SBL: dPhiMin(gamma,met)";
+
+            legacyCutNames[7] = "SBH: trigger && 2 photons";
+            legacyCutNames[8] = "SBH: PhotonsPt";
+            legacyCutNames[9] = "SBH: MET";
+            legacyCutNames[10] = "SBH: HT";
+            legacyCutNames[11] = "SBH: dPhiMin(jet,met)";
+            legacyCutNames[12] = "SBH: dPhiMin(gamma,met)";
+
+            legacyCutNames[13] = "WBL: trigger && 2 photons";
+            legacyCutATLAS[13] = 26.6;
+            legacyCutNames[14] = "WBL: PhotonsPt";
+            legacyCutATLAS[14] = 21.3;
+            legacyCutNames[15] = "WBL: MET";
+            legacyCutATLAS[15] = 16.9;
+            legacyCutNames[16] = "WBL: HT";
+            legacyCutATLAS[16] = 14.7;
+            legacyCutNames[17] = "WBL: dPhiMin(jet,met)";
+            legacyCutATLAS[17] = 11.0;
+            legacyCutNames[18] = "WBL: dPhiMin(gamma,met)";
+            legacyCutATLAS[18] = 11.0;
+
+            legacyCutNames[19] = "WBH: trigger && 2 photons";
+            legacyCutATLAS[19] = 19.6;
+            legacyCutNames[20] = "WBH: PhotonsPt";
+            legacyCutATLAS[20] = 19.2;
+            legacyCutNames[21] = "WBH: MET";
+            legacyCutATLAS[21] = 15.6;
+            legacyCutNames[22] = "WBH: HT";
+            legacyCutATLAS[22] = 15.6;
+            legacyCutNames[23] = "WBH: dPhiMin(jet,met)";
+            legacyCutATLAS[23] = 14.8;
+            legacyCutNames[24] = "WBH: dPhiMin(gamma,met)";
+            legacyCutATLAS[24] = 14.6;
+
+            legacyCutNames[25] = "SRL: trigger && 1 photon";
+            legacyCutNames[26] = "SRL: lepton veto";
+            legacyCutNames[27] = "SRL: pT_gamma";
+            legacyCutNames[28] = "SRL: met";
+            legacyCutNames[29] = "SRL: Njets";
+            legacyCutNames[30] = "SRL: dphimin(jet,met)";
+            legacyCutNames[31] = "SRL: dphimin(gamma,met)";
+            legacyCutNames[32] = "SRL: meff";
+            legacyCutNames[33] = "SRL: RT4";
+
+            legacyCutNames[34] = "SRL200: trigger && 1 photon";
+            legacyCutNames[35] = "SRL200: lepton veto";
+            legacyCutNames[36] = "SRL200: pT_gamma";
+            legacyCutNames[37] = "SRL200: met";
+            legacyCutNames[38] = "SRL200: Njets";
+            legacyCutNames[39] = "SRL200: dphimin(jet,met)";
+            legacyCutNames[40] = "SRL200: dphimin(gamma,met)";
+            legacyCutNames[41] = "SRL200: meff";
+            legacyCutNames[42] = "SRL200: RT4";
+
+            legacyCutNames[43] = "SRH: trigger && 1 photon";
+            legacyCutNames[44] = "SRH: lepton veto";
+            legacyCutNames[45] = "SRH: pT_gamma";
+            legacyCutNames[46] = "SRH: met";
+            legacyCutNames[47] = "SRH: Njets";
+            legacyCutNames[48] = "SRH: dphimin(jet,met)";
+            legacyCutNames[49] = "SRH: dphimin(gamma,met)";
+            legacyCutNames[50] = "SRH: meff";
+
+            _cutflows.addCutflow(analysis_name(), legacyCutNames);
           #endif
 
         }
@@ -366,97 +441,12 @@ namespace Gambit
 
           #ifdef CHECK_CUTFLOW
 
-            /*                                                       */
-            /*********************************************************/
-            legacyCutNames[0] = "Total ";
-            /*---------------------------------------*/
-            legacyCutNames[1] = "SBL: trigger && 2 photons";
-            legacyCutNames[2] = "SBL: PhotonsPt";
-            legacyCutNames[3] = "SBL: MET";
-            legacyCutNames[4] = "SBL: HT";
-            legacyCutNames[5] = "SBL: dPhiMin(jet,met)";
-            legacyCutNames[6] = "SBL: dPhiMin(gamma,met)";
-
-            legacyCutNames[7] = "SBH: trigger && 2 photons";
-            legacyCutNames[8] = "SBH: PhotonsPt";
-            legacyCutNames[9] = "SBH: MET";
-            legacyCutNames[10] = "SBH: HT";
-            legacyCutNames[11] = "SBH: dPhiMin(jet,met)";
-            legacyCutNames[12] = "SBH: dPhiMin(gamma,met)";
-
-            legacyCutNames[13] = "WBL: trigger && 2 photons";
-            legacyCutATLAS[13] = 26.6;
-            legacyCutNames[14] = "WBL: PhotonsPt";
-            legacyCutATLAS[14] = 21.3;
-            legacyCutNames[15] = "WBL: MET";
-            legacyCutATLAS[15] = 16.9;
-            legacyCutNames[16] = "WBL: HT";
-            legacyCutATLAS[16] = 14.7;
-            legacyCutNames[17] = "WBL: dPhiMin(jet,met)";
-            legacyCutATLAS[17] = 11.0;
-            legacyCutNames[18] = "WBL: dPhiMin(gamma,met)";
-            legacyCutATLAS[18] = 11.0;
-
-            legacyCutNames[19] = "WBH: trigger && 2 photons";
-            legacyCutATLAS[19] = 19.6;
-            legacyCutNames[20] = "WBH: PhotonsPt";
-            legacyCutATLAS[20] = 19.2;
-            legacyCutNames[21] = "WBH: MET";
-            legacyCutATLAS[21] = 15.6;
-            legacyCutNames[22] = "WBH: HT";
-            legacyCutATLAS[22] = 15.6;
-            legacyCutNames[23] = "WBH: dPhiMin(jet,met)";
-            legacyCutATLAS[23] = 14.8;
-            legacyCutNames[24] = "WBH: dPhiMin(gamma,met)";
-            legacyCutATLAS[24] = 14.6;
-
-            legacyCutNames[25] = "SRL: trigger && 1 photon";
-            legacyCutNames[26] = "SRL: lepton veto";
-            legacyCutNames[27] = "SRL: pT_gamma";
-            legacyCutNames[28] = "SRL: met";
-            legacyCutNames[29] = "SRL: Njets";
-            legacyCutNames[30] = "SRL: dphimin(jet,met)";
-            legacyCutNames[31] = "SRL: dphimin(gamma,met)";
-            legacyCutNames[32] = "SRL: meff";
-            legacyCutNames[33] = "SRL: RT4";
-
-            legacyCutNames[34] = "SRL200: trigger && 1 photon";
-            legacyCutNames[35] = "SRL200: lepton veto";
-            legacyCutNames[36] = "SRL200: pT_gamma";
-            legacyCutNames[37] = "SRL200: met";
-            legacyCutNames[38] = "SRL200: Njets";
-            legacyCutNames[39] = "SRL200: dphimin(jet,met)";
-            legacyCutNames[40] = "SRL200: dphimin(gamma,met)";
-            legacyCutNames[41] = "SRL200: meff";
-            legacyCutNames[42] = "SRL200: RT4";
-
-            legacyCutNames[43] = "SRH: trigger && 1 photon";
-            legacyCutNames[44] = "SRH: lepton veto";
-            legacyCutNames[45] = "SRH: pT_gamma";
-            legacyCutNames[46] = "SRH: met";
-            legacyCutNames[47] = "SRH: Njets";
-            legacyCutNames[48] = "SRH: dphimin(jet,met)";
-            legacyCutNames[49] = "SRH: dphimin(gamma,met)";
-            legacyCutNames[50] = "SRH: meff";
-
-            #ifdef CHECK_CUTFLOW
-              if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-              _cutflows[analysis_name()].fillinit(event->weight());
-            #endif
+            _cutflows[analysis_name()].fillinit(event->weight());
 
             for(int j = 0; j < NCUTS; j++)
             {
               if(
                 (j==0) ||
-
-                /*
-                  legacyCutNames[1] = "SBL: trigger && 2 photons";
-                  legacyCutNames[2] = "SBL: PhotonsPt";
-                  legacyCutNames[3] = "SBL: MET";
-                  legacyCutNames[4] = "SBL: HT";
-                  legacyCutNames[5] = "SBL: dPhiMin(jet,met)";
-                  legacyCutNames[6] = "SBL: dPhiMin(gamma,met)";
-                */
 
                 (j==1 && nPhotons==2 && baselinePhotons[0]->pT() > 35. && baselinePhotons[1]->pT() > 25.) ||
                 (j==2 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75.) ||
@@ -465,32 +455,12 @@ namespace Gambit
                 (j==5 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150. && HT > 2750. && dphimin_j28met > 0.5) ||
                 (j==6 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150. && HT > 2750. && dphimin_j28met > 0.5) || // No extra cut in this case
 
-
-                /*
-                  legacyCutNames[7] = "SBH: trigger && 2 photons";
-                  legacyCutNames[8] = "SBH: PhotonsPt";
-                  legacyCutNames[9] = "SBH: MET";
-                  legacyCutNames[10] = "SBH: HT";
-                  legacyCutNames[11] = "SBH: dPhiMin(jet,met)";
-                  legacyCutNames[12] = "SBH: dPhiMin(gamma,met)";
-                */
-
                 (j==7 && nPhotons==2 && baselinePhotons[0]->pT() > 35. && baselinePhotons[1]->pT() > 25.) ||
                 (j==8 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75.) ||
                 (j==9 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250.) ||
                 (j==10 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 2000.) ||
                 (j==11 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 2000. && dphimin_j28met > 0.5) ||
                 (j==12 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 2000. && dphimin_j28met > 0.5 && dphimin_amet > 0.5) ||
-
-
-                /*
-                  legacyCutNames[13] = "WBL: trigger && 2 photons";
-                  legacyCutNames[14] = "WBL: PhotonsPt";
-                  legacyCutNames[15] = "WBL: MET";
-                  legacyCutNames[16] = "WBL: HT";
-                  legacyCutNames[17] = "WBL: dPhiMin(jet,met)";
-                  legacyCutNames[18] = "WBL: dPhiMin(gamma,met)";
-                */
 
                 (j==13 && nPhotons==2 && baselinePhotons[0]->pT() > 35. && baselinePhotons[1]->pT() > 25.) ||
                 (j==14 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75.) ||
@@ -499,16 +469,6 @@ namespace Gambit
                 (j==17 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150. && HT > 1500. && dphimin_j28met > 0.5) ||
                 (j==18 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150. && HT > 1500. && dphimin_j28met > 0.5) || // no additional cut in this case
 
-
-                /*
-                  legacyCutNames[19] = "WBH: trigger && 2 photons";
-                  legacyCutNames[20] = "WBH: PhotonsPt";
-                  legacyCutNames[21] = "WBH: MET";
-                  legacyCutNames[22] = "WBH: HT";
-                  legacyCutNames[23] = "WBH: dPhiMin(jet,met)";
-                  legacyCutNames[24] = "WBH: dPhiMin(gamma,met)";
-                */
-
                 (j==19 && nPhotons==2 && baselinePhotons[0]->pT() > 35. && baselinePhotons[1]->pT() > 25.) ||
                 (j==20 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75.) ||
                 (j==21 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250.) ||
@@ -516,21 +476,7 @@ namespace Gambit
                 (j==23 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 1000. && dphimin_j28met > 0.5) ||
                 (j==24 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 1000. && dphimin_j28met > 0.5 && dphimin_amet > 0.5) || // no additional cut in this case
 
-
     // --------
-
-
-                /*
-                  legacyCutNames[25] = "SRL: trigger && 1 photon";
-                  legacyCutNames[26] = "SRL: lepton veto";
-                  legacyCutNames[27] = "SRL: pT_gamma";
-                  legacyCutNames[28] = "SRL: met";
-                  legacyCutNames[29] = "SRL: Njets";
-                  legacyCutNames[30] = "SRL: dphimin(jet,met)";
-                  legacyCutNames[31] = "SRL: dphimin(gamma,met)";
-                  legacyCutNames[32] = "SRL: meff";
-                  legacyCutNames[33] = "SRL: RT4";
-                */
 
                 (j==25 && nPhotons==1 && baselinePhotons[0]->pT() > 140.) ||
                 (j==26 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 140.) ||
@@ -542,19 +488,6 @@ namespace Gambit
                 (j==32 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 300. && nJets25 >= 5 && dphimin_j25met > 0.4 && dphimin_amet > 0.4 && meff > 2000.) ||
                 (j==33 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 300. && nJets25 >= 5 && dphimin_j25met > 0.4 && dphimin_amet > 0.4 && meff > 2000. && RT4 < 0.90) ||
 
-
-                /*
-                  legacyCutNames[25] = "SRL200: trigger && 1 photon";
-                  legacyCutNames[26] = "SRL200: lepton veto";
-                  legacyCutNames[27] = "SRL200: pT_gamma";
-                  legacyCutNames[28] = "SRL200: met";
-                  legacyCutNames[29] = "SRL200: Njets";
-                  legacyCutNames[30] = "SRL200: dphimin(jet,met)";
-                  legacyCutNames[31] = "SRL200: dphimin(gamma,met)";
-                  legacyCutNames[32] = "SRL200: meff";
-                  legacyCutNames[33] = "SRL200: RT4";
-                */
-
                 (j==34 && nPhotons==1 && baselinePhotons[0]->pT() > 140.) ||
                 (j==35 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 140.) ||
                 (j==36 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145.) ||
@@ -565,18 +498,6 @@ namespace Gambit
                 (j==41 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 200. && nJets25 >= 5 && dphimin_j25met > 0.4 && dphimin_amet > 0.4 && meff > 2000.) ||
                 (j==42 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 200. && nJets25 >= 5 && dphimin_j25met > 0.4 && dphimin_amet > 0.4 && meff > 2000. && RT4 < 0.90) ||
 
-
-                /*
-                  legacyCutNames[34] = "SRH: trigger && 1 photon";
-                  legacyCutNames[35] = "SRH: lepton veto";
-                  legacyCutNames[36] = "SRH: pT_gamma";
-                  legacyCutNames[37] = "SRH: met";
-                  legacyCutNames[38] = "SRH: Njets";
-                  legacyCutNames[39] = "SRH: dphimin(jet,met)";
-                  legacyCutNames[40] = "SRH: dphimin(gamma,met)";
-                  legacyCutNames[41] = "SRH: meff";
-                */
-
                 (j==43 && nPhotons==1 && baselinePhotons[0]->pT() > 140.) ||
                 (j==44 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 140.) ||
                 (j==45 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400.) ||
@@ -585,12 +506,10 @@ namespace Gambit
                 (j==48 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400. && met > 400. && nJets25 >= 3 && dphimin_j25met > 0.4) ||
                 (j==49 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400. && met > 400. && nJets25 >= 3 && dphimin_j25met > 0.4 && dphimin_amet > 0.4) ||
                 (j==50 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400. && met > 400. && nJets25 >= 3 && dphimin_j25met > 0.4 && dphimin_amet > 0.4 && meff > 2400.)
-
-              )
-              #ifdef CHECK_CUTFLOW
+                )
+              {
                 _cutflows[analysis_name()].fill(j+1, true, event->weight());
-              #endif
-
+              }
             }
 
           #endif // end #ifdef CHECK_CUTFLOW
