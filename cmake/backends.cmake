@@ -1437,11 +1437,7 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_$
 
 
 set(sushi_Fortran_FLAGS "${BACKEND_Fortran_FLAGS} -fallow-argument-mismatch")
-# SusHi's own Makefile only appends "-Wl,-rpath,<dir>" to LHAPATH when it
-# resolves LHAPATH itself via lhapdf-config; since we override LHAPATH on the
-# make command line (which take precedence over the Makefile's own
-# assignment), we have to append the rpath flag ourselves here so the built
-# libsushi.so is linked against, and points at runtime to, our LHAPDF build.
+# SusHi's Makefile requires "-Wl,-rpath,<dir>" appended to LHAPATH
 set(sushi_LHAPATH "${LHAPDF_LIB} -Wl,-rpath,${LHAPDF_LIB}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
