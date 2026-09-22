@@ -75,7 +75,7 @@ namespace Gambit {
         #ifdef CHECK_CUTFLOW
           NCUTS = 41;
 
-          for(int  = 0; i < NCUTS; i++) {
+          for(int i = 0; i < NCUTS; i++) {
            legacyCutNames.push_back("");
           } 
 
