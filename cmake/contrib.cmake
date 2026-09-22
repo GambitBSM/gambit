@@ -53,12 +53,17 @@ function(nuke_ditched_contrib_content package dir)
 endfunction()
 
 function(add_contrib_clean_and_nuke package dir clean)
+  # Any further arguments are treated as extra stamp files (e.g. for custom
+  # ExternalProject_Add_Step steps not covered by get_paths()'s generic list)
+  # that must also be cleared by nuke-${package}, so that content that a nuke
+  # deletes from disk is not left looking "already done" to a later rebuild.
+  set(extra_nuke_stamps ${ARGN})
   get_paths(${package} build_path clean-stamps nuke-stamps)
   add_custom_target(clean-${package} COMMAND ${CMAKE_COMMAND} -E remove -f ${clean-stamps}
                                      COMMAND [ -e ${dir} ] && cd ${dir} && ([ -e makefile ] || [ -e Makefile ] && ${MAKE_SERIAL} ${clean}) || true
                                      COMMAND [ -e ${build_path} ] && cd ${build_path} && ([ -e makefile ] || [ -e Makefile ] && ${MAKE_SERIAL} ${clean}) || true)
   add_dependencies(distclean clean-${package})
-  add_custom_target(nuke-${package} COMMAND ${CMAKE_COMMAND} -E remove -f ${nuke-stamps}
+  add_custom_target(nuke-${package} COMMAND ${CMAKE_COMMAND} -E remove -f ${nuke-stamps} ${extra_nuke_stamps}
                                     COMMAND ${CMAKE_COMMAND} -E remove_directory "${build_path}"
                                     COMMAND ${CMAKE_COMMAND} -E remove_directory "${dir}")
   add_dependencies(nuke-${package} clean-${package})
@@ -297,6 +302,60 @@ if(NOT EXCLUDE_YODA)
   )
   add_contrib_clean_and_nuke(${name} ${dir} clean)
 endif()
+
+# LHAPDF (used by backends such as SusHi for parton distribution functions)
+set(name "lhapdf")
+set(ver "6.5.4")
+set(dir "${PROJECT_SOURCE_DIR}/contrib/LHAPDF-${ver}")
+set(dl "https://lhapdf.hepforge.org/downloads/?f=LHAPDF-${ver}.tar.gz")
+set(md5 "931347a515af8979387c32fb903fb4e2")
+set(LHAPDF_PATH "${dir}")
+set(LHAPDF_LIB "${dir}/local/lib")
+set(LHAPDF_INCLUDE_DIR "${dir}/local/include")
+set(LHAPDF_CONFIG "${dir}/local/bin/lhapdf-config")
+
+# Extra PDF sets to download and install alongside the default set
+# (MMHT2014nlo68cl, needed by the SusHi frontend). Semicolon-separated, e.g.
+#   -DLHAPDF_PDFSETS="MMHT2014lo68cl;MMHT2014nnlo68cl"
+set(LHAPDF_PDFSETS "" CACHE STRING "Extra LHAPDF PDF sets to download and install, in addition to the default (MMHT2014nlo68cl); semicolon-separated list")
+set(lhapdf_default_pdfset "MMHT2014nlo68cl")
+set(lhapdf_pdfsets_to_install "${lhapdf_default_pdfset}")
+foreach(extra_pdfset ${LHAPDF_PDFSETS})
+  list(APPEND lhapdf_pdfsets_to_install ${extra_pdfset})
+endforeach()
+list(REMOVE_DUPLICATES lhapdf_pdfsets_to_install)
+
+ExternalProject_Add(${name}
+  DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
+  SOURCE_DIR ${dir}
+  BUILD_IN_SOURCE 1
+  CONFIGURE_COMMAND ${dir}/configure CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} FC=${CMAKE_Fortran_COMPILER} --prefix=${dir}/local --libdir=${LHAPDF_LIB} --disable-python
+  BUILD_COMMAND ${MAKE_PARALLEL}
+  INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
+)
+
+# Download and install the requested PDF sets straight into LHAPDF's default
+# data directory (<prefix>/share/LHAPDF), so LHAPDF finds them automatically
+# with no need to set LHAPDF_DATA_PATH at runtime.
+set(lhapdf_pdfset_datadir "${dir}/local/share/LHAPDF")
+set(lhapdf_pdfset_url_base "https://lhapdfsets.web.cern.ch/current")
+set(lhapdf_pdfset_stamps "")
+foreach(pdfset ${lhapdf_pdfsets_to_install})
+  ExternalProject_Add_Step(${name} install-pdfset-${pdfset}
+    COMMENT "Downloading and installing LHAPDF PDF set ${pdfset}"
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${lhapdf_pdfset_datadir}
+    COMMAND ${DL_CONTRIB} ${lhapdf_pdfset_url_base}/${pdfset}.tar.gz none ${lhapdf_pdfset_datadir} ${name} ${pdfset} "retain container folder"
+    DEPENDEES install
+  )
+  # get_paths()'s generic nuke-stamp list doesn't know about this custom
+  # per-pdfset step, so its stamp has to be cleared explicitly by nuke-lhapdf
+  # below -- otherwise a nuke (which deletes the installed PDF-set data)
+  # leaves the step's stamp behind, and a later rebuild wrongly skips
+  # reinstalling the PDF set.
+  list(APPEND lhapdf_pdfset_stamps "${CMAKE_BINARY_DIR}/${name}-prefix/src/${name}-stamp/${name}-install-pdfset-${pdfset}")
+endforeach()
+
+add_contrib_clean_and_nuke(${name} ${dir} clean ${lhapdf_pdfset_stamps})
 
 #contrib/fjcore-3.2.0
 set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")

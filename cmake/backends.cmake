@@ -1437,18 +1437,21 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_$
 
 
 set(sushi_Fortran_FLAGS "${BACKEND_Fortran_FLAGS} -fallow-argument-mismatch")
+# SusHi's Makefile requires "-Wl,-rpath,<dir>" appended to LHAPATH
+set(sushi_LHAPATH "${LHAPDF_LIB} -Wl,-rpath,${LHAPDF_LIB}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
+    DEPENDS lhapdf
     DOWNLOAD_COMMAND IGNORE_HTTP_CERTIFICATE=1 ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ""        # no configure step
     BUILD_COMMAND ${MAKE_PARALLEL} predef=PLAIN F77=${CMAKE_Fortran_COMPILER}
-          F77FLAGS=${sushi_Fortran_FLAGS} lib/libsushiPLAIN.a lib/libshare.a
+          F77FLAGS=${sushi_Fortran_FLAGS} "LHAPATH=${sushi_LHAPATH}" lib/libsushiPLAIN.a lib/libshare.a
           COMMAND ${MAKE_PARALLEL} predef=PLAIN F77=${CMAKE_Fortran_COMPILER}
-          F77FLAGS=${sushi_Fortran_FLAGS} ${lib}
+          F77FLAGS=${sushi_Fortran_FLAGS} "LHAPATH=${sushi_LHAPATH}" ${lib}
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
