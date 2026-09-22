@@ -82,10 +82,12 @@ namespace Gambit
     //_emu
     // emulatorNode(iniFile.getEmulationNode()),
     #ifdef CORE_DEBUG
-      debug            (true)
+      debug            (true),
     #else
-      debug            (iniFile.getValueOrDef<bool>(false, "debug") or iniFile.getValueOrDef<bool>(false, "likelihood", "debug"))
+      debug            (iniFile.getValueOrDef<bool>(false, "debug") or iniFile.getValueOrDef<bool>(false, "likelihood", "debug")),
     #endif
+    emulatedflag_label ("LogLike_isemulated"),
+    emulatedflagID     (Printers::get_main_param_id(emulatedflag_label))
   {
     // Get the parameter node for the chosen lnlike_modifier (if any)
     if (lnlike_modifier_name != "identity")
@@ -258,7 +260,11 @@ namespace Gambit
         // logger stuff
         if (debug) logger() << LogTags::core << "Emulator evaluation done for lnlike. Accepted? " << emulatorValidPrediction << EOM;
 
-        
+        // Record whether this point's LogLike came from the emulator or was computed for real,
+        // unconditionally whenever LogLike itself is being emulated (independent of printisemulated,
+        // which only covers per-functor emulation via START_FUNCTION_EMULATABLE).
+        printer.print(emulatorValidPrediction, emulatedflag_label, emulatedflagID, printer.getRank(), getPtID());
+
       }
       #else
       core_error().raise(LOCAL_INFO, "Emulators needs MPI to be enabled");

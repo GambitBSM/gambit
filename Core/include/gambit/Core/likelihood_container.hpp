@@ -123,6 +123,12 @@ namespace Gambit
       /// emulation
       YAML::Node emulatorNode;
 
+      /// Print label for whether the total LogLike came from the top-level emulator
+      const str emulatedflag_label;
+
+      /// printer ID for the above
+      const int emulatedflagID;
+
     public:
 
       /// Constructor

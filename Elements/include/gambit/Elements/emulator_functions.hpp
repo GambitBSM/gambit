@@ -6,6 +6,7 @@
 #include <mpi.h>
 #include <time.h>
 #include <stdexcept>
+#include <sstream>
 #include "gambit/Core/emu_map.hpp"
 #include "gambit/Logs/logger.hpp"
 #include "gambit/ScannerBit/emulator_utils.hpp"
@@ -15,6 +16,22 @@ using namespace Gambit::Scanner;
 using Gambit::Scanner::map_vector;
 using Gambit::Scanner::vector;
 
+
+// Formats a prediction/uncertainty vector for printing, e.g. "[1.2, 3.4]" --
+// used instead of indexing element 0 so capabilities with more than one
+// predicted value (or a future multi-valued one) show fully in diagnostics.
+inline std::string format_double_vector(const std::vector<double>& v)
+{
+    std::ostringstream oss;
+    oss << "[";
+    for (size_t i = 0; i < v.size(); ++i)
+    {
+        if (i > 0) oss << ", ";
+        oss << v[i];
+    }
+    oss << "]";
+    return oss.str();
+}
 
 // Looks up a capability's settings, aborting the whole MPI job with a clear,
 // capability-named diagnostic if it was never registered by any EGG rank
@@ -140,15 +157,17 @@ inline bool emulatorPredict(str capability_name, std::vector<double> input, std:
     bool not_valid = predict_results.if_not_valid();
     if (not_valid && !prediction.empty() && !uncertainty.empty())
     {
-        std::cout << "Emulator NOT VALID POINT: " << prediction[0] << ", " << uncertainty[0] << std::endl;
+        std::cout << "Emulator NOT VALID POINT: " << format_double_vector(prediction) << ", "
+                  << format_double_vector(uncertainty) << std::endl;
     }
 
     // Log predictions and validity status
     if (!prediction.empty() && !uncertainty.empty())
     {
         logger() << LogTags::core << LogTags::debug << "Emulator prediction for "
-                    "capability '" << capability_name << "': " << prediction[0] << ", with uncertainty "
-                 << uncertainty[0] << ", not_valid=" << not_valid << " (reply from rank "
+                    "capability '" << capability_name << "': " << format_double_vector(prediction)
+                 << ", with uncertainty " << format_double_vector(uncertainty) << ", not_valid="
+                 << not_valid << " (reply from rank "
                  << status_parent.MPI_SOURCE << ")." << EOM;
     }
     else
