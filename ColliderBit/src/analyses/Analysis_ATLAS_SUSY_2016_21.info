@@ -1,0 +1,11 @@
+Summary: ATLAS >=4-lepton SUSY search at 13 TeV with 36/fb
+InspireID: 1667045
+ExptRun: ATLAS-R2
+Lumi_ifb: 36.1
+Ecm_TeV: 13.0
+Superseded: true
+Signatures: [">=4L + MET"]
+Keywords: ["multilepton", "electroweakinos", "met"]
+Authors: ["Anders Kvellestad"]
+Note: Only SRs with zero taus have been implemented.
+OldName: ATLAS_13TeV_4LEP_36invfb

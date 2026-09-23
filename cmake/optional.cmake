@@ -25,7 +25,18 @@
 #          (wh260@cam.ac.uk)
 #  \date 2018 May, Dec
 #
+#  \author Yang Zhang
+#          (zhangyangphy@zzu.edu.cn)
+#  \date 2023 June
+#
 #************************************************
+# Print cutflow in ColliderBit
+option(CUTFLOW "Enable cut-flow ouput" OFF)
+if(CUTFLOW)
+  add_definitions(-DCHECK_CUTFLOW)
+  message("${Yellow}-- Print cutflow in ColliderBit.")
+endif()
+
 
 # Check for MPI libraries; enable manually with "cmake -DWITH_MPI=ON .."
 option(WITH_MPI "Compile with MPI enabled" OFF)
@@ -68,7 +79,9 @@ if(WITH_MPI)
     if(MPI_C_FOUND)
       include_directories(${MPI_C_INCLUDE_PATH})
       add_definitions(${MPI_C_COMPILE_FLAGS})
-      list(APPEND MPI_C_LIBRARIES "-L${GCC_LIB_DIR}")
+      if(GCC_LIB_DIR)
+        list(APPEND MPI_C_LIBRARIES "-L${GCC_LIB_DIR}")
+      endif()
       if (NOT MPI_CXX_FOUND)
         message("${Red}-- Warning: C MPI libraries found, but not C++ MPI libraries.  Usually that's OK, but")
         message("   if you experience MPI linking errors, please install C++ MPI libraries as well.${ColourReset}")
@@ -324,6 +337,13 @@ if (WITH_ROOT AND ROOT_FOUND)
   include_directories(${ROOT_INCLUDE_DIRS})
   add_definitions(${ROOT_DEFINITIONS})
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};$ENV{ROOTSYS}/lib")
+
+  # FindROOT does not add the libTMVA library to the ROOT_LIBRARIES variable,
+  # so we'll add it ourselves, if the library file exists
+  set(ROOT_TMVA_LIBRARY "${ROOT_LIBRARY_DIR}/libTMVA${CMAKE_SHARED_MODULE_SUFFIX}")
+  if(EXISTS "${ROOT_TMVA_LIBRARY}")
+    set(ROOT_LIBRARIES "${ROOT_LIBRARIES};${ROOT_TMVA_LIBRARY}")
+  endif()
 
   check_root_std_flag()
   set (EXCLUDE_ROOT FALSE)

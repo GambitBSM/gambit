@@ -1,0 +1,9 @@
+Summary: ATLAS direct top-squark search in dilepton final states at 8 TeV with 20.3/fb
+InspireID: 1286444
+ExptRun: ATLAS-R1.5
+Lumi_ifb: 20.3
+Ecm_TeV: 8.0
+Signatures: ["2L + OSL + MET + MT2", "2L + OSL + MET + MEFF"]
+Keywords: ["top-squark", "dilepton", "met", "mt2"]
+Authors: ["Martin White", "Sky French"]
+OldName: ATLAS_8TeV_2LEPStop_20invfb

@@ -562,6 +562,9 @@ std_typedef_names_dict = {
     #
     # Backend-specific types
     #
+    # - Pythia
+    "std::_Rb_tree_iterator<std::pair<const std::basic_string<char>, int>>" : "std::map<std::string, int>::iterator",
+    "std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, int>>" : "std::map<std::string, int>::const_iterator",
     # - Rivet
     "std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject>>>" : "std::vector<std::shared_ptr<YODA::AnalysisObject>>",
     #

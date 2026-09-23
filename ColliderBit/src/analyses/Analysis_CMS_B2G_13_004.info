@@ -1,0 +1,9 @@
+Summary: CMS dark-matter plus top-pair search in dilepton final states at 8 TeV with 19.7/fb
+InspireID: 1292446
+ExptRun: CMS-R1.5
+Lumi_ifb: 19.7
+Ecm_TeV: 8.0
+Signatures: ["2L + >=2J + >=1B + MET"]
+Keywords: ["dark-matter", "top-pair", "dilepton", "bjets", "met"]
+Authors: ["Martin White", "Guy Pitman"]
+OldName: CMS_8TeV_2LEPDMTOP_20invfb

@@ -1,0 +1,9 @@
+Summary: ATLAS squark and gluino search in zero-lepton jets plus MET final states at 8 TeV with 20.3/fb
+InspireID: 1298722
+ExptRun: ATLAS-R1.5
+Lumi_ifb: 20.3
+Ecm_TeV: 8.0
+Signatures: ["0L + MET + >=2J + MEFF"]
+Keywords: ["0lepton", "jets", "met", "meff", "squarks", "gluinos"]
+Authors: ["Martin White"]
+OldName: ATLAS_8TeV_0LEP_20invfb

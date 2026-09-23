@@ -11,26 +11,18 @@
 /// @file FastJet helper routines
 /// @author Andy Buckley <andy.buckley@cern.ch>
 ///
-/// These routines are written to use the FastJet headers and namespace by default;
-/// if the minimal fjcore is being used, then set the -DFJCORE compiler flag to switch
-/// to the fjcore header and namespace. A macro FJNS is defined to the active namespace.
+/// These routines use the FastJet headers and namespace. A macro FJNS is
+/// defined to the active namespace (fastjet, unless the build already set it).
 
 #include "HEPUtils/Utils.h"
 #include "HEPUtils/Vectors.h"
 #include <stdexcept>
 
-#ifndef FJCORE
 #ifndef FJNS
 #define FJNS fastjet
 #endif
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
-#else
-#include "fjcore.hh"
-#ifndef FJNS
-#define FJNS fjcore
-#endif
-#endif
 
 namespace HEPUtils {
 

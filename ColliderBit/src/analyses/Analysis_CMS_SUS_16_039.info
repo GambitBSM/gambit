@@ -1,0 +1,11 @@
+Summary: CMS 2-SS-lepton / >=3-lepton (<=2 hadronic tau) search at 13 TeV with 35.9/fb
+InspireID: 1624165
+ExptRun: CMS-R2
+Lumi_ifb: 35.9
+Ecm_TeV: 13.0
+Superseded: true
+Note: Analysis_CMS_SUS_16_039.cpp uses the primary multilepton publication, INSPIRE 1624165 (arXiv:1709.05406), while Analysis_CMS_SUS_16_039_Full.cpp also implements the three-lepton rebinning from INSPIRE 1647947 (arXiv:1801.03957); one canonical info file is kept for this analysis family. Veto low-mass and MZ dilepton OSSF.
+Signatures: ["2L + 2SSL + MET + 0DY", "MET + >=3L3 + <=2TH + 0DY"]
+Keywords: ["same-sign", "multilepton", "jets", "met"]
+Authors: ["Rose Kudzman-Blais", "Anders Kvellestad", "Kelton Whiteaker"]
+OldName: CMS_13TeV_MultiLEP_36invfb

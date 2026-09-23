@@ -1,0 +1,11 @@
+Summary: ATLAS >=3 b-jet higgsino pair-production search at 13 TeV using complementary 24.3/fb and 36.1/fb selections
+InspireID: 1677389
+ExptRun: ATLAS-R2
+Lumi_ifb: 24.3
+Ecm_TeV: 13.0
+Signatures: ["3B + >=4J + <=5J + 2H + MET", ">=3B + >=4J + <=5J + 2H + MET", ">=4B + >=4J + <=5J + 2H + MET", ">=4B + >=4J + <=6J + 2H + MET"]
+Keywords: ["bjets", "higgs"]
+Superseded: true
+Authors: ["Are Raklev"]
+Note: Analysis_ATLAS_SUSY_2017_02.cpp implements the low-mass 24.3/fb selection, while Analysis_ATLAS_SUSY_2017_02_36invfb.cpp implements the high-mass 36.1/fb selection; both use INSPIRE 1677389. The discovery regions are separated into derived classes.
+OldName: ATLAS_13TeV_3b_24invfb

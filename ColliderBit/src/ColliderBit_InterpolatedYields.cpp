@@ -223,11 +223,12 @@ namespace Gambit
       std::vector<str> skip_analyses;
       bool use_covar;
       bool use_marg;
+      bool always_compute_all_SR_loglikes;
       bool combine_nocovar_SRs;
       bool use_fulllikes;
       Options runOptions;
       bool (*FullLikes_FileExists)(const str&);
-      int (*FullLikes_ReadIn)(const str&, const str&);
+      int (*FullLikes_ReadIn)(const str&, const str&, const str&);
       double (*FullLikes_Evaluate)(std::map<str,double>&,const str&);
       double (*marginaliser)(const int&, const double&, const double&, const double&);
     };
@@ -242,7 +243,7 @@ namespace Gambit
     // =========== Forward declarations ===========
 
     /// Forward declaration of function in LHC_likelihoods
-    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, double (*)(const int&, const double&, const double&, const double&), bool, bool, const Options&, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), double, int, const std::string);
+    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, bool, double (*)(const int&, const double&, const double&, const double&), bool, bool, const Options&, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), double, int, const std::string);
 
     /// Forward declarations of functions in this file
     void DMEFT_fill_analysis_info_map();
@@ -300,11 +301,11 @@ namespace Gambit
       Model_analysis_info empty_analysis_info;
 
       //
-      // New analysis: CMS_13TeV_MONOJET_36invfb_interpolated
+      // New analysis: CMS_SUS_16_048_interpolated
       //
 
       // Analysis name
-      if (current_analysis_name == "CMS_13TeV_MONOJET_36invfb_interpolated")
+      if (current_analysis_name == "CMS_SUS_16_048_interpolated")
       {
         current_ainfo->name = current_analysis_name;
         current_ainfo->lumi_invfb = 36.1;
@@ -573,11 +574,11 @@ namespace Gambit
       Model_analysis_info* current_ainfo;
 
       //
-      // New analysis: CMS_13TeV_MONOJET_36invfb_interpolated
+      // New analysis: CMS_SUS_16_048_interpolated
       //
 
       // Analysis name
-      current_analysis_name = "CMS_13TeV_MONOJET_36invfb_interpolated";
+      current_analysis_name = "CMS_SUS_16_048_interpolated";
 
       // Create an entry in the global analysis_info_map and point the pointer current_ainfo to it
       analysis_info_map[current_analysis_name] = Model_analysis_info();
@@ -1166,7 +1167,7 @@ namespace Gambit
         {
           ColliderBit_error().raise(LOCAL_INFO,"Error: umvue poisson estimator cannot currently be run with collider interpolated likelihoods.");
         }
-        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->marginaliser, fpars->use_covar && has_covar, fpars->combine_nocovar_SRs, fpars->runOptions, fpars->use_fulllikes, fpars->FullLikes_FileExists, fpars->FullLikes_ReadIn, fpars->FullLikes_Evaluate, 0.0, 0, "");
+        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->always_compute_all_SR_loglikes, fpars->marginaliser, fpars->use_covar && has_covar, fpars->combine_nocovar_SRs, fpars->runOptions, fpars->use_fulllikes, fpars->FullLikes_FileExists, fpars->FullLikes_ReadIn, fpars->FullLikes_Evaluate, 0.0, 0, "");
         total_loglike += analoglikes.combination_loglike;
       }
 
@@ -1214,7 +1215,7 @@ namespace Gambit
       // This also pulls the function pointers for the fulllikes backend from the stolen pipe
       Options calc_LHC_LogLikes_runOptions;
       bool (*FullLikes_FileExists)(const str&);
-      int (*FullLikes_ReadIn)(const str&, const str&);
+      int (*FullLikes_ReadIn)(const str&, const str&, const str&);
       double (*FullLikes_Evaluate)(std::map<str,double>&,const str&);
       double (*marginaliser)(const int&, const double&, const double&, const double&);
       if (use_fulllikes)
@@ -1238,6 +1239,8 @@ namespace Gambit
       // Use marginalisation rather than profiling (probably less stable)?
       static const bool use_marg = calc_LHC_LogLikes_runOptions.getValueOrDef<bool>(false, "use_marginalising");
       // Use the naive sum of SR loglikes for analyses without known correlations?
+      // Always compute all individual SR loglikes (even if not used for the combined loglike)?
+      static const bool always_compute_all_SR_loglikes = calc_LHC_LogLikes_runOptions.getValueOrDef<bool>(true, "always_compute_all_SR_loglikes");
       static const bool combine_nocovar_SRs = calc_LHC_LogLikes_runOptions.getValueOrDef<bool>(false, "combine_SRs_without_covariances");
 
       // Clear previous result map
@@ -1272,6 +1275,7 @@ namespace Gambit
       fpars.skip_analyses = skip_analyses;
       fpars.use_covar = use_covar;
       fpars.use_marg = use_marg;
+      fpars.always_compute_all_SR_loglikes = always_compute_all_SR_loglikes;
       fpars.combine_nocovar_SRs = combine_nocovar_SRs;
       fpars.use_fulllikes = use_fulllikes;
       fpars.runOptions = calc_LHC_LogLikes_runOptions;
@@ -1458,7 +1462,7 @@ namespace Gambit
       Model_analysis_info* current_ainfo;
       std::vector< std::vector<double>> bkgcov;
 
-      current_analysis_name = "CMS_13TeV_MONOJET_36invfb_interpolated";
+      current_analysis_name = "CMS_SUS_16_048_interpolated";
 
       if (std::find(skip_analyses.begin(), skip_analyses.end(), current_analysis_name) == skip_analyses.end() && Analysis_data_path[current_analysis_name] != "Skip Analysis")
       {
@@ -1600,11 +1604,11 @@ namespace Gambit
 
       if(ModelInUse("DMsimpVectorMedScalarDM"))
       {
-        Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_CMS36_MonoJet.txt";
+        Analysis_data_path["CMS_SUS_16_048_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_CMS36_MonoJet.txt";
         Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_ATLAS139_MonoJet.txt";
         Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedScalarDM_MonoJets/ScalarDM_CMS137_MonoJet.txt";
 
-        Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
+        Interpolation_columns["CMS_SUS_16_048_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
                                                                          "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
                                                                          "SR18", "SR19", "SR20", "SR21", "SR22"};
@@ -1625,11 +1629,11 @@ namespace Gambit
       }
       else if(ModelInUse("DMsimpVectorMedMajoranaDM"))
       {
-        Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_CMS36_MonoJet.txt";
+        Analysis_data_path["CMS_SUS_16_048_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_CMS36_MonoJet.txt";
         Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_ATLAS139_MonoJet.txt";
         Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedMajoranaDM_MonoJets/MajoranaDM_CMS137_MonoJet.txt";
 
-        Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gAchi", "gq","xsec", "xsec_unc" ,
+        Interpolation_columns["CMS_SUS_16_048_interpolated"] = {"mDMmV_ratio","mass_MED","gAchi", "gq","xsec", "xsec_unc" ,
                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
                                                                          "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
                                                                          "SR18", "SR19", "SR20", "SR21", "SR22"};
@@ -1650,11 +1654,11 @@ namespace Gambit
       }
       else if(ModelInUse("DMsimpVectorMedDiracDM"))
       {
-        Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_CMS36_MonoJet.txt";
+        Analysis_data_path["CMS_SUS_16_048_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_CMS36_MonoJet.txt";
         Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_ATLAS139_MonoJet.txt";
         Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedDiracDM_MonoJets/DiracDM_CMS137_MonoJet.txt";
 
-        Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi","gAchi", "gq","xsec", "xsec_unc" ,
+        Interpolation_columns["CMS_SUS_16_048_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi","gAchi", "gq","xsec", "xsec_unc" ,
                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
                                                                          "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
                                                                          "SR18", "SR19", "SR20", "SR21", "SR22"};
@@ -1676,11 +1680,11 @@ namespace Gambit
       else if(ModelInUse("DMsimpVectorMedVectorDM"))
       {
         // Skipping the 36 invfb anaysis since it was not simulated for this model
-        Analysis_data_path["CMS_13TeV_MONOJET_36invfb_interpolated"] = "Skip Analysis";
+        Analysis_data_path["CMS_SUS_16_048_interpolated"] = "Skip Analysis";
         Analysis_data_path["ATLAS_13TeV_MONOJET_139invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedVectorDM_MonoJets/VectorDM_ATLAS139_MonoJet.txt";
         Analysis_data_path["CMS_13TeV_MONOJET_137invfb_interpolated"] = GAMBIT_DIR "/ColliderBit/data/DMsimp_data/DMsimpVectorMedVectorDM_MonoJets/VectorDM_CMS137_MonoJet.txt";
 
-        Interpolation_columns["CMS_13TeV_MONOJET_36invfb_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
+        Interpolation_columns["CMS_SUS_16_048_interpolated"] = {"mDMmV_ratio","mass_MED","gVchi", "gq","xsec", "xsec_unc" ,
                                                                          "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9",
                                                                          "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16", "SR17",
                                                                          "SR18", "SR19", "SR20", "SR21", "SR22"};

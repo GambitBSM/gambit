@@ -1,0 +1,11 @@
+Summary: ATLAS photonic GMSB search at 13 TeV with 36/fb
+InspireID: 1654357
+ExptRun: ATLAS-R2
+Lumi_ifb: 36.1
+Ecm_TeV: 13.0
+Superseded: true
+Signatures: ["1P + MET", "2P + MET"]
+Keywords: ["photon", "gauge-mediation", "met"]
+Authors: ["Martin White"]
+Note: The later 139/fb photon+jets+MET publication is INSPIRE 2094882; this 36.1/fb record is retained for the implemented analysis.
+OldName: ATLAS_13TeV_PhotonGGM_36invfb

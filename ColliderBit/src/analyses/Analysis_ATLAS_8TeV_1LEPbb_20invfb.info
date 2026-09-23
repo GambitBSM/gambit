@@ -3,4 +3,7 @@ InspireID: -1
 ExptRun: ATLAS-R1.5
 Lumi_ifb: 20.3
 Ecm_TeV: 8.0
-Note: can't find any identification of the note or paper!
+Signatures: ["1L + 2B + MET + MT"]
+Keywords: ["1lepton", "bjets", "met", "mct"]
+Authors: ["Rose Kudzman-Blais"]
+Note: The source contains no stable ATLAS paper, CONF-note, DOI, arXiv or INSPIRE record identifier; keep InspireID=-1 rather than guessing.

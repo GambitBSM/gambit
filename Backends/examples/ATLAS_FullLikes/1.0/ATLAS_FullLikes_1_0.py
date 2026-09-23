@@ -66,19 +66,24 @@ def Reset(AnalysisName):
 
 
 # Read in background JSON files and store this in ws dictionary
-def ReadIn(AnalysisName,bkgpath):
+def ReadIn(AnalysisName, GAMBIT_DIR, bkgpath):
     global ws
     global Nsamplesdict
     global Nbindict
     
     # First check that it hasn't already been loaded
-    if FileExists(AnalysisName):
-        print("FullLikes Error: Analysis ",AnalysisName," has been loaded twice")
-        return(-1)
+    # TODO: Commented out to protect against the rare occurence that two processes try to load together,
+    #       choosing to just let both load it in this case.
+    #if FileExists(AnalysisName):
+    #    print("FullLikes Error: Analysis ",AnalysisName," has been loaded twice")
+    #    return(-1)
+    
+    # Add on a slash to the gambit dir
+    GAMBIT_DIR = GAMBIT_DIR + "/"
     
     # Try to open the analysis bkg json file
     try:
-      with open(bkgpath,'r') as bkg:
+      with open(GAMBIT_DIR + bkgpath,'r') as bkg:
         workspace = json.load(bkg)
 
         # Create empty dictionaries for the analysis
@@ -94,7 +99,7 @@ def ReadIn(AnalysisName,bkgpath):
         Nbindict[AnalysisName][channel["name"]] = len(channel["data"])
 
       # Load json scheme
-      with open('Backends/examples/ATLAS_FullLikes/1.0/workspace.json','r') as wk:
+      with open(GAMBIT_DIR + 'Backends/examples/ATLAS_FullLikes/1.0/workspace.json','r') as wk:
         schema = json.load(wk)
 
       # Validate the workspace against a scheme (only needed for testing new bkg files)
@@ -138,7 +143,10 @@ def Evaluate(mydict,AnalysisName):
   for key,value in Nsamplesdict[AnalysisName].items():
     Signal[str(value[0])+"_"+str(value[1])] = []
     for i in range(Nbindict[AnalysisName][key]):
-      Signal[str(value[0])+"_"+str(value[1])].append(mydict[key+"_"+str(i)])
+      sig = 0.0
+      if ((key+"_"+str(i)) in mydict.keys()):
+        sig = mydict[key+"_"+str(i)]
+      Signal[str(value[0])+"_"+str(value[1])].append(sig)
 
   data['patches'].append({
           "metadata":

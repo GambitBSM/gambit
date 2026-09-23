@@ -1,0 +1,10 @@
+Summary: ATLAS ZH->photon+gravitino search at 13 TeV with 80/fb
+InspireID: 1676307
+ExptRun: ATLAS-R2
+Lumi_ifb: 79.8
+Ecm_TeV: 13.0
+Authors: ["Andy Buckley"]
+Signatures: ["2L + 1P + MET"]
+Keywords: ["higgs", "photon", "gravitino", "met"]
+Note: CONF note; no eventual paper record was identified for this exact result.
+OldName: ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb

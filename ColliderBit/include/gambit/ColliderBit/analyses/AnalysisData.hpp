@@ -22,11 +22,13 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 Aug
+///
 ///  *********************************************
 
 #pragma once
-
-#include "Eigen/Core"
 
 #include <string>
 #include <map>
@@ -39,7 +41,12 @@
 #include <memory>
 #include <iomanip>
 #include <algorithm>
+
+#include "Eigen/Core"
+
 #include "gambit/ColliderBit/analyses/SignalRegionData.hpp"
+#include "gambit/ColliderBit/analyses/Cutflow.hpp"
+#include "gambit/ColliderBit/analyses/Histogram.hpp"
 
 namespace Gambit
 {
@@ -107,7 +114,7 @@ namespace Gambit
         // check(); // bjf> This was wrong! Needs to be !=, not ==
         return srcov.rows() != 0;
       }
-      
+
       /// Is there non-null correlation data?
       bool hasFullLikes() const
       {
@@ -133,6 +140,18 @@ namespace Gambit
         check();
       }
 
+      /// Add cutflows
+      void add_cutflows(const Cutflows &cf)
+      {
+        cutflows = cf;
+      }
+
+      /// Add histograms
+      void add_histograms(const Histograms &h)
+      {
+        histograms = h;
+      }
+
       /// Check that the SRData list and the covariance matrix are consistent
       bool check() const
       {
@@ -150,7 +169,13 @@ namespace Gambit
 
       /// Analysis name
       std::string analysis_name;
-      
+
+      /// Collider name
+      std::string collider_name;
+
+      /// Luminosity
+      double luminosity;
+
       /// Access the i'th signal region's data
       SignalRegionData& operator[] (size_t i) { return srdata[i]; }
       /// Access the i'th signal region's data (const)
@@ -170,12 +195,15 @@ namespace Gambit
 
       /// Optional covariance matrix between SRs (0x0 null matrix = no correlation info)
       Eigen::MatrixXd srcov;
-      
+
       /// FullLikes bkg json file path realtive to the GAMBIT directory
       std::string bkgjson_path;
 
-      /// Store the analysis luminosity
-      double luminosity;
+      /// Collection of cutflows
+      Cutflows cutflows;
+
+      /// Collection of histograms
+      Histograms histograms;
 
     };
 
