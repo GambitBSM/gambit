@@ -1,0 +1,36 @@
+--- a/include/HepMC3/GenVertex.h
++++ b/include/HepMC3/GenVertex.h
+@@ -145,6 +145,16 @@
+ 
+ private:
+ 
++    /// @brief Add outgoing particle without the duplicate check that
++    ///        add_particle_out() performs.
++    ///
++    /// Only safe when the caller can already guarantee @p p is not present
++    /// in m_particles_out. Used by GenEvent::add_particle() when funnelling
++    /// a freshly-added particle into the root vertex, where the O(n)
++    /// duplicate check made event construction O(n^2) in the number of
++    /// particles without a production vertex.
++    void add_particle_out_unchecked(GenParticlePtr p) { m_particles_out.push_back(p); }
++
+     /// @name Fields
+     /// @{
+     GenEvent       *m_event;  //!< Parent event
+--- a/src/GenEvent.cc
++++ b/src/GenEvent.cc
+@@ -53,9 +53,12 @@
+     p->m_event = this;
+     p->m_id = particles().size();
+ 
+-    // Particles without production vertex are added to the root vertex
++    // Particles without production vertex are added to the root vertex.
++    // p was just confirmed not in_event() above, so it cannot already be
++    // present in the root vertex's particle list: skip add_particle_out()'s
++    // O(n) duplicate check.
+     if ( !p->production_vertex() )
+-        m_rootvertex->add_particle_out(p);
++        m_rootvertex->add_particle_out_unchecked(p);
+ }
+ 
+ 

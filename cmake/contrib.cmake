@@ -240,6 +240,7 @@ if(NOT EXCLUDE_HEPMC)
   set(lib "HepMC3")
   set(md5 "d3079a7ffcc926b34c5ad2868ed6d8f0")
   set(dl "https://gitlab.cern.ch/hepmc/HepMC3/-/archive/${ver}/HepMC3-${ver}.tar.gz")
+  set(patch "${PROJECT_SOURCE_DIR}/contrib/patches/hepmc/${ver}/patch_hepmc_${ver}.dif")
   include_directories("${HEPMC_PATH}/local/include")
 
   set(HEPMC_LDFLAGS "-L${HEPMC_PATH}/local/lib" "-l${lib}")
@@ -263,6 +264,7 @@ if(NOT EXCLUDE_HEPMC)
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${HEPMC_PATH} ${name} ${ver}
     SOURCE_DIR ${HEPMC_PATH}
+    PATCH_COMMAND patch -p1 < ${patch}
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
     # HepMC3 enables both C and CXX in its project(). Pass both compilers
     # explicitly so a stale CC environment variable cannot select another
