@@ -38,22 +38,43 @@ endif(NOT Eigen3_FIND_VERSION)
 macro(_eigen3_check_version)
   file(READ "${EIGEN3_INCLUDE_DIR}/Eigen/src/Core/util/Macros.h" _eigen3_version_header)
 
+  # Eigen 3.x exposes EIGEN_WORLD_VERSION / EIGEN_MAJOR_VERSION / EIGEN_MINOR_VERSION.
+  # Eigen >= 5.0 dropped EIGEN_WORLD_VERSION (the leading "3" became part of the package
+  # name) and does not define these version macros. We can dig it out of their *proper*
+  # CMake config file, in lieu of migrating to use their more modern CMake setup.
   string(REGEX MATCH "define[ \t]+EIGEN_WORLD_VERSION[ \t]+([0-9]+)" _eigen3_world_version_match "${_eigen3_version_header}")
   set(EIGEN3_WORLD_VERSION "${CMAKE_MATCH_1}")
   string(REGEX MATCH "define[ \t]+EIGEN_MAJOR_VERSION[ \t]+([0-9]+)" _eigen3_major_version_match "${_eigen3_version_header}")
   set(EIGEN3_MAJOR_VERSION "${CMAKE_MATCH_1}")
   string(REGEX MATCH "define[ \t]+EIGEN_MINOR_VERSION[ \t]+([0-9]+)" _eigen3_minor_version_match "${_eigen3_version_header}")
   set(EIGEN3_MINOR_VERSION "${CMAKE_MATCH_1}")
+  string(REGEX MATCH "define[ \t]+EIGEN_PATCH_VERSION[ \t]+([0-9]+)" _eigen3_patch_version_match "${_eigen3_version_header}")
+  set(EIGEN3_PATCH_VERSION "${CMAKE_MATCH_1}")
 
-  set(EIGEN3_VERSION ${EIGEN3_WORLD_VERSION}.${EIGEN3_MAJOR_VERSION}.${EIGEN3_MINOR_VERSION})
+  # Detect which scheme the installed Eigen uses so we report the correct version string.
+  if(EIGEN3_WORLD_VERSION STREQUAL "")
+    # New (>= 5.0) naming scheme.
+    # Guess the Eigen cmake dir location relative to the include dir -- not robust,
+    # but the version isn't encoded in the headers anymore
+    file(READ "${EIGEN3_INCLUDE_DIR}/../../share/eigen3/cmake/Eigen3ConfigVersion.cmake" _eigen3_version_cmake)
+    #message("${_eigen3_version_cmake}")
+    string(REGEX MATCH "PACKAGE_VERSION .([0-9.]+)" _eigen3_cmake_version_match "${_eigen3_version_cmake}")
+    #message(STATUS "${_eigen3_cmake_version_match}")
+    #message(STATUS "${CMAKE_MATCH_1}")
+    set(EIGEN3_VERSION "${CMAKE_MATCH_1}")
+  else()
+    # Legacy 3.x naming scheme.
+    set(EIGEN3_VERSION ${EIGEN3_WORLD_VERSION}.${EIGEN3_MAJOR_VERSION}.${EIGEN3_MINOR_VERSION})
+  endif()
+  
+  set(EIGEN3_VERSION_OK TRUE)
   if(${EIGEN3_VERSION} VERSION_LESS ${Eigen3_FIND_VERSION})
     set(EIGEN3_VERSION_OK FALSE)
-  else(${EIGEN3_VERSION} VERSION_LESS ${Eigen3_FIND_VERSION})
+  else()
     set(EIGEN3_VERSION_OK TRUE)
-  endif(${EIGEN3_VERSION} VERSION_LESS ${Eigen3_FIND_VERSION})
+  endif()
 
   if(NOT EIGEN3_VERSION_OK)
-
     message(STATUS "Eigen3 version ${EIGEN3_VERSION} found in ${EIGEN3_INCLUDE_DIR}, "
                    "but at least version ${Eigen3_FIND_VERSION} is required")
   endif(NOT EIGEN3_VERSION_OK)
