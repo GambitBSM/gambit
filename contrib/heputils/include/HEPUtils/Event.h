@@ -77,6 +77,7 @@ namespace HEPUtils {
   private:
 
     /// Hide copy assignment, since shallow copies of Particle & Jet pointers create ownership/deletion problems
+    ///
     /// @todo Reinstate as a deep copy uing cloneTo?
     void operator = (const Event& e) = delete;
     // {
@@ -130,7 +131,6 @@ namespace HEPUtils {
 
     /// Clone a deep copy (new Particles and Jets allocated) into the provided event object
     void cloneTo(Event& e) const {
-      
       e.set_weights(_weights);
       e.set_weight_errs(_weight_errs);
 
@@ -144,15 +144,11 @@ namespace HEPUtils {
 
       // Clone the jets, per-name
       for (const auto& kv : _jets) {
-        const std::vector<const Jet*> js = jets(kv.first);
-        for(size_t i = 0; i < js.size(); i++){
-          e.add_jet(new Jet(*js[i]), kv.first);
-        }
+        e.set_jets(deepcopy(jets(kv.first)), kv.first);
       }
 
       e._pmiss = _pmiss;
-      e._cseqs = _cseqs; ///< @todo Cloneable?
-      
+      e._cseqs = _cseqs; ///< @note Creates copies of shared_ptr<CSeq>, _should_ keep the objects alive
     }
 
     /// @}
@@ -160,7 +156,6 @@ namespace HEPUtils {
 
     /// Empty the event's weight, particle, jet, and MET collections
     void clear() {
-
       // Weights
       _weights.clear();
       _weight_errs.clear();
@@ -183,7 +178,6 @@ namespace HEPUtils {
 
       // MET
       _pmiss.clear();
-      
     }
 
 
@@ -276,12 +270,13 @@ namespace HEPUtils {
     /// immediately deleted. Accordingly, the pointer passed by user code
     /// must be considered potentially invalid from the moment this function is called.
     ///
-    /// @note pT-sorting has been primarily moved to lazy sorting of the
-    /// mutable containers upon retrieval
+    /// @deprecated ptsort argument will be removed. pT-sorting has
+    /// been primarily moved to lazy sorting of the mutable containers
+    /// upon retrieval.
     ///
     /// @todo "Lock" at some point so that jet finding etc. only get done once
     void add_particle(const Particle* p, bool ptsort=false) {
-      std::cout << "Called add_particle line 284 "  << std::endl;
+
       _stdparticles_sorted = false;
 
       // All particles (canonical collection)
@@ -305,14 +300,20 @@ namespace HEPUtils {
       if (ptsort) sort_particles();
     }
 
+
     // Force no implicit conversions to bool in the method above
-    //
-    /// @todo Can remove when the bool arguments are removed.
     template <typename T>
     void add_particle(const Particle* p, T) = delete;
 
-    
-    /// @todo Add an emplace_particle
+
+    /// @brief Add a particle, new-constructed in-place
+    ///
+    /// @note No sorting bool, due to the constructor param-pack.
+    template<typename P=Particle, typename... ARGS>
+    void emplace_particle(ARGS&&... args) {
+      static_assert(std::is_base_of<Particle, P>::value, "P not derived from Particle");
+      add_particle(new P(std::forward<ARGS>(args)...));
+    }
 
 
     /// Add a set of standard particles to the event
@@ -345,7 +346,6 @@ namespace HEPUtils {
     ///
     /// @todo "Lock" at some point so that jet finding etc. only get done once
     void add_particle(const Particle* p, const std::string& key, bool ptsort=false) {
-      std::cout << "Called add_particle line 348 with key " << key << std::endl;
       _customparticles_sorted = false;
 
       // Insert into both the canonical list and the custom
@@ -357,20 +357,25 @@ namespace HEPUtils {
     }
 
     // Make sure that a char* key directs here rather than converting to bool!
-    //
-    /// @todo Can remove when the bool arguments are removed.
     void add_particle(const Particle* p, const char* key, bool ptsort=false) {
-      std::cout << "Called add_particle line 363 with key " << key << std::endl;
       add_particle(p, std::string(key), ptsort);
     }
 
-    /// Alias for backward-compatibility
+    /// @brief Alias for backward-compatibility
     ///
     /// @deprecated ptsort will be removed eventually
-    /// @todo Can remove when the bool arguments are removed.
     void add_particle(const Particle* p, bool ptsort, const std::string& key) {
-      std::cout << "Called add_particle line 372 with key " << key << std::endl;
       add_particle(p, key, ptsort);
+    }
+
+
+    /// @brief Add a custom particle of type `key`, new-constructed in-place
+    ///
+    /// @note Key first and no sorting bool, due to the constructor param-pack.
+    template<typename P=Particle, typename... ARGS>
+    void emplace_particle(const std::string& key, ARGS&&... args) {
+      static_assert(std::is_base_of<Particle, P>::value, "P not derived from Particle");
+      add_particle(new P(std::forward<ARGS>(args)...), key);
     }
 
 
@@ -392,7 +397,6 @@ namespace HEPUtils {
     /// Alias for backward-compatibility
     ///
     /// @deprecated ptsort will be removed eventually
-    /// @todo Can remove when the bool arguments are removed.
     void add_particles(const std::vector<Particle*>& ps, bool ptsort, const std::string& key) {
       add_particles(ps, key, ptsort);
     }
@@ -424,7 +428,7 @@ namespace HEPUtils {
 
     /// @brief Get all known particles
     ///
-    /// @note Particles may overlap via parentage
+    /// @note Particles may overlap via parentage.
     const std::vector<const Particle*>& particles() const {
       return _allparticles;
     }
@@ -436,14 +440,21 @@ namespace HEPUtils {
     }
     /// @brief Get named custom particles as a more specific templated ptr type
     ///
-    /// @note Returns as a copy, due to need to rewrite the vector type.
-    /// @todo Surely not necessary, it's the same ptrs? But you can't dynamic_cast a vector...
+    /// @note Returns as a reference via pointer reinterpretation.
     template <typename P>
-    std::vector<const P*> particles(const std::string& key) const {
-      const std::vector<const Particle*>& ps = particles(key);
-      std::vector<const P*> rtn;  rtn.reserve(ps.size());
-      for (const Particle* p : ps) rtn.push_back( dynamic_cast<const P*>(p) );
-      return rtn;
+    const std::vector<const P*>& particles(const std::string& key) const {
+      const std::vector<const Particle*>& cparticles = _customparticles.at(key);
+      return mkconst<P>(cparticles);
+      // return * reinterpret_cast<const std::vector<const P*>*>(&cparticles);
+
+      // //std::vector<const P*>&
+      // const auto& ps = mkconst<P>(_customparticles.at(key));
+      // return ps;
+
+      // const std::vector<const Particle*>& ps = particles(key);
+      // std::vector<const P*> rtn;  rtn.reserve(ps.size());
+      // for (const Particle* p : ps) rtn.push_back( dynamic_cast<const P*>(p) );
+      // return rtn;
     }
 
     /// @brief Get named custom particles (non-const)
@@ -452,14 +463,20 @@ namespace HEPUtils {
     }
     /// @brief Get named custom particles as a more specific templated ptr type (non-const)
     ///
-    /// @note Returns as a copy, due to need to rewrite the vector type.
-    /// @todo Surely not necessary, it's the same ptrs? But you can't dynamic_cast a vector...
+    /// @note Returns as a reference via pointer reinterpretation.
     template <typename P>
-    std::vector<P*> particles(const std::string& key) {
-      std::vector<Particle*>& ps = mkunconst(_customparticles[key]);
-      std::vector<P*> rtn;  rtn.reserve(ps.size());
-      for (Particle* p : ps) rtn.push_back( dynamic_cast<P*>(p) );
-      return rtn;
+    std::vector<P*>& particles(const std::string& key) {
+      const std::vector<const Particle*>& cparticles = _customparticles.at(key);
+      return mkunconst<P>(cparticles);
+
+      // //std::vector<P*>&
+      // auto& ps = mkunconst<P>(_customparticles.at(key));
+      // return ps;
+
+      // const std::vector<const Particle*>& ps = particles(key);
+      // std::vector<P*> rtn;  rtn.reserve(ps.size());
+      // for (Particle* p : ps) rtn.push_back( dynamic_cast<P*>(p) );
+      // return rtn;
     }
 
 

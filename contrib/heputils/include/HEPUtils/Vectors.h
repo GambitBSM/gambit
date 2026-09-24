@@ -27,7 +27,7 @@ namespace HEPUtils {
 
     /// @name Storage
     /// @{
-    double _x, _y, _z, _s;
+    double _x, _y, _z, _s2;
     /// @}
 
 
@@ -35,18 +35,18 @@ namespace HEPUtils {
 
     /// Default constructor of a null vector
     V4()
-      : _x(0), _y(0), _z(0), _s(0) {  }
+      : _x(0), _y(0), _z(0), _s2(0) {  }
 
     /// Copy constructor
     V4(const V4& v)
-      : _x(v._x), _y(v._y), _z(v._z), _s(v._s) {  }
+      : _x(v._x), _y(v._y), _z(v._z), _s2(v._s2) {  }
 
     /// Copy assignment operator
     V4& operator = (const V4& v) {
       _x = v._x;
       _y = v._y;
       _z = v._z;
-      _s = v._s;
+      _s2 = v._s2;
       return *this;
     }
 
@@ -55,12 +55,17 @@ namespace HEPUtils {
       _x = 0;
       _y = 0;
       _z = 0;
-      _s = 0;
+      _s2 = 0;
     }
 
 
     /// @name Static methods for vector making
     /// @{
+
+    /// Make a vector from (x,y,z) coordinates and s^2 invariant
+    static V4 mkXYZS2(double x, double y, double z, double s2) {
+      return V4().setXYZS2(x, y, z, s2);
+    }
 
     /// Make a vector from (x,y,z,t) coordinates
     static V4 mkXYZT(double x, double y, double z, double t) {
@@ -93,17 +98,25 @@ namespace HEPUtils {
 
     /// Set the invariant
     V4& setInv(double s) {
-      _s = s;
+      return setInv2(s*s);
+    }
+
+    /// Set the squared invariant (more fundamental, allows)
+    V4& setInv2(double s2) {
+      _s2 = s2;
       return *this;
     }
 
 
+    /// Set the 3-vector coordinates and inv^2
+    V4& setXYZS2(double x, double y, double z, double s2) {
+      setX(x); setY(y); setZ(z); setInv2(s2);
+      return *this;
+    }
+
     /// Set the 3-vector coordinates and time
     V4& setXYZT(double x, double y, double z, double t) {
-      setX(x); setY(y); setZ(z);
-      const double inv = sqrt( sqr(t) - sqr(v()) );
-      setInv(inv);
-      return *this;
+      return setXYZS2(x, y, z, sqr(t)-v2());
     }
 
     /// @todo Add factories from (eta, phi, rho, t) and (eta, phi, z, t)
@@ -126,13 +139,13 @@ namespace HEPUtils {
     double z2() const { return sqr(_z); }
     /// Get z
     double z() const { return _z; }
-    /// Get m^2
-    double inv2() const { return sqr(_s); }
-    /// Get m
-    double inv() const { return _s; }
+    /// Get s^2
+    double inv2() const { return _s2; }
+    /// Get sqrt(s^2)
+    double inv() const { return sqrt(_s2); }
 
     /// Get t^2
-    double t2() const { return v2() + sqr(_s); }
+    double t2() const { return v2() + _s2; }
     /// Get t
     double t() const { return sqrt(t2()); }
     /// Get the spatial 3-vector magnitude |v|^2
@@ -154,11 +167,8 @@ namespace HEPUtils {
 	if (z() == 0) return M_PI/2; else return atan2(rho(), z()); } //< atan2(+ve, z) is +ve
     /// Get the spatial-vector pseudorapidity
     double eta() const {
-// Needs C++20
-//      if ( v2() == 0.0 ) [[unlikely]] return 0.0;
-//      if ( rho2() == 0.0 ) [[unlikely]] return std::copysign(HUGE_VAL, z());
-      if ( v2() == 0.0 ) return 0.0;
-      if ( rho2() == 0.0 ) return std::copysign(HUGE_VAL, z());
+      if ( v2() == 0.0 ) [[unlikely]] return 0.0;
+      if ( rho2() == 0.0 ) [[unlikely]] return std::copysign(HUGE_VAL, z());
       return std::copysign(log((v() + fabs(z())) / rho()), z());
     }
     /// Get the spatial-vector absolute pseudorapidity
@@ -189,11 +199,11 @@ namespace HEPUtils {
 
     /// @name Self-modifying operators
     /// @{
-    V4  operator - () const { V4 rtn; return rtn.setXYZT(-_x, -_y, -_z, _s); } //< Not self-modifying...
-    V4& operator += (const V4& v) { _x += v.x(); _y += v.y(); _z += v.z(); _s = sqrt( sqr(t() + v.t()) - v2() ); return *this; }
-    V4& operator -= (const V4& v) { _x -= v.x(); _y -= v.y(); _z -= v.z(); _s = sqrt( sqr(t() - v.t()) - v2() ); return *this; }
-    V4& operator *= (double a) { _x *= a; _y *= a; _z *= a; _s *= a; return *this; }
-    V4& operator /= (double a) { _x /= a; _y /= a; _z /= a; _s /= a; return *this; }
+    V4  operator - () const { V4 rtn; return rtn.setXYZT(-_x, -_y, -_z, t()); } //< Not self-modifying...
+    V4& operator += (const V4& v) { _x += v.x(); _y += v.y(); _z += v.z(); _s2 = sqr(t() + v.t()) - v2(); return *this; }
+    V4& operator -= (const V4& v) { _x -= v.x(); _y -= v.y(); _z -= v.z(); _s2 = sqr(t() - v.t()) - v2(); return *this; }
+    V4& operator *= (double a) { _x *= a; _y *= a; _z *= a; _s2 *= a*a; return *this; }
+    V4& operator /= (double a) { _x /= a; _y /= a; _z /= a; _s2 /= a*a; return *this; }
     /// @}
 
   };
@@ -269,7 +279,7 @@ namespace HEPUtils {
       _x = v.x();
       _y = v.y();
       _z = v.z();
-      _s = v.inv();
+      _s2 = v.inv2();
       return *this;
     }
 
@@ -348,26 +358,42 @@ namespace HEPUtils {
       return *this;
     }
 
+
+    /// Set the mass^2
+    P4& setM2(double mass2) {
+      _s2 = mass2;
+      return *this;
+    }
+
+    /// Set the p coordinates and mass^2 simultaneously
+    P4& setPM2(double px, double py, double pz, double mass2) {
+      setPx(px); setPy(py); setPz(pz); setM2(mass2);
+      return *this;
+    }
+    /// Alias for setPM2
+    P4& setXYZM2(double px, double py, double pz, double mass2) {
+      return setPM2(px, py, pz, mass2);
+    }
+
+
     /// Set the mass
     P4& setM(double mass) {
       if (mass < 0)
         throw std::invalid_argument("Negative mass given as argument");
-      _s = mass;
-      return *this;
+      return setM2(sqr(mass));
     }
 
     /// Set the p coordinates and mass simultaneously
     P4& setPM(double px, double py, double pz, double mass) {
       if (mass < 0)
         throw std::invalid_argument("Negative mass given as argument");
-      setPx(px); setPy(py); setPz(pz);
-      setM(mass);
-      return *this;
+      return setPM2(px, py, pz, sqr(mass));
     }
     /// Alias for setPM
     P4& setXYZM(double px, double py, double pz, double mass) {
       return setPM(px, py, pz, mass);
     }
+
 
     /// Set the p coordinates and energy simultaneously
     /// @warning For numerical stability, prefer setPM when possible
@@ -538,9 +564,9 @@ namespace HEPUtils {
     /// Get pz
     double pz() const { return _z; }
     /// Get m^2
-    double m2() const { return sqr(_s); }
+    double m2() const { return _s2; }
     /// Get m
-    double m() const { return _s; }
+    double m() const { return inv(); }
 
     /// Get E^2
     double E2() const { return p2() + m2(); }
@@ -557,11 +583,8 @@ namespace HEPUtils {
 
     /// Get the 4-momentum rapidity
     double rap() const {
-// Needs C++20
-//      if ( p() == 0.0 ) [[unlikely]] return 0.0;
-//      if ( E() == fabs(pz()) ) [[unlikely]] return std::copysign(HUGE_VAL, pz());
-      if ( p() == 0.0 ) return 0.0;
-      if ( E() == fabs(pz()) ) return std::copysign(HUGE_VAL, pz());
+      if ( p() == 0.0 ) [[unlikely]] return 0.0;
+      if ( E() == fabs(pz()) ) [[unlikely]] return std::copysign(HUGE_VAL, pz());
       return 0.5 * log((E() + pz()) / (E() - pz()));
     }
     /// Get the 4-momentum absolute rapidity
@@ -586,11 +609,11 @@ namespace HEPUtils {
     ///
     /// @todo Reduce duplication
     /// @{
-    P4  operator - () const { P4 rtn; return rtn.setPM(-_x, -_y, -_z, _s); } //< Not self-modifying...
-    P4& operator += (const P4& v) { double e = E() + v.E(); _x += v.px(); _y += v.py(); _z += v.pz(); _s = sqrt( sqr(e) - p2() ); return *this; }
-    P4& operator -= (const P4& v) { double e = E() - v.E(); _x -= v.px(); _y -= v.py(); _z -= v.pz(); _s = sqrt( sqr(e) - p2() ); return *this; }
-    P4& operator *= (double a) { _x *= a; _y *= a; _z *= a; _s *= a; return *this; }
-    P4& operator /= (double a) { _x /= a; _y /= a; _z /= a; _s /= a; return *this; }
+    P4  operator - () const { P4 rtn; return rtn.setPM(-_x, -_y, -_z, m()); } //< Not self-modifying...
+    P4& operator += (const P4& v) { double e = E() + v.E(); _x += v.px(); _y += v.py(); _z += v.pz(); _s2 = sqr(e) - p2(); return *this; }
+    P4& operator -= (const P4& v) { double e = E() - v.E(); _x -= v.px(); _y -= v.py(); _z -= v.pz(); _s2 = sqr(e) - p2(); return *this; }
+    P4& operator *= (double a) { _x *= a; _y *= a; _z *= a; _s2 *= a*a; return *this; }
+    P4& operator /= (double a) { _x /= a; _y /= a; _z /= a; _s2 /= a*a; return *this; }
     /// @}
 
   };

@@ -251,31 +251,37 @@ namespace HEPUtils {
   /// @{
 
   /// Convenience Particle cast to const
-  template <typename P> //, typename std::enable_if<std::is_base_of<Particle, P>::value>::type*=nullptr>
-  inline const P* mkconst(P* particle) {
-    static_assert(std::is_base_of<Particle, P>::value, "P not derived from Particle");
-    return const_cast<const P*>(particle);
+  template <typename P1=Particle, typename P2>
+  inline const P1* mkconst(P2* particle) {
+    static_assert(std::is_base_of<Particle, P1>::value, "P1 not derived from Particle");
+    static_assert(std::is_base_of<Particle, P2>::value, "P2 not derived from Particle");
+    return const_cast<const P1*>(particle);
   }
 
   /// Convenience Particle cast to non-const
-  template <typename P> //, typename std::enable_if<std::is_base_of<Particle, P>::value>::type*=nullptr>
-  inline P* mkunconst(const P* cparticle) {
-    static_assert(std::is_base_of<Particle, P>::value, "P not derived from Particle");
-    return const_cast<P*>(cparticle);
+  template <typename P1=Particle, typename P2>
+  inline P1* mkunconst(const P2* cparticle) {
+    static_assert(std::is_base_of<Particle, P1>::value, "P1 not derived from Particle");
+    static_assert(std::is_base_of<Particle, P2>::value, "P2 not derived from Particle");
+    return const_cast<P1*>(cparticle);
   }
 
   /// Get a reference to a vector of Particles, with each member const
-  template <typename P> //, typename std::enable_if<std::is_base_of<Particle, P>::value>::type*=nullptr>
-  inline std::vector<const P*>& mkconst(const std::vector<P*>& particles) {
-    static_assert(std::is_base_of<Particle, P>::value, "P not derived from Particle");
-    return * (std::vector<const P*>*)(void*) (&particles);
+  template <typename P1=Particle, typename P2>
+  inline const std::vector<const P1*>& mkconst(const std::vector<P2*>& particles) {
+    static_assert(std::is_base_of<Particle, P1>::value, "P1 not derived from Particle");
+    static_assert(std::is_base_of<Particle, P2>::value, "P2 not derived from Particle");
+    //return * reinterpret_cast<const std::vector<const P1*>*>(&particles); //< not workable due to const+reinterpret casting
+    return * (const std::vector<const P1*>*)(void*) (&particles);
   }
 
   /// Get a reference to a vector of Particles, with each member non-const
-  template <typename P> //, typename std::enable_if<std::is_base_of<Particle, P>::value>::type*=nullptr>
-  inline std::vector<P*>& mkunconst(const std::vector<const P*>& cparticles) {
-    static_assert(std::is_base_of<Particle, P>::value, "P not derived from Particle");
-    return * (std::vector<Particle*>*) (void*) (&cparticles);
+  template <typename P1=Particle, typename P2>
+  inline std::vector<P1*>& mkunconst(const std::vector<P2*>& cparticles) {
+    static_assert(std::is_base_of<Particle, P1>::value, "P1 not derived from Particle");
+    static_assert(std::is_base_of<Particle, P2>::value, "P2 not derived from Particle");
+    //return * reinterpret_cast<std::vector<P1*>*>(&cparticles); //< not workable due to const+reinterpret casting
+    return * (std::vector<P1*>*) (void*) (&cparticles);
   }
 
   /// @}
