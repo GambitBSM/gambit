@@ -1,0 +1,218 @@
+##########################################################################
+## MSSM scan targeting the ~95 GeV diphoton/ditau excesses, using SusHi
+## (emulated) for the light Higgs cross section and the Higgs95_LogLike
+## chi^2 built from CMS/ATLAS targets -- see ColliderBit_Higgs.cpp for full
+## sourcing/comments on every target value used here.
+##
+## Physics picture ("wrong-way alignment"): the LIGHTER CP-even MSSM Higgs
+## h (not H) is identified with the ~95 GeV excess state, while the HEAVIER
+## CP-even Higgs H plays the role of the observed 125 GeV state. This is
+## the scenario studied in Bahl et al., "The light and heavy Higgs
+## interpretation of the MSSM" (arXiv:1608.00975); getting m_h down to
+## ~95 GeV while m_H stays near 125 GeV needs significant h-H mixing, i.e.
+## moderate m_A and non-trivial mu/tanb -- the ranges below are a
+## physically-motivated STARTING POINT for that corner, not a guarantee of
+## landing on it. Expect to iterate on these ranges once real scan results
+## are in.
+##
+## Requires: -DBUILD_FS_MODELS="MSSM_mAmu"
+##
+## IMPORTANT: mu_gammagamma_h95_cap, sigmaBR_tautau_h95_cap and
+## Higgs95_LogLike all depend on Higgs_decay_rates, which needs either the
+## SUSY_HIT or FeynHiggs backend built. Neither is currently built on this
+## machine (checked: no .so under Backends/installed/susyhit or
+## Backends/installed/feynhiggs) -- run `make susyhit_1.5` (or
+## `make feynhiggs_2.12.0`, though that backend is known to fail to build
+## with gfortran >= 10) in your build directory before this yaml will
+## resolve past dependency resolution.
+##########################################################################
+
+Parameters:
+
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  MSSM9batQ_mA:
+    Qin:      2000.0
+    TanBeta:
+      range: [5.0, 40.0]
+      prior_type: flat
+    mA:
+      # Moderate mA, not the decoupling-limit values used in the SusHi
+      # backend test yaml -- large mixing between the CP-even states is
+      # what pulls m_h down towards 95 GeV in this scenario.
+      range: [100.0, 800.0]
+      prior_type: log
+    mu:
+      range: [200.0, 2000.0]
+      prior_type: log
+    M1:       300.0
+    M2:       600.0
+    M3:
+      # Gluino mass: also one of the emulator's own input dimensions
+      # (see getSusHi_h_xsec_total_EmulatorTranslateInput), since it
+      # enters the SUSY-QCD loop corrections SusHi computes.
+      range: [1000.0, 3000.0]
+      prior_type: log
+    mq2_3:
+      # Third-gen squark soft mass^2 [GeV^2]; sqrt(range) ~ 1-3 TeV.
+      range: [1.0e6, 9.0e6]
+      prior_type: log
+    msf2:
+      range: [1.0e6, 9.0e6]
+      prior_type: log
+    Au_3:
+      range: [-4000.0, 0.0]
+      prior_type: flat
+
+
+Priors:
+
+
+Printer:
+
+  # printer: cout
+  printer: hdf5_v1
+  options:
+    output_file: "gambit_output.hdf5"
+    group: "/data"
+    delete_file_on_restart: true
+    disable_combine_routines: true
+
+
+Scanner:
+
+  use_scanner: de
+
+  scanners:
+
+    de:
+      plugin: diver
+      like: LogLike
+      # NP ~ 10x the number of free parameters (7 here) is Diver's usual
+      # rule of thumb; kept modest for a first real run given SusHi's
+      # per-point cost -- bump up once the emulator's predict/train ratio
+      # and the target ranges above have been sanity-checked.
+      NP: 70
+      convthresh: 1e-3
+      verbosity: 1
+
+
+ObsLikes:
+
+    - purpose:    LogLike
+      capability: Higgs95_LogLike
+
+    - purpose:    Observable
+      capability: SusHi_h_xsec_total_cap
+      # Writes "#SusHi_h_xsec_total_cap @ColliderBit::getSusHi_h_xsec_total
+      # _isemulated" to the HDF5 output (1.0 = predicted, 0.0 = real SusHi
+      # call), enabling the emulator-fraction/timing plots. See
+      # gambit_plotting_tools_local/plot_higgs95_scan.py.
+      printisemulated: true
+
+    - purpose:    Observable
+      capability: mu_gammagamma_h95_cap
+
+    - purpose:    Observable
+      capability: sigmaBR_tautau_h95_cap
+
+
+Emulation:
+
+  use_emulator:
+    - getSusHi_h_xsec_total
+
+  emulators:
+    getSusHi_h_xsec_total:
+      plugin: pygptreeo
+      train: true
+      predict: true
+      uncertainty:
+        - 1.0
+      max_cache_size: 50
+      Nbar: 100
+      theta: 1e-4
+      split_position_method: median
+      split_dimension_criteria: max_variance
+      retrain_every_n_points: 5
+      use_calibrated_sigma: true
+      splitting_strategy: gradual
+      pre_trained: false
+
+
+Rules:
+
+  - capability: unimproved_MSSM_spectrum
+    function: get_MSSMatQ_mA_spectrum_FS
+    options:
+      precision_goal:        1.0e-4
+      max_iterations:        0
+      calculate_sm_masses:   false
+      pole_mass_loop_order:  2
+      ewsb_loop_order:       2
+      beta_loop_order:       2
+      threshold_corrections_loop_order: 2
+      use_higgs_2loop_at_as: true
+      use_higgs_2loop_ab_as: true
+      use_higgs_2loop_at_at: true
+      use_higgs_2loop_atau_atau: true
+      invalid_point_fatal: false
+
+  - capability: MSSM_spectrum
+    function: make_MSSM_precision_spectrum_none
+
+  - capability: SusHi_h_xsec_total_cap
+    function: getSusHi_h_xsec_total
+
+  # SUSY_HIT-based decay rates -- switch to FeynHiggs_MSSM_h0_1_decays if
+  # you build FeynHiggs instead of SUSY_HIT.
+  - capability: Higgs_decay_rates
+    function: MSSM_h0_1_decays
+
+  - capability: mu_gammagamma_h95_cap
+    function: getMu_gammagamma_h95
+    options:
+      # See getMu_gammagamma_h95 in ColliderBit_Higgs.cpp for full sourcing.
+      # 126 fb (arXiv:2306.03889, ref 30) = 0.126 pb; verified against CMS's
+      # own HIG-20-002 observed upper limit (73 fb at 95.4 GeV) and a
+      # from-scratch SusHi SM-mode calculation.
+      SM_xsecBR_gammagamma_95GeV: 0.126
+
+  - capability: sigmaBR_tautau_h95_cap
+    function: getSigmaBR_tautau_h95
+
+  - capability: Higgs95_LogLike
+    function: calc_Higgs95_LogLike
+    options:
+      # arXiv:2306.03889 (ATLAS+CMS combined diphoton, 3.1 sigma)
+      mu_gammagamma_obs:       0.24
+      mu_gammagamma_obserr:    0.085
+      # CMS-HIG-21-001 (arXiv:2208.02717), primary source, verified directly:
+      # best fit at m=95 GeV is 7.8 +3.9/-3.1 pb (not 7.7 as in the
+      # secondary citation, arXiv:2203.13180)
+      sigmaBR_tautau_obs_pb:    7.8
+      sigmaBR_tautau_obserr_pb: 3.1
+
+
+Logger:
+
+  redirection:
+    [Default]    : "default.log"
+    [Debug]      : "debug.log"
+
+
+KeyValues:
+
+  default_output_path: "runs/MSSM_Higgs95_scan_1"
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+
+  # Writes a per-functor "Runtime(ns) for ..." dataset to the HDF5 output
+  # for every functor, enabling the xsec-vs-time plot.
+  print_timing_data: true
+
+  debug: false

@@ -45,6 +45,9 @@
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/Utils/util_types.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
+#include "gambit/ScannerBit/emulator_utils.hpp"
+#include "gambit/Core/emu_map.hpp"
+#include "gambit/Elements/emulator_functions.hpp"
 
 //#define COLLIDERBIT_DEBUG
 
@@ -604,18 +607,163 @@ namespace Gambit
 
     }
 
-    /// gg->h production cross section at NNLO [pb], LHC 13 TeV, from SusHi
-    void getSusHi_ggh_xsec(double& result)
+    /// Emulator input: the MSSM parameters that actually drive the SusHi
+    /// cross section (stop/sbottom sector controls the SUSY-QCD loop
+    /// corrections, tanb/mu/At/Ab control bottom-Yukawa enhancement of bbh,
+    /// mh sets the phase space / parton luminosities).
+    void getSusHi_h_xsec_total_EmulatorTranslateInput(std::vector<double>& input)
     {
-      using namespace Pipes::getSusHi_ggh_xsec;
-      result = BEreq::SusHi_ggh_xsec();
+      const Spectrum& mySpec = *Pipes::getSusHi_h_xsec_total::Dep::MSSM_spectrum;
+      double tanb    = mySpec.get(Par::dimensionless, "tanbeta");
+      double mh      = mySpec.get(Par::Pole_Mass, "h0_1");
+      double M3_val  = mySpec.get(Par::mass1, "M3");
+      double mu_val  = mySpec.get(Par::mass1, "Mu");
+      double Yu33    = mySpec.get(Par::dimensionless, "Yu", 3, 3);
+      double TYu33   = mySpec.get(Par::mass1, "TYu", 3, 3);
+      double Yd33    = mySpec.get(Par::dimensionless, "Yd", 3, 3);
+      double TYd33   = mySpec.get(Par::mass1, "TYd", 3, 3);
+      double At_val  = (Yu33 != 0.0) ? TYu33 / Yu33 : 0.0;
+      double Ab_val  = (Yd33 != 0.0) ? TYd33 / Yd33 : 0.0;
+      double mQ3_val = std::sqrt(std::abs(mySpec.get(Par::mass2, "mq2", 3, 3)));
+      double mU3_val = std::sqrt(std::abs(mySpec.get(Par::mass2, "mu2", 3, 3)));
+      double mD3_val = std::sqrt(std::abs(mySpec.get(Par::mass2, "md2", 3, 3)));
+
+      input = {tanb, mh, M3_val, mu_val, mQ3_val, mU3_val, mD3_val, At_val, Ab_val};
+      std::cout << "[Emulator: getSusHi_h_xsec_total] TranslateInput: tanb=" << tanb
+                << " mh=" << mh << std::endl;
     }
 
-    /// bb->h production cross section at NNLO [pb], LHC 13 TeV, from SusHi
-    void getSusHi_bbh_xsec(double& result)
+    bool getSusHi_h_xsec_total_EmulatorCheckThreshold(str& name, std::vector<double>& uncertainty)
     {
-      using namespace Pipes::getSusHi_bbh_xsec;
-      result = BEreq::SusHi_bbh_xsec();
+      #ifdef WITH_MPI
+      bool accept = checkThreshold(name, uncertainty);
+      std::cout << "[Emulator: " << name << "] CheckThreshold: uncertainty = " << uncertainty[0]
+                << " -> " << (accept ? "PREDICT" : "TRAIN") << std::endl;
+      return accept;
+      #else
+      return false;
+      #endif
+    }
+
+    void getSusHi_h_xsec_total_EmulatorTranslateTarget(std::vector<double>& target, double& result, std::vector<double>& uncertainty)
+    {
+      target = {result};
+      // ~2% relative uncertainty, matching the reduced VEGAS call counts
+      // configured in SusHi_run_point for emulator-training speed.
+      uncertainty = {0.02 * result};
+      std::cout << "[Emulator: getSusHi_h_xsec_total] TrainPoint: xsec_total = " << result << " pb" << std::endl;
+    }
+
+    void getSusHi_h_xsec_total_EmulatorTranslatePrediction(std::vector<double>& prediction, std::vector<double>& uncertainty, double& result)
+    {
+      result = prediction[0];
+      std::cout << "[Emulator: getSusHi_h_xsec_total] Prediction: xsec_total = " << result << " pb" << std::endl;
+    }
+
+    /// Total (gg->h + bb->h) production cross section at NNLO [pb], LHC 13 TeV,
+    /// for the lightest CP-even MSSM Higgs h, from SusHi.
+    void getSusHi_h_xsec_total(double& result)
+    {
+      using namespace Pipes::getSusHi_h_xsec_total;
+      double ggh = 0.0, bbh = 0.0;
+      BEreq::SusHi_run_point(*Dep::MSSM_spectrum, ggh, bbh);
+      result = ggh + bbh;
+    }
+
+    /// Signal strength mu_gammagamma = [sigma(pp->h) x BR(h->gammagamma)] / SM
+    /// reference, for the MSSM lightest CP-even Higgs h as a candidate for
+    /// the ~95 GeV diphoton excess.
+    void getMu_gammagamma_h95(double& result)
+    {
+      using namespace Pipes::getMu_gammagamma_h95;
+
+      double xsec_total = *Dep::SusHi_h_xsec_total_cap;                 // pb
+      double BR_gaga = Dep::Higgs_decay_rates->BF("gamma", "gamma");
+      double sigmaBR = xsec_total * BR_gaga;                            // pb
+
+      // SM reference sigma(pp->H) x BR(H->gammagamma) at m_H = 95.4 GeV,
+      // LHC 13 TeV, matching the normalization used in Biekotter, Heinemeyer,
+      // Weiglein, "The 95.4 GeV di-photon excess at ATLAS and CMS"
+      // (arXiv:2306.03889), which quotes sigma^SM(pp->H->gammagamma) = 126
+      // [ref 30: LHC Higgs XS WG Handbook 4, arXiv:1610.07922] to compute
+      // mu_gammagamma^ATLAS from ATLAS's raw cross-section limits.
+      //
+      // Units: the paper's "126" is in FEMTOBARN, not picobarn (verified by
+      // cross-check against CMS's own HIG-20-002 PAS, which reports an
+      // *observed* 95% CL upper limit on sigma x BR(gammagamma) of 73 fb at
+      // m=95.4 GeV -- a "126 pb" SM reference would be ~1700x that observed
+      // limit, making mu values of order 0.2-0.3 impossible; "126 fb"
+      // (=0.126 pb) is consistent with it). Independently cross-checked
+      // against a from-scratch SusHi SM-mode run (model=0) at 95.4 GeV,
+      // 13 TeV, NNLO ggh+bbh: sigma_SM = 74.02 pb, times a representative
+      // BR_SM(H->gammagamma)~1.3-1.8e-3 at that mass gives ~0.10-0.13 pb,
+      // consistent with 0.126 pb. Override via a yaml runOption
+      // ("SM_xsecBR_gammagamma_95GeV") without recompiling if a more precise
+      // value becomes available.
+      double SM_ref = runOptions->getValueOrDef<double>(0.126, "SM_xsecBR_gammagamma_95GeV");
+
+      result = sigmaBR / SM_ref;
+    }
+
+    /// sigma(pp->h) x BR(h->tautau) [pb], for the MSSM lightest CP-even
+    /// Higgs h. Compared directly against a raw observed rate (not a ratio
+    /// to SM) in calc_Higgs95_LogLike, since that's the form CMS actually
+    /// quoted their best-fit result in.
+    void getSigmaBR_tautau_h95(double& result)
+    {
+      using namespace Pipes::getSigmaBR_tautau_h95;
+
+      double xsec_total = *Dep::SusHi_h_xsec_total_cap;                 // pb
+      double BR_tautau = Dep::Higgs_decay_rates->BF("tau+", "tau-");
+      result = xsec_total * BR_tautau;                                  // pb
+    }
+
+    /// Combined chi^2-based log-likelihood for the ~95 GeV diphoton and
+    /// ditau excesses reported by CMS/ATLAS. All target/reference values
+    /// are read via runOptions, so they can be changed from the yaml
+    /// (a "- function: calc_Higgs95_LogLike" Rules entry with an options:
+    /// block) without recompiling gambit -- see the defaults and their
+    /// sources below.
+    void calc_Higgs95_LogLike(double& result)
+    {
+      using namespace Pipes::calc_Higgs95_LogLike;
+
+      // ---- gamma-gamma channel ----
+      // ATLAS+CMS combined signal strength at m=95.4 GeV, local significance
+      // 3.1 sigma (CMS alone 2.9 sigma, ATLAS alone 1.7 sigma, both full
+      // Run 2). Source: Biekotter, Heinemeyer, Weiglein, "The 95.4 GeV
+      // di-photon excess at ATLAS and CMS", arXiv:2306.03889, which quotes
+      // mu_gammagamma^(ATLAS+CMS) = 0.24 (+0.09/-0.08). We symmetrize the
+      // asymmetric uncertainty here (0.085 = average of 0.09 and 0.08) for
+      // a simple Gaussian chi^2; this supersedes the CMS-only 0.6 +/- 0.2
+      // value quoted in the earlier arXiv:2203.13180 (Eq. 1).
+      double mu_gg_obs    = runOptions->getValueOrDef<double>(0.24,  "mu_gammagamma_obs");
+      double mu_gg_obserr = runOptions->getValueOrDef<double>(0.085, "mu_gammagamma_obserr");
+      double mu_gg_pred = *Dep::mu_gammagamma_h95_cap;
+      double chi2_gg = std::pow((mu_gg_pred - mu_gg_obs) / mu_gg_obserr, 2);
+
+      // ---- tau-tau channel ----
+      // CMS best-fit sigma(ggphi) x BR(phi->tautau) at m=95 GeV, full Run 2
+      // gluon-fusion search. Verified directly against the primary CMS
+      // paper (CMS-HIG-21-001, "Searches for additional Higgs bosons and for
+      // vector leptoquarks in tautau final states", arXiv:2208.02717),
+      // which states verbatim: "The local (global) significance for the
+      // tautau search evaluated at m_phi = 95 GeV is 2.6 (2.3) s.d. and the
+      // best fit value of the product of the cross section with the
+      // branching fraction ... is sigma_ggphi x BR(phi->tautau) =
+      // (7.8 +3.9/-3.1) pb." (Note: 7.8, not the 7.7 originally taken from
+      // the secondary citation in Biekotter, Heinemeyer, Weiglein,
+      // arXiv:2203.13180, Sect. 1 -- a small rounding/version discrepancy.)
+      // We use the lower (more conservative) uncertainty symmetrically,
+      // matching the convention that paper itself adopts in its Eq. (3)
+      // footnote.
+      double sigmaBR_tt_obs    = runOptions->getValueOrDef<double>(7.8, "sigmaBR_tautau_obs_pb");
+      double sigmaBR_tt_obserr = runOptions->getValueOrDef<double>(3.1, "sigmaBR_tautau_obserr_pb");
+      double sigmaBR_tt_pred = *Dep::sigmaBR_tautau_h95_cap;
+      double chi2_tt = std::pow((sigmaBR_tt_pred - sigmaBR_tt_obs) / sigmaBR_tt_obserr, 2);
+
+      double chi2_total = chi2_gg + chi2_tt;
+      result = -0.5 * chi2_total;
     }
 
   }

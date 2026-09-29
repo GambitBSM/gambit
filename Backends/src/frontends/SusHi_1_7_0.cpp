@@ -23,17 +23,13 @@
 // Convenience functions (definitions)
 BE_NAMESPACE
 {
-    static double stored_ggh = 0.0;
-    static double stored_bbh = 0.0;
-
-    double SusHi_ggh_xsec() { return stored_ggh; }
-    double SusHi_bbh_xsec() { return stored_bbh; }
-}
-END_BE_NAMESPACE
-
-// Initialisation function (definition)
-BE_INI_FUNCTION
-{
+    // Runs SusHi's gg->h and bb->h NNLO cross-section computation for a
+    // single point, given an MSSM spectrum.  This is called directly from
+    // module functions (not from BE_INI_FUNCTION), so that emulatable
+    // capabilities can skip this call entirely when the emulator's
+    // prediction is trusted -- see calculate() in functor_definitions.hpp.
+    void SusHi_run_point(const Spectrum& mySpec, double& ggh_result, double& bbh_result)
+    {
     using namespace SLHAea;
 
     // Build MPI-safe temp filename
@@ -48,7 +44,6 @@ BE_INI_FUNCTION
     std::string infile = "SusHi_input_" + std::to_string(rank) + ".slha";
 
     // Get SLHA2 content from MSSM spectrum
-    const Spectrum& mySpec = *Dep::MSSM_spectrum;
     SLHAea::Coll slha = mySpec.getSLHAea(2);
 
     // SLHA2 puts mnu3(pole) = 0 at SMINPUTS[8], but SusHi reads that entry
@@ -172,8 +167,8 @@ BE_INI_FUNCTION
     // Run ggh+bbh computation
     double ggh = 0.0, bbh = 0.0;
     gambit_sushi_compute(ggh, bbh);
-    stored_ggh = ggh;
-    stored_bbh = bbh;
+    ggh_result = ggh;
+    bbh_result = bbh;
 
     logger() << LogTags::debug
              << "SusHi 1.7.0: ggh = " << ggh << " pb, bbh = " << bbh << " pb" << EOM;
@@ -181,5 +176,12 @@ BE_INI_FUNCTION
     std::remove(infile.c_str());
     std::string murdep = infile.substr(0, infile.size() - 5) + "_murdep";
     std::remove(murdep.c_str());
+    }
 }
+END_BE_NAMESPACE
+
+// Empty initialisation function -- required registration hook for the
+// backend, but all real per-point work happens in SusHi_run_point (called
+// directly from module functions) rather than here.
+BE_INI_FUNCTION {}
 END_BE_INI_FUNCTION

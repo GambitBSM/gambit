@@ -118,26 +118,62 @@
     #undef FUNCTION
   #undef CAPABILITY
 
-  // gg->h cross section at NNLO [pb], LHC 13 TeV, from SusHi
-  #define CAPABILITY SusHi_ggh_xsec_cap
+  // Total (gg->h + bb->h) production cross section at NNLO [pb], LHC 13 TeV,
+  // for the lightest CP-even MSSM Higgs h, from SusHi.  Both channels come
+  // from a single SusHi run (see SusHi_run_point), called directly here so
+  // this capability can later be marked emulatable without paying for the
+  // SusHi computation on points where the emulator's prediction is trusted.
+  #define CAPABILITY SusHi_h_xsec_total_cap
   START_CAPABILITY
-    #define FUNCTION getSusHi_ggh_xsec
-    START_FUNCTION(double)
+    #define FUNCTION getSusHi_h_xsec_total
+    START_FUNCTION_EMULATABLE(double)
     DEPENDENCY(MSSM_spectrum, Spectrum)
-    BACKEND_REQ(SusHi_ggh_xsec, (libsushi), double, ())
+    BACKEND_REQ(SusHi_run_point, (libsushi), void, (const Spectrum&, double&, double&))
     ALLOW_MODELS( MSSM9batQ_mA, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG )
     // BACKEND_OPTION( (SusHi, 1.7.0), (libsushi) )
     #undef FUNCTION
   #undef CAPABILITY
 
-  // bb->h cross section at NNLO [pb], LHC 13 TeV, from SusHi
-  #define CAPABILITY SusHi_bbh_xsec_cap
+  // Signal strength mu_gammagamma = [sigma(pp->h) x BR(h->gammagamma)] / SM
+  // reference, for the lightest MSSM CP-even Higgs h (candidate for the
+  // ~95 GeV excess). ALLOW_MODELS restricted to the MSSM63at* family because
+  // Higgs_decay_rates (unlike SusHi_h_xsec_total_cap) doesn't support
+  // MSSM9batQ_mA. See getMu_gammagamma_h95 in ColliderBit_Higgs.cpp for full
+  // sourcing of the SM reference value.
+  #define CAPABILITY mu_gammagamma_h95_cap
   START_CAPABILITY
-    #define FUNCTION getSusHi_bbh_xsec
+    #define FUNCTION getMu_gammagamma_h95
     START_FUNCTION(double)
-    DEPENDENCY(MSSM_spectrum, Spectrum)
-    BACKEND_REQ(SusHi_bbh_xsec, (libsushi), double, ())
-    // BACKEND_OPTION( (SusHi, 1.7.0), (libsushi) )
+    DEPENDENCY(SusHi_h_xsec_total_cap, double)
+    DEPENDENCY(Higgs_decay_rates, DecayTable::Entry)
+    ALLOW_MODELS( MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // sigma(pp->h) x BR(h->tautau) [pb], for the lightest MSSM CP-even Higgs h.
+  // Compared directly against the CMS-quoted raw rate (not a ratio to SM) in
+  // calc_Higgs95_LogLike -- see getSigmaBR_tautau_h95 in ColliderBit_Higgs.cpp.
+  #define CAPABILITY sigmaBR_tautau_h95_cap
+  START_CAPABILITY
+    #define FUNCTION getSigmaBR_tautau_h95
+    START_FUNCTION(double)
+    DEPENDENCY(SusHi_h_xsec_total_cap, double)
+    DEPENDENCY(Higgs_decay_rates, DecayTable::Entry)
+    ALLOW_MODELS( MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Combined chi^2-based log-likelihood for the ~95 GeV diphoton + ditau
+  // excesses. Every target/reference value is read via runOptions (see
+  // calc_Higgs95_LogLike in ColliderBit_Higgs.cpp for defaults, sources and
+  // how to override them from a yaml Rules: entry without recompiling).
+  #define CAPABILITY Higgs95_LogLike
+  START_CAPABILITY
+    #define FUNCTION calc_Higgs95_LogLike
+    START_FUNCTION(double)
+    DEPENDENCY(mu_gammagamma_h95_cap, double)
+    DEPENDENCY(sigmaBR_tautau_h95_cap, double)
+    ALLOW_MODELS( MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG )
     #undef FUNCTION
   #undef CAPABILITY
 
