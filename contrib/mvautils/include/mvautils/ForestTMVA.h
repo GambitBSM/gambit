@@ -5,7 +5,7 @@
 #ifndef MVAUtils_ForestTMVA_H
 #define MVAUtils_ForestTMVA_H
 
-#include "gambit/ColliderBit/mvautils/Forest.h"
+#include "mvautils/Forest.h"
 #include "TTree.h"
 #include <vector>
 

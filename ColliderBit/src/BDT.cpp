@@ -2,10 +2,10 @@
 #ifndef EXCLUDE_ROOT
 
 #include "gambit/ColliderBit/BDT.h"
-#include "gambit/ColliderBit/mvautils/NodeImpl.h"
-#include "gambit/ColliderBit/mvautils/ForestLGBM.h"
-#include "gambit/ColliderBit/mvautils/ForestXGBoost.h"
-#include "gambit/ColliderBit/mvautils/ForestTMVA.h"
+#include "mvautils/NodeImpl.h"
+#include "mvautils/ForestLGBM.h"
+#include "mvautils/ForestXGBoost.h"
+#include "mvautils/ForestTMVA.h"
 
 #include "TMVA/MethodBDT.h"
 #include "TMVA/DecisionTree.h"
