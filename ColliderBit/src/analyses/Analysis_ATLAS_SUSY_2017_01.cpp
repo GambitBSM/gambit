@@ -128,16 +128,86 @@ namespace Gambit
             set_analysis_name("ATLAS_SUSY_2017_01");
             set_luminosity(36.1);
 
-            NCUTS= 66;
+            /*********************************************************/
+            /*                                                       */
+            /* Cut Flow                                              */
+            /*                                                       */
+            /*********************************************************/
+            #ifdef CHECK_CUTFLOW
+              NCUTS= 66;
 
-            // //debug
-            // Savelep1.open("lep1.txt");
-            // Savelep2.open("lep2.txt");
+              // //debug
+              // Savelep1.open("lep1.txt");
+              // Savelep2.open("lep2.txt");
 
-            for(int i=0; i < NCUTS; i++)
-            {
+              for(int i=0; i < NCUTS; i++)
+              {
                 legacyCutNames.push_back("");
-            }
+              }
+
+              legacyCutNames[0] = "Total ";
+              /*---------------------------------------*/
+              legacyCutNames[1] = "SR2A--trigger && 2 OS lepton";
+              legacyCutNames[2] = "SR2ASF--Same flavour";
+              legacyCutNames[3] = "SR2ASF--mll>111GeV";
+              legacyCutNames[4] = "SR2ASF--n_{b-jets}=0";
+              legacyCutNames[5] = "SR2ASF--R_{2l2j}>0.3";
+              legacyCutNames[6] = "SR2ASF--Delta x<0.07";
+              legacyCutNames[7] = "SR2ASF--120<MT2<140";
+              legacyCutNames[8] = "SR2ASF--140<MT2<160";
+              legacyCutNames[9] = "SR2ASF--160<MT2<180";
+              legacyCutNames[10] = "SR2ASF--180<MT2";
+
+              legacyCutNames[11] = "SR2ADF--Different falvour";
+              legacyCutNames[12] = "SR2ADF--mll>111GeV(only SF)";
+              legacyCutNames[13] = "SR2ADF--n_{b-jets}=0";
+              legacyCutNames[14] = "SR2ADF--R_{2l2j}>0.3(only SF)";
+              legacyCutNames[15] = "SR2ADF--Delta x<0.07";
+              legacyCutNames[16] = "SR2ADF--120<MT2<140";
+              legacyCutNames[17] = "SR2ADF--140<MT2<160";
+              legacyCutNames[18] = "SR2ADF--160<MT2<180";
+              legacyCutNames[19] = "SR2ADF--180<MT2";
+              /*---------------------------------------*/
+              legacyCutNames[20] = "SR2BC--trigger && 2 OS lepton";
+              legacyCutNames[21] = "SR2BSF--Same flavour";
+              legacyCutNames[22] = "SR2BSF--mll>111GeV or mll<71GeV";
+              legacyCutNames[23] = "SR2BSF--n_{b-jets}>0 && n_{jets}>1";
+              legacyCutNames[24] = "SR2BSF--Delta phi_{boost}<1.5";
+              legacyCutNames[25] = "SR2BSF--120<MT2<140";
+              legacyCutNames[26] = "SR2BSF--140<MT2";
+
+              legacyCutNames[27] = "SR2BDF--Different flavour";
+              legacyCutNames[28] = "SR2BDF--mll>111GeV or mll<71GeV(only SF)";
+              legacyCutNames[29] = "SR2BDF--n_{b-jets}>0 && n_{jets}>1";
+              legacyCutNames[30] = "SR2BDF--Delta phi_{boost}<1.5";
+              legacyCutNames[31] = "SR2BDF--120<MT2<140";
+              legacyCutNames[32] = "SR2BDF--140<MT2";
+
+              legacyCutNames[33] = "SR2CSF--n_{b-jets}>0 && n_{jets}>1";
+              legacyCutNames[34] = "SR2CSF--n_{jets}>2";
+              legacyCutNames[35] = "SR2CSF--R_{2l}>1.2";
+              legacyCutNames[36] = "SR2CSF--E_T^{miss}>200GeV";
+              legacyCutNames[37] = "SR2CSF--110<MT2";
+
+              legacyCutNames[38] = "SR2CDF--n_{b-jets}>0 && n_{jets}>1";
+              legacyCutNames[39] = "SR2CDF--n_{jets}>2";
+              legacyCutNames[40] = "SR2CDF--R_{2l}>1.2";
+              legacyCutNames[41] = "SR2CDF--E_T^{miss}>200GeV";
+              legacyCutNames[42] = "SR2CDF--110<MT2";
+
+              /*---------------------------------------*/
+              legacyCutNames[57] = "SR4b--MET trigger && 2 OS Leptons ";
+              legacyCutNames[58] = "SR4b--m_{ll}>10GeV ";
+              legacyCutNames[59] = "SR4b--PT(l1)<80GeV && PT(l1)<35GeV ";
+              legacyCutNames[60] = "SR4b--n_{jets}>2 ";
+              legacyCutNames[61] = "SR4b--PT(j1)>150GeV ";
+              legacyCutNames[62] = "SR4b--PT(j3)/MET<0.14 ";
+              legacyCutNames[63] = "SR4b--R_{2l4j}>0.35 ";
+              legacyCutNames[64] = "SR4b--R_{2l}>12 ";
+              legacyCutNames[65] = "SR4b--veto on j1 and j2 ";
+
+              _cutflows.addCutflow(analysis_name(), legacyCutNames);
+            #endif
 
         }
 
@@ -440,152 +510,82 @@ namespace Gambit
                 }
             }
 
-            /*********************************************************/
-            /*                                                       */
-            /* Cut Flow                                              */
-            /*                                                       */
-            /*********************************************************/
-            legacyCutNames[0] = "Total ";
-            /*---------------------------------------*/
-            legacyCutNames[1] = "SR2A--trigger && 2 OS lepton";
-            legacyCutNames[2] = "SR2ASF--Same flavour";
-            legacyCutNames[3] = "SR2ASF--mll>111GeV";
-            legacyCutNames[4] = "SR2ASF--n_{b-jets}=0";
-            legacyCutNames[5] = "SR2ASF--R_{2l2j}>0.3";
-            legacyCutNames[6] = "SR2ASF--Delta x<0.07";
-            legacyCutNames[7] = "SR2ASF--120<MT2<140";
-            legacyCutNames[8] = "SR2ASF--140<MT2<160";
-            legacyCutNames[9] = "SR2ASF--160<MT2<180";
-            legacyCutNames[10] = "SR2ASF--180<MT2";
-
-            legacyCutNames[11] = "SR2ADF--Different falvour";
-            legacyCutNames[12] = "SR2ADF--mll>111GeV(only SF)";
-            legacyCutNames[13] = "SR2ADF--n_{b-jets}=0";
-            legacyCutNames[14] = "SR2ADF--R_{2l2j}>0.3(only SF)";
-            legacyCutNames[15] = "SR2ADF--Delta x<0.07";
-            legacyCutNames[16] = "SR2ADF--120<MT2<140";
-            legacyCutNames[17] = "SR2ADF--140<MT2<160";
-            legacyCutNames[18] = "SR2ADF--160<MT2<180";
-            legacyCutNames[19] = "SR2ADF--180<MT2";
-            /*---------------------------------------*/
-            legacyCutNames[20] = "SR2BC--trigger && 2 OS lepton";
-            legacyCutNames[21] = "SR2BSF--Same flavour";
-            legacyCutNames[22] = "SR2BSF--mll>111GeV or mll<71GeV";
-            legacyCutNames[23] = "SR2BSF--n_{b-jets}>0 && n_{jets}>1";
-            legacyCutNames[24] = "SR2BSF--Delta phi_{boost}<1.5";
-            legacyCutNames[25] = "SR2BSF--120<MT2<140";
-            legacyCutNames[26] = "SR2BSF--140<MT2";
-
-            legacyCutNames[27] = "SR2BDF--Different flavour";
-            legacyCutNames[28] = "SR2BDF--mll>111GeV or mll<71GeV(only SF)";
-            legacyCutNames[29] = "SR2BDF--n_{b-jets}>0 && n_{jets}>1";
-            legacyCutNames[30] = "SR2BDF--Delta phi_{boost}<1.5";
-            legacyCutNames[31] = "SR2BDF--120<MT2<140";
-            legacyCutNames[32] = "SR2BDF--140<MT2";
-
-            legacyCutNames[33] = "SR2CSF--n_{b-jets}>0 && n_{jets}>1";
-            legacyCutNames[34] = "SR2CSF--n_{jets}>2";
-            legacyCutNames[35] = "SR2CSF--R_{2l}>1.2";
-            legacyCutNames[36] = "SR2CSF--E_T^{miss}>200GeV";
-            legacyCutNames[37] = "SR2CSF--110<MT2";
-
-            legacyCutNames[38] = "SR2CDF--n_{b-jets}>0 && n_{jets}>1";
-            legacyCutNames[39] = "SR2CDF--n_{jets}>2";
-            legacyCutNames[40] = "SR2CDF--R_{2l}>1.2";
-            legacyCutNames[41] = "SR2CDF--E_T^{miss}>200GeV";
-            legacyCutNames[42] = "SR2CDF--110<MT2";
-
-            /*---------------------------------------*/
-            legacyCutNames[57] = "SR4b--MET trigger && 2 OS Leptons ";
-            legacyCutNames[58] = "SR4b--m_{ll}>10GeV ";
-            legacyCutNames[59] = "SR4b--PT(l1)<80GeV && PT(l1)<35GeV ";
-            legacyCutNames[60] = "SR4b--n_{jets}>2 ";
-            legacyCutNames[61] = "SR4b--PT(j1)>150GeV ";
-            legacyCutNames[62] = "SR4b--PT(j3)/MET<0.14 ";
-            legacyCutNames[63] = "SR4b--R_{2l4j}>0.35 ";
-            legacyCutNames[64] = "SR4b--R_{2l}>12 ";
-            legacyCutNames[65] = "SR4b--veto on j1 and j2 ";
-
             #ifdef CHECK_CUTFLOW
-              if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
               _cutflows[analysis_name()].fillinit(event->weight());
+
+              for (int j = 0; j < NCUTS; j++)
+              {
+                if(
+                  (j==0) ||
+                  /********* SRA-2body *********/
+                  (j==1  && cABC_TriggerOS) ||
+                  //Same Flavour
+                  (j==2  && cABC_SF) ||
+                  (j==3  && cABC_SF && cA_mllGt111) ||
+                  (j==4  && cABC_SF && cA_mllGt111 && cA_nobjet) ||
+                  (j==5  && cABC_SF && cA_mllGt111 && cA_nobjet && CA_R2l2j) ||
+                  (j==6  && cABC_SF && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX) ||
+                  (j==7  && cABC_SF && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2120) ||
+                  (j==8  && cABC_SF && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2140) ||
+                  (j==9  && cABC_SF && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2160) ||
+                  (j==10  && cABC_SF && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2180) ||
+                  //different Flavour
+                  (j==11 && cABC_TriggerOS && (!cABC_SF)) ||
+                  (j==12 && cABC_TriggerOS && (!cABC_SF)) ||
+                  (j==13 && (!cABC_SF) && cA_nobjet) ||
+                  (j==14 && (!cABC_SF) && cA_nobjet) ||
+                  (j==15 && (!cABC_SF) && cA_nobjet && cA_deltaX) ||
+                  (j==16 && (!cABC_SF) && cA_nobjet && cA_deltaX && cA_MT2120) ||
+                  (j==17 && (!cABC_SF) && cA_nobjet && cA_deltaX && cA_MT2140) ||
+                  (j==18 && (!cABC_SF) && cA_nobjet && cA_deltaX && cA_MT2160) ||
+                  (j==19 && (!cABC_SF) && cA_nobjet && cA_deltaX && cA_MT2180) ||
+                  /********* SRB-2body *********/
+                  (j==20  && cABC_TriggerOS) ||
+                  //Same Flavour
+                  (j==21  && cABC_SF) ||
+                  (j==22  && cABC_SF && cBC_mllExMz) ||
+                  (j==23  && cABC_SF && cBC_mllExMz && cBC_nbnj) ||
+                  (j==24  && cABC_SF && cBC_mllExMz && cBC_nbnj && cB_DelBoost) ||
+                  (j==25  && cABC_SF && cBC_mllExMz && cBC_nbnj && cB_DelBoost && cB_MT2120) ||
+                  (j==26  && cABC_SF && cBC_mllExMz && cBC_nbnj && cB_DelBoost && cB_MT2140) ||
+                  //different Flavour
+                  (j==27  && cABC_TriggerOS && (!cABC_SF)) ||
+                  (j==28  && cABC_TriggerOS && (!cABC_SF)) ||
+                  (j==29  && (!cABC_SF) && cBC_nbnj) ||
+                  (j==30  && (!cABC_SF) && cBC_nbnj && cB_DelBoost) ||
+                  (j==31  && (!cABC_SF) && cBC_nbnj && cB_DelBoost && cB_MT2120) ||
+                  (j==32  && (!cABC_SF) && cBC_nbnj && cB_DelBoost && cB_MT2140) ||
+                  /********* SRC-2body *********/
+                  //Same Flavour
+                  (j==33  && cABC_SF && cBC_mllExMz && cBC_nbnj) ||
+                  (j==34  && cABC_SF && cBC_mllExMz && cBC_nbnj && cC_njGt2) ||
+                  (j==35  && cABC_SF && cBC_mllExMz && cBC_nbnj && cC_njGt2 && cC_R2lGt1o2) ||
+                  (j==36  && cABC_SF && cBC_mllExMz && cBC_nbnj && cC_njGt2 && cC_R2lGt1o2 && cC_METGt200) ||
+                  (j==37  && cABC_SF && cBC_mllExMz && cBC_nbnj && cC_njGt2 && cC_R2lGt1o2 && cC_METGt200 && cC_MT2110) ||
+                  //different Flavour
+                  (j==38  && (!cABC_SF) && cBC_nbnj) ||
+                  (j==39  && (!cABC_SF) && cBC_nbnj && cC_njGt2) ||
+                  (j==40  && (!cABC_SF) && cBC_nbnj && cC_njGt2 && cC_R2lGt1o2) ||
+                  (j==41  && (!cABC_SF) && cBC_nbnj && cC_njGt2 && cC_R2lGt1o2 && cC_METGt200) ||
+                  (j==42  && (!cABC_SF) && cBC_nbnj && cC_njGt2 && cC_R2lGt1o2 && cC_METGt200 && cC_MT2110) ||
+                  /********* SR-4body *********/
+                  (j==57 && c4_METOSlepton ) ||
+                  (j==58 && c4_METOSlepton && c4_mllGt10) ||
+                  (j==59 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton) ||
+                  (j==60 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_njetGt2) ||
+                  (j==61 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150) ||
+                  (j==62 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150 && c4_Jet3PtMET) ||
+                  (j==63 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150 && c4_Jet3PtMET && c4_R2l4j) ||
+                  (j==64 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150 && c4_Jet3PtMET && c4_R2l4j && c4_R2l) ||
+                  (j==65 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150 && c4_Jet3PtMET && c4_R2l4j && c4_R2l && c4_2bjetveto)
+                  )
+                {
+                  _cutflows[analysis_name()].fill(j+1, true, event->weight());
+                }
+              }
             #endif
 
-            for (int j = 0; j < NCUTS; j++)
-            {
-                if(
-                   (j==0) ||
-                   /********* SRA-2body *********/
-                   (j==1  && cABC_TriggerOS) ||
-                   //Same Flavour
-                   (j==2  && cABC_SF) ||
-                   (j==3  && cABC_SF && cA_mllGt111) ||
-                   (j==4  && cABC_SF && cA_mllGt111 && cA_nobjet) ||
-                   (j==5  && cABC_SF && cA_mllGt111 && cA_nobjet && CA_R2l2j) ||
-                   (j==6  && cABC_SF && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX) ||
-                   (j==7  && cABC_SF && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2120) ||
-                   (j==8  && cABC_SF && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2140) ||
-                   (j==9  && cABC_SF && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2160) ||
-                   (j==10  && cABC_SF && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2180) ||
-                   //different Flavour
-                   (j==11 && cABC_TriggerOS && (!cABC_SF)) ||
-                   (j==12 && cABC_TriggerOS && (!cABC_SF)) ||
-                   (j==13 && (!cABC_SF) && cA_nobjet) ||
-                   (j==14 && (!cABC_SF) && cA_nobjet) ||
-                   (j==15 && (!cABC_SF) && cA_nobjet && cA_deltaX) ||
-                   (j==16 && (!cABC_SF) && cA_nobjet && cA_deltaX && cA_MT2120) ||
-                   (j==17 && (!cABC_SF) && cA_nobjet && cA_deltaX && cA_MT2140) ||
-                   (j==18 && (!cABC_SF) && cA_nobjet && cA_deltaX && cA_MT2160) ||
-                   (j==19 && (!cABC_SF) && cA_nobjet && cA_deltaX && cA_MT2180) ||
-                   /********* SRB-2body *********/
-                   (j==20  && cABC_TriggerOS) ||
-                   //Same Flavour
-                   (j==21  && cABC_SF) ||
-                   (j==22  && cABC_SF && cBC_mllExMz) ||
-                   (j==23  && cABC_SF && cBC_mllExMz && cBC_nbnj) ||
-                   (j==24  && cABC_SF && cBC_mllExMz && cBC_nbnj && cB_DelBoost) ||
-                   (j==25  && cABC_SF && cBC_mllExMz && cBC_nbnj && cB_DelBoost && cB_MT2120) ||
-                   (j==26  && cABC_SF && cBC_mllExMz && cBC_nbnj && cB_DelBoost && cB_MT2140) ||
-                   //different Flavour
-                   (j==27  && cABC_TriggerOS && (!cABC_SF)) ||
-                   (j==28  && cABC_TriggerOS && (!cABC_SF)) ||
-                   (j==29  && (!cABC_SF) && cBC_nbnj) ||
-                   (j==30  && (!cABC_SF) && cBC_nbnj && cB_DelBoost) ||
-                   (j==31  && (!cABC_SF) && cBC_nbnj && cB_DelBoost && cB_MT2120) ||
-                   (j==32  && (!cABC_SF) && cBC_nbnj && cB_DelBoost && cB_MT2140) ||
-                   /********* SRC-2body *********/
-                   //Same Flavour
-                   (j==33  && cABC_SF && cBC_mllExMz && cBC_nbnj) ||
-                   (j==34  && cABC_SF && cBC_mllExMz && cBC_nbnj && cC_njGt2) ||
-                   (j==35  && cABC_SF && cBC_mllExMz && cBC_nbnj && cC_njGt2 && cC_R2lGt1o2) ||
-                   (j==36  && cABC_SF && cBC_mllExMz && cBC_nbnj && cC_njGt2 && cC_R2lGt1o2 && cC_METGt200) ||
-                   (j==37  && cABC_SF && cBC_mllExMz && cBC_nbnj && cC_njGt2 && cC_R2lGt1o2 && cC_METGt200 && cC_MT2110) ||
-                   //different Flavour
-                   (j==38  && (!cABC_SF) && cBC_nbnj) ||
-                   (j==39  && (!cABC_SF) && cBC_nbnj && cC_njGt2) ||
-                   (j==40  && (!cABC_SF) && cBC_nbnj && cC_njGt2 && cC_R2lGt1o2) ||
-                   (j==41  && (!cABC_SF) && cBC_nbnj && cC_njGt2 && cC_R2lGt1o2 && cC_METGt200) ||
-                   (j==42  && (!cABC_SF) && cBC_nbnj && cC_njGt2 && cC_R2lGt1o2 && cC_METGt200 && cC_MT2110) ||
-                   /********* SR-4body *********/
-                   (j==57 && c4_METOSlepton ) ||
-                   (j==58 && c4_METOSlepton && c4_mllGt10) ||
-                   (j==59 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton) ||
-                   (j==60 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_njetGt2) ||
-                   (j==61 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150) ||
-                   (j==62 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150 && c4_Jet3PtMET) ||
-                   (j==63 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150 && c4_Jet3PtMET && c4_R2l4j) ||
-                   (j==64 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150 && c4_Jet3PtMET && c4_R2l4j && c4_R2l) ||
-                   (j==65 && c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150 && c4_Jet3PtMET && c4_R2l4j && c4_R2l && c4_2bjetveto)
-                   )
-              {
-                #ifdef CHECK_CUTFLOW
-                  _cutflows[analysis_name()].fill(j+1, true, event->weight());
-                #endif
-
-              }
-            }
             // signal region
-
             if (   cABC_SF  && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2120 ) _counters.at("SRASF120").add_event(event);
             if ( (!cABC_SF)                && cA_nobjet             && cA_deltaX && cA_MT2120 ) _counters.at("SRADF120").add_event(event);
             if (   cABC_SF  && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2140 ) _counters.at("SRASF140").add_event(event);

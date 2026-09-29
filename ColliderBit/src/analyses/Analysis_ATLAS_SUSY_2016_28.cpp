@@ -76,12 +76,80 @@ namespace Gambit
           set_analysis_name("ATLAS_SUSY_2016_28");
           set_luminosity(36.1);
 
-          NCUTS=70;
+          #ifdef CHECK_CUTFLOW
+            NCUTS=70;
 
-          for(int i = 0; i < NCUTS; i++)
-          {
-            legacyCutNames.push_back("");
-          }
+            for(int i = 0; i < NCUTS; i++)
+            {
+              legacyCutNames.push_back("");
+            }
+
+            // Increment legacyCutCounts elements
+            legacyCutNames[0]  = "No cuts ";
+            legacyCutNames[1]  = "b0L-SRA: MET > 250 GeV";
+            legacyCutNames[2]  = "b0L-SRA: dPhiMin4 > 0.4";
+            legacyCutNames[3]  = "b0L-SRA: MET/meff > 0.25 ";
+            legacyCutNames[4]  = "b0L-SRA: 2-4 jets (pT > 25 GeV)";
+            legacyCutNames[5]  = "b0L-SRA: pT j0 > 130 GeV";
+            legacyCutNames[6]  = "b0L-SRA: pT j1 > 50 GeV";
+            legacyCutNames[7]  = "b0L-SRA: pT j3 < 50 GeV";
+            legacyCutNames[8]  = "b0L-SRA: 0 leptons";
+            legacyCutNames[9]  = "b0L-SRA: 2 b jets ";
+            legacyCutNames[10] = "b0L-SRA: 2 leading b jets ";
+            legacyCutNames[11] = "b0L-SRA: mbb > 200 GeV ";
+            legacyCutNames[12] = "b0L-SRA: mCT > 350 GeV ";
+            legacyCutNames[13] = "b0L-SRA: mCT > 450 GeV ";
+            legacyCutNames[14] = "b0L-SRA: mCT > 550 GeV ";
+
+            legacyCutNames[15] = "b0L-SRB: pT j1 > 50 GeV ";
+            legacyCutNames[16] = "b0L-SRB: 0 leptons ";
+            legacyCutNames[17] = "b0L-SRB: 2 bjets ";
+            legacyCutNames[18] = "b0L-SRB: dphi(b1,met) < 2.0 ";
+            legacyCutNames[19] = "b0L-SRB: dphi(b2,met) < 2.5 ";
+            legacyCutNames[20] = "b0L-SRB: mTmin(j1-4,met)>250 GeV ";
+            legacyCutNames[21] = "b0L-SRC: Zero leptons ";
+            legacyCutNames[22] = "b0L-SRC: 2-5 jets (pT > 20 GeV) ";
+            legacyCutNames[23] = "b0L-SRC: Leading light jet ";
+            legacyCutNames[24] = "b0L-SRC: dPhi(j1,met) > 2.5";
+            legacyCutNames[25] = "b0L-SRC: dPhi(j2,met) > 0.2";
+            legacyCutNames[26] = "b0L-SRC: Subleading jet b-tagged ";
+            legacyCutNames[27] = "b0L-SRC: 2 b jets ";
+            legacyCutNames[28] = "b0L-SRC: HT4 < 70 ";
+            legacyCutNames[29] = "b0L-SRC: met > 500 GeV ";
+            legacyCutNames[30] = "b0L-SRC: pT(j1) > 500 GeV ";
+            legacyCutNames[31] = "b0L-SRC: meff > 1300 GeV ";
+            legacyCutNames[32] = "b0L-SRC: A > 0.8 ";
+            legacyCutNames[33] = "b0L-SRC: mjj > 200 GeV ";
+            legacyCutNames[34] = "b1L-SRA: 1 lepton ";
+            legacyCutNames[35] = "b1L-SRA: pT(l1) > 27 GeV ";
+            legacyCutNames[36] = "b1L-SRA: >= 2 jets (pT > 35 GeV) ";
+            legacyCutNames[37] = "b1L-SRA: dphi j min > 0.4 ";
+            legacyCutNames[38] = "b1L-SRA: 2 b jets ";
+            legacyCutNames[39] = "b1L-SRA: met > 200 GeV ";
+            legacyCutNames[40] = "b1L-SRA: met/sqrt(HT) ";
+            legacyCutNames[41] = "b1L-SRA: mT > 140 GeV ";
+            legacyCutNames[42] = "b1L-SRA: mblmin < 170 GeV ";
+            legacyCutNames[43] = "b1L-SRA: amT2 > 250 GeV ";
+            legacyCutNames[44] = "b1L-SRA: mbb > 200 GeV ";
+            legacyCutNames[45] = "b1L-SRA: meff > 450 GeV ";
+            legacyCutNames[46] = "b1L-SRA: meff > 600 GeV ";
+            legacyCutNames[47] = "b1L-SRA: meff > 750 GeV ";
+            legacyCutNames[48] = "b1L-SRA300-2j: met/sqrt(HT) ";
+            legacyCutNames[49] = "b1L-SRA300-2j: mT  > 140 GeV ";
+            legacyCutNames[50] = "b1L-SRA300-2j: mblmin < 170 GeV ";
+            legacyCutNames[51] = "b1L-SRA300-2j: amt2 > 250 GeV ";
+            legacyCutNames[52] = "b1L-SRA300-2j: mbb > 200 GeV ";
+            legacyCutNames[53] = "b1L-SRA300-2j: meff > 300 GeV ";
+            legacyCutNames[54] = "b1L-SRA300-2j: < 3 jets (pT > 35 GeV) ";
+            legacyCutNames[55] = "b1L-SRB: mT > 120 GeV ";
+            legacyCutNames[56] = "b1L-SRB: mblmin < 170 GeV ";
+            legacyCutNames[57] = "b1L-SRB: amt2 > 200 GeV ";
+            legacyCutNames[58] = "b1L-SRB: mbb < 200 GeV ";
+            legacyCutNames[59] = "b1L-SRB: dphi(b1,met) > 2.0 ";
+            legacyCutNames[60] = "b1L-SRB: mTmin(b1-2,met) > 200 GeV ";
+
+            _cutflows.addCutflow(analysis_name(), legacyCutNames);
+          #endif
 
         }
 
@@ -701,217 +769,91 @@ namespace Gambit
           double mbb_35 = 0.;
           if (nBjets35 >= 2) mbb_35 = (signalBJets35[0]->mom() + signalBJets35[1]->mom()).m();
 
-          // Increment legacyCutCounts elements
-          legacyCutNames[0]  = "No cuts ";
-          legacyCutNames[1]  = "b0L-SRA: MET > 250 GeV";
-          legacyCutNames[2]  = "b0L-SRA: dPhiMin4 > 0.4";
-          legacyCutNames[3]  = "b0L-SRA: MET/meff > 0.25 ";
-          legacyCutNames[4]  = "b0L-SRA: 2-4 jets (pT > 25 GeV)";
-          legacyCutNames[5]  = "b0L-SRA: pT j0 > 130 GeV";
-          legacyCutNames[6]  = "b0L-SRA: pT j1 > 50 GeV";
-          legacyCutNames[7]  = "b0L-SRA: pT j3 < 50 GeV";
-          legacyCutNames[8]  = "b0L-SRA: 0 leptons";
-          legacyCutNames[9]  = "b0L-SRA: 2 b jets ";
-          legacyCutNames[10] = "b0L-SRA: 2 leading b jets ";
-          legacyCutNames[11] = "b0L-SRA: mbb > 200 GeV ";
-          legacyCutNames[12] = "b0L-SRA: mCT > 350 GeV ";
-          legacyCutNames[13] = "b0L-SRA: mCT > 450 GeV ";
-          legacyCutNames[14] = "b0L-SRA: mCT > 550 GeV ";
-
-          legacyCutNames[15] = "b0L-SRB: pT j1 > 50 GeV ";
-          legacyCutNames[16] = "b0L-SRB: 0 leptons ";
-          legacyCutNames[17] = "b0L-SRB: 2 bjets ";
-          legacyCutNames[18] = "b0L-SRB: dphi(b1,met) < 2.0 ";
-          legacyCutNames[19] = "b0L-SRB: dphi(b2,met) < 2.5 ";
-          legacyCutNames[20] = "b0L-SRB: mTmin(j1-4,met)>250 GeV ";
-          legacyCutNames[21] = "b0L-SRC: Zero leptons ";
-          legacyCutNames[22] = "b0L-SRC: 2-5 jets (pT > 20 GeV) ";
-          legacyCutNames[23] = "b0L-SRC: Leading light jet ";
-          legacyCutNames[24] = "b0L-SRC: dPhi(j1,met) > 2.5";
-          legacyCutNames[25] = "b0L-SRC: dPhi(j2,met) > 0.2";
-          legacyCutNames[26] = "b0L-SRC: Subleading jet b-tagged ";
-          legacyCutNames[27] = "b0L-SRC: 2 b jets ";
-          legacyCutNames[28] = "b0L-SRC: HT4 < 70 ";
-          legacyCutNames[29] = "b0L-SRC: met > 500 GeV ";
-          legacyCutNames[30] = "b0L-SRC: pT(j1) > 500 GeV ";
-          legacyCutNames[31] = "b0L-SRC: meff > 1300 GeV ";
-          legacyCutNames[32] = "b0L-SRC: A > 0.8 ";
-          legacyCutNames[33] = "b0L-SRC: mjj > 200 GeV ";
-          legacyCutNames[34] = "b1L-SRA: 1 lepton ";
-          legacyCutNames[35] = "b1L-SRA: pT(l1) > 27 GeV ";
-          legacyCutNames[36] = "b1L-SRA: >= 2 jets (pT > 35 GeV) ";
-          legacyCutNames[37] = "b1L-SRA: dphi j min > 0.4 ";
-          legacyCutNames[38] = "b1L-SRA: 2 b jets ";
-          legacyCutNames[39] = "b1L-SRA: met > 200 GeV ";
-          legacyCutNames[40] = "b1L-SRA: met/sqrt(HT) ";
-          legacyCutNames[41] = "b1L-SRA: mT > 140 GeV ";
-          legacyCutNames[42] = "b1L-SRA: mblmin < 170 GeV ";
-          legacyCutNames[43] = "b1L-SRA: amT2 > 250 GeV ";
-          legacyCutNames[44] = "b1L-SRA: mbb > 200 GeV ";
-          legacyCutNames[45] = "b1L-SRA: meff > 450 GeV ";
-          legacyCutNames[46] = "b1L-SRA: meff > 600 GeV ";
-          legacyCutNames[47] = "b1L-SRA: meff > 750 GeV ";
-          legacyCutNames[48] = "b1L-SRA300-2j: met/sqrt(HT) ";
-          legacyCutNames[49] = "b1L-SRA300-2j: mT  > 140 GeV ";
-          legacyCutNames[50] = "b1L-SRA300-2j: mblmin < 170 GeV ";
-          legacyCutNames[51] = "b1L-SRA300-2j: amt2 > 250 GeV ";
-          legacyCutNames[52] = "b1L-SRA300-2j: mbb > 200 GeV ";
-          legacyCutNames[53] = "b1L-SRA300-2j: meff > 300 GeV ";
-          legacyCutNames[54] = "b1L-SRA300-2j: < 3 jets (pT > 35 GeV) ";
-          legacyCutNames[55] = "b1L-SRB: mT > 120 GeV ";
-          legacyCutNames[56] = "b1L-SRB: mblmin < 170 GeV ";
-          legacyCutNames[57] = "b1L-SRB: amt2 > 200 GeV ";
-          legacyCutNames[58] = "b1L-SRB: mbb < 200 GeV ";
-          legacyCutNames[59] = "b1L-SRB: dphi(b1,met) > 2.0 ";
-          legacyCutNames[60] = "b1L-SRB: mTmin(b1-2,met) > 200 GeV ";
-
           // Apply cuts to each signal region
 
           #ifdef CHECK_CUTFLOW
-            if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
             _cutflows[analysis_name()].fillinit(event->weight());
+
+            for(int j = 0; j < NCUTS; j++)
+            {
+              if(
+                (j==0) ||
+                (j==1 && met > 250.) ||
+                (j==2 && met > 250. && dphiMin4 > 0.4) ||
+                (j==3 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25) ||
+                (j==4 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4) ||
+                (j==5 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130.) ||
+                (j==6 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50.) ||
+                (j==7 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50. && (nJets35<4 || signalJets35[3]->pT() < 50.)) ||
+                (j==8 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50. && (nJets35<4 || signalJets35[3]->pT() < 50.) && zeroLep) ||
+                (j==9 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50. && (nJets35<4 || signalJets35[3]->pT() < 50.) && zeroLep && nBjets35==2) ||
+                (j==10 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50. && (nJets35<4 || signalJets35[3]->pT() < 50.) && zeroLep && nBjets35==2 && bjetsLeading) ||
+                (j==11 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50. && (nJets35<4 || signalJets35[3]->pT() < 50.) && zeroLep && nBjets35==2 && bjetsLeading && mjj_35 > 200.) ||
+                (j==12 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50. && (nJets35<4 || signalJets35[3]->pT() < 50.) && zeroLep && nBjets35==2 && bjetsLeading && mjj_35 > 200. && mCT > 350.) ||
+                (j==13 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50. && (nJets35<4 || signalJets35[3]->pT() < 50.) && zeroLep && nBjets35==2 && bjetsLeading && mjj_35 > 200. && mCT > 450.) ||
+                (j==14 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50. && (nJets35<4 || signalJets35[3]->pT() < 50.) && zeroLep && nBjets35==2 && bjetsLeading && mjj_35 > 200. && mCT > 550.) ||
+
+                // b0L-SRB
+                (j==15 && met > 250. && dphiMin4 > 0.4 && nJets35>=2 && nJets35<=4 && signalJets35[1]->pT() > 50.) ||
+                (j==16 && met > 250. && dphiMin4 > 0.4 && nJets35>=2 && nJets35<=4 && signalJets35[1]->pT() > 50. && zeroLep) ||
+                (j==17 && met > 250. && dphiMin4 > 0.4 && nJets35>=2 && nJets35<=4 && signalJets35[1]->pT() > 50. && zeroLep && nBjets35==2) ||
+                (j==18 && met > 250. && dphiMin4 > 0.4 && nJets35>=2 && nJets35<=4 && signalJets35[1]->pT() > 50. && zeroLep && nBjets35==2 && dphib1 < 2.0) ||
+                (j==19 && met > 250. && dphiMin4 > 0.4 && nJets35>=2 && nJets35<=4 && signalJets35[1]->pT() > 50. && zeroLep && nBjets35==2 && dphib1 < 2.0 && dphib2 < 2.5) ||
+                (j==20 && met > 250. && dphiMin4 > 0.4 && nJets35>=2 && nJets35<=4 && signalJets35[1]->pT() > 50. && zeroLep && nBjets35==2 && dphib1 < 2.0 && dphib2 < 2.5 && mtmin > 250.) ||
+
+                // b0L-SRC
+                (j==21 && zeroLep) ||
+                (j==22 && zeroLep && nJets20>=2 && nJets20<=5) ||
+                (j==23 && zeroLep && nJets20>=2 && nJets20<=5 && !analysisBtags.at(signalJets20[0])) ||
+                (j==24 && zeroLep && nJets20>=2 && nJets20<=5 && !analysisBtags.at(signalJets20[0]) && dphiMin1 > 2.5) ||
+                (j==25 && zeroLep && nJets20>=2 && nJets20<=5 && !analysisBtags.at(signalJets20[0]) && dphiMin1 > 2.5 && dphiMin2 > 0.2) ||
+                (j==26 && zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2) ||
+                (j==27 && zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2 && nBjets20==2) ||
+                (j==28 && zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2 && nBjets20==2 && ht4 < 70.) ||
+                (j==29 && zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2 && nBjets20==2 && ht4 < 70. && met > 500.) ||
+                (j==30 && zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2 && nBjets20==2 && ht4 < 70. && met > 500. && signalJets20[0]->pT() > 500.) ||
+                (j==31 && zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2 && nBjets20==2 && ht4 < 70. && met > 500. && signalJets20[0]->pT() > 500. && meff4j > 1300.) ||
+                (j==32 && zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2 && nBjets20==2 && ht4 < 70. && met > 500. && signalJets20[0]->pT() > 500. && meff4j > 1300. && asym > 0.8) ||
+                (j==33 && zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2 && nBjets20==2 && ht4 < 70. && met > 500. && signalJets20[0]->pT() > 500. && meff4j > 1300. && asym > 0.8 && mjj_20 > 200.) ||
+
+                // b1L-SRA
+                (j==34 && oneLep) ||
+                (j==35 && oneLep && signalLeptons[0]->pT() > 27.) ||
+                (j==36 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2) ||
+                (j==37 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4) ||
+                (j==38 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2) ||
+                (j==39 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200.) ||
+                (j==40 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8) ||
+                (j==41 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140.) ||
+                (j==42 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170) ||
+                (j==43 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170 && amt2 > 250) ||
+                (j==44 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170 && amt2 > 250 && mbb_35 > 200.) ||
+                (j==45 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170 && amt2 > 250 && mbb_35 > 200. && meff > 450.) ||
+                (j==46 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170 && amt2 > 250 && mbb_35 > 200. && meff > 600.) ||
+                (j==47 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170 && amt2 > 250 && mbb_35 > 200. && meff > 750.) ||
+
+                // b1L-SRA300-2j
+                (j==48 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8) ||
+                (j==49 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140.) ||
+                (j==50 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170.) ||
+                (j==51 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170. && amt2 > 250.) ||
+                (j==52 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170. && amt2 > 250. && mbb_35 > 200.) ||
+                (j==53 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170. && amt2 > 250. && mbb_35 > 200. && meff>300.) ||
+                (j==54 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170. && amt2 > 250. && mbb_35 > 200. && meff>300. && nJets35==2) ||
+
+                // b1L-SRB
+                (j==55 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120.) ||
+                (j==56 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120. && mblmin < 170.) ||
+                (j==57 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120. && mblmin < 170. && amt2 > 200.) ||
+                (j==58 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120. && mblmin < 170. && amt2 > 200. && mbb_35 < 200.) ||
+                (j==59 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120. && mblmin < 170. && amt2 > 200. && mbb_35 < 200. && fabs(signalBJets35[0]->mom().deltaPhi(metVec)) > 2.0) ||
+                (j==60 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120. && mblmin < 170. && amt2 > 200. && mbb_35 < 200. && fabs(signalBJets35[0]->mom().deltaPhi(metVec)) > 2.0 && mtminb > 200.)
+                )
+              {
+                _cutflows[analysis_name()].fill(j+1, true, event->weight());
+              }
+            }
           #endif
-
-          for(int j = 0; j < NCUTS; j++)
-          {
-            if(
-               (j==0) ||
-
-               (j==1 && met > 250.) ||
-
-               (j==2 && met > 250. && dphiMin4 > 0.4) ||
-
-               (j==3 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25) ||
-
-               (j==4 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4) ||
-
-               (j==5 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130.) ||
-
-               (j==6 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50.) ||
-
-               (j==7 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50. && (nJets35<4 || signalJets35[3]->pT() < 50.)) ||
-
-               (j==8 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50. && (nJets35<4 || signalJets35[3]->pT() < 50.) && zeroLep) ||
-
-               (j==9 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50. && (nJets35<4 || signalJets35[3]->pT() < 50.) && zeroLep && nBjets35==2) ||
-
-               (j==10 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50. && (nJets35<4 || signalJets35[3]->pT() < 50.) && zeroLep && nBjets35==2 && bjetsLeading) ||
-
-               (j==11 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50. && (nJets35<4 || signalJets35[3]->pT() < 50.) && zeroLep && nBjets35==2 && bjetsLeading && mjj_35 > 200.) ||
-
-               (j==12 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50. && (nJets35<4 || signalJets35[3]->pT() < 50.) && zeroLep && nBjets35==2 && bjetsLeading && mjj_35 > 200. && mCT > 350.) ||
-
-               (j==13 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50. && (nJets35<4 || signalJets35[3]->pT() < 50.) && zeroLep && nBjets35==2 && bjetsLeading && mjj_35 > 200. && mCT > 450.) ||
-
-               (j==14 && met > 250. && dphiMin4 > 0.4 && met/meff2j>0.25 && nJets35>=2 && nJets35<=4 &&  signalJets35[0]->pT() > 130. && signalJets35[1]->pT() > 50. && (nJets35<4 || signalJets35[3]->pT() < 50.) && zeroLep && nBjets35==2 && bjetsLeading && mjj_35 > 200. && mCT > 550.) ||
-
-               // b0L-SRB
-
-               (j==15 && met > 250. && dphiMin4 > 0.4 && nJets35>=2 && nJets35<=4 && signalJets35[1]->pT() > 50.) ||
-
-               (j==16 && met > 250. && dphiMin4 > 0.4 && nJets35>=2 && nJets35<=4 && signalJets35[1]->pT() > 50. && zeroLep) ||
-
-               (j==17 && met > 250. && dphiMin4 > 0.4 && nJets35>=2 && nJets35<=4 && signalJets35[1]->pT() > 50. && zeroLep && nBjets35==2) ||
-
-               (j==18 && met > 250. && dphiMin4 > 0.4 && nJets35>=2 && nJets35<=4 && signalJets35[1]->pT() > 50. && zeroLep && nBjets35==2 && dphib1 < 2.0) ||
-
-               (j==19 && met > 250. && dphiMin4 > 0.4 && nJets35>=2 && nJets35<=4 && signalJets35[1]->pT() > 50. && zeroLep && nBjets35==2 && dphib1 < 2.0 && dphib2 < 2.5) ||
-
-               (j==20 && met > 250. && dphiMin4 > 0.4 && nJets35>=2 && nJets35<=4 && signalJets35[1]->pT() > 50. && zeroLep && nBjets35==2 && dphib1 < 2.0 && dphib2 < 2.5 && mtmin > 250.) ||
-
-               // b0L-SRC
-
-               (j==21 && zeroLep) ||
-
-               (j==22 && zeroLep && nJets20>=2 && nJets20<=5) ||
-
-               (j==23 && zeroLep && nJets20>=2 && nJets20<=5 && !analysisBtags.at(signalJets20[0])) ||
-
-               (j==24 && zeroLep && nJets20>=2 && nJets20<=5 && !analysisBtags.at(signalJets20[0]) && dphiMin1 > 2.5) ||
-
-               (j==25 && zeroLep && nJets20>=2 && nJets20<=5 && !analysisBtags.at(signalJets20[0]) && dphiMin1 > 2.5 && dphiMin2 > 0.2) ||
-
-               (j==26 && zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2) ||
-
-               (j==27 && zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2 && nBjets20==2) ||
-
-               (j==28 && zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2 && nBjets20==2 && ht4 < 70.) ||
-
-               (j==29 && zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2 && nBjets20==2 && ht4 < 70. && met > 500.) ||
-
-               (j==30 && zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2 && nBjets20==2 && ht4 < 70. && met > 500. && signalJets20[0]->pT() > 500.) ||
-
-               (j==31 && zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2 && nBjets20==2 && ht4 < 70. && met > 500. && signalJets20[0]->pT() > 500. && meff4j > 1300.) ||
-
-               (j==32 && zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2 && nBjets20==2 && ht4 < 70. && met > 500. && signalJets20[0]->pT() > 500. && meff4j > 1300. && asym > 0.8) ||
-
-               (j==33 && zeroLep && nJets20>=2 && nJets20<=5 && bjetsSublead && dphiMin1 > 2.5 && dphiMin2 > 0.2 && nBjets20==2 && ht4 < 70. && met > 500. && signalJets20[0]->pT() > 500. && meff4j > 1300. && asym > 0.8 && mjj_20 > 200.) ||
-
-               // b1L-SRA
-
-               (j==34 && oneLep) ||
-
-               (j==35 && oneLep && signalLeptons[0]->pT() > 27.) ||
-
-               (j==36 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2) ||
-
-               (j==37 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4) ||
-
-               (j==38 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2) ||
-
-               (j==39 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200.) ||
-
-               (j==40 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8) ||
-
-               (j==41 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140.) ||
-
-               (j==42 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170) ||
-
-               (j==43 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170 && amt2 > 250) ||
-
-               (j==44 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170 && amt2 > 250 && mbb_35 > 200.) ||
-
-               (j==45 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170 && amt2 > 250 && mbb_35 > 200. && meff > 450.) ||
-
-               (j==46 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170 && amt2 > 250 && mbb_35 > 200. && meff > 600.) ||
-
-               (j==47 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170 && amt2 > 250 && mbb_35 > 200. && meff > 750.) ||
-
-               // b1L-SRA300-2j
-
-               (j==48 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8) ||
-
-               (j==49 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140.) ||
-
-               (j==50 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170.) ||
-
-               (j==51 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170. && amt2 > 250.) ||
-
-               (j==52 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170. && amt2 > 250. && mbb_35 > 200.) ||
-               (j==53 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170. && amt2 > 250. && mbb_35 > 200. && meff>300.) ||
-
-               (j==54 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 140. && mblmin < 170. && amt2 > 250. && mbb_35 > 200. && meff>300. && nJets35==2) ||
-
-               // b1L-SRB
-
-               (j==55 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120.) ||
-
-               (j==56 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120. && mblmin < 170.) ||
-
-               (j==57 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120. && mblmin < 170. && amt2 > 200.) ||
-
-               (j==58 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120. && mblmin < 170. && amt2 > 200. && mbb_35 < 200.) ||
-               (j==59 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120. && mblmin < 170. && amt2 > 200. && mbb_35 < 200. && fabs(signalBJets35[0]->mom().deltaPhi(metVec)) > 2.0) ||
-
-               (j==60 && oneLep && signalLeptons[0]->pT() > 27. &&  nJets35>=2 && dphiMin4 > 0.4 && nBjets35==2 && met > 200. && met/sqrt(ht) > 8 && mt > 120. && mblmin < 170. && amt2 > 200. && mbb_35 < 200. && fabs(signalBJets35[0]->mom().deltaPhi(metVec)) > 2.0 && mtminb > 200.)
-
-               )
-          {
-            #ifdef CHECK_CUTFLOW
-              _cutflows[analysis_name()].fill(j+1, true, event->weight());
-            #endif
-          }
-        }
 
 
           // Now increment signal region variables

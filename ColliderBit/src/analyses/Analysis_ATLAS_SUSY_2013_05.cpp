@@ -71,13 +71,38 @@ namespace Gambit
           _counters["SRA30"] = EventCounter("SRA30");
           _counters["SRA35"] = EventCounter("SRA35");
 
+          #ifdef CHECK_CUTFLOW
+            NCUTS=30;
 
-          NCUTS=30;
+            for(int i = 0; i < NCUTS; i++)
+            {
+              legacyCutNames.push_back("");
+            }
 
-          for(int i=0;i<NCUTS;i++)
-          {
-            legacyCutNames.push_back("");
-          }
+            legacyCutNames[0] = "No cuts ";
+            legacyCutNames[1] = "MET > 80 ";
+            legacyCutNames[2] = "SRA: Lepton veto ";
+            legacyCutNames[3] = "SRA: MET > 150 ";
+            legacyCutNames[4] = "SRA: Jet selection  ";
+            legacyCutNames[5] = "SRA: B jet selection  ";
+            legacyCutNames[6] = "SRA: dPhi_min > 0.4 ";
+            legacyCutNames[7] = "SRA: MET/meff(2) > 0.25 ";
+            legacyCutNames[8] = "SRA: mbb > 200 ";
+            legacyCutNames[9] = "SRA: mCT > 150 ";
+            legacyCutNames[10] = "SRA: mCT > 200 ";
+            legacyCutNames[11] = "SRA: mCT > 250 ";
+            legacyCutNames[12] = "SRA: mCT > 300 ";
+            legacyCutNames[13] = "SRB: lepton veto ";
+            legacyCutNames[14] = "SRB: MET > 250 ";
+            legacyCutNames[15] = "SRB: Jet selection ";
+            legacyCutNames[16] = "SRB: dPhi(pTmiss,j1) > 2.5 ";
+            legacyCutNames[17] = "SRB: B jet selection ";
+            legacyCutNames[18] = "SRB: dPhi_min > 0.4 ";
+            legacyCutNames[19] = "SRB: MET/meff(3) > 0.25 ";
+            legacyCutNames[20] = "SRB: HT3 < 50  ";
+
+            _cutflows.addCutflow(analysis_name(), legacyCutNames);
+          #endif
 
   //        vector<const char*> variablesNames = {"met","mct","mbb","ht3"};
   //        plots_mct = new Perf_Plot(analysis_name()+"_SRA_no-mct-cut", &variablesNames);
@@ -365,94 +390,50 @@ namespace Gambit
           if(met/meff3>0.25)cut_METmeff3=true;
 
 
-  //        vector<double> variables={met, mCT, mbb, ht3};
-  //        if(met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200.)plots_mct->fill(&variables);
-  //        if(met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mCT > 150.)plots_mbb->fill(&variables);
-  //        if(met>80. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.)plots_met->fill(&variables);
-  //        if(met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3)plots_ht3->fill(&variables);
-  //        if(met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200. && mCT > 150.)plots_allAcuts->fill(&variables);
-  //        if(met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.)plots_allBcuts->fill(&variables);
-
-
-          legacyCutNames[0] = "No cuts ";
-          legacyCutNames[1] = "MET > 80 ";
-          legacyCutNames[2] = "SRA: Lepton veto ";
-          legacyCutNames[3] = "SRA: MET > 150 ";
-          legacyCutNames[4] = "SRA: Jet selection  ";
-          legacyCutNames[5] = "SRA: B jet selection  ";
-          legacyCutNames[6] = "SRA: dPhi_min > 0.4 ";
-          legacyCutNames[7] = "SRA: MET/meff(2) > 0.25 ";
-          legacyCutNames[8] = "SRA: mbb > 200 ";
-          legacyCutNames[9] = "SRA: mCT > 150 ";
-          legacyCutNames[10] = "SRA: mCT > 200 ";
-          legacyCutNames[11] = "SRA: mCT > 250 ";
-          legacyCutNames[12] = "SRA: mCT > 300 ";
-          legacyCutNames[13] = "SRB: lepton veto ";
-          legacyCutNames[14] = "SRB: MET > 250 ";
-          legacyCutNames[15] = "SRB: Jet selection ";
-          legacyCutNames[16] = "SRB: dPhi(pTmiss,j1) > 2.5 ";
-          legacyCutNames[17] = "SRB: B jet selection ";
-          legacyCutNames[18] = "SRB: dPhi_min > 0.4 ";
-          legacyCutNames[19] = "SRB: MET/meff(3) > 0.25 ";
-          legacyCutNames[20] = "SRB: HT3 < 50  ";
+          // vector<double> variables={met, mCT, mbb, ht3};
+          // if(met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200.)plots_mct->fill(&variables);
+          // if(met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mCT > 150.)plots_mbb->fill(&variables);
+          // if(met>80. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.)plots_met->fill(&variables);
+          // if(met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3)plots_ht3->fill(&variables);
+          // if(met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200. && mCT > 150.)plots_allAcuts->fill(&variables);
+          // if(met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.)plots_allBcuts->fill(&variables);
 
 
           #ifdef CHECK_CUTFLOW
-        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-        _cutflows[analysis_name()].fillinit(event->weight());
-#endif
+            _cutflows[analysis_name()].fillinit(event->weight());
 
-for(int j=0;j<NCUTS;j++)
-          {
-            if(
-               (j==0) ||
+            for(int j=0;j<NCUTS;j++)
+            {
+              if(
+                (j==0) ||
+                (j==1 && met>80.) ||
+                (j==2 && met>80. && cut_MuonVeto && cut_ElectronVeto) ||
 
-               (j==1 && met>80.) ||
+                (j==3 && met>150. && cut_MuonVeto && cut_ElectronVeto) ||
+                (j==4 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut) ||
+                (j==5 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut) ||
+                (j==6 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets) ||
+                (j==7 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2) ||
+                (j==8 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200.) ||
+                (j==9 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200. && mCT > 150.) ||
+                (j==10 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200. && mCT > 200.) ||
+                (j==11 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200. && mCT > 250.) ||
+                (j==12 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200. && mCT > 300.) ||
 
-               (j==2 && met>80. && cut_MuonVeto && cut_ElectronVeto) ||
+                (j==13 && met>80. && cut_MuonVeto && cut_ElectronVeto) ||
 
-               (j==3 && met>150. && cut_MuonVeto && cut_ElectronVeto) ||
-
-               (j==4 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut) ||
-
-               (j==5 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut) ||
-
-               (j==6 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets) ||
-
-               (j==7 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2) ||
-
-               (j==8 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200.) ||
-
-               (j==9 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200. && mCT > 150.) ||
-
-               (j==10 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200. && mCT > 200.) ||
-
-               (j==11 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200. && mCT > 250.) ||
-
-               (j==12 && met>150. && cut_MuonVeto && cut_ElectronVeto && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb > 200. && mCT > 300.) ||
-
-               (j==13 && met>80. && cut_MuonVeto && cut_ElectronVeto) ||
-
-               (j==14 && met>250. && cut_MuonVeto && cut_ElectronVeto) ||
-
-               (j==15 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut) ||
-
-               (j==16 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1) ||
-
-               (j==17 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut) ||
-
-               (j==18 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets) ||
-
-               (j==19 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3) ||
-
-               (j==20 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.)
-
-               ) {
-#ifdef CHECK_CUTFLOW
-            _cutflows[analysis_name()].fill(j+1, true, event->weight());
-#endif
-          }
-        }
+                (j==14 && met>250. && cut_MuonVeto && cut_ElectronVeto) ||
+                (j==15 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut) ||
+                (j==16 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1) ||
+                (j==17 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut) ||
+                (j==18 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets) ||
+                (j==19 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3) ||
+                (j==20 && met>250. && cut_MuonVeto && cut_ElectronVeto && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.)
+              ) {
+                _cutflows[analysis_name()].fill(j+1, true, event->weight());
+              }
+            }
+          #endif
 
           //We're now ready to apply the cuts for each signal region
           //SRA, SRB, SRA15, SRA20, SRA25, SRA30, SRA35;
@@ -476,8 +457,7 @@ for(int j=0;j<NCUTS;j++)
 
         void collect_results()
         {
-
-COMMIT_CUTFLOWS;
+          COMMIT_CUTFLOWS;
 
           add_result(SignalRegionData(_counters.at("SRA15"), 102., { 94., 13.}));
           add_result(SignalRegionData(_counters.at("SRA20"), 48., { 39., 6.}));
@@ -486,12 +466,12 @@ COMMIT_CUTFLOWS;
           add_result(SignalRegionData(_counters.at("SRA35"), 3., { 2.5, 0.6}));
           add_result(SignalRegionData(_counters.at("SRB"), 65., { 64., 10.}));
 
-  //        plots_mct->createFile(luminosity(),(85.5847/50000));
-  //        plots_mbb->createFile(luminosity(),(85.5847/50000));
-  //        plots_met->createFile(luminosity(),(85.5847/50000));
-  //        plots_ht3->createFile(luminosity(),(85.5847/50000));
-  //        plots_allAcuts->createFile(luminosity(),(85.5847/50000));
-  //        plots_allBcuts->createFile(luminosity(),(85.5847/50000));
+          // plots_mct->createFile(luminosity(),(85.5847/50000));
+          // plots_mbb->createFile(luminosity(),(85.5847/50000));
+          // plots_met->createFile(luminosity(),(85.5847/50000));
+          // plots_ht3->createFile(luminosity(),(85.5847/50000));
+          // plots_allAcuts->createFile(luminosity(),(85.5847/50000));
+          // plots_allBcuts->createFile(luminosity(),(85.5847/50000));
 
           return;
         }

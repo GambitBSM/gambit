@@ -110,11 +110,37 @@ namespace Gambit {
         _counters["SRC2"] = EventCounter("SRC2");
         _counters["SRC3"] = EventCounter("SRC3");
 
-        NCUTS=23;
+        #ifdef CHECK_CUTFLOW
+          NCUTS=23;
 
-        for(int i=0;i<NCUTS;i++){
-          legacyCutNames.push_back("");
-        }
+          for(int i = 0; i < NCUTS; i++) {
+            legacyCutNames.push_back("");
+          }
+
+          legacyCutNames[0] = "No cuts ";
+          legacyCutNames[1] = "MET > 130 GeV ";
+          legacyCutNames[2] = "Lepton veto ";
+          legacyCutNames[3] = "MET > 150 GeV ";
+          legacyCutNames[4] = "Jet multiplicity and pT ";
+          legacyCutNames[5] = "dPhi(jet,MET) > pi/5 ";
+          legacyCutNames[6] = ">=2 b jets ";
+          legacyCutNames[7] = "tau veto ";
+          legacyCutNames[8] = "mT(b,MET) > 175 ";
+          legacyCutNames[9] = "SRA1 ";
+          legacyCutNames[10] = "SRA2 ";
+          legacyCutNames[11] = "SRA3 ";
+          legacyCutNames[12] = "SRA4 ";
+          legacyCutNames[13] = "SRC: exactly 5 jets ";
+          legacyCutNames[14] = "SRC: dPhi(jet,MET) ";
+          legacyCutNames[15] = "SRC: >=2 b jets ";
+          legacyCutNames[16] = "SRC: tau veto ";
+          legacyCutNames[17] = "SRC: dPhi(b,b) ";
+          legacyCutNames[18] = "SRC1";
+          legacyCutNames[19] = "SRC2";
+          legacyCutNames[20] = "SRC3";
+
+          _cutflows.addCutflow(analysis_name(), legacyCutNames);
+        #endif
 
       }
 
@@ -517,7 +543,7 @@ namespace Gambit {
              && signalJets[1]->pT() > 80.
              && signalJets[2]->pT() > 35.
              && signalJets[3]->pT() > 35.
-             && signalJets[4]->pT() > 35.)passJetCutSRC=true;
+             && signalJets[4]->pT() > 35.) passJetCutSRC=true;
         }
 
         bool isSRC1=false;
@@ -526,134 +552,74 @@ namespace Gambit {
 
         if(cut_LeptonVeto && cut_Btag && cut_METGt150 && cut_dPhiJets && cut_mTbjetmetGt175 && cut_tau){
 
-          if(passJetCutSRC && mT_bjetmet_min > 185. && mT_bjetmet_max>205. && met>160. && dPhiBB > (0.2*3.14))isSRC1=true;
+          if(passJetCutSRC && mT_bjetmet_min > 185. && mT_bjetmet_max>205. && met>160. && dPhiBB > (0.2*3.14)) isSRC1=true;
 
-          if(passJetCutSRC && mT_bjetmet_min > 200. && mT_bjetmet_max>290. && met>160. && dPhiBB > (0.2*3.14))isSRC2=true;
+          if(passJetCutSRC && mT_bjetmet_min > 200. && mT_bjetmet_max>290. && met>160. && dPhiBB > (0.2*3.14)) isSRC2=true;
 
-          if(passJetCutSRC && mT_bjetmet_min > 200. && mT_bjetmet_max>325. && met>215. && dPhiBB > (0.2*3.14))isSRC3=true;
+          if(passJetCutSRC && mT_bjetmet_min > 200. && mT_bjetmet_max>325. && met>215. && dPhiBB > (0.2*3.14)) isSRC3=true;
 
         }
 
-        legacyCutNames[0] = "No cuts ";
-        legacyCutNames[1] = "MET > 130 GeV ";
-        legacyCutNames[2] = "Lepton veto ";
-        legacyCutNames[3] = "MET > 150 GeV ";
-        legacyCutNames[4] = "Jet multiplicity and pT ";
-        legacyCutNames[5] = "dPhi(jet,MET) > pi/5 ";
-        legacyCutNames[6] = ">=2 b jets ";
-        legacyCutNames[7] = "tau veto ";
-        legacyCutNames[8] = "mT(b,MET) > 175 ";
-        legacyCutNames[9] = "SRA1 ";
-        legacyCutNames[10] = "SRA2 ";
-        legacyCutNames[11] = "SRA3 ";
-        legacyCutNames[12] = "SRA4 ";
-        legacyCutNames[13] = "SRC: exactly 5 jets ";
-        legacyCutNames[14] = "SRC: dPhi(jet,MET) ";
-        legacyCutNames[15] = "SRC: >=2 b jets ";
-        legacyCutNames[16] = "SRC: tau veto ";
-        legacyCutNames[17] = "SRC: dPhi(b,b) ";
-        legacyCutNames[18] = "SRC1";
-        legacyCutNames[19] = "SRC2";
-        legacyCutNames[20] = "SRC3";
 
         #ifdef CHECK_CUTFLOW
-        if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-        _cutflows[analysis_name()].fillinit(event->weight());
-#endif
+          _cutflows[analysis_name()].fillinit(event->weight());
 
-for(int j=0;j<NCUTS;j++){
-          if(
-             (j==0) ||
+          for(int j = 0; j < NCUTS; j++) {
+            if(
+              (j==0) ||
 
-             (j==1 && cut_METGt130) ||
+              (j==1 && cut_METGt130) ||
+              (j==2 && cut_METGt130 && cut_LeptonVeto) ||
 
-             (j==2 && cut_METGt130 && cut_LeptonVeto) ||
+              (j==3 && cut_METGt150 && cut_LeptonVeto) ||
+              (j==4 && cut_METGt150 && cut_LeptonVeto && cut_6jets) ||
+              (j==5 && cut_METGt150 && cut_LeptonVeto && cut_6jets && cut_dPhiJets) ||
+              (j==6 && cut_METGt150 && cut_LeptonVeto && cut_6jets && cut_dPhiJets && cut_Btag) ||
+              (j==7 && cut_METGt150 && cut_LeptonVeto && cut_6jets && cut_dPhiJets && cut_Btag && cut_tau) ||
+              (j==8 && cut_METGt150 && cut_LeptonVeto && cut_6jets && cut_dPhiJets && cut_Btag && cut_tau && cut_mTbjetmetGt175) ||
+              (j==9 && cut_METGt150 && cut_LeptonVeto && cut_6jets && cut_dPhiJets && cut_Btag && cut_tau && cut_mTbjetmetGt175 && isSRA1) ||
+              (j==10 && cut_METGt150 && cut_LeptonVeto && cut_6jets && cut_dPhiJets && cut_Btag && cut_tau && cut_mTbjetmetGt175 && isSRA2) ||
+              (j==11 && cut_METGt150 && cut_LeptonVeto && cut_6jets && cut_dPhiJets && cut_Btag && cut_tau && cut_mTbjetmetGt175 && isSRA3) ||
+              (j==12 && cut_METGt150 && cut_LeptonVeto && cut_6jets && cut_dPhiJets && cut_Btag && cut_tau && cut_mTbjetmetGt175 && isSRA4) ||
+              (j==13 && cut_METGt150 && cut_LeptonVeto && passJetCutSRC) ||
+              (j==14 && cut_METGt150 && cut_LeptonVeto && passJetCutSRC && cut_dPhiJets) ||
+              (j==15 && cut_METGt150 && cut_LeptonVeto && passJetCutSRC && cut_dPhiJets && cut_Btag) ||
+              (j==16 && cut_METGt150 && cut_LeptonVeto && passJetCutSRC && cut_dPhiJets && cut_Btag && cut_tau) ||
+              (j==17 && cut_METGt150 && cut_LeptonVeto && passJetCutSRC && cut_dPhiJets && cut_Btag && cut_tau && dPhiBB > (0.2*3.14)) ||
 
-             (j==3 && cut_METGt150 && cut_LeptonVeto) ||
-
-             (j==4 && cut_METGt150 && cut_LeptonVeto && cut_6jets) ||
-
-             (j==5 && cut_METGt150 && cut_LeptonVeto && cut_6jets && cut_dPhiJets) ||
-
-             (j==6 && cut_METGt150 && cut_LeptonVeto && cut_6jets && cut_dPhiJets && cut_Btag) ||
-
-             (j==7 && cut_METGt150 && cut_LeptonVeto && cut_6jets && cut_dPhiJets && cut_Btag && cut_tau) ||
-
-             (j==8 && cut_METGt150 && cut_LeptonVeto && cut_6jets && cut_dPhiJets && cut_Btag && cut_tau && cut_mTbjetmetGt175) ||
-
-             (j==9 && cut_METGt150 && cut_LeptonVeto && cut_6jets && cut_dPhiJets && cut_Btag && cut_tau && cut_mTbjetmetGt175 && isSRA1) ||
-
-             (j==10 && cut_METGt150 && cut_LeptonVeto && cut_6jets && cut_dPhiJets && cut_Btag && cut_tau && cut_mTbjetmetGt175 && isSRA2) ||
-
-             (j==11 && cut_METGt150 && cut_LeptonVeto && cut_6jets && cut_dPhiJets && cut_Btag && cut_tau && cut_mTbjetmetGt175 && isSRA3) ||
-
-             (j==12 && cut_METGt150 && cut_LeptonVeto && cut_6jets && cut_dPhiJets && cut_Btag && cut_tau && cut_mTbjetmetGt175 && isSRA4) ||
-
-             (j==13 && cut_METGt150 && cut_LeptonVeto && passJetCutSRC) ||
-
-             (j==14 && cut_METGt150 && cut_LeptonVeto && passJetCutSRC && cut_dPhiJets) ||
-
-             (j==15 && cut_METGt150 && cut_LeptonVeto && passJetCutSRC && cut_dPhiJets && cut_Btag) ||
-
-             (j==16 && cut_METGt150 && cut_LeptonVeto && passJetCutSRC && cut_dPhiJets && cut_Btag && cut_tau) ||
-
-             (j==17 && cut_METGt150 && cut_LeptonVeto && passJetCutSRC && cut_dPhiJets && cut_Btag && cut_tau && dPhiBB > (0.2*3.14)) ||
-
-             (j==18 && isSRC1) ||
-
-             (j==19 && isSRC2) ||
-
-             (j==20 && isSRC3)
-
-             ){
-
-            #ifdef CHECK_CUTFLOW
-            _cutflows[analysis_name()].fill(j+1, true, event->weight());
-#endif
-
+              (j==18 && isSRC1) ||
+              (j==19 && isSRC2) ||
+              (j==20 && isSRC3)
+            ){
+              _cutflows[analysis_name()].fill(j+1, true, event->weight());
+            }
           }
-        }
+        #endif
 
 
-        /*for(int j=0;j<NCUTS;j++){
+        /* #ifdef CHECK_CUTFLOW
+        for(int j=0;j<NCUTS;j++){
           if(
           (j==0) ||
 
           (j==1 && cut_MuonVeto) ||
-
           (j==2 && cut_ElectronVeto && cut_MuonVeto) ||
-
           (j==3 && cut_ElectronVeto && cut_MuonVeto && cut_METGt130) ||
-
           (j==4 && cut_ElectronVeto && cut_MuonVeto && cut_METGt130 && cut_6jets) ||
-
           (j==5 && cut_ElectronVeto && cut_MuonVeto && cut_METGt130 && cut_6jets && cut_dPhiJets) ||
-
           (j==6 && cut_ElectronVeto && cut_MuonVeto && cut_METGt130 && cut_6jets && cut_dPhiJets && cut_tau) ||
-
           (j==7 && cut_ElectronVeto && cut_MuonVeto && cut_METGt130 && cut_6jets && cut_dPhiJets && cut_tau && cut_Btag) ||
-
           (j==8 && cut_ElectronVeto && cut_MuonVeto && cut_METGt130 && cut_6jets && cut_dPhiJets && cut_tau && cut_Btag && cut_mTbjetmetGt175) ||
-
           (j==9 && cut_ElectronVeto && cut_MuonVeto && cut_METGt130 && cut_6jets && cut_dPhiJets && cut_tau && cut_Btag && cut_mTbjetmetGt175 && cut_mjjj0) ||
-
           (j==10 && cut_ElectronVeto && cut_MuonVeto && cut_METGt130 && cut_6jets && cut_dPhiJets && cut_tau && cut_Btag && cut_mTbjetmetGt175 && cut_mjjj0 && cut_mjjj1) ||
-
           (j==11 && cut_ElectronVeto && cut_MuonVeto && cut_METGt130 && cut_6jets && cut_dPhiJets && cut_tau && cut_Btag && cut_mTbjetmetGt175 && cut_mjjj0 && cut_mjjj1 && cut_METGt150) ||
-
           (j==12 && cut_ElectronVeto && cut_MuonVeto && cut_METGt130 && cut_6jets && cut_dPhiJets && cut_tau && cut_Btag && cut_mTbjetmetGt175 && cut_mjjj0 && cut_mjjj1 && cut_METGt200) ||
-
           (j==13 && cut_ElectronVeto && cut_MuonVeto && cut_METGt130 && cut_6jets && cut_dPhiJets && cut_tau && cut_Btag && cut_mTbjetmetGt175 && cut_mjjj0 && cut_mjjj1 && cut_METGt250) ||
-
           (j==14 && cut_ElectronVeto && cut_MuonVeto && cut_METGt130 && cut_6jets && cut_dPhiJets && cut_tau && cut_Btag && cut_mTbjetmetGt175 && cut_mjjj0 && cut_mjjj1 && cut_METGt300) ||
-
           (j==15 && cut_ElectronVeto && cut_MuonVeto && cut_METGt130 && cut_6jets && cut_dPhiJets && cut_tau && cut_Btag && cut_mTbjetmetGt175 && cut_mjjj0 && cut_mjjj1 && cut_METGt350) )
-
-
-          #ifdef CHECK_CUTFLOW
             _cutflows[analysis_name()].fill(j+1, true, event->weight());
-#endif
-          }*/
+          }
+          #endif */
 
         //We're now ready to apply the cuts for each signal region
 
@@ -672,7 +638,7 @@ for(int j=0;j<NCUTS;j++){
 
       void collect_results() {
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
 
         add_result(SignalRegionData(_counters["SRA1"], 11., {15.8, 1.9}));
         add_result(SignalRegionData(_counters["SRA2"], 4., {4.1, 0.8}));

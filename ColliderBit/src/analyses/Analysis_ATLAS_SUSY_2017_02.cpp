@@ -108,10 +108,105 @@ namespace Gambit {
 
         #ifdef CHECK_CUTFLOW
           NCUTS=9;
-          for(size_t i=0;i<NCUTS;i++){
+          for(size_t i = 0; i < NCUTS; i++) {
             legacyCutATLAS.push_back(0);
             legacyCutNames.push_back("");
           }
+
+          // Increment legacyCutCounts elements
+          legacyCutNames[0]  = "No cuts ";
+          legacyCutNames[1]  = "Trigger, 4 jets ($p_T > 40$ GeV, 2 b-tags)";
+          legacyCutNames[2]  = "$\\ge 4$ b-tags";
+          legacyCutNames[3]  = "$\\ge 2$ Higgses ";
+          legacyCutNames[4]  = "Lepton veto";
+          legacyCutNames[5]  = "$X_{Wt} > 1.8$";
+          legacyCutNames[6]  = "$X_{hh}^{SR} < 1.6$";
+          legacyCutNames[7]  = "low-SR-MET0meff440";
+          legacyCutNames[8]  = "low-SR-MET150meff440";
+
+          _cutflows.addCutflow(analysis_name(), legacyCutNames);
+
+          // Cut flow from paper
+          // Higgsino 130 GeV
+          // legacyCutATLAS[0] = 169015.8;
+          // legacyCutATLAS[1] =  11206.7;
+          // legacyCutATLAS[2] =   1250.8;
+          // legacyCutATLAS[3] =   1015.9;
+          // legacyCutATLAS[4] =   1015.9;
+          // legacyCutATLAS[5] =    961.9;
+          // legacyCutATLAS[6] =    559.8;
+          // legacyCutATLAS[7] =    217.4;
+          // legacyCutATLAS[8] =      0.0;
+          // // Higgsino 150 GeV
+          // legacyCutATLAS[0] = 93125.1;
+          // legacyCutATLAS[1] =  6630.9;
+          // legacyCutATLAS[2] =   687.8;
+          // legacyCutATLAS[3] =   558.6;
+          // legacyCutATLAS[4] =   558.6;
+          // legacyCutATLAS[5] =   489.4;
+          // legacyCutATLAS[6] =   266.5;
+          // legacyCutATLAS[7] =   112.5;
+          // legacyCutATLAS[8] =     1.8;
+          // // Higgsino 200 GeV
+          // legacyCutATLAS[0] = 32455.5;
+          // legacyCutATLAS[1] =  2895.6;
+          // legacyCutATLAS[2] =   300.4;
+          // legacyCutATLAS[3] =   240.9;
+          // legacyCutATLAS[4] =   240.9;
+          // legacyCutATLAS[5] =   212.6;
+          // legacyCutATLAS[6] =   116.9;
+          // legacyCutATLAS[7] =    62.5;
+          // legacyCutATLAS[8] =     8.7;
+          // // Higgsino 250 GeV
+          legacyCutATLAS[0] = 14028.7;
+          legacyCutATLAS[1] =  1454.7;
+          legacyCutATLAS[2] =   163.0;
+          legacyCutATLAS[3] =   126.4;
+          legacyCutATLAS[4] =   126.1;
+          legacyCutATLAS[5] =   108.4;
+          legacyCutATLAS[6] =    53.4;
+          legacyCutATLAS[7] =    37.0;
+          legacyCutATLAS[8] =    14.2;
+          // // Higgsino 300 GeV
+          // legacyCutATLAS[0] = 6922.0;
+          // legacyCutATLAS[1] =  877.3;
+          // legacyCutATLAS[2] =   90.6;
+          // legacyCutATLAS[3] =   70.1;
+          // legacyCutATLAS[4] =   70.0;
+          // legacyCutATLAS[5] =   63.3;
+          // legacyCutATLAS[6] =   34.0;
+          // legacyCutATLAS[7] =   26.7;
+          // legacyCutATLAS[8] =   14.6;
+          // // Higgsino 400 GeV
+          // legacyCutATLAS[0] = 2156.2;
+          // legacyCutATLAS[1] =  366.2;
+          // legacyCutATLAS[2] =   41.7;
+          // legacyCutATLAS[3] =   32.3;
+          // legacyCutATLAS[4] =   31.9;
+          // legacyCutATLAS[5] =   28.1;
+          // legacyCutATLAS[6] =   14.4;
+          // legacyCutATLAS[7] =   13.6;
+          // legacyCutATLAS[8] =    9.6;
+          // // Higgsino 600 GeV
+          // legacyCutATLAS[0] = 356.4;
+          // legacyCutATLAS[1] =  82.2;
+          // legacyCutATLAS[2] =   9.0;
+          // legacyCutATLAS[3] =   6.5;
+          // legacyCutATLAS[4] =   6.4;
+          // legacyCutATLAS[5] =   5.9;
+          // legacyCutATLAS[6] =   3.2;
+          // legacyCutATLAS[7] =   3.2;
+          // legacyCutATLAS[8] =   2.6;
+          // // Higgsino 800 GeV
+          // legacyCutATLAS[0] =  84.1;
+          // legacyCutATLAS[1] =  22.4;
+          // legacyCutATLAS[2] =   2.2;
+          // legacyCutATLAS[3] =   1.6;
+          // legacyCutATLAS[4] =   1.6;
+          // legacyCutATLAS[5] =   1.5;
+          // legacyCutATLAS[6] =   0.8;
+          // legacyCutATLAS[7] =   0.8;
+          // legacyCutATLAS[8] =   0.7;
         #endif
       }
 
@@ -342,129 +437,24 @@ namespace Gambit {
 
         #ifdef CHECK_CUTFLOW
 
-          // Increment legacyCutCounts elements
-          legacyCutNames[0]  = "No cuts ";
-          legacyCutNames[1]  = "Trigger, 4 jets ($p_T > 40$ GeV, 2 b-tags)";
-          legacyCutNames[2]  = "$\\ge 4$ b-tags";
-          legacyCutNames[3]  = "$\\ge 2$ Higgses ";
-          legacyCutNames[4]  = "Lepton veto";
-          legacyCutNames[5]  = "$X_{Wt} > 1.8$";
-          legacyCutNames[6]  = "$X_{hh}^{SR} < 1.6$";
-          legacyCutNames[7]  = "low-SR-MET0meff440";
-          legacyCutNames[8]  = "low-SR-MET150meff440";
-
-          // Cut flow from paper
-          // Higgsino 130 GeV
-          // legacyCutATLAS[0] = 169015.8;
-          // legacyCutATLAS[1] =  11206.7;
-          // legacyCutATLAS[2] =   1250.8;
-          // legacyCutATLAS[3] =   1015.9;
-          // legacyCutATLAS[4] =   1015.9;
-          // legacyCutATLAS[5] =    961.9;
-          // legacyCutATLAS[6] =    559.8;
-          // legacyCutATLAS[7] =    217.4;
-          // legacyCutATLAS[8] =      0.0;
-          // // Higgsino 150 GeV
-          // legacyCutATLAS[0] = 93125.1;
-          // legacyCutATLAS[1] =  6630.9;
-          // legacyCutATLAS[2] =   687.8;
-          // legacyCutATLAS[3] =   558.6;
-          // legacyCutATLAS[4] =   558.6;
-          // legacyCutATLAS[5] =   489.4;
-          // legacyCutATLAS[6] =   266.5;
-          // legacyCutATLAS[7] =   112.5;
-          // legacyCutATLAS[8] =     1.8;
-          // // Higgsino 200 GeV
-          // legacyCutATLAS[0] = 32455.5;
-          // legacyCutATLAS[1] =  2895.6;
-          // legacyCutATLAS[2] =   300.4;
-          // legacyCutATLAS[3] =   240.9;
-          // legacyCutATLAS[4] =   240.9;
-          // legacyCutATLAS[5] =   212.6;
-          // legacyCutATLAS[6] =   116.9;
-          // legacyCutATLAS[7] =    62.5;
-          // legacyCutATLAS[8] =     8.7;
-          // // Higgsino 250 GeV
-          legacyCutATLAS[0] = 14028.7;
-          legacyCutATLAS[1] =  1454.7;
-          legacyCutATLAS[2] =   163.0;
-          legacyCutATLAS[3] =   126.4;
-          legacyCutATLAS[4] =   126.1;
-          legacyCutATLAS[5] =   108.4;
-          legacyCutATLAS[6] =    53.4;
-          legacyCutATLAS[7] =    37.0;
-          legacyCutATLAS[8] =    14.2;
-          // // Higgsino 300 GeV
-          // legacyCutATLAS[0] = 6922.0;
-          // legacyCutATLAS[1] =  877.3;
-          // legacyCutATLAS[2] =   90.6;
-          // legacyCutATLAS[3] =   70.1;
-          // legacyCutATLAS[4] =   70.0;
-          // legacyCutATLAS[5] =   63.3;
-          // legacyCutATLAS[6] =   34.0;
-          // legacyCutATLAS[7] =   26.7;
-          // legacyCutATLAS[8] =   14.6;
-          // // Higgsino 400 GeV
-          // legacyCutATLAS[0] = 2156.2;
-          // legacyCutATLAS[1] =  366.2;
-          // legacyCutATLAS[2] =   41.7;
-          // legacyCutATLAS[3] =   32.3;
-          // legacyCutATLAS[4] =   31.9;
-          // legacyCutATLAS[5] =   28.1;
-          // legacyCutATLAS[6] =   14.4;
-          // legacyCutATLAS[7] =   13.6;
-          // legacyCutATLAS[8] =    9.6;
-          // // Higgsino 600 GeV
-          // legacyCutATLAS[0] = 356.4;
-          // legacyCutATLAS[1] =  82.2;
-          // legacyCutATLAS[2] =   9.0;
-          // legacyCutATLAS[3] =   6.5;
-          // legacyCutATLAS[4] =   6.4;
-          // legacyCutATLAS[5] =   5.9;
-          // legacyCutATLAS[6] =   3.2;
-          // legacyCutATLAS[7] =   3.2;
-          // legacyCutATLAS[8] =   2.6;
-          // // Higgsino 800 GeV
-          // legacyCutATLAS[0] =  84.1;
-          // legacyCutATLAS[1] =  22.4;
-          // legacyCutATLAS[2] =   2.2;
-          // legacyCutATLAS[3] =   1.6;
-          // legacyCutATLAS[4] =   1.6;
-          // legacyCutATLAS[5] =   1.5;
-          // legacyCutATLAS[6] =   0.8;
-          // legacyCutATLAS[7] =   0.8;
-          // legacyCutATLAS[8] =   0.7;
-
           // Apply cutflow
-          #ifdef CHECK_CUTFLOW
-            if (_cutflows.cfs.empty()) _cutflows.addCutflow(analysis_name(), legacyCutNames);
-            _cutflows[analysis_name()].fillinit(event->weight());
-          #endif
+          _cutflows[analysis_name()].fillinit(event->weight());
 
-          for(size_t j=0;j<NCUTS;j++){
+          for(size_t j = 0; j < NCUTS; j++) {
             if(
               (j==0) ||
-
               (j==1 && nJets > 3 && nbJets > 1) ||
-
               (j==2 && nbJets > 3) ||
-
               (j==3 && nbJets > 3 && higgs) ||
-
               (j==4 && nbJets > 3 && higgs && nLeptons == 0) ||
-
               (j==5 && nbJets > 3 && higgs && nLeptons == 0 && notop) ||
-
               (j==6 && nbJets > 3 && higgs && nLeptons == 0 && notop && Xhh < 1.6) ||
-
               (j==7 && nbJets > 3 && higgs && nLeptons == 0 && notop && Xhh < 1.6 && meff > 440.) ||
-
               (j==8 && nbJets > 3 && higgs && nLeptons == 0 && notop && Xhh < 1.6 && meff > 440. && met > 150.)
-
-              ) 
-            #ifdef CHECK_CUTFLOW
+              )
+            {
               _cutflows[analysis_name()].fill(j+1, true, event->weight());
-            #endif
+            }
           }
 
         #endif
