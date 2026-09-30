@@ -1217,9 +1217,9 @@ set(ditch_if_absent "hepmc")
 # - Add additional compiler-specific optimisation flags and suppress some warnings from -Wextra.
 set(pythia_CXXFLAGS "${BACKEND_CXX_FLAGS}")
 # Pythia's bundled FJcore uses a std::vector-of-incomplete-type pattern that macOS's libc++
-# rejects under C++20, so fall back to C++14 for Pythia's own compile on MacOS.
+# rejects under C++20, so fall back to C++17 for Pythia's own compile on MacOS.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  string(REGEX REPLACE "-std=c\\+\\+(17|1z|20|2a|23|2b)" "-std=c++14" pythia_CXXFLAGS "${pythia_CXXFLAGS}")
+  string(REGEX REPLACE "-std=c\\+\\+(20|2a|23|2b)" "-std=c++17" pythia_CXXFLAGS "${pythia_CXXFLAGS}")
 endif()
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -fast") # -fast sometimes makes xsecs come out as NaN, but we catch that and invalidate those points.
@@ -1723,7 +1723,7 @@ set(GM2CALC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
 set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
 # - gm2calc 1.2 depends on std::ptr_fun, which was removed in C++17, so we need to fall back to
 #   C++14 regardless of which (C++17 or later) standard GAMBIT itself is using.
-string(REGEX REPLACE "-std=c\\+\\+(17|1z|20|2a|23|2b)" "-std=c++14" GM2CALC_CXX_FLAGS "${GM2CALC_CXX_FLAGS}")
+string(REGEX REPLACE "-std=c\\+\\+(20|2a|23|2b)" "-std=c++17" GM2CALC_CXX_FLAGS "${GM2CALC_CXX_FLAGS}")
 set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
@@ -1753,7 +1753,7 @@ set(GM2CALC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
 set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
 # - gm2calc 1.3 depends on std::ptr_fun, which was removed in C++17, so we need to fall back to
 #   C++14 regardless of which (C++17 or later) standard GAMBIT itself is using.
-string(REGEX REPLACE "-std=c\\+\\+(17|1z|20|2a|23|2b)" "-std=c++14" GM2CALC_CXX_FLAGS "${GM2CALC_CXX_FLAGS}")
+string(REGEX REPLACE "-std=c\\+\\+(20|2a|23|2b)" "-std=c++17" GM2CALC_CXX_FLAGS "${GM2CALC_CXX_FLAGS}")
 set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
@@ -2107,8 +2107,8 @@ string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_C_FLAGS "${BACKEND_C_FLAGS}")
 string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
 # FastJet 3.3.2 depends on std::auto_ptr, which was removed in C++17, so we need to fall back to
 # C++14 regardless of which (C++17 or later) standard GAMBIT itself is using.
-string(REGEX REPLACE "-std=c\\+\\+(17|1z|20|2a|23|2b)" "-std=c++14" FJ_CXX_FLAGS "${FJ_CXX_FLAGS}")
-string(REGEX REPLACE "-std=c\\+\\+(17|1z|20|2a|23|2b)" "-std=c++14" FJ_C_FLAGS "${FJ_C_FLAGS}")
+string(REGEX REPLACE "-std=c\\+\\+(20|2a|23|2b)" "-std=c++17" FJ_CXX_FLAGS "${FJ_CXX_FLAGS}")
+string(REGEX REPLACE "-std=c\\+\\+(20|2a|23|2b)" "-std=c++17" FJ_C_FLAGS "${FJ_C_FLAGS}")
 set_compiler_warning("no-deprecated-declarations" FJ_CXX_FLAGS)
 set_compiler_warning("no-deprecated-copy" FJ_CXX_FLAGS)
 set(FJ_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
