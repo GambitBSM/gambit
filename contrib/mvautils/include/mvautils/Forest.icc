@@ -1,0 +1,194 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+template<typename Container_t>
+inline void MVAUtils::detail::applySoftmax(Container_t& x)
+{
+    using T = typename Container_t::value_type;
+    // subtract max to avoid overflow (softmax is invariant to shifts)
+    const T max_x = *std::max_element(x.begin(), x.end());
+    std::transform(x.begin(), x.end(), x.begin(), [max_x](T v){ return exp(v - max_x); });
+    const T sum = std::accumulate(x.begin(), x.end(), T{});
+    std::transform(x.begin(), x.end(), x.begin(), [sum](T v){ return v / sum; });
+}
+
+
+inline std::vector<MVAUtils::index_t> MVAUtils::detail::computeRight(const std::vector<int>& vars)
+{
+    // parent index is relative to root of tree (and only used inside this function)
+    // right index is relative to the then processed node
+    // example: vars = 2 0 -1 -1 -1 returns: 4 2 0 0 0
+    std::vector<MVAUtils::index_t> right(vars.size());
+    std::stack<MVAUtils::index_t> parent; // not strictly parent if doing a right node
+
+    parent.push(-1);
+    for (std::vector<int>::size_type i = 0; i < vars.size(); ++i)
+    {
+        if (vars.at(i) >= 0) { // not a leaf
+            parent.push(i);
+        } else {
+            // a leaf
+            const MVAUtils::index_t currParent = parent.top();
+            // if right has not been visited, next will be right
+            if (currParent >= 0) {
+                right[currParent] = i + 1 - currParent;
+            }
+            parent.pop();
+        }
+    }
+    return right;
+}
+
+
+template<typename Node_t> void MVAUtils::Forest<Node_t>::PrintTree(unsigned int itree) const
+{
+    index_t top_node_index = m_forest[itree];
+    std::stack<index_t> s;
+    s.push(top_node_index);
+    while (!s.empty()) {
+        auto node = s.top();
+        s.pop();
+        m_nodes.at(node).Print(node);
+        if (!m_nodes[node].IsLeaf()) {
+            s.push(m_nodes[node].GetRight(node));
+            s.push(m_nodes[node].GetLeft(node));
+        }
+    }
+}
+
+template<typename Node_t> void MVAUtils::Forest<Node_t>::PrintForest() const {
+    for (unsigned int itree = 0; itree != GetNTrees(); ++itree) {
+        std::cout << "Tree number: " << itree << std::endl;
+        PrintTree(itree);
+    }
+}
+
+template<typename Node_t>
+std::vector<Node_t> MVAUtils::Forest<Node_t>::GetTree(unsigned int itree) const
+{
+    index_t top_node_index = m_forest[itree];
+    index_t last_node_index = (itree < GetNTrees() - 1) ? m_forest[itree + 1] : m_nodes.size();
+    return std::vector<Node_t>(m_nodes.begin() + top_node_index, m_nodes.begin() + last_node_index);
+}
+
+template<typename Node_t>
+float MVAUtils::Forest<Node_t>::GetTreeResponseFromNode(const std::vector<float>& values, index_t index) const
+{
+    while (!m_nodes[index].IsLeaf())
+    {
+        index = m_nodes[index].GetNext(values[m_nodes[index].GetVar()], index);
+    }
+    return m_nodes[index].GetVal();
+}
+
+template<typename Node_t>
+float MVAUtils::Forest<Node_t>::GetTreeResponseFromNode(const std::vector<float*>& pointers, index_t index) const
+{
+    while (!m_nodes[index].IsLeaf())
+    {
+        index = m_nodes[index].GetNext(*(pointers[m_nodes[index].GetVar()]), index);
+    }
+    return m_nodes[index].GetVal();
+}
+
+template<typename Node_t>
+float MVAUtils::Forest<Node_t>::GetTreeResponse(const std::vector<float>& values, unsigned int itree) const
+{
+    index_t top_node_index = m_forest[itree];
+    return GetTreeResponseFromNode(values, top_node_index);
+}
+
+template<typename Node_t>
+float MVAUtils::Forest<Node_t>::GetTreeResponse(const std::vector<float*>& pointers, unsigned int itree) const
+{
+    index_t top_node_index = m_forest[itree];
+    return GetTreeResponseFromNode(pointers, top_node_index);
+}
+
+template<typename Node_t>
+float MVAUtils::Forest<Node_t>::GetRawResponse(const std::vector<float>& values) const
+{
+    float result = 0.;
+    // looping in the reverse order since usually the response of the trees
+    // is decreasing (first more important). So it better to start the sum
+    // from the smaller to avoid numerical precision issues.
+    for (int itree = GetNTrees() - 1; itree >= 0; --itree)
+    {
+        result += GetTreeResponse(values, itree);
+    }
+    return result;
+}
+
+template<typename Node_t>
+float MVAUtils::Forest<Node_t>::GetRawResponse(const std::vector<float*>& pointers) const
+{
+    float result = 0.;
+    for (int itree = GetNTrees() - 1; itree >= 0; --itree)
+    {
+        result += GetTreeResponse(pointers, itree);
+    }
+    return result;
+}
+
+template<typename Node_t>
+float MVAUtils::Forest<Node_t>::GetResponse(const std::vector<float>& values) const
+{
+    return GetRawResponse(values);
+}
+
+template<typename Node_t>
+float MVAUtils::Forest<Node_t>::GetResponse(const std::vector<float*>& pointers) const
+{
+    return GetRawResponse(pointers);
+}
+
+template<typename Node_t>
+std::vector<float> MVAUtils::Forest<Node_t>::GetMultiResponse(const std::vector<float>& values,
+                                                              unsigned int numClasses) const
+{
+    // this implementation is common TMVA / LGBM
+    // In multiclass each class has a separate forest. Each forest is made by the same number
+    // of trees. Here all the nodes of all the trees of all the forests are stored interleaved,
+    // e.g. assume each forest is made by 10 trees
+    //   class0: tree-0, tree-10, ...
+    //   class1: tree-1, tree-11, ...
+    // this very same scheme is used internally by lgbm. The representation of the nodes will be:
+    // tree0(class0)-node0, tree0(class0)-node1, ...
+
+    std::vector<float> result;
+    if (numClasses > 0) {
+        result.resize(numClasses); // ignores the offset
+        // note that the loop is not the trees, not on the classes
+        // that would be equivalent, but better to read the vector in order
+        for (unsigned int itree = 0; itree < GetNTrees(); ++itree) {
+            result[itree % numClasses] += GetTreeResponse(values, itree);
+        }
+
+        detail::applySoftmax(result);
+    }
+    return result;
+}
+
+template<typename Node_t>
+std::vector<float> MVAUtils::Forest<Node_t>::GetMultiResponse(const std::vector<float*>& pointers,
+                                                              unsigned int numClasses) const
+{
+    std::vector<float> result;
+
+    if (numClasses > 0) {
+        result.resize(numClasses); // ignores the offset
+        for (unsigned int itree = 0; itree < GetNTrees(); ++itree) {
+            result[itree % numClasses] += GetTreeResponse(pointers, itree);
+        }
+        detail::applySoftmax(result);
+    }
+    return result;
+}
+
+template<typename Node_t>
+void MVAUtils::Forest<Node_t>::newTree(const std::vector<Node_t>& nodes) 
+{
+    m_forest.push_back(m_nodes.size());
+    m_nodes.insert(m_nodes.end(), nodes.begin(), nodes.end());
+}

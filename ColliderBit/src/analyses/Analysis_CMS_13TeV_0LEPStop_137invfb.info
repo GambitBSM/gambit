@@ -1,0 +1,7 @@
+Summary: CMS Search for top squark production in fully-hadronic final states
+InspireID: 1849522
+ExptRun: CMS-R2
+Lumi_ifb: 137.0
+Ecm_TeV: 13.0
+Signatures: ["0L + MET + Jets"]
+Authors: ["Holly Pacey"]

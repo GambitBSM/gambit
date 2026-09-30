@@ -202,8 +202,8 @@ namespace Gambit
         FJNS::RecombinationScheme jet_recomscheme = FJRecomScheme_map(jetcollection.recombination_scheme);
         const FJNS::JetDefinition jet_def(jet_algorithm, jetcollection.R, jet_strategy, jet_recomscheme);
 
-        /// Create and run a new cluster sequence for the given jet collection. 
-        /// The HEPUtils::Event instance ('result') takes ownership of the 
+        /// Create and run a new cluster sequence for the given jet collection.
+        /// The HEPUtils::Event instance ('result') takes ownership of the
         /// cluster sequence and a shared_ptr is returned here.
         std::shared_ptr<const FJNS::ClusterSequence> CSeqBasePtr = result.emplace_clusterseq(jetparticles, jet_def, jetcollection.key);
         /// Get the resulting pseudojets

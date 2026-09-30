@@ -726,15 +726,19 @@ FJCORE_END_NAMESPACE
 FJCORE_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
 class ClosestPair2D : public ClosestPair2DBase {
 public:
+  // GAMBIT: these constructors used to be defined inline here, but since Point is only
+  // forward-declared at this point in the class (and not fully defined until after
+  // ClosestPair2D's own class definition, below), their bodies -- which implicitly
+  // default-construct the std::vector<Point> _points member -- were being parsed in the
+  // "complete-class context" immediately after this class's closing brace, i.e. before
+  // Point was complete. Clang (unlike GCC) enforces this strictly under C++20/23, so the
+  // definitions are moved out-of-line, after Point is fully defined, matching the pattern
+  // already used below for _ID() and size().
   ClosestPair2D(const std::vector<Coord2D> & positions,
-		const Coord2D & left_corner, const Coord2D & right_corner) {
-    _initialize(positions, left_corner, right_corner, positions.size());
-  };
+		const Coord2D & left_corner, const Coord2D & right_corner);
   ClosestPair2D(const std::vector<Coord2D> & positions,
 		const Coord2D & left_corner, const Coord2D & right_corner,
-		const unsigned int max_size) {
-    _initialize(positions, left_corner, right_corner, max_size);
-  };
+		const unsigned int max_size);
   void closest_pair(unsigned int & ID1, unsigned int & ID2,
 		    double & distance2) const;
   void remove(unsigned int ID);
@@ -808,6 +812,15 @@ public:
 inline bool floor_ln2_less(unsigned x, unsigned y) {
   if (x>y) return false;
   return (x < (x^y)); // beware of operator precedence...
+}
+inline ClosestPair2D::ClosestPair2D(const std::vector<Coord2D> & positions,
+		const Coord2D & left_corner, const Coord2D & right_corner) {
+  _initialize(positions, left_corner, right_corner, positions.size());
+}
+inline ClosestPair2D::ClosestPair2D(const std::vector<Coord2D> & positions,
+		const Coord2D & left_corner, const Coord2D & right_corner,
+		const unsigned int max_size) {
+  _initialize(positions, left_corner, right_corner, max_size);
 }
 inline int ClosestPair2D::_ID(const Point * point) const {
   return point - &(_points[0]);

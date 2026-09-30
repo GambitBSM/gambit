@@ -154,7 +154,7 @@ namespace Gambit
         // We need "SLHA:file = slhaea" for the SLHAea interface.
         pythiaOptions.push_back("SLHA:file = slhaea");
 
-        // Make sure the user has selected a collider energy in their Pythia settings by searching 
+        // Make sure the user has selected a collider energy in their Pythia settings by searching
         // for the substring "Beams:e", to match Pythia options "Beams:eCM", "Beams:eA" or "Beams:eB".
         bool has_beam_energy_option = std::any_of(pythiaOptions.begin(), pythiaOptions.end(), [](const str& s){ return s.find("Beams:e") != str::npos; });
         if (!has_beam_energy_option)
@@ -228,8 +228,9 @@ namespace Gambit
           cout << DEBUG_PREFIX << "Cross-section veto applies. Will now call Loop::wrapup() to skip event generation for this collider." << endl;
           #endif
           wrapup();
-        } else {
-
+        }
+        else
+        {
           // Create a dummy event to make Pythia fill its internal list of process codes
           EventT dummy_pythia_event;
           try

@@ -24,6 +24,9 @@ namespace HEPUtils {
     /// @name Internal particle / vector containers
     /// @{
 
+    /// An event ID that can be assigned by the user to keep track of specific events
+    mutable unsigned int _id;
+
     /// Event weights
     std::vector<double> _weights;
     std::vector<double> _weight_errs;
@@ -57,6 +60,7 @@ namespace HEPUtils {
     /// @todo Reinstate as a deep copy uing cloneTo?
     void operator = (const Event& e) {
       clear(); //< Delete current particles
+      _id = e._id;
       _weights = e._weights;
       _weight_errs = e._weight_errs;
       //
@@ -94,6 +98,16 @@ namespace HEPUtils {
       clear();
     }
 
+    /// Get the event ID
+    unsigned int id() const {
+      return _id;
+    }
+
+    /// Set the event ID
+    void set_id(unsigned int id) const {
+      _id = id;
+    }
+
 
     /// @name Cloning (= deep copy)
     /// @{
@@ -113,6 +127,7 @@ namespace HEPUtils {
 
     /// Clone a deep copy (new Particles and Jets allocated) into the provided event object
     void cloneTo(Event& e) const {
+      e.set_id(_id);
       e.set_weights(_weights);
       e.set_weight_errs(_weight_errs);
       const std::vector<const Particle*> ps = particles();

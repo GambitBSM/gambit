@@ -1,0 +1,7 @@
+Summary: Search for a scalar partner of the top quark in the all-hadronic t tbar plus missing transverse momentum final state at 13 TeV with the ATLAS detector
+InspireID: 1793461
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["0L + 4J"]
+Authors: ["Pengxuan Zhu"]

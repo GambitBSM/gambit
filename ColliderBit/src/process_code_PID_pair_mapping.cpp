@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  ColliderBit module functions dealing with 
+///  ColliderBit module functions dealing with
 ///  the mapping between Pythia process codes
 ///  and PID codes for the final state particles
 ///
@@ -28,7 +28,7 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    /// Get a multimap between the active Pythia process codes and the 
+    /// Get a multimap between the active Pythia process codes and the
     /// corresponding PID pair for the two final state particles
     void getActiveProcessCodeToPIDPairsMap(multimap_int_PID_pair& result)
     {
@@ -96,5 +96,5 @@ namespace Gambit
       }
     }
 
-  } 
-} 
+  }
+}
