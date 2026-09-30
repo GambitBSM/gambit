@@ -644,6 +644,8 @@ namespace Gambit {
           _cutflows.print(std::cout);
         #endif //CHECK_CUTFLOWS
 
+        add_cutflows(_cutflows);
+
         return;
 
       }
