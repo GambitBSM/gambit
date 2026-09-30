@@ -308,7 +308,7 @@ endif()
 
 if(NOT EXCLUDE_YODA)
   set(lib "YODA")
-  set(dl "https://yoda.hepforge.org/downloads/?f=YODA-${ver}.tar.gz")
+  set(dl "https://github.com/GambitBSM/archived_backends/raw/refs/heads/main/YODA-2.1.0.tar.gz")
   set(md5 "87da674a8e8127b54c408d1b465bf5f7")
   include_directories("${dir}/include")
   set(YODA_PATH "${dir}")
