@@ -259,7 +259,6 @@ set(dir ${PROJECT_SOURCE_DIR}/contrib/${name}-${ver})
 if (NOT EXCLUDE_ONNXRUNTIME)
   set(lib onnxruntime)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  #TODO: Mac stuff untested
     set(dl "https://github.com/microsoft/onnxruntime/releases/download/v1.14.1/onnxruntime-osx-universal2-${ver}.tgz")
     set(md5 9725836c49deb09fc352a57dc8a1b806)
   else ()
