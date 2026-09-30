@@ -3,6 +3,33 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v2.7.0:
+Feature release
+- Added ability to track ColliderBit signal region correlation
+- Added dozens of new ColliderBit LHC SUSY analyses (ATLAS 13 TeV: 2LEP0JET_EW, 2LEPsoft RJR, 2LEPJETS_EW, 2OR3LEP, 3b_NN, 4b+MET, stop RJR; CMS 13 TeV: 0LEPStop, 0LEP chargino VV/VH, 1Lepbb, 2OSLEP EW SRs, 2Higgs_4b_neutralino, SUS-21-009, SUS-23-003)
+- Support for diver 1.3
+- Added NeutrinoBit standalone
+- Updated Rivet to 4.1.0
+- Updated Contur to 3.0.0
+- Allow passing castxml compiler through cmake
+- Added new purpose: critical observables
+- Added new scanner: binminpy
+- Support paraprof scanner
+- Added ColliderBit analysis file metadata
+- Added support for CMake 4, and bump minimum to 3.16.3
+- Added -DBits cmake option for selective builds
+- Added ability to build without HDF5 or SQLite
+- Move minimum C++ standard to 17, and support up to 23
+- Removed support for Mathematica
+- Added utility scripts for copying/restoring downloaded tarballs
+- Various compilation and startup speed optimisations
+- Fix pybind11 clash with MontePython
+- Fix Pythia static-build and b-flag bugs
+- Fix cross-section initial-scaling bug
+- Fix ColliderBit dependency bug
+- Fix ROOT std-detection bug
+- Various bug or warning fixes
+
 v2.6.0:
 Feature release
 - Added UMVUE estimator and support for additional collider likelihood estimators
