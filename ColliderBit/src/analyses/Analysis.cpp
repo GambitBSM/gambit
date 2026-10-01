@@ -38,7 +38,7 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    Analysis::Analysis() : _luminosity(0), _luminosity_is_set(false), _is_scaled(false), _needs_collection(true), _collider_name("") {}
+    Analysis::Analysis() : _luminosity(0), _luminosity_is_set(false), _is_scaled(false), _needs_collection(true), _collider_name(""), _counters(_results._counters) {}
 
     /// Public method to reset this instance for reuse, avoiding the need for "new" or "delete".
     void Analysis::reset()
