@@ -261,6 +261,15 @@ if(NOT EXCLUDE_HEPMC)
   set_compiler_warning("no-deprecated-copy" HEPMC_CXX_FLAGS)
   set_compiler_warning("no-sign-compare" HEPMC_CXX_FLAGS)
 
+  # Determine the C++ standard to use for HepMC3 (use ROOT's if available, otherwise default to 11)
+  if(DEFINED ROOT_CXX_STANDARD)
+    set(HEPMC3_STD ${ROOT_CXX_STANDARD})
+  elseif(DEFINED ROOT_STD)
+    set(HEPMC3_STD ${ROOT_STD})
+  else()
+    set(HEPMC3_STD 11)
+  endif()
+
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${HEPMC_PATH} ${name} ${ver}
     SOURCE_DIR ${HEPMC_PATH}
@@ -293,7 +302,6 @@ set(dir ${PROJECT_SOURCE_DIR}/contrib/${name}-${ver})
 if (NOT EXCLUDE_ONNXRUNTIME)
   set(lib onnxruntime)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  #TODO: Mac stuff untested
     set(dl "https://github.com/microsoft/onnxruntime/releases/download/v1.14.1/onnxruntime-osx-universal2-${ver}.tgz")
     set(md5 9725836c49deb09fc352a57dc8a1b806)
   else ()
@@ -343,7 +351,7 @@ endif()
 
 if(NOT EXCLUDE_YODA)
   set(lib "YODA")
-  set(dl "https://yoda.hepforge.org/downloads/?f=YODA-${ver}.tar.gz")
+  set(dl "https://github.com/GambitBSM/archived_backends/raw/refs/heads/main/YODA-2.1.0.tar.gz")
   set(md5 "87da674a8e8127b54c408d1b465bf5f7")
   include_directories("${dir}/include")
   set(YODA_PATH "${dir}")
@@ -838,4 +846,8 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
     message(FATAL_ERROR "\nColliderBit needs YODA. Either use -DWITH_YODA=ON or ditch ColliderBit with -Ditch=\"ColliderBit\".")
   endif()
   add_dependencies(contrib yoda)
+  
+  # fastjet and fjcontrib are dependencies of using ColliderBit
+  add_dependencies(contrib fastjet)
+  add_dependencies(contrib fjcontrib)
 endif()

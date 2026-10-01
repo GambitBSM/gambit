@@ -224,7 +224,7 @@ namespace Gambit {
     {
       return (y <= x and x <= 188.6 / 2. and x > mZ / 2.);
     }
-    
+
     L3CharginoLeptonicLimitAt188pt6GeV::L3CharginoLeptonicLimitAt188pt6GeV()
     {
       ///// Limit values /////
@@ -544,7 +544,7 @@ namespace Gambit {
       _limitContours.insert(LimitContourEntry(5, contoursPointer));
 
     }
-    
+
 
 
     P2 L3NeutralinoLeptonicLimitAt188pt6GeV::convertPt(double x, double y) const
@@ -552,7 +552,7 @@ namespace Gambit {
       return P2(0. + (x - 251.00) / (870.00 - 251.00) * (200. - 0.),
                 100. + (y - 867.00) / (1466.00 - 867.00) * (0. - 100.));
     }
-    
+
     bool L3NeutralinoLeptonicLimitAt188pt6GeV::isWithinExclusionRegion(double x, double y, double mZ) const
     {
       return (y <= x and x + y <= 188.6 and x + y > mZ);

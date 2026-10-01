@@ -128,7 +128,7 @@ namespace Gambit
           ColliderBit_error().set_fatal(true); // This one must regarded fatal since there is something wrong in the user input
           ColliderBit_error().raise(LOCAL_INFO,"Cannot find any collider names in use_colliders option for operateLHCLoop. Please correct your YAML file.");
         }
-        
+
 
         // Retrieve the options for each collider.
         for (auto& collider : result.collider_names)
@@ -218,7 +218,7 @@ namespace Gambit
               ColliderBit_error().raise(LOCAL_INFO,"Options min_nEvents and max_nEvents should not be used for the UMVUE estimator for collider "
                                                    +collider+". Please correct your YAML file.");
             }
-          
+
             // Avoid convergence checks by setting the number of events higher than are actually generated
             stoppingres[collider] = result.desired_nEvents[collider]*2;
           }
@@ -532,7 +532,7 @@ namespace Gambit
       //   }
       // #endif
     }
-    
+
 
   }
 

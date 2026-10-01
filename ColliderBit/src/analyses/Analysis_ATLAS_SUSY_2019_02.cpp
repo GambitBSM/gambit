@@ -74,18 +74,18 @@ namespace Gambit
         }
         setDet();
       }
-      
+
       EllipseParams() {}
-      
+
       void setDet()
       {
         det = (2.0 * c_x * c_xy * c_y + c * c_xx * c_yy - c_yy * c_x * c_x -
                c * c_xy * c_xy - c_xx * c_y * c_y);
       }
-      
+
       // Consstructor for degenerate ellipse (i.e. a "dot" at (x0,y0) ).
       EllipseParams(const double x0, const double y0) : c_xx(1), c_yy(1), c_xy(0), c_x(-x0), c_y(-y0), c(x0 * x0 + y0 * y0), det(0) {}
-                  
+
       double lesterFactor(const EllipseParams &e2) const
       {
         const EllipseParams &e1 = *this;
@@ -316,7 +316,7 @@ namespace Gambit
           const double sx = pxVis1;
           const double sy = pyVis1;
           const double mpSq = mInvis1 * mInvis1;
- 
+
           const double mtSq = mVis2 * mVis2;
           const double tx = pxVis2;
           const double ty = pyVis2;
@@ -584,7 +584,7 @@ namespace Gambit
       private:
 
         std::map<std::string, MVA *> m_MVAs;
-      
+
       public:
 
         // Required detector sim
@@ -678,11 +678,11 @@ namespace Gambit
           if (m_MVAs.find(name) == m_MVAs.end()) throw std::runtime_error("Unknown MVA name");
           return m_MVAs[name];
         }
-      
+
         // Assuming Particle and Particles are correct type names.
         vector<const Particle*> filterLeptons(vector<const Particle*> &cands, float ptCut, float etaCut)
         {
-      
+
           vector<const Particle*> reducedList;
           for (const auto &cand : cands)
           {
@@ -690,7 +690,7 @@ namespace Gambit
           }
           return reducedList;
         }
-      
+
         // Assuming Particle and Particles are correct type names.
         vector<const Jet*> filterJets(vector<const Jet*> &cands, float ptCut, float etaCut)
         {
@@ -701,7 +701,7 @@ namespace Gambit
           }
           return reducedList;
         }
-      
+
         struct pt_sort
         {
           bool operator()(const Particle* p1, const Particle* p2) const
@@ -709,7 +709,7 @@ namespace Gambit
             return p1->pT() > p2->pT();
           }
         };
-      
+
         void sortObjectsByPt(vector<const Particle*> &cands)
         {
           return std::sort(cands.begin(), cands.end(), pt_sort());
@@ -761,7 +761,7 @@ namespace Gambit
 
             return;
         }
-      
+
         // Lepton overlap removal
         void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, vector<const HEPUtils::Jet*> &jetvec, double DeltaRMax) {
             //Routine to do lepton-jet check
@@ -788,7 +788,7 @@ namespace Gambit
             return;
         }
         */
-      
+
         float calcMT2(const Particle &o1, const Particle &o2, const P4 &met)
         {
           return calcAMT2(o1, o2, met, 0, 0);
@@ -815,7 +815,7 @@ namespace Gambit
 
           return MTauTau;
         }
-    
+
         vector<const Particle*> LeptonLeptonOverlapRemoval(vector<const Particle*> &cands, vector< const Particle*> &others,
                                                            std::function<float(const Particle* , const Particle* )> radiusFunc)
         {
@@ -876,14 +876,14 @@ namespace Gambit
           }
           return reducedList;
         }
-      
+
         vector<const Particle*> LeptonLeptonOverlapRemoval(vector<const Particle*> &cands,
                                                            vector<const Particle*> &others,
                                                            float deltaR)
         {
           return LeptonLeptonOverlapRemoval( cands, others, [deltaR](const Particle*, const Particle*) { return deltaR; } );
         }
-      
+
         vector<const Jet*> JetLeptonOverlapRemoval(vector<const Jet*> &cands,
                                                    vector<const Particle*> &others,
                                                    float deltaR)
@@ -897,7 +897,7 @@ namespace Gambit
         {
           return LeptonJetOverlapRemoval(cands, others,[deltaR](const Particle*, const Jet*) {return deltaR;});
         }
-            
+
         double calcMETSignificance(vector<const Particle*> &electrons,
                                    vector<const Particle*> &photons,
                                    vector<const Particle*> &muons,
@@ -991,14 +991,14 @@ namespace Gambit
           }
           return significance;
         }
-         
+
         double calcMETSignificance(const HEPUtils::Event &event, bool applyOverlapRemoval)
         {
           auto electrons = getObjects(&event, "electrons", 10, 2.47);
           auto photons = getObjects(&event, "photons", 10, 2.47);
           auto muons = getObjects(&event, "muons", 10, 2.5);
           auto jets = getJets(&event, 20., 4.5);
-          auto taus = getObjects(&event, "taus", 10., 2.5); 
+          auto taus = getObjects(&event, "taus", 10., 2.5);
           auto metVec = event.missingmom();
           double MET = event.met();
 
@@ -1012,7 +1012,7 @@ namespace Gambit
               if (muon->pT() / jet->pT() > 0.5) return 0.2;
               else return 0.;
             };
-          
+
             muons = LeptonLeptonOverlapRemoval(muons, electrons, 0.01);
             electrons = LeptonLeptonOverlapRemoval(electrons, muons, 0.01);
             jets = JetLeptonOverlapRemoval(jets, electrons, 0.2);
@@ -1023,12 +1023,12 @@ namespace Gambit
 
             muons = LeptonJetOverlapRemoval(muons, jets, radiusCalcLepton);
             electrons = LeptonJetOverlapRemoval(electrons, jets, radiusCalcLepton);
-          
+
           }
 
           return calcMETSignificance(electrons, photons, muons, jets, taus, metVec, MET);
         }
-      
+
         vector<const Particle*> getObjects(const HEPUtils::Event* event, std::string type, double ptcut, double etacut)
         {
           vector<const Particle*> cands;
@@ -1076,7 +1076,7 @@ namespace Gambit
            {
              if (jet->pT() > ptcut && jet->abseta() < etacut) candJets.push_back(jet);
            }
-           return candJets;       
+           return candJets;
         }
 
 
@@ -1095,7 +1095,7 @@ namespace Gambit
           // Get the missing energy in the event
           double MET = event->met();
           HEPUtils::P4 METVec = event->missingmom();
-          double METsig = calcMETSignificance(*event, false);   
+          double METsig = calcMETSignificance(*event, false);
 
           // Overlap removal - including with object Pt-dependent radius calculation
 
@@ -1118,7 +1118,7 @@ namespace Gambit
           // Find b-jets
           double btag = 0.77; double cmisstag = 1/16.; double misstag = 1./113.;
           for (const HEPUtils::Jet* jet : signalJets) {
-        
+
             // Tag
             if( jet->btag() && random_bool(btag) ) bjets.push_back(jet);
             // Misstag c-jet
@@ -1173,7 +1173,7 @@ namespace Gambit
           //this to back
           if(signalLeptons[0]->pT() < 27.) return;
 
-          //return back this 
+          //return back this
           if (njet > 1) return;
 
           bool isSF = (abs(signalLeptons[0]->pid()) == abs(signalLeptons[1]->pid()));
@@ -1230,8 +1230,8 @@ namespace Gambit
           //extra variables
           double MT2_100 = calcAMT2(signalLeptons[0], signalLeptons[1], METVec, 100., 100.); //mass of final state invis = 100
           //double MT2_200 = calcAMT2(signalLeptons[0], signalLeptons[1], METVec, 200., 200.);
-          //std::cout << " MT2   "  << MT2_100 << "  " << MT2_200 << std::endl; 
-       
+          //std::cout << " MT2   "  << MT2_100 << "  " << MT2_200 << std::endl;
+
           //double dRll = signalLeptons[0]->mom().deltaR_eta(signalLeptons[1]->mom());
           //double dRMETl1 = signalLeptons[0]->mom().deltaR_eta(METVec), dRMETl2 = signalLeptons[1]->mom().deltaR_eta(METVec);
 
@@ -1245,7 +1245,7 @@ namespace Gambit
 
           double pbll = (signalLeptons[0]->mom() + signalLeptons[1]->mom() + METVec).pT();
 
-      
+
           /*
           double R1 = MET / pbll;
 
@@ -1254,7 +1254,7 @@ namespace Gambit
 
           //std::cout << mtt << "  " << R1 << "  " << std::endl;
 
-          if (signalJets.size() > 0) { 
+          if (signalJets.size() > 0) {
             meff2l1j =  (signalLeptons[0]->mom() + signalLeptons[1]->mom() + METVec + signalJets[0]->mom()).pT();
             R2 = MET / meff2l1j;
           }
@@ -1288,7 +1288,7 @@ namespace Gambit
 
           // Preselection
           //if(nlep == 2 && signalLeptons[0]->pT() > 27. && signalLeptons[1]->pT() > 9. && isOS && mll > 11. && METsig > 3.) {
-          //} 
+          //}
 
           //std::cout << cosTstar  << "  " << std::endl;
           //exit(0);
@@ -1421,15 +1421,15 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("SR1j_130_infty"), 2, {9.7, 4.1}));
           add_result(SignalRegionData(_counters.at("SR1j_140_infty"), 0, {4., 0.8}));
           // Chargino regions
-          add_result(SignalRegionData(_counters.at("SR_DF_81_inc"), 477, {520, 420})); 
-          add_result(SignalRegionData(_counters.at("SR_SF_77_inc"), 143, {199, 135})); 
+          add_result(SignalRegionData(_counters.at("SR_DF_81_inc"), 477, {520, 420}));
+          add_result(SignalRegionData(_counters.at("SR_SF_77_inc"), 143, {199, 135}));
           add_result(SignalRegionData(_counters.at("SR_DF_82_inc"), 340, {390, 310}));
-          add_result(SignalRegionData(_counters.at("SR_DF_83_inc"), 222, {257, 205})); 
-          add_result(SignalRegionData(_counters.at("SR_DF_84_inc"), 130, {141, 111})); 
-          add_result(SignalRegionData(_counters.at("SR_DF_85_inc"), 69, {75, 55})); 
-          add_result(SignalRegionData(_counters.at("SR_SF_78_inc"), 86, {131, 85})); 
-          add_result(SignalRegionData(_counters.at("SR_SF_79_inc"), 47, {73, 43})); 
-          add_result(SignalRegionData(_counters.at("SR_SF_80_inc"), 22, {36, 20})); 
+          add_result(SignalRegionData(_counters.at("SR_DF_83_inc"), 222, {257, 205}));
+          add_result(SignalRegionData(_counters.at("SR_DF_84_inc"), 130, {141, 111}));
+          add_result(SignalRegionData(_counters.at("SR_DF_85_inc"), 69, {75, 55}));
+          add_result(SignalRegionData(_counters.at("SR_SF_78_inc"), 86, {131, 85}));
+          add_result(SignalRegionData(_counters.at("SR_SF_79_inc"), 47, {73, 43}));
+          add_result(SignalRegionData(_counters.at("SR_SF_80_inc"), 22, {36, 20}));
         }
 
       protected:
@@ -1438,7 +1438,7 @@ namespace Gambit
         {
           for (auto& pair : _counters) { pair.second.reset(); }
         }
-      
+
     };
 
     DEFINE_ANALYSIS_FACTORY(ATLAS_SUSY_2019_02)

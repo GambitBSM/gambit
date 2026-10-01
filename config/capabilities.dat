@@ -165,7 +165,7 @@ funcGauss: |
 
 awesomeness: |
    Awesome example function by Anders that returns an awesome double and inputs
-   an awesome integer.  It runs an awesome example initalize function and some other
+   an awesome integer.  It runs an awesome example initialize function and some other
    awesome function, and returns some awesome result.  It also send an awesome message from
    "awesomenessByAnders" to the logger.
 
@@ -189,10 +189,10 @@ runMe: |
    Example fortran subroutine that simulated a main functionality.
 
 refex: |
-   Example function in libfirst that inputs a variable by refernce.
+   Example function in libfirst that inputs a variable by reference.
 
 refex2: |
-   Example function in libfirst that inputs a variable by refernce
+   Example function in libfirst that inputs a variable by reference
    and another variable to value.
 
 someFunction: |

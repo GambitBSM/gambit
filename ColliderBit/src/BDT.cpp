@@ -49,7 +49,7 @@ void NodeXGBoost::Print(index_t index) const
 
 
 namespace{
- 
+
 /*  utility functions : to split option (e.g. "creator=lgbm;node=lgbm_simple")
  *  in a std::map {{"creator", "lgbm"}, {"node", "lgbm_simple"}}
  */
@@ -126,7 +126,7 @@ float BDT::GetOffset() const { return m_forest->GetOffset(); }
 /** c-tor from TMVA::MethodBDT **/
 BDT::BDT(TMVA::MethodBDT* bdt, bool isRegression, bool useYesNoLeaf)
 {
-  if (!bdt) { throw std::runtime_error("bdt pointer to BDT contructor is null"); }
+  if (!bdt) { throw std::runtime_error("bdt pointer to BDT constructor is null"); }
   m_forest = std::make_unique<ForestTMVA>(bdt, isRegression, useYesNoLeaf);
 }
 

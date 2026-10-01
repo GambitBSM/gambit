@@ -33,7 +33,7 @@
 ///  *********************************************
 ///
 ///  Authors
-///   
+///
 ///  \author Are Raklev
 ///          (ahye@fys.uio.no)
 ///  \date 2015 Jun
@@ -49,12 +49,12 @@
 
 namespace Gambit
 {
-    
+
   namespace ColliderBit
   {
-    
+
     typedef std::vector< std::vector<double> > MixMatrix;
-    
+
     /// High-level cross section routines.
     /// @{
     /// Retrieve the production cross-section at an e+e- collider for slepton pairs.
@@ -62,7 +62,7 @@ namespace Gambit
     ///                                               = 2 => (anti-)right-type slepton
     ///  If l_are_gauge_es = F, then l(bar)_chirality = 1 => (anti-)slepton is lightest family state
     ///                                               = 2 => (anti-)slepton is heaviest family state
-    void get_sigma_ee_ll(triplet<double>& result, const double sqrts, const int generation, const int l_chirality, 
+    void get_sigma_ee_ll(triplet<double>& result, const double sqrts, const int generation, const int l_chirality,
                          const int lbar_chirality, const double gtol, const double ftol, const bool gpt_error,
                          const bool fpt_error, const Spectrum& spec, const double gammaZ, const bool l_are_gauge_es);
     /// Retrieve the production cross-section at an e+e- collider for neutralino pairs
@@ -70,14 +70,14 @@ namespace Gambit
                             const double tol, const bool pt_error, const Spectrum& spec, const double gammaZ);
     /// Retrieve the production cross-section at an e+e- collider for chargino pairs
     void get_sigma_ee_chipm(triplet<double>& result, const double sqrts, const int chi_plus, const int chi_minus,
-                            const double tol, const bool pt_error, const Spectrum& spec, const double gammaZ);    
+                            const double tol, const bool pt_error, const Spectrum& spec, const double gammaZ);
     /// @}
 
     /// Low-level cross section routines.
     /// @{
     /// Cross section [pb] for \f$ e^+e^- -> \tilde l_i \tilde l_j^* \f$
     /// To use, call SLHA2BFM first on SLHA mixing matrices constructed as a vector of vectors
-    double xsec_sleislej(int pid1, int pid2, double sqrts, double m1, double m2, MixMatrix F, 
+    double xsec_sleislej(int pid1, int pid2, double sqrts, double m1, double m2, MixMatrix F,
                          MixMatrix N, const double mN[4], double alpha, double mZ, double gZ,
                          double sin2thetaW, bool warn_on_CP_violating_masses = true);
     /// Cross section [pb] for \f$ e^+e^- -> \tilde\chi^0_i \tilde\chi^0_j \f$
@@ -87,10 +87,10 @@ namespace Gambit
                          const double mS[2], double tanb, double alpha, double mZ, double gZ, double sin2thetaW);
     /// Cross section [pb] for \f$ e^+e^- -> \tilde\chi^+_i \tilde\chi^-_j \f$
     /// Masses mi and mj for the charginos are signed. msn is electron sneutrino mass.
-    double xsec_chaichaj(int pid1, int pid2, double sqrts, double m1, double m2, MixMatrix V, 
+    double xsec_chaichaj(int pid1, int pid2, double sqrts, double m1, double m2, MixMatrix V,
                          MixMatrix U, double msn, double alpha, double mZ, double gZ, double sin2thetaW);
     /// @}
-    
+
     /// Conversion between SLHA and BFM conventions. \f$\tan\beta\f$ is as per SLHA.
     /// @{
     void SLHA2BFM_NN(MixMatrix &NN, double tanb, double sin2thetaW);
@@ -101,7 +101,7 @@ namespace Gambit
     MixMatrix transpose(MixMatrix A);
     void print(MixMatrix A);
     /// @}
-        
+
   }
-  
+
 }

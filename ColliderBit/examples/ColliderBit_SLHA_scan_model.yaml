@@ -135,7 +135,7 @@ Rules:
     function: operateLHCLoop
     options:
       silenceLoop: false
-      LHC_13TeV:
+      LHC_13TeV_SUSY_EWonly:
         min_nEvents: 10000  # Chosen only for quick demo -- should be increased
         max_nEvents: 10000  # Chosen only for quick demo -- should be increased
         events_between_convergence_checks: 10000000
@@ -155,13 +155,6 @@ Rules:
       LHC_13TeV:
         xsec_veto: 0.028  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
         partonOnly: false
-        jet_collections:
-          antikt_R04:
-            algorithm: antikt
-            R: 0.4
-            recombination_scheme: E_scheme
-            strategy: Best
-        jet_collection_taus: antikt_R04
         pythia_settings:
           - SLHA:verbose = 1
           - Next:numberShowProcess = 1

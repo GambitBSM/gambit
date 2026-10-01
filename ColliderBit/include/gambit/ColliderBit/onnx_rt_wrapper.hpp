@@ -55,8 +55,8 @@ namespace Gambit
 
       // Check the ONNX file to get hyperparameters etc.
       void getNetworkInfo();
-        
-        
+
+
       // Member variables
 
       /// ONNXrt environment for this session

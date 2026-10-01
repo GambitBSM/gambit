@@ -4,7 +4,7 @@
 ///
 ///  \author Anders Kvellestad
 ///  \date 2024 Feb
-/// 
+///
 ///  *********************************************
 
 // Based on http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-20-001/index.html
@@ -19,7 +19,7 @@
 #include <memory>
 #include <iomanip>
 #include <fstream>
-#include "SoftDrop.hh"
+#include "fastjet/contrib/SoftDrop.hh"
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
@@ -85,59 +85,59 @@ namespace Gambit
           set_luminosity(137.);
 
           // Counters for the number of accepted events for each signal region
-          _counters["SRA_50_100"] = EventCounter("SRA bveto [50, 100]");
-          _counters["SRA_100_150"] = EventCounter("SRA bveto [100, 150]");
-          _counters["SRA_150_230"] = EventCounter("SRA bveto [150, 230]");
-          _counters["SRA_230_300"] = EventCounter("SRA bveto [230, 300]");
-          _counters["SRA_300"] = EventCounter("SRA bveto [300, ~]");
-          _counters["SRB_50_100"] = EventCounter("SRB bveto [50, 100]");
-          _counters["SRB_100_150"] = EventCounter("SRB bveto [100, 150]");
-          _counters["SRB_150_230"] = EventCounter("SRB bveto [150, 230]");
-          _counters["SRB_230_300"] = EventCounter("SRB bveto [230, 300]");
-          _counters["SRB_300"] = EventCounter("SRB bveto [300, ~]");
-          _counters["SRC_50_100"] = EventCounter("SRC bveto [50, 100]");
-          _counters["SRC_100_150"] = EventCounter("SRC bveto [100, 150]");
-          _counters["SRC_150_250"] = EventCounter("SRC bveto [150, 250]");
-          _counters["SRC_250"] = EventCounter("SRC bveto [250, ~]");
-          _counters["SRAb_50_100"] = EventCounter("SRA btag [50, 100]");
-          _counters["SRAb_100_150"] = EventCounter("SRA btag [100, 150]");
-          _counters["SRAb_150_230"] = EventCounter("SRA btag [150, 230]");
-          _counters["SRAb_230_300"] = EventCounter("SRA btag [230, 300]");
-          _counters["SRAb_300"] = EventCounter("SRA btag [300, ~]");
-          _counters["SRBb_50_100"] = EventCounter("SRB btag [50, 100]");
-          _counters["SRBb_100_150"] = EventCounter("SRB btag [100, 150]");
-          _counters["SRBb_150_230"] = EventCounter("SRB btag [150, 230]");
-          _counters["SRBb_230_300"] = EventCounter("SRB btag [230, 300]");
-          _counters["SRBb_300"] = EventCounter("SRB btag [300, ~]");
-          _counters["SRCb_50_100"] = EventCounter("SRC btag [50, 100]");
-          _counters["SRCb_100_150"] = EventCounter("SRC btag [100, 150]");
-          _counters["SRCb_150_250"] = EventCounter("SRC btag [150, 250]");
-          _counters["SRCb_250"] = EventCounter("SRC btag [250, ~]");
+          _counters["SRA_50_100"] = EventCounter("SRA_50_100");
+          _counters["SRA_100_150"] = EventCounter("SRA_100_150");
+          _counters["SRA_150_230"] = EventCounter("SRA_150_230");
+          _counters["SRA_230_300"] = EventCounter("SRA_230_300");
+          _counters["SRA_300"] = EventCounter("SRA_300");
+          _counters["SRB_50_100"] = EventCounter("SRB_50_100");
+          _counters["SRB_100_150"] = EventCounter("SRB_100_150");
+          _counters["SRB_150_230"] = EventCounter("SRB_150_230");
+          _counters["SRB_230_300"] = EventCounter("SRB_230_300");
+          _counters["SRB_300"] = EventCounter("SRB_300");
+          _counters["SRC_50_100"] = EventCounter("SRC_50_100");
+          _counters["SRC_100_150"] = EventCounter("SRC_100_150");
+          _counters["SRC_150_250"] = EventCounter("SRC_150_250");
+          _counters["SRC_250"] = EventCounter("SRC_250");
+          _counters["SRAb_50_100"] = EventCounter("SRAb_50_100");
+          _counters["SRAb_100_150"] = EventCounter("SRAb_100_150");
+          _counters["SRAb_150_230"] = EventCounter("SRAb_150_230");
+          _counters["SRAb_230_300"] = EventCounter("SRAb_230_300");
+          _counters["SRAb_300"] = EventCounter("SRAb_300");
+          _counters["SRBb_50_100"] = EventCounter("SRBb_50_100");
+          _counters["SRBb_100_150"] = EventCounter("SRBb_100_150");
+          _counters["SRBb_150_230"] = EventCounter("SRBb_150_230");
+          _counters["SRBb_230_300"] = EventCounter("SRBb_230_300");
+          _counters["SRBb_300"] = EventCounter("SRBb_300");
+          _counters["SRCb_50_100"] = EventCounter("SRCb_50_100");
+          _counters["SRCb_100_150"] = EventCounter("SRCb_100_150");
+          _counters["SRCb_150_250"] = EventCounter("SRCb_150_250");
+          _counters["SRCb_250"] = EventCounter("SRCb_250");
 
-          _counters["SRBoostedVZ_50_100"] = EventCounter("SR EW on-Z BoostedVZ [50, 100]");
-          _counters["SRBoostedVZ_100_200"] = EventCounter("SR EW on-Z BoostedVZ [100, 200]");
-          _counters["SRBoostedVZ_200_300"] = EventCounter("SR EW on-Z BoostedVZ [200, 300]");
-          _counters["SRBoostedVZ_300_400"] = EventCounter("SR EW on-Z BoostedVZ [300, 400]");
-          _counters["SRBoostedVZ_400_500"] = EventCounter("SR EW on-Z BoostedVZ [400, 500]");
-          _counters["SRBoostedVZ_500"] = EventCounter("SR EW on-Z BoostedVZ [500, ~]");
-          _counters["SRResolvedVZ_50_100"] = EventCounter("SR EW on-Z ResolvedVZ [50, 100]");
-          _counters["SRResolvedVZ_100_150"] = EventCounter("SR EW on-Z ResolvedVZ [100, 150]");
-          _counters["SRResolvedVZ_150_250"] = EventCounter("SR EW on-Z ResolvedVZ [150, 250]");
-          _counters["SRResolvedVZ_250_350"] = EventCounter("SR EW on-Z ResolvedVZ [250, 350]");
-          _counters["SRResolvedVZ_350"] = EventCounter("SR EW on-Z ResolvedVZ [350, ~]");
-          _counters["SRHZ_50_100"] = EventCounter("SR EW on-Z HZ [50, 100]");
-          _counters["SRHZ_100_150"] = EventCounter("SR EW on-Z HZ [100, 150]");
-          _counters["SRHZ_150_250"] = EventCounter("SR EW on-Z HZ [150, 250]");
-          _counters["SRHZ_250"] = EventCounter("SR EW on-Z HZ [250, ~]");
+          _counters["SRBoostedVZ_50_100"] = EventCounter("SRBoostedVZ_50_100");
+          _counters["SRBoostedVZ_100_200"] = EventCounter("SRBoostedVZ_100_200");
+          _counters["SRBoostedVZ_200_300"] = EventCounter("SRBoostedVZ_200_300");
+          _counters["SRBoostedVZ_300_400"] = EventCounter("SRBoostedVZ_300_400");
+          _counters["SRBoostedVZ_400_500"] = EventCounter("SRBoostedVZ_400_500");
+          _counters["SRBoostedVZ_500"] = EventCounter("SRBoostedVZ_500");
+          _counters["SRResolvedVZ_50_100"] = EventCounter("SRResolvedVZ_50_100");
+          _counters["SRResolvedVZ_100_150"] = EventCounter("SRResolvedVZ_100_150");
+          _counters["SRResolvedVZ_150_250"] = EventCounter("SRResolvedVZ_150_250");
+          _counters["SRResolvedVZ_250_350"] = EventCounter("SRResolvedVZ_250_350");
+          _counters["SRResolvedVZ_350"] = EventCounter("SRResolvedVZ_350");
+          _counters["SRHZ_50_100"] = EventCounter("SRHZ_50_100");
+          _counters["SRHZ_100_150"] = EventCounter("SRHZ_100_150");
+          _counters["SRHZ_150_250"] = EventCounter("SRHZ_150_250");
+          _counters["SRHZ_250"] = EventCounter("SRHZ_250");
 
-          _counters["SRoffZ0j_100_150"] = EventCounter("SR Off-Z nj=0 [100, 150]");
-          _counters["SRoffZ0j_150_225"] = EventCounter("SR Off-Z nj=0 [150, 225]");
-          _counters["SRoffZ0j_225_300"] = EventCounter("SR Off-Z nj=0 [225, 300]");
-          _counters["SRoffZ0j_300"] = EventCounter("SR Off-Z nj=0 [300, ~]");
-          _counters["SRoffZj_100_150"] = EventCounter("SR Off-Z nj>0 [100, 150]");
-          _counters["SRoffZj_150_225"] = EventCounter("SR Off-Z nj>0 [150, 225]");
-          _counters["SRoffZj_225_300"] = EventCounter("SR Off-Z nj>0 [225, 300]");
-          _counters["SRoffZj_300"] = EventCounter("SR Off-Z nj>0 [300, ~]");
+          _counters["SRoffZ0j_100_150"] = EventCounter("SRoffZ0j_100_150");
+          _counters["SRoffZ0j_150_225"] = EventCounter("SRoffZ0j_150_225");
+          _counters["SRoffZ0j_225_300"] = EventCounter("SRoffZ0j_225_300");
+          _counters["SRoffZ0j_300"] = EventCounter("SRoffZ0j_300");
+          _counters["SRoffZj_100_150"] = EventCounter("SRoffZj_100_150");
+          _counters["SRoffZj_150_225"] = EventCounter("SRoffZj_150_225");
+          _counters["SRoffZj_225_300"] = EventCounter("SRoffZj_225_300");
+          _counters["SRoffZj_300"] = EventCounter("SRoffZj_300");
 
           // Control regions
           // _counters["SRonZ0j_100_150"] = EventCounter("SR on-Z nj=0 [100, 150]");
@@ -254,7 +254,7 @@ namespace Gambit
             {
               // Check softdrop mass
               FJNS::PseudoJet groomed_jet = sd(jet->pseudojet());
-              double m = groomed_jet.m();              
+              double m = groomed_jet.m();
               if (m > 65. && m < 105.)
               {
                 // Accept jet
@@ -384,14 +384,14 @@ namespace Gambit
           {
             deltaPhiJet1PTmissSeparation = ( event->missingmom().deltaR_eta(signalJets[0]->mom()) > 0.4 );
           }
-          else if (nSignalJets >= 2) 
+          else if (nSignalJets >= 2)
           {
             deltaPhiJet1PTmissSeparation = ( event->missingmom().deltaR_eta(signalJets[0]->mom()) > 0.4 );
             deltaPhiJet2PTmissSeparation = ( event->missingmom().deltaR_eta(signalJets[1]->mom()) > 0.4 );
           }
-          bool deltaPhiJet12PTmissSeparation = (deltaPhiJet1PTmissSeparation && deltaPhiJet2PTmissSeparation); 
+          bool deltaPhiJet12PTmissSeparation = (deltaPhiJet1PTmissSeparation && deltaPhiJet2PTmissSeparation);
 
-          // For SRs with V jets, a baseline requirement is separation from pTmiss by 
+          // For SRs with V jets, a baseline requirement is separation from pTmiss by
           // delta phi > 0.4 *or* > 0.8, depending on the type of jet
           bool deltaPhiJet1TmissSeparation_VJetSR = true;
           if (nSignalJets >= 1 && nSignalVJets == 0)
@@ -408,7 +408,7 @@ namespace Gambit
             {
               deltaPhiJet1TmissSeparation_VJetSR = ( event->missingmom().deltaR_eta(signalJets[0]->mom()) > 0.4 );
             }
-            else 
+            else
             {
               deltaPhiJet1TmissSeparation_VJetSR = ( event->missingmom().deltaR_eta(signalVJets[0]->mom()) > 0.8 );
             }
@@ -899,9 +899,9 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("SRResolvedVZ_350"),     2.,    {6.3, 2.2}));
 
           // Covariance matrix
-          // NOTE: The ordering of the bin labels is wrong in the pdf/png figures of the covariance matrix 
+          // NOTE: The ordering of the bin labels is wrong in the pdf/png figures of the covariance matrix
           // provided at https://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-20-001/index.html
-          // The ROOT file has the correct bin labels, so the covariance matrix below is extracted from the ROOT file 
+          // The ROOT file has the correct bin labels, so the covariance matrix below is extracted from the ROOT file
           // and the order in which the SRs are registered above is matched to this.
           static const vector< vector<double> > BKGCOV = {
             {  1.617e+02,  1.135e+01,  4.261e+00,  8.042e-01,  3.021e+00,  4.050e-01, -6.691e-02,  2.447e-01, -1.306e-02,  3.087e-02, -8.126e+01, -1.601e+01,  1.789e+01,  5.536e+00,  3.430e+00},

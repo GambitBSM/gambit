@@ -39,7 +39,6 @@
 #define ETAMAX DBL_MAX
 #define PTMAX DBL_MAX
 
-
 /// Define baseline objects without cuts
 #define BASELINE_OBJECTS_3(TYPE, OBJECTS, NAME)                                   \
   std::vector<const HEPUtils::TYPE*> NAME;                                        \

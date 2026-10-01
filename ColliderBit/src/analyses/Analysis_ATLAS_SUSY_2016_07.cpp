@@ -71,6 +71,7 @@ namespace Gambit {
         set_analysis_name("ATLAS_SUSY_2016_07");
         analysisRunName = Analysis::analysis_name();
 
+        set_detector_name(detector);
         set_luminosity(36.1);
 
         vector<const char*> variablesNames = {"met", "nJets", "HT", "pTjetOne", "pTjetTwo", "pTjetThree", "sumpTj", "etamax_2", "etamax_4", "dphimin_123", "dphimin_more", "aplanarity"};
