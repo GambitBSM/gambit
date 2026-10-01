@@ -50,6 +50,46 @@ namespace Gambit
 #endif
         set_analysis_name("CMS_SUS_21_002");
         set_luminosity(137.0);
+
+        // Register the signal regions
+        defineSignalRegion("0b-MET-200-250");
+        defineSignalRegion("0b-MET-250-300");
+        defineSignalRegion("0b-MET-300-350");
+        defineSignalRegion("0b-MET-350-400");
+        defineSignalRegion("0b-MET-400-450");
+        defineSignalRegion("0b-MET-450-500");
+        defineSignalRegion("0b-MET-500-600");
+        defineSignalRegion("0b-MET-600-800");
+        defineSignalRegion("0b-MET-800-1200");
+
+        defineSignalRegion("1W-MET-200-250");
+        defineSignalRegion("1W-MET-250-300");
+        defineSignalRegion("1W-MET-300-350");
+        defineSignalRegion("1W-MET-350-400");
+        defineSignalRegion("1W-MET-400-450");
+        defineSignalRegion("1W-MET-450-500");
+        defineSignalRegion("1W-MET-500-600");
+        defineSignalRegion("1W-MET-600-800");
+        defineSignalRegion("1W-MET-800-1200");
+
+        defineSignalRegion("WH-MET-200-250");
+        defineSignalRegion("WH-MET-250-300");
+        defineSignalRegion("WH-MET-300-350");
+        defineSignalRegion("WH-MET-350-400");
+        defineSignalRegion("WH-MET-400-450");
+        defineSignalRegion("WH-MET-450-500");
+        defineSignalRegion("WH-MET-500-600");
+        defineSignalRegion("WH-MET-600-900");
+
+        defineSignalRegion("1H-MET-200-250");
+        defineSignalRegion("1H-MET-250-300");
+        defineSignalRegion("1H-MET-300-350");
+        defineSignalRegion("1H-MET-350-400");
+        defineSignalRegion("1H-MET-400-450");
+        defineSignalRegion("1H-MET-450-500");
+        defineSignalRegion("1H-MET-500-600");
+        defineSignalRegion("1H-MET-600-800");
+        defineSignalRegion("1H-MET-800-1200");
       }
 
       void run(const HEPUtils::Event *event)
