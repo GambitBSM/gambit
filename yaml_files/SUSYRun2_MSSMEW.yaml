@@ -407,7 +407,6 @@ Rules:
           - CMS_SUS_18_004                          # New! (Tomas)
           - CMS_SUS_19_010                          # New! (Holly)
           - CMS_SUS_21_002                          # New! (Adil) - Uses antikt_R08.
-          - CMS_SUS_21_002_OLD                      # [in skip_analyses]
           - CMS_SUS_21_009                          # New! (Vinay)
           - CMS_SUS_20_001_EW_production            # New! (Anders)
           - CMS_SUS_20_001_strong_production        # [in skip_analyses]
