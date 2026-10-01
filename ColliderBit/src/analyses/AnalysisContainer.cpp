@@ -139,7 +139,6 @@ namespace Gambit
       F(CMS_SUS_16_014)                              \
       F(CMS_SUS_16_033)                              \
       F(CMS_SUS_19_006)                              \
-      F(CMS_SUS_21_002_OLD)                          \
       F(CMS_SUS_21_002)                              \
       F(CMS_SUS_16_043)                              \
       F(CMS_SUS_20_003)                              \
