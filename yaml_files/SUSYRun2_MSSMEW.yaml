@@ -391,7 +391,6 @@ Rules:
           - ATLAS_SUSY_2018_22
           - ATLAS_SUSY_2018_41                      # Uses antikt_R1.
           - ATLAS_SUSY_2018_08_inclusive
-          - ATLAS_SUSY_2018_21
           - ATLAS_CONF_2019_008_chargino_inclusive
           - ATLAS_CONF_2019_008_chargino_binned     # [in skip_analyses]
           - ATLAS_SUSY_2019_09
