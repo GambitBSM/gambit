@@ -76,7 +76,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: random #de
+  use_scanner: de
 
   scanners:
 
@@ -365,8 +365,8 @@ Rules:
         - LHC_13TeV
       silenceLoop: false
       LHC_13TeV:
-        min_nEvents: 1000 #16000000
-        max_nEvents: 1000 #16000000
+        min_nEvents: 16000000
+        max_nEvents: 16000000
         events_between_convergence_checks: 1000000000
         target_fractional_uncert: 0.1
         halt_when_systematic_dominated: false
