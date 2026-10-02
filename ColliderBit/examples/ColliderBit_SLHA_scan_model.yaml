@@ -135,7 +135,7 @@ Rules:
     function: operateLHCLoop
     options:
       silenceLoop: false
-      LHC_13TeV_SUSY_EWonly:
+      LHC_13TeV:
         min_nEvents: 10000  # Chosen only for quick demo -- should be increased
         max_nEvents: 10000  # Chosen only for quick demo -- should be increased
         events_between_convergence_checks: 10000000
