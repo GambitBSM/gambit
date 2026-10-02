@@ -74,6 +74,10 @@ namespace Gambit
         void set_analysis_name(str);
         /// Get the analysis name
         str analysis_name();
+        /// Set the detector name
+        void set_detector_name(str);
+        /// Get the detector name
+        str detector_name();
         /// Set the collider name
         void set_collider_name(str);
         // Get the collider name
@@ -110,6 +114,9 @@ namespace Gambit
         // Log progress details
         // void log_progress();
 
+        /// Set the store_accepted_event_IDs bool for the EventCounter instances in this analysis
+        void set_store_accepted_event_IDs(bool setting);
+        
         // Add a cutflow to the list of cutflows
         void addCuts(std::vector<std::string>&) {}  // base case
 
@@ -136,11 +143,12 @@ namespace Gambit
         template<typename... Cuts>
         void defineSignalRegions(const std::string& baseName, int count, const Cuts&... cuts)
         {
-          for (int i = 0; i < count; ++i)
+          for (int i = 1; i <= count; ++i)
           {
             defineSignalRegion(baseName + std::to_string(i), cuts...);
           }
         }
+
 
       protected:
 
@@ -167,9 +175,6 @@ namespace Gambit
         virtual void collect_results() = 0;
         ///@}
 
-        // Counters for the number of accepted events for each signal region
-        std::map<str, EventCounter> _counters;
-
         // Every analysis should store its cutflows
         Cutflows _cutflows;
 
@@ -184,7 +189,15 @@ namespace Gambit
         bool _needs_collection;
         AnalysisData _results;
         std::string _analysis_name;
+        std::string _detector_name;
         std::string _collider_name;
+
+      protected:
+
+        // A map of event counters for the number of accepted events for each signal region.
+        // This varible is just a shorthand reference to the actual map living
+        // in _results._counters. (The reference is initialized in the constructor.)
+        std::map<str, EventCounter>& _counters;
 
     };
 

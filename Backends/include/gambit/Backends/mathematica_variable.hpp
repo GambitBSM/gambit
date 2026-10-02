@@ -84,7 +84,7 @@ namespace Gambit
                 return ;
               }
 
-            /* Send the variable symbol, preceeded by functions to parse non-alphanumerical chars */
+            /* Send the variable symbol, preceded by functions to parse non-alphanumerical chars */
             boost::replace_all(_symbol, "\\[", "\\\\[");
             if(!WSPutFunction(_WSlink, "ToExpression",1) or
                !WSPutString(_WSlink, _symbol.c_str()))

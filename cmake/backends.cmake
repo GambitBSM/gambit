@@ -1220,6 +1220,11 @@ set(ditch_if_absent "hepmc")
 
 # - Add additional compiler-specific optimisation flags and suppress some warnings from -Wextra.
 set(pythia_CXXFLAGS "${BACKEND_CXX_FLAGS}")
+# Pythia's bundled FJcore uses a std::vector-of-incomplete-type pattern that macOS's libc++
+# rejects under C++20, so fall back to C++17 for Pythia's own compile on MacOS.
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  string(REGEX REPLACE "-std=c\\+\\+(20|2a|23|2b)" "-std=c++17" pythia_CXXFLAGS "${pythia_CXXFLAGS}")
+endif()
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -fast") # -fast sometimes makes xsecs come out as NaN, but we catch that and invalidate those points.
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
@@ -1381,7 +1386,7 @@ endif()
 set(name "nulike")
 set(ver "1.0.9")
 set(lib "libnulike")
-set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+set(dl "https://github.com/GambitBSM/archived_backends/raw/refs/heads/main/nulike_v1.0.9.tar.gz")
 set(md5 "b3f9d626fc964e9b0d1f33187504662d")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
@@ -1720,10 +1725,9 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}")
 # - Silence the deprecated-declarations warnings coming from Eigen3
 set(GM2CALC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
 set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
-# - gm2calc 1.2 depends on std::ptr_fun which is removed in c++17, so we need to fall back to c++14 (or c++11)
-if(COMPILER_SUPPORTS_CXX17)
-  string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" GM2CALC_CXX_FLAGS "${GM2CALC_CXX_FLAGS}")
-endif()
+# - gm2calc 1.2 depends on std::ptr_fun, which was removed in C++17, so we need to fall back to
+#   C++14 regardless of which (C++17 or later) standard GAMBIT itself is using.
+string(REGEX REPLACE "-std=c\\+\\+(17|1z|20|2a|23|2b)" "-std=c++14" GM2CALC_CXX_FLAGS "${GM2CALC_CXX_FLAGS}")
 set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
@@ -1751,10 +1755,9 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}")
 # - Silence the deprecated-declarations warnings coming from Eigen3
 set(GM2CALC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
 set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
-# - gm2calc 1.3 depends on std::ptr_fun which is removed in c++17, so we need to fall back to c++14 (or c++11)
-if(COMPILER_SUPPORTS_CXX17)
-  string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" GM2CALC_CXX_FLAGS "${GM2CALC_CXX_FLAGS}")
-endif()
+# - gm2calc 1.3 depends on std::ptr_fun, which was removed in C++17, so we need to fall back to
+#   C++14 regardless of which (C++17 or later) standard GAMBIT itself is using.
+string(REGEX REPLACE "-std=c\\+\\+(17|1z|20|2a|23|2b)" "-std=c++14" GM2CALC_CXX_FLAGS "${GM2CALC_CXX_FLAGS}")
 set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
@@ -1936,7 +1939,7 @@ set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/")
 set(ditch_if_absent "X11")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
-  # Add -fcommon compiler flag to tell the compiler to accept and merge a multiple variable definiton in calchep
+  # Add -fcommon compiler flag to tell the compiler to accept and merge a multiple variable definition in calchep
   set(calchep_CXX_FLAGS "${BACKEND_CXX_FLAGS} -fcommon")
   set(calchep_C_FLAGS "${BACKEND_C_FLAGS} -fcommon")
   set(calchep_Fortran_FLAGS "${BACKEND_Fortran_FLAGS} -fcommon")

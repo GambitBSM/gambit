@@ -287,7 +287,7 @@ linking external libraries:
      req_libraries("my_cool_library");
    }
 
-requiring existance of files to compile:
+requiring existence of files to compile:
 
 -- You can also specify that a certain file must be found in
    order to compile.  This is done with the "reqd_headers"
@@ -381,7 +381,7 @@ use_objective_plugins:
 ************ EXTERNAL COMPILATION SECTION *******************
 *************************************************************
 
--- Because of Gambit's compilation tools, it is highly recomended
+-- Because of Gambit's compilation tools, it is highly recommended
    to compile with gambit.  But there may be situations where
    compilation is too compilated or specialized to included
    as part of gambit.  Although, this method is not supported

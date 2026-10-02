@@ -38,7 +38,7 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    Analysis::Analysis() : _luminosity(0), _luminosity_is_set(false), _is_scaled(false), _needs_collection(true), _collider_name("") {}
+    Analysis::Analysis() : _luminosity(0), _luminosity_is_set(false), _is_scaled(false), _needs_collection(true), _collider_name(""), _counters(_results._counters) {}
 
     /// Public method to reset this instance for reuse, avoiding the need for "new" or "delete".
     void Analysis::reset()
@@ -83,6 +83,16 @@ namespace Gambit
     /// Get the analysis name
     str Analysis::analysis_name() { return _analysis_name; }
 
+    /// Set the detector name
+    void Analysis::set_detector_name(str detname)
+    {
+      _detector_name = detname;
+      _results.detector_name = _detector_name;
+    }
+
+    /// Get the detector name
+    str Analysis::detector_name() { return _detector_name; }
+
     /// Set the collider name
     void Analysis::set_collider_name(str collname)
     {
@@ -100,6 +110,31 @@ namespace Gambit
       {
         collect_results();
         _needs_collection = false;
+      }
+
+      // Collect the SR names for all SRs that have been added to _results
+      std::vector<std::string> SRs_in_results;
+      SRs_in_results.reserve(_results.srdata_identifiers.size());
+      for (auto const& kv : _results.srdata_identifiers)
+      {
+       SRs_in_results.push_back(kv.first);
+      }
+
+      // In _results, clear the EventCounter::_event_acceptance_record
+      // vector for each SR that has not been added to _result.
+      // (Reminder: _counters is a reference to _results._counters.)
+      for (auto& kv : _counters)
+      {
+        const str& SR_name = kv.first;
+        EventCounter& counter = kv.second;
+        if (counter.store_accepted_event_IDs())
+        {
+          // If SR_name not in SRs_in_results, clear the event acceptance record
+          if (std::find(SRs_in_results.begin(), SRs_in_results.end(), SR_name) == SRs_in_results.end())
+          {
+            counter.clear_event_acceptance_record();
+          }
+        }
       }
 
       return _results;
@@ -199,5 +234,18 @@ namespace Gambit
       _results.histograms.combine(otherResults.histograms);
       _needs_collection = false;
     }
-  } // namespace ColliderBit
-} // namespace Gambit
+
+    /// Set the store_accepted_event_IDs bool for the EventCounter instances in this analysis
+    void Analysis::set_store_accepted_event_IDs(bool setting)
+    {
+      for (auto& kv : _counters)
+      {
+        // kv.first (key) is the SR name
+        // kv.second (value) is the EventCounter instance
+        kv.second.set_store_accepted_event_IDs(setting);
+      }
+    }
+
+
+  }
+}

@@ -1129,7 +1129,7 @@ namespace Gambit
                  == retrieved_pars.end())
              {
                 std::ostringstream err;
-                err << "Error! Reader could not retrieve the required paramater '"<<par<<"' for the model '"<<model<<"' from the supplied data file! Please check that this parameter indeed exists in that file." << std::endl;
+                err << "Error! Reader could not retrieve the required parameter '"<<par<<"' for the model '"<<model<<"' from the supplied data file! Please check that this parameter indeed exists in that file." << std::endl;
                 Scanner::scan_error().raise(LOCAL_INFO,err.str());
              }
 

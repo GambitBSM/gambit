@@ -187,10 +187,8 @@ namespace Gambit {
         }
 
         // Perform all pre-selection cuts (No cuts put in preselection)
-#ifdef CHECK_CUTFLOW
         BEGIN_PRESELECTION
         END_PRESELECTION
-#endif
 
         // Veto the event if there are any remaining baseline leptons
         if (!muons.empty()) return;

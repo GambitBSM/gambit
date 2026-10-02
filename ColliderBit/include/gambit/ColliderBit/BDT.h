@@ -1,3 +1,10 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+  This file is derived from MVAUtils/BDT.h in contrib/mvautils; see
+  contrib/mvautils/include/mvautils/LICENSE.
+*/
+
 #ifndef BDT_H
 #define BDT_H
 

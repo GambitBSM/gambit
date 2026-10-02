@@ -399,6 +399,8 @@ int main(int argc, char* argv[])
     int seed = settings.getValueOrDef<int>(-1, "seed");
     Random::create_rng_engine("default", seed);
 
+    std::vector<std::string> use_colliders = {"CBS"};
+
     // Pass options to the main event loop
     YAML::Node CBS(infile["settings"]);
     CBS["analyses"] = analyses;
@@ -408,6 +410,7 @@ int main(int argc, char* argv[])
     CBS["run_convergence_checks"] = false;
     operateLHCLoop.setOption<YAML::Node>("CBS", CBS);
     operateLHCLoop.setOption<bool>("silenceLoop", not debug);
+    operateLHCLoop.setOption<std::vector<std::string>>("use_colliders", use_colliders);
 
     // Tell operateLHCLoop to use the "CBS" collider
     std::vector<std::string> use_colliders = {"CBS"};
@@ -491,9 +494,9 @@ int main(int argc, char* argv[])
     runCMSAnalyses.resolveDependency(&smearEventCMS);
     runIdentityAnalyses.resolveDependency(&getIdentityAnalysisContainer);
     runIdentityAnalyses.resolveDependency(&copyEvent);
-    getATLASAnalysisContainer.resolveDependency(&getYAMLCrossSection);
-    getCMSAnalysisContainer.resolveDependency(&getYAMLCrossSection);
-    getIdentityAnalysisContainer.resolveDependency(&getYAMLCrossSection);
+    getATLASAnalysisContainer.resolveDependency(&InitialTotalCrossSection_YAMLCBS);
+    getCMSAnalysisContainer.resolveDependency(&InitialTotalCrossSection_YAMLCBS);
+    getIdentityAnalysisContainer.resolveDependency(&InitialTotalCrossSection_YAMLCBS);
     smearEventATLAS.resolveDependency(&getBuckFastATLAS);
     smearEventATLAS.resolveDependency(&convertEvent);
     smearEventCMS.resolveDependency(&getBuckFastCMS);
@@ -525,7 +528,6 @@ int main(int argc, char* argv[])
     smearEventATLAS.resolveLoopManager(&operateLHCLoop);
     smearEventCMS.resolveLoopManager(&operateLHCLoop);
     copyEvent.resolveLoopManager(&operateLHCLoop);
-    getYAMLCrossSection.resolveLoopManager(&operateLHCLoop);
     runATLASAnalyses.resolveLoopManager(&operateLHCLoop);
     runCMSAnalyses.resolveLoopManager(&operateLHCLoop);
     runIdentityAnalyses.resolveLoopManager(&operateLHCLoop);
@@ -534,7 +536,6 @@ int main(int argc, char* argv[])
                                                                   &getBuckFastATLAS,
                                                                   &getBuckFastCMS,
                                                                   &getBuckFastIdentity,
-                                                                  &getYAMLCrossSection,
                                                                   &getATLASAnalysisContainer,
                                                                   &getCMSAnalysisContainer,
                                                                   &getIdentityAnalysisContainer,
@@ -565,6 +566,7 @@ int main(int argc, char* argv[])
     }
 
     // Run the detector sim and selected analyses on all the events read in.
+    InitialTotalCrossSection_YAMLCBS.reset_and_calculate();
     operateLHCLoop.reset_and_calculate();
     CollectAnalyses.reset_and_calculate();
     calcLogLikes->reset_and_calculate();
