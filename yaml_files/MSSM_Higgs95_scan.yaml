@@ -25,6 +25,12 @@
 ## `make feynhiggs_2.12.0`, though that backend is known to fail to build
 ## with gfortran >= 10) in your build directory before this yaml will
 ## resolve past dependency resolution.
+##
+##
+## mpirun -np 4 ./gambit -f yaml_files/MSSM_Higgs95_scan.yaml : -np 2 ./egg -c "getSusHi_h_xsec_total"
+## python emulator_test_functions/plot_higgs95_scan.py [run_folder]
+##
+##
 ##########################################################################
 
 Parameters:
@@ -34,7 +40,7 @@ Parameters:
   MSSM9batQ_mA:
     Qin:      2000.0
     TanBeta:
-      range: [5.0, 40.0]
+      range: [1.0, 70.0]
       prior_type: flat
     mA:
       # Moderate mA, not the decoupling-limit values used in the SusHi
@@ -51,7 +57,7 @@ Parameters:
       # Gluino mass: also one of the emulator's own input dimensions
       # (see getSusHi_h_xsec_total_EmulatorTranslateInput), since it
       # enters the SUSY-QCD loop corrections SusHi computes.
-      range: [1000.0, 3000.0]
+      range: [1000.0, 5000.0]
       prior_type: log
     mq2_3:
       # Third-gen squark soft mass^2 [GeV^2]; sqrt(range) ~ 1-3 TeV.
@@ -89,11 +95,11 @@ Scanner:
       plugin: diver
       like: LogLike
       # NP ~ 10x the number of free parameters (7 here) is Diver's usual
-      # rule of thumb; kept modest for a first real run given SusHi's
-      # per-point cost -- bump up once the emulator's predict/train ratio
-      # and the target ranges above have been sanity-checked.
-      NP: 70
-      convthresh: 1e-3
+      # rule of thumb. The first run (NP=70, convthresh=1e-3) stopped early on
+      # Diver's convergence criterion (maxgen defaults to 5000) in a shallow
+      # valley, so NP is raised and the threshold tightened.
+      NP: 150
+      convthresh: 1e-5
       verbosity: 1
 
 
@@ -101,6 +107,14 @@ ObsLikes:
 
     - purpose:    LogLike
       capability: Higgs95_LogLike
+
+    # 125 GeV Higgs chi^2 from HiggsSignals (chi^2_125 in Eq. 11 of
+    # arXiv:2203.13180). GAMBIT sums all LogLike purposes, so the total is
+    # chi^2 = chi^2_gammagamma + chi^2_tautau + chi^2_125. Needs the
+    # higgsbounds/higgssignals backends built. Only a constant offset from
+    # the paper's chi^2_SM,125 = 85.77 (HS 2.6.1); GAMBIT has HS 1.4.
+    - purpose:    LogLike
+      capability: LHC_Higgs_LogLike
 
     - purpose:    Observable
       capability: SusHi_h_xsec_total_cap
@@ -145,8 +159,8 @@ Rules:
   - capability: unimproved_MSSM_spectrum
     function: get_MSSMatQ_mA_spectrum_FS
     options:
-      precision_goal:        1.0e-4
-      max_iterations:        0
+      precision_goal:        1.0e-3
+      max_iterations:        30
       calculate_sm_masses:   false
       pole_mass_loop_order:  2
       ewsb_loop_order:       2
@@ -168,6 +182,28 @@ Rules:
   # you build FeynHiggs instead of SUSY_HIT.
   - capability: Higgs_decay_rates
     function: MSSM_h0_1_decays
+
+  # Higgs couplings for HiggsSignals/HiggsBounds (HB_ModelParameters). Two MSSM
+  # providers exist; use the SUSY_HIT-decay-based one, since FeynHiggs is not built.
+  - capability: Higgs_Couplings
+    function: MSSM_higgs_couplings_pwid
+
+  # Decay rates that MSSM_higgs_couplings_pwid depends on: each has a
+  # SUSY_HIT-based and a FeynHiggs-based provider; pick the SUSY_HIT ones.
+  - capability: h0_2_decay_rates
+    function: h0_2_decays
+  - capability: A0_decay_rates
+    function: A0_decays
+  - capability: H_plus_decay_rates
+    function: H_plus_decays
+  - capability: t_decay_rates
+    function: t_decays
+  - capability: Reference_SM_Higgs_decay_rates
+    function: Ref_SM_Higgs_decays_table
+  - capability: Reference_SM_other_Higgs_decay_rates
+    function: Ref_SM_other_Higgs_decays_table
+  - capability: Reference_SM_A0_decay_rates
+    function: Ref_SM_A0_decays_table
 
   - capability: mu_gammagamma_h95_cap
     function: getMu_gammagamma_h95
@@ -203,7 +239,7 @@ Logger:
 
 KeyValues:
 
-  default_output_path: "runs/MSSM_Higgs95_scan_1"
+  default_output_path: "runs/MSSM_Higgs95_scan_3"
 
   dependency_resolution:
     prefer_model_specific_functions: true
