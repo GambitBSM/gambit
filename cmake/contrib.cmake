@@ -33,26 +33,6 @@
 
 include(ExternalProject)
 
-function(gambit_openmp_runtime_mismatch library result)
-  set(${result} FALSE PARENT_SCOPE)
-  if(NOT GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP OR NOT EXISTS "${library}")
-    return()
-  endif()
-  find_program(_GAMBIT_OTOOL_EXECUTABLE NAMES otool)
-  if(NOT _GAMBIT_OTOOL_EXECUTABLE)
-    return()
-  endif()
-  execute_process(
-    COMMAND "${_GAMBIT_OTOOL_EXECUTABLE}" -L "${library}"
-    OUTPUT_VARIABLE _GAMBIT_LIBRARY_DEPENDENCIES
-    ERROR_QUIET
-  )
-  string(FIND "${_GAMBIT_LIBRARY_DEPENDENCIES}" "${OpenMP_omp_LIBRARY}" _GAMBIT_OPENMP_MATCH)
-  if(_GAMBIT_LIBRARY_DEPENDENCIES MATCHES "libomp[.]dylib" AND _GAMBIT_OPENMP_MATCH EQUAL -1)
-    set(${result} TRUE PARENT_SCOPE)
-  endif()
-endfunction()
-
 # Define the newline strings to use for OSX-safe substitution.
 # This can be moved into externals.cmake if ever it is no longer used in this file.
 set(nl "___totally_unlikely_to_occur_naturally___")
@@ -169,8 +149,10 @@ if(NOT EXCLUDE_RESTFRAMES)
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${dir}/lib")
   set(RESTFRAMES_CONFIG_LDFLAGS "-L${CMAKE_BINARY_DIR}/contrib -Wl,-rpath,${CMAKE_BINARY_DIR}/contrib")
   # OpenMP flags don't play nicely with clang and RestFrames' antiquated libtoolized build system.
-  string(REGEX REPLACE "-Xclang -fopenmp" "" RESTFRAMES_C_FLAGS "${BACKEND_C_FLAGS}")
-  string(REGEX REPLACE "-Xclang -fopenmp" "" RESTFRAMES_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  set(RESTFRAMES_C_FLAGS "${BACKEND_C_FLAGS}")
+  set(RESTFRAMES_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  gambit_strip_openmp_from_flags(RESTFRAMES_C_FLAGS)
+  gambit_strip_openmp_from_flags(RESTFRAMES_CXX_FLAGS)
   if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(RESTFRAMES_CONFIG_LIBS "${CMAKE_SHARED_LINKER_FLAGS} -lgambit_preload")
   else()
@@ -359,17 +341,11 @@ if(NOT EXCLUDE_YODA)
   set(YODA_LDFLAGS "-L${YODA_LIB}" "-l${lib}")
 
   # OpenMP flags do not play nicely with clang and YODA's libtool link step.
-  # Match RestFrames/FastJet: drop the two-token form from YODA's private
-  # C/C++ flags only.  OpenMP stays enabled for GAMBIT itself.
+  # Strip only from YODA's private flags; OpenMP stays enabled for GAMBIT.
   set(YODA_C_FLAGS "${BACKEND_C_FLAGS}")
   set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3")
-  string(REGEX REPLACE "-Xclang -fopenmp" "" YODA_C_FLAGS "${YODA_C_FLAGS}")
-  string(REGEX REPLACE "-Xclang -fopenmp" "" YODA_CXX_FLAGS "${YODA_CXX_FLAGS}")
-  # AppleClang's libtool can leak a bare -fopenmp after it splits the pair.
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-    string(REGEX REPLACE "(^| )-fopenmp( |$)" "\\1" YODA_C_FLAGS "${YODA_C_FLAGS}")
-    string(REGEX REPLACE "(^| )-fopenmp( |$)" "\\1" YODA_CXX_FLAGS "${YODA_CXX_FLAGS}")
-  endif()
+  gambit_strip_openmp_from_flags(YODA_C_FLAGS)
+  gambit_strip_openmp_from_flags(YODA_CXX_FLAGS)
   #set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3" )
   set_compiler_warning("no-unused-parameter" YODA_CXX_FLAGS)
   set_compiler_warning("no-deprecated-copy" YODA_CXX_FLAGS)
@@ -381,18 +357,32 @@ if(NOT EXCLUDE_YODA)
   if(YODA_OPENMP_RUNTIME_MISMATCH)
     message("   YODA links a different OpenMP runtime and will be rebuilt.")
   endif()
-  # contrib/YODA is in-source.  Stale .la metadata can retain -fopenmp after
-  # a toolchain change; make clean does not regenerate the configure stamp.
+  # contrib/YODA is in-source.  AppleClang libtool can leave -fopenmp in the
+  # installed/build .la files; make clean does not rewrite them.  Check those
+  # known paths only — do not walk the whole YODA tree on every configure.
   set(YODA_STALE_OPENMP_METADATA FALSE)
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-    file(GLOB_RECURSE YODA_LA_FILES "${dir}/*.la")
-    foreach(YODA_LA_FILE IN LISTS YODA_LA_FILES)
-      file(READ "${YODA_LA_FILE}" YODA_LA_CONTENT)
-      if(YODA_LA_CONTENT MATCHES "inherited_linker_flags=.*-fopenmp")
-        set(YODA_STALE_OPENMP_METADATA TRUE)
-        break()
+    set(_yoda_la_files
+        "${dir}/src/libYODA.la"
+        "${dir}/src/.libs/libYODA.la"
+        "${dir}/local/lib/libYODA.la")
+    file(GLOB _yoda_extra_la
+         "${dir}/local/lib/*.la"
+         "${dir}/src/.libs/*.la")
+    list(APPEND _yoda_la_files ${_yoda_extra_la})
+    list(REMOVE_DUPLICATES _yoda_la_files)
+    foreach(_yoda_la IN LISTS _yoda_la_files)
+      if(EXISTS "${_yoda_la}")
+        file(READ "${_yoda_la}" _yoda_la_content)
+        if(_yoda_la_content MATCHES "inherited_linker_flags=.*-fopenmp")
+          set(YODA_STALE_OPENMP_METADATA TRUE)
+          break()
+        endif()
       endif()
     endforeach()
+    unset(_yoda_la_files)
+    unset(_yoda_extra_la)
+    unset(_yoda_la_content)
   endif()
   if(YODA_STALE_OPENMP_METADATA)
     get_paths(${name} _yoda_build_path _yoda_clean_stamps _yoda_nuke_stamps)
@@ -459,8 +449,10 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(EXCLUDE_FJCONTRIB FALSE)
 
   # FastJet's autotools build cannot handle the AppleClang OpenMP spelling.
-  string(REGEX REPLACE "-Xclang -fopenmp" "" FASTJET_C_FLAGS "${BACKEND_C_FLAGS}")
-  string(REGEX REPLACE "-Xclang -fopenmp" "" FASTJET_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  set(FASTJET_C_FLAGS "${BACKEND_C_FLAGS}")
+  set(FASTJET_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  gambit_strip_openmp_from_flags(FASTJET_C_FLAGS)
+  gambit_strip_openmp_from_flags(FASTJET_CXX_FLAGS)
   set_compiler_warning("no-deprecated-declarations" FASTJET_CXX_FLAGS)
   set_compiler_warning("no-deprecated-copy" FASTJET_CXX_FLAGS)
   set(FJCONTRIB_FRAGILE_CXX_FLAGS "${FASTJET_CXX_FLAGS}")
@@ -584,8 +576,7 @@ else()
   set(WITH_FASTJET_CONTRIB FALSE)
 endif()
 
-# FastJet namespace used by HEPUtils and ColliderBit. There is no fjcore
-# fallback: jet clustering requires the full FastJet contrib build above.
+# Jet clustering requires the FastJet contrib build above.
 if(WITH_FASTJET_CONTRIB)
   add_definitions(-DFJNS=fastjet)
   set(fjcontrib_nsubjettiness_dir "${fjcontrib_path}/Nsubjettiness")
@@ -644,10 +635,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
 
   # Determine compiler libraries needed by flexiblesusy.
   if(CMAKE_Fortran_COMPILER MATCHES "gfortran*")
-    # Native CMake targets get the GNU Fortran runtime automatically. GAMBIT
-    # also has external link steps that invoke the C++ compiler directly, so
-    # query gfortran for its exact runtime path instead of requiring a global
-    # -L... -lgfortran linker setting in a user preset.
+    # External C++ link steps need the gfortran runtime path.
     execute_process(
       COMMAND "${CMAKE_Fortran_COMPILER}" "-print-file-name=libgfortran.dylib"
       OUTPUT_VARIABLE GFORTRAN_LIBRARY

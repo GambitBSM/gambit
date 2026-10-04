@@ -2101,8 +2101,10 @@ endif()
 
 
 # OpenMP flags don't play nicely with clang and FastJet's libtoolized build system.
-string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_C_FLAGS "${BACKEND_C_FLAGS}")
-string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+set(FJ_C_FLAGS "${BACKEND_C_FLAGS}")
+set(FJ_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+gambit_strip_openmp_from_flags(FJ_C_FLAGS)
+gambit_strip_openmp_from_flags(FJ_CXX_FLAGS)
 set_compiler_warning("no-deprecated-declarations" FJ_CXX_FLAGS)
 set_compiler_warning("no-deprecated-copy" FJ_CXX_FLAGS)
 
