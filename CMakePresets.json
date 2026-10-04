@@ -1,0 +1,76 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 24,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "cbs-llvm",
+      "displayName": "CBS - Homebrew LLVM (local macOS)",
+      "description": "Release CBS with the installed Homebrew LLVM/gfortran, pyenv Python and ROOT. Uses existing GAMBIT options without preset helper scripts. Shares build/; use --fresh when switching compilers.",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "environment": {
+        "ROOTSYS": "/opt/homebrew/opt/root",
+        "PATH": "/opt/homebrew/opt/llvm/bin:/Users/p.zhu/.pyenv/versions/3.13.13/bin:/opt/homebrew/opt/root/bin:/opt/homebrew/bin:$penv{PATH}"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_COMPILER": "/opt/homebrew/opt/llvm/bin/clang",
+        "CMAKE_CXX_COMPILER": "/opt/homebrew/opt/llvm/bin/clang++",
+        "CMAKE_Fortran_COMPILER": "/opt/homebrew/bin/gfortran",
+        "CMAKE_PREFIX_PATH": "/opt/homebrew/opt/root;/opt/homebrew/opt/openblas;/opt/homebrew",
+        "Python3_EXECUTABLE": "/Users/p.zhu/.pyenv/versions/3.13.13/bin/python3",
+        "Python3_ROOT_DIR": "/Users/p.zhu/.pyenv/versions/3.13.13",
+        "BLA_VENDOR": "OpenBLAS",
+        "BLAS_LIBRARIES": "/opt/homebrew/opt/openblas/lib/libopenblas.dylib",
+        "LAPACK_LIBRARIES": "/opt/homebrew/opt/openblas/lib/libopenblas.dylib",
+        "Bits": "ColliderBit",
+        "CUTFLOW": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "WITH_ROOT": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "WITH_RESTFRAMES": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "WITH_ONNXRUNTIME": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "WITH_HDF5": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "WITH_SQLite3": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "WITH_MPI": {
+          "type": "BOOL",
+          "value": "OFF"
+        }
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "cbs-llvm",
+      "configurePreset": "cbs-llvm",
+      "targets": [
+        "CBS"
+      ]
+    }
+  ]
+}
