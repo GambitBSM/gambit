@@ -210,6 +210,19 @@ if(NOT LAPACK_LINKLIBS AND NOT LAPACK_FOUND)
   message(FATAL_ERROR "${BoldRed}LAPACK shared library not found.${ColourReset}")
 endif()
 
+# Map the c++1z/2a/2b spellings of -std flags to comparable numeric standards.
+function(gambit_cxx_std_rank std out_var)
+  set(_s "${std}")
+  if(_s STREQUAL "1z")
+    set(_s 17)
+  elseif(_s STREQUAL "2a")
+    set(_s 20)
+  elseif(_s STREQUAL "2b")
+    set(_s 23)
+  endif()
+  set(${out_var} "${_s}" PARENT_SCOPE)
+endfunction()
+
 # Helper function to check if ROOT has been compiled with the same standard as we are using here.  If not, downgrade to the standard that ROOT was compiled with.
 # Note: only C++17 and later are matched here, so a ROOT installation built with an older
 # standard will not be matched and will trigger the "unable to detect" error below, prompting
@@ -258,14 +271,6 @@ function(check_root_std_flag)
         set(BACKEND_CXX_FLAG_RE "${CXX_FLAG_RE}")
       endif()
     endif()
-    # Should we downgrade the -std flag used in CMAKE_CXX_FLAGS?
-    if ((CMAKE_USES_STD) AND (NOT ROOT_USES_STD))
-      set(DOWNGRADE_CMAKE_STD "True")
-    endif()
-    # Should we downgrade the -std flag used in BACKEND_CXX_FLAGS?
-    if ((BACKEND_USES_STD) AND (NOT ROOT_USES_STD))
-      set(DOWNGRADE_BACKEND_STD "True")
-    endif()
   endforeach()
   # If ROOT_CXX_FLAGS doesn't have -std flag, check ROOT_CXX_STANDARD (used by newer ROOT versions)
   if(NOT ROOT_USES_STD AND DEFINED ROOT_CXX_STANDARD)
@@ -284,19 +289,25 @@ function(check_root_std_flag)
   # Check that the std used by ROOT is OK
   CHECK_CXX_COMPILER_FLAG(${ROOT_CXX_FLAG} COMPILER_SUPPORTS_CXX${ROOT_STD})
   if(NOT COMPILER_SUPPORTS_CXX${ROOT_STD})
-    message(FATAL_ERROR "${BoldRed}This installation of ROOT has been compiled with C++${std} support, "
-                        "but your chosen compiler does not support C++${std}.  Please change compiler "
+    message(FATAL_ERROR "${BoldRed}This installation of ROOT has been compiled with C++${ROOT_STD} support, "
+                        "but your chosen compiler does not support C++${ROOT_STD}.  Please change compiler "
                         "or set -DWITH_ROOT=OFF.${ColourReset}")
   endif()
+  # Compare the standards numerically: ROOT's standard may come from
+  # ROOT_CXX_STANDARD rather than from the loop above, and is never upgraded to.
+  gambit_cxx_std_rank("${ROOT_STD}" _root_rank)
+  gambit_cxx_std_rank("${CMAKE_STD}" _cmake_rank)
+  gambit_cxx_std_rank("${BACKEND_STD}" _backend_rank)
   # Downgrade -std flag in CMAKE_CXX_FLAGS
-  if(DOWNGRADE_CMAKE_STD)
+  if(CMAKE_USES_STD AND _cmake_rank GREATER _root_rank)
     string(REGEX REPLACE ${CMAKE_CXX_FLAG_RE} ${ROOT_CXX_FLAG} CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} PARENT_SCOPE)
     set(GAMBIT_SUPPORTS_CXX${CMAKE_STD} FALSE PARENT_SCOPE)
     set(GAMBIT_SUPPORTS_CXX${ROOT_STD} TRUE PARENT_SCOPE)
+    message("${BoldYellow}   Downgrading ${CMAKE_CXX_FLAG} to ${ROOT_CXX_FLAG} in CMAKE_CXX_FLAGS for ROOT compatibility.${ColourReset}")
   endif()
   # Downgrade -std flag in BACKEND_CXX_FLAGS
-  if(DOWNGRADE_BACKEND_STD)
+  if(BACKEND_USES_STD AND _backend_rank GREATER _root_rank)
     string(REGEX REPLACE ${BACKEND_CXX_FLAG_RE} ${ROOT_CXX_FLAG} BACKEND_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
     set(BACKEND_CXX_FLAGS ${BACKEND_CXX_FLAGS} PARENT_SCOPE)
   endif()
