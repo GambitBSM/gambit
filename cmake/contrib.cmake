@@ -247,13 +247,29 @@ if(NOT EXCLUDE_HEPMC)
 
   # HepMC3's project() enables C as well as C++, so pass both compilers
   ExternalProject_Add(${name}
-    DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${HEPMC_PATH} ${name} ${ver}
+    DOWNLOAD_COMMAND ""
     SOURCE_DIR ${HEPMC_PATH}
-    PATCH_COMMAND patch --batch --forward -p1 -i "${patch}"
+    PATCH_COMMAND ""
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HEPMC_CXX_FLAGS} -DHEPMC3_CXX_STANDARD=${HEPMC3_STD} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${HEPMC_PATH}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_PATH}/local/lib -DHEPMC3_ENABLE_PYTHON=OFF -DHEPMC3_ENABLE_SEARCH=ON -DHEPMC3_BUILD_STATIC_LIBS=OFF -DCMAKE_POLICY_VERSION_MINIMUM=${CMAKE_POLICY_VERSION_MINIMUM}
     BUILD_COMMAND ${MAKE_PARALLEL} ${lib}
     INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
+    )
+
+  # Start from pristine sources on every build, so patches are never reapplied.
+  # Keep this step outside SOURCE_DIR/BINARY_DIR because both are replaced.
+  ExternalProject_Add_Step(${name} prepare_source
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<SOURCE_DIR>"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<BINARY_DIR>"
+    COMMAND ${CMAKE_COMMAND} -E remove -f "${CMAKE_BINARY_DIR}/${name}_${ver}.tar.gz"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "<SOURCE_DIR>" "<BINARY_DIR>"
+    COMMAND ${DL_CONTRIB} ${dl} ${md5} ${HEPMC_PATH} ${name} ${ver}
+    COMMAND ${CMAKE_COMMAND} -E chdir "<SOURCE_DIR>" patch --batch --forward -p1 -i "${patch}"
+    DEPENDEES patch
+    DEPENDERS configure
+    ALWAYS TRUE
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    COMMENT "Downloading and patching pristine HepMC ${ver} sources"
     )
 
   # Add clean-hepmc and nuke-hepmc
