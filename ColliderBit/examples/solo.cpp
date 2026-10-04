@@ -61,6 +61,158 @@ using namespace CAT(Backends::Rivet_,RIVET_SAFE_VERSION)::Functown;
 
 namespace
 {
+  constexpr std::size_t cbs_screen_width = 80;
+
+  class ScopedCoutSilencer
+  {
+    public:
+      ScopedCoutSilencer()
+        : saved_buffer(std::cout.rdbuf(discarded_output.rdbuf()))
+      { }
+
+      ~ScopedCoutSilencer()
+      {
+        std::cout.rdbuf(saved_buffer);
+      }
+
+      ScopedCoutSilencer(const ScopedCoutSilencer&) = delete;
+      ScopedCoutSilencer& operator=(const ScopedCoutSilencer&) = delete;
+
+    private:
+      std::ostringstream discarded_output;
+      std::streambuf* saved_buffer;
+  };
+
+  std::string format_analysis_list(const std::vector<std::string>& analyses)
+  {
+    if (analyses.empty()) return "(none)";
+
+    std::ostringstream formatted;
+    for (std::size_t index = 0; index < analyses.size(); ++index)
+    {
+      if (index != 0) formatted << ", ";
+      formatted << analyses[index];
+    }
+    return formatted.str();
+  }
+
+  std::string shorten_for_screen(const std::string& value, std::size_t maximum_width)
+  {
+    if (value.size() <= maximum_width) return value;
+    if (maximum_width <= 3) return value.substr(0, maximum_width);
+    return "..." + value.substr(value.size() - maximum_width + 3);
+  }
+
+  std::string shorten_reason_for_screen(const std::string& value, std::size_t maximum_width)
+  {
+    if (value.size() <= maximum_width) return value;
+    if (maximum_width <= 3) return value.substr(0, maximum_width);
+
+    const std::size_t suffix_width = (maximum_width - 3) / 2;
+    const std::size_t prefix_width = maximum_width - 3 - suffix_width;
+    return value.substr(0, prefix_width) + "..."
+           + value.substr(value.size() - suffix_width);
+  }
+
+  std::string format_cbs_startup_summary(
+    const ColliderBit::SoloInput::PreparedInput& prepared_input,
+    const std::vector<std::string>& enabled_analyses)
+  {
+    std::ostringstream summary;
+    const std::size_t label_width = 20;
+    const std::size_t value_width = cbs_screen_width - 2 - label_width - 2;
+
+    summary << "\nCBS HepMC verification\n"
+            << std::string(cbs_screen_width, '-') << '\n';
+
+    std::map<std::string, std::string> file_colliders;
+    for (const ColliderBit::SoloInput::ColliderInput& collider : prepared_input.colliders)
+    {
+      for (const std::string& filename : collider.hepmc_filenames) file_colliders[filename] = collider.name;
+    }
+
+    for (std::size_t index = 0; index < prepared_input.hepmc_filenames.size(); ++index)
+    {
+      const ColliderBit::SoloInput::HepMCRunInfo& run_info =
+        prepared_input.hepmc_run_infos.at(index);
+      std::ostringstream beams;
+      beams << '(' << run_info.beam_pid_1 << ", " << run_info.beam_pid_2 << ')';
+      std::ostringstream energy;
+      energy << std::setprecision(6) << std::defaultfloat
+             << run_info.collision_energy_TeV << " TeV";
+
+      summary << "  " << std::left << std::setw(label_width)
+              << ("File " + std::to_string(index + 1) + "/"
+                  + std::to_string(prepared_input.hepmc_filenames.size()))
+              << ": " << shorten_for_screen(prepared_input.hepmc_filenames.at(index), value_width) << '\n'
+              << "  " << std::left << std::setw(label_width) << "Beam IDs"
+              << ": " << beams.str() << '\n'
+              << "  " << std::left << std::setw(label_width) << "Beam energies"
+              << ": (" << run_info.beam_energy_1_GeV << ", "
+              << run_info.beam_energy_2_GeV << ") GeV\n"
+              << "  " << std::left << std::setw(label_width) << "sqrt(s)"
+              << ": " << energy.str() << '\n'
+              << "  " << std::left << std::setw(label_width) << "Collider"
+              << ": " << file_colliders[prepared_input.hepmc_filenames.at(index)] << '\n'
+              << "  " << std::left << std::setw(label_width) << "Status"
+              << ": verified\n";
+      if (index + 1 != prepared_input.hepmc_filenames.size()) summary << '\n';
+    }
+
+    const std::size_t settings_indent_width = 2;
+    const std::size_t analysis_width = 25;
+    const std::size_t status_width = 10;
+    const std::size_t reason_width = 39;
+    const std::size_t settings_gap_width = 2;
+    static_assert(
+      settings_indent_width + analysis_width + settings_gap_width + status_width
+        + settings_gap_width + reason_width == cbs_screen_width,
+      "CBS settings table must be 80 columns wide.");
+
+    summary << "\nCBS settings validation\n"
+            << std::string(cbs_screen_width, '-') << '\n'
+            << "  " << std::left << std::setw(label_width) << "Analyses"
+            << ": " << prepared_input.requested_analyses.size() << " requested, "
+            << enabled_analyses.size() << " enabled, "
+            << prepared_input.requested_analyses.size() - enabled_analyses.size()
+            << " disabled\n"
+            << "  " << std::left << std::setw(analysis_width) << "Analysis"
+            << std::string(settings_gap_width, ' ')
+            << std::setw(status_width) << "Status"
+            << std::string(settings_gap_width, ' ')
+            << "Collider / reason\n"
+            << "  " << std::string(analysis_width, '-')
+            << std::string(settings_gap_width, ' ')
+            << std::string(status_width, '-')
+            << std::string(settings_gap_width, ' ')
+            << std::string(reason_width, '-') << '\n';
+
+    for (const std::string& requested_analysis : prepared_input.requested_analyses)
+    {
+      const bool enabled = std::find(
+        enabled_analyses.begin(), enabled_analyses.end(), requested_analysis)
+        != enabled_analyses.end();
+      const auto reason_it = prepared_input.analysis_disable_reasons.find(requested_analysis);
+      const std::string reason =
+        (reason_it == prepared_input.analysis_disable_reasons.end())
+          ? (enabled ? "-" : "reason unavailable")
+          : reason_it->second;
+      const auto collider_it = prepared_input.analysis_colliders.find(requested_analysis);
+      const std::string collider =
+        (collider_it == prepared_input.analysis_colliders.end()) ? "-" : collider_it->second;
+
+      summary << "  " << std::left << std::setw(analysis_width)
+              << shorten_for_screen(requested_analysis, analysis_width)
+              << std::string(settings_gap_width, ' ')
+              << std::setw(status_width) << (enabled ? "enabled" : "disabled")
+              << std::string(settings_gap_width, ' ')
+              << shorten_reason_for_screen(enabled ? collider : reason, reason_width) << '\n';
+    }
+
+    summary << std::string(cbs_screen_width, '-') << '\n';
+    return summary.str();
+  }
+
   /// Summarise a prepared collider, and the events analysed for it, for CBS output.
   ColliderBit::SoloOutput::ColliderSummaryEntry summarise_collider(
     const ColliderBit::SoloInput::ColliderInput& collider, long long n_events)
@@ -105,6 +257,7 @@ bool apply_setting_if_present(const std::string &setting, Options& settings, Gam
 /// ColliderBit Solo main program
 int main(int argc, char* argv[])
 {
+  bool cbs_logs_initialised = false;
   try
   {
     ColliderBit::SoloCLI::CommandLineOptions command_line_options;
@@ -171,6 +324,16 @@ int main(int argc, char* argv[])
     // Read input file name
     const std::string& filename_in = command_line_options.filename;
 
+    // Input preparation reads the first HepMC event, so initialise logs before
+    // it in order to retain any run-condition failure in CBS_logs.
+    // GAMBIT's generic logger prints an implementation-status line directly
+    // to stdout.  CBS reports its own structured run summary below instead.
+    {
+      ScopedCoutSilencer silence_logger_initialisation;
+      initialise_standalone_logs("CBS_logs/");
+    }
+    cbs_logs_initialised = true;
+
     // Read and prepare the settings in the input file
     ColliderBit::SoloInput::PreparedInput prepared_input;
     prepared_input = ColliderBit::SoloInput::parse_and_prepare_input(filename_in);
@@ -189,12 +352,57 @@ int main(int argc, char* argv[])
     // Initialise logs before reporting input validation results.  This is also
     // before batch-mode dispatch, so both CBS execution paths report them.
     logger().set_log_debug_messages(debug);
-    initialise_standalone_logs("CBS_logs/");
     logger()<<"Running CBS"<<LogTags::info<<EOM;
+    for (std::size_t index = 0; index < prepared_input.hepmc_filenames.size(); ++index)
+    {
+      const ColliderBit::SoloInput::HepMCRunInfo& run_info =
+        prepared_input.hepmc_run_infos.at(index);
+      std::ostringstream message;
+      message<<"CBS HepMC file "<<(index + 1)<<"/"<<prepared_input.hepmc_filenames.size()
+             <<": "<<prepared_input.hepmc_filenames[index]
+             <<"; beams ("<<run_info.beam_pid_1<<", "<<run_info.beam_pid_2<<") at ("
+             <<run_info.beam_energy_1_GeV<<", "<<run_info.beam_energy_2_GeV
+             <<") GeV; sqrt(s) = "<<run_info.collision_energy_TeV<<" TeV; verified.";
+      logger()<<LogTags::info<<message.str()<<EOM;
+    }
+    logger()<<LogTags::info<<"CBS run-condition tolerances: sqrt(s) "
+            <<settings.getValueOrDef<double>(1.0, "collision_energy_tolerance_GeV")
+            <<" GeV; beam energies "
+            <<settings.getValueOrDef<double>(1.0, "beam_energy_tolerance_GeV")
+            <<" GeV or "
+            <<settings.getValueOrDef<double>(1.0e-3, "beam_energy_relative_tolerance")
+            <<" relative."<<EOM;
+    for (const ColliderBit::SoloInput::ColliderInput& collider : prepared_input.colliders)
+    {
+      logger()<<LogTags::info<<"CBS collider "<<collider.name<<": sqrt(s) = "
+              <<collider.run_info.collision_energy_TeV<<" TeV; "<<collider.hepmc_filenames.size()
+              <<" HepMC file(s); cross section "<<collider.cross_section_fb<<" +/- "
+              <<collider.cross_section_uncert_fb<<" fb; analyses ("<<collider.analyses.size()<<"): "
+              <<format_analysis_list(collider.analyses)<<EOM;
+    }
+    logger()<<LogTags::info<<"CBS native analyses requested ("
+            <<prepared_input.requested_analyses.size()<<"): "
+            <<format_analysis_list(prepared_input.requested_analyses)<<EOM;
+    logger()<<LogTags::info<<"CBS native analyses enabled after run-condition matching ("
+            <<analyses.size()<<"): "<<format_analysis_list(analyses)<<EOM;
+    if (!suppress_startup_banner)
+    {
+      logger()<<LogTags::repeat_to_cout<<LogTags::info
+              <<format_cbs_startup_summary(
+                  prepared_input,
+                  analyses)
+              <<EOM;
+    }
     for (const str& warning : prepared_input.analysis_warnings)
     {
-      std::cerr << "WARNING: " << warning << std::endl;
-      logger()<<warning<<LogTags::info<<EOM;
+      if (!suppress_startup_banner)
+      {
+        logger()<<LogTags::repeat_to_cerr<<LogTags::warn<<warning<<EOM;
+      }
+      else
+      {
+        logger()<<LogTags::warn<<warning<<EOM;
+      }
     }
     if (analyses.empty())
     {
@@ -203,12 +411,8 @@ int main(int argc, char* argv[])
         "Select analyses marked Validation: passed whose beam/run metadata matches the HepMC input.");
     }
 
-    const bool suppress_fastjet_banner =
-      settings.getValueOrDef<bool>(false, "suppress_fastjet_banner");
-    if (suppress_fastjet_banner)
-    {
-      fastjet::ClusterSequence::set_fastjet_banner_stream(nullptr);
-    }
+    // CBS provides its own concise startup output.
+    fastjet::ClusterSequence::set_fastjet_banner_stream(nullptr);
     bool use_FullLikes = settings.getValueOrDef<bool>(false, "use_FullLikes");
     module_functor<ColliderBit::map_str_AnalysisLogLikes>* calcLogLikes =
       use_FullLikes ? &calc_LHC_LogLikes_full : &calc_LHC_LogLikes;
@@ -297,6 +501,21 @@ int main(int argc, char* argv[])
       throw std::runtime_error("YAML error in "+filename_in+".\n(yaml-cpp error: "+std::string(e.what())+" )");
     }
 
+    if (withRivet)
+    {
+      const std::vector<std::string> rivet_analyses =
+        rivet_settings.getValue<std::vector<std::string>>("analyses");
+      logger()<<LogTags::info<<"CBS Rivet analyses requested ("<<rivet_analyses.size()<<"): "
+              <<format_analysis_list(rivet_analyses)<<EOM;
+      if (!suppress_startup_banner)
+      {
+        logger()<<LogTags::repeat_to_cout<<LogTags::info
+                <<"CBS Rivet: "<<rivet_analyses.size()
+                <<" requested analyses; Rivet will apply first-event beam matching."
+                <<EOM;
+      }
+    }
+
     ColliderBit::SoloOutput::OutputConfig output_config;
     output_config.screen_output = settings.getValueOrDef<bool>(true, "screen_output");
     output_config.write_file = settings.hasKey("output");
@@ -312,12 +531,6 @@ int main(int argc, char* argv[])
       if (withRivet || withContur)
       {
         throw std::runtime_error("settings.processes batch mode does not support rivet-settings/contur-settings.");
-      }
-
-      // In batch mode each file is run in a subprocess; print FastJet banner only once here.
-      if (!suppress_fastjet_banner)
-      {
-        fastjet::ClusterSequence::print_banner();
       }
 
       double (*marginaliser)(const int&, const double&, const double&, const double&) =
@@ -425,7 +638,10 @@ int main(int argc, char* argv[])
     auto& convertEvent = convertHepMCEvent_HEPUtils;
     auto& AnalysisNumbers = CollectAnalyses;
     AnalysisNumbers.setOption<bool>("check_cutflow", check_cutflow);
-    AnalysisNumbers.setOption<bool>("print_cutflows", check_cutflow);
+    // CBS renders the retained cutflows once, as part of its final formatted
+    // summary.  Keep collection enabled above, but suppress the raw eventloop
+    // copy (and therefore every batch subprocess copy).
+    AnalysisNumbers.setOption<bool>("print_cutflows", false);
     AnalysisNumbers.setOption<bool>("normalized_cutflows", false);
 
     // Initialise settings for printer (required)
@@ -444,6 +660,15 @@ int main(int argc, char* argv[])
     CBS["max_nEvents"] = (long long)(std::numeric_limits<int>::max());
     // CBS policy: always process all events provided by the user (no convergence-based early stop).
     CBS["run_convergence_checks"] = false;
+    // Emit a compact progress indicator after each completed event block.
+    // The event loop itself remains quiet; this is the only intentional live output.
+    CBS["show_event_progress"] = settings.getValueOrDef<bool>(
+      output_config.screen_output, "hepmc_progress"
+    );
+    const std::string default_event_progress_label =
+      "CBS HepMC File 1/" + std::to_string(prepared_input.hepmc_filenames.size());
+    CBS["event_progress_label"] = settings.getValueOrDef<std::string>(
+      default_event_progress_label, "event_progress_label");
     operateLHCLoop.setOption<YAML::Node>(collider.name, CBS);
     operateLHCLoop.setOption<bool>("silenceLoop", not debug);
     operateLHCLoop.setOption<std::vector<std::string>>("use_colliders", {collider.name});
@@ -676,7 +901,15 @@ int main(int argc, char* argv[])
 
   catch (std::exception& e)
   {
-    cerr << "CBS has exited with fatal exception: " << e.what() << endl;
+    if (cbs_logs_initialised)
+    {
+      logger()<<LogTags::repeat_to_cerr<<LogTags::err
+              <<"CBS has exited with fatal exception: "<<e.what()<<EOM;
+    }
+    else
+    {
+      cerr << "CBS has exited with fatal exception: " << e.what() << endl;
+    }
   }
 
   // Finished, but an exception was raised.

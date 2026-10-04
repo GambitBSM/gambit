@@ -31,7 +31,7 @@
 #
 #************************************************
 # Print cutflow in ColliderBit
-option(CUTFLOW "Enable cut-flow ouput" OFF)
+option(CUTFLOW "Enable cut-flow output" OFF)
 if(CUTFLOW)
   add_definitions(-DCHECK_CUTFLOW)
   message("${Yellow}-- Print cutflow in ColliderBit.")

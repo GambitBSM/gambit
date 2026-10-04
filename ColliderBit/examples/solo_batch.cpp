@@ -274,11 +274,17 @@ namespace Gambit
           // Keep per-run xsec uncertainty off and combine MC errors externally.
           settings_node["cross_section_uncert_fb"] = 0.0;
 
+          // Keep the parent run's live HepMC progress setting even though the
+          // child suppresses its normal summary output.
+          settings_node["hepmc_progress"] = settings.getValueOrDef<bool>(
+            settings.getValueOrDef<bool>(true, "screen_output"), "hepmc_progress"
+          );
+          std::ostringstream progress_label;
+          progress_label << "CBS HepMC File " << job.file_index << "/" << job.file_count
+                         << " (" << job.collider_name << ")";
+          settings_node["event_progress_label"] = progress_label.str();
           settings_node["screen_output"] = false;
           settings_node["output"] = job.output_json_file.string();
-          // Suppress repeated FastJet banners from per-file subprocesses.
-          settings_node["suppress_fastjet_banner"] = true;
-
           root["settings"] = settings_node;
 
           if (prepared_input.infile["rivet-settings"] || prepared_input.infile["contur-settings"])
@@ -318,7 +324,6 @@ namespace Gambit
 
           if (pid == 0)
           {
-            setenv("GAMBIT_SUPPRESS_BANNER", "1", 1);
             setenv("CBS_SUPPRESS_BANNER", "1", 1);
 
             char* const argv[] = {
@@ -355,7 +360,7 @@ namespace Gambit
             msg << "Batch run command failed with " << describe_child_status(status)
                 << " for YAML file " << yaml_filename
                 << ". Output JSON: " << describe_output_json(job.output_json_file)
-                << ". Command: GAMBIT_SUPPRESS_BANNER=1 CBS_SUPPRESS_BANNER=1 "
+                << ". Command: CBS_SUPPRESS_BANNER=1 "
                 << executable << " " << yaml_filename << ".";
             throw std::runtime_error(msg.str());
           }
