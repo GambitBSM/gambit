@@ -32,10 +32,13 @@
 #include "solo_input.hpp"
 #include "solo_output.hpp"
 // #include "gambit/Backends/backend_rollcall.hpp"
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <limits>
+#include <sstream>
 #include <utility>
 
 #define NULIKE_VERSION "1.0.9"
@@ -55,6 +58,37 @@ using namespace CAT(Backends::nulike_,NULIKE_SAFE_VERSION)::Functown;
 using namespace CAT(Backends::ATLAS_FullLikes_,FULLLIKES_SAFE_VERSION)::Functown;
 using namespace CAT(Backends::Contur_,CONTUR_SAFE_VERSION)::Functown;
 using namespace CAT(Backends::Rivet_,RIVET_SAFE_VERSION)::Functown;
+
+namespace
+{
+  /// Summarise a prepared collider, and the events analysed for it, for CBS output.
+  ColliderBit::SoloOutput::ColliderSummaryEntry summarise_collider(
+    const ColliderBit::SoloInput::ColliderInput& collider, long long n_events)
+  {
+    ColliderBit::SoloOutput::ColliderSummaryEntry entry;
+    entry.name = collider.name;
+    entry.beam_pid_1 = collider.run_info.beam_pid_1;
+    entry.beam_pid_2 = collider.run_info.beam_pid_2;
+    entry.beam_energy_1_GeV = collider.run_info.beam_energy_1_GeV;
+    entry.beam_energy_2_GeV = collider.run_info.beam_energy_2_GeV;
+    entry.collision_energy_TeV = collider.run_info.collision_energy_TeV;
+    entry.n_files = collider.hepmc_filenames.size();
+    entry.n_events = n_events;
+    entry.cross_section_fb = collider.cross_section_fb;
+    entry.cross_section_uncert_fb = collider.cross_section_uncert_fb;
+    entry.analyses = collider.analyses;
+    return entry;
+  }
+
+  /// Build the cross_sections option table read by the CBS cross-section functions.
+  YAML::Node cbs_cross_section_table(const ColliderBit::SoloInput::ColliderInput& collider)
+  {
+    YAML::Node table;
+    table[collider.name]["cross_section_fb"] = collider.cross_section_fb;
+    table[collider.name]["cross_section_uncert_fb"] = collider.cross_section_uncert_fb;
+    return table;
+  }
+}
 
 // Helper function to check if setting in CBS yaml and then set it
 // TODO: It would be nice also to template final arg as Gambit::module_functor<typename T>. I think this breaks setOption is itself a templated function?
@@ -165,8 +199,8 @@ int main(int argc, char* argv[])
     if (analyses.empty())
     {
       throw std::runtime_error(
-        "No requested analyses remain after CBS validation filtering. "
-        "Select analyses marked Validation: passed.");
+        "No requested analyses remain after CBS validation and run-condition filtering. "
+        "Select analyses marked Validation: passed whose beam/run metadata matches the HepMC input.");
     }
 
     const bool suppress_fastjet_banner =
@@ -354,11 +388,20 @@ int main(int argc, char* argv[])
         output_sampling_advice.push_back(std::move(out_analysis));
       }
 
+      std::vector<ColliderBit::SoloOutput::ColliderSummaryEntry> collider_summaries;
+      for (const ColliderBit::SoloInput::ColliderInput& collider : prepared_input.colliders)
+      {
+        const auto events_it = merged.collider_event_counts.find(collider.name);
+        collider_summaries.push_back(summarise_collider(
+          collider, events_it == merged.collider_event_counts.end() ? 0 : events_it->second));
+      }
+
       std::map<std::string, double> empty_contur_pool_loglikes;
       std::map<std::string, std::string> empty_contur_pool_info;
       ColliderBit::SoloOutput::emit_outputs(
         output_config,
         merged.total_events,
+        collider_summaries,
         merged.combined_loglike,
         merged.analyses,
         merged.analysis_loglikes,
@@ -371,18 +414,13 @@ int main(int argc, char* argv[])
       return 0;
     }
 
-    // Choose the event file reader according to file format
-    if (debug)
+    // A single event_file always defines exactly one collider.
+    if (prepared_input.colliders.size() != 1)
     {
-      if (prepared_input.hepmc_filenames.size() == 1)
-      {
-        cout << "Reading HepMC file: " << prepared_input.hepmc_filenames.front() << endl;
-      }
-      else
-      {
-        cout << "Reading " << prepared_input.hepmc_filenames.size() << " HepMC files." << endl;
-      }
+      throw std::runtime_error("A CBS event_file run must define exactly one collider.");
     }
+    const ColliderBit::SoloInput::ColliderInput& collider = prepared_input.colliders.front();
+
     auto& getEvent = getHepMCEvent;
     auto& convertEvent = convertHepMCEvent_HEPUtils;
     auto& AnalysisNumbers = CollectAnalyses;
@@ -399,26 +437,47 @@ int main(int argc, char* argv[])
     int seed = settings.getValueOrDef<int>(-1, "seed");
     Random::create_rng_engine("default", seed);
 
-    std::vector<std::string> use_colliders = {"CBS"};
-
-    // Pass options to the main event loop
+    // Pass options to the main event loop, for the collider named after the HepMC run conditions
     YAML::Node CBS(infile["settings"]);
-    CBS["analyses"] = analyses;
+    CBS["analyses"] = collider.analyses;
     CBS["min_nEvents"] = (long long)(1000);
     CBS["max_nEvents"] = (long long)(std::numeric_limits<int>::max());
     // CBS policy: always process all events provided by the user (no convergence-based early stop).
     CBS["run_convergence_checks"] = false;
-    operateLHCLoop.setOption<YAML::Node>("CBS", CBS);
+    operateLHCLoop.setOption<YAML::Node>(collider.name, CBS);
     operateLHCLoop.setOption<bool>("silenceLoop", not debug);
-    operateLHCLoop.setOption<std::vector<std::string>>("use_colliders", use_colliders);
-
-    // Tell operateLHCLoop to use the "CBS" collider
-    std::vector<std::string> use_colliders = {"CBS"};
-    operateLHCLoop.setOption<std::vector<std::string>>("use_colliders", use_colliders);
+    operateLHCLoop.setOption<std::vector<std::string>>("use_colliders", {collider.name});
 
     // Pass the event filename and the jet pt cutoff to the HepMC reader/HEPUtils converter function
     getEvent.setOption<str>("hepmc_filename", prepared_input.hepmc_filenames.front());
     convertEvent.setOption<double>("jet_pt_min", jet_pt_min);
+
+    // CBS follows Rivet's run-condition convention: the first physical event
+    // defines the run, and every later event must keep the same beams and sqrt(s).
+    getEvent.setOption<bool>("cbs_normalize_hepmc_units", true);
+    getEvent.setOption<bool>("cbs_check_hepmc_run", true);
+    getEvent.setOption<std::vector<int>>(
+      "cbs_reference_beam_ids",
+      {collider.run_info.beam_pid_1, collider.run_info.beam_pid_2}
+    );
+    getEvent.setOption<std::vector<double>>(
+      "cbs_reference_beam_energies_GeV",
+      {collider.run_info.beam_energy_1_GeV, collider.run_info.beam_energy_2_GeV}
+    );
+    getEvent.setOption<double>("cbs_reference_collision_energy_TeV",
+                               collider.run_info.collision_energy_TeV);
+    getEvent.setOption<double>(
+      "cbs_collision_energy_tolerance_TeV",
+      settings.getValueOrDef<double>(1.0, "collision_energy_tolerance_GeV") / 1000.0
+    );
+    getEvent.setOption<double>(
+      "cbs_beam_energy_tolerance_GeV",
+      settings.getValueOrDef<double>(1.0, "beam_energy_tolerance_GeV")
+    );
+    getEvent.setOption<double>(
+      "cbs_beam_energy_relative_tolerance",
+      settings.getValueOrDef<double>(1.0e-3, "beam_energy_relative_tolerance")
+    );
 
     // Pass the jet collections yaml node to the hepMC reader/HEPUtils converter function
     getEvent.setOption<std::string>("jet_collection_taus", jet_collection_taus);
@@ -426,10 +485,9 @@ int main(int argc, char* argv[])
     convertEvent.setOption<std::string>("jet_collection_taus", jet_collection_taus);
     convertEvent.setOption<YAML::Node>("jet_collections", jet_collections);
 
-    // Pass options to the cross-section function
-    getYAMLCrossSection.setOption<std::string>("collider", "CBS");
-    getYAMLCrossSection.setOption<double>("cross_section_fb", prepared_input.total_cross_section_fb);
-    getYAMLCrossSection.setOption<double>("cross_section_uncert_fb", prepared_input.total_cross_section_uncert_fb);
+    // Pass the collider's total cross-section to the CBS cross-section functions
+    InitialTotalCrossSection_CBS.setOption<YAML::Node>("cross_sections", cbs_cross_section_table(collider));
+    TotalCrossSection_CBS.setOption<YAML::Node>("cross_sections", cbs_cross_section_table(collider));
 
     // Pass options to the likelihood function
     // TODO: I'm not specifying the defaults here. I'll add the argument only if the user supplies it.
@@ -477,7 +535,8 @@ int main(int argc, char* argv[])
     get_LHC_LogLike_per_analysis.resolveDependency(calcLogLikes);
     calcLogLikes->resolveDependency(&CollectAnalyses);
     calcLogLikes->resolveDependency(&operateLHCLoop);
-    calcLogLikes->resolveDependency(&getYAMLCrossSection);
+    calcLogLikes->resolveDependency(&InitialTotalCrossSection_CBS);
+    operateLHCLoop.resolveDependency(&InitialTotalCrossSection_CBS);
     calcLogLikes->resolveBackendReq(use_lnpiln ? &nulike_lnpiln : &nulike_lnpin);
     if (use_FullLikes)
     {
@@ -488,15 +547,16 @@ int main(int argc, char* argv[])
     CollectAnalyses.resolveDependency(&runATLASAnalyses);
     CollectAnalyses.resolveDependency(&runCMSAnalyses);
     CollectAnalyses.resolveDependency(&runIdentityAnalyses);
+    CollectAnalyses.resolveDependency(&TotalCrossSection_CBS);
     runATLASAnalyses.resolveDependency(&getATLASAnalysisContainer);
     runATLASAnalyses.resolveDependency(&smearEventATLAS);
     runCMSAnalyses.resolveDependency(&getCMSAnalysisContainer);
     runCMSAnalyses.resolveDependency(&smearEventCMS);
     runIdentityAnalyses.resolveDependency(&getIdentityAnalysisContainer);
     runIdentityAnalyses.resolveDependency(&copyEvent);
-    getATLASAnalysisContainer.resolveDependency(&InitialTotalCrossSection_YAMLCBS);
-    getCMSAnalysisContainer.resolveDependency(&InitialTotalCrossSection_YAMLCBS);
-    getIdentityAnalysisContainer.resolveDependency(&InitialTotalCrossSection_YAMLCBS);
+    getATLASAnalysisContainer.resolveDependency(&TotalCrossSection_CBS);
+    getCMSAnalysisContainer.resolveDependency(&TotalCrossSection_CBS);
+    getIdentityAnalysisContainer.resolveDependency(&TotalCrossSection_CBS);
     smearEventATLAS.resolveDependency(&getBuckFastATLAS);
     smearEventATLAS.resolveDependency(&convertEvent);
     smearEventCMS.resolveDependency(&getBuckFastCMS);
@@ -522,6 +582,7 @@ int main(int argc, char* argv[])
     getBuckFastATLAS.resolveLoopManager(&operateLHCLoop);
     getBuckFastCMS.resolveLoopManager(&operateLHCLoop);
     getBuckFastIdentity.resolveLoopManager(&operateLHCLoop);
+    TotalCrossSection_CBS.resolveLoopManager(&operateLHCLoop);
     getATLASAnalysisContainer.resolveLoopManager(&operateLHCLoop);
     getCMSAnalysisContainer.resolveLoopManager(&operateLHCLoop);
     getIdentityAnalysisContainer.resolveLoopManager(&operateLHCLoop);
@@ -536,6 +597,7 @@ int main(int argc, char* argv[])
                                                                   &getBuckFastATLAS,
                                                                   &getBuckFastCMS,
                                                                   &getBuckFastIdentity,
+                                                                  &TotalCrossSection_CBS,
                                                                   &getATLASAnalysisContainer,
                                                                   &getCMSAnalysisContainer,
                                                                   &getIdentityAnalysisContainer,
@@ -566,7 +628,7 @@ int main(int argc, char* argv[])
     }
 
     // Run the detector sim and selected analyses on all the events read in.
-    InitialTotalCrossSection_YAMLCBS.reset_and_calculate();
+    InitialTotalCrossSection_CBS.reset_and_calculate();
     operateLHCLoop.reset_and_calculate();
     CollectAnalyses.reset_and_calculate();
     calcLogLikes->reset_and_calculate();
@@ -579,7 +641,7 @@ int main(int argc, char* argv[])
       Contur_LHC_measurements_histotags_perPool.reset_and_calculate();
     }
 
-    const int n_events = operateLHCLoop(0).event_count.at("CBS");
+    const int n_events = operateLHCLoop(0).event_count.at(collider.name);
     const double loglike = calc_combined_LHC_LogLike(0);
 
     std::map<std::string, double> contur_pool_loglikes;
@@ -598,6 +660,7 @@ int main(int argc, char* argv[])
     ColliderBit::SoloOutput::emit_outputs(
       output_config,
       n_events,
+      {summarise_collider(collider, n_events)},
       loglike,
       analysis_results,
       analysis_loglikes,

@@ -70,7 +70,8 @@
     ALLOW_MODELS(ColliderBit_SLHA_scan_model)
     #undef FUNCTION
 
-    #define FUNCTION InitialTotalCrossSection_YAMLCBS
+    /// Total cross-sections supplied by ColliderBit Solo (CBS) for each of its colliders
+    #define FUNCTION InitialTotalCrossSection_CBS
     START_FUNCTION(map_str_xsec_container)
     #undef FUNCTION
 
@@ -163,6 +164,12 @@
     ALLOW_MODELS(ColliderBit_SLHA_scan_model)
     #undef FUNCTION
 
+    /// Total cross-section supplied by ColliderBit Solo (CBS) for the
+    /// collider currently in the event loop
+    #define FUNCTION TotalCrossSection_CBS
+    START_FUNCTION(xsec_container)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    #undef FUNCTION
   #undef CAPABILITY
 
   /// Output info on TotalCrossSection as

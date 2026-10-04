@@ -29,7 +29,7 @@ namespace Gambit
       namespace
       {
         // Identify the JSON format consumed by batch merging and downstream tools.
-        const std::string kSchemaVersion = "cbs-solo-loglike-v1";
+        const std::string kSchemaVersion = "cbs-solo-loglike-v2";
         const int kJsonIndent = 2;
 
         /// Create missing parent directories before opening an output file.
@@ -244,6 +244,7 @@ namespace Gambit
         /// Include Contur results and sampling advice when supplied.
         void print_screen_summary(
           int n_events,
+          const std::vector<ColliderSummaryEntry>& colliders,
           double combined_loglike,
           const AnalysisDataPointers& analyses,
           const map_str_AnalysisLogLikes& analysis_loglikes,
@@ -386,6 +387,7 @@ namespace Gambit
       void emit_outputs(
         const OutputConfig& config,
         int n_events,
+        const std::vector<ColliderSummaryEntry>& colliders,
         double combined_loglike,
         const AnalysisDataPointers& analyses,
         const map_str_AnalysisLogLikes& analysis_loglikes,
@@ -400,6 +402,7 @@ namespace Gambit
         {
           print_screen_summary(
             n_events,
+            colliders,
             combined_loglike,
             analyses,
             analysis_loglikes,
@@ -420,6 +423,23 @@ namespace Gambit
           {"with_contur", with_contur}
         };
 
+        nlohmann::json colliders_json = nlohmann::json::array();
+        for (const ColliderSummaryEntry& collider : colliders)
+        {
+          nlohmann::json collider_obj;
+          collider_obj["name"] = collider.name;
+          collider_obj["beam_ids"] = {collider.beam_pid_1, collider.beam_pid_2};
+          collider_obj["beam_energies_GeV"] = {collider.beam_energy_1_GeV, collider.beam_energy_2_GeV};
+          collider_obj["collision_energy_TeV"] = collider.collision_energy_TeV;
+          collider_obj["n_files"] = collider.n_files;
+          collider_obj["n_events"] = collider.n_events;
+          collider_obj["cross_section_fb"] = collider.cross_section_fb;
+          collider_obj["cross_section_uncert_fb"] = collider.cross_section_uncert_fb;
+          collider_obj["analyses"] = collider.analyses;
+          colliders_json.push_back(collider_obj);
+        }
+        root["run"]["colliders"] = colliders_json;
+
         nlohmann::json analyses_json = nlohmann::json::object();
         nlohmann::json terms = nlohmann::json::array();
         nlohmann::json default_total_terms = nlohmann::json::array();
@@ -439,6 +459,7 @@ namespace Gambit
 
           const AnalysisLogLikes& ll = ll_it->second;
           nlohmann::json analysis_obj;
+          analysis_obj["collider"] = analysis.collider_name;
           analysis_obj["n_signal_regions"] = analysis.size();
           analysis_obj["luminosity"] = analysis.luminosity;
           analysis_obj["bkgjson_path"] = analysis.bkgjson_path;
@@ -581,6 +602,7 @@ namespace Gambit
 
         nlohmann::json summary;
         summary["n_analyses"] = analyses_json.size();
+        summary["n_colliders"] = colliders.size();
         summary["combined_loglike"] = combined_loglike;
         if (with_contur) summary["contur_loglike"] = contur_total_loglike;
         root["summary"] = summary;

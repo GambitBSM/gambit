@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include <map>
 #include <string>
 #include <vector>
@@ -26,6 +27,22 @@ namespace Gambit
         bool screen_output = true;
         bool write_file = false;
         std::string output_file;
+      };
+
+      /// Run conditions, inputs and normalisation of one CBS collider, with cross section in fb.
+      struct ColliderSummaryEntry
+      {
+        std::string name;
+        int beam_pid_1 = 0;
+        int beam_pid_2 = 0;
+        double beam_energy_1_GeV = 0.0;
+        double beam_energy_2_GeV = 0.0;
+        double collision_energy_TeV = 0.0;
+        std::size_t n_files = 0;
+        long long n_events = 0;
+        double cross_section_fb = 0.0;
+        double cross_section_uncert_fb = 0.0;
+        std::vector<std::string> analyses;
       };
 
       /// Printable sampling allocation for one physics process, with cross section in fb.
@@ -70,6 +87,7 @@ namespace Gambit
       void emit_outputs(
         const OutputConfig& config,
         int n_events,
+        const std::vector<ColliderSummaryEntry>& colliders,
         double combined_loglike,
         const AnalysisDataPointers& analyses,
         const map_str_AnalysisLogLikes& analysis_loglikes,

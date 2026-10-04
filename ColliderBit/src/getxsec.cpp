@@ -1810,80 +1810,70 @@ namespace Gambit
       result = Dep::PerformInitialCrossSection->second;
     }
 
-    /// A function that assigns an initial total cross-sections directly from the scan parameters
-    /// (for model ColliderBit_SLHA_scan_model)
-    void InitialTotalCrossSection_YAMLCBS(map_str_xsec_container& result)
+    namespace
     {
-      using namespace Pipes::InitialTotalCrossSection_YAMLCBS;
-
-      // result.clear();
-
-      static str input_unit;
-      static bool input_fractional_uncert = false;
-
-      // Retrieve all the names of all colliders from the YAML node.
-      const Options& colliderOptions = *runOptions;
-
-      double input_xsec;
-      double input_xsec_uncert;
-
-      static bool first = true;
-
-      if (first)
+      /// Read the total cross-section and absolute uncertainty (both in fb) that
+      /// CBS supplies for one collider in the cross_sections option table.
+      xsec_container get_CBS_cross_section(const Options& runOptions, const str& collider)
       {
+        const YAML::Node table = runOptions.getValueOrDef<YAML::Node>(YAML::Node(), "cross_sections");
+        if (!table.IsMap() || !table[collider])
+        {
+          ColliderBit_error().raise(LOCAL_INFO, "No CBS cross-section was provided for collider " + collider + ".");
+        }
+        const Options collider_options(table[collider]);
+        xsec_container result;
+        result.set_xsec(collider_options.getValue<double>("cross_section_fb"),
+                        collider_options.getValue<double>("cross_section_uncert_fb"));
+        return result;
+      }
+    }
 
-        // Determine the correct combination of parameters
-        if (colliderOptions.hasKey("cross_section_fb") && colliderOptions.hasKey("cross_section_uncert_fb"))
-        {
-          input_unit = "fb";
-          input_fractional_uncert = false;
-          input_xsec = colliderOptions.getValue<double>("cross_section_fb");
-          input_xsec_uncert = colliderOptions.getValue<double>("cross_section_uncert_fb");
-        }
-        else if (colliderOptions.hasKey("cross_section_fb") && colliderOptions.hasKey("cross_section_fractional_uncert"))
-        {
-          input_unit = "fb";
-          input_fractional_uncert = true;
-          input_xsec = colliderOptions.getValue<double>("cross_section_fb");
-          input_xsec_uncert = colliderOptions.getValue<double>("cross_section_fractional_uncert");
-        }
-        else if (colliderOptions.hasKey("cross_section_pb") && colliderOptions.hasKey("cross_section_uncert_pb"))
-        {
-          input_unit = "pb";
-          input_fractional_uncert = false;
-          input_xsec = colliderOptions.getValue<double>("cross_section_pb");
-          input_xsec_uncert = colliderOptions.getValue<double>("cross_section_uncert_pb");
-        }
-        else if (colliderOptions.hasKey("cross_section_pb") && colliderOptions.hasKey("cross_section_fractional_uncert"))
-        {
-          input_unit = "pb";
-          input_fractional_uncert = true;
-          input_xsec = colliderOptions.getValue<double>("cross_section_pb");
-          input_xsec_uncert = colliderOptions.getValue<double>("cross_section_fractional_uncert");
-        }
-        else
-        {
-          std::stringstream errmsg_ss;
-          errmsg_ss << "Unknown combination of parameters for function InitialTotalCrossSection_YAMLparam." << endl;
-          errmsg_ss << "Needs one of the following sets of parameter names:" << endl;
-          errmsg_ss << "  cross_section_fb, cross_section_uncert_fb" << endl;
-          errmsg_ss << "  cross_section_fb, cross_section_fractional_uncert" << endl;
-          errmsg_ss << "  cross_section_pb, cross_section_uncert_pb" << endl;
-          errmsg_ss << "  cross_section_pb, cross_section_fractional_uncert" << endl;
-          ColliderBit_error().raise(LOCAL_INFO, errmsg_ss.str());
-        }
+    /// Initial total cross-sections for every CBS collider, read from the
+    /// cross_sections option table (collider name -> cross-section in fb)
+    void InitialTotalCrossSection_CBS(map_str_xsec_container& result)
+    {
+      using namespace Pipes::InitialTotalCrossSection_CBS;
 
-        first = false;
+      const YAML::Node table = runOptions->getValueOrDef<YAML::Node>(YAML::Node(), "cross_sections");
+      if (!table.IsMap() || table.size() == 0)
+      {
+        ColliderBit_error().raise(LOCAL_INFO, "InitialTotalCrossSection_CBS requires a non-empty cross_sections option.");
       }
 
-      std::pair<double,double> temp = convert_xsecs_to_fb(input_xsec, input_xsec_uncert, input_unit, input_fractional_uncert);
-      double xsec_fb = temp.first;
-      double xsec_uncert_fb = temp.second;
-      xsec_container collider_xsec;
-      collider_xsec.set_xsec(xsec_fb, xsec_uncert_fb);
+      result.clear();
+      for (YAML::const_iterator it = table.begin(); it != table.end(); ++it)
+      {
+        const str collider = it->first.as<str>();
+        result[collider] = get_CBS_cross_section(*runOptions, collider);
+      }
+    }
 
-      result["CBS"] = collider_xsec;
+    /// Total cross-section for the collider currently in the event loop, read
+    /// from the same CBS cross_sections table as InitialTotalCrossSection_CBS
+    void TotalCrossSection_CBS(xsec_container& result)
+    {
+      using namespace Pipes::TotalCrossSection_CBS;
 
+      // Thread 0 reads the YAML table during XSEC_CALCULATION; all threads copy
+      // that result during START_SUBPROCESS without touching the YAML node.
+      static xsec_container shared_result;
+
+      // Only thread 0
+      if (*Loop::iteration == COLLIDER_INIT) shared_result.reset();
+
+      // All threads
+      if (*Loop::iteration == COLLIDER_INIT_OMP) result.reset();
+
+      // Only thread 0
+      if (*Loop::iteration == XSEC_CALCULATION)
+      {
+        shared_result = get_CBS_cross_section(*runOptions, Dep::RunMC->current_collider());
+        result = shared_result;
+      }
+
+      // All threads
+      if (*Loop::iteration == START_SUBPROCESS) result = shared_result;
     }
 
     /// A function that assigns an initial total cross-sections directly from the scan parameters
