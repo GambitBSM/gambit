@@ -42,7 +42,7 @@ Old Analysis Name: CMS_13TeV_Photon_GMSB_137invfb
 #include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
-#include "SoftDrop.hh"
+#include "fastjet/contrib/SoftDrop.hh"
 
 // #define CHECK_CUTFLOW
 

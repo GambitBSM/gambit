@@ -29,14 +29,18 @@
 #          (zhangyangphy@zzu.edu.cn)
 #  \date 2023 June
 #
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Aug, Oct
+#
 #************************************************
+
 # Print cutflow in ColliderBit
 option(CUTFLOW "Enable cut-flow output" OFF)
 if(CUTFLOW)
   add_definitions(-DCHECK_CUTFLOW)
-  message("${Yellow}-- Print cutflow in ColliderBit.")
+  message("${Yellow}-- Print cutflow in ColliderBit.${ColourReset}")
 endif()
-
 
 # Check for MPI libraries; enable manually with "cmake -DWITH_MPI=ON .."
 option(WITH_MPI "Compile with MPI enabled" OFF)
@@ -223,121 +227,70 @@ if(NOT LAPACK_LINKLIBS AND NOT LAPACK_FOUND)
   message(FATAL_ERROR "${BoldRed}LAPACK shared library not found.${ColourReset}")
 endif()
 
-# Map the c++1z/2a/2b spellings of -std flags to comparable numeric standards.
-function(gambit_cxx_std_rank std out_var)
-  set(_s "${std}")
-  if(_s STREQUAL "1z")
-    set(_s 17)
-  elseif(_s STREQUAL "2a")
-    set(_s 20)
-  elseif(_s STREQUAL "2b")
-    set(_s 23)
-  endif()
-  set(${out_var} "${_s}" PARENT_SCOPE)
-endfunction()
-
 # Helper function to check if ROOT has been compiled with the same standard as we are using here.  If not, downgrade to the standard that ROOT was compiled with.
 # Note: only C++17 and later are matched here, so a ROOT installation built with an older
 # standard will not be matched and will trigger the "unable to detect" error below, prompting
 # the user to rebuild ROOT with at least C++17.
 function(check_root_std_flag)
-  # Modern ROOT (CMake config) versions expose the standard they were built
-  # with directly via ROOT_CXX_STANDARD, rather than embedding a -std=c++NN
-  # flag in ROOT_CXX_FLAGS. Prefer that when present.
-  if (NOT ROOT_USES_STD AND DEFINED ROOT_CXX_STANDARD AND NOT "${ROOT_CXX_STANDARD}" STREQUAL "")
-    set(ROOT_USES_STD TRUE)
-    set(ROOT_STD "${ROOT_CXX_STANDARD}")
-    set(ROOT_CXX_FLAG "-std=c++${ROOT_CXX_STANDARD}")
-    set(ROOT_CXX_FLAG_RE "-std=c\\+\\+${ROOT_CXX_STANDARD}")
-    message("${BoldYellow}   This ROOT was compiled with ${ROOT_CXX_FLAG} (from ROOT_CXX_STANDARD).${ColourReset}")
+  # ROOT's package metadata is authoritative; older packages only expose flags.
+  set(root_flags "${ROOT_CXX_FLAGS}")
+  if(DEFINED ROOT_CXX_STANDARD AND NOT "${ROOT_CXX_STANDARD}" STREQUAL "")
+    set(root_flags "-std=c++${ROOT_CXX_STANDARD}")
   endif()
-  # Loop over C++ standards
-  set(std_list "23;2b;20;2a;17;1z")
-  foreach(std ${std_list})
-    set(CXX_FLAG "-std=c++${std}")
-    set(CXX_FLAG_RE "-std=c\\+\\+${std}")
-    # Check in ROOT_CXX_FLAGS
-    if (NOT ROOT_USES_STD)
-      string(REGEX MATCH ${CXX_FLAG_RE} ROOT_USES_STD ${ROOT_CXX_FLAGS})
-      if (ROOT_USES_STD)
-        message("${BoldYellow}   This ROOT was compiled with ${CXX_FLAG}.${ColourReset}")
-        set(ROOT_STD "${std}")
-        set(ROOT_CXX_FLAG "${CXX_FLAG}")
-        set(ROOT_CXX_FLAG_RE "${CXX_FLAG_RE}")
-      endif()
+
+  # Read the last -std option (the one used by the compiler), normalising aliases.
+  foreach(flags_var ROOT_CXX_FLAGS CMAKE_CXX_FLAGS BACKEND_CXX_FLAGS)
+    set(flags "${${flags_var}}")
+    if(flags_var STREQUAL "ROOT_CXX_FLAGS")
+      set(flags "${root_flags}")
     endif()
-    # Check in CMAKE_CXX_FLAGS
-    if(NOT CMAKE_USES_STD)
-      string(REGEX MATCH ${CXX_FLAG_RE} CMAKE_USES_STD ${CMAKE_CXX_FLAGS})
-      if (CMAKE_USES_STD)
-        set(CMAKE_STD "${std}")
-        set(CMAKE_CXX_FLAG "${CXX_FLAG}")
-        set(CMAKE_CXX_FLAG_RE "${CXX_FLAG_RE}")
+    set(${flags_var}_STD "")
+    string(REGEX MATCHALL "-std=(c|gnu)\\+\\+[^ \t]+" std_flags "${flags}")
+    if(std_flags)
+      list(GET std_flags -1 std_flag)
+      string(REGEX REPLACE "^-std=(c|gnu)\\+\\+" "" std "${std_flag}")
+      if(std STREQUAL "1z")
+        set(std 17)
+      elseif(std STREQUAL "2a")
+        set(std 20)
+      elseif(std STREQUAL "2b")
+        set(std 23)
       endif()
+      set(${flags_var}_STD "${std}")
     endif()
-    # Check in BACKEND_CXX_FLAGS
-    if(NOT BACKEND_USES_STD)
-      string(REGEX MATCH ${CXX_FLAG_RE} BACKEND_USES_STD ${BACKEND_CXX_FLAGS})
-      if (BACKEND_USES_STD)
-        set(BACKEND_STD "${std}")
-        set(BACKEND_CXX_FLAG "${CXX_FLAG}")
-        set(BACKEND_CXX_FLAG_RE "${CXX_FLAG_RE}")
+  endforeach()
+
+  set(ROOT_STD "${ROOT_CXX_FLAGS_STD}")
+  if(NOT ROOT_STD MATCHES "^(17|20|23)$")
+    message(FATAL_ERROR "${BoldRed}Unable to detect a supported C++ standard for ROOT. "
+                        "Use ROOT built with C++17, C++20 or C++23, or set -DWITH_ROOT=OFF.${ColourReset}")
+  endif()
+  set(ROOT_CXX_FLAG "-std=c++${ROOT_STD}")
+  message("${BoldYellow}   This ROOT was compiled with ${ROOT_CXX_FLAG}.${ColourReset}")
+  CHECK_CXX_COMPILER_FLAG("${ROOT_CXX_FLAG}" COMPILER_SUPPORTS_CXX${ROOT_STD})
+  if(NOT COMPILER_SUPPORTS_CXX${ROOT_STD})
+    message(FATAL_ERROR "${BoldRed}ROOT requires C++${ROOT_STD}, which the selected compiler "
+                        "does not support. Change compiler or set -DWITH_ROOT=OFF.${ColourReset}")
+  endif()
+
+  # Only downgrade; preserve a lower standard explicitly selected by GAMBIT.
+  foreach(flags_var CMAKE_CXX_FLAGS BACKEND_CXX_FLAGS)
+    if(NOT ${flags_var}_STD OR ${flags_var}_STD GREATER ROOT_STD)
+      string(REGEX REPLACE "(^|[ \t])-std=(c|gnu)\\+\\+[^ \t]+" "\\1" flags "${${flags_var}}")
+      string(STRIP "${flags} ${ROOT_CXX_FLAG}" flags)
+      set(${flags_var} "${flags}" PARENT_SCOPE)
+      message("${BoldYellow}   Using ${ROOT_CXX_FLAG} in ${flags_var} for ROOT compatibility.${ColourReset}")
+      if(flags_var STREQUAL "CMAKE_CXX_FLAGS")
+        if(CMAKE_CXX_FLAGS_STD)
+          set(GAMBIT_SUPPORTS_CXX${CMAKE_CXX_FLAGS_STD} FALSE PARENT_SCOPE)
+        endif()
+        set(GAMBIT_SUPPORTS_CXX${ROOT_STD} TRUE PARENT_SCOPE)
       endif()
     endif()
   endforeach()
-  # If ROOT_CXX_FLAGS doesn't have -std flag, check ROOT_CXX_STANDARD (used by newer ROOT versions)
-  if(NOT ROOT_USES_STD AND DEFINED ROOT_CXX_STANDARD)
-    set(ROOT_STD "${ROOT_CXX_STANDARD}")
-    set(ROOT_CXX_FLAG "-std=c++${ROOT_CXX_STANDARD}")
-    set(ROOT_CXX_FLAG_RE "-std=c\\+\\+${ROOT_CXX_STANDARD}")
-    set(ROOT_USES_STD TRUE)
-    message("${BoldYellow}   This ROOT was compiled with -std=c++${ROOT_CXX_STANDARD} (via ROOT_CXX_STANDARD).${ColourReset}")
-  endif()
-  # Did we figure out the std used by ROOT?
-  if(NOT ROOT_USES_STD)
-    message(FATAL_ERROR "${BoldRed}Unable to detect what flavour of C++ your installation of ROOT has "
-                        "been compiled with, or it was compiled with an unsupported (pre-C++17) standard. "
-                        "Please rebuild ROOT with at least C++17, or set -DWITH_ROOT=OFF.${ColourReset}")
-  endif()
-  # Check that the std used by ROOT is OK
-  CHECK_CXX_COMPILER_FLAG(${ROOT_CXX_FLAG} COMPILER_SUPPORTS_CXX${ROOT_STD})
-  if(NOT COMPILER_SUPPORTS_CXX${ROOT_STD})
-    message(FATAL_ERROR "${BoldRed}This installation of ROOT has been compiled with C++${ROOT_STD} support, "
-                        "but your chosen compiler does not support C++${ROOT_STD}.  Please change compiler "
-                        "or set -DWITH_ROOT=OFF.${ColourReset}")
-  endif()
-  # Compare the standards numerically: ROOT's standard may come from
-  # ROOT_CXX_STANDARD rather than from the loop above, and is never upgraded to.
-  gambit_cxx_std_rank("${ROOT_STD}" _root_rank)
-  gambit_cxx_std_rank("${CMAKE_STD}" _cmake_rank)
-  gambit_cxx_std_rank("${BACKEND_STD}" _backend_rank)
-  # Downgrade -std flag in CMAKE_CXX_FLAGS
-  if(CMAKE_USES_STD AND _cmake_rank GREATER _root_rank)
-    string(REGEX REPLACE ${CMAKE_CXX_FLAG_RE} ${ROOT_CXX_FLAG} CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} PARENT_SCOPE)
-    set(GAMBIT_SUPPORTS_CXX${CMAKE_STD} FALSE PARENT_SCOPE)
-    set(GAMBIT_SUPPORTS_CXX${ROOT_STD} TRUE PARENT_SCOPE)
-    message("${BoldYellow}   Downgrading ${CMAKE_CXX_FLAG} to ${ROOT_CXX_FLAG} in CMAKE_CXX_FLAGS for ROOT compatibility.${ColourReset}")
-  endif()
-  # Downgrade -std flag in BACKEND_CXX_FLAGS
-  if(BACKEND_USES_STD AND _backend_rank GREATER _root_rank)
-    string(REGEX REPLACE ${BACKEND_CXX_FLAG_RE} ${ROOT_CXX_FLAG} BACKEND_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
-    set(BACKEND_CXX_FLAGS ${BACKEND_CXX_FLAGS} PARENT_SCOPE)
-  endif()
-  # If CMAKE_CXX_FLAGS has no -std flag, add the ROOT one
-  if(NOT CMAKE_USES_STD)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CXX_FLAG}")
-    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} PARENT_SCOPE)
-    message("${BoldYellow}   Adding ${ROOT_CXX_FLAG} to CMAKE_CXX_FLAGS for ROOT compatibility.${ColourReset}")
-  endif()
-  # If BACKEND_CXX_FLAGS has no -std flag, add the ROOT one
-  if(NOT BACKEND_USES_STD)
-    set(BACKEND_CXX_FLAGS "${BACKEND_CXX_FLAGS} ${ROOT_CXX_FLAG}")
-    set(BACKEND_CXX_FLAGS ${BACKEND_CXX_FLAGS} PARENT_SCOPE)
-    message("${BoldYellow}   Adding ${ROOT_CXX_FLAG} to BACKEND_CXX_FLAGS for ROOT compatibility.${ColourReset}")
-  endif()
-  # Make the detected ROOT_CXX_FLAG available to all who need it
-  set(ROOT_CXX_FLAG ${ROOT_CXX_FLAG} PARENT_SCOPE)
+  # HepMC's ROOT-IO target also needs the canonical numeric standard.
+  set(ROOT_STD "${ROOT_STD}" PARENT_SCOPE)
+  set(ROOT_CXX_FLAG "${ROOT_CXX_FLAG}" PARENT_SCOPE)
 endfunction()
 
 # Check for ROOT.
@@ -359,6 +312,7 @@ if(WITH_ROOT)
     message("${BoldCyan} X ROOTSYS environment variable is not set. Please source ROOT's thisroot.sh setup script before running cmake. ROOT support will be disabled.${ColourReset}")
   endif()
 else()
+  set(ROOT_FOUND FALSE)
   message("${BoldCyan} X ROOT support is deactivated. Set -DWITH_ROOT=ON to activate ROOT support in GAMBIT.${ColourReset}")
 endif()
 if (WITH_ROOT AND ROOT_FOUND)
@@ -449,48 +403,35 @@ if(WITH_HDF5)
   endif()
 else()
   message("${BoldCyan} X HDF5 is disabled. Excluding hdf5printer and hdf5reader from GAMBIT configuration. Use -DWITH_HDF5=ON to enable HDF5. ${ColourReset}")
-  # A prior configure may have found HDF5.  Clear its active status so an
-  # ordinary reconfigure after disabling it does not retain HDF5 on generic
-  # executable link lines.
+  # Forget an HDF5 found by a previous configure, so that it is not linked
   set(HDF5_FOUND FALSE)
   set(itch "${itch}" "hdf5printer" "hdf5reader")
 endif()
 
-# Check for SQLite libraries and the command-line client.
-#
-# GAMBIT's SQLite printers only need the C library, whereas Contur also runs
-# `sqlite3` to create its analyses database.  Keep these checks separate so a
-# missing command-line client disables Contur without disabling the printers.
+# Check for SQLite libraries
 option(WITH_SQLite3 "Compile with SQLite3 enabled" ON)
+set(SQLITE3_FOUND FALSE)
 set(SQLITE3_CLI_FOUND FALSE)
-set(SQLITE3_CLI_VERSION "")
 if(WITH_SQLite3)
   find_package(SQLite3 QUIET COMPONENTS C)
   if(SQLite3_FOUND)
-    # GAMBIT's backend ditch logic historically looks for SQLITE3_FOUND.
+    # check_ditch_status looks for SQLITE3_FOUND
     set(SQLITE3_FOUND TRUE)
     include_directories(${SQLite3_INCLUDE_DIRS})
     message("-- Found SQLite3 libraries: ${SQLite3_LIBRARIES}")
-    find_program(SQLITE3_EXECUTABLE NAMES sqlite3)
+    # Contur also needs the sqlite3 command-line client to create its analyses database
+    find_program(SQLITE3_EXECUTABLE sqlite3)
     if(SQLITE3_EXECUTABLE)
-      execute_process(
-        COMMAND "${SQLITE3_EXECUTABLE}" --version
-        RESULT_VARIABLE _sqlite3_cli_result
-        OUTPUT_VARIABLE _sqlite3_cli_version_text
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        ERROR_QUIET)
-      if(_sqlite3_cli_result EQUAL 0)
-        string(REGEX MATCH "^[^ \\t]+" SQLITE3_CLI_VERSION
-               "${_sqlite3_cli_version_text}")
+      execute_process(COMMAND "${SQLITE3_EXECUTABLE}" --version
+                      RESULT_VARIABLE sqlite3_status OUTPUT_QUIET ERROR_QUIET)
+      if(sqlite3_status STREQUAL "0")
         set(SQLITE3_CLI_FOUND TRUE)
-        message("-- Found sqlite3 command-line client: ${SQLITE3_CLI_VERSION} (${SQLITE3_EXECUTABLE})")
+        message("-- Found sqlite3 command-line client: ${SQLITE3_EXECUTABLE}")
       else()
-        set(SQLITE3_CLI_VERSION "")
-        message("${BoldCyan} X The sqlite3 command-line client at ${SQLITE3_EXECUTABLE} could not be run. Contur will be excluded.${ColourReset}")
+        message("${BoldCyan} X sqlite3 command-line client cannot run. Contur will be excluded.${ColourReset}")
       endif()
     else()
       message("${BoldCyan} X sqlite3 command-line client not found. Contur will be excluded.${ColourReset}")
-      message("   Install sqlite3 and ensure it is on PATH (Ubuntu/Debian: sudo apt install sqlite3).")
     endif()
     if(VERBOSE)
         message(STATUS ${SQLite3_INCLUDE_DIRS})
@@ -501,6 +442,7 @@ if(WITH_SQLite3)
     set(itch "${itch}" "sqliteprinter" "sqlitereader")
   endif()
 else()
+  set(SQLite3_FOUND FALSE)
   message("${BoldCyan} X SQLite3 is disabled. Excluding sqliteprinter and sqlitereader from GAMBIT configuration. Use -DWITH_SQLite3=ON to enable SQLite3. ${ColourReset}")
   set(itch "${itch}" "sqliteprinter" "sqlitereader")
 endif()

@@ -43,7 +43,7 @@
 #
 #  \author Pengxuan Zhu
 #          (pengxuan.zhu@adelaide.edu.au)
-#  \date 2026 Aug
+#  \date 2026 Aug, Oct
 #
 #************************************************
 
@@ -307,64 +307,24 @@ macro(use_contributed_pybind11)
   add_dependencies(nuke-contrib nuke-pybind11)
 endmacro()
 
-# Drop OpenMP flags that autotools/libtool backends cannot consume.
-# GAMBIT itself keeps OpenMP via CMAKE_<LANG>_FLAGS.  Do not strip a bare
-# -fopenmp on GNU/Linux; only AppleClang splits -Xclang -fopenmp that way.
-function(gambit_strip_openmp_from_flags flags_var)
-  set(_flags "${${flags_var}}")
-  string(REGEX REPLACE "-Xclang -fopenmp|-fopenmp=libomp" "" _flags "${_flags}")
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-    string(REGEX REPLACE "(^| )-fopenmp( |$)" "\\1" _flags "${_flags}")
+# Filter clang OpenMP options for autotools/libtool, leaving GNU -fopenmp intact.
+# input_flags is a command-line string; return the filtered string to output_var.
+function(gambit_strip_openmp_flags output_var input_flags)
+  set(openmp_options "-Xclang[ \t]+-fopenmp|-fopenmp=libomp")
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    string(APPEND openmp_options "|-fopenmp")
   endif()
-  string(STRIP "${_flags}" _flags)
-  set(${flags_var} "${_flags}" PARENT_SCOPE)
-endfunction()
-
-# Homebrew LLVM on macOS: true when a contrib dylib is linked to a different
-# libomp than GAMBIT.  No-op on Linux and AppleClang.
-function(gambit_openmp_runtime_mismatch library result)
-  set(${result} FALSE PARENT_SCOPE)
-  if(NOT GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP OR NOT EXISTS "${library}")
-    return()
-  endif()
-  find_program(_GAMBIT_OTOOL_EXECUTABLE NAMES otool)
-  if(NOT _GAMBIT_OTOOL_EXECUTABLE)
-    return()
-  endif()
-  execute_process(
-    COMMAND "${_GAMBIT_OTOOL_EXECUTABLE}" -L "${library}"
-    OUTPUT_VARIABLE _GAMBIT_LIBRARY_DEPENDENCIES
-    ERROR_QUIET
-  )
-  string(FIND "${_GAMBIT_LIBRARY_DEPENDENCIES}" "${OpenMP_omp_LIBRARY}" _GAMBIT_OPENMP_MATCH)
-  if(_GAMBIT_LIBRARY_DEPENDENCIES MATCHES "libomp[.]dylib" AND _GAMBIT_OPENMP_MATCH EQUAL -1)
-    set(${result} TRUE PARENT_SCOPE)
-  endif()
+  set(openmp_pattern "(^|[ \t])(${openmp_options})([ \t]|$)")
+  set(cleaned_flags "${input_flags}")
+  # A replacement consumes surrounding whitespace; repeat for adjacent options.
+  while(cleaned_flags MATCHES "${openmp_pattern}")
+    string(REGEX REPLACE "${openmp_pattern}" "\\1\\3" cleaned_flags "${cleaned_flags}")
+  endwhile()
+  string(STRIP "${cleaned_flags}" cleaned_flags)
+  set(${output_var} "${cleaned_flags}" PARENT_SCOPE)
 endfunction()
 
 # Function to add GAMBIT executable
-function(normalise_gambit_link_libraries output_var)
-  set(normalised_libraries)
-  foreach(link_item ${ARGN})
-    set(_keep_link_item TRUE)
-    if("${link_item}" STREQUAL "-L")
-      set(_keep_link_item FALSE)
-    elseif("${link_item}" MATCHES "^-L(.+)$")
-      set(link_dir "${CMAKE_MATCH_1}")
-      if(EXISTS "${link_dir}" AND NOT IS_DIRECTORY "${link_dir}")
-        set(_keep_link_item FALSE)
-      endif()
-    endif()
-    if(_keep_link_item)
-      list(FIND normalised_libraries "${link_item}" existing_item)
-      if(existing_item EQUAL -1)
-        list(APPEND normalised_libraries "${link_item}")
-      endif()
-    endif()
-  endforeach()
-  set(${output_var} ${normalised_libraries} PARENT_SCOPE)
-endfunction()
-
 function(add_gambit_executable executablename LIBRARIES)
   cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;" ${ARGN})
 
@@ -401,11 +361,9 @@ function(add_gambit_executable executablename LIBRARIES)
         set_target_properties(${executablename} PROPERTIES LINK_FLAGS ${MPI_Fortran_LINK_FLAGS})
     endif()
   endif()
-  # Homebrew LLVM uses -fopenmp=libomp; AppleClang still uses -Xclang -fopenmp.
   if(TARGET OpenMP::OpenMP_CXX)
     set(LIBRARIES ${LIBRARIES} OpenMP::OpenMP_CXX)
   elseif(OpenMP_omp_LIBRARY)
-    # Preserve the manual AppleClang/Homebrew fallback for older CMake.
     set(LIBRARIES ${LIBRARIES} ${OpenMP_omp_LIBRARY})
   endif()
   if (LIBDL_FOUND)
@@ -435,8 +393,6 @@ function(add_gambit_executable executablename LIBRARIES)
   if(SQLite3_FOUND)
       set(LIBRARIES ${LIBRARIES} ${SQLite3_LIBRARIES})
   endif()
-
-  normalise_gambit_link_libraries(LIBRARIES ${LIBRARIES})
 
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     target_link_libraries(${executablename} PRIVATE ${gambit_preload_LDFLAGS} ${LIBRARIES} yaml-cpp)
@@ -471,8 +427,7 @@ function(add_standalone executablename)
 
   # Exclude standalones that need pybind11 if it has been excluded.
   if (";${ARG_DEPENDENCIES};" MATCHES ";pybind11;")
-    # Keep this as a CMake list: string(REPLACE) concatenates separate list
-    # elements, corrupting dependencies such as "hepmc;pybind11;nulike_1.0.9".
+    # Remove the list item; string(REPLACE) would join the remaining list elements
     list(REMOVE_ITEM ARG_DEPENDENCIES pybind11)
     if (NOT HAVE_PYBIND11)
       message("${BoldCyan} X Excluding ${executablename} from GAMBIT configuration due to absence of pybind11.${ColourReset}")
@@ -531,7 +486,7 @@ function(add_standalone executablename)
                                ${HARVEST_TOOLS}
                                ${facilitator_options_stamp})
 
-    # All the standalones need linking to HepMC, if HepMC is not excluded.
+    # Standalones not using ColliderBit (which adds HepMC below) still need linking to HepMC, if HepMC is not excluded.
     # TODO: Avoid this if possible.
     if (NOT EXCLUDE_HEPMC AND NOT USES_COLLIDERBIT)
       set(ARG_LIBRARIES ${ARG_LIBRARIES} ${HEPMC_LDFLAGS})
@@ -771,18 +726,15 @@ macro(BOSS_backend_full name backend_version ${ARGN})
     set(name_in_frontend "${CMAKE_MATCH_1}")
 
     set(BOSS_includes_Boost "")
-    if (NOT ${Boost_INCLUDE_DIR} STREQUAL "")
+    if (NOT "${Boost_INCLUDE_DIR}" STREQUAL "")
         set(BOSS_includes_Boost "-I${Boost_INCLUDE_DIR}")
     endif()
     set(BOSS_includes_GSL "")
-    if (NOT "${GSL_INCLUDE_DIRS}" STREQUAL "")
-        set(BOSS_includes_GSL "")
-        foreach(dir ${GSL_INCLUDE_DIRS})
-          set(BOSS_includes_GSL "-I${dir} ${BOSS_includes_GSL}")
-        endforeach()
-    endif()
+    foreach(gsl_include_dir IN LISTS GSL_INCLUDE_DIRS)
+      list(APPEND BOSS_includes_GSL "-I${gsl_include_dir}")
+    endforeach()
     set(BOSS_includes_Eigen3 "")
-    if (NOT ${EIGEN3_INCLUDE_DIR} STREQUAL "")
+    if (NOT "${EIGEN3_INCLUDE_DIR}" STREQUAL "")
       set(BOSS_includes_Eigen3 "-I${EIGEN3_INCLUDE_DIR}")
     endif()
 
@@ -973,10 +925,6 @@ print('TOTAL:{0}'.format(len(all_be)))
     set(_skipped_list_sc "")
   endif()
 
-  set(GAMBIT_TRIM_USED_BACKENDS "${_used_list_sc}" PARENT_SCOPE)
-  set(GAMBIT_TRIM_USED_COUNT "${_used_count}" PARENT_SCOPE)
-  set(GAMBIT_TRIM_TOTAL_COUNT "${_total_count}" PARENT_SCOPE)
-
   message("${BoldYellow}-- GAMBIT_TRIM_BACKEND_INTERFACES is ON. Building ${_used_count} of ${_total_count} backend interfaces.${ColourReset}")
   if(NOT "${_unknown_force}" STREQUAL "")
     message("${BoldRed}   -DGAMBIT_FORCE_BACKEND_INTERFACE entries with no matching backend (ignored): ${_unknown_force}${ColourReset}")
@@ -1032,9 +980,6 @@ function(gambit_configure_optin_build)
       list(APPEND itch "${_be}")
     endforeach()
     set(itch "${itch}" PARENT_SCOPE)
-    set(GAMBIT_TRIM_USED_BACKENDS "${GAMBIT_TRIM_USED_BACKENDS}" PARENT_SCOPE)
-    set(GAMBIT_TRIM_USED_COUNT "${GAMBIT_TRIM_USED_COUNT}" PARENT_SCOPE)
-    set(GAMBIT_TRIM_TOTAL_COUNT "${GAMBIT_TRIM_TOTAL_COUNT}" PARENT_SCOPE)
   endif()
 
   set(BACKEND_HARVESTER_EXTRA_ARGS "${_extra_args}" PARENT_SCOPE)

@@ -113,7 +113,7 @@
 #
 #  \author Pengxuan Zhu
 #          (pengxuan.zhu@adelaide.edu.au)
-#  \date 2026 Aug
+#  \date 2026 Aug, Oct
 #
 #************************************************
 
@@ -2101,10 +2101,8 @@ endif()
 
 
 # OpenMP flags don't play nicely with clang and FastJet's libtoolized build system.
-set(FJ_C_FLAGS "${BACKEND_C_FLAGS}")
-set(FJ_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
-gambit_strip_openmp_from_flags(FJ_C_FLAGS)
-gambit_strip_openmp_from_flags(FJ_CXX_FLAGS)
+set(FJ_C_FLAGS "${AUTOTOOLS_C_FLAGS}")
+set(FJ_CXX_FLAGS "${AUTOTOOLS_CXX_FLAGS}")
 set_compiler_warning("no-deprecated-declarations" FJ_CXX_FLAGS)
 set_compiler_warning("no-deprecated-copy" FJ_CXX_FLAGS)
 
@@ -2122,10 +2120,8 @@ set(hepmc_dir "${HEPMC_PATH}/local")
 set(fastjet_dir "${fastjet_DIR}")
 #set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet -faligned-new -O3")
 set(Rivet_CXX_FLAGS "${FJ_CXX_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR} -O3 -std=c++17")
+# Rivet 4.1.0 relies on transitive inclusion of <algorithm> in several public headers
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  # Rivet 4.1.0 relies on transitive inclusion of <algorithm> in several
-  # public headers.  Supply it through the build flags rather than changing
-  # the downloaded backend sources.
   set(Rivet_CXX_FLAGS "${Rivet_CXX_FLAGS} -include algorithm")
 endif()
 set_compiler_warning("no-deprecated-declarations" Rivet_CXX_FLAGS)
@@ -2135,38 +2131,22 @@ set_compiler_warning("no-unused-parameter" Rivet_CXX_FLAGS)
 set_compiler_warning("no-ignored-qualifiers" Rivet_CXX_FLAGS)
 #set(Rivet_C_FLAGS "${BACKEND_C_FLAGS} -I${dir}/include/Rivet")
 set(Rivet_C_FLAGS "${FJ_C_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR}")
-# --with-hepmc3 supplies the required HepMC include and library directories.
-# Adding them again to LDFLAGS duplicates their rpath on macOS.
+# --with-hepmc3 already supplies the HepMC include and library directories
 set(Rivet_LD_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
 set(Rivet_dirs "${dir}/src/Core" "${dir}/src/Projections" "${dir}/src/Tools" "${dir}/src/AnalysisTools" "${dir}/src")
 
 # For MacOS we need to specify the (weird) root directory for headers (isysroot)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(Rivet_CPP_FLAGS "-isysroot ${CMAKE_OSX_SYSROOT}")
-  # Libtool 2.4 probes the obsolete -single_module option unless this is set.
-  # Modern macOS linkers do not need the option and warn while testing it.
-  set(Rivet_LIBTOOL_CONFIGURE_ENV "LT_MULTI_MODULE=1")
-  # Python and YODA both report -ldl on macOS.  It is a system stub there,
-  # and YODA already supplies it, so omit Python's duplicate copy.
-  execute_process(
-    COMMAND ${Python3_EXECUTABLE} -c
-            "import sysconfig; c = sysconfig.get_config_var; print((c('LIBS') or '') + ' ' + (c('SYSLIBS') or ''))"
-    OUTPUT_VARIABLE Rivet_PYTHON_EXTRA_LIBS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  separate_arguments(Rivet_PYTHON_EXTRA_LIBS UNIX_COMMAND
-                     "${Rivet_PYTHON_EXTRA_LIBS}")
-  list(REMOVE_ITEM Rivet_PYTHON_EXTRA_LIBS "-ldl")
-  string(JOIN " " Rivet_PYTHON_EXTRA_LIBS ${Rivet_PYTHON_EXTRA_LIBS})
+  set(Rivet_CPP_FLAGS "-isysroot${CMAKE_OSX_SYSROOT}")
 else()
   set(Rivet_CPP_FLAGS "")
-  set(Rivet_LIBTOOL_CONFIGURE_ENV "")
-  set(Rivet_PYTHON_EXTRA_LIBS "")
 endif()
 
 set(patch_dir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 set(patch "${patch_dir}/patch_${name}_${ver}.dif")
 ## Rivet needs to be compiled c++17, otherwise it will fail to compile
-set(ditch_if_absent "HepMC;YODA;c++17")
+set(ditch_if_absent "HepMC;YODA;FastJet;c++17")
+## If cython is not installed disable the python extension
 gambit_find_python_module(cython)
 if(PY_cython_FOUND)
   set(pyext yes)
@@ -2181,87 +2161,50 @@ else()
 endif()
 
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
-if(EXCLUDE_FASTJET)
-  set(ditched_${name}_${ver} TRUE)
-  message("${BoldCyan} X Rivet (${ver}) needs contrib FastJet but FastJet is excluded. Rivet will be excluded.${ColourReset}")
-endif()
 if(NOT ditched_${name}_${ver})
+  set(Rivet_BUILD_DEPENDENCIES castxml ${yoda_name} ${hepmc_name} fastjet fjcontrib)
   ExternalProject_Add(${name}_${ver}
-    DEPENDS castxml
-    DEPENDS ${yoda_name}
-    DEPENDS ${hepmc_name}
+    DEPENDS ${Rivet_BUILD_DEPENDENCIES}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch --batch --forward -p1 -i "${patch}"
-    CONFIGURE_COMMAND ./configure ${Rivet_LIBTOOL_CONFIGURE_ENV} CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} CPPFLAGS=${Rivet_CPP_FLAGS} PYTHON=${Python3_EXECUTABLE} PYTHON_EXTRA_LIBS=${Rivet_PYTHON_EXTRA_LIBS} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} --with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
+    CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} CPPFLAGS=${Rivet_CPP_FLAGS} PYTHON=${Python3_EXECUTABLE} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} --with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
           COMMAND ${CMAKE_COMMAND} -E echo "Rivet_dirs=\"${Rivet_dirs}\"" > touch_files.sh
           COMMAND sh -c "cat ${patch_dir}/touch_files.sh" >> touch_files.sh
           COMMAND chmod u+x touch_files.sh
           COMMAND ./touch_files.sh
-    # Rivet evaluates ANASOURCES while parsing its Makefile, even though this
-    # target does not build documentation.  Override it to avoid a harmless
-    # missing analyses.dat diagnostic without modifying Rivet's sources.
-    BUILD_COMMAND ${MAKE_PARALLEL} ANASOURCES= libRivet.so
+    BUILD_COMMAND ${MAKE_PARALLEL} libRivet.so
     INSTALL_COMMAND ""
   )
-  # FindHDF5 may return generic and component-specific include directories
-  # (for example /usr/include and /usr/include/hdf5/serial on Ubuntu). Pass
-  # each directory as its own BOSS option so none of the paths can be
-  # mistaken for the positional BOSS config-module name.
-  set(_rivet_boss_include_options "")
-  foreach(_rivet_include_dir IN LISTS
-      HDF5_INCLUDE_DIR HDF5_INCLUDE_DIRS HDF5_C_INCLUDE_DIRS)
-    if(NOT "${_rivet_include_dir}" STREQUAL "")
-      list(APPEND _rivet_boss_include_options "-I${_rivet_include_dir}")
+  # Pass each HDF5 include directory to BOSS as a separate option
+  set(Rivet_BOSS_INCLUDES "")
+  foreach(hdf5_include_dir IN LISTS HDF5_INCLUDE_DIR HDF5_INCLUDE_DIRS HDF5_C_INCLUDE_DIRS)
+    if(NOT "${hdf5_include_dir}" STREQUAL "")
+      list(APPEND Rivet_BOSS_INCLUDES "-I${hdf5_include_dir}")
     endif()
   endforeach()
-  list(REMOVE_DUPLICATES _rivet_boss_include_options)
-  BOSS_backend(${name} ${ver} ${_rivet_boss_include_options})
-  # BOSS is an ExternalProject step, so the project-level dependencies above
-  # do not prevent a directly requested BOSS stamp from running before the
-  # headers it parses have been installed.  Attach the prerequisites to the
-  # step itself; this creates both target- and file-level ordering suitable
-  # for parallel builds.
-  set(_rivet_boss_step_dependencies "")
-  foreach(_rivet_boss_dependency
-      castxml ${yoda_name} ${hepmc_name} fastjet fjcontrib)
-    if(TARGET ${_rivet_boss_dependency})
-      list(APPEND _rivet_boss_step_dependencies ${_rivet_boss_dependency})
-    endif()
-  endforeach()
-  if(_rivet_boss_step_dependencies)
-    ExternalProject_Add_StepDependencies(${name}_${ver} BOSS
-      ${_rivet_boss_step_dependencies})
-  endif()
-  unset(_rivet_boss_step_dependencies)
-  unset(_rivet_boss_dependency)
-  unset(_rivet_boss_include_options)
-  unset(_rivet_include_dir)
+  list(REMOVE_DUPLICATES Rivet_BOSS_INCLUDES)
+  BOSS_backend(${name} ${ver} ${Rivet_BOSS_INCLUDES})
+  # BOSS can be requested independently of the complete backend target.
+  ExternalProject_Add_StepDependencies(${name}_${ver} BOSS ${Rivet_BUILD_DEPENDENCIES})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
-  if(TARGET ${name}_${ver} AND TARGET fastjet)
-    add_dependencies(${name}_${ver} fastjet)
-    if(TARGET fjcontrib)
-      add_dependencies(${name}_${ver} fjcontrib)
-    endif()
-  endif()
 endif()
 
 # Contur
-# Frontend is Contur_3_0_0 only. 3.0.0 keeps the database rule in
-# data/DB/Makefile rather than exporting analyses.db from the top level.
 set(name "contur")
 set(ver "3.0.0")
-set(md5 "aee676621c6a2f4b66a94e456a96dac8")
-set(_contur_build_command ${MAKE_PARALLEL} -C data/DB analyses.db)
 set(dl "https://gitlab.com/hepcedar/${name}/-/archive/${name}-${ver}/${name}-${name}-${ver}.tar.gz")
+set(md5 "aee676621c6a2f4b66a94e456a96dac8")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(contur_dir "${dir}/contur")
 set(init_file ${contur_dir}/init_by_GAMBIT.py)
 set(Rivet_name "rivet")
 set(ditch_if_absent "Python;SQLITE3;SQLite3CLI;YODA;HepMC;Rivet")
 set(required_modules "cython;configobj;pandas;matplotlib;")
+# Contur 3.0.0 shouldn't need a patch. Leave command commented in case subsequent versions do.
+#set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
@@ -2273,6 +2216,8 @@ if(NOT ditched_${name}_${ver})
       DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
+      # Contur 3.0.0 shouldn't need a patch. Leave command commented in case subsequent versions do.
+      # PATCH_COMMAND patch -p1 < ${patch}
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "import os" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${init_file}
@@ -2289,14 +2234,14 @@ if(NOT ditched_${name}_${ver})
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisLibPath(\"${dir}/data/Rivet\")" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisDataPath(\"${dir}/data/Rivet\")" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisDataPath(\"${dir}/data/Theory\")" >> ${init_file}
-      BUILD_COMMAND ${_contur_build_command}
+      # Contur 3.0.0 builds its analyses database in data/DB
+      BUILD_COMMAND ${MAKE_PARALLEL} -C data/DB analyses.db
       INSTALL_COMMAND ""
     )
   endif()
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
-unset(_contur_build_command)
 
 
 # Linker flags used in the class makefile when linking executables

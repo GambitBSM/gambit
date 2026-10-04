@@ -33,7 +33,7 @@
 #include <memory>
 #include <vector>
 
-#include "SoftDrop.hh"
+#include "fastjet/contrib/SoftDrop.hh"
 #include "fastjet/tools/Pruner.hh"
 #include "fastjet/contrib/Nsubjettiness.hh"
 
