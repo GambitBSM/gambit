@@ -407,10 +407,11 @@ if(WITH_HDF5)
     # downstream code and stay out of the way of GAMBIT's own headers.
     include_directories(SYSTEM ${HDF5_INCLUDE_DIR})  # for older versions of cmake
     include_directories(SYSTEM ${HDF5_INCLUDE_DIRS}) # for newer cmake
+    include_directories(SYSTEM ${HDF5_C_INCLUDE_DIRS}) # component-specific path
     message("-- Found HDF5 version: ${HDF5_VERSION}")
     message("   Found HDF5 libraries: ${HDF5_LIBRARIES}")
     if(VERBOSE)
-      message(STATUS ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR})
+      message(STATUS ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR} ${HDF5_C_INCLUDE_DIRS})
     endif()
 
     # Sanity check: try to compile a small program that includes hdf5.h and
@@ -421,7 +422,7 @@ if(WITH_HDF5)
     include(CheckCSourceCompiles)
     include(CMakePushCheckState)
     cmake_push_check_state()
-    set(CMAKE_REQUIRED_INCLUDES  ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR})
+    set(CMAKE_REQUIRED_INCLUDES  ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR} ${HDF5_C_INCLUDE_DIRS})
     set(CMAKE_REQUIRED_LIBRARIES ${HDF5_LIBRARIES})
     set(CMAKE_REQUIRED_QUIET TRUE)
     check_c_source_compiles(
@@ -448,6 +449,10 @@ if(WITH_HDF5)
   endif()
 else()
   message("${BoldCyan} X HDF5 is disabled. Excluding hdf5printer and hdf5reader from GAMBIT configuration. Use -DWITH_HDF5=ON to enable HDF5. ${ColourReset}")
+  # A prior configure may have found HDF5.  Clear its active status so an
+  # ordinary reconfigure after disabling it does not retain HDF5 on generic
+  # executable link lines.
+  set(HDF5_FOUND FALSE)
   set(itch "${itch}" "hdf5printer" "hdf5reader")
 endif()
 
