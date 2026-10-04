@@ -742,6 +742,7 @@ macro(gambit_find_python_module module)
       endif()
     endif()
     message(STATUS "FAILED to find Python module ${module}.")
+    set(PY_${module}_FOUND FALSE)
   endif()
 endmacro()
 
