@@ -304,6 +304,28 @@ macro(use_contributed_pybind11)
 endmacro()
 
 # Function to add GAMBIT executable
+function(normalise_gambit_link_libraries output_var)
+  set(normalised_libraries)
+  foreach(link_item ${ARGN})
+    set(_keep_link_item TRUE)
+    if("${link_item}" STREQUAL "-L")
+      set(_keep_link_item FALSE)
+    elseif("${link_item}" MATCHES "^-L(.+)$")
+      set(link_dir "${CMAKE_MATCH_1}")
+      if(EXISTS "${link_dir}" AND NOT IS_DIRECTORY "${link_dir}")
+        set(_keep_link_item FALSE)
+      endif()
+    endif()
+    if(_keep_link_item)
+      list(FIND normalised_libraries "${link_item}" existing_item)
+      if(existing_item EQUAL -1)
+        list(APPEND normalised_libraries "${link_item}")
+      endif()
+    endif()
+  endforeach()
+  set(${output_var} ${normalised_libraries} PARENT_SCOPE)
+endfunction()
+
 function(add_gambit_executable executablename LIBRARIES)
   cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;" ${ARGN})
 
@@ -404,7 +426,9 @@ function(add_standalone executablename)
 
   # Exclude standalones that need pybind11 if it has been excluded.
   if (";${ARG_DEPENDENCIES};" MATCHES ";pybind11;")
-    string(REPLACE "pybind11" "" ARG_DEPENDENCIES ${ARG_DEPENDENCIES})
+    # Keep this as a CMake list: string(REPLACE) concatenates separate list
+    # elements, corrupting dependencies such as "hepmc;pybind11;nulike_1.0.9".
+    list(REMOVE_ITEM ARG_DEPENDENCIES pybind11)
     if (NOT HAVE_PYBIND11)
       message("${BoldCyan} X Excluding ${executablename} from GAMBIT configuration due to absence of pybind11.${ColourReset}")
       set(standalone_permitted 0)

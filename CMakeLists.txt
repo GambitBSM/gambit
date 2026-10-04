@@ -305,7 +305,18 @@ endforeach()
 
 # Check for Boost
 set(Boost_NO_BOOST_CMAKE ON)
+# GAMBIT consumes FindBoost variables below.  Preserve that established
+# behaviour explicitly with CMake >= 3.30, where CMP0167 otherwise emits a
+# warning before selecting the same legacy module implicitly.  Scope this to
+# this one lookup so it cannot alter package discovery elsewhere.
+if(POLICY CMP0167)
+  cmake_policy(PUSH)
+  cmake_policy(SET CMP0167 OLD)
+endif()
 find_package(Boost 1.48)
+if(POLICY CMP0167)
+  cmake_policy(POP)
+endif()
 if(Boost_FOUND)
   include_directories("${Boost_INCLUDE_DIR}")
 else()
