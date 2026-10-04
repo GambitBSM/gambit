@@ -31,13 +31,8 @@
 #include <nlohmann/json.hpp>
 #include "yaml-cpp/yaml.h"
 
-#ifdef __cpp_lib_filesystem
-  #include <filesystem>
-  namespace fs = std::filesystem;
-#else
-  #include <boost/filesystem.hpp>
-  namespace fs = boost::filesystem;
-#endif
+#include <filesystem>
+namespace fs = std::filesystem;
 
 namespace Gambit
 {
