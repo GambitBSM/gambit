@@ -99,6 +99,9 @@ include_directories("${PROJECT_SOURCE_DIR}/contrib/mvautils/include/")
 #contrib/heputils
 include_directories("${PROJECT_SOURCE_DIR}/contrib/heputils/include")
 
+#contrib/nlohmann
+include_directories("${PROJECT_SOURCE_DIR}/contrib/nlohmann/include")
+
 #contrib/mkpath
 set(mkpath_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/mkpath/include")
 include_directories("${mkpath_INCLUDE_DIR}")
