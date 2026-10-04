@@ -270,6 +270,7 @@ if(NOT EXCLUDE_HEPMC)
 endif()
 
 # contrib/onnxruntime
+option(WITH_ONNXRUNTIME "Compile with ONNX Runtime enabled" OFF)
 if (WITH_ONNXRUNTIME)
   message("   Using ONNX Runtime - Onnx dependent colliderbit analyses will be included")
   set (EXCLUDE_ONNXRUNTIME FALSE)
@@ -293,8 +294,8 @@ if (NOT EXCLUDE_ONNXRUNTIME)
   include_directories(${dir}/include)
   set(ONNXRUNTIME_PATH "${dir}")
   set(ONNXRUNTIME_LIB "${dir}/lib")
-  set(ONNXRUNTIME_LDFLAGS "-L${ONNXRUNTIME_LIB} -l${lib}")
-  
+  set(ONNXRUNTIME_LDFLAGS "-L${ONNXRUNTIME_LIB}" "-l${lib}")
+
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
