@@ -117,6 +117,8 @@ if(NOT Python3_Interpreter_FOUND)
 endif()
 message("${BoldYellow}   Using Python interpreter version ${Python3_VERSION} for build.${ColourReset}")
 
+set(PYTHON_VERSION_MAJOR ${Python3_VERSION_MAJOR})
+set(PYTHON_VERSION_MINOR ${Python3_VERSION_MINOR})
 if(Python3_Development_FOUND)
   message("${BoldYellow}   Using Python libraries version ${Python3_VERSION} for Python backend support.${ColourReset}")
 endif()
