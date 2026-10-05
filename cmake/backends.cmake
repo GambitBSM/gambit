@@ -2145,6 +2145,12 @@ set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
 set_compiler_warning("no-unused-parameter" FJCONTRIB_CXX_FLAGS)
 set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
 set_compiler_warning("no-catch-value" FJCONTRIB_CXX_FLAGS)
+# fjcontrib 1.049 (LundPlane's EEHelpers.hh, among others) uses std::numeric_limits,
+# std::prev_permutation etc. without including the defining headers.  Supply them
+# through the compiler, leaving the downloaded fjcontrib source unmodified.
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  set(FJCONTRIB_CXX_FLAGS "${FJCONTRIB_CXX_FLAGS} -include algorithm -include limits -include iterator")
+endif()
 if(OpenMP_omp_LIBRARY)
   get_filename_component(FJCONTRIB_OPENMP_LIBDIR "${OpenMP_omp_LIBRARY}" DIRECTORY)
   set(FJCONTRIB_CXX_FLAGS "${FJCONTRIB_CXX_FLAGS} -L${FJCONTRIB_OPENMP_LIBDIR} -Wl,-rpath,${FJCONTRIB_OPENMP_LIBDIR}")
