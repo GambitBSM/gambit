@@ -2209,9 +2209,15 @@ set_compiler_warning("no-unused-parameter" Rivet_CXX_FLAGS)
 set_compiler_warning("no-ignored-qualifiers" Rivet_CXX_FLAGS)
 #set(Rivet_C_FLAGS "${BACKEND_C_FLAGS} -I${dir}/include/Rivet")
 set(Rivet_C_FLAGS "${FJ_C_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR}")
-# --with-hepmc3 supplies the required HepMC include and library directories.
-# Adding them again to LDFLAGS duplicates their rpath on macOS.
+# --with-hepmc3 supplies the required HepMC include and library directories,
+# but libtool does not turn those -L paths into a runtime search path, so
+# libRivet.so would fail to load libHepMC3 at run time. Add the rpath
+# explicitly on Linux. On macOS it is left out, as in the earlier change that
+# removed it, because it was seen to duplicate the rpath there.
 set(Rivet_LD_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
+  set(Rivet_LD_FLAGS "${Rivet_LD_FLAGS} -Wl,-rpath,${hepmc_dir}/lib")
+endif()
 set(Rivet_dirs "${dir}/src/Core" "${dir}/src/Projections" "${dir}/src/Tools" "${dir}/src/AnalysisTools" "${dir}/src")
 
 # For MacOS we need to specify the (weird) root directory for headers (isysroot)
@@ -2352,6 +2358,7 @@ if(NOT ditched_${name}_${ver})
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${Rivet_PY_PATH}')" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${Rivet_alt_PY_PATH}')" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${dir}')" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${contur_dir}')" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "os.environ[\"CONTUR_ROOT\"]='${dir}'" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "os.environ[\"CONTUR_DATA_PATH\"]='${dir}'" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "os.environ[\"CONTUR_USER_DIR\"]='${dir}/data/DB'" >> ${init_file}
