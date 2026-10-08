@@ -743,8 +743,9 @@ macro(BOSS_backend_full name backend_version ${ARGN})
 
     # Set the BOSS castxml compiler to the cxx compiler
     # If it is passed by the user, add on "castxml-cc=" for BOSS
+    set(BOSS_castxml_cc "")
     if (NOT DEFINED BOSS_castxml_compiler)
-      if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+      if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
         set(BOSS_castxml_cc "--castxml-cc=${CMAKE_CXX_COMPILER}")
       elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
         set(BOSS_castxml_cc "")
