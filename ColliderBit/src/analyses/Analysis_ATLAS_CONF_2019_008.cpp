@@ -6,6 +6,9 @@
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date 2021 Sep
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 // Originally based on confnote: http://cdsweb.cern.ch/record/2668387/files/ATLAS-CONF-2019-008.pdf
@@ -57,7 +60,6 @@ namespace Gambit
 
     protected:
 
-      std::map<string, EventCounter> _counters_bin;
       static constexpr const char* CUTFLOW_NAME = "ATLAS 2-lep chargino-W 13 TeV";
 
     public:
