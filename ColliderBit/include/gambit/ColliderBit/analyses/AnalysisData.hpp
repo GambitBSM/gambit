@@ -96,6 +96,7 @@ namespace Gambit
           sr.n_sig_MC = 0;
           sr.n_sig_scaled = 0;
           sr.n_sig_MC_sys = 0;
+          sr.n_sig_MC_stat = 0;
           sr.accepted_event_ids.clear();
         }
         srcov = Eigen::MatrixXd();
@@ -138,8 +139,10 @@ namespace Gambit
         }
         else
         {
-          // If it does, just update the signal count in the existing SignalRegionData object
+          // Refresh the signal count and its uncertainties from the newly collected result.
           srdata[loc->second].n_sig_MC = srd.n_sig_MC;
+          srdata[loc->second].n_sig_MC_sys = srd.n_sig_MC_sys;
+          srdata[loc->second].n_sig_MC_stat = srd.n_sig_MC_stat;
           srdata[loc->second].accepted_event_ids = srd.accepted_event_ids;
           srdata[loc->second].has_event_records = srd.has_event_records;
         }
