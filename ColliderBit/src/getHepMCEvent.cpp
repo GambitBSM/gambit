@@ -132,12 +132,6 @@ namespace Gambit
         return result;
       }
 
-      bool cbs_beam_ids_match(int lhs_1, int lhs_2, int rhs_1, int rhs_2)
-      {
-        return (lhs_1 == rhs_1 && lhs_2 == rhs_2)
-               || (lhs_1 == rhs_2 && lhs_2 == rhs_1);
-      }
-
       bool cbs_beam_energy_match(double lhs_GeV, double rhs_GeV,
                                  double absolute_tolerance_GeV,
                                  double relative_tolerance)
@@ -146,22 +140,6 @@ namespace Gambit
         const double average = (std::abs(lhs_GeV) + std::abs(rhs_GeV)) / 2.0;
         return difference <= absolute_tolerance_GeV
                || difference <= relative_tolerance * average;
-      }
-
-      bool cbs_beam_energies_match(double lhs_1, double lhs_2,
-                                   double rhs_1, double rhs_2,
-                                   double absolute_tolerance_GeV,
-                                   double relative_tolerance)
-      {
-        const bool direct = cbs_beam_energy_match(lhs_1, rhs_1, absolute_tolerance_GeV,
-                                                   relative_tolerance)
-                            && cbs_beam_energy_match(lhs_2, rhs_2, absolute_tolerance_GeV,
-                                                     relative_tolerance);
-        const bool swapped = cbs_beam_energy_match(lhs_1, rhs_2, absolute_tolerance_GeV,
-                                                    relative_tolerance)
-                             && cbs_beam_energy_match(lhs_2, rhs_1, absolute_tolerance_GeV,
-                                                      relative_tolerance);
-        return direct || swapped;
       }
 
       bool cbs_collision_energy_match(double lhs_TeV, double rhs_TeV,
@@ -199,17 +177,17 @@ namespace Gambit
         const double reference_collision_energy =
           options.getValueOrDef<double>(0.0, "cbs_reference_collision_energy_TeV");
 
-        const bool ids_match = cbs_beam_ids_match(current.pid_1, current.pid_2,
-                                                   reference_pid_1, reference_pid_2);
-        const bool energies_match = cbs_beam_energies_match(
-          current.energy_1_GeV, current.energy_2_GeV,
-          reference_energy_1, reference_energy_2,
-          beam_absolute_tolerance_GeV, beam_relative_tolerance);
+        const bool direct = current.pid_1 == reference_pid_1 && current.pid_2 == reference_pid_2
+          && cbs_beam_energy_match(current.energy_1_GeV, reference_energy_1, beam_absolute_tolerance_GeV, beam_relative_tolerance)
+          && cbs_beam_energy_match(current.energy_2_GeV, reference_energy_2, beam_absolute_tolerance_GeV, beam_relative_tolerance);
+        const bool swapped = current.pid_1 == reference_pid_2 && current.pid_2 == reference_pid_1
+          && cbs_beam_energy_match(current.energy_1_GeV, reference_energy_2, beam_absolute_tolerance_GeV, beam_relative_tolerance)
+          && cbs_beam_energy_match(current.energy_2_GeV, reference_energy_1, beam_absolute_tolerance_GeV, beam_relative_tolerance);
         const bool collision_energy_match = cbs_collision_energy_match(
           current.collision_energy_TeV, reference_collision_energy,
           collision_tolerance_TeV);
 
-        if (!ids_match || !energies_match || !collision_energy_match)
+        if (!(direct || swapped) || !collision_energy_match)
         {
           std::ostringstream message;
           message << "CBS HepMC run conditions changed after the first event: current beams ("

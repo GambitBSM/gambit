@@ -4,6 +4,9 @@
 ///
 ///  Input parsing helpers for ColliderBit Solo (CBS).
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #include "solo_input.hpp"
@@ -350,15 +353,14 @@ namespace Gambit
                              double beam_energy_tolerance_GeV,
                              double beam_energy_relative_tolerance)
         {
-          return beam_ids_match(lhs.beam_pid_1, lhs.beam_pid_2,
-                                rhs.beam_pid_1, rhs.beam_pid_2)
-                 && beam_energies_match(lhs.beam_energy_1_GeV, lhs.beam_energy_2_GeV,
-                                        rhs.beam_energy_1_GeV, rhs.beam_energy_2_GeV,
-                                        beam_energy_tolerance_GeV,
-                                        beam_energy_relative_tolerance)
-                 && collision_energies_match(lhs.collision_energy_TeV,
-                                              rhs.collision_energy_TeV,
-                                              collision_energy_tolerance_TeV);
+          const bool direct = lhs.beam_pid_1 == rhs.beam_pid_1 && lhs.beam_pid_2 == rhs.beam_pid_2
+            && beam_energy_match(lhs.beam_energy_1_GeV, rhs.beam_energy_1_GeV, beam_energy_tolerance_GeV, beam_energy_relative_tolerance)
+            && beam_energy_match(lhs.beam_energy_2_GeV, rhs.beam_energy_2_GeV, beam_energy_tolerance_GeV, beam_energy_relative_tolerance);
+          const bool swapped = lhs.beam_pid_1 == rhs.beam_pid_2 && lhs.beam_pid_2 == rhs.beam_pid_1
+            && beam_energy_match(lhs.beam_energy_1_GeV, rhs.beam_energy_2_GeV, beam_energy_tolerance_GeV, beam_energy_relative_tolerance)
+            && beam_energy_match(lhs.beam_energy_2_GeV, rhs.beam_energy_1_GeV, beam_energy_tolerance_GeV, beam_energy_relative_tolerance);
+          return (direct || swapped)
+            && collision_energies_match(lhs.collision_energy_TeV, rhs.collision_energy_TeV, collision_energy_tolerance_TeV);
         }
 
         int parse_beam_pid(const YAML::Node& node, const str& analysis)
