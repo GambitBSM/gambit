@@ -754,6 +754,17 @@ macro(BOSS_backend_full name backend_version ${ARGN})
       set(BOSS_castxml_cc "--castxml-cc=${BOSS_castxml_compiler}")
     endif()
 
+    # On MacOS, system/libc++ headers live under the SDK sysroot rather than a
+    # fixed system path, so castxml needs to be told about it explicitly or it
+    # will fail to find headers such as <string>. Always emit a (possibly
+    # empty-valued) --castxml-cc-opt= token, rather than an empty string, so
+    # that an empty value here can never be mistaken by boss.py's option
+    # parser for a stray positional argument.
+    set(BOSS_castxml_cc_opt "--castxml-cc-opt=")
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+      set(BOSS_castxml_cc_opt "--castxml-cc-opt=-isysroot ${CMAKE_OSX_SYSROOT}")
+    endif()
+
     # Parse command line options from optional arguments
     set(BOSS_command_line_options "")
     foreach(arg ${ARGN})
@@ -763,7 +774,7 @@ macro(BOSS_backend_full name backend_version ${ARGN})
     add_dependencies(${name}_${ver} castxml)
     ExternalProject_Add_Step(${name}_${ver} BOSS
       # Run BOSS
-      COMMAND ${Python3_EXECUTABLE} ${BOSS_dir}/boss.py --no-instructions ${BOSS_castxml_cc} ${BOSS_command_line_options} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${name}_${backend_version_safe}
+      COMMAND ${Python3_EXECUTABLE} ${BOSS_dir}/boss.py --no-instructions ${BOSS_castxml_cc} "${BOSS_castxml_cc_opt}" ${BOSS_command_line_options} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${name}_${backend_version_safe}
       # Copy BOSS-generated files to correct folders within Backends/include
       COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/${name_in_frontend}_${backend_version_safe} || true
       COMMAND cp -r BOSS_output/${name_in_frontend}_${backend_version_safe}/for_gambit/backend_types/${name_in_frontend}_${backend_version_safe} ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/
