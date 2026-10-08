@@ -350,10 +350,6 @@ if(NOT EXCLUDE_YODA)
   # OpenMP flags do not play nicely with clang and YODA's libtool link step.
   set(YODA_C_FLAGS "${AUTOTOOLS_C_FLAGS}")
   set(YODA_CXX_FLAGS "${AUTOTOOLS_CXX_FLAGS} -O3")
-  # YODA 2.1.0's bundled HighFive uses std::back_inserter without including <iterator>
-  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set(YODA_CXX_FLAGS "${YODA_CXX_FLAGS} -include iterator")
-  endif()
   #set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3" )
   set_compiler_warning("no-unused-parameter" YODA_CXX_FLAGS)
   set_compiler_warning("no-deprecated-copy" YODA_CXX_FLAGS)
@@ -421,10 +417,6 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   # OpenMP flags don't play nicely with clang and FastJet's libtoolized build system.
   set(FASTJET_C_FLAGS "${AUTOTOOLS_C_FLAGS}")
   set(FASTJET_CXX_FLAGS "${AUTOTOOLS_CXX_FLAGS}")
-  # fjcontrib 1.101 uses std::prev_permutation without including <algorithm>
-  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set(FASTJET_CXX_FLAGS "${FASTJET_CXX_FLAGS} -include algorithm")
-  endif()
   set_compiler_warning("no-deprecated-declarations" FASTJET_CXX_FLAGS)
   set_compiler_warning("no-deprecated-copy" FASTJET_CXX_FLAGS)
   # Rivet 4 needs the C++ plugins
@@ -460,10 +452,12 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(FJCONTRIB_FRAGILE_CXX_FLAGS "${FJCONTRIB_FRAGILE_CXX_FLAGS} -Wl,-headerpad_max_install_names")
   endif()
+  set(patch "${PROJECT_SOURCE_DIR}/contrib/patches/${name}/${ver}/patch_${name}_${ver}.dif")
   ExternalProject_Add(${name}
     DEPENDS fastjet
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${fjcontrib_path} ${name} ${ver}
     SOURCE_DIR ${fjcontrib_path}
+    PATCH_COMMAND patch --batch --forward -p1 -i "${patch}"
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} --fastjet-config=${fastjet_DIR}/bin/fastjet-config --prefix=${fastjet_DIR} --only=Nsubjettiness,RecursiveTools,LundPlane,EnergyCorrelator,VariableR
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
@@ -485,9 +479,6 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set_source_files_properties(${fjcontrib_nsubjettiness_sources} PROPERTIES GENERATED TRUE)
   add_gambit_library(fjcontrib_nsubjettiness OPTION OBJECT
                             SOURCES ${fjcontrib_nsubjettiness_sources})
-  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(fjcontrib_nsubjettiness PRIVATE -include algorithm)
-  endif()
   add_dependencies(fjcontrib_nsubjettiness fastjet fjcontrib)
   set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcontrib_nsubjettiness>)
   add_dependencies(contrib fjcontrib_nsubjettiness)
