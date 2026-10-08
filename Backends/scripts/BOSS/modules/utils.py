@@ -2252,10 +2252,12 @@ def castxmlRunner(input_file_path, include_paths_list, xml_output_path, use_cast
     castxml_system_path = 'castxml'
     castxml_local_path = os.path.join(gb.boss_dir,"castxml/bin/castxml")
     if use_castxml_path is None:
-        if gb.has_castxml_system:
-            use_castxml_path = castxml_system_path
+        if gb.castxml_explicit_path != '':
+            use_castxml_path = gb.castxml_explicit_path
         elif gb.has_castxml_local:
             use_castxml_path = castxml_local_path
+        elif gb.has_castxml_system:
+            use_castxml_path = castxml_system_path
         else:
             raise Exception('No castxml binary found.')
 
@@ -2323,12 +2325,15 @@ def castxmlRunner(input_file_path, include_paths_list, xml_output_path, use_cast
             print("CalledProcessError.message:", error_message)
             print()
 
-    # If it fails with the system-wide castxml binary, try again with the local one.
+    # If it fails with the local (prebuilt) castxml binary, try again with a
+    # system-wide one, in case that happens to work better on this machine.
     # Return on success so the original failed attempt is not reported afterwards.
-    if (did_fail and use_castxml_path==castxml_system_path and gb.has_castxml_local):
-        print('  ' + modifyText('Will retry with castxml binary in ' + castxml_local_path,'yellow') )
+    # (Skip this retry entirely if the user gave an explicit --castxml-path.)
+    if (did_fail and use_castxml_path==castxml_local_path and gb.has_castxml_system
+            and gb.castxml_explicit_path == ''):
+        print('  ' + modifyText('Will retry with system-wide castxml binary','yellow') )
         return castxmlRunner(input_file_path, include_paths_list, xml_output_path,
-                              use_castxml_path=castxml_local_path)
+                              use_castxml_path=castxml_system_path)
 
 
     # If it fails with icpc, try again with g++.

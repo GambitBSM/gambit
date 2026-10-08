@@ -66,6 +66,12 @@ def main():
                       default="",
                       help="Provide the additional flags OPTIONS to the compiler.",
                       metavar="OPTIONS")
+    parser.add_option("--castxml-path",
+                      dest="castxml_path",
+                      default="",
+                      help="Use the specific castxml executable at PATH, bypassing the usual "
+                           "system-vs-prebuilt-binary auto-detection.",
+                      metavar="PATH")
     parser.add_option("-l", "--list",
                       action="store_true",
                       dest="list_flag",
@@ -148,39 +154,55 @@ def main():
 
 
     # Check that CastXML is found and get the correct path
-    # (system-wide executable or prebuilt binary in castxml/bin/castxml)
+    # (prebuilt binary in castxml/bin/castxml, a system-wide executable, or an
+    # explicit --castxml-path override)
     boss_abs_dir = os.path.dirname(os.path.abspath(__file__))
     local_castxml_path = os.path.join(boss_abs_dir,"castxml/bin/castxml")
     has_castxml_system = True
     has_castxml_local = True
-    try:
-        subprocess.check_output(["which","castxml"])
-    except subprocess.CalledProcessError:
-        print()
-        print("Cannot find a system-wide 'castxml' executable.")
-        print("CastXML can be installed with 'apt install castxml' (Linux) or 'brew install castxml' (OS X).")
-        has_castxml_system = False
-        print("Will now look for a prebuilt CastXML binary in %s" % (local_castxml_path))
+    has_castxml_explicit = options.castxml_path != ''
 
-    try:
-        subprocess.check_output(["which",local_castxml_path])
-    except subprocess.CalledProcessError:
-        print()
-        print("Cannot find 'castxml' binary in %s." % (local_castxml_path))
-        print("To get the prebuilt castxml binary for your system, download a tarball from ")
-        print()
-        print("  https://midas3.kitware.com/midas/download/item/318227/castxml-linux.tar.gz (for Linux)")
-        print()
-        print("or ")
-        print()
-        print("  https://midas3.kitware.com/midas/download/item/318762/castxml-macosx.tar.gz (for OS X)")
-        print()
-        print("and extract it in the main BOSS directory: %s/" % (boss_abs_dir))
-        print()
-        has_castxml_local = False
+    if has_castxml_explicit:
+        try:
+            subprocess.check_output(["which",options.castxml_path])
+        except subprocess.CalledProcessError:
+            print()
+            print("Cannot find the castxml executable given via --castxml-path: %s" % (options.castxml_path))
+            print()
+            sys.exit(1)
+    else:
+        # Prefer the prebuilt binary GAMBIT downloads itself, since its version is
+        # known to be compatible; this avoids pulling in whatever castxml version
+        # (and whatever Clang/LLVM it happens to be built against) a package
+        # manager happens to have installed on PATH.
+        try:
+            subprocess.check_output(["which",local_castxml_path])
+        except subprocess.CalledProcessError:
+            print()
+            print("Cannot find 'castxml' binary in %s." % (local_castxml_path))
+            print("To get the prebuilt castxml binary for your system, download a tarball from ")
+            print()
+            print("  https://midas3.kitware.com/midas/download/item/318227/castxml-linux.tar.gz (for Linux)")
+            print()
+            print("or ")
+            print()
+            print("  https://midas3.kitware.com/midas/download/item/318762/castxml-macosx.tar.gz (for OS X)")
+            print()
+            print("and extract it in the main BOSS directory: %s/" % (boss_abs_dir))
+            print()
+            has_castxml_local = False
+            print("Will now look for a system-wide 'castxml' executable.")
+
+        try:
+            subprocess.check_output(["which","castxml"])
+        except subprocess.CalledProcessError:
+            print()
+            print("Cannot find a system-wide 'castxml' executable.")
+            print("CastXML can be installed with 'apt install castxml' (Linux) or 'brew install castxml' (OS X).")
+            has_castxml_system = False
 
     # Quit if no version of CastXML is found
-    if (not has_castxml_system) and (not has_castxml_local): sys.exit(1)
+    if (not has_castxml_explicit) and (not has_castxml_system) and (not has_castxml_local): sys.exit(1)
 
 
     # Get the config file name from command line. Import the correct config module.
@@ -217,6 +239,7 @@ def main():
     # Write the result of the castxml checks to gb
     gb.has_castxml_system = has_castxml_system
     gb.has_castxml_local = has_castxml_local
+    gb.castxml_explicit_path = options.castxml_path
 
     # Construct file name for the BOSS reset file to be created
     reset_info_file_name = 'reset_info.' + gb.gambit_backend_name_full + '.boss'

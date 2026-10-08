@@ -24,6 +24,7 @@ boss_output_dir = 'BOSS_output/' + gambit_backend_name_full
 
 has_castxml_system = True
 has_castxml_local = True
+castxml_explicit_path = ''
 
 # boss_reset_dir = 'BOSS_reset_info'
 

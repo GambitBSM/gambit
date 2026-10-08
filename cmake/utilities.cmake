@@ -763,6 +763,30 @@ macro(BOSS_backend_full name backend_version ${ARGN})
     set(BOSS_castxml_cc_opt "--castxml-cc-opt=")
     if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
       set(BOSS_castxml_cc_opt "--castxml-cc-opt=-isysroot ${CMAKE_OSX_SYSROOT}")
+      if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")
+        # CastXML's bundled Clang can lag behind Apple's SDK/compiler-resource
+        # headers in its support for ARM NEON fp16 builtins (e.g. fails with
+        # "use of undeclared identifier '__builtin_neon_vbslq_f16'") if any
+        # parsed header transitively includes <arm_neon.h>. BOSS only needs
+        # declaration-level AST info, not real codegen, and x86_64/arm64 share
+        # the same macOS LP64 ABI, so we sidestep the whole NEON header path
+        # by having castxml parse as if targeting x86_64.
+        if(CMAKE_OSX_DEPLOYMENT_TARGET)
+          set(BOSS_castxml_target "x86_64-apple-macosx${CMAKE_OSX_DEPLOYMENT_TARGET}")
+        else()
+          set(BOSS_castxml_target "x86_64-apple-darwin")
+        endif()
+        set(BOSS_castxml_cc_opt "${BOSS_castxml_cc_opt} -target ${BOSS_castxml_target}")
+      endif()
+    endif()
+
+    # BOSS defaults to preferring the prebuilt castxml binary GAMBIT downloads
+    # itself (a version known to work) over whatever castxml a package manager
+    # may have put on PATH. Set -DBOSS_castxml_path=<path-to-castxml> to force
+    # use of a specific castxml executable instead (e.g. a system one).
+    set(BOSS_castxml_path_opt "--castxml-path=")
+    if (DEFINED BOSS_castxml_path)
+      set(BOSS_castxml_path_opt "--castxml-path=${BOSS_castxml_path}")
     endif()
 
     # Parse command line options from optional arguments
@@ -774,7 +798,7 @@ macro(BOSS_backend_full name backend_version ${ARGN})
     add_dependencies(${name}_${ver} castxml)
     ExternalProject_Add_Step(${name}_${ver} BOSS
       # Run BOSS
-      COMMAND ${Python3_EXECUTABLE} ${BOSS_dir}/boss.py --no-instructions ${BOSS_castxml_cc} "${BOSS_castxml_cc_opt}" ${BOSS_command_line_options} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${name}_${backend_version_safe}
+      COMMAND ${Python3_EXECUTABLE} ${BOSS_dir}/boss.py --no-instructions ${BOSS_castxml_cc} "${BOSS_castxml_cc_opt}" "${BOSS_castxml_path_opt}" ${BOSS_command_line_options} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${name}_${backend_version_safe}
       # Copy BOSS-generated files to correct folders within Backends/include
       COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/${name_in_frontend}_${backend_version_safe} || true
       COMMAND cp -r BOSS_output/${name_in_frontend}_${backend_version_safe}/for_gambit/backend_types/${name_in_frontend}_${backend_version_safe} ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/
