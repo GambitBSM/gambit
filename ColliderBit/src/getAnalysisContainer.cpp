@@ -34,9 +34,13 @@
 ///  \date   2018 May
 ///  \date   2021 Oct
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 
 // #define COLLIDERBIT_DEBUG
 #define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  " << __FILE__ << ":" << __LINE__ << ":  "
@@ -52,7 +56,8 @@ namespace Gambit
                               const str& detname,
                               const MCLoopInfo& RunMC,
                               const xsec_container& TotalCrossSection,
-                              int iteration)
+                              int iteration,
+                              bool store_accepted_ids)
     {
       if (RunMC.analyses.empty() or iteration == BASE_INIT) return;
 
@@ -84,6 +89,16 @@ namespace Gambit
           }
         }
         else result.reset();
+        for (auto& analysis : result.get_current_analyses_map())
+        {
+          analysis.second->set_detector_name(detname);
+        }
+        result.set_store_accepted_event_IDs(store_accepted_ids);
+        if (store_accepted_ids)
+        {
+          #pragma omp critical
+          { RunMC.store_event_ids = true; }
+        }
       }
 
       if (iteration == END_SUBPROCESS && omp_get_thread_num() == 0)
@@ -115,13 +130,8 @@ namespace Gambit
 
       xsec_container Totalxsec = *Dep::TotalCrossSection;
 
-      getAnalysisContainer(result, "ATLAS", *Dep::RunMC, Totalxsec, *Loop::iteration);
-
-      if (*Loop::iteration == COLLIDER_INIT_OMP)
-      {
-        static bool drop_accepted_events_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_events_file");
-        result.set_store_accepted_event_IDs(drop_accepted_events_file);
-      }
+      static bool drop_accepted_events_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_events_file");
+      getAnalysisContainer(result, "ATLAS", *Dep::RunMC, Totalxsec, *Loop::iteration, drop_accepted_events_file);
     }
 
     void getCMSAnalysisContainer(AnalysisContainer& result)
@@ -130,13 +140,8 @@ namespace Gambit
 
       xsec_container Totalxsec = *Dep::TotalCrossSection;
 
-      getAnalysisContainer(result, "CMS", *Dep::RunMC, Totalxsec, *Loop::iteration);
-
-      if (*Loop::iteration == COLLIDER_INIT_OMP)
-      {
-        static bool drop_accepted_events_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_events_file");
-        result.set_store_accepted_event_IDs(drop_accepted_events_file);
-      }
+      static bool drop_accepted_events_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_events_file");
+      getAnalysisContainer(result, "CMS", *Dep::RunMC, Totalxsec, *Loop::iteration, drop_accepted_events_file);
     }
 
     void getIdentityAnalysisContainer(AnalysisContainer& result)
@@ -145,13 +150,8 @@ namespace Gambit
 
       xsec_container Totalxsec = *Dep::TotalCrossSection;
 
-      getAnalysisContainer(result, "Identity", *Dep::RunMC, Totalxsec, *Loop::iteration);
-
-      if (*Loop::iteration == COLLIDER_INIT_OMP)
-      {
-        static bool drop_accepted_events_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_events_file");
-        result.set_store_accepted_event_IDs(drop_accepted_events_file);
-      }
+      static bool drop_accepted_events_file = runOptions->getValueOrDef<bool>(false, "drop_accepted_events_file");
+      getAnalysisContainer(result, "Identity", *Dep::RunMC, Totalxsec, *Loop::iteration, drop_accepted_events_file);
     }
 
   }

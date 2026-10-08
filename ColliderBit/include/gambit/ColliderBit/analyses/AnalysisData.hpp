@@ -26,6 +26,9 @@
 ///          (tomas.gonzalo@kit.edu)
 ///  \date 2023 Aug
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #pragma once
@@ -93,6 +96,7 @@ namespace Gambit
           sr.n_sig_MC = 0;
           sr.n_sig_scaled = 0;
           sr.n_sig_MC_sys = 0;
+          sr.accepted_event_ids.clear();
         }
         srcov = Eigen::MatrixXd();
         bkgjson_path = "";
@@ -136,6 +140,8 @@ namespace Gambit
         {
           // If it does, just update the signal count in the existing SignalRegionData object
           srdata[loc->second].n_sig_MC = srd.n_sig_MC;
+          srdata[loc->second].accepted_event_ids = srd.accepted_event_ids;
+          srdata[loc->second].has_event_records = srd.has_event_records;
         }
         check();
       }

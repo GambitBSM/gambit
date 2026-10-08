@@ -12,12 +12,16 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Jan
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 
 #pragma once
 
 #include <vector>
+#include <set>
 #include "gambit/Utils/util_types.hpp"
 #include "gambit/ColliderBit/MC_convergence.hpp"
 
@@ -54,6 +58,11 @@ namespace Gambit
 
       /// Number of events generated for each collider
       mutable std::map<str,int> event_count;
+
+      /// Iteration IDs for events that completed the nested loop, per collider.
+      std::map<str,std::vector<unsigned int>> completed_event_ids;
+      mutable std::set<unsigned int> rejected_event_ids;
+      mutable bool store_event_ids = false;
 
       /// Convergence options for each collider
       std::map<str,convergence_settings> convergence_options;
@@ -117,10 +126,10 @@ namespace Gambit
       bool current_analyses_exist_for(const str&) const;
 
       /// Set exceeded_maxFailedEvents = true and decrement event counter by 1
-      void report_exceeded_maxFailedEvents() const;
+      void report_exceeded_maxFailedEvents(int iteration) const;
 
       /// Set end_of_event_file = true and decrement event counter by 1
-      void report_end_of_event_file() const;
+      void report_end_of_event_file(int iteration) const;
 
       /// Reset flags
       void reset_flags();

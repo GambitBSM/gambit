@@ -30,6 +30,9 @@
 ///  \author Pengxuan Zhu 
 ///          (pengxuan.zhu@adelaide.edu.au, zhupx99@icloud.com)
 ///  \date 2025 Oct
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #include <stdexcept>
@@ -358,7 +361,6 @@ namespace Gambit
     void AnalysisContainer::set_current_collider(str collider_name)
     {
       current_collider = collider_name;
-      event_count[current_collider] = 0;
     }
 
 

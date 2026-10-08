@@ -40,6 +40,9 @@
 ///  \date 2019 Sep, Oct
 ///  \date 2020 Apr
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
@@ -412,7 +415,7 @@ namespace Gambit
       if(nFailedEvents > RunMC.current_maxFailedEvents())
       {
         // Tell the MCLoopInfo instance that we have exceeded maxFailedEvents
-        RunMC.report_exceeded_maxFailedEvents();
+        RunMC.report_exceeded_maxFailedEvents(iteration);
         if(RunMC.current_invalidate_failed_points())
         {
           piped_invalid_point.request("exceeded maxFailedEvents");

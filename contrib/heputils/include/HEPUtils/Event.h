@@ -25,7 +25,7 @@ namespace HEPUtils {
     /// @{
 
     /// An event ID that can be assigned by the user to keep track of specific events
-    mutable unsigned int _id;
+    mutable unsigned int _id = 0;
 
     /// Event weights
     std::vector<double> _weights;
@@ -149,6 +149,7 @@ namespace HEPUtils {
 
     /// Empty the event's weight, particle, jet, and MET collections
     void clear() {
+      _id = 0;
       // Weights
       _weights.clear();
       _weight_errs.clear();

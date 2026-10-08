@@ -43,6 +43,9 @@
 ///          (gray@chalmers.se)
 ///  \date 2023 Oct
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #pragma once
@@ -427,6 +430,7 @@
   START_CAPABILITY
     #define FUNCTION calc_LHC_signals
     START_FUNCTION(map_str_dbl)
+    DEPENDENCY(RunMC, MCLoopInfo)
     DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(LHCEventLoopInfo, map_str_dbl)
     #undef FUNCTION

@@ -22,6 +22,9 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Feb
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #pragma once
@@ -82,10 +85,6 @@ namespace Gambit
         static std::map<str,std::map<int,AnalysisContainer*> > instances_map;
 
       public:
-
-        /// Event counter for each thread, one for each collider.
-        // mutable static std::map<str,int> event_count;
-        inline static std::map<str,int> event_count;
 
         /// Constructor
         AnalysisContainer();

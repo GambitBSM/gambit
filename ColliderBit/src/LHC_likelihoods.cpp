@@ -43,9 +43,13 @@
 ///          (tomas.gonzalo@kit.edu)
 ///  \date 2023 Aug
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #include <string>
+#include <fstream>
 #include <sstream>
 
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -54,6 +58,8 @@
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/util_macros.hpp"
 #include "gambit/ColliderBit/Utils.hpp"
+#include "gambit/ColliderBit/analyses/AcceptedEvents.hpp"
+#include "gambit/Utils/mpiwrapper.hpp"
 
 #include "multimin/multimin.hpp"
 
@@ -70,12 +76,11 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    // Helper function to write a csv file with the
-    // content of a vector<vector<unsigned int>>
-    void write_csv(const std::string& filename,
-                   const std::vector<std::string>& headers,
-                   const std::vector<std::vector<unsigned int>>& columns,
-                   char sep = ',')
+    // Append aligned acceptance rows, retaining exactly one matching header.
+    static void write_csv(const std::string& filename,
+                          const std::vector<std::string>& headers,
+                          const std::vector<std::vector<unsigned int>>& columns,
+                          char sep = ',')
     {
       if (columns.empty()) { return; }
 
@@ -94,20 +99,40 @@ namespace Gambit
         }
       }
 
-      // Open file for writing
-      std::ofstream out{filename};
-      if (!out)
-      {
-        ColliderBit_error().raise(LOCAL_INFO, "Failed to open " + filename + " for writing.");
-      }
-
-      // Write header
+      std::ostringstream header_stream;
       for (std::size_t c = 0; c < headers.size(); ++c)
       {
-        out << headers[c];
-        if (c + 1 < headers.size()) out << sep;
+        if (c != 0) header_stream << sep;
+        header_stream << headers[c];
       }
-      out << '\n';
+      const std::string header = header_stream.str();
+
+      bool write_header = true;
+      if (Utils::file_exists(filename))
+      {
+        std::ifstream existing(filename, std::ios::binary);
+        if (!existing)
+          ColliderBit_error().raise(LOCAL_INFO, "Failed to read " + filename + " before appending.");
+        if (existing.peek() != std::ifstream::traits_type::eof())
+        {
+          std::string existing_header;
+          std::getline(existing, existing_header);
+          if (!existing_header.empty() && existing_header.back() == '\r') existing_header.pop_back();
+          if (existing_header != header)
+            ColliderBit_error().raise(LOCAL_INFO,
+              "Cannot append accepted events to " + filename + ": signal-region headers differ.");
+          existing.seekg(-1, std::ios::end);
+          if (existing.get() != '\n')
+            ColliderBit_error().raise(LOCAL_INFO,
+              "Cannot append accepted events to " + filename + ": the last row is incomplete.");
+          write_header = false;
+        }
+      }
+
+      std::ofstream out(filename, std::ios::app);
+      if (!out)
+        ColliderBit_error().raise(LOCAL_INFO, "Failed to open " + filename + " for appending.");
+      if (write_header) out << header << '\n';
 
       // Write data rows
       for (std::size_t r = 0; r < nrows; ++r)
@@ -119,7 +144,89 @@ namespace Gambit
         }
         out << '\n';
       }
+      out.flush();
+      if (!out)
+        ColliderBit_error().raise(LOCAL_INFO, "Failed to write accepted events to " + filename + ".");
+    }
 
+
+    /// Export a batch of completed events. IDs are local to the batch: only the
+    /// aligned 0/1 rows are persisted, so IDs may restart in the next batch.
+    void export_accepted_events(
+      const std::vector<AnalysisData*>& analyses,
+      const std::map<std::string, std::vector<unsigned int>>& completed_event_ids)
+    {
+      // MPI scan workers must not append concurrently to the same file.
+      std::string rank_suffix;
+      #ifdef WITH_MPI
+        if (GMPI::Is_initialized())
+        {
+          const GMPI::Comm comm;
+          if (comm.Get_size() > 1) rank_suffix = "__rank" + std::to_string(comm.Get_rank());
+        }
+      #endif
+
+      // Filename --> vec<vec<int>> map, to hold the data to be written to files
+      std::map<str,std::vector<std::vector<unsigned int>>> accepted_events_file_data;
+
+      // Filename --> vec<str> map, to hold header entries
+      std::map<str,std::vector<str>> accepted_events_file_header;
+
+      // Use one sorted row mapping for all detectors/SRs of each collider.
+      std::map<str,std::map<unsigned int,size_t>> event_rows;
+      for (const auto& collider : completed_event_ids)
+      {
+        auto& rows = event_rows[collider.first];
+        for (unsigned int id : collider.second) rows.emplace(id, 0);
+        size_t row = 0;
+        for (auto& entry : rows) entry.second = row++;
+      }
+
+      // Loop over analyses
+      for (size_t analysis = 0; analysis < analyses.size(); ++analysis)
+      {
+        const AnalysisData& ana_data = *(analyses.at(analysis));
+
+        // Construct filename
+        str filename = "accepted_events__" + ana_data.collider_name + "__" + ana_data.detector_name + rank_suffix + ".csv";
+
+        const auto& rows = event_rows.at(ana_data.collider_name);
+
+        // Loop over the signal regions
+        for (size_t SR = 0; SR < ana_data.size(); ++SR)
+        {
+          const str sr_label = ana_data[SR].sr_label;
+
+          const SignalRegionData& sr = ana_data[SR];
+          if (!sr.has_event_records)
+          {
+            ColliderBit_error().raise(LOCAL_INFO,
+              "Accepted-event export is unavailable for " + ana_data.analysis_name + "::" + sr_label
+              + ": event recording was not enabled or this signal region does not provide event records.");
+          }
+          std::vector<unsigned int> accepted(rows.size(), 0);
+          for (unsigned int event_id : sr.accepted_event_ids)
+          {
+            const auto row = rows.find(event_id);
+            // An iteration that failed after one detector ran is not a completed event.
+            if (row != rows.end()) accepted[row->second] = 1;
+          }
+
+          // Store the accepted_events_file_data map
+          accepted_events_file_data[filename].push_back(accepted);
+
+          // Create and store header entry
+          const str header = ana_data.analysis_name + "::" + sr_label + "__i" + std::to_string(SR);
+          accepted_events_file_header[filename].push_back(header);
+        }
+      }
+
+      // Now write each file
+      for (const auto& kv : accepted_events_file_data)
+      {
+        const str& filename = kv.first;
+        write_csv(filename, accepted_events_file_header.at(filename), accepted_events_file_data.at(filename));
+      }
     }
 
 
@@ -162,57 +269,7 @@ namespace Gambit
       if (drop_accepted_events_file)
       {
 
-        // Filename --> vec<vec<int>> map, to hold the data to be written to files
-        std::map<str,std::vector<std::vector<unsigned int>>> accepted_events_file_data;
-
-        // Filename --> vec<str> map, to hold header entries
-        std::map<str,std::vector<str>> accepted_events_file_header;
-
-        // Get the loop info for the number of events
-        map_str_dbl loop_info = *Dep::LHCEventLoopInfo;
-
-        // Loop over analyses
-        for (size_t analysis = 0; analysis < Dep::AllAnalysisNumbers->size(); ++analysis)
-        {
-          const AnalysisData& ana_data = *(Dep::AllAnalysisNumbers->at(analysis));
-
-          // Construct filename
-          str filename = "accepted_events__" + ana_data.collider_name + "__" + ana_data.detector_name + ".csv";
-
-          // Get count of generated events
-          int n_generated_events = loop_info.at("event_count_" + ana_data.collider_name);
-
-          // Loop over the signal regions
-          for (size_t SR = 0; SR < ana_data.size(); ++SR)
-          {
-            const str sr_label = ana_data[SR].sr_label;
-
-            // Get the IDs of the accepted events for this SR
-            std::vector<unsigned int> accepted_event_IDs = ana_data._counters.at(sr_label).get_event_acceptance_record();
-
-            // Convert to a vector of 0/1 for each generated event
-            std::vector<unsigned int> accepted(n_generated_events, 0);
-            for (int event_id : accepted_event_IDs)
-            {
-              size_t idx = event_id - 1;
-              accepted.at(idx) = 1;
-            }
-
-            // Store the accepted_events_file_data map
-            accepted_events_file_data[filename].push_back(accepted);
-
-            // Create and store header entry
-            const str header = ana_data.analysis_name + "::" + sr_label + "__i" + std::to_string(SR);
-            accepted_events_file_header[filename].push_back(header);
-          }
-        }
-
-        // Now write each file
-        for (const auto& kv : accepted_events_file_data)
-        {
-          const str& filename = kv.first;
-          write_csv(filename, accepted_events_file_header.at(filename), accepted_events_file_data.at(filename));
-        }
+        export_accepted_events(*Dep::AllAnalysisNumbers, Dep::RunMC->completed_event_ids);
       }
 
       logger() << LogTags::debug << summary_line.str() << EOM;

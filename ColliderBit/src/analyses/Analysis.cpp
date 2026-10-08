@@ -26,6 +26,9 @@
 ///          (tomas.gonzalo@kit.edu)
 ///  \date 2023 Aug
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #include <vector>
@@ -46,6 +49,7 @@ namespace Gambit
       _is_scaled = false;
       _needs_collection = true;
       _results.clear();
+      for (auto& counter : _counters) counter.second.reset();
       _cutflows = Cutflows();
       _histograms = Histograms();
       analysis_specific_reset();
@@ -110,31 +114,6 @@ namespace Gambit
       {
         collect_results();
         _needs_collection = false;
-      }
-
-      // Collect the SR names for all SRs that have been added to _results
-      std::vector<std::string> SRs_in_results;
-      SRs_in_results.reserve(_results.srdata_identifiers.size());
-      for (auto const& kv : _results.srdata_identifiers)
-      {
-       SRs_in_results.push_back(kv.first);
-      }
-
-      // In _results, clear the EventCounter::_event_acceptance_record
-      // vector for each SR that has not been added to _result.
-      // (Reminder: _counters is a reference to _results._counters.)
-      for (auto& kv : _counters)
-      {
-        const str& SR_name = kv.first;
-        EventCounter& counter = kv.second;
-        if (counter.store_accepted_event_IDs())
-        {
-          // If SR_name not in SRs_in_results, clear the event acceptance record
-          if (std::find(SRs_in_results.begin(), SRs_in_results.end(), SR_name) == SRs_in_results.end())
-          {
-            counter.clear_event_acceptance_record();
-          }
-        }
       }
 
       return _results;
@@ -238,6 +217,8 @@ namespace Gambit
     /// Set the store_accepted_event_IDs bool for the EventCounter instances in this analysis
     void Analysis::set_store_accepted_event_IDs(bool setting)
     {
+      for (auto& histogram : _histograms.histos1d)
+        histogram.store_accepted_event_ids = setting;
       for (auto& kv : _counters)
       {
         // kv.first (key) is the SR name

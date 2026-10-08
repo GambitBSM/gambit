@@ -34,6 +34,9 @@
 ///           (tsp116@ic.ac.uk)
 ///  \date 2020 June
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #include "gambit/cmake/cmake_variables.hpp"
@@ -336,10 +339,9 @@ namespace Gambit
       if (not event_retrieved)
       {
         // Tell the MCLoopInfo instance that we have reached the end of the file
-        RunMC.report_end_of_event_file();
+        RunMC.report_end_of_event_file(iteration);
         halt();
       }
-      if (not event_retrieved) halt();
 
    }
     /// A nested function that reads in HepMC event files

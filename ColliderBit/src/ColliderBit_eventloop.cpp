@@ -36,6 +36,9 @@
 ///          (tomas.gonzalo@kit.edu)
 ///  \date 2023 Aug
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -252,6 +255,12 @@ namespace Gambit
         // Update the collider
         result.set_current_collider(collider);
 
+        // Keep iteration IDs monotonic even when failed events reduce ntot.
+        int next_event_id = 0;
+        result.completed_event_ids[collider].clear();
+        result.rejected_event_ids.clear();
+        result.store_event_ids = false;
+        std::vector<unsigned int>& completed_ids = result.completed_event_ids.at(collider);
         // Initialise the count of the number of generated events.
         result.current_event_count() = 0;
 
@@ -342,7 +351,7 @@ namespace Gambit
                     or (!fixed_nEvents && result.current_event_count() < result.desired_nEvents[collider]))
                 {
                   result.current_event_count()++;
-                  thread_my_iteration = result.current_event_count();
+                  thread_my_iteration = ++next_event_id;
                   eventCountBetweenConvergenceChecks++;
                 }
                 else
@@ -357,6 +366,15 @@ namespace Gambit
                 {
                   // Execute event loop iteration
                   Loop::executeIteration(thread_my_iteration);
+                  if (result.store_event_ids)
+                  {
+                    #pragma omp critical
+                    {
+                      // EOF/failed-generation iterations do not contain an event.
+                      if (result.rejected_event_ids.count(thread_my_iteration) == 0)
+                        completed_ids.push_back(thread_my_iteration);
+                    }
+                  }
                 }
                 catch (std::domain_error& e)
                 {

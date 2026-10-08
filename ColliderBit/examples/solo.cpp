@@ -26,6 +26,7 @@
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/cats.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
+#include "gambit/ColliderBit/analyses/AcceptedEvents.hpp"
 #include "fastjet/ClusterSequence.hh"
 #include "solo_batch.hpp"
 #include "solo_cli.hpp"
@@ -644,6 +645,13 @@ int main(int argc, char* argv[])
     AnalysisNumbers.setOption<bool>("print_cutflows", false);
     AnalysisNumbers.setOption<bool>("normalized_cutflows", false);
 
+    // Record and export the same acceptance matrix as full ColliderBit.
+    // Batch children inherit this setting and append their completed-event rows.
+    const bool drop_accepted_events_file = settings.getValueOrDef<bool>(false, "drop_accepted_events_file");
+    getATLASAnalysisContainer.setOption<bool>("drop_accepted_events_file", drop_accepted_events_file);
+    getCMSAnalysisContainer.setOption<bool>("drop_accepted_events_file", drop_accepted_events_file);
+    getIdentityAnalysisContainer.setOption<bool>("drop_accepted_events_file", drop_accepted_events_file);
+
     // Initialise settings for printer (required)
     YAML::Node printerNode = get_standalone_printer("cout", "CBS_logs/", "");
     Printers::PrinterManager printerManager(printerNode, false);
@@ -856,6 +864,8 @@ int main(int argc, char* argv[])
     InitialTotalCrossSection_CBS.reset_and_calculate();
     operateLHCLoop.reset_and_calculate();
     CollectAnalyses.reset_and_calculate();
+    if (drop_accepted_events_file)
+      ColliderBit::export_accepted_events(CollectAnalyses(0), operateLHCLoop(0).completed_event_ids);
     calcLogLikes->reset_and_calculate();
     get_LHC_LogLike_per_analysis.reset_and_calculate();
     calc_combined_LHC_LogLike.reset_and_calculate();

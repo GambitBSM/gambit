@@ -12,6 +12,9 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 May
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #include "gambit/cmake/cmake_variables.hpp"
@@ -85,7 +88,7 @@ namespace Gambit
       if (not event_retrieved)
       {
         // Tell the MCLoopInfo instance that we have reached the end of the file
-        Dep::RunMC->report_end_of_event_file();
+        Dep::RunMC->report_end_of_event_file(*Loop::iteration);
         Loop::halt();
       }
 
