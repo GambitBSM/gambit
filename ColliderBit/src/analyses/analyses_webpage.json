@@ -1,0 +1,1984 @@
+{
+    "version": "2.7.0",
+    "date_created": "2026-10-04T15:59:13.554850+00:00",
+    "analyses": [
+        {
+            "inspire_id": -1,
+            "name": "ATLAS_8TeV_1LEPbb_20invfb",
+            "authors": [
+                "Rose Kudzman-Blais"
+            ],
+            "exp": "ATLAS",
+            "run": "R1.5",
+            "summary": "ATLAS lepton + 2 b-jet search at 8 TeV with 20/fb",
+            "luminosity": 20.3,
+            "ecm": 8.0,
+            "sign": [
+                "1L + 2B + MET + MT"
+            ],
+            "keyword": [
+                "1lepton",
+                "bjets",
+                "met",
+                "mct"
+            ],
+            "note": "The source contains no stable ATLAS paper, CONF-note, DOI, arXiv or INSPIRE record identifier; keep InspireID=-1 rather than guessing.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1229945,
+            "name": "ATLAS_CONF_2013_037",
+            "authors": [
+                "Martin White",
+                "Sky French"
+            ],
+            "exp": "ATLAS",
+            "run": "R1.5",
+            "summary": "ATLAS one-lepton direct top-squark search at 8 TeV with 20.7/fb",
+            "luminosity": 20.7,
+            "ecm": 8.0,
+            "sign": [
+                "1L + >=4J + >=1B + MET + MT"
+            ],
+            "keyword": [
+                "top-squark",
+                "1lepton",
+                "bjets",
+                "met"
+            ],
+            "note": "The published companion paper is INSPIRE 1304456; this implementation follows ATLAS-CONF-2013-037.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1480058,
+            "name": "ATLAS_CONF_2016_078",
+            "authors": [
+                "Martin White"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS 0-lepton jet+MET recursive-jigsaw SUSY analysis, with 13/fb of data",
+            "luminosity": 13.3,
+            "ecm": 13.0,
+            "sign": [
+                "0L + MET + >=2J + MEFF"
+            ],
+            "keyword": [
+                "0lepton",
+                "jets",
+                "met",
+                "recursive-jigsaw"
+            ],
+            "note": "Superseded by the 36/fb paper, INSPIRE 1641270. Signal regions based on recursive jigsaw are not used as validation fails.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1602531,
+            "name": "ATLAS_CONF_2017_039",
+            "authors": [
+                "Rose Kudzman-Blais"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS 2/3-lepton SUSY search at 13 TeV with 36/fb",
+            "luminosity": 36.1,
+            "ecm": 13.0,
+            "sign": [
+                "2L + OSSF + MET",
+                "2L + OSOF + MET",
+                "3L + OSSF + MET"
+            ],
+            "keyword": [
+                "multilepton",
+                "electroweakinos",
+                "met"
+            ],
+            "note": "Superseded by the published analysis, INSPIRE 1658902.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1676307,
+            "name": "ATLAS_CONF_2018_019",
+            "authors": [
+                "Andy Buckley"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS ZH->photon+gravitino search at 13 TeV with 80/fb",
+            "luminosity": 79.8,
+            "ecm": 13.0,
+            "sign": [
+                "2L + 1P + MET"
+            ],
+            "keyword": [
+                "higgs",
+                "photon",
+                "gravitino",
+                "met"
+            ],
+            "note": "CONF note; no eventual paper record was identified for this exact result.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1684182,
+            "name": "ATLAS_CONF_2018_042",
+            "authors": [
+                "Yang Zhang"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS 2-lepton + MET chargino pair-production search at 13 TeV with 80/fb",
+            "luminosity": 80.5,
+            "ecm": 13.0,
+            "sign": [
+                "2L + OSOF + MET + MT2",
+                "2L + OSSF + MET + MT2"
+            ],
+            "keyword": [
+                "dilepton",
+                "chargino",
+                "met",
+                "mt2"
+            ],
+            "note": "Based on CONF note, superseded by 139/fb paper",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1750597,
+            "name": "ATLAS_CONF_2019_008",
+            "authors": [
+                "Yang Zhang",
+                "Anders Kvellestad",
+                "Roberto Ruiz"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS 2-lepton + MET chargino and slepton search, including EW signal regions, at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "2L + 1OSSF + 0J + MET",
+                "2L + 1OSSF + 1J + 0B + MET",
+                "2L + 1OSOF + 0J + MET",
+                "2L + 1OSOF + 1J + 0B + MET",
+                "=2L + OSSF + 0J + MET + MT2",
+                "=2L + OSOF + 0J + MET + MT2",
+                "=2L + >=1J + MET + MT2"
+            ],
+            "keyword": [
+                "dilepton",
+                "electroweakinos",
+                "sleptons",
+                "met",
+                "mt2",
+                "bdt"
+            ],
+            "note": "Analysis_ATLAS_CONF_2019_008.cpp contains the inclusive/binned chargino implementations, while Analysis_ATLAS_SUSY_2019_02.cpp implements the electroweak subset; both use INSPIRE 1750597. The original CONF record is INSPIRE 1726185.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1664317,
+            "name": "ATLAS_EXOT_2016_013",
+            "authors": [
+                "Pengxuan Zhu"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS vector-like T-quark pair-production search with multiple b-jets at 13 TeV with 36.1/fb",
+            "luminosity": 36.1,
+            "ecm": 13.0,
+            "sign": [
+                "0L + >=7J + >=2B",
+                "1L + >=6J + >=3B"
+            ],
+            "keyword": [
+                "vectorlikequark",
+                "multibjet",
+                "Higgs-tag",
+                "top-tag",
+                "large-R-jet"
+            ],
+            "note": "The signal regions require at least one large-R Higgs/Top tagged jet, with the tag category inclusive over Higgs-tagged and top-tagged jets; the formal signature records the lepton, jet and b-jet content.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1609451,
+            "name": "ATLAS_EXOT_2016_014",
+            "authors": [
+                "Pengxuan Zhu"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS vector-like T/B-quark pair-production search in the lepton-plus-jets Wb channel at 13 TeV with 36.1/fb",
+            "luminosity": 36.1,
+            "ecm": 13.0,
+            "sign": [
+                "1L + >=1W + >=1B + >=1J + MET"
+            ],
+            "keyword": [
+                "vectorlikequark",
+                "leptonjets"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1709842,
+            "name": "ATLAS_EXOT_2016_017",
+            "authors": [
+                "Pengxuan Zhu"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS single vector-like T/Y-quark production search in the Wb channel at 13 TeV with 36.1/fb",
+            "luminosity": 36.1,
+            "ecm": 13.0,
+            "sign": [
+                "1L + >=1B + >=1J + MET"
+            ],
+            "keyword": [
+                "vectorlikequark",
+                "singleproduction",
+                "forward-jet"
+            ],
+            "note": "In addition to the central b-jet and missing-momentum selection, the analysis requires at least one forward jet with pT > 40 GeV and 2.5 < |eta| < 4.5.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1847779,
+            "name": "ATLAS_EXOT_2018_06",
+            "authors": [
+                "Chris Chang",
+                "Anders Kvellestad",
+                "Tomas Gonzalo"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS monojet + MET search at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                ">=1J + MET + 0L + 0TH + 0P"
+            ],
+            "keyword": [
+                "0lepton",
+                "jetmet"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 2686498,
+            "name": "ATLAS_EXOT_2019_04",
+            "authors": [
+                "Pengxuan Zhu"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS single vector-like B-quark production search in the B->bH(bb) channel at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "0L + >=3B + >=1J + >=1H"
+            ],
+            "keyword": [
+                "vectorlikequark",
+                "singleproduction",
+                "boosted-higgs",
+                "forward-jet",
+                "Higgs-tag"
+            ],
+            "note": "The signal topology contains a boosted Higgs-tagged large-R jet reconstructed in H->bb, at least three b-tagged jets, and at least one forward jet; the forward-jet requirement is pT > 40 GeV with 2.5 < |eta| < 4.5.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 2013051,
+            "name": "ATLAS_EXOT_2019_07",
+            "authors": [
+                "Holly Pacey",
+                "Pengxuan Zhu"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS single vector-like T-quark production search in the fully hadronic T->Ht channel at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "0L + >=1H + >=1T + >=3B"
+            ],
+            "keyword": [
+                "vectorlikequark",
+                "singleproduction",
+                "fully-hadronic",
+                "Higgs-tag",
+                "top-tag",
+                "large-R-jet"
+            ],
+            "note": "The fully hadronic signal region requires one Higgs-tagged large-R jet consistent with H->bb and one top-tagged large-R jet, together with at least three associated b-tagged jets. The source sets a rounded luminosity of 140/fb; the publication metadata and analysis description use 139/fb.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 2791855,
+            "name": "ATLAS_EXOT_2021_35",
+            "authors": [
+                "Pengxuan Zhu"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS light-flavour vector-like quark pair-production search in the Wq channel at 13 TeV with 140/fb",
+            "luminosity": 140.0,
+            "ecm": 13.0,
+            "sign": [
+                "1L + >=1W + >=2J + MET"
+            ],
+            "keyword": [
+                "vectorlikequark",
+                "lightflavour",
+                "leptonjets"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1128464,
+            "name": "ATLAS_SUSY_2012_04",
+            "authors": [
+                "D. Steiner",
+                "Martin White"
+            ],
+            "exp": "ATLAS",
+            "run": "R1",
+            "summary": "ATLAS direct light top-squark search in dilepton final states at 7 TeV with 4.7/fb",
+            "luminosity": 4.7,
+            "ecm": 7.0,
+            "sign": [
+                "2L + OSL + MET + MT2"
+            ],
+            "keyword": [
+                "top-squark",
+                "dilepton",
+                "met",
+                "mt2"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1184952,
+            "name": "ATLAS_SUSY_2012_10",
+            "authors": [
+                "D. Steiner",
+                "Martin White"
+            ],
+            "exp": "ATLAS",
+            "run": "R1",
+            "summary": "ATLAS direct top-squark search in one/two-lepton plus b-jet final states at 7 TeV with 4.7/fb",
+            "luminosity": 4.7,
+            "ecm": 7.0,
+            "sign": [
+                "1L + >=1B + MET + MT",
+                "=2L + OSL + >=1B + MET"
+            ],
+            "keyword": [
+                "top-squark",
+                "leptons",
+                "bjets",
+                "met"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1298722,
+            "name": "ATLAS_SUSY_2013_02",
+            "authors": [
+                "Martin White"
+            ],
+            "exp": "ATLAS",
+            "run": "R1.5",
+            "summary": "ATLAS squark and gluino search in zero-lepton jets plus MET final states at 8 TeV with 20.3/fb",
+            "luminosity": 20.3,
+            "ecm": 8.0,
+            "sign": [
+                "0L + MET + >=2J + MEFF"
+            ],
+            "keyword": [
+                "0lepton",
+                "jets",
+                "met",
+                "meff",
+                "squarks",
+                "gluinos"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1247462,
+            "name": "ATLAS_SUSY_2013_05",
+            "authors": [
+                "Martin White",
+                "Sky French"
+            ],
+            "exp": "ATLAS",
+            "run": "R1.5",
+            "summary": "ATLAS direct third-generation squark search with two b-jets and MET at 8 TeV with 20.1/fb",
+            "luminosity": 20.1,
+            "ecm": 8.0,
+            "sign": [
+                "0L + MET + >=2B + >=2J",
+                "0L + MET + >=2B + >=3J"
+            ],
+            "keyword": [
+                "sbottom",
+                "top-squark",
+                "bjets",
+                "met",
+                "mct"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1286761,
+            "name": "ATLAS_SUSY_2013_11",
+            "authors": [
+                "Martin White"
+            ],
+            "exp": "ATLAS",
+            "run": "R1.5",
+            "summary": "ATLAS direct chargino, neutralino and slepton search in dilepton plus MET final states at 8 TeV with 20.3/fb",
+            "luminosity": 20.3,
+            "ecm": 8.0,
+            "sign": [
+                "2L + OSSF + MET + MT2",
+                "2L + OSOF + MET + MT2"
+            ],
+            "keyword": [
+                "dilepton",
+                "electroweakinos",
+                "sleptons",
+                "met",
+                "mt2"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1282905,
+            "name": "ATLAS_SUSY_2013_12",
+            "authors": [
+                "Martin White"
+            ],
+            "exp": "ATLAS",
+            "run": "R1.5",
+            "summary": "ATLAS direct chargino and neutralino search in three-lepton plus MET final states at 8 TeV with 20.3/fb",
+            "luminosity": 20.3,
+            "ecm": 8.0,
+            "sign": [
+                "3L + OSSF + MET",
+                "3L + MET"
+            ],
+            "keyword": [
+                "trilepton",
+                "electroweakinos",
+                "met"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1299143,
+            "name": "ATLAS_SUSY_2013_16",
+            "authors": [
+                "Martin White",
+                "Sky French"
+            ],
+            "exp": "ATLAS",
+            "run": "R1.5",
+            "summary": "ATLAS direct top-squark search in all-hadronic final states at 8 TeV with 20.1/fb",
+            "luminosity": 20.1,
+            "ecm": 8.0,
+            "sign": [
+                "0L + MET + >=2J + MT2",
+                "0L + MET + >=4J + >=1B"
+            ],
+            "keyword": [
+                "top-squark",
+                "0lepton",
+                "all-hadronic",
+                "met",
+                "mt2"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1286444,
+            "name": "ATLAS_SUSY_2013_19",
+            "authors": [
+                "Martin White",
+                "Sky French"
+            ],
+            "exp": "ATLAS",
+            "run": "R1.5",
+            "summary": "ATLAS direct top-squark search in dilepton final states at 8 TeV with 20.3/fb",
+            "luminosity": 20.3,
+            "ecm": 8.0,
+            "sign": [
+                "2L + OSL + MET + MT2",
+                "2L + OSL + MET + MEFF"
+            ],
+            "keyword": [
+                "top-squark",
+                "dilepton",
+                "met",
+                "mt2"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1639856,
+            "name": "ATLAS_SUSY_2016_06",
+            "authors": [
+                "Martin White"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS 1-lepton + jets + MET top-squark pair search at 13 TeV using 36/fb",
+            "luminosity": 36.0,
+            "ecm": 13.0,
+            "sign": [
+                "1L + >=4J + >=1B + MET",
+                "1L + >=4J + >=1B + MET",
+                "1L + >=5J + >=1B + MET",
+                "1L + >=2J + >=1B + MET",
+                "1L + >=4J + >=2B + MET",
+                "1L + >=2J + 0B + MET",
+                "1L + >=3J + >=3B + MET",
+                "1L + >=2J + >=2B + MET"
+            ],
+            "keyword": [
+                "bdt",
+                "soft lepton",
+                "mT2"
+            ],
+            "note": "3rd signal region uses >4/5 GeV leptons. Various BDTs and shape fits involved. Not used.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1641270,
+            "name": "ATLAS_SUSY_2016_07",
+            "authors": [
+                "Yang Zhang"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS 0-lepton jet+MET SUSY analysis, with 36/fb of data",
+            "luminosity": 36.1,
+            "ecm": 13.0,
+            "sign": [
+                "0L + >=2J + MET + MEFF",
+                "0L + >=3J + MET + MEFF",
+                "0L + >=4J + MET + MEFF",
+                "0L + >=5J + MET + MEFF",
+                "0L + >=6J + MET + MEFF"
+            ],
+            "keyword": [
+                "0lepton",
+                "jigsaw",
+                "meff"
+            ],
+            "note": "Recursive jigsaw SRs have similar selection topologies to Meff-based SRs, but different cut variables.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1623207,
+            "name": "ATLAS_SUSY_2016_15",
+            "authors": [
+                "Martin White"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS jets+MET top-squark search at 13 TeV with 36/fb",
+            "luminosity": 36.0,
+            "ecm": 13.0,
+            "sign": [
+                "0L + >=4J + >=1B + MET + 2T",
+                "0L + >=4J + >=1B + MET + 1T + 1W",
+                "0L + >=4J + >=1B + MET + 1T",
+                "0L + >=5J + >=1B + MET"
+            ],
+            "keyword": [
+                "0lepton",
+                "top reco",
+                "ISR",
+                "hemispheres"
+            ],
+            "note": "No explicit tau veto is applied in this implementation; signal regions based on recursive jigsaw are also not used as validation fails.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1667045,
+            "name": "ATLAS_SUSY_2016_21",
+            "authors": [
+                "Anders Kvellestad"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS >=4-lepton SUSY search at 13 TeV with 36/fb",
+            "luminosity": 36.1,
+            "ecm": 13.0,
+            "sign": [
+                ">=4L + MET"
+            ],
+            "keyword": [
+                "multilepton",
+                "electroweakinos",
+                "met"
+            ],
+            "note": "Only SRs with zero taus have been implemented.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1658902,
+            "name": "ATLAS_SUSY_2016_24",
+            "authors": [
+                "Rose Kudzman-Blais",
+                "Anders Kvellestad"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS 2/3-lepton SUSY search at 13 TeV with 36/fb",
+            "luminosity": 36.1,
+            "ecm": 13.0,
+            "sign": [
+                "2L + 0J",
+                "2L + >=2J + 0B + MET + 1Z + 1W",
+                "2L + >=2J + 0B + MET + 1Z",
+                "3L + MET",
+                "3L + 0J + MET",
+                "3L + >=1J + 0B + MET"
+            ],
+            "keyword": [
+                "leptons"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1654357,
+            "name": "ATLAS_SUSY_2016_27",
+            "authors": [
+                "Martin White"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS photonic GMSB search at 13 TeV with 36/fb",
+            "luminosity": 36.1,
+            "ecm": 13.0,
+            "sign": [
+                "1P + MET",
+                "2P + MET"
+            ],
+            "keyword": [
+                "photon",
+                "gauge-mediation",
+                "met"
+            ],
+            "note": "The later 139/fb photon+jets+MET publication is INSPIRE 2094882; this 36.1/fb record is retained for the implemented analysis.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1620694,
+            "name": "ATLAS_SUSY_2016_28",
+            "authors": [
+                "Martin White"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS SUSY search with b-tagged jets and MET at 13 TeV with 36.1/fb",
+            "luminosity": 36.1,
+            "ecm": 13.0,
+            "sign": [
+                "0L + >=2J + <=4J + 2B + MET",
+                "0L + >=2J + <=5J + >=1B + MET + MEFF",
+                "1L + >=2J + 2B + MET + MEFF",
+                "1L + =2J + 2B + MET + MEFF"
+            ],
+            "keyword": [
+                "meff",
+                "mT2",
+                "mbb"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1615470,
+            "name": "ATLAS_SUSY_2017_01",
+            "authors": [
+                "Yang Zhang"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS 2-lepton top-squark pair search at 13 TeV with 36.1/fb",
+            "luminosity": 36.1,
+            "ecm": 13.0,
+            "sign": [
+                "2L + 1OSSF + 0B + 0Z",
+                "2L + 1OSOF + 0B",
+                "2L + 1OSSF + >=2J + >=1B + 0Z",
+                "2L + 1OSOF + >=2J + >=1B",
+                "2L + 1OSSF + >=3J + >=1B + 0Z +MET",
+                "2L + 1OSOF + >=3J + >=1B + MET",
+                "3L + 1OSSF + 0B + 0Z",
+                "3L + 1OSOF + 0B",
+                "3L + 1OSSF + >=1B + 0Z",
+                "3L + 1OSOF + >=1B",
+                "4L + >=1OSL + >=2J + 0B + MET"
+            ],
+            "keyword": [
+                "leptons",
+                "razor",
+                "mT2"
+            ],
+            "note": "b-jet veto in 4L region is only on jets 1 & 2.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1677389,
+            "name": "ATLAS_SUSY_2017_02",
+            "authors": [
+                "Are Raklev"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS >=3 b-jet higgsino pair-production search at 13 TeV using complementary 24.3/fb and 36.1/fb selections",
+            "luminosity": 24.3,
+            "ecm": 13.0,
+            "sign": [
+                "3B + >=4J + <=5J + 2H + MET",
+                ">=3B + >=4J + <=5J + 2H + MET",
+                ">=4B + >=4J + <=5J + 2H + MET",
+                ">=4B + >=4J + <=6J + 2H + MET"
+            ],
+            "keyword": [
+                "bjets",
+                "higgs"
+            ],
+            "note": "Analysis_ATLAS_SUSY_2017_02.cpp implements the low-mass 24.3/fb selection, while Analysis_ATLAS_SUSY_2017_02_36invfb.cpp implements the high-mass 36.1/fb selection; both use INSPIRE 1677389. The discovery regions are separated into derived classes.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1676551,
+            "name": "ATLAS_SUSY_2017_03_RJR",
+            "authors": [
+                "Martin White"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS 2/3-lepton recursive-jigsaw search at 13 TeV with 36/fb",
+            "luminosity": 36.1,
+            "ecm": 13.0,
+            "sign": [
+                "2L + >=2J + 0B",
+                "2L + >=3J + 0B"
+            ],
+            "keyword": [
+                "jigsaw",
+                "isr",
+                "leptons"
+            ],
+            "note": "The source uses a rounded 36.0/fb value; the ATLAS Run-2 dataset metadata is retained as 36.1/fb here.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1852821,
+            "name": "ATLAS_SUSY_2018_02",
+            "authors": [
+                "Anders Kvellestad",
+                "Victor Ananyev"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS >4-lepton SUSY search at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                ">=4L + 0B + 2Z + MET",
+                ">=4L + 2Z + MET",
+                ">=4L + 0B + 0Z",
+                ">=4L + >=1B + 0Z",
+                "3L + >=1TH + 0B",
+                "3L + >=1TH + >=1B",
+                "2L + >=2TH + 0B + 0Z",
+                "2L + >=2TH + >=1B + 0Z",
+                ">=5L"
+            ],
+            "keyword": [
+                "leptons"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 2072870,
+            "name": "ATLAS_SUSY_2018_05",
+            "authors": [
+                "Martin White",
+                "Chris Chang"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS search for new phenomena in two-lepton, jets and MET final states at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "=2L + OSL + >=2J + MET + MT2",
+                "=2L + OSSF + >=2J + MET + MT2"
+            ],
+            "keyword": [
+                "dilepton",
+                "electroweakinos",
+                "top-squark",
+                "met",
+                "mt2",
+                "recursive-jigsaw"
+            ],
+            "note": "The EW and recursive-jigsaw implementations in Analysis_ATLAS_SUSY_2018_05.cpp and Analysis_ATLAS_SUSY_2018_05_RJR.cpp share this publication record.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1771533,
+            "name": "ATLAS_SUSY_2018_06",
+            "authors": [
+                "Martin White"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "CMS Search for chargino-neutralino production with mass splittings near the electroweak scale in three-lepton final states",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "3L"
+            ],
+            "keyword": "",
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1835604,
+            "name": "ATLAS_SUSY_2018_07",
+            "authors": [
+                "Martin White"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS top-pair plus MET search in one-lepton, jets and missing-momentum final states at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "1L + >=4J + >=1B + MET + MT2",
+                "1L + >=4J + >=1B + MET + T"
+            ],
+            "keyword": [
+                "top-pair",
+                "1lepton",
+                "jets",
+                "met",
+                "top"
+            ],
+            "note": "",
+            "validation": "incomplete (unvalidated; signal-region counters are not filled)"
+        },
+        {
+            "inspire_id": 1844425,
+            "name": "ATLAS_SUSY_2018_08",
+            "authors": [
+                "Anders Kvellestad"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS search for two opposite-charge leptons, jets and MET at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "2L + >=1B + MET + 1OSOF",
+                "2L + >=1B + MET + 1OSSF + 0Z",
+                "2L + 0B + MET + OSOF",
+                "2L + 0B + MET + 1OSSF + 0Z",
+                "2L + >=1B + MET + OSOF",
+                "2L + >=1B + MET + 1OSSF + 0Z",
+                "2L + 0B + MET"
+            ],
+            "keyword": [
+                "leptons",
+                "boost",
+                "mT2"
+            ],
+            "note": "The 3-body and 4-body SRs are not implemented yet.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1754675,
+            "name": "ATLAS_SUSY_2018_09",
+            "authors": [
+                "Anders Kvellestad"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS same-sign lepton + jets squark/gluino search at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                ">=2SSL + >=6J",
+                ">=2SSL + 0B + >=6J + MET",
+                ">=2SSL + >=1B + >=6J",
+                ">=2SSL + >=2B + >=6J + MET",
+                ">=3SSL + >=1B + 0Z + MET"
+            ],
+            "keyword": [
+                "SSleptons",
+                "Rparity"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 2094882,
+            "name": "ATLAS_SUSY_2018_11",
+            "authors": [
+                "Anders Kvellestad"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS photons, jets + MET search at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                ">1P + 0L + >=5J",
+                ">1P + 0L + >=3J"
+            ],
+            "keyword": [
+                "photon",
+                "multijet",
+                "0lepton"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1793461,
+            "name": "ATLAS_SUSY_2018_12",
+            "authors": [
+                "Martin White",
+                "Pengxuan Zhu"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS all-hadronic top-squark search in the ttbar plus MET final state at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "0L + MET + >=2J + MT2 + T",
+                "0L + MET + >=4J + >=1B"
+            ],
+            "keyword": [
+                "top-squark",
+                "0lepton",
+                "all-hadronic",
+                "met",
+                "recursive-jigsaw"
+            ],
+            "note": "The cut-based and recursive-jigsaw implementations in Analysis_ATLAS_SUSY_2018_12.cpp and Analysis_ATLAS_SUSY_2018_12_RJR.cpp share this publication record.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1767649,
+            "name": "ATLAS_SUSY_2018_16",
+            "authors": [
+                "Tomas Gonzalo",
+                "Chris Chang"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS compressed-spectrum electroweak SUSY search at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "2L + OSL + MET + MT2",
+                "2L + OSSF + MET + MT2"
+            ],
+            "keyword": [
+                "compressed",
+                "dilepton",
+                "electroweakinos",
+                "met",
+                "mt2"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1800411,
+            "name": "ATLAS_SUSY_2018_21_StopZH",
+            "authors": [
+                "Holly Pacey"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS top-squark search in events with a Higgs or Z boson at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                ">=3L + >=1OSSF + >=4J + >=1B + MET",
+                ">=3L + >=1OSSF + >=5J + >=1B + MET",
+                ">=3L + >=1OSSF + >=3J + MET",
+                ">=3L + >=1OSSF + >=3J + >=1B + MET",
+                "1L + >=1H + >=4J + >=4B",
+                "1L + >=1H + >=6J + >=4B"
+            ],
+            "keyword": [
+                "leptons",
+                "higgs",
+                "mT2"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1827025,
+            "name": "ATLAS_SUSY_2018_22",
+            "authors": [
+                "Andy Buckley",
+                "Anders Kvellestad"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "0-lepton jet+MET SUSY analysis, with 139/fb of data",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "0L + MET + >=2J + MEFF",
+                "0L + MET + >=4J + MEFF",
+                "0L + MET + >=5J + MEFF",
+                "0L + MET + >=6J + MEFF"
+            ],
+            "keyword": [
+                "0lepton",
+                "meff",
+                "bdt"
+            ],
+            "note": "Cut-based (2-4 jets), BDT (4-6 jets) and model-independent aggregate search regions.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 2182381,
+            "name": "ATLAS_SUSY_2018_30",
+            "authors": [
+                "Tomasz Procter"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS search for SUSY in final states with missing momentum and at least three b-jets at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "0L + >=3B + >=4J + MET",
+                "1L + >=3B + >=4J + MET"
+            ],
+            "keyword": [
+                "bjets",
+                "multijet",
+                "met",
+                "bdt"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1906174,
+            "name": "ATLAS_SUSY_2018_41",
+            "authors": [
+                "Are Raklev"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS search for charginos and neutralinos with two boosted hadronically decaying bosons and MET at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "0L + 2W + 0Z + 0H + 0B",
+                "0L + 1W + 1Z + 0H + 0B",
+                "0L + 0W + 2Z + 0H + 0B",
+                "0L + 4J + 0H + 0B",
+                "0L + 1W + 1Z + 0H + 4J + 2B",
+                "0L + 2Z + 0H + 4J + 2B",
+                "0L + 1W + 1H + 4J + 2B",
+                "0L + 1Z + 1H + 4J + 2B",
+                "0L + 1Z + 0H + 4J + 2B",
+                "0L + 1H + 4J + 2B"
+            ],
+            "keyword": [
+                "0lepton",
+                "boost",
+                "bosons"
+            ],
+            "note": "Only uses the non-b-jet signal regions due to problems reproducing the b-tagging used based on small radius track jets.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 2157951,
+            "name": "ATLAS_SUSY_2019_02",
+            "authors": [
+                "Roberto Ruiz"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "Search for direct pair production of sleptons and charginos decaying to two leptons and neutralinos with mass splittings near the 𝑾-boson mass",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "2L"
+            ],
+            "keyword": "",
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1755298,
+            "name": "ATLAS_SUSY_2019_08",
+            "authors": [
+                "Christopher Chang"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS 1-lepton + MET + H->bb electroweakino search, at 13 TeV with 139/fb",
+            "luminosity": 139,
+            "ecm": 13.0,
+            "sign": [
+                "1L + >=2J + <=3J + 2B + MET + 1H"
+            ],
+            "keyword": [
+                "Higgs",
+                "mCT"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1866951,
+            "name": "ATLAS_SUSY_2019_09",
+            "authors": [
+                "Are Raklev"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS 3-lepton + MET chargino-neutralino pair search at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "3L + 0J + 0Z + MET",
+                "3L + >=1J + 0B + 0Z + MET",
+                "3L + >=1E + >=1M + 0J",
+                "3L + >=1E + >=1M + >=1J + <=2J"
+            ],
+            "keyword": [
+                "leptons",
+                "sfos",
+                "dfos"
+            ],
+            "note": "The recursive jigsaw and the DFOS SRs for the Wh search are not included; the related RJR-emulation implementation in Analysis_ATLAS_SUSY_2018_06.cpp uses this same three-lepton publication record.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1907601,
+            "name": "ATLAS_SUSY_2019_18",
+            "authors": [
+                "Holly Pacey"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS search for new phenomena with tau leptons, b-jets and MET at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "2TH + >=1B + MET",
+                "1TH + >=1B + MET"
+            ],
+            "keyword": [
+                "taus",
+                "bjets",
+                "top-squark",
+                "sbottom",
+                "met"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 2660233,
+            "name": "ATLAS_SUSY_2019_22",
+            "authors": [
+                "Ida-Marie Johansson"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS direct wino and higgsino search in same-sign dilepton or trilepton final states at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "2SSL + MET",
+                "3L + MET"
+            ],
+            "keyword": [
+                "same-sign",
+                "trilepton",
+                "electroweakinos",
+                "met"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 2751932,
+            "name": "ATLAS_SUSY_2020_16",
+            "authors": [
+                "Are Raklev"
+            ],
+            "exp": "ATLAS",
+            "run": "R2",
+            "summary": "ATLAS higgsino pair-production search in two-Higgs plus MET final states at 13 TeV with 139/fb",
+            "luminosity": 139.0,
+            "ecm": 13.0,
+            "sign": [
+                "0L + >=4B + >=2H + MET"
+            ],
+            "keyword": [
+                "higgsino",
+                "higgs",
+                "bjets",
+                "met"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1292446,
+            "name": "CMS_B2G_13_004",
+            "authors": [
+                "Martin White",
+                "Guy Pitman"
+            ],
+            "exp": "CMS",
+            "run": "R1.5",
+            "summary": "CMS dark-matter plus top-pair search in dilepton final states at 8 TeV with 19.7/fb",
+            "luminosity": 19.7,
+            "ecm": 8.0,
+            "sign": [
+                "2L + >=2J + >=1B + MET"
+            ],
+            "keyword": [
+                "dark-matter",
+                "top-pair",
+                "dilepton",
+                "bjets",
+                "met"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1359293,
+            "name": "CMS_B2G_14_004",
+            "authors": [
+                "Martin White",
+                "Guy Pitman"
+            ],
+            "exp": "CMS",
+            "run": "R1.5",
+            "summary": "CMS dark-matter plus top-pair search in single-lepton final states at 8 TeV with 19.7/fb",
+            "luminosity": 19.7,
+            "ecm": 8.0,
+            "sign": [
+                "1L + >=3J + >=1B + MET + MT"
+            ],
+            "keyword": [
+                "dark-matter",
+                "top-pair",
+                "1lepton",
+                "bjets",
+                "met"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1753679,
+            "name": "CMS_B2G_18_003",
+            "authors": [
+                "Pengxuan Zhu"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS electroweak vector-like T quark search in fully hadronic final states at 13 TeV with 35.9/fb",
+            "luminosity": 35.9,
+            "ecm": 13.0,
+            "sign": [
+                "0L + >=6J + >=2B",
+                "0L + >=6J + >=3B"
+            ],
+            "keyword": [
+                "vectorlike-quark",
+                "top",
+                "higgs",
+                "fully-hadronic"
+            ],
+            "note": "Low-mass 3M regions use histogram-backed five-jet-mass SRs; 3T and 2M1L histograms are scaffolded with empty obs/bkg vectors pending digitisation. High-mass regions are implemented as public cut-and-count approximations without the CMS shape fit.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1311223,
+            "name": "CMS_EXO_12_048",
+            "authors": [
+                "Martin White"
+            ],
+            "exp": "CMS",
+            "run": "R1.5",
+            "summary": "CMS monojet search for dark matter, extra dimensions and unparticles at 8 TeV with 19.7/fb",
+            "luminosity": 19.7,
+            "ecm": 8.0,
+            "sign": [
+                "MET + >=1J + <3J + 0L"
+            ],
+            "keyword": [
+                "dark-matter",
+                "monojet",
+                "extra-dimensions",
+                "unparticles",
+                "met"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1641762,
+            "name": "CMS_EXO_16_048",
+            "authors": [
+                "Andy Buckley",
+                "Anders Kvellestad",
+                "Martin White"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS W/Z-monojet + MET search at 13 TeV with 36/fb",
+            "luminosity": 35.9,
+            "ecm": 13.0,
+            "sign": [
+                "MET + >=1J + 0L + 0TH + 0P + 0B"
+            ],
+            "keyword": [
+                "monojet",
+                "W",
+                "Z",
+                "met"
+            ],
+            "note": "This implementation follows CMS-EXO-16-048; the published monojet/W/Z paper is INSPIRE 1641762 (arXiv:1712.02345). The trigger-level \"HT\" is unusually a vector sum rather than a scalar sum and is therefore not encoded in the signature; N-subjettiness 2/1 is used in V-jet pruning/tagging.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1298508,
+            "name": "CMS_SUS_13_006",
+            "authors": [
+                "Martin White",
+                "Daniel Murnane",
+                "Anders Kvellestad"
+            ],
+            "exp": "CMS",
+            "run": "R1.5",
+            "summary": "CMS electroweak chargino, neutralino and slepton search in multilepton final states at 8 TeV with 19.5/fb",
+            "luminosity": 19.5,
+            "ecm": 8.0,
+            "sign": [
+                "3L + <=1TH + MET",
+                ">=4L + MET"
+            ],
+            "keyword": [
+                "multilepton",
+                "electroweakinos",
+                "sleptons",
+                "met"
+            ],
+            "note": "The implementation originated from CMS-PAS-SUS-13-006 (INSPIRE 1260847); the published paper is INSPIRE 1298508.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1479641,
+            "name": "CMS_SUS_16_014",
+            "authors": [
+                "Andy Buckley"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS 0-lepton jet+MET SUSY analysis at 13 TeV with 13/fb",
+            "luminosity": 12.9,
+            "ecm": 13.0,
+            "sign": [
+                ">=3J + HT + MET + 0L + 0TH"
+            ],
+            "keyword": [
+                "0lepton",
+                "jets",
+                "ht",
+                "met"
+            ],
+            "note": "PAS note, not paper. Binned in N_J and N_b.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1594909,
+            "name": "CMS_SUS_16_033",
+            "authors": [
+                "Andy Buckley"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS 0-lepton jet+MET SUSY analysis at 13 TeV with 36/fb",
+            "luminosity": 35.9,
+            "ecm": 13.0,
+            "sign": [
+                ">=2J + HT + MET + 0L + !TH"
+            ],
+            "keyword": [
+                "0lepton",
+                "jets",
+                "ht",
+                "met"
+            ],
+            "note": "SR binned in N_J and N_b.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1625745,
+            "name": "CMS_SUS_16_034",
+            "authors": [
+                "Rose Kudzman-Blais",
+                "Martin White"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS 2-leptons + jets + MET search at 13 TeV with 36/fb",
+            "luminosity": 35.9,
+            "ecm": 13.0,
+            "sign": [
+                "=2L + OSSF + 1DY + >=2J + MET + MT2",
+                "=2L + OSSF + 1DY + >=2J + MET + MT2 + 0B",
+                "=2L + OSSF + 1DY + >=2J + MET + MT2 + 2B"
+            ],
+            "keyword": [
+                "dilepton",
+                "ossf",
+                "jets",
+                "met",
+                "mt2"
+            ],
+            "note": "Inspire ID given for the superseding paper; the electroweak and no-covariance implementation in Analysis_CMS_SUS_16_034_EW.cpp uses this same publication record. The experimental analysis also includes a shape-fit on a kinematic edge.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1594731,
+            "name": "CMS_SUS_16_035",
+            "authors": [
+                "Yang Zhang"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS 2-SS-lepton + jets + MET search at 13 TeV with 36/fb",
+            "luminosity": 35.9,
+            "ecm": 13.0,
+            "sign": [
+                "2SSL + !DY + >=2J + <5J + MET + !MT + !HT",
+                "2SSL + !DY + >=2J + <5J + MET + !MT + HT",
+                "2SSL + !DY + >=2J + MET + HT",
+                "2SSL + !DY + >=5J + MET + !MT + HT",
+                "2SSL + !DY + >=2J + MET + !MT + HT",
+                "2SSL + !DY + >=2J + MET + MT + HT",
+                "2SSL + !DY + >=2J + <5J + MET + !MT + HT"
+            ],
+            "keyword": [
+                "same-sign",
+                "dilepton",
+                "jets",
+                "met"
+            ],
+            "note": "This SR structure repeats in bins of Nb, and several special bins in > 1.1 TeV HT. The source uses a rounded 36/fb value; the publication metadata is 35.9/fb.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1624165,
+            "name": "CMS_SUS_16_039",
+            "authors": [
+                "Rose Kudzman-Blais",
+                "Anders Kvellestad",
+                "Kelton Whiteaker"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS 2-SS-lepton / >=3-lepton (<=2 hadronic tau) search at 13 TeV with 35.9/fb",
+            "luminosity": 35.9,
+            "ecm": 13.0,
+            "sign": [
+                "2L + 2SSL + MET + 0DY",
+                "MET + >=3L3 + <=2TH + 0DY"
+            ],
+            "keyword": [
+                "same-sign",
+                "multilepton",
+                "jets",
+                "met"
+            ],
+            "note": "Analysis_CMS_SUS_16_039.cpp uses the primary multilepton publication, INSPIRE 1624165 (arXiv:1709.05406), while Analysis_CMS_SUS_16_039_Full.cpp also implements the three-lepton rebinning from INSPIRE 1647947 (arXiv:1801.03957); one canonical info file is kept for this analysis family. Veto low-mass and MZ dilepton OSSF.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1608161,
+            "name": "CMS_SUS_16_043",
+            "authors": [
+                "Rose Kudzman-Blais",
+                "Anders Kvellestad"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS 1-lepton + 2 b-jet + MET search for charginos and neutralinos in WH events at 13 TeV with 36/fb",
+            "luminosity": 35.9,
+            "ecm": 13.0,
+            "sign": [
+                "=1L + 2B + !TH + MET + MT + H"
+            ],
+            "keyword": [
+                "1lepton",
+                "bjets",
+                "higgs",
+                "electroweakinos",
+                "met"
+            ],
+            "note": "Also uses M_CT contransverse mass and M_bb ~ H.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1637580,
+            "name": "CMS_SUS_16_046",
+            "authors": [
+                "Yang Zhang"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS >=1 photon + MET GMSB search at 13 TeV with 36/fb",
+            "luminosity": 35.9,
+            "ecm": 13.0,
+            "sign": [
+                "1P + MET + MT"
+            ],
+            "keyword": [
+                "photon",
+                "gauge-mediation",
+                "met"
+            ],
+            "note": "Also dphi_miss cuts on jets. SRs binned in ST=pTmiss+HT.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1646260,
+            "name": "CMS_SUS_16_048",
+            "authors": [
+                "Anders Kvellestad"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS low-pT lepton + MET SUSY search at 13 TeV with 36/fb",
+            "luminosity": 35.9,
+            "ecm": 13.0,
+            "sign": [
+                "2L + OSSF + 0B + !DY + !MT + MET + HT"
+            ],
+            "keyword": [
+                "soft-leptons",
+                "compressed",
+                "dilepton",
+                "met"
+            ],
+            "note": "The implementation originated from CMS-PAS-SUS-16-048 (INSPIRE 1518834); the published soft-opposite-sign-lepton paper is INSPIRE 1646260 (arXiv:1801.01846). The analysis uses low-pT leptons with SRs binned in m_ll and MET.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1605128,
+            "name": "CMS_SUS_16_051",
+            "authors": [
+                "Yang Zhang"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS 1-lepton + MET top-squark search at 13 TeV with 36/fb",
+            "luminosity": 35.9,
+            "ecm": 13.0,
+            "sign": [
+                "1L + >=2J + <=3J + MET",
+                "1L + >=4J + MET"
+            ],
+            "keyword": [
+                "1lepton",
+                "top-squark",
+                "jets",
+                "met",
+                "topness"
+            ],
+            "note": "Also uses a modified topness variable, related to top kinematic log-likelihood.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1634253,
+            "name": "CMS_SUS_17_001",
+            "authors": [
+                "Yang Zhang"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS 2-lepton heavy top-squark search at 13 TeV with 36/fb",
+            "luminosity": 35.9,
+            "ecm": 13.0,
+            "sign": [
+                "OSL + !DY + >=2J + >=1B + MET"
+            ],
+            "keyword": [
+                "dilepton",
+                "top-squark",
+                "dark-matter",
+                "met"
+            ],
+            "note": "Also MET significance ~ MET/sqrt{HT} and angular-separations requirements.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1683312,
+            "name": "CMS_SUS_17_010",
+            "authors": [
+                "Yang Zhang"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS 2-lepton + MET chargino/top-squark search at 13 TeV with 36/fb",
+            "luminosity": 35.9,
+            "ecm": 13.0,
+            "sign": [
+                "2L + OSL + !DY + MET + 0J",
+                "2L + OSL + !DY + MET + >=1J + 0B",
+                "2L + OSL + !DY + MET + >=1B",
+                "2L + OSL + !DY + MET + >=2J + >=1B"
+            ],
+            "keyword": [
+                "dilepton",
+                "chargino",
+                "top-squark",
+                "met",
+                "mt2"
+            ],
+            "note": "mT2 bins used",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1725476,
+            "name": "CMS_SUS_17_011",
+            "authors": [
+                "Anders Kvellestad"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS photon + MET SUSY search at 13 TeV with 36/fb",
+            "luminosity": 35.9,
+            "ecm": 13.0,
+            "sign": [
+                "2P + 0L + MET"
+            ],
+            "keyword": [
+                "photon",
+                "gauge-mediation",
+                "met"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1708516,
+            "name": "CMS_SUS_17_012",
+            "authors": [
+                "Anders Kvellestad"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS photon + lepton + MET SUSY search at 13 TeV with 36/fb",
+            "luminosity": 35.9,
+            "ecm": 13.0,
+            "sign": [
+                ">=1P + >=1L + !DY + MET + MT"
+            ],
+            "keyword": [
+                "photon",
+                "lepton",
+                "met"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1966342,
+            "name": "CMS_SUS_18_004",
+            "authors": [
+                "Tomas Gonzalo"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS search for SUSY with two or three soft leptons and MET at 13 TeV with 137/fb",
+            "luminosity": 137.0,
+            "ecm": 13.0,
+            "sign": [
+                "2L + MET",
+                "3L + MET"
+            ],
+            "keyword": [
+                "soft-leptons",
+                "compressed",
+                "electroweakinos",
+                "top-squark",
+                "met"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1749379,
+            "name": "CMS_SUS_19_006",
+            "authors": [
+                "Andy Buckley",
+                "Anders Kvellestad"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS 0-lepton jet+MET SUSY analysis at 13 TeV with 137/fb",
+            "luminosity": 137.0,
+            "ecm": 13.0,
+            "sign": [
+                ">=2J + HT + MET + 0L + 0TH"
+            ],
+            "keyword": [
+                "0lepton",
+                "jets",
+                "ht",
+                "met"
+            ],
+            "note": "Four-dimensional SRs in Njet, Nb, HT, and MET.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1777617,
+            "name": "CMS_SUS_19_008",
+            "authors": [
+                "Yang Zhang"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS 2-SS-lepton + jets or >=3-lepton + jets search at 13 TeV with 137/fb",
+            "luminosity": 137.0,
+            "ecm": 13.0,
+            "sign": [
+                "2SSL + !DY + >=2J + <5J + MET + !MT + !HT",
+                "2SSL + !DY + >=2J + <5J + MET + !MT + HT",
+                "2SSL + !DY + >=2J + MET + HT",
+                "2SSL + !DY + >=5J + MET + !MT + HT",
+                "2SSL + !DY + >=2J + MET + !MT + HT",
+                "2SSL + !DY + >=2J + MET + MT + HT",
+                "2SSL + !DY + >=2J + <5J + MET + !MT + HT"
+            ],
+            "keyword": [
+                "same-sign",
+                "multilepton",
+                "jets",
+                "met"
+            ],
+            "note": "This SR structure repeats in bins of Nb, and several special bins in > 1.1 TeV HT.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1849522,
+            "name": "CMS_SUS_19_010",
+            "authors": [
+                "Holly Pacey"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS fully hadronic top-squark pair-production search at 13 TeV with 137/fb",
+            "luminosity": 137.0,
+            "ecm": 13.0,
+            "sign": [
+                "0L + >=2J + >=1B + MET",
+                "0L + >=5J + >=1B + MET"
+            ],
+            "keyword": [
+                "top-squark",
+                "0lepton",
+                "all-hadronic",
+                "met",
+                "compressed"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1872976,
+            "name": "CMS_SUS_19_012",
+            "authors": [
+                "Tomas Gonzalo"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS 3/4-lepton (<=2 hadronic tau / 2-SS-lepton) search at 13 TeV with 137/fb",
+            "luminosity": 137.0,
+            "ecm": 13.0,
+            "sign": [
+                "=2L2 + 0TH + 2SSL + 0DY + <=1J + MET",
+                ">=3L3 + <=2TH + MET"
+            ],
+            "keyword": [
+                "same-sign",
+                "multilepton",
+                "taus",
+                "met",
+                "mt2"
+            ],
+            "note": "SR binning in MT2.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1836850,
+            "name": "CMS_SUS_20_001",
+            "authors": [
+                "Yang Zhang"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS 2-lepton + MET SUSY search at 13 TeV with 137/fb",
+            "luminosity": 137.0,
+            "ecm": 13.0,
+            "sign": [
+                "OSSF + MET"
+            ],
+            "keyword": [
+                "dilepton",
+                "ossf",
+                "met",
+                "mt2"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 1895525,
+            "name": "CMS_SUS_20_003",
+            "authors": [
+                "Pengxuan Zhu"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS chargino-neutralino production search in Higgs and W final states at 13 TeV with 137/fb",
+            "luminosity": 137.0,
+            "ecm": 13.0,
+            "sign": [
+                "1L + >=1H + MET",
+                "2L + >=1H + MET",
+                "0L + >=1H + MET"
+            ],
+            "keyword": [
+                "electroweakinos",
+                "higgs",
+                "W",
+                "met"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 2009652,
+            "name": "CMS_SUS_20_004",
+            "authors": [
+                "Yang Zhang"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS higgsino search in two-Higgs plus MET final states at 13 TeV with 137/fb",
+            "luminosity": 137.0,
+            "ecm": 13.0,
+            "sign": [
+                "0L + >=4B + 2H + MET"
+            ],
+            "keyword": [
+                "higgsino",
+                "higgs",
+                "bjets",
+                "met"
+            ],
+            "note": "",
+            "validation": ""
+        },
+        {
+            "inspire_id": 2085373,
+            "name": "CMS_SUS_21_002",
+            "authors": [
+                "Adil Jueid",
+                "Anders Kvellestad"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS electroweakino search with hadronic WW, WZ or WH decays and MET at 13 TeV with 137/fb",
+            "luminosity": 137.0,
+            "ecm": 13.0,
+            "sign": [
+                "0L + >=1W + MET",
+                "0L + >=1H + MET",
+                "0L + >=2J + MET"
+            ],
+            "keyword": [
+                "electroweakinos",
+                "W",
+                "H",
+                "boosted",
+                "met"
+            ],
+            "note": "The old and current implementations in Analysis_CMS_SUS_21_002.cpp and Analysis_CMS_SUS_21_002_OLD.cpp share this publication record.",
+            "validation": ""
+        },
+        {
+            "inspire_id": 2683599,
+            "name": "CMS_SUS_21_009",
+            "authors": [
+                "Vinay Hegde"
+            ],
+            "exp": "CMS",
+            "run": "R2",
+            "summary": "CMS search for new physics with a photon, multijets and large MET at 13 TeV with 137/fb",
+            "luminosity": 137.0,
+            "ecm": 13.0,
+            "sign": [
+                ">=1P + >=2J + MET + 0L"
+            ],
+            "keyword": [
+                "photon",
+                "multijet",
+                "gauge-mediation",
+                "met"
+            ],
+            "note": "",
+            "validation": ""
+        }
+    ]
+}

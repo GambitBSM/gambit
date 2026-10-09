@@ -44,10 +44,10 @@ namespace Gambit {
       vector<int> year_bins = {2016, 2017, 2018};
       vector<int> ETmiss_bins = {0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, INT_MAX};
       vector<int> meff_bins = {160, 200, 260, 340, 440, 560, 700, 860, INT_MAX};
-      
+
       // b-jet trigger availability
       double trigger_availability = 126.0/139.;
-      
+
       // Data fractions per year
       double f2016 = 24.6/126.0;
       double f2017 = 43.7/126.0;
@@ -357,10 +357,10 @@ namespace Gambit {
           double msubl = Higgs2.m();
           Xhh = sqrt( pow((mlead-120.)/(0.1*mlead),2)+pow((msubl-110.)/(0.1*msubl),2) );
         }
-        
+
         // b-trigger availability
         bool btrigger = random_bool(trigger_availability);
-        
+
         #ifdef CHECK_CUTFLOW
 
           // Apply cutflow
@@ -390,14 +390,14 @@ namespace Gambit {
         // Now increment signal region variables
         // Common selection criteria
         if(btrigger && nbJets >= 4 && nLeptons == 0 && XWt > 1.8 && Xhh < 1.6){
-          
+
           // Which year to bin in (SRs are divided by year)
           int year;
           double r = Random::draw();
           if(r < f2016) year = 2016;
           else if(r < f2016+f2017) year = 2017;
           else year = 2018;
-          
+
           // First exclusion regions
           for(unsigned int i = 0; i < meff_bins.size()-1; i++){
             if( meff > meff_bins[i] && meff < meff_bins[i+1] ){
@@ -409,12 +409,12 @@ namespace Gambit {
               }
             }
           }
-          
+
           // Discovery regions
           if(met  > 20  && meff > 560.) _counters.at("SR_LM_150").add_event(event);
           if(met > 150. && meff > 340.) _counters.at("SR_LM_300").add_event(event);
         }
-           
+
         return;
       } // End of analyze
 
@@ -514,7 +514,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("2016_ETmiss200_meff560"),  1., {    1.25,  1.1  }));
         add_result(SignalRegionData(_counters.at("2016_ETmiss200_meff700"),  2., {    1.25,  0.22 }));
         add_result(SignalRegionData(_counters.at("2016_ETmiss200_meff860"),  2., {    1.05,  0.2  }));
-        
+
         add_result(SignalRegionData(_counters.at("2017_ETmiss0_meff160"),     6., {   3.85,  0.30 }));
         add_result(SignalRegionData(_counters.at("2017_ETmiss0_meff200"),   395., { 405.80,  8.44 }));
         add_result(SignalRegionData(_counters.at("2017_ETmiss0_meff260"),   946., { 971.72, 13.83 }));
@@ -692,7 +692,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("2018_ETmiss200_meff560"),   0., {   3.28,  0.40 }));
         add_result(SignalRegionData(_counters.at("2018_ETmiss200_meff700"),   4., {   2.70,  0.37 }));
         add_result(SignalRegionData(_counters.at("2018_ETmiss200_meff860"),   5., {   2.09,  0.41 }));
-        
+
         return;
       }
 

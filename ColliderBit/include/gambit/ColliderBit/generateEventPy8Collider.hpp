@@ -40,6 +40,9 @@
 ///  \date 2019 Sep, Oct
 ///  \date 2020 Apr
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
@@ -114,7 +117,7 @@ namespace Gambit
         pythiaOptions.push_back("Init:showProcesses = off");
         pythiaOptions.push_back("SLHA:file = slhaea");
 
-        // Make sure the user has selected a collider energy in their Pythia settings by searching 
+        // Make sure the user has selected a collider energy in their Pythia settings by searching
         // for the substring "Beams:e", to match Pythia options "Beams:eCM", "Beams:eA" or "Beams:eB".
         bool has_beam_energy_option = std::any_of(pythiaOptions.begin(), pythiaOptions.end(), [](const str& s){ return s.find("Beams:e") != str::npos; });
         if (!has_beam_energy_option)
@@ -184,7 +187,7 @@ namespace Gambit
 
           // Synchronise the threads, so that they can check all were successfully initialised
           #pragma omp barrier
-        
+
           // Only do the event generation if the startup was successful for all threads
           if (startup_success)
           {
@@ -309,7 +312,7 @@ namespace Gambit
                                                                                                                                               \
       PerformInitialCrossSection_Pythia<PYTHIA_COLLIDER, PYTHIA_NS::Pythia8::Event>(result, slha, "", *runOptions);                           \
     }
-    
+
     #define GET_SPECIFIC_INITIAL_XSEC_PYTHIA(NAME, PYTHIA_COLLIDER, PYTHIA_NS, MODEL_EXTENSION)                                               \
     void NAME(initialxsec_container& result)                                                                                                  \
     {                                                                                                                                         \
@@ -412,7 +415,7 @@ namespace Gambit
       if(nFailedEvents > RunMC.current_maxFailedEvents())
       {
         // Tell the MCLoopInfo instance that we have exceeded maxFailedEvents
-        RunMC.report_exceeded_maxFailedEvents();
+        RunMC.report_exceeded_maxFailedEvents(iteration);
         if(RunMC.current_invalidate_failed_points())
         {
           piped_invalid_point.request("exceeded maxFailedEvents");

@@ -26,6 +26,9 @@
 ///          (tomas.gonzalo@kit.edu)
 ///  \date 2023 Aug
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #include <vector>
@@ -38,7 +41,7 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    Analysis::Analysis() : _luminosity(0), _luminosity_is_set(false), _is_scaled(false), _needs_collection(true), _collider_name("") {}
+    Analysis::Analysis() : _luminosity(0), _luminosity_is_set(false), _is_scaled(false), _needs_collection(true), _collider_name(""), _counters(_results._counters) {}
 
     /// Public method to reset this instance for reuse, avoiding the need for "new" or "delete".
     void Analysis::reset()
@@ -46,6 +49,7 @@ namespace Gambit
       _is_scaled = false;
       _needs_collection = true;
       _results.clear();
+      for (auto& counter : _counters) counter.second.reset();
       _cutflows = Cutflows();
       _histograms = Histograms();
       analysis_specific_reset();
@@ -82,6 +86,16 @@ namespace Gambit
 
     /// Get the analysis name
     str Analysis::analysis_name() { return _analysis_name; }
+
+    /// Set the detector name
+    void Analysis::set_detector_name(str detname)
+    {
+      _detector_name = detname;
+      _results.detector_name = _detector_name;
+    }
+
+    /// Get the detector name
+    str Analysis::detector_name() { return _detector_name; }
 
     /// Set the collider name
     void Analysis::set_collider_name(str collname)
@@ -199,5 +213,20 @@ namespace Gambit
       _results.histograms.combine(otherResults.histograms);
       _needs_collection = false;
     }
-  } // namespace ColliderBit
-} // namespace Gambit
+
+    /// Set the store_accepted_event_IDs bool for the EventCounter instances in this analysis
+    void Analysis::set_store_accepted_event_IDs(bool setting)
+    {
+      for (auto& histogram : _histograms.histos1d)
+        histogram.store_accepted_event_ids = setting;
+      for (auto& kv : _counters)
+      {
+        // kv.first (key) is the SR name
+        // kv.second (value) is the EventCounter instance
+        kv.second.set_store_accepted_event_IDs(setting);
+      }
+    }
+
+
+  }
+}

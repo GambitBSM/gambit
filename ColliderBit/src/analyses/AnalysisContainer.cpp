@@ -30,6 +30,9 @@
 ///  \author Pengxuan Zhu 
 ///          (pengxuan.zhu@adelaide.edu.au, zhupx99@icloud.com)
 ///  \date 2025 Oct
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #include <stdexcept>
@@ -139,7 +142,6 @@ namespace Gambit
       F(CMS_SUS_16_014)                              \
       F(CMS_SUS_16_033)                              \
       F(CMS_SUS_19_006)                              \
-      F(CMS_SUS_21_002_OLD)                          \
       F(CMS_SUS_21_002)                              \
       F(CMS_SUS_16_043)                              \
       F(CMS_SUS_20_003)                              \
@@ -471,12 +473,6 @@ namespace Gambit
       return analyses_map;
     }
 
-    /// Pass event through specific analysis
-    void AnalysisContainer::analyze(const HEPUtils::Event& event, str collider_name, str analysis_name) const
-    {
-      analyses_map.at(collider_name).at(analysis_name)->analyze(event);
-    }
-
     /// Pass event through all analyses for a specific collider
     void AnalysisContainer::analyze(const HEPUtils::Event& event, str collider_name) const
     {
@@ -486,11 +482,12 @@ namespace Gambit
       }
     }
 
-    /// Pass event through all analysis for the current collider
+    /// Pass event through all analyses for the current collider
     void AnalysisContainer::analyze(const HEPUtils::Event& event) const
     {
       analyze(event, current_collider);
     }
+
 
     /// Collect signal predictions from other threads and add to this one,
     /// for specific analysis. Note: Analysis::add will not add analyses to themselves.
@@ -553,6 +550,19 @@ namespace Gambit
         scale(collider_name, xsec_per_event);
       }
     }
+
+    /// Call the set_store_accepted_event_IDs method on all analyses
+    void AnalysisContainer::set_store_accepted_event_IDs(bool setting)
+    {
+      for(auto& collider_map_pair : analyses_map)
+      {
+        for(auto& analysis_pointer_pair : collider_map_pair.second)
+        {
+          analysis_pointer_pair.second->set_store_accepted_event_IDs(setting);
+        }
+      }
+    }
+
 
   }
 }

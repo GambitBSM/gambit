@@ -64,7 +64,7 @@ namespace Gambit
       public:
         PPPC_interpolation(const std::string& filename);
 
-        // Disable default ctor, copy ctor and copy assigment
+        // Disable default ctor, copy ctor and copy assignment
         PPPC_interpolation() = delete;
         PPPC_interpolation(const PPPC_interpolation&) = delete;
         PPPC_interpolation operator=(const PPPC_interpolation&) = delete;

@@ -16,6 +16,9 @@
 ///          (pengxuan.zhu@adelaide.edu.au)
 ///  \date 2025 May
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #pragma once
@@ -67,6 +70,9 @@ namespace Gambit
       std::vector<double> edges;   ///< N+1 bin edges for N bins (monotonically increasing)
       std::vector<double> counts;  ///< N bin contents (sum of weights)
       std::vector<double> sumw2;   ///< N sum-of-weights-squared per bin
+
+      bool store_accepted_event_ids = false;
+      std::vector<std::vector<unsigned int>> accepted_event_ids;
 
       std::vector<double> obs;     ///< Optional observed counts per bin
       std::vector<double> bkg;     ///< Optional background central values per bin
@@ -143,7 +149,7 @@ namespace Gambit
       // ----- Fill -----
 
       /// Fill the histogram with value @a x and event weight @a weight.
-      void fill(double x, double weight = 1.0)
+      void fill(double x, double weight = 1.0, unsigned int event_id = 0)
       {
         if (!check_histogram()) return;
 
@@ -162,6 +168,12 @@ namespace Gambit
         {
           counts[bin] += weight;
           sumw2[bin] += weight * weight;
+          if (store_accepted_event_ids && is_signal_region())
+          {
+            if (event_id == 0) throw std::runtime_error("Histogram SR acceptance requires an event ID.");
+            accepted_event_ids.resize(nbins());
+            accepted_event_ids[bin].push_back(event_id);
+          }
         }
       }
 
@@ -195,10 +207,17 @@ namespace Gambit
           throw std::runtime_error(
             "Cannot combine Histogram1D '" + name + "' with inconsistent signal-region data.");
         }
+        store_accepted_event_ids = store_accepted_event_ids && other.store_accepted_event_ids;
         for (size_t i = 0; i < counts.size(); ++i)
         {
           counts[i] += other.counts[i];
           sumw2[i] += other.sumw2[i];
+          if (!other.accepted_event_ids.empty())
+          {
+            accepted_event_ids.resize(nbins());
+            accepted_event_ids[i].insert(accepted_event_ids[i].end(),
+              other.accepted_event_ids[i].begin(), other.accepted_event_ids[i].end());
+          }
         }
         underflow += other.underflow;
         overflow += other.overflow;
@@ -240,6 +259,9 @@ namespace Gambit
             0.0,
             bkg_err[i]);
           sr.n_sig_MC_stat = std::sqrt(sumw2[i]);
+          // Disabled histogram filling cannot supply a valid acceptance matrix.
+          sr.has_event_records = store_accepted_event_ids && check_histogram();
+          if (!accepted_event_ids.empty()) sr.accepted_event_ids = accepted_event_ids[i];
           srs.push_back(sr);
         }
         return srs;

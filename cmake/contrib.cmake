@@ -87,6 +87,9 @@ else()
 endif()
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${dir}")
 
+#contrib/nlohmann
+include_directories("${PROJECT_SOURCE_DIR}/contrib/nlohmann/include")
+
 #contrib/slhaea
 include_directories("${PROJECT_SOURCE_DIR}/contrib/slhaea/include")
 
@@ -231,14 +234,13 @@ if(NOT EXCLUDE_HEPMC)
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HEPMC_PATH}/local/lib")
   set(HEPMC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
 
-  # Recent ROOT CMake packages expose the required standard as
-  # ROOT_CXX_STANDARD rather than adding -std=c++XX to ROOT_CXX_FLAGS.
-  # HepMC3 otherwise falls back to C++11 for its ROOT-IO target, appending
-  # -std=c++11 after GAMBIT's C++17 flags.
-  set(HEPMC_CXX_STANDARD_ARG)
-  if(DEFINED ROOT_CXX_STANDARD AND NOT "${ROOT_CXX_STANDARD}" STREQUAL "")
-    set(HEPMC_CXX_STANDARD_ARG "-DHEPMC3_CXX_STANDARD=${ROOT_CXX_STANDARD}")
+  # HepMC's ROOT-IO target must use ROOT's canonical numeric standard.
+  if(NOT EXCLUDE_ROOT)
+    set(HEPMC3_STD "${ROOT_STD}")
+  else()
+    set(HEPMC3_STD 17)
   endif()
+  set(HEPMC_CXX_STANDARD_ARG "-DHEPMC3_CXX_STANDARD=${HEPMC3_STD}")
 
   # Silence some compiler warnings coming from HepMC
   set_compiler_warning("no-unused-parameter" HEPMC_CXX_FLAGS)
@@ -246,9 +248,9 @@ if(NOT EXCLUDE_HEPMC)
   set_compiler_warning("no-sign-compare" HEPMC_CXX_FLAGS)
 
   ExternalProject_Add(${name}
-    DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${HEPMC_PATH} ${name} ${ver}
+    DOWNLOAD_COMMAND ""
     SOURCE_DIR ${HEPMC_PATH}
-    PATCH_COMMAND patch -p1 < ${patch}
+    PATCH_COMMAND patch --batch --forward -p1 -i "${patch}"
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
     # HepMC3 enables both C and CXX in its project(). Pass both compilers
     # explicitly so a stale CC environment variable cannot select another
@@ -257,6 +259,20 @@ if(NOT EXCLUDE_HEPMC)
     BUILD_COMMAND ${MAKE_PARALLEL} ${lib}
     INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
     )
+
+  # Reconstruct sources before patching, including when the patch file changes.
+  # An unchanged incremental build keeps this step's stamp and installed library.
+  ExternalProject_Add_Step(${name} prepare_source
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<SOURCE_DIR>"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<BINARY_DIR>"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "<SOURCE_DIR>" "<BINARY_DIR>"
+    COMMAND ${DL_CONTRIB} ${dl} ${md5} ${HEPMC_PATH} ${name} ${ver}
+    DEPENDEES update
+    DEPENDERS patch
+    DEPENDS "${patch}"
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    COMMENT "Preparing pristine HepMC ${ver} sources"
+  )
 
   # Add clean-hepmc and nuke-hepmc
   add_contrib_clean_and_nuke(${name} ${HEPMC_PATH} clean)
@@ -680,7 +696,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   if(CMAKE_Fortran_COMPILER MATCHES "gfortran*")
     # External C++ link steps need the gfortran runtime path.
     execute_process(
-      COMMAND "${CMAKE_Fortran_COMPILER}" "-print-file-name=libgfortran.dylib"
+      COMMAND "${CMAKE_Fortran_COMPILER}" "-print-file-name=libgfortran${CMAKE_SHARED_LIBRARY_SUFFIX}"
       OUTPUT_VARIABLE GFORTRAN_LIBRARY
       OUTPUT_STRIP_TRAILING_WHITESPACE
     )

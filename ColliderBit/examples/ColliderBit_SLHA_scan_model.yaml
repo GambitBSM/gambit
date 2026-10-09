@@ -109,10 +109,14 @@ Rules:
 
 
   # Take the total cross-section from the input parameters in this yaml file
-  - capability: InitialTotalCrossSection
+  - capability: TotalCrossSection
     function: getYAMLCrossSection_param
+
+  - capability: InitialTotalCrossSection
+    function: InitialTotalCrossSection_YAMLparam
     options:
-      collider: LHC_13TeV
+      use_colliders:
+        - LHC_13TeV
 
   # Choose how to do event weighting
   - capability: EventWeighterFunction
@@ -134,6 +138,8 @@ Rules:
   - capability: RunMC
     function: operateLHCLoop
     options:
+      use_colliders:
+        - LHC_13TeV
       silenceLoop: false
       LHC_13TeV:
         min_nEvents: 10000  # Chosen only for quick demo -- should be increased
@@ -155,13 +161,6 @@ Rules:
       LHC_13TeV:
         xsec_veto: 0.028  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
         partonOnly: false
-        jet_collections:
-          antikt_R04:
-            algorithm: antikt
-            R: 0.4
-            recombination_scheme: E_scheme
-            strategy: Best
-        jet_collection_taus: antikt_R04
         pythia_settings:
           - SLHA:verbose = 1
           - Next:numberShowProcess = 1

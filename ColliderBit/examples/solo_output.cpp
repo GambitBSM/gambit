@@ -30,7 +30,7 @@ namespace Gambit
       namespace
       {
         // Identify the JSON format consumed by batch merging and downstream tools.
-        const std::string kSchemaVersion = "cbs-solo-loglike-v1";
+        const std::string kSchemaVersion = "cbs-solo-loglike-v2";
         const int kJsonIndent = 2;
 
         /// Create missing parent directories before opening an output file.
@@ -669,10 +669,68 @@ namespace Gambit
           }
         }
 
+        std::string format_collision_energy(double collision_energy_TeV)
+        {
+          return format_screen_number(collision_energy_TeV, 6) + " TeV";
+        }
+
+        /// Print one row per collider: run conditions, events, cross section and analyses.
+        void print_collider_table(
+          std::ostream& output,
+          const std::vector<ColliderSummaryEntry>& colliders)
+        {
+          if (colliders.empty()) return;
+
+          constexpr std::size_t name_width = 18;
+          constexpr std::size_t energy_width = 10;
+          constexpr std::size_t events_width = 10;
+          constexpr std::size_t xsec_width = 24;
+          constexpr std::size_t analyses_width = 8;
+          static_assert(
+            2 + 4 * screen_column_gap + name_width + energy_width + events_width + xsec_width
+              + analyses_width == screen_table_width,
+            "Collider screen table must be 80 columns wide.");
+
+          output << "\nColliders\n";
+          print_screen_rule(output);
+          output << "  ";
+          print_screen_cell(output, "Collider", name_width);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "sqrt(s)", energy_width, true);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "Events", events_width, true);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "Cross section [fb]", xsec_width, true);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "Analyses", analyses_width, true);
+          output << '\n'
+                 << "  " << std::string(name_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(energy_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(events_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(xsec_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(analyses_width, '-') << '\n';
+          for (const ColliderSummaryEntry& collider : colliders)
+          {
+            output << "  ";
+            print_screen_cell(output, collider.name, name_width);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, format_collision_energy(collider.collision_energy_TeV), energy_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, std::to_string(collider.n_events), events_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, format_screen_uncertainty(
+              collider.cross_section_fb, collider.cross_section_uncert_fb, 4), xsec_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, std::to_string(collider.analyses.size()), analyses_width, true);
+            output << '\n';
+          }
+        }
+
         /// Print cutflows, SR yields, nominal/alternative likelihoods and the total.
         /// Include Contur results and sampling advice when supplied.
         void print_screen_summary(
           int n_events,
+          const std::vector<ColliderSummaryEntry>& colliders,
           double combined_loglike,
           const AnalysisDataPointers& analyses,
           const map_str_AnalysisLogLikes& analysis_loglikes,
@@ -688,6 +746,7 @@ namespace Gambit
           std::cout << "CBS result summary\n";
           print_screen_rule(std::cout);
           std::cout << "  Events analysed : " << n_events << '\n'
+                    << "  Colliders       : " << colliders.size() << '\n'
                     << "  Native analyses : " << analyses.size() << '\n'
                     << "  Combined log L  : " << format_screen_number(combined_loglike) << '\n';
           if (with_contur)
@@ -695,6 +754,7 @@ namespace Gambit
             std::cout << "  Contur          : included\n";
           }
           print_screen_rule(std::cout, '=');
+          print_collider_table(std::cout, colliders);
 
           for (const AnalysisData* analysis_ptr : analyses)
           {
@@ -710,6 +770,7 @@ namespace Gambit
 
             const AnalysisLogLikes& loglikes = ll_it->second;
             std::cout << "\n[" << analysis_name << "]\n"
+                      << "  Collider        : " << analysis.collider_name << '\n'
                       << "  Selected result : " << loglikes.combination_sr_label;
             if (loglikes.combination_sr_index >= 0)
             {
@@ -748,6 +809,7 @@ namespace Gambit
       void emit_outputs(
         const OutputConfig& config,
         int n_events,
+        const std::vector<ColliderSummaryEntry>& colliders,
         double combined_loglike,
         const AnalysisDataPointers& analyses,
         const map_str_AnalysisLogLikes& analysis_loglikes,
@@ -762,6 +824,7 @@ namespace Gambit
         {
           print_screen_summary(
             n_events,
+            colliders,
             combined_loglike,
             analyses,
             analysis_loglikes,
@@ -782,6 +845,23 @@ namespace Gambit
           {"with_contur", with_contur}
         };
 
+        nlohmann::json colliders_json = nlohmann::json::array();
+        for (const ColliderSummaryEntry& collider : colliders)
+        {
+          nlohmann::json collider_obj;
+          collider_obj["name"] = collider.name;
+          collider_obj["beam_ids"] = {collider.beam_pid_1, collider.beam_pid_2};
+          collider_obj["beam_energies_GeV"] = {collider.beam_energy_1_GeV, collider.beam_energy_2_GeV};
+          collider_obj["collision_energy_TeV"] = collider.collision_energy_TeV;
+          collider_obj["n_files"] = collider.n_files;
+          collider_obj["n_events"] = collider.n_events;
+          collider_obj["cross_section_fb"] = collider.cross_section_fb;
+          collider_obj["cross_section_uncert_fb"] = collider.cross_section_uncert_fb;
+          collider_obj["analyses"] = collider.analyses;
+          colliders_json.push_back(collider_obj);
+        }
+        root["run"]["colliders"] = colliders_json;
+
         nlohmann::json analyses_json = nlohmann::json::object();
         nlohmann::json terms = nlohmann::json::array();
         nlohmann::json default_total_terms = nlohmann::json::array();
@@ -801,6 +881,7 @@ namespace Gambit
 
           const AnalysisLogLikes& ll = ll_it->second;
           nlohmann::json analysis_obj;
+          analysis_obj["collider"] = analysis.collider_name;
           analysis_obj["n_signal_regions"] = analysis.size();
           analysis_obj["luminosity"] = analysis.luminosity;
           analysis_obj["bkgjson_path"] = analysis.bkgjson_path;
@@ -943,6 +1024,7 @@ namespace Gambit
 
         nlohmann::json summary;
         summary["n_analyses"] = analyses_json.size();
+        summary["n_colliders"] = colliders.size();
         summary["combined_loglike"] = combined_loglike;
         if (with_contur) summary["contur_loglike"] = contur_total_loglike;
         root["summary"] = summary;

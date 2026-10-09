@@ -90,10 +90,21 @@ Rules:
         - 1000024;(any),2,1000022,24;0  # <-- BR for two-body decay 1000024 -> 1000022 24
 
   # Assign cross-sections and uncertainties for each SLHA file
-  - capability: InitialTotalCrossSection
+  - capability: TotalCrossSection
     function: getYAMLCrossSection_SLHA
     options:
-      collider: LHC_13TeV
+      cross_section_fb:
+        ColliderBit/data/example.slha: 1807.4
+        # list more SLHA files and corrsponding total cross sections here
+      cross_section_uncert_fb:
+        ColliderBit/data/example.slha: 101.32
+        # list more SLHA files and corrsponding total cross section uncertainties here
+
+  - capability: InitialTotalCrossSection
+    function: InitialTotalCrossSection_YAMLSLHA
+    options:
+      use_colliders:
+        - LHC_13TeV
       cross_section_fb:
         ColliderBit/data/example.slha: 1807.4
         # list more SLHA files and corrsponding total cross sections here
@@ -121,6 +132,8 @@ Rules:
   - capability: RunMC
     function: operateLHCLoop
     options:
+      use_colliders:
+        - LHC_13TeV
       silenceLoop: false
       LHC_13TeV:
         min_nEvents: 10000  # Chosen only for quick demo -- should be increased
@@ -142,13 +155,6 @@ Rules:
       LHC_13TeV:
         xsec_veto: 0.028  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
         partonOnly: false
-        jet_collections:
-          antikt_R04:
-            algorithm: antikt
-            R: 0.4
-            recombination_scheme: E_scheme
-            strategy: Best
-        jet_collection_taus: antikt_R04
         pythia_settings:
           - SLHA:verbose = 1
           - Next:numberShowProcess = 1

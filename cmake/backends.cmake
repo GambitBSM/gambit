@@ -113,7 +113,7 @@
 #
 #  \author Pengxuan Zhu
 #          (pengxuan.zhu@adelaide.edu.au)
-#  \date 2026 Aug
+#  \date 2026 Aug, Oct
 #
 #************************************************
 
@@ -1220,6 +1220,11 @@ set(ditch_if_absent "hepmc")
 
 # - Add additional compiler-specific optimisation flags and suppress some warnings from -Wextra.
 set(pythia_CXXFLAGS "${BACKEND_CXX_FLAGS}")
+# Pythia's bundled FJcore uses a std::vector-of-incomplete-type pattern that macOS's libc++
+# rejects under C++20, so fall back to C++17 for Pythia's own compile on MacOS.
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  string(REGEX REPLACE "-std=c\\+\\+(20|2a|23|2b)" "-std=c++17" pythia_CXXFLAGS "${pythia_CXXFLAGS}")
+endif()
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -fast") # -fast sometimes makes xsecs come out as NaN, but we catch that and invalidate those points.
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
@@ -1381,7 +1386,7 @@ endif()
 set(name "nulike")
 set(ver "1.0.9")
 set(lib "libnulike")
-set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+set(dl "https://github.com/GambitBSM/archived_backends/raw/refs/heads/main/nulike_v1.0.9.tar.gz")
 set(md5 "b3f9d626fc964e9b0d1f33187504662d")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
@@ -1720,10 +1725,9 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}")
 # - Silence the deprecated-declarations warnings coming from Eigen3
 set(GM2CALC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
 set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
-# - gm2calc 1.2 depends on std::ptr_fun which is removed in c++17, so we need to fall back to c++14 (or c++11)
-if(COMPILER_SUPPORTS_CXX17)
-  string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" GM2CALC_CXX_FLAGS "${GM2CALC_CXX_FLAGS}")
-endif()
+# - gm2calc 1.2 depends on std::ptr_fun, which was removed in C++17, so we need to fall back to
+#   C++14 regardless of which (C++17 or later) standard GAMBIT itself is using.
+string(REGEX REPLACE "-std=c\\+\\+(17|1z|20|2a|23|2b)" "-std=c++14" GM2CALC_CXX_FLAGS "${GM2CALC_CXX_FLAGS}")
 set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
@@ -1751,10 +1755,9 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}")
 # - Silence the deprecated-declarations warnings coming from Eigen3
 set(GM2CALC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
 set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
-# - gm2calc 1.3 depends on std::ptr_fun which is removed in c++17, so we need to fall back to c++14 (or c++11)
-if(COMPILER_SUPPORTS_CXX17)
-  string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" GM2CALC_CXX_FLAGS "${GM2CALC_CXX_FLAGS}")
-endif()
+# - gm2calc 1.3 depends on std::ptr_fun, which was removed in C++17, so we need to fall back to
+#   C++14 regardless of which (C++17 or later) standard GAMBIT itself is using.
+string(REGEX REPLACE "-std=c\\+\\+(17|1z|20|2a|23|2b)" "-std=c++14" GM2CALC_CXX_FLAGS "${GM2CALC_CXX_FLAGS}")
 set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
@@ -1936,7 +1939,7 @@ set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/")
 set(ditch_if_absent "X11")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
-  # Add -fcommon compiler flag to tell the compiler to accept and merge a multiple variable definiton in calchep
+  # Add -fcommon compiler flag to tell the compiler to accept and merge a multiple variable definition in calchep
   set(calchep_CXX_FLAGS "${BACKEND_CXX_FLAGS} -fcommon")
   set(calchep_C_FLAGS "${BACKEND_C_FLAGS} -fcommon")
   set(calchep_Fortran_FLAGS "${BACKEND_Fortran_FLAGS} -fcommon")
@@ -2163,7 +2166,7 @@ endif()
 set(patch_dir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 set(patch "${patch_dir}/patch_${name}_${ver}.dif")
 ## Rivet needs to be compiled c++17, otherwise it will fail to compile
-set(ditch_if_absent "HepMC;YODA;c++17")
+set(ditch_if_absent "HepMC;YODA;FastJet;c++17")
 gambit_find_python_module(cython)
 if(PY_cython_FOUND)
   set(pyext yes)
@@ -2178,16 +2181,11 @@ else()
 endif()
 
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
-if(EXCLUDE_FASTJET)
-  set(ditched_${name}_${ver} TRUE)
-  message("${BoldCyan} X Rivet (${ver}) needs contrib FastJet but FastJet is excluded. Rivet will be excluded.${ColourReset}")
-endif()
 if(NOT ditched_${name}_${ver})
+  set(Rivet_BUILD_DEPENDENCIES castxml ${yoda_name} ${hepmc_name} fastjet fjcontrib)
   ExternalProject_Add(${name}_${ver}
-    DEPENDS castxml
-    DEPENDS ${yoda_name}
-    DEPENDS ${hepmc_name}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DEPENDS ${Rivet_BUILD_DEPENDENCIES}
+    DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch --batch --forward -p1 -i "${patch}"
@@ -2201,6 +2199,17 @@ if(NOT ditched_${name}_${ver})
     # missing analyses.dat diagnostic without modifying Rivet's sources.
     BUILD_COMMAND ${MAKE_PARALLEL} ANASOURCES= libRivet.so
     INSTALL_COMMAND ""
+  )
+  # A changed Rivet patch must not be applied over the old patched installation.
+  ExternalProject_Add_Step(${name}_${ver} prepare_source
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<SOURCE_DIR>"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "<SOURCE_DIR>"
+    COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DEPENDEES update
+    DEPENDERS patch
+    DEPENDS "${patch}"
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    COMMENT "Preparing pristine Rivet ${ver} sources"
   )
   # FindHDF5 may return generic and component-specific include directories
   # (for example /usr/include and /usr/include/hdf5/serial on Ubuntu). Pass
@@ -2256,8 +2265,6 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 # Contur
-# Frontend is Contur_3_0_0 only. 3.0.0 keeps the database rule in
-# data/DB/Makefile rather than exporting analyses.db from the top level.
 set(name "contur")
 set(ver "3.0.0")
 set(CONTUR_VERSION "${ver}")
@@ -2270,6 +2277,8 @@ set(init_file ${contur_dir}/init_by_GAMBIT.py)
 set(Rivet_name "rivet")
 set(ditch_if_absent "Python;SQLITE3;SQLite3CLI;YODA;HepMC;Rivet")
 set(required_modules "cython;configobj;pandas;matplotlib;")
+# Contur 3.0.0 shouldn't need a patch. Leave command commented in case subsequent versions do.
+#set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   check_python_modules(${name} ${ver} ${required_modules})
@@ -2281,6 +2290,8 @@ if(NOT ditched_${name}_${ver})
       DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
+      # Contur 3.0.0 shouldn't need a patch. Leave command commented in case subsequent versions do.
+      # PATCH_COMMAND patch -p1 < ${patch}
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "import sys" > ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "import os" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${init_file}
@@ -2297,6 +2308,7 @@ if(NOT ditched_${name}_${ver})
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisLibPath(\"${dir}/data/Rivet\")" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisDataPath(\"${dir}/data/Rivet\")" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisDataPath(\"${dir}/data/Theory\")" >> ${init_file}
+      # Contur 3.0.0 builds its analyses database in data/DB
       BUILD_COMMAND ${_contur_build_command}
       INSTALL_COMMAND ""
     )
@@ -2304,8 +2316,8 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
-unset(_contur_build_command)
 
+unset(_contur_build_command)
 
 # Linker flags used in the class makefile when linking executables
 set(CLASSY_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")

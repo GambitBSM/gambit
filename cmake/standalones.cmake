@@ -24,7 +24,7 @@
 #
 #  \author Pengxuan Zhu
 #          (pengxuan.zhu@adelaide.edu.au)
-#  \date 2026 Aug
+#  \date 2026 Aug, Oct
 #
 #************************************************
 
@@ -67,6 +67,6 @@ endif()
 if(TARGET CBS AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "Release" AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo")
   add_custom_command(
     TARGET CBS POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E echo "-- You have built CBS with CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}. For best performance we recommend building CBS in Release mode. You can do this by rerunning cmake with the option -DCMAKE_BUILD_TYPE=Release and then rebuild CBS."
+    COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --yellow --bold "-- You have built CBS with CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}. For best performance we recommend building CBS in 'Release' mode. You can do this by rerunning cmake with the option -DCMAKE_BUILD_TYPE=Release and then rebuild CBS."
   )
 endif()

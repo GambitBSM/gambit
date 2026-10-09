@@ -91,10 +91,10 @@ private:
 
 /*
 class BDTAnalysis : public MVA {
-    
+
     private:
       std::map<std::string, MVA *> m_MVAs;
-  
+
     public:
       void addMVABDT(const std::string &name, const std::string &fname1, const std::string &fname2) {
         if (m_MVAs.find(name) != m_MVAs.end())

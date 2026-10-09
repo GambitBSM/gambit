@@ -81,6 +81,7 @@ contrib/RestFrames-*/
 contrib/onnxruntime-*/
 
 # Local configuration files
+/CMakePresets.json
 config/*_locations.yaml
 config/gambit_bits.yaml
 config/gambit_backend_interfaces.yaml

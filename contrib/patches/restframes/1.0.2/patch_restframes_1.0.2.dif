@@ -1,0 +1,39 @@
+--- a/src/RFBase.cc
++++ b/src/RFBase.cc
+@@ -29,6 +29,7 @@
+ 
+ #include "RestFrames/RestFrames_config.h"
+ #include "RestFrames/RFBase.hh"
++#include <cstdlib>
+ 
+ namespace RestFrames {
+ 
+@@ -189,16 +190,18 @@
+   // Initializer.
+   __attribute__((constructor))
+   static void initializer(void){
+-    printf("\n" "\x1b[36m");
+-    printf(PACKAGE_NAME);
+-    printf(" v");
+-    printf(PACKAGE_VERSION);
+-    printf(" -- Developed by Christopher Rogan (crogan@cern.ch)\n");
+-    printf("                     ");
+-    printf("Copyright (c) 2014-2018, Christopher Rogan\n");
+-    printf("                     ");
+-    printf("http://RestFrames.com\n");
+-    printf("\x1b[0m" "\n");
++    if(std::getenv("RESTFRAMES_QUIET") == nullptr){
++      printf("\n" "\x1b[36m");
++      printf(PACKAGE_NAME);
++      printf(" v");
++      printf(PACKAGE_VERSION);
++      printf(" -- Developed by Christopher Rogan (crogan@cern.ch)\n");
++      printf("                     ");
++      printf("Copyright (c) 2014-2018, Christopher Rogan\n");
++      printf("                     ");
++      printf("http://RestFrames.com\n");
++      printf("\x1b[0m" "\n");
++    }
+     RestFrames::RFKey key(0);
+   }
+ 

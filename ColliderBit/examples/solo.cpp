@@ -26,6 +26,7 @@
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/cats.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
+#include "gambit/ColliderBit/analyses/AcceptedEvents.hpp"
 #include "fastjet/ClusterSequence.hh"
 #include "solo_batch.hpp"
 #include "solo_cli.hpp"
@@ -125,6 +126,12 @@ namespace
     summary << "\nCBS HepMC verification\n"
             << std::string(cbs_screen_width, '-') << '\n';
 
+    std::map<std::string, std::string> file_colliders;
+    for (const ColliderBit::SoloInput::ColliderInput& collider : prepared_input.colliders)
+    {
+      for (const std::string& filename : collider.hepmc_filenames) file_colliders[filename] = collider.name;
+    }
+
     for (std::size_t index = 0; index < prepared_input.hepmc_filenames.size(); ++index)
     {
       const ColliderBit::SoloInput::HepMCRunInfo& run_info =
@@ -146,6 +153,8 @@ namespace
               << run_info.beam_energy_2_GeV << ") GeV\n"
               << "  " << std::left << std::setw(label_width) << "sqrt(s)"
               << ": " << energy.str() << '\n'
+              << "  " << std::left << std::setw(label_width) << "Collider"
+              << ": " << file_colliders[prepared_input.hepmc_filenames.at(index)] << '\n'
               << "  " << std::left << std::setw(label_width) << "Status"
               << ": verified\n";
       if (index + 1 != prepared_input.hepmc_filenames.size()) summary << '\n';
@@ -172,7 +181,7 @@ namespace
             << std::string(settings_gap_width, ' ')
             << std::setw(status_width) << "Status"
             << std::string(settings_gap_width, ' ')
-            << "Reason\n"
+            << "Collider / reason\n"
             << "  " << std::string(analysis_width, '-')
             << std::string(settings_gap_width, ' ')
             << std::string(status_width, '-')
@@ -189,17 +198,48 @@ namespace
         (reason_it == prepared_input.analysis_disable_reasons.end())
           ? (enabled ? "-" : "reason unavailable")
           : reason_it->second;
+      const auto collider_it = prepared_input.analysis_colliders.find(requested_analysis);
+      const std::string collider =
+        (collider_it == prepared_input.analysis_colliders.end()) ? "-" : collider_it->second;
 
       summary << "  " << std::left << std::setw(analysis_width)
               << shorten_for_screen(requested_analysis, analysis_width)
               << std::string(settings_gap_width, ' ')
               << std::setw(status_width) << (enabled ? "enabled" : "disabled")
               << std::string(settings_gap_width, ' ')
-              << shorten_reason_for_screen(enabled ? "-" : reason, reason_width) << '\n';
+              << shorten_reason_for_screen(enabled ? collider : reason, reason_width) << '\n';
     }
 
     summary << std::string(cbs_screen_width, '-') << '\n';
     return summary.str();
+  }
+
+  /// Summarise a prepared collider, and the events analysed for it, for CBS output.
+  ColliderBit::SoloOutput::ColliderSummaryEntry summarise_collider(
+    const ColliderBit::SoloInput::ColliderInput& collider, long long n_events)
+  {
+    ColliderBit::SoloOutput::ColliderSummaryEntry entry;
+    entry.name = collider.name;
+    entry.beam_pid_1 = collider.run_info.beam_pid_1;
+    entry.beam_pid_2 = collider.run_info.beam_pid_2;
+    entry.beam_energy_1_GeV = collider.run_info.beam_energy_1_GeV;
+    entry.beam_energy_2_GeV = collider.run_info.beam_energy_2_GeV;
+    entry.collision_energy_TeV = collider.run_info.collision_energy_TeV;
+    entry.n_files = collider.hepmc_filenames.size();
+    entry.n_events = n_events;
+    entry.cross_section_fb = collider.cross_section_fb;
+    entry.cross_section_uncert_fb = collider.cross_section_uncert_fb;
+    entry.analyses = collider.analyses;
+    return entry;
+  }
+
+  /// Build the cross_sections option table read by the CBS cross-section functions.
+  YAML::Node cbs_cross_section_table(const ColliderBit::SoloInput::ColliderInput& collider)
+  {
+    YAML::Node table;
+    table[collider.name]["cross_section_fb"] = collider.cross_section_fb;
+    table[collider.name]["cross_section_uncert_fb"] = collider.cross_section_uncert_fb;
+    return table;
   }
 }
 
@@ -333,6 +373,14 @@ int main(int argc, char* argv[])
             <<" GeV or "
             <<settings.getValueOrDef<double>(1.0e-3, "beam_energy_relative_tolerance")
             <<" relative."<<EOM;
+    for (const ColliderBit::SoloInput::ColliderInput& collider : prepared_input.colliders)
+    {
+      logger()<<LogTags::info<<"CBS collider "<<collider.name<<": sqrt(s) = "
+              <<collider.run_info.collision_energy_TeV<<" TeV; "<<collider.hepmc_filenames.size()
+              <<" HepMC file(s); cross section "<<collider.cross_section_fb<<" +/- "
+              <<collider.cross_section_uncert_fb<<" fb; analyses ("<<collider.analyses.size()<<"): "
+              <<format_analysis_list(collider.analyses)<<EOM;
+    }
     logger()<<LogTags::info<<"CBS native analyses requested ("
             <<prepared_input.requested_analyses.size()<<"): "
             <<format_analysis_list(prepared_input.requested_analyses)<<EOM;
@@ -554,11 +602,20 @@ int main(int argc, char* argv[])
         output_sampling_advice.push_back(std::move(out_analysis));
       }
 
+      std::vector<ColliderBit::SoloOutput::ColliderSummaryEntry> collider_summaries;
+      for (const ColliderBit::SoloInput::ColliderInput& collider : prepared_input.colliders)
+      {
+        const auto events_it = merged.collider_event_counts.find(collider.name);
+        collider_summaries.push_back(summarise_collider(
+          collider, events_it == merged.collider_event_counts.end() ? 0 : events_it->second));
+      }
+
       std::map<std::string, double> empty_contur_pool_loglikes;
       std::map<std::string, std::string> empty_contur_pool_info;
       ColliderBit::SoloOutput::emit_outputs(
         output_config,
         merged.total_events,
+        collider_summaries,
         merged.combined_loglike,
         merged.analyses,
         merged.analysis_loglikes,
@@ -571,6 +628,13 @@ int main(int argc, char* argv[])
       return 0;
     }
 
+    // A single event_file always defines exactly one collider.
+    if (prepared_input.colliders.size() != 1)
+    {
+      throw std::runtime_error("A CBS event_file run must define exactly one collider.");
+    }
+    const ColliderBit::SoloInput::ColliderInput& collider = prepared_input.colliders.front();
+
     auto& getEvent = getHepMCEvent;
     auto& convertEvent = convertHepMCEvent_HEPUtils;
     auto& AnalysisNumbers = CollectAnalyses;
@@ -581,6 +645,13 @@ int main(int argc, char* argv[])
     AnalysisNumbers.setOption<bool>("print_cutflows", false);
     AnalysisNumbers.setOption<bool>("normalized_cutflows", false);
 
+    // Record and export the same acceptance matrix as full ColliderBit.
+    // Batch children inherit this setting and append their completed-event rows.
+    const bool drop_accepted_events_file = settings.getValueOrDef<bool>(false, "drop_accepted_events_file");
+    getATLASAnalysisContainer.setOption<bool>("drop_accepted_events_file", drop_accepted_events_file);
+    getCMSAnalysisContainer.setOption<bool>("drop_accepted_events_file", drop_accepted_events_file);
+    getIdentityAnalysisContainer.setOption<bool>("drop_accepted_events_file", drop_accepted_events_file);
+
     // Initialise settings for printer (required)
     YAML::Node printerNode = get_standalone_printer("cout", "CBS_logs/", "");
     Printers::PrinterManager printerManager(printerNode, false);
@@ -590,9 +661,9 @@ int main(int argc, char* argv[])
     int seed = settings.getValueOrDef<int>(-1, "seed");
     Random::create_rng_engine("default", seed);
 
-    // Pass options to the main event loop
+    // Pass options to the main event loop, for the collider named after the HepMC run conditions
     YAML::Node CBS(infile["settings"]);
-    CBS["analyses"] = analyses;
+    CBS["analyses"] = collider.analyses;
     CBS["min_nEvents"] = (long long)(1000);
     CBS["max_nEvents"] = (long long)(std::numeric_limits<int>::max());
     // CBS policy: always process all events provided by the user (no convergence-based early stop).
@@ -606,12 +677,9 @@ int main(int argc, char* argv[])
       "CBS HepMC File 1/" + std::to_string(prepared_input.hepmc_filenames.size());
     CBS["event_progress_label"] = settings.getValueOrDef<std::string>(
       default_event_progress_label, "event_progress_label");
-    operateLHCLoop.setOption<YAML::Node>("CBS", CBS);
+    operateLHCLoop.setOption<YAML::Node>(collider.name, CBS);
     operateLHCLoop.setOption<bool>("silenceLoop", not debug);
-
-    // Tell operateLHCLoop to use the "CBS" collider
-    std::vector<std::string> use_colliders = {"CBS"};
-    operateLHCLoop.setOption<std::vector<std::string>>("use_colliders", use_colliders);
+    operateLHCLoop.setOption<std::vector<std::string>>("use_colliders", {collider.name});
 
     // Pass the event filename and the jet pt cutoff to the HepMC reader/HEPUtils converter function
     getEvent.setOption<str>("hepmc_filename", prepared_input.hepmc_filenames.front());
@@ -623,14 +691,14 @@ int main(int argc, char* argv[])
     getEvent.setOption<bool>("cbs_check_hepmc_run", true);
     getEvent.setOption<std::vector<int>>(
       "cbs_reference_beam_ids",
-      {prepared_input.run_info.beam_pid_1, prepared_input.run_info.beam_pid_2}
+      {collider.run_info.beam_pid_1, collider.run_info.beam_pid_2}
     );
     getEvent.setOption<std::vector<double>>(
       "cbs_reference_beam_energies_GeV",
-      {prepared_input.run_info.beam_energy_1_GeV, prepared_input.run_info.beam_energy_2_GeV}
+      {collider.run_info.beam_energy_1_GeV, collider.run_info.beam_energy_2_GeV}
     );
     getEvent.setOption<double>("cbs_reference_collision_energy_TeV",
-                               prepared_input.run_info.collision_energy_TeV);
+                               collider.run_info.collision_energy_TeV);
     getEvent.setOption<double>(
       "cbs_collision_energy_tolerance_TeV",
       settings.getValueOrDef<double>(1.0, "collision_energy_tolerance_GeV") / 1000.0
@@ -650,10 +718,9 @@ int main(int argc, char* argv[])
     convertEvent.setOption<std::string>("jet_collection_taus", jet_collection_taus);
     convertEvent.setOption<YAML::Node>("jet_collections", jet_collections);
 
-    // Pass options to the cross-section function
-    getYAMLCrossSection.setOption<std::string>("collider", "CBS");
-    getYAMLCrossSection.setOption<double>("cross_section_fb", prepared_input.total_cross_section_fb);
-    getYAMLCrossSection.setOption<double>("cross_section_uncert_fb", prepared_input.total_cross_section_uncert_fb);
+    // Pass the collider's total cross-section to the CBS cross-section functions
+    InitialTotalCrossSection_CBS.setOption<YAML::Node>("cross_sections", cbs_cross_section_table(collider));
+    TotalCrossSection_CBS.setOption<YAML::Node>("cross_sections", cbs_cross_section_table(collider));
 
     // Pass options to the likelihood function
     // TODO: I'm not specifying the defaults here. I'll add the argument only if the user supplies it.
@@ -701,7 +768,8 @@ int main(int argc, char* argv[])
     get_LHC_LogLike_per_analysis.resolveDependency(calcLogLikes);
     calcLogLikes->resolveDependency(&CollectAnalyses);
     calcLogLikes->resolveDependency(&operateLHCLoop);
-    calcLogLikes->resolveDependency(&getYAMLCrossSection);
+    calcLogLikes->resolveDependency(&InitialTotalCrossSection_CBS);
+    operateLHCLoop.resolveDependency(&InitialTotalCrossSection_CBS);
     calcLogLikes->resolveBackendReq(use_lnpiln ? &nulike_lnpiln : &nulike_lnpin);
     if (use_FullLikes)
     {
@@ -712,15 +780,16 @@ int main(int argc, char* argv[])
     CollectAnalyses.resolveDependency(&runATLASAnalyses);
     CollectAnalyses.resolveDependency(&runCMSAnalyses);
     CollectAnalyses.resolveDependency(&runIdentityAnalyses);
+    CollectAnalyses.resolveDependency(&TotalCrossSection_CBS);
     runATLASAnalyses.resolveDependency(&getATLASAnalysisContainer);
     runATLASAnalyses.resolveDependency(&smearEventATLAS);
     runCMSAnalyses.resolveDependency(&getCMSAnalysisContainer);
     runCMSAnalyses.resolveDependency(&smearEventCMS);
     runIdentityAnalyses.resolveDependency(&getIdentityAnalysisContainer);
     runIdentityAnalyses.resolveDependency(&copyEvent);
-    getATLASAnalysisContainer.resolveDependency(&getYAMLCrossSection);
-    getCMSAnalysisContainer.resolveDependency(&getYAMLCrossSection);
-    getIdentityAnalysisContainer.resolveDependency(&getYAMLCrossSection);
+    getATLASAnalysisContainer.resolveDependency(&TotalCrossSection_CBS);
+    getCMSAnalysisContainer.resolveDependency(&TotalCrossSection_CBS);
+    getIdentityAnalysisContainer.resolveDependency(&TotalCrossSection_CBS);
     smearEventATLAS.resolveDependency(&getBuckFastATLAS);
     smearEventATLAS.resolveDependency(&convertEvent);
     smearEventCMS.resolveDependency(&getBuckFastCMS);
@@ -746,13 +815,13 @@ int main(int argc, char* argv[])
     getBuckFastATLAS.resolveLoopManager(&operateLHCLoop);
     getBuckFastCMS.resolveLoopManager(&operateLHCLoop);
     getBuckFastIdentity.resolveLoopManager(&operateLHCLoop);
+    TotalCrossSection_CBS.resolveLoopManager(&operateLHCLoop);
     getATLASAnalysisContainer.resolveLoopManager(&operateLHCLoop);
     getCMSAnalysisContainer.resolveLoopManager(&operateLHCLoop);
     getIdentityAnalysisContainer.resolveLoopManager(&operateLHCLoop);
     smearEventATLAS.resolveLoopManager(&operateLHCLoop);
     smearEventCMS.resolveLoopManager(&operateLHCLoop);
     copyEvent.resolveLoopManager(&operateLHCLoop);
-    getYAMLCrossSection.resolveLoopManager(&operateLHCLoop);
     runATLASAnalyses.resolveLoopManager(&operateLHCLoop);
     runCMSAnalyses.resolveLoopManager(&operateLHCLoop);
     runIdentityAnalyses.resolveLoopManager(&operateLHCLoop);
@@ -761,7 +830,7 @@ int main(int argc, char* argv[])
                                                                   &getBuckFastATLAS,
                                                                   &getBuckFastCMS,
                                                                   &getBuckFastIdentity,
-                                                                  &getYAMLCrossSection,
+                                                                  &TotalCrossSection_CBS,
                                                                   &getATLASAnalysisContainer,
                                                                   &getCMSAnalysisContainer,
                                                                   &getIdentityAnalysisContainer,
@@ -792,8 +861,11 @@ int main(int argc, char* argv[])
     }
 
     // Run the detector sim and selected analyses on all the events read in.
+    InitialTotalCrossSection_CBS.reset_and_calculate();
     operateLHCLoop.reset_and_calculate();
     CollectAnalyses.reset_and_calculate();
+    if (drop_accepted_events_file)
+      ColliderBit::export_accepted_events(CollectAnalyses(0), operateLHCLoop(0).completed_event_ids);
     calcLogLikes->reset_and_calculate();
     get_LHC_LogLike_per_analysis.reset_and_calculate();
     calc_combined_LHC_LogLike.reset_and_calculate();
@@ -804,7 +876,7 @@ int main(int argc, char* argv[])
       Contur_LHC_measurements_histotags_perPool.reset_and_calculate();
     }
 
-    const int n_events = operateLHCLoop(0).event_count.at("CBS");
+    const int n_events = operateLHCLoop(0).event_count.at(collider.name);
     const double loglike = calc_combined_LHC_LogLike(0);
 
     std::map<std::string, double> contur_pool_loglikes;
@@ -823,6 +895,7 @@ int main(int argc, char* argv[])
     ColliderBit::SoloOutput::emit_outputs(
       output_config,
       n_events,
+      {summarise_collider(collider, n_events)},
       loglike,
       analysis_results,
       analysis_loglikes,

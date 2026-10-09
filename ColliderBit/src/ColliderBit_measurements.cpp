@@ -113,23 +113,23 @@ namespace Gambit
                 }
               }
             }
-            // Now we have a final list of all analyses to add/exclude 
+            // Now we have a final list of all analyses to add/exclude
           }
 
 
           if (*Loop::iteration == COLLIDER_INIT_OMP){
-            
+
             #pragma omp critical
             {
               anahandlers.emplace_back(std::make_unique<AnalysisHandler>());
               events_analysed_perthread[omp_get_thread_num()] = 0L;
-              
+
               for (const std::string& ananame :  analyses){
                 // Rememeber analysis list already formed.
                 if (!(ananame == "13TeV" || ananame == "8TeV" || ananame == "7TeV"))
                   anahandlers.back()->addAnalysis(ananame);
               }
- 
+
               //If the yaml file wants to exclude analyses, remove them
               //This feature was inspired by ATLAS_2016_I1469071, which is effectively
               //invalid for most BSM cases and can cause crashes.
@@ -210,9 +210,9 @@ namespace Gambit
               #endif
 
               //Initialise somewhere for the yoda file to be outputted.
-              //This circuitous route is necesarry because ostringstream does not support copy 
-              //assignment or copy initialisation, and which is necesarry to access items via 
-              //Gambit's backends system, so we need to go via a pointer. 
+              //This circuitous route is necesarry because ostringstream does not support copy
+              //assignment or copy initialisation, and which is necesarry to access items via
+              //Gambit's backends system, so we need to go via a pointer.
               result = std::make_shared<std::ostringstream>();
               const static bool drop_perthread_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_perthread_YODA_file");
               int count = 0;
@@ -245,7 +245,7 @@ namespace Gambit
               const static bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
               if(drop_YODA_file)
               {
-                str filename = "GAMBIT_collider_measurements_"+Dep::RunMC->current_collider()+".yoda";     
+                str filename = "GAMBIT_collider_measurements_"+Dep::RunMC->current_collider()+".yoda";
                 #pragma omp critical
                 {
                   try{ anahandlers[0]->writeData(filename); }
@@ -272,11 +272,11 @@ namespace Gambit
             if (events_analysed < 1){
               #pragma omp critical
               {
-                anahandlers[omp_get_thread_num()]->analyze(ge); 
+                anahandlers[omp_get_thread_num()]->analyze(ge);
               }
             }
             else {
-              anahandlers[omp_get_thread_num()]->analyze(ge); 
+              anahandlers[omp_get_thread_num()]->analyze(ge);
             }
             events_analysed++;
           }

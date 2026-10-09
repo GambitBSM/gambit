@@ -4,6 +4,9 @@
 ///
 ///  Input parsing helpers for ColliderBit Solo (CBS).
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #include "solo_input.hpp"
@@ -350,15 +353,14 @@ namespace Gambit
                              double beam_energy_tolerance_GeV,
                              double beam_energy_relative_tolerance)
         {
-          return beam_ids_match(lhs.beam_pid_1, lhs.beam_pid_2,
-                                rhs.beam_pid_1, rhs.beam_pid_2)
-                 && beam_energies_match(lhs.beam_energy_1_GeV, lhs.beam_energy_2_GeV,
-                                        rhs.beam_energy_1_GeV, rhs.beam_energy_2_GeV,
-                                        beam_energy_tolerance_GeV,
-                                        beam_energy_relative_tolerance)
-                 && collision_energies_match(lhs.collision_energy_TeV,
-                                              rhs.collision_energy_TeV,
-                                              collision_energy_tolerance_TeV);
+          const bool direct = lhs.beam_pid_1 == rhs.beam_pid_1 && lhs.beam_pid_2 == rhs.beam_pid_2
+            && beam_energy_match(lhs.beam_energy_1_GeV, rhs.beam_energy_1_GeV, beam_energy_tolerance_GeV, beam_energy_relative_tolerance)
+            && beam_energy_match(lhs.beam_energy_2_GeV, rhs.beam_energy_2_GeV, beam_energy_tolerance_GeV, beam_energy_relative_tolerance);
+          const bool swapped = lhs.beam_pid_1 == rhs.beam_pid_2 && lhs.beam_pid_2 == rhs.beam_pid_1
+            && beam_energy_match(lhs.beam_energy_1_GeV, rhs.beam_energy_2_GeV, beam_energy_tolerance_GeV, beam_energy_relative_tolerance)
+            && beam_energy_match(lhs.beam_energy_2_GeV, rhs.beam_energy_1_GeV, beam_energy_tolerance_GeV, beam_energy_relative_tolerance);
+          return (direct || swapped)
+            && collision_energies_match(lhs.collision_energy_TeV, rhs.collision_energy_TeV, collision_energy_tolerance_TeV);
         }
 
         int parse_beam_pid(const YAML::Node& node, const str& analysis)
@@ -595,14 +597,203 @@ namespace Gambit
           return true;
         }
 
-        void retain_run_matched_analyses(PreparedInput& prepared,
-                                         const std::vector<HepMCFileInspection>& inputs,
-                                         double collision_energy_tolerance_TeV,
-                                         double beam_energy_tolerance_GeV,
-                                         double beam_energy_relative_tolerance)
+        /// Run-condition tolerances shared by file grouping and analysis matching.
+        struct RunConditionTolerances
         {
+          double collision_energy_TeV = 0.0;
+          double beam_energy_GeV = 0.0;
+          double beam_energy_relative = 0.0;
+        };
+
+        RunConditionTolerances get_run_condition_tolerances(const Options& settings)
+        {
+          RunConditionTolerances tolerances;
+          tolerances.collision_energy_TeV = get_collision_energy_tolerance_TeV(settings);
+          tolerances.beam_energy_GeV = get_beam_energy_tolerance_GeV(settings);
+          tolerances.beam_energy_relative = get_beam_energy_relative_tolerance(settings);
+          return tolerances;
+        }
+
+        bool run_infos_match(const HepMCRunInfo& lhs, const HepMCRunInfo& rhs,
+                             const RunConditionTolerances& tolerances)
+        {
+          return run_infos_match(lhs, rhs,
+                                 tolerances.collision_energy_TeV,
+                                 tolerances.beam_energy_GeV,
+                                 tolerances.beam_energy_relative);
+        }
+
+        /// Identifier-safe label for a beam particle, e.g. p, pbar, em (e-) or ep (e+).
+        std::string beam_label(int pid)
+        {
+          switch (pid)
+          {
+            case 2212: return "p";
+            case -2212: return "pbar";
+            case 11: return "em";
+            case -11: return "ep";
+            case 13: return "mum";
+            case -13: return "mup";
+            case 22: return "gamma";
+            default: return (pid < 0 ? "pidm" : "pid") + std::to_string(std::abs(pid));
+          }
+        }
+
+        /// Name a collider after its beams and sqrt(s) rounded to the nearest GeV,
+        /// e.g. CBS_pp_13TeV or CBS_pp_13p6TeV.  Beam order does not matter.
+        std::string collider_name_for(const HepMCRunInfo& run_info)
+        {
+          const int first_pid = std::max(run_info.beam_pid_1, run_info.beam_pid_2);
+          const int second_pid = std::min(run_info.beam_pid_1, run_info.beam_pid_2);
+
+          const long long sqrt_s_GeV = std::llround(run_info.collision_energy_TeV * 1000.0);
+          std::ostringstream energy;
+          energy << sqrt_s_GeV / 1000;
+          const long long remainder_GeV = sqrt_s_GeV % 1000;
+          if (remainder_GeV != 0)
+          {
+            std::ostringstream digits;
+            digits << std::setw(3) << std::setfill('0') << remainder_GeV;
+            std::string decimals = digits.str();
+            while (!decimals.empty() && decimals.back() == '0') decimals.pop_back();
+            energy << 'p' << decimals;
+          }
+
+          return "CBS_" + beam_label(first_pid) + beam_label(second_pid) + "_" + energy.str() + "TeV";
+        }
+
+        /// Read the run conditions of every HepMC input from its first physical event.
+        std::vector<HepMCFileInspection> inspect_hepmc_inputs(PreparedInput& prepared)
+        {
+          std::vector<HepMCFileInspection> inputs;
+          inputs.reserve(prepared.hepmc_filenames.size());
+          prepared.hepmc_run_infos.clear();
+          prepared.hepmc_run_infos.reserve(prepared.hepmc_filenames.size());
+          for (const str& filename : prepared.hepmc_filenames)
+          {
+            inputs.push_back(inspect_hepmc_file(filename));
+            prepared.hepmc_run_infos.push_back(inputs.back().run_info);
+          }
+          return inputs;
+        }
+
+        /// Return the collider matching run_info, creating and naming a new one if needed.
+        /// Distinct run conditions must not share a name.
+        std::size_t collider_index_for(PreparedInput& prepared,
+                                       const HepMCRunInfo& run_info,
+                                       const RunConditionTolerances& tolerances)
+        {
+          for (std::size_t index = 0; index < prepared.colliders.size(); ++index)
+          {
+            if (run_infos_match(prepared.colliders[index].run_info, run_info, tolerances)) return index;
+          }
+
+          ColliderInput collider;
+          collider.name = collider_name_for(run_info);
+          collider.run_info = run_info;
+          for (const ColliderInput& existing : prepared.colliders)
+          {
+            if (existing.name == collider.name)
+            {
+              throw std::runtime_error(
+                "CBS input: HepMC files with different run conditions ("
+                + format_run_conditions(existing.run_info) + " and "
+                + format_run_conditions(run_info) + ") would both be named collider "
+                + collider.name + ". Check the inputs or the collision/beam-energy tolerances."
+              );
+            }
+          }
+          prepared.colliders.push_back(collider);
+          return prepared.colliders.size() - 1;
+        }
+
+        /// Group the HepMC inputs into colliders by their run conditions.  Every
+        /// file of a physics process must share the run conditions of its first
+        /// file; each collider is normalised to the summed cross section of its
+        /// processes, with uncertainties added in quadrature.
+        void build_colliders(PreparedInput& prepared,
+                             const std::vector<HepMCFileInspection>& inputs,
+                             const CrossSectionInput& event_file_xs)
+        {
+          const RunConditionTolerances tolerances = get_run_condition_tolerances(prepared.settings);
+          prepared.colliders.clear();
+
+          if (prepared.processes.empty())
+          {
+            ColliderInput& collider =
+              prepared.colliders[collider_index_for(prepared, inputs.front().run_info, tolerances)];
+            collider.hepmc_filenames.push_back(inputs.front().filename);
+            collider.cross_section_fb = event_file_xs.xsec_fb;
+            collider.cross_section_uncert_fb = event_file_xs.xsec_uncert_fb;
+            return;
+          }
+
+          // prepared.hepmc_filenames, and hence inputs, list the files process by process.
+          std::vector<double> uncert_sq;
+          std::size_t input_index = 0;
+          for (std::size_t ip = 0; ip < prepared.processes.size(); ++ip)
+          {
+            ProcessInput& process = prepared.processes[ip];
+            const HepMCFileInspection& reference = inputs.at(input_index);
+            for (std::size_t jf = 0; jf < process.files.size(); ++jf, ++input_index)
+            {
+              const HepMCFileInspection& inspected = inputs.at(input_index);
+              if (!run_infos_match(reference.run_info, inspected.run_info, tolerances))
+              {
+                throw std::runtime_error(
+                  "CBS input: process '" + process.name + "' mixes HepMC run conditions: "
+                  + reference.filename + " has " + format_run_conditions(reference.run_info)
+                  + ", while " + inspected.filename + " has "
+                  + format_run_conditions(inspected.run_info)
+                  + ". All files of a process must share one beam configuration and collision energy."
+                );
+              }
+            }
+
+            const std::size_t ic = collider_index_for(prepared, reference.run_info, tolerances);
+            uncert_sq.resize(prepared.colliders.size(), 0.0);
+            ColliderInput& collider = prepared.colliders[ic];
+            process.collider_name = collider.name;
+            collider.process_indices.push_back(ip);
+            for (const HepMCFileInput& file : process.files)
+            {
+              collider.hepmc_filenames.push_back(file.filename);
+            }
+            collider.cross_section_fb += process.cross_section_fb;
+            uncert_sq[ic] += process.cross_section_uncert_fb * process.cross_section_uncert_fb;
+          }
+
+          for (std::size_t ic = 0; ic < prepared.colliders.size(); ++ic)
+          {
+            ColliderInput& collider = prepared.colliders[ic];
+            collider.cross_section_uncert_fb = std::sqrt(uncert_sq[ic]);
+            if (collider.cross_section_fb <= 0.0)
+            {
+              throw std::runtime_error(
+                "Total cross section of the settings.processes entries for collider "
+                + collider.name + " must be > 0.");
+            }
+          }
+        }
+
+        /// Assign each analysis to the one collider whose HepMC files all satisfy
+        /// its beam/run requirements.  Disable analyses that match no collider and
+        /// reject analyses that would match several.
+        void assign_analyses_to_colliders(PreparedInput& prepared,
+                                          const std::vector<HepMCFileInspection>& inputs)
+        {
+          const RunConditionTolerances tolerances = get_run_condition_tolerances(prepared.settings);
+
+          std::map<str, HepMCRunInfo> run_info_by_file;
+          for (const HepMCFileInspection& input : inputs)
+          {
+            run_info_by_file[input.filename] = input.run_info;
+          }
+
           std::vector<str> retained_analyses;
           retained_analyses.reserve(prepared.analyses.size());
+          prepared.analysis_colliders.clear();
+          for (ColliderInput& collider : prepared.colliders) collider.analyses.clear();
 
           for (const str& analysis : prepared.analyses)
           {
@@ -618,82 +809,96 @@ namespace Gambit
               continue;
             }
 
-            bool matches_all_inputs = true;
-            for (const HepMCFileInspection& input : inputs)
+            std::vector<std::size_t> matching_colliders;
+            str first_mismatch_reason;
+            str first_mismatch_file;
+            for (std::size_t ic = 0; ic < prepared.colliders.size(); ++ic)
             {
-              reason.clear();
-              if (!analysis_matches_run(requirements,
-                                        input.run_info,
-                                        collision_energy_tolerance_TeV,
-                                        beam_energy_tolerance_GeV,
-                                        beam_energy_relative_tolerance,
-                                        reason))
+              bool matches_all_files = true;
+              for (const str& filename : prepared.colliders[ic].hepmc_filenames)
               {
-                prepared.analysis_disable_reasons[analysis] = reason;
+                str mismatch_reason;
+                if (!analysis_matches_run(requirements,
+                                          run_info_by_file.at(filename),
+                                          tolerances.collision_energy_TeV,
+                                          tolerances.beam_energy_GeV,
+                                          tolerances.beam_energy_relative,
+                                          mismatch_reason))
+                {
+                  if (first_mismatch_reason.empty())
+                  {
+                    first_mismatch_reason = mismatch_reason;
+                    first_mismatch_file = filename;
+                  }
+                  matches_all_files = false;
+                  break;
+                }
+              }
+              if (matches_all_files) matching_colliders.push_back(ic);
+            }
+
+            if (matching_colliders.empty())
+            {
+              if (prepared.colliders.size() == 1)
+              {
+                prepared.analysis_disable_reasons[analysis] = first_mismatch_reason;
                 prepared.analysis_warnings.push_back(
                   "CBS input: ignoring analysis '" + analysis
                   + "' because its beam/run requirements do not match HepMC file "
-                  + input.filename + "; " + reason + "."
+                  + first_mismatch_file + "; " + first_mismatch_reason + "."
                 );
-                matches_all_inputs = false;
-                break;
               }
+              else
+              {
+                str collider_names;
+                for (const ColliderInput& collider : prepared.colliders)
+                {
+                  collider_names += (collider_names.empty() ? "" : ", ") + collider.name;
+                }
+                prepared.analysis_disable_reasons[analysis] =
+                  "no HepMC collider matches its beam/run requirements";
+                prepared.analysis_warnings.push_back(
+                  "CBS input: ignoring analysis '" + analysis
+                  + "' because its beam/run requirements match none of the HepMC colliders ("
+                  + collider_names + ")."
+                );
+              }
+              continue;
             }
 
-            if (matches_all_inputs) retained_analyses.push_back(analysis);
+            if (matching_colliders.size() > 1)
+            {
+              str collider_names;
+              for (std::size_t ic : matching_colliders)
+              {
+                collider_names += (collider_names.empty() ? "" : ", ") + prepared.colliders[ic].name;
+              }
+              throw std::runtime_error(
+                "CBS input: analysis '" + analysis + "' matches the run conditions of several "
+                "HepMC colliders (" + collider_names + "), so CBS cannot decide which events it analyses."
+              );
+            }
+
+            ColliderInput& collider = prepared.colliders[matching_colliders.front()];
+            collider.analyses.push_back(analysis);
+            prepared.analysis_colliders[analysis] = collider.name;
+            retained_analyses.push_back(analysis);
           }
 
           prepared.analyses.swap(retained_analyses);
-        }
+          prepared.infile["analyses"] = prepared.analyses;
 
-        void validate_hepmc_run_conditions(PreparedInput& prepared)
-        {
-          const double collision_energy_tolerance_TeV =
-            get_collision_energy_tolerance_TeV(prepared.settings);
-          const double beam_energy_tolerance_GeV =
-            get_beam_energy_tolerance_GeV(prepared.settings);
-          const double beam_energy_relative_tolerance =
-            get_beam_energy_relative_tolerance(prepared.settings);
-          std::vector<HepMCFileInspection> inputs;
-          inputs.reserve(prepared.hepmc_filenames.size());
-          for (const str& filename : prepared.hepmc_filenames)
+          if (prepared.analyses.empty()) return;
+          for (const ColliderInput& collider : prepared.colliders)
           {
-            inputs.push_back(inspect_hepmc_file(filename));
-          }
-
-          const HepMCFileInspection& reference = inputs.front();
-          prepared.run_info = reference.run_info;
-          prepared.collision_energy_TeV = reference.run_info.collision_energy_TeV;
-          prepared.hepmc_run_infos.clear();
-          prepared.hepmc_run_infos.reserve(inputs.size());
-          for (const HepMCFileInspection& input : inputs)
-          {
-            prepared.hepmc_run_infos.push_back(input.run_info);
-          }
-
-          for (std::size_t index = 1; index < inputs.size(); ++index)
-          {
-            const HepMCFileInspection& inspected = inputs[index];
-            if (!run_infos_match(reference.run_info,
-                                 inspected.run_info,
-                                 collision_energy_tolerance_TeV,
-                                 beam_energy_tolerance_GeV,
-                                 beam_energy_relative_tolerance))
+            if (collider.analyses.empty())
             {
-              throw std::runtime_error(
-                "CBS input mixes HepMC run conditions: " + reference.filename + " has "
-                + format_run_conditions(reference.run_info) + ", while " + inspected.filename
-                + " has " + format_run_conditions(inspected.run_info) + "."
+              prepared.analysis_warnings.push_back(
+                "CBS input: no enabled analysis matches collider " + collider.name + " ("
+                + format_run_conditions(collider.run_info) + "); its HepMC files will not be analysed."
               );
             }
           }
-
-          retain_run_matched_analyses(prepared,
-                                      inputs,
-                                      collision_energy_tolerance_TeV,
-                                      beam_energy_tolerance_GeV,
-                                      beam_energy_relative_tolerance);
-          prepared.infile["analyses"] = prepared.analyses;
         }
 
         /// Read an analysis's validation status and describe any rejection in reason.
@@ -1062,9 +1267,12 @@ namespace Gambit
       /// Load CBS YAML, apply defaults and filter analyses before preparing event inputs.
       /// Support either one event_file or named physics processes with their own files
       /// and cross sections, retaining process membership for the subsequent merge.
+      /// Group the files into colliders by their run conditions, and assign each
+      /// retained analysis to the collider whose run conditions it accepts.
       PreparedInput parse_and_prepare_input(const std::string& filename_in)
       {
         PreparedInput prepared;
+        CrossSectionInput event_file_xs;
 
         try
         {
@@ -1128,8 +1336,6 @@ namespace Gambit
             throw std::runtime_error("settings.processes must be a non-empty sequence.");
           }
 
-          double total_uncert_sq = 0.0;
-
           for (std::size_t ip = 0; ip < processes_node.size(); ++ip)
           {
             YAML::Node process_node = processes_node[ip];
@@ -1166,15 +1372,7 @@ namespace Gambit
             }
 
             prepared.processes.push_back(process_input);
-            prepared.total_cross_section_fb += process_input.cross_section_fb;
-            total_uncert_sq += process_input.cross_section_uncert_fb * process_input.cross_section_uncert_fb;
           }
-
-          if (prepared.total_cross_section_fb <= 0.0)
-          {
-            throw std::runtime_error("Total cross section from settings.processes must be > 0.");
-          }
-          prepared.total_cross_section_uncert_fb = std::sqrt(total_uncert_sq);
 
           for (const ProcessInput& process : prepared.processes)
           {
@@ -1201,9 +1399,7 @@ namespace Gambit
             throw std::runtime_error("HepMC event file " + event_filename + " not found.");
           }
 
-          const CrossSectionInput xs = parse_cross_section_fb(prepared.settings, "settings");
-          prepared.total_cross_section_fb = xs.xsec_fb;
-          prepared.total_cross_section_uncert_fb = xs.xsec_uncert_fb;
+          event_file_xs = parse_cross_section_fb(prepared.settings, "settings");
 
           prepared.hepmc_filenames.push_back(event_filename);
         }
@@ -1213,9 +1409,33 @@ namespace Gambit
           throw std::runtime_error("No HepMC files were prepared from input YAML.");
         }
 
-        validate_hepmc_run_conditions(prepared);
+        const std::vector<HepMCFileInspection> inputs = inspect_hepmc_inputs(prepared);
+        build_colliders(prepared, inputs, event_file_xs);
+        assign_analyses_to_colliders(prepared, inputs);
+
+        // A batch parent names the collider it expects each per-file run to report.
+        if (prepared.settings.hasKey("cbs_collider_name"))
+        {
+          const str expected_collider = prepared.settings.getValue<str>("cbs_collider_name");
+          if (prepared.colliders.size() != 1 || prepared.colliders.front().name != expected_collider)
+          {
+            throw std::runtime_error(
+              "CBS batch run expected collider " + expected_collider + ", but its HepMC input defines "
+              + prepared.colliders.front().name + ".");
+          }
+        }
 
         return prepared;
+      }
+
+      /// Look up a prepared collider by name.
+      const ColliderInput& find_collider(const PreparedInput& prepared, const str& collider_name)
+      {
+        for (const ColliderInput& collider : prepared.colliders)
+        {
+          if (collider.name == collider_name) return collider;
+        }
+        throw std::runtime_error("Unknown CBS collider " + collider_name + ".");
       }
     } // namespace SoloInput
   }   // namespace ColliderBit

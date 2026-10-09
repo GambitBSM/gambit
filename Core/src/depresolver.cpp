@@ -951,7 +951,7 @@ namespace Gambit
 
     std::vector<std::pair<VertexID,bool>> DependencyResolver::closestCandidateForModel(std::vector<std::pair<VertexID,bool>> candidates)
     {
-      // In case of doubt (and if not explicitely disabled in the ini-file), prefer functors
+      // In case of doubt (and if not explicitly disabled in the ini-file), prefer functors
       // that are more specifically tailored for the model being scanned. Do not consider functors
       // that are accessible via INTERPRET_AS_X links, as these are all considered to be equally 'far'
       // from the model being scanned, with the 'distance' being one step further than the most distant

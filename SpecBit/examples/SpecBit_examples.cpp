@@ -54,7 +54,7 @@ namespace Gambit
     void exampleRead (bool &result)
     {
 
-      // Retreive pointer to Spectrum object, delivered by dependency resolver
+      // Retrieve pointer to Spectrum object, delivered by dependency resolver
       // Module function asks for Spectrum* with capability MSSM_spectrum.
       // i.e. has DEPENDENCY(MSSM_spectrum, Spectrum*)
       namespace myPipe = Pipes::exampleRead;

@@ -12,6 +12,9 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Jan
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 
@@ -26,24 +29,26 @@ namespace Gambit
   {
 
     /// Set exceeded_maxFailedEvents = true and decrement event counter by 1
-    void MCLoopInfo::report_exceeded_maxFailedEvents() const
+    void MCLoopInfo::report_exceeded_maxFailedEvents(int iteration) const
     {
       #pragma omp critical
       {
         exceeded_maxFailedEvents = true;
+        if (store_event_ids) rejected_event_ids.insert(iteration);
         // Decrement event counter
-        _current_event_count_it->second--;        
+        _current_event_count_it->second--;
       }
     }
 
     /// Set end_of_event_file = true and decrement event counter by 1
-    void MCLoopInfo::report_end_of_event_file() const
+    void MCLoopInfo::report_end_of_event_file(int iteration) const
     {
       #pragma omp critical
       {
         end_of_event_file = true;
+        if (store_event_ids) rejected_event_ids.insert(iteration);
         // Decrement event counter
-        _current_event_count_it->second--;        
+        _current_event_count_it->second--;
       }
     }
 

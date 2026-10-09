@@ -77,6 +77,7 @@ namespace Gambit
 
         class Analysis_ATLAS_EXOT_2016_014 : public Analysis
         {
+
         public:
 
             static constexpr const char *detector = "ATLAS";
@@ -196,7 +197,7 @@ namespace Gambit
                 {
                     baselineLargeRJets.push_back(jet);
                 }
-                // cout << "SmallR jet Number ->" << event->jets("antikt_R04").size() << endl; 
+                // cout << "SmallR jet Number ->" << event->jets("antikt_R04").size() << endl;
                 // cout << "LargeR jet Number ->" << baselineLargeRJets.size() << endl;
                 // cout << "Before Trimming Jet " << endl;
                 const double Rsub = 0.2;
@@ -264,7 +265,7 @@ namespace Gambit
                 removeOverlap(trimmedLargeRJets, baselineMuons, 1.0);
 
 
-                // cout << "4. After Overlep Remove ... " << endl; 
+                // cout << "4. After Overlep Remove ... " << endl;
                 // Define Signal objects;
                 vector<const HEPUtils::Jet *> signalJets = nonbJets;
                 vector<const HEPUtils::Jet *> signalBjets = bJets;
@@ -329,7 +330,7 @@ namespace Gambit
                     }
                 }
 
-                // cout << "6. Whad candidate construct!" << endl; 
+                // cout << "6. Whad candidate construct!" << endl;
 
                 // Deine Wlep
                 // Solving the four-momentum of the neutrino analytically.
@@ -390,7 +391,7 @@ namespace Gambit
                         }
                     }
                 }
-                // cout << "7. After pairing WbWb" << endl; 
+                // cout << "7. After pairing WbWb" << endl;
                 // Define statistical variables
                 const double mTlep = (p4bJetlep + Wlep.mom()).m();
                 const double mThad = (p4bJethad + signal_Whad->mom()).m();

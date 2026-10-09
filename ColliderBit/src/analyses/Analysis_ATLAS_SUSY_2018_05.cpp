@@ -90,9 +90,9 @@ namespace Gambit
                                             "njets ==2", "mjj: [60,110] GeV", "Rll < 1.6");
 
         defineSignalRegion("SROffShell_1_cuts_0", "n bjets == 0", "mll: [12,71] GeV", "MET sig > 9", "mt2 > 100 GeV",
-                                                 "njets >=2", "jet pt1 > 100", "Rll < 1.6", "dphiJ1met > 2");
+                                                  "njets >=2", "jet pt1 > 100", "Rll < 1.6", "dphiJ1met > 2");
         defineSignalRegion("SROffShell_2_cuts_0", "n bjets == 0", "mll: [12,71] GeV", "MET sig > 9", "mt2 > 100 GeV",
-                                                 "njets >=2", "jet pt1 > 100", "Rll < 1.6", "dphiJ1met > 2");
+                                                  "njets >=2", "jet pt1 > 100", "Rll < 1.6", "dphiJ1met > 2");
 
       }
 

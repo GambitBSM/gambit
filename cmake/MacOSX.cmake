@@ -118,7 +118,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang
         set(OpenMP_C_LIB_NAMES "omp" CACHE STRING "C compiler libraries for OpenMP parallelization" FORCE)
         set(OpenMP_CXX_LIB_NAMES "omp" CACHE STRING "CXX compiler libraries for OpenMP parallelization" FORCE)
         set(OpenMP_omp_LIBRARY "${BREW_LIBOMP_PREFIX}/lib/libomp.dylib" CACHE FILEPATH "Path to the omp library for OpenMP" FORCE)
-        set(GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP_LDFLAGS "-L${BREW_LIBOMP_PREFIX}/lib")
+        set(GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP_LDFLAGS "-L${BREW_LIBOMP_PREFIX}/lib -Wl,-rpath,${BREW_LIBOMP_PREFIX}/lib")
         set(GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP TRUE)
         include_directories("${BREW_LIBOMP_PREFIX}/include")
         message(STATUS "Using Homebrew libomp for Homebrew LLVM from ${BREW_LIBOMP_PREFIX}")

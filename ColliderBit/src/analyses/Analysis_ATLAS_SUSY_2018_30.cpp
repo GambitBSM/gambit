@@ -43,44 +43,10 @@ namespace Gambit {
 
     class Analysis_ATLAS_SUSY_2018_30 : public Analysis {
 
-    protected:
-      // Signal region map
-      std::map<string, EventCounter> _counters = {
-        // C&C regions
-        {"SR_Gtt_0l_B", EventCounter("SR_Gtt_0l_B")},
-        {"SR_Gtt_0l_M1", EventCounter("SR_Gtt_0l_M1")},
-        {"SR_Gtt_0l_M2", EventCounter("SR_Gtt_0l_M2")},
-        {"SR_Gtt_0l_C", EventCounter("SR_Gtt_0l_C")},
-
-        {"SR_Gtt_1l_B", EventCounter("SR_Gtt_1l_B")},
-        {"SR_Gtt_1l_M1", EventCounter("SR_Gtt_1l_M1")},
-        {"SR_Gtt_1l_M2", EventCounter("SR_Gtt_1l_M2")},
-        {"SR_Gtt_1l_C", EventCounter("SR_Gtt_1l_C")},
-
-        {"SR_Gbb_B", EventCounter("SR_Gbb_B")},
-        {"SR_Gbb_M", EventCounter("SR_Gbb_M")},
-        {"SR_Gbb_C", EventCounter("SR_Gbb_C")},
-
-        {"SR_Gtb_B", EventCounter("SR_Gtb_B")},
-        {"SR_Gtb_M", EventCounter("SR_Gtb_M")},
-        {"SR_Gtb_C", EventCounter("SR_Gtb_C")},
-
-        // NN regions
-        {"SR_Gtt_2100_1", EventCounter("SR_Gtt_2100_1")},
-        {"SR_Gtt_1800_1", EventCounter("SR_Gtt_1800_1")},
-        {"SR_Gtt_2300_1200", EventCounter("SR_Gtt_2300_1200")},
-        {"SR_Gtt_1900_1400", EventCounter("SR_Gtt_1900_1400")},
-
-        {"SR_Gbb_2800_1400", EventCounter("SR_Gbb_2800_1400")},
-        {"SR_Gbb_2300_1000", EventCounter("SR_Gbb_2300_1000")},
-        {"SR_Gbb_2100_1600", EventCounter("SR_Gbb_2100_1600")},
-        {"SR_Gbb_2000_1800", EventCounter("SR_Gbb_2000_1800")},
-      };
-
     private:
 
       std::unique_ptr<onnx_rt_wrapper> _nn;
-      
+
     public:
 
       // Required detector sim
@@ -112,14 +78,14 @@ namespace Gambit {
         }
       }
 
-      
+
       // Trim reclustered jets (and conveniently apply pt/eta cuts at the same time)
       static void trimJets(const vector<FJNS::PseudoJet> &pjs_in, vector<Jet> &js_out,
-                           const double frac = 0.1, const double minPt = 0., 
+                           const double frac = 0.1, const double minPt = 0.,
                            const double maxEta = 6., const double minPt_twosubJets = 0.){
         js_out.clear();
         for (const FJNS::PseudoJet & pj : pjs_in){
-          if (pj.pt() < minPt || abs(pj.eta()) > maxEta || 
+          if (pj.pt() < minPt || abs(pj.eta()) > maxEta ||
             (pj.pt() < minPt_twosubJets && pj.constituents().size() == 1)) continue;
           const double vetoPt = frac*pj.pt();
           P4 running_total;
@@ -130,7 +96,7 @@ namespace Gambit {
               running_total += P4(constit.px(), constit.py(), constit.pz(), constit.E());
             }
           }
-          if (running_total.pT() < minPt || running_total.abseta() > maxEta || 
+          if (running_total.pT() < minPt || running_total.abseta() > maxEta ||
             (running_total.pT() < minPt_twosubJets && preserved_subjets.size() == 1)) continue;
           js_out.emplace_back(running_total);
         }
@@ -153,6 +119,40 @@ namespace Gambit {
         set_analysis_name("ATLAS_SUSY_2018_30");
         set_luminosity(139.);
 
+        // Register signal regions
+        _counters = {
+          // C&C regions
+          {"SR_Gtt_0l_B", EventCounter("SR_Gtt_0l_B")},
+          {"SR_Gtt_0l_M1", EventCounter("SR_Gtt_0l_M1")},
+          {"SR_Gtt_0l_M2", EventCounter("SR_Gtt_0l_M2")},
+          {"SR_Gtt_0l_C", EventCounter("SR_Gtt_0l_C")},
+
+          {"SR_Gtt_1l_B", EventCounter("SR_Gtt_1l_B")},
+          {"SR_Gtt_1l_M1", EventCounter("SR_Gtt_1l_M1")},
+          {"SR_Gtt_1l_M2", EventCounter("SR_Gtt_1l_M2")},
+          {"SR_Gtt_1l_C", EventCounter("SR_Gtt_1l_C")},
+
+          {"SR_Gbb_B", EventCounter("SR_Gbb_B")},
+          {"SR_Gbb_M", EventCounter("SR_Gbb_M")},
+          {"SR_Gbb_C", EventCounter("SR_Gbb_C")},
+
+          {"SR_Gtb_B", EventCounter("SR_Gtb_B")},
+          {"SR_Gtb_M", EventCounter("SR_Gtb_M")},
+          {"SR_Gtb_C", EventCounter("SR_Gtb_C")},
+
+          // NN regions
+          {"SR_Gtt_2100_1", EventCounter("SR_Gtt_2100_1")},
+          {"SR_Gtt_1800_1", EventCounter("SR_Gtt_1800_1")},
+          {"SR_Gtt_2300_1200", EventCounter("SR_Gtt_2300_1200")},
+          {"SR_Gtt_1900_1400", EventCounter("SR_Gtt_1900_1400")},
+
+          {"SR_Gbb_2800_1400", EventCounter("SR_Gbb_2800_1400")},
+          {"SR_Gbb_2300_1000", EventCounter("SR_Gbb_2300_1000")},
+          {"SR_Gbb_2100_1600", EventCounter("SR_Gbb_2100_1600")},
+          {"SR_Gbb_2000_1800", EventCounter("SR_Gbb_2000_1800")},
+        };
+
+
         // Load the NN
         //TODO: We really want to be as sure as possible this is called the minimal number of times.
         _nn = std::make_unique<onnx_rt_wrapper>(GAMBIT_DIR"/ColliderBit/data/analyses_ML/Analysis_ATLAS_SUSY_2018_30.onnx");
@@ -161,23 +161,23 @@ namespace Gambit {
         // C&C regions
         _cutflows.addCutflow("SR_Gtt_0l_B", {"Nsiglep=0","dPhi4jmin>0.4","NJet>=5","ETMiss>=600","Meff>=2900","mbjets_Tmin>120","TotJetMass>=300"}); //TODO: bjets????
         _cutflows.addCutflow("SR_Gtt_0l_M1", {"Nsiglep=0","dPhi4jmin>0.4","NJet>=9&&Nbs>=3","ETMiss>=600","Meff>=1700","mbjets_Tmin>120","TotJetMass>=300"});
-        _cutflows.addCutflow("SR_Gtt_0l_M2", {"Nsiglep=0","dPhi4jmin>0.4","NJet>=10&&Nbs>=3","ETMiss>=500","Meff>=1100","mbjets_Tmin>120","TotJetMass>=200"}); 
+        _cutflows.addCutflow("SR_Gtt_0l_M2", {"Nsiglep=0","dPhi4jmin>0.4","NJet>=10&&Nbs>=3","ETMiss>=500","Meff>=1100","mbjets_Tmin>120","TotJetMass>=200"});
         _cutflows.addCutflow("SR_Gtt_0l_C", {"Nsiglep=0","dPhi4jmin>0.4","NJets>=10","NBjets>=4","ETMiss>=400","Meff>=800","mbjets_Tmin>180","TotJetMass>=100"});
 
          //TODO: where does the bjet presel cut come in?
         _cutflows.addCutflow("SR_Gbb_B", {"Nsiglep=0","dPhi4jmin>0.4","mbjets_Tmin>=130","ETMiss>=550","pTjet>=65","Meff>=2600"});
         _cutflows.addCutflow("SR_Gbb_M", {"Nsiglep=0","dPhi4jmin>0.4","mbjets_Tmin>=130","ETMiss>=550","Meff>=2000"});
         // n.b. I'm 99% sure Aux Table 4 gets meff and the met cut the wrong way round for Gbb_C, should be consistent with Gbb_B, Gbb_M
-        _cutflows.addCutflow("SR_Gbb_C", {"Nsiglep=0","dPhi4jmin>0.4","mbjets_Tmin>=130","ETMiss>=550","Meff>=1600"}); 
+        _cutflows.addCutflow("SR_Gbb_C", {"Nsiglep=0","dPhi4jmin>0.4","mbjets_Tmin>=130","ETMiss>=550","Meff>=1600"});
 
         _cutflows.addCutflow("SR_Gtb_B", {"ETmissTrigger", "Nsiglep=0", "dPhi4jmin>0.4", "mbjets_Tmin>=130", "Meff>=2500", "ETMiss>=550", "totJetMass>=200"});
         _cutflows.addCutflow("SR_Gtb_M", {"ETmissTrigger", "Nsiglep=0", "dPhi4jmin>0.4", "mbjets_Tmin>=130", "nJets>=6", "nbs>=4", "Meff>=2000", "ETMiss>=550","totJetMass>=200"});
-        _cutflows.addCutflow("SR_Gtb_C", {"ETmissTrigger", "Nsiglep=0", "dPhi4jmin>0.4", "mbjets_Tmin>=130", "nJets>=7", "nbs>=4", "Meff>=1300", "ETMiss>=500","totJetMass>=50"}); 
+        _cutflows.addCutflow("SR_Gtb_C", {"ETmissTrigger", "Nsiglep=0", "dPhi4jmin>0.4", "mbjets_Tmin>=130", "nJets>=7", "nbs>=4", "Meff>=1300", "ETMiss>=500","totJetMass>=50"});
 
         //TODO: the ordering of the bjet cut confuses me (again).
         _cutflows.addCutflow("SR_Gtt_1l_B", {"Nsiglep=1","NJet>=4 && nbs >= 3","ETMiss>=600","Meff>=2300","m_trans>=150","mbjets_Tmin>120","TotJetMass>=200"});
         _cutflows.addCutflow("SR_Gtt_1l_M1", {"Nsiglep=1","NJet>=5 && nbs >= 3","ETMiss>=600","Meff>=2000","m_trans>=200","mbjets_Tmin>120","TotJetMass>=200"});
-        _cutflows.addCutflow("SR_Gtt_1l_M2", {"Nsiglep=1","NJet>=8 && nbs >= 3","ETMiss>=500","Meff>=1100","m_trans>=200","mbjets_Tmin>120","TotJetMass>=100"}); 
+        _cutflows.addCutflow("SR_Gtt_1l_M2", {"Nsiglep=1","NJet>=8 && nbs >= 3","ETMiss>=500","Meff>=1100","m_trans>=200","mbjets_Tmin>120","TotJetMass>=100"});
         _cutflows.addCutflow("SR_Gtt_1l_C", {"Nsiglep=1","NJet>=9 && nbs >= 3","ETMiss>=300","Meff>=800","m_trans>=150","mbjets_Tmin>120"});
 
         // NN regions
@@ -202,7 +202,7 @@ namespace Gambit {
       }
 
       void run(const HEPUtils::Event* event) {
-        
+
         // Get the missing energy in the event
         double met = event->met();
         HEPUtils::P4 metVec = event->missingmom();
@@ -224,7 +224,7 @@ namespace Gambit {
             muons.push_back(muon);
         }
 
-        // Get base and signal leptons CONSISTENTLY (i.e. all tight electrons are loose 
+        // Get base and signal leptons CONSISTENTLY (i.e. all tight electrons are loose
         //    electrons, never more signal than base etc.)
         vector<const HEPUtils::Particle*> sigElectrons, baseElectrons;
         vector<const HEPUtils::Particle*> sigMuons, baseMuons;
@@ -270,9 +270,9 @@ namespace Gambit {
         // n.b. only pT (not Et) part of the criteria implemented - How to define the Et calorimeter cone in gambit I have no idea
         ifilter_reject(sigElectrons, [&tracks](const HEPUtils::Particle* el){
           const double elRadius = min(0.2, (10*GeV)/el->pT());
-          return (1.15*el->pT() < std::accumulate(tracks.begin(), tracks.end(), 0.0, 
+          return (1.15*el->pT() < std::accumulate(tracks.begin(), tracks.end(), 0.0,
           [el, &elRadius](const double tot, const P4& track){
-            return (el->mom().deltaR_eta(track) < elRadius && 
+            return (el->mom().deltaR_eta(track) < elRadius &&
               (el->mom().deltaPhi(track) > 0.1 &&
                 el->mom().deltaEta(track) > 0.05)) ? tot+track.pT() : tot ;
           }));
@@ -280,13 +280,13 @@ namespace Gambit {
         //Signal Muons: FixedCutTightTrackOnly - definition inferred from arXiv:1603.05598 table 2
         ifilter_reject(sigMuons, [&tracks](const Particle& mu){
           const double muRadius = min(0.3, (10*GeV)/mu.pT());
-          const double conePt = std::accumulate(tracks.begin(), tracks.end(), 0.0, 
+          const double conePt = std::accumulate(tracks.begin(), tracks.end(), 0.0,
             [muRadius, &mu](const double tot, const P4& track){
               return mu.mom().deltaR_eta(track) < muRadius ? tot+track.pT() : tot ;
           });
           return (1.06*mu.pT() < conePt);
         }, false);
-      
+
         vector<const HEPUtils::Jet*> preJVTJets;
         vector<const HEPUtils::Jet*> candJets;
         vector<const HEPUtils::Jet*>  bJets;
@@ -320,7 +320,7 @@ namespace Gambit {
         // TODO: Just left in for now.
         removeOverlap(nonbJets, baseElectrons, 0.2);
         removeOverlap(nonbJets, sigElectrons, 0.2);
-        
+
         removeOverlap(baseElectrons,nonbJets, 0.4);
         removeOverlap(baseElectrons,bJets, 0.4);
         removeOverlap(sigElectrons,nonbJets, 0.4);
@@ -333,7 +333,7 @@ namespace Gambit {
         removeOverlap(baseMuons,bJets, mudRmax);
         removeOverlap(sigMuons,nonbJets, mudRmax);
         removeOverlap(sigMuons,bJets, mudRmax);
-        
+
         // Number of objects
         size_t nbJets = bJets.size();
         size_t nnonbJets = nonbJets.size();
@@ -384,17 +384,17 @@ namespace Gambit {
                smallJets[2].mom().deltaPhi(metVec),
                smallJets[3].mom().deltaPhi(metVec)});
         const double totJetMass = accumulate(largeJets.begin(), largeJets.end(), 0.0,
-                                                  [](double tot, const Jet &j){return tot+j.mass();});                                       
-        const double meff = met + accumulate(smallJets.begin(), smallJets.end(), 0.0, 
+                                                  [](double tot, const Jet &j){return tot+j.mass();});
+        const double meff = met + accumulate(smallJets.begin(), smallJets.end(), 0.0,
                                               [](double tot, const Jet & j){return tot+j.pT();})
-                                + accumulate(sigElectrons.begin(), sigElectrons.end(), 0.0, 
+                                + accumulate(sigElectrons.begin(), sigElectrons.end(), 0.0,
                                               [](double tot, const Particle* el){return tot+el->pT();})
-                                + accumulate(sigMuons.begin(), sigMuons.end(), 0.0, 
+                                + accumulate(sigMuons.begin(), sigMuons.end(), 0.0,
                                               [](double tot, const Particle* mu){return tot+mu->pT();});
         const double m_transverse_B_min = min({transverse_mass(metVec, bJets[0]->mom()),
                                                transverse_mass(metVec, bJets[1]->mom()),
                                                transverse_mass(metVec, bJets[2]->mom())});
-        
+
         ///////////////////////////////////////////////////////////////////////
         // NN analysis
         // n.b. cast to float is an onnx necessity
@@ -413,16 +413,16 @@ namespace Gambit {
           (nJets > 9 ? (float)smallJets[9].pT() : 0.0f), nJets > 9 ? (float)smallJets[9].eta() : 0.f, nJets > 9 ? (float)smallJets[9].phi() : 0.f, nJets > 9 ? (float)smallJets[9].mass() : 0.f,  nJets > 9 ? (float)smallJets[9].btag() : 0.f,
 
           // large Jet variables
-          (nLargeJets > 0 ) ? (float)largeJets[0].pT() : 0.f, (nLargeJets > 0 ) ? (float)largeJets[0].eta() : 0.f, (nLargeJets > 0 ) ? (float)largeJets[0].phi() : 0.f, (nLargeJets > 0 ) ? (float)largeJets[0].mass() : 0.f, 
-          (nLargeJets > 1 ) ? (float)largeJets[1].pT() : 0.f, (nLargeJets > 1 ) ? (float)largeJets[1].eta() : 0.f, (nLargeJets > 1 ) ? (float)largeJets[1].phi() : 0.f, (nLargeJets > 1 ) ? (float)largeJets[1].mass() : 0.f, 
-          (nLargeJets > 2 ) ? (float)largeJets[2].pT() : 0.f, (nLargeJets > 2 ) ? (float)largeJets[2].eta() : 0.f, (nLargeJets > 2 ) ? (float)largeJets[2].phi() : 0.f, (nLargeJets > 2 ) ? (float)largeJets[2].mass() : 0.f, 
-          (nLargeJets > 3 ) ? (float)largeJets[3].pT() : 0.f, (nLargeJets > 3 ) ? (float)largeJets[3].eta() : 0.f, (nLargeJets > 3 ) ? (float)largeJets[3].phi() : 0.f, (nLargeJets > 3 ) ? (float)largeJets[3].mass() : 0.f, 
+          (nLargeJets > 0 ) ? (float)largeJets[0].pT() : 0.f, (nLargeJets > 0 ) ? (float)largeJets[0].eta() : 0.f, (nLargeJets > 0 ) ? (float)largeJets[0].phi() : 0.f, (nLargeJets > 0 ) ? (float)largeJets[0].mass() : 0.f,
+          (nLargeJets > 1 ) ? (float)largeJets[1].pT() : 0.f, (nLargeJets > 1 ) ? (float)largeJets[1].eta() : 0.f, (nLargeJets > 1 ) ? (float)largeJets[1].phi() : 0.f, (nLargeJets > 1 ) ? (float)largeJets[1].mass() : 0.f,
+          (nLargeJets > 2 ) ? (float)largeJets[2].pT() : 0.f, (nLargeJets > 2 ) ? (float)largeJets[2].eta() : 0.f, (nLargeJets > 2 ) ? (float)largeJets[2].phi() : 0.f, (nLargeJets > 2 ) ? (float)largeJets[2].mass() : 0.f,
+          (nLargeJets > 3 ) ? (float)largeJets[3].pT() : 0.f, (nLargeJets > 3 ) ? (float)largeJets[3].eta() : 0.f, (nLargeJets > 3 ) ? (float)largeJets[3].phi() : 0.f, (nLargeJets > 3 ) ? (float)largeJets[3].mass() : 0.f,
 
           // lepton variables - pt, eta, phi, mass for four-leading leptons.
-          (nSigLeptons > 0 ) ? (float)sigLeptons[0]->pT() : 0.f, (nSigLeptons > 0 ) ? (float)sigLeptons[0]->eta() : 0.f, (nSigLeptons > 0 ) ? (float)sigLeptons[0]->phi() : 0.f, (nSigLeptons > 0 ) ? (float)sigLeptons[0]->mass() : 0.f, 
-          (nSigLeptons > 1 ) ? (float)sigLeptons[1]->pT() : 0.f, (nSigLeptons > 1 ) ? (float)sigLeptons[1]->eta() : 0.f, (nSigLeptons > 1 ) ? (float)sigLeptons[1]->phi() : 0.f, (nSigLeptons > 1 ) ? (float)sigLeptons[1]->mass() : 0.f, 
-          (nSigLeptons > 2 ) ? (float)sigLeptons[2]->pT() : 0.f, (nSigLeptons > 2 ) ? (float)sigLeptons[2]->eta() : 0.f, (nSigLeptons > 2 ) ? (float)sigLeptons[2]->phi() : 0.f, (nSigLeptons > 2 ) ? (float)sigLeptons[2]->mass() : 0.f, 
-          (nSigLeptons > 3 ) ? (float)sigLeptons[3]->pT() : 0.f, (nSigLeptons > 3 ) ? (float)sigLeptons[3]->eta() : 0.f, (nSigLeptons > 3 ) ? (float)sigLeptons[3]->phi() : 0.f, (nSigLeptons > 3 ) ? (float)sigLeptons[3]->mass() : 0.f, 
+          (nSigLeptons > 0 ) ? (float)sigLeptons[0]->pT() : 0.f, (nSigLeptons > 0 ) ? (float)sigLeptons[0]->eta() : 0.f, (nSigLeptons > 0 ) ? (float)sigLeptons[0]->phi() : 0.f, (nSigLeptons > 0 ) ? (float)sigLeptons[0]->mass() : 0.f,
+          (nSigLeptons > 1 ) ? (float)sigLeptons[1]->pT() : 0.f, (nSigLeptons > 1 ) ? (float)sigLeptons[1]->eta() : 0.f, (nSigLeptons > 1 ) ? (float)sigLeptons[1]->phi() : 0.f, (nSigLeptons > 1 ) ? (float)sigLeptons[1]->mass() : 0.f,
+          (nSigLeptons > 2 ) ? (float)sigLeptons[2]->pT() : 0.f, (nSigLeptons > 2 ) ? (float)sigLeptons[2]->eta() : 0.f, (nSigLeptons > 2 ) ? (float)sigLeptons[2]->phi() : 0.f, (nSigLeptons > 2 ) ? (float)sigLeptons[2]->mass() : 0.f,
+          (nSigLeptons > 3 ) ? (float)sigLeptons[3]->pT() : 0.f, (nSigLeptons > 3 ) ? (float)sigLeptons[3]->eta() : 0.f, (nSigLeptons > 3 ) ? (float)sigLeptons[3]->phi() : 0.f, (nSigLeptons > 3 ) ? (float)sigLeptons[3]->mass() : 0.f,
 
           // Met variables
           (float)met, (float)metVec.phi(),
@@ -431,7 +431,7 @@ namespace Gambit {
           0.f, 0.f, 0.f,
 
         };
-        
+
         normalise_nn_kinematics(nn_inputs);
         map<string, vector<float>> nn_outputs;
 
@@ -578,7 +578,7 @@ namespace Gambit {
             _cutflows["SR_Gtt_1l_M1"].fill(1,{true, nJets >= 5 && nbJets>=3, met >= 600, meff >= 2000, m_transverse >= 200, m_transverse_B_min >= 120, totJetMass >= 200}, event->weight());
             _cutflows["SR_Gtt_1l_M2"].fill(1,{true, nJets >= 8 && nbJets>=3, met >= 500, meff >= 1100, m_transverse >= 200, m_transverse_B_min >= 120, totJetMass >= 200}, event->weight());
             _cutflows["SR_Gtt_1l_C"].fill(1,{true, nJets >= 9 && nbJets>=3, met >= 300, meff >= 800, m_transverse >= 150, m_transverse_B_min >= 120}, event->weight());
-          #endif 
+          #endif
         }
         return;
       } // End of analyze
@@ -609,7 +609,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SR_Gbb_2100_1600"), 0., {1.3, 1.3}));
         add_result(SignalRegionData(_counters.at("SR_Gbb_2000_1800"), 1., {0.4, 0.5}));
 
-        // C'n'C 0l 
+        // C'n'C 0l
         add_result(SignalRegionData(_counters.at("SR_Gbb_B"), 7., {3.5, 1.4}));
         add_result(SignalRegionData(_counters.at("SR_Gbb_M"), 18, {14, 4}));
         add_result(SignalRegionData(_counters.at("SR_Gbb_C"), 32, {33, 9}));
@@ -630,7 +630,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SR_Gtt_1l_M2"), 0., {1.0, 0.4}));
         add_result(SignalRegionData(_counters.at("SR_Gtt_1l_C"), 2., {3.7, 2.0}));
 
-COMMIT_CUTFLOWS;
+        COMMIT_CUTFLOWS;
         return;
 
       }
@@ -638,7 +638,7 @@ COMMIT_CUTFLOWS;
       void analysis_specific_reset() {
         // Clear signal regions
         for (auto& pair : _counters) { pair.second.reset(); }
-        
+
         //TODO: Clear cutflows?
       }
 

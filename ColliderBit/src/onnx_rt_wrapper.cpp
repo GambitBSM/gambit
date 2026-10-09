@@ -82,7 +82,7 @@ namespace Gambit
       {
         float* floatarr = ort_output[i].GetTensorMutableData<float>();
         outputs[i].assign(floatarr, floatarr + _outDimsFlat[i]);
-      }                                             
+      }
     }
 
 

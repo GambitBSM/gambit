@@ -7,7 +7,7 @@
 #include "METSignificance/METSignificance.hpp"
 #include "HEPUtils/FastJet.h"
 #include <random>
-#include <cmath> 
+#include <cmath>
 
 using namespace std;
 
@@ -21,7 +21,7 @@ using namespace std;
    Based on: https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-12/
 
    Code by Martin White (based on ATLAS public code snippet on HepData)
-   Validation by Pengxuan Zhu 
+   Validation by Pengxuan Zhu
 
    Note: RJR regions will be coded up in a separate file
 
@@ -43,21 +43,6 @@ namespace Gambit
 
     class Analysis_ATLAS_SUSY_2018_12 : public Analysis
     {
-
-    protected:
-      std::map<string, EventCounter> _counters = {
-        //{"SRA", EventCounter("SRA")},
-        {"SRATT", EventCounter("SRATT")},
-        {"SRATW", EventCounter("SRATW")},
-        {"SRAT0", EventCounter("SRAT0")},
-        {"SRBTT", EventCounter("SRBTT")},
-        {"SRBTW", EventCounter("SRBTW")},
-        {"SRBT0", EventCounter("SRBT0")},
-        {"SRD0", EventCounter("SRD0")},
-        {"SRD1", EventCounter("SRD1")},
-        {"SRD2", EventCounter("SRD2")},
-      };
-
 
     private:
 
@@ -111,6 +96,19 @@ namespace Gambit
       {
         set_analysis_name("ATLAS_SUSY_2018_12");
         set_luminosity(139.);
+
+        _counters = {
+          //{"SRA", EventCounter("SRA")},
+          {"SRATT", EventCounter("SRATT")},
+          {"SRATW", EventCounter("SRATW")},
+          {"SRAT0", EventCounter("SRAT0")},
+          {"SRBTT", EventCounter("SRBTT")},
+          {"SRBTW", EventCounter("SRBTW")},
+          {"SRBT0", EventCounter("SRBT0")},
+          {"SRD0", EventCounter("SRD0")},
+          {"SRD1", EventCounter("SRD1")},
+          {"SRD2", EventCounter("SRD2")},
+        };
 
         #ifdef CHECK_CUTFLOW
           _cutflows.addCutflow("SRATT",
@@ -260,7 +258,7 @@ namespace Gambit
 
       void run(const HEPUtils::Event* event)
       {
-        // std::cout << "Start New Events" << std::endl; 
+        // std::cout << "Start New Events" << std::endl;
 
         // Missing energy
         HEPUtils::P4 metVec = event->missingmom();
@@ -319,12 +317,12 @@ namespace Gambit
         // B-tag efficiencies 
         std::map<const Jet*, bool> analysisBtags = generateBTagsMap(baselineJets, 0.77, 0.10, 0.005);
 
-        const double accbtag = pow(0.7 / 0.77, 2); 
+        const double accbtag = pow(0.7 / 0.77, 2);
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_real_distribution<> dis(0.0, 1.0);
         double randomNumber = dis(gen);
-        bool accbtag_SRA = randomNumber < accbtag; 
+        bool accbtag_SRA = randomNumber < accbtag;
 
         // Get b jets
         /// @note We assume that b jets have previously been 100% tagged
@@ -731,12 +729,10 @@ namespace Gambit
         if ( SRD1 ) _counters.at("SRD1").add_event(event);
         if ( SRD2 ) _counters.at("SRD2").add_event(event);
 
-
-        // Now fill the cutflows
-        const double w = event->weight();
-
-
         #ifdef CHECK_CUTFLOW
+          // Now fill the cutflows
+          const double w = event->weight();
+
           _cutflows.fillinit(w);
 
           _cutflows["SRATT"].fillnext({
@@ -815,8 +811,8 @@ namespace Gambit
             MtBMin > 50.,
             !hasTaus,
             MtBMin > 200.,
-            MtBMax > 200., 
-            DRBB > 1.4, 
+            MtBMax > 200.,
+            DRBB > 1.4,
             AntiKt12M_0>120.,
             MT2Chi2 < 450,
             MetSig > 14.,}, w);
@@ -826,59 +822,59 @@ namespace Gambit
               if (AntiKt12M_1 > 60. && AntiKt12M_1 <= 120.) _cutflows["SRB"].fill(19, true, w);
               if (AntiKt12M_1 <= 60.) _cutflows["SRB"].fill(20, true, w);
             }
-          
+
           _cutflows["SRD0"].fillnext({
             nonBJets.size() > 0,
-            true, 
-            Met > 250., 
-            nLep == 0, 
-            nonBJets.size() > 0 && nonBJets[0]->pT()>250., 
-            nonBJets.size() > 0 && nonBJets[0]->mom().deltaR_eta(metVec) > 2.4, 
-            true, 
-            true, 
-            HtSig > 26., 
-            true, 
-            nBJets == 0, 
-            true, 
-            true, 
-            true, 
-            dPhiJetMetMin4 > 0.4, 
-            true, 
-            true,}, w); 
+            true,
+            Met > 250.,
+            nLep == 0,
+            nonBJets.size() > 0 && nonBJets[0]->pT()>250.,
+            nonBJets.size() > 0 && nonBJets[0]->mom().deltaR_eta(metVec) > 2.4,
+            true,
+            true,
+            HtSig > 26.,
+            true,
+            nBJets == 0,
+            true,
+            true,
+            true,
+            dPhiJetMetMin4 > 0.4,
+            true,
+            true,}, w);
 
 
           _cutflows["SRD1"].fillnext({
             nonBJets.size() > 0,
-            true, 
-            Met > 250., 
-            nLep == 0, 
-            nonBJets.size() > 0 && nonBJets[0]->pT()>250., 
-            nonBJets.size() > 0 && nonBJets[0]->mom().deltaR_eta(metVec) > 2.4, 
-            true, 
-            true, 
-            true, 
-            HtSig >= 22., 
-            true, 
-            signalBJets.size() == 1, 
-            true, 
+            true,
+            Met > 250.,
+            nLep == 0,
+            nonBJets.size() > 0 && nonBJets[0]->pT()>250.,
+            nonBJets.size() > 0 && nonBJets[0]->mom().deltaR_eta(metVec) > 2.4,
+            true,
+            true,
+            true,
+            HtSig >= 22.,
+            true,
+            signalBJets.size() == 1,
+            true,
             signalBJets.size() == 1 && nonBJets.size() > 0 && signalBJets[0]->mom().deltaPhi(nonBJets[0]->mom()) > 2.2,
             signalBJets.size() == 1 && fabs(signalBJets[0]->eta())<1.6,
-            true, 
-            true}, w); 
+            true,
+            true}, w);
 
           _cutflows["SRD2"].fillnext({
             nonBJets.size() > 0,
-            true, 
-            Met > 250., 
-            nLep == 0, 
-            nonBJets.size() > 0 && nonBJets[0]->pT()>250., 
-            nonBJets.size() > 0 && nonBJets[0]->mom().deltaR_eta(metVec) > 2.4, 
-            true, 
-            true, 
-            HtSig >= 22., 
-            signalBJets.size() >=2, 
-            signalBJets.size() >=2 && nonBJets.size() > 0 && signalBJets[0]->mom().deltaPhi(nonBJets[0]->mom())>2.2, 
-            signalBJets.size() >=2 && nonBJets.size() > 0 && signalBJets[1]->mom().deltaPhi(nonBJets[0]->mom())>1.6, 
+            true,
+            Met > 250.,
+            nLep == 0,
+            nonBJets.size() > 0 && nonBJets[0]->pT()>250.,
+            nonBJets.size() > 0 && nonBJets[0]->mom().deltaR_eta(metVec) > 2.4,
+            true,
+            true,
+            HtSig >= 22.,
+            signalBJets.size() >=2,
+            signalBJets.size() >=2 && nonBJets.size() > 0 && signalBJets[0]->mom().deltaPhi(nonBJets[0]->mom())>2.2,
+            signalBJets.size() >=2 && nonBJets.size() > 0 && signalBJets[1]->mom().deltaPhi(nonBJets[0]->mom())>1.6,
             signalBJets.size() >=2 && signalBJets[0]->pT()<175.,
             signalBJets.size() >=2 && signalBJets[0]->pT() > 0.,
             signalBJets.size() >=2 && fabs(signalBJets[1]->eta())<1.2,}, w); 
@@ -887,7 +883,7 @@ namespace Gambit
         return;
       }
 
-      void collect_results()
+      virtual void collect_results()
       {
         add_result(SignalRegionData(_counters.at("SRATT"), 4.0, { 3.2, 0.5}));
         add_result(SignalRegionData(_counters.at("SRATW"), 8.0, { 5.6, 0.7}));

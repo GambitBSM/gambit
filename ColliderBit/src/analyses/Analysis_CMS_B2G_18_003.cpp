@@ -33,7 +33,7 @@
 #include <memory>
 #include <vector>
 
-#include "SoftDrop.hh"
+#include "fastjet/contrib/SoftDrop.hh"
 #include "fastjet/tools/Pruner.hh"
 #include "fastjet/contrib/Nsubjettiness.hh"
 
@@ -459,16 +459,17 @@ namespace Gambit
 
       void collect_results()
       {
-        // Low-mass: each five-jet-mass bin is one signal region in the likelihood.
-        // 3M is filled with digitised obs/bkg (set in book_regions()); 3T and 2M1L
-        // carry no obs/bkg yet, so they commit no SRs until their data are supplied.
-        COMMIT_HISTOGRAMS;
-        COMMIT_HISTOGRAM_SRS("SRLM-TH_3M");
-        COMMIT_HISTOGRAM_SRS("SRLM-TZ_3M");
-        COMMIT_HISTOGRAM_SRS("SRLM-TH_3T");
-        COMMIT_HISTOGRAM_SRS("SRLM-TZ_3T");
-        COMMIT_HISTOGRAM_SRS("SRLM-TH_2M1L");
-        COMMIT_HISTOGRAM_SRS("SRLM-TZ_2M1L");
+        // Low-mass histogram bins are optional signal regions in the likelihood.
+        if (Histogram1D::check_histogram())
+        {
+          COMMIT_HISTOGRAMS;
+          COMMIT_HISTOGRAM_SRS("SRLM-TH_3M");
+          COMMIT_HISTOGRAM_SRS("SRLM-TZ_3M");
+          COMMIT_HISTOGRAM_SRS("SRLM-TH_3T");
+          COMMIT_HISTOGRAM_SRS("SRLM-TZ_3T");
+          COMMIT_HISTOGRAM_SRS("SRLM-TH_2M1L");
+          COMMIT_HISTOGRAM_SRS("SRLM-TZ_2M1L");
+        }
 
         // High-mass: 8 cut-and-count signal regions. obs/bkg digitised from the paper.
         COMMIT_SIGNAL_REGION("SRHM-QH", 640., 640., 28.);
@@ -505,6 +506,17 @@ namespace Gambit
         defineSignalRegion("SRHM-LZ");
         defineSignalRegion("SRHM-RZ");
         defineSignalRegion("SRHM-SZ");
+
+#ifdef CHECK_CUTFLOW
+        _cutflows.addCutflow(CFLMTH, {"LM preselection", "3M category", "Basic selection (m_bb > 100 GeV)", "Relative HT > 0.4", "Max(chi2) < 3.0",
+                                      "DeltaR(bb) < 1.1", "chi2_H < 1.5", "DeltaR(jj) < 1.75", "DeltaR(b,W) < 1.2", "Full selection"});
+        _cutflows.addCutflow(CFLMTZ, {"LM preselection", "3M category", "Basic selection (m_bb < 100 GeV)", "Relative HT > 0.4", "Max(chi2) < 3.0",
+                                      "DeltaR(bb) < 1.1", "chi2_Z < 1.0", "DeltaR(jj) < 1.75", "DeltaR(b,W) < 1.2", "Full selection"});
+        _cutflows.addCutflow(CFHM, {"Leading AK8", "Scalar pT sum > 850", "Extra AK4 jets"});
+#endif
+
+        // Booking and filling must follow the same switch as SR submission.
+        if (!Histogram1D::check_histogram()) return;
 
         // Low-mass five-jet-mass histograms: 40 GeV bins, 300-1300 GeV (25 bins).
         // Events above 1.3 TeV fall in the overflow and are dropped (default).
@@ -582,14 +594,6 @@ namespace Gambit
         DEFINE_HISTOGRAM_SR_1D("SRLM-TZ_3T", m5j_edges, tz3T_obs, tz3T_bkg, tz3T_err, "$m_T$ [GeV]")
         DEFINE_HISTOGRAM_SR_1D("SRLM-TH_2M1L", m5j_edges, th2M1L_obs, th2M1L_bkg, th2M1L_err, "$m_T$ [GeV]")
         DEFINE_HISTOGRAM_SR_1D("SRLM-TZ_2M1L", m5j_edges, tz2M1L_obs, tz2M1L_bkg, tz2M1L_err, "$m_T$ [GeV]")
-
-#ifdef CHECK_CUTFLOW
-        _cutflows.addCutflow(CFLMTH, {"LM preselection", "3M category", "Basic selection (m_bb > 100 GeV)", "Relative HT > 0.4", "Max(chi2) < 3.0",
-                                      "DeltaR(bb) < 1.1", "chi2_H < 1.5", "DeltaR(jj) < 1.75", "DeltaR(b,W) < 1.2", "Full selection"});
-        _cutflows.addCutflow(CFLMTZ, {"LM preselection", "3M category", "Basic selection (m_bb < 100 GeV)", "Relative HT > 0.4", "Max(chi2) < 3.0",
-                                      "DeltaR(bb) < 1.1", "chi2_Z < 1.0", "DeltaR(jj) < 1.75", "DeltaR(b,W) < 1.2", "Full selection"});
-        _cutflows.addCutflow(CFHM, {"Leading AK8", "Scalar pT sum > 850", "Extra AK4 jets"});
-#endif
       }
 
       /// Reconstruct the resolved t + H/Z system from a 3-b-jet + non-b-jet set.
