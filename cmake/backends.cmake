@@ -2257,12 +2257,17 @@ if(NOT ditched_${name}_${ver})
   # The line this replaces was:
   #   BOSS_backend(${name} ${ver} "-I${HDF5_INCLUDE_DIR} -I${HDF5_INCLUDE_DIRS}")
   set(Rivet_shim_src "${PROJECT_SOURCE_DIR}/Backends/src/frontends/shims/rivet_shim.cpp")
+  # HDF5_INCLUDE_DIRS can be a list (e.g. HDF5 plus libaec), so prefix every entry with -I;
+  # otherwise only the first entry gets the -I and the rest are handed to the linker as input files.
+  set(Rivet_shim_hdf5_incs ${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIRS})
+  list(REMOVE_DUPLICATES Rivet_shim_hdf5_incs)
+  list(TRANSFORM Rivet_shim_hdf5_incs PREPEND "-I")
   set(Rivet_shim_lib "${dir}/local/lib/librivet_shim.so")
   ExternalProject_Add_Step(${name}_${ver} build_shim
     COMMAND ${CMAKE_COMMAND} -E make_directory ${dir}/local/lib
     COMMAND ${CMAKE_CXX_COMPILER} -std=c++17 -fPIC -shared -O3
             -I${dir}/include -I${hepmc_dir}/include -I${yoda_dir}/include -I${fastjet_dir}/include
-            -I${HDF5_INCLUDE_DIR} -I${HDF5_INCLUDE_DIRS}
+            ${Rivet_shim_hdf5_incs}
             ${Rivet_shim_src} -o ${Rivet_shim_lib}
             -L${dir}/local/lib -lRivet -L${hepmc_dir}/lib -lHepMC3 -L${yoda_dir}/lib -lYODA
             -Wl,-rpath,${dir}/local/lib -Wl,-rpath,${hepmc_dir}/lib -Wl,-rpath,${yoda_dir}/lib

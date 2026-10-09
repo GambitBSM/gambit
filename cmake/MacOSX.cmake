@@ -39,7 +39,9 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   endif()
   
   # Tell the OSX linker not to whinge about missing symbols when just making a library.
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
+  # Use the single-token -Wl form so that backend build scripts that split, sort or
+  # deduplicate flags (e.g. Rivet's rivet-build) cannot separate the option from its value.
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined,dynamic_lookup")
   # Strip leading whitespace in case this was first definition of CMAKE_SHARED_LINKER_FLAGS
   string(STRIP ${CMAKE_SHARED_LINKER_FLAGS} CMAKE_SHARED_LINKER_FLAGS)
   # Pass on the sysroot and minimum OSX version (for backend builds; this gets added automatically by cmake for others)
@@ -58,11 +60,27 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(STRIP ${CMAKE_SHARED_LINKER_FLAGS} CMAKE_SHARED_LINKER_FLAGS)
 endif()
 
-# Settings specific to using the clang compiler on MacOS
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-  # The ${NO_FIXUP_CHAINS} -Xlinker -no_fixup_chains had to be added Feb 2023 due to MacOS clang changes that leads to linking problems
-  # See discussion in CPython forums and bug report to apple:
-  # https://github.com/python/cpython/issues/97524
-  set(NO_FIXUP_CHAINS "-Xlinker -no_fixup_chains")
+# Disable chained fixups in the Apple linker.
+# The ${NO_FIXUP_CHAINS} -no_fixup_chains linker flag had to be added Feb 2023 due to MacOS linker changes that lead to linking problems
+# See discussion in CPython forums and bug report to apple:
+# https://github.com/python/cpython/issues/97524
+# The flag belongs to Apple's ld rather than to any particular compiler, so test whether the linker
+# actually accepts it instead of keying on the compiler ID. It is given in the single-token -Wl form
+# rather than as "-Xlinker -no_fixup_chains", because backend build scripts that split, sort or
+# deduplicate flags (e.g. Rivet's rivet-build) can separate the two words and break the link.
+set(NO_FIXUP_CHAINS "")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  include(CheckCXXSourceCompiles)
+  set(CMAKE_REQUIRED_LINK_OPTIONS "-Wl,-no_fixup_chains")
+  set(CMAKE_REQUIRED_QUIET TRUE)
+  check_cxx_source_compiles("int main() { return 0; }" LINKER_SUPPORTS_NO_FIXUP_CHAINS)
+  unset(CMAKE_REQUIRED_LINK_OPTIONS)
+  unset(CMAKE_REQUIRED_QUIET)
+  if (LINKER_SUPPORTS_NO_FIXUP_CHAINS)
+    set(NO_FIXUP_CHAINS "-Wl,-no_fixup_chains")
+    message("   Linker supports -no_fixup_chains; it will be used when building backends.")
+  else()
+    message("   Linker does not support -no_fixup_chains; it will not be used when building backends.")
+  endif()
 endif()
 
