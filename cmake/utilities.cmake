@@ -905,27 +905,39 @@ function(gambit_translate_bits_into_itch)
 endfunction()
 
 
-# Function to default GAMBIT_TRIM_BACKEND_INTERFACES to ON if any on-disk Bit
-# was excluded, OFF otherwise. A user-specified value (ON or OFF) takes
-# precedence.
+# Backend-interface trimming follows module exclusion. A full module set
+# leaves trimming off. Excluding any Bit turns it on, including when an
+# earlier configure stored the full-set default. A cache value that no
+# longer matches that automatic choice is left unchanged.
 function(_gambit_resolve_trim_default)
-  if(DEFINED GAMBIT_TRIM_BACKEND_INTERFACES)
-    return()
-  endif()
   set(_user_narrowed FALSE)
   foreach(_d ${ALL_GAMBIT_BITS})
     if(NOT (";${GAMBIT_BITS};" MATCHES ";${_d};"))
       set(_user_narrowed TRUE)
     endif()
   endforeach()
-  if(_user_narrowed)
-    set(GAMBIT_TRIM_BACKEND_INTERFACES ON CACHE BOOL
-        "Skip backend interfaces that no enabled Bit references." FORCE)
-    message("${BoldYellow}-- One or more Bits were excluded; enabling GAMBIT_TRIM_BACKEND_INTERFACES=ON.${ColourReset}")
-  else()
-    set(GAMBIT_TRIM_BACKEND_INTERFACES OFF CACHE BOOL
-        "Skip backend interfaces that no enabled Bit references.")
+
+  set(_follow_exclusion TRUE)
+  if(DEFINED GAMBIT_TRIM_AUTOMATIC_VALUE AND DEFINED GAMBIT_TRIM_BACKEND_INTERFACES
+     AND NOT "${GAMBIT_TRIM_BACKEND_INTERFACES}" STREQUAL "${GAMBIT_TRIM_AUTOMATIC_VALUE}")
+    set(_follow_exclusion FALSE)
   endif()
+  if(NOT _follow_exclusion)
+    return()
+  endif()
+
+  if(_user_narrowed)
+    set(_trim_value ON)
+    if(NOT GAMBIT_TRIM_BACKEND_INTERFACES)
+      message("${BoldYellow}-- One or more modules were excluded; unused backend interfaces will be skipped.${ColourReset}")
+    endif()
+  else()
+    set(_trim_value OFF)
+  endif()
+  set(GAMBIT_TRIM_BACKEND_INTERFACES "${_trim_value}" CACHE BOOL
+      "Skip backend interfaces that no enabled Bit references." FORCE)
+  set(GAMBIT_TRIM_AUTOMATIC_VALUE "${_trim_value}" CACHE INTERNAL
+      "Last automatic backend-interface trim choice." FORCE)
 endfunction()
 
 
@@ -981,7 +993,7 @@ print('TOTAL:{0}'.format(len(all_be)))
   set(GAMBIT_TRIM_USED_COUNT "${_used_count}" PARENT_SCOPE)
   set(GAMBIT_TRIM_TOTAL_COUNT "${_total_count}" PARENT_SCOPE)
 
-  message("${BoldYellow}-- GAMBIT_TRIM_BACKEND_INTERFACES is ON. Building ${_used_count} of ${_total_count} backend interfaces.${ColourReset}")
+  message("${BoldYellow}-- Unused backend interfaces are skipped. Building ${_used_count} of ${_total_count}.${ColourReset}")
   if(NOT "${_unknown_force}" STREQUAL "")
     message("${BoldRed}   -DGAMBIT_FORCE_BACKEND_INTERFACE entries with no matching backend (ignored): ${_unknown_force}${ColourReset}")
   endif()
@@ -1000,8 +1012,7 @@ print('TOTAL:{0}'.format(len(all_be)))
     endif()
   endforeach()
   if(_skipped_count GREATER 0)
-    message("${Yellow}   Pass -DGAMBIT_FORCE_BACKEND_INTERFACE=\"Name1;Name2\" to keep one anyway,${ColourReset}")
-    message("${Yellow}   or -DGAMBIT_TRIM_BACKEND_INTERFACES=OFF to disable trimming.${ColourReset}")
+    message("${Yellow}   Pass -DGAMBIT_FORCE_BACKEND_INTERFACE=\"Name1;Name2\" to keep one anyway.${ColourReset}")
   endif()
 
   set(${out_disabled_canonical} "${_skipped_list_sc}" PARENT_SCOPE)
