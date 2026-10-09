@@ -2160,8 +2160,10 @@ if(NOT ditched_${name}_${ver})
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
-    #PATCH_COMMAND patch -p1 < ${patch}
+    # Fixes missing "#include <limits>" in ~20 fjcontrib 1.049 files that use
+    # std::numeric_limits relying on it being pulled in transitively -- that
+    # transitive include is gone under GCC 11+'s stricter libstdc++ headers.
+    PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} LDFLAGS=${FJCONTRIB_LD_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
     BUILD_COMMAND ${MAKE_PARALLEL}
     INSTALL_COMMAND ${MAKE_PARALLEL} install && ${MAKE_PARALLEL} fragile-shared-install
