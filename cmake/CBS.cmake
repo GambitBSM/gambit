@@ -25,12 +25,9 @@ macro(cbs_preset_begin)
          "CBS: enable ROOT when a C++17 root-config is found" ON)
   option(CBS_WITH_RIVET_CONTUR
          "CBS: enable Rivet/Contur when their prerequisites exist" ON)
-  option(CBS_USE_LLD
-         "CBS: use lld when linking the standalone executable" OFF)
 
-  # cbs and cbs-llvm deliberately share build/.  A normal cbs configure
-  # cannot replace a cached cbs-llvm toolchain, so fail rather than report a
-  # misleading system-toolchain configuration.
+  # Retain the guard for legacy CBS caches. Native preset toolchains now
+  # validate compiler families before project() for every registered system.
   if("${CBS_BUILD_PRESET}" STREQUAL "cbs"
      AND "${CBS_RESOLVED_TOOLCHAIN}" STREQUAL "upstream-llvm")
     message(FATAL_ERROR

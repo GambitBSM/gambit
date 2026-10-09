@@ -121,6 +121,14 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # Check if pybind11 is to be ditched
 string(REGEX MATCH ";pybind;|;pybind11;|;Pybind;|;Pybind11;" DITCH_PYBIND ";${itch};")
 
+# Public GAMBIT presets use the same PATH pin as CBS before FindPython3.
+# CBS already ran it from cbs_preset_begin when CBS_AUTO_DETECT_PYTHON is ON.
+# Ordinary cmake .. keeps FindPython3's own search.
+if(GAMBIT_PRESET_TOOLCHAIN AND NOT CBS_PRESET_BUILD)
+  include(cmake/presets/CBSPythonDiscovery.cmake)
+  preset_pin_python3_on_path("GAMBIT")
+endif()
+
 # Check for Python 3 interpreter and (optionally) development libraries.
 # If pybind11 is ditched, do not worry about Python Development libraries.
 if(DITCH_PYBIND)
@@ -742,4 +750,9 @@ message("${BoldYellow}-- Run `make list-scanners` to see the available scanner m
 
 if(CBS_PRESET_BUILD)
   cbs_preset_finish()
+elseif(GAMBIT_PRESET_TOOLCHAIN)
+  include(cmake/presets/GAMBITBuildSummary.cmake)
+  gambit_print_build_summary()
+  include(cmake/presets/GAMBITModuleHints.cmake)
+  gambit_print_module_selection_hints()
 endif()

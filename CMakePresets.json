@@ -15,9 +15,56 @@
   },
   "configurePresets": [
     {
+      "name": "gambit-base",
+      "description": "Shared full GAMBIT profile. MPI defaults to OFF. Uses the canonical build/ directory; use --fresh when switching profiles or compilers.",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "Bits": "",
+        "itch": "",
+        "CBS_BUILD_PRESET": {
+          "type": "STRING",
+          "value": ""
+        },
+        "GAMBIT_BUILD_PRESET": {
+          "type": "STRING",
+          "value": ""
+        },
+        "WITH_MPI": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "WITH_RESTFRAMES": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "WITH_ONNXRUNTIME": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "CUTFLOW": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "CBS_AUTO_DETECT_PYTHON": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "CBS_AUTO_DETECT_ROOT": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "CBS_WITH_RIVET_CONTUR": {
+          "type": "BOOL",
+          "value": "OFF"
+        }
+      },
+      "hidden": true
+    },
+    {
       "name": "cbs-base",
       "hidden": true,
-      "description": "Shared CBS cache. Enable CBS analysis capabilities, including HDF5. The selected preset and compiler persist in build/; use --fresh before switching compiler families.",
+      "description": "Shared CBS cache. Enable CBS analysis capabilities, including HDF5. The selected preset and compiler persist in build/; use --fresh when switching from GAMBIT or between compiler families.",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "Bits": "ColliderBit",
@@ -42,10 +89,6 @@
           "type": "BOOL",
           "value": "ON"
         },
-        "WITH_MPI": {
-          "type": "BOOL",
-          "value": "OFF"
-        },
         "WITH_ONNXRUNTIME": {
           "type": "BOOL",
           "value": "ON"
@@ -61,45 +104,649 @@
       }
     },
     {
-      "name": "cbs",
-      "inherits": "cbs-base",
-      "displayName": "CBS - System toolchain",
-      "description": "Release CBS build using the system or user-selected compiler. Uses GAMBIT's default build/ directory; rerun with --fresh after cbs-llvm.",
+      "name": "gambit-llvm",
+      "inherits": "gambit-base",
+      "displayName": "GAMBIT - Upstream LLVM (macOS / Linux)",
+      "vendor": {
+        "gambit/bootstrap/1": {
+          "system": "gambit",
+          "toolchain": "llvm"
+        }
+      },
+      "description": "Release GAMBIT using Upstream LLVM (macOS / Linux). All presets share build/; use --fresh when switching profiles or compilers.",
+      "condition": {
+        "type": "anyOf",
+        "conditions": [
+          {
+            "type": "equals",
+            "lhs": "${hostSystemName}",
+            "rhs": "Darwin"
+          },
+          {
+            "type": "equals",
+            "lhs": "${hostSystemName}",
+            "rhs": "Linux"
+          }
+        ]
+      },
+      "toolchainFile": "${sourceDir}/cmake/toolchains/llvm-native.cmake",
       "cacheVariables": {
-        "CBS_BUILD_PRESET": {
+        "GAMBIT_PRESET_TOOLCHAIN": {
           "type": "STRING",
-          "value": "cbs"
+          "value": "llvm"
+        },
+        "GAMBIT_BUILD_PRESET": {
+          "type": "STRING",
+          "value": "gambit-llvm"
+        }
+      }
+    },
+    {
+      "name": "gambit",
+      "inherits": "gambit-base",
+      "displayName": "GAMBIT - macOS AppleClang",
+      "vendor": {
+        "gambit/bootstrap/1": {
+          "system": "gambit",
+          "toolchain": "macos"
+        }
+      },
+      "description": "Release GAMBIT using macOS AppleClang. All presets share build/; use --fresh when switching profiles or compilers.",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "toolchainFile": "${sourceDir}/cmake/toolchains/macos-native.cmake",
+      "cacheVariables": {
+        "GAMBIT_PRESET_TOOLCHAIN": {
+          "type": "STRING",
+          "value": "macos"
+        },
+        "GAMBIT_BUILD_PRESET": {
+          "type": "STRING",
+          "value": "gambit"
+        }
+      }
+    },
+    {
+      "name": "gambit-gnu",
+      "inherits": "gambit-base",
+      "displayName": "GAMBIT - Linux GNU",
+      "vendor": {
+        "gambit/bootstrap/1": {
+          "system": "gambit",
+          "toolchain": "gnu"
+        }
+      },
+      "description": "Release GAMBIT using Linux GNU. All presets share build/; use --fresh when switching profiles or compilers.",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "toolchainFile": "${sourceDir}/cmake/toolchains/gnu-native.cmake",
+      "cacheVariables": {
+        "GAMBIT_PRESET_TOOLCHAIN": {
+          "type": "STRING",
+          "value": "gnu"
+        },
+        "GAMBIT_BUILD_PRESET": {
+          "type": "STRING",
+          "value": "gambit-gnu"
         }
       }
     },
     {
       "name": "cbs-llvm",
       "inherits": "cbs-base",
-      "displayName": "CBS - Upstream LLVM",
-      "description": "Release CBS build using a supported upstream LLVM clang/clang++ pair. Uses GAMBIT's default build/ directory; rerun with --fresh after cbs.",
+      "displayName": "CBS - Upstream LLVM (macOS / Linux)",
+      "vendor": {
+        "gambit/bootstrap/1": {
+          "system": "cbs",
+          "toolchain": "llvm"
+        }
+      },
+      "description": "Release CBS using Upstream LLVM (macOS / Linux). All presets share build/; use --fresh when switching profiles or compilers.",
+      "condition": {
+        "type": "anyOf",
+        "conditions": [
+          {
+            "type": "equals",
+            "lhs": "${hostSystemName}",
+            "rhs": "Darwin"
+          },
+          {
+            "type": "equals",
+            "lhs": "${hostSystemName}",
+            "rhs": "Linux"
+          }
+        ]
+      },
       "toolchainFile": "${sourceDir}/cmake/toolchains/llvm-native.cmake",
       "cacheVariables": {
         "CBS_BUILD_PRESET": {
           "type": "STRING",
           "value": "cbs-llvm"
+        },
+        "GAMBIT_PRESET_TOOLCHAIN": {
+          "type": "STRING",
+          "value": "llvm"
+        }
+      }
+    },
+    {
+      "name": "cbs",
+      "inherits": "cbs-base",
+      "displayName": "CBS - macOS AppleClang",
+      "vendor": {
+        "gambit/bootstrap/1": {
+          "system": "cbs",
+          "toolchain": "macos"
+        }
+      },
+      "description": "Release CBS using macOS AppleClang. All presets share build/; use --fresh when switching profiles or compilers.",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "toolchainFile": "${sourceDir}/cmake/toolchains/macos-native.cmake",
+      "cacheVariables": {
+        "CBS_BUILD_PRESET": {
+          "type": "STRING",
+          "value": "cbs"
+        },
+        "GAMBIT_PRESET_TOOLCHAIN": {
+          "type": "STRING",
+          "value": "macos"
+        }
+      }
+    },
+    {
+      "name": "cbs-gnu",
+      "inherits": "cbs-base",
+      "displayName": "CBS - Linux GNU",
+      "vendor": {
+        "gambit/bootstrap/1": {
+          "system": "cbs",
+          "toolchain": "gnu"
+        }
+      },
+      "description": "Release CBS using Linux GNU. All presets share build/; use --fresh when switching profiles or compilers.",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "toolchainFile": "${sourceDir}/cmake/toolchains/gnu-native.cmake",
+      "cacheVariables": {
+        "CBS_BUILD_PRESET": {
+          "type": "STRING",
+          "value": "cbs-gnu"
+        },
+        "GAMBIT_PRESET_TOOLCHAIN": {
+          "type": "STRING",
+          "value": "gnu"
+        }
+      }
+    },
+    {
+      "name": "darkbit-base",
+      "hidden": true,
+      "inherits": "gambit-base",
+      "description": "Shared DarkBit standalone cache. Keeps DarkBit and ScannerBit, and the cache contract from gambit-base.",
+      "cacheVariables": {
+        "Bits": "DarkBit"
+      }
+    },
+    {
+      "name": "darkbit-wimp",
+      "inherits": "darkbit-base",
+      "displayName": "DarkBit WIMP - macOS AppleClang",
+      "vendor": {
+        "gambit/bootstrap/1": {
+          "system": "darkbit",
+          "toolchain": "macos"
+        }
+      },
+      "description": "Release DarkBit_standalone_WIMP using macOS AppleClang. Shares build/; use --fresh when switching products or compiler families.",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "toolchainFile": "${sourceDir}/cmake/toolchains/macos-native.cmake",
+      "cacheVariables": {
+        "GAMBIT_PRESET_TOOLCHAIN": {
+          "type": "STRING",
+          "value": "macos"
+        },
+        "GAMBIT_BUILD_PRESET": {
+          "type": "STRING",
+          "value": "darkbit-wimp"
+        }
+      }
+    },
+    {
+      "name": "darkbit-wimp-llvm",
+      "inherits": "darkbit-base",
+      "displayName": "DarkBit WIMP - Upstream LLVM (macOS / Linux)",
+      "vendor": {
+        "gambit/bootstrap/1": {
+          "system": "darkbit",
+          "toolchain": "llvm"
+        }
+      },
+      "description": "Release DarkBit_standalone_WIMP using Upstream LLVM. Shares build/; use --fresh when switching products or compiler families.",
+      "condition": {
+        "type": "anyOf",
+        "conditions": [
+          {
+            "type": "equals",
+            "lhs": "${hostSystemName}",
+            "rhs": "Darwin"
+          },
+          {
+            "type": "equals",
+            "lhs": "${hostSystemName}",
+            "rhs": "Linux"
+          }
+        ]
+      },
+      "toolchainFile": "${sourceDir}/cmake/toolchains/llvm-native.cmake",
+      "cacheVariables": {
+        "GAMBIT_PRESET_TOOLCHAIN": {
+          "type": "STRING",
+          "value": "llvm"
+        },
+        "GAMBIT_BUILD_PRESET": {
+          "type": "STRING",
+          "value": "darkbit-wimp-llvm"
+        }
+      }
+    },
+    {
+      "name": "darkbit-wimp-gnu",
+      "inherits": "darkbit-base",
+      "displayName": "DarkBit WIMP - Linux GNU",
+      "vendor": {
+        "gambit/bootstrap/1": {
+          "system": "darkbit",
+          "toolchain": "gnu"
+        }
+      },
+      "description": "Release DarkBit_standalone_WIMP using Linux GNU. Shares build/; use --fresh when switching products or compiler families.",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "toolchainFile": "${sourceDir}/cmake/toolchains/gnu-native.cmake",
+      "cacheVariables": {
+        "GAMBIT_PRESET_TOOLCHAIN": {
+          "type": "STRING",
+          "value": "gnu"
+        },
+        "GAMBIT_BUILD_PRESET": {
+          "type": "STRING",
+          "value": "darkbit-wimp-gnu"
+        }
+      }
+    },
+    {
+      "name": "darkbit-mssm",
+      "inherits": "darkbit-base",
+      "displayName": "DarkBit MSSM - macOS AppleClang",
+      "vendor": {
+        "gambit/bootstrap/1": {
+          "system": "darkbit",
+          "toolchain": "macos"
+        }
+      },
+      "description": "Release DarkBit_standalone_MSSM using macOS AppleClang. Shares build/; use --fresh when switching products or compiler families.",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "toolchainFile": "${sourceDir}/cmake/toolchains/macos-native.cmake",
+      "cacheVariables": {
+        "GAMBIT_PRESET_TOOLCHAIN": {
+          "type": "STRING",
+          "value": "macos"
+        },
+        "GAMBIT_BUILD_PRESET": {
+          "type": "STRING",
+          "value": "darkbit-mssm"
+        }
+      }
+    },
+    {
+      "name": "darkbit-mssm-llvm",
+      "inherits": "darkbit-base",
+      "displayName": "DarkBit MSSM - Upstream LLVM (macOS / Linux)",
+      "vendor": {
+        "gambit/bootstrap/1": {
+          "system": "darkbit",
+          "toolchain": "llvm"
+        }
+      },
+      "description": "Release DarkBit_standalone_MSSM using Upstream LLVM. Shares build/; use --fresh when switching products or compiler families.",
+      "condition": {
+        "type": "anyOf",
+        "conditions": [
+          {
+            "type": "equals",
+            "lhs": "${hostSystemName}",
+            "rhs": "Darwin"
+          },
+          {
+            "type": "equals",
+            "lhs": "${hostSystemName}",
+            "rhs": "Linux"
+          }
+        ]
+      },
+      "toolchainFile": "${sourceDir}/cmake/toolchains/llvm-native.cmake",
+      "cacheVariables": {
+        "GAMBIT_PRESET_TOOLCHAIN": {
+          "type": "STRING",
+          "value": "llvm"
+        },
+        "GAMBIT_BUILD_PRESET": {
+          "type": "STRING",
+          "value": "darkbit-mssm-llvm"
+        }
+      }
+    },
+    {
+      "name": "darkbit-mssm-gnu",
+      "inherits": "darkbit-base",
+      "displayName": "DarkBit MSSM - Linux GNU",
+      "vendor": {
+        "gambit/bootstrap/1": {
+          "system": "darkbit",
+          "toolchain": "gnu"
+        }
+      },
+      "description": "Release DarkBit_standalone_MSSM using Linux GNU. Shares build/; use --fresh when switching products or compiler families.",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "toolchainFile": "${sourceDir}/cmake/toolchains/gnu-native.cmake",
+      "cacheVariables": {
+        "GAMBIT_PRESET_TOOLCHAIN": {
+          "type": "STRING",
+          "value": "gnu"
+        },
+        "GAMBIT_BUILD_PRESET": {
+          "type": "STRING",
+          "value": "darkbit-mssm-gnu"
+        }
+      }
+    },
+    {
+      "name": "darkbit-singlet-z2",
+      "inherits": "darkbit-base",
+      "displayName": "DarkBit scalar singlet Z2 - macOS AppleClang",
+      "vendor": {
+        "gambit/bootstrap/1": {
+          "system": "darkbit",
+          "toolchain": "macos"
+        }
+      },
+      "description": "Release DarkBit_standalone_ScalarSingletDM_Z2 using macOS AppleClang. Shares build/; use --fresh when switching products or compiler families.",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "toolchainFile": "${sourceDir}/cmake/toolchains/macos-native.cmake",
+      "cacheVariables": {
+        "GAMBIT_PRESET_TOOLCHAIN": {
+          "type": "STRING",
+          "value": "macos"
+        },
+        "GAMBIT_BUILD_PRESET": {
+          "type": "STRING",
+          "value": "darkbit-singlet-z2"
+        }
+      }
+    },
+    {
+      "name": "darkbit-singlet-z2-llvm",
+      "inherits": "darkbit-base",
+      "displayName": "DarkBit scalar singlet Z2 - Upstream LLVM (macOS / Linux)",
+      "vendor": {
+        "gambit/bootstrap/1": {
+          "system": "darkbit",
+          "toolchain": "llvm"
+        }
+      },
+      "description": "Release DarkBit_standalone_ScalarSingletDM_Z2 using Upstream LLVM. Shares build/; use --fresh when switching products or compiler families.",
+      "condition": {
+        "type": "anyOf",
+        "conditions": [
+          {
+            "type": "equals",
+            "lhs": "${hostSystemName}",
+            "rhs": "Darwin"
+          },
+          {
+            "type": "equals",
+            "lhs": "${hostSystemName}",
+            "rhs": "Linux"
+          }
+        ]
+      },
+      "toolchainFile": "${sourceDir}/cmake/toolchains/llvm-native.cmake",
+      "cacheVariables": {
+        "GAMBIT_PRESET_TOOLCHAIN": {
+          "type": "STRING",
+          "value": "llvm"
+        },
+        "GAMBIT_BUILD_PRESET": {
+          "type": "STRING",
+          "value": "darkbit-singlet-z2-llvm"
+        }
+      }
+    },
+    {
+      "name": "darkbit-singlet-z2-gnu",
+      "inherits": "darkbit-base",
+      "displayName": "DarkBit scalar singlet Z2 - Linux GNU",
+      "vendor": {
+        "gambit/bootstrap/1": {
+          "system": "darkbit",
+          "toolchain": "gnu"
+        }
+      },
+      "description": "Release DarkBit_standalone_ScalarSingletDM_Z2 using Linux GNU. Shares build/; use --fresh when switching products or compiler families.",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "toolchainFile": "${sourceDir}/cmake/toolchains/gnu-native.cmake",
+      "cacheVariables": {
+        "GAMBIT_PRESET_TOOLCHAIN": {
+          "type": "STRING",
+          "value": "gnu"
+        },
+        "GAMBIT_BUILD_PRESET": {
+          "type": "STRING",
+          "value": "darkbit-singlet-z2-gnu"
         }
       }
     }
   ],
   "buildPresets": [
     {
-      "name": "cbs",
-      "configurePreset": "cbs",
+      "name": "gambit-llvm",
+      "configurePreset": "gambit-llvm",
       "targets": [
-        "CBS"
-      ]
+        "gambit"
+      ],
+      "condition": {
+        "type": "anyOf",
+        "conditions": [
+          {
+            "type": "equals",
+            "lhs": "${hostSystemName}",
+            "rhs": "Darwin"
+          },
+          {
+            "type": "equals",
+            "lhs": "${hostSystemName}",
+            "rhs": "Linux"
+          }
+        ]
+      }
+    },
+    {
+      "name": "gambit",
+      "configurePreset": "gambit",
+      "targets": [
+        "gambit"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "gambit-gnu",
+      "configurePreset": "gambit-gnu",
+      "targets": [
+        "gambit"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
     },
     {
       "name": "cbs-llvm",
       "configurePreset": "cbs-llvm",
       "targets": [
         "CBS"
-      ]
+      ],
+      "condition": {
+        "type": "anyOf",
+        "conditions": [
+          {
+            "type": "equals",
+            "lhs": "${hostSystemName}",
+            "rhs": "Darwin"
+          },
+          {
+            "type": "equals",
+            "lhs": "${hostSystemName}",
+            "rhs": "Linux"
+          }
+        ]
+      }
+    },
+    {
+      "name": "cbs",
+      "configurePreset": "cbs",
+      "targets": [
+        "CBS"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "cbs-gnu",
+      "configurePreset": "cbs-gnu",
+      "targets": [
+        "CBS"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "darkbit-wimp",
+      "configurePreset": "darkbit-wimp",
+      "targets": ["DarkBit_standalone_WIMP"],
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Darwin" }
+    },
+    {
+      "name": "darkbit-wimp-llvm",
+      "configurePreset": "darkbit-wimp-llvm",
+      "targets": ["DarkBit_standalone_WIMP"],
+      "condition": {
+        "type": "anyOf",
+        "conditions": [
+          { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Darwin" },
+          { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" }
+        ]
+      }
+    },
+    {
+      "name": "darkbit-wimp-gnu",
+      "configurePreset": "darkbit-wimp-gnu",
+      "targets": ["DarkBit_standalone_WIMP"],
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" }
+    },
+    {
+      "name": "darkbit-mssm",
+      "configurePreset": "darkbit-mssm",
+      "targets": ["DarkBit_standalone_MSSM"],
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Darwin" }
+    },
+    {
+      "name": "darkbit-mssm-llvm",
+      "configurePreset": "darkbit-mssm-llvm",
+      "targets": ["DarkBit_standalone_MSSM"],
+      "condition": {
+        "type": "anyOf",
+        "conditions": [
+          { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Darwin" },
+          { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" }
+        ]
+      }
+    },
+    {
+      "name": "darkbit-mssm-gnu",
+      "configurePreset": "darkbit-mssm-gnu",
+      "targets": ["DarkBit_standalone_MSSM"],
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" }
+    },
+    {
+      "name": "darkbit-singlet-z2",
+      "configurePreset": "darkbit-singlet-z2",
+      "targets": ["DarkBit_standalone_ScalarSingletDM_Z2"],
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Darwin" }
+    },
+    {
+      "name": "darkbit-singlet-z2-llvm",
+      "configurePreset": "darkbit-singlet-z2-llvm",
+      "targets": ["DarkBit_standalone_ScalarSingletDM_Z2"],
+      "condition": {
+        "type": "anyOf",
+        "conditions": [
+          { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Darwin" },
+          { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" }
+        ]
+      }
+    },
+    {
+      "name": "darkbit-singlet-z2-gnu",
+      "configurePreset": "darkbit-singlet-z2-gnu",
+      "targets": ["DarkBit_standalone_ScalarSingletDM_Z2"],
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" }
     }
   ]
 }

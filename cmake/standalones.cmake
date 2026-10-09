@@ -60,10 +60,6 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   endif()
 endif()
 
-if(TARGET CBS AND CBS_USE_LLD)
-  target_link_options(CBS PRIVATE -fuse-ld=lld)
-endif()
-
 if(TARGET CBS AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "Release" AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo")
   add_custom_command(
     TARGET CBS POST_BUILD

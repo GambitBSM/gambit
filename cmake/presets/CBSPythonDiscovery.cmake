@@ -2,9 +2,12 @@
 #         (pengxuan.zhu@adelaide.edu.au)
 # \date 2026 Aug
 #
-# Resolve one CPython interpreter for public CBS presets.  Configure-time
-# pinning only sets Python3_EXECUTABLE; FindPython3 locates headers and
-# libpython so Debian multiarch and framework layouts keep working.
+# Resolve one CPython interpreter for public presets.  Configure-time
+# pinning only sets Python3_EXECUTABLE and Python3_ROOT_DIR; FindPython3
+# locates headers and libpython so Debian multiarch and framework layouts
+# keep working.  The interpreter is python3 on PATH, which is the pyenv
+# default when pyenv shims come first.  FindPython3's own search prefers
+# the highest version and would otherwise select a different install.
 
 include_guard(GLOBAL)
 
@@ -163,13 +166,10 @@ function(cbs_validate_python_for_cbs_preset)
   endif()
 endfunction()
 
-function(cbs_configure_python_for_cbs_preset)
-  if(NOT CBS_AUTO_DETECT_PYTHON)
-    return()
-  endif()
-
+# label is the preset family name used in messages, for example CBS or GAMBIT.
+function(preset_pin_python3_on_path label)
   if(DEFINED Python3_EXECUTABLE AND NOT "${Python3_EXECUTABLE}" STREQUAL "")
-    message(STATUS "CBS Python: using Python3_EXECUTABLE=${Python3_EXECUTABLE}")
+    message(STATUS "${label} Python: using Python3_EXECUTABLE=${Python3_EXECUTABLE}")
     return()
   endif()
 
@@ -177,9 +177,13 @@ function(cbs_configure_python_for_cbs_preset)
   unset(_cbs_python_command)
   find_program(_cbs_python_command NAMES python3)
   if(NOT _cbs_python_command OR _cbs_python_command MATCHES "-NOTFOUND$")
+    set(_preset_python_hint "Set -DPython3_EXECUTABLE=/path/to/python3.")
+    if(label STREQUAL "CBS")
+      set(_preset_python_hint "${_preset_python_hint} Or disable CBS_AUTO_DETECT_PYTHON.")
+    endif()
     message(FATAL_ERROR
-      "CBS preset Python discovery failed: no python3 executable was found on PATH.\n"
-      "Set -DPython3_EXECUTABLE=/path/to/python3 or disable CBS_AUTO_DETECT_PYTHON.")
+      "${label} preset Python discovery failed: no python3 executable was found on PATH.\n"
+      "${_preset_python_hint}")
   endif()
 
   execute_process(
@@ -192,14 +196,14 @@ function(cbs_configure_python_for_cbs_preset)
     TIMEOUT 10)
   if(NOT _cbs_python_result EQUAL 0)
     message(FATAL_ERROR
-      "CBS preset Python discovery failed: could not inspect ${_cbs_python_command}: ${_cbs_python_error}")
+      "${label} preset Python discovery failed: could not inspect ${_cbs_python_command}: ${_cbs_python_error}")
   endif()
 
   string(REPLACE "\n" ";" _cbs_python_fields "${_cbs_python_output}")
   list(LENGTH _cbs_python_fields _cbs_python_field_count)
   if(_cbs_python_field_count LESS 2)
     message(FATAL_ERROR
-      "CBS preset Python discovery failed: ${_cbs_python_command} did not report an executable and version")
+      "${label} preset Python discovery failed: ${_cbs_python_command} did not report an executable and version")
   endif()
   list(GET _cbs_python_fields 0 _cbs_python_executable)
   list(GET _cbs_python_fields 1 _cbs_python_version)
@@ -211,24 +215,31 @@ function(cbs_configure_python_for_cbs_preset)
 
   if(NOT EXISTS "${_cbs_python_executable}")
     message(FATAL_ERROR
-      "CBS preset Python discovery failed: ${_cbs_python_command} reported a missing executable ${_cbs_python_executable}")
+      "${label} preset Python discovery failed: ${_cbs_python_command} reported a missing executable ${_cbs_python_executable}")
   endif()
 
   cbs_python_has_module("${_cbs_python_executable}" yaml _cbs_python_has_yaml)
   if(NOT _cbs_python_has_yaml)
     message(FATAL_ERROR
-      "CBS preset Python discovery selected ${_cbs_python_executable} (${_cbs_python_version}), but it cannot import the required yaml module.\n"
+      "${label} preset Python discovery selected ${_cbs_python_executable} (${_cbs_python_version}), but it cannot import the required yaml module.\n"
       "Install PyYAML for that Python or select a different Python3_EXECUTABLE.")
   endif()
 
   set(Python3_EXECUTABLE "${_cbs_python_executable}" CACHE FILEPATH
-      "Python interpreter selected by the CBS preset" FORCE)
+      "Python interpreter selected from python3 on PATH" FORCE)
   set(Python3_EXECUTABLE "${_cbs_python_executable}" PARENT_SCOPE)
   if(NOT "${_cbs_python_root}" STREQUAL "")
     set(Python3_ROOT_DIR "${_cbs_python_root}" CACHE PATH
-        "Python prefix selected by the CBS preset")
+        "Python prefix selected from python3 on PATH")
     set(Python3_ROOT_DIR "${_cbs_python_root}" PARENT_SCOPE)
   endif()
 
-  message(STATUS "CBS Python: selected CPython ${_cbs_python_version} (${_cbs_python_executable})")
+  message(STATUS "${label} Python: selected CPython ${_cbs_python_version} (${_cbs_python_executable})")
+endfunction()
+
+function(cbs_configure_python_for_cbs_preset)
+  if(NOT CBS_AUTO_DETECT_PYTHON)
+    return()
+  endif()
+  preset_pin_python3_on_path("CBS")
 endfunction()

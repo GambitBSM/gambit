@@ -122,15 +122,16 @@ profile × toolchain × build mode
 
 - **Profile** selects GAMBIT capabilities and final targets, for example `cbs`
   or `gambit`.
-- **Toolchain** selects the compiler strategy, for example `system` or
-  `upstream-llvm`.
+- **Toolchain** selects `llvm` (upstream LLVM), `macos` (AppleClang), or
+  `gnu` (Linux GNU C/C++/Fortran).
 - **Build mode** selects `Release`, `Debug`, or another supported configuration.
 
 Public preset names should follow these forms:
 
 ```text
-<profile>                    # default/system toolchain
-<profile>-<toolchain>        # explicit alternative toolchain
+<profile>                    # native macOS AppleClang
+<profile>-llvm               # upstream LLVM on macOS or Linux
+<profile>-gnu                # Linux GNU C/C++/Fortran
 <profile>-<toolchain>-debug  # explicit non-default build mode
 ```
 
@@ -142,8 +143,10 @@ Examples:
 ```text
 cbs
 cbs-llvm
+cbs-gnu
 gambit
 gambit-llvm
+gambit-gnu
 gambit-llvm-debug
 ```
 
@@ -170,10 +173,12 @@ The current registry is:
 
 | Preset | Profile | Toolchain | Maturity | Standard status |
 |---|---|---|---|---|
-| `cbs` | CBS | System/user-selected | Supported | Migration required |
+| `cbs` | CBS | macOS AppleClang plus discovered Fortran | Supported | Implemented |
 | `cbs-llvm` | CBS | Upstream LLVM plus validated Fortran | Supported | Migration required |
-| `gambit` | Full GAMBIT | System/user-selected | Planned | Not implemented |
-| `gambit-llvm` | Full GAMBIT | Upstream LLVM plus validated Fortran | Planned | Not implemented |
+| `cbs-gnu` | CBS | Linux GNU C/C++/Fortran | Experimental | Implemented; Linux build validation pending |
+| `gambit` | Full GAMBIT | macOS AppleClang plus discovered Fortran | Experimental | Implemented; full-profile validation pending |
+| `gambit-llvm` | Full GAMBIT | Upstream LLVM plus discovered Fortran | Experimental | Implemented; full-profile validation pending |
+| `gambit-gnu` | Full GAMBIT | Linux GNU C/C++/Fortran | Experimental | Implemented; Linux build validation pending |
 
 A change to a supported preset's feature policy, toolchain policy, target
 closure, dependency source, or minimum CMake version is a build-contract change
@@ -582,17 +587,18 @@ CMake 3.16.3 minimum. The higher preset minimum supports the documented
 
 | Preset | Inherits | Current binary directory | Toolchain policy | Build target |
 |---|---|---|---|---|
-| `cbs` | `cbs-base` | `build/` | System or explicit user compiler | `CBS` |
+| `cbs` | `cbs-base` | `build/` | macOS AppleClang | `CBS` |
 | `cbs-llvm` | `cbs-base` | `build/` | `cmake/toolchains/llvm-native.cmake` | `CBS` |
+| `cbs-gnu` | `cbs-base` | `build/` | Linux GNU C/C++/Fortran | `CBS` |
 
-The shared current binary directory is recorded here as implementation fact,
-not as the target design. Both rows must migrate to their independent
-`build/presets/<preset-name>/` directories.
+All rows preserve GAMBIT's canonical shared `build/` and established output
+layout. Switching profiles or compiler families requires `--fresh`, following
+the repository build-tree policy in `AGENTS.md`.
 
 ### 12.1 `cbs`
 
-`cbs` is the CBS profile using the system or explicitly user-selected compiler
-tuple. Its profile contract is:
+`cbs` is the CBS profile using native macOS AppleClang and a discovered Fortran
+compiler. Explicit C/C++ selections must also be AppleClang. Its profile contract is:
 
 - `Bits=ColliderBit`, with ScannerBit retained by GAMBIT;
 - final build target `CBS`;
@@ -620,13 +626,22 @@ in the configure summary and trace manifest.
 |---|---|
 | `CMakePresets.json` | Public preset identity, profile cache values, toolchain selection, final build target |
 | `cmake/CBS.cmake` | CBS-only orchestration hooks and optional target attachment |
-| `cmake/toolchains/llvm-native.cmake` | Upstream LLVM compiler selection before `project()` |
+| `cmake/toolchains/llvm-native.cmake` | Shared upstream LLVM compiler selection before `project()` |
+| `cmake/toolchains/macos-native.cmake` | Shared native AppleClang selection on macOS |
+| `cmake/toolchains/gnu-native.cmake` | Shared GNU C/C++/Fortran selection on Linux |
+| `cmake/toolchains/NativePresetToolchain.cmake` | Common compiler pinning and cache-switch validation |
+| `cmake/presets/NativeCompilerDiscovery.cmake` | Compiler strategy and host support policy |
 | `cmake/presets/CBSCompilerDiscovery.cmake` | Shared compiler classification and support policy |
 | `cmake/presets/CBSPythonDiscovery.cmake` | Coherent Python interpreter/development installation selection |
 | `cmake/presets/CBSRootDiscovery.cmake` | Compatible optional ROOT discovery |
 | `cmake/presets/CBSValidation.cmake` | Authoritative configure-time compile/link checks |
 | `cmake/presets/CBSCompilerSummary.cmake` | Human-readable resolved build contract |
-| `cmake/presets/detect-cbs-presets.cmake` | Read-only pre-configure availability report |
+| `cmake/bootstrap` | Read-only preset discovery CLI with system/preset filters |
+| `cmake/presets/detect-presets.cmake` | Public preset registration and discovery dispatch |
+| `cmake/presets/BootstrapReport.cmake` | Grouped stdout report, terminal colors, and optional full paths |
+| `cmake/presets/PresetEnvironmentDiscovery.cmake` | Shared read-only prerequisite probes |
+| `cmake/presets/GAMBITAvailability.cmake` | Full GAMBIT prerequisite policy |
+| `cmake/presets/CBSAvailability.cmake` | CBS prerequisite policy and optional environment report |
 | `cmake/standalones.cmake` | Native `CBS` executable target and direct target dependencies |
 | `cmake/contrib.cmake` | Contrib package construction and installed package facts |
 | `cmake/backends.cmake` | Backend targets, BOSS invocation, and backend dependency edges |
@@ -645,10 +660,26 @@ The current CBS implementation uses these phases:
 7. compile/link validation and the final summary run after all targets exist.
 8. `cmake --build --preset <name>` builds the `CBS` target and its closure.
 
+The public preset matrix has three compiler profiles per system:
+
+| Profile | GAMBIT | CBS | Host |
+|---|---|---|---|
+| Upstream LLVM | `gambit-llvm` | `cbs-llvm` | macOS / Linux |
+| AppleClang | `gambit` | `cbs` | macOS |
+| GNU C/C++/Fortran | `gambit-gnu` | `cbs-gnu` | Linux |
+
+The native toolchain modules are shared by GAMBIT and CBS. Their configure and
+build presets carry matching host conditions, and every profile retains `build/`.
+Site-specific HPC profiles belong in the Git-ignored `CMakeUserPresets.json`.
+The tracked `CMakeUserPresets.json.example` inherits `gambit-base` and defines
+a matching build preset. Local profiles may select site compilers, dependency
+prefixes, and MPI independently of the public three-profile matrix, but they
+must keep the canonical `build/` and GAMBIT output defaults. Native CMake lists
+these profiles; bootstrap probes only registered project presets.
 The current user entry points are:
 
 ```bash
-./cmake/cbs-bootstrap
+./cmake/bootstrap --system cbs
 cmake --preset cbs --fresh
 cmake --build --preset cbs --parallel
 
@@ -656,16 +687,19 @@ cmake --preset cbs-llvm --fresh
 cmake --build --preset cbs-llvm --parallel
 ```
 
-The bootstrap is read-only. `--fresh` is currently required when changing
-between the two shared-cache CBS presets. After the binary-directory migration,
-each preset will configure and build independently without clearing the other.
+The bootstrap is read-only. With no filters it inspects GAMBIT and CBS;
+`--system gambit`, `--preset cbs-llvm`, and `--list` narrow the report.
+See `cmake/presets/README.md` for the CLI and provider registration contract.
+Discovery groups shared dependencies once and keeps full paths under
+`--verbose`. Terminal colors are automatic; redirected reports are plain text.
+`NO_COLOR` and `TERM=dumb` disable automatic colors.
+All GAMBIT/CBS presets retain the canonical shared `build/` directory. Use
+`--fresh` when switching profiles or compiler families.
 
 ### 12.5 Current CBS migration gaps
 
 The following current behaviours are not precedents for new presets:
 
-- `cbs` and `cbs-llvm` currently share `build/` and require `--fresh` when
-  switching compiler families;
 - several external projects build in source-tree directories;
 - legacy package definitions use MD5 and sometimes mutable archive URLs;
 - Rivet 4.1.0 currently uses a legacy GAMBIT patch to compile BOSS-generated

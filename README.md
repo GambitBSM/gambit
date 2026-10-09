@@ -153,7 +153,9 @@ Maintainer-facing requirements for public CMake presets, dependency modelling,
 external packages, BOSS integration and build traceability are defined in
 [doc/CMAKE_PRESET_STANDARD.md](doc/CMAKE_PRESET_STANDARD.md).
 
-
+For an HPC cluster, copy [CMakeUserPresets.json.example](CMakeUserPresets.json.example)
+to `CMakeUserPresets.json` and edit it for the loaded modules and site paths.
+See [the local HPC preset guide](cmake/presets/README.md#local-hpc-presets).
 
 Assuming that you have retrieved the git repository or the tarball and unpacked it:
 
