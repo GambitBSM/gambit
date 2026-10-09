@@ -186,6 +186,26 @@ headers). If the real backend isn't installed in your environment:
   castxml step at least parses the real header, so a hand-written shim that
   has never seen the real header is a strictly weaker guarantee.
 
+## Step 6.5 — Check the backend's own patch file for BOSS content too
+
+Don't assume BOSS only touches GAMBIT-side files
+(`Backends/include/.../frontends/`, `backend_types/`). BOSS can also run as
+part of the backend's own build and physically copy generated `.cc`/`.hh`
+files into the backend's source tree (check the BOSS config's
+`src_files_to`/`header_files_to` variables), and the backend's own
+`Backends/patches/<name>/<ver>/patch_*.dif` can bake in Makefile build
+rules for those generated files, or dummy methods purely to force BOSS to
+pull in a type's header. For Rivet, disabling `BOSS_backend()` without
+cleaning up `patch_rivet_4.1.0.dif` left a hard-coded Makefile rule for
+`BOSS_wrapperutils.cc` — a file nothing produces any more — causing a "No
+rule to make target" failure deep in the Rivet build, well after the shim
+itself had already compiled fine standalone. `grep -n BOSS` the backend's
+patch file and the backend's own installed source tree (if already
+downloaded) before declaring the removal of BOSS complete, and strip any
+hunks that reference BOSS-generated filenames, keeping everything else
+(other patches in the same file are often for unrelated reasons, like
+Rivet's own `exit(1)`→`throw` and FastJet-flags fixes, and must stay).
+
 ## Step 7 — Decide on and document build integration separately
 
 Writing the shim and wrapper header doesn't require touching

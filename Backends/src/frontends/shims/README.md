@@ -25,6 +25,29 @@ BOSS on this one backend.
   construct objects with virtual dispatch back across the `.so` boundary)
   isn't used any more — the shim only needs flat `BE_FUNCTION` symbol
   resolution.
+- `Backends/patches/rivet/4.1.0/patch_rivet_4.1.0.dif`: this patch (applied
+  to Rivet's own source tree, independent of the `BOSS_backend()` call)
+  turned out to **also** bake in BOSS-specific content: it added
+  `BOSS_*.cc` source files to `src/Core/Makefile.in`'s build rules (files
+  BOSS itself used to generate and copy into Rivet's own source tree —
+  removing the `BOSS_backend()` call meant those files never got created,
+  so `make` failed with "No rule to make target 'BOSS_wrapperutils.cc'"),
+  added GAMBIT backend-type headers to `include/Rivet/Makefile.in`'s
+  install list, and added a `dummy(YODA::AnalysisObject*)` method to
+  `AnalysisHandler.hh`/`.cc` purely to force BOSS to pull in a header it
+  needed. All of that has been stripped from the patch file; what's left
+  is only the genuinely BOSS-independent parts: the `libRivet.so:` Makefile
+  target the cmake `BUILD_COMMAND` actually calls, the `analyses/Makefile.in`
+  plugin-directory restriction, the `exit(1)` → `throw` conversions in
+  `AnalysisHandler.cc` (so a bad analysis doesn't kill the whole GAMBIT
+  scan), and the `configure` FastJet-flags fix. **Lesson for other
+  backends:** check a backend's own patch file
+  (`Backends/patches/<name>/<ver>/patch_*.dif`) for BOSS-specific content,
+  not just the BOSS config and GAMBIT-side generated files — BOSS can
+  patch the backend's own build system to compile files it generates
+  itself, and removing the `BOSS_backend()` call without also cleaning up
+  that patch leaves a build rule pointing at a file nothing produces
+  anymore.
 - The earlier standalone prototype header at
   `Backends/include/gambit/Backends/frontends/shims/Rivet_4_1_0_shim.hpp`
   (hand-rolled `dlopen`, not wired into the build) has been deleted — it's
