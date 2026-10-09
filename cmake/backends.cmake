@@ -2246,7 +2246,28 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} libRivet.so
     INSTALL_COMMAND ""
   )
-  BOSS_backend(${name} ${ver} "-I${HDF5_INCLUDE_DIR} -I${HDF5_INCLUDE_DIRS}")
+
+  # Rivet's frontend is hand-written (Backends/src/frontends/shims/rivet_shim.cpp
+  # + Backends/include/gambit/Backends/frontends/Rivet_4_1_0.hpp) rather than
+  # BOSSed, to avoid castxml having to parse the whole AnalysisHandler API for
+  # the dozen methods GAMBIT actually calls. See Backends/src/frontends/shims/README.md.
+  # The line this replaces was:
+  #   BOSS_backend(${name} ${ver} "-I${HDF5_INCLUDE_DIR} -I${HDF5_INCLUDE_DIRS}")
+  set(Rivet_shim_src "${PROJECT_SOURCE_DIR}/Backends/src/frontends/shims/rivet_shim.cpp")
+  set(Rivet_shim_lib "${dir}/local/lib/librivet_shim.so")
+  ExternalProject_Add_Step(${name}_${ver} build_shim
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${dir}/local/lib
+    COMMAND ${CMAKE_CXX_COMPILER} -std=c++17 -fPIC -shared -O3
+            -I${dir}/include -I${hepmc_dir}/include -I${yoda_dir}/include -I${fastjet_dir}/include
+            -I${HDF5_INCLUDE_DIR} -I${HDF5_INCLUDE_DIRS}
+            ${Rivet_shim_src} -o ${Rivet_shim_lib}
+            -L${dir}/local/lib -lRivet -L${hepmc_dir}/lib -lHepMC3 -L${yoda_dir}/lib -lYODA
+            -Wl,-rpath,${dir}/local/lib -Wl,-rpath,${hepmc_dir}/lib -Wl,-rpath,${yoda_dir}/lib
+    DEPENDS ${Rivet_shim_src}
+    DEPENDEES build
+    DEPENDERS install
+  )
+
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()

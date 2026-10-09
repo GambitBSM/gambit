@@ -155,7 +155,10 @@ Pythia:
   8.312:       ./Backends/installed/pythia/8.312/lib/libpythia8.so
 
 Rivet:
-  4.1.0:       ./Backends/installed/rivet/4.1.0/local/lib/libRivet.so
+  # Points at the hand-written shim (Backends/src/frontends/shims/rivet_shim.cpp),
+  # not the real libRivet.so, as the shim is dlopen'd directly and pulls in
+  # libRivet.so itself via its own linked dependencies.
+  4.1.0:       ./Backends/installed/rivet/4.1.0/local/lib/librivet_shim.so
 
 SPheno:
   3.3.8:       ./Backends/installed/spheno/3.3.8/lib/libSPheno.so

@@ -48,8 +48,21 @@ grep -rn "<ClassName>" <RelevantBitDirectory>/src <RelevantBitDirectory>/include
 Write down the exact list of methods/functions called, with their argument
 and return types as used at the call site (not the full overload set from
 the header — just what's actually invoked). This list is the entire scope
-of the shim. For Rivet this was 13 entry points out of ~96 BOSS-generated
-ones; expect a similarly large reduction for most backends.
+of the shim.
+
+**Check every call site is actually reachable before trusting it.** When
+doing this for Rivet, three of the "called" methods
+(`beamIds`/`sqrtS`/`runName`) turned out to be inside a block guarded by
+`#ifdef COLLIDERBIT_DEBUG` — a macro never defined anywhere in the build
+(`grep -rn COLLIDERBIT_DEBUG` outside that one file was empty). That block
+was permanently dead code, and the method names it called didn't even
+exist on the real class. Don't assume every grep hit is live: check whether
+it sits behind an `#ifdef` for a macro that's actually ever defined, and
+grep the surrounding code for `#ifdef`/`#endif` boundaries. For Rivet, once
+the dead code was excluded, the real entry-point count dropped from 13 to
+9, against ~96 BOSS-generated methods — expect a similarly large reduction
+for most backends, but get the *real* count right rather than the first
+grep's count.
 
 Also check the existing BOSS config
 (`Backends/scripts/BOSS/configs/<backend>_<version>.py`) for `load_classes`,
@@ -109,14 +122,20 @@ is that module code needs **zero changes** — the wrapper class is a
 drop-in replacement for the type the BOSS-generated frontend currently
 provides.
 
-For symbol loading, don't hand-roll `dlopen`/`dlsym` the way the Rivet
-prototype's `ShimLibrary` class does (that was written to be readable
-standalone) — reuse GAMBIT's existing `LOAD_LIBRARY` and `BE_FUNCTION`
-macros (`Backends/include/gambit/Backends/frontend_macros.hpp`). They
-already do symbol resolution against a list of candidate mangled names via
-`dlsym`, and don't care whether the symbol was produced by BOSS or written
-by hand — only the `SYMBOLNAME` list and the function signature need to
-match what you put in the shim.
+Don't hand-roll `dlopen`/`dlsym` — reuse GAMBIT's existing `LOAD_LIBRARY`
+and `BE_FUNCTION` macros (`Backends/include/gambit/Backends/frontend_macros.hpp`),
+exactly as the hand-written (non-BOSS) `LibFirst_1_0.hpp` and
+`HiggsSignals_1_4.hpp` frontends already do, and as the real
+`Backends/include/gambit/Backends/frontends/Rivet_4_1_0.hpp` now does.
+`BE_FUNCTION` already does symbol resolution against a list of candidate
+names via `dlsym`, and doesn't care whether the symbol was produced by
+BOSS or written by hand — just give it the shim's plain, unmangled function
+name as the `SYMBOLNAME` argument (no `"__BOSS_"`-style mangled candidates
+needed, since the shim exports `extern "C"` names directly) and declare the
+matching `void*`-handle-based signature. Set
+`DO_CLASSLOADING 0` in the backend's `identification.hpp` if it was
+previously 1 — a flat-function shim doesn't need BOSS's factory-based
+classloading at all.
 
 ## Step 5 — Handle the thread-safety hazard explicitly
 
@@ -143,21 +162,47 @@ where `buf` is a stack buffer the caller passed in. See
 every string/collection-returning function in your shim against this before
 considering it done.
 
-## Step 6 — Decide on and document build integration separately
+## Step 6 — Verify against a real install if there is any way to get one
+
+Don't trust a shim that only "looks right" — method names, signatures, and
+constness that look plausible from reading a header can still be wrong
+(see the Rivet example: `analyze()`'s real signature takes a non-const
+reference, and `beamIds`/`sqrtS`/`runName` don't exist on the real class at
+all — both were only caught by actually compiling against the real
+headers). If the real backend isn't installed in your environment:
+
+- Check whether another local checkout of the same repo (a different
+  branch, a colleague's machine, a CI artifact, an old build directory) has
+  the backend already built. It doesn't need a working GAMBIT build at all
+  — you only need its installed headers/libs to compile and link the shim
+  `.cpp` directly with a one-off `g++ -shared` command, and ideally to
+  `dlopen` the result from a tiny standalone test program and call each
+  function once (lifecycle: create, call the real entry points with
+  harmless/empty inputs, destroy — look for crashes, not correctness).
+- Use `nm -D --defined-only your_shim.so` to confirm every expected symbol
+  is present, unmangled, and exported.
+- If genuinely nothing is available, say so explicitly rather than
+  presenting an unverified shim as equivalent to BOSS's output — BOSS's
+  castxml step at least parses the real header, so a hand-written shim that
+  has never seen the real header is a strictly weaker guarantee.
+
+## Step 7 — Decide on and document build integration separately
 
 Writing the shim and wrapper header doesn't require touching
 `cmake/backends.cmake`, and you generally shouldn't do so in the same pass
-as writing the files — it's a separate, higher-blast-radius decision
-(changes real build/CI behavior for a backend you likely can't
-compile-test without the real backend installed). Treat "write the
-prototype" and "wire it into the live build, replacing the BOSS-generated
-frontend" as two separate pieces of work, and flag the integration step
-explicitly to whoever you're doing this for rather than doing it
-unprompted. See the "What a real integration would still need" section of
-`Backends/src/frontends/shims/README.md` for the concrete list of
-remaining steps (shim build target, reusing `BE_FUNCTION` for symbol
-loading, matching the existing namespace/typedef that module code expects,
-and actually compiling/testing against the real backend).
+as writing the files unless explicitly asked — it's a separate,
+higher-blast-radius decision (changes real build/CI behavior for a backend
+you likely can't fully compile-test without the real backend installed).
+Treat "write the shim" and "wire it into the live build, replacing the
+BOSS-generated frontend" as two separate pieces of work, and flag the
+integration step explicitly to whoever you're doing this for rather than
+doing it unprompted. `Backends/src/frontends/shims/README.md` documents
+exactly what was changed and verified for the Rivet integration
+(`cmake/backends.cmake`, `config/backend_locations.yaml.default`,
+`identification.hpp`, the frontend header) and — just as importantly —
+what was *not* verified, since the GAMBIT-side macro plumbing requires a
+full `cmake` configure that pulls in every other backend in the repo.
+State that boundary explicitly rather than implying full confidence.
 
 ## Checklist
 
@@ -169,10 +214,14 @@ and actually compiling/testing against the real backend).
       not a shared/static temporary
 - [ ] GAMBIT-side wrapper class matches existing call sites' method
       names/signatures exactly — module code needs no changes
-- [ ] Symbol loading uses (or is flagged as needing to switch to)
-      `BE_FUNCTION`/`LOAD_LIBRARY`, not a hand-rolled loader
-- [ ] Build-system integration explicitly called out as a separate,
-      unstarted step — not silently wired into `cmake/backends.cmake`
+- [ ] Symbol loading uses `BE_FUNCTION`/`LOAD_LIBRARY`, not a hand-rolled
+      `dlopen`/`dlsym` loader; `DO_CLASSLOADING` set to 0
+- [ ] Compiled (and ideally linked + smoke-tested) against a real install
+      of the backend, from this environment or any other reachable one —
+      or explicitly flagged as unverified if truly none was available
+- [ ] Build-system integration explicitly called out as a separate
+      decision, flagged to whoever you're doing this for — not silently
+      wired into `cmake/backends.cmake` unless that was explicitly asked for
 - [ ] Noted whether this backend is actually a good candidate (small
       fraction of the real API used, few complex cross-boundary types) —
       if not, say so instead of forcing the pattern

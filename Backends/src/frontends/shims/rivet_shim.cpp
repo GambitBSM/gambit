@@ -91,26 +91,17 @@ extern "C"
 
   // --- Run metadata ---
 
-  void rivet_handler_beam_ids(void* handle, int* id1, int* id2)
-  {
-    std::pair<int,int> ids = static_cast<Rivet::AnalysisHandler*>(handle)->beamIds();
-    *id1 = ids.first;
-    *id2 = ids.second;
-  }
+  // Note: Rivet::AnalysisHandler has no beamIds()/sqrtS()/runName() methods
+  // (the real names are runBeamIDs()/runSqrtS(), and there is no runName()
+  // at all). Those three were called in ColliderBit_measurements.cpp under
+  // #ifdef COLLIDERBIT_DEBUG, which is never defined anywhere in this build
+  // -- pre-existing dead code that wouldn't have compiled against BOSS's
+  // own generated wrapper either (it only wraps runBeamIDs()/runSqrtS()).
+  // Deliberately not wrapped here; see Backends/src/frontends/shims/README.md.
 
   double rivet_handler_nominal_cross_section(void* handle)
   {
     return static_cast<Rivet::AnalysisHandler*>(handle)->nominalCrossSection();
-  }
-
-  double rivet_handler_sqrt_s(void* handle)
-  {
-    return static_cast<Rivet::AnalysisHandler*>(handle)->sqrtS();
-  }
-
-  void rivet_handler_run_name(void* handle, char* buf, int buflen)
-  {
-    std::snprintf(buf, buflen, "%s", static_cast<Rivet::AnalysisHandler*>(handle)->runName().c_str());
   }
 
   // --- Event processing ---
@@ -120,7 +111,10 @@ extern "C"
   // other GAMBIT frontend that produces/consumes HepMC3::GenEvent (e.g. the
   // Pythia frontend) are built against the same compiled HepMC3, with the
   // same compiler/ABI, which GAMBIT already requires for its contrib libs.
-  void rivet_handler_analyze(void* handle, const HepMC3::GenEvent* ge)
+  //
+  // Rivet::AnalysisHandler::analyze() takes a non-const GenEvent& (Rivet
+  // mutates/caches state on the event during analysis), not const&.
+  void rivet_handler_analyze(void* handle, HepMC3::GenEvent* ge)
   {
     static_cast<Rivet::AnalysisHandler*>(handle)->analyze(*ge);
   }
