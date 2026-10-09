@@ -4,6 +4,6 @@
 
 #ifndef MVAUTILS_MVAUTILSDICT_H
 
-#include "MVAUtils/BDT.h"
+#include "BDT.h"
 
 #endif
