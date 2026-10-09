@@ -38,22 +38,15 @@
 #include "gambit/Utils/stringify.hpp"
 
 
-// Classify the current invocation from argv.
-//
-// Used by the constructor below to short-circuit trivial GAMBIT flag-only
-// invocations (--help, -h, --version, no-args) before the main binary's C++
-// static initialisers run, saving several seconds of startup on e.g.
-// `./gambit --help`.
-//
-// CBS has its own CLI. Its -h/--help/-l/--list-analyses paths must reach
-// main() (not the GAMBIT help text) but should skip "Initialising GAMBIT..."
-// and silence RestFrames' load-time banner.
+// Classify the current GAMBIT invocation from argv. This library is also
+// linked into contributed-package test programs, so CLI handling must run only
+// for the actual GAMBIT executable.
 typedef enum
 {
   GAMBIT_INVOCATION_NORMAL  = 0,
   GAMBIT_INVOCATION_HELP    = 1,  // GAMBIT --help, -h, or no arguments
   GAMBIT_INVOCATION_VERSION = 2,  // --version
-  GAMBIT_INVOCATION_LIGHT   = 3   // CBS help/list: continue to main(), quietly
+  GAMBIT_INVOCATION_EXTERNAL = 3  // A non-GAMBIT process linked to this library
 } gambit_invocation_kind;
 
 static const char* gambit_basename(const char* path)
@@ -67,40 +60,25 @@ static const char* gambit_basename(const char* path)
   return base;
 }
 
-static int gambit_is_cbs(const char* argv0)
+static int gambit_is_main_executable(const char* argv0)
 {
-  return strcmp(gambit_basename(argv0), "CBS") == 0;
+  return strcmp(gambit_basename(argv0), GAMBIT_EXECUTABLE) == 0;
 }
 
 static gambit_invocation_kind gambit_classify_from_args(int argc, char** argv)
 {
-  if (argc < 1 || argv == NULL || argv[0] == NULL) return GAMBIT_INVOCATION_NORMAL;
-
-  const int cbs = gambit_is_cbs(argv[0]);
-  if (argc == 1)
-  {
-    return cbs ? GAMBIT_INVOCATION_LIGHT : GAMBIT_INVOCATION_HELP;
-  }
+  if (argc < 1 || argv == NULL || argv[0] == NULL) return GAMBIT_INVOCATION_EXTERNAL;
+  if (!gambit_is_main_executable(argv[0])) return GAMBIT_INVOCATION_EXTERNAL;
+  if (argc == 1) return GAMBIT_INVOCATION_HELP;
 
   for (int i = 1; i < argc; ++i)
   {
     const char* arg = argv[i];
     if (arg == NULL) continue;
-    if (cbs)
-    {
-      if (strcmp(arg, "-h") == 0 || strcmp(arg, "--help") == 0 ||
-          strcmp(arg, "-l") == 0 || strcmp(arg, "--list-analyses") == 0)
-      {
-        return GAMBIT_INVOCATION_LIGHT;
-      }
-    }
-    else
-    {
-      if (strcmp(arg, "--help") == 0 || strcmp(arg, "-h") == 0)
-        return GAMBIT_INVOCATION_HELP;
-      if (strcmp(arg, "--version") == 0)
-        return GAMBIT_INVOCATION_VERSION;
-    }
+    if (strcmp(arg, "--help") == 0 || strcmp(arg, "-h") == 0)
+      return GAMBIT_INVOCATION_HELP;
+    if (strcmp(arg, "--version") == 0)
+      return GAMBIT_INVOCATION_VERSION;
   }
   return GAMBIT_INVOCATION_NORMAL;
 }
@@ -113,10 +91,10 @@ static gambit_invocation_kind gambit_classify_invocation()
   static char buf[4096];
   static char* argv[256];
   FILE* f = fopen("/proc/self/cmdline", "r");
-  if (f == NULL) return GAMBIT_INVOCATION_NORMAL;
+  if (f == NULL) return GAMBIT_INVOCATION_EXTERNAL;
   size_t n = fread(buf, 1, sizeof(buf) - 1, f);
   fclose(f);
-  if (n == 0) return GAMBIT_INVOCATION_NORMAL;
+  if (n == 0) return GAMBIT_INVOCATION_EXTERNAL;
   buf[n] = '\0';
   int argc = 0;
   size_t i = 0;
@@ -129,7 +107,10 @@ static gambit_invocation_kind gambit_classify_invocation()
   argv[argc] = NULL;
   return gambit_classify_from_args(argc, argv);
 #else
-  return GAMBIT_INVOCATION_NORMAL;
+  // The normal GAMBIT main() path remains available on platforms where this
+  // preload cannot inspect argv.  Do not apply GAMBIT CLI behaviour to every
+  // executable that happens to link this library.
+  return GAMBIT_INVOCATION_EXTERNAL;
 #endif
 }
 
@@ -138,21 +119,18 @@ static gambit_invocation_kind gambit_classify_invocation()
 __attribute__((constructor))
 static void initializer()
 {
-  // Print GAMBIT startup message
-  printf("%s", "\n\x1b[1;33mGAMBIT " STRINGIFY(GAMBIT_VERSION_MAJOR) "." STRINGIFY(GAMBIT_VERSION_MINOR) "." STRINGIFY(GAMBIT_VERSION_REVISION));
-  if (strcmp(GAMBIT_VERSION_PATCH, "") != 0) printf("%s", "-" GAMBIT_VERSION_PATCH);
-  printf("\nhttp://gambitbsm.org\n\n\x1b[0m");
-
-  // Trivial GAMBIT flag-only invocations (--help, -h, --version, no-args)
-  // don't need anything else GAMBIT does at startup, so print the
-  // appropriate output and exit *here*, before the dynamic loader
-  // hands control to the executable's .init_array.
-  //
-  // argv is read from /proc/self/cmdline on Linux and from _NSGetArgv on
-  // Darwin. The fast-paths in main() and run_diagnostic remain as a
-  // safety net on other systems.
+  const gambit_invocation_kind kind = gambit_classify_invocation();
+  if (kind != GAMBIT_INVOCATION_EXTERNAL)
   {
-    const gambit_invocation_kind kind = gambit_classify_invocation();
+    // Print GAMBIT startup message only for GAMBIT itself.
+    printf("%s", "\n\x1b[1;33mGAMBIT " STRINGIFY(GAMBIT_VERSION_MAJOR) "." STRINGIFY(GAMBIT_VERSION_MINOR) "." STRINGIFY(GAMBIT_VERSION_REVISION));
+    if (strcmp(GAMBIT_VERSION_PATCH, "") != 0) printf("%s", "-" GAMBIT_VERSION_PATCH);
+    printf("\nhttp://gambitbsm.org\n\n\x1b[0m");
+
+    // Trivial GAMBIT flag-only invocations (--help, -h, --version, no-args)
+    // don't need anything else GAMBIT does at startup, so print the
+    // appropriate output and exit *here*, before the dynamic loader
+    // hands control to the executable's .init_array.
     if (kind == GAMBIT_INVOCATION_HELP)
     {
       fputs(Gambit::cli_help_text, stdout);
@@ -163,14 +141,7 @@ static void initializer()
       // The banner above is the version output; no further text needed.
       exit(0);
     }
-    if (kind == GAMBIT_INVOCATION_LIGHT)
-    {
-      // CBS --help / --list-analyses: RestFrames is linked, but its constructor
-      // banner is not useful for these paths. libRestFrames depends on this
-      // preload, so this setenv runs first.
-      setenv("RESTFRAMES_QUIET", "1", 1);
-    }
-    else if (kind == GAMBIT_INVOCATION_NORMAL)
+    if (kind == GAMBIT_INVOCATION_NORMAL)
     {
       // Normal GAMBIT invocation usually takes a few seconds of startup
       // time, so let's inform the user that we are working on it.

@@ -31,13 +31,8 @@
 #include <nlohmann/json.hpp>
 #include "yaml-cpp/yaml.h"
 
-#ifdef __cpp_lib_filesystem
-  #include <filesystem>
-  namespace fs = std::filesystem;
-#else
-  #include <boost/filesystem.hpp>
-  namespace fs = boost::filesystem;
-#endif
+#include <filesystem>
+namespace fs = std::filesystem;
 
 namespace Gambit
 {
@@ -63,11 +58,17 @@ namespace Gambit
     {
       namespace
       {
-        /// One HepMC file, its physics-process normalisation and temporary I/O paths.
+        /// One HepMC file, its physics-process normalisation and temporary I/O paths,
+        /// with the collider it belongs to and the analyses assigned to that collider.
         struct RunJob
         {
+          std::size_t process_index = 0;
           str process_name;
+          str collider_name;
+          std::vector<str> analyses;
           str hepmc_file;
+          std::size_t file_index = 0;
+          std::size_t file_count = 0;
           double cross_section_fb = 0.0;
           double cross_section_uncert_fb = 0.0;
           fs::path yaml_file;
@@ -189,20 +190,40 @@ namespace Gambit
 
         /// Expand physics-process inputs into per-file jobs with distinct output paths.
         /// Each job uses its full process cross section; file weights are applied later.
+        /// Files of colliders without any enabled analysis are not run.
         std::vector<RunJob> build_run_jobs(
           const SoloInput::PreparedInput& prepared_input,
           const fs::path& temp_dir)
         {
           std::vector<RunJob> jobs;
           std::size_t run_index = 0;
-
+          std::size_t file_count = 0;
           for (const SoloInput::ProcessInput& process : prepared_input.processes)
           {
+            if (!SoloInput::find_collider(prepared_input, process.collider_name).analyses.empty())
+            {
+              file_count += process.files.size();
+            }
+          }
+          std::size_t file_index = 0;
+
+          for (std::size_t ip = 0; ip < prepared_input.processes.size(); ++ip)
+          {
+            const SoloInput::ProcessInput& process = prepared_input.processes[ip];
+            const SoloInput::ColliderInput& collider =
+              SoloInput::find_collider(prepared_input, process.collider_name);
+            if (collider.analyses.empty()) continue;
+
             for (const SoloInput::HepMCFileInput& file : process.files)
             {
               RunJob job;
+              job.process_index = ip;
               job.process_name = process.name;
+              job.collider_name = collider.name;
+              job.analyses = collider.analyses;
               job.hepmc_file = file.filename;
+              job.file_index = ++file_index;
+              job.file_count = file_count;
               // Use full process cross section for each file, then combine files
               // for the same process with event-count weighting after runs finish.
               job.cross_section_fb = process.cross_section_fb;
@@ -235,7 +256,7 @@ namespace Gambit
           const RunJob& job)
         {
           YAML::Node root;
-          root["analyses"] = prepared_input.analyses;
+          root["analyses"] = job.analyses;
 
           YAML::Node settings_node = YAML::Clone(prepared_input.infile["settings"]);
           settings_node.remove("processes");
@@ -248,15 +269,22 @@ namespace Gambit
           settings_node.remove("output");
 
           settings_node["event_file"] = job.hepmc_file;
+          settings_node["cbs_collider_name"] = job.collider_name;
           settings_node["cross_section_fb"] = job.cross_section_fb;
           // Keep per-run xsec uncertainty off and combine MC errors externally.
           settings_node["cross_section_uncert_fb"] = 0.0;
 
+          // Keep the parent run's live HepMC progress setting even though the
+          // child suppresses its normal summary output.
+          settings_node["hepmc_progress"] = settings.getValueOrDef<bool>(
+            settings.getValueOrDef<bool>(true, "screen_output"), "hepmc_progress"
+          );
+          std::ostringstream progress_label;
+          progress_label << "CBS HepMC File " << job.file_index << "/" << job.file_count
+                         << " (" << job.collider_name << ")";
+          settings_node["event_progress_label"] = progress_label.str();
           settings_node["screen_output"] = false;
           settings_node["output"] = job.output_json_file.string();
-          // Suppress repeated FastJet banners from per-file subprocesses.
-          settings_node["suppress_fastjet_banner"] = true;
-
           root["settings"] = settings_node;
 
           if (prepared_input.infile["rivet-settings"] || prepared_input.infile["contur-settings"])
@@ -296,7 +324,6 @@ namespace Gambit
 
           if (pid == 0)
           {
-            setenv("GAMBIT_SUPPRESS_BANNER", "1", 1);
             setenv("CBS_SUPPRESS_BANNER", "1", 1);
 
             char* const argv[] = {
@@ -333,7 +360,7 @@ namespace Gambit
             msg << "Batch run command failed with " << describe_child_status(status)
                 << " for YAML file " << yaml_filename
                 << ". Output JSON: " << describe_output_json(job.output_json_file)
-                << ". Command: GAMBIT_SUPPRESS_BANNER=1 CBS_SUPPRESS_BANNER=1 "
+                << ". Command: CBS_SUPPRESS_BANNER=1 "
                 << executable << " " << yaml_filename << ".";
             throw std::runtime_error(msg.str());
           }
@@ -497,12 +524,13 @@ namespace Gambit
         void initialize_accumulator(
           AnalysisAccumulator& acc,
           const std::string& analysis_name,
+          const std::string& collider_name,
           const nlohmann::json& analysis_json,
           const std::vector<SRPayload>& sr_payloads,
           const Cutflows& cutflows)
         {
           acc.data.analysis_name = analysis_name;
-          acc.data.collider_name = "CBS";
+          acc.data.collider_name = collider_name;
           acc.data.luminosity = analysis_json.value("luminosity", 0.0);
           acc.data.bkgjson_path = analysis_json.value("bkgjson_path", std::string());
           acc.data.srcov = parse_covariance_matrix_or_empty(analysis_json);
@@ -799,8 +827,10 @@ namespace Gambit
 
       /// Execute per-file jobs sequentially for one parameter point and merge signals.
       /// Within each physics process, weight files by their processed event counts;
-      /// add the resulting process yields and independent MC variances, then recompute
-      /// likelihoods from the merged data. Retain temporary files if requested.
+      /// add the resulting process yields and independent MC variances.  Each analysis
+      /// only receives the files of its own collider, and is normalised to that
+      /// collider's cross section and event count when its likelihood is recomputed.
+      /// Retain temporary files if requested.
       MergedRunResult run_and_merge(
         const std::string& cbs_executable,
         const SoloInput::PreparedInput& prepared_input,
@@ -820,8 +850,13 @@ namespace Gambit
         const fs::path temp_dir = make_temp_dir();
 
         std::vector<RunJob> jobs = build_run_jobs(prepared_input, temp_dir);
+        if (jobs.empty())
+        {
+          throw std::runtime_error("No batch jobs were created: no enabled analysis matches any HepMC collider.");
+        }
         std::map<std::string, AnalysisAccumulator> accumulators;
-        std::map<std::string, long long> process_event_totals;
+        std::vector<long long> process_event_totals(prepared_input.processes.size(), 0);
+        std::map<std::string, long long> collider_event_totals;
         std::vector<CompletedRun> completed_runs;
         completed_runs.reserve(jobs.size());
         int total_events = 0;
@@ -839,7 +874,8 @@ namespace Gambit
             throw std::runtime_error("A per-file CBS run produced zero events for " + job.hepmc_file + ".");
           }
           total_events += n_events;
-          process_event_totals[job.process_name] += n_events;
+          process_event_totals.at(job.process_index) += n_events;
+          collider_event_totals[job.collider_name] += n_events;
 
           CompletedRun completed;
           completed.job = job;
@@ -857,17 +893,27 @@ namespace Gambit
         // for files belonging to the same process, combine with event-count weights.
         for (const CompletedRun& completed : completed_runs)
         {
-          auto it_total = process_event_totals.find(completed.job.process_name);
-          if (it_total == process_event_totals.end() || it_total->second <= 0)
+          const long long process_events = process_event_totals.at(completed.job.process_index);
+          if (process_events <= 0)
           {
             throw std::runtime_error("Missing process event total for process " + completed.job.process_name + ".");
           }
           const double process_weight =
-            static_cast<double>(completed.n_events) / static_cast<double>(it_total->second);
+            static_cast<double>(completed.n_events) / static_cast<double>(process_events);
 
           for (const auto& analysis_item : completed.analyses_json.items())
           {
             const std::string analysis_name = analysis_item.key();
+            const auto collider_it = prepared_input.analysis_colliders.find(analysis_name);
+            if (collider_it == prepared_input.analysis_colliders.end()
+                || collider_it->second != completed.job.collider_name)
+            {
+              throw std::runtime_error(
+                "Per-file CBS run for " + completed.job.hepmc_file + " (collider "
+                + completed.job.collider_name + ") returned analysis " + analysis_name
+                + ", which is not assigned to that collider.");
+            }
+
             const nlohmann::json& analysis_json = analysis_item.value();
             const std::vector<SRPayload> sr_payloads = parse_sorted_sr_payloads(analysis_json);
             const Cutflows file_cutflows = parse_cutflows_or_empty(analysis_json);
@@ -878,7 +924,8 @@ namespace Gambit
             AnalysisAccumulator& acc = accumulators[analysis_name];
             if (acc.data.srdata.empty())
             {
-              initialize_accumulator(acc, analysis_name, analysis_json, sr_payloads, file_cutflows);
+              initialize_accumulator(acc, analysis_name, completed.job.collider_name,
+                                     analysis_json, sr_payloads, file_cutflows);
               acc.data.histograms = weighted_histograms;
             }
             else
@@ -901,6 +948,7 @@ namespace Gambit
         merged.total_events = total_events;
         merged.total_process_events = total_events;
         merged.process_event_counts = process_event_totals;
+        merged.collider_event_counts = collider_event_totals;
 
         // Preserve user-requested analysis ordering where possible.
         std::vector<std::string> analysis_order;
@@ -921,17 +969,20 @@ namespace Gambit
         {
           AnalysisAccumulator& acc = accumulators.at(analysis_name);
           AnalysisData data = acc.data;
+          const SoloInput::ColliderInput& collider =
+            SoloInput::find_collider(prepared_input, data.collider_name);
+          const long long collider_events = collider_event_totals.at(collider.name);
 
           for (std::size_t sr_index = 0; sr_index < data.srdata.size(); ++sr_index)
           {
             SignalRegionData& sr = data.srdata[sr_index];
             const double scaled_err = std::sqrt(acc.n_sig_scaled_err2[sr_index]);
 
-            if (prepared_input.total_cross_section_fb > 0.0 && data.luminosity > 0.0)
+            if (collider.cross_section_fb > 0.0 && data.luminosity > 0.0)
             {
               const double scale =
-                static_cast<double>(merged.total_events)
-                / (data.luminosity * prepared_input.total_cross_section_fb);
+                static_cast<double>(collider_events)
+                / (data.luminosity * collider.cross_section_fb);
 
               sr.n_sig_MC = sr.n_sig_scaled * scale;
               sr.n_sig_MC_stat = scaled_err * scale;
@@ -962,18 +1013,36 @@ namespace Gambit
         const bool use_fulllikes = FullLikes_FileExists != nullptr
                                 && FullLikes_ReadIn != nullptr
                                 && FullLikes_Evaluate != nullptr;
-        calc_LHC_LogLikes_common(
-          merged.analysis_loglikes,
-          use_fulllikes,
-          merged.analyses,
-          loglike_options,
-          marginaliser,
-          skip_calc,
-          FullLikes_FileExists,
-          FullLikes_ReadIn,
-          FullLikes_Evaluate,
-          prepared_input.total_cross_section_fb,
-          merged.total_events);
+
+        // Recompute likelihoods collider by collider, as the cross section and
+        // MC event count passed to the likelihood calculation are per collider.
+        for (const SoloInput::ColliderInput& collider : prepared_input.colliders)
+        {
+          AnalysisDataPointers collider_analyses;
+          for (AnalysisData* analysis_data : merged.analyses)
+          {
+            if (analysis_data->collider_name == collider.name) collider_analyses.push_back(analysis_data);
+          }
+          if (collider_analyses.empty()) continue;
+
+          map_str_AnalysisLogLikes collider_loglikes;
+          calc_LHC_LogLikes_common(
+            collider_loglikes,
+            use_fulllikes,
+            collider_analyses,
+            loglike_options,
+            marginaliser,
+            skip_calc,
+            FullLikes_FileExists,
+            FullLikes_ReadIn,
+            FullLikes_Evaluate,
+            collider.cross_section_fb,
+            static_cast<int>(collider_event_totals.at(collider.name)));
+          for (auto& loglike_pair : collider_loglikes)
+          {
+            merged.analysis_loglikes[loglike_pair.first] = std::move(loglike_pair.second);
+          }
+        }
 
         merged.combined_loglike = compute_combined_loglike(merged.analysis_loglikes, settings);
 
@@ -986,8 +1055,9 @@ namespace Gambit
       }
 
       /// Estimate additional MC events for fractional-error targets in each selected SR.
-      /// For finite positive yields and errors, extrapolate using 1/sqrt(N) scaling
-      /// and distribute extra events by process cross section (event counts as fallback).
+      /// For finite positive yields and errors, extrapolate using 1/sqrt(N) scaling of the
+      /// analysis's collider and distribute extra events over that collider's processes
+      /// by cross section (event counts as fallback).
       std::vector<AnalysisSamplingAdvice> build_sampling_advice(
         const MergedRunResult& merged,
         const SoloInput::PreparedInput& prepared_input,
@@ -1029,32 +1099,32 @@ namespace Gambit
           clean_targets.push_back(0.30);
         }
 
-        std::vector<ProcessSamplingAdvice> process_templates;
-        process_templates.reserve(prepared_input.processes.size());
-        long long total_processed_events = merged.total_process_events;
-        double total_cross_section_fb = 0.0;
-
-        for (const SoloInput::ProcessInput& process : prepared_input.processes)
-        {
-          ProcessSamplingAdvice process_info;
-          process_info.process_name = process.name;
-          process_info.cross_section_fb = process.cross_section_fb;
-          const auto it = merged.process_event_counts.find(process.name);
-          process_info.processed_events = (it == merged.process_event_counts.end() ? 0 : it->second);
-          process_info.recommended_additional_events = 0;
-          total_cross_section_fb += std::max(0.0, process_info.cross_section_fb);
-          process_templates.push_back(process_info);
-        }
-
-        if (total_processed_events <= 0)
-        {
-          return advice;
-        }
-
         for (const AnalysisData* analysis_ptr : merged.analyses)
         {
           if (analysis_ptr == nullptr) continue;
           const AnalysisData& analysis = *analysis_ptr;
+
+          // Extra events for an analysis can only come from its own collider's processes.
+          const auto collider_events_it = merged.collider_event_counts.find(analysis.collider_name);
+          if (collider_events_it == merged.collider_event_counts.end() || collider_events_it->second <= 0) continue;
+          const long long total_processed_events = collider_events_it->second;
+          const SoloInput::ColliderInput& collider =
+            SoloInput::find_collider(prepared_input, analysis.collider_name);
+
+          std::vector<ProcessSamplingAdvice> process_templates;
+          process_templates.reserve(collider.process_indices.size());
+          double total_cross_section_fb = 0.0;
+          for (std::size_t ip : collider.process_indices)
+          {
+            const SoloInput::ProcessInput& process = prepared_input.processes.at(ip);
+            ProcessSamplingAdvice process_info;
+            process_info.process_name = process.name;
+            process_info.cross_section_fb = process.cross_section_fb;
+            process_info.processed_events = merged.process_event_counts.at(ip);
+            process_info.recommended_additional_events = 0;
+            total_cross_section_fb += std::max(0.0, process_info.cross_section_fb);
+            process_templates.push_back(process_info);
+          }
 
           const auto ll_it = merged.analysis_loglikes.find(analysis.analysis_name);
           if (ll_it == merged.analysis_loglikes.end()) continue;

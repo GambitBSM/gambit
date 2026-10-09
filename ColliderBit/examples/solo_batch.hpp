@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -59,11 +60,13 @@ namespace Gambit
 
       /// Owned merged analysis data, non-owning pointers into analyses_storage,
       /// event totals and recalculated likelihoods. Keep storage alive with the pointers.
+      /// Process event counts are indexed like PreparedInput::processes.
       struct MergedRunResult
       {
         int total_events = 0;
         long long total_process_events = 0;
-        std::map<std::string, long long> process_event_counts;
+        std::vector<long long> process_event_counts;
+        std::map<std::string, long long> collider_event_counts;
         std::vector<AnalysisData> analyses_storage;
         AnalysisDataPointers analyses;
         map_str_AnalysisLogLikes analysis_loglikes;

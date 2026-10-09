@@ -12,9 +12,9 @@
 //
 // Note:
 //    For the resolved signature
-//      * No cut on PTmiss quality 
+//      * No cut on PTmiss quality
 //      * No b-tag discriminator values
-//      * They may affect some low mass or compressed range 
+//      * They may affect some low mass or compressed range
 //    For the boosted signature
 //      * No track vetoes
 //      * No reseolved event veto
@@ -100,7 +100,7 @@ namespace Gambit {
             for(size_t i=0; i<TightEff.num_bins(); ++i) {
                 TightEff.set_at_index(i,TightEff.get_at_index(i)*ScaleEff);
             }
-            
+
         }
 
         struct ptComparison {

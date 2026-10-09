@@ -14,16 +14,12 @@
 #include <set>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 #include <nlohmann/json.hpp>
 
-#ifdef __cpp_lib_filesystem
-  #include <filesystem>
-  namespace fs = std::filesystem;
-#else
-  #include <boost/filesystem.hpp>
-  namespace fs = boost::filesystem;
-#endif
+#include <filesystem>
+namespace fs = std::filesystem;
 
 namespace Gambit
 {
@@ -34,7 +30,7 @@ namespace Gambit
       namespace
       {
         // Identify the JSON format consumed by batch merging and downstream tools.
-        const std::string kSchemaVersion = "cbs-solo-loglike-v1";
+        const std::string kSchemaVersion = "cbs-solo-loglike-v2";
         const int kJsonIndent = 2;
 
         /// Create missing parent directories before opening an output file.
@@ -245,10 +241,496 @@ namespace Gambit
           return result;
         }
 
+        constexpr std::size_t screen_table_width = 80;
+        constexpr std::size_t screen_column_gap = 2;
+
+        std::string fit_screen_text(const std::string& value, std::size_t width)
+        {
+          if (width == 0) return "";
+          if (value.size() <= width) return value;
+          if (width <= 3) return value.substr(0, width);
+          return value.substr(0, width - 3) + "...";
+        }
+
+        void print_screen_cell(
+          std::ostream& output,
+          const std::string& value,
+          std::size_t width,
+          bool right_aligned = false)
+        {
+          output << (right_aligned ? std::right : std::left)
+                 << std::setw(width) << fit_screen_text(value, width);
+        }
+
+        std::string format_screen_number(double value, int precision = 6)
+        {
+          std::ostringstream formatted;
+          formatted << std::setprecision(precision) << std::defaultfloat << value;
+          return formatted.str();
+        }
+
+        std::string format_screen_uncertainty(
+          double value, double uncertainty, int precision = 6)
+        {
+          return format_screen_number(value, precision) + " +/- "
+            + format_screen_number(uncertainty, precision);
+        }
+
+        std::string format_screen_compact_uncertainty(double value, double uncertainty)
+        {
+          return format_screen_number(value, 4) + "+/-" + format_screen_number(uncertainty, 4);
+        }
+
+        std::string format_screen_percent(double fraction)
+        {
+          std::ostringstream formatted;
+          formatted << std::fixed << std::setprecision(1) << (fraction * 100.0) << '%';
+          return formatted.str();
+        }
+
+        void print_screen_rule(std::ostream& output, char character = '-')
+        {
+          output << std::string(screen_table_width, character) << '\n';
+        }
+
+        struct ScreenSignalRegionRow
+        {
+          bool selected = false;
+          std::string label;
+          std::string observed;
+          std::string background;
+          std::string signal;
+          std::string loglike;
+        };
+
+        void print_signal_region_table(
+          std::ostream& output,
+          const AnalysisData& analysis,
+          const AnalysisLogLikes& loglikes)
+        {
+          constexpr std::size_t label_width = 14;
+          constexpr std::size_t observed_width = 5;
+          constexpr std::size_t background_width = 17;
+          constexpr std::size_t signal_width = 17;
+          constexpr std::size_t loglike_width = 15;
+          constexpr std::size_t row_prefix_width = 4; // indent + selection marker
+          static_assert(
+            row_prefix_width + 4 * screen_column_gap + label_width + observed_width
+              + background_width + signal_width + loglike_width
+              == screen_table_width,
+            "Signal-region screen table must be 80 columns wide.");
+
+          std::vector<ScreenSignalRegionRow> rows;
+          rows.reserve(analysis.size());
+
+          for (std::size_t sr_index = 0; sr_index < analysis.size(); ++sr_index)
+          {
+            const SignalRegionData& sr_data = analysis[sr_index];
+            ScreenSignalRegionRow row;
+            row.selected =
+              loglikes.combination_sr_index == static_cast<int>(sr_index)
+              || (loglikes.combination_sr_index < 0
+                  && loglikes.combination_sr_label == sr_data.sr_label);
+            row.label = sr_data.sr_label;
+            row.observed = format_screen_number(sr_data.n_obs);
+            row.background = format_screen_uncertainty(sr_data.n_bkg, sr_data.n_bkg_err, 4);
+            row.signal = format_screen_uncertainty(
+              sr_data.n_sig_scaled, sr_data.calc_n_sig_scaled_err(), 4);
+            row.loglike = format_screen_number(loglikes.sr_loglikes.at(sr_index));
+            rows.push_back(std::move(row));
+          }
+
+          output << "  * marks the selected signal region.\n\n";
+          output << "  " << ' ' << ' ';
+          print_screen_cell(output, "Signal region", label_width);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "Obs.", observed_width, true);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "Background", background_width, true);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "Signal", signal_width, true);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "log L", loglike_width, true);
+          output << '\n';
+          output << "  " << '-' << ' ' << std::string(label_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(observed_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(background_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(signal_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(loglike_width, '-') << '\n';
+
+          for (const ScreenSignalRegionRow& row : rows)
+          {
+            output << "  " << (row.selected ? '*' : ' ') << ' ';
+            print_screen_cell(output, row.label, label_width);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, row.observed, observed_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, row.background, background_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, row.signal, signal_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, row.loglike, loglike_width, true);
+            output << '\n';
+          }
+        }
+
+        void print_alternative_loglikes(
+          std::ostream& output,
+          const AnalysisData& analysis,
+          const AnalysisLogLikes& loglikes)
+        {
+          if (loglikes.alt_sr_loglikes.empty() && loglikes.alt_combination_loglikes.empty()) return;
+
+          output << "\n  Alternative log-likelihoods\n";
+          if (!loglikes.alt_combination_loglikes.empty())
+          {
+            constexpr std::size_t variant_width = 52;
+            constexpr std::size_t loglike_width = 22;
+            static_assert(
+              4 + screen_column_gap + variant_width + loglike_width == screen_table_width,
+              "Alternative combined-loglike table must be 80 columns wide.");
+
+            output << "    ";
+            print_screen_cell(output, "Variant", variant_width);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, "Combined log L", loglike_width, true);
+            output << '\n'
+                   << "    " << std::string(variant_width, '-')
+                   << std::string(screen_column_gap, ' ') << std::string(loglike_width, '-') << '\n';
+            for (const auto& entry : loglikes.alt_combination_loglikes)
+            {
+              output << "    ";
+              print_screen_cell(output, entry.first, variant_width);
+              output << std::string(screen_column_gap, ' ');
+              print_screen_cell(output, format_screen_number(entry.second), loglike_width, true);
+              output << '\n';
+            }
+          }
+
+          if (!loglikes.alt_sr_loglikes.empty())
+          {
+            constexpr std::size_t label_width = 24;
+            constexpr std::size_t variant_width = 36;
+            constexpr std::size_t loglike_width = 12;
+            static_assert(
+              4 + 2 * screen_column_gap + label_width + variant_width + loglike_width
+                == screen_table_width,
+              "Alternative signal-region table must be 80 columns wide.");
+
+            output << "\n    ";
+            print_screen_cell(output, "Signal region", label_width);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, "Variant", variant_width);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, "log L", loglike_width, true);
+            output << '\n'
+                   << "    " << std::string(label_width, '-')
+                   << std::string(screen_column_gap, ' ') << std::string(variant_width, '-')
+                   << std::string(screen_column_gap, ' ') << std::string(loglike_width, '-') << '\n';
+            for (const auto& entry : loglikes.alt_sr_loglikes)
+            {
+              for (std::size_t sr_index = 0; sr_index < analysis.size(); ++sr_index)
+              {
+                if (sr_index >= entry.second.size()) continue;
+                output << "    ";
+                print_screen_cell(output, analysis[sr_index].sr_label, label_width);
+                output << std::string(screen_column_gap, ' ');
+                print_screen_cell(output, entry.first, variant_width);
+                output << std::string(screen_column_gap, ' ');
+                print_screen_cell(
+                  output, format_screen_number(entry.second[sr_index]), loglike_width, true);
+                output << '\n';
+              }
+            }
+          }
+        }
+
+        std::string format_screen_count(double value)
+        {
+          std::ostringstream formatted;
+          formatted << std::fixed << std::setprecision(1) << value;
+          return formatted.str();
+        }
+
+        std::string format_screen_acceptance(double numerator, double denominator)
+        {
+          if (denominator == 0.0) return "-";
+
+          std::ostringstream formatted;
+          formatted << std::fixed << std::setprecision(1)
+                    << (100.0 * numerator / denominator) << '%';
+          return formatted.str();
+        }
+
+        void print_cutflow_table(std::ostream& output, const Cutflow& cutflow)
+        {
+          constexpr std::size_t cut_width = 40;
+          constexpr std::size_t count_width = 12;
+          constexpr std::size_t cumulative_width = 10;
+          constexpr std::size_t incremental_width = 10;
+          static_assert(
+            2 + 3 * screen_column_gap + cut_width + count_width + cumulative_width
+              + incremental_width == screen_table_width,
+            "Cutflow screen table must be 80 columns wide.");
+
+          output << "  Cutflow: ";
+          print_screen_cell(output, cutflow.name, screen_table_width - 11);
+          output << '\n' << "  ";
+          print_screen_cell(output, "Cut", cut_width);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "Count", count_width, true);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "A_cumu", cumulative_width, true);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "A_incr", incremental_width, true);
+          output << '\n'
+                 << "  " << std::string(cut_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(count_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(cumulative_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(incremental_width, '-')
+                 << '\n';
+
+          for (std::size_t cut_index = 0; cut_index <= cutflow.ncuts; ++cut_index)
+          {
+            const std::string cut_name =
+              (cut_index == 0)
+                ? "initial"
+                : ((cut_index - 1 < cutflow.cuts.size())
+                    ? "Pass " + cutflow.cuts.at(cut_index - 1)
+                    : "Pass (unknown)");
+            const double count =
+              (cut_index < cutflow.counts.size()) ? cutflow.counts.at(cut_index) : 0.0;
+            const double previous_count =
+              (cut_index > 0 && cut_index - 1 < cutflow.counts.size())
+                ? cutflow.counts.at(cut_index - 1) : 0.0;
+
+            output << "  ";
+            print_screen_cell(output, cut_name, cut_width);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, format_screen_count(count), count_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(
+              output, format_screen_acceptance(count, cutflow.counts.empty() ? 0.0 : cutflow.counts.front()),
+              cumulative_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(
+              output, cut_index == 0 ? "-" : format_screen_acceptance(count, previous_count),
+              incremental_width, true);
+            output << '\n';
+          }
+        }
+
+        void print_cutflow_summary(std::ostream& output, const AnalysisData& analysis)
+        {
+          if (analysis.cutflows.cfs.empty()) return;
+
+          output << "\n  Cutflow diagnostics\n"
+                 << "  " << std::string(screen_table_width, '-') << '\n';
+          for (std::size_t index = 0; index < analysis.cutflows.cfs.size(); ++index)
+          {
+            if (index != 0) output << '\n';
+            print_cutflow_table(output, analysis.cutflows.cfs.at(index));
+          }
+        }
+
+        void print_contur_summary(
+          std::ostream& output,
+          double contur_total_loglike,
+          const std::map<std::string, double>& contur_pool_loglikes,
+          const std::map<std::string, std::string>& contur_pool_info)
+        {
+          output << "\n[Contur]\n"
+                 << "  Total log L : " << format_screen_number(contur_total_loglike) << '\n';
+          if (contur_pool_loglikes.empty()) return;
+
+          constexpr std::size_t pool_width = 20;
+          constexpr std::size_t loglike_width = 12;
+          constexpr std::size_t measurement_width = 42;
+          static_assert(
+            2 + 2 * screen_column_gap + pool_width + loglike_width + measurement_width
+              == screen_table_width,
+            "Contur screen table must be 80 columns wide.");
+
+          output << "\n  ";
+          print_screen_cell(output, "Pool", pool_width);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "log L", loglike_width, true);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "Dominant measurement", measurement_width);
+          output << '\n'
+                 << "  " << std::string(pool_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(loglike_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(measurement_width, '-') << '\n';
+          for (const auto& pool : contur_pool_loglikes)
+          {
+            const auto info_it = contur_pool_info.find(pool.first);
+            const std::string dominant_measurement =
+              (info_it != contur_pool_info.end()) ? info_it->second : "-";
+            output << "  ";
+            print_screen_cell(output, pool.first, pool_width);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, format_screen_number(pool.second), loglike_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, dominant_measurement, measurement_width);
+            output << '\n';
+          }
+        }
+
+        void print_sampling_advice(
+          std::ostream& output,
+          const std::vector<SamplingAdviceEntry>& sampling_advice)
+        {
+          if (sampling_advice.empty()) return;
+
+          struct SamplingRow
+          {
+            std::string analysis;
+            std::string signal_region;
+            std::string signal;
+            std::string fractional_uncertainty;
+            std::string effective_events;
+            std::string target;
+            std::string outcome;
+          };
+
+          std::vector<SamplingRow> rows;
+          for (const SamplingAdviceEntry& entry : sampling_advice)
+          {
+            for (const SamplingAdviceTargetEntry& target : entry.targets)
+            {
+              SamplingRow row;
+              row.analysis = entry.analysis_name;
+              row.signal_region = entry.sr_label;
+              row.signal = format_screen_compact_uncertainty(
+                entry.n_sig_scaled, entry.n_sig_scaled_err);
+              row.fractional_uncertainty = format_screen_percent(entry.fractional_uncert);
+              row.effective_events = format_screen_number(entry.effective_events);
+              row.target = format_screen_percent(target.target_fractional_uncert);
+              row.outcome = target.need_more_mc
+                ? "+" + std::to_string(target.recommended_additional_events) + " MC" : "met";
+              rows.push_back(std::move(row));
+            }
+          }
+          if (rows.empty()) return;
+
+          constexpr std::size_t analysis_width = 12;
+          constexpr std::size_t sr_width = 12;
+          constexpr std::size_t signal_width = 14;
+          constexpr std::size_t frac_width = 7;
+          constexpr std::size_t neff_width = 6;
+          constexpr std::size_t target_width = 5;
+          constexpr std::size_t outcome_width = 10;
+          static_assert(
+            2 + 6 * screen_column_gap + analysis_width + sr_width + signal_width + frac_width
+              + neff_width + target_width + outcome_width == screen_table_width,
+            "Sampling-advice screen table must be 80 columns wide.");
+
+          output << "\nMC sampling advice\n";
+          print_screen_rule(output);
+          output << "  ";
+          print_screen_cell(output, "Analysis", analysis_width);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "Selected SR", sr_width);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "S +/- MC", signal_width);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "MC frac.", frac_width, true);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "N_eff", neff_width, true);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "Goal", target_width, true);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "Outcome", outcome_width);
+          output << '\n'
+                 << "  " << std::string(analysis_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(sr_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(signal_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(frac_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(neff_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(target_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(outcome_width, '-') << '\n';
+          for (const SamplingRow& row : rows)
+          {
+            output << "  ";
+            print_screen_cell(output, row.analysis, analysis_width);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, row.signal_region, sr_width);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, row.signal, signal_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, row.fractional_uncertainty, frac_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, row.effective_events, neff_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, row.target, target_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, row.outcome, outcome_width);
+            output << '\n';
+          }
+        }
+
+        std::string format_collision_energy(double collision_energy_TeV)
+        {
+          return format_screen_number(collision_energy_TeV, 6) + " TeV";
+        }
+
+        /// Print one row per collider: run conditions, events, cross section and analyses.
+        void print_collider_table(
+          std::ostream& output,
+          const std::vector<ColliderSummaryEntry>& colliders)
+        {
+          if (colliders.empty()) return;
+
+          constexpr std::size_t name_width = 18;
+          constexpr std::size_t energy_width = 10;
+          constexpr std::size_t events_width = 10;
+          constexpr std::size_t xsec_width = 24;
+          constexpr std::size_t analyses_width = 8;
+          static_assert(
+            2 + 4 * screen_column_gap + name_width + energy_width + events_width + xsec_width
+              + analyses_width == screen_table_width,
+            "Collider screen table must be 80 columns wide.");
+
+          output << "\nColliders\n";
+          print_screen_rule(output);
+          output << "  ";
+          print_screen_cell(output, "Collider", name_width);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "sqrt(s)", energy_width, true);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "Events", events_width, true);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "Cross section [fb]", xsec_width, true);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "Analyses", analyses_width, true);
+          output << '\n'
+                 << "  " << std::string(name_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(energy_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(events_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(xsec_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(analyses_width, '-') << '\n';
+          for (const ColliderSummaryEntry& collider : colliders)
+          {
+            output << "  ";
+            print_screen_cell(output, collider.name, name_width);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, format_collision_energy(collider.collision_energy_TeV), energy_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, std::to_string(collider.n_events), events_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, format_screen_uncertainty(
+              collider.cross_section_fb, collider.cross_section_uncert_fb, 4), xsec_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, std::to_string(collider.analyses.size()), analyses_width, true);
+            output << '\n';
+          }
+        }
+
         /// Print cutflows, SR yields, nominal/alternative likelihoods and the total.
         /// Include Contur results and sampling advice when supplied.
         void print_screen_summary(
           int n_events,
+          const std::vector<ColliderSummaryEntry>& colliders,
           double combined_loglike,
           const AnalysisDataPointers& analyses,
           const map_str_AnalysisLogLikes& analysis_loglikes,
@@ -259,9 +741,20 @@ namespace Gambit
           const std::vector<SamplingAdviceEntry>& sampling_advice
         )
         {
-          std::stringstream summary_line;
-
-          std::cout.precision(5);
+          std::cout << '\n';
+          print_screen_rule(std::cout, '=');
+          std::cout << "CBS result summary\n";
+          print_screen_rule(std::cout);
+          std::cout << "  Events analysed : " << n_events << '\n'
+                    << "  Colliders       : " << colliders.size() << '\n'
+                    << "  Native analyses : " << analyses.size() << '\n'
+                    << "  Combined log L  : " << format_screen_number(combined_loglike) << '\n';
+          if (with_contur)
+          {
+            std::cout << "  Contur          : included\n";
+          }
+          print_screen_rule(std::cout, '=');
+          print_collider_table(std::cout, colliders);
 
           for (const AnalysisData* analysis_ptr : analyses)
           {
@@ -275,103 +768,28 @@ namespace Gambit
               throw std::runtime_error("Missing AnalysisLogLikes entry for analysis " + analysis_name);
             }
 
-            const AnalysisLogLikes& ll = ll_it->second;
-            summary_line << "  " << analysis_name << ":\n";
-
-            std::cout << "Combined Cutflows for analysis " << analysis_name << ":\n";
-            std::cout << analysis.cutflows << std::endl;
-
-            for (std::size_t sr_index = 0; sr_index < analysis.size(); ++sr_index)
+            const AnalysisLogLikes& loglikes = ll_it->second;
+            std::cout << "\n[" << analysis_name << "]\n"
+                      << "  Collider        : " << analysis.collider_name << '\n'
+                      << "  Selected result : " << loglikes.combination_sr_label;
+            if (loglikes.combination_sr_index >= 0)
             {
-              const SignalRegionData& sr_data = analysis[sr_index];
-              const double combined_s_uncertainty = sr_data.calc_n_sig_scaled_err();
-              const double combined_bg_uncertainty = sr_data.n_bkg_err;
-
-              summary_line << "    Signal region " << sr_data.sr_label
-                           << " (SR index " << sr_index << "):\n";
-              summary_line << "      Observed events:        " << sr_data.n_obs << '\n';
-              summary_line << "      SM prediction:          " << sr_data.n_bkg
-                           << " +/- " << combined_bg_uncertainty << '\n';
-              summary_line << "      Signal prediction (MC): " << sr_data.n_sig_MC
-                           << " +/- " << sr_data.n_sig_MC_stat << '\n';
-              summary_line << "      Signal prediction:      " << sr_data.n_sig_scaled
-                           << " +/- " << combined_s_uncertainty << '\n';
-              summary_line << "      Log-likelihood:         " << ll.sr_loglikes.at(sr_index) << '\n';
-
-              for (const auto& alt_pair : ll.alt_sr_loglikes)
-              {
-                const std::string& alt_key = alt_pair.first;
-                const std::vector<double>& alt_values = alt_pair.second;
-                if (sr_index < alt_values.size())
-                {
-                  summary_line << "      " << alt_key
-                               << " Log-Likelihood: " << alt_values[sr_index] << '\n';
-                }
-              }
+              std::cout << " (SR index " << loglikes.combination_sr_index << ')';
             }
-
-            summary_line << "    Selected signal region: " << ll.combination_sr_label << '\n';
-            summary_line << "    Total log-likelihood for analysis: "
-                         << ll.combination_loglike << "\n\n";
+            std::cout << '\n'
+                      << "  Analysis log L  : " << format_screen_number(loglikes.combination_loglike)
+                      << "\n\n";
+            print_signal_region_table(std::cout, analysis, loglikes);
+            print_alternative_loglikes(std::cout, analysis, loglikes);
+            print_cutflow_summary(std::cout, analysis);
           }
 
           if (with_contur)
           {
-            summary_line << "\nContur results:\n";
-            summary_line << "Total Contur Log-Likelihood: " << contur_total_loglike << '\n';
-            for (const auto& pool : contur_pool_loglikes)
-            {
-              const auto info_it = contur_pool_info.find(pool.first);
-              const std::string dominant_measurement =
-                (info_it != contur_pool_info.end()) ? info_it->second : "";
-              summary_line << "\tPool " << pool.first
-                           << ":\n\t\tLog-likelihood: " << pool.second
-                           << "\n\t\tDominant measurement: " << dominant_measurement << '\n';
-            }
+            print_contur_summary(
+              std::cout, contur_total_loglike, contur_pool_loglikes, contur_pool_info);
           }
-
-          if (!sampling_advice.empty())
-          {
-            summary_line << "\nMC sampling advice (selected SR per analysis):\n";
-            for (const SamplingAdviceEntry& entry : sampling_advice)
-            {
-              summary_line << "  " << entry.analysis_name << " / " << entry.sr_label
-                          //  << " (SR index " << entry.sr_index << "): "
-                           << "\n\tS = " << entry.n_sig_scaled
-                           << ", sigma_MC = " << entry.n_sig_scaled_err
-                           << ", frac = " << entry.fractional_uncert
-                           << ", N_eff = " << entry.effective_events << '\n';
-              for (const SamplingAdviceTargetEntry& target : entry.targets)
-              {
-                std::ostringstream target_percent_ss;
-                target_percent_ss
-                  << std::fixed << std::setprecision(1)
-                  << (target.target_fractional_uncert * 100.0);
-
-                if (!target.need_more_mc)
-                {
-                  summary_line << "    target " << target_percent_ss.str()
-                               << "%:\trequirement met\n";
-                }
-                else
-                {
-                  summary_line << "    target " << target_percent_ss.str()
-                               << "%:\trequirement not met, need\n\t ->\t"
-                               << target.recommended_additional_events
-                               << " additional MC events\n";
-                }
-              }
-            }
-          }
-
-          std::cout << '\n';
-          std::cout << "Read and analysed " << n_events << " events from HepMC file(s).\n\n";
-          std::cout << "Analysis details:\n\n" << summary_line.str() << '\n';
-          std::cout << std::scientific
-                    << "Total combined ATLAS+CMS"
-                    << (with_contur ? " analysis and searches " : " ")
-                    << "log-likelihood: " << combined_loglike
-                    << '\n';
+          print_sampling_advice(std::cout, sampling_advice);
           std::cout << '\n';
         }
       }
@@ -391,6 +809,7 @@ namespace Gambit
       void emit_outputs(
         const OutputConfig& config,
         int n_events,
+        const std::vector<ColliderSummaryEntry>& colliders,
         double combined_loglike,
         const AnalysisDataPointers& analyses,
         const map_str_AnalysisLogLikes& analysis_loglikes,
@@ -405,6 +824,7 @@ namespace Gambit
         {
           print_screen_summary(
             n_events,
+            colliders,
             combined_loglike,
             analyses,
             analysis_loglikes,
@@ -425,6 +845,23 @@ namespace Gambit
           {"with_contur", with_contur}
         };
 
+        nlohmann::json colliders_json = nlohmann::json::array();
+        for (const ColliderSummaryEntry& collider : colliders)
+        {
+          nlohmann::json collider_obj;
+          collider_obj["name"] = collider.name;
+          collider_obj["beam_ids"] = {collider.beam_pid_1, collider.beam_pid_2};
+          collider_obj["beam_energies_GeV"] = {collider.beam_energy_1_GeV, collider.beam_energy_2_GeV};
+          collider_obj["collision_energy_TeV"] = collider.collision_energy_TeV;
+          collider_obj["n_files"] = collider.n_files;
+          collider_obj["n_events"] = collider.n_events;
+          collider_obj["cross_section_fb"] = collider.cross_section_fb;
+          collider_obj["cross_section_uncert_fb"] = collider.cross_section_uncert_fb;
+          collider_obj["analyses"] = collider.analyses;
+          colliders_json.push_back(collider_obj);
+        }
+        root["run"]["colliders"] = colliders_json;
+
         nlohmann::json analyses_json = nlohmann::json::object();
         nlohmann::json terms = nlohmann::json::array();
         nlohmann::json default_total_terms = nlohmann::json::array();
@@ -444,6 +881,7 @@ namespace Gambit
 
           const AnalysisLogLikes& ll = ll_it->second;
           nlohmann::json analysis_obj;
+          analysis_obj["collider"] = analysis.collider_name;
           analysis_obj["n_signal_regions"] = analysis.size();
           analysis_obj["luminosity"] = analysis.luminosity;
           analysis_obj["bkgjson_path"] = analysis.bkgjson_path;
@@ -586,6 +1024,7 @@ namespace Gambit
 
         nlohmann::json summary;
         summary["n_analyses"] = analyses_json.size();
+        summary["n_colliders"] = colliders.size();
         summary["combined_loglike"] = combined_loglike;
         if (with_contur) summary["contur_loglike"] = contur_total_loglike;
         root["summary"] = summary;

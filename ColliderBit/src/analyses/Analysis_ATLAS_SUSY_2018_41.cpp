@@ -61,16 +61,16 @@ namespace Gambit
 
     protected:
     public:
-#ifdef CHECK_CUTFLOW
-      // Cutflow diagnostics (migrated to Cutflows)
-      // SR yields {4Q-WW, 4Q-WZ, 4Q-ZZ, 4Q-VV, 2B2Q-WZ, 2B2Q-Wh, 2B2Q-ZZ, 2B2Q-Zh, 2B2Q-VZ, 2B2Q-Vh}
-      std::vector<double> _yield_model{std::vector<double>(10)};
+      #ifdef CHECK_CUTFLOW
+        // Cutflow diagnostics (migrated to Cutflows)
+        // SR yields {4Q-WW, 4Q-WZ, 4Q-ZZ, 4Q-VV, 2B2Q-WZ, 2B2Q-Wh, 2B2Q-ZZ, 2B2Q-Zh, 2B2Q-VZ, 2B2Q-Vh}
+        std::vector<double> _yield_model{std::vector<double>(10)};
 
-      // meff distribution (4Q-VV)
-      const std::vector<double> _meff_bins = {700., 850., 1000., 1150., 1300., 1450., 1600., 1750., 1900., 2050., 2200., 2350., 2500.};
-      std::vector<double> _meff_4QVV{std::vector<double>(12)};
-      std::vector<double> _meff_4QVV_model{std::vector<double>(12)};
-#endif
+        // meff distribution (4Q-VV)
+        const std::vector<double> _meff_bins = {700., 850., 1000., 1150., 1300., 1450., 1600., 1750., 1900., 2050., 2200., 2350., 2500.};
+        std::vector<double> _meff_4QVV{std::vector<double>(12)};
+        std::vector<double> _meff_4QVV_model{std::vector<double>(12)};
+      #endif
 
       // Required detector sim
       static constexpr const char *detector = "ATLAS";
@@ -97,11 +97,11 @@ namespace Gambit
         set_analysis_name("ATLAS_SUSY_2018_41");
         set_luminosity(139.);
 
-#ifdef CHECK_CUTFLOW
-        // Book a single benchmark cutflow (the benchmark choice is controlled by BENCHMARK, defaulting to "WW")
-        _cutflows.addCutflow("BM::ATLAS_SUSY_2018_41", {"Preselection", "Initial events", "E_T^miss > 200 GeV", "Event cleaning", "Lepton veto", "n_jets > 1", "n_bjets = 0", "min Delta phi > 1.0",
-                                                        "n_bjets < 2", "E_T^miss > 300 GeV", "m_eff > 1300 GeV", "n_V = 2", "MC to data efficiency weight for SR-4Q-VV", "n_H = 1", "Final"});
-#endif
+        #ifdef CHECK_CUTFLOW
+          // Book a single benchmark cutflow (the benchmark choice is controlled by BENCHMARK, defaulting to "WW")
+          _cutflows.addCutflow("BM::ATLAS_SUSY_2018_41", {"Preselection", "Initial events", "E_T^miss > 200 GeV", "Event cleaning", "Lepton veto", "n_jets > 1", "n_bjets = 0", "min Delta phi > 1.0",
+                                                          "n_bjets < 2", "E_T^miss > 300 GeV", "m_eff > 1300 GeV", "n_V = 2", "MC to data efficiency weight for SR-4Q-VV", "n_H = 1", "Final"});
+        #endif
       }
 
       // The following section copied from Analysis_ATLAS_1LEPStop_20invfb.cpp
@@ -265,33 +265,33 @@ namespace Gambit
           // Then discovery regions
         }
 
-#ifdef CHECK_CUTFLOW
-        // Check meff distribution (4Q-VV preselection)
-        if (nfat > 1 && nLeptons == 0 && nb == 0 && delphi && met > 300. && nV == 2)
-        {
-          size_t i = floor((meff - _meff_bins[0]) / 150);
-          if (i < _meff_4QVV.size()) _meff_4QVV[i]++;
-        }
+        #ifdef CHECK_CUTFLOW
+          // Check meff distribution (4Q-VV preselection)
+          if (nfat > 1 && nLeptons == 0 && nb == 0 && delphi && met > 300. && nV == 2)
+          {
+            size_t i = floor((meff - _meff_bins[0]) / 150);
+            if (i < _meff_4QVV.size()) _meff_4QVV[i]++;
+          }
 
-        // Cutflow (booked as BM::ATLAS_SUSY_2018_41)
-        _cutflows["BM::ATLAS_SUSY_2018_41"].fillinit(1.0);
+          // Cutflow (booked as BM::ATLAS_SUSY_2018_41)
+          _cutflows["BM::ATLAS_SUSY_2018_41"].fillinit(1.0);
 
-        const bool c0 = true; // Initial events
-        const bool c1 = (met > 200);
-        const bool c2 = (met > 200); // Event cleaning (kept to match reference)
-        const bool c3 = (met > 200 && nLeptons == 0);
-        const bool c4 = (met > 200 && nLeptons == 0 && nfat > 1);
-        const bool c5 = (met > 200 && nLeptons == 0 && nfat > 1 && nb == 0);
-        const bool c6 = (met > 200 && nLeptons == 0 && nfat > 1 && nb == 0 && delphi);
-        const bool c7 = (met > 200 && nLeptons == 0 && nfat > 1 && nb == 0 && delphi && nb < 2);
-        const bool c8 = (met > 300 && nLeptons == 0 && nfat > 1 && nb == 0 && delphi && nb < 2);
-        const bool c9 = (met > 300 && nLeptons == 0 && nfat > 1 && nb == 0 && delphi && nb < 2 && meff > 1300);
-        const bool c10 = (met > 300 && nLeptons == 0 && nfat > 1 && nb == 0 && delphi && nb < 2 && meff > 1300 && nV == 2);
-        const bool c11 = c10; // MC-to-data efficiency weight step (kept to match reference)
-        const bool c12 = (met > 300 && nLeptons == 0 && nfat > 1 && delphi && nH == 1);
+          const bool c0 = true; // Initial events
+          const bool c1 = (met > 200);
+          const bool c2 = (met > 200); // Event cleaning (kept to match reference)
+          const bool c3 = (met > 200 && nLeptons == 0);
+          const bool c4 = (met > 200 && nLeptons == 0 && nfat > 1);
+          const bool c5 = (met > 200 && nLeptons == 0 && nfat > 1 && nb == 0);
+          const bool c6 = (met > 200 && nLeptons == 0 && nfat > 1 && nb == 0 && delphi);
+          const bool c7 = (met > 200 && nLeptons == 0 && nfat > 1 && nb == 0 && delphi && nb < 2);
+          const bool c8 = (met > 300 && nLeptons == 0 && nfat > 1 && nb == 0 && delphi && nb < 2);
+          const bool c9 = (met > 300 && nLeptons == 0 && nfat > 1 && nb == 0 && delphi && nb < 2 && meff > 1300);
+          const bool c10 = (met > 300 && nLeptons == 0 && nfat > 1 && nb == 0 && delphi && nb < 2 && meff > 1300 && nV == 2);
+          const bool c11 = c10; // MC-to-data efficiency weight step (kept to match reference)
+          const bool c12 = (met > 300 && nLeptons == 0 && nfat > 1 && delphi && nH == 1);
 
-        _cutflows["BM::ATLAS_SUSY_2018_41"].fillnext(std::vector<bool>{c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12}, 1.0);
-#endif
+          _cutflows["BM::ATLAS_SUSY_2018_41"].fillnext(std::vector<bool>{c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12}, 1.0);
+        #endif
 
       } // End of analyze
 
@@ -319,10 +319,10 @@ namespace Gambit
       {
         // Clear signal regions
         for (auto &pair : _counters) { pair.second.reset(); }
-// #ifdef CHECK_CUTFLOW
-//         std::fill(_meff_4QVV.begin(), _meff_4QVV.end(), 0.0);
-//         _cutflows.clear();
-// #endif
+        // #ifdef CHECK_CUTFLOW
+        //         std::fill(_meff_4QVV.begin(), _meff_4QVV.end(), 0.0);
+        //         _cutflows.clear();
+        // #endif
       }
     };
 

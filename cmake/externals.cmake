@@ -35,6 +35,10 @@
 #  \date 2019 Sep, Oct
 #  \date 2020 Nov
 #
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Aug, Oct
+#
 #************************************************
 
 
@@ -198,12 +202,13 @@ function(check_ditch_status name version dir)
       set (itch "${itch}" "${name}_${version}")
     elseif ((arg STREQUAL "yoda") AND EXCLUDE_YODA)
       set (itch "${itch}" "${name}_${version}")
+    elseif ((arg STREQUAL "fastjet") AND EXCLUDE_FASTJET)
+      set (itch "${itch}" "${name}_${version}")
     elseif ((arg STREQUAL "sqlite3") AND NOT SQLITE3_FOUND)
       set (itch "${itch}" "${name}_${version}")
-    elseif ((arg STREQUAL "x11") AND NOT X11_FOUND)
+    elseif ((arg STREQUAL "sqlite3cli") AND NOT SQLITE3_CLI_FOUND)
       set (itch "${itch}" "${name}_${version}")
-    elseif ((arg STREQUAL "c++14") AND NOT GAMBIT_SUPPORTS_CXX14 AND NOT GAMBIT_SUPPORTS_CXX17)
-      message("${BoldCyan} X ${name} (${version}) needs c++14/17 but GAMBIT is compiled with a lower version. ${name} will be excluded.${ColourReset}")
+    elseif ((arg STREQUAL "x11") AND NOT X11_FOUND)
       set (itch "${itch}" "${name}_${version}")
     elseif ((arg STREQUAL "rivet") AND ditched_rivet_${Rivet_ver})
       set (itch "${itch}" "${name}_${version}")

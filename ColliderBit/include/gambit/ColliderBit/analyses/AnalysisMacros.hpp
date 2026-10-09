@@ -18,6 +18,9 @@
 ///  \author Pengxuan Zhu 
 ///          (pengxuan.zhu@adelaide.edu.au)
 ///  \date 2025 Oct
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #pragma once
@@ -38,7 +41,6 @@
 #define PTMIN 0
 #define ETAMAX DBL_MAX
 #define PTMAX DBL_MAX
-
 
 /// Define baseline objects without cuts
 #define BASELINE_OBJECTS_3(TYPE, OBJECTS, NAME)                                   \
@@ -457,7 +459,7 @@
 
 /// Fill a 1D histogram
 #define FILL_HISTOGRAM_1D(NAME, VALUE)                                            \
-  if (Histogram1D::check_histogram()) _histograms.h1d(NAME).fill(VALUE, event->weight());
+  if (Histogram1D::check_histogram()) _histograms.h1d(NAME).fill(VALUE, event->weight(), event->id());
 
 /// Define a 2D histogram with variable-width bins
 #define DEFINE_HISTOGRAM_2D(NAME, XEDGES, YEDGES, ...)                            \

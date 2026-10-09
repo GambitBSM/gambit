@@ -94,7 +94,7 @@ BE_NAMESPACE
     else
     {
       logger() << LogTags::debug << "Calling \"plc_loglike_" << name << "\""
-               << " was successfull. Got " << res << EOM;
+               << " was successful. Got " << res << EOM;
     }
     cleanupError(&plc_Error);
     return res;

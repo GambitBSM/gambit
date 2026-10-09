@@ -534,7 +534,7 @@ namespace Gambit
         current_ainfo->name = current_analysis_name;
 
         current_ainfo->obsnum = {242}; // not entirely sure about this number
-        current_ainfo->bkgnum = {229}; 
+        current_ainfo->bkgnum = {229};
         current_ainfo->bkgerr = {28};
 
         assert(current_ainfo->obsnum.size() == current_ainfo->bkgnum.size());
@@ -1158,7 +1158,7 @@ namespace Gambit
         // Compute the combined analysis loglike and add it to total_loglike
         AnalysisLogLikes analoglikes;
         analoglikes.initialize(adata);
-        
+
         // For now, throw an error if trying to use Collider Interpolated likelihoods with the umbue poisson like.
         // This would require careful checking of what total cross-section to pass on a case-by-case basis.
         // Setting xsec/n_mc to zero as they are not used
@@ -2276,7 +2276,7 @@ namespace Gambit
       {
         std::vector<str> default_skip_analyses;  // The default is empty lists of analyses to skip
         static const std::vector<str> skip_analyses = Downstream::subcaps->getValueOrDef<std::vector<str> >(default_skip_analyses, "skip_analyses");
-      
+
         SubGeVDM_fill_analysis_info_map(Analysis_data_path,Interpolation_columns, skip_analyses);
 
         for (const std::pair<const str, Model_analysis_info>& aname_ainfo_pair : analysis_info_map)

@@ -19,6 +19,8 @@
 
 #include "gambit/ColliderBit/onnx_rt_wrapper.hpp"
 
+#include <ostream>
+
 using namespace std;
 
 namespace Gambit
@@ -80,7 +82,7 @@ namespace Gambit
       {
         float* floatarr = ort_output[i].GetTensorMutableData<float>();
         outputs[i].assign(floatarr, floatarr + _outDimsFlat[i]);
-      }                                             
+      }
     }
 
 

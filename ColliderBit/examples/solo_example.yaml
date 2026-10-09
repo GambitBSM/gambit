@@ -22,10 +22,16 @@ settings:
   check_cutflow: false
   seed: -1
   event_file: susy10.hepmc
+  # CBS reads run conditions from the two HepMC beam particles and runs only
+  # matching analyses. Existing ATLAS/CMS Ecm_TeV metadata implies p+p beams
+  # with equal beam energies; explicit Beams/Energies metadata takes precedence.
+  collision_energy_tolerance_GeV: 1.0
+  # Rivet-style per-beam compatibility checks: relative tolerance or absolute tolerance.
+  beam_energy_tolerance_GeV: 1.0
+  beam_energy_relative_tolerance: 0.001
   cross_section_pb: 1.0
   cross_section_fractional_uncert: 0.2
   use_lognormal_distribution_for_1d_systematic: true
-  events_between_convergence_checks: 5000
   target_fractional_uncert: 0.3
   halt_when_systematic_dominated: true
   all_analyses_must_converge: false

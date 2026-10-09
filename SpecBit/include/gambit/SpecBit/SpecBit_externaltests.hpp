@@ -8,7 +8,7 @@
 ///  Spectrum class and related classes. They are
 ///  not dependent on any other parts of Gambit,
 ///  so that Spectrum object test code can be
-///  compiled and run seperately from Gambit, but
+///  compiled and run separately from Gambit, but
 ///  but also be run from inside Gambit.
 ///
 ///  *********************************************

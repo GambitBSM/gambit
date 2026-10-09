@@ -1,0 +1,648 @@
+{
+    "schema_version": "1.0.0",
+    "tool": "GAMBIT",
+    "version": "2.7.0",
+    "date_created": "2026-10-05T02:29:13.434088+10:30",
+    "implementations_description": "GAMBIT ColliderBit analysis",
+    "url_templates": {
+        "main_url": "https://github.com/GambitBSM/gambit/blob/ColliderBit_solo_development_mastermerge/ColliderBit/src/analyses/Analysis_{name}.cpp"
+    },
+    "analyses": [
+        {
+            "inspire_id": 1229945,
+            "implementations": [
+                {
+                    "name": "ATLAS_CONF_2013_037"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1480058,
+            "implementations": [
+                {
+                    "name": "ATLAS_CONF_2016_078"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1602531,
+            "implementations": [
+                {
+                    "name": "ATLAS_CONF_2017_039"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1676307,
+            "implementations": [
+                {
+                    "name": "ATLAS_CONF_2018_019"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1684182,
+            "implementations": [
+                {
+                    "name": "ATLAS_CONF_2018_042"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1750597,
+            "implementations": [
+                {
+                    "name": "ATLAS_CONF_2019_008"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1664317,
+            "implementations": [
+                {
+                    "name": "ATLAS_EXOT_2016_013"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1609451,
+            "implementations": [
+                {
+                    "name": "ATLAS_EXOT_2016_014"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1709842,
+            "implementations": [
+                {
+                    "name": "ATLAS_EXOT_2016_017"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1847779,
+            "implementations": [
+                {
+                    "name": "ATLAS_EXOT_2018_06"
+                }
+            ]
+        },
+        {
+            "inspire_id": 2686498,
+            "implementations": [
+                {
+                    "name": "ATLAS_EXOT_2019_04"
+                }
+            ]
+        },
+        {
+            "inspire_id": 2013051,
+            "implementations": [
+                {
+                    "name": "ATLAS_EXOT_2019_07"
+                }
+            ]
+        },
+        {
+            "inspire_id": 2791855,
+            "implementations": [
+                {
+                    "name": "ATLAS_EXOT_2021_35"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1128464,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2012_04"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1184952,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2012_10"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1298722,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2013_02"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1247462,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2013_05"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1286761,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2013_11"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1282905,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2013_12"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1299143,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2013_16"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1286444,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2013_19"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1639856,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2016_06"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1641270,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2016_07"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1623207,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2016_15"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1667045,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2016_21"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1658902,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2016_24"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1654357,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2016_27"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1620694,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2016_28"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1615470,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2017_01"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1677389,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2017_02"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1676551,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2017_03_RJR"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1852821,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2018_02"
+                }
+            ]
+        },
+        {
+            "inspire_id": 2072870,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2018_05"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1771533,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2018_06"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1835604,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2018_07"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1844425,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2018_08"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1754675,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2018_09"
+                }
+            ]
+        },
+        {
+            "inspire_id": 2094882,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2018_11"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1793461,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2018_12"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1767649,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2018_16"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1800411,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2018_21_StopZH"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1827025,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2018_22"
+                }
+            ]
+        },
+        {
+            "inspire_id": 2182381,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2018_30"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1906174,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2018_41"
+                }
+            ]
+        },
+        {
+            "inspire_id": 2157951,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2019_02"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1755298,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2019_08"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1866951,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2019_09"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1907601,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2019_18"
+                }
+            ]
+        },
+        {
+            "inspire_id": 2660233,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2019_22"
+                }
+            ]
+        },
+        {
+            "inspire_id": 2751932,
+            "implementations": [
+                {
+                    "name": "ATLAS_SUSY_2020_16"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1292446,
+            "implementations": [
+                {
+                    "name": "CMS_B2G_13_004"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1359293,
+            "implementations": [
+                {
+                    "name": "CMS_B2G_14_004"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1753679,
+            "implementations": [
+                {
+                    "name": "CMS_B2G_18_003"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1311223,
+            "implementations": [
+                {
+                    "name": "CMS_EXO_12_048"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1641762,
+            "implementations": [
+                {
+                    "name": "CMS_EXO_16_048"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1298508,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_13_006"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1479641,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_16_014"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1594909,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_16_033"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1625745,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_16_034"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1594731,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_16_035"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1624165,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_16_039"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1608161,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_16_043"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1637580,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_16_046"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1646260,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_16_048"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1605128,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_16_051"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1634253,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_17_001"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1683312,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_17_010"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1725476,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_17_011"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1708516,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_17_012"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1966342,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_18_004"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1749379,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_19_006"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1777617,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_19_008"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1849522,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_19_010"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1872976,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_19_012"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1836850,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_20_001"
+                }
+            ]
+        },
+        {
+            "inspire_id": 1895525,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_20_003"
+                }
+            ]
+        },
+        {
+            "inspire_id": 2009652,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_20_004"
+                }
+            ]
+        },
+        {
+            "inspire_id": 2085373,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_21_002"
+                }
+            ]
+        },
+        {
+            "inspire_id": 2683599,
+            "implementations": [
+                {
+                    "name": "CMS_SUS_21_009"
+                }
+            ]
+        }
+    ],
+    "implementations_license": {
+        "name": "BSD-3",
+        "url": "https://opensource.org/license/bsd-3-clause"
+    }
+}

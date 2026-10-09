@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  HDF5 printer version 2 function defintions
+///  HDF5 printer version 2 function definitions
 //
 ///  *********************************************
 ///

@@ -22,6 +22,9 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Feb
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #pragma once
@@ -55,14 +58,20 @@ namespace Gambit
                        double nobs, const std::pair<double,double>& nbkg,
                        double nsigscaled=0)
        : SignalRegionData(scounter.name(), nobs, scounter.weight_sum(), nbkg.first, scounter.weight_sum_err(), nbkg.second, nsigscaled)
-      {}
+      {
+        accepted_event_ids = scounter.get_event_acceptance_record();
+        has_event_records = scounter.store_accepted_event_IDs();
+      }
 
       /// Constructor with EventCounter arg for the signal count, but separate name
       SignalRegionData(const std::string& sr,
                        double nobs, const EventCounter& scounter, const std::pair<double,double>& nbkg,
                        double nsigscaled=0)
        : SignalRegionData(sr, nobs, scounter.weight_sum(), nbkg.first, scounter.weight_sum_err(), nbkg.second, nsigscaled)
-      {}
+      {
+        accepted_event_ids = scounter.get_event_acceptance_record();
+        has_event_records = scounter.store_accepted_event_IDs();
+      }
 
       /// Constructor with {n,nsys} pair args
       SignalRegionData(const std::string& sr,
@@ -76,11 +85,11 @@ namespace Gambit
                        double nobs, double nsigMC, double nbkg,
                        double nsigMCsys, double nbkgerr, double nsigscaled=0) :
         sr_label(sr),
-        n_obs(nobs), 
-        n_sig_MC(nsigMC), 
-        n_sig_MC_sys(nsigMCsys), 
-        n_sig_MC_stat(sqrt(nsigMC)), 
-        n_sig_scaled(nsigscaled), 
+        n_obs(nobs),
+        n_sig_MC(nsigMC),
+        n_sig_MC_sys(nsigMCsys),
+        n_sig_MC_stat(sqrt(nsigMC)),
+        n_sig_scaled(nsigscaled),
         n_bkg(nbkg),
         n_bkg_err(nbkgerr)
       { }
@@ -99,17 +108,17 @@ namespace Gambit
       /// Uncertainty calculators
       double scalefactor() const { return n_sig_MC == 0 ? 1 : n_sig_scaled / n_sig_MC; }
 
-      double calc_n_sig_MC_err() const 
-      { 
-        return sqrt( n_sig_MC_stat * n_sig_MC_stat + n_sig_MC_sys * n_sig_MC_sys ); 
+      double calc_n_sig_MC_err() const
+      {
+        return sqrt( n_sig_MC_stat * n_sig_MC_stat + n_sig_MC_sys * n_sig_MC_sys );
       }
 
       double calc_n_sig_scaled_err() const { return scalefactor() * calc_n_sig_MC_err(); }
 
-      double calc_n_sigbkg_err() const 
-      { 
+      double calc_n_sigbkg_err() const
+      {
         double n_sig_scaled_err = calc_n_sig_scaled_err();
-        return sqrt( n_sig_scaled_err * n_sig_scaled_err + n_bkg_err * n_bkg_err );  
+        return sqrt( n_sig_scaled_err * n_sig_scaled_err + n_bkg_err * n_bkg_err );
       }
 
       void combine_SR_MC_signal(const SignalRegionData& other)
@@ -118,7 +127,13 @@ namespace Gambit
           n_sig_MC_stat * n_sig_MC_stat + other.n_sig_MC_stat * other.n_sig_MC_stat;
         n_sig_MC += other.n_sig_MC;
         n_sig_MC_stat = sqrt(stat2);
+        accepted_event_ids.insert(accepted_event_ids.end(), other.accepted_event_ids.begin(), other.accepted_event_ids.end());
+        has_event_records = has_event_records && other.has_event_records;
       }
+
+      /// Acceptance records follow the actual SR result, including aliases.
+      std::vector<unsigned int> accepted_event_ids;
+      bool has_event_records = false;
 
       /// @todo Set up a more complete system of getters/setters and make the member variables private
 
