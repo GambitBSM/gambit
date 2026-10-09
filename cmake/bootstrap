@@ -1,0 +1,97 @@
+#!/bin/sh
+# Author: Pengxuan Zhu <pengxuan.zhu@adelaide.edu.au>
+# Date: 2026 Sep
+#
+# Read-only GAMBIT and standalone preset discovery.
+#
+# This intentionally performs discovery only. Configure and build continue to
+# use CMake's native preset commands after the user has selected a strategy.
+
+set -eu
+
+script_dir=$(CDPATH= cd "$(dirname "$0")" && pwd)
+probe="${script_dir}/presets/detect-presets.cmake"
+
+usage() {
+  cat <<'HELP'
+Usage: ./cmake/bootstrap [--system SYSTEM] [--preset NAME] [--list] [--verbose]
+
+With no filters, inspect all registered systems and their public presets.
+  --system SYSTEM  Inspect one system, e.g. gambit or cbs (repeatable).
+  --preset NAME    Inspect one exact preset, e.g. cbs-llvm (repeatable).
+  --list           List matching presets without probing the environment.
+  --verbose        Include full compiler and dependency paths.
+  -h, --help       Show this help.
+
+System and preset filters are combined: presets must match both when supplied.
+Discovery uses PATH and compiler environment variables, not the build/ cache.
+It does not configure, build, download or install packages.
+
+Examples:
+  ./cmake/bootstrap
+  ./cmake/bootstrap --system gambit
+  ./cmake/bootstrap --system cbs
+  ./cmake/bootstrap --preset gambit-llvm
+  ./cmake/bootstrap --preset cbs-llvm
+  ./cmake/bootstrap --list
+HELP
+}
+
+fail() {
+  printf 'bootstrap: %s\n' "$1" >&2
+  printf 'Run ./cmake/bootstrap --help for usage.\n' >&2
+  exit 2
+}
+
+validate_name() {
+  case "$1" in
+    ''|-*|*[!A-Za-z0-9_.-]*) fail "invalid selector: $1" ;;
+  esac
+}
+
+systems=""
+presets=""
+list_only=OFF
+verbose=OFF
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -h|--help) usage; exit 0 ;;
+    --list) list_only=ON; shift ;;
+    --verbose) verbose=ON; shift ;;
+    --system|--preset)
+      option="$1"
+      [ "$#" -ge 2 ] || fail "$option requires a value"
+      validate_name "$2"
+      case "$option" in
+        --system) systems="${systems:+$systems;}$2" ;;
+        --preset) presets="${presets:+$presets;}$2" ;;
+      esac
+      shift 2
+      ;;
+    --system=*)
+      value=${1#--system=}
+      validate_name "$value"
+      systems="${systems:+$systems;}$value"
+      shift
+      ;;
+    --preset=*)
+      value=${1#--preset=}
+      validate_name "$value"
+      presets="${presets:+$presets;}$value"
+      shift
+      ;;
+    *) fail "unknown argument: $1" ;;
+  esac
+done
+
+color=OFF
+if [ -t 1 ] && [ "${TERM:-dumb}" != dumb ] && [ "${NO_COLOR+x}" != x ]; then
+  color=ON
+fi
+
+# Avoid Python bytecode writes while checking required/optional imports.
+export PYTHONDONTWRITEBYTECODE=1
+
+exec cmake "-DBOOTSTRAP_SYSTEMS=${systems}" "-DBOOTSTRAP_PRESETS=${presets}" \
+  "-DBOOTSTRAP_LIST_ONLY=${list_only}" "-DBOOTSTRAP_VERBOSE=${verbose}" \
+  "-DBOOTSTRAP_COLOR=${color}" -P "${probe}"
