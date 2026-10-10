@@ -27,7 +27,7 @@
 #
 # \author Pengxuan Zhu
 #         (pengxuan.zhu@adelaide.edu.au)
-# \date 2026 Aug
+# \date 2026 Aug, Oct
 #
 #************************************************
 
@@ -41,20 +41,14 @@ set(true_nl \"\\n\")
 # Define the download command to use for contributed packages
 set(DL_CONTRIB "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${PROJECT_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
 
-# Define a series of functions and macros to be used for cleaning ditched components and adding nuke and clean targets for contributed codes
+# Helpers for explicit clean/nuke targets. Disabling a contributed package
+# preserves its source, build, installation, and ExternalProject stamps.
 macro(get_paths package build_path clean_stamps nuke_stamps)
   set(stamp_path "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-stamp/${package}")
   set(${build_path} "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-build")
   set(${clean_stamps} ${stamp_path}-configure ${stamp_path}-build ${stamp_path}-install ${stamp_path}-done)
   set(${nuke_stamps} ${stamp_path}-download ${stamp_path}-mkdir ${stamp_path}-patch ${stamp_path}-update)
 endmacro()
-
-function(nuke_ditched_contrib_content package dir)
-  get_paths(${package} build_path clean-stamps nuke-stamps)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory "${build_path}")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory "${dir}")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E remove -f ${clean-stamps} ${nuke-stamps})
-endfunction()
 
 function(add_contrib_clean_and_nuke package dir clean)
   get_paths(${package} build_path clean-stamps nuke-stamps)
@@ -139,7 +133,6 @@ if(WITH_RESTFRAMES)
   set(EXCLUDE_RESTFRAMES FALSE)
 else()
   message("   RestFrames-dependent analyses in ColliderBit will be deactivated.")
-  nuke_ditched_contrib_content(${name} ${dir})
   set(EXCLUDE_RESTFRAMES TRUE)
 endif()
 
@@ -180,9 +173,9 @@ if(NOT EXCLUDE_RESTFRAMES)
   add_dependencies(${name} gambit_preload)
   # Add install name tool step for OSX
   add_install_name_tool_step(${name} ${dir}/lib libRestFrames.dylib)
-  # Add clean-restframes and nuke-restframes
-  add_contrib_clean_and_nuke(${name} ${dir} distclean)
 endif()
+# Keep explicit cleanup available even while the package is disabled.
+add_contrib_clean_and_nuke(${name} ${dir} distclean)
 
 #contrib/LHEF
 set(LHEF_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/LHEF")
@@ -219,7 +212,6 @@ else()
   message("   HepMC-dependent functions in ColliderBit will be deactivated.")
   message("   ColliderBit Solo (CBS) will be deactivated.")
   message("   Backends depending on HepMC (e.g. Pythia and Rivet) will be disabled.")
-  nuke_ditched_contrib_content(${name} ${HEPMC_PATH})
   set(EXCLUDE_HEPMC TRUE)
 endif()
 
@@ -274,10 +266,8 @@ if(NOT EXCLUDE_HEPMC)
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     COMMENT "Preparing pristine HepMC ${ver} sources"
   )
-
-  # Add clean-hepmc and nuke-hepmc
-  add_contrib_clean_and_nuke(${name} ${HEPMC_PATH} clean)
 endif()
+add_contrib_clean_and_nuke(${name} ${HEPMC_PATH} clean)
 
 # contrib/onnxruntime
 option(WITH_ONNXRUNTIME "Compile with ONNX Runtime enabled" OFF)
@@ -340,7 +330,6 @@ if(WITH_YODA)
 else()
   message("   YODA-dependent functions in ColliderBit will be deactivated.")
   message("   Backends depending on Yoda (e.g. Rivet, Contur) will de disabled.")
-  nuke_ditched_contrib_content(${name} ${dir})
   set(EXCLUDE_YODA TRUE)
 endif()
 
@@ -470,8 +459,8 @@ if(NOT EXCLUDE_YODA)
   unset(_yoda_h5cc_environment)
   unset(_yoda_h5cc)
   unset(_yoda_h5cc_wrapper)
-  add_contrib_clean_and_nuke(${name} ${dir} clean)
 endif()
+add_contrib_clean_and_nuke(${name} ${dir} clean)
 
 # FastJet / fjcontrib; include only if ColliderBit is in use.
 # FastJet 3.5.1 + fjcontrib 1.101 are required for Rivet 4 (C++ plugins,

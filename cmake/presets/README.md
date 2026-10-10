@@ -160,6 +160,35 @@ system-specific environment section using `BootstrapReport.cmake` helpers.
 The CLI and dispatcher need no change when adding a provider that uses
 the existing toolchain strategies.
 
+## Retaining optional contributed packages
+
+Disabling RestFrames, or selecting Bits without ColliderBit (which disables
+HepMC and YODA), preserves their source/install trees, external build directories,
+and completion stamps. Re-enabling the same package with the same toolchain and
+inputs can reuse that work. A compiler, flags, dependency, or patch change may
+still require reconfiguration or rebuilding.
+
+The package's build target, include paths, and link settings are excluded while
+disabled. Its explicit `clean-<package>` and `nuke-<package>` targets remain
+available, including `restframes`, `hepmc`, and `yoda`. `nuke-contrib` and `nuke-all`
+include these retained packages as well. For example, when you intend to remove
+the RestFrames source/install tree and external build directory:
+
+```sh
+cmake --build build --target nuke-restframes
+```
+
+This also removes its standard download/configure/build/install stamps; the
+next enabled build must prepare the package again. Turning a feature off alone
+does not request this removal. To check preservation without compiling:
+
+```sh
+python3 cmake/tests/contrib_retention.py
+```
+
+See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-04-实施与验证)
+for maintainer verification with real installed libraries and timestamps.
+
 ## Compiler caching
 
 On a new preset configuration, `GAMBIT_COMPILER_CACHE` defaults to `AUTO`:
