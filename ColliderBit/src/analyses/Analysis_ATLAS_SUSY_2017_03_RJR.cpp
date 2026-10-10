@@ -1,5 +1,6 @@
 
 #include "gambit/cmake/cmake_variables.hpp"
+#include "gambit/cmake/restframes_variables.hpp"
 #ifndef EXCLUDE_ROOT
 #ifndef EXCLUDE_RESTFRAMES
 

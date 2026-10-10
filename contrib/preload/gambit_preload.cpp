@@ -21,7 +21,7 @@
 ///
 ///  \author Pengxuan Zhu
 ///          pengxuan.zhu@adelaide.edu.au
-///  \date 2026 Aug
+///  \date 2026 Aug, Oct
 ///
 ///  *********************************************
 
@@ -34,6 +34,7 @@
 #endif
 
 #include "gambit/cmake/cmake_variables.hpp"
+#include "gambit/cmake/restframes_variables.hpp"
 #include "gambit/Core/cli_help_text.hpp"
 #include "gambit/Utils/stringify.hpp"
 

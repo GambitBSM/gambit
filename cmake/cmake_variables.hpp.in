@@ -29,6 +29,10 @@
 ///        (anders.kvellestad@fys.uio.no)
 ///  \date 2021 Jul
 ///
+///  \author Pengxuan Zhu
+///        (pengxuan.zhu@adelaide.edu.au)
+///  \date 2026 Oct
+///
 ///
 ///
 ///***********************************************
@@ -87,12 +91,6 @@
 
 /// Leave out ROOT
 #cmakedefine EXCLUDE_ROOT 1
-
-/// Leave out RestFrames
-#cmakedefine EXCLUDE_RESTFRAMES 1
-
-/// Path to RestFrames include directory
-#cmakedefine RESTFRAMES_INCLUDE "@RESTFRAMES_INCLUDE@"
 
 /// Suppress specific compiler warnings from external libraries
 #cmakedefine SUPPRESS_LIBRARY_WARNINGS 1

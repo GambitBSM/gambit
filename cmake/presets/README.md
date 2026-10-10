@@ -168,8 +168,11 @@ and completion stamps. Re-enabling the same package with the same toolchain and
 inputs can reuse that work. A compiler, flags, dependency, or patch change may
 still require reconfiguration or rebuilding.
 
-The package's build target, include paths, and link settings are excluded while
-disabled. Its explicit `clean-<package>` and `nuke-<package>` targets remain
+The package's build target and link settings are excluded while disabled.
+RestFrames retains a private include path on ColliderBit so switching OFF/ON
+does not change its compile flags; unrelated targets receive no RestFrames path.
+HepMC and YODA include paths are excluded while those packages are disabled.
+The explicit `clean-<package>` and `nuke-<package>` targets remain
 available, including `restframes`, `hepmc`, and `yoda`. `nuke-contrib` and `nuke-all`
 include these retained packages as well. For example, when you intend to remove
 the RestFrames source/install tree and external build directory:
@@ -188,6 +191,50 @@ python3 cmake/tests/contrib_retention.py
 
 See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-04-实施与验证)
 for maintainer verification with real installed libraries and timestamps.
+
+## RestFrames switch and native recompilation
+
+RestFrames settings are generated in
+`cmake/include/gambit/cmake/restframes_variables.hpp`, separate from the common
+`cmake_variables.hpp`. RestFrames analyses, their registration container and
+`gambit_preload.cpp` include it explicitly. Preload uses the feature settings to
+set `CPLUS_INCLUDE_PATH` for enabled RestFrames. New or locally maintained
+RestFrames analyses must include both headers before their feature guards:
+
+```cpp
+#include "gambit/cmake/cmake_variables.hpp"
+#include "gambit/cmake/restframes_variables.hpp"
+#ifndef EXCLUDE_ROOT
+#ifndef EXCLUDE_RESTFRAMES
+// RestFrames-dependent implementation
+#endif
+#endif
+```
+
+The RestFrames include path is private to the ColliderBit object library and
+stays present even when disabled or not installed. `EXCLUDE_RESTFRAMES` determines
+availability; the include path alone does not. Existing package dependencies
+ensure the enabled headers are installed before ColliderBit compiles.
+
+The first configure/build after this change can rebuild many native objects:
+the common header loses the old RestFrames fields and unrelated targets lose
+their old directory-level include path. After that migration, toggling only
+`WITH_RESTFRAMES` should recompile the four RestFrames analyses,
+`AnalysisContainer.cpp` and `gambit_preload.cpp`, with necessary links. Shared
+libraries may also relink when their runtime library path changes. Keep ROOT,
+compiler, standard and all
+other settings fixed during this check; no build-tree reset is needed.
+
+Script-only checks:
+
+```sh
+python3 cmake/tests/restframes_scope.py
+python3 cmake/tests/contrib_retention.py
+```
+
+See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-08-restframes-实施与验证)
+for the OFF/ON build sequence and common-header/compile-flags timestamp checks.
+Other optional dependencies and runtime library path scope remain separate work.
 
 ## FastJet installation reuse
 

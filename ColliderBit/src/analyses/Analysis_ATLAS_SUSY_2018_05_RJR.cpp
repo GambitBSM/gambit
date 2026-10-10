@@ -10,6 +10,7 @@
 // Old Analysis Name: ATLAS_13TeV_2LEPJETS_RJR_139invfb
 
 #include "gambit/cmake/cmake_variables.hpp"
+#include "gambit/cmake/restframes_variables.hpp"
 #ifndef EXCLUDE_ROOT
 #ifndef EXCLUDE_RESTFRAMES
 //#define CHECK_CUTFLOW

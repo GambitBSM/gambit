@@ -1,0 +1,22 @@
+// GAMBIT: Global and Modular BSM Inference Tool
+//************************************************
+/// \file
+///
+/// Configured RestFrames settings for ColliderBit implementations and preload.
+/// Include this header before testing EXCLUDE_RESTFRAMES.
+///
+/// \author Pengxuan Zhu
+///         (pengxuan.zhu@adelaide.edu.au)
+/// \date 2026 Oct
+///***********************************************
+
+#ifndef __restframes_variables_hpp__
+#define __restframes_variables_hpp__
+
+/// Leave out RestFrames
+#cmakedefine EXCLUDE_RESTFRAMES 1
+
+/// RestFrames include path, retained even when RestFrames is disabled
+#cmakedefine RESTFRAMES_INCLUDE "@RESTFRAMES_INCLUDE@"
+
+#endif // __restframes_variables_hpp__

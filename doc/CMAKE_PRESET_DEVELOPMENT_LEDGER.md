@@ -1,6 +1,6 @@
 # CMake Preset 开发台账
 
-记录 GAMBIT 和 ColliderBit Solo 的 preset、CMake 构建与开发体验改进。C++ 标准统一和 BUILD-01 已提交，维护者反馈 BUILD-01 重新编译及 touch 后构建都很快。BUILD-02 已完成脚本检查，并由维护者日志确认独立对象构建、完整链接及主工程无变化构建通过；实际并行重叠与运行场景仍待验证。BUILD-03 已接入可选 ccache，维护者日志确认真实 launcher 与完整 CBS 链接成功；精确命中增量和开关场景仍待补齐。BUILD-04 已移除三处停用即删除逻辑，并保留停用包的显式清理入口；5 组夹具检查通过，维护者日志确认 RestFrames OFF/ON 后安装保留、外部目标复用及完整 CBS 构建成功；HepMC/YODA 停用场景仍待验证。BUILD-05 已增加 FastJet/Contrib 文件与构建身份检查，11 组脚本夹具通过；维护者日志确认首次迁移重建、成功记录、相同配置复用及完整 CBS 构建通过。BUILD-07 已为日志中的三包接入输入状态检查和成功安装后记录，11 组脚本夹具通过；维护者日志确认首次建立记录、直接重复构建和相同配置后复用均成功，三包重复步骤已跳过。其余事项按台账继续推进。
+记录 GAMBIT 和 ColliderBit Solo 的 preset、CMake 构建与开发体验改进。C++ 标准统一和 BUILD-01 已提交，维护者反馈 BUILD-01 重新编译及 touch 后构建都很快。BUILD-02 已完成脚本检查，并由维护者日志确认独立对象构建、完整链接及主工程无变化构建通过；实际并行重叠与运行场景仍待验证。BUILD-03 已接入可选 ccache，维护者日志确认真实 launcher 与完整 CBS 链接成功；精确命中增量和开关场景仍待补齐。BUILD-04 已移除三处停用即删除逻辑，并保留停用包的显式清理入口；5 组夹具检查通过，维护者日志确认 RestFrames OFF/ON 后安装保留、外部目标复用及完整 CBS 构建成功；HepMC/YODA 停用场景仍待验证。BUILD-05 已增加 FastJet/Contrib 文件与构建身份检查，11 组脚本夹具通过；维护者日志确认首次迁移重建、成功记录、相同配置复用及完整 CBS 构建通过。BUILD-07 已为日志中的三包接入输入状态检查和成功安装后记录，11 组脚本夹具通过；维护者日志确认首次建立记录、直接重复构建和相同配置后复用均成功，三包重复步骤已跳过。BUILD-08 的 RestFrames 阶段已完成首次迁移、恢复 ON 六个对象与最后无变化构建验收；其他依赖及未测场景继续按台账推进。
 
 - 更新日期：2026-10-11，Australia/Adelaide。
 - 目标分支：`Colliderbit-solo-development-preset`，工作树为 `cbs-presets`。
@@ -9,7 +9,8 @@
 - BUILD-03 已提交为 `0965735828`，父提交为 `957c81ecd9`；包含可选 ccache、摘要、策略测试和维护者构建记录。
 - BUILD-04 已提交为 `1d46bf0439`，父提交为 `0965735828`；包含三包停用保留、显式清理入口及维护者验收记录。
 - BUILD-05 已提交为 `09929f07fb`，父提交为 `1d46bf0439`；当前 macOS LLVM 首次迁移及相同配置复用已验收。
-- BUILD-07 基于 `09929f07fb` 实施；当前 macOS LLVM 首次记录、直接重复构建及相同配置复用已验收，随本轮提交；BUILD-06 为 P3 后续评估。
+- BUILD-07 已提交为 `0c3ea3e566`；当前 macOS LLVM 首次记录、直接重复构建及相同配置复用已验收；BUILD-06 为 P3 后续评估。
+- BUILD-08 基于 `0c3ea3e566` 实施；RestFrames 阶段已通过当前环境迁移、恢复 ON 和无变化构建，随本轮提交；其他可选依赖与 RPATH 范围仍待处理。
 - 关联文档：[Preset 使用说明](../cmake/presets/README.md)、[CMake Preset 工程标准](CMAKE_PRESET_STANDARD.md)、[仓库开发规则](../AGENTS.md)。
 
 ## 状态与验收规则
@@ -88,7 +89,7 @@ cmake -P cmake/tests/cxx_standard.cmake
 | BUILD-05 | P1 | 已合入 | FastJet/Contrib 每次重新搜索并检查实际文件；复用须匹配成功安装后的构建身份；缺失或不匹配时使所属步骤失效，构建阶段从校验过的归档恢复干净源码；FastJet 重建级联至 Contrib | [contrib.cmake](../cmake/contrib.cmake)、[ContribBuildIdentity.cmake](../cmake/ContribBuildIdentity.cmake)、[contrib_build_identity.py](../cmake/tests/contrib_build_identity.py)。11 组脚本夹具通过；当前 macOS LLVM 首次迁移、安装身份、相同配置复用及完整 CBS 构建已通过；直接无配置重复构建、时间戳对照和其他平台待补齐 |
 | BUILD-06 | P3 | 待评估 | 支持 Ninja 前需分离主 generator 与外部 make 工具，并完善生成物声明 | [utilities.cmake](../cmake/utilities.cmake) 的 `MAKE_PARALLEL`。FastJet 等 Autotools 包必须仍用 make；不能只替换 preset 的 generator |
 | BUILD-07 | P2 | 已合入 | 为 nulike 1.0.9、Rivet 4.1.0、Contur 3.0.0 声明输入和关键产物；成功安装后记录状态，无变化保留 build 标记；编辑/touch/增删源码或缺产物时使所属步骤失效；其他包保留原策略 | [ExternalAutoRebuild.cmake](../cmake/ExternalAutoRebuild.cmake)、[external_rebuild.py](../cmake/scripts/external_rebuild.py)、[externals.cmake](../cmake/externals.cmake)、[backends.cmake](../cmake/backends.cmake)。11 组临时检查通过；当前环境首次记录、直接重复构建及重新配置后跳过已通过，时间戳对照及源码 touch 待补齐 |
-| BUILD-08 | P2 | 待评估 | 可选依赖通过目录级 include_directories 传播到无关原生目标；OFF/ON 改写 flags.make，即使恢复原配置也会触发对象构建。评估目标级依赖及配置头文件范围 | [contrib.cmake](../cmake/contrib.cmake)、[preprocessor.cmake](../cmake/preprocessor.cmake)。本次 RestFrames 切换后，Models、FastJet Contrib、mkpath、Fortran 等目标均带 RestFrames include。收窄影响范围时必须保留实际使用该依赖的目标及生成头文件顺序；不能强行恢复旧时间戳隐藏配置变更 |
+| BUILD-08 | P2 | 部分完成 | RestFrames 阶段已合入：include 限定为 ColliderBit PRIVATE，并拆出专用配置头；OFF/ON 保持公共头与原生 include 参数稳定。其他可选依赖及 RPATH 范围待处理 | [contrib.cmake](../cmake/contrib.cmake)、[utilities.cmake](../cmake/utilities.cmake)、[preprocessor.cmake](../cmake/preprocessor.cmake)、[restframes_scope.py](../cmake/tests/restframes_scope.py)。7 组新检查及 10 组相关回归通过；维护者验证 OFF 完成首次迁移、恢复 ON 仅六个对象、重复构建零编译/链接；迁移后独立 OFF 范围及时间戳对照待补齐 |
 
 BUILD-02 的问题由原生成 Makefile 的依赖顺序确认；实现后独立对象目标及无变化构建已通过，实际并行重叠和节省时间尚未测量。BUILD-03 改善缓存命中的重复编译，不能解决所有首次编译等待。BUILD-07 由维护者无变化日志及当前生成规则确认；当前三包已接入状态检查；维护者日志确认直接重复构建及相同配置后跳过重复步骤，具体耗时未测量。
 
@@ -467,7 +468,7 @@ diff -u /tmp/cbs-build05-before.txt /tmp/cbs-build05-after.txt
 
 ### BUILD-07 实施与验证
 
-2026-10-11 基于 `09929f07fb` 实现；当前 macOS LLVM 的首次记录、直接重复构建及相同配置后复用已由维护者验收，随本轮提交，状态为 **已合入**。台账将 Ninja 适配（BUILD-06）列为 P3 后续评估，本轮先处理已有实际日志证据的 P2 重复步骤。
+2026-10-11 基于 `09929f07fb` 实现；当前 macOS LLVM 的首次记录、直接重复构建及相同配置后复用已由维护者验收，已提交为 `0c3ea3e566`，状态为 **已合入**。台账将 Ninja 适配（BUILD-06）列为 P3 后续评估，本轮先处理已有实际日志证据的 P2 重复步骤。
 
 - 公共 `enable_auto_rebuild` 支持可选的输入、上游文件、构建产物和配置产物声明。当前只为 nulike 1.0.9、Rivet 4.1.0、Contur 3.0.0 接入；其余版本/后端/scanner 仍执行原来的自动 make 检查，逐包审计后再扩展。
 - 每次请求包目标时，以项目已有的 Python 3 扫描声明的输入：记录路径/realpath、纳秒 mtime、大小和 SHA256；清单增删、touch 和内容变化均可使 build 标记失效。输入身份还包含真实 ExternalProject configure/build/install 参数、编译器版本/路径/文件时间戳及检查脚本版本。生成的对象、libtool 文件、`.libs/.deps`、内部 build 和 Python cache 不进入源码状态。
@@ -541,6 +542,97 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build07-touch-noop.log
 - 构建后只读重新扫描，三份成功记录与当前输入状态一致，也与生成的 check-rebuild 命令身份一致，声明的构建/配置产物均存在。当前输入数为 nulike 114、Rivet 9142、Contur 3；该数字与此前安装在首次记录前的读取不同，当前记录及连续后续构建均匹配。
 - 第二次配置/生成为 5.9/0.4 秒。日志没有总构建耗时、前后时间戳对照或源码 touch 场景，不能量化提速，也不补足这些未执行的验收项。配置中的可选依赖提示及 pybind11 旧 CMake 策略弃用未阻止构建。
 
+### BUILD-08 RestFrames 实施与验证
+
+2026-10-11 基于 `0c3ea3e566` 实现第一阶段。补齐 preload 使用者后，维护者已验证当前 macOS LLVM 的首次迁移、恢复 ON 六个必要对象及最终无变化构建，RestFrames 阶段随本轮提交合入；BUILD-08 总体状态为 **部分完成**，其他可选依赖和 RPATH 范围仍待处理。
+
+- 去掉 RestFrames 的目录级 `include_directories`，改由公共 `add_gambit_library` 仅向 ColliderBit 对象库添加 PRIVATE 路径。该路径在 ON/OFF、缺少 ROOT 或未启用 ColliderBit 时均保持同一值；安装尚不存在时也允许登记普通 include 路径。功能是否可用由开关和依赖条件决定，不由路径存在与否决定。
+- 从通用 `cmake_variables.hpp.in` 移出 `EXCLUDE_RESTFRAMES` 和 `RESTFRAMES_INCLUDE`，由 `preprocessor.cmake` 生成专用 `restframes_variables.hpp`。四个分析（2017_03_RJR、2018_05_RJR、2018_12_RJR、2018_16）、`AnalysisContainer.cpp` 和 `gambit_preload.cpp` 显式包含专用头，放在原有 ROOT/RestFrames 判断之前；分析算法和注册条件保持原样。Preload 使用同一专用头控制原有的 `CPLUS_INCLUDE_PATH` 设置，不需要 RestFrames 编译 include 路径。
+- 专用头不经通用头或公共 Bit 头间接包含。以后新增或本地维护的 RestFrames 分析，需要显式包含 `gambit/cmake/restframes_variables.hpp` 再判断 `EXCLUDE_RESTFRAMES`；判断 ROOT 仍使用通用头。公共接口若将来暴露 RestFrames 类型，需要重新评估 PRIVATE 范围。
+- 现有 RestFrames 下载、补丁、安装、contrib 构建顺序、链接参数及显式清理入口保留。BUILD-04 的安装保留机制继续适用；本轮没有改变其他可选依赖的配置宏，也没有收窄全局 RPATH。
+
+[restframes_scope.py](../cmake/tests/restframes_scope.py) 的 7 组脚本检查通过：真实包选择及 library helper 的 private/目标范围；OFF 和依赖不满足时路径稳定且不注册外部包；未提供包元数据时 helper 不添加路径；ON/OFF/ON 只改变专用头；相同内容保留两头的纳秒时间戳且其他配置仍正常更新；缺少 ROOT 时两个 feature 正确关闭；全仓库已跟踪 C/C++ 源码及本地新增 ColliderBit 实现的使用者在宏使用前包含专用头，且公共头不传播它。扩大后的检查已在未修复源码上准确失败于 preload 的缺失 include；ON/OFF 临时生成头同时检查 include 路径宏。测试捕获目标和依赖探测，使用实际 `configure_file` 写临时头文件，不执行工程配置、编译器或 make。实际 Make 对象构建范围仍由维护者验证。 原有五组 contrib 保留检查和五组 standalone 对象检查也通过，本轮共 17 组；`git diff --check` 通过。
+
+#### 维护者验收
+
+继续 `cbs-llvm` 和现有 `build`，不要清空、clean 或 --fresh；保持 ROOT、编译器、标准和其他开关不变。**首次迁移可能重编译很多对象**：通用配置头删除旧字段，同时无关目标移除旧 RestFrames include，这是一次性更新，不作为 OFF/ON 性能验收。
+
+```sh
+cd /Users/p.zhu/Gambit-Workshop/worktree/cbs-presets
+set -o pipefail
+cmake --preset cbs-llvm -DWITH_RESTFRAMES=ON
+cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build08-first.log
+```
+
+首次成功后，可用下列函数记录通用头与九个代表目标的编译 flags 的内容和纳秒 mtime；其中包括 ColliderBit 自身，确认其 private 路径在切换时也保持稳定：
+
+```sh
+cbs_build08_snapshot() {
+  python3 - <<'PY'
+from pathlib import Path
+import hashlib
+names = {'ColliderBit.dir', 'Models.dir', 'Utils.dir', 'Backends.dir',
+         'CBS_objects.dir', 'fjcontrib_nsubjettiness.dir', 'mkpath.dir', 'fortran.dir', 'gambit_preload.dir'}
+paths = [Path('cmake/include/gambit/cmake/cmake_variables.hpp')]
+paths += sorted(p for p in Path('build').rglob('flags.make') if p.parent.name in names)
+assert len(paths) == 10, '当前 Unix Makefiles 构建应包含上述九个目标'
+for p in paths:
+    print(hashlib.sha256(p.read_bytes()).hexdigest(), p.stat().st_mtime_ns, p)
+PY
+}
+cbs_build08_snapshot > /tmp/cbs-build08-before.txt
+```
+
+关闭 RestFrames 并实际构建，再恢复并实际构建；不要只切换配置后才构建，否则无法分别验证关闭和恢复的注册/链接：
+
+```sh
+cmake --preset cbs-llvm -DWITH_RESTFRAMES=OFF
+cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build08-off.log
+cbs_build08_snapshot > /tmp/cbs-build08-off.txt
+diff -u /tmp/cbs-build08-before.txt /tmp/cbs-build08-off.txt
+
+cmake --preset cbs-llvm -DWITH_RESTFRAMES=ON
+cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build08-on.log
+cbs_build08_snapshot > /tmp/cbs-build08-on.txt
+diff -u /tmp/cbs-build08-before.txt /tmp/cbs-build08-on.txt
+
+cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build08-noop.log
+```
+
+两次 diff 应无输出。OFF 和 ON 日志中的对象编译应仅涉及上述四个 RestFrames 分析、注册容器和 gambit_preload；Models、Utils、Backends、CBS_objects、FastJet Contrib、mkpath 和 Fortran 应跳过对象编译。CBS 需要重新链接，部分共享库可能因全局 runtime library path 改变而重新链接，需与对象重编译区分。恢复 ON 应继续复用未改变输入的 RestFrames 安装；三包 backend 检查保持 BUILD-07 的无变化跳过行为。最后重复构建应没有对象编译、链接、harvest/functor 生成或这些外部包的 configure/build/install 步骤。`Built target ...` 或轻量 `check-rebuild-*` 出现正常。
+
+若实际范围仍较大，保留日志和两次 diff，按具体对象依赖继续调查；不同开关/编译器/ROOT 条件变化不作为这一项的验收。无需删除现有安装验证缺失场景。
+
+| 验收项 | 状态 | 记录 |
+| --- | --- | --- |
+| 七组范围、生成头及注册检查 | 已通过 | 2026-10-11；临时 `cmake -P`，没有工程配置或编译 |
+| 首次迁移及完整 CBS 构建 | 当前环境通过 | 补齐 preload 后，OFF 构建完成 288 个 C++ 对象的一次性迁移，CBS 成功；恢复 ON 和直接重复构建也成功 |
+| 恢复 ON 的对象范围及安装复用 | 当前环境通过 | 仅四个分析、注册容器、preload 共六个对象，六次必要链接；没有 RestFrames 或三包 backend 的外部步骤 |
+| 迁移后独立 OFF 的对象范围 | 待补齐 | 本次 OFF 包含首次迁移，不能当作纯开关范围验证；不阻止提交已验收的 RestFrames 阶段 |
+| 公共头/flags 的真实前后快照 | 待补齐 | 日志没有 stat/hash/diff；脚本夹具稳定及当前生成依赖的只读确认分别记录 |
+| 恢复后的无变化构建 | 当前环境通过 | 日志第 1141–1182 行，零对象编译、零链接、零外部步骤或代码生成 |
+| 其他平台和其他可选依赖 | 待执行 | 不由临时脚本检查推定通过 |
+
+#### 2026-10-11 首次 OFF/ON 日志与修复
+
+附件 `/Users/p.zhu/.codex/attachments/097aa5f9-fb63-4761-962b-22d5984f35bd/Pasted text.txt` 包含 OFF、ON 和直接重复构建。第 406、805、833 行均报 `contrib/preload/gambit_preload.cpp:157` 使用未声明的 `RESTFRAMES_INCLUDE`，三次构建均失败，没有完整 CBS 成功记录。此前附件 `d9aff82b-f67f-41c4-b976-3b899b2b3a77` 与 BUILD-07 附件字节一致，不能用于本项验收。
+
+原因是首次源码搜索排除了整个 contrib，原七组检查又只检查 ColliderBit 使用者，漏掉 preload 中由 `EXCLUDE_RESTFRAMES` 控制的环境变量设置。已给 preload 显式加入专用头，保留其原功能；检查改为扫描全仓库已跟踪 C/C++ 源码（包含 contrib），并覆盖本地新增 ColliderBit 实现。更新预期为四个分析、注册容器与 preload 共六个对象；preload 在 ON/OFF 时确有功能变化，属于必要重编译。公共配置头和无关目标的 compile flags 仍应稳定。
+
+日志中的共享库重新链接符合 RPATH 切换预期；Fortran 对象 macOS minimum 28.0、链接 27.0 的警告沿用 CFG-05 跟踪，不是此次阻断构建的错误。因构建提前失败，不能验证其余对象范围、安装复用或最终无变化行为。该次修复当时仅完成脚本/源码检查；后续复测结果见下一节，历史失败不计为通过。
+
+#### 2026-10-11 修复后复测
+
+附件 `/Users/p.zhu/.codex/attachments/95fc74b3-ed5d-4c3e-a4f2-1f67983ab8e8/Pasted text.txt` 共 1182 行，命令为同一 `cbs-llvm`、共享 build、CBS `-j8` 的 OFF 构建、ON 构建及直接重复构建。三次均成功，未见错误；配置环境仍为 LLVM 22.1.8、Python 3.13.13、ROOT 6.40.00、C++17 和 SDK/minimum 27.0。
+
+- OFF 阶段第 375–714 行完成首次迁移：288 个 C++ 对象和 6 次链接，最终 CBS 成功。此前 preload 失败阻止了这些下游对象完成迁移；本次包含公共头删除旧字段及旧目录级 include 移除的成本，不能把这 288 个对象计为正常开关的重编译范围。无外部 configure/build/install/record，也没有 harvest/functor 生成命令。
+- 恢复 ON 后，第 1094、1127–1131 行恰好编译六个对象：gambit_preload、四个 RestFrames 分析和 AnalysisContainer。Models、Utils、Backends、CBS_objects、其他 ColliderBit 分析等均跳过对象编译。执行五个共享库及 CBS 的六次必要链接；RestFrames 显示目标完成，没有外部步骤，三包 backend 检查也不进入包装步骤。第 1140 行 CBS 成功。
+- 第 1141–1182 行直接重复构建零对象编译、零链接、零外部步骤和代码生成，最终 CBS 成功。`Built target` 与轻量 check-rebuild 输出正常。
+- 只读检查当前生成文件：仅 ColliderBit 的原生 flags.make 含 RestFrames include；专用头已启用 RestFrames，公共头没有这两个宏；真实 `.o.d` 中引用专用头的恰为上述六个对象。现有 RestFrames 动态库和 install 标记仍在。此检查确认当前依赖范围，不替代未提供的前后时间戳快照。
+- OFF/ON 配置分别为 6.1/6.4 秒，生成均为 0.5 秒；日志没有总构建耗时或 ccache 增量，不填写量化提速。pybind11 弃用与 Fortran 28.0 对象链接到 27.0 的既有警告未阻止构建；后者仍跟踪于 CFG-05。迁移后独立 OFF 场景、前后快照与其他平台待补齐。
+
+17 组脚本检查再次通过（RestFrames scope 7、contrib retention 5、standalone objects 5），`git diff --check` 通过；此次没有由代理运行工程配置、编译器或构建。仅提交本阶段源码、配置模板、测试、README 及台账，不纳入其他本地未跟踪文件。
+
 ## 配置正确性与使用体验待办
 
 | 编号 | 优先级 | 状态 | 实施内容 | 验收标准与位置 |
@@ -559,9 +651,9 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build07-touch-noop.log
 
 1. C++ 修改及 BUILD-01 已提交；当前 LLVM/ROOT 17 配置和 CBS 构建已有日志，继续按需补齐其他标准、冲突拒绝及运行场景。
 2. BUILD-01 已有当前环境的维护者构建反馈；后续按需补充文件增删或缺失恢复场景，继续完成 CFG-01/CFG-02 的显式配置优先级修复。
-3. BUILD-03 已提交为 `0965735828`；按需补齐命中增量和 OFF/AUTO 实测。BUILD-04 已提交为 `1d46bf0439`，HepMC/YODA 场景按需补齐；BUILD-05 首次迁移及相同配置复用已通过并提交为 `09929f07fb`；BUILD-07 首次记录、直接重复构建及相同配置后复用已通过并随本轮提交；时间戳对照、源码 touch 和其他平台按需补齐。BUILD-06 Ninja 适配仍作为 P3 后续评估。
+3. BUILD-03 已提交为 `0965735828`；按需补齐命中增量和 OFF/AUTO 实测。BUILD-04 已提交为 `1d46bf0439`，HepMC/YODA 场景按需补齐；BUILD-05 首次迁移及相同配置复用已通过并提交为 `09929f07fb`；BUILD-07 首次记录、直接重复构建及相同配置后复用已通过并提交为 `0c3ea3e566`；时间戳对照、源码 touch 和其他平台按需补齐。BUILD-06 Ninja 适配仍作为 P3 后续评估。
 4. BUILD-02 独立对象构建、完整链接及无变化主工程构建已通过；继续补齐并行重叠与单点运行，以同环境基准量化收益，结合 BUILD-07 的验收日志测量外部步骤重复开销。
-5. 清理文档与探测重复项，再评估 Ninja 适配。
+5. BUILD-08 RestFrames 阶段已完成 include/配置头范围收敛；preload 漏查已修复，维护者首次迁移、恢复 ON 六个对象及最后无变化构建通过，随本轮提交。后续按需补齐迁移后独立 OFF、时间戳及其他平台，再处理其他依赖与配置发现项；Ninja 仍作为后续评估。
 
 本台账不改变仓库构建政策：继续使用 `${sourceDir}/build`；切换编译器家族按 `AGENTS.md` 使用 `--fresh`；实际构建由维护者执行。变更 profile、关闭依赖与重置缓存的影响应单独记录，避免把额外重建误认为编译回退。
 
@@ -618,3 +710,6 @@ cmake --build --preset cbs-llvm --parallel 8
 | 2026-10-11 | 维护者日志确认 BUILD-05 首次迁移、成功安装记录、相同配置复用及完整 CBS 构建通过；安装记录只读比对通过；开始处理 BUILD-07，直接重复构建/时间戳与其他平台待补齐 |
 | 2026-10-11 | BUILD-05 提交为 `09929f07fb`；实现 BUILD-07 三包输入/产物检查和成功安装后记录，11 组脚本夹具通过，当前安装只读扫描稳定；真实构建待维护者验收，BUILD-07 尚未提交 |
 | 2026-10-11 | 审阅 BUILD-07 的 889 行日志：三包首次成功记录、直接重复构建及相同配置后跳过重复步骤均通过；三次 CBS 成功，无原生编译/链接；成功记录及生成命令只读比对通过，随本轮提交；touch/时间戳及其他平台待补齐 |
+| 2026-10-11 | BUILD-07 提交为 `0c3ea3e566`；实现 BUILD-08 第一阶段 RestFrames PRIVATE include 与专用配置头，七组脚本检查通过；首次迁移、真实 OFF/ON 及无变化构建待维护者验收，尚未提交 |
+| 2026-10-11 | BUILD-08 首次 OFF/ON 及重复构建均在 preload 缺失 RESTFRAMES_INCLUDE 处失败；补齐专用头，将使用者审计扩展到全仓库，确认回归检查能抓到遗漏；更新为六个必要对象，真实构建待复测，尚未提交 |
+| 2026-10-11 | 审阅 BUILD-08 修复后的 1182 行日志：OFF 完成 288 个对象的首次迁移，恢复 ON 仅六个必要对象，最后零编译/链接/外部步骤，三次 CBS 成功；真实 flags/依赖范围及 17 组脚本检查通过，RestFrames 阶段随本轮提交；迁移后独立 OFF 与时间戳对照仍待补齐 |

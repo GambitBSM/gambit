@@ -43,7 +43,7 @@
 #
 #  \author Pengxuan Zhu
 #          (pengxuan.zhu@adelaide.edu.au)
-#  \date 2026 Aug
+#  \date 2026 Aug, Oct
 #
 #************************************************
 
@@ -222,6 +222,12 @@ function(add_gambit_library libraryname)
   foreach (dir ${GAMBIT_INCDIRS})
     target_include_directories(${libraryname} PUBLIC ${dir})
   endforeach()
+
+  # RestFrames types are used only in ColliderBit implementation files.
+  # Retain this private path when disabled so OFF/ON does not change flags.
+  if(libraryname STREQUAL "ColliderBit" AND RESTFRAMES_INCLUDE)
+    target_include_directories(${libraryname} PRIVATE "${RESTFRAMES_INCLUDE}")
+  endif()
 
   if(${ARG_OPTION} STREQUAL SHARED AND APPLE)
     set_property(TARGET ${libraryname} PROPERTY SUFFIX .so)
