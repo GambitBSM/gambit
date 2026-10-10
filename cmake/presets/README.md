@@ -78,6 +78,54 @@ All presets preserve the canonical `${sourceDir}/build` and GAMBIT output layout
 Use `--fresh` when switching profiles or compiler families in that shared tree.
 Bootstrap does not perform the switch itself.
 
+## Selecting an LLVM compiler
+
+For every `*-llvm` profile, each language uses `CMAKE_C_COMPILER` /
+`CMAKE_CXX_COMPILER` first, then `CC` / `CXX`. With neither specified, discovery
+keeps its existing Homebrew, standard installation and PATH search order.
+Cached compiler paths count as explicit selections and take precedence over a
+changed environment. Bootstrap reads the current environment without reading
+the build cache, so its report can differ from an already configured build.
+
+Explicit C/C++ selections must be supported upstream Clang with the same version.
+A missing executable, AppleClang/GNU pair, old compiler or version mismatch is
+reported without falling back to a different LLVM installation. If only one
+language is specified, its companion is sought beside that executable or in its
+real installation, including matching `clang-<major>` / `clang++-<major>` names.
+If no matching companion exists, set the other compiler explicitly. The reported
+LLVM root is derived from the real C++ executable.
+
+For read-only discovery with your chosen installation:
+
+```sh
+CC=/path/to/llvm/bin/clang CXX=/path/to/llvm/bin/clang++ \
+  ./cmake/bootstrap --preset cbs-llvm --verbose
+```
+
+For configure, use explicit cache values when working with an existing build:
+
+```sh
+cmake --preset cbs-llvm \
+  -DCMAKE_C_COMPILER=/path/to/llvm/bin/clang \
+  -DCMAKE_CXX_COMPILER=/path/to/llvm/bin/clang++
+```
+
+Keep the current compiler paths for an incremental check. When actually changing
+compilers or versions, add `--fresh` and expect the necessary rebuild; all profiles
+still share `build/`. Selectors must name one compiler executable. Put flags in
+`CMAKE_C_FLAGS` / `CMAKE_CXX_FLAGS` and wrappers such as ccache in the compiler
+launcher settings; a command containing extra arguments is rejected rather than
+silently losing them. Literal and quoted executable paths containing spaces work.
+
+Script-only checks, with fake version reporters and no real compiler execution:
+
+```sh
+python3 cmake/tests/native_compiler_selection.py
+```
+
+See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#cfg-01-实施与验证)
+for current-toolchain verification and remaining platform checks.
+
 ## Local HPC presets
 
 Cluster software stacks differ, so keep site-specific settings in CMake's

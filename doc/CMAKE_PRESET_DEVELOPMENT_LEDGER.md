@@ -10,7 +10,7 @@
 - BUILD-04 已提交为 `1d46bf0439`，父提交为 `0965735828`；包含三包停用保留、显式清理入口及维护者验收记录。
 - BUILD-05 已提交为 `09929f07fb`，父提交为 `1d46bf0439`；当前 macOS LLVM 首次迁移及相同配置复用已验收。
 - BUILD-07 已提交为 `0c3ea3e566`；当前 macOS LLVM 首次记录、直接重复构建及相同配置复用已验收；BUILD-06 为 P3 后续评估。
-- BUILD-08 基于 `0c3ea3e566` 实施；RestFrames 阶段已通过当前环境迁移、恢复 ON 和无变化构建，随本轮提交；其他可选依赖与 RPATH 范围仍待处理。
+- BUILD-08 RestFrames 阶段已提交为 `eb03406a7c`，父提交为 `0c3ea3e566`；当前环境迁移、恢复 ON 和无变化构建已通过；其他可选依赖与 RPATH 范围仍待处理。
 - 关联文档：[Preset 使用说明](../cmake/presets/README.md)、[CMake Preset 工程标准](CMAKE_PRESET_STANDARD.md)、[仓库开发规则](../AGENTS.md)。
 
 ## 状态与验收规则
@@ -544,7 +544,7 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build07-touch-noop.log
 
 ### BUILD-08 RestFrames 实施与验证
 
-2026-10-11 基于 `0c3ea3e566` 实现第一阶段。补齐 preload 使用者后，维护者已验证当前 macOS LLVM 的首次迁移、恢复 ON 六个必要对象及最终无变化构建，RestFrames 阶段随本轮提交合入；BUILD-08 总体状态为 **部分完成**，其他可选依赖和 RPATH 范围仍待处理。
+2026-10-11 基于 `0c3ea3e566` 实现第一阶段。补齐 preload 使用者后，维护者已验证当前 macOS LLVM 的首次迁移、恢复 ON 六个必要对象及最终无变化构建，RestFrames 阶段已提交为 `eb03406a7c`；BUILD-08 总体状态为 **部分完成**，其他可选依赖和 RPATH 范围仍待处理。
 
 - 去掉 RestFrames 的目录级 `include_directories`，改由公共 `add_gambit_library` 仅向 ColliderBit 对象库添加 PRIVATE 路径。该路径在 ON/OFF、缺少 ROOT 或未启用 ColliderBit 时均保持同一值；安装尚不存在时也允许登记普通 include 路径。功能是否可用由开关和依赖条件决定，不由路径存在与否决定。
 - 从通用 `cmake_variables.hpp.in` 移出 `EXCLUDE_RESTFRAMES` 和 `RESTFRAMES_INCLUDE`，由 `preprocessor.cmake` 生成专用 `restframes_variables.hpp`。四个分析（2017_03_RJR、2018_05_RJR、2018_12_RJR、2018_16）、`AnalysisContainer.cpp` 和 `gambit_preload.cpp` 显式包含专用头，放在原有 ROOT/RestFrames 判断之前；分析算法和注册条件保持原样。Preload 使用同一专用头控制原有的 `CPLUS_INCLUDE_PATH` 设置，不需要 RestFrames 编译 include 路径。
@@ -637,7 +637,7 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build08-noop.log
 
 | 编号 | 优先级 | 状态 | 实施内容 | 验收标准与位置 |
 | --- | --- | --- | --- | --- |
-| CFG-01 | P1 | 待开发 | LLVM 发现先尊重显式编译器和 CC/CXX，再自动搜索 | [NativeCompilerDiscovery.cmake](../cmake/presets/NativeCompilerDiscovery.cmake)、[NativePresetToolchain.cmake](../cmake/toolchains/NativePresetToolchain.cmake)。多版本 LLVM 环境可选择指定版本；真正切换编译器仍遵守共享缓存规则 |
+| CFG-01 | P1 | 已实现已构建 | LLVM 先尊重每种语言的 CMAKE 编译器变量，再读取 CC/CXX；未指定时保留自动搜索。单选时在所属安装补齐匹配版本，非法显式选择不回退 | [CBSCompilerDiscovery.cmake](../cmake/presets/CBSCompilerDiscovery.cmake)、[NativeCompilerDiscovery.cmake](../cmake/presets/NativeCompilerDiscovery.cmake)、[NativePresetToolchain.cmake](../cmake/toolchains/NativePresetToolchain.cmake)、[native_compiler_selection.py](../cmake/tests/native_compiler_selection.py)。11 组脚本夹具与当前 macOS LLVM 显式/缓存配置、两次无变化 CBS 构建通过；真实 bootstrap 环境选择与失败诊断、多版本及其他平台待补齐 |
 | CFG-02 | P2 | 待开发 | macOS SDK 判断改为尊重 `CMAKE_OSX_SYSROOT` | [MacOSX.cmake](../cmake/MacOSX.cmake)。用户指定 SDK 不被后续 xcrun 探测覆盖 |
 | CFG-03 | P2 | 待开发 | 为 Python、Boost、HDF5、SQLite 等检查增加针对输入变化的缓存失效机制 | [CBSValidation.cmake](../cmake/presets/CBSValidation.cmake)。修复或更换依赖后不沿用陈旧 PASS/FAIL；当前只完成了 C++ 模式检查的失效机制 |
 | CFG-04 | P2 | 待开发 | 同一次 bootstrap/configure 内复用重复工具链探测，并合并 Python 模块检查 | [detect-presets.cmake](../cmake/presets/detect-presets.cmake)、[PresetEnvironmentDiscovery.cmake](../cmake/presets/PresetEnvironmentDiscovery.cmake)、[CBSPythonDiscovery.cmake](../cmake/presets/CBSPythonDiscovery.cmake)。减少重复进程，环境改变后仍能重新探测 |
@@ -647,13 +647,82 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build08-noop.log
 | DOC-01 | P2 | 待开发 | 修正文档中独立构建目录与共享 build 政策的冲突 | [工程标准](CMAKE_PRESET_STANDARD.md) 第 5 节与第 12 节。以 [AGENTS.md](../AGENTS.md) 的共享 `build/` 为准；本轮只更新了 C++ 约定 |
 | DOC-02 | P2 | 待开发 | 将文档引用的 HPC preset 示例纳入版本控制 | [CMakeUserPresets.json.example](../CMakeUserPresets.json.example) 当前未跟踪。新 clone 可直接执行文档中的复制步骤；其他本地报告不顺带提交 |
 
+### CFG-01 实施与验证
+
+2026-10-11 基于 `eb03406a7c` 实现，状态为 **已实现已构建**；维护者当前 macOS LLVM 配置及重复 CBS 构建通过，本阶段随验收提交。本阶段修复公共 LLVM 发现入口，适用于所有注册系统的 LLVM profile 及只读 bootstrap；没有更改 preset 的共享 build、编译参数、输出目录或主工程构建目标。
+
+- `cbs_find_llvm_toolchain` 每种语言按 `CMAKE_C_COMPILER` / `CMAKE_CXX_COMPILER`、环境 `CC` / `CXX` 的顺序解析。已有缓存编译器视为显式选择；没有任何显式选择时，保留原 Homebrew、标准安装目录、版本化 PATH 及普通 PATH 搜索。
+- 两个显式编译器必须满足原 GAMBIT 最低版本策略，均为 upstream Clang 且版本一致。缺失路径、AppleClang/GNU、过旧版本或版本不匹配直接返回诊断，不搜索另一套 LLVM 来替代。只提供一个语言时，匹配其同目录或实际安装中的 companion，包含版本化名称；不能补齐时提示指定另一语言。
+- 通用命令解析先识别实际路径，修复未加 shell 引号的带空格路径；普通命令名称仍从 PATH 搜索，不优先拾取工作目录同名文件。LLVM selector 只接受一个可执行文件，额外参数不再悄悄丢失：编译 flags 放 `CMAKE_C_FLAGS/CMAKE_CXX_FLAGS`，包装工具用 compiler launcher。该限制只作用于 LLVM 显式选择，本轮不扩展其他 profile 的参数处理。
+- LLVM root 从实际 C++ 可执行文件的目录推导，正确处理符号链接。NativeCompilerDiscovery 与 NativePresetToolchain 通过原共享调用接入；Fortran 选择、AppleClang/GNU profile 及已有跨 profile 的缓存拒绝保持原策略。CMake 变量优先于环境，bootstrap 不读 build 缓存，因此二者面对不同输入时可能报告不同选择。
+
+[native_compiler_selection.py](../cmake/tests/native_compiler_selection.py) 的 11 组脚本夹具通过：缓存优先；环境优先于默认安装；单语言补齐；版本化名称；符号链接及真实 root；带空格/引号/PATH 名称与工作目录同名文件；无效路径/身份/最低版本/混合版本不回退；缺失 companion 和额外参数诊断；重复加载工具链；Darwin/Linux 自动搜索；其他 profile 与共享缓存契约。原实现已用同一夹具复现：发现和工具链均忽略 CC/CXX、选择默认 LLVM。测试运行真实 CMake 函数，临时假程序只响应版本查询；执行 guard 按真实路径禁止任何真实程序探测。没有工程配置、启用语言、真实编译器调用或编译。
+
+#### 维护者验收
+
+保持当前 `/opt/homebrew/opt/llvm` 编译器和现有 build，不清空、不 clean、不 --fresh，也不切换依赖或 C++ 标准。以下是当前机器已有的缓存路径；在其他机器替换为其现有编译器。
+
+1. 只读发现验证环境选择：
+
+   ```sh
+   cd /Users/p.zhu/Gambit-Workshop/worktree/cbs-presets
+   CC=/opt/homebrew/opt/llvm/bin/clang CXX=/opt/homebrew/opt/llvm/bin/clang++ \
+     ./cmake/bootstrap --preset cbs-llvm --verbose
+   ```
+
+   报告应使用指定的编译器与版本。LLVM root 可以显示 Homebrew Cellar 的实际版本目录，这来自符号链接解析，不能据此判断换了编译器。
+
+2. 用原编译器路径明确配置，再验证相同配置后的增量构建：
+
+   ```sh
+   set -o pipefail
+   cmake --preset cbs-llvm \
+     -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang \
+     -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++
+   cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-cfg01-first.log
+   cmake --preset cbs-llvm
+   cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-cfg01-noop.log
+   ```
+
+   当前编译器仍为 LLVM 22.1.8；相同路径不应因搜索其他 LLVM 而报冲突或触发无关对象重编译。两次 CBS 应成功，无变化构建应保持零对象编译、零链接、零重复外部步骤。不会为了本项验收实际切换编译器或清理已安装依赖。
+
+3. 只读失败场景，不修改缓存：
+
+   ```sh
+   CC=/__gambit_missing_compiler__/clang CXX=/opt/homebrew/opt/llvm/bin/clang++ \
+     ./cmake/bootstrap --preset cbs-llvm --verbose
+   ```
+
+   应报告 unavailable，并明确指出 CC 请求的路径不存在；不能转选已安装的默认 LLVM。有效 discovery 请求即使 unavailable 仍退出 0，这是 bootstrap 既有约定。后续正常配置继续使用缓存的原编译器。
+
+真实更换编译器或版本需 `--fresh`，并承担必要的工具链/外部包迁移成本；ENV 不能覆盖已有 CMake 编译器变量。此项不修复升级后保持同一路径的编译器身份缓存、探测复用（CFG-04）或 Fortran minimum flags（CFG-05）。
+
+| 验收项 | 状态 | 记录 |
+| --- | --- | --- |
+| 十一组脚本夹具与原问题复现 | 已通过 | 假版本查询程序和临时 `cmake -P`，没有真实编译器或工程配置 |
+| 当前显式 LLVM 配置、缓存重配置及无变化 CBS | 已通过 | 835 行日志；两次配置均 LLVM 22.1.8，两次构建零对象编译、零链接、零重复外部步骤 |
+| 环境指定 LLVM 的真实只读 bootstrap | 待执行 | 未包含在此次维护者日志，脚本夹具已通过 |
+| 显式无效路径的真实只读诊断 | 待执行 | unavailable，不回退，不改 build 缓存 |
+| 多版本实机、单语言、Linux 和其他平台 | 待执行 | 临时夹具不替代平台配置与构建 |
+
+#### 2026-10-11 维护者日志验收
+
+附件 `/Users/p.zhu/.codex/attachments/36d28b02-1458-4464-b2d4-87618915cce7/Pasted text.txt` 共 835 行。维护者先通过 `-DCMAKE_C_COMPILER` / `-DCMAKE_CXX_COMPILER` 明确指定原 Homebrew LLVM 路径并构建，再仅用同一 preset 重配置后构建；两次均使用共享 build、CBS `-j8` 和 `pipefail`。
+
+- 两次摘要第 297–301、709–713 行均为 upstream LLVM 22.1.8，C/C++ 路径保持 `/opt/homebrew/opt/llvm/bin/clang` / `clang++`。LLVM root 为 `/opt/homebrew/Cellar/llvm/22.1.8`，符合真实路径解析策略，不代表切换编译器。所有配置检查 PASS，环境 READY；ROOT 6.40.00、C++17、Python 3.13.13、ccache 4.13.6 和 SDK/minimum 27.0 保持一致。
+- 第一轮第 382–423 行、第二轮第 794–835 行均只有 42 条目标完成消息；零对象编译、零链接、零外部 configure/build/install/record 及构建阶段代码生成，两次均以 CBS 成功结束。`check-rebuild-*` 目标完成属于轻量输入检查，不表示包重新构建；FastJet/Contrib 配置身份均匹配并复用。
+- 配置分别 7.0/5.4 秒，生成分别 0.5/0.4 秒；日志没有总构建时间或 ccache 命中增量，不填写提速比例。pybind11 的最低 CMake/CMP0148 弃用警告、缺少可选 scanner 模块/库及 h5py/HDF5 版本提示未阻止本次 CBS，未发现新增配置或构建错误。
+- 只读核对当前缓存及 CBS_objects 生成 flags：C/C++ 与 LLVM 摘要一致，原 Fortran 路径保持；C++17、SDK/minimum 27.0 保持。脚本夹具 11 组再次通过，`git diff --check` 通过。代理没有执行工程配置、真实编译器或构建。
+
+此次日志覆盖当前显式选择、缓存重配置与增量构建；未执行真实 bootstrap、无效路径、多版本切换、单语言或其他平台，保留对应待补验收项。提交仅包含公共编译器发现、回归脚本、README 和本台账；其他本地文件不纳入。
+
 ## 下一轮实施与构建验收
 
 1. C++ 修改及 BUILD-01 已提交；当前 LLVM/ROOT 17 配置和 CBS 构建已有日志，继续按需补齐其他标准、冲突拒绝及运行场景。
-2. BUILD-01 已有当前环境的维护者构建反馈；后续按需补充文件增删或缺失恢复场景，继续完成 CFG-01/CFG-02 的显式配置优先级修复。
+2. CFG-01 LLVM 显式选择优先级和匹配校验已完成；11 组脚本夹具、当前 LLVM 显式/缓存配置及两次无变化 CBS 构建通过，本阶段随验收提交。真实 bootstrap、多版本及其他平台按需补齐；下一项继续 CFG-02 的用户指定 SDK 优先级。BUILD-01 的额外恢复场景按需补充。
 3. BUILD-03 已提交为 `0965735828`；按需补齐命中增量和 OFF/AUTO 实测。BUILD-04 已提交为 `1d46bf0439`，HepMC/YODA 场景按需补齐；BUILD-05 首次迁移及相同配置复用已通过并提交为 `09929f07fb`；BUILD-07 首次记录、直接重复构建及相同配置后复用已通过并提交为 `0c3ea3e566`；时间戳对照、源码 touch 和其他平台按需补齐。BUILD-06 Ninja 适配仍作为 P3 后续评估。
 4. BUILD-02 独立对象构建、完整链接及无变化主工程构建已通过；继续补齐并行重叠与单点运行，以同环境基准量化收益，结合 BUILD-07 的验收日志测量外部步骤重复开销。
-5. BUILD-08 RestFrames 阶段已完成 include/配置头范围收敛；preload 漏查已修复，维护者首次迁移、恢复 ON 六个对象及最后无变化构建通过，随本轮提交。后续按需补齐迁移后独立 OFF、时间戳及其他平台，再处理其他依赖与配置发现项；Ninja 仍作为后续评估。
+5. BUILD-08 RestFrames 阶段已完成 include/配置头范围收敛；preload 漏查已修复，维护者首次迁移、恢复 ON 六个对象及最后无变化构建通过，已提交为 `eb03406a7c`。后续按需补齐迁移后独立 OFF、时间戳及其他平台，再处理其他依赖与配置发现项；Ninja 仍作为后续评估。
 
 本台账不改变仓库构建政策：继续使用 `${sourceDir}/build`；切换编译器家族按 `AGENTS.md` 使用 `--fresh`；实际构建由维护者执行。变更 profile、关闭依赖与重置缓存的影响应单独记录，避免把额外重建误认为编译回退。
 
@@ -713,3 +782,5 @@ cmake --build --preset cbs-llvm --parallel 8
 | 2026-10-11 | BUILD-07 提交为 `0c3ea3e566`；实现 BUILD-08 第一阶段 RestFrames PRIVATE include 与专用配置头，七组脚本检查通过；首次迁移、真实 OFF/ON 及无变化构建待维护者验收，尚未提交 |
 | 2026-10-11 | BUILD-08 首次 OFF/ON 及重复构建均在 preload 缺失 RESTFRAMES_INCLUDE 处失败；补齐专用头，将使用者审计扩展到全仓库，确认回归检查能抓到遗漏；更新为六个必要对象，真实构建待复测，尚未提交 |
 | 2026-10-11 | 审阅 BUILD-08 修复后的 1182 行日志：OFF 完成 288 个对象的首次迁移，恢复 ON 仅六个必要对象，最后零编译/链接/外部步骤，三次 CBS 成功；真实 flags/依赖范围及 17 组脚本检查通过，RestFrames 阶段随本轮提交；迁移后独立 OFF 与时间戳对照仍待补齐 |
+| 2026-10-11 | BUILD-08 RestFrames 阶段提交为 `eb03406a7c`；实现 CFG-01 LLVM 显式选择优先级、匹配 companion 与无回退诊断，11 组脚本夹具通过；真实配置及构建待维护者验收，尚未提交 |
+| 2026-10-11 | 审阅 CFG-01 的 835 行日志：原 LLVM 显式配置、缓存重配置及两次 CBS 构建通过，均零编译/链接/外部重复步骤；11 组脚本检查与当前缓存/flags 只读核对通过，本阶段随验收提交；真实 bootstrap、多版本及其他平台待补齐 |
