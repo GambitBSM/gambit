@@ -5,6 +5,7 @@
 # Final build summary for configurations selected through a CBS preset.
 
 include_guard(GLOBAL)
+include("${CMAKE_CURRENT_LIST_DIR}/../CompilerCache.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/CBSCompilerDiscovery.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/CBSValidation.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/PresetFeatureSummary.cmake")
@@ -48,6 +49,7 @@ function(cbs_print_compiler_summary)
   cbs_summary_line("C" "${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}  (${CMAKE_C_COMPILER})")
   cbs_summary_line("C++" "${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}  (${CMAKE_CXX_COMPILER})")
   cbs_summary_line("C++ standard" "${GAMBIT_CXX_STANDARD} (${GAMBIT_CXX_STANDARD_REASON}; requested ${GAMBIT_CXX_STANDARD_REQUESTED})")
+  gambit_print_compiler_cache_summary()
   cbs_summary_line("Fortran" "${CMAKE_Fortran_COMPILER_ID} ${CMAKE_Fortran_COMPILER_VERSION}  (${CMAKE_Fortran_COMPILER})")
   if(Python3_Interpreter_FOUND)
     cbs_summary_line("Python" "CPython ${Python3_VERSION}  (${Python3_EXECUTABLE})")

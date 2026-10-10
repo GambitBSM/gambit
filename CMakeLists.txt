@@ -108,6 +108,12 @@ else()
   set(CBS_PRESET_BUILD FALSE)
 endif()
 
+# Initialise launchers before any native C/C++ targets (including pybind11).
+# Compiler selection stays in project()/the toolchain; external projects keep
+# their own compiler commands unless they explicitly opt into a launcher.
+include(cmake/CompilerCache.cmake)
+gambit_configure_compiler_cache()
+
 # Add common system library search variables to cmake library search variable, used by find_library
 set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} $ENV{LIBRARY_PATH})
 string(REPLACE ":" ";" CMAKE_LIBRARY_PATH "${CMAKE_LIBRARY_PATH}")

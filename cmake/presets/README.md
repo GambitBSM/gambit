@@ -160,6 +160,78 @@ system-specific environment section using `BootstrapReport.cmake` helpers.
 The CLI and dispatcher need no change when adding a provider that uses
 the existing toolchain strategies.
 
+## Compiler caching
+
+On a new preset configuration, `GAMBIT_COMPILER_CACHE` defaults to `AUTO`:
+use a working `ccache` from `PATH` for native C/C++ targets when available,
+otherwise continue without automatic caching. A new ordinary `cmake` configuration
+defaults to `OFF`. The policy is cached; an existing selection is preserved.
+Choose it explicitly when needed:
+
+```sh
+cmake --preset cbs-llvm -DGAMBIT_COMPILER_CACHE=AUTO
+cmake --preset cbs-llvm -DGAMBIT_COMPILER_CACHE=CCACHE  # require working ccache
+cmake --preset cbs-llvm -DGAMBIT_COMPILER_CACHE=OFF
+```
+
+These changes do not switch compilers and need neither `--fresh` nor a build-tree
+cleanup. `AUTO` falls back if ccache is missing or its `--version` check fails;
+`CCACHE` reports an error instead. Unknown policy values also produce an error.
+Automatic launchers use CMake's Makefiles/Ninja launcher mechanism; this does not
+add Ninja support to GAMBIT's external-project build system. With other generators,
+`AUTO` skips automatic caching and `CCACHE` reports the unsupported generator.
+
+An existing `CMAKE_C_COMPILER_LAUNCHER` or `CMAKE_CXX_COMPILER_LAUNCHER` takes
+precedence for that language, including an explicitly empty value. This covers
+command-line/cache, toolchain, and standard launcher environment selections.
+For example, to choose a wrapper or disable only C++ caching:
+
+```sh
+cmake --preset cbs-llvm -DCMAKE_CXX_COMPILER_LAUNCHER=/path/to/sccache
+cmake --preset cbs-llvm -DCMAKE_CXX_COMPILER_LAUNCHER:STRING=
+```
+
+`OFF` disables automatic injection; it preserves explicit launchers. Remove an
+explicit setting with `-U CMAKE_CXX_COMPILER_LAUNCHER` (and the corresponding
+environment variable if set) to return that language to automatic selection.
+Automatically discovered launcher paths are not cached, so `OFF` stops them on
+the next configure, and `AUTO` rechecks availability. The build summary shows
+the policy, detected ccache version, and both effective launcher values.
+
+Caching applies to native C/C++ targets, including contributed libraries added
+with `add_subdirectory` and standalone program objects. It does not add a
+Fortran launcher or change separate ExternalProject Make/Autotools compiler
+commands. It also does not change ccache's directory, size, or global settings.
+Existing object files do not populate the cache until compiled through ccache;
+an unchanged build has no compiler work to cache. Verify hits by recompiling
+unchanged content twice, for example:
+
+```sh
+cmake --preset cbs-llvm -DGAMBIT_COMPILER_CACHE=CCACHE
+ccache -s
+touch ColliderBit/examples/solo_cli.cpp
+cmake --build build --target CBS_objects -j8 --verbose
+ccache -s
+touch ColliderBit/examples/solo_cli.cpp
+cmake --build build --target CBS_objects -j8 --verbose
+ccache -s
+cmake --build build --target CBS -j8
+```
+
+The compile command should prefix the compiler with ccache. The second content-
+identical compilation should increase the hit count; compare the statistics
+before and after each build. Keep the same compiler, flags, headers, and cache
+environment. No cache clear, global statistics reset, or full rebuild is needed.
+Policy regression tests run without project configuration or compilers:
+
+```sh
+python3 cmake/tests/compiler_cache.py
+```
+
+See CMake's [launcher variable](https://cmake.org/cmake/help/v3.16/variable/CMAKE_LANG_COMPILER_LAUNCHER.html)
+and the [ccache manual](https://ccache.dev/manual/latest.html#_cache_statistics)
+for target initialisation and statistics.
+
 ## C++ language standard
 
 GAMBIT and CBS require C++17 or newer and accept `CMAKE_CXX_STANDARD=17`,

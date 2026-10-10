@@ -1,11 +1,12 @@
 # CMake Preset 开发台账
 
-记录 GAMBIT 和 ColliderBit Solo 的 preset、CMake 构建与开发体验改进。C++ 标准统一和 BUILD-01 已提交，维护者反馈 BUILD-01 重新编译及 touch 后构建都很快。BUILD-02 已完成脚本检查，并由维护者日志确认独立对象构建、完整链接及主工程无变化构建通过；实际并行重叠与运行场景仍待验证。其余事项按台账继续推进。
+记录 GAMBIT 和 ColliderBit Solo 的 preset、CMake 构建与开发体验改进。C++ 标准统一和 BUILD-01 已提交，维护者反馈 BUILD-01 重新编译及 touch 后构建都很快。BUILD-02 已完成脚本检查，并由维护者日志确认独立对象构建、完整链接及主工程无变化构建通过；实际并行重叠与运行场景仍待验证。BUILD-03 已接入可选 ccache，维护者日志确认真实 launcher 与完整 CBS 链接成功；精确命中增量和开关场景仍待补齐。其余事项按台账继续推进。
 
 - 更新日期：2026-10-10，Australia/Adelaide。
 - 目标分支：`Colliderbit-solo-development-preset`，工作树为 `cbs-presets`。
 - C++ 标准、BUILD-01 和台账已提交为 `a3b3cc87c7`，实施基线为 `28600078fc`。
-- BUILD-02 基于 `a3b3cc87c7` 实施，随本轮提交合入；提交包含独立程序对象目标、脚本回归及维护者日志验收记录。
+- BUILD-02 已提交为 `957c81ecd9`，父提交为 `a3b3cc87c7`；包含独立程序对象目标、脚本回归及维护者日志验收记录。
+- BUILD-03 基于 `957c81ecd9` 实施，随本轮提交合入；包含可选 ccache、摘要、策略测试和维护者构建记录。
 - 关联文档：[Preset 使用说明](../cmake/presets/README.md)、[CMake Preset 工程标准](CMAKE_PRESET_STANDARD.md)、[仓库开发规则](../AGENTS.md)。
 
 ## 状态与验收规则
@@ -15,6 +16,7 @@
 | 已合入 | 已有 Git 提交；构建验证情况单独记录 |
 | 已实现待构建 | 代码已写入工作树，完成所列静态或脚本检查，尚未完成真实构建验收 |
 | 已实现已构建 | 实现完成，维护者已执行所记录的实际构建场景；提交状态、测量证据及未测场景单独记录 |
+| 部分完成 | 所列子项中已有实现，其余子项仍待开发或验收 |
 | 待开发 | 问题或改进方向已确认，尚未实现 |
 | 待评估 | 需要进一步设计或测量后决定是否实施 |
 
@@ -78,7 +80,7 @@ cmake -P cmake/tests/cxx_standard.cmake
 | --- | --- | --- | --- | --- |
 | BUILD-01 | P1 | 已实现已构建 | 保留 harvest 标记；登记实际 Python、完整参数及输入/输出清单；补全 header 与 harvest 顺序依赖；functor 使用独立完成标记和稳定排序，源码仅内容变化时更新 | [主配置](../CMakeLists.txt)、[utilities.cmake](../cmake/utilities.cmake)、[CodeGeneration.cmake](../cmake/CodeGeneration.cmake)、[standalone_facilitator.py](../Elements/scripts/standalone_facilitator.py)。相同配置再次生成后构建，不应重编译未变化的 functor 源码 |
 | BUILD-02 | P1 | 已合入 | standalone 自身源码移入独立 `<name>_objects` OBJECT target；等待 contrib 和生成头文件后，可与模块对象及后端库构建并行；最终可执行文件保留完整依赖 | [utilities.cmake](../cmake/utilities.cmake) 的 `add_standalone`、`gambit_configure_standalone_objects`。CBS 使用 `CBS_objects`；保留 BOSS → harvest 顺序和编译上下文；用实际构建日志确认并行重叠 |
-| BUILD-03 | P2 | 待开发 | 当前主工程未接入 ccache；增加可选 C/CXX launcher、保留用户选择并在摘要显示 | [Preset 入口](../cmake/CBS.cmake)、[工具链目录](../cmake/toolchains)。重复构建有可核实的命中记录；Fortran 与外部项目分别处理；首次全量编译不承诺提速 |
+| BUILD-03 | P2 | 已合入 | 使用 `GAMBIT_COMPILER_CACHE=AUTO/CCACHE/OFF` 接入原生 C/CXX launcher；preset 首次默认 AUTO，普通首次配置默认 OFF；逐语言保留显式 launcher（含空值），自动值不写入持久缓存；摘要显示策略、版本和实际 launcher | [CompilerCache.cmake](../cmake/CompilerCache.cmake)、[主配置](../CMakeLists.txt)、[CBS 摘要](../cmake/presets/CBSCompilerSummary.cmake)、[GAMBIT 摘要](../cmake/presets/GAMBITBuildSummary.cmake)。7 组策略脚本通过；真实 launcher 与完整 CBS 链接已有维护者日志，全局缓存已有命中；同文件命中增量与开关场景尚未记录。Fortran 与外部项目分别处理，首次全量编译不承诺提速 |
 | BUILD-04 | P1 | 待开发 | 关闭部分功能会在配置期间删除对应安装树；停用 target 时保留依赖，由显式 nuke 负责删除 | [contrib.cmake](../cmake/contrib.cmake) 的 `nuke_ditched_contrib_content`。同工具链下关闭再开启功能，不应无故重建未变化的依赖 |
 | BUILD-05 | P1 | 待开发 | FastJet 的缓存路径可能指向已删除的库；依赖复用缺少编译配置身份检查 | [contrib.cmake](../cmake/contrib.cmake) 的 FastJet/fjcontrib 复用逻辑。检查实际文件及编译器、架构、关键 flags、deployment target 等签名；缺失或不匹配时重新准备 |
 | BUILD-06 | P3 | 待评估 | 支持 Ninja 前需分离主 generator 与外部 make 工具，并完善生成物声明 | [utilities.cmake](../cmake/utilities.cmake) 的 `MAKE_PARALLEL`。FastJet 等 Autotools 包必须仍用 make；不能只替换 preset 的 generator |
@@ -237,6 +239,67 @@ python3 cmake/tests/code_generation.py
 
 无变化日志第 470–471 行仍执行 nulike/Rivet build，第 496–497 行显示 Rivet 安装分析数据，第 502–503 行执行 Contur configure/build。已只读核对当前生成规则：三个 `check-rebuild-*` 目标每次删除各自 build 标记，来自 `externals.cmake` 的 `enable_auto_rebuild`；Rivet 的完成标记是 Contur configure 的输入。外部 make 仍可自行判断对象是否需要重编译，因此该日志能确认步骤重复进入，不能确认这些库每次完整重编译。该问题登记为 BUILD-07，后续需要测量耗时并保留外部源码增量构建能力。
 
+### BUILD-03 实施与验证
+
+2026-10-10 基于 `957c81ecd9` 完成实现。维护者日志确认 ccache launcher 调用及完整 CBS 链接成功，随本轮提交合入。当前环境 ccache 版本为 4.13.6；Codex 仅执行脚本及只读检查，真实构建由维护者执行。
+
+- 新增公共 `CompilerCache.cmake`，在 `project()` 导入标准 launcher 环境设置之后、任何原生 C/C++ target 创建之前初始化 launcher；适用于 GAMBIT、CBS 和其他 standalone。
+- `GAMBIT_COMPILER_CACHE` 支持 AUTO（存在则使用）、CCACHE（缺失或版本命令失败时报错）、OFF（不自动注入），不接受未知值。首次 preset 配置默认 AUTO，首次普通配置默认 OFF；之后保留已缓存的策略。
+- 逐语言尊重 `CMAKE_C_COMPILER_LAUNCHER` 和 `CMAKE_CXX_COMPILER_LAUNCHER`，包括空值和带参数的分号列表，不再叠加自动 ccache。OFF 同样保留用户显式 launcher；需用 `-U` 移除显式设置才能返回自动管理。
+- 自动值只在当前配置过程的普通变量中设置；重新配置 OFF 无需清理缓存，AUTO 每次重新探测 PATH 上的工具，避免保留已删除的自动工具路径。真实编译器路径、标准和输出目录保持原有政策。
+- 两类 preset 摘要都显示缓存策略、检测版本和 C/C++ launcher。Makefiles/Ninja 提供 launcher 机制，其他 generator 在 AUTO 下跳过、CCACHE 下报错；本项不代表工程已支持 Ninja。
+- 原生 C/C++ target（含通过 add_subdirectory 加入的库）受益；不自动设置 Fortran launcher，不传播到独立配置的 ExternalProject 或 Make/Autotools 后端，不修改 ccache 全局设置。
+
+[compiler_cache.py](../cmake/tests/compiler_cache.py) 的 7 组检查已通过：preset/普通配置默认值；显式及空 launcher 保留；缺失和损坏 ccache 的回退/拒绝；OFF 及重新配置不残留自动值；工具消失后的重探测与用户缓存保留；generator 和无效策略诊断；初始化与摘要接入位置。测试使用 `cmake -P`、隔离 PATH 和只支持 `--version` 的临时工具，不配置工程、不调用编译器。临时工具路径包含空格。CMake 初始化规则见 [官方 launcher 文档](https://cmake.org/cmake/help/v3.16/variable/CMAKE_LANG_COMPILER_LAUNCHER.html)。
+
+#### 维护者验收步骤
+
+继续使用当前 `cbs-llvm` 和 `build/`，无需清空、clean 或 `--fresh`。本项测试使用未改变内容的 `solo_cli.cpp`，不需要重编译整个工程。
+
+```sh
+cd /Users/p.zhu/Gambit-Workshop/worktree/cbs-presets
+set -o pipefail
+cmake --preset cbs-llvm -DGAMBIT_COMPILER_CACHE=CCACHE
+ccache -s
+touch ColliderBit/examples/solo_cli.cpp
+cmake --build build --target CBS_objects -j8 --verbose 2>&1 | tee /tmp/cbs-build03-prime.log
+ccache -s
+touch ColliderBit/examples/solo_cli.cpp
+cmake --build build --target CBS_objects -j8 --verbose 2>&1 | tee /tmp/cbs-build03-hit.log
+ccache -s
+cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build03-full.log
+cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build03-noop.log
+```
+
+预期摘要显示 ccache 版本与两个 launcher 路径，verbose 编译命令先调用 ccache 再调用原编译器。第一次 touch 使源码通过 ccache 编译，已有缓存可能直接命中；第二次相同内容编译应增加 hit 数。记录三次统计快照，保持相同 flags、头文件和 CCACHE 环境；无变化构建不执行编译，因此不能单靠它证明 ccache 命中。统计来自 ccache 的现有缓存，其他并发编译可能影响计数；需要隔离测量时，可先在当前终端 `export CCACHE_DIR="$(mktemp -d /tmp/cbs-build03-cache.XXXXXX)"`，保持两次构建使用该目录，测试后 `unset CCACHE_DIR`。不用清空全局缓存或重置全局计数。
+
+再验证自动值的关闭与恢复：
+
+```sh
+cmake --preset cbs-llvm -DGAMBIT_COMPILER_CACHE=OFF
+touch ColliderBit/examples/solo_cli.cpp
+cmake --build build --target CBS_objects -j8 --verbose 2>&1 | tee /tmp/cbs-build03-off.log
+cmake --build build --target CBS -j8
+cmake --preset cbs-llvm -DGAMBIT_COMPILER_CACHE=AUTO
+```
+
+没有显式 launcher 时，OFF 的编译命令应直接使用原编译器，摘要 launcher 为 none，随后 AUTO 恢复探测。若当前缓存或环境已有显式 launcher，OFF 会保留它；该行为是设计约定，移除对应设置后再测自动关闭。Rivet/nulike/Contur 仍可能重复进入包装步骤（BUILD-07），本项未修改其重建机制。
+
+| 验收项 | 状态 | 记录 |
+| --- | --- | --- |
+| 7 组策略脚本及静态检查 | 已通过 | 无项目配置或编译；包含路径空格、缓存切换与缺失工具 |
+| 当前环境 ccache 发现 | 只读检查通过 | `/opt/homebrew/bin/ccache --version`：4.13.6；不是实际构建命中证据 |
+| 真实 C++ launcher 命令与完整 CBS 链接 | 已通过 | 维护者 195 行日志第 124–126 行：仅重编译 solo_cli.cpp，通过 `/opt/homebrew/bin/ccache /opt/homebrew/opt/llvm/bin/clang++`；第 194–195 行链接 CBS 成功。生成规则另确认 C、C++ 及 functor 均接入 launcher |
+| 同文件内容相同编译的精确命中增量 | 待补齐记录 | 日志只含一个全局快照：509 次可缓存调用，64 次命中（58 direct、6 preprocessed），445 次 miss；不能从单快照判断本次调用是否命中或量化提速 |
+| OFF → AUTO 切换及无变化构建 | 待执行 | 无需清空 build；关闭命令、摘要与增量日志 |
+| 其他 preset/平台及显式自定义 launcher | 待执行 | 已有策略测试，真实目标生成及编译需对应环境验收 |
+
+#### 2026-10-10 BUILD-03 构建日志
+
+原始附件：`/Users/p.zhu/.codex/attachments/a4de0004-d198-4177-a868-b02c2059d464/Pasted text.txt`，共 195 行。维护者提供最后一次 touch、CBS_objects verbose 构建、ccache 统计及完整 CBS 构建。CBS_objects 只执行 solo_cli.cpp 的一条编译命令，C++17、OpenMP 和 CBS_EXPORTS 保留；完整构建无额外 C++ 编译，重新链接 libfirst.so 和 CBS 后成功。touch 后程序对象更新时间，因此随后 CBS 链接符合预期，本次不是无变化构建测试。
+
+统计为全局历史快照（命中率 12.57%），包含此前其他调用，不能把该比例记为本轮源文件命中率。当前生成的 mkpath C、CBS_objects C++、CBS functor 编译规则均前缀 ccache；缓存策略为 CCACHE。未提供配置摘要、OFF/AUTO 切换、第二次无变化构建或单点运行日志。这些未测场景单独保留，不阻碍已通过真实构建的接入实现提交。
+
 ## 配置正确性与使用体验待办
 
 | 编号 | 优先级 | 状态 | 实施内容 | 验收标准与位置 |
@@ -247,7 +310,7 @@ python3 cmake/tests/code_generation.py
 | CFG-04 | P2 | 待开发 | 同一次 bootstrap/configure 内复用重复工具链探测，并合并 Python 模块检查 | [detect-presets.cmake](../cmake/presets/detect-presets.cmake)、[PresetEnvironmentDiscovery.cmake](../cmake/presets/PresetEnvironmentDiscovery.cmake)、[CBSPythonDiscovery.cmake](../cmake/presets/CBSPythonDiscovery.cmake)。减少重复进程，环境改变后仍能重新探测 |
 | CFG-05 | P2 | 待开发 | 统一 OpenMP、SDK 和 deployment flags 的来源，避免缓存与实际命令显示不一致 | [主配置](../CMakeLists.txt)、[MacOSX.cmake](../cmake/MacOSX.cmake)。摘要及生成命令一致，保留各外部包必要参数 |
 | UX-01 | P2 | 待开发 | 构建示例采用明确并发数，例如 `--parallel 8` | [BootstrapReport.cmake](../cmake/presets/BootstrapReport.cmake)、[Preset README](../cmake/presets/README.md)。默认提示不依赖无上限并发，允许用户按资源调整 |
-| UX-02 | P2 | 待开发 | 摘要补充缓存工具、依赖复用或重建原因；启用 compile_commands 导出 | 摘要已有标准选择信息；后续实际构建命令可追溯，IDE 能读取 `compile_commands.json` |
+| UX-02 | P2 | 部分完成 | 摘要已补充缓存策略、ccache 版本和 C/C++ launcher；依赖复用或重建原因及 compile_commands 导出待开发 | 摘要已有标准选择信息；后续实际构建命令可追溯，IDE 能读取 `compile_commands.json` |
 | DOC-01 | P2 | 待开发 | 修正文档中独立构建目录与共享 build 政策的冲突 | [工程标准](CMAKE_PRESET_STANDARD.md) 第 5 节与第 12 节。以 [AGENTS.md](../AGENTS.md) 的共享 `build/` 为准；本轮只更新了 C++ 约定 |
 | DOC-02 | P2 | 待开发 | 将文档引用的 HPC preset 示例纳入版本控制 | [CMakeUserPresets.json.example](../CMakeUserPresets.json.example) 当前未跟踪。新 clone 可直接执行文档中的复制步骤；其他本地报告不顺带提交 |
 
@@ -255,7 +318,7 @@ python3 cmake/tests/code_generation.py
 
 1. C++ 修改及 BUILD-01 已提交；当前 LLVM/ROOT 17 配置和 CBS 构建已有日志，继续按需补齐其他标准、冲突拒绝及运行场景。
 2. BUILD-01 已有当前环境的维护者构建反馈；后续按需补充文件增删或缺失恢复场景，继续完成 CFG-01/CFG-02 的显式配置优先级修复。
-3. 接入 BUILD-03，完善 BUILD-04/BUILD-05 的依赖保留与复用；补齐对应摘要。
+3. BUILD-03 实际 launcher 与完整 CBS 链接已通过并随本轮提交；按需补齐命中增量和 OFF/AUTO 实测，接着实施 BUILD-04/BUILD-05 的依赖保留与复用。
 4. BUILD-02 独立对象构建、完整链接及无变化主工程构建已通过；继续补齐并行重叠与单点运行，以同环境基准量化收益，再评估 BUILD-07 的外部步骤重复开销。
 5. 清理文档与探测重复项，再评估 Ninja 适配。
 
@@ -305,3 +368,5 @@ cmake --build --preset cbs-llvm --parallel 8
 | 2026-10-10 | 将 C++ 标准、BUILD-01 和台账提交为 `a3b3cc87c7`；实现 BUILD-02，登记五组 standalone 注册回归及维护者构建验证步骤，尚未提交 BUILD-02 |
 | 2026-10-10 | 审阅维护者 508 行构建日志及当前生成文件；确认 BUILD-02 独立对象构建、编译上下文、完整链接和无变化主工程构建通过；登记 BUILD-07 外部步骤重复进入，实际并行重叠、计时及单点运行仍待验收 |
 | 2026-10-10 | 提交 BUILD-02 程序对象拆分、五组脚本回归及维护者日志验收记录；父提交为 `a3b3cc87c7`，后续按 BUILD-03 接入可选编译缓存 |
+| 2026-10-10 | BUILD-02 提交为 `957c81ecd9`；实现 BUILD-03 可选 ccache 与两类摘要，记录七组策略检查和命中/关闭验收步骤；BUILD-03 尚未提交 |
+| 2026-10-10 | 审阅维护者 195 行日志：ccache 编译 solo_cli.cpp 和完整 CBS 链接成功；登记全局 64 次命中及单快照限制，提交 BUILD-03 后继续 BUILD-04 |
