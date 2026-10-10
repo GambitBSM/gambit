@@ -189,6 +189,56 @@ python3 cmake/tests/contrib_retention.py
 See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-04-实施与验证)
 for maintainer verification with real installed libraries and timestamps.
 
+## FastJet installation reuse
+
+FastJet and FastJet Contrib are reused when the required libraries, headers,
+`fastjet-config`, native Nsubjettiness sources and recorded build identity all
+match. Library lookup rechecks the owned installation instead of trusting cached
+paths. The identity includes compiler paths/versions/real paths/file timestamps,
+C++ standard, target architecture, SDK/deployment settings, package checksums,
+configure options and the package's effective compiler flags. Contrib also records
+the FastJet identity it was built against.
+
+Older installations have no identity record and require one rebuild. Configure
+prints the reason and invalidates only the rejected package's build stamps; the
+source/install trees are replaced during the requested build. A verified archive
+is extracted in a temporary directory before replacing old sources, so old
+Autotools objects cannot survive a compiler/flags change. Missing or invalid
+cached archives make the download step eligible to run again.
+
+After installation, required files are checked again before writing
+`contrib/fastjet-3.5.1/local/.gambit-fastjet-build-identity` and
+`.gambit-fjcontrib-build-identity`. Failed/incomplete installations do not create
+new success records. Rebuilding FastJet also rebuilds Contrib; a Contrib-only
+problem keeps a matching FastJet installation. Explicit clean/nuke targets remain
+available when an installation is reused.
+
+Use the existing build tree for the first rebuild, then repeat configure/build
+with the same settings to check reuse:
+
+```sh
+cmake --preset cbs-llvm
+cmake --build build --target fjcontrib -j8
+cmake --build build --target CBS -j8
+cmake --preset cbs-llvm
+cmake --build build --target CBS -j8
+```
+
+The second configure should report `build identity matches` for both packages;
+subsequent builds should skip their preparation/configure/compile/install steps.
+The `fjcontrib` target builds FastJet first through its dependency. No build-tree
+reset is needed. Keep local modifications to downloaded sources elsewhere before
+requesting a rebuild, since pristine preparation replaces those package trees.
+
+Script-only regression checks:
+
+```sh
+python3 cmake/tests/contrib_build_identity.py
+```
+
+See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-05-实施与验证)
+for maintainer checks and the remaining platform validation.
+
 ## Compiler caching
 
 On a new preset configuration, `GAMBIT_COMPILER_CACHE` defaults to `AUTO`:

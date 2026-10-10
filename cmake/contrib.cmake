@@ -466,6 +466,7 @@ add_contrib_clean_and_nuke(${name} ${dir} clean)
 # FastJet 3.5.1 + fjcontrib 1.101 are required for Rivet 4 (C++ plugins,
 # SoftDrop/LundPlane).
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  include("${PROJECT_SOURCE_DIR}/cmake/ContribBuildIdentity.cmake")
   set(fastjet_name "fastjet")
   set(fjcontrib_name "fjcontrib")
   set(fastjet_ver "3.5.1")
@@ -524,24 +525,59 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
       --enable-allcxxplugins)
   set(_fjcontrib_only Nsubjettiness,RecursiveTools,LundPlane,EnergyCorrelator,VariableR)
 
-  set(FASTJET_INSTALLED TRUE)
+  set(_fastjet_libraries fastjet fastjettools fastjetplugins siscone_spherical siscone)
+  set(_fjcontrib_libraries fastjetcontribfragile RecursiveTools EnergyCorrelator VariableR)
+  set(_fastjet_required_files "${fastjet_DIR}/bin/fastjet-config")
   foreach(_fastjet_header IN LISTS _fastjet_required_headers)
-    if(NOT EXISTS "${fastjet_DIR}/include/${_fastjet_header}")
+    list(APPEND _fastjet_required_files "${fastjet_DIR}/include/${_fastjet_header}")
+  endforeach()
+  set(fjcontrib_nsubjettiness_sources "")
+  foreach(_fjcontrib_source AxesDefinition MeasureDefinition ExtraRecombiners
+                           TauComponents Njettiness Nsubjettiness)
+    list(APPEND fjcontrib_nsubjettiness_sources
+         "${fjcontrib_path}/Nsubjettiness/${_fjcontrib_source}.cc")
+  endforeach()
+  set(_fjcontrib_required_files ${fjcontrib_nsubjettiness_sources})
+  foreach(_fjcontrib_header IN LISTS _fjcontrib_required_headers)
+    list(APPEND _fjcontrib_required_files "${fastjet_DIR}/include/${_fjcontrib_header}")
+  endforeach()
+
+  gambit_contrib_build_identity(_fastjet_identity fastjet_ver fastjet_md5
+      fastjet_DIR FASTJET_C_FLAGS FASTJET_CXX_FLAGS BACKEND_Fortran_FLAGS
+      _fastjet_configure_options)
+  # Contrib must match the FastJet build it was compiled against.
+  string(SHA256 _fastjet_identity_hash "${_fastjet_identity}")
+  gambit_contrib_build_identity(_fjcontrib_identity fjcontrib_ver fjcontrib_md5
+      fastjet_DIR FASTJET_CXX_FLAGS FJCONTRIB_FRAGILE_CXX_FLAGS _fjcontrib_only
+      _fastjet_identity_hash OpenMP_omp_LIBRARY)
+  gambit_write_contrib_identity_request(fastjet "${fastjet_ver}" "${fastjet_md5}"
+      "${fastjet_path}" "${fastjet_DIR}" "${_fastjet_identity}"
+      "${_fastjet_required_files}" "${_fastjet_libraries}")
+  gambit_write_contrib_identity_request(fjcontrib "${fjcontrib_ver}" "${fjcontrib_md5}"
+      "${fjcontrib_path}" "${fastjet_DIR}" "${_fjcontrib_identity}"
+      "${_fjcontrib_required_files}" "${_fjcontrib_libraries}")
+  gambit_contrib_identity_matches("${fastjet_DIR}/.gambit-fastjet-build-identity"
+      "${_fastjet_identity}" FASTJET_INSTALLED _fastjet_rebuild_reason)
+  foreach(_fastjet_file IN LISTS _fastjet_required_files)
+    if(NOT EXISTS "${_fastjet_file}" OR IS_DIRECTORY "${_fastjet_file}")
       set(FASTJET_INSTALLED FALSE)
+      set(_fastjet_rebuild_reason "missing required file: ${_fastjet_file}")
     endif()
   endforeach()
-  foreach(fastjet_library fastjet fastjettools fastjetplugins siscone_spherical siscone)
-    find_library(FASTJET_${fastjet_library}_LIBRARY NAMES ${fastjet_library} PATHS "${fastjet_DIR}/lib" NO_DEFAULT_PATH)
+  foreach(fastjet_library IN LISTS _fastjet_libraries)
+    gambit_find_contrib_library(FASTJET_${fastjet_library}_LIBRARY
+        "${fastjet_library}" "${fastjet_DIR}/lib")
     if(NOT FASTJET_${fastjet_library}_LIBRARY)
       set(FASTJET_INSTALLED FALSE)
+      set(_fastjet_rebuild_reason "missing installed library: ${fastjet_library}")
     endif()
   endforeach()
 
   if(FASTJET_INSTALLED)
-    message("   Using existing FastJet ${fastjet_ver} installation at ${fastjet_DIR}.")
+    message("   Using existing FastJet ${fastjet_ver} installation at ${fastjet_DIR} (build identity matches).")
     add_custom_target(${fastjet_name})
   else()
-    message("   ColliderBit included, so FastJet ${fastjet_ver} will be downloaded and built when building GAMBIT.")
+    message("   FastJet ${fastjet_ver} requires rebuilding: ${_fastjet_rebuild_reason}.")
     ExternalProject_Add(${fastjet_name}
       DOWNLOAD_COMMAND ${DL_CONTRIB} ${fastjet_dl} ${fastjet_md5} ${fastjet_path} ${fastjet_name} ${fastjet_ver}
       SOURCE_DIR ${fastjet_path}
@@ -550,53 +586,48 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
       BUILD_COMMAND ${MAKE_PARALLEL} install
       INSTALL_COMMAND ""
     )
-    add_contrib_clean_and_nuke(${fastjet_name} ${fastjet_path} clean)
+    gambit_add_contrib_identity_steps(${fastjet_name})
   endif()
+  add_contrib_clean_and_nuke(${fastjet_name} ${fastjet_path} clean)
 
   # GAMBIT compiles Nsubjettiness itself, but its public headers and the other
   # ColliderBit FastJet-contrib libraries must be installed beside FastJet.
-  set(FJCONTRIB_INSTALLED TRUE)
-  if(NOT EXISTS "${fjcontrib_path}/Nsubjettiness/Nsubjettiness.cc")
-    set(FJCONTRIB_INSTALLED FALSE)
-  endif()
-  foreach(_fjcontrib_header IN LISTS _fjcontrib_required_headers)
-    if(NOT EXISTS "${fastjet_DIR}/include/${_fjcontrib_header}")
+  gambit_contrib_identity_matches("${fastjet_DIR}/.gambit-fjcontrib-build-identity"
+      "${_fjcontrib_identity}" FJCONTRIB_INSTALLED _fjcontrib_rebuild_reason)
+  foreach(_fjcontrib_file IN LISTS _fjcontrib_required_files)
+    if(NOT EXISTS "${_fjcontrib_file}" OR IS_DIRECTORY "${_fjcontrib_file}")
       set(FJCONTRIB_INSTALLED FALSE)
+      set(_fjcontrib_rebuild_reason "missing required file: ${_fjcontrib_file}")
     endif()
   endforeach()
   set(FJCONTRIB_OPENMP_RUNTIME_MISMATCH FALSE)
-  foreach(fjcontrib_library fastjetcontribfragile RecursiveTools EnergyCorrelator VariableR)
-    find_library(FJCONTRIB_${fjcontrib_library}_LIBRARY NAMES ${fjcontrib_library} PATHS "${fastjet_DIR}/lib" NO_DEFAULT_PATH)
+  foreach(fjcontrib_library IN LISTS _fjcontrib_libraries)
+    gambit_find_contrib_library(FJCONTRIB_${fjcontrib_library}_LIBRARY
+        "${fjcontrib_library}" "${fastjet_DIR}/lib")
     if(NOT FJCONTRIB_${fjcontrib_library}_LIBRARY OR
        NOT EXISTS "${FJCONTRIB_${fjcontrib_library}_LIBRARY}")
       set(FJCONTRIB_INSTALLED FALSE)
+      set(_fjcontrib_rebuild_reason "missing installed library: ${fjcontrib_library}")
     else()
       gambit_openmp_runtime_mismatch("${FJCONTRIB_${fjcontrib_library}_LIBRARY}" FJCONTRIB_OPENMP_RUNTIME_MISMATCH)
       if(FJCONTRIB_OPENMP_RUNTIME_MISMATCH)
         set(FJCONTRIB_INSTALLED FALSE)
-        message("   FastJet Contrib links a different OpenMP runtime and will be rebuilt.")
+        set(_fjcontrib_rebuild_reason "installed library links a different OpenMP runtime")
         break()
       endif()
     endif()
   endforeach()
   if(NOT FASTJET_INSTALLED)
     set(FJCONTRIB_INSTALLED FALSE)
+    set(_fjcontrib_rebuild_reason "FastJet requires rebuilding")
   endif()
   set(FJCONTRIB_BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}")
-  if(FJCONTRIB_OPENMP_RUNTIME_MISMATCH)
-    # This target is not removed by fjcontrib's ordinary clean rule.
-    set(FJCONTRIB_BUILD_COMMAND ${CMAKE_COMMAND} -E remove -f
-                               "${fjcontrib_path}/libfastjetcontribfragile.dylib"
-                               "${fastjet_DIR}/lib/libfastjetcontribfragile.dylib"
-                               COMMAND ${MAKE_SERIAL} clean
-                               COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}")
-  endif()
 
   if(FJCONTRIB_INSTALLED)
-    message("   Using existing FastJet Contrib ${fjcontrib_ver} installation.")
+    message("   Using existing FastJet Contrib ${fjcontrib_ver} installation (build identity matches).")
     add_custom_target(${fjcontrib_name})
   else()
-    message("   ColliderBit included, so FastJet Contrib ${fjcontrib_ver} will be downloaded and built when building GAMBIT.")
+    message("   FastJet Contrib ${fjcontrib_ver} requires rebuilding: ${_fjcontrib_rebuild_reason}.")
     ExternalProject_Add(${fjcontrib_name}
       DEPENDS ${fastjet_name}
       DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_path} ${fjcontrib_name} ${fjcontrib_ver}
@@ -607,8 +638,9 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
       INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
                       COMMAND ${MAKE_PARALLEL} fragile-shared-install CXX="${CMAKE_CXX_COMPILER}" CXXFLAGS=${FJCONTRIB_FRAGILE_CXX_FLAGS}
     )
-    add_contrib_clean_and_nuke(${fjcontrib_name} ${fjcontrib_path} clean)
+    gambit_add_contrib_identity_steps(${fjcontrib_name})
   endif()
+  add_contrib_clean_and_nuke(${fjcontrib_name} ${fjcontrib_path} clean)
   unset(_fastjet_configure_options)
   unset(_fastjet_required_headers)
   unset(_fjcontrib_required_headers)
@@ -626,13 +658,6 @@ endif()
 if(WITH_FASTJET_CONTRIB)
   add_definitions(-DFJNS=fastjet)
   set(fjcontrib_nsubjettiness_dir "${fjcontrib_path}/Nsubjettiness")
-  set(fjcontrib_nsubjettiness_sources
-      ${fjcontrib_nsubjettiness_dir}/AxesDefinition.cc
-      ${fjcontrib_nsubjettiness_dir}/MeasureDefinition.cc
-      ${fjcontrib_nsubjettiness_dir}/ExtraRecombiners.cc
-      ${fjcontrib_nsubjettiness_dir}/TauComponents.cc
-      ${fjcontrib_nsubjettiness_dir}/Njettiness.cc
-      ${fjcontrib_nsubjettiness_dir}/Nsubjettiness.cc)
   # Sources are fetched and installed at build time by the fjcontrib external project.
   set_source_files_properties(${fjcontrib_nsubjettiness_sources} PROPERTIES GENERATED TRUE)
   add_gambit_library(fjcontrib_nsubjettiness OPTION OBJECT
