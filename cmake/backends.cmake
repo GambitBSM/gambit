@@ -1222,8 +1222,8 @@ set(ditch_if_absent "hepmc")
 set(pythia_CXXFLAGS "${BACKEND_CXX_FLAGS}")
 # Pythia's bundled FJcore uses a std::vector-of-incomplete-type pattern that macOS's libc++
 # rejects under C++20, so fall back to C++17 for Pythia's own compile on MacOS.
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  string(REGEX REPLACE "-std=c\\+\\+(20|2a|23|2b)" "-std=c++17" pythia_CXXFLAGS "${pythia_CXXFLAGS}")
+if(CMAKE_SYSTEM_NAME MATCHES "Darwin" AND GAMBIT_CXX_STANDARD GREATER 17)
+  gambit_set_cxx_standard_flag("${pythia_CXXFLAGS}" 17 pythia_CXXFLAGS)
 endif()
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -fast") # -fast sometimes makes xsecs come out as NaN, but we catch that and invalidate those points.
@@ -1727,7 +1727,7 @@ set(GM2CALC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
 set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
 # - gm2calc 1.2 depends on std::ptr_fun, which was removed in C++17, so we need to fall back to
 #   C++14 regardless of which (C++17 or later) standard GAMBIT itself is using.
-string(REGEX REPLACE "-std=c\\+\\+(17|1z|20|2a|23|2b)" "-std=c++14" GM2CALC_CXX_FLAGS "${GM2CALC_CXX_FLAGS}")
+gambit_set_cxx_standard_flag("${GM2CALC_CXX_FLAGS}" 14 GM2CALC_CXX_FLAGS)
 set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
@@ -1757,7 +1757,7 @@ set(GM2CALC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
 set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
 # - gm2calc 1.3 depends on std::ptr_fun, which was removed in C++17, so we need to fall back to
 #   C++14 regardless of which (C++17 or later) standard GAMBIT itself is using.
-string(REGEX REPLACE "-std=c\\+\\+(17|1z|20|2a|23|2b)" "-std=c++14" GM2CALC_CXX_FLAGS "${GM2CALC_CXX_FLAGS}")
+gambit_set_cxx_standard_flag("${GM2CALC_CXX_FLAGS}" 14 GM2CALC_CXX_FLAGS)
 set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
@@ -2121,7 +2121,8 @@ set(hepmc_name "hepmc")
 set(hepmc_dir "${HEPMC_PATH}/local")
 set(fastjet_dir "${fastjet_DIR}")
 #set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet -faligned-new -O3")
-set(Rivet_CXX_FLAGS "${FJ_CXX_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR} -O3 -std=c++17")
+set(Rivet_CXX_FLAGS "${FJ_CXX_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR} -O3")
+gambit_set_cxx_standard_flag("${Rivet_CXX_FLAGS}" 17 Rivet_CXX_FLAGS)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   # Rivet 4.1.0 relies on transitive inclusion of <algorithm> in several
   # public headers.  Supply it through the build flags rather than changing

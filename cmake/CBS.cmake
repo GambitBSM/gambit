@@ -22,7 +22,7 @@ macro(cbs_preset_begin)
   option(CBS_AUTO_DETECT_PYTHON
          "CBS: pin python3 on PATH before FindPython3" ON)
   option(CBS_AUTO_DETECT_ROOT
-         "CBS: enable ROOT when a C++17 root-config is found" ON)
+         "CBS: enable ROOT when a supported C++17/20/23 root-config is found" ON)
   option(CBS_WITH_RIVET_CONTUR
          "CBS: enable Rivet/Contur when their prerequisites exist" ON)
 
@@ -61,23 +61,7 @@ macro(cbs_preset_before_optional)
 endmacro()
 
 macro(cbs_preset_after_optional)
-  if(NOT EXCLUDE_ROOT)
-    set(_cbs_root_std "${ROOT_STD}")
-    if(_cbs_root_std STREQUAL "1z")
-      set(_cbs_root_std "17")
-    elseif(_cbs_root_std STREQUAL "1y")
-      set(_cbs_root_std "14")
-    elseif(_cbs_root_std STREQUAL "0x")
-      set(_cbs_root_std "11")
-    endif()
-    if(_cbs_root_std STREQUAL "" OR _cbs_root_std VERSION_LESS 17)
-      message(FATAL_ERROR
-        "ROOT at $ENV{ROOTSYS} is C++${ROOT_STD}, so CBS cannot keep C++17.\n"
-        "Reconfigure with -DCBS_AUTO_DETECT_ROOT=OFF or -DWITH_ROOT=OFF, "
-        "or use a C++17 ROOT.")
-    endif()
-  endif()
-
+  # optional.cmake enforces the common ROOT/GAMBIT C++ standard for every profile.
   set(_cbs_sqlite_prerequisites_reason "")
   if(CBS_WITH_RIVET_CONTUR AND NOT SQLite3_FOUND)
     list(APPEND _cbs_sqlite_prerequisites_reason

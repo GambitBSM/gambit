@@ -28,7 +28,7 @@ function(cbs_validate_environment)
   check_c_source_compiles(
     "int main(void) { return 0; }"
     CBS_VALIDATION_C_COMPILE_LINK)
-  set(_cbs_cxx17_source [=[
+  set(_cbs_cxx_source [=[
 #include <type_traits>
 template <typename T> constexpr int cbs_value(T value) {
   if constexpr (std::is_integral_v<T>) return value;
@@ -36,8 +36,27 @@ template <typename T> constexpr int cbs_value(T value) {
 }
 int main() { static_assert(cbs_value(17) == 17); return 0; }
 ]=])
-  check_cxx_source_compiles("${_cbs_cxx17_source}"
-                            CBS_VALIDATION_CXX17_COMPILE_LINK)
+  # Check the selected language mode, not just acceptance of C++17 syntax.
+  # The cache key follows inputs so changing standards/flags does not reuse a
+  # result from a different configuration.
+  set(_cbs_cxx_version_17 201703L)
+  set(_cbs_cxx_version_20 202002L)
+  set(_cbs_cxx_version_23 202100L)
+  string(APPEND _cbs_cxx_source
+    "\nstatic_assert(__cplusplus >= ${_cbs_cxx_version_${GAMBIT_CXX_STANDARD}}, \"Wrong C++ language mode\");\n")
+  if(CMAKE_TRY_COMPILE_CONFIGURATION)
+    string(TOUPPER "${CMAKE_TRY_COMPILE_CONFIGURATION}" _cbs_cxx_configuration)
+  else()
+    string(TOUPPER "${CMAKE_BUILD_TYPE}" _cbs_cxx_configuration)
+  endif()
+  string(SHA256 _cbs_cxx_signature
+    "${CMAKE_CXX_COMPILER}|${CMAKE_CXX_COMPILER_ID}|${CMAKE_CXX_COMPILER_VERSION}|${CMAKE_CXX_STANDARD}|${CMAKE_CXX_EXTENSIONS}|${CMAKE_CXX_FLAGS}|${CMAKE_BUILD_TYPE}|${CMAKE_TRY_COMPILE_CONFIGURATION}|${CMAKE_CXX_FLAGS_${_cbs_cxx_configuration}}|${CMAKE_REQUIRED_FLAGS}|${CMAKE_REQUIRED_INCLUDES}|${CMAKE_REQUIRED_LIBRARIES}|${CMAKE_REQUIRED_LINK_OPTIONS}|${CMAKE_OSX_SYSROOT}|${CMAKE_OSX_DEPLOYMENT_TARGET}|${CMAKE_OSX_ARCHITECTURES}|${_cbs_cxx_source}")
+  if(NOT CBS_VALIDATION_CXX_SIGNATURE STREQUAL _cbs_cxx_signature)
+    unset(CBS_VALIDATION_CXX_COMPILE_LINK CACHE)
+    set(CBS_VALIDATION_CXX_SIGNATURE "${_cbs_cxx_signature}" CACHE INTERNAL
+        "Inputs to the CBS C++ language-mode check" FORCE)
+  endif()
+  check_cxx_source_compiles("${_cbs_cxx_source}" CBS_VALIDATION_CXX_COMPILE_LINK)
   set(_cbs_fortran_source [=[
 program cbs_fortran_validation
   implicit none
@@ -178,7 +197,7 @@ int main(void) { return sqlite3_libversion_number() == 0; }
   set(_cbs_failures "")
   foreach(_cbs_required_check
       C_COMPILE_LINK
-      CXX17_COMPILE_LINK
+      CXX_COMPILE_LINK
       FORTRAN_COMPILE_LINK
       OPENMP
       PYTHON_DEVELOPMENT
@@ -203,7 +222,7 @@ int main(void) { return sqlite3_libversion_number() == 0; }
 
   foreach(_cbs_validation_variable
       CBS_VALIDATION_C_COMPILE_LINK
-      CBS_VALIDATION_CXX17_COMPILE_LINK
+      CBS_VALIDATION_CXX_COMPILE_LINK
       CBS_VALIDATION_FORTRAN_COMPILE_LINK
       CBS_VALIDATION_OPENMP
       CBS_VALIDATION_DYNAMIC_LOOKUP_REQUIRED
@@ -259,7 +278,7 @@ function(cbs_print_validation_summary)
   endif()
 
   cbs_validation_status("${CBS_VALIDATION_C_COMPILE_LINK}" _cbs_c_status)
-  cbs_validation_status("${CBS_VALIDATION_CXX17_COMPILE_LINK}" _cbs_cxx_status)
+  cbs_validation_status("${CBS_VALIDATION_CXX_COMPILE_LINK}" _cbs_cxx_status)
   cbs_validation_status("${CBS_VALIDATION_FORTRAN_COMPILE_LINK}" _cbs_fortran_status)
   cbs_validation_status("${CBS_VALIDATION_OPENMP}" _cbs_openmp_status)
   cbs_validation_status("${CBS_VALIDATION_PYTHON_DEVELOPMENT}" _cbs_python_status)
@@ -276,7 +295,7 @@ function(cbs_print_validation_summary)
   endif()
 
   cbs_summary_line("C compile/link" "${_cbs_c_status}")
-  cbs_summary_line("C++17 compile/link" "${_cbs_cxx_status}")
+  cbs_summary_line("C++${GAMBIT_CXX_STANDARD} compile/link" "${_cbs_cxx_status}")
   cbs_summary_line("Fortran compile/link" "${_cbs_fortran_status}")
   cbs_summary_line("OpenMP" "${_cbs_openmp_status}")
   cbs_summary_line("dynamic_lookup" "${_cbs_dynamic_lookup_status}")

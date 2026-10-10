@@ -258,36 +258,10 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERS
 endif()
 
 
-# GAMBIT requires at least C++17. Use the newest standard the compiler supports, up to C++23.
-include(CheckCXXCompilerFlag)
-if(PERMIT_CXX17_PLUS_CHECK)
-  CHECK_CXX_COMPILER_FLAG("-std=c++23" COMPILER_SUPPORTS_CXX23)
-endif()
-if(COMPILER_SUPPORTS_CXX23)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++23")
-  set(GAMBIT_SUPPORTS_CXX23 TRUE)
-else()
-  if(PERMIT_CXX17_PLUS_CHECK)
-    CHECK_CXX_COMPILER_FLAG("-std=c++20" COMPILER_SUPPORTS_CXX20)
-  endif()
-  if(COMPILER_SUPPORTS_CXX20)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
-    set(GAMBIT_SUPPORTS_CXX20 TRUE)
-  else()
-    if(PERMIT_CXX17_PLUS_CHECK)
-      CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
-    endif()
-    if(COMPILER_SUPPORTS_CXX17)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-      set(GAMBIT_SUPPORTS_CXX17 TRUE)
-    else()
-      message(FATAL_ERROR "${BoldRed}The compiler ${CMAKE_CXX_COMPILER} does not support C++17. GAMBIT requires a "
-                          "compiler with at least C++17 support. Please use a newer compiler, or if a known "
-                          "pybind11/compiler incompatibility is blocking the check above, retry with "
-                          "-DWITH_PYBIND11=OFF.${ColourReset}")
-    endif()
-  endif()
-endif()
+# Select one native C++ standard and reuse it for ROOT and external packages.
+include(cmake/CXXStandard.cmake)
+gambit_initialise_cxx_standard()
+
 
 # Check for C99, C11 and C18 support
 include(CheckCCompilerFlag)
@@ -519,6 +493,7 @@ else()
   set(BACKEND_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   set(BACKEND_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
 endif()
+gambit_sync_backend_cxx_standard()
 set(BACKEND_C18_FLAGS "${BACKEND_C_FLAGS} -std=c18")
 set(BACKEND_C11_FLAGS "${BACKEND_C_FLAGS} -std=c11")
 set(BACKEND_C99_FLAGS "${BACKEND_C_FLAGS} -std=c99")
@@ -528,8 +503,8 @@ set(BACKEND_GNU99_FLAGS "${BACKEND_C_FLAGS} -std=gnu99")
 option(SUPPRESS_LIBRARY_WARNINGS "Suppress common compiler warnings due to external libraries" ON)
 
 # Unless "-rdynamic" or "-Wl,--export-dynamic" is set, make symbols hidden by default when compiling GAMBIT source files only
-string(FIND ${CMAKE_CXX_FLAGS} "-rdynamic" FOUND_RDYNAMIC_CXX)
-string(FIND ${CMAKE_CXX_FLAGS} "--export-dynamic" FOUND_EXPORT_DYNAMIC_CXX)
+string(FIND "${CMAKE_CXX_FLAGS}" "-rdynamic" FOUND_RDYNAMIC_CXX)
+string(FIND "${CMAKE_CXX_FLAGS}" "--export-dynamic" FOUND_EXPORT_DYNAMIC_CXX)
 if(${FOUND_RDYNAMIC_CXX} EQUAL -1 AND ${FOUND_EXPORT_DYNAMIC_CXX} EQUAL -1)
   set(CMAKE_CXX_VISIBILITY_PRESET hidden)
   set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
@@ -552,6 +527,7 @@ if(CBS_PRESET_BUILD)
   cbs_preset_before_optional()
 endif()
 include(cmake/optional.cmake)
+message(STATUS "C++ standard: ${GAMBIT_CXX_STANDARD} (${GAMBIT_CXX_STANDARD_REASON}; request: ${GAMBIT_CXX_STANDARD_REQUESTED})")
 if(CBS_PRESET_BUILD)
   cbs_preset_after_optional()
 endif()
@@ -629,13 +605,57 @@ set(PRINTER_HARVESTER ${PROJECT_SOURCE_DIR}/Printers/scripts/printer_harvester.p
 set(COLLIDER_HARVESTER ${PROJECT_SOURCE_DIR}/ColliderBit/scripts/collider_harvester.py)
 set(HARVEST_TOOLS ${PROJECT_SOURCE_DIR}/Utils/scripts/harvesting_tools.py)
 
+# Declare generated content separately from completion stamps. This also lets
+# an explicit reconfigure repair missing generated headers or the types pickle.
+set(MODULE_HARVESTER_OUTPUTS
+    "${PROJECT_SOURCE_DIR}/Core/include/gambit/Core/module_rollcall.hpp"
+    "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/module_types_rollcall.hpp"
+    "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/module_functor_types.hpp"
+    "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_functor_types.hpp"
+    "${PROJECT_SOURCE_DIR}/scratch/build_time/harvested_types.pickle"
+    "${PROJECT_SOURCE_DIR}/config/gambit_bits.yaml")
+set(BACKEND_HARVESTER_OUTPUTS
+    "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_rollcall.hpp"
+    "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types_rollcall.hpp"
+    "${PROJECT_SOURCE_DIR}/config/gambit_backend_interfaces.yaml")
+set(MODEL_HARVESTER_OUTPUTS
+    "${PROJECT_SOURCE_DIR}/Models/include/gambit/Models/model_rollcall.hpp"
+    "${PROJECT_SOURCE_DIR}/Models/include/gambit/Models/model_types_rollcall.hpp")
+set(PRINTER_HARVESTER_OUTPUTS
+    "${PROJECT_SOURCE_DIR}/Printers/include/gambit/Printers/printer_rollcall.hpp")
+set(COLLIDER_HARVESTER_OUTPUTS
+    "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/ColliderBit_models_rollcall.hpp"
+    "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/colliders/Pythia8/Py8Collider_typedefs.hpp")
+
 # Create module_rollcall.hpp, module_types_rollcall.hpp, module_functor_types.hpp, models_rollcall.hpp, model_types_rollcall.hpp,
 # backend_rollcall.hpp, backend_types_rollcall.hpp, backend_functor_types.hpp, printer_rollcall.hpp, particle_database.cpp,
 # ColliderBit_model_rollcall.hpp, ColliderPythia_typedefs.hpp
-file(GLOB MODULE_HARVESTER_FILES   "${PROJECT_SOURCE_DIR}/*Bit*/include/gambit/*Bit*/*_rollcall.hpp"
-                                   "${PROJECT_SOURCE_DIR}/*Bit*/include/gambit/*Bit*/*_types.hpp")
-file(GLOB BACKEND_HARVESTER_FILES  "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/frontends/*.hpp"
-                                   "${PROJECT_SOURCE_DIR}/Backends/CMakeLists.txt")
+# module_harvester follows includes recursively, and backend auto-trimming also
+# reads Bit rollcalls and shared frontend includes. Track their header inputs.
+file(GLOB_RECURSE MODULE_HARVESTER_FILES
+     "${PROJECT_SOURCE_DIR}/*Bit*/include/*.hpp"
+     "${PROJECT_SOURCE_DIR}/*Bit*/include/*.h"
+     "${PROJECT_SOURCE_DIR}/*Bit*/include/*.hh"
+     "${PROJECT_SOURCE_DIR}/Backends/include/*.hpp"
+     "${PROJECT_SOURCE_DIR}/Backends/include/*.h"
+     "${PROJECT_SOURCE_DIR}/Backends/include/*.hh"
+     "${PROJECT_SOURCE_DIR}/Models/include/*.hpp"
+     "${PROJECT_SOURCE_DIR}/Models/include/*.h"
+     "${PROJECT_SOURCE_DIR}/Models/include/*.hh"
+     "${PROJECT_SOURCE_DIR}/Elements/include/*.hpp"
+     "${PROJECT_SOURCE_DIR}/Elements/include/*.h"
+     "${PROJECT_SOURCE_DIR}/Elements/include/*.hh"
+     "${PROJECT_SOURCE_DIR}/Core/include/*.hpp"
+     "${PROJECT_SOURCE_DIR}/Core/include/*.h"
+     "${PROJECT_SOURCE_DIR}/Core/include/*.hh"
+     "${PROJECT_SOURCE_DIR}/Utils/include/*.hpp"
+     "${PROJECT_SOURCE_DIR}/Utils/include/*.h"
+     "${PROJECT_SOURCE_DIR}/Utils/include/*.hh")
+file(GLOB_RECURSE BACKEND_HARVESTER_FILES
+     "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/frontends/*.hpp"
+     "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/*.hpp")
+list(APPEND BACKEND_HARVESTER_FILES ${MODULE_HARVESTER_FILES}
+     "${PROJECT_SOURCE_DIR}/Backends/CMakeLists.txt")
 file(GLOB MODEL_HARVESTER_FILES    "${PROJECT_SOURCE_DIR}/Models/include/gambit/Models/models/*.hpp"
                                    "${PROJECT_SOURCE_DIR}/Models/CMakeLists.txt")
 file(GLOB PRINTER_HARVESTER_FILES  "${PROJECT_SOURCE_DIR}/Printers/include/gambit/Printers/printers/*.hpp"
@@ -647,11 +667,22 @@ string (REPLACE "//" "/" BACKEND_HARVESTER_FILES  "${BACKEND_HARVESTER_FILES}")
 string (REPLACE "//" "/" MODEL_HARVESTER_FILES    "${MODEL_HARVESTER_FILES}")   # (GLOB creates erroneous double slashes)
 string (REPLACE "//" "/" PRINTER_HARVESTER_FILES  "${PRINTER_HARVESTER_FILES}")
 string (REPLACE "//" "/" COLLIDER_HARVESTER_FILES "${COLLIDER_HARVESTER_FILES}")
-list(REMOVE_ITEM MODULE_HARVESTER_FILES "${PROJECT_SOURCE_DIR}/ScannerBit//include//gambit//ScannerBit//priors_rollcall.hpp"
-                                        "${PROJECT_SOURCE_DIR}/ScannerBit//include//gambit//ScannerBit//test_function_rollcall.hpp")
+# Exclude generated headers from discovery inputs to prevent a generator from
+# invalidating itself. Generated inputs from other harvesters are added below.
+set(HARVESTER_OUTPUTS ${MODULE_HARVESTER_OUTPUTS} ${BACKEND_HARVESTER_OUTPUTS}
+    ${MODEL_HARVESTER_OUTPUTS} ${PRINTER_HARVESTER_OUTPUTS} ${COLLIDER_HARVESTER_OUTPUTS}
+    "${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/ScannerBit/priors_rollcall.hpp"
+    "${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/ScannerBit/test_function_rollcall.hpp")
+list(REMOVE_ITEM MODULE_HARVESTER_FILES ${HARVESTER_OUTPUTS})
+list(REMOVE_ITEM BACKEND_HARVESTER_FILES ${HARVESTER_OUTPUTS})
+list(REMOVE_DUPLICATES BACKEND_HARVESTER_FILES)
+list(SORT BACKEND_HARVESTER_FILES)
 list(APPEND MODULE_HARVESTER_FILES "${PROJECT_SOURCE_DIR}/config/resolution_type_equivalency_classes.yaml")
-set(MODULE_HARVESTER_FILES ${MODULE_HARVESTER_FILES} ${BACKEND_HARVESTER_FILES})
-remove_build_files(models_harvested backends_harvested modules_harvested printers_harvested colliders_harvested)
+list(APPEND MODULE_HARVESTER_FILES ${BACKEND_HARVESTER_OUTPUTS} ${MODEL_HARVESTER_OUTPUTS}
+     "${CMAKE_BINARY_DIR}/backends_harvested" "${CMAKE_BINARY_DIR}/models_harvested")
+if(EXISTS "${PROJECT_SOURCE_DIR}/ColliderBit/" AND ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  list(APPEND MODULE_HARVESTER_FILES ${COLLIDER_HARVESTER_OUTPUTS} "${CMAKE_BINARY_DIR}/colliders_harvested")
+endif()
 
 # Add backends and scanners. Done before the harvest registration so late
 # additions to ${itch} (e.g. the FeynHiggs gfortran>=10 ditch) reach the
@@ -669,6 +700,7 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/Backends/")
 endif()
 if(EXISTS "${PROJECT_SOURCE_DIR}/Models/")
  add_gambit_custom(model_harvest models_harvested MODEL_HARVESTER MODEL_HARVESTER_FILES)
+ add_dependencies(module_harvest model_harvest)
 endif()
 if(EXISTS "${PROJECT_SOURCE_DIR}/Printers/")
   add_gambit_custom(printer_harvest printers_harvested PRINTER_HARVESTER PRINTER_HARVESTER_FILES ${itch_with_commas})

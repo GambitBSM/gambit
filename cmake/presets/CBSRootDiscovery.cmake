@@ -3,10 +3,12 @@
 # \date 2026 Aug
 #
 # Locate a native ROOT installation for public CBS presets before GAMBIT's
-# optional.cmake consumes ROOTSYS. ROOT remains optional. A ROOT that is not
-# C++17 is skipped so CBS does not inherit a lowered language standard.
+# optional.cmake consumes ROOTSYS. ROOT remains optional. Only installations
+# built with one of GAMBIT's supported C++ standards (17, 20, 23) are accepted;
+# optional.cmake resolves the exact standard shared by ROOT and GAMBIT.
 
 include_guard(GLOBAL)
+include("${CMAKE_CURRENT_LIST_DIR}/../CXXStandard.cmake")
 
 function(cbs_root_cxx_standard root_config output_standard)
   set(_cbs_std "")
@@ -17,9 +19,10 @@ function(cbs_root_cxx_standard root_config output_standard)
     ERROR_QUIET
     OUTPUT_STRIP_TRAILING_WHITESPACE
     TIMEOUT 10)
-  if(_cbs_cxxstd_result EQUAL 0 AND _cbs_cxxstd MATCHES "^[0-9]+")
-    set(_cbs_std "${_cbs_cxxstd}")
-  else()
+  if(_cbs_cxxstd_result EQUAL 0)
+    gambit_normalise_cxx_standard("${_cbs_cxxstd}" _cbs_std)
+  endif()
+  if(NOT "${_cbs_std}" MATCHES "^[0-9]+$")
     execute_process(
       COMMAND "${root_config}" --cflags
       RESULT_VARIABLE _cbs_cflags_result
@@ -27,15 +30,8 @@ function(cbs_root_cxx_standard root_config output_standard)
       ERROR_QUIET
       OUTPUT_STRIP_TRAILING_WHITESPACE
       TIMEOUT 10)
-    if(_cbs_cflags_result EQUAL 0 AND _cbs_cflags MATCHES "-std=c\\+\\+([0-9]+|1z|1y|0x)")
-      set(_cbs_std "${CMAKE_MATCH_1}")
-      if(_cbs_std STREQUAL "1z")
-        set(_cbs_std "17")
-      elseif(_cbs_std STREQUAL "1y")
-        set(_cbs_std "14")
-      elseif(_cbs_std STREQUAL "0x")
-        set(_cbs_std "11")
-      endif()
+    if(_cbs_cflags_result EQUAL 0)
+      gambit_cxx_standard_from_flags("${_cbs_cflags}" _cbs_std)
     endif()
   endif()
   set(${output_standard} "${_cbs_std}" PARENT_SCOPE)
@@ -80,9 +76,12 @@ function(cbs_find_root_installation output_found output_prefix output_version ou
       set(_cbs_root_reason "${_cbs_root_config} did not report a usable ROOT prefix")
     else()
       cbs_root_cxx_standard("${_cbs_root_config}" _cbs_root_std)
-      if(NOT "${_cbs_root_std}" STREQUAL "" AND _cbs_root_std VERSION_LESS 17)
+      if("${_cbs_root_std}" STREQUAL "")
         set(_cbs_root_reason
-            "${_cbs_root_prefix} is C++${_cbs_root_std}; CBS keeps C++17 (set CBS_AUTO_DETECT_ROOT=OFF to silence this)")
+            "${_cbs_root_config} did not report its C++ standard; CBS requires ROOT built with C++17, C++20 or C++23")
+      elseif(NOT _cbs_root_std MATCHES "^(17|20|23)$")
+        set(_cbs_root_reason
+            "${_cbs_root_prefix} is C++${_cbs_root_std}; CBS requires ROOT built with C++17, C++20 or C++23 (set CBS_AUTO_DETECT_ROOT=OFF to silence this)")
       else()
         set(_cbs_root_found TRUE)
         if(NOT _cbs_root_version_result EQUAL 0)
@@ -99,6 +98,10 @@ function(cbs_find_root_installation output_found output_prefix output_version ou
 endfunction()
 
 function(cbs_configure_root_for_cbs_preset)
+  if(DEFINED WITH_ROOT AND NOT WITH_ROOT)
+    set(CBS_ROOT_SKIP_REASON "disabled by WITH_ROOT=OFF" PARENT_SCOPE)
+    return()
+  endif()
   if(NOT CBS_AUTO_DETECT_ROOT)
     return()
   endif()

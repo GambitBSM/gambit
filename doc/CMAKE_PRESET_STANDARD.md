@@ -602,11 +602,13 @@ compiler. Explicit C/C++ selections must also be AppleClang. Its profile contrac
 
 - `Bits=ColliderBit`, with ScannerBit retained by GAMBIT;
 - final build target `CBS`;
-- C++17;
+- C++17, C++20 or C++23, selected by the common policy described in
+  `cmake/presets/README.md`;
 - Release build by default;
 - HDF5 and SQLite enabled;
 - ONNX Runtime and RestFrames enabled;
-- ROOT discovered when a compatible C++17 installation exists; and
+- ROOT discovered when a compatible C++17/20/23 installation exists, with
+  the main build using exactly the same standard; and
 - Rivet/Contur scheduled according to their complete prerequisite state.
 
 ### 12.2 `cbs-llvm`

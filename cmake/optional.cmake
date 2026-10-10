@@ -227,84 +227,22 @@ if(NOT LAPACK_LINKLIBS AND NOT LAPACK_FOUND)
   message(FATAL_ERROR "${BoldRed}LAPACK shared library not found.${ColourReset}")
 endif()
 
-# Map c++1z/1y/0x aliases to comparable numeric ranks.
-function(gambit_cxx_std_rank std out_var)
-  set(_s "${std}")
-  if(_s STREQUAL "1z")
-    set(_s 17)
-  elseif(_s STREQUAL "1y")
-    set(_s 14)
-  elseif(_s STREQUAL "0x")
-    set(_s 11)
-  endif()
-  set(${out_var} "${_s}" PARENT_SCOPE)
-endfunction()
-
-# Helper function to check if ROOT has been compiled with the same standard as we are using here.  If not, downgrade to the standard that ROOT was compiled with.
-# Note: only C++17 and later are matched here, so a ROOT installation built with an older
-# standard will not be matched and will trigger the "unable to detect" error below, prompting
-# the user to rebuild ROOT with at least C++17.
-function(check_root_std_flag)
-  # ROOT's package metadata is authoritative; older packages only expose flags.
-  set(root_flags "${ROOT_CXX_FLAGS}")
+# ROOT applications must use the exact language mode of the ROOT installation.
+# Metadata takes precedence over legacy root-config flags.
+macro(check_root_std_flag)
   if(DEFINED ROOT_CXX_STANDARD AND NOT "${ROOT_CXX_STANDARD}" STREQUAL "")
-    set(root_flags "-std=c++${ROOT_CXX_STANDARD}")
+    gambit_normalise_cxx_standard("${ROOT_CXX_STANDARD}" ROOT_STD)
+  else()
+    gambit_cxx_standard_from_flags("${ROOT_CXX_FLAGS}" ROOT_STD)
   endif()
-
-  # Read the last -std option (the one used by the compiler), normalising aliases.
-  foreach(flags_var ROOT_CXX_FLAGS CMAKE_CXX_FLAGS BACKEND_CXX_FLAGS)
-    set(flags "${${flags_var}}")
-    if(flags_var STREQUAL "ROOT_CXX_FLAGS")
-      set(flags "${root_flags}")
-    endif()
-    set(${flags_var}_STD "")
-    string(REGEX MATCHALL "-std=(c|gnu)\\+\\+[^ \t]+" std_flags "${flags}")
-    if(std_flags)
-      list(GET std_flags -1 std_flag)
-      string(REGEX REPLACE "^-std=(c|gnu)\\+\\+" "" std "${std_flag}")
-      if(std STREQUAL "1z")
-        set(std 17)
-      elseif(std STREQUAL "2a")
-        set(std 20)
-      elseif(std STREQUAL "2b")
-        set(std 23)
-      endif()
-      set(${flags_var}_STD "${std}")
-    endif()
-  endforeach()
-
-  set(ROOT_STD "${ROOT_CXX_FLAGS_STD}")
   if(NOT ROOT_STD MATCHES "^(17|20|23)$")
-    message(FATAL_ERROR "${BoldRed}Unable to detect a supported C++ standard for ROOT. "
-                        "Use ROOT built with C++17, C++20 or C++23, or set -DWITH_ROOT=OFF.${ColourReset}")
+    message(FATAL_ERROR "Unable to detect a supported C++ standard for ROOT. "
+                        "Use ROOT built with C++17, C++20 or C++23, or set -DWITH_ROOT=OFF.")
   endif()
+  gambit_match_root_cxx_standard("${ROOT_STD}")
   set(ROOT_CXX_FLAG "-std=c++${ROOT_STD}")
-  message("${BoldYellow}   This ROOT was compiled with ${ROOT_CXX_FLAG}.${ColourReset}")
-  CHECK_CXX_COMPILER_FLAG("${ROOT_CXX_FLAG}" COMPILER_SUPPORTS_CXX${ROOT_STD})
-  if(NOT COMPILER_SUPPORTS_CXX${ROOT_STD})
-    message(FATAL_ERROR "${BoldRed}ROOT requires C++${ROOT_STD}, which the selected compiler "
-                        "does not support. Change compiler or set -DWITH_ROOT=OFF.${ColourReset}")
-  endif()
-
-  # Only downgrade; preserve a lower standard explicitly selected by GAMBIT.
-  foreach(flags_var CMAKE_CXX_FLAGS BACKEND_CXX_FLAGS)
-    if(NOT ${flags_var}_STD OR ${flags_var}_STD GREATER ROOT_STD)
-      string(REGEX REPLACE "(^|[ \t])-std=(c|gnu)\\+\\+[^ \t]+" "\\1" flags "${${flags_var}}")
-      string(STRIP "${flags} ${ROOT_CXX_FLAG}" flags)
-      set(${flags_var} "${flags}" PARENT_SCOPE)
-      message("${BoldYellow}   Using ${ROOT_CXX_FLAG} in ${flags_var} for ROOT compatibility.${ColourReset}")
-      if(flags_var STREQUAL "CMAKE_CXX_FLAGS")
-        if(CMAKE_CXX_FLAGS_STD)
-          set(GAMBIT_SUPPORTS_CXX${CMAKE_CXX_FLAGS_STD} FALSE PARENT_SCOPE)
-        endif()
-        set(GAMBIT_SUPPORTS_CXX${ROOT_STD} TRUE PARENT_SCOPE)
-      endif()
-    endif()
-  endforeach()
-  # HepMC's ROOT-IO target also needs the canonical numeric standard.
-  set(ROOT_STD "${ROOT_STD}" PARENT_SCOPE)
-  set(ROOT_CXX_FLAG "${ROOT_CXX_FLAG}" PARENT_SCOPE)
-endfunction()
+  message(STATUS "ROOT uses C++${ROOT_STD}; GAMBIT and shared backend flags use the same standard.")
+endmacro()
 
 # Check for ROOT.
 option(WITH_ROOT "Compile with ROOT enabled" OFF)

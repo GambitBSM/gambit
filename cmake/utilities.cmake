@@ -49,6 +49,7 @@
 
 include(CMakeParseArguments)
 include(ExternalProject)
+include("${CMAKE_CURRENT_LIST_DIR}/CodeGeneration.cmake")
 
 # defining some colors
 string(ASCII 27 Esc)
@@ -261,29 +262,33 @@ endmacro()
 
 # Function to add a GAMBIT custom command and target.
 # A caller may set ${HARVESTER}_EXTRA_ARGS before invoking this 
-# macro to pass additional command-line flags to the harvester.
+# macro to pass additional command-line flags to the harvester. Its OUTPUTS
+# list declares generated files whose contents, and timestamps, may stay unchanged.
 macro(add_gambit_custom target filename HARVESTER DEPS)
-  set(ditch_string "")
+  set(ditch_args "")
   if (NOT "${ARGN}" STREQUAL "")
-    set(ditch_string "-x __not_a_real_name__,${ARGN}")
+    set(ditch_args -x "__not_a_real_name__,${ARGN}")
   endif()
-  # Record the full harvester command in a stamp file that is only touched when the
-  # command changes, so that the harvesters rerun when e.g. the -Ditch list changes,
-  # but not after every reconfiguration (as a dependency on CMakeCache.txt would cause).
-  set(harvester_options_stamp ${CMAKE_BINARY_DIR}/${target}_options.stamp)
-  file(WRITE ${harvester_options_stamp}.candidate "${PYTHON_EXECUTABLE} ${${HARVESTER}} ${ditch_string}\n")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                  ${harvester_options_stamp}.candidate ${harvester_options_stamp})
-  file(REMOVE ${harvester_options_stamp}.candidate)
-  add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${filename}
-                     COMMAND ${Python3_EXECUTABLE} ${${HARVESTER}} ${ditch_string} ${${HARVESTER}_EXTRA_ARGS}
-                     COMMAND touch ${CMAKE_BINARY_DIR}/${filename}
+  set(harvester_options_stamp "${CMAKE_BINARY_DIR}/${target}_options.stamp")
+  set(harvester_stamp "${CMAKE_BINARY_DIR}/${filename}")
+  # Also record the input/output lists: additions and removals must invalidate
+  # harvesting even when the remaining files have older modification times.
+  gambit_write_codegen_options("${harvester_options_stamp}"
+    COMMAND "${Python3_EXECUTABLE}" "${${HARVESTER}}"
+    ${ditch_args} ${${HARVESTER}_EXTRA_ARGS}
+    INPUTS ${${DEPS}} OUTPUTS ${${HARVESTER}_OUTPUTS})
+  gambit_check_codegen_outputs("${harvester_stamp}" ${${HARVESTER}_OUTPUTS})
+  add_custom_command(OUTPUT "${harvester_stamp}"
+                     BYPRODUCTS ${${HARVESTER}_OUTPUTS}
+                     COMMAND "${Python3_EXECUTABLE}" "${${HARVESTER}}" ${ditch_args} ${${HARVESTER}_EXTRA_ARGS}
+                     COMMAND "${CMAKE_COMMAND}" -E touch "${harvester_stamp}"
                      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                      DEPENDS ${${HARVESTER}}
                              ${HARVEST_TOOLS}
                              ${${DEPS}}
-                             ${harvester_options_stamp})
-  add_custom_target(${target} DEPENDS ${CMAKE_BINARY_DIR}/${filename})
+                             ${harvester_options_stamp}
+                     VERBATIM)
+  add_custom_target(${target} DEPENDS "${harvester_stamp}")
 endmacro()
 
 # Function to remove specific GAMBIT build files
@@ -516,24 +521,29 @@ function(add_standalone executablename)
     endforeach()
     list(APPEND STANDALONE_SOURCES ${STANDALONE_FUNCTORS})
 
-    # Record the full facilitator command in a stamp file that is only touched when the
-    # command changes, so that the functors source is regenerated when e.g. the module list
-    # changes, but not after every reconfiguration (as a dependency on CMakeCache.txt would cause).
-    set(facilitator_options_stamp ${CMAKE_BINARY_DIR}/functors_for_${executablename}_options.stamp)
-    file(WRITE ${facilitator_options_stamp}.candidate "${PYTHON_EXECUTABLE} ${STANDALONE_FACILITATOR} ${executablename} -m __not_a_real_name__,${COMMA_SEPARATED_MODULES}\n")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    ${facilitator_options_stamp}.candidate ${facilitator_options_stamp})
-    file(REMOVE ${facilitator_options_stamp}.candidate)
+    set(facilitator_options_stamp "${CMAKE_BINARY_DIR}/functors_for_${executablename}_options.stamp")
+    set(facilitator_stamp "${CMAKE_BINARY_DIR}/functors_for_${executablename}.stamp")
+    gambit_write_codegen_options("${facilitator_options_stamp}"
+      COMMAND "${Python3_EXECUTABLE}" "${STANDALONE_FACILITATOR}"
+      "${executablename}" -m "__not_a_real_name__,${COMMA_SEPARATED_MODULES}"
+      OUTPUTS "${STANDALONE_FUNCTORS}")
+    gambit_check_codegen_outputs("${facilitator_stamp}" "${STANDALONE_FUNCTORS}")
 
-    # Set up the target to call the facilitator script to make the functors source file for this standalone.
-    add_custom_command(OUTPUT ${STANDALONE_FUNCTORS}
-                       COMMAND ${Python3_EXECUTABLE} ${STANDALONE_FACILITATOR} ${executablename} -m __not_a_real_name__,${COMMA_SEPARATED_MODULES}
-                       COMMAND touch ${STANDALONE_FUNCTORS}
+    # A completion stamp records successful generation independently of the C++
+    # source timestamp. Unchanged content must not force recompilation, nor cause
+    # the facilitator to rerun on every following build.
+    add_custom_command(OUTPUT "${facilitator_stamp}"
+                       BYPRODUCTS "${STANDALONE_FUNCTORS}"
+                       COMMAND "${Python3_EXECUTABLE}" "${STANDALONE_FACILITATOR}" ${executablename} -m "__not_a_real_name__,${COMMA_SEPARATED_MODULES}"
+                       COMMAND "${CMAKE_COMMAND}" -E touch "${facilitator_stamp}"
                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                       DEPENDS modules_harvested
+                       DEPENDS "${CMAKE_BINARY_DIR}/modules_harvested"
                                ${STANDALONE_FACILITATOR}
                                ${HARVEST_TOOLS}
-                               ${facilitator_options_stamp})
+                               ${facilitator_options_stamp}
+                       VERBATIM)
+    add_custom_target(${executablename}_functors DEPENDS "${facilitator_stamp}")
+    add_dependencies(${executablename}_functors module_harvest)
 
     # All the standalones need linking to HepMC, if HepMC is not excluded.
     # TODO: Avoid this if possible.
@@ -574,6 +584,8 @@ function(add_standalone executablename)
                                   ${STANDALONE_OBJECTS}
                                   ${GAMBIT_ALL_COMMON_OBJECTS}
                           HEADERS ${ARG_HEADERS})
+
+    add_dependencies(${executablename} ${executablename}_functors)
 
     # Add each of the declared dependencies
     foreach(dep ${ARG_DEPENDENCIES})

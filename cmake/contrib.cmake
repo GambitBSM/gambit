@@ -240,6 +240,7 @@ if(NOT EXCLUDE_HEPMC)
   else()
     set(HEPMC3_STD 17)
   endif()
+  gambit_set_cxx_standard_flag("${HEPMC_CXX_FLAGS}" "${HEPMC3_STD}" HEPMC_CXX_FLAGS)
   set(HEPMC_CXX_STANDARD_ARG "-DHEPMC3_CXX_STANDARD=${HEPMC3_STD}")
 
   # Silence some compiler warnings coming from HepMC

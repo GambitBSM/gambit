@@ -159,3 +159,42 @@ modules. An optional `preset_probe_report_<system>` function can append one
 system-specific environment section using `BootstrapReport.cmake` helpers.
 The CLI and dispatcher need no change when adding a provider that uses
 the existing toolchain strategies.
+
+## C++ language standard
+
+GAMBIT and CBS require C++17 or newer and accept `CMAKE_CXX_STANDARD=17`,
+`20`, or `23`. Without an explicit selection, CMake chooses the newest of
+23, 20, and 17 supported by its compiler metadata. C++23 needs CMake 3.20 or
+newer; older supported CMake versions automatically choose at most C++20.
+These are language modes, not a claim that every compiler implements every
+library feature of the selected standard.
+
+When ROOT is enabled, its build standard must match exactly. Automatic mode
+adopts ROOT's standard. An explicit conflicting standard produces an error
+with the matching setting; it is never silently downgraded. For example:
+
+```sh
+cmake --preset cbs-llvm -DCMAKE_CXX_STANDARD=17
+cmake --preset cbs-llvm -DCMAKE_CXX_STANDARD=20 -DWITH_ROOT=OFF
+```
+
+Use `-U CMAKE_CXX_STANDARD` to return to automatic selection. Also remove any
+legacy `-std=` options in `CMAKE_CXX_FLAGS` or configuration-specific flags:
+these count as explicit selections, and conflicting selections are rejected.
+Standard aliases in legacy flags (`1z`, `2a`, `2b`) are normalized. The main
+project uses CMake's required standard property with C++ extensions disabled.
+The configure summary shows the request, effective standard, and reason.
+The usual shared-build-tree rules still apply when switching compiler families.
+
+External Make/Autotools projects receive one explicit standard flag derived
+from the resolved choice, including MPI and unoptimized backend variants.
+Package-specific compatibility exceptions remain: macOS Pythia is capped at
+C++17, GM2Calc 1.2/1.3 uses C++14, Rivet uses C++17, and HepMC uses ROOT's
+standard when ROOT is enabled or C++17 otherwise. These exceptions do not
+change the language mode of GAMBIT/CBS.
+
+The selection and parsing rules can be checked without configuring or compiling:
+
+```sh
+cmake -P cmake/tests/cxx_standard.cmake
+```
