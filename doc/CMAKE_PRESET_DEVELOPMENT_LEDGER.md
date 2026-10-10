@@ -1,10 +1,11 @@
 # CMake Preset 开发台账
 
-记录 GAMBIT 和 ColliderBit Solo 的 preset、CMake 构建与开发体验改进。当前已完成 C++ 标准统一和 BUILD-01 增量代码生成的代码修改及脚本级验证。维护者已反馈 BUILD-01 的实际构建测试完成，重新编译及 touch 后的构建都很快；其余验收和构建优化按台账继续推进。
+记录 GAMBIT 和 ColliderBit Solo 的 preset、CMake 构建与开发体验改进。C++ 标准统一和 BUILD-01 已提交，维护者反馈 BUILD-01 重新编译及 touch 后构建都很快。BUILD-02 已完成脚本检查，并由维护者日志确认独立对象构建、完整链接及主工程无变化构建通过；实际并行重叠与运行场景仍待验证。其余事项按台账继续推进。
 
 - 更新日期：2026-10-10，Australia/Adelaide。
 - 目标分支：`Colliderbit-solo-development-preset`，工作树为 `cbs-presets`。
-- 本轮实施基线为提交 `28600078fc`；C++ 标准、BUILD-01 修改及本台账属于本轮提交范围。
+- C++ 标准、BUILD-01 和台账已提交为 `a3b3cc87c7`，实施基线为 `28600078fc`。
+- BUILD-02 基于 `a3b3cc87c7` 实施，随本轮提交合入；提交包含独立程序对象目标、脚本回归及维护者日志验收记录。
 - 关联文档：[Preset 使用说明](../cmake/presets/README.md)、[CMake Preset 工程标准](CMAKE_PRESET_STANDARD.md)、[仓库开发规则](../AGENTS.md)。
 
 ## 状态与验收规则
@@ -31,7 +32,7 @@ P1 优先处理配置正确性、重复构建和主要编译等待；P2 改善�
 
 ## C++ 标准修复记录
 
-以下项目均在 2026-10-10 实现，状态为 **已实现待构建**。
+以下项目均在 2026-10-10 实现并提交为 `a3b3cc87c7`。当前 macOS LLVM、AUTO、ROOT 17 的配置和 CBS 构建已有日志；其他标准选择、冲突拒绝、跨平台及运行场景仍按下方矩阵验收。
 
 | 编号 | 问题与改动 | 代码位置 | 构建验收要点 |
 | --- | --- | --- | --- |
@@ -63,7 +64,7 @@ P1 优先处理配置正确性、重复构建和主要编译等待；P2 改善�
 | 临时 ROOT 测试 | 7 项通过 | 6 个元信息或 flags 回退案例，以及 1 个显式 OFF 案例；临时夹具未纳入仓库 |
 | CMake 结构检查 | 通过 | 本轮 12 个 CMake 文件的命令及块结构 |
 | 差异与格式检查 | 通过 | 本轮修改和新增文件的空白检查及代码复核 |
-| 实际配置、编译、运行 | 待维护者执行 | 不能据此宣称全平台、全部依赖或实际构建已通过 |
+| 实际配置与 CBS 构建 | 当前环境通过 | 2026-10-10 维护者日志：`cbs-llvm`、LLVM 22.1.8、ROOT 6.40.00，AUTO 生效为 C++17；CBS 程序对象编译及完整链接成功；其他矩阵场景及单点运行仍待执行 |
 
 脚本检查不调用项目配置或编译器，可在仓库根目录运行：
 
@@ -76,13 +77,14 @@ cmake -P cmake/tests/cxx_standard.cmake
 | 编号 | 优先级 | 状态 | 问题与实施方向 | 主要位置与验收标准 |
 | --- | --- | --- | --- | --- |
 | BUILD-01 | P1 | 已实现已构建 | 保留 harvest 标记；登记实际 Python、完整参数及输入/输出清单；补全 header 与 harvest 顺序依赖；functor 使用独立完成标记和稳定排序，源码仅内容变化时更新 | [主配置](../CMakeLists.txt)、[utilities.cmake](../cmake/utilities.cmake)、[CodeGeneration.cmake](../cmake/CodeGeneration.cmake)、[standalone_facilitator.py](../Elements/scripts/standalone_facilitator.py)。相同配置再次生成后构建，不应重编译未变化的 functor 源码 |
-| BUILD-02 | P1 | 待开发 | CBS 自身源码等全部对象库和后端完成后才开始编译；拆出独立 OBJECT target，让 `solo.cpp` 更早进入编译 | [utilities.cmake](../cmake/utilities.cmake) 的 `add_standalone`、[CBS.cmake](../cmake/CBS.cmake)。保留 BOSS → harvest 顺序；最终链接等待完整依赖；用时间线确认实际重叠 |
+| BUILD-02 | P1 | 已合入 | standalone 自身源码移入独立 `<name>_objects` OBJECT target；等待 contrib 和生成头文件后，可与模块对象及后端库构建并行；最终可执行文件保留完整依赖 | [utilities.cmake](../cmake/utilities.cmake) 的 `add_standalone`、`gambit_configure_standalone_objects`。CBS 使用 `CBS_objects`；保留 BOSS → harvest 顺序和编译上下文；用实际构建日志确认并行重叠 |
 | BUILD-03 | P2 | 待开发 | 当前主工程未接入 ccache；增加可选 C/CXX launcher、保留用户选择并在摘要显示 | [Preset 入口](../cmake/CBS.cmake)、[工具链目录](../cmake/toolchains)。重复构建有可核实的命中记录；Fortran 与外部项目分别处理；首次全量编译不承诺提速 |
 | BUILD-04 | P1 | 待开发 | 关闭部分功能会在配置期间删除对应安装树；停用 target 时保留依赖，由显式 nuke 负责删除 | [contrib.cmake](../cmake/contrib.cmake) 的 `nuke_ditched_contrib_content`。同工具链下关闭再开启功能，不应无故重建未变化的依赖 |
 | BUILD-05 | P1 | 待开发 | FastJet 的缓存路径可能指向已删除的库；依赖复用缺少编译配置身份检查 | [contrib.cmake](../cmake/contrib.cmake) 的 FastJet/fjcontrib 复用逻辑。检查实际文件及编译器、架构、关键 flags、deployment target 等签名；缺失或不匹配时重新准备 |
 | BUILD-06 | P3 | 待评估 | 支持 Ninja 前需分离主 generator 与外部 make 工具，并完善生成物声明 | [utilities.cmake](../cmake/utilities.cmake) 的 `MAKE_PARALLEL`。FastJet 等 Autotools 包必须仍用 make；不能只替换 preset 的 generator |
+| BUILD-07 | P2 | 待评估 | 无变化 CBS 构建仍进入外部包装步骤：公共 `enable_auto_rebuild` 每次删除 build 标记，nulike/Rivet/Contur 的 build 重跑；Rivet 完成标记更新还使 Contur configure 重跑 | [externals.cmake](../cmake/externals.cmake) 的 `enable_auto_rebuild`、[backends.cmake](../cmake/backends.cmake) 的 Rivet/Contur。保留外部源码修改后的自动增量构建能力，减少无变化安装、配置及级联失效；不能直接删除自动重建机制 |
 
-BUILD-02 目前有生成 Makefile 的依赖顺序作为依据，但调整后能减少多少时间尚未测量。BUILD-03 改善缓存命中的重复编译，不能解决所有首次编译等待。
+BUILD-02 的问题由原生成 Makefile 的依赖顺序确认；实现后独立对象目标及无变化构建已通过，实际并行重叠和节省时间尚未测量。BUILD-03 改善缓存命中的重复编译，不能解决所有首次编译等待。BUILD-07 由维护者无变化日志及当前生成规则确认，尚未修改代码。
 
 ### BUILD-01 实施与验证
 
@@ -156,6 +158,85 @@ python3 cmake/tests/code_generation.py
 | 修改生成器时间但输出内容不变 | 维护者反馈通过 | 2026-10-10：touch 后重新编译也很快；未记录完成标记、源码和对象的时间戳对比 |
 | 文件增删或生成物缺失后重新配置 | 待执行 | 对应生成器正确失效、恢复输出 |
 
+### BUILD-02 实施与验证
+
+2026-10-10 基于 `a3b3cc87c7` 完成修改。维护者随后提供配置、独立对象构建、完整构建及无变化构建日志，独立对象构建、完整链接和无变化主工程构建通过，随本轮提交合入；并行重叠和单点运行尚未验收。
+
+- 所有 `add_standalone` 创建的程序源码使用 `<name>_objects` OBJECT target；CBS 的 `solo.cpp`、`solo_cli.cpp`、`solo_input.cpp`、`solo_batch.cpp`、`solo_output.cpp` 移入 `CBS_objects`，每份源码只编译一次。
+- 新对象目标等待 contrib、model/backend/module/printer harvest，使生成头文件和依赖包头文件先就绪；原有 BOSS → backend harvest → module harvest 顺序保持。对象目标不接入 ColliderBit 等模块对象库或 nulike/Rivet/Contur 的完整构建依赖。
+- 对象目标复制最终 executable 创建时的编译属性和 `LINK_LIBRARIES` 使用要求，涵盖 include、宏、options、标准、可见性、架构、IPO 等；`CBS_EXPORTS` 等导出宏单独保留。依赖库提供的编译要求及其必要准备仍生效。
+- 最终 executable 继续包含全部模块和公共对象，并保持完整后端依赖、链接库顺序与导出行为。生成的 `functors_for_<name>.cpp` 保留为 executable 的实际源码，其 BUILD-01 完成标记机制保持。
+- 新对象目标设置 `EXCLUDE_FROM_ALL`，避免默认构建额外编译未选中的 standalone。上述变化统一作用于 standalones，普通 GAMBIT executable 的源码与构建方式保持。
+- 工程仍使用共享 `build/`。CBS 程序对象的新路径为 `build/CMakeFiles/CBS_objects.dir/ColliderBit/examples/*.cpp.o`；functor 对象仍位于 `CBS.dir`，因此 BUILD-01 的时间戳验证命令继续适用。
+
+设计参考 CMake 官方的 [OBJECT 库使用要求](https://cmake.org/cmake/help/v3.16/command/target_link_libraries.html#linking-object-libraries)及 [LINK_LIBRARIES 属性](https://cmake.org/cmake/help/v3.16/prop_tgt/LINK_LIBRARIES.html)；复制链接属性用于保持程序对象的依赖库编译要求，后端完整构建依赖仍留在 executable 上。
+
+新增 [standalone_objects.py](../cmake/tests/standalone_objects.py) 的 5 组脚本回归已通过：程序源码和最终链接输入分离；头文件准备依赖与后端完整依赖分离；编译属性及 OpenMP/MPI/Python/yaml-cpp 使用要求保留；数字开头名称和自定义/空导出宏、配置级 IPO；被排除或没有程序源码时不创建多余对象目标。测试在 `cmake -P` 模式捕获实际注册函数的调用，不创建真实 CMake 工程，也不执行编译器。BUILD-01 的 6 组回归再次通过。维护者当前 Unix Makefiles 构建日志及生成文件已确认对象目标分离、编译参数保留及完整链接；其他 generator 和平台尚未验证。
+
+```sh
+python3 cmake/tests/standalone_objects.py
+python3 cmake/tests/code_generation.py
+```
+
+#### 维护者验收步骤
+
+继续使用当前 `cbs-llvm` 配置和原来的 `build/`，无需清空目录或 `--fresh`。
+
+1. 重新配置后只构建新对象目标，检查它能独立完成。程序对象迁移路径后，首次需要编译这 5 份源码；已有 ColliderBit/公共对象和外部安装树可继续复用。
+
+   ```sh
+   cd /Users/p.zhu/Gambit-Workshop/worktree/cbs-presets
+   set -o pipefail
+   cmake --preset cbs-llvm
+   cmake --build build --target CBS_objects -j8 --verbose 2>&1 | tee /tmp/cbs-build02-objects.log
+   ```
+
+   预期只编译 `CBS_objects` 自身源码，以及必要的头文件/依赖准备；不编译 ColliderBit 分析对象、公共对象或等待 nulike/Rivet/Contur 的完整构建。查看 verbose 命令中的 C++ 标准、include、OpenMP、`CHECK_CUTFLOW` 和 `CBS_EXPORTS`，应与原 CBS 编译配置一致。
+
+2. 构建完整 CBS，并确认随后无变化构建仍很快。
+
+   ```sh
+   cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build02-full.log
+   cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build02-noop.log
+   ```
+
+   第一次应复用已完成的 `CBS_objects`，完成必要依赖并链接 CBS；第二次不应重新编译未变化的程序源码或 functor。再运行维护者已有的 CBS 单点配置，确认后端加载和运行结果保持。
+
+3. 要观察真实并行重叠，在上述构建成功后只改时间戳，使一个程序文件和一个较慢的 ColliderBit 实现文件同时过期；不清理外部依赖。
+
+   ```sh
+   touch ColliderBit/examples/solo.cpp ColliderBit/src/ColliderBit_eventloop.cpp
+   cmake --build build --target CBS -j8 --verbose 2>&1 | tee /tmp/cbs-build02-overlap.log
+   ```
+
+   预期 `solo.cpp` 的编译可以在 `Built target ColliderBit` 之前开始，最后链接仍等待两个目标完成。`touch` 只改变修改时间；实际收益以同配置、同并发的日志和耗时为准，不根据依赖图填写提速百分比。日志中的任务启动顺序受可用并发槽位影响。
+
+4. 可直接检查 Unix Makefiles 的依赖图：
+
+   ```sh
+   rg 'CMakeFiles/CBS(_objects)?\.dir/all:' build/CMakeFiles/Makefile2
+   ```
+
+   `CBS_objects.dir/all` 应包含头文件准备和所需库使用依赖，不应包含 ColliderBit/公共对象库、nulike、rivet、contur 的完整目标；`CBS.dir/all` 则仍应包含 `CBS_objects`、模块/公共对象及启用的后端完整目标。某些 BOSS 头文件准备会依赖后端的下载/patch 步骤，这是必要依赖。
+
+| 验收项 | 状态 | 维护者实测记录 |
+| --- | --- | --- |
+| 5 组 standalone 注册回归、6 组 BUILD-01 回归及结构检查 | 已通过 | 脚本/静态检查，未执行项目配置或编译 |
+| 独立构建 CBS_objects | 已通过 | 2026-10-10 日志第 371–397 行：只编译 5 份 CBS 程序源码；未构建 ColliderBit/公共对象或 nulike/Rivet/Contur 完整目标 |
+| 编译上下文与真实生成依赖图 | 已通过 | 当前 `CBS.dir` 与 `CBS_objects.dir/flags.make` 的 `CXX_DEFINES`、`CXX_INCLUDES`、`CXX_FLAGS` 完全相同；包含 `CBS_EXPORTS`、`CHECK_CUTFLOW`、C++17 和 OpenMP。`Makefile2` 中对象目标只等待 contrib、harvest、cbs_preload、yaml-cpp，最终 CBS 保留模块/公共对象和全部启用后端依赖 |
+| 完整 CBS 链接 | 已通过 | 日志第 398–453 行：复用 5 份程序对象，无 C++ 编译，链接 CBS 一次并成功；当前 `CBS.dir/link.txt` 中每份新程序对象各出现一次 |
+| 无变化主工程构建 | 已通过 | 日志第 454–508 行：无 C++ 编译、无 CBS 链接、无 harvest/functor 生成；外部包装步骤仍重跑，另记 BUILD-07 |
+| CBS 单点运行 | 待执行 | 日志未包含运行输入和结果 |
+| solo.cpp 与 ColliderBit 编译重叠及构建耗时 | 待执行 | 本次先独立构建 CBS_objects，再构建完整 CBS；日志未含双文件 touch、并行重叠或构建计时 |
+
+#### 2026-10-10 构建日志记录
+
+维护者提供的原始日志位于 `/Users/p.zhu/.codex/attachments/46897018-a28b-451e-bb96-3d8592c7c7e8/Pasted text.txt`，共 508 行；命令依次为 `cmake --preset cbs-llvm`、`cmake --build build --target CBS_objects -j8`、两次 `cmake --build build --target CBS -j8`。环境为 macOS arm64、Release、Unix Makefiles、LLVM 22.1.8、GNU Fortran 15.2.0、Python 3.13.13、ROOT 6.40.00、C++17、OpenMP 开启，backend 接口保留 12/52。配置阶段记录 7.0 秒，生成阶段 0.5 秒；未记录三个构建阶段的耗时。维护者反馈构建很快，不能据此量化并行收益。
+
+本次没有 CMake/编译/链接错误。pybind11 的最低 CMake 兼容版本和 CMP0148 OLD 行为有弃用警告；Mathematica/libuuid、可选 scanner Python 包与 scanner 库缺失导致相应功能禁用，不影响本次 CBS 成功构建，不能把这些提示记为 CBS 构建失败。
+
+无变化日志第 470–471 行仍执行 nulike/Rivet build，第 496–497 行显示 Rivet 安装分析数据，第 502–503 行执行 Contur configure/build。已只读核对当前生成规则：三个 `check-rebuild-*` 目标每次删除各自 build 标记，来自 `externals.cmake` 的 `enable_auto_rebuild`；Rivet 的完成标记是 Contur configure 的输入。外部 make 仍可自行判断对象是否需要重编译，因此该日志能确认步骤重复进入，不能确认这些库每次完整重编译。该问题登记为 BUILD-07，后续需要测量耗时并保留外部源码增量构建能力。
+
 ## 配置正确性与使用体验待办
 
 | 编号 | 优先级 | 状态 | 实施内容 | 验收标准与位置 |
@@ -172,10 +253,10 @@ python3 cmake/tests/code_generation.py
 
 ## 下一轮实施与构建验收
 
-1. 维护者先验收本轮 C++ 修改，记录实际配置、编译和 CBS 运行结果，再记录提交号。
+1. C++ 修改及 BUILD-01 已提交；当前 LLVM/ROOT 17 配置和 CBS 构建已有日志，继续按需补齐其他标准、冲突拒绝及运行场景。
 2. BUILD-01 已有当前环境的维护者构建反馈；后续按需补充文件增删或缺失恢复场景，继续完成 CFG-01/CFG-02 的显式配置优先级修复。
 3. 接入 BUILD-03，完善 BUILD-04/BUILD-05 的依赖保留与复用；补齐对应摘要。
-4. 调整 BUILD-02 的编译顺序，并以同环境基准量化收益。
+4. BUILD-02 独立对象构建、完整链接及无变化主工程构建已通过；继续补齐并行重叠与单点运行，以同环境基准量化收益，再评估 BUILD-07 的外部步骤重复开销。
 5. 清理文档与探测重复项，再评估 Ninja 适配。
 
 本台账不改变仓库构建政策：继续使用 `${sourceDir}/build`；切换编译器家族按 `AGENTS.md` 使用 `--fresh`；实际构建由维护者执行。变更 profile、关闭依赖与重置缓存的影响应单独记录，避免把额外重建误认为编译回退。
@@ -184,7 +265,7 @@ python3 cmake/tests/code_generation.py
 
 | 场景 | 预期 | 实测记录 |
 | --- | --- | --- |
-| 当前 macOS LLVM，AUTO，ROOT 17 | 主工程、ROOT 及通用 backend 参数为 C++17 | 待执行 |
+| 当前 macOS LLVM，AUTO，ROOT 17 | 主工程、ROOT 及通用 backend 参数为 C++17 | 当前配置/CBS 构建通过：摘要跟随 ROOT 为 17，CBS 与 CBS_objects 的生成 flags 均为 `-std=c++17`；外部包实际命令未逐项核对 |
 | 显式 C++17，ROOT 17 | 配置和编译成功，摘要显示显式请求 | 待执行 |
 | 显式 C++20，ROOT 17 | 配置阶段报告冲突及可用修复方式 | 待执行 |
 | 显式 C++20/23，ROOT OFF | ROOT 保持关闭；编译器支持相应模式时主工程使用请求标准 | 待执行 |
@@ -221,3 +302,6 @@ cmake --build --preset cbs-llvm --parallel 8
 | 2026-10-10 | 建立台账；登记已合入基础、C++ 标准修复与 37 项脚本检查，整理构建、配置、文档待办及后续验收矩阵 |
 | 2026-10-10 | 实现 BUILD-01；记录六组脚本回归、增量构建验收命令和时间戳检查，真实构建及性能收益待维护者验证 |
 | 2026-10-10 | 维护者反馈 BUILD-01 测试已完成，重新编译及 touch 后重新编译都很快；状态更新为已实现已构建，定性反馈已登记，尚未记录具体耗时或日志 |
+| 2026-10-10 | 将 C++ 标准、BUILD-01 和台账提交为 `a3b3cc87c7`；实现 BUILD-02，登记五组 standalone 注册回归及维护者构建验证步骤，尚未提交 BUILD-02 |
+| 2026-10-10 | 审阅维护者 508 行构建日志及当前生成文件；确认 BUILD-02 独立对象构建、编译上下文、完整链接和无变化主工程构建通过；登记 BUILD-07 外部步骤重复进入，实际并行重叠、计时及单点运行仍待验收 |
+| 2026-10-10 | 提交 BUILD-02 程序对象拆分、五组脚本回归及维护者日志验收记录；父提交为 `a3b3cc87c7`，后续按 BUILD-03 接入可选编译缓存 |

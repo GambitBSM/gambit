@@ -462,6 +462,51 @@ function(add_gambit_executable executablename LIBRARIES)
 
 endfunction()
 
+# Give standalone program objects the executable's compile settings and library
+# usage requirements, without inheriting its link-only target dependencies.
+function(gambit_configure_standalone_objects object_target executablename)
+  foreach(property INCLUDE_DIRECTORIES COMPILE_DEFINITIONS COMPILE_OPTIONS COMPILE_FLAGS
+                   COMPILE_FEATURES LINK_LIBRARIES
+                   C_COMPILER_LAUNCHER CXX_COMPILER_LAUNCHER
+                   C_STANDARD C_STANDARD_REQUIRED C_EXTENSIONS
+                   CXX_STANDARD CXX_STANDARD_REQUIRED CXX_EXTENSIONS
+                   C_VISIBILITY_PRESET CXX_VISIBILITY_PRESET VISIBILITY_INLINES_HIDDEN
+                   POSITION_INDEPENDENT_CODE INTERPROCEDURAL_OPTIMIZATION
+                   MSVC_RUNTIME_LIBRARY OSX_ARCHITECTURES)
+    get_target_property(setting ${executablename} ${property})
+    if(NOT setting STREQUAL "setting-NOTFOUND")
+      set_property(TARGET ${object_target} PROPERTY ${property} "${setting}")
+    endif()
+  endforeach()
+  foreach(config ${CMAKE_CONFIGURATION_TYPES} ${CMAKE_BUILD_TYPE})
+    string(TOUPPER "${config}" config)
+    foreach(property INTERPROCEDURAL_OPTIMIZATION OSX_ARCHITECTURES COMPILE_DEFINITIONS)
+      get_target_property(setting ${executablename} ${property}_${config})
+      if(NOT setting STREQUAL "setting-NOTFOUND")
+        set_property(TARGET ${object_target} PROPERTY ${property}_${config} "${setting}")
+      endif()
+    endforeach()
+  endforeach()
+
+  # ENABLE_EXPORTS supplies this define for executable sources. The moved
+  # sources must keep it as well (including names such as 3bithit).
+  get_target_property(exports ${executablename} ENABLE_EXPORTS)
+  if(exports)
+    get_target_property(symbol ${executablename} DEFINE_SYMBOL)
+    if(symbol STREQUAL "symbol-NOTFOUND")
+      string(MAKE_C_IDENTIFIER "${executablename}_EXPORTS" symbol)
+    endif()
+    if(NOT symbol STREQUAL "")
+      target_compile_definitions(${object_target} PRIVATE "${symbol}")
+    endif()
+  endif()
+
+  # These targets prepare headers needed during compilation. The module's
+  # compiled objects and backend libraries are required only by the executable.
+  add_dependencies(${object_target} contrib model_harvest backend_harvest
+                   module_harvest printer_harvest)
+endfunction()
+
 # Standalone harvester script
 set(STANDALONE_FACILITATOR ${PROJECT_SOURCE_DIR}/Elements/scripts/standalone_facilitator.py)
 
@@ -515,11 +560,23 @@ function(add_standalone executablename)
   if(standalone_permitted)
 
     # Iterate over sources and add leading source path
+    set(STANDALONE_SOURCES "")
+    set(STANDALONE_OBJECT_TARGET "")
+    set(STANDALONE_PROGRAM_OBJECTS "")
     set(STANDALONE_FUNCTORS "${PROJECT_SOURCE_DIR}/${first_module}/examples/functors_for_${executablename}.cpp")
     foreach(source_file ${ARG_SOURCES})
       list(APPEND STANDALONE_SOURCES ${PROJECT_SOURCE_DIR}/${source_file})
     endforeach()
-    list(APPEND STANDALONE_SOURCES ${STANDALONE_FUNCTORS})
+
+    # Compile the program sources independently of the module/common objects and
+    # link-only backends. Keep the generated functors source on the executable,
+    # which also gives native generators a real source file for the link target.
+    if(STANDALONE_SOURCES)
+      set(STANDALONE_OBJECT_TARGET ${executablename}_objects)
+      add_library(${STANDALONE_OBJECT_TARGET} OBJECT ${STANDALONE_SOURCES} ${ARG_HEADERS})
+      set_target_properties(${STANDALONE_OBJECT_TARGET} PROPERTIES EXCLUDE_FROM_ALL 1)
+      set(STANDALONE_PROGRAM_OBJECTS $<TARGET_OBJECTS:${STANDALONE_OBJECT_TARGET}>)
+    endif()
 
     set(facilitator_options_stamp "${CMAKE_BINARY_DIR}/functors_for_${executablename}_options.stamp")
     set(facilitator_stamp "${CMAKE_BINARY_DIR}/functors_for_${executablename}.stamp")
@@ -580,10 +637,15 @@ function(add_standalone executablename)
     endif()
 
     add_gambit_executable(${executablename} "${ARG_LIBRARIES}"
-                          SOURCES ${STANDALONE_SOURCES}
+                          SOURCES ${STANDALONE_PROGRAM_OBJECTS}
+                                  ${STANDALONE_FUNCTORS}
                                   ${STANDALONE_OBJECTS}
                                   ${GAMBIT_ALL_COMMON_OBJECTS}
                           HEADERS ${ARG_HEADERS})
+
+    if(STANDALONE_OBJECT_TARGET)
+      gambit_configure_standalone_objects(${STANDALONE_OBJECT_TARGET} ${executablename})
+    endif()
 
     add_dependencies(${executablename} ${executablename}_functors)
 
