@@ -88,11 +88,11 @@ add_dependencies(nuke-all nuke-pippi)
 set_target_properties(get-pippi PROPERTIES EXCLUDE_FROM_ALL 1)
 
 
-# Macro to clear the build stamp manually for an external project
+# Keep automatic rebuilding for edited external sources. Audited packages can
+# declare inputs/products; other packages retain unconditional make checks.
+include(ExternalAutoRebuild)
 macro(enable_auto_rebuild package)
-  set(rmstring "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-stamp/${package}-build")
-  add_custom_target(check-rebuild-${package} ${CMAKE_COMMAND} -E remove -f ${rmstring})
-  add_dependencies(${package} check-rebuild-${package})
+  gambit_enable_external_auto_rebuild(${package} ${ARGN})
 endmacro()
 
 
@@ -173,7 +173,7 @@ macro(add_extra_targets type package ver dir dl target)
   endif()
 
   #Add extra targets common to everything.
-  enable_auto_rebuild(${pname})
+  enable_auto_rebuild(${pname} ${ARGN})
   set_target_properties(${pname} PROPERTIES EXCLUDE_FROM_ALL 1)
   set(rmstring "${CMAKE_BINARY_DIR}/${pname}-prefix/src/${pname}-stamp/${pname}-download")
   ExternalProject_Add_Step(${pname} verify

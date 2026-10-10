@@ -239,6 +239,63 @@ python3 cmake/tests/contrib_build_identity.py
 See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-05-实施与验证)
 for maintainer checks and the remaining platform validation.
 
+## External backend incremental builds
+
+`nulike_1.0.9`, `rivet_4.1.0` and `contur_3.0.0` check declared source inputs
+and required products before invalidating their build stamps. Successful installs
+record source paths, nanosecond modification times, sizes and content hashes in
+`build/<package>-prefix/tmp/<package>-source-state.json`. The signature also covers
+the actual external configure/build/install commands and compiler identities.
+The first build runs these wrappers once to create their records.
+
+Unchanged builds retain the stamps, skipping Rivet data installation/library
+copying and the resulting Contur configure cascade. Editing, touching, adding or
+removing a declared source still enables the package's incremental make step.
+Missing required build products also enable that step; missing declared configure
+products additionally invalidate configure. Records are written only after a
+successful install and product check. Internal make determines which objects
+need compilation; this does not introduce a compiler/ABI migration policy for
+these backends.
+
+Rivet tracks its C++/header/Python/analysis inputs, upstream FastJet/YODA/HepMC
+headers and libraries, and checks after those dependencies finish. Contur tracks
+its database Makefile/SQL inputs and requires its database and generated Python
+initialization module. Rivet Python product checks accept both site-packages and
+dist-packages. Generated objects, libtool objects and compilation/cache directories
+are excluded from source snapshots. Other backend/scanner versions retain the
+existing automatic make-check policy until their inputs and products are audited.
+The existing explicit clean/nuke targets and pristine Rivet patch preparation
+remain available.
+
+Use the existing compiler and shared build tree:
+
+```sh
+cmake --preset cbs-llvm
+cmake --build build --target CBS -j8
+cmake --build build --target CBS -j8
+cmake --preset cbs-llvm
+cmake --build build --target CBS -j8
+```
+
+After the initial successful build, the unchanged builds should have no external
+configure/build/install or source-state record steps for these three packages.
+The lightweight `check-rebuild-*` targets still run. No clean or build-tree reset
+is needed. For a source-edit smoke test, touch
+`Backends/installed/nulike/1.0.9/src/utils.f`, build CBS, then build again: only the
+first build should re-enter nulike's build step.
+
+Script-only regression checks:
+
+```sh
+python3 cmake/tests/external_auto_rebuild.py
+```
+
+See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-07-实施与验证)
+for logs and stamp/library timestamp checks. The current macOS LLVM build has
+passed initial recording, direct unchanged builds and unchanged builds after
+reconfiguration. Source-touch, timestamp comparisons and other platforms remain
+to be verified.
+
 ## Compiler caching
 
 On a new preset configuration, `GAMBIT_COMPILER_CACHE` defaults to `AUTO`:

@@ -1,6 +1,6 @@
 # CMake Preset 开发台账
 
-记录 GAMBIT 和 ColliderBit Solo 的 preset、CMake 构建与开发体验改进。C++ 标准统一和 BUILD-01 已提交，维护者反馈 BUILD-01 重新编译及 touch 后构建都很快。BUILD-02 已完成脚本检查，并由维护者日志确认独立对象构建、完整链接及主工程无变化构建通过；实际并行重叠与运行场景仍待验证。BUILD-03 已接入可选 ccache，维护者日志确认真实 launcher 与完整 CBS 链接成功；精确命中增量和开关场景仍待补齐。BUILD-04 已移除三处停用即删除逻辑，并保留停用包的显式清理入口；5 组夹具检查通过，维护者日志确认 RestFrames OFF/ON 后安装保留、外部目标复用及完整 CBS 构建成功；HepMC/YODA 停用场景仍待验证。BUILD-05 已增加 FastJet/Contrib 文件与构建身份检查，11 组脚本夹具通过；维护者日志确认首次迁移重建、成功记录、相同配置复用及完整 CBS 构建通过。其余事项按台账继续推进。
+记录 GAMBIT 和 ColliderBit Solo 的 preset、CMake 构建与开发体验改进。C++ 标准统一和 BUILD-01 已提交，维护者反馈 BUILD-01 重新编译及 touch 后构建都很快。BUILD-02 已完成脚本检查，并由维护者日志确认独立对象构建、完整链接及主工程无变化构建通过；实际并行重叠与运行场景仍待验证。BUILD-03 已接入可选 ccache，维护者日志确认真实 launcher 与完整 CBS 链接成功；精确命中增量和开关场景仍待补齐。BUILD-04 已移除三处停用即删除逻辑，并保留停用包的显式清理入口；5 组夹具检查通过，维护者日志确认 RestFrames OFF/ON 后安装保留、外部目标复用及完整 CBS 构建成功；HepMC/YODA 停用场景仍待验证。BUILD-05 已增加 FastJet/Contrib 文件与构建身份检查，11 组脚本夹具通过；维护者日志确认首次迁移重建、成功记录、相同配置复用及完整 CBS 构建通过。BUILD-07 已为日志中的三包接入输入状态检查和成功安装后记录，11 组脚本夹具通过；维护者日志确认首次建立记录、直接重复构建和相同配置后复用均成功，三包重复步骤已跳过。其余事项按台账继续推进。
 
 - 更新日期：2026-10-11，Australia/Adelaide。
 - 目标分支：`Colliderbit-solo-development-preset`，工作树为 `cbs-presets`。
@@ -8,7 +8,8 @@
 - BUILD-02 已提交为 `957c81ecd9`，父提交为 `a3b3cc87c7`；包含独立程序对象目标、脚本回归及维护者日志验收记录。
 - BUILD-03 已提交为 `0965735828`，父提交为 `957c81ecd9`；包含可选 ccache、摘要、策略测试和维护者构建记录。
 - BUILD-04 已提交为 `1d46bf0439`，父提交为 `0965735828`；包含三包停用保留、显式清理入口及维护者验收记录。
-- BUILD-05 基于 `1d46bf0439` 实施；当前 macOS LLVM 首次迁移及相同配置复用已验收，随本轮提交。
+- BUILD-05 已提交为 `09929f07fb`，父提交为 `1d46bf0439`；当前 macOS LLVM 首次迁移及相同配置复用已验收。
+- BUILD-07 基于 `09929f07fb` 实施；当前 macOS LLVM 首次记录、直接重复构建及相同配置复用已验收，随本轮提交；BUILD-06 为 P3 后续评估。
 - 关联文档：[Preset 使用说明](../cmake/presets/README.md)、[CMake Preset 工程标准](CMAKE_PRESET_STANDARD.md)、[仓库开发规则](../AGENTS.md)。
 
 ## 状态与验收规则
@@ -86,10 +87,10 @@ cmake -P cmake/tests/cxx_standard.cmake
 | BUILD-04 | P1 | 已合入 | 移除 RestFrames/HepMC/YODA 停用分支中的自动删除及未使用的 `nuke_ditched_contrib_content`；保留源码、安装、外部构建目录和步骤标记；三包的显式 clean/nuke 在停用时也可用 | [contrib.cmake](../cmake/contrib.cmake)、[contrib_retention.py](../cmake/tests/contrib_retention.py)。5 组夹具检查通过；当前 macOS LLVM 环境 RestFrames OFF/ON 保留复用和完整 CBS 构建已通过；HepMC/YODA 停用及清理入口的真实验收待补齐 |
 | BUILD-05 | P1 | 已合入 | FastJet/Contrib 每次重新搜索并检查实际文件；复用须匹配成功安装后的构建身份；缺失或不匹配时使所属步骤失效，构建阶段从校验过的归档恢复干净源码；FastJet 重建级联至 Contrib | [contrib.cmake](../cmake/contrib.cmake)、[ContribBuildIdentity.cmake](../cmake/ContribBuildIdentity.cmake)、[contrib_build_identity.py](../cmake/tests/contrib_build_identity.py)。11 组脚本夹具通过；当前 macOS LLVM 首次迁移、安装身份、相同配置复用及完整 CBS 构建已通过；直接无配置重复构建、时间戳对照和其他平台待补齐 |
 | BUILD-06 | P3 | 待评估 | 支持 Ninja 前需分离主 generator 与外部 make 工具，并完善生成物声明 | [utilities.cmake](../cmake/utilities.cmake) 的 `MAKE_PARALLEL`。FastJet 等 Autotools 包必须仍用 make；不能只替换 preset 的 generator |
-| BUILD-07 | P2 | 待评估 | 无变化 CBS 构建仍进入外部包装步骤：公共 `enable_auto_rebuild` 每次删除 build 标记，nulike/Rivet/Contur 的 build 重跑；Rivet 完成标记更新还使 Contur configure 重跑 | [externals.cmake](../cmake/externals.cmake) 的 `enable_auto_rebuild`、[backends.cmake](../cmake/backends.cmake) 的 Rivet/Contur。保留外部源码修改后的自动增量构建能力，减少无变化安装、配置及级联失效；不能直接删除自动重建机制 |
+| BUILD-07 | P2 | 已合入 | 为 nulike 1.0.9、Rivet 4.1.0、Contur 3.0.0 声明输入和关键产物；成功安装后记录状态，无变化保留 build 标记；编辑/touch/增删源码或缺产物时使所属步骤失效；其他包保留原策略 | [ExternalAutoRebuild.cmake](../cmake/ExternalAutoRebuild.cmake)、[external_rebuild.py](../cmake/scripts/external_rebuild.py)、[externals.cmake](../cmake/externals.cmake)、[backends.cmake](../cmake/backends.cmake)。11 组临时检查通过；当前环境首次记录、直接重复构建及重新配置后跳过已通过，时间戳对照及源码 touch 待补齐 |
 | BUILD-08 | P2 | 待评估 | 可选依赖通过目录级 include_directories 传播到无关原生目标；OFF/ON 改写 flags.make，即使恢复原配置也会触发对象构建。评估目标级依赖及配置头文件范围 | [contrib.cmake](../cmake/contrib.cmake)、[preprocessor.cmake](../cmake/preprocessor.cmake)。本次 RestFrames 切换后，Models、FastJet Contrib、mkpath、Fortran 等目标均带 RestFrames include。收窄影响范围时必须保留实际使用该依赖的目标及生成头文件顺序；不能强行恢复旧时间戳隐藏配置变更 |
 
-BUILD-02 的问题由原生成 Makefile 的依赖顺序确认；实现后独立对象目标及无变化构建已通过，实际并行重叠和节省时间尚未测量。BUILD-03 改善缓存命中的重复编译，不能解决所有首次编译等待。BUILD-07 由维护者无变化日志及当前生成规则确认，尚未修改代码。
+BUILD-02 的问题由原生成 Makefile 的依赖顺序确认；实现后独立对象目标及无变化构建已通过，实际并行重叠和节省时间尚未测量。BUILD-03 改善缓存命中的重复编译，不能解决所有首次编译等待。BUILD-07 由维护者无变化日志及当前生成规则确认；当前三包已接入状态检查；维护者日志确认直接重复构建及相同配置后跳过重复步骤，具体耗时未测量。
 
 ### BUILD-01 实施与验证
 
@@ -403,7 +404,7 @@ python3 cmake/tests/contrib_retention.py
 
 ### BUILD-05 实施与验证
 
-2026-10-11 基于 `1d46bf0439` 实现。当前 macOS LLVM 的首次迁移和相同配置后复用已由维护者验收，随本轮提交，状态为 **已合入**。
+2026-10-11 基于 `1d46bf0439` 实现。当前 macOS LLVM 的首次迁移和相同配置后复用已由维护者验收，已提交为 `09929f07fb`，状态为 **已合入**。
 
 - 两包的库搜索不再信任旧 cache/normal 路径，只搜索当前安装 prefix，并检查实际存在、非目录。FastJet 检查 fastjet-config 和所需插件头文件；Contrib 检查公共头文件及主工程所编译的六份 Nsubjettiness 源码。
 - 构建身份记录包版本/归档校验值、C/C++/Fortran 编译器路径、版本、realpath 和文件时间戳、标准、系统/处理器/架构、SDK/deployment、实际包编译 flags、configure 选项。Contrib 额外关联 FastJet 身份和 OpenMP 库路径。自动 ccache launcher 不用于这些外部 Make 包，也不计入其身份。
@@ -464,6 +465,82 @@ diff -u /tmp/cbs-build05-before.txt /tmp/cbs-build05-after.txt
 - 构建后只读检查两份安装记录与 `build/{package}-prefix/tmp/{package}-identity.txt` 字节一致，均记录当前 SDK/minimum 27.0。时间戳前后对照、未经配置的直接重复构建、总构建耗时及 ccache 命中增量未提供。
 - pybind11 的 CMake 弃用提示、FastJet/Contrib 未使用变量/参数及旧链接选项警告未阻止构建。最后一次仍进入 nulike/Rivet build、Rivet 数据安装及 Contur configure/build，继续按 BUILD-07 处理。
 
+### BUILD-07 实施与验证
+
+2026-10-11 基于 `09929f07fb` 实现；当前 macOS LLVM 的首次记录、直接重复构建及相同配置后复用已由维护者验收，随本轮提交，状态为 **已合入**。台账将 Ninja 适配（BUILD-06）列为 P3 后续评估，本轮先处理已有实际日志证据的 P2 重复步骤。
+
+- 公共 `enable_auto_rebuild` 支持可选的输入、上游文件、构建产物和配置产物声明。当前只为 nulike 1.0.9、Rivet 4.1.0、Contur 3.0.0 接入；其余版本/后端/scanner 仍执行原来的自动 make 检查，逐包审计后再扩展。
+- 每次请求包目标时，以项目已有的 Python 3 扫描声明的输入：记录路径/realpath、纳秒 mtime、大小和 SHA256；清单增删、touch 和内容变化均可使 build 标记失效。输入身份还包含真实 ExternalProject configure/build/install 参数、编译器版本/路径/文件时间戳及检查脚本版本。生成的对象、libtool 文件、`.libs/.deps`、内部 build 和 Python cache 不进入源码状态。
+- 无成功记录或状态不同，只清除该包 build 标记；缺少声明的配置产物时额外清除 configure。成功 install 之后的 `record_source_state` 再检查关键产物，原子记录状态；失败或不完整安装不覆盖旧成功记录。相同状态不改写 JSON。内部 make 决定具体对象重编译范围，本轮不改变 backend 的编译器/ABI 迁移及 flags 变更后对象清理政策。
+- nulike 跟踪 Makefile、src/include/contrib，检查真实 `lib/libnulike.so`。Rivet 跟踪源码、公共头、Python 和分析数据、必要共享头及 FastJet/YODA/HepMC 的安装头/库；检查实际主库、三个分析插件及启用时的 Python 产品，支持 site-packages/dist-packages。Contur 跟踪 DB 的 Makefile/SQL，检查 analyses.db 和 `init_by_GAMBIT.py`。该声明覆盖当前构建入口，并非任意 C/C++ 外部头文件的完整依赖扫描。
+- Rivet/Contur 的检查 target 等待 ExternalProject 已声明的上游依赖后再扫描，保留并行构建的顺序。已有下载、补丁、BOSS、pristine Rivet 准备、显式 clean/nuke 及 CBS 对象依赖不变。无变化时不再由删除 build 标记引发 Rivet 数据安装/库复制，也不再因此更新完成标记并级联到 Contur configure。
+
+[external_auto_rebuild.py](../cmake/tests/external_auto_rebuild.py) 的 11 组检查通过：首次建立记录且只删自身 build；无变化输入/产物/标记和 JSON 时间戳稳定；保持 mtime/大小的内容编辑及纳秒 touch；源码增删且无需重新配置；生成对象/cache 排除；库或配置产物缺失的分阶段失效；失败重试及不完整安装不覆盖成功记录；编译命令及已安装依赖改变；损坏记录/空输入拒绝；Python 安装目录通配；实际三包声明、其他 nulike 版本原策略、上游顺序、原 pristine/BOSS 注册和 pyext OFF。执行的是临时文件、Python 检查和捕获注册的 `cmake -P`；没有配置或编译工程。
+
+另对当前真实安装做了只读扫描：nulike 114、Rivet 8772、Contur 3 个输入，两次连续读取状态相同，当前所声明的构建/配置产物均存在。一次输入扫描约为 0.025/1.593/0.003 秒；这些是局部检查脚本的读取时间，不是实际 CBS 构建耗时或已验收的提速结果。
+
+#### 维护者验收
+
+继续当前 preset 和共享 build，不清空、不 clean、不 --fresh。第一次预计三包各进入一次包装 build 并出现 `Recording successful ... source state`；Rivet 此次完成标记更新可导致 Contur 一次 configure，这属于建立记录的成本。
+
+```sh
+cd /Users/p.zhu/Gambit-Workshop/worktree/cbs-presets
+set -o pipefail
+cmake --preset cbs-llvm
+cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build07-first.log
+
+build07_files=(
+  build/nulike_1.0.9-prefix/src/nulike_1.0.9-stamp/nulike_1.0.9-build
+  build/rivet_4.1.0-prefix/src/rivet_4.1.0-stamp/rivet_4.1.0-build
+  build/rivet_4.1.0-prefix/src/rivet_4.1.0-stamp/rivet_4.1.0-done
+  build/contur_3.0.0-prefix/src/contur_3.0.0-stamp/contur_3.0.0-configure
+  build/contur_3.0.0-prefix/src/contur_3.0.0-stamp/contur_3.0.0-build
+  build/nulike_1.0.9-prefix/tmp/nulike_1.0.9-source-state.json
+  build/rivet_4.1.0-prefix/tmp/rivet_4.1.0-source-state.json
+  build/contur_3.0.0-prefix/tmp/contur_3.0.0-source-state.json
+  Backends/installed/nulike/1.0.9/lib/libnulike.so
+  Backends/installed/rivet/4.1.0/local/lib/libRivet.so
+  Backends/installed/contur/3.0.0/data/DB/analyses.db
+)
+stat -f '%m %N' "${build07_files[@]}" > /tmp/cbs-build07-before.txt
+cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build07-noop.log
+cmake --preset cbs-llvm
+cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build07-reconfigured.log
+stat -f '%m %N' "${build07_files[@]}" > /tmp/cbs-build07-after.txt
+diff -u /tmp/cbs-build07-before.txt /tmp/cbs-build07-after.txt
+```
+
+后两次 CBS 都应成功，三个 `check-rebuild-*` 仍显示目标完成，但不应有这三包 configure/build/install/record_source_state 命令、Rivet `Installing analysis data files...`，或无变化主工程的对象编译/链接；diff 无输出。每次仍有输入扫描成本，需结合实际日志计时判断收益。
+
+再检查外部源码 touch 的自动增量入口（不重新配置）：
+
+```sh
+touch Backends/installed/nulike/1.0.9/src/utils.f
+cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build07-touch.log
+cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build07-touch-noop.log
+```
+
+第一次应提示 nulike source inputs changed，进入其增量 build 和成功记录；第二次不再进入。无需删除真实库、修改源码内容或重建全部依赖。
+
+| 验收项 | 状态 | 范围 |
+| --- | --- | --- |
+| 11 组临时检查与实际声明捕获 | 已通过 | 源码变化/缺产物/失败/目录与并行顺序；不运行 make、编译器或项目 configure |
+| 当前安装产物和只读输入扫描 | 当前环境通过 | 所声明文件存在、连续扫描稳定；不代替工程验收 |
+| 首次建立成功记录及完整 CBS | 当前环境通过 | 三包成功 build/install 后记录；三次 CBS 都成功；首次没有主工程对象编译或链接 |
+| 直接重复构建及相同配置后复用 | 当前环境通过 | 两次后续日志均无三包 configure/build/install/record、Rivet 数据安装、主工程对象编译或链接 |
+| 标记、JSON、库/DB 时间戳前后对照 | 待补齐 | 日志未包含 before/after stat 与 diff，不据此填写时间戳稳定或量化提速 |
+| 外部源码 touch 后构建及其后无变化构建 | 待执行 | 不重新配置也能进入对应包，成功后下一次再次跳过 |
+| 其他平台、pyext OFF 和真实失败/缺产物恢复 | 待执行 | 临时夹具不代替平台构建；不要求破坏现有安装来验证 |
+
+#### 维护者构建记录（2026-10-11）
+
+日志为 `/Users/p.zhu/.codex/attachments/9d5b19bb-ae94-454e-acc6-5e9f7cb6a434/Pasted text.txt`（889 行）。环境为当前 `cbs-llvm`、LLVM 22.1.8、Python 3.13.13、C++17、SDK/minimum 27.0、ccache 4.13.6，三次构建均为 CBS `-j8`。
+
+- 第一次配置继续复用身份匹配的 FastJet/Contrib；nulike/Rivet/Contur 各因没有成功源码记录进入一次 build，并在第 403、423、432 行成功记录。Rivet 本次完成标记变化导致 Contur 一次 configure，与建立记录阶段的预期一致。第 436 行 CBS 成功，没有主工程对象编译或链接。
+- 第 437–478 行直接重复构建，第 848–889 行相同配置后的构建，都没有三包 configure/build/install/record 命令、Rivet 数据安装、对象编译或链接；两次最终均 `Built target CBS`。轻量 check-rebuild 目标仍正常运行。
+- 构建后只读重新扫描，三份成功记录与当前输入状态一致，也与生成的 check-rebuild 命令身份一致，声明的构建/配置产物均存在。当前输入数为 nulike 114、Rivet 9142、Contur 3；该数字与此前安装在首次记录前的读取不同，当前记录及连续后续构建均匹配。
+- 第二次配置/生成为 5.9/0.4 秒。日志没有总构建耗时、前后时间戳对照或源码 touch 场景，不能量化提速，也不补足这些未执行的验收项。配置中的可选依赖提示及 pybind11 旧 CMake 策略弃用未阻止构建。
+
 ## 配置正确性与使用体验待办
 
 | 编号 | 优先级 | 状态 | 实施内容 | 验收标准与位置 |
@@ -482,8 +559,8 @@ diff -u /tmp/cbs-build05-before.txt /tmp/cbs-build05-after.txt
 
 1. C++ 修改及 BUILD-01 已提交；当前 LLVM/ROOT 17 配置和 CBS 构建已有日志，继续按需补齐其他标准、冲突拒绝及运行场景。
 2. BUILD-01 已有当前环境的维护者构建反馈；后续按需补充文件增删或缺失恢复场景，继续完成 CFG-01/CFG-02 的显式配置优先级修复。
-3. BUILD-03 已提交为 `0965735828`；按需补齐命中增量和 OFF/AUTO 实测。BUILD-04 已提交为 `1d46bf0439`，HepMC/YODA 场景按需补齐；BUILD-05 首次迁移及相同配置复用已通过并随本轮提交；接着处理 BUILD-07 外部包装步骤的重复开销，BUILD-06 Ninja 适配仍作为 P3 后续评估。
-4. BUILD-02 独立对象构建、完整链接及无变化主工程构建已通过；继续补齐并行重叠与单点运行，以同环境基准量化收益，再评估 BUILD-07 的外部步骤重复开销。
+3. BUILD-03 已提交为 `0965735828`；按需补齐命中增量和 OFF/AUTO 实测。BUILD-04 已提交为 `1d46bf0439`，HepMC/YODA 场景按需补齐；BUILD-05 首次迁移及相同配置复用已通过并提交为 `09929f07fb`；BUILD-07 首次记录、直接重复构建及相同配置后复用已通过并随本轮提交；时间戳对照、源码 touch 和其他平台按需补齐。BUILD-06 Ninja 适配仍作为 P3 后续评估。
+4. BUILD-02 独立对象构建、完整链接及无变化主工程构建已通过；继续补齐并行重叠与单点运行，以同环境基准量化收益，结合 BUILD-07 的验收日志测量外部步骤重复开销。
 5. 清理文档与探测重复项，再评估 Ninja 适配。
 
 本台账不改变仓库构建政策：继续使用 `${sourceDir}/build`；切换编译器家族按 `AGENTS.md` 使用 `--fresh`；实际构建由维护者执行。变更 profile、关闭依赖与重置缓存的影响应单独记录，避免把额外重建误认为编译回退。
@@ -539,3 +616,5 @@ cmake --build --preset cbs-llvm --parallel 8
 | 2026-10-10 | 维护者补充恢复配置后的 CBS -j8 无变化日志：无原生对象编译、链接及代码生成，主工程增量验收通过；nulike/Rivet/Contur 包装步骤仍重复进入，继续跟踪 BUILD-07；BUILD-04 尚未提交 |
 | 2026-10-11 | BUILD-04 提交为 `1d46bf0439`；实现 BUILD-05 FastJet/Contrib 实际文件与构建身份校验、构建阶段干净准备及成功安装后记录；11 组新夹具和五组保留检查通过，真实构建待维护者验收；BUILD-05 尚未提交 |
 | 2026-10-11 | 维护者日志确认 BUILD-05 首次迁移、成功安装记录、相同配置复用及完整 CBS 构建通过；安装记录只读比对通过；开始处理 BUILD-07，直接重复构建/时间戳与其他平台待补齐 |
+| 2026-10-11 | BUILD-05 提交为 `09929f07fb`；实现 BUILD-07 三包输入/产物检查和成功安装后记录，11 组脚本夹具通过，当前安装只读扫描稳定；真实构建待维护者验收，BUILD-07 尚未提交 |
+| 2026-10-11 | 审阅 BUILD-07 的 889 行日志：三包首次成功记录、直接重复构建及相同配置后跳过重复步骤均通过；三次 CBS 成功，无原生编译/链接；成功记录及生成命令只读比对通过，随本轮提交；touch/时间戳及其他平台待补齐 |

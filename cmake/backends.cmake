@@ -1399,7 +1399,10 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FF=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
     INSTALL_COMMAND ""
   )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean
+    REBUILD_INPUTS "${dir}/Makefile" "${dir}/src/**/*"
+                   "${dir}/include/**/*" "${dir}/contrib/**/*"
+    REBUILD_OUTPUTS "${dir}/lib/${lib}.so")
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
@@ -2255,7 +2258,34 @@ if(NOT ditched_${name}_${ver})
   endif()
   unset(_rivet_boss_include_options)
   unset(_rivet_include_dir)
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set(_rivet_rebuild_outputs "${dir}/local/lib/libRivet.so"
+      "${dir}/local/lib/Rivet/RivetATLASAnalyses.so"
+      "${dir}/local/lib/Rivet/RivetCMSAnalyses.so"
+      "${dir}/local/lib/Rivet/RivetLHCbAnalyses.so")
+  if(pyext STREQUAL "yes")
+    # Autotools may use site-packages or dist-packages, depending on Python.
+    list(APPEND _rivet_rebuild_outputs "${dir}/local/**/rivet/core.so"
+         "${dir}/local/**/rivet/__init__.py")
+  endif()
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean
+    REBUILD_INPUTS "${dir}/src/**/*" "${dir}/include/**/*"
+                   "${dir}/analyses/**/*" "${dir}/pyext/**/*"
+                   "${dir}/Makefile*" "${dir}/configure*" "${dir}/libtool"
+                   "${dir}/touch_files.sh" "${patch_dir}/touch_files.sh"
+                   "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/*.*"
+                   "${PROJECT_SOURCE_DIR}/Utils/include/gambit/Utils/*.*"
+    REBUILD_DEPENDENCY_INPUTS "${fastjet_dir}/include/**/*"
+                   "${fastjet_dir}/.gambit-*-build-identity"
+                   "${fastjet_dir}/lib/lib*"
+                   "${yoda_dir}/include/**/*" "${yoda_dir}/lib/libYODA*"
+                   "${hepmc_dir}/include/**/*" "${hepmc_dir}/lib/libHepMC3*"
+    REBUILD_OUTPUTS ${_rivet_rebuild_outputs}
+    REBUILD_CONFIGURE_OUTPUTS "${dir}/Makefile" "${dir}/src/Makefile"
+                   "${dir}/src/Core/Makefile" "${dir}/src/Core/yamlcpp/Makefile"
+                   "${dir}/src/Projections/Makefile" "${dir}/src/Tools/Makefile"
+                   "${dir}/src/AnalysisTools/Makefile" "${dir}/analyses/Makefile"
+                   "${dir}/pyext/Makefile" "${dir}/include/Rivet/Config/RivetConfig.hh")
+  unset(_rivet_rebuild_outputs)
   set_as_default_version("backend" ${name} ${ver})
   if(TARGET ${name}_${ver} AND TARGET fastjet)
     add_dependencies(${name}_${ver} fastjet)
@@ -2314,7 +2344,10 @@ if(NOT ditched_${name}_${ver})
       INSTALL_COMMAND ""
     )
   endif()
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean
+    REBUILD_INPUTS "${dir}/data/DB/Makefile" "${dir}/data/DB/*.sql"
+    REBUILD_OUTPUTS "${dir}/data/DB/analyses.db"
+    REBUILD_CONFIGURE_OUTPUTS "${init_file}")
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
