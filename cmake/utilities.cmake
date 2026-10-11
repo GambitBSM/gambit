@@ -228,6 +228,10 @@ function(add_gambit_library libraryname)
   if(libraryname STREQUAL "ColliderBit" AND RESTFRAMES_INCLUDE)
     target_include_directories(${libraryname} PRIVATE "${RESTFRAMES_INCLUDE}")
   endif()
+  # The ONNX wrapper is public and its class contains ONNX types.
+  if(libraryname STREQUAL "ColliderBit" AND ONNXRUNTIME_INCLUDE)
+    target_include_directories(${libraryname} PUBLIC "${ONNXRUNTIME_INCLUDE}")
+  endif()
 
   if(${ARG_OPTION} STREQUAL SHARED AND APPLE)
     set_property(TARGET ${libraryname} PROPERTY SUFFIX .so)
@@ -397,6 +401,13 @@ function(add_gambit_executable executablename LIBRARIES)
   foreach (dir ${GAMBIT_INCDIRS})
     target_include_directories(${executablename} PUBLIC ${dir})
   endforeach()
+  # $<TARGET_OBJECTS:...> does not propagate the object's public includes.
+  # Standalone program objects copy these executable settings below.
+  if(ONNXRUNTIME_INCLUDE AND
+     ("$<TARGET_OBJECTS:ColliderBit>" IN_LIST ARG_SOURCES OR
+      "-lonnxruntime" IN_LIST LIBRARIES))
+    target_include_directories(${executablename} PUBLIC "${ONNXRUNTIME_INCLUDE}")
+  endif()
   
   if(MPI_CXX_FOUND)
     set(LIBRARIES ${LIBRARIES} ${MPI_CXX_LIBRARIES})
@@ -455,6 +466,28 @@ function(add_gambit_executable executablename LIBRARIES)
   endif()
 
   normalise_gambit_link_libraries(LIBRARIES ${LIBRARIES})
+
+  # Optional ColliderBit runtimes must not alter unrelated shared-library
+  # link commands. Preserve the target's inherited/user RPATH and append a
+  # package path only when this executable actually links that package.
+  foreach(feature RESTFRAMES ONNXRUNTIME)
+    if(NOT EXCLUDE_${feature} AND ${feature}_LIB)
+      foreach(library IN LISTS ${feature}_LDFLAGS)
+        if(library MATCHES "^-l" AND library IN_LIST LIBRARIES)
+          get_target_property(runtime_paths ${executablename} INSTALL_RPATH)
+          if(runtime_paths STREQUAL "runtime_paths-NOTFOUND")
+            set(runtime_paths "")
+          endif()
+          if(NOT "${${feature}_LIB}" IN_LIST runtime_paths)
+            list(APPEND runtime_paths "${${feature}_LIB}")
+            set_target_properties(${executablename} PROPERTIES
+              INSTALL_RPATH "${runtime_paths}")
+          endif()
+          break()
+        endif()
+      endforeach()
+    endif()
+  endforeach()
 
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     target_link_libraries(${executablename} PRIVATE ${gambit_preload_LDFLAGS} ${LIBRARIES} yaml-cpp)

@@ -129,6 +129,7 @@ set(RESTFRAMES_VERSION "${ver}")
 set(dir "${PROJECT_SOURCE_DIR}/contrib/RestFrames-${ver}")
 # Keep ColliderBit's private include path stable across feature switches.
 set(RESTFRAMES_INCLUDE "${dir}/inc")
+set(RESTFRAMES_LIB "${dir}/lib")
 if(WITH_RESTFRAMES)
   message("-- RestFrames-dependent analyses in ColliderBit will be activated.")
   message("   RestFrames v${ver} will be downloaded and installed when building GAMBIT.")
@@ -143,7 +144,7 @@ if(NOT EXCLUDE_RESTFRAMES)
   set(RESTFRAMES_CXXCPP "${CMAKE_CXX_COMPILER} -E")
   set(RESTFRAMES_LDFLAGS "-L${dir}/lib" "-lRestFrames")
   set(RESTFRAMES_DIR "${dir}")
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${dir}/lib")
+  # Runtime lookup belongs to executables that link RestFrames.
   set(RESTFRAMES_CONFIG_LDFLAGS "-L${CMAKE_BINARY_DIR}/contrib -Wl,-rpath,${CMAKE_BINARY_DIR}/contrib")
   # OpenMP flags don't play nicely with clang and RestFrames' antiquated libtoolized build system.
   set(RESTFRAMES_C_FLAGS "${BACKEND_C_FLAGS}")
@@ -284,6 +285,9 @@ set(name onnxruntime)
 set(ver 1.14.1)
 set(ONNXRUNTIME_VERSION "${ver}")
 set(dir ${PROJECT_SOURCE_DIR}/contrib/${name}-${ver})
+# The public ColliderBit wrapper exposes ONNX types. Keep its include path
+# stable across ON/OFF without adding it to unrelated directories.
+set(ONNXRUNTIME_INCLUDE "${dir}/include")
 if (NOT EXCLUDE_ONNXRUNTIME)
   set(lib onnxruntime)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -293,7 +297,6 @@ if (NOT EXCLUDE_ONNXRUNTIME)
     set(dl "https://github.com/microsoft/onnxruntime/releases/download/v1.14.1/onnxruntime-linux-x64-${ver}.tgz")
     set(md5 9a3b855e2b22ace4ab110cec10b38b74)
   endif()
-  include_directories(${dir}/include)
   set(ONNXRUNTIME_PATH "${dir}")
   set(ONNXRUNTIME_LIB "${dir}/lib")
   set(ONNXRUNTIME_LDFLAGS "-L${ONNXRUNTIME_LIB}" "-l${lib}")
@@ -307,7 +310,7 @@ if (NOT EXCLUDE_ONNXRUNTIME)
   )
   add_contrib_clean_and_nuke(${name} ${dir} clean)
   set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${ONNXRUNTIME_LIB}")
+  # Runtime lookup belongs to executables that link ONNX Runtime.
 endif()
 
 

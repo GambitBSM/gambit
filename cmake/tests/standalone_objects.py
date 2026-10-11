@@ -63,6 +63,7 @@ endfunction()
 function(add_executable target)
   mock_put("${target}" TYPE EXECUTABLE)
   mock_put("${target}" SOURCES "${ARGN}")
+  mock_put("${target}" INSTALL_RPATH "${CMAKE_INSTALL_RPATH}")
   # A few non-default values exercise the compile-setting copy.
   mock_put("${target}" CXX_STANDARD 17)
   mock_put("${target}" CXX_STANDARD_REQUIRED ON)

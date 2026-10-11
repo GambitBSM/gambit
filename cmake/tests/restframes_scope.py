@@ -82,7 +82,8 @@ class RestFramesScopeTests(unittest.TestCase):
         self.cmake = shutil.which("cmake")
         self.assertIsNotNone(self.cmake)
         (self.source / "cmake").mkdir(parents=True)
-        for name in ("cmake_variables.hpp.in", "restframes_variables.hpp.in"):
+        for name in ("cmake_variables.hpp.in", "restframes_variables.hpp.in",
+                     "onnxruntime_variables.hpp.in"):
             shutil.copy2(ROOT / "cmake" / name, self.source / "cmake" / name)
 
     def tearDown(self):

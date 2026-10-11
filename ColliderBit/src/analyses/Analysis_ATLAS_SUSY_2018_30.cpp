@@ -18,6 +18,7 @@
 // Old Analysis Name: ATLAS_13TeV_3b_NN_139invfb
 
 #include "gambit/cmake/cmake_variables.hpp"
+#include "gambit/cmake/onnxruntime_variables.hpp"
 #ifndef EXCLUDE_ONNXRUNTIME
 
 #include <vector>

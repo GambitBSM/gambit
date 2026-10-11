@@ -470,10 +470,10 @@ The first configure/build after this change can rebuild many native objects:
 the common header loses the old RestFrames fields and unrelated targets lose
 their old directory-level include path. After that migration, toggling only
 `WITH_RESTFRAMES` should recompile the four RestFrames analyses,
-`AnalysisContainer.cpp` and `gambit_preload.cpp`, with necessary links. Shared
-libraries may also relink when their runtime library path changes. Keep ROOT,
-compiler, standard and all
-other settings fixed during this check; no build-tree reset is needed.
+`AnalysisContainer.cpp` and `gambit_preload.cpp`, with necessary links. Keep ROOT,
+compiler, standard and all other settings fixed during this check; no build-tree
+reset is needed. The optional runtime path policy below also prevents the
+RestFrames switch from changing unrelated shared-library link commands.
 
 Script-only checks:
 
@@ -484,7 +484,58 @@ python3 cmake/tests/contrib_retention.py
 
 See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-08-restframes-实施与验证)
 for the OFF/ON build sequence and common-header/compile-flags timestamp checks.
-Other optional dependencies and runtime library path scope remain separate work.
+
+## ONNX switch and optional runtime paths
+
+ONNX availability is generated in
+`cmake/include/gambit/cmake/onnxruntime_variables.hpp`, separate from the common
+configuration header. Include it before testing `EXCLUDE_ONNXRUNTIME`:
+
+```cpp
+#include "gambit/cmake/onnxruntime_variables.hpp"
+#ifndef EXCLUDE_ONNXRUNTIME
+// ONNX-dependent implementation
+#endif
+```
+
+The public `onnx_rt_wrapper.hpp` includes this feature header itself and exposes
+ONNX types. Its dependency include path therefore remains PUBLIC on ColliderBit,
+with the same value while ONNX is OFF or its installation is not present yet.
+Executables using ColliderBit objects receive that include path explicitly;
+standalone program objects copy the executable's settings. Models, Utils,
+Backends and unrelated standalones do not receive the ONNX path.
+
+After the one-time migration of the common header and include flags, changing
+only `WITH_ONNXRUNTIME` should recompile `onnx_rt_wrapper.cpp`,
+`Analysis_ATLAS_SUSY_2018_30.cpp` and `AnalysisContainer.cpp`, then relink CBS.
+Other analyses and standalone program objects should retain their compile flags.
+ONNX download/installation and dependency ordering keep their existing policy;
+disabling the feature does not remove the installed archive contents or stamps.
+
+RestFrames and ONNX library directories are appended to an executable's
+`INSTALL_RPATH` only when its link list uses that library. The helper preserves
+inherited/user runtime paths and avoids adding a duplicate package path.
+These two optional packages no longer change the global runtime path used by
+unrelated shared libraries. Other runtime paths (ROOT, HepMC, YODA, FastJet and
+FlexibleSUSY) keep their existing policy. Explicit user runtime paths are retained
+when a feature is disabled.
+
+The first build can recompile many objects and relink libraries because the
+common header and existing include/runtime flags migrate. Keep the shared
+`build/`; do not clean or use `--fresh`. Measure OFF/ON behavior only after the
+initial build has completed successfully.
+
+Script-only checks:
+
+```sh
+python3 cmake/tests/onnxruntime_scope.py
+python3 cmake/tests/restframes_scope.py
+python3 cmake/tests/standalone_objects.py
+python3 cmake/tests/contrib_retention.py
+```
+
+See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-08-onnx-与可选-rpath-实施与验证)
+for the ONNX/RestFrames OFF/ON sequence, link-command snapshots and loader check.
 
 ## FastJet installation reuse
 

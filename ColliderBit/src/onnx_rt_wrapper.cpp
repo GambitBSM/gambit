@@ -14,6 +14,7 @@
 ///  *********************************************
 
 #include "gambit/cmake/cmake_variables.hpp"
+#include "gambit/cmake/onnxruntime_variables.hpp"
 
 #ifndef EXCLUDE_ONNXRUNTIME
 

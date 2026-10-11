@@ -40,6 +40,7 @@
 #include <omp.h>
 
 #include "gambit/cmake/cmake_variables.hpp"
+#include "gambit/cmake/onnxruntime_variables.hpp"
 #include "gambit/cmake/restframes_variables.hpp"
 #include "gambit/ColliderBit/analyses/AnalysisContainer.hpp"
 #include "gambit/ColliderBit/analyses/Analysis.hpp"

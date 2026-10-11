@@ -1,0 +1,19 @@
+// GAMBIT: Global and Modular BSM Inference Tool
+//************************************************
+/// \file
+///
+/// Configured ONNX Runtime setting for ColliderBit's wrapper and analyses.
+/// Include this header before testing EXCLUDE_ONNXRUNTIME.
+///
+/// \author Pengxuan Zhu
+///         (pengxuan.zhu@adelaide.edu.au)
+/// \date 2026 Oct
+///***********************************************
+
+#ifndef __onnxruntime_variables_hpp__
+#define __onnxruntime_variables_hpp__
+
+/// Leave out ONNX Runtime
+#cmakedefine EXCLUDE_ONNXRUNTIME 1
+
+#endif // __onnxruntime_variables_hpp__

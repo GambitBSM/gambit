@@ -50,5 +50,9 @@ message("${BoldYellow}   Configured ${outhdr}${ColourReset}")
 set(outhdr "${PROJECT_SOURCE_DIR}/cmake/include/gambit/cmake/restframes_variables.hpp")
 configure_file("${PROJECT_SOURCE_DIR}/cmake/restframes_variables.hpp.in" ${outhdr})
 message("${BoldYellow}   Configured ${outhdr}${ColourReset}")
+# ONNX feature changes affect its wrapper, analysis and registration only.
+set(outhdr "${PROJECT_SOURCE_DIR}/cmake/include/gambit/cmake/onnxruntime_variables.hpp")
+configure_file("${PROJECT_SOURCE_DIR}/cmake/onnxruntime_variables.hpp.in" ${outhdr})
+message("${BoldYellow}   Configured ${outhdr}${ColourReset}")
 message("${Yellow}-- Updating GAMBIT with config data - done.${ColourReset}")
 
