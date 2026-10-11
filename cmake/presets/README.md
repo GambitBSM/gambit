@@ -91,6 +91,24 @@ All presets preserve the canonical `${sourceDir}/build` and GAMBIT output layout
 Use `--fresh` when switching profiles or compiler families in that shared tree.
 Bootstrap does not perform the switch itself.
 
+## Maintainer acceptance
+
+The current macOS `cbs-llvm` baseline has completed the ONNX/RestFrames scope
+migration, full CBS linking, `--help` startup and direct/same-configuration no-op
+builds. Acceptance is recorded per
+scenario in the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#preset-系统整体验收阶段).
+
+Keep the current compiler, ROOT, SDK and shared `build/`. Start with the direct
+no-op build and the same-configuration rebuild in the ledger, then complete its
+[BUILD-08 OFF/ON and snapshot sequence](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#本阶段维护者验收).
+The expected ONNX and RestFrames switch scopes are three and six objects,
+respectively. The current first-build log does not cover those switches.
+
+New-environment, AppleClang, Linux and full GAMBIT/DarkBit builds have separate
+acceptance records. Use another checkout or test machine for an independent
+clean build; each checkout still uses `build/`. Ninja and lld adaptations remain
+deferred. The maintainer runs all real configure/build and executable checks.
+
 ## Selecting an LLVM compiler
 
 For every `*-llvm` profile, each language uses `CMAKE_C_COMPILER` /

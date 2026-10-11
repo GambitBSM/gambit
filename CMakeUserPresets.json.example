@@ -1,0 +1,28 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "gambit-hpc",
+      "displayName": "GAMBIT - local HPC site",
+      "description": "Full GAMBIT with compilers and dependencies from the loaded site modules. Edit this local copy for your cluster.",
+      "inherits": "gambit-base",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_Fortran_COMPILER": "gfortran",
+        "CMAKE_PREFIX_PATH": "",
+        "WITH_MPI": {
+          "type": "BOOL",
+          "value": "OFF"
+        }
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "gambit-hpc",
+      "configurePreset": "gambit-hpc",
+      "targets": ["gambit"]
+    }
+  ]
+}

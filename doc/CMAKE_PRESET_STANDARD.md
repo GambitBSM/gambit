@@ -1,7 +1,8 @@
 # GAMBIT CMake Preset Architecture and Engineering Standard
 
 - Status: Normative engineering standard
-- Version: 1.0
+- Version: 1.1
+- Updated: 2026-10-12 (Australia/Adelaide)
 - Scope: All public GAMBIT configure, build, test, package, and workflow presets
 
 ## 1. Purpose
@@ -11,7 +12,7 @@ must be designed, reviewed, tested, and maintained. Its goals are to make every
 supported build profile:
 
 - reproducible and traceable;
-- isolated from every other preset;
+- explicit about the active configuration in the shared build tree;
 - represented by an explicit dependency graph;
 - compatible with normal non-preset GAMBIT builds;
 - based on unmodified upstream packages;
@@ -20,6 +21,11 @@ supported build profile:
 
 The standard applies to new presets immediately. Existing build logic that does
 not yet satisfy it is migration debt and must not be copied into a new preset.
+
+The repository rules in [AGENTS.md](../AGENTS.md) govern build-tree and output
+layout policy. This standard uses the same canonical shared `build/` policy.
+Current implementation and manual acceptance evidence are recorded separately in
+the [development ledger](CMAKE_PRESET_DEVELOPMENT_LEDGER.md).
 
 The words **MUST**, **MUST NOT**, **SHOULD**, **SHOULD NOT**, and **MAY** are
 normative requirements.
@@ -169,55 +175,75 @@ Maturity is one of:
 - **supported**: clean CI is required and changes follow this standard; or
 - **deprecated**: replacement and removal release are documented.
 
-The current registry is:
+The registration source is vendor metadata in `CMakePresets.json`; bootstrap
+`--list` reads it without probing the environment. The current public registry
+contains 15 configure/build pairs:
 
-| Preset | Profile | Toolchain | Maturity | Standard status |
+| Preset | Profile | Toolchain | Maturity | Acceptance status |
 |---|---|---|---|---|
-| `cbs` | CBS | macOS AppleClang plus discovered Fortran | Supported | Implemented |
-| `cbs-llvm` | CBS | Upstream LLVM plus validated Fortran | Supported | Migration required |
-| `cbs-gnu` | CBS | Linux GNU C/C++/Fortran | Experimental | Implemented; Linux build validation pending |
-| `gambit` | Full GAMBIT | macOS AppleClang plus discovered Fortran | Experimental | Implemented; full-profile validation pending |
-| `gambit-llvm` | Full GAMBIT | Upstream LLVM plus discovered Fortran | Experimental | Implemented; full-profile validation pending |
-| `gambit-gnu` | Full GAMBIT | Linux GNU C/C++/Fortran | Experimental | Implemented; Linux build validation pending |
+| `cbs` | CBS | macOS AppleClang plus discovered Fortran | Supported | Implemented; current-round native acceptance pending |
+| `cbs-llvm` | CBS | Upstream LLVM plus validated Fortran | Supported | Current macOS migration/startup and no-op passed; OFF/ON pending; Linux pending |
+| `cbs-gnu` | CBS | Linux GNU C/C++/Fortran | Experimental | Linux build validation pending |
+| `gambit` | Full GAMBIT | macOS AppleClang plus discovered Fortran | Experimental | Full-profile validation pending |
+| `gambit-llvm` | Full GAMBIT | Upstream LLVM plus discovered Fortran | Experimental | Full-profile validation pending |
+| `gambit-gnu` | Full GAMBIT | Linux GNU C/C++/Fortran | Experimental | Linux build validation pending |
+| `darkbit-wimp` | DarkBit WIMP | macOS AppleClang plus discovered Fortran | Experimental | Standalone build validation pending |
+| `darkbit-wimp-llvm` | DarkBit WIMP | Upstream LLVM plus discovered Fortran | Experimental | Standalone build validation pending |
+| `darkbit-wimp-gnu` | DarkBit WIMP | Linux GNU C/C++/Fortran | Experimental | Standalone build validation pending |
+| `darkbit-mssm` | DarkBit MSSM | macOS AppleClang plus discovered Fortran | Experimental | Standalone build validation pending |
+| `darkbit-mssm-llvm` | DarkBit MSSM | Upstream LLVM plus discovered Fortran | Experimental | Standalone build validation pending |
+| `darkbit-mssm-gnu` | DarkBit MSSM | Linux GNU C/C++/Fortran | Experimental | Standalone build validation pending |
+| `darkbit-singlet-z2` | DarkBit scalar singlet Z2 | macOS AppleClang plus discovered Fortran | Experimental | Standalone build validation pending |
+| `darkbit-singlet-z2-llvm` | DarkBit scalar singlet Z2 | Upstream LLVM plus discovered Fortran | Experimental | Standalone build validation pending |
+| `darkbit-singlet-z2-gnu` | DarkBit scalar singlet Z2 | Linux GNU C/C++/Fortran | Experimental | Standalone build validation pending |
+
+Build evidence is specific to a host, toolchain and scenario; registry membership
+and discovery availability do not certify a complete build on every platform.
 
 A change to a supported preset's feature policy, toolchain policy, target
 closure, dependency source, or minimum CMake version is a build-contract change
 and must update its documentation, validation, trace manifest, and CI coverage.
 
-## 5. Isolation requirements
+## 5. Shared build-tree requirements
 
-### 5.1 One binary directory per public configure preset
+### 5.1 One active configuration per checkout
 
-Every public configure preset MUST have a unique binary directory. The target
-layout is:
-
-```text
-build/presets/<preset-name>/
-```
-
-For example:
+Every public configure preset MUST use the canonical shared binary directory:
 
 ```text
-build/presets/cbs/
-build/presets/cbs-llvm/
-build/presets/gambit/
-build/presets/gambit-llvm/
+${sourceDir}/build
 ```
 
-Two presets must not share `CMakeCache.txt`, compiler identification results,
-ExternalProject stamps, generated BOSS output, or generated GAMBIT headers.
-Switching presets must not require `--fresh` merely to change compiler family.
-`--fresh` remains useful for resetting one preset after a cache-affecting
-change.
+Presets MUST preserve GAMBIT's established output layout. Do not add
+preset-specific binary directories or set preset-specific
+`CMAKE_RUNTIME_OUTPUT_DIRECTORY`, `CMAKE_LIBRARY_OUTPUT_DIRECTORY`,
+`CMAKE_ARCHIVE_OUTPUT_DIRECTORY`, or `GAMBIT_RUN_DIR`.
 
-If two presets intentionally share a downloaded archive cache, that cache must
-contain immutable, checksum-verified archives only. Sources, build trees,
-install prefixes, and stamps must remain preset-specific.
+One checkout has one active CMake cache and target graph. Switching profiles or
+compiler families MUST use the selected preset with `--fresh`, for example:
+
+```sh
+cmake --preset cbs-llvm --fresh
+```
+
+Repeated configuration of the same profile/toolchain and optional-feature
+switches SHOULD retain the existing `build/` without `--fresh` or a clean.
+External sources, installs and stamps can be reused within that checkout when
+their inputs and installed build identity remain valid. Package owners must
+invalidate the necessary steps when relevant inputs change.
+
+Independent builds and CI matrix jobs MUST use separate checkouts or worktrees;
+each still uses its own canonical `build/`. Shared archive caches may contain
+immutable, checksum-verified downloads. Build/install state must have explicit
+worktree ownership and must not be copied between incompatible toolchains.
+
+The current maintainer acceptance baseline uses Unix Makefiles and the platform
+linker. Ninja and lld adaptations are deferred in the development ledger.
 
 ### 5.2 No source-tree build state
 
 New external package integrations MUST use source, binary, and install
-directories under the preset binary directory. Downloaded archives may use a
+directories under the shared binary directory. Downloaded archives may use a
 shared read-only cache. A package build must not write into `contrib/`,
 `Backends/installed/`, or another tracked source-tree path.
 
@@ -525,14 +551,15 @@ ONNX Runtime, RestFrames, and the Rivet/Contur feature policy.
 
 ### 11.2 Public configure preset
 
-The public configure preset inherits the profile base, selects a unique binary
-directory, records its preset identity, and optionally selects a toolchain.
+The public configure preset inherits the profile base and canonical `build/`,
+records its preset identity, and optionally selects a toolchain. The following
+excerpt omits vendor registration and host conditions for brevity.
 
 ```json
 {
   "name": "cbs-llvm",
   "inherits": "cbs-base",
-  "binaryDir": "${sourceDir}/build/presets/cbs-llvm",
+  "binaryDir": "${sourceDir}/build",
   "toolchainFile": "${sourceDir}/cmake/toolchains/llvm-native.cmake",
   "cacheVariables": {
     "CBS_BUILD_PRESET": "cbs-llvm"
@@ -653,7 +680,7 @@ in the configure summary and trace manifest.
 The current CBS implementation uses these phases:
 
 1. `CMakePresets.json` selects the profile and optional toolchain.
-2. `cmake/CBS.cmake` activates isolated CBS orchestration.
+2. `cmake/CBS.cmake` activates CBS profile orchestration.
 3. compiler, Python, and ROOT discovery run before their consumers.
 4. normal GAMBIT CMake defines native, contrib, and backend targets.
 5. BOSS-related dependencies are attached to the exact generated-header
@@ -683,13 +710,14 @@ The current user entry points are:
 ```bash
 ./cmake/bootstrap --system cbs
 cmake --preset cbs --fresh
-cmake --build --preset cbs --parallel
+cmake --build --preset cbs --parallel 8
 
 cmake --preset cbs-llvm --fresh
-cmake --build --preset cbs-llvm --parallel
+cmake --build --preset cbs-llvm --parallel 8
 ```
 
-The bootstrap is read-only. With no filters it inspects GAMBIT and CBS;
+The bootstrap is read-only. With no filters it lists or inspects the registered
+GAMBIT, CBS and DarkBit profiles;
 `--system gambit`, `--preset cbs-llvm`, and `--list` narrow the report.
 See `cmake/presets/README.md` for the CLI and provider registration contract.
 Discovery groups shared dependencies once and keeps full paths under
@@ -723,14 +751,15 @@ The complete GAMBIT profile should follow the same construction as CBS:
 
 ```text
 gambit-base
-├── gambit             (system toolchain, build/presets/gambit)
-├── gambit-llvm        (LLVM toolchain, build/presets/gambit-llvm)
-└── gambit-llvm-debug  (LLVM toolchain, build/presets/gambit-llvm-debug)
+├── gambit             (AppleClang toolchain, build/)
+├── gambit-llvm        (LLVM toolchain, build/)
+└── gambit-gnu         (GNU toolchain, build/)
 ```
 
 `gambit-base` should define the full-profile defaults but not compiler paths.
-Each public child must have an independent binary directory and a build preset
-targeting `gambit`.
+Each public child must inherit the canonical shared `build/` and have a matching
+build preset targeting `gambit`. Separate worktrees provide independent builds.
+A future Debug profile must follow the same tree and output policy.
 
 The full profile must not encode “build every known external package” as an
 unstructured side effect. Its dependency closure must be derived from enabled
@@ -740,14 +769,17 @@ for explicit development builds but are not prerequisites of the main preset.
 
 ## 14. Traceability and reproducibility
 
-Each public configure preset must produce a machine-readable manifest in its
-binary directory, for example:
+A machine-readable manifest is a migration target; current summaries do not
+implement it yet. Each public configure preset should eventually produce it in
+the shared binary directory, for example:
 
 ```text
-build/presets/cbs-llvm/gambit-preset-manifest.json
+build/gambit-preset-manifest.json
 ```
 
-The manifest schema must be versioned and contain at least:
+The manifest describes the active configuration. CI must archive each profile
+result before switching the shared cache. Its schema must be versioned and
+contain at least:
 
 ```json
 {
@@ -810,10 +842,11 @@ dependencies from ExternalProject step dependencies.
 Add only profile feature values. Do not add package construction details or
 compiler paths.
 
-### 15.4 Add independent public configure presets
+### 15.4 Add public configure presets
 
-Give each preset a unique binary directory and a stable identity cache
-variable. Use a toolchain file for an explicit compiler strategy.
+Give each preset a stable identity cache variable and inherit the canonical
+shared `build/`. Use a toolchain file for an explicit compiler strategy and
+matching configure/build host conditions.
 
 ### 15.5 Implement read-only discovery
 
@@ -841,10 +874,11 @@ tests that prove the binary starts and the key dependency interfaces load.
 At minimum, CI must cover:
 
 - a clean configure for every public preset;
-- a clean build from an empty preset binary directory;
+- a clean build in an independent checkout using its canonical `build/`;
 - a second no-op build;
 - parallel construction of the final target;
-- switching presets without deleting another preset's cache;
+- profile/compiler switching with `--fresh` and a clear diagnostic when an
+  incompatible cached toolchain is reused;
 - missing required-dependency diagnostics;
 - optional feature `AUTO`, `ON`, and `OFF` behaviour; and
 - absence of downloaded-source modifications.
@@ -855,7 +889,8 @@ A preset is ready to merge only when all answers below are “yes”.
 
 ### Preset definition
 
-- Does every public configure preset have a unique binary directory?
+- Does every public configure preset resolve to the canonical shared `build/`
+  and preserve GAMBIT output defaults?
 - Is the profile/toolchain separation explicit?
 - Is the final target named in a matching build preset?
 - Is the minimum CMake version consistent with the preset schema and commands?
@@ -870,7 +905,8 @@ A preset is ready to merge only when all answers below are “yes”.
 ### External packages
 
 - Is every source reference immutable and SHA-256 verified?
-- Are source, binary, install, and stamp directories preset-specific?
+- Are source, binary, install, and stamp paths owned by the checkout and reused
+  only with a valid build identity?
 - Is upstream source left unchanged?
 - Are build by-products declared?
 - Is the installed result represented by an imported target?
@@ -905,7 +941,7 @@ boundary with a target-based one.
 
 Recommended order:
 
-1. isolate every public preset binary directory;
+1. preserve the canonical shared `build/` and explicit cache-switch policy;
 2. move external source/build/install state under the binary tree;
 3. replace MD5 and mutable URLs with immutable SHA-256 sources;
 4. expose contrib packages as imported targets;
