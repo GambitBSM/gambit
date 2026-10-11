@@ -164,6 +164,59 @@ python3 cmake/tests/macos_sdk.py
 See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#cfg-02-实施与验证)
 for current-SDK verification and remaining platform checks.
 
+## Validation check caches
+
+CBS keeps C/C++/Fortran, macOS linker and Python/Boost/HDF5/SQLite compile/link
+results cached while their inputs are unchanged. The shared HDF5 usability check
+also follows this policy, so a repaired install can recover before feature
+selection disables its printers and readers.
+
+A changed compiler identity, flags, configuration, SDK/minimum, required probe
+settings, package version or selected include/library path invalidates the
+corresponding result. Selected probe headers and the toolchain file are hashed;
+absolute compiler, linker, interpreter and library files use real path, size and
+timestamp. Missing/created files and symlink changes count too. Package-specific
+changes normally recheck that package; common toolchain changes can recheck all
+checks. New or changed inputs produce `Validation: ... check inputs are new or
+changed` messages. The next identical configure reuses both PASS and FAIL.
+
+An existing build rechecks once when migrating to these signatures. This adds
+small configure-time probes; it does not clear objects or external installations.
+Keep the current profile and `build/`, then configure/build normally:
+
+```sh
+cmake --preset cbs-llvm
+cmake --build build --target CBS -j8
+cmake --preset cbs-llvm
+cmake --build build --target CBS -j8
+```
+
+To force only these validation results to be checked again, remove their input
+signatures and reconfigure. Other cache entries and build outputs remain:
+
+```sh
+cmake --preset cbs-llvm -U 'GAMBIT_CHECK_CACHE_*'
+cmake --preset cbs-llvm
+```
+
+This mechanism validates the inputs selected by `find_package`; it does not clear
+finder caches or choose a different dependency installation. Set appropriate
+package hints and confirm the reported paths when changing installs. It does not
+scan all transitive headers/libraries or SDK contents. Binary changes preserving
+both size and timestamp, unresolved library names/imported-target files, and
+untracked transitive inputs may need the explicit reset above. A real compiler
+family switch still requires `--fresh` under the shared-build policy.
+
+Script-only regression checks use synthetic probes with native cache semantics;
+no real compiler or project configure is invoked:
+
+```sh
+python3 cmake/tests/validation_cache.py
+```
+
+See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#cfg-03-实施与验证)
+for incremental and forced-check acceptance steps.
+
 ## Local HPC presets
 
 Cluster software stacks differ, so keep site-specific settings in CMake's

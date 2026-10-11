@@ -7,6 +7,7 @@
 # Rivet/Contur stay optional: missing pandas/SQLite never fails a CBS configure.
 
 include_guard(GLOBAL)
+include("${CMAKE_CURRENT_LIST_DIR}/../ValidationCache.cmake")
 
 function(cbs_validate_environment)
   if(NOT CBS_PRESET_BUILD)
@@ -25,9 +26,9 @@ function(cbs_validate_environment)
   set(_cbs_saved_required_quiet "${CMAKE_REQUIRED_QUIET}")
 
   set(CMAKE_REQUIRED_QUIET TRUE)
-  check_c_source_compiles(
-    "int main(void) { return 0; }"
-    CBS_VALIDATION_C_COMPILE_LINK)
+  set(_cbs_c_source "int main(void) { return 0; }")
+  gambit_prepare_cached_check(CBS_VALIDATION_C_COMPILE_LINK C "C compile/link" "${_cbs_c_source}")
+  check_c_source_compiles("${_cbs_c_source}" CBS_VALIDATION_C_COMPILE_LINK)
   set(_cbs_cxx_source [=[
 #include <type_traits>
 template <typename T> constexpr int cbs_value(T value) {
@@ -37,25 +38,14 @@ template <typename T> constexpr int cbs_value(T value) {
 int main() { static_assert(cbs_value(17) == 17); return 0; }
 ]=])
   # Check the selected language mode, not just acceptance of C++17 syntax.
-  # The cache key follows inputs so changing standards/flags does not reuse a
-  # result from a different configuration.
   set(_cbs_cxx_version_17 201703L)
   set(_cbs_cxx_version_20 202002L)
   set(_cbs_cxx_version_23 202100L)
   string(APPEND _cbs_cxx_source
     "\nstatic_assert(__cplusplus >= ${_cbs_cxx_version_${GAMBIT_CXX_STANDARD}}, \"Wrong C++ language mode\");\n")
-  if(CMAKE_TRY_COMPILE_CONFIGURATION)
-    string(TOUPPER "${CMAKE_TRY_COMPILE_CONFIGURATION}" _cbs_cxx_configuration)
-  else()
-    string(TOUPPER "${CMAKE_BUILD_TYPE}" _cbs_cxx_configuration)
-  endif()
-  string(SHA256 _cbs_cxx_signature
-    "${CMAKE_CXX_COMPILER}|${CMAKE_CXX_COMPILER_ID}|${CMAKE_CXX_COMPILER_VERSION}|${CMAKE_CXX_STANDARD}|${CMAKE_CXX_EXTENSIONS}|${CMAKE_CXX_FLAGS}|${CMAKE_BUILD_TYPE}|${CMAKE_TRY_COMPILE_CONFIGURATION}|${CMAKE_CXX_FLAGS_${_cbs_cxx_configuration}}|${CMAKE_REQUIRED_FLAGS}|${CMAKE_REQUIRED_INCLUDES}|${CMAKE_REQUIRED_LIBRARIES}|${CMAKE_REQUIRED_LINK_OPTIONS}|${CMAKE_OSX_SYSROOT}|${CMAKE_OSX_DEPLOYMENT_TARGET}|${CMAKE_OSX_ARCHITECTURES}|${_cbs_cxx_source}")
-  if(NOT CBS_VALIDATION_CXX_SIGNATURE STREQUAL _cbs_cxx_signature)
-    unset(CBS_VALIDATION_CXX_COMPILE_LINK CACHE)
-    set(CBS_VALIDATION_CXX_SIGNATURE "${_cbs_cxx_signature}" CACHE INTERNAL
-        "Inputs to the CBS C++ language-mode check" FORCE)
-  endif()
+  # Migrate the old C++-only key to the shared input-aware cache policy.
+  unset(CBS_VALIDATION_CXX_SIGNATURE CACHE)
+  gambit_prepare_cached_check(CBS_VALIDATION_CXX_COMPILE_LINK CXX "C++ language mode" "${_cbs_cxx_source}")
   check_cxx_source_compiles("${_cbs_cxx_source}" CBS_VALIDATION_CXX_COMPILE_LINK)
   set(_cbs_fortran_source [=[
 program cbs_fortran_validation
@@ -65,6 +55,9 @@ program cbs_fortran_validation
   if (value /= 17) stop 1
 end program cbs_fortran_validation
 ]=])
+  set(_cbs_fortran_source_extension F90)
+  gambit_prepare_cached_check(_cbs_fortran_free_form_compile_link Fortran "Fortran compile/link"
+    "${_cbs_fortran_source}" VARIABLES _cbs_fortran_source_extension)
   check_fortran_source_compiles("${_cbs_fortran_source}"
                                 _cbs_fortran_free_form_compile_link
                                 SRC_EXT F90)
@@ -79,6 +72,7 @@ end program cbs_fortran_validation
   set(CBS_VALIDATION_DYNAMIC_LOOKUP_REQUIRED FALSE)
   if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(CBS_VALIDATION_DYNAMIC_LOOKUP_REQUIRED TRUE)
+    gambit_prepare_cached_check(_cbs_dynamic_lookup CXX "macOS dynamic_lookup" "-Wl,-undefined,dynamic_lookup")
     check_linker_flag(CXX "-Wl,-undefined,dynamic_lookup"
                       _cbs_dynamic_lookup)
   else()
@@ -86,57 +80,70 @@ end program cbs_fortran_validation
   endif()
   set(CBS_VALIDATION_DYNAMIC_LOOKUP "${_cbs_dynamic_lookup}")
 
-  if(Python3_INCLUDE_DIRS AND Python3_LIBRARIES)
-    set(CMAKE_REQUIRED_INCLUDES "${Python3_INCLUDE_DIRS}")
-    set(CMAKE_REQUIRED_LIBRARIES "${Python3_LIBRARIES}")
-    set(_cbs_python_source [=[
+  # Prepare even when a package is unavailable: found -> absent -> found
+  # must not resurrect an old result.  Each probe owns its include/library list.
+  set(CMAKE_REQUIRED_INCLUDES "${Python3_INCLUDE_DIRS}")
+  set(CMAKE_REQUIRED_LIBRARIES "${Python3_LIBRARIES}")
+  set(_cbs_python_source [=[
 #include <Python.h>
 int main(void) { return Py_IsInitialized() ? 0 : 0; }
 ]=])
-    check_c_source_compiles("${_cbs_python_source}"
-                            _cbs_python_c_api_compile_link)
+  gambit_prepare_cached_check(_cbs_python_c_api_compile_link C "Python development" "${_cbs_python_source}"
+    VARIABLES Python3_FOUND Python3_Development_FOUND Python3_VERSION Python3_EXECUTABLE
+    HEADERS Python.h pyconfig.h patchlevel.h pylifecycle.h
+    FILES "${Python3_EXECUTABLE}")
+  if(Python3_INCLUDE_DIRS AND Python3_LIBRARIES)
+    check_c_source_compiles("${_cbs_python_source}" _cbs_python_c_api_compile_link)
     set(_cbs_python_development "${_cbs_python_c_api_compile_link}")
   else()
     set(_cbs_python_development FALSE)
   endif()
   set(CBS_VALIDATION_PYTHON_DEVELOPMENT "${_cbs_python_development}")
 
-  if(Boost_FOUND)
-    set(CMAKE_REQUIRED_INCLUDES "${Boost_INCLUDE_DIR}")
-    set(CMAKE_REQUIRED_LIBRARIES "")
-    set(_cbs_boost_source [=[
+  set(CMAKE_REQUIRED_INCLUDES "${Boost_INCLUDE_DIR};${Boost_INCLUDE_DIRS}")
+  list(REMOVE_DUPLICATES CMAKE_REQUIRED_INCLUDES)
+  set(CMAKE_REQUIRED_LIBRARIES "")
+  set(_cbs_boost_source [=[
 #include <boost/version.hpp>
 static_assert(BOOST_VERSION >= 104800, "Boost 1.48 is required");
 int main() { return 0; }
 ]=])
+  gambit_prepare_cached_check(_cbs_boost CXX "Boost headers" "${_cbs_boost_source}"
+    VARIABLES Boost_FOUND Boost_VERSION Boost_VERSION_STRING HEADERS boost/version.hpp)
+  if(Boost_FOUND)
     check_cxx_source_compiles("${_cbs_boost_source}" _cbs_boost)
   else()
     set(_cbs_boost FALSE)
   endif()
   set(CBS_VALIDATION_BOOST "${_cbs_boost}")
 
-  if(HDF5_FOUND)
-    set(CMAKE_REQUIRED_INCLUDES
-        "${HDF5_INCLUDE_DIR};${HDF5_INCLUDE_DIRS};${HDF5_C_INCLUDE_DIRS}")
-    list(REMOVE_DUPLICATES CMAKE_REQUIRED_INCLUDES)
-    set(CMAKE_REQUIRED_LIBRARIES "${HDF5_LIBRARIES}")
-    set(_cbs_hdf5_source [=[
+  set(CMAKE_REQUIRED_INCLUDES
+      "${HDF5_INCLUDE_DIR};${HDF5_INCLUDE_DIRS};${HDF5_C_INCLUDE_DIRS}")
+  list(REMOVE_DUPLICATES CMAKE_REQUIRED_INCLUDES)
+  set(CMAKE_REQUIRED_LIBRARIES "${HDF5_LIBRARIES}")
+  set(_cbs_hdf5_source [=[
 #include <hdf5.h>
 int main(void) { return H5open() < 0; }
 ]=])
+  gambit_prepare_cached_check(_cbs_hdf5 C "HDF5 development" "${_cbs_hdf5_source}"
+    VARIABLES HDF5_FOUND HDF5_VERSION HDF5_IS_PARALLEL HDF5_ROOT
+    HEADERS hdf5.h H5public.h H5pubconf.h)
+  if(HDF5_FOUND)
     check_c_source_compiles("${_cbs_hdf5_source}" _cbs_hdf5)
   else()
     set(_cbs_hdf5 FALSE)
   endif()
   set(CBS_VALIDATION_HDF5 "${_cbs_hdf5}")
 
-  if(SQLite3_FOUND)
-    set(CMAKE_REQUIRED_INCLUDES "${SQLite3_INCLUDE_DIRS}")
-    set(CMAKE_REQUIRED_LIBRARIES "${SQLite3_LIBRARIES}")
-    set(_cbs_sqlite3_source [=[
+  set(CMAKE_REQUIRED_INCLUDES "${SQLite3_INCLUDE_DIRS}")
+  set(CMAKE_REQUIRED_LIBRARIES "${SQLite3_LIBRARIES}")
+  set(_cbs_sqlite3_source [=[
 #include <sqlite3.h>
 int main(void) { return sqlite3_libversion_number() == 0; }
 ]=])
+  gambit_prepare_cached_check(_cbs_sqlite3 C "SQLite development" "${_cbs_sqlite3_source}"
+    VARIABLES SQLite3_FOUND SQLite3_VERSION HEADERS sqlite3.h)
+  if(SQLite3_FOUND)
     check_c_source_compiles("${_cbs_sqlite3_source}" _cbs_sqlite3)
   else()
     set(_cbs_sqlite3 FALSE)
@@ -323,12 +330,15 @@ function(cbs_require_validated_environment)
 
   string(REPLACE ";" ", " _cbs_failure_text
          "${CBS_VALIDATION_REQUIRED_FAILURES}")
-  set(_cbs_hint "cmake --preset ${CBS_BUILD_PRESET} --fresh")
+  set(_cbs_hint "cmake --preset ${CBS_BUILD_PRESET}")
+  set(_cbs_target_hint "")
   if(NOT CBS_VALIDATION_CBS_TARGET)
-    string(APPEND _cbs_hint
-           " (the CBS executable needs ColliderBit, HepMC, and pybind11)")
+    set(_cbs_target_hint "The CBS executable needs ColliderBit, HepMC, and pybind11.\n")
   endif()
   message(FATAL_ERROR
     "CBS preset '${CBS_BUILD_PRESET}' is not ready: ${_cbs_failure_text}.\n"
-    "Resolve the reported requirements and rerun '${_cbs_hint}'.")
+    "${_cbs_target_hint}"
+    "Resolve the reported requirements and rerun '${_cbs_hint}'.\n"
+    "To force these validation checks only, add -U 'GAMBIT_CHECK_CACHE_*'.\n"
+    "Use --fresh when switching compiler families in the shared build tree.")
 endfunction()

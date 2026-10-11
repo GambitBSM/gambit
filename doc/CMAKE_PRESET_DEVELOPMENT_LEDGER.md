@@ -639,7 +639,7 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build08-noop.log
 | --- | --- | --- | --- | --- |
 | CFG-01 | P1 | 已实现已构建 | LLVM 先尊重每种语言的 CMAKE 编译器变量，再读取 CC/CXX；未指定时保留自动搜索。单选时在所属安装补齐匹配版本，非法显式选择不回退 | [CBSCompilerDiscovery.cmake](../cmake/presets/CBSCompilerDiscovery.cmake)、[NativeCompilerDiscovery.cmake](../cmake/presets/NativeCompilerDiscovery.cmake)、[NativePresetToolchain.cmake](../cmake/toolchains/NativePresetToolchain.cmake)、[native_compiler_selection.py](../cmake/tests/native_compiler_selection.py)。11 组脚本夹具与当前 macOS LLVM 显式/缓存配置、两次无变化 CBS 构建通过；真实 bootstrap 环境选择与失败诊断、多版本及其他平台待补齐 |
 | CFG-02 | P2 | 已实现已构建 | 在 project 前按 CMAKE_OSX_SYSROOT、SDKROOT、自动发现选择 SDK；缓存实际目录，显式无效选择不回退；原生/外部参数共用该 SDK | [MacOSX.cmake](../cmake/MacOSX.cmake)、[macos_sdk.py](../cmake/tests/macos_sdk.py)。26 组脚本检查与当前 SDK 的显式/缓存/自动发现配置、三次 CBS 构建通过；首次外部迁移后零重复步骤，其他 SDK/平台待补齐 |
-| CFG-03 | P2 | 待开发 | 为 Python、Boost、HDF5、SQLite 等检查增加针对输入变化的缓存失效机制 | [CBSValidation.cmake](../cmake/presets/CBSValidation.cmake)。修复或更换依赖后不沿用陈旧 PASS/FAIL；当前只完成了 C++ 模式检查的失效机制 |
+| CFG-03 | P2 | 已实现已构建 | 原生语言、macOS linker 与 Python/Boost/HDF5/SQLite 检查随输入变化失效；共享 HDF5 gate 同步修复，输入稳定时复用 PASS/FAIL | [ValidationCache.cmake](../cmake/ValidationCache.cmake)、[CBSValidation.cmake](../cmake/presets/CBSValidation.cmake)、[validation_cache.py](../cmake/tests/validation_cache.py)。16 组无编译夹具、当前配置的九项首次重检/后续复用及两次 CBS 无变化构建通过；只重跑检查、真实依赖恢复及其他平台按需补齐 |
 | CFG-04 | P2 | 待开发 | 同一次 bootstrap/configure 内复用重复工具链探测，并合并 Python 模块检查 | [detect-presets.cmake](../cmake/presets/detect-presets.cmake)、[PresetEnvironmentDiscovery.cmake](../cmake/presets/PresetEnvironmentDiscovery.cmake)、[CBSPythonDiscovery.cmake](../cmake/presets/CBSPythonDiscovery.cmake)。减少重复进程，环境改变后仍能重新探测 |
 | CFG-05 | P2 | 待开发 | 统一 OpenMP、SDK 和 deployment flags 的来源，避免缓存与实际命令显示不一致；补齐 GNU Fortran 编译阶段的公共 macOS minimum target | [主配置](../CMakeLists.txt)、[MacOSX.cmake](../cmake/MacOSX.cmake)。摘要及生成命令一致，保留各外部包必要参数；当前日志发现 Fortran 新编对象 minimum 为 28.0、链接为 27.0，生成 Fortran_FLAGS 缺少 minimum 参数，链接命令已有公共 27.0 参数 |
 | UX-01 | P2 | 待开发 | 构建示例采用明确并发数，例如 `--parallel 8` | [BootstrapReport.cmake](../cmake/presets/BootstrapReport.cmake)、[Preset README](../cmake/presets/README.md)。默认提示不依赖无上限并发，允许用户按资源调整 |
@@ -718,7 +718,7 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build08-noop.log
 
 ### CFG-02 实施与验证
 
-2026-10-11 基于 CFG-01 提交 `cf10364f98` 实现，状态为 **已实现已构建**；维护者当前 SDK 的显式、缓存重配置和自动发现验收通过，本阶段随验收提交。本阶段修复共享 macOS 配置，不增加 preset 专用 build 目录或输出布局。
+2026-10-11 基于 CFG-01 提交 `cf10364f98` 实现，状态为 **已实现已构建**；维护者当前 SDK 的显式、缓存重配置和自动发现验收通过，已提交为 `4dad77208a`。本阶段修复共享 macOS 配置，不增加 preset 专用 build 目录或输出布局。
 
 - 原 `MacOSX.cmake` 在 project 后检查 `CMAKE_CXX_SYSROOT`，随后却把自动 SDK 写入 `CMAKE_OSX_SYSROOT` 的普通变量。脚本夹具已复现：显式缓存保留所选 SDK，普通变量和实际 flags 被默认 SDK 覆盖，导致缓存与命令不一致。
 - 新 SDK 初始化在 project/启用语言之前运行：非空 `CMAKE_OSX_SYSROOT`（含缓存）优先，其次 `SDKROOT`，再自动查询 macosx。SDK 名称按该名称查询并解析为实际目录；缺失路径、名称失败、空结果或不存在的查询目录明确报错，不选择另一个 SDK。结果保存在公共 CMake cache 并传回调用作用域；非 macOS 主机保持原行为。
@@ -778,10 +778,75 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build08-noop.log
 
 26 组脚本检查再次通过（SDK 10、contrib retention 5、build identity 11），`git diff --check` 通过。代理未执行工程配置、编译器或构建；非法路径、其他真实 SDK/名称/带空格路径以及平台构建仍按表保留待补项。提交仅包含本阶段八个源码、测试和文档文件。
 
+### CFG-03 实施与验证
+
+2026-10-11 基于 CFG-02 提交 `4dad77208a` 实现，状态为 **已实现已构建**；维护者当前环境首次重检、相同配置复用及两次 CBS 增量验收通过，本阶段随验收提交。共享 build、输出布局与外部项目配方保持既有政策；实际工程配置和构建由维护者执行。
+
+- 原 CBS 检查只有 C++ 模式会比较输入，C、Fortran、dynamic_lookup、Python、Boost、HDF5、SQLite 则只要结果变量存在就跳过，旧 PASS/FAIL 都可能沿用。共享 `optional.cmake` 中的 `GAMBIT_HDF5_USABLE` 更早决定 HDF5 功能，旧失败会阻止后续 CBS 再验证，不能只修 CBS 末尾的检查。
+- 新增 [ValidationCache.cmake](../cmake/ValidationCache.cmake)，用带长度的字段和 SHA256 保存每项检查的输入签名。输入变化时，在探测的调用作用域同时删除 cache 和普通结果变量；否则 CMake 原生模块的 `DEFINED` 判断仍可能被旧普通变量挡住。相同签名保留原生检查的缓存语义；旧 C++ 单项签名迁移至统一命名 `GAMBIT_CHECK_CACHE_<result>_SIGNATURE`。
+- 输入覆盖探测源码、语言编译器/版本/目标/flags/标准、各配置 flags（含自定义配置）、链接 flags、try_compile 平台变量及其值、SDK/sysroot/minimum/architecture、required 定义/includes/libs/link 设置，以及相关包版本、FOUND 状态和 Python executable。PATH、CPATH、语言 include path、LIBRARY_PATH、SDKROOT、DEVELOPER_DIR 也计入，以跟随环境改变。
+- 选定 include 下的少量直接探测头和 toolchain 文件计算内容 hash；绝对编译器、linker、解释器、库及 sysroot 路径记录真实路径、存在状态、大小和时间戳。可发现同路径文件升级、删除/修复及软链接指向变化；不对大二进制做全量 hash，也不递归扫描 SDK 或所有传递依赖。
+- Python、Boost、HDF5、SQLite 在可用性分支之前更新签名，防止“找到 → 未找到 → 再找到”复活旧结果；每项使用独立 include/lib 列表。共享 HDF5 gate 在功能选择之前遵循同一策略，修复后可恢复打印器和读取器。Boost 兼容 finder 的 singular/plural include 变量。SQLite/Contur 仍为可选；OpenMP 状态、sqlite CLI 及已有 Python 模块检查继续使用每次配置的当前结果。
+- `Validation: ... check inputs are new or changed` 提示仅在新签名或变化时出现。CBS 失败提示先建议修复依赖并正常重新配置，也给出只重跑这些检查的 `-U 'GAMBIT_CHECK_CACHE_*'`；切换编译器家族才按共享 build 政策使用 `--fresh`。
+
+[validation_cache.py](../cmake/tests/validation_cache.py) 的 16 组脚本检查通过：无变化复用 PASS/FAIL；四类依赖版本变化局部重检与失败恢复；消失/重现；头文件修改/删除/修复；头和 toolchain 同大小同时间戳内容修改；库及 Python executable 元数据；软链接切换；语言 flags/标准与普通变量遮蔽；公共链接/required/SDK/config/platform 输入；编译器文件变化；toolchain 与手动签名 reset；旧结果迁移；非 macOS 不探测 dynamic_lookup；跨脚本进程缓存复用；调用者 required 状态保留；共享 HDF5 gate 先恢复再选择功能。脚本以 CMake 函数模拟原生 `DEFINED`/CACHE 行为并计数，运行真实 validator/gate，禁止 execute_process/try_compile/try_run；不执行编译器或工程配置。
+
+C++ 标准政策的 30 项脚本检查（15 selections、4 parsers、11 rejected configurations）与静态 diff 检查通过。夹具验证缓存控制逻辑，不替代真实编译/link 检查或多平台构建。
+
+#### 维护者验收
+
+当前工具链、SDK 和依赖路径保持不变，不清空 build、不 clean、不 --fresh。
+
+1. 完成一次签名迁移，再重复同样的配置和构建：
+
+   ```sh
+   cd /Users/p.zhu/Gambit-Workshop/worktree/cbs-presets
+   set -o pipefail
+   cmake --preset cbs-llvm 2>&1 | tee /tmp/cbs-cfg03-first-configure.log
+   cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-cfg03-first-build.log
+   cmake --preset cbs-llvm 2>&1 | tee /tmp/cbs-cfg03-noop-configure.log
+   cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-cfg03-noop-build.log
+   ```
+
+   现有 macOS CBS 配置首次应显示九项签名刷新（共享 HDF5 gate、C/C++/Fortran、dynamic_lookup、四类依赖）；所有 required 检查 PASS、环境 READY。首次增加小探测开销，不把其耗时当正常 no-op。第二次应无签名刷新；两次 CBS 成功，原生对象/链接和外部步骤应保持无变化。如实际依赖文件或环境有变化，应按日志记录对应的合理重检。
+
+2. 主动只重跑验证，再确认缓存恢复复用：
+
+   ```sh
+   cmake --preset cbs-llvm -U 'GAMBIT_CHECK_CACHE_*' 2>&1 | tee /tmp/cbs-cfg03-reset-configure.log
+   cmake --preset cbs-llvm 2>&1 | tee /tmp/cbs-cfg03-reset-noop-configure.log
+   cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-cfg03-reset-build.log
+   ```
+
+   reset 轮显示同样的九项签名刷新及 PASS；下一轮无刷新，CBS 成功且无重复编译/链接/外部步骤。reset 只移除本阶段签名；编译器、依赖 finder 缓存、对象和安装继续保留。
+
+3. 依赖失败恢复已用模拟 fixture 覆盖，无需为初次验收破坏真实依赖。以后实际升级或修复包时，确认 finder 报告的 include/library 路径，再检查该项刷新、结果恢复与下一轮复用。
+
+| 验收项 | 状态 | 记录 |
+| --- | --- | --- |
+| 16 组缓存夹具、C++ 政策 30 项与静态检查 | 已通过 | 无真实编译器、工程配置或构建 |
+| 当前环境首次签名迁移与相同配置复用 | 已通过 | 首轮九项刷新，第二轮无刷新，均 PASS/READY；两次 CBS 零编译、链接及外部步骤 |
+| 只清签名后的重检与复用 | 待执行 | reset 重检一次；后续配置及 CBS 稳定 |
+| 真实依赖升级/失败修复及其他平台 | 待执行 | finder 输入确实改变后记录；夹具不计作实际编译验收 |
+
+本机制验证 finder 已选中的输入，不自动清除 find_package 缓存或改选依赖。它不穷举传递头/库、未解析的库名或 imported target 对应文件；大二进制若内容变化但保持大小和时间戳，也可能不触发自动失效。这些情况可用第 2 步强制重检；真实编译器家族切换继续按 `AGENTS.md` 使用 --fresh。
+
+#### 2026-10-11 维护者日志验收
+
+附件 `/Users/p.zhu/.codex/attachments/1ee072a4-e237-4600-8c1b-8b765db46d39/Pasted text.txt` 包含同一 `cbs-llvm`、共享 build、CBS `-j8` 的首次签名迁移和重复配置/构建，两个 CBS 均成功，无新增错误。
+
+- 首轮第 63、288–295 行恰好出现九项输入刷新：共享 HDF5 gate、C/C++/Fortran、macOS dynamic_lookup、Python、Boost、HDF5 和 SQLite。第 315–326 行所有检查 PASS，环境 READY。第二轮没有任何 `Validation:` 刷新，第 727–738 行继续 PASS/READY，符合输入稳定时复用结果的预期。
+- 第 385–426 行与第 797–838 行各仅有 42 条目标完成输出，均零对象编译、零链接、零外部 configure/build/install/record 及构建阶段代码生成。`check-rebuild-*` 的目标完成输出属于轻量输入检查；Rivet/Contur 没有再次进入外部步骤。两次 FastJet/Contrib 均匹配安装身份并复用。
+- 工具链仍 LLVM 22.1.8、GNU Fortran 15.2.0、Python 3.13.13、C++17、ROOT 6.40.00、ccache 4.13.6，SDK/minimum 27.0 一致；HDF5 1.10.11 与 SQLite 继续启用。配置分别 10.0/5.6 秒，生成 0.6/0.4 秒；首次重检后回到缓存复用符合预期，日志没有独立探测耗时、总构建耗时或 ccache 增量，不填写提速比例。
+- 只读检查真实 `build/CMakeCache.txt`：九项原生结果均为 1，各自签名为完整 SHA256，旧 `CBS_VALIDATION_CXX_SIGNATURE` 已移除。`CMakeConfigureLog.yaml` 中存在九项对应的最新原生 probe 事件，与首次刷新相符。
+- 告警仅为已有 pybind11 最低 CMake/CMP0148 弃用；可选 scanner Python 模块、scanner 库和 WSTP libuuid 缺失提示沿用原配置，不阻断 CBS。本次没有新的 HDF5 失败、链接问题或重复外部工作。
+
+16 组缓存夹具、C++ 标准政策 30 项和 `git diff --check` 再次通过。代理没有执行工程配置、编译器或构建。手动 `-U 'GAMBIT_CHECK_CACHE_*'`、真实依赖失败后恢复与其他平台仍保留待补项；对应模拟夹具不能计作真实编译验收。提交只包含本阶段六个源码、测试和文档文件，其他本地未跟踪文件保持原状。
+
 ## 下一轮实施与构建验收
 
 1. C++ 修改及 BUILD-01 已提交；当前 LLVM/ROOT 17 配置和 CBS 构建已有日志，继续按需补齐其他标准、冲突拒绝及运行场景。
-2. CFG-01 提交为 `cf10364f98`，11 组脚本夹具、当前 LLVM 显式/缓存配置及两次无变化 CBS 构建通过；真实 bootstrap、多版本及其他平台按需补齐。CFG-02 的 26 组脚本检查、当前 SDK 配置、外部迁移及两次无变化构建通过，本阶段随验收提交；其他 SDK/平台按需补齐，随后继续 CFG-03 的检查缓存失效机制。BUILD-01 的额外恢复场景按需补充。
+2. CFG-01 提交为 `cf10364f98`，11 组脚本夹具、当前 LLVM 显式/缓存配置及两次无变化 CBS 构建通过；真实 bootstrap、多版本及其他平台按需补齐。CFG-02 的 26 组脚本检查、当前 SDK 配置、外部迁移及两次无变化构建通过，已提交为 `4dad77208a`；其他 SDK/平台按需补齐。CFG-03 的 16 组缓存夹具、C++ 政策 30 项和当前环境首次/重复配置及两次 CBS 无变化构建通过，本阶段随验收提交；只清签名、真实依赖失败恢复和其他平台按需补齐。下一项按台账继续 CFG-04 的同轮工具链探测复用与 Python 模块检查合并。BUILD-01 的额外恢复场景按需补充。
 3. BUILD-03 已提交为 `0965735828`；按需补齐命中增量和 OFF/AUTO 实测。BUILD-04 已提交为 `1d46bf0439`，HepMC/YODA 场景按需补齐；BUILD-05 首次迁移及相同配置复用已通过并提交为 `09929f07fb`；BUILD-07 首次记录、直接重复构建及相同配置后复用已通过并提交为 `0c3ea3e566`；时间戳对照、源码 touch 和其他平台按需补齐。BUILD-06 Ninja 适配仍作为 P3 后续评估。
 4. BUILD-02 独立对象构建、完整链接及无变化主工程构建已通过；继续补齐并行重叠与单点运行，以同环境基准量化收益，结合 BUILD-07 的验收日志测量外部步骤重复开销。
 5. BUILD-08 RestFrames 阶段已完成 include/配置头范围收敛；preload 漏查已修复，维护者首次迁移、恢复 ON 六个对象及最后无变化构建通过，已提交为 `eb03406a7c`。后续按需补齐迁移后独立 OFF、时间戳及其他平台，再处理其他依赖与配置发现项；Ninja 仍作为后续评估。
@@ -848,3 +913,5 @@ cmake --build --preset cbs-llvm --parallel 8
 | 2026-10-11 | 审阅 CFG-01 的 835 行日志：原 LLVM 显式配置、缓存重配置及两次 CBS 构建通过，均零编译/链接/外部重复步骤；11 组脚本检查与当前缓存/flags 只读核对通过，本阶段随验收提交；真实 bootstrap、多版本及其他平台待补齐 |
 | 2026-10-11 | CFG-01 提交为 `cf10364f98`；实现 CFG-02 SDK 优先级、pre-project 初始化、所选 SDK 的初始 minimum 与外部 CMake SDK 参数；26 组脚本检查（SDK 10、retention 5、identity 11）、旧覆盖问题复现及同 SDK flags 对比通过，真实构建待维护者验收，尚未提交 |
 | 2026-10-11 | 审阅 CFG-02 的 2433 行日志：显式 SDK、缓存重配置及自动重新发现均成功，首轮 HepMC/Rivet/Contur 迁移后两轮零编译/链接/外部步骤；26 组脚本与真实 SDK/cache/flags 比对通过，本阶段随验收提交；其他 SDK 与平台待补齐 |
+| 2026-10-11 | CFG-02 已提交为 `4dad77208a`；实现 CFG-03 统一输入签名、依赖文件指纹、共享 HDF5 gate 恢复及只重检提示；16 组无编译缓存夹具和 C++ 政策 30 项通过，真实配置/增量构建待维护者验收，尚未提交 |
+| 2026-10-11 | 审阅 CFG-03 首次/重复配置及两次 CBS 构建日志：首轮恰好九项重检，第二轮复用，均 PASS/READY；两次构建零编译/链接/外部步骤；16 组缓存夹具、C++ 政策 30 项及真实 cache/probe 只读核对通过，本阶段随验收提交，其他场景按需补齐 |

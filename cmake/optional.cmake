@@ -307,6 +307,31 @@ if(WITH_HDF5)
   # installs and on HPC modules).
   set(HDF5_PREFER_PARALLEL FALSE)
   find_package(HDF5 QUIET COMPONENTS C)
+  # Check before feature selection.  Repaired/changed inputs must invalidate
+  # a cached failure before it can disable HDF5 printers and readers again.
+  include(CheckCSourceCompiles)
+  include(CMakePushCheckState)
+  include("${CMAKE_CURRENT_LIST_DIR}/ValidationCache.cmake")
+  cmake_push_check_state()
+  set(CMAKE_REQUIRED_INCLUDES ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR} ${HDF5_C_INCLUDE_DIRS})
+  list(REMOVE_DUPLICATES CMAKE_REQUIRED_INCLUDES)
+  set(CMAKE_REQUIRED_LIBRARIES ${HDF5_LIBRARIES})
+  set(CMAKE_REQUIRED_QUIET TRUE)
+  set(_gambit_hdf5_source [=[
+#include <hdf5.h>
+int main(void) {
+  hid_t plist = H5Pcreate(H5P_FILE_ACCESS);
+  H5Pclose(plist);
+  return 0;
+}
+]=])
+  gambit_prepare_cached_check(GAMBIT_HDF5_USABLE C "HDF5 compile/link" "${_gambit_hdf5_source}"
+    VARIABLES HDF5_FOUND HDF5_VERSION HDF5_IS_PARALLEL HDF5_ROOT
+    HEADERS hdf5.h H5public.h H5pubconf.h H5Ppublic.h)
+  if(HDF5_FOUND)
+    check_c_source_compiles("${_gambit_hdf5_source}" GAMBIT_HDF5_USABLE)
+  endif()
+  cmake_pop_check_state()
   if(HDF5_FOUND)
     # Mark HDF5 includes as SYSTEM so they don't generate warnings in
     # downstream code and stay out of the way of GAMBIT's own headers.
@@ -319,26 +344,6 @@ if(WITH_HDF5)
       message(STATUS ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR} ${HDF5_C_INCLUDE_DIRS})
     endif()
 
-    # Sanity check: try to compile a small program that includes hdf5.h and
-    # links against the discovered libraries. This catches the common case
-    # where find_package mixes headers from one HDF5 install with libraries
-    # from another (e.g. Homebrew + Anaconda on macOS) before the user hits a
-    # cryptic compile or link error deep into the GAMBIT build.
-    include(CheckCSourceCompiles)
-    include(CMakePushCheckState)
-    cmake_push_check_state()
-    set(CMAKE_REQUIRED_INCLUDES  ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR} ${HDF5_C_INCLUDE_DIRS})
-    set(CMAKE_REQUIRED_LIBRARIES ${HDF5_LIBRARIES})
-    set(CMAKE_REQUIRED_QUIET TRUE)
-    check_c_source_compiles(
-      "#include <hdf5.h>
-       int main(void) {
-         hid_t plist = H5Pcreate(H5P_FILE_ACCESS);
-         H5Pclose(plist);
-         return 0;
-       }"
-      GAMBIT_HDF5_USABLE)
-    cmake_pop_check_state()
     if(NOT GAMBIT_HDF5_USABLE)
       message("${BoldCyan} X HDF5 was found by CMake (version ${HDF5_VERSION}) but a basic compile/link test failed.${ColourReset}")
       message("    This often means the discovered headers and libraries come from different HDF5 installs")
