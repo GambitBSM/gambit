@@ -98,11 +98,35 @@ migration, full CBS linking, `--help` startup and direct/same-configuration no-o
 builds. Acceptance is recorded per
 scenario in the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#preset-系统整体验收阶段).
 
-Keep the current compiler, ROOT, SDK and shared `build/`. Start with the direct
-no-op build and the same-configuration rebuild in the ledger, then complete its
-[BUILD-08 OFF/ON and snapshot sequence](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#本阶段维护者验收).
-The expected ONNX and RestFrames switch scopes are three and six objects,
-respectively. The current first-build log does not cover those switches.
+Keep the current compiler, ROOT, SDK and shared `build/`. After the migration
+build and the two no-op checks, run the feature acceptance helper from the
+repository root with both features ON:
+
+```sh
+python3 cmake/scripts/cbs_feature_acceptance.py --run --jobs 8
+```
+
+The helper requires the existing `cbs-llvm` Unix Makefiles build. It runs ONNX
+OFF/ON, then RestFrames OFF/ON, checks three/three/six/six compiled objects,
+the expected links and CBS `--help` startup, then requires a final build with
+zero compilation, linking or external steps. It compares the common header,
+nine target flags, five shared-library link commands and installed package
+headers/libraries by hash and nanosecond mtime. It records logs, snapshots,
+command durations and `summary.json` in a new temporary directory printed at
+startup. An optional `--log-dir /tmp/cbs-feature-check` must name a new directory.
+
+Without `--run`, the script only prints help. It keeps the shared build and does
+not clean, use `--fresh` or edit sources. A failure stops the sequence, retains
+the logs and prints commands to restore both features ON; it can leave the last
+tested feature OFF. A successful run restores both ON. Do not edit sources or
+run another configure/build during the check. `--help` covers startup and direct
+dynamic dependencies; analysis execution needs separate acceptance.
+
+The [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-08-开关验收入口)
+records this helper's checks and the manual OFF/ON sequence. The current macOS
+`cbs-llvm` run passed all four switches and the final no-op check, with 95 stable
+snapshot files and both features restored ON. This build baseline is ready for
+delivery preparation; a small CBS YAML run remains separate functional acceptance.
 
 New-environment, AppleClang, Linux and full GAMBIT/DarkBit builds have separate
 acceptance records. Use another checkout or test machine for an independent
@@ -550,6 +574,7 @@ python3 cmake/tests/onnxruntime_scope.py
 python3 cmake/tests/restframes_scope.py
 python3 cmake/tests/standalone_objects.py
 python3 cmake/tests/contrib_retention.py
+python3 cmake/tests/cbs_feature_acceptance.py
 ```
 
 See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-08-onnx-与可选-rpath-实施与验证)

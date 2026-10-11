@@ -1,6 +1,6 @@
 # CMake Preset 开发台账
 
-记录 GAMBIT 和 ColliderBit Solo 的 preset、CMake 构建与开发体验改进。C++ 标准统一和 BUILD-01 已提交，维护者反馈 BUILD-01 重新编译及 touch 后构建都很快。BUILD-02 已完成脚本检查，并由维护者日志确认独立对象构建、完整链接及主工程无变化构建通过；实际并行重叠与运行场景仍待验证。BUILD-03 已接入可选 ccache，维护者日志确认真实 launcher 与完整 CBS 链接成功；精确命中增量和开关场景仍待补齐。BUILD-04 已移除三处停用即删除逻辑，并保留停用包的显式清理入口；5 组夹具检查通过，维护者日志确认 RestFrames OFF/ON 后安装保留、外部目标复用及完整 CBS 构建成功；HepMC/YODA 停用场景仍待验证。BUILD-05 已增加 FastJet/Contrib 文件与构建身份检查，11 组脚本夹具通过；维护者日志确认首次迁移重建、成功记录、相同配置复用及完整 CBS 构建通过。BUILD-07 已为日志中的三包接入输入状态检查和成功安装后记录，11 组脚本夹具通过；维护者日志确认首次建立记录、直接重复构建和相同配置后复用均成功，三包重复步骤已跳过。BUILD-08 的 RestFrames 阶段已完成首次迁移、恢复 ON 六个对象与最后无变化构建验收；ONNX/两包 RPATH 阶段完成首次迁移、CBS 启动及实际依赖范围核对，开关快照与最后无变化构建待补齐。当前 macOS cbs-llvm 基线进入分阶段整体验收，其他依赖和平台分别记录。
+记录 GAMBIT 和 ColliderBit Solo 的 preset、CMake 构建与开发体验改进。C++ 标准统一和 BUILD-01 已提交，维护者反馈 BUILD-01 重新编译及 touch 后构建都很快。BUILD-02 已完成脚本检查，并由维护者日志确认独立对象构建、完整链接及主工程无变化构建通过；实际并行重叠与运行场景仍待验证。BUILD-03 已接入可选 ccache，维护者日志确认真实 launcher 与完整 CBS 链接成功；精确命中增量和开关场景仍待补齐。BUILD-04 已移除三处停用即删除逻辑，并保留停用包的显式清理入口；5 组夹具检查通过，维护者日志确认 RestFrames OFF/ON 后安装保留、外部目标复用及完整 CBS 构建成功；HepMC/YODA 停用场景仍待验证。BUILD-05 已增加 FastJet/Contrib 文件与构建身份检查，11 组脚本夹具通过；维护者日志确认首次迁移重建、成功记录、相同配置复用及完整 CBS 构建通过。BUILD-07 已为日志中的三包接入输入状态检查和成功安装后记录，11 组脚本夹具通过；维护者日志确认首次建立记录、直接重复构建和相同配置后复用均成功，三包重复步骤已跳过。BUILD-08 的 RestFrames 阶段已完成首次迁移、恢复 ON 六个对象与最后无变化构建验收；ONNX/两包 RPATH 阶段完成首次迁移、四次开关、CBS 启动、真实文件快照及最后无变化构建验收。当前 macOS cbs-llvm 构建基线进入交付收尾，物理运行、新环境、其他依赖和平台分别记录。
 
 - 更新日期：2026-10-12，Australia/Adelaide。
 - 目标分支：`Colliderbit-solo-development-preset`，工作树为 `cbs-presets`。
@@ -10,7 +10,8 @@
 - BUILD-04 已提交为 `1d46bf0439`，父提交为 `0965735828`；包含三包停用保留、显式清理入口及维护者验收记录。
 - BUILD-05 已提交为 `09929f07fb`，父提交为 `1d46bf0439`；当前 macOS LLVM 首次迁移及相同配置复用已验收。
 - BUILD-07 已提交为 `0c3ea3e566`；当前 macOS LLVM 首次记录、直接重复构建及相同配置复用已验收；BUILD-06 按维护者选择暂缓。
-- BUILD-08 RestFrames 阶段已提交为 `eb03406a7c`，父提交为 `0c3ea3e566`；当前环境迁移、恢复 ON 和无变化构建已通过。ONNX/两包 RPATH 阶段提交为 `52aaf8434f`；首次迁移、启动与实际范围通过，开关快照、最后 no-op 和其他依赖仍待验收。
+- BUILD-08 RestFrames 阶段已提交为 `eb03406a7c`，父提交为 `0c3ea3e566`；当前环境迁移、恢复 ON 和无变化构建已通过。ONNX/两包 RPATH 阶段提交为 `52aaf8434f`；首次迁移、四次开关、启动、快照及最后 no-op 通过，其他依赖与平台仍按范围验收。
+- DOC-01/DOC-02 文档政策与原 HPC 示例已提交为 `eeaf63d5ef`，包含当前 cbs-llvm 两轮无变化验收记录；BUILD-08 四次开关及最终 no-op 现已通过，验收入口随本轮提交。
 - 关联文档：[Preset 使用说明](../cmake/presets/README.md)、[CMake Preset 工程标准](CMAKE_PRESET_STANDARD.md)、[仓库开发规则](../AGENTS.md)。
 
 ## 状态与验收规则
@@ -91,7 +92,7 @@ cmake -P cmake/tests/cxx_standard.cmake
 | BUILD-05 | P1 | 已合入 | FastJet/Contrib 每次重新搜索并检查实际文件；复用须匹配成功安装后的构建身份；缺失或不匹配时使所属步骤失效，构建阶段从校验过的归档恢复干净源码；FastJet 重建级联至 Contrib | [contrib.cmake](../cmake/contrib.cmake)、[ContribBuildIdentity.cmake](../cmake/ContribBuildIdentity.cmake)、[contrib_build_identity.py](../cmake/tests/contrib_build_identity.py)。11 组脚本夹具通过；当前 macOS LLVM 首次迁移、安装身份、相同配置复用及完整 CBS 构建已通过；直接无配置重复构建、时间戳对照和其他平台待补齐 |
 | BUILD-06 | P3 | 暂缓 | 维护者此前使用 Ninja 未成功，选择继续 Unix Makefiles；Ninja 适配暂不推进 | [utilities.cmake](../cmake/utilities.cmake) 的 `MAKE_PARALLEL`。若后续明确重启，仍需分离主 generator 与外部 make 工具，并完善生成物声明；不能只替换 preset 的 generator |
 | BUILD-07 | P2 | 已合入 | 为 nulike 1.0.9、Rivet 4.1.0、Contur 3.0.0 声明输入和关键产物；成功安装后记录状态，无变化保留 build 标记；编辑/touch/增删源码或缺产物时使所属步骤失效；其他包保留原策略 | [ExternalAutoRebuild.cmake](../cmake/ExternalAutoRebuild.cmake)、[external_rebuild.py](../cmake/scripts/external_rebuild.py)、[externals.cmake](../cmake/externals.cmake)、[backends.cmake](../cmake/backends.cmake)。11 组临时检查通过；当前环境首次记录、直接重复构建及重新配置后跳过已通过，时间戳对照及源码 touch 待补齐 |
-| BUILD-08 | P2 | 部分完成 | RestFrames PRIVATE include/专用头阶段已合入并验收；本轮实现 ONNX 专用头/PUBLIC include 范围与 RestFrames/ONNX 按实际链接消费添加 RPATH；其他可选依赖按需继续审计 | [contrib.cmake](../cmake/contrib.cmake)、[utilities.cmake](../cmake/utilities.cmake)、[preprocessor.cmake](../cmake/preprocessor.cmake)、[onnxruntime_scope.py](../cmake/tests/onnxruntime_scope.py)。本轮 27 组脚本检查、首次迁移/CBS 启动和实际 include/RPATH 范围通过；已提交为 `52aaf8434f`。ONNX 三对象、RestFrames 六对象、开关快照及最后无变化构建待补齐 |
+| BUILD-08 | P2 | 部分完成 | RestFrames PRIVATE include/专用头阶段已合入并验收；本轮实现 ONNX 专用头/PUBLIC include 范围与 RestFrames/ONNX 按实际链接消费添加 RPATH；其他可选依赖按需继续审计 | [contrib.cmake](../cmake/contrib.cmake)、[utilities.cmake](../cmake/utilities.cmake)、[preprocessor.cmake](../cmake/preprocessor.cmake)、[onnxruntime_scope.py](../cmake/tests/onnxruntime_scope.py)。本轮 27 组脚本检查、首次迁移/CBS 启动和实际 include/RPATH 范围通过；已提交为 `52aaf8434f`。ONNX 三对象、RestFrames 六对象、95 个文件的开关快照和最后无变化构建均已通过；验收入口随本轮提交，其他依赖及平台按需验收 |
 
 BUILD-02 的问题由原生成 Makefile 的依赖顺序确认；实现后独立对象目标及无变化构建已通过，实际并行重叠和节省时间尚未测量。BUILD-03 改善缓存命中的重复编译，不能解决所有首次编译等待。BUILD-07 由维护者无变化日志及当前生成规则确认；当前三包已接入状态检查；维护者日志确认直接重复构建及相同配置后跳过重复步骤，具体耗时未测量。
 
@@ -637,7 +638,7 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build08-noop.log
 
 ### BUILD-08 ONNX 与可选 RPATH 实施与验证
 
-2026-10-12 基于 UX-01 提交 `88346e66ba` 实现第二阶段，状态为 **已实现已构建**；当前 macOS 首次迁移和 CBS 启动通过，已提交为 `52aaf8434f`。BUILD-08 总体保持部分完成，真实开关范围、无变化构建、其他依赖及平台继续验收。工程 configure/build 和运行验收由维护者执行。
+2026-10-12 基于 UX-01 提交 `88346e66ba` 实现第二阶段，状态为 **已实现已构建**；当前 macOS 首次迁移和 CBS 启动通过，已提交为 `52aaf8434f`。当前 macOS ONNX/RestFrames 的真实开关范围、快照和无变化构建已通过，详见本轮开关验收记录；BUILD-08 总体保持部分完成，其他依赖及平台继续按范围验收。工程 configure/build 和运行验收由维护者执行。
 
 实施前只读证据：ONNX 与 RestFrames 均 ON。ONNX 的 EXCLUDE 宏仍在公共配置头中，其 include 出现在 ColliderBit、Models、Utils、Backends 和 CBS_objects 的实际 flags.make。first、fortran、FarrayTest、cbs_preload 的实际 link.txt 都带两包 RPATH，却没有链接这两种库。gambit_preload 在包选择前创建，本就没有这两个 RPATH，不能计入本轮移除收益。wrapper 的当前 `.o.d` 使用者只有自身实现与 ATLAS_SUSY_2018_30；注册容器另外直接使用 ONNX 开关。
 
@@ -718,9 +719,9 @@ CBS 的 link.txt 在 ON 保留所属 -lRestFrames/-lonnxruntime 和 runtime 路�
 | 验收项 | 状态 | 说明 |
 | --- | --- | --- |
 | 新 ONNX/RPATH 9 组与相关 18 组 | 已通过 | 共 27 组，无工程配置或编译器执行 |
-| 首次迁移与公共头/flags/link 快照 | 部分完成 | 首次 CBS 成功，当前实际 include/header/link 已核对；跨开关 hash/mtime 快照待执行 |
-| ONNX OFF/ON 三对象、RestFrames OFF/ON 六对象 | 待维护者执行 | 无关共享库命令稳定，正确 executable runtime paths 保留 |
-| CBS 启动与最后无变化构建 | 部分完成 | 首次 --help 已正常输出；恢复 ON 后最后零工作待执行，不代替物理运行 |
+| 首次迁移与公共头/flags/link 快照 | 当前环境通过 | 首次 CBS 成功；本轮四次开关与最终 no-op 的 95 个文件快照均稳定 |
+| ONNX OFF/ON 三对象、RestFrames OFF/ON 六对象 | 当前环境通过 | 四次对象/链接范围准确，公共文件稳定，CBS 专属 runtime paths 与开关一致 |
+| CBS 启动与最后无变化构建 | 当前环境通过 | 四次 --help 正常，恢复 ON 后零编译/链接/生成/外部步骤；物理运行单独验收 |
 
 #### 2026-10-12 当前 macOS 首次迁移验收
 
@@ -745,8 +746,8 @@ CBS 的 link.txt 在 ON 保留所属 -lRestFrames/-lonnxruntime 和 runtime 路�
 | CFG-05 | P2 | 已实现已构建 | 统一 OpenMP 发现及自动缓存 hints；原生 C/C++ SDK/minimum 使用 CMake，GNU Fortran 补齐未探测的选项；外部 shell/CMake flags 分别由公共政策派生 | [OpenMP.cmake](../cmake/OpenMP.cmake)、[MacOSX.cmake](../cmake/MacOSX.cmake)、[platform_flags.py](../cmake/tests/platform_flags.py)。78 组脚本夹具与 C++ 政策 30 项通过；当前 macOS LLVM 首次迁移及第二轮无变化 CBS 构建通过，实际两种 Fortran 对象/库与 CBS minimum 均为 27.0；其他 SDK/profile/平台按需补齐 |
 | UX-01 | P2 | 已实现已构建 | bootstrap 与 README 构建示例明确使用 `--parallel 8`，说明简写、资源调整及环境变量优先级 | [BootstrapReport.cmake](../cmake/presets/BootstrapReport.cmake)、[Preset README](../cmake/presets/README.md)。15 个注册 preset 的纯报告渲染与文档命令检查通过；当前 macOS 双系统 bootstrap 四项构建提示及 CBS 零工作增量构建通过 |
 | UX-02 | P2 | 部分完成 | 摘要已补充缓存策略、ccache 版本和 C/C++ launcher；依赖复用或重建原因及 compile_commands 导出待开发 | 摘要已有标准选择信息；后续实际构建命令可追溯，IDE 能读取 `compile_commands.json` |
-| DOC-01 | P2 | 已合入 | 工程标准统一共享 build/、切换时 --fresh 与既有输出布局；同步示例、验收清单、15 个公开 preset 注册表及并发数 | [工程标准](CMAKE_PRESET_STANDARD.md)、[使用说明](../cmake/presets/README.md)。15 个定义与构建入口静态核对、六种注册/筛选检查及文档片段验证通过；维护者两轮 no-op 均通过，本轮提交 |
-| DOC-02 | P2 | 已合入 | 文档引用的 HPC preset 示例随本轮文档纳入版本控制，保留原内容 | [CMakeUserPresets.json.example](../CMakeUserPresets.json.example)。临时复制为 CMakeUserPresets.json 后，原生 --list-presets=all 正常列出 configure/build，继承共享 build/；新 clone 有引用示例，真实 HPC 构建待维护者执行 |
+| DOC-01 | P2 | 已合入 | 工程标准统一共享 build/、切换时 --fresh 与既有输出布局；同步示例、验收清单、15 个公开 preset 注册表及并发数 | [工程标准](CMAKE_PRESET_STANDARD.md)、[使用说明](../cmake/presets/README.md)。15 个定义与构建入口静态核对、六种注册/筛选检查及文档片段验证通过；维护者两轮 no-op 均通过，提交为 `eeaf63d5ef` |
+| DOC-02 | P2 | 已合入 | 文档引用的 HPC preset 示例已纳入版本控制，保留原内容 | [CMakeUserPresets.json.example](../CMakeUserPresets.json.example)。临时复制为 CMakeUserPresets.json 后，原生 --list-presets=all 正常列出 configure/build，继承共享 build/；提交为 `eeaf63d5ef`，真实 HPC 构建待维护者执行 |
 
 ### CFG-01 实施与验证
 
@@ -1093,24 +1094,24 @@ bootstrap 的 AVAILABLE 构建提示应明确包含 `--parallel 8` 和资源调�
 
 ### Preset 系统整体验收阶段
 
-当前 macOS `cbs-llvm` 可以冻结为验收基线，先补齐本轮开关与增量场景，再验证完整使用流程；验收期间优先修复实际发现的问题。当前首轮 CBS 成功不代表所有 preset、工具链或物理运行均已验收。
+当前 macOS `cbs-llvm` 的构建、无变化及 ONNX/RestFrames 四次开关验收已通过，可以冻结本轮构建改动并进入交付收尾。交付范围为现有 Unix Makefiles、LLVM 与依赖环境；CBS 物理运行、新环境完整构建及其他 preset/工具链分别保留验收记录。
 
 | 验收范围 | 当前证据 | 下一步与通过标准 |
 | --- | --- | --- |
 | 当前 macOS cbs-llvm 配置、并行完整构建与启动 | 本轮首次迁移成功，--help 正常，实际 ONNX include/依赖及两包 RPATH 正确 | 固定工具链、ROOT、SDK 和并发，保存配置摘要与日志 |
-| ONNX/RestFrames 开关与编译范围 | 27 组脚本检查通过，当前实际依赖范围符合设计 | 按本台账 BUILD-08 命令完成四次 OFF/ON；分别仅三个/六个必要对象，无关 flags/link 与公共头 hash/mtime 稳定，CBS 可启动 |
+| ONNX/RestFrames 开关与编译范围 | 27 组范围检查和 14 组入口夹具通过；真实四次开关和最终 no-op 均 PASS | 当前环境已通过：三个/六个必要对象、正确链接/RPATH、95 个文件快照稳定及 CBS 启动；复验可使用下方入口 |
 | 无变化配置/构建和单文件增量 | 当前直接 no-op 与相同配置后 no-op 均通过；之前阶段已有源码 touch 日志 | 直接重复构建、相同配置后构建均零编译/链接/外部步骤；touch 单个分析和 CBS 源码仅重编译必要对象并链接 |
 | 依赖复用与缺失诊断 | 当前外部安装复用；发现/缓存/缺失输入有脚本夹具 | 按需补齐真实缺失依赖诊断、缺产物恢复及外部源码 touch，只让所属依赖及必要下游重建 |
 | CBS 功能运行 | --help 只覆盖启动与直接动态依赖加载 | 用已有有效 YAML 完成小规模单点运行，检查后端接口、输出及所选分析；物理结果验收单独记录 |
 | 新环境完整构建 | 当前验证使用已有外部安装，不能算全冷构建 | 在独立工作树或测试机器从标准依赖环境完成配置、下载、生成和 -j8 构建；保留当前工作树 build，每个工作树仍使用其共享 build/ |
 | 其他工具链与 profile | 本轮 macOS LLVM CBS 不覆盖其他矩阵 | AppleClang CBS、Linux LLVM/GNU、完整 GAMBIT 与 DarkBit 按各自支持范围分别验收，切换编译器家族使用 --fresh |
-| 文档与开发体验 | DOC-01 政策与 DOC-02 示例随本轮提交；UX-02 有后续增强 | 文档、验收与交付按 AGENTS.md 的共享 build/ 政策；compile_commands 等增强按需推进 |
+| 文档与开发体验 | DOC-01 政策与 DOC-02 示例已提交为 `eeaf63d5ef`；UX-02 有后续增强 | 文档、验收与交付按 AGENTS.md 的共享 build/ 政策；compile_commands 等增强按需推进 |
 
 Ninja 和 lld 继续按维护者选择暂缓。验收状态按上述范围分别记录，只有完成对应场景才将其标为通过。
 
 ### 当前 cbs-llvm 的下一轮验收命令
 
-本轮 DOC-01 只修正文档，构建 preset、工具链和源代码保持 `52aaf8434f` 基线；不需要清空 build。先验证首次迁移后直接 no-op 和相同配置后的 no-op，保存这三份日志：
+DOC-01/DOC-02 提交 `eeaf63d5ef` 只涉及文档和示例，构建 preset、工具链和源代码保持 `52aaf8434f` 基线；不需要清空 build。以下首次迁移后直接 no-op 和相同配置后的 no-op 已通过，保留命令供复验：
 
 ```sh
 cd /Users/p.zhu/Gambit-Workshop/worktree/cbs-presets
@@ -1126,7 +1127,44 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-acceptance-reconfigure-
 
 维护者反馈两次构建都很快完成。进一步只读检查其保存日志：`/tmp/cbs-acceptance-direct-noop.log` 和 `/tmp/cbs-acceptance-reconfigure-noop.log` 均为 42 行，全部为目标完成输出，CBS 均成功，零对象编译、零链接、零外部步骤和构建阶段生成。`/tmp/cbs-acceptance-reconfigure.log` 为 377 行，配置/生成分别 6.0/0.6 秒，摘要 PASS/READY，没有重检提示或配置错误。未记录总构建耗时与 ccache 命中增量，不填写提速比例。
 
-当前 ON 状态的直接重复构建与相同配置后重复构建已验收。本轮四次 OFF/ON、跨开关 hash/mtime 快照与恢复 ON 后最后 no-op 仍待执行，不能由这两份无变化日志代替。
+当前 ON 状态的直接重复构建与相同配置后重复构建已验收。随后维护者执行下方入口，另外补齐四次 OFF/ON、跨开关 hash/mtime 快照与恢复 ON 后最后 no-op；两类证据分别记录。
+
+#### BUILD-08 开关验收入口
+
+基于 `eeaf63d5ef` 新增 [cbs_feature_acceptance.py](../cmake/scripts/cbs_feature_acceptance.py)，把前述手动四次开关与快照检查整理为维护者运行的一条命令。当前状态为 **已实现已构建**，维护者已完成真实四次开关及最终无变化验收，入口与记录随本轮提交。
+
+```sh
+cd /Users/p.zhu/Gambit-Workshop/worktree/cbs-presets
+python3 cmake/scripts/cbs_feature_acceptance.py --run --jobs 8
+```
+
+前置条件是当前 macOS `cbs-llvm`、Unix Makefiles、两项开关 ON、首次迁移已完成，RestFrames 1.0.2 和 ONNX Runtime 1.14.1 的安装仍在。保留共享 `build/`，不 clean 或 --fresh；期间不编辑源码，也不并行执行另一次配置或构建。
+
+入口按 ONNX OFF、ONNX ON、RestFrames OFF、RestFrames ON 顺序显式设置两项开关，核对缓存、专用头、CBS 链接项及所属 RPATH；要求原有工具链、ROOT、Python、SDK/minimum 和 profile 身份保持一致。ONNX 每次恰好编译三个对象并链接 CBS；RestFrames 每次恰好编译六个对象并链接 gambit_preload 和 CBS。每轮 `CBS --help` 应正常输出 Usage；最后重复构建要求零对象、零链接、零生成或外部步骤。
+
+公共配置头、九个目标 flags、五个共享库 link 命令及两包安装头/库记录内容 SHA-256、纳秒 mtime、大小和解析后的路径。开关后的四份快照和最终无变化快照均与初始快照比较。默认在系统临时目录创建唯一的新日志目录，开始和结束均打印路径；可用 `--log-dir /tmp/cbs-feature-check` 指定尚不存在的目录。目录包含每步 configure/build/loader 日志、快照和 `summary.json`，摘要记录通过场景、命令耗时及失败原因；现有日志目录不会覆盖。
+
+只有 `--run` 才执行真实命令，默认调用只打印帮助。失败立即停止并返回非零，保留日志和已完成场景，不自动继续或恢复；此时可能留下某项 OFF，终端会打印恢复两项 ON 的配置及构建命令。全部通过后两项恢复 ON，摘要为 PASS。`--help` 仅验收启动和直接动态依赖，ONNX 推理、RestFrames 分析及物理运行仍单独验收。
+
+无构建检查：新增 [cbs_feature_acceptance.py 夹具](../cmake/tests/cbs_feature_acceptance.py) 的 **14 组**通过，使用临时树和捕获命令，未执行任何真实 CMake、构建或 CBS。覆盖完整顺序/恢复及报告、前置条件拒绝、意外对象/重复链接/外部步骤/生成、安装内容/mtime/删除、显式用户 RPATH、错误或损坏专用头、失败退出和停止、工具链改变、日志保护、无关 link 变化、启动输出缺失及最终 no-op 仍有工作。进程退出检查仅运行打印后退出的 Python 夹具，默认帮助检查也仅运行 Python。
+
+对当前真实文件只读核对：两项 ON、95 个快照文件连续读取一致、实际专用头消费者分别三个和六个；两份已验收的 no-op 日志由新解析器确认零编译/链接/外部步骤。该只读核对与维护者真实开关结果分别记录，后者见下节。
+
+#### 2026-10-12 四次开关与最终无变化验收
+
+维护者执行 `python3 cmake/scripts/cbs_feature_acceptance.py --run --jobs 8`，附件为 `/Users/p.zhu/.codex/attachments/8049895f-e0fe-49fe-9655-52dea35216de/Pasted text.txt`（1814 行），日志目录为 `/var/folders/rz/jq3y3vy92s1b_6fsw7wvs6k40000gn/T/cbs-feature-acceptance-85qv5gos`。只读重新检查实际五份 build 日志、四份 loader 日志、summary 和五份快照，全部符合入口的预期。
+
+| 场景 | 对象编译 | 链接 | build 命令墙钟秒 | 结果 |
+| --- | --- | --- | --- | --- |
+| ONNX OFF | 3 | CBS | 3.508 | PASS |
+| ONNX ON | 3 | CBS | 2.071 | PASS |
+| RestFrames OFF | 6 | gambit_preload、CBS | 3.359 | PASS |
+| RestFrames ON | 6 | gambit_preload、CBS | 1.975 | PASS |
+| 最后无变化构建 | 0 | 0 | 1.529 | PASS |
+
+四次开关及最后一次构建均没有额外生成或外部 configure/build/install/record 步骤；公共配置头、九个目标 flags、五个共享库 link 命令及两包安装头/库合计 95 个文件，与初始快照的 SHA-256、mtime_ns、大小和解析路径均一致。四次 CBS `--help` 正常，缓存/专用头/链接项/RPATH 与每轮开关一致；最终两项均 ON，工具链、ROOT、SDK/minimum、Python 与 profile 身份保持一致。
+
+耗时来自入口的 `time.monotonic()`，包含命令启动和日志输出，测量环境使用已有安装与 ccache；不用于推定冷构建性能或 ccache 命中增量。当前 macOS 构建基线可进入交付收尾。有效 YAML 的小规模实际运行、新环境与其他平台保持单独待验收；Ninja/lld 继续暂缓。代理此次只读取维护者结果及做静态检查，没有执行工程配置、构建或 CBS。
 
 #### DOC-01/DOC-02 验收准备记录（2026-10-12）
 
@@ -1211,3 +1249,5 @@ cmake --build --preset cbs-llvm --parallel 8
 | 2026-10-12 | 审阅 BUILD-08 的 765 行首次迁移日志及保存日志：304 个原生对象、六次链接、CBS/--help 成功，零外部构建步骤；真实 include、三个专用头消费者、CBS 与五个共享库的 link/LC_RPATH 核对通过，本阶段随本轮提交；OFF/ON 快照和最后 no-op 待补齐，登记当前 cbs-llvm 分阶段整体验收矩阵 |
 | 2026-10-12 | BUILD-08 ONNX/RPATH 阶段已提交为 `52aaf8434f`；继续整体验收准备，DOC-01 同步共享 build/、--fresh、并发数与公开 preset 清单，DOC-02 示例完成无配置列表验证并待纳入提交；保留原示例及其他本地文件，补充两轮 no-op 验收命令，尚未提交本轮文档 |
 | 2026-10-12 | 维护者反馈两轮快速完成；只读核对保存日志，两次 CBS 均 42 条目标完成输出，零编译/链接/外部步骤；重配置 6.0 秒、生成 0.6 秒，PASS/READY；DOC-01 文档与 DOC-02 原 HPC 示例随本轮提交，随后补齐 BUILD-08 开关验收 |
+| 2026-10-12 | DOC-01/DOC-02 提交为 `eeaf63d5ef`；新增维护者 BUILD-08 四次开关验收入口和 14 组捕获命令夹具，记录范围、快照、启动、最终 no-op 与失败停止；当前 95 个文件快照和三个/六个实际依赖只读核对通过，真实开关待维护者执行，新入口尚未提交 |
+| 2026-10-12 | 审阅 1814 行维护者开关日志、summary 与五份快照：ONNX 3/3 个对象和各一次链接，RestFrames 6/6 个对象和各两次链接，最终零工作；95 个文件 hash/mtime 稳定，四次 CBS 启动通过且两项恢复 ON；入口及验收记录随本轮提交，三个本地未追踪文件按明确路径加入 gitignore |
