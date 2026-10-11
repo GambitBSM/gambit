@@ -14,6 +14,33 @@
 - DOC-01/DOC-02 文档政策与原 HPC 示例已提交为 `eeaf63d5ef`，包含当前 cbs-llvm 两轮无变化验收记录；BUILD-08 四次开关及最终 no-op 现已通过，验收入口随本轮提交。
 - 关联文档：[Preset 使用说明](../cmake/presets/README.md)、[CMake Preset 工程标准](CMAKE_PRESET_STANDARD.md)、[仓库开发规则](../AGENTS.md)。
 
+## PR 前兼容性修复（2026-10-12）
+
+比较基线为本地 `gambit/ColliderBit_solo_development`（`b356b08b04`），修复在 preset 分支实施，基于 `b4a0a6120b`。四项均已实现并完成脚本检查，随本轮授权提交；真实 CBS 构建仍待维护者执行，先前验收记录不替代本轮验证。
+
+| 问题 | 修复 | 检查 |
+| --- | --- | --- |
+| P1：YODA 的 `file(CHMOD)` 需要 CMake 3.19，破坏普通 GAMBIT 的 3.16.3 入口 | UNIX 下使用 `chmod 755`，失败清楚报错；preset 最低版本和主工程最低版本保持原约定 | 临时 h5cc 包装脚本可执行、仅规范化 `-showconfig`、原参数完整传递，权限失败退出；未使用 CMake 3.16.3 二进制做真实配置 |
+| P2：首次显式设置 backend 裁剪被自动默认值覆盖 | 没有自动记录的值按显式选择保留；覆盖自动默认值后移除自动记录，后续模块切换继续保留 | 首次显式 OFF/ON、全模块与子集自动切换、覆盖后反复切换 |
+| P2：链接库整体去重破坏重复静态库及 `optimized`/`debug`/`general` 配对 | 只过滤原有无效 `-L` 项，保留其他条目的顺序和次数 | 配置关键字、多次库引用、link group 及有效目录项均完整保留 |
+| P2：RestFrames 停用保留后可能复用旧工具链或 flags 的对象 | 接入 contrib 构建身份；包含编译器、flags、ROOT、平台和补丁输入；仅身份匹配且必要安装文件存在时复用 | 同配置 OFF/ON 与缺失 EP 标记保留文件；配置变化拒绝旧对象；临时 Git tag 重建干净源码；补丁变化、缺文件、失败保留原安装和路径边界 |
+
+检查入口为 [merge_compatibility.py](../cmake/tests/merge_compatibility.py) 和 [restframes_build_identity.py](../cmake/tests/restframes_build_identity.py)。联动复查 contrib 保留、FastJet 身份、RestFrames/ONNX 范围、standalone 对象，共 54 组 Python 脚本检查通过；C++ 政策 30 项通过。全部使用临时文件、临时 Git 仓库、捕获的 target/ExternalProject 注册及 `cmake -P`，没有工程配置、编译器探测、make、网络访问或真实安装清理。
+
+RestFrames 旧安装尚无身份记录，首次启用构建会重建一次并在成功安装后记录。配置阶段只写入 build/ 请求和失效步骤标记；真实源码准备在 build 阶段进行。优先从本地 Git tag 克隆干净源码，只有无 `.git` 的 source drop 或缺少 tag 才需要从上游重新下载；准备失败保留原安装。相同身份重新配置及 OFF/ON 不删除源码或安装。
+
+维护者先在当前工作树执行以下命令，不需要清空 build/：
+
+```sh
+cmake --preset cbs-llvm
+cmake --build build --target CBS -j8
+cmake --build build --target CBS -j8
+cmake --preset cbs-llvm
+cmake --build build --target CBS -j8
+```
+
+预期首轮 RestFrames 显示 `no recorded build identity` 并重新构建；成功后存在 `contrib/RestFrames-1.0.2/.gambit-restframes-build-identity`。后两轮构建应无重复编译/链接，最后配置显示身份匹配。随后可运行已有 `python3 cmake/scripts/cbs_feature_acceptance.py --run --jobs 8`，检查两项 OFF/ON 和最后无变化构建。若测试工具链切换，仍按既有共享 build/ 政策使用 `--fresh`；需要看到 RestFrames 拒绝旧身份并重建，匹配 ROOT/C++ 标准后再恢复原 preset。
+
 ## 状态与验收规则
 
 | 状态 | 含义 |

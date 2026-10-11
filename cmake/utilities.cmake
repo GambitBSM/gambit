@@ -375,10 +375,9 @@ function(normalise_gambit_link_libraries output_var)
       endif()
     endif()
     if(_keep_link_item)
-      list(FIND normalised_libraries "${link_item}" existing_item)
-      if(existing_item EQUAL -1)
-        list(APPEND normalised_libraries "${link_item}")
-      endif()
+      # Repeated libraries and optimized/debug/general pairs carry linker
+      # semantics. Keep their order and multiplicity when filtering bad -L flags.
+      list(APPEND normalised_libraries "${link_item}")
     endif()
   endforeach()
   set(${output_var} ${normalised_libraries} PARENT_SCOPE)
@@ -1025,8 +1024,8 @@ endfunction()
 
 # Backend-interface trimming follows module exclusion. A full module set
 # leaves trimming off. Excluding any Bit turns it on, including when an
-# earlier configure stored the full-set default. A cache value that no
-# longer matches that automatic choice is left unchanged.
+# earlier configure stored the full-set default. Explicit values without an
+# automatic marker, and overrides of a previous automatic choice, are preserved.
 function(_gambit_resolve_trim_default)
   set(_user_narrowed FALSE)
   foreach(_d ${ALL_GAMBIT_BITS})
@@ -1035,13 +1034,15 @@ function(_gambit_resolve_trim_default)
     endif()
   endforeach()
 
-  set(_follow_exclusion TRUE)
-  if(DEFINED GAMBIT_TRIM_AUTOMATIC_VALUE AND DEFINED GAMBIT_TRIM_BACKEND_INTERFACES
-     AND NOT "${GAMBIT_TRIM_BACKEND_INTERFACES}" STREQUAL "${GAMBIT_TRIM_AUTOMATIC_VALUE}")
-    set(_follow_exclusion FALSE)
-  endif()
-  if(NOT _follow_exclusion)
-    return()
+  if(DEFINED GAMBIT_TRIM_BACKEND_INTERFACES)
+    if(NOT DEFINED GAMBIT_TRIM_AUTOMATIC_VALUE)
+      return()
+    endif()
+    if(NOT "${GAMBIT_TRIM_BACKEND_INTERFACES}" STREQUAL "${GAMBIT_TRIM_AUTOMATIC_VALUE}")
+      # Once overridden, keep the value explicit across later module switches.
+      unset(GAMBIT_TRIM_AUTOMATIC_VALUE CACHE)
+      return()
+    endif()
   endif()
 
   if(_user_narrowed)

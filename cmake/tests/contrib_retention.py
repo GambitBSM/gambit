@@ -86,6 +86,23 @@ class ContribRetentionTests(unittest.TestCase):
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text("completed " + step)
 
+        # Seed an installation recorded under the same fixture configuration.
+        # Legacy installations are tested separately in restframes_build_identity.
+        for name in ("ContribBuildIdentity.cmake", "scripts/patch_restframes_quiet.cmake"):
+            target = self.source / "cmake" / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(ROOT / "cmake" / name, target)
+        for name in ("inc/RestFrames/RestFrames.hh", "lib/libRestFrames.a"):
+            target = self.source / "contrib/RestFrames-1.0.2" / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text("fixture installation")
+        self.run_selection()
+        identity = self.build / "restframes-prefix/tmp/restframes-identity.txt"
+        record = self.source / "contrib/RestFrames-1.0.2/.gambit-restframes-build-identity"
+        record.write_bytes(identity.read_bytes())
+        for step in STEPS:
+            self.stamp("restframes", step).write_text("completed " + step)
+
     def tearDown(self):
         self.temporary.cleanup()
 
@@ -124,6 +141,8 @@ class ContribRetentionTests(unittest.TestCase):
             "set(ROOT_STD 17)",
             "set(CMAKE_SYSTEM_NAME Linux)",
             "set(CMAKE_CXX_COMPILER_ID GNU)",
+            "set(CMAKE_FIND_LIBRARY_PREFIXES lib)",
+            "set(CMAKE_FIND_LIBRARY_SUFFIXES .a .so .dylib)",
             "set(UNIX FALSE)",  # skip the unrelated HDF5 wrapper probe
             "set(MAKE_SERIAL make)",
             "set(MAKE_PARALLEL make -j8)",

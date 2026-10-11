@@ -38,6 +38,8 @@ endfunction()
 function(ExternalProject_Add name)
   file(APPEND "${CAPTURE_FILE}" "EXTERNAL|${name}|${ARGN}\n")
 endfunction()
+function(ExternalProject_Add_Step)
+endfunction()
 function(add_install_name_tool_step)
 endfunction()
 function(gambit_strip_openmp_from_flags)
@@ -70,7 +72,9 @@ class OnnxRuntimeScopeTests(unittest.TestCase):
         for module in ("ColliderBit", "DarkBit"):
             (self.source / module / "examples").mkdir(parents=True)
         for name in ("cmake_variables.hpp.in", "restframes_variables.hpp.in",
-                     "onnxruntime_variables.hpp.in"):
+                     "onnxruntime_variables.hpp.in", "ContribBuildIdentity.cmake",
+                     "scripts/patch_restframes_quiet.cmake"):
+            (self.source / "cmake" / name).parent.mkdir(parents=True, exist_ok=True)
             if (ROOT / "cmake" / name).exists():
                 shutil.copy2(ROOT / "cmake" / name, self.source / "cmake" / name)
 

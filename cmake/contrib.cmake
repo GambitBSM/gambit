@@ -156,6 +156,42 @@ if(NOT EXCLUDE_RESTFRAMES)
   else()
     set(RESTFRAMES_CONFIG_LIBS "${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} -Wl,--no-as-needed -lgambit_preload")
   endif()
+  include("${PROJECT_SOURCE_DIR}/cmake/ContribBuildIdentity.cmake")
+  set(_restframes_patch "${PROJECT_SOURCE_DIR}/cmake/scripts/patch_restframes_quiet.cmake")
+  file(SHA256 "${_restframes_patch}" _restframes_patch_hash)
+  file(SHA256 "${PROJECT_SOURCE_DIR}/cmake/ContribBuildIdentity.cmake" _restframes_recipe_hash)
+  set(_restframes_rootsys "$ENV{ROOTSYS}")
+  # Detect ROOT replacements in the same prefix without running root-config.
+  set(_restframes_root_files "${_restframes_rootsys}/bin/root-config" ${ROOT_LIBRARIES})
+  foreach(_root_include IN LISTS ROOT_INCLUDE_DIRS)
+    list(APPEND _restframes_root_files "${_root_include}/RVersion.h" "${_root_include}/RConfigure.h")
+  endforeach()
+  set(_restframes_root_fingerprint "")
+  foreach(_root_file IN LISTS _restframes_root_files)
+    if(EXISTS "${_root_file}" AND NOT IS_DIRECTORY "${_root_file}")
+      get_filename_component(_root_realpath "${_root_file}" REALPATH)
+      file(TIMESTAMP "${_root_file}" _root_timestamp "%Y-%m-%dT%H:%M:%SZ" UTC)
+      file(SIZE "${_root_file}" _root_size)
+      string(APPEND _restframes_root_fingerprint "${_root_file}|${_root_realpath}|${_root_timestamp}|${_root_size}\n")
+    else()
+      string(APPEND _restframes_root_fingerprint "${_root_file}|missing\n")
+    endif()
+  endforeach()
+  gambit_contrib_build_identity(_restframes_identity RESTFRAMES_VERSION RESTFRAMES_DIR
+      RESTFRAMES_C_FLAGS RESTFRAMES_CXX_FLAGS RESTFRAMES_CPP RESTFRAMES_CXXCPP
+      RESTFRAMES_CONFIG_LDFLAGS RESTFRAMES_CONFIG_LIBS _restframes_patch_hash
+      _restframes_recipe_hash _restframes_rootsys _restframes_root_fingerprint
+      ROOT_VERSION ROOT_STD ROOT_INCLUDE_DIRS ROOT_LIBRARY_DIR ROOT_LIBRARIES ROOT_CXX_FLAGS)
+  gambit_write_contrib_identity_request(${name} "${ver}" "" "${dir}" "${dir}"
+      "${_restframes_identity}" "${dir}/inc/RestFrames/RestFrames.hh" "RestFrames"
+      GIT_REPOSITORY "https://github.com/crogan/RestFrames" GIT_TAG "v${ver}")
+  gambit_contrib_installation_matches("${restframes_identity_request}"
+      _restframes_reusable _restframes_rebuild_reason)
+  if(_restframes_reusable)
+    message("   RestFrames ${ver}: build identity matches; retaining existing objects and installation.")
+  else()
+    message("   RestFrames ${ver} requires rebuilding: ${_restframes_rebuild_reason}.")
+  endif()
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${CMAKE_COMMAND}
       -DDIR=${dir}
@@ -170,6 +206,8 @@ if(NOT EXCLUDE_RESTFRAMES)
     BUILD_COMMAND ${MAKE_PARALLEL}
     INSTALL_COMMAND ${MAKE_PARALLEL} install
     )
+  # The build step resets sources before patching only when reuse is unsafe.
+  gambit_add_contrib_identity_steps(${name} "${_restframes_reusable}")
   # Force the preload library to come before RestFrames
   add_dependencies(${name} gambit_preload)
   # Add install name tool step for OSX
@@ -443,11 +481,12 @@ if(NOT EXCLUDE_YODA)
         "else\n"
         "  exec \"${_yoda_h5cc}\" \"$@\"\n"
         "fi\n")
-      file(CHMOD "${_yoda_h5cc_wrapper}"
-        PERMISSIONS
-          OWNER_READ OWNER_WRITE OWNER_EXECUTE
-          GROUP_READ GROUP_EXECUTE
-          WORLD_READ WORLD_EXECUTE)
+      # file(CHMOD) needs CMake 3.19; ordinary GAMBIT supports 3.16.3.
+      execute_process(COMMAND chmod 755 "${_yoda_h5cc_wrapper}"
+        RESULT_VARIABLE _yoda_h5cc_chmod_result)
+      if(NOT _yoda_h5cc_chmod_result EQUAL 0)
+        message(FATAL_ERROR "Could not make YODA's HDF5 wrapper executable: ${_yoda_h5cc_wrapper}")
+      endif()
       list(APPEND _yoda_h5cc_environment "H5CC=${_yoda_h5cc_wrapper}")
     endif()
   endif()
@@ -463,6 +502,7 @@ if(NOT EXCLUDE_YODA)
   unset(_yoda_h5cc_environment)
   unset(_yoda_h5cc)
   unset(_yoda_h5cc_wrapper)
+  unset(_yoda_h5cc_chmod_result)
 endif()
 add_contrib_clean_and_nuke(${name} ${dir} clean)
 
