@@ -126,6 +126,44 @@ python3 cmake/tests/native_compiler_selection.py
 See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#cfg-01-实施与验证)
 for current-toolchain verification and remaining platform checks.
 
+## Selecting a macOS SDK
+
+GAMBIT and CBS resolve the SDK before `project()` enables compilers. A non-empty
+`CMAKE_OSX_SYSROOT` (including the cache) takes precedence over `SDKROOT`; with
+neither set, `xcrun --sdk macosx --show-sdk-path` supplies the default. SDK names
+such as `macosx` are resolved to an existing directory and saved as a cache path.
+A missing path or failed name lookup is an error, with no fallback to another SDK.
+
+```sh
+cmake --preset cbs-llvm -DCMAKE_OSX_SYSROOT=/path/to/MacOSX.sdk
+```
+
+Native targets, backend flags and CMake external projects receive the selected
+SDK. SDK paths containing spaces are quoted in the legacy flag strings. Existing
+`MACOS_DEPLOYMENT_TARGET` settings are preserved; when no minimum is specified,
+its initial default comes from the selected SDK's version.
+
+The resolved default is cached too. To discover the active SDK again without
+clearing the build tree or other cache entries:
+
+```sh
+env -u SDKROOT cmake --preset cbs-llvm -U CMAKE_OSX_SYSROOT
+```
+
+Use your current SDK for the first incremental check. This change adds the SDK
+argument to CMake external recipes, so an existing package such as HepMC may
+configure/build/install once to migrate its command. A real SDK change can require
+rebuilding dependencies; unchanged subsequent configurations should remain stable.
+
+Script-only checks, with synthetic xcrun responses and no real probes or compilers:
+
+```sh
+python3 cmake/tests/macos_sdk.py
+```
+
+See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#cfg-02-实施与验证)
+for current-SDK verification and remaining platform checks.
+
 ## Local HPC presets
 
 Cluster software stacks differ, so keep site-specific settings in CMake's

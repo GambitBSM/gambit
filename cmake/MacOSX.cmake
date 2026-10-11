@@ -24,7 +24,7 @@
 #
 #  \author Pengxuan Zhu
 #          (pengxuan.zhu@adelaide.edu.au)
-#  \date 2026 Aug
+#  \date 2026 Aug, Oct
 #
 #************************************************
 
@@ -34,24 +34,73 @@ if(NOT DEFINED CMAKE_MACOSX_RPATH)
   set(CMAKE_MACOSX_RPATH 1)
 endif()
 
+function(gambit_initialise_macos_sdk)
+  if(NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+    return()
+  endif()
+
+  # Resolve once before project(), so native and external compiler commands
+  # use the same SDK. A cached selection takes precedence over SDKROOT.
+  set(_gambit_sdk "${CMAKE_OSX_SYSROOT}")
+  if(NOT "${_gambit_sdk}" STREQUAL "")
+    set(_gambit_sdk_source CMAKE_OSX_SYSROOT)
+  elseif(NOT "$ENV{SDKROOT}" STREQUAL "")
+    set(_gambit_sdk "$ENV{SDKROOT}")
+    set(_gambit_sdk_source SDKROOT)
+  else()
+    set(_gambit_sdk macosx)
+    set(_gambit_sdk_source "automatic discovery")
+  endif()
+
+  if(IS_ABSOLUTE "${_gambit_sdk}" OR _gambit_sdk MATCHES "/")
+    get_filename_component(_gambit_sdk_path "${_gambit_sdk}" ABSOLUTE)
+  else()
+    execute_process(
+      COMMAND xcrun --sdk "${_gambit_sdk}" --show-sdk-path
+      RESULT_VARIABLE _gambit_sdk_result
+      OUTPUT_VARIABLE _gambit_sdk_path
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_VARIABLE _gambit_sdk_error
+      TIMEOUT 10)
+    if(NOT _gambit_sdk_result EQUAL 0)
+      message(FATAL_ERROR
+        "Cannot resolve macOS SDK '${_gambit_sdk}' from ${_gambit_sdk_source}: ${_gambit_sdk_error}. "
+        "Set -DCMAKE_OSX_SYSROOT=<SDK directory or name> explicitly.")
+    endif()
+  endif()
+  if("${_gambit_sdk_path}" STREQUAL "" OR NOT IS_DIRECTORY "${_gambit_sdk_path}")
+    message(FATAL_ERROR
+      "macOS SDK '${_gambit_sdk}' from ${_gambit_sdk_source} does not resolve to an existing directory. "
+      "Set -DCMAKE_OSX_SYSROOT=<SDK directory or name> explicitly.")
+  endif()
+  set(CMAKE_OSX_SYSROOT "${_gambit_sdk_path}" CACHE PATH "macOS SDK directory" FORCE)
+  set(CMAKE_OSX_SYSROOT "${_gambit_sdk_path}" PARENT_SCOPE)
+endfunction()
+
 function(gambit_initialise_macos_deployment_target)
   if(NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
     return()
   endif()
 
   # Keep one project-level deployment target.  Honour CMake's standard value
-  # on a fresh configure, otherwise use the active SDK as the local default.
+  # on a fresh configure, otherwise use the selected SDK as the local default.
   set(MACOS_DEPLOYMENT_TARGET "${CMAKE_OSX_DEPLOYMENT_TARGET}" CACHE STRING
       "Minimum macOS version for GAMBIT and all external packages")
   if("${MACOS_DEPLOYMENT_TARGET}" STREQUAL "")
+    set(_gambit_sdk "${CMAKE_OSX_SYSROOT}")
+    if("${_gambit_sdk}" STREQUAL "")
+      set(_gambit_sdk macosx)
+    endif()
     execute_process(
-      COMMAND xcrun --sdk macosx --show-sdk-version
+      COMMAND xcrun --sdk "${_gambit_sdk}" --show-sdk-version
+      RESULT_VARIABLE _gambit_sdk_version_result
       OUTPUT_VARIABLE MACOS_DEPLOYMENT_TARGET
       OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET)
-    if("${MACOS_DEPLOYMENT_TARGET}" STREQUAL "")
+      ERROR_QUIET
+      TIMEOUT 10)
+    if(NOT _gambit_sdk_version_result EQUAL 0 OR "${MACOS_DEPLOYMENT_TARGET}" STREQUAL "")
       message(FATAL_ERROR
-        "Cannot determine the macOS deployment target from the active SDK. "
+        "Cannot determine the macOS deployment target from SDK '${_gambit_sdk}'. "
         "Set -DMACOS_DEPLOYMENT_TARGET=<version> explicitly.")
     endif()
     set(MACOS_DEPLOYMENT_TARGET "${MACOS_DEPLOYMENT_TARGET}" CACHE STRING
@@ -76,18 +125,22 @@ if(DEFINED PROJECT_NAME AND CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   # backend commands. CMake-native external projects receive the CMake argument
   # below, so they use the same Darwin platform settings as GAMBIT itself.
   set(OSX_MIN "-mmacosx-version-min=${MACOS_DEPLOYMENT_TARGET}")
-  if ("${CMAKE_CXX_SYSROOT}" STREQUAL "")
-    execute_process(COMMAND xcrun --sdk macosx --show-sdk-path OUTPUT_VARIABLE CMAKE_OSX_SYSROOT OUTPUT_STRIP_TRAILING_WHITESPACE)
-  endif()
   message(STATUS "Using this macOS SDK ${CMAKE_OSX_SYSROOT}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
+  # Preserve existing flags for ordinary SDK paths; quote paths with spaces
+  # for the shell commands used by Autotools and hand-written backends.
+  set(_GAMBIT_MACOS_SYSROOT_FLAGS_PATH "${CMAKE_OSX_SYSROOT}")
+  if(_GAMBIT_MACOS_SYSROOT_FLAGS_PATH MATCHES "[ \t]")
+    set(_GAMBIT_MACOS_SYSROOT_FLAGS_PATH "\"${CMAKE_OSX_SYSROOT}\"")
+  endif()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isysroot${_GAMBIT_MACOS_SYSROOT_FLAGS_PATH} ${OSX_MIN}")
   string(STRIP ${CMAKE_CXX_FLAGS} CMAKE_CXX_FLAGS)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -isysroot${_GAMBIT_MACOS_SYSROOT_FLAGS_PATH} ${OSX_MIN}")
   string(STRIP ${CMAKE_C_FLAGS} CMAKE_C_FLAGS)
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} -L${CMAKE_OSX_SYSROOT}/usr/lib ${OSX_MIN}")
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -isysroot${_GAMBIT_MACOS_SYSROOT_FLAGS_PATH} -L${_GAMBIT_MACOS_SYSROOT_FLAGS_PATH}/usr/lib ${OSX_MIN}")
   string(STRIP ${CMAKE_SHARED_LINKER_FLAGS} CMAKE_SHARED_LINKER_FLAGS)
   set(GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG
       "-DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOS_DEPLOYMENT_TARGET}")
+  set(GAMBIT_MACOS_CMAKE_SYSROOT_ARG "-DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}")
 endif()
 
 # Detect Homebrew libomp for macOS LLVM builds.

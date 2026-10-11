@@ -638,7 +638,7 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build08-noop.log
 | 编号 | 优先级 | 状态 | 实施内容 | 验收标准与位置 |
 | --- | --- | --- | --- | --- |
 | CFG-01 | P1 | 已实现已构建 | LLVM 先尊重每种语言的 CMAKE 编译器变量，再读取 CC/CXX；未指定时保留自动搜索。单选时在所属安装补齐匹配版本，非法显式选择不回退 | [CBSCompilerDiscovery.cmake](../cmake/presets/CBSCompilerDiscovery.cmake)、[NativeCompilerDiscovery.cmake](../cmake/presets/NativeCompilerDiscovery.cmake)、[NativePresetToolchain.cmake](../cmake/toolchains/NativePresetToolchain.cmake)、[native_compiler_selection.py](../cmake/tests/native_compiler_selection.py)。11 组脚本夹具与当前 macOS LLVM 显式/缓存配置、两次无变化 CBS 构建通过；真实 bootstrap 环境选择与失败诊断、多版本及其他平台待补齐 |
-| CFG-02 | P2 | 待开发 | macOS SDK 判断改为尊重 `CMAKE_OSX_SYSROOT` | [MacOSX.cmake](../cmake/MacOSX.cmake)。用户指定 SDK 不被后续 xcrun 探测覆盖 |
+| CFG-02 | P2 | 已实现已构建 | 在 project 前按 CMAKE_OSX_SYSROOT、SDKROOT、自动发现选择 SDK；缓存实际目录，显式无效选择不回退；原生/外部参数共用该 SDK | [MacOSX.cmake](../cmake/MacOSX.cmake)、[macos_sdk.py](../cmake/tests/macos_sdk.py)。26 组脚本检查与当前 SDK 的显式/缓存/自动发现配置、三次 CBS 构建通过；首次外部迁移后零重复步骤，其他 SDK/平台待补齐 |
 | CFG-03 | P2 | 待开发 | 为 Python、Boost、HDF5、SQLite 等检查增加针对输入变化的缓存失效机制 | [CBSValidation.cmake](../cmake/presets/CBSValidation.cmake)。修复或更换依赖后不沿用陈旧 PASS/FAIL；当前只完成了 C++ 模式检查的失效机制 |
 | CFG-04 | P2 | 待开发 | 同一次 bootstrap/configure 内复用重复工具链探测，并合并 Python 模块检查 | [detect-presets.cmake](../cmake/presets/detect-presets.cmake)、[PresetEnvironmentDiscovery.cmake](../cmake/presets/PresetEnvironmentDiscovery.cmake)、[CBSPythonDiscovery.cmake](../cmake/presets/CBSPythonDiscovery.cmake)。减少重复进程，环境改变后仍能重新探测 |
 | CFG-05 | P2 | 待开发 | 统一 OpenMP、SDK 和 deployment flags 的来源，避免缓存与实际命令显示不一致；补齐 GNU Fortran 编译阶段的公共 macOS minimum target | [主配置](../CMakeLists.txt)、[MacOSX.cmake](../cmake/MacOSX.cmake)。摘要及生成命令一致，保留各外部包必要参数；当前日志发现 Fortran 新编对象 minimum 为 28.0、链接为 27.0，生成 Fortran_FLAGS 缺少 minimum 参数，链接命令已有公共 27.0 参数 |
@@ -716,10 +716,72 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build08-noop.log
 
 此次日志覆盖当前显式选择、缓存重配置与增量构建；未执行真实 bootstrap、无效路径、多版本切换、单语言或其他平台，保留对应待补验收项。提交仅包含公共编译器发现、回归脚本、README 和本台账；其他本地文件不纳入。
 
+### CFG-02 实施与验证
+
+2026-10-11 基于 CFG-01 提交 `cf10364f98` 实现，状态为 **已实现已构建**；维护者当前 SDK 的显式、缓存重配置和自动发现验收通过，本阶段随验收提交。本阶段修复共享 macOS 配置，不增加 preset 专用 build 目录或输出布局。
+
+- 原 `MacOSX.cmake` 在 project 后检查 `CMAKE_CXX_SYSROOT`，随后却把自动 SDK 写入 `CMAKE_OSX_SYSROOT` 的普通变量。脚本夹具已复现：显式缓存保留所选 SDK，普通变量和实际 flags 被默认 SDK 覆盖，导致缓存与命令不一致。
+- 新 SDK 初始化在 project/启用语言之前运行：非空 `CMAKE_OSX_SYSROOT`（含缓存）优先，其次 `SDKROOT`，再自动查询 macosx。SDK 名称按该名称查询并解析为实际目录；缺失路径、名称失败、空结果或不存在的查询目录明确报错，不选择另一个 SDK。结果保存在公共 CMake cache 并传回调用作用域；非 macOS 主机保持原行为。
+- 当前普通 SDK 路径下，C/C++、共享链接、Rivet 和 YODA 的 flags 字符串已与旧实现夹具逐项比对，一致。带空格的 SDK 在 legacy flags 中加引号；Rivet CPP 和 YODA lib 搜索共用这个路径。重复初始化读取缓存，不重新探测或被改变后的环境覆盖。
+- 主工程及 CMake 外部 recipe 显式传递同一 SDK。新增 `GAMBIT_MACOS_CMAKE_SYSROOT_ARG`，覆盖 HepMC、HEPLike、libphysica、obscura、VevaciousPlusPlus、GreAT 和 Minuit2 的 CMake 参数。已有外部配置命令发生一次迁移是预期；首次可能执行 HepMC configure/build/install，后续相同命令应稳定。该项不保证真实 SDK 切换时免重建。
+- 单一 minimum 政策不变：已有 `MACOS_DEPLOYMENT_TARGET` 优先，初次显式 `CMAKE_OSX_DEPLOYMENT_TARGET` 仍被接受；只有未指定时才查询选定 SDK 的版本，不再查询另一套默认 SDK。Fortran minimum flags、重复 OpenMP/SDK flags 等仍由 CFG-05 跟踪。
+
+[macos_sdk.py](../cmake/tests/macos_sdk.py) 的 10 组检查通过：显式路径与带空格路径优先；显式名称；SDKROOT 路径/名称；自动发现及缓存重入；非法路径/名称/查询结果不回退；选定 SDK 的默认 minimum、显式最低版本及版本查询失败；原生/Rivet/YODA flags 与 CMake SDK 参数；project 后不再覆盖；非 macOS 及 pre-project 调用顺序；CMake 外部 recipe 参数覆盖。测试仅运行临时 `cmake -P`，xcrun 查询全部由 CMake 函数模拟，其他进程探测立即拒绝，不执行真实工具、工程配置或编译。
+
+相关脚本回归再次通过：contrib retention 5 组、FastJet/Contrib build identity 11 组，加上本项 SDK 10 组，共 26 组；`git diff --check` 通过。真实工作树与临时夹具中的检查一致，没有执行工程配置、真实工具探测或构建。
+
+#### 维护者验收
+
+当前生成 flags 使用 `/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk`，公共 minimum 为 27.0，但旧缓存 `CMAKE_OSX_SYSROOT` 仍为空。以下保持同一 SDK、LLVM 和共享 build；不需要清空、clean 或 --fresh。
+
+1. 明确指定当前实际使用的 SDK，再做相同配置后的无变化构建：
+
+   ```sh
+   cd /Users/p.zhu/Gambit-Workshop/worktree/cbs-presets
+   set -o pipefail
+   cmake --preset cbs-llvm \
+     -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk
+   cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-cfg02-first.log
+   cmake --preset cbs-llvm
+   cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-cfg02-noop.log
+   ```
+
+   两次 SDK 日志应保留指定路径，minimum 仍 27.0，C/C++ 仍 LLVM 22.1.8；两次 CBS 均成功。首轮外部 CMake 参数迁移可能执行 HepMC 的配置/构建/安装，不把该成本计为正常 no-op；第二次应没有对象编译、链接或重复外部步骤。对比真实 flags/cache 与外部 CMake 命令中的 `CMAKE_OSX_SYSROOT`，确认一致。
+
+2. 重新自动发现同一默认 SDK，只清除该 SDK 缓存项，保留其他设置：
+
+   ```sh
+   env -u SDKROOT cmake --preset cbs-llvm -U CMAKE_OSX_SYSROOT
+   cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-cfg02-auto.log
+   ```
+
+   若当前 Xcode 默认仍为同一 SDK，应回到相同实际路径并继续增量稳定。默认结果现在也会缓存；更换 Xcode/默认 SDK 后，可用上述命令主动重新发现，或用显式路径选择。`cmake --preset cbs-llvm` 本身会保留缓存选择。
+
+3. 可选非法路径验收：配置时指定不存在的 SDK，应在 project 前报错；随后必须用第 1 步的正常 SDK 路径恢复该缓存项，再进行正常构建。不要执行 fresh 或清空依赖来处理这个诊断。对应失败条件已由脚本夹具覆盖，此场景不计入当前实际构建通过项。
+
+| 验收项 | 状态 | 记录 |
+| --- | --- | --- |
+| 十组 SDK 脚本夹具、旧问题复现及同 SDK flags 对比 | 已通过 | 模拟 xcrun，真实 CMake 函数，无真实工具或工程构建 |
+| 当前显式 SDK 与缓存重配置、CBS 构建 | 已通过 | 三次 CBS 成功；首轮外部迁移完成，缓存重配置后零重复步骤 |
+| 同一 SDK 的默认重新发现与增量构建 | 已通过 | 清除单个 SDK 项并去掉 SDKROOT，仍 SDK 27.0；零对象编译、链接及外部步骤 |
+| 非法 SDK 实机诊断、其他 SDK/路径/平台 | 待执行 | 失败后恢复正常 SDK；夹具不替代平台构建 |
+
+#### 2026-10-11 维护者日志验收
+
+附件 `/Users/p.zhu/.codex/attachments/c21edbd0-2361-428e-bf50-8122745fb015/Pasted text.txt` 共 2433 行，依次为指定当前 SDK、读取 SDK 缓存、去掉 SDKROOT 并清除单个 SDK 项重新自动发现；每次配置后构建共享 build 的 CBS `-j8`，三次均成功。
+
+- 三次 SDK 日志（第 56、1653、2065 行）均保持 MacOSX27.0.sdk；minimum 27.0、LLVM 22.1.8、C++17、ROOT 6.40.00、Python 3.13.13、ccache 4.13.6 一致，所有环境检查 PASS/READY。主配置分别 7.1/6.1/5.5 秒，生成 0.6/0.5/0.4 秒；未提供总构建耗时或 ccache 增量，不填提速比例。
+- 第 383–1609 行完成首次迁移：HepMC configure/build/install、28 个外部对象编译（主库 20、search 2、rootIO 6）、三个 HepMC 动态库链接以及 ROOT dictionary 生成。主工程没有对象编译或链接。HepMC 变化触发 Rivet/Contur 的输入检查、配置/包装构建和成功记录；Rivet Python 扩展有实际构建命令，属于首次迁移的后续依赖成本，不能计作正常无变化开销。
+- 缓存重配置后的第 1980–2021 行及自动发现后的第 2392–2433 行，各只有 42 条目标完成消息；零对象编译、零链接、零外部步骤和构建阶段代码生成。三次均以 CBS 成功结束。FastJet/Contrib 三次构建身份一致、安装复用。
+- 只读比对主缓存、HepMC 外部缓存与 `hepmc-cfgcmd.txt`：SDK 路径和 minimum 一致，外部命令显式包含所选 SDK；CBS_objects 与 HepMC3 的真实 flags 都使用该 SDK。SDK cache 已由原空值变为实际 PATH，符合初始化策略。
+- 未发现新增配置/构建错误。pybind11/HepMC 的最低 CMake 弃用、HepMC 源码 sprintf 弃用和 ROOT unused class rule、Rivet 重复 -ldl 警告未阻断构建。HepMC 的 extra path 警告来自原有 `CMAKE_COMMAND ... ..` 配方，本轮没有更改该行；冗余 source 参数可后续单独清理。
+
+26 组脚本检查再次通过（SDK 10、contrib retention 5、build identity 11），`git diff --check` 通过。代理未执行工程配置、编译器或构建；非法路径、其他真实 SDK/名称/带空格路径以及平台构建仍按表保留待补项。提交仅包含本阶段八个源码、测试和文档文件。
+
 ## 下一轮实施与构建验收
 
 1. C++ 修改及 BUILD-01 已提交；当前 LLVM/ROOT 17 配置和 CBS 构建已有日志，继续按需补齐其他标准、冲突拒绝及运行场景。
-2. CFG-01 LLVM 显式选择优先级和匹配校验已完成；11 组脚本夹具、当前 LLVM 显式/缓存配置及两次无变化 CBS 构建通过，本阶段随验收提交。真实 bootstrap、多版本及其他平台按需补齐；下一项继续 CFG-02 的用户指定 SDK 优先级。BUILD-01 的额外恢复场景按需补充。
+2. CFG-01 提交为 `cf10364f98`，11 组脚本夹具、当前 LLVM 显式/缓存配置及两次无变化 CBS 构建通过；真实 bootstrap、多版本及其他平台按需补齐。CFG-02 的 26 组脚本检查、当前 SDK 配置、外部迁移及两次无变化构建通过，本阶段随验收提交；其他 SDK/平台按需补齐，随后继续 CFG-03 的检查缓存失效机制。BUILD-01 的额外恢复场景按需补充。
 3. BUILD-03 已提交为 `0965735828`；按需补齐命中增量和 OFF/AUTO 实测。BUILD-04 已提交为 `1d46bf0439`，HepMC/YODA 场景按需补齐；BUILD-05 首次迁移及相同配置复用已通过并提交为 `09929f07fb`；BUILD-07 首次记录、直接重复构建及相同配置后复用已通过并提交为 `0c3ea3e566`；时间戳对照、源码 touch 和其他平台按需补齐。BUILD-06 Ninja 适配仍作为 P3 后续评估。
 4. BUILD-02 独立对象构建、完整链接及无变化主工程构建已通过；继续补齐并行重叠与单点运行，以同环境基准量化收益，结合 BUILD-07 的验收日志测量外部步骤重复开销。
 5. BUILD-08 RestFrames 阶段已完成 include/配置头范围收敛；preload 漏查已修复，维护者首次迁移、恢复 ON 六个对象及最后无变化构建通过，已提交为 `eb03406a7c`。后续按需补齐迁移后独立 OFF、时间戳及其他平台，再处理其他依赖与配置发现项；Ninja 仍作为后续评估。
@@ -784,3 +846,5 @@ cmake --build --preset cbs-llvm --parallel 8
 | 2026-10-11 | 审阅 BUILD-08 修复后的 1182 行日志：OFF 完成 288 个对象的首次迁移，恢复 ON 仅六个必要对象，最后零编译/链接/外部步骤，三次 CBS 成功；真实 flags/依赖范围及 17 组脚本检查通过，RestFrames 阶段随本轮提交；迁移后独立 OFF 与时间戳对照仍待补齐 |
 | 2026-10-11 | BUILD-08 RestFrames 阶段提交为 `eb03406a7c`；实现 CFG-01 LLVM 显式选择优先级、匹配 companion 与无回退诊断，11 组脚本夹具通过；真实配置及构建待维护者验收，尚未提交 |
 | 2026-10-11 | 审阅 CFG-01 的 835 行日志：原 LLVM 显式配置、缓存重配置及两次 CBS 构建通过，均零编译/链接/外部重复步骤；11 组脚本检查与当前缓存/flags 只读核对通过，本阶段随验收提交；真实 bootstrap、多版本及其他平台待补齐 |
+| 2026-10-11 | CFG-01 提交为 `cf10364f98`；实现 CFG-02 SDK 优先级、pre-project 初始化、所选 SDK 的初始 minimum 与外部 CMake SDK 参数；26 组脚本检查（SDK 10、retention 5、identity 11）、旧覆盖问题复现及同 SDK flags 对比通过，真实构建待维护者验收，尚未提交 |
+| 2026-10-11 | 审阅 CFG-02 的 2433 行日志：显式 SDK、缓存重配置及自动重新发现均成功，首轮 HepMC/Rivet/Contur 迁移后两轮零编译/链接/外部步骤；26 组脚本与真实 SDK/cache/flags 比对通过，本阶段随验收提交；其他 SDK 与平台待补齐 |

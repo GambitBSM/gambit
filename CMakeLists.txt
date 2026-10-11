@@ -52,10 +52,11 @@ cmake_minimum_required(VERSION 3.16.3 FATAL_ERROR)
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/compiler_mins.cmake")
 
-# Resolve the single macOS deployment target before project() enables the
-# languages.  The policy itself lives in cmake/MacOSX.cmake and applies to
+# Resolve the macOS SDK and single deployment target before project() enables
+# the languages.  The policy lives in cmake/MacOSX.cmake and applies to
 # GAMBIT, CBS, and every CMake-based external project alike.
 include(cmake/MacOSX.cmake)
+gambit_initialise_macos_sdk()
 gambit_initialise_macos_deployment_target()
 
 SET(CMAKE_BUILD_TYPE_STRING "Choose the type of build, options are: None Debug Release Release_O3 RelWithDebInfo MinSizeRel.")
