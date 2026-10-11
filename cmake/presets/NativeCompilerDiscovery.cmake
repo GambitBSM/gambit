@@ -62,7 +62,7 @@ function(native_find_toolchain strategy output_found output_c output_cxx output_
         elseif(strategy STREQUAL "macos")
           cbs_resolve_command(_native_xcrun xcrun)
           if(_native_xcrun)
-            execute_process(COMMAND "${_native_xcrun}" --find "${_native_apple_command}"
+            gambit_process_probe(COMMAND "${_native_xcrun}" --find "${_native_apple_command}"
               RESULT_VARIABLE _native_xcrun_result
               OUTPUT_VARIABLE _native_compiler
               OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET TIMEOUT 10)

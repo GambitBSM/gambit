@@ -217,6 +217,60 @@ python3 cmake/tests/validation_cache.py
 See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#cfg-03-实施与验证)
 for incremental and forced-check acceptance steps.
 
+## Process-local discovery reuse
+
+`ProcessProbe.cmake` reuses explicitly read-only compiler `--version` / GNU
+version queries, Homebrew LLVM prefix queries, `xcrun --find`, and Python
+metadata within the current CMake process. The key includes command arguments,
+working directory, timeout, relevant toolchain/Python environment variables,
+executable real path/size/timestamp, and explicit probe-script content hashes.
+Compiler selection and profile validation still run normally. The helper is not
+used for configure/build/install commands or compile/link validation.
+
+Results use GLOBAL properties, never `CMakeCache.txt`. Each bootstrap or configure
+process starts empty; toolchain child processes have their own results. Changing
+the selected executable, supported environment inputs, or probe source within a
+process creates a new key. Installing/removing modules or changing dependencies
+between configurations is observed on the next configure. No persistent Python
+module cache needs to be cleared. Package mutation during one configuration is
+outside this reuse contract.
+
+`PythonModules.cmake` imports each requested group in one Python process, then
+shares the raw per-module results with native GAMBIT, CBS, backend and scanner
+checks. The main required modules are batched with selected CBS Rivet/Contur
+modules; distinct scanner requirements form another batch. Already checked
+modules are excluded from later batches. The required/optional rules and scanner
+package aliases remain unchanged. The native h5py/HDF5 version check is applied
+to the shared import result whenever h5py is consumed, without launching another
+interpreter. The script keeps the working directory on the import path and runs
+with `-B`, without generating probe bytecode.
+
+A batch uses a total timeout of ten seconds per requested module. Completed
+records survive a crash or timeout; only unreported modules are retried separately
+with a ten-second timeout. A failed required module still stops configuration;
+failed optional imports retain their existing missing-dependency behavior.
+
+Bootstrap gathers module requests only from selected, host-compatible providers.
+GAMBIT requests `yaml`; CBS adds `cython`, `configobj`, `pandas`, and `matplotlib`.
+The common interpreter metadata query is reused while each provider applies its
+own development-library policy. `--list`, invalid filters, and selections for
+another host still perform no environment probes.
+
+Script fixtures can be run without configuring/building or querying real compilers:
+
+```sh
+python3 cmake/tests/process_probes.py
+python3 cmake/tests/native_compiler_selection.py
+```
+
+For manual acceptance, use the existing shared `build/` without `--fresh` when
+retaining the same compiler profile. Run bootstrap for both systems and only
+GAMBIT, then configure/build twice. Preset identities and missing-module reasons
+should stay consistent; unchanged configurations should not invalidate native
+validation results or introduce object compilation, links or external package
+steps. Measure configure time separately from generation/build time; process
+count reductions alone do not establish a real-world speedup.
+
 ## Local HPC presets
 
 Cluster software stacks differ, so keep site-specific settings in CMake's
@@ -296,6 +350,10 @@ while being included. Put system-specific policy there; reuse common environment
 helpers from `PresetEnvironmentDiscovery.cmake` and the configure-time discovery
 modules. An optional `preset_probe_report_<system>` function can append one
 system-specific environment section using `BootstrapReport.cmake` helpers.
+An optional `preset_probe_python_modules_<system>(output_modules)` function can
+return a module list in the parent scope before common discovery. The dispatcher
+combines those requests with `yaml` for one import batch; providers keep their own
+required/optional policy when consuming results.
 The CLI and dispatcher need no change when adding a provider that uses
 the existing toolchain strategies.
 

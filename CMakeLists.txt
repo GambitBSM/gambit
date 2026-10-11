@@ -148,6 +148,15 @@ if(NOT Python3_Interpreter_FOUND)
                       "please use -DPython3_EXECUTABLE=path/to/preferred/python.")
 endif()
 
+# Import the common requirements and selected CBS optional modules together.
+# Results live only in this configure process; later native checks reuse them.
+set(_gambit_python_modules yaml os re datetime sys getopt shutil itertools)
+if(CBS_PRESET_BUILD AND CBS_WITH_RIVET_CONTUR)
+  list(APPEND _gambit_python_modules cython configobj pandas matplotlib)
+endif()
+gambit_probe_python_modules("${Python3_EXECUTABLE}" ${_gambit_python_modules})
+unset(_gambit_python_modules)
+
 if(CBS_PRESET_BUILD)
   cbs_preset_after_python()
 endif()

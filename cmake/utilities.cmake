@@ -801,25 +801,27 @@ function(add_standalone_tarballs modules version)
 endfunction()
 
 
-# Simple function to find specific Python modules
+include("${CMAKE_CURRENT_LIST_DIR}/PythonModules.cmake")
+
+# Keep native diagnostics and h5py/HDF5 compatibility policy while sharing the
+# raw import results with presets and other checks in this configure process.
 macro(gambit_find_python_module module)
-  execute_process(COMMAND ${Python3_EXECUTABLE} -c "import ${module}" RESULT_VARIABLE return_value ERROR_QUIET)
-  if (NOT return_value)
+  gambit_python_module_status("${Python3_EXECUTABLE}" "${module}"
+    _gambit_module_found _gambit_module_hdf5 _gambit_module_metadata_error)
+  if(_gambit_module_found)
     message(STATUS "Found Python module ${module}.")
     set(PY_${module}_FOUND TRUE)
-    # If module is h5py and hdf5 is present, make sure they are built with the same version
-    if(HDF5_FOUND AND module STREQUAL "h5py")
-      execute_process(COMMAND ${Python3_EXECUTABLE} -c "import h5py; import re; print(re.search(\"HDF5[ ]+(.*)\",h5py.version.info).group(1))" OUTPUT_VARIABLE hdf5_ver RESULT_VARIABLE hdf5_res ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
-      if(${hdf5_res})
+    if(HDF5_FOUND AND "${module}" STREQUAL "h5py")
+      if(_gambit_module_metadata_error)
         message(FATAL_ERROR "-- Module h5py is corrupted")
-      elseif(NOT ${hdf5_ver} AND NOT ${hdf5_ver} STREQUAL ${HDF5_VERSION})
-        message(STATUS "${Yellow}Note: h5py (${hdf5_ver}) and hdf5 (${HDF5_VERSION}) versions differ. Some backends (e.g. pbarlike) will be disabled.${ColourReset}")
+      elseif(NOT "${_gambit_module_hdf5}" STREQUAL "${HDF5_VERSION}")
+        message(STATUS "${Yellow}Note: h5py (${_gambit_module_hdf5}) and hdf5 (${HDF5_VERSION}) versions differ. Some backends (e.g. pbarlike) will be disabled.${ColourReset}")
         set(PY_${module}_FOUND FALSE)
       endif()
     endif()
   else()
     if(${ARGC} GREATER 1)
-      if (${ARGV1} STREQUAL "REQUIRED")
+      if("${ARGV1}" STREQUAL "REQUIRED")
         message(FATAL_ERROR "-- FAILED to find Python module ${module}.")
       else()
         message(FATAL_ERROR "-- Unrecognised second argument to gambit_find_python_module: ${ARGV1}.")

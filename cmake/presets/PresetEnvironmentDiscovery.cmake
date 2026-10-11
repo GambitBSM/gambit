@@ -279,7 +279,7 @@ function(preset_probe_find_hdf5 output_found output_description)
 endfunction()
 
 # GAMBIT requires an interpreter, but Python development libraries are optional
-# there. Do not use the stricter CBS development probe to decide this result.
+# there. Reuse metadata, but do not apply the stricter CBS development policy.
 function(preset_probe_find_python output_found output_executable output_version output_reason)
   set(_probe_found FALSE)
   set(_probe_executable "")
@@ -291,16 +291,10 @@ function(preset_probe_find_python output_found output_executable output_version 
     cbs_resolve_command(_probe_command python3)
   endif()
   if(_probe_command)
-    execute_process(
-      COMMAND "${_probe_command}" -c "import sys; print(sys.executable); print(sys.version.split()[0])"
-      RESULT_VARIABLE _probe_result
-      OUTPUT_VARIABLE _probe_output
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
-      TIMEOUT 10)
+    cbs_read_python_info("${_probe_command}" _probe_result _probe_output _probe_error)
     string(REPLACE "\n" ";" _probe_fields "${_probe_output}")
     list(LENGTH _probe_fields _probe_field_count)
-    if(_probe_result EQUAL 0 AND _probe_field_count EQUAL 2)
+    if(_probe_result EQUAL 0 AND _probe_field_count GREATER_EQUAL 3)
       list(GET _probe_fields 0 _probe_executable)
       list(GET _probe_fields 1 _probe_version)
       if(EXISTS "${_probe_executable}" AND _probe_version VERSION_GREATER_EQUAL 3)
@@ -317,15 +311,19 @@ function(preset_probe_find_python output_found output_executable output_version 
   set(${output_executable} "${_probe_executable}" PARENT_SCOPE)
   set(${output_version} "${_probe_version}" PARENT_SCOPE)
   set(${output_reason} "${_probe_reason}" PARENT_SCOPE)
+  if(ARGC GREATER 4)
+    set(${ARGV4} "${_probe_command}" PARENT_SCOPE)
+  endif()
 endfunction()
 
 # A macro leaves the collected facts in the script scope for all selected
 # providers. No project() or find_package() is used in this discovery phase.
 macro(preset_probe_collect_environment)
   preset_probe_find_python(BOOTSTRAP_PYTHON_FOUND BOOTSTRAP_PYTHON_EXECUTABLE
-                          BOOTSTRAP_PYTHON_VERSION BOOTSTRAP_PYTHON_REASON)
+                          BOOTSTRAP_PYTHON_VERSION BOOTSTRAP_PYTHON_REASON BOOTSTRAP_PYTHON_COMMAND)
   set(BOOTSTRAP_PYTHON_HAS_YAML FALSE)
   if(BOOTSTRAP_PYTHON_FOUND)
+    gambit_probe_python_modules("${BOOTSTRAP_PYTHON_EXECUTABLE}" ${BOOTSTRAP_PYTHON_MODULES})
     cbs_python_has_module("${BOOTSTRAP_PYTHON_EXECUTABLE}" yaml BOOTSTRAP_PYTHON_HAS_YAML)
   endif()
   preset_probe_find_openmp(BOOTSTRAP_OPENMP_FOUND BOOTSTRAP_OPENMP_DESCRIPTION

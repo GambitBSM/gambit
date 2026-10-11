@@ -8,6 +8,7 @@
 # uses `cmake --fresh`.
 
 include_guard(GLOBAL)
+include("${CMAKE_CURRENT_LIST_DIR}/../ProcessProbe.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/../compiler_mins.cmake")
 
 set(CBS_PRESET_MIN_CMAKE_VERSION "3.24.0")
@@ -69,7 +70,7 @@ function(cbs_classify_compiler compiler output_id output_version output_text)
     return()
   endif()
 
-  execute_process(
+  gambit_process_probe(
     COMMAND "${compiler}" --version
     RESULT_VARIABLE _cbs_result
     OUTPUT_VARIABLE _cbs_stdout
@@ -104,7 +105,7 @@ function(cbs_classify_compiler compiler output_id output_version output_text)
     # GNU: gcc/g++ --version contains "gcc"/"g++".  Debian/Ubuntu /usr/bin/cc
     # prints "cc (Ubuntu ...)" and never mentions GNU, so also accept a
     # dumpversion plus Free Software Foundation / cc,c++,gcc,g++,gfortran.
-    execute_process(
+    gambit_process_probe(
       COMMAND "${compiler}" -dumpfullversion -dumpversion
       RESULT_VARIABLE _cbs_gnu_version_result
       OUTPUT_VARIABLE _cbs_gnu_version_output
@@ -452,7 +453,7 @@ function(cbs_find_llvm_toolchain output_found output_c output_cxx output_version
   if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
     cbs_resolve_command(_cbs_brew "brew")
     if(_cbs_brew)
-      execute_process(
+      gambit_process_probe(
         COMMAND "${_cbs_brew}" --prefix llvm
         RESULT_VARIABLE _cbs_brew_result
         OUTPUT_VARIABLE _cbs_brew_prefix

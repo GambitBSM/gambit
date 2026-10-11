@@ -66,6 +66,11 @@ macro(check_python_scanner_modules name modules packages)
 endmacro()
 
 
+# Import each distinct scanner dependency together, then retain per-scanner
+# missing-package messages and native h5py/HDF5 compatibility checks below.
+gambit_probe_python_modules("${Python3_EXECUTABLE}"
+  dynesty numpy emcee h5py nautilus nessai pocomc scipy ultranest packaging zeus paraprof mpi4py)
+
 # Run checks for all Python scanner plugins
 message("${Yellow}-- Checking modules required by Python scanner plugins. ${ColourReset}")
 check_python_scanner_modules(static_dynesty "dynesty,numpy" "dynesty,numpy")

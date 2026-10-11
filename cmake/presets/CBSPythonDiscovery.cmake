@@ -10,8 +10,23 @@
 # the highest version and would otherwise select a different install.
 
 include_guard(GLOBAL)
+include("${CMAKE_CURRENT_LIST_DIR}/../PythonModules.cmake")
 
-set(_CBS_PYTHON_PROBE "${CMAKE_CURRENT_LIST_DIR}/cbs_python_probe.py")
+set_property(GLOBAL PROPERTY GAMBIT_PYTHON_INFO_PROBE_SCRIPT
+  "${CMAKE_CURRENT_LIST_DIR}/cbs_python_probe.py")
+
+# Reuse one interpreter metadata query for pinning and both bootstrap policies.
+# Header/shared-library availability remains a separate CBS policy decision.
+function(cbs_read_python_info executable output_result output_text output_error)
+  get_property(_script GLOBAL PROPERTY GAMBIT_PYTHON_INFO_PROBE_SCRIPT)
+  gambit_process_probe(COMMAND "${executable}" "${_script}"
+    INPUT_FILES "${_script}" TIMEOUT 10
+    RESULT_VARIABLE _result OUTPUT_VARIABLE _text ERROR_VARIABLE _error
+    OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_STRIP_TRAILING_WHITESPACE)
+  set(${output_result} "${_result}" PARENT_SCOPE)
+  set(${output_text} "${_text}" PARENT_SCOPE)
+  set(${output_error} "${_error}" PARENT_SCOPE)
+endfunction()
 
 function(cbs_discover_python output_found output_executable output_version output_root output_include output_library output_reason)
   if(DEFINED Python3_EXECUTABLE AND NOT "${Python3_EXECUTABLE}" STREQUAL "")
@@ -44,14 +59,8 @@ function(cbs_discover_python output_found output_executable output_version outpu
     return()
   endif()
 
-  execute_process(
-    COMMAND "${_cbs_python_command}" "${_CBS_PYTHON_PROBE}"
-    RESULT_VARIABLE _cbs_python_result
-    OUTPUT_VARIABLE _cbs_python_output
-    ERROR_VARIABLE _cbs_python_error
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_STRIP_TRAILING_WHITESPACE
-    TIMEOUT 10)
+  cbs_read_python_info("${_cbs_python_command}" _cbs_python_result
+                       _cbs_python_output _cbs_python_error)
 
   if(NOT _cbs_python_result EQUAL 0)
     set(${output_found} FALSE PARENT_SCOPE)
@@ -107,21 +116,14 @@ function(cbs_discover_python output_found output_executable output_version outpu
 endfunction()
 
 function(cbs_python_has_module executable module output_found)
-  execute_process(
-    COMMAND "${executable}" -c "import ${module}"
-    RESULT_VARIABLE _cbs_module_result
-    ERROR_QUIET
-    TIMEOUT 10)
-  if(_cbs_module_result EQUAL 0)
-    set(${output_found} TRUE PARENT_SCOPE)
-  else()
-    set(${output_found} FALSE PARENT_SCOPE)
-  endif()
+  gambit_python_module_status("${executable}" "${module}" _found _hdf5 _error)
+  set(${output_found} "${_found}" PARENT_SCOPE)
 endfunction()
 
 function(cbs_python_missing_modules executable output_missing)
+  gambit_probe_python_modules("${executable}" ${ARGN})
   set(_cbs_missing_modules "")
-  foreach(_cbs_module ${ARGN})
+  foreach(_cbs_module IN LISTS ARGN)
     cbs_python_has_module("${executable}" "${_cbs_module}" _cbs_module_found)
     if(NOT _cbs_module_found)
       list(APPEND _cbs_missing_modules "${_cbs_module}")
@@ -186,14 +188,8 @@ function(preset_pin_python3_on_path label)
       "${_preset_python_hint}")
   endif()
 
-  execute_process(
-    COMMAND "${_cbs_python_command}" -c "import sys; print(sys.executable); print(sys.version.split()[0]); print(sys.base_prefix)"
-    RESULT_VARIABLE _cbs_python_result
-    OUTPUT_VARIABLE _cbs_python_output
-    ERROR_VARIABLE _cbs_python_error
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_STRIP_TRAILING_WHITESPACE
-    TIMEOUT 10)
+  cbs_read_python_info("${_cbs_python_command}" _cbs_python_result
+                       _cbs_python_output _cbs_python_error)
   if(NOT _cbs_python_result EQUAL 0)
     message(FATAL_ERROR
       "${label} preset Python discovery failed: could not inspect ${_cbs_python_command}: ${_cbs_python_error}")

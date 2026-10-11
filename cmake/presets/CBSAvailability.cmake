@@ -4,11 +4,17 @@
 include_guard(GLOBAL)
 include("${CMAKE_CURRENT_LIST_DIR}/CBSRootDiscovery.cmake")
 
+# Optional imports requested for the shared bootstrap batch. They do not become
+# required dependencies of CBS or of another provider.
+function(preset_probe_python_modules_cbs output)
+  set(${output} cython configobj pandas matplotlib PARENT_SCOPE)
+endfunction()
+
 macro(preset_probe_prepare_cbs)
   set(BOOTSTRAP_PYTHON_DEVELOPMENT_FOUND FALSE)
   set(BOOTSTRAP_PYTHON_DEVELOPMENT_REASON "Python interpreter is unavailable")
   if(BOOTSTRAP_PYTHON_FOUND)
-    set(Python3_EXECUTABLE "${BOOTSTRAP_PYTHON_EXECUTABLE}")
+    set(Python3_EXECUTABLE "${BOOTSTRAP_PYTHON_COMMAND}")
     cbs_discover_python(BOOTSTRAP_PYTHON_DEVELOPMENT_FOUND _probe_python_executable
       _probe_python_version _probe_python_root _probe_python_include _probe_python_library
       BOOTSTRAP_PYTHON_DEVELOPMENT_REASON)
