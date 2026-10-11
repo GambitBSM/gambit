@@ -642,7 +642,7 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build08-noop.log
 | CFG-03 | P2 | 已实现已构建 | 原生语言、macOS linker 与 Python/Boost/HDF5/SQLite 检查随输入变化失效；共享 HDF5 gate 同步修复，输入稳定时复用 PASS/FAIL | [ValidationCache.cmake](../cmake/ValidationCache.cmake)、[CBSValidation.cmake](../cmake/presets/CBSValidation.cmake)、[validation_cache.py](../cmake/tests/validation_cache.py)。16 组无编译夹具、当前配置的九项首次重检/后续复用及两次 CBS 无变化构建通过；只重跑检查、真实依赖恢复及其他平台按需补齐 |
 | CFG-04 | P2 | 已实现已构建 | 同轮只读工具链/Python 元数据查询复用，Python 必需/可选模块按组导入，并共享原始结果 | [ProcessProbe.cmake](../cmake/ProcessProbe.cmake)、[PythonModules.cmake](../cmake/PythonModules.cmake)、[process_probes.py](../cmake/tests/process_probes.py)。22 组无构建夹具、当前 macOS 双系统 bootstrap、两次配置及 CBS 无变化构建通过；其他过滤/平台按需补齐 |
 | CFG-05 | P2 | 已实现已构建 | 统一 OpenMP 发现及自动缓存 hints；原生 C/C++ SDK/minimum 使用 CMake，GNU Fortran 补齐未探测的选项；外部 shell/CMake flags 分别由公共政策派生 | [OpenMP.cmake](../cmake/OpenMP.cmake)、[MacOSX.cmake](../cmake/MacOSX.cmake)、[platform_flags.py](../cmake/tests/platform_flags.py)。78 组脚本夹具与 C++ 政策 30 项通过；当前 macOS LLVM 首次迁移及第二轮无变化 CBS 构建通过，实际两种 Fortran 对象/库与 CBS minimum 均为 27.0；其他 SDK/profile/平台按需补齐 |
-| UX-01 | P2 | 待开发 | 构建示例采用明确并发数，例如 `--parallel 8` | [BootstrapReport.cmake](../cmake/presets/BootstrapReport.cmake)、[Preset README](../cmake/presets/README.md)。默认提示不依赖无上限并发，允许用户按资源调整 |
+| UX-01 | P2 | 已实现已构建 | bootstrap 与 README 构建示例明确使用 `--parallel 8`，说明简写、资源调整及环境变量优先级 | [BootstrapReport.cmake](../cmake/presets/BootstrapReport.cmake)、[Preset README](../cmake/presets/README.md)。15 个注册 preset 的纯报告渲染与文档命令检查通过；当前 macOS 双系统 bootstrap 四项构建提示及 CBS 零工作增量构建通过 |
 | UX-02 | P2 | 部分完成 | 摘要已补充缓存策略、ccache 版本和 C/C++ launcher；依赖复用或重建原因及 compile_commands 导出待开发 | 摘要已有标准选择信息；后续实际构建命令可追溯，IDE 能读取 `compile_commands.json` |
 | DOC-01 | P2 | 待开发 | 修正文档中独立构建目录与共享 build 政策的冲突 | [工程标准](CMAKE_PRESET_STANDARD.md) 第 5 节与第 12 节。以 [AGENTS.md](../AGENTS.md) 的共享 `build/` 为准；本轮只更新了 C++ 约定 |
 | DOC-02 | P2 | 待开发 | 将文档引用的 HPC preset 示例纳入版本控制 | [CMakeUserPresets.json.example](../CMakeUserPresets.json.example) 当前未跟踪。新 clone 可直接执行文档中的复制步骤；其他本地报告不顺带提交 |
@@ -904,7 +904,7 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-cfg04-build-2.log
 
 ### CFG-05 实施与验证
 
-2026-10-11 基于 CFG-04 提交 `f981c115cf` 实现，状态为 **已实现已构建**；维护者当前 macOS LLVM 首次迁移及第二轮无变化 CBS 构建通过，本阶段随本轮验收提交。实际工程配置、编译器探测及构建由维护者执行。
+2026-10-11 基于 CFG-04 提交 `f981c115cf` 实现，状态为 **已实现已构建**；维护者当前 macOS LLVM 首次迁移及第二轮无变化 CBS 构建通过，已提交为 `2b258bb609`。实际工程配置、编译器探测及构建由维护者执行。
 
 - 只读核对当前生成文件：CBS_objects 的 SDK/minimum 由全局 flags 和 CMake 各加入一次，OpenMP 由全局 flags 和 imported target 各加入一次。缓存显示 `-fopenmp=libomp`，实际普通变量却使用 `-Xclang -fopenmp`。GNU Fortran 的 `CMAKE_Fortran_SYSROOT_FLAG` 和 `CMAKE_Fortran_OSX_DEPLOYMENT_TARGET_FLAG` 均为空，fortran/FarrayTest 对象编译没有公共 minimum，解释了此前对象 28.0 与链接 27.0 的警告。静态阅读本机 CMake 4.4.2 的 Apple-GNU-Fortran/Apple-GNU 模块确认：这两个选项由 GNU help 文本匹配决定，本轮没有执行该查询或编译器。
 - `OpenMP.cmake` 合并两个 Homebrew 检测入口，要求三种启用语言分别被 FindOpenMP 找到，移除盲目追加 Fortran `-fopenmp` 的回退。自动 C/C++ cache hints 与实际加入 native flags 的结果一致；精确匹配旧自动 bundle 时迁移一次，记录自有 hints，用户更改或其他手动 hints 保留。Fortran 仍使用其独立发现的 flags/runtime；原 Homebrew LLVM runtime 检查保留，并从选中的库派生 YODA 搜索/rpath。
@@ -950,15 +950,41 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-cfg05-build-2.log
 - 直接用 Python 标准库读取 Mach-O load commands，未调用编译器或系统工具：`libfortran.f90.o`、`libFarrayTest.f90.o`、对应的两份 `.so` 及 CBS 的 LC_BUILD_VERSION minimum 均为 27.0.0；链接产物 SDK 均为 27.0.0。日志已无对象 28.0 / 链接 27.0 警告，确认修复体现在真实产物中。
 - 仍有非阻断警告：pybind11/HepMC 的 CMake 弃用、HepMC 的 sprintf 弃用、已有 macOS 链接选项及重复 -ldl 提示；HepMC 两条 Ignoring extra path 在 CFG-02 的验收日志中已存在。第 1873–1876 行 Fortran 提示 FastJet include 暂不存在，发生在 FastJet 首次清理/安装期间；这两份示例源码不使用 FastJet 头，编译成功，迁移结束后两个 include 目录均已恢复。外部 Rivet Python 构建器合并多组 flags 时仍重复相同的 SDK/minimum，未出现冲突，未计作本阶段已消除的 native/CMake recipe 重复项。全局 include 范围和外部构建器参数清理可按后续优化项处理。
 
-十六个已部署文件与通过 78 组脚本夹具及 C++ 30 项的版本逐一一致；本轮仅更新验收台账，`git diff --check` 通过，没有代维护者运行 configure/build 或真实编译器探测。当前环境验收通过，本阶段随本轮提交；其他编译器 profile、平台、SDK 及真实手动 OpenMP 配置仍按需补齐。
+十六个已部署文件与通过 78 组脚本夹具及 C++ 30 项的版本逐一一致；本轮仅更新验收台账，`git diff --check` 通过，没有代维护者运行 configure/build 或真实编译器探测。当前环境验收通过，已提交为 `2b258bb609`；其他编译器 profile、平台、SDK 及真实手动 OpenMP 配置仍按需补齐。
+
+### UX-01 实施与验证
+
+2026-10-11 基于 CFG-05 提交 `2b258bb609` 实现，状态为 **已实现已构建**；当前 macOS bootstrap 提示及 CBS 无变化构建通过，本阶段随本轮验收提交。本阶段统一 bootstrap 和 README 的构建示例，不改变 preset 的构建参数或依赖策略。
+
+- 所有 AVAILABLE preset 的构建提示使用 `cmake --build --preset <name> --parallel 8`，提示按 CPU 和内存调整数字；README 的 GAMBIT/CBS 示例一致。
+- `--parallel 8` 与 `-j8` 是同一选项的完整与简写形式，性能与构建行为相同；维护者此前使用的 `-j8` 已满足明确并发要求。无数字的 `--parallel` 由原生构建工具决定任务数，Make 下可能无上限。
+- README 补充 `CMAKE_BUILD_PARALLEL_LEVEL=4 cmake --build --preset cbs-llvm` 示例：省略命令行并发选项时使用该环境默认值，显式选项优先。数字只限制构建任务并发，不是所有程序内部线程的全局上限；改变数字无需清空 build 或重新配置。
+
+无构建验证：使用真实报告 helper 纯渲染全部 **15 个**注册的公开 preset，逐条确认 build 提示为 `--parallel 8`、配置提示保持原值、资源调整说明存在；README 所有 `--parallel` 构建命令均带明确数字。临时脚本禁止进程查询，没有调用真实发现流程、编译器或工程 configure/build。当前 Makefile 的配置依赖未引用这三个文件，修改不改变现有编译命令；真实增量结果由维护者验收。
+
+在现有 `cbs-llvm` 配置上运行以下命令，保留 build，不 clean，不 --fresh；本阶段无需重新配置：
+
+```sh
+cd /Users/p.zhu/Gambit-Workshop/worktree/cbs-presets
+set -o pipefail
+./cmake/bootstrap --system gambit --system cbs --verbose 2>&1 | tee /tmp/cbs-ux01-bootstrap.log
+cmake --build --preset cbs-llvm --parallel 8 2>&1 | tee /tmp/cbs-ux01-build.log
+```
+
+bootstrap 的 AVAILABLE 构建提示应明确包含 `--parallel 8` 和资源调整说明。CBS 应成功；若源码、配置和依赖输入没有其他变化，继续零对象编译、零链接和零外部 configure/build/install/record。可继续使用原来的 `cmake --build build --target CBS -j8`；它与上述 preset 命令构建相同 CBS 目标，验证长写法不需要重置目录。记录真实日志后更新验收状态。
+
+#### UX-01 当前 macOS 验收（2026-10-11）
+
+附件 `/Users/p.zhu/.codex/attachments/4a613fd7-9801-445f-a6f9-7335a9134af9/Pasted text.txt` 共 137 逻辑行（最后一行没有换行）。GAMBIT/CBS 的 LLVM 与 AppleClang 四项 AVAILABLE，GNU 两项 OTHER HOST，环境发现正常；第 75 行资源调整说明和四项 `--parallel 8` 提示均正确。第 96–137 行恰好 42 条 Built target 输出，最终 CBS 成功，零对象编译、零链接及零外部 configure/build/install/record，没有新增错误或警告。本项只是修正提示中未明确的并发数，原来的 `-j8` 已正确，不记录提速比例。当前环境验收通过，本阶段随本轮提交。
 
 ## 下一轮实施与构建验收
 
 1. C++ 修改及 BUILD-01 已提交；当前 LLVM/ROOT 17 配置和 CBS 构建已有日志，继续按需补齐其他标准、冲突拒绝及运行场景。
-2. CFG-01 提交为 `cf10364f98`，11 组脚本夹具、当前 LLVM 显式/缓存配置及两次无变化 CBS 构建通过；真实 bootstrap、多版本及其他平台按需补齐。CFG-02 的 26 组脚本检查、当前 SDK 配置、外部迁移及两次无变化构建通过，已提交为 `4dad77208a`；其他 SDK/平台按需补齐。CFG-03 的 16 组缓存夹具、C++ 政策 30 项和当前环境首次/重复配置及两次 CBS 无变化构建通过，已提交为 `35e6a4e73e`；只清签名、真实依赖失败恢复和其他平台按需补齐。CFG-04 的 22 组无构建夹具、相关已有回归、当前 macOS 双系统 bootstrap、两次配置和 CBS 无变化构建通过，已提交为 `f981c115cf`；CFG-05 的 78 组脚本夹具与 C++ 30 项、当前 macOS LLVM flags/cache/实际 Mach-O minimum、首次迁移及第二轮 CBS 无变化构建通过，本阶段随本轮验收提交；其他 SDK/profile/平台按需补齐。BUILD-01 的额外恢复场景按需补充。
+2. CFG-01 提交为 `cf10364f98`，11 组脚本夹具、当前 LLVM 显式/缓存配置及两次无变化 CBS 构建通过；真实 bootstrap、多版本及其他平台按需补齐。CFG-02 的 26 组脚本检查、当前 SDK 配置、外部迁移及两次无变化构建通过，已提交为 `4dad77208a`；其他 SDK/平台按需补齐。CFG-03 的 16 组缓存夹具、C++ 政策 30 项和当前环境首次/重复配置及两次 CBS 无变化构建通过，已提交为 `35e6a4e73e`；只清签名、真实依赖失败恢复和其他平台按需补齐。CFG-04 的 22 组无构建夹具、相关已有回归、当前 macOS 双系统 bootstrap、两次配置和 CBS 无变化构建通过，已提交为 `f981c115cf`；CFG-05 的 78 组脚本夹具与 C++ 30 项、当前 macOS LLVM flags/cache/实际 Mach-O minimum、首次迁移及第二轮 CBS 无变化构建通过，已提交为 `2b258bb609`；其他 SDK/profile/平台按需补齐。BUILD-01 的额外恢复场景按需补充。
 3. BUILD-03 已提交为 `0965735828`；按需补齐命中增量和 OFF/AUTO 实测。BUILD-04 已提交为 `1d46bf0439`，HepMC/YODA 场景按需补齐；BUILD-05 首次迁移及相同配置复用已通过并提交为 `09929f07fb`；BUILD-07 首次记录、直接重复构建及相同配置后复用已通过并提交为 `0c3ea3e566`；时间戳对照、源码 touch 和其他平台按需补齐。BUILD-06 Ninja 适配仍作为 P3 后续评估。
 4. BUILD-02 独立对象构建、完整链接及无变化主工程构建已通过；继续补齐并行重叠与单点运行，以同环境基准量化收益，结合 BUILD-07 的验收日志测量外部步骤重复开销。
 5. BUILD-08 RestFrames 阶段已完成 include/配置头范围收敛；preload 漏查已修复，维护者首次迁移、恢复 ON 六个对象及最后无变化构建通过，已提交为 `eb03406a7c`。后续按需补齐迁移后独立 OFF、时间戳及其他平台，再处理其他依赖与配置发现项；Ninja 仍作为后续评估。
+6. UX-01 的 15 个 preset 报告渲染、README 命令检查、当前 macOS bootstrap 四项提示和 CBS 无变化构建通过，本阶段随本轮提交。之后继续 UX-02 的摘要追溯与 compile_commands 导出。
 
 本台账不改变仓库构建政策：继续使用 `${sourceDir}/build`；切换编译器家族按 `AGENTS.md` 使用 `--fresh`；实际构建由维护者执行。变更 profile、关闭依赖与重置缓存的影响应单独记录，避免把额外重建误认为编译回退。
 
@@ -1029,3 +1055,6 @@ cmake --build --preset cbs-llvm --parallel 8
 | 2026-10-11 | 维护者授权提交已验收的 CFG-04，提交为 `f981c115cf`；仅包含本阶段十六个源码、夹具与文档文件，其他未跟踪文件保留；随后开始 CFG-05 |
 | 2026-10-11 | CFG-05 统一 OpenMP 自动 hints 与 native flags，原生 C/C++ 去除重复 SDK/minimum，GNU Fortran 补齐未探测选项，外部 shell/CMake flags 由公共政策派生；78 组夹具与 C++ 30 项通过，实际首次迁移及无变化 CBS 构建待维护者验收，尚未提交 |
 | 2026-10-11 | 审阅 CFG-05 的 3690 行日志：两轮 CBS 成功，首次九项重检及 native/外部 flags 迁移完成；第二轮 42 条目标输出、零编译/链接/外部步骤；cache 与生成 flags 一致，两个 Fortran 对象/库及 CBS 的 Mach-O minimum 均为 27.0；状态改为已实现已构建，本阶段随本轮验收提交 |
+| 2026-10-11 | CFG-05 已提交为 `2b258bb609`；实现 UX-01，bootstrap/README 示例统一明确并发 8，补充 -j8 等价、环境默认值及资源调整说明；15 个 preset 的无探测纯报告渲染与文档命令检查通过，真实提示/CBS 增量验收待维护者执行，尚未提交 |
+| 2026-10-11 | 审阅 UX-01 的 137 行日志：bootstrap 四项 AVAILABLE 构建提示均明确 `--parallel 8`，两个 GNU profile 为 OTHER HOST；CBS 42 条目标完成输出，零编译/链接/外部步骤，无新增错误或警告；状态改为已实现已构建，尚未提交 |
+| 2026-10-11 | 维护者授权提交已验收的 UX-01；本阶段仅提交 bootstrap 报告、preset README 和开发台账三份文件；下一项为 UX-02，先完善 compile_commands 导出，再补充依赖复用或重建原因的摘要 |

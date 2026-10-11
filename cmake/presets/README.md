@@ -67,12 +67,25 @@ Choose a reported preset and use native CMake commands:
 
 ```sh
 cmake --preset gambit-llvm --fresh
-cmake --build --preset gambit-llvm --parallel
+cmake --build --preset gambit-llvm --parallel 8
 
 # Or choose CBS:
 cmake --preset cbs-llvm --fresh
-cmake --build --preset cbs-llvm --parallel
+cmake --build --preset cbs-llvm --parallel 8
 ```
+
+The examples use eight concurrent build jobs. `--parallel 8` and `-j8` are
+equivalent for `cmake --build`; change the number to suit your CPU and memory.
+Keep an explicit number: bare `--parallel` uses the native build tool's default,
+which can mean unlimited jobs with Make. To use `CMAKE_BUILD_PARALLEL_LEVEL`
+instead, omit the command-line parallel option, for example:
+
+```sh
+CMAKE_BUILD_PARALLEL_LEVEL=4 cmake --build --preset cbs-llvm
+```
+
+The explicit command-line option takes precedence over that environment default.
+Changing the job count does not require clearing `build/` or reconfiguring.
 
 All presets preserve the canonical `${sourceDir}/build` and GAMBIT output layout.
 Use `--fresh` when switching profiles or compiler families in that shared tree.
