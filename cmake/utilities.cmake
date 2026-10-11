@@ -416,8 +416,11 @@ function(add_gambit_executable executablename LIBRARIES)
         set_target_properties(${executablename} PROPERTIES LINK_FLAGS ${MPI_Fortran_LINK_FLAGS})
     endif()
   endif()
-  # Homebrew LLVM uses -fopenmp=libomp; AppleClang still uses -Xclang -fopenmp.
-  if(TARGET OpenMP::OpenMP_CXX)
+  # Global flags already enable OpenMP compilation. Link its libraries without
+  # inheriting a duplicate set of compile options from the imported target.
+  if(OpenMP_CXX_LIBRARIES)
+    set(LIBRARIES ${LIBRARIES} ${OpenMP_CXX_LIBRARIES})
+  elseif(TARGET OpenMP::OpenMP_CXX)
     set(LIBRARIES ${LIBRARIES} OpenMP::OpenMP_CXX)
   elseif(OpenMP_omp_LIBRARY)
     # Preserve the manual AppleClang/Homebrew fallback for older CMake.

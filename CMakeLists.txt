@@ -384,49 +384,9 @@ if("${GSL_CONFIG_EXECUTABLE}" STREQUAL "")
   endif()
 endif()
 
-# Check for OpenMP. Homebrew dependencies use the separate libomp formula,
-# including when the compiler is Homebrew LLVM rather than Apple Clang.
-if (APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_C_COMPILER_ID MATCHES "Clang")
-  find_program(BREW NAMES brew)
-  if(BREW)
-    execute_process(COMMAND ${BREW} --prefix libomp
-      RESULT_VARIABLE BREW_RESULT_CODE OUTPUT_VARIABLE BREW_LIBOMP_PREFIX
-      OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
-    if(NOT BREW_RESULT_CODE AND EXISTS "${BREW_LIBOMP_PREFIX}/lib/libomp.dylib")
-      # -Xclang enables OpenMP compilation without implicitly linking LLVM's
-      # bundled runtime. All C/C++ targets link the same explicit library.
-      set(OpenMP_CXX_FLAGS "-Xclang -fopenmp -I${BREW_LIBOMP_PREFIX}/include")
-      set(OpenMP_C_FLAGS "-Xclang -fopenmp -I${BREW_LIBOMP_PREFIX}/include")
-      set(OpenMP_CXX_LIB_NAMES "omp")
-      set(OpenMP_C_LIB_NAMES "omp")
-      set(OpenMP_omp_LIBRARY "${BREW_LIBOMP_PREFIX}/lib/libomp.dylib")
-      set(FOUND_BREW_OPENMP TRUE)
-      message(STATUS "Using Homebrew libomp from ${BREW_LIBOMP_PREFIX}")
-    endif()
-  endif()
-endif()
-find_package(OpenMP QUIET)
-if (OPENMP_FOUND OR FOUND_BREW_OPENMP OR GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP)
-  message("-- OpenMP found successfully")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  if (NOT DEFINED OpenMP_Fortran_FLAGS)
-    set(OpenMP_Fortran_FLAGS "-fopenmp")
-  endif()
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
-else()
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-    if(NOT FOUND_BREW_OPENMP)
-      message(FATAL_ERROR "\nOpenMP libraries not found. You are using the Apple Clang compiler. The easiest way to get OpenMP support for Apple Clang is to install it via HomeBrew. If you want to install it some other way, e.g. via MacPorts, you need to manually set -DOpenMP_CXX_FLAGS -DOpenMP_CXX_LIB_NAMES -DOpenMP_C_FLAGS -DOpenMP_C_LIB_NAMES -DOpenMP_omp_LIBRARY when invoking cmake.")
-    endif()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_CXX_FLAGS}")
-  elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    message(FATAL_ERROR "\nOpenMP libraries not found. On macOS with LLVM, install libomp (brew install libomp) or set -DOpenMP_CXX_FLAGS -DOpenMP_CXX_LIB_NAMES -DOpenMP_C_FLAGS -DOpenMP_C_LIB_NAMES -DOpenMP_omp_LIBRARY.")
-  else()
-    message(FATAL_ERROR "\nOpenMP libraries not found. Check your compiler and OpenMP installation.")
-  endif()
-endif()
+# Discover OpenMP once; cache, native flags and backend flags share the result.
+include(cmake/OpenMP.cmake)
+gambit_configure_openmp()
 
 # Check for Mathematica
 string(REGEX MATCH ";M;|;Ma;|;Mat;|;Math;|;Mathe;|;Mathem;|;Mathema;|;Mathemat;|;Mathemati;|;Mathematic;|;Mathematica;|;m;|;ma;|;mat;|;math;|;mathe;|;mathem;|;mathema;|;mathemat;|;mathemati;|;mathematic;|;mathematica" DITCH_MATHEMATICA ";${itch};")
@@ -510,15 +470,26 @@ else()
   set(BACKEND_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
 endif()
 gambit_sync_backend_cxx_standard()
+
+# Should we use pragmas to suppress common compiler warnings from external libraries?
+option(SUPPRESS_LIBRARY_WARNINGS "Suppress common compiler warnings due to external libraries" ON)
+
+# Shell and Autotools projects need explicit platform options; native CMake
+# targets and CMake-based external projects use CMAKE_OSX_*.
+foreach(_language C CXX Fortran)
+  foreach(_suffix "" _NO_BUILD_OPTIMISATIONS)
+    gambit_macos_external_flags("${BACKEND_${_language}_FLAGS${_suffix}}"
+      BACKEND_${_language}_FLAGS${_suffix})
+  endforeach()
+endforeach()
+gambit_macos_external_flags("${CMAKE_SHARED_LINKER_FLAGS}" GAMBIT_BACKEND_SHARED_LINKER_FLAGS)
 set(BACKEND_C18_FLAGS "${BACKEND_C_FLAGS} -std=c18")
 set(BACKEND_C11_FLAGS "${BACKEND_C_FLAGS} -std=c11")
 set(BACKEND_C99_FLAGS "${BACKEND_C_FLAGS} -std=c99")
 set(BACKEND_GNU99_FLAGS "${BACKEND_C_FLAGS} -std=gnu99")
 
-# Should we use pragmas to suppress common compiler warnings from external libraries?
-option(SUPPRESS_LIBRARY_WARNINGS "Suppress common compiler warnings due to external libraries" ON)
-
 # Unless "-rdynamic" or "-Wl,--export-dynamic" is set, make symbols hidden by default when compiling GAMBIT source files only
+
 string(FIND "${CMAKE_CXX_FLAGS}" "-rdynamic" FOUND_RDYNAMIC_CXX)
 string(FIND "${CMAKE_CXX_FLAGS}" "--export-dynamic" FOUND_EXPORT_DYNAMIC_CXX)
 if(${FOUND_RDYNAMIC_CXX} EQUAL -1 AND ${FOUND_EXPORT_DYNAMIC_CXX} EQUAL -1)

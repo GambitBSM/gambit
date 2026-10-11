@@ -109,7 +109,7 @@ class StandaloneObjectTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def run_case(self, name="CBS", modules="ColliderBit", sources=True,
-                 settings="", excluded=False):
+                 settings="", excluded=False, before=""):
         utilities = (ROOT / "cmake/utilities.cmake").read_text()
         functions = []
         for function in ["normalise_gambit_link_libraries", "add_gambit_executable",
@@ -148,6 +148,7 @@ class StandaloneObjectTests(unittest.TestCase):
             "set(MPI_CXX_LIBRARIES /libmpi)",
             "set(MPI_CXX_LINK_FLAGS -mpi-link)",
             "set(EXCLUDE_HEPMC " + ("TRUE" if excluded else "FALSE") + ")",
+            before,
             "add_standalone(" + " ".join(bracket(a) for a in arguments) + ")",
             settings,
             "file(WRITE " + bracket(captured) + ' "")',
@@ -206,6 +207,15 @@ class StandaloneObjectTests(unittest.TestCase):
         self.assertIn("/libpython", targets["CBS_objects"]["LINK_LIBRARIES"])
         self.assertEqual(set(targets["CBS_objects"]["COMPILE_DEFINITIONS"].split(";")),
                          {"CHECK_CUTFLOW", "CBS_EXPORTS"})
+
+    def test_openmp_libraries_keep_runtime_and_avoid_imported_compile_options(self):
+        targets = self.run_case(before='set(OpenMP_CXX_LIBRARIES /selected/libomp /selected/libpthread)')
+        for name in ("CBS", "CBS_objects"):
+            links = targets[name]["LINK_LIBRARIES"].split(";")
+            self.assertIn("/selected/libomp", links)
+            self.assertIn("/selected/libpthread", links)
+            self.assertNotIn("OpenMP::OpenMP_CXX", links)
+            self.assertNotIn("/libomp", links)
 
     def test_export_macros_and_configuration_specific_settings(self):
         targets = self.run_case(name="3bithit")

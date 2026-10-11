@@ -206,7 +206,7 @@ if(NOT ditched_${name}_${ver})
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE_SERIAL} CC=${CMAKE_C_COMPILER} ARFLAGS=rcs CFLAGS=${AlterBBN_C_FLAGS} CFLAGS_MP=${OpenMP_C_FLAGS}
           COMMAND ar x src/libbbn.a
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} ${OpenMP_C_FLAGS} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o ${lib}.so *.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} ${OpenMP_C_FLAGS} ${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o ${lib}.so *.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -618,6 +618,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 endif()
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
+  gambit_macos_cmake_external_flags("${HL_CXXFLAGS}" HL_CXXFLAGS_CMAKE_EXTERNAL)
   ExternalProject_Add(${name}_${ver}
     DEPENDS heplikedata
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -626,7 +627,7 @@ if(NOT ditched_${name}_${ver})
     PATCH_COMMAND patch -p1 < ${patch}
     UPDATE_COMMAND ${CMAKE_COMMAND} -E echo "set_target_properties(HEPLike_shared PROPERTIES OUTPUT_NAME HEPLike SUFFIX \".so\")" >> ${dir}/CMakeLists.txt
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HL_CXXFLAGS} ${GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG} ${GAMBIT_MACOS_CMAKE_SYSROOT_ARG} -DCMAKE_MODULE_PATH=${PROJECT_SOURCE_DIR}/cmake -DUSE_ROOT=false -DBoost_INCLUDE_DIRS=${Boost_INCLUDE_DIR} -DBoost_LIBRARIES=${Boost_LIBRARIES} -DGSL_INCLUDE_DIR=${GSL_INCLUDE_DIR} -DGSL_LIBRARIES=${GSL_LIBRARIES}
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HL_CXXFLAGS_CMAKE_EXTERNAL} ${GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG} ${GAMBIT_MACOS_CMAKE_SYSROOT_ARG} -DCMAKE_MODULE_PATH=${PROJECT_SOURCE_DIR}/cmake -DUSE_ROOT=false -DBoost_INCLUDE_DIRS=${Boost_INCLUDE_DIR} -DBoost_LIBRARIES=${Boost_LIBRARIES} -DGSL_INCLUDE_DIR=${GSL_INCLUDE_DIR} -DGSL_LIBRARIES=${GSL_LIBRARIES}
     BUILD_COMMAND ${MAKE_PARALLEL} HEPLike_shared
     INSTALL_COMMAND ""
     )
@@ -659,7 +660,7 @@ if(NOT ditched_${name}_${ver})
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE_SERIAL} CC=${CMAKE_C_COMPILER} ARFLAGS=rcs CFLAGS=${SI_C_FLAGS}
           COMMAND ar x src/libsuperiso.a
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o ${lib}.so *.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} ${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o ${lib}.so *.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -924,7 +925,7 @@ if(NOT ditched_.${name}_${ver}_base)
           COMMAND sed ${dashi} -e "s|FC=.*|FC=\"${CMAKE_Fortran_COMPILER}\"|" CalcHEP_src/FlagsForSh
           COMMAND sed ${dashi} -e "s|CC=.*|CC=\"${CMAKE_C_COMPILER}\"|" CalcHEP_src/FlagsForSh
           COMMAND sed ${dashi} -e "s|CXX=.*|CXX=\"${CMAKE_CXX_COMPILER}\"|" CalcHEP_src/FlagsForSh
-          COMMAND sed ${dashi} -e "s|FFLAGS=.*|FFLAGS=\"${CMAKE_Fortran_FLAGS}\"|" CalcHEP_src/FlagsForSh
+          COMMAND sed ${dashi} -e "s|FFLAGS=.*|FFLAGS=\"${BACKEND_Fortran_FLAGS_NO_BUILD_OPTIMISATIONS}\"|" CalcHEP_src/FlagsForSh
           COMMAND sed ${dashi} -e "s|CFLAGS=.*|CFLAGS=\"${MO_C_FLAGS}\"|" CalcHEP_src/FlagsForSh
           COMMAND sed ${dashi} -e "s|CXXFLAGS=.*|CXXFLAGS=\"${MO_CXX_FLAGS}\"|" CalcHEP_src/FlagsForSh
           COMMAND sed ${dashi} -e "s|lFort=.*|lFort=|" CalcHEP_src/FlagsForSh
@@ -1158,12 +1159,14 @@ set(libphysica_ver "${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
+  gambit_macos_cmake_external_flags("${BACKEND_CXX_FLAGS}" BACKEND_CXX_FLAGS_CMAKE_EXTERNAL)
+  gambit_macos_cmake_external_flags("${BACKEND_C_FLAGS}" BACKEND_C_FLAGS_CMAKE_EXTERNAL)
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${libphysica_dir} ${name} ${ver}
     SOURCE_DIR ${libphysica_dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
-    CMAKE_ARGS -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_C_FLAGS=${BACKEND_C_FLAGS} ${GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG} ${GAMBIT_MACOS_CMAKE_SYSROOT_ARG} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCODE_COVERAGE=OFF -DCMAKE_BUILD_TYPE=Release
+    CMAKE_ARGS -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS_CMAKE_EXTERNAL} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_C_FLAGS=${BACKEND_C_FLAGS_CMAKE_EXTERNAL} ${GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG} ${GAMBIT_MACOS_CMAKE_SYSROOT_ARG} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCODE_COVERAGE=OFF -DCMAKE_BUILD_TYPE=Release
     BUILD_COMMAND ${MAKE_PARALLEL} ${dir}
     INSTALL_COMMAND ""
   )
@@ -1191,6 +1194,8 @@ if(NOT ditched_${name}_${ver})
   set_compiler_warning("no-type-limits" obscura_CXX_FLAGS)
   set_compiler_warning("no-maybe-uninitialized" obscura_CXX_FLAGS)
   set_compiler_warning("no-unused-but-set-variable" obscura_CXX_FLAGS)
+  gambit_macos_cmake_external_flags("${obscura_CXX_FLAGS}" obscura_CXX_FLAGS_CMAKE_EXTERNAL)
+  gambit_macos_cmake_external_flags("${obscura_C_FLAGS}" obscura_C_FLAGS_CMAKE_EXTERNAL)
   ExternalProject_Add(${name}_${ver}
     DEPENDS "castxml;libphysica"
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -1199,7 +1204,7 @@ if(NOT ditched_${name}_${ver})
     PATCH_COMMAND patch -p1 < ${patch}
           COMMAND  ${CMAKE_COMMAND} -E make_directory "${dir}/generated/"
           COMMAND ${CMAKE_COMMAND} -E echo "" > "${dir}/generated/version.hpp"
-    CMAKE_ARGS -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${obscura_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_C_FLAGS=${obscura_C_FLAGS} ${GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG} ${GAMBIT_MACOS_CMAKE_SYSROOT_ARG} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCODE_COVERAGE=OFF -DCMAKE_BUILD_TYPE=Release ${dir} -Dlibphysica_SOURCE_DIR=${libphysica_dir}
+    CMAKE_ARGS -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${obscura_CXX_FLAGS_CMAKE_EXTERNAL} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_C_FLAGS=${obscura_C_FLAGS_CMAKE_EXTERNAL} ${GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG} ${GAMBIT_MACOS_CMAKE_SYSROOT_ARG} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCODE_COVERAGE=OFF -DCMAKE_BUILD_TYPE=Release ${dir} -Dlibphysica_SOURCE_DIR=${libphysica_dir}
     BUILD_COMMAND ${MAKE_PARALLEL} libobscura
     INSTALL_COMMAND ""
   )
@@ -1464,7 +1469,7 @@ if(NOT ditched_${name}_${ver})
               COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FFLAGS=${FH_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FH_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FH_CXX_FLAGS}
     BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so build/*.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so build/*.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -1492,7 +1497,7 @@ if(NOT ditched_${name}_${ver})
               COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FFLAGS=${FH_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FH_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FH_CXX_FLAGS}
     BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so build/*.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so build/*.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -1521,7 +1526,7 @@ if(NOT ditched_${name}_${ver})
               COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FFLAGS=${FH_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FH_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FH_CXX_FLAGS}
     BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so build/*.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so build/*.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -1579,7 +1584,7 @@ if(NOT ditched_${name}_${ver})
               COMMAND ./my_configure
     BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so *.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so *.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -1617,7 +1622,7 @@ if(NOT ditched_${name}_${ver})
               COMMAND ./my_configure
     BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so *.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so *.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -1658,7 +1663,7 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
           COMMAND ${CMAKE_COMMAND} -E remove HiggsSignals.o
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so ./*.o ../../${hb_name}/${hb_ver}/*.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} -o lib/${lib}.so ./*.o ../../${hb_name}/${hb_ver}/*.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -1731,7 +1736,7 @@ set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
 # - gm2calc 1.2 depends on std::ptr_fun, which was removed in C++17, so we need to fall back to
 #   C++14 regardless of which (C++17 or later) standard GAMBIT itself is using.
 gambit_set_cxx_standard_flag("${GM2CALC_CXX_FLAGS}" 14 GM2CALC_CXX_FLAGS)
-set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
+set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -1761,7 +1766,7 @@ set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
 # - gm2calc 1.3 depends on std::ptr_fun, which was removed in C++17, so we need to fall back to
 #   C++14 regardless of which (C++17 or later) standard GAMBIT itself is using.
 gambit_set_cxx_standard_flag("${GM2CALC_CXX_FLAGS}" 14 GM2CALC_CXX_FLAGS)
-set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
+set(GM2CALC_MAKESHAREDLIB "${CMAKE_CXX_COMPILER} ${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -1851,7 +1856,7 @@ set(phc_ver "2.4.77")
 set(hom4ps_ver "2.0")
 set(Minuit_include "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${Minuit_name}/${Minuit_ver}/inc/")
 set(Minuit_lib "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${Minuit_name}/${Minuit_ver}/lib/")
-set(VPP_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
+set(VPP_SHARED_LINKER_FLAGS "${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
 set(VPP_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I./include/ -I./include/LHPC/ -I${Boost_INCLUDE_DIR} -I${EIGEN3_INCLUDE_DIR} -I${Minuit_include}")
 set_compiler_warning("no-unused-local-typedefs" VPP_CXX_FLAGS)
 set_compiler_warning("no-unused-parameter" VPP_CXX_FLAGS)
@@ -1859,7 +1864,10 @@ set_compiler_warning("no-reorder" VPP_CXX_FLAGS)
 set_compiler_warning("no-deprecated-copy" VPP_CXX_FLAGS)
 set_compiler_warning("no-unused-variable" VPP_CXX_FLAGS)
 set_compiler_warning("no-pessimizing-move" VPP_CXX_FLAGS)
-set(VPP_CMAKE_FLAGS -DCMAKE_C_FLAGS=${BACKEND_C_FLAGS} -DCMAKE_CXX_FLAGS=${VPP_CXX_FLAGS} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_SHARED_LINKER_FLAGS=${VPP_SHARED_LINKER_FLAGS} ${GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG} ${GAMBIT_MACOS_CMAKE_SYSROOT_ARG} -DEIGEN3_INCLUDE_DIR=${EIGEN3_INCLUDE_DIR} -DBoost_INCLUDE_DIR=${Boost_INCLUDE_DIR} -DWITHIN_GAMBIT=True -DSILENT_MODE=TRUE -DMinuit_include=${Minuit_include} -DMinuit_lib=${Minuit_lib})
+gambit_macos_cmake_external_flags("${BACKEND_C_FLAGS}" BACKEND_C_FLAGS_CMAKE_EXTERNAL)
+gambit_macos_cmake_external_flags("${VPP_CXX_FLAGS}" VPP_CXX_FLAGS_CMAKE_EXTERNAL)
+gambit_macos_cmake_external_flags("${VPP_SHARED_LINKER_FLAGS}" VPP_SHARED_LINKER_FLAGS_CMAKE_EXTERNAL)
+set(VPP_CMAKE_FLAGS -DCMAKE_C_FLAGS=${BACKEND_C_FLAGS_CMAKE_EXTERNAL} -DCMAKE_CXX_FLAGS=${VPP_CXX_FLAGS_CMAKE_EXTERNAL} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_SHARED_LINKER_FLAGS=${VPP_SHARED_LINKER_FLAGS_CMAKE_EXTERNAL} ${GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG} ${GAMBIT_MACOS_CMAKE_SYSROOT_ARG} -DEIGEN3_INCLUDE_DIR=${EIGEN3_INCLUDE_DIR} -DBoost_INCLUDE_DIR=${Boost_INCLUDE_DIR} -DWITHIN_GAMBIT=True -DSILENT_MODE=TRUE -DMinuit_include=${Minuit_include} -DMinuit_lib=${Minuit_lib})
 set(BOSSregex "s#cpp)#cpp   source/BOSS_factory_VevaciousPlusPlus.cpp       source/BOSS_wrapperutils.cpp        source/BOSS_VevaciousPlusPlus.cpp)#g")
 set(FLAGSregex1 "s#_FLAGS} -O3 -fPIC#_FLAGS}#g")
 set(FLAGSregex2 "s#_FLAGS} -Wall -Wno-unused-local-typedefs -O3 -fPIC -fopenmp#_FLAGS}#g")
@@ -1951,8 +1959,8 @@ if(NOT ditched_${name}_${ver})
   set_compiler_warning("no-int-conversion" calchep_C_FLAGS)
   set_compiler_warning("no-incompatible-pointer-types" calchep_C_FLAGS)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(calchep_CXX_FLAGS "${calchep_CXX_FLAGS} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
-    set(calchep_C_FLAGS "${calchep_C_FLAGS} ${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
+    set(calchep_CXX_FLAGS "${calchep_CXX_FLAGS} ${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
+    set(calchep_C_FLAGS "${calchep_C_FLAGS} ${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
     set(calchep_Fortran_FLAGS "${calchep_Fortran_FLAGS} ${NO_FIXUP_CHAINS}")
   endif()
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
@@ -2092,7 +2100,7 @@ if(NOT ditched_${name}_${ver})
     PATCH_COMMAND tar -C ${dir}/ -xf ${dir}/code/plc_3.0/plc-3.0.tar.bz2 --strip-components=1
           COMMAND patch -p1 < ${patch}/${name}_${ver}.diff
           COMMAND sed ${dashi} -e "s#x86_64#${CMAKE_SYSTEM_PROCESSOR}#g" waf_tools/mbits.py
-    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "CC=${CMAKE_C_COMPILER} FC=${CMAKE_Fortran_COMPILER} LDFLAGS=\"${CMAKE_SHARED_LINKER_FLAGS}\" CFLAGS=\"${BACKEND_C_FLAGS}\" ${Python3_EXECUTABLE} ${dir}/waf configure --cfitsio_include=${cfitsio_dir}/include --cfitsio_lib=${cfitsio_dir}/lib ${mkl_libs_option} --no_pytools" > run_waf.sh
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "CC=${CMAKE_C_COMPILER} FC=${CMAKE_Fortran_COMPILER} LDFLAGS=\"${GAMBIT_BACKEND_SHARED_LINKER_FLAGS}\" CFLAGS=\"${BACKEND_C_FLAGS}\" ${Python3_EXECUTABLE} ${dir}/waf configure --cfitsio_include=${cfitsio_dir}/include --cfitsio_lib=${cfitsio_dir}/lib ${mkl_libs_option} --no_pytools" > run_waf.sh
               COMMAND chmod u+x run_waf.sh
               COMMAND ./run_waf.sh
     BUILD_COMMAND ""
@@ -2141,7 +2149,7 @@ set_compiler_warning("no-ignored-qualifiers" Rivet_CXX_FLAGS)
 set(Rivet_C_FLAGS "${FJ_C_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR}")
 # --with-hepmc3 supplies the required HepMC include and library directories.
 # Adding them again to LDFLAGS duplicates their rpath on macOS.
-set(Rivet_LD_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
+set(Rivet_LD_FLAGS "${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
 set(Rivet_dirs "${dir}/src/Core" "${dir}/src/Projections" "${dir}/src/Tools" "${dir}/src/AnalysisTools" "${dir}/src")
 
 # For MacOS we need to specify the (weird) root directory for headers (isysroot)
@@ -2354,7 +2362,7 @@ endif()
 unset(_contur_build_command)
 
 # Linker flags used in the class makefile when linking executables
-set(CLASSY_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
+set(CLASSY_LINKER_FLAGS "${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
 # This is the link command used by cython when compiling Python.
 set(CYTHON_LINK "LDSHARED=${CMAKE_C_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} ${CLASSY_LINKER_FLAGS}")
 # Modified OpenMP settings and linker flags for classy

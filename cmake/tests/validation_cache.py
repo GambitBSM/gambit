@@ -125,7 +125,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(GAMBIT_CXX_STANDARD 17)
-set(OPENMP_FOUND TRUE)
+set(GAMBIT_OPENMP_FOUND TRUE)
 set(Python3_FOUND TRUE)
 set(Python3_Development_FOUND TRUE)
 set(Python3_INCLUDE_DIRS "${{_fixture_root}}/python/include")
@@ -153,6 +153,21 @@ include([==[{CMAKE_DIR / 'presets' / 'CBSValidation.cmake'}]==])
                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                    env=os.environ.copy())
         self.assertEqual(completed.returncode, 0, completed.stdout)
+
+    def test_fortran_platform_flags_refresh_only_fortran_probe(self):
+        self.run_script('''
+cbs_validate_environment()
+expect_all(1)
+set(CMAKE_Fortran_SYSROOT_FLAG "-isysroot")
+cbs_validate_environment()
+expect_calls(_cbs_fortran_free_form_compile_link 2)
+expect_calls(CBS_VALIDATION_C_COMPILE_LINK 1)
+expect_calls(CBS_VALIDATION_CXX_COMPILE_LINK 1)
+set(CMAKE_Fortran_OSX_DEPLOYMENT_TARGET_FLAG "-mmacosx-version-min=")
+cbs_validate_environment()
+expect_calls(_cbs_fortran_free_form_compile_link 3)
+expect_calls(CBS_VALIDATION_CXX_COMPILE_LINK 1)
+''')
 
     def test_unchanged_inputs_reuse_success_and_failure(self):
         self.run_script('''

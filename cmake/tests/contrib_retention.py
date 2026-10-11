@@ -127,7 +127,7 @@ class ContribRetentionTests(unittest.TestCase):
             "set(UNIX FALSE)",  # skip the unrelated HDF5 wrapper probe
             "set(MAKE_SERIAL make)",
             "set(MAKE_PARALLEL make -j8)",
-            CAPTURE, helpers, *sections,
+            CAPTURE, "include(" + bracket(ROOT / "cmake/MacOSX.cmake") + ")", helpers, *sections,
             'file(APPEND "${CAPTURE_FILE}" "EXCLUDED|restframes|${EXCLUDE_RESTFRAMES}\\n")',
             'file(APPEND "${CAPTURE_FILE}" "EXCLUDED|hepmc|${EXCLUDE_HEPMC}\\n")',
             'file(APPEND "${CAPTURE_FILE}" "EXCLUDED|yoda|${EXCLUDE_YODA}\\n")',

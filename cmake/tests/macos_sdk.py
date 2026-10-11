@@ -124,7 +124,9 @@ class MacOSSDKTests(unittest.TestCase):
         if deployment or flags:
             lines.append("gambit_initialise_macos_deployment_target()")
         if flags:
-            lines.extend(["set(PROJECT_NAME fixture)", "include(" + module + ")"])
+            lines.extend(["set(PROJECT_NAME fixture)", "include(" + module + ")",
+                          'gambit_macos_external_flags("-O2 -stdlib=libc++" backend_flags)',
+                          'gambit_macos_cmake_external_flags("${backend_flags}" cmake_external_flags)'])
             # Evaluate only the real SDK flag assignments, not external project
             # definitions or any of their configure/build commands.
             for file, variable in (("cmake/backends.cmake", "Rivet_CPP_FLAGS"),
@@ -138,7 +140,7 @@ class MacOSSDKTests(unittest.TestCase):
                       'get_property(cached_root CACHE CMAKE_OSX_SYSROOT PROPERTY VALUE)',
                       'foreach(name CMAKE_OSX_SYSROOT cached_root MACOS_DEPLOYMENT_TARGET',
                       '  CMAKE_OSX_DEPLOYMENT_TARGET CMAKE_C_FLAGS CMAKE_CXX_FLAGS',
-                      '  CMAKE_SHARED_LINKER_FLAGS Rivet_CPP_FLAGS YODA_CONFIG_LDFLAGS',
+                      '  CMAKE_SHARED_LINKER_FLAGS Rivet_CPP_FLAGS YODA_CONFIG_LDFLAGS backend_flags cmake_external_flags',
                       '  GAMBIT_MACOS_CMAKE_SYSROOT_ARG GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG)',
                       '  message(STATUS "RESULT_${name}=[${${name}}]")', 'endforeach()'])
         script = self.work / "case.cmake"
@@ -226,8 +228,13 @@ class MacOSSDKTests(unittest.TestCase):
                 self.assertEqual(self.log.read_text(), "")
                 for name in ("CMAKE_C_FLAGS", "CMAKE_CXX_FLAGS", "CMAKE_SHARED_LINKER_FLAGS"):
                     tokens = shlex.split(values[name])
-                    self.assertIn("-isysroot" + str(sdk), tokens)
-                    self.assertIn("-mmacosx-version-min=13.0", tokens)
+                    self.assertNotIn("-isysroot" + str(sdk), tokens)
+                    self.assertNotIn("-mmacosx-version-min=13.0", tokens)
+                self.assertEqual(shlex.split(values["backend_flags"]),
+                                 ["-O2", "-stdlib=libc++", "-isysroot" + str(sdk),
+                                  "-mmacosx-version-min=13.0"])
+                self.assertEqual(shlex.split(values["cmake_external_flags"]),
+                                 ["-O2", "-stdlib=libc++"])
                 self.assertIn("-L" + str(sdk) + "/usr/lib",
                               shlex.split(values["CMAKE_SHARED_LINKER_FLAGS"]))
                 self.assertEqual(shlex.split(values["Rivet_CPP_FLAGS"]), ["-isysroot", str(sdk)])
@@ -267,6 +274,7 @@ class MacOSSDKTests(unittest.TestCase):
                             self.assertIsNotNone(definition)
                             line = definition.group(0)
                         self.assertIn("${GAMBIT_MACOS_CMAKE_SYSROOT_ARG}", line)
+                        self.assertIn("${GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG}", line)
 
 
 if __name__ == "__main__":

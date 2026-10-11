@@ -641,7 +641,7 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-build08-noop.log
 | CFG-02 | P2 | 已实现已构建 | 在 project 前按 CMAKE_OSX_SYSROOT、SDKROOT、自动发现选择 SDK；缓存实际目录，显式无效选择不回退；原生/外部参数共用该 SDK | [MacOSX.cmake](../cmake/MacOSX.cmake)、[macos_sdk.py](../cmake/tests/macos_sdk.py)。26 组脚本检查与当前 SDK 的显式/缓存/自动发现配置、三次 CBS 构建通过；首次外部迁移后零重复步骤，其他 SDK/平台待补齐 |
 | CFG-03 | P2 | 已实现已构建 | 原生语言、macOS linker 与 Python/Boost/HDF5/SQLite 检查随输入变化失效；共享 HDF5 gate 同步修复，输入稳定时复用 PASS/FAIL | [ValidationCache.cmake](../cmake/ValidationCache.cmake)、[CBSValidation.cmake](../cmake/presets/CBSValidation.cmake)、[validation_cache.py](../cmake/tests/validation_cache.py)。16 组无编译夹具、当前配置的九项首次重检/后续复用及两次 CBS 无变化构建通过；只重跑检查、真实依赖恢复及其他平台按需补齐 |
 | CFG-04 | P2 | 已实现已构建 | 同轮只读工具链/Python 元数据查询复用，Python 必需/可选模块按组导入，并共享原始结果 | [ProcessProbe.cmake](../cmake/ProcessProbe.cmake)、[PythonModules.cmake](../cmake/PythonModules.cmake)、[process_probes.py](../cmake/tests/process_probes.py)。22 组无构建夹具、当前 macOS 双系统 bootstrap、两次配置及 CBS 无变化构建通过；其他过滤/平台按需补齐 |
-| CFG-05 | P2 | 待开发 | 统一 OpenMP、SDK 和 deployment flags 的来源，避免缓存与实际命令显示不一致；补齐 GNU Fortran 编译阶段的公共 macOS minimum target | [主配置](../CMakeLists.txt)、[MacOSX.cmake](../cmake/MacOSX.cmake)。摘要及生成命令一致，保留各外部包必要参数；当前日志发现 Fortran 新编对象 minimum 为 28.0、链接为 27.0，生成 Fortran_FLAGS 缺少 minimum 参数，链接命令已有公共 27.0 参数 |
+| CFG-05 | P2 | 已实现已构建 | 统一 OpenMP 发现及自动缓存 hints；原生 C/C++ SDK/minimum 使用 CMake，GNU Fortran 补齐未探测的选项；外部 shell/CMake flags 分别由公共政策派生 | [OpenMP.cmake](../cmake/OpenMP.cmake)、[MacOSX.cmake](../cmake/MacOSX.cmake)、[platform_flags.py](../cmake/tests/platform_flags.py)。78 组脚本夹具与 C++ 政策 30 项通过；当前 macOS LLVM 首次迁移及第二轮无变化 CBS 构建通过，实际两种 Fortran 对象/库与 CBS minimum 均为 27.0；其他 SDK/profile/平台按需补齐 |
 | UX-01 | P2 | 待开发 | 构建示例采用明确并发数，例如 `--parallel 8` | [BootstrapReport.cmake](../cmake/presets/BootstrapReport.cmake)、[Preset README](../cmake/presets/README.md)。默认提示不依赖无上限并发，允许用户按资源调整 |
 | UX-02 | P2 | 部分完成 | 摘要已补充缓存策略、ccache 版本和 C/C++ launcher；依赖复用或重建原因及 compile_commands 导出待开发 | 摘要已有标准选择信息；后续实际构建命令可追溯，IDE 能读取 `compile_commands.json` |
 | DOC-01 | P2 | 待开发 | 修正文档中独立构建目录与共享 build 政策的冲突 | [工程标准](CMAKE_PRESET_STANDARD.md) 第 5 节与第 12 节。以 [AGENTS.md](../AGENTS.md) 的共享 `build/` 为准；本轮只更新了 C++ 约定 |
@@ -845,7 +845,7 @@ C++ 标准政策的 30 项脚本检查（15 selections、4 parsers、11 rejected
 
 ### CFG-04 实施与验证
 
-2026-10-11 基于 CFG-03 提交 `35e6a4e73e` 实现，状态为 **已实现已构建**；维护者当前 macOS 双系统 bootstrap、两次配置及 CBS 无变化构建通过，本阶段随验收提交。目标是减少同一 CMake 进程的重复查询和解释器启动；下一次配置仍从当前环境重新读取。工程配置与构建继续由维护者执行。
+2026-10-11 基于 CFG-03 提交 `35e6a4e73e` 实现，状态为 **已实现已构建**；维护者当前 macOS 双系统 bootstrap、两次配置及 CBS 无变化构建通过，已提交为 `f981c115cf`。目标是减少同一 CMake 进程的重复查询和解释器启动；下一次配置仍从当前环境重新读取。工程配置与构建继续由维护者执行。
 
 - 新增共享 `ProcessProbe.cmake`，只用于编译器版本/GNU dumpversion、LLVM Homebrew prefix、xcrun 编译器位置及 Python 元数据等只读查询。GLOBAL 属性复用成功和失败的结果，不写 CMakeCache，不跨 bootstrap/configure 或 toolchain 子进程。命令及参数边界、cwd、timeout、相关 PATH/编译器/SDK/locale/Python 环境、可执行文件真实路径/大小/时间戳和显式探测脚本内容 hash 参与键；编译器优先级、家族检查与 `--fresh` 政策保持原状。
 - bootstrap 的 GAMBIT/CBS 使用同一 Python 元数据查询，分别判断开发库要求；只选 GAMBIT 不导入 CBS 的四个可选模块。provider 可用 `preset_probe_python_modules_<system>` 声明本轮模块组。`--list`、非法过滤与跨主机条目维持零环境探测。
@@ -900,12 +900,62 @@ cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-cfg04-build-2.log
 - 第 471–512 与 883–924 行每轮各 42 条 Built target 输出，均零对象编译、零链接、零外部 configure/build/install/record 和构建阶段代码生成。`check-rebuild-*` 仅完成轻量输入检查；Rivet/Contur 和 FastJet/Contrib 均复用已有产物。
 - h5py 所用 HDF5 2.0.0 与工程 HDF5 1.10.11 不匹配，保留原生相关功能禁用策略；这里的 2.0.0 是 HDF5 库版本。PyYAML/Cython/configobj/pandas/matplotlib 被找到，Rivet/Contur 保持 enabled。可选 scanner Python 模块/库与 WSTP libuuid 缺失、两处 pybind11 弃用提示，以及配置阶段的 `Updated ScannerBit/CMakeLists.txt`，均在上一份 CFG-03 日志中已存在；此次没有因此增加编译工作。
 
-核对已部署的十六个文件与通过脚本测试的版本完全一致，`git diff --check` 通过；没有执行工程配置、编译器或构建。当前环境验收通过，本阶段随验收提交。仅 GAMBIT/--list 的真实运行、真实包安装变动和其他平台按需补齐，不将夹具结果计为这些真实场景的验收。
+核对已部署的十六个文件与通过脚本测试的版本完全一致，`git diff --check` 通过；没有执行工程配置、编译器或构建。当前环境验收通过，已提交为 `f981c115cf`。仅 GAMBIT/--list 的真实运行、真实包安装变动和其他平台按需补齐，不将夹具结果计为这些真实场景的验收。
+
+### CFG-05 实施与验证
+
+2026-10-11 基于 CFG-04 提交 `f981c115cf` 实现，状态为 **已实现已构建**；维护者当前 macOS LLVM 首次迁移及第二轮无变化 CBS 构建通过，本阶段随本轮验收提交。实际工程配置、编译器探测及构建由维护者执行。
+
+- 只读核对当前生成文件：CBS_objects 的 SDK/minimum 由全局 flags 和 CMake 各加入一次，OpenMP 由全局 flags 和 imported target 各加入一次。缓存显示 `-fopenmp=libomp`，实际普通变量却使用 `-Xclang -fopenmp`。GNU Fortran 的 `CMAKE_Fortran_SYSROOT_FLAG` 和 `CMAKE_Fortran_OSX_DEPLOYMENT_TARGET_FLAG` 均为空，fortran/FarrayTest 对象编译没有公共 minimum，解释了此前对象 28.0 与链接 27.0 的警告。静态阅读本机 CMake 4.4.2 的 Apple-GNU-Fortran/Apple-GNU 模块确认：这两个选项由 GNU help 文本匹配决定，本轮没有执行该查询或编译器。
+- `OpenMP.cmake` 合并两个 Homebrew 检测入口，要求三种启用语言分别被 FindOpenMP 找到，移除盲目追加 Fortran `-fopenmp` 的回退。自动 C/C++ cache hints 与实际加入 native flags 的结果一致；精确匹配旧自动 bundle 时迁移一次，记录自有 hints，用户更改或其他手动 hints 保留。Fortran 仍使用其独立发现的 flags/runtime；原 Homebrew LLVM runtime 检查保留，并从选中的库派生 YODA 搜索/rpath。
+- 原生 C/C++ SDK/minimum 由 `CMAKE_OSX_*` 提供，不再手动加入全局 flags。GNU Fortran 仅对 CMake 未提供的两项分别补齐。公共最低版本仍只有 `MACOS_DEPLOYMENT_TARGET`；显式 compiler/linker flags 中的冲突 SDK/minimum 明确报错，允许相同版本写法及 SDK 软链接。保留 dynamic_lookup 与 SDK lib 搜索路径。
+- shell/Autotools 的 backend flags 和四种 C dialect flags 导出公共 SDK/minimum；手写共享链接命令改用派生 linker flags。七处外部 CMake recipe 使用公共 CMake 参数，去除额外的公共 flags，保留 package 标准、include、警告及其他链接选项；补齐 GreAT/Minuit2 的公共 deployment 参数。CalcHEP 沿用无 build-type 优化的 Fortran flags，避免顺带改变优化级别。
+- GAMBIT/CBS executable 使用 FindOpenMP 的显式 library list，避免再次继承 imported target 的编译选项；有旧 target/manual hint 的兼容分支仍保留。原生校验签名加入语言平台标志，CBS 摘要列出语言 OpenMP flags/libs 与公共 SDK/minimum。
+
+无构建验证：平台/OpenMP 18 组、SDK 10 组、validation cache 17 组、standalone objects 6 组、contrib retention 5 组、FastJet/Contrib identity 11 组、外部自动重建 11 组，共 **78 组**；C++ 政策另外 **30 项**通过。新增检查使用真实 CMake policy/helper 及 recipe 参数、模拟 FindOpenMP/只读 Homebrew 查询；验证旧缓存迁移、跨脚本进程自有 hint 更新、用户修改保留、两种 Clang profile、缺少语言失败、GNU Fortran fallback/平台已支持时不重复、空格路径、冲突 minimum/SDK 与七处外部参数。新增 Fortran 平台标志局部失效和 executable/object runtime 继承检查。夹具没有实际工具查询、工程配置或编译，不替代真实平台验收。
+
+手动验收保持当前 `cbs-llvm`、SDK 和依赖选项，**保留 build，不 clean，不 --fresh**。本阶段改变命令 flags，第一次可能较多重编译并迁移 FastJet/HepMC/Rivet 等外部包；validation 签名更新也可能使九项检查重跑一次。完成迁移后再判断增量稳定性。
+
+```sh
+cd /Users/p.zhu/Gambit-Workshop/worktree/cbs-presets
+set -o pipefail
+cmake --preset cbs-llvm 2>&1 | tee /tmp/cbs-cfg05-configure-1.log
+rg -n '^(MACOS_DEPLOYMENT_TARGET|CMAKE_OSX_SYSROOT|CMAKE_OSX_DEPLOYMENT_TARGET|OpenMP_(C|CXX|Fortran)_FLAGS):' build/CMakeCache.txt
+rg -n -- '-isysroot|-mmacosx-version-min|-fopenmp|libomp' build/CMakeFiles/CBS_objects.dir/flags.make build/Backends/CMakeFiles/fortran.dir/flags.make build/Backends/CMakeFiles/FarrayTest.dir/flags.make build/CMakeFiles/CBS.dir/link.txt
+cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-cfg05-build-1.log
+cmake --preset cbs-llvm 2>&1 | tee /tmp/cbs-cfg05-configure-2.log
+cmake --build build --target CBS -j8 2>&1 | tee /tmp/cbs-cfg05-build-2.log
+```
+
+当前环境期望 SDK/minimum 保持 27.0，工具链保持 LLVM 22.1.8/GNU Fortran 15.2.0，环境 READY。OpenMP cache 与摘要均为 `-Xclang -fopenmp` 加 libomp include；CBS_objects 的 OpenMP、SDK/minimum 各出现一次，CBS 链接仍有选中的 libomp。Fortran/FarrayTest 对象编译出现公共 `-mmacosx-version-min=27.0`，补齐 SDK 选项；首次重编后的本项目 Fortran 对象不应再报告以 28.0 构建。依赖库自身的 minimum 必须另行核对，不把该修复理解为重写已有第三方二进制。
+
+两轮 CBS 都应成功。第二轮签名稳定时不再重检原生校验，构建不应出现对象编译、链接或重复外部 configure/build/install/record。若首次迁移未完成，先处理具体错误再重复构建，不通过清空 build 隐藏原因。记录两轮日志及 flags/cache 输出；单次迁移耗时不计作正常 no-op。
+
+| 验收项 | 状态 | 说明 |
+| --- | --- | --- |
+| 78 组脚本夹具、C++ 30 项 | 已通过 | 模拟 package/tool 结果，无工程构建 |
+| 当前 macOS LLVM 的 flags/cache/摘要与 Fortran 对象 minimum | 已通过 | 缓存与摘要一致，native 参数各一份；两个 Fortran 对象、相应库及 CBS 的 Mach-O minimum 均为 27.0 |
+| 首次 CBS 迁移与第二轮无变化 configure/build | 已通过 | 两轮 CBS 成功，首次九项重检与外部迁移完成；第二轮零编译/链接/外部步骤 |
+| 真实 AppleClang/GNU 其他平台、手动 OpenMP 配置与其他 SDK | 按需补齐 | 夹具通过不计作真实构建通过 |
+
+#### CFG-05 当前 macOS LLVM 验收（2026-10-11）
+
+附件 `/Users/p.zhu/.codex/attachments/6dd59e0d-e531-48ab-ad60-5335f8153b97/Pasted text.txt` 共 3690 逻辑行（最后一行没有换行，wc 为 3689），依次为两次相同 `cbs-llvm` 配置和 CBS `-j8` 构建；第 3272 与 3690 行均成功完成 CBS。
+
+- 第 55 行只出现一次旧 Homebrew OpenMP hints 迁移；首轮第 65、290–297 行共九项 validation 输入刷新，全部 PASS/READY，第二轮没有 hints 迁移或 validation 刷新。C/C++ flags 为 `-Xclang -fopenmp` 加 libomp include，library 指向 Homebrew libomp；Fortran 保持 GNU `-fopenmp` / libgomp。SDK/minimum 仍 27.0、LLVM 22.1.8/GNU Fortran 15.2.0、C++17/ROOT 6.40.00、Python 3.13.13、ccache 4.13.6 与既有配置一致。
+- 首轮配置 9.2 秒、生成 0.6 秒；第二轮配置 6.1 秒、生成 0.6 秒。日志未给出总构建时间或 ccache 命中增量，不据此填写构建提速比例。
+- 第 395–3272 行完成命令迁移：362 条 CMake 对象构建输出，其中主工程/内嵌 contrib 342 条（C++ 339、Fortran 2、C 1），HepMC 外部 CMake 20 条；另有 Autotools 的编译输出，不包括在此计数内。共 19 条 ExternalProject configure/build/install 步骤，FastJet/Contrib 按新身份准备、重建并记录成功状态，HepMC/YODA/RestFrames、nulike/Rivet/Contur 的相关迁移完成。此轮为 flags 改变后的必要迁移。
+- 第 3649–3690 行恰好 42 条 Built target 输出，零对象编译、零链接、零外部 configure/build/install/record 或构建阶段代码生成；第二轮 FastJet/Contrib 与三项 source-state 检查稳定复用。
+- 只读核对当前 cache、native flags、CBS 链接及 HepMC 外部命令：OpenMP cache 与摘要/实际 flags 一致；CBS_objects、CBS link 和 HepMC 的 SDK/minimum/OpenMP 各为一份。HepMC recipe 的 flags 无手工 SDK/minimum，仍通过公共 CMAKE_OSX 参数取得相同 27.0 SDK/minimum。GNU Fortran 两个 CMake 平台标志仍为空，但对象与链接 flags 已各补齐公共选项。
+- 直接用 Python 标准库读取 Mach-O load commands，未调用编译器或系统工具：`libfortran.f90.o`、`libFarrayTest.f90.o`、对应的两份 `.so` 及 CBS 的 LC_BUILD_VERSION minimum 均为 27.0.0；链接产物 SDK 均为 27.0.0。日志已无对象 28.0 / 链接 27.0 警告，确认修复体现在真实产物中。
+- 仍有非阻断警告：pybind11/HepMC 的 CMake 弃用、HepMC 的 sprintf 弃用、已有 macOS 链接选项及重复 -ldl 提示；HepMC 两条 Ignoring extra path 在 CFG-02 的验收日志中已存在。第 1873–1876 行 Fortran 提示 FastJet include 暂不存在，发生在 FastJet 首次清理/安装期间；这两份示例源码不使用 FastJet 头，编译成功，迁移结束后两个 include 目录均已恢复。外部 Rivet Python 构建器合并多组 flags 时仍重复相同的 SDK/minimum，未出现冲突，未计作本阶段已消除的 native/CMake recipe 重复项。全局 include 范围和外部构建器参数清理可按后续优化项处理。
+
+十六个已部署文件与通过 78 组脚本夹具及 C++ 30 项的版本逐一一致；本轮仅更新验收台账，`git diff --check` 通过，没有代维护者运行 configure/build 或真实编译器探测。当前环境验收通过，本阶段随本轮提交；其他编译器 profile、平台、SDK 及真实手动 OpenMP 配置仍按需补齐。
 
 ## 下一轮实施与构建验收
 
 1. C++ 修改及 BUILD-01 已提交；当前 LLVM/ROOT 17 配置和 CBS 构建已有日志，继续按需补齐其他标准、冲突拒绝及运行场景。
-2. CFG-01 提交为 `cf10364f98`，11 组脚本夹具、当前 LLVM 显式/缓存配置及两次无变化 CBS 构建通过；真实 bootstrap、多版本及其他平台按需补齐。CFG-02 的 26 组脚本检查、当前 SDK 配置、外部迁移及两次无变化构建通过，已提交为 `4dad77208a`；其他 SDK/平台按需补齐。CFG-03 的 16 组缓存夹具、C++ 政策 30 项和当前环境首次/重复配置及两次 CBS 无变化构建通过，已提交为 `35e6a4e73e`；只清签名、真实依赖失败恢复和其他平台按需补齐。CFG-04 的 22 组无构建夹具、相关已有回归、当前 macOS 双系统 bootstrap、两次配置和 CBS 无变化构建通过，本阶段随验收提交；随后按台账继续 CFG-05 的 OpenMP/SDK/deployment flags。BUILD-01 的额外恢复场景按需补充。
+2. CFG-01 提交为 `cf10364f98`，11 组脚本夹具、当前 LLVM 显式/缓存配置及两次无变化 CBS 构建通过；真实 bootstrap、多版本及其他平台按需补齐。CFG-02 的 26 组脚本检查、当前 SDK 配置、外部迁移及两次无变化构建通过，已提交为 `4dad77208a`；其他 SDK/平台按需补齐。CFG-03 的 16 组缓存夹具、C++ 政策 30 项和当前环境首次/重复配置及两次 CBS 无变化构建通过，已提交为 `35e6a4e73e`；只清签名、真实依赖失败恢复和其他平台按需补齐。CFG-04 的 22 组无构建夹具、相关已有回归、当前 macOS 双系统 bootstrap、两次配置和 CBS 无变化构建通过，已提交为 `f981c115cf`；CFG-05 的 78 组脚本夹具与 C++ 30 项、当前 macOS LLVM flags/cache/实际 Mach-O minimum、首次迁移及第二轮 CBS 无变化构建通过，本阶段随本轮验收提交；其他 SDK/profile/平台按需补齐。BUILD-01 的额外恢复场景按需补充。
 3. BUILD-03 已提交为 `0965735828`；按需补齐命中增量和 OFF/AUTO 实测。BUILD-04 已提交为 `1d46bf0439`，HepMC/YODA 场景按需补齐；BUILD-05 首次迁移及相同配置复用已通过并提交为 `09929f07fb`；BUILD-07 首次记录、直接重复构建及相同配置后复用已通过并提交为 `0c3ea3e566`；时间戳对照、源码 touch 和其他平台按需补齐。BUILD-06 Ninja 适配仍作为 P3 后续评估。
 4. BUILD-02 独立对象构建、完整链接及无变化主工程构建已通过；继续补齐并行重叠与单点运行，以同环境基准量化收益，结合 BUILD-07 的验收日志测量外部步骤重复开销。
 5. BUILD-08 RestFrames 阶段已完成 include/配置头范围收敛；preload 漏查已修复，维护者首次迁移、恢复 ON 六个对象及最后无变化构建通过，已提交为 `eb03406a7c`。后续按需补齐迁移后独立 OFF、时间戳及其他平台，再处理其他依赖与配置发现项；Ninja 仍作为后续评估。
@@ -976,4 +1026,6 @@ cmake --build --preset cbs-llvm --parallel 8
 | 2026-10-11 | 审阅 CFG-03 首次/重复配置及两次 CBS 构建日志：首轮恰好九项重检，第二轮复用，均 PASS/READY；两次构建零编译/链接/外部步骤；16 组缓存夹具、C++ 政策 30 项及真实 cache/probe 只读核对通过，本阶段随验收提交，其他场景按需补齐 |
 | 2026-10-11 | CFG-03 已提交为 `35e6a4e73e`；实现 CFG-04 同轮只读查询复用和 Python 模块批量导入；22 组新夹具、11 组编译器选择、5 组 contrib 保留及 11 组外部自动重建检查通过；真实 bootstrap/配置/CBS 增量验收待维护者执行，尚未提交 |
 | 2026-10-11 | 审阅 CFG-04 的 924 行日志：双系统 bootstrap 四项 AVAILABLE、两项 OTHER HOST；两次配置 5.3/4.3 秒、生成 0.6/0.4 秒，原生检查 PASS/READY 且未刷新；两次 CBS 各 42 条目标完成输出，零编译/链接/外部步骤；旧 h5py/HDF5 不匹配及可选模块/弃用提示沿用；状态改为已实现已构建，尚未提交 |
-| 2026-10-11 | 维护者授权提交已验收的 CFG-04；提交仅包含本阶段十六个源码、夹具与文档文件，其他未跟踪文件保留；随后开始 CFG-05 |
+| 2026-10-11 | 维护者授权提交已验收的 CFG-04，提交为 `f981c115cf`；仅包含本阶段十六个源码、夹具与文档文件，其他未跟踪文件保留；随后开始 CFG-05 |
+| 2026-10-11 | CFG-05 统一 OpenMP 自动 hints 与 native flags，原生 C/C++ 去除重复 SDK/minimum，GNU Fortran 补齐未探测选项，外部 shell/CMake flags 由公共政策派生；78 组夹具与 C++ 30 项通过，实际首次迁移及无变化 CBS 构建待维护者验收，尚未提交 |
+| 2026-10-11 | 审阅 CFG-05 的 3690 行日志：两轮 CBS 成功，首次九项重检及 native/外部 flags 迁移完成；第二轮 42 条目标输出、零编译/链接/外部步骤；cache 与生成 flags 一致，两个 Fortran 对象/库及 CBS 的 Mach-O minimum 均为 27.0；状态改为已实现已构建，本阶段随本轮验收提交 |

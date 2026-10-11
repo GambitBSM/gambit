@@ -164,6 +164,46 @@ python3 cmake/tests/macos_sdk.py
 See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#cfg-02-实施与验证)
 for current-SDK verification and remaining platform checks.
 
+## OpenMP and macOS compiler flags
+
+Native C/C++ compilation gets SDK and minimum-version options from
+`CMAKE_OSX_SYSROOT` and `CMAKE_OSX_DEPLOYMENT_TARGET`; GAMBIT no longer appends
+another copy to global compiler/linker flags. `MACOS_DEPLOYMENT_TARGET` remains
+the common minimum policy. GNU Fortran receives an explicit fallback for each
+option that CMake's platform detection omitted. Conflicting explicit `-isysroot`
+or `-mmacosx-version-min` flags fail with guidance to use the common variables.
+
+Autotools and handwritten Makefiles receive the same SDK/minimum through derived
+backend flags, including the C dialect variants. CMake external recipes use the
+common `CMAKE_OSX_*` arguments and omit these extra flags while retaining their
+package-specific standard, includes, warnings and linker options.
+
+One shared OpenMP discovery now requires C, C++ and Fortran support. On macOS,
+Clang/AppleClang use Homebrew libomp hints when available; the automatic cache
+values match the flags actually appended to native compilation. Executables link
+the discovered library list, avoiding another copy of imported OpenMP compile
+options. Fortran keeps its own discovered runtime. The CBS summary reports each
+language's OpenMP flags/libraries and the common SDK/minimum.
+
+Only GAMBIT-owned hints are refreshed automatically; editing such a cache value
+makes it user-owned. The exact legacy Homebrew hint bundle is migrated once.
+Other manual OpenMP hints are preserved and still must describe a usable setup.
+This does not force the complete computed `CMAKE_<lang>_FLAGS` into the cache;
+CMake's cache entries remain user inputs to the normal configure-time flags.
+
+For the same compiler profile and SDK, keep `build/` and configure normally.
+The first migration changes compilation and external recipe inputs, so rebuilding
+native objects and some dependencies is expected. After it completes, repeat the
+same configure/build to check stable reuse. Compiler-family switches still need
+`--fresh`. Script-only policy checks use synthetic process/package results:
+
+```sh
+python3 cmake/tests/platform_flags.py
+```
+
+See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#cfg-05-实施与验证)
+for manual flags inspection and two-round CBS validation.
+
 ## Validation check caches
 
 CBS keeps C/C++/Fortran, macOS linker and Python/Boost/HDF5/SQLite compile/link

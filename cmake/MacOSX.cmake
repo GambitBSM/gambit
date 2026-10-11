@@ -113,71 +113,106 @@ function(gambit_initialise_macos_deployment_target)
   message(STATUS "macOS deployment target: ${MACOS_DEPLOYMENT_TARGET}")
 endfunction()
 
+# Append one complete option group without changing user-provided flags.
+function(gambit_append_flags_once variable flags)
+  set(_value "${${variable}}")
+  if(NOT "${flags}" STREQUAL "")
+    string(FIND " ${_value} " " ${flags} " _position)
+    if(_position EQUAL -1)
+      string(APPEND _value " ${flags}")
+    endif()
+  endif()
+  string(STRIP "${_value}" _value)
+  set(${variable} "${_value}" PARENT_SCOPE)
+endfunction()
+
+# Reject a second SDK/minimum policy hidden in explicit compiler/linker flags.
+# Parse arguments as data; do not execute or rewrite unrelated user options.
+function(gambit_validate_macos_flags flags)
+  separate_arguments(_options UNIX_COMMAND "${flags}")
+  set(_next_is_sdk FALSE)
+  foreach(_option IN LISTS _options)
+    set(_sdk "")
+    if(_next_is_sdk)
+      set(_sdk "${_option}")
+      set(_next_is_sdk FALSE)
+    elseif(_option STREQUAL "-isysroot")
+      set(_next_is_sdk TRUE)
+    elseif(_option MATCHES "^-isysroot(.+)$")
+      set(_sdk "${CMAKE_MATCH_1}")
+    elseif(_option MATCHES "^-mmacosx-version-min=(.+)$")
+      if(NOT "${CMAKE_MATCH_1}" VERSION_EQUAL "${MACOS_DEPLOYMENT_TARGET}")
+        message(FATAL_ERROR "Conflicting macOS minimum in flags: '${_option}'. Use -DMACOS_DEPLOYMENT_TARGET=${MACOS_DEPLOYMENT_TARGET} as the common policy and remove this flag.")
+      endif()
+    endif()
+    if(NOT _sdk STREQUAL "")
+      get_filename_component(_sdk_real "${_sdk}" REALPATH)
+      get_filename_component(_common_real "${CMAKE_OSX_SYSROOT}" REALPATH)
+      if(NOT _sdk_real STREQUAL _common_real)
+        message(FATAL_ERROR "Conflicting macOS SDK in flags: '${_sdk}'. Select the common SDK with -DCMAKE_OSX_SYSROOT and remove this flag.")
+      endif()
+    endif()
+  endforeach()
+  if(_next_is_sdk)
+    message(FATAL_ERROR "Missing SDK path after -isysroot in flags. Use -DCMAKE_OSX_SYSROOT instead.")
+  endif()
+endfunction()
+
+# Export platform options to shell/Autotools commands; native CMake commands
+# obtain C/C++ SDK/minimum options from CMAKE_OSX_* instead.
+function(gambit_macos_external_flags input output)
+  set(_flags "${input}")
+  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    gambit_append_flags_once(_flags "-isysroot${_GAMBIT_MACOS_SYSROOT_FLAGS_PATH}")
+    gambit_append_flags_once(_flags "${OSX_MIN}")
+  endif()
+  set(${output} "${_flags}" PARENT_SCOPE)
+endfunction()
+
+# CMake-based external projects receive CMAKE_OSX_* arguments. Drop only the
+# matching common SDK/minimum options; preserve package-specific compiler flags.
+function(gambit_macos_cmake_external_flags input output)
+  set(_flags "${input}")
+  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    foreach(_option "-isysroot${_GAMBIT_MACOS_SYSROOT_FLAGS_PATH}" "${OSX_MIN}")
+      string(REPLACE " ${_option} " " " _flags " ${_flags} ")
+      string(STRIP "${_flags}" _flags)
+    endforeach()
+  endif()
+  set(${output} "${_flags}" PARENT_SCOPE)
+endfunction()
+
 if(DEFINED PROJECT_NAME AND CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  # Tell the OSX linker not to whinge about missing symbols when just making a library.
-  # Use the single-token -Wl, spelling: AppleClang and LLVM clang both accept it,
-  # and tools that sort linker flags token-by-token (e.g. rivet-build) cannot
-  # split it.  Equivalent to ld64's "-undefined dynamic_lookup".
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined,dynamic_lookup")
-  # Strip leading whitespace in case this was first definition of CMAKE_SHARED_LINKER_FLAGS
-  string(STRIP ${CMAKE_SHARED_LINKER_FLAGS} CMAKE_SHARED_LINKER_FLAGS)
-  # Pass the same sysroot and deployment target to Autotools and hand-written
-  # backend commands. CMake-native external projects receive the CMake argument
-  # below, so they use the same Darwin platform settings as GAMBIT itself.
+  set(_gambit_flag_configs DEBUG RELEASE RELWITHDEBINFO MINSIZEREL ${CMAKE_BUILD_TYPE} ${CMAKE_CONFIGURATION_TYPES})
+  list(REMOVE_DUPLICATES _gambit_flag_configs)
+  foreach(_kind C CXX Fortran EXE_LINKER SHARED_LINKER MODULE_LINKER)
+    gambit_validate_macos_flags("${CMAKE_${_kind}_FLAGS}")
+    foreach(_config IN LISTS _gambit_flag_configs)
+      string(TOUPPER "${_config}" _config)
+      gambit_validate_macos_flags("${CMAKE_${_kind}_FLAGS_${_config}}")
+    endforeach()
+  endforeach()
+  gambit_append_flags_once(CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined,dynamic_lookup")
   set(OSX_MIN "-mmacosx-version-min=${MACOS_DEPLOYMENT_TARGET}")
   message(STATUS "Using this macOS SDK ${CMAKE_OSX_SYSROOT}")
-  # Preserve existing flags for ordinary SDK paths; quote paths with spaces
-  # for the shell commands used by Autotools and hand-written backends.
   set(_GAMBIT_MACOS_SYSROOT_FLAGS_PATH "${CMAKE_OSX_SYSROOT}")
   if(_GAMBIT_MACOS_SYSROOT_FLAGS_PATH MATCHES "[ \t]")
     set(_GAMBIT_MACOS_SYSROOT_FLAGS_PATH "\"${CMAKE_OSX_SYSROOT}\"")
   endif()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isysroot${_GAMBIT_MACOS_SYSROOT_FLAGS_PATH} ${OSX_MIN}")
-  string(STRIP ${CMAKE_CXX_FLAGS} CMAKE_CXX_FLAGS)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -isysroot${_GAMBIT_MACOS_SYSROOT_FLAGS_PATH} ${OSX_MIN}")
-  string(STRIP ${CMAKE_C_FLAGS} CMAKE_C_FLAGS)
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -isysroot${_GAMBIT_MACOS_SYSROOT_FLAGS_PATH} -L${_GAMBIT_MACOS_SYSROOT_FLAGS_PATH}/usr/lib ${OSX_MIN}")
-  string(STRIP ${CMAKE_SHARED_LINKER_FLAGS} CMAKE_SHARED_LINKER_FLAGS)
+  gambit_append_flags_once(CMAKE_SHARED_LINKER_FLAGS "-L${_GAMBIT_MACOS_SYSROOT_FLAGS_PATH}/usr/lib")
+  # CMake's GNU help-text detection can miss these options for gfortran.
+  # Supply the common policy only when CMake is not supplying it itself.
+  if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+    if(NOT CMAKE_Fortran_SYSROOT_FLAG)
+      gambit_append_flags_once(CMAKE_Fortran_FLAGS "-isysroot${_GAMBIT_MACOS_SYSROOT_FLAGS_PATH}")
+    endif()
+    if(NOT CMAKE_Fortran_OSX_DEPLOYMENT_TARGET_FLAG)
+      gambit_append_flags_once(CMAKE_Fortran_FLAGS "${OSX_MIN}")
+    endif()
+  endif()
   set(GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG
       "-DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOS_DEPLOYMENT_TARGET}")
   set(GAMBIT_MACOS_CMAKE_SYSROOT_ARG "-DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}")
-endif()
-
-# Detect Homebrew libomp for macOS LLVM builds.
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  find_program(_GAMBIT_BREW_EXECUTABLE NAMES brew)
-  if(_GAMBIT_BREW_EXECUTABLE)
-    execute_process(
-      COMMAND "${_GAMBIT_BREW_EXECUTABLE}" --prefix llvm
-      RESULT_VARIABLE _GAMBIT_BREW_LLVM_RESULT
-      OUTPUT_VARIABLE _GAMBIT_BREW_LLVM_PREFIX
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
-    )
-    execute_process(
-      COMMAND "${_GAMBIT_BREW_EXECUTABLE}" --prefix libomp
-      RESULT_VARIABLE _GAMBIT_BREW_LIBOMP_RESULT
-      OUTPUT_VARIABLE BREW_LIBOMP_PREFIX
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
-    )
-    if(_GAMBIT_BREW_LLVM_RESULT EQUAL 0 AND _GAMBIT_BREW_LIBOMP_RESULT EQUAL 0)
-      get_filename_component(_GAMBIT_CXX_COMPILER_REALPATH "${CMAKE_CXX_COMPILER}" REALPATH)
-      get_filename_component(_GAMBIT_BREW_LLVM_CXX_REALPATH "${_GAMBIT_BREW_LLVM_PREFIX}/bin/clang++" REALPATH)
-      if("${_GAMBIT_CXX_COMPILER_REALPATH}" STREQUAL "${_GAMBIT_BREW_LLVM_CXX_REALPATH}"
-         AND EXISTS "${BREW_LIBOMP_PREFIX}/lib/libomp.dylib")
-        set(OpenMP_C_FLAGS "-fopenmp=libomp -I${BREW_LIBOMP_PREFIX}/include" CACHE STRING "C compiler flags for OpenMP parallelization" FORCE)
-        set(OpenMP_CXX_FLAGS "-fopenmp=libomp -I${BREW_LIBOMP_PREFIX}/include" CACHE STRING "CXX compiler flags for OpenMP parallelization" FORCE)
-        set(OpenMP_C_LIB_NAMES "omp" CACHE STRING "C compiler libraries for OpenMP parallelization" FORCE)
-        set(OpenMP_CXX_LIB_NAMES "omp" CACHE STRING "CXX compiler libraries for OpenMP parallelization" FORCE)
-        set(OpenMP_omp_LIBRARY "${BREW_LIBOMP_PREFIX}/lib/libomp.dylib" CACHE FILEPATH "Path to the omp library for OpenMP" FORCE)
-        set(GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP_LDFLAGS "-L${BREW_LIBOMP_PREFIX}/lib -Wl,-rpath,${BREW_LIBOMP_PREFIX}/lib")
-        set(GAMBIT_MACOS_HOMEBREW_LLVM_OPENMP TRUE)
-        include_directories("${BREW_LIBOMP_PREFIX}/include")
-        message(STATUS "Using Homebrew libomp for Homebrew LLVM from ${BREW_LIBOMP_PREFIX}")
-      endif()
-    endif()
-  endif()
 endif()
 
 # ld64 chained-fixup workaround; AppleClang and upstream LLVM share this linker.

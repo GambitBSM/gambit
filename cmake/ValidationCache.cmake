@@ -53,6 +53,7 @@ function(gambit_check_signature output language source)
     CMAKE_${language}_COMPILER_EXTERNAL_TOOLCHAIN CMAKE_${language}_COMPILER_ARG1
     CMAKE_${language}_COMPILER_LAUNCHER CMAKE_${language}_LINKER_LAUNCHER
     CMAKE_${language}_FLAGS
+    CMAKE_${language}_SYSROOT_FLAG CMAKE_${language}_OSX_DEPLOYMENT_TARGET_FLAG
     CMAKE_${language}_STANDARD CMAKE_${language}_STANDARD_REQUIRED
     CMAKE_${language}_EXTENSIONS CMAKE_${language}_LINKER_FLAGS
     CMAKE_${language}_LINK_FLAGS
