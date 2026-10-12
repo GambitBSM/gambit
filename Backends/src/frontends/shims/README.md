@@ -133,3 +133,189 @@ nothing else was deleted).
 
 See `Backends/scripts/ShimGenerator/` for a generalised, step-by-step guide
 to producing the equivalent of this for other BOSSed backends.
+
+## Pythia shim: a second, much less favourable, example
+
+`pythia_shim.cpp` and the prototype frontend header
+`Backends/include/gambit/Backends/frontends/shims/Pythia_8_312_shim.hpp`
+apply the same idea to the Pythia 8.312 backend. **PROTOTYPE / NOT WIRED
+INTO THE BUILD** -- unlike the Rivet shim, no `cmake/backends.cmake` or
+`config/backend_locations.yaml.default` change has been made for Pythia;
+see Step 7 of the `ShimGenerator` README for why that's deliberately a
+separate decision.
+
+### Why this backend is a worse fit for the pattern than Rivet
+
+Rivet's BOSS config wraps ~1 class, used in ColliderBit through a handful
+of methods on one long-lived `AnalysisHandler` object. Pythia's BOSS
+config (`Backends/scripts/BOSS/configs/pythia_8_312.py`) lists ~30
+classes, and reading the actual call sites
+(`ColliderBit/include/gambit/ColliderBit/colliders/Pythia8/Py8Collider.hpp`,
+`Py8Utils.hpp`, `Py8EventConversions.hpp`,
+`generateEventPy8Collider.hpp`) shows why: GAMBIT doesn't just call
+methods on one `Pythia` object, it reads several of its **public data
+members** directly (`_pythiaBase->settings`,
+`_pythiaInstance->particleData`, `_pythiaInstance->event`,
+`_pythiaInstance->info`, `_pythiaInstance->slhaInterface.slha`), and uses
+`Pythia8::Event`/`Particle`/`Vec4` as real, by-value types all over
+ColliderBit's event-conversion code (walking the event record,
+re-reading momenta, copy-assigning whole events), not just handing one
+opaque object to a single consumer. That is exactly the "poor candidate"
+signature flagged in the `ShimGenerator` README's Step 2 and final
+checklist item -- it was still done here (nine small wrapper classes,
+~35 flat functions, versus Rivet's one class and ~14), but it's a
+meaningfully bigger and more fragile surface than Rivet's, and a real
+decision-maker should weigh that against just leaving BOSS in place for
+this backend.
+
+### What was found, method by method
+
+The only GAMBIT module code that touches Pythia8 types directly is
+`ColliderBit`'s Pythia8 collider path. Grepping it (Step 1) and reading
+every call site gave this list, which `pythia_shim.cpp` implements:
+
+- **`Pythia8::Pythia`**: both real constructors used in practice (xmldoc
+  path; shared `Settings`+`ParticleData`), `readString`, `init`, `next`,
+  `getSigmaMaxSum`, plus accessors for each public data member actually
+  read (`settings`, `particleData`, `event`, `info`,
+  `slhaInterface.slha`). `initSLHA` is explicitly `ditch`ed in the BOSS
+  config and was skipped here too.
+- **`Pythia8::Event`**: `clear`, `size`, `operator[]`, `daughterList(int)`
+  (distinct from `Particle::daughterList()` below -- same method name,
+  different class, different meaning: don't conflate them), and the one
+  `list(...)` overload actually called (4-argument,
+  `showScaleAndVertex, showMothersAndDaughters, precision, ostream&`,
+  used only to dump a failed event to the debug log).
+- **`Pythia8::Particle`**: `id`, `isFinal`, `isParton`, `isHadron`,
+  `motherList`, `daughterList`, `p()` (see Vec4 below).
+- **`Pythia8::Vec4`**: only ever immediately decomposed into
+  `px/py/pz/e/mCalc()` by
+  `ColliderBit/colliders/Pythia8/Py8Utils.hpp`'s `mk_p4`/`mk_pseudojet` --
+  never stored, passed around, or operated on as a `Vec4` itself.
+- **`Pythia8::Info`**: `sigmaGen`/`sigmaGen(int)`, `sigmaErr`/`sigmaErr(int)`,
+  `code`, `codesHard`.
+- **`Pythia8::SusyLesHouches`** (reached only via
+  `Pythia::slhaInterface.slha`): `setSLHAea`.
+- **`Pythia8::Settings`, `Pythia8::ParticleData`**: never dereferenced for
+  any method anywhere in GAMBIT -- only ever read off one `Pythia`
+  instance and passed straight into another one's constructor. These
+  needed no methods at all, just an opaque pass-through handle (see
+  "new challenges" below).
+- **`Pythia8::GAMBIT_hepmc_writer`**: a GAMBIT-authored class, not part
+  of Pythia's real API -- it's patched into Pythia's own installed
+  `include/Pythia8/` directory by
+  `Backends/patches/pythia/8.312/patch_pythia_8.312.dif` (same mechanism
+  flagged for Rivet in Step 6.5), and was already in the BOSS config's
+  `load_classes`. `init`, `write_event_HepMC2`, `write_event_HepMC3`,
+  `convert_to_HepMC_event` are the only methods called
+  (`generateEventPy8Collider.hpp`).
+- **`Pythia8::UserHooks`**: in the BOSS `load_classes` list, and
+  `Py8Collider.hpp`/`SetHooksClass.hpp` have templated plumbing for a
+  `SetHooks<PythiaT, EventT>::SetupHook()` that would use it -- but the
+  only `SetHooks` specialisation actually present in this tree is the
+  generic template, which unconditionally returns `false` without
+  touching `UserHooks` at all. No real subclass exists anywhere in
+  `ColliderBit/`, so (per Step 1's "check every call site is actually
+  reachable" warning) this was left out entirely, the same way Rivet's
+  dead `COLLIDERBIT_DEBUG` block was.
+- Every other class in the BOSS config's `load_classes`
+  (`AlphaEM`, `AlphaStrong`, `BeamParticle`, `Couplings`, `CoupSM`,
+  `CoupSUSY`, `DecayChannel`, `Hist`, `LHdecayChannel`, `LHdecayTable`,
+  `Logger`, `Parm`, `ParticleDataEntry`, `ParticleDecays`,
+  `PartonLevel`, `ResonanceDecays`, `ResonanceGmZ`, `ResonanceWidths`,
+  `Rndm`, `SigmaProcess`, `SigmaTotal`, `SlowJet`) has **zero** hits
+  anywhere under `ColliderBit/` outside the BOSS-generated frontend
+  itself -- BOSS's `load_classes` is substantially broader than what's
+  actually used today, exactly as the generator README's Step 1 warns.
+
+### New challenges found here, not covered by the Rivet writeup
+
+These are now also folded into `Backends/scripts/ShimGenerator/README.md`:
+
+1. **Public data members, not just methods, can cross the boundary.**
+   Rivet's `AnalysisHandler` is used purely through method calls; Pythia's
+   is used partly through plain field reads (`pythia.settings`,
+   `pythia.event`, ...). A flat shim can't expose a data member directly
+   -- each one needs its own `pythia_get_<member>()` accessor, and the
+   GAMBIT-side wrapper class needs to call that accessor once (typically
+   at construction) and store the result as a public member of its own,
+   so that `instance.member` still works unchanged at call sites.
+2. **Opaque handles sometimes need zero methods.** `Settings` and
+   `ParticleData` are read off one `Pythia` instance and passed straight
+   into another's constructor -- nothing in GAMBIT ever calls a method on
+   them. Don't reflexively wrap methods nobody uses just because BOSS's
+   `load_classes` mentions the class; here the entire "wrapper" is a
+   `void*` with a type name on it.
+3. **Some backend types need real value semantics, not just a handle.**
+   `Event` is default-constructed, cleared, and copy-assigned by GAMBIT
+   module code as an ordinary C++ value. The shim can't give the wrapper
+   class free value semantics the way the real backend's own C++ class
+   does -- it needs explicit `create`/`destroy`/`assign` entry points, and
+   the GAMBIT-side wrapper must implement its own copy constructor and
+   `operator=` by calling the `assign` entry point, rather than relying
+   on a compiler-generated member-wise copy (which would just copy the
+   `void*` handle, aliasing two "different" Events onto the same backend
+   object).
+4. **The same wrapper class can be owning or non-owning depending on
+   where it came from.** A freshly-`new`'d `Event` (via the wrapper's
+   default constructor) owns its handle and must destroy it; an `Event`
+   reached via `Pythia::event` is a reference into the real `Pythia`
+   object's own storage, and destroying it would be a double-free when
+   the real `Pythia` is later destroyed. The wrapper class needs an
+   internal owns-this-handle flag (or an equivalent private
+   non-owning-constructor tag) to tell the two cases apart; it is not
+   safe to assume every instance of a wrapper class should delete its
+   handle in its destructor.
+5. **Flatten a backend-internal compound return type when only its
+   fields are read.** `Particle::p()` returns a `Vec4`; nothing in
+   GAMBIT ever stores or operates on that `Vec4` except immediately
+   reading `px/py/pz/e/mCalc()` off it. Rather than giving `Vec4` its own
+   handle type and four more `BE_FUNCTION`s, the shim flattens it into a
+   single call returning the four plain doubles (plus one more for
+   `mCalc()`, which needs the real backend's own Vec4 arithmetic rather
+   than a raw field read), and the GAMBIT-side `Vec4` wrapper is a
+   trivial, header-only value type built from those doubles -- no
+   `BE_FUNCTION` round-trip needed to read it back. This is worth
+   checking for *any* method that returns a backend-internal compound
+   type: if nothing downstream keeps the object around or mutates it,
+   flattening beats adding another handle-based wrapper class.
+6. **Watch for same-named methods on different classes at different
+   scopes.** Both `Pythia8::Event::daughterList(int)` and
+   `Pythia8::Particle::daughterList()` exist, with different meanings
+   (the former walks the event record from an index; the latter reads
+   one particle's own recorded daughters). Getting the call site's
+   receiver type right matters when naming/implementing the
+   corresponding shim functions -- `pythia_event_daughter_list` and
+   `pythia_particle_daughter_list` are deliberately not merged or
+   confused with one another despite the near-identical real API names.
+7. **A backend's own patched-in, GAMBIT-authored classes are in scope
+   too, and may be easy to miss.** `GAMBIT_hepmc_writer` isn't part of
+   Pythia's real API at all -- it's a GAMBIT-authored header injected into
+   Pythia's own install tree by the backend's patch file (same mechanism
+   flagged in Step 6.5 for BOSS-generated `.cc` files, but here the
+   injected file is itself hand-written C++ GAMBIT wants to keep calling,
+   not a BOSS artifact to strip out). Check the BOSS config's
+   `load_classes` for class names that don't appear in the backend's own
+   upstream source at all -- that's the signal to go look at the patch
+   file for where they come from, since they need to stay in the shim's
+   scope exactly like any other wrapped class.
+
+### What was *not* verified
+
+Same caveats as the Rivet shim, and then some: this environment has
+neither a Pythia install nor network access, and (unlike Rivet) no other
+local checkout on this machine had Pythia 8.312 already built, so
+`pythia_shim.cpp` has **not** been compiled against real Pythia8 headers
+at all. Every method name, signature, and constness used here was taken
+from the BOSS-generated wrapper/abstract header pairs already checked
+into this tree under
+`Backends/include/gambit/Backends/backend_types/Pythia_8_312/` (e.g.
+`wrapper_Pythia_decl.h`, `wrapper_Event_decl.h`, `wrapper_Particle_decl.h`,
+`wrapper_Vec4_decl.h`, `wrapper_Info_decl.h`,
+`wrapper_GAMBIT_hepmc_writer_decl.h`) -- themselves the output of a real
+castxml run against the real headers at some point in the past, so this
+is a better starting point than guessing from documentation, but it is
+**not** the same as compiling against the real thing the way the Rivet
+shim was. Treat every signature here as unverified until it's actually
+compiled against Pythia 8.312's real headers, exactly as Step 6
+recommends.

@@ -69,7 +69,24 @@ Also check the existing BOSS config
 `load_functions`, and `ditch` — this tells you what BOSS was asked to wrap
 and what it was told to skip, which is a useful cross-check but **not** a
 substitute for grepping actual call sites: BOSS's `load_classes` may be
-broader than what's actually used today.
+broader than what's actually used today (for Pythia, 22 of ~31 listed
+classes had zero hits anywhere in `ColliderBit/` outside the BOSS-generated
+frontend itself).
+
+Watch for two different classes exposing a method with the *same name* but
+different meaning (Pythia's `Event::daughterList(int)`, which walks the
+event record from an index, versus `Particle::daughterList()`, which reads
+one particle's own recorded daughters) — get the call site's receiver type
+right before naming/implementing the corresponding shim functions, and
+don't let the matching names tempt you into merging them.
+
+Also check whether any class in `load_classes` doesn't actually appear in
+the backend's own upstream source at all — that's a sign it's a
+GAMBIT-authored type injected into the backend's own install tree by that
+backend's patch file (see Step 6.5), not part of the real API. It still
+needs to stay in the shim's scope exactly like any other wrapped class
+(Pythia's `GAMBIT_hepmc_writer` is one of these), it's just easy to miss
+because grepping the real backend's headers for it won't find anything.
 
 ## Step 2 — Note everything that crosses the boundary that isn't a plain type
 
@@ -89,11 +106,63 @@ For each call you found, identify arguments/return values that aren't
   a value GAMBIT owns), decide who is responsible for its lifetime and make
   that explicit in the shim, rather than relying on implicit C++ RAII the
   way the BOSS-generated wrapper does.
+- **Public data members, not just methods.** Some backend classes are used
+  through plain field reads at the call site (`pythia.settings`,
+  `pythia.event`, not `pythia.getSettings()`) rather than exclusively
+  through methods — this showed up for Pythia's `Pythia8::Pythia` class,
+  not for Rivet's `AnalysisHandler`, which is purely method-based. A field
+  read needs its own `<backend>_get_<member>()` accessor function exactly
+  like a method call would, and the GAMBIT-side wrapper class needs to call
+  it (typically once, at construction) and store the result as a public
+  member of its own so the call site's field-access syntax still works
+  unchanged.
+- **Opaque handles that need zero methods.** Not everything that crosses
+  the boundary needs its own set of wrapped methods — some types (Pythia's
+  `Settings`/`ParticleData`, read off one object and passed straight into
+  another's constructor) are never otherwise dereferenced anywhere in
+  GAMBIT. Check actual call sites before wrapping methods on a class just
+  because BOSS's `load_classes` mentions it; sometimes a bare `void*` with
+  a type name on it is the whole "wrapper."
+- **Types that need real value semantics, not just a handle.** If module
+  code default-constructs, copies, or assigns a backend type as an ordinary
+  C++ value (Pythia's `Event`, cleared and copy-assigned every event in
+  `Py8Collider.hpp`), a flat shim can't give the GAMBIT-side wrapper free
+  value semantics the way the real backend's C++ class does. You need
+  explicit `create`/`destroy`/`assign` shim functions, and the wrapper
+  class must implement its own copy constructor and `operator=` by calling
+  `assign` — a compiler-generated member-wise copy would just copy the
+  `void*` handle, silently aliasing two "different" objects onto the same
+  underlying backend object.
+- **The same wrapper class needing both owning and non-owning instances.**
+  Following directly from the previous point: a freshly-constructed `Event`
+  owns its handle and must free it in its destructor, but an `Event`
+  reached by reading a field off a live `Pythia` object (`pythia.event`) is
+  a reference into that object's own storage, and freeing it would double-
+  free when the real object is destroyed later. Give the wrapper class an
+  internal owns-this-handle flag (or a private non-owning-constructor tag)
+  rather than assuming every instance should free its handle.
+- **Backend-internal compound return types that are only ever immediately
+  decomposed.** If a method returns a small backend-internal type (Pythia's
+  `Vec4`, returned by `Particle::p()`) and nothing downstream stores or
+  mutates that returned object — it's just read field-by-field once and
+  discarded — flatten it into a single call returning its plain-typed
+  fields, and make the GAMBIT-side equivalent a trivial, header-only value
+  type built from them. That avoids giving it its own handle type and a
+  full set of `BE_FUNCTION`s for something that was never actually used as
+  an object in its own right. Check whether this applies before adding a
+  new wrapper class for every compound type you see in a signature.
 
 If what you find here is extensive — if most of what crosses the boundary
 is complex, backend-internal types with unclear ownership — that's a signal
 this particular backend is a poor candidate for a shim; BOSS's full
-auto-wrapping may genuinely be less work for that one.
+auto-wrapping may genuinely be less work for that one. A backend whose
+module call sites read several of its public data members directly and use
+its secondary types (events, particles, ...) as real values all over
+downstream code, rather than funnelling everything through a handful of
+methods on one object, is a weaker candidate even if a shim can still be
+made to work for it — expect noticeably more wrapper classes than a
+single-handler backend like Rivet, and say so explicitly when reporting the
+result (see Step 7).
 
 ## Step 3 — Write the shim `.cpp`
 
