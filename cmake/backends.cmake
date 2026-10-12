@@ -1276,7 +1276,29 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" lib/${lib}.so
     INSTALL_COMMAND ""
   )
-  BOSS_backend(${name} ${ver} ${BOSS_suffix})
+
+  # Pythia's frontend is hand-written (Backends/src/frontends/shims/pythia_shim.cpp
+  # + Backends/include/gambit/Backends/frontends/Pythia_8_312.hpp) rather than
+  # BOSSed, to avoid castxml having to parse Pythia's whole API for the
+  # handful of types/methods GAMBIT actually calls. See
+  # Backends/src/frontends/shims/README.md ("Pythia shim").
+  # The line this replaces was:
+  #   BOSS_backend(${name} ${ver} ${BOSS_suffix})
+  set(pythia_shim_src "${PROJECT_SOURCE_DIR}/Backends/src/frontends/shims/pythia_shim.cpp")
+  set(pythia_shim_lib "${dir}/lib/libpythia_shim.so")
+  ExternalProject_Add_Step(${name}_${ver} build_shim
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${dir}/lib
+    COMMAND ${CMAKE_CXX_COMPILER} -std=c++17 -fPIC -shared -O3
+            -I${dir}/include -I${HEPMC_PATH}/local/include
+            -I${Boost_INCLUDE_DIR} -I${PROJECT_SOURCE_DIR}/contrib/slhaea/include
+            ${pythia_shim_src} -o ${pythia_shim_lib}
+            -L${dir}/lib -lpythia8 -L${HEPMC_PATH}/local/lib -lHepMC3
+            -Wl,-rpath,${dir}/lib -Wl,-rpath,${HEPMC_PATH}/local/lib
+    DEPENDS ${pythia_shim_src}
+    DEPENDEES build
+    DEPENDERS install
+  )
+
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
   set_as_default_version("backend" ${name} ${ver})
 endif()

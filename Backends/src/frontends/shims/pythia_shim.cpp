@@ -216,11 +216,23 @@ extern "C"
   // Caller-owned-buffer convention for the formatted event listing, used
   // by GAMBIT only to shove into its own debug log on event-generation
   // failure (`pythia_event.list(false, false, 1, ss)`), not for physics.
-  void pythia_event_list(void* handle, int show_scale_and_vertex, int show_mothers_and_daughters, int precision, char* buf, int buflen)
+  //
+  // Unlike a fixed-size buffer, the return value is the *true* length of
+  // the listing (excluding the terminating '\0'), exactly like
+  // pythia_particle_mother_list()/pythia_info_codes_hard() return the true
+  // element count for a vector<int>. snprintf() itself already reports
+  // this (the number of characters that *would* have been written, had
+  // buflen been unlimited), so this just forwards that instead of
+  // discarding it. The caller can therefore size its buffer exactly,
+  // rather than guessing a fixed size up front and hoping real events
+  // never exceed it -- see Pythia_8_312.hpp's Event::list() for the
+  // retry-on-truncation caller side.
+  int pythia_event_list(void* handle, int show_scale_and_vertex, int show_mothers_and_daughters, int precision, char* buf, int buflen)
   {
     std::ostringstream ss;
     static_cast<Pythia8::Event*>(handle)->list(show_scale_and_vertex != 0, show_mothers_and_daughters != 0, precision, ss);
-    std::snprintf(buf, buflen, "%s", ss.str().c_str());
+    const std::string& s = ss.str();
+    return std::snprintf(buf, buflen, "%s", s.c_str());
   }
 
   // =====================================================================

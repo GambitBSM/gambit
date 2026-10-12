@@ -231,6 +231,25 @@ where `buf` is a stack buffer the caller passed in. See
 every string/collection-returning function in your shim against this before
 considering it done.
 
+**The function must return the *true* required size, not `void`.** The
+shim function already knows the real size of whatever it just built (a
+`std::string::size()`, a `std::vector::size()`, `snprintf`'s own return
+value) before it copies into the caller's buffer — have it return that,
+the same way `fn(handle, buf.data(), buf.size())` returning a count
+already does for `vector<int>`-returning functions. The GAMBIT-side
+wrapper then calls once with a reasonably-sized guess, and only retries
+with a buffer resized to the *exact* reported length on the rare case
+that guess was too small. The alternative — picking a fixed buffer size
+and hoping nothing bigger ever comes along — is a **silent-truncation
+bug waiting for a large enough input**, not a safe fallback: for Pythia's
+`Event::list()`, a "generous" 64KB fixed guess still truncated a real
+event whose full listing came out to over 300KB (final-state multiplicity
+has no fixed upper bound, so no constant is ever truly safe). Returning
+void and discarding the true size — as the first draft of
+`pythia_event_list()` did — throws away information the shim function
+had for free; there's essentially never a reason to do that over
+returning the size.
+
 ## Step 6 — Verify against a real install if there is any way to get one
 
 Don't trust a shim that only "looks right" — method names, signatures, and

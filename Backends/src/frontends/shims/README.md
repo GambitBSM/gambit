@@ -136,13 +136,39 @@ to producing the equivalent of this for other BOSSed backends.
 
 ## Pythia shim: a second, much less favourable, example
 
-`pythia_shim.cpp` and the prototype frontend header
-`Backends/include/gambit/Backends/frontends/shims/Pythia_8_312_shim.hpp`
-apply the same idea to the Pythia 8.312 backend. **PROTOTYPE / NOT WIRED
-INTO THE BUILD** -- unlike the Rivet shim, no `cmake/backends.cmake` or
-`config/backend_locations.yaml.default` change has been made for Pythia;
-see Step 7 of the `ShimGenerator` README for why that's deliberately a
-separate decision.
+`pythia_shim.cpp` and `Backends/include/gambit/Backends/frontends/Pythia_8_312.hpp`
+apply the same idea to the Pythia 8.312 backend, and -- unlike the initial
+Rivet prototype -- this one went straight to being wired into the build:
+
+- `cmake/backends.cmake`: the `BOSS_backend(${name} ${ver} ${BOSS_suffix})`
+  call (left as a comment for reference) is replaced by an
+  `ExternalProject_Add_Step` that compiles `pythia_shim.cpp` into
+  `libpythia_shim.so` right after Pythia's own `lib/libpythia8.so` is built,
+  linking against it plus HepMC3, with Boost and SLHAea on the include path
+  (Pythia's `GAMBIT_hepmc_writer.h` and the shim's own `SLHAea/slhaea.h`
+  `#include` both need them).
+- `config/backend_locations.yaml.default`: Pythia 8.312 now points at
+  `libpythia_shim.so` instead of `libpythia8.so` (the shim pulls in
+  `libpythia8.so` itself via its own linked dependencies).
+- `Backends/include/gambit/Backends/frontends/Pythia_8_312.hpp`: rewritten
+  by hand (the BOSS-generated version is gone; it's recoverable from git
+  history by reverting this file plus the other three changes below).
+- `Backends/include/gambit/Backends/backend_types/Pythia_8_312/identification.hpp`:
+  `DO_CLASSLOADING` flipped from 1 to 0, for the same reason as Rivet's.
+- Unlike Rivet, Pythia's own patch file
+  (`Backends/patches/pythia/8.312/patch_pythia_8.312.dif`) needed **no**
+  cleanup under Step 6.5: it was checked for BOSS-specific Makefile/configure
+  content and has none -- every hunk in it (the `Event::list()` ostream
+  parameter, the `GAMBIT_hepmc_writer.h` addition, the `Info::codesHard()`
+  constness fix, moving `GeneratorInput`/`JetMatching`'s inline definitions
+  out to their own `.cc` files "to allow easy BOSSing", the SLHAea include
+  in `SusyLesHouches.h`, etc.) is independent of whether `BOSS_backend()`
+  is ever called, so nothing needed stripping.
+- The old BOSS-generated backend-type files under
+  `Backends/include/gambit/Backends/backend_types/Pythia_8_312/`
+  (`abstract_*.h`, `wrapper_*.h`, `forward_decls_*.h`, `loaded_types.hpp`)
+  are now dead, exactly as the equivalent Rivet files were -- left in place,
+  safe to remove by hand.
 
 ### Why this backend is a worse fit for the pattern than Rivet
 
@@ -300,22 +326,100 @@ These are now also folded into `Backends/scripts/ShimGenerator/README.md`:
    file for where they come from, since they need to stay in the shim's
    scope exactly like any other wrapped class.
 
+### What was actually verified, and how
+
+This environment has no network access and no fully-built Pythia 8.312
+of its own, but (same trick as the Rivet shim) another local checkout on
+this machine (`~/WORK/GAMBIT/CoreWork/ConturFix/gambit`) had a complete,
+already-built Pythia 8.312 + HepMC3 (real `lib/libpythia8.so`, the real
+*patched* `include/Pythia8/GAMBIT_hepmc_writer.h`, and a working
+`share/Pythia8/xmldoc/`). Using that install **read-only**, as a test rig:
+
+- `pythia_shim.cpp` **compiles and links cleanly** against the real
+  `Pythia8::Pythia`/`Event`/`Particle`/`Info`/`SusyLesHouches`/
+  `GAMBIT_hepmc_writer`, producing a `.so` with all 36 expected unmangled
+  symbols (checked with `nm -D --defined-only`) -- first try, no signature
+  mismatches, which is some evidence the BOSS-generated `wrapper_*_decl.h`
+  headers this was written against were a reliable source for real method
+  signatures.
+- The *exact* compiler/linker command the new `ExternalProject_Add_Step`
+  in `cmake/backends.cmake` runs (same flags, same include/link order,
+  with `${dir}`/`${HEPMC_PATH}`/`${Boost_INCLUDE_DIR}` substituted for the
+  test rig's equivalent paths) was run standalone and also succeeded,
+  separately from the simpler ad hoc compile above -- so the cmake step
+  itself, not just the shim source, has been exercised.
+- A standalone `dlopen`/`dlsym` smoke-test program resolved all 30
+  lifecycle-relevant symbols and ran a **real, full physics event
+  generation**: created a `Pythia` instance from a real xmldoc path,
+  `readString`'d minimal QCD settings (`HardQCD:all = on`, 13 TeV beams),
+  called `init()` and `next()`, and got back a real hadronised event
+  (2288 particles, 632 final-state). Checked, and all matched real Pythia
+  physics output: particle IDs/4-momenta/`isFinal()` for the first few
+  particles (incoming protons at `(0,0,±6500,6500)`, outgoing partons),
+  `info.sigmaGen()`/`getSigmaMaxSum()`/`info.codesHard()` returning
+  sane non-zero cross-section numbers, and `pythia_event_assign()` copying
+  the full 2288-particle event into a separately-owned `Event` (verified
+  by checking `pythia_event_size()` matched post-copy, then `clear()`ing
+  the copy and confirming its size dropped to 0 while the original,
+  un-cleared source event was unaffected -- i.e. the copy is a real deep
+  copy, not an aliased handle). The `GAMBIT_hepmc_writer` path was also
+  exercised end-to-end: `create`/`init`/`write_event_HepMC3` produced a
+  375KB real HepMC3 ASCII event file, readable and well-formed
+  (`HepMC::Version 3.02.05`, correct event/particle counts in its header).
+- This caught one real thing worth fixing, and the fix itself was then
+  re-verified against the real install: `Event::list()`'s caller-owned
+  buffer was originally a fixed size (8KB, then bumped to 64KB) in the
+  frontend header. Bumping the constant was the wrong fix -- a second
+  real event, generated with the exact same settings just a later `next()`
+  call, produced a full listing of **304,838 bytes**, nearly 5x the "generous"
+  64KB guess. No fixed buffer size is safe for this: event listings scale
+  with final-state multiplicity, which has no fixed upper bound. The real
+  fix was to stop guessing: `pythia_event_list()` now returns the *true*
+  listing length (`snprintf`'s own return value, forwarded rather than
+  discarded), exactly like `pythia_particle_mother_list()` and
+  `pythia_info_codes_hard()` already return the true element count for a
+  `vector<int>` instead of silently dropping entries past a fixed cap.
+  `Event::list()` on the GAMBIT side now starts with a 64KB guess (sized
+  for the common case) and only pays for a second call, with a buffer
+  resized to the exact reported length, on the rare event where that
+  wasn't enough -- verified to produce output byte-identical to a
+  brute-force 1MB one-shot buffer, at the cost of a second shim call only
+  when actually needed. This is a general lesson for the caller-owned-buffer
+  convention (Step 5): **always** have the shim function return the true
+  required size (it already knows it, from the real collection/string it
+  just built) rather than only filling what fits -- a fixed-size guess, no
+  matter how generous, is a silent-truncation bug waiting for a big enough
+  input, and the "return the real count, retry if it didn't fit" pattern
+  used for `vector<int>` results extends to strings for free once the shim
+  function reports length instead of nothing.
+
 ### What was *not* verified
 
-Same caveats as the Rivet shim, and then some: this environment has
-neither a Pythia install nor network access, and (unlike Rivet) no other
-local checkout on this machine had Pythia 8.312 already built, so
-`pythia_shim.cpp` has **not** been compiled against real Pythia8 headers
-at all. Every method name, signature, and constness used here was taken
-from the BOSS-generated wrapper/abstract header pairs already checked
-into this tree under
-`Backends/include/gambit/Backends/backend_types/Pythia_8_312/` (e.g.
-`wrapper_Pythia_decl.h`, `wrapper_Event_decl.h`, `wrapper_Particle_decl.h`,
-`wrapper_Vec4_decl.h`, `wrapper_Info_decl.h`,
-`wrapper_GAMBIT_hepmc_writer_decl.h`) -- themselves the output of a real
-castxml run against the real headers at some point in the past, so this
-is a better starting point than guessing from documentation, but it is
-**not** the same as compiling against the real thing the way the Rivet
-shim was. Treat every signature here as unverified until it's actually
-compiled against Pythia 8.312's real headers, exactly as Step 6
-recommends.
+- **The GAMBIT-side macro plumbing beyond what was tested above.**
+  `BE_FUNCTION`/`LOAD_LIBRARY` symbol resolution and `DO_CLASSLOADING 0`
+  were exercised exactly as far as Rivet's were when its own frontend
+  header was written (i.e. not run through this specific repo's `make`,
+  since there's no network access here to actually download and build
+  Pythia 8.312 inside *this* checkout -- `make pythia_8.312` was attempted
+  and hangs on the download step, as expected). The underlying
+  `dlopen`/`dlsym` mechanics were verified directly (previous section),
+  just not through GAMBIT's own backend-loading code path end to end.
+- **A real ColliderBit run using this frontend.** Nothing in `ColliderBit`
+  itself was compiled or run against the new `Pythia_8_312.hpp` -- only
+  the shim library and a standalone test harness exercising the same
+  calls `Py8Collider.hpp` makes. The method names/signatures match what
+  `Py8Collider.hpp` actually calls (checked by grep, see "What was found"
+  above), but that's a weaker guarantee than an actual GAMBIT compile.
+- **Other Pythia-consuming backends/modules**, if any exist beyond
+  `ColliderBit`'s Pythia8 collider path -- not re-checked here beyond the
+  original Step 1 grep.
+
+**Recommendation before trusting this for physics runs:** get a real
+`cmake`/`make` of this backend running in an environment with network
+access, confirm the `ExternalProject_Add_Step` actually fires as part of
+that build (it was only verified by running its command manually, with
+paths substituted, against another checkout's install), and run
+`ColliderBit` itself against the new frontend, comparing output against
+the BOSS-generated path (easy to restore, since nothing but the five
+files listed under "What changed" above were touched, and the git history
+has the original BOSS-generated `Pythia_8_312.hpp`).
