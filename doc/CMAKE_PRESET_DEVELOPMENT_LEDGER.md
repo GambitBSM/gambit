@@ -16,7 +16,7 @@
 
 ## PR 前兼容性修复（2026-10-12）
 
-比较基线为本地 `gambit/ColliderBit_solo_development`（`b356b08b04`），修复在 preset 分支实施，基于 `b4a0a6120b`。四项均已实现并完成脚本检查，随本轮授权提交；真实 CBS 构建仍待维护者执行，先前验收记录不替代本轮验证。
+比较基线为本地 `gambit/ColliderBit_solo_development`（`b356b08b04`），修复在 preset 分支实施，基于 `b4a0a6120b`。四项代码修复已提交为 `5db7a33b63`，完成脚本检查；维护者随后反馈当前验证无问题，见下方验收记录。其他平台与工具链切换仍按场景分别验收。
 
 | 问题 | 修复 | 检查 |
 | --- | --- | --- |
@@ -26,6 +26,8 @@
 | P2：RestFrames 停用保留后可能复用旧工具链或 flags 的对象 | 接入 contrib 构建身份；包含编译器、flags、ROOT、平台和补丁输入；仅身份匹配且必要安装文件存在时复用 | 同配置 OFF/ON 与缺失 EP 标记保留文件；配置变化拒绝旧对象；临时 Git tag 重建干净源码；补丁变化、缺文件、失败保留原安装和路径边界 |
 
 检查入口为 [merge_compatibility.py](../cmake/tests/merge_compatibility.py) 和 [restframes_build_identity.py](../cmake/tests/restframes_build_identity.py)。联动复查 contrib 保留、FastJet 身份、RestFrames/ONNX 范围、standalone 对象，共 54 组 Python 脚本检查通过；C++ 政策 30 项通过。全部使用临时文件、临时 Git 仓库、捕获的 target/ExternalProject 注册及 `cmake -P`，没有工程配置、编译器探测、make、网络访问或真实安装清理。
+
+维护者验收反馈（2026-10-12）：在修复提交后，维护者反馈“现在发现没问题”。据此记录当前环境验证通过。本轮未附构建日志，未单独核对迁移步骤或对象/链接计数；代理没有执行工程配置或编译。
 
 RestFrames 旧安装尚无身份记录，首次启用构建会重建一次并在成功安装后记录。配置阶段只写入 build/ 请求和失效步骤标记；真实源码准备在 build 阶段进行。优先从本地 Git tag 克隆干净源码，只有无 `.git` 的 source drop 或缺少 tag 才需要从上游重新下载；准备失败保留原安装。相同身份重新配置及 OFF/ON 不删除源码或安装。
 
