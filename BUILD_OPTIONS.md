@@ -98,13 +98,14 @@ For a more complete list of cmake variables, take a look in the file `CMakeCache
 
 
 # Skip the build of any backend interface that no enabled Bit references
-# at the source level: GAMBIT_TRIM_BACKEND_INTERFACES (On|Off)
-# Auto-set to ON when -DBits is used or when -Ditch removes any Bit.
-# Set this to OFF to disable the trimming explicitly, e.g. when developing 
-# a new backend that no Bit yet references. Pair with 
-# -DGAMBIT_FORCE_BACKEND_INTERFACE="Name1;Name2" to keep specific backends 
-# regardless.
--DGAMBIT_TRIM_BACKEND_INTERFACES=On
+# at the source level: GAMBIT_TRIM_BACKEND_INTERFACES (AUTO|ON|OFF)
+# AUTO is the fresh-cache default: ON if any Bit is excluded, OFF otherwise.
+# Explicit ON/OFF stays fixed across module switches. Existing ON/OFF caches
+# retain their values; set AUTO to restore automatic selection.
+# Set OFF when developing a new backend that no Bit yet references.
+# With trimming enabled, use GAMBIT_FORCE_BACKEND_INTERFACE to keep specific
+# backends regardless of which Bits reference them.
+-DGAMBIT_TRIM_BACKEND_INTERFACES=AUTO
 -DGAMBIT_FORCE_BACKEND_INTERFACE="Acropolis;DarkCast"
 
 ```

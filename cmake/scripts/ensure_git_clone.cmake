@@ -1,5 +1,15 @@
-# Ensure DIR is a checkout of URL at TAG. Used as an ExternalProject
-# DOWNLOAD_COMMAND so a leftover source tree does not fail git clone.
+# Supply RestFrames sources for ExternalProject's DOWNLOAD_COMMAND. Existing
+# sources are retained; the following identity preparation step validates the
+# requested repository/tag and reconstructs pristine sources before patching.
+cmake_minimum_required(VERSION 3.16.3)
+
+function(_gambit_ensure_git_command result)
+  execute_process(COMMAND "${CMAKE_COMMAND}" -E env
+    GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=/usr/bin/false SSH_ASKPASS=/usr/bin/false
+    git ${ARGN} RESULT_VARIABLE status ERROR_VARIABLE error TIMEOUT 300)
+  set(${result} "${status}" PARENT_SCOPE)
+  set(${result}_error "${error}" PARENT_SCOPE)
+endfunction()
 
 if(NOT DEFINED DIR OR "${DIR}" STREQUAL "" OR
    NOT DEFINED URL OR "${URL}" STREQUAL "" OR
@@ -20,8 +30,10 @@ if(EXISTS "${DIR}")
   endif()
 endif()
 
-# A complete source drop is usable even without .git.
-if(_has_source AND NOT EXISTS "${DIR}/.git")
+# Reuse completed downloads without checking out/fetching from an old origin.
+# The preparation step handles repository/tag changes safely. In particular,
+# fetching a new tag from a retained old origin could fail before preparation.
+if(_has_source)
   return()
 endif()
 
@@ -31,29 +43,20 @@ if(EXISTS "${DIR}" AND NOT EXISTS "${DIR}/.git" AND NOT _has_source AND NOT _is_
 endif()
 
 if(NOT EXISTS "${DIR}/.git")
-  execute_process(
-    COMMAND git clone "${URL}" "${DIR}"
-    RESULT_VARIABLE _clone_result)
+  _gambit_ensure_git_command(_clone_result clone "${URL}" "${DIR}")
   if(NOT _clone_result EQUAL 0)
-    message(FATAL_ERROR "git clone ${URL} ${DIR} failed (${_clone_result})")
+    message(FATAL_ERROR "git clone ${URL} ${DIR} failed (${_clone_result}): ${_clone_result_error}")
   endif()
 endif()
 
-execute_process(
-  COMMAND git -C "${DIR}" checkout -q "${TAG}"
-  RESULT_VARIABLE _checkout_result
-  ERROR_QUIET)
+_gambit_ensure_git_command(_checkout_result -C "${DIR}" checkout -q "${TAG}")
 if(NOT _checkout_result EQUAL 0)
-  execute_process(
-    COMMAND git -C "${DIR}" fetch --tags --quiet
-    RESULT_VARIABLE _fetch_result)
+  _gambit_ensure_git_command(_fetch_result -C "${DIR}" fetch --tags --quiet)
   if(NOT _fetch_result EQUAL 0)
-    message(FATAL_ERROR "git fetch --tags in ${DIR} failed (${_fetch_result})")
+    message(FATAL_ERROR "git fetch --tags in ${DIR} failed (${_fetch_result}): ${_fetch_result_error}")
   endif()
-  execute_process(
-    COMMAND git -C "${DIR}" checkout -q "${TAG}"
-    RESULT_VARIABLE _checkout_result)
+  _gambit_ensure_git_command(_checkout_result -C "${DIR}" checkout -q "${TAG}")
   if(NOT _checkout_result EQUAL 0)
-    message(FATAL_ERROR "git checkout ${TAG} in ${DIR} failed (${_checkout_result})")
+    message(FATAL_ERROR "git checkout ${TAG} in ${DIR} failed (${_checkout_result}): ${_checkout_result_error}")
   endif()
 endif()

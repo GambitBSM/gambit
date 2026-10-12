@@ -82,6 +82,12 @@ function(gambit_write_contrib_identity_request package version checksum source p
   cmake_parse_arguments(SOURCE "" "GIT_REPOSITORY;GIT_TAG" "" ${ARGN})
   set(CONTRIB_GIT_REPOSITORY "${SOURCE_GIT_REPOSITORY}")
   set(CONTRIB_GIT_TAG "${SOURCE_GIT_TAG}")
+  if(CONTRIB_GIT_REPOSITORY)
+    foreach(field CONTRIB_GIT_REPOSITORY CONTRIB_GIT_TAG)
+      string(LENGTH "${${field}}" length)
+      string(APPEND identity "${field}=${length}:${${field}}\n")
+    endforeach()
+  endif()
   set(request_dir "${CMAKE_BINARY_DIR}/${package}-prefix/tmp")
   set(CONTRIB_SOURCE_ROOT "${PROJECT_SOURCE_DIR}/contrib")
   set(CONTRIB_SOURCE_DIR "${source}")
@@ -210,21 +216,34 @@ endfunction()
 function(gambit_prepare_git_contrib)
   file(REMOVE_RECURSE "${CONTRIB_STAGING_DIR}")
   set(clone_result 1)
+  set(local_source FALSE)
   if(EXISTS "${CONTRIB_SOURCE_DIR}/.git")
+    execute_process(COMMAND git -C "${CONTRIB_SOURCE_DIR}" remote get-url origin
+      RESULT_VARIABLE origin_result OUTPUT_VARIABLE origin_url
+      ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE TIMEOUT 10)
+    if(origin_result EQUAL 0 AND origin_url STREQUAL CONTRIB_GIT_REPOSITORY)
+      set(local_source TRUE)
+    endif()
+  endif()
+  if(local_source)
     execute_process(COMMAND "${CMAKE_COMMAND}" -E env GIT_TERMINAL_PROMPT=0
+      GIT_ASKPASS=/usr/bin/false SSH_ASKPASS=/usr/bin/false
       git clone --no-hardlinks --no-checkout "${CONTRIB_SOURCE_DIR}" "${CONTRIB_STAGING_DIR}"
       RESULT_VARIABLE clone_result ERROR_VARIABLE clone_error TIMEOUT 300)
     if(clone_result EQUAL 0)
-      execute_process(COMMAND git -c core.hooksPath=/dev/null -C "${CONTRIB_STAGING_DIR}"
+      execute_process(COMMAND "${CMAKE_COMMAND}" -E env GIT_TERMINAL_PROMPT=0
+        GIT_ASKPASS=/usr/bin/false SSH_ASKPASS=/usr/bin/false
+        git -c core.hooksPath=/dev/null -C "${CONTRIB_STAGING_DIR}"
         checkout --detach --force "${CONTRIB_GIT_TAG}"
         RESULT_VARIABLE clone_result ERROR_VARIABLE clone_error TIMEOUT 60)
     endif()
   endif()
   if(NOT clone_result EQUAL 0)
-    # Source drops without .git, or checkouts without the required tag, need a
-    # fresh upstream checkout. Keep the old installation until this succeeds.
+    # Missing Git metadata, a different upstream, or a missing tag require a
+    # fresh checkout. Keep the old installation until this succeeds.
     file(REMOVE_RECURSE "${CONTRIB_STAGING_DIR}")
     execute_process(COMMAND "${CMAKE_COMMAND}" -E env GIT_TERMINAL_PROMPT=0
+      GIT_ASKPASS=/usr/bin/false SSH_ASKPASS=/usr/bin/false
       git -c core.hooksPath=/dev/null clone --branch "${CONTRIB_GIT_TAG}" --single-branch
       "${CONTRIB_GIT_REPOSITORY}" "${CONTRIB_STAGING_DIR}"
       RESULT_VARIABLE clone_result ERROR_VARIABLE clone_error TIMEOUT 300)
@@ -233,7 +252,7 @@ function(gambit_prepare_git_contrib)
     message(FATAL_ERROR "Could not prepare pristine contrib sources: ${clone_error}")
   endif()
   execute_process(COMMAND git -C "${CONTRIB_STAGING_DIR}" remote set-url origin
-      "${CONTRIB_GIT_REPOSITORY}" RESULT_VARIABLE origin_result ERROR_VARIABLE origin_error)
+      "${CONTRIB_GIT_REPOSITORY}" RESULT_VARIABLE origin_result ERROR_VARIABLE origin_error TIMEOUT 30)
   if(NOT origin_result EQUAL 0)
     message(FATAL_ERROR "Could not set contrib upstream: ${origin_error}")
   endif()

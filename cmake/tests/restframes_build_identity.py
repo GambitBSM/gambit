@@ -42,6 +42,7 @@ class RestFramesBuildIdentityTests(unittest.TestCase):
                  'user.email=fixture@example.invalid', '-c', 'commit.gpgsign=false',
                  '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'fixture source')
         self.git('-C', str(self.package), 'tag', 'v1.0.2')
+        self.git('-C', str(self.package), 'remote', 'add', 'origin', 'https://github.com/crogan/RestFrames')
         for name in ('C', 'CXX', 'Fortran'):
             self.put(self.work / f'compiler {name}', b'never execute')
         self.put(self.work / 'root/bin/root-config', b'never execute root-config')
@@ -79,7 +80,7 @@ class RestFramesBuildIdentityTests(unittest.TestCase):
         return {str(p.relative_to(root)): (hashlib.sha256(p.read_bytes()).hexdigest(), p.stat().st_mtime_ns)
                 for p in root.rglob('*') if p.is_file()}
 
-    def selection(self, changes=None, enabled=True, root=True, bits='ColliderBit'):
+    def selection(self, changes=None, enabled=True, root=True, bits='ColliderBit', repository=None, tag=None):
         settings = {'PROJECT_SOURCE_DIR': self.source, 'CMAKE_BINARY_DIR': self.build,
                     'PROJECT_BINARY_DIR': self.build, 'GAMBIT_BITS': bits,
                     'WITH_RESTFRAMES': 'ON' if enabled else 'OFF',
@@ -98,6 +99,12 @@ class RestFramesBuildIdentityTests(unittest.TestCase):
         contrib = (ROOT / 'cmake/contrib.cmake').read_text()
         helpers = contrib[contrib.index('macro(get_paths '):contrib.index('#contrib/preload')]
         block = contrib[contrib.index('#contrib/RestFrames;'):contrib.index('#contrib/LHEF')]
+        if repository is not None:
+            block = block.replace('set(_restframes_git_repository "https://github.com/crogan/RestFrames")',
+                                  'set(_restframes_git_repository ' + bracket(repository) + ')')
+        if tag is not None:
+            block = block.replace('set(_restframes_git_tag "v${ver}")',
+                                  'set(_restframes_git_tag ' + bracket(tag) + ')')
         capture = self.work / 'capture.txt'
         script = self.work / 'selection.cmake'
         script.write_text('\n'.join(['cmake_minimum_required(VERSION 3.16.3)',
@@ -109,7 +116,9 @@ function(ExternalProject_Add_Step name step)
   file(APPEND "${CAPTURE_FILE}" "STEP|${name}/${step}|${ARGN}\n")
 endfunction()
 ''', helpers, block,
-            'file(APPEND "${CAPTURE_FILE}" "REUSABLE|restframes|${_restframes_reusable}\\n")']))
+            'file(APPEND "${CAPTURE_FILE}" "REUSABLE|restframes|${_restframes_reusable}\\n")',
+            'get_directory_property(watched CMAKE_CONFIGURE_DEPENDS)',
+            'file(APPEND "${CAPTURE_FILE}" "RECONFIGURE|inputs|${watched}\\n")']))
         result = subprocess.run([self.cmake, '-P', str(script)], capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return capture.read_text()
@@ -197,6 +206,19 @@ endfunction()
         self.action('RECORD')
         self.assertIn('REUSABLE|restframes|TRUE', self.selection(changes={'BACKEND_CXX_FLAGS': '-O0 -g'}))
 
+    def test_patch_is_watched_by_direct_build_regeneration(self):
+        patch = str(self.source / 'cmake/scripts/patch_restframes_quiet.cmake')
+        self.assertIn('RECONFIGURE|inputs|' + patch, self.selection())
+        self.assertIn('RECONFIGURE|inputs|\n', self.selection(enabled=False))
+
+    def test_touching_unchanged_patch_keeps_install_and_step_timestamps(self):
+        self.installed()
+        patch = self.source / 'cmake/scripts/patch_restframes_quiet.cmake'
+        before = self.snapshot(self.package), self.snapshot(self.build)
+        os.utime(patch, (patch.stat().st_atime, patch.stat().st_mtime + 2))
+        self.assertIn('REUSABLE|restframes|TRUE', self.selection())
+        self.assertEqual((self.snapshot(self.package), self.snapshot(self.build)), before)
+
     def test_patch_change_requires_pristine_preparation(self):
         self.installed()
         patch = self.source / 'cmake/scripts/patch_restframes_quiet.cmake'
@@ -228,6 +250,37 @@ endfunction()
         before = self.snapshot(self.source)
         self.action('PREPARE', success=False)
         self.assertEqual(self.snapshot(self.source), before)
+
+    def test_tag_change_invalidates_identity_with_unchanged_flags(self):
+        self.installed()
+        self.git('-C', str(self.package), 'tag', 'fixture-other-tag')
+        original = self.record().read_bytes()
+        self.assertIn('REUSABLE|restframes|FALSE', self.selection(tag='fixture-other-tag'))
+        self.assertNotEqual((self.build / 'restframes-prefix/tmp/restframes-identity.txt').read_bytes(), original)
+        self.action('PREPARE')
+        self.assertFalse((self.package / 'src/.libs/RFBase.o').exists())
+
+    def test_repository_change_uses_requested_source_instead_of_old_checkout(self):
+        self.installed()
+        alternate = self.work / 'alternate upstream'
+        self.git('clone', str(self.package), str(alternate))
+        changed = self.pristine + b'// alternate upstream implementation\n'
+        self.put(alternate / 'src/RFBase.cc', changed)
+        self.git('-C', str(alternate), 'add', 'src/RFBase.cc')
+        self.git('-C', str(alternate), '-c', 'user.name=Fixture', '-c',
+                 'user.email=fixture@example.invalid', '-c', 'commit.gpgsign=false',
+                 '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'different upstream source')
+        self.git('-C', str(alternate), 'tag', '-f', 'v1.0.2')
+        original = self.record().read_bytes()
+        self.assertIn('REUSABLE|restframes|FALSE', self.selection(repository=alternate))
+        self.assertNotEqual((self.build / 'restframes-prefix/tmp/restframes-identity.txt').read_bytes(), original)
+        self.action('PREPARE')
+        self.assertEqual((self.package / 'src/RFBase.cc').read_bytes(), changed)
+        self.assertFalse((self.package / 'src/.libs/RFBase.o').exists())
+        self.assertEqual(self.git('-C', str(self.package), 'remote', 'get-url', 'origin').stdout.strip(), str(alternate))
+        self.installation_files()
+        self.action('RECORD')
+        self.assertIn('REUSABLE|restframes|TRUE', self.selection(repository=alternate))
 
     def test_source_drop_can_reconstruct_from_a_local_upstream(self):
         upstream = self.work / 'upstream'

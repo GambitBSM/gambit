@@ -452,6 +452,34 @@ required/optional policy when consuming results.
 The CLI and dispatcher need no change when adding a provider that uses
 the existing toolchain strategies.
 
+## Backend interface trimming
+
+`GAMBIT_TRIM_BACKEND_INTERFACES` accepts `AUTO`, `ON`, or `OFF`:
+
+| Mode | Behavior |
+| --- | --- |
+| `AUTO` (fresh-cache default) | Trim interfaces when any Bit is excluded; retain all interfaces with the full Bit set. |
+| `ON` | Trim unused interfaces regardless of module selection. |
+| `OFF` | Retain all interfaces, including unreferenced ones needed for backend development. |
+
+The cache stores the requested mode. The effective ON/OFF result is resolved
+for each configure and shown as `Backend trim: AUTO -> ON`, for example.
+Explicit ON/OFF remains fixed across later module switches, even when it equals
+the previous automatic result. With trimming enabled,
+`GAMBIT_FORCE_BACKEND_INTERFACE="Name1;Name2"` retains selected interfaces.
+
+Existing ON/OFF caches keep their values, including values written by the old
+automatic policy: those caches cannot distinguish an automatic default from
+an explicit selection of the same value. To restore automatic selection:
+
+```sh
+cmake --preset cbs-llvm -DGAMBIT_TRIM_BACKEND_INTERFACES=AUTO
+```
+
+This does not require clearing `build/`. The lean CBS module selection resolves
+AUTO to ON. The conventional CMake BOOL spellings such as TRUE/FALSE and 1/0
+remain accepted; unknown modes fail with a clear configure error.
+
 ## Retaining optional contributed packages
 
 Disabling RestFrames, or selecting Bits without ColliderBit (which disables
@@ -517,9 +545,27 @@ compiler, standard and all other settings fixed during this check; no build-tree
 reset is needed. The optional runtime path policy below also prevents the
 RestFrames switch from changing unrelated shared-library link commands.
 
+RestFrames reuse also requires a matching build identity for the compiler,
+flags, ROOT installation, platform, source repository/tag and patch inputs,
+with required installed files present. A legacy installation without a record requires one rebuild.
+The record is written only after a successful installation. Source preparation
+reuses a local Git checkout only when its origin matches the requested
+repository; a changed repository uses the requested upstream. Existing completed
+downloads are left for this preparation step, so a new tag is not fetched from
+a retained old origin.
+
+CMake watches `cmake/scripts/patch_restframes_quiet.cmake`. Editing it and then
+running a normal `cmake --build` automatically regenerates the configuration;
+a changed patch hash schedules clean source preparation before patching.
+Touching that file without changing its contents can regenerate CMake, but
+retains matching RestFrames objects and installation stamps. Git downloads and
+tag retries disable terminal/askpass prompts, use bounded timeouts and report
+failures clearly.
+
 Script-only checks:
 
 ```sh
+python3 cmake/tests/restframes_build_identity.py
 python3 cmake/tests/restframes_scope.py
 python3 cmake/tests/contrib_retention.py
 ```

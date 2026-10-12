@@ -38,14 +38,20 @@ class MergeCompatibilityTests(unittest.TestCase):
     def trim_fixture(self, commands):
         self.run_script(self.function('_gambit_resolve_trim_default') + r'''
 set(ALL_GAMBIT_BITS ColliderBit DarkBit ScannerBit)
-function(expect value mode)
-  if(NOT GAMBIT_TRIM_BACKEND_INTERFACES STREQUAL value)
-    message(FATAL_ERROR "Expected trim ${value}, got ${GAMBIT_TRIM_BACKEND_INTERFACES}")
+function(expect value request)
+  get_property(cached CACHE GAMBIT_TRIM_BACKEND_INTERFACES PROPERTY VALUE)
+  get_property(type CACHE GAMBIT_TRIM_BACKEND_INTERFACES PROPERTY TYPE)
+  if(NOT cached STREQUAL request OR NOT type STREQUAL "STRING")
+    message(FATAL_ERROR "Expected persistent mode ${request}, got ${cached} (${type})")
   endif()
-  if(mode STREQUAL "explicit" AND DEFINED GAMBIT_TRIM_AUTOMATIC_VALUE)
-    message(FATAL_ERROR "Explicit choice must remain explicit")
-  elseif(mode STREQUAL "automatic" AND NOT GAMBIT_TRIM_AUTOMATIC_VALUE STREQUAL value)
-    message(FATAL_ERROR "Missing automatic marker")
+  if(NOT GAMBIT_TRIM_BACKEND_INTERFACES_EFFECTIVE STREQUAL value)
+    message(FATAL_ERROR "Expected effective trim ${value}, got ${GAMBIT_TRIM_BACKEND_INTERFACES_EFFECTIVE}")
+  endif()
+  if(NOT GAMBIT_TRIM_BACKEND_INTERFACES_REQUESTED STREQUAL request)
+    message(FATAL_ERROR "Incorrect requested mode")
+  endif()
+  if(DEFINED GAMBIT_TRIM_AUTOMATIC_VALUE)
+    message(FATAL_ERROR "Obsolete automatic-value marker remains")
   endif()
 endfunction()
 ''' + commands)
@@ -58,40 +64,253 @@ endfunction()
 set(GAMBIT_BITS {bits})
 set(GAMBIT_TRIM_BACKEND_INTERFACES {value} CACHE BOOL "explicit" FORCE)
 _gambit_resolve_trim_default()
-expect({value} explicit)
+expect({value} {value})
 set(GAMBIT_BITS DarkBit)
 _gambit_resolve_trim_default()
-expect({value} explicit)
+expect({value} {value})
 ''')
 
     def test_automatic_trim_tracks_module_switches(self):
         self.trim_fixture('''
 set(GAMBIT_BITS ColliderBit DarkBit ScannerBit)
 _gambit_resolve_trim_default()
-expect(OFF automatic)
+expect(OFF AUTO)
 set(GAMBIT_BITS ColliderBit ScannerBit)
 _gambit_resolve_trim_default()
-expect(ON automatic)
+expect(ON AUTO)
 set(GAMBIT_BITS ColliderBit DarkBit ScannerBit)
 _gambit_resolve_trim_default()
-expect(OFF automatic)
+expect(OFF AUTO)
 ''')
 
     def test_override_of_automatic_trim_stays_explicit(self):
         self.trim_fixture('''
 set(GAMBIT_BITS ColliderBit)
 _gambit_resolve_trim_default()
-expect(ON automatic)
+expect(ON AUTO)
 set(GAMBIT_TRIM_BACKEND_INTERFACES OFF CACHE BOOL "override" FORCE)
 _gambit_resolve_trim_default()
-expect(OFF explicit)
+expect(OFF OFF)
 set(GAMBIT_BITS ColliderBit DarkBit ScannerBit)
 _gambit_resolve_trim_default()
-expect(OFF explicit)
+expect(OFF OFF)
 set(GAMBIT_BITS ColliderBit)
 _gambit_resolve_trim_default()
-expect(OFF explicit)
+expect(OFF OFF)
 ''')
+
+    def test_explicit_value_equal_to_old_automatic_result_is_persistent(self):
+        for value, first, second in [('OFF', 'ColliderBit DarkBit ScannerBit', 'ColliderBit'),
+                                     ('ON', 'ColliderBit', 'ColliderBit DarkBit ScannerBit')]:
+            for kind in ('BOOL', 'STRING'):
+                with self.subTest(value=value, type=kind):
+                    self.trim_fixture(f'''
+set(GAMBIT_BITS {first})
+_gambit_resolve_trim_default()
+expect({value} AUTO)
+set(GAMBIT_TRIM_BACKEND_INTERFACES {value} CACHE {kind} "explicit" FORCE)
+set(GAMBIT_BITS {second})
+_gambit_resolve_trim_default()
+expect({value} {value})
+set(GAMBIT_BITS {first})
+_gambit_resolve_trim_default()
+expect({value} {value})
+''')
+
+    def test_legacy_caches_are_preserved_and_can_return_to_auto(self):
+        for value in ('ON', 'OFF'):
+            with self.subTest(value=value):
+                self.trim_fixture(f'''
+set(GAMBIT_TRIM_BACKEND_INTERFACES {value} CACHE BOOL "legacy" FORCE)
+set(GAMBIT_TRIM_AUTOMATIC_VALUE {value} CACHE INTERNAL "ambiguous old default" FORCE)
+set(GAMBIT_BITS ColliderBit DarkBit ScannerBit)
+_gambit_resolve_trim_default()
+expect({value} {value})
+set(GAMBIT_TRIM_BACKEND_INTERFACES AUTO CACHE STRING "restore automatic mode" FORCE)
+_gambit_resolve_trim_default()
+expect(OFF AUTO)
+set(GAMBIT_BITS ColliderBit)
+_gambit_resolve_trim_default()
+expect(ON AUTO)
+''')
+
+    def test_bool_aliases_and_normal_overrides_remain_supported(self):
+        for value, expected in [('TRUE', 'ON'), ('yes', 'ON'), ('1', 'ON'), ('FALSE', 'OFF'),
+                                ('no', 'OFF'), ('0', 'OFF'), ('', 'OFF')]:
+            with self.subTest(value=value):
+                self.trim_fixture('set(GAMBIT_TRIM_BACKEND_INTERFACES ' + bracket(value) + ')\n' +
+                                  '_gambit_resolve_trim_default()\n' + f'expect({expected} {expected})')
+        self.trim_fixture('''
+set(GAMBIT_TRIM_BACKEND_INTERFACES AUTO CACHE STRING "initial" FORCE)
+set(GAMBIT_TRIM_BACKEND_INTERFACES OFF)
+set(GAMBIT_BITS ColliderBit)
+_gambit_resolve_trim_default()
+expect(OFF OFF)
+''')
+
+    def test_invalid_modes_fail_clearly(self):
+        for value in ('AUTOO', 'maybe', '2'):
+            with self.subTest(value=value):
+                result = self.run_script(self.function('_gambit_resolve_trim_default') +
+                    '\nset(GAMBIT_TRIM_BACKEND_INTERFACES ' + bracket(value) + ')\n' +
+                    '_gambit_resolve_trim_default()', success=False)
+                self.assertIn('Invalid GAMBIT_TRIM_BACKEND_INTERFACES', result.stderr)
+
+    def test_optin_harvest_uses_effective_mode_and_propagates_it(self):
+        resolver = self.function('_gambit_resolve_trim_default')
+        configure = self.function('gambit_configure_optin_build')
+        for mode, bits, effective in [('AUTO', 'ColliderBit;DarkBit;ScannerBit', 'OFF'),
+                                      ('AUTO', 'ColliderBit', 'ON'), ('OFF', 'ColliderBit', 'OFF'),
+                                      ('ON', 'ColliderBit;DarkBit;ScannerBit', 'ON')]:
+            with self.subTest(mode=mode, bits=bits):
+                self.run_script(resolver + '\n' + configure + '''
+function(_gambit_print_optin_summary bits force output)
+  set(${output} unused_backend PARENT_SCOPE)
+endfunction()
+set(ALL_GAMBIT_BITS ColliderBit DarkBit ScannerBit)
+set(itch original)
+''' + f'set(GAMBIT_BITS {bracket(bits)})\n' +
+                    f'set(GAMBIT_TRIM_BACKEND_INTERFACES {mode} CACHE STRING "mode" FORCE)\n' +
+                    'gambit_configure_optin_build()\n' +
+                    f'set(expected {effective})\n' + '''
+if(NOT GAMBIT_TRIM_BACKEND_INTERFACES_EFFECTIVE STREQUAL expected)
+  message(FATAL_ERROR "Effective trim was not propagated")
+endif()
+if(expected)
+  if(NOT BACKEND_HARVESTER_EXTRA_ARGS MATCHES "--bits=" OR NOT "unused_backend" IN_LIST itch)
+    message(FATAL_ERROR "Trimming did not reach harvest/disabled targets")
+  endif()
+elseif(BACKEND_HARVESTER_EXTRA_ARGS OR NOT itch STREQUAL "original")
+  message(FATAL_ERROR "AUTO resolving OFF or explicit OFF must not trim")
+endif()
+if(NOT "${BACKEND_HARVESTER_EXTRA_ARGS}" STREQUAL "${update_cmakelists_extra_args}")
+  message(FATAL_ERROR "Harvester and generated CMake inputs disagree")
+endif()
+''')
+
+    def test_summaries_use_effective_value_with_auto_input(self):
+        for name, function in [('CBSCompilerSummary.cmake', 'cbs_print_compiler_summary'),
+                               ('GAMBITBuildSummary.cmake', 'gambit_print_build_summary')]:
+            source = (ROOT / 'cmake/presets' / name).read_text()
+            body = re.search(rf'function\({function}\b.*?endfunction\(\)', source, re.DOTALL).group(0)
+            for effective in ('ON', 'OFF'):
+                with self.subTest(summary=name, effective=effective):
+                    output = self.work / 'summary.txt'
+                    script = ('''
+function(cbs_summary_line key value)
+  file(APPEND "${OUTPUT}" "${key}|${value}\n")
+endfunction()
+function(cbs_compiler_is_supported id version supported reason)
+  set(${supported} TRUE PARENT_SCOPE)
+endfunction()
+function(gambit_print_compiler_cache_summary)
+endfunction()
+function(cbs_print_validation_summary)
+endfunction()
+function(preset_print_feature_groups)
+endfunction()
+''' + body + '\nset(OUTPUT ' + bracket(output) + ')\n' +
+                    'file(WRITE "${OUTPUT}" "")\nset(GAMBIT_PRESET_TOOLCHAIN llvm)\n' +
+                    f'set(CBS_PRESET_BUILD {"TRUE" if name.startswith("CBS") else "FALSE"})\n' +
+                    'set(GAMBIT_TRIM_BACKEND_INTERFACES AUTO)\n' +
+                    'set(GAMBIT_TRIM_BACKEND_INTERFACES_REQUESTED AUTO)\n' +
+                    f'set(GAMBIT_TRIM_BACKEND_INTERFACES_EFFECTIVE {effective})\n' +
+                    'set(GAMBIT_TRIM_TOTAL_COUNT 10)\nset(GAMBIT_TRIM_USED_COUNT 2)\n' + function + '()')
+                    self.run_script(script)
+                    lines = output.read_text().splitlines()
+                    self.assertIn('Backend trim|AUTO -> ' + effective, lines)
+                    self.assertIn('Backends|' + ('2 of 10 kept' if effective == 'ON' else 'not trimmed'), lines)
+
+    def git_download_fixture(self, case):
+        capture = self.work / 'git-commands.txt'
+        directory = self.work / 'downloaded source'
+        script = ('''
+set(DIR ''' + bracket(directory) + ')\nset(URL fixture://no-network)\nset(TAG v1.0.2)\n' +
+            'set(CAPTURE ' + bracket(capture) + ')\nset(CASE ' + bracket(case) + ')\n' + r'''
+function(execute_process)
+  # Capture real download command construction. Never run Git/network here.
+  set(arguments "${ARGV}")
+  foreach(expected GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=/usr/bin/false SSH_ASKPASS=/usr/bin/false)
+    if(NOT expected IN_LIST arguments)
+      message(FATAL_ERROR "Interactive Git command: ${ARGV}")
+    endif()
+  endforeach()
+  list(FIND arguments TIMEOUT index)
+  if(index EQUAL -1)
+    message(FATAL_ERROR "Unbounded Git command")
+  endif()
+  math(EXPR index "${index}+1")
+  list(GET arguments ${index} timeout)
+  if(NOT timeout EQUAL 300)
+    message(FATAL_ERROR "Unexpected Git timeout")
+  endif()
+  list(FIND arguments RESULT_VARIABLE index)
+  math(EXPR index "${index}+1")
+  list(GET arguments ${index} result)
+  list(FIND arguments ERROR_VARIABLE index)
+  math(EXPR index "${index}+1")
+  list(GET arguments ${index} error)
+  set(status 0)
+  if("clone" IN_LIST arguments)
+    file(APPEND "${CAPTURE}" "clone\n")
+    if(CASE STREQUAL "clone_failure")
+      set(status "Process terminated due to timeout")
+    else()
+      file(MAKE_DIRECTORY "${DIR}/.git")
+    endif()
+  elseif("checkout" IN_LIST arguments)
+    file(APPEND "${CAPTURE}" "checkout\n")
+    get_property(count GLOBAL PROPERTY checkout_count)
+    if(NOT count)
+      set(count 0)
+    endif()
+    math(EXPR count "${count}+1")
+    set_property(GLOBAL PROPERTY checkout_count "${count}")
+    if(CASE STREQUAL "checkout_failure" OR (count EQUAL 1 AND NOT CASE STREQUAL "success"))
+      set(status 1)
+    endif()
+  elseif("fetch" IN_LIST arguments)
+    file(APPEND "${CAPTURE}" "fetch\n")
+    if(CASE STREQUAL "fetch_failure")
+      set(status 1)
+    endif()
+  else()
+    message(FATAL_ERROR "Unexpected download command: ${ARGV}")
+  endif()
+  set(${result} "${status}" PARENT_SCOPE)
+  set(${error} "fixture failure" PARENT_SCOPE)
+endfunction()
+''' + 'include(' + bracket(ROOT / 'cmake/scripts/ensure_git_clone.cmake') + ')')
+        result = self.run_script(script, success=case in ('success', 'fetch_success', 'cached_source'))
+        return result, capture.read_text().splitlines() if capture.exists() else []
+
+    def test_git_download_is_noninteractive_and_bounded(self):
+        _, commands = self.git_download_fixture('success')
+        self.assertEqual(commands, ['clone', 'checkout'])
+
+    def test_git_tag_fetch_retry_is_noninteractive_and_bounded(self):
+        _, commands = self.git_download_fixture('fetch_success')
+        self.assertEqual(commands, ['clone', 'checkout', 'fetch', 'checkout'])
+
+    def test_complete_git_download_is_left_for_identity_preparation(self):
+        directory = self.work / 'downloaded source'
+        (directory / '.git').mkdir(parents=True)
+        (directory / 'configure').write_text('existing source')
+        _, commands = self.git_download_fixture('cached_source')
+        self.assertEqual(commands, [])
+        self.assertEqual((directory / 'configure').read_text(), 'existing source')
+
+    def test_git_download_failures_stop_without_extra_steps(self):
+        for case, expected, diagnostic in (
+            ('clone_failure', ['clone'], 'Process terminated due to timeout'),
+            ('fetch_failure', ['clone', 'checkout', 'fetch'], 'git fetch'),
+            ('checkout_failure', ['clone', 'checkout', 'fetch', 'checkout'], 'git checkout')):
+            with self.subTest(case=case):
+                result, commands = self.git_download_fixture(case)
+                self.assertEqual(commands, expected)
+                self.assertIn(diagnostic, result.stderr)
+                shutil.rmtree(self.work / 'downloaded source', ignore_errors=True)
+                (self.work / 'git-commands.txt').unlink()
 
     def test_link_order_repetitions_and_configuration_pairs_are_preserved(self):
         bad = self.work / 'library.so'

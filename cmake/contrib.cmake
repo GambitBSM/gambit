@@ -157,7 +157,12 @@ if(NOT EXCLUDE_RESTFRAMES)
     set(RESTFRAMES_CONFIG_LIBS "${GAMBIT_BACKEND_SHARED_LINKER_FLAGS} -Wl,--no-as-needed -lgambit_preload")
   endif()
   include("${PROJECT_SOURCE_DIR}/cmake/ContribBuildIdentity.cmake")
+  set(_restframes_git_repository "https://github.com/crogan/RestFrames")
+  set(_restframes_git_tag "v${ver}")
   set(_restframes_patch "${PROJECT_SOURCE_DIR}/cmake/scripts/patch_restframes_quiet.cmake")
+  # A direct build must regenerate this identity when the patch changes.
+  # Tracking only its hash here would require a manual configure first.
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_restframes_patch}")
   file(SHA256 "${_restframes_patch}" _restframes_patch_hash)
   file(SHA256 "${PROJECT_SOURCE_DIR}/cmake/ContribBuildIdentity.cmake" _restframes_recipe_hash)
   set(_restframes_rootsys "$ENV{ROOTSYS}")
@@ -184,7 +189,7 @@ if(NOT EXCLUDE_RESTFRAMES)
       ROOT_VERSION ROOT_STD ROOT_INCLUDE_DIRS ROOT_LIBRARY_DIR ROOT_LIBRARIES ROOT_CXX_FLAGS)
   gambit_write_contrib_identity_request(${name} "${ver}" "" "${dir}" "${dir}"
       "${_restframes_identity}" "${dir}/inc/RestFrames/RestFrames.hh" "RestFrames"
-      GIT_REPOSITORY "https://github.com/crogan/RestFrames" GIT_TAG "v${ver}")
+      GIT_REPOSITORY "${_restframes_git_repository}" GIT_TAG "${_restframes_git_tag}")
   gambit_contrib_installation_matches("${restframes_identity_request}"
       _restframes_reusable _restframes_rebuild_reason)
   if(_restframes_reusable)
@@ -195,8 +200,8 @@ if(NOT EXCLUDE_RESTFRAMES)
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${CMAKE_COMMAND}
       -DDIR=${dir}
-      -DURL=https://github.com/crogan/RestFrames
-      -DTAG=v${ver}
+      -DURL=${_restframes_git_repository}
+      -DTAG=${_restframes_git_tag}
       -P ${PROJECT_SOURCE_DIR}/cmake/scripts/ensure_git_clone.cmake
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1

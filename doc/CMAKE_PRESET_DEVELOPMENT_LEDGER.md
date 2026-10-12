@@ -43,6 +43,38 @@ cmake --build build --target CBS -j8
 
 预期首轮 RestFrames 显示 `no recorded build identity` 并重新构建；成功后存在 `contrib/RestFrames-1.0.2/.gambit-restframes-build-identity`。后两轮构建应无重复编译/链接，最后配置显示身份匹配。随后可运行已有 `python3 cmake/scripts/cbs_feature_acceptance.py --run --jobs 8`，检查两项 OFF/ON 和最后无变化构建。若测试工具链切换，仍按既有共享 build/ 政策使用 `--fresh`；需要看到 RestFrames 拒绝旧身份并重建，匹配 ROOT/C++ 标准后再恢复原 preset。
 
+### 后续边界修复（2026-10-12）
+
+基于 `c9a8ea0008` 继续复查并修复，状态为 **已实现待构建**。此前维护者反馈覆盖上一轮提交，本轮的真实 CMake 自动再配置及构建验证仍由维护者执行。
+
+- 裁剪参数改为 `AUTO/ON/OFF` 请求模式，缓存保留请求，`GAMBIT_TRIM_BACKEND_INTERFACES_EFFECTIVE` 仅为本轮解析结果。完整模块集 AUTO 为 OFF，排除任一 Bit 后 AUTO 为 ON；显式 ON/OFF 不再被模块切换覆盖。harvester 参数、外部目标裁剪和 CBS/GAMBIT 摘要统一使用实际结果，摘要同时显示请求模式。
+- 旧 BOOL 缓存包括“自动默认值与显式值相同”的歧义情况，一律保留原 ON/OFF；移除旧的自动值标记。使用 `-DGAMBIT_TRIM_BACKEND_INTERFACES=AUTO` 恢复自动模式，不需要清空 build/。保留 TRUE/FALSE、YES/NO、1/0 等既有写法，拒绝未知模式。
+- RestFrames 补丁登记到 `CMAKE_CONFIGURE_DEPENDS`，直接 build 能触发 CMake 更新补丁哈希，再安排干净源码准备和正常补丁步骤。仅 touch、内容不变时，身份和安装记录保持不变。
+- 初次 Git 下载、tag 获取与重试禁止终端/askpass 交互并设置超时，错误信息保留失败原因；干净源码准备的 Git 命令采用相同非交互约定。临时夹具捕获这些命令，没有访问网络。
+- 仓库地址和 tag 一并写入 Git 包构建身份。只有本地 origin 与请求地址一致时才从原 checkout 准备源码；换仓库则从新来源准备，避免把旧源码记为新构建。已完成的下载交给后续身份准备处理，避免先从旧 origin 获取新 tag 而提前失败。两份本地临时 Git 仓库验证实际源码内容、origin、旧对象清理及后续复用。
+
+新增检查覆盖同值显式 ON/OFF、旧缓存迁移与恢复 AUTO、BOOL 别名及未知值、实际 harvester 参数与父作用域结果、CBS/GAMBIT 摘要，以及补丁自动配置依赖、无内容变化 touch 和 Git 失败/重试路径。执行完整 `cmake/tests` Python 脚本回归，**184 组通过**；C++ 标准脚本 **30 项通过**。本轮静态复查没有发现新的可复现问题。检查没有执行工程 configure/build、真实编译器探测或 CBS；不能据此填写跨平台、冷构建或物理运行验收通过。
+
+维护者在当前工作树验证：
+
+```sh
+cmake --preset cbs-llvm -DGAMBIT_TRIM_BACKEND_INTERFACES=AUTO
+cmake --build build --target CBS -j8
+cmake --build build --target CBS -j8
+cmake --preset cbs-llvm
+cmake --build build --target CBS -j8
+```
+
+预期摘要为 `AUTO -> ON`；第一次可能进行 RestFrames 构建身份迁移，随后直接重复构建及相同配置后构建应恢复无变化复用。再检查补丁自动再配置路径：
+
+```sh
+touch cmake/scripts/patch_restframes_quiet.cmake
+cmake --build build --target CBS -j8
+cmake --build build --target CBS -j8
+```
+
+仅 touch 应触发 CMake 再配置，但不重置 RestFrames 源码、重新打补丁或编译其对象。补丁内容变化后的干净准备已由临时 Git 源码夹具检查，不要求修改真实补丁来验证。实际 Make 构建图与时间戳结果待维护者记录；Ninja/lld 继续暂缓。
+
 ## 状态与验收规则
 
 | 状态 | 含义 |

@@ -1022,41 +1022,44 @@ function(gambit_translate_bits_into_itch)
 endfunction()
 
 
-# Backend-interface trimming follows module exclusion. A full module set
-# leaves trimming off. Excluding any Bit turns it on, including when an
-# earlier configure stored the full-set default. Explicit values without an
-# automatic marker, and overrides of a previous automatic choice, are preserved.
+# Keep the requested AUTO/ON/OFF mode in the cache, and resolve AUTO only
+# for this configure. Comparing two BOOL values cannot tell whether the user
+# explicitly pinned the same value as a previous automatic default.
 function(_gambit_resolve_trim_default)
-  set(_user_narrowed FALSE)
-  foreach(_d ${ALL_GAMBIT_BITS})
-    if(NOT (";${GAMBIT_BITS};" MATCHES ";${_d};"))
-      set(_user_narrowed TRUE)
-    endif()
-  endforeach()
-
+  set(_trim_request AUTO)
   if(DEFINED GAMBIT_TRIM_BACKEND_INTERFACES)
-    if(NOT DEFINED GAMBIT_TRIM_AUTOMATIC_VALUE)
-      return()
-    endif()
-    if(NOT "${GAMBIT_TRIM_BACKEND_INTERFACES}" STREQUAL "${GAMBIT_TRIM_AUTOMATIC_VALUE}")
-      # Once overridden, keep the value explicit across later module switches.
-      unset(GAMBIT_TRIM_AUTOMATIC_VALUE CACHE)
-      return()
-    endif()
+    string(TOUPPER "${GAMBIT_TRIM_BACKEND_INTERFACES}" _trim_request)
   endif()
+  # Preserve CMake's conventional BOOL spellings from existing user caches.
+  if(_trim_request MATCHES "^(1|ON|YES|TRUE|Y)$")
+    set(_trim_request ON)
+  elseif(_trim_request STREQUAL "" OR _trim_request MATCHES "^(0|OFF|NO|FALSE|N|IGNORE|NOTFOUND)$"
+         OR _trim_request MATCHES "-NOTFOUND$")
+    set(_trim_request OFF)
+  elseif(NOT _trim_request STREQUAL "AUTO")
+    message(FATAL_ERROR "Invalid GAMBIT_TRIM_BACKEND_INTERFACES='${GAMBIT_TRIM_BACKEND_INTERFACES}'. Use AUTO, ON or OFF.")
+  endif()
+  # Legacy BOOL caches (including ambiguous automatic values) remain explicit.
+  # Users can select AUTO to restore module-dependent defaults.
+  set(GAMBIT_TRIM_BACKEND_INTERFACES "${_trim_request}" CACHE STRING
+      "Backend interface trimming: AUTO, ON or OFF." FORCE)
+  set_property(CACHE GAMBIT_TRIM_BACKEND_INTERFACES PROPERTY STRINGS AUTO ON OFF)
+  unset(GAMBIT_TRIM_AUTOMATIC_VALUE CACHE)
 
-  if(_user_narrowed)
-    set(_trim_value ON)
-    if(NOT GAMBIT_TRIM_BACKEND_INTERFACES)
+  set(_trim_value "${_trim_request}")
+  if(_trim_request STREQUAL "AUTO")
+    set(_trim_value OFF)
+    foreach(_d IN LISTS ALL_GAMBIT_BITS)
+      if(NOT _d IN_LIST GAMBIT_BITS)
+        set(_trim_value ON)
+      endif()
+    endforeach()
+    if(_trim_value)
       message("${BoldYellow}-- One or more modules were excluded; unused backend interfaces will be skipped.${ColourReset}")
     endif()
-  else()
-    set(_trim_value OFF)
   endif()
-  set(GAMBIT_TRIM_BACKEND_INTERFACES "${_trim_value}" CACHE BOOL
-      "Skip backend interfaces that no enabled Bit references." FORCE)
-  set(GAMBIT_TRIM_AUTOMATIC_VALUE "${_trim_value}" CACHE INTERNAL
-      "Last automatic backend-interface trim choice." FORCE)
+  set(GAMBIT_TRIM_BACKEND_INTERFACES_REQUESTED "${_trim_request}" PARENT_SCOPE)
+  set(GAMBIT_TRIM_BACKEND_INTERFACES_EFFECTIVE "${_trim_value}" PARENT_SCOPE)
 endfunction()
 
 
@@ -1148,7 +1151,7 @@ function(gambit_configure_optin_build)
   _gambit_resolve_trim_default()
 
   set(_extra_args "")
-  if(GAMBIT_TRIM_BACKEND_INTERFACES)
+  if(GAMBIT_TRIM_BACKEND_INTERFACES_EFFECTIVE)
     string(REPLACE ";" "," _bits_with_commas "${GAMBIT_BITS}")
     list(APPEND _extra_args --bits=${_bits_with_commas})
 
@@ -1171,6 +1174,8 @@ function(gambit_configure_optin_build)
     set(GAMBIT_TRIM_TOTAL_COUNT "${GAMBIT_TRIM_TOTAL_COUNT}" PARENT_SCOPE)
   endif()
 
+  set(GAMBIT_TRIM_BACKEND_INTERFACES_REQUESTED "${GAMBIT_TRIM_BACKEND_INTERFACES_REQUESTED}" PARENT_SCOPE)
+  set(GAMBIT_TRIM_BACKEND_INTERFACES_EFFECTIVE "${GAMBIT_TRIM_BACKEND_INTERFACES_EFFECTIVE}" PARENT_SCOPE)
   set(BACKEND_HARVESTER_EXTRA_ARGS "${_extra_args}" PARENT_SCOPE)
   set(update_cmakelists_extra_args "${_extra_args}" PARENT_SCOPE)
 endfunction()
