@@ -482,6 +482,13 @@ function(add_standalone executablename)
       if (NOT EXCLUDE_YODA)
         set(ARG_LIBRARIES ${ARG_LIBRARIES} ${YODA_LDFLAGS})
       endif()
+      if (NOT EXCLUDE_ONNXRUNTIME)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${ONNXRUNTIME_LDFLAGS})
+      endif()
+      if (NOT EXCLUDE_FASTJET)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${fastjet_LDFLAGS})
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${fjcontrib_LDFLAGS})
+      endif()
     endif()
 
     # Do ad hoc checks for stuff that will eventually be BOSSed and removed from here.

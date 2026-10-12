@@ -9,7 +9,7 @@ namespace Gambit
     {
       return P2(x,y);
     }
-    
+
     std::vector<P2> OPALDegenerateCharginoLimitAt208GeV::dataFromLimit(double limit)
     {
       std::vector<P2> data;
@@ -23,7 +23,7 @@ namespace Gambit
       else if(limit == 2.33) filename = "2.33pb_orange";
       else if(limit == 2.66) filename = "2.66pb_red";
       else if(limit == 3.00) filename = "3.00pb_purple";
-      else if(limit == 3.33) filename = "3.33pb_pink"; 
+      else if(limit == 3.33) filename = "3.33pb_pink";
       else if(limit == 3.66) filename = "3.66pb_black";
       else if(limit == 4.00) filename = "4.00pb_white";
 
@@ -43,7 +43,7 @@ namespace Gambit
         iss >> point.second;
         data.push_back(convertPt(point.first, point.second));
       }
-  
+
       return data;
 
     }
@@ -53,7 +53,7 @@ namespace Gambit
       /// @note Plots only go down to 45 GeV
       return (x <= 95. and x >= 45. and y <= 5. and y >= 0.320);
     }
-    
+
     OPALDegenerateCharginoLimitAt208GeV::OPALDegenerateCharginoLimitAt208GeV()
     {
       ///// Limit values /////
@@ -95,7 +95,7 @@ namespace Gambit
       }
 
     }
-    
+
 
   }
 }

@@ -1,0 +1,7 @@
+Summary: Search for direct pair production of sleptons and charginos decaying to two leptons and neutralinos with mass splittings near the 𝑾-boson mass
+InspireID: 2157951
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["2L"]
+Authors: ["Roberto Ruiz"]

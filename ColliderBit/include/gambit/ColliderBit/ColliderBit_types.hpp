@@ -87,9 +87,9 @@ namespace Gambit
     /// @brief Typedef for a str-SLHAstruct pair, to pass around SLHA filenames + content
     typedef std::pair<std::string,SLHAstruct> pair_str_SLHAstruct;
 
-    /// @brief Typedefs related to cross-sections 
-    // Note: 
-    // The 'iipair' name below refers to the typedef std::pair<int,int> iipair 
+    /// @brief Typedefs related to cross-sections
+    // Note:
+    // The 'iipair' name below refers to the typedef std::pair<int,int> iipair
     // declared in Utils/include/gambit/Utils/util_types.hpp
 
     typedef std::vector<std::pair<int,int>> vec_iipair;

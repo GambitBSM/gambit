@@ -32,22 +32,27 @@ namespace Gambit {
       int _sum;
       double _weight_sum;
       double _weight_sum_err;
+      std::vector<unsigned int> _event_acceptance_record;
+      bool _store_accepted_event_IDs;
 
     public:
+
 
       // Constructors
       EventCounter() :
         _name(""),
         _sum(0),
         _weight_sum(0.0),
-        _weight_sum_err(0.0)
+        _weight_sum_err(0.0),
+        _store_accepted_event_IDs(false)
       { }
 
       EventCounter(const std::string name) :
         _name(name),
         _sum(0),
         _weight_sum(0.0),
-        _weight_sum_err(0.0)
+        _weight_sum_err(0.0),
+        _store_accepted_event_IDs(false)
       { }
 
 
@@ -57,12 +62,12 @@ namespace Gambit {
         _name = name;
         _sum = 0;
         _weight_sum = 0;
-        _weight_sum_err = 0;        
+        _weight_sum_err = 0;
       }
 
       // Reset
-      void reset() 
-      { 
+      void reset()
+      {
         _sum = 0;
         _weight_sum = 0;
         _weight_sum_err = 0;
@@ -88,23 +93,33 @@ namespace Gambit {
       // Get weight sum error
       double weight_sum_err() const { return _weight_sum_err; }
 
-      // Increment event count directly, with optional weights arguments
-      void add_event(double w = 1.0, double werr = 0.0)
+
+      // Increment event count, with manually set weight
+      void add_event(const HEPUtils::Event& event, double w, double werr = 0.0)
       {
         _sum++;
         _weight_sum += w;
         _weight_sum_err = sqrt((_weight_sum_err * _weight_sum_err) + (werr * werr));
+        if (_store_accepted_event_IDs)
+        {
+          _event_acceptance_record.push_back(event.id());
+        }
+      }
+
+      void add_event(const HEPUtils::Event* event_ptr, double w, double werr = 0.0)
+      {
+        add_event(*event_ptr, w, werr);
       }
 
       // Increment event count with weigths from an HEPUtils::Event
       void add_event(const HEPUtils::Event& event)
       {
-        add_event(event.weight(), event.weight_err());
+        add_event(event, event.weight(), event.weight_err());
       }
 
-      void add_event(const HEPUtils::Event* event_ptr) 
-      { 
-        add_event(*event_ptr); 
+      void add_event(const HEPUtils::Event* event_ptr)
+      {
+        add_event(*event_ptr, event_ptr->weight(), event_ptr->weight_err());
       }
 
       // Increment event count with the operator+= and HEPUtils::Event input
@@ -120,6 +135,10 @@ namespace Gambit {
         _sum += rhs.sum();
         _weight_sum += rhs.weight_sum();
         _weight_sum_err = sqrt( (_weight_sum_err * _weight_sum_err) + (rhs.weight_sum_err() * rhs.weight_sum_err()) );
+        if (_store_accepted_event_IDs)
+        {
+          _event_acceptance_record.insert( _event_acceptance_record.end(), rhs._event_acceptance_record.begin(), rhs._event_acceptance_record.end() );
+        }
         return *this;
       }
 
@@ -132,7 +151,35 @@ namespace Gambit {
         double other_weight_sum_err = other.weight_sum_err();
         _weight_sum_err = sqrt((_weight_sum_err * _weight_sum_err) + (other_weight_sum_err * other_weight_sum_err));
 
+        if (_store_accepted_event_IDs)
+        {
+          _event_acceptance_record.insert( _event_acceptance_record.end(), other._event_acceptance_record.begin(), other._event_acceptance_record.end() );
+        }
         return *this;
+      }
+
+      // Set _store_accepted_event_IDs
+      void set_store_accepted_event_IDs(bool setting)
+      {
+        _store_accepted_event_IDs = setting;
+      }
+
+      // Get _store_accepted_event_IDs
+      bool store_accepted_event_IDs()
+      {
+        return _store_accepted_event_IDs;
+      }
+
+      // Get _store_accepted_event_IDs
+      std::vector<unsigned int> get_event_acceptance_record() const
+      {
+        return _event_acceptance_record;
+      }
+
+      // Clear the _store_accepted_event_IDs vector
+      void clear_event_acceptance_record()
+      {
+        _event_acceptance_record.clear();
       }
 
     };
