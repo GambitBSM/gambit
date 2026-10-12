@@ -1405,7 +1405,7 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean
-    REBUILD_INPUTS "${dir}/Makefile" "${dir}/src/**/*"
+    REBUILD_INPUTS "${dir}/makefile" "${dir}/src/**/*"
                    "${dir}/include/**/*" "${dir}/contrib/**/*"
     REBUILD_OUTPUTS "${dir}/lib/${lib}.so")
   set_as_default_version("backend" ${name} ${ver})

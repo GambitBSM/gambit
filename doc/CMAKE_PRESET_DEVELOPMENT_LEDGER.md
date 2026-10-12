@@ -77,6 +77,25 @@ cmake --build build --target CBS -j8
 
 仅 touch 应触发 CMake 再配置，但不重置 RestFrames 源码、重新打补丁或编译其对象。补丁内容变化后的干净准备已由临时 Git 源码夹具检查，不要求修改真实补丁来验证。实际 Make 构建图与时间戳结果待维护者记录；Ninja/lld 继续暂缓。
 
+### 编译器选择与 Linux 增量跟踪复查（2026-10-12）
+
+维护者报告前一轮构建通过后，再次检查 preset 分支相对 `gambit/ColliderBit_solo_development` 的边界，确认并修复两处 P2 问题。本轮状态为 **已实现待构建**，前述维护者构建反馈只覆盖 `93f4030816`，不作为本轮修改的真实构建验收。
+
+- LLVM 的 C/CXX 原本拒绝带参数的编译器选择，但各 profile 的 Fortran 及 GNU/AppleClang 的 C/CXX 只取首个命令词，会丢掉 `CC/CXX/FC` 或 `CMAKE_<LANG>_COMPILER` 附带的选项。统一使用单可执行文件解析，明确拒绝 shell 参数、分号参数列表和 wrapper 命令，诊断指出原选择项、对应的 `CMAKE_<LANG>_FLAGS` 与 launcher 设置。保留缓存优先、裸/带引号的空格路径和单独设置的 flags；显式 Fortran 路径失效时说明原请求且不自动换编译器。
+- nulike 1.0.9 归档实际提供小写 `makefile`，原增量声明为 `Makefile`；macOS 的常见大小写不敏感文件系统会掩盖问题，而 Linux 上修改真实文件不会进入输入快照。改用正确名称。注册夹具断言精确拼写，并用该注册的实际 tracker 命令检查成功记录包含 makefile、无变化保留步骤标记、编辑 makefile 后使 build 标记失效。
+
+新增回归在修复前复现问题，修复后完整 Python 脚本检查 **188 组通过**，C++ 标准政策 **30 项通过**，`git diff --check` 通过。使用临时文件、假编译器版本报告器、捕获的 target/ExternalProject 注册和 `cmake -P`；没有工程配置、真实编译器执行、make、网络下载或真实安装修改。此次检查未发现其他新增阻塞问题；跨平台真实构建仍按验收矩阵记录。
+
+维护者可在当前工作树运行：
+
+```sh
+cmake --preset cbs-llvm
+cmake --build build --target CBS -j8
+cmake --build build --target CBS -j8
+```
+
+无需清空 build/ 或切换工具链。nulike 输入声明更新后，首轮可能执行一次该包的增量构建以更新记录；下一轮应恢复复用。编译器带参数的拒绝路径与空格路径由 [native_compiler_selection.py](../cmake/tests/native_compiler_selection.py) 夹具检查，无需为此修改真实编译器缓存。Linux makefile 修改场景的真实构建尚未验收。
+
 ## 状态与验收规则
 
 | 状态 | 含义 |

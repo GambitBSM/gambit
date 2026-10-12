@@ -234,6 +234,70 @@ class NativeCompilerSelectionTests(unittest.TestCase):
                 self.assertEqual(values["found"], "FALSE")
                 self.assertIn("must name one compiler executable", values["reason"])
 
+    def test_all_profiles_reject_arguments_in_compiler_selectors(self):
+        for strategy, host, family in (("llvm", "Darwin", "Clang"),
+                                       ("macos", "Darwin", "AppleClang"),
+                                       ("gnu", "Linux", "GNU")):
+            pair = self.pair(strategy, "18.1.8", family)
+            environment = {"CC": str(pair[0]), "CXX": str(pair[1])}
+            for language, name, path in (("C", "CC", pair[0]), ("CXX", "CXX", pair[1]),
+                                         ("Fortran", "FC", self.fortran)):
+                for cached in (False, True):
+                    selector = "CMAKE_" + language + "_COMPILER" if cached else name
+                    for command in (shlex.quote(str(path)) + " --target=fixture",
+                                    str(path) + ";--target=fixture",
+                                    "ccache " + shlex.quote(str(path))):
+                        settings = {selector: command} if cached else {}
+                        env = dict(environment)
+                        if not cached:
+                            env[name] = command
+                        with self.subTest(strategy=strategy, selector=selector, command=command):
+                            values = self.run_case(settings, env, strategy=strategy, host=host)
+                            self.assertEqual(values["found"], "FALSE")
+                            self.assertIn(selector + " must name one compiler executable", values["reason"])
+                            self.assertIn("CMAKE_" + language + "_FLAGS", values["reason"])
+                            error = self.run_case(settings, env, mode="configure", fatal=True,
+                                                  strategy=strategy, host=host)
+                            self.assertIn("must name one compiler executable", " ".join(error.split()))
+
+    def test_fortran_selection_reports_missing_explicit_executable_without_fallback(self):
+        for cached in (False, True):
+            selector = "CMAKE_Fortran_COMPILER" if cached else "FC"
+            settings = {selector: "/missing/fortran"} if cached else {}
+            environment = {} if cached else {"FC": "/missing/fortran"}
+            with self.subTest(selector=selector):
+                values = self.run_case(settings, environment)
+                self.assertEqual(values["found"], "FALSE")
+                self.assertIn(selector + " requests", values["reason"])
+                self.assertNotIn(str(self.fortran) + " --version", self.log.read_text())
+
+    def test_all_profiles_accept_fortran_paths_with_spaces_and_separate_flags(self):
+        for strategy, host, family in (("llvm", "Darwin", "Clang"),
+                                       ("macos", "Darwin", "AppleClang"),
+                                       ("gnu", "Linux", "GNU")):
+            pair = self.pair(strategy, "18.1.8", family)
+            for quoted in (False, True):
+                fortran = shlex.quote(str(self.fortran)) if quoted else str(self.fortran)
+                for cached in (False, True):
+                    settings = {"CMAKE_C_FLAGS": "-fno-omit-frame-pointer",
+                                "CMAKE_CXX_FLAGS": "-fsanitize=undefined",
+                                "CMAKE_Fortran_FLAGS": "-ffpe-trap=invalid"}
+                    environment = {"CC": str(pair[0]), "CXX": str(pair[1])}
+                    if cached:
+                        settings["CMAKE_Fortran_COMPILER"] = fortran
+                        environment["FC"] = "/missing/overridden-fortran"
+                    else:
+                        environment["FC"] = fortran
+                    extra = "\n".join(
+                        'if(NOT "${' + name + '}" STREQUAL ' + bracket(value) + ')\n'
+                        '  message(FATAL_ERROR "Compiler flags changed: ' + name + '")\nendif()'
+                        for name, value in settings.items() if name.endswith("_FLAGS"))
+                    with self.subTest(strategy=strategy, quoted=quoted, cached=cached):
+                        values = self.run_case(settings, environment, mode="configure", extra=extra,
+                                               strategy=strategy, host=host)
+                        self.assertEqual(values["found"], "TRUE")
+                        self.assertEqual(values["fortran"], str(self.fortran))
+
     def test_cached_pair_stays_selected_on_repeated_toolchain_load(self):
         extra = ('set(ENV{CC} "/missing/new-cc")\n'
                  'set(ENV{CXX} "/missing/new-cxx")\n'

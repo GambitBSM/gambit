@@ -42,7 +42,8 @@ function(native_find_toolchain strategy output_found output_c output_cxx output_
         get_filename_component(_native_root "${_native_origin}" DIRECTORY)
       endif()
     else()
-      # Explicit compiler selections must match the family of this profile.
+      # Explicit selections must name one executable and match the profile.
+      set(_native_selection_reasons "")
       foreach(_native_language C CXX)
         if(_native_language STREQUAL "C")
           set(_native_environment CC)
@@ -54,11 +55,16 @@ function(native_find_toolchain strategy output_found output_c output_cxx output_
           set(_native_apple_command clang++)
         endif()
         set(_native_compiler "")
+        set(_native_selection_reason "")
         if(DEFINED CMAKE_${_native_language}_COMPILER AND
            NOT "${CMAKE_${_native_language}_COMPILER}" STREQUAL "")
-          cbs_resolve_command(_native_compiler "${CMAKE_${_native_language}_COMPILER}")
+          cbs_resolve_compiler_selection("${CMAKE_${_native_language}_COMPILER}"
+            "CMAKE_${_native_language}_COMPILER" "${_native_language}"
+            _native_compiler _native_selection_reason)
         elseif(NOT "$ENV{${_native_environment}}" STREQUAL "")
-          cbs_resolve_command(_native_compiler "$ENV{${_native_environment}}")
+          cbs_resolve_compiler_selection("$ENV{${_native_environment}}"
+            "${_native_environment}" "${_native_language}"
+            _native_compiler _native_selection_reason)
         elseif(strategy STREQUAL "macos")
           cbs_resolve_command(_native_xcrun xcrun)
           if(_native_xcrun)
@@ -76,12 +82,19 @@ function(native_find_toolchain strategy output_found output_c output_cxx output_
         else()
           cbs_resolve_command(_native_compiler "${_native_command}")
         endif()
+        if(_native_selection_reason)
+          list(APPEND _native_selection_reasons "${_native_selection_reason}")
+        endif()
         set(_native_${_native_language} "${_native_compiler}")
       endforeach()
       set(_native_c "${_native_C}")
       set(_native_cxx "${_native_CXX}")
-      cbs_validate_c_cxx_pair("${_native_c}" "${_native_cxx}" _native_found
-                             _native_id _native_version _native_reason)
+      if(_native_selection_reasons)
+        set(_native_reason "${_native_selection_reasons}")
+      else()
+        cbs_validate_c_cxx_pair("${_native_c}" "${_native_cxx}" _native_found
+                               _native_id _native_version _native_reason)
+      endif()
       if(strategy STREQUAL "macos")
         set(_native_required_id AppleClang)
       else()

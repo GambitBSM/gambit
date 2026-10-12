@@ -46,6 +46,13 @@ selections must match the profile. Configure and build presets have matching
 host conditions; native CMake lists only entries enabled for the current host.
 Bootstrap `--list` includes all registered entries with host mismatch reasons.
 
+For every profile, `CC`, `CXX`, `FC` and `CMAKE_<LANG>_COMPILER` selectors must
+name one executable. Literal and quoted paths containing spaces work. Put options
+in `CMAKE_C_FLAGS`, `CMAKE_CXX_FLAGS` or `CMAKE_Fortran_FLAGS`, and wrappers such
+as ccache in the compiler launcher settings. Commands containing arguments are
+rejected with the offending selector and the appropriate flag/launcher setting;
+arguments are never silently discarded.
+
 The entry point can also be invoked by absolute path from another directory.
 Discovery uses the current `PATH`, `CC`, `CXX`, `FC`, and supported package hints.
 It does not read `build/CMakeCache.txt`, run `project()`, configure the repository,
@@ -167,10 +174,7 @@ cmake --preset cbs-llvm \
 
 Keep the current compiler paths for an incremental check. When actually changing
 compilers or versions, add `--fresh` and expect the necessary rebuild; all profiles
-still share `build/`. Selectors must name one compiler executable. Put flags in
-`CMAKE_C_FLAGS` / `CMAKE_CXX_FLAGS` and wrappers such as ccache in the compiler
-launcher settings; a command containing extra arguments is rejected rather than
-silently losing them. Literal and quoted executable paths containing spaces work.
+still share `build/`.
 
 Script-only checks, with fake version reporters and no real compiler execution:
 

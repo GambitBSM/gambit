@@ -294,6 +294,36 @@ endfunction()
         self.assertIn(str(self.source / "contrib/fastjet/local/.gambit-*-build-identity"), rivet)
         self.assertIn(str(self.source / "Backends/installed/rivet/4.1.0/local/**/rivet/core.so"), rivet)
 
+    def test_nulike_registration_tracks_lowercase_makefile_and_invalidates_on_edit(self):
+        command = self.registration()["TARGET"]["check-rebuild-nulike_1.0.9"]
+        command = command[command.index("COMMAND") + 1:command.index("VERBATIM")]
+        directory = self.source / "Backends/installed/nulike/1.0.9"
+        makefile = directory / "makefile"
+        # Check the declared spelling even on a case-insensitive macOS fixture.
+        inputs = [command[index + 1] for index, value in enumerate(command) if value == "--input"]
+        self.assertIn(str(makefile), inputs)
+        self.write(makefile, "SOURCES = original.f")
+        self.write(directory / "src/original.f", "temporary source")
+        self.write(directory / "lib/libnulike.so", "temporary product")
+        stamp = Path(command[command.index("--stamp") + 1] + "-build")
+        record = Path(command[command.index("--record") + 1])
+        self.write(stamp, "successful build")
+        action = command.index("check")
+        record_command = list(command)
+        record_command[action] = "record"
+        result = subprocess.run(record_command, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn(str(makefile), json.loads(record.read_text())["sources"])
+        result = subprocess.run(command, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertTrue(stamp.exists())
+        self.write(makefile, "SOURCES = original.f additional.f")
+        result = subprocess.run(command, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("source inputs or build command changed", result.stdout)
+        self.assertFalse(stamp.exists())
+
     def test_registration_without_python_extension_does_not_require_python_products(self):
         command = self.registration(pyext=False)["TARGET"]["check-rebuild-rivet_4.1.0"]
         self.assertFalse(any("/rivet/core.so" in item for item in command))
