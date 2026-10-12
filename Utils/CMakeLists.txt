@@ -39,6 +39,7 @@ set(source_files src/ascii_table_reader.cpp
                  src/mpiwrapper.cpp
                  src/new_mpi_datatypes.cpp
                  src/model_parameters.cpp
+                 src/model_validation.cpp
                  src/python_interpreter.cpp
                  src/screen_print_utils.cpp
                  src/signal_handling.cpp
@@ -72,6 +73,7 @@ set(header_files include/gambit/Utils/ascii_table_reader.hpp
                  include/gambit/Utils/mpiwrapper.hpp
                  include/gambit/Utils/new_mpi_datatypes.hpp
                  include/gambit/Utils/model_parameters.hpp
+                 include/gambit/Utils/model_validation.hpp
                  include/gambit/Utils/numerical_constants.hpp
                  include/gambit/Utils/python_interpreter.hpp
                  include/gambit/Utils/safebool.hpp

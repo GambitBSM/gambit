@@ -16,6 +16,10 @@
 ///  \author Pat Scott
 ///  \date 2013 Sep
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 
@@ -61,6 +65,7 @@
 #define MODEL NormalDist
   START_MODEL
   DEFINEPARS(mu,sigma)
+  MODEL_CONSISTENCY_CHECK(NormalDist_ensure_positive_sigma)
 #undef MODEL
 
 // A one-parameter model for testing simple prior transformations
@@ -283,7 +288,7 @@
   #undef CAPABILITY
 
   // The "module function" definition
-  void MODEL_NAMESPACE::get_a_cap(unsigned int& result)
+  inline void MODEL_NAMESPACE::get_a_cap(unsigned int& result)
   {
       using namespace Pipes::get_a_cap;
 
