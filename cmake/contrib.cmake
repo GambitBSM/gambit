@@ -164,13 +164,15 @@ if(NOT EXCLUDE_RESTFRAMES)
   else()
     set(RESTFRAMES_CONFIG_LIBS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-as-needed -lgambit_preload")
   endif()
+  # RestFrames reuses a Git checkout; restore only the file modified by this patch.
   ExternalProject_Add(${name}
     GIT_REPOSITORY https://github.com/crogan/RestFrames
     GIT_TAG v${ver}
     UPDATE_DISCONNECTED TRUE
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND ${CMAKE_COMMAND} "-DSOURCE_DIR=<SOURCE_DIR>" "-DPATCH_FILE=${patch}" -P "${PROJECT_SOURCE_DIR}/cmake/scripts/apply_patch_once.cmake"
+    PATCH_COMMAND git checkout HEAD -- src/RFBase.cc
+          COMMAND patch --batch --forward -p1 -i "${patch}"
     CONFIGURE_COMMAND ./configure -prefix=${dir} CC=${CMAKE_C_COMPILER} CFLAGS=${RESTFRAMES_C_FLAGS} CPP=${RESTFRAMES_CPP} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${RESTFRAMES_CXX_FLAGS} CXXCPP=${RESTFRAMES_CXXCPP} LDFLAGS=${RESTFRAMES_CONFIG_LDFLAGS} LIBS=${RESTFRAMES_CONFIG_LIBS}
               COMMAND sed ${dashi} -e "s|.(ROOTAUXCXXFLAGS) .(ROOTCXXFLAGS)||" src/Makefile
     BUILD_COMMAND ${MAKE_PARALLEL}
@@ -377,11 +379,13 @@ if(NOT EXCLUDE_YODA)
     get_filename_component(YODA_OPENMP_LIBDIR "${OpenMP_omp_LIBRARY}" DIRECTORY)
     set(YODA_CONFIG_LDFLAGS "${YODA_CONFIG_LDFLAGS} -L${YODA_OPENMP_LIBDIR} -Wl,-rpath,${YODA_OPENMP_LIBDIR}")
   endif()
+  # Patch the freshly extracted archive files during the download step.
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
+             COMMAND ${CMAKE_COMMAND} -E chdir "<SOURCE_DIR>" patch --batch --forward -p1 -i "${patch}"
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND ${CMAKE_COMMAND} "-DSOURCE_DIR=<SOURCE_DIR>" "-DPATCH_FILE=${patch}" -P "${PROJECT_SOURCE_DIR}/cmake/scripts/apply_patch_once.cmake"
+    PATCH_COMMAND ""
     CONFIGURE_COMMAND ${YODA_PATH}/configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} CFLAGS=${YODA_C_FLAGS} CXXFLAGS=${YODA_CXX_FLAGS} LDFLAGS=${YODA_CONFIG_LDFLAGS} PYTHON=${Python3_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
     BUILD_COMMAND ${MAKE_PARALLEL} CC="${CMAKE_C_COMPILER}" CXX="${CMAKE_CXX_COMPILER}"
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
@@ -455,11 +459,13 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
     set(FJCONTRIB_FRAGILE_CXX_FLAGS "${FJCONTRIB_FRAGILE_CXX_FLAGS} -Wl,-headerpad_max_install_names")
   endif()
   set(patch "${PROJECT_SOURCE_DIR}/contrib/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+  # Patch the freshly extracted archive files during the download step.
   ExternalProject_Add(${name}
     DEPENDS fastjet
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${fjcontrib_path} ${name} ${ver}
+             COMMAND ${CMAKE_COMMAND} -E chdir "<SOURCE_DIR>" patch --batch --forward -p1 -i "${patch}"
     SOURCE_DIR ${fjcontrib_path}
-    PATCH_COMMAND ${CMAKE_COMMAND} "-DSOURCE_DIR=<SOURCE_DIR>" "-DPATCH_FILE=${patch}" -P "${PROJECT_SOURCE_DIR}/cmake/scripts/apply_patch_once.cmake"
+    PATCH_COMMAND ""
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} --fastjet-config=${fastjet_DIR}/bin/fastjet-config --prefix=${fastjet_DIR} --only=Nsubjettiness,RecursiveTools,LundPlane,EnergyCorrelator,VariableR
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
