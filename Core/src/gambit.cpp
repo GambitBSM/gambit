@@ -11,6 +11,10 @@
 ///  \author The GAMBIT Collaboration
 ///  \date 2012 Oct onwards
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #include <csignal>

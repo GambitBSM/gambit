@@ -18,6 +18,10 @@
 ///  \date 2014 Jan, Nov
 ///  \date 2015 Feb
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #ifndef __model_macros_hpp__

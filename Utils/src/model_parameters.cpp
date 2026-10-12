@@ -23,6 +23,10 @@
 ///  \date 2014 Jan, Nov
 ///  \date 2015 Sep
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 

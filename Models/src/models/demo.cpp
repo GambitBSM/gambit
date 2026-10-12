@@ -10,9 +10,9 @@
 ///
 ///  (add name and date if you modify)
 ///
-///  \author Patrick Stöcker
+///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
-///  \date 2026 Mar
+///  \date 2026 Oct
 ///
 ///  *********************************************
 
