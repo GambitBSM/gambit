@@ -329,7 +329,7 @@ namespace Gambit
       // Get the scanID
       set_scanID();
 
-      // Set the model invalidation handling
+      // Set the model validation handling
       setModelValidationHandling();
 
       // Build the vertex ID -> OutputVertex* map used by getPurpose() and

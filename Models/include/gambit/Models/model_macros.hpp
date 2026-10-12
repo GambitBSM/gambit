@@ -28,6 +28,7 @@
 #include "gambit/Utils/util_macros.hpp"
 #include "gambit/Utils/boost_fallbacks.hpp"
 #include "gambit/Elements/ini_functions.hpp"
+#include "gambit/Utils/model_validation.hpp"
 
 #include <boost/preprocessor/seq/for_each.hpp>
 
@@ -130,7 +131,7 @@
 /// "Rollcall" macros. These are lifted straight from module_macros_incore.hpp
 /// but are modified here and there to suit the role of models.
 
-/// "In module" version of the MODEL_CONSISTTENCY_CHECK macro
+/// "In module" version of the MODEL_CONSISTENCY_CHECK macro
 #define MODULE_MODEL_CONSISTENCY_CHECK(FUNC)                                   \
   namespace Gambit                                                             \
   {                                                                            \
@@ -334,9 +335,9 @@
         /* Prototype the user-defined function */                              \
         bool FUNC (const ModelParameters&);                                    \
                                                                                \
-        int model_validation_registerd = set_model_validation_function(        \
-          Functown::primary_parameters,                                        \
-          modelValidator(FUNC)                                                 \
+        int model_validation_registered = register_model_validation_function(  \
+          STRINGIFY(MODEL),                                                    \
+          FUNC                                                                 \
         );                                                                     \
       }                                                                        \
     }                                                                          \

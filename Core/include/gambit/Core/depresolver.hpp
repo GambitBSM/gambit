@@ -238,7 +238,7 @@ namespace Gambit
         /// scanned over.
         std::vector<std::pair<VertexID,bool>> closestCandidateForModel(std::vector<std::pair<VertexID,bool>> candidates);
 
-        /// Read the model invalidation handling from the ini file and set it
+        /// Read the model validation handling from the ini file and set it
         void setModelValidationHandling() const;
 
         //

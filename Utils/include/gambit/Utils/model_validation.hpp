@@ -18,10 +18,18 @@
 #ifndef __model_validation_hpp__
 #define __model_validation_hpp__
 
+#include <functional>
+#include <map>
+#include <string>
+
 #include "gambit/Utils/export_symbols.hpp"
-#include "gambit/Utils/model_parameters.hpp"
 
 namespace Gambit {
+
+  class ModelParameters;
+
+  /// Model validation functor type
+  typedef std::function<bool(const ModelParameters&)> modelValidator;
 
   /// Enumeration for model validation handling strategies.
   /// - pass: No model validation is performed.
@@ -54,6 +62,15 @@ namespace Gambit {
     /// Deactivate the model validation handler
     void deactivate();
 
+    /// Register a model validation function for a specific model
+    void registerModelValidator(const std::string& model_name, modelValidator f);
+
+    /// Check if a model validation function has been registered for a specific model
+    [[nodiscard]] bool hasModelValidator(const std::string& model_name) const;
+
+    /// Validate the parameters of a model
+    [[nodiscard]] bool validateModel(const ModelParameters& model_parameters) const;
+
     /// Run model validation
     void runModelValidation(const ModelParameters& model_parameters) const;
 
@@ -66,9 +83,13 @@ namespace Gambit {
   private:
     ModelValidationHandling _model_validation_handling;
     bool _model_validation_active;
+    std::map<std::string, modelValidator> _model_validators;
 
     ModelValidationHandler() : _model_validation_handling(ModelValidationHandling::pass), _model_validation_active(false) {}
   };
+
+  /// Helper function for registering a model validation function at static initialization
+  int register_model_validation_function(const std::string& model, modelValidator f);
 
 }
 

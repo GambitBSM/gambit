@@ -30,7 +30,6 @@
 
 #include <vector>
 
-#include "gambit/Utils/model_parameters.hpp"
 #include "gambit/Utils/util_types.hpp"
 
 namespace Gambit
@@ -51,9 +50,6 @@ namespace Gambit
 
   /// Add a new parameter to a primary model functor
   int add_parameter(model_functor&, str);
-
-  /// Set the validation function for a primary model functor
-  int set_model_validation_function(model_functor &primary_parameters, modelValidator f);
 
   /// Set the model name in a primary model functor
   int set_model_name(model_functor&, str);

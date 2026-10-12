@@ -288,9 +288,7 @@
   #undef CAPABILITY
 
   // The "module function" definition
-  // Use #ifdef as guard to ensure that this code gets only compiled once
-  #ifdef __gambit_main_hpp__
-  void MODEL_NAMESPACE::get_a_cap(unsigned int& result)
+  inline void MODEL_NAMESPACE::get_a_cap(unsigned int& result)
   {
       using namespace Pipes::get_a_cap;
 
@@ -300,7 +298,6 @@
 
       result = *Param.at("a") * xsec;
   }
-  #endif /* defined(__gambit_main_hpp__) */
 #undef MODEL
 
 #endif /* defined(__demo_hpp__) */
