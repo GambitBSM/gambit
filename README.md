@@ -149,9 +149,8 @@ Note that CMake will fail to find some dependencies on some systems without guid
 
 More information about the GAMBIT CMake system is provided in the Core paper. Configuration examples for specific computing clusters are available via gambit.hepforge.org.
 
-Maintainer-facing requirements for public CMake presets, dependency modelling,
-external packages, BOSS integration and build traceability are defined in
-[doc/CMAKE_PRESET_STANDARD.md](doc/CMAKE_PRESET_STANDARD.md).
+Preset usage, dependency discovery and compiler-profile switching are described
+in the [CMake preset guide](cmake/presets/README.md).
 
 For an HPC cluster, copy [CMakeUserPresets.json.example](CMakeUserPresets.json.example)
 to `CMakeUserPresets.json` and edit it for the loaded modules and site paths.

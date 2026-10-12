@@ -102,8 +102,7 @@ Bootstrap does not perform the switch itself.
 
 The current macOS `cbs-llvm` baseline has completed the ONNX/RestFrames scope
 migration, full CBS linking, `--help` startup and direct/same-configuration no-op
-builds. Acceptance is recorded per
-scenario in the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#preset-系统整体验收阶段).
+builds.
 
 Keep the current compiler, ROOT, SDK and shared `build/`. After the migration
 build and the two no-op checks, run the feature acceptance helper from the
@@ -129,14 +128,12 @@ tested feature OFF. A successful run restores both ON. Do not edit sources or
 run another configure/build during the check. `--help` covers startup and direct
 dynamic dependencies; analysis execution needs separate acceptance.
 
-The [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-08-开关验收入口)
-records this helper's checks and the manual OFF/ON sequence. The current macOS
-`cbs-llvm` run passed all four switches and the final no-op check, with 95 stable
-snapshot files and both features restored ON. This build baseline is ready for
+The current macOS `cbs-llvm` run passed all four switches and the final no-op
+check, with 95 stable snapshot files and both features restored ON. This build baseline is ready for
 delivery preparation; a small CBS YAML run remains separate functional acceptance.
 
-New-environment, AppleClang, Linux and full GAMBIT/DarkBit builds have separate
-acceptance records. Use another checkout or test machine for an independent
+New-environment, AppleClang, Linux and full GAMBIT/DarkBit builds require
+separate acceptance. Use another checkout or test machine for an independent
 clean build; each checkout still uses `build/`. Ninja and lld adaptations remain
 deferred. The maintainer runs all real configure/build and executable checks.
 
@@ -182,9 +179,6 @@ Script-only checks, with fake version reporters and no real compiler execution:
 python3 cmake/tests/native_compiler_selection.py
 ```
 
-See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#cfg-01-实施与验证)
-for current-toolchain verification and remaining platform checks.
-
 ## Selecting a macOS SDK
 
 GAMBIT and CBS resolve the SDK before `project()` enables compilers. A non-empty
@@ -219,9 +213,6 @@ Script-only checks, with synthetic xcrun responses and no real probes or compile
 ```sh
 python3 cmake/tests/macos_sdk.py
 ```
-
-See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#cfg-02-实施与验证)
-for current-SDK verification and remaining platform checks.
 
 ## OpenMP and macOS compiler flags
 
@@ -259,9 +250,6 @@ same configure/build to check stable reuse. Compiler-family switches still need
 ```sh
 python3 cmake/tests/platform_flags.py
 ```
-
-See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#cfg-05-实施与验证)
-for manual flags inspection and two-round CBS validation.
 
 ## Validation check caches
 
@@ -312,9 +300,6 @@ no real compiler or project configure is invoked:
 ```sh
 python3 cmake/tests/validation_cache.py
 ```
-
-See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#cfg-03-实施与验证)
-for incremental and forced-check acceptance steps.
 
 ## Process-local discovery reuse
 
@@ -513,9 +498,6 @@ does not request this removal. To check preservation without compiling:
 python3 cmake/tests/contrib_retention.py
 ```
 
-See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-04-实施与验证)
-for maintainer verification with real installed libraries and timestamps.
-
 ## RestFrames switch and native recompilation
 
 RestFrames settings are generated in
@@ -574,9 +556,6 @@ python3 cmake/tests/restframes_scope.py
 python3 cmake/tests/contrib_retention.py
 ```
 
-See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-08-restframes-实施与验证)
-for the OFF/ON build sequence and common-header/compile-flags timestamp checks.
-
 ## ONNX switch and optional runtime paths
 
 ONNX availability is generated in
@@ -627,9 +606,6 @@ python3 cmake/tests/contrib_retention.py
 python3 cmake/tests/cbs_feature_acceptance.py
 ```
 
-See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-08-onnx-与可选-rpath-实施与验证)
-for the ONNX/RestFrames OFF/ON sequence, link-command snapshots and loader check.
-
 ## FastJet installation reuse
 
 FastJet and FastJet Contrib are reused when the required libraries, headers,
@@ -676,9 +652,6 @@ Script-only regression checks:
 ```sh
 python3 cmake/tests/contrib_build_identity.py
 ```
-
-See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-05-实施与验证)
-for maintainer checks and the remaining platform validation.
 
 ## External backend incremental builds
 
@@ -731,10 +704,8 @@ Script-only regression checks:
 python3 cmake/tests/external_auto_rebuild.py
 ```
 
-See the [development ledger](../../doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md#build-07-实施与验证)
-for logs and stamp/library timestamp checks. The current macOS LLVM build has
-passed initial recording, direct unchanged builds and unchanged builds after
-reconfiguration. Source-touch, timestamp comparisons and other platforms remain
+The current macOS LLVM build has passed initial recording, direct unchanged
+builds and unchanged builds after reconfiguration. Source-touch, timestamp comparisons and other platforms remain
 to be verified.
 
 ## Compiler caching
