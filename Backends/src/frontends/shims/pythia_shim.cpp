@@ -298,6 +298,51 @@ extern "C"
     return static_cast<Pythia8::Particle*>(handle)->p().mCalc();
   }
 
+  // Direct Particle accessors used by ColliderBit/colliders/EventConversionUtils.hpp
+  // and Py8EventConversions.hpp alongside p()/motherList() above -- these
+  // duplicate information already reachable via p4()/motherList() in the
+  // real API, but are called directly on Particle rather than via p(), so
+  // need their own shim entries.
+  int pythia_particle_id_abs(void* handle)
+  {
+    return static_cast<Pythia8::Particle*>(handle)->idAbs();
+  }
+
+  double pythia_particle_eta(void* handle)
+  {
+    return static_cast<Pythia8::Particle*>(handle)->eta();
+  }
+
+  double pythia_particle_px(void* handle)
+  {
+    return static_cast<Pythia8::Particle*>(handle)->px();
+  }
+
+  double pythia_particle_py(void* handle)
+  {
+    return static_cast<Pythia8::Particle*>(handle)->py();
+  }
+
+  double pythia_particle_pz(void* handle)
+  {
+    return static_cast<Pythia8::Particle*>(handle)->pz();
+  }
+
+  double pythia_particle_m(void* handle)
+  {
+    return static_cast<Pythia8::Particle*>(handle)->m();
+  }
+
+  int pythia_particle_mother1(void* handle)
+  {
+    return static_cast<Pythia8::Particle*>(handle)->mother1();
+  }
+
+  int pythia_particle_mother2(void* handle)
+  {
+    return static_cast<Pythia8::Particle*>(handle)->mother2();
+  }
+
   // =====================================================================
   // Info (Pythia8::Info) -- always reached via pythia_get_info above.
   // =====================================================================

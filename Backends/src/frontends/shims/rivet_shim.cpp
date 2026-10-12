@@ -6,15 +6,14 @@
 ///  alternative to the BOSS-generated frontend for
 ///  Rivet::AnalysisHandler.
 ///
-///  PROTOTYPE / NOT WIRED INTO THE BUILD. This file demonstrates
-///  the "thin C-linkage shim" alternative to BOSS discussed for
-///  the Rivet backend. It is compiled directly against the real
-///  Rivet/HepMC3 headers (ordinary C++, nothing special), and
-///  exports a small, flat, unmangled API covering only the
-///  AnalysisHandler methods GAMBIT's ColliderBit module actually
-///  calls (see Backends/src/frontends/shims/README.md for the
-///  method-by-method justification and for what is required to
-///  turn this into a real build target).
+///  This file is compiled directly against the real Rivet/HepMC3
+///  headers (ordinary C++, nothing special) by an
+///  ExternalProject_Add_Step in cmake/backends.cmake, into
+///  librivet_shim.so, and exports a small, flat, unmangled API
+///  covering only the AnalysisHandler methods GAMBIT's ColliderBit
+///  module actually calls (see
+///  Backends/src/frontends/shims/README.md for the method-by-method
+///  justification).
 ///
 ///  *********************************************
 ///
@@ -30,6 +29,7 @@
 #include "HepMC3/GenEvent.h"
 
 #include <cstdio>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -129,6 +129,23 @@ extern "C"
   void rivet_handler_write_data(void* handle, const char* filename)
   {
     static_cast<Rivet::AnalysisHandler*>(handle)->writeData(filename);
+  }
+
+  // Rivet::AnalysisHandler also has a stream-based overload
+  // (writeData(ostream&, const string& fmt)), used by
+  // ColliderBit_measurements.cpp to collect the YODA output into an
+  // in-memory std::ostringstream rather than a file. Caller-owned-buffer
+  // convention, exactly like pythia_event_list(): returns the *true*
+  // length of the written data (via snprintf), so the caller can grow and
+  // retry rather than guess a fixed size -- see
+  // Backends/src/frontends/shims/README.md's Pythia Event::list() entry for
+  // why a fixed guess is never actually safe.
+  int rivet_handler_write_data_stream(void* handle, const char* fmt, char* buf, int buflen)
+  {
+    std::ostringstream ss;
+    static_cast<Rivet::AnalysisHandler*>(handle)->writeData(ss, fmt);
+    const std::string& s = ss.str();
+    return std::snprintf(buf, buflen, "%s", s.c_str());
   }
 
   void rivet_handler_merge(void* dst_handle, void* src_handle)

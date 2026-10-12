@@ -27,6 +27,16 @@
 ///
 ///  *********************************************
 
+// Top-level include guard: this header is also pulled in a second time,
+// transitively, via backend_types/Rivet_4_1_0/loaded_types.hpp ->
+// backend_types_rollcall.hpp, to make Rivet_4_1_0::Rivet::AnalysisHandler
+// visible to code (ColliderBit_measurements.cpp's `using namespace
+// Rivet_default::Rivet;`) that never itself includes backend_rollcall.hpp.
+// Without this guard, a TU that includes both rollcalls would see
+// everything here twice.
+#ifndef __frontend_Rivet_4_1_0_hpp__
+#define __frontend_Rivet_4_1_0_hpp__
+
 #ifndef EXCLUDE_YODA
 #ifndef EXCLUDE_HEPMC
 
@@ -62,109 +72,20 @@ BE_FUNCTION(rivet_handler_nominal_cross_section, double, (void*),               
 BE_FUNCTION(rivet_handler_analyze,              void,  (void*, HepMC3::GenEvent*),              "rivet_handler_analyze",              "rivet_handler_analyze")
 BE_FUNCTION(rivet_handler_finalize,             void,  (void*),                                 "rivet_handler_finalize",             "rivet_handler_finalize")
 BE_FUNCTION(rivet_handler_write_data,           void,  (void*, const char*),                    "rivet_handler_write_data",           "rivet_handler_write_data")
+BE_FUNCTION(rivet_handler_write_data_stream,    int,   (void*, const char*, char*, int),        "rivet_handler_write_data_stream",    "rivet_handler_write_data_stream")
 BE_FUNCTION(rivet_handler_merge,                void,  (void*, void*),                          "rivet_handler_merge",                "rivet_handler_merge")
 BE_FUNCTION(rivet_add_analysis_lib_path,        void,  (const char*),                           "rivet_add_analysis_lib_path",        "rivet_add_analysis_lib_path")
 
-namespace Gambit
-{
-  namespace Backends
-  {
-    namespace Rivet_4_1_0
-    {
-      namespace Rivet
-      {
-        /// GAMBIT-side stand-in for Rivet::AnalysisHandler, backed by the
-        /// rivet_handler_* functions above instead of a BOSS-generated
-        /// wrapper/abstract class pair. Exposes exactly the methods
-        /// ColliderBit_measurements.cpp calls.
-        class AnalysisHandler
-        {
-          public:
-            AnalysisHandler() : handle_(Gambit::Backends::Rivet_4_1_0::rivet_handler_create()) {}
-
-            ~AnalysisHandler()
-            {
-              Gambit::Backends::Rivet_4_1_0::rivet_handler_destroy(handle_);
-            }
-
-            AnalysisHandler(const AnalysisHandler&) = delete;
-            AnalysisHandler& operator=(const AnalysisHandler&) = delete;
-
-            void addAnalysis(const std::string& name)
-            {
-              Gambit::Backends::Rivet_4_1_0::rivet_handler_add_analysis(handle_, name.c_str());
-            }
-
-            void removeAnalyses(const std::vector<std::string>& names)
-            {
-              std::vector<const char*> c;
-              c.reserve(names.size());
-              for (const auto& n : names) c.push_back(n.c_str());
-              Gambit::Backends::Rivet_4_1_0::rivet_handler_remove_analyses(handle_, c.data(), static_cast<int>(c.size()));
-            }
-
-            std::vector<std::string> analysisNames() const
-            {
-              return collectNames(Gambit::Backends::Rivet_4_1_0::rivet_handler_num_analysis_names,
-                                   Gambit::Backends::Rivet_4_1_0::rivet_handler_analysis_name);
-            }
-
-            std::vector<std::string> stdAnalysisNames() const
-            {
-              return collectNames(Gambit::Backends::Rivet_4_1_0::rivet_handler_num_std_analysis_names,
-                                   Gambit::Backends::Rivet_4_1_0::rivet_handler_std_analysis_name);
-            }
-
-            // Note: no beamIds()/sqrtS()/runName() -- see the BE_FUNCTION
-            // block above for why.
-
-            double nominalCrossSection() const
-            {
-              return Gambit::Backends::Rivet_4_1_0::rivet_handler_nominal_cross_section(handle_);
-            }
-
-            void analyze(HepMC3::GenEvent& ge)
-            {
-              Gambit::Backends::Rivet_4_1_0::rivet_handler_analyze(handle_, &ge);
-            }
-
-            void finalize()
-            {
-              Gambit::Backends::Rivet_4_1_0::rivet_handler_finalize(handle_);
-            }
-
-            void writeData(const std::string& filename)
-            {
-              Gambit::Backends::Rivet_4_1_0::rivet_handler_write_data(handle_, filename.c_str());
-            }
-
-            void merge(AnalysisHandler& other)
-            {
-              Gambit::Backends::Rivet_4_1_0::rivet_handler_merge(handle_, other.handle_);
-            }
-
-          private:
-            template <typename CountFn, typename GetFn>
-            std::vector<std::string> collectNames(CountFn count_fn, GetFn get_fn) const
-            {
-              int n = count_fn(handle_);
-              std::vector<std::string> out;
-              out.reserve(n);
-              char buf[256];
-              for (int i = 0; i < n; ++i)
-              {
-                get_fn(handle_, i, buf, sizeof(buf));
-                out.emplace_back(buf);
-              }
-              return out;
-            }
-
-            void* handle_;
-        };
-      }
-    }
-  }
-}
+// The actual Rivet_4_1_0::Rivet::AnalysisHandler class definition lives in
+// backend_types/Rivet_4_1_0/loaded_types.hpp, not here -- see the comment
+// at the top of that file for why (it's reached from contexts that must
+// never see frontend_macros.hpp's module-registration machinery, which the
+// BE_FUNCTION declarations above require). Including it here, after those
+// declarations, makes the class available to code that reaches Rivet only
+// via this frontend, while that header's own include guard means nothing is
+// defined twice for code that reaches it via both paths in the same
+// translation unit.
+#include "gambit/Backends/backend_types/Rivet_4_1_0/loaded_types.hpp"
 
 // Convenience functions (definitions)
 namespace Gambit
@@ -184,5 +105,6 @@ namespace Gambit
 // End
 #include "gambit/Backends/backend_undefs.hpp"
 
-#endif
-#endif
+#endif // EXCLUDE_HEPMC
+#endif // EXCLUDE_YODA
+#endif // __frontend_Rivet_4_1_0_hpp__

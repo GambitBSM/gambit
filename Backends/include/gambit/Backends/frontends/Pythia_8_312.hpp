@@ -33,6 +33,17 @@
 ///
 ///  *********************************************
 
+// Top-level include guard: unlike a BOSS-generated frontend (which only ever
+// gets included once, directly, via backend_rollcall.hpp), this header is
+// also pulled in a second time, transitively, via backend_types/Pythia_8_312/
+// loaded_types.hpp -> backend_types_rollcall.hpp, to make the bare
+// Pythia_8_312::Pythia8::* classes visible to code (module_functor_types.hpp,
+// Py8Collider_typedefs.hpp's Pythia_default alias) that never itself includes
+// backend_rollcall.hpp. Without this guard, a TU that includes both rollcalls
+// would get every class here defined twice.
+#ifndef __frontend_Pythia_8_312_hpp__
+#define __frontend_Pythia_8_312_hpp__
+
 #ifndef EXCLUDE_HEPMC
 
 #include "gambit/Backends/backend_types/Pythia_8_312/identification.hpp"
@@ -82,6 +93,14 @@ BE_FUNCTION(pythia_particle_mother_list,        int,    (void*, int*, int),     
 BE_FUNCTION(pythia_particle_daughter_list,      int,    (void*, int*, int),                        "pythia_particle_daughter_list",       "pythia_particle_daughter_list")
 BE_FUNCTION(pythia_particle_p4,                 void,   (void*, double*, double*, double*, double*), "pythia_particle_p4",                "pythia_particle_p4")
 BE_FUNCTION(pythia_particle_p_mcalc,            double, (void*),                                   "pythia_particle_p_mcalc",             "pythia_particle_p_mcalc")
+BE_FUNCTION(pythia_particle_id_abs,             int,    (void*),                                   "pythia_particle_id_abs",              "pythia_particle_id_abs")
+BE_FUNCTION(pythia_particle_eta,                double, (void*),                                   "pythia_particle_eta",                 "pythia_particle_eta")
+BE_FUNCTION(pythia_particle_px,                 double, (void*),                                   "pythia_particle_px",                  "pythia_particle_px")
+BE_FUNCTION(pythia_particle_py,                 double, (void*),                                   "pythia_particle_py",                  "pythia_particle_py")
+BE_FUNCTION(pythia_particle_pz,                 double, (void*),                                   "pythia_particle_pz",                  "pythia_particle_pz")
+BE_FUNCTION(pythia_particle_m,                  double, (void*),                                   "pythia_particle_m",                   "pythia_particle_m")
+BE_FUNCTION(pythia_particle_mother1,            int,    (void*),                                   "pythia_particle_mother1",             "pythia_particle_mother1")
+BE_FUNCTION(pythia_particle_mother2,            int,    (void*),                                   "pythia_particle_mother2",             "pythia_particle_mother2")
 
 BE_FUNCTION(pythia_info_sigma_gen,              double, (void*),                                   "pythia_info_sigma_gen",              "pythia_info_sigma_gen")
 BE_FUNCTION(pythia_info_sigma_gen_code,         double, (void*, int),                              "pythia_info_sigma_gen_code",         "pythia_info_sigma_gen_code")
@@ -97,367 +116,19 @@ BE_FUNCTION(pythia_hepmc_writer_write_event_hepmc2, void, (void*, void*),       
 BE_FUNCTION(pythia_hepmc_writer_write_event_hepmc3, void, (void*, void*),                           "pythia_hepmc_writer_write_event_hepmc3", "pythia_hepmc_writer_write_event_hepmc3")
 BE_FUNCTION(pythia_hepmc_writer_convert_to_hepmc_event, void, (void*, void*, HepMC3::GenEvent*),    "pythia_hepmc_writer_convert_to_hepmc_event", "pythia_hepmc_writer_convert_to_hepmc_event")
 
-namespace Gambit
-{
-  namespace Backends
-  {
-    namespace Pythia_8_312
-    {
-      namespace Pythia8
-      {
-        /// Opaque, non-owning stand-in for Pythia8::Settings. Nothing in
-        /// GAMBIT ever calls a method on this type -- it is only ever read
-        /// off one Pythia instance (Pythia::settings) and handed straight
-        /// into another Pythia instance's constructor (see Py8Collider.hpp:
-        /// `new PythiaT(_pythiaBase->settings, _pythiaBase->particleData)`).
-        /// So, unlike every other class here, it needs no methods at all --
-        /// just something with the right type identity to pass through.
-        class Settings
-        {
-          public:
-            explicit Settings(void* handle) : handle_(handle) {}
-            void* get_BEhandle() const { return handle_; }
-          private:
-            void* handle_;
-        };
-
-        /// Opaque, non-owning stand-in for Pythia8::ParticleData. See Settings above.
-        class ParticleData
-        {
-          public:
-            explicit ParticleData(void* handle) : handle_(handle) {}
-            void* get_BEhandle() const { return handle_; }
-          private:
-            void* handle_;
-        };
-
-        /// GAMBIT-side stand-in for Pythia8::SusyLesHouches, reached only
-        /// through Pythia::slhaInterface.slha. Exposes exactly the one
-        /// method ColliderBit calls on it.
-        class SusyLesHouches
-        {
-          public:
-            explicit SusyLesHouches(void* handle) : handle_(handle) {}
-
-            void setSLHAea(const SLHAea::Coll* coll)
-            {
-              Gambit::Backends::Pythia_8_312::pythia_slha_set_slhaea(handle_, coll);
-            }
-
-          private:
-            void* handle_;
-        };
-
-        /// GAMBIT-side stand-in for Pythia8::SLHAinterface. Only ever
-        /// reached through Pythia::slhaInterface, and only ever used for
-        /// its own .slha member -- no other SLHAinterface method is called
-        /// anywhere in GAMBIT, so none are wrapped.
-        class SLHAinterface
-        {
-          public:
-            explicit SLHAinterface(void* slha_handle) : slha(slha_handle) {}
-            SusyLesHouches slha;
-        };
-
-        /// GAMBIT-side stand-in for Pythia8::Vec4, flattened down to the
-        /// four fields and one derived quantity (mCalc()) that
-        /// ColliderBit/colliders/Pythia8/Py8Utils.hpp actually reads
-        /// (mk_p4()/mk_pseudojet()) -- see pythia_particle_p4() in
-        /// pythia_shim.cpp for why a full Vec4 handle type wasn't needed.
-        class Vec4
-        {
-          public:
-            Vec4(double px, double py, double pz, double e, double mcalc)
-              : px_(px), py_(py), pz_(pz), e_(e), mcalc_(mcalc) {}
-
-            double px() const { return px_; }
-            double py() const { return py_; }
-            double pz() const { return pz_; }
-            double e()  const { return e_; }
-            double mCalc() const { return mcalc_; }
-
-          private:
-            double px_, py_, pz_, e_, mcalc_;
-        };
-
-        /// GAMBIT-side stand-in for Pythia8::Particle. Always reached via a
-        /// non-owning pointer into some Event's own storage
-        /// (Event::operator[]) -- this class never owns or frees that
-        /// pointer, exactly matching the real API's reference semantics.
-        class Particle
-        {
-          public:
-            explicit Particle(void* handle) : handle_(handle) {}
-
-            int id() const { return Gambit::Backends::Pythia_8_312::pythia_particle_id(handle_); }
-            bool isFinal() const { return Gambit::Backends::Pythia_8_312::pythia_particle_is_final(handle_) != 0; }
-            bool isParton() const { return Gambit::Backends::Pythia_8_312::pythia_particle_is_parton(handle_) != 0; }
-            bool isHadron() const { return Gambit::Backends::Pythia_8_312::pythia_particle_is_hadron(handle_) != 0; }
-
-            std::vector<int> motherList() const
-            {
-              return collectInts(Gambit::Backends::Pythia_8_312::pythia_particle_mother_list);
-            }
-
-            std::vector<int> daughterList() const
-            {
-              return collectInts(Gambit::Backends::Pythia_8_312::pythia_particle_daughter_list);
-            }
-
-            Vec4 p() const
-            {
-              double px, py, pz, e;
-              Gambit::Backends::Pythia_8_312::pythia_particle_p4(handle_, &px, &py, &pz, &e);
-              double mcalc = Gambit::Backends::Pythia_8_312::pythia_particle_p_mcalc(handle_);
-              return Vec4(px, py, pz, e, mcalc);
-            }
-
-          private:
-            template <typename Fn>
-            std::vector<int> collectInts(Fn fn) const
-            {
-              // First call with a generous fixed buffer; grow and retry only
-              // in the (physically implausible for a single particle's
-              // mother/daughter list) case that it overflows.
-              std::vector<int> buf(16);
-              int n = fn(handle_, buf.data(), static_cast<int>(buf.size()));
-              if (n > static_cast<int>(buf.size()))
-              {
-                buf.resize(n);
-                n = fn(handle_, buf.data(), static_cast<int>(buf.size()));
-              }
-              buf.resize(n);
-              return buf;
-            }
-
-            void* handle_;
-        };
-
-        /// GAMBIT-side stand-in for Pythia8::Info. Always reached via
-        /// Pythia::info -- never created or destroyed independently.
-        class Info
-        {
-          public:
-            explicit Info(void* handle) : handle_(handle) {}
-
-            double sigmaGen() const { return Gambit::Backends::Pythia_8_312::pythia_info_sigma_gen(handle_); }
-            double sigmaGen(int process_code) const { return Gambit::Backends::Pythia_8_312::pythia_info_sigma_gen_code(handle_, process_code); }
-            double sigmaErr() const { return Gambit::Backends::Pythia_8_312::pythia_info_sigma_err(handle_); }
-            double sigmaErr(int process_code) const { return Gambit::Backends::Pythia_8_312::pythia_info_sigma_err_code(handle_, process_code); }
-            int code() const { return Gambit::Backends::Pythia_8_312::pythia_info_code(handle_); }
-
-            std::vector<int> codesHard() const
-            {
-              std::vector<int> buf(64);
-              int n = Gambit::Backends::Pythia_8_312::pythia_info_codes_hard(handle_, buf.data(), static_cast<int>(buf.size()));
-              if (n > static_cast<int>(buf.size()))
-              {
-                buf.resize(n);
-                n = Gambit::Backends::Pythia_8_312::pythia_info_codes_hard(handle_, buf.data(), static_cast<int>(buf.size()));
-              }
-              buf.resize(n);
-              return buf;
-            }
-
-          private:
-            void* handle_;
-        };
-
-        /// GAMBIT-side stand-in for Pythia8::Event. Unlike the classes
-        /// above, this one needs real value semantics -- GAMBIT module
-        /// code default-constructs its own Events, clears and refills them
-        /// every event, and copy-assigns Pythia's own internal event into
-        /// them (`event = _pythiaInstance->event;` in Py8Collider.hpp).
-        /// Owning instances are created via the default constructor and
-        /// destroyed in the destructor; non-owning instances (wrapping a
-        /// pointer into some other object's storage, e.g. Pythia::event)
-        /// are built via the private pointer+bool constructor and never
-        /// call pythia_event_destroy.
-        class Event
-        {
-          public:
-            Event() : handle_(Gambit::Backends::Pythia_8_312::pythia_event_create()), owns_(true) {}
-
-            ~Event()
-            {
-              if (owns_) Gambit::Backends::Pythia_8_312::pythia_event_destroy(handle_);
-            }
-
-            Event(const Event& other) : handle_(Gambit::Backends::Pythia_8_312::pythia_event_create()), owns_(true)
-            {
-              Gambit::Backends::Pythia_8_312::pythia_event_assign(handle_, other.handle_);
-            }
-
-            Event& operator=(const Event& other)
-            {
-              Gambit::Backends::Pythia_8_312::pythia_event_assign(handle_, other.handle_);
-              return *this;
-            }
-
-            void clear() { Gambit::Backends::Pythia_8_312::pythia_event_clear(handle_); }
-
-            int size() const { return Gambit::Backends::Pythia_8_312::pythia_event_size(handle_); }
-
-            Particle operator[](int i) const
-            {
-              return Particle(Gambit::Backends::Pythia_8_312::pythia_event_particle(handle_, i));
-            }
-
-            std::vector<int> daughterList(int i) const
-            {
-              std::vector<int> buf(16);
-              int n = Gambit::Backends::Pythia_8_312::pythia_event_daughter_list(handle_, i, buf.data(), static_cast<int>(buf.size()));
-              if (n > static_cast<int>(buf.size()))
-              {
-                buf.resize(n);
-                n = Gambit::Backends::Pythia_8_312::pythia_event_daughter_list(handle_, i, buf.data(), static_cast<int>(buf.size()));
-              }
-              buf.resize(n);
-              return buf;
-            }
-
-            /// Only the 4-argument overload (showScaleAndVertex,
-            /// showMothersAndDaughters, precision, ostream&) is ever called
-            /// anywhere in GAMBIT -- see generateEventPy8Collider.hpp and
-            /// PerformInitialCrossSection_Pythia(), both only using it to
-            /// dump a failed event into the debug log. Other real overloads
-            /// (defaulting precision/ostream) are deliberately not wrapped.
-            void list(bool show_scale_and_vertex, bool show_mothers_and_daughters, int precision, std::ostream& os) const
-            {
-              // pythia_event_list() returns the *true* length of the listing
-              // (like snprintf does), not just whatever fits in the buffer --
-              // same grow-and-retry pattern as motherList()/daughterList()/
-              // codesHard() above, rather than a fixed-size guess. A real
-              // hadronic event's full listing comfortably exceeds 8KB
-              // (verified against a real Pythia 8.312 build, where a single
-              // minimum-bias-ish QCD event produced >20KB of listing text),
-              // so start with a generous buffer and only pay for a second
-              // call on the rare event that's still too small.
-              std::vector<char> buf(65536);
-              int n = Gambit::Backends::Pythia_8_312::pythia_event_list(handle_, show_scale_and_vertex ? 1 : 0, show_mothers_and_daughters ? 1 : 0, precision, buf.data(), static_cast<int>(buf.size()));
-              if (n >= static_cast<int>(buf.size()))
-              {
-                buf.resize(n + 1);
-                Gambit::Backends::Pythia_8_312::pythia_event_list(handle_, show_scale_and_vertex ? 1 : 0, show_mothers_and_daughters ? 1 : 0, precision, buf.data(), static_cast<int>(buf.size()));
-              }
-              os << buf.data();
-            }
-
-            /// Non-owning constructor: wraps a pointer into another object's
-            /// storage (e.g. Pythia::event) without taking ownership of it.
-            explicit Event(void* non_owned_handle, bool /*tag*/) : handle_(non_owned_handle), owns_(false) {}
-
-          private:
-            void* handle_;
-            bool owns_;
-        };
-
-        /// GAMBIT-side stand-in for Pythia8::Pythia -- a drop-in replacement
-        /// for the BOSS-generated wrapper type that Py8Collider.hpp (and the
-        /// macros in getPy8Collider.hpp/generateEventPy8Collider.hpp that
-        /// instantiate it) already use. Exposes exactly the public data
-        /// members and methods those call sites touch.
-        class Pythia
-        {
-          public:
-            Pythia(const std::string& xml_dir, bool print_banner = true)
-              : handle_(Gambit::Backends::Pythia_8_312::pythia_create(xml_dir.c_str(), print_banner ? 1 : 0)),
-                settings(Gambit::Backends::Pythia_8_312::pythia_get_settings(handle_)),
-                particleData(Gambit::Backends::Pythia_8_312::pythia_get_particle_data(handle_)),
-                slhaInterface(Gambit::Backends::Pythia_8_312::pythia_get_slha(handle_)),
-                event(Gambit::Backends::Pythia_8_312::pythia_get_event(handle_), true),
-                info(Gambit::Backends::Pythia_8_312::pythia_get_info(handle_))
-            {}
-
-            Pythia(Settings& settings_in, ParticleData& particle_data_in, bool print_banner = true)
-              : handle_(Gambit::Backends::Pythia_8_312::pythia_create_from_base(settings_in.get_BEhandle(), particle_data_in.get_BEhandle(), print_banner ? 1 : 0)),
-                settings(Gambit::Backends::Pythia_8_312::pythia_get_settings(handle_)),
-                particleData(Gambit::Backends::Pythia_8_312::pythia_get_particle_data(handle_)),
-                slhaInterface(Gambit::Backends::Pythia_8_312::pythia_get_slha(handle_)),
-                event(Gambit::Backends::Pythia_8_312::pythia_get_event(handle_), true),
-                info(Gambit::Backends::Pythia_8_312::pythia_get_info(handle_))
-            {}
-
-            ~Pythia()
-            {
-              Gambit::Backends::Pythia_8_312::pythia_destroy(handle_);
-            }
-
-            Pythia(const Pythia&) = delete;
-            Pythia& operator=(const Pythia&) = delete;
-
-            bool readString(const std::string& command) { return Gambit::Backends::Pythia_8_312::pythia_read_string(handle_, command.c_str()) != 0; }
-            bool init() { return Gambit::Backends::Pythia_8_312::pythia_init(handle_) != 0; }
-            bool next() { return Gambit::Backends::Pythia_8_312::pythia_next(handle_) != 0; }
-            double getSigmaMaxSum() { return Gambit::Backends::Pythia_8_312::pythia_get_sigma_max_sum(handle_); }
-
-            /// Not part of the real Pythia8::Pythia API: lets
-            /// GAMBIT_hepmc_writer (below) and anything else that needs to
-            /// hand a raw Pythia* back across the shim boundary get at the
-            /// underlying handle, matching the real GAMBIT_hepmc_writer
-            /// methods' `Pythia8::Pythia*` parameters.
-            void* get_BEhandle() const { return handle_; }
-
-            // Public data members, matching the real Pythia8::Pythia layout
-            // that Py8Collider.hpp reads directly (`_pythiaBase->settings`,
-            // `_pythiaInstance->event`, `_pythiaInstance->info.sigmaGen()`,
-            // `_pythiaInstance->slhaInterface.slha.setSLHAea(...)`).
-            Settings settings;
-            ParticleData particleData;
-            SLHAinterface slhaInterface;
-            Event event; // non-owning view of Pythia's own internal event
-            Info info;
-
-          private:
-            void* handle_;
-        };
-
-        /// GAMBIT-side stand-in for the GAMBIT-authored GAMBIT_hepmc_writer
-        /// class (patched into Pythia's own installed include tree; not
-        /// part of Pythia's real API). See
-        /// Backends/patches/pythia/8.312/patch_pythia_8.312.dif.
-        class GAMBIT_hepmc_writer
-        {
-          public:
-            GAMBIT_hepmc_writer() : handle_(Gambit::Backends::Pythia_8_312::pythia_hepmc_writer_create()) {}
-
-            ~GAMBIT_hepmc_writer()
-            {
-              Gambit::Backends::Pythia_8_312::pythia_hepmc_writer_destroy(handle_);
-            }
-
-            GAMBIT_hepmc_writer(const GAMBIT_hepmc_writer&) = delete;
-            GAMBIT_hepmc_writer& operator=(const GAMBIT_hepmc_writer&) = delete;
-
-            void init(const std::string& filename, bool hepmc2, bool hepmc3)
-            {
-              Gambit::Backends::Pythia_8_312::pythia_hepmc_writer_init(handle_, filename.c_str(), hepmc2 ? 1 : 0, hepmc3 ? 1 : 0);
-            }
-
-            void write_event_HepMC2(Pythia* pythia)
-            {
-              Gambit::Backends::Pythia_8_312::pythia_hepmc_writer_write_event_hepmc2(handle_, pythia->get_BEhandle());
-            }
-
-            void write_event_HepMC3(Pythia* pythia)
-            {
-              Gambit::Backends::Pythia_8_312::pythia_hepmc_writer_write_event_hepmc3(handle_, pythia->get_BEhandle());
-            }
-
-            void convert_to_HepMC_event(Pythia* pythia, HepMC3::GenEvent& event)
-            {
-              Gambit::Backends::Pythia_8_312::pythia_hepmc_writer_convert_to_hepmc_event(handle_, pythia->get_BEhandle(), &event);
-            }
-
-          private:
-            void* handle_;
-        };
-      }
-    }
-  }
-}
+// The actual Pythia_8_312::Pythia8::* class definitions live in
+// backend_types/Pythia_8_312/loaded_types.hpp, not here -- see the comment
+// at the top of that file for why (it's reached from contexts that must
+// never see frontend_macros.hpp's module-registration machinery, which the
+// BE_FUNCTION declarations above require). Including it here, after those
+// declarations, makes the classes available to code that reaches Pythia
+// only via this frontend (e.g. ColliderBit's BACKEND_REQ machinery), while
+// that header's own include guard means nothing is defined twice for code
+// that reaches it via both paths in the same translation unit.
+#include "gambit/Backends/backend_types/Pythia_8_312/loaded_types.hpp"
 
 // End
 #include "gambit/Backends/backend_undefs.hpp"
 
-#endif
+#endif // EXCLUDE_HEPMC
+#endif // __frontend_Pythia_8_312_hpp__
