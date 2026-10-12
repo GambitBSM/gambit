@@ -91,7 +91,9 @@ Scanner:
       plugin: grid
       #version: ">=1.0"
       like: LogLike
-      grid_pts: [5, 3]
+      grid_pts:
+        NormalDist::mu: 5
+        NormalDist::sigma: 3
 
     de:
       plugin: diver

@@ -27,9 +27,14 @@ class Grid(splug.scanner):
 Python implimentation of a simple grid scanner.  Evaluation points along a user-defined grid.
 
 YAML options:
-    grid_pts[10]: The number of points along each dimension on the grid.  A vector is given with each element corresponding to each dimension.
-    like:            Use the functors that correspond to the specified purpose.
-    parameters:      Specifies the order of parameters that corresponds to the grid points specified by the tag "grid_pts".
+    grid_pts:       A YAML map from "<model>::<param>" to integer, giving
+                    the number of grid points along each axis.  Every
+                    scanned parameter must appear as a key.  Example:
+                      grid_pts:
+                        NormalDist::mu: 5
+                        NormalDist::sigma: 3
+    like:           Use the functors that correspond to the specified purpose.
+    parameters:     Specifies the order of parameters that corresponds to the grid points specified by the tag "grid_pts".
 """
 
     # This specifies the version number.
@@ -44,60 +49,80 @@ YAML options:
 
         # You can access plugin data without using base class as follows:
         #
-        # # find mpi values
+        # # Find mpi values:
         # self.mpi_rank = scannerbit.rank()
         # self.mpi_size = scannerbit.numtasks()
-        # # gets dimension of hyper cube.
+        # 
+        # # Get dimension of hyper cube:
         # self.dim = splug.get_dimension()
-        
-        # # gets inifile value corresponding to "like" key
+        # 
+        # # Get inifile value corresponding to "like" key:
         # purpose = options["like"]
         #
-        # # or alternatively you can access the inifile options directly by:
+        # # Or alternatively, you can access the inifile options directly by:
         # purpose = splug.get_inifile_value("like", dtype=str)
         #
-        # # gets likelihood corresponding to the purpose "purpose"
+        # # Get likelihood corresponding to the purpose "purpose":
         # # self.like = splug.get_purpose(purpose)
         #
-        # # get grids pt number from inifile. Return a list of ints
-        # # grid_pts = options["grid_pts"]
-        
-        # # or alternatively you can access the inifile options directly by:
-        # # grid_pts = splug.get_inifile_value("grid_pts", dtype=list, etype=int)
-        
-        # # gets "parameters" infile value with a default of []. Returns a list of strings
-        # # parameters = splug.get_inifile_value("parameters", dtype=list, etype=str, default=list());
-        
-        if isinstance(grid_pts, int):
-            grid_points = [grid_pts] * self.dim
-        
-        if len(grid_pts) != self.dim:
-            raise RuntimeError("Grid scanner: The dimension of gambit ({0}) does not match the dimension of the inputed grid_pts ({1}).".format(self.dim, len(grid_pts)))
-        
-        self.size = np.prod(np.asarray(grid_pts))
-                
-        self.vecs=[]
+        # # Get grids pt number from inifile (returns a dict of {param: int}):
+        # # grid_pts = options["grid_pts"]   
+        # 
+        # # Or alternatively, you can access the inifile options directly by:
+        # # grid_pts = splug.get_inifile_value("grid_pts", dtype=dict)
 
-        # prepare the grid of points
-        if len(parameters) > 0:
-            param_names = self.parameter_names
-            # non-base class version:
-            # # get the parameters names from the prior
-            # param_names = splug.get_prior().getShownParameters()
-            
-            if len(param_names) != len(parameters):
-                raise RuntimeError("Grid scanner: The dimension of gambit ({0}) does not match the dimension of the inputed parameters ({1}).".format(len(param_names), len(parameters)))
-            
-            for param in param_names:
-                if param in parameters:
-                    self.vecs.append(np.linspace(0.0, 1.0, grid_pts[parameters.index(param)]))
-                else:
-                    raise RuntimeError("Grid scanner: parameter \"{0}\" is not provided.".format(param))
+        if not isinstance(grid_pts, dict):
+            raise RuntimeError(
+                "Grid scanner: \"grid_pts\" must be a YAML map from "
+                "\"<model>::<param>\" to integer, e.g.\n"
+                "    grid_pts:\n"
+                "      NormalDist::mu: 5\n"
+                "      NormalDist::sigma: 3")
 
-        else:
-            for n in grid_pts:
-                self.vecs.append(np.linspace(0.0, 1.0, n))
-    
+        param_names = self.parameter_names
+        # Non-base class version:
+        # # Get the parameters names from the prior:
+        # param_names = splug.get_prior().getShownParameters()
+
+        # Helper: splits a (possibly "+"-joined) shown parameter name into
+        # its constituent names, mirroring parse_sames() in the C++ grid
+        # scanner.  This lets users reference any one name of a "same_as"
+        # group when keying grid_pts.
+        def _name_set(joined):
+            return set(joined.split("+"))
+
+        N = [None] * self.dim
+
+        for key, value in grid_pts.items():
+            matched_index = None
+            for i, joined in enumerate(param_names):
+                if key in _name_set(joined):
+                    matched_index = i
+                    break
+            if matched_index is None:
+                raise RuntimeError(
+                    "Grid scanner: parameter \"{0}\" listed in grid_pts "
+                    "is not a scanned parameter.".format(key))
+            if N[matched_index] is not None:
+                raise RuntimeError(
+                    "Grid scanner: parameter \"{0}\" is specified more "
+                    "than once in grid_pts.".format(key))
+            N[matched_index] = int(value)
+
+        for i, joined in enumerate(param_names):
+            if N[i] is None:
+                raise RuntimeError(
+                    "Grid scanner: number of grid points for parameter "
+                    "\"{0}\" is not specified in grid_pts.".format(joined))
+
+        if self.mpi_rank == 0:
+            print("Grid scanner: parameter -> number of grid points mapping:")
+            for joined, n in zip(param_names, N):
+                print("    {0} -> {1}".format(joined, n))
+
+        self.size = int(np.prod(np.asarray(N)))
+        self.vecs = [np.linspace(0.0, 1.0, n) for n in N]
+
     # This runs the scanner.  This method is required.
     def run(self):
 

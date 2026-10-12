@@ -61,12 +61,16 @@ Scanner:
     grid:
       plugin: grid
       like: LogLike
-      grid_pts: [5, 3]
-      
+      grid_pts:
+        EggBox::param_0: 5
+        EggBox::param_1: 3
+
     python_grid:
       like: LogLike
       plugin: python_grid
-      grid_pts: [5, 3]
+      grid_pts:
+        EggBox::param_0: 5
+        EggBox::param_1: 3
       run:
         my_test: 1.1
 
