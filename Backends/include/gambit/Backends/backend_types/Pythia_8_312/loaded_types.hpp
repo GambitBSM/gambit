@@ -434,14 +434,27 @@ namespace Pythia_8_312
             // that Py8Collider.hpp reads directly (`_pythiaBase->settings`,
             // `_pythiaInstance->event`, `_pythiaInstance->info.sigmaGen()`,
             // `_pythiaInstance->slhaInterface.slha.setSLHAea(...)`).
+            //
+            // handle_ is declared (and thus constructed) FIRST, even though
+            // it's private and conceptually "belongs" after the public
+            // members: C++ initializes members in declaration order, not
+            // initializer-list order, and every one of settings/
+            // particleData/slhaInterface/event/info is itself constructed
+            // by calling a pythia_get_*(handle_) shim function on this very
+            // handle. Declaring it after them (as originally written here)
+            // compiled silently (with only a -Wreorder warning) but ran
+            // those pythia_get_*() calls against a not-yet-initialized
+            // handle_, segfaulting inside pythia_get_info() the first time
+            // ColliderBit actually constructed a Pythia object.
+          private:
+            void* handle_;
+
+          public:
             Settings settings;
             ParticleData particleData;
             SLHAinterface slhaInterface;
             Event event; // non-owning view of Pythia's own internal event
             Info info;
-
-          private:
-            void* handle_;
         };
 
         /// GAMBIT-side stand-in for the GAMBIT-authored GAMBIT_hepmc_writer
