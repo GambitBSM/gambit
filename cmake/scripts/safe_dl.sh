@@ -158,19 +158,27 @@ if [ "$6" != "none" ]; then
     fi
   }
 fi
-# Do the extraction
-cd $7
-$3 -E tar -xf $2/${filename}
-# Get rid of any internal 'container folder' from tarball, unless ${10} has been set
+# Inspect the archive in a fresh directory. Existing sources or a local/
+# installation must not prevent removal of the archive's container folder.
+extract_dir=$(mktemp -d "${TMPDIR:-/tmp}/gambit-extract.XXXXXX") || exit 1
+trap 'rm -rf "$extract_dir"' EXIT
+archive_path="$2/${filename}"
+case "$archive_path" in
+  /*) ;;
+  *) archive_path="$PWD/$archive_path" ;;
+esac
+(cd "$extract_dir" && "$3" -E tar -xf "$archive_path") || exit 1
+extract_source="$extract_dir"
 if [ "retain container folder" != "${10}" ]; then
-  if [ $(ls -1 | wc -l) = "1" ]; then
-    dirname=$(ls)
-    if [ -d ${dirname} ]; then
-      if cd ${dirname}; then
-        mv * ../
-        cd ../
-        $3 -E remove_directory ${dirname}
-      fi
+  entry_count=0
+  for entry in "$extract_dir"/* "$extract_dir"/.[!.]* "$extract_dir"/..?*; do
+    if [ -e "$entry" ] || [ -L "$entry" ]; then
+      entry_count=$((entry_count + 1))
+      container_dir="$entry"
     fi
+  done
+  if [ "$entry_count" = "1" ] && [ -d "$container_dir" ]; then
+    extract_source="$container_dir"
   fi
 fi
+"$3" -E copy_directory "$extract_source" "$7" || exit 1
