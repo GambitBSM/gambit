@@ -45,17 +45,12 @@
   (ModelParameters)                    \
   (triplet<double>)                    \
   (map_intpair_dbl)                    \
-  (flav_prediction)                    \
 
 #define HDF5_RETRIEVABLE_TYPES  \
   HDF5_TYPES                    \
   (MSSM_SLHAstruct)             \
   (SMslha_SLHAstruct)           \
 
-#define HDF5_BACKEND_TYPES             \
-  (DM_nucleon_couplings)               \
-  (BBN_container)                      \
-  
 #else
 
 #define HDF5_TYPES                     \

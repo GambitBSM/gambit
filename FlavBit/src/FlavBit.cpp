@@ -3093,5 +3093,65 @@ namespace Gambit
 
     }
 
+  // Shared conversion logic: flav_prediction central values -> map_str_dbl
+  #define FLAV_PRINTABLE_IMPL(cap) \
+    void printable_##cap##_impl(map_str_dbl& result) \
+    { \
+      using namespace Pipes::printable_##cap##_impl; \
+      result.clear(); \
+      for (const auto& kv : Dep::cap->central_values) result[kv.first] = kv.second; \
+    }
+
+  FLAV_PRINTABLE_IMPL(prediction_B2mumu)
+  FLAV_PRINTABLE_IMPL(prediction_B2taunu)
+  FLAV_PRINTABLE_IMPL(prediction_RDRDstar)
+  FLAV_PRINTABLE_IMPL(prediction_b2sgamma)
+  FLAV_PRINTABLE_IMPL(prediction_B2Kstargamma)
+  FLAV_PRINTABLE_IMPL(prediction_BRBXsmumu_lowq2)
+  FLAV_PRINTABLE_IMPL(prediction_BRBXsmumu_highq2)
+  FLAV_PRINTABLE_IMPL(prediction_AFBBXsmumu_lowq2)
+  FLAV_PRINTABLE_IMPL(prediction_AFBBXsmumu_highq2)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuBr_0p1_0p98)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuBr_1p1_2p5)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuBr_2p5_4)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuBr_4_6)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuBr_6_8)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuBr_15_19)
+  FLAV_PRINTABLE_IMPL(prediction_B2KmumuBr_0p05_2)
+  FLAV_PRINTABLE_IMPL(prediction_B2KmumuBr_2_4p3)
+  FLAV_PRINTABLE_IMPL(prediction_B2KmumuBr_4p3_8p68)
+  FLAV_PRINTABLE_IMPL(prediction_B2KmumuBr_14p18_16)
+  FLAV_PRINTABLE_IMPL(prediction_B2KmumuBr_16_18)
+  FLAV_PRINTABLE_IMPL(prediction_B2KmumuBr_18_22)
+  FLAV_PRINTABLE_IMPL(prediction_Bs2phimumuBr_1_6)
+  FLAV_PRINTABLE_IMPL(prediction_Bs2phimumuBr_15_19)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_0p1_2_Atlas)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_2_4_Atlas)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_4_8_Atlas)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_1_2_CMS)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_2_4p3_CMS)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_4p3_6_CMS)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_6_8p68_CMS)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_10p09_12p86_CMS)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_14p18_16_CMS)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_16_19_CMS)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_0p1_4_Belle)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_4_8_Belle)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_10p9_12p9_Belle)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_14p18_19_Belle)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_0p1_0p98_LHCb)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_1p1_2p5_LHCb)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_2p5_4_LHCb)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_4_6_LHCb)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_6_8_LHCb)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstarmumuAng_15_19_LHCb)
+  FLAV_PRINTABLE_IMPL(prediction_B2KstareeAng_0p0008_0p257_LHCb)
+  FLAV_PRINTABLE_IMPL(prediction_RK_LHCb_1p1_6)
+  FLAV_PRINTABLE_IMPL(prediction_RKstar_LHCb_0p045_1p1)
+  FLAV_PRINTABLE_IMPL(prediction_RKstar_LHCb_1p1_6)
+
+  #undef FLAV_PRINTABLE_IMPL
+
   }
+
 }

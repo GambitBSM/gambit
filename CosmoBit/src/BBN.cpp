@@ -786,6 +786,34 @@ namespace Gambit
       gsl_permutation_free(p);
     }
 
+  namespace
+  {
+    // Shared conversion logic for BBN_container -> map_str_dbl
+    map_str_dbl bbn_container_to_map(const BBN_container& bbn)
+    {
+      map_str_dbl m;
+      for (const str& i : bbn.get_active_isotopes())
+      {
+        int idx = bbn.get_abund_map().at(i);
+        m[i] = bbn.get_BBN_abund(idx);
+        m[i + "::1sigma_err"] = sqrt(bbn.get_BBN_covmat(idx, idx));
+      }
+      return m;
+    }
+  }
+
+  void printable_primordial_abundances_BBN_impl(map_str_dbl& result)
+  {
+    using namespace Pipes::printable_primordial_abundances_BBN_impl;
+    result = bbn_container_to_map(*Dep::primordial_abundances_BBN);
+  }
+
+  void printable_primordial_abundances_impl(map_str_dbl& result)
+  {
+    using namespace Pipes::printable_primordial_abundances_impl;
+    result = bbn_container_to_map(*Dep::primordial_abundances);
+  }
+
   } // namespace CosmoBit
 
 } // namespace Gambit
