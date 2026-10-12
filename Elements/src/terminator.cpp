@@ -16,10 +16,11 @@
 ///
 ///  *********************************************
 
+#include <exception>
+#include <iostream>
+
 #include "gambit/Elements/terminator.hpp"
 #include "gambit/Utils/file_lock.hpp"
-
-#include <exception>
 
 void Gambit::terminator()
 {

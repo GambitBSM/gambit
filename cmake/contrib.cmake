@@ -419,6 +419,8 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(FASTJET_CXX_FLAGS "${AUTOTOOLS_CXX_FLAGS}")
   set_compiler_warning("no-deprecated-declarations" FASTJET_CXX_FLAGS)
   set_compiler_warning("no-deprecated-copy" FASTJET_CXX_FLAGS)
+  # Newer libc++ no longer includes <algorithm> transitively; FastJet and fjcontrib need it.
+  set(FASTJET_CXX_FLAGS "${FASTJET_CXX_FLAGS} -include algorithm")
   # Rivet 4 needs the C++ plugins
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${fastjet_path} ${name} ${ver}
