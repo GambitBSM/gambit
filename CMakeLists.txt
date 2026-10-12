@@ -35,6 +35,10 @@
 #  \date 2021 Jul, Aug
 #  \date 2023 Jun
 #
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Aug, Oct
+#
 #************************************************
 
 # Set CMAKE_POLICY_VERSION_MINIMUM to 3.5 if CMAKE version >= 4
@@ -115,6 +119,13 @@ if(NOT Python3_Interpreter_FOUND)
   message(FATAL_ERROR "\nPython 3 was not found, but it is required by GAMBIT.  \nIf you need to set the path to the Python interpreter manually, "
                       "please use -DPython3_EXECUTABLE=path/to/preferred/python.")
 endif()
+
+# Set GAMBIT's PYTHON_VERSION_* variables from FindPython3
+set(PYTHON_VERSION_MAJOR "${Python3_VERSION_MAJOR}")
+set(PYTHON_VERSION_MINOR "${Python3_VERSION_MINOR}")
+set(PYTHON_VERSION_PATCH "${Python3_VERSION_PATCH}")
+set(PYTHON_VERSION "${Python3_VERSION}")
+
 message("${BoldYellow}   Using Python interpreter version ${Python3_VERSION} for build.${ColourReset}")
 
 if(Python3_Development_FOUND)
@@ -305,7 +316,15 @@ endforeach()
 
 # Check for Boost
 set(Boost_NO_BOOST_CMAKE ON)
+# Keep using CMake's FindBoost module (CMP0167, CMake >= 3.30) for this lookup only
+if(POLICY CMP0167)
+  cmake_policy(PUSH)
+  cmake_policy(SET CMP0167 OLD)
+endif()
 find_package(Boost 1.48)
+if(POLICY CMP0167)
+  cmake_policy(POP)
+endif()
 if(Boost_FOUND)
   include_directories("${Boost_INCLUDE_DIR}")
 else()
@@ -348,33 +367,29 @@ if("${GSL_CONFIG_EXECUTABLE}" STREQUAL "")
   endif()
 endif()
 
-# Check for OpenMP
-find_package(OpenMP QUIET)
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+# Check for OpenMP. Homebrew dependencies use the separate libomp formula,
+# including when the compiler is Homebrew LLVM rather than Apple Clang.
+if (APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_C_COMPILER_ID MATCHES "Clang")
   find_program(BREW NAMES brew)
-  # This block modified from https://github.com/CLIUtils/cmake/blob/master/PatchOpenMPApple.cmake
   if(BREW)
-    execute_process(COMMAND ${BREW} ls libomp RESULT_VARIABLE BREW_RESULT_CODE OUTPUT_QUIET ERROR_QUIET)
-    if(BREW_RESULT_CODE)
-      if(NOT OPENMP_FOUND)
-        message(FATAL_ERROR "You are using the Apple Clang compiler, and have HomeBrew installed, but have not installed OpenMP. Please run \"brew install libomp\"")
-      endif()
-    else()
-      execute_process(COMMAND ${BREW} --prefix libomp OUTPUT_VARIABLE BREW_LIBOMP_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
-      if(NOT OPENMP_FOUND)
-        set(OpenMP_CXX_FLAGS "-Xclang -fopenmp -I${BREW_LIBOMP_PREFIX}/include")
-        set(OpenMP_C_FLAGS "-Xclang -fopenmp -I${BREW_LIBOMP_PREFIX}/include")
-      endif()
+    execute_process(COMMAND ${BREW} --prefix libomp
+      RESULT_VARIABLE BREW_RESULT_CODE OUTPUT_VARIABLE BREW_LIBOMP_PREFIX
+      OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+    if(NOT BREW_RESULT_CODE AND EXISTS "${BREW_LIBOMP_PREFIX}/lib/libomp.dylib")
+      # -Xclang enables OpenMP compilation without implicitly linking LLVM's
+      # bundled runtime. All C/C++ targets link the same explicit library.
+      set(OpenMP_CXX_FLAGS "-Xclang -fopenmp -I${BREW_LIBOMP_PREFIX}/include")
+      set(OpenMP_C_FLAGS "-Xclang -fopenmp -I${BREW_LIBOMP_PREFIX}/include")
       set(OpenMP_CXX_LIB_NAMES "omp")
       set(OpenMP_C_LIB_NAMES "omp")
       set(OpenMP_omp_LIBRARY "${BREW_LIBOMP_PREFIX}/lib/libomp.dylib")
-      include_directories("${BREW_LIBOMP_PREFIX}/include")
+      set(FOUND_BREW_OPENMP TRUE)
       message(STATUS "Using Homebrew libomp from ${BREW_LIBOMP_PREFIX}")
-      set(FOUND_BREW_OPENMP True)
     endif()
   endif()
 endif()
-if (OPENMP_FOUND OR FOUND_BREW_OPENMP)
+find_package(OpenMP QUIET)
+if (OPENMP_FOUND)
   message("-- OpenMP found successfully")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -384,13 +399,9 @@ if (OPENMP_FOUND OR FOUND_BREW_OPENMP)
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
 else()
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-    if(NOT FOUND_BREW_OPENMP)
-      message(FATAL_ERROR "\nOpenMP libraries not found. You are using the Apple Clang compiler. The easiest way to get OpenMP support for Apple Clang is to install it via HomeBrew. If you want to install it some other way, e.g. via MacPorts, you need to manually set -DOpenMP_CXX_FLAGS -DOpenMP_CXX_LIB_NAMES -DOpenMP_C_FLAGS -DOpenMP_C_LIB_NAMES -DOpenMP_omp_LIBRARY when invoking cmake.")
-    endif()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_CXX_FLAGS}")
+    message(FATAL_ERROR "\nOpenMP libraries not found. Install libomp with Homebrew, or specify OpenMP_CXX_FLAGS, OpenMP_C_FLAGS, OpenMP_CXX_LIB_NAMES, OpenMP_C_LIB_NAMES and OpenMP_omp_LIBRARY for your installation.")
   else()
-    message(FATAL_ERROR "\nOpenMP libraries not found.  Your compiler installation seems to be broken.")
+    message(FATAL_ERROR "\nOpenMP libraries not found. Check your compiler and OpenMP installation.")
   endif()
 endif()
 
@@ -662,8 +673,7 @@ endforeach()
 
 # Make the collider_harvest step a dependency of ColliderBit
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
-  # ColliderBit depends on METSignificance
-  add_dependencies(ColliderBit METSignificance)
+  add_dependencies(ColliderBit collider_harvest)
 endif()
 
 # If SpecBit is in use, make flexiblesusy a dependency of SpecBit

@@ -19,6 +19,8 @@
 
 #include "gambit/ColliderBit/onnx_rt_wrapper.hpp"
 
+#include <ostream>
+
 using namespace std;
 
 namespace Gambit

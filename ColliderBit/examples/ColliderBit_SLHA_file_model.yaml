@@ -99,12 +99,12 @@ Rules:
       cross_section_uncert_fb:
         ColliderBit/data/example.slha: 101.32
         # list more SLHA files and corrsponding total cross section uncertainties here
-   
+
   - capability: InitialTotalCrossSection
     function: InitialTotalCrossSection_YAMLSLHA
     options:
       use_colliders:
-        - LHC_13TeV_SUSY_EWonly
+        - LHC_13TeV
       cross_section_fb:
         ColliderBit/data/example.slha: 1807.4
         # list more SLHA files and corrsponding total cross sections here
@@ -133,9 +133,9 @@ Rules:
     function: operateLHCLoop
     options:
       use_colliders:
-        - LHC_13TeV_SUSY_EWonly
+        - LHC_13TeV
       silenceLoop: false
-      LHC_13TeV_SUSY_EWonly:
+      LHC_13TeV:
         min_nEvents: 10000  # Chosen only for quick demo -- should be increased
         max_nEvents: 10000  # Chosen only for quick demo -- should be increased
         events_between_convergence_checks: 10000000
@@ -145,21 +145,14 @@ Rules:
         all_SR_must_converge: false
         maxFailedEvents: 10
         analyses:
-          - ATLAS_13TeV_2OSLEP_chargino_inclusive_80invfb
+          - ATLAS_CONF_2018_042_chargino_inclusive
 
   # Choose Monte Carlo event simulator and options.
   - capability:  HardScatteringSim
     type: Py8Collider_defaultversion
     function: getPythia_SLHA   # <-- The function to use for the model ColliderBit_SLHA_file_model
     options:
-      LHC_13TeV_SUSY_EWonly:
-        jet_collections:
-          antikt_R04:
-            algorithm: antikt
-            R: 0.4
-            recombination_scheme: E_scheme
-            strategy: Best
-        jet_collection_taus: antikt_R04
+      LHC_13TeV:
         xsec_veto: 0.028  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
         partonOnly: false
         pythia_settings:
@@ -211,7 +204,7 @@ Rules:
       cap_loglike: false
       cap_loglike_individual_analyses: false
       # skip_analyses:
-      #   - ATLAS_13TeV_2OSLEP_chargino_inclusive_80invfb
+      #   - ATLAS_CONF_2018_042_chargino_inclusive
 
 
 # Set the names of key log files

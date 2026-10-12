@@ -308,3 +308,102 @@ diff -rupN Rivet-4.1.0/configure ../installed/rivet/4.1.0/configure
  else
    FASTJETLIBADD="-L$FASTJETLIBPATH -l$FASTJETLIBNAME -lfastjetplugins"
  fi
+
+--- a/include/Rivet/Tools/RivetSTL.hh
++++ b/include/Rivet/Tools/RivetSTL.hh
+@@ -1,6 +1,7 @@
+ #ifndef RIVET_RivetSTL_HH
+ #define RIVET_RivetSTL_HH
+ 
++#include <algorithm>
+ #include <string>
+ #include <array>
+ #include <vector>
+
+--- a/include/Rivet/ProjectionApplier.hh
++++ b/include/Rivet/ProjectionApplier.hh
+@@ -2,6 +2,7 @@
+ #ifndef RIVET_ProjectionApplier_HH
+ #define RIVET_ProjectionApplier_HH
+ 
++#include <algorithm>
+ #include <deque>
+ #include "Rivet/Config/RivetCommon.hh"
+ #include "Rivet/Projection.fhh"
+
+--- a/include/Rivet/Math/MathUtils.hh
++++ b/include/Rivet/Math/MathUtils.hh
+@@ -2,6 +2,7 @@
+ #ifndef RIVET_MathUtils_HH
+ #define RIVET_MathUtils_HH
+ 
++#include <algorithm>
+ #include "Rivet/Math/MathConstants.hh"
+ #include <type_traits>
+ #include <cassert>
+
+--- a/include/Rivet/Math/Vector3.hh
++++ b/include/Rivet/Math/Vector3.hh
+@@ -1,6 +1,7 @@
+ #ifndef RIVET_MATH_VECTOR3
+ #define RIVET_MATH_VECTOR3
+ 
++#include <algorithm>
+ #include "Rivet/Tools/TypeTraits.hh"
+ #include "Rivet/Math/MathConstants.hh"
+ #include "Rivet/Math/MathUtils.hh"
+
+--- a/include/Rivet/Tools/Utils.hh
++++ b/include/Rivet/Tools/Utils.hh
+@@ -2,6 +2,7 @@
+ #ifndef RIVET_Utils_HH
+ #define RIVET_Utils_HH
+ 
++#include <algorithm>
+ #include "Rivet/Tools/RivetSTL.hh"
+ #include "Rivet/Tools/TypeTraits.hh"
+ #include "Rivet/Tools/PrettyPrint.hh"
+
+--- a/include/Rivet/Tools/RivetYODA.hh
++++ b/include/Rivet/Tools/RivetYODA.hh
+@@ -1,6 +1,7 @@
+ #ifndef RIVET_RIVETYODA_HH
+ #define RIVET_RIVETYODA_HH
+ 
++#include <algorithm>
+ #include "Rivet/Config/RivetCommon.hh"
+ #include "Rivet/Tools/TypeTraits.hh"
+ #include "YODA/AnalysisObject.h"
+
+--- a/include/Rivet/Projections/LossyFinalState.hh
++++ b/include/Rivet/Projections/LossyFinalState.hh
+@@ -2,6 +2,7 @@
+ #ifndef RIVET_LossyFinalState_HH
+ #define RIVET_LossyFinalState_HH
+ 
++#include <algorithm>
+ #include "Rivet/Tools/Logging.hh"
+ #include "Rivet/Config/RivetCommon.hh"
+ #include "Rivet/Particle.hh"
+
+--- a/include/Rivet/Projections/SmearedJets.hh
++++ b/include/Rivet/Projections/SmearedJets.hh
+@@ -2,6 +2,7 @@
+ #ifndef RIVET_SmearedJets_HH
+ #define RIVET_SmearedJets_HH
+ 
++#include <algorithm>
+ #include "Rivet/Jet.hh"
+ #include "Rivet/Particle.hh"
+ #include "Rivet/Projection.hh"
+
+--- a/include/Rivet/Math/Vector4.hh
++++ b/include/Rivet/Math/Vector4.hh
+@@ -1,6 +1,7 @@
+ #ifndef RIVET_MATH_VECTOR4
+ #define RIVET_MATH_VECTOR4
+ 
++#include <algorithm>
+ #include "Rivet/Tools/TypeTraits.hh"
+ #include "Rivet/Math/MathConstants.hh"
+ #include "Rivet/Math/MathUtils.hh"

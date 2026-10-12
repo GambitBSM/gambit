@@ -1,0 +1,9 @@
+Summary: CMS search for new physics with a photon, multijets and large MET at 13 TeV with 137/fb
+InspireID: 2683599
+ExptRun: CMS-R2
+Lumi_ifb: 137.0
+Ecm_TeV: 13.0
+Signatures: [">=1P + >=2J + MET + 0L"]
+Keywords: ["photon", "multijet", "gauge-mediation", "met"]
+Authors: ["Vinay Hegde"]
+OldName: CMS_13TeV_Photon_GMSB_137invfb

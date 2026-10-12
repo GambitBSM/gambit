@@ -371,7 +371,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       get_BEptr()->setBootstrapFilename(filename);
     }
     
-    inline ::std::vector<std::pair<std::basic_string<char>, unsigned long>> AnalysisHandler::fillLayout() const
+    inline ::std::vector<std::pair<std::string, unsigned long>> AnalysisHandler::fillLayout() const
     {
       return get_BEptr()->fillLayout();
     }

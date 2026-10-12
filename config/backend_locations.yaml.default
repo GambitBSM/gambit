@@ -76,9 +76,6 @@ FeynHiggs:
   2.11.3:      ./Backends/installed/feynhiggs/2.11.3/lib/libFH.so
   2.12.0:      ./Backends/installed/feynhiggs/2.12.0/lib/libFH.so
 
-#fjcontrib:
-#  1.041:       ./Backends/installed/fjcontrib/1.041/libfastjetcontribfragile.so
-
 gamLike:
   1.0.0:       ./Backends/installed/gamlike/1.0.0/lib/gamLike.so
   1.0.1:       ./Backends/installed/gamlike/1.0.1/lib/gamLike.so
@@ -206,5 +203,4 @@ libMathematicaTest:
 # Work in progress:
 # salami:
 #   0.1.0:       ./Backends/examples/salami/0.1.0/salami_gambit.py
-
 

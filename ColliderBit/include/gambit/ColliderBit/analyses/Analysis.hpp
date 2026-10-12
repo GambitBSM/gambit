@@ -96,6 +96,9 @@ namespace Gambit
         // Get the collection of cutflows for the analysis
         const Cutflows& get_cutflows();
 
+        // Get the collection of histograms for the analysis
+        const Histograms& get_histograms();
+
         /// Scale by xsec per event.
         void scale(double);
 
@@ -104,6 +107,12 @@ namespace Gambit
         /// Add the results of another analysis to this one. Argument is not const, because the other needs to be able to gather its results if necessary.
         void add(Analysis* other);
         ///@}
+
+        // Add progress tracking
+        // Enable progress tracking
+        // void enable_progress_tracking(size_t interval = 100); 
+        // Log progress details
+        // void log_progress();
 
         /// Set the store_accepted_event_IDs bool for the EventCounter instances in this analysis
         void set_store_accepted_event_IDs(bool setting);
@@ -141,7 +150,6 @@ namespace Gambit
         }
 
 
-
       protected:
 
         /// Reset the analysis-specific variables.
@@ -155,6 +163,8 @@ namespace Gambit
         void add_result(const SignalRegionData& sr);
         /// Add cutflows to the internal results list
         void add_cutflows(const Cutflows& cf);
+        /// Add histograms to the internal results list
+        void add_histograms(const Histograms& h);
         /// Set the covariance matrix, expressing SR correlations
         void set_covariance(const Eigen::MatrixXd& srcov);
         /// A convenience function for setting the SR covariance from a nested vector/initialiser list
@@ -167,6 +177,9 @@ namespace Gambit
 
         // Every analysis should store its cutflows
         Cutflows _cutflows;
+
+        // Every analysis should store its histograms
+        Histograms _histograms;
 
       private:
 

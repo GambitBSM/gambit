@@ -1,0 +1,9 @@
+Summary: CMS electroweak vector-like T quark search in fully hadronic final states at 13 TeV with 35.9/fb
+InspireID: 1753679
+ExptRun: CMS-R2
+Lumi_ifb: 35.9
+Ecm_TeV: 13.0
+Signatures: ["0L + >=6J + >=2B", "0L + >=6J + >=3B"]
+Keywords: ["vectorlike-quark", "top", "higgs", "fully-hadronic"]
+Note: Low-mass 3M regions use histogram-backed five-jet-mass SRs; 3T and 2M1L histograms are scaffolded with empty obs/bkg vectors pending digitisation. High-mass regions are implemented as public cut-and-count approximations without the CMS shape fit.
+Authors: ["Pengxuan Zhu"]

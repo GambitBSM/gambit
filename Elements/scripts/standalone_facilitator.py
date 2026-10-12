@@ -87,7 +87,7 @@ def main(argv):
 ///  Authors:                                     \n\
 ///                                               \n\
 ///  \\author The GAMBIT Collaboration            \n\
-///  \date "+datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")+"\n\
+///  \\date "+datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")+"\n\
 ///                                               \n\
 ///  *********************************************\n\
                                                   \n\
@@ -98,7 +98,7 @@ def main(argv):
 namespace Gambit                                  \n\
 {                                                 \n\
   // Non-module types                             \n\
-  template class module_functor<void>;            \n"
+"
     for t in returned_types["non_module"]:
         towrite += "  template class module_functor<"+t+">;\n"
     if all_types:
@@ -132,4 +132,3 @@ namespace Gambit                                                      \n\
 # Handle command line arguments (verbosity)
 if __name__ == "__main__":
    main(sys.argv[1:])
-

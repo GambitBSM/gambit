@@ -45,7 +45,7 @@ include_paths = [
     '../../../Backends/installed/rivet/'+gambit_backend_version+'/include',
     '../../../contrib/HepMC3-3.2.5/local/include',
     '../../../contrib/YODA-2.1.0/local/include',
-    '../../../Backends/installed/fastjet/3.4.0/local/include'
+    '../../../contrib/fastjet-3.5.1/local/include'
 ]
 base_paths = ['../../../Backends/installed/rivet/'+gambit_backend_version]
 
@@ -66,7 +66,9 @@ ditch = [
 ]
 
 
-auto_detect_stdlib_paths = False
+# Let BOSS pass the selected compiler's standard-library include paths to
+# CastXML; BOSS excludes compiler-private GCC intrinsic-header paths.
+auto_detect_stdlib_paths = True
 
 
 load_parent_classes    = False

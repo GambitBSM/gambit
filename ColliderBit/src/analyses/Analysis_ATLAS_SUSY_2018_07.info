@@ -1,0 +1,10 @@
+Summary: ATLAS top-pair plus MET search in one-lepton, jets and missing-momentum final states at 13 TeV with 139/fb
+InspireID: 1835604
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["1L + >=4J + >=1B + MET + MT2", "1L + >=4J + >=1B + MET + T"]
+Keywords: ["top-pair", "1lepton", "jets", "met", "top"]
+Authors: ["Martin White"]
+OldName: ATLAS_13TeV_1LEP_ttbar_MET_139invfb
+Validation: incomplete (unvalidated; signal-region counters are not filled)
