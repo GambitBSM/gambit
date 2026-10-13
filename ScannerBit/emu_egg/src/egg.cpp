@@ -1,6 +1,8 @@
 #include <mpi.h>
 #include <csignal>
 #include <getopt.h>
+#include <functional>
+#include <string>
 // #include "egg.hpp"
 #include "gambit/ScannerBit/py_module.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
@@ -30,8 +32,9 @@ void egg_bail(int rank)
         std::cout << "\nusage: egg -c <CapabilityName> [options]                                   "
                      "\n                                                                           "
                      "\negg is the emulator-side MPI process launched alongside the gambit          "
-                     "\nexecutable as part of an MPMD job (colon syntax), e.g.:                     "
+                     "\nexecutable as part of an MPMD job. The gambit ranks must come first, e.g.:   "
                      "\n   mpirun -n N gambit -f <inifile> : -n M egg -c <CapabilityName>           "
+                     "\n   srun --multi-prog <conf>   (conf: '0-N-1 gambit ...', 'N-N+M-1 egg -c ...')"
                      "\n                                                                           "
                      "\nOptions:                                                                   "
                      "\n   -c/--capability <name>   Name of the capability this egg instance        "
@@ -93,19 +96,11 @@ int main(int argc, char *argv[])
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
 
-    int* appnum;
-    int flag;
-    MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_APPNUM, &appnum, &flag);
-    if (!flag)
-    {
-        std::cerr << "egg: MPI_APPNUM is not set on this communicator. "
-                     "egg must be launched as part of an MPMD job (colon "
-                     "syntax, e.g. 'mpirun -n N gambit ... : -n M egg ...'). "
-                     "Aborting the whole MPI job." << std::endl;
-        MPI_Abort(MPI_COMM_WORLD, 1);
-    }
-    int my_process_color = 1+*appnum;
-    
+    // Color egg ranks by capability (GAMBIT is always color 1), so that grouping does not
+    // depend on MPI_APPNUM and works for any launcher (mpirun colon syntax, srun --multi-prog, ...).
+    // Egg ranks with the same -c share an emulator communicator. Range [2, 1000001] avoids color 1.
+    int my_process_color = 2 + static_cast<int>(std::hash<std::string>{}(capability) % 1000000);
+
 
     //////////////// Make emulator communicators to give to plugin /////////////////
 

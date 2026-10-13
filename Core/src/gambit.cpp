@@ -116,12 +116,11 @@ int main(int argc, char* argv[])
       //_emu 
       // check how many processes gambit has, and if emulator is to be used
 
-      int* appnum;
-      int flag;
-      MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_APPNUM, &appnum, &flag);
-
-      // gather colors from all processes
-      int process_color = *appnum+1;//1;
+      // gather colors from all processes. GAMBIT is always color 1; egg ranks
+      // use a color >= 2 derived from their capability (see egg.cpp). This does not
+      // depend on MPI_APPNUM, so it works for mpirun colon syntax as well as
+      // srun --multi-prog. GAMBIT ranks must come first in MPI_COMM_WORLD.
+      int process_color = 1;
       std::vector<int> all_process_colors(world_size);
       MPI_Allgather(&process_color, 1, MPI_INT, all_process_colors.data(), 1, MPI_INT, MPI_COMM_WORLD);
 
