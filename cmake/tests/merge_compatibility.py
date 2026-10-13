@@ -254,7 +254,8 @@ function(execute_process)
   if("clone" IN_LIST arguments)
     file(APPEND "${CAPTURE}" "clone\n")
     if(CASE STREQUAL "clone_failure")
-      set(status "Process terminated due to timeout")
+      # Exercise diagnostic wrapping on every host/CMake version.
+      set(status "Process\n  terminated due to timeout")
     else()
       file(MAKE_DIRECTORY "${DIR}/.git")
     endif()
@@ -306,11 +307,13 @@ endfunction()
             ('fetch_failure', ['clone', 'checkout', 'fetch'], 'git fetch'),
             ('checkout_failure', ['clone', 'checkout', 'fetch', 'checkout'], 'git checkout')):
             with self.subTest(case=case):
-                result, commands = self.git_download_fixture(case)
-                self.assertEqual(commands, expected)
-                self.assertIn(diagnostic, result.stderr)
-                shutil.rmtree(self.work / 'downloaded source', ignore_errors=True)
-                (self.work / 'git-commands.txt').unlink()
+                try:
+                    result, commands = self.git_download_fixture(case)
+                    self.assertEqual(commands, expected)
+                    self.assertIn(diagnostic, ' '.join(result.stderr.split()))
+                finally:
+                    shutil.rmtree(self.work / 'downloaded source', ignore_errors=True)
+                    (self.work / 'git-commands.txt').unlink(missing_ok=True)
 
     def test_link_order_repetitions_and_configuration_pairs_are_preserved(self):
         bad = self.work / 'library.so'
