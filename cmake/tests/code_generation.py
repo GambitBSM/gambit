@@ -2,6 +2,7 @@
 """Code-generation regressions without configuring or compiling GAMBIT/CBS."""
 
 import hashlib
+import json
 import os
 from pathlib import Path
 import pickle
@@ -500,6 +501,125 @@ endforeach()
         repaired = {path: signature(path) for path in outputs}
         generate()
         self.assertEqual({path: signature(path) for path in outputs}, repaired)
+
+    def test_real_scanner_plugin_metadata_is_stable_across_hash_seeds_and_updates(self):
+        root = (self.work / "scanner-metadata").resolve()
+        build = root / "build"
+
+        def put(relative, text="// fixture\n"):
+            path = root / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text)
+            return path
+
+        for directory in ("ScannerBit/src/objectives", "ScannerBit/include/gambit/ScannerBit/objectives",
+                          "ScannerBit/include/gambit/ScannerBit/scanners",
+                          "ScannerBit/include/gambit/ScannerBit/priors", "ScannerBit/lib",
+                          "scratch/build_time", "build", "fixtures/python", "fixtures/pybind", "fixtures/common"):
+            (root / directory).mkdir(parents=True, exist_ok=True)
+        for plugin in ("great", "minuit2_6.23.01", "python"):
+            shutil.copytree(ROOT / "ScannerBit/src/scanners" / plugin,
+                            root / "ScannerBit/src/scanners" / plugin)
+        put("ScannerBit/src/ordinary.cpp")
+        put("ScannerBit/include/gambit/ScannerBit/ordinary.hpp")
+        put("Utils/scripts/harvesting_tools.py", (ROOT / "Utils/scripts/harvesting_tools.py").read_text())
+        put("ScannerBit/src/scanners/explicit/explicit.cpp",
+            'scanner_plugin(explicit, version(1, 0, 0)) {\n'
+            'reqd_libraries("beta", "alpha", "beta");\nreqd_headers("first.hh");\n}\n')
+        beta = put("fixtures/z/libbeta.so")
+        alpha = put("fixtures/a/libalpha.so")
+        put("fixtures/z/first.hh")
+        for name in ("Minuit2", "Minuit2Math"):
+            put("fixtures/lib/lib" + name + ".so", "fake library: never linked or executed\n")
+        locations = {"explicit": {"any_version": [
+            {"lib": "./fixtures/z/libbeta.so ./fixtures/a/libalpha.so ./fixtures/z/libbeta.so"},
+            {"headers": "./fixtures/z ./fixtures/a"}]}}
+        location_file = put("config/scanner_locations.yaml.default", json.dumps(locations))
+        put("config/objective_locations.yaml.default", "{}\n")
+        # JSON is a YAML subset. This adapter loads exactly our controlled
+        # location data while keeping the policy suite standard-library-only;
+        # the real harvester still parses the real multi-dependency plugins.
+        put("yaml.py", "import json\ndef full_load(stream):\n    return json.load(stream)\n")
+        put("CMakeLists.txt", "\n".join([
+            "cmake_minimum_required(VERSION 3.16.3)", "project(scanner_metadata LANGUAGES NONE)",
+            "include(" + bracket(ROOT / "cmake/CodeGeneration.cmake") + ")",
+            "function(add_gambit_library name)\n add_custom_target(${name})\nendfunction()",
+            "function(add_executable name)\n add_custom_target(${name})\nendfunction()",
+            "function(target_include_directories)\nendfunction()",
+            "function(target_link_libraries)\nendfunction()", "add_custom_target(yaml-cpp)",
+            "set(CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH FALSE)",
+            "set(CMAKE_FIND_USE_CMAKE_SYSTEM_PATH FALSE)",
+            "set(CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH FALSE)",
+            'set(CMAKE_LIBRARY_PATH "${PROJECT_SOURCE_DIR}/fixtures/lib")',
+            'set(CMAKE_INCLUDE_PATH "${PROJECT_SOURCE_DIR}/fixtures/common")',
+            "set(ROOT_FOUND FALSE)", "set(Python3_FOUND TRUE)",
+            'set(Python3_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/fixtures/python")',
+            "set(pybind11_FOUND TRUE)", 'set(pybind11_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/fixtures/pybind")',
+            "set(PLUG_VERBOSE FALSE)", "add_subdirectory(ScannerBit)", "",
+        ]))
+        configure = [self.cmake, "-S", str(root), "-B", str(build), "-G", "Unix Makefiles",
+                     "-DCMAKE_SYSTEM_NAME=Linux", "-DCMAKE_MAKE_PROGRAM=" + shutil.which("make")]
+
+        def generate(seed):
+            environment = {**os.environ, "PYTHONPATH": str(root), "PYTHONHASHSEED": str(seed),
+                           "PYTHONNOUSERSITE": "1", "PYTHONDONTWRITEBYTECODE": "1"}
+            environment.pop("PYTHONHOME", None)
+            for command in ([sys.executable, "-B", str(ROOT / "ScannerBit/scripts/scanner+_harvester.py"), str(build)],
+                            configure):
+                result = subprocess.run(command, cwd=root, env=environment, stdin=subprocess.DEVNULL,
+                                        capture_output=True, text=True, timeout=20)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertFalse(list(build.glob("*.candidate")))
+            self.assertFalse(list((root / "scratch/build_time").glob("*.candidate")))
+
+        outputs = [root / relative for relative in (
+            "ScannerBit/CMakeLists.txt", "ScannerBit/include/gambit/ScannerBit/priors_rollcall.hpp",
+            "ScannerBit/lib/plugin_libraries.list", "scratch/build_time/scanbit_reqd_entries.yaml",
+            "scratch/build_time/scanbit_flags.yaml", "scratch/build_time/scanbit_excluded_libs.yaml",
+            "scratch/build_time/scanbit_linked_libs.yaml", "build/linkedout.cmake")]
+        excluded, linked = outputs[5:7]
+        generate(1)
+        self.assertIn('file missing: "TGreatModel.h"', excluded.read_text())
+        self.assertIn('file missing: "Math/Functor.h"', excluded.read_text())
+        self.assertIn("Minuit2:", linked.read_text())
+        self.assertIn('"Python3":', linked.read_text())
+        link_block = re.search(r"set \(scanner_plugin_lib_full_paths_explicit(.*?)\n\)",
+                               outputs[0].read_text(), re.S).group(1)
+        self.assertEqual([line.strip() for line in link_block.splitlines() if line.strip()],
+                         [str(beta), str(alpha), str(beta)], "explicit link order/duplicates must survive")
+        for path in outputs:
+            os.utime(path, ns=(1_000_000_000, 1_000_000_000))
+        before = {path: signature(path) for path in outputs}
+        for seed in (2, 42, 123, 1):
+            generate(seed)
+            self.assertEqual({path: signature(path) for path in outputs}, before)
+
+        # Newly available real header inputs change diagnostic content; these
+        # metadata outputs must remain responsive rather than being frozen.
+        put("fixtures/common/Minuit2/Minuit2Minimizer.h")
+        put("fixtures/common/Math/Functor.h")
+        generate(2)
+        self.assertNotIn("libscanner_minuit2_6.23.01.so:", excluded.read_text())
+        self.assertNotEqual(signature(excluded), before[excluded])
+        self.assertIn('"Math/Functor.h":', linked.read_text())
+        changed = {path: signature(path) for path in outputs}
+        generate(42)
+        self.assertEqual({path: signature(path) for path in outputs}, changed)
+
+        # User-specified library sequences remain ordered, including repeated
+        # libraries, and changing that sequence updates both CMake and metadata.
+        locations["explicit"]["any_version"][0]["lib"] = (
+            "./fixtures/a/libalpha.so ./fixtures/z/libbeta.so ./fixtures/a/libalpha.so")
+        location_file.write_text(json.dumps(locations))
+        generate(123)
+        link_block = re.search(r"set \(scanner_plugin_lib_full_paths_explicit(.*?)\n\)",
+                               outputs[0].read_text(), re.S).group(1)
+        self.assertEqual([line.strip() for line in link_block.splitlines() if line.strip()],
+                         [str(alpha), str(beta), str(alpha)])
+        self.assertNotEqual(signature(linked)[1], changed[linked][1])
+        changed = {path: signature(path) for path in outputs}
+        generate(1)
+        self.assertEqual({path: signature(path) for path in outputs}, changed)
 
 
 if __name__ == "__main__":

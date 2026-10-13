@@ -1,6 +1,16 @@
 # Keep code-generation dependencies stable across identical reconfigurations.
 include_guard(GLOBAL)
 
+function(gambit_write_file_if_different filename contents)
+  file(WRITE "${filename}.candidate" "${contents}")
+  execute_process(COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+                  "${filename}.candidate" "${filename}" RESULT_VARIABLE result)
+  file(REMOVE "${filename}.candidate")
+  if(NOT result EQUAL 0)
+    message(FATAL_ERROR "Cannot update generated file: ${filename}")
+  endif()
+endfunction()
+
 function(gambit_write_codegen_options stamp)
   # Length-prefix each argument so argument boundaries are part of the identity.
   set(contents "")
@@ -8,13 +18,7 @@ function(gambit_write_codegen_options stamp)
     string(LENGTH "${argument}" length)
     string(APPEND contents "${length}:${argument}\n")
   endforeach()
-  file(WRITE "${stamp}.candidate" "${contents}")
-  execute_process(COMMAND "${CMAKE_COMMAND}" -E copy_if_different
-                  "${stamp}.candidate" "${stamp}" RESULT_VARIABLE result)
-  file(REMOVE "${stamp}.candidate")
-  if(NOT result EQUAL 0)
-    message(FATAL_ERROR "Cannot update code-generation options: ${stamp}")
-  endif()
+  gambit_write_file_if_different("${stamp}" "${contents}")
 endfunction()
 
 function(gambit_check_codegen_outputs stamp)

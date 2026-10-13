@@ -272,9 +272,26 @@ def identity(root, pybind11_dir):
 
 
 def native_files(root):
-    return [p for p in (root / "build").rglob("*") if p.is_file()
-            and not any(part.endswith("-prefix") for part in p.relative_to(root / "build").parts)
-            and (p.suffix == ".o" or p.name in ("flags.make", "link.txt"))]
+    build = root / "build"
+
+    def belongs_to_native_target(path):
+        parts = path.relative_to(build).parts
+        if any(part.endswith("-prefix") for part in parts):
+            return False
+        for index, part in enumerate(parts[:-1]):
+            if part != "CMakeFiles":
+                continue
+            target = parts[index + 1]
+            if target in ("CMakeTmp", "CMakeScratch"):
+                return False
+            if target.endswith(".dir"):
+                # Target objects may have nested source paths. FindHDF5's bare
+                # probe object and try_compile targets are configure scratch.
+                return path.suffix == ".o" or (
+                    path.name in ("flags.make", "link.txt") and index + 3 == len(parts))
+        return False
+
+    return [p for p in build.rglob("*") if p.is_file() and belongs_to_native_target(p)]
 
 
 def required_libraries(directory, pattern):

@@ -706,7 +706,7 @@ if (${{CMAKE_SYSTEM_NAME}} MATCHES \"Darwin\")""".format()
                 if directory in scanbit_link_libs[plug_type[i]]:
                     unique_libdirs = set(p[1] for p in scanbit_link_libs[plug_type[i]][directory])
                     if unique_libdirs:
-                        for libdir in unique_libdirs:
+                        for libdir in sorted(unique_libdirs):
                             towrite += """
     execute_process(RESULT_VARIABLE result 
                     COMMAND ${{CMAKE_INSTALL_NAME_TOOL}} -id \"{0}\" {1} 
@@ -719,7 +719,7 @@ if (${{CMAKE_SYSTEM_NAME}} MATCHES \"Darwin\")""".format()
                 if directory in scanbit_libs[plug_type[i]]:
                     unique_libdirs = set(p for p in scanbit_libs[plug_type[i]][directory])
                     if unique_libdirs:
-                        for libdir in unique_libdirs:
+                        for libdir in sorted(unique_libdirs):
                             towrite += """
                 @loader_path/../../ScannerBit/{0}""".format(libdir.split("ScannerBit/")[-1])
             towrite += """
@@ -730,7 +730,7 @@ else()
                 if directory in scanbit_libs[plug_type[i]]:
                     unique_libdirs = set(p for p in scanbit_libs[plug_type[i]][directory])
                     if unique_libdirs:
-                        for libdir in unique_libdirs:
+                        for libdir in sorted(unique_libdirs):
                             towrite += """
                 $ORIGIN/../../ScannerBit/{0}""".format(libdir.split("ScannerBit/")[-1])
             towrite += """
@@ -798,7 +798,7 @@ set ({0}_plugin_found_incs_{1} \"${{{0}_plugin_found_incs_{1}}}    \\\"{2}\\\": 
                             scanbit_auto_libs[plug_type[i]][directory] = set(lib for lib in scanbit_auto_libs[plug_type[i]][directory] if not lib in temp);
 
                     temp = set(lib for lib in scanbit_auto_libs[plug_type[i]][directory])
-                    for lib in temp:
+                    for lib in sorted(temp):
                         if lib == "ROOT":
                             towrite += """
 if ({2}_FOUND)
@@ -842,7 +842,7 @@ endif()
                             scanbit_auto_incs[plug_type[i]][directory] = set(inc for inc in scanbit_auto_incs[plug_type[i]][directory] if not inc in temp);
 
                     temp = set(inc for inc in scanbit_auto_incs[plug_type[i]][directory])
-                    for inc in temp:
+                    for inc in sorted(temp):
                         if inc == "ROOT" or inc == "Python3":
                             towrite += """
 if ({2}_FOUND)
@@ -916,8 +916,8 @@ endif()
 
     towrite += """
 set(SCANNERBIT_PLUGINS ${{SCANNERBIT_PLUGINS}} PARENT_SCOPE)
-file( WRITE ${{PROJECT_SOURCE_DIR}}/scratch/build_time/scanbit_excluded_libs.yaml \"${{exclude_lib_output}}\" )
-file( WRITE ${{PROJECT_SOURCE_DIR}}/scratch/build_time/scanbit_linked_libs.yaml \"${{reqd_lib_output}}\" )
+gambit_write_file_if_different( \"${{PROJECT_SOURCE_DIR}}/scratch/build_time/scanbit_excluded_libs.yaml\" \"${{exclude_lib_output}}\" )
+gambit_write_file_if_different( \"${{PROJECT_SOURCE_DIR}}/scratch/build_time/scanbit_linked_libs.yaml\" \"${{reqd_lib_output}}\" )
 
 #################################################################################
 

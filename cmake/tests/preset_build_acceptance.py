@@ -300,6 +300,73 @@ class AcceptanceTests(unittest.TestCase):
         with self.assertRaises(acceptance.AcceptanceError):
             acceptance.snapshot(self.root)
 
+    def test_configure_probe_changes_do_not_change_native_snapshot(self):
+        self.fixture_graph()
+        before = acceptance.snapshot(self.root)
+        probes = [
+            "build/CMakeFiles/hdf5/cmake_hdf5_test.o",
+            "build/CMakeFiles/hdf5/flags.make",
+            "build/CMakeFiles/hdf5/link.txt",
+            "build/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_fixture.dir/test.o",
+            "build/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_fixture.dir/flags.make",
+            "build/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_fixture.dir/link.txt",
+            "build/CMakeFiles/CMakeScratch/TryCompile-fixture/CMakeFiles/cmTC_fixture.dir/test.o",
+            "build/CMakeFiles/CMakeScratch/TryCompile-fixture/CMakeFiles/cmTC_fixture.dir/flags.make",
+            "build/CMakeFiles/CMakeScratch/TryCompile-fixture/CMakeFiles/cmTC_fixture.dir/link.txt",
+            "build/hepmc-prefix/src/hepmc-build/CMakeFiles/HepMC3.dir/test.o",
+        ]
+        for relative in probes:
+            with self.subTest(relative=relative):
+                path = self.put(relative, "initial configure probe\n")
+                after = acceptance.snapshot(self.root)
+                self.assertNotIn(relative, after)
+                acceptance.check_snapshot(before, after)
+                stat = path.stat()
+                os.utime(path, ns=(stat.st_atime_ns, stat.st_mtime_ns + 1000000))
+                acceptance.check_snapshot(before, acceptance.snapshot(self.root))
+                path.write_text("rebuilt configure probe\n")
+                acceptance.check_snapshot(before, acceptance.snapshot(self.root))
+                path.unlink()
+                acceptance.check_snapshot(before, acceptance.snapshot(self.root))
+        for relative in ("build/CMakeFiles/CBS.dir/flags.make", "build/CMakeFiles/CBS.dir/link.txt"):
+            self.assertIn(relative, before)
+            self.assertTrue(before[relative]["mtime_strict"])
+
+    def test_probe_names_in_real_native_targets_remain_strict(self):
+        self.fixture_graph()
+        native = [
+            "build/CMakeFiles/CBS_objects.dir/cmake_hdf5_test.o",
+            "build/CMakeFiles/CBS_objects.dir/src/CMakeScratch/Foo.cpp.o",
+            "build/CMakeFiles/CBS_objects.dir/src/CMakeTmp/Foo.cpp.o",
+            "build/nested/CMakeFiles/additional_native.dir/cmake_hdf5_test.o",
+            "build/nested/CMakeFiles/additional_native.dir/flags.make",
+            "build/nested/CMakeFiles/additional_native.dir/link.txt",
+        ]
+        before = acceptance.snapshot(self.root)
+        for relative in native:
+            with self.subTest(relative=relative):
+                path = self.put(relative)
+                observed = acceptance.snapshot(self.root)
+                self.assertIn(relative, observed)
+                self.assertTrue(observed[relative]["mtime_strict"])
+                with self.assertRaisesRegex(acceptance.AcceptanceError, "snapshot changed"):
+                    acceptance.check_snapshot(before, observed)
+                stat, content = path.stat(), path.read_bytes()
+                os.utime(path, ns=(stat.st_atime_ns, stat.st_mtime_ns + 1000000))
+                with self.assertRaisesRegex(acceptance.AcceptanceError, "snapshot changed"):
+                    acceptance.check_snapshot(observed, acceptance.snapshot(self.root))
+                path.write_text("changed real native artifact\n")
+                os.utime(path, ns=(stat.st_atime_ns, stat.st_mtime_ns))
+                with self.assertRaisesRegex(acceptance.AcceptanceError, "snapshot changed"):
+                    acceptance.check_snapshot(observed, acceptance.snapshot(self.root))
+                path.write_bytes(content)
+                os.utime(path, ns=(stat.st_atime_ns, stat.st_mtime_ns))
+                acceptance.check_snapshot(observed, acceptance.snapshot(self.root))
+                path.unlink()
+                with self.assertRaisesRegex(acceptance.AcceptanceError, "snapshot changed"):
+                    acceptance.check_snapshot(observed, acceptance.snapshot(self.root))
+                acceptance.check_snapshot(before, acceptance.snapshot(self.root))
+
     def test_missing_broken_or_directory_dependency_library_fails(self):
         self.fixture_graph()
         path = self.root / "contrib/onnxruntime-1.14.1/lib/libonnxruntime.so"
