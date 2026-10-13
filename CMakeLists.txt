@@ -59,6 +59,9 @@ include(cmake/MacOSX.cmake)
 gambit_initialise_macos_sdk()
 gambit_initialise_macos_deployment_target()
 
+include(cmake/presets/PresetDependencies.cmake)
+gambit_initialise_preset_dependencies()
+
 SET(CMAKE_BUILD_TYPE_STRING "Choose the type of build, options are: None Debug Release Release_O3 RelWithDebInfo MinSizeRel.")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   SET(CMAKE_BUILD_TYPE None CACHE STRING "${CMAKE_BUILD_TYPE_STRING}" FORCE)
@@ -128,13 +131,8 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # Check if pybind11 is to be ditched
 string(REGEX MATCH ";pybind;|;pybind11;|;Pybind;|;Pybind11;" DITCH_PYBIND ";${itch};")
 
-# Public GAMBIT presets use the same PATH pin as CBS before FindPython3.
-# CBS already ran it from cbs_preset_begin when CBS_AUTO_DETECT_PYTHON is ON.
-# Ordinary cmake .. keeps FindPython3's own search.
-if(GAMBIT_PRESET_TOOLCHAIN AND NOT CBS_PRESET_BUILD)
-  include(cmake/presets/CBSPythonDiscovery.cmake)
-  preset_pin_python3_on_path("GAMBIT")
-endif()
+# Public presets share Python selection. Ordinary cmake .. keeps FindPython3.
+gambit_preset_discover_python()
 
 # Check for Python 3 interpreter and (optionally) development libraries.
 # If pybind11 is ditched, do not worry about Python Development libraries.
@@ -510,9 +508,7 @@ if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_C_COMPILER_ID}" STREQUAL 
 endif()
 
 # Check for optional packages and disable sections of GAMBIT accordingly
-if(CBS_PRESET_BUILD)
-  cbs_preset_before_optional()
-endif()
+gambit_preset_discover_root()
 include(cmake/optional.cmake)
 message(STATUS "C++ standard: ${GAMBIT_CXX_STANDARD} (${GAMBIT_CXX_STANDARD_REASON}; request: ${GAMBIT_CXX_STANDARD_REQUESTED})")
 if(CBS_PRESET_BUILD)

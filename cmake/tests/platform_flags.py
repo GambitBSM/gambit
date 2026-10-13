@@ -5,6 +5,7 @@ The platform and OpenMP policy run with captured FindOpenMP results and syntheti
 Homebrew replies. Real compiler detection and linking remain manual validation.
 """
 from pathlib import Path
+import os
 import re
 import shlex
 import shutil
@@ -113,7 +114,7 @@ class PlatformFlagTests(unittest.TestCase):
             file.parent.mkdir(parents=True, exist_ok=True)
             file.write_text('synthetic file; never executed')
 
-    def run_case(self, settings=None, body='', platform=True, omp=True, fatal=False):
+    def run_case(self, settings=None, body='', platform=True, omp=True, fatal=False, cxxflags=''):
         values = {'FIXTURE_ROOT': self.work, 'FIXTURE_OMP': self.work / 'omp',
                   'CMAKE_SYSTEM_NAME': 'Darwin', 'CMAKE_C_COMPILER_ID': 'Clang',
                   'CMAKE_CXX_COMPILER_ID': 'Clang', 'CMAKE_Fortran_COMPILER_ID': 'GNU',
@@ -140,8 +141,9 @@ class PlatformFlagTests(unittest.TestCase):
         endforeach()''']
         script = self.work / 'case.cmake'
         script.write_text('\n'.join(lines))
+        environment = dict(os.environ, CXXFLAGS=cxxflags)
         result = subprocess.run([self.cmake, '-P', str(script)], cwd=self.work,
-                                capture_output=True, text=True)
+                                capture_output=True, text=True, env=environment)
         output = result.stdout + result.stderr
         if fatal:
             self.assertNotEqual(result.returncode, 0, output)
@@ -189,6 +191,42 @@ class PlatformFlagTests(unittest.TestCase):
         self.assertEqual(values['external'], '-O2 -std=gnu99')
         self.assertEqual(values['cmake_external'], values['external'])
         self.assertEqual(values['GAMBIT_MACOS_CMAKE_DEPLOYMENT_TARGET_ARG'], '')
+
+    def sdk_libcxx(self, name='sdk'):
+        headers = self.work / name / 'usr/include/c++/v1'
+        headers.mkdir(parents=True)
+        (headers / '__config').write_text('fixture libc++ headers')
+        return headers
+
+    def test_upstream_clang_uses_selected_sdk_libcxx_headers_once(self):
+        for sdk in ('sdk', 'SDK with spaces'):
+            with self.subTest(sdk=sdk):
+                headers = self.sdk_libcxx(sdk)
+                values = self.run_case({'CMAKE_OSX_SYSROOT': self.work / sdk}, omp=False,
+                    body='include(' + bracket(ROOT / 'cmake/MacOSX.cmake') + ')\n' + '''
+                      gambit_macos_external_flags("${CMAKE_CXX_FLAGS}" external)
+                      gambit_macos_cmake_external_flags("${external}" cmake_external)''')
+                self.assertEqual(shlex.split(values['CMAKE_CXX_FLAGS']),
+                                 ['-O1', '-stdlib++-isystem' + str(headers)])
+                self.assertEqual(values['CMAKE_C_FLAGS'], '-O1')
+                self.assertIn('-stdlib++-isystem' + str(headers), shlex.split(values['external']))
+                self.assertEqual(shlex.split(values['cmake_external']),
+                                 shlex.split(values['CMAKE_CXX_FLAGS']))
+
+    def test_sdk_libcxx_policy_keeps_other_compilers_and_explicit_choices(self):
+        self.sdk_libcxx()
+        for settings in ({'CMAKE_CXX_COMPILER_ID': 'AppleClang'},
+                         {'CMAKE_CXX_COMPILER_ID': 'GNU'},
+                         {'CMAKE_SYSTEM_NAME': 'Linux'},
+                         {'CMAKE_CXX_FLAGS': '-O1 -stdlib=libc++'},
+                         {'CMAKE_CXX_FLAGS': '-O1 -nostdinc++ -isystem/custom'},
+                         {'CMAKE_CXX_FLAGS': '-O1 -stdlib++-isystem /custom'},
+                         {'CMAKE_CXX_FLAGS_RELEASE': '-stdlib=libc++'}):
+            with self.subTest(settings=settings):
+                values = self.run_case(settings, omp=False)
+                self.assertEqual(values['CMAKE_CXX_FLAGS'], settings.get('CMAKE_CXX_FLAGS', '-O1'))
+        values = self.run_case(omp=False, cxxflags='-stdlib++-isystem/custom')
+        self.assertEqual(values['CMAKE_CXX_FLAGS'], '-O1')
 
     def test_other_fortran_compilers_do_not_receive_gnu_fallback(self):
         flags = self.run_case({'CMAKE_Fortran_COMPILER_ID': 'IntelLLVM'}, omp=False)['CMAKE_Fortran_FLAGS']

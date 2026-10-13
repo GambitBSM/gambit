@@ -2,9 +2,8 @@
 #
 # Ordinary `cmake ..` never includes this file.  Public presets set
 # CBS_BUILD_PRESET in CMakePresets.json; CMakeLists.txt then loads this
-# module and calls the macros below at the few points where GAMBIT's
-# configure sequence needs them (Python before FindPython3, ROOT before
-# optional.cmake, summary after all targets exist).
+# module for CBS-specific validation and backend dependencies. Python/ROOT
+# selection and persistent dependency defaults are shared by public presets.
 #
 # Compiler/Python/ROOT discovery, validation, and the final summary live
 # under cmake/presets/.  Native GAMBIT/ColliderBit build facts (FastJet,
@@ -19,10 +18,6 @@ set(CBS_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
 macro(cbs_preset_begin)
   set(CBS_PRESET_BUILD TRUE)
-  option(CBS_AUTO_DETECT_PYTHON
-         "CBS: pin python3 on PATH before FindPython3" ON)
-  option(CBS_AUTO_DETECT_ROOT
-         "CBS: enable ROOT when a supported C++17/20/23 root-config is found" ON)
   option(CBS_WITH_RIVET_CONTUR
          "CBS: enable Rivet/Contur when their prerequisites exist" ON)
 
@@ -35,11 +30,6 @@ macro(cbs_preset_begin)
       "Switching compiler families requires a clean cache; rerun "
       "'cmake --preset cbs --fresh'.")
   endif()
-
-  if(CBS_AUTO_DETECT_PYTHON)
-    include("${CBS_CMAKE_DIR}/presets/CBSPythonDiscovery.cmake")
-    cbs_configure_python_for_cbs_preset()
-  endif()
 endmacro()
 
 macro(cbs_preset_after_python)
@@ -50,13 +40,6 @@ macro(cbs_preset_after_python)
       "CBS requires Python development headers and libpython.\n"
       "Install python3-dev / python3-devel for ${Python3_EXECUTABLE}, "
       "or set -DPython3_EXECUTABLE to an interpreter that has them.")
-  endif()
-endmacro()
-
-macro(cbs_preset_before_optional)
-  if(CBS_AUTO_DETECT_ROOT)
-    include("${CBS_CMAKE_DIR}/presets/CBSRootDiscovery.cmake")
-    cbs_configure_root_for_cbs_preset()
   endif()
 endmacro()
 

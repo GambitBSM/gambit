@@ -199,6 +199,26 @@ if(DEFINED PROJECT_NAME AND CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   if(_GAMBIT_MACOS_SYSROOT_FLAGS_PATH MATCHES "[ \t]")
     set(_GAMBIT_MACOS_SYSROOT_FLAGS_PATH "\"${CMAKE_OSX_SYSROOT}\"")
   endif()
+  # Upstream Clang otherwise prefers its bundled libc++ headers while linking
+  # Apple's system libc++. Use the selected SDK's matching headers for native
+  # targets and BACKEND_CXX_FLAGS (including Autotools/Python extensions).
+  # LLVM 22's float.h wrapper with the macOS 27 math.h can lose DBL_MAX when
+  # math.h requests only infinity/NaN before a later inclusion of <cfloat>.
+  # Honour explicit standard-library selections rather than overriding them.
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND
+      EXISTS "${CMAKE_OSX_SYSROOT}/usr/include/c++/v1/__config")
+    set(_gambit_stdlib_flags "${CMAKE_CXX_FLAGS} $ENV{CXXFLAGS}")
+    foreach(_config IN LISTS _gambit_flag_configs)
+      string(TOUPPER "${_config}" _config)
+      string(APPEND _gambit_stdlib_flags " ${CMAKE_CXX_FLAGS_${_config}}")
+    endforeach()
+    if(NOT _gambit_stdlib_flags MATCHES "(^|[ \t])(-stdlib=|-stdlib\\+\\+-isystem|-nostdinc\\+\\+)")
+      gambit_append_flags_once(CMAKE_CXX_FLAGS
+          "-stdlib++-isystem${_GAMBIT_MACOS_SYSROOT_FLAGS_PATH}/usr/include/c++/v1")
+      message(STATUS "Using macOS SDK libc++ headers for upstream Clang")
+    endif()
+    unset(_gambit_stdlib_flags)
+  endif()
   gambit_append_flags_once(CMAKE_SHARED_LINKER_FLAGS "-L${_GAMBIT_MACOS_SYSROOT_FLAGS_PATH}/usr/lib")
   # CMake's GNU help-text detection can miss these options for gfortran.
   # Supply the common policy only when CMake is not supplying it itself.

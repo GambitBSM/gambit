@@ -16,10 +16,9 @@
   "configurePresets": [
     {
       "name": "gambit-base",
-      "description": "Shared full GAMBIT profile. MPI defaults to OFF. Uses the canonical build/ directory; use --fresh when switching profiles or compilers.",
+      "description": "Shared full GAMBIT profile. Dependency choices persist in build/ across presets; use --fresh when switching compiler families or deliberately resetting configuration.",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
         "Bits": "",
         "itch": "",
         "CBS_BUILD_PRESET": {
@@ -30,33 +29,9 @@
           "type": "STRING",
           "value": ""
         },
-        "WITH_MPI": {
-          "type": "BOOL",
-          "value": "OFF"
-        },
-        "WITH_RESTFRAMES": {
-          "type": "BOOL",
-          "value": "OFF"
-        },
-        "WITH_ONNXRUNTIME": {
-          "type": "BOOL",
-          "value": "OFF"
-        },
-        "CUTFLOW": {
-          "type": "BOOL",
-          "value": "OFF"
-        },
-        "CBS_AUTO_DETECT_PYTHON": {
-          "type": "BOOL",
-          "value": "OFF"
-        },
-        "CBS_AUTO_DETECT_ROOT": {
-          "type": "BOOL",
-          "value": "OFF"
-        },
-        "CBS_WITH_RIVET_CONTUR": {
-          "type": "BOOL",
-          "value": "OFF"
+        "GAMBIT_PRESET_DEPENDENCIES": {
+          "type": "INTERNAL",
+          "value": "ON"
         }
       },
       "hidden": true
@@ -64,41 +39,17 @@
     {
       "name": "cbs-base",
       "hidden": true,
-      "description": "Shared CBS cache. Enable CBS analysis capabilities, including HDF5. The selected preset and compiler persist in build/; use --fresh when switching from GAMBIT or between compiler families.",
+      "description": "Shared CBS cache. CBS dependency defaults apply only to an empty cache; existing choices persist across presets. Use --fresh when switching compiler families or deliberately resetting configuration.",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "Bits": "ColliderBit",
-        "CBS_AUTO_DETECT_PYTHON": {
-          "type": "BOOL",
-          "value": "ON"
+        "itch": "",
+        "GAMBIT_BUILD_PRESET": {
+          "type": "STRING",
+          "value": ""
         },
-        "CBS_AUTO_DETECT_ROOT": {
-          "type": "BOOL",
-          "value": "ON"
-        },
-        "CBS_WITH_RIVET_CONTUR": {
-          "type": "BOOL",
-          "value": "ON"
-        },
-        "CMAKE_BUILD_TYPE": "Release",
-        "CUTFLOW": {
-          "type": "BOOL",
-          "value": "ON"
-        },
-        "WITH_HDF5": {
-          "type": "BOOL",
-          "value": "ON"
-        },
-        "WITH_ONNXRUNTIME": {
-          "type": "BOOL",
-          "value": "ON"
-        },
-        "WITH_RESTFRAMES": {
-          "type": "BOOL",
-          "value": "ON"
-        },
-        "WITH_SQLite3": {
-          "type": "BOOL",
+        "GAMBIT_PRESET_DEPENDENCIES": {
+          "type": "INTERNAL",
           "value": "ON"
         }
       }
@@ -113,7 +64,7 @@
           "toolchain": "llvm"
         }
       },
-      "description": "Release GAMBIT using Upstream LLVM (macOS / Linux). All presets share build/; use --fresh when switching profiles or compilers.",
+      "description": "Release GAMBIT using Upstream LLVM (macOS / Linux). All presets share build/; dependency choices persist across profiles; use --fresh when switching compiler families or resetting configuration.",
       "condition": {
         "type": "anyOf",
         "conditions": [
@@ -151,7 +102,7 @@
           "toolchain": "macos"
         }
       },
-      "description": "Release GAMBIT using macOS AppleClang. All presets share build/; use --fresh when switching profiles or compilers.",
+      "description": "Release GAMBIT using macOS AppleClang. All presets share build/; dependency choices persist across profiles; use --fresh when switching compiler families or resetting configuration.",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -179,7 +130,7 @@
           "toolchain": "gnu"
         }
       },
-      "description": "Release GAMBIT using Linux GNU. All presets share build/; use --fresh when switching profiles or compilers.",
+      "description": "Release GAMBIT using Linux GNU. All presets share build/; dependency choices persist across profiles; use --fresh when switching compiler families or resetting configuration.",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -207,7 +158,7 @@
           "toolchain": "llvm"
         }
       },
-      "description": "Release CBS using Upstream LLVM (macOS / Linux). All presets share build/; use --fresh when switching profiles or compilers.",
+      "description": "Release CBS using Upstream LLVM (macOS / Linux). All presets share build/; dependency choices persist across profiles; use --fresh when switching compiler families or resetting configuration.",
       "condition": {
         "type": "anyOf",
         "conditions": [
@@ -245,7 +196,7 @@
           "toolchain": "macos"
         }
       },
-      "description": "Release CBS using macOS AppleClang. All presets share build/; use --fresh when switching profiles or compilers.",
+      "description": "Release CBS using macOS AppleClang. All presets share build/; dependency choices persist across profiles; use --fresh when switching compiler families or resetting configuration.",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -273,7 +224,7 @@
           "toolchain": "gnu"
         }
       },
-      "description": "Release CBS using Linux GNU. All presets share build/; use --fresh when switching profiles or compilers.",
+      "description": "Release CBS using Linux GNU. All presets share build/; dependency choices persist across profiles; use --fresh when switching compiler families or resetting configuration.",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -310,7 +261,7 @@
           "toolchain": "macos"
         }
       },
-      "description": "Release DarkBit_standalone_WIMP using macOS AppleClang. Shares build/; use --fresh when switching products or compiler families.",
+      "description": "Release DarkBit_standalone_WIMP using macOS AppleClang. Shares build/; dependency choices persist; use --fresh when switching compiler families or resetting configuration.",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -338,7 +289,7 @@
           "toolchain": "llvm"
         }
       },
-      "description": "Release DarkBit_standalone_WIMP using Upstream LLVM. Shares build/; use --fresh when switching products or compiler families.",
+      "description": "Release DarkBit_standalone_WIMP using Upstream LLVM. Shares build/; dependency choices persist; use --fresh when switching compiler families or resetting configuration.",
       "condition": {
         "type": "anyOf",
         "conditions": [
@@ -376,7 +327,7 @@
           "toolchain": "gnu"
         }
       },
-      "description": "Release DarkBit_standalone_WIMP using Linux GNU. Shares build/; use --fresh when switching products or compiler families.",
+      "description": "Release DarkBit_standalone_WIMP using Linux GNU. Shares build/; dependency choices persist; use --fresh when switching compiler families or resetting configuration.",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -404,7 +355,7 @@
           "toolchain": "macos"
         }
       },
-      "description": "Release DarkBit_standalone_MSSM using macOS AppleClang. Shares build/; use --fresh when switching products or compiler families.",
+      "description": "Release DarkBit_standalone_MSSM using macOS AppleClang. Shares build/; dependency choices persist; use --fresh when switching compiler families or resetting configuration.",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -432,7 +383,7 @@
           "toolchain": "llvm"
         }
       },
-      "description": "Release DarkBit_standalone_MSSM using Upstream LLVM. Shares build/; use --fresh when switching products or compiler families.",
+      "description": "Release DarkBit_standalone_MSSM using Upstream LLVM. Shares build/; dependency choices persist; use --fresh when switching compiler families or resetting configuration.",
       "condition": {
         "type": "anyOf",
         "conditions": [
@@ -470,7 +421,7 @@
           "toolchain": "gnu"
         }
       },
-      "description": "Release DarkBit_standalone_MSSM using Linux GNU. Shares build/; use --fresh when switching products or compiler families.",
+      "description": "Release DarkBit_standalone_MSSM using Linux GNU. Shares build/; dependency choices persist; use --fresh when switching compiler families or resetting configuration.",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -498,7 +449,7 @@
           "toolchain": "macos"
         }
       },
-      "description": "Release DarkBit_standalone_ScalarSingletDM_Z2 using macOS AppleClang. Shares build/; use --fresh when switching products or compiler families.",
+      "description": "Release DarkBit_standalone_ScalarSingletDM_Z2 using macOS AppleClang. Shares build/; dependency choices persist; use --fresh when switching compiler families or resetting configuration.",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -526,7 +477,7 @@
           "toolchain": "llvm"
         }
       },
-      "description": "Release DarkBit_standalone_ScalarSingletDM_Z2 using Upstream LLVM. Shares build/; use --fresh when switching products or compiler families.",
+      "description": "Release DarkBit_standalone_ScalarSingletDM_Z2 using Upstream LLVM. Shares build/; dependency choices persist; use --fresh when switching compiler families or resetting configuration.",
       "condition": {
         "type": "anyOf",
         "conditions": [
@@ -564,7 +515,7 @@
           "toolchain": "gnu"
         }
       },
-      "description": "Release DarkBit_standalone_ScalarSingletDM_Z2 using Linux GNU. Shares build/; use --fresh when switching products or compiler families.",
+      "description": "Release DarkBit_standalone_ScalarSingletDM_Z2 using Linux GNU. Shares build/; dependency choices persist; use --fresh when switching compiler families or resetting configuration.",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",

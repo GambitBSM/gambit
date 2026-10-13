@@ -180,9 +180,7 @@ function(preset_pin_python3_on_path label)
   find_program(_cbs_python_command NAMES python3)
   if(NOT _cbs_python_command OR _cbs_python_command MATCHES "-NOTFOUND$")
     set(_preset_python_hint "Set -DPython3_EXECUTABLE=/path/to/python3.")
-    if(label STREQUAL "CBS")
-      set(_preset_python_hint "${_preset_python_hint} Or disable CBS_AUTO_DETECT_PYTHON.")
-    endif()
+    set(_preset_python_hint "${_preset_python_hint} Or disable GAMBIT_AUTO_DETECT_PYTHON.")
     message(FATAL_ERROR
       "${label} preset Python discovery failed: no python3 executable was found on PATH.\n"
       "${_preset_python_hint}")
@@ -231,11 +229,4 @@ function(preset_pin_python3_on_path label)
   endif()
 
   message(STATUS "${label} Python: selected CPython ${_cbs_python_version} (${_cbs_python_executable})")
-endfunction()
-
-function(cbs_configure_python_for_cbs_preset)
-  if(NOT CBS_AUTO_DETECT_PYTHON)
-    return()
-  endif()
-  preset_pin_python3_on_path("CBS")
 endfunction()

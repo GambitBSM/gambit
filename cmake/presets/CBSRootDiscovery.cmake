@@ -2,9 +2,8 @@
 #         (pengxuan.zhu@adelaide.edu.au)
 # \date 2026 Aug
 #
-# Locate a native ROOT installation for public CBS presets before GAMBIT's
-# optional.cmake consumes ROOTSYS. ROOT remains optional. Only installations
-# built with one of GAMBIT's supported C++ standards (17, 20, 23) are accepted;
+# ROOT metadata shared by public presets and bootstrap. ROOT remains optional.
+# Installations built with GAMBIT's C++ standards (17, 20, 23) are accepted;
 # optional.cmake resolves the exact standard shared by ROOT and GAMBIT.
 
 include_guard(GLOBAL)
@@ -45,6 +44,8 @@ function(cbs_find_root_installation output_found output_prefix output_version ou
   set(_cbs_root_config "")
   if(DEFINED ENV{ROOTSYS} AND EXISTS "$ENV{ROOTSYS}/bin/root-config")
     set(_cbs_root_config "$ENV{ROOTSYS}/bin/root-config")
+  elseif(GAMBIT_ROOT_PREFIX AND EXISTS "${GAMBIT_ROOT_PREFIX}/bin/root-config")
+    set(_cbs_root_config "${GAMBIT_ROOT_PREFIX}/bin/root-config")
   else()
     unset(_cbs_root_config)
     unset(_cbs_root_config CACHE)
@@ -78,10 +79,10 @@ function(cbs_find_root_installation output_found output_prefix output_version ou
       cbs_root_cxx_standard("${_cbs_root_config}" _cbs_root_std)
       if("${_cbs_root_std}" STREQUAL "")
         set(_cbs_root_reason
-            "${_cbs_root_config} did not report its C++ standard; CBS requires ROOT built with C++17, C++20 or C++23")
+            "${_cbs_root_config} did not report its C++ standard; GAMBIT requires ROOT built with C++17, C++20 or C++23")
       elseif(NOT _cbs_root_std MATCHES "^(17|20|23)$")
         set(_cbs_root_reason
-            "${_cbs_root_prefix} is C++${_cbs_root_std}; CBS requires ROOT built with C++17, C++20 or C++23 (set CBS_AUTO_DETECT_ROOT=OFF to silence this)")
+            "${_cbs_root_prefix} is C++${_cbs_root_std}; GAMBIT requires ROOT built with C++17, C++20 or C++23")
       else()
         set(_cbs_root_found TRUE)
         if(NOT _cbs_root_version_result EQUAL 0)
@@ -95,32 +96,4 @@ function(cbs_find_root_installation output_found output_prefix output_version ou
   set(${output_prefix} "${_cbs_root_prefix}" PARENT_SCOPE)
   set(${output_version} "${_cbs_root_version}" PARENT_SCOPE)
   set(${output_reason} "${_cbs_root_reason}" PARENT_SCOPE)
-endfunction()
-
-function(cbs_configure_root_for_cbs_preset)
-  if(DEFINED WITH_ROOT AND NOT WITH_ROOT)
-    set(CBS_ROOT_SKIP_REASON "disabled by WITH_ROOT=OFF" PARENT_SCOPE)
-    return()
-  endif()
-  if(NOT CBS_AUTO_DETECT_ROOT)
-    return()
-  endif()
-
-  cbs_find_root_installation(_cbs_root_found _cbs_root_prefix _cbs_root_version _cbs_root_reason)
-  if(NOT _cbs_root_found)
-    message(STATUS "CBS ROOT: ${_cbs_root_reason}; ROOT-dependent features remain disabled")
-    set(CBS_ROOT_SKIP_REASON "${_cbs_root_reason}" PARENT_SCOPE)
-    return()
-  endif()
-
-  set(ENV{ROOTSYS} "${_cbs_root_prefix}")
-  set(WITH_ROOT ON PARENT_SCOPE)
-  set(CBS_RESOLVED_ROOT "${_cbs_root_prefix}" PARENT_SCOPE)
-  set(CBS_ROOT_SKIP_REASON "" PARENT_SCOPE)
-  if(NOT "${_cbs_root_version}" STREQUAL "")
-    set(CBS_RESOLVED_ROOT_VERSION "${_cbs_root_version}" PARENT_SCOPE)
-    message(STATUS "CBS ROOT: ${_cbs_root_version} from ${_cbs_root_prefix}")
-  else()
-    message(STATUS "CBS ROOT: detected at ${_cbs_root_prefix}")
-  endif()
 endfunction()

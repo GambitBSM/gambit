@@ -95,8 +95,58 @@ The explicit command-line option takes precedence over that environment default.
 Changing the job count does not require clearing `build/` or reconfiguring.
 
 All presets preserve the canonical `${sourceDir}/build` and GAMBIT output layout.
-Use `--fresh` when switching profiles or compiler families in that shared tree.
-Bootstrap does not perform the switch itself.
+Dependency choices persist when switching profiles with the same compiler family.
+Use `--fresh` when switching compiler families or deliberately resetting the
+configuration. Bootstrap does not perform the switch itself.
+
+## Shared dependency settings
+
+Presets select the compiler and module scope; dependency defaults only initialise
+missing cache entries. Switching `cbs-llvm` to `gambit-llvm` retains ROOT, Python,
+RestFrames, ONNX Runtime, HDF5, SQLite3, MPI, cutflow, build type and custom package
+paths. Explicit disabled choices persist too. A fresh CBS cache defaults to
+RestFrames, ONNX Runtime, cutflow and CBS Rivet/Contur support enabled; a fresh
+GAMBIT cache defaults to those features disabled. Switching an existing cache
+preserves its choices rather than replacing them with the other profile's defaults.
+
+```sh
+cmake --preset cbs-llvm --fresh                 # initialise CBS defaults
+cmake --preset gambit-llvm                     # keep dependency choices
+cmake --preset gambit-llvm -DWITH_RESTFRAMES=OFF # persist an explicit change
+```
+
+`GAMBIT_AUTO_DETECT_PYTHON` and `GAMBIT_AUTO_DETECT_ROOT` default to `ON` for public
+presets. Both CBS and GAMBIT use the same discovery steps. Python stays pinned to
+the selected interpreter; an explicit `Python3_EXECUTABLE` takes precedence over
+PATH discovery. CBS still requires Python development files; GAMBIT keeps its
+native optional development-library policy.
+
+`WITH_ROOT` accepts `AUTO`, `ON`, and `OFF` for presets. `AUTO` discovers a supported
+ROOT installation, caches its prefix in `GAMBIT_ROOT_PREFIX`, and rechecks that
+installation on subsequent configurations. The cache retains the `AUTO` request
+even when ROOT is missing, so a later installation can be discovered. `OFF`
+explicitly disables ROOT. `ON` retains GAMBIT's native FindROOT path, including
+manual CMake package hints. `ROOTSYS` can select another installation. Ordinary
+fresh configuration without a preset retains GAMBIT's original ROOT default of `OFF`.
+
+The old `CBS_AUTO_DETECT_PYTHON` and `CBS_AUTO_DETECT_ROOT` entries are imported
+once if their shared counterparts are unset, then removed. Shared names take
+precedence. An old `WITH_ROOT=OFF` is preserved because it may have been an
+explicit user choice. To enable automatic discovery in such an existing cache:
+
+```sh
+cmake --preset gambit-llvm -DWITH_ROOT=AUTO \
+  -DGAMBIT_AUTO_DETECT_ROOT=ON -DGAMBIT_AUTO_DETECT_PYTHON=ON
+```
+
+Preserving dependencies does not guarantee a build without compilation: full
+GAMBIT adds modules, and changes to the C++ standard or feature definitions may
+rebuild affected targets. Existing matching external installations remain reusable.
+Compiler-free cache-switch fixtures (temporary files and fake dependency tools):
+
+```sh
+python3 cmake/tests/preset_dependencies.py
+```
 
 ## Maintainer acceptance
 
@@ -195,6 +245,12 @@ Native targets, backend flags and CMake external projects receive the selected
 SDK. SDK paths containing spaces are quoted in the legacy flag strings. Existing
 `MACOS_DEPLOYMENT_TARGET` settings are preserved; when no minimum is specified,
 its initial default comes from the selected SDK's version.
+
+On macOS, upstream Clang uses the selected SDK's libc++ headers alongside Apple's
+system libc++ runtime. This also applies to external C++ builds, including YODA's
+Python extension, and avoids the LLVM 22/macOS 27 header interaction that can
+leave `DBL_MAX` undefined after including `Python.h` or `<cmath>`. Explicit
+`-stdlib=`, `-stdlib++-isystem`, or `-nostdinc++` choices are preserved.
 
 The resolved default is cached too. To discover the active SDK again without
 clearing the build tree or other cache entries:
@@ -389,8 +445,9 @@ build, and execution.
 For another local profile, duplicate the configure/build pair under a new name
 in `CMakeUserPresets.json`, then edit its settings. A CBS profile can inherit
 `cbs-base`, set `CBS_BUILD_PRESET` to its local name, and build target `CBS`.
-Use `--fresh` whenever changing profiles or compiler families because all
-presets share `build/`. `./cmake/bootstrap` reports only the project's registered
+Use `--fresh` when changing compiler families or resetting dependency choices;
+same-family profile switches retain the shared cache. `./cmake/bootstrap` reports
+only the project's registered
 presets; use `cmake --list-presets` to see local user presets. Native CMake
 configure performs the authoritative compiler and dependency checks.
 
