@@ -118,6 +118,7 @@ GAMBIT.bib
 GAMBIT.tex
 
 # Local development ledger and preset design standard
+/P.Zhu/
 /doc/CMAKE_PRESET_DEVELOPMENT_LEDGER.md
 /doc/CMAKE_PRESET_STANDARD.md
 

@@ -1,0 +1,100 @@
+name: CMake preset build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - 'ci-*'
+      - Colliderbit-solo-development-preset
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cmake-preset-build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cbs-gnu:
+    name: CBS GNU build and incremental checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: bash --noprofile --norc -eo pipefail {0}
+    env:
+      CC: /usr/bin/gcc-13
+      CXX: /usr/bin/g++-13
+      FC: /usr/bin/gfortran-13
+      CMAKE_COMMAND: /usr/bin/cmake
+      PYTHONNOUSERSITE: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+      GIT_TERMINAL_PROMPT: '0'
+      PIP_NO_INPUT: '1'
+      PIP_DISABLE_PIP_VERSION_CHECK: '1'
+      CBS_CI_LOG_DIR: ${{ runner.temp }}/cbs-gnu-ci
+      CBS_CI_PYTHON_DIR: ${{ runner.temp }}/cbs-python
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          # Preserve tags for GAMBIT's version detection; each job has a fresh checkout.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Initialize diagnostics
+        run: |
+          mkdir -p "$CBS_CI_LOG_DIR"
+          uname -a > "$CBS_CI_LOG_DIR/host.txt"
+          git rev-parse HEAD > "$CBS_CI_LOG_DIR/checkout.txt"
+
+      - name: Install GNU build dependencies
+        run: |
+          sudo apt-get update 2>&1 | tee "$CBS_CI_LOG_DIR/apt-update.log"
+          sudo env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt-get install --yes --no-install-recommends \
+            build-essential gcc-13 g++-13 gfortran-13 cmake make git patch pkg-config \
+            python3 python3-dev python3-venv libboost-dev libeigen3-dev libgsl-dev \
+            liblapack-dev libblas-dev libhdf5-dev libsqlite3-dev sqlite3 \
+            autoconf automake libtool curl wget ca-certificates zlib1g-dev \
+            2>&1 | tee "$CBS_CI_LOG_DIR/apt-install.log"
+
+      - name: Prepare isolated Python dependencies
+        run: |
+          unset PYTHONHOME PYTHONPATH
+          /usr/bin/python3 -m venv "$CBS_CI_PYTHON_DIR"
+          "$CBS_CI_PYTHON_DIR/bin/python" -m pip --isolated install --no-input --disable-pip-version-check \
+            --require-virtualenv --only-binary=:all: \
+            'pybind11==2.13.6' 'PyYAML==6.0.2' \
+            2>&1 | tee "$CBS_CI_LOG_DIR/python-install.log"
+          "$CBS_CI_PYTHON_DIR/bin/python" -m pip list --format=json > "$CBS_CI_LOG_DIR/python-packages.json"
+          cbs_pybind11_dir="$("$CBS_CI_PYTHON_DIR/bin/python" -m pybind11 --cmakedir)"
+          test -f "$cbs_pybind11_dir/pybind11Config.cmake"
+          printf 'CBS_CI_PYBIND11_DIR=%s\n' "$cbs_pybind11_dir" >> "$GITHUB_ENV"
+          /usr/bin/cmake --version > "$CBS_CI_LOG_DIR/cmake-version.txt"
+          "$CC" --version > "$CBS_CI_LOG_DIR/gcc-version.txt"
+          "$CXX" --version > "$CBS_CI_LOG_DIR/gxx-version.txt"
+          "$FC" --version > "$CBS_CI_LOG_DIR/gfortran-version.txt"
+          "$CBS_CI_PYTHON_DIR/bin/python" --version > "$CBS_CI_LOG_DIR/python-version.txt"
+
+      # This is the first Linux GNU baseline: C++17, MPI/ROOT/RestFrames/Rivet/Contur
+      # disabled; ONNX/HDF5/SQLite and required CBS dependencies remain enabled.
+      # Cython is absent from this venv, so YODA builds its C++ library without pyext.
+      # The helper owns only this job's fresh checkout and uses its canonical build/.
+      - name: Build, start and check incremental reuse
+        run: |
+          unset PYTHONHOME PYTHONPATH
+          "$CBS_CI_PYTHON_DIR/bin/python" -B cmake/scripts/preset_build_acceptance.py \
+            --run --fresh-checkout --root "$GITHUB_WORKSPACE" \
+            --cmake /usr/bin/cmake --pybind11-dir "$CBS_CI_PYBIND11_DIR" \
+            --jobs 2 --timeout 3600 --log-dir "$CBS_CI_LOG_DIR/acceptance"
+
+      - name: Retain build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cbs-gnu-build-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/cbs-gnu-ci/
+          if-no-files-found: ignore
+          retention-days: 14

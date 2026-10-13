@@ -179,6 +179,70 @@ requests, selected branch pushes and manual runs. It retains logs for 14 days,
 including failed runs. This quick CI checks build logic; full preset builds,
 runtime smoke tests and package migration acceptance are separate work packages.
 
+## Linux GNU preset build CI
+
+The `CMake preset build` workflow adds the first TEST-02 job on Ubuntu 24.04.
+It uses GNU 13, `/usr/bin/cmake`, a separate Python virtual environment and
+the existing `cbs-gnu` configure preset and its `CBS` target. The job builds
+the complete target and its declared dependencies in the checkout's canonical `build/`.
+Executable, library and runtime directory defaults stay unchanged.
+
+This initial baseline explicitly selects Release and C++17, with ONNX Runtime,
+HDF5, SQLite3 and cutflow enabled. MPI, ROOT, RestFrames and CBS Rivet/Contur
+integration are disabled. Required HepMC, YODA, FastJet/fjcontrib and nulike
+remain part of the target. Python packages are fixed to pybind11 2.13.6 and
+PyYAML 6.0.2; Ubuntu's older pybind11 package does not meet GAMBIT's minimum.
+Cython is absent from this environment, so YODA builds its C++ library without
+the optional Python extension. ROOT/RestFrames, Rivet/Contur, C++20/23, Linux
+LLVM and automated macOS builds remain later matrix entries. The maintainer's
+existing macOS acceptance remains valid.
+
+The workflow runs for pull requests, `master`/`ci-*`/the current preset branch
+pushes and manual dispatch. From a Mac, commit and push the workflow changes
+normally; the Ubuntu runner performs the Linux build. Its virtual environment,
+logs and fresh checkout belong to the job rather than the local Mac build.
+
+The acceptance helper prints a plan by default, including on macOS:
+
+```sh
+python3 -B cmake/scripts/preset_build_acceptance.py
+```
+
+Actual execution requires Linux and both `--run` and `--fresh-checkout`. Use
+only an independent, clean checkout with no existing `build/` or CBS artifacts;
+the helper rejects existing build state rather than deleting it. The workflow
+prepares the Python environment and supplies its matching pybind11 CMake path:
+
+```sh
+# Linux CI / independent fresh checkout only:
+"$CBS_CI_PYTHON_DIR/bin/python" -B cmake/scripts/preset_build_acceptance.py \
+  --run --fresh-checkout --root "$GITHUB_WORKSPACE" \
+  --cmake /usr/bin/cmake --pybind11-dir "$CBS_CI_PYBIND11_DIR" \
+  --jobs 2 --timeout 3600 --log-dir "$CBS_CI_LOG_DIR/acceptance"
+```
+
+The sequence is a fresh preset configure, complete CBS build, `CBS --help`,
+direct repeated build, identical configure without `--fresh`, another build,
+and final startup. Incremental phases retain the same build tree and feature
+choices. Logs and file snapshots check native compilation, linking and code
+generation, package preparation and audited external steps. Legacy repeated
+build/install checks are reported separately; downloads, source resets and
+patching cannot be hidden as incremental reuse. Native objects, libraries,
+the executable, generated code and completion state must retain their content
+and timestamps. Known configure-written diagnostic/version/HDF5-wrapper
+metadata is compared by content, allowing its established timestamp rewrite.
+
+Each command closes stdin and has a timeout; failure stops later phases and
+retains the failed command's log and summary. `--log-dir` must name a new
+directory. The job uses two build workers, has a 90-minute limit and retains
+environment, dependency and acceptance diagnostics for 14 days under
+`cbs-gnu-build-<run>-<attempt>`, including ordinary failed runs.
+
+`CBS --help` validates startup and direct shared-library loading. Building or
+running a Pythia backend, an analysis or a physics point requires separate
+acceptance. Local fixture tests validate the helper; hosted Linux results are
+recorded separately after the workflow runs.
+
 ## Maintainer acceptance
 
 On 2026-10-13, the maintainer confirmed that macOS preset testing was

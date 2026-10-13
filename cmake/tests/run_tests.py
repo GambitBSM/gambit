@@ -25,6 +25,7 @@ TEST_DIR = Path(__file__).resolve().parent
 # a unittest skip (notably validation_cache's missing CMake) is never a pass.
 REQUIREMENTS = {
     "cbs_feature_acceptance.py": (),
+    "preset_build_acceptance.py": (),
     "test_runner.py": (),
     "preset_dependencies.py": ("cmake", "make"),
     "restframes_build_identity.py": ("cmake", "git"),
