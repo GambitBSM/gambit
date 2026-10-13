@@ -34,8 +34,6 @@ jobs:
       GIT_TERMINAL_PROMPT: '0'
       PIP_NO_INPUT: '1'
       PIP_DISABLE_PIP_VERSION_CHECK: '1'
-      CBS_CI_LOG_DIR: ${{ runner.temp }}/cbs-gnu-ci
-      CBS_CI_PYTHON_DIR: ${{ runner.temp }}/cbs-python
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -46,6 +44,10 @@ jobs:
 
       - name: Initialize diagnostics
         run: |
+          CBS_CI_LOG_DIR="$RUNNER_TEMP/cbs-gnu-ci"
+          CBS_CI_PYTHON_DIR="$RUNNER_TEMP/cbs-python"
+          printf 'CBS_CI_LOG_DIR=%s\n' "$CBS_CI_LOG_DIR" >> "$GITHUB_ENV"
+          printf 'CBS_CI_PYTHON_DIR=%s\n' "$CBS_CI_PYTHON_DIR" >> "$GITHUB_ENV"
           mkdir -p "$CBS_CI_LOG_DIR"
           uname -a > "$CBS_CI_LOG_DIR/host.txt"
           git rev-parse HEAD > "$CBS_CI_LOG_DIR/checkout.txt"
