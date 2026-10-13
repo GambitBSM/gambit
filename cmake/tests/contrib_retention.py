@@ -209,6 +209,15 @@ class ContribRetentionTests(unittest.TestCase):
         self.assertIn("gambit_preload", records["DEPENDENCY"]["restframes"])
 
     def test_explicit_nuke_commands_remove_only_requested_fixture(self):
+        self.assert_explicit_nuke_removes_only_requested_fixture()
+
+    def test_explicit_nuke_commands_accept_resolved_cmake_symlink(self):
+        alias = self.work / "cmake executable alias"
+        alias.symlink_to(Path(self.cmake).resolve())
+        self.cmake = str(alias)
+        self.assert_explicit_nuke_removes_only_requested_fixture()
+
+    def assert_explicit_nuke_removes_only_requested_fixture(self):
         records = self.run_selection(bits="DarkBit")
         other = {p: self.snapshot(p) for p in ("hepmc", "yoda")}
         # Exercise the real registered cmake -E cleanup commands in this fixture
@@ -219,7 +228,10 @@ class ContribRetentionTests(unittest.TestCase):
             for index, start in enumerate(starts):
                 end = starts[index + 1] if index + 1 < len(starts) else len(arguments)
                 command = arguments[start + 1:end]
-                if command[:2] != [self.cmake, "-E"]:
+                # CMAKE_COMMAND can resolve a symlink used to launch CMake.
+                # Keep the executable and fixture-path guards before cleanup.
+                if (len(command) < 3 or command[1] != "-E" or
+                        Path(command[0]).resolve() != Path(self.cmake).resolve()):
                     continue
                 self.assertIn(command[2], ("remove", "remove_directory"))
                 for argument in command[3:]:

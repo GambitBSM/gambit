@@ -148,7 +148,43 @@ Compiler-free cache-switch fixtures (temporary files and fake dependency tools):
 python3 cmake/tests/preset_dependencies.py
 ```
 
+## Compiler-free CMake regression tests
+
+Run the shared script-test entry point from the repository root:
+
+```sh
+python3 cmake/tests/run_tests.py --list
+python3 cmake/tests/run_tests.py
+python3 cmake/tests/run_tests.py --log-dir /tmp/cmake-script-tests
+```
+
+The runner discovers the Python suites in `cmake/tests` and the C++ standard
+policy script. It uses Python's standard library, CMake, Git, Make and standard
+Unix tools. Each suite runs separately with a temporary working directory and
+bytecode generation disabled. These checks do not configure or build GAMBIT,
+execute real compilers, download packages or change existing installations.
+Some tests configure temporary projects with `LANGUAGES NONE` to check cache
+behaviour without enabling compilers.
+
+`--list` only lists the suites and does not probe or execute tools. A normal run
+retains per-suite logs in a fresh temporary directory and prints its path;
+`--log-dir` selects a new directory and does not overwrite existing logs.
+The per-suite timeout defaults to 120 seconds and can be changed with
+`--timeout`. Failed, timed-out or incomplete suites make the runner exit
+non-zero, while the remaining suites are still checked. Individual suite
+scripts remain directly runnable.
+
+The `CMake script tests` GitHub workflow uses this same entry point for pull
+requests, selected branch pushes and manual runs. It retains logs for 14 days,
+including failed runs. This quick CI checks build logic; full preset builds,
+runtime smoke tests and package migration acceptance are separate work packages.
+
 ## Maintainer acceptance
+
+On 2026-10-13, the maintainer confirmed that macOS preset testing was
+completed. macOS preset acceptance is complete for the tested local
+environment. The detailed CBS feature-switch results below remain available
+as the earlier acceptance record.
 
 The current macOS `cbs-llvm` baseline has completed the ONNX/RestFrames scope
 migration, full CBS linking, `--help` startup and direct/same-configuration no-op
@@ -182,10 +218,11 @@ The current macOS `cbs-llvm` run passed all four switches and the final no-op
 check, with 95 stable snapshot files and both features restored ON. This build baseline is ready for
 delivery preparation; a small CBS YAML run remains separate functional acceptance.
 
-New-environment, AppleClang, Linux and full GAMBIT/DarkBit builds require
-separate acceptance. Use another checkout or test machine for an independent
-clean build; each checkout still uses `build/`. Ninja and lld adaptations remain
-deferred. The maintainer runs all real configure/build and executable checks.
+Linux and independent new-environment builds require separate acceptance.
+Use another checkout or test machine for an independent clean build; each
+checkout still uses `build/`. Physical-result validation is recorded separately
+from preset acceptance. Ninja and lld adaptations remain deferred. The
+maintainer runs all real configure/build and executable checks.
 
 ## Selecting an LLVM compiler
 

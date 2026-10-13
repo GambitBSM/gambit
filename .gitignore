@@ -35,6 +35,10 @@ a.out
 # Hidden files
 .*
 
+# Keep project CI workflows visible to Git.
+!.github/
+!.github/workflows/
+
 # Output data
 runs/*
 results/*

@@ -1,0 +1,53 @@
+name: CMake script tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - 'ci-*'
+      - Colliderbit-solo-development-preset
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cmake-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  script-tests:
+    name: Compiler-free CMake regressions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash --noprofile --norc -eo pipefail {0}
+    env:
+      PYTHONNOUSERSITE: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+      GIT_TERMINAL_PROMPT: '0'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install script-test tools
+        run: |
+          sudo apt-get update
+          sudo env DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 cmake git make patch
+
+      # The runner uses temporary fixtures; it never configures or builds GAMBIT/CBS.
+      - name: Run CMake script regressions
+        run: python3 cmake/tests/run_tests.py --log-dir "$RUNNER_TEMP/cmake-tests"
+
+      - name: Retain test logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cmake-script-tests-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/cmake-tests/
+          if-no-files-found: ignore
+          retention-days: 14
