@@ -37,10 +37,11 @@ BE_FUNCTION(gambit_sushi_setfile, void, (char*, int&),
 BE_FUNCTION(gambit_sushi_compute, void, (double&, double&),
             "gambit_sushi_compute_", "gambit_sushi_compute")
 
+// Takes a map of optional settings (see getSusHi_h_xsec_total in ColliderBit_Higgs.cpp).
 // Runs the full per-point SLHA build + SusHi ggh/bbh NNLO computation.
 // Called directly from a module function's own myFunction() body (not from
 // an eagerly-scheduled BE_INI_FUNCTION), so that emulatable capabilities can
 // skip this call entirely when the emulator's prediction is trusted.
-BE_CONV_FUNCTION(SusHi_run_point, void, (const Spectrum&, double&, double&), "SusHi_run_point")
+BE_CONV_FUNCTION(SusHi_run_point, void, (const Spectrum&, const map_str_dbl&, double&, double&), "SusHi_run_point")
 
 #include "gambit/Backends/backend_undefs.hpp"

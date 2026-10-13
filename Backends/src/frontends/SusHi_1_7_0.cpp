@@ -28,9 +28,23 @@ BE_NAMESPACE
     // module functions (not from BE_INI_FUNCTION), so that emulatable
     // capabilities can skip this call entirely when the emulator's
     // prediction is trusted -- see calculate() in functor_definitions.hpp.
-    void SusHi_run_point(const Spectrum& mySpec, double& ggh_result, double& bbh_result)
+    void SusHi_run_point(const Spectrum& mySpec, const map_str_dbl& opts, double& ggh_result, double& bbh_result)
     {
     using namespace SLHAea;
+
+    // User-tunable settings (passed from the module function's yaml options).
+    // Anything not present in 'opts' falls back to the default given here.
+    // Integer-valued SusHi entries are cast to int so they are written without
+    // a decimal point (SusHi reads them with Fortran integer formats).
+    auto dopt = [&opts](const std::string& key, double def)
+    {
+        auto it = opts.find(key);
+        return (it == opts.end()) ? def : it->second;
+    };
+    auto iopt = [&dopt](const std::string& key, int def)
+    {
+        return (int)std::lround(dopt(key, def));
+    };
 
     // Build MPI-safe temp filename
     int rank = 0;
@@ -91,10 +105,10 @@ BE_NAMESPACE
     lsh << 1 << 1        << "# model: 1=MSSM"; sushiBlock.push_back(lsh); lsh.clear();
     lsh << 2 << 11       << "# Higgs: 11=h (lightest CP-even)"; sushiBlock.push_back(lsh); lsh.clear();
     lsh << 3 << 0        << "# collider: 0=pp"; sushiBlock.push_back(lsh); lsh.clear();
-    lsh << 4 << 13000.0  << "# CoM energy [GeV]"; sushiBlock.push_back(lsh); lsh.clear();
-    lsh << 5 << 2        << "# order ggh: 2=NNLO"; sushiBlock.push_back(lsh); lsh.clear();
-    lsh << 6 << 2        << "# order bbh: 2=NNLO"; sushiBlock.push_back(lsh); lsh.clear();
-    lsh << 7 << 1        << "# EW for ggh: 1=light quarks at NLO"; sushiBlock.push_back(lsh); lsh.clear();
+    lsh << 4 << dopt("sqrts", 13000.0) << "# CoM energy [GeV]"; sushiBlock.push_back(lsh); lsh.clear();
+    lsh << 5 << iopt("ggh_order", 2) << "# order ggh: 0=LO, 1=NLO, 2=NNLO"; sushiBlock.push_back(lsh); lsh.clear();
+    lsh << 6 << iopt("bbh_order", 2) << "# order bbh: 0=LO, 1=NLO, 2=NNLO"; sushiBlock.push_back(lsh); lsh.clear();
+    lsh << 7 << iopt("ew_ggh", 1) << "# EW for ggh: 0=off, 1=light quarks at NLO"; sushiBlock.push_back(lsh); lsh.clear();
     lsh << 19 << 0       << "# output: 0=silent"; sushiBlock.push_back(lsh); lsh.clear();
     slha.push_back(sushiBlock);
 
@@ -105,7 +119,7 @@ BE_NAMESPACE
     lsh << 2 << "MMHT2014nlo68cl"  << "# NLO PDF"; pdfBlock.push_back(lsh); lsh.clear();
     lsh << 3 << "MMHT2014nnlo68cl" << "# NNLO PDF"; pdfBlock.push_back(lsh); lsh.clear();
     lsh << 4 << "MMHT2014nnlo68cl" << "# N3LO PDF (unused at NNLO)"; pdfBlock.push_back(lsh); lsh.clear();
-    lsh << 10 << 0                 << "# set member 0 = central"; pdfBlock.push_back(lsh); lsh.clear();
+    lsh << 10 << iopt("pdf_member", 0) << "# PDF set member (0 = central)"; pdfBlock.push_back(lsh); lsh.clear();
     slha.push_back(pdfBlock);
 
     // Append Block RENORMBOT (bottom-quark Yukawa renormalization)
@@ -114,8 +128,8 @@ BE_NAMESPACE
     // Entry 3: Delta_b from FeynHiggs (0=no — we use GAMBIT spectrum directly)
     SLHAea::Block renormbotBlock("RENORMBOT");
     lsh << "BLOCK" << "RENORMBOT"; renormbotBlock.push_back(lsh); lsh.clear();
-    lsh << 1 << 0 << "# mb for bottom Yukawa: 0=OS"; renormbotBlock.push_back(lsh); lsh.clear();
-    lsh << 2 << 1 << "# tanbeta resummation: 1=naive"; renormbotBlock.push_back(lsh); lsh.clear();
+    lsh << 1 << iopt("renormbot_mb", 0) << "# mb for bottom Yukawa: 0=OS, 1=MSbar(mb), 2=MSbar(muR)"; renormbotBlock.push_back(lsh); lsh.clear();
+    lsh << 2 << iopt("renormbot_tanb_resum", 1) << "# tanbeta resummation: 0=no, 1=naive, 2=full"; renormbotBlock.push_back(lsh); lsh.clear();
     lsh << 3 << 0 << "# Delta_b from FeynHiggs: 0=no"; renormbotBlock.push_back(lsh); lsh.clear();
     slha.push_back(renormbotBlock);
 
@@ -131,23 +145,23 @@ BE_NAMESPACE
     // Append Block FACTORS (multiplicative K-factors; 1.0 = use computed values)
     SLHAea::Block factorsBlock("FACTORS");
     lsh << "BLOCK" << "FACTORS"; factorsBlock.push_back(lsh); lsh.clear();
-    lsh << 1 << 1.0 << "# K-factor for ggh"; factorsBlock.push_back(lsh); lsh.clear();
-    lsh << 2 << 1.0 << "# K-factor for bbh"; factorsBlock.push_back(lsh); lsh.clear();
+    lsh << 1 << dopt("kfactor_ggh", 1.0) << "# K-factor for ggh"; factorsBlock.push_back(lsh); lsh.clear();
+    lsh << 2 << dopt("kfactor_bbh", 1.0) << "# K-factor for bbh"; factorsBlock.push_back(lsh); lsh.clear();
     slha.push_back(factorsBlock);
 
-    // Append Block VEGAS (reduced calls for speed; ~2% accuracy sufficient for emulator training)
+    // Append Block VEGAS (defaults: reduced calls for speed, ~2% accuracy; raise via yaml options for a slower, more precise calculation)
     SLHAea::Block vegasBlock("VEGAS");
     lsh << "BLOCK" << "VEGAS"; vegasBlock.push_back(lsh); lsh.clear();
-    lsh << 1  << 5000  << "# NLO points"; vegasBlock.push_back(lsh); lsh.clear();
-    lsh << 2  << 5     << "# NLO iterations"; vegasBlock.push_back(lsh); lsh.clear();
-    lsh << 4  << 5000  << "# ggh@nnlo points (1st run)"; vegasBlock.push_back(lsh); lsh.clear();
-    lsh << 5  << 5     << "# ggh@nnlo iterations (1st run)"; vegasBlock.push_back(lsh); lsh.clear();
-    lsh << 14 << 2000  << "# ggh@nnlo points (2nd run)"; vegasBlock.push_back(lsh); lsh.clear();
-    lsh << 15 << 2     << "# ggh@nnlo iterations (2nd run)"; vegasBlock.push_back(lsh); lsh.clear();
-    lsh << 7  << 5000  << "# bbh@nnlo points (1st run)"; vegasBlock.push_back(lsh); lsh.clear();
-    lsh << 8  << 5     << "# bbh@nnlo iterations (1st run)"; vegasBlock.push_back(lsh); lsh.clear();
-    lsh << 17 << 2000  << "# bbh@nnlo points (2nd run)"; vegasBlock.push_back(lsh); lsh.clear();
-    lsh << 18 << 2     << "# bbh@nnlo iterations (2nd run)"; vegasBlock.push_back(lsh); lsh.clear();
+    lsh << 1 << iopt("vegas_nlo_points", 5000) << "# NLO points"; vegasBlock.push_back(lsh); lsh.clear();
+    lsh << 2 << iopt("vegas_nlo_iter", 5) << "# NLO iterations"; vegasBlock.push_back(lsh); lsh.clear();
+    lsh << 4 << iopt("vegas_ggh_nnlo_points", 5000) << "# ggh@nnlo points (1st run)"; vegasBlock.push_back(lsh); lsh.clear();
+    lsh << 5 << iopt("vegas_ggh_nnlo_iter", 5) << "# ggh@nnlo iterations (1st run)"; vegasBlock.push_back(lsh); lsh.clear();
+    lsh << 14 << iopt("vegas_ggh_nnlo_points2", 2000) << "# ggh@nnlo points (2nd run)"; vegasBlock.push_back(lsh); lsh.clear();
+    lsh << 15 << iopt("vegas_ggh_nnlo_iter2", 2) << "# ggh@nnlo iterations (2nd run)"; vegasBlock.push_back(lsh); lsh.clear();
+    lsh << 7 << iopt("vegas_bbh_nnlo_points", 5000) << "# bbh@nnlo points (1st run)"; vegasBlock.push_back(lsh); lsh.clear();
+    lsh << 8 << iopt("vegas_bbh_nnlo_iter", 5) << "# bbh@nnlo iterations (1st run)"; vegasBlock.push_back(lsh); lsh.clear();
+    lsh << 17 << iopt("vegas_bbh_nnlo_points2", 2000) << "# bbh@nnlo points (2nd run)"; vegasBlock.push_back(lsh); lsh.clear();
+    lsh << 18 << iopt("vegas_bbh_nnlo_iter2", 2) << "# bbh@nnlo iterations (2nd run)"; vegasBlock.push_back(lsh); lsh.clear();
     slha.push_back(vegasBlock);
 
     // Write SLHA to temp file
