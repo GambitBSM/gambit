@@ -442,10 +442,8 @@ namespace Gambit
             printer.print(d_total,     totallooptime_label, totalloopID, rank, getPtID());
         }
 
-        }
-
-        
-        //_emu train
+        //_emu train: only points computed for real are training points; an
+        // accepted prediction must never be fed back as its own target.
         #ifdef WITH_MPI
         if (EmulatorMap::useEmulator && EmulatorMap::capabilities.find("LogLike") != EmulatorMap::capabilities.end())
         {
@@ -461,6 +459,7 @@ namespace Gambit
         }
         #endif
         //_emu train end
+        }
     }
 
     if (debug) cout << "Total log-likelihood: " << lnlike << endl << endl;

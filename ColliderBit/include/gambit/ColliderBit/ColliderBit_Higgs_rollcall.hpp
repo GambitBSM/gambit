@@ -128,7 +128,7 @@
     #define FUNCTION getSusHi_h_xsec_total
     START_FUNCTION_EMULATABLE(double)
     DEPENDENCY(MSSM_spectrum, Spectrum)
-    BACKEND_REQ(SusHi_run_point, (libsushi), void, (const Spectrum&, double&, double&))
+    BACKEND_REQ(SusHi_run_point, (libsushi), void, (const Spectrum&, const map_str_dbl&, double&, double&))
     ALLOW_MODELS( MSSM9batQ_mA, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG )
     // BACKEND_OPTION( (SusHi, 1.7.0), (libsushi) )
     #undef FUNCTION

@@ -607,30 +607,30 @@ namespace Gambit
 
     }
 
-    /// Emulator input: the MSSM parameters that actually drive the SusHi
-    /// cross section (stop/sbottom sector controls the SUSY-QCD loop
-    /// corrections, tanb/mu/At/Ab control bottom-Yukawa enhancement of bbh,
-    /// mh sets the phase space / parton luminosities).
+    /// Emulator input: the MSSM quantities that drive the SusHi h cross
+    /// section. mh sets the phase space, mA and sin(alpha) the h couplings
+    /// (cos(alpha)/sin(beta) to top, -sin(alpha)/cos(beta) to bottom), the
+    /// stop sector (mQ3, At) the SUSY-QCD loop corrections and the sbottom
+    /// sector with mu, M3 and tanb the Delta_b resummation. In MSSM9batQ_mA
+    /// mU3 equals mQ3 and Ab is not scanned, so neither is an input.
     void getSusHi_h_xsec_total_EmulatorTranslateInput(std::vector<double>& input)
     {
       const Spectrum& mySpec = *Pipes::getSusHi_h_xsec_total::Dep::MSSM_spectrum;
       double tanb    = mySpec.get(Par::dimensionless, "tanbeta");
       double mh      = mySpec.get(Par::Pole_Mass, "h0_1");
+      double mA      = mySpec.get(Par::Pole_Mass, "A0");
+      double sinalp  = mySpec.get(Par::Pole_Mixing, "h0", 2, 2); // SCALARMIX(2,2) = sin(alpha)
       double M3_val  = mySpec.get(Par::mass1, "M3");
       double mu_val  = mySpec.get(Par::mass1, "Mu");
       double Yu33    = mySpec.get(Par::dimensionless, "Yu", 3, 3);
       double TYu33   = mySpec.get(Par::mass1, "TYu", 3, 3);
-      double Yd33    = mySpec.get(Par::dimensionless, "Yd", 3, 3);
-      double TYd33   = mySpec.get(Par::mass1, "TYd", 3, 3);
       double At_val  = (Yu33 != 0.0) ? TYu33 / Yu33 : 0.0;
-      double Ab_val  = (Yd33 != 0.0) ? TYd33 / Yd33 : 0.0;
       double mQ3_val = std::sqrt(std::abs(mySpec.get(Par::mass2, "mq2", 3, 3)));
-      double mU3_val = std::sqrt(std::abs(mySpec.get(Par::mass2, "mu2", 3, 3)));
       double mD3_val = std::sqrt(std::abs(mySpec.get(Par::mass2, "md2", 3, 3)));
 
-      input = {tanb, mh, M3_val, mu_val, mQ3_val, mU3_val, mD3_val, At_val, Ab_val};
+      input = {tanb, mh, mA, sinalp, M3_val, mu_val, mQ3_val, mD3_val, At_val};
       std::cout << "[Emulator: getSusHi_h_xsec_total] TranslateInput: tanb=" << tanb
-                << " mh=" << mh << std::endl;
+                << " mh=" << mh << " mA=" << mA << " sin(alpha)=" << sinalp << std::endl;
     }
 
     bool getSusHi_h_xsec_total_EmulatorCheckThreshold(str& name, std::vector<double>& uncertainty)
@@ -665,8 +665,23 @@ namespace Gambit
     void getSusHi_h_xsec_total(double& result)
     {
       using namespace Pipes::getSusHi_h_xsec_total;
+      // Forward any SusHi settings given in the yaml options: block of this
+      // function. Unset keys use the frontend defaults (see SusHi_run_point).
+      // These control how slow (and how precise) the calculation is.
+      static const char* keys[] = {
+        "sqrts", "ggh_order", "bbh_order", "ew_ggh", "pdf_member",
+        "renormbot_mb", "renormbot_tanb_resum", "kfactor_ggh", "kfactor_bbh",
+        "vegas_nlo_points", "vegas_nlo_iter",
+        "vegas_ggh_nnlo_points", "vegas_ggh_nnlo_iter",
+        "vegas_ggh_nnlo_points2", "vegas_ggh_nnlo_iter2",
+        "vegas_bbh_nnlo_points", "vegas_bbh_nnlo_iter",
+        "vegas_bbh_nnlo_points2", "vegas_bbh_nnlo_iter2"};
+      map_str_dbl sushi_opts;
+      for (const char* key : keys)
+        if (runOptions->hasKey(key)) sushi_opts[key] = runOptions->getValue<double>(key);
+
       double ggh = 0.0, bbh = 0.0;
-      BEreq::SusHi_run_point(*Dep::MSSM_spectrum, ggh, bbh);
+      BEreq::SusHi_run_point(*Dep::MSSM_spectrum, sushi_opts, ggh, bbh);
       result = ggh + bbh;
     }
 
