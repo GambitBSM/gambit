@@ -27,6 +27,7 @@ REQUIREMENTS = {
     "cbs_feature_acceptance.py": (),
     "preset_build_acceptance.py": (),
     "test_runner.py": (),
+    "code_generation.py": ("cmake", "make"),
     "preset_dependencies.py": ("cmake", "make"),
     "restframes_build_identity.py": ("cmake", "git"),
     "restframes_scope.py": ("cmake", "git"),

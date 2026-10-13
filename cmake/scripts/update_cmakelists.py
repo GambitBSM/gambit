@@ -22,6 +22,19 @@
 #*********************************************
 import os
 
+# Harvest targets declare these headers as BYPRODUCTS and order module builds
+# after generation. Keep them out of the discovered input inventory so the
+# first build cannot change that inventory on an identical reconfigure.
+HARVESTED_HEADERS = {
+    "Backends": {"gambit/Backends/backend_functor_types.hpp",
+                 "gambit/Backends/backend_rollcall.hpp",
+                 "gambit/Backends/backend_types_rollcall.hpp"},
+    "Models": {"gambit/Models/model_rollcall.hpp", "gambit/Models/model_types_rollcall.hpp"},
+    "Printers": {"gambit/Printers/printer_rollcall.hpp"},
+    "ColliderBit": {"gambit/ColliderBit/ColliderBit_models_rollcall.hpp",
+                    "gambit/ColliderBit/colliders/Pythia8/Py8Collider_typedefs.hpp"},
+}
+
 toolsfile="./Utils/scripts/harvesting_tools.py"
 exec(compile(open(toolsfile, "rb").read(), toolsfile, 'exec')) # Python 2/3 compatible version of 'execfile'
 
@@ -140,6 +153,8 @@ def main(argv):
             for name in files:
                 short_root = re.sub("\\./"+mod+"/include/?","",root)
                 if short_root != "" : short_root += "/"
+                if short_root + name in HARVESTED_HEADERS.get(mod, set()):
+                    continue
                 if mod in ["Backends", "Printers"] and "/backend_types/" not in short_root and excluded(name, exclude_backends | exclude_printers):
                     if verbose: print("    Ignoring {0} header file '{1}'".format(mod,short_root+name))
                     excluded_components.add(os.path.splitext(name)[0])
@@ -189,9 +204,9 @@ def main(argv):
 
 """
         towrite+= "set(source_files\n"
-        for cpp in srcs: towrite+='src/{0}\n'.format(cpp)
+        for cpp in sorted(srcs): towrite+='src/{0}\n'.format(cpp)
         towrite+=")\n\nset(header_files\n"
-        for hpp in headers: towrite+='include/{0}\n'.format(hpp)
+        for hpp in sorted(headers): towrite+='include/{0}\n'.format(hpp)
         towrite+=")\n\n"
         towrite+="add_gambit_library("+mod+" OPTION OBJECT SOURCES ${source_files} HEADERS ${header_files})\n"
         if (mod == "Backends"):

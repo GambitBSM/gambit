@@ -92,6 +92,9 @@ def main(argv):
     ## begin adding scannerbit files to CMakeLists.txt ##
     scanbit_srcs = [ name for name in os.listdir("./ScannerBit/src") if os.path.isfile('./ScannerBit/src/' + name) if name.endswith(".cpp") or name.endswith(".c") or name.endswith(".cc") or name.endswith(".cxx") ]
     scanbit_hdrs = [ name for name in os.listdir("./ScannerBit/include/gambit/ScannerBit") if os.path.isfile('./ScannerBit/include/gambit/ScannerBit/' + name) if name.endswith(".hpp") or name.endswith(".h") ]
+    # This script creates the rollcall below; include it even in a clean tree
+    # so its creation cannot change the header inventory on the next configure.
+    scanbit_hdrs = sorted(set(scanbit_hdrs + ["priors_rollcall.hpp"]))
     prior_srcs = []
     prior_hdrs = []
 

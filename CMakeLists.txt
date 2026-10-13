@@ -639,12 +639,26 @@ file(GLOB_RECURSE BACKEND_HARVESTER_FILES
      "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/*.hpp")
 list(APPEND BACKEND_HARVESTER_FILES ${MODULE_HARVESTER_FILES}
      "${PROJECT_SOURCE_DIR}/Backends/CMakeLists.txt")
-file(GLOB MODEL_HARVESTER_FILES    "${PROJECT_SOURCE_DIR}/Models/include/gambit/Models/models/*.hpp"
-                                   "${PROJECT_SOURCE_DIR}/Models/CMakeLists.txt")
-file(GLOB PRINTER_HARVESTER_FILES  "${PROJECT_SOURCE_DIR}/Printers/include/gambit/Printers/printers/*.hpp"
-                                   "${PROJECT_SOURCE_DIR}/Printers/CMakeLists.txt")
-file(GLOB COLLIDER_HARVESTER_FILES "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/models/*.hpp"
-                                   "${PROJECT_SOURCE_DIR}/Models/CMakeLists.txt")
+file(GLOB MODEL_HARVESTER_FILES
+     "${PROJECT_SOURCE_DIR}/Models/include/gambit/Models/models/*.hpp"
+     "${PROJECT_SOURCE_DIR}/Models/include/gambit/Models/models/*.h"
+     "${PROJECT_SOURCE_DIR}/Models/include/gambit/Models/models/*.hh"
+     "${PROJECT_SOURCE_DIR}/Models/include/gambit/Models/model_types/*.hpp"
+     "${PROJECT_SOURCE_DIR}/Models/include/gambit/Models/model_types/*.h"
+     "${PROJECT_SOURCE_DIR}/Models/include/gambit/Models/model_types/*.hh")
+file(GLOB PRINTER_HARVESTER_FILES
+     "${PROJECT_SOURCE_DIR}/Printers/include/gambit/Printers/printers/*.hpp"
+     "${PROJECT_SOURCE_DIR}/Printers/include/gambit/Printers/printers/*.h"
+     "${PROJECT_SOURCE_DIR}/Printers/include/gambit/Printers/printers/*.hh")
+file(GLOB COLLIDER_HARVESTER_FILES
+     "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/models/*.hpp"
+     "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/models/*.h"
+     "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/models/*.hh")
+# These generated inventories are created later in this configure. Their
+# dependency membership must not depend on whether a previous configure ran.
+list(APPEND MODEL_HARVESTER_FILES "${PROJECT_SOURCE_DIR}/Models/CMakeLists.txt")
+list(APPEND PRINTER_HARVESTER_FILES "${PROJECT_SOURCE_DIR}/Printers/CMakeLists.txt")
+list(APPEND COLLIDER_HARVESTER_FILES "${PROJECT_SOURCE_DIR}/Models/CMakeLists.txt")
 string (REPLACE "//" "/" MODULE_HARVESTER_FILES   "${MODULE_HARVESTER_FILES}")
 string (REPLACE "//" "/" BACKEND_HARVESTER_FILES  "${BACKEND_HARVESTER_FILES}")
 string (REPLACE "//" "/" MODEL_HARVESTER_FILES    "${MODEL_HARVESTER_FILES}")   # (GLOB creates erroneous double slashes)

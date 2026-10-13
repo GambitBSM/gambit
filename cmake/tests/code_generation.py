@@ -8,6 +8,7 @@ import pickle
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -254,6 +255,251 @@ endforeach()
         self.assertIn("template class module_functor<NewResult>;", output.read_text())
         generate(5)
         self.assertEqual(signature(output), after)
+
+    def test_cold_harvest_graph_preserves_inventory_and_noops_then_tracks_real_changes(self):
+        # Run the real discovery, registration macro and CMake-list updater in
+        # a LANGUAGES NONE project. The fake harvesters write only temporary
+        # outputs; no GAMBIT configure, compiler, backend or network is involved.
+        root = (self.work / "source with spaces").resolve()
+        root.mkdir()
+        build = root / "build"
+
+        def put(relative, text="// fixture input\n"):
+            path = root / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text)
+            return path
+
+        put("Utils/scripts/harvesting_tools.py", (ROOT / "Utils/scripts/harvesting_tools.py").read_text())
+        put("scratch/build_time/keep", "")
+        put("config/resolution_type_equivalency_classes.yaml", "{}\n")
+        for module, directory, name in (
+                ("Models", "models", "model.hpp"), ("Models", "model_types", "type.hh"),
+                ("Backends", "frontends", "backend.hpp"),
+                ("Printers", "printers", "printer.h"), ("ColliderBit", "models", "collider.hh")):
+            put(module + "/include/gambit/" + module + "/" + directory + "/" + name)
+            put(module + "/src/z.cpp")
+            put(module + "/src/a.cpp")
+        put("ColliderBit/include/gambit/ColliderBit/ColliderBit_rollcall.hpp")
+        text = (ROOT / "CMakeLists.txt").read_text()
+        discovery = text[text.index("# Identify the different harvester scripts"):
+                         text.index("# Add backends and scanners. Done before")]
+        utilities = (ROOT / "cmake/utilities.cmake").read_text()
+        macro = re.search(r"macro\(add_gambit_custom\b.*?\nendmacro\(\)", utilities, re.S).group()
+        registrations = []
+        for label, kind, completion in (
+                ("module", "MODULE", "modules_harvested"),
+                ("backend", "BACKEND", "backends_harvested"),
+                ("model", "MODEL", "models_harvested"),
+                ("printer", "PRINTER", "printers_harvested"),
+                ("collider", "COLLIDER", "colliders_harvested")):
+            script = put("fake_" + label + ".py",
+                         "from pathlib import Path\n"
+                         "root = Path.cwd()\n"
+                         "with (root / 'calls.log').open('a') as stream: stream.write(" + repr(label + "\n") + ")\n"
+                         "for name in (root / 'build/" + kind + "-outputs.txt').read_text().split(';'):\n"
+                         "    path = Path(name)\n"
+                         "    path.parent.mkdir(parents=True, exist_ok=True)\n"
+                         "    if not path.exists(): path.write_text('// stable generated content\\n')\n")
+            registrations.extend([
+                "set(" + kind + "_HARVESTER " + bracket(script) + ")",
+                "file(WRITE \"${CMAKE_BINARY_DIR}/" + kind + "-outputs.txt\" \"${" + kind + "_HARVESTER_OUTPUTS}\")",
+                "add_gambit_custom(" + label + "_harvest " + completion + " " + kind +
+                "_HARVESTER " + kind + "_HARVESTER_FILES)",
+            ])
+        functors = put("fake_functors.py",
+                       "from pathlib import Path\n"
+                       "with Path('calls.log').open('a') as stream: stream.write('functors\\n')\n"
+                       "path = Path('ColliderBit/examples/functors_for_CBS.cpp')\n"
+                       "path.parent.mkdir(parents=True, exist_ok=True)\n"
+                       "if not path.exists(): path.write_text('// stable functors\\n')\n")
+        put("CMakeLists.txt", "\n".join([
+            "cmake_minimum_required(VERSION 3.16.3)", "project(codegen_fixture LANGUAGES NONE)",
+            "include(" + bracket(ROOT / "cmake/CodeGeneration.cmake") + ")", macro,
+            "set(Python3_EXECUTABLE " + bracket(sys.executable) + ")", "set(GAMBIT_BITS ColliderBit)",
+            discovery, *registrations,
+            "add_dependencies(module_harvest backend_harvest model_harvest collider_harvest)",
+            "add_dependencies(printer_harvest module_harvest)",
+            "execute_process(COMMAND " + bracket(sys.executable) + " -B " +
+            bracket(ROOT / "cmake/scripts/update_cmakelists.py") +
+            " WORKING_DIRECTORY \"${PROJECT_SOURCE_DIR}\" RESULT_VARIABLE result)",
+            "if(NOT result EQUAL 0)\n message(FATAL_ERROR \"Updater failed\")\nendif()",
+            "add_custom_command(OUTPUT \"${CMAKE_BINARY_DIR}/functors_for_CBS.stamp\"",
+            " BYPRODUCTS \"${PROJECT_SOURCE_DIR}/ColliderBit/examples/functors_for_CBS.cpp\"",
+            " COMMAND " + bracket(sys.executable) + " -B " + bracket(functors),
+            " COMMAND \"${CMAKE_COMMAND}\" -E touch \"${CMAKE_BINARY_DIR}/functors_for_CBS.stamp\"",
+            " WORKING_DIRECTORY \"${PROJECT_SOURCE_DIR}\"",
+            " DEPENDS \"${CMAKE_BINARY_DIR}/modules_harvested\" VERBATIM)",
+            "add_custom_target(CBS DEPENDS \"${CMAKE_BINARY_DIR}/functors_for_CBS.stamp\")",
+            "add_dependencies(CBS printer_harvest)", "",
+        ]))
+        environment = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
+        environment.pop("PYTHONHOME", None)
+        configure = [self.cmake, "-S", str(root), "-B", str(build), "-G", "Unix Makefiles"]
+        compile_fixture = [self.cmake, "--build", str(build), "--target", "CBS"]
+
+        def invoke(command):
+            result = subprocess.run(command, cwd=root, env=environment, stdin=subprocess.DEVNULL,
+                                    capture_output=True, text=True, timeout=20)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            return result.stdout + result.stderr
+
+        def calls():
+            path = root / "calls.log"
+            return path.read_text().splitlines() if path.exists() else []
+
+        def records():
+            paths = list(build.glob("*harvest_options.stamp")) + list(build.glob("*_harvested"))
+            paths += [build / "functors_for_CBS.stamp"]
+            paths += [root / module / "CMakeLists.txt" for module in ("Backends", "Models", "Printers", "ColliderBit")]
+            for manifest in build.glob("*-outputs.txt"):
+                paths += [Path(name) for name in manifest.read_text().split(";")]
+            paths += [root / "ColliderBit/examples/functors_for_CBS.cpp"]
+            return {path: signature(path) for path in paths}
+
+        def separate_input_times():
+            # GNU Make 3.81 on macOS compares whole seconds. Use distinct
+            # explicit timestamps rather than sleeps or subsecond assumptions.
+            for path in root.rglob("*"):
+                if path.is_file() and build not in path.parents:
+                    os.utime(path, ns=(100_000_000_000, 100_000_000_000))
+            for path in build.glob("*harvest_options.stamp"):
+                os.utime(path, ns=(100_000_000_000, 100_000_000_000))
+            for path in [*build.glob("*_harvested"), build / "functors_for_CBS.stamp"]:
+                os.utime(path, ns=(200_000_000_000, 200_000_000_000))
+
+        invoke(configure)
+        model_options = (build / "model_harvest_options.stamp").read_text()
+        self.assertIn(str(root / "Models/include/gambit/Models/model_types/type.hh"), model_options)
+        for kind, relative in (
+                ("printer", "Printers/include/gambit/Printers/printers/printer.h"),
+                ("collider", "ColliderBit/include/gambit/ColliderBit/models/collider.hh")):
+            self.assertIn(str(root / relative), (build / (kind + "_harvest_options.stamp")).read_text())
+        self.assertIn("include/gambit/ColliderBit/ColliderBit_rollcall.hpp",
+                      (root / "ColliderBit/CMakeLists.txt").read_text())
+        for module in ("Models", "Backends", "Printers", "ColliderBit"):
+            inventory = (root / module / "CMakeLists.txt").read_text()
+            self.assertLess(inventory.index("src/a.cpp"), inventory.index("src/z.cpp"))
+        invoke(compile_fixture)
+        self.assertEqual(set(calls()), {"module", "backend", "model", "printer", "collider", "functors"})
+        separate_input_times()
+        before, executed = records(), calls()
+        invoke(compile_fixture)
+        self.assertEqual(calls(), executed, "direct build repeated a generator")
+        invoke(configure)
+        invoke(compile_fixture)
+        self.assertEqual(calls(), executed, "identical configure repeated a generator")
+        self.assertEqual(records(), before, "identical configure changed a durable generation record")
+
+        # Addition/removal changes the real discovered input membership, even
+        # when existing input files are older than the successful stamps.
+        new_header = put("Models/include/gambit/Models/model_types/new.h")
+        invoke(configure)
+        invoke(compile_fixture)
+        self.assertIn("model", calls()[len(executed):])
+        separate_input_times()
+        executed = calls()
+        new_header.unlink()
+        invoke(configure)
+        invoke(compile_fixture)
+        self.assertIn("model", calls()[len(executed):])
+
+        # Editing an existing model-type input must invalidate the model
+        # generator without relying on a CMake source-list content change.
+        separate_input_times()
+        executed = calls()
+        model_type = root / "Models/include/gambit/Models/model_types/type.hh"
+        model_type.write_text("// changed existing model type\n")
+        invoke(compile_fixture)
+        self.assertIn("model", calls()[len(executed):])
+
+        # An explicit configure repairs a missing BYPRODUCT through its owner,
+        # while keeping unrelated backend/collider/printer stamps unchanged.
+        separate_input_times()
+        before, executed = records(), calls()
+        output = root / "Models/include/gambit/Models/model_rollcall.hpp"
+        output.unlink()
+        invoke(configure)
+        invoke(compile_fixture)
+        self.assertTrue(output.is_file())
+        self.assertEqual(set(calls()[len(executed):]), {"model", "module", "functors"})
+        after = records()
+        for name in ("backends_harvested", "colliders_harvested", "printers_harvested"):
+            self.assertEqual(before[build / name], after[build / name])
+        separate_input_times()
+        before, executed = records(), calls()
+        invoke(configure)
+        invoke(compile_fixture)
+        self.assertEqual(calls(), executed)
+        self.assertEqual(records(), before)
+
+    def test_scanner_inventory_is_stable_from_cold_generation_and_header_repair(self):
+        import sys
+
+        directories = [
+            "ScannerBit/src/scanners", "ScannerBit/src/objectives",
+            "ScannerBit/include/gambit/ScannerBit/scanners",
+            "ScannerBit/include/gambit/ScannerBit/objectives",
+            "ScannerBit/include/gambit/ScannerBit/priors",
+            "ScannerBit/lib", "Utils/scripts", "scratch/build_time", "config", "build",
+        ]
+        for directory in directories:
+            (self.work / directory).mkdir(parents=True, exist_ok=True)
+        shutil.copy2(ROOT / "Utils/scripts/harvesting_tools.py", self.work / "Utils/scripts")
+        for name in ["scanner_locations.yaml.default", "objective_locations.yaml.default"]:
+            (self.work / "config" / name).write_text("{}\n")
+        (self.work / "ScannerBit/src/ordinary.cpp").write_text("// fixture\n")
+        (self.work / "ScannerBit/include/gambit/ScannerBit/ordinary.hpp").write_text("// fixture\n")
+        (self.work / "ScannerBit/include/gambit/ScannerBit/priors/simple.hpp").write_text("// fixture prior\n")
+        # No plugin declarations need YAML parsing. Keep this fixture independent
+        # of PyYAML while executing the real harvester and shared update helper.
+        (self.work / "yaml.py").write_text(
+            "def full_load(*args, **kwargs):\n"
+            "    raise AssertionError('fixture must not parse plugin YAML')\n"
+        )
+        environment = {**os.environ, "PYTHONPATH": str(self.work),
+                       "PYTHONNOUSERSITE": "1", "PYTHONDONTWRITEBYTECODE": "1"}
+        environment.pop("PYTHONHOME", None)
+
+        def generate():
+            result = subprocess.run(
+                [sys.executable, "-B", str(ROOT / "ScannerBit/scripts/scanner+_harvester.py"),
+                 str(self.work / "build")],
+                cwd=self.work, env=environment, stdin=subprocess.DEVNULL,
+                capture_output=True, text=True, timeout=15,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertFalse(list((self.work / "build").glob("*.candidate")))
+
+        cmake = self.work / "ScannerBit/CMakeLists.txt"
+        header = self.work / "ScannerBit/include/gambit/ScannerBit/priors_rollcall.hpp"
+        outputs = [cmake, header, self.work / "ScannerBit/lib/plugin_libraries.list",
+                   self.work / "scratch/build_time/scanbit_reqd_entries.yaml",
+                   self.work / "scratch/build_time/scanbit_flags.yaml",
+                   self.work / "build/linkedout.cmake"]
+        self.assertFalse(header.exists())
+        generate()
+        self.assertEqual(cmake.read_text().count(
+            "include/gambit/ScannerBit/priors_rollcall.hpp"), 1)
+        self.assertIn('#include "gambit/ScannerBit/priors/simple.hpp"', header.read_text())
+        for path in outputs:
+            os.utime(path, ns=(1_000_000_000, 1_000_000_000))
+        before = {path: signature(path) for path in outputs}
+        for _ in range(2):
+            generate()
+            self.assertEqual({path: signature(path) for path in outputs}, before)
+
+        # Repair a deleted generated header without rewriting the CMake inventory
+        # or unrelated outputs; the next identical run must preserve all outputs.
+        header.unlink()
+        generate()
+        self.assertTrue(header.exists())
+        self.assertIn('#include "gambit/ScannerBit/priors/simple.hpp"', header.read_text())
+        self.assertEqual({path: signature(path) for path in outputs if path != header},
+                         {path: value for path, value in before.items() if path != header})
+        repaired = {path: signature(path) for path in outputs}
+        generate()
+        self.assertEqual({path: signature(path) for path in outputs}, repaired)
 
 
 if __name__ == "__main__":
