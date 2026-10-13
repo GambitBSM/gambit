@@ -1,12 +1,12 @@
 ##########################################################################
 ## Minimal GAMBIT configuration for testing the SusHi 1.7.0 backend.
 ##
-## Computes gg->h and bb->h cross sections at NNLO, LHC 13 TeV
+## Computes the total (gg->h + bb->h) cross section at NNLO, LHC 13 TeV
 ## for a single MSSM9 test point with mh ~ 125 GeV.
 ##
 ## Requires: -DBUILD_FS_MODELS="MSSM_mAmu"
 ##
-## Expected: SusHi_ggh_xsec ~ 20-50 pb, SusHi_bbh_xsec ~ 1-5 pb
+## Expected: SusHi_h_xsec_total ~ 20-55 pb (ggh ~20-50 pb, bbh ~1-5 pb)
 ##########################################################################
 
 Parameters:
@@ -15,7 +15,9 @@ Parameters:
 
   MSSM9batQ_mA:
     Qin:      10000.0
-    TanBeta:  10.0
+    TanBeta:
+      range: [5.0, 20.0]
+      prior_type: flat
     mA:       2000.0
     mu:       500.0
     M1:       300.0
@@ -42,7 +44,9 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 1
+      # TanBeta now varies over [5, 20] (see Parameters above), so these 20
+      # points give the emulator genuine input diversity to train on.
+      point_number: 20
       output_file:  output
       like:  LogLike
       files:
@@ -52,10 +56,34 @@ Scanner:
 ObsLikes:
 
     - purpose:    Observable
-      capability: SusHi_ggh_xsec_cap
+      capability: SusHi_h_xsec_total_cap
 
-    - purpose:    Observable
-      capability: SusHi_bbh_xsec_cap
+
+Emulation:
+
+  use_emulator:
+    - getSusHi_h_xsec_total
+
+  emulators:
+    getSusHi_h_xsec_total:
+      plugin: pygptreeo
+      train: true
+      predict: true
+      uncertainty:
+        # Absolute cross-section uncertainty [pb] below which a prediction is
+        # trusted. SusHi_h_xsec_total is O(20-50 pb); ~1 pb is roughly the 2%
+        # relative uncertainty already used in EmulatorTranslateTarget for
+        # training. Tune once real scan behaviour is seen.
+        - 1.0
+      max_cache_size: 50
+      Nbar: 100
+      theta: 1e-4
+      split_position_method: median
+      split_dimension_criteria: max_variance
+      retrain_every_n_points: 50
+      use_calibrated_sigma: true
+      splitting_strategy: gradual
+      pre_trained: false
 
 
 Rules:
@@ -79,21 +107,40 @@ Rules:
   - capability: MSSM_spectrum
     function: make_MSSM_precision_spectrum_none
 
-  - capability: SusHi_ggh_xsec_cap
-    function: getSusHi_ggh_xsec
-
-  - capability: SusHi_bbh_xsec_cap
-    function: getSusHi_bbh_xsec
+  - capability: SusHi_h_xsec_total_cap
+    function: getSusHi_h_xsec_total
+    options:
+      # All optional; values shown are the defaults. Raise the VEGAS
+      # points/iterations to make SusHi slower and more precise; lower them
+      # (or use ggh_order/bbh_order 0 or 1) for faster.
+      ggh_order: 2                 # 0=LO, 1=NLO, 2=NNLO
+      bbh_order: 2
+      ew_ggh: 1                    # 0=off, 1=light-quark EW at NLO
+      vegas_nlo_points: 5000
+      vegas_nlo_iter: 5
+      vegas_ggh_nnlo_points: 5000
+      vegas_ggh_nnlo_iter: 5
+      vegas_ggh_nnlo_points2: 2000
+      vegas_ggh_nnlo_iter2: 2
+      vegas_bbh_nnlo_points: 5000
+      vegas_bbh_nnlo_iter: 5
+      vegas_bbh_nnlo_points2: 2000
+      vegas_bbh_nnlo_iter2: 2
+      # Relative error assigned to emulator training points; keep in line
+      # with the VEGAS precision chosen above.
+      training_relerr: 0.02
 
 
 Logger:
 
+  # Module-specific tags (ColliderBit, SpecBit, PrecisionBit, ...) are only
+  # safe for the main gambit executable -- the separate "egg" emulator
+  # process doesn't have those modules compiled in, and aborts on startup
+  # if the yaml tries to redirect a tag it doesn't recognise. Keep only the
+  # generic tags here, which both processes understand.
   redirection:
     [Default]    : "stdout"
     [Debug]      : "stdout"
-    [ColliderBit] : "stdout"
-    [SpecBit]    : "stdout"
-    [PrecisionBit] : "stdout"
 
 
 KeyValues:
@@ -106,4 +153,4 @@ KeyValues:
   likelihood:
     model_invalid_for_lnlike_below: -1e6
 
-  debug: true
+  debug: false

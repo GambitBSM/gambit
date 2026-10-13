@@ -141,17 +141,37 @@ Emulation:
       plugin: pygptreeo
       train: true
       predict: true
+      # The tree models log(xsec) (log_target), so the reported uncertainty
+      # and this threshold are *relative*: accept when sigma/xsec < 3%.
+      # The experimental errors on the h95 signal strengths are ~35-40%,
+      # so a few per cent on the cross section is far below what matters.
       uncertainty:
-        - 1.0
-      max_cache_size: 50
-      Nbar: 100
+        - 0.03
+      log_target: true
+      # Tree settings. See ScannerBit/emu_egg/EMULATOR_TESTS_MSSM_Higgs95.md
+      # for the tests behind these choices.
+      # Nbar 200 with a refit every 4 points costs the same training time as
+      # Nbar 100 refitted every point and accepted more points at equal
+      # accuracy in the offline replays. kernel: additive (needs n_inputs: 9)
+      # is comparable at 2x the training cost.
+      Nbar: 200
       theta: 1e-4
-      split_position_method: median
-      split_dimension_criteria: max_variance
-      retrain_every_n_points: 5
-      use_calibrated_sigma: true
+      split_dimension_criteria: min_lengthscale
       splitting_strategy: gradual
+      retrain_every_n_points: 4
+      use_calibrated_sigma: true
+      # Never trust a young tree, and keep 5% of the confident predictions
+      # going to SusHi anyway as an ongoing accuracy check (forced=2 rows in
+      # emulator_plugins/emu_predictions.csv).
+      min_train_points: 100
+      validation_fraction: 0.05
+      # Adapt the validation fraction from the errors of confident predictions
+      # (halve when <= 10% of the last 20 are off by more than twice the
+      # threshold, else double, within [0.01, 0.2]).
+      adaptive_validation: true
+      validation_window: 20
       pre_trained: false
+      log_emulator_data: true
 
 
 Rules:
@@ -177,6 +197,26 @@ Rules:
 
   - capability: SusHi_h_xsec_total_cap
     function: getSusHi_h_xsec_total
+    options:
+      # All optional; values shown are the defaults. Raise the VEGAS
+      # points/iterations to make SusHi slower and more precise; lower them
+      # (or use ggh_order/bbh_order 0 or 1) for faster.
+      ggh_order: 2                 # 0=LO, 1=NLO, 2=NNLO
+      bbh_order: 2
+      ew_ggh: 1                    # 0=off, 1=light-quark EW at NLO
+      vegas_nlo_points: 5000
+      vegas_nlo_iter: 5
+      vegas_ggh_nnlo_points: 5000
+      vegas_ggh_nnlo_iter: 5
+      vegas_ggh_nnlo_points2: 2000
+      vegas_ggh_nnlo_iter2: 2
+      vegas_bbh_nnlo_points: 5000
+      vegas_bbh_nnlo_iter: 5
+      vegas_bbh_nnlo_points2: 2000
+      vegas_bbh_nnlo_iter2: 2
+      # Relative error assigned to emulator training points; keep in line
+      # with the VEGAS precision chosen above.
+      training_relerr: 0.02
 
   # SUSY_HIT-based decay rates -- switch to FeynHiggs_MSSM_h0_1_decays if
   # you build FeynHiggs instead of SUSY_HIT.
@@ -239,7 +279,7 @@ Logger:
 
 KeyValues:
 
-  default_output_path: "runs/MSSM_Higgs95_scan_3"
+  default_output_path: "runs/MSSM_Higgs95_scan_4"
 
   dependency_resolution:
     prefer_model_specific_functions: true

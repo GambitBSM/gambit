@@ -59,12 +59,12 @@ Printer:
   #   buffer_length: 1000
   #   # disable_autorepair: true
 
-  # printer: hdf5_v1
-  # options:
-  #   output_file: "gambit_output.hdf5"
-  #   group: "/data"
-  #   delete_file_on_restart: true
-  #   disable_combine_routines: true
+  printer: hdf5_v1
+  options:
+    output_file: "gambit_output.hdf5"
+    group: "/data"
+    delete_file_on_restart: true
+    disable_combine_routines: true
 
   # printer: ascii
   # options:
@@ -73,7 +73,7 @@ Printer:
   #   delete_file_on_restart: true
   #   print_debug_data: true
 
-  printer: cout
+  # printer: cout
 
   # printer: none
 
@@ -414,13 +414,13 @@ Emulation:
       train: true
       predict: true
       uncertainty:
-        - 0.01
-      max_cache_size: 50
+        - 0.5
+      max_cache_size: 10
       Nbar: 30
       theta: 1e-4
       split_position_method: median
       split_dimension_criteria: max_variance
-      retrain_every_n_points: 10
+      retrain_every_n_points: 3
       use_calibrated_sigma: true
       splitting_strategy: gradual
       pre_trained: false
