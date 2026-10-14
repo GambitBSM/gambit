@@ -9,24 +9,20 @@
 ///  there is no wrapper_AnalysisHandler.hh to include here.
 ///
 ///  This file -- not Backends/include/gambit/Backends/frontends/Rivet_4_1_0.hpp
-///  -- is the single source of truth for the actual AnalysisHandler class
-///  *definition*, for exactly the same reason this split exists for Pythia
-///  (see backend_types/Pythia_8_312/loaded_types.hpp's header comment):
-///  this file is reached both via backend_rollcall.hpp (a "module compile
-///  unit" context with frontend_macros.hpp's BE_FUNCTION/LOAD_LIBRARY
-///  machinery already active) and, directly, via backend_types_rollcall.hpp
-///  from contexts (e.g. ColliderBit_measurements.cpp's `using namespace
-///  Rivet_default::Rivet;`) that must not see that machinery a second,
-///  unwanted time.
+///  -- is the single source of truth for the AnalysisHandler class
+///  *definition*, for the same reason as for Pythia (see
+///  backend_types/Pythia_8_312/loaded_types.hpp's header comment): it's
+///  reached both via backend_rollcall.hpp (where frontend_macros.hpp's
+///  BE_FUNCTION/LOAD_LIBRARY machinery is already active) and, directly,
+///  via backend_types_rollcall.hpp from contexts that must not see that
+///  machinery a second time.
 ///
 ///  AnalysisHandler's methods call the shim's exported functions through
-///  plain "extern" redeclarations of the exact same
+///  plain "extern" redeclarations of the same
 ///  Gambit::Backends::Rivet_4_1_0 function-pointer variables that
-///  frontends/Rivet_4_1_0.hpp's BE_FUNCTION lines declare (and that
-///  BackendIniBit's LOAD_LIBRARY-driven dlopen/dlsym code actually
-///  populates at runtime) -- re-declaring an extern variable with an
-///  identical type is always legal in C++, so this requires no macro
-///  machinery at all.
+///  frontends/Rivet_4_1_0.hpp's BE_FUNCTION lines declare -- redeclaring an
+///  extern variable with an identical type is always legal in C++, so this
+///  needs no macro machinery.
 
 #include "gambit/Utils/begin_ignore_warnings_rivet_backend.hpp"
 #include "HepMC3/GenEvent.h"
@@ -63,16 +59,13 @@ namespace Gambit
 }
 
 // Lives in the bare Rivet_4_1_0::Rivet namespace (not nested under
-// Gambit::Backends) to match the convention BOSS-generated frontends use
-// and that ColliderBit_measurements.cpp's `using namespace
-// Rivet_default::Rivet;` expects.
+// Gambit::Backends) to match the convention BOSS-generated frontends use.
 namespace Rivet_4_1_0
 {
   namespace Rivet
   {
         /// GAMBIT-side stand-in for Rivet::AnalysisHandler, backed by the
-        /// rivet_handler_* functions above instead of a BOSS-generated
-        /// wrapper/abstract class pair. Exposes exactly the methods
+        /// rivet_handler_* functions above. Exposes exactly the methods
         /// ColliderBit_measurements.cpp calls.
         class AnalysisHandler
         {
@@ -135,11 +128,9 @@ namespace Rivet_4_1_0
               Gambit::Backends::Rivet_4_1_0::rivet_handler_write_data(handle_, filename.c_str());
             }
 
-            /// Stream-based overload, used by ColliderBit_measurements.cpp
-            /// to collect YODA output into an in-memory ostringstream
-            /// instead of a file. Grow-and-retry on the shim's reported
-            /// true length, same pattern as Pythia's Event::list() -- see
-            /// Backends/src/frontends/shims/README.md.
+            /// Stream-based overload, collecting YODA output into an
+            /// in-memory ostringstream. Grow-and-retry on the shim's
+            /// reported true length, same pattern as Pythia's Event::list().
             void writeData(std::ostream& os, const std::string& fmt) const
             {
               std::vector<char> buf(65536);
@@ -180,12 +171,11 @@ namespace Rivet_4_1_0
 
 #include "identification.hpp"
 
-// Indicate which types are provided by this backend, so that
+// Indicate which types this backend provides, so that
 // SET_DEFAULT_VERSION_FOR_LOADING_TYPES below can typedef
 // Rivet_default::Rivet::AnalysisHandler = Rivet_4_1_0::Rivet::AnalysisHandler.
-// The "constructors" part of this BOSS-style entry is unused for a
-// hand-written frontend (there's no classloading factory dispatch to
-// register), so it's left as an empty placeholder.
+// "constructors" is left as an empty placeholder: unused for a hand-written
+// frontend, which has no classloading factory dispatch to register.
 #define Rivet_4_1_0_all_data \
   (( /*class*/(Rivet)(AnalysisHandler), /*constructors*/((("",""),())) )) \
 

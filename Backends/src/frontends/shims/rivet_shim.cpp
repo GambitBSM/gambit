@@ -2,18 +2,15 @@
 //   *********************************************
 ///  \file
 ///
-///  Hand-written shim for the Rivet backend, offered as an
-///  alternative to the BOSS-generated frontend for
-///  Rivet::AnalysisHandler.
+///  Hand-written shim for the Rivet backend, offered as an alternative to
+///  the BOSS-generated frontend for Rivet::AnalysisHandler.
 ///
-///  This file is compiled directly against the real Rivet/HepMC3
-///  headers (ordinary C++, nothing special) by an
+///  Compiled directly against the real Rivet/HepMC3 headers by an
 ///  ExternalProject_Add_Step in cmake/backends.cmake, into
-///  librivet_shim.so, and exports a small, flat, unmangled API
-///  covering only the AnalysisHandler methods GAMBIT's ColliderBit
-///  module actually calls (see
+///  librivet_shim.so, exporting a small, flat, unmangled API covering
+///  only the AnalysisHandler methods ColliderBit actually calls -- see
 ///  Backends/src/frontends/shims/README.md for the method-by-method
-///  justification).
+///  justification.
 ///
 ///  *********************************************
 ///
@@ -61,11 +58,9 @@ extern "C"
     static_cast<Rivet::AnalysisHandler*>(handle)->removeAnalyses(v);
   }
 
-  // Returning collections of strings across an extern "C" boundary needs an
-  // explicit, caller-owned-buffer convention: there is no shared/static
-  // temporary here, so this is safe to call concurrently from different
-  // threads on different AnalysisHandler instances (as ColliderBit does, one
-  // handler per OpenMP thread). See README.md for why that matters.
+  // Caller-owned-buffer convention for returning collections of strings
+  // across the extern "C" boundary: safe for concurrent calls on different
+  // AnalysisHandler instances (one per OpenMP thread). See README.md.
 
   int rivet_handler_num_analysis_names(void* handle)
   {
@@ -91,13 +86,9 @@ extern "C"
 
   // --- Run metadata ---
 
-  // Note: Rivet::AnalysisHandler has no beamIds()/sqrtS()/runName() methods
-  // (the real names are runBeamIDs()/runSqrtS(), and there is no runName()
-  // at all). Those three were called in ColliderBit_measurements.cpp under
-  // #ifdef COLLIDERBIT_DEBUG, which is never defined anywhere in this build
-  // -- pre-existing dead code that wouldn't have compiled against BOSS's
-  // own generated wrapper either (it only wraps runBeamIDs()/runSqrtS()).
-  // Deliberately not wrapped here; see Backends/src/frontends/shims/README.md.
+  // Note: no beamIds()/sqrtS()/runName() -- these were only called from dead
+  // code (guarded by a never-defined COLLIDERBIT_DEBUG) in
+  // ColliderBit_measurements.cpp; see README.md.
 
   double rivet_handler_nominal_cross_section(void* handle)
   {
@@ -106,14 +97,9 @@ extern "C"
 
   // --- Event processing ---
 
-  // HepMC3::GenEvent crosses the boundary as a real C++ pointer, not a
-  // flattened/opaque type: this is safe only because the shim and every
-  // other GAMBIT frontend that produces/consumes HepMC3::GenEvent (e.g. the
-  // Pythia frontend) are built against the same compiled HepMC3, with the
-  // same compiler/ABI, which GAMBIT already requires for its contrib libs.
-  //
-  // Rivet::AnalysisHandler::analyze() takes a non-const GenEvent& (Rivet
-  // mutates/caches state on the event during analysis), not const&.
+  // HepMC3::GenEvent crosses as a real C++ pointer, not a flattened type:
+  // safe because every frontend that touches it is built against the same
+  // compiled HepMC3. Takes non-const GenEvent& since Rivet mutates it.
   void rivet_handler_analyze(void* handle, HepMC3::GenEvent* ge)
   {
     static_cast<Rivet::AnalysisHandler*>(handle)->analyze(*ge);
@@ -131,15 +117,10 @@ extern "C"
     static_cast<Rivet::AnalysisHandler*>(handle)->writeData(filename);
   }
 
-  // Rivet::AnalysisHandler also has a stream-based overload
-  // (writeData(ostream&, const string& fmt)), used by
-  // ColliderBit_measurements.cpp to collect the YODA output into an
-  // in-memory std::ostringstream rather than a file. Caller-owned-buffer
-  // convention, exactly like pythia_event_list(): returns the *true*
-  // length of the written data (via snprintf), so the caller can grow and
-  // retry rather than guess a fixed size -- see
-  // Backends/src/frontends/shims/README.md's Pythia Event::list() entry for
-  // why a fixed guess is never actually safe.
+  // Stream-based overload (writeData(ostream&, fmt)), used to collect YODA
+  // output into an in-memory ostringstream. Caller-owned-buffer convention
+  // like pythia_event_list(): returns the true length via snprintf, so the
+  // caller can grow and retry.
   int rivet_handler_write_data_stream(void* handle, const char* fmt, char* buf, int buflen)
   {
     std::ostringstream ss;

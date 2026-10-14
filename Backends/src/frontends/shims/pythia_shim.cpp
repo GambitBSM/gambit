@@ -2,16 +2,14 @@
 //   *********************************************
 ///  \file
 ///
-///  Hand-written shim for the Pythia backend, offered as an
-///  alternative to the BOSS-generated frontend for
-///  Pythia8::Pythia and the handful of other Pythia8 types GAMBIT's
-///  ColliderBit module touches directly.
+///  Hand-written shim for the Pythia backend, offered as an alternative to
+///  the BOSS-generated frontend for Pythia8::Pythia and the handful of
+///  other Pythia8 types GAMBIT's ColliderBit module touches directly.
 ///
 ///  PROTOTYPE / NOT WIRED INTO THE BUILD. See
 ///  Backends/src/frontends/shims/README.md ("Pythia shim") for the
-///  method-by-method justification, for why this backend's shape is
-///  substantially different from the Rivet shim it is modelled on, and
-///  for what is required to turn this into a real build target.
+///  method-by-method justification and what's needed to make this a real
+///  build target.
 ///
 ///  *********************************************
 ///
@@ -43,11 +41,9 @@ extern "C"
   // --- Lifetime ---
   //
   // Two real constructors are used at Py8Collider.hpp call sites: one that
-  // reads an xmldoc path (used for the first, "base" instance per thread),
-  // and one that shares an existing Settings/ParticleData pair (used to
-  // build the actual working instance from that base, so that re-reading
-  // settings doesn't re-read Pythia's whole xmldoc tree every event-loop
-  // reinitialisation). Both must be kept.
+  // reads an xmldoc path (first "base" instance per thread), and one that
+  // shares an existing Settings/ParticleData pair (the working instance
+  // built from that base). Both must be kept.
 
   void* pythia_create(const char* xml_dir, int print_banner)
   {
@@ -90,15 +86,10 @@ extern "C"
 
   // --- Access to public data members ---
   //
-  // Pythia8::Pythia::settings/particleData/event/info/slhaInterface are
-  // plain public data members on the real class, not methods -- GAMBIT
-  // module code (Py8Collider.hpp) reads them directly
-  // (`_pythiaBase->settings`, `_pythiaInstance->event`, etc.), so the shim
-  // must expose them too. settings/particleData are passed straight back
-  // into pythia_create_from_base() and are never otherwise dereferenced
-  // anywhere in GAMBIT -- see README.md -- so they only need to cross the
-  // boundary as opaque, non-owning pointers (lifetime tied to the owning
-  // Pythia instance; never deleted here).
+  // settings/particleData/event/info/slhaInterface are plain public data
+  // members on the real Pythia8::Pythia, read directly by GAMBIT module
+  // code -- so the shim exposes them as non-owning pointers, lifetime tied
+  // to the owning Pythia instance (never deleted here).
 
   void* pythia_get_settings(void* handle)
   {
@@ -110,10 +101,7 @@ extern "C"
     return &static_cast<Pythia8::Pythia*>(handle)->particleData;
   }
 
-  // Non-owning pointer to Pythia's own internal Event. Used only as the
-  // source of a value-copy into a separately-owned Event (see
-  // pythia_event_assign below) -- mirrors `event = _pythiaInstance->event;`
-  // in Py8Collider.hpp::nextEvent().
+  // Non-owning pointer to Pythia's own internal Event (see pythia_event_assign below).
   void* pythia_get_event(void* handle)
   {
     return &static_cast<Pythia8::Pythia*>(handle)->event;
@@ -125,12 +113,9 @@ extern "C"
     return const_cast<Pythia8::Info*>(&static_cast<Pythia8::Pythia*>(handle)->info);
   }
 
-  // Non-owning pointer to Pythia's own internal SusyLesHouches object,
-  // reached through slhaInterface.slha -- this is two layers of public
-  // data member on the real class (Pythia::slhaInterface, then
-  // SLHAinterface::slha), collapsed into a single accessor here rather
-  // than giving SLHAinterface its own handle type, since nothing in
-  // GAMBIT ever touches SLHAinterface for any other reason.
+  // Non-owning pointer to Pythia's internal SusyLesHouches, reached
+  // through slhaInterface.slha -- collapsed into one accessor since
+  // nothing else in GAMBIT touches SLHAinterface.
   void* pythia_get_slha(void* handle)
   {
     return &static_cast<Pythia8::Pythia*>(handle)->slhaInterface.slha;
@@ -140,10 +125,9 @@ extern "C"
   // SusyLesHouches (reached only via Pythia::slhaInterface.slha)
   // =====================================================================
 
-  // SLHAea::Coll crosses as a real C++ pointer, exactly like HepMC3::GenEvent
-  // does in the Rivet shim: GAMBIT's own SLHAea contrib library is compiled
-  // once with one ABI and shared by every frontend that touches it, so a
-  // raw pointer is safe without any flattening.
+  // SLHAea::Coll crosses as a real C++ pointer, like HepMC3::GenEvent does
+  // in the Rivet shim: GAMBIT's SLHAea contrib library has one ABI shared
+  // by every frontend, so a raw pointer is safe without flattening.
   void pythia_slha_set_slhaea(void* handle, const SLHAea::Coll* coll)
   {
     static_cast<Pythia8::SusyLesHouches*>(handle)->setSLHAea(coll);
@@ -153,18 +137,10 @@ extern "C"
   // Event (Pythia8::Event)
   // =====================================================================
   //
-  // Unlike Rivet's AnalysisHandler (used only through methods on a single
-  // long-lived handler object), Pythia8::Event is used by *value*
-  // throughout ColliderBit: GAMBIT module code default-constructs its own
-  // Event objects on the stack/thread_local storage
-  // (`EventT dummy_pythia_event;`), clears and refills them every event,
-  // and copy-assigns Pythia's own internal event into them
-  // (`event = _pythiaInstance->event;`). A flat shim can't give the
-  // GAMBIT-side wrapper real value semantics "for free" the way plain C++
-  // does -- each of those operations needs its own explicit entry point
-  // (create/destroy/assign), with the GAMBIT-side wrapper class providing
-  // the actual copy-constructor/assignment-operator overloads module code
-  // relies on implicitly.
+  // Unlike Rivet's AnalysisHandler, Pythia8::Event is used by *value*
+  // throughout ColliderBit (default-constructed, cleared/refilled, and
+  // copy-assigned from Pythia's own internal event each event), so each of
+  // those operations needs its own explicit entry point here.
 
   void* pythia_event_create()
   {
@@ -192,19 +168,14 @@ extern "C"
     return static_cast<int>(static_cast<Pythia8::Event*>(handle)->size());
   }
 
-  // Non-owning pointer to a Particle living inside this Event's own
-  // storage (Event::operator[]) -- ownership/lifetime is the Event's, not
-  // the caller's, exactly as with the real API.
+  // Non-owning pointer into this Event's own storage (Event::operator[]).
   void* pythia_event_particle(void* handle, int i)
   {
     return &(*static_cast<Pythia8::Event*>(handle))[i];
   }
 
-  // Event::daughterList(int), distinct from Particle::daughterList() below
-  // -- the real API has both, with different meanings (this one walks the
-  // event record from an index, independent of any single Particle
-  // object). Caller-owned-buffer convention (see README.md step 5): no
-  // static/shared state, safe for concurrent calls on different handles.
+  // Event::daughterList(int), distinct from Particle::daughterList() below.
+  // Caller-owned-buffer convention (see README.md step 5).
   int pythia_event_daughter_list(void* handle, int i, int* buf, int buflen)
   {
     std::vector<int> v = static_cast<Pythia8::Event*>(handle)->daughterList(i);
@@ -213,20 +184,10 @@ extern "C"
     return static_cast<int>(v.size());
   }
 
-  // Caller-owned-buffer convention for the formatted event listing, used
-  // by GAMBIT only to shove into its own debug log on event-generation
-  // failure (`pythia_event.list(false, false, 1, ss)`), not for physics.
-  //
-  // Unlike a fixed-size buffer, the return value is the *true* length of
-  // the listing (excluding the terminating '\0'), exactly like
-  // pythia_particle_mother_list()/pythia_info_codes_hard() return the true
-  // element count for a vector<int>. snprintf() itself already reports
-  // this (the number of characters that *would* have been written, had
-  // buflen been unlimited), so this just forwards that instead of
-  // discarding it. The caller can therefore size its buffer exactly,
-  // rather than guessing a fixed size up front and hoping real events
-  // never exceed it -- see Pythia_8_312.hpp's Event::list() for the
-  // retry-on-truncation caller side.
+  // Caller-owned-buffer convention for the formatted event listing, used by
+  // GAMBIT only for its own debug log on event-generation failure. Returns
+  // the *true* length of the listing (what snprintf() would have written),
+  // so the caller can grow and retry -- see Event::list() in loaded_types.hpp.
   int pythia_event_list(void* handle, int show_scale_and_vertex, int show_mothers_and_daughters, int precision, char* buf, int buflen)
   {
     std::ostringstream ss;
@@ -236,9 +197,8 @@ extern "C"
   }
 
   // =====================================================================
-  // Particle (Pythia8::Particle) -- always reached via a non-owning
-  // pointer into some Event's storage (pythia_event_particle above); the
-  // shim never creates or destroys one itself.
+  // Particle (Pythia8::Particle) -- always reached via pythia_event_particle above;
+  // never created/destroyed by the shim itself.
   // =====================================================================
 
   int pythia_particle_id(void* handle)
@@ -277,13 +237,10 @@ extern "C"
     return static_cast<int>(v.size());
   }
 
-  // Particle::p() returns a Pythia8::Vec4 that GAMBIT's own
-  // ColliderBit/colliders/Pythia8/Py8Utils.hpp immediately decomposes into
-  // px/py/pz/e/mCalc() and nothing else -- so rather than giving Vec4 its
-  // own handle type and four more accessor functions, this flattens it to
-  // its four momentum components in one call. mCalc() (the on-shell mass
-  // reconstructed from the 4-momentum) is returned separately below
-  // because it needs Vec4's own internal arithmetic, not just field reads.
+  // Particle::p() returns a Pythia8::Vec4, which GAMBIT only ever
+  // decomposes into px/py/pz/e/mCalc() -- flattened here instead of giving
+  // Vec4 its own handle type. mCalc() needs Vec4's own arithmetic, so it's
+  // returned separately below.
   void pythia_particle_p4(void* handle, double* px, double* py, double* pz, double* e)
   {
     const Pythia8::Vec4& p = static_cast<Pythia8::Particle*>(handle)->p();
@@ -298,11 +255,8 @@ extern "C"
     return static_cast<Pythia8::Particle*>(handle)->p().mCalc();
   }
 
-  // Direct Particle accessors used by ColliderBit/colliders/EventConversionUtils.hpp
-  // and Py8EventConversions.hpp alongside p()/motherList() above -- these
-  // duplicate information already reachable via p4()/motherList() in the
-  // real API, but are called directly on Particle rather than via p(), so
-  // need their own shim entries.
+  // Direct Particle accessors, called in EventConversionUtils.hpp/Py8EventConversions.hpp
+  // rather than via p()/motherList() above, so they need their own shim entries.
   int pythia_particle_id_abs(void* handle)
   {
     return static_cast<Pythia8::Particle*>(handle)->idAbs();
@@ -382,12 +336,9 @@ extern "C"
 
   // =====================================================================
   // GAMBIT_hepmc_writer -- a bespoke GAMBIT-authored class (not part of
-  // Pythia's real API), patched into Pythia's own installed include tree
-  // by Backends/patches/pythia/8.312/patch_pythia_8.312.dif and already
-  // listed in the BOSS config's load_classes. It converts a Pythia event
-  // to HepMC2/HepMC3 using Pythia's own bundled HepMC converter. Kept
-  // exactly as BOSS wrapped it; only the mechanism for crossing the
-  // GAMBIT/backend boundary changes.
+  // Pythia's real API), patched into Pythia's installed include tree by
+  // Backends/patches/pythia/8.312/patch_pythia_8.312.dif. Converts a Pythia
+  // event to HepMC2/HepMC3 using Pythia's bundled HepMC converter.
   // =====================================================================
 
   void* pythia_hepmc_writer_create()

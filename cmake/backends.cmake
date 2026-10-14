@@ -1281,12 +1281,9 @@ if(NOT ditched_${name}_${ver})
   )
 
   # Pythia's frontend is hand-written (Backends/src/frontends/shims/pythia_shim.cpp
-  # + Backends/include/gambit/Backends/frontends/Pythia_8_312.hpp) rather than
-  # BOSSed, to avoid castxml having to parse Pythia's whole API for the
-  # handful of types/methods GAMBIT actually calls. See
+  # + frontends/Pythia_8_312.hpp) rather than BOSSed. See
   # Backends/src/frontends/shims/README.md ("Pythia shim").
-  # The line this replaces was:
-  #   BOSS_backend(${name} ${ver} ${BOSS_suffix})
+  # Replaces: BOSS_backend(${name} ${ver} ${BOSS_suffix})
   set(pythia_shim_src "${PROJECT_SOURCE_DIR}/Backends/src/frontends/shims/pythia_shim.cpp")
   set(pythia_shim_lib "${dir}/lib/libpythia_shim.so")
   ExternalProject_Add_Step(${name}_${ver} build_shim
@@ -2276,11 +2273,9 @@ if(NOT ditched_${name}_${ver})
   )
 
   # Rivet's frontend is hand-written (Backends/src/frontends/shims/rivet_shim.cpp
-  # + Backends/include/gambit/Backends/frontends/Rivet_4_1_0.hpp) rather than
-  # BOSSed, to avoid castxml having to parse the whole AnalysisHandler API for
-  # the dozen methods GAMBIT actually calls. See Backends/src/frontends/shims/README.md.
-  # The line this replaces was:
-  #   BOSS_backend(${name} ${ver} "-I${HDF5_INCLUDE_DIR} -I${HDF5_INCLUDE_DIRS}")
+  # + frontends/Rivet_4_1_0.hpp) rather than BOSSed. See
+  # Backends/src/frontends/shims/README.md.
+  # Replaces: BOSS_backend(${name} ${ver} "-I${HDF5_INCLUDE_DIR} -I${HDF5_INCLUDE_DIRS}")
   set(Rivet_shim_src "${PROJECT_SOURCE_DIR}/Backends/src/frontends/shims/rivet_shim.cpp")
   # HDF5_INCLUDE_DIRS can be a list (e.g. HDF5 plus libaec), so prefix every entry with -I;
   # otherwise only the first entry gets the -I and the rest are handed to the linker as input files.
