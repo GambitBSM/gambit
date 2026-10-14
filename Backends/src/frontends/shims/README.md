@@ -325,6 +325,31 @@ These are now also folded into `Backends/scripts/ShimGenerator/README.md`:
    upstream source at all -- that's the signal to go look at the patch
    file for where they come from, since they need to stay in the shim's
    scope exactly like any other wrapped class.
+8. **On macOS, the backend library's install name must be `@rpath/`-relative
+   (or absolute) for the shim to find it.** Unlike BOSS, which `dlopen`s the
+   backend library by full path, a shim is *linked* against the backend
+   library, and on macOS the linker records that library's install name
+   (`otool -D`) verbatim as the shim's dependency. Pythia's Makefile was
+   configured with `--cxx-soname="-Wl,-dylib_install_name,"`, giving
+   `libpythia8.so` the bare install name `libpythia8.so`. dyld only
+   consults the shim's `LC_RPATH` entries for dependencies spelled
+   `@rpath/...`; a bare name is searched for in the current working
+   directory and fallback paths only. So even though the shim build passes
+   `-Wl,-rpath,${dir}/lib`, `libpythia_shim.so` failed to load with
+   "Library not loaded: libpythia8.so", GAMBIT reported Pythia as
+   `absent/broken`, and every ColliderBit function needing a Pythia type
+   was disabled with status `-3` (e.g. "No candidates found while trying
+   to resolve: HardScatteringEvent"). On Linux, a bare `DT_NEEDED`/soname
+   *is* resolved via `RUNPATH`, so the identical build worked there and
+   the bug was invisible. The fix was a one-line change in
+   `cmake/backends.cmake`, making the Darwin branch pass
+   `-Wl,-dylib_install_name,@rpath/` so that Pythia's Makefile produces
+   the install name `@rpath/libpythia8.so`. Rivet was unaffected: libtool
+   gives `libRivet.dylib`/`libYODA.dylib` absolute install names. When
+   shimming a new backend, run `otool -L your_shim.so` on macOS and check
+   that every non-system dependency is either an absolute path or starts
+   with `@rpath/`, and confirm that `./gambit backends` reports the shim as
+   `OK` on macOS, not just on Linux.
 
 ### What was actually verified, and how
 

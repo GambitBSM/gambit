@@ -269,6 +269,21 @@ headers). If the real backend isn't installed in your environment:
   harmless/empty inputs, destroy — look for crashes, not correctness).
 - Use `nm -D --defined-only your_shim.so` to confirm every expected symbol
   is present, unmangled, and exported.
+- Check that the shim actually *loads*, on macOS as well as Linux. A shim
+  is linked against the backend library, and on macOS the linker records
+  that library's install name (`otool -D libbackend.so`) verbatim as the
+  shim's dependency. If that install name is a bare filename (e.g.
+  `libpythia8.so`, from a Makefile using `-Wl,-dylib_install_name,<name>`),
+  dyld will **not** search the shim's `-Wl,-rpath` for it, and the shim
+  fails to load even though Linux, which resolves a bare soname via
+  `RUNPATH`, works fine. Run `otool -L your_shim.so` and make sure every
+  non-system dependency is an absolute path or starts with `@rpath/`. If one
+  doesn't, give the backend library an `@rpath/` install name when it is
+  built (for Pythia: `-Wl,-dylib_install_name,@rpath/` in the Darwin branch
+  of `cmake/backends.cmake`). Failing that, run `install_name_tool -change`
+  on the shim after linking it. GAMBIT shows a shim that fails to load as
+  `absent/broken` in `./gambit backends`, and the dependency resolver then
+  reports any function needing one of its types as status `-3`.
 - If genuinely nothing is available, say so explicitly rather than
   presenting an unverified shim as equivalent to BOSS's output — BOSS's
   castxml step at least parses the real header, so a hand-written shim that
@@ -327,6 +342,9 @@ State that boundary explicitly rather than implying full confidence.
 - [ ] Compiled (and ideally linked + smoke-tested) against a real install
       of the backend, from this environment or any other reachable one —
       or explicitly flagged as unverified if truly none was available
+- [ ] On macOS, `otool -L` on the shim shows every non-system dependency as
+      an absolute path or `@rpath/...` (no bare install names), and
+      `./gambit backends` reports the shim as `OK`
 - [ ] Build-system integration explicitly called out as a separate
       decision, flagged to whoever you're doing this for — not silently
       wired into `cmake/backends.cmake` unless that was explicitly asked for

@@ -1,7 +1,7 @@
 diff -rupN Rivet-4.1.0/Makefile.in ../installed/rivet/4.1.0/Makefile.in
 --- Rivet-4.1.0/Makefile.in	2024-07-07 23:10:54.000000000 +0900
 +++ ../installed/rivet/4.1.0/Makefile.in	2024-10-15 14:22:43.930488154 +0900
-@@ -478,6 +478,24 @@ dist_pkgconfig_DATA = rivet.pc
+@@ -478,6 +478,25 @@ dist_pkgconfig_DATA = rivet.pc
  DEST = login.hepforge.org:rivet/downloads/
  all: all-recursive
  
@@ -21,12 +21,13 @@ diff -rupN Rivet-4.1.0/Makefile.in ../installed/rivet/4.1.0/Makefile.in
 +	cd ${top_builddir}/analyses && ${MAKE} $(AM_MAKEFLAGS) RivetATLASAnalyses.so RivetCMSAnalyses.so RivetLHCbAnalyses.so
 +	if test -e ${top_builddir}/src/.libs/libRivet.so ; then cp ${top_builddir}/src/.libs/libRivet.so ${libdir}/libRivet.so ; fi
 +	if test -e ${top_builddir}/src/.libs/libRivet.dylib ; then cp ${top_builddir}/src/.libs/libRivet.dylib ${libdir}/libRivet.so ; fi
++	if test -e ${top_builddir}/src/.libs/libRivet.dylib ; then ln -sf libRivet.so ${libdir}/libRivet.dylib ; fi
 +
 +
  .SUFFIXES:
  am--refresh: Makefile
  	@:
-@@ -549,6 +567,7 @@ mostlyclean-libtool:
+@@ -549,6 +568,7 @@ mostlyclean-libtool:
  
  clean-libtool:
  	-rm -rf .libs _libs

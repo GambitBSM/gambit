@@ -1236,7 +1236,10 @@ endif()
 # - Add "-undefined dynamic_lookup flat_namespace" to linker flags when OSX linker is used
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -undefined dynamic_lookup -flat_namespace")
-  set(pythia_CXX_SONAME_FLAGS "-Wl,-dylib_install_name,")
+  # Prefix the install name with @rpath/ so that libraries linked against
+  # libpythia8.so (e.g. libpythia_shim.so) find it via their LC_RPATH entries,
+  # rather than recording a bare name that dyld only searches for in the CWD.
+  set(pythia_CXX_SONAME_FLAGS "-Wl,-dylib_install_name,@rpath/")
 else()
   set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
   set(pythia_CXX_SONAME_FLAGS "-Wl,-soname,")
@@ -2297,6 +2300,18 @@ if(NOT ditched_${name}_${ver})
     DEPENDEES build
     DEPENDERS install
   )
+
+  # On MacOS the python extension is built with RIVET_LOCAL=1, so it links to the build-tree
+  # src/.libs/libRivet.dylib rather than the copy in local/lib that the analysis plugins use.
+  # dyld then loads two distinct libRivet images, each with its own AnalysisLoader registry,
+  # and the python side (e.g. Contur) finds no analyses. Repoint the extension at local/lib.
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND pyext STREQUAL "yes")
+    ExternalProject_Add_Step(${name}_${ver} relink_pyext
+      COMMAND sh -c "for f in ${Rivet_PY_PATH}/rivet/core*.so ${Rivet_alt_PY_PATH}/rivet/core*.so$<SEMICOLON> do if test -e $f$<SEMICOLON> then install_name_tool -change ${dir}/src/.libs/libRivet.dylib ${dir}/local/lib/libRivet.dylib $f && codesign -f -s - $f$<SEMICOLON> fi$<SEMICOLON> done"
+      DEPENDEES build
+      DEPENDERS install
+    )
+  endif()
 
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
