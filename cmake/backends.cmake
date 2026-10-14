@@ -1236,7 +1236,10 @@ endif()
 # - Add "-undefined dynamic_lookup flat_namespace" to linker flags when OSX linker is used
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -undefined dynamic_lookup -flat_namespace")
-  set(pythia_CXX_SONAME_FLAGS "-Wl,-dylib_install_name,")
+  # Prefix the install name with @rpath/ so that libraries linked against
+  # libpythia8.so (e.g. libpythia_shim.so) find it via their LC_RPATH entries,
+  # rather than recording a bare name that dyld only searches for in the CWD.
+  set(pythia_CXX_SONAME_FLAGS "-Wl,-dylib_install_name,@rpath/")
 else()
   set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
   set(pythia_CXX_SONAME_FLAGS "-Wl,-soname,")
@@ -1266,7 +1269,6 @@ set(BOSS_suffix "")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DEPENDS castxml
     DEPENDS ${pythia_depends_on}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
@@ -1276,7 +1278,26 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" lib/${lib}.so
     INSTALL_COMMAND ""
   )
-  BOSS_backend(${name} ${ver} ${BOSS_suffix})
+
+  # Pythia's frontend is hand-written (Backends/src/frontends/shims/pythia_shim.cpp
+  # + frontends/Pythia_8_312.hpp) rather than BOSSed. See
+  # Backends/src/frontends/shims/README.md ("Pythia shim").
+  # Replaces: BOSS_backend(${name} ${ver} ${BOSS_suffix})
+  set(pythia_shim_src "${PROJECT_SOURCE_DIR}/Backends/src/frontends/shims/pythia_shim.cpp")
+  set(pythia_shim_lib "${dir}/lib/libpythia_shim.so")
+  ExternalProject_Add_Step(${name}_${ver} build_shim
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${dir}/lib
+    COMMAND ${CMAKE_CXX_COMPILER} -std=c++17 -fPIC -shared -O3
+            -I${dir}/include -I${HEPMC_PATH}/local/include
+            -I${Boost_INCLUDE_DIR} -I${PROJECT_SOURCE_DIR}/contrib/slhaea/include
+            ${pythia_shim_src} -o ${pythia_shim_lib}
+            -L${dir}/lib -lpythia8 -L${HEPMC_PATH}/local/lib -lHepMC3
+            -Wl,-rpath,${dir}/lib -Wl,-rpath,${HEPMC_PATH}/local/lib
+    DEPENDS ${pythia_shim_src}
+    DEPENDEES build
+    DEPENDERS install
+  )
+
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
@@ -2107,6 +2128,7 @@ string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_C_FLAGS "${BACKEND_C_FLAGS}")
 string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
 # FastJet 3.3.2 depends on std::auto_ptr, which was removed in C++17, so we need to fall back to
 # C++14 regardless of which (C++17 or later) standard GAMBIT itself is using.
+# Passing --disable-auto-ptr since when building rivet (which depends on this), it can attempt to call auto_ptr still
 string(REGEX REPLACE "-std=c\\+\\+(17|1z|20|2a|23|2b)" "-std=c++14" FJ_CXX_FLAGS "${FJ_CXX_FLAGS}")
 string(REGEX REPLACE "-std=c\\+\\+(17|1z|20|2a|23|2b)" "-std=c++14" FJ_C_FLAGS "${FJ_C_FLAGS}")
 set_compiler_warning("no-deprecated-declarations" FJ_CXX_FLAGS)
@@ -2119,7 +2141,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
-    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${dir}/local --enable-allcxxplugins --enable-silent-rules --enable-shared
+    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${dir}/local --enable-allcxxplugins --disable-auto-ptr --enable-silent-rules --enable-shared
     BUILD_COMMAND ${MAKE_PARALLEL} install
     INSTALL_COMMAND ""
   )
@@ -2160,8 +2182,10 @@ if(NOT ditched_${name}_${ver})
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
-    #PATCH_COMMAND patch -p1 < ${patch}
+    # Fixes missing "#include <limits>" in ~20 fjcontrib 1.049 files that use
+    # std::numeric_limits relying on it being pulled in transitively -- that
+    # transitive include is gone under GCC 11+'s stricter libstdc++ headers.
+    PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} LDFLAGS=${FJCONTRIB_LD_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
     BUILD_COMMAND ${MAKE_PARALLEL}
     INSTALL_COMMAND ${MAKE_PARALLEL} install && ${MAKE_PARALLEL} fragile-shared-install
@@ -2230,7 +2254,6 @@ endif()
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DEPENDS castxml
     DEPENDS ${yoda_name}
     DEPENDS ${hepmc_name}
     DEPENDS ${fjcontrib_name}_${fjcontrib_ver}
@@ -2246,7 +2269,43 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} libRivet.so
     INSTALL_COMMAND ""
   )
-  BOSS_backend(${name} ${ver} "-I${HDF5_INCLUDE_DIR} -I${HDF5_INCLUDE_DIRS}")
+
+  # Rivet's frontend is hand-written (Backends/src/frontends/shims/rivet_shim.cpp
+  # + frontends/Rivet_4_1_0.hpp) rather than BOSSed. See
+  # Backends/src/frontends/shims/README.md.
+  # Replaces: BOSS_backend(${name} ${ver} "-I${HDF5_INCLUDE_DIR} -I${HDF5_INCLUDE_DIRS}")
+  set(Rivet_shim_src "${PROJECT_SOURCE_DIR}/Backends/src/frontends/shims/rivet_shim.cpp")
+  # HDF5_INCLUDE_DIRS can be a list (e.g. HDF5 plus libaec), so prefix every entry with -I;
+  # otherwise only the first entry gets the -I and the rest are handed to the linker as input files.
+  set(Rivet_shim_hdf5_incs ${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIRS})
+  list(REMOVE_DUPLICATES Rivet_shim_hdf5_incs)
+  list(TRANSFORM Rivet_shim_hdf5_incs PREPEND "-I")
+  set(Rivet_shim_lib "${dir}/local/lib/librivet_shim.so")
+  ExternalProject_Add_Step(${name}_${ver} build_shim
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${dir}/local/lib
+    COMMAND ${CMAKE_CXX_COMPILER} -std=c++17 -fPIC -shared -O3
+            -I${dir}/include -I${hepmc_dir}/include -I${yoda_dir}/include -I${fastjet_dir}/include
+            ${Rivet_shim_hdf5_incs}
+            ${Rivet_shim_src} -o ${Rivet_shim_lib}
+            -L${dir}/local/lib -lRivet -L${hepmc_dir}/lib -lHepMC3 -L${yoda_dir}/lib -lYODA
+            -Wl,-rpath,${dir}/local/lib -Wl,-rpath,${hepmc_dir}/lib -Wl,-rpath,${yoda_dir}/lib
+    DEPENDS ${Rivet_shim_src}
+    DEPENDEES build
+    DEPENDERS install
+  )
+
+  # On MacOS the python extension is built with RIVET_LOCAL=1, so it links to the build-tree
+  # src/.libs/libRivet.dylib rather than the copy in local/lib that the analysis plugins use.
+  # dyld then loads two distinct libRivet images, each with its own AnalysisLoader registry,
+  # and the python side (e.g. Contur) finds no analyses. Repoint the extension at local/lib.
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND pyext STREQUAL "yes")
+    ExternalProject_Add_Step(${name}_${ver} relink_pyext
+      COMMAND sh -c "for f in ${Rivet_PY_PATH}/rivet/core*.so ${Rivet_alt_PY_PATH}/rivet/core*.so$<SEMICOLON> do if test -e $f$<SEMICOLON> then install_name_tool -change ${dir}/src/.libs/libRivet.dylib ${dir}/local/lib/libRivet.dylib $f && codesign -f -s - $f$<SEMICOLON> fi$<SEMICOLON> done"
+      DEPENDEES build
+      DEPENDERS install
+    )
+  endif()
+
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()

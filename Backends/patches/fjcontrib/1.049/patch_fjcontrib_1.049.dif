@@ -1,0 +1,231 @@
+diff -rupN fjcontrib-1.049/GenericSubtractor/ExampleShapes.cc fjcontrib-1.049/GenericSubtractor/ExampleShapes.cc
+--- fjcontrib-1.049/GenericSubtractor/ExampleShapes.cc	2026-10-09 14:46:07.406212610 +0200
++++ fjcontrib-1.049/GenericSubtractor/ExampleShapes.cc	2026-10-09 14:46:36.546987815 +0200
+@@ -21,6 +21,7 @@
+ 
+ #include "fastjet/ClusterSequenceArea.hh"
+ #include "ExampleShapes.hh"
++#include <limits>
+ 
+ using namespace std;
+ 
+diff -rupN fjcontrib-1.049/GenericSubtractor/GenericSubtractor.cc fjcontrib-1.049/GenericSubtractor/GenericSubtractor.cc
+--- fjcontrib-1.049/GenericSubtractor/GenericSubtractor.cc	2026-10-09 14:46:07.406398275 +0200
++++ fjcontrib-1.049/GenericSubtractor/GenericSubtractor.cc	2026-10-09 14:46:36.544098974 +0200
+@@ -27,6 +27,7 @@
+ #include "GenericSubtractor.hh"
+ #include "SimpleGhostRescaler.hh"
+ #include "ShapeWithPartition.hh"
++#include <limits>
+ 
+ using namespace std;
+ 
+diff -rupN fjcontrib-1.049/LundPlane/EEHelpers.hh fjcontrib-1.049/LundPlane/EEHelpers.hh
+--- fjcontrib-1.049/LundPlane/EEHelpers.hh	2026-10-09 14:46:07.400223690 +0200
++++ fjcontrib-1.049/LundPlane/EEHelpers.hh	2026-10-09 14:46:36.500651275 +0200
+@@ -24,6 +24,7 @@
+ 
+ #include "fastjet/PseudoJet.hh"
+ #include <array>
++#include <limits>
+ 
+ FASTJET_BEGIN_NAMESPACE
+ 
+diff -rupN fjcontrib-1.049/LundPlane/RecursiveLundEEGenerator.cc fjcontrib-1.049/LundPlane/RecursiveLundEEGenerator.cc
+--- fjcontrib-1.049/LundPlane/RecursiveLundEEGenerator.cc	2026-10-09 14:46:07.399817229 +0200
++++ fjcontrib-1.049/LundPlane/RecursiveLundEEGenerator.cc	2026-10-09 14:46:36.500709369 +0200
+@@ -22,6 +22,7 @@
+ 
+ #include <sstream>
+ #include "RecursiveLundEEGenerator.hh"
++#include <limits>
+ 
+ using namespace std;
+ 
+diff -rupN fjcontrib-1.049/Nsubjettiness/AxesDefinition.hh fjcontrib-1.049/Nsubjettiness/AxesDefinition.hh
+--- fjcontrib-1.049/Nsubjettiness/AxesDefinition.hh	2026-10-09 14:46:07.405085267 +0200
++++ fjcontrib-1.049/Nsubjettiness/AxesDefinition.hh	2026-10-09 14:46:36.545287771 +0200
+@@ -36,6 +36,7 @@
+ #include <cmath>
+ #include <vector>
+ #include <list>
++#include <limits>
+ 
+ FASTJET_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
+ 
+diff -rupN fjcontrib-1.049/Nsubjettiness/example_advanced_usage.cc fjcontrib-1.049/Nsubjettiness/example_advanced_usage.cc
+--- fjcontrib-1.049/Nsubjettiness/example_advanced_usage.cc	2026-10-09 14:46:07.405353191 +0200
++++ fjcontrib-1.049/Nsubjettiness/example_advanced_usage.cc	2026-10-09 14:46:36.546735779 +0200
+@@ -43,6 +43,7 @@
+ #include "Njettiness.hh"
+ #include "NjettinessPlugin.hh"
+ #include "XConePlugin.hh"
++#include <limits>
+ 
+ using namespace std;
+ using namespace fastjet;
+diff -rupN fjcontrib-1.049/Nsubjettiness/ExtraRecombiners.cc fjcontrib-1.049/Nsubjettiness/ExtraRecombiners.cc
+--- fjcontrib-1.049/Nsubjettiness/ExtraRecombiners.cc	2026-10-09 14:46:07.405560801 +0200
++++ fjcontrib-1.049/Nsubjettiness/ExtraRecombiners.cc	2026-10-09 14:46:36.500908191 +0200
+@@ -23,6 +23,7 @@
+ //----------------------------------------------------------------------
+ 
+ #include "ExtraRecombiners.hh"
++#include <limits>
+ 
+ FASTJET_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
+ 
+diff -rupN fjcontrib-1.049/Nsubjettiness/MeasureDefinition.cc fjcontrib-1.049/Nsubjettiness/MeasureDefinition.cc
+--- fjcontrib-1.049/Nsubjettiness/MeasureDefinition.cc	2026-10-09 14:46:07.405575218 +0200
++++ fjcontrib-1.049/Nsubjettiness/MeasureDefinition.cc	2026-10-09 14:46:36.545916024 +0200
+@@ -27,6 +27,7 @@
+ #include "MeasureDefinition.hh"
+ 
+ #include <iomanip>
++#include <limits>
+ 
+ 
+ FASTJET_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
+diff -rupN fjcontrib-1.049/Nsubjettiness/Njettiness.cc fjcontrib-1.049/Nsubjettiness/Njettiness.cc
+--- fjcontrib-1.049/Nsubjettiness/Njettiness.cc	2026-10-09 14:46:07.405046110 +0200
++++ fjcontrib-1.049/Nsubjettiness/Njettiness.cc	2026-10-09 14:46:36.500849555 +0200
+@@ -23,6 +23,7 @@
+ //----------------------------------------------------------------------
+ 
+ #include "Njettiness.hh"
++#include <limits>
+ 
+ FASTJET_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
+ 
+diff -rupN fjcontrib-1.049/Nsubjettiness/Njettiness.hh fjcontrib-1.049/Nsubjettiness/Njettiness.hh
+--- fjcontrib-1.049/Nsubjettiness/Njettiness.hh	2026-10-09 14:46:07.405374998 +0200
++++ fjcontrib-1.049/Nsubjettiness/Njettiness.hh	2026-10-09 14:46:36.543832025 +0200
+@@ -37,6 +37,7 @@
+ #include <cmath>
+ #include <vector>
+ #include <list>
++#include <limits>
+ 
+ FASTJET_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
+ 
+diff -rupN fjcontrib-1.049/Nsubjettiness/NjettinessPlugin.hh fjcontrib-1.049/Nsubjettiness/NjettinessPlugin.hh
+--- fjcontrib-1.049/Nsubjettiness/NjettinessPlugin.hh	2026-10-09 14:46:07.405226383 +0200
++++ fjcontrib-1.049/Nsubjettiness/NjettinessPlugin.hh	2026-10-09 14:46:36.546217830 +0200
+@@ -37,6 +37,7 @@
+ 
+ #include <string>
+ #include <climits>
++#include <limits>
+ 
+ FASTJET_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
+ 
+diff -rupN fjcontrib-1.049/Nsubjettiness/Nsubjettiness.hh fjcontrib-1.049/Nsubjettiness/Nsubjettiness.hh
+--- fjcontrib-1.049/Nsubjettiness/Nsubjettiness.hh	2026-10-09 14:46:07.405594058 +0200
++++ fjcontrib-1.049/Nsubjettiness/Nsubjettiness.hh	2026-10-09 14:46:36.546408356 +0200
+@@ -32,6 +32,7 @@
+ #include "fastjet/FunctionOfPseudoJet.hh"
+ #include <string>
+ #include <climits>
++#include <limits>
+ 
+ FASTJET_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
+ 
+diff -rupN fjcontrib-1.049/Nsubjettiness/XConePlugin.hh fjcontrib-1.049/Nsubjettiness/XConePlugin.hh
+--- fjcontrib-1.049/Nsubjettiness/XConePlugin.hh	2026-10-09 14:46:07.405682889 +0200
++++ fjcontrib-1.049/Nsubjettiness/XConePlugin.hh	2026-10-09 14:46:36.500775493 +0200
+@@ -34,6 +34,7 @@
+ 
+ #include <string>
+ #include <climits>
++#include <limits>
+ 
+ FASTJET_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
+ 
+diff -rupN fjcontrib-1.049/RecursiveTools/example_advanced_usage.cc fjcontrib-1.049/RecursiveTools/example_advanced_usage.cc
+--- fjcontrib-1.049/RecursiveTools/example_advanced_usage.cc	2026-10-09 14:46:07.408406884 +0200
++++ fjcontrib-1.049/RecursiveTools/example_advanced_usage.cc	2026-10-09 14:46:36.547161088 +0200
+@@ -40,6 +40,7 @@
+ #include <cmath>
+ #include "fastjet/ClusterSequence.hh"
+ #include "SoftDrop.hh" // In external code, this should be fastjet/contrib/SoftDrop.hh
++#include <limits>
+ 
+ #define MY_INF std::numeric_limits<double>::infinity()
+ 
+diff -rupN fjcontrib-1.049/RecursiveTools/example_isd.cc fjcontrib-1.049/RecursiveTools/example_isd.cc
+--- fjcontrib-1.049/RecursiveTools/example_isd.cc	2026-10-09 14:46:07.408561683 +0200
++++ fjcontrib-1.049/RecursiveTools/example_isd.cc	2026-10-09 14:46:36.500972381 +0200
+@@ -43,6 +43,7 @@
+ #include "fastjet/ClusterSequence.hh"
+ 
+ #include "IteratedSoftDrop.hh" // In external code, this should be fastjet/contrib/IteratedSoftDrop.hh
++#include <limits>
+ 
+ using namespace std;
+ using namespace fastjet;
+diff -rupN fjcontrib-1.049/RecursiveTools/example_mmdt_ee.cc fjcontrib-1.049/RecursiveTools/example_mmdt_ee.cc
+--- fjcontrib-1.049/RecursiveTools/example_mmdt_ee.cc	2026-10-09 14:46:07.408293441 +0200
++++ fjcontrib-1.049/RecursiveTools/example_mmdt_ee.cc	2026-10-09 14:46:36.544392497 +0200
+@@ -44,6 +44,7 @@
+ #include "fastjet/ClusterSequence.hh"
+ #include "fastjet/tools/Filter.hh"
+ #include "ModifiedMassDropTagger.hh" // In external code, this should be fastjet/contrib/ModifiedMassDropTagger.hh
++#include <limits>
+ 
+ using namespace std;
+ using namespace fastjet;
+diff -rupN fjcontrib-1.049/RecursiveTools/IteratedSoftDrop.hh fjcontrib-1.049/RecursiveTools/IteratedSoftDrop.hh
+--- fjcontrib-1.049/RecursiveTools/IteratedSoftDrop.hh	2026-10-09 14:46:07.408231823 +0200
++++ fjcontrib-1.049/RecursiveTools/IteratedSoftDrop.hh	2026-10-09 14:46:36.500259405 +0200
+@@ -27,6 +27,7 @@
+ #define __FASTJET_CONTRIB_ITERATEDSOFTDROP_HH__
+ 
+ #include "RecursiveSoftDrop.hh"
++#include <limits>
+ 
+ FASTJET_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
+ 
+diff -rupN fjcontrib-1.049/RecursiveTools/ModifiedMassDropTagger.hh fjcontrib-1.049/RecursiveTools/ModifiedMassDropTagger.hh
+--- fjcontrib-1.049/RecursiveTools/ModifiedMassDropTagger.hh	2026-10-09 14:46:07.408608176 +0200
++++ fjcontrib-1.049/RecursiveTools/ModifiedMassDropTagger.hh	2026-10-09 14:46:36.544624900 +0200
+@@ -24,6 +24,7 @@
+ #define __FASTJET_CONTRIB_MODIFIEDMASSDROPTAGGER_HH__
+ 
+ #include "RecursiveSymmetryCutBase.hh"
++#include <limits>
+ 
+ FASTJET_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
+ 
+diff -rupN fjcontrib-1.049/RecursiveTools/RecursiveSoftDrop.hh fjcontrib-1.049/RecursiveTools/RecursiveSoftDrop.hh
+--- fjcontrib-1.049/RecursiveTools/RecursiveSoftDrop.hh	2026-10-09 14:46:07.408381715 +0200
++++ fjcontrib-1.049/RecursiveTools/RecursiveSoftDrop.hh	2026-10-09 14:46:36.500394889 +0200
+@@ -26,6 +26,7 @@
+ // we'll use the native FJ class for reculstering if available
+ #if FASTJET_VERSION_NUMBER >= 30100
+ #include "fastjet/tools/Recluster.hh"
++#include <limits>
+ #else
+ #include "Recluster.hh"
+ #endif
+diff -rupN fjcontrib-1.049/RecursiveTools/RecursiveSymmetryCutBase.cc fjcontrib-1.049/RecursiveTools/RecursiveSymmetryCutBase.cc
+--- fjcontrib-1.049/RecursiveTools/RecursiveSymmetryCutBase.cc	2026-10-09 14:46:07.408476535 +0200
++++ fjcontrib-1.049/RecursiveTools/RecursiveSymmetryCutBase.cc	2026-10-09 14:46:36.500529780 +0200
+@@ -25,6 +25,7 @@
+ #include <cassert>
+ #include <algorithm> 
+ #include <cstdlib> 
++#include <limits>
+ 
+ using namespace std;
+ 
+diff -rupN fjcontrib-1.049/RecursiveTools/SoftDrop.hh fjcontrib-1.049/RecursiveTools/SoftDrop.hh
+--- fjcontrib-1.049/RecursiveTools/SoftDrop.hh	2026-10-09 14:46:07.408572665 +0200
++++ fjcontrib-1.049/RecursiveTools/SoftDrop.hh	2026-10-09 14:46:36.544828077 +0200
+@@ -25,6 +25,7 @@
+ #define __FASTJET_CONTRIB_SOFTDROP_HH__
+ 
+ #include "RecursiveSymmetryCutBase.hh"
++#include <limits>
+ 
+ FASTJET_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
+ 

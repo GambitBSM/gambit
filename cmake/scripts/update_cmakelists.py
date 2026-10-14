@@ -122,6 +122,15 @@ def main(argv):
                 if (name.endswith(".c") or name.endswith(".cc") or name.endswith(".cpp")) and not hidden(name):
                     short_root = re.sub("\\./"+mod+"/src/?","",root)
                     if short_root != "" : short_root += "/"
+                    if mod=="Backends" and short_root.startswith("frontends/shims/"):
+                        # Hand-written shim .cpp files (Pythia, Rivet, ...) are compiled
+                        # standalone into their own .so by an ExternalProject_Add_Step in
+                        # cmake/backends.cmake, using that backend's own include paths, and
+                        # loaded at runtime via dlopen -- they must never be swept into the
+                        # main Backends library, which has no idea where that backend's
+                        # headers live.
+                        if verbose: print("    Ignoring {0} source file '{1}' (built standalone as a backend shim, not part of the Backends library)".format(mod,short_root+name))
+                        continue # skip this file
                     if mod in ["Backends"] and "/backend_types/" not in short_root and excluded(name, exclude_backends):
                         if verbose: print("    Ignoring {0} source file '{1}'".format(mod,short_root+name))
                         excluded_components.add(os.path.splitext(name)[0])
