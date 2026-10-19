@@ -1291,30 +1291,6 @@
             "validation": ""
         },
         {
-            "inspire_id": 1753679,
-            "name": "CMS_B2G_18_003",
-            "authors": [
-                "Pengxuan Zhu"
-            ],
-            "exp": "CMS",
-            "run": "R2",
-            "summary": "CMS electroweak vector-like T quark search in fully hadronic final states at 13 TeV with 35.9/fb",
-            "luminosity": 35.9,
-            "ecm": 13.0,
-            "sign": [
-                "0L + >=6J + >=2B",
-                "0L + >=6J + >=3B"
-            ],
-            "keyword": [
-                "vectorlike-quark",
-                "top",
-                "higgs",
-                "fully-hadronic"
-            ],
-            "note": "Low-mass 3M regions use histogram-backed five-jet-mass SRs; 3T and 2M1L histograms are scaffolded with empty obs/bkg vectors pending digitisation. High-mass regions are implemented as public cut-and-count approximations without the CMS shape fit.",
-            "validation": ""
-        },
-        {
             "inspire_id": 1311223,
             "name": "CMS_EXO_12_048",
             "authors": [
