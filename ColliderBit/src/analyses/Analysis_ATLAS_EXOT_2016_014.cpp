@@ -452,20 +452,6 @@ namespace Gambit
                 {
                     pair.second.reset();
                 }
-
-                #ifdef CHECK_CUTFLOW
-                  const vector<string> cutnames = {
-                      "No Cut",
-                      "Base Selection",
-                      ">= 1 Whad cand.",
-                      "ETmiss >= 60 GeV",
-                      ">= 1 b-tagged jet",
-                      "S_T >= 1800 GeV",
-                      "DeltaR(lep, v) <= 0.7",
-                      "DeltaM < 300 GeV"};
-
-                  _cutflows.addCutflow("ATLAS-EXOT-2016-014", cutnames);
-                #endif
             }
 
         private:

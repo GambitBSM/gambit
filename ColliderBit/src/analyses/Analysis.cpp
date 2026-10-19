@@ -31,6 +31,7 @@
 ///
 ///  *********************************************
 
+#include <algorithm>
 #include <vector>
 #include "HEPUtils/Event.h"
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
@@ -50,7 +51,11 @@ namespace Gambit
       _needs_collection = true;
       _results.clear();
       for (auto& counter : _counters) counter.second.reset();
-      _cutflows = Cutflows();
+      for (Cutflow& cutflow : _cutflows.cfs)
+      {
+        std::fill(cutflow.counts.begin(), cutflow.counts.end(), 0.0);
+        cutflow.icurr.assign(omp_get_max_threads(), 0);
+      }
       _histograms = Histograms();
       analysis_specific_reset();
     }
