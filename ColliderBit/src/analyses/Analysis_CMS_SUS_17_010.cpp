@@ -212,7 +212,7 @@ namespace Gambit {
         _counters["SR-chargino-69"] = EventCounter("SR-chargino-69");
 
 
-        set_analysis_name("Analysis_CMS_SUS_17_010");
+        set_analysis_name("CMS_SUS_17_010");
         set_luminosity(35.9);
       }
 

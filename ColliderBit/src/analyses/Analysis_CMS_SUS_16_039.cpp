@@ -69,7 +69,7 @@ namespace Gambit
           defineSignalRegion("SR7", "MET > 50 GeV and conversion veto and Nlep > 2", "1 light lepton and 2 taus", "leading light lepton pT", "all lepton |eta| < 2.1", "MET > 75 GeV");
           defineSignalRegion("SR8", "MET > 50 GeV and conversion veto and Nlep > 2", "Ntau < 2", "leading light lepton pT", "Nlep > 3", "MET > 200 GeV");
 
-          set_analysis_name("CMS_SUS_16_039_200_100");
+          set_analysis_name("CMS_SUS_16_039");
           set_luminosity(35.9);
         }
 

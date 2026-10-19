@@ -84,7 +84,17 @@ namespace Gambit
 
         std::string analysis_info_file(const str& analysis)
         {
-          return std::string(GAMBIT_DIR) + "/ColliderBit/src/analyses/Analysis_" + analysis + ".info";
+          // Region and implementation variants can share their parent's report metadata.
+          const std::string prefix = std::string(GAMBIT_DIR) + "/ColliderBit/src/analyses/Analysis_";
+          std::string name = analysis;
+          while (true)
+          {
+            const std::string path = prefix + name + ".info";
+            if (Gambit::Utils::file_exists(path)) return path;
+            const std::size_t suffix = name.rfind('_');
+            if (suffix == std::string::npos) return prefix + analysis + ".info";
+            name.erase(suffix);
+          }
         }
 
         std::string format_energy_TeV(double energy_TeV)
