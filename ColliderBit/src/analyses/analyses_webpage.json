@@ -869,31 +869,6 @@
             "validation": ""
         },
         {
-            "inspire_id": 1835604,
-            "name": "ATLAS_SUSY_2018_07",
-            "authors": [
-                "Martin White"
-            ],
-            "exp": "ATLAS",
-            "run": "R2",
-            "summary": "ATLAS top-pair plus MET search in one-lepton, jets and missing-momentum final states at 13 TeV with 139/fb",
-            "luminosity": 139.0,
-            "ecm": 13.0,
-            "sign": [
-                "1L + >=4J + >=1B + MET + MT2",
-                "1L + >=4J + >=1B + MET + T"
-            ],
-            "keyword": [
-                "top-pair",
-                "1lepton",
-                "jets",
-                "met",
-                "top"
-            ],
-            "note": "",
-            "validation": "incomplete (unvalidated; signal-region counters are not filled)"
-        },
-        {
             "inspire_id": 1844425,
             "name": "ATLAS_SUSY_2018_08",
             "authors": [

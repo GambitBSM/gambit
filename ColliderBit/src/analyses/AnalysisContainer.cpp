@@ -92,7 +92,6 @@ namespace Gambit
       F(ATLAS_SUSY_2016_15)                             \
       F(ATLAS_SUSY_2018_12)                             \
       F(ATLAS_SUSY_2019_08)                             \
-      F(ATLAS_SUSY_2018_07)                             \
       F(ATLAS_SUSY_2017_01)                             \
       F(ATLAS_SUSY_2018_05)                             \
       F(ATLAS_SUSY_2018_08)                             \
