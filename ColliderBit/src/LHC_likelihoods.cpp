@@ -1233,7 +1233,7 @@ namespace Gambit
 
     /// Loop over all analyses and fill a map of AnalysisLogLikes objects
     void calc_LHC_LogLikes_common(map_str_AnalysisLogLikes& result,
-                                  bool use_fulllikes,
+                                  const bool use_fulllikes,
                                   AnalysisDataPointers& ana,
                                   const Options& runOptions,
                                   double (*marginaliser)(const int&, const double&, const double&, const double&),
@@ -1353,6 +1353,7 @@ namespace Gambit
         }
         const size_t nSR = ana_data.size();
         const bool has_covar = ana_data.srcov.rows() > 0;
+        const bool has_and_use_fulllikes = use_fulllikes && ana_data.hasFullLikes();
 
         // Initialize the AnalysisLogLikes instance in the result map
         result[ana_name].initialize(ana_data, alt_loglike_keys);
@@ -1435,15 +1436,10 @@ namespace Gambit
           continue;
         }
 
-
-        // Check if analysis has fulllikes, if not, turn off full likes
-        if (!ana_data.hasFullLikes()) {use_fulllikes = false;}
-
-
         // Now perform the actual loglikes compuations for this analysis
         //
         // First do standard loglike calculation
-        fill_analysis_loglikes(ana_data, ana_loglikes, use_marg, always_compute_all_SR_loglikes, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, xsec, n_mc);
+        fill_analysis_loglikes(ana_data, ana_loglikes, use_marg, always_compute_all_SR_loglikes, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, has_and_use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, xsec, n_mc);
 
         // Then do alternative loglike calculations:
         if (calc_noerr_loglikes)
@@ -1455,7 +1451,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_sig_MC_stat = 0.;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, always_compute_all_SR_loglikes, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, xsec, n_mc,"noerr");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, always_compute_all_SR_loglikes, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, has_and_use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, xsec, n_mc,"noerr");
         }
         if (calc_expected_loglikes)
         {
@@ -1466,7 +1462,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_obs = ana_data_mod[SR].n_bkg;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, always_compute_all_SR_loglikes, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, xsec, n_mc, "expected");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, always_compute_all_SR_loglikes, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, has_and_use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, xsec, n_mc, "expected");
         }
         if (calc_expected_noerr_loglikes)
         {
@@ -1479,7 +1475,7 @@ namespace Gambit
             ana_data_mod[SR].n_obs = ana_data_mod[SR].n_bkg;
             ana_data_mod[SR].n_sig_MC_stat = 0.;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, always_compute_all_SR_loglikes, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, xsec, n_mc, "expected_noerr");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, always_compute_all_SR_loglikes, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, has_and_use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, xsec, n_mc, "expected_noerr");
         }
         if (calc_scaledsignal_loglikes)
         {
@@ -1490,7 +1486,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_sig_scaled *= signal_scalefactor;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, always_compute_all_SR_loglikes, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, xsec, n_mc, "scaledsignal");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, always_compute_all_SR_loglikes, marginaliser, use_covar && has_covar, combine_nocovar_SRs, runOptions, has_and_use_fulllikes, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate, xsec, n_mc, "scaledsignal");
         }
 
       } // end analysis loop
