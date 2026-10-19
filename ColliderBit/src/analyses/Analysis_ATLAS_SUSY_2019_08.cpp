@@ -65,7 +65,7 @@ namespace Gambit
 
         set_analysis_name("ATLAS_SUSY_2019_08");
         set_luminosity(139.);
-        set_bkgjson("ColliderBit/data/analyses_json_files/ATLAS_SUSY_2019_08_bkgonly.json");
+        set_bkgjson("ColliderBit/data/analyses_json_files/ATLAS_13TeV_1Lep2b_139invfb_bkgonly.json");
 
         #ifdef CHECK_CUTFLOW
           // Book Cutflows

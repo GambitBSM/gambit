@@ -62,7 +62,7 @@ namespace Gambit
 
         set_analysis_name("ATLAS_SUSY_2018_05");
         set_luminosity(139);
-        set_bkgjson("ColliderBit/data/analyses_json_files/ATLAS_SUSY_2018_05_full_bkgonly.json");
+        set_bkgjson("ColliderBit/data/analyses_json_files/ATLAS_13TeV_2LEPJETS_EW_139invfb_full_bkgonly.json");
 
         // Counters for the number of accepted events for each signal region
         // 1/2 is used to represent the first or second bin of the met significance

@@ -133,7 +133,7 @@ namespace Gambit
 
         set_analysis_name("ATLAS_CONF_2019_008");
         set_luminosity(139);
-        set_bkgjson("ColliderBit/data/analyses_json_files/ATLAS_CONF_2019_008_bkgonly.json");
+        set_bkgjson("ColliderBit/data/analyses_json_files/ATLAS_13TeV_2OSLEP_chargino_139invfb_bkgonly.json");
       }
 
       // The following section copied from Analysis_ATLAS_1LEPStop_20invfb.cpp
