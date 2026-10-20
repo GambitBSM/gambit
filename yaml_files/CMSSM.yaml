@@ -690,7 +690,7 @@ Rules:
   # Choose where to get scattering events from
   - if:
       capability: HardScatteringEvent
-      type: Pythia_default::Pythia8::Event
+      type: GeneratorEvent
     then:
       function: generateEventPythia
 
@@ -703,7 +703,6 @@ Rules:
   # Choose Monte Carlo event simulator and options.
   - if:
       capability: HardScatteringSim
-      type: Py8Collider_defaultversion
     then:
       function: getPythia
       options:

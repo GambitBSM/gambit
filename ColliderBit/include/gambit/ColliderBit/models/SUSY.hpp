@@ -50,6 +50,7 @@
     #define FUNCTION PerformInitialCrossSection_Pythia
     START_FUNCTION(initialxsec_container)
     DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct)
+    BACKEND_REQ(create_collider, (libpythia), Gambit::ColliderBit::BaseCollider*, ())
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -72,20 +73,11 @@
   #define CAPABILITY HardScatteringSim
 
     #define FUNCTION getPythia
-    START_FUNCTION(Py8Collider_defaultversion)
+    START_FUNCTION(ColliderHandle)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia, default)
+    BACKEND_REQ(create_collider, (libpythia), Gambit::ColliderBit::BaseCollider*, ())
     ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG, MSSM63atQ_mA, MSSM63atQ_mA_mG, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
     DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct)
-    #undef FUNCTION
-
-    #define FUNCTION getPythiaAsBase
-    START_FUNCTION(const BaseCollider*)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia, default)
-    DEPENDENCY(HardScatteringSim, Py8Collider_defaultversion)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG, MSSM63atQ_mA, MSSM63atQ_mA_mG, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
-    ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -93,11 +85,13 @@
 
   // Run event generator
   #define CAPABILITY HardScatteringEvent
+
+    // The event itself stays inside the generator; this is the handle the
+    // HEPUtils::Event and HepMC3::GenEvent versions below convert through.
     #define FUNCTION generateEventPythia
-    START_FUNCTION(Pythia_default::Pythia8::Event)
+    START_FUNCTION(GeneratorEvent)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia, default)
-    DEPENDENCY(HardScatteringSim, Py8Collider_defaultversion)
+    DEPENDENCY(HardScatteringSim, ColliderHandle)
     DEPENDENCY(EventWeighterFunction, EventWeighterFunctionType)
     ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG, MSSM63atQ_mA, MSSM63atQ_mA_mG, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
     ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
@@ -106,9 +100,8 @@
     #define FUNCTION generateEventPythia_HEPUtils
     START_FUNCTION(HEPUtils::Event)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia, default)
-    DEPENDENCY(HardScatteringSim, Py8Collider_defaultversion)
-    DEPENDENCY(HardScatteringEvent, Pythia_default::Pythia8::Event)
+    DEPENDENCY(HardScatteringSim, ColliderHandle)
+    DEPENDENCY(HardScatteringEvent, GeneratorEvent)
     DEPENDENCY(EventWeighterFunction, EventWeighterFunctionType)
     #undef FUNCTION
 
@@ -116,9 +109,7 @@
       #define FUNCTION generateEventPythia_HepMC
       START_FUNCTION(HepMC3::GenEvent)
       NEEDS_MANAGER(RunMC, MCLoopInfo)
-      NEEDS_CLASSES_FROM(Pythia, default)
-      DEPENDENCY(HardScatteringSim, Py8Collider_defaultversion)
-      DEPENDENCY(HardScatteringEvent, Pythia_default::Pythia8::Event)
+      DEPENDENCY(HardScatteringEvent, GeneratorEvent)
       #undef FUNCTION
     #endif
 

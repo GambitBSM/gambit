@@ -383,6 +383,8 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
   set_compiler_warning("no-deprecated-declarations" FJ_CXX_FLAGS)
   set_compiler_warning("no-deprecated-copy" FJ_CXX_FLAGS)
+  # For Apple Clang: Newer libc++ no longer pulls in <algorithm> transitively, but fastjet relies on it (e.g. std::sort in LazyTiling9.cc)
+  set(FJ_CXX_FLAGS "${FJ_CXX_FLAGS} -include algorithm")
   set(FJ_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
 
   ExternalProject_Add(fastjet
@@ -424,6 +426,8 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set_compiler_warning("no-unused-parameter" FJCONTRIB_CXX_FLAGS)
   set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
   set_compiler_warning("no-catch-value" FJCONTRIB_CXX_FLAGS)
+  # For Apple Clang: Newer libc++ no longer pulls in <algorithm> transitively (e.g. std::sort in RecursiveLundEEGenerator.hh)
+  set(FJCONTRIB_CXX_FLAGS "${FJCONTRIB_CXX_FLAGS} -include algorithm")
 
   ExternalProject_Add(fjcontrib
     DEPENDS fastjet

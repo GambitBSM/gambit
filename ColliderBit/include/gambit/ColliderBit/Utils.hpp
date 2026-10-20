@@ -44,6 +44,7 @@
 #include "gambit/Utils/util_types.hpp"
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
+#include "gambit/ColliderBit/jet_collection_settings.hpp"
 
 namespace Gambit
 {
@@ -53,21 +54,6 @@ namespace Gambit
 
     /// Unit conversions (multiply to construct in standard units, divide to decode to that unit)
     static const double GeV = 1, MeV = 1e-3, TeV = 1e3;
-
-    /// Struct of different jet collection settings
-    struct jet_collection_settings
-    {
-      std::string key;
-      std::string algorithm;
-      double R;
-      std::string recombination_scheme;
-      std::string strategy;
-    };
-
-    /// Storage of different FastJet methods
-    FJNS::JetAlgorithm FJalgorithm_map(std::string);
-    FJNS::Strategy FJstrategy_map(std::string);
-    FJNS::RecombinationScheme FJRecomScheme_map(std::string);
 
     /// Use the HEPUtils Event without needing namespace qualification
     using HEPUtils::Event;

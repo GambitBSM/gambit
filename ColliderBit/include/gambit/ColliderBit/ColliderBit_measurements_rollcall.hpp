@@ -33,7 +33,7 @@
 
         #define FUNCTION Rivet_measurements
         START_FUNCTION(std::shared_ptr<std::ostringstream>)
-        NEEDS_CLASSES_FROM(Rivet, default)
+        BACKEND_REQ(create_analysis_handler, (librivet), Gambit::ColliderBit::AnalysisHandler*, ())
         DEPENDENCY(HardScatteringEvent, HepMC3::GenEvent)
         BACKEND_REQ(Contur_GetAnalyses, (libcontur), void, (std::vector<std::string>&, std::string&))
         NEEDS_MANAGER(RunMC, MCLoopInfo)

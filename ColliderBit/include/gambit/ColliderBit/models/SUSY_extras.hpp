@@ -24,9 +24,9 @@
   #define CAPABILITY HardScatteringSim
 
     #define FUNCTION getPythia_SLHA
-    START_FUNCTION(Py8Collider_defaultversion)
+    START_FUNCTION(ColliderHandle)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia, default)
+    BACKEND_REQ(create_collider, (libpythia), Gambit::ColliderBit::BaseCollider*, ())
     ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct)
     #undef FUNCTION

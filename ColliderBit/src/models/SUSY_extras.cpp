@@ -14,8 +14,8 @@
 ///
 ///  *********************************************
 
-#include "gambit/ColliderBit/getPy8Collider.hpp"
-#include "gambit/ColliderBit/generateEventPy8Collider.hpp"
+#include "gambit/ColliderBit/getCollider.hpp"
+#include "gambit/ColliderBit/generateColliderEvent.hpp"
 
 namespace Gambit
 {
@@ -23,7 +23,7 @@ namespace Gambit
   {
 
     // Get Monte Carlo event generator from SLHA file input
-    GET_SPECIFIC_PYTHIA_SLHA(getPythia_SLHA, Pythia_default, )
+    GET_SPECIFIC_PYTHIA_SLHA(getPythia_SLHA)
 
 
     // Get next SLHA file path and content (for use with model ColliderBit_SLHA_file_model)

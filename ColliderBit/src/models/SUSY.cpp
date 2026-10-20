@@ -22,8 +22,8 @@
 ///
 ///  *********************************************
 
-#include "gambit/ColliderBit/getPy8Collider.hpp"
-#include "gambit/ColliderBit/generateEventPy8Collider.hpp"
+#include "gambit/ColliderBit/getCollider.hpp"
+#include "gambit/ColliderBit/generateColliderEvent.hpp"
 
 namespace Gambit
 {
@@ -34,14 +34,13 @@ namespace Gambit
     GET_SPECTRUM_AND_DECAYS_FOR_PYTHIA_SUSY(getSpectrumAndDecaysForPythia, MSSM_spectrum)
 
     // Get Monte Carlo event generator
-    GET_SPECIFIC_PYTHIA(getPythia, Pythia_default, /* blank MODEL_EXTENSION argument */ )
-    GET_PYTHIA_AS_BASE_COLLIDER(getPythiaAsBase)
+    GET_SPECIFIC_PYTHIA(getPythia)
 
     // Run event generator
-    GET_PYTHIA_EVENT(generateEventPythia, Pythia_default::Pythia8::Event)
+    GET_PYTHIA_EVENT(generateEventPythia)
 
     // Run initial Pythia cross-section estimation
-    GET_INITIAL_XSEC_PYTHIA(PerformInitialCrossSection_Pythia, Py8Collider_defaultversion, Pythia_default)
+    GET_INITIAL_XSEC_PYTHIA(PerformInitialCrossSection_Pythia)
 
   }
 }

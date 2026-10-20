@@ -119,7 +119,7 @@
     #define FUNCTION getEvGenCrossSection
     START_FUNCTION(MC_xsec_container)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    DEPENDENCY(HardScatteringSim, const BaseCollider*)
+    DEPENDENCY(HardScatteringSim, ColliderHandle)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -197,7 +197,7 @@
     #define FUNCTION getActiveProcessCodes
     START_FUNCTION(std::vector<int>)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
-    DEPENDENCY(HardScatteringSim, const BaseCollider*)
+    DEPENDENCY(HardScatteringSim, ColliderHandle)
     #undef FUNCTION
   #undef CAPABILITY
 

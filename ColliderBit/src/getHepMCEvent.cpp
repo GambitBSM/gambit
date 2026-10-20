@@ -43,7 +43,7 @@
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "HepMC3/ReaderAsciiHepMC2.h"
-#include "gambit/ColliderBit/colliders/Pythia8/Py8EventConversions.hpp"
+#include "gambit/ColliderBit/colliders/EventConversion.hpp"
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/ReaderAscii.h"
@@ -251,8 +251,10 @@ namespace Gambit
       //Set the weight
       result.set_weight(ge.weight());
 
-      //Translate to HEPUtils event by calling the unified HEPMC/Pythia event converter:
-      Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, all_jet_collection_settings, jetcollection_taus, jet_pt_min);
+      //Translate to HEPUtils event via the generator-neutral event record:
+      EventRecord record;
+      fillEventRecord(ge, record);
+      convertParticleEvent(record, result, all_jet_collection_settings, jetcollection_taus, jet_pt_min);
 
     }
 
@@ -275,8 +277,10 @@ namespace Gambit
       //Set the weight
       result.set_weight(ge.weight());
 
-      //Translate to HEPUtils event by calling the unified HEPMC/Pythia event converter:
-      Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, all_jet_collection_settings, jetcollection_taus, jet_pt_min);
+      //Translate to HEPUtils event via the generator-neutral event record:
+      EventRecord record;
+      fillEventRecord(ge, record);
+      convertParticleEvent(record, result, all_jet_collection_settings, jetcollection_taus, jet_pt_min);
     }
 
   }

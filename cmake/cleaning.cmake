@@ -57,7 +57,6 @@ set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/cmake/include/gambit/cmake
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/ScannerBit/priors_rollcall.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/ScannerBit/test_function_rollcall.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/ColliderBit_models_rollcall.hpp")
-set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/colliders/Pythia8/Py8Collider_typedefs.hpp")
 
 # Arrange for the removal of generated source files with "make clean"
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Models/src/particle_database.cpp")

@@ -62,8 +62,8 @@ namespace Gambit
         void Rivet_measurements(std::shared_ptr<std::ostringstream> &result)
         {
           using namespace Pipes::Rivet_measurements;
-          using namespace Rivet_default::Rivet;
 
+          // One analysis handler per thread, created by the Rivet backend
           static std::vector<std::unique_ptr<AnalysisHandler>> anahandlers;
           // TODO: Does event count ever go over int_max? Playing safe
           thread_local long int events_analysed = 0;
@@ -121,19 +121,23 @@ namespace Gambit
 
             #pragma omp critical
             {
-              anahandlers.emplace_back(std::make_unique<AnalysisHandler>());
+              anahandlers.emplace_back(BEreq::create_analysis_handler());
+              if (!anahandlers.back()) ColliderBit_error().raise(LOCAL_INFO, "The Rivet backend failed to create an analysis handler.");
+              AnalysisHandler& handler = *anahandlers.back();
               events_analysed_perthread[omp_get_thread_num()] = 0L;
 
               for (const std::string& ananame :  analyses){
                 // Rememeber analysis list already formed.
                 if (!(ananame == "13TeV" || ananame == "8TeV" || ananame == "7TeV"))
-                  anahandlers.back()->addAnalysis(ananame);
+                {
+                  if (!handler.add_analysis(ananame)) ColliderBit_error().raise(LOCAL_INFO, "Rivet could not add analysis " + ananame + ": " + handler.last_error());
+                }
               }
 
               //If the yaml file wants to exclude analyses, remove them
               //This feature was inspired by ATLAS_2016_I1469071, which is effectively
               //invalid for most BSM cases and can cause crashes.
-              anahandlers.back()->removeAnalyses(excluded_analyses);
+              if (!handler.remove_analyses(excluded_analyses)) ColliderBit_error().raise(LOCAL_INFO, "Rivet could not remove analyses: " + handler.last_error());
 
               //Write the utilised analyses to a file in yaml-like format
               //This will list only the analyses that RIVET has succesfully loaded.
@@ -163,7 +167,7 @@ namespace Gambit
                     analyses_output_file << "  analyses:";
 
                     // TODO: fix.
-                    for (std::string an_analysis_string : anahandlers[0]->analysisNames())
+                    for (std::string an_analysis_string : anahandlers[0]->analysis_names())
                     {
                       analyses_output_file << "\n   - " << an_analysis_string;
                     }
@@ -195,18 +199,10 @@ namespace Gambit
             {
               #ifdef COLLIDERBIT_DEBUG
                 std::cout << "Summary data from rivet:\n\tAnalyses used: ";
-                for (auto analysis : anahandlers[0]->analysisNames()){
+                for (auto analysis : anahandlers[0]->analysis_names()){
                     std::cout << analysis << ", ";
                 }
-                std::cout << "\n\tBeam IDs are " << anahandlers[0]->beamIds().first << ", " << anahandlers[0]->beamIds().second;
-                std::cout << "\n\tXS: " << anahandlers[0]->nominalCrossSection();
-                std::cout << "\n\tRunName: " << anahandlers[0]->runName();
-                std::cout << "\n\tSqrtS: " << anahandlers[0]->sqrtS();
-                std::cout << "\n\tList of available analyses: ";
-                for (auto analysis : anahandlers[0]->stdAnalysisNames()){
-                    std::cout << analysis << ", ";
-                }
-                std::cout << std::flush;
+                std::cout << std::endl;
               #endif
 
               //Initialise somewhere for the yoda file to be outputted.
@@ -217,9 +213,10 @@ namespace Gambit
               const static bool drop_perthread_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_perthread_YODA_file");
               int count = 0;
               for (const auto & handler : anahandlers){
-                handler->finalize();
+                if (!handler->finalize()) ColliderBit_error().raise(LOCAL_INFO, "Rivet could not finalize: " + handler->last_error());
                 if (drop_perthread_YODA_file){
-                  handler->writeData("TEST_"+std::to_string(count++)+".yoda");
+                  const str filename = "TEST_"+std::to_string(count++)+".yoda";
+                  if (!handler->write_data(filename)) ColliderBit_error().raise(LOCAL_INFO, "Rivet could not write " + filename + ": " + handler->last_error());
                 }
               }
 
@@ -231,27 +228,27 @@ namespace Gambit
                   #ifdef COLLIDERBIT_DEBUG
                   std::cout << "Merging yoda from thread " << j << " into master." << std::endl;
                   #endif
-                  anahandlers[0]->merge(*anahandlers[j]);
+                  if (!anahandlers[0]->merge(*anahandlers[j])) ColliderBit_error().raise(LOCAL_INFO, "Rivet could not merge the analysis objects of thread " + std::to_string(j) + ": " + anahandlers[0]->last_error());
                 }
                 else {
                   std::cout << "Not merging yoda from thread " << j << " into master." << std::endl;
                   ColliderBit_warning().raise(LOCAL_INFO, "Thread "+std::to_string(j)+" did not get any events to Rivet analyse" );
                 }
               }
-              anahandlers[0]->finalize();
-              anahandlers[0]->writeData(*result, "yoda");
+              if (!anahandlers[0]->finalize()) ColliderBit_error().raise(LOCAL_INFO, "Rivet could not finalize: " + anahandlers[0]->last_error());
+              if (!anahandlers[0]->write_data(*result, "yoda")) ColliderBit_error().raise(LOCAL_INFO, "Rivet could not write its YODA output: " + anahandlers[0]->last_error());
 
               // Drop YODA file if requested
               const static bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
               if(drop_YODA_file)
               {
                 str filename = "GAMBIT_collider_measurements_"+Dep::RunMC->current_collider()+".yoda";
+                bool written = false;
                 #pragma omp critical
                 {
-                  try{ anahandlers[0]->writeData(filename); }
-                  catch (...)
-                  { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
+                  written = anahandlers[0]->write_data(filename);
                 }
+                if (!written) ColliderBit_error().raise(LOCAL_INFO, "Rivet could not write the YODA file " + filename + ": " + anahandlers[0]->last_error());
               }
             }
             else{
@@ -267,23 +264,20 @@ namespace Gambit
 
           // Get the HepMC event
           HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
-          try {
-            // The first event only must be analysed single-threaded
-            if (events_analysed < 1){
-              #pragma omp critical
-              {
-                anahandlers[omp_get_thread_num()]->analyze(ge);
-              }
+          AnalysisHandler& handler = *anahandlers[omp_get_thread_num()];
+          bool analysed = false;
+          // The first event only must be analysed single-threaded
+          if (events_analysed < 1){
+            #pragma omp critical
+            {
+              analysed = handler.analyze(ge);
             }
-            else {
-              anahandlers[omp_get_thread_num()]->analyze(ge);
-            }
-            events_analysed++;
           }
-          catch(std::runtime_error &e)
-          {
-            ColliderBit_error().raise(LOCAL_INFO, e.what());
+          else {
+            analysed = handler.analyze(ge);
           }
+          if (!analysed) ColliderBit_error().raise(LOCAL_INFO, "Rivet failed to analyse the event: " + handler.last_error());
+          events_analysed++;
         }
 
       #endif //EXCLUDE_YODA

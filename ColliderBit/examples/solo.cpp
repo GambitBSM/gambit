@@ -240,6 +240,12 @@ int main(int argc, char* argv[])
       else { InitialTotalCrossSection_YAMLCBS.setOption<double>("cross_section_uncert_fb", settings.getValue<double>("cross_section_uncert_fb")); }
     }
 
+    // The analysis containers need the per-collider total cross-section; give it the same input.
+    for (const str& key : {"cross_section_pb", "cross_section_fb", "cross_section_uncert_pb", "cross_section_uncert_fb", "cross_section_fractional_uncert"})
+    {
+      if (settings.hasKey(key)) getYAMLCrossSection.setOption<double>(key, settings.getValue<double>(key));
+    }
+
     // Pass options to the likelihood function
     // TODO: I'm not specifying the defaults here. I'll add the argument only if the user supplies it.
     // ColliderBit can then fall back to its defaults if nothing is supplied.
@@ -300,9 +306,9 @@ int main(int argc, char* argv[])
     runCMSAnalyses.resolveDependency(&smearEventCMS);
     runIdentityAnalyses.resolveDependency(&getIdentityAnalysisContainer);
     runIdentityAnalyses.resolveDependency(&copyEvent);
-    getATLASAnalysisContainer.resolveDependency(&InitialTotalCrossSection_YAMLCBS);
-    getCMSAnalysisContainer.resolveDependency(&InitialTotalCrossSection_YAMLCBS);
-    getIdentityAnalysisContainer.resolveDependency(&InitialTotalCrossSection_YAMLCBS);
+    getATLASAnalysisContainer.resolveDependency(&getYAMLCrossSection);
+    getCMSAnalysisContainer.resolveDependency(&getYAMLCrossSection);
+    getIdentityAnalysisContainer.resolveDependency(&getYAMLCrossSection);
     smearEventATLAS.resolveDependency(&getBuckFastATLAS);
     smearEventATLAS.resolveDependency(&convertEvent);
     smearEventCMS.resolveDependency(&getBuckFastCMS);
@@ -328,6 +334,7 @@ int main(int argc, char* argv[])
     getBuckFastATLAS.resolveLoopManager(&operateLHCLoop);
     getBuckFastCMS.resolveLoopManager(&operateLHCLoop);
     getBuckFastIdentity.resolveLoopManager(&operateLHCLoop);
+    getYAMLCrossSection.resolveLoopManager(&operateLHCLoop);
     getATLASAnalysisContainer.resolveLoopManager(&operateLHCLoop);
     getCMSAnalysisContainer.resolveLoopManager(&operateLHCLoop);
     getIdentityAnalysisContainer.resolveLoopManager(&operateLHCLoop);
@@ -342,6 +349,7 @@ int main(int argc, char* argv[])
                                                                   &getBuckFastATLAS,
                                                                   &getBuckFastCMS,
                                                                   &getBuckFastIdentity,
+                                                                  &getYAMLCrossSection,
                                                                   &getATLASAnalysisContainer,
                                                                   &getCMSAnalysisContainer,
                                                                   &getIdentityAnalysisContainer,

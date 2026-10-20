@@ -341,7 +341,7 @@ Rules:
 
   # Choose where to get scattering events from
   - capability: HardScatteringEvent
-    type: Pythia_default::Pythia8::Event
+    type: GeneratorEvent
     function: generateEventPythia
     # options:
     #   drop_HepMC3_file: true
@@ -427,7 +427,6 @@ Rules:
 
   # Choose Monte Carlo event simulator and options.
   - capability:  HardScatteringSim
-    type: Py8Collider_defaultversion
     function: getPythia
     options:
       LHC_13TeV:

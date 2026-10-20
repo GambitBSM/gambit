@@ -152,10 +152,14 @@ plc:
   3.0:         ./Backends/installed/plc/3.0/lib/libclik.so
 
 Pythia:
-  8.312:       ./Backends/installed/pythia/8.312/lib/libpythia8.so
+  # The plugin library built with Pythia (Backends/src/frontends/plugins/pythia_plugin.cpp);
+  # it links to libpythia8.so itself.
+  8.312:       ./Backends/installed/pythia/8.312/lib/libpythia_plugin.so
 
 Rivet:
-  4.1.0:       ./Backends/installed/rivet/4.1.0/local/lib/libRivet.so
+  # The plugin library built with Rivet (Backends/src/frontends/plugins/rivet_plugin.cpp);
+  # it links to libRivet.so itself.
+  4.1.0:       ./Backends/installed/rivet/4.1.0/local/lib/librivet_plugin.so
 
 SPheno:
   3.3.8:       ./Backends/installed/spheno/3.3.8/lib/libSPheno.so
