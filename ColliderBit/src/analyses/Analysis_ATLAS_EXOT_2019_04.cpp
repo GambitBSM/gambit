@@ -294,10 +294,9 @@ namespace Gambit
         const bool in_H_window = (mHC >= 105. && mHC <= 135.);
         const bool is_H2T2B = true; // HC selection enforces H2T2B
 
-        FILL_HISTOGRAM_1D("m_VLB", best.mB)
-
         if (in_H_window && is_H2T2B)
         {
+          FILL_HISTOGRAM_1D("m_VLB", best.mB)
           _counters.at("SR").add_event(event);
         }
       }
