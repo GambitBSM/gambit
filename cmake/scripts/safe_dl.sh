@@ -181,4 +181,9 @@ if [ "retain container folder" != "${10}" ]; then
     extract_source="$container_dir"
   fi
 fi
-"$3" -E copy_directory "$extract_source" "$7" || exit 1
+$3 -E make_directory "$7" || exit 1
+# cmake -E copy_directory does not preserve mtimes, which confuses autotools'
+# timestamp-based regeneration rules (e.g. Makefile.am appearing newer than
+# Makefile.in triggers an automake re-run via the 'missing' script). Use cp -a
+# to carry the archive's original timestamps through to the destination.
+cp -a "$extract_source"/. "$7"/ || exit 1
