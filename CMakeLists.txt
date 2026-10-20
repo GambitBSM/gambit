@@ -355,6 +355,8 @@ find_package(GSL 2.1)
 if(NOT GSL_FOUND)
   message(FATAL_ERROR "GSL libraries not found. You can help CMake to find them by setting the environment variable GSL_ROOT_DIR.")
 endif()
+# GSL headers are used by the contrib object libraries and GAMBIT modules.
+include_directories(SYSTEM ${GSL_INCLUDE_DIRS})
 # FlexibleSUSY only works with gsl-config; make sure that we add it
 if("${GSL_CONFIG_EXECUTABLE}" STREQUAL "")
   find_program(GSL_CONFIG_EXECUTABLE gsl-config
