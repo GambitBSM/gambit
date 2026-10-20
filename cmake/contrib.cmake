@@ -427,7 +427,9 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
   set_compiler_warning("no-catch-value" FJCONTRIB_CXX_FLAGS)
   # For Apple Clang: Newer libc++ no longer pulls in <algorithm> transitively (e.g. std::sort in RecursiveLundEEGenerator.hh)
-  set(FJCONTRIB_CXX_FLAGS "${FJCONTRIB_CXX_FLAGS} -include algorithm")
+  # LundPlane/EEHelpers.hh uses std::numeric_limits without including <limits> itself; newer
+  # standard libraries (e.g. libstdc++ with GCC >= 13) no longer pull it in transitively either.
+  set(FJCONTRIB_CXX_FLAGS "${FJCONTRIB_CXX_FLAGS} -include algorithm -include limits")
 
   ExternalProject_Add(fjcontrib
     DEPENDS fastjet
