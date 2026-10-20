@@ -170,14 +170,18 @@ esac
 (cd "$extract_dir" && "$3" -E tar -xf "$archive_path") || exit 1
 extract_source="$extract_dir"
 if [ "retain container folder" != "${10}" ]; then
-  entry_count=0
+  dir_count=0
+  file_list=""
   for entry in "$extract_dir"/* "$extract_dir"/.[!.]* "$extract_dir"/..?*; do
-    if [ -e "$entry" ] || [ -L "$entry" ]; then
-      entry_count=$((entry_count + 1))
+    [ -e "$entry" ] || [ -L "$entry" ] || continue
+    if [ -d "$entry" ] && [ ! -L "$entry" ]; then
+      dir_count=$((dir_count + 1))
       container_dir="$entry"
+    else
+      file_list="$file_list $entry"
     fi
   done
-  if [ "$entry_count" = "1" ] && [ -d "$container_dir" ]; then
+  if [ "$dir_count" = "1" ]; then
     extract_source="$container_dir"
   fi
 fi
@@ -187,3 +191,8 @@ $3 -E make_directory "$7" || exit 1
 # Makefile.in triggers an automake re-run via the 'missing' script). Use cp -a
 # to carry the archive's original timestamps through to the destination.
 cp -a "$extract_source"/. "$7"/ || exit 1
+# Any top-level files that sat alongside the single container directory
+# weren't part of it, so bring them along too.
+if [ "$extract_source" != "$extract_dir" ] && [ -n "$file_list" ]; then
+  cp -a $file_list "$7"/ 2>/dev/null || true
+fi
