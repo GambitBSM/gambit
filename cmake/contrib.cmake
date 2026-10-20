@@ -50,7 +50,8 @@ macro(get_paths package build_path clean_stamps nuke_stamps)
   set(stamp_path "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-stamp/${package}")
   set(${build_path} "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-build")
   set(${clean_stamps} ${stamp_path}-configure ${stamp_path}-build ${stamp_path}-install ${stamp_path}-done)
-  set(${nuke_stamps} ${stamp_path}-download ${stamp_path}-mkdir ${stamp_path}-patch ${stamp_path}-update)
+  set(${nuke_stamps} ${stamp_path}-download ${stamp_path}-mkdir ${stamp_path}-patch ${stamp_path}-update
+                    ${stamp_path}-update_disconnected ${stamp_path}-gitclone-lastrun.txt)
 endmacro()
 
 function(nuke_ditched_contrib_content package dir)
@@ -163,6 +164,13 @@ if(NOT EXCLUDE_RESTFRAMES)
     set(RESTFRAMES_CONFIG_LIBS "${CMAKE_SHARED_LINKER_FLAGS} -lgambit_preload")
   else()
     set(RESTFRAMES_CONFIG_LIBS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-as-needed -lgambit_preload")
+  endif()
+  # A previous disabled configuration may have removed the checkout while
+  # leaving Git's clone-completion stamp behind. Force a new download in that
+  # case; otherwise ExternalProject skips cloning and tries to update no repo.
+  if(NOT EXISTS "${dir}/.git")
+    get_paths(${name} restframes_build_path restframes_clean_stamps restframes_nuke_stamps)
+    file(REMOVE ${restframes_clean_stamps} ${restframes_nuke_stamps})
   endif()
   # RestFrames reuses a Git checkout; restore only the file modified by this patch.
   ExternalProject_Add(${name}
