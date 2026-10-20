@@ -1272,15 +1272,28 @@ if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DEPENDS castxml
     DEPENDS ${pythia_depends_on}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND patch -p1 < ${patch}
+    PATCH_COMMAND patch --batch --forward -p1 -i "${patch}"
     CONFIGURE_COMMAND ./configure ${EXTRA_CONFIG} --cxx="${CMAKE_CXX_COMPILER}" --cxx-common="${pythia_CXXFLAGS}" --cxx-shared="${pythia_CXX_SHARED_FLAGS}" --cxx-soname="${pythia_CXX_SONAME_FLAGS}" --lib-suffix=".so"
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" lib/${lib}.so
     INSTALL_COMMAND ""
   )
+  # BOSS modifies the Pythia sources. Recreate them before applying a patch
+  # so a retained old BOSS marker cannot hide missing generated output.
+  ExternalProject_Add_Step(${name}_${ver} prepare_source
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<SOURCE_DIR>"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "<SOURCE_DIR>"
+    COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DEPENDEES update
+    DEPENDERS patch
+    DEPENDS "${patch}"
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    COMMENT "Preparing pristine Pythia ${ver} sources"
+  )
   BOSS_backend(${name} ${ver} ${BOSS_suffix})
+  ExternalProject_Add_StepDependencies(${name}_${ver} BOSS castxml ${pythia_depends_on})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
@@ -2120,6 +2133,10 @@ set(hepmc_dir "${HEPMC_PATH}/local")
 set(fastjet_dir "${fastjet_DIR}")
 #set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet -faligned-new -O3")
 set(Rivet_CXX_FLAGS "${FJ_CXX_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR} -O3 -std=c++17")
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  # Rivet headers rely on transitive inclusion of <algorithm>.
+  set(Rivet_CXX_FLAGS "${Rivet_CXX_FLAGS} -include algorithm")
+endif()
 set_compiler_warning("no-deprecated-declarations" Rivet_CXX_FLAGS)
 set_compiler_warning("no-deprecated-copy" Rivet_CXX_FLAGS)
 set_compiler_warning("no-type-limits" Rivet_CXX_FLAGS)
@@ -2161,7 +2178,7 @@ if(NOT ditched_${name}_${ver})
   set(Rivet_BUILD_DEPENDENCIES castxml ${yoda_name} ${hepmc_name} fastjet fjcontrib)
   ExternalProject_Add(${name}_${ver}
     DEPENDS ${Rivet_BUILD_DEPENDENCIES}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DOWNLOAD_COMMAND ""
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch --batch --forward -p1 -i "${patch}"
@@ -2170,8 +2187,21 @@ if(NOT ditched_${name}_${ver})
           COMMAND sh -c "cat ${patch_dir}/touch_files.sh" >> touch_files.sh
           COMMAND chmod u+x touch_files.sh
           COMMAND ./touch_files.sh
-    BUILD_COMMAND ${MAKE_PARALLEL} libRivet.so
+    # This target needs no documentation index, which Rivet reads at parse time.
+    BUILD_COMMAND ${MAKE_PARALLEL} ANASOURCES= libRivet.so
     INSTALL_COMMAND ""
+  )
+  # Overlay extraction leaves old BOSS-generated files in the source tree.
+  # Recreate it before patching, as in the cbs-presets Rivet recipe.
+  ExternalProject_Add_Step(${name}_${ver} prepare_source
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<SOURCE_DIR>"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "<SOURCE_DIR>"
+    COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    DEPENDEES update
+    DEPENDERS patch
+    DEPENDS "${patch}"
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    COMMENT "Preparing pristine Rivet ${ver} sources"
   )
   # Pass each HDF5 include directory to BOSS as a separate option
   set(Rivet_BOSS_INCLUDES "")
