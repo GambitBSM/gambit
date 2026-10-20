@@ -49,6 +49,11 @@ namespace Gambit
 
       smoking_variables vars;
       vars.slhaea = slhaea;
+      
+      // Example passing setting in
+      const static int order = runOptions->getValueOrDef<int>(0, "order");
+      vars.order = order;
+      
 
       BEreq::smoking_init(vars);
       std::vector<Result> res = BEreq::smoking_calc(vars); // TODO: This needs to be renamed in smoking, as Result is far too generic a term
