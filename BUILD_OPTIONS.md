@@ -17,6 +17,15 @@ For a more complete list of cmake variables, take a look in the file `CMakeCache
 # Ditch GAMBIT components that you don't intend to use: itch
 -Ditch="ColliderBit;NeutrinoBit;Mathematica"
 
+# Select only the Bits you need: Bits
+# Similar to -Ditch, but opt-in rather than opt-out. If some Bits 
+# are specified using -DBits, all other Bits except ScannerBit are 
+# added to the ditch list. -DBits and -Ditch must not overlap.
+-DBits="DarkBit;PrecisionBit;SpecBit;DecayBit"          # typical dark matter project
+-DBits="ColliderBit;PrecisionBit;SpecBit;DecayBit"      # typical collider project
+-DBits="CosmoBit;DarkBit"                               # typical cosmology project
+
+
 # List the FlexibleSUSY models to build: BUILD_FS_MODELS
 # The names of the available FlexibleSUSY models correspond to 
 # the subdirectories in 
@@ -51,18 +60,18 @@ For a more complete list of cmake variables, take a look in the file `CMakeCache
 -DEIGEN3_INCLUDE_DIR=your/path/to/eigen
 
 
-# Set the Python executable: PYTHON_EXECUTABLE
+# Set the Python executable: Python3_EXECUTABLE
 # If working from a virtual environment, cmake will automatically set this as
 # the executable in the environment's directory. It may, however, have trouble
 # finding the system Python library and include directory of the same version, so
-# setting PYTHON_LIBRARY and PYTHON_INCLUDE_DIR manually is encouraged.
--DPYTHON_EXECUTABLE=/usr/bin/python3
+# setting Python3_LIBRARY and Python3_INCLUDE_DIR manually is encouraged.
+-DPython3_EXECUTABLE=/usr/bin/python3
 
-# Set the Python include directory: PYTHON_INCLUDE_DIR
--DPYTHON_INCLUDE_DIR=/usr/include/python3.7m
+# Set the Python include directory: Python3_INCLUDE_DIR
+-DPython3_INCLUDE_DIR=/usr/include/python3.10
 
-# Set the Python library: PYTHON_LIBRARY
--DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.7m.so
+# Set the Python library: Python3_LIBRARY
+-DPython3_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.10.so
 
 
 # Switch HepMC on/off: WITH_HEPMC (On|Off)
@@ -86,6 +95,17 @@ For a more complete list of cmake variables, take a look in the file `CMakeCache
 
 # Create Graphviz files: HAVE_GRAPHVIZ (On|Off)
 -DHAVE_GRAPHVIZ=On
+
+
+# Skip the build of any backend interface that no enabled Bit references
+# at the source level: GAMBIT_TRIM_BACKEND_INTERFACES (On|Off)
+# Auto-set to ON when -DBits is used or when -Ditch removes any Bit.
+# Set this to OFF to disable the trimming explicitly, e.g. when developing 
+# a new backend that no Bit yet references. Pair with 
+# -DGAMBIT_FORCE_BACKEND_INTERFACE="Name1;Name2" to keep specific backends 
+# regardless.
+-DGAMBIT_TRIM_BACKEND_INTERFACES=On
+-DGAMBIT_FORCE_BACKEND_INTERFACE="Acropolis;DarkCast"
 
 ```
 

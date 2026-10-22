@@ -83,7 +83,7 @@
         // string lists containing the input parameters for
         // CLASS that are more precise when they take
         // larger/smaller values.
-        // These are used to decide wether to keep the smaller/
+        // These are used to decide whether to keep the smaller/
         // larger value when merging two CLASS input dictionaries
         // containing the same parameter. Hard-coded -- add to these
         // lists if you want to use a parameter that is not implemented yet.

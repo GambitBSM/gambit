@@ -1,0 +1,15 @@
+
+// Histogram extracted from hconst90 in /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ElectronPhotonFourMomentumCorrection/v20/resolutionFit_trueUnconvertedPhoton_run2_release21_es2017_R21_v1.root
+// Date extracted: Wed May 22 16:27:19 2019
+// Bin contents is type MEAN
+
+double hist_photonConst90[]= {
+  // nbinsX,Y
+  18,1,
+  // x bins
+  0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.37,1.52,1.56,1.62,1.72,1.82,1.92,2.02,2.12,2.22,2.32,2.4,
+  // y bins
+  0.0,1.0,
+  // values
+  0.00765974400565,0.00643053231761,0.0040563265793,0.00395081751049,0.00304187880829,0.00408801622689,0.000368301261915,0.0218954514712,0.00489833485335,0.00870842393488,2.25513302476e-10,0.00640076166019,0.00373680866323,0.00217292783782,0.00216181343421,0.00228502042592,0.000980295822956,0.00197436963208
+};

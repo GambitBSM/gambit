@@ -32,7 +32,7 @@ Inifile option:
         
     def run(self, map):
         
-        # prints paramters
+        # prints parameters
         oplug.print_parameters(map)
         
         params = (map[oplug.get_keys()[0]]*self.length[0],  map[oplug.get_keys()[1]]*self.length[1])

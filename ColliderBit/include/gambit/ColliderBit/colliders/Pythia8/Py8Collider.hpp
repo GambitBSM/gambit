@@ -62,7 +62,7 @@ namespace Gambit
         /// An exception for when Pythia fails to initialize.
         class InitializationError : public std::exception
         {
-          virtual const char* what() const throw()
+          virtual const char* what() const noexcept
           {
             return "Pythia could not initialize.";
           }
@@ -70,7 +70,7 @@ namespace Gambit
         /// An exception for when Pythia fails to generate events.
         class EventGenerationError : public std::exception
         {
-          virtual const char* what() const throw()
+          virtual const char* what() const noexcept
           {
             return "Pythia could not make the next event.";
           }
@@ -146,7 +146,7 @@ namespace Gambit
           if (_pythiaInstance) delete _pythiaInstance;
           _pythiaInstance = new PythiaT(_pythiaBase->settings, _pythiaBase->particleData);
 
-          // Send along the SLHAea::Coll pointer, if it exists          
+          // Send along the SLHAea::Coll pointer, if it exists
           if (slhaea) _pythiaInstance->slhaInterface.slha.setSLHAea(slhaea);
 
           // Read command again to get SM decay table change from yaml file

@@ -127,7 +127,7 @@ namespace Gambit
       double get_alphaS (const softsusy::QedQcd& model) { return model.displayAlpha(softsusy::ALPHAS); }
 
       /// All 3 SM gauge couplings.
-      /// The QedQcd documenation has the following to say about this calculations:
+      /// The QedQcd documentation has the following to say about this calculations:
       /// {
       /// This will calculate the three gauge couplings of the Standard Model at
       /// the scale m2.

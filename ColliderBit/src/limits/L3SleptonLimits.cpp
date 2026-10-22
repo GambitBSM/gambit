@@ -15,7 +15,7 @@ namespace Gambit {
     {
       return (y <= x and x <= 205. / 2. and x > mZ / 2.);
     }
-    
+
     L3SelectronLimitAt205GeV::L3SelectronLimitAt205GeV()
     {
       ///// Limit values /////
@@ -355,7 +355,7 @@ namespace Gambit {
                      contoursPointer->begin(), makeLine);
       _limitContours.insert(LimitContourEntry(2, contoursPointer));
 
-    }    
+    }
 
 
 
@@ -364,12 +364,12 @@ namespace Gambit {
       return P2(45. + (x - 625.00) / (1166.00 - 625.00) * (100. - 45.),
                 100. + (y - 948.50) / (1518.00 - 948.50) * (0. - 100.));
     }
-    
+
     bool L3StauLimitAt205GeV::isWithinExclusionRegion(double x, double y, double mZ) const
     {
       return (y <= x and x <= 205. / 2. and x > mZ / 2.);
     }
-    
+
     L3StauLimitAt205GeV::L3StauLimitAt205GeV()
     {
       ///// Limit values /////

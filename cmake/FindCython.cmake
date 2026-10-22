@@ -36,9 +36,9 @@
 
 # Use the Cython executable that lives next to the Python executable
 # if it is a local installation.
-find_package(PythonInterp)
-if(PYTHONINTERP_FOUND)
-  get_filename_component(_python_path ${PYTHON_EXECUTABLE} PATH)
+find_package(Python3 QUIET COMPONENTS Interpreter)
+if(Python3_Interpreter_FOUND)
+  get_filename_component(_python_path ${Python3_EXECUTABLE} PATH)
   find_program(CYTHON_EXECUTABLE
                NAMES cython cython.bat cython3
                HINTS ${_python_path}
@@ -58,8 +58,8 @@ if(CYTHON_EXECUTABLE)
 #                   RESULT_VARIABLE CYTHON_version_result
 #                   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-#  message("${PYTHON_EXECUTABLE} -m cython --version")
-  execute_process(COMMAND ${PYTHON_EXECUTABLE} -m cython --version
+#  message("${Python3_EXECUTABLE} -m cython --version")
+  execute_process(COMMAND ${Python3_EXECUTABLE} -m cython --version
                   RESULT_VARIABLE cython_result
                   ERROR_VARIABLE cython_output)
 
@@ -67,7 +67,7 @@ if(CYTHON_EXECUTABLE)
     string(REGEX REPLACE "^Cython version ([0-9]+\\.[0-9]+).*" "\\1" CYTHON_VERSION "${cython_output}")
   else()
     string(REGEX REPLACE "\n" "" cython_output "${cython_output}")
-    message("   Did not find cython${PYTHON_VERSION}: ${cython_output}")
+    message("   Did not find cython${Python3_VERSION}: ${cython_output}")
   endif()
 
 #   if(NOT ${CYTHON_version_result} EQUAL 0)
@@ -84,6 +84,6 @@ endif()
 
 include(FindPackageHandleStandardArgs)
 # FIND_PACKAGE_HANDLE_STANDARD_ARGS(Cython REQUIRED_VARS CYTHON_EXECUTABLE)
-find_package_handle_standard_args(Cython${PYTHON_VERSION} DEFAULT_MSG CYTHON_VERSION)
+find_package_handle_standard_args(Cython${Python3_VERSION} DEFAULT_MSG CYTHON_VERSION)
 
 mark_as_advanced(CYTHON_EXECUTABLE)

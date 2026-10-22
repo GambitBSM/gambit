@@ -16,7 +16,7 @@
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
-#include "gambit/Backends/frontends/simplexs_1_0.hpp"
+#include "gambit/Backends/frontends/simple_xs_1_0.hpp"
 
 BE_INI_FUNCTION {}
 END_BE_INI_FUNCTION

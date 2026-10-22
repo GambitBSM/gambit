@@ -600,7 +600,7 @@ namespace Gambit
        {
          if(comm_ready())
          {
-           // Broadcast signal to all processes (might not work if something errornous is occuring)
+           // Broadcast signal to all processes (might not work if something errornous is occurring)
            #ifdef SIGNAL_DEBUG
            logger() << LogTags::core << LogTags::info << "Broadcasting shutcode code " <<shutdown_name(shutdown_code)<< " with MPI tag "<<signalComm->mytag<< EOM;
            #endif

@@ -71,10 +71,10 @@ Configure GAMBIT.  Key optional extras:
   `-D WITH_MPI=ON` if you want scanners to be parallelised
   `-D WITH_HEPMC=ON` if you want HepMC enabled
 ```
-cmake -D PYTHON_EXECUTABLE=/usr/bin/python3 -D PYTHON_LIBRARY=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/Current/Python3 -D PYTHON_INCLUDE_DIR=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Headers ..
+cmake -D Python3_EXECUTABLE=/usr/bin/python3 -D Python3_LIBRARY=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/Current/Python3 -D Python3_INCLUDE_DIR=/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Headers ..
 ```
 
-Now, see the instructions in the main README.md for possible make targets, and CMAKE_FLAGS.md for other cmake options.
+Now, see the instructions in the main README.md for possible make targets, and BUILD_OPTIONS.md for other cmake options.
 
 
 If you want to use Restframes, GReAT or the HepLike backend, prepare for some pain: you also need ROOT.

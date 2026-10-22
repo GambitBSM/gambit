@@ -12,9 +12,9 @@ zeus-mcmc
 numba
 pyhf
 pandas
+paraprof @ git+https://github.com/anderkve/paraprof.git@main
 matplotlib
 tensorflow
 iminuit
 future
 dill
-binminpy @ git+https://github.com/anderkve/binminpy.git@main

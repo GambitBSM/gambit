@@ -1,0 +1,7 @@
+Summary: Search for direct production of winos and higgsinos in events with two same-charge leptons or three leptons
+InspireID: 2660233
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["2L", "3L"]
+Authors: ["Ida-Marie Johansson"]

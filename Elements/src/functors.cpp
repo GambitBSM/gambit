@@ -1369,7 +1369,7 @@ namespace Gambit
         utils_error().raise(LOCAL_INFO,errmsg);
       }
 
-      //Seperate the backend from the versions
+      //Separate the backend from the versions
       str be = be_plus_versions.at(0);
       std::vector<str> versions(be_plus_versions.begin()+1,be_plus_versions.end());
       if (versions.empty()) versions.push_back("any");

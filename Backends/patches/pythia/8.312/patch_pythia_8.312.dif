@@ -1,6 +1,6 @@
 diff -rupN pythia8312_original/include/Pythia8/Event.h pythia8312_patched/include/Pythia8/Event.h
 --- pythia8312_original/include/Pythia8/Event.h	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/include/Pythia8/Event.h	2024-10-22 15:46:32.275522918 +0200
++++ pythia8312_patched/include/Pythia8/Event.h	2025-01-21 14:02:27.014813631 +0100
 @@ -555,7 +555,7 @@ public:
  
    // List the particles in an event.
@@ -12,7 +12,7 @@ diff -rupN pythia8312_original/include/Pythia8/Event.h pythia8312_patched/includ
    void popBack(int nRemove = 1) { if (nRemove ==1) entry.pop_back();
 diff -rupN pythia8312_original/include/Pythia8/GAMBIT_hepmc_writer.h pythia8312_patched/include/Pythia8/GAMBIT_hepmc_writer.h
 --- pythia8312_original/include/Pythia8/GAMBIT_hepmc_writer.h	1970-01-01 01:00:00.000000000 +0100
-+++ pythia8312_patched/include/Pythia8/GAMBIT_hepmc_writer.h	2024-10-22 17:20:47.538844128 +0200
++++ pythia8312_patched/include/Pythia8/GAMBIT_hepmc_writer.h	2025-01-21 14:02:27.014813631 +0100
 @@ -0,0 +1,105 @@
 +#ifndef Pythia8_GAMBIT_hepmc_writer_H
 +#define Pythia8_GAMBIT_hepmc_writer_H
@@ -121,7 +121,7 @@ diff -rupN pythia8312_original/include/Pythia8/GAMBIT_hepmc_writer.h pythia8312_
 +#endif // Pythia8_GAMBIT_hepmc_writer_H
 diff -rupN pythia8312_original/include/Pythia8/Info.h pythia8312_patched/include/Pythia8/Info.h
 --- pythia8312_original/include/Pythia8/Info.h	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/include/Pythia8/Info.h	2024-10-22 17:29:58.242980364 +0200
++++ pythia8312_patched/include/Pythia8/Info.h	2025-01-21 14:02:27.018813897 +0100
 @@ -268,7 +268,7 @@ public:
    int    iBMPI(int i)         const {return iBMPISave[i];}
  
@@ -133,7 +133,7 @@ diff -rupN pythia8312_original/include/Pythia8/Info.h pythia8312_patched/include
    string nameProc(int i = 0)  const {
 diff -rupN pythia8312_original/include/Pythia8/PartonDistributions.h pythia8312_patched/include/Pythia8/PartonDistributions.h
 --- pythia8312_original/include/Pythia8/PartonDistributions.h	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/include/Pythia8/PartonDistributions.h	2024-10-22 13:22:40.856993678 +0200
++++ pythia8312_patched/include/Pythia8/PartonDistributions.h	2025-01-21 14:02:27.018813897 +0100
 @@ -330,11 +330,13 @@ private:
  
  class MSTWpdf : public PDF {
@@ -196,7 +196,7 @@ diff -rupN pythia8312_original/include/Pythia8/PartonDistributions.h pythia8312_
      loglogQ2maxmin(), logX2min(), loggerPtr(loggerPtrIn)
 diff -rupN pythia8312_original/include/Pythia8/ProcessLevel.h pythia8312_patched/include/Pythia8/ProcessLevel.h
 --- pythia8312_original/include/Pythia8/ProcessLevel.h	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/include/Pythia8/ProcessLevel.h	2024-10-22 17:13:09.771458653 +0200
++++ pythia8312_patched/include/Pythia8/ProcessLevel.h	2025-01-21 14:02:27.018813897 +0100
 @@ -45,7 +45,7 @@ public:
  
    // Initialization.
@@ -228,7 +228,7 @@ diff -rupN pythia8312_original/include/Pythia8/ProcessLevel.h pythia8312_patched
    vector<ProcessContainer*> container2Ptrs;
 diff -rupN pythia8312_original/include/Pythia8/Pythia.h pythia8312_patched/include/Pythia8/Pythia.h
 --- pythia8312_original/include/Pythia8/Pythia.h	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/include/Pythia8/Pythia.h	2024-10-22 17:06:11.242451541 +0200
++++ pythia8312_patched/include/Pythia8/Pythia.h	2025-01-21 14:02:27.018813897 +0100
 @@ -79,7 +79,7 @@ public:
    // object instead of XML files (to speed up multiple initialisations).
    Pythia(Settings& settingsIn, ParticleData& particleDataIn,
@@ -261,7 +261,7 @@ diff -rupN pythia8312_original/include/Pythia8/Pythia.h pythia8312_patched/inclu
  
 diff -rupN pythia8312_original/include/Pythia8/SusyCouplings.h pythia8312_patched/include/Pythia8/SusyCouplings.h
 --- pythia8312_original/include/Pythia8/SusyCouplings.h	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/include/Pythia8/SusyCouplings.h	2024-10-22 16:18:43.077113762 +0200
++++ pythia8312_patched/include/Pythia8/SusyCouplings.h	2025-01-21 14:02:27.018813897 +0100
 @@ -10,6 +10,9 @@
  #ifndef Pythia8_SusyCouplings_H
  #define Pythia8_SusyCouplings_H
@@ -274,7 +274,7 @@ diff -rupN pythia8312_original/include/Pythia8/SusyCouplings.h pythia8312_patche
  #include "Pythia8/StandardModel.h"
 diff -rupN pythia8312_original/include/Pythia8/SusyLesHouches.h pythia8312_patched/include/Pythia8/SusyLesHouches.h
 --- pythia8312_original/include/Pythia8/SusyLesHouches.h	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/include/Pythia8/SusyLesHouches.h	2024-10-22 12:14:00.119860894 +0200
++++ pythia8312_patched/include/Pythia8/SusyLesHouches.h	2025-01-21 14:02:27.018813897 +0100
 @@ -15,6 +15,10 @@
  
  #include "Pythia8/PythiaStdlib.h"
@@ -325,7 +325,7 @@ diff -rupN pythia8312_original/include/Pythia8/SusyLesHouches.h pythia8312_patch
  
 diff -rupN pythia8312_original/include/Pythia8Plugins/GeneratorInput.h pythia8312_patched/include/Pythia8Plugins/GeneratorInput.h
 --- pythia8312_original/include/Pythia8Plugins/GeneratorInput.h	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/include/Pythia8Plugins/GeneratorInput.h	2024-10-22 12:21:48.603955312 +0200
++++ pythia8312_patched/include/Pythia8Plugins/GeneratorInput.h	2025-01-21 14:02:27.018813897 +0100
 @@ -196,1043 +196,6 @@ private:
  
  };
@@ -1372,7 +1372,7 @@ diff -rupN pythia8312_original/include/Pythia8Plugins/GeneratorInput.h pythia831
  #endif //  Pythia8_GeneratorInput_H
 diff -rupN pythia8312_original/include/Pythia8Plugins/JetMatching.h pythia8312_patched/include/Pythia8Plugins/JetMatching.h
 --- pythia8312_original/include/Pythia8Plugins/JetMatching.h	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/include/Pythia8Plugins/JetMatching.h	2024-10-23 15:37:01.967329816 +0200
++++ pythia8312_patched/include/Pythia8Plugins/JetMatching.h	2025-01-21 14:02:27.022814161 +0100
 @@ -45,37 +45,6 @@ class HJSlowJet: public SlowJet {
  
  };
@@ -3072,7 +3072,7 @@ diff -rupN pythia8312_original/include/Pythia8Plugins/JetMatching.h pythia8312_p
  
 diff -rupN pythia8312_original/src/Event.cc pythia8312_patched/src/Event.cc
 --- pythia8312_original/src/Event.cc	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/src/Event.cc	2024-10-22 16:34:17.747174486 +0200
++++ pythia8312_patched/src/Event.cc	2025-01-21 14:02:27.022814161 +0100
 @@ -753,15 +753,15 @@ void Event::remove(int iFirst, int iLast
  // Print an event.
  
@@ -3168,7 +3168,7 @@ diff -rupN pythia8312_original/src/Event.cc pythia8312_patched/src/Event.cc
  }
 diff -rupN pythia8312_original/src/GeneratorInput.cc pythia8312_patched/src/GeneratorInput.cc
 --- pythia8312_original/src/GeneratorInput.cc	1970-01-01 01:00:00.000000000 +0100
-+++ pythia8312_patched/src/GeneratorInput.cc	2024-10-22 12:33:09.414452882 +0200
++++ pythia8312_patched/src/GeneratorInput.cc	2025-01-21 14:02:27.022814161 +0100
 @@ -0,0 +1,1046 @@
 +#include "Pythia8Plugins/GeneratorInput.h"
 +
@@ -4218,7 +4218,7 @@ diff -rupN pythia8312_original/src/GeneratorInput.cc pythia8312_patched/src/Gene
 +} // end namespace Pythia8
 diff -rupN pythia8312_original/src/Info.cc pythia8312_patched/src/Info.cc
 --- pythia8312_original/src/Info.cc	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/src/Info.cc	2024-10-22 17:35:19.340695421 +0200
++++ pythia8312_patched/src/Info.cc	2025-01-21 14:02:27.022814161 +0100
 @@ -209,9 +209,9 @@ double Info::getGroupWeight(int iGW) con
  
  // List of all hard processes switched on.
@@ -4233,7 +4233,7 @@ diff -rupN pythia8312_original/src/Info.cc pythia8312_patched/src/Info.cc
    return codesNow;
 diff -rupN pythia8312_original/src/JetMatching.cc pythia8312_patched/src/JetMatching.cc
 --- pythia8312_original/src/JetMatching.cc	1970-01-01 01:00:00.000000000 +0100
-+++ pythia8312_patched/src/JetMatching.cc	2024-10-23 15:36:52.843302383 +0200
++++ pythia8312_patched/src/JetMatching.cc	2025-01-21 14:02:27.022814161 +0100
 @@ -0,0 +1,1692 @@
 +#include "Pythia8Plugins/JetMatching.h"
 +
@@ -5929,7 +5929,7 @@ diff -rupN pythia8312_original/src/JetMatching.cc pythia8312_patched/src/JetMatc
 +} // end namespace Pythia8
 diff -rupN pythia8312_original/src/PhaseSpace.cc pythia8312_patched/src/PhaseSpace.cc
 --- pythia8312_original/src/PhaseSpace.cc	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/src/PhaseSpace.cc	2024-10-22 18:35:38.162970792 +0200
++++ pythia8312_patched/src/PhaseSpace.cc	2025-01-21 14:02:27.022814161 +0100
 @@ -250,8 +250,13 @@ void PhaseSpace::decayKinematics( Event&
      bool hasRes = false;
      for (int iRes = iResBeg; iRes <= iResEnd; ++iRes)
@@ -5985,7 +5985,7 @@ diff -rupN pythia8312_original/src/PhaseSpace.cc pythia8312_patched/src/PhaseSpa
        // Ready to allow new test of matrix element.
 diff -rupN pythia8312_original/src/ProcessLevel.cc pythia8312_patched/src/ProcessLevel.cc
 --- pythia8312_original/src/ProcessLevel.cc	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/src/ProcessLevel.cc	2024-10-22 16:27:08.126061794 +0200
++++ pythia8312_patched/src/ProcessLevel.cc	2025-01-21 14:02:27.022814161 +0100
 @@ -7,6 +7,21 @@
  
  #include "Pythia8/ProcessLevel.h"
@@ -6108,7 +6108,7 @@ diff -rupN pythia8312_original/src/ProcessLevel.cc pythia8312_patched/src/Proces
      if (containerPtrs[iContainer]->newSigmaMax()) {
 diff -rupN pythia8312_original/src/Pythia.cc pythia8312_patched/src/Pythia.cc
 --- pythia8312_original/src/Pythia.cc	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/src/Pythia.cc	2024-10-22 17:25:54.508112853 +0200
++++ pythia8312_patched/src/Pythia.cc	2025-01-21 14:02:27.022814161 +0100
 @@ -488,7 +488,7 @@ bool Pythia::readFile(istream& is, bool
  
  // Routine to initialize with the variable values of the Beams kind.
@@ -6139,7 +6139,7 @@ diff -rupN pythia8312_original/src/Pythia.cc pythia8312_patched/src/Pythia.cc
      }
 diff -rupN pythia8312_original/src/ResonanceDecays.cc pythia8312_patched/src/ResonanceDecays.cc
 --- pythia8312_original/src/ResonanceDecays.cc	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/src/ResonanceDecays.cc	2024-10-22 12:44:23.037283549 +0200
++++ pythia8312_patched/src/ResonanceDecays.cc	2025-01-21 14:02:27.022814161 +0100
 @@ -189,11 +189,15 @@ bool ResonanceDecays::pickMasses() {
      mSumMin     += mMinBW[i];
    }
@@ -6161,29 +6161,31 @@ diff -rupN pythia8312_original/src/ResonanceDecays.cc pythia8312_patched/src/Res
    if (mSum + MSAFETY < mMother) {
 diff -rupN pythia8312_original/src/SigmaSUSY.cc pythia8312_patched/src/SigmaSUSY.cc
 --- pythia8312_original/src/SigmaSUSY.cc	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/src/SigmaSUSY.cc	2024-10-22 18:43:07.610184794 +0200
-@@ -24,12 +24,8 @@ double Sigma2SUSY::weightDecay( Event& p
++++ pythia8312_patched/src/SigmaSUSY.cc	2025-01-21 14:04:12.047101648 +0100
+@@ -23,24 +23,32 @@ double Sigma2SUSY::weightDecay( Event& p
+   // Do nothing if decays present already at input.
  
    // Identity of mother of decaying resonance(s).
-   int idMother = process[process[iResBeg].mother1()].idAbs();
--
+-  int idMother = process[process[iResBeg].mother1()].idAbs();
++  int idMother    = process[process[iResBeg].mother1()].id();
++  int idMotherAbs = abs(idMother);
+ 
 -  // Do nothing for squarks/sleptons.
 -  if ( (idMother > 1000000 && idMother < 1000020)
 -    || (idMother > 2000000 && idMother < 2000020)
 -    || idMother == 1000021) return 1.0;
--
-+  int idMotherAbs = abs(idMother);
-+  
++  //cout << "Sigma2SUSY::weightDecay idMother " << idMother  << endl;
++  //cout << "Sigma2SUSY::weightDecay iResBeg " << iResBeg << " iResEnd " << iResEnd << endl;
+ 
    // For Higgs decay hand over to standard routine.
    if (idMother == 25 || idMother == 35 || idMother == 36)
      return weightHiggsDecay( process, iResBeg, iResEnd);
-@@ -38,9 +34,18 @@ double Sigma2SUSY::weightDecay( Event& p
-   if (idMother == 6)
-     return weightTopDecay( process, iResBeg, iResEnd);
  
--  // For Neutralino(i) decay hand over to standard routine.
--  if ( flag("SUSYResonance:3BodyMatrixElement")
--    && (idMother == 1000023 || idMother == 1000025 || idMother == 1000035) ) {
+   // For top decay hand over to standard routine.
+-  if (idMother == 6)
++  if (idMotherAbs == 6)
+     return weightTopDecay( process, iResBeg, iResEnd);
++  
 +  // Return if SUSY 3-body decays are not turned on
 +  if ( !flag("SUSYResonance:3BodyMatrixElement") ) return(1.0);
 +      
@@ -6191,7 +6193,10 @@ diff -rupN pythia8312_original/src/SigmaSUSY.cc pythia8312_patched/src/SigmaSUSY
 +  if ( (idMotherAbs > 1000000 && idMotherAbs < 1000020)
 +    || (idMotherAbs > 2000000 && idMotherAbs < 2000020)
 +    || idMother == 1000021) return 1.0;
-+
+ 
+-  // For Neutralino(i) decay hand over to standard routine.
+-  if ( flag("SUSYResonance:3BodyMatrixElement")
+-    && (idMother == 1000023 || idMother == 1000025 || idMother == 1000035) ) {
 +  // Neutralino and chargino decays
 +  if ( idMotherAbs == 1000022 || idMotherAbs == 1000023 || idMotherAbs == 1000025
 +                              || idMotherAbs == 1000035 || idMotherAbs == 1000045
@@ -6199,15 +6204,13 @@ diff -rupN pythia8312_original/src/SigmaSUSY.cc pythia8312_patched/src/SigmaSUSY
  
      // Nj -> Ni f fbar
      if (iResEnd - iResBeg != 2) return(1.0);
-@@ -48,66 +53,102 @@ double Sigma2SUSY::weightDecay( Event& p
+@@ -48,66 +56,127 @@ double Sigma2SUSY::weightDecay( Event& p
      int iF   = iResBeg + 1;
      int iFbar= iResBeg + 2;
      int iT   = process[iW1].mother1();
 -    if( iT <= 0 ) return(1.0);
 -    int idDau= process[iW1].idAbs();
-+    if( iT  <= 0 ) return(1.0);
-+    int idDau= process[iW1].id();
- 
+-
 -    // Neutralino decays to charginos not yet implemented
 -    if (idDau == 1000024 || idDau == 1000037 ) return(1.0);
 -    if (idDau != 1000022 && idDau != 1000023 && idDau != 1000025
@@ -6216,6 +6219,11 @@ diff -rupN pythia8312_original/src/SigmaSUSY.cc pythia8312_patched/src/SigmaSUSY
 -    } else {
 -      if( process[iF].idAbs() != process[iFbar].idAbs() ) return(1.0);
 -      int idmo = -1; int iddau = -1;
++    if( iT  <= 0 ) return(1.0);
++    int idDau= process[iW1].id();
++    
++    //cout << "Sigma2SUSY::weightDecay idDau " << idDau << " idF " << process[iF].id() << " idFbar " << process[iFbar].id() << endl;
++    
 +    if( process[iF].idAbs() > 19 || process[iFbar].idAbs() > 19 ) return(1.0);
 +    if ( idDau == 1000022 || idDau ==  1000023 || idDau ==  1000025
 +                          || idDau ==  1000035 || idDau ==  1000045
@@ -6263,6 +6271,8 @@ diff -rupN pythia8312_original/src/SigmaSUSY.cc pythia8312_patched/src/SigmaSUSY
 -      localDecay.alpEM = 1;
 -      localDecay.id1 = process[iF].id();
 -      localDecay.id2 = process[iFbar].id();
++      //cout << idmo << " " <<  iddau << endl;
++      
 +      // Construct cross section object for decay
 +      Sigma2SUSY* localDecay = nullptr;
 +      // Neutralino idmo to neutralino iddau decay
@@ -6273,7 +6283,7 @@ diff -rupN pythia8312_original/src/SigmaSUSY.cc pythia8312_patched/src/SigmaSUSY
 +      else if( mocha && daucha ) localDecay = new Sigma2qqbar2charchar(idmo,iddau,0);
 +      // Neutralino idmo to chargino iddau decay
 +      else if( moneu && daucha ) localDecay = new Sigma2qqbar2charchi0(iddau,idmo,0);
-+
++      
 +      // Set kinematic for amplitude calculation
 +      localDecay->initInfoPtr(*infoPtr);
 +      localDecay->init(nullptr, nullptr);
@@ -6297,15 +6307,22 @@ diff -rupN pythia8312_original/src/SigmaSUSY.cc pythia8312_patched/src/SigmaSUSY
 +      localDecay->m4 = xm4;
 +      localDecay->s3 = xm3*xm3;
 +      localDecay->s4 = xm4*xm4;
-+      localDecay->sH = (process[iF].p()+process[iFbar].p()).m2Calc();
++      // Amplitude calculation uses massless fermions
++      // We shift the four-momenta for weight calculation to zero fermion masses conserving total four-momentum
++      //cout << "Old mass: " << process[iF].p().mCalc() << " " << process[iFbar].p().mCalc() << endl;
++      Vec4 pF = process[iF].p();
++      Vec4 pFbar = process[iFbar].p();
++      pShift(pF,pFbar,0,0);
++      //cout << "New mass: " << pF.mCalc() << " " << pFbar.mCalc() << endl;
++      localDecay->sH = (pF+pFbar).m2Calc();
 +      localDecay->sH2 = pow2(localDecay->sH);
-+      localDecay->tH = (process[iF].p()-process[iT].p()).m2Calc();
++      localDecay->tH = (pF-process[iT].p()).m2Calc();
 +      localDecay->uH = localDecay->s3+localDecay->s4-localDecay->tH-localDecay->sH;
 +      localDecay->sigmaKin();
-+
++      
 +      // Modify cross section so that it becomes amplitude and use it as a weight for the decay
 +      double wt = -localDecay->sigmaHat()*localDecay->sH2;
-+      
++            
        // Estimate maximum weight by sampling kinematic extremes
 -      // Case I:  neutralino(i) at rest
 -      localDecay.sH = pow2(xm4-xm3);
@@ -6329,6 +6346,7 @@ diff -rupN pythia8312_original/src/SigmaSUSY.cc pythia8312_patched/src/SigmaSUSY
 +      localDecay->tH = localDecay->s3;
 +      localDecay->uH = localDecay->s3+localDecay->s4-localDecay->tH-localDecay->sH;
 +      localDecay->sigmaKin();
++      //wtmax += -localDecay->sigmaHat()*localDecay->sH2;
 +      wtmax = max(wtmax,-localDecay->sigmaHat()*localDecay->sH2);
        // Case III: antifermion at rest
 -      localDecay.uH = localDecay.s3;
@@ -6338,22 +6356,77 @@ diff -rupN pythia8312_original/src/SigmaSUSY.cc pythia8312_patched/src/SigmaSUSY
 +      localDecay->uH = localDecay->s3;
 +      localDecay->tH = localDecay->s3+localDecay->s4-localDecay->tH-localDecay->sH;
 +      localDecay->sigmaKin();
++      //wtmax += -localDecay->sigmaHat()*localDecay->sH2;
 +      wtmax = max(wtmax,-localDecay->sigmaHat()*localDecay->sH2);
 +      // Case IV: fermions colinear
 +      localDecay->sH = 0;
 +      localDecay->uH = 0.5*(localDecay->s3+localDecay->s4);
 +      localDecay->tH = 0.5*(localDecay->s3+localDecay->s4);
 +      localDecay->sigmaKin();
++      //wtmax += -localDecay->sigmaHat()*localDecay->sH2;
 +      wtmax = max(wtmax,-localDecay->sigmaHat()*localDecay->sH2);
++      //cout << "wt: " << wt << " wtmax: " << wtmax << endl;
++      
++      if(wt < 0 || wt/wtmax > 1) {
++        cout << "Event with decay weight < 0 or larger than maximum estimate" << endl;
++        cout << std::scientific << "wt: " << wt << " wtmax: " << wtmax << " "  << wt/wtmax << endl;
++        cout << "Decay kinematics:" << endl;
++        cout << setw(8) << process[iT].id() << " " << xm3 << " " << process[iT].px() << " " << process[iT].py() << " " << process[iT].pz() << " " << process[iT].e() << endl;
++        cout << setw(8) << process[iW1].id() << " " << xm4 << " " << process[iW1].px() << " " << process[iW1].py() << " " << process[iW1].pz() << " " << process[iW1].e() << endl;
++        cout << setw(8) << process[iF].id() << " " << process[iF].m() << " " << process[iF].px() << " " << process[iF].py() << " " << process[iF].pz() << " " << process[iF].e() << endl;
++        cout << setw(8) << process[iFbar].id() << " " << process[iFbar].m() << " " << process[iFbar].px() << " " << process[iFbar].py() << " " << process[iFbar].pz() << " " << process[iFbar].e() << endl;
++      }
 +      
 +      delete localDecay;
 +      
        return(wt/wtmax);
      }
    }
+@@ -184,7 +253,7 @@ void Sigma2qqbar2chi0chi0::sigmaKin() {
+ // Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence.
+ 
+ double Sigma2qqbar2chi0chi0::sigmaHat() {
+-
++  
+   // Only allow quark-antiquark incoming states
+   if (id1*id2 >= 0) {
+     return 0.0;
+@@ -320,9 +389,15 @@ double Sigma2qqbar2chi0chi0::sigmaHat()
+   // LL (ha = -1, hb = +1) (divided by 4 for average)
+   weight += norm(QuLL) * ui * uj + norm(QtLL) * ti * tj
+     + 2 * real(conj(QuLL) * QtLL) * facMS;
++  
++  //cout << "QuLL " << QuLL << "QtLL "  << QtLL << endl;
++  
+   // RR (ha =  1, hb = -1) (divided by 4 for average)
+   weight += norm(QtRR) * ti * tj + norm(QuRR) * ui * uj
+     + 2 * real(conj(QuRR) * QtRR) * facMS;
++  
++  //cout << "QuRR " << QuRR << "QtRR "  << QtRR << endl;
++
+   // RL (ha =  1, hb =  1) (divided by 4 for average)
+   weight += norm(QuRL) * ui * uj + norm(QtRL) * ti * tj
+     + real(conj(QuRL) * QtRL) * facLR;
+@@ -389,6 +464,8 @@ void Sigma2qqbar2charchi0::sigmaKin() {
+ 
+ double Sigma2qqbar2charchi0::sigmaHat() {
+ 
++  //cout <<"id1: " << id1 << " id2: " << id2 << " " << endl;
++  
+   // Only allow particle-antiparticle incoming states
+   if (id1*id2 >= 0) {
+     return 0.0;
+@@ -397,6 +474,7 @@ double Sigma2qqbar2charchi0::sigmaHat()
+   // Only allow incoming states with sum(charge) = final state
+   if (abs(id1) % 2 == abs(id2) % 2) return 0.0;
+   int isPos  = (id3chi > 0 ? 1 : 0);
++  //cout << "isPos: " << isPos << endl;
+   if (id1 < 0 && id1 > -19 && abs(id1) % 2 == 1-isPos ) return 0.0;
+   else if (id1 > 0 && id1 < 19 && abs(id1) % 2 == isPos ) return 0.0;
+ 
 diff -rupN pythia8312_original/src/SusyLesHouches.cc pythia8312_patched/src/SusyLesHouches.cc
 --- pythia8312_original/src/SusyLesHouches.cc	2024-05-24 04:06:00.000000000 +0200
-+++ pythia8312_patched/src/SusyLesHouches.cc	2024-10-22 13:49:07.412146903 +0200
++++ pythia8312_patched/src/SusyLesHouches.cc	2025-01-21 14:02:27.022814161 +0100
 @@ -20,23 +20,33 @@ namespace Pythia8 {
  int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
    bool useDecayIn) {

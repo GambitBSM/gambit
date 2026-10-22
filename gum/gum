@@ -23,7 +23,7 @@ if [ -f ${cmake_variables_file} ]
 then
 
   # Extract location of python executable
-  python_exec=`awk -F\" '/^PYTHON_EXECUTABLE/{print $2}' ${cmake_variables_file}`
+  python_exec=`awk -F\" '/^Python3_EXECUTABLE/{print $2}' ${cmake_variables_file}`
 
   # If the variable does not appear on the cmake_variable file, something went wrong
   if [ -z ${python_exec} ]

@@ -119,13 +119,10 @@ ini_function_in_header = True
 # the BOSS-generated headers in GAMBIT.
 
 pragmas_begin = [
-    '#include "gambit/Utils/begin_ignore_warnings_eigen.hpp"', # Contains pragmas to suppress warnings from Eigen
 ]
 
 pragmas_end = [
-    '#include "gambit/Utils/end_ignore_warnings.hpp"', # Restores the warning settings
 ]
-
 
 # ~~~~~ Extra code to surround BOSS-generated code included in GAMBIT ~~~~~
 

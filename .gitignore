@@ -70,10 +70,13 @@ contrib/MassSpectra/flexiblesusy/config/flexiblesusy-version
 contrib/pybind11/
 contrib/HepMC3-*/
 contrib/YODA-*/
+contrib/fastjet-*/
+contrib/fjcontrib-*/
 
 # Local configuration files
 config/*_locations.yaml
 config/gambit_bits.yaml
+config/gambit_backend_interfaces.yaml
 config/gambit_backends.yaml
 
 # Scratch files
@@ -85,6 +88,7 @@ Backends/installed/**
 ScannerBit/downloaded/**
 ScannerBit/installed/**
 ScannerBit/lib/plugin_libraries.list
+downloaded_tarball_paths.txt
 
 # GUM files
 *.mug
