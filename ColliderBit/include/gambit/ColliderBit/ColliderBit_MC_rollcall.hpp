@@ -65,6 +65,11 @@
     DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
     #undef FUNCTION
 
+    #define FUNCTION InitialTotalCrossSection_smoking
+    START_FUNCTION(map_str_xsec_container)
+    DEPENDENCY(PerformInitialCrossSection_smoking, initialxsec_container)
+    #undef FUNCTION
+
     #define FUNCTION InitialTotalCrossSection_YAMLparam
     START_FUNCTION(map_str_xsec_container)
     ALLOW_MODELS(ColliderBit_SLHA_scan_model)
@@ -86,6 +91,11 @@
     #define FUNCTION InitialProcessCrossSections_Pythia
     START_FUNCTION(map_str_map_int_process_xsec)
     DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
+    #undef FUNCTION
+
+    #define FUNCTION InitialProcessCrossSections_smoking
+    START_FUNCTION(map_str_map_int_process_xsec)
+    DEPENDENCY(PerformInitialCrossSection_smoking, initialxsec_container)
     #undef FUNCTION
   #undef CAPABILITY
 

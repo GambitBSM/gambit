@@ -101,8 +101,14 @@ Rules:
   #        - TimeShower:pTmin = 2
   #        - 23:mMin = 0.1
   #        - 24:mMin = 0.1
-  
-  - capability: PerformInitialCrossSection
+
+  - capability: InitialTotalCrossSection
+    function: InitialTotalCrossSection_smoking
+
+  - capability: InitialProcessCrossSections
+    function: InitialProcessCrossSections_smoking
+
+  - capability: PerformInitialCrossSection_smoking
     function: PerformInitialCrossSection_smoking
     options:
       order: 0

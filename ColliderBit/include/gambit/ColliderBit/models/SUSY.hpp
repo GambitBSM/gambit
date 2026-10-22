@@ -53,6 +53,11 @@
     DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct)
     #undef FUNCTION
 
+  #undef CAPABILITY
+
+  // Perform initial cross-section estimate using the smoking backend
+  #define CAPABILITY PerformInitialCrossSection_smoking
+
     #define FUNCTION PerformInitialCrossSection_smoking
     START_FUNCTION(initialxsec_container)
     DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct)
