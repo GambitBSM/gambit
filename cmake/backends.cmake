@@ -2245,7 +2245,16 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} libRivet.so
     INSTALL_COMMAND ""
   )
-  BOSS_backend(${name} ${ver} "-I${HDF5_INCLUDE_DIR} -I${HDF5_INCLUDE_DIRS}")
+  # HDF5_INCLUDE_DIR(S) may be multi-item lists (e.g. hdf5 + libaec on Homebrew),
+  # so build one -I flag per directory instead of embedding the list in a string.
+  set(BOSS_includes_HDF5 "")
+  foreach(hdf5_dir ${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIRS})
+    list(APPEND BOSS_includes_HDF5 "-I${hdf5_dir}")
+  endforeach()
+  if(BOSS_includes_HDF5)
+    list(REMOVE_DUPLICATES BOSS_includes_HDF5)
+  endif()
+  BOSS_backend(${name} ${ver} ${BOSS_includes_HDF5})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
