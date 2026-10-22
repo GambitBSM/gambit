@@ -664,6 +664,40 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
+# smoking
+# Builds libsmoking_gambit.so via the smoking cmake build system.
+# The shared library exposes three extern "C" functions:
+#   init_SMOKING, Calculate_cross_section, finalise_SMOKING
+set(name "smoking")
+set(ver "1.0.0")
+set(lib "libsmoking_gambit")
+set(dl "https://github.com/ahye/smoking/archive/refs/heads/gambit_interface.zip")
+set(md5 "a7f0eafbeae04b9935dacf0f0dbf5c7f")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+
+set(smoking_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND echo "WARNING: This is a WIP backend until Smoking is publicly released. Please provide a tarball to use this backend. Look forward to updates from the Oslo group :)" && ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver} # TODO: Delete this line when smoking is publicly released
+    #DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    PATCH_COMMAND ""
+    CMAKE_ARGS
+      -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+      -DCMAKE_CXX_FLAGS=${smoking_CXX_FLAGS}
+      -DCMAKE_C_FLAGS=${BACKEND_C_FLAGS}
+      -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
+      -DCMAKE_BUILD_TYPE=Debug #  TODO: Change to Release
+      -DPYTHON_EXECUTABLE=${PYTHON_EXECUTABLE}
+      -DWITH_GAMBIT_INTERFACE=ON
+    BUILD_COMMAND ${MAKE_PARALLEL} smoking_gambit
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
 
 # DDCalc
 set(name "ddcalc")

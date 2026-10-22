@@ -65,6 +65,11 @@
     DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
     #undef FUNCTION
 
+    #define FUNCTION InitialTotalCrossSection_smoking
+    START_FUNCTION(map_str_xsec_container)
+    DEPENDENCY(PerformInitialCrossSection_smoking, initialxsec_container)
+    #undef FUNCTION
+
     #define FUNCTION InitialTotalCrossSection_YAMLparam
     START_FUNCTION(map_str_xsec_container)
     ALLOW_MODELS(ColliderBit_SLHA_scan_model)
@@ -86,6 +91,11 @@
     #define FUNCTION InitialProcessCrossSections_Pythia
     START_FUNCTION(map_str_map_int_process_xsec)
     DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
+    #undef FUNCTION
+
+    #define FUNCTION InitialProcessCrossSections_smoking
+    START_FUNCTION(map_str_map_int_process_xsec)
+    DEPENDENCY(PerformInitialCrossSection_smoking, initialxsec_container)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -162,6 +172,13 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     ALLOW_MODELS(ColliderBit_SLHA_scan_model)
     #undef FUNCTION
+
+    /// Get the Total CrossSection by copying the Initial Cross Section (useful when evaluating with an xsec calculator other than Pythia)
+    #define FUNCTION useInitialCrossSectionasFinalTotalCrossSection
+    START_FUNCTION(xsec_container)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
+    #undef FUNCTION
   #undef CAPABILITY
 
   /// Output info on TotalCrossSection as
@@ -227,7 +244,7 @@
 
   /// Process-level cross-sections
   /// @{
-  /// A map between Pythia process codes and cross-sections
+  /// A map between process codes and cross-sections
   #define CAPABILITY ProcessCrossSectionsMap
   START_CAPABILITY
     #define FUNCTION getProcessCrossSectionsMap
@@ -236,6 +253,13 @@
     DEPENDENCY(ActiveProcessCodes, std::vector<int>)
     DEPENDENCY(ActiveProcessCodeToPIDPairsMap, multimap_int_PID_pair)
     DEPENDENCY(PIDPairCrossSectionsMap, map_PID_pair_PID_pair_xsec)
+    #undef FUNCTION
+    
+    // Copy the initial ProcessCrossSectionMap. Useful when calculating xsecs with an external calculator
+    #define FUNCTION useInitialProcessCrossSectionsMapasFinal
+    START_FUNCTION(map_int_process_xsec)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    DEPENDENCY(InitialProcessCrossSections, map_str_map_int_process_xsec)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -247,6 +271,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(ActivePIDPairs, vec_PID_pair)
     #undef FUNCTION
+  
   #undef CAPABILITY
 
   /// Output PID pair cross-sections as a
