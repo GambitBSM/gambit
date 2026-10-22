@@ -2245,6 +2245,19 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} libRivet.so
     INSTALL_COMMAND ""
   )
+  # On macOS, Rivet's python extension (core.so) is linked against the build-tree
+  # src/.libs/libRivet.dylib, while GAMBIT (and Contur's init_by_GAMBIT.py) load the
+  # identical copy at local/lib/libRivet.so. dyld treats these as two separate images,
+  # so the analysis plugins register with one copy and the python AnalysisLoader looks
+  # in the other (empty) one. Point core.so at local/lib/libRivet.so so only one is loaded.
+  if(pyext AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    ExternalProject_Add_Step(${name}_${ver} fix-pyext-libRivet-path
+      COMMENT "Pointing Rivet python extension at ${dir}/local/lib/libRivet.so"
+      COMMAND install_name_tool -change ${dir}/src/.libs/libRivet.dylib ${dir}/local/lib/libRivet.so ${Rivet_PY_PATH}/rivet/core.so
+      DEPENDEES build
+      DEPENDERS install
+    )
+  endif()
   # HDF5_INCLUDE_DIR(S) may be multi-item lists (e.g. hdf5 + libaec on Homebrew),
   # so build one -I flag per directory instead of embedding the list in a string.
   set(BOSS_includes_HDF5 "")
