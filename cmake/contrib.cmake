@@ -210,7 +210,8 @@ endif()
 if(NOT EXCLUDE_HEPMC)
   set(lib "HepMC3")
   set(md5 "d3079a7ffcc926b34c5ad2868ed6d8f0")
-  set(dl "https://gitlab.cern.ch/hepmc/HepMC3/-/archive/${ver}/HepMC3-${ver}.tar.gz")
+  #set(dl "https://gitlab.cern.ch/hepmc/HepMC3/-/archive/${ver}/HepMC3-${ver}.tar.gz")
+  set(dl "https://github.com/GambitBSM/archived_backends/raw/refs/heads/main/hepmc_3.2.5.tar.gz")
   include_directories("${HEPMC_PATH}/local/include")
 
   set(HEPMC_LDFLAGS "-L${HEPMC_PATH}/local/lib -l${lib}")
@@ -427,7 +428,9 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
   set_compiler_warning("no-catch-value" FJCONTRIB_CXX_FLAGS)
   # For Apple Clang: Newer libc++ no longer pulls in <algorithm> transitively (e.g. std::sort in RecursiveLundEEGenerator.hh)
-  set(FJCONTRIB_CXX_FLAGS "${FJCONTRIB_CXX_FLAGS} -include algorithm")
+  # LundPlane/EEHelpers.hh uses std::numeric_limits without including <limits> itself; newer
+  # standard libraries (e.g. libstdc++ with GCC >= 13) no longer pull it in transitively either.
+  set(FJCONTRIB_CXX_FLAGS "${FJCONTRIB_CXX_FLAGS} -include algorithm -include limits")
 
   ExternalProject_Add(fjcontrib
     DEPENDS fastjet

@@ -2119,7 +2119,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
-    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${dir}/local --enable-allcxxplugins --enable-silent-rules --enable-shared
+    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${dir}/local --enable-allcxxplugins --enable-silent-rules --enable-shared --disable-auto-ptr
     BUILD_COMMAND ${MAKE_PARALLEL} install
     INSTALL_COMMAND ""
   )
@@ -2160,8 +2160,7 @@ if(NOT ditched_${name}_${ver})
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
-    #PATCH_COMMAND patch -p1 < ${patch}
+    PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} LDFLAGS=${FJCONTRIB_LD_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
     BUILD_COMMAND ${MAKE_PARALLEL}
     INSTALL_COMMAND ${MAKE_PARALLEL} install && ${MAKE_PARALLEL} fragile-shared-install
@@ -2246,7 +2245,29 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} libRivet.so
     INSTALL_COMMAND ""
   )
-  BOSS_backend(${name} ${ver} "-I${HDF5_INCLUDE_DIR} -I${HDF5_INCLUDE_DIRS}")
+  # On macOS, Rivet's python extension (core.so) is linked against the build-tree
+  # src/.libs/libRivet.dylib, while GAMBIT (and Contur's init_by_GAMBIT.py) load the
+  # identical copy at local/lib/libRivet.so. dyld treats these as two separate images,
+  # so the analysis plugins register with one copy and the python AnalysisLoader looks
+  # in the other (empty) one. Point core.so at local/lib/libRivet.so so only one is loaded.
+  if(pyext AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    ExternalProject_Add_Step(${name}_${ver} fix-pyext-libRivet-path
+      COMMENT "Pointing Rivet python extension at ${dir}/local/lib/libRivet.so"
+      COMMAND install_name_tool -change ${dir}/src/.libs/libRivet.dylib ${dir}/local/lib/libRivet.so ${Rivet_PY_PATH}/rivet/core.so
+      DEPENDEES build
+      DEPENDERS install
+    )
+  endif()
+  # HDF5_INCLUDE_DIR(S) may be multi-item lists (e.g. hdf5 + libaec on Homebrew),
+  # so build one -I flag per directory instead of embedding the list in a string.
+  set(BOSS_includes_HDF5 "")
+  foreach(hdf5_dir ${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIRS})
+    list(APPEND BOSS_includes_HDF5 "-I${hdf5_dir}")
+  endforeach()
+  if(BOSS_includes_HDF5)
+    list(REMOVE_DUPLICATES BOSS_includes_HDF5)
+  endif()
+  BOSS_backend(${name} ${ver} ${BOSS_includes_HDF5})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()

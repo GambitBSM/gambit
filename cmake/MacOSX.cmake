@@ -63,6 +63,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
   # The ${NO_FIXUP_CHAINS} -Xlinker -no_fixup_chains had to be added Feb 2023 due to MacOS clang changes that leads to linking problems
   # See discussion in CPython forums and bug report to apple:
   # https://github.com/python/cpython/issues/97524
-  set(NO_FIXUP_CHAINS "-Xlinker -no_fixup_chains")
+  set(NO_FIXUP_CHAINS "-Wl,-no_fixup_chains")
 endif()
 
