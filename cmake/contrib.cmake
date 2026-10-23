@@ -25,6 +25,10 @@
 #         (t.procter.1@research.gla.ac.uk)
 # \date June 2021
 #
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Oct 24
+#
 #************************************************
 
 include(ExternalProject)
@@ -366,89 +370,72 @@ endif()
 #                          HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
 #set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
 
-#contrib/fastjet-3.4.2; include only if ColliderBit is in use.
+#contrib/fastjet-3.5.3; shared by ColliderBit and Rivet.
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   message("   ColliderBit included, include fastjet too")
   set(EXCLUDE_FASTJET FALSE)
-  # Fix currently needed for MacOS due to this not propegating to contrib flags
-  #set(CONTRIB_CXX_FLAGS "${CONTRIB_CXX_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
-  #set(CONTRIB_C_FLAGS "${CONTRIB_C_FLAGS} -isysroot${CMAKE_OSX_SYSROOT} ${OSX_MIN}")
-  # _Anders
-  set(fastjet_dl "http://fastjet.fr/repo/fastjet-3.4.2.tar.gz")
-  set(fastjet_md5 "d8aede1539f478547f8be5412ab6869c")
-  set(fastjet_dir "${PROJECT_SOURCE_DIR}/contrib/fastjet-3.4.2")
-  include_directories("${fastjet_dir}/local/include")
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fastjet_dir}/local/lib")
-  set(fastjet_LDFLAGS "-L${fastjet_dir}/local/lib -lfastjet -lfastjettools")
-  string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_C_FLAGS "${BACKEND_C_FLAGS}")
-  string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
-  set_compiler_warning("no-deprecated-declarations" FJ_CXX_FLAGS)
-  set_compiler_warning("no-deprecated-copy" FJ_CXX_FLAGS)
-  # For Apple Clang: Newer libc++ no longer pulls in <algorithm> transitively, but fastjet relies on it (e.g. std::sort in LazyTiling9.cc)
-  set(FJ_CXX_FLAGS "${FJ_CXX_FLAGS} -include algorithm")
-  set(FJ_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
+  set(fastjet_ver "3.5.3")
+  set(fastjet_dl "https://fastjet.fr/repo/fastjet-${fastjet_ver}.tar.gz")
+  set(fastjet_md5 "ba89ba3f34bd93aea8ba39651b0cbeb3")
+  set(fastjet_path "${PROJECT_SOURCE_DIR}/contrib/fastjet-${fastjet_ver}")
+  set(fastjet_DIR "${fastjet_path}/local")
+  include_directories("${fastjet_DIR}/include")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fastjet_DIR}/lib")
+  set(fastjet_LDFLAGS "-L${fastjet_DIR}/lib" "-lfastjettools" "-lfastjet"
+                     "-lfastjetplugins" "-lsiscone_spherical" "-lsiscone")
+  # OpenMP flags do not play nicely with FastJet's libtoolized build system.
+  string(REGEX REPLACE "(-Xclang[ \t]+|-Xpreprocessor[ \t]+)?-fopenmp(=[^ \t]+)?" "" FASTJET_C_FLAGS "${BACKEND_C_FLAGS}")
+  string(REGEX REPLACE "(-Xclang[ \t]+|-Xpreprocessor[ \t]+)?-fopenmp(=[^ \t]+)?" "" FASTJET_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  set_compiler_warning("no-deprecated-declarations" FASTJET_CXX_FLAGS)
+  set_compiler_warning("no-deprecated-copy" FASTJET_CXX_FLAGS)
+  set(FASTJET_CXX_FLAGS "${FASTJET_CXX_FLAGS} -include algorithm")
+  set(FASTJET_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
 
+  # Rivet requires the C++ plugins from this same FastJet installation.
   ExternalProject_Add(fastjet
-    DOWNLOAD_COMMAND ${DL_CONTRIB} ${fastjet_dl} ${fastjet_md5} ${fastjet_dir} fastjet 3.4.2
-    SOURCE_DIR ${fastjet_dir}
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${fastjet_dl} ${fastjet_md5} ${fastjet_path} fastjet ${fastjet_ver}
+    SOURCE_DIR ${fastjet_path}
     BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${fastjet_dir}/local --enable-silent-rules --enable-shared
-    BUILD_COMMAND ${MAKE_PARALLEL} install
-    INSTALL_COMMAND ""
-    )
-
-  # Add clean and nuke
-  add_contrib_clean_and_nuke(fastjet ${fastjet_dir} clean)
-
+    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FASTJET_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} LIBS=${FASTJET_LINKER_FLAGS} --prefix=${fastjet_DIR} --enable-silent-rules --enable-shared --disable-auto-ptr --enable-allcxxplugins
+    BUILD_COMMAND ${MAKE_PARALLEL}
+    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
+  )
+  add_contrib_clean_and_nuke(fastjet ${fastjet_path} clean)
 else()
   message("${BoldCyan} X ColliderBit is not in use: excluding fastjet from GAMBIT configuration.${ColourReset}")
   set(EXCLUDE_FASTJET TRUE)
 endif()
 
-#contrib/fjcontrib-1.049; include only if Colliderbit is in use.
+#contrib/fjcontrib-1.105; installed alongside the shared FastJet libraries.
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   message("   ColliderBit included, include fjcontrib too")
   set(EXCLUDE_FJCONTRIB FALSE)
+  set(fjcontrib_ver "1.105")
+  set(fjcontrib_dl "https://fastjet.fr/contrib/downloads/fjcontrib-${fjcontrib_ver}.tar.gz")
+  set(fjcontrib_md5 "6b888ad192c1ed1285448d68b670808c")
+  set(fjcontrib_path "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-${fjcontrib_ver}")
+  set(fjcontrib_LDFLAGS "-L${fastjet_DIR}/lib" "-lfastjetcontribfragile"
+                      "-lRecursiveTools" "-lEnergyCorrelator" "-lVariableR")
+  set(FJCONTRIB_FRAGILE_CXX_FLAGS "${FASTJET_CXX_FLAGS}")
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(FJCONTRIB_FRAGILE_CXX_FLAGS "${FJCONTRIB_FRAGILE_CXX_FLAGS} -Wl,-headerpad_max_install_names")
+  endif()
 
-  #set(fjcontrib_dl "https://github.com/fjcontrib/fjcontrib/archive/refs/tags/1.049.tar.gz")
-  #set(fjcontrib_md5 "c7b9803f7e37d44a9a7f3c09347c2043")
-  set(fjcontrib_dl "http://fastjet.hepforge.org/contrib/downloads/fjcontrib-1.049.tar.gz")
-  set(fjcontrib_md5 "bfea8bfd311d958a40e445f76668bd32")
-  set(fjcontrib_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.049")
-  include_directories("${fastjet_dir}/local/include")
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fastjet_dir}/local/lib")
-  # Link the fjcontrib libraries needed by ColliderBit analyses
-  # RecursiveTools provides SoftDrop and related jet grooming tools
-  # Add other libraries here as needed (e.g., -lNsubjettiness -lConstituentSubtractor)
-  set(fjcontrib_LDFLAGS "-L${fastjet_dir}/local/lib -lRecursiveTools")
-
-  string(REGEX REPLACE "-Xclang -fopenmp" "" FJCONTRIB_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
-  set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
-  set_compiler_warning("no-unused-parameter" FJCONTRIB_CXX_FLAGS)
-  set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
-  set_compiler_warning("no-catch-value" FJCONTRIB_CXX_FLAGS)
-  # For Apple Clang: Newer libc++ no longer pulls in <algorithm> transitively (e.g. std::sort in RecursiveLundEEGenerator.hh)
-  # LundPlane/EEHelpers.hh uses std::numeric_limits without including <limits> itself; newer
-  # standard libraries (e.g. libstdc++ with GCC >= 13) no longer pull it in transitively either.
-  set(FJCONTRIB_CXX_FLAGS "${FJCONTRIB_CXX_FLAGS} -include algorithm -include limits")
-
+  # Use the same components as CBS, including the shared library required by Rivet.
   ExternalProject_Add(fjcontrib
     DEPENDS fastjet
-    DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_dir} fjcontrib 1.049
-    SOURCE_DIR ${fjcontrib_dir}
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_path} fjcontrib ${fjcontrib_ver}
+    SOURCE_DIR ${fjcontrib_path}
     BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} LDFLAGS=${FJCONTRIB_LINKER_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
-    BUILD_COMMAND ${MAKE_PARALLEL}
-    INSTALL_COMMAND ${MAKE_PARALLEL} install
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} --fastjet-config=${fastjet_DIR}/bin/fastjet-config --prefix=${fastjet_DIR} --only=Nsubjettiness,RecursiveTools,LundPlane,EnergyCorrelator,VariableR
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
+    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
+            COMMAND ${MAKE_PARALLEL} fragile-shared-install CXX="${CMAKE_CXX_COMPILER}" CXXFLAGS=${FJCONTRIB_FRAGILE_CXX_FLAGS}
   )
-
-
-  # Add clean and nuke
-  add_contrib_clean_and_nuke(fjcontrib ${fjcontrib_dir} clean)
+  add_contrib_clean_and_nuke(fjcontrib ${fjcontrib_path} clean)
   set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} fjcontrib)
-
 else()
-  message("${BoldCyan} X ColliderBit is not in use: excluding fastjet from GAMBIT configuration.${ColourReset}")
+  message("${BoldCyan} X ColliderBit is not in use: excluding fjcontrib from GAMBIT configuration.${ColourReset}")
   set(EXCLUDE_FJCONTRIB TRUE)
 endif()
 
