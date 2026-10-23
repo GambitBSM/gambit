@@ -114,6 +114,7 @@
 #  \author Pengxuan Zhu
 #          (pengxuan.zhu@adelaide.edu.au)
 #  \date 2026 Aug, Oct
+#  \date 2026 Oct 23
 #
 #************************************************
 
@@ -2250,18 +2251,23 @@ if(NOT ditched_${name}_${ver})
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${Rivet_PY_PATH}')" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${dir}')" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "os.environ[\"CONTUR_ROOT\"]='${dir}'" >> ${init_file}
+                # Contur 3 needs both path variables before importing its modules.
+                COMMAND ${CMAKE_COMMAND} -E echo "os.environ[\"CONTUR_DATA_PATH\"]='${dir}'" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "os.environ[\"CONTUR_USER_DIR\"]='${dir}/contur_user'" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from ctypes import *" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "cdll.LoadLibrary(\"${Rivet_LIB}\")" >> ${init_file}
-                COMMAND ${CMAKE_COMMAND} -E echo "from run import run_analysis" >> ${init_file}
-                COMMAND ${CMAKE_COMMAND} -E echo "from run import arg_utils" >> ${init_file}
-                COMMAND ${CMAKE_COMMAND} -E echo "from data import static_db" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from contur.run import run_analysis" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from contur.run import arg_utils" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from contur.data import static_db" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from io import StringIO" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from rivet import addAnalysisLibPath, addAnalysisDataPath" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisLibPath(\"${dir}/data/Rivet\")" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisDataPath(\"${dir}/data/Rivet\")" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisDataPath(\"${dir}/data/Theory\")" >> ${init_file}
-      # Contur 3.0.0 builds its analyses database in data/DB
+      # Contur 3 reads analyses.db from CONTUR_USER_DIR at runtime.
       BUILD_COMMAND ${MAKE_PARALLEL} -C data/DB analyses.db
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${dir}/contur_user"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${dir}/data/DB/analyses.db" "${dir}/contur_user/analyses.db"
       INSTALL_COMMAND ""
     )
   endif()
