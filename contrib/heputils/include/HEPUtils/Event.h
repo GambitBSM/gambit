@@ -25,7 +25,7 @@ namespace HEPUtils {
     /// @{
 
     /// An event ID that can be assigned by the user to keep track of specific events
-    mutable unsigned int _id;
+    mutable unsigned int _id = 0;
 
     /// Event weights
     std::vector<double> _weights;
@@ -149,6 +149,7 @@ namespace HEPUtils {
 
     /// Empty the event's weight, particle, jet, and MET collections
     void clear() {
+      _id = 0;
       // Weights
       _weights.clear();
       _weight_errs.clear();
@@ -398,7 +399,6 @@ namespace HEPUtils {
       return rtn;
     }
 
-    
     /// @brief Set a jet collection
     ///
     /// @warning The Jets should be new'd; Event will take ownership.
@@ -427,7 +427,6 @@ namespace HEPUtils {
       _jets.erase(key);
       _cseqs.erase(key);
     }
-    
 
     /// @brief Add a jet to a jet collection
     ///
@@ -456,7 +455,9 @@ namespace HEPUtils {
     /// Optional template arg can be used to cast to a specific derived CS type if wanted.
     template <typename CS=FJNS::ClusterSequence>
     typename std::shared_ptr<const CS> clusterseq(const std::string& key) const {
-      return std::dynamic_pointer_cast<const CS>(_cseqs.find(key)->second);
+      auto it = _cseqs.find(key);
+      if (it == _cseqs.end()) return typename std::shared_ptr<const CS>();
+      return std::dynamic_pointer_cast<const CS>(it->second);
     }
 
     // /// @brief Non-const access to the jets' ClusterSequence object if possible (can be null)
@@ -472,7 +473,7 @@ namespace HEPUtils {
     /// @warning The CS should be new'd; Event will take ownership via a shared_ptr
     template <typename CS=FJNS::ClusterSequence>
     void set_clusterseq(std::shared_ptr<const CS> cseq, const std::string& key) {
-      if (_cseqs.find(key) != _cseqs.end() && !_cseqs.empty()) {
+      if (_cseqs.find(key) != _cseqs.end()) {
 	throw std::runtime_error("Event::set_clusterseq() called for a non-empty jet collection");
       }
       _cseqs[key] =  cseq;
@@ -488,7 +489,7 @@ namespace HEPUtils {
     /// @todo How to run a more advanced CS like the active- or Voronoi-area ones?
     template <typename CS=FJNS::ClusterSequence>
     CSeqBasePtr emplace_clusterseq(std::vector<FJNS::PseudoJet>& jetparticles, const FJNS::JetDefinition& jetdef, const std::string& key) {
-      if (_cseqs.find(key) != _cseqs.end() && !_cseqs.empty()) {
+      if (_cseqs.find(key) != _cseqs.end()) {
 	throw std::runtime_error("Event::emplace_clusterseq() called for a non-empty jet collection");
       }
       _cseqs[key] = std::make_shared<CS>(jetparticles, jetdef);

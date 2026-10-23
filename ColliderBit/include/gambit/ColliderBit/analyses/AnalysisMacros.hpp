@@ -15,9 +15,26 @@
 ///          (tomas.gonzalo@kit.edu)
 ///  \date 2023 July, Aug
 ///
+///  \author Pengxuan Zhu 
+///          (pengxuan.zhu@adelaide.edu.au)
+///  \date 2025 Oct
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #pragma once
+
+#include <cfloat>
+
+#if defined(__clang__)
+  // Silence GNU variadic macro extension warning for '##__VA_ARGS__'.
+  // This header intentionally uses '##__VA_ARGS__' to allow empty varargs.
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+
+
 
 /// Min and max values of eta and pT
 #define ETAMIN 0
@@ -400,8 +417,10 @@
 
 /// Fill signal region and cutflow
 #define FILL_SIGNAL_REGION(NAME)                                                  \
-  _cutflows[NAME].fillnext(event->weight());                                      \
-  _counters.at(NAME).add_event(event);
+  do {                                                                               \
+    _cutflows[NAME].fillnext(event->weight());                                      \
+    _counters.at(NAME).add_event(event);                                            \
+  } while(0)
 
 /// Commit values for the signal region: predictions, observed and backgrounds
 #define COMMIT_SIGNAL_REGION(NAME, OBS, BKG_CENTRAL, BKG_ERR)                     \
@@ -415,5 +434,46 @@
 #define COMMIT_CUTFLOWS                                                           \
   add_cutflows(_cutflows);
 
+/// Commit histograms
+#define COMMIT_HISTOGRAMS                                                         \
+  add_histograms(_histograms);
 
+/// Commit each bin of a histogram-backed signal-region set
+#define COMMIT_HISTOGRAM_SRS(NAME)                                                \
+  for (const SignalRegionData& _sr : _histograms.h1d(NAME).to_signal_regions())    \
+  {                                                                                \
+    add_result(_sr);                                                               \
+  }
+
+/// Define a 1D histogram with variable-width bins
+#define DEFINE_HISTOGRAM_1D(NAME, EDGES, ...)                                     \
+  _histograms.addHistogram(Histogram1D(NAME, EDGES, ##__VA_ARGS__));
+
+/// Define a 1D histogram that also maps one signal region to each bin
+#define DEFINE_HISTOGRAM_SR_1D(NAME, EDGES, OBS, BKG, BKG_ERR, ...)               \
+  _histograms.addHistogram(Histogram1D(NAME, EDGES, OBS, BKG, BKG_ERR, ##__VA_ARGS__));
+
+/// Define a 1D histogram with uniform bins
+#define DEFINE_HISTOGRAM_1D_UNIFORM(NAME, NBINS, XLO, XHI, ...)                   \
+  _histograms.addHistogram(Histogram1D(NAME, NBINS, XLO, XHI, ##__VA_ARGS__));
+
+/// Fill a 1D histogram
+#define FILL_HISTOGRAM_1D(NAME, VALUE)                                            \
+  if (Histogram1D::check_histogram()) _histograms.h1d(NAME).fill(VALUE, event->weight(), event->id());
+
+/// Define a 2D histogram with variable-width bins
+#define DEFINE_HISTOGRAM_2D(NAME, XEDGES, YEDGES, ...)                            \
+  _histograms.addHistogram(Histogram2D(NAME, XEDGES, YEDGES, ##__VA_ARGS__));
+
+/// Define a 2D histogram with uniform bins
+#define DEFINE_HISTOGRAM_2D_UNIFORM(NAME, NX, XLO, XHI, NY, YLO, YHI, ...)       \
+  _histograms.addHistogram(Histogram2D(NAME, NX, XLO, XHI, NY, YLO, YHI, ##__VA_ARGS__));
+
+/// Fill a 2D histogram
+#define FILL_HISTOGRAM_2D(NAME, XVAL, YVAL)                                       \
+  if (Histogram1D::check_histogram()) _histograms.h2d(NAME).fill(XVAL, YVAL, event->weight());
+
+#if defined(__clang__)
+  #pragma clang diagnostic pop
+#endif
 

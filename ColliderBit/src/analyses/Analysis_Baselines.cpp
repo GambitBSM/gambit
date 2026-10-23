@@ -2216,9 +2216,9 @@ namespace Gambit
           //////////////////////
           // Baseline objects //
 
-          // Baseline selections inspired by
-          // - CMS_13TeV_MultiLEP_137invfb
-          // - CMS_13TeV_2OSLEP_137invfb
+          // Baseline selections inspired by 
+          // - CMS_SUS_19_012
+          // - CMS_SUS_20_001
 
           // HEPUtils objects: photons, electrons, muons, taus, invisibles, jets
           // HEPUtils variables: met, missingmom
@@ -2291,7 +2291,7 @@ namespace Gambit
           }
 
           // // 0, 1 or 2+ Z candidates?
-          // // Inspired by ATLAS_13TeV_4LEP_139invfb
+          // // Inspired by ATLAS_SUSY_2018_02
           // std::vector<double> OSSFpair_masses;
           // for (const std::vector<const HEPUtils::Particle*>& pair : OSSFpairs)
           // {

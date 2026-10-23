@@ -76,7 +76,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: random #de
+  use_scanner: de
 
   scanners:
 
@@ -102,16 +102,15 @@ ObsLikes:
     - purpose:    LogLike
       capability: LHC_Combined_LogLike
       sub_capabilities:
-        skip_analyses:
-          - ATLAS_13TeV_0LEPStop_139invfb
-          - ATLAS_13TeV_4b_discoverySR_139invfb
-          - ATLAS_13TeV_4b_allyears_139invfb
-          - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb
-          - ATLAS_13TeV_3b_NN_139invfb
-          - CMS_13TeV_2OSLEP_Strong_Production_137invfb
-          - CMS_13TeV_2OSLEP_Slepton_137invfb
-          - CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD
-          - CMS_13TeV_2LEPsoft_137invfb
+        skip_analyses: 
+          - ATLAS_SUSY_2018_12
+          - ATLAS_SUSY_2020_16_discoverySR
+          - ATLAS_SUSY_2020_16_allyears
+          - ATLAS_CONF_2019_008_chargino_binned
+          - ATLAS_SUSY_2018_30
+          - CMS_SUS_20_001_strong_production
+          - CMS_SUS_20_001_Slepton
+          - CMS_SUS_18_004
 
     # Combined likelihood for LHC measurements
     # NOTE: The LHC_measurements_LogLike should be run as a separate post-processing run.
@@ -358,7 +357,7 @@ Rules:
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   # NOTE: The second collider configuration below ("LHC_13TeV_antiktR_1") is only needed to simulate the
-  #       search ATLAS_13TeV_2BoostedBosons_139invfb. 
+  #       search ATLAS_SUSY_2018_41. 
   - capability: RunMC
     function: operateLHCLoop
     options:
@@ -366,8 +365,8 @@ Rules:
         - LHC_13TeV
       silenceLoop: false
       LHC_13TeV:
-        min_nEvents: 1000 #16000000
-        max_nEvents: 1000 #16000000
+        min_nEvents: 16000000
+        max_nEvents: 16000000
         events_between_convergence_checks: 1000000000
         target_fractional_uncert: 0.1
         halt_when_systematic_dominated: false
@@ -377,55 +376,53 @@ Rules:
         analyses:
           - Baselines
           # 
-          - ATLAS_13TeV_0LEPStop_139invfb        # [in skip_analyses] New! (Martin)  
-          - ATLAS_13TeV_1Lep2b_139invfb          # New! (Chris)
-          - ATLAS_13TeV_2LEP0JET_EW_139invfb     # New! (Roberto) - Requires ROOT + BDT stuff.
-          - ATLAS_13TeV_2LEPJETS_EW_139invfb     # New! (Martin, Chris) 
-          - ATLAS_13TeV_2LEPJETS_RJR_139invfb    # New! (Martin) This search requires ROOT + RestFrames.
-          - ATLAS_13TeV_3LEP_eRJR_139invfb       # New! (Martin)
-          - ATLAS_13TeV_2OR3LEP_139invfb         # New! (Ida) -- Only WH SRs are used.
-          - ATLAS_13TeV_bTaus_StopStau_139invfb  # New! (Holly)
-          - ATLAS_13TeV_1OR3LEP_StopHZ_139invfb  # New! (Holly)
-          - ATLAS_13TeV_4b_139invfb              # New! (Are)
-          - ATLAS_13TeV_4b_discoverySR_139invfb  # [in skip_analyses]
-          - ATLAS_13TeV_4b_allyears_139invfb     # [in skip_analyses]
-          - ATLAS_13TeV_2LEPsoft_139invfb        # New! (Tomas)
-          - ATLAS_13TeV_3b_NN_139invfb           # [in skip_analyses, due to probable overlap with ATLAS_13TeV_4b_139invfb] New! (Tomek)
-          - ATLAS_13TeV_0LEP_139invfb
-          - ATLAS_13TeV_2BoostedBosons_139invfb  # Uses antikt_R1.
-          - ATLAS_13TeV_2LEPStop_inclusive_139invfb
-          - ATLAS_13TeV_2OSLEP_Z_139invfb
-          - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb
-          - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb  # [in skip_analyses]
-          - ATLAS_13TeV_3LEP_139invfb
-          - ATLAS_13TeV_4LEP_139invfb
-          - ATLAS_13TeV_2bMET_36invfb
-          - ATLAS_13TeV_MultiLEP_strong_139invfb
-          - ATLAS_13TeV_PhotonGGM_2Photon_36invfb
-          - ATLAS_13TeV_PhotonGGM_1Photon_139invfb
-          - ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
-          # 
-          - CMS_13TeV_1LEPbb_137invfb                   # New! (Pengxuan) - Uses antikt_R08.
-          - CMS_13TeV_2Higgs_4b_neutralino_137invfb     # New! (Yang) - Uses antikt_R08.
-          - CMS_13TeV_2LEPsoft_137invfb                 # [in skip_analyses] New! (Tomas)
-          - CMS_13TeV_0LEPStop_137invfb                 # New! (Holly)
-          - CMS_13TeV_0LEP_chargino_VV_VH_137invfb      # New! (Adil) - Uses antikt_R08.
-          - CMS_13TeV_0LEP_chargino_VV_VH_137invfb_OLD  # [in skip_analyses]
-          - CMS_13TeV_Photon_GMSB_137invfb              # New! (Vinay)
-          - CMS_13TeV_2OSLEP_EW_Production_137invfb     # New! (Anders)
-          - CMS_13TeV_2OSLEP_Strong_Production_137invfb # [in skip_analyses]
-          - CMS_13TeV_2OSLEP_Slepton_137invfb           # [in skip_analyses]
-          - CMS_13TeV_2OSLEP_for_chargino_36invfb
-          - CMS_13TeV_0LEP_137invfb
-          - CMS_13TeV_1LEPStop_36invfb
-          - CMS_13TeV_1Photon1Lepton_emu_combined_36invfb
-          - CMS_13TeV_2LEPStop_36invfb
-          - CMS_13TeV_2OSLEP_for_stop_36invfb
-          - CMS_13TeV_2Photon_GMSB_36invfb
-          - CMS_13TeV_2SSLEP_Stop_137invfb
-          - CMS_13TeV_MultiLEP_2LEP_137invfb
-          - CMS_13TeV_MultiLEP_3LEP_137invfb
-          - CMS_13TeV_MultiLEP_4LEP_137invfb
+          - ATLAS_SUSY_2018_12                     # [in skip_analyses] New! (Martin)  
+          - ATLAS_SUSY_2019_08                     # New! (Chris)
+          - ATLAS_SUSY_2019_02                     # New! (Roberto) - Requires ROOT + BDT stuff.
+          - ATLAS_SUSY_2018_05                     # New! (Martin, Chris) 
+          - ATLAS_SUSY_2018_05_RJR                 # New! (Martin) This search requires ROOT + RestFrames.
+          - ATLAS_SUSY_2018_06                     # New! (Martin)
+          - ATLAS_SUSY_2019_22                     # New! (Ida) -- Only WH SRs are used.
+          - ATLAS_SUSY_2019_18                     # New! (Holly)
+          - ATLAS_SUSY_2018_21_StopZH              # New! (Holly)
+          - ATLAS_SUSY_2020_16                     # New! (Are)
+          - ATLAS_SUSY_2020_16_discoverySR         # [in skip_analyses]
+          - ATLAS_SUSY_2020_16_allyears            # [in skip_analyses]
+          - ATLAS_SUSY_2018_16                     # New! (Tomas)
+          - ATLAS_SUSY_2018_30                     # [in skip_analyses, due to probable overlap with ATLAS_SUSY_2020_16] New! (Tomek)
+          - ATLAS_SUSY_2018_22
+          - ATLAS_SUSY_2018_41                     # Uses antikt_R1.
+          - ATLAS_SUSY_2018_08_inclusive
+          - ATLAS_CONF_2019_008_chargino_inclusive
+          - ATLAS_CONF_2019_008_chargino_binned    # [in skip_analyses]
+          - ATLAS_SUSY_2019_09
+          - ATLAS_SUSY_2018_02
+          - ATLAS_SUSY_2016_28
+          - ATLAS_SUSY_2018_09
+          - ATLAS_SUSY_2016_27_2Photon
+          - ATLAS_SUSY_2018_11
+          - ATLAS_CONF_2018_019
+          #
+          - CMS_SUS_20_003                         # New! (Pengxuan) - Uses antikt_R08.
+          - CMS_SUS_20_004                         # New! (Yang) - Uses antikt_R08.
+          - CMS_SUS_18_004                         # [in skip_analyses] New! (Tomas)
+          - CMS_SUS_19_010                         # New! (Holly)
+          - CMS_SUS_21_002                         # New! (Adil) - Uses antikt_R08.
+          - CMS_SUS_21_009                         # New! (Vinay)
+          - CMS_SUS_20_001_EW_production           # New! (Anders)
+          - CMS_SUS_20_001_strong_production       # [in skip_analyses]
+          - CMS_SUS_20_001_Slepton                 # [in skip_analyses]
+          - CMS_SUS_17_010_chargino
+          - CMS_SUS_19_006
+          - CMS_SUS_16_051
+          - CMS_SUS_17_012_emu_combined
+          - CMS_SUS_17_001
+          - CMS_SUS_17_010_stop
+          - CMS_SUS_17_011
+          - CMS_SUS_19_008
+          - CMS_SUS_19_012_2Lep
+          - CMS_SUS_19_012_3Lep
+          - CMS_SUS_19_012_4LEP
 
   # Choose Monte Carlo event simulator and options.
   - capability:  HardScatteringSim
@@ -446,7 +443,7 @@ Rules:
             R: 0.8
             recombination_scheme: E_scheme
             strategy: Best
-          antikt_R1: # Needed for the ATLAS_13TeV_2BoostedBosons_139invfb search
+          antikt_R1: # Needed for the ATLAS_SUSY_2018_41 search
             algorithm: antikt
             R: 1.0
             recombination_scheme: E_scheme

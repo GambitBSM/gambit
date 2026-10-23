@@ -1,0 +1,10 @@
+--- a/Nsubjettiness/AxesDefinition.hh
++++ b/Nsubjettiness/AxesDefinition.hh
+@@ -26,6 +26,7 @@
+ #define __FASTJET_CONTRIB_AXES_DEFINITION_HH__
+ 
+ 
++#include <algorithm>
+ #include "MeasureDefinition.hh"
+ #include "ExtraRecombiners.hh"
+ 

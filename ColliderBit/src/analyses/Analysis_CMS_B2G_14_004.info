@@ -1,0 +1,9 @@
+Summary: CMS dark-matter plus top-pair search in single-lepton final states at 8 TeV with 19.7/fb
+InspireID: 1359293
+ExptRun: CMS-R1.5
+Lumi_ifb: 19.7
+Ecm_TeV: 8.0
+Signatures: ["1L + >=3J + >=1B + MET + MT"]
+Keywords: ["dark-matter", "top-pair", "1lepton", "bjets", "met"]
+Authors: ["Martin White", "Guy Pitman"]
+OldName: CMS_8TeV_1LEPDMTOP_20invfb

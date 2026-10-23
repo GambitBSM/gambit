@@ -1,0 +1,9 @@
+Summary: CMS fully hadronic top-squark pair-production search at 13 TeV with 137/fb
+InspireID: 1849522
+ExptRun: CMS-R2
+Lumi_ifb: 137.0
+Ecm_TeV: 13.0
+Signatures: ["0L + >=2J + >=1B + MET", "0L + >=5J + >=1B + MET"]
+Keywords: ["top-squark", "0lepton", "all-hadronic", "met", "compressed"]
+Authors: ["Holly Pacey"]
+OldName: CMS_13TeV_0LEPStop_137invfb

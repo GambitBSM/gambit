@@ -11,6 +11,7 @@
 #include "TMVA/DecisionTree.h"
 
 #include "TTree.h"
+#include <cstddef>
 #include <stack>
 #include <string>
 #include <sstream>
@@ -380,7 +381,7 @@ ForestTMVA::ForestTMVA(TMVA::MethodBDT* bdt, bool isRegression, bool useYesNoLea
     m_max_var = 0;
     std::vector<TMVA::DecisionTree*>::const_iterator it;
     for(it = bdt->GetForest().begin(); it != bdt->GetForest().end(); ++it) {
-        uint index = it - bdt->GetForest().begin();
+        const auto index = static_cast<std::size_t>(it - bdt->GetForest().begin());
         float weight = 0.;
         if(bdt->GetBoostWeights().size() > index) {
             weight = bdt->GetBoostWeights()[index];

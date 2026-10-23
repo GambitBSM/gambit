@@ -35,6 +35,10 @@
 #  \date 2019 Sep, Oct
 #  \date 2020 Nov
 #
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Aug, Oct
+#
 #************************************************
 
 
@@ -198,7 +202,11 @@ function(check_ditch_status name version dir)
       set (itch "${itch}" "${name}_${version}")
     elseif ((arg STREQUAL "yoda") AND EXCLUDE_YODA)
       set (itch "${itch}" "${name}_${version}")
+    elseif ((arg STREQUAL "fastjet") AND EXCLUDE_FASTJET)
+      set (itch "${itch}" "${name}_${version}")
     elseif ((arg STREQUAL "sqlite3") AND NOT SQLITE3_FOUND)
+      set (itch "${itch}" "${name}_${version}")
+    elseif ((arg STREQUAL "sqlite3cli") AND NOT SQLITE3_CLI_FOUND)
       set (itch "${itch}" "${name}_${version}")
     elseif ((arg STREQUAL "x11") AND NOT X11_FOUND)
       set (itch "${itch}" "${name}_${version}")

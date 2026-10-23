@@ -2275,7 +2275,7 @@ def castxmlRunner(input_file_path, include_paths_list, xml_output_path, use_cast
 
     # - Add standard include paths
     for std_incl_path in gb.std_include_paths:
-        castxml_cmd += ' -I' + std_incl_path
+        castxml_cmd += ' -isystem ' + std_incl_path
 
     # - Add the input file path (full path)
     castxml_cmd += ' ' + input_file_path
@@ -2323,12 +2323,12 @@ def castxmlRunner(input_file_path, include_paths_list, xml_output_path, use_cast
             print("CalledProcessError.message:", error_message)
             print()
 
-    # If it fails with the syste-wide castxml binary, try again with the local one
+    # If it fails with the system-wide castxml binary, try again with the local one.
+    # Return on success so the original failed attempt is not reported afterwards.
     if (did_fail and use_castxml_path==castxml_system_path and gb.has_castxml_local):
         print('  ' + modifyText('Will retry with castxml binary in ' + castxml_local_path,'yellow') )
-        did_fail = False
-        use_castxml_path = castxml_local_path
-        castxmlRunner(input_file_path, include_paths_list, xml_output_path, use_castxml_path=use_castxml_path)
+        return castxmlRunner(input_file_path, include_paths_list, xml_output_path,
+                              use_castxml_path=castxml_local_path)
 
 
     # If it fails with icpc, try again with g++.
@@ -2918,26 +2918,60 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
 
 
+# ====== isGccPrivateIncludePath ========
+
+def isGccPrivateIncludePath(path):
+
+    # GCC reports its implementation-specific intrinsic headers together with
+    # the C++ standard-library search paths.  CastXML parses with its internal
+    # Clang, so forwarding these headers causes GCC intrinsics to be selected.
+    # Match the directory structure rather than a distro, target, or version.
+    components = [component for component in os.path.normpath(path).split(os.sep) if component]
+    for index, component in enumerate(components):
+        if component == 'gcc':
+            suffix = components[index + 1:]
+            return len(suffix) == 3 and suffix[-1] in ('include', 'include-fixed')
+    return False
+
+# ====== END: isGccPrivateIncludePath ========
+
+
+
+
 # ====== identifyStdIncludePaths ========
 
 def identifyStdIncludePaths():
 
-    # Shell command: Pipe an include statement to the compiler and use
-    # verbose mode to print the header search paths.
-    command = 'echo "#include <iostream>" | ' + cfg.castxml_cc + ' -v -x c++ -c -'
+    # Feed a small translation unit to the compiler and read its verbose
+    # include-path report directly.
+    compiler_command = shlex.split(cfg.castxml_cc)
+    compiler_options = shlex.split(cfg.castxml_cc_opt) if cfg.castxml_cc_opt else []
+    command_args = compiler_command + compiler_options + ['-v', '-x', 'c++', '-E', '-']
 
     # Run command
-    print('  Running command: ' + command)
+    print('  Running command: ' + ' '.join(command_args))
 
     did_fail = False
     error_message = ''
+    temp_env_vars = {}
+    if 'gnu' in cfg.castxml_cc_id:
+        for var_name in ['CPATH', 'C_INCLUDE_PATH', 'CPLUS_INCLUDE_PATH']:
+            try:
+                if 'intel' in os.environ[var_name].lower():
+                    temp_env_vars[var_name] = str(os.environ[var_name])
+                    os.environ[var_name] = ''
+            except KeyError:
+                pass
+
     output_tmpfile = tempfile.TemporaryFile()
+    p = None
     try:
-        p = subprocess.Popen(shlex.split(command), stdout=output_tmpfile, stderr=output_tmpfile)
-        p.wait()
-    except subprocess.CalledProcessError as e:
+        p = subprocess.Popen(command_args, stdin=subprocess.PIPE,
+                             stdout=output_tmpfile, stderr=output_tmpfile)
+        p.communicate(b'#include <iostream>\n')
+    except (OSError, ValueError, IndexError) as e:
         did_fail = True
-        error_message = e.message
+        error_message = str(e)
 
     # Reset environment variables
     if 'gnu' in cfg.castxml_cc_id:
@@ -2946,11 +2980,11 @@ def identifyStdIncludePaths():
 
     # Get output from tempfile
     output_tmpfile.seek(0)
-    output = output_tmpfile.read()
+    output = output_tmpfile.read().decode('utf-8', errors='replace')
     output_tmpfile.close()
 
-    # Any error that did not result in a CalledProcessError?
-    if p.returncode != 0:
+    # Check the compiler exit status.
+    if p is None or p.returncode != 0:
         did_fail = True
 
     if did_fail:
@@ -2963,7 +2997,7 @@ def identifyStdIncludePaths():
         print(modifyText('END SHELL COMMAND OUTPUT','red'))
         print()
         if error_message != '':
-            print("CalledProcessError.message:", error_message)
+            print("Compiler probe error:", error_message)
             print()
         raise Exception('Shell command failed')
 
@@ -2973,27 +3007,42 @@ def identifyStdIncludePaths():
 
 
     std_include_paths = []
-    output_lines = output.split('\n')
+    output_lines = output.splitlines()
 
     try:
         start_i = output_lines.index("#include <...> search starts here:")
         end_i   = output_lines.index("End of search list.")
     except ValueError:
-        print('  ' + modifyText('WARNING: Could not identify standard include paths.\n  Add them manually in the config file if necessary.','yellow'))
-        print()
+        raise Exception('Could not identify standard include paths from the selected C++ compiler.')
     else:
         for line in output_lines[start_i+1:end_i]:
-            std_include_paths.append( line.strip().split()[0] )
+            path = line.strip()
+            if path:
+                std_include_paths.append(path.split()[0])
 
-        # Filter out Intel-specific paths to avoid conflict with gnu headers
-        if (cfg.castxml_cc_id == 'gnu') or (cfg.castxml_cc_id == 'gnu-c'):
+        # Filter compiler-private headers that conflict with CastXML's internal
+        # Clang, while retaining libstdc++ and ordinary system header paths.
+        if cfg.castxml_cc_id.strip() in ('gnu', 'gnu-c'):
 
-            len_before_filter = len(std_include_paths)
-            std_include_paths = [path for path in std_include_paths if 'intel' not in path]
-            len_after_filter = len(std_include_paths)
+            retained_paths = []
+            dropped_intel_paths = []
+            dropped_gcc_paths = []
+            for path in std_include_paths:
+                if 'intel' in path.lower():
+                    dropped_intel_paths.append(path)
+                elif isGccPrivateIncludePath(path):
+                    dropped_gcc_paths.append(path)
+                elif path not in retained_paths:
+                    retained_paths.append(path)
+            std_include_paths = retained_paths
 
-            if len_after_filter < len_before_filter:
-                print('  (Filtered out Intel paths to avoid conflicts with gcc headers.)')
+            if dropped_intel_paths:
+                print('  (Filtered out Intel paths to avoid conflicts with GCC headers.)')
+                print()
+            if dropped_gcc_paths:
+                print('  (Filtered out GCC private intrinsic-header paths for CastXML.)')
+                for path in dropped_gcc_paths:
+                    print('  - ' + path)
                 print()
 
         print('  Identified %i standard include paths:' % len(std_include_paths))
