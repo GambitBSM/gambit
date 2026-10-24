@@ -114,6 +114,7 @@ namespace Gambit
     catch (std::exception& e)
     {
       std::cout << "Error registering model validation function for model " << model << ": " << e.what() << std::endl;
+      throw(e);
     }
     return 0;
   }
