@@ -433,6 +433,12 @@ KeyValues:
 
   print_unitcube: true
 
+  # If a model has a 'validation function', this function determines behavior if a model is deemed invalid.
+  # - 'pass' (default): No action will be taken
+  # - 'invalidate': The current point is invalidated (Scan will continue)
+  # - 'raise': An exception is raised (Scan will be aborted)
+  model_validation: pass
+
   likelihood:
     model_invalid_for_lnlike_below: -1e6
 

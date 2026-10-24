@@ -27,6 +27,7 @@
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2020 May
+///  \date 2026 Oct
 ///
 ///  *********************************************
 
@@ -237,6 +238,9 @@ namespace Gambit
         /// Find candidate functions that are tailor made for models that are
         /// scanned over.
         std::vector<std::pair<VertexID,bool>> closestCandidateForModel(std::vector<std::pair<VertexID,bool>> candidates);
+
+        /// Read the model validation handling from the ini file and set it
+        void setModelValidationHandling() const;
 
         //
         // Private data members
