@@ -22,6 +22,10 @@
 #          (ahye@fys.uio.no)
 #  \date 2023 Feb
 #
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Aug, Oct
+#
 #************************************************
 
 # Set a consistent MACOSX_RPATH default across all CMake versions.
@@ -31,22 +35,16 @@ if(NOT DEFINED CMAKE_MACOSX_RPATH)
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
-  message("Compiling on Darwin with SDK ${CMAKE_OSX_SYSROOT} for MacOSX min version ${CMAKE_OSX_DEPLOYMENT_TARGET}")
-
-  if(CMAKE_OSX_DEPLOYMENT_TARGET)
-    set(OSX_MIN "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
-  endif()
-  
   # Tell the OSX linker not to whinge about missing symbols when just making a library.
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
+  # Single-token -Wl, form so that rivet-build cannot split it.
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined,dynamic_lookup")
   # Strip leading whitespace in case this was first definition of CMAKE_SHARED_LINKER_FLAGS
   string(STRIP ${CMAKE_SHARED_LINKER_FLAGS} CMAKE_SHARED_LINKER_FLAGS)
   # Pass on the sysroot and minimum OSX version (for backend builds; this gets added automatically by cmake for others)
   if(CMAKE_OSX_DEPLOYMENT_TARGET)
     set(OSX_MIN "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   endif()
-  if ("${CMAKE_CXX_SYSROOT}" STREQUAL "")
+  if ("${CMAKE_OSX_SYSROOT}" STREQUAL "")
     execute_process(COMMAND xcrun --sdk macosx --show-sdk-path OUTPUT_VARIABLE CMAKE_OSX_SYSROOT OUTPUT_STRIP_TRAILING_WHITESPACE)
   endif()
   message("Using this MacOS SDK ${CMAKE_OSX_SYSROOT}")
@@ -63,6 +61,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
   # The ${NO_FIXUP_CHAINS} -Xlinker -no_fixup_chains had to be added Feb 2023 due to MacOS clang changes that leads to linking problems
   # See discussion in CPython forums and bug report to apple:
   # https://github.com/python/cpython/issues/97524
-  set(NO_FIXUP_CHAINS "-Xlinker -no_fixup_chains")
+  # Single-token -Wl, form so that rivet-build cannot split it.
+  set(NO_FIXUP_CHAINS "-Wl,-no_fixup_chains")
 endif()
-

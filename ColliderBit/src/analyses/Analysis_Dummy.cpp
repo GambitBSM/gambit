@@ -29,7 +29,7 @@ namespace Gambit
         {
 
           // Define a single signal region and the associated cuts
-          // defineSignalRegion(SRNAME, CF1, CF2, ...);
+          // defineSignalRegion(SRNAME, CF1, CF2, ...)
           // Fills _counters and _cutflows variables
           // By default the Preselection and Final cuts are always defined
           defineSignalRegion("SR");
@@ -134,8 +134,8 @@ namespace Gambit
             {
               LOG_CUT("SR1", "SR2")
 
-              if(met >= 100. and met < 200) { FILL_SIGNAL_REGION("SR1") }
-              if(met >= 200.) { FILL_SIGNAL_REGION("SR2") }
+              if(met >= 100. and met < 200) { FILL_SIGNAL_REGION("SR1"); }
+              if(met >= 200.) { FILL_SIGNAL_REGION("SR2"); }
             }
             else
             {

@@ -2,6 +2,8 @@
 
 ## Handle command line
 import argparse
+from pathlib import Path
+SOURCE_DIR = Path(__file__).resolve().parent
 ap = argparse.ArgumentParser()
 ap.add_argument("ANAFILES", nargs="*", help="analysis info files to parse, defaults to using all in the pwd")
 ap.add_argument("-o", dest="OUTFILE", nargs="?", default="analyses_webpage.json", help="output JSON filename [default=%(default)s]")
@@ -11,18 +13,21 @@ args = ap.parse_args()
 ## Identify the input files
 if not args.ANAFILES:
     from glob import glob
-    args.ANAFILES = glob("*.info")
+    args.ANAFILES = sorted(str(p) for p in SOURCE_DIR.glob("*.info"))
 
 ## Identify the GAMBIT version
 if not args.GVERSION:
     try:
         import re
-        with open("../../../cmake/tarball_info.cmake", "r") as cf:
+        with (SOURCE_DIR.parents[2] / "cmake/tarball_info.cmake").open() as cf:
             for line in cf:
                 m = re.match(r"set\(GAMBIT_VERSION_FULL ([\d\.]+)\)", line)
                 if m: args.GVERSION = m.group(1)
     except:
         pass
+
+if not args.GVERSION:
+    ap.error("Cannot determine GAMBIT version; specify --gversion")
 
 ## Parse analysis info files into dict
 adata = []

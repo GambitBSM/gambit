@@ -26,26 +26,23 @@
 ///          (tomas.gonzalo@kit.edu)
 ///  \date 2023 Aug
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
+#include <algorithm>
 #include <vector>
 #include "HEPUtils/Event.h"
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include <iostream>
 
 namespace Gambit
 {
   namespace ColliderBit
   {
 
-    Analysis::Analysis() : _luminosity(0)
-                         , _luminosity_is_set(false)
-                         , _is_scaled(false)
-                         , _needs_collection(true)
-                         , _collider_name("")
-                         , _counters(_results._counters)
-    {
-      // _counters = _results._counters;
-    }
+    Analysis::Analysis() : _luminosity(0), _luminosity_is_set(false), _is_scaled(false), _needs_collection(true), _collider_name(""), _counters(_results._counters) {}
 
     /// Public method to reset this instance for reuse, avoiding the need for "new" or "delete".
     void Analysis::reset()
@@ -53,6 +50,13 @@ namespace Gambit
       _is_scaled = false;
       _needs_collection = true;
       _results.clear();
+      for (auto& counter : _counters) counter.second.reset();
+      for (Cutflow& cutflow : _cutflows.cfs)
+      {
+        std::fill(cutflow.counts.begin(), cutflow.counts.end(), 0.0);
+        cutflow.icurr.assign(omp_get_max_threads(), 0);
+      }
+      _histograms = Histograms();
       analysis_specific_reset();
     }
 
@@ -64,6 +68,7 @@ namespace Gambit
     {
       _needs_collection = true;
       run(e);
+      // log_progress(); // Add this line to log progress after processing the event
     }
 
     /// Return the integrated luminosity.
@@ -116,31 +121,6 @@ namespace Gambit
         _needs_collection = false;
       }
 
-      // Collect the SR names for all SRs that have been added to _results
-      std::vector<std::string> SRs_in_results;
-      SRs_in_results.reserve(_results.srdata_identifiers.size());
-      for (auto const& kv : _results.srdata_identifiers)
-      {
-       SRs_in_results.push_back(kv.first);
-      }
-
-      // In _results, clear the EventCounter::_event_acceptance_record
-      // vector for each SR that has not been added to _result.
-      // (Reminder: _counters is a reference to _results._counters.)
-      for (auto& kv : _counters)
-      {
-        const str& SR_name = kv.first;
-        EventCounter& counter = kv.second;
-        if (counter.store_accepted_event_IDs())
-        {
-          // If SR_name not in SRs_in_results, clear the event acceptance record
-          if (std::find(SRs_in_results.begin(), SRs_in_results.end(), SR_name) == SRs_in_results.end())
-          {
-            counter.clear_event_acceptance_record();
-          }
-        }
-      }
-
       return _results;
     }
 
@@ -148,10 +128,8 @@ namespace Gambit
     const AnalysisData& Analysis::get_results(str& warning)
     {
       warning = "";
-      if (not _luminosity_is_set)
-        warning += "Luminosity has not been set for analysis " + _analysis_name + ".";
-      if (not _is_scaled)
-        warning += "Results have not been scaled for analysis " + _analysis_name + ".";
+      if (not _luminosity_is_set) warning += "Luminosity has not been set for analysis " + _analysis_name + ".";
+      if (not _is_scaled) warning += "Results have not been scaled for analysis " + _analysis_name + ".";
 
       return get_results();
     }
@@ -178,22 +156,19 @@ namespace Gambit
     void Analysis::add_result(const SignalRegionData& sr) { _results.add(sr); }
 
     /// Get the cutflows
-    const Cutflows& Analysis::get_cutflows()
-    {
-      return _results.cutflows;
-    }
+    const Cutflows& Analysis::get_cutflows() { return _results.cutflows; }
 
     /// Add cutflows to the internal results list
-    void Analysis::add_cutflows(const Cutflows& cf)
-    {
-      _results.add_cutflows(cf);
-    }
+    void Analysis::add_cutflows(const Cutflows& cf) { _results.add_cutflows(cf); }
+
+    /// Get the histograms
+    const Histograms& Analysis::get_histograms() { return _results.histograms; }
+
+    /// Add histograms to the internal results list
+    void Analysis::add_histograms(const Histograms& h) { _results.add_histograms(h); }
 
     /// Set the path to the FullLikes BKG file
-    void Analysis::set_bkgjson(const std::string& bkgpath)
-    {
-      _results.bkgjson_path = bkgpath;
-    }
+    void Analysis::set_bkgjson(const std::string& bkgpath) { _results.bkgjson_path = bkgpath; }
 
     /// Set the covariance matrix, expressing SR correlations
     void Analysis::set_covariance(const Eigen::MatrixXd& srcov) { _results.srcov = srcov; }
@@ -204,10 +179,7 @@ namespace Gambit
       Eigen::MatrixXd cov(srcov.size(), srcov.front().size());
       for (size_t i = 0; i < srcov.size(); ++i)
       {
-        for (size_t j = 0; j < srcov.front().size(); ++j)
-        {
-          cov(i,j) = srcov[i][j];
-        }
+        for (size_t j = 0; j < srcov.front().size(); ++j) { cov(i, j) = srcov[i][j]; }
       }
       set_covariance(cov);
     }
@@ -217,46 +189,41 @@ namespace Gambit
     {
       double factor = luminosity() * xsec_per_event;
       assert(factor >= 0);
-      for (SignalRegionData& sr : _results)
-      {
-        sr.n_sig_scaled = factor * sr.n_sig_MC;
-      }
+      for (SignalRegionData& sr : _results) { sr.n_sig_scaled = factor * sr.n_sig_MC; }
+      _results.histograms.scale(factor);
       _is_scaled = true;
     }
 
     /// Add the results of another analysis to this one. Argument is not const, because the other needs to be able to gather its results if necessary.
     void Analysis::add(Analysis* other)
     {
-      if (_results.empty()) collect_results();
+      if (_needs_collection || _results.empty())
+      {
+        collect_results();
+        _needs_collection = false;
+      }
       if (this == other)
       {
-        _cutflows.combine(other->get_cutflows());
-        _results.add_cutflows(_cutflows);
         return;
       }
+
       const AnalysisData otherResults = other->get_results();
       /// @todo Access by name, including merging disjoint region sets?
       assert(otherResults.size() == _results.size());
-      for (size_t i = 0; i < _results.size(); ++i)
-      {
-        _results[i].combine_SR_MC_signal(otherResults[i]);
-      }
 
-      for (auto& kv : _counters)
-      {
-        // kv.first (key) is the SR name
-        // kv.second (value) is the EventCounter instance
-        kv.second += other->_counters.at(kv.first);
-      }
+      for (size_t i = 0; i < _results.size(); ++i) { _results[i].combine_SR_MC_signal(otherResults[i]); }
+      for (auto& pair : _counters) { pair.second += other->_counters.at(pair.first); }
 
-      _cutflows.combine(other->get_cutflows());
-      _results.add_cutflows(_cutflows);
-
+      _results.cutflows.combine(otherResults.cutflows);
+      _results.histograms.combine(otherResults.histograms);
+      _needs_collection = false;
     }
 
     /// Set the store_accepted_event_IDs bool for the EventCounter instances in this analysis
     void Analysis::set_store_accepted_event_IDs(bool setting)
     {
+      for (auto& histogram : _histograms.histos1d)
+        histogram.store_accepted_event_ids = setting;
       for (auto& kv : _counters)
       {
         // kv.first (key) is the SR name

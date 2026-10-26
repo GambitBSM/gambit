@@ -26,6 +26,10 @@
 #          (anders.kvellestad@fys.uio.no
 #  \date 2021 Feb, Sep
 #
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Aug
+#
 #************************************************
 
 set(source_files src/ascii_table_reader.cpp
@@ -102,3 +106,8 @@ set(header_files include/gambit/Utils/ascii_table_reader.hpp
 )
 
 add_gambit_library(Utils OPTION OBJECT SOURCES ${source_files} HEADERS ${header_files})
+
+# The backend type rollcall can contain HepMC3 types, so HepMC3 must be installed first
+if(TARGET hepmc)
+  add_dependencies(Utils hepmc)
+endif()

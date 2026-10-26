@@ -2,7 +2,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import sys
+import argparse
+from pathlib import Path
 import itertools
 import h5py
 
@@ -16,15 +17,30 @@ import h5py
 # Read data
 #
 
-point = sys.argv[1]
-experiment = sys.argv[2]
-option = sys.argv[3]
+parser = argparse.ArgumentParser(description="Plot unweighted event-acceptance correlations over all CSV rows, including appended batches (not likelihood covariance).")
+parser.add_argument("csv", type=Path, help="accepted_events__<collider>__<detector>.csv")
+parser.add_argument("option", choices=("sum", "max", "best"))
+parser.add_argument("--hdf5", type=Path, help="GAMBIT HDF5 output, required for best mode")
+parser.add_argument("--row", type=int, default=0, help="zero-based HDF5 row whose best-SR choices are applied to all CSV events")
+parser.add_argument("--output", type=Path, help="output filename prefix")
+args = parser.parse_args()
+if args.row < 0:
+    parser.error("--row must be non-negative")
+if args.option == "best" and args.hdf5 is None:
+    parser.error("best mode requires --hdf5; --row selects the best-SR choices")
+option = args.option
+input_csv = args.csv
+input_hdf5 = args.hdf5
+output_name = str(args.output or args.csv.with_suffix(""))
 
-output_name = experiment + "_" + "p" + point
-input_csv = experiment + "_analyses/point_" + point + "__" + experiment + ".csv"
-input_hdf5 = "DatFiles/CorrelationTest_pt" + point + ".hdf5"
-
-df_SRs = pd.read_csv(input_csv, dtype=int)
+df_SRs = pd.read_csv(input_csv)
+if df_SRs.empty or len(df_SRs.columns) == 0:
+    parser.error("CSV contains no completed events or signal regions")
+if not df_SRs.columns.str.fullmatch(r"[^:]+::.+__i[0-9]+").all():
+    parser.error("CSV columns must be analysis::signal_region__i<index>")
+if not df_SRs.isin([0, 1]).all().all():
+    parser.error("CSV must contain only 0/1 event-acceptance values")
+df_SRs = df_SRs.astype(int)
 SR_names = df_SRs.columns
 
 #
@@ -36,7 +52,7 @@ SR_names = df_SRs.columns
 if option=='sum':
 
     # Make a new dataframe at analysis level by summing the data for all SRs in the given analysis
-    df_analyses = df_SRs.groupby(df_SRs.columns.str.split('::').str[0], axis=1).sum()
+    df_analyses = df_SRs.T.groupby(df_SRs.columns.str.split('::').str[0], sort=False).sum().T
     analysis_names = df_analyses.columns
 
     col_names = analysis_names
@@ -79,7 +95,8 @@ if option=='max':
     correlation_matrix = correlation_matrix.combine_first(correlation_matrix.T)
 
     # Set diagonal to 1
-    np.fill_diagonal(correlation_matrix.values, 1)
+    for analysis_name in analyses:
+        correlation_matrix.loc[analysis_name, analysis_name] = 1.0
 
 if option=='best':
     col_info = df_SRs.columns.str.split("::", expand=True)
@@ -97,7 +114,14 @@ if option=='best':
         for analysis_name in analyses:
             dataset_path = "/data/#LHC_LogLike_SR_indices @ColliderBit::get_LHC_LogLike_SR_indices::" + analysis_name
             data = f[dataset_path][:]
-            sr_indices[analysis_name] = int(data[0])
+            if args.row >= len(data):
+                parser.error(f"HDF5 dataset for {analysis_name} has no row {args.row}")
+            index = int(data[args.row])
+            # Match the original SR index in the CSV label, not its column position.
+            labels = [name for name in df_SRs[analysis_name].columns if name.endswith(f"__i{index}")]
+            if len(labels) != 1:
+                parser.error(f"CSV has no unique SR index {index} for {analysis_name}")
+            sr_indices[analysis_name] = labels[0]
 
     # Loop over unique analysis combinations
     for a1, a2 in itertools.combinations(analyses, 2):
@@ -105,19 +129,16 @@ if option=='best':
         sub1 = df_SRs[a1]
         sub2 = df_SRs[a2]
         # Get the correlation coefficient between the SR data
-        best_corr = sub1.iloc[:,sr_indices[a1]].corr(sub2.iloc[:,sr_indices[a2]])
+        best_corr = sub1[sr_indices[a1]].corr(sub2[sr_indices[a2]])
         correlation_matrix.loc[a1, a2] = best_corr
-        col_names = analyses
-    
-        n_cols = len(correlation_matrix.columns)
-    
-        # Fill missing values from the transpose to make symmetric
-        correlation_matrix = correlation_matrix.combine_first(correlation_matrix.T)
-        # Set diagonal to 1
-        np.fill_diagonal(correlation_matrix.values, 1)
-        # Remove nans
-        correlation_matrix = correlation_matrix.fillna(0)
-        
+    col_names = analyses
+    n_cols = len(correlation_matrix.columns)
+    correlation_matrix = correlation_matrix.combine_first(correlation_matrix.T)
+    for analysis_name in analyses:
+        correlation_matrix.loc[analysis_name, analysis_name] = 1.0
+    # Undefined (constant-column) correlations are displayed as zero.
+    correlation_matrix = correlation_matrix.fillna(0)
+
 # Output the threshold correlation matrices for later processing - these are still pandas dataframes at this point
 corr_above_threshold_005_matrix = (correlation_matrix > 0.05).astype(int)
 corr_above_threshold_010_matrix = (correlation_matrix > 0.10).astype(int)

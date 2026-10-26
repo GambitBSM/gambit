@@ -41,6 +41,10 @@
 #          (anders.kvellestad@fys.uio.no)
 #  \date 2023 Mar
 #
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Aug, Oct
+#
 #************************************************
 
 include(CMakeParseArguments)
@@ -303,6 +307,23 @@ macro(use_contributed_pybind11)
   add_dependencies(nuke-contrib nuke-pybind11)
 endmacro()
 
+# Filter clang OpenMP options for autotools/libtool, leaving GNU -fopenmp intact.
+# input_flags is a command-line string; return the filtered string to output_var.
+function(gambit_strip_openmp_flags output_var input_flags)
+  set(openmp_options "-Xclang[ \t]+-fopenmp|-fopenmp=libomp")
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    string(APPEND openmp_options "|-fopenmp")
+  endif()
+  set(openmp_pattern "(^|[ \t])(${openmp_options})([ \t]|$)")
+  set(cleaned_flags "${input_flags}")
+  # A replacement consumes surrounding whitespace; repeat for adjacent options.
+  while(cleaned_flags MATCHES "${openmp_pattern}")
+    string(REGEX REPLACE "${openmp_pattern}" "\\1\\3" cleaned_flags "${cleaned_flags}")
+  endwhile()
+  string(STRIP "${cleaned_flags}" cleaned_flags)
+  set(${output_var} "${cleaned_flags}" PARENT_SCOPE)
+endfunction()
+
 # Function to add GAMBIT executable
 function(add_gambit_executable executablename LIBRARIES)
   cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;" ${ARGN})
@@ -340,7 +361,9 @@ function(add_gambit_executable executablename LIBRARIES)
         set_target_properties(${executablename} PROPERTIES LINK_FLAGS ${MPI_Fortran_LINK_FLAGS})
     endif()
   endif()
-  if (OpenMP_omp_LIBRARY)
+  if(TARGET OpenMP::OpenMP_CXX)
+    set(LIBRARIES ${LIBRARIES} OpenMP::OpenMP_CXX)
+  elseif(OpenMP_omp_LIBRARY)
     set(LIBRARIES ${LIBRARIES} ${OpenMP_omp_LIBRARY})
   endif()
   if (LIBDL_FOUND)
@@ -404,7 +427,8 @@ function(add_standalone executablename)
 
   # Exclude standalones that need pybind11 if it has been excluded.
   if (";${ARG_DEPENDENCIES};" MATCHES ";pybind11;")
-    string(REPLACE "pybind11" "" ARG_DEPENDENCIES ${ARG_DEPENDENCIES})
+    # Remove the list item; string(REPLACE) would join the remaining list elements
+    list(REMOVE_ITEM ARG_DEPENDENCIES pybind11)
     if (NOT HAVE_PYBIND11)
       message("${BoldCyan} X Excluding ${executablename} from GAMBIT configuration due to absence of pybind11.${ColourReset}")
       set(standalone_permitted 0)
@@ -462,9 +486,9 @@ function(add_standalone executablename)
                                ${HARVEST_TOOLS}
                                ${facilitator_options_stamp})
 
-    # All the standalones need linking to HepMC, if HepMC is not excluced.
+    # Standalones not using ColliderBit (which adds HepMC below) still need linking to HepMC, if HepMC is not excluded.
     # TODO: Avoid this if possible.
-    if (NOT EXCLUDE_HEPMC)
+    if (NOT EXCLUDE_HEPMC AND NOT USES_COLLIDERBIT)
       set(ARG_LIBRARIES ${ARG_LIBRARIES} ${HEPMC_LDFLAGS})
     endif()
 
@@ -673,6 +697,7 @@ macro(gambit_find_python_module module)
       endif()
     endif()
     message(STATUS "FAILED to find Python module ${module}.")
+    set(PY_${module}_FOUND FALSE)
   endif()
 endmacro()
 
@@ -701,18 +726,15 @@ macro(BOSS_backend_full name backend_version ${ARGN})
     set(name_in_frontend "${CMAKE_MATCH_1}")
 
     set(BOSS_includes_Boost "")
-    if (NOT ${Boost_INCLUDE_DIR} STREQUAL "")
+    if (NOT "${Boost_INCLUDE_DIR}" STREQUAL "")
         set(BOSS_includes_Boost "-I${Boost_INCLUDE_DIR}")
     endif()
     set(BOSS_includes_GSL "")
-    if (NOT "${GSL_INCLUDE_DIRS}" STREQUAL "")
-        set(BOSS_includes_GSL "")
-        foreach(dir ${GSL_INCLUDE_DIRS})
-          set(BOSS_includes_GSL "-I${dir} ${BOSS_includes_GSL}")
-        endforeach()
-    endif()
+    foreach(gsl_include_dir IN LISTS GSL_INCLUDE_DIRS)
+      list(APPEND BOSS_includes_GSL "-I${gsl_include_dir}")
+    endforeach()
     set(BOSS_includes_Eigen3 "")
-    if (NOT ${EIGEN3_INCLUDE_DIR} STREQUAL "")
+    if (NOT "${EIGEN3_INCLUDE_DIR}" STREQUAL "")
       set(BOSS_includes_Eigen3 "-I${EIGEN3_INCLUDE_DIR}")
     endif()
 
@@ -738,6 +760,9 @@ macro(BOSS_backend_full name backend_version ${ARGN})
     ExternalProject_Add_Step(${name}_${ver} BOSS
       # Run BOSS
       COMMAND ${Python3_EXECUTABLE} ${BOSS_dir}/boss.py --no-instructions ${BOSS_castxml_cc} ${BOSS_command_line_options} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${name}_${backend_version_safe}
+      # Validate generated output before replacing the existing headers.
+      COMMAND test -d "BOSS_output/${name_in_frontend}_${backend_version_safe}/for_gambit/backend_types/${name_in_frontend}_${backend_version_safe}"
+      COMMAND test -f "BOSS_output/${name_in_frontend}_${backend_version_safe}/frontends/${name_in_frontend}_${backend_version_safe}.hpp"
       # Copy BOSS-generated files to correct folders within Backends/include
       COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/${name_in_frontend}_${backend_version_safe} || true
       COMMAND cp -r BOSS_output/${name_in_frontend}_${backend_version_safe}/for_gambit/backend_types/${name_in_frontend}_${backend_version_safe} ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/

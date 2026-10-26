@@ -175,7 +175,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
         void setBootstrapFilename(const std::string& filename);
     
-        ::std::vector<std::pair<std::basic_string<char>, unsigned long>> fillLayout() const;
+        ::std::vector<std::pair<std::string, unsigned long>> fillLayout() const;
     
         ::std::vector<bool> fillOutcomes() const;
     

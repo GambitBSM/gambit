@@ -1,0 +1,8 @@
+Summary: ATLAS vector-like T/B-quark pair-production search in the lepton-plus-jets Wb channel at 13 TeV with 36.1/fb
+InspireID: 1609451
+ExptRun: ATLAS-R2
+Lumi_ifb: 36.1
+Ecm_TeV: 13.0
+Signatures: ["1L + >=1W + >=1B + >=1J + MET"]
+Keywords: ["vectorlikequark", "leptonjets"]
+Authors: ["Pengxuan Zhu"]

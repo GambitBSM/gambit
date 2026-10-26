@@ -12,6 +12,9 @@
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date 2019 Nov
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #pragma once
@@ -63,6 +66,7 @@ namespace Gambit {
         _sum = 0;
         _weight_sum = 0;
         _weight_sum_err = 0;
+        _event_acceptance_record.clear();
       }
 
       // Reset
@@ -71,6 +75,7 @@ namespace Gambit {
         _sum = 0;
         _weight_sum = 0;
         _weight_sum_err = 0;
+        _event_acceptance_record.clear();
       }
 
       // Set name
@@ -165,7 +170,7 @@ namespace Gambit {
       }
 
       // Get _store_accepted_event_IDs
-      bool store_accepted_event_IDs()
+      bool store_accepted_event_IDs() const
       {
         return _store_accepted_event_IDs;
       }

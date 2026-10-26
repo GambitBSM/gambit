@@ -22,6 +22,9 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Feb
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #pragma once
@@ -47,6 +50,9 @@ namespace Gambit
     /// @note The caller is responsible for deleting the returned analysis object.
     /// @todo Move to a separate file
     Analysis* mkAnalysis(const str& name);
+
+    /// Check whether an analysis name is registered in this ColliderBit build.
+    bool isAnalysisRegistered(const str& name);
 
     /// Return the detector to be used for a given analysis name, checking that the analysis exists.
     str getDetector(const str& name);
@@ -79,10 +85,6 @@ namespace Gambit
         static std::map<str,std::map<int,AnalysisContainer*> > instances_map;
 
       public:
-
-        /// Event counter for each thread, one for each collider.
-        // mutable static std::map<str,int> event_count;
-        inline static std::map<str,int> event_count;
 
         /// Constructor
         AnalysisContainer();
