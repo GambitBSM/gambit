@@ -35,6 +35,10 @@
 ///  \date 2014 Jan, Nov
 ///  \date 2015 Sep
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 
@@ -47,9 +51,6 @@
 #include "gambit/Utils/export_symbols.hpp"
 
 namespace Gambit {
-
-  // Model parameter map type; used by all models
-  typedef std::map<std::string, double> parameterMap;
 
   class EXPORT_SYMBOLS ModelParameters
   {
@@ -134,6 +135,9 @@ namespace Gambit {
       std::string getOutputName() const;
       void setModelName (const std::string&);
       void setOutputName(const std::string&);
+
+      /// Validity check of the model parameters
+      bool isValid() const;
  
     private:
 
@@ -146,7 +150,6 @@ namespace Gambit {
       /// Output name (string used for labelling in output, related to the model_functor which produced these parameters)
       /// Currently used only by the postprocessor ScannerBit plugin and reader plugins.
       std::string outputname;
-
   };
 
 }
