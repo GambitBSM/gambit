@@ -152,10 +152,16 @@ plc:
   3.0:         ./Backends/installed/plc/3.0/lib/libclik.so
 
 Pythia:
-  8.312:       ./Backends/installed/pythia/8.312/lib/libpythia8.so
+  # Points at the hand-written shim (Backends/src/frontends/shims/pythia_shim.cpp),
+  # not the real libpythia8.so, as the shim is dlopen'd directly and pulls in
+  # libpythia8.so itself via its own linked dependencies.
+  8.312:       ./Backends/installed/pythia/8.312/lib/libpythia_shim.so
 
 Rivet:
-  4.1.0:       ./Backends/installed/rivet/4.1.0/local/lib/libRivet.so
+  # Points at the hand-written shim (Backends/src/frontends/shims/rivet_shim.cpp),
+  # not the real libRivet.so, as the shim is dlopen'd directly and pulls in
+  # libRivet.so itself via its own linked dependencies.
+  4.1.0:       ./Backends/installed/rivet/4.1.0/local/lib/librivet_shim.so
 
 SPheno:
   3.3.8:       ./Backends/installed/spheno/3.3.8/lib/libSPheno.so
