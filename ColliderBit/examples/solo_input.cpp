@@ -16,14 +16,12 @@
 
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/GenParticle.h"
-#include "HepMC3/ReaderAscii.h"
-#include "HepMC3/ReaderAsciiHepMC2.h"
+#include "gambit/ColliderBit/HepMCReader.hpp"
 
 #include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <cstdlib>
-#include <fstream>
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>
@@ -60,18 +58,15 @@ namespace Gambit
           std::vector<std::pair<double, double>> beam_energies_GeV;
         };
 
-        enum class HepMCFileFormat
-        {
-          HepMC2,
-          HepMC3
-        };
-
         /// Check the filename suffix against the supported HepMC input formats.
         bool is_supported_hepmc_file(const str& filename)
         {
           return Gambit::Utils::endsWith(filename, ".hepmc")
                  || Gambit::Utils::endsWith(filename, ".hepmc2")
-                 || Gambit::Utils::endsWith(filename, ".hepmc3");
+                 || Gambit::Utils::endsWith(filename, ".hepmc3")
+                 || Gambit::Utils::endsWith(filename, ".hepmc.gz")
+                 || Gambit::Utils::endsWith(filename, ".hepmc2.gz")
+                 || Gambit::Utils::endsWith(filename, ".hepmc3.gz");
         }
 
         /// Return a lowercase copy for case-insensitive validation-status checks.
@@ -118,56 +113,6 @@ namespace Gambit
 
           const std::string run = to_lower(expt_run.as<std::string>());
           return run.find("atlas-") == 0 || run.find("cms-") == 0;
-        }
-
-        HepMCFileFormat get_hepmc_file_format(const str& filename)
-        {
-          std::ifstream infile(filename);
-          if (!infile)
-          {
-            throw std::runtime_error("Could not open HepMC event file " + filename + " for collision-energy inspection.");
-          }
-
-          std::string line;
-          while (std::getline(infile, line))
-          {
-            if (line.empty()) continue;
-
-            const std::string short_line = line.substr(0, 16);
-            if (short_line == "HepMC::Version 2")
-            {
-              return HepMCFileFormat::HepMC2;
-            }
-            if (short_line == "HepMC::Version 3")
-            {
-              if (!std::getline(infile, line))
-              {
-                throw std::runtime_error("Could not determine HepMC text format in " + filename + ".");
-              }
-
-              const std::string text_format = line.substr(0, 14);
-              if (text_format == "HepMC::Asciiv3")
-              {
-                return HepMCFileFormat::HepMC3;
-              }
-              if (text_format == "HepMC::IO_GenE")
-              {
-                return HepMCFileFormat::HepMC2;
-              }
-
-              throw std::runtime_error(
-                "Could not determine HepMC text format from '" + text_format
-                + "' in " + filename + "."
-              );
-            }
-
-            throw std::runtime_error(
-              "Could not determine HepMC version from '" + short_line
-              + "' in " + filename + "."
-            );
-          }
-
-          throw std::runtime_error("HepMC event file " + filename + " is empty.");
         }
 
         std::pair<HepMC3::ConstGenParticlePtr, HepMC3::ConstGenParticlePtr>
@@ -247,23 +192,8 @@ namespace Gambit
         HepMCFileInspection inspect_hepmc_file(const str& filename)
         {
           HepMC3::GenEvent event;
-          bool event_retrieved = false;
-
-          switch (get_hepmc_file_format(filename))
-          {
-            case HepMCFileFormat::HepMC2:
-            {
-              HepMC3::ReaderAsciiHepMC2 reader(filename);
-              event_retrieved = reader.read_event(event);
-              break;
-            }
-            case HepMCFileFormat::HepMC3:
-            {
-              HepMC3::ReaderAscii reader(filename);
-              event_retrieved = reader.read_event(event);
-              break;
-            }
-          }
+          auto reader = make_hepmc_reader(filename);
+          const bool event_retrieved = reader->read_event(event);
 
           if (!event_retrieved || (event.particles().empty() && event.vertices().empty()))
           {
@@ -1253,7 +1183,7 @@ namespace Gambit
           }
           if (!is_supported_hepmc_file(file_input.filename))
           {
-            throw std::runtime_error("Unrecognised event file format in " + file_input.filename + "; must be .hepmc/.hepmc2/.hepmc3.");
+            throw std::runtime_error("Unrecognised event file format in " + file_input.filename + "; must be .hepmc/.hepmc2/.hepmc3, optionally gzip-compressed (.gz).");
           }
           if (!Gambit::Utils::file_exists(file_input.filename))
           {
@@ -1392,7 +1322,7 @@ namespace Gambit
           const str event_filename = prepared.settings.getValue<str>("event_file");
           if (!is_supported_hepmc_file(event_filename))
           {
-            throw std::runtime_error("Unrecognised event file format in " + event_filename + "; must be .hepmc/.hepmc2/.hepmc3.");
+            throw std::runtime_error("Unrecognised event file format in " + event_filename + "; must be .hepmc/.hepmc2/.hepmc3, optionally gzip-compressed (.gz).");
           }
           if (!Gambit::Utils::file_exists(event_filename))
           {

@@ -46,11 +46,10 @@
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/yaml_options.hpp"
-#include "HepMC3/ReaderAsciiHepMC2.h"
+#include "gambit/ColliderBit/HepMCReader.hpp"
 #include "gambit/ColliderBit/colliders/Pythia8/Py8EventConversions.hpp"
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/GenParticle.h"
-#include "HepMC3/ReaderAscii.h"
 
 #include <cmath>
 #include <sstream>
@@ -210,91 +209,15 @@ namespace Gambit
     {
       result.clear();
 
-      // Initialise the HepMC reader
-      static int HepMC_file_version = -1;
-
-      static bool first = true;
-      if (first)
-      {
-        if (not Utils::file_exists(HepMC_filename)) throw std::runtime_error("HepMC event file "+HepMC_filename+" not found. Quitting...");
-
-        // Figure out if the file is HepMC2 or HepMC3
-        std::ifstream infile(HepMC_filename);
-        if (infile.good())
-        {
-          std::string line;
-          while(std::getline(infile, line))
-          {
-            // Skip blank lines
-            if(line == "") continue;
-
-            // We look for "HepMC::Version 2" or "HepMC::Version 3",
-            // so we only need the first 16 characters of the line
-            std::string short_line = line.substr(0,16);
-
-            if (short_line == "HepMC::Version 2")
-            {
-              HepMC_file_version = 2;
-              break;
-            }
-            else if (short_line == "HepMC::Version 3")
-            {
-              // Check the text format
-              std::getline(infile, line);
-              std::string text_format = line.substr(0,14);
-              if (text_format == "HepMC::Asciiv3")
-              {
-                HepMC_file_version = 3;
-                break;
-              }
-              else if (text_format == "HepMC::IO_GenE")
-              {
-                HepMC_file_version = 2;
-                break;
-              }
-              else
-              {
-                std::stringstream msg;
-                msg <<  "Could not determine HepMC version from the string '" << text_format << "' extracted from the line '" << line << "'. Quitting...";
-                ColliderBit_error().raise(LOCAL_INFO, msg.str());
-              }
-            }
-            else
-            {
-              std::stringstream msg;
-              msg << "Could not determine HepMC version from the string '" << short_line << "' extracted from the line '" << line << "'. Quitting...";
-              ColliderBit_error().raise(LOCAL_INFO, msg.str());
-            }
-          }
-        }
-        first = false;
-      }
-
-      if(HepMC_file_version != 2 and HepMC_file_version != 3)
-      {
-        std::stringstream msg;
-        msg << "Failed to determine HepMC version for input file " << HepMC_filename << ". Quitting...";
-        ColliderBit_error().raise(LOCAL_INFO, msg.str());
-      }
-
-      static HepMC3::Reader *HepMCio;
-
-      // Initialize the reader on the first iteration
+      // The reader owns the plain/gzip stream and is shared across threads;
+      // the critical section below serialises event reads.
+      static std::unique_ptr<HepMC3::Reader> HepMCio;
       if (iteration == BASE_INIT)
       {
-        if (HepMC_file_version == 2)
-        {
-          HepMCio = new HepMC3::ReaderAsciiHepMC2(HepMC_filename);
-        }
-        else
-        {
-          HepMCio = new HepMC3::ReaderAscii(HepMC_filename);
-        }
+        HepMCio = make_hepmc_reader(HepMC_filename);
       }
-
-      // Delete the reader in the last iteration
       if (iteration == BASE_FINALIZE)
-        delete HepMCio;
+        HepMCio.reset();
 
       // Don't do anything else during special iterations
       if (iteration < 0) return;

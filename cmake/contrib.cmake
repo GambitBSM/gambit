@@ -260,13 +260,16 @@ else()
 endif()
 
 if(NOT EXCLUDE_HEPMC)
+  # The common HepMC reader transparently decompresses gzip inputs via zlib.
+  find_package(ZLIB REQUIRED)
+  include_directories(${ZLIB_INCLUDE_DIRS})
   set(lib "HepMC3")
   set(md5 "d3079a7ffcc926b34c5ad2868ed6d8f0")
   set(dl "https://gitlab.cern.ch/hepmc/HepMC3/-/archive/${ver}/HepMC3-${ver}.tar.gz")
   set(patch "${PROJECT_SOURCE_DIR}/contrib/patches/hepmc/${ver}/patch_hepmc_${ver}.dif")
   include_directories("${HEPMC_PATH}/local/include")
 
-  set(HEPMC_LDFLAGS "-L${HEPMC_PATH}/local/lib" "-l${lib}")
+  set(HEPMC_LDFLAGS "-L${HEPMC_PATH}/local/lib" "-l${lib}" ${ZLIB_LIBRARIES})
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HEPMC_PATH}/local/lib")
   set(HEPMC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
 

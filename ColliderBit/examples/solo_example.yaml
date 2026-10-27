@@ -22,6 +22,7 @@ settings:
   check_cutflow: false
   seed: -1
   event_file: susy10.hepmc
+  # Gzip-compressed .hepmc.gz/.hepmc2.gz/.hepmc3.gz inputs are also supported.
   # CBS reads run conditions from the two HepMC beam particles and runs only
   # matching analyses. Existing ATLAS/CMS Ecm_TeV metadata implies p+p beams
   # with equal beam energies; explicit Beams/Energies metadata takes precedence.
