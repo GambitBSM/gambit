@@ -111,6 +111,10 @@
 #          (qhuy0003@student.monash.edu)
 #  \date 2022 Apr
 #
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Oct 24
+#
 #************************************************
 
 
@@ -2096,81 +2100,6 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
-# Fastjet
-set(name "fastjet")
-set(ver "3.4.0")
-set(dl "http://fastjet.fr/repo/fastjet-3.4.0.tar.gz")
-set(md5 "69879b19006fb6dc7d0b98d01c5cd115")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-# OpenMP flags don't play nicely with clang and FastJet's antiquated libtoolized build system.
-string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_C_FLAGS "${BACKEND_C_FLAGS}")
-string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
-# FastJet 3.3.2 depends on std::auto_ptr, which was removed in C++17, so we need to fall back to
-# C++14 regardless of which (C++17 or later) standard GAMBIT itself is using.
-string(REGEX REPLACE "-std=c\\+\\+(17|1z|20|2a|23|2b)" "-std=c++14" FJ_CXX_FLAGS "${FJ_CXX_FLAGS}")
-string(REGEX REPLACE "-std=c\\+\\+(17|1z|20|2a|23|2b)" "-std=c++14" FJ_C_FLAGS "${FJ_C_FLAGS}")
-set_compiler_warning("no-deprecated-declarations" FJ_CXX_FLAGS)
-set_compiler_warning("no-deprecated-copy" FJ_CXX_FLAGS)
-set(FJ_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
-check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
-    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${dir}/local --enable-allcxxplugins --enable-silent-rules --enable-shared
-    BUILD_COMMAND ${MAKE_PARALLEL} install
-    INSTALL_COMMAND ""
-  )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  #set_as_default_version("backend" ${name} ${ver})
-endif()
-
-
-# Fjcontrib
-set(name "fjcontrib")
-set(ver "1.049")
-set(dl "http://fastjet.hepforge.org/contrib/downloads/fjcontrib-${ver}.tar.gz")
-set(md5 "bfea8bfd311d958a40e445f76668bd32")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(fastjet_name "fastjet")
-set(fastjet_ver "3.4.0")
-set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}")
-set(FJCONTRIB_CXX_FLAGS "${FJ_CXX_FLAGS} -iquote${dir}/RecursiveTools")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-#set(FJCONTRIB_LD_FLAGS "${FJ_LINKER_FLAGS} -L${fastjet_dir}/local/lib -Wl,-rpath,${fastjet_dir}/local/lib")
-#set(FJCONTRIB_CXX_FLAGS ${BACKEND_CXX_FLAGS})
-set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
-set_compiler_warning("no-unused-parameter" FJCONTRIB_CXX_FLAGS)
-set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
-set_compiler_warning("no-catch-value" FJCONTRIB_CXX_FLAGS)
-if(OpenMP_omp_LIBRARY)
-  get_filename_component(FJCONTRIB_OPENMP_LIBDIR "${OpenMP_omp_LIBRARY}" DIRECTORY)
-  set(FJCONTRIB_CXX_FLAGS "${FJCONTRIB_CXX_FLAGS} -L${FJCONTRIB_OPENMP_LIBDIR} -Wl,-rpath,${FJCONTRIB_OPENMP_LIBDIR}")
-endif()
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(FJCONTRIB_CXX_FLAGS "${FJCONTRIB_CXX_FLAGS} -Wl,-headerpad_max_install_names")
-endif()
-set(FJCONTRIB_LD_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
-check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DEPENDS ${fastjet_name}_${fastjet_ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
-    #PATCH_COMMAND patch -p1 < ${patch}
-    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} LDFLAGS=${FJCONTRIB_LD_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
-    BUILD_COMMAND ${MAKE_PARALLEL}
-    INSTALL_COMMAND ${MAKE_PARALLEL} install && ${MAKE_PARALLEL} fragile-shared-install
-  )
-#  BOSS_backend(${name} ${ver})
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-#  set_as_default_version("backend" ${name} ${ver})
-endif()
-
 # Rivet
 set(name "rivet")
 set(ver "4.1.0")
@@ -2182,21 +2111,17 @@ set(yoda_name "yoda")
 set(yoda_dir "${YODA_PATH}/local")
 set(hepmc_name "hepmc")
 set(hepmc_dir "${HEPMC_PATH}/local")
-set(fastjet_name "fastjet")
-set(fastjet_ver "3.4.0")
-set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}/local")
-set(fjcontrib_name "fjcontrib")
-set(fjcontrib_ver "1.049")
-#set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet -faligned-new -O3")
-# TODO TP Oct 24: Atm this means CXX flags contains both -std=c++14 and -std=c++17, would be good to simplify
-set(Rivet_CXX_FLAGS "${FJ_CXX_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR} -O3 -std=c++17")
+# ColliderBit and Rivet use the same FastJet and fjcontrib installation.
+set(fastjet_dir "${fastjet_DIR}")
+# Rivet requires C++17; remove GAMBIT's standard flag before selecting it.
+string(REGEX REPLACE "-std=c\\+\\+[^ \t]+" "" Rivet_CXX_FLAGS "${FASTJET_CXX_FLAGS}")
+set(Rivet_CXX_FLAGS "${Rivet_CXX_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR} -O3 -std=c++17")
 set_compiler_warning("no-deprecated-declarations" Rivet_CXX_FLAGS)
 set_compiler_warning("no-deprecated-copy" Rivet_CXX_FLAGS)
 set_compiler_warning("no-type-limits" Rivet_CXX_FLAGS)
 set_compiler_warning("no-unused-parameter" Rivet_CXX_FLAGS)
 set_compiler_warning("no-ignored-qualifiers" Rivet_CXX_FLAGS)
-#set(Rivet_C_FLAGS "${BACKEND_C_FLAGS} -I${dir}/include/Rivet")
-set(Rivet_C_FLAGS "${FJ_C_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR}")
+set(Rivet_C_FLAGS "${FASTJET_C_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR}")
 
 # TODO: Separate the library and linker flags to avoid compiler complaints
 set(Rivet_LD_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} -L${dir}/include/Rivet -L${HEPMC_PATH}/local/lib -Wl,-rpath,${HEPMC_PATH}/local/lib")
@@ -2229,16 +2154,14 @@ endif()
 
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
+  set(Rivet_BUILD_DEPENDENCIES castxml ${yoda_name} ${hepmc_name} fastjet fjcontrib)
   ExternalProject_Add(${name}_${ver}
-    DEPENDS castxml
-    DEPENDS ${yoda_name}
-    DEPENDS ${hepmc_name}
-    DEPENDS ${fjcontrib_name}_${fjcontrib_ver}
+    DEPENDS ${Rivet_BUILD_DEPENDENCIES}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
-    CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} CPPFLAGS=${Rivet_CPP_FLAGS} PYTHON=${Python3_EXECUTABLE} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} -with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
+    CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} CPPFLAGS=${Rivet_CPP_FLAGS} PYTHON=${Python3_EXECUTABLE} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} --with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
           COMMAND ${CMAKE_COMMAND} -E echo "Rivet_dirs=\"${Rivet_dirs}\"" > touch_files.sh
           COMMAND sh -c "cat ${patch_dir}/touch_files.sh" >> touch_files.sh
           COMMAND chmod u+x touch_files.sh
@@ -2246,7 +2169,31 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${MAKE_PARALLEL} libRivet.so
     INSTALL_COMMAND ""
   )
-  BOSS_backend(${name} ${ver} "-I${HDF5_INCLUDE_DIR} -I${HDF5_INCLUDE_DIRS}")
+  # On macOS, Rivet's python extension (core.so) is linked against the build-tree
+  # src/.libs/libRivet.dylib, while GAMBIT (and Contur's init_by_GAMBIT.py) load the
+  # identical copy at local/lib/libRivet.so. dyld treats these as two separate images,
+  # so the analysis plugins register with one copy and the python AnalysisLoader looks
+  # in the other (empty) one. Point core.so at local/lib/libRivet.so so only one is loaded.
+  if(pyext AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    ExternalProject_Add_Step(${name}_${ver} fix-pyext-libRivet-path
+      COMMENT "Pointing Rivet python extension at ${dir}/local/lib/libRivet.so"
+      COMMAND install_name_tool -change ${dir}/src/.libs/libRivet.dylib ${dir}/local/lib/libRivet.so ${Rivet_PY_PATH}/rivet/core.so
+      DEPENDEES build
+      DEPENDERS install
+    )
+  endif()
+  # HDF5_INCLUDE_DIR(S) may be multi-item lists (e.g. hdf5 + libaec on Homebrew),
+  # so build one -I flag per directory instead of embedding the list in a string.
+  set(BOSS_includes_HDF5 "")
+  foreach(hdf5_dir ${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIRS})
+    list(APPEND BOSS_includes_HDF5 "-I${hdf5_dir}")
+  endforeach()
+  if(BOSS_includes_HDF5)
+    list(REMOVE_DUPLICATES BOSS_includes_HDF5)
+  endif()
+  BOSS_backend(${name} ${ver} ${BOSS_includes_HDF5})
+  # BOSS also needs the installed FastJet/fjcontrib headers when built separately.
+  ExternalProject_Add_StepDependencies(${name}_${ver} BOSS ${Rivet_BUILD_DEPENDENCIES})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
