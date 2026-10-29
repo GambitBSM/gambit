@@ -59,6 +59,9 @@ namespace Gambit
                        double nsigscaled=0)
        : SignalRegionData(scounter.name(), nobs, scounter.weight_sum(), nbkg.first, scounter.weight_sum_err(), nbkg.second, nsigscaled)
       {
+        // Poisson MC variance is sum(w^2); supplied weight errors remain a
+        // separate systematic component. Unit-weight behaviour is unchanged.
+        n_sig_MC_stat = std::sqrt(scounter.weight_sum2());
         accepted_event_ids = scounter.get_event_acceptance_record();
         has_event_records = scounter.store_accepted_event_IDs();
       }
@@ -69,6 +72,9 @@ namespace Gambit
                        double nsigscaled=0)
        : SignalRegionData(sr, nobs, scounter.weight_sum(), nbkg.first, scounter.weight_sum_err(), nbkg.second, nsigscaled)
       {
+        // Poisson MC variance is sum(w^2); supplied weight errors remain a
+        // separate systematic component. Unit-weight behaviour is unchanged.
+        n_sig_MC_stat = std::sqrt(scounter.weight_sum2());
         accepted_event_ids = scounter.get_event_acceptance_record();
         has_event_records = scounter.store_accepted_event_IDs();
       }

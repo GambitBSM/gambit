@@ -35,6 +35,7 @@
 #include "HEPUtils/Event.h"
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include <iostream>
+#include <stdexcept>
 
 namespace Gambit
 {
@@ -50,7 +51,7 @@ namespace Gambit
       _needs_collection = true;
       _results.clear();
       for (auto& counter : _counters) counter.second.reset();
-      _cutflows = Cutflows();
+      _cutflows.reset();
       _histograms = Histograms();
       analysis_specific_reset();
     }
@@ -62,7 +63,21 @@ namespace Gambit
     void Analysis::analyze(const HEPUtils::Event* e)
     {
       _needs_collection = true;
-      run(e);
+      try
+      {
+        run(e);
+      }
+      catch (const std::out_of_range& error)
+      {
+        throw std::out_of_range("ColliderBit analysis '" + _analysis_name
+          + "', event " + std::to_string(e->id()) + ": " + error.what());
+      }
+      catch (int code)
+      {
+        throw std::runtime_error("ColliderBit analysis '" + _analysis_name
+          + "', event " + std::to_string(e->id())
+          + ": uncaught integer exception " + std::to_string(code));
+      }
       // log_progress(); // Add this line to log progress after processing the event
     }
 

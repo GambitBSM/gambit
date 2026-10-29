@@ -1,7 +1,7 @@
 diff -rupN Rivet-4.1.0/Makefile.in ../installed/rivet/4.1.0/Makefile.in
 --- Rivet-4.1.0/Makefile.in	2024-07-07 23:10:54.000000000 +0900
 +++ ../installed/rivet/4.1.0/Makefile.in	2024-10-15 14:22:43.930488154 +0900
-@@ -478,6 +478,24 @@ dist_pkgconfig_DATA = rivet.pc
+@@ -478,6 +478,23 @@ dist_pkgconfig_DATA = rivet.pc
  DEST = login.hepforge.org:rivet/downloads/
  all: all-recursive
  
@@ -15,12 +15,11 @@ diff -rupN Rivet-4.1.0/Makefile.in ../installed/rivet/4.1.0/Makefile.in
 +	cd ${top_builddir}/src && ${MAKE} $(AM_MAKEFLAGS) libRivet.la
 +	mkdir -p ${libdir}
 +	mkdir -p ${datadir}
-+	ls ${libdir}
++	cd ${top_builddir}/src && ${MAKE} $(AM_MAKEFLAGS) install-libLTLIBRARIES
++	if test -e "${libdir}/libRivet.dylib" ; then ln -sf libRivet.dylib "${libdir}/libRivet.so" ; fi
 +	cd ${top_builddir}/analyses && ${MAKE} $(AM_MAKEFLAGS) install
 +	cd ${top_builddir}/pyext && ${MAKE} $(AM_MAKEFLAGS) install
 +	cd ${top_builddir}/analyses && ${MAKE} $(AM_MAKEFLAGS) RivetATLASAnalyses.so RivetCMSAnalyses.so RivetLHCbAnalyses.so
-+	if test -e ${top_builddir}/src/.libs/libRivet.so ; then cp ${top_builddir}/src/.libs/libRivet.so ${libdir}/libRivet.so ; fi
-+	if test -e ${top_builddir}/src/.libs/libRivet.dylib ; then cp ${top_builddir}/src/.libs/libRivet.dylib ${libdir}/libRivet.so ; fi
 +
 +
  .SUFFIXES:
@@ -352,6 +351,19 @@ diff -rupN Rivet-4.1.0/configure ../installed/rivet/4.1.0/configure
  #include "Rivet/Tools/TypeTraits.hh"
  #include "Rivet/Math/MathConstants.hh"
  #include "Rivet/Math/MathUtils.hh"
+
+--- a/pyext/Makefile.in
++++ b/pyext/Makefile.in
+@@ -750,7 +750,7 @@
+ @ENABLE_PYEXT_TRUE@@WITH_OSX_TRUE@	install_name_tool -change \
+ @ENABLE_PYEXT_TRUE@@WITH_OSX_TRUE@         $(abs_top_srcdir)/src/.libs/libRivet.dylib \
+ @ENABLE_PYEXT_TRUE@@WITH_OSX_TRUE@         $(libdir)/libRivet.dylib \
+-@ENABLE_PYEXT_TRUE@@WITH_OSX_TRUE@         $(abs_builddir)/build/rivet/core.so
+-
++@ENABLE_PYEXT_TRUE@@WITH_OSX_TRUE@         $(DESTDIR)$(RIVET_PYTHONPATH)/rivet/core.so
++
+ @ENABLE_PYEXT_TRUE@@WITH_OSX_FALSE@build/rivet/core.so: build.py rivet/core.cpp $(PYCORE_SRC)
+ @ENABLE_PYEXT_TRUE@@WITH_OSX_FALSE@	$(MKDIR_P) $(abs_builddir)/build/rivet
 
 --- a/include/Rivet/Tools/Utils.hh
 +++ b/include/Rivet/Tools/Utils.hh

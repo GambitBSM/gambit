@@ -22,6 +22,9 @@
 ///          (anders.kvellestad@fys.uio.no)
 /// \date 2023 Feb
 ///
+/// \author Pengxuan Zhu
+/// \date 2026 Oct
+///
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
@@ -63,7 +66,10 @@
       Contur_add_GAMBIT_default_args(args_dict);
 
       //Return the contur output.
-      return Contur_output(Contur.attr("run_analysis").attr("main")(args_dict));
+      pybind11::object output = Contur.attr("run_analysis").attr("main")(args_dict);
+      if (!pybind11::isinstance<pybind11::dict>(output))
+        throw std::runtime_error("Contur returned no valid measurement point (expected a dictionary).");
+      return Contur_output(output.cast<pybind11::dict>());
     }
 
 
@@ -78,7 +84,10 @@
       Contur_add_GAMBIT_default_args(args_dict);
 
       //Run contur, get a LLR and return it
-      return Contur_output(Contur.attr("run_analysis").attr("main")(args_dict));
+      pybind11::object output = Contur.attr("run_analysis").attr("main")(args_dict);
+      if (!pybind11::isinstance<pybind11::dict>(output))
+        throw std::runtime_error("Contur returned no valid measurement point (expected a dictionary).");
+      return Contur_output(output.cast<pybind11::dict>());
     }
 
 
@@ -93,7 +102,7 @@
       {
         beams = Contur.attr("static_db").attr("get_beams")();
       }
-      for (size_t  i = 0; i <= pybind11::len(beams); ++i){
+      for (size_t  i = 0; i < pybind11::len(beams); ++i){
         if (beams[i].attr("id").cast<std::string>() == beamString){
           theBeam = beams[i];
           beamFound = true;
@@ -120,5 +129,29 @@
 #endif
 
 BE_INI_FUNCTION
-{}
+{
+  #ifdef HAVE_PYBIND11
+    static bool checked_rivet = false;
+    if (!checked_rivet)
+    {
+      // Contur uses the Python loader, not the BOSS AnalysisHandler. In
+      // particular on macOS they must share the same installed libRivet;
+      // a second build-tree library has an empty analysis registry.
+      const auto rivet = pybind11::module::import("rivet");
+      const auto names = rivet.attr("AnalysisLoader").attr("analysisNames")();
+      if (pybind11::len(names) == 0)
+      {
+        const auto core_path = rivet.attr("core").attr("__file__").cast<std::string>();
+        const auto paths = pybind11::str(rivet.attr("getAnalysisLibPaths")()).cast<std::string>();
+        backend_error().raise(LOCAL_INFO,
+          "Contur's Python Rivet loader found no analysis plugins. Python extension: "
+          + core_path + "; analysis paths: " + paths
+          + ". Check the Rivet installation and rebuild the Rivet backend. On macOS, "
+            "Python, BOSS and the analysis plugins must use the same installed libRivet, "
+            "not a second copy under src/.libs. No events have been analysed by this point.");
+      }
+      checked_rivet = true;
+    }
+  #endif
+}
 END_BE_INI_FUNCTION

@@ -86,6 +86,7 @@ namespace Gambit
           catch (std::runtime_error& e)
           {
             piped_errors.request(LOCAL_INFO, e.what());
+            return;
           }
         }
         else result.reset();

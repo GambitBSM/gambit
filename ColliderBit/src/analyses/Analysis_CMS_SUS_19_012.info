@@ -7,4 +7,5 @@ Signatures: ["=2L2 + 0TH + 2SSL + 0DY + <=1J + MET", ">=3L3 + <=2TH + MET"]
 Keywords: ["same-sign", "multilepton", "taus", "met", "mt2"]
 Note: SR binning in MT2.
 Authors: ["Tomas Gonzalo"]
+Analyses: [CMS_SUS_19_012_2Lep, CMS_SUS_19_012_3Lep, CMS_SUS_19_012_3LEPTau, CMS_SUS_19_012_4LEP, CMS_SUS_19_012_4LEPTau]
 OldName: CMS_13TeV_MultiLEP_137invfb

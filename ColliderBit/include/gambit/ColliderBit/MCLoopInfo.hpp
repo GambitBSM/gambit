@@ -64,6 +64,25 @@ namespace Gambit
       mutable std::set<unsigned int> rejected_event_ids;
       mutable bool store_event_ids = false;
 
+      struct InputFileStatistics
+      {
+        long long n_events = 0;
+        double sum_weights = 0.0;
+        double sum_weights2 = 0.0;
+      };
+      struct InputEventSource
+      {
+        int iteration;
+        str file;
+        long long file_event_index;
+        int original_event_number;
+      };
+      /// Populated by the normalised HepMC input stream under its read lock.
+      mutable std::map<str, InputFileStatistics> input_file_statistics;
+      mutable std::vector<InputEventSource> input_event_sources;
+      mutable std::vector<str> rivet_analyses;
+      mutable int contur_evaluations = 0;
+
       /// Convergence options for each collider
       std::map<str,convergence_settings> convergence_options;
 

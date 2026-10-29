@@ -20,6 +20,7 @@
 #pragma once
 
 #include <string>
+#include <cmath>
 #include "HEPUtils/Event.h"
 
 namespace Gambit {
@@ -34,6 +35,7 @@ namespace Gambit {
       std::string _name;
       int _sum;
       double _weight_sum;
+      double _weight_sum2;
       double _weight_sum_err;
       std::vector<unsigned int> _event_acceptance_record;
       bool _store_accepted_event_IDs;
@@ -46,6 +48,7 @@ namespace Gambit {
         _name(""),
         _sum(0),
         _weight_sum(0.0),
+        _weight_sum2(0.0),
         _weight_sum_err(0.0),
         _store_accepted_event_IDs(false)
       { }
@@ -54,6 +57,7 @@ namespace Gambit {
         _name(name),
         _sum(0),
         _weight_sum(0.0),
+        _weight_sum2(0.0),
         _weight_sum_err(0.0),
         _store_accepted_event_IDs(false)
       { }
@@ -65,6 +69,7 @@ namespace Gambit {
         _name = name;
         _sum = 0;
         _weight_sum = 0;
+        _weight_sum2 = 0;
         _weight_sum_err = 0;
         _event_acceptance_record.clear();
       }
@@ -74,6 +79,7 @@ namespace Gambit {
       {
         _sum = 0;
         _weight_sum = 0;
+        _weight_sum2 = 0;
         _weight_sum_err = 0;
         _event_acceptance_record.clear();
       }
@@ -92,6 +98,8 @@ namespace Gambit {
       void set_weight_sum(double weight_sum) { _weight_sum = weight_sum; }
       // Get weight sum
       double weight_sum() const { return _weight_sum; }
+      double weight_sum2() const { return _weight_sum2; }
+      void set_weight_sum2(double weight_sum2) { _weight_sum2 = weight_sum2; }
 
       // Set weight sum error
       void set_weight_sum_err(double weight_sum_err) { _weight_sum_err = weight_sum_err; }
@@ -104,6 +112,7 @@ namespace Gambit {
       {
         _sum++;
         _weight_sum += w;
+        _weight_sum2 += w * w;
         _weight_sum_err = sqrt((_weight_sum_err * _weight_sum_err) + (werr * werr));
         if (_store_accepted_event_IDs)
         {
@@ -139,6 +148,7 @@ namespace Gambit {
       {
         _sum += rhs.sum();
         _weight_sum += rhs.weight_sum();
+        _weight_sum2 += rhs.weight_sum2();
         _weight_sum_err = sqrt( (_weight_sum_err * _weight_sum_err) + (rhs.weight_sum_err() * rhs.weight_sum_err()) );
         if (_store_accepted_event_IDs)
         {
@@ -152,6 +162,7 @@ namespace Gambit {
       {
         _sum += other.sum();
         _weight_sum += other.weight_sum();
+        _weight_sum2 += other.weight_sum2();
 
         double other_weight_sum_err = other.weight_sum_err();
         _weight_sum_err = sqrt((_weight_sum_err * _weight_sum_err) + (other_weight_sum_err * other_weight_sum_err));

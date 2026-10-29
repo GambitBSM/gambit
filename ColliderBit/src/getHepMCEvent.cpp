@@ -50,6 +50,8 @@
 #include "gambit/ColliderBit/colliders/Pythia8/Py8EventConversions.hpp"
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/GenParticle.h"
+#include "HepMC3/GenRunInfo.h"
+#include "HepMC3/GenCrossSection.h"
 
 #include <cmath>
 #include <sstream>
@@ -205,41 +207,87 @@ namespace Gambit
     /// A nested function that reads in HepMC event files
     void readHepMCEvent(HepMC3::GenEvent& result, const str HepMC_filename,
                         const MCLoopInfo& RunMC, const int iteration,
-                        void(*halt)())
+                        void(*halt)(), const Options* input_options = nullptr)
     {
       result.clear();
 
-      // The reader owns the plain/gzip stream and is shared across threads;
-      // the critical section below serialises event reads.
-      static std::unique_ptr<HepMC3::Reader> HepMCio;
+      static std::unique_ptr<HepMC3::Reader> reader;
+      static YAML::Node files;
+      static std::size_t file_index;
+      static long long file_events;
+      static std::shared_ptr<HepMC3::GenRunInfo> logical_run;
+      const bool normalised = input_options && input_options->hasKey("cbs_inputs");
       if (iteration == BASE_INIT)
       {
-        HepMCio = make_hepmc_reader(HepMC_filename);
+        file_index = 0;
+        file_events = 0;
+        RunMC.input_file_statistics.clear();
+        RunMC.input_event_sources.clear();
+        files = normalised ? YAML::Clone(input_options->getValue<YAML::Node>("cbs_inputs")) : YAML::Node();
+        reader = make_hepmc_reader(normalised ? files[0]["file"].as<str>() : HepMC_filename);
+        logical_run = std::make_shared<HepMC3::GenRunInfo>();
+        logical_run->set_weight_names({"nominal"});
       }
-      if (iteration == BASE_FINALIZE)
-        HepMCio.reset();
-
-      // Don't do anything else during special iterations
+      if (iteration == BASE_FINALIZE) { reader.reset(); logical_run.reset(); }
       if (iteration < 0) return;
 
-      #ifdef COLLIDERBIT_DEBUG
-        cout << DEBUG_PREFIX << "Event number: " << iteration << endl;
-      #endif
-
-      // Attempt to read the next HepMC event. If there are no more events, wrap up the loop and skip the rest of this iteration.
-      bool event_retrieved = true;
+      bool event_retrieved = false;
+      std::string input_error;
       #pragma omp critical (reading_HepMCEvent)
       {
-        event_retrieved = HepMCio->read_event(result);
-
-        // FIXME This is a temp solution to ensure that the event reading
-        //       stops when there are no more events in the HepMC file.
-        //       Remove this once bugfix is implemented in HepMC.
-        if ((result.particles().size() == 0) && (result.vertices().size() == 0)) event_retrieved = false;
+        try
+        {
+          while (true)
+          {
+            result.clear();
+            event_retrieved = reader->read_event(result) && !result.particles().empty();
+            if (event_retrieved) break;
+            if (!normalised) break;
+            const auto expected = files[file_index]["n_events"].as<long long>();
+            if (file_events != expected)
+              throw std::runtime_error("HepMC input changed or failed during analysis: "
+                                       + files[file_index]["file"].as<str>());
+            if (++file_index == files.size())
+              throw std::runtime_error("Unexpected end of normalised HepMC input stream.");
+            file_events = 0;
+            reader = make_hepmc_reader(files[file_index]["file"].as<str>());
+          }
+          if (event_retrieved && normalised)
+          {
+            const str filename = files[file_index]["file"].as<str>();
+            const str nominal = input_options->getValueOrDef<str>("", "nominal_weight_name");
+            const double raw = nominal_hepmc_weight(result, nominal, filename);
+            auto& statistics = RunMC.input_file_statistics[filename];
+            ++statistics.n_events;
+            ++file_events;
+            if (file_events > files[file_index]["n_events"].as<long long>())
+              throw std::runtime_error("HepMC input gained events after validation: " + filename);
+            statistics.sum_weights += raw;
+            statistics.sum_weights2 += raw * raw;
+            if (input_options->getValueOrDef<bool>(false, "trace_input_events"))
+              RunMC.input_event_sources.push_back({iteration, filename, file_events, result.event_number()});
+            // These are independent LO events in a single physical mixture.
+            // Uniform run metadata and cross section make source-file boundaries
+            // invisible to the analyses: no shared handler is reset or mutated.
+            result.set_run_info(logical_run);
+            result.weights() = {raw * files[file_index]["weight_scale"].as<double>()};
+            result.set_event_number(iteration);
+            auto cross_section = std::make_shared<HepMC3::GenCrossSection>();
+            cross_section->set_cross_section(input_options->getValue<double>("cbs_cross_section_pb"),
+                                            input_options->getValue<double>("cbs_cross_section_uncert_pb"));
+            result.set_cross_section(cross_section);
+          }
+        }
+        catch (const std::exception& error) { input_error = error.what(); }
       }
-      if (not event_retrieved)
+      if (!input_error.empty())
       {
-        // Tell the MCLoopInfo instance that we have reached the end of the file
+        piped_errors.request(LOCAL_INFO, input_error);
+        halt();
+        return;
+      }
+      if (!event_retrieved)
+      {
         RunMC.report_end_of_event_file(iteration);
         halt();
       }
@@ -254,7 +302,7 @@ namespace Gambit
       const static str HepMC_filename = runOptions->getValueOrDef<str>("", "hepmc_filename");
 
       // Get the HepMC event
-      readHepMCEvent(result, HepMC_filename, *Dep::RunMC, *Loop::iteration, Loop::halt);
+      readHepMCEvent(result, HepMC_filename, *Dep::RunMC, *Loop::iteration, Loop::halt, &*runOptions);
 
       // CBS uses Rivet's run-boundary convention: normalise the first event
       // and validate every physical event against its run conditions.
@@ -264,7 +312,12 @@ namespace Gambit
         {
           result.set_units(HepMC3::Units::GEV, HepMC3::Units::MM);
         }
-        validate_cbs_event(result, *runOptions);
+        try { validate_cbs_event(result, *runOptions); }
+        catch (const std::exception& error)
+        {
+          piped_errors.request(LOCAL_INFO, error.what());
+          Loop::halt();
+        }
       }
 
     }
@@ -289,11 +342,11 @@ namespace Gambit
       //We need to not do anything else on special iterations, where an event has not actually been extracted:
       if (*Loop::iteration < 0) return;
 
-      //Set the weight
-      result.set_weight(ge.weight());
-
       //Translate to HEPUtils event by calling the unified HEPMC/Pythia event converter:
       Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, all_jet_collection_settings, jetcollection_taus, jet_pt_min);
+      // The converter clears its destination, including weights and event ID.
+      result.set_weight(ge.weights().empty() ? 1.0 : ge.weight());
+      result.set_id(*Loop::iteration);
 
     }
 
@@ -313,11 +366,11 @@ namespace Gambit
       const std::vector<jet_collection_settings>& all_jet_collection_settings = parsed_collections.collections;
       const str& jetcollection_taus = parsed_collections.jetcollection_taus;
 
-      //Set the weight
-      result.set_weight(ge.weight());
-
       //Translate to HEPUtils event by calling the unified HEPMC/Pythia event converter:
       Gambit::ColliderBit::convertParticleEvent(ge.particles(), result, all_jet_collection_settings, jetcollection_taus, jet_pt_min);
+      // The converter clears its destination, including weights and event ID.
+      result.set_weight(ge.weights().empty() ? 1.0 : ge.weight());
+      result.set_id(*Loop::iteration);
     }
 
   }

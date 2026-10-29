@@ -23,6 +23,8 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
+#include <stdexcept>
 
 #include "gambit/ColliderBit/Utils.hpp"
 
@@ -64,6 +66,13 @@ namespace Gambit
       Cutflow(const Cutflow& cf)
         : name(cf.name), ncuts(cf.ncuts), cuts(cf.cuts), counts(cf.counts), icurr(omp_get_max_threads(),0)
       {  }
+
+      /// Reset statistics and cursors while retaining the booked cut definition.
+      void reset()
+      {
+        std::fill(counts.begin(), counts.end(), 0.0);
+        icurr.assign(omp_get_max_threads(), 0);
+      }
 
       /// @brief Fill the pre-cut counter
       void fillinit(double weight=1.)
@@ -290,16 +299,20 @@ namespace Gambit
       {
         for (Cutflow& cf : cfs)
           if (cf.name == name) return cf;
-        // throw UserError("Requested cut-flow name '" + name + "' does not exist");
-        throw 0;
+        throw std::out_of_range("Requested cutflow '" + name + "' does not exist.");
       }
       /// Access the @a i'th Cutflow (const)
       const Cutflow& operator [] (const string& name) const
       {
         for (const Cutflow& cf : cfs)
           if (cf.name == name) return cf;
-        // throw UserError("Requested cut-flow name '" + name + "' does not exist");
-        throw 0;
+        throw std::out_of_range("Requested cutflow '" + name + "' does not exist.");
+      }
+
+      /// Reset every booked cutflow without losing names or cut structure.
+      void reset()
+      {
+        for (Cutflow& cf : cfs) cf.reset();
       }
 
       /// Fill the pre-cuts state counter for all contained {Cutflow}s

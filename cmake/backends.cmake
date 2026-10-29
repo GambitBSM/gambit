@@ -2270,6 +2270,10 @@ if(NOT ditched_${name}_${ver})
       "${dir}/local/lib/Rivet/RivetATLASAnalyses.so"
       "${dir}/local/lib/Rivet/RivetCMSAnalyses.so"
       "${dir}/local/lib/Rivet/RivetLHCbAnalyses.so")
+  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    # Both BOSS (.so alias) and Python/plugins must resolve to this one library.
+    list(APPEND _rivet_rebuild_outputs "${dir}/local/lib/libRivet.dylib")
+  endif()
   if(pyext STREQUAL "yes")
     # Autotools may use site-packages or dist-packages, depending on Python.
     list(APPEND _rivet_rebuild_outputs "${dir}/local/**/rivet/core.so"
@@ -2337,6 +2341,8 @@ if(NOT ditched_${name}_${ver})
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${Rivet_PY_PATH}')" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${dir}')" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "os.environ[\"CONTUR_ROOT\"]='${dir}'" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "os.environ[\"CONTUR_DATA_PATH\"]='${dir}'" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "os.environ[\"CONTUR_USER_DIR\"]='${dir}/data/DB'" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from ctypes import *" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "cdll.LoadLibrary(\"${Rivet_LIB}\")" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from run import run_analysis" >> ${init_file}

@@ -42,6 +42,11 @@ settings:
   covariance_nsamples_start: 100000 
   output: ./runs/CBS_result.json
   screen_output: true
+  # summary: log L totals, one row per analysis, contributing Contur pools,
+  # sampling advice, and input normalization.
+  # full: the same summary, plus every signal region, cutflow, and Contur pool.
+  # Command line overrides this: cbs --report full <yaml>
+  report: summary
   jet_collections:
     antikt_R04:
       algorithm: antikt

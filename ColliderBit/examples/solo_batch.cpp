@@ -826,7 +826,7 @@ namespace Gambit
       } // namespace
 
       /// Execute per-file jobs sequentially for one parameter point and merge signals.
-      /// Within each physics process, weight files by their processed event counts;
+      /// Within each physics process, weight files by their nominal input sums;
       /// add the resulting process yields and independent MC variances.  Each analysis
       /// only receives the files of its own collider, and is normalised to that
       /// collider's cross section and event count when its likelihood is recomputed.
@@ -890,7 +890,7 @@ namespace Gambit
         }
 
         // Process-file combination rule:
-        // for files belonging to the same process, combine with event-count weights.
+        // Common weight units: pool files with their nominal sums, not counts.
         for (const CompletedRun& completed : completed_runs)
         {
           const long long process_events = process_event_totals.at(completed.job.process_index);
@@ -898,8 +898,11 @@ namespace Gambit
           {
             throw std::runtime_error("Missing process event total for process " + completed.job.process_name + ".");
           }
-          const double process_weight =
-            static_cast<double>(completed.n_events) / static_cast<double>(process_events);
+          double process_sum_weights = 0.0;
+          for (const auto& file : prepared_input.processes.at(completed.job.process_index).files)
+            process_sum_weights += prepared_input.input_statistics.at(file.filename).sum_weights;
+          const double process_weight = prepared_input.input_statistics.at(completed.job.hepmc_file).sum_weights
+                                        / process_sum_weights;
 
           for (const auto& analysis_item : completed.analyses_json.items())
           {
@@ -1051,6 +1054,169 @@ namespace Gambit
           fs::remove_all(temp_dir);
         }
 
+        return merged;
+      }
+
+      // A collider is a complete physical mixture. Each child performs its
+      // own input normalisation, raw Rivet merge and one Contur evaluation.
+      MergedRunResult run_joint_colliders(
+        const std::string& cbs_executable,
+        const SoloInput::PreparedInput& prepared_input,
+        const Options& settings,
+        double (*marginaliser)(const int&, const double&, const double&, const double&),
+        bool (*FullLikes_FileExists)(const str&),
+        int (*FullLikes_ReadIn)(const str&, const str&, const str&),
+        double (*FullLikes_Evaluate)(std::map<str,double>&, const str&))
+      {
+        const fs::path temp_dir = make_temp_dir();
+        const bool with_contur = bool(prepared_input.infile["contur-settings"]);
+        MergedRunResult merged;
+        merged.process_event_counts.resize(prepared_input.processes.size(), 0);
+        for (const auto& collider : prepared_input.colliders)
+        {
+          if (!with_contur && collider.analyses.empty()) continue;
+          RunJob job;
+          job.collider_name = collider.name;
+          job.hepmc_file = collider.hepmc_filenames.front();
+          job.yaml_file = temp_dir / (collider.name + ".yaml");
+          job.output_json_file = temp_dir / (collider.name + ".json");
+          YAML::Node child = YAML::Clone(prepared_input.infile);
+          child["analyses"] = collider.analyses;
+          auto child_settings = child["settings"];
+          for (const char* key : {"event_file", "cross_section_fb", "cross_section_pb",
+                                 "cross_section_uncert_fb", "cross_section_uncert_pb",
+                                 "cross_section_fractional_uncert"}) child_settings.remove(key);
+          YAML::Node processes(YAML::NodeType::Sequence);
+          for (const auto index : collider.process_indices)
+          {
+            const auto& process = prepared_input.processes.at(index);
+            YAML::Node item;
+            item["name"] = process.name;
+            item["cross_section_fb"] = process.cross_section_fb;
+            item["cross_section_uncert_fb"] = process.cross_section_uncert_fb;
+            item["files"] = YAML::Node(YAML::NodeType::Sequence);
+            for (const auto& file : process.files) item["files"].push_back(file.filename);
+            processes.push_back(item);
+          }
+          child_settings["processes"] = processes;
+          child_settings["cbs_collider_name"] = collider.name;
+          child_settings["screen_output"] = false;
+          child_settings["hepmc_progress"] = settings.getValueOrDef<bool>(
+            settings.getValueOrDef<bool>(true, "screen_output"), "hepmc_progress");
+          child_settings["event_progress_label"] = "CBS HepMC " + collider.name;
+          if (settings.hasKey("output"))
+          {
+            const std::string user_output = settings.getValue<std::string>("output");
+            if (!user_output.empty())
+            {
+              child_settings["artifact_directory"] =
+                SoloOutput::prepare_output_directory(user_output);
+            }
+          }
+          child_settings["output"] = job.output_json_file.string();
+          write_yaml_file(child, job.yaml_file);
+          run_single_job(cbs_executable, job);
+          const auto result = read_json_file(job.output_json_file);
+          const auto& run = result.at("run");
+          const int count = run.at("n_events").get<int>();
+          if (count <= 0 || merged.total_events > std::numeric_limits<int>::max() - count)
+            throw std::runtime_error("Invalid combined CBS event count for " + collider.name);
+          merged.total_events += count;
+          merged.total_process_events += count;
+          merged.collider_event_counts[collider.name] = count;
+          for (const auto& input : run.at("input_files"))
+          {
+            SoloOutput::InputFileSummaryEntry entry;
+            entry.file = input.at("file").get<std::string>();
+            entry.process = input.at("process").get<std::string>();
+            entry.collider = collider.name;
+            entry.n_events = input.at("n_events").get<long long>();
+            entry.sum_weights = input.at("sum_weights").get<double>();
+            entry.sum_weights2 = input.at("sum_weights2").get<double>();
+            entry.nominal_name = input.at("nominal_name").get<std::string>();
+            entry.nominal_index = input.at("nominal_index").get<int>();
+            entry.weight_scale = input.at("weight_scale").get<double>();
+            entry.process_cross_section_fb = input.at("process_cross_section_fb").get<double>();
+            entry.process_cross_section_uncert_fb = input.at("process_cross_section_uncert_fb").get<double>();
+            for (const auto index : collider.process_indices)
+              if (prepared_input.processes[index].name == entry.process)
+                merged.process_event_counts[index] += entry.n_events;
+            merged.input_files.push_back(std::move(entry));
+          }
+          if (run.contains("event_sources"))
+            for (const auto& source : run.at("event_sources"))
+              merged.input_loop.input_event_sources.push_back({source.at("iteration").get<int>(),
+                source.at("file").get<std::string>(), source.at("file_event_index").get<long long>(),
+                source.at("original_event_number").get<int>()});
+          merged.input_loop.contur_evaluations += run.at("contur_evaluations").get<int>();
+          for (const auto& name : run.at("rivet_analyses"))
+          {
+            const auto analysis = name.get<std::string>();
+            if (std::find(merged.rivet_analyses.begin(), merged.rivet_analyses.end(), analysis)
+                == merged.rivet_analyses.end()) merged.rivet_analyses.push_back(analysis);
+          }
+          for (const auto& item : result.at("analyses").items())
+          {
+            const auto assigned = prepared_input.analysis_colliders.find(item.key());
+            if (assigned == prepared_input.analysis_colliders.end() || assigned->second != collider.name)
+              throw std::runtime_error("Unexpected child analysis " + item.key() + " for " + collider.name);
+            const auto& json = item.value();
+            AnalysisAccumulator accumulator;
+            const auto payloads = parse_sorted_sr_payloads(json);
+            initialize_accumulator(accumulator, item.key(), collider.name, json, payloads,
+                                   parse_cutflows_or_empty(json));
+            accumulator.data.histograms = parse_histograms_or_empty(json);
+            accumulator.data.detector_name = json.at("detector").get<std::string>();
+            for (std::size_t i = 0; i < payloads.size(); ++i)
+            {
+              auto& sr = accumulator.data.srdata[i];
+              const auto& values = json.at("signal_regions").at(sr.sr_label);
+              sr.n_sig_MC = values.at("n_sig_MC").get<double>();
+              sr.n_sig_MC_stat = values.at("n_sig_MC_stat").get<double>();
+              sr.n_sig_MC_sys = values.at("n_sig_MC_sys").get<double>();
+              sr.n_sig_scaled = values.at("n_sig_scaled").get<double>();
+              if (values.contains("accepted_event_ids"))
+              {
+                sr.accepted_event_ids = values.at("accepted_event_ids").get<std::vector<unsigned int>>();
+                sr.has_event_records = true;
+              }
+            }
+            merged.analyses_storage.push_back(std::move(accumulator.data));
+          }
+          if (with_contur)
+          {
+            if (run.at("contur_evaluations").get<int>() != 1)
+              throw std::runtime_error("Expected exactly one Contur evaluation for " + collider.name);
+            merged.contur_loglike += result.at("contur").at("total_loglike").get<double>();
+            for (const auto& pool : result.at("contur").at("pools").items())
+            {
+              if (merged.contur_pool_loglikes.count(pool.key()))
+                throw std::runtime_error("Contur pool " + pool.key()
+                  + " appears in multiple colliders; a joint experimental covariance is required.");
+              merged.contur_pool_loglikes[pool.key()] = pool.value().at("loglike").get<double>();
+              merged.contur_pool_info[pool.key()] = pool.value().at("dominant_measurement").get<std::string>();
+            }
+          }
+        }
+        for (auto& analysis : merged.analyses_storage) merged.analyses.push_back(&analysis);
+        Options loglike_options = settings;
+        loglike_options.setValue("poisson_like_estimator",
+          settings.getValueOrDef<std::string>("MLE", "poisson_like_estimator"));
+        const bool use_fulllikes = FullLikes_FileExists && FullLikes_ReadIn && FullLikes_Evaluate;
+        for (const auto& collider : prepared_input.colliders)
+        {
+          AnalysisDataPointers analyses;
+          for (auto* analysis : merged.analyses)
+            if (analysis->collider_name == collider.name) analyses.push_back(analysis);
+          if (analyses.empty()) continue;
+          map_str_AnalysisLogLikes loglikes;
+          calc_LHC_LogLikes_common(loglikes, use_fulllikes, analyses, loglike_options, marginaliser,
+            false, FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate,
+            collider.cross_section_fb, int(merged.collider_event_counts.at(collider.name)));
+          merged.analysis_loglikes.insert(loglikes.begin(), loglikes.end());
+        }
+        merged.combined_loglike = compute_combined_loglike(merged.analysis_loglikes, settings);
+        if (!settings.getValueOrDef<bool>(false, "keep_batch_tmp")) fs::remove_all(temp_dir);
         return merged;
       }
 

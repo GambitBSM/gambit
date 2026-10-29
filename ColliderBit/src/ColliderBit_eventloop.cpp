@@ -108,6 +108,36 @@ namespace Gambit
       using namespace Pipes::operateLHCLoop;
       static std::streambuf *coutbuf = std::cout.rdbuf(); // save cout buffer for running the loop quietly
 
+      // A failed search or backend call can bypass COLLIDER_FINALIZE. Release
+      // surviving Rivet handlers on normal return and exception unwinding,
+      // before process exit destroys the backend's thread-local log maps.
+      struct LoopCleanup
+      {
+        std::streambuf* saved_cout;
+        ~LoopCleanup()
+        {
+          clear_rivet_measurements();
+          std::cout.rdbuf(saved_cout);
+        }
+      } cleanup{coutbuf};
+
+      // An exception must be handled by the worker which threw it before the
+      // OpenMP region ends. Deliver diagnostics via the existing main-thread
+      // error pipe, rather than allowing OpenMP to call std::terminate.
+      const auto request_iteration_error = [&](int iteration, const str& message)
+      {
+        piped_errors.request(LOCAL_INFO, "ColliderBit collider '" + result.current_collider()
+          + "', iteration " + std::to_string(iteration) + ", thread "
+          + std::to_string(omp_get_thread_num()) + ": " + message);
+      };
+      const auto execute_parallel_iteration = [&](int iteration)
+      {
+        try { Loop::executeIteration(iteration); }
+        catch (const std::exception& error) { request_iteration_error(iteration, error.what()); }
+        catch (int code) { request_iteration_error(iteration, "integer exception " + std::to_string(code)); }
+        catch (...) { request_iteration_error(iteration, "unknown non-standard exception"); }
+      };
+
       #ifdef COLLIDERBIT_DEBUG
         cout << DEBUG_PREFIX << endl;
         cout << DEBUG_PREFIX << "~~~~ New point! ~~~~" << endl;
@@ -287,7 +317,7 @@ namespace Gambit
         #endif
         #pragma omp parallel
         {
-          Loop::executeIteration(COLLIDER_INIT_OMP);
+          execute_parallel_iteration(COLLIDER_INIT_OMP);
         }
         // Any problems during the COLLIDER_INIT_OMP step?
         piped_warnings.check(ColliderBit_warning());
@@ -313,7 +343,7 @@ namespace Gambit
         result.current_event_count() = 0;
         #pragma omp parallel
         {
-          Loop::executeIteration(START_SUBPROCESS);
+          execute_parallel_iteration(START_SUBPROCESS);
         }
         // Any problems during the START_SUBPROCESS step?
         piped_warnings.check(ColliderBit_warning());
@@ -386,6 +416,18 @@ namespace Gambit
                     eventCountBetweenConvergenceChecks--;
                   }
                 }
+                catch (const std::exception& error)
+                {
+                  request_iteration_error(thread_my_iteration, error.what());
+                }
+                catch (int code)
+                {
+                  request_iteration_error(thread_my_iteration, "integer exception " + std::to_string(code));
+                }
+                catch (...)
+                {
+                  request_iteration_error(thread_my_iteration, "unknown non-standard exception");
+                }
               }
 
             } // end while loop
@@ -431,7 +473,7 @@ namespace Gambit
           {
             #pragma omp parallel
             {
-              Loop::executeIteration(COLLECT_CONVERGENCE_DATA);
+              execute_parallel_iteration(COLLECT_CONVERGENCE_DATA);
             }
             // Any problems during the COLLECT_CONVERGENCE_DATA step?
             piped_warnings.check(ColliderBit_warning());
@@ -451,7 +493,7 @@ namespace Gambit
 
         #pragma omp parallel
         {
-          Loop::executeIteration(END_SUBPROCESS);
+          execute_parallel_iteration(END_SUBPROCESS);
         }
         // Any problems during the END_SUBPROCESS step?
         piped_warnings.check(ColliderBit_warning());
@@ -462,6 +504,16 @@ namespace Gambit
         // OMP parallelized sections end here
         //
 
+        // End the progress line before finalizers (notably Python/Contur)
+        // write their own output, including when finalization raises an error.
+        if (progress_line_active)
+        {
+          if (silenceLoop) std::cout.rdbuf(coutbuf);
+          cout << endl;
+          if (silenceLoop) std::cout.rdbuf(0);
+          progress_line_active = false;
+        }
+
         Loop::executeIteration(COLLIDER_FINALIZE);
 
         // Any problems during the COLLIDER_FINALIZE step?
@@ -469,12 +521,6 @@ namespace Gambit
         piped_errors.check(ColliderBit_error());
         piped_invalid_point.check();
 
-        if (progress_line_active)
-        {
-          if (silenceLoop) std::cout.rdbuf(coutbuf);
-          cout << endl;
-          if (silenceLoop) std::cout.rdbuf(0);
-        }
       }
 
       // Nicely thank the loop for being quiet, and restore everyone's vocal chords

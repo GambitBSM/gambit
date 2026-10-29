@@ -125,7 +125,7 @@ namespace Gambit
           if (contains(record.name)) return true;
           static const char* searchable[] = {
             "Summary", "OldName", "ExptRun", "Keywords", "Signatures",
-            "Authors", "Note", "Validation", "InspireID"
+            "Authors", "Note", "Validation", "InspireID", "Analyses"
           };
           for (const char* key : searchable)
           {
@@ -188,25 +188,39 @@ namespace Gambit
         /// Print one summary row per analysis for an unfiltered catalogue listing.
         void print_compact_table(std::ostream& output, const std::vector<AnalysisRecord>& records)
         {
+          std::size_t name_width = 36;
+          std::size_t run_width = 12;
+          std::size_t energy_width = 10;
+          std::size_t lumi_width = 10;
+          std::size_t inspire_width = 12;
+          std::size_t summary_width = 7;
+          for (const auto& record : records)
+          {
+            name_width = std::max(name_width, record.name.size() + 2);
+            run_width = std::max(run_width, field(record, "ExptRun").size() + 2);
+            energy_width = std::max(energy_width, field(record, "Ecm_TeV").size() + 2);
+            lumi_width = std::max(lumi_width, field(record, "Lumi_ifb").size() + 2);
+            inspire_width = std::max(inspire_width, field(record, "InspireID").size() + 2);
+            summary_width = std::max(summary_width, field(record, "Summary").size());
+          }
           output << std::left
-                 << std::setw(36) << "Name"
-                 << std::setw(12) << "ExptRun"
-                 << std::setw(10) << "Ecm_TeV"
-                 << std::setw(10) << "Lumi_ifb"
-                 << std::setw(12) << "InspireID"
+                 << std::setw(name_width) << "Name"
+                 << std::setw(run_width) << "ExptRun"
+                 << std::setw(energy_width) << "Ecm_TeV"
+                 << std::setw(lumi_width) << "Lumi_ifb"
+                 << std::setw(inspire_width) << "InspireID"
                  << "Summary\n";
-          output << std::string(110, '-') << '\n';
+          output << std::string(name_width + run_width + energy_width + lumi_width
+            + inspire_width + summary_width, '-') << '\n';
           for (const AnalysisRecord& record : records)
           {
-            std::string summary = field(record, "Summary");
-            if (summary.size() > 70) summary = summary.substr(0, 67) + "...";
             output << std::left
-                   << std::setw(36) << record.name
-                   << std::setw(12) << field(record, "ExptRun")
-                   << std::setw(10) << field(record, "Ecm_TeV")
-                   << std::setw(10) << field(record, "Lumi_ifb")
-                   << std::setw(12) << field(record, "InspireID")
-                   << summary << '\n';
+                   << std::setw(name_width) << record.name
+                   << std::setw(run_width) << field(record, "ExptRun")
+                   << std::setw(energy_width) << field(record, "Ecm_TeV")
+                   << std::setw(lumi_width) << field(record, "Lumi_ifb")
+                   << std::setw(inspire_width) << field(record, "InspireID")
+                   << field(record, "Summary") << '\n';
           }
         }
 
@@ -216,7 +230,7 @@ namespace Gambit
           output << record.name << '\n';
           static const char* ordered_keys[] = {
             "Summary", "InspireID", "ExptRun", "Ecm_TeV", "Lumi_ifb",
-            "Signatures", "Keywords", "Authors", "OldName", "Note", "Validation"
+            "Signatures", "Keywords", "Authors", "OldName", "Note", "Validation", "Analyses"
           };
 
           auto print_key = [&](const std::string& key, const std::string& value) {
@@ -248,6 +262,11 @@ namespace Gambit
           << "\nOptions:\n"
           << "  -h, --help                   Display this usage information\n"
           << "  -l, --list-analyses [query]  List validation-approved ColliderBit analyses from .info metadata\n"
+          << "  --report <summary|full>      Screen report. Default: summary. Overrides settings.report.\n"
+          << "                               summary prints ColliderBit and Contur log L, one row per\n"
+          << "                               analysis, Contur pools with nonzero log L, sampling advice,\n"
+          << "                               and the input normalization.\n"
+          << "                               full also prints every signal region, cutflow, and Contur pool.\n"
           << "\nCBS performs local, single-point recasting. With settings.processes,\n"
           << "HepMC files are processed sequentially and their results are merged.\n"
           << std::endl;
@@ -311,9 +330,11 @@ namespace Gambit
         CommandLineOptions& options
       )
       {
+        const int report_option = 1000;
         const struct option command_line_options[] = {
           {"help", no_argument, 0, 'h'},
           {"list-analyses", no_argument, 0, 'l'},
+          {"report", required_argument, 0, report_option},
           {0, 0, 0, 0}
         };
 
@@ -335,6 +356,17 @@ namespace Gambit
 
             case 'l':
               list_analyses = true;
+              break;
+
+            case 1000:
+              if (std::string(optarg) != "summary" && std::string(optarg) != "full")
+              {
+                std::cerr << "CBS --report must be 'summary' or 'full'.\n";
+                print_usage(std::cerr, argv[0]);
+                return CommandLineStatus::error;
+              }
+              options.has_report = true;
+              options.report = optarg;
               break;
 
             case '?':

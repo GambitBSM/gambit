@@ -39,6 +39,8 @@ namespace Gambit
       {
         std::string filename;
         std::string analysis_query;
+        bool has_report = false;
+        std::string report;
       };
 
       /// Print CBS command-line usage information.

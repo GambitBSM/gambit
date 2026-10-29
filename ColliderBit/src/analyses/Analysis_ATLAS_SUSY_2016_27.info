@@ -7,5 +7,6 @@ Superseded: true
 Signatures: ["1P + MET", "2P + MET"]
 Keywords: ["photon", "gauge-mediation", "met"]
 Authors: ["Martin White"]
-Note: The later 139/fb photon+jets+MET publication is INSPIRE 2094882; this 36.1/fb record is retained for the implemented analysis.
+Note: The later 139/fb photon+jets+MET publication is INSPIRE 2094882; this 36.1/fb record is retained for the implemented analysis. Photon isolation is not implemented.
+Analyses: [ATLAS_SUSY_2016_27_1Photon, ATLAS_SUSY_2016_27_2Photon]
 OldName: ATLAS_13TeV_PhotonGGM_36invfb

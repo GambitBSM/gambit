@@ -8,6 +8,8 @@
 
 #include "solo_output.hpp"
 
+#include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -27,6 +29,48 @@ namespace Gambit
   {
     namespace SoloOutput
     {
+      namespace
+      {
+        std::string trim_trailing_zeros(std::string text)
+        {
+          if (text.find('e') != std::string::npos || text.find('E') != std::string::npos) return text;
+          const auto dot = text.find('.');
+          if (dot == std::string::npos) return text;
+          while (!text.empty() && text.back() == '0') text.pop_back();
+          if (!text.empty() && text.back() == '.') text.pop_back();
+          if (text.empty() || text == "-" || text == "+") return "0";
+          return text;
+        }
+      }
+
+      /// At most `significant` digits, and at most four digits after the decimal.
+      /// Magnitudes outside [1e-3, 1e6) use scientific notation. JSON stays exact.
+      std::string format_screen_number(double value, int significant)
+      {
+        if (significant < 1) significant = 1;
+        if (std::isnan(value)) return "nan";
+        if (std::isinf(value)) return value < 0.0 ? "-inf" : "inf";
+        if (value == 0.0) return "0";
+
+        const double magnitude = std::abs(value);
+        std::ostringstream formatted;
+        if (magnitude >= 1.0e6 || magnitude < 1.0e-3)
+        {
+          formatted << std::scientific << std::setprecision(significant - 1) << value;
+          const std::string text = formatted.str();
+          const auto exponent = text.find_first_of("eE");
+          if (exponent == std::string::npos) return text;
+          return trim_trailing_zeros(text.substr(0, exponent)) + text.substr(exponent);
+        }
+
+        const int digits_before = magnitude >= 1.0
+          ? static_cast<int>(std::floor(std::log10(magnitude))) + 1
+          : 0;
+        const int decimals = std::min(4, std::max(0, significant - digits_before));
+        formatted << std::fixed << std::setprecision(decimals) << value;
+        return trim_trailing_zeros(formatted.str());
+      }
+
       namespace
       {
         // Identify the JSON format consumed by batch merging and downstream tools.
@@ -97,6 +141,7 @@ namespace Gambit
         nlohmann::json build_cutflows_json(const Cutflows& cutflows)
         {
           nlohmann::json cutflows_json = nlohmann::json::array();
+          if (!Cutflow::check_cutflow()) return cutflows_json;
 
           for (const Cutflow& cutflow : cutflows.cfs)
           {
@@ -241,16 +286,10 @@ namespace Gambit
           return result;
         }
 
-        constexpr std::size_t screen_table_width = 80;
+        // Section rules keep a familiar minimum width; table columns grow to
+        // retain every identifier and formatted number without truncation.
+        constexpr std::size_t screen_rule_width = 80;
         constexpr std::size_t screen_column_gap = 2;
-
-        std::string fit_screen_text(const std::string& value, std::size_t width)
-        {
-          if (width == 0) return "";
-          if (value.size() <= width) return value;
-          if (width <= 3) return value.substr(0, width);
-          return value.substr(0, width - 3) + "...";
-        }
 
         void print_screen_cell(
           std::ostream& output,
@@ -259,26 +298,260 @@ namespace Gambit
           bool right_aligned = false)
         {
           output << (right_aligned ? std::right : std::left)
-                 << std::setw(width) << fit_screen_text(value, width);
+                 << std::setw(width) << value;
         }
 
-        std::string format_screen_number(double value, int precision = 6)
+        struct DecimalParts
         {
-          std::ostringstream formatted;
-          formatted << std::setprecision(precision) << std::defaultfloat << value;
-          return formatted.str();
+          std::string whole;
+          std::string fraction;
+        };
+
+        DecimalParts split_decimal(const std::string& text)
+        {
+          DecimalParts parts;
+          if (text.find('e') != std::string::npos || text.find('E') != std::string::npos)
+          {
+            parts.whole = text;
+            return parts;
+          }
+          const auto dot = text.find('.');
+          if (dot == std::string::npos)
+          {
+            parts.whole = text;
+            return parts;
+          }
+          parts.whole = text.substr(0, dot);
+          parts.fraction = text.substr(dot + 1);
+          return parts;
         }
 
-        std::string format_screen_uncertainty(
-          double value, double uncertainty, int precision = 6)
+        // Pad numbers so their decimal points share a column. A missing "-" stays put.
+        std::vector<std::string> align_number_column(const std::vector<std::string>& texts)
         {
-          return format_screen_number(value, precision) + " +/- "
-            + format_screen_number(uncertainty, precision);
+          std::size_t whole_width = 0;
+          std::size_t fraction_width = 0;
+          std::vector<DecimalParts> parts(texts.size());
+          for (std::size_t index = 0; index < texts.size(); ++index)
+          {
+            if (texts[index].empty() || texts[index] == "-") continue;
+            parts[index] = split_decimal(texts[index]);
+            whole_width = std::max(whole_width, parts[index].whole.size());
+            fraction_width = std::max(fraction_width, parts[index].fraction.size());
+          }
+
+          const std::size_t width = whole_width + (fraction_width == 0 ? 0 : 1 + fraction_width);
+          std::vector<std::string> aligned(texts.size());
+          for (std::size_t index = 0; index < texts.size(); ++index)
+          {
+            if (texts[index].empty() || texts[index] == "-")
+            {
+              const std::string token = texts[index].empty() ? std::string("-") : texts[index];
+              aligned[index] = token.size() >= width
+                ? token
+                : std::string(width - token.size(), ' ') + token;
+              continue;
+            }
+            std::ostringstream rendered;
+            rendered << std::right << std::setw(static_cast<int>(whole_width)) << parts[index].whole;
+            if (fraction_width > 0)
+            {
+              if (parts[index].fraction.empty())
+              {
+                rendered << std::string(1 + fraction_width, ' ');
+              }
+              else
+              {
+                rendered << '.' << parts[index].fraction
+                         << std::string(fraction_width - parts[index].fraction.size(), ' ');
+              }
+            }
+            aligned[index] = rendered.str();
+          }
+          return aligned;
         }
 
-        std::string format_screen_compact_uncertainty(double value, double uncertainty)
+        struct YieldText
         {
-          return format_screen_number(value, 4) + "+/-" + format_screen_number(uncertainty, 4);
+          bool missing = false;
+          std::string value;
+          std::string error;
+        };
+
+        // "246.7 +/- 40.55" with both sides decimal-aligned down the column.
+        std::vector<std::string> align_yield_column(const std::vector<YieldText>& fields)
+        {
+          std::vector<std::string> values;
+          std::vector<std::string> errors;
+          values.reserve(fields.size());
+          errors.reserve(fields.size());
+          for (const YieldText& field : fields)
+          {
+            if (field.missing) continue;
+            values.push_back(field.value);
+            errors.push_back(field.error);
+          }
+          const std::vector<std::string> aligned_values = align_number_column(values);
+          const std::vector<std::string> aligned_errors = align_number_column(errors);
+
+          std::vector<std::string> rendered(fields.size(), "-");
+          std::size_t width = 1;
+          std::size_t cursor = 0;
+          for (std::size_t index = 0; index < fields.size(); ++index)
+          {
+            if (fields[index].missing) continue;
+            rendered[index] = aligned_values[cursor] + " +/- " + aligned_errors[cursor];
+            width = std::max(width, rendered[index].size());
+            ++cursor;
+          }
+          for (std::string& cell : rendered)
+          {
+            if (cell.size() >= width) continue;
+            if (cell == "-")
+            {
+              const std::size_t pad = width - cell.size();
+              cell = std::string(pad / 2, ' ') + cell + std::string(pad - pad / 2, ' ');
+            }
+            else
+            {
+              cell.append(width - cell.size(), ' ');
+            }
+          }
+          return rendered;
+        }
+
+        std::string center_text(const std::string& text, std::size_t width)
+        {
+          if (text.size() >= width) return text;
+          const std::size_t pad = width - text.size();
+          return std::string(pad / 2, ' ') + text + std::string(pad - pad / 2, ' ');
+        }
+
+        YieldText missing_yield()
+        {
+          YieldText field;
+          field.missing = true;
+          return field;
+        }
+
+        YieldText yield_text(double value, double uncertainty, int significant = 4)
+        {
+          YieldText field;
+          field.value = format_screen_number(value, significant);
+          field.error = format_screen_number(uncertainty, significant);
+          return field;
+        }
+
+        // Place short labels on either side of " +/- " using the same field widths
+        // as the data. Empty when a label does not fit, so the caller can center
+        // a plain heading instead of shifting the sign.
+        std::string yield_column_header(
+          const std::string& value_label,
+          const std::string& error_label,
+          const std::vector<std::string>& cells)
+        {
+          const std::string marker = " +/- ";
+          for (const std::string& cell : cells)
+          {
+            const auto pos = cell.find(marker);
+            if (pos == std::string::npos) continue;
+            const std::size_t left_width = pos;
+            const std::size_t right_width = cell.size() - (pos + marker.size());
+            if (value_label.size() > left_width || error_label.size() > right_width) return {};
+            return std::string(left_width - value_label.size(), ' ') + value_label
+              + marker
+              + error_label + std::string(right_width - error_label.size(), ' ');
+          }
+          return {};
+        }
+
+        struct AdditionalEventsText
+        {
+          bool met = false;
+          std::string number;
+          std::string suffix;
+        };
+
+        // Additional MC events. K/M/B figures are rounded up so the text is never
+        // smaller than the integer recommendation.
+        AdditionalEventsText format_additional_events(long long events, bool& used_suffix)
+        {
+          AdditionalEventsText text;
+          if (events < 0) events = 0;
+          const struct
+          {
+            double size;
+            const char* suffix;
+            const char* larger_suffix;
+          } units[] = {
+            {1.0e9, "B", nullptr},
+            {1.0e6, "M", "B"},
+            {1.0e3, "K", "M"},
+          };
+
+          for (const auto& unit : units)
+          {
+            if (static_cast<double>(events) < unit.size) continue;
+            double scale = unit.size;
+            const char* suffix = unit.suffix;
+            const auto ceil_hundredths = [&](double unit_size)
+            {
+              return std::ceil(
+                (static_cast<double>(events) / unit_size) * 100.0 - 1.0e-9) / 100.0;
+            };
+            double ceiled = ceil_hundredths(scale);
+            if (ceiled >= 1000.0 && unit.larger_suffix != nullptr)
+            {
+              scale *= 1000.0;
+              suffix = unit.larger_suffix;
+              ceiled = ceil_hundredths(scale);
+            }
+            used_suffix = true;
+            std::ostringstream formatted;
+            formatted << std::fixed << std::setprecision(2) << ceiled;
+            text.number = formatted.str();
+            text.suffix = suffix;
+            return text;
+          }
+          text.number = std::to_string(events);
+          return text;
+        }
+
+        // "+ 51.09K MC" with the number decimal-aligned and the unit in its own column.
+        std::vector<std::string> align_outcome_column(const std::vector<AdditionalEventsText>& fields)
+        {
+          std::vector<std::string> numbers;
+          numbers.reserve(fields.size());
+          std::size_t suffix_width = 0;
+          for (const AdditionalEventsText& field : fields)
+          {
+            if (field.met) continue;
+            numbers.push_back(field.number);
+            suffix_width = std::max(suffix_width, field.suffix.size());
+          }
+          const std::vector<std::string> aligned_numbers = align_number_column(numbers);
+
+          std::vector<std::string> rendered(fields.size());
+          std::size_t width = std::string("met").size();
+          std::size_t cursor = 0;
+          for (std::size_t index = 0; index < fields.size(); ++index)
+          {
+            if (fields[index].met)
+            {
+              rendered[index] = "met";
+              continue;
+            }
+            std::string suffix = fields[index].suffix;
+            if (suffix.size() < suffix_width) suffix.append(suffix_width - suffix.size(), ' ');
+            rendered[index] = "+" + aligned_numbers[cursor] + suffix + " MC";
+            width = std::max(width, rendered[index].size());
+            ++cursor;
+          }
+          for (std::string& cell : rendered)
+          {
+            if (cell.size() < width) cell.insert(0, width - cell.size(), ' ');
+          }
+          return rendered;
         }
 
         std::string format_screen_percent(double fraction)
@@ -288,9 +561,10 @@ namespace Gambit
           return formatted.str();
         }
 
-        void print_screen_rule(std::ostream& output, char character = '-')
+        void print_screen_rule(
+          std::ostream& output, char character = '-', std::size_t width = screen_rule_width)
         {
-          output << std::string(screen_table_width, character) << '\n';
+          output << std::string(width, character) << '\n';
         }
 
         struct ScreenSignalRegionRow
@@ -308,19 +582,17 @@ namespace Gambit
           const AnalysisData& analysis,
           const AnalysisLogLikes& loglikes)
         {
-          constexpr std::size_t label_width = 14;
-          constexpr std::size_t observed_width = 5;
-          constexpr std::size_t background_width = 17;
-          constexpr std::size_t signal_width = 17;
-          constexpr std::size_t loglike_width = 15;
-          constexpr std::size_t row_prefix_width = 4; // indent + selection marker
-          static_assert(
-            row_prefix_width + 4 * screen_column_gap + label_width + observed_width
-              + background_width + signal_width + loglike_width
-              == screen_table_width,
-            "Signal-region screen table must be 80 columns wide.");
+          std::size_t label_width = std::string("Signal region").size();
+          std::size_t observed_width = std::string("Obs.").size();
+          std::size_t background_width = std::string("Background").size();
+          std::size_t signal_width = std::string("Signal").size();
+          std::size_t loglike_width = std::string("log L").size();
 
           std::vector<ScreenSignalRegionRow> rows;
+          std::vector<std::string> observed_texts;
+          std::vector<std::string> loglike_texts;
+          std::vector<YieldText> background_fields;
+          std::vector<YieldText> signal_fields;
           rows.reserve(analysis.size());
 
           for (std::size_t sr_index = 0; sr_index < analysis.size(); ++sr_index)
@@ -332,12 +604,28 @@ namespace Gambit
               || (loglikes.combination_sr_index < 0
                   && loglikes.combination_sr_label == sr_data.sr_label);
             row.label = sr_data.sr_label;
-            row.observed = format_screen_number(sr_data.n_obs);
-            row.background = format_screen_uncertainty(sr_data.n_bkg, sr_data.n_bkg_err, 4);
-            row.signal = format_screen_uncertainty(
-              sr_data.n_sig_scaled, sr_data.calc_n_sig_scaled_err(), 4);
-            row.loglike = format_screen_number(loglikes.sr_loglikes.at(sr_index));
+            observed_texts.push_back(format_screen_number(sr_data.n_obs));
+            background_fields.push_back(yield_text(sr_data.n_bkg, sr_data.n_bkg_err));
+            signal_fields.push_back(yield_text(
+              sr_data.n_sig_scaled, sr_data.calc_n_sig_scaled_err()));
+            loglike_texts.push_back(format_screen_number(loglikes.sr_loglikes.at(sr_index)));
+            label_width = std::max(label_width, row.label.size());
             rows.push_back(std::move(row));
+          }
+          const std::vector<std::string> observed_column = align_number_column(observed_texts);
+          const std::vector<std::string> background_column = align_yield_column(background_fields);
+          const std::vector<std::string> signal_column = align_yield_column(signal_fields);
+          const std::vector<std::string> loglike_column = align_number_column(loglike_texts);
+          for (std::size_t index = 0; index < rows.size(); ++index)
+          {
+            rows[index].observed = observed_column[index];
+            rows[index].background = background_column[index];
+            rows[index].signal = signal_column[index];
+            rows[index].loglike = loglike_column[index];
+            observed_width = std::max(observed_width, rows[index].observed.size());
+            background_width = std::max(background_width, rows[index].background.size());
+            signal_width = std::max(signal_width, rows[index].signal.size());
+            loglike_width = std::max(loglike_width, rows[index].loglike.size());
           }
 
           output << "  * marks the selected signal region.\n\n";
@@ -346,9 +634,9 @@ namespace Gambit
           output << std::string(screen_column_gap, ' ');
           print_screen_cell(output, "Obs.", observed_width, true);
           output << std::string(screen_column_gap, ' ');
-          print_screen_cell(output, "Background", background_width, true);
+          print_screen_cell(output, center_text("Background", background_width), background_width);
           output << std::string(screen_column_gap, ' ');
-          print_screen_cell(output, "Signal", signal_width, true);
+          print_screen_cell(output, center_text("Signal", signal_width), signal_width);
           output << std::string(screen_column_gap, ' ');
           print_screen_cell(output, "log L", loglike_width, true);
           output << '\n';
@@ -365,9 +653,9 @@ namespace Gambit
             output << std::string(screen_column_gap, ' ');
             print_screen_cell(output, row.observed, observed_width, true);
             output << std::string(screen_column_gap, ' ');
-            print_screen_cell(output, row.background, background_width, true);
+            print_screen_cell(output, row.background, background_width);
             output << std::string(screen_column_gap, ' ');
-            print_screen_cell(output, row.signal, signal_width, true);
+            print_screen_cell(output, row.signal, signal_width);
             output << std::string(screen_column_gap, ' ');
             print_screen_cell(output, row.loglike, loglike_width, true);
             output << '\n';
@@ -384,11 +672,19 @@ namespace Gambit
           output << "\n  Alternative log-likelihoods\n";
           if (!loglikes.alt_combination_loglikes.empty())
           {
-            constexpr std::size_t variant_width = 52;
-            constexpr std::size_t loglike_width = 22;
-            static_assert(
-              4 + screen_column_gap + variant_width + loglike_width == screen_table_width,
-              "Alternative combined-loglike table must be 80 columns wide.");
+            std::size_t variant_width = 52;
+            std::vector<std::string> variants;
+            std::vector<std::string> loglike_texts;
+            for (const auto& entry : loglikes.alt_combination_loglikes)
+            {
+              variants.push_back(entry.first);
+              loglike_texts.push_back(format_screen_number(entry.second));
+              variant_width = std::max(variant_width, entry.first.size());
+            }
+            const std::vector<std::string> loglike_column = align_number_column(loglike_texts);
+            std::size_t loglike_width = std::string("Combined log L").size();
+            for (const std::string& cell : loglike_column)
+              loglike_width = std::max(loglike_width, cell.size());
 
             output << "    ";
             print_screen_cell(output, "Variant", variant_width);
@@ -397,25 +693,45 @@ namespace Gambit
             output << '\n'
                    << "    " << std::string(variant_width, '-')
                    << std::string(screen_column_gap, ' ') << std::string(loglike_width, '-') << '\n';
-            for (const auto& entry : loglikes.alt_combination_loglikes)
+            for (std::size_t index = 0; index < variants.size(); ++index)
             {
               output << "    ";
-              print_screen_cell(output, entry.first, variant_width);
+              print_screen_cell(output, variants[index], variant_width);
               output << std::string(screen_column_gap, ' ');
-              print_screen_cell(output, format_screen_number(entry.second), loglike_width, true);
+              print_screen_cell(output, loglike_column[index], loglike_width, true);
               output << '\n';
             }
           }
 
           if (!loglikes.alt_sr_loglikes.empty())
           {
-            constexpr std::size_t label_width = 24;
-            constexpr std::size_t variant_width = 36;
-            constexpr std::size_t loglike_width = 12;
-            static_assert(
-              4 + 2 * screen_column_gap + label_width + variant_width + loglike_width
-                == screen_table_width,
-              "Alternative signal-region table must be 80 columns wide.");
+            std::size_t label_width = std::string("Signal region").size();
+            std::size_t variant_width = 36;
+            for (std::size_t sr_index = 0; sr_index < analysis.size(); ++sr_index)
+              label_width = std::max(label_width, analysis[sr_index].sr_label.size());
+
+            struct AlternativeRow
+            {
+              std::string label;
+              std::string variant;
+            };
+            std::vector<AlternativeRow> alt_rows;
+            std::vector<std::string> loglike_texts;
+            for (const auto& entry : loglikes.alt_sr_loglikes)
+            {
+              variant_width = std::max(variant_width, entry.first.size());
+              for (std::size_t sr_index = 0; sr_index < analysis.size(); ++sr_index)
+              {
+                if (sr_index >= entry.second.size()) continue;
+                alt_rows.push_back(
+                  AlternativeRow{analysis[sr_index].sr_label, entry.first});
+                loglike_texts.push_back(format_screen_number(entry.second[sr_index]));
+              }
+            }
+            const std::vector<std::string> loglike_column = align_number_column(loglike_texts);
+            std::size_t loglike_width = std::string("log L").size();
+            for (const std::string& cell : loglike_column)
+              loglike_width = std::max(loglike_width, cell.size());
 
             output << "\n    ";
             print_screen_cell(output, "Signal region", label_width);
@@ -427,20 +743,15 @@ namespace Gambit
                    << "    " << std::string(label_width, '-')
                    << std::string(screen_column_gap, ' ') << std::string(variant_width, '-')
                    << std::string(screen_column_gap, ' ') << std::string(loglike_width, '-') << '\n';
-            for (const auto& entry : loglikes.alt_sr_loglikes)
+            for (std::size_t index = 0; index < alt_rows.size(); ++index)
             {
-              for (std::size_t sr_index = 0; sr_index < analysis.size(); ++sr_index)
-              {
-                if (sr_index >= entry.second.size()) continue;
-                output << "    ";
-                print_screen_cell(output, analysis[sr_index].sr_label, label_width);
-                output << std::string(screen_column_gap, ' ');
-                print_screen_cell(output, entry.first, variant_width);
-                output << std::string(screen_column_gap, ' ');
-                print_screen_cell(
-                  output, format_screen_number(entry.second[sr_index]), loglike_width, true);
-                output << '\n';
-              }
+              output << "    ";
+              print_screen_cell(output, alt_rows[index].label, label_width);
+              output << std::string(screen_column_gap, ' ');
+              print_screen_cell(output, alt_rows[index].variant, variant_width);
+              output << std::string(screen_column_gap, ' ');
+              print_screen_cell(output, loglike_column[index], loglike_width, true);
+              output << '\n';
             }
           }
         }
@@ -464,18 +775,23 @@ namespace Gambit
 
         void print_cutflow_table(std::ostream& output, const Cutflow& cutflow)
         {
-          constexpr std::size_t cut_width = 40;
-          constexpr std::size_t count_width = 12;
-          constexpr std::size_t cumulative_width = 10;
-          constexpr std::size_t incremental_width = 10;
-          static_assert(
-            2 + 3 * screen_column_gap + cut_width + count_width + cumulative_width
-              + incremental_width == screen_table_width,
-            "Cutflow screen table must be 80 columns wide.");
+          std::size_t cut_width = 40;
+          std::size_t count_width = 12;
+          std::size_t cumulative_width = 10;
+          std::size_t incremental_width = 10;
+          for (const auto& cut : cutflow.cuts)
+            cut_width = std::max(cut_width, cut.size() + 5); // "Pass " prefix
+          for (std::size_t index = 0; index < cutflow.counts.size(); ++index)
+          {
+            count_width = std::max(count_width, format_screen_count(cutflow.counts[index]).size());
+            cumulative_width = std::max(cumulative_width, format_screen_acceptance(
+              cutflow.counts[index], cutflow.counts.front()).size());
+            if (index > 0)
+              incremental_width = std::max(incremental_width, format_screen_acceptance(
+                cutflow.counts[index], cutflow.counts[index - 1]).size());
+          }
 
-          output << "  Cutflow: ";
-          print_screen_cell(output, cutflow.name, screen_table_width - 11);
-          output << '\n' << "  ";
+          output << "  Cutflow: " << cutflow.name << '\n' << "  ";
           print_screen_cell(output, "Cut", cut_width);
           output << std::string(screen_column_gap, ' ');
           print_screen_cell(output, "Count", count_width, true);
@@ -522,15 +838,38 @@ namespace Gambit
 
         void print_cutflow_summary(std::ostream& output, const AnalysisData& analysis)
         {
-          if (analysis.cutflows.cfs.empty()) return;
+          if (!Cutflow::check_cutflow() || analysis.cutflows.cfs.empty()) return;
 
           output << "\n  Cutflow diagnostics\n"
-                 << "  " << std::string(screen_table_width, '-') << '\n';
+                 << "  " << std::string(screen_rule_width, '-') << '\n';
           for (std::size_t index = 0; index < analysis.cutflows.cfs.size(); ++index)
           {
             if (index != 0) output << '\n';
             print_cutflow_table(output, analysis.cutflows.cfs.at(index));
           }
+        }
+
+        // Contur joins jointly selected measurement paths with commas.
+        std::vector<std::string> split_contur_measurements(const std::string& info)
+        {
+          std::vector<std::string> measurements;
+          if (info.empty()) return measurements;
+          std::istringstream stream(info);
+          std::string measurement;
+          while (std::getline(stream, measurement, ','))
+            measurements.push_back(measurement);
+          return measurements;
+        }
+
+        // The summary keeps one path in the cell. Further paths stay in the
+        // full report and in the JSON dominant_measurement field.
+        std::string compact_dominant_measurement(const std::string& info)
+        {
+          const std::vector<std::string> measurements = split_contur_measurements(info);
+          if (measurements.empty() || measurements.front().empty()) return "-";
+          if (measurements.size() == 1) return measurements.front();
+          return measurements.front() + " (+"
+            + std::to_string(measurements.size() - 1) + ")";
         }
 
         void print_contur_summary(
@@ -543,13 +882,41 @@ namespace Gambit
                  << "  Total log L : " << format_screen_number(contur_total_loglike) << '\n';
           if (contur_pool_loglikes.empty()) return;
 
-          constexpr std::size_t pool_width = 20;
-          constexpr std::size_t loglike_width = 12;
-          constexpr std::size_t measurement_width = 42;
-          static_assert(
-            2 + 2 * screen_column_gap + pool_width + loglike_width + measurement_width
-              == screen_table_width,
-            "Contur screen table must be 80 columns wide.");
+          struct PoolRow
+          {
+            std::string name;
+            std::string loglike;
+            std::vector<std::string> measurements;
+          };
+          std::vector<PoolRow> rows;
+          std::vector<std::string> loglike_texts;
+          std::size_t pool_width = 20;
+          std::size_t measurement_width = 42;
+          for (const auto& pool : contur_pool_loglikes)
+          {
+            PoolRow row;
+            row.name = pool.first;
+            loglike_texts.push_back(format_screen_number(pool.second));
+            const auto info_it = contur_pool_info.find(pool.first);
+            if (info_it != contur_pool_info.end())
+            {
+              for (const std::string& measurement : split_contur_measurements(info_it->second))
+              {
+                measurement_width = std::max(measurement_width, measurement.size());
+                row.measurements.push_back(measurement);
+              }
+            }
+            if (row.measurements.empty()) row.measurements.push_back("-");
+            pool_width = std::max(pool_width, row.name.size());
+            rows.push_back(std::move(row));
+          }
+          const std::vector<std::string> loglike_column = align_number_column(loglike_texts);
+          std::size_t loglike_width = std::string("log L").size();
+          for (std::size_t index = 0; index < rows.size(); ++index)
+          {
+            rows[index].loglike = loglike_column[index];
+            loglike_width = std::max(loglike_width, rows[index].loglike.size());
+          }
 
           output << "\n  ";
           print_screen_cell(output, "Pool", pool_width);
@@ -561,18 +928,18 @@ namespace Gambit
                  << "  " << std::string(pool_width, '-')
                  << std::string(screen_column_gap, ' ') << std::string(loglike_width, '-')
                  << std::string(screen_column_gap, ' ') << std::string(measurement_width, '-') << '\n';
-          for (const auto& pool : contur_pool_loglikes)
+          for (const PoolRow& row : rows)
           {
-            const auto info_it = contur_pool_info.find(pool.first);
-            const std::string dominant_measurement =
-              (info_it != contur_pool_info.end()) ? info_it->second : "-";
-            output << "  ";
-            print_screen_cell(output, pool.first, pool_width);
-            output << std::string(screen_column_gap, ' ');
-            print_screen_cell(output, format_screen_number(pool.second), loglike_width, true);
-            output << std::string(screen_column_gap, ' ');
-            print_screen_cell(output, dominant_measurement, measurement_width);
-            output << '\n';
+            for (std::size_t index = 0; index < row.measurements.size(); ++index)
+            {
+              output << "  ";
+              print_screen_cell(output, index == 0 ? row.name : "", pool_width);
+              output << std::string(screen_column_gap, ' ');
+              print_screen_cell(output, index == 0 ? row.loglike : "", loglike_width, true);
+              output << std::string(screen_column_gap, ' ');
+              print_screen_cell(output, row.measurements[index], measurement_width);
+              output << '\n';
+            }
           }
         }
 
@@ -594,6 +961,10 @@ namespace Gambit
           };
 
           std::vector<SamplingRow> rows;
+          std::vector<YieldText> signal_fields;
+          std::vector<std::string> effective_texts;
+          std::vector<AdditionalEventsText> outcome_fields;
+          bool used_event_suffix = false;
           for (const SamplingAdviceEntry& entry : sampling_advice)
           {
             for (const SamplingAdviceTargetEntry& target : entry.targets)
@@ -601,38 +972,68 @@ namespace Gambit
               SamplingRow row;
               row.analysis = entry.analysis_name;
               row.signal_region = entry.sr_label;
-              row.signal = format_screen_compact_uncertainty(
-                entry.n_sig_scaled, entry.n_sig_scaled_err);
+              signal_fields.push_back(yield_text(entry.n_sig_scaled, entry.n_sig_scaled_err));
               row.fractional_uncertainty = format_screen_percent(entry.fractional_uncert);
-              row.effective_events = format_screen_number(entry.effective_events);
+              effective_texts.push_back(format_screen_number(entry.effective_events, 4));
               row.target = format_screen_percent(target.target_fractional_uncert);
-              row.outcome = target.need_more_mc
-                ? "+" + std::to_string(target.recommended_additional_events) + " MC" : "met";
+              if (target.need_more_mc)
+              {
+                outcome_fields.push_back(format_additional_events(
+                  target.recommended_additional_events, used_event_suffix));
+              }
+              else
+              {
+                outcome_fields.push_back(AdditionalEventsText{});
+                outcome_fields.back().met = true;
+              }
               rows.push_back(std::move(row));
             }
           }
           if (rows.empty()) return;
+          const std::vector<std::string> signal_column = align_yield_column(signal_fields);
+          const std::vector<std::string> effective_column = align_number_column(effective_texts);
+          const std::vector<std::string> outcome_column = align_outcome_column(outcome_fields);
+          for (std::size_t index = 0; index < rows.size(); ++index)
+          {
+            rows[index].signal = signal_column[index];
+            rows[index].effective_events = effective_column[index];
+            rows[index].outcome = outcome_column[index];
+          }
 
-          constexpr std::size_t analysis_width = 12;
-          constexpr std::size_t sr_width = 12;
-          constexpr std::size_t signal_width = 14;
-          constexpr std::size_t frac_width = 7;
-          constexpr std::size_t neff_width = 6;
-          constexpr std::size_t target_width = 5;
-          constexpr std::size_t outcome_width = 10;
-          static_assert(
-            2 + 6 * screen_column_gap + analysis_width + sr_width + signal_width + frac_width
-              + neff_width + target_width + outcome_width == screen_table_width,
-            "Sampling-advice screen table must be 80 columns wide.");
+          std::string signal_header = yield_column_header("S", "MC", signal_column);
+          const bool split_signal_header = !signal_header.empty();
+          std::size_t analysis_width = std::string("Analysis").size();
+          std::size_t sr_width = std::string("Selected SR").size();
+          std::size_t signal_width = split_signal_header
+            ? signal_header.size() : std::string("S +/- MC").size();
+          std::size_t frac_width = std::string("MC frac.").size();
+          std::size_t neff_width = std::string("N_eff").size();
+          std::size_t target_width = std::string("Goal").size();
+          std::size_t outcome_width = std::string("Outcome").size();
+          for (const auto& row : rows)
+          {
+            analysis_width = std::max(analysis_width, row.analysis.size());
+            sr_width = std::max(sr_width, row.signal_region.size());
+            signal_width = std::max(signal_width, row.signal.size());
+            frac_width = std::max(frac_width, row.fractional_uncertainty.size());
+            neff_width = std::max(neff_width, row.effective_events.size());
+            target_width = std::max(target_width, row.target.size());
+            outcome_width = std::max(outcome_width, row.outcome.size());
+          }
+          if (!split_signal_header || signal_header.size() != signal_width)
+            signal_header = center_text("S +/- MC", signal_width);
+          const std::string outcome_header = center_text("Outcome", outcome_width);
+          const auto table_width = 2 + 6 * screen_column_gap + analysis_width + sr_width
+            + signal_width + frac_width + neff_width + target_width + outcome_width;
 
           output << "\nMC sampling advice\n";
-          print_screen_rule(output);
+          print_screen_rule(output, '-', table_width);
           output << "  ";
           print_screen_cell(output, "Analysis", analysis_width);
           output << std::string(screen_column_gap, ' ');
           print_screen_cell(output, "Selected SR", sr_width);
           output << std::string(screen_column_gap, ' ');
-          print_screen_cell(output, "S +/- MC", signal_width);
+          print_screen_cell(output, signal_header, signal_width);
           output << std::string(screen_column_gap, ' ');
           print_screen_cell(output, "MC frac.", frac_width, true);
           output << std::string(screen_column_gap, ' ');
@@ -640,7 +1041,7 @@ namespace Gambit
           output << std::string(screen_column_gap, ' ');
           print_screen_cell(output, "Goal", target_width, true);
           output << std::string(screen_column_gap, ' ');
-          print_screen_cell(output, "Outcome", outcome_width);
+          print_screen_cell(output, outcome_header, outcome_width);
           output << '\n'
                  << "  " << std::string(analysis_width, '-')
                  << std::string(screen_column_gap, ' ') << std::string(sr_width, '-')
@@ -656,7 +1057,7 @@ namespace Gambit
             output << std::string(screen_column_gap, ' ');
             print_screen_cell(output, row.signal_region, sr_width);
             output << std::string(screen_column_gap, ' ');
-            print_screen_cell(output, row.signal, signal_width, true);
+            print_screen_cell(output, row.signal, signal_width);
             output << std::string(screen_column_gap, ' ');
             print_screen_cell(output, row.fractional_uncertainty, frac_width, true);
             output << std::string(screen_column_gap, ' ');
@@ -664,8 +1065,13 @@ namespace Gambit
             output << std::string(screen_column_gap, ' ');
             print_screen_cell(output, row.target, target_width, true);
             output << std::string(screen_column_gap, ' ');
-            print_screen_cell(output, row.outcome, outcome_width);
+            print_screen_cell(output, row.outcome, outcome_width, true);
             output << '\n';
+          }
+          if (used_event_suffix)
+          {
+            output << "  K = 1,000, M = 1,000,000, B = 1,000,000,000. "
+                   << "Additional events are rounded up.\n";
           }
         }
 
@@ -681,18 +1087,32 @@ namespace Gambit
         {
           if (colliders.empty()) return;
 
-          constexpr std::size_t name_width = 18;
-          constexpr std::size_t energy_width = 10;
-          constexpr std::size_t events_width = 10;
-          constexpr std::size_t xsec_width = 24;
-          constexpr std::size_t analyses_width = 8;
-          static_assert(
-            2 + 4 * screen_column_gap + name_width + energy_width + events_width + xsec_width
-              + analyses_width == screen_table_width,
-            "Collider screen table must be 80 columns wide.");
+          std::size_t name_width = std::string("Collider").size();
+          std::size_t energy_width = std::string("sqrt(s)").size();
+          std::size_t events_width = std::string("Events").size();
+          std::size_t analyses_width = std::string("Analyses").size();
+          std::vector<YieldText> xsec_fields;
+          xsec_fields.reserve(colliders.size());
+          for (const auto& collider : colliders)
+          {
+            name_width = std::max(name_width, collider.name.size());
+            energy_width = std::max(energy_width,
+              format_collision_energy(collider.collision_energy_TeV).size());
+            events_width = std::max(events_width, std::to_string(collider.n_events).size());
+            analyses_width = std::max(analyses_width, std::to_string(collider.analyses.size()).size());
+            xsec_fields.push_back(yield_text(
+              collider.cross_section_fb, collider.cross_section_uncert_fb, 6));
+          }
+          const std::vector<std::string> xsec_column = align_yield_column(xsec_fields);
+          std::size_t xsec_width = std::string("Cross section [fb]").size();
+          for (const std::string& cell : xsec_column)
+            xsec_width = std::max(xsec_width, cell.size());
+          const std::string xsec_header = center_text("Cross section [fb]", xsec_width);
+          const auto table_width = 2 + 4 * screen_column_gap + name_width + energy_width
+            + events_width + xsec_width + analyses_width;
 
           output << "\nColliders\n";
-          print_screen_rule(output);
+          print_screen_rule(output, '-', table_width);
           output << "  ";
           print_screen_cell(output, "Collider", name_width);
           output << std::string(screen_column_gap, ' ');
@@ -700,7 +1120,7 @@ namespace Gambit
           output << std::string(screen_column_gap, ' ');
           print_screen_cell(output, "Events", events_width, true);
           output << std::string(screen_column_gap, ' ');
-          print_screen_cell(output, "Cross section [fb]", xsec_width, true);
+          print_screen_cell(output, xsec_header, xsec_width);
           output << std::string(screen_column_gap, ' ');
           print_screen_cell(output, "Analyses", analyses_width, true);
           output << '\n'
@@ -709,8 +1129,9 @@ namespace Gambit
                  << std::string(screen_column_gap, ' ') << std::string(events_width, '-')
                  << std::string(screen_column_gap, ' ') << std::string(xsec_width, '-')
                  << std::string(screen_column_gap, ' ') << std::string(analyses_width, '-') << '\n';
-          for (const ColliderSummaryEntry& collider : colliders)
+          for (std::size_t index = 0; index < colliders.size(); ++index)
           {
+            const ColliderSummaryEntry& collider = colliders[index];
             output << "  ";
             print_screen_cell(output, collider.name, name_width);
             output << std::string(screen_column_gap, ' ');
@@ -718,12 +1139,251 @@ namespace Gambit
             output << std::string(screen_column_gap, ' ');
             print_screen_cell(output, std::to_string(collider.n_events), events_width, true);
             output << std::string(screen_column_gap, ' ');
-            print_screen_cell(output, format_screen_uncertainty(
-              collider.cross_section_fb, collider.cross_section_uncert_fb, 4), xsec_width, true);
+            print_screen_cell(output, xsec_column[index], xsec_width);
             output << std::string(screen_column_gap, ' ');
             print_screen_cell(output, std::to_string(collider.analyses.size()), analyses_width, true);
             output << '\n';
           }
+        }
+
+        const SignalRegionData* selected_signal_region(
+          const AnalysisData& analysis,
+          const AnalysisLogLikes& loglikes)
+        {
+          if (loglikes.combination_sr_index >= 0)
+          {
+            const std::size_t index = static_cast<std::size_t>(loglikes.combination_sr_index);
+            if (index < analysis.size()) return &analysis[index];
+            return nullptr;
+          }
+          if (loglikes.combination_sr_label.empty()) return nullptr;
+          for (std::size_t index = 0; index < analysis.size(); ++index)
+          {
+            if (analysis[index].sr_label == loglikes.combination_sr_label) return &analysis[index];
+          }
+          return nullptr;
+        }
+
+        void print_summary_table(
+          std::ostream& output,
+          const std::vector<std::string>& headers,
+          const std::vector<std::vector<std::string>>& rows,
+          const std::vector<bool>& right_align)
+        {
+          const std::size_t n_columns = headers.size();
+          std::vector<std::size_t> widths(n_columns, 0);
+          for (std::size_t column = 0; column < n_columns; ++column)
+          {
+            widths[column] = headers[column].size();
+            for (const std::vector<std::string>& row : rows)
+            {
+              widths[column] = std::max(widths[column], row.at(column).size());
+            }
+          }
+
+          const auto print_row = [&](const std::vector<std::string>& cells)
+          {
+            output << "  ";
+            for (std::size_t column = 0; column < n_columns; ++column)
+            {
+              if (column != 0) output << std::string(screen_column_gap, ' ');
+              print_screen_cell(output, cells[column], widths[column], right_align[column]);
+            }
+            output << '\n';
+          };
+
+          print_row(headers);
+          output << "  ";
+          for (std::size_t column = 0; column < n_columns; ++column)
+          {
+            if (column != 0) output << std::string(screen_column_gap, ' ');
+            output << std::string(widths[column], '-');
+          }
+          output << '\n';
+          for (const std::vector<std::string>& row : rows) print_row(row);
+          output << std::left;
+        }
+
+        /// ColliderBit and Contur log L, then their sum when Contur ran.
+        void print_likelihood_summary(
+          std::ostream& output,
+          double colliderbit_loglike,
+          bool with_contur,
+          double contur_loglike)
+        {
+          output << "\nSummary\n";
+          const auto line = [&](const char* label, double value)
+          {
+            output << "  " << std::left << std::setw(20) << label << ": "
+                   << format_screen_number(value) << '\n';
+          };
+          line("ColliderBit log L", colliderbit_loglike);
+          if (with_contur)
+          {
+            line("Contur log L", contur_loglike);
+            line("Total log L", colliderbit_loglike + contur_loglike);
+          }
+          output << std::left;
+        }
+
+        /// One row per native analysis, then the Contur pools whose log L is not
+        /// zero, then the MC sampling advice. A covariance or FullLikes result has
+        /// no single signal region: its SR is "all" and the yield columns are
+        /// dashes. A Contur pool that
+        /// joins several measurements shows the first path and a count of the
+        /// rest. The full report lists every pool and every path.
+        void print_compact_screen_summary(
+          int n_events,
+          double combined_loglike,
+          const AnalysisDataPointers& analyses,
+          const map_str_AnalysisLogLikes& analysis_loglikes,
+          bool with_contur,
+          double contur_total_loglike,
+          const std::map<std::string, double>& contur_pool_loglikes,
+          const std::map<std::string, std::string>& contur_pool_info,
+          const std::vector<SamplingAdviceEntry>& sampling_advice)
+        {
+          std::cout << "\nCBS result summary\n"
+                    << "  Events analysed : " << n_events << '\n';
+          print_likelihood_summary(
+            std::cout, combined_loglike, with_contur, contur_total_loglike);
+
+          std::vector<std::string> analysis_names;
+          std::vector<std::string> sr_labels;
+          std::vector<std::string> observed_texts;
+          std::vector<std::string> loglike_texts;
+          std::vector<YieldText> background_fields;
+          std::vector<YieldText> signal_fields;
+          for (const AnalysisData* analysis_ptr : analyses)
+          {
+            if (analysis_ptr == nullptr) continue;
+            const AnalysisData& analysis = *analysis_ptr;
+            const auto ll_it = analysis_loglikes.find(analysis.analysis_name);
+            if (ll_it == analysis_loglikes.end())
+            {
+              throw std::runtime_error(
+                "Missing AnalysisLogLikes entry for analysis " + analysis.analysis_name);
+            }
+            const AnalysisLogLikes& loglikes = ll_it->second;
+            const SignalRegionData* selected = selected_signal_region(analysis, loglikes);
+            std::string sr_label = loglikes.combination_sr_label;
+            if (selected != nullptr) sr_label = selected->sr_label;
+            if (sr_label.empty()) sr_label = "-";
+
+            analysis_names.push_back(analysis.analysis_name);
+            sr_labels.push_back(sr_label);
+            if (selected == nullptr)
+            {
+              observed_texts.push_back("-");
+              background_fields.push_back(missing_yield());
+              signal_fields.push_back(missing_yield());
+            }
+            else
+            {
+              observed_texts.push_back(format_screen_number(selected->n_obs));
+              background_fields.push_back(yield_text(selected->n_bkg, selected->n_bkg_err));
+              signal_fields.push_back(yield_text(
+                selected->n_sig_scaled, selected->calc_n_sig_scaled_err()));
+            }
+            loglike_texts.push_back(format_screen_number(loglikes.combination_loglike));
+          }
+
+          if (!analysis_names.empty())
+          {
+            const std::vector<std::string> observed_column = align_number_column(observed_texts);
+            const std::vector<std::string> background_column = align_yield_column(background_fields);
+            const std::vector<std::string> signal_column = align_yield_column(signal_fields);
+            const std::vector<std::string> loglike_column = align_number_column(loglike_texts);
+            const auto centered_header = [](
+              const std::string& label, const std::vector<std::string>& cells)
+            {
+              std::size_t width = label.size();
+              for (const std::string& cell : cells) width = std::max(width, cell.size());
+              return center_text(label, width);
+            };
+
+            std::vector<std::vector<std::string>> analysis_rows;
+            for (std::size_t index = 0; index < analysis_names.size(); ++index)
+            {
+              analysis_rows.push_back({
+                analysis_names[index],
+                sr_labels[index],
+                observed_column[index],
+                background_column[index],
+                signal_column[index],
+                loglike_column[index]
+              });
+            }
+            std::cout << "\nAnalyses\n";
+            print_summary_table(
+              std::cout,
+              {"Analysis", "SR", "Obs.",
+               centered_header("Background", background_column),
+               centered_header("Signal", signal_column),
+               "log L"},
+              analysis_rows,
+              {false, false, true, false, false, true});
+          }
+
+          if (with_contur)
+          {
+            std::cout << "\nContur\n";
+            if (contur_pool_loglikes.empty())
+            {
+              std::cout << "  log L : " << format_screen_number(contur_total_loglike) << '\n';
+            }
+            else
+            {
+              std::vector<std::vector<std::string>> contur_rows;
+              std::size_t omitted = 0;
+              for (const auto& pool : contur_pool_loglikes)
+              {
+                if (pool.second == 0.0)
+                {
+                  ++omitted;
+                  continue;
+                }
+                const auto info_it = contur_pool_info.find(pool.first);
+                const std::string dominant =
+                  (info_it != contur_pool_info.end())
+                    ? compact_dominant_measurement(info_it->second) : "-";
+                contur_rows.push_back({
+                  pool.first,
+                  dominant,
+                  format_screen_number(pool.second)
+                });
+              }
+              std::vector<std::string> contur_loglikes;
+              contur_loglikes.reserve(contur_rows.size());
+              for (const std::vector<std::string>& row : contur_rows) contur_loglikes.push_back(row[2]);
+              const std::vector<std::string> aligned_loglikes = align_number_column(contur_loglikes);
+              for (std::size_t index = 0; index < contur_rows.size(); ++index)
+                contur_rows[index][2] = aligned_loglikes[index];
+              if (contur_rows.empty())
+              {
+                std::cout << "  " << contur_pool_loglikes.size()
+                          << (contur_pool_loglikes.size() == 1 ? " pool" : " pools")
+                          << ", all with log L = 0\n"
+                          << "  log L : " << format_screen_number(contur_total_loglike) << '\n';
+              }
+              else
+              {
+                if (omitted != 0)
+                {
+                  std::cout << "  " << omitted << " of " << contur_pool_loglikes.size()
+                            << " pools have log L = 0 and are omitted\n\n";
+                }
+                print_summary_table(
+                  std::cout,
+                  {"Pool", "Dominant measurement", "log L"},
+                  contur_rows,
+                  {false, false, true});
+              }
+            }
+          }
+
+          print_sampling_advice(std::cout, sampling_advice);
+          std::cout << '\n';
         }
 
         /// Print cutflows, SR yields, nominal/alternative likelihoods and the total.
@@ -738,21 +1398,34 @@ namespace Gambit
           double contur_total_loglike,
           const std::map<std::string, double>& contur_pool_loglikes,
           const std::map<std::string, std::string>& contur_pool_info,
-          const std::vector<SamplingAdviceEntry>& sampling_advice
+          const std::vector<SamplingAdviceEntry>& sampling_advice,
+          ScreenReport screen_report
         )
         {
+          if (screen_report == ScreenReport::summary)
+          {
+            print_compact_screen_summary(
+              n_events,
+              combined_loglike,
+              analyses,
+              analysis_loglikes,
+              with_contur,
+              contur_total_loglike,
+              contur_pool_loglikes,
+              contur_pool_info,
+              sampling_advice);
+            return;
+          }
+
           std::cout << '\n';
           print_screen_rule(std::cout, '=');
           std::cout << "CBS result summary\n";
           print_screen_rule(std::cout);
           std::cout << "  Events analysed : " << n_events << '\n'
                     << "  Colliders       : " << colliders.size() << '\n'
-                    << "  Native analyses : " << analyses.size() << '\n'
-                    << "  Combined log L  : " << format_screen_number(combined_loglike) << '\n';
-          if (with_contur)
-          {
-            std::cout << "  Contur          : included\n";
-          }
+                    << "  Native analyses : " << analyses.size() << '\n';
+          print_likelihood_summary(
+            std::cout, combined_loglike, with_contur, contur_total_loglike);
           print_screen_rule(std::cout, '=');
           print_collider_table(std::cout, colliders);
 
@@ -792,6 +1465,63 @@ namespace Gambit
           print_sampling_advice(std::cout, sampling_advice);
           std::cout << '\n';
         }
+
+        void print_input_normalization(
+          std::ostream& output,
+          const std::vector<InputFileSummaryEntry>& input_files)
+        {
+          if (input_files.empty()) return;
+          std::vector<std::vector<std::string>> rows;
+          std::vector<std::string> sumw_texts;
+          std::vector<std::string> sumw2_texts;
+          std::vector<std::string> scale_texts;
+          rows.reserve(input_files.size());
+          for (const InputFileSummaryEntry& file : input_files)
+          {
+            rows.push_back({
+              file.process,
+              file.file,
+              std::to_string(file.n_events),
+              file.nominal_name.empty() ? "-" : file.nominal_name,
+              std::to_string(file.nominal_index)
+            });
+            sumw_texts.push_back(format_screen_number(file.sum_weights));
+            sumw2_texts.push_back(format_screen_number(file.sum_weights2));
+            scale_texts.push_back(format_screen_number(file.weight_scale));
+          }
+          const std::vector<std::string> sumw_column = align_number_column(sumw_texts);
+          const std::vector<std::string> sumw2_column = align_number_column(sumw2_texts);
+          const std::vector<std::string> scale_column = align_number_column(scale_texts);
+          for (std::size_t index = 0; index < rows.size(); ++index)
+          {
+            rows[index].push_back(sumw_column[index]);
+            rows[index].push_back(sumw2_column[index]);
+            rows[index].push_back(scale_column[index]);
+          }
+          output << "\nCBS nominal input normalization (independent positive-weight events)\n";
+          print_summary_table(
+            output,
+            {"Process", "File", "Events", "Nominal", "Index", "sumW", "sumW2", "Scale"},
+            rows,
+            {false, false, true, false, true, true, true, true});
+        }
+      }
+
+      ScreenReport screen_report_from_string(const std::string& value)
+      {
+        if (value == "summary") return ScreenReport::summary;
+        if (value == "full") return ScreenReport::full;
+        throw std::runtime_error(
+          "settings.report must be 'summary' or 'full', got '" + value + "'.");
+      }
+
+      std::string prepare_output_directory(const std::string& output_file)
+      {
+        const fs::path output_path(output_file);
+        fs::path directory = output_path.parent_path();
+        if (directory.empty()) directory = ".";
+        fs::create_directories(directory);
+        return fs::weakly_canonical(directory).string();
       }
 
       /// Require a nonempty path when file output is enabled.
@@ -817,7 +1547,10 @@ namespace Gambit
         double contur_total_loglike,
         const std::map<std::string, double>& contur_pool_loglikes,
         const std::map<std::string, std::string>& contur_pool_info,
-        const std::vector<SamplingAdviceEntry>& sampling_advice
+        const std::vector<SamplingAdviceEntry>& sampling_advice,
+        const std::vector<InputFileSummaryEntry>& input_files,
+        const MCLoopInfo* input_loop,
+        const std::vector<std::string>& rivet_analyses
       )
       {
         if (config.screen_output)
@@ -832,19 +1565,72 @@ namespace Gambit
             contur_total_loglike,
             contur_pool_loglikes,
             contur_pool_info,
-            sampling_advice
+            sampling_advice,
+            config.screen_report
           );
         }
 
+        if (config.screen_output)
+          print_input_normalization(std::cout, input_files);
         if (!config.write_file) return;
 
         nlohmann::json root;
         root["schema_version"] = kSchemaVersion;
         root["run"] = {
           {"n_events", n_events},
-          {"with_contur", with_contur}
+          {"with_contur", with_contur},
+          {"check_cutflow", Cutflow::check_cutflow()}
         };
 
+        root["run"]["input_files"] = nlohmann::json::array();
+        for (const auto& file : input_files)
+          root["run"]["input_files"].push_back({
+            {"file", file.file}, {"process", file.process}, {"collider", file.collider},
+            {"n_events", file.n_events}, {"sum_weights", file.sum_weights},
+            {"sum_weights2", file.sum_weights2}, {"nominal_name", file.nominal_name},
+            {"nominal_index", file.nominal_index}, {"weight_scale", file.weight_scale},
+            {"process_cross_section_fb", file.process_cross_section_fb},
+            {"process_cross_section_uncert_fb", file.process_cross_section_uncert_fb}});
+        std::map<std::pair<std::string, std::string>, nlohmann::json> processes;
+        for (const auto& file : input_files)
+        {
+          auto& process = processes[{file.collider, file.process}];
+          if (process.is_null()) process = {{"name", file.process}, {"collider", file.collider},
+            {"cross_section_fb", file.process_cross_section_fb},
+            {"cross_section_uncert_fb", file.process_cross_section_uncert_fb},
+            {"n_events", 0LL}, {"sum_weights", 0.0}, {"sum_weights2", 0.0},
+            {"normalized_sum_weights", 0.0}, {"normalized_sum_weights2", 0.0}};
+          process["n_events"] = process["n_events"].get<long long>() + file.n_events;
+          process["sum_weights"] = process["sum_weights"].get<double>() + file.sum_weights;
+          process["sum_weights2"] = process["sum_weights2"].get<double>() + file.sum_weights2;
+          process["normalized_sum_weights"] = process["normalized_sum_weights"].get<double>()
+            + file.weight_scale * file.sum_weights;
+          process["normalized_sum_weights2"] = process["normalized_sum_weights2"].get<double>()
+            + file.weight_scale * file.weight_scale * file.sum_weights2;
+        }
+        root["run"]["processes"] = nlohmann::json::array();
+        for (const auto& process : processes) root["run"]["processes"].push_back(process.second);
+        root["run"]["status"] = "complete";
+        root["run"]["weight_normalization"] = "process_sigma_over_sum_nominal_weights";
+        root["run"]["cross_section_source"] = "YAML process/event_file cross sections (fb internally)";
+        root["run"]["mc_statistics"] = "Poisson sum(w^2), fixed normalization denominator";
+        root["run"]["rivet_analyses"] = rivet_analyses;
+        root["run"]["contur_evaluations"] = input_loop ? input_loop->contur_evaluations
+                                                      : (with_contur ? colliders.size() : 0);
+        if (input_loop && !input_loop->input_event_sources.empty())
+        {
+          root["run"]["event_sources"] = nlohmann::json::array();
+          for (const auto& source : input_loop->input_event_sources)
+          {
+            const auto file = std::find_if(input_files.begin(), input_files.end(),
+              [&](const InputFileSummaryEntry& input) { return input.file == source.file; });
+            if (file == input_files.end()) throw std::runtime_error("Missing event source summary: " + source.file);
+            root["run"]["event_sources"].push_back({{"iteration", source.iteration},
+              {"process", file->process}, {"collider", file->collider},
+              {"file", source.file}, {"file_event_index", source.file_event_index},
+              {"original_event_number", source.original_event_number}});
+          }
+        }
         nlohmann::json colliders_json = nlohmann::json::array();
         for (const ColliderSummaryEntry& collider : colliders)
         {
@@ -882,6 +1668,7 @@ namespace Gambit
           const AnalysisLogLikes& ll = ll_it->second;
           nlohmann::json analysis_obj;
           analysis_obj["collider"] = analysis.collider_name;
+          analysis_obj["detector"] = analysis.detector_name;
           analysis_obj["n_signal_regions"] = analysis.size();
           analysis_obj["luminosity"] = analysis.luminosity;
           analysis_obj["bkgjson_path"] = analysis.bkgjson_path;
@@ -926,6 +1713,9 @@ namespace Gambit
             sr_obj["n_bkg_err"] = sr_data.n_bkg_err;
             sr_obj["n_sig_MC"] = sr_data.n_sig_MC;
             sr_obj["n_sig_MC_stat"] = sr_data.n_sig_MC_stat;
+            sr_obj["n_sig_MC_sys"] = sr_data.n_sig_MC_sys;
+            sr_obj["n_sig_MC_sumw2"] = sr_data.n_sig_MC_stat * sr_data.n_sig_MC_stat;
+            if (sr_data.has_event_records) sr_obj["accepted_event_ids"] = sr_data.accepted_event_ids;
             sr_obj["n_sig_scaled"] = sr_data.n_sig_scaled;
             sr_obj["n_sig_scaled_err"] = sr_data.calc_n_sig_scaled_err();
             sr_obj["loglike"] = ll.sr_loglikes.at(sr_index);
@@ -1140,6 +1930,18 @@ namespace Gambit
         }
 
         write_json_to_file(root, config.output_file, kJsonIndent);
+        if (config.announce_outputs)
+        {
+          const fs::path output_path(config.output_file);
+          const fs::path printed = config.run_directory.empty()
+            ? fs::absolute(output_path).lexically_normal()
+            : fs::path(config.run_directory) / output_path.filename();
+          std::cout << "Wrote " << printed.string() << std::endl;
+          for (const std::string& log_path : config.contur_logs)
+            std::cout << "Contur log: " << log_path << std::endl;
+          for (const std::string& yoda_path : config.yoda_files)
+            std::cout << "YODA: " << yoda_path << std::endl;
+        }
       }
     }
   }

@@ -9,4 +9,5 @@ Signatures: ["2L + >=1B + MET + 1OSOF", "2L + >=1B + MET + 1OSSF + 0Z",
 Keywords: ["leptons", "boost", "mT2"]
 Authors: ["Anders Kvellestad"]
 Note: The 3-body and 4-body SRs are not implemented yet.
+Analyses: [ATLAS_SUSY_2018_08_inclusive, ATLAS_SUSY_2018_08_exclusive]
 OldName: ATLAS_13TeV_2LEPStop_139invfb

@@ -6,4 +6,5 @@ Ecm_TeV: 13.0
 Signatures: [">=1P + >=1L + !DY + MET + MT"]
 Keywords: ["photon", "lepton", "met"]
 Authors: ["Anders Kvellestad"]
+Analyses: [CMS_SUS_17_012_emu_combined]
 OldName: CMS_13TeV_1Photon1Lepton_36invfb

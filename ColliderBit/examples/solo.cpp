@@ -34,8 +34,10 @@
 #include "solo_output.hpp"
 // #include "gambit/Backends/backend_rollcall.hpp"
 #include <algorithm>
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -97,31 +99,12 @@ namespace
     return formatted.str();
   }
 
-  std::string shorten_for_screen(const std::string& value, std::size_t maximum_width)
-  {
-    if (value.size() <= maximum_width) return value;
-    if (maximum_width <= 3) return value.substr(0, maximum_width);
-    return "..." + value.substr(value.size() - maximum_width + 3);
-  }
-
-  std::string shorten_reason_for_screen(const std::string& value, std::size_t maximum_width)
-  {
-    if (value.size() <= maximum_width) return value;
-    if (maximum_width <= 3) return value.substr(0, maximum_width);
-
-    const std::size_t suffix_width = (maximum_width - 3) / 2;
-    const std::size_t prefix_width = maximum_width - 3 - suffix_width;
-    return value.substr(0, prefix_width) + "..."
-           + value.substr(value.size() - suffix_width);
-  }
-
   std::string format_cbs_startup_summary(
     const ColliderBit::SoloInput::PreparedInput& prepared_input,
     const std::vector<std::string>& enabled_analyses)
   {
     std::ostringstream summary;
     const std::size_t label_width = 20;
-    const std::size_t value_width = cbs_screen_width - 2 - label_width - 2;
 
     summary << "\nCBS HepMC verification\n"
             << std::string(cbs_screen_width, '-') << '\n';
@@ -138,21 +121,20 @@ namespace
         prepared_input.hepmc_run_infos.at(index);
       std::ostringstream beams;
       beams << '(' << run_info.beam_pid_1 << ", " << run_info.beam_pid_2 << ')';
-      std::ostringstream energy;
-      energy << std::setprecision(6) << std::defaultfloat
-             << run_info.collision_energy_TeV << " TeV";
-
       summary << "  " << std::left << std::setw(label_width)
               << ("File " + std::to_string(index + 1) + "/"
                   + std::to_string(prepared_input.hepmc_filenames.size()))
-              << ": " << shorten_for_screen(prepared_input.hepmc_filenames.at(index), value_width) << '\n'
+              << ": " << prepared_input.hepmc_filenames.at(index) << '\n'
               << "  " << std::left << std::setw(label_width) << "Beam IDs"
               << ": " << beams.str() << '\n'
               << "  " << std::left << std::setw(label_width) << "Beam energies"
-              << ": (" << run_info.beam_energy_1_GeV << ", "
-              << run_info.beam_energy_2_GeV << ") GeV\n"
+              << ": (" << ColliderBit::SoloOutput::format_screen_number(run_info.beam_energy_1_GeV)
+              << ", "
+              << ColliderBit::SoloOutput::format_screen_number(run_info.beam_energy_2_GeV)
+              << ") GeV\n"
               << "  " << std::left << std::setw(label_width) << "sqrt(s)"
-              << ": " << energy.str() << '\n'
+              << ": " << ColliderBit::SoloOutput::format_screen_number(run_info.collision_energy_TeV)
+              << " TeV\n"
               << "  " << std::left << std::setw(label_width) << "Collider"
               << ": " << file_colliders[prepared_input.hepmc_filenames.at(index)] << '\n'
               << "  " << std::left << std::setw(label_width) << "Status"
@@ -161,17 +143,25 @@ namespace
     }
 
     const std::size_t settings_indent_width = 2;
-    const std::size_t analysis_width = 25;
+    std::size_t analysis_width = 25;
     const std::size_t status_width = 10;
-    const std::size_t reason_width = 39;
+    std::size_t reason_width = 39;
     const std::size_t settings_gap_width = 2;
-    static_assert(
-      settings_indent_width + analysis_width + settings_gap_width + status_width
-        + settings_gap_width + reason_width == cbs_screen_width,
-      "CBS settings table must be 80 columns wide.");
+    for (const auto& name : prepared_input.requested_analyses)
+    {
+      analysis_width = std::max(analysis_width, name.size());
+      const auto collider = prepared_input.analysis_colliders.find(name);
+      if (collider != prepared_input.analysis_colliders.end())
+        reason_width = std::max(reason_width, collider->second.size());
+      const auto reason = prepared_input.analysis_disable_reasons.find(name);
+      if (reason != prepared_input.analysis_disable_reasons.end())
+        reason_width = std::max(reason_width, reason->second.size());
+    }
+    const std::size_t settings_table_width = settings_indent_width + analysis_width
+      + settings_gap_width + status_width + settings_gap_width + reason_width;
 
     summary << "\nCBS settings validation\n"
-            << std::string(cbs_screen_width, '-') << '\n'
+            << std::string(settings_table_width, '-') << '\n'
             << "  " << std::left << std::setw(label_width) << "Analyses"
             << ": " << prepared_input.requested_analyses.size() << " requested, "
             << enabled_analyses.size() << " enabled, "
@@ -203,14 +193,14 @@ namespace
         (collider_it == prepared_input.analysis_colliders.end()) ? "-" : collider_it->second;
 
       summary << "  " << std::left << std::setw(analysis_width)
-              << shorten_for_screen(requested_analysis, analysis_width)
+              << requested_analysis
               << std::string(settings_gap_width, ' ')
               << std::setw(status_width) << (enabled ? "enabled" : "disabled")
               << std::string(settings_gap_width, ' ')
-              << shorten_reason_for_screen(enabled ? collider : reason, reason_width) << '\n';
+              << (enabled ? collider : reason) << '\n';
     }
 
-    summary << std::string(cbs_screen_width, '-') << '\n';
+    summary << std::string(settings_table_width, '-') << '\n';
     return summary.str();
   }
 
@@ -241,16 +231,121 @@ namespace
     table[collider.name]["cross_section_uncert_fb"] = collider.cross_section_uncert_fb;
     return table;
   }
+  std::vector<ColliderBit::SoloOutput::SamplingAdviceEntry> make_sampling_advice(
+    const ColliderBit::SoloBatch::MergedRunResult& merged,
+    const ColliderBit::SoloInput::PreparedInput& prepared_input, const Options& settings)
+  {
+    const std::vector<ColliderBit::SoloBatch::AnalysisSamplingAdvice> batch_sampling_advice =
+      ColliderBit::SoloBatch::build_sampling_advice(merged, prepared_input, settings);
+
+    std::vector<ColliderBit::SoloOutput::SamplingAdviceEntry> output_sampling_advice;
+    output_sampling_advice.reserve(batch_sampling_advice.size());
+    for (const ColliderBit::SoloBatch::AnalysisSamplingAdvice& in_analysis : batch_sampling_advice)
+    {
+      ColliderBit::SoloOutput::SamplingAdviceEntry out_analysis;
+      out_analysis.analysis_name = in_analysis.analysis_name;
+      out_analysis.sr_label = in_analysis.sr_label;
+      out_analysis.sr_index = in_analysis.sr_index;
+      out_analysis.n_sig_scaled = in_analysis.n_sig_scaled;
+      out_analysis.n_sig_scaled_err = in_analysis.n_sig_scaled_err;
+      out_analysis.fractional_uncert = in_analysis.fractional_uncert;
+      out_analysis.effective_events = in_analysis.effective_events;
+      out_analysis.targets.reserve(in_analysis.targets.size());
+
+      for (const ColliderBit::SoloBatch::SamplingTargetAdvice& in_target : in_analysis.targets)
+      {
+        ColliderBit::SoloOutput::SamplingAdviceTargetEntry out_target;
+        out_target.target_fractional_uncert = in_target.target_fractional_uncert;
+        out_target.need_more_mc = in_target.need_more_mc;
+        out_target.current_fractional_uncert = in_target.current_fractional_uncert;
+        out_target.scale_factor = in_target.scale_factor;
+        out_target.current_total_events = in_target.current_total_events;
+        out_target.recommended_total_events = in_target.recommended_total_events;
+        out_target.recommended_additional_events = in_target.recommended_additional_events;
+        out_target.process_recommendations.reserve(in_target.process_recommendations.size());
+
+        for (const ColliderBit::SoloBatch::ProcessSamplingAdvice& in_process :
+             in_target.process_recommendations)
+        {
+          ColliderBit::SoloOutput::SamplingAdviceProcessEntry out_process;
+          out_process.process_name = in_process.process_name;
+          out_process.cross_section_fb = in_process.cross_section_fb;
+          out_process.processed_events = in_process.processed_events;
+          out_process.recommended_additional_events = in_process.recommended_additional_events;
+          out_target.process_recommendations.push_back(std::move(out_process));
+        }
+
+        out_analysis.targets.push_back(std::move(out_target));
+      }
+
+      output_sampling_advice.push_back(std::move(out_analysis));
+    }
+    return output_sampling_advice;
+  }
+
+  // contur-settings stores flags without the leading dashes.
+  // convert_yaml_options_for_contur adds them before Contur parses argv.
+  bool contur_names_its_log(const std::vector<std::string>& options)
+  {
+    for (const std::string& option : options)
+    {
+      std::string name = option;
+      if (name.rfind("--", 0) == 0) name.erase(0, 2);
+      else if (!name.empty() && name.front() == '-') name.erase(0, 1);
+      const std::size_t equals = name.find('=');
+      if (equals != std::string::npos) name.resize(equals);
+      if (name == "log" || name == "l") return true;
+    }
+    return false;
+  }
+
+  // A single collider keeps Contur's usual contur.log name. Each collider in a
+  // joint run, and each batch child, gets its own file so siblings do not clobber it.
+  std::string contur_log_filename(const std::string& collider_name, bool per_collider)
+  {
+    if (!per_collider) return "contur.log";
+    return "contur_" + collider_name + ".log";
+  }
+
+  // Must stay the name written by Rivet_measurements.
+  std::string yoda_filename(const std::string& collider_name)
+  {
+    return "GAMBIT_collider_measurements_" + collider_name + ".yoda";
+  }
+
+  std::string path_in_directory(const std::string& directory, const std::string& name)
+  {
+    return (std::filesystem::path(directory) / name).lexically_normal().string();
+  }
+
+  void note_run_artifacts(
+    ColliderBit::SoloOutput::OutputConfig& config,
+    const std::string& collider_name,
+    bool per_collider_log,
+    bool redirect_contur_log)
+  {
+    if (config.run_directory.empty()) return;
+    if (redirect_contur_log)
+    {
+      config.contur_logs.push_back(path_in_directory(
+        config.run_directory, contur_log_filename(collider_name, per_collider_log)));
+    }
+    if (config.write_yoda_file)
+    {
+      config.yoda_files.push_back(path_in_directory(
+        config.run_directory, yoda_filename(collider_name)));
+    }
+  }
+
 }
 
 // Helper function to check if setting in CBS yaml and then set it
-// TODO: It would be nice also to template final arg as Gambit::module_functor<typename T>. I think this breaks setOption is itself a templated function?
-template <typename Tsetting>
-bool apply_setting_if_present(const std::string &setting, Options& settings, Gambit::module_functor<ColliderBit::map_str_AnalysisLogLikes> &the_functor)
+template <typename Tsetting, typename Tresult>
+bool apply_setting_if_present(const std::string &setting, Options& settings, Gambit::module_functor<Tresult> &the_functor)
 {
   if (settings.hasKey(setting))
   {
-    the_functor.setOption<Tsetting>(setting, settings.getValue<Tsetting>(setting));
+    the_functor.template setOption<Tsetting>(setting, settings.getValue<Tsetting>(setting));
     return true;
   }
   return false;
@@ -362,23 +457,32 @@ int main(int argc, char* argv[])
       message<<"CBS HepMC file "<<(index + 1)<<"/"<<prepared_input.hepmc_filenames.size()
              <<": "<<prepared_input.hepmc_filenames[index]
              <<"; beams ("<<run_info.beam_pid_1<<", "<<run_info.beam_pid_2<<") at ("
-             <<run_info.beam_energy_1_GeV<<", "<<run_info.beam_energy_2_GeV
-             <<") GeV; sqrt(s) = "<<run_info.collision_energy_TeV<<" TeV; verified.";
+             <<ColliderBit::SoloOutput::format_screen_number(run_info.beam_energy_1_GeV)<<", "
+             <<ColliderBit::SoloOutput::format_screen_number(run_info.beam_energy_2_GeV)
+             <<") GeV; sqrt(s) = "
+             <<ColliderBit::SoloOutput::format_screen_number(run_info.collision_energy_TeV)
+             <<" TeV; verified.";
       logger()<<LogTags::info<<message.str()<<EOM;
     }
     logger()<<LogTags::info<<"CBS run-condition tolerances: sqrt(s) "
-            <<settings.getValueOrDef<double>(1.0, "collision_energy_tolerance_GeV")
+            <<ColliderBit::SoloOutput::format_screen_number(
+                settings.getValueOrDef<double>(1.0, "collision_energy_tolerance_GeV"))
             <<" GeV; beam energies "
-            <<settings.getValueOrDef<double>(1.0, "beam_energy_tolerance_GeV")
+            <<ColliderBit::SoloOutput::format_screen_number(
+                settings.getValueOrDef<double>(1.0, "beam_energy_tolerance_GeV"))
             <<" GeV or "
-            <<settings.getValueOrDef<double>(1.0e-3, "beam_energy_relative_tolerance")
+            <<ColliderBit::SoloOutput::format_screen_number(
+                settings.getValueOrDef<double>(1.0e-3, "beam_energy_relative_tolerance"))
             <<" relative."<<EOM;
     for (const ColliderBit::SoloInput::ColliderInput& collider : prepared_input.colliders)
     {
       logger()<<LogTags::info<<"CBS collider "<<collider.name<<": sqrt(s) = "
-              <<collider.run_info.collision_energy_TeV<<" TeV; "<<collider.hepmc_filenames.size()
-              <<" HepMC file(s); cross section "<<collider.cross_section_fb<<" +/- "
-              <<collider.cross_section_uncert_fb<<" fb; analyses ("<<collider.analyses.size()<<"): "
+              <<ColliderBit::SoloOutput::format_screen_number(collider.run_info.collision_energy_TeV)
+              <<" TeV; "<<collider.hepmc_filenames.size()
+              <<" HepMC file(s); cross section "
+              <<ColliderBit::SoloOutput::format_screen_number(collider.cross_section_fb)<<" +/- "
+              <<ColliderBit::SoloOutput::format_screen_number(collider.cross_section_uncert_fb)
+              <<" fb; analyses ("<<collider.analyses.size()<<"): "
               <<format_analysis_list(collider.analyses)<<EOM;
     }
     logger()<<LogTags::info<<"CBS native analyses requested ("
@@ -519,6 +623,21 @@ int main(int argc, char* argv[])
 
     ColliderBit::SoloOutput::OutputConfig output_config;
     output_config.screen_output = settings.getValueOrDef<bool>(true, "screen_output");
+    std::string report_value = settings.getValueOrDef<std::string>("summary", "report");
+    if (command_line_options.has_report)
+    {
+      if (settings.hasKey("report"))
+      {
+        const std::string yaml_report = settings.getValue<std::string>("report");
+        if (yaml_report != command_line_options.report)
+        {
+          std::cerr << "CBS: --report=" << command_line_options.report
+                    << " overrides settings.report=" << yaml_report << std::endl;
+        }
+      }
+      report_value = command_line_options.report;
+    }
+    output_config.screen_report = ColliderBit::SoloOutput::screen_report_from_string(report_value);
     output_config.write_file = settings.hasKey("output");
     if (output_config.write_file)
     {
@@ -526,13 +645,47 @@ int main(int argc, char* argv[])
     }
     ColliderBit::SoloOutput::validate_output_config(output_config);
 
-    // Process-mode batch running: run one standard CBS pass per file, then merge.
-    if (!prepared_input.processes.empty())
+    // Group the JSON, Contur log and optional YODA beside settings.output.
+    // A batch child receives that directory as artifact_directory and must not
+    // treat its temporary JSON path as the run directory.
+    const bool batch_child = settings.hasKey("cbs_collider_name");
+    if (batch_child) output_config.announce_outputs = false;
+    if (settings.hasKey("artifact_directory"))
     {
-      if (withRivet || withContur)
+      output_config.run_directory = settings.getValue<std::string>("artifact_directory");
+    }
+    else if (!batch_child && output_config.write_file)
+    {
+      output_config.run_directory =
+        ColliderBit::SoloOutput::prepare_output_directory(output_config.output_file);
+    }
+    if (withRivet)
+    {
+      if (rivet_settings.hasKey("write_YODA_file"))
       {
-        throw std::runtime_error("settings.processes batch mode does not support rivet-settings/contur-settings.");
+        output_config.write_yoda_file = rivet_settings.getValue<bool>("write_YODA_file");
       }
+      else if (rivet_settings.hasKey("drop_YODA_file"))
+      {
+        output_config.write_yoda_file = rivet_settings.getValue<bool>("drop_YODA_file");
+        if (!batch_child)
+        {
+          std::cerr << "CBS: rivet-settings.drop_YODA_file is accepted as write_YODA_file "
+                    << "(true writes the YODA file)." << std::endl;
+        }
+      }
+    }
+    const bool per_collider_contur_log =
+      batch_child || prepared_input.colliders.size() > 1;
+    const bool redirect_contur_log = withContur
+      && !output_config.run_directory.empty()
+      && !contur_names_its_log(contur_options);
+
+    // Isolate colliders in fresh child tasks; within a collider all files and
+    // processes share one normalised event loop, with or without measurements.
+    const bool joint_measurements = withRivet && withContur;
+    if (!prepared_input.processes.empty() && prepared_input.colliders.size() > 1)
+    {
 
       double (*marginaliser)(const int&, const double&, const double&, const double&) =
         use_lnpiln
@@ -546,7 +699,8 @@ int main(int argc, char* argv[])
       double (*fullLikesEvaluate)(std::map<str,double>&, const str&) =
         use_FullLikes ? FullLikes_Evaluate.handoutFunctionPointer() : nullptr;
 
-      ColliderBit::SoloBatch::MergedRunResult merged = ColliderBit::SoloBatch::run_and_merge(
+      ColliderBit::SoloBatch::MergedRunResult merged =
+        ColliderBit::SoloBatch::run_joint_colliders(
         argv[0],
         prepared_input,
         settings,
@@ -556,50 +710,12 @@ int main(int argc, char* argv[])
         fullLikesEvaluate
       );
 
-      const std::vector<ColliderBit::SoloBatch::AnalysisSamplingAdvice> batch_sampling_advice =
-        ColliderBit::SoloBatch::build_sampling_advice(merged, prepared_input, settings);
+      const auto output_sampling_advice = make_sampling_advice(merged, prepared_input, settings);
 
-      std::vector<ColliderBit::SoloOutput::SamplingAdviceEntry> output_sampling_advice;
-      output_sampling_advice.reserve(batch_sampling_advice.size());
-      for (const ColliderBit::SoloBatch::AnalysisSamplingAdvice& in_analysis : batch_sampling_advice)
+      for (const ColliderBit::SoloInput::ColliderInput& collider_input : prepared_input.colliders)
       {
-        ColliderBit::SoloOutput::SamplingAdviceEntry out_analysis;
-        out_analysis.analysis_name = in_analysis.analysis_name;
-        out_analysis.sr_label = in_analysis.sr_label;
-        out_analysis.sr_index = in_analysis.sr_index;
-        out_analysis.n_sig_scaled = in_analysis.n_sig_scaled;
-        out_analysis.n_sig_scaled_err = in_analysis.n_sig_scaled_err;
-        out_analysis.fractional_uncert = in_analysis.fractional_uncert;
-        out_analysis.effective_events = in_analysis.effective_events;
-        out_analysis.targets.reserve(in_analysis.targets.size());
-
-        for (const ColliderBit::SoloBatch::SamplingTargetAdvice& in_target : in_analysis.targets)
-        {
-          ColliderBit::SoloOutput::SamplingAdviceTargetEntry out_target;
-          out_target.target_fractional_uncert = in_target.target_fractional_uncert;
-          out_target.need_more_mc = in_target.need_more_mc;
-          out_target.current_fractional_uncert = in_target.current_fractional_uncert;
-          out_target.scale_factor = in_target.scale_factor;
-          out_target.current_total_events = in_target.current_total_events;
-          out_target.recommended_total_events = in_target.recommended_total_events;
-          out_target.recommended_additional_events = in_target.recommended_additional_events;
-          out_target.process_recommendations.reserve(in_target.process_recommendations.size());
-
-          for (const ColliderBit::SoloBatch::ProcessSamplingAdvice& in_process :
-               in_target.process_recommendations)
-          {
-            ColliderBit::SoloOutput::SamplingAdviceProcessEntry out_process;
-            out_process.process_name = in_process.process_name;
-            out_process.cross_section_fb = in_process.cross_section_fb;
-            out_process.processed_events = in_process.processed_events;
-            out_process.recommended_additional_events = in_process.recommended_additional_events;
-            out_target.process_recommendations.push_back(std::move(out_process));
-          }
-
-          out_analysis.targets.push_back(std::move(out_target));
-        }
-
-        output_sampling_advice.push_back(std::move(out_analysis));
+        note_run_artifacts(
+          output_config, collider_input.name, per_collider_contur_log, redirect_contur_log);
       }
 
       std::vector<ColliderBit::SoloOutput::ColliderSummaryEntry> collider_summaries;
@@ -610,8 +726,6 @@ int main(int argc, char* argv[])
           collider, events_it == merged.collider_event_counts.end() ? 0 : events_it->second));
       }
 
-      std::map<std::string, double> empty_contur_pool_loglikes;
-      std::map<std::string, std::string> empty_contur_pool_info;
       ColliderBit::SoloOutput::emit_outputs(
         output_config,
         merged.total_events,
@@ -619,16 +733,20 @@ int main(int argc, char* argv[])
         merged.combined_loglike,
         merged.analyses,
         merged.analysis_loglikes,
-        false,
-        0.0,
-        empty_contur_pool_loglikes,
-        empty_contur_pool_info,
-        output_sampling_advice
+        joint_measurements,
+        merged.contur_loglike,
+        merged.contur_pool_loglikes,
+        merged.contur_pool_info,
+        output_sampling_advice,
+        merged.input_files,
+        &merged.input_loop,
+        merged.rivet_analyses
       );
       return 0;
     }
 
-    // A single event_file always defines exactly one collider.
+    // One logical collider may contain multiple processes and source files.
+    // Other colliders are isolated in fresh child tasks to keep functor state local.
     if (prepared_input.colliders.size() != 1)
     {
       throw std::runtime_error("A CBS event_file run must define exactly one collider.");
@@ -648,9 +766,10 @@ int main(int argc, char* argv[])
     // Record and export the same acceptance matrix as full ColliderBit.
     // Batch children inherit this setting and append their completed-event rows.
     const bool drop_accepted_events_file = settings.getValueOrDef<bool>(false, "drop_accepted_events_file");
-    getATLASAnalysisContainer.setOption<bool>("drop_accepted_events_file", drop_accepted_events_file);
-    getCMSAnalysisContainer.setOption<bool>("drop_accepted_events_file", drop_accepted_events_file);
-    getIdentityAnalysisContainer.setOption<bool>("drop_accepted_events_file", drop_accepted_events_file);
+    const bool record_event_ids = drop_accepted_events_file || settings.getValueOrDef<bool>(false, "trace_input_events");
+    getATLASAnalysisContainer.setOption<bool>("drop_accepted_events_file", record_event_ids);
+    getCMSAnalysisContainer.setOption<bool>("drop_accepted_events_file", record_event_ids);
+    getIdentityAnalysisContainer.setOption<bool>("drop_accepted_events_file", record_event_ids);
 
     // Initialise settings for printer (required)
     YAML::Node printerNode = get_standalone_printer("cout", "CBS_logs/", "");
@@ -661,11 +780,62 @@ int main(int argc, char* argv[])
     int seed = settings.getValueOrDef<int>(-1, "seed");
     Random::create_rng_engine("default", seed);
 
-    // Pass options to the main event loop, for the collider named after the HepMC run conditions
+    long long expected_events = 0;
+    for (const auto& file : collider.hepmc_filenames)
+      expected_events += prepared_input.input_statistics.at(file).n_events;
+    if (expected_events <= 0 || expected_events > std::numeric_limits<int>::max())
+      throw std::runtime_error("CBS input event count is outside the supported integer range.");
+    if (joint_measurements && collider.cross_section_fb <= 0.0)
+      throw std::runtime_error("Rivet/Contur requires a positive process mixture cross section.");
+    YAML::Node input_files(YAML::NodeType::Sequence);
+    std::vector<ColliderBit::SoloOutput::InputFileSummaryEntry> input_summaries;
+    for (const auto& file : collider.hepmc_filenames)
+    {
+      const auto& statistics = prepared_input.input_statistics.at(file);
+      double process_sigma = collider.cross_section_fb;
+      double process_uncert = collider.cross_section_uncert_fb;
+      double denominator = statistics.sum_weights;
+      str process_name = "event_file";
+      for (const auto& process : prepared_input.processes)
+        for (const auto& source : process.files)
+          if (source.filename == file)
+          {
+            process_name = process.name;
+            process_sigma = process.cross_section_fb;
+            process_uncert = process.cross_section_uncert_fb;
+            denominator = 0.0;
+            for (const auto& sibling : process.files)
+              denominator += prepared_input.input_statistics.at(sibling.filename).sum_weights;
+          }
+      if (!(denominator > 0.0) || !std::isfinite(denominator))
+        throw std::runtime_error("Invalid total nominal weight for process " + process_name);
+      const double scale = collider.cross_section_fb > 0.0
+        ? (expected_events / denominator) * (process_sigma / collider.cross_section_fb)
+        : expected_events / denominator;
+      if (!std::isfinite(scale) || scale < 0.0 || (process_sigma > 0.0 && scale == 0.0))
+        throw std::runtime_error("Invalid nominal-weight normalization for process " + process_name);
+      YAML::Node source;
+      source["file"] = file;
+      source["n_events"] = statistics.n_events;
+      source["weight_scale"] = scale;
+      input_files.push_back(source);
+      input_summaries.push_back({file, process_name, collider.name, statistics.n_events,
+                                statistics.sum_weights, statistics.sum_weights2,
+                                statistics.nominal_name, statistics.nominal_index, scale, process_sigma, process_uncert});
+    }
+    getEvent.setOption<YAML::Node>("cbs_inputs", input_files);
+    getEvent.setOption<str>("nominal_weight_name", settings.getValueOrDef<str>("", "nominal_weight_name"));
+    getEvent.setOption<bool>("trace_input_events", settings.getValueOrDef<bool>(false, "trace_input_events"));
+    getEvent.setOption<double>("cbs_cross_section_pb", collider.cross_section_fb / 1000.0);
+    getEvent.setOption<double>("cbs_cross_section_uncert_pb", collider.cross_section_uncert_fb / 1000.0);
+
+    // Input preflight fixes the exact logical count. No intermediate EOF is
+    // submitted as an analysis iteration and source boundaries need no barrier:
+    // every event already has the same nominal convention and physical xsec.
     YAML::Node CBS(infile["settings"]);
     CBS["analyses"] = collider.analyses;
-    CBS["min_nEvents"] = (long long)(1000);
-    CBS["max_nEvents"] = (long long)(std::numeric_limits<int>::max());
+    CBS["min_nEvents"] = expected_events;
+    CBS["max_nEvents"] = expected_events;
     // CBS policy: always process all events provided by the user (no convergence-based early stop).
     CBS["run_convergence_checks"] = false;
     // Emit a compact progress indicator after each completed event block.
@@ -674,7 +844,7 @@ int main(int argc, char* argv[])
       output_config.screen_output, "hepmc_progress"
     );
     const std::string default_event_progress_label =
-      "CBS HepMC File 1/" + std::to_string(prepared_input.hepmc_filenames.size());
+      "CBS HepMC (" + std::to_string(prepared_input.hepmc_filenames.size()) + " input files)";
     CBS["event_progress_label"] = settings.getValueOrDef<std::string>(
       default_event_progress_label, "event_progress_label");
     operateLHCLoop.setOption<YAML::Node>(collider.name, CBS);
@@ -747,16 +917,32 @@ int main(int argc, char* argv[])
     apply_setting_if_present<bool>("calc_scaledsignal_loglikes", settings, *calcLogLikes);//Default false
     apply_setting_if_present<double>("signal_scalefactor", settings, *calcLogLikes);//Default 1.0
 
+    apply_setting_if_present<str>("alt_loglike", settings, calc_combined_LHC_LogLike);
+    apply_setting_if_present<bool>("cap_loglike", settings, calc_combined_LHC_LogLike);
+    apply_setting_if_present<bool>("cap_loglike_individual_analyses", settings, calc_combined_LHC_LogLike);
+    calc_combined_LHC_LogLike.setSubCap<std::vector<str>>("skip_analyses",
+      settings.getValueOrDef<std::vector<str>>({}, "skip_analyses"));
+
     // If Rivet/Contur, set Rivet/Contur options
     if (withRivet)
     {
-      Rivet_measurements.setOption<bool>("drop_YODA_file", rivet_settings.getValueOrDef<bool>(true, "drop_YODA_file"));
+      Rivet_measurements.setOption<bool>("write_YODA_file", output_config.write_yoda_file);
+      if (!output_config.run_directory.empty())
+      {
+        Rivet_measurements.setOption<std::string>(
+          "YODA_output_directory", output_config.run_directory);
+      }
       Rivet_measurements.setOption<bool>("runningStandalone", true);
+      Rivet_measurements.setOption<double>("cbs_cross_section_pb", collider.cross_section_fb / 1000.0);
+      Rivet_measurements.setOption<double>("cbs_cross_section_uncert_pb", collider.cross_section_uncert_fb / 1000.0);
       Rivet_measurements.setOption<std::vector<std::string>>("analyses",
                                                 rivet_settings.getValue<std::vector<std::string>>("analyses"));
       Rivet_measurements.setOption<std::vector<std::string>>("exclude_analyses",
                                                 rivet_settings.getValueOrDef<std::vector<std::string>>({},"exclude_analyses"));
-      std::vector<std::string> contur_options = infile["contur-settings"].as<std::vector<std::string>>();
+      note_run_artifacts(
+        output_config, collider.name, per_collider_contur_log, redirect_contur_log);
+      if (redirect_contur_log)
+        contur_options.push_back("log=" + output_config.contur_logs.back());
       Contur_LHC_measurements_from_stream.setOption("contur_options", contur_options);
     }
 
@@ -856,8 +1042,8 @@ int main(int argc, char* argv[])
     // (nulike and optional ATLAS_FullLikes are already initialised before the works[] checks above)
     if (withRivet)
     {
-      CAT_3(Contur_, CONTUR_SAFE_VERSION,_init).reset_and_calculate();
       CAT_3(Rivet_, RIVET_SAFE_VERSION,_init).reset_and_calculate();
+      CAT_3(Contur_, CONTUR_SAFE_VERSION,_init).reset_and_calculate();
     }
 
     // Run the detector sim and selected analyses on all the events read in.
@@ -877,6 +1063,19 @@ int main(int argc, char* argv[])
     }
 
     const int n_events = operateLHCLoop(0).event_count.at(collider.name);
+    if (n_events != expected_events)
+      throw std::runtime_error("CBS did not complete every validated input event; no partial result is written.");
+    for (const auto& file : collider.hepmc_filenames)
+    {
+      const auto& observed = operateLHCLoop(0).input_file_statistics.at(file);
+      const auto& expected = prepared_input.input_statistics.at(file);
+      if (std::filesystem::file_size(file) != expected.size_bytes
+          || std::filesystem::last_write_time(file).time_since_epoch().count() != expected.modified_ticks
+          || observed.n_events != expected.n_events
+          || std::abs(observed.sum_weights - expected.sum_weights) > 1e-10 * expected.sum_weights
+          || std::abs(observed.sum_weights2 - expected.sum_weights2) > 1e-10 * expected.sum_weights2)
+        throw std::runtime_error("HepMC input changed after validation: " + file);
+    }
     const double loglike = calc_combined_LHC_LogLike(0);
 
     std::map<std::string, double> contur_pool_loglikes;
@@ -892,6 +1091,18 @@ int main(int argc, char* argv[])
     const auto& analysis_results = CollectAnalyses(0);
     const auto& analysis_loglikes = (*calcLogLikes)(0);
 
+    ColliderBit::SoloBatch::MergedRunResult sampling;
+    sampling.total_events = n_events;
+    sampling.total_process_events = n_events;
+    sampling.analyses = analysis_results;
+    sampling.analysis_loglikes = analysis_loglikes;
+    sampling.collider_event_counts[collider.name] = n_events;
+    sampling.process_event_counts.resize(prepared_input.processes.size(), 0);
+    for (std::size_t i = 0; i < prepared_input.processes.size(); ++i)
+      for (const auto& file : prepared_input.processes[i].files)
+        sampling.process_event_counts[i] += prepared_input.input_statistics.at(file.filename).n_events;
+    const auto sampling_advice = make_sampling_advice(sampling, prepared_input, settings);
+
     ColliderBit::SoloOutput::emit_outputs(
       output_config,
       n_events,
@@ -902,7 +1113,8 @@ int main(int argc, char* argv[])
       withContur,
       contur_total_loglike,
       contur_pool_loglikes,
-      contur_pool_info
+      contur_pool_info,
+      sampling_advice, input_summaries, &operateLHCLoop(0), operateLHCLoop(0).rivet_analyses
     );
 
     // No more to see here folks, go home.

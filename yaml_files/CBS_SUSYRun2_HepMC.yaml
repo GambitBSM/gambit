@@ -1,0 +1,158 @@
+# SUSYRun2-inspired CBS card: one EWino process, three HepMC files.
+# Read ColliderBit/examples/SUSYRun2_HepMC.md first.
+# EWinos Events/run_02, run_03 and run_04: one physics point, one process.
+# Uses one normalized nominal stream for searches and Rivet/Contur.
+# Source changes require a maintainer rebuild and numerical acceptance.
+# This is not an exact reproduction of the GAMBIT likelihood.
+
+# Names follow this CBS checkout. The GAMBIT card's overlap-excluded searches
+# and Baselines are omitted. Registration depends on the CBS build.
+analyses:
+  - ATLAS_SUSY_2019_08
+  - ATLAS_SUSY_2019_02
+  - ATLAS_SUSY_2018_05
+  - ATLAS_SUSY_2018_05_RJR
+  - ATLAS_SUSY_2018_06
+  - ATLAS_SUSY_2019_22
+  - ATLAS_SUSY_2019_18
+  - ATLAS_SUSY_2018_21_StopZH
+  - ATLAS_SUSY_2020_16
+  - ATLAS_SUSY_2018_16
+  - ATLAS_SUSY_2018_22
+  - ATLAS_SUSY_2018_41
+  - ATLAS_SUSY_2018_08_inclusive
+  - ATLAS_CONF_2019_008_chargino_inclusive
+  - ATLAS_SUSY_2019_09
+  - ATLAS_SUSY_2018_02
+  - ATLAS_SUSY_2016_28
+  - ATLAS_SUSY_2018_09
+  - ATLAS_SUSY_2016_27_2Photon
+  - ATLAS_SUSY_2018_11
+  - ATLAS_CONF_2018_019
+  - CMS_SUS_20_003
+  - CMS_SUS_20_004
+  - CMS_SUS_19_010
+  - CMS_SUS_21_002
+  - CMS_SUS_21_009
+  - CMS_SUS_20_001_EW_production
+  - CMS_SUS_17_010_chargino
+  - CMS_SUS_19_006
+  - CMS_SUS_16_051
+  - CMS_SUS_17_012_emu_combined
+  - CMS_SUS_17_001
+  - CMS_SUS_17_010_stop
+  - CMS_SUS_17_011
+  - CMS_SUS_19_008
+  - CMS_SUS_19_012_2Lep
+  - CMS_SUS_19_012_3Lep
+  - CMS_SUS_19_012_4LEP
+
+settings:
+  nominal_weight_name: Weight
+  # Optional source-event provenance in JSON; off to keep real-run output compact.
+  trace_input_events: false
+  # Same SLHA point, independent seeds 27/33/39; 10,000 events in each file.
+  # The process cross section is the event-count-weighted MEAN, not a sum.
+  # Uncertainty is numerical MadGraph integration error only (quadrature of
+  # independent run errors with the same averaging weights), not theory/PDF error.
+  processes:
+    - name: EWino
+      cross_section_pb: 1.536816497638584
+      cross_section_uncert_pb: 0.001046120181347737
+      files:
+        - /Users/p.zhu/Gambit-Workshop/CBS/EWinos/Events/run_02/tag_1_pythia8_events.hepmc.gz
+        - /Users/p.zhu/Gambit-Workshop/CBS/EWinos/Events/run_03/tag_1_pythia8_events.hepmc.gz
+        - /Users/p.zhu/Gambit-Workshop/CBS/EWinos/Events/run_04/tag_1_pythia8_events.hepmc.gz
+  debug: false
+  seed: 12345
+  output: ./runs/CBS_SUSYRun2_HepMC.json
+  screen_output: true
+  jet_collections:
+    antikt_R04: {algorithm: antikt, R: 0.4, recombination_scheme: E_scheme, strategy: Best}
+    antikt_R08: {algorithm: antikt, R: 0.8, recombination_scheme: E_scheme, strategy: Best}
+    antikt_R1:  {algorithm: antikt, R: 1.0, recombination_scheme: E_scheme, strategy: Best}
+  jet_collection_taus: antikt_R04
+  use_lognormal_distribution_for_1d_systematic: true
+  use_covariances: true
+  use_marginalising: false
+  combine_SRs_without_covariances: false
+  nuisance_prof_initstep: 0.1
+  nuisance_prof_convtol: 0.01
+  nuisance_prof_maxsteps: 10000
+  nuisance_prof_convacc: 0.01
+  nuisance_prof_simplexsize: 1.0e-8
+  nuisance_prof_method: 5
+  calc_noerr_loglikes: true
+  calc_expected_loglikes: true
+  calc_expected_noerr_loglikes: true
+
+# Exact 63 entries from gambit/master SUSYRun2_MSSMEW.yaml.
+rivet-settings:
+  write_YODA_file: false
+  analyses:
+    - ATLAS_2016_I1419652
+    - ATLAS_2016_I1467230
+    - ATLAS_2017_I1514251:LMODE=EMU
+    - ATLAS_2017_I1609448
+    - ATLAS_2017_I1614149
+    - ATLAS_2017_I1625109
+    - ATLAS_2017_I1627873
+    - ATLAS_2017_I1637587
+    - ATLAS_2017_I1645627
+    - ATLAS_2018_I1634970
+    - ATLAS_2018_I1646686
+    - ATLAS_2018_I1656578
+    - ATLAS_2018_I1698006:LVETO=ON
+    - ATLAS_2018_I1705857
+    - ATLAS_2018_I1707015:LMODE=DILEPTON
+    - ATLAS_2018_I1707015:LMODE=SINGLE
+    - ATLAS_2019_I1718132:LMODE=ELEL
+    - ATLAS_2019_I1718132:LMODE=ELMU
+    - ATLAS_2019_I1718132:LMODE=MUMU
+    - ATLAS_2019_I1720442
+    - ATLAS_2019_I1724098
+    - ATLAS_2019_I1734263
+    - ATLAS_2019_I1738841
+    - ATLAS_2019_I1740909
+    - ATLAS_2019_I1750330:TYPE=BOTH
+    - ATLAS_2019_I1759875
+    - ATLAS_2019_I1764342
+    - ATLAS_2019_I1768911
+    - ATLAS_2019_I1772071
+    - ATLAS_2020_I1788444
+    - ATLAS_2020_I1790256
+    - ATLAS_2020_I1801434
+    - ATLAS_2020_I1803608
+    - ATLAS_2020_I1808726
+    - ATLAS_2021_I1849535
+    - ATLAS_2021_I1852328
+    - ATLAS_2021_I1887997
+    - ATLAS_2022_I2023464
+    - ATLAS_2022_I2037744
+    - ATLAS_2022_I2077570
+    - ATLAS_2022_I2077575
+    - ATLAS_2022_I2593322
+    - ATLAS_2022_I2614196
+    - ATLAS_2023_I2628732
+    - ATLAS_2023_I2648096
+    - CMS_2016_I1459051
+    - CMS_2016_I1491950
+    - CMS_2018_I1662081
+    - CMS_2018_I1663958
+    - CMS_2018_I1667854:LMODE=EMU
+    - CMS_2018_I1682495
+    - CMS_2018_I1711625
+    - CMS_2019_I1705068
+    - CMS_2019_I1744604
+    - CMS_2019_I1753680:LMODE=EMU
+    - CMS_2019_I1753720
+    - CMS_2019_I1764472
+    - CMS_2020_I1814328
+    - CMS_2021_I1847230:MODE=QCD13TeV
+    - CMS_2021_I1866118
+    - CMS_2021_I1932460
+    - CMS_2022_I2079374
+    - LHCB_2018_I1662483
+
+# Empty list uses Contur defaults. CBS requires this section with Rivet.
+contur-settings: []

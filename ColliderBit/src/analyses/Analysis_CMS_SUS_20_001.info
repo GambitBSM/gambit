@@ -6,4 +6,5 @@ Ecm_TeV: 13.0
 Signatures: ["OSSF + MET"]
 Keywords: ["dilepton", "ossf", "met", "mt2"]
 Authors: ["Yang Zhang"]
+Analyses: [CMS_SUS_20_001_strong_production, CMS_SUS_20_001_EW_production, CMS_SUS_20_001_Slepton]
 OldName: CMS_13TeV_2OSLEP_137invfb

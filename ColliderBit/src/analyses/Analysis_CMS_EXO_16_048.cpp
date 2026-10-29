@@ -124,6 +124,8 @@ namespace Gambit
           const double delta_w = (trigweight - 1.0) * w_raw;
 
           sr_counter.set_weight_sum(sr_counter.weight_sum() + delta_w);
+          sr_counter.set_weight_sum2(std::max(0.0, sr_counter.weight_sum2()
+            + (trigweight * trigweight - 1.0) * w_raw * w_raw));
           const double prev_err_sq = sr_counter.weight_sum_err() * sr_counter.weight_sum_err() - werr_raw * werr_raw;
           const double new_err_sq = std::max(0.0, prev_err_sq + trigweight * trigweight * werr_raw * werr_raw);
           sr_counter.set_weight_sum_err(std::sqrt(new_err_sq));

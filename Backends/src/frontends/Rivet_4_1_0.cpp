@@ -16,6 +16,9 @@
 ///  \date 2023 April, May
 ///  \date 2024 October
 ///  \date 2025 March
+///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
@@ -33,8 +36,13 @@ BE_INI_FUNCTION
   static bool scan_level = true;
   if (scan_level)
   {
-    std::string rivet_analyses_dir = std::string(GAMBIT_DIR)+
-        "/Backends/installed/rivet/4.1.0/analyses";
+    const std::string rivet_root = std::string(GAMBIT_DIR)+
+        "/Backends/installed/rivet/4.1.0";
+    // Use the installed plugins, also searched by Python Rivet. Adding the
+    // source-tree copies loads each plugin twice and duplicates registrations.
+    std::string rivet_analyses_dir = rivet_root + "/local/lib/Rivet";
+    if (!Utils::file_exists(rivet_analyses_dir))
+      rivet_analyses_dir = rivet_root + "/analyses"; // legacy installations
 
     //Check if the rivet_analyses_dir if it actually exists: if it
     //doesn't then installation probably hasn't installed properly.

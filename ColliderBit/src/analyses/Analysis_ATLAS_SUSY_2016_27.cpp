@@ -23,6 +23,7 @@ using namespace std;
 ///  - https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2016-27/
 ///
 /// @author Martin White
+/// @author Pengxuan Zhu (2026 Oct: derived-analysis cutflow lifecycle)
 ///
 /// Known issues:
 ///
@@ -112,7 +113,7 @@ namespace Gambit
         // Required detector sim
         static constexpr const char* detector = "ATLAS";
 
-        Analysis_ATLAS_SUSY_2016_27()
+        explicit Analysis_ATLAS_SUSY_2016_27(const str& name = "ATLAS_SUSY_2016_27")
         {
 
           // Numbers passing cuts
@@ -124,7 +125,9 @@ namespace Gambit
           _counters["SRaj_L200"] = EventCounter("SRaj_L200");
           _counters["SRaj_H"] = EventCounter("SRaj_H");
 
-          set_analysis_name("ATLAS_SUSY_2016_27");
+          // Derived variants must supply their final name before booking the
+          // cutflow, since the shared run() looks it up by analysis_name().
+          set_analysis_name(name);
           set_luminosity(36.1);
 
           #ifdef CHECK_CUTFLOW
@@ -441,74 +444,77 @@ namespace Gambit
 
           #ifdef CHECK_CUTFLOW
 
-            _cutflows[analysis_name()].fillinit(event->weight());
-
-            for(int j = 0; j < NCUTS; j++)
+            if (Cutflow::check_cutflow())
             {
-              if(
-                (j==0) ||
+              _cutflows[analysis_name()].fillinit(event->weight());
 
-                (j==1 && nPhotons==2 && baselinePhotons[0]->pT() > 35. && baselinePhotons[1]->pT() > 25.) ||
-                (j==2 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75.) ||
-                (j==3 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150.) ||
-                (j==4 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150. && HT > 2750.) ||
-                (j==5 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150. && HT > 2750. && dphimin_j28met > 0.5) ||
-                (j==6 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150. && HT > 2750. && dphimin_j28met > 0.5) || // No extra cut in this case
-
-                (j==7 && nPhotons==2 && baselinePhotons[0]->pT() > 35. && baselinePhotons[1]->pT() > 25.) ||
-                (j==8 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75.) ||
-                (j==9 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250.) ||
-                (j==10 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 2000.) ||
-                (j==11 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 2000. && dphimin_j28met > 0.5) ||
-                (j==12 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 2000. && dphimin_j28met > 0.5 && dphimin_amet > 0.5) ||
-
-                (j==13 && nPhotons==2 && baselinePhotons[0]->pT() > 35. && baselinePhotons[1]->pT() > 25.) ||
-                (j==14 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75.) ||
-                (j==15 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150.) ||
-                (j==16 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150. && HT > 1500.) ||
-                (j==17 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150. && HT > 1500. && dphimin_j28met > 0.5) ||
-                (j==18 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150. && HT > 1500. && dphimin_j28met > 0.5) || // no additional cut in this case
-
-                (j==19 && nPhotons==2 && baselinePhotons[0]->pT() > 35. && baselinePhotons[1]->pT() > 25.) ||
-                (j==20 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75.) ||
-                (j==21 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250.) ||
-                (j==22 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 1000.) ||
-                (j==23 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 1000. && dphimin_j28met > 0.5) ||
-                (j==24 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 1000. && dphimin_j28met > 0.5 && dphimin_amet > 0.5) || // no additional cut in this case
-
-    // --------
-
-                (j==25 && nPhotons==1 && baselinePhotons[0]->pT() > 140.) ||
-                (j==26 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 140.) ||
-                (j==27 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145.) ||
-                (j==28 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 300.) ||
-                (j==29 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 300. && nJets25 >= 5) ||
-                (j==30 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 300. && nJets25 >= 5 && dphimin_j25met > 0.4) ||
-                (j==31 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 300. && nJets25 >= 5 && dphimin_j25met > 0.4 && dphimin_amet > 0.4) ||
-                (j==32 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 300. && nJets25 >= 5 && dphimin_j25met > 0.4 && dphimin_amet > 0.4 && meff > 2000.) ||
-                (j==33 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 300. && nJets25 >= 5 && dphimin_j25met > 0.4 && dphimin_amet > 0.4 && meff > 2000. && RT4 < 0.90) ||
-
-                (j==34 && nPhotons==1 && baselinePhotons[0]->pT() > 140.) ||
-                (j==35 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 140.) ||
-                (j==36 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145.) ||
-                (j==37 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 200.) ||
-                (j==38 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 200. && nJets25 >= 5) ||
-                (j==39 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 200. && nJets25 >= 5 && dphimin_j25met > 0.4) ||
-                (j==40 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 200. && nJets25 >= 5 && dphimin_j25met > 0.4 && dphimin_amet > 0.4) ||
-                (j==41 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 200. && nJets25 >= 5 && dphimin_j25met > 0.4 && dphimin_amet > 0.4 && meff > 2000.) ||
-                (j==42 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 200. && nJets25 >= 5 && dphimin_j25met > 0.4 && dphimin_amet > 0.4 && meff > 2000. && RT4 < 0.90) ||
-
-                (j==43 && nPhotons==1 && baselinePhotons[0]->pT() > 140.) ||
-                (j==44 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 140.) ||
-                (j==45 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400.) ||
-                (j==46 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400. && met > 400.) ||
-                (j==47 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400. && met > 400. && nJets25 >= 3) ||
-                (j==48 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400. && met > 400. && nJets25 >= 3 && dphimin_j25met > 0.4) ||
-                (j==49 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400. && met > 400. && nJets25 >= 3 && dphimin_j25met > 0.4 && dphimin_amet > 0.4) ||
-                (j==50 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400. && met > 400. && nJets25 >= 3 && dphimin_j25met > 0.4 && dphimin_amet > 0.4 && meff > 2400.)
-                )
+              for(int j = 0; j < NCUTS; j++)
               {
-                _cutflows[analysis_name()].fill(j+1, true, event->weight());
+                if(
+                  (j==0) ||
+
+                  (j==1 && nPhotons==2 && baselinePhotons[0]->pT() > 35. && baselinePhotons[1]->pT() > 25.) ||
+                  (j==2 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75.) ||
+                  (j==3 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150.) ||
+                  (j==4 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150. && HT > 2750.) ||
+                  (j==5 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150. && HT > 2750. && dphimin_j28met > 0.5) ||
+                  (j==6 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150. && HT > 2750. && dphimin_j28met > 0.5) || // No extra cut in this case
+
+                  (j==7 && nPhotons==2 && baselinePhotons[0]->pT() > 35. && baselinePhotons[1]->pT() > 25.) ||
+                  (j==8 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75.) ||
+                  (j==9 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250.) ||
+                  (j==10 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 2000.) ||
+                  (j==11 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 2000. && dphimin_j28met > 0.5) ||
+                  (j==12 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 2000. && dphimin_j28met > 0.5 && dphimin_amet > 0.5) ||
+
+                  (j==13 && nPhotons==2 && baselinePhotons[0]->pT() > 35. && baselinePhotons[1]->pT() > 25.) ||
+                  (j==14 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75.) ||
+                  (j==15 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150.) ||
+                  (j==16 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150. && HT > 1500.) ||
+                  (j==17 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150. && HT > 1500. && dphimin_j28met > 0.5) ||
+                  (j==18 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 150. && HT > 1500. && dphimin_j28met > 0.5) || // no additional cut in this case
+
+                  (j==19 && nPhotons==2 && baselinePhotons[0]->pT() > 35. && baselinePhotons[1]->pT() > 25.) ||
+                  (j==20 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75.) ||
+                  (j==21 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250.) ||
+                  (j==22 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 1000.) ||
+                  (j==23 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 1000. && dphimin_j28met > 0.5) ||
+                  (j==24 && nPhotons==2 && baselinePhotons[0]->pT() > 75. && baselinePhotons[1]->pT() > 75. && met > 250. && HT > 1000. && dphimin_j28met > 0.5 && dphimin_amet > 0.5) || // no additional cut in this case
+
+      // --------
+
+                  (j==25 && nPhotons==1 && baselinePhotons[0]->pT() > 140.) ||
+                  (j==26 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 140.) ||
+                  (j==27 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145.) ||
+                  (j==28 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 300.) ||
+                  (j==29 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 300. && nJets25 >= 5) ||
+                  (j==30 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 300. && nJets25 >= 5 && dphimin_j25met > 0.4) ||
+                  (j==31 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 300. && nJets25 >= 5 && dphimin_j25met > 0.4 && dphimin_amet > 0.4) ||
+                  (j==32 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 300. && nJets25 >= 5 && dphimin_j25met > 0.4 && dphimin_amet > 0.4 && meff > 2000.) ||
+                  (j==33 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 300. && nJets25 >= 5 && dphimin_j25met > 0.4 && dphimin_amet > 0.4 && meff > 2000. && RT4 < 0.90) ||
+
+                  (j==34 && nPhotons==1 && baselinePhotons[0]->pT() > 140.) ||
+                  (j==35 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 140.) ||
+                  (j==36 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145.) ||
+                  (j==37 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 200.) ||
+                  (j==38 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 200. && nJets25 >= 5) ||
+                  (j==39 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 200. && nJets25 >= 5 && dphimin_j25met > 0.4) ||
+                  (j==40 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 200. && nJets25 >= 5 && dphimin_j25met > 0.4 && dphimin_amet > 0.4) ||
+                  (j==41 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 200. && nJets25 >= 5 && dphimin_j25met > 0.4 && dphimin_amet > 0.4 && meff > 2000.) ||
+                  (j==42 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 145. && met > 200. && nJets25 >= 5 && dphimin_j25met > 0.4 && dphimin_amet > 0.4 && meff > 2000. && RT4 < 0.90) ||
+
+                  (j==43 && nPhotons==1 && baselinePhotons[0]->pT() > 140.) ||
+                  (j==44 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 140.) ||
+                  (j==45 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400.) ||
+                  (j==46 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400. && met > 400.) ||
+                  (j==47 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400. && met > 400. && nJets25 >= 3) ||
+                  (j==48 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400. && met > 400. && nJets25 >= 3 && dphimin_j25met > 0.4) ||
+                  (j==49 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400. && met > 400. && nJets25 >= 3 && dphimin_j25met > 0.4 && dphimin_amet > 0.4) ||
+                  (j==50 && nPhotons==1 && nLep==0 && baselinePhotons[0]->pT() > 400. && met > 400. && nJets25 >= 3 && dphimin_j25met > 0.4 && dphimin_amet > 0.4 && meff > 2400.)
+                  )
+                {
+                  _cutflows[analysis_name()].fill(j+1, true, event->weight());
+                }
               }
             }
 
@@ -560,9 +566,8 @@ namespace Gambit
 
       public:
         Analysis_ATLAS_SUSY_2016_27_1Photon()
-        {
-          set_analysis_name("ATLAS_SUSY_2016_27_1Photon");
-        }
+          : Analysis_ATLAS_SUSY_2016_27("ATLAS_SUSY_2016_27_1Photon")
+        {}
 
         virtual void collect_results()
         {
@@ -582,16 +587,15 @@ namespace Gambit
 
 
     //
-    // Derived analysis class for the 1Photon SRs
+    // Derived analysis class for the 2Photon SRs
     //
     class Analysis_ATLAS_SUSY_2016_27_2Photon : public Analysis_ATLAS_SUSY_2016_27
     {
 
       public:
         Analysis_ATLAS_SUSY_2016_27_2Photon()
-        {
-          set_analysis_name("ATLAS_SUSY_2016_27_2Photon");
-        }
+          : Analysis_ATLAS_SUSY_2016_27("ATLAS_SUSY_2016_27_2Photon")
+        {}
 
         virtual void collect_results()
         {

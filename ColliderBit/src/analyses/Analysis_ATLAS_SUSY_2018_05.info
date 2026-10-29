@@ -6,5 +6,6 @@ Ecm_TeV: 13.0
 Signatures: ["=2L + OSL + >=2J + MET + MT2", "=2L + OSSF + >=2J + MET + MT2"]
 Keywords: ["dilepton", "electroweakinos", "top-squark", "met", "mt2", "recursive-jigsaw"]
 Authors: ["Martin White", "Chris Chang"]
-Note: The EW and recursive-jigsaw implementations in Analysis_ATLAS_SUSY_2018_05.cpp and Analysis_ATLAS_SUSY_2018_05_RJR.cpp share this publication record.
+Note: The EW and recursive-jigsaw implementations in Analysis_ATLAS_SUSY_2018_05.cpp and Analysis_ATLAS_SUSY_2018_05_RJR.cpp share this publication record. The recursive-jigsaw implementation requires ROOT and RestFrames.
+Analyses: [ATLAS_SUSY_2018_05_RJR]
 OldName: ATLAS_13TeV_2LEPJETS_EW_139invfb

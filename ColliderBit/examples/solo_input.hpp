@@ -9,6 +9,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <map>
 #include <string>
 #include <vector>
@@ -28,6 +29,17 @@ namespace Gambit
       struct HepMCFileInput
       {
         str filename;
+      };
+
+      struct InputStatistics
+      {
+        long long n_events = 0;
+        double sum_weights = 0.0;
+        double sum_weights2 = 0.0;
+        std::string nominal_name;
+        int nominal_index = -1;
+        std::uintmax_t size_bytes = 0;
+        long long modified_ticks = 0;
       };
 
       /// Files sampling one physics process, with cross section and absolute error in fb.
@@ -80,6 +92,7 @@ namespace Gambit
 
         std::vector<str> hepmc_filenames;
         std::vector<HepMCRunInfo> hepmc_run_infos;
+        std::map<str, InputStatistics> input_statistics;
 
         /// Colliders in order of first appearance, and the collider of each retained analysis.
         std::vector<ColliderInput> colliders;

@@ -6,6 +6,9 @@
 ///  \author Chris Chang
 ///  \date 2024 Nov
 ///
+///  \author Pengxuan Zhu
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 // Based on https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2019-014/
@@ -77,6 +80,7 @@ namespace Gambit
 
       Analysis_ATLAS_SUSY_2018_16()
       {
+        set_analysis_name("ATLAS_SUSY_2018_16");
 
         defineSignalRegions("SR-E-low-ee-", 6, "njets > 0", "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV",
 			                       "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0",

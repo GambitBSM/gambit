@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "gambit/ColliderBit/ColliderBit_types.hpp"
+#include "gambit/ColliderBit/MCLoopInfo.hpp"
 
 namespace Gambit
 {
@@ -21,13 +22,50 @@ namespace Gambit
   {
     namespace SoloOutput
     {
+      struct InputFileSummaryEntry
+      {
+        std::string file, process, collider;
+        long long n_events = 0;
+        double sum_weights = 0.0, sum_weights2 = 0.0;
+        std::string nominal_name;
+        int nominal_index = -1;
+        double weight_scale = 1.0;
+        double process_cross_section_fb = 0.0, process_cross_section_uncert_fb = 0.0;
+      };
+      /// Terminal layout. JSON output is unaffected by this choice.
+      enum class ScreenReport
+      {
+        summary,
+        full
+      };
+
       /// Independently enable terminal output and JSON output to the specified path.
       struct OutputConfig
       {
         bool screen_output = true;
         bool write_file = false;
         std::string output_file;
+        ScreenReport screen_report = ScreenReport::summary;
+        // Directory holding the JSON, Contur log and optional YODA file.
+        // Empty when this run does not group those files.
+        std::string run_directory;
+        // Child collider processes write artifacts into the parent's run
+        // directory and leave the closing path announcement to the parent.
+        bool announce_outputs = true;
+        bool write_yoda_file = false;
+        std::vector<std::string> contur_logs;
+        std::vector<std::string> yoda_files;
       };
+
+      /// Create the directory containing output_file and return its absolute path.
+      /// An output name with no directory uses the current directory.
+      std::string prepare_output_directory(const std::string& output_file);
+
+      /// Short fixed-point or scientific text for the screen. JSON keeps full precision.
+      std::string format_screen_number(double value, int significant = 6);
+
+      /// Accept "summary" or "full".
+      ScreenReport screen_report_from_string(const std::string& value);
 
       /// Run conditions, inputs and normalisation of one CBS collider, with cross section in fb.
       struct ColliderSummaryEntry
@@ -95,7 +133,10 @@ namespace Gambit
         double contur_total_loglike,
         const std::map<std::string, double>& contur_pool_loglikes,
         const std::map<std::string, std::string>& contur_pool_info,
-        const std::vector<SamplingAdviceEntry>& sampling_advice = std::vector<SamplingAdviceEntry>()
+        const std::vector<SamplingAdviceEntry>& sampling_advice = std::vector<SamplingAdviceEntry>(),
+        const std::vector<InputFileSummaryEntry>& input_files = {},
+        const MCLoopInfo* input_loop = nullptr,
+        const std::vector<std::string>& rivet_analyses = {}
       );
     }
   }

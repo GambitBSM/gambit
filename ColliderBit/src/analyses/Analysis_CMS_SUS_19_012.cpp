@@ -208,7 +208,7 @@ namespace Gambit
           std::vector<const HEPUtils::Particle*> signalLeptons;
           if (signalLeptonCandidates.size() > 4)
           {
-            signalLeptons.insert(signalLeptons.end(), signalLeptonCandidates.begin(), signalLeptonCandidates.begin()+3);
+            signalLeptons.insert(signalLeptons.end(), signalLeptonCandidates.begin(), signalLeptonCandidates.begin()+4);
           }
           else
           {

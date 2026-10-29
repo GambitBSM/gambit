@@ -22,7 +22,11 @@
 #include <cctype>
 #include <cmath>
 #include <cstdlib>
+#include <filesystem>
 #include <iomanip>
+#include <map>
+#include <iostream>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
@@ -77,9 +81,63 @@ namespace Gambit
           return value;
         }
 
+        /// Locate report metadata for an analysis. A report can explicitly list
+        /// several analysis classes under Analyses; exact filenames take priority.
         std::string analysis_info_file(const str& analysis)
         {
-          return std::string(GAMBIT_DIR) + "/ColliderBit/src/analyses/Analysis_" + analysis + ".info";
+          const std::string directory = std::string(GAMBIT_DIR) + "/ColliderBit/src/analyses/";
+          const std::string exact_file = directory + "Analysis_" + analysis + ".info";
+          if (Gambit::Utils::file_exists(exact_file)) return exact_file;
+
+          // The source-tree metadata does not change during a CBS run. Build
+          // the index only on the first lookup that needs a shared report.
+          static const std::map<std::string, std::vector<std::string>> aliases = [&directory]() {
+            std::map<std::string, std::vector<std::string>> result;
+            std::error_code error;
+            std::filesystem::directory_iterator it(directory, error), end;
+            if (error)
+              throw std::runtime_error("Could not read analysis metadata directory " + directory + ": " + error.message());
+            for (; !error && it != end; it.increment(error))
+            {
+              const auto& path = it->path();
+              std::error_code file_error;
+              if (path.extension() != ".info" || !it->is_regular_file(file_error)) continue;
+              try
+              {
+                const YAML::Node metadata = YAML::LoadFile(path.string());
+                if (!metadata.IsMap()) continue;
+                const YAML::Node analyses = metadata["Analyses"];
+                if (!analyses || !analyses.IsSequence()) continue;
+                for (const YAML::Node& entry : analyses)
+                {
+                  if (!entry.IsScalar() || entry.Scalar().empty()) continue;
+                  auto& files = result[entry.Scalar()];
+                  const std::string filename = path.string();
+                  if (std::find(files.begin(), files.end(), filename) == files.end())
+                    files.push_back(filename);
+                }
+              }
+              catch (const YAML::Exception&)
+              {
+                // An unrelated unreadable record must not block this analysis.
+                // A directly requested record is still handled by its caller.
+              }
+            }
+            if (error)
+              throw std::runtime_error("Could not scan analysis metadata directory " + directory + ": " + error.message());
+            return result;
+          }();
+
+          const auto found = aliases.find(analysis);
+          if (found == aliases.end()) return exact_file;
+          if (found->second.size() > 1)
+          {
+            std::ostringstream message;
+            message << "Analysis '" << analysis << "' is listed in multiple .info files:";
+            for (const std::string& file : found->second) message << "\n  " << file;
+            throw std::runtime_error(message.str());
+          }
+          return found->second.front();
         }
 
         std::string format_energy_TeV(double energy_TeV)
@@ -592,17 +650,59 @@ namespace Gambit
           return "CBS_" + beam_label(first_pid) + beam_label(second_pid) + "_" + energy.str() + "TeV";
         }
 
-        /// Read the run conditions of every HepMC input from its first physical event.
+        /// Validate complete inputs and collect denominators before normalising
+        /// positive-weight events into a common collider-level stream.
         std::vector<HepMCFileInspection> inspect_hepmc_inputs(PreparedInput& prepared)
         {
           std::vector<HepMCFileInspection> inputs;
           inputs.reserve(prepared.hepmc_filenames.size());
           prepared.hepmc_run_infos.clear();
           prepared.hepmc_run_infos.reserve(prepared.hepmc_filenames.size());
+          std::set<std::string> physical_files;
           for (const str& filename : prepared.hepmc_filenames)
           {
-            inputs.push_back(inspect_hepmc_file(filename));
-            prepared.hepmc_run_infos.push_back(inputs.back().run_info);
+            if (!physical_files.insert(std::filesystem::canonical(filename).string()).second)
+              throw std::runtime_error("Duplicate HepMC input file: " + filename);
+            if (prepared.settings.getValueOrDef<bool>(true, "screen_output"))
+              std::cout << "CBS inspecting complete HepMC input: " << filename << std::endl;
+            try
+            {
+              inputs.push_back(inspect_hepmc_file(filename));
+              prepared.hepmc_run_infos.push_back(inputs.back().run_info);
+              const long long expected = validate_hepmc_listing(filename);
+              auto reader = make_hepmc_reader(filename);
+              HepMC3::GenEvent event;
+              InputStatistics statistics;
+              statistics.size_bytes = std::filesystem::file_size(filename);
+              statistics.modified_ticks = std::filesystem::last_write_time(filename).time_since_epoch().count();
+              const auto nominal = prepared.settings.getValueOrDef<str>("", "nominal_weight_name");
+              const auto tolerances = get_run_condition_tolerances(prepared.settings);
+              while (reader->read_event(event) && !event.particles().empty())
+              {
+                std::string name;
+                int index;
+                const double weight = nominal_hepmc_weight(event, nominal, filename, &name, &index);
+                if (statistics.n_events && name != statistics.nominal_name)
+                  throw std::runtime_error("Nominal weight definition changed within " + filename);
+                if (!run_infos_match(inputs.back().run_info, inspect_run_info(event, filename), tolerances))
+                  throw std::runtime_error("HepMC run conditions changed within " + filename);
+                statistics.nominal_name = name;
+                statistics.nominal_index = statistics.n_events == 0 ? index
+                  : (statistics.nominal_index == index ? index : -1);
+                ++statistics.n_events;
+                statistics.sum_weights += weight;
+                statistics.sum_weights2 += weight * weight;
+              }
+              if (statistics.n_events != expected || !(statistics.sum_weights > 0.0)
+                  || !(statistics.sum_weights2 > 0.0)
+                  || !std::isfinite(statistics.sum_weights) || !std::isfinite(statistics.sum_weights2))
+                throw std::runtime_error("Incomplete event parsing or invalid total nominal weight in " + filename);
+              prepared.input_statistics.emplace(filename, statistics);
+            }
+            catch (const std::exception& error)
+            {
+              throw std::runtime_error("CBS HepMC input " + filename + ": " + error.what());
+            }
           }
           return inputs;
         }
@@ -668,6 +768,9 @@ namespace Gambit
             for (std::size_t jf = 0; jf < process.files.size(); ++jf, ++input_index)
             {
               const HepMCFileInspection& inspected = inputs.at(input_index);
+              if (prepared.input_statistics.at(reference.filename).nominal_name
+                  != prepared.input_statistics.at(inspected.filename).nominal_name)
+                throw std::runtime_error("Nominal weight name differs between files of process " + process.name);
               if (!run_infos_match(reference.run_info, inspected.run_info, tolerances))
               {
                 throw std::runtime_error(
@@ -825,7 +928,7 @@ namespace Gambit
             {
               prepared.analysis_warnings.push_back(
                 "CBS input: no enabled analysis matches collider " + collider.name + " ("
-                + format_run_conditions(collider.run_info) + "); its HepMC files will not be analysed."
+                + format_run_conditions(collider.run_info) + "); its ColliderBit searches are skipped; Rivet performs its own beam matching."
               );
             }
           }
@@ -1301,6 +1404,10 @@ namespace Gambit
               process_input.files.push_back(file_input);
             }
 
+            if (process_input.name.empty()) throw std::runtime_error("Process names must not be empty.");
+            for (const auto& existing : prepared.processes)
+              if (existing.name == process_input.name)
+                throw std::runtime_error("Duplicate process name: " + process_input.name);
             prepared.processes.push_back(process_input);
           }
 

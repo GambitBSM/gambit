@@ -40,3 +40,13 @@
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/ColliderBit/ColliderBit_eventloop_utils.hpp"
+
+namespace Gambit
+{
+  namespace ColliderBit
+  {
+    /// Release Rivet handlers while backend thread-local logging is still alive.
+    /// Called on the main thread after all event workers have joined.
+    void clear_rivet_measurements() noexcept;
+  }
+}

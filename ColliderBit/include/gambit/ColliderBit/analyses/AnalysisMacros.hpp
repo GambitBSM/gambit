@@ -26,6 +26,8 @@
 #pragma once
 
 #include <cfloat>
+#include "gambit/ColliderBit/analyses/Cutflow.hpp"
+#include "gambit/Utils/util_macros.hpp"
 
 #if defined(__clang__)
   // Silence GNU variadic macro extension warning for '##__VA_ARGS__'.
@@ -364,13 +366,17 @@
 
 /// Preselection, at the start initialize cutflows, at the end fill preselection cutflow
 #define BEGIN_PRESELECTION                                                        \
-  _cutflows.fillinit(event->weight());
+  do { if (Gambit::ColliderBit::Cutflow::check_cutflow())                          \
+    _cutflows.fillinit(event->weight()); } while (0);
 
 #define END_PRESELECTION                                                          \
-  _cutflows.fillnext(event->weight());
+  do { if (Gambit::ColliderBit::Cutflow::check_cutflow())                          \
+    _cutflows.fillnext(event->weight()); } while (0);
 
 /// Log current event for one or more signal regions
-#define LOG_CUT_1(A)                      _cutflows[A].fillnext(event->weight());
+#define LOG_CUT_1(A)                                                             \
+  do { if (Gambit::ColliderBit::Cutflow::check_cutflow())                          \
+    _cutflows[A].fillnext(event->weight()); } while (0);
 #define LOG_CUT_2(A,B)                    LOG_CUT_1(A) LOG_CUT_1(B)
 #define LOG_CUT_3(A,B,C)                  LOG_CUT_1(A) LOG_CUT_2(B,C)
 #define LOG_CUT_4(A,B,C,D)                LOG_CUT_1(A) LOG_CUT_3(B,C,D)
@@ -384,16 +390,21 @@
 
 // Log specific cuts for a sequential list of signal regions
 #define LOG_CUT_N(SR, N)                                                          \
+  do {                                                                          \
+  if (Gambit::ColliderBit::Cutflow::check_cutflow())                               \
   for(size_t i=1; i<=N; ++i)                                                      \
   {                                                                               \
     str basename(SR);                                                             \
     str name = basename + std::to_string(i);                                      \
     _cutflows[name].fillnext(event->weight());                                    \
-  }
+  }                                                                             \
+  } while (0);
 
 
 // Log specific cuts for one or more signal region
-#define LOG_CUTS_2(CUTS,A)                     _cutflows[A].fillnext(CUTS,event->weight());
+#define LOG_CUTS_2(CUTS,A)                                                       \
+  do { if (Gambit::ColliderBit::Cutflow::check_cutflow())                          \
+    _cutflows[A].fillnext(CUTS,event->weight()); } while (0);
 #define LOG_CUTS_3(CUTS,A,B)                   LOG_CUTS_2(CUTS,A) LOG_CUTS_2(CUTS,B)
 #define LOG_CUTS_4(CUTS,A,B,C)                 LOG_CUTS_2(CUTS,A) LOG_CUTS_3(CUTS,B,C)
 #define LOG_CUTS_5(CUTS,A,B,C,D)               LOG_CUTS_2(CUTS,A) LOG_CUTS_4(CUTS,B,C,D)
@@ -407,18 +418,22 @@
 
 // Log specific cuts for a sequential list of signal regions
 #define LOG_CUTS_N(CUTS, SR, N)                                                   \
+  do {                                                                          \
+  if (Gambit::ColliderBit::Cutflow::check_cutflow())                               \
   for(size_t i=1; i<=N; ++i)                                                      \
   {                                                                               \
     str basename(SR);                                                             \
     str name = basename + std::to_string(i);                                      \
     _cutflows[name].fillnext(CUTS,event->weight());                               \
-  }
+  }                                                                             \
+  } while (0);
 
 
 /// Fill signal region and cutflow
 #define FILL_SIGNAL_REGION(NAME)                                                  \
   do {                                                                               \
-    _cutflows[NAME].fillnext(event->weight());                                      \
+    if (Gambit::ColliderBit::Cutflow::check_cutflow())                              \
+      _cutflows[NAME].fillnext(event->weight());                                    \
     _counters.at(NAME).add_event(event);                                            \
   } while(0)
 

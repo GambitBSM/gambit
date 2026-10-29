@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "solo_input.hpp"
+#include "solo_output.hpp"
 
 #include "gambit/ColliderBit/ColliderBit_types.hpp"
 #include "gambit/Utils/yaml_options.hpp"
@@ -71,10 +72,28 @@ namespace Gambit
         AnalysisDataPointers analyses;
         map_str_AnalysisLogLikes analysis_loglikes;
         double combined_loglike = 0.0;
+        double contur_loglike = 0.0;
+        std::map<std::string, double> contur_pool_loglikes;
+        std::map<std::string, std::string> contur_pool_info;
+        std::vector<SoloOutput::InputFileSummaryEntry> input_files;
+        std::vector<std::string> rivet_analyses;
+        MCLoopInfo input_loop{};
       };
 
       /// Run files sequentially on the local machine and combine one parameter point.
       MergedRunResult run_and_merge(
+        const std::string& cbs_executable,
+        const SoloInput::PreparedInput& prepared_input,
+        const Options& settings,
+        double (*marginaliser)(const int&, const double&, const double&, const double&),
+        bool (*FullLikes_FileExists)(const str&),
+        int (*FullLikes_ReadIn)(const str&, const str&, const str&),
+        double (*FullLikes_Evaluate)(std::map<str,double>&, const str&)
+      );
+
+      /// Run one full measurement task per collider, then combine disjoint
+      /// analysis/pool results without multiplying the same experimental data.
+      MergedRunResult run_joint_colliders(
         const std::string& cbs_executable,
         const SoloInput::PreparedInput& prepared_input,
         const Options& settings,

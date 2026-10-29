@@ -21,6 +21,8 @@
 
 #include "gambit/cmake/cmake_variables.hpp"
 #include "gambit/Utils/util_types.hpp"
+#include <cmath>
+#include <stdexcept>
 
 #ifdef HAVE_PYBIND11
 
@@ -52,6 +54,10 @@
         //Constructor using the pybind11::dict we get from contur:
         Contur_subOutput(pybind11::dict input_dict)
         {
+          for (const char* key : {"LLR", "Pool_LLR", "Pool_tags"})
+            if (!input_dict.contains(key) || input_dict.attr("get")(key).is_none())
+              throw std::runtime_error(std::string("Contur returned no valid ") + key
+                                       + "; the measurement point may have been rejected.");
           //Eliminating the factor of -2 for the GAMBIT LLR definition
           LLR = -0.5*input_dict.attr("get")("LLR").cast<double>();
           pool_LLR = input_dict.attr("get")("Pool_LLR").cast<map_str_dbl>();
@@ -61,6 +67,12 @@
             pool.second=-0.5*pool.second;
           }
           pool_tags = input_dict.attr("get")("Pool_tags").cast<map_str_str>();
+          for (const auto& pool : pool_LLR)
+            if (pool_tags.count(pool.first) == 0)
+              throw std::runtime_error("Contur returned a pool without measurement tags: " + pool.first);
+          if (!std::isfinite(LLR)) throw std::runtime_error("Contur returned a non-finite LLR.");
+          for (const auto& pool : pool_LLR)
+            if (!std::isfinite(pool.second)) throw std::runtime_error("Contur returned a non-finite pool LLR.");
         }
 
         //Constructor with all parts supplied: for the friend merge function
@@ -97,7 +109,10 @@
         Contur_output(pybind11::dict input_dict)
         {
           for (const str& bkg : _bkg_types){
-            outputs[bkg] = Contur_subOutput(input_dict.attr("get")(bkg));
+            auto block = input_dict.attr("get")(bkg);
+            if (!pybind11::isinstance<pybind11::dict>(block))
+              throw std::runtime_error("Contur returned no valid background block: " + bkg);
+            outputs[bkg] = Contur_subOutput(block.cast<pybind11::dict>());
           }
         }
         //Automatic destructor should be fine, no need to define

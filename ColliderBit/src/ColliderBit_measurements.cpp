@@ -18,6 +18,9 @@
 ///  \date   May 2023
 ///  \date   Oct 2024
 ///
+///  \author Pengxuan Zhu
+///  \date   2026 Oct
+///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -45,6 +48,24 @@ namespace Gambit
   namespace ColliderBit
   {
 
+    #if !defined(EXCLUDE_HEPMC) && !defined(EXCLUDE_YODA)
+      namespace
+      {
+        std::vector<std::unique_ptr<Rivet_default::Rivet::AnalysisHandler>>& rivet_analysis_handlers()
+        {
+          static std::vector<std::unique_ptr<Rivet_default::Rivet::AnalysisHandler>> handlers;
+          return handlers;
+        }
+      }
+    #endif
+
+    void clear_rivet_measurements() noexcept
+    {
+      #if !defined(EXCLUDE_HEPMC) && !defined(EXCLUDE_YODA)
+        rivet_analysis_handlers().clear();
+      #endif
+    }
+
     //Small convenience function for supplying options to the contur argparser.
     void convert_yaml_options_for_contur(std::vector<std::string> &yaml_options)
     {
@@ -64,10 +85,8 @@ namespace Gambit
           using namespace Pipes::Rivet_measurements;
           using namespace Rivet_default::Rivet;
 
-          static std::vector<std::unique_ptr<AnalysisHandler>> anahandlers;
-          // TODO: Does event count ever go over int_max? Playing safe
-          thread_local long int events_analysed = 0;
-          static std::map<int, long int> events_analysed_perthread;
+          auto& anahandlers = rivet_analysis_handlers();
+          static std::vector<long long> events_analysed_perthread;
 
           static std::vector<string>  analyses;
           static std::vector<string> excluded_analyses;
@@ -76,6 +95,9 @@ namespace Gambit
           {
             // Wipe out all analysisHandlers (will be reinitialised in COLLIDER_INIT_OMP)
             anahandlers.clear();
+            anahandlers.resize(omp_get_max_threads());
+            events_analysed_perthread.assign(anahandlers.size(), 0);
+            Dep::RunMC->rivet_analyses.clear();
 
             // Remainder of Loop iteration is to get analysis list.
             analyses.clear();
@@ -113,7 +135,15 @@ namespace Gambit
                 }
               }
             }
-            // Now we have a final list of all analyses to add/exclude
+            // Allocate by OpenMP thread ID, including threads which may be idle
+            // during initialisation. Team sizes may change between regions.
+            for (auto& handler : anahandlers)
+            {
+              handler = std::make_unique<AnalysisHandler>();
+              for (const auto& name : analyses)
+                if (name != "13TeV" && name != "8TeV" && name != "7TeV") handler->addAnalysis(name);
+              handler->removeAnalyses(excluded_analyses);
+            }
           }
 
 
@@ -121,20 +151,6 @@ namespace Gambit
 
             #pragma omp critical
             {
-              anahandlers.emplace_back(std::make_unique<AnalysisHandler>());
-              events_analysed_perthread[omp_get_thread_num()] = 0L;
-
-              for (const std::string& ananame :  analyses){
-                // Rememeber analysis list already formed.
-                if (!(ananame == "13TeV" || ananame == "8TeV" || ananame == "7TeV"))
-                  anahandlers.back()->addAnalysis(ananame);
-              }
-
-              //If the yaml file wants to exclude analyses, remove them
-              //This feature was inspired by ATLAS_2016_I1469071, which is effectively
-              //invalid for most BSM cases and can cause crashes.
-              anahandlers.back()->removeAnalyses(excluded_analyses);
-
               //Write the utilised analyses to a file in yaml-like format
               //This will list only the analyses that RIVET has succesfully loaded.
               //Only do this the first time contur is run.
@@ -177,78 +193,65 @@ namespace Gambit
 
           // TODO: think about this whole event number check is still needed.
           if (*Loop::iteration == END_SUBPROCESS){
-            //Save which threads have run enough events.
-            events_analysed_perthread[omp_get_thread_num()] = events_analysed;
             #ifdef COLLIDERBIT_DEBUG
-              std::cout << "Rivet: thread " << omp_get_thread_num() << " analysed " << events_analysed << " events" << std::endl;
+              std::cout << "Rivet: thread " << omp_get_thread_num() << " analysed " << events_analysed_perthread[omp_get_thread_num()] << " events" << std::endl;
             #endif
           }
 
           // TODO: consider cleaning up.
           if (*Loop::iteration == COLLIDER_FINALIZE)
           {
-            //Check if events have actually been generated. If not, don't call finalise, as
-            //rivet hasn't been fully initialised. Just return a nullptr, the contur functions
-            //will know what to do.
-            // Test if thread 0 analysed any events. If not, very unlikely any threads did and merging won't work properly - skip.
-            if (events_analysed > 0)
+            std::size_t master = anahandlers.size();
+            for (std::size_t i = 0; i < anahandlers.size(); ++i)
+              if (anahandlers[i] && events_analysed_perthread[i] > 0) { master = i; break; }
+            if (master != anahandlers.size())
             {
-              #ifdef COLLIDERBIT_DEBUG
-                std::cout << "Summary data from rivet:\n\tAnalyses used: ";
-                for (auto analysis : anahandlers[0]->analysisNames()){
-                    std::cout << analysis << ", ";
-                }
-                std::cout << "\n\tBeam IDs are " << anahandlers[0]->beamIds().first << ", " << anahandlers[0]->beamIds().second;
-                std::cout << "\n\tXS: " << anahandlers[0]->nominalCrossSection();
-                std::cout << "\n\tRunName: " << anahandlers[0]->runName();
-                std::cout << "\n\tSqrtS: " << anahandlers[0]->sqrtS();
-                std::cout << "\n\tList of available analyses: ";
-                for (auto analysis : anahandlers[0]->stdAnalysisNames()){
-                    std::cout << analysis << ", ";
-                }
-                std::cout << std::flush;
-              #endif
-
-              //Initialise somewhere for the yoda file to be outputted.
-              //This circuitous route is necesarry because ostringstream does not support copy
-              //assignment or copy initialisation, and which is necesarry to access items via
-              //Gambit's backends system, so we need to go via a pointer.
               result = std::make_shared<std::ostringstream>();
-              const static bool drop_perthread_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_perthread_YODA_file");
-              int count = 0;
-              for (const auto & handler : anahandlers){
-                handler->finalize();
-                if (drop_perthread_YODA_file){
-                  handler->writeData("TEST_"+std::to_string(count++)+".yoda");
-                }
-              }
+              // Merge raw statistics before finalizing exactly once. The first
+              // event is a real analysed event, including on worker threads.
+              for (std::size_t i = 0; i < anahandlers.size(); ++i)
+                if (i != master && anahandlers[i] && events_analysed_perthread[i] > 0)
+                  anahandlers[master]->merge(*anahandlers[i]);
+              // Per-thread files are diagnostic snapshots. Finalize workers
+              // only after their raw contents have been merged into the master.
+              if (runOptions->getValueOrDef<bool>(false, "drop_perthread_YODA_file"))
+                for (std::size_t i = 0; i < anahandlers.size(); ++i)
+                  if (i != master && anahandlers[i] && events_analysed_perthread[i] > 0)
+                  {
+                    anahandlers[i]->finalize();
+                    anahandlers[i]->writeData("TEST_" + std::to_string(i) + ".yoda");
+                  }
+              anahandlers[master]->finalize();
+              Dep::RunMC->rivet_analyses = anahandlers[master]->analysisNames();
+              if (Dep::RunMC->rivet_analyses.empty())
+                ColliderBit_error().raise(LOCAL_INFO, "No Rivet analyses matched the input run conditions.");
+              anahandlers[master]->writeData(*result, "yoda");
 
-              //Merge non-master threads back into master IF they analysed any events.
-              for (size_t j = 1; j < anahandlers.size(); ++j){
-                //Note rivet needs uses the first event for init so need more than one to
-                // actually do analysis.
-                if (events_analysed_perthread[j] > 1){
-                  #ifdef COLLIDERBIT_DEBUG
-                  std::cout << "Merging yoda from thread " << j << " into master." << std::endl;
-                  #endif
-                  anahandlers[0]->merge(*anahandlers[j]);
-                }
-                else {
-                  std::cout << "Not merging yoda from thread " << j << " into master." << std::endl;
-                  ColliderBit_warning().raise(LOCAL_INFO, "Thread "+std::to_string(j)+" did not get any events to Rivet analyse" );
-                }
-              }
-              anahandlers[0]->finalize();
-              anahandlers[0]->writeData(*result, "yoda");
-
-              // Drop YODA file if requested
-              const static bool drop_YODA_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
-              if(drop_YODA_file)
+              // write_YODA_file true saves the merged YODA alongside the CBS
+              // result. drop_YODA_file is the older name for the same choice:
+              // true still writes the file.
+              bool write_yoda_file = false;
+              if (runOptions->hasKey("write_YODA_file"))
+                write_yoda_file = runOptions->getValue<bool>("write_YODA_file");
+              else
+                write_yoda_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
+              if(write_yoda_file)
               {
                 str filename = "GAMBIT_collider_measurements_"+Dep::RunMC->current_collider()+".yoda";
+                if (runOptions->hasKey("YODA_output_directory"))
+                {
+                  const str directory = runOptions->getValue<str>("YODA_output_directory");
+                  if (directory != "" && directory != ".")
+                  {
+                    if (directory.back() == '/' || directory.back() == '\\')
+                      filename = directory + filename;
+                    else
+                      filename = directory + "/" + filename;
+                  }
+                }
                 #pragma omp critical
                 {
-                  try{ anahandlers[0]->writeData(filename); }
+                  try{ anahandlers[master]->writeData(filename); }
                   catch (...)
                   { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
                 }
@@ -267,22 +270,34 @@ namespace Gambit
 
           // Get the HepMC event
           HepMC3::GenEvent ge = *Dep::HardScatteringEvent;
+          auto& events_analysed = events_analysed_perthread.at(omp_get_thread_num());
+          std::string rivet_error;
           try {
-            // The first event only must be analysed single-threaded
+            // Rivet's first-event plugin initialisation is serialised. Catch
+            // inside the critical region: exceptions must not cross it.
             if (events_analysed < 1){
               #pragma omp critical
               {
-                anahandlers[omp_get_thread_num()]->analyze(ge);
+                try { anahandlers[omp_get_thread_num()]->analyze(ge); }
+                catch (const std::exception& error) { rivet_error = error.what(); }
+                catch (int code) { rivet_error = "Rivet integer exception " + std::to_string(code); }
+                catch (...) { rivet_error = "Rivet unknown non-standard exception during first-event initialization"; }
               }
+              if (!rivet_error.empty()) throw std::runtime_error(rivet_error);
+              if (runOptions->hasKey("cbs_cross_section_pb"))
+                anahandlers[omp_get_thread_num()]->setCrossSection(
+                  runOptions->getValue<double>("cbs_cross_section_pb"),
+                  runOptions->getValue<double>("cbs_cross_section_uncert_pb"), true);
             }
             else {
               anahandlers[omp_get_thread_num()]->analyze(ge);
             }
             events_analysed++;
           }
-          catch(std::runtime_error &e)
+          catch(const std::exception &e)
           {
-            ColliderBit_error().raise(LOCAL_INFO, e.what());
+            piped_errors.request(LOCAL_INFO, e.what());
+            Loop::halt();
           }
         }
 
@@ -301,6 +316,7 @@ namespace Gambit
           if (*Loop::iteration == BASE_INIT)
           {
             results.clear();
+            Dep::RunMC->contur_evaluations = 0;
           }
           else if (*Loop::iteration == COLLIDER_FINALIZE)
           {
@@ -310,7 +326,7 @@ namespace Gambit
             //Check that rivet actually ran. If not, produce an empty Contur_output object.
             if (yodastream == nullptr)
             {
-              temp_result = Contur_output();
+              ColliderBit_error().raise(LOCAL_INFO, "Rivet produced no measurement stream; Contur result is invalid.");
             }
             //If rivet ran, run Contur.
             else
@@ -318,12 +334,19 @@ namespace Gambit
               std::vector<std::string> yaml_contur_options = runOptions->getValueOrDef<std::vector<str>>(std::vector<str>(), "contur_options");
               convert_yaml_options_for_contur(yaml_contur_options);
 
+              std::string contur_error;
               #pragma omp critical
               {
-                ///Call contur
-                Contur_output altOut = BEreq::Contur_Measurements(std::move(yodastream), yaml_contur_options);
-                temp_result = altOut;
+                try
+                {
+                  temp_result = BEreq::Contur_Measurements(std::move(yodastream), yaml_contur_options);
+                  if (temp_result.outputs.at("DATABG").pool_LLR.empty())
+                    throw std::runtime_error("Contur found no usable measurement pools for this prediction.");
+                  ++Dep::RunMC->contur_evaluations;
+                }
+                catch (const std::exception& error) { contur_error = error.what(); }
               }
+              if (!contur_error.empty()) ColliderBit_error().raise(LOCAL_INFO, contur_error);
             }
             results.push_back(temp_result);
 
