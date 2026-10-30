@@ -2213,6 +2213,8 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   # A changed Rivet patch must not be applied over the old patched installation.
+  # Also reconstruct sources copied by the old downloader: their lost archive
+  # timestamps can trigger Autotools regeneration and overwrite our patches.
   ExternalProject_Add_Step(${name}_${ver} prepare_source
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<SOURCE_DIR>"
     COMMAND ${CMAKE_COMMAND} -E make_directory "<SOURCE_DIR>"
@@ -2220,6 +2222,8 @@ if(NOT ditched_${name}_${ver})
     DEPENDEES update
     DEPENDERS patch
     DEPENDS "${patch}"
+            "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh"
+            "${PROJECT_SOURCE_DIR}/cmake/scripts/copy_extracted_sources.cmake"
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     COMMENT "Preparing pristine Rivet ${ver} sources"
   )

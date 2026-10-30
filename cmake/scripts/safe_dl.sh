@@ -181,4 +181,8 @@ if [ "retain container folder" != "${10}" ]; then
     extract_source="$container_dir"
   fi
 fi
-"$3" -E copy_directory "$extract_source" "$7" || exit 1
+# Preserve the archive's dependency timestamps when moving out of staging.
+# Otherwise Autotools may try to regenerate patched release files with tools
+# (such as Rivet's aclocal-1.17) that an end-user build should not need.
+"$3" "-DSOURCE_DIR=$extract_source" "-DDESTINATION_DIR=$7" \
+  -P "$1/cmake/scripts/copy_extracted_sources.cmake" || exit 1

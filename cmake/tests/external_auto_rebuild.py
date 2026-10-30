@@ -294,6 +294,17 @@ endfunction()
         self.assertIn(str(self.source / "contrib/fastjet/local/.gambit-*-build-identity"), rivet)
         self.assertIn(str(self.source / "Backends/installed/rivet/4.1.0/local/**/rivet/core.so"), rivet)
 
+    def test_rivet_download_fix_reprepares_sources_before_patch_without_always_repeating(self):
+        step = self.registration()["STEP"]["rivet_4.1.0:prepare_source"]
+        dependencies = step[step.index("DEPENDS") + 1:step.index("WORKING_DIRECTORY")]
+        for source in ("cmake/scripts/safe_dl.sh", "cmake/scripts/copy_extracted_sources.cmake",
+                       "Backends/patches/rivet/4.1.0/patch_rivet_4.1.0.dif"):
+            self.assertIn(str(self.source / source), dependencies)
+        self.assertEqual(step[step.index("DEPENDEES") + 1], "update")
+        self.assertEqual(step[step.index("DEPENDERS") + 1], "patch")
+        self.assertNotIn("ALWAYS", step)
+        self.assertIn("remove_directory", step)
+
     def test_nulike_registration_tracks_lowercase_makefile_and_invalidates_on_edit(self):
         command = self.registration()["TARGET"]["check-rebuild-nulike_1.0.9"]
         command = command[command.index("COMMAND") + 1:command.index("VERBATIM")]

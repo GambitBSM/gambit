@@ -839,6 +839,16 @@ existing automatic make-check policy until their inputs and products are audited
 The existing explicit clean/nuke targets and pristine Rivet patch preparation
 remain available.
 
+Cached source downloads preserve the archive's file timestamps when copying
+from the extraction staging directory. Rivet 4.1.0 ships generated Autotools
+files; losing their timestamp ordering can cause `make` to request
+`aclocal-1.17` and regenerate the `Makefile.in` files patched by GAMBIT. No
+Autotools regeneration is needed for the supplied Rivet release and patches.
+Rivet's pristine preparation tracks the downloader and its copy helper, so the
+first build after this fix reconstructs an old source tree before patching and
+BOSS. Preserve any manual edits to downloaded Rivet sources before that build.
+Subsequent unchanged builds keep the existing preparation/patch stamps.
+
 Use the existing compiler and shared build tree:
 
 ```sh
@@ -860,7 +870,15 @@ Script-only regression checks:
 
 ```sh
 python3 cmake/tests/external_auto_rebuild.py
+python3 cmake/tests/source_download.py
+python3 cmake/tests/rivet_installation.py
 ```
+
+The source-download suite uses tiny cached fixtures without network access.
+The Rivet suite additionally checks the real download/patch pipeline and its
+Autotools timestamp ordering when `Backends/downloaded/rivet_4.1.0.tar.gz` is
+already cached; it skips when the archive is absent. Neither suite configures
+or compiles Rivet.
 
 The current macOS LLVM build has passed initial recording, direct unchanged
 builds and unchanged builds after reconfiguration. Source-touch, timestamp comparisons and other platforms remain
