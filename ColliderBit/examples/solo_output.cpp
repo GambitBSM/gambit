@@ -1262,19 +1262,34 @@ namespace Gambit
           output << std::left;
         }
 
-        /// ColliderBit and Contur log L, then their sum when Contur ran.
-        void print_likelihood_summary(
+        /// One closing block: events analysed, then ColliderBit and Contur log L.
+        /// A full report also lists the collider and native-analysis counts.
+        /// Printed after the detail tables and the normalization table.
+        void print_run_summary(
           std::ostream& output,
+          int n_events,
           double colliderbit_loglike,
           bool with_contur,
-          double contur_loglike)
+          double contur_loglike,
+          bool with_inventory,
+          std::size_t n_colliders,
+          std::size_t n_analyses)
         {
           output << "\nSummary\n";
+          const auto line_text = [&](const char* label, const std::string& value)
+          {
+            output << "  " << std::left << std::setw(20) << label << ": " << value << '\n';
+          };
           const auto line = [&](const char* label, double value)
           {
-            output << "  " << std::left << std::setw(20) << label << ": "
-                   << format_screen_number(value) << '\n';
+            line_text(label, format_screen_number(value));
           };
+          line_text("Events analysed", std::to_string(n_events));
+          if (with_inventory)
+          {
+            line_text("Colliders", std::to_string(n_colliders));
+            line_text("Native analyses", std::to_string(n_analyses));
+          }
           line("ColliderBit log L", colliderbit_loglike);
           if (with_contur)
           {
@@ -1291,8 +1306,6 @@ namespace Gambit
         /// joins several measurements shows the first path and a count of the
         /// rest. The full report lists every pool and every path.
         void print_compact_screen_summary(
-          int n_events,
-          double combined_loglike,
           const AnalysisDataPointers& analyses,
           const map_str_AnalysisLogLikes& analysis_loglikes,
           bool with_contur,
@@ -1301,11 +1314,6 @@ namespace Gambit
           const std::map<std::string, std::string>& contur_pool_info,
           const std::vector<SamplingAdviceEntry>& sampling_advice)
         {
-          std::cout << "\nCBS result summary\n"
-                    << "  Events analysed : " << n_events << '\n';
-          print_likelihood_summary(
-            std::cout, combined_loglike, with_contur, contur_total_loglike);
-
           std::vector<std::string> analysis_names;
           std::vector<std::string> sr_labels;
           std::vector<std::string> observed_texts;
@@ -1444,12 +1452,10 @@ namespace Gambit
           std::cout << '\n';
         }
 
-        /// Print cutflows, SR yields, nominal/alternative likelihoods and the total.
-        /// Include Contur results and sampling advice when supplied.
+        /// Print cutflows, SR yields, nominal/alternative likelihoods, Contur
+        /// results and sampling advice. The closing Summary is printed later.
         void print_screen_summary(
-          int n_events,
           const std::vector<ColliderSummaryEntry>& colliders,
-          double combined_loglike,
           const AnalysisDataPointers& analyses,
           const map_str_AnalysisLogLikes& analysis_loglikes,
           bool with_contur,
@@ -1463,8 +1469,6 @@ namespace Gambit
           if (screen_report == ScreenReport::summary)
           {
             print_compact_screen_summary(
-              n_events,
-              combined_loglike,
               analyses,
               analysis_loglikes,
               with_contur,
@@ -1475,16 +1479,6 @@ namespace Gambit
             return;
           }
 
-          std::cout << '\n';
-          print_screen_rule(std::cout, '=');
-          std::cout << "CBS result summary\n";
-          print_screen_rule(std::cout);
-          std::cout << "  Events analysed : " << n_events << '\n'
-                    << "  Colliders       : " << colliders.size() << '\n'
-                    << "  Native analyses : " << analyses.size() << '\n';
-          print_likelihood_summary(
-            std::cout, combined_loglike, with_contur, contur_total_loglike);
-          print_screen_rule(std::cout, '=');
           print_collider_table(std::cout, colliders);
 
           for (const AnalysisData* analysis_ptr : analyses)
@@ -1614,9 +1608,7 @@ namespace Gambit
         if (config.screen_output)
         {
           print_screen_summary(
-            n_events,
             colliders,
-            combined_loglike,
             analyses,
             analysis_loglikes,
             with_contur,
@@ -1626,10 +1618,17 @@ namespace Gambit
             sampling_advice,
             config.screen_report
           );
-        }
-
-        if (config.screen_output)
           print_input_normalization(std::cout, input_files);
+          print_run_summary(
+            std::cout,
+            n_events,
+            combined_loglike,
+            with_contur,
+            contur_total_loglike,
+            config.screen_report == ScreenReport::full,
+            colliders.size(),
+            analyses.size());
+        }
         if (!config.write_file) return;
 
         nlohmann::json root;

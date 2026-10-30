@@ -131,7 +131,7 @@ HepMC 检查写在 `files/<key>.stamp.json` 里：束流、能量、名义权重
 
 父进程在开跑前打印一张短表：文件、状态（`kept`、`run`、`rerun`）、原因（`complete`、`missing`、`incomplete`、`file changed`、`settings changed`）。
 
-每个待跑文件启动前，父进程打印 `Running File i/n` 和该 HepMC 路径并刷新。子进程进度行接着写 `CBS HepMC File i/n`。每发布一个文件 JSON，打印该 JSON 的绝对路径。`screen_output: false` 时不打印这张表、`Running File` 行和检查点路径。全部文件有效后，才打印现在的 Summary、分析表、Contur、采样建议、补事例提示、归一化表，以及合并 JSON 的 `Wrote` 行。文件还没齐时，不给出部分样本的总 log L，也不提示补事例。
+每个待跑文件启动前，父进程打印 `Running File i/n` 和该 HepMC 路径并刷新。子进程进度行接着写 `CBS HepMC File i/n`。每发布一个文件 JSON，打印该 JSON 的绝对路径。`screen_output: false` 时不打印这张表、`Running File` 行和检查点路径。全部文件有效后，才打印分析表、Contur、采样建议、补事例提示和归一化表。事例数、ColliderBit log L、Contur log L 和 Total log L 合成一段 `Summary`，放在这些表之后、合并 JSON 的 `Wrote` 行之前。完整报告的同一段里还列出对撞机数和原生分析数。文件还没齐时，不给出部分样本的总 log L，也不提示补事例。
 
 ### 和现有路径的关系
 
