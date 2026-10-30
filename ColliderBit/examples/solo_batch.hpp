@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+#include <unistd.h>
+
 #include "solo_input.hpp"
 #include "solo_output.hpp"
 
@@ -79,6 +81,72 @@ namespace Gambit
         std::vector<std::string> rivet_analyses;
         MCLoopInfo input_loop{};
       };
+
+      /// One stored Rivet file and the mixture scale applied to a copy before merging.
+      /// The checkpoint file itself stays at nominal weight.
+      struct CheckpointYodaFile
+      {
+        std::string key;
+        std::string collider;
+        std::string process;
+        std::string hepmc_file;
+        std::string yoda_file;
+        double scale = 1.0;
+      };
+
+      /// Holds the checkpoint lock until the combined JSON has been written.
+      struct CheckpointLock
+      {
+        int fd = -1;
+        CheckpointLock() = default;
+        explicit CheckpointLock(int file_descriptor) : fd(file_descriptor) {}
+        CheckpointLock(const CheckpointLock&) = delete;
+        CheckpointLock& operator=(const CheckpointLock&) = delete;
+        CheckpointLock(CheckpointLock&& other) noexcept : fd(other.fd) { other.fd = -1; }
+        CheckpointLock& operator=(CheckpointLock&& other) noexcept
+        {
+          if (this != &other)
+          {
+            reset();
+            fd = other.fd;
+            other.fd = -1;
+          }
+          return *this;
+        }
+        ~CheckpointLock() { reset(); }
+        void reset()
+        {
+          if (fd >= 0)
+          {
+            ::close(fd);
+            fd = -1;
+          }
+        }
+      };
+
+      /// Merged searches plus the YODA files the caller scales and passes to Contur.
+      struct CheckpointResult
+      {
+        MergedRunResult merged;
+        std::string checkpoint_directory;
+        std::vector<CheckpointYodaFile> yoda_files;
+        CheckpointLock lock;
+      };
+
+      /// Run each unfinished HepMC file in its own CBS process and merge the stored results.
+      /// A matching checkpoint file is kept. --fresh deletes that output's checkpoint first.
+      CheckpointResult run_with_checkpoints(
+        const std::string& cbs_executable,
+        const SoloInput::PreparedInput& prepared_input,
+        const Options& settings,
+        const std::string& output_file,
+        bool screen_output,
+        bool fresh,
+        double (*marginaliser)(const int&, const double&, const double&, const double&),
+        bool (*FullLikes_FileExists)(const str&),
+        int (*FullLikes_ReadIn)(const str&, const str&, const str&),
+        double (*FullLikes_Evaluate)(std::map<str,double>&, const str&)
+      );
 
       /// Run files sequentially on the local machine and combine one parameter point.
       MergedRunResult run_and_merge(

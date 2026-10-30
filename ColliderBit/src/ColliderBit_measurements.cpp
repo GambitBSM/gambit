@@ -27,6 +27,7 @@
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/ColliderBit/Utils.hpp"
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
+#include "gambit/ColliderBit/cbs_checkpoint_yoda.hpp"
 
 #ifndef EXCLUDE_HEPMC
   #include "gambit/Utils/begin_ignore_warnings_hepmc.hpp"
@@ -38,9 +39,16 @@
 #ifndef EXCLUDE_YODA
   #include "gambit/Utils/begin_ignore_warnings_yoda.hpp"
   #include "YODA/AnalysisObject.h"
+  #include "YODA/Fillable.h"
   #include "YODA/IO.h"
   #include "gambit/Utils/end_ignore_warnings.hpp"
 #endif
+
+#include <cmath>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+#include <utility>
 
 namespace Gambit
 {
@@ -73,6 +81,89 @@ namespace Gambit
       {
         yaml_options[i] = ("--"+yaml_options[i]);
       }
+    }
+
+    void scale_checkpoint_yoda(const std::string& source,
+                               const std::string& destination,
+                               double scale)
+    {
+      #if defined(EXCLUDE_HEPMC) || defined(EXCLUDE_YODA)
+        (void) source;
+        (void) destination;
+        (void) scale;
+        throw std::runtime_error("CBS checkpoint YODA scaling requires HepMC and YODA.");
+      #else
+        if (!(scale >= 0.0) || !std::isfinite(scale))
+          throw std::runtime_error("Invalid CBS checkpoint YODA scale for " + source);
+        std::vector<YODA::AnalysisObject*> objects;
+        try
+        {
+          YODA::read(source, objects);
+          for (YODA::AnalysisObject* object : objects)
+          {
+            const std::string path = object->path();
+            if (path.find("/RAW/") == std::string::npos) continue;
+            if (path.find("_XSEC") != std::string::npos) continue;
+            if (path.find("_BEAMPZ") != std::string::npos) continue;
+            // Estimates booked under /RAW/ are pre-finalize placeholders
+            // (ratios and similar). Rivet recomputes them in finalize after
+            // the fillable histograms have been merged. They are not weight sums.
+            auto* fillable = dynamic_cast<YODA::Fillable*>(object);
+            if (fillable == nullptr) continue;
+            fillable->scaleW(scale);
+          }
+          YODA::write(destination, objects);
+        }
+        catch (...)
+        {
+          for (YODA::AnalysisObject* object : objects) delete object;
+          throw;
+        }
+        for (YODA::AnalysisObject* object : objects) delete object;
+      #endif
+    }
+
+    void merge_checkpoint_yodas(const std::vector<std::string>& scaled_files,
+                                const std::string& destination,
+                                double cross_section_pb,
+                                double cross_section_uncert_pb)
+    {
+      #if defined(EXCLUDE_HEPMC) || defined(EXCLUDE_YODA)
+        (void) scaled_files;
+        (void) destination;
+        (void) cross_section_pb;
+        (void) cross_section_uncert_pb;
+        throw std::runtime_error("CBS checkpoint YODA merge requires HepMC and YODA.");
+      #else
+        if (scaled_files.empty())
+          throw std::runtime_error("CBS checkpoint YODA merge received no files.");
+        if (!(cross_section_pb > 0.0) || !std::isfinite(cross_section_pb)
+            || !std::isfinite(cross_section_uncert_pb) || cross_section_uncert_pb < 0.0)
+          throw std::runtime_error("CBS checkpoint YODA merge requires a positive collider cross section.");
+
+        using Rivet_default::Rivet::AnalysisHandler;
+        AnalysisHandler handler;
+        std::ostringstream discarded;
+        std::streambuf* saved = std::cout.rdbuf(discarded.rdbuf());
+        try
+        {
+          handler.mergeYODAs(scaled_files, {}, {}, {}, {}, true, false);
+          handler.setCrossSection(std::make_pair(cross_section_pb, cross_section_uncert_pb), true);
+          handler.finalize();
+          handler.writeData(destination);
+        }
+        catch (const std::exception& error)
+        {
+          std::cout.rdbuf(saved);
+          throw std::runtime_error(std::string("CBS checkpoint YODA merge failed: ") + error.what());
+        }
+        catch (...)
+        {
+          std::cout.rdbuf(saved);
+          throw std::runtime_error("CBS checkpoint YODA merge failed.");
+        }
+        std::cout.rdbuf(saved);
+      #endif
     }
 
     #ifndef EXCLUDE_HEPMC
@@ -237,8 +328,14 @@ namespace Gambit
                 write_yoda_file = runOptions->getValueOrDef<bool>(false, "drop_YODA_file");
               if(write_yoda_file)
               {
-                str filename = "GAMBIT_collider_measurements_"+Dep::RunMC->current_collider()+".yoda";
-                if (runOptions->hasKey("YODA_output_directory"))
+                // YODA_filename, when set, is the full output path. Callers that
+                // omit it keep the collider-named file in YODA_output_directory.
+                str filename;
+                if (runOptions->hasKey("YODA_filename"))
+                  filename = runOptions->getValue<str>("YODA_filename");
+                else
+                  filename = "GAMBIT_collider_measurements_"+Dep::RunMC->current_collider()+".yoda";
+                if (!runOptions->hasKey("YODA_filename") && runOptions->hasKey("YODA_output_directory"))
                 {
                   const str directory = runOptions->getValue<str>("YODA_output_directory");
                   if (directory != "" && directory != ".")
@@ -251,9 +348,17 @@ namespace Gambit
                 }
                 #pragma omp critical
                 {
-                  try{ anahandlers[master]->writeData(filename); }
+                  try { anahandlers[master]->writeData(filename); }
+                  catch (const std::exception& error)
+                  {
+                    ColliderBit_error().raise(LOCAL_INFO,
+                      "Unexpected error in writing YODA file " + filename + ": " + error.what());
+                  }
                   catch (...)
-                  { ColliderBit_error().raise(LOCAL_INFO, "Unexpected error in writing YODA file"); }
+                  {
+                    ColliderBit_error().raise(LOCAL_INFO,
+                      "Unexpected error in writing YODA file " + filename);
+                  }
                 }
               }
             }

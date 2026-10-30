@@ -14,6 +14,7 @@ import math
 import os
 from pathlib import Path
 import shlex
+import shutil
 import subprocess
 import sys
 
@@ -280,6 +281,9 @@ def execute(directory, manifest, executable, measurements):
         working = directory / (name + "_run"); working.mkdir(exist_ok=True)
         card = yaml.safe_load(Path(case["card"]).read_text())
         output = Path(card["settings"]["output"]); output.unlink(missing_ok=True)
+        checkpoint = output.with_suffix(".cbs")
+        if checkpoint.exists():
+            shutil.rmtree(checkpoint)
         environment = dict(os.environ, OMP_NUM_THREADS="1", OMP_DYNAMIC="FALSE")
         with (working / "CBS.log").open("w") as log:
             completed = subprocess.run([str(executable), case["card"]], cwd=working,

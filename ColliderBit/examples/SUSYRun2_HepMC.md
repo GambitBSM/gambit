@@ -1,11 +1,12 @@
 # SUSYRun2 CBS single-point HepMC card
 
 `yaml_files/CBS_SUSYRun2_HepMC.yaml` describes one EWino process with three
-HepMC gzip files. The source now feeds all three into one collider event loop,
-runs the 38 ColliderBit searches and the requested Rivet measurements, merges
-raw Rivet statistics, and evaluates Contur once. A maintainer rebuild and
-numerical acceptance are still required; this change has not been compiled or
-run as CBS.
+HepMC gzip files. The card sets `settings.processes` and `settings.output`, so
+CBS checkpoints each finished HepMC file beside that JSON and merges the stored
+results. Rivet files are scaled and merged for the collider, and Contur runs
+once. CBS has been rebuilt with `cmake --build --preset cbs-llvm --target CBS`.
+The merged result has not been run, so it has not been compared with the
+previous single event loop.
 
 ## Prepared inputs
 
@@ -81,19 +82,22 @@ change the serialised reader: all events already have identical run metadata and
 cross section, and no handler is reset or notified of a new physical run. Each
 thread's pending event group is collapsed by the final raw merge/finalize.
 
-Different colliders are run in fresh child CBS processes. Search results are
-combined by their assigned collider; Contur values are combined only when their
-pool keys are disjoint. Repeated pool keys produce an error requiring a joint
-experimental treatment. The old pure-search per-file helper remains available;
-the CBS frontend now uses the common stream within each collider for both search
-and measurement configurations. `keep_batch_tmp` controls successful multi-collider
-child files; failed child inputs remain for diagnosis.
+Different colliders stay separate mixtures. Search results are combined by
+their assigned collider; Contur values are combined only when their pool keys
+are disjoint. Repeated pool keys produce an error requiring a joint experimental
+treatment. A card with `settings.processes` and `settings.output` uses the
+checkpoint driver. A card without `settings.output` still uses one normalised
+event loop within each collider, and multiple colliders without that output
+still use one child task each. `run_and_merge` is not called by the CBS
+frontend. `keep_batch_tmp` controls successful multi-collider child files;
+failed child inputs remain for diagnosis.
 
 ## Build and run
 
 The maintainer builds CBS using the existing shared `build/` tree and enabled
-HepMC3, ROOT/RestFrames, Rivet 4.1.0 and Contur 3.0.0 backends. No configure/build
-or CBS execution was performed for this implementation. Contur's GAMBIT
+HepMC3, ROOT/RestFrames, Rivet 4.1.0 and Contur 3.0.0 backends. The CBS target
+was rebuilt from that `cbs-llvm` cache. No CBS execution was performed for this
+implementation. Contur's GAMBIT
 initializer must include `CONTUR_DATA_PATH` (installation root) and
 `CONTUR_USER_DIR` (`data/DB`), as prepared earlier in this branch.
 

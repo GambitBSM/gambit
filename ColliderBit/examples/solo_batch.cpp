@@ -15,9 +15,12 @@
 #include <cerrno>
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <limits>
 #include <map>
 #include <numeric>
@@ -25,6 +28,8 @@
 #include <stdexcept>
 #include <utility>
 
+#include <fcntl.h>
+#include <sys/file.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -823,6 +828,332 @@ namespace Gambit
           fs::create_directories(temp_dir);
           return temp_dir;
         }
+
+        constexpr const char* kCheckpointSchema = "cbs-solo-checkpoint-v1";
+
+        std::uint64_t fnv1a64(const std::string& text)
+        {
+          std::uint64_t hash = 14695981039346656037ull;
+          for (unsigned char character : text)
+          {
+            hash ^= character;
+            hash *= 1099511628211ull;
+          }
+          return hash;
+        }
+
+        std::string hex16(std::uint64_t value)
+        {
+          std::ostringstream out;
+          out << std::hex << std::setfill('0') << std::setw(16) << value;
+          return out.str();
+        }
+
+        /// Identity of one HepMC file. Card order is not part of the key.
+        std::string checkpoint_key(const std::string& collider,
+                                   const std::string& process,
+                                   const std::string& path)
+        {
+          std::string text;
+          text.reserve(collider.size() + process.size() + path.size() + 2);
+          text.append(collider);
+          text.push_back('\0');
+          text.append(process);
+          text.push_back('\0');
+          text.append(path);
+          return hex16(fnv1a64(text));
+        }
+
+        void atomic_write_json(const fs::path& path, const nlohmann::json& root)
+        {
+          const fs::path temporary = fs::path(path.string() + ".tmp");
+          {
+            std::ofstream out(temporary.string());
+            if (!out)
+              throw std::runtime_error("Failed to write " + temporary.string());
+            out << root.dump(2) << '\n';
+            if (!out)
+              throw std::runtime_error("Failed to write " + temporary.string());
+          }
+          std::error_code error;
+          fs::rename(temporary, path, error);
+          if (error)
+            throw std::runtime_error("Failed to publish " + path.string() + ": " + error.message());
+        }
+
+        std::string joined(const std::vector<std::string>& values)
+        {
+          std::ostringstream out;
+          for (const std::string& value : values) out << value << '|';
+          return out.str();
+        }
+
+        /// Collider-wide settings that change stored yields or Rivet fills.
+        /// Cross sections, likelihood switches, report and screen layout are omitted:
+        /// those are applied when the saved files are merged.
+        std::string collider_fingerprint(
+          const SoloInput::PreparedInput& prepared_input,
+          const Options& settings,
+          const SoloInput::ColliderInput& collider)
+        {
+          std::ostringstream text;
+          text << std::setprecision(17);
+          text << "collider=" << collider.name << '\n'
+               << "beams=" << collider.run_info.beam_pid_1 << ','
+               << collider.run_info.beam_pid_2 << '\n'
+               << "energies=" << collider.run_info.beam_energy_1_GeV << ','
+               << collider.run_info.beam_energy_2_GeV << '\n'
+               << "sqrt_s=" << collider.run_info.collision_energy_TeV << '\n'
+               << "analyses=" << joined(collider.analyses) << '\n'
+               << "nominal=" << settings.getValueOrDef<std::string>("", "nominal_weight_name") << '\n'
+               << "seed=" << settings.getValueOrDef<int>(-1, "seed") << '\n'
+               << "jet_pt_min=" << settings.getValueOrDef<double>(10.0, "jet_pt_min") << '\n'
+               << "jet_collection_taus="
+               << settings.getValueOrDef<std::string>("antikt_R04", "jet_collection_taus") << '\n'
+               << "jets=" << YAML::Dump(settings.getValue<YAML::Node>("jet_collections")) << '\n';
+#ifdef CHECK_CUTFLOW
+          text << "cutflow_support=1\n";
+          text << "check_cutflow="
+               << (settings.getValueOrDef<bool>(false, "check_cutflow") ? 1 : 0) << '\n';
+#else
+          text << "cutflow_support=0\ncheck_cutflow=0\n";
+#endif
+          text << "check_histogram="
+               << (settings.getValueOrDef<bool>(false, "check_histogram") ? 1 : 0) << '\n'
+               << "trace_input_events="
+               << (settings.getValueOrDef<bool>(false, "trace_input_events") ? 1 : 0) << '\n'
+               << "drop_accepted_events_file="
+               << (settings.getValueOrDef<bool>(false, "drop_accepted_events_file") ? 1 : 0) << '\n';
+          if (prepared_input.infile["rivet-settings"])
+          {
+            const Options rivet(prepared_input.infile["rivet-settings"]);
+            text << "rivet=" << joined(rivet.getValue<std::vector<std::string>>("analyses")) << '\n'
+                 << "rivet_exclude="
+                 << joined(rivet.getValueOrDef<std::vector<std::string>>({}, "exclude_analyses"))
+                 << '\n';
+          }
+          if (prepared_input.infile["contur-settings"])
+          {
+            text << "contur="
+                 << joined(prepared_input.infile["contur-settings"].as<std::vector<std::string>>())
+                 << '\n';
+          }
+          return hex16(fnv1a64(text.str()));
+        }
+
+        /// c_p in the single-loop mixture. Checkpoint YODA and the public JSON use this scale.
+        double mixture_scale(long long collider_events,
+                             double collider_sigma,
+                             double process_sigma,
+                             double process_sum)
+        {
+          if (!(process_sum > 0.0) || !std::isfinite(process_sum))
+            throw std::runtime_error("Invalid total nominal weight while merging checkpoint files.");
+          if (!(static_cast<double>(collider_events) > 0.0))
+            throw std::runtime_error("Checkpoint merge requires events in the collider sample.");
+          if (collider_sigma > 0.0)
+            return (static_cast<double>(collider_events) / process_sum) * (process_sigma / collider_sigma);
+          return static_cast<double>(collider_events) / process_sum;
+        }
+
+        /// Convert a child yield, baked at weight 1 and sigma_stored, into the process mixture.
+        /// f * (L * sigma_stored / N_file * sum w) = L * sigma_new / S_p * sum w.
+        double file_yield_factor(double sigma_stored, double sigma_new, long long n_events, double process_sum)
+        {
+          if (!(process_sum > 0.0) || !std::isfinite(process_sum) || n_events <= 0)
+            throw std::runtime_error("Invalid file weight while merging a CBS checkpoint.");
+          double ratio = 1.0;
+          if (!(sigma_stored > 0.0) && sigma_new > 0.0)
+          {
+            throw std::runtime_error(
+              "Stored CBS cross section is not positive. Run with --fresh after setting a positive cross section.");
+          }
+          if (sigma_stored > 0.0) ratio = sigma_new / sigma_stored;
+          if (!std::isfinite(ratio) || ratio < 0.0)
+            throw std::runtime_error("Invalid CBS cross-section ratio while merging a checkpoint.");
+          return ratio * static_cast<double>(n_events) / process_sum;
+        }
+
+        std::vector<unsigned int> offset_event_ids(const std::vector<unsigned int>& ids,
+                                                    unsigned long long offset)
+        {
+          if (offset > std::numeric_limits<unsigned int>::max())
+            throw std::runtime_error("CBS checkpoint event offset does not fit in an event id.");
+          std::vector<unsigned int> shifted;
+          shifted.reserve(ids.size());
+          for (unsigned int id : ids)
+          {
+            if (static_cast<unsigned long long>(id)
+                > std::numeric_limits<unsigned int>::max() - offset)
+              throw std::runtime_error("CBS checkpoint event id overflow while merging files.");
+            shifted.push_back(static_cast<unsigned int>(static_cast<unsigned long long>(id) + offset));
+          }
+          return shifted;
+        }
+
+        /// One file child. Nominal weights only; the parent applies the mixture scale.
+        /// Rivet writes RAW YODA and Contur is left to the parent.
+        YAML::Node build_checkpoint_child_yaml(
+          const SoloInput::PreparedInput& prepared_input,
+          const Options& settings,
+          const RunJob& job,
+          const fs::path& json_tmp,
+          const fs::path& yoda_tmp,
+          bool with_rivet)
+        {
+          YAML::Node root;
+          root["analyses"] = job.analyses;
+          YAML::Node settings_node = YAML::Clone(prepared_input.infile["settings"]);
+          for (const char* key : {"processes", "event_file", "cross_section_fb", "cross_section_pb",
+                                  "cross_section_uncert_fb", "cross_section_uncert_pb",
+                                  "cross_section_fractional_uncert", "output", "artifact_directory",
+                                  "cbs_collider_name", "cbs_file_checkpoint", "cbs_file_weight_scale"})
+          {
+            settings_node.remove(key);
+          }
+          settings_node["event_file"] = job.hepmc_file;
+          settings_node["cbs_collider_name"] = job.collider_name;
+          settings_node["cbs_file_checkpoint"] = true;
+          settings_node["cbs_file_weight_scale"] = 1.0;
+          settings_node["cross_section_fb"] = job.cross_section_fb;
+          settings_node["cross_section_uncert_fb"] = 0.0;
+          settings_node["screen_output"] = false;
+          settings_node["hepmc_progress"] = settings.getValueOrDef<bool>(
+            settings.getValueOrDef<bool>(true, "screen_output"), "hepmc_progress");
+          std::ostringstream progress_label;
+          progress_label << "CBS HepMC File " << job.file_index << "/" << job.file_count
+                         << " (" << job.collider_name << ")";
+          settings_node["event_progress_label"] = progress_label.str();
+          settings_node["output"] = json_tmp.string();
+          root["settings"] = settings_node;
+          if (with_rivet)
+          {
+            YAML::Node rivet = YAML::Clone(prepared_input.infile["rivet-settings"]);
+            rivet.remove("drop_YODA_file");
+            rivet.remove("YODA_output_directory");
+            rivet["write_YODA_file"] = true;
+            rivet["YODA_filename"] = yoda_tmp.string();
+            root["rivet-settings"] = rivet;
+          }
+          return root;
+        }
+
+        struct PlannedFile
+        {
+          RunJob job;
+          std::string key;
+          std::string status;
+          std::string reason;
+          SoloInput::InputStatistics statistics;
+          double sigma_stored = 0.0;
+          fs::path json_path;
+          fs::path yoda_path;
+          fs::path stamp_path;
+          bool execute = false;
+          bool loaded = false;
+          nlohmann::json result;
+        };
+
+        nlohmann::json file_stamp(const PlannedFile& planned,
+                                 const SoloInput::PreparedInput& prepared_input,
+                                 const std::string& fingerprint,
+                                 bool with_rivet)
+        {
+          const SoloInput::HepMCRunInfo& run_info =
+            SoloInput::find_collider(prepared_input, planned.job.collider_name).run_info;
+          return {
+            {"schema_version", kCheckpointSchema},
+            {"key", planned.key},
+            {"collider", planned.job.collider_name},
+            {"process", planned.job.process_name},
+            {"path", planned.job.hepmc_file},
+            {"size_bytes", std::to_string(planned.statistics.size_bytes)},
+            {"modified_ticks", std::to_string(planned.statistics.modified_ticks)},
+            {"n_events", planned.statistics.n_events},
+            {"sum_weights", planned.statistics.sum_weights},
+            {"sum_weights2", planned.statistics.sum_weights2},
+            {"nominal_name", planned.statistics.nominal_name},
+            {"nominal_index", planned.statistics.nominal_index},
+            {"beam_pid_1", run_info.beam_pid_1},
+            {"beam_pid_2", run_info.beam_pid_2},
+            {"beam_energy_1_GeV", run_info.beam_energy_1_GeV},
+            {"beam_energy_2_GeV", run_info.beam_energy_2_GeV},
+            {"collision_energy_TeV", run_info.collision_energy_TeV},
+            {"sigma_stored_fb", planned.sigma_stored},
+            {"settings_fingerprint", fingerprint},
+            {"yoda", with_rivet}
+          };
+        }
+
+        /// A stamp can be adopted when it still describes this scan and this binary's settings.
+        bool stamp_matches(const nlohmann::json& stamp,
+                           const PlannedFile& planned,
+                           const std::string& fingerprint,
+                           bool with_rivet)
+        {
+          try
+          {
+            if (stamp.value("schema_version", std::string()) != kCheckpointSchema) return false;
+            if (stamp.value("key", std::string()) != planned.key) return false;
+            if (stamp.value("collider", std::string()) != planned.job.collider_name) return false;
+            if (stamp.value("process", std::string()) != planned.job.process_name) return false;
+            if (stamp.value("path", std::string()) != planned.job.hepmc_file) return false;
+            if (stamp.value("settings_fingerprint", std::string()) != fingerprint) return false;
+            if (stamp.value("yoda", false) != with_rivet) return false;
+            if (stamp.value("size_bytes", std::string()) != std::to_string(planned.statistics.size_bytes))
+              return false;
+            if (stamp.value("modified_ticks", std::string())
+                != std::to_string(planned.statistics.modified_ticks))
+              return false;
+            if (stamp.at("n_events").get<long long>() != planned.statistics.n_events) return false;
+            if (!is_consistent(stamp.at("sum_weights").get<double>(), planned.statistics.sum_weights))
+              return false;
+            if (!is_consistent(stamp.at("sum_weights2").get<double>(), planned.statistics.sum_weights2))
+              return false;
+            const double sigma = stamp.at("sigma_stored_fb").get<double>();
+            if (!std::isfinite(sigma)) return false;
+            return true;
+          }
+          catch (const std::exception&)
+          {
+            return false;
+          }
+        }
+
+        bool stored_json_matches(const nlohmann::json& result, const PlannedFile& planned, double sigma_stored)
+        {
+          const auto& inputs = result.at("run").at("input_files");
+          if (!inputs.is_array() || inputs.size() != 1) return false;
+          if (inputs.at(0).at("file").get<std::string>() != planned.job.hepmc_file) return false;
+          if (result.at("run").at("n_events").get<long long>() != planned.statistics.n_events) return false;
+          if (!is_consistent(inputs.at(0).at("process_cross_section_fb").get<double>(), sigma_stored))
+            return false;
+          return result.contains("analyses");
+        }
+
+        CheckpointLock acquire_checkpoint_lock(const fs::path& lock_path)
+        {
+          const int fd = ::open(lock_path.string().c_str(), O_CREAT | O_RDWR | O_CLOEXEC, 0644);
+          if (fd < 0)
+          {
+            throw std::runtime_error(
+              "Failed to open CBS checkpoint lock " + lock_path.string() + ": " + std::strerror(errno));
+          }
+          if (::flock(fd, LOCK_EX | LOCK_NB) != 0)
+          {
+            const int open_error = errno;
+            ::close(fd);
+            if (open_error == EWOULDBLOCK || open_error == EAGAIN)
+            {
+              throw std::runtime_error(
+                "CBS checkpoint is in use: " + lock_path.string()
+                + ". Another CBS run holds this checkpoint.");
+            }
+            throw std::runtime_error(
+              "Failed to lock CBS checkpoint " + lock_path.string() + ": " + std::strerror(open_error));
+          }
+          return CheckpointLock(fd);
+        }
       } // namespace
 
       /// Execute per-file jobs sequentially for one parameter point and merge signals.
@@ -1218,6 +1549,492 @@ namespace Gambit
         merged.combined_loglike = compute_combined_loglike(merged.analysis_loglikes, settings);
         if (!settings.getValueOrDef<bool>(false, "keep_batch_tmp")) fs::remove_all(temp_dir);
         return merged;
+      }
+
+      /// Checkpoint driver. Each finished HepMC file is published before the next one starts.
+      /// Search yields are rescaled here. Rivet files are returned unscaled for the caller.
+      CheckpointResult run_with_checkpoints(
+        const std::string& cbs_executable,
+        const SoloInput::PreparedInput& prepared_input,
+        const Options& settings,
+        const std::string& output_file,
+        bool screen_output,
+        bool fresh,
+        double (*marginaliser)(const int&, const double&, const double&, const double&),
+        bool (*FullLikes_FileExists)(const str&),
+        int (*FullLikes_ReadIn)(const str&, const str&, const str&),
+        double (*FullLikes_Evaluate)(std::map<str,double>&, const str&)
+      )
+      {
+        if (prepared_input.processes.empty())
+          throw std::runtime_error("CBS checkpoint requested, but the card has no processes.");
+        if (output_file.empty())
+          throw std::runtime_error("CBS checkpoint requested, but settings.output is empty.");
+
+        const bool with_rivet = bool(prepared_input.infile["rivet-settings"]);
+        const bool trace_sources = settings.getValueOrDef<bool>(false, "trace_input_events");
+        const fs::path checkpoint_dir = fs::absolute(output_file).replace_extension(".cbs");
+        const fs::path files_dir = checkpoint_dir / "files";
+        const fs::path work_dir = checkpoint_dir / "work";
+        const fs::path manifest_path = checkpoint_dir / "manifest.json";
+        const fs::path lock_path = checkpoint_dir / "checkpoint.lock";
+        fs::create_directories(checkpoint_dir);
+        CheckpointLock lock = acquire_checkpoint_lock(lock_path);
+        if (fresh)
+        {
+          std::error_code error;
+          fs::remove_all(files_dir, error);
+          fs::remove_all(work_dir, error);
+          fs::remove(manifest_path, error);
+        }
+        fs::create_directories(files_dir);
+        fs::create_directories(work_dir);
+        if (!fresh && fs::exists(manifest_path))
+        {
+          const nlohmann::json existing = read_json_file(manifest_path);
+          const std::string schema = existing.value("schema_version", std::string());
+          if (schema != kCheckpointSchema)
+          {
+            throw std::runtime_error(
+              "CBS checkpoint format in " + manifest_path.string()
+              + " is not " + kCheckpointSchema + ". Run with --fresh to replace it.");
+          }
+        }
+
+        std::map<std::string, std::string> fingerprints;
+        for (const SoloInput::ColliderInput& collider : prepared_input.colliders)
+          fingerprints[collider.name] = collider_fingerprint(prepared_input, settings, collider);
+
+        std::vector<PlannedFile> planned;
+        std::size_t included = 0;
+        for (const SoloInput::ProcessInput& process : prepared_input.processes)
+        {
+          const SoloInput::ColliderInput& collider =
+            SoloInput::find_collider(prepared_input, process.collider_name);
+          if (collider.analyses.empty() && !with_rivet) continue;
+          included += process.files.size();
+        }
+        std::size_t file_index = 0;
+        for (std::size_t ip = 0; ip < prepared_input.processes.size(); ++ip)
+        {
+          const SoloInput::ProcessInput& process = prepared_input.processes[ip];
+          const SoloInput::ColliderInput& collider =
+            SoloInput::find_collider(prepared_input, process.collider_name);
+          if (collider.analyses.empty() && !with_rivet) continue;
+          for (const SoloInput::HepMCFileInput& file : process.files)
+          {
+            PlannedFile item;
+            item.job.process_index = ip;
+            item.job.process_name = process.name;
+            item.job.collider_name = collider.name;
+            item.job.analyses = collider.analyses;
+            item.job.hepmc_file = file.filename;
+            item.job.file_index = ++file_index;
+            item.job.file_count = included;
+            item.job.cross_section_fb = process.cross_section_fb;
+            item.job.cross_section_uncert_fb = process.cross_section_uncert_fb;
+            item.key = checkpoint_key(collider.name, process.name, file.filename);
+            item.statistics = prepared_input.input_statistics.at(file.filename);
+            item.json_path = files_dir / (item.key + ".json");
+            item.yoda_path = files_dir / (item.key + ".yoda");
+            item.stamp_path = files_dir / (item.key + ".stamp.json");
+            item.job.yaml_file = work_dir / (item.key + ".yaml");
+            item.job.output_json_file = work_dir / (item.key + ".json.tmp");
+            const std::string& fingerprint = fingerprints.at(collider.name);
+
+            item.execute = true;
+            item.reason = "missing";
+            if (fs::exists(item.stamp_path))
+            {
+              nlohmann::json stamp;
+              bool parsed = true;
+              try { stamp = read_json_file(item.stamp_path); }
+              catch (const std::exception&) { parsed = false; }
+              if (!parsed)
+              {
+                item.reason = "incomplete";
+              }
+              else if (stamp.value("settings_fingerprint", std::string()) != fingerprint)
+              {
+                item.reason = "settings changed";
+              }
+              else if (!stamp_matches(stamp, item, fingerprint, with_rivet))
+              {
+                item.reason = "file changed";
+              }
+              else
+              {
+                bool usable = false;
+                try
+                {
+                  const bool yoda_ok = !with_rivet
+                    || (fs::is_regular_file(item.yoda_path) && fs::file_size(item.yoda_path) > 0);
+                  if (yoda_ok && fs::is_regular_file(item.json_path))
+                  {
+                    item.result = read_json_file(item.json_path);
+                    item.sigma_stored = stamp.at("sigma_stored_fb").get<double>();
+                    usable = stored_json_matches(item.result, item, item.sigma_stored);
+                  }
+                }
+                catch (const std::exception&)
+                {
+                  usable = false;
+                }
+                if (usable)
+                {
+                  item.loaded = true;
+                  item.execute = false;
+                  item.reason = "complete";
+                }
+                else
+                {
+                  item.reason = "incomplete";
+                }
+              }
+            }
+            else if (fs::exists(item.json_path) || fs::exists(item.yoda_path))
+            {
+              item.reason = "incomplete";
+            }
+            item.status = item.execute ? (item.reason == "missing" ? "run" : "rerun") : "kept";
+            planned.push_back(std::move(item));
+          }
+        }
+        if (planned.empty())
+          throw std::runtime_error("No checkpoint files were created from settings.processes.");
+
+        if (screen_output)
+        {
+          const std::ios::fmtflags saved_flags = std::cout.flags();
+          std::cout << "\nCBS checkpoint\n";
+          for (const PlannedFile& item : planned)
+          {
+            std::cout << "  File " << item.job.file_index << "/" << item.job.file_count
+                      << "  " << std::left << std::setw(6) << item.status
+                      << "  " << std::setw(16) << item.reason
+                      << "  " << item.job.hepmc_file << '\n';
+          }
+          std::cout.flags(saved_flags);
+        }
+
+        nlohmann::json manifest = {
+          {"schema_version", kCheckpointSchema},
+          {"files", nlohmann::json::object()}
+        };
+        for (const PlannedFile& item : planned)
+        {
+          if (item.execute) continue;
+          const nlohmann::json stamp =
+            file_stamp(item, prepared_input, fingerprints.at(item.job.collider_name), with_rivet);
+          manifest["files"][item.key] = stamp;
+          // Older stamps stored the weight totals without the beams. Write the
+          // inspection once so the next run does not open this HepMC file.
+          bool missing_inspection = true;
+          if (fs::is_regular_file(item.stamp_path))
+          {
+            try
+            {
+              const nlohmann::json existing = read_json_file(item.stamp_path);
+              missing_inspection = !existing.contains("beam_pid_1")
+                || !existing.contains("nominal_name");
+            }
+            catch (const std::exception&)
+            {
+              missing_inspection = true;
+            }
+          }
+          if (missing_inspection) atomic_write_json(item.stamp_path, stamp);
+        }
+        atomic_write_json(manifest_path, manifest);
+
+        for (PlannedFile& item : planned)
+        {
+          if (!item.execute) continue;
+          const fs::path json_tmp = item.job.output_json_file;
+          // YODA picks the writer from the final extension. ".yoda.tmp" is rejected.
+          const fs::path yoda_tmp = work_dir / (item.key + ".tmp.yoda");
+          std::error_code remove_error;
+          fs::remove(json_tmp, remove_error);
+          fs::remove(yoda_tmp, remove_error);
+          write_yaml_file(
+            build_checkpoint_child_yaml(
+              prepared_input, settings, item.job, json_tmp, yoda_tmp, with_rivet),
+            item.job.yaml_file);
+          // Flush before the child so an interrupted run names this HepMC file.
+          if (screen_output)
+          {
+            std::cout << "  Running File " << item.job.file_index << "/"
+                      << item.job.file_count << "  " << item.job.hepmc_file
+                      << '\n' << std::flush;
+          }
+          run_single_job(cbs_executable, item.job);
+          item.result = read_json_file(json_tmp);
+          if (!item.result.contains("run") || !item.result.contains("analyses"))
+            throw std::runtime_error("Checkpoint child JSON is incomplete: " + json_tmp.string());
+          const double sigma_stored =
+            item.result.at("run").at("input_files").at(0).at("process_cross_section_fb").get<double>();
+          if (!is_consistent(sigma_stored, item.job.cross_section_fb))
+          {
+            throw std::runtime_error(
+              "Checkpoint child used an unexpected cross section for " + item.job.hepmc_file);
+          }
+          item.sigma_stored = sigma_stored;
+          if (!stored_json_matches(item.result, item, item.sigma_stored))
+          {
+            throw std::runtime_error(
+              "Checkpoint child result does not match the scanned HepMC file " + item.job.hepmc_file);
+          }
+          if (with_rivet && (!fs::is_regular_file(yoda_tmp) || fs::file_size(yoda_tmp) == 0))
+            throw std::runtime_error("Checkpoint child did not write YODA for " + item.job.hepmc_file);
+          fs::rename(json_tmp, item.json_path);
+          if (with_rivet) fs::rename(yoda_tmp, item.yoda_path);
+          else fs::remove(item.yoda_path, remove_error);
+          item.loaded = true;
+          const nlohmann::json stamp =
+            file_stamp(item, prepared_input, fingerprints.at(item.job.collider_name), with_rivet);
+          atomic_write_json(item.stamp_path, stamp);
+          manifest["files"][item.key] = stamp;
+          atomic_write_json(manifest_path, manifest);
+          fs::remove(item.job.yaml_file, remove_error);
+          if (screen_output)
+          {
+            std::cout << "Checkpoint "
+                      << fs::absolute(item.json_path).lexically_normal().string() << '\n';
+          }
+        }
+
+        MergedRunResult merged;
+        merged.process_event_counts.assign(prepared_input.processes.size(), 0);
+        std::map<std::string, double> process_sums;
+        std::map<std::string, long long> collider_events;
+        for (const PlannedFile& item : planned)
+        {
+          merged.process_event_counts.at(item.job.process_index) += item.statistics.n_events;
+          process_sums[item.job.process_name + "\n" + item.job.collider_name] += item.statistics.sum_weights;
+          collider_events[item.job.collider_name] += item.statistics.n_events;
+        }
+        long long total_events = 0;
+        for (const auto& count : collider_events)
+        {
+          if (count.second < 0 || total_events > std::numeric_limits<int>::max() - count.second)
+            throw std::runtime_error("Combined CBS event count does not fit in the result.");
+          total_events += count.second;
+          merged.collider_event_counts[count.first] = count.second;
+        }
+        merged.total_events = static_cast<int>(total_events);
+        merged.total_process_events = total_events;
+
+        std::map<std::string, AnalysisAccumulator> accumulators;
+        std::vector<CheckpointYodaFile> yoda_files;
+        unsigned long long event_offset = 0;
+        for (const PlannedFile& item : planned)
+        {
+          if (!item.loaded)
+            throw std::runtime_error("CBS checkpoint is missing a result for " + item.job.hepmc_file);
+          const SoloInput::ColliderInput& collider =
+            SoloInput::find_collider(prepared_input, item.job.collider_name);
+          const SoloInput::ProcessInput& process = prepared_input.processes.at(item.job.process_index);
+          const double process_sum = process_sums.at(process.name + "\n" + collider.name);
+          const double factor = file_yield_factor(
+            item.sigma_stored, process.cross_section_fb, item.statistics.n_events, process_sum);
+          const double reported_scale = mixture_scale(
+            collider_events.at(collider.name), collider.cross_section_fb,
+            process.cross_section_fb, process_sum);
+          if (!std::isfinite(reported_scale) || reported_scale < 0.0)
+            throw std::runtime_error("Invalid mixture scale for process " + process.name);
+
+          SoloOutput::InputFileSummaryEntry summary;
+          summary.file = item.job.hepmc_file;
+          summary.process = process.name;
+          summary.collider = collider.name;
+          summary.n_events = item.statistics.n_events;
+          summary.sum_weights = item.statistics.sum_weights;
+          summary.sum_weights2 = item.statistics.sum_weights2;
+          summary.nominal_name = item.statistics.nominal_name;
+          summary.nominal_index = item.statistics.nominal_index;
+          summary.weight_scale = reported_scale;
+          summary.process_cross_section_fb = process.cross_section_fb;
+          summary.process_cross_section_uncert_fb = process.cross_section_uncert_fb;
+          merged.input_files.push_back(summary);
+
+          const nlohmann::json& run = item.result.at("run");
+          if (trace_sources)
+          {
+            if (!run.contains("event_sources"))
+              throw std::runtime_error("Checkpoint file has no event sources: " + item.job.hepmc_file);
+            const nlohmann::json& sources = run.at("event_sources");
+            if (sources.size() != static_cast<std::size_t>(item.statistics.n_events))
+              throw std::runtime_error("Checkpoint event sources do not cover " + item.job.hepmc_file);
+            for (const nlohmann::json& source : sources)
+            {
+              const long long iteration = source.at("iteration").get<long long>()
+                + static_cast<long long>(event_offset);
+              if (iteration < 0 || iteration > std::numeric_limits<int>::max())
+                throw std::runtime_error("CBS checkpoint event number overflow.");
+              merged.input_loop.input_event_sources.push_back({
+                static_cast<int>(iteration),
+                source.at("file").get<std::string>(),
+                source.at("file_event_index").get<long long>(),
+                source.at("original_event_number").get<int>()
+              });
+            }
+          }
+          if (event_offset > std::numeric_limits<unsigned long long>::max()
+              - static_cast<unsigned long long>(item.statistics.n_events))
+            throw std::runtime_error("CBS checkpoint event offset overflow.");
+          const unsigned long long this_offset = event_offset;
+          event_offset += static_cast<unsigned long long>(item.statistics.n_events);
+
+          if (with_rivet)
+          {
+            CheckpointYodaFile yoda;
+            yoda.key = item.key;
+            yoda.collider = collider.name;
+            yoda.process = process.name;
+            yoda.hepmc_file = item.job.hepmc_file;
+            yoda.yoda_file = item.yoda_path.string();
+            yoda.scale = reported_scale;
+            yoda_files.push_back(std::move(yoda));
+          }
+
+          for (const auto& name : run.at("rivet_analyses"))
+          {
+            const std::string analysis = name.get<std::string>();
+            if (std::find(merged.rivet_analyses.begin(), merged.rivet_analyses.end(), analysis)
+                == merged.rivet_analyses.end())
+              merged.rivet_analyses.push_back(analysis);
+          }
+
+          for (const auto& analysis_item : item.result.at("analyses").items())
+          {
+            const std::string analysis_name = analysis_item.key();
+            const auto assigned = prepared_input.analysis_colliders.find(analysis_name);
+            if (assigned == prepared_input.analysis_colliders.end()
+                || assigned->second != collider.name)
+            {
+              throw std::runtime_error(
+                "Checkpoint file " + item.job.hepmc_file + " returned analysis " + analysis_name
+                + ", which is not assigned to " + collider.name);
+            }
+            const nlohmann::json& analysis_json = analysis_item.value();
+            const std::vector<SRPayload> payloads = parse_sorted_sr_payloads(analysis_json);
+            const bool seeding = accumulators[analysis_name].data.srdata.empty();
+            AnalysisAccumulator& accumulator = accumulators[analysis_name];
+            if (seeding)
+            {
+              initialize_accumulator(
+                accumulator, analysis_name, collider.name, analysis_json, payloads,
+                parse_cutflows_or_empty(analysis_json));
+              accumulator.data.detector_name = analysis_json.at("detector").get<std::string>();
+              accumulator.data.histograms = parse_histograms_or_empty(analysis_json);
+              accumulator.data.histograms.scale(factor);
+            }
+            else
+            {
+              validate_payload_consistency(accumulator, analysis_name, payloads, analysis_json);
+              accumulate_cutflows(
+                accumulator.data.cutflows, parse_cutflows_or_empty(analysis_json), analysis_name);
+              Histograms weighted = parse_histograms_or_empty(analysis_json);
+              weighted.scale(factor);
+              accumulate_histograms(accumulator.data.histograms, weighted, analysis_name);
+            }
+            if (accumulator.n_sig_scaled_err2.size() != payloads.size())
+              accumulator.n_sig_scaled_err2.assign(payloads.size(), 0.0);
+            for (std::size_t sr_index = 0; sr_index < payloads.size(); ++sr_index)
+            {
+              SignalRegionData& signal_region = accumulator.data.srdata[sr_index];
+              const nlohmann::json& values = analysis_json.at("signal_regions").at(signal_region.sr_label);
+              const bool recorded = values.contains("accepted_event_ids");
+              if (!seeding && recorded != signal_region.has_event_records)
+              {
+                throw std::runtime_error(
+                  "Checkpoint files disagree on event records for " + analysis_name);
+              }
+              signal_region.n_sig_scaled += factor * payloads[sr_index].n_sig_scaled;
+              accumulator.n_sig_scaled_err2[sr_index] +=
+                std::pow(factor * payloads[sr_index].n_sig_scaled_err, 2);
+              if (recorded)
+              {
+                const std::vector<unsigned int> shifted = offset_event_ids(
+                  values.at("accepted_event_ids").get<std::vector<unsigned int>>(), this_offset);
+                signal_region.accepted_event_ids.insert(
+                  signal_region.accepted_event_ids.end(), shifted.begin(), shifted.end());
+                signal_region.has_event_records = true;
+              }
+            }
+          }
+        }
+
+        std::vector<std::string> analysis_order;
+        for (const str& name : prepared_input.analyses)
+          if (accumulators.count(name) != 0) analysis_order.push_back(name);
+        for (const auto& pair : accumulators)
+          if (std::find(analysis_order.begin(), analysis_order.end(), pair.first) == analysis_order.end())
+            analysis_order.push_back(pair.first);
+
+        merged.analyses_storage.reserve(analysis_order.size());
+        for (const std::string& analysis_name : analysis_order)
+        {
+          AnalysisAccumulator& accumulator = accumulators.at(analysis_name);
+          AnalysisData data = accumulator.data;
+          const SoloInput::ColliderInput& collider =
+            SoloInput::find_collider(prepared_input, data.collider_name);
+          const long long collider_count = collider_events.at(collider.name);
+          if (!(collider.cross_section_fb > 0.0) || !(data.luminosity > 0.0))
+          {
+            throw std::runtime_error(
+              "Checkpoint merge requires a positive cross section and luminosity for "
+              + analysis_name);
+          }
+          const double to_mc = static_cast<double>(collider_count)
+            / (data.luminosity * collider.cross_section_fb);
+          for (std::size_t sr_index = 0; sr_index < data.srdata.size(); ++sr_index)
+          {
+            SignalRegionData& signal_region = data.srdata[sr_index];
+            const double scaled_error = std::sqrt(accumulator.n_sig_scaled_err2[sr_index]);
+            signal_region.n_sig_MC = signal_region.n_sig_scaled * to_mc;
+            signal_region.n_sig_MC_stat = scaled_error * to_mc;
+            signal_region.n_sig_MC_sys = 0.0;
+          }
+          merged.analyses_storage.push_back(std::move(data));
+        }
+        for (AnalysisData& analysis : merged.analyses_storage)
+          merged.analyses.push_back(&analysis);
+
+        Options loglike_options = settings;
+        loglike_options.setValue(
+          "poisson_like_estimator",
+          settings.getValueOrDef<std::string>("MLE", "poisson_like_estimator"));
+        const bool use_fulllikes = FullLikes_FileExists != nullptr
+          && FullLikes_ReadIn != nullptr && FullLikes_Evaluate != nullptr;
+        for (const SoloInput::ColliderInput& collider : prepared_input.colliders)
+        {
+          AnalysisDataPointers analyses;
+          for (AnalysisData* analysis : merged.analyses)
+            if (analysis->collider_name == collider.name) analyses.push_back(analysis);
+          if (analyses.empty()) continue;
+          const long long count = collider_events.at(collider.name);
+          if (count > std::numeric_limits<int>::max())
+            throw std::runtime_error("Collider event count does not fit in the likelihood call.");
+          map_str_AnalysisLogLikes loglikes;
+          calc_LHC_LogLikes_common(
+            loglikes, use_fulllikes, analyses, loglike_options, marginaliser, false,
+            FullLikes_FileExists, FullLikes_ReadIn, FullLikes_Evaluate,
+            collider.cross_section_fb, static_cast<int>(count));
+          for (auto& loglike : loglikes)
+            merged.analysis_loglikes[loglike.first] = std::move(loglike.second);
+        }
+        merged.combined_loglike = compute_combined_loglike(merged.analysis_loglikes, settings);
+
+        CheckpointResult result;
+        result.merged = std::move(merged);
+        result.merged.analyses.clear();
+        for (AnalysisData& analysis : result.merged.analyses_storage)
+          result.merged.analyses.push_back(&analysis);
+        result.checkpoint_directory = checkpoint_dir.string();
+        result.yoda_files = std::move(yoda_files);
+        result.lock = std::move(lock);
+        return result;
       }
 
       /// Estimate additional MC events for fractional-error targets in each selected SR.

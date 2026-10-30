@@ -92,6 +92,9 @@ namespace Gambit
 
         std::vector<str> hepmc_filenames;
         std::vector<HepMCRunInfo> hepmc_run_infos;
+        /// Parallel to hepmc_filenames. 1 when the inspection was restored
+        /// from a completed checkpoint instead of rereading the HepMC file.
+        std::vector<char> hepmc_inspection_from_checkpoint;
         std::map<str, InputStatistics> input_statistics;
 
         /// Colliders in order of first appearance, and the collider of each retained analysis.

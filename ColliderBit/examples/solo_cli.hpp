@@ -41,6 +41,8 @@ namespace Gambit
         std::string analysis_query;
         bool has_report = false;
         std::string report;
+        // Delete the checkpoint beside settings.output and run every file again.
+        bool fresh = false;
       };
 
       /// Print CBS command-line usage information.

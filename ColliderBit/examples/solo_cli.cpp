@@ -267,8 +267,14 @@ namespace Gambit
           << "                               analysis, Contur pools with nonzero log L, sampling advice,\n"
           << "                               and the input normalization.\n"
           << "                               full also prints every signal region, cutflow, and Contur pool.\n"
-          << "\nCBS performs local, single-point recasting. With settings.processes,\n"
-          << "HepMC files are processed sequentially and their results are merged.\n"
+          << "  --fresh                      Delete the checkpoint for settings.output and run every file again.\n"
+          << "\nCBS performs local, single-point recasting. With settings.processes and\n"
+          << "settings.output, each completed HepMC file is checkpointed. The next run skips\n"
+          << "a finished file whose fingerprint still matches, and runs an unfinished file\n"
+          << "again from the start. New HepMC files added to one process are the only files\n"
+          << "executed; their yields are merged with the saved results. The combined JSON and\n"
+          << "summary are written when every required file is current. --fresh deletes that\n"
+          << "checkpoint and starts over.\n"
           << std::endl;
       }
 
@@ -331,10 +337,12 @@ namespace Gambit
       )
       {
         const int report_option = 1000;
+        const int fresh_option = 1001;
         const struct option command_line_options[] = {
           {"help", no_argument, 0, 'h'},
           {"list-analyses", no_argument, 0, 'l'},
           {"report", required_argument, 0, report_option},
+          {"fresh", no_argument, 0, fresh_option},
           {0, 0, 0, 0}
         };
 
@@ -369,6 +377,10 @@ namespace Gambit
               options.report = optarg;
               break;
 
+            case 1001:
+              options.fresh = true;
+              break;
+
             case '?':
             default:
               std::cerr << "Unknown or malformed CBS command-line option.\n";
@@ -379,6 +391,12 @@ namespace Gambit
 
         if (list_analyses)
         {
+          if (options.fresh)
+          {
+            std::cerr << "CBS --fresh does not apply to --list-analyses.\n";
+            print_usage(std::cerr, argv[0]);
+            return CommandLineStatus::error;
+          }
           if (argc - optind > 1)
           {
             std::cerr << "Expected at most one analysis query with --list-analyses.\n";

@@ -32,6 +32,7 @@
 #include "solo_cli.hpp"
 #include "solo_input.hpp"
 #include "solo_output.hpp"
+#include "gambit/ColliderBit/cbs_checkpoint_yoda.hpp"
 // #include "gambit/Backends/backend_rollcall.hpp"
 #include <algorithm>
 #include <cmath>
@@ -138,7 +139,11 @@ namespace
               << "  " << std::left << std::setw(label_width) << "Collider"
               << ": " << file_colliders[prepared_input.hepmc_filenames.at(index)] << '\n'
               << "  " << std::left << std::setw(label_width) << "Status"
-              << ": verified\n";
+              << ": "
+              << (index < prepared_input.hepmc_inspection_from_checkpoint.size()
+                  && prepared_input.hepmc_inspection_from_checkpoint[index]
+                    ? "checkpoint" : "verified")
+              << '\n';
       if (index + 1 != prepared_input.hepmc_filenames.size()) summary << '\n';
     }
 
@@ -581,7 +586,8 @@ int main(int argc, char* argv[])
       {
         throw std::runtime_error("Can't run contur without rivet. Try adding a rivet-settings section to your yaml-file. Quitting...");
       }
-      else if (!withContur && withRivet)
+      else if (!withContur && withRivet
+               && !settings.getValueOrDef<bool>(false, "cbs_file_checkpoint"))
       {
         throw std::runtime_error("Can't run rivet without contur. Try adding a contur-settings section to your yaml-file. Quitting...");
       }
@@ -593,7 +599,7 @@ int main(int argc, char* argv[])
       {
         backend_error().raise(LOCAL_INFO, str("yaml file requests rivet, but Rivet ")+RIVET_VERSION+" is missing!");
       }
-      else if (withContur && withRivet)
+      else if (withContur && withRivet && !suppress_startup_banner)
       {
         // Ok, we're good to go with Rivet and Contur,
         // TODO: Proper citation message?
@@ -681,9 +687,165 @@ int main(int argc, char* argv[])
       && !output_config.run_directory.empty()
       && !contur_names_its_log(contur_options);
 
-    // Isolate colliders in fresh child tasks; within a collider all files and
-    // processes share one normalised event loop, with or without measurements.
+    // processes plus settings.output checkpoints each HepMC file. A card without
+    // that pair keeps the one-shot loop. A batch child carries cbs_collider_name
+    // and must not enter the driver again.
     const bool joint_measurements = withRivet && withContur;
+    const bool checkpoint_run = !batch_child
+      && !prepared_input.processes.empty()
+      && output_config.write_file;
+    if (command_line_options.fresh && !checkpoint_run && !batch_child)
+    {
+      std::cerr << "CBS: --fresh applies when settings.processes and settings.output are both set. "
+                << "This run uses the one-shot path." << std::endl;
+    }
+    if (checkpoint_run)
+    {
+      double (*marginaliser)(const int&, const double&, const double&, const double&) =
+        use_lnpiln
+          ? nulike_lnpiln.handoutFunctionPointer()
+          : nulike_lnpin.handoutFunctionPointer();
+      bool (*fullLikesFileExists)(const str&) =
+        use_FullLikes ? FullLikes_FileExists.handoutFunctionPointer() : nullptr;
+      int (*fullLikesReadIn)(const str&, const str&, const str&) =
+        use_FullLikes ? FullLikes_ReadIn.handoutFunctionPointer() : nullptr;
+      double (*fullLikesEvaluate)(std::map<str,double>&, const str&) =
+        use_FullLikes ? FullLikes_Evaluate.handoutFunctionPointer() : nullptr;
+
+      ColliderBit::SoloBatch::CheckpointResult checkpoint =
+        ColliderBit::SoloBatch::run_with_checkpoints(
+          argv[0],
+          prepared_input,
+          settings,
+          output_config.output_file,
+          output_config.screen_output,
+          command_line_options.fresh,
+          marginaliser,
+          fullLikesFileExists,
+          fullLikesReadIn,
+          fullLikesEvaluate);
+      // Moving the result can leave analysis pointers aimed at the old storage.
+      checkpoint.merged.analyses.clear();
+      for (auto& analysis : checkpoint.merged.analyses_storage)
+        checkpoint.merged.analyses.push_back(&analysis);
+
+      if (withRivet)
+      {
+        if (!withContur)
+        {
+          throw std::runtime_error(
+            "Can't run rivet without contur. Try adding a contur-settings section to your yaml-file. Quitting...");
+        }
+        CAT_3(Rivet_, RIVET_SAFE_VERSION,_init).reset_and_calculate();
+        CAT_3(Contur_, CONTUR_SAFE_VERSION,_init).reset_and_calculate();
+        auto contur_from_file = Contur_LogLike_from_file.handoutFunctionPointer();
+        const std::filesystem::path work_dir =
+          std::filesystem::path(checkpoint.checkpoint_directory) / "work";
+
+        for (const ColliderBit::SoloInput::ColliderInput& collider : prepared_input.colliders)
+        {
+          std::vector<const ColliderBit::SoloBatch::CheckpointYodaFile*> collider_files;
+          for (const auto& yoda : checkpoint.yoda_files)
+            if (yoda.collider == collider.name) collider_files.push_back(&yoda);
+          if (collider_files.empty()) continue;
+          if (!(collider.cross_section_fb > 0.0))
+          {
+            throw std::runtime_error(
+              "Checkpoint YODA merge requires a positive cross section for " + collider.name);
+          }
+          const double cross_section_pb = collider.cross_section_fb / 1000.0;
+          const double cross_section_uncert_pb = collider.cross_section_uncert_fb / 1000.0;
+          std::ostringstream xsec_text;
+          xsec_text << std::setprecision(17) << cross_section_pb;
+          const std::string xsec_suffix = ":=" + xsec_text.str();
+
+          std::vector<std::string> scaled_files;
+          scaled_files.reserve(collider_files.size());
+          for (const auto* file : collider_files)
+          {
+            const std::filesystem::path scaled = work_dir / (file->key + ".scaled.yoda");
+            ColliderBit::scale_checkpoint_yoda(file->yoda_file, scaled.string(), file->scale);
+            scaled_files.push_back(scaled.string() + xsec_suffix);
+          }
+          const std::filesystem::path merged_yoda = work_dir / (collider.name + ".merged.yoda");
+          ColliderBit::merge_checkpoint_yodas(
+            scaled_files, merged_yoda.string(), cross_section_pb, cross_section_uncert_pb);
+          note_run_artifacts(
+            output_config, collider.name, per_collider_contur_log, redirect_contur_log);
+          if (output_config.write_yoda_file)
+          {
+            const std::filesystem::path published =
+              std::filesystem::path(output_config.run_directory) / yoda_filename(collider.name);
+            std::filesystem::copy_file(
+              merged_yoda, published, std::filesystem::copy_options::overwrite_existing);
+          }
+
+          std::vector<std::string> options = contur_options;
+          if (redirect_contur_log)
+            options.push_back("log=" + output_config.contur_logs.back());
+          for (std::string& option : options) option = "--" + option;
+          str yoda_argument = merged_yoda.string();
+          const Contur_output contur_point = contur_from_file(yoda_argument, options);
+          if (contur_point.outputs.at("DATABG").pool_LLR.empty())
+          {
+            throw std::runtime_error(
+              "Contur found no usable measurement pools for this prediction.");
+          }
+          checkpoint.merged.contur_loglike += contur_point.outputs.at("DATABG").LLR;
+          ++checkpoint.merged.input_loop.contur_evaluations;
+          for (const auto& pool : contur_point.pool_LLR())
+          {
+            if (checkpoint.merged.contur_pool_loglikes.count(pool.first) != 0)
+            {
+              throw std::runtime_error(
+                "Contur pool " + pool.first
+                + " appears in multiple colliders; a joint experimental covariance is required.");
+            }
+            checkpoint.merged.contur_pool_loglikes[pool.first] = pool.second;
+          }
+          for (const auto& tag : contur_point.pool_tags())
+          {
+            if (checkpoint.merged.contur_pool_info.count(tag.first) != 0)
+            {
+              throw std::runtime_error(
+                "Contur pool " + tag.first
+                + " appears in multiple colliders; a joint experimental covariance is required.");
+            }
+            checkpoint.merged.contur_pool_info[tag.first] = tag.second;
+          }
+        }
+      }
+
+      const auto output_sampling_advice =
+        make_sampling_advice(checkpoint.merged, prepared_input, settings);
+      std::vector<ColliderBit::SoloOutput::ColliderSummaryEntry> collider_summaries;
+      for (const ColliderBit::SoloInput::ColliderInput& collider : prepared_input.colliders)
+      {
+        const auto events_it = checkpoint.merged.collider_event_counts.find(collider.name);
+        if (events_it == checkpoint.merged.collider_event_counts.end() || events_it->second <= 0)
+          continue;
+        collider_summaries.push_back(summarise_collider(collider, events_it->second));
+      }
+      ColliderBit::SoloOutput::emit_outputs(
+        output_config,
+        checkpoint.merged.total_events,
+        collider_summaries,
+        checkpoint.merged.combined_loglike,
+        checkpoint.merged.analyses,
+        checkpoint.merged.analysis_loglikes,
+        withContur,
+        checkpoint.merged.contur_loglike,
+        checkpoint.merged.contur_pool_loglikes,
+        checkpoint.merged.contur_pool_info,
+        output_sampling_advice,
+        checkpoint.merged.input_files,
+        &checkpoint.merged.input_loop,
+        checkpoint.merged.rivet_analyses);
+      return 0;
+    }
+
+    // Without settings.output, multiple colliders still use one child task each.
+    // A single collider keeps one normalised event loop.
     if (!prepared_input.processes.empty() && prepared_input.colliders.size() > 1)
     {
 
@@ -809,9 +971,12 @@ int main(int argc, char* argv[])
           }
       if (!(denominator > 0.0) || !std::isfinite(denominator))
         throw std::runtime_error("Invalid total nominal weight for process " + process_name);
-      const double scale = collider.cross_section_fb > 0.0
+      double scale = collider.cross_section_fb > 0.0
         ? (expected_events / denominator) * (process_sigma / collider.cross_section_fb)
         : expected_events / denominator;
+      // A checkpoint child asks for nominal weights only. The parent applies c_p.
+      if (settings.hasKey("cbs_file_weight_scale"))
+        scale = settings.getValue<double>("cbs_file_weight_scale");
       if (!std::isfinite(scale) || scale < 0.0 || (process_sigma > 0.0 && scale == 0.0))
         throw std::runtime_error("Invalid nominal-weight normalization for process " + process_name);
       YAML::Node source;
@@ -927,6 +1092,11 @@ int main(int argc, char* argv[])
     if (withRivet)
     {
       Rivet_measurements.setOption<bool>("write_YODA_file", output_config.write_yoda_file);
+      if (rivet_settings.hasKey("YODA_filename"))
+      {
+        Rivet_measurements.setOption<std::string>(
+          "YODA_filename", rivet_settings.getValue<std::string>("YODA_filename"));
+      }
       if (!output_config.run_directory.empty())
       {
         Rivet_measurements.setOption<std::string>(
@@ -941,9 +1111,12 @@ int main(int argc, char* argv[])
                                                 rivet_settings.getValueOrDef<std::vector<std::string>>({},"exclude_analyses"));
       note_run_artifacts(
         output_config, collider.name, per_collider_contur_log, redirect_contur_log);
-      if (redirect_contur_log)
-        contur_options.push_back("log=" + output_config.contur_logs.back());
-      Contur_LHC_measurements_from_stream.setOption("contur_options", contur_options);
+      if (withContur)
+      {
+        if (redirect_contur_log)
+          contur_options.push_back("log=" + output_config.contur_logs.back());
+        Contur_LHC_measurements_from_stream.setOption("contur_options", contur_options);
+      }
     }
 
 
@@ -987,12 +1160,14 @@ int main(int argc, char* argv[])
     {
       Rivet_measurements.resolveDependency(&getEvent);
       Rivet_measurements.resolveBackendReq(&Contur_get_analyses_from_beam);
-
-      Contur_LHC_measurements_from_stream.resolveDependency(&Rivet_measurements);
-      Contur_LHC_measurements_from_stream.resolveBackendReq(&Contur_LogLike_from_stream);
-      Contur_LHC_measurements_LogLike.resolveDependency(&Contur_LHC_measurements_from_stream);
-      Contur_LHC_measurements_LogLike_perPool.resolveDependency(&Contur_LHC_measurements_from_stream);
-      Contur_LHC_measurements_histotags_perPool.resolveDependency(&Contur_LHC_measurements_from_stream);
+      if (withContur)
+      {
+        Contur_LHC_measurements_from_stream.resolveDependency(&Rivet_measurements);
+        Contur_LHC_measurements_from_stream.resolveBackendReq(&Contur_LogLike_from_stream);
+        Contur_LHC_measurements_LogLike.resolveDependency(&Contur_LHC_measurements_from_stream);
+        Contur_LHC_measurements_LogLike_perPool.resolveDependency(&Contur_LHC_measurements_from_stream);
+        Contur_LHC_measurements_histotags_perPool.resolveDependency(&Contur_LHC_measurements_from_stream);
+      }
     }
 
     // Resolve loop manager for ColliderBit event loop
@@ -1030,10 +1205,12 @@ int main(int argc, char* argv[])
     if (withRivet)
     {
       Rivet_measurements.resolveLoopManager(&operateLHCLoop);
-      Contur_LHC_measurements_from_stream.resolveLoopManager(&operateLHCLoop);
-
       nested_functions.push_back(&Rivet_measurements);
-      nested_functions.push_back(&Contur_LHC_measurements_from_stream);
+      if (withContur)
+      {
+        Contur_LHC_measurements_from_stream.resolveLoopManager(&operateLHCLoop);
+        nested_functions.push_back(&Contur_LHC_measurements_from_stream);
+      }
     }
 
     operateLHCLoop.setNestedList(nested_functions);

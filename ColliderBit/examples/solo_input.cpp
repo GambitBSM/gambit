@@ -23,6 +23,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <iomanip>
 #include <map>
 #include <iostream>
@@ -30,6 +31,8 @@
 #include <sstream>
 #include <stdexcept>
 #include <utility>
+
+#include <nlohmann/json.hpp>
 
 #include "gambit/Utils/util_functions.hpp"
 
@@ -650,6 +653,142 @@ namespace Gambit
           return "CBS_" + beam_label(first_pid) + beam_label(second_pid) + "_" + energy.str() + "TeV";
         }
 
+        /// Same schema as the checkpoint stamp written by solo_batch.cpp.
+        constexpr const char* kCheckpointSchema = "cbs-solo-checkpoint-v1";
+
+        /// A completed file's stamp can stand in for another full HepMC read.
+        struct StoredHepMCInspection
+        {
+          bool has_beams = false;
+          std::string nominal_name;
+          InputStatistics statistics;
+          HepMCRunInfo run_info;
+        };
+
+        bool finite_positive(double value)
+        {
+          return std::isfinite(value) && value > 0.0;
+        }
+
+        /// Read beams and the nominal weight from the first physical event.
+        HepMCRunInfo inspect_first_event(const str& filename,
+                                         const str& requested_nominal,
+                                         std::string& nominal_name,
+                                         int& nominal_index)
+        {
+          HepMC3::GenEvent event;
+          auto reader = make_hepmc_reader(filename);
+          const bool event_retrieved = reader->read_event(event);
+          if (!event_retrieved || (event.particles().empty() && event.vertices().empty()))
+          {
+            throw std::runtime_error(
+              "Could not read a physical first event from HepMC event file " + filename
+              + " while determining its collision energy."
+            );
+          }
+          nominal_hepmc_weight(event, requested_nominal, filename, &nominal_name, &nominal_index);
+          return inspect_run_info(event, filename);
+        }
+
+        /// Stamps of files that were already analysed, keyed by the HepMC path.
+        std::map<std::string, StoredHepMCInspection> load_checkpoint_inspections(
+          const PreparedInput& prepared)
+        {
+          std::map<std::string, StoredHepMCInspection> stored;
+          if (prepared.processes.empty() || prepared.settings.hasKey("cbs_collider_name")
+              || !prepared.settings.hasKey("output"))
+            return stored;
+          const std::string output = prepared.settings.getValue<std::string>("output");
+          if (output.empty()) return stored;
+
+          const std::filesystem::path files_dir =
+            std::filesystem::absolute(output).replace_extension(".cbs") / "files";
+          std::error_code error;
+          if (!std::filesystem::is_directory(files_dir, error)) return stored;
+
+          for (const std::filesystem::directory_entry& entry :
+               std::filesystem::directory_iterator(files_dir, error))
+          {
+            if (error || !entry.is_regular_file()) continue;
+            const std::string name = entry.path().filename().string();
+            if (name.size() < 11 || name.compare(name.size() - 11, 11, ".stamp.json") != 0)
+              continue;
+            try
+            {
+              std::ifstream input(entry.path());
+              nlohmann::json stamp;
+              input >> stamp;
+              if (stamp.value("schema_version", std::string()) != kCheckpointSchema)
+                continue;
+              const std::string path = stamp.value("path", std::string());
+              if (path.empty() || !stamp.contains("n_events") || !stamp.contains("sum_weights")
+                  || !stamp.contains("sum_weights2") || !stamp.contains("size_bytes")
+                  || !stamp.contains("modified_ticks"))
+                continue;
+
+              StoredHepMCInspection inspection;
+              inspection.statistics.n_events = stamp.at("n_events").get<long long>();
+              inspection.statistics.sum_weights = stamp.at("sum_weights").get<double>();
+              inspection.statistics.sum_weights2 = stamp.at("sum_weights2").get<double>();
+              inspection.statistics.size_bytes = std::stoull(stamp.at("size_bytes").get<std::string>());
+              inspection.statistics.modified_ticks =
+                std::stoll(stamp.at("modified_ticks").get<std::string>());
+              if (inspection.statistics.n_events <= 0
+                  || !finite_positive(inspection.statistics.sum_weights)
+                  || !finite_positive(inspection.statistics.sum_weights2))
+                continue;
+
+              inspection.has_beams = stamp.contains("beam_pid_1") && stamp.contains("beam_pid_2")
+                && stamp.contains("beam_energy_1_GeV") && stamp.contains("beam_energy_2_GeV")
+                && stamp.contains("collision_energy_TeV") && stamp.contains("nominal_name")
+                && stamp.contains("nominal_index");
+              if (inspection.has_beams)
+              {
+                inspection.nominal_name = stamp.at("nominal_name").get<std::string>();
+                inspection.statistics.nominal_name = inspection.nominal_name;
+                inspection.statistics.nominal_index = stamp.at("nominal_index").get<int>();
+                inspection.run_info.beam_pid_1 = stamp.at("beam_pid_1").get<int>();
+                inspection.run_info.beam_pid_2 = stamp.at("beam_pid_2").get<int>();
+                inspection.run_info.beam_energy_1_GeV = stamp.at("beam_energy_1_GeV").get<double>();
+                inspection.run_info.beam_energy_2_GeV = stamp.at("beam_energy_2_GeV").get<double>();
+                inspection.run_info.collision_energy_TeV =
+                  stamp.at("collision_energy_TeV").get<double>();
+                if (inspection.nominal_name.empty()
+                    || !finite_positive(inspection.run_info.beam_energy_1_GeV)
+                    || !finite_positive(inspection.run_info.beam_energy_2_GeV)
+                    || !finite_positive(inspection.run_info.collision_energy_TeV))
+                  inspection.has_beams = false;
+              }
+              else
+              {
+                // Older stamps recorded the totals only. The analysed JSON still
+                // names the weight those totals used.
+                std::filesystem::path result_path = entry.path();
+                result_path.replace_extension();
+                result_path.replace_extension(".json");
+                std::ifstream result_input(result_path);
+                nlohmann::json result;
+                result_input >> result;
+                const nlohmann::json& inputs = result.at("run").at("input_files");
+                if (!inputs.is_array() || inputs.empty()) continue;
+                inspection.nominal_name = inputs.at(0).value("nominal_name", std::string());
+                inspection.statistics.nominal_name = inspection.nominal_name;
+                inspection.statistics.nominal_index = inputs.at(0).value("nominal_index", -1);
+                if (inspection.nominal_name.empty()) continue;
+              }
+              const auto existing = stored.find(path);
+              if (existing != stored.end() && existing->second.has_beams && !inspection.has_beams)
+                continue;
+              stored.insert_or_assign(path, std::move(inspection));
+            }
+            catch (const std::exception&)
+            {
+              continue;
+            }
+          }
+          return stored;
+        }
+
         /// Validate complete inputs and collect denominators before normalising
         /// positive-weight events into a common collider-level stream.
         std::vector<HepMCFileInspection> inspect_hepmc_inputs(PreparedInput& prepared)
@@ -658,24 +797,87 @@ namespace Gambit
           inputs.reserve(prepared.hepmc_filenames.size());
           prepared.hepmc_run_infos.clear();
           prepared.hepmc_run_infos.reserve(prepared.hepmc_filenames.size());
+          prepared.hepmc_inspection_from_checkpoint.clear();
+          prepared.hepmc_inspection_from_checkpoint.reserve(prepared.hepmc_filenames.size());
+          const bool show_inspection =
+            prepared.settings.getValueOrDef<bool>(true, "screen_output");
+          const std::string requested_nominal =
+            prepared.settings.getValueOrDef<str>("", "nominal_weight_name");
+          const std::map<std::string, StoredHepMCInspection> stored_inspections =
+            load_checkpoint_inspections(prepared);
           std::set<std::string> physical_files;
           for (const str& filename : prepared.hepmc_filenames)
           {
             if (!physical_files.insert(std::filesystem::canonical(filename).string()).second)
               throw std::runtime_error("Duplicate HepMC input file: " + filename);
-            if (prepared.settings.getValueOrDef<bool>(true, "screen_output"))
-              std::cout << "CBS inspecting complete HepMC input: " << filename << std::endl;
             try
             {
+              const auto stored = stored_inspections.find(filename);
+              const std::uintmax_t size_bytes = std::filesystem::file_size(filename);
+              const long long modified_ticks =
+                std::filesystem::last_write_time(filename).time_since_epoch().count();
+              const bool same_file = stored != stored_inspections.end()
+                && stored->second.statistics.size_bytes == size_bytes
+                && stored->second.statistics.modified_ticks == modified_ticks;
+              const bool same_weight = same_file
+                && (requested_nominal.empty() || requested_nominal == stored->second.nominal_name);
+              if (same_weight && stored->second.has_beams)
+              {
+                if (show_inspection)
+                  std::cout << "CBS reusing checkpointed HepMC inspection: " << filename << std::endl;
+                HepMCFileInspection inspection;
+                inspection.filename = filename;
+                inspection.run_info = stored->second.run_info;
+                inputs.push_back(inspection);
+                prepared.hepmc_run_infos.push_back(inspection.run_info);
+                prepared.hepmc_inspection_from_checkpoint.push_back(1);
+                InputStatistics statistics = stored->second.statistics;
+                statistics.size_bytes = size_bytes;
+                statistics.modified_ticks = modified_ticks;
+                prepared.input_statistics.emplace(filename, statistics);
+                continue;
+              }
+              if (same_weight && !stored->second.nominal_name.empty())
+              {
+                // The stamp predates stored beams. The first event supplies them;
+                // the completed analysis already checked the rest of this file.
+                std::string nominal_name;
+                int nominal_index = -1;
+                const HepMCRunInfo run_info = inspect_first_event(
+                  filename, requested_nominal, nominal_name, nominal_index);
+                (void)nominal_index;
+                if (nominal_name == stored->second.nominal_name)
+                {
+                  if (show_inspection)
+                    std::cout << "CBS reusing checkpointed HepMC inspection: "
+                              << filename << std::endl;
+                  HepMCFileInspection inspection;
+                  inspection.filename = filename;
+                  inspection.run_info = run_info;
+                  inputs.push_back(inspection);
+                  prepared.hepmc_run_infos.push_back(run_info);
+                  prepared.hepmc_inspection_from_checkpoint.push_back(1);
+                  InputStatistics statistics = stored->second.statistics;
+                  statistics.size_bytes = size_bytes;
+                  statistics.modified_ticks = modified_ticks;
+                  statistics.nominal_name = stored->second.nominal_name;
+                  prepared.input_statistics.emplace(filename, statistics);
+                  continue;
+                }
+              }
+
+              if (show_inspection)
+                std::cout << "CBS inspecting complete HepMC input: " << filename << std::endl;
               inputs.push_back(inspect_hepmc_file(filename));
               prepared.hepmc_run_infos.push_back(inputs.back().run_info);
+              prepared.hepmc_inspection_from_checkpoint.push_back(0);
               const long long expected = validate_hepmc_listing(filename);
               auto reader = make_hepmc_reader(filename);
               HepMC3::GenEvent event;
               InputStatistics statistics;
-              statistics.size_bytes = std::filesystem::file_size(filename);
-              statistics.modified_ticks = std::filesystem::last_write_time(filename).time_since_epoch().count();
-              const auto nominal = prepared.settings.getValueOrDef<str>("", "nominal_weight_name");
+              statistics.size_bytes = size_bytes;
+              statistics.modified_ticks = modified_ticks;
+              const auto nominal = requested_nominal;
               const auto tolerances = get_run_condition_tolerances(prepared.settings);
               while (reader->read_event(event) && !event.particles().empty())
               {

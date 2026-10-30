@@ -1,7 +1,8 @@
 # SUSYRun2-inspired CBS card: one EWino process, three HepMC files.
 # Read ColliderBit/examples/SUSYRun2_HepMC.md first.
 # EWinos Events/run_02, run_03 and run_04: one physics point, one process.
-# Uses one normalized nominal stream for searches and Rivet/Contur.
+# Finished HepMC files are stored beside settings.output and merged.
+# Appending a file to this process reruns only that file.
 # Source changes require a maintainer rebuild and numerical acceptance.
 # This is not an exact reproduction of the GAMBIT likelihood.
 
