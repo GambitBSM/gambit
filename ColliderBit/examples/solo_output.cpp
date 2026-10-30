@@ -304,43 +304,41 @@ namespace Gambit
         struct DecimalParts
         {
           std::string whole;
-          std::string fraction;
+          std::string tail;
         };
 
         DecimalParts split_decimal(const std::string& text)
         {
           DecimalParts parts;
-          if (text.find('e') != std::string::npos || text.find('E') != std::string::npos)
+          // Keep the fraction and exponent attached to the mantissa. An integer
+          // mantissa such as "1e-05" has its implicit decimal point before 'e'.
+          const auto tail = text.find_first_of(".eE");
+          if (tail == std::string::npos)
           {
             parts.whole = text;
             return parts;
           }
-          const auto dot = text.find('.');
-          if (dot == std::string::npos)
-          {
-            parts.whole = text;
-            return parts;
-          }
-          parts.whole = text.substr(0, dot);
-          parts.fraction = text.substr(dot + 1);
+          parts.whole = text.substr(0, tail);
+          parts.tail = text.substr(tail);
           return parts;
         }
 
-        // Pad numbers so their decimal points share a column. A missing "-" stays put.
+        // Align decimal points (including scientific mantissas), padding only
+        // outside each numeric token. A missing "-" stays put.
         std::vector<std::string> align_number_column(const std::vector<std::string>& texts)
         {
           std::size_t whole_width = 0;
-          std::size_t fraction_width = 0;
+          std::size_t tail_width = 0;
           std::vector<DecimalParts> parts(texts.size());
           for (std::size_t index = 0; index < texts.size(); ++index)
           {
             if (texts[index].empty() || texts[index] == "-") continue;
             parts[index] = split_decimal(texts[index]);
             whole_width = std::max(whole_width, parts[index].whole.size());
-            fraction_width = std::max(fraction_width, parts[index].fraction.size());
+            tail_width = std::max(tail_width, parts[index].tail.size());
           }
 
-          const std::size_t width = whole_width + (fraction_width == 0 ? 0 : 1 + fraction_width);
+          const std::size_t width = whole_width + tail_width;
           std::vector<std::string> aligned(texts.size());
           for (std::size_t index = 0; index < texts.size(); ++index)
           {
@@ -354,18 +352,8 @@ namespace Gambit
             }
             std::ostringstream rendered;
             rendered << std::right << std::setw(static_cast<int>(whole_width)) << parts[index].whole;
-            if (fraction_width > 0)
-            {
-              if (parts[index].fraction.empty())
-              {
-                rendered << std::string(1 + fraction_width, ' ');
-              }
-              else
-              {
-                rendered << '.' << parts[index].fraction
-                         << std::string(fraction_width - parts[index].fraction.size(), ' ');
-              }
-            }
+            rendered << parts[index].tail
+                     << std::string(tail_width - parts[index].tail.size(), ' ');
             aligned[index] = rendered.str();
           }
           return aligned;
