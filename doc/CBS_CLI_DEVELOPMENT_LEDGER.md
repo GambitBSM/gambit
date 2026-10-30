@@ -13,7 +13,7 @@
 
 `run_and_merge` 没有接到 `solo.cpp`。检查点子进程由 `build_checkpoint_child_yaml` 生成：一个 `event_file`、名义权重尺度 1、保留 Rivet、不跑 Contur。带 `cbs_collider_name` 的子进程不会再次进入检查点驱动。
 
-用户看到的合并 JSON 继续使用 `cbs-solo-loglike-v2`。采样计算没有改。JSON 里的 `process_recommendations` 仍是精确整数。
+用户看到的合并 JSON 继续使用 `cbs-solo-loglike-v2`。采样计算没有改。采样表用 `Process` 列点名需要补事例的过程。一行只分给一个过程时，该列只写过程名，事例数留在 `Outcome`。一行分给多个过程时，该列写出各自的份额。表后只留一句追加文件的说明，不再把分析、信号区和事例数重复列一遍。JSON 里的 `process_recommendations` 仍是精确整数。
 
 ## 目标
 
@@ -65,9 +65,9 @@
 
 这是运行结束后的既定流程，不是新的 YAML 键，也不是新的命令行旗标。采样公式保持现在的 `build_sampling_advice`：追加事例仍是 `ceil(n_events * max(1, (frac/target)^2))` 再减去已有事例，再按该对撞机各过程的截面分配（没有正截面时按已有事例数）。屏幕格式化不改变 JSON 里的整数。
 
-全部所需文件都有效、合并摘要已经打印之后，MC sampling advice 仍按分析、信号区和 Goal 给出总追加事例，并按过程截面分配。不同分析的建议不相加。事例数沿用现有屏幕缩写，图例规则不变。JSON 里的 `process_recommendations` 仍是精确整数。
+全部所需文件都有效、合并摘要已经打印之后，MC sampling advice 仍按分析、信号区和 Goal 给出总追加事例。`Process` 列点名 `recommended_additional_events > 0` 的过程。该行只有一个这样的过程时，列里只写过程名。多个过程分享一行时，列里写出各自向上取整后的份额，不同分析的建议不相加。表后一行说明把新的 HepMC 文件追加到该过程的 `settings.processes[].files`，然后用同一条命令再跑；已完成文件留在检查点里并与新文件合并。事例数沿用现有屏幕缩写，图例规则不变。JSON 仍写精确整数。
 
-SUSYRun2 这张卡片只有 EWino 一个过程，所以追加事例都分给这个过程。多个过程时按截面份额拆开。
+SUSYRun2 这张卡片只有 EWino 一个过程，所以该过程分到对应行 Outcome 的全部事例。多个过程时按现有份额拆开。份额在屏幕上各自向上取整，显示值加起来可以和该行 Outcome 的显示值不同；JSON 里的整数仍然加总等于该行的 `recommended_additional_events`。
 
 用户可以在追加新 run 时改这个过程的截面，使它仍是事例数加权平均。截面和截面不确定度只让父进程重算合并 JSON，不重读已经完成的 HepMC。
 

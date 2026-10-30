@@ -943,6 +943,31 @@ namespace Gambit
           }
         }
 
+        /// One process name when it receives the whole row. A split row names
+        /// each process with its own rounded share; the Outcome column stays the total.
+        std::string format_sampling_process(
+          const SamplingAdviceTargetEntry& target,
+          bool& used_event_suffix)
+        {
+          std::vector<const SamplingAdviceProcessEntry*> named;
+          for (const SamplingAdviceProcessEntry& process : target.process_recommendations)
+          {
+            if (process.recommended_additional_events > 0) named.push_back(&process);
+          }
+          if (!target.need_more_mc || named.empty()) return "-";
+          if (named.size() == 1) return named.front()->process_name;
+
+          std::ostringstream text;
+          for (std::size_t index = 0; index < named.size(); ++index)
+          {
+            if (index != 0) text << ", ";
+            const AdditionalEventsText share = format_additional_events(
+              named[index]->recommended_additional_events, used_event_suffix);
+            text << named[index]->process_name << " +" << share.number << share.suffix;
+          }
+          return text.str();
+        }
+
         void print_sampling_advice(
           std::ostream& output,
           const std::vector<SamplingAdviceEntry>& sampling_advice)
@@ -958,6 +983,7 @@ namespace Gambit
             std::string effective_events;
             std::string target;
             std::string outcome;
+            std::string process;
           };
 
           std::vector<SamplingRow> rows;
@@ -986,6 +1012,7 @@ namespace Gambit
                 outcome_fields.push_back(AdditionalEventsText{});
                 outcome_fields.back().met = true;
               }
+              row.process = format_sampling_process(target, used_event_suffix);
               rows.push_back(std::move(row));
             }
           }
@@ -1010,6 +1037,7 @@ namespace Gambit
           std::size_t neff_width = std::string("N_eff").size();
           std::size_t target_width = std::string("Goal").size();
           std::size_t outcome_width = std::string("Outcome").size();
+          std::size_t process_width = std::string("Process").size();
           for (const auto& row : rows)
           {
             analysis_width = std::max(analysis_width, row.analysis.size());
@@ -1019,12 +1047,14 @@ namespace Gambit
             neff_width = std::max(neff_width, row.effective_events.size());
             target_width = std::max(target_width, row.target.size());
             outcome_width = std::max(outcome_width, row.outcome.size());
+            process_width = std::max(process_width, row.process.size());
           }
           if (!split_signal_header || signal_header.size() != signal_width)
             signal_header = center_text("S +/- MC", signal_width);
           const std::string outcome_header = center_text("Outcome", outcome_width);
-          const auto table_width = 2 + 6 * screen_column_gap + analysis_width + sr_width
-            + signal_width + frac_width + neff_width + target_width + outcome_width;
+          const auto table_width = 2 + 7 * screen_column_gap + analysis_width + sr_width
+            + signal_width + frac_width + neff_width + target_width + outcome_width
+            + process_width;
 
           output << "\nMC sampling advice\n";
           print_screen_rule(output, '-', table_width);
@@ -1042,6 +1072,8 @@ namespace Gambit
           print_screen_cell(output, "Goal", target_width, true);
           output << std::string(screen_column_gap, ' ');
           print_screen_cell(output, outcome_header, outcome_width);
+          output << std::string(screen_column_gap, ' ');
+          print_screen_cell(output, "Process", process_width);
           output << '\n'
                  << "  " << std::string(analysis_width, '-')
                  << std::string(screen_column_gap, ' ') << std::string(sr_width, '-')
@@ -1049,7 +1081,8 @@ namespace Gambit
                  << std::string(screen_column_gap, ' ') << std::string(frac_width, '-')
                  << std::string(screen_column_gap, ' ') << std::string(neff_width, '-')
                  << std::string(screen_column_gap, ' ') << std::string(target_width, '-')
-                 << std::string(screen_column_gap, ' ') << std::string(outcome_width, '-') << '\n';
+                 << std::string(screen_column_gap, ' ') << std::string(outcome_width, '-')
+                 << std::string(screen_column_gap, ' ') << std::string(process_width, '-') << '\n';
           for (const SamplingRow& row : rows)
           {
             output << "  ";
@@ -1066,7 +1099,32 @@ namespace Gambit
             print_screen_cell(output, row.target, target_width, true);
             output << std::string(screen_column_gap, ' ');
             print_screen_cell(output, row.outcome, outcome_width, true);
+            output << std::string(screen_column_gap, ' ');
+            print_screen_cell(output, row.process, process_width);
             output << '\n';
+          }
+          std::set<std::string> named_processes;
+          for (const SamplingAdviceEntry& entry : sampling_advice)
+          {
+            for (const SamplingAdviceTargetEntry& target : entry.targets)
+            {
+              for (const SamplingAdviceProcessEntry& process : target.process_recommendations)
+              {
+                if (process.recommended_additional_events > 0)
+                  named_processes.insert(process.process_name);
+              }
+            }
+          }
+          if (named_processes.size() == 1)
+          {
+            output << "  Add HepMC files for " << *named_processes.begin()
+                   << ", then run the same command. "
+                   << "Completed files stay in the checkpoint and are merged with the new files.\n";
+          }
+          else if (!named_processes.empty())
+          {
+            output << "  Add HepMC files for the named processes, then run the same command. "
+                   << "Completed files stay in the checkpoint and are merged with the new files.\n";
           }
           if (used_event_suffix)
           {
