@@ -171,6 +171,7 @@ Rules:
             strategy: Best
         jet_collection_taus: antikt_R04
         xsec_veto: 0.028  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        partonOnly: false
         pythia_settings:
           - SLHA:verbose = 1
           - Next:numberShowProcess = 1
@@ -189,19 +190,6 @@ Rules:
           - TauDecays:mode = 0
           - TimeShower:pTmin = 2
 
-  # Choose ATLAS detector simulation and options.
-  - capability: ATLASDetectorSim
-    options:
-      LHC_13TeV_SUSY_EWonly:
-        partonOnly: false
-        antiktR: 0.4
-
-  # Choose CMS detector simulation and options.
-  - capability: CMSDetectorSim
-    options:
-      LHC_13TeV_SUSY_EWonly:
-        partonOnly: false
-        antiktR: 0.4
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
@@ -248,6 +236,10 @@ Logger:
 KeyValues:
 
   debug: true
+
+  rng:
+    generator: default
+    seed: -1
 
   dependency_resolution:
     prefer_model_specific_functions: true

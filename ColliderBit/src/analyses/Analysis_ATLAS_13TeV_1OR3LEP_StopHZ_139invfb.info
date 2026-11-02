@@ -1,0 +1,8 @@
+Summary: Search for top squarks in events with a Higgs or ZZ boson at 13 TeV with the ATLAS detector
+InspireID: 1800411
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["2B", "2L"]
+Keywords: ["Higgs", "Z boson"]
+Authors: ["Holly Pacey"]
