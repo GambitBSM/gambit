@@ -156,7 +156,7 @@ namespace Gambit
          Spectrum(SubSpectrum* const le, SubSpectrum* const he, const SMInputs& smi, const std::map<str, safe_ptr<const double> >* input_Param, const mc_info&, const mr_info&);
 
          /// Construct new object, automatically creating an SMSimpleSpec as the LE subspectrum, and cloning the HE SubSpectrum object supplied and taking possession of it.
-         /// (won't make a version of this taking a pointer, since this is an "advanced" task, let people use the full contructor to do it.)
+         /// (won't make a version of this taking a pointer, since this is an "advanced" task, let people use the full constructor to do it.)
          Spectrum(const SubSpectrum& he, const SMInputs& smi, const std::map<str, safe_ptr<const double> >* input_Param, const mc_info&, const mr_info&);
 
          /// Copy constructor, clones SubSpectrum objects.

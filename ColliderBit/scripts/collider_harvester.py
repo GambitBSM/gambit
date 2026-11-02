@@ -46,6 +46,9 @@ def main(argv):
         verbose = True
         print('collider_harvester.py: verbose=True')
 
+    # Make sure the scratch directory for candidate files exists (it may not when running this script standalone)
+    if not os.path.isdir("./scratch/build_time"): os.makedirs("./scratch/build_time")
+
     # Get list of models to include in ColliderBit_model_rollcall.hpp
     model_headers.update(retrieve_generic_headers(verbose,"./ColliderBit/include/gambit/ColliderBit/models","model", set()))
 
@@ -75,11 +78,14 @@ def main(argv):
                                                   
 """
 
-    for h in model_headers:
+    for h in sorted(model_headers):
         towrite+='#include \"gambit/ColliderBit/models/{0}\"\n'.format(h)
 
-    with open("./ColliderBit/include/gambit/ColliderBit/ColliderBit_models_rollcall.hpp","w") as f:
-        f.write(towrite)
+    # Don't touch any existing file unless it is actually different from what we will create
+    header = "./ColliderBit/include/gambit/ColliderBit/ColliderBit_models_rollcall.hpp"
+    candidate = "./scratch/build_time/ColliderBit_models_rollcall.hpp.candidate"
+    with open(candidate,"w") as f: f.write(towrite)
+    update_only_if_different(header, candidate)
 
     # Generate a C++ header containing Py8Collider typedefs for all the model headers we have just harvested.
     towrite = """//   GAMBIT: Global and Modular BSM Inference Tool
@@ -114,7 +120,7 @@ namespace Gambit
       typedef Py8Collider<Pythia_default::Pythia8::Pythia, Pythia_default::Pythia8::Event, void> Py8Collider_defaultversion;
 """
 
-    for h in model_headers:
+    for h in sorted(model_headers):
         if h not in ignore_model_headers:
             m = re.sub(".hpp", "", h)
             towrite+='      typedef Py8Collider<Pythia_{0}_default::Pythia8::Pythia, Pythia_{0}_default::Pythia8::Event, void> Py8Collider_{0}_defaultversion;\n'.format(m)
@@ -123,15 +129,18 @@ namespace Gambit
     #else                                         \n\
       typedef Py8Collider<Pythia_default::Pythia8::Pythia, Pythia_default::Pythia8::Event, Pythia_default::Pythia8::GAMBIT_hepmc_writer> Py8Collider_defaultversion;\n"
 
-    for h in model_headers:
+    for h in sorted(model_headers):
         if h not in ignore_model_headers:
             m = re.sub(".hpp", "", h)
             towrite+='      typedef Py8Collider<Pythia_{0}_default::Pythia8::Pythia, Pythia_{0}_default::Pythia8::Event, Pythia_{0}_default::Pythia8::GAMBIT_hepmc_writer> Py8Collider_{0}_defaultversion;\n'.format(m)
 
     towrite+="    #endif\n    /// @}\n\n  }\n}\n"
 
-    with open("./ColliderBit/include/gambit/ColliderBit/colliders/Pythia8/Py8Collider_typedefs.hpp","w") as f:
-        f.write(towrite)
+    # Don't touch any existing file unless it is actually different from what we will create
+    header = "./ColliderBit/include/gambit/ColliderBit/colliders/Pythia8/Py8Collider_typedefs.hpp"
+    candidate = "./scratch/build_time/Py8Collider_typedefs.hpp.candidate"
+    with open(candidate,"w") as f: f.write(towrite)
+    update_only_if_different(header, candidate)
 
     if verbose:
         print("\nGenerated ColliderBit_models_rollcall.hpp.")

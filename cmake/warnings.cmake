@@ -34,7 +34,7 @@ macro(set_compiler_warning warning current_flags)
 endmacro()
 
 if(${WERROR})
-  set_compiler_warning("error")
+  set_compiler_warning("error" CMAKE_CXX_FLAGS)
 else()
   message(STATUS "Werror is disabled")
 endif()
@@ -42,12 +42,6 @@ endif()
 set_compiler_warning("all" CMAKE_CXX_FLAGS)
 set_compiler_warning("extra" CMAKE_CXX_FLAGS)
 set_compiler_warning("no-misleading-indentation" CMAKE_CXX_FLAGS)
-
-if(EIGEN3_FOUND AND EIGEN3_VERSION VERSION_LESS 3.3.0)
-  set_compiler_warning("no-ignored-attributes" CMAKE_CXX_FLAGS)
-  set_compiler_warning("no-deprecated-register" CMAKE_CXX_FLAGS)
-  set_compiler_warning("no-deprecated-declarations" CMAKE_CXX_FLAGS)
-endif()
 
 # set intel warnings
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")

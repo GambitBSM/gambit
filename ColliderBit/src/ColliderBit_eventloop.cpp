@@ -32,6 +32,10 @@
 ///  \date   2018 Jan
 ///  \date   2018 May
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 Aug
+///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -123,7 +127,7 @@ namespace Gambit
           ColliderBit_error().set_fatal(true); // This one must regarded fatal since there is something wrong in the user input
           ColliderBit_error().raise(LOCAL_INFO,"Cannot find any collider names in use_colliders option for operateLHCLoop. Please correct your YAML file.");
         }
-        
+
 
         // Retrieve the options for each collider.
         for (auto& collider : result.collider_names)
@@ -202,7 +206,7 @@ namespace Gambit
               ColliderBit_error().raise(LOCAL_INFO,"Options min_nEvents and max_nEvents should not be used for the UMVUE estimator for collider "
                                                    +collider+". Please correct your YAML file.");
             }
-          
+
             // Avoid convergence checks by setting the number of events higher than are actually generated
             stoppingres[collider] = result.desired_nEvents[collider]*2;
           }
@@ -259,7 +263,7 @@ namespace Gambit
         piped_errors.check(ColliderBit_error());
         piped_invalid_point.check();
 
-        // Execute the sigle-thread iteration XSEC_CALCULATION 
+        // Execute the sigle-thread iteration XSEC_CALCULATION
         #ifdef COLLIDERBIT_DEBUG
           cout << DEBUG_PREFIX << "operateLHCLoop: Will execute XSEC_CALCULATION" << endl;
         #endif
@@ -293,7 +297,7 @@ namespace Gambit
         // Convergence loop
         while(((fixed_nEvents && result.current_event_count() < max_nEvents_collider) or (!fixed_nEvents && result.current_event_count() < desired_nEvents_collider)) and not *Loop::done)
         {
-          
+
           int eventCountBetweenConvergenceChecks = 0;
           #ifdef COLLIDERBIT_DEBUG
             cout << DEBUG_PREFIX << "Starting main event loop.  Will do " << stoppingres_collider << " events before testing convergence." << endl;
@@ -443,6 +447,8 @@ namespace Gambit
     {
       using namespace Pipes::CollectAnalyses;
       static bool first = true;
+      static bool print_cutflows;
+      static bool normalized_cutflows;
 
       // Start with an empty vector
       result.clear();
@@ -461,6 +467,10 @@ namespace Gambit
       // When first called, check that all analyses contain at least one signal region.
       if (first)
       {
+        // Print cutflow at the end of the run
+        print_cutflows = runOptions->getValueOrDef<bool>(false, "print_cutflows");
+        normalized_cutflows = runOptions->getValueOrDef<bool>(false, "normalized_cutflows");
+
         // Loop over all AnalysisData pointers
         for (auto& adp : result)
         {
@@ -474,6 +484,23 @@ namespace Gambit
         first = false;
       }
 
+      // Print cutflows of analyses
+      if(print_cutflows)
+      {
+        std::cout << "Cutflows" << std::endl;
+        std::cout << "========" << std::endl;
+        for(auto& adp : result)
+        {
+          std::cout << adp->analysis_name << std::endl;
+          std::cout << "-----------------" << std::endl;
+
+          if(normalized_cutflows)
+          {
+            adp->cutflows.normalize(Dep::TotalCrossSection->xsec() * adp->luminosity);
+          }
+          std::cout << adp->cutflows << std::endl;
+        }
+      }
 
       // #ifdef COLLIDERBIT_DEBUG
       //   cout << DEBUG_PREFIX << "CollectAnalyses: Current size of 'result': " << result.size() << endl;
@@ -494,7 +521,7 @@ namespace Gambit
       //   }
       // #endif
     }
-    
+
 
   }
 

@@ -1,24 +1,28 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 
-namespace Gambit {
-  namespace ColliderBit {
+namespace Gambit
+{
+  namespace ColliderBit
+  {
     using namespace std;
 
 
     /// Basic analysis code for copying
-    class Analysis_Minimum : public Analysis {
+    class Analysis_Minimum : public Analysis
+    {
     private:
-
-      // Variables to hold the number of events passing signal region cuts
-      double _numSR;
 
     public:
 
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
-      Analysis_Minimum() {
+      Analysis_Minimum()
+      {
+
+        // Signal region counter
+        _counters["SR"] = EventCounter("SR");
 
         // Set the analysis name
         set_analysis_name("Minimum");
@@ -26,14 +30,12 @@ namespace Gambit {
         // Set the LHC luminosity
         set_luminosity(20.3);
 
-        // Set number of events passing cuts to zero upon initialisation
-        _numSR = 0;
-
 
       }
 
 
-      void run(const HEPUtils::Event* event){
+      void run(const HEPUtils::Event* event)
+      {
 
         // Get the missing energy in the event
         double met = event->met();
@@ -75,16 +77,8 @@ namespace Gambit {
         // Increment number of events passing signal region cuts
         // Dummy signal region: need 2 jets, met > 150 and no leptons
 
-        if((nElectrons+nMuons)==0 && nJets==2 && met>150.) _numSR += event->weight();
+        if((nElectrons+nMuons)==0 && nJets==2 && met>150.) _counters["SR"].add_event(event);
 
-      }
-
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_Minimum* specificOther = dynamic_cast<const Analysis_Minimum*>(other);
-        _numSR += specificOther->_numSR;
       }
 
 
@@ -94,14 +88,15 @@ namespace Gambit {
         // We have made up a number of observed events
         // We have also made up a number of predicted background events (with a made up uncertainty)
 
-        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
-        add_result(SignalRegionData("SR", 100., {_numSR, 0.}, {95., 9.5}));
+        // add_result(SignalRegionData(_counters["SR label"], n_obs, {n_bkg, n_bkg_err}));
+        add_result(SignalRegionData(_counters["SR"], 100., {95., 9.5}));
       }
 
 
     protected:
-      void analysis_specific_reset() {
-        _numSR = 0;
+      void analysis_specific_reset()
+      {
+        for (auto& pair : _counters) { pair.second.reset(); }
       }
 
       ///////////////////

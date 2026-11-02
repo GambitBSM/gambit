@@ -1,0 +1,7 @@
+Summary: CMS search for events with Higgs and W bosons
+InspireID: 1895525
+ExptRun: CMS-R2
+Lumi_ifb: 137.0
+Ecm_TeV: 13.0
+Signatures: ["1L + 2B"]
+Authors: ["Pengxuan Zhu"]

@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  ColliderBit module function for obtaining the 
+///  ColliderBit module function for obtaining the
 ///  list of the active collider processes
 ///
 ///  *********************************************
@@ -49,7 +49,7 @@ namespace Gambit
       }
     }
 
-  } 
-} 
+  }
+}
 
 
