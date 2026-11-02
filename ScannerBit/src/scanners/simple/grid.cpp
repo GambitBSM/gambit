@@ -83,19 +83,25 @@ scanner_plugin(grid, version(1, 0, 0))
         if (!grid_pts_node || !grid_pts_node.IsMap())
         {
             scan_err << "Grid Scanner:  \"grid_pts\" must be a YAML map from "
-                     << "\"<model>::<param>\" to integer, e.g.\n"
+                     << "\"<model>::<param>\" to a positive integer, e.g.\n"
                      << "    grid_pts:\n"
                      << "      NormalDist::mu: 5\n"
                      << "      NormalDist::sigma: 3" << scan_end;
-            return 1;
         }
 
-        std::vector<int> N(ma, -1);
+        // Number of grid points per parameter. 0 means "not yet specified".
+        std::vector<int> N(ma, 0);
 
         for (auto it = grid_pts_node.begin(); it != grid_pts_node.end(); ++it)
         {
             std::string key = it->first.as<std::string>();
-            int value = it->second.as<int>();
+
+            int value = 0;
+            if (!it->second.IsScalar() || !YAML::convert<int>::decode(it->second, value) || value < 1)
+            {
+                scan_err << "Grid Scanner:  number of grid points for parameter \"" << key
+                         << "\" in grid_pts must be a positive integer." << scan_end;
+            }
 
             int matched_index = -1;
             for (int i = 0; i < ma; ++i)
@@ -112,7 +118,7 @@ scanner_plugin(grid, version(1, 0, 0))
                 scan_err << "Grid Scanner:  parameter \"" << key
                          << "\" listed in grid_pts is not a scanned parameter." << scan_end;
             }
-            else if (N[matched_index] != -1)
+            else if (N[matched_index] != 0)
             {
                 scan_err << "Grid Scanner:  parameter \"" << key
                          << "\" is specified more than once in grid_pts." << scan_end;
@@ -123,25 +129,16 @@ scanner_plugin(grid, version(1, 0, 0))
             }
         }
 
+        int NTot = 1;
+
         for (int i = 0; i < ma; ++i)
         {
-            if (N[i] == -1)
+            if (N[i] == 0)
             {
                 scan_err << "Grid Scanner:  number of grid points for parameter \"" << params[i]
                          << "\" is not specified in grid_pts." << scan_end;
-                N[i] = 1;
             }
-        }
-
-        int NTot = 1;
-
-        for (auto it = N.begin(), end = N.end(); it != end; it++)
-        {
-            if (*it < 0)
-                *it = -*it;
-            else if (*it == 0)
-                *it = 1;
-            NTot *= *it;
+            NTot *= N[i];
         }
 
         if (rank == 0)
@@ -149,7 +146,7 @@ scanner_plugin(grid, version(1, 0, 0))
             std::cout << "Grid Scanner:  parameter -> number of grid points mapping:" << std::endl;
             for (int i = 0; i < ma; ++i)
             {
-                std::cout << "    " << params[i] << " -> " << N[i] << std::endl;                
+                std::cout << "    " << params[i] << " -> " << N[i] << std::endl;
             }
         }
 

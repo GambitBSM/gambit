@@ -27,14 +27,13 @@ class Grid(splug.scanner):
 Python implimentation of a simple grid scanner.  Evaluation points along a user-defined grid.
 
 YAML options:
-    grid_pts:       A YAML map from "<model>::<param>" to integer, giving
-                    the number of grid points along each axis.  Every
+    grid_pts:       A YAML map from "<model>::<param>" to a positive integer,
+                    giving the number of grid points along each axis.  Every
                     scanned parameter must appear as a key.  Example:
                       grid_pts:
                         NormalDist::mu: 5
                         NormalDist::sigma: 3
     like:           Use the functors that correspond to the specified purpose.
-    parameters:     Specifies the order of parameters that corresponds to the grid points specified by the tag "grid_pts".
 """
 
     # This specifies the version number.
@@ -43,7 +42,7 @@ YAML options:
     # All the inifile options are passed into the construct as arguments.
     # Optionally, you can interface directly with ScannerBit to get this.
     # A Constructor that takes in arguments is required.
-    def __init__(self, grid_pts=10, parameters=[], **options):
+    def __init__(self, grid_pts=None, **options):
         
         super().__init__(use_mpi=True, use_resume=False)
 
@@ -74,7 +73,7 @@ YAML options:
         if not isinstance(grid_pts, dict):
             raise RuntimeError(
                 "Grid scanner: \"grid_pts\" must be a YAML map from "
-                "\"<model>::<param>\" to integer, e.g.\n"
+                "\"<model>::<param>\" to a positive integer, e.g.\n"
                 "    grid_pts:\n"
                 "      NormalDist::mu: 5\n"
                 "      NormalDist::sigma: 3")
@@ -84,44 +83,46 @@ YAML options:
         # # Get the parameters names from the prior:
         # param_names = splug.get_prior().getShownParameters()
 
-        # Helper: splits a (possibly "+"-joined) shown parameter name into
-        # its constituent names, mirroring parse_sames() in the C++ grid
-        # scanner.  This lets users reference any one name of a "same_as"
-        # group when keying grid_pts.
-        def _name_set(joined):
-            return set(joined.split("+"))
+        # Map each parameter name to its index in param_names.  A shown
+        # parameter name may be a "+"-joined group of "same_as" parameters
+        # (mirroring parse_sames() in the C++ grid scanner), so any one name
+        # in such a group can be used as a key in grid_pts.
+        index_of = {name: i for i, joined in enumerate(param_names)
+                    for name in joined.split("+")}
 
         N = [None] * self.dim
 
         for key, value in grid_pts.items():
-            matched_index = None
-            for i, joined in enumerate(param_names):
-                if key in _name_set(joined):
-                    matched_index = i
-                    break
-            if matched_index is None:
+            if not isinstance(value, int) or value < 1:
+                raise RuntimeError(
+                    "Grid scanner: number of grid points for parameter "
+                    "\"{0}\" in grid_pts must be a positive integer.".format(key))
+            i = index_of.get(key)
+            if i is None:
                 raise RuntimeError(
                     "Grid scanner: parameter \"{0}\" listed in grid_pts "
                     "is not a scanned parameter.".format(key))
-            if N[matched_index] is not None:
+            if N[i] is not None:
                 raise RuntimeError(
                     "Grid scanner: parameter \"{0}\" is specified more "
                     "than once in grid_pts.".format(key))
-            N[matched_index] = int(value)
+            N[i] = value
 
-        for i, joined in enumerate(param_names):
-            if N[i] is None:
+        for joined, n in zip(param_names, N):
+            if n is None:
                 raise RuntimeError(
                     "Grid scanner: number of grid points for parameter "
                     "\"{0}\" is not specified in grid_pts.".format(joined))
 
         if self.mpi_rank == 0:
-            print("Grid scanner: parameter -> number of grid points mapping:")
+            print("Grid scanner: parameter -> number of grid points mapping:", flush=True)
             for joined, n in zip(param_names, N):
-                print("    {0} -> {1}".format(joined, n))
+                print("    {0} -> {1}".format(joined, n), flush=True)
 
-        self.size = int(np.prod(np.asarray(N)))
-        self.vecs = [np.linspace(0.0, 1.0, n) for n in N]
+        self.size = int(np.prod(N))
+        # A parameter with a single grid point is sampled at the centre of
+        # its range, as in the C++ grid scanner.
+        self.vecs = [np.linspace(0.0, 1.0, n) if n > 1 else np.array([0.5]) for n in N]
 
     # This runs the scanner.  This method is required.
     def run(self):
