@@ -46,10 +46,23 @@ files, and a C++ MARTY smoke-test target.
   `gum/contrib/MARTY/install`.
 - Adds a `marty_test` executable. CMake substitutes the MARTY install path into
   a generated source file, links the MARTY libraries, and makes generation
-  depend on the MARTY external project.
+  depend on the MARTY external project. The test target now uses C++23 to match
+  MARTY's configured standard.
 - Adds [gum/src/marty_test.cpp](./gum/src/marty_test.cpp), which constructs a
   sample gauge model, computes a tree-level amplitude and squared amplitude,
   and asks MARTY to build a generated library.
+
+### Build warnings and crash fix
+
+- Sets CMake policy `CMP0135` to `NEW` when available. This removes CMake
+  developer warnings about archive extraction timestamps for URL-based
+  external projects without requiring a newer minimum CMake version.
+- A debug build emitted no C++ compiler warnings. GDB traced the earlier crash
+  to MARTY's abbreviation handling: `LibEval::name` was empty at runtime when
+  the C++17 test executable used MARTY's C++23 library, so a non-abbreviation
+  name was treated as one and overran a fixed-size buffer. Setting the test
+  target to C++23 to match MARTY resolves the crash without modifying MARTY's
+  source.
 
 ## Merge conflict resolution
 
@@ -86,18 +99,24 @@ suite. Build it with:
 cmake --build gum/build --target marty_test -j2
 ```
 
-Run it from the GUM directory so its generated output is written there, and
-provide MARTY's installed shared libraries to the dynamic loader:
+Run it from the GUM directory using the wrapper. By default it runs
+`build/marty_test`; you can optionally provide a different executable path:
 
 ```bash
 cd gum
-LD_LIBRARY_PATH="$(pwd)/contrib/MARTY/install/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
-  ./build/marty_test
+./run_marty_test.sh
+# or
+./run_marty_test.sh ./build/my_marty_executable
 ```
 
-In the current environment, `marty_test` builds but crashes in MARTY's library
-generation code after calculating the squared amplitude; successful compilation
-does not yet mean this smoke test passes.
+MARTY's generated library links against `-looptools`, while its installation
+provides `libooptools.so`. The wrapper creates a temporary `liblooptools.so`
+compatibility symlink and sets both `LIBRARY_PATH` (for MARTY's generated
+compile/link step) and `LD_LIBRARY_PATH` (for runtime loading). It removes the
+temporary symlink when the test exits.
+
+The test completed successfully in the current environment after the C++23
+target-standard change.
 
 ## Files changed
 

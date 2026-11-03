@@ -17,6 +17,10 @@
 #
 #  **************************************
 
+if(POLICY CMP0135)
+  cmake_policy(SET CMP0135 NEW)
+endif()
+
 add_custom_target(nuke-contrib)
 add_custom_target(clean-contrib)
 
@@ -208,11 +212,9 @@ add_custom_command(
   DEPENDS MARTY
   VERBATIM)
 add_executable(marty_test src/marty_test_patched.cpp)
-set_property(TARGET marty_test PROPERTY CXX_STANDARD 17)
+set_property(TARGET marty_test PROPERTY CXX_STANDARD 23)
 target_include_directories(marty_test PUBLIC ${install_dir}/include)
 #target_link_directories(marty_test PUBLIC ${install_dir}/lib/)
 target_link_libraries(marty_test PUBLIC ${install_dir}/lib/libmarty.so)
 target_link_libraries(marty_test PUBLIC ${install_dir}/lib/libooptools.so)
 #target_link_libraries(marty_test PUBLIC ${install_dir}/lib/libcsl.so)
-
-
