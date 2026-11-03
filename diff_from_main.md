@@ -51,6 +51,54 @@ files, and a C++ MARTY smoke-test target.
   sample gauge model, computes a tree-level amplitude and squared amplitude,
   and asks MARTY to build a generated library.
 
+## Merge conflict resolution
+
+The merge conflict in [gum/CMakeLists.txt](./gum/CMakeLists.txt) was resolved
+by preserving the `itch_Mathematica` conditional while adopting CMake's
+`Python3_*` variables for Boost.Python component selection and library linking.
+This keeps the Mathematica-free GUM configuration while using the Python 3
+configuration introduced on the other side of the merge. Configuration was
+verified with:
+
+```bash
+cmake -S gum -B gum/build -Ditch_Mathematica=ON
+```
+
+## Building and running the tests
+
+Build MARTY (including its test executables) from the repository root:
+
+```bash
+cmake --build gum/build --target MARTY -j2
+```
+
+Run MARTY's unit tests with CTest's `units` label:
+
+```bash
+ctest --test-dir gum/build/MARTY-prefix/src/MARTY-build \
+  -L units --output-on-failure
+```
+
+The GUM `marty_test` target is a separate smoke test, not part of that unit-test
+suite. Build it with:
+
+```bash
+cmake --build gum/build --target marty_test -j2
+```
+
+Run it from the GUM directory so its generated output is written there, and
+provide MARTY's installed shared libraries to the dynamic loader:
+
+```bash
+cd gum
+LD_LIBRARY_PATH="$(pwd)/contrib/MARTY/install/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+  ./build/marty_test
+```
+
+In the current environment, `marty_test` builds but crashes in MARTY's library
+generation code after calculating the squared amplitude; successful compilation
+does not yet mean this smoke test passes.
+
 ## Files changed
 
 | File | Change |
