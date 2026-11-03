@@ -99,14 +99,29 @@ suite. Build it with:
 cmake --build gum/build --target marty_test -j2
 ```
 
+For a clean end-to-end rebuild that checks build output for warnings, runs
+MARTY's unit tests, and then runs the GUM smoke test, use:
+
+```bash
+cd gum
+./test_marty.sh
+```
+
+This removes `gum/build` and `gum/contrib/MARTY/install`, but keeps the MARTY
+source checkout. It configures MARTY as a Debug build so warning checks stay
+enabled without the GCC 12 Release-only `-Wrestrict` diagnostics seen in this
+environment. Set `JOBS` to control parallel build jobs, for example
+`JOBS=4 ./test_marty.sh`. If it fails, the script retains its logs and reports
+their temporary directory.
+
 Run it from the GUM directory using the wrapper. By default it runs
 `build/marty_test`; you can optionally provide a different executable path:
 
 ```bash
 cd gum
-./run_marty_test.sh
+./run_marty_executable.sh
 # or
-./run_marty_test.sh ./build/my_marty_executable
+./run_marty_executable.sh ./build/my_marty_executable
 ```
 
 MARTY's generated library links against `-looptools`, while its installation

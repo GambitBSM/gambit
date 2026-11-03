@@ -195,6 +195,7 @@ ExternalProject_Add(
   COMMAND mkdir -p ${install_dir}
   CMAKE_ARGS 
     -DCMAKE_INSTALL_PREFIX=${install_dir}
+    -DCMAKE_BUILD_TYPE=Debug
     -DCMAKE_CXX_STANDARD=23
     -DCMAKE_CXX_STANDARD_REQUIRED=ON
     -DCMAKE_CXX_EXTENSIONS=OFF
