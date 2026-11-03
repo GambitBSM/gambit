@@ -70,8 +70,8 @@
 #cmakedefine MATHEMATICA_WSTP_VERSION_MINOR @Mathematica_WSTP_VERSION_MINOR@
 
 /// Python version info
-#cmakedefine PYTHON_VERSION_MAJOR @PYTHON_VERSION_MAJOR@
-#cmakedefine PYTHON_VERSION_MINOR @PYTHON_VERSION_MINOR@
+#define PYTHON_VERSION_MAJOR @Python3_VERSION_MAJOR@
+#define PYTHON_VERSION_MINOR @Python3_VERSION_MINOR@
 
 /// Found/installed pybind11
 #cmakedefine HAVE_PYBIND11 1
