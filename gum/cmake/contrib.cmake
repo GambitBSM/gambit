@@ -29,7 +29,7 @@ function(add_contrib_clean_and_nuke package dir)
   set(stamp_path "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-stamp/${package}")
   set(build_path "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-build")
   set(clean_stamps ${stamp_path}-configure ${stamp_path}-build ${stamp_path}-install ${stamp_path}-done)
-  set(nuke_stamps ${stamp_path}-download ${stamp_path}-mkdir ${stamp_path}-patch ${stamp_path}-update)
+  set(nuke_stamps ${stamp_path}-download ${stamp_path}-mkdir ${stamp_path}-patch ${stamp_path}-update ${stamp_path}-gitclone-lastrun.txt)
   add_custom_target(clean-${package} COMMAND ${CMAKE_COMMAND} -E remove -f ${clean_stamps}
                                      COMMAND [ -e ${dir} ] && cd ${dir} && ([ -e makefile ] || [ -e Makefile ] && ${CMAKE_MAKE_PROGRAM} clean) || true
                                    COMMAND [ -e ${build_path} ] && cd ${build_path} && ([ -e makefile ] || [ -e Makefile ] && ${CMAKE_MAKE_PROGRAM} clean) || true)
@@ -180,29 +180,49 @@ ExternalProject_Add(
 )
 add_extra_targets(${name} ${dir})
 
-# Download MARTY-latest
+# Download MARTY-latest-cpp23
 set(name "MARTY")
 set(dir "${CMAKE_SOURCE_DIR}/contrib/${name}")
 set(install_dir "${CMAKE_SOURCE_DIR}/contrib/${name}/install")
 set(MARTY_DIR ${dir})
 set(MARTY_VERSION "making_lualatex_optional")
-ExternalProject_Add(
-  MARTY
-  GIT_REPOSITORY https://github.com/docbrown1955/marty-public.git
-  GIT_TAG ${MARTY_VERSION}          # always get latest commit on MARTY_VERSION branch
+set(MARTY_EXTERNALPROJECT_ARGS
   SOURCE_DIR ${dir}
   PATCH_COMMAND ""
   COMMAND mkdir -p ${install_dir}
-  CMAKE_ARGS 
+  CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX=${install_dir}
     -DCMAKE_BUILD_TYPE=Debug
     -DCMAKE_CXX_STANDARD=23
     -DCMAKE_CXX_STANDARD_REQUIRED=ON
     -DCMAKE_CXX_EXTENSIONS=OFF
-  # BUILD_COMMAND ${CMAKE_COMMAND} --build ${dir}/build
-  # INSTALL_COMMAND ${CMAKE_COMMAND} --install ${dir}/build
+    -DCMAKE_INSTALL_RPATH=${install_dir}/lib
 )
+if(GUM_MARTY_ALREADY_INSTALLED)
+  message(STATUS "Using existing MARTY installation; skipping download and install steps.")
+  ExternalProject_Add(
+    MARTY
+    DOWNLOAD_COMMAND ""
+    UPDATE_COMMAND ""
+    INSTALL_COMMAND ""
+    ${MARTY_EXTERNALPROJECT_ARGS}
+  )
+else()
+  ExternalProject_Add(
+    MARTY
+    GIT_REPOSITORY https://github.com/docbrown1955/marty-public.git
+    GIT_TAG ${MARTY_VERSION}
+    GIT_SHALLOW TRUE
+    UPDATE_COMMAND ""
+    ${MARTY_EXTERNALPROJECT_ARGS}
+  )
+endif()
 add_extra_targets(${name} ${dir})
+
+add_custom_target(nuke-marty_test
+  COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/marty_test
+  COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_SOURCE_DIR}/src/marty_test_patched.cpp)
+add_dependencies(nuke-all nuke-marty_test)
 
 # Add a MARTY test script
 add_custom_command(
@@ -215,7 +235,9 @@ add_custom_command(
 add_executable(marty_test src/marty_test_patched.cpp)
 set_property(TARGET marty_test PROPERTY CXX_STANDARD 23)
 target_include_directories(marty_test PUBLIC ${install_dir}/include)
-#target_link_directories(marty_test PUBLIC ${install_dir}/lib/)
-target_link_libraries(marty_test PUBLIC ${install_dir}/lib/libmarty.so)
-target_link_libraries(marty_test PUBLIC ${install_dir}/lib/libooptools.so)
-#target_link_libraries(marty_test PUBLIC ${install_dir}/lib/libcsl.so)
+target_link_directories(marty_test PUBLIC ${install_dir}/lib)
+target_link_libraries(marty_test PUBLIC marty ooptools)
+set_target_properties(marty_test PROPERTIES
+  BUILD_RPATH "${install_dir}/lib"
+  INSTALL_RPATH "${install_dir}/lib"
+)

@@ -107,10 +107,13 @@ cd gum
 ./test_marty.sh
 ```
 
-This removes `gum/build` and `gum/contrib/MARTY/install`, but keeps the MARTY
-source checkout. It configures MARTY as a Debug build so warning checks stay
-enabled without the GCC 12 Release-only `-Wrestrict` diagnostics seen in this
-environment. Set `JOBS` to control parallel build jobs, for example
+This removes `gum/build` but preserves the MARTY installation and source
+checkout. If the installation is complete, the script skips MARTY's download
+and install steps while building its unit tests from the existing checkout.
+Otherwise it downloads and installs MARTY. It configures MARTY as a Debug
+build so warning checks stay enabled without the GCC 12 Release-only
+`-Wrestrict` diagnostics seen in this environment. Set `JOBS` to control
+parallel build jobs, for example
 `JOBS=4 ./test_marty.sh`. If it fails, the script retains its logs and reports
 their temporary directory.
 
