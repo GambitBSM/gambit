@@ -176,29 +176,26 @@ ExternalProject_Add(
 )
 add_extra_targets(${name} ${dir})
 
-# Download MARTY
+# Download MARTY-latest
 set(name "MARTY")
 set(dir "${CMAKE_SOURCE_DIR}/contrib/${name}")
 set(install_dir "${CMAKE_SOURCE_DIR}/contrib/${name}/install")
-set(ver "1.6-beta")
-#set(ver "1.5")
-set(dl https://github.com/docbrown1955/marty-public/archive/refs/heads/master.zip)
-#set(dl https://github.com/docbrown1955/marty-public/archive/refs/tags/v${ver}.tar.gz)
-set(md5 "1491ce8bb92550ae28e4506f9bd4a92c")
-#set(md5 "18aa0347f56aacafbd8eb4db701d4a04")
 set(MARTY_DIR ${dir})
-set(MARTY_VERSION ${ver})
+set(MARTY_VERSION "making_lualatex_optional")
 ExternalProject_Add(
   MARTY
-  URL ${dl}
-  URL_MD5 ${md5}
+  GIT_REPOSITORY https://github.com/docbrown1955/marty-public.git
+  GIT_TAG ${MARTY_VERSION}          # always get latest commit on MARTY_VERSION branch
   SOURCE_DIR ${dir}
   PATCH_COMMAND ""
   COMMAND mkdir -p ${install_dir}
-  #CONFIGURE_COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${install_dir} ${dir}/
-  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${install_dir}
-  #BUILD_COMMAND ${MAKE_PARALLEL}
-  #INSTALL_COMMAND ${MAKE_PARALLEL} install
+  CMAKE_ARGS 
+    -DCMAKE_INSTALL_PREFIX=${install_dir}
+    -DCMAKE_CXX_STANDARD=23
+    -DCMAKE_CXX_STANDARD_REQUIRED=ON
+    -DCMAKE_CXX_EXTENSIONS=OFF
+  # BUILD_COMMAND ${CMAKE_COMMAND} --build ${dir}/build
+  # INSTALL_COMMAND ${CMAKE_COMMAND} --install ${dir}/build
 )
 add_extra_targets(${name} ${dir})
 
