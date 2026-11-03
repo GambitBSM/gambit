@@ -663,6 +663,22 @@ foreach(bit ${GAMBIT_BITS})
   add_dependencies(${bit} contrib)
 endforeach()
 
+# Older Boost.uBLAS (e.g. 1.74) calls std::allocator::construct, which was removed in C++20. If a uBLAS matrix
+# does not compile with the standard chosen above, build FlavBit (the module that uses it) as C++17 instead.
+if(TARGET FlavBit AND NOT GAMBIT_SUPPORTS_CXX17)
+  include(CheckCXXSourceCompiles)
+  set(CMAKE_REQUIRED_INCLUDES "${Boost_INCLUDE_DIR}")
+  check_cxx_source_compiles("
+    #include <boost/numeric/ublas/matrix.hpp>
+    int main() { boost::numeric::ublas::matrix<double> m(2, 2); return 0; }"
+    UBLAS_WORKS_WITH_DEFAULT_CXX_STANDARD)
+  unset(CMAKE_REQUIRED_INCLUDES)
+  if(NOT UBLAS_WORKS_WITH_DEFAULT_CXX_STANDARD)
+    message(STATUS "Boost.uBLAS is incompatible with the default C++ standard; compiling FlavBit with -std=c++17")
+    target_compile_options(FlavBit PRIVATE -std=c++17)
+  endif()
+endif()
+
 # Make the collider_harvest step a dependency of ColliderBit
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   # ColliderBit depends on METSignificance
