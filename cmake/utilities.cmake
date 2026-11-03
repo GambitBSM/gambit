@@ -267,7 +267,7 @@ macro(add_gambit_custom target filename HARVESTER DEPS)
   # command changes, so that the harvesters rerun when e.g. the -Ditch list changes,
   # but not after every reconfiguration (as a dependency on CMakeCache.txt would cause).
   set(harvester_options_stamp ${CMAKE_BINARY_DIR}/${target}_options.stamp)
-  file(WRITE ${harvester_options_stamp}.candidate "${PYTHON_EXECUTABLE} ${${HARVESTER}} ${ditch_string}\n")
+  file(WRITE ${harvester_options_stamp}.candidate "${Python3_EXECUTABLE} ${${HARVESTER}} ${ditch_string}\n")
   execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
                   ${harvester_options_stamp}.candidate ${harvester_options_stamp})
   file(REMOVE ${harvester_options_stamp}.candidate)
@@ -447,7 +447,7 @@ function(add_standalone executablename)
     # command changes, so that the functors source is regenerated when e.g. the module list
     # changes, but not after every reconfiguration (as a dependency on CMakeCache.txt would cause).
     set(facilitator_options_stamp ${CMAKE_BINARY_DIR}/functors_for_${executablename}_options.stamp)
-    file(WRITE ${facilitator_options_stamp}.candidate "${PYTHON_EXECUTABLE} ${STANDALONE_FACILITATOR} ${executablename} -m __not_a_real_name__,${COMMA_SEPARATED_MODULES}\n")
+    file(WRITE ${facilitator_options_stamp}.candidate "${Python3_EXECUTABLE} ${STANDALONE_FACILITATOR} ${executablename} -m __not_a_real_name__,${COMMA_SEPARATED_MODULES}\n")
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     ${facilitator_options_stamp}.candidate ${facilitator_options_stamp})
     file(REMOVE ${facilitator_options_stamp}.candidate)

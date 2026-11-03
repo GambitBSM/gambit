@@ -320,9 +320,9 @@ if(NOT EXCLUDE_YODA)
   set_compiler_warning("no-unused-parameter" YODA_CXX_FLAGS)
   set_compiler_warning("no-deprecated-copy" YODA_CXX_FLAGS)
   set_compiler_warning("no-implicit-fallthrough" YODA_CXX_FLAGS)
-  set(YODA_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
+  set(YODA_PY_PATH "${dir}/local/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages")
   #TODO (TP Dec 23): Bodge to cover different forms of python install: would be good to be able to autodetect
-  set(YODA_ALT_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/dist-packages")
+  set(YODA_ALT_PY_PATH "${dir}/local/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/dist-packages")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
   # If cython is not installed disable the python extension
   gambit_find_python_module(cython)
