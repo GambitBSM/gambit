@@ -104,7 +104,7 @@ scanner_plugin(jswarm, version(1, 0, 0))
     swarm.convsteps           = get_inifile_value<int>   ("convsteps",          10);     // Number of steps to smooth over when checking convergence
     swarm.savecount           = get_inifile_value<int>   ("savecount",          1);      // Save progress every savecount generations
     swarm.init_pop_strategy   = get_inifile_value<int>   ("init_population_strategy", 2);// Initialisation strategy: 0=one shot, 1=n-shot, 2=n-shot with error if no valid vectors found.
-    swarm.init_stationary     = get_inifile_value<bool>  ("init_stationary", false);     // Initialise particle velocities to to zero
+    swarm.init_stationary     = get_inifile_value<bool>  ("init_stationary", false);     // Initialise particle velocities to zero
     swarm.max_ini_attempts    = get_inifile_value<int>   ("max_initialisation_attempts", 10000); // Maximum number of times to try to find a valid vector for each slot in the initial population.
     swarm.min_acceptable_value= get_inifile_value<double>("min_acceptable_value",0.9999*gl0); // Minimum function value to accept for the initial generation if init_population_strategy > 0.
     swarm.verbose             = get_inifile_value<int>   ("verbosity",          1);      // Output verbosity: 0=only error messages, 1=basic info, 2=generation-level info, 3+=particle-level info

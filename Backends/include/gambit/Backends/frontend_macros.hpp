@@ -31,7 +31,7 @@
 #include "gambit/Backends/backend_singleton.hpp"
 
 
-/// Indicate that this is all occuring in some compile unit other than the main executable.
+/// Indicate that this is all occurring in some compile unit other than the main executable.
 #define BACKEND_SPECIFIC_COMPILE_UNIT 1
 
 /// Dependency macro for point-level backend initialisation functions (in BackendIniBit)

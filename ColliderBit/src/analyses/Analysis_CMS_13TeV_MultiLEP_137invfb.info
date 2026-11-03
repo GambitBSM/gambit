@@ -1,0 +1,8 @@
+Summary: CMS 3/4-lepton (<=2 hadronic tau / 2-SS-lepton) search at 13 TeV with 137/fb
+InspireID: 1872976
+ExptRun: CMS-R2
+Lumi_ifb: 137.0
+Ecm_TeV: 13.0
+Signatures: ["=2L2 + 0TH + 2SSL + 0DY + <=1J + MET", ">=3L3 + <=2TH + MET"]
+Notes: SR binning in MT2.
+Authors: ["Tomas Gonzalo"]

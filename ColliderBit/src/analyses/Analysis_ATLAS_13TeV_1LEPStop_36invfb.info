@@ -1,0 +1,11 @@
+Summary: ATLAS 1-lepton + jets + MET top-squark pair search at 13 TeV using 36/fb
+InspireID: 1639856
+ExptRun: ATLAS-R2
+Lumi_ifb: 36.0
+Ecm_TeV: 13.0
+Signatures: ["1L + >=4J + >=1B + MET", "1L + >=4J + >=1B + MET", "1L + >=5J + >=1B + MET",
+             "1L + >=2J + >=1B + MET", "1L + >=4J + >=2B + MET", "1L + >=2J + 0B + MET",
+             "1L + >=3J + >=3B + MET", "1L + >=2J + >=2B + MET"]
+Keywords: ["bdt", "soft lepton", "mT2"]
+Aurthors: ["Martin White"]
+Note: 3rd signal region uses >4/5 GeV leptons. Various BDTs and shape fits involved. Not used.

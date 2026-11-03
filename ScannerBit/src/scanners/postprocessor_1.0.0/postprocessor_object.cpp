@@ -780,7 +780,7 @@ namespace Gambit
                    or Gambit::Utils::startsWith(*it,(*jt)+"{")
                    or Gambit::Utils::startsWith(*it,(*jt)+"%")
                    or Gambit::Utils::startsWith(*it,(*jt)+"#")
-                 ) // if not [input data label] starts with [existing parameter] (plus append seperator character, for extra info like parameter name or index)
+                 ) // if not [input data label] starts with [existing parameter] (plus append separator character, for extra info like parameter name or index)
                {
                   // Then it is not new. Not allowed to copy this, the likelihood container is already printing it anew.
                   new_params.erase(*jt);
@@ -1295,7 +1295,7 @@ namespace Gambit
                  == retrieved_pars.end())
              {
                 std::ostringstream err;
-                err << "Error! Reader could not retrieve the required paramater '"<<par<<"' for the model '"<<model<<"' from the supplied data file! Please check that this parameter indeed exists in that file." << std::endl;
+                err << "Error! Reader could not retrieve the required parameter '"<<par<<"' for the model '"<<model<<"' from the supplied data file! Please check that this parameter indeed exists in that file." << std::endl;
                 Scanner::scan_error().raise(LOCAL_INFO,err.str());
              }
 

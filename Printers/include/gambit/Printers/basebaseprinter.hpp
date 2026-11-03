@@ -197,7 +197,7 @@ namespace Gambit
 
         /// Same for overloaded function
         template<typename T>
-        void _print(T const& in, const std::string& label,
+        void _print(T const& /*in*/, const std::string& label,
                     const uint rank,
                     const ulong pointID)
         {

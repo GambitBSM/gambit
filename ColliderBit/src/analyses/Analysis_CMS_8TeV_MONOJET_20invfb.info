@@ -1,0 +1,7 @@
+Summary: CMS monojet + MET search at 8 TeV with 20/fb
+InspireID: 1311223
+ExptRun: CMS-R1.5
+Lumi_ifb: 19.7
+Ecm_TeV: 8.0
+Signatures: ["MET + >=1J + <3J + 0L"]
+Keywords: ["darkmatter", "extradims", "unparticles"]

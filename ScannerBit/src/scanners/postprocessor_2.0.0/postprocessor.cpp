@@ -227,7 +227,7 @@ scanner_plugin(postprocessor, version(2, 0, 0))
     #ifdef WITH_MPI
     GMPI::Comm ppComm;
     ppComm.dup(MPI_COMM_WORLD,"PostprocessorComm"); // duplicates MPI_COMM_WORLD
-    // Message tag definitons in PPDriver class:
+    // Message tag definitions in PPDriver class:
     #endif
 
     /// Determine what data needs to be copied from the input file to the new output dataset

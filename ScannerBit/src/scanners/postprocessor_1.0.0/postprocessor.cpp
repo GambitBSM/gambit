@@ -192,7 +192,7 @@ scanner_plugin(postprocessor, version(1, 0, 0))
     #ifdef WITH_MPI
     GMPI::Comm ppComm;
     ppComm.dup(MPI_COMM_WORLD,"PostprocessorComm"); // duplicates MPI_COMM_WORLD
-    // Message tag definitons in PPDriver class:
+    // Message tag definitions in PPDriver class:
     #endif
 
     /// Determine what data needs to be copied from the input file to the new output dataset
@@ -305,7 +305,7 @@ scanner_plugin(postprocessor, version(1, 0, 0))
             int my_finished = (I_am_finished ? 1 : 0); // convert to int in a way that prevents unused-variable warnings
             std::vector<int> all_finished = allgather_int(my_finished, ppComm);
             bool everyone_finished = true;
-            int tmp_rank = 0;
+            // int tmp_rank = 0;
             for(auto it=all_finished.begin(); it!=all_finished.end(); ++it)
             {
                if(*it!=1)
@@ -313,7 +313,7 @@ scanner_plugin(postprocessor, version(1, 0, 0))
                   //std::cout << "Rank "<<rank<<": rank "<<tmp_rank<<" is not finished ("<<*it<<")"<<std::endl;
                   everyone_finished = false; // If anyone has not finished, we proceed with redistribution.
                }
-               tmp_rank++;
+               // tmp_rank++;
             }
             /// @}
 

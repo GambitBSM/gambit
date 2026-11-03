@@ -237,6 +237,30 @@ namespace Gambit
        return (*p == 0) ;
     }
 
+    /// Wrappers of all_of, any_of and none_of using vectors
+    bool all_of(const std::vector<bool>& vec)
+    {
+      return std::all_of(vec.begin(), vec.end(), [](bool x) { return x; });
+    }
+
+    bool any_of(const std::vector<bool>& vec)
+    {
+      return std::any_of(vec.begin(), vec.end(), [](bool x) { return x; });
+    }
+
+    bool none_of(const std::vector<bool>& vec)
+    {
+      return std::none_of(vec.begin(), vec.end(), [](bool x) { return x; });
+    }
+
+    /// Perform outer product of two vectors
+    std::vector<double> outer_product(const std::vector<double>& v1, const std::vector<double>& v2)
+    {
+      std::vector<double> result;
+      for(auto &el1 : v1) for(auto &el2: v2) result.push_back(el1*el2);
+      return result;
+    }
+
     /// Copy a std::string to a character array, stripping the null termination character.  Good for sending to Fortran.
     void strcpy2f(char* arr, int len, str s)
     {
@@ -330,8 +354,14 @@ namespace Gambit
     /// Get directory name from full path+filename (POSIX)
     std::string dir_name(const std::string& path)
     {
+       if(path.size() >= 1000)
+       {
+          std::string msg = "Utils::dir_name error: path length (" + std::to_string(path.size()) + ") exceeds buffer size (1000)!";
+          std::cerr << msg << std::endl;
+          abort();
+       }
        char buffer[1000]; // temporary buffer for dirname to work with (it is a C function)
-       path.copy(buffer, path.size()); //TODO: error if path.size()>1000
+       path.copy(buffer, path.size());
        buffer[path.size()] = '\0';
        std::string result = dirname(&buffer[0]); // should use the C function...
        return result;
@@ -340,8 +370,14 @@ namespace Gambit
     /// Get file name from full path+filename (POSIX)
     std::string base_name(const std::string& path)
     {
+       if(path.size() >= 1000)
+       {
+          std::string msg = "Utils::base_name error: path length (" + std::to_string(path.size()) + ") exceeds buffer size (1000)!";
+          std::cerr << msg << std::endl;
+          abort();
+       }
        char buffer[1000]; // temporary buffer for basename to work with (it is a C function)
-       path.copy(buffer, path.size()); //TODO: error if path.size()>1000
+       path.copy(buffer, path.size());
        buffer[path.size()] = '\0';
        std::string result = basename(&buffer[0]); // should use the C function...
        return result;
@@ -409,17 +445,15 @@ namespace Gambit
     bool check1(const std::string& s1, const std::string& s2)
     {
       if(s2.length() - s1.length() != 1){ return false; }
-      unsigned int i,j;
-      for(i=0,j=0; i<s2.length(); i++,j++)
+      unsigned int i = 0;
+      unsigned int j = 0;
+      while (i < s2.length() && j < s1.length()) 
       {
-          if(s2[i] == s1[j])
-          {/*do  nothing*/}
-          else if(i == j)
-          { j++;}
-          else
-          {return false;}
+        if (s2[i] == s1[j]) { i++; j++; } 
+        else { i++; } // Skip character in s2 only
       }
-      return true;
+      // If we reached the end of s1, it's a match
+      return (j == s1.length());
     }
 
     /// true if s1 can be obtained from s2 by changing no more than X characters (X=2 for now)
@@ -506,7 +540,7 @@ namespace Gambit
     {
       return tolower (c1) < tolower (c2);
     }
-        
+
   }
 
 }

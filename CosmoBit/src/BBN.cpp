@@ -147,7 +147,7 @@ namespace Gambit
       }
 
       // Tell AlterBBN how to the method and precision to solve the differential equations (->failsafe)
-      // and also tell it how thorough it should estimate the the theoretical uncertainties.
+      // and also tell it how thorough it should estimate the theoretical uncertainties.
       result["failsafe"] = runOptions->getValueOrDef<double>(7,"failsafe");
       result["err"] = runOptions->getValueOrDef<double>(1,"err");
 

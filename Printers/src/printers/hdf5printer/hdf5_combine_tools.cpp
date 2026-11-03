@@ -104,17 +104,17 @@ namespace Gambit
 
 
 
-            inline herr_t op_func (hid_t loc_id, const char *name_in, const H5L_info_t *,
+            inline herr_t op_func (hid_t loc_id, const char *name_in, const GAMBIT_H5L_INFO_T *,
                     void *operator_data)
             {
                 //herr_t          status;
                 herr_t          return_val = 0;
-                H5O_info_t      infobuf;
+                GAMBIT_H5O_INFO_T infobuf;
                 std::vector<std::string> &od = *static_cast<std::vector<std::string> *> (operator_data);
                 std::string name(name_in);
 
-                //status = H5Oget_info_by_name (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
-                H5Oget_info_by_name (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
+                //status = GAMBIT_H5OGET_INFO_BY_NAME (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
+                GAMBIT_H5OGET_INFO_BY_NAME (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
 
                 switch (infobuf.type)
                 {
@@ -144,17 +144,17 @@ namespace Gambit
                 return return_val;
             }
 
-            inline herr_t op_func_aux (hid_t loc_id, const char *name_in, const H5L_info_t *,
+            inline herr_t op_func_aux (hid_t loc_id, const char *name_in, const GAMBIT_H5L_INFO_T *,
                     void *operator_data)
             {
                 //herr_t          status;
                 herr_t          return_val = 0;
-                H5O_info_t      infobuf;
+                GAMBIT_H5O_INFO_T infobuf;
                 std::vector<std::string> &od = *static_cast<std::vector<std::string> *> (operator_data);
                 std::string name(name_in);
 
-                //status = H5Oget_info_by_name (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
-                H5Oget_info_by_name (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
+                //status = GAMBIT_H5OGET_INFO_BY_NAME (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
+                GAMBIT_H5OGET_INFO_BY_NAME (loc_id, name.c_str(), &infobuf, H5P_DEFAULT);
 
                 switch (infobuf.type)
                 {
@@ -306,7 +306,7 @@ namespace Gambit
                         errmsg << "  Number of files to be combined (num="<<num<<") is less than two! Therefore there is no combining to be done!"<<std::endl;
                         printer_error().raise(LOCAL_INFO, errmsg.str());
                     }
-                    std::cout << "  Running combination routines in 'custom' mode. Primary datasets from all specified files (in the specified group) will be concatenated. Auxilliary (\"random access\") datasets will be IGNORED! If you need auxilliary datasets to be merged into the primary datasets then please merge them in 'normal' mode." << std::endl;
+                    std::cout << "  Running combination routines in 'custom' mode. Primary datasets from all specified files (in the specified group) will be concatenated. Auxilliary (\"random access\") datasets will be IGNORED! If you need auxiliary datasets to be merged into the primary datasets then please merge them in 'normal' mode." << std::endl;
                     // TODO: It would actually be good to write out an extra dataset which records which points come from which files. Could just be an int, and could write out a txt file which gives the mapping from indices to input files. This is too much work for now though.
                 }
 
@@ -536,13 +536,9 @@ namespace Gambit
                                size_tot_l = size_tot + size; // Last?
                            //}
 
-                           for (auto it = valids.end()-1; size > 0; --it)
-                           {
-                               if (*it)
-                                   break;
-                               else
-                                   --size;
-                           }
+                           // Trim any trailing invalid points (size <= valids.size() ensured above)
+                           while (size > 0 && !valids[size-1])
+                               --size;
 
                            HDF5::closeSpace(dataspace);
                            HDF5::closeSpace(dataspace2);
@@ -703,7 +699,7 @@ namespace Gambit
                 if(size_tot==0 and aux_param_names.size()==0)
                 {
                     // If size_tot==0 then there are no primary sync datapoints in any of the temp files (or previous combined output)
-                    // If there are also no auxilliary datapoints found, then there is nothing to combine! Raise an error, because
+                    // If there are also no auxiliary datapoints found, then there is nothing to combine! Raise an error, because
                     // this is a weird situation, and the run would effectively be starting again anyway.
                     // TODO: Keep this? Someone could restart a run from old scanner data, but just have deleted all the old
                     // printer output. Not sure if we want to allow this or not.
@@ -713,10 +709,10 @@ namespace Gambit
                 }
                 else if(size_tot==0 and aux_param_names.size()!=0)
                 {
-                    // Ok now size_tot==0 AND there are auxillary datapoints to be combined. Currently we require primary
-                    // datapoints to exist in order to write auxilliary data to them.
+                    // Ok now size_tot==0 AND there are auxiliary datapoints to be combined. Currently we require primary
+                    // datapoints to exist in order to write auxiliary data to them.
                     std::ostringstream errmsg;
-                    errmsg << "Error combining HDF5 temporary data! No model points in primary (synchronised) datasets were found in the existing temporary files, however auxilliary datasets WERE found. Currently auxilliary datasets cannot be 'combined' with nothing, i.e. they must have a corresponding model point in a 'primary' dataset to which they should be associated. It is possible to loosen this requirement, so if you have written a scanner or likelihood container which writes only to auxillary datasets then please report this error and request the print system be upgraded. Otherwise this error indicates a bug, please report it." << std::endl;
+                    errmsg << "Error combining HDF5 temporary data! No model points in primary (synchronised) datasets were found in the existing temporary files, however auxiliary datasets WERE found. Currently auxiliary datasets cannot be 'combined' with nothing, i.e. they must have a corresponding model point in a 'primary' dataset to which they should be associated. It is possible to loosen this requirement, so if you have written a scanner or likelihood container which writes only to auxiliary datasets then please report this error and request the print system be upgraded. Otherwise this error indicates a bug, please report it." << std::endl;
                     printer_error().raise(LOCAL_INFO, errmsg.str());
                 }
                 // else everything is cool
@@ -804,13 +800,9 @@ namespace Gambit
                        ranks.push_back(valid_rank);
                        ptids.push_back(valid_ptid);
 
-                       for (auto it = valids.end()-1; size > 0; --it)
-                       {
-                           if (*it)
-                               break;
-                           else
-                               --size;
-                       }
+                       // Trim any trailing invalid points (size <= valids.size() ensured above)
+                       while (size > 0 && !valids[size-1])
+                           --size;
                        aux_sizes.push_back(size);
 
                        HDF5::closeSpace(dataspace);
@@ -992,6 +984,8 @@ namespace Gambit
                             // Close resources
                             HDF5::closeDataset(dataset_out);
                             HDF5::closeDataset(dataset2_out);
+                            H5Tclose(type);
+                            H5Tclose(type2);
 
                             // Move offset so that next batch is written to correct place in output file
                             offset += batch_size_tot + pc_offset;
@@ -1058,7 +1052,7 @@ namespace Gambit
                       counter = 1; //reset counter
                       for (auto it = aux_param_names.begin(), end = aux_param_names.end(); it != end; ++it, ++counter)
                       {
-                          std::cout << "  Combining auxilliary datasets... "<<int(100*counter/aux_param_names.size())<<"%    (merged "<<counter<<" parameters of "<<aux_param_names.size()<<")         \r"<<std::flush;
+                          std::cout << "  Combining auxiliary datasets... "<<int(100*counter/aux_param_names.size())<<"%    (merged "<<counter<<" parameters of "<<aux_param_names.size()<<")         \r"<<std::flush;
                           std::vector<hid_t> file_ids, group_ids, datasets, datasets2;
                           int valid_dset  = -1; // index of a validly opened dataset (-1 if none)
 
@@ -1152,6 +1146,8 @@ namespace Gambit
                              }
                              // Create new dataset
                              setup_hdf5_points(new_group, type, type2, size_tot, *it);
+                             if(type>=0)  H5Tclose(type);
+                             if(type2>=0) H5Tclose(type2);
                           }
                           // Reopen output datasets for copying
                           hid_t dataset_out  = HDF5::openDataset(new_group, *it);
@@ -1168,11 +1164,11 @@ namespace Gambit
                               if(file_ids[i]>=0)  HDF5::closeFile(file_ids[i]);
                           }
                       }
-                      std::cout << "  Combining auxilliary datasets... Done.                 "<<std::endl;
+                      std::cout << "  Combining auxiliary datasets... Done.                 "<<std::endl;
                    }
                    else
                    {
-                      std::cout << "  Combining auxilliary datasets... None found, skipping. "<<std::endl;
+                      std::cout << "  Combining auxiliary datasets... None found, skipping. "<<std::endl;
                    }
                 }
 
@@ -1307,6 +1303,7 @@ namespace Gambit
 
                             // Close resources
                             HDF5::closeDataset(dataset_out);
+                            H5Tclose(type);
 
                             // Move offset so that next batch is written to correct place in output file
                             offset += batch_size_tot + pc_offset;
@@ -1487,7 +1484,7 @@ namespace Gambit
                if( left_to_match.size() > 0 )
                {
                    std::ostringstream errmsg;
-                   errmsg << "Error generating hash map for Auxilliary parameter copy! Failed to find matches in primary datasets for all auxilliary data! There were "<<left_to_match.size()<<" unmatched auxilliary points. Unmatched points follow:" << std::endl;
+                   errmsg << "Error generating hash map for Auxilliary parameter copy! Failed to find matches in primary datasets for all auxiliary data! There were "<<left_to_match.size()<<" unmatched auxiliary points. Unmatched points follow:" << std::endl;
                    for(auto it=left_to_match.begin(); it!=left_to_match.end(); ++it)
                    {
                       errmsg << "  rank: "<<it->rank<<", pointID: "<<it->pointID<< std::endl;

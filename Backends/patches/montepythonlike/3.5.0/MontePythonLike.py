@@ -2406,7 +2406,7 @@ class Likelihood_mpk(Likelihood):
         The purpose of this method is to set some attributes globally for a Pk
         likelihood, that are shared amongst all the redshift bins (in
         WiggleZ.data for instance, a few flags and numbers are defined that
-        will be transfered to wigglez_a, b, c and d
+        will be transferred to wigglez_a, b, c and d
 
         """
         for key, value in common_dictionary.items():
@@ -3389,7 +3389,7 @@ class Data(object):
 
 def get_available_likelihoods(backendDir):
     ''' Function that reads and returns a list of all folder names in the MontePython/montepython/likelihoods folder.
-        The output is used in GAMBIT to check if the user requested to use a likelihood which is actually not availible
+        The output is used in GAMBIT to check if the user requested to use a likelihood which is actually not available
         in the installed version of MontePython. 
         
         Input:

@@ -477,7 +477,7 @@ namespace Gambit
                 set_resume_params.dump(); // Better way
                 // This works I think, but it still has problems. In particular,
                 // it looks like you must resume with the same number of processes
-                // that you started the run with, which is kind of crap.
+                // that you started the run with, which is not good.
             }
 
             for (auto &&gd : gDev) delete gd;

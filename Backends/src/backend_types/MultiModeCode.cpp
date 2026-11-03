@@ -42,7 +42,7 @@ namespace Gambit
     // Control the output of analytic approximations for comparison. We do not use these.
     use_deltaN_SR = 0; // = false, i.e. MMC will not calculate deltaN observables (assumes slow roll & sum-separable potentials) at the pivot scale
     use_horiz_cross_approx = 0; // = false, i.e. do not ignore the horizon-crossing-approximation for the above
-    evaluate_modes = 1; // = true, i.e. evalute modes and do not just rely on background evolution
+    evaluate_modes = 1; // = true, i.e. evaluate modes and do not just rely on background evolution
     get_runningofrunning = 0; // = false, i.e. do not compute the dervative of the spectral index w.r.t. ln(k)
     // Set the initial conditions for the inflation field(s).
     // N.B. For single field inflation, MMC determines the parameters below self-consistenly; choose sensible entries as starting point

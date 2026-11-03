@@ -1,0 +1,8 @@
+Summary: ATLAS same-sign lepton + jets squark/gluino search at 13 TeV with 139/fb
+InspireID: 1754675
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: [">=2SSL + >=6J", ">=2SSL + 0B + >=6J + MET", ">=2SSL + >=1B + >=6J", ">=2SSL + >=2B + >=6J + MET", ">=3SSL + >=1B + 0Z + MET"]
+Keywords: ["SSleptons", "Rparity"]
+Authors: ["Anders Kvellestad"]

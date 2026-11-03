@@ -27,6 +27,7 @@
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2020 May
+///  \date 2026 Oct
 ///
 ///  *********************************************
 
@@ -38,6 +39,7 @@
 #include <vector>
 #include <map>
 #include <queue>
+#include <unordered_map>
 
 #include "gambit/Core/core.hpp"
 #include "gambit/Core/error_handlers.hpp"
@@ -77,6 +79,7 @@ namespace Gambit
     {
       VertexID vertex;
       str purpose;
+      bool critical;
     };
 
     /// Information in resolution queue
@@ -88,6 +91,7 @@ namespace Gambit
       VertexID toVertex;
       int dependency_type;
       bool printme;
+      bool critical;
       const Observable* obslike;
     };
 
@@ -157,6 +161,10 @@ namespace Gambit
         /// Returns the purpose associated with a given functor.
         /// Non-null only if the functor corresponds to an ObsLike entry in the ini file.
         const str& getPurpose(VertexID);
+
+        /// Returns whether a given functor is critical
+        /// True only if the functor corresponds to a critical ObsLike entry in the ini file.
+        bool getCritical(VertexID);
 
         /// Tell functor that it invalidated the current point in model space (due to a large or NaN contribution to lnL)
         void invalidatePointAt(VertexID, bool);
@@ -231,6 +239,9 @@ namespace Gambit
         /// scanned over.
         std::vector<std::pair<VertexID,bool>> closestCandidateForModel(std::vector<std::pair<VertexID,bool>> candidates);
 
+        /// Read the model validation handling from the ini file and set it
+        void setModelValidationHandling() const;
+
         //
         // Private data members
         //
@@ -261,6 +272,12 @@ namespace Gambit
 
         /// Output Vertex Infos
         std::vector<OutputVertex> outputVertices;
+
+        /// Map from vertex ID to outputVertices, populated at the end of
+        /// doResolution(). Lets getPurpose() / getCritical() do an O(1) lookup
+        /// instead of a linear scan (the latter is called per target vertex per
+        /// scan point)
+        std::unordered_map<VertexID, const OutputVertex*> outputVertexIndex;
 
         /// The central boost graph object
         MasterGraphType masterGraph;

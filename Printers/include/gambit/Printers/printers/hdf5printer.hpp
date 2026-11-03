@@ -123,7 +123,7 @@ namespace Gambit
         /// Initialise the buffer (attach it to a printer and set its behaviour)
         void init(HDF5Printer* p, bool synchronised);
 
-        /// Signal whether initialisation has occured
+        /// Signal whether initialisation has occurred
         bool ready() { if(printer==NULL){return false;}else{return true;} }
 
         /// Retrieve a buffer for an IDcode/auxilliary-index pair
@@ -332,17 +332,20 @@ namespace Gambit
         std::string group;     // HDF5 group location to store datasets
         std::string metadata_group; // HDF5 group location to store metadata
 
-        // Handles for HDF5 files and groups containing the datasets
-        hid_t file_id;
-        hid_t group_id;
-        hid_t RA_group_id;
-        hid_t metadata_id;
+        // Handles for HDF5 files and groups containing the datasets.
+        // Only the primary printer's constructor assigns the file/group 
+        // handles (file_id, group_id, RA_group_id, metadata_id). Aux instances
+        // inherit the *_location_id values from the primary.
+        hid_t file_id = -1;
+        hid_t group_id = -1;
+        hid_t RA_group_id = -1;
+        hid_t metadata_id = -1;
 
         // Handle to a location in a HDF5 to which the datasets will be written
         // i.e. a file or a group.
-        hid_t location_id;
-        hid_t RA_location_id;
-        hid_t metadata_location_id;
+        hid_t location_id = -1;
+        hid_t RA_location_id = -1;
+        hid_t metadata_location_id = -1;
 
         /// Pointer to the primary printer object
         // (if this is an auxilliary printer, else it is "this" //NULL)
@@ -543,10 +546,13 @@ namespace Gambit
 
         // Force increment the buffer to "catch it up" to the current sync
         // position, in case it has been created "late".
-        // We subtract one because another increment will happen after
-        // the print statement (that triggered the creation of the new
-        // buffer) completes.
-        if(synchronised) it->second.fast_forward(printer->get_sync_pos()-1);
+        if (printer->get_sync_pos() > 0)  // if 0, nothing to catch up to
+        {
+          // We subtract one because another increment will happen after
+          // the print statement (that triggered the creation of the new
+          // buffer) completes.
+          if(synchronised) it->second.fast_forward(printer->get_sync_pos()-1);
+        }        
       }
 
       if( it == local_buffers.end() )

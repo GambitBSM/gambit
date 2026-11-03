@@ -69,7 +69,7 @@ namespace Gambit
 
       static bool first = true;
       static str pythia_doc_path;
-      PythiaT pythia;
+      thread_local PythiaT pythia;
 
       // Setup the Pythia documentation path and print the banner once
       if (first)
@@ -114,7 +114,7 @@ namespace Gambit
         pythiaOptions.push_back("Init:showProcesses = off");
         pythiaOptions.push_back("SLHA:file = slhaea");
 
-        // Make sure the user has selected a collider energy in their Pythia settings by searching 
+        // Make sure the user has selected a collider energy in their Pythia settings by searching
         // for the substring "Beams:e", to match Pythia options "Beams:eCM", "Beams:eA" or "Beams:eB".
         bool has_beam_energy_option = std::any_of(pythiaOptions.begin(), pythiaOptions.end(), [](const str& s){ return s.find("Beams:e") != str::npos; });
         if (!has_beam_energy_option)
@@ -129,7 +129,7 @@ namespace Gambit
         std::map<int, double> combined_process_xsec;
         std::map<int, double> combined_process_xsecErr;
 
-        #pragma omp parallel firstprivate(pythia, pythiaOptions)
+        #pragma omp parallel firstprivate(pythiaOptions)
         {
           // Add a thread-specific seed to this thread's copy of the Pythia options
           str seed = std::to_string(int(Random::draw() * 899990000.));
@@ -137,6 +137,7 @@ namespace Gambit
 
           try
           {
+            pythia.clear();
             pythia.init(pythia_doc_path, pythiaOptions, &slha);
           }
           catch (...)
@@ -146,6 +147,7 @@ namespace Gambit
             pythiaOptions.push_back("Random:seed = " + std::to_string(newSeedBase));
             try
             {
+              pythia.clear();
               pythia.init(pythia_doc_path, pythiaOptions, &slha);
             }
             catch (...)
@@ -182,7 +184,7 @@ namespace Gambit
 
           // Synchronise the threads, so that they can check all were successfully initialised
           #pragma omp barrier
-        
+
           // Only do the event generation if the startup was successful for all threads
           if (startup_success)
           {
@@ -303,16 +305,16 @@ namespace Gambit
     void NAME(initialxsec_container& result)                                                                                                  \
     {                                                                                                                                         \
       using namespace Pipes::NAME;                                                                                                            \
-      static SLHAstruct slha = *Dep::SpectrumAndDecaysForPythia;                                                                              \
+      SLHAstruct slha = *Dep::SpectrumAndDecaysForPythia;                                                                                     \
                                                                                                                                               \
       PerformInitialCrossSection_Pythia<PYTHIA_COLLIDER, PYTHIA_NS::Pythia8::Event>(result, slha, "", *runOptions);                           \
     }
-    
+
     #define GET_SPECIFIC_INITIAL_XSEC_PYTHIA(NAME, PYTHIA_COLLIDER, PYTHIA_NS, MODEL_EXTENSION)                                               \
     void NAME(initialxsec_container& result)                                                                                                  \
     {                                                                                                                                         \
       using namespace Pipes::NAME;                                                                                                            \
-      static SLHAstruct slha = *Dep::SpectrumAndDecaysForPythia;                                                                              \
+      SLHAstruct slha = *Dep::SpectrumAndDecaysForPythia;                                                                                     \
                                                                                                                                               \
       PerformInitialCrossSection_Pythia<PYTHIA_COLLIDER, PYTHIA_NS::Pythia8::Event>(result, slha, #MODEL_EXTENSION, *runOptions);             \
     }

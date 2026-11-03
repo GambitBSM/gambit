@@ -1,0 +1,7 @@
+Summary: CMS W/Z-monojet + MET search at 13 TeV with 36/fb
+InspireID: 1641762
+ExptRun: CMS-R2
+Lumi_ifb: 35.9
+Ecm_TeV: 13.0
+Signatures: ["MET + >=1J + 0L + 0TH + 0P + 0B"]
+Notes: The "HT" used at trigger level is unusually a vector sum, not scalar, so is not recorded in this sig coding. N-subjettiness 2/1 ratio is used in V-jet pruning/tagging.

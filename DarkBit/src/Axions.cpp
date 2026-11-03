@@ -27,9 +27,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "gambit/Utils/begin_ignore_warnings_eigen.hpp"
 #include <Eigen/Core>
-#include "gambit/Utils/end_ignore_warnings.hpp"
 
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_sf.h>
@@ -72,7 +70,7 @@ namespace Gambit
      const double gaee_conversion = 1.0E+13;
 
     /////////////////////////////////////////////////////////////////
-    //      Auxillary functions and classes for interpolation      //
+    //      Auxiliary functions and classes for interpolation      //
     /////////////////////////////////////////////////////////////////
 
     /*! \brief Generic one-dimensional integration container for linear interpolation and cubic splines.
@@ -348,10 +346,10 @@ namespace Gambit
      /*! \brief H.E.S.S.-likelihood-related interpolation routines.
      */
 
-    // Auxillary function for a parabola (needed for H.E.S.S. likelihood approximation).
+    // Auxiliary function for a parabola (needed for H.E.S.S. likelihood approximation).
     double parabola(double x, const double params[]) { return params[0]*x*x + params[1]*x + params[2]; }
 
-    // Auxillary function to return the appropriate intersection between a parabola and a line (needed for H.E.S.S. likelihood).
+    // Auxiliary function to return the appropriate intersection between a parabola and a line (needed for H.E.S.S. likelihood).
     double intersect_parabola_line(double a, double b, double sign, const double pparams[])
     {
       const double x1 = -3.673776;
@@ -641,7 +639,7 @@ namespace Gambit
     // Routine to return the temperature (in keV) of the zone around the distance r from the centre of the Sun.
     double SolarModel::temperature_in_keV(double r) { return gsl_spline_eval(linear_interp[0], r, accel[0]); }
 
-    // Routine to return the screening paramter kappa^2 in units of keV^2 (kappa^-1 = Debye-Hueckel radius).
+    // Routine to return the screening parameter kappa^2 in units of keV^2 (kappa^-1 = Debye-Hueckel radius).
     double SolarModel::kappa_squared(double r)
     {
       // Interpolated value, directly from the Solar model.
@@ -654,7 +652,7 @@ namespace Gambit
     // Constant numbers for precision etc.
     const double abs_prec = 1.0E-1, rel_prec = 1.0E-6;
     const int method = 5;
-    // Auxillary structure for passing the model parameters to the gsl solver.
+    // Auxiliary structure for passing the model parameters to the gsl solver.
     struct SolarModel_params1 {double erg; double rad; SolarModel* sol;};
     struct SolarModel_params2 {double erg; double rs; SolarModel* sol;};
     struct SolarModel_params3 {double rs; double ma0; SolarModel* sol; AxionInterpolator* eff_exp;};
@@ -1144,7 +1142,7 @@ namespace Gambit
       result = gaussian_nuisance_lnL(CaggQCDmu, CaggQCD, CaggQCDsigma);
     }
 
-    // Auxillary function for QCD nuisance likelihood below.
+    // Auxiliary function for QCD nuisance likelihood below.
     double log_chi (double T, double beta, double Tchi)
     {
       double result = 0.0;
@@ -1255,7 +1253,7 @@ namespace Gambit
       const double exp_sig_mu_v1 = -4.01, exp_sig_std_v1 = 3.01;
       // ALPS Collaboration results, vacuum, 6 frames.
       const double exp_sig_mu_v2 = -2.35, exp_sig_std_v2 = 3.44;
-      // ALPS Collaboration results, vacuum combined(!), 11 frames (we keep them seperated).
+      // ALPS Collaboration results, vacuum combined(!), 11 frames (we keep them separated).
       //const double exp_sig_mu_vc = -3.29, exp_sig_std_vc = 2.27;
       // ALPS Collaboration results, gas, 8 frames (P = 0.18 mbar).
       const double exp_sig_mu_g = 3.98, exp_sig_std_g = 2.45;
@@ -1567,7 +1565,7 @@ namespace Gambit
       //                                  11.298638, 11.583999, 12.845377, 13.234130, 15.301962, 16.2655809};
       // N_sigma values as defined in the paper.
       //const double N_sigma [21] = {5.0, 5.0, 5.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 0.0, 5.0, 4.0, 4.0, 4.0, 4.0};
-      // Proportionality factors ("sigma") inferred from Table I in in units of GeV^-1/cm^3.
+      // Proportionality factors ("sigma") inferred from Table I in units of GeV^-1/cm^3.
       //const double eff_sigma [21] = {8.3030524510E+01, 3.5789241789E+02, 5.3457189090E+02, 8.3673921774E+02, 7.3205267295E+02, 7.1850356207E+02, 7.0099211538E+02, 9.3243407987E+02, 1.3132694610E+03, 1.9447760075E+03, 2.4028734743E+03,
       //                               3.5992849457E+03, 5.8433323192E+03, 1.2415907565E+03, 1.1487509033E+03, 1.0000000000E+99, 2.6768234439E+03, 9.1546564260E+04, 1.7208310692E+04, 4.2462784870E+04, 2.8794160844E+04};
       // The results below are derived from Fig. 14 (assuming N_sigma = 4 for all values).
@@ -1610,7 +1608,7 @@ namespace Gambit
     //      Energy density in realignment axions today      //
     //////////////////////////////////////////////////////////
 
-    /* Some auxillary functions for solving the  necessary differential equations
+    /* Some auxiliary functions for solving the  necessary differential equations
      */
 
     // Provides function F1 for the change in variables time -> temperature (see 1810.07192).
@@ -1637,7 +1635,7 @@ namespace Gambit
       return res;
     }
 
-    // Auxillary function to calculate the Hubble parameter in a radiation-dominated universe.
+    // Auxiliary function to calculate the Hubble parameter in a radiation-dominated universe.
     double hubble_rad_dom(double T)
     {
       // H(T)/eV, T/MeV, m_pl/10^12eV = m_pl/10^3 GeV
@@ -1653,10 +1651,10 @@ namespace Gambit
       return res;
     }
 
-    // Auxillary structure for passing the model parameters to the gsl solver.
+    // Auxiliary structure for passing the model parameters to the gsl solver.
     struct AxionEDT_params {double ma0; double beta; double Tchi; double thetai; double Tosc;};
 
-    // Auxillary function with root Tosc, the temperature where the axion field oscillations start (defined by mA = 3H).
+    // Auxiliary function with root Tosc, the temperature where the axion field oscillations start (defined by mA = 3H).
     // Note that this is only to set the temperature scale of the problem. The differential equation is solved numerically around
     // this point and the numerical factor in the definition is pure convention.
     double equation_Tosc(double T, void *params)

@@ -532,8 +532,9 @@ namespace Gambit
     // In the end, this function should construct all the Message structs.
     void LogMaster::send(const std::string& message, std::set<int>& tags)
     {
-       // LogMaster keeps an internal map of all the logging objects, where the keys are sets of 'LogTag's, constructed according to the inifile. So to figure out where the message has to go, we just compare the "tags" to these keys; if any of these keys are a subset of our tags, then we send the message to that LogHub.
-       // Well almost. We have to seperate out the components first, because we can "send" a message to multiple components at once, but a direction command will never include two component tags (it is an error if it does).
+       // LogMaster keeps an internal map of all the logging objects, where the keys are sets of 'LogTag's, constructed according to the inifile.
+       // So to figure out where the message has to go, we just compare the "tags" to these keys; if any of these keys are a subset of our tags, then we send the message to that LogHub.
+       // Well almost. We have to separate out the components first, because we can "send" a message to multiple components at once, but a direction command will never include two component tags (it is an error if it does).
 
        // Testing...
        //std::cout<<"msg: "<<message<<std::endl;
