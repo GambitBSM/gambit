@@ -55,7 +55,8 @@ endmacro()
 # Download FeynRules
 set(name "FeynRules")
 set(ver "2.3.41")
-set(dl "https://gambit.hepforge.org/downloads/archived_backends/feynrules-${ver}.tar.gz")
+# Archived backend
+set(dl "https://github.com/GambitBSM/archived_backends/raw/main/feynrules-${ver}.tar.gz")
 set(md5 "d0a075dc8fa12d4a7ebcc966350e4365")
 set(patch "${CMAKE_SOURCE_DIR}/cmake/patch_${name}.dif")
 # For Mathematica versions > 12.2 patch FR and SARAH to use the legacy version of ValueQ
@@ -114,7 +115,7 @@ add_extra_targets(${name} ${dir})
 set(name "MadGraph")
 set(dir "${CMAKE_SOURCE_DIR}/contrib/${name}")
 set(ver "2.8.3.2")
-set(dl "https://launchpad.net/mg5amcnlo/2.0/2.8.x/+download/MG5_aMC_v${ver}.tar.gz")
+set(dl "https://launchpad.net/mg5amcnlo/lts/2.8.x/+download/MG5_aMC_v${ver}.tar.gz")
 set(md5 "e409328828d45d159c8b6b83d02067ba")
 set(patch "${CMAKE_SOURCE_DIR}/cmake/patch_${name}.dif")
 EXTERNALPROJECT_ADD(
@@ -132,15 +133,14 @@ EXTERNALPROJECT_ADD(
 add_extra_targets(${name} ${dir})
 
 # Download Pythia
-set(name "Pythia")
+set(name "Pythia_8_312")
 set(dir "${CMAKE_SOURCE_DIR}/contrib/${name}")
-set(dl "https://pythia.org/download/pythia82/pythia8212.tgz")
-set(ver "212")
-set(md5 "7bebd73edcabcaec591ce6a38d059fa3")
-set(BASE_PYTHIA_VERSION ${ver})
+set(dl "https://pythia.org/download/pythia83/pythia8312.tgz")
+set(ver "312")
+set(md5 "b55f03ebd29cf0339905a6a1476b4b41")
 set(PYTHIA_MD5 ${md5})
 EXTERNALPROJECT_ADD(
-    Pythia
+    Pythia_8_312
     URL ${dl}
     URL_MD5 ${md5}
     UPDATE_COMMAND ""

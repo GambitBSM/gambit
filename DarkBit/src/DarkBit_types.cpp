@@ -62,7 +62,6 @@
 #include <cmath>
 #include <sstream>
 
-#include "gambit/Backends/backend_types/nulike.hpp"
 #include "gambit/DarkBit/DarkBit_types.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
 #include "gambit/cmake/cmake_variables.hpp"
@@ -154,9 +153,11 @@ namespace Gambit
             << " - out_of_range_zero_yield:  set to zero the yields out"
             << " of range of the yield tables." << std::endl
             << " You can add either (but not both) options as module-wide rules like this:" << std::endl << std::endl
-            << "  - module: DarkBit" << std::endl
-            << "    options:" << std::endl
-            << "      out_of_range_zero_yield: true" << std::endl << std::endl
+            << "  - if:" << std::endl
+            << "      module: DarkBit" << std::endl
+            << "    then:" << std::endl
+            << "      options:" << std::endl
+            << "        out_of_range_zero_yield: true" << std::endl << std::endl
             << "Note that this choice has important physical implications on"
             << " your result, so choose wisely." << std::endl;
         error = daFunk::throwError(msg.str());

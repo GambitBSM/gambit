@@ -1,0 +1,25 @@
+# Input GUM file for the t-channel simplified
+# model with a scalar DM in GUM
+
+math:
+    package: feynrules
+    model: tchannel
+    base_model: SM
+    restriction: DiagonalCKM
+    lagrangian: LDM + LSM
+
+invisibles: [99901]
+
+# PDG code of the DM candidate.
+wimp_candidate: 99901
+
+output:
+  calchep: true
+  pythia: true  
+  micromegas: true
+ 
+output_options:
+  pythia:
+    collider_processes:
+      - p p > ~Xs ~Xs
+      - p p > ~Xs ~Xs j

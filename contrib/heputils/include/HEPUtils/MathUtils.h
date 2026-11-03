@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
-// This file is part of HEPUtils -- https://bitbucket.org/andybuckley/heputils
-// Copyright (C) 2013-2018 Andy Buckley <andy.buckley@cern.ch>
+// This file is part of HEPUtils -- https://gitlab.com/hepcedar/heputils/
+// Copyright (C) 2013-2022 Andy Buckley <andy.buckley@cern.ch>
 //
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.
@@ -25,8 +25,11 @@
 namespace HEPUtils {
 
 
-  /// @name Numerical helpers
-  //@{
+  /// @defgroup mathutils Mathematical utilities
+  /// @{
+
+  /// @defgroup mathutils_numhelp Numerical helpers
+  /// @{
 
   /// Convenience function for getting the sign of a number
   template <typename N1>
@@ -58,11 +61,11 @@ namespace HEPUtils {
     return sqrt(a*a + b*b + c*c);
   }
 
-  //@}
+  /// @}
 
 
-  /// @name Range helpers
-  //@{
+  /// @defgroup mathutils_rangehelp Range helpers
+  /// @{
 
   /// @brief Boolean function to determine if @a value is within the given range
   ///
@@ -128,11 +131,11 @@ namespace HEPUtils {
     return rtn;
   }
 
-  //@}
+  /// @}
 
 
-  /// @name Physics maths utils
-  //@{
+  /// @defgroup mathutils_physics Physics maths utils
+  /// @{
 
   inline double deltaphi(double a, double b) {
     double rtn = a - b;
@@ -147,17 +150,17 @@ namespace HEPUtils {
     return rtn;
   }
 
-  //@}
+  /// @}
 
 
-  /// @name Random numbers and sampling
-  //@{
+  /// @defgroup mathutils_random Random numbers and sampling
+  /// @{
 
   inline double rand01() {
     return rand() / (double)RAND_MAX;
   }
 
-  //@}
+  /// @}
 
 
 }

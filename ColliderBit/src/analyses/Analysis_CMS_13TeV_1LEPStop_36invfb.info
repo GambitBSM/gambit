@@ -1,0 +1,8 @@
+Summary: CMS 1-lepton + MET top-squark search at 13 TeV with 36/fb
+InspireID: 1605128
+ExptRun: CMS-R2
+Lumi_ifb: 35.9
+Ecm_TeV: 13.0
+Signatures: ["1L + >=2J + <=3J + MET", "1L + >=4J + MET"]
+Notes: Also uses a modified topness variable, related to top kinematic log-likelihood.
+

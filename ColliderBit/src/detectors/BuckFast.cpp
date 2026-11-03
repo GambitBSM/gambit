@@ -39,12 +39,21 @@ namespace Gambit
       if (smearTaus != NULL) smearTaus(event.taus());
 
       // Smear jet momenta
-      if (smearJets != NULL) smearJets(event.jets());
+      if (smearJets != NULL)
+      {
+        for (std::string jetcollection : event.jet_collections())
+        {
+          smearJets(event.jets(jetcollection));
+        }
+      }
 
       // Unset b-tags outside |eta|=2.5
-      for (HEPUtils::Jet* j : event.jets())
+      for (std::string jetcollection : event.jet_collections())
       {
-        if (j->abseta() > 2.5) j->set_btag(false);
+        for (HEPUtils::Jet* j : event.jets(jetcollection))
+        {
+          if (j->abseta() > 2.5) j->set_btag(false);
+        }
       }
     }
 

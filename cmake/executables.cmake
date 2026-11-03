@@ -18,13 +18,14 @@
 #          (p.scott@imperial.ac.uk)
 #  \date 2014 Nov, Dec
 #
-#  \author Christopher Chang
-#          (christopher.chang@uqconnect.edu.au)
-#  \date 2021 Feb
-#
 #  \author Tomas Gonzalo
 #          (gonzalo@physik.rwth-aachen.de)
+#  \date 2019 Oct
 #  \date 2021 Mar
+#
+#  \author Christopher Chang
+#          (c.j.chang@fys.uio.no)
+#  \date 2021 Feb
 #
 #************************************************
 
@@ -45,6 +46,18 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/Core/")
   endif()
   if (NOT EXCLUDE_HEPMC)
     set(gambit_XTRA ${gambit_XTRA} ${HEPMC_LDFLAGS})
+  endif()
+  if (NOT EXCLUDE_YODA)
+    set(gambit_XTRA ${gambit_XTRA} ${YODA_LDFLAGS})
+  endif()
+  if (NOT EXCLUDE_ONNXRUNTIME)
+    set(gambit_XTRA ${gambit_XTRA} ${ONNXRUNTIME_LDFLAGS})
+  endif()
+  if (NOT EXCLUDE_FJCONTRIB)
+    set(gambit_XTRA ${gambit_XTRA} ${fjcontrib_LDFLAGS})
+  endif()
+  if (NOT EXCLUDE_FASTJET)
+    set(gambit_XTRA ${gambit_XTRA} ${fastjet_LDFLAGS})
   endif()
   add_gambit_executable(${PROJECT_NAME} "${gambit_XTRA}"
                         SOURCES ${PROJECT_SOURCE_DIR}/Core/src/gambit.cpp
@@ -83,23 +96,9 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   else()
     # Make sure the printers compile OK if the rest of GAMBIT is missing
     target_compile_definitions(Printers PRIVATE SCANNER_STANDALONE)
+    target_compile_definitions(Logs PRIVATE SCANNER_STANDALONE)
+    target_compile_definitions(Utils PRIVATE SCANNER_STANDALONE)
   endif()
   add_dependencies(standalones ScannerBit_standalone)
 endif()
-
-# Add C++ hdf5 combine tool, if we have HDF5 libraries
-# There are a lot of annoying peripheral dependencies on GAMBIT things here, would be good to try and decouple things better
-if(HDF5_FOUND)
-  if(EXISTS "${PROJECT_SOURCE_DIR}/Printers/")
-    if(EXISTS "${PROJECT_SOURCE_DIR}/Utils/")
-       add_gambit_executable(hdf5combine ${HDF5_LIBRARIES}
-                        SOURCES ${PROJECT_SOURCE_DIR}/Printers/standalone/manual_hdf5_combine.cpp
-                                $<TARGET_OBJECTS:Printers>
-                                ${GAMBIT_BASIC_COMMON_OBJECTS}
-                                )
-       set_target_properties(hdf5combine PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/Printers/bin")
-    endif()
-  endif()
-endif()
-
 

@@ -16,6 +16,12 @@
 #include <utility>
 #include <vector>
 
+// Added in GAMBIT to suppress warning from clang
+#if defined(__clang__) && !defined(__ICC)
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 namespace YAML {
 namespace detail {
 struct iterator_type {
@@ -51,11 +57,11 @@ struct node_iterator_type<const V> {
   typedef node_map::const_iterator map;
 };
 
+// GAMBIT: node_iterator_base used to derive from std::iterator<...> to pick up the standard
+// iterator typedefs, but that base class template was deprecated in C++17 and removed
+// altogether in C++20, so we provide the required typedefs directly instead.
 template <typename V>
-class node_iterator_base
-    : public std::iterator<std::forward_iterator_tag, node_iterator_value<V>,
-                           std::ptrdiff_t, node_iterator_value<V>*,
-                           node_iterator_value<V>> {
+class node_iterator_base {
  private:
   struct enabler {};
 
@@ -70,7 +76,11 @@ class node_iterator_base
  public:
   typedef typename node_iterator_type<V>::seq SeqIter;
   typedef typename node_iterator_type<V>::map MapIter;
+  typedef std::forward_iterator_tag iterator_category;
   typedef node_iterator_value<V> value_type;
+  typedef std::ptrdiff_t difference_type;
+  typedef node_iterator_value<V>* pointer;
+  typedef node_iterator_value<V> reference;
 
   node_iterator_base()
       : m_type(iterator_type::NoneType), m_seqIt(), m_mapIt(), m_mapEnd() {}
@@ -176,5 +186,9 @@ typedef node_iterator_base<node> node_iterator;
 typedef node_iterator_base<const node> const_node_iterator;
 }
 }
+
+#if defined(__clang__) && !defined(__ICC)
+  #pragma clang diagnostic pop
+#endif
 
 #endif  // VALUE_DETAIL_NODE_ITERATOR_H_62B23520_7C8E_11DE_8A39_0800200C9A66

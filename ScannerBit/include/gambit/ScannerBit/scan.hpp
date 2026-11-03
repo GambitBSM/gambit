@@ -41,13 +41,13 @@ namespace Gambit
         private:
             const Factory_Base *factory;
             Options options;
-            Priors::CompositePrior *prior;
+            Priors::BasePrior *prior;
             printer_interface *printerInterface;
             // Flag to indicate whether or not the factory needs deleting in the destructor.  Do not reset!
             bool has_local_factory;
 
         public:
-            Scan_Manager (const YAML::Node &node, printer_interface*, const Factory_Base* factory = 0);
+            Scan_Manager (const YAML::Node &node, printer_interface*, const Factory_Base* factory = 0, Priors::BasePrior *user_prior = 0);
             ~Scan_Manager();
             int Run();                       
         };             

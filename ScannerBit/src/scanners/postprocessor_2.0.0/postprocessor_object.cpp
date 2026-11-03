@@ -517,13 +517,19 @@ namespace Gambit
                    or Gambit::Utils::startsWith(*it,(*jt)+"{")
                    or Gambit::Utils::startsWith(*it,(*jt)+"%")
                    or Gambit::Utils::startsWith(*it,(*jt)+"#")
-                 ) // if not [input data label] starts with [existing parameter] (plus append seperator character, for extra info like parameter name or index)
+                 ) // if not [input data label] starts with [existing parameter] (plus append separator character, for extra info like parameter name or index)
                {
                   // Then it is not new. Not allowed to copy this, the likelihood container is already printing it anew.
                   new_params.erase(*jt);
                   is_new = false;
                   break;
                }
+            }
+
+            // If the input_dataset_index dataset is present, recompute it
+            if( (*it) == "input_dataset_index")
+            {
+              is_new = false;
             }
 
             if(is_new)
@@ -629,7 +635,7 @@ namespace Gambit
             // Don't bother doing any processing for zero length chunks
             // Just check whether the calling code wants us to shut down early
             // NOTE: A trick here is that the Master process never runs the likelihood container
-            // in this Master/Slave setup. So we have to manually check for the signal,
+            // in this Master/Worker setup. So we have to manually check for the signal,
             // which is a little clumsy because I ideally wanted to leave this up to the
             // likelihood container. But doing this locks the postprocessor into using
             // the GAMBIT signal handling methods. TODO: is there another way?
@@ -1123,7 +1129,7 @@ namespace Gambit
                  == retrieved_pars.end())
              {
                 std::ostringstream err;
-                err << "Error! Reader could not retrieve the required paramater '"<<par<<"' for the model '"<<model<<"' from the supplied data file! Please check that this parameter indeed exists in that file." << std::endl;
+                err << "Error! Reader could not retrieve the required parameter '"<<par<<"' for the model '"<<model<<"' from the supplied data file! Please check that this parameter indeed exists in that file." << std::endl;
                 Scanner::scan_error().raise(LOCAL_INFO,err.str());
              }
 

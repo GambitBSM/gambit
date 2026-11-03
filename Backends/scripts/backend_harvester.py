@@ -33,22 +33,56 @@ import os
 toolsfile="./Utils/scripts/harvesting_tools.py"
 exec(compile(open(toolsfile, "rb").read(), toolsfile, 'exec')) # Python 2/3 compatible version of 'execfile'
 
+
+def extract_yaml_for_diagnostic(headers):
+    """Parses the list of header files and reorganizes them into a dictionary of backend:versions.
+
+    The output is to be used with the diagnostic system. Should be called twice, once for included, once for excluded headers.
+    This implementation works for the backend harvester.
+
+    Args:
+        headers (list): List of collected header files from the backend harvester.
+
+    Returns:
+        dict: backend name key with a list of versions as value
+    """
+    # Remove the file extension
+    headers_without_file_extension = [header.split(".")[0] for header in headers]
+    # Get a list of backend names without version numbers
+    backend_names = {"_".join(x for x in header.split("_") if not x[0].isdigit()) for header in headers_without_file_extension}
+
+    backend_yaml = {}
+    for backend in sorted(backend_names):
+        # Because of some overlapping names, we need to also check that the extracted substring actually starts with the version number
+        backend_yaml[backend] = sorted(["_".join(x.split(backend)[1:])[1:].replace("_", ".") for x in headers_without_file_extension if x.startswith(backend) and x.split(backend)[1][1].isdigit()])
+    return backend_yaml
+
+
+
 def main(argv):
 
     frontend_headers=set([])
+    frontend_headers_excluded=set([])
     backend_type_headers = set([])
     bossed_backend_type_headers = set([])
     exclude_backends=set([])
+    enabled_bits=set([])
+    force_keep_backends=set([])
 
     # Handle command line options
     verbose = False
+    verbose_build = False    
     try:
-        opts, args = getopt.getopt(argv,"vx:",["verbose","exclude-backends="])
+        opts, args = getopt.getopt(argv,"vx:",
+            ["verbose","exclude-backends=","bits=","force-backends=","verbose-build"])
     except getopt.GetoptError:
         print('Usage: backend_harvestor.py [flags]')
         print(' flags:')
         print('        -v                       : More verbose output')
         print('        -x backend1,backend2,... : Exclude backend1, backend2, etc.')
+        print('        --bits=B1,B2,...         : Restrict the build to dependencies of these Bits.')
+        print('        --force-backends=A,B,... : Keep these backends, even if no enabled Bit needs them.')
+        print('        --verbose-build          : Print which frontends were auto-excluded.')
         sys.exit(2)
     for opt, arg in opts:
       if opt in ('-v','--verbose'):
@@ -56,14 +90,41 @@ def main(argv):
         print('backend_harvester.py: verbose=True')
       elif opt in ('-x','--exclude-backends'):
         exclude_backends.update(neatsplit(",",arg))
+      elif opt == '--bits':
+        enabled_bits.update(b for b in neatsplit(",",arg) if b)
+      elif opt == '--force-backends':
+        force_keep_backends.update(b for b in neatsplit(",",arg) if b)
+      elif opt == '--verbose-build':
+        verbose_build = True
 
-    # Get list of frontend header files to include in backend_rollcall.hpp
-    frontend_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/frontends","frontend",exclude_backends))
-    # Get list of backend type header files
+    # If --bits is given, drop frontends that no enabled Bit references.
+    auto_excluded = set()
+    if enabled_bits:
+        auto_excluded, used_backends, all_backends = derive_optin_backend_excludes(
+            enabled_bits, ".",
+            "./Backends/include/gambit/Backends/frontends",
+            force_keep_backends)
+        exclude_backends.update(auto_excluded)
+        if verbose_build or verbose:
+            print("backend_harvester.py: enabled Bits = {0}".format(sorted(enabled_bits)))
+            if force_keep_backends:
+                print("backend_harvester.py: force-kept backends = {0}".format(sorted(force_keep_backends)))
+            print("backend_harvester.py: auto-excluded {0} backend(s) (no enabled Bit references them):".format(len(auto_excluded)))
+            for be in sorted(auto_excluded):
+                print("  - {0}".format(be))
+
+    # Discover backend type headers up front. Backends with BOSSed type
+    # headers must remain available so their type definitions stay in the
+    # rollcall, even if the user (or the auto-trim) tried to exclude them.
     backend_type_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/backend_types","backend type",set([])))
     bossed_backend_type_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/backend_types","BOSSed type",set([])))
+    exclude_backends = set([be for be in exclude_backends if not any([excluded(bossed_be, [be]) for bossed_be in bossed_backend_type_headers])])
 
-    if verbose: 
+    # Partition the frontend headers using the final exclude set.
+    frontend_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/frontends","frontend",exclude_backends))
+    frontend_headers_excluded.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/frontends","frontend",exclude_backends, retrieve_excluded=True))
+
+    if verbose:
         print("Frontend headers identified:")
         for h in frontend_headers:
             print('  gambit/Backends/frontends/'+h)
@@ -74,111 +135,123 @@ def main(argv):
             print('  gambit/Backends/backend_types/'+h)
 
     # Generate a c++ header containing all the frontend headers we have just harvested.
-    towrite = "\
-//   GAMBIT: Global and Modular BSM Inference Tool\n\
-//   *********************************************\n\
-///  \\file                                       \n\
-///                                               \n\
-///  Compile-time registration of available back- \n\
-///  ends.                                        \n\
-///                                               \n\
-///  This file was automatically generated by     \n\
-///  backend_harvester.py. Do not modify.         \n\
-///                                               \n\
-///  Do not add to this if you want to add a new  \n\
-///  backend -- just add your frontend header to  \n\
-///  Backends/include/gambit/Backends/frontends   \n\
-///  and rest assured that backend_harvester.py   \n\
-///  will make sure it ends up here.              \n\
-///                                               \n\
-///  *********************************************\n\
-///                                               \n\
-///  Authors (add name and date if you modify):   \n\
-///                                               \n\
-///  \\author The GAMBIT Collaboration            \n\
-///  \date "+datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")+"\n\
-///                                               \n\
-///  *********************************************\n\
-                                                  \n\
-#ifndef __backend_rollcall_hpp__                  \n\
-#define __backend_rollcall_hpp__                  \n\
-                                                  \n\
-// Include the backend macro definitions          \n\
-#include \"gambit/Backends/backend_macros.hpp\"   \n\
-                                                  \n\
-// Automatically-generated list of frontends.     \n"
+    towrite = """//   GAMBIT: Global and Modular BSM Inference Tool
+//   *********************************************
+///  \\file                                       
+///                                               
+///  Compile-time registration of available back- 
+///  ends.                                        
+///                                               
+///  This file was automatically generated by     
+///  backend_harvester.py. Do not modify.         
+///                                               
+///  Do not add to this if you want to add a new  
+///  backend -- just add your frontend header to  
+///  Backends/include/gambit/Backends/frontends   
+///  and rest assured that backend_harvester.py   
+///  will make sure it ends up here.              
+///                                               
+///  *********************************************
+///                                               
+///  Authors (add name and date if you modify):   
+///                                               
+///  \\author The GAMBIT Collaboration            
+///  \\date """+datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")+"""
+///                                               
+///  *********************************************
+                                                  
+#ifndef __backend_rollcall_hpp__                  
+#define __backend_rollcall_hpp__                  
+                                                  
+// Include the backend macro definitions          
+#include \"gambit/Backends/backend_macros.hpp\"   
+                                                  
+// Automatically-generated list of frontends.     
+"""
 
-    for h in frontend_headers:
+    for h in sorted(frontend_headers):
         towrite+='#include \"gambit/Backends/frontends/{0}\"\n'.format(h)
     towrite+="\n#endif // defined __backend_rollcall_hpp__\n"
 
-    with open("./Backends/include/gambit/Backends/backend_rollcall.hpp","w") as f:
-        f.write(towrite)
+    # Don't touch any existing file unless it is actually different from what we will create
+    if not os.path.isdir("./scratch/build_time"): os.makedirs("./scratch/build_time")
+    header = "./Backends/include/gambit/Backends/backend_rollcall.hpp"
+    candidate = "./scratch/build_time/backend_rollcall.hpp.candidate"
+    with open(candidate,"w") as f: f.write(towrite)
+    update_only_if_different(header, candidate)
 
     # Generate a c++ header containing all the frontend headers we have just harvested.
-    towrite = "\
-//   GAMBIT: Global and Modular BSM Inference Tool\n\
-//   *********************************************\n\
-///  \\file                                       \n\
-///                                               \n\
-///  Compile-time registration of backend types.  \n\
-///                                               \n\
-///  This file was automatically generated by     \n\
-///  backend_harvester.py. Do not modify.         \n\
-///                                               \n\
-///  Do not add to this if you want to add new    \n\
-///  types associated with a new (or old) backend.\n\
-///  Just add your backend type headers to the    \n\
-///  directory tree in the right place, and rest  \n\
-///  assured that backend_harvester.py will make  \n\
-///  sure they end up here.                       \n\
-///                                               \n\
-///  Where is \'the right place\'?                \n\
-///  -Regular backend types: in a new header file \n\
-///    Backends/include/gambit/Backends/backend_types/X_types.hpp \n\
-///   where X is the name of the backend.         \n\
-///  -When the types you want to add are a result \n\
-///   of running BOSS: add the directory created  \n\
-///   by BOSS as                                  \n\
-///    Backends/include/gambit/Backends/backend_types/X/ \n\
-///   where X is the name of the backend.  BOSS   \n\
-///   will actually do this itself automatically  \n\
-///   in some circumstances.                      \n\
-///                                               \n\
-///  *********************************************\n\
-///                                               \n\
-///  Authors (add name and date if you modify):   \n\
-///                                               \n\
-///  \\author The GAMBIT Collaboration            \n\
-///  \date "+datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")+"\n\
-///                                               \n\
-///  *********************************************\n\
-                                                  \n\
-#ifndef __backend_types_rollcall_hpp__            \n\
-#define __backend_types_rollcall_hpp__            \n\
-                                                  \n\
-// Macro definitions                              \n\
-#include \"gambit/Utils/type_macros.hpp\"         \n\
-                                                  \n\
-// Regular backend type definitions.              \n"
-    for h in backend_type_headers:
+    towrite = """//   GAMBIT: Global and Modular BSM Inference Tool
+//   *********************************************
+///  \\file                                       
+///                                               
+///  Compile-time registration of backend types.  
+///                                               
+///  This file was automatically generated by     
+///  backend_harvester.py. Do not modify.         
+///                                               
+///  Do not add to this if you want to add new    
+///  types associated with a new (or old) backend.
+///  Just add your backend type headers to the    
+///  directory tree in the right place, and rest  
+///  assured that backend_harvester.py will make  
+///  sure they end up here.                       
+///                                               
+///  Where is \'the right place\'?                
+///  -Regular backend types: in a new header file 
+///    Backends/include/gambit/Backends/backend_types/X_types.hpp 
+///   where X is the name of the backend.         
+///  -When the types you want to add are a result 
+///   of running BOSS: add the directory created  
+///   by BOSS as                                  
+///    Backends/include/gambit/Backends/backend_types/X/ 
+///   where X is the name of the backend.  BOSS   
+///   will actually do this itself automatically  
+///   in some circumstances.                      
+///                                               
+///  *********************************************
+///                                               
+///  Authors (add name and date if you modify):   
+///                                               
+///  \\author The GAMBIT Collaboration            
+///  \\date """+datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")+"""
+///                                               
+///  *********************************************
+                                                  
+#ifndef __backend_types_rollcall_hpp__            
+#define __backend_types_rollcall_hpp__            
+                                                  
+// Macro definitions                              
+#include \"gambit/Utils/type_macros.hpp\"         
+                                                  
+// Regular backend type definitions.              
+"""
+    for h in sorted(backend_type_headers):
         towrite+='#include \"gambit/Backends/backend_types/{0}\"\n'.format(h)
 
     towrite += "\n// BOSSed backend type definitions.\n"
-    for h in bossed_backend_type_headers:
+    for h in sorted(bossed_backend_type_headers):
         towrite+='#include \"gambit/Backends/backend_types/{0}\"\n'.format(h)
 
     towrite+="\n#endif // defined __backend_types_rollcall_hpp__\n"
 
-    with open("./Backends/include/gambit/Backends/backend_types_rollcall.hpp","w") as f:
-        f.write(towrite)
+    # Don't touch any existing file unless it is actually different from what we will create
+    header = "./Backends/include/gambit/Backends/backend_types_rollcall.hpp"
+    candidate = "./scratch/build_time/backend_types_rollcall.hpp.candidate"
+    with open(candidate,"w") as f: f.write(towrite)
+    update_only_if_different(header, candidate)
 
     if verbose:
         print("Generated backend_rollcall.hpp.")
         print("Generated backend_types_rollcall.hpp.\n")
 
+    import yaml
+    with open("./config/gambit_backend_interfaces.yaml", "w+") as f:
+        yaml.dump({
+            "enabled": extract_yaml_for_diagnostic(frontend_headers),
+            "disabled": extract_yaml_for_diagnostic(frontend_headers_excluded)
+        }, f)
 
 # Handle command line arguments (verbosity)
 if __name__ == "__main__":
    main(sys.argv[1:])
-

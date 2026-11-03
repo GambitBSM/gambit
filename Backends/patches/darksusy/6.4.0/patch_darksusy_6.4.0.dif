@@ -1,0 +1,87 @@
+diff -rupN darksusy-6.4.0_original/src_models/mssm/ge_slha/dsgive_model_SLHA.F darksusy-6.4.0_patched/src_models/mssm/ge_slha/dsgive_model_SLHA.F
+--- darksusy-6.4.0_original/src_models/mssm/ge_slha/dsgive_model_SLHA.F
++++ darksusy-6.4.0_patched/src_models/mssm/ge_slha/dsgive_model_SLHA.F
+@@ -76,7 +76,7 @@ c...Read it in
+  
+  ! We want to get the model ID from the file eventually
+  ! For now, just use the filename, trimming away the path 
+-      idtag=file(index(file,'/',BACK=.true.)+1:lnblnk(file)) 
++      idtag=file(index(file,'/',BACK=.true.)+1:LEN_TRIM(file))
+ 
+ c...Transfer stuff from the SLHA data structure to DarkSUSY
+       call dsfromslha
+diff -rupN darksusy-6.4.0_original/makefile.in darksusy-6.4.0_patched/makefile.in
+--- darksusy-6.4.0_original/makefile.in
++++ darksusy-6.4.0_patched/makefile.in
+@@ -603,7 +603,7 @@ dscheck_libs_mssm :
+ # (Note that HS/HB have common symbols, so only work in combination!) 
+ dscheck_libs_mssm :
+ 	printf " $(DS_INSTALL)/lib/libisajet.a $(DS_INSTALL)/lib/libsuperiso.a $(DS_INSTALL)/lib/libFH.a" > mssm_libs.txt
+-	@if [grep -q "HIGGSBOUNDS_INSTALLATION succeeded" $(DS_INSTALL)/src/include/dscontribstat.F] && [grep -q "HIGGSSIGNALS_INSTALLATION succeeded" $(DS_INSTALL)/src/include/dscontribstat.F]; then \
++	@if grep -q "HIGGSBOUNDS_INSTALLATION succeeded" $(DS_INSTALL)/src/include/dscontribstat.F && grep -q "HIGGSSIGNALS_INSTALLATION succeeded" $(DS_INSTALL)/src/include/dscontribstat.F; then \
+ 		printf " $(DS_INSTALL)/lib/libHS.a $(DS_INSTALL)/lib/libHB.a" >> mssm_libs.txt;\
+ 	fi
+ 
+diff -rupN darksusy-6.4.0_original/src/rd/dsrdxi.f darksusy-6.4.0_patched/src/rd/dsrdxi.f
+--- darksusy-6.4.0_original/src/rd/dsrdxi.f	2022-12-09 16:01:49
++++ darksusy-6.4.0_patched//src/rd/dsrdxi.f	2023-01-31 19:48:04
+@@ -21,12 +21,18 @@ c=====================================================
+ c=======================================================================
+       real*8 function dsrdxi(x)
+       implicit none
++      include 'dsio.h'
+       real*8 x
+ 
+-      if (x.le.0.0d0) then
++      if (x.lt.0.0d0) then
+         write(*,*) 'ERROR in dsrdxi: called with x = ',x
+         stop
+       endif
++      if (x.eq.0.0d0.and.prtlevel.gt.1) then
++        write(*,*) 'Warning: dsrdxi should not be called with x = 0.0d0 !'
++c        write(*,*) '(This corresponds to infinite temperature...)'
++      endif
++
+ 
+       dsrdxi = 1.0d0
+       
+diff -rupN darksusy-6.4.0_original/src/aux/dsinterpolatetable2D.f darksusy-6.4.0_patched/src/aux/dsinterpolatetable2D.f 
+--- darksusy-6.4.0_original/src/aux/dsinterpolatetable2D.f	2022-12-09 16:01:49
++++ darksusy-6.4.0_patched//src/aux/dsinterpolatetable2D.f	2023-06-25 08:17:33
+@@ -46,6 +46,7 @@
+ ***                                                                         ***
+ *** author: Torsten.Bringmann.fys.uio.no                                    ***
+ *** date 2020-05-26                                                         ***
++***  mod 2023-06-25 made threadsafe                                         ***
+ *******************************************************************************
+       real*8 function dsInterpolateTable2D(x,y,functab,Nx,Ny,Nymax,xtab,ytab,
+      &                                     tabID,how)
+@@ -64,6 +65,7 @@
+       real*8 res, resy(2), funcbest(2,2), xbest(2), ybest(2,2), xfit,yfit
+       real*8 dslogcut
+       save initialized, xlo, xhi, ylo, yhi, lastNpoints
++!$omp threadprivate(initialized, xlo, xhi, ylo, yhi, lastNpoints)
+ 
+       tabIDp = abs(tabID)
+       if (tabIDp.lt.1.or.tabIDp.gt.tabIDmax) then
+diff -rupN darksusy-6.4.0_original/src_models/common/sm/dssmgammah_Dittmaier_tab.f darksusy-6.4.0_patched/src_models/common/sm/dssmgammah_Dittmaier_tab.f 
+--- darksusy-6.4.0_original/src_models/common/sm/dssmgammah_Dittmaier_tab.f	2023-09-06 15:58:31.220048832 +0200
++++ darksusy-6.4.0_patched/src_models/common/sm/dssmgammah_Dittmaier_tab.f	2023-09-06 15:59:09.100857422 +0200
+@@ -180,12 +180,14 @@
+ 
+       dssmgammah_Dittmaier_tab=0.d0
+       if (sqrts.lt.mh(1).or.sqrts.gt.mh(52)) then
+-        if (prtlevel.gt.1) write (*,*) 'WARNING in dssmgammah_Dittmaier_tab: sqrts out of range. Returning dssmgammah_Dittmaier_tab=0.'
++        if (prtlevel.gt.1) write (*,*) 'WARNING in dssmgammah_Dittmaier_tab:'
++        write (*,*) '  sqrts out of range. Returning dssmgammah_Dittmaier_tab 0.'
+         dssmgammah_Dittmaier_tab=0.d0
+         return
+       endif
+       if (ichannel.lt.0.or.ichannel.gt.18) then
+-        if (prtlevel.gt.1) write (*,*) 'WARNING in dssmgammah_Dittmaier_tab: untabulated channel=',ichannel,'. Returning dssmgammah_Dittmaier_tab=0.'
++        if (prtlevel.gt.1) write (*,*) 'WARNING in dssmgammah_Dittmaier_tab:'
++        write (*,*) 'untabulated channel=',ichannel,'. Returning dssmgammah_Dittmaier_tab 0.'
+         dssmgammah_Dittmaier_tab=0.d0
+         return
+       endif
+

@@ -40,11 +40,17 @@
 ///  \date 2016 Aug
 ///
 ///  \author Tomas Gonzalo
-///          (gonzalo@physik.rwth-aachen.de)
+///          (tomas.gonzalo@kit.edu)
 ///  \date 2021 Sep
+///  \date 2023 June
+///
+///  \author Torsten Bringmann
+///          (torsten.bringmann@fys.uio.no)
+///  \date 2023 Nov
 ///
 ///  *********************************************
 
+#include "gambit/Utils/numerical_constants.hpp"
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/DarkBit/DarkBit_rollcall.hpp"
 #include "gambit/DarkBit/DarkBit_utils.hpp"
@@ -66,6 +72,7 @@ namespace Gambit
       using namespace Pipes::WIMP_properties;
       props.name = *Dep::DarkMatter_ID;
       props.spinx2 = Models::ParticleDB().get_spinx2(props.name);
+      props.etaDM = 0.0; // per default, there is no primordial DM-antiDM asymmetry
       props.sc = not Models::ParticleDB().has_antiparticle(props.name);
       props.conjugate = props.sc ? props.name : *Dep::DarkMatterConj_ID;
       if(props.conjugate != Models::ParticleDB().get_antiparticle(props.name))
@@ -75,25 +82,51 @@ namespace Gambit
 
       // Get wimp mass from relevant spectrum
       if(ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT"))
-        props.mass = Dep::MSSM_spectrum->get(Par::Pole_Mass, props.name);
-      if(ModelInUse("ScalarSingletDM_Z2_running"))
+        props.mass = abs(Dep::MSSM_spectrum->get(Par::Pole_Mass, props.name));
+      else if(ModelInUse("ScalarSingletDM_Z2_running"))
         props.mass = Dep::ScalarSingletDM_Z2_spectrum->get(Par::Pole_Mass, props.name);
-      if(ModelInUse("ScalarSingletDM_Z3_running"))
+      else if(ModelInUse("ScalarSingletDM_Z3_running"))
         props.mass = Dep::ScalarSingletDM_Z3_spectrum->get(Par::Pole_Mass, props.name);
-      if(ModelInUse("VectorSingletDM_Z2"))
+      else if(ModelInUse("VectorSingletDM_Z2"))
         props.mass = Dep::VectorSingletDM_Z2_spectrum->get(Par::Pole_Mass, props.name);
-      if(ModelInUse("MajoranaSingletDM_Z2"))
+      else if(ModelInUse("MajoranaSingletDM_Z2"))
         props.mass = Dep::MajoranaSingletDM_Z2_spectrum->get(Par::Pole_Mass, props.name);
-      if(ModelInUse("DiracSingletDM_Z2"))
+      else if(ModelInUse("DiracSingletDM_Z2"))
         props.mass = Dep::DiracSingletDM_Z2_spectrum->get(Par::Pole_Mass, props.name);
-      if(ModelInUse("AnnihilatingDM_mixture") or ModelInUse("DecayingDM_mixture"))
+      else if(ModelInUse("AnnihilatingDM_mixture") or ModelInUse("DecayingDM_mixture"))
         props.mass = *Param["mass"];
-      if(ModelInUse("NREO_scalarDM") or ModelInUse("NREO_MajoranaDM") or ModelInUse("NREO_DiracDM"))
+      else if(ModelInUse("NREO_scalarDM") or ModelInUse("NREO_MajoranaDM") or ModelInUse("NREO_DiracDM"))
         props.mass = *Param["m"];
-      if(ModelInUse("MDM"))
+      else if(ModelInUse("MDM"))
         props.mass = Dep::MDM_spectrum->get(Par::Pole_Mass, props.name);
-      if(ModelInUse("DMEFT"))
+      else if(ModelInUse("DMsimpVectorMedDiracDM"))
+        props.mass = Dep::DMsimpVectorMedDiracDM_spectrum->get(Par::Pole_Mass, props.name);
+      else if(ModelInUse("DMsimpVectorMedMajoranaDM"))
+        props.mass = Dep::DMsimpVectorMedMajoranaDM_spectrum->get(Par::Pole_Mass, props.name);
+      else if(ModelInUse("DMsimpVectorMedScalarDM"))
+        props.mass = Dep::DMsimpVectorMedScalarDM_spectrum->get(Par::Pole_Mass, props.name);
+      else if(ModelInUse("DMsimpVectorMedVectorDM"))
+        props.mass = Dep::DMsimpVectorMedVectorDM_spectrum->get(Par::Pole_Mass, props.name);
+      else if(ModelInUse("DMEFT"))
         props.mass = Dep::DMEFT_spectrum->get(Par::Pole_Mass, props.name);
+      else if(ModelInUse("SubGeVDM_scalar"))
+      {
+        // TODO: Probably only need mass & etaDM here (?)
+        props.mass = *Param["mDM"];
+        props.etaDM = *Param["etaDM"];
+        props.spinx2 = 0;
+        props.sc = false;
+      }
+      else if(ModelInUse("SubGeVDM_fermion"))
+      {
+        // TODO: Probably only need mass & etaDM  here (?)
+        props.mass = *Param["mDM"];
+        props.etaDM = *Param["etaDM"];
+        props.spinx2 = 2;
+        props.sc = false;
+      }
+      else
+        DarkBit_error().raise(LOCAL_INFO, "WIMP properties cannot find a ModelInUse to get the wimp mass.");
     }
 
     /// Retrieve the DM mass in GeV for generic models (GeV)
@@ -163,12 +196,12 @@ namespace Gambit
 
     }
 
-    /// Information about the nature of the DM process in question (i.e. decay or annihilation) 
+    /// Information about the nature of the DM process in question (i.e. decay or annihilation)
     /// to use the correct scaling for ID in terms of the DM density, phase space, etc.
     void DM_process_from_ProcessCatalog(std::string &result)
     {
       using namespace Pipes::DM_process_from_ProcessCatalog;
-      
+
       // Only need to check this once.
       static bool first = true;
       if (first)
@@ -182,7 +215,7 @@ namespace Gambit
         else result = "decay";
         first = false;
       }
-      
+
     }
 
 
@@ -241,8 +274,73 @@ namespace Gambit
       result.vrot = vrot;
     }
 
+    /// Module function providing local density and velocity dispersion parameters, in powers of GeV
+    void ExtractLocalMaxwellianHalo_GeV(LocalMaxwellianHalo &result)
+    {
+      using namespace Pipes::ExtractLocalMaxwellianHalo_GeV;
+      double rho0  = *Param["rho0"];
+      double v0  = *Param["v0"];
+      double vesc  = *Param["vesc"];
+      double vrot  = *Param["vrot"];
+
+      // Conversion to GeV
+      result.rho0 = rho0 * gev3cm3;
+      result.v0 = v0 / c_km;
+      result.vesc = vesc / c_km;
+      result.vrot = vrot / c_km;
+    }
 
 
+    //////////////////////////////////////////////////////////////////////////
+    //
+    //                        Decaying dark matter
+    //
+    //////////////////////////////////////////////////////////////////////////
+
+// TODO: Temporarily disabled until project is ready
+/*
+    /// Module function providing the branching ratio of the decay S -> e-_1 e+_1
+    void DecDM_branching_el(double &result)
+    {
+      using namespace Pipes::DecDM_branching_el;
+
+      result = 0.0;
+      std::string DM_ID = *Dep::DarkMatter_ID;
+
+      // Check whether the process catalog has the decay prosses
+      if (Dep::TH_ProcessCatalog->find(DM_ID) != NULL)
+      {
+        const TH_Channel* dec_channel = (*Dep::TH_ProcessCatalog).getProcess(DM_ID).find({"e-_1", "e+_1"});
+        if (dec_channel != NULL)
+        {
+          double total_width = *Dep::DM_width;
+          double partial_width = dec_channel->genRate->bind()->eval();
+          result = partial_width / total_width;
+        }
+      }
+    }
+
+    /// Module function providing the branching ratio of the decay S -> gamma gamma
+    void DecDM_branching_ph(double &result)
+    {
+      using namespace Pipes::DecDM_branching_ph;
+
+      result = 0.0;
+      std::string DM_ID = *Dep::DarkMatter_ID;
+
+      // Check whether the process catalog has the decay prosses
+      if (Dep::TH_ProcessCatalog->find(DM_ID) != NULL)
+      {
+        const TH_Channel* dec_channel = (*Dep::TH_ProcessCatalog).getProcess(DM_ID).find({"gamma", "gamma"});
+        if (dec_channel != NULL)
+        {
+          double total_width = *Dep::DM_width;
+          double partial_width = dec_channel->genRate->bind()->eval();
+          result = partial_width / total_width;
+        }
+      }
+    }
+*/
     //////////////////////////////////////////////////////////////////////////
     //
     //                          DarkBit Unit Test

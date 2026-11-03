@@ -16,6 +16,10 @@
 ///          (gonzalo@physik.rwth-aachen.de)
 ///  \date 2021 Sep
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2023 May
+///
 ///  *********************************************
 
 #ifndef __gambit_core_hpp__
@@ -109,13 +113,16 @@ namespace Gambit
 
     /// Free-form diagnostic functions
     /// @{
-    void ff_module_diagnostic(const str &);
-    void ff_backend_diagnostic(const str &);
-    void ff_capability_diagnostic(const str &);
-    void ff_model_diagnostic(const str &);
-    void ff_scanner_diagnostic(const str &);
-    void ff_test_function_diagnostic(const str &);
-    void ff_prior_diagnostic(const str &);
+    void free_form_diagnostic(const str&);
+    void ff_module_diagnostic(const str &, str&);
+    void ff_module_function_diagnostic(const str &, str&);
+    void ff_backend_diagnostic(const str &, str&);
+    void ff_backend_function_diagnostic(const str &, str&);
+    void ff_capability_diagnostic(const str &, str&);
+    void ff_model_diagnostic(const str &, str&);
+    void ff_scanner_diagnostic(const str &, str&);
+    void ff_test_function_diagnostic(const str &, str&);
+    void ff_prior_diagnostic(const str &, str&);
     /// @}
 
     /// Compute the status of a given backend

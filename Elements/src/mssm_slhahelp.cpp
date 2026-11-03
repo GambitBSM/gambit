@@ -79,7 +79,7 @@ namespace Gambit
         slha.push_front("# This SLHA(ea) object was created from a GAMBIT "+object+" object.");
       }
 
-      /// Simple helper function for for adding missing SLHA1 2x2 family mixing matrices to an SLHAea object.
+      /// Simple helper function for adding missing SLHA1 2x2 family mixing matrices to an SLHAea object.
       void attempt_to_add_SLHA1_mixing(const str& block, SLHAstruct& slha, const str& type,
                                        const SubSpectrum& spec, double tol, str& s1, str& s2, bool pterror)
       {
@@ -839,6 +839,7 @@ namespace Gambit
              }
              SLHAea_add(slha, "MASS", pdg_codes[i+12], mssmspec.get(Par::Pole_Mass, slha2_sfermions[i]), slha1_sfermions[i], true);
            }
+           if (mssmspec.has(Par::Pole_Mass, "~G")) SLHAea_add_from_subspec(slha, LOCAL_INFO, mssmspec, Par::Pole_Mass, std::pair<int, int>(1000039,0), "MASS", "~G");
          }
          else if (slha_version == 2)
          {
@@ -848,6 +849,7 @@ namespace Gambit
              str comment(Models::ParticleDB().long_name(pdg_codes[i], 0));
              SLHAea_add_from_subspec(slha, LOCAL_INFO, mssmspec, Par::Pole_Mass, std::pair<int, int>(pdg_codes[i],0), "MASS", comment);
            }
+           if (mssmspec.has(Par::Pole_Mass, "~G")) SLHAea_add_from_subspec(slha, LOCAL_INFO, mssmspec, Par::Pole_Mass, std::pair<int, int>(1000039,0), "MASS", "~G");
 
            // USQMIX, DSQMIX, SELMIX
            sspair S[3] = {sspair("USQMIX","~u"), sspair("DSQMIX","~d"), sspair("SELMIX","~e-")};

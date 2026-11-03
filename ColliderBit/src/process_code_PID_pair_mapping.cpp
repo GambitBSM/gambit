@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  ColliderBit module functions dealing with 
+///  ColliderBit module functions dealing with
 ///  the mapping between Pythia process codes
 ///  and PID codes for the final state particles
 ///
@@ -28,7 +28,7 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    /// Get a multimap between the active Pythia process codes and the 
+    /// Get a multimap between the active Pythia process codes and the
     /// corresponding PID pair for the two final state particles
     void getActiveProcessCodeToPIDPairsMap(multimap_int_PID_pair& result)
     {
@@ -75,7 +75,7 @@ namespace Gambit
 
       if (*Loop::iteration == XSEC_CALCULATION)
       {
-        for (const std::pair<int,PID_pair>& entry : *Dep::ActiveProcessCodeToPIDPairsMap)
+        for (const std::pair<const int,PID_pair>& entry : *Dep::ActiveProcessCodeToPIDPairsMap)
         {
 
           PID_pair pid_pair = entry.second;
@@ -96,5 +96,5 @@ namespace Gambit
       }
     }
 
-  } 
-} 
+  }
+}

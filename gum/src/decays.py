@@ -219,7 +219,6 @@ def write_decaytable_entry_calchep(grouped_decays, gambit_model_name,
         return ""
 
     function_name = "CH_{0}_{1}_decays".format(gambit_model_name, decayparticle).replace('~','bar')
-    spectrum = gambit_model_name + "_spectrum"
 
     # Definitely a nicer way to do this, but, this will do for now. 
     # Should make it a bit easier to add 3 body final states.
@@ -250,9 +249,7 @@ def write_decaytable_entry_calchep(grouped_decays, gambit_model_name,
             "// Clear previous decays\n"
             "result = DecayTable::Entry();\n"
             "\n"
-            "const Spectrum& spec = *Dep::{1};\n"
-            "\n"
-    ).format(function_name, spectrum)
+    ).format(function_name)
 
     if decayparticle == "Higgs":
         towrite += "result = *Dep::Reference_SM_Higgs_decay_rates;\n\n"
@@ -349,13 +346,12 @@ def write_decaybit_rollcall_entry_calchep(model_name, spectrum, newdecays,
                 extra = ""
             towrite = (
                     "    #define FUNCTION {0}\n"
-                    "    START_FUNCTION(DecayTable::Entry)\n"
-                    "    DEPENDENCY({1}, Spectrum)\n{2}"
+                    "    START_FUNCTION(DecayTable::Entry)\n{1}"
                     "    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, "
                     "std::vector<str>&))\n"
-                    "    ALLOW_MODELS({3})\n"
+                    "    ALLOW_MODELS({2})\n"
                     "    #undef FUNCTION\n"
-            ).format(func, spectrum, extra, model_name)
+            ).format(func, extra, model_name)
             rollcall_entries.append([cap, towrite])
         # If the capability doesn't exist => must write a new entry for it as 
         # well as the function
@@ -366,14 +362,13 @@ def write_decaybit_rollcall_entry_calchep(model_name, spectrum, newdecays,
                     "\n"
                     "    #define FUNCTION {1}\n"
                     "    START_FUNCTION(DecayTable::Entry)\n"
-                    "    DEPENDENCY({2}, Spectrum)\n"
                     "    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, "
                     "std::vector<str>&))\n"
-                    "    ALLOW_MODELS({3})\n"
+                    "    ALLOW_MODELS({2})\n"
                     "    #undef FUNCTION\n"
                     "\n"
                     "  #undef CAPABILITY\n"
-            ).format(cap, func, spectrum, model_name)
+            ).format(cap, func, model_name)
             rollcall_entries.append([cap, towrite])
             gb_name = pdg_to_particle(decayparticle, gambit_dict)
             new_decays.append([cap, gb_name])
@@ -399,10 +394,6 @@ def amend_all_decays_calchep(model_name, spectrum, new_decays):
         ).format(new_decays[i][1], new_decays[i][0])
     
     if len(new_decays) > 0:
-        header += (
-            "    MODEL_CONDITIONAL_DEPENDENCY({0}, Spectrum, {1})"
-        ).format(spectrum, model_name)
-        
         src += indent((
             "\n"
             "// {0}-specific\n"

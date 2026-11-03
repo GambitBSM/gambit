@@ -30,7 +30,7 @@ find_program(GRAPHVIZ_FOUND dot)
 if (GRAPHVIZ_FOUND)
   message("${BoldYellow}   Found graphviz.${ColourReset} Model and module function hierarchy plots will be enabled.")
 else()
-  message("${BoldRed}   Did not find graphviz. Model and module function hierarchy plots will not be produced.${ColourReset}")
+  message("${BoldCyan} X Did not find graphviz. Model and module function hierarchy plots will not be produced.${ColourReset}")
 endif()
 
 # Define HAVE_GRAPHVIZ compiler option

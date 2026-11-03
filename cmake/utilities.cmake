@@ -25,6 +25,7 @@
 #  \author Tomas Gonzalo
 #          (gonzalo@physik.rwth-aachen.de)
 #  \date 2016 Sep
+#  \date 2019 Oct
 #  \date 2021 Mar
 #
 #  \author Will Handley
@@ -32,8 +33,13 @@
 #  \date 2018 Dec
 #
 #  \author Christopher Chang
-#          (christopher.chang@uqconnect.edu.au)
+#          (c.j.chang@fys.uio.no)
 #  \date 2021 Feb
+#        2023 Dec
+#
+#  \author Anders Kvellestad
+#          (anders.kvellestad@fys.uio.no)
+#  \date 2023 Mar
 #
 #************************************************
 
@@ -73,13 +79,6 @@ function(check_result result command)
   endif()
 endfunction()
 
-# Execute script to prevent printing problems with standalones
-function(add_elements_extras target)
-  set(ELEMENTS_EXTRAS_SCRIPT ${PROJECT_SOURCE_DIR}/Elements/scripts/elements_extras.py)
-  add_custom_target(${target} COMMAND ${PYTHON_EXECUTABLE} ${ELEMENTS_EXTRAS_SCRIPT} ${target}
-                            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-endfunction()
-
 #Check if a string starts with a give substring
 function(starts_with str search)
   string(FIND "${str}" "${search}" out)
@@ -111,7 +110,7 @@ macro(retrieve_bits bits root excludes quiet)
       # Make the string comparison case insensitive
       string( TOLOWER "${child}" child_lower )
       string( TOLOWER "${excludes}" excludes_lower )
-      
+
       if(NOT ${child_lower} STREQUAL "scannerbit")
         foreach(x ${excludes_lower})
           string( TOLOWER "${x}" x_lower )
@@ -140,9 +139,13 @@ endmacro()
 if(CMAKE_MAKE_PROGRAM MATCHES "make$")
   set(MAKE_SERIAL   $(MAKE) -j1)
   set(MAKE_PARALLEL $(MAKE))
+  set(MAKE_INSTALL_SERIAL    $(MAKE) install -j1)
+  set(MAKE_INSTALL_PARALLEL  $(MAKE) install)
 else()
   set(MAKE_SERIAL   "${CMAKE_MAKE_PROGRAM}")
   set(MAKE_PARALLEL "${CMAKE_MAKE_PROGRAM}")
+  set(MAKE_INSTALL_SERIAL   "${CMAKE_MAKE_PROGRAM}")
+  set(MAKE_INSTALL_PARALLEL "${CMAKE_MAKE_PROGRAM}")
 endif()
 
 # Arrange clean commands
@@ -154,15 +157,13 @@ macro(add_external_clean package dir dl target)
   set(rmstring2 "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-build")
   string(REPLACE "." "_" safe_package ${package})
   set(reset_file "${CMAKE_BINARY_DIR}/BOSS_reset_info/reset_info.${safe_package}.boss")
-  set(patch_file "${package}-prefix/${safe_package}.dif")
   add_custom_target(clean-${package} COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring1}-BOSS ${rmstring1}-configure ${rmstring1}-build ${rmstring1}-install ${rmstring1}-done
                                      COMMAND [ -e ${dir} ] && cd ${dir} && ([ -e makefile ] || [ -e Makefile ] && (${target})) || true
-                                     COMMAND [ -e ${reset_file} ] && ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py -r ${reset_file} || true)
+                                     COMMAND [ -e ${reset_file} ] && ${Python3_EXECUTABLE} ${BOSS_dir}/boss.py -r ${reset_file} || true)
   add_custom_target(nuke-${package} DEPENDS clean-${package}
                                     COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring1}-download ${rmstring1}-download-failed ${rmstring1}-mkdir ${rmstring1}-patch ${rmstring1}-update ${rmstring1}-gitclone-lastrun.txt ${dl} || true
                                     COMMAND ${CMAKE_COMMAND} -E remove_directory ${dir} || true
-                                    COMMAND ${CMAKE_COMMAND} -E remove_directory ${rmstring2} || true
-                                    COMMAND [ -e ${patch_file} ] &&  patch -d/ -fsR -p0 < ${patch_file} && rm ${patch_file}|| true)
+                                    COMMAND ${CMAKE_COMMAND} -E remove_directory ${rmstring2} || true)
 endmacro()
 
 # Macro to write some shell commands to clean an external chained code.  Adds clean-[package] and nuke-[package]
@@ -180,16 +181,13 @@ endmacro()
 function(add_subdirectory_if_present dir)
   if(EXISTS "${PROJECT_SOURCE_DIR}/${dir}")
     add_subdirectory(${dir})
+    add_dependencies(${dir} contrib)
   endif()
 endfunction()
 
 # Function to make symbols visible for a code component
 function(make_symbols_visible lib)
-  if(${CMAKE_MAJOR_VERSION} MATCHES "2")
-    set_target_properties(${lib} PROPERTIES COMPILE_OPTIONS "-fvisibility=default")
-  else()
-    set_target_properties(${lib} PROPERTIES CXX_VISIBILITY_PRESET default)
-  endif()
+  set_target_properties(${lib} PROPERTIES CXX_VISIBILITY_PRESET default)
 endfunction()
 
 # Function to reset the install_name of a library compiled in an external project on OSX
@@ -215,17 +213,10 @@ function(add_gambit_library libraryname)
   add_dependencies(${libraryname} printer_harvest)
   add_dependencies(${libraryname} module_harvest)
   add_dependencies(${libraryname} yaml-cpp)
-  add_dependencies(${libraryname} elements_extras)
 
-  if(${CMAKE_VERSION} VERSION_GREATER 2.8.10)
-    foreach (dir ${GAMBIT_INCDIRS})
-      target_include_directories(${libraryname} PUBLIC ${dir})
-    endforeach()
-  else()
-    foreach (dir ${GAMBIT_INCDIRS})
-      include_directories(${dir})
-    endforeach()
-  endif()
+  foreach (dir ${GAMBIT_INCDIRS})
+    target_include_directories(${libraryname} PUBLIC ${dir})
+  endforeach()
 
   if(${ARG_OPTION} STREQUAL SHARED AND APPLE)
     set_property(TARGET ${libraryname} PROPERTY SUFFIX .so)
@@ -264,20 +255,30 @@ macro(strip_library KEY LIBRARIES)
   set(FOUND_KEY2 "")
 endmacro()
 
-# Function to add a GAMBIT custom command and target
+# Function to add a GAMBIT custom command and target.
+# A caller may set ${HARVESTER}_EXTRA_ARGS before invoking this 
+# macro to pass additional command-line flags to the harvester.
 macro(add_gambit_custom target filename HARVESTER DEPS)
   set(ditch_string "")
   if (NOT "${ARGN}" STREQUAL "")
     set(ditch_string "-x __not_a_real_name__,${ARGN}")
   endif()
+  # Record the full harvester command in a stamp file that is only touched when the
+  # command changes, so that the harvesters rerun when e.g. the -Ditch list changes,
+  # but not after every reconfiguration (as a dependency on CMakeCache.txt would cause).
+  set(harvester_options_stamp ${CMAKE_BINARY_DIR}/${target}_options.stamp)
+  file(WRITE ${harvester_options_stamp}.candidate "${PYTHON_EXECUTABLE} ${${HARVESTER}} ${ditch_string}\n")
+  execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                  ${harvester_options_stamp}.candidate ${harvester_options_stamp})
+  file(REMOVE ${harvester_options_stamp}.candidate)
   add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${filename}
-                     COMMAND ${PYTHON_EXECUTABLE} ${${HARVESTER}} ${ditch_string}
+                     COMMAND ${Python3_EXECUTABLE} ${${HARVESTER}} ${ditch_string} ${${HARVESTER}_EXTRA_ARGS}
                      COMMAND touch ${CMAKE_BINARY_DIR}/${filename}
                      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                      DEPENDS ${${HARVESTER}}
                              ${HARVEST_TOOLS}
-                             ${PROJECT_BINARY_DIR}/CMakeCache.txt
-                             ${${DEPS}})
+                             ${${DEPS}}
+                             ${harvester_options_stamp})
   add_custom_target(${target} DEPENDS ${CMAKE_BINARY_DIR}/${filename})
 endmacro()
 
@@ -307,18 +308,20 @@ function(add_gambit_executable executablename LIBRARIES)
   cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;" ${ARGN})
 
   add_executable(${executablename} ${ARG_SOURCES} ${ARG_HEADERS})
-  set_target_properties(${executablename} PROPERTIES EXCLUDE_FROM_ALL 1)
+  # ENABLE_EXPORTS adds -rdynamic/-export_dynamic to the linker so that dlopen'd backends
+  # and scanner plugins can resolve symbols from statically linked contrib libraries (e.g.
+  # yaml-cpp exception typeinfo). Setting this via a target property rather than
+  # CMAKE_CXX_FLAGS keeps GAMBIT's own code compiled with -fvisibility=hidden, so only
+  # contrib symbols built with default visibility are exported, not GAMBIT internals.
+  set_target_properties(${executablename} PROPERTIES
+    EXCLUDE_FROM_ALL 1
+    ENABLE_EXPORTS TRUE
+  )
 
-  if(${CMAKE_VERSION} VERSION_GREATER 2.8.10)
-    foreach (dir ${GAMBIT_INCDIRS})
-      target_include_directories(${executablename} PUBLIC ${dir})
-    endforeach()
-  else()
-    foreach (dir ${GAMBIT_INCDIRS})
-      include_directories(${dir})
-    endforeach()
-  endif()
-
+  foreach (dir ${GAMBIT_INCDIRS})
+    target_include_directories(${executablename} PUBLIC ${dir})
+  endforeach()
+  
   if(MPI_CXX_FOUND)
     set(LIBRARIES ${LIBRARIES} ${MPI_CXX_LIBRARIES})
     if(MPI_CXX_LINK_FLAGS)
@@ -336,6 +339,9 @@ function(add_gambit_executable executablename LIBRARIES)
     if(MPI_Fortran_LINK_FLAGS)
         set_target_properties(${executablename} PROPERTIES LINK_FLAGS ${MPI_Fortran_LINK_FLAGS})
     endif()
+  endif()
+  if (OpenMP_omp_LIBRARY)
+    set(LIBRARIES ${LIBRARIES} ${OpenMP_omp_LIBRARY})
   endif()
   if (LIBDL_FOUND)
     set(LIBRARIES ${LIBRARIES} ${LIBDL_LIBRARY})
@@ -359,7 +365,7 @@ function(add_gambit_executable executablename LIBRARIES)
     set(LIBRARIES ${LIBRARIES} ${Mathematica_WSTP_LIBRARIES})
   endif()
   if(pybind11_FOUND)
-    set(LIBRARIES ${LIBRARIES} ${PYTHON_LIBRARIES})
+    set(LIBRARIES ${LIBRARIES} ${Python3_LIBRARIES})
   endif()
   if(SQLite3_FOUND)
       set(LIBRARIES ${LIBRARIES} ${SQLite3_LIBRARIES})
@@ -371,7 +377,7 @@ function(add_gambit_executable executablename LIBRARIES)
     target_link_libraries(${executablename} PRIVATE ${LIBRARIES} yaml-cpp ${gambit_preload_LDFLAGS})
   endif()
 
-  add_dependencies(${executablename} mkpath gambit_preload)
+  add_dependencies(${executablename} gambit_preload contrib)
 
   #For checking if all the needed libs are present.  Never add them manually with -lsomelib!!
   if(VERBOSE)
@@ -385,14 +391,24 @@ set(STANDALONE_FACILITATOR ${PROJECT_SOURCE_DIR}/Elements/scripts/standalone_fac
 
 # Function to add a standalone executable
 function(add_standalone executablename)
-  cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;LIBRARIES;MODULES;DEPENDENCIES" ${ARGN})
+  cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;LIBRARIES;MODULES;DEPENDENCIES;" ${ARGN})
 
   # Assume that the standalone is to be included, unless we discover otherwise.
   set(standalone_permitted 1)
 
-  # Exclude standalones that need HepMC if it has been excluded.
-  if (EXCLUDE_HEPMC AND (";${ARG_DEPENDENCIES};" MATCHES ";hepmc;"))
+  # Exclude standalones that need HepMC or YODA if they have been excluded.
+  if ( (EXCLUDE_HEPMC AND (";${ARG_DEPENDENCIES};" MATCHES ";hepmc;")) OR (EXCLUDE_YODA AND (";${ARG_DEPENDENCIES};" MATCHES ";yoda;")) )
+    message("${BoldCyan} X Excluding ${executablename} from GAMBIT configuration due to absence of HepMC/Yoda.${ColourReset}")
     set(standalone_permitted 0)
+  endif()
+
+  # Exclude standalones that need pybind11 if it has been excluded.
+  if (";${ARG_DEPENDENCIES};" MATCHES ";pybind11;")
+    string(REPLACE "pybind11" "" ARG_DEPENDENCIES ${ARG_DEPENDENCIES})
+    if (NOT HAVE_PYBIND11)
+      message("${BoldCyan} X Excluding ${executablename} from GAMBIT configuration due to absence of pybind11.${ColourReset}")
+      set(standalone_permitted 0)
+    endif()
   endif()
 
   # Iterate over modules, checking if the neccessary ones are present, and adding them to the target objects if so.
@@ -408,9 +424,6 @@ function(add_standalone executablename)
       endif()
       if(module STREQUAL "SpecBit")
         set(USES_SPECBIT TRUE)
-        # Temporarily add the printers module whenever SpecBit is present to avoid linking problems
-        set(COMMA_SEPARATED_MODULES "${COMMA_SEPARATED_MODULES},Printers")
-        set(STANDALONE_OBJECTS ${STANDALONE_OBJECTS} $<TARGET_OBJECTS:Printers>)
       endif()
       if(module STREQUAL "ColliderBit")
         set(USES_COLLIDERBIT TRUE)
@@ -430,17 +443,32 @@ function(add_standalone executablename)
     endforeach()
     list(APPEND STANDALONE_SOURCES ${STANDALONE_FUNCTORS})
 
+    # Record the full facilitator command in a stamp file that is only touched when the
+    # command changes, so that the functors source is regenerated when e.g. the module list
+    # changes, but not after every reconfiguration (as a dependency on CMakeCache.txt would cause).
+    set(facilitator_options_stamp ${CMAKE_BINARY_DIR}/functors_for_${executablename}_options.stamp)
+    file(WRITE ${facilitator_options_stamp}.candidate "${PYTHON_EXECUTABLE} ${STANDALONE_FACILITATOR} ${executablename} -m __not_a_real_name__,${COMMA_SEPARATED_MODULES}\n")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    ${facilitator_options_stamp}.candidate ${facilitator_options_stamp})
+    file(REMOVE ${facilitator_options_stamp}.candidate)
+
     # Set up the target to call the facilitator script to make the functors source file for this standalone.
     add_custom_command(OUTPUT ${STANDALONE_FUNCTORS}
-                       COMMAND ${PYTHON_EXECUTABLE} ${STANDALONE_FACILITATOR} ${executablename} -m __not_a_real_name__,${COMMA_SEPARATED_MODULES}
+                       COMMAND ${Python3_EXECUTABLE} ${STANDALONE_FACILITATOR} ${executablename} -m __not_a_real_name__,${COMMA_SEPARATED_MODULES}
                        COMMAND touch ${STANDALONE_FUNCTORS}
                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                        DEPENDS modules_harvested
                                ${STANDALONE_FACILITATOR}
                                ${HARVEST_TOOLS}
-                               ${PROJECT_BINARY_DIR}/CMakeCache.txt)
+                               ${facilitator_options_stamp})
 
-    # Add linking flags for ROOT, RestFrames and/or HepMC if required.
+    # All the standalones need linking to HepMC, if HepMC is not excluced.
+    # TODO: Avoid this if possible.
+    if (NOT EXCLUDE_HEPMC)
+      set(ARG_LIBRARIES ${ARG_LIBRARIES} ${HEPMC_LDFLAGS})
+    endif()
+
+    # Add linking flags for ROOT, RestFrames, HepMC and/or YODA if required.
     if (USES_COLLIDERBIT)
       if (NOT EXCLUDE_ROOT)
         set(ARG_LIBRARIES ${ARG_LIBRARIES} ${ROOT_LIBRARIES})
@@ -450,6 +478,16 @@ function(add_standalone executablename)
       endif()
       if (NOT EXCLUDE_HEPMC)
         set(ARG_LIBRARIES ${ARG_LIBRARIES} ${HEPMC_LDFLAGS})
+      endif()
+      if (NOT EXCLUDE_YODA)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${YODA_LDFLAGS})
+      endif()
+      if (NOT EXCLUDE_ONNXRUNTIME)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${ONNXRUNTIME_LDFLAGS})
+      endif()
+      if (NOT EXCLUDE_FASTJET)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${fastjet_LDFLAGS})
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${fjcontrib_LDFLAGS})
       endif()
     endif()
 
@@ -463,16 +501,6 @@ function(add_standalone executablename)
                                   ${STANDALONE_OBJECTS}
                                   ${GAMBIT_ALL_COMMON_OBJECTS}
                           HEADERS ${ARG_HEADERS})
-
-    # Add the elements_extras target
-    add_elements_extras(${executablename}_elements_extras)
-    add_dependencies(${executablename}_elements_extras elements_extras)
-    add_dependencies(${executablename} ${executablename}_elements_extras)
-
-    # Add each of the declared dependencies
-    foreach(dep ${ARG_DEPENDENCIES})
-      add_dependencies(${executablename} ${dep})
-    endforeach()
 
     # Add each of the declared dependencies
     foreach(dep ${ARG_DEPENDENCIES})
@@ -560,6 +588,10 @@ function(add_standalone_tarballs modules version)
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/${module} ${dirname}/${module}
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Logs ${dirname}/Logs
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Utils ${dirname}/Utils
+                                      COMMAND ${CMAKE_COMMAND} -E remove ${dirname}/Utils/src/slhaea_helpers.cpp
+                                      COMMAND ${CMAKE_COMMAND} -E touch ${dirname}/Utils/src/slhaea_helpers.cpp
+                                      COMMAND ${CMAKE_COMMAND} -E remove ${dirname}/Utils/include/gambit/Utils/slhaea_helpers.hpp
+                                      COMMAND ${CMAKE_COMMAND} -E touch ${dirname}/Utils/include/gambit/Utils/slhaea_helpers.hpp
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Printers ${dirname}/Printers
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/cmake ${dirname}/cmake
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/config ${dirname}/config
@@ -575,6 +607,7 @@ function(add_standalone_tarballs modules version)
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/${module} ${dirname}/${module}
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Logs ${dirname}/Logs
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Utils ${dirname}/Utils
+                                      COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Printers ${dirname}/Printers
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Models ${dirname}/Models
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Elements ${dirname}/Elements
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Backends ${dirname}/Backends
@@ -600,6 +633,7 @@ function(add_standalone_tarballs modules version)
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/PrecisionBit ${dirname}/PrecisionBit
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Logs ${dirname}/Logs
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Utils ${dirname}/Utils
+                             COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Printers ${dirname}/Printers
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Models ${dirname}/Models
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Elements ${dirname}/Elements
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/Backends ${dirname}/Backends
@@ -616,10 +650,20 @@ endfunction()
 
 # Simple function to find specific Python modules
 macro(gambit_find_python_module module)
-  execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import ${module}" RESULT_VARIABLE return_value ERROR_QUIET)
+  execute_process(COMMAND ${Python3_EXECUTABLE} -c "import ${module}" RESULT_VARIABLE return_value ERROR_QUIET)
   if (NOT return_value)
     message(STATUS "Found Python module ${module}.")
     set(PY_${module}_FOUND TRUE)
+    # If module is h5py and hdf5 is present, make sure they are built with the same version
+    if(HDF5_FOUND AND module STREQUAL "h5py")
+      execute_process(COMMAND ${Python3_EXECUTABLE} -c "import h5py; import re; print(re.search(\"HDF5[ ]+(.*)\",h5py.version.info).group(1))" OUTPUT_VARIABLE hdf5_ver RESULT_VARIABLE hdf5_res ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+      if(${hdf5_res})
+        message(FATAL_ERROR "-- Module h5py is corrupted")
+      elseif(NOT ${hdf5_ver} AND NOT ${hdf5_ver} STREQUAL ${HDF5_VERSION})
+        message(STATUS "${Yellow}Note: h5py (${hdf5_ver}) and hdf5 (${HDF5_VERSION}) versions differ. Some backends (e.g. pbarlike) will be disabled.${ColourReset}")
+        set(PY_${module}_FOUND FALSE)
+      endif()
+    endif()
   else()
     if(${ARGC} GREATER 1)
       if (${ARGV1} STREQUAL "REQUIRED")
@@ -637,22 +681,13 @@ set(BOSS_dir "${PROJECT_SOURCE_DIR}/Backends/scripts/BOSS")
 set(needs_BOSSing "")
 set(needs_BOSSing_failed "")
 
-macro(BOSS_backend name backend_version ${ARGN})
+macro(BOSS_backend_full name backend_version ${ARGN})
 
   # Replace "." by "_" in the backend version number
   string(REPLACE "." "_" backend_version_safe ${backend_version})
 
-  # Check if there is a suffix
-  set(extra_args ${ARGN})
-  list(LENGTH extra_args n_extra_args)
-  if (${n_extra_args} GREATER 0)
-    set(suffix "_${ARGN}")
-  else()
-    set(suffix "")
-  endif()
-
   # Construct path to the config file expected by BOSS
-  set(config_file_path "${BOSS_dir}/configs/${name}_${backend_version_safe}${suffix}.py")
+  set(config_file_path "${BOSS_dir}/configs/${name}_${backend_version_safe}.py")
 
   # Only add BOSS step to the build process if the config file exists
   if(NOT EXISTS ${config_file_path})
@@ -670,25 +705,36 @@ macro(BOSS_backend name backend_version ${ARGN})
         set(BOSS_includes_Boost "-I${Boost_INCLUDE_DIR}")
     endif()
     set(BOSS_includes_GSL "")
-    if (NOT ${GSL_INCLUDE_DIRS} STREQUAL "")
-      set(BOSS_includes_GSL "-I${GSL_INCLUDE_DIRS}")
-    endif()
+    foreach(dir ${GSL_INCLUDE_DIRS})
+      list(APPEND BOSS_includes_GSL "-I${dir}")
+    endforeach()
     set(BOSS_includes_Eigen3 "")
     if (NOT ${EIGEN3_INCLUDE_DIR} STREQUAL "")
       set(BOSS_includes_Eigen3 "-I${EIGEN3_INCLUDE_DIR}")
     endif()
 
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-      set(BOSS_castxml_cc "--castxml-cc=${CMAKE_CXX_COMPILER}")
-    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-      set(BOSS_castxml_cc "")
+    # Set the BOSS castxml compiler to the cxx compiler
+    # If it is passed by the user, add on "castxml-cc=" for BOSS
+    if (NOT DEFINED BOSS_castxml_compiler)
+      if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        set(BOSS_castxml_cc "--castxml-cc=${CMAKE_CXX_COMPILER}")
+      elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+        set(BOSS_castxml_cc "")
+      endif()
+    else()
+      set(BOSS_castxml_cc "--castxml-cc=${BOSS_castxml_compiler}")
     endif()
+
+    # Parse command line options from optional arguments
+    set(BOSS_command_line_options "")
+    foreach(arg ${ARGN})
+      set(BOSS_command_line_options ${BOSS_command_line_options} ${arg})
+    endforeach()
+
+    add_dependencies(${name}_${ver} castxml)
     ExternalProject_Add_Step(${name}_${ver} BOSS
       # Run BOSS
-      COMMAND ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py --no-instructions ${BOSS_castxml_cc} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${name}_${backend_version_safe}${suffix}
-      # Make a dif of the existing files in Backends/include and those generated by BOSS
-      COMMAND diff -rupN ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/${name_in_frontend}_${backend_version_safe} BOSS_output/${name_in_frontend}_${backend_version_safe}/for_gambit/backend_types/${name_in_frontend}_${backend_version_safe} > ${name}_${backend_version}-prefix/${name}_${backend_version_safe}.dif || true
-      COMMAND diff -rupN ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/frontends/${name_in_frontend}_${backend_version_safe}.hpp BOSS_output/${name_in_frontend}_${backend_version_safe}/frontends/${name_in_frontend}_${backend_version_safe}.hpp >> ${name}_${backend_version}-prefix/${name}_${backend_version_safe}.dif || true
+      COMMAND ${Python3_EXECUTABLE} ${BOSS_dir}/boss.py --no-instructions ${BOSS_castxml_cc} ${BOSS_command_line_options} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${name}_${backend_version_safe}
       # Copy BOSS-generated files to correct folders within Backends/include
       COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/${name_in_frontend}_${backend_version_safe} || true
       COMMAND cp -r BOSS_output/${name_in_frontend}_${backend_version_safe}/for_gambit/backend_types/${name_in_frontend}_${backend_version_safe} ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/
@@ -698,3 +744,219 @@ macro(BOSS_backend name backend_version ${ARGN})
     )
   endif()
 endmacro()
+
+macro(BOSS_backend name backend_version ${ARGN})
+  BOSS_backend_full(${name} ${backend_version} ${ARGN})
+endmacro()
+
+
+# Function to translate -DBits="Bit1;Bit2" into additions to ${itch}.
+# Call before retrieve_bits; reads the cmake variable `Bits` and the
+# already-populated ${ALL_GAMBIT_BITS}. ScannerBit is implicitly kept;
+# any explicit -Ditch entries also stand.
+# Sets ${out_var} to YES if ${token} matches any of ${ARGN} (case-insensitive).
+function(_gambit_list_contains_ci out_var token)
+  string(TOLOWER "${token}" _t_lower)
+  set(${out_var} NO PARENT_SCOPE)
+  foreach(_x ${ARGN})
+    string(TOLOWER "${_x}" _x_lower)
+    if(_x_lower STREQUAL _t_lower)
+      set(${out_var} YES PARENT_SCOPE)
+      return()
+    endif()
+  endforeach()
+endfunction()
+
+
+function(gambit_translate_bits_into_itch)
+  if(NOT DEFINED Bits OR "${Bits}" STREQUAL "")
+    return()
+  endif()
+
+  # A Bit can't be both kept (-DBits) and ditched (-Ditch). Error rather
+  # than silently letting -Ditch win, which would otherwise quietly drop a
+  # Bit the user explicitly asked to keep.
+  set(_conflicts "")
+  foreach(_b ${Bits})
+    _gambit_list_contains_ci(_in_itch "${_b}" ${itch})
+    if(_in_itch)
+      list(APPEND _conflicts "${_b}")
+    endif()
+  endforeach()
+  if(_conflicts)
+    list(REMOVE_DUPLICATES _conflicts)
+    string(REPLACE ";" ", " _conflicts_csv "${_conflicts}")
+    message(FATAL_ERROR
+      "\nThe following entries appear in both -DBits and -Ditch: "
+      "${_conflicts_csv}.\n"
+      "A Bit cannot be simultaneously kept and ditched. Please remove "
+      "the conflicting entries from one of the two arguments and "
+      "reconfigure.\n")
+  endif()
+
+  message("${BoldYellow}-- Bits=\"${Bits}\" requested; restricting build to these Bits (+ ScannerBit).${ColourReset}")
+
+  # Warn about -DBits entries that don't match a real Bit directory.
+  set(_unknown_Bits "")
+  foreach(_b ${Bits})
+    _gambit_list_contains_ci(_match_found "${_b}" ${ALL_GAMBIT_BITS})
+    if(NOT _match_found)
+      list(APPEND _unknown_Bits "${_b}")
+    endif()
+  endforeach()
+  if(_unknown_Bits)
+    message("${BoldRed}   -DBits entries with no matching Bit directory (ignored): ${_unknown_Bits}${ColourReset}")
+  endif()
+
+  # Add every non-listed (and non-ScannerBit) Bit to ${itch}.
+  set(_added_to_itch "")
+  set(_local_itch "${itch}")
+  foreach(_d ${ALL_GAMBIT_BITS})
+    string(TOLOWER "${_d}" _d_lower)
+    if(NOT _d_lower STREQUAL "scannerbit")
+      _gambit_list_contains_ci(_keep "${_d}" ${Bits})
+      if(NOT _keep)
+        list(APPEND _added_to_itch ${_d})
+        set(_local_itch "${_local_itch};${_d}")
+      endif()
+    endif()
+  endforeach()
+  if(_added_to_itch)
+    message("${Yellow}   Bits added to ditch list by -DBits: ${_added_to_itch}${ColourReset}")
+  endif()
+  set(itch "${_local_itch}" PARENT_SCOPE)
+endfunction()
+
+
+# Function to default GAMBIT_TRIM_BACKEND_INTERFACES to ON if any on-disk Bit
+# was excluded, OFF otherwise. A user-specified value (ON or OFF) takes
+# precedence.
+function(_gambit_resolve_trim_default)
+  if(DEFINED GAMBIT_TRIM_BACKEND_INTERFACES)
+    return()
+  endif()
+  set(_user_narrowed FALSE)
+  foreach(_d ${ALL_GAMBIT_BITS})
+    if(NOT (";${GAMBIT_BITS};" MATCHES ";${_d};"))
+      set(_user_narrowed TRUE)
+    endif()
+  endforeach()
+  if(_user_narrowed)
+    set(GAMBIT_TRIM_BACKEND_INTERFACES ON CACHE BOOL
+        "Skip backend interfaces that no enabled Bit references." FORCE)
+    message("${BoldYellow}-- One or more Bits were excluded; enabling GAMBIT_TRIM_BACKEND_INTERFACES=ON.${ColourReset}")
+  else()
+    set(GAMBIT_TRIM_BACKEND_INTERFACES OFF CACHE BOOL
+        "Skip backend interfaces that no enabled Bit references.")
+  endif()
+endfunction()
+
+
+# Function to print a configure-time summary of which backend interfaces are
+# active and which are disabled, and to return the list of disabled backend
+# names in ${out_disabled_canonical} (canonical BACKENDNAMEs).
+function(_gambit_print_optin_summary bits_with_commas force_with_commas out_disabled_canonical)
+  execute_process(
+    COMMAND ${Python3_EXECUTABLE} -c "
+import sys
+sys.path.insert(0, 'Utils/scripts')
+from harvesting_tools import derive_optin_backend_excludes
+bits = [b for b in '${bits_with_commas}'.split(',') if b]
+force = [b for b in '${force_with_commas}'.split(',') if b]
+auto_excluded, used, all_be = derive_optin_backend_excludes(
+    bits, '.', './Backends/include/gambit/Backends/frontends', force)
+unknown_force = [f for f in force if f not in all_be]
+print('USED:' + ','.join(sorted(used)))
+print('SKIPPED:' + ','.join(sorted(auto_excluded)))
+print('UNKNOWN_FORCE:' + ','.join(unknown_force))
+print('TOTAL:{0}'.format(len(all_be)))
+"
+    OUTPUT_VARIABLE _trim_summary
+    RESULT_VARIABLE _trim_rc
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  if(NOT _trim_rc EQUAL 0)
+    set(${out_disabled_canonical} "" PARENT_SCOPE)
+    return()
+  endif()
+
+  string(REGEX MATCH "USED:[^\n]*"          _used_line    "${_trim_summary}")
+  string(REGEX MATCH "SKIPPED:[^\n]*"       _skipped_line "${_trim_summary}")
+  string(REGEX MATCH "UNKNOWN_FORCE:[^\n]*" _unknown_line "${_trim_summary}")
+  string(REGEX MATCH "TOTAL:[0-9]+"         _total_line   "${_trim_summary}")
+  string(REPLACE "USED:"          "" _used_list     "${_used_line}")
+  string(REPLACE "SKIPPED:"       "" _skipped_list  "${_skipped_line}")
+  string(REPLACE "UNKNOWN_FORCE:" "" _unknown_force "${_unknown_line}")
+  string(REPLACE "TOTAL:"         "" _total_count   "${_total_line}")
+  string(REPLACE "," ";" _used_list_sc    "${_used_list}")
+  string(REPLACE "," ";" _skipped_list_sc "${_skipped_list}")
+  list(LENGTH _used_list_sc    _used_count)
+  list(LENGTH _skipped_list_sc _skipped_count)
+  if("${_used_list}" STREQUAL "")
+    set(_used_count 0)
+    set(_used_list_sc "")
+  endif()
+  if("${_skipped_list}" STREQUAL "")
+    set(_skipped_count 0)
+    set(_skipped_list_sc "")
+  endif()
+
+  message("${BoldYellow}-- GAMBIT_TRIM_BACKEND_INTERFACES is ON. Building ${_used_count} of ${_total_count} backend interfaces.${ColourReset}")
+  if(NOT "${_unknown_force}" STREQUAL "")
+    message("${BoldRed}   -DGAMBIT_FORCE_BACKEND_INTERFACE entries with no matching backend (ignored): ${_unknown_force}${ColourReset}")
+  endif()
+
+  # Print every backend; active in white, disabled in yellow with a [disabled] tag.
+  set(_all_backends ${_used_list_sc} ${_skipped_list_sc})
+  list(SORT _all_backends)
+  foreach(_be ${_all_backends})
+    if(NOT "${_be}" STREQUAL "")
+      list(FIND _skipped_list_sc "${_be}" _is_skipped)
+      if(_is_skipped EQUAL -1)
+        message("${BoldWhite}     ${_be}${ColourReset}")
+      else()
+        message("${Yellow}     ${_be} [disabled]${ColourReset}")
+      endif()
+    endif()
+  endforeach()
+  if(_skipped_count GREATER 0)
+    message("${Yellow}   Pass -DGAMBIT_FORCE_BACKEND_INTERFACE=\"Name1;Name2\" to keep one anyway,${ColourReset}")
+    message("${Yellow}   or -DGAMBIT_TRIM_BACKEND_INTERFACES=OFF to disable trimming.${ColourReset}")
+  endif()
+
+  set(${out_disabled_canonical} "${_skipped_list_sc}" PARENT_SCOPE)
+endfunction()
+
+
+# Function to resolve the opt-in build configuration after retrieve_bits has
+# set ${GAMBIT_BITS}. Sets BACKEND_HARVESTER_EXTRA_ARGS and
+# update_cmakelists_extra_args in the caller's scope, and (when trimming is
+# enabled) appends the disabled backend names to ${itch} so that the existing
+# check_ditch_status mechanism in cmake/externals.cmake also disables the
+# corresponding download/install targets.
+function(gambit_configure_optin_build)
+  _gambit_resolve_trim_default()
+
+  set(_extra_args "")
+  if(GAMBIT_TRIM_BACKEND_INTERFACES)
+    string(REPLACE ";" "," _bits_with_commas "${GAMBIT_BITS}")
+    list(APPEND _extra_args --bits=${_bits_with_commas})
+
+    set(_force_with_commas "")
+    if(DEFINED GAMBIT_FORCE_BACKEND_INTERFACE AND NOT "${GAMBIT_FORCE_BACKEND_INTERFACE}" STREQUAL "")
+      string(REPLACE ";" "," _force_with_commas "${GAMBIT_FORCE_BACKEND_INTERFACE}")
+      list(APPEND _extra_args --force-backends=${_force_with_commas})
+    endif()
+    if(GAMBIT_VERBOSE_BUILD)
+      list(APPEND _extra_args --verbose-build)
+    endif()
+
+    _gambit_print_optin_summary("${_bits_with_commas}" "${_force_with_commas}" _disabled_backends)
+    foreach(_be ${_disabled_backends})
+      list(APPEND itch "${_be}")
+    endforeach()
+    set(itch "${itch}" PARENT_SCOPE)
+  endif()
+
+  set(BACKEND_HARVESTER_EXTRA_ARGS "${_extra_args}" PARENT_SCOPE)
+  set(update_cmakelists_extra_args "${_extra_args}" PARENT_SCOPE)
+endfunction()

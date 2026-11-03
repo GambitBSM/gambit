@@ -12,6 +12,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Jan
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019 Oct
+///
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date 2019
@@ -34,7 +38,10 @@ namespace Gambit
     GET_PYTHIA_AS_BASE_COLLIDER(getPythiaAsBase)
 
     // Run event generator
-    GET_PYTHIA_EVENT(generateEventPythia)
+    GET_PYTHIA_EVENT(generateEventPythia, Pythia_default::Pythia8::Event)
+
+    // Run initial Pythia cross-section estimation
+    GET_INITIAL_XSEC_PYTHIA(PerformInitialCrossSection_Pythia, Py8Collider_defaultversion, Pythia_default)
 
   }
 }

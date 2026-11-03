@@ -1,0 +1,173 @@
+#################################################################################################
+#
+#      GUM Tutorial - Majorana DM + scalar mediator (MDMSM)
+#
+#      Likelihood for Collider demonstration only!
+#
+#        - CMS 13TeV MonoJet 36invfb
+#
+#################################################################################################
+
+
+Parameters:
+  # Default SM values
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  StandardModel_Higgs:
+    mH: 125.09
+
+  MDMSM:
+    mchi: 400.0
+    mY: 1000.0
+    gchi: 3.0
+    cY: 3.0
+
+Priors:
+
+Printer:
+
+  printer: cout
+
+ObsLikes:
+
+
+  # Calculate the LHC likelihood
+  - purpose:    LogLike
+    capability: LHC_Combined_LogLike
+  
+  - purpose:    Observable
+    capability: LHC_signals
+
+Rules:
+
+  # Choose to get decays from DecayBit proper, not from an SLHA file.
+  - capability: decay_rates
+    function: all_decays
+  
+  # Pass an SLHA2 spectrum to Pythia
+  - capability: SpectrumAndDecaysForPythia
+    function: getSpectrumAndDecaysForPythia_MDMSM
+    options:
+      slha_version: 2
+      write_summary_to_log: false
+
+  # Choose to where to get cross-sections from
+  - capability: TotalCrossSection
+    function: getEvGenCrossSection_as_base
+
+  # Just use unweighted cross-sections
+  - capability: EventWeighterFunction
+    function: setEventWeight_unity
+
+  # Choose where to get scattering events from
+  - capability: HardScatteringEvent
+    type: Pythia_MDMSM_default::Pythia8::Event
+    function: generateEventPythia_MDMSM
+
+  - capability: HardScatteringEvent
+    type: HEPUtils::Event
+    function: generateEventPythia_MDMSM_HEPUtils
+
+  #- capability: HardScatteringEvent
+  #  type: HepMC3::GenEvent
+  #  function: generateEventPythia_MDMSM_HepMC
+
+  # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
+  - capability: RunMC
+    function: operateLHCLoop
+    options:
+      silenceLoop: false
+      LHC_13TeV:
+        min_nEvents: 5000
+        max_nEvents: 50000
+        events_between_convergence_checks: 5000
+        target_fractional_uncert: 0.3
+        halt_when_systematic_dominated: true
+        all_analyses_must_converge: false
+        all_SR_must_converge: false
+        maxFailedEvents: 1000
+        analyses:
+          - CMS_13TeV_MONOJET_36invfb
+          - ATLAS_13TeV_MONOJET_139infb
+
+  # Choose Monte Carlo event simulator and options.
+  - capability:  HardScatteringSim
+    type: Py8Collider_MDMSM_defaultversion
+    function: getPythia_MDMSM
+    options:
+      LHC_13TeV:
+        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        xsec_veto: 0.028
+        partonOnly: false
+        antiktR: 0.4
+        pythia_settings:
+          - MDMSM:all = on
+          - Next:numberCount = 10
+          - Beams:eCM = 13000
+          - Print:quiet = off
+          - Random:setSeed = on
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = off
+          - PartonLevel:FSR = off
+          - HadronLevel:all = on
+          #- TauDecays:mode = 0
+          - TimeShower:pTmin = 2
+          - PhaseSpace:pTHatMin = 20.
+          - JetMatching:scheme = 1
+
+  # Choose LHC likelihood form and options.
+  - capability: LHC_LogLikes
+    # Choose not to use the FullLikes backend.
+    # function: calc_LHC_LogLikes
+    # Choose to use the FullLikes backend when applicable
+    function: calc_LHC_LogLikes_full
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+    options:
+      use_covariances: true
+      use_marginalising: false
+      combine_SRs_without_covariances: false
+      nuisance_prof_initstep: 0.1
+      nuisance_prof_convtol: 0.01
+      nuisance_prof_maxsteps: 10000
+      nuisance_prof_convacc: 0.01
+      nuisance_prof_simplexsize: 1e-5
+      nuisance_prof_method: 6
+      nuisance_prof_verbosity: 0
+
+  # Options for how the combined LHC loglike should be calculated
+  - capability: LHC_Combined_LogLike
+    options:
+      write_summary_to_log: false
+      cap_loglike: false
+      cap_loglike_individual_analyses: false
+      # skip_analyses:
+  
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 2
+
+Logger:
+
+  redirection:
+    [Default] : "default.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  default_output_path: "runs/MDMSM"
+
+  debug: true

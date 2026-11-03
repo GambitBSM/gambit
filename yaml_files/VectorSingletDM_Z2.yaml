@@ -135,8 +135,9 @@ Rules:
 
   # Use DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for relic density
   - capability: RD_oh2
-    #function: RD_oh2_DS5_general
     function: RD_oh2_DS_general
+  - capability: RD_oh2_DS6_ini # starting from version 6.4.0
+    function: RD_oh2_DS6_ini_func
     options:
       fast: 1  # 0: standard, 1: fast (default when co-annihilations etc are involved)
 
@@ -171,8 +172,8 @@ Rules:
   - capability: nuyield_ptr
     function: nuyield_from_DS
     backends:
-    #  - {backend: DarkSUSY, version: 5.1.3}
-      - {backend: DarkSUSY_generic_wimp}
+    #  - {capability: DS_nuyield_setup, backend: DarkSUSY, version: 5.1.3}
+      - {capability: DS_nuyield_setup, backend: DarkSUSY_generic_wimp}
 
    # Choose to use DarkSUSY or capgen for solar capture rate
   - capability: capture_rate_Sun

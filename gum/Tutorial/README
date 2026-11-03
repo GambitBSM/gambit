@@ -10,7 +10,7 @@ You will need the following for GUM:
   - CMake
   - Boost 1.41 or above
   - Mathematica 7 or above
-  - Python 2.7 or above
+  - Python 3
   - The following Python modules,
     - yaml
     - numpy

@@ -30,13 +30,6 @@ from src import *
 from collections import defaultdict
 from distutils.dir_util import copy_tree
 
-try:
-    # Python 2
-    xrange
-except NameError:
-    # Python 3, xrange is now named range
-    xrange = range
-
 print()
 print(banner())
 print("-- Running GUM with python version", platform.python_version(), "--")
@@ -113,6 +106,8 @@ if args.file:
                 raise GumError(("\n\nPythia output requested but no "
                                 "collider_processes specified.\n"
                                 "Please amend your .gum file!"))
+            base_pythia_version = "312" # Override to a fixed pythia version
+            print("Using Pythia version 8.{}".format(base_pythia_version))
         else:
             colliderbit = False
 
@@ -163,8 +158,8 @@ if args.file:
         elif gum.math == 'sarah':
 
             # Let GUM do a quick and dirty parse of the file first, before we
-            # fire up a Mathematica kernel
-            parse_sarah_model_file(gum.mathname, output_opts)
+            # fire up a Mathematica kernel, and get the model name used by sarah
+            sarah_model_name = parse_sarah_model_file(gum.mathname, output_opts)
 
             from lib.libsarah import *
 
@@ -191,11 +186,8 @@ if args.file:
             if err.is_error():
                 raise GumError( err.what() )
 
-            # Get a list of all non-SM particles
-            sarah_bsm = [x for x in partlist if x.SM() is False]
-
-            # Make all BSM particles work with GUM's native Particle class.
-            bsm_particle_list, add_higgs = sarah_part_to_gum_part(sarah_bsm)
+            # Make all SM and BSM particles work with GUM's native Particle class.
+            sm_particle_list, bsm_particle_list, add_higgs = sarah_part_to_gum_part(partlist)
 
         print("Finished extracting parameters from " + gum.math + ".")
 
@@ -203,7 +195,7 @@ if args.file:
         # First, initialise DM particle from particle list
         if darkbit:
             dm_set = False
-            for i in xrange(len(partlist)):
+            for i in range(len(partlist)):
                 part = partlist[i]
                 # If specified, initialise the DM candidate
                 if part.pdg() == gum.dm_pdg:
@@ -293,7 +285,7 @@ if args.file:
                     # Clear and remake the copy of Pythia that will receive the
                     #  matrix element code produced by MadGraph
                     pristine_pythia_dir = os.path.join(os.getcwd(),
-                                                       'contrib','Pythia')
+                                                       'contrib','Pythia_8_'+base_pythia_version)
                     new_pythia_dir = mg5_output_dir + "/Pythia_patched"
                     remove_tree_quietly(new_pythia_dir)
 
@@ -426,8 +418,8 @@ if args.file:
             # Patch the files
             print("Patching SPheno...")
 
-            patch_spheno(clean_model_name, patched_spheno_dir, flags,
-                         bsm_particle_list)
+            patch_spheno(clean_model_name, sarah_model_name, patched_spheno_dir,
+                         flags, bsm_particle_list)
 
             fullpath = "Backends/patches/sarah-spheno/{0}/{1}".format(
                                                                SPHENO_VERSION,
@@ -448,8 +440,8 @@ if args.file:
             # Write frontends for SPheno. That's a lotta scrapin'.
             print("Writing SPheno frontends.")
             spheno_src, spheno_header, backend_types, btnum = \
-                write_spheno_frontends(clean_model_name, parameters,
-                                       bsm_particle_list, flags,
+                write_spheno_frontends(clean_model_name, sarah_model_name, parameters,
+                                       sm_particle_list, bsm_particle_list, flags,
                                        patched_spheno_dir, output_dir,
                                        blockparams, gambit_pdgs, mixings,
                                        reality_dict, deps, bcs,
@@ -462,7 +454,7 @@ if args.file:
 
             print("Writing SPheno decay table.")
             spheno_decay_tables, spheno_decays = \
-                make_spheno_decay_tables(patched_spheno_dir, clean_model_name)
+                make_spheno_decay_tables(patched_spheno_dir, clean_model_name, sarah_model_name)
 
             # DecayBit entry
             print("Writing SPheno module functions for DecayBit.")
@@ -521,7 +513,7 @@ if args.file:
             # to provide CalcHEP DecayBit entries too?
 
             # Pass all interactions by first PDG code needed.
-            for i in xrange(len(three_body_decays)):
+            for i in range(len(three_body_decays)):
                 decaybit_src_ch += write_decaytable_entry_calchep(
                                                           three_body_decays[i],
                                                           gum.name,
@@ -680,20 +672,26 @@ if args.file:
             fix_pythia_lib(gum.name, new_pythia_dir, pythia_groups,
                            bsm_particle_list, decays)
             print("Creating a diff vs original version of Pythia.")
+            # Before writing the backend patch, find and replace couplingsPtr with coupSMPtr in any of the Sigma_ModelName_process.cc files
+            # Swap out any use of couplingsPtr with coupSMPtr in MadGraph output, needed for Pythia 8.3
+            for filename in os.listdir(new_pythia_dir+"/src"):
+                if os.path.isfile(os.path.join(new_pythia_dir+"/src",filename)) and ('Sigma_'+ gum.name) in filename:
+                    find_and_replace(os.path.join(new_pythia_dir+"/src",filename), ",", " couplingsPtr", " coupSMPtr")
+            
             write_backend_patch(output_dir, pristine_pythia_dir, new_pythia_dir,
                                 "pythia_"+gum.name.lower(),
                                 "8."+base_pythia_version)
             print("Writing an additional patch for the new version of Pythia.")
-            patch_pythia_patch(parameters, gum.name, reset_contents)
+            patch_pythia_patch(parameters, gum.name, reset_contents, base_pythia_version)
             print("Creating a cmake entry for Pythia"+gum.name+".")
-            pythia_cmake = write_pythia_cmake_entry(gum.name, output_dir)
+            pythia_cmake = write_pythia_cmake_entry(gum.name, output_dir, base_pythia_version)
             print(("Setting the default version of Pythia_"+gum.name+" for "
                    "BOSSed classes to 8."+base_pythia_version))
-            write_pythia_capability_defs(gum.name, capability_definitions)
+            write_pythia_capability_defs(gum.name, capability_definitions, base_pythia_version)
 
             # Adding in a UserHook
             print("Writing a Pythia UserHooks class for ColliderBit")
-            set_userhook = write_set_userhook(gum.name,base_pythia_version)
+            set_userhook = write_set_userhook(gum.name, base_pythia_version)
             apply_userhook = write_apply_userhook(gum.name)
 
         # Stop now if we're just doing a dry run
@@ -746,7 +744,7 @@ if args.file:
             if output_opts.ch:
                 amend_file("DecayBit.cpp", m, decaybit_src_ch, num-3,
                            reset_contents)
-                for i in xrange(len(decay_roll)):
+                for i in range(len(decay_roll)):
                     if find_capability(decay_roll[i][0], m)[0]:
                         amend_rollcall(decay_roll[i][0], m, decay_roll[i][1],
                                        reset_contents)
@@ -783,7 +781,7 @@ if args.file:
             num = find_string("DarkBit_rollcall.hpp", m,"MODEL_CONDITIONAL_DEPENDENCY(DMEFT_spectrum, Spectrum, DMEFT)")[1]
             amend_file("DarkBit_rollcall.hpp", m, wimp_prop_h,num, reset_contents)
             
-            num = find_string("DarkBit.cpp", m,"if(ModelInUse(\"DMEFT\"))")[1]
+            num = find_string("DarkBit.cpp", m,"else if(ModelInUse(\"DMEFT\"))")[1]
             amend_file("DarkBit.cpp", m, wimp_prop_c,num-1, reset_contents)
             
             write_file(gum.name + ".cpp", m, darkbit_src, reset_contents)
@@ -823,10 +821,10 @@ if args.file:
                            num+10, reset_contents)
 
             # write all invisible particles in the model to Event header
-            num = find_string("heputils/include/HEPUtils/Event.h", "contrib",
-                                  "        _cinvisibles.push_back(p);")[1]
-            amend_file("heputils/include/HEPUtils/Event.h", "contrib", get_invisibles(gum.invisibles_pdg),
-                           num+1, reset_contents)
+            num = find_string("heputils/include/HEPUtils/Particle.h", "contrib",
+                                  "      if (pid() == 1000022 || pid() == 1000039) return false;")[1]
+            amend_file("heputils/include/HEPUtils/Particle.h", "contrib", get_invisibles(gum.invisibles_pdg),
+                           num, reset_contents)
 
         # HiggsBounds interface
         if output_opts.spheno:
@@ -877,7 +875,7 @@ if args.file:
             num = find_string(f, m, "backend_undefs.hpp")[1]
             amend_file(f, m, ch_head, num-2, reset_contents)
             num = find_string(f, m, "BE_FUNCTION")[1]
-            amend_file(f, m, "BE_ALLOW_MODELS({0})".format(gum.name), num-2,
+            amend_file(f, m, "BE_ALLOW_MODELS({0})\n".format(gum.name), num-2,
                        reset_contents)
         # micrOMEGAs
         if output_opts.mo:
@@ -909,7 +907,7 @@ if args.file:
             safe_ver = "8_"+base_pythia_version
             ver = "8."+base_pythia_version
             print("Creating BOSS config files for Pythia_"+gum.name+".")
-            write_boss_configs_for_pythia(gum.name, output_dir,reset_contents)
+            write_boss_configs_for_pythia(gum.name, output_dir,reset_contents, base_pythia_version)
             copy_file(be+"/"+ver+"/patch_"+be+"_"+ver+".dif", m, output_dir,
                       reset_contents, existing = False)
             add_to_backend_locations("Pythia_"+gum.name,

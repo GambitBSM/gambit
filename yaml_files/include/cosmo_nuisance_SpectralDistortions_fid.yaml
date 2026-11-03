@@ -1,0 +1,25 @@
+##########################################################################
+## Nuisance parameter of "cosmo_nuisance_SpectralDistortions"
+##
+## Parameters are fixed to fiducial values (best fit values?)
+##
+## Patrick Stoecker <stoecker@physik.rwth-aachen.de>
+## 2021, Oct
+##########################################################################
+
+sd_delta_T: 0.0
+sd_T_D: 21.0
+sd_beta_D: 1.53
+sd_A_D: 1.49e6
+sd_T_CIB: 18.8
+sd_beta_CIB: 0.86
+sd_A_CIB: 4.10e5
+sd_alpha_sync: 0.82
+sd_omega_sync: 0.2
+sd_A_sync: 288.0
+sd_T_e: 7000.0
+sd_EM: 15.0
+sd_nu_p_spin: 19.0
+sd_A_spin: 1485.33
+sd_A_CO: 1.0
+sd_y_reio_nuisance: 1.77e-6

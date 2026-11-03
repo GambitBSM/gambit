@@ -679,10 +679,6 @@ namespace Gambit
       /// Initialise MPI
       void Init()
       {
-        // Dummies; can't rely on being able to use these seriously as the MPI standard doesn't mandate it.
-        int argc = 0;
-        char** argv = NULL;
-
         // Run any functions needed to queue up MPI datatype definition functions
         // (still a little hacky, but works)
         // DEPRECATED! No longer adding any new MPI datatypes, for now anyway
@@ -701,11 +697,11 @@ namespace Gambit
         else
         {
            int errflag;
-           errflag = MPI_Init(&argc,&argv);
+           errflag = MPI_Init(NULL, NULL);
 
            // // Test case for thread-safe MPI. Probably not going to use this though.
            // int provided; // output; level of thread support provided (may not meet the requested level)
-           // errflag = MPI_Init_thread(&argc,&argv,MPI_THREAD_FUNNELED,&provided);
+           // errflag = MPI_Init_thread(NULL,NULL,MPI_THREAD_FUNNELED,&provided);
            // if(provided<MPI_THREAD_MULTIPLE)
            // {
            //    std::ostringstream errmsg;

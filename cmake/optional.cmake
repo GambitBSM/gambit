@@ -25,31 +25,66 @@
 #          (wh260@cam.ac.uk)
 #  \date 2018 May, Dec
 #
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Oct
+#
 #************************************************
 
 # Check for MPI libraries; enable manually with "cmake -DWITH_MPI=ON .."
 option(WITH_MPI "Compile with MPI enabled" OFF)
 if(WITH_MPI)
   find_package(MPI)
+
   # Do things for GAMBIT itself
   if(MPI_C_FOUND OR MPI_CXX_FOUND)
     message("${BoldYellow}-- MPI C/C++ libraries found. GAMBIT will be MPI-enabled.${ColourReset}")
     add_definitions(-DWITH_MPI)
+
+    # Check if we need to work around homebrew OpenMPI formula rpath bug
+    if(BREW)
+      string(FIND "Cellar/open-mpi" MPI_C_LIBRARIES MPI_FROM_BREW)
+      if(MPI_FROM_BREW)
+        execute_process(COMMAND ${BREW} deps open-mpi RESULT_VARIABLE BREW_RESULT_CODE OUTPUT_QUIET ERROR_QUIET)
+        string(FIND "gcc" RESULT_VARIABLE OPEN_MPI_DEPENDS_ON_GCC)
+        if(OPEN_MPI_DEPENDS_ON_GCC AND NOT BREW_RESULT_CODE)
+          execute_process(COMMAND ${BREW} ls gcc --verbose RESULT_VARIABLE BREW_RESULT_CODE OUTPUT_VARIABLE GCC_LS_VERBOSE)
+          if(BREW_RESULT_CODE)
+            message(FATAL_ERROR "You are using Open-MPI from homebrew, which depends on gcc (from homebrew) -- but you have removed gcc.  Please reinstall it with \"brew install gcc\".")
+          else()
+            # Cmake regex makes me want to stab myself in the eye; this should really be possible in one line.
+            string(REPLACE "\n" ";" GCC_LS_VERBOSE "${GCC_LS_VERBOSE}")
+            string(REGEX MATCH ";[^;]*/libgcc_s" GCC_LS_VERBOSE "${GCC_LS_VERBOSE}")
+            string(REPLACE ";" "" GCC_LS_VERBOSE "${GCC_LS_VERBOSE}")
+            string(REPLACE "/libgcc_s" "" GCC_LIB_DIR "${GCC_LS_VERBOSE}")
+            list(APPEND MPI_CXX_LIBRARIES "-L${GCC_LIB_DIR}")
+            list(APPEND MPI_C_LIBRARIES "-L${GCC_LIB_DIR}")
+          endif()
+        endif()
+      endif()
+    endif()
+
     if(MPI_CXX_FOUND)
       include_directories(${MPI_CXX_INCLUDE_PATH})
       add_definitions(${MPI_CXX_COMPILE_FLAGS})
     endif()
+
     if(MPI_C_FOUND)
       include_directories(${MPI_C_INCLUDE_PATH})
       add_definitions(${MPI_C_COMPILE_FLAGS})
+      if(GCC_LIB_DIR)
+        list(APPEND MPI_C_LIBRARIES "-L${GCC_LIB_DIR}")
+      endif()
       if (NOT MPI_CXX_FOUND)
         message("${Red}-- Warning: C MPI libraries found, but not C++ MPI libraries.  Usually that's OK, but")
-        message("   if you experience MPI linking errors, please install C++ MPI libraries as well.${CoulourReset}")
+        message("   if you experience MPI linking errors, please install C++ MPI libraries as well.${ColourReset}")
       endif()
     endif()
+
   else()
-    message("${BoldRed}   Missing C MPI installation.  GAMBIT will not be MPI-enabled.${ColourReset}")
+    message("${BoldCyan} X Missing C MPI installation. GAMBIT will not be MPI-enabled.${ColourReset}")
   endif()
+
   # Do things for Fortran backends and scanners
   if(MPI_Fortran_FOUND)
     if(MPI_C_FOUND)
@@ -60,6 +95,10 @@ if(WITH_MPI)
       endforeach()
       string(STRIP "${GAMBIT_MPI_F_INC}" GAMBIT_MPI_F_INC)
       set(BACKEND_Fortran_FLAGS_PLUS_MPI "${MPI_Fortran_COMPILE_FLAGS} ${BACKEND_Fortran_FLAGS} -DMPI ${GAMBIT_MPI_F_INC}")
+      # Avoid errors from old-style Fortran MPI headers when compiling with gfortran 10 or later.
+      if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
+        set(BACKEND_Fortran_FLAGS_PLUS_MPI "${BACKEND_Fortran_FLAGS_PLUS_MPI} -fallow-argument-mismatch")
+      endif()
       string(STRIP "${BACKEND_Fortran_FLAGS_PLUS_MPI}" BACKEND_Fortran_FLAGS_PLUS_MPI)
       # Libraries
       foreach(lib ${MPI_Fortran_LIBRARIES})
@@ -73,7 +112,7 @@ if(WITH_MPI)
       string(STRIP "${CMAKE_Fortran_MPI_SO_LINK_FLAGS}" CMAKE_Fortran_MPI_SO_LINK_FLAGS)
     endif()
   else()
-    message("${BoldRed}   Missing Fortran MPI installation.  Fortran scanners will not be MPI-enabled.${ColourReset}")
+    message("${BoldCyan} X Missing Fortran MPI installation. Fortran scanners will not be MPI-enabled.${ColourReset}")
   endif()
 
   # Do things for C++ backends and scanners
@@ -99,7 +138,7 @@ if(WITH_MPI)
       string(STRIP "${CMAKE_CXX_MPI_SO_LINK_FLAGS}" CMAKE_CXX_MPI_SO_LINK_FLAGS)
     endif()
   else()
-    message("${BoldRed}   Missing C++ MPI installation.  C++ scanners will not be MPI-enabled.${ColourReset}")
+    message("${BoldCyan} X Missing C++ MPI installation. C++ scanners will not be MPI-enabled.${ColourReset}")
   endif()
 else()
   message("${BoldCyan} X MPI is disabled. Executables will not be parallelised with MPI. Please use -DWITH_MPI=ON to enable MPI.${ColourReset}")
@@ -175,13 +214,25 @@ endif()
 if(NOT LAPACK_LINKLIBS AND NOT LAPACK_FOUND)
   # In future MN and FS need to be ditched if lapack cannot be found, and the build allowed to continue.
   message(FATAL_ERROR "${BoldRed}LAPACK shared library not found.${ColourReset}")
-  message("${BoldRed}   LAPACK shared library not found. Excluding FlexibleSUSY and MultiNest from GAMBIT configuration. ${ColourReset}")
 endif()
 
 # Helper function to check if ROOT has been compiled with the same standard as we are using here.  If not, downgrade to the standard that ROOT was compiled with.
+# Note: only C++17 and later are matched here, so a ROOT installation built with an older
+# standard will not be matched and will trigger the "unable to detect" error below, prompting
+# the user to rebuild ROOT with at least C++17.
 function(check_root_std_flag)
+  # Modern ROOT (CMake config) versions expose the standard they were built
+  # with directly via ROOT_CXX_STANDARD, rather than embedding a -std=c++NN
+  # flag in ROOT_CXX_FLAGS. Prefer that when present.
+  if (NOT ROOT_USES_STD AND DEFINED ROOT_CXX_STANDARD AND NOT "${ROOT_CXX_STANDARD}" STREQUAL "")
+    set(ROOT_USES_STD TRUE)
+    set(ROOT_STD "${ROOT_CXX_STANDARD}")
+    set(ROOT_CXX_FLAG "-std=c++${ROOT_CXX_STANDARD}")
+    set(ROOT_CXX_FLAG_RE "-std=c\\+\\+${ROOT_CXX_STANDARD}")
+    message("${BoldYellow}   This ROOT was compiled with ${ROOT_CXX_FLAG} (from ROOT_CXX_STANDARD).${ColourReset}")
+  endif()
   # Loop over C++ standards
-  set(std_list "17;1z;14;1y;11;0x")
+  set(std_list "23;2b;20;2a;17;1z")
   foreach(std ${std_list})
     set(CXX_FLAG "-std=c++${std}")
     set(CXX_FLAG_RE "-std=c\\+\\+${std}")
@@ -222,10 +273,19 @@ function(check_root_std_flag)
       set(DOWNGRADE_BACKEND_STD "True")
     endif()
   endforeach()
+  # If ROOT_CXX_FLAGS doesn't have -std flag, check ROOT_CXX_STANDARD (used by newer ROOT versions)
+  if(NOT ROOT_USES_STD AND DEFINED ROOT_CXX_STANDARD)
+    set(ROOT_STD "${ROOT_CXX_STANDARD}")
+    set(ROOT_CXX_FLAG "-std=c++${ROOT_CXX_STANDARD}")
+    set(ROOT_CXX_FLAG_RE "-std=c\\+\\+${ROOT_CXX_STANDARD}")
+    set(ROOT_USES_STD TRUE)
+    message("${BoldYellow}   This ROOT was compiled with -std=c++${ROOT_CXX_STANDARD} (via ROOT_CXX_STANDARD).${ColourReset}")
+  endif()
   # Did we figure out the std used by ROOT?
   if(NOT ROOT_USES_STD)
     message(FATAL_ERROR "${BoldRed}Unable to detect what flavour of C++ your installation of ROOT has "
-                        "been compiled with; please set -DWITH_ROOT=OFF.${ColourReset}")
+                        "been compiled with, or it was compiled with an unsupported (pre-C++17) standard. "
+                        "Please rebuild ROOT with at least C++17, or set -DWITH_ROOT=OFF.${ColourReset}")
   endif()
   # Check that the std used by ROOT is OK
   CHECK_CXX_COMPILER_FLAG(${ROOT_CXX_FLAG} COMPILER_SUPPORTS_CXX${ROOT_STD})
@@ -238,28 +298,47 @@ function(check_root_std_flag)
   if(DOWNGRADE_CMAKE_STD)
     string(REGEX REPLACE ${CMAKE_CXX_FLAG_RE} ${ROOT_CXX_FLAG} CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} PARENT_SCOPE)
+    set(GAMBIT_SUPPORTS_CXX${CMAKE_STD} FALSE PARENT_SCOPE)
+    set(GAMBIT_SUPPORTS_CXX${ROOT_STD} TRUE PARENT_SCOPE)
   endif()
   # Downgrade -std flag in BACKEND_CXX_FLAGS
   if(DOWNGRADE_BACKEND_STD)
     string(REGEX REPLACE ${BACKEND_CXX_FLAG_RE} ${ROOT_CXX_FLAG} BACKEND_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
     set(BACKEND_CXX_FLAGS ${BACKEND_CXX_FLAGS} PARENT_SCOPE)
   endif()
+  # If CMAKE_CXX_FLAGS has no -std flag, add the ROOT one
+  if(NOT CMAKE_USES_STD)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CXX_FLAG}")
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} PARENT_SCOPE)
+    message("${BoldYellow}   Adding ${ROOT_CXX_FLAG} to CMAKE_CXX_FLAGS for ROOT compatibility.${ColourReset}")
+  endif()
+  # If BACKEND_CXX_FLAGS has no -std flag, add the ROOT one
+  if(NOT BACKEND_USES_STD)
+    set(BACKEND_CXX_FLAGS "${BACKEND_CXX_FLAGS} ${ROOT_CXX_FLAG}")
+    set(BACKEND_CXX_FLAGS ${BACKEND_CXX_FLAGS} PARENT_SCOPE)
+    message("${BoldYellow}   Adding ${ROOT_CXX_FLAG} to BACKEND_CXX_FLAGS for ROOT compatibility.${ColourReset}")
+  endif()
+  # Make the detected ROOT_CXX_FLAG available to all who need it
+  set(ROOT_CXX_FLAG ${ROOT_CXX_FLAG} PARENT_SCOPE)
 endfunction()
 
 # Check for ROOT.
 option(WITH_ROOT "Compile with ROOT enabled" OFF)
 if(WITH_ROOT)
   if (DEFINED ENV{ROOTSYS})
+    # Check both possible locations for ROOT cmake files (installed vs build directory)
     list(APPEND CMAKE_MODULE_PATH $ENV{ROOTSYS}/etc/cmake/)
+    list(APPEND CMAKE_MODULE_PATH $ENV{ROOTSYS}/)
     find_package(ROOT 6)
     if (ROOT_VERSION VERSION_LESS 6)
       set (ROOT_FOUND FALSE)
     endif()
+    if(NOT ROOT_FOUND)
+      message("${BoldCyan} X ROOT 6 not found at ROOTSYS=$ENV{ROOTSYS}. ROOT support will be disabled.${ColourReset}")
+    endif()
   else()
     set (ROOT_FOUND FALSE)
-  endif()
-  if(NOT ROOT_FOUND)
-    message("${BoldRed}   ROOT 6 not found.  ROOT support will be disabled.${ColourReset}")
+    message("${BoldCyan} X ROOTSYS environment variable is not set. Please source ROOT's thisroot.sh setup script before running cmake. ROOT support will be disabled.${ColourReset}")
   endif()
 else()
   message("${BoldCyan} X ROOT support is deactivated. Set -DWITH_ROOT=ON to activate ROOT support in GAMBIT.${ColourReset}")
@@ -278,6 +357,13 @@ if (WITH_ROOT AND ROOT_FOUND)
   add_definitions(${ROOT_DEFINITIONS})
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};$ENV{ROOTSYS}/lib")
 
+  # FindROOT does not add the libTMVA library to the ROOT_LIBRARIES variable,
+  # so we'll add it ourselves, if the library file exists
+  set(ROOT_TMVA_LIBRARY "${ROOT_LIBRARY_DIR}/libTMVA${CMAKE_SHARED_MODULE_SUFFIX}")
+  if(EXISTS "${ROOT_TMVA_LIBRARY}")
+    set(ROOT_LIBRARIES "${ROOT_LIBRARIES};${ROOT_TMVA_LIBRARY}")
+  endif()
+
   check_root_std_flag()
   set (EXCLUDE_ROOT FALSE)
 else()
@@ -287,36 +373,90 @@ else()
   set (EXCLUDE_ROOT TRUE)
 endif()
 
-# Check for HDF5 libraries
-find_package(HDF5 QUIET COMPONENTS C)
-if(HDF5_FOUND)
-  include_directories(${HDF5_INCLUDE_DIR})  # for older versions of cmake
-  include_directories(${HDF5_INCLUDE_DIRS}) # for newer cmake
-  message("-- Found HDF5 libraries: ${HDF5_LIBRARIES}")
-  if(VERBOSE)
-    message(STATUS ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR})
+# Check for HDF5 libraries.
+option(WITH_HDF5 "Compile with HDF5 enabled" ON)
+if(WITH_HDF5)
+  # GAMBIT's HDF5 printers use serial HDF5 only; MPI coordination happens at
+  # the GAMBIT level rather than through parallel HDF5 collective I/O. Force
+  # the finder to pick the serial build even when a parallel build is also
+  # present, which avoids accidentally pulling in MPI symbols/headers from
+  # libhdf5 (a common source of breakage on macOS with mixed Homebrew/Anaconda
+  # installs and on HPC modules).
+  set(HDF5_PREFER_PARALLEL FALSE)
+  find_package(HDF5 QUIET COMPONENTS C)
+  if(HDF5_FOUND)
+    # Mark HDF5 includes as SYSTEM so they don't generate warnings in
+    # downstream code and stay out of the way of GAMBIT's own headers.
+    include_directories(SYSTEM ${HDF5_INCLUDE_DIR})  # for older versions of cmake
+    include_directories(SYSTEM ${HDF5_INCLUDE_DIRS}) # for newer cmake
+    message("-- Found HDF5 version: ${HDF5_VERSION}")
+    message("   Found HDF5 libraries: ${HDF5_LIBRARIES}")
+    if(VERBOSE)
+      message(STATUS ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR})
+    endif()
+
+    # Sanity check: try to compile a small program that includes hdf5.h and
+    # links against the discovered libraries. This catches the common case
+    # where find_package mixes headers from one HDF5 install with libraries
+    # from another (e.g. Homebrew + Anaconda on macOS) before the user hits a
+    # cryptic compile or link error deep into the GAMBIT build.
+    include(CheckCSourceCompiles)
+    include(CMakePushCheckState)
+    cmake_push_check_state()
+    set(CMAKE_REQUIRED_INCLUDES  ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR})
+    set(CMAKE_REQUIRED_LIBRARIES ${HDF5_LIBRARIES})
+    set(CMAKE_REQUIRED_QUIET TRUE)
+    check_c_source_compiles(
+      "#include <hdf5.h>
+       int main(void) {
+         hid_t plist = H5Pcreate(H5P_FILE_ACCESS);
+         H5Pclose(plist);
+         return 0;
+       }"
+      GAMBIT_HDF5_USABLE)
+    cmake_pop_check_state()
+    if(NOT GAMBIT_HDF5_USABLE)
+      message("${BoldCyan} X HDF5 was found by CMake (version ${HDF5_VERSION}) but a basic compile/link test failed.${ColourReset}")
+      message("    This often means the discovered headers and libraries come from different HDF5 installs")
+      message("    (e.g. Homebrew + Anaconda on macOS). Excluding hdf5printer and hdf5reader from this configuration.")
+      message("    To force a specific install, configure with -DHDF5_ROOT=/path/to/hdf5/prefix.")
+      set(HDF5_FOUND FALSE)
+      set(itch "${itch}" "hdf5printer" "hdf5reader")
+    endif()
+  else()
+    message("${BoldCyan} X No HDF5 C libraries found. Excluding hdf5printer and hdf5reader from GAMBIT configuration.${ColourReset}")
+    message("    To point to a specific HDF5 install, configure with -DHDF5_ROOT=/path/to/hdf5/prefix.")
+    set(itch "${itch}" "hdf5printer" "hdf5reader")
   endif()
 else()
-  message("${BoldRed}   No HDF5 C libraries found. Excluding hdf5printer and hdf5reader from GAMBIT configuration.${ColourReset}")
+  message("${BoldCyan} X HDF5 is disabled. Excluding hdf5printer and hdf5reader from GAMBIT configuration. Use -DWITH_HDF5=ON to enable HDF5. ${ColourReset}")
   set(itch "${itch}" "hdf5printer" "hdf5reader")
 endif()
 
 # Check for SQLite libraries
-find_package(SQLite3 QUIET COMPONENTS C)
-if(SQLite3_FOUND)
-  include_directories(${SQLite3_INCLUDE_DIRS})
-  message("-- Found SQLite3 libraries: ${SQLite3_LIBRARIES}")
-  if(VERBOSE)
-      message(STATUS ${SQLite3_INCLUDE_DIRS})
+option(WITH_SQLite3 "Compile with SQLite3 enabled" ON)
+if(WITH_SQLite3)
+  find_package(SQLite3 QUIET COMPONENTS C)
+  if(SQLite3_FOUND)
+    include_directories(${SQLite3_INCLUDE_DIRS})
+    message("-- Found SQLite3 libraries: ${SQLite3_LIBRARIES}")
+    if(VERBOSE)
+        message(STATUS ${SQLite3_INCLUDE_DIRS})
+    endif()
+  else()
+    message("${BoldCyan} X No SQLite C libraries found. Excluding sqliteprinter and sqlitereader from GAMBIT configuration.${ColourReset}")
+    message("   Backends depending on SQLite3 (e.g. Contur) will be deactivated.")
+    set(itch "${itch}" "sqliteprinter" "sqlitereader")
   endif()
 else()
-  message("${BoldRed}   No SQLite C libraries found. Excluding sqliteprinter and sqlitereader from GAMBIT configuration.${ColourReset}")
+  message("${BoldCyan} X SQLite3 is disabled. Excluding sqliteprinter and sqlitereader from GAMBIT configuration. Use -DWITH_SQLite3=ON to enable SQLite3. ${ColourReset}")
   set(itch "${itch}" "sqliteprinter" "sqlitereader")
 endif()
 
 # Check for Cython
+set(FPHSA_NAME_MISMATCHED TRUE)
 find_package(Cython)
-if(CYTHON_FOUND)
+if(CYTHON_FOUND OR CYTHON${Python3_VERSION}_FOUND)
   include_directories(${CYTHON_INCLUDE_DIRS})
   message("-- Found Cython libraries: ${CYTHON_EXECUTABLE}")
 endif()

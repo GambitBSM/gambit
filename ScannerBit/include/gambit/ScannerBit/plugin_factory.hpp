@@ -48,8 +48,8 @@ namespace Gambit
 
         gambit_registry
         {
-            typedef void* func_type(const std::vector<std::string> &, const std::string &);
-            typedef void* multi_func_type(const std::map<std::string, std::vector<std::string>> &, const std::vector<std::pair<std::string, std::string>> &);
+            typedef void* func_type(const std::vector<std::string> &, const std::string &, const Factory_Base &);
+            typedef void* multi_func_type(const std::map<std::string, std::vector<std::string>> &, const std::vector<std::pair<std::string, std::string>> &, const Factory_Base &);
             std::unordered_map<type_index, func_type *, Gambit::type_hasher, Gambit::type_equal_to> __functions__;
             std::unordered_map<type_index, multi_func_type *> __multi_functions__;
         }
@@ -68,8 +68,8 @@ namespace Gambit
             //std::vector<double> &params;
 
         public:
-            Scanner_Plugin_Function(const std::vector<std::string> &params, const std::string &name)
-                    : Plugins::Plugin_Interface<ret (args...)>("objective", name, params)
+            Scanner_Plugin_Function(const std::vector<std::string> &params, const std::string &name, const Factory_Base &fac)
+                    : Plugins::Plugin_Interface<ret (args...)>("objective", name, params, fac)
             {
             }
 
@@ -78,10 +78,10 @@ namespace Gambit
                 // Check for signals to abort run
                 if(signaldata().check_if_shutdown_begun())
                 {
-                    Function_Base<ret (args...)>::tell_scanner_early_shutdown_in_progress(); // e.g. sets 'quit' flag in Diver
+                    this->Function_Base<ret (args...)>::tell_scanner_early_shutdown_in_progress(); // e.g. sets 'quit' flag in Diver
                 }
 
-                if(signaldata().shutdown_begun() and not Function_Base<ret (args...)>::scanner_can_quit())
+                if(signaldata().shutdown_begun() and not this->Function_Base<ret (args...)>::scanner_can_quit())
                 {
                     signaldata().attempt_soft_shutdown();
                     //lnlike = alt_min_valid_lnlike;
@@ -101,11 +101,11 @@ namespace Gambit
             std::vector< Scanner_Plugin_Function<ret (args...)> > functions;
 
         public:
-            Multi_Scanner_Plugin_Function(const std::map< std::string, std::vector<std::string> > &params, const std::vector<std::pair<std::string, std::string>> &names)
+            Multi_Scanner_Plugin_Function(const std::map< std::string, std::vector<std::string> > &params, const std::vector<std::pair<std::string, std::string>> &names, const Factory_Base &fac)
             {
                 for (auto it = names.begin(), end = names.end(); it != end; it++)
                 {
-                    functions.emplace_back(params.at(it->second), it->first);
+                    functions.emplace_back(params.at(it->second), it->first, fac);
                 }
             }
 
@@ -133,10 +133,10 @@ namespace Gambit
             }
         };
 
-        LOAD_FUNC_TEMPLATE(Scanner_Plugin_Function, double (std::unordered_map<std::string, double> &));
-        LOAD_FUNC_TEMPLATE(Scanner_Plugin_Function, void (const std::vector<double> &, std::unordered_map<std::string, double> &));
-        LOAD_FUNC_TEMPLATE(Scanner_Plugin_Function, std::vector<double> (std::unordered_map<std::string, double> &));
-        LOAD_MULTI_FUNC_TEMPLATE(Multi_Scanner_Plugin_Function, double(std::unordered_map<std::string, double> &));
+        LOAD_FUNC_TEMPLATE(Scanner_Plugin_Function, double (std::unordered_map<std::string, double> &))
+        LOAD_FUNC_TEMPLATE(Scanner_Plugin_Function, void (const std::vector<double> &, std::unordered_map<std::string, double> &))
+        LOAD_FUNC_TEMPLATE(Scanner_Plugin_Function, std::vector<double> (std::unordered_map<std::string, double> &))
+        LOAD_MULTI_FUNC_TEMPLATE(Multi_Scanner_Plugin_Function, double(std::unordered_map<std::string, double> &))
 
         /// Factory class to make objectives using objective plugins.
         class Plugin_Function_Factory : public Factory_Base
@@ -145,10 +145,11 @@ namespace Gambit
             std::map< std::string, std::vector<std::pair<std::string, std::string> > > names;
             std::map< std::string, std::vector<std::string> > parameters;
             std::unordered_map<std::string, Gambit::type_index> purpose_index;
+            const Factory_Base *fac;
 
         public:
-            Plugin_Function_Factory(const std::vector<std::string> &keys, std::map< std::string, std::vector<std::pair<std::string, std::string>> > &names)
-                    : names(names)
+            Plugin_Function_Factory(const std::vector<std::string> &keys, std::map< std::string, std::vector<std::pair<std::string, std::string>> > &names, const Factory_Base *fac = 0)
+                    : names(names), fac(fac)
             {
                 parameters = convert_to_map(keys);
                 purpose_index["Likelihood"] = typeid(double (std::unordered_map<std::string, double> &));
@@ -173,11 +174,11 @@ namespace Gambit
                 }
                 else if (it->second.size() == 1)
                 {
-                    return __functions__.at(purpose_index.at(purpose_i))(parameters.at(it->second.at(0).second), it->second.at(0).first);
+                    return __functions__.at(purpose_index.at(purpose_i))(parameters.at(it->second.at(0).second), it->second.at(0).first, *fac);
                 }
                 else if (it->second.size() > 1)
                 {
-                    return __multi_functions__.at(purpose_index.at(purpose_i))(parameters, it->second);
+                    return __multi_functions__.at(purpose_index.at(purpose_i))(parameters, it->second, *fac);
                 }
                 else
                 {

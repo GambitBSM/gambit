@@ -1,0 +1,12 @@
+--- a/src/chi2.c	2020-10-14 19:40:57.635018399 +0200
++++ b/src/chi2.c	2020-10-14 19:41:08.083031147 +0200
+@@ -2809,9 +2809,6 @@
+ 
+ 	for(ie=0;ie<*nbobs;ie++) values_mod[0][ie]=values_ref[ie];		
+ 
+-#if defined(_OPENMP)	
+-#pragma omp parallel for private(ie)
+-#endif
+ 	for(ke=1;ke<=n;ke++)
+ 	{			
+ 		double values[*nbobs];

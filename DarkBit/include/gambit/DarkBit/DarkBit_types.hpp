@@ -23,7 +23,7 @@
 ///
 ///  \author Torsten Bringmann
 ///          (torsten.bringmann@fys.uio.no)
-///  \date 2013 Jun
+///  \date 2013 Jun, 2023
 ///
 ///  \author Pat Scott
 ///          (pat.scott@uq.edu.au)
@@ -49,6 +49,10 @@
 ///          (sebastian.wild@ph.tum.de)
 ///  \date 2016 Aug
 ///
+///  \author Inigo Saez Casares
+///          (inigo.saez_casares@ens-paris-saclay.fr)
+///  \date 2020 March
+///
 ///  \author Ben Farmer
 ///          (benjamin.farmer@imperial.ac.uk)
 ///  \date 2019 Jul
@@ -65,6 +69,7 @@
 #include "gambit/Elements/daFunk.hpp"
 #include "gambit/Models/safe_param_map.hpp"
 #include "gambit/Utils/yaml_options.hpp"
+#include "gambit/Backends/backend_types/nulike.hpp"
 
 namespace Gambit
 {
@@ -115,9 +120,9 @@ namespace Gambit
       std::vector<TH_Resonance> resonances;
       std::vector<double> threshold_energy;
       std::string particle_index_type;
+      double etaDM; // primordial asymmetry
       bool isSelfConj;
     };
-
 
     //////////////////////////////////////////////
     // Neutrino telescope data structures

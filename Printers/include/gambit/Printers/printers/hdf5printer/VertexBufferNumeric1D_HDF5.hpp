@@ -290,16 +290,24 @@ namespace Gambit {
         }
       }
  
-      /// Destructor
+      /// Destructor.
+      /// Deliberately does NOT flush the buffer to disk.
+      ///
+      /// Buffer objects of this type are stored by value (in the
+      /// std::map<VBIDpair, BuffType> inside H5P_LocalBufferManager) and
+      /// are populated via the assign-from-temporary pattern at
+      /// H5P_LocalBufferManager::get_buffer, so each buffer object's
+      /// destructor runs at least once on a temporary that shares state
+      /// (HDF5 dataset handles, sync counters) with the surviving
+      /// container slot. Triggering write_to_disk() / RA_write_to_disk()
+      /// here would therefore either double-write or write through stale
+      /// state, depending on which copy is being destroyed. End-of-scan
+      /// flushing is handled deterministically by HDF5Printer::flush()
+      /// and HDF5Printer::finalise() instead, which iterate over the
+      /// surviving buffers in the printer's all_buffers map.
       template<class T, std::size_t L>
-      VertexBufferNumeric1D_HDF5<T,L>::~VertexBufferNumeric1D_HDF5() 
+      VertexBufferNumeric1D_HDF5<T,L>::~VertexBufferNumeric1D_HDF5()
       {
-         //TODO: Do this in some more controlled way
-         //if(this->is_synchronised()) { write_to_disk(); }
-         //else 
-         //{ 
-         //   RA_write_to_disk(); 
-         //}
       }
 
       // Print out report on buffer sync status       

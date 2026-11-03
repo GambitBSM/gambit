@@ -1,5 +1,5 @@
 diff --git a/DarkAges/__init__.py b/DarkAges/__init__.py
-index 71be534..41d5648 100644
+index 71be534..a48fc4a 100644
 --- a/DarkAges/__init__.py
 +++ b/DarkAges/__init__.py
 @@ -79,7 +79,9 @@ def print_info(message):
@@ -13,3 +13,15 @@ index 71be534..41d5648 100644
  
  def print_warning(message):
  	u"""Warning at critical behaviour of the code.
+@@ -254,9 +256,9 @@ def _transfer_init_and_dump():
+ 	for channel in list(channel_dict.keys()):
+ 		idx = channel_dict.get(channel)
+ 		transfer_functions[idx] = transfer(os.path.join(os.environ['DARKAGES_BASE'],'transfer_functions/original/Transfer_Ch{:d}.dat'.format(idx+1)))
+-		transfer_dump(transfer_functions[idx], os.path.join(os.environ['DARKAGES_BASE'],'transfer_functions/transfer_Ch{:d}.obj'.format(idx+1)))
++		#transfer_dump(transfer_functions[idx], os.path.join(os.environ['DARKAGES_BASE'],'transfer_functions/transfer_Ch{:d}.obj'.format(idx+1)))
+ 	transfer_functions_corr = transfer(os.path.join(os.environ['DARKAGES_BASE'],'transfer_functions/original/Transfer_Corr.dat'))
+-	transfer_dump(transfer_functions_corr, os.path.join(os.environ['DARKAGES_BASE'],'transfer_functions/transfer_Corr.obj'))
++	#transfer_dump(transfer_functions_corr, os.path.join(os.environ['DARKAGES_BASE'],'transfer_functions/transfer_Corr.obj'))
+ 
+ def _transfer_load_from_dump():
+ 	global transfer_functions

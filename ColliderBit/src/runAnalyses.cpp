@@ -32,6 +32,7 @@
 ///  \date   2017 March
 ///  \date   2018 Jan
 ///  \date   2018 May
+///  \date   2021 Oct
 ///
 ///  *********************************************
 
@@ -89,26 +90,17 @@ namespace Gambit
         return;
       }
 
-      // #ifdef COLLIDERBIT_DEBUG
-      // if (iteration == END_SUBPROCESS)
-      // {
-      //   for (auto& analysis_pointer_pair : Container.get_current_analyses_map())
-      //   {
-      //     for (auto& sr : analysis_pointer_pair.second->get_results().srdata)
-      //     {
-      //       cout << DEBUG_PREFIX << "run"+detname+"Analyses: signal region " << sr.sr_label << ", n_signal = " << sr.n_signal << endl;
-      //     }
-      //   }
-      // }
-      // #endif
-
       if (iteration == COLLIDER_FINALIZE)
       {
+        #ifdef COLLIDERBIT_DEBUG
+          cout << DEBUG_PREFIX << "run"+detname+"Analyses: Container.get_current_collider() = " << Container.get_current_collider() << endl;
+        #endif
+
         // The final iteration for this collider: collect results
         for (auto& analysis_pointer_pair : Container.get_current_analyses_map())
         {
           #ifdef COLLIDERBIT_DEBUG
-            cout << DEBUG_PREFIX << "run"+detname+"Analyses: Collecting result from " << analysis_pointer_pair.first << endl;
+            cout << DEBUG_PREFIX << "run"+detname+"Analyses: Collecting result from " << analysis_pointer_pair.first << ", " << analysis_pointer_pair.second << endl;
           #endif
 
           str warning;
@@ -125,31 +117,50 @@ namespace Gambit
       {
         // Final iteration. Just return.
         #ifdef COLLIDERBIT_DEBUG
-          cout << DEBUG_PREFIX << "run"+detname+"Analyses: 'result' contains " << result.size() << " results." << endl;
+          cout << DEBUG_PREFIX << "run"+detname+"Analyses: 'result' contains " << result.size() << " results:" << endl;
+          for (const AnalysisData* a: result)
+          {
+            cout << DEBUG_PREFIX << "run"+detname+"Analyses: - " << a->analysis_name << endl;
+          }
         #endif
         return;
       }
 
       if (iteration <= BASE_INIT) return;
 
+      // Assign event ID. The event ID is only unique within
+      // the current collider and detector.
+      SmearedEvent.set_id(iteration);
+
       // Loop over contained analyses and run them.
       Container.analyze(SmearedEvent);
 
     }
 
-    /// Run all analyses for EXPERIMENT
-    #define RUN_ANALYSES(NAME, EXPERIMENT, SMEARED_EVENT_DEP)                 \
-    void NAME(AnalysisDataPointers& result)                                   \
-    {                                                                         \
-      using namespace Pipes::NAME;                                            \
-      runAnalyses(result, #EXPERIMENT, *Dep::RunMC,                           \
-       *Dep::CAT(EXPERIMENT,AnalysisContainer), *Dep::SMEARED_EVENT_DEP,      \
-       *Loop::iteration, Loop::wrapup);                                       \
+    /// Run all analyses for the given experiment
+    void runATLASAnalyses(AnalysisDataPointers& result)
+    {
+      using namespace Pipes::runATLASAnalyses;
+      runAnalyses(result, "ATLAS", *Dep::RunMC,
+       *Dep::ATLASAnalysisContainer, *Dep::ATLASSmearedEvent,
+       *Loop::iteration, Loop::wrapup);
     }
 
-    RUN_ANALYSES(runATLASAnalyses, ATLAS, ATLASSmearedEvent)
-    RUN_ANALYSES(runCMSAnalyses, CMS, CMSSmearedEvent)
-    RUN_ANALYSES(runIdentityAnalyses, Identity, CopiedEvent)
+    void runCMSAnalyses(AnalysisDataPointers& result)
+    {
+      using namespace Pipes::runCMSAnalyses;
+      runAnalyses(result, "CMS", *Dep::RunMC,
+       *Dep::CMSAnalysisContainer, *Dep::CMSSmearedEvent,
+       *Loop::iteration, Loop::wrapup);
+    }
+
+    void runIdentityAnalyses(AnalysisDataPointers& result)
+    {
+      using namespace Pipes::runIdentityAnalyses;
+      runAnalyses(result, "Identity", *Dep::RunMC,
+       *Dep::IdentityAnalysisContainer, *Dep::CopiedEvent,
+       *Loop::iteration, Loop::wrapup);
+    }
 
   }
 }

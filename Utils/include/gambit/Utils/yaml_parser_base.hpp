@@ -25,6 +25,10 @@
 ///          (markus.prim@kit.edu)
 ///  \date 2020 May
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 June
+///
 ///  *********************************************
 
 #ifndef __yaml_parser_base_hpp__
@@ -52,6 +56,9 @@ namespace Gambit
 
         /// Read in the YAML file
         virtual void readFile(str filename);
+
+        /// Getter for the full YAML node
+        YAML::Node getYAMLNode() const;
 
         /// Getters for key/value section
         /// @{
@@ -109,9 +116,13 @@ namespace Gambit
         
         /// Do the basic parsing of the YAML file
         void basicParse(YAML::Node,str);
-         
+
+        /// Print a node to file
+        void printNode(YAML::Node,str,bool);
+        
       private:     
 
+        YAML::Node YAMLNode;
         YAML::Node keyValuePairNode;
         YAML::Node parametersNode;
         YAML::Node priorsNode;

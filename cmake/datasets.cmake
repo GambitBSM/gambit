@@ -16,7 +16,7 @@
 #************************************************
 
 # Define the download command to use for datasets
-set(DL_DATASET "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${CMAKE_BINARY_DIR}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
+set(DL_DATASET "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${PROJECT_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
 
 # Define a macro and function for adding nuke targets for downloaded datasets
 macro(get_dataset_paths dataset_name build_path nuke_stamps)

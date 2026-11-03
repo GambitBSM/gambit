@@ -24,18 +24,12 @@
 
 #include "gambit/cmake/cmake_variables.hpp"
 #include "gambit/Backends/backend_info.hpp"
+#include "gambit/Utils/util_functions.hpp"
+#include "gambit/Utils/python_interpreter.hpp"
 #include "gambit/Logs/logger.hpp"
 
 #ifdef HAVE_MATHEMATICA
   #include MATHEMATICA_WSTP_H
-#endif
-
-#ifdef HAVE_PYBIND11
-
-  #include "gambit/Utils/begin_ignore_warnings_pybind11.hpp"
-  #include <pybind11/embed.h>
-  #include "gambit/Utils/end_ignore_warnings.hpp"
-
 #endif
 
 #ifdef HAVE_LINK_H
@@ -52,9 +46,6 @@ namespace Gambit
   Backends::backend_info::backend_info()
    : filename(GAMBIT_DIR "/config/backend_locations.yaml")
    , default_filename(GAMBIT_DIR "/config/backend_locations.yaml.default")
-   #ifdef HAVE_PYBIND11
-     , python_started(false)
-   #endif
   {
     // Attempt to read user yaml configuration file
     try
@@ -91,7 +82,7 @@ namespace Gambit
   Backends::backend_info::~backend_info()
   {
     #ifdef HAVE_PYBIND11
-      if (python_started)
+      if (not loaded_python_backends.empty())
       {
         for (auto it = loaded_python_backends.begin();
                   it != loaded_python_backends.end();
@@ -99,7 +90,6 @@ namespace Gambit
         {
           delete it->second;
         }
-        delete python_interpreter;
       }
     #endif
   }
@@ -215,12 +205,24 @@ namespace Gambit
   /// Given a backend and a safe version (with no periods), return the true version
   str Backends::backend_info::version_from_safe_version (str be, str sv) const
   {
+    if (safe_version_map.find(be) == safe_version_map.end())
+    {
+      std::ostringstream msg;
+      msg << "The backend \"" << be << "\" is not known to GAMBIT.";
+      backend_error().raise(LOCAL_INFO, msg.str());
+    }
     return safe_version_map.at(be).first.at(sv);
   }
 
   /// Given a backend and a true version (with periods), return the safe version
   str Backends::backend_info::safe_version_from_version (str be, str v) const
   {
+    if (safe_version_map.find(be) == safe_version_map.end())
+    {
+      std::ostringstream msg;
+      msg << "The backend \"" << be << "\" is not known to GAMBIT.";
+      backend_error().raise(LOCAL_INFO, msg.str());
+    }
     return safe_version_map.at(be).second.at(v);
   }
 
@@ -335,7 +337,6 @@ namespace Gambit
       }
       // and so on.
       else if (lang == "PYTHON" or lang == "Python" or
-               lang == "PYTHON2" or lang == "Python2" or
                lang == "PYTHON3" or lang == "Python3")
       {
         needsPython[be+ver] = true;
@@ -363,6 +364,10 @@ namespace Gambit
       {
         loadLibrary_C_CXX_Fortran(be, ver, sv, with_BOSS);
       }
+      else if (lang == "DATA" or lang == "Data")
+      {
+        loadLibrary_data(be, ver, sv);
+      }
       else
       {
         std::ostringstream err;
@@ -382,6 +387,27 @@ namespace Gambit
     return 0;
   }
 
+  /// Load a data-only backend library.
+  void Backends::backend_info::loadLibrary_data(const str& be, const str& ver, const str& sv)
+  {
+    const str path = corrected_path(be,ver);
+    link_versions(be, ver, sv);
+    classloader[be+ver] = false;
+    needsMathematica[be+ver] = false;
+    needsPython[be+ver] = false;
+
+    if (Utils::file_exists(path))
+    {
+      logger() << "Succeeded in locating data library at " << path << "."
+               << LogTags::backends << LogTags::info << EOM;
+      works[be+ver] = true;
+    }
+    else
+    {
+      backend_warning().raise(LOCAL_INFO,"Failed to locate data library at " + path + ".");
+      works[be+ver] = false;
+    }
+  }
 
   /// Load a backend library written in C, C++ or Fortran.
   void Backends::backend_info::loadLibrary_C_CXX_Fortran(const str& be, const str& ver, const str& sv, bool with_BOSS)
@@ -542,21 +568,16 @@ namespace Gambit
         return;
       }
 
+      // Fire up the Python interpreter if it hasn't been started yet.
+      Utils::python_interpreter_guard g;
+
       // Bail now if the backend requires a version of Python that GAMBIT is not configured with.
       if (PYTHON_VERSION_MAJOR < 2 or PYTHON_VERSION_MAJOR > 3)
       {
-        err << "Unrecognised version of Python: " << PYTHON_VERSION_MAJOR << endl;
+        err << "GAMBIT was configured with an unsupported version of Python: " << PYTHON_VERSION_MAJOR
+            << ". Only Python 3 is supported by GAMBIT." << endl;
         backend_error().raise(LOCAL_INFO, err.str());
         works[be+ver] = false;
-        return;
-      }
-      if (PYTHON_VERSION_MAJOR != 2 and (lang == "Python2" or lang == "PYTHON2"))
-      {
-        err << "Failed loading Python backend " << be << " " << ver << "." << endl
-            << "GAMBIT was configured with Python " << PYTHON_VERSION_MAJOR << " but this backend needs Python 2." << endl;
-        backend_warning().raise(LOCAL_INFO, err.str());
-        works[be+ver] = false;
-        missingPythonVersion[be+ver] = 2;
         return;
       }
       if (PYTHON_VERSION_MAJOR != 3 and (lang == "Python3" or lang == "PYTHON3"))
@@ -569,11 +590,8 @@ namespace Gambit
         return;
       }
 
-      // Fire up the Python interpreter if it hasn't been started yet.
-      if (not python_started) start_python();
-
       // Add the path to the backend to the Python system path
-      pybind11::object sys_path = sys->attr("path");
+      pybind11::object sys_path = Utils::python_interpreter::get().sys->attr("path");
       pybind11::object sys_path_insert = sys_path.attr("insert");
       sys_path_insert(0,path_dir(be, ver));
 
@@ -600,7 +618,7 @@ namespace Gambit
 
       // Check if the loaded moule has actually come from the expected path.
       // First get the relevant os functions.
-      pybind11::object os_path = os->attr("path");
+      pybind11::object os_path = Utils::python_interpreter::get().os->attr("path");
       pybind11::object os_path_split = os_path.attr("split");
       // Get the path to the loaded module (Split the path at the last '/')
       pybind11::tuple full_loaded_path = os_path_split( new_module->attr("__file__") );
@@ -629,22 +647,6 @@ namespace Gambit
       logger() << "Succeeded in loading " << path << LogTags::backends << LogTags::info << EOM;
       works[be+ver] = true;
       loaded_python_backends[be+ver] = new_module;
-    }
-
-    /// Fire up the Python interpreter
-    void Backends::backend_info::start_python()
-    {
-      // Create an instance of the interpreter.
-      python_interpreter = new pybind11::scoped_interpreter;
-      // Import the sys module, and save a wrapper to it for later.
-      static pybind11::module local_sys = pybind11::module::import("sys");
-      sys = &local_sys;
-      // Import the os module, and save a wrapper to it for later.
-      static pybind11::module local_os = pybind11::module::import("os");
-      os = &local_os;
-
-      logger() << LogTags::backends << LogTags::debug << "Python interpreter successfully started." << EOM;
-      python_started = true;
     }
 
     pybind11::module& Backends::backend_info::getPythonBackend(const str& be, const str& ver)

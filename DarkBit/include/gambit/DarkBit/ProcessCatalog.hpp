@@ -55,10 +55,12 @@ namespace Gambit
     {
       TH_resonances_thresholds() {}
 
-      TH_resonances_thresholds(const TH_resonances_thresholds & copy) :
+      TH_resonances_thresholds(const TH_resonances_thresholds& copy) :
         resonances(copy.resonances), threshold_energy(copy.threshold_energy) {}
 
-      TH_resonances_thresholds(const std::vector<TH_Resonance> & resonances,
+      TH_resonances_thresholds& operator= (const TH_resonances_thresholds&) = default;
+
+      TH_resonances_thresholds(const std::vector<TH_Resonance>& resonances,
           const std::vector<double> & thresholds) :
         resonances(resonances), threshold_energy(thresholds) {}
 
@@ -145,7 +147,7 @@ namespace Gambit
         str particle1ID;
         str particle2ID;
         /// @}
-        
+
         /// Does the process contain self-conjugate DM? (accounting for correct factors of 1/2 in annihilation spectra)
         bool isSelfConj;
 

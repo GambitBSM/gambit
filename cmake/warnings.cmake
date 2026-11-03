@@ -24,27 +24,24 @@ option(WERROR "WERROR" OFF)
 include(CheckCXXCompilerFlag)
 
 macro(set_compiler_warning warning current_flags)
-  CHECK_CXX_COMPILER_FLAG("-W${warning}" CXX_SUPPORTS_${warning})
-  if (CXX_SUPPORTS_${warning})
+  # CHECK_CXX_COMPILER_FLAG seems to have trouble setting the output variable if it has dashes in it
+  # so we replace dash with underscore
+  string(REPLACE "-" "_" warning_nodashes ${warning})
+  CHECK_CXX_COMPILER_FLAG("-W${warning}" CXX_SUPPORTS_${warning_nodashes})
+  if (CXX_SUPPORTS_${warning_nodashes})
     set(${current_flags} "${${current_flags}} -W${warning}")
   endif()
 endmacro()
 
 if(${WERROR})
-  set_compiler_warning("error")
+  set_compiler_warning("error" CMAKE_CXX_FLAGS)
 else()
-  message(STATUS "${Red}Werror is disabled${ColourReset}")
+  message(STATUS "Werror is disabled")
 endif()
 
 set_compiler_warning("all" CMAKE_CXX_FLAGS)
 set_compiler_warning("extra" CMAKE_CXX_FLAGS)
 set_compiler_warning("no-misleading-indentation" CMAKE_CXX_FLAGS)
-
-if(EIGEN3_FOUND AND EIGEN3_VERSION VERSION_LESS 3.3.0)
-  set_compiler_warning("no-ignored-attributes" CMAKE_CXX_FLAGS)
-  set_compiler_warning("no-deprecated-register" CMAKE_CXX_FLAGS)
-  set_compiler_warning("no-deprecated-declarations" CMAKE_CXX_FLAGS)
-endif()
 
 # set intel warnings
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
@@ -59,11 +56,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   # "remark #1419: external declaration in primary source file"
   # This can safely be ignord according to the ICC docs.
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd1419")
-endif()
-
-# Set warnings to stop complaints about old Python headers not being C++17 compliant
-if(PYTHON_VERSION_MAJOR EQUAL 2)
-  set_compiler_warning("no-register" CMAKE_CXX_FLAGS)
 endif()
 
 # Set warnings to stop complaining about deprecated copies in Eigen

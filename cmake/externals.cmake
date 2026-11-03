@@ -32,6 +32,7 @@
 #
 #  \author Tomas Gonzalo
 #          (tomas.gonzalo@monash.edu)
+#  \date 2019 Sep, Oct
 #  \date 2020 Nov
 #
 #************************************************
@@ -48,9 +49,9 @@ set(backend_download "${PROJECT_SOURCE_DIR}/Backends/downloaded")
 set(scanner_download "${PROJECT_SOURCE_DIR}/ScannerBit/downloaded")
 
 # Safer download function than what is in cmake (avoid buggy libcurl vs https issue)
-set(DL_BACKEND "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${backend_download}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
-set(DL_SCANNER "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${scanner_download}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
-set(DL_CONTRIB "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${CMAKE_BUILD_DIR}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
+set(DL_BACKEND "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${PROJECT_SOURCE_DIR}" "${backend_download}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
+set(DL_SCANNER "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${PROJECT_SOURCE_DIR}" "${scanner_download}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
+set(DL_CONTRIB "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${PROJECT_SOURCE_DIR}" "${CMAKE_BUILD_DIR}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
 
 # Define the module location switch differently depending on compiler
 if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel")
@@ -73,7 +74,8 @@ endif()
 set(name "pippi")
 set(dir "${CMAKE_SOURCE_DIR}/${name}")
 ExternalProject_Add(get-${name}
-  GIT_REPOSITORY https://github.com/patscott/pippi.git
+  GIT_REPOSITORY https://github.com/GambitBSM/pippi.git
+  GIT_TAG origin/master
   SOURCE_DIR ${dir}
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
@@ -156,6 +158,20 @@ macro(add_extra_targets type package ver dir dl target)
 
   endif()
 
+  # Track available backend make targets for the list-backends helper.
+  if (${type} STREQUAL "backend")
+    list(APPEND GAMBIT_AVAILABLE_BACKEND_TARGETS "${package}_${ver}")
+  elseif (${type} STREQUAL "backend model")
+    list(APPEND GAMBIT_AVAILABLE_BACKEND_TARGETS "${package}_${model}_${ver}")
+  elseif (${type} STREQUAL "backend base (functional alone)")
+    list(APPEND GAMBIT_AVAILABLE_BACKEND_TARGETS "${package}_${ver}")
+  endif()
+
+  # Track available scanner make targets for the list-scanners helper.
+  if (${type} STREQUAL "scanner")
+    list(APPEND GAMBIT_AVAILABLE_SCANNER_TARGETS "${package}_${ver}")
+  endif()
+
   #Add extra targets common to everything.
   enable_auto_rebuild(${pname})
   set_target_properties(${pname} PROPERTIES EXCLUDE_FROM_ALL 1)
@@ -176,8 +192,6 @@ function(check_ditch_status name version dir)
       set (itch "${itch}" "${name}_${version};")
     elseif ((arg STREQUAL "python") AND NOT HAVE_PYBIND11)
       set (itch "${itch}" "${name}_${version};")
-    elseif ((arg STREQUAL "python2") AND (NOT PYTHON_VERSION_MAJOR EQUAL 2 OR NOT HAVE_PYBIND11))
-      set (itch "${itch}" "${name}_${version};")
     elseif ((arg STREQUAL "python3") AND (NOT PYTHON_VERSION_MAJOR EQUAL 3 OR NOT HAVE_PYBIND11))
       set (itch "${itch}" "${name}_${version};")
     elseif ((arg STREQUAL "hepmc") AND EXCLUDE_HEPMC)
@@ -188,14 +202,15 @@ function(check_ditch_status name version dir)
       set (itch "${itch}" "${name}_${version}")
     elseif ((arg STREQUAL "x11") AND NOT X11_FOUND)
       set (itch "${itch}" "${name}_${version}")
+    elseif ((arg STREQUAL "rivet") AND ditched_rivet_${Rivet_ver})
+      set (itch "${itch}" "${name}_${version}")
     endif()
   endforeach()
+  string(TOLOWER "${name}_${version}" _nv_lower)  
   foreach(ditch_command ${itch})
-    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "print(\"${name}_${version}\".lower().startswith(\"${ditch_command}\".lower()))"
-                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-                    RESULT_VARIABLE result
-                    OUTPUT_VARIABLE output)
-    if (output STREQUAL "True\n")
+    string(TOLOWER "${ditch_command}" _dc_lower)
+    string(FIND "${_nv_lower}" "${_dc_lower}" _loc)
+    if (_loc EQUAL 0)
       if(NOT ditched_${name}_${ver})
         set(ditched_${name}_${version} TRUE)
         set(ditched_${name}_${version} TRUE PARENT_SCOPE)
@@ -205,7 +220,13 @@ function(check_ditch_status name version dir)
       execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${name}_${version}-prefix)
       execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${dir})
     endif()
+    if(NOT "${itch_unique}" MATCHES ".*${ditch_command}.*")
+      set(itch_unique "${itch_unique}" "${ditch_command}")
+    endif()
   endforeach()
+  # Make sure the additions to itch are kept in the parent scope
+  set(itch "${itch_unique}")
+  set(itch "${itch_unique}" PARENT_SCOPE)
 endfunction()
 
 # Add a new target that just prints a helpful error explaining that the target for a backend base is not activated.
@@ -232,8 +253,21 @@ macro(add_error_target name)
     COMMAND exit 1)
 endmacro()
 
+# A variable needed for file writing in the function below
+set(CREATE_BACKENDS_LIST_FILE TRUE)
 # Function to set up a new target with a generic name of a backend/scanner and associate it with the default version
 function(set_as_default_version type name default)
+
+  # Construct a text file with the names of all the default backends.
+  # (Needed by our CI jobs, and maybe useful for other things too.)
+  if (type STREQUAL "backend")
+    set(backends_list_file "${CMAKE_CURRENT_BINARY_DIR}/default_backends.txt")
+    if(CREATE_BACKENDS_LIST_FILE)
+      file(WRITE "${backends_list_file}" "")
+      set(CREATE_BACKENDS_LIST_FILE FALSE PARENT_SCOPE)
+    endif()
+    file(APPEND "${backends_list_file}" "${name}\n")
+  endif()
 
   #Retrieve the model name if it is also passed
   if(${ARGC} GREATER 3)
@@ -331,6 +365,7 @@ macro(inform_of_missing_modules name ver missing_with_commas)
   )
 endmacro()
 
+# Bring in the actual backends and scanners
 if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   include(cmake/scanners.cmake)
 endif()

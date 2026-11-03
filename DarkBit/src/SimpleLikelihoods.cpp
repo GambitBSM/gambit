@@ -145,7 +145,7 @@ namespace Gambit {
     {
       using namespace Pipes::lnL_FermiLATdwarfs_gamLike;
 
-      double fraction = *Dep::RD_fraction;
+      double suppression = *Dep::ID_suppression;
       int mode = 0;
       result = 0;
 
@@ -165,12 +165,12 @@ namespace Gambit {
       std::string proc = *Dep::DM_process;
       if (proc == "annihilation")
       {
-        y = ((*Dep::GA_Yield)/8./M_PI*fraction*fraction)->set("v", 0)->bind("E")->vect(x);
+        y = ((*Dep::GA_Yield)/8./M_PI*suppression)->set("v", 0)->bind("E")->vect(x);
       }
       else if (proc == "decay")
       {
         DarkBit_error().raise(LOCAL_INFO, "Sorry, decaying DM is not supported yet in gamlike.");
-        y = ((*Dep::GA_Yield)/4./M_PI*fraction)->bind("E")->vect(x);
+        y = ((*Dep::GA_Yield)/4./M_PI*suppression)->bind("E")->vect(x);
       }
       else
       {
@@ -186,7 +186,7 @@ namespace Gambit {
     {
       using namespace Pipes::lnL_HESSGC_gamLike;
 
-      double fraction = *Dep::RD_fraction;
+      double suppression = *Dep::ID_suppression;
       int mode = 0;
       result = 0;
 
@@ -208,12 +208,12 @@ namespace Gambit {
       std::string proc = *Dep::DM_process;
       if (proc == "annihilation")
       {
-        y = ((*Dep::GA_Yield)/8./M_PI*fraction*fraction)->set("v", 0)->bind("E")->vect(x);
+        y = ((*Dep::GA_Yield)/8./M_PI*suppression)->set("v", 0)->bind("E")->vect(x);
       }
       else if (proc == "decay")
       {
         DarkBit_error().raise(LOCAL_INFO, "Sorry, decaying DM is not supported yet in gamlike.");
-        y = ((*Dep::GA_Yield)/4./M_PI*fraction)->bind("E")->vect(x);
+        y = ((*Dep::GA_Yield)/4./M_PI*suppression)->bind("E")->vect(x);
       }
       else
       {
@@ -229,7 +229,7 @@ namespace Gambit {
     {
       using namespace Pipes::lnL_CTAGC_gamLike;
 
-      double fraction = *Dep::RD_fraction;
+      double suppression = *Dep::ID_suppression;
       result = 0;
 
       // from 25 GeV to 10 TeV
@@ -242,12 +242,12 @@ namespace Gambit {
       std::string proc = *Dep::DM_process;
       if (proc == "annihilation")
       {
-        y = ((*Dep::GA_Yield)/8./M_PI*fraction*fraction)->set("v", 0)->bind("E")->vect(x);
+        y = ((*Dep::GA_Yield)/8./M_PI*suppression)->set("v", 0)->bind("E")->vect(x);
       }
       else if (proc == "decay")
       {
         DarkBit_error().raise(LOCAL_INFO, "Sorry, decaying DM is not supported yet in gamlike.");
-        y = ((*Dep::GA_Yield)/4./M_PI*fraction)->bind("E")->vect(x);
+        y = ((*Dep::GA_Yield)/4./M_PI*suppression)->bind("E")->vect(x);
       }
       else
       {
@@ -265,7 +265,7 @@ namespace Gambit {
     {
       using namespace Pipes::lnL_FermiGC_gamLike;
 
-      double fraction = *Dep::RD_fraction;
+      double suppression = *Dep::ID_suppression;
       int mode = 0;
       result = 0;
 
@@ -287,12 +287,12 @@ namespace Gambit {
       std::string proc = *Dep::DM_process;
       if (proc == "annihilation")
       {
-        y = ((*Dep::GA_Yield)/8./M_PI*fraction*fraction)->set("v", 0)->bind("E")->vect(x);
+        y = ((*Dep::GA_Yield)/8./M_PI*suppression)->set("v", 0)->bind("E")->vect(x);
       }
       else if (proc == "decay")
       {
         DarkBit_error().raise(LOCAL_INFO, "Sorry, decaying DM is not supported yet in gamlike.");
-        y = ((*Dep::GA_Yield)/4./M_PI*fraction)->bind("E")->vect(x);
+        y = ((*Dep::GA_Yield)/4./M_PI*suppression)->bind("E")->vect(x);
       }
       else
       {
@@ -450,14 +450,14 @@ namespace Gambit {
             + Stats::gaussian_loglikelihood(Deltas, Deltas_obs, 0, Deltas_obserr, profile)
             + Stats::gaussian_loglikelihood(gTs, gTs_obs, 0, gTs_obserr, profile)
             + Stats::gaussian_loglikelihood(rs2, rs2_obs, 0, rs2_obserr, profile);
-        
+
         logger() << LogTags::debug << "lnL for nuclear parameters (ChPT) is " << result << EOM;
     }
 
 
     /// \brief Likelihoods for halo parameters. The likelihood for the local DM density follows a
     /// log normal distribution while for the velocities the distribution is Gaussian.
-    /// For discussion of the default values for measured halo paramters and their errors,
+    /// For discussion of the default values for measured halo parameters and their errors,
     /// see JCAP04(2011)012.
 
     void lnL_rho0_lognormal(double &result)

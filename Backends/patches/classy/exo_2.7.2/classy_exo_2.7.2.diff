@@ -69,6 +69,21 @@ diff --git a/python/classy.pyx b/python/classy.pyx
 index fae0dd04..a8020991 100644
 --- a/python/classy.pyx
 +++ b/python/classy.pyx
+@@ -86,10 +86,10 @@ cdef class Class:
+     cdef lensing le
+     cdef file_content fc
+ 
+-    cpdef int ready # Flag to see if classy can currently compute
+-    cpdef int allocated # Flag to see if classy structs are allocated already
+-    cpdef object _pars # Dictionary of the parameters
+-    cpdef object ncp   # Keeps track of the structures initialized, in view of cleaning.
++    cdef int ready # Flag to see if classy can currently compute
++    cdef int allocated # Flag to see if classy structs are allocated already
++    cdef object _pars # Dictionary of the parameters
++    cdef object ncp   # Keeps track of the structures initialized, in view of cleaning.
+ 
+     # Defining two new properties to recover, respectively, the parameters used
+     # or the age (set after computation). Follow this syntax if you want to
 @@ -113,8 +113,21 @@ cdef class Class:
              "output":"tCl mPk",}
          self.set(**_pars)
@@ -76,7 +91,7 @@ index fae0dd04..a8020991 100644
 +    # (JR) added to get information from cosmo object
 +    # whether class re-computed or not
 +    #recomputed = True
-+    cpdef int recomputed
++    cdef int recomputed
 +    property recomputed:
 +        def __get__(self):
 +            return self.recomputed
@@ -86,7 +101,8 @@ index fae0dd04..a8020991 100644
 +    # ------------------
 +
      def __cinit__(self, default=False):
-         cpdef char* dumc
+-        cpdef char* dumc
++        cdef char* dumc
 +        self.recomputed = True
          self.ready = False
          self.allocated = False
@@ -126,6 +142,17 @@ index fae0dd04..a8020991 100644
      def omega_b(self):
          return self.ba.Omega0_b * self.ba.h * self.ba.h
  
+@@ -1046,6 +1076,10 @@ cdef class Class:
+         self.compute(["thermodynamics"])
+         return self.th.rs_d
+ 
++    def z_reio(self):
++        self.compute(["thermodynamics"])
++        return self.th.z_reio
++
+     def angular_distance(self, z):
+         """
+         angular_distance(z)
 diff --git a/source/input.c b/source/input.c
 index d6f41879..f1e55990 100644
 --- a/source/input.c
@@ -651,3 +678,18 @@ index deb01201..c474fbbc 100755
               hyrec_data.cosmo->inj_params->energy_deposition_treatment = 1;
             }
             if(pth->energy_repart_coefficient==no_factorization) hyrec_data.cosmo->inj_params->energy_repart_coefficient = 0;
+diff --git a/tools/evolver_ndf15.c b/tools/evolver_ndf15.c
+index 790ced55..a09306d7 100755
+--- a/tools/evolver_ndf15.c
++++ b/tools/evolver_ndf15.c
+@@ -310,7 +310,9 @@ int evolver_ndf15(
+     if (fabs(absh-hmin)<100*eps){
+       /* If the stepsize has not changed */
+       if (at_hmin==_TRUE_){
+-	absh = abshlast;	/*required by stepsize recovery */
++        class_test(fabs(absh-abshlast) < eps, error_message,
++                   "Cannot recover the last successful stepsize. Solver gets stuck in an infinite loop");
++        absh = abshlast;    /*required by stepsize recovery */
+       }
+       at_hmin = _TRUE_;
+     }

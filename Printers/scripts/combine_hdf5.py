@@ -24,6 +24,7 @@ def usage():
    print("  Attempts to combine the data in a group of hdf5 files produced by HDF5Printer in separate processes during a GAMBIT run.")
    print("  Use --delete_tmp flag to delete input files upon successful combination.")
    print("  Use --runchecks flag to run some extra validity checks on the input and output data (warning: may be slow for large datasets)")
+   print("  Use --metadata_group <group> to select a custom name for the metadata group (default /metadata)")
    exit(1)
 
 #====Begin "main"=================================
@@ -44,6 +45,15 @@ if "--delete_tmp" in sys.argv:
   delete_tmp=True
   sys.argv.remove("--delete_tmp")
 
+if "--metadata_group" in sys.argv:
+  metadata_group = sys.argv[sys.argv.index("--metadata_group")+1]
+  sys.argv.remove("--metadata_group")
+  sys.argv.remove(metadata_group)
+  if metadata_group[0] != "/":
+    metadata_group = "/" + metadata_group
+else:
+  metadata_group = "/metadata"
+
 outfname = sys.argv[1]
 group = sys.argv[2]
 tmp_files = sys.argv[3:]
@@ -63,8 +73,10 @@ files = {}
 sync_dsets = [set([]) for i in range(N)]
 RA_dsets = [set([]) for i in range(N)]
 RA_dsets_exclude = set(["RA_pointID","RA_pointID_isvalid","RA_MPIrank","RA_MPIrank_isvalid"])
+metadata_dsets = [set([]) for i in range(N)]
 sync_lengths = [0 for i in range(N)]
 RA_lengths = [0 for i in range(N)]
+metadata_lengths = [0 for i in range(N)]
 fnames = tmp_files
 
 for i,fname in enumerate(fnames):
@@ -78,6 +90,7 @@ for i,fname in enumerate(fnames):
    datasets = []
    tmp_dset_metadata = {}
    tmp_RA_dset_metadata = {}
+   tmp_metadata_dset_metadata = {}
    # First get total lengths of the sync datasets
    if group in f:
       get_dset_lengths(tmp_dset_metadata,f[group],sync_dsets[i])
@@ -92,11 +105,15 @@ for i,fname in enumerate(fnames):
       RA_lengths[i] = 0
       # No RA data in this file, but that's ok, it happens sometimes.
       #raise ValueError("File '{0}' does not contain the group '{1}!'".format(fname,RA_group))
+   if metadata_group in f:
+      get_dset_lengths(tmp_metadata_dset_metadata, f[metadata_group], metadata_dsets[i])
+      metadata_lengths[i] = check_lengths(tmp_metadata_dset_metadata)
+   else:
+      raise ValueError("File '{0}' does not contain the metadata group '{1}!'".format(fname,metadata_group))
    print("      ...done")
 
 print("sync_lengths: ", sync_lengths)
 total_sync_length = sum(sync_lengths)
-
 # Make sure all sync dsets have the same length
 
 print("Sync dsets:")
@@ -118,6 +135,16 @@ for i,fname in enumerate(fnames):
       for item in sorted(RA_dsets[i]):
          print("   - ", item)
       print("   RA_length = {0}".format(RA_lengths[i]))
+
+print("Metadata dsets:")
+for i, fname in enumerate(fnames):
+   print(" In {0}".format(fname))
+   if len(metadata_dsets[i])==0:
+      print("   - None")
+   else:
+      for item in sorted(metadata_dsets[i]):
+         print("   - ", item)
+      print("   metadata_length = {0}".format(metadata_lengths[i]))
 
 print("Combined sync length = ", total_sync_length)
 
@@ -203,6 +230,7 @@ for fname in fnames:
          print("Re-checking combined file for duplicates...")
          check_for_duplicates(fout,group)
       nextempty+=dset_length
+
 
 # Copy data from RA datasets into combined dataset
 for fname in fnames:
@@ -403,6 +431,96 @@ for fname in fnames:
 if runchecks:
    print("Checking final combined output for duplicates...")
    check_for_duplicates(fout,group)
+
+# Open metadata group in existing output
+if not metadata_group in fout:
+   mout = fout.create_group(metadata_group)
+else:
+   mout = fout[metadata_group]
+
+# Check for existing dsets in the output (and get their lengths if they exist)
+existing_metadata_dsets = {}
+metadata_dsetlengths = {}
+existing_dates = []
+for name in mout:
+   if isinstance(mout[name],h5py.Dataset):
+      print("   Accessing existing metadata dset:", name)
+      existing_metadata_dsets[name] = mout[name]
+      metadata_dsetlengths[name]   = mout[name].shape[0]
+      if name == "Date":
+        existing_dates.append(mout["Date"])
+
+# check that the existing dsets have a consistent length
+if len(metadata_dsetlengths)!=0:
+   init_output_metadata_length = check_lengths(metadata_dsetlengths)
+   print("Existing metadata_datasets have length ", init_output_metadata_length)
+else:
+   init_output_metadata_length = 0
+
+total_metadata_length = init_output_metadata_length
+marked_for_copy = [[] for i in range(N)]
+print("Computing total required metadata length")
+for i, fname in enumerate(fnames):
+   fin = files[fname]
+   if "Date" in fin[metadata_group]:
+     dates = fin[metadata_group]["Date"]
+     dates_length = dates.shape[0]
+     marked_for_copy[i] = [False]*dates_length
+     for j in range(dates_length):
+       if dates[j] not in existing_dates:
+         total_metadata_length += 1
+         existing_dates.append(dates[j])
+         marked_for_copy[i][j] = True
+   else:
+      total_metadata_length += metadata_lengths[i]
+print("Combined metadata length = ", total_metadata_length)
+
+# Resize the existing metadata dsets to accommodate the new data
+for dsetname,dset in existing_metadata_dsets.items():
+   print("   Extending existing metadata dset '{0}' to length {1} to accommodate new data...".format(dsetname,total_metadata_length))
+   dset.resize((total_metadata_length,))
+
+# Create dataset to match every metadata dataset
+target_dsets = {}
+all_metadata_dsets   = set([]).union(*metadata_dsets)
+for dsetname,dt in sorted(all_metadata_dsets):
+   if not dsetname in mout:
+      print("   Creating empty metadata dset:", dsetname)
+      target_dsets[dsetname] = mout.create_dataset(dsetname, (total_metadata_length,), chunks=(chunksize,), dtype=dt, maxshape=(None,))
+   else:
+      target_dsets[dsetname] = mout[dsetname]
+
+# Copy data from separate sync datasets into combined datasets
+for i, fname in enumerate(fnames):
+   print("Copying metadata data from file:")
+   print("   {0}".format(fname))
+   print("to file:")
+   print("   {0}".format(outfname))
+   fin = files[fname]
+
+   # If there is no info in marked for copy, there was no Date dataset, so copy everything
+   if len(marked_for_copy[i]) == 0:
+     dset_length=None
+     for itemname in fin[metadata_group]:
+        nextempty=init_output_metadata_length
+        item = fin[metadata_group][itemname]
+        if isinstance(item,h5py.Dataset):
+           if dset_length==None:
+              dset_length=item.shape[0]
+           #Do the copy
+           copy_dset_whole(item,mout[itemname],nextempty)
+        nextempty+=dset_length
+
+    # Otherwise copy only those that are marked
+   else:
+      for itemname in fin[metadata_group]:
+        nextempty=init_output_metadata_length
+        for j,item in enumerate(fin[metadata_group][itemname]):
+          if marked_for_copy[i][j]:
+             #Do the copy
+             mout[itemname][nextempty] = item
+             nextempty+=1
+
 
 # If everything has been successful, delete the temporary files
 if delete_tmp:

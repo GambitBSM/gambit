@@ -101,7 +101,7 @@ namespace Gambit
                 std::vector<void *> input;
                 std::string tag;
                 typedef const std::map<type_index, void *> &(*initFuncType)(const std::string &, const YAML::Node &, const printer_interface &, Priors::BasePrior &, std::vector<void *> &);                              
-                typedef void * (*getFuncType)(std::string);
+                typedef void * (*getFuncType)(const std::string &);
                 initFuncType initFunc;
                 getFuncType getFunc;
                     
@@ -164,6 +164,7 @@ namespace Gambit
             private:
                 template <typename... T1>
                 void dummy(T1...){}
+                
             public:
                 template <typename... plug_args>
                 Plugin_Interface(const std::string &type, const std::string &name, const plug_args&... inputs)
@@ -175,7 +176,7 @@ namespace Gambit
                 template <typename... args>
                 auto operator()(args&... params) -> typename find_variadic_type <void (args...), T...>::ret_type
                 {
-                    static_assert(find_variadic_type <void (args...), T...>::value, "\n\033[00;31;1mPlugin Interface:  Entered argument types do not match any of the plugin mains' argument types.\033[00m\n");
+                    static_assert(find_variadic_type <void (args...), T...>::value, "\n\u001B[00;31;1mPlugin Interface:  Entered argument types do not match any of the plugin mains' argument types.\u001B[00m\n");
                     return Plugin_Main_Interface_Base<typename find_variadic_type <void (args...), T...>::func_type>::operator()(params...);
                 }
             };

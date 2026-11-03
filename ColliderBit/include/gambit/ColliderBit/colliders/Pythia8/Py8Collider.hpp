@@ -62,7 +62,7 @@ namespace Gambit
         /// An exception for when Pythia fails to initialize.
         class InitializationError : public std::exception
         {
-          virtual const char* what() const throw()
+          virtual const char* what() const noexcept
           {
             return "Pythia could not initialize.";
           }
@@ -70,7 +70,7 @@ namespace Gambit
         /// An exception for when Pythia fails to generate events.
         class EventGenerationError : public std::exception
         {
-          virtual const char* what() const throw()
+          virtual const char* what() const noexcept
           {
             return "Pythia could not make the next event.";
           }
@@ -129,10 +129,10 @@ namespace Gambit
         /// @note This override is most commonly used in ColliderBit.
         void init(const std::string pythiaDocPath,
                   const std::vector<std::string>& externalSettings,
-                  const SLHAea::Coll* slhaea=nullptr, std::ostream& os=std::cout)
+                  const SLHAea::Coll* slhaea)
         {
           // Settings acquired externally (ex from a gambit yaml file)
-          for(const auto command : externalSettings) _pythiaSettings.push_back(command);
+          for(const str& command : externalSettings) _pythiaSettings.push_back(command);
 
           if (!_pythiaBase)
           {
@@ -140,22 +140,22 @@ namespace Gambit
           }
 
           // Pass all settings to _pythiaBase
-          for(const auto command : _pythiaSettings) _pythiaBase->readString(command);
+          for(const str& command : _pythiaSettings) _pythiaBase->readString(command);
 
           // Create new _pythiaInstance from _pythiaBase
           if (_pythiaInstance) delete _pythiaInstance;
-          _pythiaInstance = new PythiaT(_pythiaBase->particleData, _pythiaBase->settings);
+          _pythiaInstance = new PythiaT(_pythiaBase->settings, _pythiaBase->particleData);
 
           // Send along the SLHAea::Coll pointer, if it exists
           if (slhaea) _pythiaInstance->slhaInterface.slha.setSLHAea(slhaea);
 
           // Read command again to get SM decay table change from yaml file
-          for(const auto command : _pythiaSettings)
+          for(const str& command : _pythiaSettings)
           {
             _pythiaInstance->readString(command);
           }
 
-          if (!_pythiaInstance->init(os)) throw InitializationError();
+          if (!_pythiaInstance->init()) throw InitializationError();
         }
 
         /// Initialize from some external settings.
@@ -163,10 +163,10 @@ namespace Gambit
         /// Needs to directly construct the new matrix elements (rather than use flags)
         void init_user_model(const std::string pythiaDocPath,
                              const std::vector<std::string>& externalSettings,
-                             const SLHAea::Coll* slhaea=nullptr, std::ostream& os=std::cout)
+                             const SLHAea::Coll* slhaea=nullptr)
         {
           // Settings acquired externally (for example, from a gambit yaml file)
-          for(const auto command : externalSettings) _pythiaSettings.push_back(command);
+          for(const str& command : externalSettings) _pythiaSettings.push_back(command);
 
           if (!_pythiaBase)
           {
@@ -174,30 +174,30 @@ namespace Gambit
           }
 
           // Pass all settings to _pythiaBase
-          for(const auto command : _pythiaSettings) _pythiaBase->readString(command);
+          for(const str& command : _pythiaSettings) _pythiaBase->readString(command);
 
           // Create new _pythiaInstance from _pythiaBase
           if (_pythiaInstance) delete _pythiaInstance;
-          _pythiaInstance = new PythiaT(_pythiaBase->particleData, _pythiaBase->settings);
+          _pythiaInstance = new PythiaT(_pythiaBase->settings, _pythiaBase->particleData, false);
 
           // Send along the SLHAea::Coll pointer, if it exists
           if (slhaea) _pythiaInstance->slhaInterface.slha.setSLHAea(slhaea);
 
-          if (!_pythiaInstance->init(os)) throw InitializationError();
+          if (!_pythiaInstance->init()) throw InitializationError();
         }
 
         /// Initialize from some external settings, assuming no given SLHAea instance.
         void init(const std::string pythiaDocPath,
-                  const std::vector<std::string>& externalSettings, std::ostream& os)
+                  const std::vector<std::string>& externalSettings)
         {
-          init(pythiaDocPath, externalSettings, nullptr, os);
+          init(pythiaDocPath, externalSettings, nullptr);
         }
 
         /// Initialize from some external settings, assuming no given SLHAea instance.
         void init_user_model(const std::string pythiaDocPath,
-                             const std::vector<std::string>& externalSettings, std::ostream& os)
+                             const std::vector<std::string>& externalSettings)
         {
-          init_user_model(pythiaDocPath, externalSettings, nullptr, os);
+          init_user_model(pythiaDocPath, externalSettings, nullptr);
         }
 
         ///@}
@@ -235,6 +235,10 @@ namespace Gambit
 
         /// Report the list of all active process codes
         std::vector<int> all_active_process_codes() const { return _pythiaInstance->info.codesHard(); }
+
+        /// Get the estimated max cross-section
+        double max_xsec_fb() const { return _pythiaInstance->getSigmaMaxSum() * 1e12; }
+        double max_xsec_pb() const { return _pythiaInstance->getSigmaMaxSum() * 1e9; }
 
         ///@}
 

@@ -194,7 +194,7 @@ namespace Gambit
        //std::cout<<"Sorting tags..."<<std::endl;
        for(std::set<int>::iterator tag = mail.tags.begin(); tag != mail.tags.end(); ++tag)
        {
-         // Debugging crap... to be deleted.
+         // Debugging stuff... to be deleted.
          // std::cout<<"Sorting tag "<<tag2str()[*tag]<<std::endl;
          // std::cout<<"empty?"<<components().empty()<<std::endl;
          // for(std::set<int>::iterator tag2 = components().begin(); tag2 != components().end(); ++tag2)
@@ -274,7 +274,7 @@ namespace Gambit
       }
       #endif
       // Check error bits on stream and throw exception in anything is bad
-      if( my_stream.fail() | my_stream.bad() )
+      if( my_stream.fail() || my_stream.bad() )
       {
         std::ostringstream ss;
         ss << "IO error while constructing StdLogger! Error bit on in supplied ostream.";
@@ -298,7 +298,7 @@ namespace Gambit
       }
       #endif
       // Check error bits on stream and throw exception in anything is bad
-      if( my_stream.fail() | my_stream.bad() )
+      if( my_stream.fail() || my_stream.bad() )
       {
          std::ostringstream ss;
          #ifdef WITH_MPI

@@ -28,7 +28,7 @@ namespace Gambit
 {
 
     // type definition for the multimodecode output.
-    typedef struct
+    struct gambit_inflation_observables
     {
         bool check_ic_ok;
         double As;
@@ -53,7 +53,7 @@ namespace Gambit
         double pkt_array[1000];
         int k_size;
         int err = 0;
-    } gambit_inflation_observables;
+    };
 
     /// Class containing the inputs used for inputs to MultiModeCode
     class Multimode_inputs

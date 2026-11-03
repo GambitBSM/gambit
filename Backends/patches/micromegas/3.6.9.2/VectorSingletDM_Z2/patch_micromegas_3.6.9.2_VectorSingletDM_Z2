@@ -1,0 +1,194 @@
+diff -rupN ./VectorSingletDM_Z2/work/models/extlib1.mdl ../../../installed/micromegas/3.6.9.2/VectorSingletDM_Z2/VectorSingletDM_Z2/work/models/extlib1.mdl
+--- ./VectorSingletDM_Z2/work/models/extlib1.mdl	1970-01-01 09:30:00.000000000 +0930
++++ ../../../installed/micromegas/3.6.9.2/VectorSingletDM_Z2/VectorSingletDM_Z2/work/models/extlib1.mdl	2016-08-22 21:31:34.000000000 +0930
+@@ -0,0 +1,4 @@
++Any Model
++Libraries
++External libraries and  function prototypes                             <|
++========================================================================
+diff -rupN ./VectorSingletDM_Z2/work/models/func1.mdl ../../../installed/micromegas/3.6.9.2/VectorSingletDM_Z2/VectorSingletDM_Z2/work/models/func1.mdl
+--- ./VectorSingletDM_Z2/work/models/func1.mdl	1970-01-01 09:30:00.000000000 +0930
++++ ../../../installed/micromegas/3.6.9.2/VectorSingletDM_Z2/VectorSingletDM_Z2/work/models/func1.mdl	2016-08-22 21:31:34.000000000 +0930
+@@ -0,0 +1,17 @@
++vectorModel
++ Constraints 
++ Name  |> Expression                                                                        <|
++CW     |sqrt(1-SW^2) % cos of the Weinberg angle
++c12    |sqrt(1-s12^2) % parameter  of C-K-M matrix
++c23    |sqrt(1-s23^2) % parameter  of C-K-M matrix
++c13    |sqrt(1-s13^2) % parameter  of C-K-M matrix
++Vud    |c12*c13 % C-K-M matrix element
++Vus    |s12*c13 % C-K-M matrix element
++Vub    |s13 % C-K-M matrix element
++Vcd    |-s12*c23-c12*s23*s13 % C-K-M matrix element
++Vcs    |c12*c23-s12*s23*s13 % C-K-M matrix element
++Vcb    |s23*c13 % C-K-M matrix element
++Vtd    |s12*s23-c12*c23*s13 % C-K-M matrix element
++Vts    |-c12*s23-s12*c23*s13 % C-K-M matrix element
++Vtb    |c23*c13 % C-K-M matrix element
++========================================================================
+diff -rupN ./VectorSingletDM_Z2/work/models/lgrng1.mdl ../../../installed/micromegas/3.6.9.2/VectorSingletDM_Z2/VectorSingletDM_Z2/work/models/lgrng1.mdl
+--- ./VectorSingletDM_Z2/work/models/lgrng1.mdl	1970-01-01 09:30:00.000000000 +0930
++++ ../../../installed/micromegas/3.6.9.2/VectorSingletDM_Z2/VectorSingletDM_Z2/work/models/lgrng1.mdl	2016-08-22 21:31:34.000000000 +0930
+@@ -0,0 +1,82 @@
++vectorModel
++ Lagrangian 
++P1   |P2   |P3   |P4   |>   Factor                                       <|> dLagrangian/ dA(p1) dA(p2) dA(p3)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       <|
++A    |W+   |W-   |     |-EE                                               |m3.p2*m1.m2-m1.p2*m2.m3-m2.p3*m1.m3+m1.p3*m2.m3+m2.p1*m1.m3-m3.p1*m1.m2
++B    |b    |A    |     |EE/3                                              |G(m3)
++B    |b    |G    |     |GG                                                |G(m3)
++B    |b    |H    |     |-EE*Mb/(2*MW*SW)                                  |1
++B    |b    |Z    |     |-EE/(12*CW*SW)                                    |4*SW^2*G(m3)-3*G(m3)*(1-G5)
++B    |c    |W-   |     |-EE*Sqrt2*Vcb/(4*SW)                              |G(m3)*(1-G5)
++B    |t    |W-   |     |-EE*Sqrt2*Vtb/(4*SW)                              |G(m3)*(1-G5)
++B    |u    |W-   |     |-EE*Sqrt2*Vub/(4*SW)                              |G(m3)*(1-G5)
++C    |b    |W+   |     |-EE*Sqrt2*Vcb/(4*SW)                              |G(m3)*(1-G5)
++C    |c    |A    |     |-2*EE/3                                           |G(m3)
++C    |c    |G    |     |GG                                                |G(m3)
++C    |c    |H    |     |-EE*Mc/(2*MW*SW)                                  |1
++C    |c    |Z    |     |EE/(12*CW*SW)                                     |8*SW^2*G(m3)-3*G(m3)*(1-G5)
++C    |d    |W+   |     |-EE*Sqrt2*Vcd/(4*SW)                              |G(m3)*(1-G5)
++C    |s    |W+   |     |-EE*Sqrt2*Vcs/(4*SW)                              |G(m3)*(1-G5)
++D    |c    |W-   |     |-EE*Sqrt2*Vcd/(4*SW)                              |G(m3)*(1-G5)
++D    |d    |A    |     |EE/3                                              |G(m3)
++D    |d    |G    |     |GG                                                |G(m3)
++D    |d    |H    |     |-EE*Md/(2*MW*SW)                                  |1
++D    |d    |Z    |     |-EE/(12*CW*SW)                                    |4*SW^2*G(m3)-3*G(m3)*(1-G5)
++D    |t    |W-   |     |-EE*Sqrt2*Vtd/(4*SW)                              |G(m3)*(1-G5)
++D    |u    |W-   |     |-EE*Sqrt2*Vud/(4*SW)                              |G(m3)*(1-G5)
++E    |e    |A    |     |EE                                                |G(m3)
++E    |e    |H    |     |-EE*Me/(2*MW*SW)                                  |1
++E    |e    |Z    |     |-EE/(4*CW*SW)                                     |4*SW^2*G(m3)-G(m3)*(1-G5)
++E    |ne   |W-   |     |-EE*Sqrt2/(4*SW)                                  |G(m3)*(1-G5)
++G    |G    |G    |     |GG                                                |m2.p3*m1.m3-m1.p3*m2.m3+m3.p1*m1.m2-m2.p1*m1.m3-m3.p2*m1.m2+m1.p2*m2.m3
++G.C  |G.c  |G    |     |GG                                                |m3.p2
++H    |H    |H    |     |-3*EE^2*MH^2*v0/(4*MW^2*SW^2)                     |1
++H    |W+   |W-   |     |EE^2*v0/(2*SW^2)                                  |m2.m3
++H    |Z    |Z    |     |EE^2*v0/(2*CW^2*SW^2)                             |m2.m3
++H    |~V   |~V   |     |lhV*v0                                            |m2.m3
++L    |l    |A    |     |EE                                                |G(m3)
++L    |l    |H    |     |-EE*Mtau/(2*MW*SW)                                |1
++L    |l    |Z    |     |-EE/(4*CW*SW)                                     |4*SW^2*G(m3)-G(m3)*(1-G5)
++L    |nl   |W-   |     |-EE*Sqrt2/(4*SW)                                  |G(m3)*(1-G5)
++M    |m    |A    |     |EE                                                |G(m3)
++M    |m    |H    |     |-EE*Mm/(2*MW*SW)                                  |1
++M    |m    |Z    |     |-EE/(4*CW*SW)                                     |4*SW^2*G(m3)-G(m3)*(1-G5)
++M    |nm   |W-   |     |-EE*Sqrt2/(4*SW)                                  |G(m3)*(1-G5)
++Ne   |e    |W+   |     |-EE*Sqrt2/(4*SW)                                  |G(m3)*(1-G5)
++Ne   |ne   |Z    |     |-EE/(4*CW*SW)                                     |G(m3)*(1-G5)
++Nl   |l    |W+   |     |-EE*Sqrt2/(4*SW)                                  |G(m3)*(1-G5)
++Nl   |nl   |Z    |     |-EE/(4*CW*SW)                                     |G(m3)*(1-G5)
++Nm   |m    |W+   |     |-EE*Sqrt2/(4*SW)                                  |G(m3)*(1-G5)
++Nm   |nm   |Z    |     |-EE/(4*CW*SW)                                     |G(m3)*(1-G5)
++S    |c    |W-   |     |-EE*Sqrt2*Vcs/(4*SW)                              |G(m3)*(1-G5)
++S    |s    |A    |     |EE/3                                              |G(m3)
++S    |s    |G    |     |GG                                                |G(m3)
++S    |s    |H    |     |-EE*Ms/(2*MW*SW)                                  |1
++S    |s    |Z    |     |-EE/(12*CW*SW)                                    |4*SW^2*G(m3)-3*G(m3)*(1-G5)
++S    |t    |W-   |     |-EE*Sqrt2*Vts/(4*SW)                              |G(m3)*(1-G5)
++S    |u    |W-   |     |-EE*Sqrt2*Vus/(4*SW)                              |G(m3)*(1-G5)
++T    |b    |W+   |     |-EE*Sqrt2*Vtb/(4*SW)                              |G(m3)*(1-G5)
++T    |d    |W+   |     |-EE*Sqrt2*Vtd/(4*SW)                              |G(m3)*(1-G5)
++T    |s    |W+   |     |-EE*Sqrt2*Vts/(4*SW)                              |G(m3)*(1-G5)
++T    |t    |A    |     |-2*EE/3                                           |G(m3)
++T    |t    |G    |     |GG                                                |G(m3)
++T    |t    |H    |     |-EE*Mtop/(2*MW*SW)                                |1
++T    |t    |Z    |     |EE/(12*CW*SW)                                     |8*SW^2*G(m3)-3*G(m3)*(1-G5)
++U    |b    |W+   |     |-EE*Sqrt2*Vub/(4*SW)                              |G(m3)*(1-G5)
++U    |d    |W+   |     |-EE*Sqrt2*Vud/(4*SW)                              |G(m3)*(1-G5)
++U    |s    |W+   |     |-EE*Sqrt2*Vus/(4*SW)                              |G(m3)*(1-G5)
++U    |u    |A    |     |-2*EE/3                                           |G(m3)
++U    |u    |G    |     |GG                                                |G(m3)
++U    |u    |H    |     |-EE*Mu/(2*MW*SW)                                  |1
++U    |u    |Z    |     |EE/(12*CW*SW)                                     |8*SW^2*G(m3)-3*G(m3)*(1-G5)
++W+   |W-   |Z    |     |-CW*EE/SW                                         |m2.p1*m1.m3-m3.p1*m1.m2-m1.p2*m2.m3+m3.p2*m1.m2+m1.p3*m2.m3-m2.p3*m1.m3
++A    |A    |W+   |W-   |-EE^2                                             |2*m1.m2*m3.m4-m1.m3*m2.m4-m1.m4*m2.m3
++A    |W+   |W-   |Z    |-CW*EE^2/SW                                       |2*m1.m4*m2.m3-m1.m2*m3.m4-m1.m3*m2.m4
++G    |G    |G.t  |     |GG*Sqrt2/2                                        |m1.m3*m2.M3-m1.M3*m2.m3
++H    |H    |H    |H    |-3*EE^2*MH^2/(4*MW^2*SW^2)                        |1
++H    |H    |W+   |W-   |EE^2/(2*SW^2)                                     |m3.m4
++H    |H    |Z    |Z    |EE^2/(2*CW^2*SW^2)                                |m3.m4
++H    |H    |~V   |~V   |lhV                                               |m3.m4
++W+   |W+   |W-   |W-   |EE^2/SW^2                                         |2*m1.m2*m3.m4-m1.m4*m2.m3-m1.m3*m2.m4
++W+   |W-   |Z    |Z    |-CW^2*EE^2/SW^2                                   |2*m1.m2*m3.m4-m1.m3*m2.m4-m1.m4*m2.m3
++~V   |~V   |~V   |~V   |-lV/3                                             |m1.m2*m3.m4+m1.m3*m2.m4+m1.m4*m2.m3
++================================================================================================================================================
+diff -rupN ./VectorSingletDM_Z2/work/models/prtcls1.mdl ../../../installed/micromegas/3.6.9.2/VectorSingletDM_Z2/VectorSingletDM_Z2/work/models/prtcls1.mdl
+--- ./VectorSingletDM_Z2/work/models/prtcls1.mdl	1970-01-01 09:30:00.000000000 +0930
++++ ../../../installed/micromegas/3.6.9.2/VectorSingletDM_Z2/VectorSingletDM_Z2/work/models/prtcls1.mdl	2016-08-22 21:31:34.000000000 +0930
+@@ -0,0 +1,22 @@
++vectorModel
++ Particles 
++Full   Name     | P | aP|  number  |spin2|mass|width|color|aux| LaTeX(A)       |  LateX(A+)         |
++gluon           |G  |G  |21        |2    |0   |0    |8    |G  |G               |G                   |
++photon          |A  |A  |22        |2    |0   |0    |1    |G  |A               |A                   |
++Z boson         |Z  |Z  |23        |2    |MZ  |wZ   |1    |   |Z               |Z                   |
++W boson         |W+ |W- |24        |2    |MW  |wW   |1    |   |W^+             |W^-                 |
++neutrino        |ne |Ne |12        |1    |0   |0    |1    |L  |\nu^e           |\bar{\nu}^e         |
++electron        |e  |E  |11        |1    |Me  |0    |1    |   |e               |\bar{e}             |
++mu-neutrino     |nm |Nm |14        |1    |0   |0    |1    |L  |\nu^\mu         |\bar{\nu}^\mu       |
++muon            |m  |M  |13        |1    |Mm  |0    |1    |   |\mu             |\bar{\mu}           |
++tau-neutrino    |nl |Nl |16        |1    |0   |0    |1    |L  |\nu^\tau        |\bar{\nu}^\tau      |
++tau-lepton      |l  |L  |15        |1    |Mtau|0    |1    |   |\tau            |\bar{\tau}          |
++u-quark         |u  |U  |2         |1    |Mu  |0    |3    |   |u               |\bar{u}             |
++d-quark         |d  |D  |1         |1    |Md  |0    |3    |   |d               |\bar{d}             |
++c-quark         |c  |C  |4         |1    |Mc  |0    |3    |   |c               |\bar{c}             |
++s-quark         |s  |S  |3         |1    |Ms  |0    |3    |   |s               |\bar{s}             |
++t-quark         |t  |T  |6         |1    |Mtop|wtop |3    |   |t               |\bar{t}             |
++b-quark         |b  |B  |5         |1    |Mb  |0    |3    |   |b               |\bar{b}             |
++Higgs           |H  |H  |35        |0    |MH  |!wH  |1    |   |H               |H                   |
++vector DM       |~V |~V |19        |2    |mV  |0    |1    |   |(V)             |(V)                 |
++======================================================================================================
+diff -rupN ./VectorSingletDM_Z2/work/models/vars1.mdl ../../../installed/micromegas/3.6.9.2/VectorSingletDM_Z2/VectorSingletDM_Z2/work/models/vars1.mdl
+--- ./VectorSingletDM_Z2/work/models/vars1.mdl	1970-01-01 09:30:00.000000000 +0930
++++ ../../../installed/micromegas/3.6.9.2/VectorSingletDM_Z2/VectorSingletDM_Z2/work/models/vars1.mdl	2016-08-22 21:31:34.000000000 +0930
+@@ -0,0 +1,30 @@
++vectorModel
++ Variables 
++ Name  | Value       |>  Comment                                   <|
++EE     |0.31345      |Elementary charge (alpha=1/127.9, on-shell, MZ point, PDG2002)
++GG     |1.21358      |Strong coupling constant (Z pnt, alp=0.1172pm0.002  (PDG2002)
++SW     |0.48076      |sin of the Weinberg angle (MZ point -> MW=79.958GeV, PDG2002)
++s12    |0.2229       |Parameter of C-K-M matrix (PDG2002)
++s23    |0.0412       |Parameter of C-K-M matrix (PDG2002)
++s13    |0.0036       |Parameter of C-K-M matrix (PDG2002)
++v0     |246.22       |Higgs VEV (1/sqrt(sqrt(2)*GF), PDG2014)
++MZ     |91.1876      |Z boson mass (PDG2014)
++wZ     |2.4952       |Z boson width (PDG2014)
++MW     |80.385       |W boson mass (PDG2014)
++wW     |2.085        |W boson width (PDG2014)
++MH     |125          |Higgs boson mass
++Mtau   |1.77682      |Tau lepton mass (PDG2014)
++Mm     |0.105658     |Muon mass (PDG2014)
++Me     |0.000510999  |Electron mass (PDG2014)
++Mtop   |173          |Top quark mass (Mtop(pole), PDG2014)
++wtop   |2            |Top quark width (PDG2014)
++Mb     |4.18         |Bottom quark mass (Mb(Mb), MSbar scheme, PDG2014)
++Mc     |1.275        |Charm quark mass (Mc(Mc), MSbar scheme, PDG2014)
++Ms     |0.095        |Strange quark mass (Ms(2 GeV), MSbar scheme, PDG2014)
++Md     |0.0048       |Down quark mass (Md(2 GeV), MSbar scheme, PDG2014)
++Mu     |0.0023       |Up quark mass (Mu(2 GeV), MSbar scheme, PDG2014)
++lV     |0.1          |vector-vector coupling
++lhV    |1            |vector-Higgs coupling
++muV    |120          |bare-mass term
++mV     |150          |mass of vector DM
++========================================================================
+diff -rupN ./VectorSingletDM_Z2/Makefile ../../installed/micromegas/3.6.9.2/VectorSingletDM_Z2/Makefile
+--- ./VectorSingletDM_Z2/Makefile	1970-01-01 09:30:00.000000000 +0930
++++ ../../installed/micromegas/3.6.9.2/VectorSingletDM_Z2/Makefile	21:31:34.000000000 +0930
+@@ -45,7 +45,15 @@ libs:
+ 	$(MAKE) -C work
+ 	$(MAKE) -C lib
+ 
++sharedlib: all
++ifeq (,$(main)) 
++	@echo Main program is not specified. Use gmake main='<code of main program>'
++else  
++	$(CC) $(CFLAGS) -shared -fPIC -o libmicromegas.so $(main) $(SSS) $(lDL)
++endif
++
+ clean: 
++	rm -rf libmicromegas.so
+ 	$(MAKE) -C lib  clean
+ 	$(MAKE) -C work clean 
+ 	rm -fr calchep/tmp/* calchep/results/*

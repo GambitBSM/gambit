@@ -1,0 +1,101 @@
+(* ****************************************************************** *)
+(* *****                                                        ***** *)
+(* *****  FeynRules model file: Simplified DM models            ***** *)
+(* *****                        s-channel spin-1 mediator       ***** *)
+(* *****                        Majorana fermion DM             ***** *)
+(* *****  Author: C. Chang                                      ***** *)
+(* *****                                                        ***** *)
+(* ****************************************************************** *)
+
+(* NOTE: This is modified from a model file provided at: http://feynrules.irmp.ucl.ac.be/wiki/DMsimp/ *)
+
+(* ************************** *)
+(* *****  Information   ***** *)
+(* ************************** *)
+
+M$ModelName = "DMsimp_s_spin1_MajoranaDM";
+
+M$Information = {
+ Authors      -> {"C. Chang"}, 
+ Institutions -> {"University of Queensland"},
+ Emails       -> {"christopher.chang@uq.net.au"},
+};
+
+(***** Setting for interaction order (as e.g. used by MadGraph 5)  ******)
+
+M$InteractionOrderLimit = {
+ {DMV, 2}
+};
+
+M$InteractionOrderHierarchy = {
+ {QCD, 1}, {DMV, 2}, {QED, 2}
+};
+
+
+(* ************************** *)
+(* *****     Fields     ***** *)
+(* ************************** *)
+M$ClassesDescription = {
+
+F[7] == { ClassName -> Xm,
+          SelfConjugate -> True,
+	      Mass -> {MXm, 10.},
+          Width -> 0,
+          QuantumNumbers   -> {Q -> 0},
+          PDG -> 5000522,
+          TeX -> Subscript[X,m],
+          FullName -> "Majorana DM" },
+
+V[7] == { ClassName -> Y1,
+	      SelfConjugate -> True,
+	      Mass -> {MY1, 1000.},
+          Width -> {WY1, 10.},
+          PDG -> 5000001,
+          TeX -> Subscript[Y,1],
+          FullName -> "spin-1 mediator" }
+
+};
+
+
+(* ************************** *)
+(* *****   Parameters   ***** *)
+(* ************************** *)  
+M$Parameters = {
+
+ gAXm == { 
+      ParameterType -> External,
+      InteractionOrder -> {DMV, 1},
+      BlockName -> DMINPUTS,
+      OrderBlock       -> 3,
+      TeX -> Subscript[g,AXd],
+      Description -> "Xm-Y1 axial-vector coupling",
+      Value -> 0. },     	  
+
+ gVq == { 
+      ParameterType -> External,
+      InteractionOrder -> {DMV, 1},
+      BlockName -> DMINPUTS,
+      OrderBlock       -> 4,
+      TeX -> Subscript[g,Vq],
+      Description -> "q-Y1 vector coupling",
+      Value -> 0.25 }
+
+
+};
+
+
+(* ************************** *)
+(* *****   Lagrangian   ***** *)
+(* ************************** *)
+
+L1X := Xmbar.Ga[mu].(gAXm Ga[5]).Xm Y1[mu];
+      
+L1SM := dbar.Ga[mu].(gVq).d Y1[mu] +
+        ubar.Ga[mu].(gVq).u Y1[mu] +
+        sbar.Ga[mu].(gVq).s Y1[mu] +
+        cbar.Ga[mu].(gVq).c Y1[mu] +
+        bbar.Ga[mu].(gVq).b Y1[mu] +
+        tbar.Ga[mu].(gVq).t Y1[mu];
+
+
+LDM := L1X + L1SM;

@@ -91,7 +91,7 @@ namespace Gambit
    // doesn't need to be templated.
    template <class DerivedSpec>
    class Spec : public SubSpectrum
-   { 
+   {
      template <class,class>
      friend class FptrFinder;
  
@@ -244,9 +244,9 @@ namespace Gambit
 
          /// Will need a map of map collections for both the getters and setters,
          /// containing the map collections for the permitted parameter types
-         
-         typedef std::map<Par::Tags,MapCollection<MTget>> GetterMaps; 
-         typedef std::map<Par::Tags,MapCollection<MTset>> SetterMaps; 
+
+         typedef std::map<Par::Tags,MapCollection<MTget>> GetterMaps;
+         typedef std::map<Par::Tags,MapCollection<MTset>> SetterMaps;
          static const GetterMaps getter_maps;
          static const SetterMaps setter_maps;
 

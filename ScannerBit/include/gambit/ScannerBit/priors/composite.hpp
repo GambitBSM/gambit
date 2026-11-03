@@ -4,12 +4,12 @@
 ///
 ///  Combine several priors to a prior for
 ///  e.g. an entire model
-///  
+///
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Ben Farmer
 ///          (benjamin.farmer@monash.edu.au)
 ///  \date 2013 Dec
@@ -33,11 +33,12 @@
 
 #include "gambit/Utils/yaml_options.hpp"
 #include "gambit/ScannerBit/priors.hpp"
+#include "gambit/ScannerBit/scanner_utils.hpp"
 
 
-namespace Gambit 
+namespace Gambit
 {
-    namespace Priors 
+    namespace Priors
     {
         /// Special "build-a-prior" class
         /// This is the class to use for setting simple 1D priors (from the library above) on individual parameters.
@@ -46,83 +47,94 @@ namespace Gambit
 
         class CompositePrior : public BasePrior
         {
-                        
+
         private:
             // References to component prior objects
             std::vector<BasePrior*> my_subpriors;
             std::vector<std::string> shown_param_names;
-                
+            std::set<std::string> set_param_names;
+
         public:
-        
+
             // Constructors defined in composite.cpp
             CompositePrior(const Options &model_options, const Options &prior_options);
-            
+
             CompositePrior(const std::vector<std::string> &params, const Options &options);
-            
-            inline std::vector<std::string> getShownParameters() const { return shown_param_names; }
-            
-            // Transformation from unit hypercube to physical parameters
-            void transform(const std::vector<double> &unitPars, std::unordered_map<std::string,double> &outputMap) const
+
+            double log_prior_density(const std::unordered_map<std::string, double> &physical) const override
             {
-                std::vector<double>::const_iterator unit_it = unitPars.begin(), unit_next;
-                for (auto it = my_subpriors.begin(), end = my_subpriors.end(); it != end; it++)
+                double log_pdf_density = 0.0;
+                for (auto it = my_subpriors.begin(), end = my_subpriors.end(); it != end; ++it)
                 {
-                    unit_next = unit_it + (*it)->size();
-                    std::vector<double> subUnit(unit_it, unit_next);
-                    unit_it = unit_next;
-                    (*it)->transform(subUnit, outputMap);
+                    log_pdf_density += (*it)->log_prior_density(physical);
+                }
+
+                return log_pdf_density;
+            }
+
+            inline std::vector<std::string> getShownParameters() const override { return shown_param_names; }
+
+            inline std::vector<std::string> getSetParameters() const override { return std::vector<std::string>(set_param_names.begin(), set_param_names.end()); }
+
+            // Transformation from unit hypercube to physical parameters
+            void transform(hyper_cube_ref<double> unitPars, std::unordered_map<std::string,double> &outputMap) const override
+            {
+                int unit_i = 0, unit_size;
+                for (auto it = my_subpriors.begin(), end = my_subpriors.end(); it != end; ++it)
+                {
+                    unit_size = (*it)->size();
+                    (*it)->transform(unitPars.segment(unit_i, unit_size), outputMap);
+                    unit_i += unit_size;
                 }
             }
 
             // Transformation from physical parameters back to unit hypercube
-            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical) const override
+            void inverse_transform(const std::unordered_map<std::string, double> &physical, hyper_cube_ref<double> unit) const override
             {
-                std::vector<double> u;
+                int unit_i = 0, unit_size;
                 for (auto it = my_subpriors.begin(), end = my_subpriors.end(); it != end; it++)
                 {
-                    auto ublock = (*it)->inverse_transform(physical);
-                    u.insert(u.end(), ublock.begin(), ublock.end());
+                    unit_size = (*it)->size();
+                    (*it)->inverse_transform(physical, unit.segment(unit_i, unit_size));
+                    unit_i += unit_size;
                 }
 
-                // check it
-
-                for (const auto &p : u)
+                // Check it
+                for (int i = 0, end = unit.size(); i < end; ++i)
                 {
-                  if (p > 1. || p < 0.)
-                  {
-                    throw std::runtime_error("unit hypercube outside 0 and 1");
-                  }
+                    if (unit[i] >= 1 || unit[i] <= 0)
+                    {
+                        scan_warn << "unit hypercube outside 0 and 1" << scan_end;
+                    }
                 }
 
                 auto round_trip = physical;
-                transform(u, round_trip);
+                transform(unit, round_trip);
                 const double rtol = 1e-4;
-                for (const auto &s : physical) 
+                for (const auto &s : physical)
                 {
-                  const double a = round_trip.at(s.first);
-                  const double b = s.second;
-                  const double rdiff = std::abs(a - b) / std::max(std::abs(a), std::abs(b));
-                  if (rdiff > rtol)
-                  {
-                    throw std::runtime_error("could not convert physical parameters to hypercube");
-                  }
+                    const double a = round_trip.at(s.first);
+                    const double b = s.second;
+                    const double rdiff = std::abs(a - b) / std::max(std::abs(a), std::abs(b));
+                    if (rdiff > rtol)
+                    {
+                        scan_err << "could not convert physical parameters to hypercube" << scan_end;
+                    }
                 }
-
-                return u;        
             }
-            
+
             //~CompositePrior() noexcept
             ~CompositePrior()
             {
                 // Need to destroy all the prior objects that we created using 'new'
                 for (auto it = my_subpriors.begin(), end = my_subpriors.end(); it != end; it++)
-                {  
+                {
                     // Delete prior object
                     delete *it;
                 }
-            }  
+            }
         };
-            
+
         LOAD_PRIOR(composite, CompositePrior)
     } // end namespace Priors
 } // end namespace Gambit

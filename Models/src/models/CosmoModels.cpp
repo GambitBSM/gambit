@@ -59,6 +59,48 @@ void MODEL_NAMESPACE::etaBBN_to_etaBBN_rBBN_rCMB_dNurBBN_dNurCMB (const ModelPar
 }
 #undef MODEL
 
+#define MODEL etaBBN_rBBN_dNurBBN
+#define PARENT etaBBN_rBBN_rCMB_dNurBBN_dNurCMB
+void MODEL_NAMESPACE::etaBBN_rBBN_dNurBBN_to_etaBBN_rBBN_rCMB_dNurBBN_dNurCMB (const ModelParameters &myP, ModelParameters &targetP)
+{
+  USE_MODEL_PIPE(PARENT) // get pipe for "INTERPRET_AS_PARENT_DEPENDENCY"
+  logger()<<"Running interpret_as_parent calculations for etaBBN_rBBN_dNurBBN --> etaBBN_rBBN_rCMB_dNurBBN_dNurCMB ..."<<LogTags::info<<EOM;
+
+  // Set eta_BBN
+  targetP.setValue("eta_BBN", myP.getValue("eta_BBN"));
+
+  map_str_dbl Neff_evolution = *Dep::Neff_evolution;
+
+  // Set the respective values of r
+  targetP.setValue("r_BBN", myP.getValue("r_BBN"));
+  targetP.setValue("r_CMB", Neff_evolution.at("r_CMB"));
+
+  // Set the respective values of dNeff
+  targetP.setValue("dNur_BBN", myP.getValue("dNur_BBN"));
+  targetP.setValue("dNur_CMB", Neff_evolution.at("dNur_CMB"));
+}
+#undef PARENT
+#undef MODEL
+
+#define MODEL rBBN_dNurBBN
+#define PARENT etaBBN_rBBN_dNurBBN
+void MODEL_NAMESPACE::rBBN_dNurBBN_to_etaBBN_rBBN_dNurBBN (const ModelParameters &myP, ModelParameters &targetP)
+{
+  USE_MODEL_PIPE(PARENT) // get pipe for "INTERPRET_AS_PARENT_DEPENDENCY"
+  logger()<<"Running interpret_as_parent calculations for rBBN_dNurBBN --> etaBBN_rBBN_dNurBBN ..."<<LogTags::info<<EOM;
+
+  // Set eta_BBN
+  targetP.setValue("eta_BBN",(*Dep::eta0)*(*Dep::eta_ratio));
+
+  // Set r_BBN
+  targetP.setValue("r_BBN", myP.getValue("r_BBN"));
+
+  // Set tdNur_BBN
+  targetP.setValue("dNur_BBN", myP.getValue("dNur_BBN"));
+}
+#undef PARENT
+#undef MODEL
+
 #define MODEL rBBN_rCMB_dNurBBN_dNurCMB
 #define PARENT etaBBN_rBBN_rCMB_dNurBBN_dNurCMB
 void MODEL_NAMESPACE::rBBN_rCMB_dNurBBN_dNurCMB_to_etaBBN_rBBN_rCMB_dNurBBN_dNurCMB (const ModelParameters &myP, ModelParameters &targetP)

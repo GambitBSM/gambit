@@ -103,7 +103,8 @@ namespace Gambit
             return x;
         }
 
-        double Square(const std::vector<double> &y, const std::vector<double> &y0)
+        template<typename VEC1, typename VEC2>
+        double Square(VEC1 &&y, VEC2 &&y0)
         {
             int i, j, num = y.size();
             double sum;

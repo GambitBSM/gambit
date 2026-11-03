@@ -124,8 +124,15 @@ namespace Gambit
        Dep::nevents.module() << "." << endl;
       logger() << "Its value is: " << *Dep::nevents << info << EOM;
 
-      //cout << "Now let's see what happens when we try to retrieve a conditional dependency." << endl;
-      //cout << "The id is: " << *Dep::id << endl;
+      logger() << "Now let's see what happens when we try to retrieve a conditional dependency." << endl;
+      if (Dep::particle_id.active())
+      {
+        logger() << "The particle id is: " << *Dep::particle_id << endl;
+      }
+      else
+      {
+        logger() << "The particle_id conditional dependency is not activated." << endl;
+      }
 
       static int i = 0;
       int stuff = 2 + i;
@@ -162,9 +169,10 @@ namespace Gambit
       int arg2 = 15;
       BEreq::runMe(byVal(*Dep::function_pointer), arg2);
 
-      // Demonstration of accessing backend requirements via 'BEvariable_bucket'/'BEfunction_bucket' objects
-      // living in Pipes::[module function name]::BEreq::[backend capability]
-      if (ModelInUse("CMSSM") or ModelInUse("demo_B") or ModelInUse("nonexistent_model"))
+      // What follows is a demonstration of accessing backend requirements via 'BEvariable_bucket'/'BEfunction_bucket' objects
+      // living in Pipes::[module function name]::BEreq::[backend capability].  The first if statement checks if the model-conditional
+      // backend requirement SomeInt has been activated or not (i.e. are we scanning one of CMSSM, demo_B or nonexistent_model?)
+      if (BEreq::SomeInt.active())
       {
         logger() << endl;
         logger() << "Will now set backend variable SomeInt=1000." << endl;
@@ -176,6 +184,10 @@ namespace Gambit
         logger() << "Some extra info on the backend requirement 'SomeInt':" << endl;
         logger() << "Name: " << BEreq::SomeInt.name() << "   Backend: " << BEreq::SomeInt.backend() << "   Version: " << BEreq::SomeInt.version();
         logger() << info <<EOM;
+      }
+      else
+      {
+        logger() << "Conditions not met for activation of SomeInt backend requirement." << endl;
       }
 
       logger() << endl;

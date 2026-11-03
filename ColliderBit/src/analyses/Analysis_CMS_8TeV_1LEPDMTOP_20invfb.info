@@ -1,0 +1,7 @@
+Summary: CMS 1-lepton + jets + MET (top pair) search at 8 TeV with 20/fb
+InspireID: 1359293
+ExptRun: CMS-R1.5
+Lumi_ifb: 19.7
+Ecm_TeV: 8.0
+Signatures: [">=3J + >=1B + >=1L + MET + MT + MT2"]
+Notes: Also min(dphi) cuts.

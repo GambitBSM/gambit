@@ -215,7 +215,7 @@ namespace Gambit
        if(REMAINDER==0) { NCHUNKIT = NCHUNKS; }
        else             { NCHUNKIT = NCHUNKS+1; } // Need an extra iteration to deal with incomplete chunk
 
-       logger()<<"Begining iteration through existing HDF5 output for rank "<<getRank()<<", searching for previous highest pointID."<<EOM;
+       logger()<<"Beginning iteration through existing HDF5 output for rank "<<getRank()<<", searching for previous highest pointID."<<EOM;
 
        // Iterate through dataset in chunks
        for(std::size_t i=0; i<NCHUNKIT; ++i)
@@ -294,7 +294,7 @@ namespace Gambit
 
     // We are going to have to combine this data with information from the
     // scanners (using the auxilliary printers). In order to do this efficiently,
-    // we will store the pointIDs and ranks in a dataset seperate from the
+    // we will store the pointIDs and ranks in a dataset separate from the
     // bulk of the data (but correlated with it) so that we can quickly search
     // for records by their pointID and rank, and then write new data to them.
     //
@@ -328,6 +328,7 @@ namespace Gambit
       options.setValue("type", "hdf5");
       options.setValue("file", tmp_comb_file);
       options.setValue("group", group);
+      options.setValue("metadata_group", metadata_group);
       return options;
     }
 
@@ -388,11 +389,20 @@ namespace Gambit
 
         // Name of file where combined results from previous (unfinished) runs end up
         std::ostringstream rename;
-        rename << finalfile << "_temp_combined";
+        rename << finalfile << "_combined";
         tmp_comb_file = rename.str();
 
         // HDF5 group (virtual "folder") inside output file in which to store datasets
         group = options.getValueOrDef<std::string>("/","group");
+
+        // HDF5 group for metadata, must be different than the dataset group
+        metadata_group = options.getValueOrDef<std::string>("/metadata", "metadata_group");
+        if(group == metadata_group)
+        {
+          std::ostringstream errmsg;
+          errmsg<<"Metadata group name matches primary group name. Please change one of the two.";
+          printer_error().raise(LOCAL_INFO, errmsg.str());
+        }
 
         // Delete final target file (or group) if one with same name already exists? (and if we are restarting the run)
         // This is just for convenience during testing; by default datasets will simply be replaced in/added to
@@ -410,50 +420,63 @@ namespace Gambit
           #endif
           if(HDF5::checkFileReadable(finalfile, msg_finalfile))
           {
-            if(overwrite_file and not get_resume())
+            // Note: "not resume" means "start or restart"
+            if(not get_resume())
             {
-              // Note: "not resume" means "start or restart"
-              // Delete existing output file
-              std::ostringstream command;
-              command << "rm -f "<<finalfile;
-              logger() << LogTags::printers << LogTags::info << "Running shell command: " << command.str() << EOM;
-              FILE* fp = popen(command.str().c_str(), "r");
-              if(fp==NULL)
+              if(overwrite_file)
               {
-                // Error running popen
-                std::ostringstream errmsg;
-                errmsg << "rank "<<myRank<<": Error deleting existing output file (requested by 'delete_file_on_restart' printer option; target filename is "<<finalfile<<")! popen failed to run the command (command was '"<<command.str()<<"')";
-                printer_error().raise(LOCAL_INFO, errmsg.str());
+                // Delete existing output file
+                std::ostringstream command;
+                command << "rm -f "<<finalfile;
+                logger() << LogTags::printers << LogTags::info << "Running shell command: " << command.str() << EOM;
+                FILE* fp = popen(command.str().c_str(), "r");
+                if(fp==NULL)
+                {
+                  // Error running popen
+                  std::ostringstream errmsg;
+                  errmsg << "rank "<<myRank<<": Error deleting existing output file (requested by 'delete_file_on_restart' printer option; target filename is "<<finalfile<<")! popen failed to run the command (command was '"<<command.str()<<"')";
+                  printer_error().raise(LOCAL_INFO, errmsg.str());
+                }
+                else if(pclose(fp)!=0)
+                {
+                  // Command returned exit code!=0, or pclose failed
+                  std::ostringstream errmsg;
+                  errmsg << "rank "<<myRank<<": Error deleting existing output file (requested by 'delete_file_on_restart' printer option; target filename is "<<finalfile<<")! Shell command failed to executed successfully, see stderr (command was '"<<command.str()<<"').";
+                  printer_error().raise(LOCAL_INFO, errmsg.str());
+                }
               }
-              else if(pclose(fp)!=0)
+              else
               {
-                // Command returned exit code!=0, or pclose failed
-                std::ostringstream errmsg;
-                errmsg << "rank "<<myRank<<": Error deleting existing output file (requested by 'delete_file_on_restart' printer option; target filename is "<<finalfile<<")! Shell command failed to executed successfully, see stderr (command was '"<<command.str()<<"').";
-                printer_error().raise(LOCAL_INFO, errmsg.str());
+                // File exists, so check if 'group' is readable, and throw error if it exists
+                file_id = HDF5::openFile(finalfile);
+                std::string msg_group;
+                std::cout << "Group readable: " << finalfile << " , " << group << " : " << HDF5::checkGroupReadable(file_id, group, msg_group) << std::endl;
+                if(HDF5::checkGroupReadable(file_id, group, msg_group))
+                {
+                  // Group already exists, error!
+                  std::ostringstream errmsg;
+                  errmsg << "Error preparing pre-existing output file '"<<finalfile<<"' for writing via hdf5printer! The requested output group '"<<group<<" already exists in this file! Please take one of the following actions:"<<std::endl;
+                  errmsg << "  1. Choose a new group via the 'group' option in the Printer section of your input YAML file;"<<std::endl;
+                  errmsg << "  2. Delete the existing group from '"<<finalfile<<"';"<<std::endl;
+                  errmsg << "  3. Delete the existing output file, or set 'delete_file_on_restart: true' in your input YAML file to give GAMBIT permission to automatically delete it (applies when -r/--restart flag used);"<<std::endl;
+                  errmsg << std::endl;
+                  errmsg << "*** Note: This error most commonly occurs when you try to resume a scan that has already finished! ***" <<std::endl;
+                  errmsg << std::endl;
+                  printer_error().raise(LOCAL_INFO, errmsg.str());
+                }
+                HDF5::closeFile(file_id);
+                // Group does not exist in the pre-existing file. Refuse to
+                // proceed: we are not in resume mode and 'delete_file_on_restart'
+                // is not set, so adding a new group to a file from an unrelated
+                // previous run risks silently mixing unrelated data.
+                std::ostringstream errmsg2;
+                errmsg2 << "Error preparing pre-existing output file '"<<finalfile<<"' for writing via hdf5printer! The file exists, but does not contain the requested output group '"<<group<<"', and the run is not in resume mode (so we will not append to it) and 'delete_file_on_restart' is not set (so we will not overwrite it). Refusing to proceed to avoid silently mixing unrelated data. Please take one of the following actions:"<<std::endl;
+                errmsg2 << "  1. Re-run with the -r flag (restart) and set 'delete_file_on_restart: true' to overwrite the existing file;"<<std::endl;
+                errmsg2 << "  2. Choose a different output filename via the 'output_file' printer option;"<<std::endl;
+                errmsg2 << "  3. Manually move or delete the existing file '"<<finalfile<<"'."<<std::endl;
+                printer_error().raise(LOCAL_INFO, errmsg2.str());
               }
-            }
-            else
-            {
-              // File exists, so check if 'group' is readable, and throw error if it exists
-              file_id = HDF5::openFile(finalfile);
-              std::string msg_group;
-              std::cout << "Group readable: " << finalfile << " , " << group << " : " << HDF5::checkGroupReadable(file_id, group, msg_group) << std::endl;
-              if(HDF5::checkGroupReadable(file_id, group, msg_group))
-              {
-                // Group already exists, error!
-                std::ostringstream errmsg;
-                errmsg << "Error preparing pre-existing output file '"<<finalfile<<"' for writing via hdf5printer! The requested output group '"<<group<<" already exists in this file! Please take one of the following actions:"<<std::endl;
-                errmsg << "  1. Choose a new group via the 'group' option in the Printer section of your input YAML file;"<<std::endl;
-                errmsg << "  2. Delete the existing group from '"<<finalfile<<"';"<<std::endl;
-                errmsg << "  3. Delete the existing output file, or set 'delete_file_on_restart: true' in your input YAML file to give GAMBIT permission to automatically delete it (applies when -r/--restart flag used);"<<std::endl;
-                errmsg << std::endl;
-                errmsg << "*** Note: This error most commonly occurs when you try to resume a scan that has already finished! ***" <<std::endl;
-                errmsg << std::endl;
-                printer_error().raise(LOCAL_INFO, errmsg.str());
-              }
-              HDF5::closeFile(file_id);
-              exit(1);
+
             }
           }
 
@@ -480,7 +503,7 @@ namespace Gambit
               {
                 // There is no combined output either, so disable resume mode
                 std::ostringstream msg;
-                msg<<"No temporary output from a previous scan found (or it is unreadable); this will be treated as a NEW scan";
+                msg<<"No combined output file " << tmp_comb_file << " from a previous scan found (or it is unreadable); this will be treated as a NEW scan";
                 std::cout<<msg.str()<<std::endl;
                 logger() << LogTags::info << msg.str();
                 set_resume(false);
@@ -515,16 +538,16 @@ namespace Gambit
             }
           } // end if(resume)
 
-          std::cout <<"Rank "<<myRank<<" resume flag? "<<get_resume()<<std::endl;
+          logger() << LogTags::printers << LogTags::info << "Rank " << myRank << " resume flag? " << get_resume() << EOM;
           if(get_resume())
           {
             //long highest = 0;
             /// Check if combined output file exists
-            std::cout <<"Rank "<<myRank<<": tmp_comb_file readable? "<<HDF5::checkFileReadable(tmp_comb_file)<<"(filename: "<<tmp_comb_file<<")"<<std::endl;
+            logger() << LogTags::printers << LogTags::info << "Rank " << myRank << ": tmp_comb_file readable? " << HDF5::checkFileReadable(tmp_comb_file) << "(filename: " << tmp_comb_file << ")" << EOM;
             if( HDF5::checkFileReadable(tmp_comb_file) )
             {
-              logger() << LogTags::info << "Scanning existing temporary combined output file, to prepare for adding new data" << EOM;
-            // Open HDF5 file
+              logger() << LogTags::info << "Scanning existing temporary combined output file " << tmp_comb_file << ", to prepare for adding new data" << EOM;
+              // Open HDF5 file
               file_id = HDF5::openFile(tmp_comb_file);
 
               // Check that group is readable
@@ -539,11 +562,24 @@ namespace Gambit
                 printer_error().raise(LOCAL_INFO, errmsg.str());
               }
 
+              // Check that metadata group is readable
+              if(not HDF5::checkGroupReadable(file_id, metadata_group, msg2))
+              {
+                // We are supposed to be resuming, but metadata group was not readable in the output file, so throw a warning
+                std::ostringstream errmsg;
+                errmsg << "Warning! GAMBIT is in resume mode, however the chosen output system (HDF5Printer) was unable to open the metadata group ("<<metadata_group<<") within the existing output file ("<<tmp_comb_file<<"). The scan will be resumed but all previous metadata will be lost. ";
+                logger() << LogTags::info << errmsg.str() << EOM;
+                #ifdef DEBUG_MODE
+                  std::cout << errmsg.str() << std::endl;
+                #endif
+              }
+
               // Open requested group (creating it plus parents if needed)
               group_id = HDF5::openGroup(file_id,group);
 
               // Get previous highest pointID for our rank from the existing output file
               // Might take a while, so time it.
+              // TODO: Pretty sure this can be faster if taken from metadata, do that later
               std::chrono::time_point<std::chrono::system_clock> start(std::chrono::system_clock::now());
               //PPIDpair highest_PPID
               std::map<unsigned long, unsigned long long int> highest_PPIDs = get_highest_PPID_from_HDF5(group_id);
@@ -632,9 +668,13 @@ namespace Gambit
         // Open sub-group for RA datasets
         RA_group_id = HDF5::openGroup(file_id,group+"/RA");
 
+        // Open metadata group (or create it)
+        metadata_id = HDF5::openGroup(file_id, metadata_group);
+
         // Set the target dataset write location to the chosen group
         location_id = group_id;
         RA_location_id = RA_group_id;
+        metadata_location_id = metadata_id;
 
       }
       else
@@ -664,7 +704,7 @@ namespace Gambit
         // printer
         location_id = primary_printer->get_location();
         RA_location_id = primary_printer->get_RA_location();
-        //startpos = primary_printer->get_startpos(); // OBSOLETE
+        metadata_location_id = primary_printer->get_metadata_location();
       }
       // Now that communicator is set up, get its properties.
 #ifdef WITH_MPI
@@ -718,7 +758,7 @@ namespace Gambit
       std::string msg;
       if( HDF5::checkFileReadable(tmp_comb_file, msg) )
       {
-        logger() << LogTags::repeat_to_cout << LogTags::info << "...Existing temporary combined output file was found and is readable" << EOM;
+        logger() << LogTags::repeat_to_cout << LogTags::info << "...Existing temporary combined output file " << tmp_comb_file << " was found and is readable" << EOM;
         combined_file_readable=true;
       }
       else
@@ -794,7 +834,10 @@ namespace Gambit
         else
         {
            std::ostringstream errmsg;
-           errmsg << " Process level temporary HDF5 output was detected, however the 'disable_combine_routines' option is set for the HDF5 printer plugin. The combine code is therefore not permitted to run, so this job cannot proceed. Please either manually combine the output files, restart the scan, or set this option to 'false'" << std::endl;
+           errmsg << " Process level temporary HDF5 output was detected, however the 'disable_combine_routines' option is set for the HDF5 printer plugin." 
+                  << " The combine code is therefore not permitted to run, so this run cannot proceed. "
+                  << " To resume the previous run, either manually combine the temp files into a file " << tmp_comb_file << " and delete/move all the temp files,"
+                  << " or set the 'disable_combine_routines' option to 'false'. To instead start a *new* scan, run gambit with the '-r' flag." << std::endl;
            printer_error().raise(LOCAL_INFO, errmsg.str());
         }
       }
@@ -824,6 +867,16 @@ namespace Gambit
         std::cout << "Running finalise() routine for HDF5Printer (with name=\""<<printer_name<<"\", early="<<abnormal<<")"<<std::endl;
         logger() << LogTags::printers << "Running finalise() routine for HDF5Printer (with name=\""<<printer_name<<"\")..." << EOM;
 
+        // Add last point ID to metadata
+        if (get_output_metadata())
+        {
+          std::stringstream ssPPID;
+          ssPPID << lastPointID;
+          map_str_str lastpoint;
+          lastpoint["lastPointID"] = ssPPID.str();
+          _print_metadata(lastpoint);
+        }
+
         // Make sure all the buffers are caught up to the final point.
         synchronise_buffers();
         logger() << LogTags::printers << "Print buffers synchronised; flushing them to disk" << EOM;
@@ -838,6 +891,7 @@ namespace Gambit
           it->second->finalise();
         }
         HDF5::closeGroup(group_id);
+        HDF5::closeGroup(metadata_id);
         HDF5::closeGroup(RA_group_id);
         HDF5::closeFile(file_id);
 
@@ -1051,13 +1105,17 @@ namespace Gambit
                                   // follow a fixed format and they all exist. We check for this before
                                   // running this function, so this should be fine.
 
-      // If we set the second last flag 'true' then Greg's code will assume that a '_temp_combined' output file
+      // If we set the second last flag 'true' then Greg's code will assume that a '_combined' output file
       // exists, and it will crash if it doesn't. So we need to first check if such a file exists.
       bool combined_file_exists = Utils::file_exists(tmp_comb_file); // We already check this externally; pass in as flag?
-      std::cout<<"combined_file_exists? "<<combined_file_exists<<std::endl;
+      logger() << LogTags::printers << LogTags::info << "tmp_comb_file (" << tmp_comb_file << ") exists? " << combined_file_exists << EOM;
+      if(not combined_file_exists)
+        std::cout << "Combined file " << tmp_comb_file << " NOT found, combining now..." << std::endl;
+      else
+        std::cout << "Combined file " << tmp_comb_file << " found, skipping combination" << std::endl;
       // Second last bool just tells the routine to delete the temporary files when it is done
       // Last flag, if false, tells routines to throw an error if any expected temporary file cannot be opened for any reason
-      HDF5::combine_hdf5_files(tmp_comb_file, finalfile, group, num, combined_file_exists, true, false);
+      HDF5::combine_hdf5_files(tmp_comb_file, finalfile, group, metadata_group, num, combined_file_exists, true, false);
 
       // This is just left the same as the combine_output_py version!
       if(finalcombine)
@@ -1110,6 +1168,17 @@ namespace Gambit
         printer_error().raise(LOCAL_INFO, errmsg.str());
       }
       return RA_location_id;
+    }
+
+    hid_t HDF5Printer::get_metadata_location() const
+    {
+      if(metadata_location_id==-1)
+      {
+        std::ostringstream errmsg;
+        errmsg << "Error! Tried to retrieve 'metadata_location_id' handle from HDF5Printer, but it is -1! This means the printer has not been set up correctly. This is a bug, please report it.";
+        printer_error().raise(LOCAL_INFO, errmsg.str());
+      }
+      return metadata_location_id;
     }
 
     /// Add a pointer to a new buffer to the global list for this printer
@@ -1243,6 +1312,12 @@ namespace Gambit
         printer_error().raise(LOCAL_INFO, errmsg.str());
       }
 
+      // If sync_pos is still 0 then no point has yet been registered as the
+      // current sync position, so there is no "previous slot" for buffers to
+      // catch up to. Return early. (The get_sync_pos()-1 below would be an 
+      // unsigned underflow when get_sync_pos() = 0.)
+      if(get_sync_pos()==0) return;
+
       // Determine the desired sync position
       const unsigned long sync_pos = get_sync_pos()-1;
 
@@ -1317,8 +1392,10 @@ namespace Gambit
         printer_error().raise(LOCAL_INFO, errmsg.str());
       }
 
-      // Tell the HDF5 library to flush everything to disk
-      herr_t err = H5Fflush(file_id, H5F_SCOPE_GLOBAL);
+      // Tell the HDF5 library to flush everything to disk.
+      // Auxiliary printers don't own a file handle, so always 
+      // flush via the primary's file_id.
+      herr_t err = H5Fflush(primary_printer->file_id, H5F_SCOPE_GLOBAL);
       if(err<0)
       {
         std::ostringstream errmsg;
@@ -1611,6 +1688,19 @@ errmsg << "   sync_pos = " << sync_pos_plus1-1 << std::endl;
       else
       {
         // no action required
+      }
+    }
+
+    /// Print metadata directly to file
+    void HDF5Printer::_print_metadata(map_str_str datasets)
+    {
+      for(auto dset : datasets)
+      {
+        DataSetInterfaceScalar<str,1> dataset(get_metadata_location(), dset.first, false, 'w');
+        dataset.reset_nextemptyslab();
+        str chunk[1] = {dset.second};
+        dataset.writenewchunk(chunk);
+        dataset.closeDataSet();
       }
     }
 

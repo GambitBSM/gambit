@@ -458,7 +458,17 @@ def proc_cat(dm, sv, products, propagators, gambit_pdg_dict,
                                      gambit_pdg_dict),
                      str(model_specific_particles[i].spinX2)
                      )
-
+            if not model_specific_particles[i].is_sc():
+                towrite += (
+                        "addParticle(\"{0}\", spec.get(Par::Pole_Mass,"
+                        " \"{1}\"), {2});\n"
+                ).format(pdg_to_particle(model_specific_particles[i].conjugate_PDG_code,
+                                         gambit_pdg_dict),
+                         pdg_to_particle(model_specific_particles[i].conjugate_PDG_code,
+                                         gambit_pdg_dict),
+                         str(model_specific_particles[i].spinX2)
+                         )
+ 
     towrite += (
             "\n"
             "// Get rid of convenience macros\n"
@@ -509,8 +519,8 @@ def proc_cat(dm, sv, products, propagators, gambit_pdg_dict,
             for i in np.arange(len(propagators)):
                 if abs(propagators[i]) != abs(dm.PDG_code):
                     towrite += (
-                            "if (spec.get(Par::Pole_Mass, \"{0}\") >= 2*{1}) "
-                            "process_ann.resonances_thresholds.resonances.\n    "
+                            "if ( (spec.has(Par::Pole_Mass, \"{0}\") ? spec.get(Par::Pole_Mass, \"{0}\") : spec.get(Par::mass1, \"{0}\")) >= 2*{1})\n"
+                            "  process_ann.resonances_thresholds.resonances."
                             "push_back(TH_Resonance(spec.get(Par::Pole_Mass, "
                             "\"{0}\"), tbl.at(\"{0}\").width_in_GeV));\n"
                     ).format(pdg_to_particle(propagators[i], gambit_pdg_dict),
@@ -540,12 +550,12 @@ def write_wimp_props(model_name):
               "MODEL_CONDITIONAL_DEPENDENCY({0}_spectrum, Spectrum, {0})\n"
               "ALLOW_MODELS({0})\n"
     ).format(model_name))
-    
+
     wimp_prop_c = dumb_indent(6, (
-              "if(ModelInUse(\"{0}\"))\n"
+              "else if(ModelInUse(\"{0}\"))\n"
               "  props.mass = Dep::{0}_spectrum->get(Par::Pole_Mass, props.name);\n"
     ).format(model_name))
-    
+
     return wimp_prop_h, wimp_prop_c
 
 
@@ -948,7 +958,7 @@ def write_micromegas_src(gambit_model_name, spectrum, mathpackage, params,
         if chwidth == "0": continue
         mo_src += (
                "try {{ width = tbl->at(\"{0}\").width_in_GeV; }}\n"
-               " catch(std::exception& e) {{ present = false; }}\n"
+               "catch(std::exception& e) {{ present = false; }}\n"
                "if (present) Assign_Value(\"{1}\", width);\n"
                "present = true;\n\n"
         ).format(pdg_to_particle(pdg, gambit_pdg_codes), chwidth)
@@ -1104,10 +1114,9 @@ def add_micromegas_to_cmake(model_name, reset_dict):
             "  ExternalProject_Add(${name}_${model}_${ver}\n"
             "    DOWNLOAD_COMMAND \"\"\n"
             "    SOURCE_DIR ${dir}\n"
+            "    BUILD_IN_SOURCE 1\n"
             "    PATCH_COMMAND ./newProject ${model} && patch -p0 < ${patch}\n"
             "    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy_directory ${patchdir}/mdlfiles ${dir}/${model}/work/models/\n"
-            "    BUILD_IN_SOURCE 1\n"
-            "    CONFIGURE_COMMAND \"\"\n"
             "    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${CMAKE_MAKE_PROGRAM} sharedlib main=main.c\n"
             "    INSTALL_COMMAND \"\"\n"
             "  )\n"

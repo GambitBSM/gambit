@@ -52,7 +52,6 @@ set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Ba
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Core/include/gambit/Core/module_rollcall.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/module_types_rollcall.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/module_functor_types.hpp")
-set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/elements_extras.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Printers/include/gambit/Printers/printer_rollcall.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/cmake/include/gambit/cmake/cmake_variables.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/ScannerBit/priors_rollcall.hpp")
@@ -66,12 +65,15 @@ foreach(bit ${ALL_GAMBIT_BITS})
   set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/${bit}/examples/standalone_functors.cpp")
 endforeach()
 
-#Arrange for removal of other scanner-related generated files upon "make clean".
+# Arrange for removal of other scanner-related generated files upon "make clean".
 if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   set(clean_files ${clean_files} "${PROJECT_BINARY_DIR}/linkedout.cmake")
   set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/scratch/build_time/scanbit_reqd_entries.yaml")
   set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/scratch/build_time/scanbit_flags.yaml")
 endif()
+
+# Arrange for removal of other generated files upon "make clean".
+set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/config/gambit_backend_interfaces.yaml")
 
 # Add all the clean files
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${clean_files}")

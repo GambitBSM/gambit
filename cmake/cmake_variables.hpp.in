@@ -21,6 +21,10 @@
 ///        (t.e.gonzalo@fys.uio.no)
 ///  \date 2016 Sep
 ///
+///  \author Ben Farmer
+///        (b.farmer@imperial.ac.uk)
+///  \date 2019 Nov
+///
 ///  \author Anders Kvellestad
 ///        (anders.kvellestad@fys.uio.no)
 ///  \date 2021 Jul
@@ -35,14 +39,22 @@
 /// Gambit source directory
 #define GAMBIT_DIR "@PROJECT_SOURCE_DIR@"
 
+/// Gambit install/run directory
+/// (Used be e.g. pyScannerBit, which runs gambit libraries in a different location than they are built)
+#define GAMBIT_RUN_DIR "@GAMBIT_RUN_DIR@"
+
 /// Name of the gambit executable
 #define GAMBIT_EXECUTABLE "@PROJECT_NAME@"
 
-/// Compiler supports C++14 features
-#cmakedefine COMPILER_SUPPORTS_CXX14 1
-
 /// Compiler supports C++17 features
 #cmakedefine COMPILER_SUPPORTS_CXX17 1
+
+/// Compiler supports C++20 features
+#cmakedefine COMPILER_SUPPORTS_CXX20 1
+
+
+/// Compiler supports C++23 features
+#cmakedefine COMPILER_SUPPORTS_CXX23 1
 
 /// Found link.h in system paths
 #cmakedefine HAVE_LINK_H 1
@@ -64,8 +76,14 @@
 /// Found/installed pybind11
 #cmakedefine HAVE_PYBIND11 1
 
+/// Leave out yoda
+#cmakedefine EXCLUDE_YODA 1
+
 /// Leave out HepMC
 #cmakedefine EXCLUDE_HEPMC 1
+
+/// Path to HepMC lib directory
+#cmakedefine HEPMC_LIB "@HEPMC_LIB@"
 
 /// Leave out ROOT
 #cmakedefine EXCLUDE_ROOT 1
@@ -78,6 +96,9 @@
 
 /// Suppress specific compiler warnings from external libraries
 #cmakedefine SUPPRESS_LIBRARY_WARNINGS 1
+
+/// Leave out onnx
+#cmakedefine EXCLUDE_ONNXRUNTIME 1
 
 /// Version info
 /// @{

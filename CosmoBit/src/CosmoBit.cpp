@@ -59,6 +59,7 @@
 #include "gambit/CosmoBit/CosmoBit_rollcall.hpp"
 #include "gambit/CosmoBit/CosmoBit_types.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
+#include "gambit/Utils/statistics.hpp"
 
 namespace Gambit
 {
@@ -84,7 +85,7 @@ namespace Gambit
     {
       using namespace Pipes::get_Neff_SM;
 
-      result = Neff_SM;
+      result = Gambit::Neff_SM;
     }
 
     // returning the total mass sum of SM neutrino
@@ -165,6 +166,25 @@ namespace Gambit
         result = pow(rCMB,4)*(result) + dNurCMB;
       }
       logger() << "N_ur calculated to be " << result << EOM;
+    }
+
+    // Returns the effective number of ultrarelativistic species today
+    void get_N_ur_from_BBN(double& result)
+    {
+      using namespace Pipes::get_N_ur_from_BBN;
+
+      result = *Dep::Neff_after_BBN;
+      logger() << "N_ur calculated to be " << result << EOM;
+    }
+
+    // Neff likelihood from Planck TT,TE,EE+lowE+lensing+BAO (arXiv:1807.06209)
+    void compute_N_eff_likelihood_Planck_BAO(double& result)
+    {
+      using namespace Pipes::compute_N_eff_likelihood_Planck_BAO;
+      
+      double Neff = *Dep::Neff_after_BBN;
+      
+      result = Stats::gaussian_loglikelihood(Neff, 2.99, 0.0, 0.17, false);
     }
 
     /// Temperature of non-CDM in the (cosmological) SM.
@@ -266,8 +286,52 @@ namespace Gambit
       result = c_SI*BEreq::class_get_H0()/1000;
     }
 
+    /// Functor that calculates Hubble rate at redshift z [km/s/Mpc]
+    void get_H_at_z_classy(daFunk::Funk &result)
+    {
+      using  namespace Pipes::get_H_at_z_classy;
+
+      result = daFunk::zero("z");
+      result = result + daFunk::func(BEreq::class_get_Hz.pointer(), daFunk::var("z"));
+
+      // As CLASS uses units of Mpc, the Hubble rate is returned in 1/Mpc.
+      // Multiply with c (in m/s) and divide by 1e3 to get the result in km/s/Mpc.
+      result = result * daFunk::cnst(Gambit::c_SI / 1e3);
+    }
+
+    /// Functor that calculates time since big bang at redshift z [s]
+    void get_time_at_z_classy(daFunk::Funk &result)
+    {
+      using  namespace Pipes::get_time_at_z_classy;
+
+      result = daFunk::zero("z");
+      result = result + daFunk::func(BEreq::class_get_tz.pointer(), daFunk::var("z"));
+
+      // As CLASS uses units of Mpc, the time is returned in Mpc.
+      // Convert Mpc into m and divide by c to get the result in s.
+      result = result * daFunk::cnst(Gambit::Mpc_SI / Gambit::c_SI);
+    }
+
+    /// Age of the universe (time since big bang at z=0) [s]
+    void get_age_universe_from_time_at_z(double &result)
+    {
+      using namespace Pipes::get_age_universe_from_time_at_z;
+
+      result = (*Dep::time_at_z)->bind("z")->eval(0.0);
+    }
+
     /// Energy densities *today* (Omega0)
 
+// TODO: Temporarily disabled until project is ready
+/*
+    /// Dark Energy
+    void get_Omega0_Lambda_classy(double& result)
+    {
+      using namespace Pipes::get_Omega0_Lambda_classy;
+
+      result = BEreq::class_get_Omega0_Lambda();
+    }
+*/
     /// Matter
     void get_Omega0_m_classy(double& result)
     {
@@ -320,6 +384,22 @@ namespace Gambit
       using namespace Pipes::get_Neff_classy;
 
       result = BEreq::class_get_Neff();
+    }
+
+    /// Optical depth at reionisation
+    void get_tau_reio_classy(double& result)
+    {
+      using namespace Pipes::get_tau_reio_classy;
+
+      result = BEreq::class_get_tau_reio();
+    }
+
+    /// redshift of reionisation
+    void get_z_reio_classy(double& result)
+    {
+      using namespace Pipes::get_z_reio_classy;
+
+      result = BEreq::class_get_z_reio();
     }
 
     /// Comoving sound horizon at baryon drag epoch

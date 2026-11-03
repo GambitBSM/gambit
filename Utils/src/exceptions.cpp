@@ -27,6 +27,8 @@
 #include "gambit/Utils/exceptions.hpp"
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Logs/logger.hpp"
+#include "gambit/Printers/baseprinter.hpp"
+#include "gambit/Printers/printermanager.hpp"
 
 namespace Gambit
 {
@@ -181,7 +183,7 @@ namespace Gambit
     }
 
     /// Retrieve the identity of the exception.
-    const char* exception::what() const throw()
+    const char* exception::what() const noexcept
     {
       return myWhat.c_str();
     }
@@ -199,7 +201,7 @@ namespace Gambit
       if (isFatal) throw_iff_outside_parallel();
     }
 
-    /// Log the exception and throw it regardless of whether is is fatal or not.
+    /// Log the exception and throw it regardless of whether it is fatal or not.
     void exception::forced_throw(const std::string& origin, const std::string& specific_message)
     {
       #pragma omp critical (GAMBIT_exception)
@@ -363,7 +365,7 @@ namespace Gambit
     special_exception::special_exception(const char* what) : myWhat(what), myMessage("") {}
 
     /// Retrieve the identity of the exception.
-    const char* special_exception::what() const throw()
+    const char* special_exception::what() const noexcept
     {
       const char* temp;
       temp = myWhat;
@@ -522,22 +524,22 @@ namespace Gambit
     /// @{ SilentShutdownException member functions
     SilentShutdownException::SilentShutdownException() {}
     SilentShutdownException::SilentShutdownException(const std::string& message) : myWhat(message) {}
-    const char* SilentShutdownException::what() const throw() { return myWhat.c_str(); }
+    const char* SilentShutdownException::what() const noexcept { return myWhat.c_str(); }
     /// @}
 
     /// @{ SoftShutdownException member functions
     SoftShutdownException::SoftShutdownException(const std::string& message) : myWhat(message) {}
-    const char* SoftShutdownException::what() const throw() { return myWhat.c_str(); }
+    const char* SoftShutdownException::what() const noexcept { return myWhat.c_str(); }
     /// @}
 
     /// @{ HardShutdownException member functions
     HardShutdownException::HardShutdownException(const std::string& message) : myWhat(message) {}
-    const char* HardShutdownException::what() const throw() { return myWhat.c_str(); }
+    const char* HardShutdownException::what() const noexcept { return myWhat.c_str(); }
     /// @}
 
     /// @{ MPIShutdownException member functions
     MPIShutdownException::MPIShutdownException(const std::string& message) : myWhat(message) {}
-    const char* MPIShutdownException::what() const throw() { return myWhat.c_str(); }
+    const char* MPIShutdownException::what() const noexcept { return myWhat.c_str(); }
     /// @}
 
     /// Global instance of piped invalid point class.
@@ -623,6 +625,16 @@ namespace Gambit
 
     /// Global instance of Piped_exceptions class for warnings.
     Piped_exceptions piped_warnings(1000);
+
+    /// Raise the suspicious point exception. Print it with a message and a code. The default code is 1.
+    void Suspicious_point_exception::raise(const std::string &msg, int code=1, bool debug=false)
+    {
+      // get the printer pointer
+      Printers::BasePrinter& printer = *(get_global_printer_manager()->printerptr);
+      printer.print(code, "Suspicious Point Code", Printers::get_main_param_id("Suspicious Point Code"), printer.getRank(), Printers::get_point_id());
+
+      if (debug) std::cout << "Point Suspicious (" << code << "): " << msg << std::endl;
+    }
 }
 
 

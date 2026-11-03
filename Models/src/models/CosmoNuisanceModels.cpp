@@ -14,6 +14,7 @@
 ///  \author Patrick Stöcker
 ///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2019 Feb
+///  \date 2021 Sep
 ///
 ///  \author Janina Renk
 ///          (janina.renk@fysik.su.se)
@@ -97,6 +98,26 @@ void MODEL_NAMESPACE::cosmo_nuisance_euclid_pk_noShot_to_cosmo_nuisance_euclid_p
   targetP.setValue("beta_0Euclid", myP.getValue("beta_0Euclid"));
   targetP.setValue("beta_1Euclid", myP.getValue("beta_1Euclid"));
   // P_shot automatically defaults to 0
+}
+#undef MODEL
+
+#define MODEL cosmo_nuisance_BK14
+// Translation function definition
+void MODEL_NAMESPACE::cosmo_nuisance_BK14_to_cosmo_nuisance_BK15 (const ModelParameters &myP, ModelParameters &targetP)
+{
+  logger()<<"Running interpret_as_parent calculations for cosmo_nuisance_BK14 --> cosmo_nuisance_BK15 ..."<<LogTags::info<<EOM;
+
+  targetP.setValue("BBbetadust", myP.getValue("BBbetadust"));
+  targetP.setValue("BBbetasync", myP.getValue("BBbetasync"));
+  targetP.setValue("BBdust", myP.getValue("BBdust"));
+  targetP.setValue("BBsync", myP.getValue("BBsync"));
+  targetP.setValue("BBalphadust", myP.getValue("BBalphadust"));
+  targetP.setValue("BBTdust", myP.getValue("BBTdust"));
+  targetP.setValue("BBalphasync", myP.getValue("BBalphasync"));
+  targetP.setValue("BBdustsynccorr", myP.getValue("BBdustsynccorr"));
+  targetP.setValue("EEtoBB_dust", myP.getValue("EEtoBB_dust"));
+  targetP.setValue("EEtoBB_sync", myP.getValue("EEtoBB_sync"));
+  // the rest Delta_dust,Delta_sync,gamma_corr,gamma_95,gamma_150,gamma_220 automatically defaults to 0
 }
 #undef MODEL
 

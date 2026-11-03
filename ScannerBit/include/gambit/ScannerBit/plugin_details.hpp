@@ -99,8 +99,8 @@ namespace Gambit
             inline bool operator == (const Plugin_Details &plug1, const Plugin_Details &plug2)
             {
                 if ((plug1.major_version != plug2.major_version) ||
-                    (plug1.major_version != plug2.major_version) ||
                     (plug1.minor_version != plug2.minor_version) ||
+                    (plug1.patch_version != plug2.patch_version) ||
                     (plug1.release_version == "" && plug2.release_version != "") ||
                     (plug1.release_version != "" && plug2.release_version == ""))
                 {
@@ -120,23 +120,11 @@ namespace Gambit
                 Plugin_Details_Ref(const Plugin_Details &details) : details(&details) {}
                 Plugin_Details_Ref(const Plugin_Details_Ref &details) : details(details.details) {}
                 
-                //const Plugin_Details_Ref &operator = (const Plugin_Details &details_in) const
-                //{
-                //    details = &details_in;
-                //    return *this;
-                //}
-                
                 const Plugin_Details_Ref &operator = (const Plugin_Details_Ref &details_in) const
                 {
                     details = details_in.details;
                     return *this;
                 }
-                
-                //Plugin_Details_Ref &operator = (Plugin_Details &details_in)
-                //{
-                //    details = &details_in;
-                //    return *this;
-                //}
                 
                 Plugin_Details_Ref &operator = (Plugin_Details_Ref &details_in)
                 {

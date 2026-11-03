@@ -1,6 +1,6 @@
 diff -rupN prospino_2.1_original/Makefile prospino_2.1_patched/Makefile
---- prospino_2.1_original/Makefile	2014-10-15 11:43:18.000000000 +0200
-+++ prospino_2.1_patched/Makefile	2020-03-30 19:21:30.945119939 +0200
+--- prospino_2.1_original/Makefile	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Makefile	2022-01-01 15:45:03.628497986 +1000
 @@ -9,6 +9,11 @@
  #OPTION = -O0
  # these options needed for the NAG compiler
@@ -74,16 +74,16 @@ diff -rupN prospino_2.1_original/Makefile prospino_2.1_patched/Makefile
 -	rm -i ${MATRIX}*.o ; rm -i ${MATRIX}*~ ; \
 -	rm -i ${STRONG}*.o ; rm -i ${STRONG}*~ ; \
 -	rm -i ${INTERF}*.o ; rm -i ${INTERF}*~   
-+	rm ${DIRECT}*.mod ; \
-+	rm $(DIRECT)prospino_2.run ; \
-+	rm $(DIRECT)libprospino.so ; \
-+	rm $(DIRECT)validate.run ; \
-+	rm ${DIRECT}*.o ; rm ${DIRECT}*~ ; \
-+	rm ${MACROS}*.o ; rm ${MACROS}*~ ; \
-+	rm ${INTEGS}*.o ; rm ${INTEGS}*~ ; \
-+	rm ${MATRIX}*.o ; rm ${MATRIX}*~ ; \
-+	rm ${STRONG}*.o ; rm ${STRONG}*~ ; \
-+	rm ${INTERF}*.o ; rm ${INTERF}*~   
++	rm -f ${DIRECT}*.mod ; \
++	rm -f $(DIRECT)prospino_2.run ; \
++	rm -f $(DIRECT)libprospino.so ; \
++	rm -f $(DIRECT)validate.run ; \
++	rm -f ${DIRECT}*.o ; rm -f ${DIRECT}*~ ; \
++	rm -f ${MACROS}*.o ; rm -f ${MACROS}*~ ; \
++	rm -f ${INTEGS}*.o ; rm -f ${INTEGS}*~ ; \
++	rm -f ${MATRIX}*.o ; rm -f ${MATRIX}*~ ; \
++	rm -f ${STRONG}*.o ; rm -f ${STRONG}*~ ; \
++	rm -f ${INTERF}*.o ; rm -f ${INTERF}*~   
  #
  # prepare all the object files from the main directory [DIRECT]
  # for DEC compiler keep them in order of dependence 
@@ -125,8 +125,8 @@ diff -rupN prospino_2.1_original/Makefile prospino_2.1_patched/Makefile
  
  
 diff -rupN prospino_2.1_original/Pro2_interface/Xget_pdf.f prospino_2.1_patched/Pro2_interface/Xget_pdf.f
---- prospino_2.1_original/Pro2_interface/Xget_pdf.f	2014-10-15 11:43:18.000000000 +0200
-+++ prospino_2.1_patched/Pro2_interface/Xget_pdf.f	2020-03-30 19:21:30.949119948 +0200
+--- prospino_2.1_original/Pro2_interface/Xget_pdf.f	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Pro2_interface/Xget_pdf.f	2022-01-01 15:41:54.879040953 +1000
 @@ -89,19 +89,23 @@ ctq5         lambda_qcd = 0.226D0
  
  c -----------------------------------------------
@@ -158,8 +158,8 @@ diff -rupN prospino_2.1_original/Pro2_interface/Xget_pdf.f prospino_2.1_patched/
           print*, " INIT_PDF: inlo set wrongly ",inlo
        end if
 diff -rupN prospino_2.1_original/Pro2_interface/Xhard_stop.f prospino_2.1_patched/Pro2_interface/Xhard_stop.f
---- prospino_2.1_original/Pro2_interface/Xhard_stop.f	2014-10-15 11:43:18.000000000 +0200
-+++ prospino_2.1_patched/Pro2_interface/Xhard_stop.f	2020-03-30 19:21:30.949119948 +0200
+--- prospino_2.1_original/Pro2_interface/Xhard_stop.f	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Pro2_interface/Xhard_stop.f	2022-01-01 15:41:54.879040953 +1000
 @@ -8,6 +8,25 @@ c
  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
        subroutine HARD_STOP
@@ -187,8 +187,8 @@ diff -rupN prospino_2.1_original/Pro2_interface/Xhard_stop.f prospino_2.1_patche
        stop
  
 diff -rupN prospino_2.1_original/Pro2_subroutines/Cteq6Pdf-2008.f prospino_2.1_patched/Pro2_subroutines/Cteq6Pdf-2008.f
---- prospino_2.1_original/Pro2_subroutines/Cteq6Pdf-2008.f	2014-10-15 11:43:18.000000000 +0200
-+++ prospino_2.1_patched/Pro2_subroutines/Cteq6Pdf-2008.f	2020-03-30 19:21:30.977120007 +0200
+--- prospino_2.1_original/Pro2_subroutines/Cteq6Pdf-2008.f	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Pro2_subroutines/Cteq6Pdf-2008.f	2022-01-01 15:41:54.931036959 +1000
 @@ -247,25 +247,29 @@ C        put a warning for calling extra
  C                             ********************
        End
@@ -330,8 +330,8 @@ diff -rupN prospino_2.1_original/Pro2_subroutines/Cteq6Pdf-2008.f prospino_2.1_p
            Print *, 'Invalid Iset number in SetCtq6 :', Iset
            Stop
 diff -rupN prospino_2.1_original/Pro2_subroutines/XCteq61Pdf.f prospino_2.1_patched/Pro2_subroutines/XCteq61Pdf.f
---- prospino_2.1_original/Pro2_subroutines/XCteq61Pdf.f	2014-10-15 11:43:18.000000000 +0200
-+++ prospino_2.1_patched/Pro2_subroutines/XCteq61Pdf.f	2020-03-30 19:21:30.977120007 +0200
+--- prospino_2.1_original/Pro2_subroutines/XCteq61Pdf.f	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Pro2_subroutines/XCteq61Pdf.f	2022-01-01 15:41:54.931036959 +1000
 @@ -144,6 +144,7 @@ ctp     > / 'cteq6m', 'cteq6d', 'cteq6l'
        Data Isetmin2,Isetmax2 /200,240/
        save
@@ -341,8 +341,8 @@ diff -rupN prospino_2.1_original/Pro2_subroutines/XCteq61Pdf.f prospino_2.1_patc
        If(Iset.ne.Isetold) then
           IU= NextUn()
 diff -rupN prospino_2.1_original/Pro2_subroutines/XCtq5Pdf.f prospino_2.1_patched/Pro2_subroutines/XCtq5Pdf.f
---- prospino_2.1_original/Pro2_subroutines/XCtq5Pdf.f	2014-10-15 11:43:18.000000000 +0200
-+++ prospino_2.1_patched/Pro2_subroutines/XCtq5Pdf.f	2020-03-30 19:21:30.977120007 +0200
+--- prospino_2.1_original/Pro2_subroutines/XCtq5Pdf.f	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Pro2_subroutines/XCtq5Pdf.f	2022-01-01 15:41:54.931036959 +1000
 @@ -197,10 +197,13 @@ C
  C                        ****************************
        END
@@ -378,8 +378,8 @@ diff -rupN prospino_2.1_original/Pro2_subroutines/XCtq5Pdf.f prospino_2.1_patche
  	 Endif
           Call ReadTbl (IU)
 diff -rupN prospino_2.1_original/Xinitialize.f90 prospino_2.1_patched/Xinitialize.f90
---- prospino_2.1_original/Xinitialize.f90	2014-10-15 11:43:18.000000000 +0200
-+++ prospino_2.1_patched/Xinitialize.f90	2020-03-30 19:21:30.945119939 +0200
+--- prospino_2.1_original/Xinitialize.f90	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Xinitialize.f90	2022-01-01 15:41:54.875041260 +1000
 @@ -4,6 +4,8 @@ module xx_initialize
    use xx_public_variables
    use xx_pass_integ
@@ -587,8 +587,8 @@ diff -rupN prospino_2.1_original/Xinitialize.f90 prospino_2.1_patched/Xinitializ
  ! routine to take care of critical mass choices 
  ! solve by overwriting in xx_pass_integ
 diff -rupN prospino_2.1_original/Xinteg_le.f90 prospino_2.1_patched/Xinteg_le.f90
---- prospino_2.1_original/Xinteg_le.f90	2014-10-15 11:43:18.000000000 +0200
-+++ prospino_2.1_patched/Xinteg_le.f90	2020-03-30 19:21:30.945119939 +0200
+--- prospino_2.1_original/Xinteg_le.f90	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Xinteg_le.f90	2022-01-01 15:41:54.875041260 +1000
 @@ -181,7 +181,9 @@ contains
         qf = scafac * m1
      else
@@ -601,8 +601,8 @@ diff -rupN prospino_2.1_original/Xinteg_le.f90 prospino_2.1_patched/Xinteg_le.f9
  
      if (iscaling==0) then                                      ! nlo factor [always nlo alpha_s]
 diff -rupN prospino_2.1_original/Xinteg_nn.f90 prospino_2.1_patched/Xinteg_nn.f90
---- prospino_2.1_original/Xinteg_nn.f90	2014-10-15 11:43:18.000000000 +0200
-+++ prospino_2.1_patched/Xinteg_nn.f90	2020-03-30 19:21:30.945119939 +0200
+--- prospino_2.1_original/Xinteg_nn.f90	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Xinteg_nn.f90	2022-01-01 15:41:54.875041260 +1000
 @@ -48,10 +48,11 @@ contains
  
      m1 = mass_n(ipart1)                                        ! assign the final state masses 
@@ -642,8 +642,8 @@ diff -rupN prospino_2.1_original/Xinteg_nn.f90 prospino_2.1_patched/Xinteg_nn.f9
      Cs(1) = (v1*v1w)**2 + s * 2.0 * real( v1*v1w*v2*v2w )/(s-mx**2)         &  ! wim's conventions 
             + s**2*( v2**2+a2**2 )*( abs(v2w)**2+abs(a2w)**2 ) /(s-mx**2)**2    ! [v1,v2,v1w,a2 real]
 diff -rupN prospino_2.1_original/Xprospino_subroutine.f90 prospino_2.1_patched/Xprospino_subroutine.f90
---- prospino_2.1_original/Xprospino_subroutine.f90	2014-10-15 11:43:18.000000000 +0200
-+++ prospino_2.1_patched/Xprospino_subroutine.f90	2020-03-30 19:21:30.945119939 +0200
+--- prospino_2.1_original/Xprospino_subroutine.f90	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Xprospino_subroutine.f90	2022-01-01 15:41:54.875041260 +1000
 @@ -14,6 +14,8 @@ module xx_prospino_subroutine
    use xx_integral_ht
    use xx_initialize
@@ -1053,8 +1053,8 @@ diff -rupN prospino_2.1_original/Xprospino_subroutine.f90 prospino_2.1_patched/X
  
  
 diff -rupN prospino_2.1_original/Xvital.f90 prospino_2.1_patched/Xvital.f90
---- prospino_2.1_original/Xvital.f90	2014-10-15 11:43:18.000000000 +0200
-+++ prospino_2.1_patched/Xvital.f90	2020-03-30 19:21:30.945119939 +0200
+--- prospino_2.1_original/Xvital.f90	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Xvital.f90	2022-01-01 15:41:54.875041260 +1000
 @@ -69,4 +69,24 @@ module xx_public_variables   ! all kind
  end module xx_public_variables
  

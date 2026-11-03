@@ -109,21 +109,15 @@ ObsLikes:
     purpose: LogLike
     function: lnL_oh2_upperlimit
   # Experimental searches
-  - capability: lnL_CAST2007
-    purpose: LogLike
-  - capability: lnL_CAST2017
+  - !include_all
+    capability: lnL_CAST.*
     purpose: LogLike
   - capability: lnL_ALPS1
     purpose: LogLike
   - capability: lnL_SN1987A
     purpose: LogLike
-  - capability: lnL_Haloscope_ADMX1
-    purpose: LogLike
-  - capability: lnL_Haloscope_ADMX2
-    purpose: LogLike
-  - capability: lnL_Haloscope_RBF
-    purpose: LogLike
-  - capability: lnL_Haloscope_UF
+  - !include_all
+    capability: lnL_Haloscope.*
     purpose: LogLike
   - capability: lnL_HESS_GCMF
     purpose: LogLike
@@ -137,13 +131,8 @@ ObsLikes:
   - capability: QCDAxion_AxionPhotonConstant
     purpose: LogLike
   # Cooling-related likelihoods
-  - capability: lnL_WDVar_G117B15A
-    purpose: LogLike
-  - capability: lnL_WDVar_R548
-    purpose: LogLike
-  - capability: lnL_WDVar_PG1351489
-    purpose: LogLike
-  - capability: lnL_WDVar_L192
+  - !include_all
+    capability: lnL_WDVar.*
     purpose: LogLike
 
   # Observables

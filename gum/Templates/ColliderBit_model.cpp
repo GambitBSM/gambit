@@ -29,7 +29,10 @@ namespace Gambit
     GET_PYTHIA_AS_BASE_COLLIDER(getPythia_@MODEL@AsBase)
 
     // Run event generator
-    GET_PYTHIA_EVENT(generateEventPythia_@MODEL@)
+    GET_PYTHIA_EVENT(generateEventPythia_@MODEL@, Pythia_@MODEL@_default::Pythia8::Event)
+
+    // Run initial Pythia cross-section estimation
+    GET_SPECIFIC_INITIAL_XSEC_PYTHIA(PerformInitialCrossSection_Pythia_@MODEL@, Py8Collider_@MODEL@_defaultversion, Pythia_@MODEL@_default, _@MODEL@)
 
   }
 }

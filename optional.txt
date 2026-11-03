@@ -1,0 +1,20 @@
+cython
+dynesty
+numpy
+emcee
+h5py --no-binary=h5py 
+nautilus
+nessai
+pocomc
+scipy
+ultranest
+zeus-mcmc
+numba
+pyhf
+pandas
+paraprof @ git+https://github.com/anderkve/paraprof.git@main
+matplotlib
+tensorflow
+iminuit
+future
+dill

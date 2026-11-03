@@ -16,6 +16,10 @@
 #          (tomas.gonzalo@monash.edu)
 #  \date 2020 Dec
 #
+#  \author Felix Kahlhoefer
+#          (kahlhoefer@kit.edu)
+#  \date 2022 Jun
+#
 #************************************************
 
 set(source_files src/decay_table.cpp
@@ -31,8 +35,10 @@ set(source_files src/decay_table.cpp
                  src/spectrum.cpp
                  src/subspectrum.cpp
                  src/terminator.cpp
+                 src/translator.cpp
                  src/type_equivalency.cpp
                  src/virtual_higgs.cpp
+                 src/virtual_photon.cpp
                  src/wimp_types.cpp
 )
 
@@ -62,9 +68,11 @@ set(header_files include/gambit/Elements/decay_table.hpp
                  include/gambit/Elements/standalone_module.hpp
                  include/gambit/Elements/subspectrum.hpp
                  include/gambit/Elements/terminator.hpp
+                 include/gambit/Elements/translator.hpp
                  include/gambit/Elements/type_equivalency.hpp
                  include/gambit/Elements/types_rollcall.hpp
                  include/gambit/Elements/virtual_higgs.hpp
+                 include/gambit/Elements/virtual_photon.hpp
                  include/gambit/Elements/wimp_types.hpp
 )
 

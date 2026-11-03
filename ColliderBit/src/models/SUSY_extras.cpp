@@ -185,11 +185,11 @@ namespace Gambit
 
     // Extract an SLHAstruct with the specturm, either from the MSSM_spectrum
     // capability (for MSSM models), or simply from the SLHAFileNameAndContent
-    // capability (for ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
+    // capability (for ColliderBit_SLHA_file_model and ColliderBit_SLHA_scan_model)
 
     // @todo Should we perform some kind of SLHA1 vs SLHA2 check when used with the
-    //       ColliderBit_SLHA_* models below? For these models we currently just trust 
-    //       the user to supply SLHA info in the appropriate format.
+    //       CB_SLHA_* models below? For these models we currently just trust the user
+    //       to supply SLHA info in the appropriate format.
 
     // @todo Should we unify these two functions into a single module function that just
     //       provides a std::function instance that can be called with an
@@ -205,11 +205,14 @@ namespace Gambit
       result.clear();
 
       if( ModelInUse("MSSM63atQ") || ModelInUse("MSSM63atMGUT")
-          || ModelInUse("MSSM63atQ_mA") || ModelInUse("MSSM63atMGUT_mA") )
+          || ModelInUse("MSSM63atQ_mA") || ModelInUse("MSSM63atMGUT_mA")
+          || ModelInUse("MSSM63atQ_mG") || ModelInUse("MSSM63atMGUT_mG")
+          || ModelInUse("MSSM63atQ_mA_mG") || ModelInUse("MSSM63atMGUT_mA_mG") )
       {
         result = Dep::MSSM_spectrum->getSLHAea(1);
       }
-      else if (ModelInUse("ColliderBit_SLHA_file_model") || ModelInUse("ColliderBit_SLHA_scan_model"))
+      else if (ModelInUse("ColliderBit_SLHA_file_model") ||
+               ModelInUse("ColliderBit_SLHA_scan_model"))
       {
         result = Dep::SLHAFileNameAndContent->second;
       }
@@ -241,11 +244,14 @@ namespace Gambit
       result.clear();
 
       if( ModelInUse("MSSM63atQ") || ModelInUse("MSSM63atMGUT")
-          || ModelInUse("MSSM63atQ_mA") || ModelInUse("MSSM63atMGUT_mA") )
+          || ModelInUse("MSSM63atQ_mA") || ModelInUse("MSSM63atMGUT_mA")
+          || ModelInUse("MSSM63atQ_mG") || ModelInUse("MSSM63atMGUT_mG")
+          || ModelInUse("MSSM63atQ_mA_mG") || ModelInUse("MSSM63atMGUT_mA_mG") )
       {
         result = Dep::MSSM_spectrum->getSLHAea(2);
       }
-      else if (ModelInUse("ColliderBit_SLHA_file_model") || ModelInUse("ColliderBit_SLHA_scan_model"))
+      else if (ModelInUse("ColliderBit_SLHA_file_model") ||
+               ModelInUse("ColliderBit_SLHA_scan_model"))
       {
         result = Dep::SLHAFileNameAndContent->second;
       }
@@ -294,6 +300,20 @@ namespace Gambit
       // Discard point?
       if (discard_point) invalid_point().raise("Point discarded by susy_spectrum_scan_guide.");
 
+    }
+
+
+    // A dummy loglike function to ensure that points with failed mass spectrum
+    // and/or decay calculations can be invalidated aslo in "observables-only" scans
+    void get_susy_spectrum_validation_loglike(double& result)
+    {
+      using namespace Pipes::get_susy_spectrum_validation_loglike;
+
+      // This function has dependencies Dep::MSSM_spectrum and Dep::decay_rates (see SUSY_extras.hpp).
+      // So if the computation of either of these dependencies fail, the loglike "computation" in
+      // this function will never complete and GAMBIT will treat the parameter point as invalid.
+
+      result = 0.0;
     }
 
 

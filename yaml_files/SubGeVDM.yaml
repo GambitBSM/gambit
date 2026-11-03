@@ -1,0 +1,452 @@
+##########################################################################
+## GAMBIT configuration for a Diver scan of the Sub-GeV DM model
+##########################################################################
+
+Parameters:
+
+  # SM parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  StandardModel_Higgs:
+    mH: 125.10 # PDG 2020 value
+
+  Halo_gNFW_rho0:
+    rho0:
+      range: [0.2, 0.8]
+    v0:
+      prior_type: flat
+      range: [216, 264]
+    vesc:
+      prior_type: flat
+      range: [453, 603]
+    vrot:
+      same_as: Halo_gNFW_rho0::v0
+    rs: 20.0
+    r_sun: 8.5
+    alpha: 1
+    beta: 3
+    gamma: 1
+
+  # Available SubGeV models: 
+  # Fermionic DM models - SubGeVDM_fermion,Resonant_SubGeVDM_fermion,SubGeVDM_fermion_RDprior,Resonant_SubGeVDM_fermion_RDprior
+  # Scalar DM models    - SubGeVDM_scalar,SubGeVDM_scalar_RDprior   
+
+  SubGeVDM_fermion:
+    mDM:
+      prior_type: log
+      range: [1e-3, 1e0]
+    gDM:
+      prior_type: log
+      range: [1e-2, 3.5]
+    kappa:
+      prior_type: log
+      range: [1e-8, 1e-2]
+    etaDM:
+      prior_type: log
+      range: [1e-13, 1e-06]
+
+    # For scans with SubGeV fermions/scalars that saturate observed relic abundance, 
+    # use SubGeVDM_<fermion/scalar>_RDprior model that has etaDM_mDM parameter instead of etaDM 
+    # which allows for better sampling.
+
+    # etaDM_mDM:
+    #   prior_type: flat
+    #   range: [0, 1e-09]
+
+    mAp:
+      prior_type: log
+      range: [0.002, 6.0]
+
+    # For better sampling near the resonance region, use Resonant_SubGeVDM_fermion
+    # or Resonant_SubGeVDM_fermion_RDprior with epsR parameter instead of mAp. See arXiv:24XX.XXXXX for more details. 
+
+    # epsR:
+    #   prior_type: log
+    #   range: [0.001, 8]
+
+Priors:
+
+  # All the priors are simple for this scan, so they are specified directly in the Parameters section.
+
+
+Printer:
+
+  printer: hdf5
+  options:
+    output_file: "SubGeVDM.hdf5"
+    disable_combine_routines: false
+    group: "/SubGeVDM"
+
+
+Scanner:
+
+  use_scanner: diver
+
+  scanners:
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1
+
+    diver:
+      plugin: diver
+      like: LogLike
+      NP: 38000
+      verbosity: 1
+      convthresh: 1E-6
+      lambdajDE: false
+      init_population_strategy: 1
+      max_initialisation_attempts: 5000
+
+
+ObsLikes:
+
+  # Relic density
+
+  - capability: lnL_oh2
+    purpose: LogLike
+
+  - capability: RD_oh2
+    purpose: Observable
+
+  # Collider likelihoods
+
+  - capability: BaBar_single_photon_LogLike
+    purpose: LogLike
+
+  - capability: LHC_Combined_LogLike
+    purpose: LogLike
+
+  - capability: LHC_signals
+    purpose: Observable
+
+  - capability: dark_photon_decay_length
+    purpose: Observable
+
+  - capability: dark_photon_visible_branching
+    purpose: Observable
+
+  # Direct detection likelihoods (nucleon)
+  - capability: CRESST_III_LogLikelihood
+    purpose: LogLike
+
+  - capability: CRESST_II_LogLikelihood
+    purpose: LogLike
+
+  - capability: CDMSlite_LogLikelihood
+    purpose: LogLike
+
+  - capability: XENON1T_Migdal_LogLikelihood
+    purpose: LogLike
+
+  - capability: DarkSide50_Migdal_2023_LogLikelihood
+    purpose: LogLike
+
+  - capability: PandaX_4T_Migdal_LogLikelihood
+    purpose: LogLike
+
+  - capability: sigma_SI_p
+    purpose: Observable
+
+  # Direct detection likelihoods (electron)
+
+  - capability: XENON1T_ER_LogLikelihood
+    purpose: LogLike
+
+  - capability: DarkSide50_ER_2023_LogLikelihood
+    purpose: LogLike
+
+  - capability: PandaX_4T_ER_LogLikelihood
+    purpose: LogLike
+
+  - capability: DAMIC_M_2023_LogLikelihood
+    purpose: LogLike
+
+  - capability: SENSEI_at_MINOS_LogLikelihood
+    purpose: LogLike
+
+  - capability: CDMS_HVeV_2020_LogLikelihood
+    purpose: LogLike
+
+  - capability: sigma_e
+    purpose: Observable
+
+  # Cosmo likelihoods and observables
+
+  - capability: N_eff_likelihood_Planck_BAO
+    purpose: LogLike
+
+  - capability: BBN_LogLike
+    purpose: LogLike
+    sub_capabilities: [He4, D]
+
+  - capability: f_eff
+    purpose: Observable
+
+  - capability: Neff_after_BBN
+    purpose: Observable
+
+  - capability: primordial_abundances
+    purpose: Observable
+
+  # Indirect detection likelihoods
+
+  - capability: lnL_p_ann
+    purpose: LogLike
+
+  - capability: Xray_loglikelihoods
+    purpose: LogLike
+
+  - capability: p_ann
+    purpose: Observable
+
+  - capability: sigmav
+    purpose: Observable
+
+  - capability: ID_suppression
+    purpose: Observable
+
+  # Buller Cluster Likelihood
+
+  - capability: BulletCluster_lnL
+    purpose: LogLike
+
+  - capability: DM_mass_loss
+    purpose: Observable
+
+  # Nuisance parameter likelihoods
+  - capability: lnL_rho0
+    purpose: LogLike
+
+  - capability: lnL_v0
+    purpose: LogLike
+
+  - capability: lnL_vesc
+    purpose: LogLike
+
+Rules:
+
+  #-------------------------------------------------------------------------------------
+  # Relic density likelihood
+  - capability: lnL_oh2
+    # Choose to implement the relic density likelihood as an upper bound, not a detection
+    function: lnL_oh2_Simple
+    # Choose to implement the relic density likelihood as a detection
+    # function: lnL_oh2_Simple
+    options: # Planck 2018 values
+      oh2_obs: 0.120
+      oh2_obserr: 0.001
+      oh2_fractional_theory_err: 0.01
+
+  - capability: RD_fraction
+    function: RD_fraction_rescaled
+    options: # Planck 2018 values
+      oh2_obs: 0.120
+
+  - if:
+      capability: RD_oh2
+      type: double
+    then:
+      module: DarkBit
+      function: RD_oh2_from_oh2_aDM
+
+  - capability: RD_oh2_DS6_ini
+    options:
+      # these options are identical for DS5 and DS6+ version
+      fast: 0  # 0: standard, 1: fast but may be inaccurate 20: new DS default (default)```
+
+  - if:
+      capability: RD_spectrum
+      type: RD_spectrum_type
+    then:
+      module: DarkBit
+      function: RD_spectrum_from_ProcessCatalog
+
+  - capability: TH_ProcessCatalog
+    options:
+      smooth: true # false for using PDG value, true for using darkcast's fitted value
+
+  # -----------------------------------------------------------------------------------
+  # Collider Likelihoods
+  # Use LHC analyses based on fast interpolation rather than on-the-fly MC simulation
+  - capability: RunMC
+    function: InterpolatedMCInfo
+    module: ColliderBit
+
+  - capability: LHC_Combined_LogLike
+    options:
+      # Do not use capped LHC loglike, change to true if desired
+      cap_loglike: false
+
+  - capability: LHC_LogLikes
+    function: calc_LHC_LogLikes
+    backends:
+      - {group: lnlike_marg_poisson, capability: lnlike_marg_poisson_lognormal_error}
+    options:
+      use_covariances: true
+      combine_SRs_without_covariances: false
+      use_marginalising: false
+      nuisance_prof_initstep: 0.1
+      nuisance_prof_convtol: 0.01
+      nuisance_prof_maxsteps: 10000
+      nuisance_prof_convacc: 1e-5
+      nuisance_prof_simplexsize: 1e-5
+      nuisance_prof_method: 5
+      nuisance_prof_verbosity: 0
+
+    # Signal yields for LHC analyses
+  - capability: AllAnalysisNumbers
+    function: SubGeVDM_results
+
+  # ---------------------------------------------------------------------------------
+  # Direct detection likelihoods
+  # Use DarkBit's own calculations of the direct detection couplings
+  - capability: DD_couplings
+    function: DD_couplings_SubGeVDM_fermion
+    # function: DD_couplings_SubGeVDM_scalar
+
+  # Select WIMP-nucleon couplings for DDCalc 2.1.0 WIMP object
+  - capability: DDCalc_Couplings
+    function: DDCalc_Couplings_WIMP_nucleon
+
+  - if:
+      module: DarkBit
+    then:
+      options:
+        out_of_range_zero_yield: true
+
+  # ---------------------------------------------------------------------------------
+  # Indirect detection likelihoods
+
+  - capability: sigmav
+    function: sigmav_late_universe
+
+  - capability: DarkMatterConj_ID
+    type: std::string
+    function: DarkMatterConj_ID_SubGeVDM_fermion
+    # function: DarkMatterConj_ID_SubGeVDM_scalar
+    module: DarkBit
+
+  - capability: ID_suppression
+    function: ID_suppression_aDM
+
+  - capability: AlterBBN_Input
+    options:
+      failsafe: 3
+      err: 0
+
+  - capability: primordial_abundances_BBN
+    options:
+      isotope_basis: [Yp, D, He3, Li7, Li6, Be7]
+      correlation_matrix: [[1.000000, 0.007222, 0.021811, 0.021834, 0.001870, 0.020412],
+         [0.007222, 1.000000, -0.799961, -0.358761, 0.010648, -0.371730], [0.021811,
+            -0.799961, 1.000000, 0.370224, -0.011028, 0.382648], [0.021834, -0.358761,
+            0.370224, 1.000000, -0.003693, 0.996544], [0.001870, 0.010648, -0.011028,
+            -0.003693, 1.000000, -0.003809], [0.020412, -0.371730, 0.382648, 0.996544,
+            -0.003809, 1.000000]]
+      diff_uncertainties: true
+      # absolute_errors: [3.203e-04, 3.790e-07, 1.635e-07, 3.522e-11, 1.085e-14, 3.434e-11]
+      # relative_errors: [1.29466e-03, 1.5369e-02, 1.58124e-02, 6.56477e-02, 9.9816e-01, 6.76517e-02]
+
+  - capability: BBN_LogLike
+    options:
+      DataFile: default.dat     # Use the Yp measurement from PDG 2017 and the updated D/H measurement of 1801.08023
+
+  - capability: decay_rates
+    function: all_decays
+
+  # Choose to use DarkSUSY yield tables for indirect detection
+  - capability: GA_SimYieldTable
+    #function: GA_SimYieldTable_DS5
+    function: GA_SimYieldTable_DarkSUSY
+    options:
+      allow_yield_extrapolation: false
+
+  # Also need to choose which tables to use for positrons,
+  # antideuterons, and antiprotons (or opt for empty tables)
+  - capability: positron_SimYieldTable
+    #function: positron_SimYieldTable_empty
+    function: positron_SimYieldTable_DarkSUSY
+
+  - capability: antiproton_SimYieldTable
+    #function: antiproton_SimYieldTable_empty
+    function: antiproton_SimYieldTable_DarkSUSY
+
+  - capability: antideuteron_SimYieldTable
+    #function: antideuteron_SimYieldTable_empty
+    function: antideuteron_SimYieldTable_DarkSUSY
+
+  # Take the electron yields directly from the positron yields
+  # (So far it is the only option, may change in the future)
+  - capability: electron_SimYieldTable
+    function: electron_SimYieldTable_from_positron_SimYieldTable
+
+  # The model is annihilating DM, not decaying
+  - capability: GA_Yield
+    function: GA_AnnYield_General
+
+  - capability: electron_Yield
+    function: electron_AnnYield_General
+
+  - capability: positron_Yield
+    function: positron_AnnYield_General
+
+  # Tell DarkAges to calculate f_eff(z)
+  - capability: DarkAges_1_2_0_init
+    options:
+      f_eff_mode: true
+
+  # Calculate the constant f_eff by convolution of f_eff(z) with a weighting function
+  - capability: f_eff
+    function: f_eff_weighted
+
+  # ---------------------------------------------------------------------------------
+  # Bullet Cluster Likelihood
+
+  - capability: BulletCluster_lnL
+    options: # Choose between an optimistic "main_cluster_mlr" or conservative "lognormal_mlr"(default) prior
+      initial_mlr_prior: main_cluster_mlr
+
+  # ----------------------------------------------------------------------------------
+  # Nuisance parameter likelihoods
+
+  # Set v0 to 240 +/- 8 km/s based on Reid et al [arXiv:1401.5377]
+  - capability: lnL_v0
+    function: lnL_v0_gaussian
+    options:
+      v0_obs: 240
+      v0_obserr: 8
+
+  # Set vesc to 528 +/- 25 km/s based on Gaia data [arXiv:1901.02016]
+  - capability: lnL_vesc
+    function: lnL_vesc_gaussian
+    options:
+      vesc_obs: 528
+      vesc_obserr: 25
+
+Logger:
+
+  redirection:
+    [Default]: default.log
+    [DecayBit]: DecayBit.log
+    [DarkBit]: DarkBit.log
+    [PrecisionBit]: PrecisionBit.log
+    [SpecBit]: SpecBit.log
+    [Dependency Resolver]: dep_resolver.log
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e10
+    model_invalid_for_lnlike_below_alt: -1e10
+    print_invalid_points: false
+    debug: false
+
+  default_output_path: runs/SubGeVDM/
+
+  debug: false
+  print_timing_data: false

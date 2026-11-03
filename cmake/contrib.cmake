@@ -19,7 +19,15 @@
 #
 # \author Tomas Gonzalo
 #         (tomas.gonzalo@monash.edu)
-# \dae 2019 June
+# \dae 2019 June, Oct
+#
+# \author Tomasz Procter
+#         (t.procter.1@research.gla.ac.uk)
+# \date June 2021
+#
+#  \author Pengxuan Zhu
+#          (pengxuan.zhu@adelaide.edu.au)
+#  \date 2026 Oct 24
 #
 #************************************************
 
@@ -31,7 +39,7 @@ set(nl "___totally_unlikely_to_occur_naturally___")
 set(true_nl \"\\n\")
 
 # Define the download command to use for contributed packages
-set(DL_CONTRIB "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${CMAKE_BINARY_DIR}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
+set(DL_CONTRIB "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${PROJECT_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
 
 # Define a series of functions and macros to be used for cleaning ditched components and adding nuke and clean targets for contributed codes
 macro(get_paths package build_path clean_stamps nuke_stamps)
@@ -66,7 +74,7 @@ endfunction()
 set(name "gambit_preload")
 set(dir "${CMAKE_BINARY_DIR}/contrib")
 add_library(${name} SHARED "${PROJECT_SOURCE_DIR}/contrib/preload/gambit_preload.cpp")
-target_include_directories(${name} PRIVATE "${PROJECT_SOURCE_DIR}/cmake/include" "${PROJECT_SOURCE_DIR}/Utils/include")
+target_include_directories(${name} PRIVATE "${PROJECT_SOURCE_DIR}/cmake/include" "${PROJECT_SOURCE_DIR}/Core/include" "${PROJECT_SOURCE_DIR}/Utils/include")
 set_target_properties(${name} PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY "${dir}"
   LIBRARY_OUTPUT_DIRECTORY "${dir}"
@@ -85,6 +93,9 @@ include_directories("${PROJECT_SOURCE_DIR}/contrib/slhaea/include")
 #contrib/mcutils
 include_directories("${PROJECT_SOURCE_DIR}/contrib/mcutils/include")
 
+#contrib/mvautils
+include_directories("${PROJECT_SOURCE_DIR}/contrib/mvautils/include/")
+
 #contrib/heputils
 include_directories("${PROJECT_SOURCE_DIR}/contrib/heputils/include")
 
@@ -95,10 +106,11 @@ add_gambit_library(mkpath OPTION OBJECT
                           SOURCES ${PROJECT_SOURCE_DIR}/contrib/mkpath/src/mkpath.c
                           HEADERS ${PROJECT_SOURCE_DIR}/contrib/mkpath/include/mkpath/mkpath.h)
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:mkpath>)
+add_dependencies(contrib mkpath)
 
 #contrib/yaml-cpp-0.6.2
 set(yaml_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.6.2/include)
-include_directories("${yaml_INCLUDE_DIR}")
+include_directories(SYSTEM "${yaml_INCLUDE_DIR}")
 add_definitions(-DYAML_CPP_DLL)
 add_subdirectory(${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.6.2 EXCLUDE_FROM_ALL)
 
@@ -135,17 +147,21 @@ if(NOT EXCLUDE_RESTFRAMES)
   include_directories(${RESTFRAMES_INCLUDE})
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${dir}/lib")
   set(RESTFRAMES_CONFIG_LDFLAGS "-L${CMAKE_BINARY_DIR}/contrib -Wl,-rpath,${CMAKE_BINARY_DIR}/contrib")
+  # OpenMP flags don't play nicely with clang and RestFrames' antiquated libtoolized build system.
+  string(REGEX REPLACE "-Xclang -fopenmp" "" RESTFRAMES_C_FLAGS "${BACKEND_C_FLAGS}")
+  string(REGEX REPLACE "-Xclang -fopenmp" "" RESTFRAMES_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
   if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(RESTFRAMES_CONFIG_LIBS "-lgambit_preload")
+    set(RESTFRAMES_CONFIG_LIBS "${CMAKE_SHARED_LINKER_FLAGS} -lgambit_preload")
   else()
-    set(RESTFRAMES_CONFIG_LIBS "-Wl,--no-as-needed -lgambit_preload")
+    set(RESTFRAMES_CONFIG_LIBS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-as-needed -lgambit_preload")
   endif()
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND git clone https://github.com/crogan/RestFrames ${dir}
              COMMAND ${CMAKE_COMMAND} -E chdir ${dir} git checkout -q v${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ./configure -prefix=${dir} CC=${CMAKE_C_COMPILER} CFLAGS=${BACKEND_C_FLAGS} CPP=${RESTFRAMES_CPP} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} CXXCPP=${RESTFRAMES_CXXCPP} LDFLAGS=${RESTFRAMES_CONFIG_LDFLAGS} LIBS=${RESTFRAMES_CONFIG_LIBS}
+    CONFIGURE_COMMAND ./configure -prefix=${dir} CC=${CMAKE_C_COMPILER} CFLAGS=${RESTFRAMES_C_FLAGS} CPP=${RESTFRAMES_CPP} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${RESTFRAMES_CXX_FLAGS} CXXCPP=${RESTFRAMES_CXXCPP} LDFLAGS=${RESTFRAMES_CONFIG_LDFLAGS} LIBS=${RESTFRAMES_CONFIG_LIBS}
+              COMMAND sed ${dashi} -e "s|.(ROOTAUXCXXFLAGS) .(ROOTCXXFLAGS)||" src/Makefile
     BUILD_COMMAND ${MAKE_PARALLEL}
     INSTALL_COMMAND ${MAKE_PARALLEL} install
     )
@@ -161,28 +177,25 @@ endif()
 set(LHEF_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/LHEF")
 include_directories("${LHEF_INCLUDE_DIR}")
 
-#contrib/HepMC3; include only if ColliderBit is in use and WITH_HEPMC=ON.
-option(WITH_HEPMC "Compile with HepMC enabled" OFF)
-if(NOT WITH_HEPMC)
-  message("${BoldCyan} X HepMC is deactivated. Set -DWITH_HEPMC=ON to activate HepMC.${ColourReset}")
-elseif(NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
-  message("${BoldCyan} X ColliderBit is not in use: excluding HepMC from GAMBIT configuration.${ColourReset}")
+#contrib/HepMC3; include only if ColliderBit is in use.
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("   ColliderBit included, so HepMC is included too")
+  set(WITH_HEPMC ON)
+else()
   set(WITH_HEPMC OFF)
+  message("${BoldCyan} X ColliderBit is not in use: excluding HepMC from GAMBIT configuration.${ColourReset}")
 endif()
 
 set(name "hepmc")
-set(ver "3.1.1")
-set(dir "${PROJECT_SOURCE_DIR}/contrib/HepMC3-${ver}")
+set(ver "3.2.5")
+set(HEPMC_PATH "${PROJECT_SOURCE_DIR}/contrib/HepMC3-${ver}")
 if(WITH_HEPMC)
   message("-- HepMC-dependent functions in ColliderBit will be activated.")
   message("   HepMC v${ver} will be downloaded and installed when building GAMBIT.")
-  message("   ColliderBit Solo (CBS) will be activated.")
-  if(EXISTS "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/Pythia_8_212/abstract_GAMBIT_hepmc_writer.h")
-    message("   Pythia can now drop HepMC files.")
-  else()
-    message("${BoldRed}   Pythia has already been compiled without HepMC so the main gambit build will fail. Please nuke Pythia before compiling gambit.${ColourReset}")
-  endif()
   message("   Backends depending on HepMC will be enabled.")
+  if(HAVE_PYBIND11)
+    message("   ColliderBit Solo (CBS) will be activated.")
+  endif()
   if(NOT ROOT_FOUND)
     message("   No ROOT found, ROOT-IO in HepMC will be deactivated.")
     set(HEPMC3_ROOTIO OFF)
@@ -193,53 +206,238 @@ if(WITH_HEPMC)
 else()
   message("   HepMC-dependent functions in ColliderBit will be deactivated.")
   message("   ColliderBit Solo (CBS) will be deactivated.")
-  message("   Pythia will not drop HepMC files.")
-  message("   Backends depending on HepMC (e.g. Rivet) will be disabled.")
-  nuke_ditched_contrib_content(${name} ${dir})
+  message("   Backends depending on HepMC (e.g. Pythia and Rivet) will be disabled.")
+  nuke_ditched_contrib_content(${name} ${HEPMC_PATH})
   set(EXCLUDE_HEPMC TRUE)
 endif()
 
 if(NOT EXCLUDE_HEPMC)
-  set(lib "HepMC3_static")
-  set(md5 "a9cfc6e95eff5c13a0a5a9311ad75aa7")
-  set(dl "https://hepmc.web.cern.ch/hepmc/releases/HepMC3-${ver}.tar.gz")
-  set(build_dir "${PROJECT_BINARY_DIR}/${name}-prefix/src/${name}-build")
-  include_directories("${dir}/include")
+  set(lib "HepMC3")
+  set(md5 "d3079a7ffcc926b34c5ad2868ed6d8f0")
+  #set(dl "https://gitlab.cern.ch/hepmc/HepMC3/-/archive/${ver}/HepMC3-${ver}.tar.gz")
+  set(dl "https://github.com/GambitBSM/archived_backends/raw/refs/heads/main/hepmc_3.2.5.tar.gz")
+  include_directories("${HEPMC_PATH}/local/include")
+
+  set(HEPMC_LDFLAGS "-L${HEPMC_PATH}/local/lib -l${lib}")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HEPMC_PATH}/local/lib")
   set(HEPMC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
-  set(HEPMC_LDFLAGS "-L${build_dir} -l${lib}")
-  set(HEPMC_PATH "${dir}")
-  set(HEPMC_LIB "${dir}/local/lib")
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HEPMC_LIB}")
 
   # Silence some compiler warnings coming from HepMC
   set_compiler_warning("no-unused-parameter" HEPMC_CXX_FLAGS)
   set_compiler_warning("no-deprecated-copy" HEPMC_CXX_FLAGS)
   set_compiler_warning("no-sign-compare" HEPMC_CXX_FLAGS)
 
+  # Determine the C++ standard to use for HepMC3 (use ROOT's if available, otherwise default to 11)
+  if(DEFINED ROOT_CXX_STANDARD)
+    set(HEPMC3_STD ${ROOT_CXX_STANDARD})
+  elseif(DEFINED ROOT_STD)
+    set(HEPMC3_STD ${ROOT_STD})
+  else()
+    set(HEPMC3_STD 11)
+  endif()
+
+  ExternalProject_Add(${name}
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${HEPMC_PATH} ${name} ${ver}
+    SOURCE_DIR ${HEPMC_PATH}
+    CMAKE_COMMAND ${CMAKE_COMMAND} ..
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HEPMC_CXX_FLAGS} -DHEPMC3_CXX_STANDARD=${HEPMC3_STD} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${HEPMC_PATH}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_PATH}/local/lib -DHEPMC3_ENABLE_PYTHON=OFF -DHEPMC3_ENABLE_SEARCH=ON -DHEPMC3_BUILD_STATIC_LIBS=OFF -DCMAKE_POLICY_VERSION_MINIMUM=${CMAKE_POLICY_VERSION_MINIMUM}
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}
+    INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
+    )
+
+  # Add clean-hepmc and nuke-hepmc
+  add_contrib_clean_and_nuke(${name} ${HEPMC_PATH} clean)
+endif()
+
+# contrib/onnxruntime
+if (WITH_ONNXRUNTIME)
+  message("   Using ONNX Runtime - Onnx dependent colliderbit analyses will be included")
+  set (EXCLUDE_ONNXRUNTIME FALSE)
+else ()
+  message("   Not using ONNX Runtime - ONNX dependent colliderbit analyses will be excluded")
+  set(EXCLUDE_ONNXRUNTIME TRUE)
+endif()
+
+set(name onnxruntime)
+set(ver 1.14.1)
+set(dir ${PROJECT_SOURCE_DIR}/contrib/${name}-${ver})
+if (NOT EXCLUDE_ONNXRUNTIME)
+  set(lib onnxruntime)
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(dl "https://github.com/microsoft/onnxruntime/releases/download/v1.14.1/onnxruntime-osx-universal2-${ver}.tgz")
+    set(md5 9725836c49deb09fc352a57dc8a1b806)
+  else ()
+    set(dl "https://github.com/microsoft/onnxruntime/releases/download/v1.14.1/onnxruntime-linux-x64-${ver}.tgz")
+    set(md5 9a3b855e2b22ace4ab110cec10b38b74)
+  endif()
+  include_directories(${dir}/include)
+  set(ONNXRUNTIME_PATH "${dir}")
+  set(ONNXRUNTIME_LIB "${dir}/lib")
+  set(ONNXRUNTIME_LDFLAGS "-L${ONNXRUNTIME_LIB} -l${lib}")
+  
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
-    CMAKE_COMMAND ${CMAKE_COMMAND}  ..
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HEPMC_CXX_FLAGS} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${dir}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_LIB}
-    BUILD_COMMAND ${MAKE_PARALLEL}
-    INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
-    )
-  # Add target
-  #add_custom_target(${name})
-  # Add clean-hepmc and nuke-hepmc
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+  )
+  add_contrib_clean_and_nuke(${name} ${dir} clean)
+  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${ONNXRUNTIME_LIB}")
+endif()
+
+#contrib/YODA; include if ColliderBit is in, don't otherwise
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("   ColliderBit included, so YODA is included too")
+  set(WITH_YODA ON)
+else()
+  set(WITH_YODA OFF)
+  message("${BoldCyan} X ColliderBit is not in use: excluding YODA from GAMBIT configuration.${ColourReset}")
+endif()
+
+set(name "yoda")
+set(ver "2.1.0")
+set(dir "${PROJECT_SOURCE_DIR}/contrib/YODA-${ver}")
+if(WITH_YODA)
+  message("-- YODA-dependent functions in ColliderBit will be activated.")
+  message("   Backends depending on YODA will be enabled.")
+  set(EXCLUDE_YODA FALSE)
+else()
+  message("   YODA-dependent functions in ColliderBit will be deactivated.")
+  message("   Backends depending on Yoda (e.g. Rivet, Contur) will de disabled.")
+  nuke_ditched_contrib_content(${name} ${dir})
+  set(EXCLUDE_YODA TRUE)
+endif()
+
+if(NOT EXCLUDE_YODA)
+  set(lib "YODA")
+  set(dl "https://github.com/GambitBSM/archived_backends/raw/refs/heads/main/YODA-2.1.0.tar.gz")
+  set(md5 "87da674a8e8127b54c408d1b465bf5f7")
+  include_directories("${dir}/include")
+  set(YODA_PATH "${dir}")
+  set(YODA_LIB "${dir}/local/lib")
+  set(YODA_LDFLAGS "-L${YODA_LIB} -l${lib}")
+
+  # OpenMP flags does not play nicely with clang and Yoda's use of libtools
+  string(REGEX REPLACE "-Xclang -fopenmp" "" YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3")
+  #set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3" )
+  set_compiler_warning("no-unused-parameter" YODA_CXX_FLAGS)
+  set_compiler_warning("no-deprecated-copy" YODA_CXX_FLAGS)
+  set_compiler_warning("no-implicit-fallthrough" YODA_CXX_FLAGS)
+  set(YODA_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
+  #TODO (TP Dec 23): Bodge to cover different forms of python install: would be good to be able to autodetect
+  set(YODA_ALT_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/dist-packages")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
+  # If cython is not installed disable the python extension
+  gambit_find_python_module(cython)
+  if(PY_cython_FOUND)
+    set(pyext yes)
+    message("   Backends depending on YODA's python extension will be enabled.")
+  else()
+    set(pyext no)
+    message("   Backends depending on YODA's python extension (e.g. Contur) will be disabled.")
+  endif()
+  # Set LDFLAGS for MacOS to find libz
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(YODA_CONFIG_LDFLAGS "-L${CMAKE_OSX_SYSROOT}/usr/lib")
+  else()
+    set(YODA_CONFIG_LDFLAGS "")
+  endif()
+  if(OpenMP_omp_LIBRARY)
+    get_filename_component(YODA_OPENMP_LIBDIR "${OpenMP_omp_LIBRARY}" DIRECTORY)
+    set(YODA_CONFIG_LDFLAGS "${YODA_CONFIG_LDFLAGS} -L${YODA_OPENMP_LIBDIR} -Wl,-rpath,${YODA_OPENMP_LIBDIR}")
+  endif()
+  ExternalProject_Add(${name}
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ${YODA_PATH}/configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${YODA_CXX_FLAGS} LDFLAGS=${YODA_CONFIG_LDFLAGS} PYTHON=${Python3_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
+    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
+  )
   add_contrib_clean_and_nuke(${name} ${dir} clean)
 endif()
 
-
 #contrib/fjcore-3.2.0
-set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
-include_directories("${fjcore_INCLUDE_DIR}")
-add_definitions(-DFJCORE)
-add_definitions(-DFJNS=gambit::fjcore)
-add_gambit_library(fjcore OPTION OBJECT
-                          SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.cc
-                          HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
-set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
+# TODO: Temporarily comment while fastjet is a contrib, as there are class name clashes. HEPUtils can automatically switch to use fastjet if the flag -DFJCORE is not set
+#set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
+#include_directories("${fjcore_INCLUDE_DIR}")
+#add_definitions(-DFJCORE)
+#add_definitions(-DFJNS=gambit::fjcore)
+#add_gambit_library(fjcore OPTION OBJECT
+#                          SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.cc
+#                          HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
+#set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
+
+#contrib/fastjet-3.5.3; shared by ColliderBit and Rivet.
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("   ColliderBit included, include fastjet too")
+  set(EXCLUDE_FASTJET FALSE)
+  set(fastjet_ver "3.5.3")
+  set(fastjet_dl "https://fastjet.fr/repo/fastjet-${fastjet_ver}.tar.gz")
+  set(fastjet_md5 "ba89ba3f34bd93aea8ba39651b0cbeb3")
+  set(fastjet_path "${PROJECT_SOURCE_DIR}/contrib/fastjet-${fastjet_ver}")
+  set(fastjet_DIR "${fastjet_path}/local")
+  include_directories("${fastjet_DIR}/include")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fastjet_DIR}/lib")
+  set(fastjet_LDFLAGS "-L${fastjet_DIR}/lib" "-lfastjettools" "-lfastjet"
+                     "-lfastjetplugins" "-lsiscone_spherical" "-lsiscone")
+  # OpenMP flags do not play nicely with FastJet's libtoolized build system.
+  string(REGEX REPLACE "(-Xclang[ \t]+|-Xpreprocessor[ \t]+)?-fopenmp(=[^ \t]+)?" "" FASTJET_C_FLAGS "${BACKEND_C_FLAGS}")
+  string(REGEX REPLACE "(-Xclang[ \t]+|-Xpreprocessor[ \t]+)?-fopenmp(=[^ \t]+)?" "" FASTJET_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  set_compiler_warning("no-deprecated-declarations" FASTJET_CXX_FLAGS)
+  set_compiler_warning("no-deprecated-copy" FASTJET_CXX_FLAGS)
+  set(FASTJET_CXX_FLAGS "${FASTJET_CXX_FLAGS} -include algorithm")
+  set(FASTJET_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
+
+  # Rivet requires the C++ plugins from this same FastJet installation.
+  ExternalProject_Add(fastjet
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${fastjet_dl} ${fastjet_md5} ${fastjet_path} fastjet ${fastjet_ver}
+    SOURCE_DIR ${fastjet_path}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FASTJET_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} LIBS=${FASTJET_LINKER_FLAGS} --prefix=${fastjet_DIR} --enable-silent-rules --enable-shared --disable-auto-ptr --enable-allcxxplugins
+    BUILD_COMMAND ${MAKE_PARALLEL}
+    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
+  )
+  add_contrib_clean_and_nuke(fastjet ${fastjet_path} clean)
+else()
+  message("${BoldCyan} X ColliderBit is not in use: excluding fastjet from GAMBIT configuration.${ColourReset}")
+  set(EXCLUDE_FASTJET TRUE)
+endif()
+
+#contrib/fjcontrib-1.105; installed alongside the shared FastJet libraries.
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("   ColliderBit included, include fjcontrib too")
+  set(EXCLUDE_FJCONTRIB FALSE)
+  set(fjcontrib_ver "1.105")
+  set(fjcontrib_dl "https://fastjet.fr/contrib/downloads/fjcontrib-${fjcontrib_ver}.tar.gz")
+  set(fjcontrib_md5 "6b888ad192c1ed1285448d68b670808c")
+  set(fjcontrib_path "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-${fjcontrib_ver}")
+  set(fjcontrib_LDFLAGS "-L${fastjet_DIR}/lib" "-lfastjetcontribfragile"
+                      "-lRecursiveTools" "-lEnergyCorrelator" "-lVariableR")
+  set(FJCONTRIB_FRAGILE_CXX_FLAGS "${FASTJET_CXX_FLAGS}")
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(FJCONTRIB_FRAGILE_CXX_FLAGS "${FJCONTRIB_FRAGILE_CXX_FLAGS} -Wl,-headerpad_max_install_names")
+  endif()
+
+  # Use the same components as CBS, including the shared library required by Rivet.
+  ExternalProject_Add(fjcontrib
+    DEPENDS fastjet
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_path} fjcontrib ${fjcontrib_ver}
+    SOURCE_DIR ${fjcontrib_path}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FASTJET_CXX_FLAGS} --fastjet-config=${fastjet_DIR}/bin/fastjet-config --prefix=${fastjet_DIR} --only=Nsubjettiness,RecursiveTools,LundPlane,EnergyCorrelator,VariableR
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
+    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
+            COMMAND ${MAKE_PARALLEL} fragile-shared-install CXX="${CMAKE_CXX_COMPILER}" CXXFLAGS=${FJCONTRIB_FRAGILE_CXX_FLAGS}
+  )
+  add_contrib_clean_and_nuke(fjcontrib ${fjcontrib_path} clean)
+  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} fjcontrib)
+else()
+  message("${BoldCyan} X ColliderBit is not in use: excluding fjcontrib from GAMBIT configuration.${ColourReset}")
+  set(EXCLUDE_FJCONTRIB TRUE)
+endif()
 
 #contrib/multimin
 set(multimin_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/multimin/include")
@@ -248,7 +446,25 @@ add_gambit_library(multimin OPTION OBJECT
                           SOURCES ${PROJECT_SOURCE_DIR}/contrib/multimin/src/multimin.cpp
                           HEADERS ${PROJECT_SOURCE_DIR}/contrib/multimin/include/multimin/multimin.hpp)
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:multimin>)
+add_dependencies(contrib multimin)
 
+
+#contrib/METSignificance
+# requires fastjet, and so should not be built without this
+if (NOT EXCLUDE_FASTJET)
+  set(METSignificance_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/METSignificance/include")
+  include_directories("${METSignificance_INCLUDE_DIR}")
+  add_gambit_library(METSignificance OPTION OBJECT
+                            SOURCES ${PROJECT_SOURCE_DIR}/contrib/METSignificance/src/METSignificance.cpp
+                            HEADERS ${PROJECT_SOURCE_DIR}/contrib/METSignificance/include/METSignificance/METSignificance.hpp)
+  add_dependencies(METSignificance fastjet)
+  if (NOT EXCLUDE_FJCONTRIB)
+    add_dependencies(METSignificance fjcontrib)
+  endif()
+  set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:METSignificance>)
+  add_dependencies(contrib METSignificance)
+  add_dependencies(METSignificance fastjet)
+endif()
 
 #contrib/MassSpectra; include only if SpecBit is in use and if
 #BUILD_FS_MODELS is set to something other than "" or "None" or "none"
@@ -269,7 +485,14 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
 
   # Determine compiler libraries needed by flexiblesusy.
   if(CMAKE_Fortran_COMPILER MATCHES "gfortran*")
-    set(flexiblesusy_compilerlibs "-lgfortran -lm")
+    # External C++ link steps need the full path to the gfortran runtime library.
+    execute_process(COMMAND "${CMAKE_Fortran_COMPILER}" "-print-file-name=libgfortran${CMAKE_SHARED_LIBRARY_SUFFIX}"
+                    OUTPUT_VARIABLE GFORTRAN_LIBRARY OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if(NOT EXISTS "${GFORTRAN_LIBRARY}")
+      message(FATAL_ERROR "Could not find libgfortran.")
+    endif()
+    message(STATUS "Found libgfortran at ${GFORTRAN_LIBRARY}.")
+    set(flexiblesusy_compilerlibs "${GFORTRAN_LIBRARY} -lm")
   elseif(CMAKE_Fortran_COMPILER MATCHES "g77" OR CMAKE_Fortran_COMPILER MATCHES "f77")
     set(flexiblesusy_compilerlibs "-lg2c -lm")
   elseif(CMAKE_Fortran_COMPILER MATCHES "ifort")
@@ -292,7 +515,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   set_compiler_warning("no-unneeded-internal-declaration" FS_CXX_FLAGS)
 
   # Construct the command to create the shared library
-  set(FS_SO_LINK_COMMAND "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} -shared -o")
+  set(FS_SO_LINK_COMMAND "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -o")
 
   # FlexibleSUSY configure options
   set(FS_OPTIONS ${FS_OPTIONS}
@@ -427,4 +650,32 @@ else()
 
   set (EXCLUDE_FLEXIBLESUSY TRUE)
 
+endif()
+
+
+
+# If ColliderBit is in use, set various dependencies
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  # If RestFrames is in use, make it a dependency of contrib
+  if(NOT EXCLUDE_RESTFRAMES)
+    add_dependencies(contrib restframes)
+  endif()
+  # ONNX headers are fetched at build time; ColliderBit must not compile first.
+  if(NOT EXCLUDE_ONNXRUNTIME)
+    add_dependencies(contrib onnxruntime)
+  endif()
+  # contrib depends on HepMC
+  if(EXCLUDE_HEPMC)
+    message(FATAL_ERROR "\nColliderBit needs HepMC3. Either use -DWITH_HEPMC=ON or ditch ColliderBit with -Ditch=\"ColliderBit\".")
+  endif()
+  add_dependencies(contrib hepmc)
+  # contrib depends on YODA
+  if(EXCLUDE_YODA)
+    message(FATAL_ERROR "\nColliderBit needs YODA. Either use -DWITH_YODA=ON or ditch ColliderBit with -Ditch=\"ColliderBit\".")
+  endif()
+  add_dependencies(contrib yoda)
+  
+  # fastjet and fjcontrib are dependencies of using ColliderBit
+  add_dependencies(contrib fastjet)
+  add_dependencies(contrib fjcontrib)
 endif()

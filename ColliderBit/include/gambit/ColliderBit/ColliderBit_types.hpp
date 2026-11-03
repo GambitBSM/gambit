@@ -30,6 +30,10 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2018 Feb
 ///
+///  \author Anders Kvellestad
+///          (anders.kvellestad@fys.uio.no)
+///  \date 2021 Jun
+///
 ///  *********************************************
 
 
@@ -48,6 +52,7 @@
 #include "gambit/ColliderBit/detectors/BuckFast.hpp"
 #include "gambit/ColliderBit/analyses/AnalysisContainer.hpp"
 #include "gambit/ColliderBit/analyses/AnalysisData.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisLogLikes.hpp"
 
 #include "gambit/ColliderBit/limits/ALEPHSleptonLimits.hpp"
 #include "gambit/ColliderBit/limits/L3GauginoLimits.hpp"
@@ -66,25 +71,7 @@ namespace Gambit
   {
 
     /// @brief Container for data from multiple analyses and SRs
-    typedef std::vector<AnalysisData> AnalysisNumbers;
     typedef std::vector<AnalysisData*> AnalysisDataPointers;
-
-    /// @brief Container for loglike information for an analysis
-    struct AnalysisLogLikes
-    {
-      std::map<std::string,int> sr_indices;  // Signed indices so that we can use negative values for special cases
-      std::map<std::string,double> sr_loglikes;
-
-      std::string combination_sr_label;
-      int combination_sr_index;
-      double combination_loglike;
-
-      AnalysisLogLikes() :
-        combination_sr_label("undefined"),
-        combination_sr_index(-2),
-        combination_loglike(0.0)
-        { }
-    };
 
     /// @brief Typedef for a string-to-AnalysisLogLikes map
     typedef std::map<std::string,AnalysisLogLikes> map_str_AnalysisLogLikes;
@@ -100,9 +87,9 @@ namespace Gambit
     /// @brief Typedef for a str-SLHAstruct pair, to pass around SLHA filenames + content
     typedef std::pair<std::string,SLHAstruct> pair_str_SLHAstruct;
 
-    /// @brief Typedefs related to cross-sections 
-    // Note: 
-    // The 'iipair' name below refers to the typedef std::pair<int,int> iipair 
+    /// @brief Typedefs related to cross-sections
+    // Note:
+    // The 'iipair' name below refers to the typedef std::pair<int,int> iipair
     // declared in Utils/include/gambit/Utils/util_types.hpp
 
     typedef std::vector<std::pair<int,int>> vec_iipair;
@@ -115,6 +102,9 @@ namespace Gambit
 
     typedef std::map<int,xsec_container> map_int_xsec;
     typedef std::map<int,process_xsec_container> map_int_process_xsec;
+    typedef std::map<std::string, xsec_container> map_str_xsec_container;
+    typedef std::map<std::string, map_int_process_xsec> map_str_map_int_process_xsec;
+    typedef std::pair<map_str_xsec_container, map_str_map_int_process_xsec> initialxsec_container;
 
     typedef std::map<std::pair<int,int>,PID_pair_xsec_container> map_iipair_PID_pair_xsec;
     typedef std::map<PID_pair,PID_pair_xsec_container> map_PID_pair_PID_pair_xsec;

@@ -25,6 +25,10 @@
 ///  \date 2013 Aug, Sep
 ///  \date 2014 Mar
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2023 Nov
+///
 ///  *********************************************
 
 #include "gambit/Core/modelgraph.hpp"
@@ -157,7 +161,7 @@ namespace Gambit
 
     void ModelHierarchy::labelWriter::operator()(std::ostream& out, const ModelVertexID& v) const
     {
-      if ( (*myGraph)[v]->status() == 2 )
+      if ( (*myGraph)[v]->isActive() )
       {
         out << "[fillcolor=\"red\", style=\"rounded,filled\", shape=box,";
         out << "label=< ";

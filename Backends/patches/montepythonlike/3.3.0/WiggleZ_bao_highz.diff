@@ -1,0 +1,50 @@
+diff --git a/montepython/likelihoods/WiggleZ_bao_highz/WiggleZ_bao_highz.data b/montepython/likelihoods/WiggleZ_bao_highz/WiggleZ_bao_highz.data
+new file mode 100644
+index 0000000..cf84fa5
+--- /dev/null
++++ b/montepython/likelihoods/WiggleZ_bao_highz/WiggleZ_bao_highz.data
+@@ -0,0 +1,10 @@
++# Data taken from WiggleZ_bao likelihood (1401.0358)
++# only use highest z point to avoid overlapp with volume from BOSS
++
++
++WiggleZ_bao_highz.high_z = 0.73
++WiggleZ_bao_highz.high_z_Dv = 2516
++WiggleZ_bao_highz.high_z_sigma = 86
++
++# Value of the exact sound speed in the fiducial model, in Mpc
++WiggleZ_bao_highz.rs_fiducial = 148.6
+diff --git a/montepython/likelihoods/WiggleZ_bao_highz/__init__.py b/montepython/likelihoods/WiggleZ_bao_highz/__init__.py
+new file mode 100644
+index 0000000..e9a0ae7
+--- /dev/null
++++ b/montepython/likelihoods/WiggleZ_bao_highz/__init__.py
+@@ -0,0 +1,28 @@
++import sys 
++from montepython.likelihood_class import Likelihood
++import numpy as np
++from math import log
++import os
++
++
++class WiggleZ_bao_highz(Likelihood):
++    """From 1401.0358v2"""
++
++    def __init__(self, path, data, command_line):
++
++        Likelihood.__init__(self, path, data, command_line)
++
++
++    def loglkl(self, cosmo, data):
++        # Modes
++        z, Dv = self.high_z, self.high_z_Dv
++
++        da = cosmo.angular_distance(z)
++        dr = z/cosmo.Hubble(z)
++        dv = pow(da**2*(1.+z)**2*dr, 1./3)
++        rs = cosmo.rs_drag()
++        difference = Dv - dv/rs*self.rs_fiducial
++
++        chi2 = (difference / self.high_z_sigma)**2
++        lkl = - 0.5 *chi2
++        return lkl

@@ -64,13 +64,13 @@ namespace Gambit
       /// @}
 
       /// Destructor
-      virtual ~exception() throw() {}
+      virtual ~exception() noexcept {}
 
       /// Setter for the fatal flag.
       void set_fatal(bool);
 
       /// Retrieve the identity of the exception.
-      virtual const char* what() const throw();
+      virtual const char* what() const noexcept;
 
       /// Raise the exception.
       /// Log the exception and, if it is considered fatal, actually throw it.
@@ -80,7 +80,7 @@ namespace Gambit
       /// Force a throw of the exception.
       /// These should only be used inside a try block, i.e. if you plan to catch the exception.
       /// @{
-      /// Log the exception and throw it regardless of whether is is fatal or not.
+      /// Log the exception and throw it regardless of whether it is fatal or not.
       void forced_throw(const std::string&, const std::string&);
       /// As per forced_throw but without logging.
       void silent_forced_throw();
@@ -126,7 +126,7 @@ namespace Gambit
       /// Flag indicating if this exception should be considered fatal or not.
       bool isFatal;
 
-      /// Shared string indicating the current values of the paramters.
+      /// Shared string indicating the current values of the parameters.
       static std::string parameters;
 
   };
@@ -199,10 +199,10 @@ namespace Gambit
       special_exception(const char*);
 
       /// Destructor
-      virtual ~special_exception() throw() {}
+      virtual ~special_exception() noexcept {}
 
       /// Retrieve the identity of the exception.
-      virtual const char* what() const throw();
+      virtual const char* what() const noexcept;
 
       /// Retrieve the message that this exception was raised with.
       std::string message();
@@ -338,7 +338,7 @@ namespace Gambit
     public:
       SilentShutdownException();
       SilentShutdownException(const std::string& message);
-      virtual const char* what() const throw();
+      virtual const char* what() const noexcept;
     private:
       std::string myWhat;
   };
@@ -347,7 +347,7 @@ namespace Gambit
   {
     public:
       SoftShutdownException(const std::string& message);
-      virtual const char* what() const throw();
+      virtual const char* what() const noexcept;
     private:
       std::string myWhat;
   };
@@ -356,7 +356,7 @@ namespace Gambit
   {
     public:
       HardShutdownException(const std::string& message);
-      virtual const char* what() const throw();
+      virtual const char* what() const noexcept;
     private:
       std::string myWhat;
   };
@@ -365,9 +365,32 @@ namespace Gambit
   {
     public:
       MPIShutdownException(const std::string& message);
-      virtual const char* what() const throw();
+      virtual const char* what() const noexcept;
     private:
       std::string myWhat;
+  };
+  
+  
+  /// Gambit suspicious point exception class.
+  class Suspicious_point_exception
+  {
+
+    public:
+
+      /// Constructor
+      Suspicious_point_exception() {}
+
+      /// Raise the suspicious point exception. Print it with a message and a code. The default code is 1.
+      void raise(const std::string &msg, int code, bool debug);
+      //void raise(const std::string &msg, int code=1, bool debug=false)
+      //{
+      //  // get the printer pointer
+      //  Printers::BasePrinter& printer = *(get_global_printer_manager()->printerptr);
+      //  printer.print(code, "Suspicious Point Code", Printers::get_main_param_id("Suspicious Point Code"), printer.getRank(), Printers::get_point_id());
+     // 
+     //   if (debug) std::cout << "Point Suspicious (" << code << "): " << msg << std::endl;
+     // }
+
   };
 
 }

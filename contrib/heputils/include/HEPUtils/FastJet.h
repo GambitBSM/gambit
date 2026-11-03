@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
-// This file is part of HEPUtils -- https://bitbucket.org/andybuckley/heputils
-// Copyright (C) 2013-2018 Andy Buckley <andy.buckley@cern.ch>
+// This file is part of HEPUtils -- https://gitlab.com/hepcedar/heputils/
+// Copyright (C) 2013-2022 Andy Buckley <andy.buckley@cern.ch>
 //
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.
@@ -35,8 +35,8 @@
 namespace HEPUtils {
 
 
-  /// @name Converters between HEPUtils and FastJet momentum types
-  //@{
+  /// @defgroup fastjet_cnv Converters between HEPUtils and FastJet momentum types
+  /// @{
 
   /// @todo Enable... conditionally on FJ version?
   // /// For attaching the GenParticle provenance info to a PseudoJet
@@ -64,11 +64,11 @@ namespace HEPUtils {
     return P4::mkXYZM(p.px(), p.py(), p.pz(), (m >= 0) ? m : 0);
   }
 
-  //@}
+  /// @}
 
 
-  /// @name Jet builders
-  //@{
+  /// @defgroup fastjet_mk Jet builders
+  /// @{
 
   /// Construct pT-sorted jets using the @a alg measure with jet @a R parameter, and min pT @a ptmin (in MeV)
   inline std::vector<FJNS::PseudoJet> get_jets(const std::vector<FJNS::PseudoJet>& particles, double R, double ptmin,
@@ -79,7 +79,7 @@ namespace HEPUtils {
     return sorted_by_pt(cseq.inclusive_jets(ptmin));
   }
 
-  //@}
+  /// @}
 
 
 }

@@ -6,7 +6,7 @@
 ///  HDF5 databases.
 ///
 ///  Currently I am using the C++ bindings for
-///  HDF5, however they are a bit crap and it may
+///  HDF5, however they not great and it may
 ///  be better to just write our own.
 ///
 ///  *********************************************
@@ -20,6 +20,10 @@
 ///  \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Jul
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 June
 ///
 ///  *********************************************
 
@@ -40,8 +44,36 @@
 // HDF5
 #include <hdf5.h>
 
+// Compatibility shims for HDF5 API changes between 1.10 and 1.12+.
+// In 1.12 several functions gained an extra "fields" argument and the
+// link/object-info structs were renamed (H5L_info_t -> H5L_info2_t,
+// H5O_info_t -> H5O_info2_t). The unversioned names continue to work only
+// when -DH5_USE_110_API is set globally, but doing that affects every
+// translation unit that includes <hdf5.h> (including any backends or
+// contrib code), which is fragile. Instead we call the version-specific
+// symbols directly via the GAMBIT_H5_* aliases below.
+#if H5_VERSION_GE(1, 12, 0)
+  #define GAMBIT_H5L_INFO_T  H5L_info2_t
+  #define GAMBIT_H5O_INFO_T  H5O_info2_t
+  // H5Oget_info_by_name3 has an extra "fields" argument selecting which
+  // fields to populate; H5O_INFO_BASIC fills the .type field, which is all
+  // we need to distinguish groups from datasets.
+  #define GAMBIT_H5OGET_INFO_BY_NAME(loc_id, name, info_ptr, plist) \
+            H5Oget_info_by_name3((loc_id), (name), (info_ptr), H5O_INFO_BASIC, (plist))
+  #define GAMBIT_H5LITERATE H5Literate2
+#else
+  #define GAMBIT_H5L_INFO_T  H5L_info_t
+  #define GAMBIT_H5O_INFO_T  H5O_info_t
+  #define GAMBIT_H5OGET_INFO_BY_NAME(loc_id, name, info_ptr, plist) \
+            H5Oget_info_by_name((loc_id), (name), (info_ptr), (plist))
+  #define GAMBIT_H5LITERATE H5Literate
+#endif
+
 // Boost
 #include <boost/utility/enable_if.hpp>
+
+// Maximum length of HDF5 strings
+#define HDF5_STRING_MAX_LEN 100
 
 /// Provide template specialisation of get_hdf5_data_type only if the requested type hasn't been used to define one already.
 #define SPECIALISE_HDF5_DATA_TYPE_IF_NEEDED(TYPEDEFD_TYPE, RETURN_HDF5_TYPE)                                  \
@@ -60,7 +92,8 @@
                                                                !std::is_same<float, TYPEDEFD_TYPE>::value                 && \
                                                                !std::is_same<double, TYPEDEFD_TYPE>::value                && \
                                                                !std::is_same<long double, TYPEDEFD_TYPE>::value           && \
-                                                               !std::is_same<bool, TYPEDEFD_TYPE>::value>::type >            \
+                                                               !std::is_same<bool, TYPEDEFD_TYPE>::value                  && \
+                                                               !std::is_same<std::string, TYPEDEFD_TYPE>::value>::type >            \
       {                                                                                                                      \
          static hid_t type() { return RETURN_HDF5_TYPE; }                                                            \
       };                                                                                                                     \
@@ -105,7 +138,7 @@ namespace Gambit
          /// Check if a dataset exists and can be read from fully
          /// (Reads through entire dataset to make sure! May take some time)
          std::pair<bool,std::size_t> checkDatasetReadable(hid_t location, const std::string& dsetname);
-  
+
          /// Create hdf5 file (always overwrite existing files)
          hid_t createFile(const std::string& fname);
 
@@ -131,7 +164,7 @@ namespace Gambit
           * does not yet exist.
           *
           */
-         hid_t openGroup(hid_t file_id, const std::string& name, bool nocreate=false);
+         hid_t openGroup(hid_t file_id, const std::string& name, bool nocreate=false, bool fatal=true);
 
          /// Close group
          hid_t closeGroup(hid_t group);
@@ -169,7 +202,7 @@ namespace Gambit
 
          /// Select a simple hyperslab in a 1D dataset
          std::pair<hid_t,hid_t> selectChunk(const hid_t dset_id, std::size_t offset, std::size_t length);
- 
+
          /// Check if an object in a group is a dataset
          bool isDataSet(hid_t group_id, const std::string& name);
 
@@ -180,7 +213,7 @@ namespace Gambit
          {
              // Buffer to receive data (and return from function)
              std::vector<T> chunkdata(length);
- 
+
              // Select hyperslab
              std::pair<hid_t,hid_t> selection_ids = selectChunk(dset_id,offset,length);
              hid_t memspace_id = selection_ids.first;
@@ -203,7 +236,7 @@ namespace Gambit
 
              H5Sclose(dspace_id);
              H5Sclose(memspace_id);
- 
+
              return chunkdata;
          }
 
@@ -213,7 +246,7 @@ namespace Gambit
 
          // Match fixed integers to HDF5 types
          int inttype_from_h5type(hid_t h5type);
-   
+
          // Query whether type integer indicates general 'float' or 'int'
          bool is_float_type(int inttype);
 
@@ -235,10 +268,14 @@ namespace Gambit
       template<> struct get_hdf5_data_type<float>             { static hid_t type() { return H5T_NATIVE_FLOAT  ; } };
       template<> struct get_hdf5_data_type<double>            { static hid_t type() { return H5T_NATIVE_DOUBLE ; } };
       template<> struct get_hdf5_data_type<long double>       { static hid_t type() { return H5T_NATIVE_LDOUBLE; } };
-      template<> struct get_hdf5_data_type<bool>              { static hid_t type() { return H5T_NATIVE_UINT8  ; } };
       // Bools are a bit trickier because C has no built-in boolean type (until recently; anyway
       // the HDF5 libraries were written in C before this existed). We also want something that
       // will be recognised as a bool by h5py. For now we just use an unsigned int.
+      template<> struct get_hdf5_data_type<bool>              { static hid_t type() { return H5T_NATIVE_UINT8  ; } };
+      // The hdf5 native type H5T_C_S1 is a string of a single character.
+      // To use longer strings we copy the type and extend it.
+      template<> struct get_hdf5_data_type<std::string>       { static hid_t type() { hid_t strtype = H5Tcopy(H5T_C_S1); H5Tset_size (strtype, H5T_VARIABLE); return strtype; } };
+
 
       // Macro sequence for iterating over all allowed output types
       #define H5_OUTPUT_TYPES \
@@ -255,7 +292,8 @@ namespace Gambit
         (float) \
         (double) \
         (long double) \
-        (bool)
+        (bool) \
+        (std::string)
 
       /// DEBUG: print to stdout all HDF5 type IDs
       void printAllH5Types(void);

@@ -50,6 +50,7 @@ namespace Gambit
         /// Extra argument returns true if new ID was assigned
         EXPORT_SYMBOLS int get_aux_param_id(const std::string &, bool& is_new);
     }
+
 }
 
 #endif

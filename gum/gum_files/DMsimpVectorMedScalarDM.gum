@@ -1,0 +1,14 @@
+# Input GUM file for the DMsimpVectorMedScalarDM (Scalar DM, vector mediator)
+# model in GUM
+
+math:
+    package: feynrules
+    model: DMsimpVectorMedScalarDM
+    base_model: SM
+    restriction: DiagonalCKM
+    lagrangian: LDM + LSM
+
+wimp_candidate: 5000520
+
+output:
+  calchep: true

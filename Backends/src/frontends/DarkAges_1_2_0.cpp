@@ -258,7 +258,7 @@ BE_INI_FUNCTION
       if (Downstream::neededFor("f_eff") && !f_eff_mode)
       {
         std::ostringstream errMssg;
-        errMssg << "An error occured in DarkAges_" << STRINGIFY(SAFE_VERSION) << "_init:\n\n";
+        errMssg << "An error occurred in DarkAges_" << STRINGIFY(SAFE_VERSION) << "_init:\n\n";
         errMssg << "The capability \'f_eff\' will depend on the energy injection efficiency table ";
         errMssg << "provided by this backend and assumes that the option \'f_eff_mode\' is set to \'true\' ";
         errMssg << "but this option is currently set to \'false\' (which is the default value of this option) ";

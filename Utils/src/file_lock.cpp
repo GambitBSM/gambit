@@ -41,6 +41,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2016, 2019 Sep
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2022 Oct
+///
 ///  *********************************************
 
 #include <cstdio>
@@ -74,11 +78,13 @@ namespace Gambit
       const std::string hardmsg("Now calling abort (will produce a core file for analysis if this is enabled on your system; if so please include this with the bug report)");
 
       /// Constructor
-      FileLock::FileLock(const std::string& fname, const bool harderrs)
+      FileLock::FileLock(const std::string& fname, const bool is_exhaustible, const bool harderrs)
        : my_lock_fname(ensure_path_exists(fname))
        , fd(open(my_lock_fname.c_str(), O_RDWR | O_CREAT, 0666)) // last argument is permissions, in case file has to be created.
        , have_lock(false)
        , hard_errors(harderrs)
+       , exhaustible(is_exhaustible)
+       , exhausted_lock(false)
       {
         /// Should check for errors opening the file. List of error codes is kind of long though, let people look it up themselves for now...
         if(fd<0)
@@ -160,6 +166,7 @@ namespace Gambit
         have_lock = true;
       }
 
+
       /// Release a lock (error if no lock held)
       void FileLock::release_lock()
       {
@@ -170,6 +177,27 @@ namespace Gambit
           msg << "Tried to release lock for file '"<<my_lock_fname<<"', but it is not ours to release (i.e. get_lock() was not called, or the lock has already been released)! This indicates a logic error in whatever code tried to obtain the lock, please file a bug report.";
           if(hard_errors) { std::cerr<<"Error! ("<<LOCAL_INFO<<"): "<<msg.str()<<hardmsg<<std::endl; std::cerr.flush(); abort(); }
           else { utils_error().raise(LOCAL_INFO,msg.str()); }
+        }
+
+        // Always exhaust lock before relasing it, but only if it wasn't already exhausted
+        if(exhaustible and not exhausted())
+        {
+          ssize_t return_code = write(fd, "1", 1);
+          if(return_code == -1)
+          {
+            std::ostringstream msg;
+            msg << "Tried exhausting the lock for file '"<<my_lock_fname<<"' but failed to do so. The file does not exist or it is corrupted. ";
+            utils_error().raise(LOCAL_INFO, msg.str());
+          }
+          exhausted_lock = true;
+          #ifdef FILE_LOCK_DEBUG
+            int rank;
+            MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+            struct timeval tv;
+            struct timezone tz;
+            gettimeofday(&tv, &tz);
+            cout << "[" << tv.tv_sec << "." << tv.tv_usec << "] Exhausting lock " << my_lock_fname << " in rank " << rank << endl;
+          #endif
         }
 
         #ifdef FILE_LOCK_DEBUG
@@ -197,6 +225,49 @@ namespace Gambit
       /// Getter for lockfile name
       const std::string& FileLock::get_filename() const { return my_lock_fname; }
 
+      /// Check if lock is exhausted
+      bool FileLock::exhausted()
+      {
+        // Only possible to do this if you have the lock
+        if(not have_lock)
+        {
+          /// Don't have the lock!
+          std::ostringstream msg;
+          msg << "Tried to check whether thelock for file '"<<my_lock_fname<<"' is exhausted, but it is not ours (i.e. get_lock() was not called, or the lock has already been released)! This indicates a logic error in whatever code tried to obtain the lock, please file a bug report.";
+          if(hard_errors) { std::cerr<<"Error! ("<<LOCAL_INFO<<"): "<<msg.str()<<hardmsg<<std::endl; std::cerr.flush(); abort(); }
+          else { utils_error().raise(LOCAL_INFO,msg.str()); }
+        }
+
+        // If the file is not exhaustible, throw an error as this is a misuse
+        if(not exhaustible)
+        {
+          std::ostringstream msg;
+          msg << "Tried checking exhaustion of a non-exhaustible file, this is a misuse of the file lock. If the file is meant to be exhaustible, set the appropriate argument in the constructor.";
+          utils_error().raise(LOCAL_INFO, msg.str());
+        }
+
+        if(exhausted_lock) return true;
+
+        // Try reading file
+        char exhaust[1];
+        ssize_t return_code = read(fd, exhaust, 1);
+        if(return_code > 0 and exhaust[0] == '1')
+          exhausted_lock = true;
+        else
+          exhausted_lock = false;
+
+        #ifdef FILE_LOCK_DEBUG
+          int rank;
+          MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+          struct timeval tv;
+          struct timezone tz;
+          gettimeofday(&tv, &tz);
+          cout << "[" << tv.tv_sec << "." << tv.tv_usec << "] Checking lock " << my_lock_fname << " for exhaustion in rank " << rank << endl;
+        #endif
+
+        return exhausted_lock;
+      }
+
       /// @}
 
 
@@ -207,9 +278,15 @@ namespace Gambit
       const std::string ProcessLock::lock_suffix(".lock");
 
       /// Constructor
-      ProcessLock::ProcessLock(const std::string& fname, const bool harderrs)
-       : FileLock(lock_prefix + fname + lock_suffix, harderrs)
+      ProcessLock::ProcessLock(const std::string& fname, const bool is_exhaustible, const bool harderrs)
+       : FileLock(lock_prefix + fname + lock_suffix, is_exhaustible, harderrs)
       {}
+
+      /// Deleting existing locks
+      void ProcessLock::clean_locks()
+      {
+        remove_all_files_in(lock_prefix, false); // last argument is "error_if_absent" -> No error if path does not exist
+      }
 
       /// @}
 

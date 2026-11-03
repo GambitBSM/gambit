@@ -135,8 +135,12 @@ namespace Gambit
         // write the printer buffer to file
         void dump_buffer(bool force=false);
 
-        // retrieve the name of the main output file (used by auxilliary printers to match the names)
+        // actual on-disk path of the main output file (includes any per-rank suffix)
         std::string get_output_filename();
+
+        // output filename before the per-rank MPI suffix; queried by
+        // auxiliary printers to avoid double-appending the rank.
+        std::string get_base_output_filename();
 
         // retrieve the bufferlength (used by auxilliary printers to match the primary printer)
         int get_bufferlength();
@@ -155,6 +159,10 @@ namespace Gambit
           BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , ASCII_BACKEND_TYPES)
         #endif
         #undef DECLARE_PRINT
+
+        // Print metadata info to file
+        void _print_metadata(map_str_str);
+
         ///@}
 
         /// Helper print functions
@@ -166,16 +174,24 @@ namespace Gambit
         void template_print_vec(std::vector<T> const&, const std::string&, const int, const uint, const ulong);
 
       private:
-        /// Output file
+        /// Output file (on-disk path; includes the per-rank suffix under MPI)
         std::string output_file;
+
+        /// Output filename before the per-rank MPI suffix
+        std::string base_output_file;
 
         /// Info file (describes contents of output file, i.e. contents of columns)
         std::string info_file;
+
+        /// Metadata file
+        std::string metadata_file;
 
         /// Main output file stream
         std::ofstream my_fstream;
         /// "Info file" output stream
         std::ofstream info_fstream;
+        /// "Metadata file" output stream
+        std::ofstream metadata_fstream;
 
         /// Number of lines to store in buffer before printing
         unsigned int bufferlength;
@@ -189,6 +205,14 @@ namespace Gambit
         /// Label for printer, mostly for more helpful error messages
         std::string printer_name;
 
+        // Flags for whether to print Suspicious or Invalid point codes
+        bool print_suspicious_point_code = true;
+        bool print_invalidation_code = true;
+
+        // Flags to indicate whether Susicious or Invalid point codes have been added to the print list
+        bool Found_sus = false;
+        bool Found_inv = false;
+
         /// MPI rank
         #ifdef WITH_MPI
         // Gambit MPI communicator context for use within the printer system
@@ -197,8 +221,8 @@ namespace Gambit
         uint mpiSize;
         #endif
 
-        /// Number of digits of precision to use in output columns
-        int precision = 10;
+        /// Number of digits of precision to use in output columns (YAML 'precision', default 10)
+        int precision;
 
         /// Full buffer of output to be printed
         // Key is <int rank, int pointID>; value is a Record (for a single model point)
@@ -217,6 +241,10 @@ namespace Gambit
         std::map<int,std::vector<std::string>> label_record; //the 'int' here is the vertex ID. Could make a typedef to make this safer.
         bool info_file_written = false; // Flag to let us know that the info file has been written
 
+        /// Write a '#'-prefixed shorthand-label header line at the top of
+        /// the data file (YAML 'write_header', default false)
+        bool write_header = false;
+        bool header_written = false;
     };
 
     // Register printer so it can be constructed via inifile instructions

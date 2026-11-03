@@ -23,6 +23,10 @@
 ///  \date 2014 Jan, Nov
 ///  \date 2015 Sep
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 
@@ -31,11 +35,9 @@
 #include <sstream>
 
 #include "gambit/Utils/model_parameters.hpp"
+#include "gambit/Utils/model_validation.hpp"
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Utils/local_info.hpp"
-#include "gambit/Elements/functors.hpp"
-#include "gambit/Models/claw_singleton.hpp"
-#include "gambit/Core/core_singleton.hpp"
 
 namespace Gambit 
 {
@@ -202,5 +204,8 @@ namespace Gambit
    std::string ModelParameters::getOutputName() const { return outputname; }
    void ModelParameters::setModelName (const std::string& in) { modelname = in; }
    void ModelParameters::setOutputName(const std::string& in) { outputname = in; }
+
+   /// Validity check of the model parameters
+   bool ModelParameters::isValid() const { return ModelValidationHandler::getInstance().validateModel(*this); }
 
 } //end Gambit namespace

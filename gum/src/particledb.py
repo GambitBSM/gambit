@@ -332,7 +332,7 @@ def add_new_particleDB_entry(particles, dm_pdg, gambit_pdg_codes,
             data['OtherModels']['Particles'].append(entry)
 
     # Overwrite the particle database file
-    particleDB += yaml.dump(data).replace('\n  - ', '\n\n  - ')
+    particleDB += yaml.dump(data, sort_keys=False).replace('\n  - ', '\n\n  - ')
 
     return gambit_pdg_codes, decaybit_dict, particleDB
 
@@ -394,8 +394,8 @@ def get_higgses(partlist):
     
 def get_invisibles(invisible_pdgs):
     """
-    Get the PDG codes of invisibles particles to write to 'contrib/heputils/include/HEPUtils/Event.h'
-    Will not write for photons, leptons or existing invisibles in Event.h
+    Get the PDG codes of invisibles particles to write to 'contrib/heputils/include/HEPUtils/Particle.h'
+    Will not write for photons, leptons or existing invisibles
     """
     
     # Create list of existing particle
@@ -407,15 +407,7 @@ def get_invisibles(invisible_pdgs):
     to_write = ""
 
     if (len(new_invisibles) != 0):
-        pdg_string = "p->pid() == {0}".format(new_invisibles[0])
         for i,pdg in enumerate(new_invisibles):
-            if i != 0:
-                pdg_string = pdg_string + "|| p->pid() == {0} ".format(pdg)
-    
-        to_write = ("      else if (" + pdg_string + ") \n"
-        "      { \n"
-        "        _invisibles.push_back(p); \n"
-        "        _cinvisibles.push_back(p); \n"
-        "      } \n")
+            to_write = to_write + ("      if (pid() == {0}) return false;\n".format(pdg))
     
     return to_write

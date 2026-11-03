@@ -63,7 +63,7 @@ namespace Gambit
       // Pass in reference to externally created ofstream "output"
       output.open(filename, std::ofstream::out | mode);
 
-      if( output.fail() | output.bad() )
+      if( output.fail() || output.bad() )
       {
          std::ostringstream ss;
          ss << "IO error while opening file for writing! Tried to open ofstream to file \""<<filename<<"\", but encountered error bit in the created ostream.";
@@ -71,7 +71,7 @@ namespace Gambit
       }
     }
 
-    Record::Record() : readyToPrint(false) {};
+    Record::Record() : readyToPrint(false) {}
 
     void Record::reset()
     {
@@ -84,6 +84,11 @@ namespace Gambit
     // Common constructor tasks
     void asciiPrinter::common_constructor(const Options& options)
     {
+      // Pick up the resume flag set by PrinterManager. BasePrinter does not
+      // initialise BaseBasePrinter::resume, so without this any later call
+      // to get_resume() would read uninitialised memory.
+      set_resume(options.getValue<bool>("resume"));
+
       if( this->is_auxilliary_printer() ) // check if this is an auxilliary printer
       {
 
@@ -93,9 +98,10 @@ namespace Gambit
          // Get primary printer (need to cast from BasePrinter type to asciiPrinter)
          asciiPrinter* primary = dynamic_cast<asciiPrinter*>(this->get_primary_printer());
 
-         // Name files based on the primary printer filenames
+         // Use the primary's pre-rank filename, otherwise the MPI block
+         // below would append the rank a second time.
          std::ostringstream f;
-         f << primary->get_output_filename() << "_" << printer_name;
+         f << primary->get_base_output_filename() << "_" << printer_name;
          output_file = Utils::ensure_path_exists(options.getValueOrDef<std::string>(f.str(),"output_file"));
 
          // Match the buffer length to the primary printer, or use a user-supplied option
@@ -120,10 +126,18 @@ namespace Gambit
          bufferlength = options.getValueOrDef<uint>(100,"buffer_length");
       }
 
+      // Snapshot the pre-rank-suffix name for auxiliary printers to query.
+      base_output_file = output_file;
+
       // Name "info" file to match "output" file
       std::ostringstream finfo;
       finfo<< output_file <<"_info";
       info_file = finfo.str();
+
+      // Name "metadata" file to match "output" file
+      std::ostringstream fmetadata;
+      fmetadata << output_file << "_metadata";
+      metadata_file = fmetadata.str();
 
       #ifdef WITH_MPI
       myRealRank = myComm.Get_rank();
@@ -139,6 +153,22 @@ namespace Gambit
       info_file = finfo2.str();
       #endif
 
+      // Refuse to overwrite a pre-existing output or info file unless the
+      // user has set 'delete_file_on_restart: true', or we are resuming.
+      bool overwrite_file = options.getValueOrDef<bool>(false,"delete_file_on_restart");
+      for(const std::string& f : {output_file, info_file})
+      {
+        if(Utils::file_exists(f) and not overwrite_file and not get_resume())
+        {
+          std::ostringstream errmsg;
+          errmsg << "Refusing to overwrite pre-existing asciiPrinter output file '"<<f<<"'. Please take one of the following actions:" << std::endl
+                 << "  1. Set 'delete_file_on_restart: true' in the Printer options of your input YAML file to give GAMBIT permission to automatically overwrite this file;" << std::endl
+                 << "  2. Choose a different output filename via the 'output_file' printer option;" << std::endl
+                 << "  3. Manually move or delete the existing file '"<<f<<"'.";
+          printer_error().raise(LOCAL_INFO, errmsg.str());
+        }
+      }
+
       // Erase contents of output_file and info_file if they already exist
       std::ofstream output;
       open_output_file(output, output_file, std::ofstream::trunc);
@@ -153,6 +183,7 @@ namespace Gambit
     asciiPrinter::asciiPrinter(const Options& options, BasePrinter* const primary)
       : BasePrinter(primary,options.getValueOrDef<bool>(false,"auxilliary"))
       , output_file("")
+      , base_output_file("")
       , info_file("")
       , bufferlength(100)
       , global(false)
@@ -161,9 +192,27 @@ namespace Gambit
       , myComm() // attaches to MPI_COMM_WORLD, beware collisions with e.g. scanning algorithms.
       , mpiSize(1)
      #endif
+      , precision(10)
       , lastPointID(nullpoint)
     {
       common_constructor(options);
+
+      // Choose whether or not to print invalid and suspicious point codes
+      print_suspicious_point_code = options.getValueOrDef<bool>(true,"print_suspicious_point_code");
+      print_invalidation_code = options.getValueOrDef<bool>(true,"print_invalidation_code");
+
+      // Number of digits of precision to use in output columns
+      precision = options.getValueOrDef<int>(10,"precision");
+      if(precision < 0)
+      {
+        std::ostringstream errmsg;
+        errmsg << "Invalid value for asciiPrinter option 'precision': " << precision
+               << ". Must be a non-negative integer (number of digits to use for std::setprecision).";
+        printer_error().raise(LOCAL_INFO, errmsg.str());
+      }
+
+      // Optional '#'-prefixed shorthand-label header line at top of data file.
+      write_header = options.getValueOrDef<bool>(false,"write_header");
     }
 
 
@@ -192,17 +241,27 @@ namespace Gambit
       printer_error().raise(LOCAL_INFO, err.str());
       return Options();
     }
- 
+
     /// Do final buffer dumps
     void asciiPrinter::finalise(bool /*abnormal*/)
     {
       dump_buffer(true);
       AP_DBUG( std::cout << "Buffer (of asciiPrinter with name=\""<<printer_name<<"\") successfully dumped..." << std::endl; )
+
+      // Add last point ID to metadata
+      if (get_output_metadata())
+      {
+        std::stringstream ssPPID;
+        ssPPID << lastPointID;
+        map_str_str lastpoint;
+        lastpoint["lastPointID"] = ssPPID.str();
+        _print_metadata(lastpoint);
+      }
     }
 
     void asciiPrinter::flush()
     {
-      dump_buffer(true); 
+      dump_buffer(true);
     }
 
     /// Delete contents of output file (to be replaced/updated) and erase everything in the buffer
@@ -224,13 +283,24 @@ namespace Gambit
     }
 
     // getters for internal variables
-    std::string asciiPrinter::get_output_filename() { return output_file; }
-    int         asciiPrinter::get_bufferlength()    { return bufferlength; }
+    std::string asciiPrinter::get_output_filename()      { return output_file; }
+    std::string asciiPrinter::get_base_output_filename() { return base_output_file; }
+    int         asciiPrinter::get_bufferlength()         { return bufferlength; }
 
     // add results to printer buffer
     void asciiPrinter::addtobuffer(const std::vector<double>& functor_data, const std::vector<std::string>& functor_labels, const int vID, const int rank, const int pointID)
     {
       //TODO: If a functor gets called twice without the printer advancing the data will currently just be overwritten. Should generate an error or something.
+
+      // Do not write invalid or suspicious points to buffer if they are not requested to be printed
+      if (!print_suspicious_point_code && (functor_labels[0] == "Suspicious Point Code"))
+      {
+        return;
+      }
+      if (!print_invalidation_code && (functor_labels[0] == "Invalidation Code"))
+      {
+        return;
+      }
 
       // Key for accessing buffer
       std::pair<int,int> bkey = std::make_pair(rank,pointID);
@@ -293,10 +363,6 @@ namespace Gambit
          printer_error().raise(LOCAL_INFO, err.str());
       }
 
-      // Do not write suspicious points to buffer as this will require extending the dataset, which is not possible in ascii
-      if (functor_labels[0] == "Suspicious Point Code")
-        return;
- 
       // Assign to buffer, adding keys if needed
       buffer[bkey].data[vID] = functor_data;
 
@@ -308,6 +374,38 @@ namespace Gambit
          label_record[vID] = functor_labels;
       }
       //}
+
+      // Check if the Suspicious Point/Invalidation Code labels are in the buffer, and if not, add them
+      if (print_suspicious_point_code && !Found_sus)
+      {
+        // Check which required entries are not present
+        for (auto entry: label_record)
+        {
+          if (entry.second[0] == "Suspicious Point Code") {Found_sus = true;}
+        }
+        if (!Found_sus)
+        {
+          // Add Suspicious Point Code to the buffer
+          std::vector<double> default_data = {0};
+          std::vector<std::string> default_labels = {"Suspicious Point Code"};
+          addtobuffer(default_data, default_labels, get_main_param_id("Suspicious Point Code"), rank, pointID);
+        }
+      }
+      if (print_invalidation_code && !Found_inv)
+      {
+        // Check which required entries are not present
+        for (auto entry: label_record)
+        {
+          if (entry.second[0] == "Invalidation Code") {Found_inv = true;}
+        }
+        if (!Found_inv)
+        {
+          // Add Suspicious Point Code to the buffer
+          std::vector<double> default_data = {0};
+          std::vector<std::string> default_labels = {"Invalidation Code"};
+          addtobuffer(default_data, default_labels, get_main_param_id("Invalidation Code"), rank, pointID);
+        }
+      }
     }
 
     // write the printer buffer to file
@@ -319,7 +417,6 @@ namespace Gambit
       // an ordering that reflects the order of stuff in, say, the inifile.
       //  force=true -- dumps all records regardless if they are "readyToPrint"
       AP_DBUG( std::cout << "dumping asciiprinter buffer" << std::endl; )
-      AP_DBUG( std::cout << "lfpvfc 1" << std::endl; )
 
       // Open output file in append mode
       std::ofstream my_fstream;
@@ -344,7 +441,6 @@ namespace Gambit
           newlineindexrecord[item->first] = std::max(oldlen, newlen);
         }
       }
-      AP_DBUG( std::cout << "lfpvfc 2" << std::endl; )
 
       // Check if the output format has changed, and raise an error if so
       if (lineindexrecord.size()==0)
@@ -397,7 +493,24 @@ namespace Gambit
         }
         printer_error().raise(LOCAL_INFO,errmsg.str());
       }
-      AP_DBUG( std::cout << "lfpvfc 3" << std::endl; )
+
+      // Single column width, shared by the header line and data rows.
+      const int colwidth = precision + 13;
+
+      // Shorthand column name: substring after the last "::" (or the whole
+      // label), with whitespace replaced by '_' and prefixed with the
+      // column number to disambiguate collisions.
+      auto shorthand = [](const std::string& full, int col_index_1based)
+      {
+        std::string suffix;
+        std::size_t pos = full.rfind("::");
+        if(pos != std::string::npos) suffix = full.substr(pos + 2);
+        else suffix = full;
+        for(char& c : suffix) if(c == ' ' || c == '\t') c = '_';
+        std::ostringstream out;
+        out << col_index_1based << "_" << suffix;
+        return out.str();
+      };
 
       // Write the file explaining what is in each column of the output file
       if (info_file_written==false)
@@ -413,6 +526,7 @@ namespace Gambit
         {
           int vID        = it->first;
           int length     = it->second;     // slots reserved in output file for these results
+
           for (int i=0; i<length; i++)
           {
             AP_DBUG( std::cout<<"Column "<<column_index<<": "<<label_record.at(vID)[i]<<std::endl; )
@@ -420,12 +534,35 @@ namespace Gambit
             column_index++;
           }
         }
-        AP_DBUG( std::cout << "lfpvfc 3.1" << std::endl; )
         info_fstream.close();
         info_file_written=true;
       }
 
-      AP_DBUG( std::cout << "lfpvfc 4" << std::endl; )
+      // Optional shorthand-label header line. The '#' marks it as a comment
+      // for numpy/pandas/gnuplot. A space prefix (or the '#' for the first
+      // column) is emitted before each label so columns stay whitespace-
+      // separated even when a label is wider than colwidth.
+      if (write_header && !header_written)
+      {
+        AP_DBUG( std::cout << "asciiPrinter: Writing data-file header line..." << std::endl; )
+        my_fstream << "#";
+        int column_index = 1;
+        for (std::map<int,int>::iterator
+          it = lineindexrecord.begin(); it != lineindexrecord.end(); it++)
+        {
+          int vID    = it->first;
+          int length = it->second;
+          for (int i = 0; i < length; i++)
+          {
+            if (column_index > 1) my_fstream << " ";
+            my_fstream << std::setw(colwidth - 1)
+                       << shorthand(label_record.at(vID)[i], column_index);
+            column_index++;
+          }
+        }
+        my_fstream << std::endl;
+        header_written = true;
+      }
 
       // Actual dump of buffer to file
       for (Buffer::iterator
@@ -459,19 +596,28 @@ namespace Gambit
             }
             uint length = it->second;      // slots reserved in output file for these results
 
-            // Print to the fstream!
-            int colwidth = precision + 8;  // Just kind of guessing here; tweak as needed
+            // Setting some custom default values for when not printing a suspicious or invalid point code.
+            std::string default_value = "none";
+            if (label_record.at(it->first).at(0) == "Suspicious Point Code" || label_record.at(it->first).at(0) == "Invalidation Code")
+            {
+              std::stringstream stream;
+              stream << std::scientific << std::setprecision(precision) << 0.0;
+              default_value = stream.str();
+            }
+
+            // Print to the fstream. Same field width for numeric values and
+            // 'none'/default placeholders so columns align across rows.
             for (uint j=0;j<length;j++)
             {
               if(j>=results->size())
               {
                 // Finished parsing results vector; fill remaining empty slots with 'none'
-                my_fstream<<std::setw(colwidth)<<"none";
+                my_fstream<<std::setw(colwidth)<<default_value;
               }
               else
               {
                 // print an entry from the results vector
-                my_fstream<<std::setw(colwidth+5)<<std::scientific<<(*results)[j];
+                my_fstream<<std::setw(colwidth)<<std::scientific<<(*results)[j];
               }
             }
           }
@@ -488,14 +634,33 @@ namespace Gambit
         // line printed, print endline character and go to next line
         my_fstream<<std::endl;
       }
-      AP_DBUG( std::cout << "lfpvfc 5" << std::endl; )
 
       // buffer dump complete! Flush the fstream to ensure write to file happens.
       //my_fstream.flush();
       my_fstream.close();
 
-      AP_DBUG( std::cout << "lfpvfc 6" << std::endl; )
     }
+
+    // Print metadata info to file
+    void asciiPrinter::_print_metadata(map_str_str metadata)
+    {
+      // Only rank 0 writes; metadata_file is not rank-suffixed, so writes
+      // from other ranks would interleave. Setup metadata is identical
+      // across ranks, and lastPointID is only used by (unimplemented) resume.
+      if(getRank() != 0) return;
+
+      // Open metadata file in append mode
+      std::ofstream metadata_fstream;
+      open_output_file(metadata_fstream, metadata_file, std::ofstream::app);
+
+      // Print metadata
+      for(auto data: metadata)
+        metadata_fstream << data.first << "\t" << data.second << std::endl;;
+
+      // Close metadata file
+      metadata_fstream.close();
+    }
+
 
   } // end namespace printers
 } // end namespace Gambit

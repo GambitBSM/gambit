@@ -2,13 +2,13 @@
 //   *********************************************
 ///  \file
 ///
-///  NUHM2 model declaration. 
+///  NUHM2 model declaration.
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
-///  \author Pat Scott  
+///
+///  \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Sep
 ///
@@ -18,7 +18,7 @@
 #define __NUHM2_hpp__
 
 // Must include models which are targets of translation functions
-#include "gambit/Models/models/MSSM30atMGUT.hpp" 
+#include "gambit/Models/models/MSSMatMGUT.hpp"
 
 #define MODEL NUHM2
 #define PARENT MSSM63atMGUT

@@ -73,10 +73,6 @@ namespace Gambit {
     class Analysis_Covariance : public Analysis{
     private:
 
-      // Variables that holds the number of events passing
-      // signal region cuts
-      double _numSR;
-
     public:
 
       // Required detector sim
@@ -84,15 +80,17 @@ namespace Gambit {
 
       Analysis_Covariance()
       {
+        // Variables that holds the number of events passing
+        // signal region cuts
+        _counters["SR1"] = EventCounter("SR1");
+        _counters["SR2"] = EventCounter("SR2");
+
         set_analysis_name("Covariance");
         set_luminosity(30.); // fb
       }
 
 
       void run(const HEPUtils::Event*) {}
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis*) {}
 
       void collect_results()
       {
@@ -114,8 +112,9 @@ namespace Gambit {
 
 
     protected:
-      void analysis_specific_reset() {
-        _numSR = 0;
+      void analysis_specific_reset()
+      {
+          for (auto& pair : _counters) { pair.second.reset(); }
       }
 
 

@@ -30,6 +30,10 @@
 ///          (anders.kvellestad@fys.uio.no
 ///  \date 2021 Feb
 ///
+///  \author Chris Chang
+///          (christopher.chang@uqconnect.edu.au)
+///  \date 2022 Aug
+///
 ///  *********************************************
 
 #include "gambit/Core/likelihood_container.hpp"
@@ -68,6 +72,8 @@ namespace Gambit
     interloopID(Printers::get_main_param_id(interlooptime_label)),
     totalloopID(Printers::get_main_param_id(totallooptime_label)),
     invalidcodeID(Printers::get_main_param_id("Invalidation Code")),
+    scancodeID(Printers::get_main_param_id("scanID")),
+    print_scanID(iniFile.getValueOrDef<bool>(true, "print_scanID")),
     #ifdef CORE_DEBUG
       debug            (true)
     #else
@@ -81,11 +87,15 @@ namespace Gambit
     }
     // Set the list of valid return types of functions that can be used for 'purpose' by this container class.
     const std::vector<str> allowed_types_for_purpose = initVector<str>("double", "std::vector<double>", "float", "std::vector<float>");
-    // Find subset of vertices that match requested purpose
+
+    // Set the ScanID
+    set_scanID();
+
+    // Find subset of vertices that match requested purpose, or are critical observables
     auto all_vertices = dependencyResolver.getObsLikeOrder();
     for (auto it = all_vertices.begin(); it != all_vertices.end(); ++it)
     {
-      if (dependencyResolver.getIniEntry(*it)->purpose == purpose)
+      if (dependencyResolver.getPurpose(*it) == purpose || dependencyResolver.getCritical(*it) == true)
       {
         return_types[*it] = dependencyResolver.checkTypeMatch(*it, purpose, allowed_types_for_purpose);
         target_vertices.push_back(std::move(*it));
@@ -95,6 +105,12 @@ namespace Gambit
         aux_vertices.push_back(std::move(*it));
       }
     }
+  }
+
+  /// Work out what the scanID should be and set it
+  void Likelihood_Container::set_scanID()
+  {
+    scancode = dependencyResolver.scanID;
   }
 
   /// Do the prior transformation and populate the parameter map
@@ -156,6 +172,12 @@ namespace Gambit
   double Likelihood_Container::main(std::unordered_map<std::string, double> &in)
   {
     logger() << LogTags::core << LogTags::debug << "Entered Likelihood_Container::main" << EOM;
+
+    // Print the scanID
+    if (print_scanID)
+    {
+      printer.print(scancode, "scanID", scancodeID, printer.getRank(), getPtID());
+    }
 
     double lnlike = 0;
     bool point_invalidated = false;
@@ -257,6 +279,11 @@ namespace Gambit
               lnlike += *jt;
             }
           }
+          else if (dependencyResolver.getCritical(*it) == true)
+          {
+            // Don't throw an error if the target vertex is a critical obslike,
+            // but don't add it to the total LogLike
+          }
           else core_error().raise(LOCAL_INFO, "Unexpected target functor type.");
 
           // Print debug info
@@ -284,7 +311,7 @@ namespace Gambit
           compute_aux = false;
           point_invalidated = true;
           int rankinv = printer.getRank();
-          // If print_ivalid_points is false disable the printer
+          // If print_invalid_points is false disable the printer
           if(!print_invalid_points)
             printer.disable();
           printer.print(e.invalidcode, "Invalidation Code", invalidcodeID, rankinv, getPtID());

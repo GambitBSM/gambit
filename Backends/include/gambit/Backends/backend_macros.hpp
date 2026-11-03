@@ -165,6 +165,9 @@ namespace Gambit                                                            \
 /* Register the factory functions for all classes loaded by this backend. */\
 BOOST_PP_IIF(DO_CLASSLOADING, LOAD_ALL_FACTORIES, )                         \
                                                                             \
+/* Only do the rest if this is not a data-only backend */                   \
+BOOST_PP_IF(DATA_ONLY, ,                                                    \
+                                                                            \
 /* Register the initialisation function for this backend */                 \
 CORE_START_CAPABILITY(BackendIniBit,                                        \
  CAT_4(BACKENDNAME,_,SAFE_VERSION,_init), NOT_MODEL)                        \
@@ -186,6 +189,7 @@ namespace Gambit                                                            \
     }                                                                       \
   }                                                                         \
 }                                                                           \
+)
 
 
 /// Register this backend with the Core if not running in standalone mode.
@@ -280,7 +284,9 @@ namespace Gambit                                                                
             << "which is supposed to contain the factory for class " << std::endl               \
             << fixns(STRINGIFY(BARENAME) STRINGIFY(CONVERT_VARIADIC_ARG(ARGS)))<<", "<<std::endl\
             << "is missing or catastrophically broken." << std::endl                            \
-            << "Fix or find that backend yo -- or don't use the type." << std::endl;            \
+            << "If running gambit with the -b flag, this backend is required to " << std::endl  \
+            << "run this yaml file or check what other backends are also required." << std::endl\
+            << "Otherwise, fix or find that backend -- or don't use the type." << std::endl;    \
         backend_error().raise(LOCAL_INFO BOOST_PP_COMMA() err.str());                           \
         return NULL;                                                                            \
       }                                                                                         \

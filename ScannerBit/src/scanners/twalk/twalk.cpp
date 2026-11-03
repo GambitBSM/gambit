@@ -27,6 +27,7 @@
 #include "plugin_interface.hpp"
 #include "scanner_plugin.hpp"
 #include "twalk.hpp"
+#include "mpi_distribute.hpp"
 
 scanner_plugin(twalk, version(1, 0, 1))
 {
@@ -128,13 +129,13 @@ namespace Gambit
             double Rsum = massiveR, Rmax = massiveR;
             bool resumed = false;
 
-            unsigned int quit = 0; // signal for early shutdown
+            bool quit = 0; // signal for early shutdown
 
             std::chrono::time_point<std::chrono::system_clock> startTWalk;
 
             set_resume_params(chisq, a0, mult, totN, count, total, ttotal, covT, avgT, W, avgTot, ids, ranks, resumed);
 
-            Gambit::Scanner::assign_aux_numbers("mult", "chain");
+            Gambit::Scanner::assign_aux_numbers("Posterior", "chain");
 
             int rank = set_resume_params.Rank();
             int numtasks = set_resume_params.NumTasks();
@@ -145,8 +146,6 @@ namespace Gambit
                 std::vector<int> talls(2*numtasks);
                 set_resume_params(tints, talls);
             #endif
-
-            std::ofstream temp_file_out;
 
             if (mins_max > 0 and rank == 0)
             {
@@ -161,12 +160,15 @@ namespace Gambit
             }
 
             // Try opening the temporary file for saving the mutliplicities etc.
-            str filename = set_resume_params.get_temp_file_name("temp");
-            temp_file_out.open(filename, std::ofstream::binary | std::ofstream::app);
-            if (not temp_file_out.is_open()) scan_error().raise(LOCAL_INFO, "Problem opening temp file " + filename + " in TWalk!");
+            std::ofstream temp_file_out;
+            std::string filename = set_resume_params.get_temp_file_name("temp");
 
             if (resumed)
             {
+                temp_file_out.open(filename, std::ofstream::binary | std::ofstream::app);
+                if (not temp_file_out.is_open()) 
+                    scan_err << "Problem opening temp file " << filename << " in TWalk!" << scan_end;
+                
                 #ifdef WITH_MPI
                     for (int i = 0; i < numtasks; i++)
                     {
@@ -182,6 +184,10 @@ namespace Gambit
             }
             else
             {
+                temp_file_out.open(filename, std::ofstream::binary | std::ofstream::trunc);
+                if (not temp_file_out.is_open()) 
+                    scan_err << "Problem opening temp file " << filename << " in TWalk!" << scan_end;
+                /*
                 resumed = true;
                 for (t = 0; t < NChains; t++)
                 {
@@ -209,14 +215,59 @@ namespace Gambit
                        break;
                     }
                 }
+                */
+                std::vector<int> loop_ranks;
+                loop_ranks = mpi_distribute(t, NChains)
+                {
+                    if (not quit)
+                    {
+                        for (int j = 0; j < dimension; j++)
+                            a0[t][j] = (gDev[0]->Doub());
+                        chisq[t] = -LogLike(a0[t]);
+                        quit = Gambit::Scanner::Plugins::plugin_info.early_shutdown_in_progress();
+                        ids[t] = LogLike->getPtID();
+                        ranks[t] = rank;
+                    }
+                };
+                
+                #ifdef WITH_MPI
+                    bool quit_buf;
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    MPI_Allreduce (&quit, &quit_buf, 1, MPI_C_BOOL, MPI_LOR, MPI_COMM_WORLD);
+                    quit = quit_buf;
+                #endif
+                
+                if(quit)
+                {
+                    std::cout
+                    #ifdef WITH_MPI
+                        <<"Rank "<<rank<<": "
+                    #endif
+                    <<"Quit signal received during TWalk chain initialisation, aborting run" << std::endl;
+                }
+                else
+                    resumed = true;
+                
+                //std::cout << loop_ranks << std::endl;
+                
+#ifdef WITH_MPI
+                for (int i = 0; i < NChains; i++)
+                {
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    MPI_Bcast (c_ptr(a0[i]), a0[i].size(), MPI_DOUBLE, loop_ranks[i], MPI_COMM_WORLD);
+                    MPI_Bcast (&chisq[i], 1, MPI_DOUBLE, loop_ranks[i], MPI_COMM_WORLD);
+                    MPI_Bcast (&ranks[i], 1, MPI_INT, loop_ranks[i], MPI_COMM_WORLD);
+                    MPI_Bcast (&ids[i], 1, MPI_UNSIGNED_LONG_LONG, loop_ranks[i], MPI_COMM_WORLD);
+                }
+#endif
             }
 
-            #ifdef WITH_MPI
-                MPI_Barrier(MPI_COMM_WORLD);
-                MPI_Bcast (c_ptr(chisq), chisq.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
-                MPI_Bcast (c_ptr(ids), ids.size(), MPI_UNSIGNED_LONG_LONG, 0, MPI_COMM_WORLD);
-                MPI_Bcast (c_ptr(ranks), ranks.size(), MPI_INT, 0, MPI_COMM_WORLD);
-            #endif
+/*#ifdef WITH_MPI
+            MPI_Barrier(MPI_COMM_WORLD);
+            MPI_Bcast (c_ptr(chisq), chisq.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            MPI_Bcast (c_ptr(ids), ids.size(), MPI_UNSIGNED_LONG_LONG, 0, MPI_COMM_WORLD);
+            MPI_Bcast (c_ptr(ranks), ranks.size(), MPI_INT, 0, MPI_COMM_WORLD);
+#endif*/
 
             std::cout << "Metropolis Hastings/TWalk Algorithm Started"  << std::endl;
 
@@ -246,12 +297,12 @@ namespace Gambit
 
                     t = talls[rank];
                     tt = talls[rank + numtasks];
-                    double logZ = gDev[t]->Dev(aNext, a0, t, tt, NChains - numtasks, tints);
+                    double logZ = gDev[t]->Dev(aNext, a0, t, tt, NChains - numtasks, tints);// t -> 0
                 #else
                     t = int(NChains*gDev[0]->Doub());
                     tt = int((NChains - 1)*gDev[0]->Doub());
                     if (tt >= t) tt++;
-                    double logZ = gDev[t]->Dev(aNext, a0, t, tt);
+                    double logZ = gDev[t]->Dev(aNext, a0, t, tt); // t -> 0
                 #endif
 
                 if(!(hyper_grid && notUnit(aNext)))
@@ -261,7 +312,7 @@ namespace Gambit
                     next_id = LogLike->getPtID();
                     if ((ans <= 0.0)||(gDev[0]->ExpDev() >= ans))
                     {
-                        //out_stream->print(mult[t], "mult", ranks[t], ids[t]);
+                        //out_stream->print(mult[t], "Posterior", ranks[t], ids[t]);
                         //out_stream->print(t, "chain", ranks[t], ids[t]);
                         point_info info = {mult[t], t, ranks[t], ids[t]};
                         temp_file_out.write((char *)&info, sizeof(point_info));
@@ -275,7 +326,7 @@ namespace Gambit
                     }
                     else
                     {
-                        //out_stream->print(0, "mult", rank, next_id);
+                        //out_stream->print(0, "Posterior", rank, next_id);
                         //out_stream->print(-1, "chain", rank, next_id);
                         point_info info = {0, -1, rank, next_id};
                         temp_file_out.write((char *)&info, sizeof(point_info));
@@ -380,11 +431,20 @@ namespace Gambit
                 }
 
                 quit = Gambit::Scanner::Plugins::plugin_info.early_shutdown_in_progress();
-                #ifdef WITH_MPI
+                /*#ifdef WITH_MPI
                     MPI_Barrier(MPI_COMM_WORLD);
                     MPI_Bcast (&converged, 1, MPI_C_BOOL, 0, MPI_COMM_WORLD);
                     MPI_Bcast (&quit, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
+                #endif*/
+                    
+                #ifdef WITH_MPI
+                    bool quit_buf;
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    MPI_Bcast (&converged, 1, MPI_C_BOOL, 0, MPI_COMM_WORLD);
+                    MPI_Allreduce (&quit, &quit_buf, 1, MPI_C_BOOL, MPI_LOR, MPI_COMM_WORLD);
+                    quit = quit_buf;
                 #endif
+                
                 if(quit)
                 {
                    std::cout
@@ -417,7 +477,7 @@ namespace Gambit
                 set_resume_params.dump(); // Better way
                 // This works I think, but it still has problems. In particular,
                 // it looks like you must resume with the same number of processes
-                // that you started the run with, which is kind of crap.
+                // that you started the run with, which is not good.
             }
 
             for (auto &&gd : gDev) delete gd;
@@ -426,11 +486,10 @@ namespace Gambit
             Gambit::Scanner::printer *out_stream = printer.get_stream("txt");
             std::ifstream temp_file_in(set_resume_params.get_temp_file_name("temp").c_str(), std::ifstream::binary);
             point_info info;
-            int i = 0;
+
             while (temp_file_in.read((char *)&info, sizeof(point_info)))
-            {i++;
-                //std::cout<<"Twalk rank "<<rank<<" printing mult and chain for "<<i<<"th point of posterior chain (rank="<<info.rank<<", pointID="<<info.id<<")"<<std::endl;
-                out_stream->print(info.mult, "mult", info.rank, info.id);
+            {
+                out_stream->print(info.mult, "Posterior", info.rank, info.id);
                 out_stream->print(info.chain, "chain", info.rank, info.id);
             }
             out_stream->flush();

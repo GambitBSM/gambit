@@ -285,8 +285,8 @@ diff -rupN darksusy-6.2.5_original/configure darksusy-6.2.5_patched/configure
  # HealPix
 
 diff -rupN darksusy-6.2.5_original/makefile.in darksusy-6.2.5_patched/makefile.in
---- darksusy-6.2.5_original/makefile.in	2021-04-20 07:58:42.000000000 +0200
-+++ darksusy-6.2.5_patched/makefile.in	2021-04-28 20:42:29.000000000 +0200
+--- darksusy-6.2.5_original/makefile.in	2021-03-10 16:37:33.000000000 -0500
++++ darksusy-6.2.5_patched/makefile.in	2022-05-04 14:32:32.530745200 -0400
 @@ -2,7 +2,7 @@
  # Technical questions about this makefile should be directed to
  # Joakim Edsjo, edsjo@fysik.su.se
@@ -296,7 +296,7 @@ diff -rupN darksusy-6.2.5_original/makefile.in darksusy-6.2.5_patched/makefile.i
  # Note that this file follows a certain structure and it is also updated
  # automatically, e.g. when modules are added/deleted by the script
  # scr/update_mainmf.pl. Hence, don't delete comments below which are needed for
-@@ -260,37 +260,35 @@ cfitsio:
+@@ -260,37 +260,36 @@ cfitsio:
  
  healpix: cfitsio
  	echo "Now building CONTRIBUTED CODE: healpix....."
@@ -325,7 +325,8 @@ diff -rupN darksusy-6.2.5_original/makefile.in darksusy-6.2.5_patched/makefile.i
 +			cp -p libhealpix.a $(DS_INSTALL)/lib/ ;\
 +			cp -p libhpxgif.a $(DS_INSTALL)/lib/ ;\
 +			cp -p libsharp.a $(DS_INSTALL)/lib/libsharp_healpix_f.a ;\
-+			echo "#define HEALPIX_INSTALLATION succeeded\n" >> $(DS_INSTALL)/src/include/dscontribstat.F;\
++			echo "#define HEALPIX_INSTALLATION succeeded" >> $(DS_INSTALL)/src/include/dscontribstat.F;\
++			echo >> $(DS_INSTALL)/src/include/dscontribstat.F;\
 +			echo "[done]";\
  		else \
 -			cp -p ../build/mod/pix_tools.mod $(DS_INSTALL)/src/include ;\
@@ -355,7 +356,7 @@ diff -rupN darksusy-6.2.5_original/makefile.in darksusy-6.2.5_patched/makefile.i
  	echo " "
  
  # needed by ucmh routines
-@@ -356,7 +354,8 @@ higgssignals:
+@@ -356,7 +355,8 @@ higgssignals:
  	echo " "
  
  # For FeynHiggs we do not pass our flags, instead we use the ones FeynHiggs'
@@ -365,7 +366,7 @@ diff -rupN darksusy-6.2.5_original/makefile.in darksusy-6.2.5_patched/makefile.i
  feynhiggs: 
  	echo "Now building CONTRIBUTED CODE: feynhiggs....."
  	cd $(FEYNHIGGSDIR); \
-@@ -432,6 +431,7 @@ clean_ds: 
+@@ -432,6 +432,7 @@ clean_ds:
  
  clean_contrib:
  # Additional checks to avoid errors when required files are absent
@@ -373,7 +374,7 @@ diff -rupN darksusy-6.2.5_original/makefile.in darksusy-6.2.5_patched/makefile.i
  	cd $(ISAJETDIR); $(MAKE) clean; rm -f DS_contrib_log.txt
  	cd $(FEYNHIGGSDIR); $(MAKE) clean ; rm -fr ds DS_contrib_log.txt
  	cd $(SUPERISODIR); $(MAKE) clean; rm -f DS_contrib_log.txt DS_contrib_log_prep.txt
-@@ -449,6 +449,10 @@ clean_contrib:
+@@ -449,6 +450,10 @@ clean_contrib:
  		$(MAKE) distclean; rm -f DS_contrib_log.txt DS_contrib_log_prep.txt; \
  		rm -rf $(HEALPIXDIR)/bin/sky_ng_sim*; \
  	fi;
@@ -384,7 +385,7 @@ diff -rupN darksusy-6.2.5_original/makefile.in darksusy-6.2.5_patched/makefile.i
  	cd $(DS_ROOT)
  	cp -r lib libtmp; rm -f lib/*
  	mv -f libtmp/libds* lib/; rm -rf libtmp
-@@ -513,21 +517,67 @@ pdf-manual-long-debug pdf-Manual-long-de
+@@ -513,21 +518,67 @@ pdf-manual-long-debug pdf-Manual-long-de
  
  
  # Below are instructions for shared libraries, currently used by GAMBIT

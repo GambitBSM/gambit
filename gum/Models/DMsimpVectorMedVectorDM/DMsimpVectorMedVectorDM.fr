@@ -1,0 +1,90 @@
+(* Complex Vector DM through a real Vector mediator portal. *)
+
+M$ModelName = "Vector mediated Complex Vector DM";
+
+M$Information = {
+  Authors      -> {"C. Chang"},
+  Version      -> "1.0",
+  Date         -> "28. 05. 2020",
+  Institutions -> {"University of Queensland"},
+  Emails       -> {"christopher.chang@uqconnect.edu.au"},
+  URLs         -> {"http://gambit.hepforge.org"}
+};
+
+
+M$InteractionOrderHierarchy = { {QCD, 1},  {QED, 2},  {NP, 1} };
+M$InteractionOrderLimit     = { {QCD, 99}, {QED, 99}, {NP, 2} }; 
+
+(* ************************** *)
+(* **** Particle classes **** *)
+(* ************************** *)
+
+M$ClassesDescription = {
+  
+  (* Vector mediator *)
+
+  V[6] == {
+    ClassName        -> Xv,
+    SelfConjugate    -> False,
+    Mass             -> {mXv, 1000.},
+    Width            -> 0.,
+    PropagatorLabel  -> "Xv",
+    PropagatorType   -> S,
+    PropagatorArrow  -> Forward,
+    PDG              -> 5000523,
+    ParticleName     -> "~Xv",
+    AntiParticleName -> "~Xva",
+    QuantumNumbers   -> {Q -> 0},
+    FullName         -> "Complex Vector DM"
+  },
+  
+  V[7] == { ClassName -> Y1,
+	      SelfConjugate -> True,
+	      Mass -> {MY1, 1000.},
+          Width -> {WY1, 10.},
+          PDG -> 5000001,
+          TeX -> Subscript[Y,1],
+          FullName -> "spin-1 mediator" }
+
+
+};
+
+
+(* ************************** *)
+(* *****   Parameters   ***** *)
+(* ************************** *)
+
+M$Parameters = {
+
+  gVXv == {
+    ParameterType    -> External,
+    ComplexParameter -> False,
+    InteractionOrder -> {NP, 1},
+    BlockName        -> DMINT,
+    OrderBlock       -> 1,
+    Value            -> 1.,
+    TeX              -> Subscript[g,VXv],
+    Description      -> "Xv-Y1 vector coupling"
+  },  
+  gVq == {
+    ParameterType    -> External,
+    ComplexParameter -> False,
+    InteractionOrder -> {NP, 1},
+    BlockName        -> DMINT,
+    OrderBlock       -> 2,
+    Value            -> 0.25,
+    TeX              -> Subscript[g,Vq],
+    Description      -> "q-Y1 vector coupling"
+  } 
+
+};
+
+(********************* The Lagrangian *********************) 
+
+Lint :=  - I*gVXv (Xvbar[nu].del[Xv[nu],mu] - Xv[nu].del[Xvbar[nu],mu]) Y1[mu] ;
+
+Lint2 := gVq * ((dqbar[s,i,c].Ga[mu,s,p].dq[p,i,c]) + (uqbar[s,i,c].Ga[mu,s,p].uq[p,i,c]) ) Y1[mu];
+
+
+
+LDM := Lint  + Lint2;

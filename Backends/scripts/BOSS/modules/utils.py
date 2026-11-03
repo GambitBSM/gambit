@@ -709,7 +709,20 @@ def findType(el_input):
     name_and_namespaces = getNamespaces(el, include_self=True)
     typename = '::'.join(name_and_namespaces)
 
+    # Replace any type names? This is to tackle system-dependent typedef expansions 
+    # like "std::basic_string<char, std::char_traits<char>, std::allocator<char> >"
+    # for the typdef std::string.
+    # 
+    # TODO: Find a nicer way to do this than just replacing the full typename
+    if isStdType(el):
+        typename_nospace = typename.replace(' ','')
+        for long_typename, typedefname in gb.std_typedef_names_dict.items():
+            long_typename_nospace = long_typename.replace(' ','')
+            if (typename_nospace == long_typename_nospace):
+                typename = typedefname
+                break
 
+    # Construct the returned dict with the type info
     type_dict = OrderedDict([])
     type_dict['name']                = typename
     type_dict['cv_qualifiers']       = cv_qualifiers
@@ -1197,7 +1210,7 @@ def constrWrpForwardDeclHeader(file_output_path):
 
 # ====== getParentClasses ========
 
-def getParentClasses(class_el, only_native_classes=False, only_loaded_classes=False):
+def getParentClasses(class_el, only_native_classes=False, only_loaded_classes=False, recursive=False):
 
     import modules.classutils as classutils
 
@@ -1242,6 +1255,9 @@ def getParentClasses(class_el, only_native_classes=False, only_loaded_classes=Fa
             temp_dict['loaded']           = is_loaded_class
 
             parent_classes.append(temp_dict)
+
+            if recursive:
+                parent_classes += getParentClasses(base_el, only_native_classes=only_native_classes, only_loaded_classes=only_loaded_classes, recursive=True)
 
     return parent_classes
 
@@ -1446,7 +1462,7 @@ def getMemberFunctions(class_el, include_artificial=False, include_inherited=Fal
 
 # ====== getAllTypesInFunction ========
 
-def getAllTypesInFunction(func_el):
+def getAllTypesInFunction(func_el, include_parents=False):
 
     import modules.classutils as classutils
     import modules.funcutils as funcutils
@@ -1468,6 +1484,18 @@ def getAllTypesInFunction(func_el):
 
             all_types.append(arg_type_dict)
 
+            if include_parents:
+                parent_classes = getParentClasses(arg_type_el, only_native_classes=False, only_loaded_classes=False, recursive=True)
+
+                for parent_dict in parent_classes:
+
+                    small_parent_dict = OrderedDict([])
+                    small_parent_dict['class_name'] = parent_dict['class_name']
+                    small_parent_dict['el']         = gb.id_dict[parent_dict['id']]
+
+                    all_types.append(small_parent_dict)
+
+
     if ('type' in func_el.keys()) or ('returns' in func_el.keys()) or (func_el.tag=='Constructor' and 'context' in func_el.keys()):
 
         mem_type_dict = findType(func_el)
@@ -1480,6 +1508,19 @@ def getAllTypesInFunction(func_el):
         type_dict['el']         = type_el
 
         all_types.append(type_dict)
+
+
+        if include_parents:
+            parent_classes = getParentClasses(type_el, only_native_classes=False, only_loaded_classes=False, recursive=True)
+
+            for parent_dict in parent_classes:
+
+                small_parent_dict = OrderedDict([])
+                small_parent_dict['class_name'] = parent_dict['class_name']
+                small_parent_dict['el']         = gb.id_dict[parent_dict['id']]
+
+                all_types.append(small_parent_dict)
+
 
     return all_types
 
@@ -1602,7 +1643,7 @@ def identifyIncludedHeaders(content, only_native=True):
 
         if line[0:8] == '#include':
 
-            # Make sure there's a whitespace after '#include' 
+            # Make sure there's a whitespace after '#include'
             if line[8] != ' ':
                 line = line[0:8] + ' ' + line[8:]
 
@@ -1686,7 +1727,7 @@ def getIncludeStatements(input_el, convert_loaded_to='none', exclude_types=[],
     if input_element == 'class':
         all_types = getAllTypesInClass(input_el, include_parents=include_parents)
     elif input_element == 'function':
-        all_types = getAllTypesInFunction(input_el)
+        all_types = getAllTypesInFunction(input_el, include_parents=include_parents)
 
     # Get file name and line number of the current class/function
     start_line_number = int( input_el.get('line') )
@@ -2046,7 +2087,8 @@ def constrLoadedTypesHeaderContent():
             class_line += '    /*constructors*/'
 
             for info_dict in gb.factory_info[ class_name['long'] ]:
-                class_line += '(("' + info_dict['name'] + '",' + info_dict['args_bracket'] + ')) '
+                # Add the class name, as well as the class name prepended with underscore
+                class_line += '((("' + info_dict['name'] + '","_' + info_dict['name'] + '"),'  + info_dict['args_bracket'].replace(' ::', ' ').replace('(::', '(') + ')) '
 
             class_line += ')) \\'
             class_lines.append(class_line)
@@ -2090,6 +2132,10 @@ def constrLoadedTypesHeaderContent():
     code  = ''
     code += incl_guard_start
 
+    # - Any user-specified code to add?
+    if cfg.surround_code_begin.strip() != '':
+        code += cfg.surround_code_begin
+
     code += '\n'
     code += incl_statements_code
 
@@ -2106,6 +2152,10 @@ def constrLoadedTypesHeaderContent():
     code += '\n'
     code += '// Undefine macros to avoid conflict with other backends.\n'
     code += '#include "' + os.path.join(gb.gambit_backend_incl_dir, "backend_undefs.hpp") + '"\n'
+
+    # - Any user-specified code to add?
+    if cfg.surround_code_end.strip() != '':
+        code += cfg.surround_code_end
 
     code += '\n'
     code += incl_guard_end
@@ -2261,7 +2311,7 @@ def castxmlRunner(input_file_path, include_paths_list, xml_output_path, use_cast
         did_fail = True
 
     if did_fail:
-        print('  ' + modifyText('ERROR: CastXML failed.','red'))       
+        print('  ' + modifyText('ERROR: CastXML failed.','red'))
         # Get error message
         print()
         print(modifyText('START CASTXML OUTPUT','underline'))
@@ -2595,12 +2645,12 @@ def fillParentsOfLoadedClassesList():
 
 # ====== xmlFilesToDicts ========
 
-    #
-    # Read all xml elements of all files and store in two dict of dicts:
-    #
-    # 1. all_id_dict:    file name --> xml id --> xml element
-    # 2. all_name_dict:  file name --> name   --> xml element
-    #
+#
+# Read all xml elements of all files and store in two dict of dicts:
+#
+# 1. all_id_dict:    file name --> xml id --> xml element
+# 2. all_name_dict:  file name --> name   --> xml element
+#
 
 def xmlFilesToDicts(xml_files):
 
@@ -2644,11 +2694,61 @@ def clearGlobalXMLdicts():
 
     gb.file_dict.clear()
     gb.std_types_dict.clear()
-    gb.typedef_dict.clear()
+    # gb.typedef_dict.clear()
     gb.loaded_classes_in_xml.clear()
     gb.func_dict.clear()
 
 # ====== END: clearGlobalXMLdicts ========
+
+
+
+# ====== initGlobalTypedefDicts ========
+
+def initGlobalTypedefDicts(xml_paths):
+
+    import modules.classutils as classutils
+
+    for xml_path in xml_paths:
+
+        # Clear dicts
+        clearGlobalXMLdicts()
+
+        # Set some global dicts directly using the current xml file
+        gb.id_dict   = copy.deepcopy( gb.all_id_dict[xml_path] )
+        gb.name_dict = copy.deepcopy( gb.all_name_dict[xml_path] )
+
+        # Collect all typedef elems from the current xml file
+        all_typedef_elems = []
+        for xml_id, el in gb.id_dict.items():
+            if (el.tag == 'Typedef') and ('access' not in el.keys()):
+                all_typedef_elems.append(el)
+
+        # Now fill the global dict gb.std_typedef_names_dict
+        for xml_id, el in gb.id_dict.items():
+
+            if isStdType(el):
+
+                class_name_long_templ = classutils.getClassNameDict(el)['long_templ']
+
+                for typedef_el in all_typedef_elems:
+
+                    # Skip special std typedefs starting with __
+                    if typedef_el.get('name')[0:2] == '__':
+                        continue
+
+                    if typedef_el.get('type') == el.get('id'):
+
+                        name_and_namespaces = getNamespaces(typedef_el, include_self=True)
+
+                        if name_and_namespaces[0] == 'std':
+
+                            long_typedef_name = '::'.join(name_and_namespaces)
+
+                            gb.std_typedef_names_dict[class_name_long_templ] = long_typedef_name
+                            # print("DEBUG: Got typedef: ", [class_name_long_templ], " --> ", [long_typedef_name])
+                            break
+
+# ====== END: initGlobalTypedefDicts ========
 
 
 
@@ -2678,16 +2778,9 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
     for xml_id, el in gb.id_dict.items():
 
-
         # Update global dict: file name --> file xml element
         if el.tag == 'File':
             gb.file_dict[el.get('name')] = el
-
-
-        # Update global dict: std type --> type xml element
-        if isStdType(el):
-            class_name = classutils.getClassNameDict(el)
-            gb.std_types_dict[class_name['long_templ']] = el
 
 
         # Update global dict of loaded classes in this xml file: class name --> class xml element
@@ -2713,32 +2806,38 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
                     gb.loaded_classes_in_xml[class_name['long_templ']] = el
 
 
-        # Update global dict: typedef name --> typedef xml element
-        if el.tag == 'Typedef':
+        # # Update global dict: typedef name --> typedef xml element
+        # # Collect list of xml elements for all (global) typedefs
+        # if el.tag == 'Typedef':
 
-            # Only accept native typedefs:
-            if isNative(el):
+        #     # Collect list of xml elements for all (global) typedefs
+        #     if 'access' not in el.keys():
+        #         all_typedef_elems.append(el)
 
-                typedef_name = el.get('name')
+        #     # Commented out the block below, as we're currently not using gb.typedef_dict for anything
+        #     # # Only accept native typedefs:
+        #     # if isNative(el):
 
-                type_dict = findType(el)
-                type_el = type_dict['el']
+        #     #     typedef_name = el.get('name')
 
-                # If underlying type is a fundamental or standard type, accept it right away
-                if isFundamental(type_el) or isStdType(type_el):
-                    gb.typedef_dict[typedef_name] = el
+        #     #     type_dict = findType(el)
+        #     #     type_el = type_dict['el']
 
-                # If underlying type is a class/struct, check if it's acceptable
-                elif type_el.tag in ['Class', 'Struct']:
+        #     #     # If underlying type is a fundamental or standard type, accept it right away
+        #     #     if isFundamental(type_el) or isStdType(type_el):
+        #     #         gb.typedef_dict[typedef_name] = el
 
-                    type_name = classutils.getClassNameDict(type_el)
+        #     #     # If underlying type is a class/struct, check if it's acceptable
+        #     #     elif type_el.tag in ['Class', 'Struct']:
 
-                    if type_name['long_templ'] in cfg.load_classes:
-                        gb.typedef_dict[typedef_name] = el
+        #     #         type_name = classutils.getClassNameDict(type_el)
 
-                # If neither fundamental or class/struct, ignore it.
-                else:
-                    pass
+        #     #         if type_name['long_templ'] in cfg.load_classes:
+        #     #             gb.typedef_dict[typedef_name] = el
+
+        #     #     # If neither fundamental or class/struct, ignore it.
+        #     #     else:
+        #     #         pass
 
 
         # Update global dict: function name --> function xml element
@@ -2754,7 +2853,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
                 infomsg.FunctionAlreadyDone( func_name['long_templ_args'] ).printMessage()
                 continue
 
-            if func_name['long_templ_args'] in cfg.load_functions:
+            if func_name['long_templ_args'].replace(' ','') in cfg.load_functions:
                 gb.func_dict[func_name['long_templ_args']] = el
 
 
@@ -2792,6 +2891,27 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
     # END: Loop over all elements in this xml file
     #
 
+    # # Update global dict: std type xml element --> std typdef xml element
+    # # Update global dict: std type name --> std typdef xml element
+    # for class_name_long_templ, class_el in gb.std_types_dict.items():
+
+    #     for typedef_el in all_typedef_elems:
+
+    #         # Skip special std typedefs starting with __
+    #         if typedef_el.get('name')[0:2] == '__':
+    #             continue
+
+    #         if typedef_el.get('type') == class_el.get('id'):
+
+    #             name_and_namespaces = getNamespaces(typedef_el, include_self=True)
+
+    #             if name_and_namespaces[0] == 'std':
+
+    #                 long_typedef_name = '::'.join(name_and_namespaces)
+
+    #                 gb.std_typedef_names_dict[class_name_long_templ] = long_typedef_name
+
+    #                 break
 
 # ====== END: initGlobalXMLdicts ========
 
@@ -2893,7 +3013,7 @@ def identifyStdIncludePaths():
 
 def isInList(search_entry, search_list, return_index=True, ignore_whitespace=True):
 
-    # In case search_list is passed in as a dict_keys object (Python3) 
+    # In case search_list is passed in as a dict_keys object (Python3)
     # instead of as a regular list, convert it to a list
     search_list = list(search_list)
 
@@ -2951,7 +3071,7 @@ def orderIncludeStatements(include_statements):
 
     ordered_include_statements = []
 
-    # This is not the fastest solution, but an easy way to 
+    # This is not the fastest solution, but an easy way to
     # to keep the existing order within each group of headers
 
     # Add standard headers (not Boost headers)

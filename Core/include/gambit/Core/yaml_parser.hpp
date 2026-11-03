@@ -21,15 +21,16 @@
 ///  \date 2014 Mar
 ///  \date 2015 Mar
 ///  \date 2020 Apr
+///  \date 2022 Nov
 ///
 ///  *********************************************
 
-#ifndef __yaml_parser_hpp__
-#define __yaml_parser_hpp__
+#pragma once
 
+#include "gambit/Core/observable.hpp"
+#include "gambit/Core/rule.hpp"
 #include "gambit/Utils/yaml_parser_base.hpp"
 #include "gambit/Utils/util_functions.hpp"
-#include "gambit/Elements/type_equivalency.hpp"
 
 #include "yaml-cpp/yaml.h"
 
@@ -40,58 +41,13 @@ namespace Gambit
   namespace IniParser
   {
 
-    namespace Types
-    {
-
-      // Dependency and Observable have the same type (and purpose entry is
-      // irrelevant for dependencies)
-      struct Observable
-      {
-        std::string purpose;
-        std::string capability;
-        std::string type;
-        std::string function;
-        std::string module;
-        std::string backend;
-        std::string version;
-        bool printme; // Instruction to printer as to whether to write result to disk
-        bool weakrule;  // Indicates that rule can be broken
-        Options options;
-        YAML::Node subcaps;
-        std::vector<Observable> dependencies;
-        std::vector<Observable> backends;
-        std::vector<std::string> functionChain;
-
-        ///Default constructor, to ensure the default values are not gibberish
-        Observable():
-          purpose(),
-          capability(),
-          type(),
-          function(),
-          module(),
-          backend(),
-          version(),
-          printme(true),
-          options(),
-          subcaps(),
-          dependencies(),
-          backends(),
-          functionChain()
-        {}
-      };
-
-    }
-
-    typedef Types::Observable ObservableType;
-    typedef std::vector<ObservableType> ObservablesType;
-
     /// Main inifile class
     class IniFile : public Parser
     {
 
       public:
 
-        // Return the filename
+        /// Return the filename
         const str filename() const;
 
         /// Read in the YAML file
@@ -99,34 +55,49 @@ namespace Gambit
 
         /// Getters for private observable and rules entries
         /// @{
-        const ObservablesType & getObservables() const;
-        const ObservablesType & getRules() const;
+        const std::vector<DRes::Observable>& getObservables() const;
+        const std::vector<DRes::ModuleRule>& getModuleRules() const;
+        const std::vector<DRes::BackendRule>& getBackendRules() const;
         /// @}
 
       private:
 
         str _filename;
-
-        ObservablesType observables;
-        ObservablesType rules;
+        std::vector<DRes::Observable> observables;
+        std::vector<DRes::ModuleRule> module_rules;
+        std::vector<DRes::BackendRule> backend_rules;
 
     };
-
 
   }
 
 }
 
 
-// Rules for inifile --> Observable mapping
 namespace YAML
 {
+
+  /// Rules for inifile --> observable/rule mapping
+  /// @{
+
   template<>
-  struct convert<Gambit::IniParser::Types::Observable>
+  struct convert<Gambit::DRes::Observable>
   {
-    static bool decode(const Node&, Gambit::IniParser::Types::Observable&);
+    static bool decode(const Node&, Gambit::DRes::Observable&);
   };
+
+  template<>
+  struct convert<Gambit::DRes::ModuleRule>
+  {
+    static bool decode(const Node&, Gambit::DRes::ModuleRule&);
+  };
+
+  template<>
+  struct convert<Gambit::DRes::BackendRule>
+  {
+    static bool decode(const Node&, Gambit::DRes::BackendRule&);
+  };
+
+  /// @}
+
 }
-
-
-#endif /* defined(__yaml_parser_hpp__) */

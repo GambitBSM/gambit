@@ -31,6 +31,18 @@
 ///          (a.kvellestad@imperial.ac.uk)
 ///  \date 2019 Sep
 ///
+///  \author Tomasz Procter
+///          (t.procter.1@research.gla.ac.uk)
+///  \date 2021 November
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 Aug
+///
+///  \author Taylor R. Gray
+///          (gray@chalmers.se)
+///  \date 2023 Oct
+///
 ///  *********************************************
 
 #pragma once
@@ -39,8 +51,48 @@
 
 #define MODULE ColliderBit
 
+  /// Calculate an initial cross-section for each collider (stored as a map)
+  /// Could happen by calling Pythia with minimal generation, or with an external tool
+  /// Copies of this function are created for each Pythia collider (e.g. model extensions)
+  #define CAPABILITY PerformInitialCrossSection
+    START_CAPABILITY
+  #undef CAPABILITY
+
+  #define CAPABILITY InitialTotalCrossSection
+    START_CAPABILITY
+    #define FUNCTION InitialTotalCrossSection_Pythia
+    START_FUNCTION(map_str_xsec_container)
+    DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
+    #undef FUNCTION
+
+    #define FUNCTION InitialTotalCrossSection_YAMLparam
+    START_FUNCTION(map_str_xsec_container)
+    ALLOW_MODELS(ColliderBit_SLHA_scan_model)
+    #undef FUNCTION
+
+    #define FUNCTION InitialTotalCrossSection_YAMLCBS
+    START_FUNCTION(map_str_xsec_container)
+    #undef FUNCTION
+
+    #define FUNCTION InitialTotalCrossSection_YAMLSLHA
+    START_FUNCTION(map_str_xsec_container)
+    ALLOW_MODELS(ColliderBit_SLHA_file_model)
+    DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY InitialProcessCrossSections
+    START_CAPABILITY
+    #define FUNCTION InitialProcessCrossSections_Pythia
+    START_FUNCTION(map_str_map_int_process_xsec)
+    DEPENDENCY(PerformInitialCrossSection, initialxsec_container)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
+
   /// Execute the main Monte Carlo event loop.
-  /// Note: 
+  /// Note:
   ///   "Non-loop" capabilities that some in-loop capabilities depend on
   ///   can be added as dependencies here to ensure that they are calculated
   ///   before the loop starts.
@@ -48,6 +100,7 @@
   START_CAPABILITY
     #define FUNCTION operateLHCLoop
     START_FUNCTION(MCLoopInfo, CAN_MANAGE_LOOPS)
+    DEPENDENCY(InitialTotalCrossSection, map_str_xsec_container)
     MODEL_CONDITIONAL_DEPENDENCY(SLHAFileNameAndContent, pair_str_SLHAstruct, ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     #undef FUNCTION
 
@@ -56,7 +109,6 @@
     START_FUNCTION(MCLoopInfo)
     #undef FUNCTION
   #undef CAPABILITY
-
 
 
   /// Total cross-section
@@ -73,7 +125,7 @@
 
   #define CAPABILITY TotalCrossSection
   START_CAPABILITY
-    /// Convert the TotalEvGenCrossSection (type MC_xsec_container) into 
+    /// Convert the TotalEvGenCrossSection (type MC_xsec_container) into
     /// a regular TotalCrossSection (type xsec_container)
     #define FUNCTION getEvGenCrossSection_as_base
     START_FUNCTION(xsec_container)
@@ -112,12 +164,24 @@
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// Output info on TotalCrossSection as 
+  /// Output info on TotalCrossSection as
   /// a str-double map, for easy printing
   #define CAPABILITY TotalCrossSectionAsMap
   START_CAPABILITY
     #define FUNCTION getTotalCrossSectionAsMap
     START_FUNCTION(map_str_dbl)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    DEPENDENCY(TotalCrossSection, xsec_container)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// A log-likelihood function based on the total collider cross-section.
+  /// Can e.g. be used as a dummy likelihood to guide the scanner towards
+  /// interesting parameter regions, avoid going to the decoupling limit, etc.
+  #define CAPABILITY TotalCrossSection_LogLike
+  START_CAPABILITY
+    #define FUNCTION calc_TotalCrossSection_LogLike
+    START_FUNCTION(double)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(TotalCrossSection, xsec_container)
     #undef FUNCTION
@@ -135,7 +199,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(HardScatteringSim, const BaseCollider*)
     #undef FUNCTION
-  #undef CAPABILITY 
+  #undef CAPABILITY
 
   /// Get a list of all the PID pairs related to active process codes
   #define CAPABILITY ActivePIDPairs
@@ -145,7 +209,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(ActiveProcessCodeToPIDPairsMap, multimap_int_PID_pair)
     #undef FUNCTION
-  #undef CAPABILITY 
+  #undef CAPABILITY
 
   /// Translate a list of Pythia process codes to list of (PID,PID) pairs
   /// for the two final state particles of the hard process.
@@ -156,7 +220,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(ActiveProcessCodes, std::vector<int>)
     #undef FUNCTION
-  #undef CAPABILITY 
+  #undef CAPABILITY
   /// @}
 
 
@@ -171,7 +235,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(ActiveProcessCodes, std::vector<int>)
     DEPENDENCY(ActiveProcessCodeToPIDPairsMap, multimap_int_PID_pair)
-    DEPENDENCY(PIDPairCrossSectionsMap, map_PID_pair_PID_pair_xsec) 
+    DEPENDENCY(PIDPairCrossSectionsMap, map_PID_pair_PID_pair_xsec)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -185,7 +249,7 @@
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// Output PID pair cross-sections as a 
+  /// Output PID pair cross-sections as a
   /// str-dbl map, for easy printing
   #define CAPABILITY PIDPairCrossSectionsInfo
   START_CAPABILITY
@@ -280,6 +344,7 @@
     #define FUNCTION CollectAnalyses
     START_FUNCTION(AnalysisDataPointers)
     DEPENDENCY(CrossSectionConsistencyCheck, bool)
+    DEPENDENCY(TotalCrossSection, xsec_container)
     DEPENDENCY(ATLASAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(CMSAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(IdentityAnalysisNumbers, AnalysisDataPointers)
@@ -299,6 +364,24 @@
     DEPENDENCY(DMEFT_spectrum, Spectrum)
     ALLOW_MODELS(DMEFT)
     #undef FUNCTION
+
+    #define FUNCTION DMsimp_results
+    START_FUNCTION(AnalysisDataPointers)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum, DMsimpVectorMedScalarDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum, DMsimpVectorMedMajoranaDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum, DMsimpVectorMedDiracDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum, DMsimpVectorMedVectorDM)
+    MODEL_CONDITIONAL_DEPENDENCY(Unitarity_Bound_DMsimpVectorMedMajoranaDM, double, DMsimpVectorMedMajoranaDM)
+    MODEL_CONDITIONAL_DEPENDENCY(Unitarity_Bound_DMsimpVectorMedDiracDM, double, DMsimpVectorMedDiracDM)
+    ALLOW_MODELS(DMsimpVectorMedScalarDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedDiracDM, DMsimpVectorMedVectorDM)
+    #undef FUNCTION
+
+    #define FUNCTION SubGeVDM_results
+    START_FUNCTION(AnalysisDataPointers)
+    DEPENDENCY(SubGeVDM_spectrum, Spectrum)
+    ALLOW_MODELS(SubGeVDM_fermion, SubGeVDM_scalar)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
   #define CAPABILITY AllAnalysisNumbersUnmodified
@@ -318,6 +401,18 @@
     #undef FUNCTION
   #undef CAPABILITY
 
+  /// Di-jet likelihoods
+  #define CAPABILITY Dijet_LogLike
+    #define FUNCTION DiJet_LogLike_DMsimp
+    START_FUNCTION(double)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum, DMsimpVectorMedScalarDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum, DMsimpVectorMedMajoranaDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum, DMsimpVectorMedDiracDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum, DMsimpVectorMedVectorDM)
+    DEPENDENCY(Y1_decay_rates,DecayTable::Entry)
+    ALLOW_MODELS(DMsimpVectorMedScalarDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedDiracDM, DMsimpVectorMedVectorDM)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   /// Extract the signal predictions and uncertainties for all analyses
   #define CAPABILITY LHC_signals
@@ -325,16 +420,52 @@
     #define FUNCTION calc_LHC_signals
     START_FUNCTION(map_str_dbl)
     DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(LHCEventLoopInfo, map_str_dbl)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// Extract the efficiencies x acceptance predictions and uncertainties per signal region
+  #define CAPABILITY LHC_efficiencies_per_SR
+  START_CAPABILITY
+    #define FUNCTION calc_LHC_efficiencies_per_SR
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(LHCEventLoopInfo, map_str_dbl)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// Extract the efficiencies x acceptance predictions and uncertainties per analysis
+  #define CAPABILITY LHC_efficiencies_per_analysis
+  START_CAPABILITY
+    #define FUNCTION calc_LHC_efficiencies_per_analysis
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(LHCEventLoopInfo, map_str_dbl)
     #undef FUNCTION
   #undef CAPABILITY
 
   /// Calculate the log likelihood for each SR in each analysis using the analysis numbers
   #define CAPABILITY LHC_LogLikes
   START_CAPABILITY
+
+    #define FUNCTION calc_LHC_LogLikes_full
+    START_FUNCTION(map_str_AnalysisLogLikes)
+    DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(RunMC, MCLoopInfo)
+    DEPENDENCY(InitialTotalCrossSection, map_str_xsec_container)
+    BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_lognormal_error, (), double, (const int&, const double&, const double&, const double&) )
+    BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_gaussian_error, (), double, (const int&, const double&, const double&, const double&) )
+    BACKEND_GROUP(lnlike_marg_poisson)
+    BACKEND_REQ(FullLikes_Evaluate, (ATLAS_FullLikes), double, (std::map<str,double>&,const str&))
+    BACKEND_REQ(FullLikes_ReadIn, (ATLAS_FullLikes), int, (const str&,const str&,const str&))
+    BACKEND_REQ(FullLikes_FileExists, (ATLAS_FullLikes), bool, (const str&))
+    #undef FUNCTION
+
     #define FUNCTION calc_LHC_LogLikes
     START_FUNCTION(map_str_AnalysisLogLikes)
     DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(RunMC, MCLoopInfo)
+    DEPENDENCY(InitialTotalCrossSection, map_str_xsec_container)
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_lognormal_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_gaussian_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_GROUP(lnlike_marg_poisson)
@@ -359,6 +490,7 @@
     #undef FUNCTION
   #undef CAPABILITY
 
+
   /// Extract the labels for the SRs used in the analysis loglikes
   #define CAPABILITY LHC_LogLike_SR_labels
   START_CAPABILITY
@@ -382,7 +514,7 @@
   START_CAPABILITY
     #define FUNCTION calc_combined_LHC_LogLike
     START_FUNCTION(double)
-    DEPENDENCY(LHC_LogLike_per_analysis, map_str_dbl)
+    DEPENDENCY(LHC_LogLikes, map_str_AnalysisLogLikes)
     DEPENDENCY(RunMC, MCLoopInfo)
     #undef FUNCTION
   #undef CAPABILITY
@@ -484,13 +616,13 @@
   #define CAPABILITY EventWeighterFunction
   START_CAPABILITY
 
-    /// This function is intended as a fallback option 
+    /// This function is intended as a fallback option
     /// that simply assigns a unit weight to all events
     #define FUNCTION setEventWeight_unity
     START_FUNCTION(EventWeighterFunctionType)
     #undef FUNCTION
 
-    /// Weight events according to process cross-section 
+    /// Weight events according to process cross-section
     #define FUNCTION setEventWeight_fromCrossSection
     START_FUNCTION(EventWeighterFunctionType)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
@@ -525,19 +657,43 @@
     #ifndef EXCLUDE_HEPMC
 
       /// A nested function that reads in Les Houches Event files and converts them to HEPUtils::Event format
-      #define FUNCTION getLHEvent
+      #define FUNCTION getLHEvent_HEPUtils
+      START_FUNCTION(HEPUtils::Event)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      #undef FUNCTION
+
+      /// A nested function that reads in HepMC event files
+      #define FUNCTION getHepMCEvent
+      START_FUNCTION(HepMC3::GenEvent)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      #undef FUNCTION
+
+      /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
+      #define FUNCTION getHepMCEvent_HEPUtils
       START_FUNCTION(HEPUtils::Event)
       NEEDS_MANAGER(RunMC, MCLoopInfo)
       #undef FUNCTION
 
       /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
-      #define FUNCTION getHepMCEvent
+      #define FUNCTION convertHepMCEvent_HEPUtils
       START_FUNCTION(HEPUtils::Event)
+      DEPENDENCY(HardScatteringEvent, HepMC3::GenEvent)
       NEEDS_MANAGER(RunMC, MCLoopInfo)
       #undef FUNCTION
 
     #endif
 
   #undef CAPABILITY
+
+  /// BaBar single photon likelihood
+  #define CAPABILITY BaBar_single_photon_LogLike
+    #define FUNCTION BaBar_single_photon_LogLike_SubGeVDM
+    START_FUNCTION(double)
+    DEPENDENCY(dark_photon_decay_rates,DecayTable::Entry)
+    ALLOW_MODELS(SubGeVDM_fermion)
+    ALLOW_MODELS(SubGeVDM_scalar)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 
 #undef MODULE

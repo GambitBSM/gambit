@@ -27,16 +27,32 @@
 ///          (andy.buckley@cern.ch)
 ///  \date 2017 Jun
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019 Oct
+///
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date 2019
+///  \date 2021 Jul
 ///
 ///  *********************************************
 
 #pragma once
 
+#include "gambit/ColliderBit/models/SUSY_extras.hpp"
+
 #define MODULE ColliderBit
 
+  // Perform Initial Pythia simulation to get a cross-section
+  #define CAPABILITY PerformInitialCrossSection
+
+    #define FUNCTION PerformInitialCrossSection_Pythia
+    START_FUNCTION(initialxsec_container)
+    DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct)
+    #undef FUNCTION
+
+  #undef CAPABILITY
 
   // Construct an SLHAea object with spectrum and decays for Pythia
   #define CAPABILITY SpectrumAndDecaysForPythia
@@ -46,7 +62,7 @@
     DEPENDENCY(decay_rates, DecayTable)
     DEPENDENCY(MSSM_spectrum, Spectrum)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mA, MSSM63atMGUT_mA)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG, MSSM63atQ_mA, MSSM63atQ_mA_mG, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -59,7 +75,7 @@
     START_FUNCTION(Py8Collider_defaultversion)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     NEEDS_CLASSES_FROM(Pythia, default)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mA, MSSM63atMGUT_mA)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG, MSSM63atQ_mA, MSSM63atQ_mA_mG, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
     DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct)
     #undef FUNCTION
 
@@ -68,7 +84,7 @@
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     NEEDS_CLASSES_FROM(Pythia, default)
     DEPENDENCY(HardScatteringSim, Py8Collider_defaultversion)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mA, MSSM63atMGUT_mA)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG, MSSM63atQ_mA, MSSM63atQ_mA_mG, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
     ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     #undef FUNCTION
 
@@ -78,15 +94,34 @@
   // Run event generator
   #define CAPABILITY HardScatteringEvent
     #define FUNCTION generateEventPythia
-    START_FUNCTION(HEPUtils::Event)
+    START_FUNCTION(Pythia_default::Pythia8::Event)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     NEEDS_CLASSES_FROM(Pythia, default)
     DEPENDENCY(HardScatteringSim, Py8Collider_defaultversion)
     DEPENDENCY(EventWeighterFunction, EventWeighterFunctionType)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mA, MSSM63atMGUT_mA)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG, MSSM63atQ_mA, MSSM63atQ_mA_mG, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
     ALLOW_MODELS(ColliderBit_SLHA_file_model, ColliderBit_SLHA_scan_model)
     #undef FUNCTION
-  #undef CAPABILITY
 
+    #define FUNCTION generateEventPythia_HEPUtils
+    START_FUNCTION(HEPUtils::Event)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    NEEDS_CLASSES_FROM(Pythia, default)
+    DEPENDENCY(HardScatteringSim, Py8Collider_defaultversion)
+    DEPENDENCY(HardScatteringEvent, Pythia_default::Pythia8::Event)
+    DEPENDENCY(EventWeighterFunction, EventWeighterFunctionType)
+    #undef FUNCTION
+
+    #ifndef EXCLUDE_HEPMC
+      #define FUNCTION generateEventPythia_HepMC
+      START_FUNCTION(HepMC3::GenEvent)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      NEEDS_CLASSES_FROM(Pythia, default)
+      DEPENDENCY(HardScatteringSim, Py8Collider_defaultversion)
+      DEPENDENCY(HardScatteringEvent, Pythia_default::Pythia8::Event)
+      #undef FUNCTION
+    #endif
+
+  #undef CAPABILITY
 
 #undef MODULE

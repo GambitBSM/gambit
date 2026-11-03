@@ -37,16 +37,16 @@ namespace Gambit
     {
         // The Cantor pairing function should be good enough for this purpose I think
         // If we exceed the maximum size of size_t then we'll have to use a more space-efficient pairing function
-        return ((i+j)*(i+j+1))/2 + j; 
+        return ((i+j)*(i+j+1))/2 + j;
     }
 
 
     // Type of function pointer for SQLite callback function
     typedef int sql_callback_fptr(void*, int, char**, char**);
 
-    // Callback function for counting columns in table 
+    // Callback function for counting columns in table
     int col_name_callback(void* colmap_in, int /*count*/, char** data, char** /* columns */);
- 
+
     // Matching of SQL types to C++ types
     typedef long long int llint;
     typedef std::string str;
@@ -63,8 +63,8 @@ namespace Gambit
 
     // Map from all SQLite "suggestion" types into the five "base" SQLite types
     // Used for type comparisons.
-    std::map<std::string,std::string, Utils::ci_less> fill_SQLtype_to_basic();  
-    extern const std::map<std::string,std::string, Utils::ci_less> SQLtype_to_basic;  
+    std::map<std::string,std::string, Utils::ci_less> fill_SQLtype_to_basic();
+    extern const std::map<std::string,std::string, Utils::ci_less> SQLtype_to_basic;
 
     // Compare SQLite data types to see if they are equivalent to the same basic 'affinity' for a column
     bool SQLite_equaltypes(const std::string& type1, const std::string& type2);
@@ -80,7 +80,7 @@ namespace Gambit
     // (or if it points to end())
     template <typename Iter, typename Cont>
     std::string comma_unless_last(Iter it, const Cont& c)
-    { 
+    {
        std::string out("");
        if((it == c.end()) || (next_el(it) == c.end()))
        { /* this is the last element or end(), do nothing */ }
@@ -99,15 +99,17 @@ namespace Gambit
       protected:
         std::string get_database_file();
         std::string get_table_name();
+        std::string get_metadata_table_name();
         void set_table_name(const std::string& table_name);
- 
+        void set_metadata_table_name(const std::string& metadata_table_name);
+
         // Verify that the outbase database is open and the results table exists
         void require_output_ready();
- 
+
         // Open database and 'attach' it to this object
         // A database will be created if it doesn't exist
         void open_db(const std::string&, char access='r');
-    
+
         // Close the database file that is attached to this object
         void close_db();
 
@@ -116,7 +118,7 @@ namespace Gambit
 
         // Dump a row of results to std::cout
         void cout_row(sqlite3_stmt* tmp_stmt);
- 
+
         // Check that the required table exists
         // Sets 'table_exists' to true if successful, otherwise throws error
         void check_table_exists();
@@ -127,16 +129,17 @@ namespace Gambit
         // Get names and types for all columns in the target table
         // (Output is a map from names to types)
         std::map<std::string, std::string, Utils::ci_less> get_column_info();
- 
+
         // Submit an SQL statement to the database
-        int submit_sql(const std::string& local_info, const std::string& sqlstr, bool allow_fail=false, sql_callback_fptr callback=NULL, void* data=NULL, char **zErrMsg=NULL); 
- 
-      private: 
+        int submit_sql(const std::string& local_info, const std::string& sqlstr, bool allow_fail=false, sql_callback_fptr callback=NULL, void* data=NULL, char **zErrMsg=NULL);
+
+      private:
         // Path to SQLite database file
         std::string database_file;
 
         // Name of data table to be accessed
         std::string table_name;
+        std::string metadata_table_name;
 
         // Pointer to target sqlite3 database
         sqlite3* db;

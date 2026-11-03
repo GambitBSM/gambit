@@ -18,6 +18,10 @@
 ///  \date 2014 Jan, Nov
 ///  \date 2015 Feb
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2026 Oct
+///
 ///  *********************************************
 
 #ifndef __model_macros_hpp__
@@ -28,6 +32,7 @@
 #include "gambit/Utils/util_macros.hpp"
 #include "gambit/Utils/boost_fallbacks.hpp"
 #include "gambit/Elements/ini_functions.hpp"
+#include "gambit/Utils/model_validation.hpp"
 
 #include <boost/preprocessor/seq/for_each.hpp>
 
@@ -38,6 +43,7 @@
   #endif
   #define START_MODEL                                             CORE_START_MODEL
   #define DEFINEPARS(...)                                         CORE_DEFINEPARS(__VA_ARGS__)
+  #define MODEL_CONSISTENCY_CHECK(FUNC)                           CORE_MODEL_CONSISTENCY_CHECK(MODEL,FUNC)
   #define MAP_TO_CAPABILITY(PARAMETER,CAPABILITY)                 CORE_MAP_TO_CAPABILITY(PARAMETER,CAPABILITY)
   #define INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)                   CORE_INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)
   #define INTERPRET_AS_PARENT_FUNCTION(FUNC)                      CORE_INTERPRET_AS_PARENT_FUNCTION(FUNC)
@@ -76,9 +82,10 @@
   #define CLASSLOAD_NEEDED(BACKEND, VERSION)               CORE_CLASSLOAD_NEEDED(BACKEND, VERSION, IS_MODEL)
 #else
   #include "gambit/Elements/module_macros_inmodule_defs.hpp"
-  #define START_MODEL                                       MODULE_START_MODEL
+  #define START_MODEL                                       /* Do nothing */
   #define DEFINEPARS(...)                                   /* Do nothing */
   #define MAP_TO_CAPABILITY(PARAMETER,CAPABILITY)           /* Do nothing */
+  #define MODEL_CONSISTENCY_CHECK(FUNC)                     MODULE_MODEL_CONSISTENCY_CHECK(FUNC)
   #define INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)             MODULE_INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)
   #define INTERPRET_AS_PARENT_FUNCTION(FUNC)                MODULE_INTERPRET_AS_X_FUNCTION(PARENT,FUNC)
   #define INTERPRET_AS_X_DEPENDENCY(MODEL_X, DEP, TYPE)     MODULE_INTERPRET_AS_X_DEPENDENCY(MODEL_X, DEP, TYPE)
@@ -128,24 +135,18 @@
 /// "Rollcall" macros. These are lifted straight from module_macros_incore.hpp
 /// but are modified here and there to suit the role of models.
 
-/// "In module" version of the START_MODEL macro
-#define MODULE_START_MODEL                                                     \
-  IF_TOKEN_UNDEFINED(MODEL,FAIL("You must define MODEL before calling "        \
-   "START_MODEL."))                                                            \
-  /*_Pragma("message declaring model...") \
-  _Pragma( STRINGIFY(CAT("message Forward declaring model: ",MODEL)) )      */ \
+/// "In module" version of the MODEL_CONSISTENCY_CHECK macro
+#define MODULE_MODEL_CONSISTENCY_CHECK(FUNC)                                   \
   namespace Gambit                                                             \
   {                                                                            \
-   namespace Models                                                            \
-   {                                                                           \
-    namespace MODEL                                                            \
+    namespace Models                                                           \
     {                                                                          \
-      /* Module errors */                                                      \
-      error& CAT(MODEL,_error)();                                              \
-      /* Module warnings */                                                    \
-      warning& CAT(MODEL,_warning)();                                          \
+      namespace MODEL                                                          \
+      {                                                                        \
+        /* Declare the user-defined function as defined elsewhere */           \
+        extern bool FUNC (const ModelParameters&);                             \
+      }                                                                        \
     }                                                                          \
-   }                                                                           \
   }                                                                            \
 
 /// "In module" version of the INTERPRET_AS_X_FUNCTION macro
@@ -206,8 +207,12 @@
         /* Add the model to GAMBIT model database */                           \
         int model_rego = add_model(STRINGIFY(MODEL), STRINGIFY(PARENT));       \
                                                                                \
-        /* Functor's actual "calculate" function.  Doesn't do anything. */     \
-        void primary_parameters (ModelParameters&) {}                          \
+        /* Functor's actual "calculate" function. */                           \
+        void primary_parameters (ModelParameters& model_parameters)            \
+        {                                                                      \
+          const auto& mvh = ModelValidationHandler::getInstance();             \
+          mvh.runModelValidation(model_parameters);                            \
+        }                                                                      \
                                                                                \
         /* Wrap it up in a primary_model_functor */                            \
         MAKE_PRIMARY_MODEL_FUNCTOR(primary_parameters, CAT(MODEL,_parameters), \
@@ -323,6 +328,24 @@
   BOOST_PP_SEQ_FOR_EACH(DO_LINK, _, BOOST_PP_TUPLE_TO_SEQ((__VA_ARGS__)))
 #define DO_LINK(r,data,elem) DEFINEPAR(elem)
 /// @}
+
+#define CORE_MODEL_CONSISTENCY_CHECK(MODEL,FUNC)                               \
+  namespace Gambit                                                             \
+  {                                                                            \
+    namespace Models                                                           \
+    {                                                                          \
+      namespace MODEL                                                          \
+      {                                                                        \
+        /* Prototype the user-defined function */                              \
+        bool FUNC (const ModelParameters&);                                    \
+                                                                               \
+        int model_validation_registered = register_model_validation_function(  \
+          STRINGIFY(MODEL),                                                    \
+          FUNC                                                                 \
+        );                                                                     \
+      }                                                                        \
+    }                                                                          \
+  }                                                                            \
 
 /// Real declaration macro for INTERPRET_AS_X functions.
 #define CORE_INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)                             \

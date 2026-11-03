@@ -14,6 +14,10 @@
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date 2021 Jul
 ///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2022 Apr
+///
 ///  *********************************************
 
 
@@ -22,17 +26,17 @@
 #ifdef SUPPRESS_LIBRARY_WARNINGS
 
   // GCC:
-  #ifdef __GNUC__
+  // clang also depfines __GNUC__ so make sure it is only GCC
+  #if defined(__GNUC__) && !defined(__clang__)
     // Turn warnings back on
     #pragma GCC diagnostic pop
   #endif
 
   // Clang:
-  #ifdef __clang__
-    #ifndef __ICC
-      // Turn warnings back on
-      #pragma clang diagnostic pop
-    #endif
+  // icpc apparently also defines __clang__ 
+  #if defined(__clang__) && !defined(__ICC)
+    // Turn warnings back on
+    #pragma clang diagnostic pop
   #endif
   
 #endif

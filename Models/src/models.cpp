@@ -26,6 +26,10 @@
 ///  \date 2013 Aug, Sep
 ///  \date 2014 Mar
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2023 Nov
+///
 ///  *********************************************
 
 #include <algorithm>
@@ -66,8 +70,8 @@ namespace Gambit
         el = std::find(selectedmodels.begin(), selectedmodels.end(), (*it)->origin());
         if(el != selectedmodels.end())
         {
-          // If yes, activate this functor.  Default is inactivated.
-          (*it)->setStatus(1);               // 1 means "available".
+          // If yes, flag this functor as available for activation.
+          (*it)->setStatus(FunctorStatus::Available);
           (*it)->setPrintRequirement(true);  // Tell printer to output this functor
           // Initialise ModelParameters object it contains
           (*it)->calculate();
@@ -102,7 +106,7 @@ namespace Gambit
     /// Searches primary model functor list for specificed model
     primary_model_functor* ModelFunctorClaw::getPrimaryModelFunctor(const std::string modelname, const primodel_vec& primaryModelFunctors) const
     {
-      primary_model_functor* result;
+      primary_model_functor* result = nullptr;
 
       // Find primary model functor with matching name
       auto it = std::find_if(std::begin(primaryModelFunctors), std::end(primaryModelFunctors), 
@@ -147,7 +151,7 @@ namespace Gambit
         modelname  = it->first;
         functorPtr = it->second;
 
-        if ( functorPtr->status()!=2 )
+        if ( !functorPtr->isActive() )
         {
           unusedmodels.push_back( modelname );
         }

@@ -662,7 +662,13 @@ namespace GUM
       // Load restrictions - if there are any.
       if (not opts.restriction().empty())
       {
-        model.load_restriction(opts.model(), opts.base_model(), opts.restriction());
+        // Split the list of restrictions
+        std::stringstream RST(opts.restriction());
+        std::string rst;
+        while (getline(RST,rst,','))
+        {
+          model.load_restriction(opts.model(), opts.base_model(), rst);
+        }
       }
 
       // Check the Lagrangian seems to exist.

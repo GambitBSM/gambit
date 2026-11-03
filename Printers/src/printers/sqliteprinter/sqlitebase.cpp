@@ -18,8 +18,8 @@
 #include <sstream>
 #include <chrono>
 #include <thread>
-// SQLite3 C interface 
-#include <sqlite3.h> 
+// SQLite3 C interface
+#include <sqlite3.h>
 
 #include "gambit/Printers/printers/sqlitebase.hpp"
 
@@ -44,7 +44,7 @@ namespace Gambit
     {
         typedef std::map<std::string, std::string, Utils::ci_less> mymaptype;
         mymaptype *colmap = static_cast<mymaptype*>(colmap_in);
-   
+
         // We know that the column name is the second column of the results set, and the
         // type is the third column
         std::string column_name(data[1]);
@@ -54,7 +54,7 @@ namespace Gambit
 
         // Add to map
         (*colmap)[column_name] = column_type;
-    
+
         return 0;
     }
 
@@ -83,7 +83,7 @@ namespace Gambit
     std::map<std::string,std::string,Utils::ci_less> fill_SQLtype_to_basic()
     {
        std::map<std::string,std::string,Utils::ci_less> out;
-       
+
        out["INT"] = "INTEGER";
        out["INTEGER"] = "INTEGER";
        out["TINYINT"] = "INTEGER";
@@ -93,7 +93,7 @@ namespace Gambit
        out["UNSIGNED BIG INT"] = "INTEGER";
        out["INT2"] = "INTEGER";
        out["INT8"] = "INTEGER";
-       
+
        out["CHARACTER(20)"] = "TEXT";
        out["VARCHAR(255)"] = "TEXT";
        out["VARYING CHARACTER(255)"] = "TEXT";
@@ -102,24 +102,24 @@ namespace Gambit
        out["NVARCHAR(100)"] = "TEXT";
        out["CLOB"] = "TEXT";
        out["TEXT"] = "TEXT";
-       
+
        out["BLOB"] = "NONE";
        out["NONE"] = "NONE";
-       
+
        out["DOUBLE"] = "REAL";
        out["DOUBLE PRECISION"] = "REAL";
        out["FLOAT"] = "REAL";
        out["REAL"] = "REAL";
-       
+
        out["DECIMAL(10,5)"] = "NUMERIC";
        out["BOOLEAN"] = "NUMERIC";
        out["DATE"] = "NUMERIC";
        out["DATETIME"] = "NUMERIC";
        out["NUMERIC"] = "NUMERIC";
- 
+
        return out;
-    }  
-    const std::map<std::string,std::string,Utils::ci_less> SQLtype_to_basic(fill_SQLtype_to_basic());  
+    }
+    const std::map<std::string,std::string,Utils::ci_less> SQLtype_to_basic(fill_SQLtype_to_basic());
 
     // Compare SQLite data types to see if they are equivalent to the same basic 'affinity' for a column
     bool SQLite_equaltypes(const std::string& type1, const std::string& type2)
@@ -149,6 +149,7 @@ namespace Gambit
     SQLiteBase::SQLiteBase()
     : database_file("uninitialised")
     , table_name("uninitialised")
+    , metadata_table_name("uninitialised")
     , db(NULL)
     , db_is_open(false)
     , table_exists(false)
@@ -162,20 +163,20 @@ namespace Gambit
 
     // Open database and 'attach' it to this object
     void SQLiteBase::open_db(const std::string& path, char access)
-    { 
+    {
         // Check if we already have an open database
         if(db!=NULL)
         {
             std::stringstream err;
             err << "Refused to open database file '"<<path<<"'; a database file pointer has already been attached to the SQLite printer!";
-            printer_error().raise(LOCAL_INFO,err.str()); 
+            printer_error().raise(LOCAL_INFO,err.str());
         }
 
         if(db_is_open)
         {
             std::stringstream err;
             err << "Refused to open database file '"<<path<<"'; a database file is already flagged by the SQLite printer as open!";
-            printer_error().raise(LOCAL_INFO,err.str());  
+            printer_error().raise(LOCAL_INFO,err.str());
         }
 
         int sql_access;
@@ -189,13 +190,13 @@ namespace Gambit
            case '+':
               sql_access = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
               break;
-        }   
+        }
 
         int rc; // return code
         //rc = sqlite3_open(path.c_str(), &db);
         rc = sqlite3_open_v2(path.c_str(), &db, sql_access, NULL);
- 
-        if( rc ) 
+
+        if( rc )
         {
             std::stringstream err;
             err << "Failed to open database file '"<<path<<"' (are you sure it exists?). SQLite error was: " << sqlite3_errmsg(db);
@@ -220,7 +221,7 @@ namespace Gambit
         {
             std::stringstream err;
             err << "Attempted to access SQLite database pointer, but it is NULL! This means that some SQLitePrinter/Reader routine called 'get_db()' before the database was opened (or after it was closed)! This is a bug, please report it.";
-            printer_error().raise(LOCAL_INFO,err.str());  
+            printer_error().raise(LOCAL_INFO,err.str());
         }
         return db;
     }
@@ -236,23 +237,23 @@ namespace Gambit
             if(db==NULL)
             {
                 err << "Output readiness check failed! Database pointer was NULL!";
-                printer_error().raise(LOCAL_INFO,err.str());  
-            }   
+                printer_error().raise(LOCAL_INFO,err.str());
+            }
 
             if(!db_is_open)
             {
                 err << "Output readiness check failed! Database is not flagged as open!";
-                printer_error().raise(LOCAL_INFO,err.str());  
+                printer_error().raise(LOCAL_INFO,err.str());
             }
 
             if(!table_exists)
             {
                 err << "Output readiness check failed! Results table is not flagged as existing!";
-                printer_error().raise(LOCAL_INFO,err.str());  
+                printer_error().raise(LOCAL_INFO,err.str());
             }
         }
         // Else we are good to go!
-    } 
+    }
 
     // Function to repeatedly attempt an SQLite statement if the database is locked/busy
     int SQLiteBase::submit_sql(const std::string& local_info, const std::string& sqlstr, bool allow_fail, sql_callback_fptr callback, void* data, char **zErrMsg_in)
@@ -260,7 +261,7 @@ namespace Gambit
         int rc;
         char *zErrMsg;
         char **zErrMsg_ptr;
-        if(zErrMsg_in==NULL) 
+        if(zErrMsg_in==NULL)
         {
            zErrMsg_ptr = &zErrMsg;
         }
@@ -287,7 +288,7 @@ namespace Gambit
             err << "SQL error: " << *zErrMsg_ptr << std::endl;
 #ifdef SQL_DEBUG
             err << "The attempted SQL statement was:"<<std::endl;
-            err << sqlstr << std::endl;; 
+            err << sqlstr << std::endl;;
 #endif
             sqlite3_free(*zErrMsg_ptr);
             printer_error().raise(local_info,err.str());
@@ -302,17 +303,17 @@ namespace Gambit
         std::stringstream sql;
         sql<<"PRAGMA table_info("<<get_table_name()<<");";
 
-        /* Execute SQL statement */ 
+        /* Execute SQL statement */
         int rc;
         char *zErrMsg = 0;
         std::map<std::string, std::string, Utils::ci_less> colnames; // Will be passed to and filled by the callback function
         rc = submit_sql(LOCAL_INFO, sql.str(), true, &col_name_callback, &colnames, &zErrMsg);
- 
+
         if( rc != SQLITE_OK ){
             std::stringstream err;
             err << "Failed to retrieve information about SQL column names in target table!"<<std::endl;
             err << "  The attempted SQL statement was:"<<std::endl;
-            err << sql.str() << std::endl; 
+            err << sql.str() << std::endl;
             sqlite3_free(zErrMsg);
             printer_error().raise(LOCAL_INFO,err.str());
         }
@@ -320,9 +321,11 @@ namespace Gambit
     }
 
     std::string SQLiteBase::get_database_file() {return database_file;}
-    std::string SQLiteBase::get_table_name() {return table_name;} 
+    std::string SQLiteBase::get_table_name() {return table_name;}
+    std::string SQLiteBase::get_metadata_table_name() {return metadata_table_name;}
     void SQLiteBase::set_table_name(const std::string& t) {table_name=t;}
-  
+    void SQLiteBase::set_metadata_table_name(const std::string& t) {metadata_table_name=t;}
+
     // For debugging: dump a row of a results table to std::cout
     void SQLiteBase::cout_row(sqlite3_stmt* tmp_stmt)
     {
@@ -341,7 +344,7 @@ namespace Gambit
         sql<<"SELECT name FROM sqlite_master WHERE type='table' AND name='"<<get_table_name()<<"';";
         std::size_t count(0);
 
-        /* Execute SQL statement and iterate through results*/ 
+        /* Execute SQL statement and iterate through results*/
         sqlite3_stmt *temp_stmt;
         int rc = sqlite3_prepare_v2(get_db(), sql.str().c_str(), -1, &temp_stmt, NULL);
         if (rc != SQLITE_OK) {
@@ -372,7 +375,7 @@ namespace Gambit
             printer_error().raise(LOCAL_INFO, err.str());
         }
         // Else the table exists, no problem.
-        set_table_exists(); 
+        set_table_exists();
     }
 
     // Sets the 'table_exists' flag to true
