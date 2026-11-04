@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Functions for working with an unbiased 
+///  Functions for working with an unbiased
 ///  Poisson likelihood estimator.
 ///
 ///  *********************************************

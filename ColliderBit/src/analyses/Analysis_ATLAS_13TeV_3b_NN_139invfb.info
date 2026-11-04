@@ -1,0 +1,7 @@
+Summary: ATLAS 3 b jets + MET, 139invfb
+InspireID: 2182381
+ExptRun: ATLAS-R2
+Lumi_ifb: 139.0
+Ecm_TeV: 13.0
+Signatures: ["3B + MET"]
+Authors: ["Tomasz Procter"]

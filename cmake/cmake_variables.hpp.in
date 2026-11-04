@@ -46,11 +46,15 @@
 /// Name of the gambit executable
 #define GAMBIT_EXECUTABLE "@PROJECT_NAME@"
 
-/// Compiler supports C++14 features
-#cmakedefine COMPILER_SUPPORTS_CXX14 1
-
 /// Compiler supports C++17 features
 #cmakedefine COMPILER_SUPPORTS_CXX17 1
+
+/// Compiler supports C++20 features
+#cmakedefine COMPILER_SUPPORTS_CXX20 1
+
+
+/// Compiler supports C++23 features
+#cmakedefine COMPILER_SUPPORTS_CXX23 1
 
 /// Found link.h in system paths
 #cmakedefine HAVE_LINK_H 1
@@ -66,8 +70,8 @@
 #cmakedefine MATHEMATICA_WSTP_VERSION_MINOR @Mathematica_WSTP_VERSION_MINOR@
 
 /// Python version info
-#cmakedefine PYTHON_VERSION_MAJOR @PYTHON_VERSION_MAJOR@
-#cmakedefine PYTHON_VERSION_MINOR @PYTHON_VERSION_MINOR@
+#define PYTHON_VERSION_MAJOR @Python3_VERSION_MAJOR@
+#define PYTHON_VERSION_MINOR @Python3_VERSION_MINOR@
 
 /// Found/installed pybind11
 #cmakedefine HAVE_PYBIND11 1
@@ -92,6 +96,9 @@
 
 /// Suppress specific compiler warnings from external libraries
 #cmakedefine SUPPRESS_LIBRARY_WARNINGS 1
+
+/// Leave out onnx
+#cmakedefine EXCLUDE_ONNXRUNTIME 1
 
 /// Version info
 /// @{

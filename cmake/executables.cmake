@@ -50,6 +50,15 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/Core/")
   if (NOT EXCLUDE_YODA)
     set(gambit_XTRA ${gambit_XTRA} ${YODA_LDFLAGS})
   endif()
+  if (NOT EXCLUDE_ONNXRUNTIME)
+    set(gambit_XTRA ${gambit_XTRA} ${ONNXRUNTIME_LDFLAGS})
+  endif()
+  if (NOT EXCLUDE_FJCONTRIB)
+    set(gambit_XTRA ${gambit_XTRA} ${fjcontrib_LDFLAGS})
+  endif()
+  if (NOT EXCLUDE_FASTJET)
+    set(gambit_XTRA ${gambit_XTRA} ${fastjet_LDFLAGS})
+  endif()
   add_gambit_executable(${PROJECT_NAME} "${gambit_XTRA}"
                         SOURCES ${PROJECT_SOURCE_DIR}/Core/src/gambit.cpp
                                 ${GAMBIT_ALL_COMMON_OBJECTS}
@@ -91,21 +100,6 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
     target_compile_definitions(Utils PRIVATE SCANNER_STANDALONE)
   endif()
   add_dependencies(standalones ScannerBit_standalone)
-endif()
-
-# Add C++ hdf5 combine tool, if we have HDF5 libraries
-# There are a lot of annoying peripheral dependencies on GAMBIT things here, would be good to try and decouple things better
-if(HDF5_FOUND)
-  if(EXISTS "${PROJECT_SOURCE_DIR}/Printers/")
-    if(EXISTS "${PROJECT_SOURCE_DIR}/Utils/")
-       add_gambit_executable(hdf5combine ${HDF5_LIBRARIES}
-                        SOURCES ${PROJECT_SOURCE_DIR}/Printers/standalone/manual_hdf5_combine.cpp
-                                $<TARGET_OBJECTS:Printers>
-                                ${GAMBIT_BASIC_COMMON_OBJECTS}
-                                )
-       set_target_properties(hdf5combine PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/Printers/bin")
-    endif()
-  endif()
 endif()
 
 # Add the Egg standalone executable

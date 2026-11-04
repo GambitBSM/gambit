@@ -37,6 +37,7 @@
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2020 May, Nov
+///  \date 2026 Oct
 ///
 ///  *********************************************
 
@@ -49,6 +50,7 @@
 #include "gambit/Utils/version.hpp"
 #include "gambit/Utils/bibtex_functions.hpp"
 #include "gambit/Utils/citation_keys.hpp"
+#include "gambit/Utils/model_validation.hpp"
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Backends/backend_singleton.hpp"
 #include "gambit/cmake/cmake_variables.hpp"
@@ -120,11 +122,15 @@ namespace Gambit
       for (std::tie(it, iend) = in_edges(vertex, graph);
           it != iend; ++it)
       {
-        if (std::find(myVertexList.begin(), myVertexList.end(), source(*it, graph)) == myVertexList.end() )
+        // Use the fact that insert() returns {iterator, true} when 
+        // the parent is new, in which case we recurse. (Should give 
+        // a O(log N) tree traversal rather than O(N) when using 
+        // std::find + insert.)
+        const VertexID parent = source(*it, graph);
+        if (myVertexList.insert(parent).second)
         {
-          myVertexList.insert(source(*it, graph));
-          getParentVertices(source(*it, graph), graph, myVertexList);
-        }
+          getParentVertices(parent, graph, myVertexList);          
+        }  
       }
     }
 
@@ -325,6 +331,19 @@ namespace Gambit
 
       // Get the scanID
       set_scanID();
+
+      // Set the model validation handling
+      setModelValidationHandling();
+
+      // Build the vertex ID -> OutputVertex* map used by getPurpose() and
+      // getCritical(). outputVertices is finalised by this point and is never
+      // mutated again, so the pointers stored here remain valid.
+      outputVertexIndex.clear();
+      outputVertexIndex.reserve(outputVertices.size());
+      for (const OutputVertex& ov : outputVertices)
+      {
+        outputVertexIndex.emplace(ov.vertex, &ov);
+      }
 
       // Done
     }
@@ -704,10 +723,8 @@ namespace Gambit
     /// Return the purpose associated with a given functor.
     const str& DependencyResolver::getPurpose(VertexID v)
     {
-      for (const OutputVertex& ov : outputVertices)
-      {
-        if (ov.vertex == v) return ov.purpose;
-      }
+      auto it = outputVertexIndex.find(v);
+      if (it != outputVertexIndex.end()) return it->second->purpose;
       /// '__no_purpose' if the functor does not correspond to an ObsLike entry in the ini file.
       static const str none("__no_purpose");
       return none;
@@ -716,10 +733,8 @@ namespace Gambit
     /// Return whether a given functor is critical.
     bool DependencyResolver::getCritical(VertexID v)
     {
-      for (const OutputVertex& ov : outputVertices)
-      {
-        if (ov.vertex == v) return ov.critical;
-      }
+      auto it = outputVertexIndex.find(v);
+      if (it != outputVertexIndex.end()) return it->second->critical;
       /// critical can safely be false if the functor does not correspond to an ObsLike entry in the ini file.
       return false;
     }
@@ -946,7 +961,7 @@ namespace Gambit
 
     std::vector<std::pair<VertexID,bool>> DependencyResolver::closestCandidateForModel(std::vector<std::pair<VertexID,bool>> candidates)
     {
-      // In case of doubt (and if not explicitely disabled in the ini-file), prefer functors
+      // In case of doubt (and if not explicitly disabled in the ini-file), prefer functors
       // that are more specifically tailored for the model being scanned. Do not consider functors
       // that are accessible via INTERPRET_AS_X links, as these are all considered to be equally 'far'
       // from the model being scanned, with the 'distance' being one step further than the most distant
@@ -2415,6 +2430,35 @@ namespace Gambit
         }
 
       }
+    }
+
+    void DependencyResolver::setModelValidationHandling() const
+    {
+      const str& model_validation_handling_str = boundIniFile->getValueOrDef<str>("pass", "model_validation");
+
+      auto& model_validation_handler = ModelValidationHandler::getInstance();
+
+      if (model_validation_handling_str == "pass")
+      {
+        model_validation_handler.setModelValidationHandling(ModelValidationHandling::pass);
+      }
+      else if (model_validation_handling_str == "invalidate")
+      {
+        model_validation_handler.setModelValidationHandling(ModelValidationHandling::invalidate);
+      }
+      else if (model_validation_handling_str == "raise")
+      {
+        model_validation_handler.setModelValidationHandling(ModelValidationHandling::raise);
+      }
+      else
+      {
+        std::ostringstream errmsg;
+        errmsg << "Invalid model_validation_handling value: " << model_validation_handling_str << "." << endl;
+        errmsg << "Valid values are: pass, invalidate, raise." << endl;
+        dependency_resolver_error().raise(LOCAL_INFO,errmsg.str());
+      }
+
+      logger() << LogTags::dependency_resolver << "Model validation handling set to \"" << model_validation_handling_str << "\"." << EOM;
     }
 
   }

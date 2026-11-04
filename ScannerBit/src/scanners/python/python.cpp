@@ -76,7 +76,7 @@ namespace Gambit
 scanner_plugin(python, version(1, 0, 0))
 {
     
-    reqd_headers("PYTHONLIBS");
+    reqd_headers("Python3");
     reqd_headers("pybind11");
 
     Gambit::Utils::python_interpreter_guard g;

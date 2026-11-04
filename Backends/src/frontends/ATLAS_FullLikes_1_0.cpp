@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Frontend source for the ATLAS_FullLikes 1.0 
+///  Frontend source for the ATLAS_FullLikes 1.0
 ///  backend.
 ///
 ///  *********************************************
@@ -55,7 +55,7 @@ BE_NAMESPACE
     return 0.0;
   }
 #else
-  double FullLikes_Evaluate(std::map<str,double>& SRsignal, const str& ana_name)
+  double FullLikes_Evaluate(std::map<str,double>& , const str& )
   {
     backend_error().raise(LOCAL_INFO, "pybind11 has been excluded, but is required for the ATLAS_FullLikes backend.\n");
     return 0.0; // Just returning a number to be consistent with types
