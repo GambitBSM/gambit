@@ -1803,11 +1803,24 @@ namespace Gambit
       result = Dep::PerformInitialCrossSection->first;
     }
 
+    void InitialTotalCrossSection_smoking(map_str_xsec_container& result)
+    {
+      using namespace Pipes::InitialTotalCrossSection_smoking;
+      result = Dep::PerformInitialCrossSection_smoking->first;
+    }
+
     /// Helper function for cross-section maps
     void InitialProcessCrossSections_Pythia(map_str_map_int_process_xsec& result)
     {
       using namespace Pipes::InitialProcessCrossSections_Pythia;
       result = Dep::PerformInitialCrossSection->second;
+    }
+
+    /// Helper function for cross-section maps (smoking backend)
+    void InitialProcessCrossSections_smoking(map_str_map_int_process_xsec& result)
+    {
+      using namespace Pipes::InitialProcessCrossSections_smoking;
+      result = Dep::PerformInitialCrossSection_smoking->second;
     }
 
     /// A function that assigns an initial total cross-sections directly from the scan parameters
@@ -2042,5 +2055,26 @@ namespace Gambit
     }  // end InitialTotalCrossSection_YAMLSLHA
 
 
+  /// Copy the Initial CrossSection estimate into the Final as the Total CrossSection
+  /// This is useful when evalutating both using e.g. NLO xsec calculators
+  void useInitialCrossSectionasFinalTotalCrossSection(xsec_container& result)
+  {
+    using namespace Pipes::useInitialCrossSectionasFinalTotalCrossSection;
+    std::string collider = Dep::RunMC->current_collider();
+
+    initialxsec_container initial_xsec = *Dep::PerformInitialCrossSection;
+    result = initial_xsec.first[collider]; 
+  }
+
+  // Same but for process xsecs
+  void useInitialProcessCrossSectionsMapasFinal(map_int_process_xsec& result)
+  {
+    using namespace Pipes::useInitialProcessCrossSectionsMapasFinal;
+    std::string collider = Dep::RunMC->current_collider();
+
+    map_str_map_int_process_xsec initial_process_xsecs = *Dep::InitialProcessCrossSections;
+    result = initial_process_xsecs[collider]; 
+  }
+  
   }
 }
