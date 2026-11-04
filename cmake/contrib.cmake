@@ -379,7 +379,7 @@ set(LHAPDF_CONFIG "${dir}/local/bin/lhapdf-config")
 # (MMHT2014nlo68cl, needed by the SusHi frontend). Semicolon-separated, e.g.
 #   -DLHAPDF_PDFSETS="MMHT2014lo68cl;MMHT2014nnlo68cl"
 set(LHAPDF_PDFSETS "" CACHE STRING "Extra LHAPDF PDF sets to download and install, in addition to the default (MMHT2014nlo68cl); semicolon-separated list")
-set(lhapdf_default_pdfset "MMHT2014nlo68cl")
+set(lhapdf_default_pdfset "MMHT2014lo68cl;MMHT2014nlo68cl")
 set(lhapdf_pdfsets_to_install "${lhapdf_default_pdfset}")
 foreach(extra_pdfset ${LHAPDF_PDFSETS})
   list(APPEND lhapdf_pdfsets_to_install ${extra_pdfset})
