@@ -33,15 +33,17 @@ BE_FUNCTION(gambit_sushi_setfile, void, (char*, int&),
             "gambit_sushi_setfile_", "gambit_sushi_setfile")
 
 // Run ggh+bbh cross-section computation.
-// Returns xeff (ggh NNLO effective, pb) and SUbbh(3) (bbh NNLO, pb) via output args.
-BE_FUNCTION(gambit_sushi_compute, void, (double&, double&),
+// Returns xeff (ggh NNLO effective, pb) and SUbbh(3) (bbh NNLO, pb), followed by
+// their VEGAS integration errors [pb], via output args.
+BE_FUNCTION(gambit_sushi_compute, void, (double&, double&, double&, double&),
             "gambit_sushi_compute_", "gambit_sushi_compute")
 
 // Takes a map of optional settings (see getSusHi_h_xsec_total in ColliderBit_Higgs.cpp).
+// Output args: ggh, bbh cross sections, then their VEGAS integration errors [pb].
 // Runs the full per-point SLHA build + SusHi ggh/bbh NNLO computation.
 // Called directly from a module function's own myFunction() body (not from
 // an eagerly-scheduled BE_INI_FUNCTION), so that emulatable capabilities can
 // skip this call entirely when the emulator's prediction is trusted.
-BE_CONV_FUNCTION(SusHi_run_point, void, (const Spectrum&, const map_str_dbl&, double&, double&), "SusHi_run_point")
+BE_CONV_FUNCTION(SusHi_run_point, void, (const Spectrum&, const map_str_dbl&, double&, double&, double&, double&), "SusHi_run_point")
 
 #include "gambit/Backends/backend_undefs.hpp"

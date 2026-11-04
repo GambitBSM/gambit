@@ -128,9 +128,31 @@
     #define FUNCTION getSusHi_h_xsec_total
     START_FUNCTION_EMULATABLE(double)
     DEPENDENCY(MSSM_spectrum, Spectrum)
-    BACKEND_REQ(SusHi_run_point, (libsushi), void, (const Spectrum&, const map_str_dbl&, double&, double&))
+    BACKEND_REQ(SusHi_run_point, (libsushi), void, (const Spectrum&, const map_str_dbl&, double&, double&, double&, double&))
     ALLOW_MODELS( MSSM9batQ_mA, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG )
     // BACKEND_OPTION( (SusHi, 1.7.0), (libsushi) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Pole masses [GeV] of the two lightest CP-even Higgs states h0_1 < h0_2,
+  // from the MSSM spectrum. Diagnostic outputs for the 95 GeV scan: the
+  // Higgs95_LogLike terms use the *lightest* h but do not constrain its mass,
+  // so these make it visible which state the fit is describing.
+  #define CAPABILITY mh0_1_pole_cap
+  START_CAPABILITY
+    #define FUNCTION getMh0_1_pole
+    START_FUNCTION(double)
+    DEPENDENCY(MSSM_spectrum, Spectrum)
+    ALLOW_MODELS( MSSM9batQ_mA, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY mh0_2_pole_cap
+  START_CAPABILITY
+    #define FUNCTION getMh0_2_pole
+    START_FUNCTION(double)
+    DEPENDENCY(MSSM_spectrum, Spectrum)
+    ALLOW_MODELS( MSSM9batQ_mA, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG )
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -177,5 +199,18 @@
     #undef FUNCTION
   #undef CAPABILITY
 
+
+  // Gaussian log-likelihood on the lightest CP-even Higgs pole mass, pulling
+  // it towards the ~95 GeV excess. Higgs95_LogLike itself does not constrain
+  // m_h1, so without this term the scan can (and mostly does) put the
+  // 125 GeV state in the lightest slot. Mean and width are runOptions; see
+  // calc_Higgs95_mass_LogLike in ColliderBit_Higgs.cpp.
+  #define CAPABILITY Higgs95_mass_LogLike
+  START_CAPABILITY
+    #define FUNCTION calc_Higgs95_mass_LogLike
+    START_FUNCTION(double)
+    DEPENDENCY(mh0_1_pole_cap, double)
+    #undef FUNCTION
+  #undef CAPABILITY
 
 #undef MODULE

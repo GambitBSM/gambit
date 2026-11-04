@@ -92,6 +92,13 @@ mpirun -np N ./gambit ... : -np N1 ./egg -c <capability_name_1> : -np N2 ./egg -
 ```
 Run `./egg -h` for a complete overview of options.
 
+Alternatively, on clusters that use `srun`, use `srun --multi-prog` with a config file listing which MPI processes run which executable (`gambit` first, `egg` last). E.g. for 224 MPI processes (222 for `gambit` and 2 for `egg`), `multiprog.conf` is
+```
+0-221 ./gambit -f yaml_files/MSSM_Higgs95_scan.yaml
+222-223 ./egg -c getSusHi_h_xsec_total
+```
+launched with `srun --mpi=pmix --multi-prog multiprog.conf` and `#SBATCH --ntasks=224`. The ranges must add up to the total number of tasks. See `run_gambit_emu.sbatch` for a full job script.
+
 ## Inifile (yaml setup)
 The inifile has to include emulator-specific settings for each capability. In a dedicated `Emulation` block in the yaml file we list the capabilities we want to emulate, and specify the emulator plugin settings for each one.
 

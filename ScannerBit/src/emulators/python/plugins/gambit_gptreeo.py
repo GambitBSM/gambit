@@ -6,6 +6,7 @@ import time
 import traceback
 import csv
 import warnings
+import faulthandler
 
 try:
     import joblib
@@ -64,6 +65,9 @@ YAML options:
     log_emulator_data: If True, writes emu_predictions.csv and emu_training.csv
         to the output path for post-run comparison of emulated vs actual values.
         Defaults to False.
+    stack_dump_interval: If > 0, write the Python stack of this rank to
+        stacks_rank<N>.txt in the output path every this many seconds.
+        Defaults to 0 (off).
     log_target: If True, the tree models log(y) instead of y (for positive
         targets spanning orders of magnitude). The prediction is mapped back
         to y, but the uncertainty returned to GAMBIT is the log-space sigma,
@@ -123,6 +127,12 @@ spent in predict (including any reload of the model file).
         model_filename = kwargs.get('model_filename', 'pygptreeo_model.joblib')
         self.tree_filename = os.path.join(output_path, model_filename)
         self.verbose = kwargs.get('verbose', False)
+
+        # Periodic stack dump of this rank, to find out where a stalled rank is stuck.
+        stack_dump_interval = float(kwargs.get('stack_dump_interval', 0))
+        if stack_dump_interval > 0:
+            self._stack_file = open(os.path.join(output_path, f'stacks_rank{self.mpi_rank}.txt'), 'w')
+            faulthandler.dump_traceback_later(stack_dump_interval, repeat=True, file=self._stack_file)
         self.log_target = kwargs.get('log_target', False)
         self.target_relative_uncertainty = kwargs.get('target_relative_uncertainty', None)
         self.min_train_points = int(kwargs.get('min_train_points', 100))
@@ -229,20 +239,16 @@ spent in predict (including any reload of the model file).
         if self.verbose:
             print(f"[pygptreeo] train #{self.n_train}: x={x} y={y} sigma={sigma}", flush=True)
 
-        if self.logging_enabled:
-            if not self._train_header_written:
-                header = (['t'] + [f'x_{i}' for i in range(len(x))]
-                          + [f'y_{i}' for i in range(len(y))]
-                          + [f'z_{i}' for i in range(len(sigma))])
-                self._train_csv_writer.writerow(header)
-                self._train_header_written = True
-            self._train_csv_writer.writerow([time.time()] + list(x) + list(y) + list(sigma))
-            self._train_csv_file.flush()
+        t_received = time.time()
+        row = [t_received] + list(x) + list(y) + list(sigma)
+        self._train_dims = (len(x), len(y), len(sigma))
+        nan = float('nan')
 
         y_lin = y.copy()
         if self.log_target:
             if np.any(y <= 0):
                 print(f"[pygptreeo] training point skipped: log_target needs y > 0, got {y}", flush=True)
+                self._log_train_row(row, nan, nan, nan)
                 return
             sigma = sigma / y
             y = np.log(y)
@@ -250,6 +256,7 @@ spent in predict (including any reload of the model file).
         if self.adaptive_validation and self._n_training_points() >= self.min_train_points:
             self._record_validation_error(x, y_lin)
 
+        t0 = time.time()
         try:
             self.gpt.update_tree(x.reshape(1, -1), y.reshape(1, -1),
                                  float(sigma[0]) if sigma.size == 1 else sigma)
@@ -257,9 +264,31 @@ spent in predict (including any reload of the model file).
             print(f"[pygptreeo] training point skipped after numerical error: {e}", flush=True)
             traceback.print_exc(limit=-8)
             sys.stdout.flush()
+            self._log_train_row(row, time.time() - t0, float('nan'), float('nan'))
             return
+        t_update = time.time() - t0
 
+        t0 = time.time()
         self.gpt.atomic_save(self.tree_filename)
+        t_save = time.time() - t0
+        self._log_train_row(row, t_update, t_save, self._n_training_points())
+
+    def _log_train_row(self, row, t_update, t_save, n_points_after):
+        """Write one emu_training.csv row. Besides the data it records how long the
+        tree update and the model save took, and the number of points in the saved
+        model, so that the staleness of the predictor's model can be reconstructed."""
+        if not self.logging_enabled:
+            return
+        if not self._train_header_written:
+            n_x, n_y, n_z = self._train_dims
+            header = (['t'] + [f'x_{i}' for i in range(n_x)]
+                      + [f'y_{i}' for i in range(n_y)]
+                      + [f'z_{i}' for i in range(n_z)]
+                      + ['t_update', 't_save', 'n_points_model', 't_done'])
+            self._train_csv_writer.writerow(header)
+            self._train_header_written = True
+        self._train_csv_writer.writerow(row + [t_update, t_save, n_points_after, time.time()])
+        self._train_csv_file.flush()
 
     def _record_validation_error(self, x, y_lin):
         """Trainer side: error of the current tree at a new truth, if it was confident."""
@@ -353,11 +382,13 @@ spent in predict (including any reload of the model file).
             if not self._pred_header_written:
                 header = (['t', 'dt', 'forced', 'val_frac'] + [f'x_{i}' for i in range(len(x))]
                           + [f'y_pred_{i}' for i in range(len(y_pred))]
-                          + [f'y_std_{i}' for i in range(len(y_std))])
+                          + [f'y_std_{i}' for i in range(len(y_std))]
+                          + ['n_points_model', 'model_mtime'])
                 self._pred_csv_writer.writerow(header)
                 self._pred_header_written = True
             now = time.time()
-            self._pred_csv_writer.writerow([now, now - t_start, forced, val_frac] + list(x) + list(y_pred) + list(y_std))
+            self._pred_csv_writer.writerow([now, now - t_start, forced, val_frac] + list(x) + list(y_pred) + list(y_std)
+                                         + [n_seen, self.last_mtime])
             self._pred_csv_file.flush()
 
         return (y_pred, y_std)

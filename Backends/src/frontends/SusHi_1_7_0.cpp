@@ -28,7 +28,7 @@ BE_NAMESPACE
     // module functions (not from BE_INI_FUNCTION), so that emulatable
     // capabilities can skip this call entirely when the emulator's
     // prediction is trusted -- see calculate() in functor_definitions.hpp.
-    void SusHi_run_point(const Spectrum& mySpec, const map_str_dbl& opts, double& ggh_result, double& bbh_result)
+    void SusHi_run_point(const Spectrum& mySpec, const map_str_dbl& opts, double& ggh_result, double& bbh_result, double& ggh_err, double& bbh_err)
     {
     using namespace SLHAea;
 
@@ -58,17 +58,58 @@ BE_NAMESPACE
     std::string infile = "SusHi_input_" + std::to_string(rank) + ".slha";
 
     // Get SLHA2 content from MSSM spectrum
-    SLHAea::Coll slha = mySpec.getSLHAea(2);
+    //SLHAea::Coll slha = mySpec.getSLHAea(2);
+    SLHAea::Coll slha;
 
-    // SLHA2 puts mnu3(pole) = 0 at SMINPUTS[8], but SusHi reads that entry
-    // as mc(mc) MSbar.  Overwrite it with the charm quark mass so SusHi
-    // doesn't call runalpha(mu=0) and crash.
-    {
-        double mc_msbar = 1.28; // GeV (PDG; matches SMINPUTS[24] written by spectrum)
-        auto& line8 = slha["SMINPUTS"][std::vector<int>{8}];
-        line8.clear();
-        line8 << 8 << mc_msbar << "# mc(mc)^MSbar [SusHi convention; SLHA2 entry 8 = mnu3]";
-    }
+
+    // SMINPUTS
+    SLHAea::Block sminputs("SMINPUTS");
+    SLHAea::Line smin;
+
+    smin << "BLOCK" << "SMINPUTS"; sminputs.push_back(smin); smin.clear();
+    smin << 1 << 1.27934000e+02 << "# alpha_em^(-1)(MZ) SM MSbar" ; sminputs.push_back(smin); smin.clear();
+    smin << 2 << 1.16637000e-05 << "# G_Fermi" ; sminputs.push_back(smin); smin.clear();
+    smin << 3 << 1.17200000e-01 << "# alpha_s(MZ) SM MSbar" ; sminputs.push_back(smin); smin.clear();
+    smin << 4 << 9.11876000e+01 << "# m_Z(pole)" ; sminputs.push_back(smin); smin.clear();
+    smin << 5 << 4.18000000e+00 << "# m_b(m_b)" ; sminputs.push_back(smin); smin.clear();
+    smin << 6 << 1.73300000e+02 << "# m_t(pole)" ; sminputs.push_back(smin); smin.clear();
+    smin << 7 << 1.77686000e+00 << "# m_tau (pole)" ; sminputs.push_back(smin); smin.clear();
+    smin << 8 << 1.27500000e+00 << "# m_c(m_c)" ; sminputs.push_back(smin); smin.clear();
+    slha.push_back(sminputs);
+
+    /// MASS block
+    SLHAea::Block massBlock("MASS");
+    SLHAea::Line mln;
+
+    // get higgs masses 
+    double mh  = mySpec.get(Par::Pole_Mass, "h0_1");  // lightest CP-even (h)
+    double mH  = mySpec.get(Par::Pole_Mass, "h0_2");  // heavier CP-even (H)
+    double mA  = mySpec.get(Par::Pole_Mass, "A0");    // CP-odd (A)
+    //double mHp = mySpec.get(Par::Pole_Mass, "H+");    // charged Higgs, if you need it
+
+    mln << "BLOCK" << "MASS"; massBlock.push_back(mln); mln.clear();
+    mln << 25 << mh << "# Higgs mass h" ; massBlock.push_back(mln); mln.clear();
+    mln << 35 << mH << "# Higgs mass H" ; massBlock.push_back(mln); mln.clear();
+    mln << 36 << mA << "# Pseudoscalar Higgs mass A" ; massBlock.push_back(mln); mln.clear();
+    slha.push_back(massBlock);
+
+    // ALPHA
+    double alpha = std::asin(mySpec.get(Par::Pole_Mixing, "h0", 2, 2));
+    SLHAea::Block alphaBlock("ALPHA");
+    SLHAea::Line alp;
+    alp << "BLOCK" << "ALPHA"; alphaBlock.push_back(alp); alp.clear();
+    alp << alpha << "# mixing in Higgs sector" ; alphaBlock.push_back(alp); alp.clear();
+    slha.push_back(alphaBlock);
+
+
+    /// MINPAR
+    double tanb = mySpec.get(Par::dimensionless, "tanbeta");
+    SLHAea::Block minparBlock("MINPAR");
+    SLHAea::Line minp;
+    minp << "BLOCK" << "MINPAR"; minparBlock.push_back(minp); minp.clear();
+    minp << 3 << tanb << "# tanb" ; minparBlock.push_back(minp); minp.clear();
+    slha.push_back(minparBlock);
+
 
     // SusHi reads gluino mass from EXTPAR[3] and other SUSY params from EXTPAR,
     // but GAMBIT writes M3 to MSOFT[3].  Build EXTPAR explicitly from the spectrum.
@@ -179,13 +220,16 @@ BE_NAMESPACE
     gambit_sushi_setfile(fn_buf, fn_len);
 
     // Run ggh+bbh computation
-    double ggh = 0.0, bbh = 0.0;
-    gambit_sushi_compute(ggh, bbh);
+    double ggh = 0.0, bbh = 0.0, ggh_e = 0.0, bbh_e = 0.0;
+    gambit_sushi_compute(ggh, bbh, ggh_e, bbh_e);
     ggh_result = ggh;
     bbh_result = bbh;
+    ggh_err = ggh_e;
+    bbh_err = bbh_e;
 
     logger() << LogTags::debug
-             << "SusHi 1.7.0: ggh = " << ggh << " pb, bbh = " << bbh << " pb" << EOM;
+             << "SusHi 1.7.0: ggh = " << ggh << " +/- " << ggh_e << " pb, bbh = " << bbh
+             << " +/- " << bbh_e << " pb" << EOM;
 
     std::remove(infile.c_str());
     std::string murdep = infile.substr(0, infile.size() - 5) + "_murdep";

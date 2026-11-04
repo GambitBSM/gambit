@@ -633,6 +633,10 @@ namespace Gambit
                 << " mh=" << mh << " mA=" << mA << " sin(alpha)=" << sinalp << std::endl;
     }
 
+    /// Absolute VEGAS integration error [pb] of the most recent SusHi run,
+    /// handed from getSusHi_h_xsec_total to its EmulatorTranslateTarget.
+    static double sushi_last_integration_err = 0.0;
+
     bool getSusHi_h_xsec_total_EmulatorCheckThreshold(str& name, std::vector<double>& uncertainty)
     {
       #ifdef WITH_MPI
@@ -648,9 +652,10 @@ namespace Gambit
     void getSusHi_h_xsec_total_EmulatorTranslateTarget(std::vector<double>& target, double& result, std::vector<double>& uncertainty)
     {
       target = {result};
-      // ~2% relative uncertainty, matching the reduced VEGAS call counts
-      // configured in SusHi_run_point for emulator-training speed.
-      uncertainty = {0.02 * result};
+      // SusHi's VEGAS integration error on this point (ggh and bbh in
+      // quadrature), stored by getSusHi_h_xsec_total. Falls back to ~2%
+      // (the reduced VEGAS call counts in SusHi_run_point) if unavailable.
+      uncertainty = {(sushi_last_integration_err > 0.0) ? sushi_last_integration_err : 0.02 * result};
       std::cout << "[Emulator: getSusHi_h_xsec_total] TrainPoint: xsec_total = " << result << " pb" << std::endl;
     }
 
@@ -680,9 +685,32 @@ namespace Gambit
       for (const char* key : keys)
         if (runOptions->hasKey(key)) sushi_opts[key] = runOptions->getValue<double>(key);
 
-      double ggh = 0.0, bbh = 0.0;
-      BEreq::SusHi_run_point(*Dep::MSSM_spectrum, sushi_opts, ggh, bbh);
+      double ggh = 0.0, bbh = 0.0, ggh_err = 0.0, bbh_err = 0.0;
+      BEreq::SusHi_run_point(*Dep::MSSM_spectrum, sushi_opts, ggh, bbh, ggh_err, bbh_err);
       result = ggh + bbh;
+      // A negative (or NaN) cross-section is unphysical: flag the point as invalid.
+      if (!(result >= 0.0))
+      {
+        std::ostringstream err;
+        err << "SusHi returned an unphysical h cross-section (ggh = " << ggh
+            << " pb, bbh = " << bbh << " pb).";
+        invalid_point().raise(err.str());
+      }
+      sushi_last_integration_err = std::sqrt(ggh_err*ggh_err + bbh_err*bbh_err);
+    }
+
+    /// Pole masses [GeV] of the two lightest CP-even MSSM Higgs states.
+    /// Diagnostic only; see the comment in ColliderBit_Higgs_rollcall.hpp.
+    void getMh0_1_pole(double& result)
+    {
+      using namespace Pipes::getMh0_1_pole;
+      result = Dep::MSSM_spectrum->get(Par::Pole_Mass, "h0_1");
+    }
+
+    void getMh0_2_pole(double& result)
+    {
+      using namespace Pipes::getMh0_2_pole;
+      result = Dep::MSSM_spectrum->get(Par::Pole_Mass, "h0_2");
     }
 
     /// Signal strength mu_gammagamma = [sigma(pp->h) x BR(h->gammagamma)] / SM
@@ -779,6 +807,21 @@ namespace Gambit
 
       double chi2_total = chi2_gg + chi2_tt;
       result = -0.5 * chi2_total;
+    }
+
+    /// Gaussian log-likelihood on the lightest CP-even Higgs pole mass,
+    /// centred on the ~95 GeV excess. Mean and width [GeV] can be changed from
+    /// the yaml (runOptions "mh1_target" / "mh1_sigma"). The default width
+    /// is of the order of the theory uncertainty on m_h in the MSSM, and
+    /// roughly matches the 94-98 GeV window used for h_95 in
+    /// arXiv:2203.13180 (Eq. 9).
+    void calc_Higgs95_mass_LogLike(double& result)
+    {
+      using namespace Pipes::calc_Higgs95_mass_LogLike;
+      double mh_target = runOptions->getValueOrDef<double>(95.4, "mh1_target");
+      double mh_sigma  = runOptions->getValueOrDef<double>(2.0,  "mh1_sigma");
+      double mh1 = *Dep::mh0_1_pole_cap;
+      result = -0.5 * std::pow((mh1 - mh_target) / mh_sigma, 2);
     }
 
   }
