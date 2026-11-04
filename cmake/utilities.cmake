@@ -485,10 +485,12 @@ function(add_standalone executablename)
       if (NOT EXCLUDE_ONNXRUNTIME)
         set(ARG_LIBRARIES ${ARG_LIBRARIES} ${ONNXRUNTIME_LDFLAGS})
       endif()
-      if (NOT EXCLUDE_FASTJET)
-        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${fastjet_LDFLAGS})
-        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${fjcontrib_LDFLAGS})
-      endif()
+    endif()
+
+    # FastJet symbols are pulled in via the common GAMBIT headers, so all standalones need linking to it.
+    if (NOT EXCLUDE_FASTJET)
+      set(ARG_LIBRARIES ${ARG_LIBRARIES} ${fastjet_LDFLAGS})
+      set(ARG_LIBRARIES ${ARG_LIBRARIES} ${fjcontrib_LDFLAGS})
     endif()
 
     # Do ad hoc checks for stuff that will eventually be BOSSed and removed from here.
