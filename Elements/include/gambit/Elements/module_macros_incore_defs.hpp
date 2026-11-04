@@ -521,6 +521,82 @@
                                                                                \
   }                                                                            \
 
+/// Common components of CORE_DEPENDENCY_ON_FUNCTION(TAG, DEP, TYPE, TARGET_FUNCTION,
+/// TARGET_MODULE, MODULE, FUNCTION). Identical in structure to DEPENDENCY_COMMON, except
+/// everything is filed under the local TAG rather than DEP.
+#define DEPENDENCY_ON_FUNCTION_COMMON(TAG, TYPE, MODULE, FUNCTION)             \
+                                                                               \
+      /* Create a safety_bucket for the dependency result, so that more        \
+      than one dependency slot can target the same capability */               \
+      namespace Pipes                                                          \
+      {                                                                        \
+        namespace FUNCTION                                                     \
+        {                                                                      \
+          BOOST_PP_IIF(IS_TYPE(void,TYPE), ,                                   \
+           namespace Dep {dep_bucket<TYPE> TAG(STRINGIFY(MODULE),              \
+           STRINGIFY(FUNCTION),STRINGIFY(TAG));})                              \
+        }                                                                      \
+      }                                                                        \
+                                                                               \
+      /* Resolve dependency slot TAG in FUNCTION */                            \
+      template <>                                                              \
+      void resolve_dependency<Gambit::Tags::TAG, Tags::FUNCTION>(functor*      \
+       dep_functor, module_functor_common* BOOST_PP_IIF(IS_TYPE(void,TYPE), ,  \
+       this_functor))                                                          \
+      {                                                                        \
+        /* First try casting the dep pointer passed in to a module_functor */  \
+        module_functor<TYPE> * ptr =                                           \
+         dynamic_cast<module_functor<TYPE>*>(dep_functor);                     \
+                                                                               \
+        /* Now test if that cast worked */                                     \
+        if (ptr == 0)  /* It didn't; throw an error. */                        \
+        {                                                                      \
+          str errmsg = "Null returned from dynamic cast of";                   \
+          errmsg +=  "\ndependency functor in MODULE::resolve_dependency, for" \
+                     "\ndependency slot TAG of function FUNCTION.  Attempt"    \
+                     "\nwas to resolve to " + dep_functor->name() + " in " +   \
+                     dep_functor->origin() + ".";                              \
+          utils_error().raise(LOCAL_INFO,errmsg);                              \
+        }                                                                      \
+                                                                               \
+        /* It did! Now initialize the safety_bucket using the functors.*/      \
+        BOOST_PP_IIF(IS_TYPE(void,TYPE), ,                                     \
+          Pipes::FUNCTION::Dep::TAG.initialize(ptr,this_functor);              \
+        )                                                                      \
+                                                                               \
+      }                                                                        \
+
+
+/// Redirection of DEPENDENCY_ON_FUNCTION(TAG, DEP, TYPE, TARGET_FUNCTION) [via
+/// DEPENDENCY_ON_FUNCTION_IN_MODULE(TAG, DEP, TYPE, TARGET_FUNCTION, TARGET_MODULE)] when
+/// invoked from within the core.
+#define CORE_DEPENDENCY_ON_FUNCTION(TAG, DEP, TYPE, TARGET_FUNCTION, TARGET_MODULE, MODULE, FUNCTION, IS_MODEL_DEP) \
+                                                                               \
+  namespace Gambit                                                            \
+  {                                                                           \
+                                                                               \
+    /* Add TAG (not DEP) to global set of tags of recognised module            \
+    capabilities/deps. TAG must be distinct from DEP, and from any other TAG   \
+    used on this FUNCTION, precisely so that more than one pinned dependency   \
+    can target the same capability DEP without colliding at compile time. */   \
+    ADD_TAG_IN_CURRENT_NAMESPACE(TAG)                                         \
+                                                                               \
+    BOOST_PP_IIF(IS_MODEL_DEP, namespace Models {, )                          \
+                                                                               \
+    namespace MODULE                                                          \
+    {                                                                         \
+      DEPENDENCY_ON_FUNCTION_COMMON(TAG, TYPE, MODULE, FUNCTION)              \
+                                                                               \
+      const int CAT_3(TAG,_for_,FUNCTION) = register_pinned_dependency(       \
+       Functown::FUNCTION, STRINGIFY(TAG), STRINGIFY(DEP), STRINGIFY(TYPE),   \
+       STRINGIFY(TARGET_FUNCTION), STRINGIFY(TARGET_MODULE),                  \
+       &resolve_dependency<Gambit::Tags::TAG, Tags::FUNCTION>);               \
+    }                                                                         \
+                                                                               \
+    BOOST_PP_IIF(IS_MODEL_DEP, }, )                                          \
+                                                                               \
+  }                                                                            \
+
 /// Redirection of ALLOW_MODEL when invoked from within the core.
 #define CORE_ALLOWED_MODEL(MODULE,FUNCTION,MODEL,IS_MODEL)                     \
                                                                                \

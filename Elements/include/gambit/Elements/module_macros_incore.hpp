@@ -63,8 +63,10 @@
 #undef LONG_START_CAPABILITY  
 #undef DECLARE_FUNCTION
 #undef LONG_DECLARE_FUNCTION
-#undef DEPENDENCY                             
+#undef DEPENDENCY
 #undef LONG_DEPENDENCY
+#undef DEPENDENCY_ON_FUNCTION
+#undef DEPENDENCY_ON_FUNCTION_IN_MODULE
 #undef NEEDS_MANAGER                                
 #undef ALLOW_MODELS
 #undef ALLOWED_MODEL
@@ -121,6 +123,20 @@
 #define DEPENDENCY(DEP, TYPE)                             CORE_DEPENDENCY(DEP, TYPE, MODULE, FUNCTION, NOT_MODEL)
 /// Long (all argument) version of \link DEPENDENCY() DEPENDENCY\endlink.
 #define LONG_DEPENDENCY(MODULE, FUNCTION, DEP, TYPE)      CORE_DEPENDENCY(DEP, TYPE, MODULE, FUNCTION, NOT_MODEL)
+
+/// Indicate that the current \link FUNCTION() FUNCTION\endlink depends on capability \em DEP
+/// with return type \em TYPE, but pin resolution directly to the named \em TARGET_FUNCTION,
+/// rather than letting the dependency resolver choose freely among all providers of \em DEP.
+/// The dependency is accessed within the function via \c Dep::TAG rather than \c Dep::DEP,
+/// which is what allows \em TAG to be distinct from \em DEP: unlike plain \link DEPENDENCY()
+/// DEPENDENCY\endlink, more than one \c DEPENDENCY_ON_FUNCTION may target the same \em DEP on
+/// the same \link FUNCTION() FUNCTION\endlink (each with its own \em TAG).
+#define DEPENDENCY_ON_FUNCTION(TAG, DEP, TYPE, TARGET_FUNCTION) \
+                                                           CORE_DEPENDENCY_ON_FUNCTION(TAG, DEP, TYPE, TARGET_FUNCTION, ANY_MODULE, MODULE, FUNCTION, NOT_MODEL)
+/// Version of \link DEPENDENCY_ON_FUNCTION() DEPENDENCY_ON_FUNCTION\endlink that also pins the
+/// target module, for the rare case that \em TARGET_FUNCTION alone is not unique across modules.
+#define DEPENDENCY_ON_FUNCTION_IN_MODULE(TAG, DEP, TYPE, TARGET_FUNCTION, TARGET_MODULE) \
+                                                           CORE_DEPENDENCY_ON_FUNCTION(TAG, DEP, TYPE, TARGET_FUNCTION, TARGET_MODULE, MODULE, FUNCTION, NOT_MODEL)
 
 #define ALLOW_MODELS(...)                                 ALLOW_MODELS_AB(MODULE, FUNCTION, __VA_ARGS__)
 
