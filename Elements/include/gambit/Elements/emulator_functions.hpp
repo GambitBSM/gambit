@@ -14,7 +14,6 @@
 using namespace Gambit;
 using namespace Gambit::Scanner;
 using Gambit::Scanner::map_vector;
-using Gambit::Scanner::vector;
 
 
 // Formats a prediction/uncertainty vector for printing, e.g. "[1.2, 3.4]" --

@@ -201,6 +201,8 @@
     #define FUNCTION lnL_InitialCrossSection_Pythia_gaussian
     START_FUNCTION(double)
     DEPENDENCY(InitialCrossSection_Pythia_value, double)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   /// A log-likelihood function based on the total collider cross-section.
   /// Can e.g. be used as a dummy likelihood to guide the scanner towards
