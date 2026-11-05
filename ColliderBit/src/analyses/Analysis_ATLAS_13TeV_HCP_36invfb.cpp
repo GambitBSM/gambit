@@ -78,7 +78,7 @@ namespace Gambit
       
       void run(const HEPUtils::Event* event)
       {
-        cout << "Running anaylys for ATLAS_13TeV_HCP_36invfb called!" << endl;
+        cout << "Running analysis for ATLAS_13TeV_HCP_36invfb called!" << endl;
 
         //
         // Define objects
