@@ -195,7 +195,6 @@ START_MODULE
     #define FUNCTION fast_slow_test_two
     START_FUNCTION(double)
     ALLOW_MODELS(Fast_Slow_Test_Two)
-    DEPENDENCY(fast_slow_test_one, double)
     #undef FUNCTION
   #undef CAPABILITY
   
