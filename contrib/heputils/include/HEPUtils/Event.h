@@ -158,7 +158,7 @@ namespace HEPUtils {
 
       // Clone the jets, per-name
       for (const auto& kv : _jets) {
-        e.set_jets(deepcopy(jets(kv.first)), kv.first);
+        //e.set_jets(deepcopy(jets(kv.first)), kv.first);
       }
 
       e._pmiss = _pmiss;

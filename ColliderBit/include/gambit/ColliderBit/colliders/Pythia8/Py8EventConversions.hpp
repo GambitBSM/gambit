@@ -163,18 +163,15 @@ namespace Gambit
         {
           auto gp = new HEPUtils::DisplacedParticle(p4, pid, get_unified_vprod(p), get_unified_vdec(p));
           if (prompt) gp->set_prompt();
-          //string LL = "LLprod";
-          //result.add_particle(gp, LL);
-          result.add_particle(gp, (string)"LLprod");
+          result.add_particle(gp, "LLprod");
+          cout << gp->pid() << " " << gp->pT() << " " << gp->vprod() << " " << gp->vdec() << endl;
         }
         /// @todo Make distance cut configurable in YAML
         if (!get_unified_isFinal(p) && get_unified_vdec(p).rho() > 10) // mm
         {
           auto gp = new HEPUtils::DisplacedParticle(p4, pid, get_unified_vprod(p), get_unified_vdec(p));
           if (prompt) gp->set_prompt();
-          //string LL = "LLdec";
-          //result.add_particle(gp, LL);
-          result.add_particle(gp, (string)"LLdec");
+          result.add_particle(gp, "LLdec");
           cout << gp->pid() << " " << gp->pT() << " " << gp->vprod() << " " << gp->vdec() << endl;
         }
 
@@ -219,6 +216,16 @@ namespace Gambit
         {
           jetparticles.push_back(get_unified_pseudojet(p));
         }
+      }
+
+      cout << "Debugging inside of Py8EventConversions.hpp:" << endl;
+      cout << "Printing content of LLprod" << endl;
+      for (const HEPUtils::DisplacedParticle* particle : result.particles<HEPUtils::DisplacedParticle>("LLprod") ) {
+        cout << particle->mom() << particle->vprod() << particle->vdec() << endl;
+      }
+      cout << "Printing content of LLdec" << endl;
+      for (const HEPUtils::DisplacedParticle* particle : result.particles<HEPUtils::DisplacedParticle>("LLdec") ) {
+        cout << particle->mom() << particle->vprod() << particle->vdec() << endl;
       }
 
       /// Jet finding
