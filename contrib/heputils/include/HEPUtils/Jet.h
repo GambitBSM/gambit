@@ -63,6 +63,10 @@ namespace HEPUtils {
       : _p4(mk_p4(pj)), _pj(pj)
     { set_btag(int(isB)); set_ctag(int(isC)); }
 
+    /// Copy constructor
+    Jet(const Jet& j)
+      : _p4(j._p4), _tags(j._tags), _pj(j._pj)
+    {  }
 
     /// Constructor for a light jet without explicit constituents, with a general tags map
     Jet(const P4& mom, const TagCounts& tags)
