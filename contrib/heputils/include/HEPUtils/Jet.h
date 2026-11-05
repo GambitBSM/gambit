@@ -65,7 +65,7 @@ namespace HEPUtils {
 
     /// Copy constructor
     Jet(const Jet& j)
-      : _p4(j._p4), _tags(j._tags), _pj(j._p4)
+      : _p4(j._p4), _tags(j._tags), _pj(j._pj)
     {  }
 
     /// Constructor for a light jet without explicit constituents, with a general tags map
