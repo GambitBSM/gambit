@@ -551,7 +551,7 @@ namespace Gambit
       using namespace Pipes::fast_slow_test_one;
       double x = *Param["x"];
       result = x;
-      std::cout << "HEY CHRIS. I am in the first function\n";
+      std::cout << "ExampleBit_A fast_slow: I am in the first function\n";
     }
 
     void fast_slow_test_two(double &result)
@@ -559,9 +559,8 @@ namespace Gambit
       using namespace Pipes::fast_slow_test_two;
       double y_0 = 0.12;
       double y = *Param["y"];
-      double x_dep = *Dep::fast_slow_test_one;
-      result = -1.0*x_dep*pow(y-y_0,2.0);
-      std::cout << "HEY CHRIS. I am in the second function\n";
+      result = -2.0*pow(y-y_0,2.0);
+      std::cout << "ExampleBit_A fast_slow: I am in the second function\n";
     }
 
     /// Declares (via ALLOW_MODEL_PARAMETERS) that it only depends on "a", so it should be
@@ -571,7 +570,7 @@ namespace Gambit
       using namespace Pipes::fast_slow_test_three_a;
       double a = *Param["a"];
       result = a;
-      std::cout << "HEY CHRIS. I am in the third function (a only)\n";
+      std::cout << ""ExampleBit_A fast_slow: I am in the third function (a only)\n";
     }
 
     /// Declares no parameter subset, so it conservatively depends on all of
@@ -582,7 +581,7 @@ namespace Gambit
       double a = *Param["a"];
       double b = *Param["b"];
       result = a + b;
-      std::cout << "HEY CHRIS. I am in the third function (a and b)\n";
+      std::cout << ""ExampleBit_A fast_slow:  I am in the third function (a and b)\n";
     }
 
     /// @}
