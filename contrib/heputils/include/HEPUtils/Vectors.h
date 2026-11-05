@@ -167,8 +167,8 @@ namespace HEPUtils {
 	if (z() == 0) return M_PI/2; else return atan2(rho(), z()); } //< atan2(+ve, z) is +ve
     /// Get the spatial-vector pseudorapidity
     double eta() const {
-      if ( v2() == 0.0 ) [[unlikely]] return 0.0;
-      if ( rho2() == 0.0 ) [[unlikely]] return std::copysign(HUGE_VAL, z());
+      if ( v2() == 0.0 ) /* [[unlikely]] */ return 0.0;
+      if ( rho2() == 0.0 ) /* [[unlikely]] */ return std::copysign(HUGE_VAL, z());
       return std::copysign(log((v() + fabs(z())) / rho()), z());
     }
     /// Get the spatial-vector absolute pseudorapidity
@@ -293,10 +293,18 @@ namespace HEPUtils {
     static P4 mkXYZE(double px, double py, double pz, double E) {
       return P4().setPE(px, py, pz, E);
     }
+    /// Alias
+    static P4 mkPE(double px, double py, double pz, double E) {
+      return mkXYZE(px, py, pz, E);
+    }
 
     /// Make a vector from (px,py,pz) coordinates and the mass
     static P4 mkXYZM(double px, double py, double pz, double mass) {
       return P4().setPM(px, py, pz, mass);
+    }
+    /// Alias
+    static P4 mkPM(double px, double py, double pz, double mass) {
+      return mkXYZM(px, py, pz, mass);
     }
 
     /// Make a vector from (eta,phi,energy) coordinates and the mass
@@ -583,8 +591,8 @@ namespace HEPUtils {
 
     /// Get the 4-momentum rapidity
     double rap() const {
-      if ( p() == 0.0 ) [[unlikely]] return 0.0;
-      if ( E() == fabs(pz()) ) [[unlikely]] return std::copysign(HUGE_VAL, pz());
+      if ( p() == 0.0 ) /* [[unlikely]] */ return 0.0;
+      if ( E() == fabs(pz()) ) /* [[unlikely]] */ return std::copysign(HUGE_VAL, pz());
       return 0.5 * log((E() + pz()) / (E() - pz()));
     }
     /// Get the 4-momentum absolute rapidity
@@ -697,7 +705,7 @@ namespace HEPUtils {
   /// Function/functor for container<const P4> sorting (cf. std::less)
   template <typename T>
   inline bool _cmpPtDesc(const T& a, const T& b) {
-    return a.pT2() > b.pT2();
+    return a.pT2() >= b.pT2();
   }
 
   /// Function/functor for container<const P4*> sorting (cf. std::less)
