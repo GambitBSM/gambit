@@ -163,18 +163,14 @@ namespace Gambit
         {
           auto gp = new HEPUtils::DisplacedParticle(p4, pid, get_unified_vprod(p), get_unified_vdec(p));
           if (prompt) gp->set_prompt();
-          //string LL = "LLprod";
-          //result.add_particle(gp, LL);
-          result.add_particle(gp, (string)"LLprod");
+          result.add_particle(gp, "LLprod");
         }
         /// @todo Make distance cut configurable in YAML
         if (!get_unified_isFinal(p) && get_unified_vdec(p).rho() > 10) // mm
         {
           auto gp = new HEPUtils::DisplacedParticle(p4, pid, get_unified_vprod(p), get_unified_vdec(p));
           if (prompt) gp->set_prompt();
-          //string LL = "LLdec";
-          //result.add_particle(gp, LL);
-          result.add_particle(gp, (string)"LLdec");
+          result.add_particle(gp, "LLdec");
           cout << gp->pid() << " " << gp->pT() << " " << gp->vprod() << " " << gp->vdec() << endl;
         }
 

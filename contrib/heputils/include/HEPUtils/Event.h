@@ -114,13 +114,13 @@ namespace HEPUtils {
       clear();
     }
 
+
     /// Get the event ID
-    unsigned int id() const {
+    int id() const {
       return _id;
     }
-
     /// Set the event ID
-    void set_id(unsigned int id) const {
+    void set_id(int id) const {
       _id = id;
     }
 
@@ -145,13 +145,14 @@ namespace HEPUtils {
     /// Clone a deep copy (new Particles and Jets allocated) into the provided event object
     void cloneTo(Event& e) const {
       e.set_id(_id);
+
       e.set_weights(_weights);
       e.set_weight_errs(_weight_errs);
 
       // Visibles+invisibles is the full set of std particles (avoids double-counting)
       e.add_particles(mkunconst(deepcopy(_visibles)));
       e.add_particles(mkunconst(deepcopy(_invisibles)));
-      // The custom collections need to be cloned by name, and
+      // The custom collections need to be cloned by name
       for (const auto& kv : _customparticles) {
         e.add_particles(mkunconst(deepcopy(particles(kv.first))), kv.first);
       }
@@ -459,16 +460,6 @@ namespace HEPUtils {
     const std::vector<const P*>& particles(const std::string& key) const {
       const std::vector<const Particle*>& cparticles = _customparticles.at(key);
       return mkconst<P>(cparticles);
-      // return * reinterpret_cast<const std::vector<const P*>*>(&cparticles);
-
-      // //std::vector<const P*>&
-      // const auto& ps = mkconst<P>(_customparticles.at(key));
-      // return ps;
-
-      // const std::vector<const Particle*>& ps = particles(key);
-      // std::vector<const P*> rtn;  rtn.reserve(ps.size());
-      // for (const Particle* p : ps) rtn.push_back( dynamic_cast<const P*>(p) );
-      // return rtn;
     }
 
     /// @brief Get named custom particles (non-const)
@@ -482,15 +473,6 @@ namespace HEPUtils {
     std::vector<P*>& particles(const std::string& key) {
       const std::vector<const Particle*>& cparticles = _customparticles.at(key);
       return mkunconst<P>(cparticles);
-
-      // //std::vector<P*>&
-      // auto& ps = mkunconst<P>(_customparticles.at(key));
-      // return ps;
-
-      // const std::vector<const Particle*>& ps = particles(key);
-      // std::vector<P*> rtn;  rtn.reserve(ps.size());
-      // for (Particle* p : ps) rtn.push_back( dynamic_cast<P*>(p) );
-      // return rtn;
     }
 
 
@@ -618,7 +600,7 @@ namespace HEPUtils {
     void set_jets(const std::vector<const Jet*>& jets, const std::string& key) {
       _jets[key] = jets;
       std::sort(_jets[key].begin(), _jets[key].end(), _cmpPtDescPtr<Jet>);
-      set_clusterseq(jets.front()->clusterseq(), key);
+      // AB: reinstate/fix: set_clusterseq(jets.front()->clusterseq(), key);
     }
     // /// @brief Set the jets collection (non-const input)
     // void set_jets(const std::vector<Jet*>& jets, const std::string& key) {
@@ -683,7 +665,7 @@ namespace HEPUtils {
       if (_cseqs.find(key) != _cseqs.end() && !_cseqs.empty()) {
 	throw std::runtime_error("Event::set_clusterseq() called for a non-empty jet collection");
       }
-      _cseqs[key] =  cseq;
+      _cseqs[key] = cseq;
     }
 
     
