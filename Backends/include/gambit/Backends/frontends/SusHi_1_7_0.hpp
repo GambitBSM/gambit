@@ -38,6 +38,9 @@ BE_FUNCTION(gambit_sushi_setfile, void, (char*, int&),
 BE_FUNCTION(gambit_sushi_compute, void, (double&, double&, double&, double&),
             "gambit_sushi_compute_", "gambit_sushi_compute")
 
+// Function pointer SusHi's fatal-error routine (gsdie) calls instead of STOP.
+BE_VARIABLE(ErrorHandler_cptr, fptr_void, "C_sushi_errorhandler_cptr", "sushi_errorhandler_cptr")
+
 // Takes a map of optional settings (see getSusHi_h_xsec_total in ColliderBit_Higgs.cpp).
 // Output args: ggh, bbh cross sections, then their VEGAS integration errors [pb].
 // Runs the full per-point SLHA build + SusHi ggh/bbh NNLO computation.

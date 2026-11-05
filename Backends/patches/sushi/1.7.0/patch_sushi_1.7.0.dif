@@ -1,14 +1,14 @@
---- a/Makefile	2026-04-10 16:11:43.784801681 +0200
-+++ b/Makefile	2026-04-27 14:21:08.481469678 +0200
-@@ -35,6 +35,6 @@
- # Specify the path to standard C++ libraries (libstdc) 
+--- a/Makefile
++++ b/Makefile
+@@ -38,7 +38,7 @@
  # (only needed when linked to 2HDMC, might be found automatically):
  STDLIB = 
--# =============================================================================
+ # =============================================================================
 -include compilerissues
-+# =============================================================================
 +-include compilerissues
  -include compilerissues.local
+ 
+ #Setting paths used in CMD-mode, split to allow paths longer than 72 characters
 @@ -95,7 +95,7 @@
    $(shell echo "#define FHVERSION \"${FHVERSION}\"" > src/sushi/tmp.h)
  endif
@@ -42,9 +42,9 @@
  gghnnlo: ${GGHNNLOOBJ}
  bbhnnlo: ${BBHNNLOOBJ}
  bbhdiff: ${BBHDIFFOBJ}
---- /dev/null	2026-04-24 11:39:11.973366589 +0200
-+++ b/src/sushi/sushi_gambit_interface.f	2026-05-06 00:00:00.000000000 +0200
-@@ -0,0 +1,78 @@
+--- /dev/null
++++ b/src/sushi/sushi_gambit_interface.f
+@@ -0,0 +1,119 @@
 +C     GAMBIT interface subroutines for SusHi 1.7.0
 +C     Sets jfilein in SusHi common block and runs cross-section computation.
 +
@@ -123,15 +123,55 @@
 +      return
 +      end
 +C-}}}
-diff -ruN a/src/bbhdiff/functions_for_bbHNLO.f b/src/bbhdiff/functions_for_bbHNLO.f
---- a/src/bbhdiff/functions_for_bbHNLO.f	2026-11-04 09:35:51.528671312 +0100
-+++ b/src/bbhdiff/functions_for_bbHNLO.f	2026-11-04 09:35:51.532955659 +0100
++
++C-{{{ GAMBIT error handler
++C     Fatal-error hook: every former STOP in SusHi calls gsdie, which
++C     passes the message to a C++ callback (installed by the GAMBIT
++C     frontend) that throws an exception.  STOP is kept as a fallback if
++C     no callback is installed.
++      module gambit_sushi_errors
++      use, intrinsic :: iso_c_binding
++      implicit none
++      type(c_funptr), bind(C, name="C_sushi_errorhandler_cptr") ::
++     &     errorhandler_cptr
++      abstract interface
++        subroutine callback(msg) bind(C)
++          use, intrinsic :: iso_c_binding
++          character(kind=c_char) :: msg(*)
++        end subroutine callback
++      end interface
++      end module gambit_sushi_errors
++
++      subroutine gsdie(strng)
++      use, intrinsic :: iso_c_binding
++      use gambit_sushi_errors
++      implicit none
++      character*(*) strng
++      character(kind=c_char) :: cmsg(257)
++      procedure(callback), pointer :: fptr
++      integer i, n
++      n = min(len_trim(strng), 256)
++      do i = 1, n
++        cmsg(i) = strng(i:i)
++      enddo
++      cmsg(n+1) = c_null_char
++      write(6,*) 'SusHi (fatal): ', strng(1:n)
++      if (c_associated(errorhandler_cptr)) then
++        call c_f_procpointer(errorhandler_cptr, fptr)
++        call fptr(cmsg)
++      endif
++      write(6,*) 'DEBUG: no GAMBIT error handler, stopping'
++      error stop
++      end
++C-}}}
+--- a/src/bbhdiff/functions_for_bbHNLO.f
++++ b/src/bbhdiff/functions_for_bbHNLO.f
 @@ -151,7 +151,7 @@
        IF(order==2) alpha_s=alphabbh
        IF(alpha_s==0d0) THEN
        print*, 'ACHTUNG keine Ordnung gesetzt -- Programm gestoppt !!!'
 -      stop
-+      error stop
++      call gsdie('functions_for_bbHNLO.f:154')
        ENDIF
        END
  
@@ -140,7 +180,7 @@ diff -ruN a/src/bbhdiff/functions_for_bbHNLO.f b/src/bbhdiff/functions_for_bbHNL
        print*, 'ACHTUNG keine Ordnung oder Kopplung gesetzt',
       f'-- Programm gestoppt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
 -      stop
-+      error stop
++      call gsdie('functions_for_bbHNLO.f:172')
        ENDIF
        END
  
@@ -149,69 +189,64 @@ diff -ruN a/src/bbhdiff/functions_for_bbHNLO.f b/src/bbhdiff/functions_for_bbHNL
        IF(y == 0d0) THEN
         print *, '######### !!! Error !!! ########   ----   arctan(0/0)'
 -      stop
-+      error stop
++      call gsdie('functions_for_bbHNLO.f:314')
        ENDIF
        ENDIF
        
-diff -ruN a/src/bbhnnlo/bbhweights.f b/src/bbhnnlo/bbhweights.f
---- a/src/bbhnnlo/bbhweights.f	2026-11-04 09:35:51.528634963 +0100
-+++ b/src/bbhnnlo/bbhweights.f	2026-11-04 09:35:51.532876049 +0100
+--- a/src/bbhnnlo/bbhweights.f
++++ b/src/bbhnnlo/bbhweights.f
 @@ -75,7 +75,7 @@
            endif
           else
              write(*,*) "2HDM version unknown!"
 -            stop
-+            error stop
++            call gsdie('bbhweights.f:78')
           endif
           cweH(2) = cweH(1)
        endif
-diff -ruN a/src/bbhnnlo/controlbbh.f b/src/bbhnnlo/controlbbh.f
---- a/src/bbhnnlo/controlbbh.f	2026-11-04 09:35:51.528591559 +0100
-+++ b/src/bbhnnlo/controlbbh.f	2026-11-04 09:35:51.532886715 +0100
+--- a/src/bbhnnlo/controlbbh.f
++++ b/src/bbhnnlo/controlbbh.f
 @@ -406,7 +406,7 @@
       &        - (nf*z2)/3.d0 -z3/6.d0 ) )
        else
           write(6,*) '<function polemass>: ERROR'
 -         stop
-+         error stop
++         call gsdie('controlbbh.f:409')
        endif
  
        end
-diff -ruN a/src/gghnnlo/controlggh.f b/src/gghnnlo/controlggh.f
---- a/src/gghnnlo/controlggh.f	2026-11-04 09:35:51.527688028 +0100
-+++ b/src/gghnnlo/controlggh.f	2026-11-04 09:35:51.532000795 +0100
+--- a/src/gghnnlo/controlggh.f
++++ b/src/gghnnlo/controlggh.f
 @@ -694,7 +694,7 @@
        character*(*) strng
  
        write(6,*) 'ggh@nnlo (fatal): ',strng,' Stopped.'
 -      stop
-+      error stop
++      call gsdie(strng)
  
        end
  
-diff -ruN a/src/gghnnlo/gghcall.f b/src/gghnnlo/gghcall.f
---- a/src/gghnnlo/gghcall.f	2026-11-04 09:35:51.527496370 +0100
-+++ b/src/gghnnlo/gghcall.f	2026-11-04 09:35:51.532368413 +0100
+--- a/src/gghnnlo/gghcall.f
++++ b/src/gghnnlo/gghcall.f
 @@ -65,7 +65,7 @@
        endif
        if (norder.ge.3) then
           if (lpseudo) then
 -            stop 'gghcall.f 1'
-+            error stop 'gghcall.f 1'
++            call gsdie('gghcall.f 1')
           else
              citations(45) = 1
              citations(46) = 2
-diff -ruN a/src/gghnnlo/ggh.f b/src/gghnnlo/ggh.f
---- a/src/gghnnlo/ggh.f	2026-11-04 09:35:51.527800136 +0100
-+++ b/src/gghnnlo/ggh.f	2026-11-04 09:35:51.532215471 +0100
+--- a/src/gghnnlo/ggh.f
++++ b/src/gghnnlo/ggh.f
 @@ -239,8 +239,8 @@
        include '../commons/common-keys.f'
  
  c..   only scalar so far, and muF=muR
 -      if ((nmt.gt.0).and.lpseudo) stop 'delta1mt'
 -      if (nmt.gt.10) stop 'delta1mt'
-+      if ((nmt.gt.0).and.lpseudo) error stop 'delta1mt'
-+      if (nmt.gt.10) error stop 'delta1mt'
++      if ((nmt.gt.0).and.lpseudo) call gsdie('delta1mt')
++      if (nmt.gt.10) call gsdie('delta1mt')
  
        delta1mt = 0.d0
  
@@ -221,8 +256,8 @@ diff -ruN a/src/gghnnlo/ggh.f b/src/gghnnlo/ggh.f
  
 -      if ((nmt.gt.0).and.lpseudo) stop 'delta2mt'
 -      if (nmt.gt.6) stop 'delta2mt'
-+      if ((nmt.gt.0).and.lpseudo) error stop 'delta2mt'
-+      if (nmt.gt.6) error stop 'delta2mt'
++      if ((nmt.gt.0).and.lpseudo) call gsdie('delta2mt')
++      if (nmt.gt.6) call gsdie('delta2mt')
  
        do i=1,10
           help(i) = 0.d0
@@ -231,7 +266,7 @@ diff -ruN a/src/gghnnlo/ggh.f b/src/gghnnlo/ggh.f
        
        write(6,*) 'not implemented yet'
 -      stop
-+      error stop
++      call gsdie('ggh.f:501')
        delta3mt = 0.d0
  
        return
@@ -241,8 +276,8 @@ diff -ruN a/src/gghnnlo/ggh.f b/src/gghnnlo/ggh.f
  c..   only scalar so far
 -      if ((nmt.gt.0).and.lpseudo) stop 'dcoefs1mt'
 -      if (nmt.gt.10) stop 'dcoefs1mt'
-+      if ((nmt.gt.0).and.lpseudo) error stop 'dcoefs1mt'
-+      if (nmt.gt.10) error stop 'dcoefs1mt'
++      if ((nmt.gt.0).and.lpseudo) call gsdie('dcoefs1mt')
++      if (nmt.gt.10) call gsdie('dcoefs1mt')
  
        dcoefs1mt = 0.d0
        if (nmt.ge.2) then
@@ -252,8 +287,8 @@ diff -ruN a/src/gghnnlo/ggh.f b/src/gghnnlo/ggh.f
  c..   only scalar so far
 -      if (lpseudo) stop 'delta2mt'
 -      if (nmt.gt.6) stop 'delta2mt'
-+      if (lpseudo) error stop 'delta2mt'
-+      if (nmt.gt.6) error stop 'delta2mt'
++      if (lpseudo) call gsdie('delta2mt')
++      if (nmt.gt.6) call gsdie('delta2mt')
  
        do i=1,10
           help(i) = 0.d0
@@ -262,7 +297,7 @@ diff -ruN a/src/gghnnlo/ggh.f b/src/gghnnlo/ggh.f
  
        write(6,*) 'not implemented yet'
 -      stop
-+      error stop
++      call gsdie('ggh.f:933')
        dcoefs3mt = 0.d0
  
        return
@@ -271,7 +306,7 @@ diff -ruN a/src/gghnnlo/ggh.f b/src/gghnnlo/ggh.f
        dlxm1 = dlog(xm1)
        
 -      if (nsft.gt.16) stop 'sgg1exp(): nsft too large'
-+      if (nsft.gt.16) error stop 'sgg1exp(): nsft too large'
++      if (nsft.gt.16) call gsdie('sgg1exp(): nsft too large')
  c..
  c..   input produced with ~/math/gghmt/rgfull.m,
  c..   function printitnlo[a,b]
@@ -281,8 +316,8 @@ diff -ruN a/src/gghnnlo/ggh.f b/src/gghnnlo/ggh.f
  c..   only scalar so far
 -      if ((nmt.gt.0).and.lpseudo) stop 'sgg1mtexact'
 -      if (nmt.gt.10) stop 'sgg1mtexact'
-+      if ((nmt.gt.0).and.lpseudo) error stop 'sgg1mtexact'
-+      if (nmt.gt.10) error stop 'sgg1mtexact'
++      if ((nmt.gt.0).and.lpseudo) call gsdie('sgg1mtexact')
++      if (nmt.gt.10) call gsdie('sgg1mtexact')
  
  c..   1/mt expansion:
        sgg1mtexact = 0.d0
@@ -293,9 +328,9 @@ diff -ruN a/src/gghnnlo/ggh.f b/src/gghnnlo/ggh.f
 -      if ((nmt.gt.0).and.lpseudo) stop 'sgg1mtexp'
 -      if (nmt.gt.10) stop 'sgg1mtexp'
 -      if (nsft.gt.16) stop 'sgg1mtexp'
-+      if ((nmt.gt.0).and.lpseudo) error stop 'sgg1mtexp'
-+      if (nmt.gt.10) error stop 'sgg1mtexp'
-+      if (nsft.gt.16) error stop 'sgg1mtexp'
++      if ((nmt.gt.0).and.lpseudo) call gsdie('sgg1mtexp')
++      if (nmt.gt.10) call gsdie('sgg1mtexp')
++      if (nsft.gt.16) call gsdie('sgg1mtexp')
  c..
  c..   input produced with ~/math/gghmt/rgfull.m,
  c..   function printitnlo[a,b]
@@ -304,7 +339,7 @@ diff -ruN a/src/gghnnlo/ggh.f b/src/gghnnlo/ggh.f
        dlxm1 = dlog(xm1)
  
 -      if (nsft.gt.16) stop 'sqg1exp(): nsft too large'
-+      if (nsft.gt.16) error stop 'sqg1exp(): nsft too large'
++      if (nsft.gt.16) call gsdie('sqg1exp(): nsft too large')
  
  c..
  c..   input produced with ~/math/gghmt/rgfull.m,
@@ -314,8 +349,8 @@ diff -ruN a/src/gghnnlo/ggh.f b/src/gghnnlo/ggh.f
  c..   only scalar so far
 -      if ((nmt.gt.0).and.lpseudo) stop 'sgg1mt'
 -      if (nmt.gt.10) stop 'sqg1mtexact'
-+      if ((nmt.gt.0).and.lpseudo) error stop 'sgg1mt'
-+      if (nmt.gt.10) error stop 'sqg1mtexact'
++      if ((nmt.gt.0).and.lpseudo) call gsdie('sgg1mt')
++      if (nmt.gt.10) call gsdie('sqg1mtexact')
  
        sqg1mtexact = 0.d0 
        if (nmt.ge.2) then
@@ -326,9 +361,9 @@ diff -ruN a/src/gghnnlo/ggh.f b/src/gghnnlo/ggh.f
 -      if ((nmt.gt.0).and.lpseudo) stop 'sqg1mtexp'
 -      if (nmt.gt.10) stop 'sqg1mtexp'
 -      if (nsft.gt.16) stop 'sqg1mtexp'
-+      if ((nmt.gt.0).and.lpseudo) error stop 'sqg1mtexp'
-+      if (nmt.gt.10) error stop 'sqg1mtexp'
-+      if (nsft.gt.16) error stop 'sqg1mtexp'
++      if ((nmt.gt.0).and.lpseudo) call gsdie('sqg1mtexp')
++      if (nmt.gt.10) call gsdie('sqg1mtexp')
++      if (nsft.gt.16) call gsdie('sqg1mtexp')
  
  c..
  c..   input produced with ~/math/gghmt/rgfull.m,
@@ -338,8 +373,8 @@ diff -ruN a/src/gghnnlo/ggh.f b/src/gghnnlo/ggh.f
  c..   only scalar so far
 -      if ((nmt.gt.0).and.lpseudo) stop 'sqqb1mtexact'
 -      if (nmt.gt.10) stop 'sqqb1mtexact'
-+      if ((nmt.gt.0).and.lpseudo) error stop 'sqqb1mtexact'
-+      if (nmt.gt.10) error stop 'sqqb1mtexact'
++      if ((nmt.gt.0).and.lpseudo) call gsdie('sqqb1mtexact')
++      if (nmt.gt.10) call gsdie('sqqb1mtexact')
  
        sqqb1mtexact = 0.d0 
        if (nmt.ge.2) then
@@ -350,15 +385,14 @@ diff -ruN a/src/gghnnlo/ggh.f b/src/gghnnlo/ggh.f
 -      if ((nmt.gt.0).and.lpseudo) stop 'sqqb1mtexp'
 -      if (nmt.gt.10) stop 'sqqb1mtexp'
 -      if (nsft.gt.16) stop 'sqqb1mtexp'
-+      if ((nmt.gt.0).and.lpseudo) error stop 'sqqb1mtexp'
-+      if (nmt.gt.10) error stop 'sqqb1mtexp'
-+      if (nsft.gt.16) error stop 'sqqb1mtexp'
++      if ((nmt.gt.0).and.lpseudo) call gsdie('sqqb1mtexp')
++      if (nmt.gt.10) call gsdie('sqqb1mtexp')
++      if (nsft.gt.16) call gsdie('sqqb1mtexp')
  
  c..
  c..   input produced with ~/math/gghmt/rgfull.m,
-diff -ruN a/src/gghnnlo/gghmatch-alternative.f b/src/gghnnlo/gghmatch-alternative.f
---- a/src/gghnnlo/gghmatch-alternative.f	2026-11-04 09:35:51.527528519 +0100
-+++ b/src/gghnnlo/gghmatch-alternative.f	2026-11-04 09:35:51.532193482 +0100
+--- a/src/gghnnlo/gghmatch-alternative.f
++++ b/src/gghnnlo/gghmatch-alternative.f
 @@ -487,7 +487,7 @@
  
        if ((tauin.lt.tau(1)).or.(tauin.gt.tau(23))) then
@@ -404,15 +438,14 @@ diff -ruN a/src/gghnnlo/gghmatch-alternative.f b/src/gghnnlo/gghmatch-alternativ
        endif
  
        ii = 1
-diff -ruN a/src/gghnnlo/gghmatch.f b/src/gghnnlo/gghmatch.f
---- a/src/gghnnlo/gghmatch.f	2026-11-04 09:35:51.527631715 +0100
-+++ b/src/gghnnlo/gghmatch.f	2026-11-04 09:35:51.532030292 +0100
+--- a/src/gghnnlo/gghmatch.f
++++ b/src/gghnnlo/gghmatch.f
 @@ -660,7 +660,7 @@
  
        if ((tauin.lt.tau(1)).or.(tauin.gt.tau(23))) then
           write(6,*) 'b1gg: input out of range'
 -         stop
-+         error stop
++         call gsdie('gghmatch.f:663')
        endif
  
        ii = 1
@@ -421,7 +454,7 @@ diff -ruN a/src/gghnnlo/gghmatch.f b/src/gghnnlo/gghmatch.f
        if ((tauin.lt.tau(1)).or.(tauin.gt.tau(23))) then
           write(6,*) 'b1qg: input out of range'
 -         stop
-+         error stop
++         call gsdie('gghmatch.f:702')
        endif
  
        ii = 1
@@ -430,7 +463,7 @@ diff -ruN a/src/gghnnlo/gghmatch.f b/src/gghnnlo/gghmatch.f
        if ((tauin.lt.tau(1)).or.(tauin.gt.tau(23))) then
           write(6,*) 'a2gg: input out of range'
 -         stop
-+         error stop
++         call gsdie('gghmatch.f:781')
        endif
  
        ii = 1
@@ -439,7 +472,7 @@ diff -ruN a/src/gghnnlo/gghmatch.f b/src/gghnnlo/gghmatch.f
        if ((tauin.lt.tau(1)).or.(tauin.gt.tau(23))) then
           write(6,*) 'a2qg: input out of range'
 -         stop
-+         error stop
++         call gsdie('gghmatch.f:820')
        endif
  
        ii = 1
@@ -448,13 +481,12 @@ diff -ruN a/src/gghnnlo/gghmatch.f b/src/gghnnlo/gghmatch.f
        if ((tauin.lt.tau(1)).or.(tauin.gt.tau(23))) then
           write(6,*) 'a2qq: input out of range'
 -         stop
-+         error stop
++         call gsdie('gghmatch.f:860')
        endif
  
        ii = 1
-diff -ruN a/src/gghnnlo/gghmatch-orig.f b/src/gghnnlo/gghmatch-orig.f
---- a/src/gghnnlo/gghmatch-orig.f	2026-11-04 09:35:51.527712969 +0100
-+++ b/src/gghnnlo/gghmatch-orig.f	2026-11-04 09:35:51.532332652 +0100
+--- a/src/gghnnlo/gghmatch-orig.f
++++ b/src/gghnnlo/gghmatch-orig.f
 @@ -462,7 +462,7 @@
  
        if ((tauin.lt.tau(1)).or.(tauin.gt.tau(23))) then
@@ -500,15 +532,14 @@ diff -ruN a/src/gghnnlo/gghmatch-orig.f b/src/gghnnlo/gghmatch-orig.f
        endif
  
        ii = 1
-diff -ruN a/src/gghnnlo/gghnnlo.f b/src/gghnnlo/gghnnlo.f
---- a/src/gghnnlo/gghnnlo.f	2026-11-04 09:35:51.527841684 +0100
-+++ b/src/gghnnlo/gghnnlo.f	2026-11-04 09:35:51.532350735 +0100
+--- a/src/gghnnlo/gghnnlo.f
++++ b/src/gghnnlo/gghnnlo.f
 @@ -76,7 +76,7 @@
       &     ,dlxm1**2,dlxm1**3)
  
        if (nmtlim(2,1).gt.0) then
 -         stop 'Error in sgg2exact.'
-+         error stop 'Error in sgg2exact.'
++         call gsdie('Error in sgg2exact.')
        endif
  
  c..   factor out SM Wilson coefficient:      
@@ -517,7 +548,7 @@ diff -ruN a/src/gghnnlo/gghnnlo.f b/src/gghnnlo/gghnnlo.f
        if (nexpand(2).eq.0) then
           sqg2 = sqgaexact(xt) + nf*sqgfexact(xt)
 -         if (nmtlim(2,2).gt.0) stop 'Error in sqg2.'
-+         if (nmtlim(2,2).gt.0) error stop 'Error in sqg2.'
++         if (nmtlim(2,2).gt.0) call gsdie('Error in sqg2.')
  c..   factor out SM Wilson coefficient:
           sqg2 = sqg2 - 2*c1sm1/c1sm0*sqg1exact(nmtlim(2,2),xt)
        else
@@ -526,7 +557,7 @@ diff -ruN a/src/gghnnlo/gghnnlo.f b/src/gghnnlo/gghnnlo.f
        if (nexpand(2).eq.0) then
           sqqb2 = sqqbaexact(xt) + nf*sqqbfexact(xt)
 -         if (nmtlim(2,3).gt.0) stop 'Error in sqqb2.'
-+         if (nmtlim(2,3).gt.0) error stop 'Error in sqqb2.'
++         if (nmtlim(2,3).gt.0) call gsdie('Error in sqqb2.')
  c..   factor out SM Wilson coefficient:
           sqqb2 = sqqb2 - 2*c1sm1/c1sm0*sqqb1exact(nmtlim(2,3),xt)
        else
@@ -535,7 +566,7 @@ diff -ruN a/src/gghnnlo/gghnnlo.f b/src/gghnnlo/gghnnlo.f
        if (nexpand(2).eq.0) then
           sqq2 = sqqaexact(xt) + nf*sqqfexact(xt)
 -         if (nmtlim(2,4).gt.0) stop 'Error in sqq2.'
-+         if (nmtlim(2,4).gt.0) error stop 'Error in sqq2.'
++         if (nmtlim(2,4).gt.0) call gsdie('Error in sqq2.')
        else
           sqq2 = sqq2exp(xt)
        endif
@@ -544,19 +575,18 @@ diff -ruN a/src/gghnnlo/gghnnlo.f b/src/gghnnlo/gghnnlo.f
        if (nexpand(2).eq.0) then
           squ2 = squaexact(xt) + nf*squfexact(xt)
 -         if (nmtlim(2,5).gt.0) stop 'Error in squ2.'
-+         if (nmtlim(2,5).gt.0) error stop 'Error in squ2.'
++         if (nmtlim(2,5).gt.0) call gsdie('Error in squ2.')
        else
           squ2 = squ2exp(xt)
        endif
-diff -ruN a/src/gghnnlo/n3loexpand.f b/src/gghnnlo/n3loexpand.f
---- a/src/gghnnlo/n3loexpand.f	2026-11-04 09:35:51.527735999 +0100
-+++ b/src/gghnnlo/n3loexpand.f	2026-11-04 09:35:51.532094348 +0100
+--- a/src/gghnnlo/n3loexpand.f
++++ b/src/gghnnlo/n3loexpand.f
 @@ -3039,7 +3039,7 @@
        yy = dlog(xm1)
  
  c..   not defined yet
 -      stop
-+      error stop
++      call gsdie('n3loexpand.f:3042')
  c..   sqg3mtexp = 0.d0
  
        return
@@ -565,7 +595,7 @@ diff -ruN a/src/gghnnlo/n3loexpand.f b/src/gghnnlo/n3loexpand.f
  
  c..   not defined yet
 -      stop
-+      error stop
++      call gsdie('n3loexpand.f:3063')
  c$$$      sqq3mtexp = 0.d0
  
        return
@@ -574,7 +604,7 @@ diff -ruN a/src/gghnnlo/n3loexpand.f b/src/gghnnlo/n3loexpand.f
  
  c..   not defined yet
 -      stop
-+      error stop
++      call gsdie('n3loexpand.f:3084')
  c$$$      squ3mtexp = 0.d0
  
        return
@@ -583,13 +613,12 @@ diff -ruN a/src/gghnnlo/n3loexpand.f b/src/gghnnlo/n3loexpand.f
  
  c..   not defined yet
 -      stop
-+      error stop
++      call gsdie('n3loexpand.f:3105')
  
        return
        end
-diff -ruN a/src/gghnnlo/nnlomtexpand.f b/src/gghnnlo/nnlomtexpand.f
---- a/src/gghnnlo/nnlomtexpand.f	2026-11-04 09:35:51.527570314 +0100
-+++ b/src/gghnnlo/nnlomtexpand.f	2026-11-04 09:35:51.532379154 +0100
+--- a/src/gghnnlo/nnlomtexpand.f
++++ b/src/gghnnlo/nnlomtexpand.f
 @@ -19,9 +19,9 @@
  
        help=0.d0
@@ -597,9 +626,9 @@ diff -ruN a/src/gghnnlo/nnlomtexpand.f b/src/gghnnlo/nnlomtexpand.f
 -      if (lpseudo) stop 'sgg2mtexp'
 -      if (nmtlim(2,1).gt.6) stop 'sgg2mtexp'
 -      if (nsoftmt(2,1).gt.16) stop 'sgg2mtexp'
-+      if (lpseudo) error stop 'sgg2mtexp'
-+      if (nmtlim(2,1).gt.6) error stop 'sgg2mtexp'
-+      if (nsoftmt(2,1).gt.16) error stop 'sgg2mtexp'
++      if (lpseudo) call gsdie('sgg2mtexp')
++      if (nmtlim(2,1).gt.6) call gsdie('sgg2mtexp')
++      if (nsoftmt(2,1).gt.16) call gsdie('sgg2mtexp')
  
        xm1 = 1.d0-xt
        dlxm1 = dlog(xm1)
@@ -610,9 +639,9 @@ diff -ruN a/src/gghnnlo/nnlomtexpand.f b/src/gghnnlo/nnlomtexpand.f
 -      if (lpseudo) stop 'sqg2mtexp'
 -      if (nmtlim(2,2).gt.6) stop 'sqg2mtexp'
 -      if (nsoftmt(2,2).gt.16) stop 'sqg2mtexp'
-+      if (lpseudo) error stop 'sqg2mtexp'
-+      if (nmtlim(2,2).gt.6) error stop 'sqg2mtexp'
-+      if (nsoftmt(2,2).gt.16) error stop 'sqg2mtexp'
++      if (lpseudo) call gsdie('sqg2mtexp')
++      if (nmtlim(2,2).gt.6) call gsdie('sqg2mtexp')
++      if (nsoftmt(2,2).gt.16) call gsdie('sqg2mtexp')
  
        xm1 = 1.d0-xt
        dlxm1 = dlog(xm1)
@@ -623,9 +652,9 @@ diff -ruN a/src/gghnnlo/nnlomtexpand.f b/src/gghnnlo/nnlomtexpand.f
 -      if (lpseudo) stop 'sqqb2mtexp'
 -      if (nmtlim(2,3).gt.6) stop 'sqqb2mtexp'
 -      if (nsoftmt(2,3).gt.16) stop 'sqqb2mtexp'
-+      if (lpseudo) error stop 'sqqb2mtexp'
-+      if (nmtlim(2,3).gt.6) error stop 'sqqb2mtexp'
-+      if (nsoftmt(2,3).gt.16) error stop 'sqqb2mtexp'
++      if (lpseudo) call gsdie('sqqb2mtexp')
++      if (nmtlim(2,3).gt.6) call gsdie('sqqb2mtexp')
++      if (nsoftmt(2,3).gt.16) call gsdie('sqqb2mtexp')
  
        xm1 = 1.d0-xt
        dlxm1 = dlog(xm1)
@@ -636,10 +665,10 @@ diff -ruN a/src/gghnnlo/nnlomtexpand.f b/src/gghnnlo/nnlomtexpand.f
 -      if (lpseudo) stop 'sqq2mtexp'
 -      if (nmtlim(2,4).gt.6) stop 'sqq2mtexp'
 -      if ((nmtlim(2,4).eq.6).and.(nsoftmt(2,4).gt.13)) stop 'sqq2mtexp'
-+      if (lpseudo) error stop 'sqq2mtexp'
-+      if (nmtlim(2,4).gt.6) error stop 'sqq2mtexp'
++      if (lpseudo) call gsdie('sqq2mtexp')
++      if (nmtlim(2,4).gt.6) call gsdie('sqq2mtexp')
 +      if ((nmtlim(2,4).eq.6).and.(nsoftmt(2,4).gt.13))
-+     &   error stop 'sqq2mtexp'
++     &   call gsdie('sqq2mtexp')
  
        do i=0,20
           do j=1,10
@@ -650,33 +679,31 @@ diff -ruN a/src/gghnnlo/nnlomtexpand.f b/src/gghnnlo/nnlomtexpand.f
 -      if (lpseudo) stop 'squ2mtexp'
 -      if (nmtlim(2,5).gt.6) stop 'squ2mtexp'
 -      if (nsoftmt(2,5).gt.16) stop 'squ2mtexp'
-+      if (lpseudo) error stop 'squ2mtexp'
-+      if (nmtlim(2,5).gt.6) error stop 'squ2mtexp'
-+      if (nsoftmt(2,5).gt.16) error stop 'squ2mtexp'
++      if (lpseudo) call gsdie('squ2mtexp')
++      if (nmtlim(2,5).gt.6) call gsdie('squ2mtexp')
++      if (nsoftmt(2,5).gt.16) call gsdie('squ2mtexp')
  
        do i=0,20
           do j=1,10
-diff -ruN a/src/share/controlshare.F b/src/share/controlshare.F
---- a/src/share/controlshare.F	2026-11-04 09:35:51.528440880 +0100
-+++ b/src/share/controlshare.F	2026-11-04 09:35:51.532802211 +0100
+--- a/src/share/controlshare.F
++++ b/src/share/controlshare.F
 @@ -96,7 +96,7 @@
           endif
        endif
  
 -      if (nn.ge.12) stop 'stopped in atauexph()'
-+      if (nn.ge.12) error stop 'stopped in atauexph()'
++      if (nn.ge.12) call gsdie('stopped in atauexph()')
        end
  
  C-}}}
-diff -ruN a/src/sushi/elw_lf.f b/src/sushi/elw_lf.f
---- a/src/sushi/elw_lf.f	2026-11-04 09:35:51.521549903 +0100
-+++ b/src/sushi/elw_lf.f	2026-11-04 09:35:51.530873134 +0100
+--- a/src/sushi/elw_lf.f
++++ b/src/sushi/elw_lf.f
 @@ -1111,7 +1111,7 @@
        end do
        if (i2.eq.-100000) then
           write(*,*) 'SusHi error in CalcA1MW'
 -         stop
-+         error stop
++         call gsdie('elw_lf.f:1114')
        endif
        
        ReA1 = (realvalues(i2+2) - realvalues(i2+1))
@@ -685,19 +712,18 @@ diff -ruN a/src/sushi/elw_lf.f b/src/sushi/elw_lf.f
        if (i2.eq.-100000) then
           write(*,*) 'SusHi error in CalcA1MZ'
 -         stop
-+         error stop
++         call gsdie('elw_lf.f:2339')
        endif
  
        ReA1 = (realvalues(i2+2) - realvalues(i2+1))
-diff -ruN a/src/sushi/evalcsusy.f b/src/sushi/evalcsusy.f
---- a/src/sushi/evalcsusy.f	2026-11-04 09:35:51.521285109 +0100
-+++ b/src/sushi/evalcsusy.f	2026-11-04 09:35:51.531396045 +0100
+--- a/src/sushi/evalcsusy.f
++++ b/src/sushi/evalcsusy.f
 @@ -113,7 +113,7 @@
          endif
         else
           write(*,*) "2HDM version unknown!"
 -         stop
-+         error stop
++         call gsdie('evalcsusy.f:116')
         endif
        endif
  
@@ -706,7 +732,7 @@ diff -ruN a/src/sushi/evalcsusy.f b/src/sushi/evalcsusy.f
           write(6,*) '<function b0fin>: ',
       .        'arguments (',q2,',',m1,',',m2,') not implemented.'
 -         stop
-+         error stop
++         call gsdie('evalcsusy.f:1029')
        endif
        m1 = tmp
        end
@@ -715,7 +741,7 @@ diff -ruN a/src/sushi/evalcsusy.f b/src/sushi/evalcsusy.f
           write(6,*) '<function b0fin>: ',
       .        'arguments (',q2,',',m1,',',m2,') not implemented.'
 -         stop
-+         error stop
++         call gsdie('evalcsusy.f:1088')
        endif
        end
  
@@ -724,7 +750,7 @@ diff -ruN a/src/sushi/evalcsusy.f b/src/sushi/evalcsusy.f
       &        'One of the masses is too small.',' Stopped.'
  c         call printdie('One of the masses is too small.')
 -         stop
-+         error stop
++         call gsdie('evalcsusy.f:1289')
        endif
  
        masses(1) = Mstop1
@@ -733,13 +759,12 @@ diff -ruN a/src/sushi/evalcsusy.f b/src/sushi/evalcsusy.f
        endif
           
 -      if (dabs(dimag(dtphixyc)).gt.1d-10) stop 1003
-+      if (dabs(dimag(dtphixyc)).gt.1d-10) error stop 1003
++      if (dabs(dimag(dtphixyc)).gt.1d-10) call gsdie('evalcsusy 1003')
        davytausk = dreal(dtphixyc)
  
        end
-diff -ruN a/src/sushi/HBandHSwithFH.F b/src/sushi/HBandHSwithFH.F
---- a/src/sushi/HBandHSwithFH.F	2026-11-04 09:35:51.521863689 +0100
-+++ b/src/sushi/HBandHSwithFH.F	2026-11-04 09:35:51.531169643 +0100
+--- a/src/sushi/HBandHSwithFH.F
++++ b/src/sushi/HBandHSwithFH.F
 @@ -75,17 +75,17 @@
        uzint=2
        uzext=2
@@ -761,15 +786,14 @@ diff -ruN a/src/sushi/HBandHSwithFH.F b/src/sushi/HBandHSwithFH.F
  
        call FHRetrieveSMPara(error,
       &     invAlfa, AlfasMZ, GF,
-diff -ruN a/src/sushi/init.f b/src/sushi/init.f
---- a/src/sushi/init.f	2026-11-04 09:35:51.521624157 +0100
-+++ b/src/sushi/init.f	2026-11-04 09:35:51.531322229 +0100
+--- a/src/sushi/init.f
++++ b/src/sushi/init.f
 @@ -99,7 +99,7 @@
            write(*,*) "make predef=FH"
            write(*,*) "Alternatively set paramter -1 in Block FEYNHIGGS"
            write(*,*) "to 1 to use Command-Line Mode of SusHi"
 -          stop
-+          error stop
++          call gsdie('init.f:102')
          endif 
  #else
          if (feynhiggspar(-1).eq.0) then 
@@ -778,7 +802,7 @@ diff -ruN a/src/sushi/init.f b/src/sushi/init.f
            write(*,*) "Alternatively set parameter -1 in Block 2HDMC"
            write(*,*) "to 1 to use command-line mode of SusHi."
 -          stop
-+          error stop
++          call gsdie('init.f:161')
          endif
  #else
          if (thdmcpar(-1).eq.0) then
@@ -787,19 +811,18 @@ diff -ruN a/src/sushi/init.f b/src/sushi/init.f
              write(*,*) "Error: Higgs mass too large.", Mh
              write(*,105)
 -            stop
-+            error stop
++            call gsdie('init.f:234')
           endif
        endif
  
-diff -ruN a/src/sushi/inputoutput.f b/src/sushi/inputoutput.f
---- a/src/sushi/inputoutput.f	2026-11-04 09:35:51.521369539 +0100
-+++ b/src/sushi/inputoutput.f	2026-11-04 09:35:51.531428520 +0100
+--- a/src/sushi/inputoutput.f
++++ b/src/sushi/inputoutput.f
 @@ -563,7 +563,7 @@
           write(*,*) 
       &"is no reasonable SusHi dish."
           write(*,105)
 -         stop
-+         error stop
++         call gsdie('CONFIG: model not supported')
        end if
        
        !---Setting parameters
@@ -808,7 +831,7 @@ diff -ruN a/src/sushi/inputoutput.f b/src/sushi/inputoutput.f
             write(*,*) "Please use entry 65 for an eff. mu instead."
             write(*,105)
 -           stop
-+           error stop
++           call gsdie('inputoutput.f:798')
           end if
           muSUSY = mapreal8(extpar(65),lextpar(65),'effmu undefined. ')
           CmuSUSY = DCMPLX(muSUSY,0.d0)
@@ -817,7 +840,7 @@ diff -ruN a/src/sushi/inputoutput.f b/src/sushi/inputoutput.f
       &"Please choose a scheme for mb in the sbottom sector!"
              write(*,105)
 -            stop
-+            error stop
++            call gsdie('inputoutput.f:1388')
           end if
           if (.not.lrenormsbotpar(2)) then
              write(*,105)
@@ -825,7 +848,7 @@ diff -ruN a/src/sushi/inputoutput.f b/src/sushi/inputoutput.f
       &"Please choose a scheme for Ab in the sbottom sector!"
              write(*,105)
 -            stop
-+            error stop
++            call gsdie('inputoutput.f:1395')
           end if
           if (.not.lrenormsbotpar(3)) then
              write(*,105)
@@ -833,7 +856,7 @@ diff -ruN a/src/sushi/inputoutput.f b/src/sushi/inputoutput.f
       &"Please choose a scheme for thetab in the sbottom sector!"
              write(*,105)
 -            stop
-+            error stop
++            call gsdie('inputoutput.f:1402')
           end if
  
           rensbotc = 0
@@ -842,7 +865,7 @@ diff -ruN a/src/sushi/inputoutput.f b/src/sushi/inputoutput.f
       &"Exactly one sbottom parameter has to be choosen -dependent-!"
              write(*,105)
 -            stop
-+            error stop
++            call gsdie('inputoutput.f:1414')
           endif
           mbsbch = renormsbotpar(1)
           Abch = renormsbotpar(2)
@@ -851,7 +874,7 @@ diff -ruN a/src/sushi/inputoutput.f b/src/sushi/inputoutput.f
                 write(6,*) 'SusHi: PDFSPEC(',i,') undefined.'//
       &              ' Stopped.'
 -               stop
-+               error stop
++               call gsdie('CONFIG: PDFSPEC undefined')
              endif
           enddo
  
@@ -860,7 +883,7 @@ diff -ruN a/src/sushi/inputoutput.f b/src/sushi/inputoutput.f
        write(6,*) char(27)//'[31mSusHi (fatal):'//char(27)//'[0m ',strng
       &     ,char(27),'[31mStopped.',char(27),'[0m'
 -      stop
-+      error stop
++      call gsdie(strng)
  
        end
  
@@ -869,19 +892,18 @@ diff -ruN a/src/sushi/inputoutput.f b/src/sushi/inputoutput.f
  
        if (verb.eq.1) write(unit,*) 'SusHi (error): ',strng
 -      stop
-+      error stop
++      call gsdie(strng)
  
        end
  
-diff -ruN a/src/sushi/integrals.f b/src/sushi/integrals.f
---- a/src/sushi/integrals.f	2026-11-04 09:35:51.521803306 +0100
-+++ b/src/sushi/integrals.f	2026-11-04 09:35:51.531374619 +0100
+--- a/src/sushi/integrals.f
++++ b/src/sushi/integrals.f
 @@ -95,7 +95,7 @@
           im = 2.d0*dsqrt(1.d0-4.d0/m1)*Pi/2.d0
        else 
           write(*,*) 'SusHi error in Integral2'
 -         stop
-+         error stop
++         call gsdie('integrals.f:98')
        endif
        Integral2 = (1.d0,0.d0)*re + (0.d0,1.d0)*im
        end
@@ -890,7 +912,7 @@ diff -ruN a/src/sushi/integrals.f b/src/sushi/integrals.f
        else 
           write(*,*) 'SusHi error in Integral3'
 -         stop
-+         error stop
++         call gsdie('integrals.f:138')
        endif
        Integral3=((1.d0,0.d0)*2.d0/(m1-m2)*re+(0.d0,1.d0)*im)/mq2
        end
@@ -899,19 +921,18 @@ diff -ruN a/src/sushi/integrals.f b/src/sushi/integrals.f
            write(6,*)'problems in LI2'
            write(6,*)'x=',x 
 -          stop                                               
-+          error stop                                               
++          call gsdie('integrals.f:366')
          elseif(x .gt. 1.0d0) then                                          
            x = 1.d0                                                      
          endif                                                              
-diff -ruN a/src/sushi/readslha.f b/src/sushi/readslha.f
---- a/src/sushi/readslha.f	2026-11-04 09:35:51.521216831 +0100
-+++ b/src/sushi/readslha.f	2026-11-04 09:35:51.531493013 +0100
+--- a/src/sushi/readslha.f
++++ b/src/sushi/readslha.f
 @@ -106,7 +106,7 @@
           write(6,*) 'Line ',lcount,': ',
       &        clineout(1:1),' = char(',
       &        ichar(clineout(1:1)),') not allowed in first column'
 -         stop
-+         error stop
++         call gsdie('CONFIG: SLHA parse error')
        endif
        if (clineout.eq.emptyline) goto 100
  c..   If we are looking at a keyword (BLOCK, DECAY), then either
@@ -920,19 +941,18 @@ diff -ruN a/src/sushi/readslha.f b/src/sushi/readslha.f
       &           =',iunit,'):'
              write(6,*) 'Line ',lcount,':>',cline(1:60)
 -            stop
-+            error stop
++            call gsdie('CONFIG: SLHA parse error')
           endif
        endif
        goto 100
-diff -ruN a/src/sushi/renscheme.f b/src/sushi/renscheme.f
---- a/src/sushi/renscheme.f	2026-11-04 09:35:51.521697582 +0100
-+++ b/src/sushi/renscheme.f	2026-11-04 09:35:51.531278255 +0100
+--- a/src/sushi/renscheme.f
++++ b/src/sushi/renscheme.f
 @@ -58,7 +58,7 @@
            write(*,*) "Renormalization scheme for bottom"
            write(*,*) "sector not known in the SM/2HDM."
            write(*,105)
 -          stop
-+          error stop
++          call gsdie('renscheme.f:61')
        end if
  
        mb2 = mb**2
@@ -941,7 +961,7 @@ diff -ruN a/src/sushi/renscheme.f b/src/sushi/renscheme.f
           if(dep.eq.0) then
              write(*,*) 'error: two dependent quantities.'
 -            stop
-+            error stop
++            call gsdie('renscheme.f:335')
           endif
           dep = 1
        endif
@@ -950,7 +970,7 @@ diff -ruN a/src/sushi/renscheme.f b/src/sushi/renscheme.f
           else
              write(*,*) 'error: no dependent quantity.'
 -            stop
-+            error stop
++            call gsdie('renscheme.f:358')
           endif
        else if(Abch.eq.1) then   !Ab DRbar
           dAb(3) = 0.d0
@@ -958,7 +978,7 @@ diff -ruN a/src/sushi/renscheme.f b/src/sushi/renscheme.f
           if(dep.lt.2) then
              write(*,*) 'error: two dependent quantities.'
 -            stop
-+            error stop
++            call gsdie('renscheme.f:365')
           endif
           dep = 2
        endif
@@ -967,7 +987,7 @@ diff -ruN a/src/sushi/renscheme.f b/src/sushi/renscheme.f
           write(*,*) 'error: theta_b cannot be chosen',
       &' as a dependent quantity. '
 -         stop
-+         error stop
++         call gsdie('renscheme.f:416')
           dthetab(1) = t2thetab/mb/2.d0 * dmbsb(1)
           dthetab(2) = -t2thetab/(msb12-msb22)
       &        * (dmsb1(1)*msb12 - dmsb2(1)*msb22)
@@ -976,7 +996,7 @@ diff -ruN a/src/sushi/renscheme.f b/src/sushi/renscheme.f
        else
           write(*,*) 'error: no dependent quantity.'
 -         stop
-+         error stop
++         call gsdie('renscheme.f:443')
        endif
  
        dthetabstd = dthetabos(1)
@@ -985,25 +1005,23 @@ diff -ruN a/src/sushi/renscheme.f b/src/sushi/renscheme.f
       &        -dmb(3)
        else
 -         stop
-+         error stop
++         call gsdie('renscheme.f:541')
        endif
        mb2 = mb**2
        dmb = dmb / mbos
-diff -ruN a/src/sushi/runalpha.f b/src/sushi/runalpha.f
---- a/src/sushi/runalpha.f	2026-11-04 09:35:51.521252762 +0100
-+++ b/src/sushi/runalpha.f	2026-11-04 09:35:51.530765205 +0100
+--- a/src/sushi/runalpha.f
++++ b/src/sushi/runalpha.f
 @@ -75,7 +75,7 @@
          h=hnext
  16    continue
        write(6,*) 'too many steps in odeint'
 -      stop
-+      error stop
++      call gsdie('runalpha.f:78')
        return
        END
  
-diff -ruN a/src/sushi/runfeynhiggs.f b/src/sushi/runfeynhiggs.f
---- a/src/sushi/runfeynhiggs.f	2026-11-04 09:35:51.521481513 +0100
-+++ b/src/sushi/runfeynhiggs.f	2026-11-04 09:35:51.530811219 +0100
+--- a/src/sushi/runfeynhiggs.f
++++ b/src/sushi/runfeynhiggs.f
 @@ -182,7 +182,7 @@
           write(*,105)
           write(*,*) 'Error in FHSetFlags ', error
@@ -1103,15 +1121,14 @@ diff -ruN a/src/sushi/runfeynhiggs.f b/src/sushi/runfeynhiggs.f
        endif
  
        mfeff=1 !default 1 FH 2.13
-diff -ruN a/src/sushi/sushicore.f b/src/sushi/sushicore.f
---- a/src/sushi/sushicore.f	2026-11-04 09:35:51.521822901 +0100
-+++ b/src/sushi/sushicore.f	2026-11-04 09:35:51.531002521 +0100
+--- a/src/sushi/sushicore.f
++++ b/src/sushi/sushicore.f
 @@ -316,7 +316,7 @@
              write(*,*) 'Error: y out of range. '
              write(*,*) 'Abs[y] < ', maxrap
              write(*,105)
 -            stop
-+            error stop
++            call gsdie('sushicore.f:319')
           endif         
        endif
  
@@ -1120,7 +1137,7 @@ diff -ruN a/src/sushi/sushicore.f b/src/sushi/sushicore.f
       &*(1.d0/z+z)-1.d0-dexp(4.d0*maxrapc)))/(1.d0+dexp(2.d0*maxrapc))
              write(*,105)
 -            stop
-+            error stop
++            call gsdie('sushicore.f:352')
           endif
        endif
  
@@ -1129,7 +1146,7 @@ diff -ruN a/src/sushi/sushicore.f b/src/sushi/sushicore.f
              write(*,*) 'Error: ptmin out of range. '
              write(*,105)
 -            stop
-+            error stop
++            call gsdie('sushicore.f:367')
           endif
           if(minptc.gt.0.d0) then
              subtr = .false.
@@ -1138,7 +1155,7 @@ diff -ruN a/src/sushi/sushicore.f b/src/sushi/sushicore.f
              write(*,*) 'Error: ptmax out of range. '
              write(*,105)
 -            stop
-+            error stop
++            call gsdie('sushicore.f:382')
           endif
           ptcut = .true.
           if(maxptc.gt.maxpt) then
@@ -1147,21 +1164,21 @@ diff -ruN a/src/sushi/sushicore.f b/src/sushi/sushicore.f
              write(*,*) 'Error: ptmin out of range. '
              write(*,105)
 -            stop
-+            error stop
++            call gsdie('sushicore.f:400')
           endif
           if(maxptc.lt.0.d0) then
              write(*,105)
              write(*,*) 'Error: ptmax out of range. '
              write(*,105)
 -            stop
-+            error stop
++            call gsdie('sushicore.f:406')
           endif
           if(maxptc.le.minptc) then
              write(*,105) 
              write(*,*) 'Error: ptmin larger then ptmax. '
              write(*,105) 
 -            stop
-+            error stop
++            call gsdie('sushicore.f:412')
           endif
           ptcut = .true.
           if(minptc.gt.0.d0) then
@@ -1170,7 +1187,7 @@ diff -ruN a/src/sushi/sushicore.f b/src/sushi/sushicore.f
           write(*,*) 'Error: bad value in Block DISTRIB. '
           write(*,105)
 -         stop
-+         error stop
++         call gsdie('sushicore.f:430')
        endif
  
        if(rapc.eq.0) then
@@ -1179,7 +1196,7 @@ diff -ruN a/src/sushi/sushicore.f b/src/sushi/sushicore.f
              write(*,*) 'Error: ymax out of range. '
              write(*,105)
 -            stop
-+            error stop
++            call gsdie('sushicore.f:441')
           endif            
           rapcut = .true.
           if((maxrapc.gt.maxrap).and.(.not.pseudorap)) then
@@ -1188,7 +1205,7 @@ diff -ruN a/src/sushi/sushicore.f b/src/sushi/sushicore.f
                 write(*,*) '0 < ymin'
                 write(*,105)
 -               stop
-+               error stop
++               call gsdie('sushicore.f:460')
              endif
              maxrap = 1.d100
           else
@@ -1197,7 +1214,7 @@ diff -ruN a/src/sushi/sushicore.f b/src/sushi/sushicore.f
                 write(*,*) '0 < ymin < ', maxrap
                 write(*,105)
 -               stop
-+               error stop
++               call gsdie('sushicore.f:469')
              endif
           endif
           rapcut = .true.
@@ -1206,7 +1223,7 @@ diff -ruN a/src/sushi/sushicore.f b/src/sushi/sushicore.f
                 write(*,*) '0 < ymin'
                 write(*,105)
 -               stop
-+               error stop
++               call gsdie('sushicore.f:482')
              endif
              maxrap = maxrapc
           else
@@ -1215,7 +1232,7 @@ diff -ruN a/src/sushi/sushicore.f b/src/sushi/sushicore.f
                 write(*,*) '0 < ymin < ', maxrap
                 write(*,105)
 -               stop
-+               error stop
++               call gsdie('sushicore.f:491')
              endif
              if(maxrapc.gt.maxrap) then
                 write(*,105)
@@ -1224,7 +1241,7 @@ diff -ruN a/src/sushi/sushicore.f b/src/sushi/sushicore.f
              write(*,*) 'Error: ymax out of range. '
              write(*,105)
 -            stop
-+            error stop
++            call gsdie('sushicore.f:506')
           endif            
           rapcut = .true.
           minrap = minrapc
@@ -1233,7 +1250,7 @@ diff -ruN a/src/sushi/sushicore.f b/src/sushi/sushicore.f
           write(*,*) 'Error: bad value in Block DISTRIB. '
           write(*,105)
 -         stop         
-+         error stop         
++         call gsdie('sushicore.f:514')
        endif
  
        if(rapcut.and.pseudorap.and.subtr) then
@@ -1242,7 +1259,7 @@ diff -ruN a/src/sushi/sushicore.f b/src/sushi/sushicore.f
       &'applied when pt = 0 is allowed. '
           write(*,105)
 -         stop
-+         error stop
++         call gsdie('sushicore.f:522')
        endif
  
        if((dist.eq.2).and.subtr) then
@@ -1251,13 +1268,12 @@ diff -ruN a/src/sushi/sushicore.f b/src/sushi/sushicore.f
       &'calculated when pt = 0 is allowed. '
           write(*,105)
 -         stop
-+         error stop
++         call gsdie('sushicore.f:530')
        endif
  
        if(((dist.eq.1).or.(dist.eq.3)).and.ptcut) then
-diff -ruN a/src/sushi.F b/src/sushi.F
---- a/src/sushi.F	2026-11-04 09:35:51.528724128 +0100
-+++ b/src/sushi.F	2026-11-04 09:35:51.532417698 +0100
+--- a/src/sushi.F
++++ b/src/sushi.F
 @@ -53,7 +53,7 @@
         write(*,*) "./SusHi in.in out.out"
         write(*,*) "The input-file in.in has to be provided"

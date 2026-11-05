@@ -19,6 +19,8 @@
 #include <fstream>
 #include <cstring>
 #include <cmath>
+#include <stdexcept>
+#include <string>
 
 // Convenience functions (definitions)
 BE_NAMESPACE
@@ -221,7 +223,28 @@ BE_NAMESPACE
 
     // Run ggh+bbh computation
     double ggh = 0.0, bbh = 0.0, ggh_e = 0.0, bbh_e = 0.0;
-    gambit_sushi_compute(ggh, bbh, ggh_e, bbh_e);
+    auto cleanup_tmp_files = [&infile]()
+    {
+        std::remove(infile.c_str());
+        std::string murdep = infile.substr(0, infile.size() - 5) + "_murdep";
+        std::remove(murdep.c_str());
+    };
+    try
+    {
+        gambit_sushi_compute(ggh, bbh, ggh_e, bbh_e);
+    }
+    catch (std::runtime_error& e)
+    {
+        // SusHi hit a fatal error (a former Fortran STOP, rerouted to our handler).
+        // Configuration problems are a backend error; anything else is a bad point.
+        cleanup_tmp_files();
+        const std::string msg = e.what();
+        if (msg.find("CONFIG") != std::string::npos || msg.find("ERROR: FILE") != std::string::npos)
+        {
+            backend_error().raise(LOCAL_INFO, "SusHi 1.7.0 configuration error: " + msg);
+        }
+        invalid_point().raise("SusHi 1.7.0 failed at this point: " + msg);
+    }
     ggh_result = ggh;
     bbh_result = bbh;
     ggh_err = ggh_e;
@@ -231,15 +254,33 @@ BE_NAMESPACE
              << "SusHi 1.7.0: ggh = " << ggh << " +/- " << ggh_e << " pb, bbh = " << bbh
              << " +/- " << bbh_e << " pb" << EOM;
 
-    std::remove(infile.c_str());
-    std::string murdep = infile.substr(0, infile.size() - 5) + "_murdep";
-    std::remove(murdep.c_str());
+    cleanup_tmp_files();
+    }
+
+    // Called from SusHi's Fortran fatal-error routine (gsdie in
+    // sushi_gambit_interface.f) in place of STOP.  Throws, so the failure
+    // is caught around gambit_sushi_compute above.  Backend-specific name
+    // avoids clashes between backends.
+    extern "C"
+    void CAT_4(BACKENDNAME,_,SAFE_VERSION,_ErrorHandler)(const char* msg)
+    {
+        throw std::runtime_error(std::string("SusHi: ") + msg);
     }
 }
 END_BE_NAMESPACE
 
-// Empty initialisation function -- required registration hook for the
-// backend, but all real per-point work happens in SusHi_run_point (called
-// directly from module functions) rather than here.
-BE_INI_FUNCTION {}
+// Initialisation: only installs the error handler.  All real per-point work
+// happens in SusHi_run_point (called directly from module functions) so the
+// emulator can skip it.
+BE_INI_FUNCTION
+{
+    // Make SusHi's fatal errors throw instead of killing the process.
+    // The callback takes a const char* message, so cast to the generic type.
+    static bool scan_level = true;
+    if (scan_level)
+    {
+        *ErrorHandler_cptr = reinterpret_cast<fptr_void>(&CAT_4(BACKENDNAME,_,SAFE_VERSION,_ErrorHandler));
+        scan_level = false;
+    }
+}
 END_BE_INI_FUNCTION
