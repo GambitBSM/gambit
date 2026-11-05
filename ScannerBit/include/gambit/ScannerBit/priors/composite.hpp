@@ -53,6 +53,7 @@ namespace Gambit
             std::vector<BasePrior*> my_subpriors;
             std::vector<std::string> shown_param_names;
             std::set<std::string> set_param_names;
+            std::map<int, int> speeds;
 
         public:
 
@@ -75,6 +76,8 @@ namespace Gambit
             inline std::vector<std::string> getShownParameters() const override { return shown_param_names; }
 
             inline std::vector<std::string> getSetParameters() const override { return std::vector<std::string>(set_param_names.begin(), set_param_names.end()); }
+
+            std::map<int, int> getSpeeds() const override {return speeds;}
 
             // Transformation from unit hypercube to physical parameters
             void transform(hyper_cube_ref<double> unitPars, std::unordered_map<std::string,double> &outputMap) const override

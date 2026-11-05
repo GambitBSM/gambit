@@ -104,6 +104,27 @@ namespace Gambit {
 
             virtual std::vector<std::string> getSetParameters() const { return param_names; }
 
+            virtual std::map<int, int> getSpeeds() const {return std::map<int, int>();}
+
+            std::vector<int> getSpeedRanges(const std::vector<int> &ranges)
+            {
+                auto speeds = getSpeeds();
+                std::vector<int> ret(ranges.size(), 0);
+
+                for (auto &&s : speeds)
+                {
+                    for (int i = 0, end = ranges.size(); i < end; ++i)
+                    {
+                        if (s.first < ranges[i] || ranges[i] < 0.0)
+                        {
+                            ret[i] += s.second;
+                        }
+                    }
+                }
+
+                return ret;
+            }
+
             inline unsigned int size() const { return param_size; }
 
             inline void setSize(const unsigned int size) { param_size = size; }

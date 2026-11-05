@@ -102,6 +102,7 @@ namespace Gambit
             std::unordered_map<std::string, std::pair<double, double>> sameMapOptions;
             std::vector<BasePrior *> phantomPriors;
             std::set<std::string> needSet;
+            std::map<int, std::vector<BasePrior *>> priorMap;
 
             // Get model parameters from the inifile
             std::vector <std::string> modelNames = model_options.getNames();
@@ -153,7 +154,7 @@ namespace Gambit
                     if ((model_options.getNode(mod, *par_it).IsScalar() && (model_options.getValue<std::string>(mod, *par_it) == "in_priors")) || model_options.getNode(mod, *par_it).IsNull())
                     {
                         std::string joined_parname = mod + std::string("::") + par_name;
-                        shown_param_names.push_back(joined_parname);
+                        //shown_param_names.push_back(joined_parname);
                         needSet.insert(joined_parname);
                     }
                     else if (model_options.getNode(mod, *par_it).IsSequence() || model_options.getNode(mod, *par_it).IsScalar())
@@ -163,6 +164,14 @@ namespace Gambit
                     else
                     {
                         par_options = Options(model_options.getNode(mod, *par_it));
+
+                        int speed =0;
+                        if (par_options.hasKey("speed"))
+                        {
+                            speed = par_options.getValue<int>("speed");
+                            if (!par_options.hasKey("prior_type") || !par_options.hasKey("range"))
+                                scan_err << "Parameter '"<< par_name <<"' of model '" << mod << " Cannot be assigned a speed unless a prior type is specified." << scan_end;
+                        }
 
                         if (par_options.hasKey("same_as"))
                         {
@@ -242,21 +251,24 @@ namespace Gambit
                                         }
                                         else
                                         {
-                                            my_subpriors.push_back( new_prior );
-                                            shown_param_names.push_back(joined_parname);
+                                           // my_subpriors.push_back( new_prior );
+                                            //shown_param_names.push_back(joined_parname);
+                                            priorMap[speed].push_back(new_prior);
                                         }
                                     }
                                 }
                             }
                             else if (par_options.hasKey("range"))
                             {
-                                shown_param_names.push_back(joined_parname);
+                                //shown_param_names.push_back(joined_parname);
 
-                                my_subpriors.push_back(new RangePrior1D<flatprior>(std::vector<std::string>(1, joined_parname), par_options));
+                                //my_subpriors.push_back(new RangePrior1D<flatprior>(std::vector<std::string>(1, joined_parname), par_options));
+                                BasePrior *new_prior = new RangePrior1D<flatprior>(std::vector<std::string>(1, joined_parname), par_options);
+                                priorMap[speed].push_back(new_prior);
                             }
                             else
                             {
-                                shown_param_names.push_back(joined_parname);
+                                //shown_param_names.push_back(joined_parname);
                                 needSet.insert(joined_parname);
                             }
                         }
@@ -275,7 +287,7 @@ namespace Gambit
             // Get the list of priors to build from the iniFile
             std::vector<std::string> priorNames = prior_options.getNames();
             std::sort(priorNames.begin(), priorNames.end());
-            set_param_names = std::set<std::string>(shown_param_names.begin(), shown_param_names.end());
+            //set_param_names = std::set<std::string>(shown_param_names.begin(), shown_param_names.end());
 
             for (auto priorname_it = priorNames.begin(), priorname_end = priorNames.end(); priorname_it != priorname_end; priorname_it++)
             {
@@ -306,6 +318,13 @@ namespace Gambit
 
                     auto options = prior_options.getOptions(priorname);
                     auto priortype = prior_options.getValue<std::string>(priorname, "prior_type");
+                    int speed = 0;
+                    if (prior_options.hasKey("speed"))
+                    {
+                        speed = prior_options.getValue<int>("speed");
+                        if (priortype == "fixed" || priortype == "same_as")
+                            scan_err << "Prior '"<< priorname <<"' of type '"<< priortype << "cannot specify a speed for this prior type" << scan_end;
+                    }
 
                     if (prior_creators.find(priortype) == prior_creators.end())
                     {
@@ -348,10 +367,11 @@ namespace Gambit
                         else
                         {
                             BasePrior* new_prior = prior_creators.at(priortype)(params,options);
-                            my_subpriors.push_back( new_prior );
+                            //my_subpriors.push_back( new_prior );
 
-                            auto params = new_prior->getShownParameters();
-                            shown_param_names.insert(shown_param_names.end(), params.begin(), params.end());
+                            //auto params = new_prior->getShownParameters();
+                            //shown_param_names.insert(shown_param_names.end(), params.begin(), params.end());
+                            priorMap[speed].push_back(new_prior);
 
                             /*if (priortype == "composite")
                             {
@@ -372,6 +392,23 @@ namespace Gambit
                     scan_err << "\"parameters\" and \"prior_type\" need to be defined for prior \"" << priorname << "\"" << scan_end;
                 }
             }
+
+            for (auto &&pr_elem : priorMap)
+            {
+                my_subpriors.insert(my_subpriors.end(), pr_elem.second.begin(), pr_elem.second.end());
+
+                int speed_num = 0;
+                for (auto pr : pr_elem.second)
+                {
+                    auto params = pr->getShownParameters();
+                    shown_param_names.insert(shown_param_names.end(), params.begin(), params.end());
+                    speed_num += pr->size();
+                }
+
+                speeds[pr_elem.first] = speed_num;
+            }
+
+            set_param_names = std::set<std::string>(shown_param_names.begin(), shown_param_names.end());
 
             if (needSet.size() != 0)
             {

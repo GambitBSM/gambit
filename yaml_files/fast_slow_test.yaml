@@ -10,15 +10,14 @@ Parameters:
     x:
       prior_type: flat
       range: [-1.0, 1.0]
+      speed: 0
 
   Fast_Slow_Test_Two:
     y:
       prior_type: flat
       range: [-1.0, 1.0]
+      speed: 5
 
-ModelSpeeds:
-  Fast_Slow_Test_One: 1
-  Fast_Slow_Test_Two: 10
 
 Priors:
 
@@ -44,11 +43,8 @@ Scanner:
       plugin: fast_slow_test
       like: LogLike
       point_number: 30
-      fast_repeats: 100
+      fast_repeats: 2
       slow_speed_threshold: 5
-      ModelSpeeds:
-        Fast_Slow_Test_One: 1
-        Fast_Slow_Test_Two: 10
 
 
 ObsLikes:

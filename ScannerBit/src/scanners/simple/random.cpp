@@ -53,9 +53,9 @@ scanner_plugin(random, version(1, 0, 0))
 
         std::cout << "Entering random sampler." << "\n\tnumber of points to calculate:  " << num << std::endl;
         
-        for (int k = 0; k < num; k++)
+        for (int k = rank; k < num; k+=numtasks)
         {
-            for (int i = rank; i < dim; i+=numtasks)
+            for (int i = 0; i < dim; ++i)
             {
                 a[i] = Gambit::Random::draw();
             }
