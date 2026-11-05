@@ -30,7 +30,7 @@
 ///  \date 2017 Jun
 ///
 ///
-///  \author Chirs Chang
+///  \author Chris Chang
 ///  \date 2026 Jun
 ///
 ///  *********************************************
