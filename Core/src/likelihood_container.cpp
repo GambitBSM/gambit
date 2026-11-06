@@ -251,10 +251,15 @@ namespace Gambit
         }
 
         // threshold to use this prediction and skip the rest
-        emulatorValidPrediction = !emulator_not_valid && checkThreshold("LogLike", uncertainty);
+        emulatorValidPrediction = !emulator_not_valid && checkThreshold("LogLike", uncertainty, predictions);
         if (emulatorValidPrediction)
         {
             lnlike = predictions[0];
+            Printers::BasePrinter* modelPrinter = static_cast<Printers::BasePrinter*>(&printer);
+            for (auto act_it = functorMap.begin(), act_end=functorMap.end(); act_it != act_end; act_it++)
+            {
+              act_it->second->print(modelPrinter, getPtID());
+            }
         }
 
         // logger stuff

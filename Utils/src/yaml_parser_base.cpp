@@ -31,6 +31,23 @@
 #include "gambit/Logs/logmaster.hpp"
 
 
+#include "gambit/Utils/output_path.hpp"
+
+namespace Gambit
+{
+  namespace Utils
+  {
+    static std::string& output_path_storage() { static std::string p; return p; }
+    const std::string& default_output_path() { return output_path_storage(); }
+    void set_default_output_path(const std::string& p)
+    {
+      std::string q = p;
+      if (!q.empty() and q.back() != '/') q += "/";
+      output_path_storage() = q;
+    }
+  }
+}
+
 namespace Gambit
 {
 
@@ -195,6 +212,7 @@ namespace Gambit
          str fname = filename.substr(fname_start+1,fname_end);
          defpath = "runs/" + fname + "/";
       }
+      Utils::set_default_output_path(defpath);
       scannerNode["default_output_path"] = Utils::ensure_path_exists(defpath+"/scanner_plugins/");
       logNode    ["default_output_path"] = Utils::ensure_path_exists(defpath+"/logs/");
       printerNode["options"]["default_output_path"] = Utils::ensure_path_exists(defpath+"/samples/");

@@ -56,11 +56,11 @@
 +      implicit none
 +      integer n
 +      character*1 fn(n)
-+      character*60 jfilein, jfnameact
++      character*300 jfilein, jfnameact
 +      common /fileinfileout/ jfilein, jfnameact
 +      integer i
 +      jfilein = ' '
-+      do i = 1, min(n, 60)
++      do i = 1, min(n, 300)
 +        jfilein(i:i) = fn(i)
 +      end do
 +C     Derive jfnameact from the input filename by stripping .slha extension.
@@ -68,8 +68,8 @@
 +C     must be a writable path.  '/dev/null' would produce '/dev/null_murdep'
 +C     which does not exist and causes a runtime error.
 +      jfnameact = jfilein
-+      i = index(jfnameact, '.slha')
-+      if (i .gt. 0) jfnameact(i:60) = ' '
++      i = index(jfnameact, '.slha', .true.)
++      if (i .gt. 0) jfnameact(i:300) = ' '
 +      return
 +      end
 +C-}}}
@@ -1292,3 +1292,22 @@
        call printcopysushi(0,6,verbose)
  
   104  format(a,a)
+--- a/src/commons/common-inputoutput.f
++++ b/src/commons/common-inputoutput.f
+@@ -1,6 +1,6 @@
+ !input specific variables
+       character SUversion*10,SUdate*10
+-      character jfilein*60
++      character jfilein*300
+       double precision SUinvAlfa,GF
+       double precision ME, MU, MD, MM, MS, ML, tanb
+       double precision MA0, MHp
+@@ -24,7 +24,7 @@
+       integer CPvio, ZHiggsapply
+ 
+ !output specific variables
+-      character jfnameact*60
++      character jfnameact*300
+       double precision c1sm13,c1sm23,c1sm33,c1susy1t3,c1susy2t3
+       double precision c1susy1b3,c1susy2b3
+       double complex gb3,gt3

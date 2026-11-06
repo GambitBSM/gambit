@@ -40,6 +40,11 @@ namespace EmulatorMap
     {
         std::vector<int> ranks;         // EGG rank(s) handling this capability
         std::vector<double> uncertainty; // Emulation.emulators.<capability>.uncertainty
+        /// Emulation.emulators.<capability>.uncertainty_type: 'relative' compares
+        /// (emulator std / |prediction|) to the threshold, 'absolute' compares the
+        /// emulator std itself. Only honoured by the checkThreshold() overload that
+        /// is given the prediction (currently the LogLike check); see gambit.cpp.
+        bool relative_uncertainty = false;
         double timeout = DEFAULT_PREDICT_TIMEOUT_SECONDS; // Emulation.emulators.<capability>.timeout
     };
 

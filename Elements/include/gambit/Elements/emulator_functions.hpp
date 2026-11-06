@@ -3,6 +3,8 @@
 
 #ifdef WITH_MPI
 
+#include <limits>
+#include <cmath>
 #include <mpi.h>
 #include <time.h>
 #include <stdexcept>
@@ -226,6 +228,31 @@ inline bool checkThreshold(str capability_name, std::vector<double> uncertainty)
     }
 
     return valid_prediction;
+}
+
+// As above, but honours the capability's uncertainty_type setting: for 'relative'
+// the threshold is compared to std / |prediction|. A zero prediction has no
+// meaningful relative uncertainty, so it is never accepted.
+inline bool checkThreshold(str capability_name, std::vector<double> uncertainty, const std::vector<double>& prediction)
+{
+    if (!getCapabilitySettings(capability_name).relative_uncertainty)
+        return checkThreshold(capability_name, uncertainty);
+
+    if (prediction.size() != uncertainty.size())
+    {
+        std::cerr << "GAMBIT: emulator for capability '" << capability_name << "' returned "
+                  << prediction.size() << " prediction value(s) but " << uncertainty.size()
+                  << " uncertainty value(s); cannot form a relative uncertainty. Aborting the whole MPI job." << std::endl;
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
+
+    std::vector<double> relative(uncertainty.size());
+    for (size_t j = 0; j < uncertainty.size(); ++j)
+    {
+        relative[j] = (prediction[j] == 0.0) ? std::numeric_limits<double>::infinity()
+                                             : uncertainty[j] / std::abs(prediction[j]);
+    }
+    return checkThreshold(capability_name, relative);
 }
 
 #endif // WITH_MPI

@@ -16,6 +16,8 @@
 #include "gambit/Backends/frontend_macros.hpp"
 #include "gambit/Backends/frontends/SusHi_1_7_0.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
+#include "gambit/Utils/util_functions.hpp"
+#include "gambit/Utils/output_path.hpp"
 #include <fstream>
 #include <cstring>
 #include <cmath>
@@ -57,7 +59,19 @@ BE_NAMESPACE
         rank = comm.Get_rank();
     }
     #endif
-    std::string infile = "SusHi_input_" + std::to_string(rank) + ".slha";
+    // Put the temporary SLHA files in <default_output_path>/slha_files/, so that
+    // concurrent runs (different output folders) don't overwrite each other.
+    // Falls back to the current directory if the output path is unknown.
+    std::string dir;
+    if (!Utils::default_output_path().empty())
+    {
+        dir = Utils::default_output_path() + "slha_files/";
+        Utils::ensure_path_exists(dir);
+    }
+    std::string infile = dir + "SusHi_input_" + std::to_string(rank) + ".slha";
+    // SusHi's filename buffer (jfilein) holds 300 characters.
+    if (infile.size() > 300)
+        backend_error().raise(LOCAL_INFO, "SusHi temp file path is longer than 300 characters: " + infile);
 
     // Get SLHA2 content from MSSM spectrum
     //SLHAea::Coll slha = mySpec.getSLHAea(2);
@@ -215,9 +229,9 @@ BE_NAMESPACE
     }
 
     // Pass filename to SusHi's jfilein common block via char*1 array (no hidden length)
-    char fn_buf[60];
-    std::memset(fn_buf, ' ', 60);
-    int fn_len = std::min((int)infile.size(), 60);
+    char fn_buf[300];
+    std::memset(fn_buf, ' ', 300);
+    int fn_len = std::min((int)infile.size(), 300);
     std::memcpy(fn_buf, infile.c_str(), fn_len);
     gambit_sushi_setfile(fn_buf, fn_len);
 

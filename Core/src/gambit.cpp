@@ -338,6 +338,22 @@ int main(int argc, char* argv[])
             // uncertainty
             settings.uncertainty = scanner_node["Emulator"]["emulators"][key]["uncertainty"].as<std::vector<double>>();
 
+            // uncertainty_type: 'relative' (default for LogLike) or 'absolute' (default elsewhere).
+            // Relative thresholds need the prediction at the point of the check, which only the
+            // LogLike check has, so asking for relative on any other capability is an error
+            // rather than a silent fallback to absolute.
+            YAML::Node type_node = scanner_node["Emulator"]["emulators"][key]["uncertainty_type"];
+            const str type = type_node.IsDefined() ? type_node.as<str>() : (key == "LogLike" ? "relative" : "absolute");
+            if (type != "relative" && type != "absolute")
+            {
+                core_error().raise(LOCAL_INFO, "Emulation.emulators." + key + ".uncertainty_type must be 'relative' or 'absolute', not '" + type + "'.");
+            }
+            if (type == "relative" && key != "LogLike")
+            {
+                core_error().raise(LOCAL_INFO, "Emulation.emulators." + key + ".uncertainty_type: relative is only supported for LogLike so far; use 'absolute' (or log_target in the plugin for a relative threshold).");
+            }
+            settings.relative_uncertainty = (type == "relative");
+
             // timeout
             YAML::Node timeout_node = scanner_node["Emulator"]["emulators"][key]["timeout"];
             settings.timeout = timeout_node.IsDefined() ? timeout_node.as<double>() : EmulatorMap::DEFAULT_PREDICT_TIMEOUT_SECONDS;
