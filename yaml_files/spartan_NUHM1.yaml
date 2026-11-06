@@ -68,7 +68,13 @@ Scanner:
     grid:
       plugin: grid
       like: LogLike
-      grid_pts: [2, 2, 3]
+      grid_pts:
+        NUHM1::M0: 2
+        NUHM1::mH: 2
+        NUHM1::M12: 2
+        NUHM1::SignMu: 2
+        NormalDist::mu: 3
+        NormalDist::sigma: 2
 
 
 ObsLikes:
