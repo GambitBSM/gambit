@@ -152,14 +152,16 @@ namespace HEPUtils {
       // Visibles+invisibles is the full set of std particles (avoids double-counting)
       e.add_particles(mkunconst(deepcopy(_visibles)));
       e.add_particles(mkunconst(deepcopy(_invisibles)));
+            
       // The custom collections need to be cloned by name
       for (const auto& kv : _customparticles) {
-        e.add_particles(mkunconst(deepcopy(particles(kv.first))), kv.first);
+        //e.add_particles(mkunconst(deepcopy(particles(kv.first))), kv.first);
+        e.add_particles(mkunconst(deepcopy(particles<DisplacedParticle>(kv.first))), kv.first);
       }
-
+      
       // Clone the jets, per-name
       for (const auto& kv : _jets) {
-        //e.set_jets(deepcopy(jets(kv.first)), kv.first);
+        e.set_jets(deepcopy(jets(kv.first)), kv.first);
       }
 
       e._pmiss = _pmiss;
@@ -663,7 +665,7 @@ namespace HEPUtils {
     template <typename CS=FJNS::ClusterSequence>
     void set_clusterseq(std::shared_ptr<const CS> cseq, const std::string& key) {
       if (_cseqs.find(key) != _cseqs.end() && !_cseqs.empty()) {
-	throw std::runtime_error("Event::set_clusterseq() called for a non-empty jet collection");
+  throw std::runtime_error("Event::set_clusterseq() called for a non-empty jet collection");
       }
       _cseqs[key] = cseq;
     }
@@ -679,7 +681,7 @@ namespace HEPUtils {
     template <typename CS=FJNS::ClusterSequence>
     CSeqBasePtr emplace_clusterseq(std::vector<FJNS::PseudoJet>& jetparticles, const FJNS::JetDefinition& jetdef, const std::string& key) {
       if (_cseqs.find(key) != _cseqs.end() && !_cseqs.empty()) {
-	throw std::runtime_error("Event::emplace_clusterseq() called for a non-empty jet collection");
+  throw std::runtime_error("Event::emplace_clusterseq() called for a non-empty jet collection");
       }
       _cseqs[key] = std::make_shared<CS>(jetparticles, jetdef);
       return _cseqs[key];
@@ -710,7 +712,7 @@ namespace HEPUtils {
 
     /// @}
 
-
+    
   };
 
 

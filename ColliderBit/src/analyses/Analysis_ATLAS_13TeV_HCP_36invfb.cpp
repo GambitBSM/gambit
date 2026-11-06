@@ -99,34 +99,34 @@ namespace Gambit
         vector<const HEPUtils::DisplacedParticle*> displacedParticles;
       
         vector<string> custom_names = event->custom_particle_names();
-        cout << "Custom names in particle collections: " << endl;
-        for(auto name: custom_names ) cout << name << endl;
+        //cout << "Custom names in particle collections: " << endl;
+        //for(auto name: custom_names ) cout << name << endl;
         
         int nHCP= 0;
         // Check if we have HCP candidates
+        cout << endl;
         cout << "Particles produced > 10 mm from interaction:" << endl;
         if( event->has_custom_particle("LLprod") ){
-          cout << "Hello!" << endl;
           for (const HEPUtils::DisplacedParticle* LLprod : event->particles<HEPUtils::DisplacedParticle>("LLprod") ) {
-            cout << "Hello!" << endl;
-            cout << LLprod->pid() << " " << LLprod->pT() << " " << LLprod->vprod() << " " << LLprod->vdec() << endl;
+            cout << LLprod->pid() << " " << LLprod->mom() << " " << LLprod->vprod() << " " << LLprod->vdec() << endl;
             if (LLprod->pT() > 4.5 && fabs(LLprod->eta()) < 2.47) {
               nHCP++;
               displacedParticles.push_back(LLprod);
             }
           }
         }
+        cout << endl;
         cout << "Particles decaying > 10 mm from interaction:" << endl;
         if( event->has_custom_particle("LLdec") ){
           for (const HEPUtils::DisplacedParticle* LLdec : event->particles<HEPUtils::DisplacedParticle>("LLdec") ) {
-            cout << LLdec->pid() << " " << LLdec->pT() << " " << LLdec->vprod() << " " << LLdec->vdec() << endl;
+            cout << LLdec->pid() << " " << LLdec->mom() << " " << LLdec->vprod() << " " << LLdec->vdec() << endl;
             if (LLdec->pT() > 4.5 && fabs(LLdec->eta()) < 2.47) {
               nHCP++;
               displacedParticles.push_back(LLdec);
             }
           }
         }
-        exit(0);
+        //exit(0);
   
         
         // Missing momentum and energy
