@@ -112,10 +112,16 @@ Rules:
     options:
       # All optional; values shown are the defaults. Raise the VEGAS
       # points/iterations to make SusHi slower and more precise; lower them
-      # (or use ggh_order/bbh_order 0 or 1) for faster.
+      # (or use ggh_order/bbh_order 0 or 1) for faster.  See the option list
+      # at the top of SusHi_run_point in Backends/src/frontends/SusHi_1_7_0.cpp
+      # for the full set (scales, Yukawa factors, PDF member, ...).
       ggh_order: 2                 # 0=LO, 1=NLO, 2=NNLO
       bbh_order: 2
       ew_ggh: 1                    # 0=off, 1=light-quark EW at NLO
+      vegas_reseed: 1              # 1: reset SusHi's random numbers before each point, so that
+                                   #    every point reproduces a standalone SusHi run on the same input
+      write_slha_input: 0          # 1: dump each point's input to SusHi_1_7_0_input_rank<R>_point<N>.slha
+                                   #    (debugging aid; feed it to the standalone SusHi binary to cross-check)
       vegas_nlo_points: 5000
       vegas_nlo_iter: 5
       vegas_ggh_nnlo_points: 5000

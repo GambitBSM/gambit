@@ -254,7 +254,8 @@ int main(int argc, char* argv[])
       IniParser::IniFile iniFile;
       iniFile.readFile(filename);
 
-      //_emu send yaml filename to egg
+      //_emu send yaml filename to egg (the egg is a separate MPI process)
+      #ifdef WITH_MPI
       if (EmulatorMap::useEmulator)
       {
         str copy_filename = filename;
@@ -264,6 +265,7 @@ int main(int argc, char* argv[])
         MPI_Bcast(&msg_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(copy_filename.data(), msg_size, MPI_CHAR, 0, MPI_COMM_WORLD);
       } 
+      #endif
 
       // Check if user wants to disable use of MPI_Abort (since it does not work correctly in all MPI implementations)
       #ifdef WITH_MPI

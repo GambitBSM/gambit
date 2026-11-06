@@ -72,6 +72,7 @@ contrib/HepMC3-*/
 contrib/YODA-*/
 contrib/fastjet-*/
 contrib/fjcontrib-*/
+contrib/LHAPDF-*/
 
 # Local configuration files
 config/*_locations.yaml
