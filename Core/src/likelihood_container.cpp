@@ -272,7 +272,7 @@ namespace Gambit
 
       }
       #else
-      core_error().raise(LOCAL_INFO, "Emulators needs MPI to be enabled");
+      if (EmulatorMap::useEmulator) core_error().raise(LOCAL_INFO, "Emulators needs MPI to be enabled");
       #endif
       //_emu predict end
 

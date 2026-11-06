@@ -28,57 +28,47 @@
            src/sushi/virtsqqgluino.f
  
 @@ -209,6 +209,14 @@
- 	ar -ruc lib/libshare.a ${GGHNNLOOBJ} ${BBHNNLOOBJ} \
+       ar -ruc lib/libshare.a ${GGHNNLOOBJ} ${BBHNNLOOBJ} \
               ${BBHDIFFOBJ} ${SHAREOBJ} src/pdfspec/lhapdf.o
  
 +lib/libsushi.so: lib/libsushiPLAIN.a lib/libshare.a
-+	mkdir -p tmp_gambit_objs_sushi tmp_gambit_objs_share
-+	cd tmp_gambit_objs_sushi && ar x ../lib/libsushiPLAIN.a
-+	cd tmp_gambit_objs_share && ar x ../lib/libshare.a
-+	${fort} -shared -o lib/libsushi.so tmp_gambit_objs_sushi/*.o \
-+	  tmp_gambit_objs_share/*.o -L${LHAPATH} -lLHAPDF ${LDFLAGS}
-+	rm -rf tmp_gambit_objs_sushi tmp_gambit_objs_share
++      mkdir -p tmp_gambit_objs_sushi tmp_gambit_objs_share
++      cd tmp_gambit_objs_sushi && ar x ../lib/libsushiPLAIN.a
++      cd tmp_gambit_objs_share && ar x ../lib/libshare.a
++      ${fort} -shared -o lib/libsushi.so tmp_gambit_objs_sushi/*.o \
++        tmp_gambit_objs_share/*.o -L${LHAPATH} -lLHAPDF ${LDFLAGS}
++      rm -rf tmp_gambit_objs_sushi tmp_gambit_objs_share
 +
  gghnnlo: ${GGHNNLOOBJ}
  bbhnnlo: ${BBHNNLOOBJ}
  bbhdiff: ${BBHDIFFOBJ}
---- /dev/null
+--- a/src/sushi/sushi_gambit_interface.f
 +++ b/src/sushi/sushi_gambit_interface.f
-@@ -0,0 +1,119 @@
+@@ -0,0 +1,225 @@
 +C     GAMBIT interface subroutines for SusHi 1.7.0
-+C     Sets jfilein in SusHi common block and runs cross-section computation.
-+
-+C-{{{ gambit_sushi_setfile
-+      subroutine gambit_sushi_setfile(fn, n)
-+C     Sets jfilein in SusHi common /fileinfileout/ from a C char* buffer.
-+C     fn: character*1 array of length n (no hidden Fortran length argument)
-+C     n:  length of fn buffer
-+      implicit none
-+      integer n
-+      character*1 fn(n)
-+      character*300 jfilein, jfnameact
-+      common /fileinfileout/ jfilein, jfnameact
-+      integer i
-+      jfilein = ' '
-+      do i = 1, min(n, 300)
-+        jfilein(i:i) = fn(i)
-+      end do
-+C     Derive jfnameact from the input filename by stripping .slha extension.
-+C     SusHi appends _murdep to jfnameact when muranalytic is true; the result
-+C     must be a writable path.  '/dev/null' would produce '/dev/null_murdep'
-+C     which does not exist and causes a runtime error.
-+      jfnameact = jfilein
-+      i = index(jfnameact, '.slha', .true.)
-+      if (i .gt. 0) jfnameact(i:300) = ' '
-+      return
-+      end
-+C-}}}
++C
++C     The GAMBIT frontend fills SusHi's SLHA input common blocks
++C     (src/commons/common-slha.f) directly from C++ -- the same
++C     variables that readslha/slhablocks fill when parsing an input
++C     file -- and then calls gambit_sushi_compute.  That routine runs
++C     SusHi's usual initialisation and cross-section calculation with
++C     the file reading switched off ("GAMBIT in-memory mode", flag
++C     lgambitmode in common /gambitsushi/).  In this mode
++C       * readslha (readslha.f) does not touch any file and reports a
++C         block as present if any of its entries has been given,
++C       * readinsushi (inputoutput.f) neither opens nor closes an
++C         input file and does not reset the entry-given flags,
++C       * the optional _murdep output file is not written
++C         (sushicore.f, sigma.f).
++C     Everything else is SusHi's own code path, so the result is
++C     identical to that of a standalone SusHi run on an input file
++C     containing the same entries.
 +
 +C-{{{ gambit_sushi_compute
 +      subroutine gambit_sushi_compute(ggh_result, bbh_result,
 +     & ggh_err, bbh_err)
-+C     Runs SusHi ggh+bbh cross-section computation.
-+C     Assumes jfilein has already been set via gambit_sushi_setfile.
++C     Runs SusHi ggh+bbh cross-section computation on the input
++C     currently held in the SLHA common blocks.
 +C     Returns xeff (ggh NNLO effective, pb) and SUbbh(3) (bbh NNLO, pb),
 +C     plus their VEGAS integration errors xefferr and SUbbherr(3) (pb).
 +      implicit none
@@ -93,6 +83,8 @@
 +      double complex gb13o, gbh123o, gbh213o, gb23o
 +      double complex gt13o, gth123o, gth213o, gt23o
 +      double complex gb3o, gt3o
++      integer ninp, noutp
++      logical lgambitmode
 +      include '../commons/common-inputoutput.f'
 +      include '../commons/common-flags.f'
 +      include '../commons/common-vars.f'
@@ -100,7 +92,18 @@
 +      include '../commons/common-quark.f'
 +      include '../commons/common-int.f'
 +      include '../commons/common-ren.f'
-+C     Use extflag=.false. so initsushi reads the full SLHA file including
++      common /vgasio/ ninp,noutp
++      common /gambitsushi/ lgambitmode
++C     Switch on the in-memory input mode (see header of this file).
++      lgambitmode = .true.
++C     No input/output files are used.  Give the names harmless
++C     non-blank values anyway (SusHi strips trailing blanks from
++C     jfnameact and must not be handed an all-blank string).
++      jfilein = 'GAMBIT'
++      jfnameact = 'GAMBIT'
++C     Any VEGAS screen output goes to stdout, as in standalone SusHi.
++      noutp = 6
++C     Use extflag=.false. so initsushi reads the full input including
 +C     the SUSHI block (energy, order, scale factors).  extflag=.true. is
 +C     for FeynHiggs/2HDMC external-program mode and skips those reads,
 +C     leaving murfacggh uninitialised (=0), which causes runalpha(mu=0).
@@ -120,6 +123,109 @@
 +      bbh_result = SUbbh(3)
 +      ggh_err = xefferr
 +      bbh_err = SUbbherr(3)
++      lgambitmode = .false.
++      return
++      end
++C-}}}
++
++C-{{{ gambit_sushi_reset_ranlux
++      subroutine gambit_sushi_reset_ranlux
++C     Resets SusHi's RANLUX generator (used by VEGAS) to the state it
++C     has at the start of a fresh process (see RLUXRESET in
++C     src/share/ranlux.F), so that the next point's integration does
++C     not depend on the points computed earlier in the same process
++C     and reproduces a standalone SusHi run on the same input.
++      implicit none
++      call rluxreset
++      return
++      end
++C-}}}
++
++C-{{{ gambit_slhablock_present
++      logical function gambit_slhablock_present(blocktypin)
++C     In GAMBIT in-memory mode: is SLHA block BLOCKTYPIN present, i.e.
++C     has the GAMBIT frontend flagged at least one of its entries as
++C     given?  Mirrors the block -> common-block mapping of slhablocks.f.
++      implicit none
++      character*15 blocktypin, blocktype
++      character*1 uppercase
++      integer j
++      include '../commons/common-slha.f'
++      blocktype = blocktypin
++      do j=1,15
++         blocktype(j:j) = uppercase(blocktype(j:j))
++      enddo
++      select case (blocktype)
++      case ('SUSHI')
++         gambit_slhablock_present = any(lsushipar)
++      case ('SMINPUTS')
++         gambit_slhablock_present = any(lsminputs)
++      case ('MINPAR')
++         gambit_slhablock_present = any(lminpar)
++      case ('EXTPAR')
++         gambit_slhablock_present = any(lextpar)
++      case ('IMEXTPAR')
++         gambit_slhablock_present = any(limextpar)
++      case ('ALPHA')
++         gambit_slhablock_present = lslhaalpha
++      case ('MASS')
++         gambit_slhablock_present = any(lsmassbo) .or.
++     &        any(lsmassfe1) .or. any(lsmassfe2)
++      case ('STOPMIX')
++         gambit_slhablock_present = any(lstopmix)
++      case ('SBOTMIX')
++         gambit_slhablock_present = any(lsbotmix)
++      case ('NMHMIX')
++         gambit_slhablock_present = any(lnmhmix)
++      case ('NMAMIX')
++         gambit_slhablock_present = any(lnmamix)
++      case ('NMAMIXR')
++         gambit_slhablock_present = any(lnmamixr)
++      case ('GAUGE')
++         gambit_slhablock_present = any(lgauge)
++      case ('RENORMBOT')
++         gambit_slhablock_present = any(lrenormbotpar)
++      case ('RENORMSBOT')
++         gambit_slhablock_present = any(lrenormsbotpar)
++      case ('FACTORS')
++         gambit_slhablock_present = any(lyukawafac)
++      case ('4GEN')
++         gambit_slhablock_present = any(lfourgen)
++      case ('SCALES')
++         gambit_slhablock_present = any(lscalespar) .or.
++     &        any(lmurscanpar)
++      case ('DISTRIB')
++         gambit_slhablock_present = any(ldistribpar)
++      case ('VEGAS')
++         gambit_slhablock_present = any(lvegaspar)
++      case ('PDFSPEC')
++         gambit_slhablock_present = any(lpdfname) .or.
++     &        any(lpdfspecpar)
++      case ('FEYNHIGGS')
++         gambit_slhablock_present = any(lfeynhiggspar)
++      case ('FEYNHIGGSFLAGS')
++         gambit_slhablock_present = any(lfhflags)
++      case ('2HDMC')
++         gambit_slhablock_present = any(lthdmcpar)
++      case ('2HDM')
++         gambit_slhablock_present = ltwohdmpar
++      case ('DIM5')
++         gambit_slhablock_present = any(ldim5par) .or. ldim5runpar
++      case ('GGHSOFT')
++         gambit_slhablock_present = any(lgghsoftpar)
++      case ('GGHMT')
++         gambit_slhablock_present = any(lgghmtpar) .or.
++     &        any(lgghmtreal)
++      case ('QQH')
++         gambit_slhablock_present = any(lqqhint) .or. any(lqqhreal)
++      case ('TMP')
++         gambit_slhablock_present = any(ltmpint) .or. any(ltmpreal)
++      case ('EXTFILE')
++         gambit_slhablock_present = lextfilepar(1)
++      case default
++C        e.g. FLEXIBLESUSY: never provided by GAMBIT
++         gambit_slhablock_present = .false.
++      end select
 +      return
 +      end
 +C-}}}
@@ -696,6 +802,22 @@
        end
  
  C-}}}
+--- a/src/share/ranlux.F
++++ b/src/share/ranlux.F
+@@ -149,6 +149,13 @@
+       ENDIF
+       RETURN
+ C
++C           Entry to reset the generator to its default initial state
++C           (added for GAMBIT): the next RANLUX call then re-runs the
++C           default initialization above, exactly as in a fresh process.
++      ENTRY RLUXRESET
++      NOTYET = .TRUE.
++      RETURN
++C
+ C           Entry to input and float integer seeds from previous run
+       ENTRY RLUXIN(ISDEXT)
+ *     IF block added by Phillip Helbig after correpondence with James
 --- a/src/sushi/elw_lf.f
 +++ b/src/sushi/elw_lf.f
 @@ -1111,7 +1111,7 @@
@@ -817,7 +939,45 @@
  
 --- a/src/sushi/inputoutput.f
 +++ b/src/sushi/inputoutput.f
-@@ -563,7 +563,7 @@
+@@ -42,13 +42,21 @@
+       include '../commons/common-lumis.f'
+ 
+       common /coll/ ppcoll
++c..   GAMBIT: lgambitmode is .true. while SusHi is run on input that the
++c..   GAMBIT frontend has written directly into the SLHA common blocks
++c..   (see sushi_gambit_interface.f).  No input file is used then, and
++c..   the entry-given flags set by the frontend must not be reset here.
++      logical lgambitmode
++      common /gambitsushi/ lgambitmode
+       
++      if (.not.lgambitmode) then
+       inquire(file=jfilein,exist=ifilein)
+       if(.not.ifilein)then
+          call printerrorsushi(1,6,'ERROR: FILE '//jfilein/
+      &        /' DOES NOT EXIST!')
+       endif
+       open(unit=12,file=jfilein)
++      endif
+ 
+       fshflag = .false.
+       fhflag  = .false.
+@@ -60,6 +68,7 @@
+       CPvio = 0
+ 
+ !     setting read-in-flags to false
++      if (.not.lgambitmode) then
+       lqqhint = .false.
+       lqqhreal = .false.
+       ltmpint = .false.
+@@ -85,6 +94,7 @@
+       lrenormsbotpar = .false.
+       lfhflags       = .false.
+       lslhaalpha     = .false.
++      endif
+       lexpandc1o1    = .true.
+       feynhiggspar(-1) = 0 !default running with direct link
+       thdmcpar(-1) = 0 !default running with direct link
+@@ -563,7 +573,7 @@
           write(*,*) 
       &"is no reasonable SusHi dish."
           write(*,105)
@@ -826,7 +986,7 @@
        end if
        
        !---Setting parameters
-@@ -795,7 +795,7 @@
+@@ -795,7 +805,7 @@
             write(*,*) "Entry 23 of EXTPAR is ignored in the NMSSM."
             write(*,*) "Please use entry 65 for an eff. mu instead."
             write(*,105)
@@ -835,7 +995,7 @@
           end if
           muSUSY = mapreal8(extpar(65),lextpar(65),'effmu undefined. ')
           CmuSUSY = DCMPLX(muSUSY,0.d0)
-@@ -1385,21 +1385,21 @@
+@@ -1385,21 +1395,21 @@
              write(*,*)
       &"Please choose a scheme for mb in the sbottom sector!"
              write(*,105)
@@ -860,7 +1020,7 @@
           end if
  
           rensbotc = 0
-@@ -1411,7 +1411,7 @@
+@@ -1411,7 +1421,7 @@
              write(*,*)
       &"Exactly one sbottom parameter has to be choosen -dependent-!"
              write(*,105)
@@ -869,7 +1029,7 @@
           endif
           mbsbch = renormsbotpar(1)
           Abch = renormsbotpar(2)
-@@ -1467,7 +1467,7 @@
+@@ -1467,7 +1477,7 @@
              else
                 write(6,*) 'SusHi: PDFSPEC(',i,') undefined.'//
       &              ' Stopped.'
@@ -878,7 +1038,16 @@
              endif
           enddo
  
-@@ -3736,7 +3736,7 @@
+@@ -1880,7 +1890,7 @@
+ 
+       endif
+       
+-      close(12)
++      if (.not.lgambitmode) close(12)
+ 
+  105  format('#--------------------------------------------------#')
+       end
+@@ -3736,7 +3746,7 @@
  
        write(6,*) char(27)//'[31mSusHi (fatal):'//char(27)//'[0m ',strng
       &     ,char(27),'[31mStopped.',char(27),'[0m'
@@ -887,7 +1056,7 @@
  
        end
  
-@@ -3827,7 +3827,7 @@
+@@ -3827,7 +3837,7 @@
        character*(*) strng
  
        if (verb.eq.1) write(unit,*) 'SusHi (error): ',strng
@@ -927,7 +1096,29 @@
          endif                                                              
 --- a/src/sushi/readslha.f
 +++ b/src/sushi/readslha.f
-@@ -106,7 +106,7 @@
+@@ -65,9 +65,21 @@
+       character cline*200,clineout*200,emptyline*200
+       character blocktype*15,blocktypin*15
+       character uppercase*1
++c..   GAMBIT in-memory input mode (see sushi_gambit_interface.f)
++      logical lgambitmode,gambit_slhablock_present
++      common /gambitsushi/ lgambitmode
+ 
+       blocktype = '               '
+       blocktype = blocktypin
++
++c..   GAMBIT in-memory mode: the SLHA common blocks have been filled
++c..   directly by the GAMBIT frontend and there is no input file.  A
++c..   block counts as found if any of its entries has been given.
++      if (lgambitmode) then
++         ifound = 0
++         if (gambit_slhablock_present(blocktype)) ifound = 1
++         return
++      endif
+       
+       rewind(iunit)
+ 
+@@ -106,7 +118,7 @@
           write(6,*) 'Line ',lcount,': ',
       &        clineout(1:1),' = char(',
       &        ichar(clineout(1:1)),') not allowed in first column'
@@ -936,7 +1127,7 @@
        endif
        if (clineout.eq.emptyline) goto 100
  c..   If we are looking at a keyword (BLOCK, DECAY), then either
-@@ -133,7 +133,7 @@
+@@ -133,7 +145,7 @@
              write(6,*) '*** Error reading SLHA input file (UNIT
       &           =',iunit,'):'
              write(6,*) 'Line ',lcount,':>',cline(1:60)
@@ -1121,9 +1312,68 @@
        endif
  
        mfeff=1 !default 1 FH 2.13
+--- a/src/sushi/sigma.f
++++ b/src/sushi/sigma.f
+@@ -170,6 +170,9 @@
+      &    ,tmpout2(0:3),tmp1,tmp2,tmpnlo,rbeg,rend,xlr
+       double precision alphaspdfm,apitmp,sigmalo,elwp1
+       double precision xlrvar(2),XSvar(2)
++c..   GAMBIT in-memory input mode: no _murdep file is written
++      logical lgambitmode
++      common /gambitsushi/ lgambitmode
+ 
+       include '../commons/common-consts.f'
+       include '../commons/common-vars.f'
+@@ -190,10 +193,12 @@
+       XSvar(2) = mpggh
+       xlrvar(1) = dlog(murggh)
+       xlrvar(2) = dlog(murggh)
++      if (.not.lgambitmode) then
+       write(11,103) ' mh = ',mh,'GeV'
+       write(11,104)
+      &     ' muR/GeV - sigma(LO)/pb - sigma(NLO)/pb'//
+      &     '- sigma(NNLO)/pb - sigma(N3LO)/pb'
++      endif
+ 
+ c..   
+       do i=0,nstep+2
+@@ -238,7 +243,7 @@
+ 
+          endif
+ 
+-         if (i.le.nstep) then
++         if ((i.le.nstep).and.(.not.lgambitmode)) then
+          write(11,*) dexp(xlr),sigr(0),sigr(1),sigr(2),sigr(3)
+          end if
+ 
 --- a/src/sushi/sushicore.f
 +++ b/src/sushi/sushicore.f
-@@ -316,7 +316,7 @@
+@@ -33,6 +33,9 @@
+       double precision wHex(2)
+       double precision SigLO,errLO,Sig_bb,err_bb,Sig_bg,err_bg
+       integer count1,doitvar,i,j,nordersave
++c..   GAMBIT in-memory input mode: no _murdep file is written
++      logical lgambitmode
++      common /gambitsushi/ lgambitmode
+ 
+       !common variables
+       include '../commons/common-inputoutput.f'
+@@ -244,12 +247,12 @@
+          do while (jfnameact(i:i).eq.' ')
+             i = i - 1
+          enddo
+-         if (muranalytic)
++         if (muranalytic.and.(.not.lgambitmode))
+      &    open(unit=11,file=jfnameact(1:i)//'_murdep',status='unknown')
+          call XSFull(SUggh,SUggherr,ggchan,qgchan,qqchan,ggchanerr,
+      &        qgchanerr,qqchanerr,xsec,xsecerr,elw,xeff,xefferr,
+      &        xeffvar,gghXSvar)
+-         if (muranalytic) close(11)
++         if (muranalytic.and.(.not.lgambitmode)) close(11)
+ 
+       end if
+ 
+@@ -316,7 +319,7 @@
              write(*,*) 'Error: y out of range. '
              write(*,*) 'Abs[y] < ', maxrap
              write(*,105)
@@ -1132,7 +1382,7 @@
           endif         
        endif
  
-@@ -349,7 +349,7 @@
+@@ -349,7 +352,7 @@
              write(*,*) '0 < pt < ', dsqrt(mh2*(dexp(2.d0*maxrapc)
       &*(1.d0/z+z)-1.d0-dexp(4.d0*maxrapc)))/(1.d0+dexp(2.d0*maxrapc))
              write(*,105)
@@ -1141,7 +1391,7 @@
           endif
        endif
  
-@@ -364,7 +364,7 @@
+@@ -364,7 +367,7 @@
              write(*,105)
              write(*,*) 'Error: ptmin out of range. '
              write(*,105)
@@ -1150,7 +1400,7 @@
           endif
           if(minptc.gt.0.d0) then
              subtr = .false.
-@@ -379,7 +379,7 @@
+@@ -379,7 +382,7 @@
              write(*,105)
              write(*,*) 'Error: ptmax out of range. '
              write(*,105)
@@ -1159,7 +1409,7 @@
           endif
           ptcut = .true.
           if(maxptc.gt.maxpt) then
-@@ -397,19 +397,19 @@
+@@ -397,19 +400,19 @@
              write(*,105)
              write(*,*) 'Error: ptmin out of range. '
              write(*,105)
@@ -1182,7 +1432,7 @@
           endif
           ptcut = .true.
           if(minptc.gt.0.d0) then
-@@ -427,7 +427,7 @@
+@@ -427,7 +430,7 @@
           write(*,105)
           write(*,*) 'Error: bad value in Block DISTRIB. '
           write(*,105)
@@ -1191,7 +1441,7 @@
        endif
  
        if(rapc.eq.0) then
-@@ -438,7 +438,7 @@
+@@ -438,7 +441,7 @@
              write(*,105)
              write(*,*) 'Error: ymax out of range. '
              write(*,105)
@@ -1200,7 +1450,7 @@
           endif            
           rapcut = .true.
           if((maxrapc.gt.maxrap).and.(.not.pseudorap)) then
-@@ -457,7 +457,7 @@
+@@ -457,7 +460,7 @@
                 write(*,*) 'Error: ymin out of range. '
                 write(*,*) '0 < ymin'
                 write(*,105)
@@ -1209,7 +1459,7 @@
              endif
              maxrap = 1.d100
           else
-@@ -466,7 +466,7 @@
+@@ -466,7 +469,7 @@
                 write(*,*) 'Error: ymin out of range. '
                 write(*,*) '0 < ymin < ', maxrap
                 write(*,105)
@@ -1218,7 +1468,7 @@
              endif
           endif
           rapcut = .true.
-@@ -479,7 +479,7 @@
+@@ -479,7 +482,7 @@
                 write(*,*) 'Error: ymin out of range. '
                 write(*,*) '0 < ymin'
                 write(*,105)
@@ -1227,7 +1477,7 @@
              endif
              maxrap = maxrapc
           else
-@@ -488,7 +488,7 @@
+@@ -488,7 +491,7 @@
                 write(*,*) 'Error: ymin out of range. '
                 write(*,*) '0 < ymin < ', maxrap
                 write(*,105)
@@ -1236,7 +1486,7 @@
              endif
              if(maxrapc.gt.maxrap) then
                 write(*,105)
-@@ -503,7 +503,7 @@
+@@ -503,7 +506,7 @@
              write(*,105)
              write(*,*) 'Error: ymax out of range. '
              write(*,105)
@@ -1245,7 +1495,7 @@
           endif            
           rapcut = .true.
           minrap = minrapc
-@@ -511,7 +511,7 @@
+@@ -511,7 +514,7 @@
           write(*,105)
           write(*,*) 'Error: bad value in Block DISTRIB. '
           write(*,105)
@@ -1254,7 +1504,7 @@
        endif
  
        if(rapcut.and.pseudorap.and.subtr) then
-@@ -519,7 +519,7 @@
+@@ -519,7 +522,7 @@
           write(*,*) 'Error: Pseudorapidity cuts cannot be ',
       &'applied when pt = 0 is allowed. '
           write(*,105)
@@ -1263,7 +1513,7 @@
        endif
  
        if((dist.eq.2).and.subtr) then
-@@ -527,7 +527,7 @@
+@@ -527,7 +530,7 @@
           write(*,*) 'Error: (Pseudo)rapidity distributions cannot be ',
       &'calculated when pt = 0 is allowed. '
           write(*,105)
@@ -1292,22 +1542,3 @@
        call printcopysushi(0,6,verbose)
  
   104  format(a,a)
---- a/src/commons/common-inputoutput.f
-+++ b/src/commons/common-inputoutput.f
-@@ -1,6 +1,6 @@
- !input specific variables
-       character SUversion*10,SUdate*10
--      character jfilein*60
-+      character jfilein*300
-       double precision SUinvAlfa,GF
-       double precision ME, MU, MD, MM, MS, ML, tanb
-       double precision MA0, MHp
-@@ -24,7 +24,7 @@
-       integer CPvio, ZHiggsapply
- 
- !output specific variables
--      character jfnameact*60
-+      character jfnameact*300
-       double precision c1sm13,c1sm23,c1sm33,c1susy1t3,c1susy2t3
-       double precision c1susy1b3,c1susy2b3
-       double complex gb3,gt3

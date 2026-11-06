@@ -674,13 +674,16 @@ namespace Gambit
       // function. Unset keys use the frontend defaults (see SusHi_run_point).
       // These control how slow (and how precise) the calculation is.
       static const char* keys[] = {
-        "sqrts", "ggh_order", "bbh_order", "ew_ggh", "pdf_member",
-        "renormbot_mb", "renormbot_tanb_resum", "kfactor_ggh", "kfactor_bbh",
+        "sqrts", "ggh_order", "bbh_order", "ew_ggh", "sushi_verbose", "pdf_member",
+        "mur_ggh", "muf_ggh", "mur_bbh", "muf_bbh",
+        "renormbot_mb", "renormbot_tanb_resum",
+        "yukawa_factor_c", "yukawa_factor_t", "yukawa_factor_b", "yukawa_factor_st", "yukawa_factor_sb",
         "vegas_nlo_points", "vegas_nlo_iter",
         "vegas_ggh_nnlo_points", "vegas_ggh_nnlo_iter",
         "vegas_ggh_nnlo_points2", "vegas_ggh_nnlo_iter2",
         "vegas_bbh_nnlo_points", "vegas_bbh_nnlo_iter",
-        "vegas_bbh_nnlo_points2", "vegas_bbh_nnlo_iter2"};
+        "vegas_bbh_nnlo_points2", "vegas_bbh_nnlo_iter2",
+        "vegas_reseed", "write_slha_input"};
       map_str_dbl sushi_opts;
       for (const char* key : keys)
         if (runOptions->hasKey(key)) sushi_opts[key] = runOptions->getValue<double>(key);
