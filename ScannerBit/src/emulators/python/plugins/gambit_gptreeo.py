@@ -18,6 +18,27 @@ try:
 except ImportError:
     __error__ = "pygptreeo not installed."
 
+# Count the leaf-GP refits pygptreeo performs, so that the trainer can tell
+# whether an update actually changed what the predictor would predict. This
+# wraps GPNode.fit_my_GPR (which returns True when it trained); it only adds a
+# counter and does not alter pygptreeo's behaviour. Wrapped once per process.
+_retrain_count = [0]
+try:
+    from pygptreeo.gpnode import GPNode
+    if not getattr(GPNode.fit_my_GPR, '_gambit_counting', False):
+        _orig_fit_my_GPR = GPNode.fit_my_GPR
+
+        def _counting_fit_my_GPR(self, *args, **kwargs):
+            trained = _orig_fit_my_GPR(self, *args, **kwargs)
+            if trained:
+                _retrain_count[0] += 1
+            return trained
+
+        _counting_fit_my_GPR._gambit_counting = True
+        GPNode.fit_my_GPR = _counting_fit_my_GPR
+except ImportError:
+    pass
+
 
 warnings.filterwarnings("error", category=RuntimeWarning)
 np.seterr(over='raise', invalid='raise')
@@ -28,8 +49,10 @@ class pyGPtreeoEmulator(eplug.emulator):
 pygptreeo emulator
 
 With two MPI ranks, rank 1 trains and rank 0 predicts; with one rank it does
-both. The trainer writes the tree to a joblib file after every update and the
-predictor reloads it whenever the file has changed.
+both. The trainer writes the tree to a joblib file and the predictor reloads
+it whenever the file has changed. By default (save_on_retrain_only) the file is
+only rewritten when a leaf GP was actually refitted, so the predictor's model
+changes only upon retraining, not after every added point.
 
 YAML options:
     train: Option to enable/disable training
@@ -65,6 +88,11 @@ YAML options:
     log_emulator_data: If True, writes emu_predictions.csv and emu_training.csv
         to the output path for post-run comparison of emulated vs actual values.
         Defaults to False.
+    save_on_retrain_only: If True (default), the model file read by predict is
+        only rewritten when pygptreeo refitted at least one leaf GP (see
+        retrain_every_n_points); points that are just stored in between do not
+        change the predictor's model. If False, the file is written after every
+        point.
     stack_dump_interval: If > 0, write the Python stack of this rank to
         stacks_rank<N>.txt in the output path every this many seconds.
         Defaults to 0 (off).
@@ -133,6 +161,8 @@ spent in predict (including any reload of the model file).
         if stack_dump_interval > 0:
             self._stack_file = open(os.path.join(output_path, f'stacks_rank{self.mpi_rank}.txt'), 'w')
             faulthandler.dump_traceback_later(stack_dump_interval, repeat=True, file=self._stack_file)
+        self._n_saved_points = 0
+        self.save_on_retrain_only = bool(kwargs.get('save_on_retrain_only', True))
         self.log_target = kwargs.get('log_target', False)
         self.target_relative_uncertainty = kwargs.get('target_relative_uncertainty', None)
         self.min_train_points = int(kwargs.get('min_train_points', 100))
@@ -256,6 +286,7 @@ spent in predict (including any reload of the model file).
         if self.adaptive_validation and self._n_training_points() >= self.min_train_points:
             self._record_validation_error(x, y_lin)
 
+        retrains_before = _retrain_count[0]
         t0 = time.time()
         try:
             self.gpt.update_tree(x.reshape(1, -1), y.reshape(1, -1),
@@ -268,10 +299,18 @@ spent in predict (including any reload of the model file).
             return
         t_update = time.time() - t0
 
+        # Publish the model to the predictor only if a GP was refitted (or always,
+        # if save_on_retrain_only is off). Otherwise the saved model, and hence
+        # the predictions, stay as they were at the last retrain.
+        if self.save_on_retrain_only and _retrain_count[0] == retrains_before:
+            self._log_train_row(row, t_update, float('nan'), self._n_saved_points)
+            return
+
         t0 = time.time()
         self.gpt.atomic_save(self.tree_filename)
         t_save = time.time() - t0
-        self._log_train_row(row, t_update, t_save, self._n_training_points())
+        self._n_saved_points = self._n_training_points()
+        self._log_train_row(row, t_update, t_save, self._n_saved_points)
 
     def _log_train_row(self, row, t_update, t_save, n_points_after):
         """Write one emu_training.csv row. Besides the data it records how long the
