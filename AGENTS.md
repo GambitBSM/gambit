@@ -11,10 +11,14 @@ GAMBIT (*Global And Modular BSM Inference Tool*) is a modular C++/Fortran/Python
 
 - `ExampleBit_A/` is the reference module.
 - Backend source is downloaded at build time; backend changes go in `Backends/patches/<backend>/`.
+- Write for the typical reader: a physics PhD student who knows C++ but is not a C++ specialist. Prefer explicit code over compact or clever code, even when it is longer.
+- Keep comments brief, timeless and in the style of the surrounding file: describe the code as it is, not how it got there.
+- Never add an agent's name to author fields.
 - Format only the lines you change (`.clang-format`).
 
 ## Git
 
 - Commit source only; keep build and run outputs out of history.
-- Never `git push` to remote, unless you are on a dedicated agent branch.
+- Open pull requests only when a human explicitly asks.
+- `git push` only to `agents/*` branches.
 
