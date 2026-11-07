@@ -39,6 +39,11 @@
 // Boost
 #include <boost/preprocessor/seq/for_each_i.hpp>
 
+// MSSM_SLHAstruct and SMslha_SLHAstruct are in RETRIEVABLE_TYPES and need their definitions here
+#ifndef SCANNER_STANDALONE
+   #include "gambit/Utils/slhaea_helpers.hpp"
+#endif
+
 // Printable types
 #ifndef SCANNER_STANDALONE
    // If we are in a main gambit executable, we need to know all the GAMBIT printable types

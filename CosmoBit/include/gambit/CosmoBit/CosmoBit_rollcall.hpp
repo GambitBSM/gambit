@@ -974,6 +974,14 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // Printable forms of BBN_container capabilities: convert to map_str_dbl
+  QUICK_FUNCTION(CosmoBit, printable_primordial_abundances_BBN, NEW_CAPABILITY,
+                 printable_primordial_abundances_BBN_impl, map_str_dbl, (),
+                 (primordial_abundances_BBN, BBN_container))
+  QUICK_FUNCTION(CosmoBit, printable_primordial_abundances, NEW_CAPABILITY,
+                 printable_primordial_abundances_impl, map_str_dbl, (),
+                 (primordial_abundances, BBN_container))
+
   /// compute primordial helium abundance
   #define CAPABILITY helium_abundance
   START_CAPABILITY

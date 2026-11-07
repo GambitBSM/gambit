@@ -821,5 +821,16 @@ namespace Gambit
     }
 */
 
+    void printable_DD_couplings_impl(map_str_dbl& result)
+    {
+      using namespace Pipes::printable_DD_couplings_impl;
+      result.clear();
+      result["Gp_SI"] = Dep::DD_couplings->gps;
+      result["Gn_SI"] = Dep::DD_couplings->gns;
+      result["Gp_SD"] = Dep::DD_couplings->gpa;
+      result["Gn_SD"] = Dep::DD_couplings->gna;
+    }
+
   }
+
 }
