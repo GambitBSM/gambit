@@ -59,6 +59,9 @@ scanner_plugin(random_fast_slow, version(1, 0, 0))
         dim = get_dimension();
 
         ranges = get_prior().getSpeedRanges({0, slow_speed_threshold, -1});
+        // // or you can do either of these:
+        // std::tuple<int, int, int> get_prior().getSpeedRanges(0, slow_speed_threshold, -1);
+        // int range = get_prior().getSpeedRanges(slow_speed_threshold);
 
     #ifdef WITH_MPI
         MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
@@ -82,7 +85,7 @@ scanner_plugin(random_fast_slow, version(1, 0, 0))
       std::cout << "Entering fast-slow test sampler."
                 << "\n\t slow points to draw: " << point_number
                 << "\n\t fast repeats per slow point: " << fast_repeats
-                << "\n\t ranges: [" << ranges[0] << ", " << ranges[1] << ", " << ranges[2] << "]" << std::endl;
+                << "\n\t positions [slow, fast, end]: [" << ranges[0] << ", " << ranges[1] << ", " << ranges[2] << "]" << std::endl;
 
         for (int k = rank; k < point_number; k+=numtasks)
         {

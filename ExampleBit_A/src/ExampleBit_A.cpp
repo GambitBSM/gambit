@@ -570,7 +570,7 @@ namespace Gambit
       using namespace Pipes::fast_slow_test_three_a;
       double a = *Param["a"];
       result = a;
-      std::cout << ""ExampleBit_A fast_slow: I am in the third function (a only)\n";
+      std::cout << "ExampleBit_A fast_slow: I am in the third function (a only)\n";
     }
 
     /// Declares no parameter subset, so it conservatively depends on all of
@@ -581,7 +581,7 @@ namespace Gambit
       double a = *Param["a"];
       double b = *Param["b"];
       result = a + b;
-      std::cout << ""ExampleBit_A fast_slow:  I am in the third function (a and b)\n";
+      std::cout << "ExampleBit_A fast_slow:  I am in the third function (a and b)\n";
     }
 
     /// @}

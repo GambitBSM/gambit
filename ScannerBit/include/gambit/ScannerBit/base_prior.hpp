@@ -106,7 +106,7 @@ namespace Gambit {
 
             virtual std::map<int, int> getSpeeds() const {return std::map<int, int>();}
 
-            std::vector<int> getSpeedRanges(const std::vector<int> &ranges)
+            /*std::vector<int> getSpeedRanges(const std::vector<int> &ranges)
             {
                 auto speeds = getSpeeds();
                 std::vector<int> ret(ranges.size(), 0);
@@ -121,6 +121,42 @@ namespace Gambit {
                         }
                     }
                 }
+
+                return ret;
+            }*/
+
+            int getSpeedRanges(int range)
+            {
+                if (range == 0)
+                    return 0;
+                else if (range < 0)
+                    return param_size;
+                else
+                {
+                    auto speeds = getSpeeds();
+                    int num = 0;
+                    for (auto &&s : speeds)
+                    {
+                        if (s.first < range)
+                            num += s.second;
+                        else
+                            break;
+                    }
+                    return num;
+                }
+            }
+
+            template <typename... T>
+            constexpr std::tuple<int, typename std::decay<T>::type...> getSpeedRanges(int val, T... vals)
+            {
+                return std::tuple<int, typename std::decay<T>::type...>(getSpeedRanges(val), getSpeedRanges(vals)...);
+            }
+
+            std::vector<int> getSpeedRanges(const std::vector<int> &ranges)
+            {
+                std::vector<int> ret(ranges.size());
+                for (int i = 0, end = ranges.size(); i < end; ++i)
+                    ret[i] = getSpeedRanges(ranges[i]);
 
                 return ret;
             }

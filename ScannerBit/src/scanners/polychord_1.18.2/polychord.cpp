@@ -15,11 +15,11 @@
 ///  \author Will Handley
 ///          (wh260@cam.ac.uk)
 ///  \date May 2018
+///  \date Jan 2021
 ///
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
 ///  \date May 2020
-///  \date Jan 2021
 ///
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
@@ -106,13 +106,14 @@ scanner_plugin(polychord, version(1, 18, 2))
       // Offset the minimum interesting likelihood by the offset
       gl0 = gl0 + offset;
 
-     // Get list of parameters used from loglikelihood
-      std::vector<std::string> varied_params = LogLike->getShownParameters();
-      std::vector<std::string> all_params = LogLike->getParameters();
-
       // Retrieve whether the scanned parameters should be added to the native output and determine nderived
       int nderived = 2;
-      if (get_inifile_value<bool>("print_parameters_in_native_output", false)) nderived += all_params.size();
+      if (get_inifile_value<bool>("print_parameters_in_native_output", false))
+      {
+          std::vector<std::string> all_params = LogLike->getParameters();
+          global_loglike_object->all_params = all_params;
+          nderived += all_params.size();
+      }
 
       // Initialise polychord settings
       Settings settings(ma, nderived);
@@ -122,54 +123,16 @@ scanner_plugin(polychord, version(1, 18, 2))
       global_loglike_object = &loglwrapper;
 
       // ---------- Compute an ordering for fast and slow parameters
-      // Read list of fast parameters from file
-      std::vector<std::string> fast_params = get_inifile_value<std::vector<std::string>>("fast_params", {});
-
-      // Compute the set difference between fast_params and all_params to check if there are any fast_params not included in all_params
-      std::set<std::string> set_fast_params(fast_params.begin(), fast_params.end()), set_params(all_params.begin(), all_params.end()), diff;
-      std::set_difference(set_fast_params.begin(), set_fast_params.end(), set_params.begin(), set_params.end(),std::inserter(diff,diff.begin()));
-      if (diff.size())
-      {
-         // Raise an error if any specified fast_params are not actually being sampled over.
-         std::string error_message = "You have specified:\n";
-         for (auto param : diff) error_message += param + "\n" ;
-         error_message += "as fast param(s), but the list of params is:\n";
-         for (auto param : all_params) error_message += param + "\n";
-         scan_error().raise(LOCAL_INFO,error_message);
-      }
 
       // Compute the locations in PolyChord's unit hypercube, ordering from slow to fast
       // This defaults to nDims if there are no fast parameters, or if all parameters are fast.
       // grade_dims is a vector of integers that indicates the number of slow and fast parameters
       settings.grade_dims.clear();
-      unsigned int i = 0;
-      // Run through all the parameters, and if they're slow parameters
-      // give them an index i, then increment i
-      for (auto param : varied_params)
-         if (std::find(fast_params.begin(), fast_params.end(),param) == fast_params.end())
-            global_loglike_object->index_map[param] = (i++);
-      unsigned int nslow = i;
+      unsigned int nslow = (unsigned int)get_prior().getSpeedRanges(get_inifile_value<int>("fast_speed", -1));
       if(nslow!=0) settings.grade_dims.push_back(nslow);
 
-      // Do the same for the fast parameters
-      for (auto param : varied_params)
-         if (std::find(fast_params.begin(), fast_params.end(),param) != fast_params.end())
-            global_loglike_object->index_map[param] = (i++);
-      unsigned int nfast = i-nslow;
+      unsigned int nfast = ma-nslow;
       if (nfast>0) settings.grade_dims.push_back(nfast);
-
-      if (nslow>0 and nfast>0)
-      {
-         // Specify the fraction of time to spend in the slow parameters.
-         double frac_slow = get_inifile_value<double>("frac_slow",0.75);
-         settings.grade_frac = std::vector<double>({frac_slow, 1-frac_slow});
-      }
-      else if (nslow==0) // In the unusual case of all fast parameters, there's only one grade.
-         nslow = nfast;
-
-      i = 0;
-      for (auto param : all_params)
-         global_loglike_object->derived_index_map[param] = (i++);
 
       // ---------- End computation of ordering for fast and slow parameters
 
@@ -199,6 +162,16 @@ scanner_plugin(polychord, version(1, 18, 2))
       settings.base_dir = get_inifile_value<std::string>("default_output_path")+"PolyChord";
       settings.file_root = get_inifile_value<std::string>("root", "native");
       settings.seed = get_inifile_value<int>("seed",-1);
+
+      if (nslow>0 and nfast>0)
+      {
+         // Specify the fraction of time to spend in the slow parameters.
+         double frac_slow = get_inifile_value<double>("frac_slow",0.75);
+         settings.grade_frac = std::vector<double>({frac_slow, 1-frac_slow});
+      }
+      else if (nslow==0) // In the unusual case of all fast parameters, there's only one grade.
+         nslow = nfast;
+
 
       Utils::ensure_path_exists(settings.base_dir);
       Utils::ensure_path_exists(settings.base_dir + "/clusters/");
@@ -305,19 +278,17 @@ namespace Gambit {
       ///
       double LogLikeWrapper::LogLike(double *Cube, int ndim, double* phi, int nderived)
       {
+         using Gambit::Scanner::vector;
+         using Gambit::Scanner::map_vector;
          // Cached "below threshold" unitcube parameters of the previous point.
          static int ndim_threshold =
             std::accumulate( boundSettings.grade_dims.begin(),
                              boundSettings.grade_dims.begin() + printer_speed_threshold,
                              0);
-         static std::vector<double> prev_slow_unit(ndim_threshold);
+         static vector<double> prev_slow_unit(ndim_threshold);
 
-         //convert C style array to C++ vector class, reordering parameters slow->fast
-         std::vector<std::string> params = boundLogLike->getShownParameters();
-         std::vector<double> unitpars(ndim);
-         for (auto i=0; i<ndim; i++)
-            unitpars[i] = Cube[index_map[params[i]]];
-         std::vector<double> derived(phi, phi + nderived);
+         map_vector<double> unitpars(Cube, ndim);
+         map_vector<double> derived(phi, nderived);
 
          // Disable the printer when the unitcube parameters with speeds below
          // the threshold have not changed and enable it otherwise
@@ -331,24 +302,22 @@ namespace Gambit {
          {
             boundLogLike->getPrinter().enable();
          }
-         prev_slow_unit = std::vector<double>(Cube,Cube+ndim_threshold);
+         prev_slow_unit = map_vector<double>(Cube, ndim_threshold);
 
          double lnew = boundLogLike(unitpars);
 
          // Done! (lnew will be used by PolyChord to guide the search)
 
          // Get the transformed parameters and add them as derived parameters
+
          if (nderived > 2)
          {
-            std::unordered_map<std::string,double> param_map;
-            boundLogLike->getPrior().transform(unitpars, param_map);
-            for (auto& param: param_map)
-            {
-               // param_map contains ALL parameters.
-               // We just need the ones which are varied (i.e. the keys of derived_index_map)
-               if (derived_index_map.find(param.first) != derived_index_map.end())
-                  phi[derived_index_map[param.first]] = param.second;
-            }
+              std::unordered_map<std::string,double> param_map;
+              boundLogLike->getPrior().transform(unitpars, param_map);
+              for (int i = 0, end = all_params.size(); i < end; ++i)
+              {
+                  phi[i] = param_map[all_params[i]];
+              }
          }
 
          // Get, set and ouptut the process rank and this point's ID
@@ -405,9 +374,6 @@ namespace Gambit {
             // map[polychord_hypercube] = {name, gambit_hypercube}
             std::vector<std::string> params = boundLogLike->getShownParameters();
             std::vector<std::string> all_params = boundLogLike->getParameters();
-            std::map<int,std::pair<std::string,int>> inversed_map;
-            for (int i=0; i<ndim; ++i)
-               inversed_map[index_map[params[i]]] = {params[i],i};
 
             std::ostringstream fname;
             fname << boundSettings.base_dir << "/" <<boundSettings.file_root << ".indices";
@@ -418,7 +384,7 @@ namespace Gambit {
             ofs << index++ << "\t" << "-2*(" << boundLogLike->getPurpose() << ")" << std::endl;
 
             for (int i=0; i<ndim; ++i)
-               ofs << index++ << "\t" << "unitCubeParameters[" << inversed_map[i].first <<"]" << std::endl;
+               ofs << index++ << "\t" << "unitCubeParameters[" << params[i] <<"]" << std::endl;
             for (auto param : all_params)
                ofs << index++ << "\t" << param << std::endl;
 

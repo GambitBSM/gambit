@@ -166,11 +166,11 @@ namespace Gambit
                         par_options = Options(model_options.getNode(mod, *par_it));
 
                         int speed =0;
+                        bool is_speed_bad = false;
                         if (par_options.hasKey("speed"))
                         {
                             speed = par_options.getValue<int>("speed");
-                            if (!par_options.hasKey("prior_type") || !par_options.hasKey("range"))
-                                scan_err << "Parameter '"<< par_name <<"' of model '" << mod << " Cannot be assigned a speed unless a prior type is specified." << scan_end;
+                            is_speed_bad = true;
                         }
 
                         if (par_options.hasKey("same_as"))
@@ -253,6 +253,7 @@ namespace Gambit
                                         {
                                            // my_subpriors.push_back( new_prior );
                                             //shown_param_names.push_back(joined_parname);
+                                            is_speed_bad = false;
                                             priorMap[speed].push_back(new_prior);
                                         }
                                     }
@@ -263,6 +264,7 @@ namespace Gambit
                                 //shown_param_names.push_back(joined_parname);
 
                                 //my_subpriors.push_back(new RangePrior1D<flatprior>(std::vector<std::string>(1, joined_parname), par_options));
+                                is_speed_bad = false;
                                 BasePrior *new_prior = new RangePrior1D<flatprior>(std::vector<std::string>(1, joined_parname), par_options);
                                 priorMap[speed].push_back(new_prior);
                             }
@@ -272,6 +274,9 @@ namespace Gambit
                                 needSet.insert(joined_parname);
                             }
                         }
+
+                        if (is_speed_bad)
+                            scan_err << "Parameter '"<< par_name <<"' of model '" << mod << " Cannot be assigned a speed unless a prior type is specified." << scan_end;
                     }
 
                     if (isDefault && default_N > 0)

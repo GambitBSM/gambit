@@ -40,7 +40,7 @@ Scanner:
   scanners:
 
     fast_slow_test:
-      plugin: fast_slow_test
+      plugin: random_fast_slow
       like: LogLike
       point_number: 30
       fast_repeats: 2
