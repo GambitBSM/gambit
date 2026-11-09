@@ -77,14 +77,14 @@ Printer:
 
 Scanner:
 
-  use_scanner: de
+  use_scanner: random
 
   scanners:
 
     random:
       plugin: random
       like: LogLike
-      point_number: 1000
+      point_number: 100
 
     grid:
       # plugin: pygrid
@@ -394,6 +394,20 @@ ObsLikes:
   #  module:       ExampleBit_A
   #  type:         double
   #  critical:     true
+  
+  # - capability: TestDependency
+  #   function: testdependency_1
+  #   purpose: Observable
+  
+  - capability: TestDependency
+    function: testdependency_2
+    purpose: Observable
+    exclude_from_dependency_resolution: true
+
+  # TestDependencyVariation depends on both testdependency_1 and testdependency_2
+  # However, one needs the exclude_from_dependency_resolution: true flag
+  - capability: TestDependencyVariation
+    purpose: Observable
 
 Rules:
 
@@ -402,11 +416,12 @@ Rules:
     then:
       options:
         probability_of_validity: 1.0
-
+  
 Logger:
 
   redirection:
     [Default]      : "default.log"
+    [Dependency Resolver] : "dep_resolver.log"
     [ExampleBit_A] : "ExampleBit_A.log"
     [Scanner]      : "Scanner.log"
   debug: true

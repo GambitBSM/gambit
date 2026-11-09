@@ -74,6 +74,10 @@ namespace Gambit
       /// Whether to return multiple functor matches.
       bool include_all;
 
+      /// Whether this functor should be excluded from resolving anyone else's dependency
+      /// on the same capability (i.e. computed and printed, but never used as an input).
+      bool exclude_from_dependency_resolution;
+
       /// True if and only if the passed functor matches all matchable non-empty fields of the observable (i.e. everything except purpose, dependencies, backend_reqs, functionChain and subcaps).
       bool matches(functor*, const Utils::type_equivalency&) const;
 
@@ -105,7 +109,8 @@ namespace Gambit
         printme(true),
         critical(false),
         log_matches(true),
-        include_all(false)
+        include_all(false),
+        exclude_from_dependency_resolution(false)
       {}
     };
 
