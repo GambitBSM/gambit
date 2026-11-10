@@ -5,6 +5,7 @@ import sys
 import time
 import traceback
 import csv
+import atexit
 import warnings
 import faulthandler
 
@@ -93,6 +94,12 @@ YAML options:
         retrain_every_n_points); points that are just stored in between do not
         change the predictor's model. If False, the file is written after every
         point.
+    log_cache_size: Number of rows of emu_predictions.csv and emu_training.csv
+        (counted separately for each file) kept in memory before they are
+        written to disk (only used with log_emulator_data). The files can
+        therefore lag the run by up to this many rows, and rows still in the
+        cache are lost if the job is killed (e.g. by MPI_Abort); a normal
+        shutdown writes everything. 1 writes after every row. Defaults to 100.
     stack_dump_interval: If > 0, write the Python stack of this rank to
         stacks_rank<N>.txt in the output path every this many seconds.
         Defaults to 0 (off).
@@ -202,6 +209,8 @@ spent in predict (including any reload of the model file).
         self.training_enabled = kwargs.get('train', True)
         self.prediction_enabled = kwargs.get('predict', True)
         self.logging_enabled = kwargs.get('log_emulator_data', False)
+        self.log_cache_size = max(1, int(kwargs.get('log_cache_size', 100)))
+        self._log_rows_cached = {'pred': 0, 'train': 0}
         self.n_train = 0
         self.n_pred = 0
 
@@ -216,6 +225,25 @@ spent in predict (including any reload of the model file).
                 self._train_csv_file = open(os.path.join(output_path, 'emu_training.csv'), 'w', newline='')
                 self._train_csv_writer = csv.writer(self._train_csv_file)
                 self._train_header_written = False
+
+            # make sure buffered rows reach the disk on a normal shutdown
+            atexit.register(self._flush_logs, True)
+
+    def _flush_logs(self, force=False, which=None):
+        """Write the cached CSV rows to disk. Without force this counts one new row for the file
+        given by which ('pred' or 'train') and flushes it once log_cache_size rows are cached;
+        with force it flushes the file(s) (both if which is None) regardless."""
+        for key, attr in (('pred', '_pred_csv_file'), ('train', '_train_csv_file')):
+            if which not in (None, key):
+                continue
+            f = getattr(self, attr, None)
+            if f is None or f.closed:
+                continue
+            if not force:
+                self._log_rows_cached[key] += 1
+            if force or self._log_rows_cached[key] >= self.log_cache_size:
+                f.flush()
+                self._log_rows_cached[key] = 0
 
     @staticmethod
     def _make_tree(kwargs):
@@ -327,7 +355,7 @@ spent in predict (including any reload of the model file).
             self._train_csv_writer.writerow(header)
             self._train_header_written = True
         self._train_csv_writer.writerow(row + [t_update, t_save, n_points_after, time.time()])
-        self._train_csv_file.flush()
+        self._flush_logs(which='train')
 
     def _record_validation_error(self, x, y_lin):
         """Trainer side: error of the current tree at a new truth, if it was confident."""
@@ -428,7 +456,7 @@ spent in predict (including any reload of the model file).
             now = time.time()
             self._pred_csv_writer.writerow([now, now - t_start, forced, val_frac] + list(x) + list(y_pred) + list(y_std)
                                          + [n_seen, self.last_mtime])
-            self._pred_csv_file.flush()
+            self._flush_logs(which='pred')
 
         return (y_pred, y_std)
 

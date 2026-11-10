@@ -14,6 +14,11 @@
 #include "gambit/ScannerBit/emulator_utils.hpp"
 
 using namespace Gambit;
+
+// TEMPORARY (message-timing experiment): the send/wait timing lines below are logged at info level, so they
+// are written without 'Logger: debug: true' and without all the other debug output (which is ~4x larger and
+// adds ~1.5 MB of start-up output per rank). To go back to the old behaviour, change this to LogTags::debug.
+#define EMU_TIMING_LOG_LEVEL LogTags::info
 using namespace Gambit::Scanner;
 using Gambit::Scanner::map_vector;
 
@@ -75,10 +80,18 @@ inline bool emulatorPredict(str capability_name, std::vector<double> input, std:
     // find this capability's settings
     EmulatorMap::CapabilitySettings& settings = getCapabilitySettings(capability_name);
 
-    // send to egg
+    // send to egg. Log when the send starts (debug level), so the log shows a rank
+    // entering the send even if it blocks there and never gets to the wait below.
+    logger() << LogTags::core << EMU_TIMING_LOG_LEVEL << "Emulator predict send for capability '"
+             << capability_name << "' starting (" << fd_predict.buffer.size() << " bytes to "
+             << settings.ranks.size() << " egg rank(s))." << EOM;
     for ( auto rank : settings.ranks)
     {
+        double t_send = MPI_Wtime();
         MPI_Send(fd_predict.buffer.data(), fd_predict.buffer.size(), MPI_CHAR, rank, 3, MPI_COMM_WORLD);
+        logger() << LogTags::core << EMU_TIMING_LOG_LEVEL << "Emulator predict send for capability '"
+                 << capability_name << "' to egg rank " << rank << " done in "
+                 << MPI_Wtime() - t_send << "s." << EOM;
     }
 
     // wait for prediction
@@ -112,7 +125,7 @@ inline bool emulatorPredict(str capability_name, std::vector<double> input, std:
 
     // Store the wait time in the logs for diagnostics
     double predict_wait_seconds = MPI_Wtime() - wait_start;
-    logger() << LogTags::core << LogTags::debug << "Emulator prediction wait time for "
+    logger() << LogTags::core << EMU_TIMING_LOG_LEVEL << "Emulator prediction wait time for "
                 "capability '" << capability_name << "': " << predict_wait_seconds
              << "s (reply from rank " << status_parent.MPI_SOURCE << ")." << EOM;
 
@@ -196,9 +209,19 @@ inline void emulatorTrain(str capability_name, std::vector<double> input, std::v
     const std::vector<int>& send_rank = getCapabilitySettings(capability_name).ranks;
 
     // send to egg
+    // Log when the send starts and how long it took (debug level). A send that blocks
+    // because egg is not consuming train messages shows up as a long time here, or as
+    // a "starting" entry without a matching "done" entry.
+    logger() << LogTags::core << EMU_TIMING_LOG_LEVEL << "Emulator train send for capability '"
+             << capability_name << "' starting (" << fd.buffer.size() << " bytes to "
+             << send_rank.size() << " egg rank(s))." << EOM;
     for ( auto rank : send_rank)
     {
+        double t_send = MPI_Wtime();
         MPI_Send(fd.buffer.data(), fd.buffer.size(), MPI_CHAR, rank, 3, MPI_COMM_WORLD);
+        logger() << LogTags::core << EMU_TIMING_LOG_LEVEL << "Emulator train send for capability '"
+                 << capability_name << "' to egg rank " << rank << " done in "
+                 << MPI_Wtime() - t_send << "s." << EOM;
     }
 
     // done

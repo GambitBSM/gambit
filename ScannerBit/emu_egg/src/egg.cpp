@@ -3,6 +3,13 @@
 #include <getopt.h>
 #include <functional>
 #include <string>
+#include <fstream>
+#include <ctime>
+#include <chrono>
+#include <sstream>
+#include <algorithm>
+#include "gambit/Utils/output_path.hpp"
+#include "gambit/Utils/util_functions.hpp"
 // #include "egg.hpp"
 #include "gambit/ScannerBit/py_module.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
@@ -23,6 +30,74 @@ using namespace Gambit;
 using namespace Gambit::Scanner;
 using Gambit::Scanner::map_vector;
 using Gambit::Scanner::vector;
+
+
+/// Per-rank performance log for egg, written in the same style as the gambit log files
+/// (<default_output_path>/logs/egg_<capability>.log_<world rank>). Every 'interval' seconds one entry
+/// is written with the cumulative message counts and the cumulative time spent in each part of the
+/// receive loop, plus the mean/max time of the train and predict calls since the previous entry.
+/// Compare the counts between ranks (and with what gambit sent, see the send entries in the gambit
+/// logs) to see how well each rank keeps up.
+struct EggStats
+{
+    std::ofstream out;
+    std::string capability;
+    int world_rank;
+    double interval;
+    double t_start, t_last_write;
+    std::chrono::system_clock::time_point start_time;
+
+    // cumulative
+    unsigned long n_train = 0, n_predict = 0, n_reply = 0, n_malformed = 0, bytes_recv = 0;
+    double t_probe = 0, t_idle = 0, t_recv = 0, t_train = 0, t_predict = 0, t_reply = 0, t_shutdown = 0;
+    unsigned long n_shutdown_checks = 0;
+
+    // current interval (train/predict call durations)
+    unsigned long i_train = 0, i_predict = 0;
+    double i_train_sum = 0, i_train_max = 0, i_predict_sum = 0, i_predict_max = 0;
+
+    EggStats(const std::string& filename, const std::string& cap, int rank, double interval_seconds)
+      : capability(cap), world_rank(rank), interval(interval_seconds)
+    {
+        out.open(filename);
+        t_start = t_last_write = MPI_Wtime();
+        start_time = std::chrono::system_clock::now();
+        if (out.is_open()) write_entry("Info", "egg rank started for capability '" + capability + "'.");
+        else std::cerr << "egg: could not open performance log '" << filename << "' -- continuing without it." << std::endl;
+    }
+
+    /// Write one entry in gambit log style: (date)(seconds since start)(Rank)[tags]:\nmessage\n--<>-- separator
+    void write_entry(const std::string& level, const std::string& message)
+    {
+        if (!out.is_open()) return;
+        auto now = std::chrono::system_clock::now();
+        std::chrono::duration<double> diff = now - start_time;
+        out << "(" << Utils::return_time_and_date(now) << ")(" << diff.count() << " [s])(Rank " << world_rank << ")"
+            << "[Egg," << capability << "][" << level << "]:\n" << message << "\n"
+            << "--<>--<>--<>--<>--<>--<>--<>--" << std::endl;
+    }
+
+    void add_train(double dt) { t_train += dt; ++i_train; i_train_sum += dt; i_train_max = std::max(i_train_max, dt); }
+    void add_predict(double dt) { t_predict += dt; ++i_predict; i_predict_sum += dt; i_predict_max = std::max(i_predict_max, dt); }
+
+    void tick(bool force = false)
+    {
+        double now = MPI_Wtime();
+        if (!force && now - t_last_write < interval) return;
+        t_last_write = now;
+        std::ostringstream m;
+        m << "stats: train_recv=" << n_train << " predict_recv=" << n_predict << " replies_sent=" << n_reply
+          << " malformed=" << n_malformed << " bytes_recv=" << bytes_recv
+          << " probe_s=" << t_probe << " idle_s=" << t_idle << " recv_s=" << t_recv
+          << " train_s=" << t_train << " predict_s=" << t_predict << " reply_s=" << t_reply
+          << " shutdown_check_s=" << t_shutdown << " shutdown_checks=" << n_shutdown_checks
+          << " train_mean_ms=" << (i_train ? 1e3 * i_train_sum / i_train : 0.0) << " train_max_ms=" << 1e3 * i_train_max
+          << " predict_mean_ms=" << (i_predict ? 1e3 * i_predict_sum / i_predict : 0.0) << " predict_max_ms=" << 1e3 * i_predict_max;
+        write_entry("Info", m.str());
+        i_train = i_predict = 0;
+        i_train_sum = i_train_max = i_predict_sum = i_predict_max = 0;
+    }
+};
 
 /// Print egg's usage information (mirrors gambit's own -h/--help output in Core/src/core.cpp)
 void egg_bail(int rank)
@@ -179,6 +254,18 @@ int main(int argc, char *argv[])
     std::vector<std::vector<double>> parameters;
     std::vector<double> likes;
 
+    // performance log: one file per egg rank in the run's output directory
+    double stats_interval = emulator_node["emulators"][capability]["egg_log_interval"].IsDefined()
+                          ? emulator_node["emulators"][capability]["egg_log_interval"].as<double>() : 10.0;
+    EggStats stats(Utils::default_output_path() + "logs/egg_" + capability + ".log_" + std::to_string(world_rank), capability, world_rank, stats_interval);
+
+    // How often (in seconds) to look for a shutdown message from gambit. The check is an extra MPI_Iprobe, which
+    // is not free when many ranks talk to egg, so it is only done this often instead of after every message.
+    // 0 = check after every message. Set with Emulation: emulators: <capability>: shutdown_check_interval
+    double shutdown_check_interval = emulator_node["emulators"][capability]["shutdown_check_interval"].IsDefined()
+                                   ? emulator_node["emulators"][capability]["shutdown_check_interval"].as<double>() : 0.1;
+    double t_last_shutdown_check = MPI_Wtime();
+
     // keep going until shutdown
     bool finished = false;
     bool allow_finalize = true;
@@ -186,10 +273,14 @@ int main(int argc, char *argv[])
     {
     while (!finished)
     {
+        stats.tick();
+        double t_loop = MPI_Wtime();
+
         // Probe for incomming message with tag 3 ( 3 = train/predict )
         MPI_Status status;
         int flag;
         MPI_Iprobe(MPI_ANY_SOURCE, 3, MPI_COMM_WORLD, &flag, &status);
+        stats.t_probe += MPI_Wtime() - t_loop;
 
         // if message with tag 3, accept it
         if (flag && status.MPI_TAG == 3)
@@ -206,11 +297,15 @@ int main(int argc, char *argv[])
             receiver.resize(receiver_size);
 
             // recieve data
+            double t_recv0 = MPI_Wtime();
             MPI_Recv(receiver.buffer.data(), receiver_size, MPI_CHAR, status.MPI_SOURCE, 3, MPI_COMM_WORLD, &status_recv);
+            stats.t_recv += MPI_Wtime() - t_recv0;
+            stats.bytes_recv += receiver_size;
 
             // Malformed/truncated message:
             if (!receiver.has_valid_header())
             {
+                ++stats.n_malformed;
                 std::cerr << "egg: received a malformed/truncated message (" << receiver_size
                           << " bytes) from rank " << status_recv.MPI_SOURCE
                           << " -- too small to hold its own header." << std::endl;
@@ -243,7 +338,10 @@ int main(int argc, char *argv[])
                 auto target = receiver.target();
                 auto target_uncertainty = receiver.target_uncertainty();
 
+                double t_train0 = MPI_Wtime();
                 plugin_interface(params, target, target_uncertainty, receiver.flag());
+                stats.add_train(MPI_Wtime() - t_train0);
+                ++stats.n_train;
             }
             // Predict, ask for prediction and send
             else if (receiver.if_predict())
@@ -251,7 +349,10 @@ int main(int argc, char *argv[])
                 // extract parameters
                 auto params = receiver.params();
                 unsigned short int flag = receiver.flag();
+                double t_pred0 = MPI_Wtime();
                 auto pred = plugin_interface(params, flag);
+                stats.add_predict(MPI_Wtime() - t_pred0);
+                ++stats.n_predict;
 
                 // if result is returned, send reply
                 if (flag & Scanner::Emulator::feed_def::RESULT)
@@ -266,21 +367,38 @@ int main(int argc, char *argv[])
                     answer_buffer.add_for_result(pred.first, pred.second);
 
                     // send to process it arrived from ( tag 4 = results )
+                    double t_reply0 = MPI_Wtime();
                     MPI_Send(answer_buffer.buffer.data(), answer_buffer.buffer.size(), MPI_CHAR, status_recv.MPI_SOURCE, 4, MPI_COMM_WORLD);
+                    stats.t_reply += MPI_Wtime() - t_reply0;
+                    ++stats.n_reply;
                 }
             }
         }
+        else
+        {
+            // nothing to do this pass: count the time as idle
+            stats.t_idle += MPI_Wtime() - t_loop;
+        }
         
         // Always listen to messages for shut down 
-        finished = signaldata().check_if_shutdown_begun();
+        double t_now = MPI_Wtime();
+        if (shutdown_check_interval <= 0 || t_now - t_last_shutdown_check >= shutdown_check_interval)
+        {
+            finished = signaldata().check_if_shutdown_begun();
+            t_last_shutdown_check = MPI_Wtime();
+            stats.t_shutdown += t_last_shutdown_check - t_now;
+            ++stats.n_shutdown_checks;
+        }
     }
 
     ////// Shut down egg
+    stats.tick(true);
     std::cout << "rank " << local_rank <<" got shut down" << std::endl;
     signaldata().broadcast_shutdown_signal(SignalData::NO_MORE_MESSAGES);
     }
     catch (const MPIShutdownException& e)
     {
+        stats.tick(true);
         std::cerr << "egg: shutting down due to an emergency shutdown signal "
                      "from another process: " << e.what() << std::endl;
         allow_finalize = GMPI::PrepareForFinalizeWithTimeout(use_mpi_abort);
