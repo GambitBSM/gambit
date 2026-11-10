@@ -196,14 +196,16 @@ Emulation:
       pre_trained: false
       log_emulator_data: true
 
+      save_on_retrain_only: true # defult to true, false makes it save model updates after each added point
+
 
 Rules:
 
   - capability: unimproved_MSSM_spectrum
     function: get_MSSMatQ_mA_spectrum_FS
     options:
-      precision_goal:        1.0e-3
-      max_iterations:        30
+      precision_goal:        1.0e-4
+      max_iterations:        0
       calculate_sm_masses:   false
       pole_mass_loop_order:  2
       ewsb_loop_order:       2
