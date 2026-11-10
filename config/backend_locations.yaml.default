@@ -145,6 +145,9 @@ obscura:
 pbarlike:
   1.0:         ./Backends/installed/pbarlike/1.0/pbarlike-gambit-interface.py
 
+smoking:
+  1.0.0:       ./Backends/installed/smoking/1.0.0/lib/libsmoking_gambit.so
+
 phc:
   2.4.77:      ./Backends/installed/phc/2.4.77/
 
