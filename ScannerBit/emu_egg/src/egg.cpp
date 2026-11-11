@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
     ////////// Make plugin
 
     Scanner::Plugins::plugin_info.initMPIdata(&emuComm);
-    Plugins::Plugin_Interface<void (map_vector<double> , map_vector<double> , map_vector<double>, unsigned short int &), std::pair<vector<double>, vector<double>> (map_vector<double>, unsigned short int &)> plugin_interface("emulator", capability);
+    Plugins::Plugin_Interface<void (map_vector<double> , map_vector<double> , map_vector<double>, unsigned short int &, int), std::pair<vector<double>, vector<double>> (map_vector<double>, unsigned short int &, int)> plugin_interface("emulator", capability);
     std::cout << "made plugin " << std::endl;
 
     ///////// Recieve messages from gambit
@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
                 auto target_uncertainty = receiver.target_uncertainty();
 
                 double t_train0 = MPI_Wtime();
-                plugin_interface(params, target, target_uncertainty, receiver.flag());
+                plugin_interface(params, target, target_uncertainty, receiver.flag(), status_recv.MPI_SOURCE);
                 stats.add_train(MPI_Wtime() - t_train0);
                 ++stats.n_train;
             }
@@ -350,7 +350,7 @@ int main(int argc, char *argv[])
                 auto params = receiver.params();
                 unsigned short int flag = receiver.flag();
                 double t_pred0 = MPI_Wtime();
-                auto pred = plugin_interface(params, flag);
+                auto pred = plugin_interface(params, flag, status_recv.MPI_SOURCE);
                 stats.add_predict(MPI_Wtime() - t_pred0);
                 ++stats.n_predict;
 

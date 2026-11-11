@@ -211,9 +211,13 @@ namespace Gambit
             {
             private:
                 unsigned short int *flag;
+                int src;   // world rank of the process that sent the message (-1 if unknown)
 
             public:
-                flag_wrapper (unsigned short int &flag) : flag(&flag) {}
+                flag_wrapper (unsigned short int &flag, int source = -1) : flag(&flag), src(source) {}
+
+                /// World rank of the (gambit) process that sent this train/predict message
+                int source() {return src;}
 
                 bool train() {return feed_def::TRAIN & *flag;}
                 bool predict() {return feed_def::PREDICT & *flag;}

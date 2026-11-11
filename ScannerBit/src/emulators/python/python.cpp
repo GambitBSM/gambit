@@ -142,18 +142,18 @@ emulator_plugin(python, version(1, 0, 0))
     }
 
     //training
-    void plugin_main(map_vector<double> x, map_vector<double> y, map_vector<double> sigs, unsigned short int &flag)
+    void plugin_main(map_vector<double> x, map_vector<double> y, map_vector<double> sigs, unsigned short int &flag, int source)
     {
-        Gambit::Scanner::Emulator::flag_wrapper in_flag(flag);
+        Gambit::Scanner::Emulator::flag_wrapper in_flag(flag, source);
         train_func(x, y, sigs, in_flag);
 
         return;
     }
 
     //predict
-    std::pair<vector<double>, vector<double>> plugin_main(map_vector<double> x, unsigned short int &flag)
+    std::pair<vector<double>, vector<double>> plugin_main(map_vector<double> x, unsigned short int &flag, int source)
     {
-        Gambit::Scanner::Emulator::flag_wrapper in_flag(flag);
+        Gambit::Scanner::Emulator::flag_wrapper in_flag(flag, source);
         py::tuple ret = predict_func(x, in_flag);
 
         // The plugin must explicitly set flag.result = True to vouch for the values

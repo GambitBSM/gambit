@@ -50,12 +50,24 @@ class pyGPtreeoEmulator(eplug.emulator):
 pygptreeo emulator
 
 With two MPI ranks, rank 1 trains and rank 0 predicts; with one rank it does
-both. The trainer writes the tree to a joblib file and the predictor reloads
+both. With n_predictors = P > 0 (needs P+1 egg ranks) ranks 0..P-1 predict and
+rank P trains; the plugin makes sure each predict request is answered by exactly
+one predictor, see n_predictors below. The trainer writes the tree to a joblib file and the predictor reloads
 it whenever the file has changed. By default (save_on_retrain_only) the file is
 only rewritten when a leaf GP was actually refitted, so the predictor's model
 changes only upon retraining, not after every added point.
 
 YAML options:
+    n_predictors: Number of predictor ranks (default 0 = off: rank 0 predicts,
+        rank 1 trains). With P > 0, egg ranks 0..P-1 predict and rank P trains.
+        Gambit sends every message to every egg rank and egg passes every
+        message on to the plugin together with the world rank of the sender
+        (flag.source). The plugin decides: predictor (gambit rank % P) answers
+        a predict request, all other ranks leave it unanswered (a rank that
+        does not set flag.result gets no reply sent), so gambit gets exactly
+        one reply per request. Only the trainer handles train messages. Needs
+        at least P+1 egg ranks. With P > 1 each predictor writes its own
+        emu_predictions_rank<N>.csv.
     train: Option to enable/disable training
     predict: Option to enable/disable prediction
     uncertainty: Prediction uncertainty threshold for GAMBIT
@@ -174,7 +186,7 @@ spent in predict (including any reload of the model file).
         self.target_relative_uncertainty = kwargs.get('target_relative_uncertainty', None)
         self.min_train_points = int(kwargs.get('min_train_points', 100))
         self.validation_fraction = float(kwargs.get('validation_fraction', 0.05))
-        self._rng = np.random.default_rng(int(kwargs.get('validation_seed', 12345)))
+        self._rng = np.random.default_rng(int(kwargs.get('validation_seed', 12345)) + int(self.mpi_rank))
         self.adaptive_validation = bool(kwargs.get('adaptive_validation', False))
         thr = kwargs.get('uncertainty', None)
         thr = float(thr[0]) if isinstance(thr, (list, tuple)) and len(thr) else (float(thr) if thr is not None else None)
@@ -185,9 +197,21 @@ spent in predict (including any reload of the model file).
         self.val_frac_min = float(kwargs.get('validation_fraction_min', 0.01))
         self.val_frac_max = float(kwargs.get('validation_fraction_max', 0.2))
 
+        # Roles of the egg ranks (must match egg's n_predictors handling)
+        self.n_predictors = int(kwargs.get('n_predictors', 0))
+        if self.n_predictors < 0 or (self.n_predictors > 0 and self.n_predictors >= self.mpi_size):
+            raise ValueError(f"n_predictors = {self.n_predictors} needs at least {self.n_predictors + 1} egg ranks "
+                             f"(n_predictors predictors + 1 trainer), but there are {self.mpi_size}.")
+        if self.n_predictors > 0:
+            self.is_predictor = self.mpi_rank < self.n_predictors
+            self.is_trainer = self.mpi_rank == self.n_predictors
+        else:
+            self.is_predictor = self.mpi_size == 1 or self.mpi_rank == 0
+            self.is_trainer = self.mpi_size == 1 or self.mpi_rank == 1
+
         self.gpt = self._make_tree(kwargs)
 
-        if self.mpi_size == 1 or self.mpi_rank == 1:
+        if self.is_trainer:
             if kwargs.get('pre_trained', False):
                 pre_trained_path = kwargs.get('pre_trained_path', self.tree_filename)
                 print(f"Loading pre-trained model from {pre_trained_path}...")
@@ -216,12 +240,13 @@ spent in predict (including any reload of the model file).
 
         # CSV logging: predictions written by rank 0, training data written by rank 1
         if self.logging_enabled:
-            if self.mpi_size == 1 or self.mpi_rank == 0:
-                self._pred_csv_file = open(os.path.join(output_path, 'emu_predictions.csv'), 'w', newline='')
+            if self.is_predictor:
+                pred_name = 'emu_predictions.csv' if self.n_predictors <= 1 else f'emu_predictions_rank{self.mpi_rank}.csv'
+                self._pred_csv_file = open(os.path.join(output_path, pred_name), 'w', newline='')
                 self._pred_csv_writer = csv.writer(self._pred_csv_file)
                 self._pred_header_written = False
 
-            if self.mpi_size == 1 or self.mpi_rank == 1:
+            if self.is_trainer:
                 self._train_csv_file = open(os.path.join(output_path, 'emu_training.csv'), 'w', newline='')
                 self._train_csv_writer = csv.writer(self._train_csv_file)
                 self._train_header_written = False
@@ -275,6 +300,14 @@ spent in predict (including any reload of the model file).
             retrain_every_n_points=int(kwargs.get('retrain_every_n_points', 1)),
         )
 
+    def _answers_request_from(self, source):
+        """Predictor side: True if this rank is the one that answers a predict request sent by the
+        process with world rank 'source'. With several predictors, gambit rank g is served by
+        predictor g % n_predictors, so that every request gets exactly one reply."""
+        if self.n_predictors <= 1:
+            return True
+        return int(source) % self.n_predictors == self.mpi_rank
+
     def _n_training_points(self):
         """Number of points the (possibly reloaded) tree has been trained on."""
         return int(getattr(self.gpt, 'n_points_seen', 0))
@@ -283,7 +316,7 @@ spent in predict (including any reload of the model file).
         if not self.training_enabled:
             print("Training is disabled for this emulator instance.")
             return
-        if not (self.mpi_size == 1 or self.mpi_rank == 1):
+        if not self.is_trainer:
             return
 
         # Copies, not views: the arrays GAMBIT hands over wrap C++ memory that
@@ -398,7 +431,8 @@ spent in predict (including any reload of the model file).
         if not self.prediction_enabled:
             print("Prediction is disabled for this emulator instance.")
             return (np.array([None]), np.array([None]))
-        if not (self.mpi_size == 1 or self.mpi_rank == 0):
+        if not self.is_predictor or not self._answers_request_from(flag.source):
+            # not our request: leave flag.result unset, so egg sends no reply
             return (np.array([None]), np.array([None]))
 
         flag.result = True
