@@ -106,7 +106,7 @@ namespace Gambit {
 
             virtual std::map<int, int> getSpeeds() const {return std::map<int, int>();}
 
-            /*std::vector<int> getSpeedRanges(const std::vector<int> &ranges)
+            /*std::vector<int> getSpeedPositions(const std::vector<int> &ranges)
             {
                 auto speeds = getSpeeds();
                 std::vector<int> ret(ranges.size(), 0);
@@ -125,7 +125,7 @@ namespace Gambit {
                 return ret;
             }*/
 
-            int getSpeedRanges(int range)
+            int getSpeedPositions(int range)
             {
                 if (range == 0)
                     return 0;
@@ -147,16 +147,16 @@ namespace Gambit {
             }
 
             template <typename... T>
-            constexpr std::tuple<int, typename std::decay<T>::type...> getSpeedRanges(int val, T... vals)
+            constexpr std::tuple<int, typename std::decay<T>::type...> getSpeedPositions(int val, T... vals)
             {
-                return std::tuple<int, typename std::decay<T>::type...>(getSpeedRanges(val), getSpeedRanges(vals)...);
+                return std::tuple<int, typename std::decay<T>::type...>(getSpeedPositions(val), getSpeedPositions(vals)...);
             }
 
-            std::vector<int> getSpeedRanges(const std::vector<int> &ranges)
+            std::vector<int> getSpeedPositions(const std::vector<int> &ranges)
             {
                 std::vector<int> ret(ranges.size());
                 for (int i = 0, end = ranges.size(); i < end; ++i)
-                    ret[i] = getSpeedRanges(ranges[i]);
+                    ret[i] = getSpeedPositions(ranges[i]);
 
                 return ret;
             }

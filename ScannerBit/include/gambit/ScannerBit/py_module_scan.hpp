@@ -802,6 +802,34 @@ PYBIND11_EMBEDDED_MODULE(scanner_plugin, m)
         
         get_prior().inverse_transform(map, unit);
     })
+    .def_static("getSpeedPositions", [](py::list speeds)
+    {
+        py::list ret;
+        for (auto &&speed : speeds)
+            ret.append(get_prior().getSpeedPositions(speed.template cast<double>()));
+
+        return ret;
+    })
+    .def_static("getSpeedPositions", [](py::tuple speeds)
+    {
+        py::tuple ret(py::len(speeds));
+        for (int i = 0, end = py::len(speeds); i < end; ++i)
+            ret[i] = get_prior().getSpeedPositions(speeds[i].template cast<double>());
+
+        return ret;
+    })
+    .def_static("getSpeedPositions", [](int speed)
+    {
+        return get_prior().getSpeedPositions(speed);
+    })
+    .def_static("getSpeedPositions", [](py::args speeds)
+    {
+        py::tuple ret(py::len(speeds));
+        for (int i = 0, end = py::len(speeds); i < end; ++i)
+            ret[i] = get_prior().getSpeedPositions(speeds[i].template cast<double>());
+
+        return ret;
+    })
     .def_property_readonly_static("point_id", [](py::object)
     {
         return scanner_base::getLike()->getPtID();

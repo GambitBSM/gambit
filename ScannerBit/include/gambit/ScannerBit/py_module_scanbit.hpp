@@ -294,6 +294,34 @@ PYBIND11_EMBEDDED_MODULE(scannerbit, m)
     .def("log_prior_density", [](Gambit::Priors::BasePrior &self, std::unordered_map<std::string, double> &physical)
     {
         return self.log_prior_density(physical);
+    })
+    .def("getSpeedPositions", [](Gambit::Priors::BasePrior &self, py::list speeds)
+    {
+        py::list ret;
+        for (auto &&speed : speeds)
+            ret.append(self.getSpeedPositions(speed.template cast<double>()));
+
+        return ret;
+    })
+    .def("getSpeedPositions", [](Gambit::Priors::BasePrior &self, py::tuple speeds)
+    {
+        py::tuple ret(py::len(speeds));
+        for (int i = 0, end = py::len(speeds); i < end; ++i)
+            ret[i] = self.getSpeedPositions(speeds[i].template cast<double>());
+
+        return ret;
+    })
+    .def("getSpeedPositions", [](Gambit::Priors::BasePrior &self, int speed)
+    {
+        return self.getSpeedPositions(speed);
+    })
+    .def("getSpeedPositions", [](Gambit::Priors::BasePrior &self, py::args speeds)
+    {
+        py::tuple ret(py::len(speeds));
+        for (int i = 0, end = py::len(speeds); i < end; ++i)
+            ret[i] = self.getSpeedPositions(speeds[i].template cast<double>());
+
+        return ret;
     });
     
     //Mmember functions not exported:

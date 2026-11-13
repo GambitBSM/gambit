@@ -47,7 +47,7 @@ scanner_plugin(random_fast_slow, version(1, 0, 0))
     like_ptr LogLike;
     int point_number, fast_repeats, slow_speed_threshold;
     int numtasks, rank, dim;
-    std::vector<int> ranges;
+    std::vector<int> speedPos;
 
     plugin_constructor
     {
@@ -58,10 +58,10 @@ scanner_plugin(random_fast_slow, version(1, 0, 0))
 
         dim = get_dimension();
 
-        ranges = get_prior().getSpeedRanges({0, slow_speed_threshold, -1});
+        speedPos = get_prior().getSpeedPositions({0, slow_speed_threshold, -1});
         // // or you can do either of these:
-        // std::tuple<int, int, int> get_prior().getSpeedRanges(0, slow_speed_threshold, -1);
-        // int range = get_prior().getSpeedRanges(slow_speed_threshold);
+        // std::tuple<int, int, int> speedPos = get_prior().getSpeedPositions(0, slow_speed_threshold, -1);
+        // int speedPos = get_prior().getSpeedPositions(slow_speed_threshold);
 
     #ifdef WITH_MPI
         MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
@@ -75,17 +75,17 @@ scanner_plugin(random_fast_slow, version(1, 0, 0))
   int plugin_main()
   {
       vector<double> a(dim);
-      auto slow = a.segment(ranges[0], ranges[1] - ranges[0]);
-      auto fast = a.segment(ranges[1], ranges[2] - ranges[1]);
+      // auto slow = a.segment(speedPos[0], speedPos[1] - speedPos[0]);
+      auto fast = a.segment(speedPos[1], speedPos[2] - speedPos[1]);
       // // or, if you want to use a std::vector:
       // std::vector<double. a(dim);
-      // map_vector<double> slow(a.data()+ ranges[0], ranges[1] - ranges[0]);
-      // map_vector<double> fast(a.data()+ ranges[1], ranges[2] - ranges[1]);
+      // map_vector<double> slow(a.data()+ speedPos[0], speedPos[1] - speedPos[0]);
+      // map_vector<double> fast(a.data()+ speedPos[1], speedPos[2] - speedPos[1]);
 
       std::cout << "Entering fast-slow test sampler."
                 << "\n\t slow points to draw: " << point_number
                 << "\n\t fast repeats per slow point: " << fast_repeats
-                << "\n\t positions [slow, fast, end]: [" << ranges[0] << ", " << ranges[1] << ", " << ranges[2] << "]" << std::endl;
+                << "\n\t positions [slow, fast, end]: [" << speedPos[0] << ", " << speedPos[1] << ", " << speedPos[2] << "]" << std::endl;
 
         for (int k = rank; k < point_number; k+=numtasks)
         {

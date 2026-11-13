@@ -129,7 +129,7 @@ scanner_plugin(polychord, version(1, 17, 1))
       // This defaults to nDims if there are no fast parameters, or if all parameters are fast.
       // grade_dims is a vector of integers that indicates the number of slow and fast parameters
       settings.grade_dims.clear();
-      unsigned int nslow = (unsigned int)get_prior().getSpeedRanges(get_inifile_value<int>("fast_speed", -1));
+      unsigned int nslow = (unsigned int)get_prior().getSpeedPositions(get_inifile_value<int>("fast_speed", -1));
       if(nslow!=0) settings.grade_dims.push_back(nslow);
 
       unsigned int nfast = ma-nslow;
