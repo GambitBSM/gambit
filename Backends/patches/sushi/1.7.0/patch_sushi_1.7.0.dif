@@ -32,12 +32,12 @@
               ${BBHDIFFOBJ} ${SHAREOBJ} src/pdfspec/lhapdf.o
  
 +lib/libsushi.so: lib/libsushiPLAIN.a lib/libshare.a
-+      mkdir -p tmp_gambit_objs_sushi tmp_gambit_objs_share
-+      cd tmp_gambit_objs_sushi && ar x ../lib/libsushiPLAIN.a
-+      cd tmp_gambit_objs_share && ar x ../lib/libshare.a
-+      ${fort} -shared -o lib/libsushi.so tmp_gambit_objs_sushi/*.o \
++	mkdir -p tmp_gambit_objs_sushi tmp_gambit_objs_share
++	cd tmp_gambit_objs_sushi && ar x ../lib/libsushiPLAIN.a
++	cd tmp_gambit_objs_share && ar x ../lib/libshare.a
++	${fort} -shared -o lib/libsushi.so tmp_gambit_objs_sushi/*.o \
 +        tmp_gambit_objs_share/*.o -L${LHAPATH} -lLHAPDF ${LDFLAGS}
-+      rm -rf tmp_gambit_objs_sushi tmp_gambit_objs_share
++	rm -rf tmp_gambit_objs_sushi tmp_gambit_objs_share
 +
  gghnnlo: ${GGHNNLOOBJ}
  bbhnnlo: ${BBHNNLOOBJ}
