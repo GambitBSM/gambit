@@ -158,6 +158,26 @@ YAML options:
         retrain_every_n_points); points that are just stored in between do not
         change the predictor's model. If False, the file is written after every
         point.
+    save_interval: Minimum time in seconds between two writes of the model
+        file. 0 (default) writes whenever the save condition above is met.
+        With a larger value, a write that falls inside the interval is
+        postponed and done by the first training batch after the interval has
+        passed, so the predictors' model can lag by up to this long (plus the
+        time until the next batch). There is no timer: if no more training
+        arrives, the last postponed write happens at shutdown.
+    reload_idle_gap: Predictors reload the model file when it has changed. A
+        reload blocks the predictor for the whole load, which hurts when it
+        falls in the middle of a burst of requests. With reload_idle_gap > 0
+        (seconds) a predictor keeps using its old model while requests keep
+        coming, and loads the newer file at the first request that comes after
+        a gap of at least this length since its previous one (a lull between
+        bursts). The gap is scaled to the whole request stream by multiplying
+        by the number of predictors, since each predictor only sees its own
+        share. 0 (default) reloads as soon as the file has changed.
+    max_model_age_seconds: (with reload_idle_gap > 0) The longest time a newer
+        model file may wait to be loaded. When it has waited this long the
+        predictor loads it at the next request even if there was no lull.
+        Defaults to 60. Ignored when reload_idle_gap is 0.
     log_cache_size: Number of rows of emu_predictions.csv and emu_training.csv
         (counted separately for each file) kept in memory before they are
         written to disk (only used with log_emulator_data). The files can
@@ -234,6 +254,11 @@ spent in predict (including any reload of the model file).
             faulthandler.dump_traceback_later(stack_dump_interval, repeat=True, file=self._stack_file)
         self._n_saved_points = 0
         self.save_on_retrain_only = bool(kwargs.get('save_on_retrain_only', True))
+        self.save_interval = float(kwargs.get('save_interval', 0.0))
+        if self.save_interval < 0:
+            raise ValueError("save_interval must be >= 0")
+        self._save_pending = False       # a write is due but was postponed by save_interval
+        self._last_save_time = time.monotonic()
         self.log_target = kwargs.get('log_target', False)
         self.target_relative_uncertainty = kwargs.get('target_relative_uncertainty', None)
         self.min_train_points = int(kwargs.get('min_train_points', 100))
@@ -326,7 +351,14 @@ spent in predict (including any reload of the model file).
         self._predictor_csv = None
         self._last_predictor_csv = time.time()
         self._pc_last_end = None
-        self._pt = dict(n=0, between=0.0, check=0.0, n_reloads=0, reload=0.0, reload_max=0.0, gp=0.0, total=0.0)
+        # When to load a newer model file (predictor side): see reload_idle_gap in the docstring
+        self.reload_idle_gap = float(kwargs.get('reload_idle_gap', 0.0))
+        max_age = kwargs.get('max_model_age_seconds', None)
+        self.max_model_age = float(max_age) if max_age is not None else 60.0
+        if self.reload_idle_gap < 0 or self.max_model_age < 0:
+            raise ValueError("reload_idle_gap and max_model_age_seconds must be >= 0")
+        self._reload_pending_since = None    # perf_counter() when a newer model file was first seen and not yet loaded
+        self._pt = self._new_pt()
         self._n_leaves = 0
         self._model_mb = 0.0
         self._comm = None
@@ -364,6 +396,8 @@ spent in predict (including any reload of the model file).
             if not hasattr(self.gpt, 'n_points_seen'):
                 self.gpt.emu_n_points = getattr(self.gpt, 'emu_n_points', 0)
             self._save_tree()
+            self._last_save_time = time.monotonic()
+            atexit.register(self._save_if_pending)
 
         if os.path.exists(self.tree_filename):
             self.last_mtime = os.path.getmtime(self.tree_filename)
@@ -475,6 +509,15 @@ spent in predict (including any reload of the model file).
             if os.path.exists(tmp):
                 os.remove(tmp)
 
+    def _save_if_pending(self):
+        """At shutdown: write the model if a write was postponed by save_interval."""
+        if self._save_pending:
+            try:
+                self._save_tree()
+                self._save_pending = False
+            except Exception as e:
+                print(f"[pygptreeo] could not write the final model file: {e}", flush=True)
+
     def master(self, x, y, z, flag):
         """Master rank only (routing: master). Called by egg for every message from gambit and on a timer
         with neither flag.train nor flag.predict set. Returns (destination, n_rows, X, Y, Z):
@@ -552,10 +595,18 @@ spent in predict (including any reload of the model file).
         except OSError:
             self.master_log_interval = 0     # cannot write: stop trying
 
+    @staticmethod
+    def _new_pt():
+        return dict(n=0, between=0.0, check=0.0, n_reloads=0, reload=0.0, reload_max=0.0, gp=0.0, total=0.0,
+                    n_deferred=0, n_lull_reloads=0, n_forced_reloads=0, wait_max=0.0)
+
     def _log_predictor_timing(self, now):
         """Predictor: append one row with where the time went since the last row, then reset the sums. Columns (seconds):
         between = outside predict() (waiting for a request, egg's receive and reply), check = stat() of the model
-        file, reload = joblib.load of a new model, gp = tree.predict, total = whole predict()."""
+        file, reload = joblib.load of a new model, gp = tree.predict, total = whole predict(). With reload_idle_gap > 0:
+        n_deferred = requests answered with an older model although a newer file existed, n_lull_reloads and
+        n_forced_reloads = loads done in a lull / because of max_model_age_seconds, wait_max_s = longest time a
+        newer file waited before it was loaded."""
         self._last_predictor_csv = now
         pt = self._pt
         try:
@@ -564,14 +615,15 @@ spent in predict (including any reload of the model file).
                 self._predictor_csv = open(self._predictor_csv_path, 'a', buffering=1)
                 if new:
                     self._predictor_csv.write('wall,interval_s,n_predicts,between_s,check_s,n_reloads,reload_s,'
-                                              'reload_max_s,gp_s,total_s,n_leaves,model_mb\n')
-            self._predictor_csv.write('%s,%.3f,%d,%.4f,%.4f,%d,%.4f,%.4f,%.4f,%.4f,%d,%.1f\n' % (
+                                              'reload_max_s,gp_s,total_s,n_leaves,model_mb,n_deferred,n_lull_reloads,n_forced_reloads,wait_max_s\n')
+            self._predictor_csv.write('%s,%.3f,%d,%.4f,%.4f,%d,%.4f,%.4f,%.4f,%.4f,%d,%.1f,%d,%d,%d,%.3f\n' % (
                 time.strftime('%a %b %d %H:%M:%S %Y', time.localtime(now)), self.predictor_log_interval,
                 pt['n'], pt['between'], pt['check'], pt['n_reloads'], pt['reload'], pt['reload_max'], pt['gp'],
-                pt['total'], self._n_leaves, self._model_mb))
+                pt['total'], self._n_leaves, self._model_mb, pt['n_deferred'], pt['n_lull_reloads'],
+                pt['n_forced_reloads'], pt['wait_max']))
         except OSError:
             self.predictor_log_interval = 0
-        self._pt = dict(n=0, between=0.0, check=0.0, n_reloads=0, reload=0.0, reload_max=0.0, gp=0.0, total=0.0)
+        self._pt = self._new_pt()
 
     def _collect_acks(self):
         """Master: count the batches the trainer has reported as finished (non-blocking)."""
@@ -638,12 +690,19 @@ spent in predict (including any reload of the model file).
         # Publish the model to the predictors only if a GP was refitted (or always,
         # if save_on_retrain_only is off). Otherwise the saved model, and hence
         # the predictions, stay as they were at the last retrain. For a batch, once per batch.
+        # With save_interval > 0 the write is postponed until that much time has passed
+        # since the previous one; it stays pending and the next batch picks it up.
         t_save = float('nan')
-        if not (self.save_on_retrain_only and _retrain_count[0] == retrains_before):
-            t0 = time.time()
-            self._save_tree()
-            t_save = time.time() - t0
-            self._n_saved_points = self._n_training_points()
+        if self._save_pending or not (self.save_on_retrain_only and _retrain_count[0] == retrains_before):
+            if time.monotonic() - self._last_save_time >= self.save_interval:
+                t0 = time.time()
+                self._save_tree()
+                t_save = time.time() - t0
+                self._last_save_time = time.monotonic()
+                self._save_pending = False
+                self._n_saved_points = self._n_training_points()
+            else:
+                self._save_pending = True
 
         for k, (row, t_update) in enumerate(rows):
             # the save time belongs to the last point of the batch
@@ -757,27 +816,49 @@ spent in predict (including any reload of the model file).
         if self._pc_last_end is not None:
             pt['between'] += pc0 - self._pc_last_end     # time outside predict(): waiting for a request, egg's MPI, reply
 
-        # Reload the tree if the trainer has written a newer one
+        # Reload the tree if the trainer has written a newer one. With reload_idle_gap > 0 the load waits for a
+        # lull in the requests (it blocks this rank for the whole load), unless the newer file has already
+        # waited max_model_age_seconds.
         reload_dt = 0.0
         if os.path.exists(self.tree_filename):
             current_mtime = os.path.getmtime(self.tree_filename)
             if current_mtime != self.last_mtime:
-                try:
-                    pcr = time.perf_counter()
-                    self.gpt = joblib.load(self.tree_filename)
-                    reload_dt = time.perf_counter() - pcr
-                    self.last_mtime = current_mtime
-                    pt['n_reloads'] += 1
-                    pt['reload'] += reload_dt
-                    pt['reload_max'] = max(pt['reload_max'], reload_dt)
+                if self._reload_pending_since is None:
+                    self._reload_pending_since = pc0
+                reason = None
+                if self.reload_idle_gap > 0:
+                    # Time since this rank last answered a request. With several predictors each one sees
+                    # only every n_predictors-th request, so the gap is scaled to the whole request stream.
+                    gap = (pc0 - self._pc_last_end) if self._pc_last_end is not None else float('inf')
+                    if gap / max(1, self.n_predictors) >= self.reload_idle_gap:
+                        reason = 'lull'
+                    elif pc0 - self._reload_pending_since >= self.max_model_age:
+                        reason = 'forced'
+                    else:
+                        pt['n_deferred'] += 1
+                if self.reload_idle_gap <= 0 or reason is not None:
                     try:
-                        self._n_leaves = len(self.gpt.root.leaves)
-                        self._model_mb = os.path.getsize(self.tree_filename) / 1e6
-                    except Exception:
-                        pass
-                except Exception as e:
-                    # A load can fail if the file is replaced mid-read; keep the old tree.
-                    print(f"[pygptreeo] could not reload model file: {e}", flush=True)
+                        pcr = time.perf_counter()
+                        self.gpt = joblib.load(self.tree_filename)
+                        reload_dt = time.perf_counter() - pcr
+                        self.last_mtime = current_mtime
+                        pt['n_reloads'] += 1
+                        pt['reload'] += reload_dt
+                        pt['reload_max'] = max(pt['reload_max'], reload_dt)
+                        pt['wait_max'] = max(pt['wait_max'], pcr - self._reload_pending_since)
+                        self._reload_pending_since = None
+                        if reason == 'lull':
+                            pt['n_lull_reloads'] += 1
+                        elif reason == 'forced':
+                            pt['n_forced_reloads'] += 1
+                        try:
+                            self._n_leaves = len(self.gpt.root.leaves)
+                            self._model_mb = os.path.getsize(self.tree_filename) / 1e6
+                        except Exception:
+                            pass
+                    except Exception as e:
+                        # A load can fail if the file is replaced mid-read; keep the old tree.
+                        print(f"[pygptreeo] could not reload model file: {e}", flush=True)
 
         x = np.array(x, dtype=float).reshape(-1)
         X_test = x.reshape(1, -1)
