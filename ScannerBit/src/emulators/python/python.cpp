@@ -45,6 +45,7 @@
 #include <pybind11/embed.h>
 #include "gambit/Utils/end_ignore_warnings.hpp"
 
+#include <tuple>
 #include "gambit/Utils/python_interpreter.hpp"
 #include "gambit/ScannerBit/emulator_plugin.hpp"
 #include "gambit/ScannerBit/python_utils.hpp"
@@ -88,6 +89,7 @@ emulator_plugin(python, version(1, 0, 0))
     py::object instance;
     py::object train_func;
     py::object predict_func;
+    py::object master_func;
 
     plugin_constructor
     {
@@ -134,6 +136,7 @@ emulator_plugin(python, version(1, 0, 0))
             instance = py::dict(file.attr("__plugins__"))[plugin_name.c_str()](**options);
             train_func = instance.attr("train");
             predict_func = instance.attr("predict");
+            master_func = instance.attr("master");
         }
         catch (std::exception &ex)
         {
@@ -148,6 +151,32 @@ emulator_plugin(python, version(1, 0, 0))
         train_func(x, y, sigs, in_flag);
 
         return;
+    }
+
+    // training on a batch of points (routing: master). x, y and sigs hold n_rows rows each, row-major.
+    // Calls the same train() as a single point, with flag.n_rows and flag.batch set.
+    void plugin_main(map_vector<double> x, map_vector<double> y, map_vector<double> sigs, unsigned short int &flag, int source, int n_rows)
+    {
+        Gambit::Scanner::Emulator::flag_wrapper in_flag(flag, source, n_rows, true);
+        train_func(x, y, sigs, in_flag);
+
+        return;
+    }
+
+    // master (routing: master): called on the master egg rank for every message from gambit, and on a
+    // timer with an empty message (neither train nor predict set) so the plugin can flush its cache.
+    // The plugin returns (destination, n_rows, X, Y, Z):
+    //   destination < 0 : nothing to forward
+    //   n_rows == 0     : forward this predict request to egg rank 'destination' (the rank numbers are
+    //                     those of the plugin's MPI communicator); X, Y, Z are ignored
+    //   n_rows > 0      : send a batch of n_rows training points (X, Y, Z, row-major) to 'destination'
+    std::tuple<int, int, vector<double>, vector<double>, vector<double>> plugin_main(unsigned short int &flag, int source, map_vector<double> x, map_vector<double> y, map_vector<double> sigs)
+    {
+        Gambit::Scanner::Emulator::flag_wrapper in_flag(flag, source);
+        py::tuple ret = master_func(x, y, sigs, in_flag);
+
+        return std::make_tuple(ret[0].cast<int>(), ret[1].cast<int>(),
+                               ret[2].cast<vector<double>>(), ret[3].cast<vector<double>>(), ret[4].cast<vector<double>>());
     }
 
     //predict

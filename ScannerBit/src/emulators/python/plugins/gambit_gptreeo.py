@@ -5,6 +5,7 @@ import sys
 import time
 import traceback
 import csv
+import collections
 import atexit
 import warnings
 import faulthandler
@@ -58,8 +59,56 @@ only rewritten when a leaf GP was actually refitted, so the predictor's model
 changes only upon retraining, not after every added point.
 
 YAML options:
-    n_predictors: Number of predictor ranks (default 0 = off: rank 0 predicts,
-        rank 1 trains). With P > 0, egg ranks 0..P-1 predict and rank P trains.
+    routing: 'legacy' (default) or 'master'. With 'master' (set under
+        Emulation: emulators: <capability>:) gambit sends every message only to
+        egg rank 0, the master, and the plugin's master() decides where it goes:
+        a predict request is forwarded to one predictor, which replies to the
+        gambit rank directly; training points are collected in a cache on the
+        master and sent to the trainer in batches (see train_batch_size).
+        Roles by number of egg ranks: 1 rank: it does everything. 2 ranks: the
+        master also predicts and rank 1 trains. 3 or more ranks: the master
+        only routes (a dedicated master never waits for its own prediction),
+        ranks 1..N-2 predict and the last rank trains. master_predicts:
+        true/false overrides this choice.
+    master_predicts: (routing: master) Whether the master also predicts.
+        Defaults to true for up to 2 egg ranks and false for 3 or more.
+    train_batch_size: (routing: master) Number of training points the master
+        collects before it sends them to the trainer. Defaults to 20. The
+        trainer updates the tree with them one by one but writes the model
+        file once per batch (if a leaf GP was refitted), so retrain_every_n_points
+        and this setting together decide how often the predictors see a new model.
+    max_cache_age_seconds: (routing: master) Send the cache to the trainer
+        when its oldest point is this old, even if it has fewer than
+        train_batch_size points. Defaults to 10. Checked when a message
+        arrives and by egg's timer (master_tick_interval, egg setting). Points
+        still in the cache at shutdown are lost.
+    max_queued_batches, max_in_flight_batches, release_order: (routing: master)
+        Full batches wait in a queue on the master and are released to the trainer
+        only when it has room, so a trainer that cannot keep up never builds up a
+        backlog of stale points in MPI buffers. The trainer reports every finished
+        batch with a small message on the plugin's own communicator (mpi4py).
+        max_in_flight_batches (default 2) is the number of batches the master has
+        handed to the trainer and not yet seen finished. max_queued_batches
+        (default 20) is the size of the waiting queue; when it is full the OLDEST
+        waiting batch is dropped. release_order 'newest' (default) sends the newest
+        waiting batch first, 'oldest' the oldest first. If mpi4py cannot be set up
+        the plugin prints a warning and sends batches without throttling (egg's
+        max_pending_batches then applies, which drops the newest batches).
+        master_status_interval (default 60 s, 0 = off) prints the queue state.
+        predictor_log_interval (default 10 s, 0 = off) appends, on every predictor, where
+        its predict() time went (waiting between calls, model file check, model reload,
+        the GP evaluation) to <default_output_path>/predictor_timing_rank<N>.csv.
+        master_log_interval (default 10 s, 0 = off) appends the queue state to
+        <default_output_path>/master_queue.csv (queued, in flight, released and
+        dropped batches and points), which emulator_message_timing.py reads.
+    predict_routing: (routing: master) 'round_robin' (default) or 'source'
+        (gambit rank % number of predictors, as in legacy routing).
+    n_predictors: Number of predictor ranks. With routing: master the default
+        is all ranks but the trainer (and the master, if it is dedicated); the
+        predictors are the ranks right after the master (or from rank 0 if the
+        master predicts) and the trainer is the rank after the last predictor.
+        With legacy routing (default 0 = off: rank 0 predicts, rank 1 trains),
+        P > 0 means egg ranks 0..P-1 predict and rank P trains.
         Gambit sends every message to every egg rank and egg passes every
         message on to the plugin together with the world rank of the sender
         (flag.source). The plugin decides: predictor (gambit rank % P) answers
@@ -197,17 +246,103 @@ spent in predict (including any reload of the model file).
         self.val_frac_min = float(kwargs.get('validation_fraction_min', 0.01))
         self.val_frac_max = float(kwargs.get('validation_fraction_max', 0.2))
 
-        # Roles of the egg ranks (must match egg's n_predictors handling)
+        # Roles of the egg ranks
         self.n_predictors = int(kwargs.get('n_predictors', 0))
-        if self.n_predictors < 0 or (self.n_predictors > 0 and self.n_predictors >= self.mpi_size):
-            raise ValueError(f"n_predictors = {self.n_predictors} needs at least {self.n_predictors + 1} egg ranks "
-                             f"(n_predictors predictors + 1 trainer), but there are {self.mpi_size}.")
-        if self.n_predictors > 0:
-            self.is_predictor = self.mpi_rank < self.n_predictors
-            self.is_trainer = self.mpi_rank == self.n_predictors
+        self.master_mode = kwargs.get('routing', 'legacy') == 'master'
+        if self.master_mode:
+            # routing: master. Rank 0 is the master (it routes messages). With 1 egg rank it does everything;
+            # with 2 it also predicts; with 3 or more it only routes (master_predicts: false by default)
+            # so that a burst of requests never waits for one of its own predictions. The last rank trains and
+            # the ranks in between predict.
+            n = self.mpi_size
+            master_predicts = bool(kwargs.get('master_predicts', n <= 2))
+            if n == 1:
+                self.predictor_ranks, self.trainer_rank = [0], 0
+            else:
+                first = 0 if master_predicts else 1
+                n_pred = self.n_predictors if self.n_predictors > 0 else n - 1 - first
+                if n_pred < 1 or first + n_pred > n - 1:
+                    raise ValueError(f"routing: master with {n} egg ranks"
+                                     f"{'' if master_predicts else ' and a dedicated master'} cannot have "
+                                     f"n_predictors = {n_pred} (ranks {first}..{first + n_pred - 1} predict, rank {first + n_pred} trains).")
+                self.predictor_ranks = list(range(first, first + n_pred))
+                self.trainer_rank = first + n_pred
+            self.n_predictors = len(self.predictor_ranks)
         else:
-            self.is_predictor = self.mpi_size == 1 or self.mpi_rank == 0
-            self.is_trainer = self.mpi_size == 1 or self.mpi_rank == 1
+            # legacy routing, must match egg's handling: with n_predictors = P > 0 ranks 0..P-1 predict and
+            # rank P trains; with P = 0 rank 0 predicts and rank 1 trains (one rank does both)
+            if self.n_predictors < 0 or (self.n_predictors > 0 and self.n_predictors >= self.mpi_size):
+                raise ValueError(f"n_predictors = {self.n_predictors} needs at least {self.n_predictors + 1} egg ranks "
+                                 f"(n_predictors predictors + 1 trainer), but there are {self.mpi_size}.")
+            if self.n_predictors > 0:
+                self.predictor_ranks, self.trainer_rank = list(range(self.n_predictors)), self.n_predictors
+            elif self.mpi_size == 1:
+                self.predictor_ranks, self.trainer_rank = [0], 0
+            else:
+                self.predictor_ranks, self.trainer_rank = [0], 1
+        self.is_predictor = self.mpi_rank in self.predictor_ranks
+        self.is_trainer = self.mpi_rank == self.trainer_rank
+
+        # Master side (routing: master): cache of training points and predict routing state
+        self.train_batch_size = max(1, int(kwargs.get('train_batch_size', 20)))
+        self.max_cache_age = float(kwargs.get('max_cache_age_seconds', 10))
+        self.predict_routing = kwargs.get('predict_routing', 'round_robin')
+        if self.predict_routing not in ('round_robin', 'source'):
+            raise ValueError(f"Unknown predict_routing '{self.predict_routing}'. Use 'round_robin' or 'source'.")
+        self._cache_x, self._cache_y, self._cache_z = [], [], []
+        self._cache_t0 = None
+        self._next_predictor_idx = 0
+        self._n_batches_sent = 0
+
+        # Batch queue on the master (routing: master). Full batches wait here until the trainer has room,
+        # so that when the trainer cannot keep up it is the OLDEST waiting batches that are dropped, not the
+        # newest ones (the scan moves, newer points are the relevant ones). The trainer reports every batch
+        # it has finished with a small message on the plugin's own communicator (ack).
+        self.max_queued_batches = max(1, int(kwargs.get('max_queued_batches', 20)))
+        self.max_in_flight_batches = max(1, int(kwargs.get('max_in_flight_batches', 2)))
+        self.release_order = kwargs.get('release_order', 'newest')
+        if self.release_order not in ('newest', 'oldest'):
+            raise ValueError(f"Unknown release_order '{self.release_order}'. Use 'newest' or 'oldest'.")
+        self.master_status_interval = float(kwargs.get('master_status_interval', 60))
+        self._queue = collections.deque()
+        self._in_flight = 0
+        self._n_released = 0
+        self._n_dropped_queued = 0
+        self._last_status = time.time()
+        # CSV with the state of the master's queue over time (read by the emulator_message_timing plot)
+        self.master_log_interval = float(kwargs.get('master_log_interval', 10))
+        self._n_trains_taken = 0
+        self._n_released_points = 0
+        self._n_dropped_points = 0
+        self._master_csv = None
+        self._last_master_csv = 0.0
+        self._master_csv_path = os.path.join(output_path, 'master_queue.csv')
+        # Where a predictor spends its time (predictor_timing_rank<N>.csv, one row per predictor_log_interval)
+        self.predictor_log_interval = float(kwargs.get('predictor_log_interval', 10))
+        self._predictor_csv_path = os.path.join(output_path, f'predictor_timing_rank{self.mpi_rank}.csv')
+        self._predictor_csv = None
+        self._last_predictor_csv = time.time()
+        self._pc_last_end = None
+        self._pt = dict(n=0, between=0.0, check=0.0, n_reloads=0, reload=0.0, reload_max=0.0, gp=0.0, total=0.0)
+        self._n_leaves = 0
+        self._model_mb = 0.0
+        self._comm = None
+        self._ack_reqs = []
+        if self.master_mode and self.mpi_size > 1:
+            try:
+                import mpi4py
+                mpi4py.rc.initialize = False   # MPI is already initialised by egg
+                mpi4py.rc.finalize = False     # and is finalised by egg
+                from mpi4py import MPI
+                if not MPI.Is_initialized():
+                    raise RuntimeError("MPI is not initialised in this process")
+                self._MPI = MPI
+                self._comm = MPI.Comm.f2py(self.mpi_comm)
+            except Exception as e:
+                self._comm = None
+                print(f"[pygptreeo] WARNING: could not set up mpi4py on the plugin communicator ({e!r}). "
+                      f"Batches are sent to the trainer without throttling and none are dropped by the plugin; "
+                      f"egg's max_pending_batches is the only limit (it drops the newest batches).", flush=True)
 
         self.gpt = self._make_tree(kwargs)
 
@@ -312,6 +447,140 @@ spent in predict (including any reload of the model file).
         """Number of points the (possibly reloaded) tree has been trained on."""
         return int(getattr(self.gpt, 'n_points_seen', 0))
 
+    def master(self, x, y, z, flag):
+        """Master rank only (routing: master). Called by egg for every message from gambit and on a timer
+        with neither flag.train nor flag.predict set. Returns (destination, n_rows, X, Y, Z):
+        destination is an egg rank (-1: send nothing); n_rows == 0 means 'forward this predict request
+        to destination', n_rows > 0 means 'send these n_rows training points (row-major) to destination'."""
+        none = np.zeros(0)
+        if flag.predict:
+            return (self._pick_predictor(flag.source), 0, none, none, none)
+
+        now = time.time()
+        if flag.train and self.training_enabled:
+            # copies: the arrays wrap C++ memory that is released after this call
+            self._cache_x.append(np.array(x, dtype=float).reshape(-1))
+            self._cache_y.append(np.array(y, dtype=float).reshape(-1))
+            self._cache_z.append(np.array(z, dtype=float).reshape(-1))
+            self._n_trains_taken += 1
+            if self._cache_t0 is None:
+                self._cache_t0 = now
+
+        # 1. cache -> batch -> queue
+        n = len(self._cache_x)
+        if n and (n >= self.train_batch_size or now - self._cache_t0 >= self.max_cache_age):
+            X, Y, Z = np.concatenate(self._cache_x), np.concatenate(self._cache_y), np.concatenate(self._cache_z)
+            self._cache_x, self._cache_y, self._cache_z = [], [], []
+            self._cache_t0 = None
+            self._queue.append((n, X, Y, Z))
+            while len(self._queue) > self.max_queued_batches:
+                dropped = self._queue.popleft()     # the oldest waiting batch is the least relevant one
+                self._n_dropped_queued += 1
+                self._n_dropped_points += dropped[0]
+                if self._n_dropped_queued == 1 or self._n_dropped_queued % 50 == 0:
+                    print(f"[pygptreeo] master: trainer is behind, dropped the oldest queued batch of {dropped[0]} points "
+                          f"({self._n_dropped_queued} dropped so far)", flush=True)
+
+        # 2. batches the trainer has finished
+        self._collect_acks()
+
+        # 3. release one batch if the trainer has room (no throttling if there is no plugin communicator)
+        out = (-1, 0, none, none, none)
+        if self._queue and (self._comm is None or self._in_flight < self.max_in_flight_batches):
+            n, X, Y, Z = self._queue.pop() if self.release_order == 'newest' else self._queue.popleft()
+            self._in_flight += 1
+            self._n_released += 1
+            self._n_released_points += n
+            self._n_batches_sent += 1
+            if self.verbose:
+                print(f"[pygptreeo] master: sending batch #{self._n_batches_sent} of {n} points to rank {self._trainer_rank()}", flush=True)
+            out = (self._trainer_rank(), n, X, Y, Z)
+
+        self._log_master_queue(now)
+        if self.master_status_interval > 0 and now - self._last_status >= self.master_status_interval:
+            self._last_status = now
+            print(f"[pygptreeo] master: queued batches {len(self._queue)}, in flight {self._in_flight}, "
+                  f"released {self._n_released}, dropped {self._n_dropped_queued}", flush=True)
+        return out
+
+    def _log_master_queue(self, now):
+        """Master: append one row with the state of the batch queue to master_queue.csv every master_log_interval
+        seconds (0 = off). 'wall' uses the format of the gambit and egg logs so that the plots can line them up."""
+        if self.master_log_interval <= 0 or now - self._last_master_csv < self.master_log_interval:
+            return
+        self._last_master_csv = now
+        try:
+            if self._master_csv is None:
+                new = not os.path.exists(self._master_csv_path)
+                self._master_csv = open(self._master_csv_path, 'a', buffering=1)
+                if new:
+                    self._master_csv.write('wall,cache_points,queued_batches,queued_points,in_flight_batches,'
+                                           'released_batches,released_points,dropped_batches,dropped_points,'
+                                           'train_points_taken\n')
+            self._master_csv.write('%s,%d,%d,%d,%d,%d,%d,%d,%d,%d\n' % (
+                time.strftime('%a %b %d %H:%M:%S %Y', time.localtime(now)), len(self._cache_x), len(self._queue),
+                sum(b[0] for b in self._queue), self._in_flight, self._n_released, self._n_released_points,
+                self._n_dropped_queued, self._n_dropped_points, self._n_trains_taken))
+        except OSError:
+            self.master_log_interval = 0     # cannot write: stop trying
+
+    def _log_predictor_timing(self, now):
+        """Predictor: append one row with where the time went since the last row, then reset the sums. Columns (seconds):
+        between = outside predict() (waiting for a request, egg's receive and reply), check = stat() of the model
+        file, reload = joblib.load of a new model, gp = tree.predict, total = whole predict()."""
+        self._last_predictor_csv = now
+        pt = self._pt
+        try:
+            if self._predictor_csv is None:
+                new = not os.path.exists(self._predictor_csv_path)
+                self._predictor_csv = open(self._predictor_csv_path, 'a', buffering=1)
+                if new:
+                    self._predictor_csv.write('wall,interval_s,n_predicts,between_s,check_s,n_reloads,reload_s,'
+                                              'reload_max_s,gp_s,total_s,n_leaves,model_mb\n')
+            self._predictor_csv.write('%s,%.3f,%d,%.4f,%.4f,%d,%.4f,%.4f,%.4f,%.4f,%d,%.1f\n' % (
+                time.strftime('%a %b %d %H:%M:%S %Y', time.localtime(now)), self.predictor_log_interval,
+                pt['n'], pt['between'], pt['check'], pt['n_reloads'], pt['reload'], pt['reload_max'], pt['gp'],
+                pt['total'], self._n_leaves, self._model_mb))
+        except OSError:
+            self.predictor_log_interval = 0
+        self._pt = dict(n=0, between=0.0, check=0.0, n_reloads=0, reload=0.0, reload_max=0.0, gp=0.0, total=0.0)
+
+    def _collect_acks(self):
+        """Master: count the batches the trainer has reported as finished (non-blocking)."""
+        if self._comm is None:
+            self._in_flight = 0
+            return
+        MPI = self._MPI
+        buf = np.zeros(1, dtype='i')
+        while self._comm.Iprobe(source=self.trainer_rank, tag=self._ACK_TAG):
+            self._comm.Recv([buf, MPI.INT], source=self.trainer_rank, tag=self._ACK_TAG)
+            self._in_flight = max(0, self._in_flight - 1)
+
+    def _send_ack(self):
+        """Trainer: tell the master that a batch has been processed."""
+        if self._comm is None:
+            return
+        MPI = self._MPI
+        self._ack_reqs = [r for r in self._ack_reqs if not r[0].Test()]
+        buf = np.ones(1, dtype='i')
+        self._ack_reqs.append((self._comm.Isend([buf, MPI.INT], dest=0, tag=self._ACK_TAG), buf))
+
+    _ACK_TAG = 77
+
+    def _trainer_rank(self):
+        """Egg rank that trains."""
+        return self.trainer_rank
+
+    def _predictor_ranks(self):
+        return self.predictor_ranks
+
+    def _pick_predictor(self, source):
+        preds = self._predictor_ranks()
+        if self.predict_routing == 'source':
+            return preds[int(source) % len(preds)]
+        self._next_predictor_idx = (self._next_predictor_idx + 1) % len(preds)
+        return preds[self._next_predictor_idx]
+
     def train(self, x, y, z, flag):
         if not self.training_enabled:
             print("Training is disabled for this emulator instance.")
@@ -321,9 +590,39 @@ spent in predict (including any reload of the model file).
 
         # Copies, not views: the arrays GAMBIT hands over wrap C++ memory that
         # is released after this call, and the tree may keep the rows.
-        x = np.array(x, dtype=float).reshape(-1)
-        y = np.array(y, dtype=float).reshape(-1)
-        sigma = np.array(z, dtype=float).reshape(-1)
+        # A message from gambit is one point; a batch from the master has flag.n_rows rows.
+        n_rows = int(flag.n_rows)
+        try:
+            self._train_batch(x, y, z, n_rows)
+        finally:
+            # always report the batch as done, also after an error, so that the master keeps sending
+            if self.master_mode and flag.batch:
+                self._send_ack()
+
+    def _train_batch(self, x, y, z, n_rows):
+        x = np.array(x, dtype=float).reshape(n_rows, -1)
+        y = np.array(y, dtype=float).reshape(n_rows, -1)
+        z = np.array(z, dtype=float).reshape(n_rows, -1)
+
+        retrains_before = _retrain_count[0]
+        rows = [self._update_point(x[i].copy(), y[i].copy(), z[i].copy()) for i in range(n_rows)]
+
+        # Publish the model to the predictors only if a GP was refitted (or always,
+        # if save_on_retrain_only is off). Otherwise the saved model, and hence
+        # the predictions, stay as they were at the last retrain. For a batch, once per batch.
+        t_save = float('nan')
+        if not (self.save_on_retrain_only and _retrain_count[0] == retrains_before):
+            t0 = time.time()
+            self.gpt.atomic_save(self.tree_filename)
+            t_save = time.time() - t0
+            self._n_saved_points = self._n_training_points()
+
+        for k, (row, t_update) in enumerate(rows):
+            # the save time belongs to the last point of the batch
+            self._log_train_row(row, t_update, t_save if k == len(rows) - 1 else float('nan'), self._n_saved_points)
+
+    def _update_point(self, x, y, sigma):
+        """Trainer side: add one point to the tree. Returns (log row, time spent in the update)."""
         if self.target_relative_uncertainty is not None:
             sigma = float(self.target_relative_uncertainty) * np.abs(y)
         self.n_train += 1
@@ -339,15 +638,13 @@ spent in predict (including any reload of the model file).
         if self.log_target:
             if np.any(y <= 0):
                 print(f"[pygptreeo] training point skipped: log_target needs y > 0, got {y}", flush=True)
-                self._log_train_row(row, nan, nan, nan)
-                return
+                return (row, nan)
             sigma = sigma / y
             y = np.log(y)
 
         if self.adaptive_validation and self._n_training_points() >= self.min_train_points:
             self._record_validation_error(x, y_lin)
 
-        retrains_before = _retrain_count[0]
         t0 = time.time()
         try:
             self.gpt.update_tree(x.reshape(1, -1), y.reshape(1, -1),
@@ -356,22 +653,8 @@ spent in predict (including any reload of the model file).
             print(f"[pygptreeo] training point skipped after numerical error: {e}", flush=True)
             traceback.print_exc(limit=-8)
             sys.stdout.flush()
-            self._log_train_row(row, time.time() - t0, float('nan'), float('nan'))
-            return
-        t_update = time.time() - t0
-
-        # Publish the model to the predictor only if a GP was refitted (or always,
-        # if save_on_retrain_only is off). Otherwise the saved model, and hence
-        # the predictions, stay as they were at the last retrain.
-        if self.save_on_retrain_only and _retrain_count[0] == retrains_before:
-            self._log_train_row(row, t_update, float('nan'), self._n_saved_points)
-            return
-
-        t0 = time.time()
-        self.gpt.atomic_save(self.tree_filename)
-        t_save = time.time() - t0
-        self._n_saved_points = self._n_training_points()
-        self._log_train_row(row, t_update, t_save, self._n_saved_points)
+            return (row, nan)
+        return (row, time.time() - t0)
 
     def _log_train_row(self, row, t_update, t_save, n_points_after):
         """Write one emu_training.csv row. Besides the data it records how long the
@@ -431,29 +714,48 @@ spent in predict (including any reload of the model file).
         if not self.prediction_enabled:
             print("Prediction is disabled for this emulator instance.")
             return (np.array([None]), np.array([None]))
-        if not self.is_predictor or not self._answers_request_from(flag.source):
+        # with routing: master the master already picked this rank, so only check the role
+        if not self.is_predictor or (not self.master_mode and not self._answers_request_from(flag.source)):
             # not our request: leave flag.result unset, so egg sends no reply
             return (np.array([None]), np.array([None]))
 
         flag.result = True
         self.n_pred += 1
         t_start = time.time()
+        pc0 = time.perf_counter()
+        pt = self._pt
+        if self._pc_last_end is not None:
+            pt['between'] += pc0 - self._pc_last_end     # time outside predict(): waiting for a request, egg's MPI, reply
 
         # Reload the tree if the trainer has written a newer one
+        reload_dt = 0.0
         if os.path.exists(self.tree_filename):
             current_mtime = os.path.getmtime(self.tree_filename)
             if current_mtime != self.last_mtime:
                 try:
+                    pcr = time.perf_counter()
                     self.gpt = joblib.load(self.tree_filename)
+                    reload_dt = time.perf_counter() - pcr
                     self.last_mtime = current_mtime
+                    pt['n_reloads'] += 1
+                    pt['reload'] += reload_dt
+                    pt['reload_max'] = max(pt['reload_max'], reload_dt)
+                    try:
+                        self._n_leaves = len(self.gpt.root.leaves)
+                        self._model_mb = os.path.getsize(self.tree_filename) / 1e6
+                    except Exception:
+                        pass
                 except Exception as e:
                     # A load can fail if the file is replaced mid-read; keep the old tree.
                     print(f"[pygptreeo] could not reload model file: {e}", flush=True)
 
         x = np.array(x, dtype=float).reshape(-1)
         X_test = x.reshape(1, -1)
+        pc1 = time.perf_counter()
+        pt['check'] += (pc1 - pc0) - reload_dt          # stat() of the model file
         try:
             y_pred, y_std = self.gpt.predict(X_test)
+            pt['gp'] += time.perf_counter() - pc1
         except (FloatingPointError, RuntimeWarning, np.linalg.LinAlgError) as e:
             print(f"[pygptreeo] prediction invalid after numerical error: {e}", flush=True)
             flag.not_valid = True
@@ -476,6 +778,12 @@ spent in predict (including any reload of the model file).
             forced = 2
         if forced:
             flag.not_valid = True
+        pc_end = time.perf_counter()
+        pt['total'] += pc_end - pc0
+        pt['n'] += 1
+        self._pc_last_end = pc_end
+        if self.predictor_log_interval > 0 and t_start - self._last_predictor_csv >= self.predictor_log_interval:
+            self._log_predictor_timing(t_start)
         if self.verbose:
             print(f"[pygptreeo] predict #{self.n_pred}: x={x} y={y_pred} sigma={y_std}", flush=True)
 

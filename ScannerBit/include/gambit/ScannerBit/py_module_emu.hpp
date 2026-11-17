@@ -345,6 +345,12 @@ PYBIND11_EMBEDDED_MODULE(emulator_plugin, m)
         scan_err << "\"train()\" method not defined in python scanner plugin." << scan_end;
         return py::object();
     })
+    // Only called with 'routing: master' on the master egg rank (see the emulator documentation)
+    .def("master", [](emulator_base &, py::object, py::object, py::object, py::object)
+    {
+        scan_err << "\"master()\" method not defined in python emulator plugin, but 'routing: master' is set." << scan_end;
+        return py::object();
+    })
     .def_property_readonly_static("args", [](py::object)
     {
         static py::dict opts = ::Gambit::Scanner::yaml_to_dict(emulator_base::getNode());
@@ -390,6 +396,9 @@ PYBIND11_EMBEDDED_MODULE(emulator_plugin, m)
     .def_property("train", &flag_wrapper::train, &flag_wrapper::set_train)
     .def_property("predict", &flag_wrapper::predict, &flag_wrapper::set_predict)
     .def_property("result", &flag_wrapper::result, &flag_wrapper::set_result)
-    .def_property("not_valid", &flag_wrapper::not_valid, &flag_wrapper::set_not_valid);
+    .def_property("not_valid", &flag_wrapper::not_valid, &flag_wrapper::set_not_valid)
+    .def_property_readonly("source", &flag_wrapper::source)
+    .def_property_readonly("n_rows", &flag_wrapper::n_rows)
+    .def_property_readonly("batch", &flag_wrapper::batch);
 
 }

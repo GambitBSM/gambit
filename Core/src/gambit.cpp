@@ -17,6 +17,7 @@
 ///
 ///  *********************************************
 
+#include <algorithm>
 #include <csignal>
 
 #include "gambit/Core/gambit.hpp"
@@ -359,6 +360,22 @@ int main(int argc, char* argv[])
             // timeout
             YAML::Node timeout_node = scanner_node["Emulator"]["emulators"][key]["timeout"];
             settings.timeout = timeout_node.IsDefined() ? timeout_node.as<double>() : EmulatorMap::DEFAULT_PREDICT_TIMEOUT_SECONDS;
+
+            // routing: 'legacy' (default) sends every message to every egg rank of the capability; 'master'
+            // sends only to the master, which is egg rank 0 of the capability, i.e. the egg rank with the
+            // lowest world rank (the ranks were collected in ascending order above). The master passes
+            // messages on to the other egg ranks, which reply to gambit directly (see egg.cpp).
+            YAML::Node routing_node = scanner_node["Emulator"]["emulators"][key]["routing"];
+            const str routing = routing_node.IsDefined() ? routing_node.as<str>() : "legacy";
+            if (routing != "legacy" && routing != "master")
+            {
+                core_error().raise(LOCAL_INFO, "Emulation.emulators." + key + ".routing must be 'legacy' or 'master', not '" + routing + "'.");
+            }
+            if (routing == "master" && settings.ranks.size() > 1)
+            {
+                std::sort(settings.ranks.begin(), settings.ranks.end());
+                settings.ranks.resize(1);
+            }
         }
 
         // Print scan metadata from rank 0

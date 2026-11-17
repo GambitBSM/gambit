@@ -373,3 +373,47 @@ and launch it the same way:
 ```bash
 mpirun -np 4 ./gambit -f yaml_files/emulator_test_likelihood.yaml : -np 2 ./egg -c LogLike
 ```
+
+## Master routing (`routing: master`)
+
+Set per capability under `Emulation: emulators: <capability>:`. Default `legacy` = old behaviour (gambit sends
+every message to every egg rank, the plugin ignores what is not its job).
+
+With `routing: master`:
+* Gambit sends only to the master = egg rank 0 of the capability (the egg rank with the lowest world rank).
+  `gambit.cpp` truncates `EmulatorMap::capabilities[cap].ranks` to that rank.
+* The master calls the plugin's `master(x, y, z, flag)` for each message, and on a timer
+  (`master_tick_interval`, default 1 s) with an empty message (neither `flag.train` nor `flag.predict`).
+  It returns `(destination, n_rows, X, Y, Z)`; `destination` is the egg rank (the plugin's `mpi_rank`), -1 = nothing.
+  `n_rows == 0`: forward this predict request. `n_rows > 0`: send a batch of training points (row-major).
+* The master forwards with `MPI_Isend` (tag 5) so it never blocks on a slow trainer. If more than
+  `max_pending_batches` (default 100) batches are in flight, new batches are dropped (predict requests never are).
+* The pygptreeo plugin keeps its own queue of full batches (`max_queued_batches`, `max_in_flight_batches`,
+  `release_order`) and returns a batch from `master()` only when the trainer has finished enough of the
+  previous ones; the trainer reports each finished batch to the master with a small mpi4py message on the plugin's
+  own communicator (`mpi_comm`, tag 77). With that queue, a trainer that is too slow causes the OLDEST waiting
+  batches to be dropped by the plugin, and egg's `max_pending_batches` (which drops the newest) never triggers.
+  Without mpi4py the plugin falls back to sending every batch at once.
+* A forwarded predict request carries the gambit rank; the egg rank that handles it calls `predict()` with
+  `flag.source` = that gambit rank and replies directly to it (tag 4). The master sees no replies.
+* A batch reaches the trainer's `train(x, y, z, flag)` once, with `flag.batch == True` and `flag.n_rows` rows
+  (x, y, z are flat, row-major). A message from gambit in legacy mode has `flag.n_rows == 1`.
+* Wire format: forwarded messages are normal `feed_def` buffers with a 4th vector holding one number (gambit
+  source rank, or row count) and, for batches, the `BATCH` flag (0x0020).
+* Roles of the egg ranks (pygptreeo; decided by the plugin): 1 egg rank does everything; 2 ranks: the master also
+  predicts and rank 1 trains; 3 or more: the master only routes (so a burst of requests never waits for its own
+  prediction), ranks 1..N-2 predict and the last rank trains (`master_predicts` overrides).
+* Not handled: points still in the master's cache at shutdown are lost.
+* Egg log has extra fields: `master_calls master_s forwarded batches_sent batch_points dropped_batches pending_sends`.
+
+Example: `yaml_files/rosenbrock5d_gptreeo_master.yaml`.
+
+### Reading the egg time counters
+
+`idle_s`, `probe_s` etc. are measured with `MPI_Wtime()` around each part of the receive loop. An egg rank with
+nothing to do spins through the loop (100 % of a core) at ~10^7-10^8 passes/s, and each pass reads the clock several
+times (~18 ns per read on a typical machine), so in a spinning rank a large part of the wall time (typically 40 %)
+falls between two timers and is in none of the counters: `elapsed_s` is much larger than the sum of the counters. This is
+measurement overhead, not work (reproduced with a standalone Iprobe/Recv loop). To see the real work, use
+`busy_s` (total time of the passes that handled a message, with its parts `probe_busy_s`, `recv_s`, `dispatch_s`,
+`master_s`, `predict_s`, `reply_s`, `train_s`); the rest of `elapsed_s` is waiting.

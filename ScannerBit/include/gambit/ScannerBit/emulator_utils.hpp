@@ -29,6 +29,10 @@ namespace Gambit
                 // loud, diagnosable condition instead of blending into routine
                 // emulator-uncertainty fallback.
                 static const unsigned short int PROTOCOL_ERROR = 0x0010;
+                // Used only between egg ranks (routing: master). A TRAIN|BATCH message holds several
+                // training points (row-major, N rows per vector); the number of rows is stored in
+                // the extra vector (see extra()). Never sent by gambit.
+                static const unsigned short int BATCH = 0x0020;
 
                 typedef unsigned short int usint;
                 typedef unsigned int uint;
@@ -54,6 +58,31 @@ namespace Gambit
                     if (buffer.size() < 2*sizeof(usint))
                         return false;
                     return buffer.size() >= 2*sizeof(usint) + (size_t)dim()*sizeof(uint);
+                }
+
+                // Total size in bytes the header declares (header + all vectors). A message forwarded
+                // between egg ranks must satisfy this; checked before reading its vectors.
+                bool has_valid_payload()
+                {
+                    if (!has_valid_header())
+                        return false;
+                    size_t total = 2*sizeof(usint) + (size_t)dim()*sizeof(uint);
+                    for (uint j = 0; j < dim(); ++j)
+                        total += (size_t)get_sizes(j)*sizeof(double);
+                    return buffer.size() >= total;
+                }
+
+                // Messages forwarded between egg ranks (routing: master) carry a fourth vector with a
+                // single number: the world rank of the gambit process that sent a predict request, or
+                // the number of rows of a training batch. Messages from gambit have only three vectors.
+                bool has_extra()
+                {
+                    return dim() >= 4 && get_sizes(3) >= 1;
+                }
+
+                double extra()
+                {
+                    return buffer_vector(3)[0];
                 }
 
                 uint &get_sizes(int i) // changed name of function
@@ -199,6 +228,8 @@ namespace Gambit
                 bool if_result() {return RESULT & flag();}
                 bool if_not_valid() {return NOT_VALID & flag();}
                 bool if_protocol_error() {return PROTOCOL_ERROR & flag();}
+                bool if_batch() {return BATCH & flag();}
+                void set_batch() { flag() = flag() | BATCH;}
                 void set_train() { flag() = flag() | TRAIN;}
                 void set_predict() { flag() = flag() | PREDICT;}
                 void set_result() { flag() = flag() | RESULT;}
@@ -212,9 +243,19 @@ namespace Gambit
             private:
                 unsigned short int *flag;
                 int src;   // world rank of the process that sent the message (-1 if unknown)
+                int nrows; // number of training points in a train call (1 unless the call is a batch)
+                bool is_batch;
 
             public:
-                flag_wrapper (unsigned short int &flag, int source = -1) : flag(&flag), src(source) {}
+                flag_wrapper (unsigned short int &flag, int source = -1, int n_rows = 1, bool batch = false)
+                  : flag(&flag), src(source), nrows(n_rows), is_batch(batch) {}
+
+                /// Number of rows (training points) in this train call. The x, y and z arrays are
+                /// row-major with this many rows. 1 for a message sent directly by gambit.
+                int n_rows() {return nrows;}
+
+                /// True if this train call is a batch of points collected by the master
+                bool batch() {return is_batch;}
 
                 /// World rank of the (gambit) process that sent this train/predict message
                 int source() {return src;}
