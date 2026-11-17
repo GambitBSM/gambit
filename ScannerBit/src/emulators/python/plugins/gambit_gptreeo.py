@@ -133,6 +133,9 @@ YAML options:
     splitting_strategy: 'standard' or 'gradual'. Defaults to 'standard'.
     retrain_every_n_points: Refit a leaf GP after this many new points.
         Defaults to 1.
+    max_memory_mb: Memory the tree stays within, in MB (GPTree max_memory_mb;
+        needs a pygptreeo that has it). Applies to the tree in RAM, not to the
+        model file. Defaults to no limit.
     kernel: Leaf kernel. 'matern' (default) or 'additive' (additive + Matern
         catch-all; requires n_inputs).
     n_inputs: Number of emulator inputs (only needed for kernel: additive).
@@ -358,7 +361,9 @@ spent in predict (including any reload of the model file).
             self.gpt.emu_validation_fraction = self.validation_fraction
             self.gpt.emu_val_errors = []
             self.gpt.emu_val_new = 0
-            self.gpt.atomic_save(self.tree_filename)
+            if not hasattr(self.gpt, 'n_points_seen'):
+                self.gpt.emu_n_points = getattr(self.gpt, 'emu_n_points', 0)
+            self._save_tree()
 
         if os.path.exists(self.tree_filename):
             self.last_mtime = os.path.getmtime(self.tree_filename)
@@ -422,6 +427,10 @@ spent in predict (including any reload of the model file).
         gpr = Default_GPR(kernel=kernel,
                           n_restarts_optimizer=int(kwargs.get('n_restarts_optimizer', 0)))
 
+        extra = {}
+        if kwargs.get('max_memory_mb', None) is not None:
+            extra['max_memory_mb'] = float(kwargs['max_memory_mb'])
+
         return GPTree(
             GPR=gpr,
             Nbar=int(kwargs.get('Nbar', 100)),
@@ -433,6 +442,7 @@ spent in predict (including any reload of the model file).
             global_mean_kwargs=kwargs.get('global_mean_kwargs', None),
             split_position_method=kwargs.get('split_position_method', 'median'),
             retrain_every_n_points=int(kwargs.get('retrain_every_n_points', 1)),
+            **extra,
         )
 
     def _answers_request_from(self, source):
@@ -445,7 +455,25 @@ spent in predict (including any reload of the model file).
 
     def _n_training_points(self):
         """Number of points the (possibly reloaded) tree has been trained on."""
-        return int(getattr(self.gpt, 'n_points_seen', 0))
+        n = getattr(self.gpt, 'n_points_seen', None)    # newer pygptreeo counts these itself
+        if n is None:
+            n = getattr(self.gpt, 'emu_n_points', 0)    # otherwise the plugin's own counter, saved with the tree
+        return int(n)
+
+    def _save_tree(self):
+        """Write the tree to the model file so that a concurrent reader never sees a partial file.
+        Uses GPTree.atomic_save when the installed pygptreeo has it, otherwise writes a temporary
+        file in the same directory and renames it into place (atomic on POSIX)."""
+        if hasattr(self.gpt, 'atomic_save'):
+            self.gpt.atomic_save(self.tree_filename)
+            return
+        tmp = f"{self.tree_filename}.tmp.{os.getpid()}"
+        try:
+            joblib.dump(self.gpt, tmp)
+            os.replace(tmp, self.tree_filename)
+        finally:
+            if os.path.exists(tmp):
+                os.remove(tmp)
 
     def master(self, x, y, z, flag):
         """Master rank only (routing: master). Called by egg for every message from gambit and on a timer
@@ -613,7 +641,7 @@ spent in predict (including any reload of the model file).
         t_save = float('nan')
         if not (self.save_on_retrain_only and _retrain_count[0] == retrains_before):
             t0 = time.time()
-            self.gpt.atomic_save(self.tree_filename)
+            self._save_tree()
             t_save = time.time() - t0
             self._n_saved_points = self._n_training_points()
 
@@ -649,6 +677,8 @@ spent in predict (including any reload of the model file).
         try:
             self.gpt.update_tree(x.reshape(1, -1), y.reshape(1, -1),
                                  float(sigma[0]) if sigma.size == 1 else sigma)
+            if not hasattr(self.gpt, 'n_points_seen'):
+                self.gpt.emu_n_points = getattr(self.gpt, 'emu_n_points', 0) + 1
         except (FloatingPointError, RuntimeWarning, np.linalg.LinAlgError) as e:
             print(f"[pygptreeo] training point skipped after numerical error: {e}", flush=True)
             traceback.print_exc(limit=-8)
