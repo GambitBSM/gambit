@@ -9,11 +9,13 @@ import collections
 import atexit
 import warnings
 import faulthandler
+import gc
+import pickle
 
 try:
-    import joblib
+    import joblib      # only needed to read model files written before pygptreeo's own save/load
 except ImportError:
-    __error__ = "joblib not installed"
+    joblib = None
 
 try:
     from pygptreeo import GPTree, Default_GPR, AdditiveMaternKernel
@@ -53,8 +55,8 @@ pygptreeo emulator
 With two MPI ranks, rank 1 trains and rank 0 predicts; with one rank it does
 both. With n_predictors = P > 0 (needs P+1 egg ranks) ranks 0..P-1 predict and
 rank P trains; the plugin makes sure each predict request is answered by exactly
-one predictor, see n_predictors below. The trainer writes the tree to a joblib file and the predictor reloads
-it whenever the file has changed. By default (save_on_retrain_only) the file is
+one predictor, see n_predictors below. The trainer writes the tree to a file (GPTree.save) and the predictor reloads
+it (GPTree.load) whenever the file has changed. By default (save_on_retrain_only) the file is
 only rewritten when a leaf GP was actually refitted, so the predictor's model
 changes only upon retraining, not after every added point.
 
@@ -81,7 +83,23 @@ YAML options:
         when its oldest point is this old, even if it has fewer than
         train_batch_size points. Defaults to 10. Checked when a message
         arrives and by egg's timer (master_tick_interval, egg setting). Points
-        still in the cache at shutdown are lost.
+        still in the cache at shutdown are lost. Note that the age is only
+        checked when a training point arrives or on egg's timer, not when a
+        predict request arrives (a predict call has to return where the request
+        goes), so with a steady stream of predictions and few training points the
+        cache can wait longer than this; see idle_flush_seconds.
+    idle_flush_seconds: (routing: master) Send the cache to the trainer, however
+        young its points are, when no training point has come in for this many
+        seconds. Predict requests do not count. Meant for the late scan where
+        most points are emulated and training points come rarely, so a cache
+        would take long to fill. Checked when a training point arrives (if it
+        comes after a gap of at least this length, the cache, including that
+        point, is sent at once) and on egg's timer (master_tick_interval, which
+        only fires when no message at all arrives). A cache therefore never
+        waits for a following training point for longer than the gap between
+        two training points, but it does wait for that next point (or for
+        silence) as the master can only send a batch on those calls. 0
+        (default) = off.
     max_queued_batches, max_in_flight_batches, release_order: (routing: master)
         Full batches wait in a queue on the master and are released to the trainer
         only when it has room, so a trainer that cannot keep up never builds up a
@@ -146,7 +164,7 @@ YAML options:
     global_mean_kwargs: Dict of options for the global model learner.
     n_restarts_optimizer: Optimizer restarts for each leaf GP fit. Defaults to 0.
     model_filename: Name of the model file (written to the run's
-        emulator_plugins directory). Defaults to 'pygptreeo_model.joblib'.
+        emulator_plugins directory). Defaults to 'pygptreeo_model.pkl'.
     pre_trained: Boolean option to load a pre-trained model
     pre_trained_path: Path to pre-trained model file. OBS: new model file
         will be written and stored in run folder.
@@ -174,6 +192,27 @@ YAML options:
         bursts). The gap is scaled to the whole request stream by multiplying
         by the number of predictors, since each predictor only sees its own
         share. 0 (default) reloads as soon as the file has changed.
+    reload_diagnostics: Predictors only. If true, every reload of the model file
+        adds a row to reload_detail_rank<N>.csv in the run's emulator_plugins
+        directory. The load is done in two steps so that they are timed
+        separately: t_read (the file into memory) and t_unpickle (the bytes into
+        the tree's objects, with the garbage collector paused as in GPTree.load);
+        t_load is their sum. t_setstate is the part of t_unpickle spent in
+        GPTree.__setstate__ (relinking the nodes). Other columns: file_mb,
+        file_age_s (time since the file was written), t_swap (dropping the old
+        tree), t_gc (a gc.collect() right after, which delays that request),
+        gc2_runs (full garbage collections during read, unpickle and swap), RSS
+        before and after, available memory and 1-minute load average of the node,
+        gc_enabled, fallback (joblib was needed) and n_leaves. For finding out why
+        a reload sometimes takes much longer than usual. Defaults to false.
+    reload_canary_mb: (with reload_diagnostics) Size in MB of a dummy file that is
+        read and unpickled at every reload, right before or after the model
+        (in alternating order), and timed separately: c_read, c_unpickle and
+        c_first (1 if the dummy came first) in the same row. The dummy is a
+        pickle of many small lists and one big array, written once at start-up
+        by each predictor (canary_rank<N>.pkl), and never changes. If its times
+        spike together with the model's, the machine was slow; if only the model's
+        do, the cause is in the model or the way it is read. 0 (default) = off.
     max_model_age_seconds: (with reload_idle_gap > 0) The longest time a newer
         model file may wait to be loaded. When it has waited this long the
         predictor loads it at the next request even if there was no lull.
@@ -237,13 +276,13 @@ cost of the real calculation. The predictions log also has 'dt', the time
 spent in predict (including any reload of the model file).
 """
 
-    __version__ = "1.1.0"
+    __version__ = "1.3.2"
 
     def __init__(self, **kwargs):
         super().__init__()
 
         output_path = kwargs['default_output_path']
-        model_filename = kwargs.get('model_filename', 'pygptreeo_model.joblib')
+        model_filename = kwargs.get('model_filename', 'pygptreeo_model.pkl')
         self.tree_filename = os.path.join(output_path, model_filename)
         self.verbose = kwargs.get('verbose', False)
 
@@ -314,6 +353,11 @@ spent in predict (including any reload of the model file).
         # Master side (routing: master): cache of training points and predict routing state
         self.train_batch_size = max(1, int(kwargs.get('train_batch_size', 20)))
         self.max_cache_age = float(kwargs.get('max_cache_age_seconds', 10))
+        self.idle_flush = float(kwargs.get('idle_flush_seconds', 0.0))
+        if self.idle_flush < 0:
+            raise ValueError("idle_flush_seconds must be >= 0")
+        self._last_train_time = time.time()    # master: when the last training point arrived
+        self._n_idle_flushes = 0
         self.predict_routing = kwargs.get('predict_routing', 'round_robin')
         if self.predict_routing not in ('round_robin', 'source'):
             raise ValueError(f"Unknown predict_routing '{self.predict_routing}'. Use 'round_robin' or 'source'.")
@@ -353,6 +397,15 @@ spent in predict (including any reload of the model file).
         self._pc_last_end = None
         # When to load a newer model file (predictor side): see reload_idle_gap in the docstring
         self.reload_idle_gap = float(kwargs.get('reload_idle_gap', 0.0))
+        self.reload_diagnostics = bool(kwargs.get('reload_diagnostics', False))
+        self._reload_detail_path = os.path.join(output_path, f'reload_detail_rank{self.mpi_rank}.csv')
+        self.reload_canary_mb = float(kwargs.get('reload_canary_mb', 0.0))
+        self._canary_path = os.path.join(output_path, f'canary_rank{self.mpi_rank}.pkl')
+        self._canary_count = 0
+        if self.reload_diagnostics and self.is_predictor:
+            self._install_setstate_timer()
+            if self.reload_canary_mb > 0:
+                self._make_canary(self._canary_path, self.reload_canary_mb)
         max_age = kwargs.get('max_model_age_seconds', None)
         self.max_model_age = float(max_age) if max_age is not None else 60.0
         if self.reload_idle_gap < 0 or self.max_model_age < 0:
@@ -379,6 +432,23 @@ spent in predict (including any reload of the model file).
                       f"Batches are sent to the trainer without throttling and none are dropped by the plugin; "
                       f"egg's max_pending_batches is the only limit (it drops the newest batches).", flush=True)
 
+        # Say which file and which settings this rank runs with, so a run shows what was actually loaded
+        try:
+            role = ('master ' if self.master_mode and self.mpi_rank == 0 else '') + \
+                   ('predictor ' if self.is_predictor else '') + ('trainer' if self.is_trainer else '')
+            info = (f"[pygptreeo] plugin {self.__version__} from {os.path.abspath(__file__)}, egg rank {self.mpi_rank}/{self.mpi_size} "
+                    f"({role.strip() or 'router'}), save_interval={self.save_interval}, reload_idle_gap={self.reload_idle_gap}, "
+                    f"max_model_age_seconds={self.max_model_age}, save_on_retrain_only={self.save_on_retrain_only}, "
+                    f"max_memory_mb={kwargs.get('max_memory_mb', None)}, predictor_log_interval={self.predictor_log_interval}")
+            print(info, flush=True)
+            try:
+                with open(os.path.join(output_path, 'plugin_info.txt'), 'a') as f:
+                    f.write(info + '\n')
+            except OSError:
+                pass
+        except Exception as e:     # this line must never stop a run
+            print(f"[pygptreeo] could not print the plugin info: {e!r}", flush=True)
+
         self.gpt = self._make_tree(kwargs)
 
         if self.is_trainer:
@@ -386,7 +456,7 @@ spent in predict (including any reload of the model file).
                 pre_trained_path = kwargs.get('pre_trained_path', self.tree_filename)
                 print(f"Loading pre-trained model from {pre_trained_path}...")
                 if os.path.exists(pre_trained_path):
-                    self.gpt = joblib.load(pre_trained_path)
+                    self.gpt = self._load_tree(pre_trained_path)
             else:
                 print("Initializing GPTreeO emulator and saving initial model...")
             # State of the adaptive validation controller travels with the tree
@@ -495,19 +565,181 @@ spent in predict (including any reload of the model file).
         return int(n)
 
     def _save_tree(self):
-        """Write the tree to the model file so that a concurrent reader never sees a partial file.
-        Uses GPTree.atomic_save when the installed pygptreeo has it, otherwise writes a temporary
-        file in the same directory and renames it into place (atomic on POSIX)."""
-        if hasattr(self.gpt, 'atomic_save'):
-            self.gpt.atomic_save(self.tree_filename)
-            return
-        tmp = f"{self.tree_filename}.tmp.{os.getpid()}"
+        """Write the tree to the model file with GPTree.save: the leaves are put to sleep, the file is
+        written under a temporary name and renamed into place, so a concurrent reader never sees a
+        partial file."""
+        self.gpt.save(self.tree_filename)
+
+    @staticmethod
+    def _load_tree(path, diag=None):
+        """Read a model file written by GPTree.save. A file from before that (joblib) is read with joblib.
+        diag: optional dict, gets 'fallback' = 1 if joblib had to be used."""
         try:
-            joblib.dump(self.gpt, tmp)
-            os.replace(tmp, self.tree_filename)
+            return GPTree.load(path)
+        except Exception as e:
+            if joblib is None:
+                raise
+            try:
+                tree = joblib.load(path)
+                if diag is not None:
+                    diag['fallback'] = 1
+                return tree
+            except Exception:
+                raise e
+
+    @staticmethod
+    def _proc_mb(path, key):
+        """A value in kB from a /proc file (VmRSS, MemAvailable), as MB; nan if not available."""
+        try:
+            with open(path) as f:
+                for line in f:
+                    if line.startswith(key + ':'):
+                        return int(line.split()[1]) / 1024.0
+        except Exception:
+            pass
+        return float('nan')
+
+    _setstate_time = [0.0]
+
+    @classmethod
+    def _install_setstate_timer(cls):
+        """Time GPTree.__setstate__, which relinks the nodes after unpickling. Installed once, only
+        with reload_diagnostics."""
+        try:
+            if getattr(GPTree.__setstate__, '_gambit_timed', False):
+                return
+            original = GPTree.__setstate__
+
+            def timed(tree, state):
+                t = time.perf_counter()
+                original(tree, state)
+                cls._setstate_time[0] += time.perf_counter() - t
+            timed._gambit_timed = True
+            GPTree.__setstate__ = timed
+        except Exception as e:
+            print(f"[pygptreeo] could not time __setstate__: {e!r}", flush=True)
+
+    @staticmethod
+    def _make_canary(path, mb):
+        """Write the dummy file of the reload diagnostics, about mb MB: many small lists (like the many
+        small objects of a tree) and one big array. Kept if it exists with about the right size."""
+        try:
+            if os.path.exists(path) and abs(os.path.getsize(path) - mb * 1e6) < 0.1 * mb * 1e6:
+                return
+            rng = np.random.default_rng(0)
+            sample = rng.random((20000, 3)).tolist()
+            per_list = len(pickle.dumps(sample, protocol=pickle.HIGHEST_PROTOCOL)) / 20000.0
+            n_lists = max(1, int(0.6 * mb * 1e6 / per_list))
+            payload = {'array': rng.random(max(1, int(0.4 * mb * 1e6 / 8))), 'lists': rng.random((n_lists, 3)).tolist()}
+            tmp = f"{path}.tmp"
+            with open(tmp, 'wb') as f:
+                pickle.dump(payload, f, protocol=pickle.HIGHEST_PROTOCOL)
+            os.replace(tmp, path)
+            print(f"[pygptreeo] wrote reload canary {path} ({os.path.getsize(path) / 1e6:.0f} MB)", flush=True)
+        except Exception as e:
+            print(f"[pygptreeo] could not write the reload canary: {e!r}", flush=True)
+
+    @staticmethod
+    def _read_and_unpickle(path):
+        """The load in two steps. Returns (object, seconds to read the file into memory, seconds to
+        unpickle it). The unpickling runs with the garbage collector paused, as in GPTree.load."""
+        t = time.perf_counter()
+        with open(path, 'rb') as f:
+            raw = f.read()
+        t_read = time.perf_counter() - t
+        was_enabled = gc.isenabled()
+        gc.disable()
+        try:
+            t = time.perf_counter()
+            obj = pickle.loads(raw)
+            t_unpickle = time.perf_counter() - t
         finally:
-            if os.path.exists(tmp):
-                os.remove(tmp)
+            if was_enabled:
+                gc.enable()
+        return obj, t_read, t_unpickle
+
+    def _canary_step(self, row):
+        """Read and unpickle the dummy file and put its times in the row. Nothing of it is kept."""
+        try:
+            canary, c_read, c_unpickle = self._read_and_unpickle(self._canary_path)
+            del canary
+            row['c_read'], row['c_unpickle'] = round(c_read, 3), round(c_unpickle, 3)
+            row['c_mb'] = round(os.path.getsize(self._canary_path) / 1e6, 1)
+        except Exception as e:
+            print(f"[pygptreeo] reload canary failed: {e!r}", flush=True)
+
+    def _reload_with_diagnostics(self, reason):
+        """Load the model file as the reload does, in two timed steps, and collect the diagnostics.
+        Returns (new tree, row); the caller puts the tree in place and calls _finish_reload_diagnostics.
+        Never raises because of the diagnostics; a file that is not a pickle of GPTree.save goes through
+        the ordinary loader."""
+        path = self.tree_filename
+        row = {'wall': time.strftime('%Y-%m-%d %H:%M:%S'), 'reason': reason or 'always'}
+        try:
+            row['file_mb'] = round(os.path.getsize(path) / 1e6, 2)
+            row['file_age_s'] = round(max(0.0, time.time() - os.path.getmtime(path)), 1)
+            row['rss_before_mb'] = round(self._proc_mb('/proc/self/status', 'VmRSS'), 0)
+            row['mem_avail_mb'] = round(self._proc_mb('/proc/meminfo', 'MemAvailable'), 0)
+            row['load1'] = round(os.getloadavg()[0], 2)
+            row['gc_enabled'] = int(gc.isenabled())
+        except Exception as e:
+            print(f"[pygptreeo] reload diagnostics (before) failed: {e!r}", flush=True)
+        use_canary = self.reload_canary_mb > 0 and os.path.exists(self._canary_path)
+        canary_first = use_canary and self._canary_count % 2 == 0     # alternate, so the order does not bias
+        row['c_first'] = int(canary_first) if use_canary else ''
+        if use_canary:
+            self._canary_count += 1
+        if canary_first:
+            self._canary_step(row)
+        try:
+            gc2_before = gc.get_stats()[2]['collections']
+        except Exception:
+            gc2_before = None
+        self._setstate_time[0] = 0.0
+        t_total = time.perf_counter()
+        fallback = 0
+        try:
+            new, t_read, t_unpickle = self._read_and_unpickle(path)
+            row['t_read'], row['t_unpickle'] = round(t_read, 3), round(t_unpickle, 3)
+            row['t_setstate'] = round(self._setstate_time[0], 3)
+        except Exception:
+            diag = {}
+            new = self._load_tree(path, diag)       # the ordinary route, incl. the joblib fallback
+            fallback = diag.get('fallback', 0)
+        row['t_load'] = round(time.perf_counter() - t_total, 3)
+        row['fallback'] = fallback
+        row['_gc2_before'] = gc2_before
+        if use_canary and not canary_first:
+            self._canary_step(row)
+        return new, row
+
+    def _finish_reload_diagnostics(self, row, t_swap):
+        """After the new tree is in place: time a collection, take the RSS again, write the row."""
+        try:
+            row['t_swap'] = round(t_swap, 3)
+            before = row.pop('_gc2_before', None)
+            try:
+                row['gc2_runs'] = gc.get_stats()[2]['collections'] - before if before is not None else ''
+            except Exception:
+                row['gc2_runs'] = ''
+            t = time.perf_counter()
+            gc.collect()
+            row['t_gc'] = round(time.perf_counter() - t, 3)
+            row['rss_after_mb'] = round(self._proc_mb('/proc/self/status', 'VmRSS'), 0)
+            try:
+                row['n_leaves'] = len(self.gpt.root.leaves)
+            except Exception:
+                row['n_leaves'] = -1
+            cols = ['wall', 'reason', 'file_mb', 'file_age_s', 't_read', 't_unpickle', 't_setstate', 't_load', 't_swap',
+                    'gc2_runs', 't_gc', 'c_first', 'c_mb', 'c_read', 'c_unpickle', 'rss_before_mb', 'rss_after_mb',
+                    'mem_avail_mb', 'load1', 'gc_enabled', 'fallback', 'n_leaves']
+            new = not os.path.exists(self._reload_detail_path)
+            with open(self._reload_detail_path, 'a') as f:
+                if new:
+                    f.write(','.join(cols) + '\n')
+                f.write(','.join(str(row.get(c, '')) for c in cols) + '\n')
+        except Exception as e:
+            print(f"[pygptreeo] reload diagnostics (after) failed: {e!r}", flush=True)
 
     def _save_if_pending(self):
         """At shutdown: write the model if a write was postponed by save_interval."""
@@ -528,6 +760,11 @@ spent in predict (including any reload of the model file).
             return (self._pick_predictor(flag.source), 0, none, none, none)
 
         now = time.time()
+        is_tick = not flag.train      # egg's timer: called with neither flag.train nor flag.predict
+        train_gap = 0.0               # time since the previous training point, for a train call
+        if flag.train:
+            train_gap = now - self._last_train_time
+            self._last_train_time = now
         if flag.train and self.training_enabled:
             # copies: the arrays wrap C++ memory that is released after this call
             self._cache_x.append(np.array(x, dtype=float).reshape(-1))
@@ -539,7 +776,11 @@ spent in predict (including any reload of the model file).
 
         # 1. cache -> batch -> queue
         n = len(self._cache_x)
-        if n and (n >= self.train_batch_size or now - self._cache_t0 >= self.max_cache_age):
+        quiet = (now - self._last_train_time) if is_tick else train_gap    # time without a training point
+        idle_due = bool(n and self.idle_flush > 0 and quiet >= self.idle_flush)
+        if n and (n >= self.train_batch_size or now - self._cache_t0 >= self.max_cache_age or idle_due):
+            if idle_due and n < self.train_batch_size and now - self._cache_t0 < self.max_cache_age:
+                self._n_idle_flushes += 1
             X, Y, Z = np.concatenate(self._cache_x), np.concatenate(self._cache_y), np.concatenate(self._cache_z)
             self._cache_x, self._cache_y, self._cache_z = [], [], []
             self._cache_t0 = None
@@ -571,7 +812,7 @@ spent in predict (including any reload of the model file).
         if self.master_status_interval > 0 and now - self._last_status >= self.master_status_interval:
             self._last_status = now
             print(f"[pygptreeo] master: queued batches {len(self._queue)}, in flight {self._in_flight}, "
-                  f"released {self._n_released}, dropped {self._n_dropped_queued}", flush=True)
+                  f"released {self._n_released}, dropped {self._n_dropped_queued}, idle flushes {self._n_idle_flushes}", flush=True)
         return out
 
     def _log_master_queue(self, now):
@@ -838,9 +1079,18 @@ spent in predict (including any reload of the model file).
                         pt['n_deferred'] += 1
                 if self.reload_idle_gap <= 0 or reason is not None:
                     try:
-                        pcr = time.perf_counter()
-                        self.gpt = joblib.load(self.tree_filename)
-                        reload_dt = time.perf_counter() - pcr
+                        if self.reload_diagnostics:
+                            new_tree, detail = self._reload_with_diagnostics(reason)
+                            pcr = time.perf_counter()     # the reload time counts from here, as without diagnostics
+                            t_sw = time.perf_counter()
+                            self.gpt = new_tree           # drops the old tree
+                            t_swap = time.perf_counter() - t_sw
+                            del new_tree
+                            reload_dt = detail['t_load'] + t_swap
+                        else:
+                            pcr = time.perf_counter()
+                            self.gpt = self._load_tree(self.tree_filename)
+                            reload_dt = time.perf_counter() - pcr
                         self.last_mtime = current_mtime
                         pt['n_reloads'] += 1
                         pt['reload'] += reload_dt
@@ -856,6 +1106,8 @@ spent in predict (including any reload of the model file).
                             self._model_mb = os.path.getsize(self.tree_filename) / 1e6
                         except Exception:
                             pass
+                        if self.reload_diagnostics:
+                            self._finish_reload_diagnostics(detail, t_swap)
                     except Exception as e:
                         # A load can fail if the file is replaced mid-read; keep the old tree.
                         print(f"[pygptreeo] could not reload model file: {e}", flush=True)
